@@ -1,18 +1,20 @@
 // To parse this data:
 //
-//   import { Convert, TeamsManifestVDevPreview } from "./file";
+//   import { Convert, TeamsManifestV1D22 } from "./file";
 //
-//   const teamsManifestVDevPreview = Convert.toTeamsManifestVDevPreview(json);
+//   const teamsManifestV1D22 = Convert.toTeamsManifestV1D22(json);
 //
 // These functions will throw an error if the JSON doesn't
 // match the expected interface, even if the JSON is valid.
 
-export interface TeamsManifestVDevPreview {
+export interface TeamsManifestV1D22 {
     $schema?: string;
     /**
-     * The version of the schema this manifest is using.
+     * The version of the schema this manifest is using. This schema version supports extending
+     * Teams apps to other parts of the Microsoft 365 ecosystem. More info at
+     * https://aka.ms/extendteamsapps.
      */
-    manifestVersion: ManifestVersion;
+    manifestVersion: "1.22";
     /**
      * The version of the app. Changes to your manifest should cause a version change. This
      * version string must follow the semver standard (http://semver.org).
@@ -21,11 +23,7 @@ export interface TeamsManifestVDevPreview {
     /**
      * A unique identifier for this app. This id must be a GUID.
      */
-    id: string;
-    /**
-     * A unique identifier for this app in reverse domain notation. E.g: com.example.myapp
-     */
-    packageName?:      string;
+    id:                string;
     localizationInfo?: LocalizationInfo;
     developer:         Developer;
     name:              NameClass;
@@ -66,7 +64,6 @@ export interface TeamsManifestVDevPreview {
      * is supported.
      */
     composeExtensions?: ComposeExtension[];
-    scopeConstraints?:  ScopeConstraints;
     /**
      * Specifies the permissions the app requests from users.
      */
@@ -102,13 +99,14 @@ export interface TeamsManifestVDevPreview {
     isFullScreen?: boolean;
     activities?:   Activities;
     /**
-     * The set of supported channel type that an app belongs to
-     */
-    supportedChannelTypes?: SupportedChannelType[];
-    /**
      * A list of tenant configured properties for an app
      */
     configurableProperties?: ConfigurableProperty[];
+    /**
+     * List of 'non-standard' channel types that the app supports. Note: Channels of standard
+     * type are supported by default if the app supports team scope.
+     */
+    supportedChannelTypes?: SupportedChannelType[];
     /**
      * A value indicating whether an app is blocked by default until admin allows it
      */
@@ -134,198 +132,26 @@ export interface TeamsManifestVDevPreview {
     /**
      * Specify and consolidates authorization related information for the App.
      */
-    authorization?: TeamsManifestVDevPreviewAuthorization;
+    authorization?: TeamsManifestV1D22Authorization;
     extensions?:    ElementExtension[];
-    actions?:       ElementAction[];
     /**
      * Defines the list of cards which could be pinned to dashboards that can provide summarized
      * view of information relevant to user.
      */
     dashboardCards?: DashboardCard[];
+    copilotAgents?:  CopilotAgents;
     /**
      * The Intune-related properties for the app.
      */
     intuneInfo?:             IntuneInfo;
-    copilotAgents?:          CopilotAgents;
     elementRelationshipSet?: ElementRelationshipSet;
     /**
-     * Optional property containing background loading configuration. By opting into this
+     * Optional property containing background loading configuration. By opting in to this
      * performance enhancement, your app is eligible to be loaded in the background in any
-     * Microsoft 365 application host that supports this feature. Note that setting this
-     * property gives the host client permission to load the app in the background but does not
-     * guarantee the app will be preloaded at runtime. Whether an app is preloaded in the
-     * background will be dynamically determined based on usage and other criteria.
+     * Microsoft 365 application host that supports this feature.
      */
     backgroundLoadConfiguration?: BackgroundLoadConfiguration;
 }
-
-/**
- * Actions node contains an array of actions object.
- */
-export interface ElementAction {
-    /**
-     * A unique identifier string in the default locale that is used to catalog actions.
-     */
-    id: string;
-    /**
-     * An enum string that describes the intent of the action.
-     */
-    intent: Intent;
-    /**
-     * A display name for the action.
-     */
-    displayName: string;
-    /**
-     * A display string in the default locale to represent the action.
-     */
-    description: string;
-    /**
-     * Object containing URLs to icon images for this action intent.
-     */
-    icons?: Icon[];
-    /**
-     * Defining how actions can be handled. If an app has more than 1 handler, only one
-     * experience will show up at one entry point. The hub will decide which action to show up
-     * based on which experience is supported.
-     */
-    handlers: Handler[];
-}
-
-export interface Handler {
-    /**
-     * Required both for File Handlers and Content Actions.
-     */
-    type:              HandlerType;
-    supportedObjects?: SupportedObjects;
-    /**
-     * If true, multiple files can be selected and the action will still be displayed. If false
-     * or missing, the action is only displayed when a single item is selected.
-     */
-    supportsMultiSelect?: boolean;
-    pageInfo?:            PageInfo;
-    dialogInfo?:          DialogInfo;
-    /**
-     * Url for handler type openURL, invokeAPI, openTaskpane, and others.
-     */
-    url?:     string;
-    botInfo?: BotInfo;
-    [property: string]: any;
-}
-
-export interface BotInfo {
-    /**
-     * Bot ID.
-     */
-    botId: string;
-    /**
-     * Fetch task from bot.
-     */
-    fetchTask?: boolean;
-    [property: string]: any;
-}
-
-export interface DialogInfo {
-    /**
-     * Dialog type, defines how the developer build the dialog.
-     */
-    dialogType: DialogType;
-    /**
-     * Required for html based dialog.
-     */
-    url?: string;
-    /**
-     * Dialog width - either a number in pixels or default layout such as 'large', 'medium', or
-     * 'small'.
-     */
-    width: string;
-    /**
-     * Dialog height - either a number in pixels or default layout such as 'large', 'medium', or
-     * 'small'.
-     */
-    height: string;
-    /**
-     * Array of parameter object, each contains: name, title, description, inputType.
-     */
-    parameters?: ParameterObject[];
-    /**
-     * Dialog title.
-     */
-    title?: string;
-    [property: string]: any;
-}
-
-/**
- * Dialog type, defines how the developer build the dialog.
- */
-export type DialogType = "url" | "adaptiveCard";
-
-export interface ParameterObject {
-    /**
-     * Parameter name.
-     */
-    name: string;
-    /**
-     * Parameter title.
-     */
-    title: string;
-    /**
-     * Parameter description.
-     */
-    description: string;
-    /**
-     * Parameter input type.
-     */
-    inputType: string;
-    [property: string]: any;
-}
-
-export interface PageInfo {
-    /**
-     * Used to navigate to the page in MetaOS app.
-     */
-    pageId: string;
-    /**
-     * Used to navigate to the subpage in MetaOS app.
-     */
-    subpageId?: string;
-    [property: string]: any;
-}
-
-export interface SupportedObjects {
-    file?: File;
-    /**
-     * A null value indicates that the file handler is not available when a folder is selected.
-     * An object with no parameters indicates that the file handler is available when a folder
-     * is selected or when no files are selected.
-     */
-    folder?: { [key: string]: any } | null;
-    [property: string]: any;
-}
-
-export interface File {
-    extensions?: string[];
-}
-
-/**
- * Required both for File Handlers and Content Actions.
- */
-export type HandlerType = "openURL" | "openPage" | "openDialog" | "openTaskpane" | "invokeAPI" | "invokeBot";
-
-export interface Icon {
-    /**
-     * Icon size in pixels.
-     */
-    size: number;
-    /**
-     * URL for the icon.
-     */
-    url: string;
-}
-
-/**
- * An enum string that describes the intent of the action.
- */
-export type Intent = "create" | "addTo" | "open" | "preview" | "share" | "sign" | "custom";
 
 export interface Activities {
     /**
@@ -362,7 +188,7 @@ export interface ActivityType {
 /**
  * Specify and consolidates authorization related information for the App.
  */
-export interface TeamsManifestVDevPreviewAuthorization {
+export interface TeamsManifestV1D22Authorization {
     /**
      * List of permissions that the app needs to function.
      */
@@ -374,7 +200,7 @@ export interface TeamsManifestVDevPreviewAuthorization {
  */
 export interface Permissions {
     /**
-     * Permissions that guard data access on a resource instance level.
+     * Permissions that must be granted on a per resource instance basis.
      */
     resourceSpecific?: ResourceSpecific[];
 }
@@ -385,37 +211,32 @@ export interface ResourceSpecific {
      */
     name: string;
     /**
-     * The type of the resource-specific permission.
+     * The type of the resource-specific permission: delegated vs application.
      */
     type: ResourceSpecificType;
 }
 
 /**
- * The type of the resource-specific permission.
+ * The type of the resource-specific permission: delegated vs application.
  */
 export type ResourceSpecificType = "Application" | "Delegated";
 
 /**
- * Optional property containing background loading configuration. By opting into this
+ * Optional property containing background loading configuration. By opting in to this
  * performance enhancement, your app is eligible to be loaded in the background in any
- * Microsoft 365 application host that supports this feature. Note that setting this
- * property gives the host client permission to load the app in the background but does not
- * guarantee the app will be preloaded at runtime. Whether an app is preloaded in the
- * background will be dynamically determined based on usage and other criteria.
+ * Microsoft 365 application host that supports this feature.
  */
 export interface BackgroundLoadConfiguration {
     /**
      * Optional property within backgroundLoadConfiguration containing tab settings for
-     * background loading. Setting tabConfiguration indicates that the app supports background
-     * loading of tabs.
+     * background loading.
      */
     tabConfiguration?: TabConfiguration;
 }
 
 /**
  * Optional property within backgroundLoadConfiguration containing tab settings for
- * background loading. Setting tabConfiguration indicates that the app supports background
- * loading of tabs.
+ * background loading.
  */
 export interface TabConfiguration {
     /**
@@ -443,10 +264,6 @@ export interface Bot {
      */
     isNotificationOnly?: boolean;
     /**
-     * A value indicating whether the team's Office group needs to be security enabled.
-     */
-    requiresSecurityEnabledGroup?: boolean;
-    /**
      * A value indicating whether the bot supports uploading/downloading of files.
      */
     supportsFiles?: boolean;
@@ -469,10 +286,7 @@ export interface Bot {
      * scope for which the commands are valid. A separate command list should be used for each
      * scope.
      */
-    commandLists?: CommandList[];
-    /**
-     * The set of requirements for the bot.
-     */
+    commandLists?:   CommandList[];
     requirementSet?: ElementRequirementSet;
 }
 
@@ -498,64 +312,38 @@ export interface CommandListCommand {
 export type CommandListScope = "team" | "personal" | "groupChat" | "copilot";
 
 export interface Configuration {
-    team?:      ConfigurationTeam;
-    groupChat?: ConfigurationGroupChat;
+    team?:      Team;
+    groupChat?: Team;
 }
 
-export interface ConfigurationGroupChat {
-    /**
-     * A boolean value that indicates if it should fetch bot config task module dynamically.
-     */
+export interface Team {
     fetchTask?: boolean;
-    /**
-     * Task module to be launched when fetch task set to false.
-     */
-    taskInfo?: TaskInfo;
+    taskInfo?:  TaskInfo;
 }
 
-/**
- * Task module to be launched when fetch task set to false.
- */
 export interface TaskInfo {
     /**
-     * Initial dialog title.
+     * Initial dialog title
      */
     title?: string;
     /**
      * Dialog width - either a number in pixels or default layout such as 'large', 'medium', or
-     * 'small'.
+     * 'small'
      */
     width?: string;
     /**
      * Dialog height - either a number in pixels or default layout such as 'large', 'medium', or
-     * 'small'.
+     * 'small'
      */
     height?: string;
     /**
-     * Initial webview URL.
+     * Initial webview URL
      */
     url?: string;
 }
 
-export interface ConfigurationTeam {
-    /**
-     * A boolean value that indicates if it should fetch bot config task module dynamically.
-     */
-    fetchTask?: boolean;
-    /**
-     * Task module to be launched when fetch task set to false.
-     */
-    taskInfo?: TaskInfo;
-}
-
 /**
- * The set of requirements for the tab.
- *
  * An object representing a set of requirements that the host must support for the element.
- *
- * The set of requirements for the bot.
- *
- * The set of requirements for the compose extension.
  */
 export interface ElementRequirementSet {
     hostMustSupportFunctionalities: HostFunctionality[];
@@ -608,10 +396,7 @@ export interface ComposeExtension {
      * A list of handlers that allow apps to be invoked when certain conditions are met
      */
     messageHandlers?: MessageHandler[];
-    /**
-     * The set of requirements for the compose extension.
-     */
-    requirementSet?: ElementRequirementSet;
+    requirementSet?:  ElementRequirementSet;
 }
 
 /**
@@ -619,12 +404,12 @@ export interface ComposeExtension {
  */
 export interface ComposeExtensionAuthorization {
     /**
-     * Enum of possible authorization types.
+     * Enum of possible authentication types.
      */
     authType?: AuthType;
     /**
-     * Object capturing details needed to do microsoftEntra auth flow. It will be only present
-     * when auth type is microsoftEntra.
+     * Object capturing details needed to do single aad auth flow. It will be only present when
+     * auth type is entraId.
      */
     microsoftEntraConfiguration?: MicrosoftEntraConfiguration;
     /**
@@ -632,11 +417,6 @@ export interface ComposeExtensionAuthorization {
      * type is apiSecretServiceAuth.
      */
     apiSecretServiceAuthConfiguration?: APISecretServiceAuthConfiguration;
-    /**
-     * Object capturing details needed to match the application's OAuth configuration for the
-     * app. This should be and must be populated only when authType is set to oAuth2.0r
-     */
-    oAuthConfiguration?: OAuthConfiguration;
 }
 
 /**
@@ -651,31 +431,19 @@ export interface APISecretServiceAuthConfiguration {
 }
 
 /**
- * Enum of possible authorization types.
+ * Enum of possible authentication types.
  */
-export type AuthType = "none" | "apiSecretServiceAuth" | "microsoftEntra" | "oAuth2.0";
+export type AuthType = "none" | "apiSecretServiceAuth" | "microsoftEntra";
 
 /**
- * Object capturing details needed to do microsoftEntra auth flow. It will be only present
- * when auth type is microsoftEntra.
+ * Object capturing details needed to do single aad auth flow. It will be only present when
+ * auth type is entraId.
  */
 export interface MicrosoftEntraConfiguration {
     /**
      * Boolean indicating whether single sign on is configured for the app.
      */
     supportsSingleSignOn?: boolean;
-}
-
-/**
- * Object capturing details needed to match the application's OAuth configuration for the
- * app. This should be and must be populated only when authType is set to oAuth2.0r
- */
-export interface OAuthConfiguration {
-    /**
-     * The oAuth configuration id obtained by the Developer when registering their configuration
-     * in Developer Portal.
-     */
-    oAuthConfigurationId?: string;
 }
 
 export interface ComposeExtensionCommand {
@@ -689,9 +457,7 @@ export interface ComposeExtensionCommand {
     type?:          CommandType;
     samplePrompts?: SamplePrompt[];
     /**
-     * A relative file path for api response rendering template file. The schema of the file can
-     * be referred to in this
-     * link:'https://developer.microsoft.com/json-schemas/teams/vDevPreview/MicrosoftTeams.ResponseRenderingTemplate.schema.json'.
+     * A relative file path for api response rendering template file.
      */
     apiResponseRenderingTemplateFile?: string;
     /**
@@ -714,22 +480,18 @@ export interface ComposeExtensionCommand {
     /**
      * A boolean value that indicates if it should fetch task module dynamically
      */
-    fetchTask?:  boolean;
-    parameters?: ParameterClass[];
+    fetchTask?: boolean;
     /**
-     * Task module to be launched when fetch task set to false.
-     */
-    taskInfo?: TaskInfo;
-    /**
-     * semantic description of the command. This is typically meant for consumption by the large
-     * language model.
+     * Semantic description for the command.
      */
     semanticDescription?: string;
+    parameters?:          Parameter[];
+    taskInfo?:            TaskInfo;
 }
 
 export type CommandContext = "compose" | "commandBox" | "message";
 
-export interface ParameterClass {
+export interface Parameter {
     /**
      * Name of the parameter.
      */
@@ -738,10 +500,6 @@ export interface ParameterClass {
      * Type of the parameter
      */
     inputType?: InputType;
-    /**
-     * Indicates whether this parameter is required or not. By default, it is not.
-     */
-    isRequired?: boolean;
     /**
      * Title of the parameter.
      */
@@ -755,14 +513,17 @@ export interface ParameterClass {
      */
     value?: string;
     /**
+     * The value indicates if this parameter is a required field.
+     */
+    isRequired?: boolean;
+    /**
+     * Semantic description for the parameter.
+     */
+    semanticDescription?: string;
+    /**
      * The choice options for the parameter
      */
     choices?: Choice[];
-    /**
-     * semantic description of the parameter. This is typically meant for consumption by the
-     * large language model.
-     */
-    semanticDescription?: string;
 }
 
 export interface Choice {
@@ -817,17 +578,10 @@ export interface Value {
      */
     domains?: string[];
     /**
-     * A boolean value that indicates whether the app's link message handler supports anonymous
-     * invoke flow. [Deprecated]. This property has been superceded by
-     * 'supportsAnonymizedPayloads'.
-     */
-    supportsAnonymousAccess?: boolean;
-    /**
-     * A boolean value that indicates whether the app's link message handler supports anonymous
-     * invoke flow.
+     * A boolean that indicates whether the app's link message handler supports anonymous invoke
+     * flow.
      */
     supportsAnonymizedPayloads?: boolean;
-    [property: string]: any;
 }
 
 export type ConfigurableProperty = "name" | "shortDescription" | "longDescription" | "smallImageUrl" | "largeImageUrl" | "accentColor" | "developerUrl" | "privacyUrl" | "termsOfUseUrl";
@@ -862,10 +616,6 @@ export interface ConfigurableTab {
      */
     context?: ConfigurableTabContext[];
     /**
-     * The set of supportedPlatform scopes that a tab belong to
-     */
-    supportedPlatform?: SupportedPlatform[];
-    /**
      * A relative file path to a tab preview image for use in SharePoint. Size 1024x768.
      */
     sharePointPreviewImage?: string;
@@ -875,13 +625,11 @@ export interface ConfigurableTab {
     supportedSharePointHosts?: SupportedSharePointHost[];
 }
 
-export type ConfigurableTabContext = "personalTab" | "channelTab" | "privateChatTab" | "meetingChatTab" | "meetingDetailsTab" | "meetingSidePanel" | "meetingStage" | "callingSidePanel";
+export type ConfigurableTabContext = "personalTab" | "channelTab" | "privateChatTab" | "meetingChatTab" | "meetingDetailsTab" | "meetingSidePanel" | "meetingStage";
 
 export type MeetingSurface = "sidePanel" | "stage";
 
 export type ConfigurableTabScope = "team" | "groupChat";
-
-export type SupportedPlatform = "desktop" | "mobile" | "teamsMeetingDevices";
 
 export type SupportedSharePointHost = "sharePointFullPage" | "sharePointWebPart";
 
@@ -911,7 +659,7 @@ export interface CopilotAgents {
     declarativeAgents?: DeclarativeAgentRef[];
     /**
      * An array of Custom Engine Agents. Currently only one Custom Engine Agent per application
-     * is supported.
+     * is supported. Support is currently in public preview.
      */
     customEngineAgents?: CustomEngineAgent[];
 }
@@ -1107,36 +855,6 @@ export interface Developer {
      * The url to the page that provides the terms of use for the app.
      */
     termsOfUseUrl: string;
-    /**
-     * App developer contact information.
-     */
-    contactInfo?: ContactInfo;
-}
-
-/**
- * App developer contact information.
- */
-export interface ContactInfo {
-    /**
-     * Support configuration.
-     */
-    defaultSupport: DefaultSupport;
-    [property: string]: any;
-}
-
-/**
- * Support configuration.
- */
-export interface DefaultSupport {
-    /**
-     * User email for chat support contacts.
-     */
-    userEmailsForChatSupport: string[];
-    /**
-     * Email address for email support.
-     */
-    emailsForEmailSupport: string[];
-    [property: string]: any;
 }
 
 export type DevicePermission = "geolocation" | "media" | "notifications" | "midi" | "openExternal";
@@ -1180,11 +898,7 @@ export interface OneWayDependency {
  * The set of extensions for this app. Currently only one extensions per app is supported.
  */
 export interface ElementExtension {
-    requirements?: RequirementsExtensionElement;
-    /**
-     * General runtime for "MailApp" or "TaskpaneApp". Configures the set of runtimes and
-     * actions that can be used by each extension point. Min size 1.
-     */
+    requirements?:  RequirementsExtensionElement;
     runtimes?:      ExtensionRuntimesArray[];
     ribbons?:       ExtensionRibbonsArray[];
     autoRunEvents?: ExtensionAutoRunEventsArray[];
@@ -1192,28 +906,14 @@ export interface ElementExtension {
     /**
      * The url for your extension, used to validate Exchange user identity tokens.
      */
-    audienceClaimUrl?:   string;
-    appDeeplinks?:       ExtensionAppDeeplinksArray[];
-    contentRuntimes?:    ExtensionContentRuntimeArray[];
-    getStartedMessages?: ExtensionGetStartedMessageArray[];
-    /**
-     * Specifies the context menus for your extension. A context menu is a shortcut menu that
-     * appears when a user right-clicks (selects and holds) in the Office UI. Min size 1.
-     */
-    contextMenus?: ExtensionContextMenuArray[];
-    /**
-     * Keyboard shortcuts, also known as key combinations, enable your add-in's users to work
-     * more efficiently. Keyboard shortcuts also improve the add-in's accessibility for users
-     * with disabilities by providing an alternative to the mouse.
-     */
-    keyboardShortcuts?: ExtensionKeyboardShortcut[];
+    audienceClaimUrl?: string;
 }
 
 export interface ExtensionAlternateVersionsArray {
-    requirements?:  RequirementsExtensionElement;
-    prefer?:        Prefer;
-    hide?:          Hide;
-    alternateIcons: AlternateIcons;
+    requirements?:   RequirementsExtensionElement;
+    prefer?:         Prefer;
+    hide?:           Hide;
+    alternateIcons?: AlternateIcons;
 }
 
 export interface AlternateIcons {
@@ -1257,8 +957,7 @@ export interface StoreOfficeAddin {
 }
 
 export interface Prefer {
-    comAddin?:           COMAddin;
-    xllCustomFunctions?: ExtensionXllCustomFunctions;
+    comAddin?: COMAddin;
     [property: string]: any;
 }
 
@@ -1269,22 +968,10 @@ export interface COMAddin {
     progId: string;
 }
 
-export interface ExtensionXllCustomFunctions {
-    fileName?: string;
-    [property: string]: any;
-}
-
-/**
- * Specifies limitations on which clients the add-in can be installed on, including
- * limitations on the Office host application, the form factors, and the requirement sets
- * that the client must support.
- *
- * Specifies the Office requirement sets.
- */
 export interface RequirementsExtensionElement {
     capabilities?: Capability[];
     /**
-     * Identifies the scopes in which the add-in can run. For example, mail means Outlook.
+     * Identifies the scopes in which the add-in can run.
      */
     scopes?: RequirementsScope[];
     /**
@@ -1312,59 +999,11 @@ export type FormFactor = "desktop" | "mobile";
 
 export type RequirementsScope = "mail" | "workbook" | "document" | "presentation";
 
-/**
- * Represents the copilot extension point
- */
-export interface ExtensionAppDeeplinksArray {
-    requirements?: AppDeeplinkRequirements;
-    contexts:      ExtensionContext[];
-    /**
-     * The ID of an action defined in runtimes. Manifest should be invalidated if no action with
-     * an id matching actionId is present in runtimes.
-     */
-    actionId: string;
-    /**
-     * the text that will be shown on the app as a clickable item.
-     */
-    label: string;
-    /**
-     * the text metadata, for recommendation engine.
-     */
-    semanticDescription: string;
-}
-
-/**
- * Specifies the Office application windows in which the ribbon customization is available
- * to the user. Each item in the array is a member of a string array. Possible values are:
- * mailRead, mailCompose, meetingDetailsOrganizer, meetingDetailsAttendee,
- * onlineMeetingDetailsOrganizer, logEventMeetingDetailsAttendee, spamReportingOverride.
- */
-export type ExtensionContext = "mailRead" | "mailCompose" | "meetingDetailsOrganizer" | "meetingDetailsAttendee" | "onlineMeetingDetailsOrganizer" | "logEventMeetingDetailsAttendee" | "default" | "spamReportingOverride";
-
-/**
- * Specifies limitations on which clients the add-in can be installed on, including
- * limitations on the Office host application, the form factors, and the requirement sets
- * that the client must support.
- *
- * Specifies the Office requirement sets.
- */
-export interface AppDeeplinkRequirements {
-    capabilities?: Capability[];
-    /**
-     * Identifies the scopes in which the add-in can run. For example, mail means Outlook.
-     */
-    scopes?: RequirementsScope[];
-    /**
-     * Identifies the form factors that support the add-in. Supported values: mobile, desktop.
-     */
-    formFactors?: FormFactor[];
-}
-
 export interface ExtensionAutoRunEventsArray {
     requirements?: RequirementsExtensionElement;
     /**
      * Specifies the type of event. For supported types, please see:
-     * https://learn.microsoft.com/en-us/office/dev/add-ins/outlook/autolaunch?tabs=xmlmanifest#supported-events.
+     * https://review.learn.microsoft.com/en-us/office/dev/add-ins/outlook/autolaunch?tabs=xmlmanifest#supported-events.
      */
     events: Event[];
 }
@@ -1390,290 +1029,6 @@ export interface Options {
 
 export type SendMode = "promptUser" | "softBlock" | "block";
 
-/**
- * Content runtime is for 'ContentApp', which can be embedded directly into Excel or
- * PowerPoint documents.
- */
-export interface ExtensionContentRuntimeArray {
-    requirements?: ContentRuntimeRequirements;
-    /**
-     * A unique identifier for this runtime within the app. This is developer specified.
-     */
-    id:   string;
-    code: ExtensionRuntimeCode;
-    /**
-     * The desired height in pixels for the initial content placeholder. This value MUST be
-     * between 32 and 1000 pixels. Default value will be determined by host.
-     */
-    requestedHeight?: number;
-    /**
-     * The desired width in pixels for the initial content placeholder. This value MUST be
-     * between 32 and 1000 pixels. Default value will be determined by host.
-     */
-    requestedWidth?: number;
-    /**
-     * Specifies whether a snapshot image of your content add-in is saved with the host
-     * document. Default value is false. Set true to disable.
-     */
-    disableSnapshot?: boolean;
-}
-
-export interface ExtensionRuntimeCode {
-    /**
-     * URL of the .html page to be loaded in browser-based runtimes.
-     */
-    page: string;
-    /**
-     * URL of the .js script file to be loaded in UI-less runtimes.
-     */
-    script?: string;
-}
-
-/**
- * Specifies limitations on which clients the add-in can be installed on, including
- * limitations on the Office host application, the form factors, and the requirement sets
- * that the client must support.
- *
- * Specifies the Office requirement sets.
- */
-export interface ContentRuntimeRequirements {
-    capabilities?: Capability[];
-    /**
-     * Identifies the scopes in which the add-in can run. For example, mail means Outlook.
-     */
-    scopes?: RequirementsScope[];
-    /**
-     * Identifies the form factors that support the add-in. Supported values: mobile, desktop.
-     */
-    formFactors?: FormFactor[];
-}
-
-/**
- * Specifies the context menus for your extension. A context menu is a shortcut menu that
- * appears when a user right-clicks (selects and holds) in the Office UI. Min size 1.
- */
-export interface ExtensionContextMenuArray {
-    requirements?: ContextMenuRequirements;
-    /**
-     * Configures the context menus. Minimum size is 1.
-     */
-    menus: ExtensionMenuItem[];
-}
-
-/**
- * Configures the context menus. Minimum size is 1.
- *
- * The title used for the top of the callout.
- */
-export interface ExtensionMenuItem {
-    /**
-     * Use 'text' or 'cell' here for Office context menu. Use text if the context menu should
-     * open when a user right-clicks (selects and holds) on the selected text. Use cell if the
-     * context menu should open when the user right-clicks (selects and holds) on a cell in an
-     * Excel spreadsheet.
-     */
-    entryPoint: EntryPoint;
-    controls:   ExtensionCommonCustomGroupControlsItem[];
-}
-
-export interface ExtensionCommonCustomGroupControlsItem {
-    /**
-     * A unique identifier for this control within the app. Maximum length is 64 characters.
-     */
-    id: string;
-    /**
-     * Defines the type of control whether button or menu.
-     */
-    type: PurpleType;
-    /**
-     * Id of an existing office control. Maximum length is 64 characters.
-     */
-    builtInControlId?: string;
-    /**
-     * Displayed text for the control. Maximum length is 64 characters.
-     */
-    label: string;
-    /**
-     * Configures the icons for the custom control.
-     */
-    icons:    ExtensionCommonIcon[];
-    supertip: ExtensionCommonSuperToolTip;
-    /**
-     * The ID of an execution-type action that handles this key combination. Maximum length is
-     * 64 characters.
-     */
-    actionId?: string;
-    /**
-     * Specifies whether a group, button, menu, or menu item will be hidden on application and
-     * platform combinations that support the API (Office.ribbon.requestCreateControls) that
-     * installs custom contextual tabs on the ribbon. Default is false.
-     */
-    overriddenByRibbonApi?: boolean;
-    /**
-     * Whether the control is initially enabled.
-     */
-    enabled?: boolean;
-    /**
-     * Configures the items for a menu control.
-     */
-    items?: ExtensionCommonCustomControlMenuItem[];
-}
-
-export interface ExtensionCommonCustomControlMenuItem {
-    /**
-     * A unique identifier for this control within the app. Maximum length is 64 characters.
-     */
-    id: string;
-    /**
-     * Supported values: menuItem.
-     */
-    type: "menuItem";
-    /**
-     * Displayed text for the control. Maximum length is 64 characters.
-     */
-    label:    string;
-    icons?:   ExtensionCommonIcon[];
-    supertip: ExtensionCommonSuperToolTip;
-    /**
-     * The ID of an action defined in runtimes. Maximum length is 64 characters.
-     */
-    actionId: string;
-    /**
-     * Whether the control is initially enabled.
-     */
-    enabled?:               boolean;
-    overriddenByRibbonApi?: boolean;
-}
-
-export interface ExtensionCommonSuperToolTip {
-    /**
-     * Title text of the super tip. Maximum length is 64 characters.
-     */
-    title: string;
-    /**
-     * Description of the super tip. Maximum length is 250 characters.
-     */
-    description: string;
-}
-
-/**
- * Supported values: menuItem.
- */
-
-/**
- * Defines the type of control whether button or menu.
- */
-export type PurpleType = "button" | "menu";
-
-/**
- * Use 'text' or 'cell' here for Office context menu. Use text if the context menu should
- * open when a user right-clicks (selects and holds) on the selected text. Use cell if the
- * context menu should open when the user right-clicks (selects and holds) on a cell in an
- * Excel spreadsheet.
- */
-export type EntryPoint = "text" | "cell";
-
-/**
- * Specifies limitations on which clients the add-in can be installed on, including
- * limitations on the Office host application, the form factors, and the requirement sets
- * that the client must support.
- *
- * Specifies the Office requirement sets.
- */
-export interface ContextMenuRequirements {
-    capabilities?: Capability[];
-    /**
-     * Identifies the scopes in which the add-in can run. For example, mail means Outlook.
-     */
-    scopes?: RequirementsScope[];
-    /**
-     * Identifies the form factors that support the add-in. Supported values: mobile, desktop.
-     */
-    formFactors?: FormFactor[];
-}
-
-/**
- * Provides information used by the callout that appears when the add-in is installed.
- */
-export interface ExtensionGetStartedMessageArray {
-    requirements?: GetStartedMessageRequirements;
-    /**
-     * The title used for the top of the callout.
-     */
-    title: string;
-    /**
-     * The description/body content for the callout.
-     */
-    description: string;
-    /**
-     * A URL to a page that explains the add-in in detail.
-     */
-    learnMoreUrl: string;
-}
-
-/**
- * Specifies limitations on which clients the add-in can be installed on, including
- * limitations on the Office host application, the form factors, and the requirement sets
- * that the client must support.
- *
- * Specifies the Office requirement sets.
- */
-export interface GetStartedMessageRequirements {
-    capabilities?: Capability[];
-    /**
-     * Identifies the scopes in which the add-in can run. For example, mail means Outlook.
-     */
-    scopes?: RequirementsScope[];
-    /**
-     * Identifies the form factors that support the add-in. Supported values: mobile, desktop.
-     */
-    formFactors?: FormFactor[];
-}
-
-export interface ExtensionKeyboardShortcut {
-    /**
-     * Specifies the Office requirement sets.
-     */
-    requirements?: RequirementsExtensionElement;
-    /**
-     * Array of mappings from actions to the key combinations that invoke the actions.
-     */
-    shortcuts: ExtensionShortcut[];
-    [property: string]: any;
-}
-
-export interface ExtensionShortcut {
-    key: Key;
-    /**
-     * The ID of an execution-type action that handles this key combination.
-     */
-    actionId: string;
-    [property: string]: any;
-}
-
-/**
- * Key combinations in different platform (i.e. default, windows, web and mac).
- */
-export interface Key {
-    /**
-     * Fallback key for any platform that isn't specified.
-     */
-    default: string;
-    /**
-     * key for mac platform. Alt is mapped to the Option key.
-     */
-    mac?: string;
-    /**
-     * key for web platform.
-     */
-    web?: string;
-    /**
-     * key for windows platform. Command is mapped to the Ctrl key.
-     */
-    windows?: string;
-    [property: string]: any;
-}
-
 export interface ExtensionRibbonsArray {
     requirements?:            RequirementsExtensionElement;
     contexts?:                ExtensionContext[];
@@ -1681,6 +1036,14 @@ export interface ExtensionRibbonsArray {
     fixedControls?:           ExtensionRibbonsArrayFixedControlItem[];
     spamPreProcessingDialog?: ExtensionRibbonsSpamPreProcessingDialog;
 }
+
+/**
+ * Specifies the Office application windows in which the ribbon customization is available
+ * to the user. Each item in the array is a member of a string array. Possible values are:
+ * mailRead, mailCompose, meetingDetailsOrganizer, meetingDetailsAttendee,
+ * onlineMeetingDetailsOrganizer, logEventMeetingDetailsAttendee, spamReportingOverride.
+ */
+export type ExtensionContext = "mailRead" | "mailCompose" | "meetingDetailsOrganizer" | "meetingDetailsAttendee" | "onlineMeetingDetailsOrganizer" | "logEventMeetingDetailsAttendee" | "default" | "spamReportingOverride";
 
 export interface ExtensionRibbonsArrayFixedControlItem {
     /**
@@ -1706,6 +1069,17 @@ export interface ExtensionRibbonsArrayFixedControlItem {
      * Whether the control is initially enabled.
      */
     enabled: boolean;
+}
+
+export interface ExtensionCommonSuperToolTip {
+    /**
+     * Title text of the super tip. Maximum length is 64 characters.
+     */
+    title: string;
+    /**
+     * Description of the super tip. Maximum length is 250 characters.
+     */
+    description: string;
 }
 
 /**
@@ -1875,13 +1249,82 @@ export interface ExtensionRibbonsCustomTabGroupsItem {
      * Id of a built-in Group. Maximum length is 64 characters.
      */
     builtInGroupId?: string;
+}
+
+export interface ExtensionCommonCustomGroupControlsItem {
     /**
-     * Specifies whether a group will be hidden on application and platform combinations that
-     * support the API (Office.ribbon.requestCreateControls) that installs custom contextual
-     * tabs on the ribbon. Default is false.
+     * A unique identifier for this control within the app. Maximum length is 64 characters.
+     */
+    id: string;
+    /**
+     * Defines the type of control whether button or menu.
+     */
+    type: FluffyType;
+    /**
+     * Id of the existing office control. Maximum length is 64 characters.
+     */
+    builtInControlId?: string;
+    /**
+     * Displayed text for the control. Maximum length is 64 characters.
+     */
+    label:    string;
+    icons:    ExtensionCommonIcon[];
+    supertip: ExtensionCommonSuperToolTip;
+    /**
+     * The ID of an execution-type action that handles this key combination. Maximum length is
+     * 64 characters.
+     */
+    actionId?: string;
+    /**
+     * Specifies whether a group, button, menu, or menu item will be hidden on application and
+     * platform combinations that support the API (Office.ribbon.requestCreateControls) that
+     * installs custom contextual tabs on the ribbon. Default is false.
      */
     overriddenByRibbonApi?: boolean;
+    /**
+     * Whether the control is initially enabled.
+     */
+    enabled?: boolean;
+    /**
+     * Configures the items for a menu control.
+     */
+    items?: ExtensionCommonCustomControlMenuItem[];
 }
+
+export interface ExtensionCommonCustomControlMenuItem {
+    /**
+     * A unique identifier for this control within the app. Maximum length is 64 characters.
+     */
+    id: string;
+    /**
+     * Supported values: menuItem.
+     */
+    type: "menuItem";
+    /**
+     * Displayed text for the control. Maximum length is 64 characters.
+     */
+    label:    string;
+    icons?:   ExtensionCommonIcon[];
+    supertip: ExtensionCommonSuperToolTip;
+    /**
+     * The ID of an action defined in runtimes. Maximum length is 64 characters.
+     */
+    actionId: string;
+    /**
+     * Whether the control is initially enabled.
+     */
+    enabled?:               boolean;
+    overriddenByRibbonApi?: boolean;
+}
+
+/**
+ * Supported values: menuItem.
+ */
+
+/**
+ * Defines the type of control whether button or menu.
+ */
+export type FluffyType = "button" | "menu";
 
 export interface Position {
     /**
@@ -1900,10 +1343,7 @@ export interface Position {
 export type Align = "after" | "before";
 
 /**
- * General runtime for "MailApp" or "TaskpaneApp". Configures the set of runtimes and
- * actions that can be used by each extension point. Min size 1.
- *
- * A runtime environment for a page or script.
+ * A runtime environment for a page or script
  */
 export interface ExtensionRuntimesArray {
     requirements?: RequirementsExtensionElement;
@@ -1920,9 +1360,8 @@ export interface ExtensionRuntimesArray {
      * Runtimes with a short lifetime do not preserve state across executions. Runtimes with a
      * long lifetime do.
      */
-    lifetime?:        Lifetime;
-    actions?:         ExtensionRuntimesActionsItem[];
-    customFunctions?: ExtensionCustomFunctions;
+    lifetime?: Lifetime;
+    actions?:  ExtensionRuntimesActionsItem[];
 }
 
 /**
@@ -1936,8 +1375,8 @@ export interface ExtensionRuntimesActionsItem {
      */
     id: string;
     /**
-     * executeFunction: Run a script function without waiting for it to finish. openPage: Open a
-     * page in a view. executeDataFunction: invoke command and retrieve data.
+     * executeFunction: Run a script function without waiting for it to finish. openPate: Open a
+     * page in a view.
      */
     type: ActionType;
     /**
@@ -1965,171 +1404,20 @@ export interface ExtensionRuntimesActionsItem {
 }
 
 /**
- * executeFunction: Run a script function without waiting for it to finish. openPage: Open a
- * page in a view. executeDataFunction: invoke command and retrieve data.
+ * executeFunction: Run a script function without waiting for it to finish. openPate: Open a
+ * page in a view.
  */
-export type ActionType = "executeFunction" | "openPage" | "executeDataFunction";
+export type ActionType = "executeFunction" | "openPage";
 
-/**
- * Custom function enable developers to add new functions to Excel by defining those
- * functions in JavaScript as part of an add-in. Users within Excel can access custom
- * functions just as they would any native function in Excel, such as SUM().
- */
-export interface ExtensionCustomFunctions {
+export interface ExtensionRuntimeCode {
     /**
-     * Array of function object which defines function metadata.
+     * URL of the .html page to be loaded in browser-based runtimes.
      */
-    functions: ExtensionFunction[];
-    namespace: ExtensionCustomFunctionsNamespace;
+    page: string;
     /**
-     * Allows a custom function to accept Excel data types as parameters and return values.
+     * URL of the .js script file to be loaded in UI-less runtimes.
      */
-    allowCustomDataForDataTypeAny?: boolean;
-    [property: string]: any;
-}
-
-export interface ExtensionFunction {
-    /**
-     * A unique ID for the function.
-     */
-    id: string;
-    /**
-     * The name of the function that end users see in Excel. In Excel, this function name is
-     * prefixed by the custom functions namespace that's specified in the manifest file.
-     */
-    name: string;
-    /**
-     * The description of the function that end users see in Excel.
-     */
-    description?: string;
-    /**
-     * URL that provides information about the function. (It is displayed in a task pane.)
-     */
-    helpUrl?: string;
-    /**
-     * Array that defines the input parameters for the function.
-     */
-    parameters: ExtensionFunctionParameter[];
-    result:     ExtensionResult;
-    /**
-     * If true, the function can output repeatedly to the cell even when invoked only once. This
-     * option is useful for rapidly-changing data sources, such as a stock price. The function
-     * should have no return statement. Instead, the result value is passed as the argument of
-     * the StreamingInvocation.setResult callback function.
-     */
-    stream?: boolean;
-    /**
-     * If true, the function recalculates each time Excel recalculates, instead of only when the
-     * formula's dependent values have changed. A function can't use both the stream and
-     * volatile properties. If the stream and volatile properties are both set to true, the
-     * volatile property will be ignored.
-     */
-    volatile?: boolean;
-    /**
-     * If true, Excel calls the CancelableInvocation handler whenever the user takes an action
-     * that has the effect of canceling the function; for example, manually triggering
-     * recalculation or editing a cell that is referenced by the function. Cancelable functions
-     * are typically only used for asynchronous functions that return a single result and need
-     * to handle the cancellation of a request for data. A function can't use both the stream
-     * and cancelable properties.
-     */
-    cancelable?: boolean;
-    /**
-     * If true, your custom function can access the address of the cell that invoked it. The
-     * address property of the invocation parameter contains the address of the cell that
-     * invoked your custom function. A function can't use both the stream and requiresAddress
-     * properties.
-     */
-    requiresAddress?: boolean;
-    /**
-     * If true, your custom function can access the addresses of the function's input
-     * parameters. This property must be used in combination with the dimensionality property of
-     * the result object, and dimensionality must be set to matrix.
-     */
-    requiresParameterAddress?: boolean;
-    [property: string]: any;
-}
-
-export interface ExtensionFunctionParameter {
-    /**
-     * The name of the parameter. This name is displayed in Excel's IntelliSense.
-     */
-    name: string;
-    /**
-     * A description of the parameter. This is displayed in Excel's IntelliSense.
-     */
-    description?: string;
-    /**
-     * The data type of the parameter. It can only be boolean, number, string, any,
-     * CustomFunctions.Invocation, CustomFunctions.StreamingInvocation or
-     * CustomFunctions.CancelableInvocation, any allows you to use any of other types.
-     */
-    type?: string;
-    /**
-     * A subfield of the type property. Specifies the Excel data types accepted by the custom
-     * function. Accepts the values cellvalue, booleancellvalue, doublecellvalue,
-     * entitycellvalue, errorcellvalue, formattednumbercellvalue, linkedentitycellvalue,
-     * localimagecellvalue, stringcellvalue, webimagecellvalue
-     */
-    cellValueType?: CellValueType;
-    /**
-     * Must be either scalar (a non-array value) or matrix (a 2-dimensional array).
-     */
-    dimensionality?: Dimensionality;
-    /**
-     * If true, the parameter is optional.
-     */
-    optional?: boolean;
-    /**
-     * If true, parameters populate from a specified array. Note that functions all repeating
-     * parameters are considered optional parameters by definition.
-     */
-    repeating?: boolean;
-    [property: string]: any;
-}
-
-/**
- * A subfield of the type property. Specifies the Excel data types accepted by the custom
- * function. Accepts the values cellvalue, booleancellvalue, doublecellvalue,
- * entitycellvalue, errorcellvalue, formattednumbercellvalue, linkedentitycellvalue,
- * localimagecellvalue, stringcellvalue, webimagecellvalue
- */
-export type CellValueType = "cellvalue" | "booleancellvalue" | "doublecellvalue" | "entitycellvalue" | "errorcellvalue" | "formattednumbercellvalue" | "linkedentitycellvalue" | "localimagecellvalue" | "stringcellvalue" | "webimagecellvalue";
-
-/**
- * Must be either scalar (a non-array value) or matrix (a 2-dimensional array).
- *
- * Must be either scalar (a non-array value) or matrix (a 2-dimensional array). Default:
- * scalar.
- */
-export type Dimensionality = "scalar" | "matrix";
-
-/**
- * Object that defines the type of information that is returned by the function.
- */
-export interface ExtensionResult {
-    /**
-     * Must be either scalar (a non-array value) or matrix (a 2-dimensional array). Default:
-     * scalar.
-     */
-    dimensionality?: Dimensionality;
-    [property: string]: any;
-}
-
-/**
- * Defines the namespace for your custom functions. A namespace prepends itself to your
- * custom functions to help customers identify your functions as part of your add-in.
- */
-export interface ExtensionCustomFunctionsNamespace {
-    /**
-     * Non-localizeable version of the namespace.
-     */
-    id: string;
-    /**
-     * Localizeable version of the namespace.
-     */
-    name: string;
-    [property: string]: any;
+    script?: string;
 }
 
 /**
@@ -2203,11 +1491,6 @@ export interface AdditionalLanguage {
 }
 
 /**
- * The version of the schema this manifest is using.
- */
-export type ManifestVersion = "devPreview" | "m365DevPreview";
-
-/**
  * Specify meeting extension definition.
  */
 export interface MeetingExtensionDefinition {
@@ -2220,20 +1503,12 @@ export interface MeetingExtensionDefinition {
      */
     supportsCustomShareToStage?: boolean;
     /**
-     * Meeting supported video filters.
-     */
-    videoFilters?: VideoFilter[];
-    /**
-     * A URL for configuring the video filters.
-     */
-    videoFiltersConfigurationUrl?: string;
-    /**
      * A boolean value indicating whether this app can stream the meeting's audio video content
      * to an RTMP endpoint.
      */
     supportsStreaming?: boolean;
     /**
-     * A boolean value indicating whether this app supports access by anonymous guest users.
+     * A boolean value indicating whether this app allows management by anonymous users.
      */
     supportsAnonymousGuestUsers?: boolean;
 }
@@ -2265,21 +1540,6 @@ export interface Scene {
     seatsReservedForOrganizersOrPresenters: number;
 }
 
-export interface VideoFilter {
-    /**
-     * A unique identifier for this video filter. This id must be a GUID.
-     */
-    id: string;
-    /**
-     * Video filter's name.
-     */
-    name: string;
-    /**
-     * A relative file path to a video filter's thumbnail.
-     */
-    thumbnail: string;
-}
-
 export interface NameClass {
     /**
      * A short display name for the app.
@@ -2288,39 +1548,10 @@ export interface NameClass {
     /**
      * The full name of the app, used if the full app name exceeds 30 characters.
      */
-    full: string;
-    /**
-     * An abbreviated name for the app.
-     */
-    abbreviated?: string;
+    full?: string;
 }
 
 export type Permission = "identity" | "messageTeamMembers";
-
-export interface ScopeConstraints {
-    /**
-     * A list of team thread ids to which your app is restricted to
-     */
-    teams?: TeamElement[];
-    /**
-     * A list of chat thread ids to which your app is restricted to
-     */
-    groupChats?: GroupChatElement[];
-}
-
-export interface GroupChatElement {
-    /**
-     * Chat's thread Id
-     */
-    id: string;
-}
-
-export interface TeamElement {
-    /**
-     * Team's thread Id
-     */
-    id: string;
-}
 
 export interface StaticTab {
     /**
@@ -2332,7 +1563,7 @@ export interface StaticTab {
      */
     name?: string;
     /**
-     * The url which points to the entity UI to be displayed in the Teams canvas.
+     * The url which points to the entity UI to be displayed in the canvas.
      */
     contentUrl?: string;
     /**
@@ -2350,21 +1581,14 @@ export interface StaticTab {
     searchUrl?: string;
     /**
      * Specifies whether the tab offers an experience in the context of a channel in a team, or
-     * an experience scoped to an individual user alone or a group chat. These options are
+     * an experience scoped to an individual user alone or group chat. These options are
      * non-exclusive. Currently static tabs are only supported in the 'personal' scope.
      */
     scopes: StaticTabScope[];
     /**
      * The set of contextItem scopes that a tab belong to
      */
-    context?: StaticTabContext[];
-    /**
-     * The set of supportedPlatform scopes that a tab belong to
-     */
-    supportedPlatform?: SupportedPlatform[];
-    /**
-     * The set of requirements for the tab.
-     */
+    context?:        StaticTabContext[];
     requirementSet?: ElementRequirementSet;
 }
 
@@ -2427,12 +1651,12 @@ export interface NestedAppAuthInfo {
 // Converts JSON strings to/from your types
 // and asserts the results of JSON.parse at runtime
 export class Convert {
-    public static toTeamsManifestVDevPreview(json: string): TeamsManifestVDevPreview {
-        return cast(JSON.parse(json), r("TeamsManifestVDevPreview"));
+    public static toTeamsManifestV1D22(json: string): TeamsManifestV1D22 {
+        return cast(JSON.parse(json), r("TeamsManifestV1D22"));
     }
 
-    public static teamsManifestVDevPreviewToJson(value: TeamsManifestVDevPreview): string {
-        return JSON.stringify(uncast(value, r("TeamsManifestVDevPreview")), null, 4);
+    public static teamsManifestV1D22ToJson(value: TeamsManifestV1D22): string {
+        return JSON.stringify(uncast(value, r("TeamsManifestV1D22")), null, 4);
     }
 }
 
@@ -2589,12 +1813,11 @@ function r(name: string) {
 }
 
 const typeMap: any = {
-    "TeamsManifestVDevPreview": o([
+    "TeamsManifestV1D22": o([
         { json: "$schema", js: "$schema", typ: u(undefined, "") },
         { json: "manifestVersion", js: "manifestVersion", typ: r("ManifestVersion") },
         { json: "version", js: "version", typ: "" },
         { json: "id", js: "id", typ: "" },
-        { json: "packageName", js: "packageName", typ: u(undefined, "") },
         { json: "localizationInfo", js: "localizationInfo", typ: u(undefined, r("LocalizationInfo")) },
         { json: "developer", js: "developer", typ: r("Developer") },
         { json: "name", js: "name", typ: r("NameClass") },
@@ -2607,7 +1830,6 @@ const typeMap: any = {
         { json: "connectors", js: "connectors", typ: u(undefined, a(r("Connector"))) },
         { json: "subscriptionOffer", js: "subscriptionOffer", typ: u(undefined, r("SubscriptionOffer")) },
         { json: "composeExtensions", js: "composeExtensions", typ: u(undefined, a(r("ComposeExtension"))) },
-        { json: "scopeConstraints", js: "scopeConstraints", typ: u(undefined, r("ScopeConstraints")) },
         { json: "permissions", js: "permissions", typ: u(undefined, a(r("Permission"))) },
         { json: "devicePermissions", js: "devicePermissions", typ: u(undefined, a(r("DevicePermission"))) },
         { json: "validDomains", js: "validDomains", typ: u(undefined, a("")) },
@@ -2616,71 +1838,20 @@ const typeMap: any = {
         { json: "showLoadingIndicator", js: "showLoadingIndicator", typ: u(undefined, true) },
         { json: "isFullScreen", js: "isFullScreen", typ: u(undefined, true) },
         { json: "activities", js: "activities", typ: u(undefined, r("Activities")) },
-        { json: "supportedChannelTypes", js: "supportedChannelTypes", typ: u(undefined, a(r("SupportedChannelType"))) },
         { json: "configurableProperties", js: "configurableProperties", typ: u(undefined, a(r("ConfigurableProperty"))) },
+        { json: "supportedChannelTypes", js: "supportedChannelTypes", typ: u(undefined, a(r("SupportedChannelType"))) },
         { json: "defaultBlockUntilAdminAction", js: "defaultBlockUntilAdminAction", typ: u(undefined, true) },
         { json: "publisherDocsUrl", js: "publisherDocsUrl", typ: u(undefined, "") },
         { json: "defaultInstallScope", js: "defaultInstallScope", typ: u(undefined, r("DefaultInstallScope")) },
         { json: "defaultGroupCapability", js: "defaultGroupCapability", typ: u(undefined, r("DefaultGroupCapability")) },
         { json: "meetingExtensionDefinition", js: "meetingExtensionDefinition", typ: u(undefined, r("MeetingExtensionDefinition")) },
-        { json: "authorization", js: "authorization", typ: u(undefined, r("TeamsManifestVDevPreviewAuthorization")) },
+        { json: "authorization", js: "authorization", typ: u(undefined, r("TeamsManifestV1D22Authorization")) },
         { json: "extensions", js: "extensions", typ: u(undefined, a(r("ElementExtension"))) },
-        { json: "actions", js: "actions", typ: u(undefined, a(r("ElementAction"))) },
         { json: "dashboardCards", js: "dashboardCards", typ: u(undefined, a(r("DashboardCard"))) },
-        { json: "intuneInfo", js: "intuneInfo", typ: u(undefined, r("IntuneInfo")) },
         { json: "copilotAgents", js: "copilotAgents", typ: u(undefined, r("CopilotAgents")) },
+        { json: "intuneInfo", js: "intuneInfo", typ: u(undefined, r("IntuneInfo")) },
         { json: "elementRelationshipSet", js: "elementRelationshipSet", typ: u(undefined, r("ElementRelationshipSet")) },
         { json: "backgroundLoadConfiguration", js: "backgroundLoadConfiguration", typ: u(undefined, r("BackgroundLoadConfiguration")) },
-    ], false),
-    "ElementAction": o([
-        { json: "id", js: "id", typ: "" },
-        { json: "intent", js: "intent", typ: r("Intent") },
-        { json: "displayName", js: "displayName", typ: "" },
-        { json: "description", js: "description", typ: "" },
-        { json: "icons", js: "icons", typ: u(undefined, a(r("Icon"))) },
-        { json: "handlers", js: "handlers", typ: a(r("Handler")) },
-    ], false),
-    "Handler": o([
-        { json: "type", js: "type", typ: r("HandlerType") },
-        { json: "supportedObjects", js: "supportedObjects", typ: u(undefined, r("SupportedObjects")) },
-        { json: "supportsMultiSelect", js: "supportsMultiSelect", typ: u(undefined, true) },
-        { json: "pageInfo", js: "pageInfo", typ: u(undefined, r("PageInfo")) },
-        { json: "dialogInfo", js: "dialogInfo", typ: u(undefined, r("DialogInfo")) },
-        { json: "url", js: "url", typ: u(undefined, "") },
-        { json: "botInfo", js: "botInfo", typ: u(undefined, r("BotInfo")) },
-    ], "any"),
-    "BotInfo": o([
-        { json: "botId", js: "botId", typ: "" },
-        { json: "fetchTask", js: "fetchTask", typ: u(undefined, true) },
-    ], "any"),
-    "DialogInfo": o([
-        { json: "dialogType", js: "dialogType", typ: r("DialogType") },
-        { json: "url", js: "url", typ: u(undefined, "") },
-        { json: "width", js: "width", typ: "" },
-        { json: "height", js: "height", typ: "" },
-        { json: "parameters", js: "parameters", typ: u(undefined, a(r("ParameterObject"))) },
-        { json: "title", js: "title", typ: u(undefined, "") },
-    ], "any"),
-    "ParameterObject": o([
-        { json: "name", js: "name", typ: "" },
-        { json: "title", js: "title", typ: "" },
-        { json: "description", js: "description", typ: "" },
-        { json: "inputType", js: "inputType", typ: "" },
-    ], "any"),
-    "PageInfo": o([
-        { json: "pageId", js: "pageId", typ: "" },
-        { json: "subpageId", js: "subpageId", typ: u(undefined, "") },
-    ], "any"),
-    "SupportedObjects": o([
-        { json: "file", js: "file", typ: u(undefined, r("File")) },
-        { json: "folder", js: "folder", typ: u(undefined, u(m("any"), null)) },
-    ], "any"),
-    "File": o([
-        { json: "extensions", js: "extensions", typ: u(undefined, a("")) },
-    ], false),
-    "Icon": o([
-        { json: "size", js: "size", typ: 3.14 },
-        { json: "url", js: "url", typ: "" },
     ], false),
     "Activities": o([
         { json: "activityTypes", js: "activityTypes", typ: u(undefined, a(r("ActivityType"))) },
@@ -2696,7 +1867,7 @@ const typeMap: any = {
         { json: "templateText", js: "templateText", typ: "" },
         { json: "allowedIconIds", js: "allowedIconIds", typ: u(undefined, a("")) },
     ], false),
-    "TeamsManifestVDevPreviewAuthorization": o([
+    "TeamsManifestV1D22Authorization": o([
         { json: "permissions", js: "permissions", typ: u(undefined, r("Permissions")) },
     ], false),
     "Permissions": o([
@@ -2717,7 +1888,6 @@ const typeMap: any = {
         { json: "configuration", js: "configuration", typ: u(undefined, r("Configuration")) },
         { json: "needsChannelSelector", js: "needsChannelSelector", typ: u(undefined, true) },
         { json: "isNotificationOnly", js: "isNotificationOnly", typ: u(undefined, true) },
-        { json: "requiresSecurityEnabledGroup", js: "requiresSecurityEnabledGroup", typ: u(undefined, true) },
         { json: "supportsFiles", js: "supportsFiles", typ: u(undefined, true) },
         { json: "supportsCalling", js: "supportsCalling", typ: u(undefined, true) },
         { json: "supportsVideo", js: "supportsVideo", typ: u(undefined, true) },
@@ -2734,10 +1904,10 @@ const typeMap: any = {
         { json: "description", js: "description", typ: "" },
     ], false),
     "Configuration": o([
-        { json: "team", js: "team", typ: u(undefined, r("ConfigurationTeam")) },
-        { json: "groupChat", js: "groupChat", typ: u(undefined, r("ConfigurationGroupChat")) },
+        { json: "team", js: "team", typ: u(undefined, r("Team")) },
+        { json: "groupChat", js: "groupChat", typ: u(undefined, r("Team")) },
     ], false),
-    "ConfigurationGroupChat": o([
+    "Team": o([
         { json: "fetchTask", js: "fetchTask", typ: u(undefined, true) },
         { json: "taskInfo", js: "taskInfo", typ: u(undefined, r("TaskInfo")) },
     ], false),
@@ -2746,10 +1916,6 @@ const typeMap: any = {
         { json: "width", js: "width", typ: u(undefined, "") },
         { json: "height", js: "height", typ: u(undefined, "") },
         { json: "url", js: "url", typ: u(undefined, "") },
-    ], false),
-    "ConfigurationTeam": o([
-        { json: "fetchTask", js: "fetchTask", typ: u(undefined, true) },
-        { json: "taskInfo", js: "taskInfo", typ: u(undefined, r("TaskInfo")) },
     ], false),
     "ElementRequirementSet": o([
         { json: "hostMustSupportFunctionalities", js: "hostMustSupportFunctionalities", typ: a(r("HostFunctionality")) },
@@ -2772,16 +1938,12 @@ const typeMap: any = {
         { json: "authType", js: "authType", typ: u(undefined, r("AuthType")) },
         { json: "microsoftEntraConfiguration", js: "microsoftEntraConfiguration", typ: u(undefined, r("MicrosoftEntraConfiguration")) },
         { json: "apiSecretServiceAuthConfiguration", js: "apiSecretServiceAuthConfiguration", typ: u(undefined, r("APISecretServiceAuthConfiguration")) },
-        { json: "oAuthConfiguration", js: "oAuthConfiguration", typ: u(undefined, r("OAuthConfiguration")) },
     ], false),
     "APISecretServiceAuthConfiguration": o([
         { json: "apiSecretRegistrationId", js: "apiSecretRegistrationId", typ: u(undefined, "") },
     ], false),
     "MicrosoftEntraConfiguration": o([
         { json: "supportsSingleSignOn", js: "supportsSingleSignOn", typ: u(undefined, true) },
-    ], false),
-    "OAuthConfiguration": o([
-        { json: "oAuthConfigurationId", js: "oAuthConfigurationId", typ: u(undefined, "") },
     ], false),
     "ComposeExtensionCommand": o([
         { json: "id", js: "id", typ: "" },
@@ -2793,19 +1955,19 @@ const typeMap: any = {
         { json: "description", js: "description", typ: u(undefined, "") },
         { json: "initialRun", js: "initialRun", typ: u(undefined, true) },
         { json: "fetchTask", js: "fetchTask", typ: u(undefined, true) },
-        { json: "parameters", js: "parameters", typ: u(undefined, a(r("ParameterClass"))) },
-        { json: "taskInfo", js: "taskInfo", typ: u(undefined, r("TaskInfo")) },
         { json: "semanticDescription", js: "semanticDescription", typ: u(undefined, "") },
+        { json: "parameters", js: "parameters", typ: u(undefined, a(r("Parameter"))) },
+        { json: "taskInfo", js: "taskInfo", typ: u(undefined, r("TaskInfo")) },
     ], false),
-    "ParameterClass": o([
+    "Parameter": o([
         { json: "name", js: "name", typ: "" },
         { json: "inputType", js: "inputType", typ: u(undefined, r("InputType")) },
-        { json: "isRequired", js: "isRequired", typ: u(undefined, true) },
         { json: "title", js: "title", typ: "" },
         { json: "description", js: "description", typ: u(undefined, "") },
         { json: "value", js: "value", typ: u(undefined, "") },
-        { json: "choices", js: "choices", typ: u(undefined, a(r("Choice"))) },
+        { json: "isRequired", js: "isRequired", typ: u(undefined, true) },
         { json: "semanticDescription", js: "semanticDescription", typ: u(undefined, "") },
+        { json: "choices", js: "choices", typ: u(undefined, a(r("Choice"))) },
     ], false),
     "Choice": o([
         { json: "title", js: "title", typ: "" },
@@ -2820,9 +1982,8 @@ const typeMap: any = {
     ], false),
     "Value": o([
         { json: "domains", js: "domains", typ: u(undefined, a("")) },
-        { json: "supportsAnonymousAccess", js: "supportsAnonymousAccess", typ: u(undefined, true) },
         { json: "supportsAnonymizedPayloads", js: "supportsAnonymizedPayloads", typ: u(undefined, true) },
-    ], "any"),
+    ], false),
     "ConfigurableTab": o([
         { json: "id", js: "id", typ: u(undefined, "") },
         { json: "configurationUrl", js: "configurationUrl", typ: "" },
@@ -2830,7 +1991,6 @@ const typeMap: any = {
         { json: "scopes", js: "scopes", typ: a(r("ConfigurableTabScope")) },
         { json: "meetingSurfaces", js: "meetingSurfaces", typ: u(undefined, a(r("MeetingSurface"))) },
         { json: "context", js: "context", typ: u(undefined, a(r("ConfigurableTabContext"))) },
-        { json: "supportedPlatform", js: "supportedPlatform", typ: u(undefined, a(r("SupportedPlatform"))) },
         { json: "sharePointPreviewImage", js: "sharePointPreviewImage", typ: u(undefined, "") },
         { json: "supportedSharePointHosts", js: "supportedSharePointHosts", typ: u(undefined, a(r("SupportedSharePointHost"))) },
     ], false),
@@ -2890,15 +2050,7 @@ const typeMap: any = {
         { json: "websiteUrl", js: "websiteUrl", typ: "" },
         { json: "privacyUrl", js: "privacyUrl", typ: "" },
         { json: "termsOfUseUrl", js: "termsOfUseUrl", typ: "" },
-        { json: "contactInfo", js: "contactInfo", typ: u(undefined, r("ContactInfo")) },
     ], false),
-    "ContactInfo": o([
-        { json: "defaultSupport", js: "defaultSupport", typ: r("DefaultSupport") },
-    ], "any"),
-    "DefaultSupport": o([
-        { json: "userEmailsForChatSupport", js: "userEmailsForChatSupport", typ: a("") },
-        { json: "emailsForEmailSupport", js: "emailsForEmailSupport", typ: a("") },
-    ], "any"),
     "ElementRelationshipSet": o([
         { json: "oneWayDependencies", js: "oneWayDependencies", typ: u(undefined, a(r("OneWayDependency"))) },
         { json: "mutualDependencies", js: "mutualDependencies", typ: u(undefined, a(a(r("ElementReference")))) },
@@ -2919,17 +2071,12 @@ const typeMap: any = {
         { json: "autoRunEvents", js: "autoRunEvents", typ: u(undefined, a(r("ExtensionAutoRunEventsArray"))) },
         { json: "alternates", js: "alternates", typ: u(undefined, a(r("ExtensionAlternateVersionsArray"))) },
         { json: "audienceClaimUrl", js: "audienceClaimUrl", typ: u(undefined, "") },
-        { json: "appDeeplinks", js: "appDeeplinks", typ: u(undefined, a(r("ExtensionAppDeeplinksArray"))) },
-        { json: "contentRuntimes", js: "contentRuntimes", typ: u(undefined, a(r("ExtensionContentRuntimeArray"))) },
-        { json: "getStartedMessages", js: "getStartedMessages", typ: u(undefined, a(r("ExtensionGetStartedMessageArray"))) },
-        { json: "contextMenus", js: "contextMenus", typ: u(undefined, a(r("ExtensionContextMenuArray"))) },
-        { json: "keyboardShortcuts", js: "keyboardShortcuts", typ: u(undefined, a(r("ExtensionKeyboardShortcut"))) },
     ], false),
     "ExtensionAlternateVersionsArray": o([
         { json: "requirements", js: "requirements", typ: u(undefined, r("RequirementsExtensionElement")) },
         { json: "prefer", js: "prefer", typ: u(undefined, r("Prefer")) },
         { json: "hide", js: "hide", typ: u(undefined, r("Hide")) },
-        { json: "alternateIcons", js: "alternateIcons", typ: r("AlternateIcons") },
+        { json: "alternateIcons", js: "alternateIcons", typ: u(undefined, r("AlternateIcons")) },
     ], false),
     "AlternateIcons": o([
         { json: "icon", js: "icon", typ: r("ExtensionCommonIcon") },
@@ -2952,14 +2099,10 @@ const typeMap: any = {
     ], false),
     "Prefer": o([
         { json: "comAddin", js: "comAddin", typ: u(undefined, r("COMAddin")) },
-        { json: "xllCustomFunctions", js: "xllCustomFunctions", typ: u(undefined, r("ExtensionXllCustomFunctions")) },
     ], "any"),
     "COMAddin": o([
         { json: "progId", js: "progId", typ: "" },
     ], false),
-    "ExtensionXllCustomFunctions": o([
-        { json: "fileName", js: "fileName", typ: u(undefined, "") },
-    ], "any"),
     "RequirementsExtensionElement": o([
         { json: "capabilities", js: "capabilities", typ: u(undefined, a(r("Capability"))) },
         { json: "scopes", js: "scopes", typ: u(undefined, a(r("RequirementsScope"))) },
@@ -2969,18 +2112,6 @@ const typeMap: any = {
         { json: "name", js: "name", typ: "" },
         { json: "minVersion", js: "minVersion", typ: u(undefined, "") },
         { json: "maxVersion", js: "maxVersion", typ: u(undefined, "") },
-    ], false),
-    "ExtensionAppDeeplinksArray": o([
-        { json: "requirements", js: "requirements", typ: u(undefined, r("AppDeeplinkRequirements")) },
-        { json: "contexts", js: "contexts", typ: a(r("ExtensionContext")) },
-        { json: "actionId", js: "actionId", typ: "" },
-        { json: "label", js: "label", typ: "" },
-        { json: "semanticDescription", js: "semanticDescription", typ: "" },
-    ], false),
-    "AppDeeplinkRequirements": o([
-        { json: "capabilities", js: "capabilities", typ: u(undefined, a(r("Capability"))) },
-        { json: "scopes", js: "scopes", typ: u(undefined, a(r("RequirementsScope"))) },
-        { json: "formFactors", js: "formFactors", typ: u(undefined, a(r("FormFactor"))) },
     ], false),
     "ExtensionAutoRunEventsArray": o([
         { json: "requirements", js: "requirements", typ: u(undefined, r("RequirementsExtensionElement")) },
@@ -2994,87 +2125,6 @@ const typeMap: any = {
     "Options": o([
         { json: "sendMode", js: "sendMode", typ: r("SendMode") },
     ], false),
-    "ExtensionContentRuntimeArray": o([
-        { json: "requirements", js: "requirements", typ: u(undefined, r("ContentRuntimeRequirements")) },
-        { json: "id", js: "id", typ: "" },
-        { json: "code", js: "code", typ: r("ExtensionRuntimeCode") },
-        { json: "requestedHeight", js: "requestedHeight", typ: u(undefined, 3.14) },
-        { json: "requestedWidth", js: "requestedWidth", typ: u(undefined, 3.14) },
-        { json: "disableSnapshot", js: "disableSnapshot", typ: u(undefined, true) },
-    ], false),
-    "ExtensionRuntimeCode": o([
-        { json: "page", js: "page", typ: "" },
-        { json: "script", js: "script", typ: u(undefined, "") },
-    ], false),
-    "ContentRuntimeRequirements": o([
-        { json: "capabilities", js: "capabilities", typ: u(undefined, a(r("Capability"))) },
-        { json: "scopes", js: "scopes", typ: u(undefined, a(r("RequirementsScope"))) },
-        { json: "formFactors", js: "formFactors", typ: u(undefined, a(r("FormFactor"))) },
-    ], false),
-    "ExtensionContextMenuArray": o([
-        { json: "requirements", js: "requirements", typ: u(undefined, r("ContextMenuRequirements")) },
-        { json: "menus", js: "menus", typ: a(r("ExtensionMenuItem")) },
-    ], false),
-    "ExtensionMenuItem": o([
-        { json: "entryPoint", js: "entryPoint", typ: r("EntryPoint") },
-        { json: "controls", js: "controls", typ: a(r("ExtensionCommonCustomGroupControlsItem")) },
-    ], false),
-    "ExtensionCommonCustomGroupControlsItem": o([
-        { json: "id", js: "id", typ: "" },
-        { json: "type", js: "type", typ: r("PurpleType") },
-        { json: "builtInControlId", js: "builtInControlId", typ: u(undefined, "") },
-        { json: "label", js: "label", typ: "" },
-        { json: "icons", js: "icons", typ: a(r("ExtensionCommonIcon")) },
-        { json: "supertip", js: "supertip", typ: r("ExtensionCommonSuperToolTip") },
-        { json: "actionId", js: "actionId", typ: u(undefined, "") },
-        { json: "overriddenByRibbonApi", js: "overriddenByRibbonApi", typ: u(undefined, true) },
-        { json: "enabled", js: "enabled", typ: u(undefined, true) },
-        { json: "items", js: "items", typ: u(undefined, a(r("ExtensionCommonCustomControlMenuItem"))) },
-    ], false),
-    "ExtensionCommonCustomControlMenuItem": o([
-        { json: "id", js: "id", typ: "" },
-        { json: "type", js: "type", typ: r("ItemType") },
-        { json: "label", js: "label", typ: "" },
-        { json: "icons", js: "icons", typ: u(undefined, a(r("ExtensionCommonIcon"))) },
-        { json: "supertip", js: "supertip", typ: r("ExtensionCommonSuperToolTip") },
-        { json: "actionId", js: "actionId", typ: "" },
-        { json: "enabled", js: "enabled", typ: u(undefined, true) },
-        { json: "overriddenByRibbonApi", js: "overriddenByRibbonApi", typ: u(undefined, true) },
-    ], false),
-    "ExtensionCommonSuperToolTip": o([
-        { json: "title", js: "title", typ: "" },
-        { json: "description", js: "description", typ: "" },
-    ], false),
-    "ContextMenuRequirements": o([
-        { json: "capabilities", js: "capabilities", typ: u(undefined, a(r("Capability"))) },
-        { json: "scopes", js: "scopes", typ: u(undefined, a(r("RequirementsScope"))) },
-        { json: "formFactors", js: "formFactors", typ: u(undefined, a(r("FormFactor"))) },
-    ], false),
-    "ExtensionGetStartedMessageArray": o([
-        { json: "requirements", js: "requirements", typ: u(undefined, r("GetStartedMessageRequirements")) },
-        { json: "title", js: "title", typ: "" },
-        { json: "description", js: "description", typ: "" },
-        { json: "learnMoreUrl", js: "learnMoreUrl", typ: "" },
-    ], false),
-    "GetStartedMessageRequirements": o([
-        { json: "capabilities", js: "capabilities", typ: u(undefined, a(r("Capability"))) },
-        { json: "scopes", js: "scopes", typ: u(undefined, a(r("RequirementsScope"))) },
-        { json: "formFactors", js: "formFactors", typ: u(undefined, a(r("FormFactor"))) },
-    ], false),
-    "ExtensionKeyboardShortcut": o([
-        { json: "requirements", js: "requirements", typ: u(undefined, r("RequirementsExtensionElement")) },
-        { json: "shortcuts", js: "shortcuts", typ: a(r("ExtensionShortcut")) },
-    ], "any"),
-    "ExtensionShortcut": o([
-        { json: "key", js: "key", typ: r("Key") },
-        { json: "actionId", js: "actionId", typ: "" },
-    ], "any"),
-    "Key": o([
-        { json: "default", js: "default", typ: "" },
-        { json: "mac", js: "mac", typ: u(undefined, "") },
-        { json: "web", js: "web", typ: u(undefined, "") },
-        { json: "windows", js: "windows", typ: u(undefined, "") },
-    ], "any"),
     "ExtensionRibbonsArray": o([
         { json: "requirements", js: "requirements", typ: u(undefined, r("RequirementsExtensionElement")) },
         { json: "contexts", js: "contexts", typ: u(undefined, a(r("ExtensionContext"))) },
@@ -3090,6 +2140,10 @@ const typeMap: any = {
         { json: "supertip", js: "supertip", typ: r("ExtensionCommonSuperToolTip") },
         { json: "actionId", js: "actionId", typ: "" },
         { json: "enabled", js: "enabled", typ: true },
+    ], false),
+    "ExtensionCommonSuperToolTip": o([
+        { json: "title", js: "title", typ: "" },
+        { json: "description", js: "description", typ: "" },
     ], false),
     "ExtensionRibbonsSpamPreProcessingDialog": o([
         { json: "title", js: "title", typ: "" },
@@ -3123,7 +2177,7 @@ const typeMap: any = {
     ], "any"),
     "ExtensionRibbonsCustomMobileControlButtonItem": o([
         { json: "id", js: "id", typ: "" },
-        { json: "type", js: "type", typ: r("FluffyType") },
+        { json: "type", js: "type", typ: r("PurpleType") },
         { json: "label", js: "label", typ: "" },
         { json: "icons", js: "icons", typ: a(r("ExtensionCustomMobileIcon")) },
         { json: "actionId", js: "actionId", typ: "" },
@@ -3139,6 +2193,27 @@ const typeMap: any = {
         { json: "icons", js: "icons", typ: u(undefined, a(r("ExtensionCommonIcon"))) },
         { json: "controls", js: "controls", typ: u(undefined, a(r("ExtensionCommonCustomGroupControlsItem"))) },
         { json: "builtInGroupId", js: "builtInGroupId", typ: u(undefined, "") },
+    ], false),
+    "ExtensionCommonCustomGroupControlsItem": o([
+        { json: "id", js: "id", typ: "" },
+        { json: "type", js: "type", typ: r("FluffyType") },
+        { json: "builtInControlId", js: "builtInControlId", typ: u(undefined, "") },
+        { json: "label", js: "label", typ: "" },
+        { json: "icons", js: "icons", typ: a(r("ExtensionCommonIcon")) },
+        { json: "supertip", js: "supertip", typ: r("ExtensionCommonSuperToolTip") },
+        { json: "actionId", js: "actionId", typ: u(undefined, "") },
+        { json: "overriddenByRibbonApi", js: "overriddenByRibbonApi", typ: u(undefined, true) },
+        { json: "enabled", js: "enabled", typ: u(undefined, true) },
+        { json: "items", js: "items", typ: u(undefined, a(r("ExtensionCommonCustomControlMenuItem"))) },
+    ], false),
+    "ExtensionCommonCustomControlMenuItem": o([
+        { json: "id", js: "id", typ: "" },
+        { json: "type", js: "type", typ: r("ItemType") },
+        { json: "label", js: "label", typ: "" },
+        { json: "icons", js: "icons", typ: u(undefined, a(r("ExtensionCommonIcon"))) },
+        { json: "supertip", js: "supertip", typ: r("ExtensionCommonSuperToolTip") },
+        { json: "actionId", js: "actionId", typ: "" },
+        { json: "enabled", js: "enabled", typ: u(undefined, true) },
         { json: "overriddenByRibbonApi", js: "overriddenByRibbonApi", typ: u(undefined, true) },
     ], false),
     "Position": o([
@@ -3152,7 +2227,6 @@ const typeMap: any = {
         { json: "code", js: "code", typ: r("ExtensionRuntimeCode") },
         { json: "lifetime", js: "lifetime", typ: u(undefined, r("Lifetime")) },
         { json: "actions", js: "actions", typ: u(undefined, a(r("ExtensionRuntimesActionsItem"))) },
-        { json: "customFunctions", js: "customFunctions", typ: u(undefined, r("ExtensionCustomFunctions")) },
     ], false),
     "ExtensionRuntimesActionsItem": o([
         { json: "id", js: "id", typ: "" },
@@ -3163,40 +2237,10 @@ const typeMap: any = {
         { json: "multiselect", js: "multiselect", typ: u(undefined, true) },
         { json: "supportsNoItemContext", js: "supportsNoItemContext", typ: u(undefined, true) },
     ], false),
-    "ExtensionCustomFunctions": o([
-        { json: "functions", js: "functions", typ: a(r("ExtensionFunction")) },
-        { json: "namespace", js: "namespace", typ: r("ExtensionCustomFunctionsNamespace") },
-        { json: "allowCustomDataForDataTypeAny", js: "allowCustomDataForDataTypeAny", typ: u(undefined, true) },
-    ], "any"),
-    "ExtensionFunction": o([
-        { json: "id", js: "id", typ: "" },
-        { json: "name", js: "name", typ: "" },
-        { json: "description", js: "description", typ: u(undefined, "") },
-        { json: "helpUrl", js: "helpUrl", typ: u(undefined, "") },
-        { json: "parameters", js: "parameters", typ: a(r("ExtensionFunctionParameter")) },
-        { json: "result", js: "result", typ: r("ExtensionResult") },
-        { json: "stream", js: "stream", typ: u(undefined, true) },
-        { json: "volatile", js: "volatile", typ: u(undefined, true) },
-        { json: "cancelable", js: "cancelable", typ: u(undefined, true) },
-        { json: "requiresAddress", js: "requiresAddress", typ: u(undefined, true) },
-        { json: "requiresParameterAddress", js: "requiresParameterAddress", typ: u(undefined, true) },
-    ], "any"),
-    "ExtensionFunctionParameter": o([
-        { json: "name", js: "name", typ: "" },
-        { json: "description", js: "description", typ: u(undefined, "") },
-        { json: "type", js: "type", typ: u(undefined, "") },
-        { json: "cellValueType", js: "cellValueType", typ: u(undefined, r("CellValueType")) },
-        { json: "dimensionality", js: "dimensionality", typ: u(undefined, r("Dimensionality")) },
-        { json: "optional", js: "optional", typ: u(undefined, true) },
-        { json: "repeating", js: "repeating", typ: u(undefined, true) },
-    ], "any"),
-    "ExtensionResult": o([
-        { json: "dimensionality", js: "dimensionality", typ: u(undefined, r("Dimensionality")) },
-    ], "any"),
-    "ExtensionCustomFunctionsNamespace": o([
-        { json: "id", js: "id", typ: "" },
-        { json: "name", js: "name", typ: "" },
-    ], "any"),
+    "ExtensionRuntimeCode": o([
+        { json: "page", js: "page", typ: "" },
+        { json: "script", js: "script", typ: u(undefined, "") },
+    ], false),
     "GraphConnector": o([
         { json: "notificationUrl", js: "notificationUrl", typ: "" },
     ], false),
@@ -3220,8 +2264,6 @@ const typeMap: any = {
     "MeetingExtensionDefinition": o([
         { json: "scenes", js: "scenes", typ: u(undefined, a(r("Scene"))) },
         { json: "supportsCustomShareToStage", js: "supportsCustomShareToStage", typ: u(undefined, true) },
-        { json: "videoFilters", js: "videoFilters", typ: u(undefined, a(r("VideoFilter"))) },
-        { json: "videoFiltersConfigurationUrl", js: "videoFiltersConfigurationUrl", typ: u(undefined, "") },
         { json: "supportsStreaming", js: "supportsStreaming", typ: u(undefined, true) },
         { json: "supportsAnonymousGuestUsers", js: "supportsAnonymousGuestUsers", typ: u(undefined, true) },
     ], false),
@@ -3233,25 +2275,9 @@ const typeMap: any = {
         { json: "maxAudience", js: "maxAudience", typ: 0 },
         { json: "seatsReservedForOrganizersOrPresenters", js: "seatsReservedForOrganizersOrPresenters", typ: 0 },
     ], false),
-    "VideoFilter": o([
-        { json: "id", js: "id", typ: "" },
-        { json: "name", js: "name", typ: "" },
-        { json: "thumbnail", js: "thumbnail", typ: "" },
-    ], false),
     "NameClass": o([
         { json: "short", js: "short", typ: "" },
-        { json: "full", js: "full", typ: "" },
-        { json: "abbreviated", js: "abbreviated", typ: u(undefined, "") },
-    ], false),
-    "ScopeConstraints": o([
-        { json: "teams", js: "teams", typ: u(undefined, a(r("TeamElement"))) },
-        { json: "groupChats", js: "groupChats", typ: u(undefined, a(r("GroupChatElement"))) },
-    ], false),
-    "GroupChatElement": o([
-        { json: "id", js: "id", typ: "" },
-    ], false),
-    "TeamElement": o([
-        { json: "id", js: "id", typ: "" },
+        { json: "full", js: "full", typ: u(undefined, "") },
     ], false),
     "StaticTab": o([
         { json: "entityId", js: "entityId", typ: "" },
@@ -3262,7 +2288,6 @@ const typeMap: any = {
         { json: "searchUrl", js: "searchUrl", typ: u(undefined, "") },
         { json: "scopes", js: "scopes", typ: a(r("StaticTabScope")) },
         { json: "context", js: "context", typ: u(undefined, a(r("StaticTabContext"))) },
-        { json: "supportedPlatform", js: "supportedPlatform", typ: u(undefined, a(r("SupportedPlatform"))) },
         { json: "requirementSet", js: "requirementSet", typ: u(undefined, r("ElementRequirementSet")) },
     ], false),
     "SubscriptionOffer": o([
@@ -3278,27 +2303,6 @@ const typeMap: any = {
         { json: "scopes", js: "scopes", typ: a("") },
         { json: "claims", js: "claims", typ: u(undefined, "") },
     ], false),
-    "DialogType": [
-        "adaptiveCard",
-        "url",
-    ],
-    "HandlerType": [
-        "invokeAPI",
-        "invokeBot",
-        "openDialog",
-        "openPage",
-        "openTaskpane",
-        "openURL",
-    ],
-    "Intent": [
-        "addTo",
-        "create",
-        "custom",
-        "open",
-        "preview",
-        "share",
-        "sign",
-    ],
     "ResourceSpecificType": [
         "Application",
         "Delegated",
@@ -3319,7 +2323,6 @@ const typeMap: any = {
         "apiSecretServiceAuth",
         "microsoftEntra",
         "none",
-        "oAuth2.0",
     ],
     "CommandContext": [
         "commandBox",
@@ -3358,7 +2361,6 @@ const typeMap: any = {
         "termsOfUseUrl",
     ],
     "ConfigurableTabContext": [
-        "callingSidePanel",
         "channelTab",
         "meetingChatTab",
         "meetingDetailsTab",
@@ -3374,11 +2376,6 @@ const typeMap: any = {
     "ConfigurableTabScope": [
         "groupChat",
         "team",
-    ],
-    "SupportedPlatform": [
-        "desktop",
-        "mobile",
-        "teamsMeetingDevices",
     ],
     "SupportedSharePointHost": [
         "sharePointFullPage",
@@ -3429,6 +2426,11 @@ const typeMap: any = {
         "presentation",
         "workbook",
     ],
+    "SendMode": [
+        "block",
+        "promptUser",
+        "softBlock",
+    ],
     "ExtensionContext": [
         "default",
         "logEventMeetingDetailsAttendee",
@@ -3439,22 +2441,6 @@ const typeMap: any = {
         "onlineMeetingDetailsOrganizer",
         "spamReportingOverride",
     ],
-    "SendMode": [
-        "block",
-        "promptUser",
-        "softBlock",
-    ],
-    "ItemType": [
-        "menuItem",
-    ],
-    "PurpleType": [
-        "button",
-        "menu",
-    ],
-    "EntryPoint": [
-        "cell",
-        "text",
-    ],
     "FixedControlType": [
         "button",
     ],
@@ -3462,33 +2448,23 @@ const typeMap: any = {
         "checkbox",
         "radio",
     ],
-    "FluffyType": [
+    "PurpleType": [
         "mobileButton",
+    ],
+    "ItemType": [
+        "menuItem",
+    ],
+    "FluffyType": [
+        "button",
+        "menu",
     ],
     "Align": [
         "after",
         "before",
     ],
     "ActionType": [
-        "executeDataFunction",
         "executeFunction",
         "openPage",
-    ],
-    "CellValueType": [
-        "booleancellvalue",
-        "cellvalue",
-        "doublecellvalue",
-        "entitycellvalue",
-        "errorcellvalue",
-        "formattednumbercellvalue",
-        "linkedentitycellvalue",
-        "localimagecellvalue",
-        "stringcellvalue",
-        "webimagecellvalue",
-    ],
-    "Dimensionality": [
-        "matrix",
-        "scalar",
     ],
     "Lifetime": [
         "long",
@@ -3498,8 +2474,7 @@ const typeMap: any = {
         "general",
     ],
     "ManifestVersion": [
-        "devPreview",
-        "m365DevPreview",
+        "1.22",
     ],
     "Permission": [
         "identity",

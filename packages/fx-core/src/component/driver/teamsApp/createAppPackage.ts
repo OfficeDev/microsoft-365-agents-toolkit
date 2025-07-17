@@ -4,37 +4,42 @@
 import { hooks } from "@feathersjs/hooks/lib";
 import {
   Colors,
-  FxError,
-  Result,
-  err,
-  ok,
-  PluginManifestSchema,
   DeclarativeCopilotCapabilityName,
   EmbeddedKnowledgeCapability,
+  err,
   FunctionObject,
+  FxError,
+  ok,
+  PluginManifestSchema,
+  Result,
+  TeamsManifestV1D17,
+  TeamsManifestV1D19,
+  TeamsManifestV1D21,
+  TeamsManifestV1D5,
 } from "@microsoft/teamsfx-api";
 import AdmZip from "adm-zip";
 import fs from "fs-extra";
 import * as path from "path";
-import * as uuid from "uuid";
+import semver from "semver";
 import { Service } from "typedi";
-import { getLocalizedString } from "../../../common/localizeUtils";
+import * as uuid from "uuid";
+import { featureFlagManager, FeatureFlags } from "../../../common/featureFlags";
 import { ErrorContextMW } from "../../../common/globalVars";
+import { getLocalizedString } from "../../../common/localizeUtils";
 import { FileNotFoundError, InvalidActionInputError, JSONSyntaxError } from "../../../error/common";
+import { InvalidFileOutsideOfTheDirectotryError } from "../../../error/teamsApp";
+import { getAbsolutePath } from "../../utils/common";
+import { expandVariableWithFunction, ManifestType } from "../../utils/envFunctionUtils";
 import { DriverContext } from "../interface/commonArgs";
 import { ExecutionResult, StepDriver } from "../interface/stepDriver";
 import { addStartAndEndTelemetry } from "../middleware/addStartAndEndTelemetry";
+import { updateVersionForTeamsAppYamlFile } from "../util/utils";
 import { WrapDriverContext } from "../util/wrapUtil";
 import { Constants } from "./constants";
 import { CreateAppPackageArgs } from "./interfaces/CreateAppPackageArgs";
-import { manifestUtils } from "./utils/ManifestUtils";
-import { InvalidFileOutsideOfTheDirectotryError } from "../../../error/teamsApp";
-import { getResolvedManifest, normalizePath } from "./utils/utils";
 import { copilotGptManifestUtils } from "./utils/CopilotGptManifestUtils";
-import { expandVariableWithFunction, ManifestType } from "../../utils/envFunctionUtils";
-import { getAbsolutePath } from "../../utils/common";
-import { featureFlagManager, FeatureFlags } from "../../../common/featureFlags";
-import { updateVersionForTeamsAppYamlFile } from "../util/utils";
+import { manifestUtils } from "./utils/ManifestUtils";
+import { getResolvedManifest, normalizePath } from "./utils/utils";
 
 export const actionName = "teamsApp/zipAppPackage";
 
@@ -111,43 +116,60 @@ export class CreateAppPackageDriver implements StepDriver {
 
     const appDirectory = path.dirname(hasTTKGeneratedFolder ? generatedFolder : manifestPath);
 
-    const colorFile = path.resolve(appDirectory, manifest.icons.color);
-    if (!(await fs.pathExists(colorFile))) {
-      const error = new FileNotFoundError(
-        actionName,
-        colorFile,
-        "https://aka.ms/teamsfx-actions/teamsapp-zipAppPackage"
-      );
-      return err(error);
+    // check and include all relative file paths in manifest
+    const relativeFiles = [manifest.icons.color, manifest.icons.outline];
+    const manifestVersion = semver.coerce(manifest.manifestVersion); // ensure manifestVersion is a valid semver
+    if (manifestVersion && semver.gte(manifestVersion, "1.21.0")) {
+      const color32x32 = (manifest as TeamsManifestV1D21.TeamsManifestV1D21).icons.color32x32;
+      if (color32x32) {
+        relativeFiles.push(color32x32);
+      }
     }
-    const colorFileRelativePath = path.relative(appDirectory, colorFile);
-    if (colorFileRelativePath.startsWith("..")) {
-      return err(new InvalidFileOutsideOfTheDirectotryError(colorFile));
-    }
-
-    const outlineFile = path.resolve(appDirectory, manifest.icons.outline);
-    if (!(await fs.pathExists(outlineFile))) {
-      const error = new FileNotFoundError(
-        actionName,
-        outlineFile,
-        "https://aka.ms/teamsfx-actions/teamsapp-zipAppPackage"
-      );
-      return err(error);
-    }
-    const outlineFileRelativePath = path.relative(appDirectory, outlineFile);
-    if (outlineFileRelativePath.startsWith("..")) {
-      return err(new InvalidFileOutsideOfTheDirectotryError(outlineFile));
+    for (const file of relativeFiles) {
+      const filePath = path.resolve(appDirectory, file);
+      if (!(await fs.pathExists(filePath))) {
+        const error = new FileNotFoundError(
+          actionName,
+          filePath,
+          "https://aka.ms/teamsfx-actions/teamsapp-zipAppPackage"
+        );
+        return err(error);
+      }
+      const fileRelativePath = path.relative(appDirectory, filePath);
+      if (fileRelativePath.startsWith("..")) {
+        return err(new InvalidFileOutsideOfTheDirectotryError(filePath));
+      }
     }
 
     // pre-check existence
-    if (
-      manifest.localizationInfo &&
-      manifest.localizationInfo.additionalLanguages &&
-      manifest.localizationInfo.additionalLanguages.length > 0
-    ) {
-      for (const language of manifest.localizationInfo.additionalLanguages) {
+    let additionalLanguages: TeamsManifestV1D5.AdditionalLanguage[] | undefined;
+    if (manifestVersion && semver.gte(manifestVersion, "1.5.0")) {
+      additionalLanguages = (manifest as TeamsManifestV1D5.TeamsManifestV1D5).localizationInfo
+        ?.additionalLanguages;
+    }
+    let composeExtensionType: string | undefined;
+    let apiSpecificationFile: string | undefined;
+    let commands: TeamsManifestV1D17.ComposeExtensionCommand[] | undefined;
+    if (manifestVersion && semver.gte(manifestVersion, "1.17.0")) {
+      composeExtensionType = (manifest as TeamsManifestV1D17.TeamsManifestV1D17)
+        .composeExtensions?.[0]?.composeExtensionType;
+      apiSpecificationFile = (manifest as TeamsManifestV1D17.TeamsManifestV1D17)
+        .composeExtensions?.[0]?.apiSpecificationFile;
+      commands = (manifest as TeamsManifestV1D17.TeamsManifestV1D17).composeExtensions?.[0]
+        ?.commands;
+    }
+    let defaultLanguageFile: string | undefined;
+    let declarativeAgents: TeamsManifestV1D19.DeclarativeAgentRef[] | undefined;
+    if (manifestVersion && semver.gte(manifestVersion, "1.19.0")) {
+      defaultLanguageFile = (manifest as TeamsManifestV1D19.TeamsManifestV1D19).localizationInfo
+        ?.defaultLanguageFile;
+      declarativeAgents = (manifest as TeamsManifestV1D19.TeamsManifestV1D19).copilotAgents
+        ?.declarativeAgents;
+    }
+    if (additionalLanguages && additionalLanguages.length > 0) {
+      for (const language of additionalLanguages) {
         const file = language.file;
-        const fileName = `${appDirectory}/${file}`;
+        const fileName = path.join(appDirectory, file);
         if (!(await fs.pathExists(fileName))) {
           return err(
             new FileNotFoundError(
@@ -159,9 +181,8 @@ export class CreateAppPackageDriver implements StepDriver {
         }
       }
     }
-    if (manifest.localizationInfo && manifest.localizationInfo.defaultLanguageFile) {
-      const file = manifest.localizationInfo.defaultLanguageFile;
-      const fileName = `${appDirectory}/${file}`;
+    if (defaultLanguageFile) {
+      const fileName = path.join(appDirectory, defaultLanguageFile);
       if (!(await fs.pathExists(fileName))) {
         return err(
           new FileNotFoundError(
@@ -176,19 +197,15 @@ export class CreateAppPackageDriver implements StepDriver {
     const zip = new AdmZip();
     zip.addFile(Constants.MANIFEST_FILE, Buffer.from(JSON.stringify(manifest, null, 4)));
 
-    // outline.png & color.png, relative path
-    let dir = path.dirname(manifest.icons.color);
-    zip.addLocalFile(colorFile, dir === "." ? "" : dir);
-    dir = path.dirname(manifest.icons.outline);
-    zip.addLocalFile(outlineFile, dir === "." ? "" : dir);
+    // icon images, relative path
+    for (const icon of relativeFiles) {
+      const dir = path.dirname(icon);
+      zip.addLocalFile(path.resolve(appDirectory, icon), dir === "." ? "" : dir);
+    }
 
     // localization file
-    if (
-      manifest.localizationInfo &&
-      manifest.localizationInfo.additionalLanguages &&
-      manifest.localizationInfo.additionalLanguages.length > 0
-    ) {
-      for (const language of manifest.localizationInfo.additionalLanguages) {
+    if (additionalLanguages && additionalLanguages.length > 0) {
+      for (const language of additionalLanguages) {
         const file = language.file;
         const fileName = path.resolve(appDirectory, file);
         const relativePath = path.relative(appDirectory, fileName);
@@ -204,9 +221,8 @@ export class CreateAppPackageDriver implements StepDriver {
         }
       }
     }
-    if (manifest.localizationInfo && manifest.localizationInfo.defaultLanguageFile) {
-      const file = manifest.localizationInfo.defaultLanguageFile;
-      const fileName = path.resolve(appDirectory, file);
+    if (defaultLanguageFile) {
+      const fileName = path.resolve(appDirectory, defaultLanguageFile);
       const relativePath = path.relative(appDirectory, fileName);
       if (relativePath.startsWith("..")) {
         return err(new InvalidFileOutsideOfTheDirectotryError(fileName));
@@ -222,18 +238,10 @@ export class CreateAppPackageDriver implements StepDriver {
     }
 
     // API ME, API specification and Adaptive card templates
-    if (
-      manifest.composeExtensions &&
-      manifest.composeExtensions.length > 0 &&
-      manifest.composeExtensions[0].composeExtensionType == "apiBased" &&
-      manifest.composeExtensions[0].apiSpecificationFile
-    ) {
-      const apiSpecificationFile = path.resolve(
-        appDirectory,
-        manifest.composeExtensions[0].apiSpecificationFile
-      );
+    if (composeExtensionType == "apiBased" && apiSpecificationFile) {
+      const apiSpecificationFilePath = path.resolve(appDirectory, apiSpecificationFile);
       const checkExistenceRes = await this.validateReferencedFile(
-        apiSpecificationFile,
+        apiSpecificationFilePath,
         appDirectory
       );
       if (checkExistenceRes.isErr()) {
@@ -242,8 +250,8 @@ export class CreateAppPackageDriver implements StepDriver {
 
       const addFileWithVariableRes = await this.addFileWithVariable(
         zip,
-        manifest.composeExtensions[0].apiSpecificationFile,
         apiSpecificationFile,
+        apiSpecificationFilePath,
         ManifestType.ApiSpec,
         context
       );
@@ -251,8 +259,8 @@ export class CreateAppPackageDriver implements StepDriver {
         return err(addFileWithVariableRes.error);
       }
 
-      if (manifest.composeExtensions[0].commands.length > 0) {
-        for (const command of manifest.composeExtensions[0].commands) {
+      if (commands && commands.length > 0) {
+        for (const command of commands) {
           if (command.apiResponseRenderingTemplateFile) {
             const adaptiveCardFile = path.resolve(
               appDirectory,
@@ -272,31 +280,11 @@ export class CreateAppPackageDriver implements StepDriver {
       }
     }
 
-    const plugins = manifest.copilotExtensions
-      ? manifest.copilotExtensions.plugins
-      : manifest.copilotAgents?.plugins;
-    if (plugins?.length && plugins[0].file) {
-      // API plugin
-      const addFilesRes = await this.addPlugin(
-        zip,
-        plugins[0].file,
-        appDirectory,
-        context,
-        !shouldwriteAllManifest ? undefined : jsonFileDir
-      );
-      if (addFilesRes.isErr()) {
-        return err(addFilesRes.error);
-      }
-    }
-
-    const declarativeCopilots = manifest.copilotExtensions
-      ? manifest.copilotExtensions.declarativeCopilots
-      : manifest.copilotAgents?.declarativeAgents;
     // Copilot GPT
-    if (declarativeCopilots?.length && declarativeCopilots[0].file) {
+    if (declarativeAgents?.length && declarativeAgents[0].file) {
       const declarativeAgentManifestFile = path.resolve(
         hasTTKGeneratedFolder ? generatedFolder : appDirectory,
-        declarativeCopilots[0].file
+        declarativeAgents[0].file
       );
       const checkExistenceRes = await this.validateReferencedFile(
         declarativeAgentManifestFile,
@@ -308,7 +296,7 @@ export class CreateAppPackageDriver implements StepDriver {
 
       const addFileWithVariableRes = await this.addFileWithVariable(
         zip,
-        declarativeCopilots[0].file,
+        declarativeAgents[0].file,
         declarativeAgentManifestFile,
         ManifestType.DeclarativeCopilotManifest,
         context,
@@ -338,7 +326,7 @@ export class CreateAppPackageDriver implements StepDriver {
               hasTTKGeneratedFolder ? generatedFolder : appDirectory,
               pluginFileAbsolutePath
             );
-            const useForwardSlash = declarativeCopilots[0].file.concat(pluginFile).includes("/");
+            const useForwardSlash = declarativeAgents[0].file.concat(pluginFile).includes("/");
 
             const addPluginRes = await this.addPlugin(
               zip,

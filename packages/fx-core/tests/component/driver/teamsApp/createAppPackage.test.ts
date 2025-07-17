@@ -1,37 +1,34 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import "mocha";
-import * as sinon from "sinon";
-import chai from "chai";
-import fs from "fs-extra";
-import * as path from "path";
-import mockedEnv, { RestoreFn } from "mocked-env";
-import { CreateAppPackageDriver } from "../../../../src/component/driver/teamsApp/createAppPackage";
-import { CreateAppPackageArgs } from "../../../../src/component/driver/teamsApp/interfaces/CreateAppPackageArgs";
-import { MockedLogProvider, MockedUserInteraction } from "../../../plugins/solution/util";
-import { FileNotFoundError, JSONSyntaxError } from "../../../../src/error/common";
-import { manifestUtils } from "../../../../src/component/driver/teamsApp/utils/ManifestUtils";
 import {
   DeclarativeCopilotManifestSchema,
   err,
   ok,
   Platform,
-  PluginManifestSchema,
-  SystemError,
-  TeamsAppManifest,
+  TeamsManifest,
+  TeamsManifestV1D19,
   UserError,
 } from "@microsoft/teamsfx-api";
 import AdmZip from "adm-zip";
+import chai from "chai";
+import fs from "fs-extra";
+import "mocha";
+import mockedEnv, { RestoreFn } from "mocked-env";
+import * as sinon from "sinon";
+import { featureFlagManager, FeatureFlags } from "../../../../src/common/featureFlags";
+import { DriverContext } from "../../../../src/component/driver/interface/commonArgs";
+import { CreateAppPackageDriver } from "../../../../src/component/driver/teamsApp/createAppPackage";
+import { CreateAppPackageArgs } from "../../../../src/component/driver/teamsApp/interfaces/CreateAppPackageArgs";
+import { copilotGptManifestUtils } from "../../../../src/component/driver/teamsApp/utils/CopilotGptManifestUtils";
+import { manifestUtils } from "../../../../src/component/driver/teamsApp/utils/ManifestUtils";
+import * as utils from "../../../../src/component/driver/util/utils";
+import * as envFunctionUtils from "../../../../src/component/utils/envFunctionUtils";
+import { ManifestType } from "../../../../src/component/utils/envFunctionUtils";
+import { FileNotFoundError, JSONSyntaxError } from "../../../../src/error/common";
 import { InvalidFileOutsideOfTheDirectotryError } from "../../../../src/error/teamsApp";
 import { MockedM365Provider } from "../../../core/utils";
-import { copilotGptManifestUtils } from "../../../../src/component/driver/teamsApp/utils/CopilotGptManifestUtils";
-import { FeatureFlags, featureFlagManager } from "../../../../src/common/featureFlags";
-import * as envFunctionUtils from "../../../../src/component/utils/envFunctionUtils";
-import { DriverContext } from "../../../../src/component/driver/interface/commonArgs";
-import { ManifestType } from "../../../../src/component/utils/envFunctionUtils";
-import { expandEnvironmentVariable } from "../../../../src/component/utils/common";
-import * as utils from "../../../../src/component/driver/util/utils";
+import { MockedLogProvider, MockedUserInteraction } from "../../../plugins/solution/util";
 
 describe("teamsApp/createAppPackage", async () => {
   const teamsAppDriver = new CreateAppPackageDriver();
@@ -76,19 +73,21 @@ describe("teamsApp/createAppPackage", async () => {
       outputFolder: "./tests/plugins/resource/appstudio/resources-multi-env/build/appPackage",
     };
 
-    const manifest = new TeamsAppManifest();
-    manifest.copilotAgents = {
-      declarativeAgents: [
-        {
-          file: "resources/declarativeAgent.json",
-          id: "dc1",
-        },
-      ],
-    };
-    manifest.icons = {
-      color: "resources/color.png",
-      outline: "resources/outline.png",
-    };
+    const manifest = {
+      manifestVersion: "1.19",
+      icons: {
+        color: "resources/color.png",
+        outline: "resources/outline.png",
+      },
+      copilotAgents: {
+        declarativeAgents: [
+          {
+            file: "resources/declarativeAgent.json",
+            id: "dc1",
+          },
+        ],
+      },
+    } as TeamsManifest;
     sinon.stub(manifestUtils, "getManifestV3").resolves(ok(manifest));
     sinon.stub(fs, "chmod").callsFake(async () => {});
     sinon.stub(fs, "existsSync").returns(true);
@@ -128,19 +127,21 @@ describe("teamsApp/createAppPackage", async () => {
       outputFolder: "./tests/plugins/resource/appstudio/resources-multi-env/build/appPackage",
     };
 
-    const manifest = new TeamsAppManifest();
-    manifest.copilotAgents = {
-      declarativeAgents: [
-        {
-          file: "resources/declarativeAgent.json",
-          id: "dc1",
-        },
-      ],
-    };
-    manifest.icons = {
-      color: "resources/color.png",
-      outline: "resources/outline.png",
-    };
+    const manifest = {
+      manifestVersion: "1.19",
+      icons: {
+        color: "resources/color.png",
+        outline: "resources/outline.png",
+      },
+      copilotAgents: {
+        declarativeAgents: [
+          {
+            file: "resources/declarativeAgent.json",
+            id: "dc1",
+          },
+        ],
+      },
+    } as TeamsManifest;
     sinon.stub(manifestUtils, "getManifestV3").resolves(ok(manifest));
     sinon.stub(fs, "chmod").callsFake(async () => {});
     sinon.stub(fs, "existsSync").returns(true);
@@ -177,7 +178,15 @@ describe("teamsApp/createAppPackage", async () => {
       outputZipPath: "fakePath",
       outputJsonPath: "fakePath",
     };
-    sinon.stub(manifestUtils, "getManifestV3").resolves(ok(new TeamsAppManifest()));
+    sinon.stub(manifestUtils, "getManifestV3").resolves(
+      ok({
+        manifestVersion: "1.0",
+        icons: {
+          color: "",
+          outline: "",
+        },
+      } as TeamsManifest)
+    );
     sinon.stub(fs, "pathExists").onFirstCall().resolves(false);
     const result = (await teamsAppDriver.execute(args, mockedDriverContext)).result;
     chai.assert(result.isErr());
@@ -185,13 +194,22 @@ describe("teamsApp/createAppPackage", async () => {
       chai.assert.isTrue(result.error instanceof FileNotFoundError);
     }
   });
+
   it("should throw error if file not exists case 2", async () => {
     const args: CreateAppPackageArgs = {
       manifestPath: "fakepath",
       outputZipPath: "fakePath",
       outputJsonPath: "fakePath",
     };
-    sinon.stub(manifestUtils, "getManifestV3").resolves(ok(new TeamsAppManifest()));
+    sinon.stub(manifestUtils, "getManifestV3").resolves(
+      ok({
+        manifestVersion: "1.0",
+        icons: {
+          color: "",
+          outline: "",
+        },
+      } as TeamsManifest)
+    );
     sinon.stub(fs, "pathExists").onFirstCall().resolves(true).onSecondCall().resolves(false);
     const result = (await teamsAppDriver.execute(args, mockedDriverContext)).result;
     chai.assert(result.isErr());
@@ -199,17 +217,24 @@ describe("teamsApp/createAppPackage", async () => {
       chai.assert.isTrue(result.error instanceof FileNotFoundError);
     }
   });
+
   it("should throw error if file not exists case 3", async () => {
     const args: CreateAppPackageArgs = {
       manifestPath: "fakepath",
       outputZipPath: "fakePath",
       outputJsonPath: "fakePath",
     };
-    const manifest = new TeamsAppManifest();
-    manifest.localizationInfo = {
-      additionalLanguages: [{ file: "aaa", languageTag: "zh" }],
-      defaultLanguageTag: "en",
-    };
+    const manifest = {
+      manifestVersion: "1.19",
+      icons: {
+        color: "",
+        outline: "",
+      },
+      localizationInfo: {
+        additionalLanguages: [{ file: "aaa", languageTag: "zh" }],
+        defaultLanguageTag: "en",
+      },
+    } as TeamsManifest;
     sinon.stub(manifestUtils, "getManifestV3").resolves(ok(manifest));
     sinon
       .stub(fs, "pathExists")
@@ -219,6 +244,34 @@ describe("teamsApp/createAppPackage", async () => {
       .resolves(true)
       .onThirdCall()
       .resolves(false);
+    const result = (await teamsAppDriver.execute(args, mockedDriverContext)).result;
+    chai.assert(result.isErr());
+    if (result.isErr()) {
+      chai.assert.isTrue(result.error instanceof FileNotFoundError);
+    }
+  });
+
+  it("should throw error if color32x32 does not exist", async () => {
+    const args: CreateAppPackageArgs = {
+      manifestPath: "fakepath",
+      outputZipPath: "fakePath",
+      outputJsonPath: "fakePath",
+    };
+    const manifest = {
+      manifestVersion: "1.21",
+      icons: {
+        color: "",
+        outline: "",
+        color32x32: "notExist.png",
+      },
+    } as TeamsManifest;
+    sinon.stub(manifestUtils, "getManifestV3").resolves(ok(manifest));
+    sinon.stub(fs, "pathExists").callsFake((filePath) => {
+      if (filePath.includes("notExist.png")) {
+        return false;
+      }
+      return true;
+    });
     const result = (await teamsAppDriver.execute(args, mockedDriverContext)).result;
     chai.assert(result.isErr());
     if (result.isErr()) {
@@ -236,25 +289,27 @@ describe("teamsApp/createAppPackage", async () => {
         "./tests/plugins/resource/appstudio/resources-multi-env/build/appPackage/manifest.dev.json",
     };
 
-    const manifest = new TeamsAppManifest();
-    manifest.composeExtensions = [
-      {
-        composeExtensionType: "apiBased",
-        apiSpecificationFile: "resources/openai.yml",
-        commands: [
-          {
-            id: "GET /repairs",
-            apiResponseRenderingTemplateFile: "resources/repairs.json",
-            title: "fake",
-          },
-        ],
-        botId: "",
+    const manifest = {
+      manifestVersion: "1.19",
+      composeExtensions: [
+        {
+          composeExtensionType: "apiBased",
+          apiSpecificationFile: "resources/openai.yml",
+          commands: [
+            {
+              id: "GET /repairs",
+              apiResponseRenderingTemplateFile: "resources/repairs.json",
+              title: "fake",
+            },
+          ],
+          botId: "",
+        },
+      ],
+      icons: {
+        color: "resources/color.png",
+        outline: "resources/outline.png",
       },
-    ];
-    manifest.icons = {
-      color: "resources/color.png",
-      outline: "resources/outline.png",
-    };
+    } as TeamsManifest;
     sinon.stub(manifestUtils, "getManifestV3").resolves(ok(manifest));
 
     sinon.stub(fs, "pathExists").callsFake((filePath) => {
@@ -288,25 +343,27 @@ describe("teamsApp/createAppPackage", async () => {
       }
     });
 
-    const manifest = new TeamsAppManifest();
-    manifest.composeExtensions = [
-      {
-        composeExtensionType: "apiBased",
-        apiSpecificationFile: "resources/openai.yml",
-        commands: [
-          {
-            id: "GET /repairs",
-            apiResponseRenderingTemplateFile: "resources/repairs.json",
-            title: "fake",
-          },
-        ],
-        botId: "",
+    const manifest = {
+      manifestVersion: "1.19",
+      composeExtensions: [
+        {
+          composeExtensionType: "apiBased",
+          apiSpecificationFile: "resources/openai.yml",
+          commands: [
+            {
+              id: "GET /repairs",
+              apiResponseRenderingTemplateFile: "resources/repairs.json",
+              title: "fake",
+            },
+          ],
+          botId: "",
+        },
+      ],
+      icons: {
+        color: "resources/color.png",
+        outline: "resources/outline.png",
       },
-    ];
-    manifest.icons = {
-      color: "resources/color.png",
-      outline: "resources/outline.png",
-    };
+    } as TeamsManifest;
     sinon.stub(manifestUtils, "getManifestV3").resolves(ok(manifest));
 
     const result = (await teamsAppDriver.execute(args, mockedDriverContext)).result;
@@ -333,12 +390,18 @@ describe("teamsApp/createAppPackage", async () => {
       }
     });
 
-    const manifest = new TeamsAppManifest();
-    manifest.localizationInfo = {
-      additionalLanguages: [{ file: "aaa", languageTag: "zh" }],
-      defaultLanguageTag: "en",
-      defaultLanguageFile: "fake.json",
-    };
+    const manifest = {
+      manifestVersion: "1.19",
+      icons: {
+        color: "",
+        outline: "",
+      },
+      localizationInfo: {
+        additionalLanguages: [{ file: "aaa", languageTag: "zh" }],
+        defaultLanguageTag: "en",
+        defaultLanguageFile: "fake.json",
+      },
+    } as TeamsManifest;
     sinon.stub(manifestUtils, "getManifestV3").resolves(ok(manifest));
 
     const result = (await teamsAppDriver.execute(args, mockedDriverContext)).result;
@@ -346,215 +409,6 @@ describe("teamsApp/createAppPackage", async () => {
     if (result.isErr()) {
       chai.assert.isTrue(result.error instanceof FileNotFoundError);
     }
-  });
-
-  describe("api plugin error case", async () => {
-    it("should throw error if pluginFile not exists for API plugin", async () => {
-      const args: CreateAppPackageArgs = {
-        manifestPath:
-          "./tests/plugins/resource/appstudio/resources-multi-env/templates/appPackage/v3.manifest.template.json",
-        outputZipPath:
-          "./tests/plugins/resource/appstudio/resources-multi-env/build/appPackage/appPackage.dev.zip",
-        outputJsonPath:
-          "./tests/plugins/resource/appstudio/resources-multi-env/build/appPackage/manifest.dev.json",
-      };
-      sinon.stub(fs, "pathExists").callsFake((filePath) => {
-        if (filePath.includes("plugin.json")) {
-          return false;
-        } else {
-          return true;
-        }
-      });
-
-      const manifest = new TeamsAppManifest();
-      manifest.copilotExtensions = {
-        plugins: [
-          {
-            file: "plugin.json",
-            id: "plugin1",
-          },
-        ],
-      };
-      manifest.icons = {
-        color: "resources/color.png",
-        outline: "resources/outline.png",
-      };
-      sinon.stub(manifestUtils, "getManifestV3").resolves(ok(manifest));
-
-      const result = (await teamsAppDriver.execute(args, mockedDriverContext)).result;
-      chai.assert(result.isErr());
-      if (result.isErr()) {
-        chai.assert.isTrue(result.error instanceof FileNotFoundError);
-      }
-    });
-
-    it("should return error when placeholder is not resolved in ai-plugin.json - case 1", async () => {
-      const args: CreateAppPackageArgs = {
-        manifestPath:
-          "./tests/plugins/resource/appstudio/resources-multi-env/templates/appPackage/v3.manifest.template.json",
-        outputZipPath:
-          "./tests/plugins/resource/appstudio/resources-multi-env/build/appPackage/appPackage.dev.zip",
-        outputJsonPath:
-          "./tests/plugins/resource/appstudio/resources-multi-env/build/appPackage/manifest.dev.json",
-      };
-      sinon.stub(fs, "pathExists").callsFake((filePath) => {
-        return true;
-      });
-
-      const manifest = new TeamsAppManifest();
-      manifest.icons = {
-        color: "resources/color.png",
-        outline: "resources/outline.png",
-      };
-      manifest.copilotExtensions = {
-        plugins: [
-          {
-            file: "resources/ai-plugin.json",
-            id: "plugin1",
-          },
-        ],
-      };
-      sinon.stub(manifestUtils, "getManifestV3").resolves(ok(manifest));
-      sinon.stub(fs, "chmod").callsFake(async () => {});
-      sinon.stub(fs, "writeFile").callsFake(async () => {});
-
-      delete process.env["APP_NAME_SUFFIX"];
-      const result = (await teamsAppDriver.execute(args, mockedDriverContext)).result;
-
-      chai.assert(
-        result.isErr() &&
-          result.error.name === "MissingEnvironmentVariablesError" &&
-          result.error.message.includes("APP_NAME_SUFFIX")
-      );
-    });
-
-    it("should return error when placeholder is not resolved in ai-plugin.json- case 2", async () => {
-      const args: CreateAppPackageArgs = {
-        manifestPath:
-          "./tests/plugins/resource/appstudio/resources-multi-env/templates/appPackage/v3.manifest.template.json",
-        outputZipPath:
-          "./tests/plugins/resource/appstudio/resources-multi-env/build/appPackage/appPackage.dev.zip",
-        outputJsonPath:
-          "./tests/plugins/resource/appstudio/resources-multi-env/build/appPackage/manifest.dev.json",
-      };
-      sinon.stub(fs, "pathExists").callsFake((filePath) => {
-        return true;
-      });
-
-      const pluginJson: PluginManifestSchema = {
-        name_for_human: "test",
-        schema_version: "v2",
-        description_for_human: "test",
-        runtimes: [
-          {
-            type: "OpenApi",
-            auth: { type: "None" },
-            spec: { url: "test\\openai.yml" },
-          },
-        ],
-      };
-      sinon.stub(fs, "readJSON").resolves(pluginJson);
-
-      const manifest = new TeamsAppManifest();
-      manifest.icons = {
-        color: "resources/color.png",
-        outline: "resources/outline.png",
-      };
-      manifest.copilotExtensions = {
-        plugins: [
-          {
-            file: "resources/ai-plugin.json",
-            id: "plugin1",
-          },
-        ],
-      };
-
-      sinon.stub(manifestUtils, "getManifestV3").resolves(ok(manifest));
-      sinon.stub(fs, "chmod").callsFake(async () => {});
-      sinon.stub(fs, "writeFile").callsFake(async () => {});
-
-      delete process.env["APP_NAME_SUFFIX"];
-      const result = (await teamsAppDriver.execute(args, mockedDriverContext)).result;
-
-      chai.assert(
-        result.isErr() &&
-          result.error.name === "MissingEnvironmentVariablesError" &&
-          result.error.message.includes("APP_NAME_SUFFIX")
-      );
-    });
-
-    it("should throw error if api spec not exists for API plugin", async () => {
-      const args: CreateAppPackageArgs = {
-        manifestPath:
-          "./tests/plugins/resource/appstudio/resources-multi-env/templates/appPackage/v3.manifest.template.json",
-        outputZipPath:
-          "./tests/plugins/resource/appstudio/resources-multi-env/build/appPackage/appPackage.dev.zip",
-        outputJsonPath:
-          "./tests/plugins/resource/appstudio/resources-multi-env/build/appPackage/manifest.dev.json",
-      };
-      sinon.stub(fs, "pathExists").callsFake((filePath) => {
-        if (filePath.includes("openai.yml")) {
-          return false;
-        } else {
-          return true;
-        }
-      });
-
-      const manifest = new TeamsAppManifest();
-      manifest.copilotExtensions = {
-        plugins: [
-          {
-            file: "resources/ai-plugin.json",
-            id: "plugin1",
-          },
-        ],
-      };
-      manifest.icons = {
-        color: "resources/color.png",
-        outline: "resources/outline.png",
-      };
-      sinon.stub(manifestUtils, "getManifestV3").resolves(ok(manifest));
-
-      const result = (await teamsAppDriver.execute(args, mockedDriverContext)).result;
-      chai.assert(result.isErr());
-      if (result.isErr()) {
-        chai.assert.isTrue(result.error instanceof FileNotFoundError);
-      }
-    });
-
-    it("should throw error if parse json error", async () => {
-      const args: CreateAppPackageArgs = {
-        manifestPath:
-          "./tests/plugins/resource/appstudio/resources-multi-env/templates/appPackage/v3.manifest.template.json",
-        outputZipPath:
-          "./tests/plugins/resource/appstudio/resources-multi-env/build/appPackage/appPackage.dev.zip",
-        outputJsonPath:
-          "./tests/plugins/resource/appstudio/resources-multi-env/build/appPackage/manifest.dev.json",
-      };
-      sinon.stub(fs, "pathExists").resolves(true);
-      sinon.stub(fs, "readJSON").throws(new Error("fake error"));
-
-      const manifest = new TeamsAppManifest();
-      manifest.copilotExtensions = {
-        plugins: [
-          {
-            file: "resources/ai-plugin.json",
-            id: "plugin1",
-          },
-        ],
-      };
-      manifest.icons = {
-        color: "resources/color.png",
-        outline: "resources/outline.png",
-      };
-      sinon.stub(manifestUtils, "getManifestV3").resolves(ok(manifest));
-
-      const result = (await teamsAppDriver.execute(args, mockedDriverContext)).result;
-      chai.assert.isTrue(result.isErr());
-      if (result.isErr()) {
-        chai.assert.isTrue(result.error instanceof JSONSyntaxError);
-      }
-    });
   });
 
   it("invalid param error", async () => {
@@ -580,34 +434,36 @@ describe("teamsApp/createAppPackage", async () => {
         "./tests/plugins/resource/appstudio/resources-multi-env/build/appPackage/manifest.dev.json",
     };
 
-    const manifest = new TeamsAppManifest();
-    manifest.composeExtensions = [
-      {
-        composeExtensionType: "apiBased",
-        apiSpecificationFile: "resources/openai.yml",
-        commands: [
+    const manifest = {
+      manifestVersion: "1.17",
+      localizationInfo: {
+        defaultLanguageTag: "en",
+        additionalLanguages: [
           {
-            id: "GET /repairs",
-            apiResponseRenderingTemplateFile: "resources/repairs.json",
-            title: "fake",
+            languageTag: "de",
+            file: "resources/de.json",
           },
         ],
-        botId: "",
       },
-    ];
-    manifest.icons = {
-      color: "resources/color.png",
-      outline: "resources/outline.png",
-    };
-    manifest.localizationInfo = {
-      defaultLanguageTag: "en",
-      additionalLanguages: [
+      composeExtensions: [
         {
-          languageTag: "de",
-          file: "resources/de.json",
+          composeExtensionType: "apiBased",
+          apiSpecificationFile: "resources/openai.yml",
+          commands: [
+            {
+              id: "GET /repairs",
+              apiResponseRenderingTemplateFile: "resources/repairs.json",
+              title: "fake",
+            },
+          ],
+          botId: "",
         },
       ],
-    };
+      icons: {
+        color: "resources/color.png",
+        outline: "resources/outline.png",
+      },
+    } as TeamsManifest;
     sinon.stub(manifestUtils, "getManifestV3").resolves(ok(manifest));
 
     sinon.stub(fs, "chmod").callsFake(async () => {});
@@ -651,35 +507,37 @@ describe("teamsApp/createAppPackage", async () => {
       outputFolder: "./tests/plugins/resource/appstudio/resources-multi-env/build/appPackage",
     };
 
-    const manifest = new TeamsAppManifest();
-    manifest.composeExtensions = [
-      {
-        composeExtensionType: "apiBased",
-        apiSpecificationFile: "resources/openai.yml",
-        commands: [
+    const manifest = {
+      manifestVersion: "1.19",
+      localizationInfo: {
+        defaultLanguageTag: "en",
+        additionalLanguages: [
           {
-            id: "GET /repairs",
-            apiResponseRenderingTemplateFile: "resources/repairs.json",
-            title: "fake",
+            languageTag: "de",
+            file: "resources/de.json",
           },
         ],
-        botId: "",
+        defaultLanguageFile: "resources/de.json",
       },
-    ];
-    manifest.icons = {
-      color: "resources/color.png",
-      outline: "resources/outline.png",
-    };
-    manifest.localizationInfo = {
-      defaultLanguageTag: "en",
-      additionalLanguages: [
+      composeExtensions: [
         {
-          languageTag: "de",
-          file: "resources/de.json",
+          composeExtensionType: "apiBased",
+          apiSpecificationFile: "resources/openai.yml",
+          commands: [
+            {
+              id: "GET /repairs",
+              apiResponseRenderingTemplateFile: "resources/repairs.json",
+              title: "fake",
+            },
+          ],
+          botId: "",
         },
       ],
-      defaultLanguageFile: "resources/de.json",
-    };
+      icons: {
+        color: "resources/color.png",
+        outline: "resources/outline.png",
+      },
+    } as TeamsManifest;
     sinon.stub(manifestUtils, "getManifestV3").resolves(ok(manifest));
 
     sinon.stub(fs, "chmod").callsFake(async () => {});
@@ -723,34 +581,36 @@ describe("teamsApp/createAppPackage", async () => {
       outputFolder: "./tests/plugins/resource/appstudio/resources-multi-env/build/appPackage",
     };
 
-    const manifest = new TeamsAppManifest();
-    manifest.composeExtensions = [
-      {
-        composeExtensionType: "apiBased",
-        apiSpecificationFile: "resources/openai.yml",
-        commands: [
+    const manifest = {
+      manifestVersion: "1.19",
+      localizationInfo: {
+        defaultLanguageTag: "en",
+        additionalLanguages: [
           {
-            id: "GET /repairs",
-            apiResponseRenderingTemplateFile: "resources/repairs.json",
-            title: "fake",
+            languageTag: "de",
+            file: "resources/de.json",
           },
         ],
-        botId: "",
       },
-    ];
-    manifest.icons = {
-      color: "resources/color.png",
-      outline: "resources/outline.png",
-    };
-    manifest.localizationInfo = {
-      defaultLanguageTag: "en",
-      additionalLanguages: [
+      composeExtensions: [
         {
-          languageTag: "de",
-          file: "resources/de.json",
+          composeExtensionType: "apiBased",
+          apiSpecificationFile: "resources/openai.yml",
+          commands: [
+            {
+              id: "GET /repairs",
+              apiResponseRenderingTemplateFile: "resources/repairs.json",
+              title: "fake",
+            },
+          ],
+          botId: "",
         },
       ],
-    };
+      icons: {
+        color: "resources/color.png",
+        outline: "resources/outline.png",
+      },
+    } as TeamsManifest;
     sinon.stub(manifestUtils, "getManifestV3").resolves(ok(manifest));
 
     sinon.stub(fs, "chmod").callsFake(async () => {});
@@ -778,7 +638,18 @@ describe("teamsApp/createAppPackage", async () => {
       outputFolder: "./tests/plugins/resource/appstudio/resources-multi-env/build/appPackage",
     };
 
-    const manifest = new TeamsAppManifest();
+    const manifest = {
+      manifestVersion: "1.19",
+      localizationInfo: {
+        defaultLanguageTag: "en",
+        additionalLanguages: [
+          {
+            languageTag: "de",
+            file: "resources/de.json",
+          },
+        ],
+      },
+    } as TeamsManifest;
     manifest.composeExtensions = [
       {
         composeExtensionType: "apiBased",
@@ -796,15 +667,6 @@ describe("teamsApp/createAppPackage", async () => {
     manifest.icons = {
       color: "resources/color.png",
       outline: "resources/outline.png",
-    };
-    manifest.localizationInfo = {
-      defaultLanguageTag: "en",
-      additionalLanguages: [
-        {
-          languageTag: "de",
-          file: "resources/de.json",
-        },
-      ],
     };
     sinon.stub(manifestUtils, "getManifestV3").resolves(ok(manifest));
 
@@ -828,7 +690,9 @@ describe("teamsApp/createAppPackage", async () => {
         "./tests/plugins/resource/appstudio/resources-multi-env/build/appPackage/manifest.dev.json",
     };
 
-    const manifest = new TeamsAppManifest();
+    const manifest = {
+      manifestVersion: "1.19",
+    } as TeamsManifestV1D19.TeamsManifestV1D19;
     manifest.composeExtensions = [
       {
         composeExtensionType: "apiBased",
@@ -881,7 +745,9 @@ describe("teamsApp/createAppPackage", async () => {
         "./tests/plugins/resource/appstudio/resources-multi-env/build/appPackage/manifest.dev.json",
     };
 
-    const manifest = new TeamsAppManifest();
+    const manifest = {
+      manifestVersion: "1.19",
+    } as TeamsManifestV1D19.TeamsManifestV1D19;
     manifest.composeExtensions = [
       {
         composeExtensionType: "apiBased",
@@ -923,133 +789,6 @@ describe("teamsApp/createAppPackage", async () => {
     chai.assert.isTrue(executeResult.result.isOk());
   });
 
-  it("version <= 1.6: happy path - API plugin", async () => {
-    const args: CreateAppPackageArgs = {
-      manifestPath:
-        "./tests/plugins/resource/appstudio/resources-multi-env/templates/appPackage/v3.manifest.template.json",
-      outputZipPath:
-        "./tests/plugins/resource/appstudio/resources-multi-env/build/appPackage/appPackage.dev.zip",
-      outputJsonPath:
-        "./tests/plugins/resource/appstudio/resources-multi-env/build/appPackage/manifest.dev.json",
-    };
-
-    const manifest = new TeamsAppManifest();
-    manifest.copilotExtensions = {
-      plugins: [
-        {
-          file: "resources/ai-plugin.json",
-          id: "plugin1",
-        },
-      ],
-    };
-    manifest.icons = {
-      color: "resources/color.png",
-      outline: "resources/outline.png",
-    };
-    sinon.stub(manifestUtils, "getManifestV3").resolves(ok(manifest));
-    sinon.stub(fs, "chmod").callsFake(async () => {});
-    const writeFileStub = sinon.stub(fs, "writeFile").callsFake(async () => {});
-
-    const result = (await teamsAppDriver.execute(args, mockedDriverContext)).result;
-    if (result.isErr()) {
-      console.log(result.error);
-    }
-    chai.assert.isTrue(result.isOk());
-    const outputExist = await fs.pathExists(args.outputZipPath);
-    chai.assert.isTrue(outputExist);
-    chai.assert.isTrue(writeFileStub.calledOnce);
-    if (outputExist) {
-      const zip = new AdmZip(args.outputZipPath);
-      let aiPluginContent = "";
-      let openapiContent = "";
-
-      const entries = zip.getEntries();
-      entries.forEach((e) => {
-        const name = e.entryName;
-        if (name.endsWith("ai-plugin.json")) {
-          const data = e.getData();
-          aiPluginContent = data.toString("utf8");
-        }
-
-        if (name.endsWith("openai.yml")) {
-          const data = e.getData();
-          openapiContent = data.toString("utf8");
-        }
-      });
-
-      chai.assert(
-        openapiContent &&
-          aiPluginContent &&
-          openapiContent.search("APP_NAME_SUFFIX") < 0 &&
-          aiPluginContent.search(openapiServerPlaceholder) < 0
-      );
-      await fs.remove(args.outputZipPath);
-    }
-  });
-
-  it("version > 1.6: happy path - API plugin", async () => {
-    const args: CreateAppPackageArgs = {
-      manifestPath:
-        "./tests/plugins/resource/appstudio/resources-multi-env/templates/appPackage/v3.manifest.template.json",
-      outputZipPath:
-        "./tests/plugins/resource/appstudio/resources-multi-env/build/appPackage/appPackage.dev.zip",
-      outputFolder: "./tests/plugins/resource/appstudio/resources-multi-env/build/appPackage",
-    };
-
-    const manifest = new TeamsAppManifest();
-    manifest.copilotExtensions = {
-      plugins: [
-        {
-          file: "resources/ai-plugin.json",
-          id: "plugin1",
-        },
-      ],
-    };
-    manifest.icons = {
-      color: "resources/color.png",
-      outline: "resources/outline.png",
-    };
-    sinon.stub(manifestUtils, "getManifestV3").resolves(ok(manifest));
-    sinon.stub(fs, "chmod").callsFake(async () => {});
-    const writeFileStub = sinon.stub(fs, "writeFile").callsFake(async () => {});
-
-    const result = (await teamsAppDriver.execute(args, mockedDriverContext)).result;
-    if (result.isErr()) {
-      console.log(result.error);
-    }
-    chai.assert.isTrue(result.isOk());
-    const outputExist = await fs.pathExists(args.outputZipPath);
-    chai.assert.isTrue(outputExist);
-    chai.assert.isTrue(writeFileStub.calledTwice);
-    if (outputExist) {
-      const zip = new AdmZip(args.outputZipPath);
-      let aiPluginContent = "";
-      let openapiContent = "";
-
-      const entries = zip.getEntries();
-      entries.forEach((e) => {
-        const name = e.entryName;
-        if (name.endsWith("ai-plugin.json")) {
-          const data = e.getData();
-          aiPluginContent = data.toString("utf8");
-        }
-
-        if (name.endsWith("openai.yml")) {
-          const data = e.getData();
-          openapiContent = data.toString("utf8");
-        }
-      });
-
-      chai.assert(
-        openapiContent &&
-          aiPluginContent &&
-          openapiContent.search("APP_NAME_SUFFIX") < 0 &&
-          aiPluginContent.search(openapiServerPlaceholder) < 0
-      );
-      await fs.remove(args.outputZipPath);
-    }
-  });
-
   it("version >= 1.9: happy path - API plugin", async () => {
     const args: CreateAppPackageArgs = {
       manifestPath:
@@ -1059,14 +798,10 @@ describe("teamsApp/createAppPackage", async () => {
       outputFolder: "./tests/plugins/resource/appstudio/resources-multi-env/build/appPackage",
     };
 
-    const manifest = new TeamsAppManifest();
+    const manifest = {
+      manifestVersion: "1.19",
+    } as TeamsManifestV1D19.TeamsManifestV1D19;
     manifest.copilotAgents = {
-      plugins: [
-        {
-          file: "resources/ai-plugin.json",
-          id: "plugin1",
-        },
-      ],
       declarativeAgents: [
         {
           file: "resources/de.json",
@@ -1089,25 +824,15 @@ describe("teamsApp/createAppPackage", async () => {
     chai.assert.isTrue(result.isOk());
     const outputExist = await fs.pathExists(args.outputZipPath);
     chai.assert.isTrue(outputExist);
-    chai.assert.isTrue(writeFileStub.calledThrice);
+    chai.assert.isTrue(writeFileStub.calledTwice);
     if (outputExist) {
       const zip = new AdmZip(args.outputZipPath);
-      let aiPluginContent = "";
-      let openapiContent = "";
+      const openapiContent = "";
       let declarativeAgentsContent = "";
 
       const entries = zip.getEntries();
       entries.forEach((e) => {
         const name = e.entryName;
-        if (name.endsWith("ai-plugin.json")) {
-          const data = e.getData();
-          aiPluginContent = data.toString("utf8");
-        }
-
-        if (name.endsWith("openai.yml")) {
-          const data = e.getData();
-          openapiContent = data.toString("utf8");
-        }
 
         if (name.endsWith("de.json")) {
           const data = e.getData();
@@ -1115,13 +840,7 @@ describe("teamsApp/createAppPackage", async () => {
         }
       });
 
-      chai.assert(
-        openapiContent &&
-          aiPluginContent &&
-          openapiContent.search("APP_NAME_SUFFIX") < 0 &&
-          aiPluginContent.search(openapiServerPlaceholder) < 0 &&
-          declarativeAgentsContent
-      );
+      chai.assert(declarativeAgentsContent);
       await fs.remove(args.outputZipPath);
     }
   });
@@ -1135,7 +854,9 @@ describe("teamsApp/createAppPackage", async () => {
       outputFolder: "./tests/plugins/resource/appstudio/resources-multi-env/build/appPackage",
     };
 
-    const manifest = new TeamsAppManifest();
+    const manifest = {
+      manifestVersion: "1.19",
+    } as TeamsManifestV1D19.TeamsManifestV1D19;
     manifest.copilotAgents = {
       declarativeAgents: [
         {
@@ -1209,7 +930,9 @@ describe("teamsApp/createAppPackage", async () => {
       outputFolder: "./tests/plugins/resource/appstudio/resources-multi-env/build/appPackage",
     };
 
-    const manifest = new TeamsAppManifest();
+    const manifest = {
+      manifestVersion: "1.19",
+    } as TeamsManifestV1D19.TeamsManifestV1D19;
     manifest.copilotAgents = {
       declarativeAgents: [
         {
@@ -1261,7 +984,9 @@ describe("teamsApp/createAppPackage", async () => {
       outputFolder: "./tests/plugins/resource/appstudio/resources-multi-env/build/appPackage",
     };
 
-    const manifest = new TeamsAppManifest();
+    const manifest = {
+      manifestVersion: "1.19",
+    } as TeamsManifestV1D19.TeamsManifestV1D19;
     manifest.copilotAgents = {
       declarativeAgents: [
         {
@@ -1335,7 +1060,9 @@ describe("teamsApp/createAppPackage", async () => {
         "./tests/plugins/resource/appstudio/resources-multi-env/build/appPackage/manifest.dev.json",
     };
 
-    const manifest = new TeamsAppManifest();
+    const manifest = {
+      manifestVersion: "1.19",
+    } as TeamsManifestV1D19.TeamsManifestV1D19;
     manifest.icons = {
       color: "../color.png",
       outline: "resources/outline.png",
@@ -1361,7 +1088,9 @@ describe("teamsApp/createAppPackage", async () => {
         "./tests/plugins/resource/appstudio/resources-multi-env/build/appPackage/manifest.dev.json",
     };
 
-    const manifest = new TeamsAppManifest();
+    const manifest = {
+      manifestVersion: "1.19",
+    } as TeamsManifestV1D19.TeamsManifestV1D19;
     manifest.icons = {
       color: "resources/color.png",
       outline: "../outline.png",
@@ -1387,7 +1116,9 @@ describe("teamsApp/createAppPackage", async () => {
         "./tests/plugins/resource/appstudio/resources-multi-env/build/appPackage/manifest.dev.json",
     };
 
-    const manifest = new TeamsAppManifest();
+    const manifest = {
+      manifestVersion: "1.19",
+    } as TeamsManifestV1D19.TeamsManifestV1D19;
     manifest.composeExtensions = [
       {
         composeExtensionType: "apiBased",
@@ -1428,7 +1159,9 @@ describe("teamsApp/createAppPackage", async () => {
         "./tests/plugins/resource/appstudio/resources-multi-env/build/appPackage/manifest.dev.json",
     };
 
-    const manifest = new TeamsAppManifest();
+    const manifest = {
+      manifestVersion: "1.19",
+    } as TeamsManifestV1D19.TeamsManifestV1D19;
     manifest.composeExtensions = [
       {
         composeExtensionType: "apiBased",
@@ -1475,9 +1208,11 @@ describe("teamsApp/createAppPackage", async () => {
           "./tests/plugins/resource/appstudio/resources-multi-env/build/appPackage/manifest.dev.json",
       };
 
-      const manifest = new TeamsAppManifest();
-      manifest.copilotExtensions = {
-        declarativeCopilots: [
+      const manifest = {
+        manifestVersion: "1.19",
+      } as TeamsManifestV1D19.TeamsManifestV1D19;
+      manifest.copilotAgents = {
+        declarativeAgents: [
           {
             file: "resources/gpt.json",
             id: "action_1",
@@ -1541,9 +1276,11 @@ describe("teamsApp/createAppPackage", async () => {
         outputFolder: "./tests/plugins/resource/appstudio/resources-multi-env/build/appPackage",
       };
 
-      const manifest = new TeamsAppManifest();
-      manifest.copilotExtensions = {
-        declarativeCopilots: [
+      const manifest = {
+        manifestVersion: "1.19",
+      } as TeamsManifestV1D19.TeamsManifestV1D19;
+      manifest.copilotAgents = {
+        declarativeAgents: [
           {
             file: "resources/gpt.json",
             id: "action_1",
@@ -1608,9 +1345,11 @@ describe("teamsApp/createAppPackage", async () => {
           "./tests/plugins/resource/appstudio/resources-multi-env/build/appPackage/manifest.dev.json",
       };
 
-      const manifest = new TeamsAppManifest();
-      manifest.copilotExtensions = {
-        declarativeCopilots: [
+      const manifest = {
+        manifestVersion: "1.19",
+      } as TeamsManifestV1D19.TeamsManifestV1D19;
+      manifest.copilotAgents = {
+        declarativeAgents: [
           {
             file: "resources/gpt.json",
             id: "action_1",
@@ -1651,10 +1390,12 @@ describe("teamsApp/createAppPackage", async () => {
           "./tests/plugins/resource/appstudio/resources-multi-env/build/appPackage/manifest.dev.json",
       };
 
-      const manifest = new TeamsAppManifest();
+      const manifest = {
+        manifestVersion: "1.19",
+      } as TeamsManifestV1D19.TeamsManifestV1D19;
 
-      manifest.copilotExtensions = {
-        declarativeCopilots: [
+      manifest.copilotAgents = {
+        declarativeAgents: [
           {
             file: "resources/gpt.json",
             id: "action_1",
@@ -1697,13 +1438,15 @@ describe("teamsApp/createAppPackage", async () => {
         return true;
       });
 
-      const manifest = new TeamsAppManifest();
+      const manifest = {
+        manifestVersion: "1.19",
+      } as TeamsManifestV1D19.TeamsManifestV1D19;
       manifest.icons = {
         color: "resources/color.png",
         outline: "resources/outline.png",
       };
-      manifest.copilotExtensions = {
-        declarativeCopilots: [
+      manifest.copilotAgents = {
+        declarativeAgents: [
           {
             file: "resources/gpt.json",
             id: "action_1",
@@ -1734,9 +1477,11 @@ describe("teamsApp/createAppPackage", async () => {
           "./tests/plugins/resource/appstudio/resources-multi-env/build/appPackage/manifest.dev.json",
       };
 
-      const manifest = new TeamsAppManifest();
-      manifest.copilotExtensions = {
-        declarativeCopilots: [
+      const manifest = {
+        manifestVersion: "1.19",
+      } as TeamsManifestV1D19.TeamsManifestV1D19;
+      manifest.copilotAgents = {
+        declarativeAgents: [
           {
             file: "resources/gpt.json",
             id: "action_1",
@@ -1773,7 +1518,9 @@ describe("teamsApp/createAppPackage", async () => {
         outputFolder: "./tests/plugins/resource/appstudio/resources-multi-env/build/appPackage",
       };
 
-      const manifest = new TeamsAppManifest();
+      const manifest = {
+        manifestVersion: "1.19",
+      } as TeamsManifestV1D19.TeamsManifestV1D19;
       manifest.localizationInfo = {
         defaultLanguageTag: "en",
         additionalLanguages: [
@@ -1808,7 +1555,9 @@ describe("teamsApp/createAppPackage", async () => {
         outputFolder: "./tests/plugins/resource/appstudio/resources-multi-env/build/appPackage",
       };
 
-      const manifest = new TeamsAppManifest();
+      const manifest = {
+        manifestVersion: "1.19",
+      } as TeamsManifestV1D19.TeamsManifestV1D19;
       manifest.localizationInfo = {
         defaultLanguageTag: "en",
         additionalLanguages: [
@@ -1846,7 +1595,9 @@ describe("teamsApp/createAppPackage", async () => {
         outputFolder: "./tests/plugins/resource/appstudio/resources-multi-env/build/appPackage",
       };
 
-      const manifest = new TeamsAppManifest();
+      const manifest = {
+        manifestVersion: "1.19",
+      } as TeamsManifestV1D19.TeamsManifestV1D19;
       manifest.localizationInfo = {
         defaultLanguageTag: "en",
         additionalLanguages: [
@@ -1888,7 +1639,9 @@ describe("teamsApp/createAppPackage", async () => {
         outputFolder: "./tests/plugins/resource/appstudio/resources-multi-env/build/appPackage",
       };
 
-      const manifest = new TeamsAppManifest();
+      const manifest = {
+        manifestVersion: "1.19",
+      } as TeamsManifestV1D19.TeamsManifestV1D19;
       manifest.localizationInfo = {
         defaultLanguageTag: "en",
         additionalLanguages: [
@@ -1923,7 +1676,9 @@ describe("teamsApp/createAppPackage", async () => {
         outputFolder: "./tests/plugins/resource/appstudio/resources-multi-env/build/appPackage",
       };
 
-      const manifest = new TeamsAppManifest();
+      const manifest = {
+        manifestVersion: "1.19",
+      } as TeamsManifestV1D19.TeamsManifestV1D19;
       manifest.composeExtensions = [
         {
           composeExtensionType: "apiBased",
@@ -2002,7 +1757,9 @@ describe("teamsApp/createAppPackage", async () => {
           "./tests/plugins/resource/appstudio/resources-multi-env/build/appPackage/manifest.embedded.json",
       };
 
-      const manifest = new TeamsAppManifest();
+      const manifest = {
+        manifestVersion: "1.19",
+      } as TeamsManifestV1D19.TeamsManifestV1D19;
       manifest.copilotAgents = {
         declarativeAgents: [{ file: "resources/declarativeAgent.json", id: "1" }],
       };
@@ -2077,7 +1834,9 @@ describe("teamsApp/createAppPackage", async () => {
           "./tests/plugins/resource/appstudio/resources-multi-env/build/appPackage/manifest.embedded.json",
       };
 
-      const manifest = new TeamsAppManifest();
+      const manifest = {
+        manifestVersion: "1.19",
+      } as TeamsManifestV1D19.TeamsManifestV1D19;
       manifest.copilotAgents = {
         declarativeAgents: [{ file: "resources/declarativeAgent.json", id: "1" }],
       };
@@ -2146,7 +1905,9 @@ describe("teamsApp/createAppPackage", async () => {
           "./tests/plugins/resource/appstudio/resources-multi-env/build/appPackage/manifest.embedded.json",
       };
 
-      const manifest = new TeamsAppManifest();
+      const manifest = {
+        manifestVersion: "1.19",
+      } as TeamsManifestV1D19.TeamsManifestV1D19;
       manifest.copilotAgents = {
         declarativeAgents: [{ file: "resources/declarativeAgent.json", id: "1" }],
       };
@@ -2215,7 +1976,9 @@ describe("teamsApp/createAppPackage", async () => {
           "./tests/plugins/resource/appstudio/resources-multi-env/build/appPackage/manifest.embedded.missing.json",
       };
 
-      const manifest = new TeamsAppManifest();
+      const manifest = {
+        manifestVersion: "1.19",
+      } as TeamsManifestV1D19.TeamsManifestV1D19;
       manifest.copilotAgents = {
         declarativeAgents: [{ file: "resources/declarativeAgent.json", id: "1" }],
       };

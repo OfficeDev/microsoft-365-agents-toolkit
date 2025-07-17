@@ -3,27 +3,29 @@
 
 import {
   Colors,
+  DeclarativeAgentManifest,
+  DeclarativeAgentManifestConverter,
+  DeclarativeCopilotCapabilityName,
   DeclarativeCopilotManifestSchema,
   DefaultPluginManifestFileName,
+  err,
   FxError,
   IDeclarativeCopilot,
   ManifestUtil,
+  ok,
+  OneDriveAndSharePointCapability,
   Platform,
   Result,
-  err,
-  ok,
-  Site,
-  DeclarativeCopilotCapabilityName,
-  OneDriveAndSharePointCapability,
-  WebSearchCapability,
   SharePointIDs,
-  DeclarativeAgentManifest,
-  DeclarativeAgentManifestConverter,
+  Site,
+  WebSearchCapability,
 } from "@microsoft/teamsfx-api";
 import fs from "fs-extra";
 import { EOL } from "os";
 import path from "path";
 import stripBom from "strip-bom";
+import { Context } from "vm";
+import { listAPIInfo } from "../../../../common/daSpecParser";
 import { getDefaultString, getLocalizedString } from "../../../../common/localizeUtils";
 import {
   FileNotFoundError,
@@ -41,8 +43,6 @@ import { AppStudioResultFactory } from "../results";
 import { manifestUtils } from "./ManifestUtils";
 import { pluginManifestUtils } from "./PluginManifestUtils";
 import { getResolvedManifest } from "./utils";
-import { Context } from "vm";
-import { listAPIInfo } from "../../../../common/daSpecParser";
 
 export class CopilotGptManifestUtils {
   public async readCopilotGptManifestFile(
@@ -344,8 +344,7 @@ export class CopilotGptManifestUtils {
 
   public logValidationErrors(
     validationRes: DeclarativeCopilotManifestValidationResult,
-    platform: Platform,
-    pluginPath: string
+    platform: Platform
   ): string | Array<{ content: string; color: Colors }> {
     const validationErrors = validationRes.validationResult;
     const filePath = validationRes.filePath;
@@ -380,15 +379,12 @@ export class CopilotGptManifestUtils {
       }
 
       for (const actionValidationRes of validationRes.actionValidationResult) {
-        if (!pluginPath || actionValidationRes.filePath !== pluginPath) {
-          // do not output validation result of the Declarative Copilot if same file has been validated when validating plugin manifest.
-          const actionValidationMessage = pluginManifestUtils.logValidationErrors(
-            actionValidationRes,
-            platform
-          ) as string;
-          if (actionValidationMessage) {
-            outputMessage += (!outputMessage ? "" : EOL) + actionValidationMessage;
-          }
+        const actionValidationMessage = pluginManifestUtils.logValidationErrors(
+          actionValidationRes,
+          platform
+        ) as string;
+        if (actionValidationMessage) {
+          outputMessage += (!outputMessage ? "" : EOL) + actionValidationMessage;
         }
       }
 
@@ -414,16 +410,14 @@ export class CopilotGptManifestUtils {
       }
 
       for (const actionValidationRes of validationRes.actionValidationResult) {
-        if (!pluginPath || actionValidationRes.filePath !== pluginPath) {
-          const actionValidationMessage = pluginManifestUtils.logValidationErrors(
-            actionValidationRes,
-            platform
+        const actionValidationMessage = pluginManifestUtils.logValidationErrors(
+          actionValidationRes,
+          platform
+        );
+        if (actionValidationMessage) {
+          outputMessage.push(
+            ...(actionValidationMessage as Array<{ content: string; color: Colors }>)
           );
-          if (actionValidationMessage) {
-            outputMessage.push(
-              ...(actionValidationMessage as Array<{ content: string; color: Colors }>)
-            );
-          }
         }
       }
 

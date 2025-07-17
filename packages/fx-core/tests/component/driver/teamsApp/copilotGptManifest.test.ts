@@ -1,46 +1,46 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import "mocha";
-import * as sinon from "sinon";
+import { SpecParser } from "@microsoft/m365-spec-parser";
+import {
+  Colors,
+  DeclarativeAgentManifestConverter,
+  DeclarativeCopilotCapabilityName,
+  DeclarativeCopilotManifestSchema,
+  err,
+  Err,
+  FxError,
+  ManifestUtil,
+  ok,
+  Ok,
+  Platform,
+  Result,
+  SystemError,
+  UserError,
+} from "@microsoft/teamsfx-api";
 import chai from "chai";
 import fs from "fs-extra";
-import {
-  DeclarativeCopilotManifestSchema,
-  ManifestUtil,
-  Platform,
-  SystemError,
-  ok,
-  err,
-  Colors,
-  UserError,
-  Result,
-  FxError,
-  DeclarativeCopilotCapabilityName,
-  Ok,
-  Err,
-  DeclarativeAgentManifestConverter,
-} from "@microsoft/teamsfx-api";
+import "mocha";
+import mockedEnv, { RestoreFn } from "mocked-env";
+import path from "path";
+import * as sinon from "sinon";
+import { featureFlagManager, FeatureFlags } from "../../../../src";
+import { createContext, setTools } from "../../../../src/common/globalVars";
+import { generateDriverContext } from "../../../../src/common/utils";
+import { EmbeddedKnowledgeLocalDirectoryName } from "../../../../src/component/driver/teamsApp/constants";
+import { AppStudioError } from "../../../../src/component/driver/teamsApp/errors";
+import { DeclarativeCopilotManifestValidationResult } from "../../../../src/component/driver/teamsApp/interfaces/ValidationResult";
 import { copilotGptManifestUtils } from "../../../../src/component/driver/teamsApp/utils/CopilotGptManifestUtils";
+import { manifestUtils } from "../../../../src/component/driver/teamsApp/utils/ManifestUtils";
+import { pluginManifestUtils } from "../../../../src/component/driver/teamsApp/utils/PluginManifestUtils";
+import { WrapDriverContext } from "../../../../src/component/driver/util/wrapUtil";
 import {
   FileNotFoundError,
   MissingEnvironmentVariablesError,
   WriteFileError,
 } from "../../../../src/error";
-import mockedEnv, { RestoreFn } from "mocked-env";
-import { pluginManifestUtils } from "../../../../src/component/driver/teamsApp/utils/PluginManifestUtils";
-import { AppStudioError } from "../../../../src/component/driver/teamsApp/errors";
-import { DeclarativeCopilotManifestValidationResult } from "../../../../src/component/driver/teamsApp/interfaces/ValidationResult";
-import { MockedLogProvider, MockedTelemetryReporter } from "../../../plugins/solution/util";
-import { WrapDriverContext } from "../../../../src/component/driver/util/wrapUtil";
-import { createContext, setTools } from "../../../../src/common/globalVars";
-import { generateDriverContext } from "../../../../src/common/utils";
 import { MockTools } from "../../../core/utils";
-import { manifestUtils } from "../../../../src/component/driver/teamsApp/utils/ManifestUtils";
-import path from "path";
-import { SpecParser } from "@microsoft/m365-spec-parser";
-import { EmbeddedKnowledgeLocalDirectoryName } from "../../../../src/component/driver/teamsApp/constants";
-import { featureFlagManager, FeatureFlags } from "../../../../src";
+import { MockedLogProvider, MockedTelemetryReporter } from "../../../plugins/solution/util";
 
 describe("copilotGptManifestUtils", () => {
   const sandbox = sinon.createSandbox();
@@ -707,7 +707,7 @@ describe("copilotGptManifestUtils", () => {
         ],
       };
 
-      const res = copilotGptManifestUtils.logValidationErrors(validationRes, Platform.VSCode, "");
+      const res = copilotGptManifestUtils.logValidationErrors(validationRes, Platform.VSCode);
       chai.assert.isEmpty(res);
     });
 
@@ -732,8 +732,7 @@ describe("copilotGptManifestUtils", () => {
 
       const res = copilotGptManifestUtils.logValidationErrors(
         validationRes,
-        Platform.VSCode,
-        "pluginPath"
+        Platform.VSCode
       ) as string;
 
       chai.assert.isFalse(res.includes("errorActions2"));
@@ -762,8 +761,7 @@ describe("copilotGptManifestUtils", () => {
 
       const res = copilotGptManifestUtils.logValidationErrors(
         validationRes,
-        Platform.VSCode,
-        "pluginPath"
+        Platform.VSCode
       ) as string;
 
       chai.assert.isFalse(res.includes("errorActions2"));
@@ -781,18 +779,12 @@ describe("copilotGptManifestUtils", () => {
             filePath: "testPath",
             validationResult: ["errorAction1"],
           },
-          {
-            id: "2",
-            filePath: "pluginPath",
-            validationResult: ["errorAction2"],
-          },
         ],
       };
 
       const res = copilotGptManifestUtils.logValidationErrors(
         validationRes,
-        Platform.CLI,
-        "pluginPath"
+        Platform.CLI
       ) as Array<{ content: string; color: Colors }>;
       chai.assert.isTrue(res.find((item) => item.content.includes("error1")) !== undefined);
       chai.assert.isTrue(res.find((item) => item.content.includes("errorAction1")) !== undefined);
@@ -820,8 +812,7 @@ describe("copilotGptManifestUtils", () => {
 
       const res = copilotGptManifestUtils.logValidationErrors(
         validationRes,
-        Platform.CLI,
-        ""
+        Platform.CLI
       ) as Array<{ content: string; color: Colors }>;
       chai.assert.isTrue(res.find((item) => item.content.includes("errorAction2")) !== undefined);
       chai.assert.isTrue(res.find((item) => item.content.includes("errorAction1")) !== undefined);

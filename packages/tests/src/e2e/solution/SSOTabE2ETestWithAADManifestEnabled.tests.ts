@@ -84,8 +84,7 @@ describe("SSO Tab with aad manifest enabled", () => {
       const aad = AadValidator.init(context, false, M365Login);
       await AadValidator.validate(aad);
 
-      const firstIdentifierUri =
-        "api://first.com/291fc1b5-1146-4d33-b7b8-ec4c441b6b33";
+      const firstIdentifierUri = "https://localhost:3000";
       await setAadManifestIdentifierUrisV3(projectPath, firstIdentifierUri);
 
       {
@@ -99,8 +98,7 @@ describe("SSO Tab with aad manifest enabled", () => {
       await CliHelper.updateAadManifest(projectPath, "--env dev", env);
       await AadValidator.validate(aad, firstIdentifierUri);
 
-      const secondIdentifierUri =
-        "api://second.com/291fc1b5-1146-4d33-b7b8-ec4c441b6b33";
+      const secondIdentifierUri = "https://localhost:8000";
       await setAadManifestIdentifierUrisV3(projectPath, secondIdentifierUri);
 
       // Only deploy aad manifest

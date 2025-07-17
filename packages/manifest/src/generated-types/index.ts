@@ -28,6 +28,7 @@ import * as TeamsManifestV1D19 from "./teams/TeamsManifestV1D19";
 import * as TeamsManifestV1D2 from "./teams/TeamsManifestV1D2";
 import * as TeamsManifestV1D20 from "./teams/TeamsManifestV1D20";
 import * as TeamsManifestV1D21 from "./teams/TeamsManifestV1D21";
+import * as TeamsManifestV1D22 from "./teams/TeamsManifestV1D22";
 import * as TeamsManifestV1D3 from "./teams/TeamsManifestV1D3";
 import * as TeamsManifestV1D4 from "./teams/TeamsManifestV1D4";
 import * as TeamsManifestV1D5 from "./teams/TeamsManifestV1D5";
@@ -36,39 +37,39 @@ import * as TeamsManifestV1D7 from "./teams/TeamsManifestV1D7";
 import * as TeamsManifestV1D8 from "./teams/TeamsManifestV1D8";
 import * as TeamsManifestV1D9 from "./teams/TeamsManifestV1D9";
 import * as TeamsManifestVDevPreview from "./teams/TeamsManifestVDevPreview";
-export { DeclarativeAgentManifestV1D0 };
-export { DeclarativeAgentManifestV1D2 };
-export { DeclarativeAgentManifestV1D3 };
-export { DeclarativeAgentManifestV1D4 };
-export { APIPluginManifestV2D1 };
-export { APIPluginManifestV2D2 };
-export { APIPluginManifestV2D3 };
-export { TeamsManifestV1D0 };
-export { TeamsManifestV1D1 };
-export { TeamsManifestV1D10 };
-export { TeamsManifestV1D11 };
-export { TeamsManifestV1D12 };
-export { TeamsManifestV1D13 };
-export { TeamsManifestV1D14 };
-export { TeamsManifestV1D15 };
-export { TeamsManifestV1D16 };
-export { TeamsManifestV1D17 };
-export { TeamsManifestV1D19 };
-export { TeamsManifestV1D2 };
-export { TeamsManifestV1D20 };
-export { TeamsManifestV1D21 };
-export { TeamsManifestV1D3 };
-export { TeamsManifestV1D4 };
-export { TeamsManifestV1D5 };
-export { TeamsManifestV1D6 };
-export { TeamsManifestV1D7 };
-export { TeamsManifestV1D8 };
-export { TeamsManifestV1D9 };
-export { TeamsManifestVDevPreview };
+export {
+  APIPluginManifestV2D1,
+  APIPluginManifestV2D2,
+  APIPluginManifestV2D3,
+  DeclarativeAgentManifestV1D0,
+  DeclarativeAgentManifestV1D2,
+  DeclarativeAgentManifestV1D3,
+  DeclarativeAgentManifestV1D4,
+  TeamsManifestV1D0,
+  TeamsManifestV1D1,
+  TeamsManifestV1D10,
+  TeamsManifestV1D11,
+  TeamsManifestV1D12,
+  TeamsManifestV1D13,
+  TeamsManifestV1D14,
+  TeamsManifestV1D15,
+  TeamsManifestV1D16,
+  TeamsManifestV1D17,
+  TeamsManifestV1D19,
+  TeamsManifestV1D2,
+  TeamsManifestV1D20,
+  TeamsManifestV1D21,
+  TeamsManifestV1D3,
+  TeamsManifestV1D4,
+  TeamsManifestV1D5,
+  TeamsManifestV1D6,
+  TeamsManifestV1D7,
+  TeamsManifestV1D8,
+  TeamsManifestV1D9,
+  TeamsManifestVDevPreview,
+};
 
-  export {
-    TeamsManifestVDevPreview as DevPreviewSchema
-  } from "./teams/TeamsManifestVDevPreview";
+export { TeamsManifestVDevPreview as DevPreviewSchema } from "./teams/TeamsManifestVDevPreview";
 export type TeamsManifest =
   | (TeamsManifestV1D0.TeamsManifestV1D0 & { manifestVersion: "1.0"; $schema?: string })
   | (TeamsManifestV1D1.TeamsManifestV1D1 & { manifestVersion: "1.1" })
@@ -91,13 +92,12 @@ export type TeamsManifest =
   | TeamsManifestV1D19.TeamsManifestV1D19
   | TeamsManifestV1D20.TeamsManifestV1D20
   | TeamsManifestV1D21.TeamsManifestV1D21
+  | TeamsManifestV1D22.TeamsManifestV1D22
   | TeamsManifestVDevPreview.TeamsManifestVDevPreview;
 
 export type TeamsManifestLatest = TeamsManifestV1D21.TeamsManifestV1D21;
 
-export {
-  SensitivityLabel
-} from "./copilot/declarative-agent/DeclarativeAgentManifestV1D4";
+export { SensitivityLabel } from "./copilot/declarative-agent/DeclarativeAgentManifestV1D4";
 
 export type DeclarativeAgentManifest =
   | DeclarativeAgentManifestV1D0.DeclarativeAgentManifestV1D0
@@ -105,9 +105,13 @@ export type DeclarativeAgentManifest =
   | DeclarativeAgentManifestV1D3.DeclarativeAgentManifestV1D3
   | DeclarativeAgentManifestV1D4.DeclarativeAgentManifestV1D4;
 
-export type DeclarativeAgentManifestLatest = DeclarativeAgentManifestV1D4.DeclarativeAgentManifestV1D4;
+export type DeclarativeAgentManifestLatest =
+  DeclarativeAgentManifestV1D4.DeclarativeAgentManifestV1D4;
 
-export type APIPluginManifest = APIPluginManifestV2D1.APIPluginManifestV2D1 | APIPluginManifestV2D2.APIPluginManifestV2D2 | APIPluginManifestV2D3.APIPluginManifestV2D3;
+export type APIPluginManifest =
+  | APIPluginManifestV2D1.APIPluginManifestV2D1
+  | APIPluginManifestV2D2.APIPluginManifestV2D2
+  | APIPluginManifestV2D3.APIPluginManifestV2D3;
 export type APIPluginManifestLatest = APIPluginManifestV2D3.APIPluginManifestV2D3;
 
 export type AppManifest = TeamsManifest | DeclarativeAgentManifest | APIPluginManifest;
@@ -195,6 +199,10 @@ const TeamsManifestConverterMap: Converters = {
   "1.21": [
     TeamsManifestV1D21.Convert.toTeamsManifestV1D21,
     TeamsManifestV1D21.Convert.teamsManifestV1D21ToJson,
+  ],
+  "1.22": [
+    TeamsManifestV1D22.Convert.toTeamsManifestV1D22,
+    TeamsManifestV1D22.Convert.teamsManifestV1D22ToJson,
   ],
   devPreview: [
     TeamsManifestVDevPreview.Convert.toTeamsManifestVDevPreview,

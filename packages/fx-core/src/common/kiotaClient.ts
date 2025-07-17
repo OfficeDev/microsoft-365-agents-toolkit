@@ -15,13 +15,27 @@ import {
 import { KiotaGeneratePluginError } from "../error";
 import { getLocalizedString } from "./localizeUtils";
 import { Utils } from "@microsoft/m365-spec-parser";
+import path from "path";
+import * as os from "os";
 
 const ERROR_LOG_LEVEL = 4;
 
-export async function searchOpenAPISpec(query: string): Promise<SearchOpenAPISpecResult[]> {
+function setKiotaBinaryPath() {
   if (process.env.KIOTA_BINARY_PATH) {
     setKiotaConfig({ binaryLocation: process.env.KIOTA_BINARY_PATH });
+  } else {
+    // If running inside pkg package used by VS, set the binary location to a specific directory to avoid issues.
+    const isInsidePkg = typeof (process as any).pkg !== "undefined";
+
+    if (isInsidePkg) {
+      const kiotaBinDir = path.join(os.homedir(), "kiota-bin");
+      setKiotaConfig({ binaryLocation: kiotaBinDir });
+    }
   }
+}
+
+export async function searchOpenAPISpec(query: string): Promise<SearchOpenAPISpecResult[]> {
+  setKiotaBinaryPath();
 
   const searchResult: Record<string, KiotaSearchResultItem> | undefined = await searchDescription({
     searchTerm: query,
@@ -51,9 +65,7 @@ export async function listAPITreeInfo(
   includeFilters?: string[],
   excludeFilters?: string[]
 ): Promise<KiotaTreeResult> {
-  if (process.env.KIOTA_BINARY_PATH) {
-    setKiotaConfig({ binaryLocation: process.env.KIOTA_BINARY_PATH });
-  }
+  setKiotaBinaryPath();
   const treeInfo = await getKiotaTree({
     includeFilters: includeFilters,
     descriptionPath: specPath,
@@ -90,9 +102,7 @@ export async function kiotageneratePlugin(
   excludePatterns?: string[],
   noWorkspace?: boolean
 ): Promise<GeneratePluginResult> {
-  if (process.env.KIOTA_BINARY_PATH) {
-    setKiotaConfig({ binaryLocation: process.env.KIOTA_BINARY_PATH });
-  }
+  setKiotaBinaryPath();
 
   const config = {
     descriptionPath: specPath,
