@@ -352,10 +352,13 @@ describe("getStderrHandler", () => {
 
 describe("defaultShell", () => {
   const sandbox = sinon.createSandbox();
-  let restoreEnv: RestoreFn = () => {};
+  let restoreEnv: RestoreFn | undefined = () => {};
   afterEach(() => {
     sandbox.restore();
-    restoreEnv();
+    if (restoreEnv) {
+      restoreEnv();
+      restoreEnv = undefined;
+    }
   });
   it("SHELL", async () => {
     restoreEnv = mockedEnv({ SHELL: "/bin/bash" });
