@@ -30,7 +30,7 @@ export const notificationApp = new NotificationBot(adapter, localStorage, authCo
 const pagedData = await notificationApp.getPagedInstallations(pageSize, continuationToken);
 ```
 
-You can reference to [latest notification template](https://github.com/OfficeDev/microsoft-365-agents-toolkit/tree/dev/templates/vsc/ts/notification-express/src/notification).
+You can reference to [notification-express template](https://github.com/OfficeDev/microsoft-365-agents-toolkit/tree/dev/templates/vsc/ts/notification-express/src/notification).
 
 ## Bot SSO and Message Extension SSO
 
@@ -42,7 +42,7 @@ You can reference to [bot-sso sample](https://github.com/OfficeDev/microsoft-365
 
 ### Use Teams AI Library
 
-[Teams AI Library](https://www.npmjs.com/package/@microsoft/teams-ai) also integrates with `TeamsBotSsoPrompt`. You can easily add authentication configurations to Application.
+[Teams AI Library](https://www.npmjs.com/package/@microsoft/teams-ai) also integrates with `TeamsBotSsoPrompt`. You can add authentication configurations to Application.
 
 ```ts
 const app = new ApplicationBuilder()
@@ -83,7 +83,7 @@ You can reference [command-bot-with-sso sample](https://github.com/OfficeDev/mic
 
 ## Tab SSO
 
-`TeamsUserCredential` represents Teams current user's identity. Using this credential will request user consent at the first time. It leverages the Teams SSO and On-Behalf-Of flow to do token exchange. SDK uses this credential when developer choose "User" identity in browser environment.You can simly copy this `TeamsUserCredential.ts` into your source code, or directly use `@microsoft/teams-js`, or use `NAA(Nested App Auth)` instead.
+`TeamsUserCredential` represents Teams current user's identity. Using this credential will request user consent at the first time. It leverages the Teams SSO and On-Behalf-Of flow to do token exchange. SDK uses this credential when developer choose "User" identity in browser environment.You can copy this `TeamsUserCredential.ts` into your source code, or directly use `@microsoft/teams-js` with `NAA(Nested App Auth)`.
 
 ### Use @microsoft/teams-js SDK
 
@@ -113,7 +113,36 @@ You can reference to [hello-world-tab-with-backend sample](https://github.com/Of
 
 ### NAA
 
-We recomment [Nested App Auth](https://learn.microsoft.com/en-us/microsoftteams/platform/concepts/authentication/nested-authentication) to implement SSO. You can reference to [sso-tab-naa](https://github.com/OfficeDev/microsoft-365-agents-toolkit/tree/dev/templates/vsc/ts/sso-tab-naa)
+We recomment [Nested App Auth](https://learn.microsoft.com/en-us/microsoftteams/platform/concepts/authentication/nested-authentication) to implement SSO. 
+
+```ts
+import { app } from "@microsoft/teams-js";
+import { createNestablePublicClientApplication } from "@azure/msal-browser";
+
+await app.initialize();
+
+const msalConfig = {
+    auth: {
+        clientId: config.clientId,
+        authority: `https://login.microsoftonline.com/${config.tenantId}`,
+        supportsNestedAppAuth: true,
+    },
+};
+const msalClient = await createNestablePublicClientApplication(msalConfig);
+const result = await msalClient.loginPopup({
+    scopes: ["User.Read"],
+});
+const account = result.account;
+msalClient.setActiveAccount(account);
+
+const result = await msalClient.acquireTokenSilent({
+    scopes: ["User.Read"],
+    account: account,
+});
+
+```
+
+You can reference to [sso-tab-naa template](https://github.com/OfficeDev/microsoft-365-agents-toolkit/tree/dev/templates/vsc/ts/sso-tab-naa).
 
 
 ## API client
