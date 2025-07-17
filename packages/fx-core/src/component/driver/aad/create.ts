@@ -5,16 +5,18 @@ import { hooks } from "@feathersjs/hooks/lib";
 import {
   FxError,
   M365TokenProvider,
+  Result,
   SystemError,
   UserError,
   err,
   ok,
-  Result,
 } from "@microsoft/teamsfx-api";
 import axios from "axios";
 import { Service } from "typedi";
 import { GraphScopes } from "../../../common/constants";
+import { AadSet } from "../../../common/globalVars";
 import { getLocalizedString } from "../../../common/localizeUtils";
+import { environmentNameManager } from "../../../core/environmentName";
 import {
   HttpClientError,
   HttpServerError,
@@ -41,9 +43,6 @@ import {
   questionKeys,
   telemetryKeys,
 } from "./utility/constants";
-import { AadSet } from "../../../common/globalVars";
-import { isTestToolEnabledProject } from "../../../common/tools";
-import { environmentNameManager } from "../../../core/environmentName";
 
 const actionName = "aadApp/create"; // DO NOT MODIFY the name
 const helpLink = "https://aka.ms/teamsfx-actions/aadapp-create";
@@ -212,11 +211,10 @@ export class CreateAadAppDriver implements StepDriver {
           getLocalizedString(logMessageKeys.failExecuteDriver, actionName, message)
         );
         if (error.response!.status >= 400 && error.response!.status < 500) {
-          // When user don't have permission to create AAD app, and cannot use Test Tool, we will ask for AAD app id and secret
+          // When user don't have permission to create AAD app, we will ask for AAD app id and secret
           if (
             error.response!.status === 403 &&
             message.includes(constants.insufficientPermissionErrorMessage) &&
-            !isTestToolEnabledProject(context.projectPath) &&
             process.env.TEAMSFX_ENV == environmentNameManager.getLocalEnvName()
           ) {
             context.addTelemetryProperties({
