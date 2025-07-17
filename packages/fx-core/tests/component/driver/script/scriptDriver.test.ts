@@ -352,16 +352,15 @@ describe("getStderrHandler", () => {
 
 describe("defaultShell", () => {
   const sandbox = sinon.createSandbox();
-  let restoreEnv: RestoreFn | undefined = () => {};
+  before(() => {
+    sinon.restore();
+    sandbox.restore();
+  });
   afterEach(() => {
     sandbox.restore();
-    if (restoreEnv) {
-      restoreEnv();
-      restoreEnv = undefined;
-    }
   });
   it("SHELL", async () => {
-    restoreEnv = mockedEnv({ SHELL: "/bin/bash" });
+    sandbox.stub(process, "env").value({ SHELL: "/bin/bash" });
     const result = await defaultShell();
     assert.equal(result, "/bin/bash");
   });
@@ -386,13 +385,13 @@ describe("defaultShell", () => {
 
   it("win32 - ComSpec", async () => {
     sandbox.stub(process, "platform").value("win32");
-    restoreEnv = mockedEnv({ ComSpec: "cmd.exe" });
+    sandbox.stub(process, "env").value({ ComSpec: "cmd.exe" });
     const result = await defaultShell();
     assert.equal(result, "cmd.exe");
   });
   it("win32 - cmd.exe", async () => {
     sandbox.stub(process, "platform").value("win32");
-    restoreEnv = mockedEnv({ ComSpec: undefined });
+    sandbox.stub(process, "env").value({});
     const result = await defaultShell();
     assert.equal(result, "cmd.exe");
   });
