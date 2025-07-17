@@ -62,7 +62,7 @@ jobs:
           run_id=`gh run list --workflow cd --repo OfficeDev/TeamsFx --branch dev --json event --json databaseId --json conclusion --jq '[.[] | select(.event=="schedule") | select(.conclusion=="success")][0].databaseId'`
           echo "vsix-run-id=$run_id" >> $GITHUB_ENV
           echo "target_cli_version=alpha" >> $GITHUB_ENV
-          echo "email-receiver=vscuseengineer@microsoft.com;teamsfxqa@microsoft.com" >> $GITHUB_OUTPUT
+          echo "email-receiver=m365-atk-ui-test-notification@service.microsoft.com;teamsfxqa@microsoft.com" >> $GITHUB_OUTPUT
 
       - name: Checkout branch
         uses: actions/checkout@v3
