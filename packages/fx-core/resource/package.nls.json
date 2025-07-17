@@ -16,7 +16,7 @@
   "core.provision.confirmEnvAndCostNotice": "Costs may apply based on usage. Do you want to provision resources in %s environment using listed accounts?",
   "core.deploy.confirmEnvNoticeV3": "Do you want to deploy resources in %s environment?",
   "core.provision.viewResources": "View provisioned resources",
-  "core.provision.switchAccount": "You're signed in with a Microsoft 365 account that doesn't match the one set in your environment. Sign out first and sign in with the correct account.",
+  "core.provision.switchAccount": "You're signed in with a Microsoft 365 account that doesn't match this environment. Please sign out and sign in with the correct one.",
   "core.provision.switchAccount.continue": "Continue",
   "core.deploy.aadManifestSuccessNotice": "Your Microsoft Entra app has been deployed successfully. To view that, click \"More info\"",
   "core.deploy.aadManifestOnCLISuccessNotice": "Your Microsoft Entra app has been updated successfully.",
