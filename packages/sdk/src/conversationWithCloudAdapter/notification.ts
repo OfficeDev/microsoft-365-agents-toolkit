@@ -30,6 +30,7 @@ import * as utils from "../conversation/utils";
 /**
  * Send a plain text message to a notification target.
  *
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
  * @param target - The notification target.
  * @param text - The plain text message.
  * @param onError - An optional error handler that can catch exceptions during message sending.
@@ -48,6 +49,7 @@ export function sendMessage(
 /**
  * Send an adaptive card message to a notification target.
  *
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
  * @param target - The notification target.
  * @param card - The adaptive card raw JSON.
  * @param onError - An optional error handler that can catch exceptions during adaptive card sending.
@@ -66,6 +68,7 @@ export function sendAdaptiveCard(
 /**
  * A {@link NotificationTarget} that represents a team channel.
  *
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
  * @remarks
  * It's recommended to get channels from {@link TeamsBotInstallation.channels()}.
  */
@@ -88,6 +91,7 @@ export class Channel implements NotificationTarget {
   /**
    * Constructor.
    *
+   * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
    * @remarks
    * It's recommended to get channels from {@link TeamsBotInstallation.channels()}, instead of using this constructor.
    *
@@ -102,6 +106,7 @@ export class Channel implements NotificationTarget {
   /**
    * Send a plain text message.
    *
+   * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
    * @param text - The plain text message.
    * @param onError - An optional error handler that can catch exceptions during message sending.
    * If not defined, error will be handled by `BotAdapter.onTurnError`.
@@ -137,6 +142,7 @@ export class Channel implements NotificationTarget {
   /**
    * Send an adaptive card message.
    *
+   * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
    * @param card - The adaptive card raw JSON.
    * @param onError - An optional error handler that can catch exceptions during adaptive card sending.
    * If not defined, error will be handled by `BotAdapter.onTurnError`.
@@ -188,6 +194,7 @@ export class Channel implements NotificationTarget {
 /**
  * A {@link NotificationTarget} that represents a team member.
  *
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
  * @remarks
  * It's recommended to get members from {@link TeamsBotInstallation.members()}.
  */
@@ -210,6 +217,7 @@ export class Member implements NotificationTarget {
   /**
    * Constructor.
    *
+   * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
    * @remarks
    * It's recommended to get members from {@link TeamsBotInstallation.members()}, instead of using this constructor.
    *
@@ -327,6 +335,7 @@ export class Member implements NotificationTarget {
  * - Group chat
  * - Team (by default the `General` channel)
  *
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
  * @remarks
  * It's recommended to get bot installations from {@link ConversationBot.installations()}.
  */
@@ -532,6 +541,8 @@ export class TeamsBotInstallation implements NotificationTarget {
 
 /**
  * Provide utilities to send notification to varies targets (e.g., member, group, channel).
+ *
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
  */
 export class NotificationBot {
   private readonly conversationReferenceStore: ConversationReferenceStore;
@@ -809,6 +820,8 @@ export class NotificationBot {
  * The search scope when calling {@link NotificationBot.findMember} and {@link NotificationBot.findAllMembers}.
  * The search scope is a flagged enum and it can be combined with `|`.
  * For example, to search from personal chat and group chat, use `SearchScope.Person | SearchScope.Group`.
+ *
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
  */
 export enum SearchScope {
   /**

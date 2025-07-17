@@ -14,6 +14,7 @@ import { formatString } from "../util/utils";
  *   - handle command and response.
  *   - send notification to varies targets (e.g., member, group, channel).
  *
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
  * @remarks
  * Only work on server side.
  */
@@ -45,6 +46,7 @@ export class ConversationBot {
   /**
    * Create new instance of the `ConversationBot`.
    *
+   * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
    * @param options - The initialize options.
    *
    * @remarks
@@ -60,6 +62,7 @@ export class ConversationBot {
   /**
    * The request handler to integrate with web request.
    *
+   * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
    * @param req - An incoming HTTP [Request](xref:botbuilder.Request).
    * @param res - The corresponding HTTP [Response](xref:botbuilder.Response).
    * @param logic - The additional function to handle bot context.

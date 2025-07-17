@@ -17,17 +17,24 @@ import { InvokeResponseFactory, InvokeResponseType } from "../invokeResponseFact
 
 /**
  * @internal
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
  */
 export class CardActionMiddleware implements Middleware {
   public readonly actionHandlers: TeamsFxAdaptiveCardActionHandler[] = [];
   private readonly defaultMessage: string = "Your response was sent to the app";
 
+  /**
+   * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
+   */
   constructor(handlers?: TeamsFxAdaptiveCardActionHandler[]) {
     if (handlers && handlers.length > 0) {
       this.actionHandlers.push(...handlers);
     }
   }
 
+  /**
+   * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
+   */
   async onTurn(context: TurnContext, next: () => Promise<void>): Promise<void> {
     if (context.activity.name === "adaptiveCard/action") {
       const action = (context.activity.value as any).action;

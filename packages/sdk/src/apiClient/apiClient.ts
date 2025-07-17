@@ -15,6 +15,7 @@ import { AuthProvider } from "./authProvider";
  * ```typescript
  * const client = createApiClient("https://my-api-endpoint-base-url", new BasicAuthProvider("xxx","xxx"));
  * ```
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
  */
 export function createApiClient(apiEndpoint: string, authProvider: AuthProvider): AxiosInstance {
   // Add a request interceptor

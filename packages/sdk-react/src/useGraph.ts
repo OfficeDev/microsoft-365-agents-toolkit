@@ -23,6 +23,7 @@ type GraphOptionWithCredential = {
  * @param options - Authentication configuration and OAuth resource scope.
  * @returns data, loading status, error and reload function
  *
+ * @deprecated This package will be deprecated by 2026-07.
  * @public
  */
 export function useGraphWithCredential<T>(

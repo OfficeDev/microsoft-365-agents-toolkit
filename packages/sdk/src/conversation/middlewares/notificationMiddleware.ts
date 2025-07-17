@@ -8,6 +8,7 @@ import { ConversationReferenceStore } from "../interface";
 
 /**
  * @internal
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
  */
 enum ActivityType {
   CurrentBotInstalled,
@@ -20,6 +21,7 @@ enum ActivityType {
 
 /**
  * @internal
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
  */
 export interface NotificationMiddlewareOptions {
   conversationReferenceStore: ConversationReferenceStore;
@@ -27,14 +29,21 @@ export interface NotificationMiddlewareOptions {
 
 /**
  * @internal
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
  */
 export class NotificationMiddleware implements Middleware {
   private readonly conversationReferenceStore: ConversationReferenceStore;
 
+  /**
+   * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
+   */
   constructor(options: NotificationMiddlewareOptions) {
     this.conversationReferenceStore = options.conversationReferenceStore;
   }
 
+  /**
+   * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
+   */
   public async onTurn(context: TurnContext, next: () => Promise<void>): Promise<void> {
     const type = this.classifyActivity(context.activity);
     switch (type) {

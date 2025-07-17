@@ -11,6 +11,8 @@ import {
 
 /**
  * Options to initialize {@link NotificationBot}.
+ *
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
  */
 export interface NotificationOptions {
   /**
@@ -36,6 +38,8 @@ export interface NotificationOptions {
 
 /**
  * Options to initialize {@link ConversationBot}
+ *
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
  */
 export interface ConversationOptions {
   /**

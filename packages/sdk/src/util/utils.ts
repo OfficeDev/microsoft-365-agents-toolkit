@@ -11,6 +11,8 @@ import { AuthenticationResult } from "@azure/msal-browser";
 /**
  * Parse jwt token payload
  *
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
+ *
  * @param token
  *
  * @returns Payload object
@@ -36,6 +38,8 @@ export function parseJwt(token: string): SSOTokenInfoBase {
 }
 
 /**
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
+ *
  * @internal
  */
 export function getUserInfoFromSsoToken(ssoToken: string): UserInfo {
@@ -62,6 +66,8 @@ export function getUserInfoFromSsoToken(ssoToken: string): UserInfo {
 }
 
 /**
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
+ *
  * @internal
  */
 export function getTenantIdAndLoginHintFromSsoToken(ssoToken: string): UserTenantIdAndLoginHint {
@@ -84,6 +90,8 @@ export function getTenantIdAndLoginHintFromSsoToken(ssoToken: string): UserTenan
 }
 
 /**
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
+ *
  * @internal
  */
 export function parseAccessTokenFromAuthCodeTokenResponse(
@@ -127,6 +135,8 @@ export function parseAccessTokenFromAuthCodeTokenResponse(
 /**
  * Format string template with replacements
  *
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
+ *
  * ```typescript
  * const template = "{0} and {1} are fruit. {0} is my favorite one."
  * const formattedStr = formatString(template, "apple", "pear"); // formattedStr: "apple and pear are fruit. apple is my favorite one."
@@ -146,6 +156,8 @@ export function formatString(str: string, ...replacements: string[]): string {
 }
 
 /**
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
+ *
  * @internal
  */
 export function validateScopesType(value: any): void {
@@ -170,6 +182,8 @@ export function validateScopesType(value: any): void {
 }
 
 /**
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
+ *
  * @internal
  */
 export function getScopesArray(scopes: string | string[]): string[] {
@@ -178,6 +192,8 @@ export function getScopesArray(scopes: string | string[]): string[] {
 }
 
 /**
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
+ *
  * @internal
  */
 export function getAuthority(authorityHost: string, tenantId: string): string {
@@ -186,6 +202,8 @@ export function getAuthority(authorityHost: string, tenantId: string): string {
 }
 
 /**
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
+ *
  * @internal
  */
 export function validateConfig(config: any): void {
@@ -226,6 +244,8 @@ export function validateConfig(config: any): void {
 }
 
 /**
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
+ *
  * @internal
  */
 export interface ClientCertificate {

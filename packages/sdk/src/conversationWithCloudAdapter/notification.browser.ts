@@ -16,6 +16,7 @@ import {
 /**
  * Send a plain text message to a notification target.
  *
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
  * @remarks
  * Only work on server side.
  *
@@ -41,6 +42,7 @@ export function sendMessage(
 /**
  * Send an adaptive card message to a notification target.
  *
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
  * @remarks
  * Only work on server side.
  *
@@ -66,6 +68,7 @@ export function sendAdaptiveCard(
 /**
  * A {@link NotificationTarget} that represents a team channel.
  *
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
  * @remarks
  * Only work on server side.
  *
@@ -164,6 +167,7 @@ export class Channel implements NotificationTarget {
 /**
  * A {@link NotificationTarget} that represents a team member.
  *
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
  * @remarks
  * Only work on server side.
  *
@@ -267,6 +271,7 @@ export class Member implements NotificationTarget {
  * - Group chat
  * - Team (by default the `General` channel)
  *
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
  * @remarks
  * Only work on server side.
  *
@@ -416,6 +421,7 @@ export class TeamsBotInstallation implements NotificationTarget {
 /**
  * Provide static utilities for bot notification.
  *
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
  * @remarks
  * Only work on server side.
  *
@@ -579,6 +585,8 @@ export class NotificationBot {
  * The search scope when calling {@link NotificationBot.findMember} and {@link NotificationBot.findAllMembers}.
  * The search scope is a flagged enum and it can be combined with `|`.
  * For example, to search from personal chat and group chat, use `SearchScope.Person | SearchScope.Group`.
+ *
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
  */
 export enum SearchScope {
   /**
