@@ -220,7 +220,7 @@ public class TeamsBotSsoPrompt : Dialog
                         SsoToken = ssoToken,
                         SsoTokenExpiration = ssoExpiration.ToString(),
                         Token = exchangedToken.Token,
-                        Expiration = exchangedToken.ExpiresOn.ToString()
+                        Expiration = exchangedToken.ExpiresOn
                     };
 
                     await SendInvokeResponseAsync(context, HttpStatusCode.OK, null, cancellationToken).ConfigureAwait(false);
