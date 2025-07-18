@@ -14,14 +14,14 @@ export const ShareOptions: CLICommandOption[] = [
   {
     name: "scope",
     type: "string",
-    description: "Share the app",
+    description: "Share the agent",
     required: true,
-    choices: ["tenant", "specific-users", "owners"],
+    choices: ["tenant", "users", "owners"],
   },
   {
     name: "email",
     type: "string",
-    description: "Email address of specific users.",
+    description: "Email address of specific users or groups separated by comma.",
   },
 ];
 export const ShareArguments: CLICommandArgument[] = [];

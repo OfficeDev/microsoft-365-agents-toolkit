@@ -1,11 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 import { CLICommand, CLIContext, InputsWithProjectPath } from "@microsoft/teamsfx-api";
+import { ShareOptions } from "@microsoft/teamsfx-core";
 import { getFxCore } from "../../activate";
 import { commands } from "../../resource";
 import { TelemetryEvent } from "../../telemetry/cliTelemetryEvents";
 import { EnvOption, IgnoreLoadEnvOption, ProjectFolderOption } from "../common";
-import { ShareOptions } from "@microsoft/teamsfx-core";
 import { shareRemoveCommand } from "./shareRemove";
 
 export const shareCommand: CLICommand = {
@@ -27,12 +27,16 @@ export const shareCommand: CLICommand = {
       description: "Share under current project folder in interactive mode",
     },
     {
-      command: `${process.env.TEAMSFX_CLI_BIN_NAME} share --option share-app -i false`,
-      description: "Share the app under current project folder",
+      command: `${process.env.TEAMSFX_CLI_BIN_NAME} share --scope tenant -i false`,
+      description: "Share the agent to all tenant users",
     },
     {
-      command: `${process.env.TEAMSFX_CLI_BIN_NAME} share --option share-with-users --users 'a@example.com,b@example.com' -i false`,
-      description: "Share owner access with users",
+      command: `${process.env.TEAMSFX_CLI_BIN_NAME} share --scope users --email 'a@example.com,b@example.com' -i false`,
+      description: "Share the agent to specific users or groups",
+    },
+    {
+      command: `${process.env.TEAMSFX_CLI_BIN_NAME} share --scope owner --email 'a@example.com,b@example.com' -i false`,
+      description: "Share the ownership of agent with users",
     },
   ],
   commands: [shareRemoveCommand],

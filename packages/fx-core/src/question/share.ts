@@ -17,9 +17,9 @@ import { CollaborationUtil } from "../core/collaborator";
 import { QuestionNames } from "./constants";
 import { inputUserEmailQuestion } from "./other";
 
-export enum ShareTargetOption {
+export enum ShareScopeOption {
   ShareAppWithTenantUsers = "tenant",
-  ShareAppWithSpecificUsers = "specific-users",
+  ShareAppWithSpecificUsers = "users",
   ShareAppWithOwners = "owners",
 }
 
@@ -35,13 +35,13 @@ export function shareNode(): IQTreeNode {
           {
             condition: (inputs: Inputs) => {
               return (
-                inputs[QuestionNames.ShareScope] === ShareTargetOption.ShareAppWithOwners ||
-                inputs[QuestionNames.ShareScope] === ShareTargetOption.ShareAppWithSpecificUsers
+                inputs[QuestionNames.ShareScope] === ShareScopeOption.ShareAppWithOwners ||
+                inputs[QuestionNames.ShareScope] === ShareScopeOption.ShareAppWithSpecificUsers
               );
             },
             data: inputUserEmailQuestion(
               getLocalizedString("core.shareOptionQuestion.emails.title"),
-              "Email address of specific users.",
+              "Email address of specific users or groups separated by comma.",
               false
             ),
           },
@@ -68,21 +68,21 @@ function shareOptionQuestion(): SingleSelectQuestion {
 export class ShareOptions {
   static shareWithTenant(): OptionItem {
     return {
-      id: ShareTargetOption.ShareAppWithTenantUsers,
+      id: ShareScopeOption.ShareAppWithTenantUsers,
       label: getLocalizedString("core.shareOptionQuestion.option.shareWithTenant"),
     };
   }
 
   static shareWithUsers(): OptionItem {
     return {
-      id: ShareTargetOption.ShareAppWithSpecificUsers,
+      id: ShareScopeOption.ShareAppWithSpecificUsers,
       label: getLocalizedString("core.shareOptionQuestion.option.shareWithUsers"),
     };
   }
 
   static shareWithOwners(): OptionItem {
     return {
-      id: ShareTargetOption.ShareAppWithOwners,
+      id: ShareScopeOption.ShareAppWithOwners,
       label: getLocalizedString("core.shareOptionQuestion.option.shareWithOwners"),
     };
   }

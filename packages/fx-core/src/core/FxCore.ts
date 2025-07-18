@@ -142,6 +142,7 @@ import {
   listOperations,
 } from "../component/generator/openApiSpec/helper";
 import { TemplateNames } from "../component/generator/templates/templateNames";
+import { M365AppEntity, M365EntityType } from "../component/m365/interface";
 import { LaunchHelper } from "../component/m365/launchHelper";
 import { PackageService } from "../component/m365/packageService";
 import { MosServiceEndpoint, MosServiceScope } from "../component/m365/serviceConstant";
@@ -185,7 +186,7 @@ import {
 import { ValidateTeamsAppInputs } from "../question/inputs/ValidateTeamsAppInputs";
 import { isAadMainifestContainsPlaceholder } from "../question/other";
 import { ProjectTypeOptions } from "../question/scaffold/vsc/ProjectTypeOptions";
-import { ShareTargetOption } from "../question/share";
+import { ShareScopeOption } from "../question/share";
 import { CallbackRegistry, CoreCallbackFunc } from "./callback";
 import {
   CollaborationUtil,
@@ -944,8 +945,8 @@ export class FxCore {
     inputs: Inputs,
     ctx?: CoreHookContext
   ): Promise<Result<undefined, FxError>> {
-    const options = inputs[QuestionNames.ShareScope];
-    if (options === ShareTargetOption.ShareAppWithTenantUsers) {
+    const scope = inputs[QuestionNames.ShareScope];
+    if (scope === ShareScopeOption.ShareAppWithTenantUsers) {
       inputs.stage = Stage.share;
       const context = createDriverContext(inputs);
       const res = await coordinator.share(context, inputs as InputsWithProjectPath);
@@ -957,7 +958,63 @@ export class FxCore {
         ctx!.envVars = inputs.envVars;
         return err(res.error);
       }
-    } else if (options === ShareTargetOption.ShareAppWithOwners) {
+    } else if (scope === ShareScopeOption.ShareAppWithSpecificUsers) {
+      const emails = (inputs[QuestionNames.UserEmail] as string).split(",").map((e) => e.trim());
+      if (!emails || emails.length === 0) {
+        return err(new MissingRequiredInputError("emails", "FxCore"));
+      }
+      if (emails.length > 20) {
+        return err(new InputValidationError("emails", "Too many emails"));
+      }
+      const parseRes = await parseShareAppActionYamlConfig(inputs.projectPath!);
+      if (parseRes.isErr()) {
+        return err(parseRes.error);
+      }
+      const sharedTitleId = parseRes.value[1];
+      const sharedAppId = parseRes.value[2];
+
+      const tokenProvider = TOOLS.tokenProvider.m365TokenProvider;
+      const mosTokenRes = await tokenProvider.getAccessToken({
+        scopes: [MosServiceScope],
+      });
+      if (mosTokenRes.isErr()) {
+        return err(mosTokenRes.error);
+      }
+      const mosToken = mosTokenRes.value;
+      const entities: M365AppEntity[] = [];
+      for (const email of emails) {
+        const userInfo = await CollaborationUtil.getUserInfo(tokenProvider, email);
+        if (!userInfo) {
+          return err(new InputValidationError("shareWithUser", `Invalid user: ${email}`));
+          // const groupInfo = await CollaborationUtil.getGroupInfo(email, tokenProvider);
+          // if (!groupInfo) {
+          //   return err(new InputValidationError("shareWithUser", `Invalid user: ${email}`));
+          // }
+          // entities.push({
+          //   entityId: groupInfo.id,
+          //   entityType: M365EntityType.Group,
+          // });
+        } else {
+          entities.push({
+            entityId: userInfo.aadId,
+            entityType: M365EntityType.User,
+          });
+        }
+      }
+      // 2. call Builder API to add shared users
+      const res = await PackageService.GetSharedInstance().addSharedUsers(
+        mosToken,
+        entities,
+        sharedTitleId,
+        sharedAppId
+      );
+      if (res.isErr()) {
+        return err(res.error);
+      }
+      const msg = getLocalizedString("core.common.shareWithUser.success", emails);
+      TOOLS.ui?.showMessage("info", msg, false);
+      return ok(undefined);
+    } else if (scope === ShareScopeOption.ShareAppWithOwners) {
       const emails = (inputs[QuestionNames.UserEmail] as string).split(",").map((e) => e.trim());
       if (!emails || emails.length === 0) {
         return err(new MissingRequiredInputError("emails", "FxCore"));
@@ -987,7 +1044,7 @@ export class FxCore {
       for (const email of emails) {
         const userInfo = await CollaborationUtil.getUserInfo(tokenProvider, email);
         if (!userInfo) {
-          return err(new InputValidationError("shareToUser", `Invalid user: ${email}`));
+          return err(new InputValidationError("shareWithOwner", `Invalid user: ${email}`));
         }
 
         // 1. grant TDP permission
@@ -1003,7 +1060,7 @@ export class FxCore {
           return err(res.error);
         }
       }
-      const msg = getLocalizedString("core.common.shareToUser.success", emails);
+      const msg = getLocalizedString("core.common.shareWithOwner.success", emails);
       TOOLS.ui?.showMessage("info", msg, false);
       return ok(undefined);
     } else {
