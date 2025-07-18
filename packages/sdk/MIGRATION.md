@@ -30,7 +30,7 @@ export const notificationApp = new NotificationBot(adapter, localStorage, authCo
 const pagedData = await notificationApp.getPagedInstallations(pageSize, continuationToken);
 ```
 
-You can reference to [notification-express template](https://github.com/OfficeDev/microsoft-365-agents-toolkit/tree/dev/templates/vsc/ts/notification-express/src/notification).
+You can refer to [notification-express template](https://github.com/OfficeDev/microsoft-365-agents-toolkit/tree/dev/templates/vsc/ts/notification-express/src/notification).
 
 ## Command Bot
 
@@ -142,7 +142,7 @@ app.message(
 
 Teamsfx SDK provides a `TeamsBotSsoPrompt` class to simply the authentication process when you develop bot application. You can move `TeamsBotSsoPrompt.ts` to your Teams app source code.
 
-You can reference to [bot-sso sample](https://github.com/OfficeDev/microsoft-365-agents-toolkit-samples/tree/dev/bot-sso).
+You can refer to [bot-sso sample](https://github.com/OfficeDev/microsoft-365-agents-toolkit-samples/tree/dev/bot-sso).
 
 ### Option 2: Use Teams AI Library
 
@@ -182,7 +182,7 @@ app.message("photo", async (context: TurnContext, state: TurnState) => {
 });
 ```
 
-You can reference [command-bot-with-sso sample](https://github.com/OfficeDev/microsoft-365-agents-toolkit-samples/tree/dev/command-bot-with-sso) and [query-org-user-with-message-extension-sso sample](https://github.com/OfficeDev/microsoft-365-agents-toolkit-samples/blob/dev/query-org-user-with-message-extension-sso).
+You can refer to [command-bot-with-sso sample](https://github.com/OfficeDev/microsoft-365-agents-toolkit-samples/tree/dev/command-bot-with-sso) and [query-org-user-with-message-extension-sso sample](https://github.com/OfficeDev/microsoft-365-agents-toolkit-samples/blob/dev/query-org-user-with-message-extension-sso).
 
 
 ## Tab SSO
@@ -215,7 +215,7 @@ const ssoToken = await authentication.getAuthToken({
 });
 
 ```
-You can reference to [hello-world-tab-with-backend sample](https://github.com/OfficeDev/microsoft-365-agents-toolkit-samples/tree/dev/hello-world-tab-with-backend).
+You can refer to [hello-world-tab-with-backend sample](https://github.com/OfficeDev/microsoft-365-agents-toolkit-samples/tree/dev/hello-world-tab-with-backend).
 
 ### NAA
 
@@ -248,7 +248,7 @@ const result = await msalClient.acquireTokenSilent({
 
 ```
 
-You can reference to [sso-tab-naa template](https://github.com/OfficeDev/microsoft-365-agents-toolkit/tree/dev/templates/vsc/ts/sso-tab-naa).
+You can refer to [sso-tab-naa template](https://github.com/OfficeDev/microsoft-365-agents-toolkit/tree/dev/templates/vsc/ts/sso-tab-naa).
 
 
 ## API client
