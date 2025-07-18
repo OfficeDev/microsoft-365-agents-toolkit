@@ -81,7 +81,7 @@ export class TestToolChecker implements DepsChecker {
       } else {
         this.telemetryProperties[TelemetryProperties.SymlinkTestToolVersionError] =
           versionRes.error.message;
-        await unlinkSymlink(symlinkDir);
+        await unlinkSymlink(symlinkDir, true);
       }
     }
 
@@ -97,7 +97,7 @@ export class TestToolChecker implements DepsChecker {
       );
       this.telemetryProperties[TelemetryProperties.SelectedPortableTestToolVersion] = version;
       if (symlinkDir) {
-        await createSymlink(portablePath, symlinkDir);
+        await createSymlink(portablePath, symlinkDir, true);
         return await this.getSuccessDepsInfo(version, symlinkDir);
       } else {
         return await this.getSuccessDepsInfo(version, portablePath);
@@ -200,7 +200,7 @@ export class TestToolChecker implements DepsChecker {
     await rename(tmpPath, portablePath);
 
     if (symlinkDir) {
-      await createSymlink(portablePath, symlinkDir);
+      await createSymlink(portablePath, symlinkDir, true);
     }
 
     await this.writeInstallInfoFile(projectPath);

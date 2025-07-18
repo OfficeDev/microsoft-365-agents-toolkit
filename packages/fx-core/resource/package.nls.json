@@ -853,6 +853,7 @@
   "driver.file.createOrUpdateEnvironmentFile.OpenAIDeploymentName.validation": "Azure OpenAI deployment name cannot be empty.",
   "driver.file.createOrUpdateEnvironmentFile.OpenAIAssistantID.validation": "OpenAI assistant ID cannot be empty.",
   "driver.file.createOrUpdateEnvironmentFile.OpenAIEmbeddingDeploymentName.validation": "Azure OpenAI embedding deployment name cannot be empty.",
+  "driver.file.createOrUpdateEnvironmentFile.genericEnvVar.validation": "Environment variable value required.",
   "driver.file.createOrUpdateJsonFile.description": "Create or update JSON file.",
   "driver.file.createOrUpdateJsonFile.summary": "Json file has been successfully generated to %s.",
   "driver.file.progressBar.appsettings": "Generating json file...",

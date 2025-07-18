@@ -24,7 +24,6 @@ import {
 } from "./interface";
 import { MissingEnvironmentVariablesError } from "../../error";
 import { setErrorContext } from "../../common/globalVars";
-import { OpenAIEnvironmentVariables } from "../constants";
 
 function resolveDriverDef(
   def: DriverDefinition,
@@ -102,16 +101,7 @@ export function resolveString(
         resolved.push(envVar);
         newVal = newVal.replace(matches[0], envVal);
       }
-    } else if (
-      envVar === OpenAIEnvironmentVariables.SECRET_AZURE_OPENAI_API_KEY ||
-      envVar === OpenAIEnvironmentVariables.AZURE_OPENAI_ENDPOINT ||
-      envVar === OpenAIEnvironmentVariables.AZURE_OPENAI_DEPLOYMENT_NAME ||
-      envVar === OpenAIEnvironmentVariables.SECRET_OPENAI_API_KEY ||
-      envVar === OpenAIEnvironmentVariables.AZURE_OPENAI_MODEL_DEPLOYMENT_NAME ||
-      envVar === OpenAIEnvironmentVariables.OPENAI_ASSISTANT_ID ||
-      envVar === OpenAIEnvironmentVariables.AZURE_OPENAI_ASSISTANT_ID ||
-      envVar === OpenAIEnvironmentVariables.AZURE_OPENAI_EMBEDDING_DEPLOYMENT
-    ) {
+    } else if (envVar.includes("AZURE") || envVar.includes("OPENAI")) {
       if (envVal) {
         resolved.push(envVar);
         newVal = newVal.replace(matches[0], envVal);

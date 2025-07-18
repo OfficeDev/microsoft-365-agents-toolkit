@@ -33,7 +33,7 @@ jobs:
       ## Details about this issue: https://github.com/npm/cli/wiki/%22cb()-never-called%3F--I'm-having-the-same-problem!%22
       ### tl;dr: This error is not one thing, but a category of errors. It means "something broke and we didn't have a way to catch it". We will always need a lot of detail to reproduce an error like this, or we cannot ever fix it. Every instance is unique, and your cb() never called is nothing like any other.
       matrix:
-        os: [windows-latest, macos-11, ubuntu-latest]
+        os: [windows-latest, macos-latest, ubuntu-latest]
         node-version: [18]
         func-version: [none]
         dotnet-version: [none]
