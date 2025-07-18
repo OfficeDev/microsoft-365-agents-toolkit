@@ -24,6 +24,10 @@ class M365Provider extends BasicLogin implements M365TokenProvider {
   async switchTenant(tenantId: string): Promise<Result<string, FxError>> {
     return ok("fakeToken");
   }
+
+  async signout(): Promise<boolean> {
+    return true;
+  }
 }
 
 describe("m365Login", function () {
