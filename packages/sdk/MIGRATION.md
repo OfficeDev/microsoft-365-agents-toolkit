@@ -34,7 +34,7 @@ You can refer to [notification-express template](https://github.com/OfficeDev/mi
 
 ## Command Bot
 
-With Teamsfx SDK, you can define a ConversationBot with commands.
+With TeamsFx SDK, you can define a ConversationBot with commands.
 ```ts
 import { CommandMessage, TeamsFxBotCommandHandler, TriggerPatterns, BotBuilderCloudAdapter } from "@microsoft/teamsfx";
 import ConversationBot = BotBuilderCloudAdapter.ConversationBot;
@@ -140,7 +140,7 @@ app.message(
 
 ### Option 1: Move TeamsBotSsoPrompt.ts into source code
 
-Teamsfx SDK provides a `TeamsBotSsoPrompt` class to simply the authentication process when you develop bot application. You can move `TeamsBotSsoPrompt.ts` to your Teams app source code.
+TeamsFx SDK provides a `TeamsBotSsoPrompt` class to simplify the authentication process when you develop bot application. You can move `TeamsBotSsoPrompt.ts` to your Teams app source code.
 
 You can refer to [bot-sso sample](https://github.com/OfficeDev/microsoft-365-agents-toolkit-samples/tree/dev/bot-sso).
 
@@ -255,7 +255,7 @@ You can refer to [sso-tab-naa template](https://github.com/OfficeDev/microsoft-3
 
 You can just create your own client with `axios` library. E.g.
 
-With Teamsfx SDK:
+With TeamsFx SDK:
 ```ts
 import { createApiClient, BearerTokenAuthProvider } from "@microsoft/teamsfx"
 const apiClient = createApiClient(
@@ -267,7 +267,7 @@ const apiClient = createApiClient(
 
 ```
 
-Without Teamsfx SDK:
+Without TeamsFx SDK:
 ```ts
 import axios, { AxiosInstance } from "axios";
 const apiClient = axios.create({ baseURL: apiBaseUrl });
