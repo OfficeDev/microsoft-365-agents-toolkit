@@ -209,6 +209,8 @@ import {
 } from "./middleware/utils/v3MigrationUtils";
 import { CoreTelemetryEvent, CoreTelemetryProperty } from "./telemetry";
 import { CoreHookContext, PreProvisionResForVS, VersionCheckRes } from "./types";
+import axios from "axios";
+import { ActionInjector } from "../component/configManager/actionInjector";
 
 export class FxCore {
   constructor(tools: Tools) {
@@ -3015,11 +3017,8 @@ export class FxCore {
     if (!projectPath) {
       throw new Error("projectPath is undefined"); // should never happen
     }
-    const aiPluginFilePath = path.join(
-      projectPath,
-      AppPackageFolderName,
-      DefaultPluginManifestFileName
-    );
+    // TODO: allow not default plugin manifest file
+    const aiPluginFilePath = inputs[QuestionNames.PluginManifestFilePath] as string;
     if (!(await fs.pathExists(aiPluginFilePath))) {
       const error = new SystemError(
         "MCPForDAPluginManifestNotFound",
@@ -3031,13 +3030,60 @@ export class FxCore {
     }
 
     const mcpServerUrl = inputs[QuestionNames.MCPForDAServerUrl];
-    const serverName = inputs[QuestionNames.MCPForDAServerName];
+    const serverName = inputs[QuestionNames.MCPForDAServerName] as string;
     const mcpTool = inputs[QuestionNames.MCPForDATool];
+    const mcpAuth = inputs[QuestionNames.MCPForDAAuth];
+
+    let oauthAuthorizationUrl: string | undefined = undefined;
+    let oauthTokenUrl: string | undefined = undefined;
+    let oauthRefreshUrl: string | undefined = undefined;
+    let registrationId: string | undefined = undefined;
+    // fetch server url
+    if (mcpAuth === "OAuthPluginVault") {
+      const mcpAuthMetadataUrl = inputs[QuestionNames.MCPForDAAuthMetadataUrl];
+      let mcpServerMetadataUrl = undefined;
+      if (!mcpAuthMetadataUrl) {
+        // show alert
+      } else {
+        try {
+          const response = await axios.get(mcpAuthMetadataUrl);
+          if (response.status === 200) {
+            mcpServerMetadataUrl = response.data.authorization_servers?.[0];
+          }
+
+          if (!mcpServerMetadataUrl) {
+            // show alert and throw error
+          }
+
+          // Transform the URL to the proper OAuth authorization server metadata endpoint
+          // According to RFC 8414, the well-known endpoint should be constructed as:
+          // https://{domain}/.well-known/oauth-authorization-server{path}
+          const serverUrl = new URL(mcpServerMetadataUrl);
+          const wellKnownMetadataUrl = `${serverUrl.protocol}//${serverUrl.host}/.well-known/oauth-authorization-server${serverUrl.pathname}`;
+
+          const metadataResponse = await axios.get(wellKnownMetadataUrl);
+          if (metadataResponse.status === 200) {
+            oauthAuthorizationUrl = metadataResponse.data.authorization_endpoint;
+            oauthTokenUrl = metadataResponse.data.token_endpoint;
+            oauthRefreshUrl = metadataResponse.data.refresh_endpoint;
+          } else {
+            // show alert and throw error
+          }
+        } catch (error) {
+          // show alert
+        }
+      }
+      if (!oauthAuthorizationUrl || !oauthTokenUrl) {
+        // show alert
+      }
+      registrationId = `MCP_DA_AUTH_ID_${serverName.toUpperCase()}`;
+    }
 
     // 2. Read ai-plugin.json
     const aiPluginContent = await fs.readJSON(aiPluginFilePath);
 
     // For dynamic fetch tools, keep the functions empty and add runtime info
+    // TODO: support dynamic fetch tools in the future
     if (mcpTool === "dynamic-fetch") {
       aiPluginContent.functions = [];
       aiPluginContent.runtimes = [
@@ -3049,10 +3095,15 @@ export class FxCore {
           },
         },
       ];
+      if (mcpAuth === "OAuthPluginVault") {
+        aiPluginContent.runtimes[0].auth = {
+          type: "OAuthPluginVault",
+          reference_id: `$\{\{MCP_DA_AUTH_ID_${serverName}\}\}`,
+        };
+      }
     } else {
       const mcpToolsDetail = inputs[QuestionNames.MCPForDAAvailableTools];
       const mcpToolsSelected = inputs[QuestionNames.MCPForDAPreFetchTools];
-      const mcpAuth = inputs[QuestionNames.MCPForDAAuth];
       if (!mcpToolsDetail || !mcpToolsSelected) {
         const error = new UserError(
           "MCPForDAPreFetchToolsNotFound",
@@ -3062,36 +3113,79 @@ export class FxCore {
         );
         return err(error);
       }
-      aiPluginContent.functions = [];
-      aiPluginContent.functions = mcpToolsDetail
-        .filter((tool: any) => mcpToolsSelected.includes(tool.name))
-        .map((tool: any) => {
-          return {
-            name: tool.name,
-            description: tool.description,
-            parameters: {
-              type: tool.inputSchema.type || "object",
-              properties: tool.inputSchema.properties,
-              required: tool.inputSchema.required || [],
-            },
-          };
+      // aiPluginContent.functions = [];
+      const toolsSelectedPrevious: string[] = [];
+      aiPluginContent.runtimes
+        .filter(
+          (runtime: any) =>
+            runtime.type === "RemoteMCPServer" &&
+            runtime.spec.url === mcpServerUrl &&
+            runtime.spec["enable_dynamic_discovery"] === false
+        )
+        .forEach((runtime: any) => {
+          toolsSelectedPrevious.push(...runtime.run_for_functions);
         });
-      aiPluginContent.runtimes = [];
-      aiPluginContent.runtimes = [
-        {
-          type: "RemoteMCPServer",
-          spec: {
-            url: mcpServerUrl,
-            enable_dynamic_discovery: false,
-          },
-          run_for_functions: aiPluginContent.functions.map((func: any) => func.name),
-        },
+      aiPluginContent.functions = aiPluginContent.functions.filter(
+        (func: any) => !toolsSelectedPrevious.includes(func.name)
+      );
+      aiPluginContent.functions = [
+        ...aiPluginContent.functions,
+        ...mcpToolsDetail
+          .filter((tool: any) => mcpToolsSelected.includes(tool.name))
+          .map((tool: any) => {
+            return {
+              name: tool.name,
+              description: tool.description,
+              parameters: {
+                type: tool.inputSchema.type || "object",
+                properties: tool.inputSchema.properties,
+                required: tool.inputSchema.required || [],
+              },
+            };
+          }),
       ];
-      if (mcpAuth === "OAuthPluginVault") {
-        aiPluginContent.runtimes[0].auth = {
-          type: "OAuthPluginVault",
-          reference_id: "${{MCP_DA_AUTH_ID}}",
-        };
+
+      aiPluginContent.runtimes = aiPluginContent.runtimes.filter(
+        (runtime: any) =>
+          runtime.type !== "RemoteMCPServer" ||
+          runtime.spec.url !== mcpServerUrl ||
+          runtime.spec["enable_dynamic_discovery"] === true
+      );
+      (aiPluginContent.runtimes as any[]).push({
+        type: "RemoteMCPServer",
+        spec: {
+          url: mcpServerUrl,
+          enable_dynamic_discovery: false,
+        },
+        run_for_functions: mcpToolsSelected,
+        auth:
+          mcpAuth === "OAuthPluginVault" && !!registrationId
+            ? {
+                type: "OAuthPluginVault",
+                reference_id: `$\{\{${registrationId}\}\}`,
+              }
+            : undefined,
+      });
+
+      if (
+        mcpAuth === "OAuthPluginVault" &&
+        !!oauthAuthorizationUrl &&
+        !!oauthTokenUrl &&
+        !!registrationId
+      ) {
+        // insert oauth info in teamsapp.yaml
+        const result = await ActionInjector.injectCreateOAuthActionForMCP(
+          pathUtils.getYmlFilePath(projectPath) as string,
+          serverName,
+          oauthAuthorizationUrl,
+          oauthTokenUrl,
+          registrationId,
+          mcpServerUrl,
+          oauthRefreshUrl
+        );
+        if (result) {
+          // show alert
+        }
       }
     }
     await fs.writeJSON(aiPluginFilePath, aiPluginContent, { spaces: 4 });

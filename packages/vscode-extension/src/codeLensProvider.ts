@@ -954,3 +954,38 @@ export class OneDriveSharePointCodeLensProvider implements vscode.CodeLensProvid
     return codeLenses;
   }
 }
+
+export class WorkspaceMCPConfigCodeLensProvider implements vscode.CodeLensProvider {
+  public provideCodeLenses(
+    document: vscode.TextDocument
+  ): vscode.ProviderResult<vscode.CodeLens[]> {
+    const codeLenses: vscode.CodeLens[] = [];
+    const text = document.getText();
+    let json: any;
+    try {
+      json = JSON.parse(text);
+    } catch {
+      return codeLenses;
+    }
+    if (!json.servers || typeof json.servers !== "object") {
+      return codeLenses;
+    }
+    // For each server, add a codelens at the line where the server key appears
+    for (const [serverName, serverConfig] of Object.entries(json.servers)) {
+      // Find the line number for the server key
+      const regex = new RegExp(`"${serverName}"\s*:`);
+      const match = regex.exec(text);
+      if (match) {
+        const pos = document.positionAt(match.index);
+        const range = new vscode.Range(pos.line, pos.character, pos.line, pos.character);
+        const command: vscode.Command = {
+          title: `⚡ ATK: ${serverName}`,
+          command: "fx-extension.updateActionWithMCP",
+          arguments: [{ serverName, serverConfig }],
+        };
+        codeLenses.push(new vscode.CodeLens(range, command));
+      }
+    }
+    return codeLenses;
+  }
+}

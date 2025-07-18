@@ -149,4 +149,5 @@ export enum QuestionNames {
   MCPForDAAvailableTools = "mcp-da-available-tools",
   MCPForDAPreFetchTools = "mcp-da-pre-fetch-tools",
   MCPForDAAuth = "mcp-da-auth",
+  MCPForDAAuthMetadataUrl = "mcp-da-auth-metadata-url",
 }

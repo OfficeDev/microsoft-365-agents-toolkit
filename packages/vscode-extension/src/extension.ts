@@ -36,6 +36,7 @@ import {
   PermissionsJsonFileCodeLensProvider,
   ProjectSettingsCodeLensProvider,
   TeamsAppYamlCodeLensProvider,
+  WorkspaceMCPConfigCodeLensProvider,
 } from "./codeLensProvider";
 import commandController from "./commandController";
 import azureAccountManager from "./commonlib/azureLogin";
@@ -651,7 +652,7 @@ function registerInternalCommands(context: vscode.ExtensionContext) {
 
   const updateActionWithMcpCommand = vscode.commands.registerCommand(
     "fx-extension.updateActionWithMCP",
-    () => Correlator.run(updateActionWithMCP)
+    (...args) => Correlator.run(updateActionWithMCP, args)
   );
   context.subscriptions.push(updateActionWithMcpCommand);
 }
@@ -1382,6 +1383,19 @@ function registerLanguageFeatures(context: vscode.ExtensionContext) {
       vscode.languages.registerCodeLensProvider(
         declarativeAgentManifestSelector,
         declarativeAgentSensitivityLabelCodeLensProvider
+      )
+    );
+  }
+
+  if (featureFlagManager.getBooleanValue(FeatureFlags.MCPForDA)) {
+    const workspaceMCPConfigSelector: vscode.DocumentSelector = {
+      pattern: `**/mcp.json`,
+    };
+    const workspaceMCPConfigCodeLensProvider = new WorkspaceMCPConfigCodeLensProvider();
+    context.subscriptions.push(
+      vscode.languages.registerCodeLensProvider(
+        workspaceMCPConfigSelector,
+        workspaceMCPConfigCodeLensProvider
       )
     );
   }

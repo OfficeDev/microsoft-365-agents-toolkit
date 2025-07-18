@@ -2,7 +2,9 @@
 // Licensed under the MIT license.
 
 import {
+  AppPackageFolderName,
   ConditionFunc,
+  DefaultPluginManifestFileName,
   Inputs,
   IQTreeNode,
   OptionItem,
@@ -39,6 +41,8 @@ import { featureFlagManager, FeatureFlags } from "../../../common/featureFlags";
 import { TemplateNames } from "../../../component/generator/templates/templateNames";
 import * as vscode from "vscode";
 import axios from "axios";
+import path from "path";
+import * as fs from "fs-extra";
 
 export function teamsAppProjectNode(platform: Platform): IQTreeNode {
   return {
@@ -424,48 +428,88 @@ export function MCPForDAServerUrlNode(): IQTreeNode {
 export function updateActionWithMCP(): IQTreeNode {
   return {
     data: {
-      type: "singleSelect",
-      name: QuestionNames.MCPForDATool,
-      title: getLocalizedString("core.createProjectQuestion.mcpForDa.Tool.title"),
-      staticOptions: [
-        {
-          id: "pre-fetch-tools",
-          label: getLocalizedString("core.createProjectQuestion.mcpForDa.Tool.preFetch.label"),
-          detail: getLocalizedString("core.createProjectQuestion.mcpForDa.Tool.preFetch.detail"),
-          data: TemplateNames.DeclarativeAgentWithActionFromMCP,
-        },
-        {
-          id: "dynamic-discovery",
-          label: getLocalizedString(
-            "core.createProjectQuestion.mcpForDa.Tool.dynamicDiscovery.label"
-          ),
-          detail: getLocalizedString(
-            "core.createProjectQuestion.mcpForDa.Tool.dynamicDiscovery.detail"
-          ),
-          data: TemplateNames.DeclarativeAgentWithActionFromMCP,
-        },
-      ],
+      type: "singleFile",
+      name: QuestionNames.PluginManifestFilePath,
+      title: getLocalizedString("core.createProjectQuestion.mcpForDa.File.title"),
+      defaultFolder: (inputs: Inputs) => path.normalize(inputs.projectPath as string),
+      default: (inputs: Inputs) =>
+        path.normalize(
+          path.join(
+            inputs.projectPath as string,
+            AppPackageFolderName,
+            DefaultPluginManifestFileName
+          )
+        ),
     },
     children: [
       {
-        condition: { equals: "pre-fetch-tools" },
         data: {
-          type: "multiSelect",
-          name: QuestionNames.MCPForDAPreFetchTools,
-          title: getLocalizedString("core.createProjectQuestion.mcpForDa.PreFetchTools.title"),
-          staticOptions: [],
-          dynamicOptions: (inputs: Inputs): OptionItem[] => {
-            const availableTools: any[] = inputs[QuestionNames.MCPForDAAvailableTools];
-            const tools = availableTools.map((tool: any) => {
-              return {
-                id: tool.name,
-                label: tool.name,
-                detail: tool.description || "",
-              };
-            });
-            return tools;
-          },
+          type: "singleSelect",
+          name: QuestionNames.MCPForDATool,
+          title: getLocalizedString("core.createProjectQuestion.mcpForDa.Tool.title"),
+          staticOptions: [
+            {
+              id: "pre-fetch-tools",
+              label: getLocalizedString("core.createProjectQuestion.mcpForDa.Tool.preFetch.label"),
+              detail: getLocalizedString(
+                "core.createProjectQuestion.mcpForDa.Tool.preFetch.detail"
+              ),
+              data: TemplateNames.DeclarativeAgentWithActionFromMCP,
+            },
+            {
+              id: "dynamic-discovery",
+              label: getLocalizedString(
+                "core.createProjectQuestion.mcpForDa.Tool.dynamicDiscovery.label"
+              ),
+              detail: getLocalizedString(
+                "core.createProjectQuestion.mcpForDa.Tool.dynamicDiscovery.detail"
+              ),
+              data: TemplateNames.DeclarativeAgentWithActionFromMCP,
+            },
+          ],
         },
+        children: [
+          {
+            condition: { equals: "pre-fetch-tools" },
+            data: {
+              type: "multiSelect",
+              name: QuestionNames.MCPForDAPreFetchTools,
+              title: getLocalizedString("core.createProjectQuestion.mcpForDa.PreFetchTools.title"),
+              staticOptions: [],
+              dynamicOptions: (inputs: Inputs): OptionItem[] => {
+                const availableTools: any[] = inputs[QuestionNames.MCPForDAAvailableTools];
+                const tools = availableTools.map((tool: any) => {
+                  return {
+                    id: tool.name,
+                    label: tool.name,
+                    detail: tool.description || "",
+                  };
+                });
+                return tools;
+              },
+              default: async (inputs: Inputs) => {
+                const pluginManifestFilePath = inputs[QuestionNames.PluginManifestFilePath];
+                if (!pluginManifestFilePath) {
+                  return [];
+                }
+                const pluginManifest = await fs.readJSON(pluginManifestFilePath);
+                const serverUrl = inputs[QuestionNames.MCPForDAServerUrl];
+                const result: string[] = [];
+                (pluginManifest.runtimes as any[])
+                  .filter(
+                    (runtime: any) =>
+                      runtime.type === "RemoteMCPServer" &&
+                      runtime.spec.url === serverUrl &&
+                      runtime.spec["enable_dynamic_discovery"] === false
+                  )
+                  .forEach((runtime: any) => {
+                    result.push(...runtime["run_for_functions"]);
+                  });
+                return result;
+              },
+            },
+          },
+        ],
       },
     ],
   };

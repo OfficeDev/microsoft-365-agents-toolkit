@@ -1136,5 +1136,6 @@
   "core.createProjectQuestion.mcpForDa.Tool.dynamicDiscovery.detail": "Tools are discovered at runtime when needed by the agent",
   "core.createProjectQuestion.mcpForDa.PreFetchTools.title": "Select Operation(s) Copilot can interact with",
   "core.createProjectQuestion.mcpForDa.ServerName.title": "Enter the name of the server when you add it to VS Code",
-  "core.createProjectQuestion.mcpForDa.ServerName.placeholder": "Enter the name of the server"
+  "core.createProjectQuestion.mcpForDa.ServerName.placeholder": "Enter the name of the server",
+  "core.createProjectQuestion.mcpForDa.File.title": "Select the action manifest you want to update"
 }
