@@ -8,7 +8,7 @@
                 "fastmcp",
                 "fastmcp",
                 "run",
-                "./createRandomName.py"
+                "../createRandomName.py"
             ]
         },
         "vscode-mcp": {
