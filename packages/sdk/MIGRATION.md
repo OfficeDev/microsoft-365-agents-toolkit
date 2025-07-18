@@ -22,7 +22,7 @@ const pagedData = await notificationApp.notification.getPagedInstallations(
 );
 ```
 
-Without TeamsFx SDK, you can put key classes `middleware.ts` and `notification.ts` into your Teams app source code, use `LocalConversationReferenceStore` or implement your own persistant storage.
+Without TeamsFx SDK, you can put key classes `middleware.ts` and `notification.ts` into your Teams app source code, use `LocalConversationReferenceStore` or implement your own persistent storage.
 
 ```ts
 export const notificationApp = new NotificationBot(adapter, localStorage, authConfig.clientId);
@@ -32,15 +32,119 @@ const pagedData = await notificationApp.getPagedInstallations(pageSize, continua
 
 You can reference to [notification-express template](https://github.com/OfficeDev/microsoft-365-agents-toolkit/tree/dev/templates/vsc/ts/notification-express/src/notification).
 
+## Command Bot
+
+With Teamsfx SDK, you can define a ConversationBot with commands.
+```ts
+import { CommandMessage, TeamsFxBotCommandHandler, TriggerPatterns, BotBuilderCloudAdapter } from "@microsoft/teamsfx";
+import ConversationBot = BotBuilderCloudAdapter.ConversationBot;
+
+export const commandApp = new ConversationBot({
+  adapterConfig: config,
+  command: {
+    enabled: true,
+    commands: [new HelloWorldCommandHandler()],
+  },
+});
+
+export class HelloWorldCommandHandler implements TeamsFxBotCommandHandler {
+  triggerPatterns: TriggerPatterns = "helloWorld";
+
+  async handleCommandReceived(
+    context: TurnContext,
+    message: CommandMessage
+  ): Promise<string | Partial<Activity> | void> {
+    // Your logic here
+  }
+}
+```
+
+### Option 1: Use Agents SDK
+
+[Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) provides a simple set of functions over the Microsoft Bot Framework to implement this scenario.
+
+```ts
+import { TurnContext, MemoryStorage, Selector } from "@microsoft/agents-hosting";
+import { Activity } from "@microsoft/agents-activity";
+import { TeamsApplication } from "@microsoft/agents-hosting-teams";
+
+const storage = new MemoryStorage();
+export const app = new TeamsApplication<ApplicationTurnState>({
+  storage,
+});
+
+export class HelloWorldCommandHandler {
+  triggerPatterns: string | RegExp | Selector | (string | RegExp | Selector)[] = "helloWorld";
+
+  async handleCommandReceived(
+    context: TurnContext,
+    state: ApplicationTurnState
+  ): Promise<string | Partial<Activity> | void> {
+    // Your logic here
+  }
+}
+
+const helloworldCommandHandler = new HelloWorldCommandHandler();
+app.message(
+  helloworldCommandHandler.triggerPatterns,
+  async (context: TurnContext, state: ApplicationTurnState) => {
+    const reply = await helloworldCommandHandler.handleCommandReceived(context, state);
+
+    if (reply) {
+      await context.sendActivity(reply as Activity);
+    }
+  }
+);
+```
+
+### Option 2: Use Teams AI library
+
+[Teams AI Library](https://www.npmjs.com/package/@microsoft/teams-ai) provides a simple set of functions over the Microsoft Bot Framework to implement this scenario.
+
+
+```ts
+import { Activity, CardFactory, MessageFactory, TurnContext, MemoryStorage } from "botbuilder";
+import { Application, Selector } from "@microsoft/teams-ai";
+
+const storage = new MemoryStorage();
+export const app = new Application<ApplicationTurnState>({
+  storage,
+});
+
+export class HelloWorldCommandHandler {
+  triggerPatterns: string | RegExp | Selector | (string | RegExp | Selector)[] = "helloWorld";
+
+  async handleCommandReceived(
+    context: TurnContext,
+    state: ApplicationTurnState
+  ): Promise<string | Partial<Activity> | void> {
+    // Your logic here
+  }
+}
+
+const helloworldCommandHandler = new HelloWorldCommandHandler();
+app.message(
+  helloworldCommandHandler.triggerPatterns,
+  async (context: TurnContext, state: ApplicationTurnState) => {
+    const reply = await helloworldCommandHandler.handleCommandReceived(context, state);
+
+    if (reply) {
+      await context.sendActivity(reply);
+    }
+  }
+);
+```
+
+
 ## Bot SSO and Message Extension SSO
 
-### Move TeamsBotSsoPrompt.ts into source code
+### Option 1: Move TeamsBotSsoPrompt.ts into source code
 
-Teamsfx SDK provides a `TeamsBotSsoPrompt` class to simply the authentication process when you develop bot application. You can move `TeamsBotSsoPrompt.ts` to your Teams app source code. 
+Teamsfx SDK provides a `TeamsBotSsoPrompt` class to simply the authentication process when you develop bot application. You can move `TeamsBotSsoPrompt.ts` to your Teams app source code.
 
 You can reference to [bot-sso sample](https://github.com/OfficeDev/microsoft-365-agents-toolkit-samples/tree/dev/bot-sso).
 
-### Use Teams AI Library
+### Option 2: Use Teams AI Library
 
 [Teams AI Library](https://www.npmjs.com/package/@microsoft/teams-ai) also integrates with `TeamsBotSsoPrompt`. You can add authentication configurations to Application.
 
@@ -78,14 +182,16 @@ app.message("photo", async (context: TurnContext, state: TurnState) => {
 });
 ```
 
-You can reference [command-bot-with-sso sample](https://github.com/OfficeDev/microsoft-365-agents-toolkit-samples/tree/dev/command-bot-with-sso) and [query-org-user-with-messaage-extension-sso sample](https://github.com/OfficeDev/microsoft-365-agents-toolkit-samples/blob/dev/query-org-user-with-message-extension-sso).
+You can reference [command-bot-with-sso sample](https://github.com/OfficeDev/microsoft-365-agents-toolkit-samples/tree/dev/command-bot-with-sso) and [query-org-user-with-message-extension-sso sample](https://github.com/OfficeDev/microsoft-365-agents-toolkit-samples/blob/dev/query-org-user-with-message-extension-sso).
 
 
 ## Tab SSO
 
-`TeamsUserCredential` represents Teams current user's identity. Using this credential will request user consent at the first time. It leverages the Teams SSO and On-Behalf-Of flow to do token exchange. SDK uses this credential when developer choose "User" identity in browser environment.You can copy this `TeamsUserCredential.ts` into your source code, or directly use `@microsoft/teams-js` with `NAA(Nested App Auth)`.
+### Option 1: Move TeamsUserCredential.ts into source code
 
-### Use @microsoft/teams-js SDK
+`TeamsUserCredential` represents Teams current user's identity. Using this credential will request user consent at the first time. It leverages the Teams SSO and On-Behalf-Of flow to do token exchange. SDK uses this credential when developer choose "User" identity in browser environment.You can copy this `TeamsUserCredential.ts` into your source code.
+
+### Option 2: Use @microsoft/teams-js SDK
 
 With @microsoft/teams-js SDK:
 ```ts
@@ -113,7 +219,7 @@ You can reference to [hello-world-tab-with-backend sample](https://github.com/Of
 
 ### NAA
 
-We recomment [Nested App Auth](https://learn.microsoft.com/en-us/microsoftteams/platform/concepts/authentication/nested-authentication) to implement SSO. 
+We recommend [Nested App Auth](https://learn.microsoft.com/en-us/microsoftteams/platform/concepts/authentication/nested-authentication) to implement SSO. 
 
 ```ts
 import { app } from "@microsoft/teams-js";
