@@ -2,6 +2,12 @@
 
 > Note: This changelog only includes the changes for the stable versions of Microsoft 365 Agents Toolkit (evolved from Teams Toolkit). For the changelog of pre-released versions, please refer to the [Microsoft 365 Agents Toolkit Pre-release Changelog](https://github.com/OfficeDev/TeamsFx/blob/dev/packages/vscode-extension/PRERELEASE.md).
 
+## 6.0.3 - Jul 19, 2025
+Hotfix version
+
+- Add a fix to resolve Agents Playground installation error.
+- Add a fix to guide users to swtich M365 account or switch tenant if they encounter the tenant mismatch error during debug.
+
 ## 6.0.2 - Jun 26, 2025
 Hotfix version.
 
