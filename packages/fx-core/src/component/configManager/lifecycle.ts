@@ -24,6 +24,7 @@ import {
 } from "./interface";
 import { MissingEnvironmentVariablesError } from "../../error";
 import { setErrorContext } from "../../common/globalVars";
+import { AzureEnvironmentVariables, OpenAIEnvironmentVariables } from "../constants";
 
 function resolveDriverDef(
   def: DriverDefinition,
@@ -101,7 +102,10 @@ export function resolveString(
         resolved.push(envVar);
         newVal = newVal.replace(matches[0], envVal);
       }
-    } else if (envVar.includes("AZURE") || envVar.includes("OPENAI")) {
+    } else if (
+      OpenAIEnvironmentVariables.hasOwnProperty(envVar) ||
+      AzureEnvironmentVariables.hasOwnProperty(envVar)
+    ) {
       if (envVal) {
         resolved.push(envVar);
         newVal = newVal.replace(matches[0], envVal);

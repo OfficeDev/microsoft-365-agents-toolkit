@@ -238,6 +238,7 @@ const getGenericEnvVarConfig = (envKey: string): OpenAIEnvVarConfig => ({
   validation: getNonEmptyStringValidation(
     "driver.file.createOrUpdateEnvironmentFile.genericEnvVar.validation"
   ),
+  isPassword: envKey.toLowerCase().includes("key") || envKey.toLowerCase().includes("secret"),
 });
 
 const envVarConfigs: OpenAIEnvVarConfig[] = [
