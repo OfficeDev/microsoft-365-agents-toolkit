@@ -9,10 +9,7 @@ import {
   TurnContext,
   UserState,
 } from "@microsoft/agents-hosting";
-import {
-  SigninStateVerificationQuery,
-  TeamsActivityHandler,
-} from "@microsoft/agents-hosting-extensions-teams";
+import { TeamsActivityHandler } from "@microsoft/agents-hosting-extensions-teams";
 import { TeamsBotSsoPromptSettings } from "../../bot/teamsBotSsoPrompt";
 import {
   BotSsoConfig,
@@ -114,7 +111,7 @@ export class DefaultBotSsoExecutionActivityHandler
    * It should trigger {@link BotSsoExecutionDialog} instance to handle signin process
    * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
    */
-  async handleTeamsSigninVerifyState(context: TurnContext, query: SigninStateVerificationQuery) {
+  async handleTeamsSigninVerifyState(context: TurnContext, query: { state?: string }) {
     await this.ssoExecutionDialog.run(context, this.dialogState);
   }
 
@@ -128,7 +125,7 @@ export class DefaultBotSsoExecutionActivityHandler
    * It should trigger {@link BotSsoExecutionDialog} instance to handle signin process
    * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
    */
-  async handleTeamsSigninTokenExchange(context: TurnContext, query: SigninStateVerificationQuery) {
+  async handleTeamsSigninTokenExchange(context: TurnContext, query: { state?: string }) {
     await this.ssoExecutionDialog.run(context, this.dialogState);
   }
 }

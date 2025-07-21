@@ -8,11 +8,7 @@ import {
   AgentStatePropertyAccessor,
   StatusCodes,
 } from "@microsoft/agents-hosting";
-import {
-  TeamsChannelAccount,
-  tokenExchangeOperationName,
-  TeamsInfo,
-} from "@microsoft/agents-hosting-extensions-teams";
+import { TeamsChannelAccount, TeamsInfo } from "@microsoft/agents-hosting-extensions-teams";
 import {
   ActionTypes,
   Activity,
@@ -27,6 +23,7 @@ import {
   TeamsBotSsoPromptSettings,
   OnBehalfOfCredentialAuthConfig,
 } from "../../../src";
+import { tokenExchangeOperationName } from "../../../src/conversation/interface";
 import { assert, use as chaiUse } from "chai";
 import * as chaiPromises from "chai-as-promised";
 import { extractIntegrationEnvVariables, getSsoTokenFromTeams } from "../helper";
