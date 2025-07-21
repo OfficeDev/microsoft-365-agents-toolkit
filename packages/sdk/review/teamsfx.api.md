@@ -15,7 +15,7 @@ import { AxiosInstance } from 'axios';
 import { AxiosRequestConfig } from 'axios';
 import { CardAction } from '@microsoft/agents-activity';
 import { CardImage } from '@microsoft/agents-hosting';
-import { ChannelInfo } from '@microsoft/agents-hosting-teams';
+import { ChannelInfo } from '@microsoft/agents-hosting-extensions-teams';
 import { CloudAdapter } from '@microsoft/agents-hosting';
 import { ComponentDialog } from '@microsoft/agents-hosting-dialogs';
 import { ConversationReference } from '@microsoft/agents-activity';
@@ -26,16 +26,15 @@ import { DialogTurnResult } from '@microsoft/agents-hosting-dialogs';
 import { GetTokenOptions } from '@azure/identity';
 import { HeroCard } from '@microsoft/agents-hosting';
 import { InvokeResponse } from '@microsoft/agents-hosting';
-import { MessagingExtensionResponse } from '@microsoft/agents-hosting-teams';
+import { MessagingExtensionResponse } from '@microsoft/agents-hosting-extensions-teams';
 import { O365ConnectorCard } from '@microsoft/agents-hosting';
 import { ReceiptCard } from '@microsoft/agents-hosting';
 import { Request as Request_2 } from '@microsoft/agents-hosting';
 import { SecureContextOptions } from 'tls';
-import { SigninStateVerificationQuery } from '@microsoft/agents-hosting-teams';
 import { StatusCodes } from '@microsoft/agents-hosting';
 import { Storage as Storage_2 } from '@microsoft/agents-hosting';
-import { TeamDetails } from '@microsoft/agents-hosting-teams';
-import { TeamsChannelAccount } from '@microsoft/agents-hosting-teams';
+import { TeamDetails } from '@microsoft/agents-hosting-extensions-teams';
+import { TeamsChannelAccount } from '@microsoft/agents-hosting-extensions-teams';
 import { ThumbnailCard } from '@microsoft/agents-hosting';
 import { TokenCredential } from '@azure/identity';
 import { TurnContext } from '@microsoft/agents-hosting';
@@ -139,8 +138,12 @@ export interface BotSsoConfig {
 // @public @deprecated
 export interface BotSsoExecutionActivityHandler {
     addCommand(handler: BotSsoExecutionDialogHandler, triggerPatterns: TriggerPatterns): void;
-    handleTeamsSigninTokenExchange(context: TurnContext, query: SigninStateVerificationQuery): Promise<void>;
-    handleTeamsSigninVerifyState(context: TurnContext, query: SigninStateVerificationQuery): Promise<void>;
+    handleTeamsSigninTokenExchange(context: TurnContext, query: {
+        state?: string;
+    }): Promise<void>;
+    handleTeamsSigninVerifyState(context: TurnContext, query: {
+        state?: string;
+    }): Promise<void>;
     run(context: TurnContext): Promise<void>;
 }
 

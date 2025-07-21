@@ -14,7 +14,7 @@ import {
   TeamsChannelAccount,
   TeamsInfo,
   ChannelInfo,
-} from "@microsoft/agents-hosting-teams";
+} from "@microsoft/agents-hosting-extensions-teams";
 import { Activity, ConversationReference } from "@microsoft/agents-activity";
 import { assert, use as chaiUse } from "chai";
 import * as chaiPromises from "chai-as-promised";

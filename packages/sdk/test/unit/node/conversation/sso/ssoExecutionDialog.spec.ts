@@ -14,7 +14,7 @@ import {
   TeamsInfo,
   tokenExchangeOperationName,
   verifyStateOperationName,
-} from "@microsoft/agents-hosting-teams";
+} from "@microsoft/agents-hosting-extensions-teams";
 import {
   ActionTypes,
   Activity,

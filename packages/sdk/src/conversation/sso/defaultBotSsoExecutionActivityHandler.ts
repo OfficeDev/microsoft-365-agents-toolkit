@@ -12,7 +12,7 @@ import {
 import {
   SigninStateVerificationQuery,
   TeamsActivityHandler,
-} from "@microsoft/agents-hosting-teams";
+} from "@microsoft/agents-hosting-extensions-teams";
 import { TeamsBotSsoPromptSettings } from "../../bot/teamsBotSsoPrompt";
 import {
   BotSsoConfig,
