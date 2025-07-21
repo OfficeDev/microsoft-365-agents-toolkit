@@ -323,7 +323,7 @@ export function happyPathTest(options: {
             projectPath: projectPath,
             env: "dev",
             teamsAppName: appName,
-            searchApp: true,
+            searchApp: false,
           }
         );
 
@@ -606,7 +606,7 @@ export function happyPathTest(options: {
             projectPath: projectPath,
             teamsAppName: localDebugTestContext.appName,
             env: "local",
-            searchApp: true,
+            searchApp: false,
           }
         );
         await localDebugTestContext.validateLocalStateForBot();

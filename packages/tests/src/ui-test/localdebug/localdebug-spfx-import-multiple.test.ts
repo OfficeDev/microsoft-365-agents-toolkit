@@ -75,7 +75,7 @@ describe("SPFx local debug", function () {
           projectPath: projectPath,
           env: "local",
           teamsAppName: localDebugTestContext.appName,
-          searchApp: true,
+          searchApp: false,
         }
       );
       await validateTeamsWorkbench(page, "helloworld1");

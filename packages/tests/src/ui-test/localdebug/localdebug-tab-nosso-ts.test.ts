@@ -91,7 +91,7 @@ describe("Local Debug Tests", function () {
               projectPath: projectPath,
               env: "local",
               teamsAppName: localDebugTestContext.appName,
-              searchApp: true,
+              searchApp: false,
             }
           );
           await validateBasicTab(page, ValidationContent.Tab);
@@ -110,7 +110,7 @@ describe("Local Debug Tests", function () {
               projectPath: projectPath,
               env: "local",
               teamsAppName: localDebugTestContext.appName,
-              searchApp: true,
+              searchApp: false,
               loggedIn: true,
             }
           );

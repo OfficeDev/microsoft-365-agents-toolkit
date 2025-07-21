@@ -102,8 +102,6 @@ export class LocalDebugTestContext extends TestContext {
     await VSBrowser.instance.driver.sleep(30000);
     // await this.disableDebugConsole();
     const testFolder = path.resolve(this.testRootFolder, this.appName);
-    console.log("Update yaml file for m365 agents");
-    await extendM365Yaml(testFolder, "local");
     await openExistingProject(testFolder);
   }
 

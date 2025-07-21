@@ -87,7 +87,7 @@ describe("Remote debug Tests", function () {
           projectPath: projectPath,
           env: "dev",
           teamsAppName: appName,
-          searchApp: true,
+          searchApp: false,
         }
       );
       await driver.sleep(Timeout.longTimeWait);

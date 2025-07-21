@@ -87,7 +87,7 @@ describe("Local Debug Tests", function () {
             {
               projectPath: projectPath,
               env: "local",
-              searchApp: true,
+              searchApp: false,
               teamsAppName: localDebugTestContext.appName,
             }
           );
@@ -107,7 +107,7 @@ describe("Local Debug Tests", function () {
               projectPath: projectPath,
               env: "local",
               teamsAppName: localDebugTestContext.appName,
-              searchApp: true,
+              searchApp: false,
               loggedIn: true,
             }
           );
