@@ -17,17 +17,7 @@ export const AddPluginOptions: CLICommandOption[] = [
     description: "Action type.",
     required: true,
     default: "new-api",
-    choices: ["api-spec", "existing-plugin"],
-  },
-  {
-    name: "plugin-manifest-path",
-    type: "string",
-    description: "Plugin manifest path.",
-  },
-  {
-    name: "plugin-opeanapi-spec-path",
-    type: "string",
-    description: "OpenAPI description document used for your API plugin.",
+    choices: ["api-spec"],
   },
   {
     name: "openapi-spec-type",

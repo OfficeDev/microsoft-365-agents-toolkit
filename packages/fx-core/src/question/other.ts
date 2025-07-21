@@ -811,18 +811,6 @@ export function addPluginQuestionNode(): IQTreeNode {
   return {
     data: apiPluginStartQuestion(true),
     children: [
-      {
-        data: pluginManifestQuestion(),
-        condition: {
-          equals: ActionStartOptions.existingPlugin().id,
-        },
-      },
-      {
-        data: pluginApiSpecQuestion(),
-        condition: {
-          equals: ActionStartOptions.existingPlugin().id,
-        },
-      },
       ...[inputOrSearchAPISpecNode()],
       {
         data: apiSpecLocationQuestion(),

@@ -65,7 +65,6 @@ export function daProjectTypeNode(
                 ...(featureFlagManager.getBooleanValue(FeatureFlags.DAMetaOS)
                   ? [ActionStartOptions.DAMetaOS()]
                   : []),
-                ActionStartOptions.existingPlugin(),
               ],
               default: ActionStartOptions.newApi().id,
               onDidSelection: setTemplateName,
@@ -100,18 +99,6 @@ export function daProjectTypeNode(
                       inputs[QuestionNames.ActionType] === ActionStartOptions.apiSpec().id &&
                       !featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration)
                   ),
-              {
-                condition: { equals: ActionStartOptions.existingPlugin().id },
-                data: { type: "group", name: QuestionNames.ImportPlugin },
-                children: [
-                  {
-                    data: pluginManifestQuestion(),
-                  },
-                  {
-                    data: pluginApiSpecQuestion(),
-                  },
-                ],
-              },
             ],
           },
         ],
