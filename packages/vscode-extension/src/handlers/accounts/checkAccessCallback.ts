@@ -77,7 +77,7 @@ export function checkSandboxCallback(args?: any[]): Promise<Result<null, FxError
       ) {
         await commands.executeCommand(
           "workbench.action.quickOpen",
-          "debug Debug in sandabox in Teams (Edge)"
+          "debug Debug in sandbox in Teams (Edge)"
         );
       }
     })
