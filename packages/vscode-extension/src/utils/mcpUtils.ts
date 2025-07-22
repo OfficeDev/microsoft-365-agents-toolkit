@@ -9,7 +9,7 @@ import { context, workspaceUri } from "../globalVariables";
 import { localize } from "./localizeUtils";
 import { ExtTelemetry } from "../telemetry/extTelemetry";
 import { TelemetryEvent, TelemetryProperty } from "../telemetry/extTelemetryEvents";
-import { FxError } from "@microsoft/teamsfx-api";
+import { err, FxError } from "@microsoft/teamsfx-api";
 
 /**
  * Setup MCP Server by checking for required files and prompting user to create them if missing
@@ -18,7 +18,7 @@ export async function setupMCPServer(): Promise<void> {
   if (!workspaceUri) {
     return; // No workspace opened
   }
-  const workspaceRoot = workspaceUri.path;
+  const workspaceRoot = workspaceUri.fsPath;
 
   // Check which files are missing
   const copilotInstructionsPath = path.join(workspaceRoot, ".github", "copilot-instructions.md");
