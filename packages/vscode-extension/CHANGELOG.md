@@ -6,7 +6,7 @@
 Hotfix version
 
 - Add a fix to resolve Agents Playground installation error.
-- Add a fix to guide users to swtich M365 account or switch tenant if they encounter the tenant mismatch error during debug.
+- Add a fix to guide users to switch M365 account or switch tenant if they encounter the tenant mismatch error during debug.
 
 ## 6.0.2 - Jun 26, 2025
 Hotfix version.
