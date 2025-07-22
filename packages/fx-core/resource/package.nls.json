@@ -637,6 +637,7 @@
   "core.common.ErrorFetchApiSpec": "Your OpenAPI description document should be accessible without authentication, otherwise download and start from a local copy.",
   "core.common.SendingApiRequest": "Sending API request: %s. Request body: %s",
   "core.common.ReceiveApiResponse": "Received API response: %s.",
+  "core.common.shareWithTenant.success": "Successfully shared the agent with tenant.",
   "core.common.shareWithUser.success": "Successfully shared the agent with users: %s.",
   "core.common.shareWithOwner.success": "Successfully shared the agent with owner: %s.",
   "core.common.removeShareAccess.success": "Shared app access removed from the users: %s.",

@@ -947,17 +947,44 @@ export class FxCore {
   ): Promise<Result<undefined, FxError>> {
     const scope = inputs[QuestionNames.ShareScope];
     if (scope === ShareScopeOption.ShareAppWithTenantUsers) {
-      inputs.stage = Stage.share;
-      const context = createDriverContext(inputs);
-      const res = await coordinator.share(context, inputs as InputsWithProjectPath);
-      if (res.isOk()) {
-        ctx!.envVars = res.value;
-        return ok(undefined);
-      } else {
-        // for partial success scenario, output is set in inputs object
-        ctx!.envVars = inputs.envVars;
+      // inputs.stage = Stage.share;
+      // const context = createDriverContext(inputs);
+      // const res = await coordinator.share(context, inputs as InputsWithProjectPath);
+      // if (res.isOk()) {
+      //   ctx!.envVars = res.value;
+      //   return ok(undefined);
+      // } else {
+      //   // for partial success scenario, output is set in inputs object
+      //   ctx!.envVars = inputs.envVars;
+      //   return err(res.error);
+      // }
+      const parseRes = await parseShareAppActionYamlConfig(inputs.projectPath!);
+      if (parseRes.isErr()) {
+        return err(parseRes.error);
+      }
+      const sharedTitleId = parseRes.value[1];
+      const sharedAppId = parseRes.value[2];
+
+      const tokenProvider = TOOLS.tokenProvider.m365TokenProvider;
+      const mosTokenRes = await tokenProvider.getAccessToken({
+        scopes: [MosServiceScope],
+      });
+      if (mosTokenRes.isErr()) {
+        return err(mosTokenRes.error);
+      }
+      const mosToken = mosTokenRes.value;
+      // 2. call Builder API to change shared scope
+      const res = await PackageService.GetSharedInstance().shareWithTenant(
+        mosToken,
+        sharedTitleId,
+        sharedAppId
+      );
+      if (res.isErr()) {
         return err(res.error);
       }
+      const msg = getLocalizedString("core.common.shareWithTenant.success");
+      TOOLS.ui?.showMessage("info", msg, false);
+      return ok(undefined);
     } else if (scope === ShareScopeOption.ShareAppWithSpecificUsers) {
       const emails = (inputs[QuestionNames.UserEmail] as string).split(",").map((e) => e.trim());
       if (!emails || emails.length === 0) {
