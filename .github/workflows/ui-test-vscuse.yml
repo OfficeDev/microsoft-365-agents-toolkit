@@ -444,7 +444,7 @@ jobs:
       
           if ($vsix) {
             code --install-extension $vsix --force
-            code --install-extension $mcpVsix --force
+            code --install-extension ./vscuse/lib/$mcpVsix --force
           } else {
             Write-Host "No VSIX file found!"
             exit 1
