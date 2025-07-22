@@ -1292,15 +1292,11 @@ describe("addPluginQuestionNode", async () => {
 
       const children = questionNode.children;
       assert.isArray(children);
-
-      assert.equal(children![0].data.name, QuestionNames.PluginOpenApiSpecFilePath);
-
-      const secondChild = children![1];
-      assert.isObject(secondChild);
-
+      assert.isObject(children![0]);
+      assert.equal(children![0].data.name, QuestionNames.OpenAPISpecType);
       const inputs = {} as any;
 
-      (secondChild.data as SingleSelectQuestion)!.onDidSelection!("", inputs);
+      (children![0].data as SingleSelectQuestion)!.onDidSelection!("", inputs);
       assert.equal(inputs[QuestionNames.ActionType], ActionStartOptions.apiSpec().id);
 
       assert.equal(
