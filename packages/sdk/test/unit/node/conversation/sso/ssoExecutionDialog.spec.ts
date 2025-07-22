@@ -9,12 +9,7 @@ import {
   StatusCodes,
   TurnContext,
 } from "@microsoft/agents-hosting";
-import {
-  TeamsChannelAccount,
-  TeamsInfo,
-  tokenExchangeOperationName,
-  verifyStateOperationName,
-} from "@microsoft/agents-hosting-teams";
+import { TeamsChannelAccount, TeamsInfo } from "@microsoft/agents-hosting-extensions-teams";
 import {
   ActionTypes,
   Activity,
@@ -41,6 +36,10 @@ import { AccessToken } from "@azure/identity";
 import { promisify } from "util";
 import { TestSsoCommandHandler, TestAdapter } from "../testUtils";
 import { ErrorMessage } from "../../../../../src/core/errors";
+import {
+  verifyStateOperationName,
+  tokenExchangeOperationName,
+} from "../../../../../src/conversation/interface";
 
 chaiUse(chaiPromises);
 let mockedEnvRestore: () => void;

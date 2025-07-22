@@ -3,7 +3,6 @@
 
 /* eslint-disable @typescript-eslint/require-await */
 import { TurnContext } from "@microsoft/agents-hosting";
-import { SigninStateVerificationQuery } from "@microsoft/agents-hosting-teams";
 
 import { BotSsoConfig, BotSsoExecutionDialogHandler, TriggerPatterns } from "../interface";
 import { ErrorWithCode, ErrorCode, ErrorMessage } from "../../core/errors";
@@ -69,7 +68,7 @@ export class DefaultBotSsoExecutionActivityHandler {
    * @returns A promise that represents the work queued.
    * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
    */
-  async handleTeamsSigninVerifyState(context: TurnContext, query: SigninStateVerificationQuery) {
+  async handleTeamsSigninVerifyState(context: TurnContext, query: { state?: string }) {
     throw new ErrorWithCode(
       formatString(
         ErrorMessage.BrowserRuntimeNotSupported,
@@ -86,7 +85,7 @@ export class DefaultBotSsoExecutionActivityHandler {
    * @returns A promise that represents the work queued.
    * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
    */
-  async handleTeamsSigninTokenExchange(context: TurnContext, query: SigninStateVerificationQuery) {
+  async handleTeamsSigninTokenExchange(context: TurnContext, query: { state?: string }) {
     throw new ErrorWithCode(
       formatString(
         ErrorMessage.BrowserRuntimeNotSupported,

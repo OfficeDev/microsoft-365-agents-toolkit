@@ -3,7 +3,7 @@
 
 import { AccessToken } from "@azure/identity";
 import { TurnContext } from "@microsoft/agents-hosting";
-import { MessagingExtensionResponse } from "@microsoft/agents-hosting-teams";
+import { MessagingExtensionResponse } from "@microsoft/agents-hosting-extensions-teams";
 import { ActivityTypes, Activity } from "@microsoft/agents-activity";
 import { parseJwt, getScopesArray, formatString } from "../util/utils";
 import { MessageExtensionTokenResponse } from "./teamsMsgExtTokenResponse";

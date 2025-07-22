@@ -56,7 +56,9 @@ describe("ConversationBot Tests - Node", () => {
   });
 
   it("Create with customized adapterConfig", () => {
-    const conversationBot = new ConversationBot({ adapterConfig: { issuers: [] } });
+    const conversationBot = new ConversationBot({
+      adapterConfig: { issuers: [], clientId: "fakeId" },
+    });
     assert.isDefined(conversationBot.adapter);
     assert.isDefined(conversationBot.adapter.onTurnError);
     assert.isUndefined(conversationBot.command);

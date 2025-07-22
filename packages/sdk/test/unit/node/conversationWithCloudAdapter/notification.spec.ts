@@ -14,8 +14,8 @@ import {
   TeamsChannelAccount,
   TeamsInfo,
   ChannelInfo,
-} from "@microsoft/agents-hosting-teams";
-import { Activity, ConversationReference } from "@microsoft/agents-activity";
+} from "@microsoft/agents-hosting-extensions-teams";
+import { Activity, ConversationReference, ActivityTypes } from "@microsoft/agents-activity";
 import { assert, use as chaiUse } from "chai";
 import * as chaiPromises from "chai-as-promised";
 import * as sinon from "sinon";
@@ -454,7 +454,11 @@ describe("Notification Tests - Node", () => {
         return { id: "1" } as any;
       });
       const stubTurnState = sandbox.createStubInstance(TurnContextStateCollection);
-      stubTurnState.get.returns(stubConnectorClient);
+      stubTurnState.get
+        .onFirstCall()
+        .returns(stubConnectorClient)
+        .onSecondCall()
+        .returns(undefined);
       sandbox.stub(TurnContext.prototype, "turnState").get(() => stubTurnState);
       sandbox.stub(TurnContext.prototype, "activity").get(() => {
         return {
@@ -684,6 +688,10 @@ describe("Notification Tests - Node", () => {
       const { data: members, continuationToken } = await installation.getPagedMembers();
       assert.strictEqual(members.length, 2);
       assert.strictEqual(continuationToken, "token");
+
+      // second call with connector client
+      const { data: members2 } = await installation.getPagedMembers();
+      assert.strictEqual(members2.length, 2);
     });
 
     it("getTeamDetails should return correct team details", async () => {
@@ -739,6 +747,15 @@ describe("Notification Bot Tests - Node", () => {
   beforeEach(() => {
     middlewares = [];
     const stubContext = sandbox.createStubInstance(TurnContext);
+    Object.defineProperty(stubContext, "activity", {
+      value: Activity.fromObject({ type: ActivityTypes.Message, text: "" }),
+      writable: true,
+      configurable: true,
+    });
+    const stubConnectorClient = sandbox.createStubInstance(ConnectorClient);
+    const stubTurnState = sandbox.createStubInstance(TurnContextStateCollection);
+    stubTurnState.get.onFirstCall().returns(stubConnectorClient).onSecondCall().returns(undefined);
+    sandbox.stub(TurnContext.prototype, "turnState").get(() => stubTurnState);
     const stubAdapter = sandbox.createStubInstance(CloudAdapter);
     stubAdapter.use.callsFake((args) => {
       middlewares.push(args);
