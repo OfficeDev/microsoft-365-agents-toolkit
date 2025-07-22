@@ -10,6 +10,7 @@ import {
   AttachmentData,
   AttachmentInfo,
   BaseAdapter,
+  AuthConfiguration,
 } from "@microsoft/agents-hosting";
 import {
   Activity,
@@ -225,12 +226,15 @@ export class MockActionInvokeContext {
 }
 
 export class TestAdapter extends BaseAdapter {
+  authConfig: AuthConfiguration;
+
   private logic: (context: TurnContext) => Promise<void>;
   readonly activeQueue: Partial<Activity>[] = [];
 
   constructor(logic: (context: TurnContext) => Promise<void>) {
     super();
     this.logic = logic;
+    this.authConfig = { clientId: "fakeId", issuers: [] };
   }
 
   public send(activity: string | Partial<Activity>): TestFlow {

@@ -501,25 +501,15 @@ export class ActionStartOptions {
 
   static staticAll(doesProjectExists?: boolean): OptionItem[] {
     return doesProjectExists
-      ? [ActionStartOptions.apiSpec(), ActionStartOptions.existingPlugin()]
-      : [
-          ActionStartOptions.newApi(),
-          ActionStartOptions.apiSpec(),
-          ActionStartOptions.existingPlugin(),
-        ];
+      ? [ActionStartOptions.apiSpec()]
+      : [ActionStartOptions.newApi(), ActionStartOptions.apiSpec()];
   }
 
   static all(inputs: Inputs, doesProjectExists?: boolean): OptionItem[] {
     if (doesProjectExists) {
-      return [ActionStartOptions.apiSpec(), ActionStartOptions.existingPlugin()];
-    } else if (inputs[QuestionNames.Capabilities] === "declarative-agent") {
-      // use constant string to avoid cycle dependency
-      return [
-        ActionStartOptions.newApi(),
-        ActionStartOptions.apiSpec(),
-        ActionStartOptions.existingPlugin(),
-      ];
+      return [ActionStartOptions.apiSpec()];
     } else {
+      // use constant string to avoid cycle dependency
       return [ActionStartOptions.newApi(), ActionStartOptions.apiSpec()];
     }
   }

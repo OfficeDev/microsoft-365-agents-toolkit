@@ -9,7 +9,6 @@ import {
   Storage,
 } from "@microsoft/agents-hosting";
 import { Activity, ConversationReference } from "@microsoft/agents-activity";
-import { SigninStateVerificationQuery } from "@microsoft/agents-hosting-teams";
 import { TeamsBotSsoPromptTokenResponse } from "../bot/teamsBotSsoPromptTokenResponse";
 import { OnBehalfOfCredentialAuthConfig } from "../models/configuration";
 
@@ -452,10 +451,7 @@ export interface BotSsoExecutionActivityHandler {
    * @remarks
    * It should trigger {@link BotSsoExecutionDialog} instance to handle signin process
    */
-  handleTeamsSigninVerifyState(
-    context: TurnContext,
-    query: SigninStateVerificationQuery
-  ): Promise<void>;
+  handleTeamsSigninVerifyState(context: TurnContext, query: { state?: string }): Promise<void>;
 
   /**
    * Receives invoke activities with Activity name of 'signin/tokenExchange'
@@ -466,10 +462,7 @@ export interface BotSsoExecutionActivityHandler {
    * @remarks
    * It should trigger {@link BotSsoExecutionDialog} instance to handle signin process
    */
-  handleTeamsSigninTokenExchange(
-    context: TurnContext,
-    query: SigninStateVerificationQuery
-  ): Promise<void>;
+  handleTeamsSigninTokenExchange(context: TurnContext, query: { state?: string }): Promise<void>;
 }
 
 /**
@@ -480,3 +473,13 @@ export type BotSsoExecutionDialogHandler = (
   tokenResponse: TeamsBotSsoPromptTokenResponse,
   message: CommandMessage
 ) => Promise<void>;
+
+/**
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
+ */
+export const tokenExchangeOperationName = "signin/tokenExchange";
+
+/**
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
+ */
+export const verifyStateOperationName = "signin/verifyState";

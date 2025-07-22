@@ -11,14 +11,9 @@ import {
   TokenExchangeInvokeRequest,
   TokenExchangeResource,
   TokenPostResource,
-  SigningResource,
+  SignInResource,
 } from "@microsoft/agents-hosting";
-import {
-  TeamsInfo,
-  TeamsChannelAccount,
-  verifyStateOperationName,
-  tokenExchangeOperationName,
-} from "@microsoft/agents-hosting-teams";
+import { TeamsInfo, TeamsChannelAccount } from "@microsoft/agents-hosting-extensions-teams";
 import {
   Dialog,
   DialogContext,
@@ -34,6 +29,7 @@ import { internalLogger } from "../util/logger";
 import { validateScopesType, formatString, parseJwt, validateConfig } from "../util/utils";
 import { OnBehalfOfCredentialAuthConfig } from "../models/configuration";
 import { OnBehalfOfUserCredential } from "../credential/onBehalfOfUserCredential";
+import { verifyStateOperationName, tokenExchangeOperationName } from "../conversation/interface";
 
 const invokeResponseType = "invokeResponse";
 /**
@@ -326,7 +322,7 @@ export class TeamsBotSsoPrompt extends Dialog {
    *
    * @internal
    */
-  private getSignInResource(loginHint: string): SigningResource {
+  private getSignInResource(loginHint: string): SignInResource {
     internalLogger.verbose("Get sign in authentication configuration");
 
     const signInLink = `${this.initiateLoginEndpoint}?scope=${encodeURI(

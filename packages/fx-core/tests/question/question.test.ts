@@ -1292,16 +1292,11 @@ describe("addPluginQuestionNode", async () => {
 
       const children = questionNode.children;
       assert.isArray(children);
-
-      assert.equal(children![0].data.name, QuestionNames.PluginManifestFilePath);
-      assert.equal(children![1].data.name, QuestionNames.PluginOpenApiSpecFilePath);
-
-      const thirdChild = children![2];
-      assert.isObject(thirdChild);
-
+      assert.isObject(children![0]);
+      assert.equal(children![0].data.name, QuestionNames.OpenAPISpecType);
       const inputs = {} as any;
 
-      (thirdChild.data as SingleSelectQuestion)!.onDidSelection!("", inputs);
+      (children![0].data as SingleSelectQuestion)!.onDidSelection!("", inputs);
       assert.equal(inputs[QuestionNames.ActionType], ActionStartOptions.apiSpec().id);
 
       assert.equal(
@@ -1367,66 +1362,6 @@ describe("addPluginQuestionNode", async () => {
       QuestionNames.ActionType,
       QuestionNames.ApiSpecLocation,
       QuestionNames.ApiOperation,
-      QuestionNames.TeamsAppManifestFilePath,
-    ]);
-  });
-
-  it("success: can add a plugin from existing plugin", async () => {
-    sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok({} as TeamsAppManifest));
-    sandbox.stub(manifestUtils, "parseCommonProperties").returns({
-      capabilities: ["copilotGpt"],
-      isApiME: false,
-      isSPFx: false,
-      id: "1",
-      version: "1",
-      manifestVersion: "",
-      isApiMeAAD: false,
-    });
-
-    sandbox
-      .stub(featureFlagManager, "getBooleanValue")
-      .withArgs(FeatureFlags.KiotaNPMIntegration)
-      .returns(false);
-
-    const inputs: Inputs = {
-      platform: Platform.VSCode,
-      projectPath: "./test",
-    };
-
-    const questionNames: string[] = [];
-    const visitor: QuestionTreeVisitor = async (
-      question: Question,
-      ui: UserInteraction,
-      inputs: Inputs,
-      step?: number,
-      totalSteps?: number
-    ) => {
-      questionNames.push(question.name);
-      await callFuncs(question, inputs);
-      if (question.name == QuestionNames.TeamsAppManifestFilePath) {
-        return ok({
-          type: "success",
-          result: "manifest.json",
-        });
-      } else if (question.name == QuestionNames.ActionType) {
-        const select = question as SingleSelectQuestion;
-        const options = await select.dynamicOptions!(inputs);
-        assert.isTrue(options.length === 2);
-        return ok({ type: "success", result: ActionStartOptions.existingPlugin().id });
-      } else if (question.name === QuestionNames.PluginManifestFilePath) {
-        return ok({ type: "success", result: "test.yaml" });
-      } else if (question.name === QuestionNames.PluginOpenApiSpecFilePath) {
-        return ok({ type: "success", result: "test.json" });
-      }
-      return ok({ type: "success", result: undefined });
-    };
-    const node = questionNodes.addPlugin();
-
-    await traverse(node, inputs, ui, undefined, visitor);
-    assert.deepEqual(questionNames, [
-      QuestionNames.ActionType,
-      QuestionNames.PluginManifestFilePath,
-      QuestionNames.PluginOpenApiSpecFilePath,
       QuestionNames.TeamsAppManifestFilePath,
     ]);
   });

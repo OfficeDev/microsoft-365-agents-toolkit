@@ -7,7 +7,7 @@ import {
   TeamsInfo,
   TeamDetails,
   TeamsChannelAccount,
-} from "@microsoft/agents-hosting-teams";
+} from "@microsoft/agents-hosting-extensions-teams";
 import {
   Activity,
   ActivityTypes,
@@ -502,6 +502,10 @@ export class TeamsBotInstallation implements NotificationTarget {
     await this.adapter.continueConversation(
       this.conversationReference as ConversationReference,
       async (context) => {
+        context.activity.channelData = context.activity.channelData ?? {};
+        if (context.turnState.get("connectorClient") === undefined) {
+          context.turnState.set("connectorClient", this.adapter.connectorClient);
+        }
         const pagedMembers = await TeamsInfo.getPagedMembers(context, pageSize, continuationToken);
 
         result = {
@@ -606,6 +610,10 @@ export class NotificationBot {
       async (context) => {
         try {
           // try get member to see if the installation is still valid
+          context.activity.channelData = context.activity.channelData ?? {};
+          if (context.turnState.get("connectorClient") === undefined) {
+            context.turnState.set("connectorClient", this.adapter.connectorClient);
+          }
           await TeamsInfo.getPagedMembers(context, 1);
         } catch (error: any) {
           if ((error.code as string) === "BotNotInConversationRoster") {
