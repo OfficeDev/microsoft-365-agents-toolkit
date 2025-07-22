@@ -183,6 +183,11 @@ export interface M365TokenProvider {
    * @param tokenRequest permission scopes or show user interactive UX
    */
   getStatus(tokenRequest: TokenRequest): Promise<Result<LoginStatus, FxError>>;
+
+  /**
+   * Sign out from current M365 account
+   */
+  signout(): Promise<boolean>;
   /**
    * Switch to specified tenant for current user account
    * @param tenantId id of tenant that user wants to switch to

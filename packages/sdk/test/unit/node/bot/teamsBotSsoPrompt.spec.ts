@@ -8,12 +8,7 @@ import {
   AgentStatePropertyAccessor,
   StatusCodes,
 } from "@microsoft/agents-hosting";
-import {
-  TeamsChannelAccount,
-  tokenExchangeOperationName,
-  verifyStateOperationName,
-  TeamsInfo,
-} from "@microsoft/agents-hosting-teams";
+import { TeamsChannelAccount, TeamsInfo } from "@microsoft/agents-hosting-extensions-teams";
 import {
   ActionTypes,
   Activity,
@@ -31,6 +26,10 @@ import {
   ErrorCode,
   TeamsBotSsoPromptSettings,
 } from "../../../../src";
+import {
+  tokenExchangeOperationName,
+  verifyStateOperationName,
+} from "../../../../src/conversation/interface";
 import { assert, expect, use as chaiUse } from "chai";
 import * as chaiPromises from "chai-as-promised";
 import * as sinon from "sinon";

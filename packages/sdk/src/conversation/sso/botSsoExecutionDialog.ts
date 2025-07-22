@@ -10,9 +10,13 @@ import {
   DialogContext,
 } from "@microsoft/agents-hosting-dialogs";
 import { AgentStatePropertyAccessor, Storage, TurnContext } from "@microsoft/agents-hosting";
-import { tokenExchangeOperationName } from "@microsoft/agents-hosting-teams";
 import { Activity, ActivityTypes, Channels } from "@microsoft/agents-activity";
-import { CommandMessage, BotSsoExecutionDialogHandler, TriggerPatterns } from "../interface";
+import {
+  CommandMessage,
+  BotSsoExecutionDialogHandler,
+  TriggerPatterns,
+  tokenExchangeOperationName,
+} from "../interface";
 import { TeamsBotSsoPrompt, TeamsBotSsoPromptSettings } from "../../bot/teamsBotSsoPrompt";
 import { TeamsBotSsoPromptTokenResponse } from "../../bot/teamsBotSsoPromptTokenResponse";
 import { formatString } from "../../util/utils";

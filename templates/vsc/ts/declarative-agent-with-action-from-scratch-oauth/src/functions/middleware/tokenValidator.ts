@@ -182,12 +182,16 @@ export class TokenValidator {
     }
 
     if (Array.isArray(options.issuer)) {
-      options.issuer = options.issuer.map((issuer) => {
+      const mappedIssuers = options.issuer.map((issuer) => {
         if (issuer.toLowerCase().indexOf("{tenantid}") > -1) {
           return issuer.replace(/{tenantid}/i, (jwt.payload as JwtPayload).tid);
         }
         return issuer;
       });
+
+      if (mappedIssuers.length > 0) {
+        options.issuer = mappedIssuers as [string, ...string[]];
+      }
       return;
     }
   }

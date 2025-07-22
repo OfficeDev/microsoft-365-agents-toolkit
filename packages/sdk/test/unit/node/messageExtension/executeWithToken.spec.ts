@@ -19,6 +19,7 @@ import {
   AttachmentData,
   AttachmentInfo,
   BaseAdapter,
+  AuthConfiguration,
 } from "@microsoft/agents-hosting";
 import { Activity, ConversationReference } from "@microsoft/agents-activity";
 import mockedEnv from "mocked-env";
@@ -27,6 +28,12 @@ chaiUse(chaiPromises);
 let restore: () => void;
 
 class SimpleAdapter extends BaseAdapter {
+  authConfig: AuthConfiguration;
+
+  constructor() {
+    super();
+    this.authConfig = { clientId: "fakeId", issuers: [] };
+  }
   sendActivities(
     context: TurnContext,
     activities: Partial<Activity>[]

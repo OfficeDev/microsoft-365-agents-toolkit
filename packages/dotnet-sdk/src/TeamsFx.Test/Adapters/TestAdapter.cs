@@ -274,17 +274,7 @@ namespace Microsoft.TeamsFx.Test
                     activity.Timestamp = DateTime.UtcNow;
                 }
 
-                if (activity.Type == ActivityTypes.Delay)
-                {
-                    // The BotFrameworkAdapter and Console adapter implement this
-                    // directly in the POST method. Replicating that here
-                    // to keep the behavior as close as possible to facilitate
-                    // more realistic tests.
-                    var delayMs = Convert.ToInt32(activity.Value, CultureInfo.InvariantCulture);
-
-                    await Task.Delay(delayMs).ConfigureAwait(false);
-                }
-                else if (activity.Type == ActivityTypes.Trace)
+                if (activity.Type == ActivityTypes.Trace)
                 {
                     if (_sendTraceActivity)
                     {
