@@ -83,13 +83,14 @@ jobs:
 
       - name: Download TTK
         run: |
+          mkdir -p release
           echo ${{ secrets.GITHUB_TOKEN }} | gh auth login --with-token 
-          gh run download ${{ env.vsix-run-id }} --repo OfficeDev/TeamsFx --name release
+          gh run download ${{ env.vsix-run-id }} --repo OfficeDev/TeamsFx --name release --dir release
 
       - name: Export TTK version
         id: ttk
         run: |
-          package=`find . -type f -name "*.vsix" | sed 's|.*/\(.*\)|\1|'`
+          package=`find release -type f -name "*.vsix" | sed 's|.*/\(.*\)|\1|'`
           version=`echo $package | sed 's|ms-teams-vscode-extension-||' | sed 's|\.vsix||'`
           echo "package=$package" >> $GITHUB_OUTPUT
           echo "version=$version" >> $GITHUB_OUTPUT
@@ -98,7 +99,7 @@ jobs:
         with:
           name: ttk
           path: |
-            ./${{ steps.ttk.outputs.package }}
+            ./release/${{ steps.ttk.outputs.package }}
       # - name: clean devtunnel
       #   run: |
       #     wget https://tunnelsassetsprod.blob.core.windows.net/cli/1.0.1249+67b1cd300c/linux-x64-devtunnel -O ./devtunnel
