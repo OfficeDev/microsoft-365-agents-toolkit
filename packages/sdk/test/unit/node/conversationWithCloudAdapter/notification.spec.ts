@@ -15,7 +15,7 @@ import {
   TeamsInfo,
   ChannelInfo,
 } from "@microsoft/agents-hosting-extensions-teams";
-import { Activity, ConversationReference } from "@microsoft/agents-activity";
+import { Activity, ConversationReference, ActivityTypes } from "@microsoft/agents-activity";
 import { assert, use as chaiUse } from "chai";
 import * as chaiPromises from "chai-as-promised";
 import * as sinon from "sinon";
@@ -739,6 +739,15 @@ describe("Notification Bot Tests - Node", () => {
   beforeEach(() => {
     middlewares = [];
     const stubContext = sandbox.createStubInstance(TurnContext);
+    Object.defineProperty(stubContext, "activity", {
+      value: Activity.fromObject({ type: ActivityTypes.Message, text: "" }),
+      writable: true,
+      configurable: true,
+    });
+    const stubConnectorClient = sandbox.createStubInstance(ConnectorClient);
+    const stubTurnState = sandbox.createStubInstance(TurnContextStateCollection);
+    stubTurnState.get.returns(stubConnectorClient);
+    sandbox.stub(TurnContext.prototype, "turnState").get(() => stubTurnState);
     const stubAdapter = sandbox.createStubInstance(CloudAdapter);
     stubAdapter.use.callsFake((args) => {
       middlewares.push(args);
