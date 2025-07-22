@@ -436,10 +436,14 @@ jobs:
           # get the vsix file name
           $vsix = Get-ChildItem -Path . -Filter *.vsix | Select-Object -ExpandProperty Name
           Write-Host "Detected VSIX file: $vsix"
+
+          # get the vscode mcp vsix file name
+          $mcpVsix = Get-ChildItem -Path ./vscuse/lib -Filter *.vsix | Select-Object -ExpandProperty Name
+          Write-Host "Detected MCP VSIX file: $mcpVsix"
       
           if ($vsix) {
             code --install-extension $vsix --force
-            code --install-extension 	JuehangQin.vscode-mcp-server
+            code --install-extension $mcpVsix --force
           } else {
             Write-Host "No VSIX file found!"
             exit 1
