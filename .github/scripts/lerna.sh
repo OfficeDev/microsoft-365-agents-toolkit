@@ -6,7 +6,7 @@ git update-index --assume-unchanged "pnpm-workspace.yaml"
 if [ ${#stringarray[@]} -eq 0 ]; then
     echo "for all the pkgs except mcp-server"
     # Remove the packages/mcp-server line from the workspace
-    sed -i '/^[[:space:]]*-[[:space:]]*"packages\/mcp-server"$/d' pnpm-workspace.yaml
+    sed -i '/^[[:space:]]*-[[:space:]]*"packages\/mcp-server"/d' pnpm-workspace.yaml
     cat pnpm-workspace.yaml
     exit 0
 else
