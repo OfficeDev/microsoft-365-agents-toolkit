@@ -1,16 +1,5 @@
 {
     "mcpServers": {
-        "createRandomName": {
-            "command": "uv",
-            "args": [
-                "run",
-                "--with",
-                "fastmcp",
-                "fastmcp",
-                "run",
-                "../createRandomName.py"
-            ]
-        },
         "vscode-mcp": {
             "command": "npx",
             "args": ["mcp-remote@next", "http://localhost:3000/mcp"]

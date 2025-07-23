@@ -426,6 +426,14 @@ jobs:
         with:
           name: ttk
           path: packages/tests
+      
+      - name: Download VSC MCP Server
+        uses: Legion2/download-release-action@v2.1.0
+        with:
+          repository: wenytang-ms/vscode-mcp-server
+          tag: '0.2.0'
+          path: ./packages/tests/vscuse/binary
+          file: vscode-mcp-server-0.2.0.vsix
 
       # Install the VSIX
       - name: VSIX Installation
@@ -439,12 +447,12 @@ jobs:
           Write-Host "Detected VSIX file: $vsix"
 
           # get the vscode mcp vsix file name
-          $mcpVsix = Get-ChildItem -Path ./vscuse/lib -Filter *.vsix | Select-Object -ExpandProperty Name
+          $mcpVsix = Get-ChildItem -Path ./vscuse/binary -Filter *.vsix | Select-Object -ExpandProperty Name
           Write-Host "Detected MCP VSIX file: $mcpVsix"
       
           if ($vsix) {
             code --install-extension $vsix --force
-            code --install-extension ./vscuse/lib/$mcpVsix --force
+            code --install-extension ./vscuse/binary/$mcpVsix --force
           } else {
             Write-Host "No VSIX file found!"
             exit 1
