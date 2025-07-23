@@ -1,4 +1,4 @@
-# Overview of the Declarative Agent with TypeSpec for Microsoft 365 template
+# Overview of the MCP Wrapped Declarative Agent for Microsoft 365 template
 
 With the declarative agent, you can build a custom version of Copilot that can be used for specific scenarios, such as for specialized knowledge, implementing specific processes, or simply to save time by reusing a set of AI prompts. For example, a grocery shopping Copilot declarative agent can be used to create a grocery list based on a meal plan that you send to Copilot.
 
@@ -17,8 +17,8 @@ With the declarative agent, you can build a custom version of Copilot that can b
 
 1. First, select the Microsoft 365 Agents Toolkit icon on the left in the VS Code toolbar.
 2. In the Account section, sign in with your [Microsoft 365 account](https://docs.microsoft.com/microsoftteams/platform/toolkit/accounts) if you haven't already.
-3. Run `npm install` to install dependencies before working with TypeSpec files.
-4. Update the [`main.tsp`](./main.tsp) to configure your agent and its plugins. This is the default entry point for TypeSpec files. 
+3. Go to [`mcp.json`](.vscode/mcp.json) and click on "Start" in the CodeLens of the MCP name to start the MCP server connection in VS Code.
+4. Click on "ATK: Fetch action from MCP" and select the action manifest you want to update, select the tools you want to use.
 5. Create app by clicking `Provision` in "Lifecycle" section.
 6. Select `Preview in Copilot (Edge)` or `Preview in Copilot (Chrome)` from the launch configuration dropdown.
 7. Once the Copilot agent is loaded in the browser, click on the "…" menu and select "Copilot chats". You will see your declarative agent on the right rail. Clicking on it will change the experience to showcase the logo and name of your declarative agent.

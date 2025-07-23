@@ -1137,5 +1137,10 @@
   "core.createProjectQuestion.mcpForDa.PreFetchTools.title": "Select Operation(s) Copilot can interact with",
   "core.createProjectQuestion.mcpForDa.ServerName.title": "Enter the name of the server when you add it to VS Code",
   "core.createProjectQuestion.mcpForDa.ServerName.placeholder": "Enter the name of the server",
-  "core.createProjectQuestion.mcpForDa.File.title": "Select the action manifest you want to update"
+  "core.createProjectQuestion.mcpForDa.File.title": "Select the action manifest you want to update",
+  "core.MCPForDA.updatePluginManifest": "The operations selected from your MCP server are successfully added for Copilot to interact with. You can go to the selected action manifest file to check on details. Now you are able to provision your declarative agent to continue.",
+  "core.MCPForDA.mcpAuthMetadataMissingError": "Unable to find the authentication metadata in the MCP server. Please make sure your MCP server is configured correctly and try again. Details: %s",
+  "core.MCPForDA.mcpAuthMetadataUrlNotFound": "Unable to find the authentication metadata from property \"resource_metadata\" from response of the MCP server.",
+  "core.MCPForDA.mcpServerMetadataUrlNotFound": "Unable to find the server metadata from property \"authorization_servers\" from repsonse of the Protected Resource Metadata of the MCP server.",
+  "core.MCPForDA.authUrlNotFound": "Unable to find the authentication URL(s) from response of Authorization Server Metadata of the MCP server."
 }

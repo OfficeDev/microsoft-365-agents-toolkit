@@ -14,6 +14,12 @@
     "name": "{{appName}}",
     "description": "Declarative agent created with Microsoft 365 Agents Toolkit can assist user in calling MCP Servers",
     "instructions": "$[file('instruction.txt')]",
+    "conversation_starters": [
+        {
+			"title": "Sample conversation starters",
+			"text": "Hi! What can you do for me?"
+		}
+    ],
     "actions": [
         {
             "id": "action_1",

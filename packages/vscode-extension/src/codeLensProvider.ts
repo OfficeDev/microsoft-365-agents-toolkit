@@ -984,7 +984,7 @@ export class WorkspaceMCPConfigCodeLensProvider implements vscode.CodeLensProvid
         const pos = document.positionAt(match.index);
         const range = new vscode.Range(pos.line, pos.character, pos.line, pos.character);
         const command: vscode.Command = {
-          title: `⚡ ATK: Update Action with MCP`,
+          title: `⚡ ATK: Fetch action from MCP`,
           command: "fx-extension.updateActionWithMCP",
           arguments: [{ serverName, serverConfig }],
         };

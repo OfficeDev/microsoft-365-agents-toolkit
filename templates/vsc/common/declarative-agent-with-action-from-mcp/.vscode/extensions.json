@@ -1,6 +1,5 @@
 {
   "recommendations": [
-    "TeamsDevApp.ms-teams-vscode-extension",
-    "typespec.typespec-vscode"
+    "TeamsDevApp.ms-teams-vscode-extension"
   ]
 }

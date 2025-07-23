@@ -17,17 +17,26 @@ import * as vscode from "vscode";
 import axios from "axios";
 import { runCommand } from "./sharedOpts";
 import { VS_CODE_UI } from "../qm/vsc_ui";
+import * as parser from "jsonc-parser";
 
 export async function updateActionWithMCP(args?: any[]): Promise<Result<any, FxError>> {
   const inputs = getSystemInputs();
   let mcpName = args && args.length > 0 ? args[0].serverName : undefined;
   let server = args && args.length > 0 ? args[0].serverConfig.url : undefined;
+
+  // Sanitize mcpName if it's provided as an argument
+  if (mcpName) {
+    mcpName = mcpName.replace(/[^a-zA-Z0-9]/g, "").substring(0, 10);
+  }
+
   if (!mcpName && !server) {
     const mcpFile = path.join(inputs.projectPath!, ".vscode", "mcp.json");
     if (!fs.pathExistsSync(mcpFile)) {
       return err(new UserError("da-mcp", "MCPFileNotFound", "MCP file not found"));
     }
-    const mcpContent = await fs.readJSON(mcpFile);
+    // const mcpContent = await fs.readJSON(mcpFile);
+    const mcpOriginalContent = fs.readFileSync(mcpFile, "utf-8");
+    const mcpContent = parser.parse(mcpOriginalContent);
     if (!mcpContent || !mcpContent.servers) {
       return err(new UserError("da-mcp", "MCPContentInvalid", "MCP content is invalid"));
     }
@@ -40,8 +49,8 @@ export async function updateActionWithMCP(args?: any[]): Promise<Result<any, FxE
       );
     }
     if (mcpNames.length === 1) {
-      mcpName = mcpNames[0];
-      server = mcpContent.servers[mcpName].url;
+      mcpName = mcpNames[0].replace(/[^a-zA-Z0-9]/g, "").substring(0, 10);
+      server = mcpContent.servers[mcpNames[0]].url;
     } else {
       const mcpNameSelection: SingleSelectConfig = {
         name: "mcpName",
@@ -56,8 +65,9 @@ export async function updateActionWithMCP(args?: any[]): Promise<Result<any, FxE
       if (result.isErr()) {
         return err(result.error);
       }
-      mcpName = result.value.result;
-      server = mcpContent.servers[mcpName].url;
+      const originalMcpName = result.value.result as string;
+      mcpName = originalMcpName.replace(/[^a-zA-Z0-9]/g, "").substring(0, 10);
+      server = mcpContent.servers[originalMcpName].url;
     }
   } else if (!mcpName || !server) {
     return err(
@@ -83,6 +93,10 @@ export async function updateActionWithMCP(args?: any[]): Promise<Result<any, FxE
       };
     });
   if (tools.length === 0) {
+    void vscode.window.showErrorMessage(
+      "No tools found for the MCP server. Please run the server first."
+    );
+    // Return an error result
     return err(
       new UserError(
         "da-mcp",

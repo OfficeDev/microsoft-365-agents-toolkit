@@ -39,8 +39,6 @@ import {
 import { ProjectTypeOptions } from "./ProjectTypeOptions";
 import { featureFlagManager, FeatureFlags } from "../../../common/featureFlags";
 import { TemplateNames } from "../../../component/generator/templates/templateNames";
-import * as vscode from "vscode";
-import axios from "axios";
 import path from "path";
 import * as fs from "fs-extra";
 
@@ -330,98 +328,7 @@ export function MCPForDAServerUrlNode(): IQTreeNode {
       title: getLocalizedString("core.createProjectQuestion.mcpForDa.ServerUrl.title"),
       type: "text",
       placeholder: getLocalizedString("core.createProjectQuestion.mcpForDa.ServerUrl.placeholder"),
-      additionalValidationOnAccept: {
-        validFunc: async (input: string, inputs?: Inputs): Promise<string | undefined> => {
-          if (!inputs) {
-            throw new Error("inputs is undefined"); // should never happen
-          }
-
-          const serverUrl = input;
-          let auth: "OAuthPluginVault" | "NoneAuth" = "NoneAuth";
-          try {
-            const response = await axios.get(serverUrl);
-          } catch (error) {
-            if (error.status == 401) {
-              auth = "OAuthPluginVault";
-            }
-          }
-          inputs[QuestionNames.MCPForDAAuth] = auth;
-          return;
-        },
-      },
     },
-    children: [
-      {
-        data: {
-          type: "text",
-          name: QuestionNames.MCPForDAServerName,
-          title: getLocalizedString("core.createProjectQuestion.mcpForDa.ServerName.title"),
-          placeholder: getLocalizedString(
-            "core.createProjectQuestion.mcpForDa.ServerName.placeholder"
-          ),
-        },
-      },
-      {
-        data: {
-          type: "singleSelect",
-          name: QuestionNames.MCPForDATool,
-          title: getLocalizedString("core.createProjectQuestion.mcpForDa.Tool.title"),
-          staticOptions: [
-            {
-              id: "pre-fetch-tools",
-              label: getLocalizedString("core.createProjectQuestion.mcpForDa.Tool.preFetch.label"),
-              detail: getLocalizedString(
-                "core.createProjectQuestion.mcpForDa.Tool.preFetch.detail"
-              ),
-              data: TemplateNames.DeclarativeAgentWithActionFromMCP,
-            },
-            {
-              id: "dynamic-discovery",
-              label: getLocalizedString(
-                "core.createProjectQuestion.mcpForDa.Tool.dynamicDiscovery.label"
-              ),
-              detail: getLocalizedString(
-                "core.createProjectQuestion.mcpForDa.Tool.dynamicDiscovery.detail"
-              ),
-              data: TemplateNames.DeclarativeAgentWithActionFromMCP,
-            },
-          ],
-          onDidSelection: setTemplateName,
-        },
-        children: [
-          {
-            condition: { equals: "pre-fetch-tools" },
-            data: {
-              type: "multiSelect",
-              name: QuestionNames.MCPForDAPreFetchTools,
-              title: getLocalizedString("core.createProjectQuestion.mcpForDa.PreFetchTools.title"),
-              staticOptions: [],
-              dynamicOptions: (inputs: Inputs): OptionItem[] => {
-                const serverName = inputs[QuestionNames.MCPForDAServerName];
-                const availableTools: any[] = inputs[QuestionNames.MCPForDAAvailableTools];
-                if (!serverName || !availableTools) {
-                  return [];
-                }
-                const tools = availableTools
-                  .filter((tool) => tool.name && tool.name.includes(serverName))
-                  .map((tool: any) => {
-                    const index = tool.name.indexOf(serverName);
-                    const newName = (tool.name as string).substring(
-                      (index as number) + (serverName.length as number) + 1
-                    );
-                    return {
-                      id: newName,
-                      label: newName,
-                      detail: tool.description || "",
-                    };
-                  });
-                return tools;
-              },
-            },
-          },
-        ],
-      },
-    ],
   };
 }
 
@@ -444,72 +351,42 @@ export function updateActionWithMCP(): IQTreeNode {
     children: [
       {
         data: {
-          type: "singleSelect",
-          name: QuestionNames.MCPForDATool,
-          title: getLocalizedString("core.createProjectQuestion.mcpForDa.Tool.title"),
-          staticOptions: [
-            {
-              id: "pre-fetch-tools",
-              label: getLocalizedString("core.createProjectQuestion.mcpForDa.Tool.preFetch.label"),
-              detail: getLocalizedString(
-                "core.createProjectQuestion.mcpForDa.Tool.preFetch.detail"
-              ),
-              data: TemplateNames.DeclarativeAgentWithActionFromMCP,
-            },
-            {
-              id: "dynamic-discovery",
-              label: getLocalizedString(
-                "core.createProjectQuestion.mcpForDa.Tool.dynamicDiscovery.label"
-              ),
-              detail: getLocalizedString(
-                "core.createProjectQuestion.mcpForDa.Tool.dynamicDiscovery.detail"
-              ),
-              data: TemplateNames.DeclarativeAgentWithActionFromMCP,
-            },
-          ],
-        },
-        children: [
-          {
-            condition: { equals: "pre-fetch-tools" },
-            data: {
-              type: "multiSelect",
-              name: QuestionNames.MCPForDAPreFetchTools,
-              title: getLocalizedString("core.createProjectQuestion.mcpForDa.PreFetchTools.title"),
-              staticOptions: [],
-              dynamicOptions: (inputs: Inputs): OptionItem[] => {
-                const availableTools: any[] = inputs[QuestionNames.MCPForDAAvailableTools];
-                const tools = availableTools.map((tool: any) => {
-                  return {
-                    id: tool.name,
-                    label: tool.name,
-                    detail: tool.description || "",
-                  };
-                });
-                return tools;
-              },
-              default: async (inputs: Inputs) => {
-                const pluginManifestFilePath = inputs[QuestionNames.PluginManifestFilePath];
-                if (!pluginManifestFilePath) {
-                  return [];
-                }
-                const pluginManifest = await fs.readJSON(pluginManifestFilePath);
-                const serverUrl = inputs[QuestionNames.MCPForDAServerUrl];
-                const result: string[] = [];
-                (pluginManifest.runtimes as any[])
-                  .filter(
-                    (runtime: any) =>
-                      runtime.type === "RemoteMCPServer" &&
-                      runtime.spec.url === serverUrl &&
-                      runtime.spec["enable_dynamic_discovery"] === false
-                  )
-                  .forEach((runtime: any) => {
-                    result.push(...runtime["run_for_functions"]);
-                  });
-                return result;
-              },
-            },
+          type: "multiSelect",
+          name: QuestionNames.MCPForDAPreFetchTools,
+          title: getLocalizedString("core.createProjectQuestion.mcpForDa.PreFetchTools.title"),
+          staticOptions: [],
+          dynamicOptions: (inputs: Inputs): OptionItem[] => {
+            const availableTools: any[] = inputs[QuestionNames.MCPForDAAvailableTools];
+            const tools = availableTools.map((tool: any) => {
+              return {
+                id: tool.name,
+                label: tool.name,
+                detail: tool.description || "",
+              };
+            });
+            return tools;
           },
-        ],
+          default: async (inputs: Inputs) => {
+            const pluginManifestFilePath = inputs[QuestionNames.PluginManifestFilePath];
+            if (!pluginManifestFilePath) {
+              return [];
+            }
+            const pluginManifest = await fs.readJSON(pluginManifestFilePath);
+            const serverUrl = inputs[QuestionNames.MCPForDAServerUrl];
+            const result: string[] = [];
+            (pluginManifest.runtimes as any[])
+              .filter(
+                (runtime: any) =>
+                  runtime.type === "RemoteMCPServer" &&
+                  runtime.spec.url === serverUrl &&
+                  runtime.spec["enable_dynamic_discovery"] === false
+              )
+              .forEach((runtime: any) => {
+                result.push(...runtime["run_for_functions"]);
+              });
+            return result;
+          },
+        },
       },
     ],
   };

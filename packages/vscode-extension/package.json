@@ -613,7 +613,7 @@
     "commands": [
       {
         "command": "fx-extension.updateActionWithMCP",
-        "title": "Update Action with MCP",
+        "title": "%teamstoolkit.commands.updateActionWithMCP.title%",
         "enablement": "!fx-extension.commandLocked",
         "category": "Microsoft 365 Agents"
       },

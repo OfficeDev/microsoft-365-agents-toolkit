@@ -114,9 +114,16 @@ export async function openWorkspaceMCPConfigHandler(...args: unknown[]) {
         vscode.Uri.file(workspaceMCPConfigFile)
       );
       await vscode.window.showTextDocument(document);
-      void vscode.window.showInformationMessage(
-        localize("teamstoolkit.handlers.openWorkspaceMCPConfigNotification")
-      );
+      void vscode.window
+        .showInformationMessage(
+          localize("teamstoolkit.handlers.openWorkspaceMCPConfigNotification"),
+          "Fetch Action"
+        )
+        .then((selection) => {
+          if (selection === "Fetch Action") {
+            void vscode.commands.executeCommand("fx-extension.updateActionWithMCP");
+          }
+        });
     }
   }
   return ok<unknown, FxError>(null);

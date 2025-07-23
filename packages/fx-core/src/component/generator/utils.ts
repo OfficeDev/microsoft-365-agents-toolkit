@@ -171,6 +171,8 @@ export function renderTemplateFileData(
     const writer = new Writer();
     const result = writer.renderTokens(token, new Context(variables));
     // Be compatible with current stable templates, can be removed after new template released.
+    // Disable HTML escaping to prevent URLs and other content from being encoded
+    Mustache.escape = (value) => value;
     return Mustache.render(result, variables, {}, oldPlaceholderDelimiters);
   }
   // Return Buffer instead of string if the file is not a template. Because `toString()` may break binary resources, like png files.
@@ -227,6 +229,8 @@ export function renderTemplateFileName(
   fileData: Buffer,
   variables?: { [key: string]: string }
 ): string {
+  // Disable HTML escaping to prevent special characters from being encoded
+  Mustache.escape = (value) => value;
   return Mustache.render(fileName, variables, {}, placeholderDelimiters).replace(
     templateFileExt,
     ""
