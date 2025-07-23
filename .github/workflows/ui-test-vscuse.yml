@@ -428,12 +428,13 @@ jobs:
           path: packages/tests
       
       - name: Download VSC MCP Server
-        uses: Legion2/download-release-action@v2.1.0
+        uses: dsaltares/fetch-gh-release-asset@master
         with:
-          repository: wenytang-ms/vscode-mcp-server
-          tag: '0.2.0'
-          path: ./packages/tests/vscuse/binary
-          file: vscode-mcp-server-0.2.0.vsix
+          repo: 'wenytang-ms/vscode-mcp-server'
+          version: 'tags/v0.2.0'
+          file: 'vscode-mcp-server-0.2.0.vsix'
+          target: './packages/tests/vscuse/binary/vscode-mcp-server-0.2.0.vsix'
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       # Install the VSIX
       - name: VSIX Installation

@@ -2,7 +2,7 @@
     "mcpServers": {
         "vscode-mcp": {
             "command": "npx",
-            "args": ["mcp-remote@next", "http://localhost:3000/mcp"]
+            "args": ["mcp-remote@next", "http://localhost:8345/mcp"]
         }
     }
 }
