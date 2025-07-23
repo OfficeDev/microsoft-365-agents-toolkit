@@ -84,7 +84,7 @@ describe("mcpUtils", () => {
     });
 
     it("should prompt user when copilot instructions file is missing", async () => {
-      console.log(globalVariables.workspaceUri?.path);
+      console.log(globalVariables.workspaceUri?.fsPath);
       existsSyncStub.callsFake((filePath: string) => {
         return filePath.endsWith("copilot-instructions.md") ? false : true;
       });

@@ -18,7 +18,7 @@ export async function setupMCPServer(): Promise<void> {
   if (!workspaceUri) {
     return; // No workspace opened
   }
-  const workspaceRoot = workspaceUri.path;
+  const workspaceRoot = workspaceUri.fsPath;
 
   // Check which files are missing
   const copilotInstructionsPath = path.join(workspaceRoot, ".github", "copilot-instructions.md");
