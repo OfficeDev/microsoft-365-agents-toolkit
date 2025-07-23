@@ -196,7 +196,7 @@
         },
 {{#SandBoxedTeam}}
         {
-            "name": "Debug in Teams Sandbox (Edge)",
+            "name": "Debug in sandbox in Teams (Edge)",
             "configurations": [
                 "Launch Agent to channel (Edge)",
                 "Attach to Local Service"
