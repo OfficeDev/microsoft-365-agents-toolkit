@@ -12,7 +12,7 @@
   },
 
   "Connections": {
-    "ServiceConnection": {
+    "BotServiceConnection": {
       "Assembly": "Microsoft.Agents.Authentication.Msal",
       "Type": "MsalAuth",
       "Settings": {
@@ -29,7 +29,7 @@
   "ConnectionsMap": [
     {
       "ServiceUrl": "*",
-      "Connection": "ServiceConnection"
+      "Connection": "BotServiceConnection"
     }
   ],
 
