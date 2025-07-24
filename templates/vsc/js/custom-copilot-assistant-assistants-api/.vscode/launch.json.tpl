@@ -89,10 +89,10 @@
 {{/enableTestToolByDefault}}
                 "order": 6
             },
-            "internalConsoleOptions": "neverOpen",
-        {{#CEAEnabled}}
-        },
-        {
+            "internalConsoleOptions": "neverOpen"
+        }
+{{#CEAEnabled}}
+        ,{
             "name": "Launch Remote in Copilot (Edge)",
             "type": "msedge",
             "request": "launch",
@@ -157,8 +157,25 @@
                 "--remote-debugging-port=9223",
                 "--no-first-run"
             ]
-        {{/CEAEnabled}}
         }
+{{#SandBoxedTeam}}
+        ,{
+            "name": "Launch Agent to channel (Edge)",
+            "type": "msedge",
+            "request": "launch",
+            "url": "${{sandbox:CHANNEL_WEB_URL}}&webjoin=true",
+            "cascadeTerminateToConfigurations": [
+                "Attach to Local Service"
+            ],
+            "presentation": {
+                "group": "all",
+                "hidden": true
+            },
+            "internalConsoleOptions": "neverOpen",
+            "perScriptSourcemaps": "yes"
+        }
+{{/SandBoxedTeam}}
+{{/CEAEnabled}}
     ],
     "compounds": [
         {
@@ -179,6 +196,21 @@
             },
             "stopAll": true
         },
+{{#SandBoxedTeam}}
+        {
+            "name": "Debug in sandbox in Teams (Edge)",
+            "configurations": [
+                "Launch Agent to channel (Edge)",
+                "Attach to Local Service"
+            ],
+            "preLaunchTask": "Start Agent (Sandbox)",
+            "presentation": {
+                "group": "1-local",
+                "order": 1
+            },
+            "stopAll": true
+        },
+{{/SandBoxedTeam}}
         {
             "name": "Debug in Teams (Chrome)",
             "configurations": [
@@ -230,9 +262,9 @@
                 "order": 1
             },
             "stopAll": true
-        {{#CEAEnabled}}
-        },
-        {
+        }
+{{#CEAEnabled}}
+        ,{
             "name": "Debug in Copilot (Edge)",
             "configurations": [
                 "Launch in Copilot (Edge)",
@@ -244,8 +276,8 @@
                 "order": 1
             },
             "stopAll": true
-            },
-            {
+        },
+        {
             "name": "Debug in Copilot (Chrome)",
             "configurations": [
                 "Launch in Copilot (Chrome)",
@@ -257,7 +289,7 @@
                 "order": 2
             },
             "stopAll": true
-        {{/CEAEnabled}}
         }
+{{/CEAEnabled}}
     ]
 }
