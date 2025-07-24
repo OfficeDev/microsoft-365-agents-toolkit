@@ -1,6 +1,6 @@
 {
   "Connections": {
-    "ServiceConnection": {
+    "BotServiceConnection": {
       "Settings": {
         "AuthType": "ClientSecret",
         "AuthorityEndpoint": "https://login.microsoftonline.com/botframework.com",
