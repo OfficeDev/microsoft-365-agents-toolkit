@@ -23,6 +23,8 @@ export enum ShareScopeOption {
   ShareAppWithOwners = "owners",
 }
 
+export const MAX_SHARE_EMAILS = 20;
+
 export function shareNode(): IQTreeNode {
   return {
     data: {

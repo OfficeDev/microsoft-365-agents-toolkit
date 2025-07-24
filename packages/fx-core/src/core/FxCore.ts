@@ -178,6 +178,7 @@ import {
   HubTypes,
   KnowledgeSearchTypeOptions,
   KnowledgeSourceOptions,
+  MAX_EMAIL_NUMBER,
   QuestionNames,
   SPFxVersionOptionIds,
   ScratchOptions,
@@ -946,34 +947,33 @@ export class FxCore {
     ctx?: CoreHookContext
   ): Promise<Result<undefined, FxError>> {
     const scope = inputs[QuestionNames.ShareScope];
-    if (scope === ShareScopeOption.ShareAppWithTenantUsers) {
-      // inputs.stage = Stage.share;
-      // const context = createDriverContext(inputs);
-      // const res = await coordinator.share(context, inputs as InputsWithProjectPath);
-      // if (res.isOk()) {
-      //   ctx!.envVars = res.value;
-      //   return ok(undefined);
-      // } else {
-      //   // for partial success scenario, output is set in inputs object
-      //   ctx!.envVars = inputs.envVars;
-      //   return err(res.error);
-      // }
-      const parseRes = await parseShareAppActionYamlConfig(inputs.projectPath!);
-      if (parseRes.isErr()) {
-        return err(parseRes.error);
+    let emails: string[] = [];
+    if (scope === ShareScopeOption.ShareAppWithSpecificUsers) {
+      emails = (inputs[QuestionNames.UserEmail] as string).split(",").map((e) => e.trim());
+      if (!emails || emails.length === 0) {
+        return err(new MissingRequiredInputError("emails", "FxCore"));
       }
-      const sharedTitleId = parseRes.value[1];
-      const sharedAppId = parseRes.value[2];
+      if (emails.length > MAX_EMAIL_NUMBER) {
+        return err(new InputValidationError("emails", "Too many emails"));
+      }
+    }
+    const parseRes = await parseShareAppActionYamlConfig(inputs.projectPath!);
+    if (parseRes.isErr()) {
+      return err(parseRes.error);
+    }
+    const sharedTitleId = parseRes.value[1];
+    const sharedAppId = parseRes.value[2];
+    const tokenProvider = TOOLS.tokenProvider.m365TokenProvider;
+    const mosTokenRes = await tokenProvider.getAccessToken({
+      scopes: [MosServiceScope],
+    });
+    if (mosTokenRes.isErr()) {
+      return err(mosTokenRes.error);
+    }
+    const mosToken = mosTokenRes.value;
 
-      const tokenProvider = TOOLS.tokenProvider.m365TokenProvider;
-      const mosTokenRes = await tokenProvider.getAccessToken({
-        scopes: [MosServiceScope],
-      });
-      if (mosTokenRes.isErr()) {
-        return err(mosTokenRes.error);
-      }
-      const mosToken = mosTokenRes.value;
-      // 2. call Builder API to change shared scope
+    if (scope === ShareScopeOption.ShareAppWithTenantUsers) {
+      // Call Builder API to change shared scope
       const res = await PackageService.GetSharedInstance().shareWithTenant(
         mosToken,
         sharedTitleId,
@@ -986,28 +986,6 @@ export class FxCore {
       TOOLS.ui?.showMessage("info", msg, false);
       return ok(undefined);
     } else if (scope === ShareScopeOption.ShareAppWithSpecificUsers) {
-      const emails = (inputs[QuestionNames.UserEmail] as string).split(",").map((e) => e.trim());
-      if (!emails || emails.length === 0) {
-        return err(new MissingRequiredInputError("emails", "FxCore"));
-      }
-      if (emails.length > 20) {
-        return err(new InputValidationError("emails", "Too many emails"));
-      }
-      const parseRes = await parseShareAppActionYamlConfig(inputs.projectPath!);
-      if (parseRes.isErr()) {
-        return err(parseRes.error);
-      }
-      const sharedTitleId = parseRes.value[1];
-      const sharedAppId = parseRes.value[2];
-
-      const tokenProvider = TOOLS.tokenProvider.m365TokenProvider;
-      const mosTokenRes = await tokenProvider.getAccessToken({
-        scopes: [MosServiceScope],
-      });
-      if (mosTokenRes.isErr()) {
-        return err(mosTokenRes.error);
-      }
-      const mosToken = mosTokenRes.value;
       const entities: M365AppEntity[] = [];
       for (const email of emails) {
         const userInfo = await CollaborationUtil.getUserInfo(tokenProvider, email);
@@ -1028,7 +1006,7 @@ export class FxCore {
           });
         }
       }
-      // 2. call Builder API to add shared users
+      // Call Builder API to change shared scope
       const res = await PackageService.GetSharedInstance().addSharedUsers(
         mosToken,
         entities,
