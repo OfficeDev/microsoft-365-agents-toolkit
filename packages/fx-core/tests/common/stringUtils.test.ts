@@ -33,7 +33,7 @@ describe("stringUtils", () => {
   });
 
   describe("maskSecretFromEnv", () => {
-    it("should handle special regex characters in environment variable values", async () => {
+    it("should handle special regex characters in environment variable values", () => {
       const originalEnv = process.env;
       try {
         process.env.SECRET_TEST = "+91O/snBU6On";
@@ -47,7 +47,7 @@ describe("stringUtils", () => {
       }
     });
 
-    it("should handle multiple special regex characters", async () => {
+    it("should handle multiple special regex characters", () => {
       const originalEnv = process.env;
       try {
         process.env.SECRET_REGEX = ".*+?^${}()|[]\\";
