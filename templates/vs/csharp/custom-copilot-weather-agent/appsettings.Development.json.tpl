@@ -5,7 +5,7 @@
     }
   },
   "Connections": {
-    "BotServiceConnection": {
+    "ServiceConnection": {
       "Settings": {
         "ClientId": "",
         "ClientSecret": ""

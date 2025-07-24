@@ -1,5 +1,5 @@
 {
-  "AgentApplicationOptions": {
+  "AgentApplication": {
     "StartTypingTimer": true,
     "RemoveRecipientMention": false,
     "NormalizeMentions": false
@@ -12,7 +12,7 @@
   },
 
   "Connections": {
-    "BotServiceConnection": {
+    "ServiceConnection": {
       "Assembly": "Microsoft.Agents.Authentication.Msal",
       "Type": "MsalAuth",
       "Settings": {
@@ -25,10 +25,11 @@
       }
     }
   },
+
   "ConnectionsMap": [
     {
       "ServiceUrl": "*",
-      "Connection": "BotServiceConnection"
+      "Connection": "ServiceConnection"
     }
   ],
 
