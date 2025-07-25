@@ -37,6 +37,8 @@ The following files can be customized and demonstrate an example implementation 
 | File                               | Contents                                                                     |
 | ---------------------------------- | ---------------------------------------------------------------------------- |
 | `appPackage/manifest.json`         | application manifest that defines metadata for your declarative agent. |
+| `appPackage/ai-plugin.json`        | The manifest file for your API Plugin that contains information for your API and used by LLM. |
+| `appPackage/declarativeAgent.json` | Define the behaviour and configurations of the declarative agent. |
 
 The following are Microsoft 365 Agents Toolkit specific project files. You can [visit a complete guide on Github](https://github.com/OfficeDev/TeamsFx/wiki/Teams-Toolkit-Visual-Studio-Code-v5-Guide#overview) to understand how Microsoft 365 Agents Toolkit works.
 

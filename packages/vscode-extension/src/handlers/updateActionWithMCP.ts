@@ -32,18 +32,23 @@ export async function updateActionWithMCP(args?: any[]): Promise<Result<any, FxE
   if (!mcpName && !server) {
     const mcpFile = path.join(inputs.projectPath!, ".vscode", "mcp.json");
     if (!fs.pathExistsSync(mcpFile)) {
+      void vscode.window.showErrorMessage("MCP file not found.");
       return err(new UserError("da-mcp", "MCPFileNotFound", "MCP file not found"));
     }
     // const mcpContent = await fs.readJSON(mcpFile);
     const mcpOriginalContent = fs.readFileSync(mcpFile, "utf-8");
     const mcpContent = parser.parse(mcpOriginalContent);
     if (!mcpContent || !mcpContent.servers) {
+      void vscode.window.showErrorMessage(
+        "MCP content is invalid. Please make sure url property exists in the MCP file."
+      );
       return err(new UserError("da-mcp", "MCPContentInvalid", "MCP content is invalid"));
     }
 
     // TODO: support multiple MCP servers
     const mcpNames = Object.keys(mcpContent.servers);
     if (mcpNames.length === 0) {
+      void vscode.window.showErrorMessage("No MCP server found in the MCP file.");
       return err(
         new UserError("da-mcp", "MCPServerNotFound", "No MCP server found in the MCP file")
       );
@@ -63,6 +68,7 @@ export async function updateActionWithMCP(args?: any[]): Promise<Result<any, FxE
       };
       const result = await VS_CODE_UI.selectOption(mcpNameSelection);
       if (result.isErr()) {
+        void vscode.window.showErrorMessage(result.error.message || "Failed to select MCP server");
         return err(result.error);
       }
       const originalMcpName = result.value.result as string;
@@ -70,6 +76,7 @@ export async function updateActionWithMCP(args?: any[]): Promise<Result<any, FxE
       server = mcpContent.servers[originalMcpName].url;
     }
   } else if (!mcpName || !server) {
+    void vscode.window.showErrorMessage("MCP name or server URL is missing");
     return err(
       new UserError("da-mcp", "MCPNameOrServerUrlMissing", "MCP name or server URL is missing")
     );

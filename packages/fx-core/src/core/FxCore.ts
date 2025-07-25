@@ -3042,6 +3042,7 @@ export class FxCore {
 
     if (mcpAuth === "OAuthPluginVault") {
       try {
+        registrationId = `MCP_DA_AUTH_ID_${serverName.toUpperCase()}`;
         const mcpAuthMetadataUrl = inputs[QuestionNames.MCPForDAAuthMetadataUrl];
         let mcpServerMetadataUrl = undefined;
         if (!mcpAuthMetadataUrl) {
@@ -3071,7 +3072,6 @@ export class FxCore {
         if (!oauthAuthorizationUrl || !oauthTokenUrl) {
           throw new Error(getLocalizedString("core.MCPForDA.authUrlNotFound"));
         }
-        registrationId = `MCP_DA_AUTH_ID_${serverName.toUpperCase()}`;
       } catch (error) {
         const errorDetail = new UserError(
           "FxCore",
@@ -3084,7 +3084,6 @@ export class FxCore {
           getLocalizedString("core.MCPForDA.mcpAuthMetadataMissingError", error.message),
           false
         );
-        return err(errorDetail);
       }
     }
 
