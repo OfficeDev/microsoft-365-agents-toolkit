@@ -8,16 +8,16 @@ import path from "path";
 import { getLocalizedString } from "../../../common/localizeUtils";
 import { DriverDefinition } from "../../configManager/interface";
 import { resolve } from "../../configManager/lifecycle";
+import { envUtil } from "../../utils/envUtil";
 import { metadataUtil } from "../../utils/metadataUtil";
 import { pathUtils } from "../../utils/pathUtils";
 import { Constants } from "../teamsApp/constants";
 import * as shareToOthers from "./shareToOthers";
 
-// Read teamsapp.yaml and get the value of teamsapp id, shared title id, and shared app id
-// Output [teamsapp id, shared title id, shared app id]
+// Read m365agents.yaml and get the value of shared title id, and shared app id
 export async function parseShareAppActionYamlConfig(
   projectPath: string
-): Promise<Result<string[], FxError>> {
+): Promise<Result<{ teamsappId: string; titleId: string; appId: string }, FxError>> {
   const templatePath = pathUtils.getYmlFilePath(projectPath, "dev") as string;
   const maybeProjectModel = await metadataUtil.parse(templatePath);
   if (maybeProjectModel.isErr()) {
@@ -41,14 +41,23 @@ export async function parseShareAppActionYamlConfig(
       )
     );
   }
+
   // 1. get manifest id
   const appPackagePath = (shareToOthersAction.with as any)?.appPackagePath;
   if (!appPackagePath) {
     return err(
-      new UserError("FxCore", "Share", getLocalizedString("error.share.appPackageConfigNotFound"))
+      new UserError(
+        "FxCore",
+        "Share to Users",
+        getLocalizedString("error.share.appPackageConfigNotFound")
+      )
     );
   }
 
+  const readEnvRes = await envUtil.readEnv(projectPath, "dev");
+  if (readEnvRes.isErr()) {
+    return err(readEnvRes.error);
+  }
   const resolvedDriver = resolve(shareToOthersAction, [], []) as DriverDefinition;
   const resolvedAppPackagePath = path.resolve(
     projectPath,
@@ -67,14 +76,22 @@ export async function parseShareAppActionYamlConfig(
   const manifestFile = zipEntries.find((x) => x.entryName === Constants.MANIFEST_FILE);
   if (!manifestFile) {
     return err(
-      new UserError("FxCore", "Share", getLocalizedString("error.share.manifestFileNotFound"))
+      new UserError(
+        "FxCore",
+        "Share to Users",
+        getLocalizedString("error.share.manifestFileNotFound")
+      )
     );
   }
   const manifest = JSON.parse(manifestFile.getData().toString()) as TeamsAppManifest;
   const manifestId = manifest.id;
   if (!manifestId) {
     return err(
-      new UserError("FxCore", "Share", getLocalizedString("error.share.manifestIdNotFound"))
+      new UserError(
+        "FxCore",
+        "Share to Users",
+        getLocalizedString("error.share.manifestIdNotFound")
+      )
     );
   }
 
@@ -98,5 +115,5 @@ export async function parseShareAppActionYamlConfig(
       )
     );
   }
-  return ok([manifestId, sharedTitleId, sharedAppId]);
+  return ok({ teamsappId: manifestId, titleId: sharedTitleId, appId: sharedAppId });
 }

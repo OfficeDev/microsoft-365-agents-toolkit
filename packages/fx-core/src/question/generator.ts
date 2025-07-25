@@ -8,7 +8,6 @@ import {
   CLIOptionType,
   CLIStringOption,
   IQTreeNode,
-  MultiFileQuestion,
   MultiSelectQuestion,
   Platform,
   SingleSelectQuestion,
@@ -480,8 +479,8 @@ async function batchGenerate() {
   await generateCliOptions(questionNodes.share(), "Share");
   await generateInputs(questionNodes.share(), "Share");
 
-  await generateCliOptions(questionNodes.removeSharedAccess(), "removeSharedAccess");
-  await generateInputs(questionNodes.removeSharedAccess(), "removeSharedAccess");
+  // await generateCliOptions(questionNodes.removeSharedAccess(), "removeSharedAccess");
+  // await generateInputs(questionNodes.removeSharedAccess(), "removeSharedAccess");
 }
 
 void batchGenerate();

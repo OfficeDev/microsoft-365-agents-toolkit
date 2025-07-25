@@ -29,7 +29,7 @@ import {
 import { scaffoldQuestionForVS } from "./scaffold/vs/createRootNode";
 import { createFromTdpNode } from "./scaffold/vsc/createFromTdpNode";
 import { scaffoldQuestionForVSCode } from "./scaffold/vsc/createRootNode";
-import { removeSharedAccessNode, shareNode } from "./share";
+import { shareNode } from "./share";
 export * from "./constants";
 export * from "./create";
 export * from "./inputs";
@@ -111,9 +111,6 @@ export class QuestionNodes {
   }
   share(): IQTreeNode {
     return shareNode();
-  }
-  removeSharedAccess(): IQTreeNode {
-    return removeSharedAccessNode();
   }
 }
 

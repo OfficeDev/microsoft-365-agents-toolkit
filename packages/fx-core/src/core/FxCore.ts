@@ -848,13 +848,9 @@ export class FxCore {
     }
   }
 
-  /**
-   * lifecycle command: share
-   */
   @hooks([
-    ErrorContextMW({ component: "FxCore", stage: "share", reset: true }),
+    ErrorContextMW({ component: "FxCore", stage: "unshare", reset: true }),
     ErrorHandlerMW,
-    QuestionMW("removeSharedAccess"),
     ProjectMigratorMWV3,
     EnvLoaderMW(false),
     ConcurrentLockerMW,
@@ -864,25 +860,14 @@ export class FxCore {
     inputs: Inputs,
     ctx?: CoreHookContext
   ): Promise<Result<undefined, FxError>> {
-    const emails = inputs[QuestionNames.RemoveUsers] as string[];
-    if (!emails || emails.length === 0) {
-      return err(new MissingRequiredInputError("emails", "FxCore"));
-    }
     const parseRes = await parseShareAppActionYamlConfig(inputs.projectPath!);
     if (parseRes.isErr()) {
       return err(parseRes.error);
     }
-    const teamsAppId = parseRes.value[0];
-    const sharedTitleId = parseRes.value[1];
+    const sharedTitleId = parseRes.value.titleId;
+    const appId = parseRes.value.appId;
 
     const tokenProvider = TOOLS.tokenProvider.m365TokenProvider;
-    const appStudioTokenRes = await tokenProvider.getAccessToken({
-      scopes: AppStudioScopes,
-    });
-    if (appStudioTokenRes.isErr()) {
-      return err(appStudioTokenRes.error);
-    }
-    const appStudioToken = appStudioTokenRes.value;
     const mosTokenRes = await tokenProvider.getAccessToken({
       scopes: [MosServiceScope],
     });
@@ -891,40 +876,12 @@ export class FxCore {
     }
     const mosToken = mosTokenRes.value;
 
-    // should never remove permission of the operator
-    const currentUserInfoRes = await CollaborationUtil.getCurrentUserInfo(tokenProvider);
-    if (currentUserInfoRes.isErr()) {
-      return err(currentUserInfoRes.error);
+    // remove share access
+    const res = await PackageService.GetSharedInstance().unshare(mosToken, sharedTitleId, appId);
+    if (res.isErr()) {
+      return err(res.error);
     }
-    const currentUserInfo = currentUserInfoRes.value;
-    for (const email of emails) {
-      const userInfo = await CollaborationUtil.getUserInfo(tokenProvider, email);
-      if (!userInfo) {
-        return err(new InputValidationError("removeSharedAccess", `Invalid user: ${email}`));
-      }
-      if (userInfo.aadId === currentUserInfo.aadId) {
-        return err(
-          new InputValidationError(
-            "removeSharedAccess",
-            getLocalizedString("core.share.removeAccess.operator", email)
-          )
-        );
-      }
-
-      // 1. remove TDP permission
-      await teamsDevPortalClient.removePermission(appStudioToken, teamsAppId, userInfo);
-
-      // 2. remove mos permission
-      const res = await PackageService.GetSharedInstance().removePermission(
-        mosToken,
-        sharedTitleId,
-        userInfo
-      );
-      if (res.isErr()) {
-        return err(res.error);
-      }
-    }
-    const msg = getLocalizedString("core.common.removeShareAccess.success", emails);
+    const msg = getLocalizedString("core.common.removeShareAccess.success");
     TOOLS.ui?.showMessage("info", msg, false);
     return ok(undefined);
   }
@@ -961,8 +918,8 @@ export class FxCore {
     if (parseRes.isErr()) {
       return err(parseRes.error);
     }
-    const sharedTitleId = parseRes.value[1];
-    const sharedAppId = parseRes.value[2];
+    const sharedTitleId = parseRes.value.titleId;
+    const sharedAppId = parseRes.value.appId;
     const tokenProvider = TOOLS.tokenProvider.m365TokenProvider;
     const mosTokenRes = await tokenProvider.getAccessToken({
       scopes: [MosServiceScope],
@@ -1028,8 +985,7 @@ export class FxCore {
       if (parseRes.isErr()) {
         return err(parseRes.error);
       }
-      const teamsAppId = parseRes.value[0];
-      const sharedTitleId = parseRes.value[1];
+      const sharedTitleId = parseRes.value.titleId;
 
       const tokenProvider = TOOLS.tokenProvider.m365TokenProvider;
       const appStudioTokenRes = await tokenProvider.getAccessToken({
@@ -1053,7 +1009,11 @@ export class FxCore {
         }
 
         // 1. grant TDP permission
-        await teamsDevPortalClient.grantPermission(appStudioToken, teamsAppId, userInfo);
+        await teamsDevPortalClient.grantPermission(
+          appStudioToken,
+          parseRes.value.teamsappId,
+          userInfo
+        );
 
         // 2. grant mos permission
         const res = await PackageService.GetSharedInstance().grantPermission(

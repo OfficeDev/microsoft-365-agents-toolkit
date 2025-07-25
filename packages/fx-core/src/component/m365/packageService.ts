@@ -534,7 +534,7 @@ export class PackageService {
       await this.axiosInstance.put(
         `/builder/v1/users/titles/${titleId}/owners?idType=TitleId`,
         {
-          Identities: newOwners,
+          Owners: newOwners,
         },
         {
           baseURL: serviceUrl,
@@ -584,7 +584,7 @@ export class PackageService {
       await this.axiosInstance.put(
         `/builder/v1/users/titles/${titleId}/owners?idType=TitleId`,
         {
-          Identities: newOwners,
+          Owners: newOwners,
         },
         {
           baseURL: serviceUrl,
@@ -639,6 +639,7 @@ export class PackageService {
     }
   }
 
+  // This will overwrite existing entity list
   @hooks([ErrorContextMW({ source: M365ErrorSource, component: M365ErrorComponent })])
   public async addSharedUsers(
     token: string,
@@ -659,6 +660,36 @@ export class PackageService {
             Entities: entities,
           },
         },
+        {
+          baseURL: serviceUrl,
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      return ok(undefined);
+    } catch (error: any) {
+      if (error.response) {
+        error = this.traceError(error);
+      }
+      return err(assembleError(error, M365ErrorSource));
+    }
+  }
+
+  @hooks([ErrorContextMW({ source: M365ErrorSource, component: M365ErrorComponent })])
+  public async unshare(
+    token: string,
+    titleId: string,
+    appId?: string
+  ): Promise<Result<undefined, FxError>> {
+    try {
+      this.logger?.verbose(`Removing shared users from app with titleId: ${titleId} ...`);
+      const serviceUrl = await this.getTitleServiceUrl(token);
+      await this.axiosInstance.delete(
+        `/builder/v1/users/titles/${appId ?? titleId}/allowed?idType=${
+          appId ? "AppId" : "TitleId"
+        }`,
         {
           baseURL: serviceUrl,
           headers: {

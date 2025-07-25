@@ -19,7 +19,7 @@ import axios from "axios";
 import * as dotenv from "dotenv";
 import fs from "fs-extra";
 import { validate as uuidValidate } from "uuid";
-import { GraphScopes, GroupSearchScopes, VSCodeExtensionCommand } from "../common/constants";
+import { GraphScopes, VSCodeExtensionCommand } from "../common/constants";
 import { getDefaultString, getLocalizedString } from "../common/localizeUtils";
 import {
   AadOwner,
@@ -30,7 +30,7 @@ import {
   ResourcePermission,
 } from "../common/permissionInterface";
 import { SolutionError, SolutionSource, SolutionTelemetryProperty } from "../component/constants";
-import { AppGroup, AppUser } from "../component/driver/teamsApp/interfaces/appdefinitions/appUser";
+import { AppUser } from "../component/driver/teamsApp/interfaces/appdefinitions/appUser";
 import { AadCollaboration, TeamsCollaboration } from "../component/feature/collaboration";
 import { FailedToLoadManifestId, FileNotFoundError } from "../error/common";
 import { QuestionNames } from "../question/constants";
@@ -128,35 +128,35 @@ export class CollaborationUtil {
     };
   }
 
-  static async getGroupInfo(
-    email: string,
-    m365TokenProvider?: M365TokenProvider
-  ): Promise<AppGroup | undefined> {
-    const graphTokenRes = await m365TokenProvider?.getAccessToken({ scopes: GroupSearchScopes });
-    const graphToken = graphTokenRes?.isOk() ? graphTokenRes.value : undefined;
-    const instance = axios.create({
-      baseURL: "https://graph.microsoft.com/v1.0",
-    });
-    instance.defaults.headers.common["Authorization"] = `Bearer ${graphToken as string}`;
-    const res = await instance.get(`/groups?$filter=startsWith(mail,'${email}')`);
-    if (!res || !res.data || !res.data.value) {
-      return undefined;
-    }
+  // static async getGroupInfo(
+  //   email: string,
+  //   m365TokenProvider?: M365TokenProvider
+  // ): Promise<AppGroup | undefined> {
+  //   const graphTokenRes = await m365TokenProvider?.getAccessToken({ scopes: GroupSearchScopes });
+  //   const graphToken = graphTokenRes?.isOk() ? graphTokenRes.value : undefined;
+  //   const instance = axios.create({
+  //     baseURL: "https://graph.microsoft.com/v1.0",
+  //   });
+  //   instance.defaults.headers.common["Authorization"] = `Bearer ${graphToken as string}`;
+  //   const res = await instance.get(`/groups?$filter=startsWith(mail,'${email}')`);
+  //   if (!res || !res.data || !res.data.value) {
+  //     return undefined;
+  //   }
 
-    const group = res.data.value.find(
-      (group: any) => group.mail?.toLowerCase() === email.toLowerCase()
-    );
+  //   const group = res.data.value.find(
+  //     (group: any) => group.mail?.toLowerCase() === email.toLowerCase()
+  //   );
 
-    if (!group) {
-      return undefined;
-    }
+  //   if (!group) {
+  //     return undefined;
+  //   }
 
-    return {
-      id: group.id,
-      displayName: group.displayName,
-      email: group.mail,
-    };
-  }
+  //   return {
+  //     id: group.id,
+  //     displayName: group.displayName,
+  //     email: group.mail,
+  //   };
+  // }
 
   static async loadDotEnvFile(
     dotEnvFilePath: string

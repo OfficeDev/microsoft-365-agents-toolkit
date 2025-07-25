@@ -1,19 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import {
-  IQTreeNode,
-  Inputs,
-  MultiSelectQuestion,
-  OptionItem,
-  SingleSelectQuestion,
-} from "@microsoft/teamsfx-api";
-import { teamsDevPortalClient } from "../client/teamsDevPortalClient";
-import { AppStudioScopes } from "../common/constants";
-import { TOOLS } from "../common/globalVars";
+import { IQTreeNode, Inputs, OptionItem, SingleSelectQuestion } from "@microsoft/teamsfx-api";
 import { getLocalizedString } from "../common/localizeUtils";
-import { parseShareAppActionYamlConfig } from "../component/driver/share/utils";
-import { CollaborationUtil } from "../core/collaborator";
 import { QuestionNames } from "./constants";
 import { inputUserEmailQuestion } from "./other";
 
@@ -90,68 +79,73 @@ export class ShareOptions {
   }
 }
 
-export function removeSharedAccessNode(): IQTreeNode {
-  return {
-    data: {
-      type: "group",
-    },
-    children: [
-      {
-        data: selectUsersToRemoveSharedAccess(),
-      },
-    ],
-  };
-}
+// export function removeSharedAccessNode(): IQTreeNode {
+//   return {
+//     data: {
+//       type: "group",
+//     },
+//     children: [],
+//   };
+// }
 
-export function selectUsersToRemoveSharedAccess(): MultiSelectQuestion {
-  return {
-    name: QuestionNames.RemoveUsers,
-    title: getLocalizedString("core.selectUsersToRemoveShareAccess.title"),
-    type: "multiSelect",
-    cliDescription: getLocalizedString("core.selectUsersToRemoveShareAccess.title"),
-    staticOptions: [],
-    dynamicOptions: async (inputs: Inputs) => {
-      if (!inputs.projectPath) {
-        throw new Error("Project path is not defined");
-      }
-      const tokenRes = await TOOLS.tokenProvider.m365TokenProvider.getAccessToken({
-        scopes: AppStudioScopes,
-      });
-      if (tokenRes.isErr()) {
-        throw tokenRes.error;
-      }
-      const token = tokenRes.value;
-      const configRes = await parseShareAppActionYamlConfig(inputs.projectPath);
-      if (configRes.isErr()) {
-        throw configRes.error;
-      }
-      const teamsAppId = configRes.value[0];
-      const app = await teamsDevPortalClient.getApp(token, teamsAppId);
-      if (!app.userList || app.userList.length === 0) {
-        throw new Error("No owner found in the app");
-      }
+// export function selectUsersToRemoveSharedAccess(): MultiSelectQuestion {
+//   return {
+//     name: QuestionNames.RemoveUsers,
+//     title: getLocalizedString("core.selectUsersToRemoveShareAccess.title"),
+//     type: "multiSelect",
+//     cliDescription: getLocalizedString("core.selectUsersToRemoveShareAccess.title"),
+//     staticOptions: [],
+//     dynamicOptions: async (inputs: Inputs) => {
+//       if (!inputs.projectPath) {
+//         throw new Error("Project path is not defined");
+//       }
+//       const mosTokenRes = await TOOLS.tokenProvider.m365TokenProvider.getAccessToken({
+//         scopes: [MosServiceScope],
+//       });
+//       if (mosTokenRes.isErr()) {
+//         throw mosTokenRes.error;
+//       }
+//       const token = mosTokenRes.value;
+//       const configRes = await parseShareAppActionYamlConfig(inputs.projectPath);
+//       if (configRes.isErr()) {
+//         throw configRes.error;
+//       }
+//       const titleId = configRes.value.titleId;
+//       const agent = await PackageService.GetSharedInstance().previewApp(token, titleId);
+//       if (agent.isErr()) {
+//         throw agent.error;
+//       }
+//       if (!agent.value.owners || agent.value.owners.length === 0) {
+//         throw new Error("No owner found in the agent");
+//       }
 
-      const currentUserInfoRes = await CollaborationUtil.getCurrentUserInfo(
-        TOOLS.tokenProvider.m365TokenProvider
-      );
-      if (currentUserInfoRes.isErr()) {
-        throw currentUserInfoRes.error;
-      }
-      const operatorId = currentUserInfoRes.value.aadId;
+//       const currentUserInfoRes = await CollaborationUtil.getCurrentUserInfo(
+//         TOOLS.tokenProvider.m365TokenProvider
+//       );
+//       if (currentUserInfoRes.isErr()) {
+//         throw currentUserInfoRes.error;
+//       }
+//       const operatorId = currentUserInfoRes.value.aadId;
 
-      const options: OptionItem[] = [];
-      for (const user of app.userList) {
-        if (user.aadId === operatorId) {
-          continue;
-        }
-        options.push({
-          id: user.userPrincipalName,
-          label: user.displayName,
-          description: user.userPrincipalName,
-        });
-      }
-      return options;
-    },
-    skipValidation: true,
-  };
-}
+//       const options: OptionItem[] = [];
+//       for (const user of agent.value.owners) {
+//         if (user.entityId === operatorId) {
+//           continue;
+//         }
+//         const userInfo = await CollaborationUtil.getUserInfoFromId(
+//           user.entityId,
+//           TOOLS.tokenProvider.m365TokenProvider
+//         );
+//         if (userInfo) {
+//           options.push({
+//             id: userInfo.aadId,
+//             label: userInfo.displayName,
+//             description: userInfo.userPrincipalName,
+//           });
+//         }
+//       }
+//       return options;
+//     },
+//     skipValidation: true,
+//   };
+// }

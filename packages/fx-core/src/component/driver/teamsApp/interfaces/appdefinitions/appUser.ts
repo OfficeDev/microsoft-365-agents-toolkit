@@ -8,9 +8,3 @@ export interface AppUser {
   userPrincipalName: string;
   isAdministrator: boolean;
 }
-
-export interface AppGroup {
-  id: string;
-  displayName: string;
-  email: string;
-}

@@ -56,7 +56,6 @@ import {
   folderQuestion,
   oneDriveSharePointItemConfirmQuestion,
   oneDriveSharePointItemQuestion,
-  pluginApiSpecQuestion,
   pluginManifestQuestion,
   searchTypeQuestion,
   selectApiOperationForRegenerateQuestion,
@@ -68,9 +67,11 @@ import { UninstallInputs } from "./inputs";
 import { inputOrSearchAPISpecNode } from "./scaffold/vsc/teamsProjectTypeNode";
 
 export function listCollaboratorQuestionNode(): IQTreeNode {
-  const selectTeamsAppNode = selectTeamsAppManifestQuestionNode();
-  selectTeamsAppNode.condition = { contains: CollaborationConstants.TeamsAppQuestionId };
-  selectTeamsAppNode.children!.push({
+  const selectAppManifestNode = selectTeamsAppManifestQuestionNode();
+  selectAppManifestNode.condition = {
+    contains: CollaborationConstants.TeamsAppQuestionId,
+  };
+  selectAppManifestNode.children!.push({
     condition: envQuestionCondition,
     data: selectTargetEnvQuestion(QuestionNames.Env, false, false, ""),
   });
@@ -88,16 +89,18 @@ export function listCollaboratorQuestionNode(): IQTreeNode {
         data: selectAppTypeQuestion(),
         cliOptionDisabled: "self",
         inputsDisabled: "self",
-        children: [selectTeamsAppNode, selectAadAppNode],
+        children: [selectAppManifestNode, selectAadAppNode],
       },
     ],
   };
 }
 
 export function grantPermissionQuestionNode(): IQTreeNode {
-  const selectTeamsAppNode = selectTeamsAppManifestQuestionNode();
-  selectTeamsAppNode.condition = { contains: CollaborationConstants.TeamsAppQuestionId };
-  selectTeamsAppNode.children!.push({
+  const selectAppManifestNode = selectTeamsAppManifestQuestionNode();
+  selectAppManifestNode.condition = {
+    contains: CollaborationConstants.TeamsAppQuestionId,
+  };
+  selectAppManifestNode.children!.push({
     condition: envQuestionCondition,
     data: selectTargetEnvQuestion(QuestionNames.Env, false, false, ""),
   });
@@ -116,7 +119,7 @@ export function grantPermissionQuestionNode(): IQTreeNode {
         cliOptionDisabled: "self",
         inputsDisabled: "self",
         children: [
-          selectTeamsAppNode,
+          selectAppManifestNode,
           selectAadAppNode,
           {
             data: inputUserEmailQuestion(
