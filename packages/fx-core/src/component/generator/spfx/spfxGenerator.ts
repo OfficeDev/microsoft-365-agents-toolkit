@@ -692,7 +692,8 @@ export class SPFxGenerator {
   public static async updateSPFxTemplate(
     spfxFolder: string,
     destinationPath: string,
-    importDetails: string[]
+    importDetails: string[],
+    useNewDevUrl = true
   ) {
     try {
       importDetails.push(`(.) Processing: Loading manifest.local.json...`);
@@ -762,7 +763,12 @@ export class SPFxGenerator {
           const localStaticSnippet: IStaticTab = {
             entityId: componentId,
             name: webpartName,
-            contentUrl: util.format(ManifestTemplate.LOCAL_CONTENT_URL, componentId),
+            contentUrl: util.format(
+              useNewDevUrl
+                ? ManifestTemplate.LOCAL_CONTENT_URL_NEW
+                : ManifestTemplate.LOCAL_CONTENT_URL,
+              componentId
+            ),
             websiteUrl: ManifestTemplate.WEBSITE_URL,
             scopes: ["personal"],
           };
@@ -1029,7 +1035,13 @@ export class SPFxGeneratorImport extends DefaultTemplateGenerator {
   ): Promise<Result<GeneratorResult, FxError>> {
     try {
       const spfxFolder = inputs[QuestionNames.SPFxFolder] as string;
-      await SPFxGenerator.updateSPFxTemplate(spfxFolder, destinationPath, this.importDetails);
+      const useNewDevUrl = context.templateVariables?.["useNewDevUrl"] as string;
+      await SPFxGenerator.updateSPFxTemplate(
+        spfxFolder,
+        destinationPath,
+        this.importDetails,
+        useNewDevUrl == "true"
+      );
       this.importDetails.push(
         getLocalizedString("plugins.spfx.import.log.success", context.logProvider?.getLogFilePath())
       );
