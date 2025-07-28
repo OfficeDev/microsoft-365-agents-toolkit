@@ -421,7 +421,7 @@ export async function setGeneralSensitivityLabel(
       context.logProvider?.info(getDefaultString("error.listSensitivityLabel.tokenUndefined"));
       return;
     }
-    const graphClient = new GraphClient(context.tokenProvider?.m365TokenProvider as any);
+    const graphClient = new GraphClient(context.tokenProvider!.m365TokenProvider as any);
     const result = await graphClient.getGeneralSentivityLabel(loginStatusRes.value.token);
     if (result.isErr()) {
       throw result.error;
