@@ -925,9 +925,11 @@ class Coordinator {
       loginHint = accountRes.value.unique_name as string;
     }
     await ctx.userInteraction.openUrl(
-      `https://dev.teams.microsoft.com/apps/${
+      `https://dev.teams.cloud.microsoft/apps/${
         updateRes.value as string
-      }/distributions/app-catalog?login_hint=${loginHint}&referrer=teamstoolkit_${inputs.platform}`
+      }/distributions/app-catalog?login_hint=${loginHint}&referrer=teamstoolkit_${
+        inputs.platform
+      }&client-preference=classic`
     );
     return ok(undefined);
   }
