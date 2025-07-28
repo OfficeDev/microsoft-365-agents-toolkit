@@ -698,7 +698,7 @@ export class SPFxGenerator {
     spfxFolder: string,
     destinationPath: string,
     importDetails: string[],
-    useNewDevUrl = true
+    useNewDevUrl: boolean
   ) {
     try {
       importDetails.push(`(.) Processing: Loading manifest.local.json...`);
