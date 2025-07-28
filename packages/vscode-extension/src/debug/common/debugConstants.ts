@@ -115,7 +115,10 @@ export const openTestToolDisplayMessage = () =>
   );
 
 export const openSandboxMessage = () =>
-  util.format(localize("teamstoolkit.localDebug.useTestTool"), "'Debug in Teams Sandbox (Edge)'");
+  util.format(
+    localize("teamstoolkit.localDebug.useTestTool"),
+    "'Debug in sandbox in Teams (Edge)'"
+  );
 
 export const prerequisiteCheckForGetStartedDisplayMessages: DisplayMessages = {
   taskName: "Get Started Prerequisites Check",

@@ -118,7 +118,10 @@ export class CreateAppPackageDriver implements StepDriver {
 
     // check and include all relative file paths in manifest
     const relativeFiles = [manifest.icons.color, manifest.icons.outline];
-    const manifestVersion = semver.coerce(manifest.manifestVersion); // ensure manifestVersion is a valid semver
+    const manifestVersion =
+      manifest.manifestVersion === "devPreview"
+        ? semver.coerce("1.19.0") // for MetaOS and MetaOS DA, handle the `devPreview` version as `1.19.0`
+        : semver.coerce(manifest.manifestVersion); // ensure manifestVersion is a valid semver
     if (manifestVersion && semver.gte(manifestVersion, "1.21.0")) {
       const color32x32 = (manifest as TeamsManifestV1D21.TeamsManifestV1D21).icons.color32x32;
       if (color32x32) {

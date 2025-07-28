@@ -704,6 +704,10 @@ describe("SPFxGenerator", function () {
     const writeEnvStub = sinon.stub(envUtil, "writeEnv");
     sinon.stub(fs, "copy").resolves();
     sinon.stub(SPFxGenerator, "getSolutionVersion").resolves("1.21.0");
+    if (context) {
+      context.templateVariables = context.templateVariables || {};
+      context.templateVariables["useNewDevUrl"] = "true";
+    }
 
     const result = await SPFxGenerator.generate(context, inputs, testFolder);
 
@@ -1477,6 +1481,23 @@ describe("SPFxGeneratorImport", () => {
     });
     it("happy path", async () => {
       sandbox.stub(SPFxGenerator, "updateSPFxTemplate").resolves();
+      const inputs: Inputs = {
+        platform: Platform.CLI,
+        projectPath: "./",
+        [QuestionNames.AppName]: "testspfx",
+        [QuestionNames.Capabilities]: TabCapabilityOptions.SPFxTab().id,
+        [QuestionNames.ProjectType]: ProjectTypeOptions.teamsAppOptionId,
+        [QuestionNames.TeamsAppType]: TeamsProjectTypeOptions.tabOptionId,
+        [QuestionNames.SPFxSolution]: "import",
+      };
+      const res = await generator.post(context, inputs, "");
+      chai.expect(res.isOk()).to.be.true;
+    });
+
+    it("happy path with template variables not exist", async () => {
+      sandbox.stub(SPFxGenerator, "updateSPFxTemplate").resolves();
+      context.templateVariables = undefined;
+
       const inputs: Inputs = {
         platform: Platform.CLI,
         projectPath: "./",

@@ -8,6 +8,7 @@ import {
   Platform,
   TeamsManifest,
   TeamsManifestV1D19,
+  TeamsManifestVDevPreview,
   UserError,
 } from "@microsoft/teamsfx-api";
 import AdmZip from "adm-zip";
@@ -1760,6 +1761,83 @@ describe("teamsApp/createAppPackage", async () => {
       const manifest = {
         manifestVersion: "1.19",
       } as TeamsManifestV1D19.TeamsManifestV1D19;
+      manifest.copilotAgents = {
+        declarativeAgents: [{ file: "resources/declarativeAgent.json", id: "1" }],
+      };
+      manifest.icons = {
+        color: "resources/color.png",
+        outline: "resources/outline.png",
+      };
+
+      // Updated gpt manifest stub with required properties.
+      const declarativeAgentManifest = {
+        name: "TestDeclarativeCopilot",
+        description: "Test declarative copilot manifest",
+        actions: [],
+        capabilities: [
+          {
+            name: "EmbeddedKnowledge",
+            files: [{ file: "EmbeddedKnowledge/knowledge.docx" }],
+          },
+        ],
+      } as DeclarativeCopilotManifestSchema;
+
+      sinon.stub(manifestUtils, "getManifestV3").resolves(ok(manifest));
+      sinon.stub(fs, "chmod").callsFake(async () => {});
+      sinon.stub(fs, "writeFile").callsFake(async () => {});
+      sinon.stub(copilotGptManifestUtils, "getManifest").resolves(ok(declarativeAgentManifest));
+      sinon.stub(fs, "pathExists").callsFake(async (filePath) => {
+        // Return true for all required files including declarativeAgent.json, color/outline files and knowledge file.
+        if (
+          filePath.includes("knowledge.docx") ||
+          filePath.includes("declarativeAgent.json") ||
+          filePath.includes("color.png") ||
+          filePath.includes("outline.png")
+        ) {
+          return true;
+        }
+        return true;
+      });
+
+      const mockedDriverContext: any = {
+        m365TokenProvider: {},
+        projectPath: "./",
+        platform: 0,
+        logProvider: { info: () => {} },
+        ui: {},
+        addTelemetryProperties: () => {},
+      };
+
+      const result = (await teamsAppDriver.execute(args, mockedDriverContext)).result;
+      chai.assert.isTrue(result.isOk());
+
+      if (await fs.pathExists(args.outputZipPath)) {
+        const AdmZip = require("adm-zip");
+        const zip = new AdmZip(args.outputZipPath);
+        const knowledgeEntry = zip.getEntry("EmbeddedKnowledge/knowledge.docx");
+        chai.assert.exists(knowledgeEntry, "Embedded knowledge file should be added");
+        await fs.remove(args.outputZipPath);
+      }
+    });
+
+    it("should add embedded knowledge files for Declarative Agent of MetaOS", async () => {
+      sinon
+        .stub(featureFlagManager, "getBooleanValue")
+        .withArgs(FeatureFlags.EmbeddedKnowledgeEnabled)
+        .returns(true);
+
+      const args: CreateAppPackageArgs = {
+        manifestPath:
+          "./tests/plugins/resource/appstudio/resources-multi-env/templates/appPackage/v3.manifest.template.json",
+        outputZipPath:
+          "./tests/plugins/resource/appstudio/resources-multi-env/build/appPackage/appPackage.embedded.zip",
+        outputJsonPath:
+          "./tests/plugins/resource/appstudio/resources-multi-env/build/appPackage/manifest.embedded.json",
+      };
+
+      const manifest = {
+        manifestVersion: "devPreview",
+      } as TeamsManifestVDevPreview.TeamsManifestVDevPreview;
       manifest.copilotAgents = {
         declarativeAgents: [{ file: "resources/declarativeAgent.json", id: "1" }],
       };

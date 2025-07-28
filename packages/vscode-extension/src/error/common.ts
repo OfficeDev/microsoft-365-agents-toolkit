@@ -58,7 +58,7 @@ export async function showError(e: UserError | SystemError) {
       ExtTelemetry.sendTelemetryEvent(TelemetryEvent.MessageDebugInSandbox);
       await commands.executeCommand(
         "workbench.action.quickOpen",
-        "debug Debug in Teams Sandbox (Edge)"
+        "debug Debug in sandbox in Teams (Edge)"
       );
       return ok<unknown, FxError>(null);
     },

@@ -70,7 +70,7 @@ describe("Local Debug Tests", function () {
           projectPath: projectPath,
           env: "local",
           teamsAppName: localDebugTestContext.appName,
-          searchApp: true,
+          searchApp: false,
         }
       );
       await validateBasicDashboardTab(page);
