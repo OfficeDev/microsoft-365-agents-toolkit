@@ -188,7 +188,12 @@ export class SPFxGenerator {
 
       // Update manifest and related files
       await importProgress.next(getLocalizedString("plugins.spfx.import.updateTemplates"));
-      await this.updateSPFxTemplate(spfxFolder, destinationPath, importDetails);
+      await this.updateSPFxTemplate(
+        spfxFolder,
+        destinationPath,
+        importDetails,
+        semver.gte(SPFxVersion, "1.21.0")
+      );
     } catch (error) {
       await importProgress.end(false);
 
