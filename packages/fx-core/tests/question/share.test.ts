@@ -1,16 +1,31 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
-import { ConditionFunc, Inputs, OptionItem, SingleSelectQuestion } from "@microsoft/teamsfx-api";
+import {
+  ConditionFunc,
+  DynamicOptions,
+  FxError,
+  Inputs,
+  OptionItem,
+  SingleSelectQuestion,
+  err,
+  ok,
+} from "@microsoft/teamsfx-api";
 import { assert } from "chai";
 import "mocha";
 import * as sinon from "sinon";
-import { setTools } from "../../src/common/globalVars";
+import * as teamsDevPortalClientModule from "../../src/client/teamsDevPortalClient";
+import { TOOLS, setTools } from "../../src/common/globalVars";
+import * as shareUtils from "../../src/component/driver/share/utils";
+import { AppUser } from "../../src/component/driver/teamsApp/interfaces/appdefinitions/appUser";
+import * as collaborator from "../../src/core/collaborator";
+import { InputValidationError } from "../../src/error/common";
 import { QuestionNames } from "../../src/question/constants";
 import {
-  shareNode,
   ShareOperationOption,
   ShareOperationOptions,
   ShareScopeOption,
+  selectUsersToRemoveSharedAccess,
+  shareNode,
 } from "../../src/question/share";
 import { MockTools } from "../core/utils";
 
@@ -122,5 +137,192 @@ describe("shareNode", () => {
     const conditionFunc = emailInputNode.condition as ConditionFunc;
     assert.isTrue(conditionFunc(inputsRemoveAccess as unknown as Inputs));
     assert.isFalse(conditionFunc(inputsShare as unknown as Inputs));
+  });
+});
+
+describe("selectUsersToRemoveSharedAccess", () => {
+  const sandbox = sinon.createSandbox();
+  setTools(new MockTools());
+
+  afterEach(() => {
+    sandbox.restore();
+  });
+
+  it("should return a MultiSelectQuestion with correct properties", () => {
+    const question = selectUsersToRemoveSharedAccess();
+
+    // Verify basic properties
+    assert.equal(question.name, QuestionNames.RemoveUsers);
+    assert.equal(question.type, "multiSelect");
+    assert.isArray(question.staticOptions);
+    assert.isEmpty(question.staticOptions);
+    assert.property(question, "dynamicOptions");
+    assert.isFunction(question.dynamicOptions);
+    assert.isTrue(question.skipValidation);
+  });
+
+  it("should throw error when projectPath is not defined", async () => {
+    const question = selectUsersToRemoveSharedAccess();
+    const dynamicOptions = question.dynamicOptions as DynamicOptions;
+
+    try {
+      await dynamicOptions({} as unknown as Inputs);
+      assert.fail("Expected function to throw");
+    } catch (error) {
+      assert.equal((error as Error).message, "Project path is not defined");
+    }
+  });
+
+  it("should throw error when token provider returns error", async () => {
+    const question = selectUsersToRemoveSharedAccess();
+    const dynamicOptions = question.dynamicOptions as DynamicOptions;
+    const mockError = new InputValidationError("test", "Token error");
+
+    // Mock token provider to return error
+    sandbox
+      .stub(TOOLS.tokenProvider.m365TokenProvider, "getAccessToken")
+      .resolves(err(mockError as FxError));
+
+    try {
+      await dynamicOptions({ projectPath: "path/to/project" } as unknown as Inputs);
+      assert.fail("Expected function to throw");
+    } catch (error) {
+      assert.equal(error, mockError);
+    }
+  });
+
+  it("should throw error when parseShareAppActionYamlConfig returns error", async () => {
+    const question = selectUsersToRemoveSharedAccess();
+    const dynamicOptions = question.dynamicOptions as DynamicOptions;
+    const mockError = new InputValidationError("test", "Config error");
+
+    // Mock token provider to return success
+    sandbox.stub(TOOLS.tokenProvider.m365TokenProvider, "getAccessToken").resolves(ok("token"));
+
+    // Mock parseShareAppActionYamlConfig to return error
+    sandbox.stub(shareUtils, "parseShareAppActionYamlConfig").resolves(err(mockError as FxError));
+
+    try {
+      await dynamicOptions({ projectPath: "path/to/project" } as unknown as Inputs);
+      assert.fail("Expected function to throw");
+    } catch (error) {
+      assert.equal(error, mockError);
+    }
+  });
+
+  it("should throw error when app has no users", async () => {
+    const question = selectUsersToRemoveSharedAccess();
+    const dynamicOptions = question.dynamicOptions as DynamicOptions;
+
+    // Mock token provider
+    sandbox.stub(TOOLS.tokenProvider.m365TokenProvider, "getAccessToken").resolves(ok("token"));
+
+    // Mock parseShareAppActionYamlConfig
+    sandbox
+      .stub(shareUtils, "parseShareAppActionYamlConfig")
+      .resolves(ok({ teamsappId: "mockAppId", titleId: "mockTitleId", appId: "mockAppId" }));
+
+    // Mock teamsDevPortalClient instance
+    sandbox.stub(teamsDevPortalClientModule, "teamsDevPortalClient").value({
+      getApp: sandbox.stub().resolves({ userList: [] }),
+    });
+
+    try {
+      await dynamicOptions({ projectPath: "path/to/project" } as unknown as Inputs);
+      assert.fail("Expected function to throw");
+    } catch (error) {
+      assert.equal((error as Error).message, "No owner found in the app");
+    }
+  });
+
+  it("should throw error when getCurrentUserInfo returns error", async () => {
+    const question = selectUsersToRemoveSharedAccess();
+    const dynamicOptions = question.dynamicOptions as DynamicOptions;
+    const mockError = new InputValidationError("test", "Current user info error");
+
+    // Mock token provider
+    sandbox.stub(TOOLS.tokenProvider.m365TokenProvider, "getAccessToken").resolves(ok("token"));
+
+    // Mock parseShareAppActionYamlConfig
+    sandbox
+      .stub(shareUtils, "parseShareAppActionYamlConfig")
+      .resolves(ok({ teamsappId: "mockAppId", titleId: "mockTitleId", appId: "mockAppId" }));
+
+    // Mock teamsDevPortalClient instance
+    sandbox.stub(teamsDevPortalClientModule, "teamsDevPortalClient").value({
+      getApp: sandbox.stub().resolves({
+        userList: [
+          { aadId: "user1", displayName: "User 1", userPrincipalName: "user1@example.com" },
+        ],
+      }),
+    });
+
+    // Mock getCurrentUserInfo to return error
+    sandbox
+      .stub(collaborator.CollaborationUtil, "getCurrentUserInfo")
+      .resolves(err(mockError as FxError));
+
+    try {
+      await dynamicOptions({ projectPath: "path/to/project" } as unknown as Inputs);
+      assert.fail("Expected function to throw");
+    } catch (error) {
+      assert.equal(error, mockError);
+    }
+  });
+
+  it("should return correct options excluding current user", async () => {
+    const question = selectUsersToRemoveSharedAccess();
+    const dynamicOptions = question.dynamicOptions as DynamicOptions;
+
+    // Mock token provider
+    sandbox.stub(TOOLS.tokenProvider.m365TokenProvider, "getAccessToken").resolves(ok("token"));
+
+    // Mock parseShareAppActionYamlConfig
+    sandbox
+      .stub(shareUtils, "parseShareAppActionYamlConfig")
+      .resolves(ok({ teamsappId: "mockAppId", titleId: "mockTitleId", appId: "mockAppId" }));
+
+    // Mock app users including current user
+    const mockUsers = [
+      {
+        aadId: "currentUser",
+        displayName: "Current User",
+        userPrincipalName: "current@example.com",
+      },
+      { aadId: "user1", displayName: "User 1", userPrincipalName: "user1@example.com" },
+      { aadId: "user2", displayName: "User 2", userPrincipalName: "user2@example.com" },
+    ];
+
+    // Mock teamsDevPortalClient instance
+    sandbox.stub(teamsDevPortalClientModule, "teamsDevPortalClient").value({
+      getApp: sandbox.stub().resolves({ userList: mockUsers }),
+    });
+
+    // Mock getCurrentUserInfo to return current user
+    sandbox.stub(collaborator.CollaborationUtil, "getCurrentUserInfo").resolves(
+      ok({
+        aadId: "currentUser",
+        displayName: "Current User",
+        userPrincipalName: "current@example.com",
+        tenantId: "mock-tenant-id",
+        isAdministrator: false,
+      } as AppUser)
+    );
+
+    const options = await dynamicOptions({ projectPath: "path/to/project" } as unknown as Inputs);
+
+    // Should only include user1 and user2, not current user
+    assert.isArray(options);
+    assert.lengthOf(options, 2);
+
+    // Check first user
+    assert.equal((options[0] as OptionItem).id, "user1@example.com");
+    assert.equal((options[0] as OptionItem).label, "User 1");
+    assert.equal((options[0] as OptionItem).description, "user1@example.com");
+
+    // Check second user
+    assert.equal((options[1] as OptionItem).id, "user2@example.com");
+    assert.equal((options[1] as OptionItem).label, "User 2");
+    assert.equal((options[1] as OptionItem).description, "user2@example.com");
   });
 });
