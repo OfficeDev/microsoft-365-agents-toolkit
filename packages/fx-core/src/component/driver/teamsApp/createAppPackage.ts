@@ -372,16 +372,9 @@ export class CreateAppPackageDriver implements StepDriver {
                   if (checkExistenceRes.isErr()) {
                     return err(checkExistenceRes.error);
                   }
-                  const addKnowledgeRes = await this.addFileWithVariable(
-                    zip,
-                    file,
-                    knowledgeFileAbsolutePath,
-                    ManifestType.EmbeddedKnowledgeFile,
-                    context
-                  );
-                  if (addKnowledgeRes.isErr()) {
-                    return err(addKnowledgeRes.error);
-                  }
+
+                  const dir = path.dirname(file);
+                  zip.addLocalFile(knowledgeFileAbsolutePath, dir === "." ? "" : dir);
                 }
               }
             }
