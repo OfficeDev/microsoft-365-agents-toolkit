@@ -180,7 +180,7 @@ describe("parseShareAppActionYamlConfig", () => {
     chai.assert.isTrue(result.isErr());
     if (result.isErr()) {
       chai.assert.instanceOf(result.error, UserError);
-      chai.assert.equal(result.error.name, "Share to Users");
+      chai.assert.equal(result.error.name, "Share");
     }
   });
 
@@ -192,7 +192,7 @@ describe("parseShareAppActionYamlConfig", () => {
 
     chai.assert.isTrue(result.isErr());
     if (result.isErr()) {
-      chai.assert.equal(result.error.name, "Share to Users");
+      chai.assert.equal(result.error.name, "Share");
     }
   });
 
@@ -204,7 +204,7 @@ describe("parseShareAppActionYamlConfig", () => {
 
     chai.assert.isTrue(result.isErr());
     if (result.isErr()) {
-      chai.assert.equal(result.error.name, "Share to Users");
+      chai.assert.equal(result.error.name, "Share");
     }
   });
 
