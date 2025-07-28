@@ -10,11 +10,7 @@
 
 import { Inputs } from "@microsoft/teamsfx-api";
 
-export interface ShareInputs extends Inputs {
-  /** @description Share the agent */
-  "share-operation"?: "share" | "unshare";
-  /** @description Share the agent with users */
-  scope?: "tenant" | "users" | "owners";
-  /** @description Email addresses of user to share the agent with */
-  email?: string;
+export interface removeSharedAccessInputs extends Inputs {
+  /** @description Select users to remove access */
+  users?: string[];
 }

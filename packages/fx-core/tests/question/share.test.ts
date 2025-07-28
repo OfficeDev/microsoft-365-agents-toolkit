@@ -1,22 +1,20 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
-import { err, ok, OptionItem, SingleSelectQuestion, SystemError } from "@microsoft/teamsfx-api";
+import { ConditionFunc, Inputs, OptionItem, SingleSelectQuestion } from "@microsoft/teamsfx-api";
 import { assert } from "chai";
 import "mocha";
 import * as sinon from "sinon";
-import { teamsDevPortalClient } from "../../src";
-import { setTools, TOOLS } from "../../src/common/globalVars";
-import * as shareUtils from "../../src/component/driver/share/utils";
-import { CollaborationUtil } from "../../src/core/collaborator";
+import { setTools } from "../../src/common/globalVars";
 import { QuestionNames } from "../../src/question/constants";
 import {
-  removeSharedAccessNode,
-  selectUsersToRemoveSharedAccess,
   shareNode,
+  ShareOperationOption,
+  ShareOperationOptions,
+  ShareScopeOption,
 } from "../../src/question/share";
 import { MockTools } from "../core/utils";
 
-describe("shareNode and removeSharedAccessNode", () => {
+describe("shareNode", () => {
   const sandbox = sinon.createSandbox();
   setTools(new MockTools());
   afterEach(() => {
@@ -31,189 +29,98 @@ describe("shareNode and removeSharedAccessNode", () => {
     assert.property(result, "data");
     assert.property(result, "children");
     assert.isArray(result.children);
-    assert.lengthOf(result.children!, 1);
+    assert.lengthOf(result.children!, 2);
 
-    // Verify share option question node
-    const shareOptionNode = result.children![0];
-    assert.property(shareOptionNode.data, "name");
-    assert.equal(shareOptionNode.data.name, "option");
-    assert.property(shareOptionNode.data, "type");
-    assert.equal(shareOptionNode.data.type, "singleSelect");
+    // Verify the data is share operation question
+    const shareOperationQuestion = result.data as SingleSelectQuestion;
+    assert.property(shareOperationQuestion, "name");
+    assert.equal(shareOperationQuestion.name, QuestionNames.ShareOperation);
+    assert.property(shareOperationQuestion, "type");
+    assert.equal(shareOperationQuestion.type, "singleSelect");
 
-    // Verify children of share option question
-    assert.property(shareOptionNode, "children");
-    assert.isArray(shareOptionNode.children);
-    assert.lengthOf(shareOptionNode.children!, 1);
+    // Verify share scope options is the first child
+    const shareScopeNode = result.children![0];
+    assert.isObject(shareScopeNode);
+    // Check the condition - it should be an object with the equals property
+    assert.property(shareScopeNode, "condition");
+    const condition = shareScopeNode.condition as any;
+    assert.equal(condition.equals, ShareOperationOptions.shareWithUsers().id);
   });
 
-  it("shareOption question should have correct options", () => {
+  it("shareOperation question should have correct options", () => {
     const result = shareNode();
-    const shareOptionQuestion = result.children![0].data as SingleSelectQuestion;
+    const shareOperationQuestion = result.data as SingleSelectQuestion;
 
-    assert.isArray(shareOptionQuestion.staticOptions);
-    assert.lengthOf(shareOptionQuestion.staticOptions, 2);
+    assert.isArray(shareOperationQuestion.staticOptions);
+    assert.lengthOf(shareOperationQuestion.staticOptions, 2);
 
-    const [shareApp, shareToUser] = shareOptionQuestion.staticOptions as OptionItem[];
-    assert.equal(shareApp.id, "share-app");
-    assert.equal(shareToUser.id, "share-with-users");
+    const [shareWithUsers, removeShareAccess] =
+      shareOperationQuestion.staticOptions as OptionItem[];
+    assert.equal(shareWithUsers.id, ShareOperationOption.ShareWithUsers);
+    assert.equal(removeShareAccess.id, ShareOperationOption.RemoveShareAccessFromUsers);
   });
 
-  it("shareToUser question should be shown when shareOption is shareToUser", () => {
+  it("shareScope should have correct options", () => {
     const result = shareNode();
-    const shareToUserNode = result.children![0].children![0] as any;
+    const shareScopeNode = result.children![0];
+    const shareScopeQuestion = shareScopeNode.data as SingleSelectQuestion;
+
+    assert.property(shareScopeQuestion, "name");
+    assert.equal(shareScopeQuestion.name, QuestionNames.ShareScope);
+    assert.property(shareScopeQuestion, "type");
+    assert.equal(shareScopeQuestion.type, "singleSelect");
+    assert.isArray(shareScopeQuestion.staticOptions);
+    assert.lengthOf(shareScopeQuestion.staticOptions, 3);
+
+    // Check scope options
+    const [shareTenant, shareUsers, shareOwners] = shareScopeQuestion.staticOptions as OptionItem[];
+    assert.equal(shareTenant.id, ShareScopeOption.ShareAppWithTenantUsers);
+    assert.equal(shareUsers.id, ShareScopeOption.ShareAppWithSpecificUsers);
+    assert.equal(shareOwners.id, ShareScopeOption.ShareAppWithOwners);
+  });
+
+  it("email input should be shown when ShareScope is specific users or owners", () => {
+    const result = shareNode();
+    const shareScopeNode = result.children![0];
+    assert.isArray(shareScopeNode.children);
+    const emailInputNode = shareScopeNode.children![0];
 
     // Test condition function
-    const inputs = { [QuestionNames.ShareOption]: QuestionNames.ShareOptionShareToUser };
-    assert.isTrue(shareToUserNode.condition(inputs));
+    assert.property(emailInputNode, "condition");
+    assert.isFunction(emailInputNode.condition);
 
-    // Test when not shareToUser
-    const inputs2 = { shareOption: "share-app" };
-    assert.isFalse(shareToUserNode.condition(inputs2));
+    // Create test inputs
+    const inputsSpecificUsers = {
+      [QuestionNames.ShareScope]: ShareScopeOption.ShareAppWithSpecificUsers,
+    };
+    const inputsOwners = { [QuestionNames.ShareScope]: ShareScopeOption.ShareAppWithOwners };
+    const inputsTenant = { [QuestionNames.ShareScope]: ShareScopeOption.ShareAppWithTenantUsers };
+
+    // Call the condition function with different inputs
+    const conditionFunc = emailInputNode.condition as ConditionFunc;
+    assert.isTrue(conditionFunc(inputsSpecificUsers as unknown as Inputs));
+    assert.isTrue(conditionFunc(inputsOwners as unknown as Inputs));
+    assert.isFalse(conditionFunc(inputsTenant as unknown as Inputs));
   });
 
-  it("shareToUser validation should work correctly", () => {
+  it("email input should be shown when ShareOperation is RemoveShareAccessFromUsers", () => {
     const result = shareNode();
-    const shareToUserQuestion = result.children![0].children![0].data as any;
-
-    // Test validation function
-    const validation = shareToUserQuestion.validation!.validFunc;
-
-    // Empty input should return error message
-    assert.isString(validation(""));
-    assert.isString(validation("   "));
-
-    // Valid input should return undefined
-    assert.isUndefined(validation("user@example.com"));
-  });
-
-  it("removeSharedAccessNode should return IQTreeNode with correct structure", () => {
-    const result = removeSharedAccessNode();
-
-    assert.isObject(result);
-    assert.property(result, "data");
-    assert.property(result, "children");
     assert.isArray(result.children);
-    assert.lengthOf(result.children!, 1);
+    const emailInputNode = result.children![1];
 
-    // Check selectUsersToRemoveSharedAccess question
-    const selectUsersQuestion = result.children![0].data as any;
-    assert.equal(selectUsersQuestion.name, "users");
-    assert.equal(selectUsersQuestion.type, "multiSelect");
-    assert.property(selectUsersQuestion, "dynamicOptions");
-    assert.isTrue(selectUsersQuestion.skipValidation);
-  });
+    // Test condition function
+    assert.property(emailInputNode, "condition");
+    assert.isFunction(emailInputNode.condition);
 
-  it("selectUsersToRemoveSharedAccess should throw error when project path is undefined", async () => {
-    const result = selectUsersToRemoveSharedAccess();
+    // Create test inputs
+    const inputsRemoveAccess = {
+      [QuestionNames.ShareOperation]: ShareOperationOption.RemoveShareAccessFromUsers,
+    };
+    const inputsShare = { [QuestionNames.ShareOperation]: ShareOperationOption.ShareWithUsers };
 
-    try {
-      await result.dynamicOptions!({} as any);
-      assert.fail("Should have thrown error");
-    } catch (error: any) {
-      assert.equal(error.message, "Project path is not defined");
-    }
-  });
-
-  it("selectUsersToRemoveSharedAccess should return correct options", async () => {
-    sandbox
-      .stub(TOOLS.tokenProvider.m365TokenProvider, "getAccessToken")
-      .resolves(ok("mock-token"));
-
-    // Mock CollaborationUtil.getCurrentUserInfo
-    sandbox
-      .stub(CollaborationUtil, "getCurrentUserInfo")
-      .resolves(ok({ aadId: "current-user-id" } as any));
-
-    sandbox
-      .stub(shareUtils, "parseShareAppActionYamlConfig")
-      .resolves(ok(["mock-teams-app-id"] as any));
-
-    // Mock teamsDevPortalClient.getApp
-    sandbox.stub(teamsDevPortalClient, "getApp").resolves({
-      userList: [
-        {
-          aadId: "current-user-id",
-          displayName: "Current User",
-          userPrincipalName: "current@example.com",
-        },
-        {
-          aadId: "other-user-id",
-          displayName: "Other User",
-          userPrincipalName: "other@example.com",
-        },
-      ],
-    } as any);
-
-    const result = selectUsersToRemoveSharedAccess();
-    const options = await result.dynamicOptions!({ projectPath: "mockPath" } as any);
-
-    assert.isArray(options);
-    assert.lengthOf(options, 1); // Should only include the other user, not current user
-    assert.equal((options[0] as any).id, "other@example.com");
-    assert.equal((options[0] as any).label, "Other User");
-  });
-
-  it("selectUsersToRemoveSharedAccess should handle empty user list", async () => {
-    sandbox
-      .stub(TOOLS.tokenProvider.m365TokenProvider, "getAccessToken")
-      .resolves(ok("mock-token"));
-
-    // Mock parseShareAppActionYamlConfig
-    sandbox.stub(shareUtils, "parseShareAppActionYamlConfig").resolves(ok(["mock-teams-app-id"]));
-
-    // Mock teamsDevPortalClient.getApp with empty user list
-    sandbox.stub(teamsDevPortalClient, "getApp").resolves({
-      userList: [],
-    });
-
-    const result = selectUsersToRemoveSharedAccess();
-
-    try {
-      await result.dynamicOptions!({ projectPath: "mockPath" } as any);
-      assert.fail("Should have thrown error");
-    } catch (error: any) {
-      assert.equal(error.message, "No owner found in the app");
-    }
-  });
-
-  it("selectUsersToRemoveSharedAccess - token error", async () => {
-    // Mock TOOLS and required responses
-    sandbox
-      .stub(TOOLS.tokenProvider.m365TokenProvider, "getAccessToken")
-      .resolves(err(new SystemError("TestSource", "TestError", "Test error message")));
-
-    // Mock CollaborationUtil.getCurrentUserInfo
-    sandbox
-      .stub(CollaborationUtil, "getCurrentUserInfo")
-      .resolves(ok({ aadId: "current-user-id" } as any));
-
-    sandbox
-      .stub(shareUtils, "parseShareAppActionYamlConfig")
-      .resolves(ok(["mock-teams-app-id"] as any));
-
-    // Mock teamsDevPortalClient.getApp
-    sandbox.stub(teamsDevPortalClient, "getApp").resolves({
-      userList: [
-        {
-          aadId: "current-user-id",
-          displayName: "Current User",
-          userPrincipalName: "current@example.com",
-        },
-        {
-          aadId: "other-user-id",
-          displayName: "Other User",
-          userPrincipalName: "other@example.com",
-        },
-      ],
-    } as any);
-
-    const result = selectUsersToRemoveSharedAccess();
-    let exception = undefined;
-    try {
-      const options = await result.dynamicOptions!({ projectPath: "mockPath" } as any);
-    } catch (error: any) {
-      exception = error;
-    }
-    assert.isTrue((exception as any).message.includes("Test error message"));
+    // Call the condition function with different inputs
+    const conditionFunc = emailInputNode.condition as ConditionFunc;
+    assert.isTrue(conditionFunc(inputsRemoveAccess as unknown as Inputs));
+    assert.isFalse(conditionFunc(inputsShare as unknown as Inputs));
   });
 });

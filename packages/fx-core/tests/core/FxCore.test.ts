@@ -1001,7 +1001,7 @@ describe("Core basic APIs", () => {
   it("remove shared access happy path", async () => {
     sandbox
       .stub(shareUtils, "parseShareAppActionYamlConfig")
-      .resolves(ok(["mockAppId, MockTitleId, MockAppId"]));
+      .resolves(ok({ teamsappId: "mockAppId", titleId: "mockTitleId", appId: "mockAppId" }));
     sandbox.stub(collaborator.CollaborationUtil, "getUserInfo").resolves({
       aadId: "mockAadId1",
       displayName: "mockDisplayName1",
@@ -1035,7 +1035,7 @@ describe("Core basic APIs", () => {
   it("remove shared access - invalid email", async () => {
     sandbox
       .stub(shareUtils, "parseShareAppActionYamlConfig")
-      .resolves(ok(["mockAppId, MockTitleId, MockAppId"]));
+      .resolves(ok({ teamsappId: "mockAppId", titleId: "mockTitleId", appId: "mockAppId" }));
     sandbox.stub(collaborator.CollaborationUtil, "getUserInfo").resolves({
       aadId: "mockAadId1",
       displayName: "mockDisplayName1",
@@ -1122,7 +1122,7 @@ describe("Core basic APIs", () => {
   it("remove shared access - token error", async () => {
     sandbox
       .stub(shareUtils, "parseShareAppActionYamlConfig")
-      .resolves(ok(["mockAppId, MockTitleId, MockAppId"]));
+      .resolves(ok({ teamsappId: "mockAppId", titleId: "mockTitleId", appId: "mockAppId" }));
     sandbox.stub(collaborator.CollaborationUtil, "getUserInfo").resolves({
       aadId: "mockAadId1",
       displayName: "mockDisplayName1",
@@ -1157,7 +1157,7 @@ describe("Core basic APIs", () => {
   it("remove shared access - getCurrentUserInfo", async () => {
     sandbox
       .stub(shareUtils, "parseShareAppActionYamlConfig")
-      .resolves(ok(["mockAppId, MockTitleId, MockAppId"]));
+      .resolves(ok({ teamsappId: "mockAppId", titleId: "mockTitleId", appId: "mockAppId" }));
     sandbox.stub(collaborator.CollaborationUtil, "getUserInfo").resolves({
       aadId: "mockAadId1",
       displayName: "mockDisplayName1",
@@ -1190,7 +1190,7 @@ describe("Core basic APIs", () => {
   it("remove shared access - get use info error", async () => {
     sandbox
       .stub(shareUtils, "parseShareAppActionYamlConfig")
-      .resolves(ok(["mockAppId, MockTitleId, MockAppId"]));
+      .resolves(ok({ teamsappId: "mockAppId", titleId: "mockTitleId", appId: "mockAppId" }));
     sandbox.stub(collaborator.CollaborationUtil, "getUserInfo").resolves(undefined);
     sandbox.stub(collaborator.CollaborationUtil, "getCurrentUserInfo").resolves(
       ok({
@@ -1223,7 +1223,7 @@ describe("Core basic APIs", () => {
   it("remove shared access - remove current user", async () => {
     sandbox
       .stub(shareUtils, "parseShareAppActionYamlConfig")
-      .resolves(ok(["mockAppId, MockTitleId, MockAppId"]));
+      .resolves(ok({ teamsappId: "mockAppId", titleId: "mockTitleId", appId: "mockAppId" }));
     sandbox.stub(collaborator.CollaborationUtil, "getUserInfo").resolves({
       aadId: "mockAadId1",
       displayName: "mockDisplayName1",
@@ -1264,7 +1264,7 @@ describe("Core basic APIs", () => {
   it("remove shared access - mos grant permission error", async () => {
     sandbox
       .stub(shareUtils, "parseShareAppActionYamlConfig")
-      .resolves(ok(["mockAppId, MockTitleId, MockAppId"]));
+      .resolves(ok({ teamsappId: "mockAppId", titleId: "mockTitleId", appId: "mockAppId" }));
     sandbox.stub(collaborator.CollaborationUtil, "getUserInfo").resolves({
       aadId: "mockAadId1",
       displayName: "mockDisplayName1",

@@ -142,7 +142,6 @@ import {
   listOperations,
 } from "../component/generator/openApiSpec/helper";
 import { TemplateNames } from "../component/generator/templates/templateNames";
-import { M365AppEntity, M365EntityType } from "../component/m365/interface";
 import { LaunchHelper } from "../component/m365/launchHelper";
 import { PackageService } from "../component/m365/packageService";
 import { MosServiceEndpoint, MosServiceScope } from "../component/m365/serviceConstant";
@@ -187,7 +186,7 @@ import {
 import { ValidateTeamsAppInputs } from "../question/inputs/ValidateTeamsAppInputs";
 import { isAadMainifestContainsPlaceholder } from "../question/other";
 import { ProjectTypeOptions } from "../question/scaffold/vsc/ProjectTypeOptions";
-import { ShareScopeOption } from "../question/share";
+import { ShareOperationOption, ShareScopeOption } from "../question/share";
 import { CallbackRegistry, CoreCallbackFunc } from "./callback";
 import {
   CollaborationUtil,
@@ -208,6 +207,7 @@ import {
   getTrackingIdFromPath,
   getVersionState,
 } from "./middleware/utils/v3MigrationUtils";
+import { addSharedUsers, removeShareAccess, shareWithTenant } from "./share";
 import { CoreTelemetryEvent, CoreTelemetryProperty } from "./telemetry";
 import { CoreHookContext, PreProvisionResForVS, VersionCheckRes } from "./types";
 
@@ -849,8 +849,9 @@ export class FxCore {
   }
 
   @hooks([
-    ErrorContextMW({ component: "FxCore", stage: "unshare", reset: true }),
+    ErrorContextMW({ component: "FxCore", stage: "share", reset: true }),
     ErrorHandlerMW,
+    QuestionMW("removeSharedAccess"),
     ProjectMigratorMWV3,
     EnvLoaderMW(false),
     ConcurrentLockerMW,
@@ -860,14 +861,25 @@ export class FxCore {
     inputs: Inputs,
     ctx?: CoreHookContext
   ): Promise<Result<undefined, FxError>> {
+    const emails = inputs[QuestionNames.RemoveUsers] as string[];
+    if (!emails || emails.length === 0) {
+      return err(new MissingRequiredInputError("emails", "FxCore"));
+    }
     const parseRes = await parseShareAppActionYamlConfig(inputs.projectPath!);
     if (parseRes.isErr()) {
       return err(parseRes.error);
     }
+    const teamsAppId = parseRes.value.teamsappId;
     const sharedTitleId = parseRes.value.titleId;
-    const appId = parseRes.value.appId;
 
     const tokenProvider = TOOLS.tokenProvider.m365TokenProvider;
+    const appStudioTokenRes = await tokenProvider.getAccessToken({
+      scopes: AppStudioScopes,
+    });
+    if (appStudioTokenRes.isErr()) {
+      return err(appStudioTokenRes.error);
+    }
+    const appStudioToken = appStudioTokenRes.value;
     const mosTokenRes = await tokenProvider.getAccessToken({
       scopes: [MosServiceScope],
     });
@@ -876,12 +888,40 @@ export class FxCore {
     }
     const mosToken = mosTokenRes.value;
 
-    // remove share access
-    const res = await PackageService.GetSharedInstance().unshare(mosToken, sharedTitleId, appId);
-    if (res.isErr()) {
-      return err(res.error);
+    // should never remove permission of the operator
+    const currentUserInfoRes = await CollaborationUtil.getCurrentUserInfo(tokenProvider);
+    if (currentUserInfoRes.isErr()) {
+      return err(currentUserInfoRes.error);
     }
-    const msg = getLocalizedString("core.common.removeShareAccess.success");
+    const currentUserInfo = currentUserInfoRes.value;
+    for (const email of emails) {
+      const userInfo = await CollaborationUtil.getUserInfo(tokenProvider, email);
+      if (!userInfo) {
+        return err(new InputValidationError("removeSharedAccess", `Invalid user: ${email}`));
+      }
+      if (userInfo.aadId === currentUserInfo.aadId) {
+        return err(
+          new InputValidationError(
+            "removeSharedAccess",
+            getLocalizedString("core.share.removeAccess.operator", email)
+          )
+        );
+      }
+
+      // 1. remove TDP permission
+      await teamsDevPortalClient.removePermission(appStudioToken, teamsAppId, userInfo);
+
+      // 2. remove mos permission
+      const res = await PackageService.GetSharedInstance().removePermission(
+        mosToken,
+        sharedTitleId,
+        userInfo
+      );
+      if (res.isErr()) {
+        return err(res.error);
+      }
+    }
+    const msg = getLocalizedString("core.common.removeShareAccess.success", emails);
     TOOLS.ui?.showMessage("info", msg, false);
     return ok(undefined);
   }
@@ -903,13 +943,16 @@ export class FxCore {
     inputs: Inputs,
     ctx?: CoreHookContext
   ): Promise<Result<undefined, FxError>> {
+    const operation = inputs[QuestionNames.ShareOperation];
     const scope = inputs[QuestionNames.ShareScope];
     let emails: string[] = [];
-    if (scope === ShareScopeOption.ShareAppWithSpecificUsers) {
+
+    if (
+      scope === ShareScopeOption.ShareAppWithSpecificUsers ||
+      scope === ShareScopeOption.ShareAppWithOwners ||
+      operation === ShareOperationOption.RemoveShareAccessFromUsers
+    ) {
       emails = (inputs[QuestionNames.UserEmail] as string).split(",").map((e) => e.trim());
-      if (!emails || emails.length === 0) {
-        return err(new MissingRequiredInputError("emails", "FxCore"));
-      }
       if (emails.length > MAX_EMAIL_NUMBER) {
         return err(new InputValidationError("emails", "Too many emails"));
       }
@@ -919,7 +962,6 @@ export class FxCore {
       return err(parseRes.error);
     }
     const sharedTitleId = parseRes.value.titleId;
-    const sharedAppId = parseRes.value.appId;
     const tokenProvider = TOOLS.tokenProvider.m365TokenProvider;
     const mosTokenRes = await tokenProvider.getAccessToken({
       scopes: [MosServiceScope],
@@ -929,64 +971,13 @@ export class FxCore {
     }
     const mosToken = mosTokenRes.value;
 
-    if (scope === ShareScopeOption.ShareAppWithTenantUsers) {
-      // Call Builder API to change shared scope
-      const res = await PackageService.GetSharedInstance().shareWithTenant(
-        mosToken,
-        sharedTitleId,
-        sharedAppId
-      );
-      if (res.isErr()) {
-        return err(res.error);
-      }
-      const msg = getLocalizedString("core.common.shareWithTenant.success");
-      TOOLS.ui?.showMessage("info", msg, false);
-      return ok(undefined);
+    if (operation === ShareOperationOption.RemoveShareAccessFromUsers) {
+      return removeShareAccess(mosToken, sharedTitleId, emails);
+    } else if (scope === ShareScopeOption.ShareAppWithTenantUsers) {
+      return shareWithTenant(mosToken, sharedTitleId);
     } else if (scope === ShareScopeOption.ShareAppWithSpecificUsers) {
-      const entities: M365AppEntity[] = [];
-      for (const email of emails) {
-        const userInfo = await CollaborationUtil.getUserInfo(tokenProvider, email);
-        if (!userInfo) {
-          return err(new InputValidationError("shareWithUser", `Invalid user: ${email}`));
-          // const groupInfo = await CollaborationUtil.getGroupInfo(email, tokenProvider);
-          // if (!groupInfo) {
-          //   return err(new InputValidationError("shareWithUser", `Invalid user: ${email}`));
-          // }
-          // entities.push({
-          //   entityId: groupInfo.id,
-          //   entityType: M365EntityType.Group,
-          // });
-        } else {
-          entities.push({
-            entityId: userInfo.aadId,
-            entityType: M365EntityType.User,
-          });
-        }
-      }
-      // Call Builder API to change shared scope
-      const res = await PackageService.GetSharedInstance().addSharedUsers(
-        mosToken,
-        entities,
-        sharedTitleId,
-        sharedAppId
-      );
-      if (res.isErr()) {
-        return err(res.error);
-      }
-      const msg = getLocalizedString("core.common.shareWithUser.success", emails);
-      TOOLS.ui?.showMessage("info", msg, false);
-      return ok(undefined);
+      return addSharedUsers(mosToken, sharedTitleId, emails);
     } else if (scope === ShareScopeOption.ShareAppWithOwners) {
-      const emails = (inputs[QuestionNames.UserEmail] as string).split(",").map((e) => e.trim());
-      if (!emails || emails.length === 0) {
-        return err(new MissingRequiredInputError("emails", "FxCore"));
-      }
-      const parseRes = await parseShareAppActionYamlConfig(inputs.projectPath!);
-      if (parseRes.isErr()) {
-        return err(parseRes.error);
-      }
-      const sharedTitleId = parseRes.value.titleId;
-
       const tokenProvider = TOOLS.tokenProvider.m365TokenProvider;
       const appStudioTokenRes = await tokenProvider.getAccessToken({
         scopes: AppStudioScopes,
@@ -995,13 +986,6 @@ export class FxCore {
         return err(appStudioTokenRes.error);
       }
       const appStudioToken = appStudioTokenRes.value;
-      const mosTokenRes = await tokenProvider.getAccessToken({
-        scopes: [MosServiceScope],
-      });
-      if (mosTokenRes.isErr()) {
-        return err(mosTokenRes.error);
-      }
-      const mosToken = mosTokenRes.value;
       for (const email of emails) {
         const userInfo = await CollaborationUtil.getUserInfo(tokenProvider, email);
         if (!userInfo) {

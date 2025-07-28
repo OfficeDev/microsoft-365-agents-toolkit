@@ -12,10 +12,17 @@ import { CLICommandOption, CLICommandArgument } from "@microsoft/teamsfx-api";
 
 export const ShareOptions: CLICommandOption[] = [
   {
-    name: "scope",
+    name: "share-operation",
     type: "string",
     description: "Share the agent",
     required: true,
+    choices: ["share", "unshare"],
+  },
+  {
+    name: "scope",
+    type: "string",
+    description: "Share the agent with users",
+    default: "users",
     choices: ["tenant", "users", "owners"],
   },
   {

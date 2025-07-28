@@ -18,3 +18,4 @@ export * from "./SPFxAddWebpartInputs";
 export * from "./SyncManifestInputs";
 export * from "./UninstallInputs";
 export * from "./ValidateTeamsAppInputs";
+export * from "./removeSharedAccessInputs";
