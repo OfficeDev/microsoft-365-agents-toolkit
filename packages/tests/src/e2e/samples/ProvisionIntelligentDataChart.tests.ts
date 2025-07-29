@@ -31,5 +31,5 @@ class IntelligentDataChartCase extends CaseFactory {
 new IntelligentDataChartCase(
   TemplateProjectFolder.IntelligentDataChart,
   27852475,
-  "huimiao@microsoft.com"
+  "Ning.Tang@microsoft.com"
 ).test();
