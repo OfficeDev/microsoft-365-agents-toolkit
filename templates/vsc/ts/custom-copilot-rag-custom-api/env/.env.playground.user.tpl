@@ -8,7 +8,6 @@ SECRET_OPENAI_API_KEY={{{openAIKey}}}
 {{/openAIKey}}
 {{^openAIKey}}
 SECRET_OPENAI_API_KEY=
-
 {{/openAIKey}}
 {{/useOpenAI}}
 {{#useAzureOpenAI}}
