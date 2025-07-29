@@ -21,7 +21,7 @@ jobs:
       matrix:
         os: [windows-latest, macos-latest, ubuntu-latest]
         node-version: [16, 18, 20]
-        func-version: [none, "3", "4", "4.0.4670", "~4.0.5174"]
+        func-version: [none, "3", "4", "4.0.4670", "^4.0.5174"]
       max-parallel: 30
 
     runs-on: ${{ matrix.os }}

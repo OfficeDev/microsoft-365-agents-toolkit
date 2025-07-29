@@ -1129,5 +1129,5 @@ function getLabels(tasks: CommentArray<CommentJSONValue>): string[] {
 
 async function getFuncVersion(): Promise<string> {
   const nodeVersion = (await NodeChecker.getInstalledNodeVersion())?.majorVersion;
-  return !nodeVersion || Number.parseInt(nodeVersion) >= 18 ? "~4.0.5174" : "4";
+  return !nodeVersion || Number.parseInt(nodeVersion) >= 18 ? "^4.0.5174" : "4";
 }

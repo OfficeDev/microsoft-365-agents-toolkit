@@ -102,7 +102,7 @@ deploy:
       devCert:
         trust: true
       func:
-        version: ~4.0.5455
+        version: ^4.0.5455
         symlinkDir: ./devTools/func
     # Write the information of installed development tool(s) into environment
     # file for the specified environment variable(s).
