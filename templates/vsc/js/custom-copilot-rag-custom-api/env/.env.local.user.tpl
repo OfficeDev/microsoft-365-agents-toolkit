@@ -28,6 +28,6 @@ AZURE_OPENAI_MODEL_DEPLOYMENT_NAME=
 AZURE_OPENAI_ENDPOINT='{{{azureOpenAIEndpoint}}}'
 {{/azureOpenAIEndpoint}}
 {{^azureOpenAIEndpoint}}
-AZURE_OPENAI_ENDPOINT=' '
+AZURE_OPENAI_ENDPOINT=
 {{/azureOpenAIEndpoint}}
 {{/useAzureOpenAI}}
