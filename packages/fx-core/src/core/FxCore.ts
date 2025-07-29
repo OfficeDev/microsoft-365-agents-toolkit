@@ -921,7 +921,7 @@ export class FxCore {
         return err(res.error);
       }
     }
-    const msg = getLocalizedString("core.common.removeShareAccess.success", emails);
+    const msg = getLocalizedString("core.common.removeOwnership.success", emails);
     TOOLS.ui?.showMessage("info", msg, false);
     return ok(undefined);
   }
