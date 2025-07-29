@@ -4,7 +4,6 @@ using {{SafeProjectName}}.CardActions;
 using Microsoft.Agents.Builder;
 using Microsoft.Agents.Hosting.AspNetCore;
 using Microsoft.Agents.Storage;
-using Microsoft.TeamsFx.Conversation;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,27 +29,6 @@ builder.AddAgentApplicationOptions();
 builder.Services.AddSingleton<HelloWorldCommandHandler>();
 builder.Services.AddSingleton<GenericCommandHandler>();
 builder.Services.AddSingleton<DoStuffActionHandler>();
-
-// Keep the ConversationBot to maintain compatibility with TeamsFx SDK
-builder.Services.AddSingleton(sp =>
-{
-    var options = new ConversationOptions()
-    {
-        Adapter = sp.GetService<CloudAdapter>(),
-        Command = new CommandOptions()
-        {
-            Commands = new List<ITeamsCommandHandler> { 
-                sp.GetService<HelloWorldCommandHandler>(), 
-                sp.GetService<GenericCommandHandler>() 
-            }
-        },
-        CardAction = new CardActionOptions()
-        {
-            Actions = new List<IAdaptiveCardActionHandler> { sp.GetService<DoStuffActionHandler>() }
-        }
-    };
-    return new ConversationBot(options);
-});
 
 // Add the bot (which is transient)
 builder.AddAgent<TeamsBot>();
