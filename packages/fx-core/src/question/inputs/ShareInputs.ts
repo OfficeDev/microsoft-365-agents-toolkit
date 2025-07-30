@@ -15,6 +15,6 @@ export interface ShareInputs extends Inputs {
   "share-operation"?: "share" | "unshare";
   /** @description Share the agent with users */
   scope?: "tenant" | "users" | "owners";
-  /** @description Email addresses of user to share the agent with */
+  /** @description Email addresses of users for agent sharing */
   email?: string;
 }
