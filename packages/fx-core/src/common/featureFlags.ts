@@ -136,7 +136,7 @@ export class FeatureFlags {
   };
   static readonly MCPForDA = {
     name: FeatureFlagName.MCPForDA,
-    defaultValue: "false",
+    defaultValue: "true",
   };
 }
 
