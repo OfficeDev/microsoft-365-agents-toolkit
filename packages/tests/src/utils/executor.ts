@@ -42,8 +42,6 @@ export class Executor {
         const result = await execAsync(command, options);
 
         if (result.stderr) {
-          console.log(`[bowsong detail] ${result.stderr}`);
-          console.log(`[bowsong detail] ${result.stdout}`);
           if (skipErrorMessage) {
             if (
               result.stderr.includes(skipErrorMessage) ||
@@ -69,7 +67,7 @@ export class Executor {
         if (e.killed && e.signal == "SIGTERM") {
           console.error(`[Failed] "${command}" in ${cwd}. Timeout and killed.`);
         } else {
-          console.log(`[bowsong detail] ${e.toString()}`);
+          console.log(`[bowsong detail error] ${e.toString()}`);
           console.error(
             `[Failed] "${command}" in ${cwd} with error: ${e.message}`
           );
@@ -166,7 +164,7 @@ export class Executor {
   ) {
     const npxCommand = npx ? "npx " : "";
     const cliPrefix = isV3 ? "atk" : "teamsapp";
-    const command = `${npxCommand} ${cliPrefix} ${cmd} --env ${env}`;
+    const command = `${npxCommand} ${cliPrefix} ${cmd} --env ${env} --verbose`;
     return this.execute(
       command,
       workspace,
