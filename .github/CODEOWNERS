@@ -101,7 +101,7 @@
 /packages/fx-core/src/component/feature/createAuthFiles.ts @KennethBWSong @xzf0587
 /packages/fx-core/src/component/feature/sso.ts @KennethBWSong @xzf0587
 /packages/fx-core/src/component/generator @Yukun-dong @hund030 @JerryYangKai @eriolchan
-/packages/fx-core/src/component/generator/copilotExtension @yuqizhou77 @huimiu @jayzhang @anchenyi
+/packages/fx-core/src/component/generator/copilotExtension @yuqizhou77 @jayzhang @anchenyi
 /packages/fx-core/src/component/generator/declarativeAgent @HuihuiWu-Microsoft @yuqizhou77 @tecton
 /packages/fx-core/src/component/generator/officeAddin @llhmm01 @tecton @wh-alice
 /packages/fx-core/src/component/generator/openApiSpec @yuqizhou77 @nliu-ms @Alive-Fish @HuihuiWu-Microsoft @jayzhang @SLdragon @KennethBWSong
@@ -129,7 +129,7 @@
 /packages/fx-core/tests/component/driver/script @Siglud @Yukun-dong @JerryYangKai @eriolchan
 /packages/fx-core/tests/component/driver/util/utils.test.ts @blackchoey @xzf0587
 /packages/fx-core/tests/component/feature @KennethBWSong @xzf0587
-/packages/fx-core/tests/component/generator/declarativeAgentGenerator.test.ts @HuihuiWu-Microsoft @yuqizhou77 @huimiu @jayzhang
+/packages/fx-core/tests/component/generator/declarativeAgentGenerator.test.ts @HuihuiWu-Microsoft @yuqizhou77 @jayzhang
 /packages/fx-core/tests/component/generator/generator.test.ts @Yukun-dong @hund030 @JerryYangKai @eriolchan
 /packages/fx-core/tests/component/generator/officeAddinGenerator.test.ts @llhmm01 @tecton @wh-alice
 /packages/fx-core/tests/component/generator/openApiSpec @yuqizhou77 @nliu-ms @Alive-Fish @jayzhang @HuihuiWu-Microsoft
@@ -172,8 +172,8 @@
 /packages/tests/src/e2e/multienv @a1exwang @dooriya @qinezh @xiaolang124 @kimizhu
 /packages/tests/src/e2e/samples @tecton @ayachensiyuan
 /packages/tests/src/e2e/scaffold @hund030 @eriolchan @huimiu
-/packages/tests/src/e2e/scaffold/CopilotPluginFromScratch.tests.ts @yuqizhou77 @huimiu @SLdragon
-/packages/tests/src/e2e/scaffold/CopilotPluginFromExistingApi.tests.ts @yuqizhou77 @huimiu @SLdragon
+/packages/tests/src/e2e/scaffold/CopilotPluginFromScratch.tests.ts @yuqizhou77 @SLdragon
+/packages/tests/src/e2e/scaffold/CopilotPluginFromExistingApi.tests.ts @yuqizhou77 @SLdragon
 
 /packages/vscode-extension @tecton @HuihuiWu-Microsoft @wh-alice
 /packages/vscode-extension/CHANGELOG.md @therealjohn @sffamily
@@ -190,11 +190,11 @@
 /packages/vscode-extension/test/localdebug @qinzhouxu @llhmm01 @wh-alice
 /packages/vscode-extension/test/pluginDebugger @qinzhouxu @llhmm01 @wh-alice
 
-/templates/* @hund030 @eriolchan @huimiu @adashen
+/templates/* @tecton @wh-alice
 /templates/**/basic-custom-engine-agent @adashen @frankqianms
 /templates/**/command-and-response @adashen  @nliu-ms
-/templates/**/copilot-gpt-existing-api @eriolchan @huimiu @Yimin-Jin @adashen
-/templates/**/copilot-gpt-from-scratch-plugin @eriolchan @huimiu @Yimin-Jin @adashen
+/templates/**/copilot-gpt-existing-api @tecton @wh-alice
+/templates/**/copilot-gpt-from-scratch-plugin @tecton @wh-alice
 /templates/**/copilot-plugin-existing-api-api-key @yuqizhou77 @Alive-Fish @jayzhang @adashen
 /templates/**/custom-copilot-assistant-assistants-api @adashen @nliu-ms
 /templates/**/custom-copilot-assistant-new @adashen @nliu-ms
@@ -203,12 +203,12 @@
 /templates/**/custom-copilot-rag-customize-api @adashen @nliu-ms
 /templates/**/custom-copilot-rag-customize @adashen @nliu-ms
 /templates/**/custom-copilot-rag-microsoft365 @adashen @nliu-ms
-/templates/**/dashboard-tab @eriolchan @huimiu @Yimin-Jin @adashen
-/templates/**/declarative-agent-basic @eriolchan @huimiu @Yimin-Jin @adashen
+/templates/**/dashboard-tab @tecton @wh-alice
+/templates/**/declarative-agent-basic @tecton @wh-alice
 /templates/**/declarative-agent-with-action-from-existing-api @yuqizhou77 @Alive-Fish @jayzhang @anchenyi @adashen
-/templates/**/declarative-agent-with-action-from-scratch @eriolchan @huimiu @Yimin-Jin @adashen
-/templates/**/declarative-agent-with-action-from-scratch-bearer @eriolchan @huimiu @Yimin-Jin @adashen
-/templates/**/declarative-agent-with-action-from-scratch-oauth @eriolchan @huimiu @Yimin-Jin @adashen
+/templates/**/declarative-agent-with-action-from-scratch @tecton @wh-alice
+/templates/**/declarative-agent-with-action-from-scratch-bearer @tecton @wh-alice
+/templates/**/declarative-agent-with-action-from-scratch-oauth @tecton @wh-alice
 /templates/**/default-bot @JerryYangKai @eriolchan @Siglud @Yukun-dong @adashen
 /templates/**/default-bot-message-extension @yuqizhou77 @Yukun-dong @adashen
 /templates/**/empty @Alive-Fish @HuihuiWu-Microsoft @chagong @adashen
@@ -216,10 +216,10 @@
 /templates/**/m365-message-extension @adashen @nliu-ms
 /templates/**/message-extension @yuqizhou77 @Yukun-dong @adashen
 /templates/**/message-extension-action @JerryYangKai @eriolchan @Siglud @Yukun-dong @adashen
-/templates/**/message-extension-copilot @eriolchan @huimiu @Yimin-Jin @adashen
+/templates/**/message-extension-copilot @tecton @wh-alice
 /templates/**/message-extension-search @JerryYangKai @eriolchan @Siglud @Yukun-dong @adashen
-/templates/**/message-extension-with-api-from-scratch @eriolchan @huimiu @Yimin-Jin @adashen
-/templates/**/message-extension-with-api-from-scratch-api-key @eriolchan @huimiu @Yimin-Jin @adashen
+/templates/**/message-extension-with-api-from-scratch @tecton @wh-alice
+/templates/**/message-extension-with-api-from-scratch-api-key @tecton @wh-alice
 /templates/**/message-extension-with-existing-api @yuqizhou77 @Alive-Fish @jayzhang @adashen
 /templates/**/non-sso-tab @hund030 @eriolchan @Yimin-Jin @adashen
 /templates/**/non-sso-tab-default-bot @hund030 @yuqizhou77 @adashen
@@ -235,7 +235,6 @@
 /templates/**/sso-tab-ssr @Yimin-Jin @eriolchan @hund030 @adashen
 /templates/**/weather-agent @adashen @frankqianms
 /templates/**/workflow @adashen @nliu-ms
-/templates/constraints/yml/actions @hund030 @eriolchan @huimiu @adashen
 /templates/scripts @hund030 @eriolchan @huimiu @adashen
 /templates/vs/* @adashen @wenytang-ms
 /templates/vs/csharp/custom-copilot-* @adashen @blackchoey @frankqianms @xzf0587 
