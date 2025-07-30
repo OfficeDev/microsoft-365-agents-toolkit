@@ -42,6 +42,7 @@ export class Executor {
         const result = await execAsync(command, options);
 
         if (result.stderr) {
+          console.log(`[bowsong detail] ${result.stderr}`);
           if (skipErrorMessage) {
             if (
               result.stderr.includes(skipErrorMessage) ||
@@ -67,6 +68,7 @@ export class Executor {
         if (e.killed && e.signal == "SIGTERM") {
           console.error(`[Failed] "${command}" in ${cwd}. Timeout and killed.`);
         } else {
+          console.log(`[bowsong detail] ${e.toString()}`);
           console.error(
             `[Failed] "${command}" in ${cwd} with error: ${e.message}`
           );
