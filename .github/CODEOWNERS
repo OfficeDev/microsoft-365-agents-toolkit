@@ -216,7 +216,6 @@
 /templates/**/m365-message-extension @adashen @nliu-ms
 /templates/**/message-extension @yuqizhou77 @Yukun-dong @adashen
 /templates/**/message-extension-action @JerryYangKai @eriolchan @Siglud @Yukun-dong @adashen
-/templates/**/message-extension-copilot @tecton @wh-alice
 /templates/**/message-extension-search @JerryYangKai @eriolchan @Siglud @Yukun-dong @adashen
 /templates/**/message-extension-with-api-from-scratch @tecton @wh-alice
 /templates/**/message-extension-with-api-from-scratch-api-key @tecton @wh-alice
