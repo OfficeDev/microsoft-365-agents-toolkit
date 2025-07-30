@@ -67,7 +67,7 @@ export class Executor {
         if (e.killed && e.signal == "SIGTERM") {
           console.error(`[Failed] "${command}" in ${cwd}. Timeout and killed.`);
         } else {
-          console.log(`[bowsong detail error] ${e.toString()}`);
+          console.log(`[bowsong detail error] ${JSON.stringify(e)}`);
           console.error(
             `[Failed] "${command}" in ${cwd} with error: ${e.message}`
           );
