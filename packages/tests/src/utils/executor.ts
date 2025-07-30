@@ -163,7 +163,7 @@ export class Executor {
   ) {
     const npxCommand = npx ? "npx " : "";
     const cliPrefix = isV3 ? "atk" : "teamsapp";
-    const command = `${npxCommand} ${cliPrefix} ${cmd} --env ${env}`;
+    const command = `${npxCommand} ${cliPrefix} ${cmd} --env ${env} --debug true`;
     return this.execute(
       command,
       workspace,
