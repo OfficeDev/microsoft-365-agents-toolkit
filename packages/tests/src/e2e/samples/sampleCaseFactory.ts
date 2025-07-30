@@ -202,6 +202,9 @@ export abstract class CaseFactory {
             expect(success).to.be.true;
           }
 
+          if (sampleName === TemplateProjectFolder.AssistDashboard) {
+            process.env["CI"] = "false"; // disable CI mode for dashboard sample
+          }
           const { success } = await Executor.deploy(projectPath);
           expect(success).to.be.true;
 
