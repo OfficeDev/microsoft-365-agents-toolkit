@@ -43,6 +43,7 @@ export class Executor {
 
         if (result.stderr) {
           console.log(`[bowsong detail] ${result.stderr}`);
+          console.log(`[bowsong detail] ${result.stdout}`);
           if (skipErrorMessage) {
             if (
               result.stderr.includes(skipErrorMessage) ||
