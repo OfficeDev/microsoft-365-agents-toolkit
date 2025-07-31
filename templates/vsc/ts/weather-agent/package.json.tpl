@@ -41,7 +41,10 @@
         "typescript": "^5.8.3"
     },
     "overrides": {
-        "**": {
+        "@microsoft/agents-activity": {
+            "zod": "3.25.67"
+        },
+        "@langchain/core": {
             "zod": "3.25.67"
         }
     }
