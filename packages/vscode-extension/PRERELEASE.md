@@ -27,13 +27,6 @@ We’re beginning the deprecation process for the TeamsFx SDK. Its core function
 
 - **Smoother Debug Experience** We’ve refined the debugging flow for a more seamless and intuitive developer experience.
 
-#### Enhancement
-- Sample Gallery now has more filters for Agents samples: Decalrative Agents, Custom Engine Agents etc.
-- Update manifest version to v1.22
-- Enhanced security by apply Azure SWA for deployment token fetch instead of store token in local environment files.
-- [TypeSpec]TypeSpec projects need to be able to be built without provision for CI/CD scenarios. On top of that, this would be a workaround for environments where provisioning is not possible because of the new MAC governance controls. This would also allow a developer in a GCC environment to build a package without the need of being logged in.
-- Improved UX for a seamless debug experience.
-
 ### February 17, 2025
 
 #### New Feature
