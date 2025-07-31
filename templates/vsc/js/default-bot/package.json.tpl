@@ -5,9 +5,6 @@
       "teamsAppId": null
     },
     "description": "Microsoft 365 Agents Toolkit echo bot sample",
-    "engines": {
-        "node": "18 || 20 || 22"
-    },
     "author": "Microsoft",
     "license": "MIT",
     "main": "index.js",

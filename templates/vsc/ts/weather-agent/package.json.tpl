@@ -5,9 +5,6 @@
         "teamsAppId": null
     },
     "description": "Weather Agent with Microsoft 365 Agents SDK and LangChain",
-    "engines": {
-        "node": "18 || 20 || 22"
-    },
     "author": "Microsoft",
     "license": "MIT",
     "main": "./lib/src/index.js",

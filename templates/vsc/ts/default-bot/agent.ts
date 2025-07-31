@@ -6,7 +6,7 @@ import {
   TurnContext,
   TurnState,
 } from "@microsoft/agents-hosting";
-import { version } from "@microsoft/agents-hosting/package.json";
+import pkg from "@microsoft/agents-hosting/package.json";
 
 interface ConversationState {
   count: number;
@@ -43,10 +43,10 @@ agentApp.onMessage("/state", async (context: TurnContext, state: ApplicationTurn
   await context.sendActivity(JSON.stringify(state));
 });
 
-agentApp.onMessage("/runtime", async (context: TurnContext, state: ApplicationTurnState) => {
+agentApp.onMessage("/runtime", async (context: TurnContext) => {
   const runtime = {
     nodeversion: process.version,
-    sdkversion: version,
+    sdkversion: pkg.version,
   };
   await context.sendActivity(JSON.stringify(runtime));
 });
@@ -55,7 +55,7 @@ agentApp.onConversationUpdate(
   "membersAdded",
   async (context: TurnContext, state: ApplicationTurnState) => {
     await context.sendActivity(
-      `Hi there! I'm an echo bot running on Agents SDK version ${version} that will echo what you said to me.`
+      `Hi there! I'm an echo bot running on Agents SDK version ${pkg.version} that will echo what you said to me.`
     );
   }
 );
