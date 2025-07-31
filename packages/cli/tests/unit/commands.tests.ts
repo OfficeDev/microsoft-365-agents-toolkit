@@ -584,11 +584,23 @@ describe("CLI commands", () => {
     });
   });
   describe("shareRemoveCommand", async () => {
-    it("success", async () => {
+    it("share with owners", async () => {
       sandbox.stub(FxCore.prototype, "removeSharedAccess").resolves(ok(undefined));
       const ctx: CLIContext = {
         command: { ...shareRemoveCommand, fullName: "teamsfx" },
         optionValues: { env: "dev" },
+        globalOptionValues: {},
+        argumentValues: [],
+        telemetryProperties: {},
+      };
+      const res = await shareRemoveCommand.handler!(ctx);
+      assert.isTrue(res.isOk());
+    });
+    it("share with users", async () => {
+      sandbox.stub(FxCore.prototype, "shareApplication").resolves(ok(undefined));
+      const ctx: CLIContext = {
+        command: { ...shareRemoveCommand, fullName: "teamsfx" },
+        optionValues: { env: "dev", users: "test@example.com" },
         globalOptionValues: {},
         argumentValues: [],
         telemetryProperties: {},
