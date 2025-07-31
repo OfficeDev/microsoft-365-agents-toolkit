@@ -67,7 +67,6 @@ export class Executor {
         if (e.killed && e.signal == "SIGTERM") {
           console.error(`[Failed] "${command}" in ${cwd}. Timeout and killed.`);
         } else {
-          console.log(`[bowsong detail error] ${JSON.stringify(e)}`);
           console.error(
             `[Failed] "${command}" in ${cwd} with error: ${e.message}`
           );
@@ -164,7 +163,7 @@ export class Executor {
   ) {
     const npxCommand = npx ? "npx " : "";
     const cliPrefix = isV3 ? "atk" : "teamsapp";
-    const command = `${npxCommand} ${cliPrefix} ${cmd} --env ${env} --verbose`;
+    const command = `${npxCommand} ${cliPrefix} ${cmd} --env ${env}`;
     return this.execute(
       command,
       workspace,
