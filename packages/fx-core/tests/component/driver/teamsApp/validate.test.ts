@@ -484,6 +484,8 @@ describe("teamsApp/validateManifest", async () => {
 
     it("validate with errors returned - MetaOS DA", async () => {
       const teamsManifest = {
+        $schema:
+          "https://developer.microsoft.com/json-schemas/teams/vDevPreview/MicrosoftTeams.schema.json",
         manifestVersion: "devPreview",
       } as TeamsManifestVDevPreview.TeamsManifestVDevPreview;
       teamsManifest.copilotAgents = {
