@@ -120,7 +120,10 @@ export class ValidateManifestDriver implements StepDriver {
     telemetryProperties[TelemetryPropertyKey.localizationValidationErrors] =
       localizationFilesValidationRes.value.error.map((r: string) => r.replace(/\//g, "")).join(";");
 
-    const manifestVersion = semver.coerce(manifest.manifestVersion);
+    const manifestVersion =
+      manifest.manifestVersion === "devPreview"
+        ? semver.coerce("1.19.0") // for MetaOS WXP, fallback the `devPreview` ver as `1.19.0` to enable following logics
+        : semver.coerce(manifest.manifestVersion); // ensure manifestVersion is a valid semver
     let declarativeAgents: TeamsManifestV1D19.DeclarativeAgentRef[] | undefined;
     if (manifestVersion && semver.gte(manifestVersion, "1.19.0")) {
       declarativeAgents = (manifest as TeamsManifestV1D19.TeamsManifestV1D19).copilotAgents
