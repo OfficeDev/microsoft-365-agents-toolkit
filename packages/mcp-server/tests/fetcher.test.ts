@@ -147,7 +147,9 @@ describe("fetcher", () => {
       );
       expect(parsedResult).toHaveProperty("schema_url");
       expect(parsedResult).toHaveProperty("content");
-      expect(parsedResult.schema_url).toBe("https://developer.microsoft.com/json-schemas/teams-toolkit/teamsapp-yaml/v1.5/yaml.schema.json");
+      expect(parsedResult.schema_url).toBe(
+        "https://developer.microsoft.com/json-schemas/teams-toolkit/teamsapp-yaml/v1.5/yaml.schema.json"
+      );
       expect(parsedResult.content).toEqual({ test: "schema content" });
     });
   });
