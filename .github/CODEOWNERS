@@ -178,7 +178,7 @@
 /packages/vscode-extension @tecton @HuihuiWu-Microsoft @wh-alice
 /packages/vscode-extension/CHANGELOG.md @therealjohn @sffamily
 /packages/vscode-extension/package.nls.json @timngmsft @sffamily @therealjohn @supkasar
-/packages/vscode-extension/PRERELEASE.md @therealjohn @sffamily
+/packages/vscode-extension/PRERELEASE.md @therealjohn @sffamily @wh-alice
 /packages/vscode-extension/README.md @therealjohn @sffamily
 /packages/vscode-extension/src/commonlib @HuihuiWu-Microsoft @sherylueen @wh-alice
 /packages/vscode-extension/src/debug @qinzhouxu @llhmm01 @wh-alice
