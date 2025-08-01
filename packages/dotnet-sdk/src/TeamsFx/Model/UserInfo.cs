@@ -5,6 +5,7 @@ namespace Microsoft.TeamsFx;
 /// <summary>
 /// UserInfo with user displayName, objectId and preferredUserName.
 /// </summary>
+[Obsolete("This package will be deprecated by 2026-09. Please use Microsoft 365 Agents SDK (https://www.nuget.org/packages/Microsoft.Agents.Core) instead.")]
 public class UserInfo
 {
     /// <summary>
