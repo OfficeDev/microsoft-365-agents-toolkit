@@ -40,6 +40,7 @@ export class TdpGenerator extends DefaultTemplateGenerator {
     }
     const appName = inputs[QuestionNames.AppName];
     const safeProjectNameFromVS = inputs[QuestionNames.SafeProjectName];
+    const solutionNameFromVS = inputs[QuestionNames.SolutionName];
     const isNet8 = !inputs.targetFramework || inputs.targetFramework === "net8.0"; // used by SSR Tab
     const language = inputs[QuestionNames.ProgrammingLanguage] as ProgrammingLanguage;
     return Promise.resolve(
@@ -51,6 +52,7 @@ export class TdpGenerator extends DefaultTemplateGenerator {
             ...Generator.getDefaultVariables(
               appName,
               safeProjectNameFromVS,
+              solutionNameFromVS,
               inputs.targetFramework,
               inputs.placeProjectFileInSolutionDir === "true"
             ),

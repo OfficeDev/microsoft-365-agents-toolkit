@@ -29,6 +29,7 @@ export enum QuestionNames {
   ReplaceWebsiteUrl = "replaceWebsiteUrl",
   ReplaceBotIds = "replaceBotIds",
   SafeProjectName = "safeProjectName",
+  SolutionName = "solutionName",
   RepalceTabUrl = "tdp-tab-url",
   ValidateMethod = "validate-method",
   AppPackagePath = "appPackagePath",
