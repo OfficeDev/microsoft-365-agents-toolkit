@@ -91,7 +91,7 @@ describe("fetcher", () => {
       // Test m365_agents_yaml with 'latest' version
       await fetchSchema("m365_agents_yaml", "latest");
       expect(global.fetch).toHaveBeenCalledWith(
-        "https://aka.ms/teams-toolkit/v1.8/yaml.schema.json"
+        "https://developer.microsoft.com/json-schemas/teams-toolkit/teamsapp-yaml/v1.9/yaml.schema.json"
       );
     });
 
@@ -143,11 +143,11 @@ describe("fetcher", () => {
       const parsedResult = JSON.parse(result);
 
       expect(global.fetch).toHaveBeenCalledWith(
-        "https://aka.ms/teams-toolkit/v1.5/yaml.schema.json"
+        "https://developer.microsoft.com/json-schemas/teams-toolkit/teamsapp-yaml/v1.5/yaml.schema.json"
       );
       expect(parsedResult).toHaveProperty("schema_url");
       expect(parsedResult).toHaveProperty("content");
-      expect(parsedResult.schema_url).toBe("https://aka.ms/teams-toolkit/v1.5/yaml.schema.json");
+      expect(parsedResult.schema_url).toBe("https://developer.microsoft.com/json-schemas/teams-toolkit/teamsapp-yaml/v1.5/yaml.schema.json");
       expect(parsedResult.content).toEqual({ test: "schema content" });
     });
   });
