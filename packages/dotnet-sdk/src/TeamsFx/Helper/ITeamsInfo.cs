@@ -9,7 +9,7 @@ namespace Microsoft.TeamsFx.Helper
     /// <summary>
     /// provides utility methods for interactions that occur within Microsoft Teams.
     /// </summary>
-    [Obsolete("This package will be deprecated by 2026-09. Please use Microsoft 365 Agents SDK (https://www.nuget.org/packages/Microsoft.Agents.Core) instead.")]
+    [Obsolete("This package will be deprecated by 2026-09. Please use Microsoft 365 Agents SDK (https://www.nuget.org/packages/Microsoft.Agents.Hosting.AspNetCore) instead.")]
     public interface ITeamsInfo
     {
         /// <summary>
@@ -20,7 +20,7 @@ namespace Microsoft.TeamsFx.Helper
         /// <param name="userId"> ID of the user in question. </param>
         /// <param name="cancellationToken"> cancellation token. </param>
         /// <returns>Team Account Details.</returns>
-        [Obsolete("This package will be deprecated by 2026-09. Please use Microsoft 365 Agents SDK (https://www.nuget.org/packages/Microsoft.Agents.Core) instead.")]
+        [Obsolete("This package will be deprecated by 2026-09. Please use Microsoft 365 Agents SDK (https://www.nuget.org/packages/Microsoft.Agents.Hosting.AspNetCore) instead.")]
         Task<TeamsChannelAccount> GetTeamsMemberAsync(ITurnContext context, string userId, CancellationToken cancellationToken = default);
     }
 }

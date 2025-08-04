@@ -8,7 +8,7 @@ namespace Microsoft.TeamsFx.Configuration;
 /// <summary>
 /// Authentication related configuration.
 /// </summary>
-[Obsolete("This package will be deprecated by 2026-09. Please use Microsoft 365 Agents SDK (https://www.nuget.org/packages/Microsoft.Agents.Core) instead.")]
+[Obsolete("This package will be deprecated by 2026-09. Please use Microsoft 365 Agents SDK (https://www.nuget.org/packages/Microsoft.Agents.Hosting.AspNetCore) instead.")]
 public class AuthenticationOptions
 {
     /// <summary>
@@ -20,7 +20,7 @@ public class AuthenticationOptions
     /// The client (application) ID of an App Registration in the tenant.
     /// </summary>
     [RegularExpression(@"^[0-9A-Fa-f\-]{36}$")]
-    [Obsolete("This package will be deprecated by 2026-09. Please use Microsoft 365 Agents SDK (https://www.nuget.org/packages/Microsoft.Agents.Core) instead.")]
+    [Obsolete("This package will be deprecated by 2026-09. Please use Microsoft 365 Agents SDK (https://www.nuget.org/packages/Microsoft.Agents.Hosting.AspNetCore) instead.")]
     public string ClientId { get; set; }
 
     /// <summary>

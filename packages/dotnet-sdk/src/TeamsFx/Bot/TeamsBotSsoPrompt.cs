@@ -73,7 +73,7 @@ namespace Microsoft.TeamsFx.Bot;
 /// </code>
 /// 
 /// </example>
-[Obsolete("This package will be deprecated by 2026-09. Please use Microsoft 365 Agents SDK (https://www.nuget.org/packages/Microsoft.Agents.Core) instead.")]
+[Obsolete("This package will be deprecated by 2026-09. Please use Microsoft 365 Agents SDK (https://www.nuget.org/packages/Microsoft.Agents.Hosting.AspNetCore) instead.")]
 public class TeamsBotSsoPrompt : Dialog
 {
     private readonly TeamsBotSsoPromptSettings _settings;
@@ -90,7 +90,7 @@ public class TeamsBotSsoPrompt : Dialog
     /// <remarks>The value of <paramref name="dialogId"/> must be unique within the
     /// <see cref="DialogSet"/> or <see cref="ComponentDialog"/> to which the prompt is added.</remarks>
     /// <exception cref="ExceptionCode.InvalidParameter">When input parameters is null.</exception>
-    [Obsolete("This package will be deprecated by 2026-09. Please use Microsoft 365 Agents SDK (https://www.nuget.org/packages/Microsoft.Agents.Core) instead.")]
+    [Obsolete("This package will be deprecated by 2026-09. Please use Microsoft 365 Agents SDK (https://www.nuget.org/packages/Microsoft.Agents.Hosting.AspNetCore) instead.")]
     public TeamsBotSsoPrompt(string dialogId, TeamsBotSsoPromptSettings settings): base(dialogId)
     {
         if (string.IsNullOrWhiteSpace(dialogId))
@@ -115,7 +115,7 @@ public class TeamsBotSsoPrompt : Dialog
     /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
     /// <returns> A System.Threading.Tasks.Task representing the asynchronous operation.</returns>
     /// <exception cref="ExceptionCode.InvalidParameter">if dialog context argument is null</exception>
-    [Obsolete("This package will be deprecated by 2026-09. Please use Microsoft 365 Agents SDK (https://www.nuget.org/packages/Microsoft.Agents.Core) instead.")]
+    [Obsolete("This package will be deprecated by 2026-09. Please use Microsoft 365 Agents SDK (https://www.nuget.org/packages/Microsoft.Agents.Hosting.AspNetCore) instead.")]
     public override async Task<DialogTurnResult> BeginDialogAsync(DialogContext dialogContext, object options = null, CancellationToken cancellationToken = default)
     {
         if (dialogContext == null)
@@ -145,7 +145,7 @@ public class TeamsBotSsoPrompt : Dialog
     /// <para>The prompt generally ends on invalid message from user's reply.</para></remarks>
     /// <exception cref="ExceptionCode.InternalError">When failed to login with unknown error.</exception>
     /// <exception cref="ExceptionCode.ServiceError">When failed to get access token from identity server(AAD).</exception>
-    [Obsolete("This package will be deprecated by 2026-09. Please use Microsoft 365 Agents SDK (https://www.nuget.org/packages/Microsoft.Agents.Core) instead.")]
+    [Obsolete("This package will be deprecated by 2026-09. Please use Microsoft 365 Agents SDK (https://www.nuget.org/packages/Microsoft.Agents.Hosting.AspNetCore) instead.")]
     public override async Task<DialogTurnResult> ContinueDialogAsync(DialogContext dc, CancellationToken cancellationToken = default(CancellationToken))
     {
         EnsureMsTeamsChannel(dc);
