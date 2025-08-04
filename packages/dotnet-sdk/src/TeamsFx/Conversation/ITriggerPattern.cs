@@ -6,6 +6,7 @@ namespace Microsoft.TeamsFx.Conversation
     /// <summary>
     /// Defines a contract that represents a trigger used to trigger command handler.
     /// </summary>
+    [Obsolete("This package will be deprecated by 2026-09. Please use Microsoft 365 Agents SDK (https://www.nuget.org/packages/Microsoft.Agents.Core) instead.")]
     public interface ITriggerPattern
     {
         /// <summary>

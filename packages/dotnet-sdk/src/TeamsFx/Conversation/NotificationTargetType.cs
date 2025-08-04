@@ -6,6 +6,7 @@ namespace Microsoft.TeamsFx.Conversation
     /// <summary>
     /// The target type where the notification will be sent to.
     /// </summary>
+    [Obsolete("This package will be deprecated by 2026-09. Please use Microsoft 365 Agents SDK (https://www.nuget.org/packages/Microsoft.Agents.Core) instead.")]
     public enum NotificationTargetType
     {
         /// <summary>

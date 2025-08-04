@@ -8,6 +8,7 @@ namespace Microsoft.TeamsFx.Conversation
     /// <summary>
     /// Interface for a store provider that manages notification target references.
     /// </summary>
+    [Obsolete("This package will be deprecated by 2026-09. Please use Microsoft 365 Agents SDK (https://www.nuget.org/packages/Microsoft.Agents.Core) instead.")]
     public interface IConversationReferenceStore
     {
         /// <summary>

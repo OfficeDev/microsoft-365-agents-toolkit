@@ -5,7 +5,7 @@
     /// <summary>
     /// Interface for a storage provider that stores and retrieves notification target references.
     /// </summary>
-    [Obsolete($"Use {nameof(IConversationReferenceStore)} to customize the way to persist bot notification connections instead.")]
+    [Obsolete("This package will be deprecated by 2026-09. Please use Microsoft 365 Agents SDK (https://www.nuget.org/packages/Microsoft.Agents.Core) instead.")]
     public interface INotificationTargetStorage
     {
         /// <summary>

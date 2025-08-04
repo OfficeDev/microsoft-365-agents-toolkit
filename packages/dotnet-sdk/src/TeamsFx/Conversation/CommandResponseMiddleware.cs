@@ -10,6 +10,7 @@ namespace Microsoft.TeamsFx.Conversation
     /// <summary>
     /// Middleware to handle message activity from Teams.
     /// </summary>
+    [Obsolete("This package will be deprecated by 2026-09. Please use Microsoft 365 Agents SDK (https://www.nuget.org/packages/Microsoft.Agents.Core) instead.")]
     public class CommandResponseMiddleware : IMiddleware
     {
         /// <summary>

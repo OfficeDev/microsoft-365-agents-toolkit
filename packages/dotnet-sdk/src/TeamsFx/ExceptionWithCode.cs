@@ -5,6 +5,7 @@ namespace Microsoft.TeamsFx;
 /// <summary>
 /// Exception code to trace the exception types.
 /// </summary>
+[Obsolete("This package will be deprecated by 2026-09. Please use Microsoft 365 Agents SDK (https://www.nuget.org/packages/Microsoft.Agents.Core) instead.")]
 public enum ExceptionCode
 {
     /// <summary>
@@ -56,6 +57,7 @@ public enum ExceptionCode
 /// <summary>
 /// Exception class with code and message thrown by the SDK.
 /// </summary>
+[Obsolete("This package will be deprecated by 2026-09. Please use Microsoft 365 Agents SDK (https://www.nuget.org/packages/Microsoft.Agents.Core) instead.")]
 public class ExceptionWithCode : Exception
 {
     /// <summary>
