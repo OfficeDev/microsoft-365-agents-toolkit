@@ -3,19 +3,17 @@
 
 import { hooks } from "@feathersjs/hooks";
 import {
-  M365TokenProvider,
-  LogProvider,
-  ok,
   err,
   FxError,
+  LogProvider,
+  M365TokenProvider,
+  ok,
   Result,
-  SystemError,
   SensitivityLabel,
   signedIn,
+  SystemError,
 } from "@microsoft/teamsfx-api";
 import { AxiosInstance } from "axios";
-import { ErrorContextMW } from "../common/globalVars";
-import { GetTeamsAppSettingsResponse } from "./interfaces/GetTeamsAppSettingsResponse";
 import {
   GraphTeamsAppSettingsReadScopes,
   GraphTeamsChannelCreateScopes,
@@ -23,19 +21,24 @@ import {
   GraphTeamsInstallAppScopes,
   GraphTeamsTeamCreateScopes,
   GraphTeamsTeamReadScopes,
+  GroupSearchScopes,
   ListSensitivityLabelScope,
+  UserReadScopes,
 } from "../common/constants";
-import { GetJoinedTeamsResponse } from "./interfaces/GetJoinedTeamsResponse";
-import { GetChannelResponse } from "./interfaces/GetChannelResponse";
+import { globalStateGet, globalStateUpdate } from "../common/globalState";
+import { ErrorContextMW } from "../common/globalVars";
+import { getDefaultString, getLocalizedString } from "../common/localizeUtils";
+import { waitSeconds } from "../common/utils";
 import { WrappedAxiosClient } from "../common/wrappedAxiosClient";
 import { CreateChannelResponse } from "./interfaces/CreateChannelResponse";
 import { CreateTeamAndChannelResponse } from "./interfaces/CreateTeamAndChannelResponse";
-import { ListSensitivityCacheValue } from "./interfaces/ListSensitivityCacheValue";
-import { waitSeconds } from "../common/utils";
-import { getLocalizedString } from "../common/localizeUtils";
 import { GetAppInstallationResponse } from "./interfaces/GetAppInstallationResponse";
-import { globalStateGet, globalStateUpdate } from "../common/globalState";
-import { getDefaultString } from "../common/localizeUtils";
+import { GetChannelResponse } from "./interfaces/GetChannelResponse";
+import { Group } from "./interfaces/GetGroupResponse";
+import { GetJoinedTeamsResponse } from "./interfaces/GetJoinedTeamsResponse";
+import { GetTeamsAppSettingsResponse } from "./interfaces/GetTeamsAppSettingsResponse";
+import { User } from "./interfaces/GetUserResponse";
+import { ListSensitivityCacheValue } from "./interfaces/ListSensitivityCacheValue";
 
 const listSensitivityLabelAPIPath = "/me/informationProtection/sensitivityLabels";
 const errorSourceName = "GraphAPI";
@@ -439,5 +442,44 @@ export class GraphClient {
       tenantId = accountInfo?.["tid"];
     }
     return [accountUniqueName, tenantId];
+  }
+
+  public async getUserInfoFromId(id: string): Promise<User | undefined> {
+    const tokenResponse = await this.tokenProvider.getAccessToken({ scopes: UserReadScopes });
+    if (tokenResponse.isErr()) {
+      throw tokenResponse.error;
+    }
+    const requester = this.createRequesterWithToken(tokenResponse.value);
+    const response = await requester.get(`/users/${id}`);
+    if (!response || !response.data) {
+      return undefined;
+    }
+
+    return <User>response.data;
+  }
+
+  public async getGroupInfo(
+    m365TokenProvider: M365TokenProvider,
+    email: string
+  ): Promise<Group | undefined> {
+    const tokenResponse = await m365TokenProvider?.getAccessToken({ scopes: GroupSearchScopes });
+    if (tokenResponse.isErr()) {
+      throw tokenResponse.error;
+    }
+    const requester = this.createRequesterWithToken(tokenResponse.value);
+    const res = await requester.get(`/groups?$filter=startsWith(mail,'${email}')`);
+    if (!res || !res.data || !res.data.value) {
+      return undefined;
+    }
+
+    const group = res.data.value.find(
+      (group: any) => group.mail?.toLowerCase() === email.toLowerCase()
+    );
+
+    if (!group) {
+      return undefined;
+    }
+
+    return <Group>group;
   }
 }

@@ -23,6 +23,7 @@ import { GraphScopes, VSCodeExtensionCommand } from "../common/constants";
 import { getDefaultString, getLocalizedString } from "../common/localizeUtils";
 import {
   AadOwner,
+  AgentOwner,
   AppIds,
   CollaborationState,
   ListCollaboratorResult,
@@ -30,8 +31,13 @@ import {
   ResourcePermission,
 } from "../common/permissionInterface";
 import { SolutionError, SolutionSource, SolutionTelemetryProperty } from "../component/constants";
+import { parseShareAppActionYamlConfig } from "../component/driver/share/utils";
 import { AppUser } from "../component/driver/teamsApp/interfaces/appdefinitions/appUser";
-import { AadCollaboration, TeamsCollaboration } from "../component/feature/collaboration";
+import {
+  AadCollaboration,
+  AgentCollaboration,
+  TeamsCollaboration,
+} from "../component/feature/collaboration";
 import { FailedToLoadManifestId, FileNotFoundError } from "../error/common";
 import { QuestionNames } from "../question/constants";
 
@@ -50,6 +56,7 @@ export class CollaborationConstants {
   static readonly AppType = "collaborationType";
   static readonly TeamsAppQuestionId = "teamsApp";
   static readonly AadAppQuestionId = "aadApp";
+  static readonly AgentOptionId = "agent";
 
   static readonly placeholderRegex = /\$\{\{ *[a-zA-Z0-9_.-]* *\}\}/g;
 }
@@ -127,36 +134,6 @@ export class CollaborationUtil {
       isAdministrator,
     };
   }
-
-  // static async getGroupInfo(
-  //   email: string,
-  //   m365TokenProvider?: M365TokenProvider
-  // ): Promise<AppGroup | undefined> {
-  //   const graphTokenRes = await m365TokenProvider?.getAccessToken({ scopes: GroupSearchScopes });
-  //   const graphToken = graphTokenRes?.isOk() ? graphTokenRes.value : undefined;
-  //   const instance = axios.create({
-  //     baseURL: "https://graph.microsoft.com/v1.0",
-  //   });
-  //   instance.defaults.headers.common["Authorization"] = `Bearer ${graphToken as string}`;
-  //   const res = await instance.get(`/groups?$filter=startsWith(mail,'${email}')`);
-  //   if (!res || !res.data || !res.data.value) {
-  //     return undefined;
-  //   }
-
-  //   const group = res.data.value.find(
-  //     (group: any) => group.mail?.toLowerCase() === email.toLowerCase()
-  //   );
-
-  //   if (!group) {
-  //     return undefined;
-  //   }
-
-  //   return {
-  //     id: group.id,
-  //     displayName: group.displayName,
-  //     email: group.mail,
-  //   };
-  // }
 
   static async loadDotEnvFile(
     dotEnvFilePath: string
@@ -327,24 +304,43 @@ export async function listCollaborator(
     return err(getAppIdsResult.error);
   }
   const appIds = getAppIdsResult.value;
+  let agentTitleId: string | undefined;
+  if (
+    inputs[QuestionNames.collaborationAppType].indexOf(CollaborationConstants.AgentOptionId) > -1
+  ) {
+    const parseRes = await parseShareAppActionYamlConfig(inputs.projectPath);
+    if (parseRes.isErr()) {
+      return err(parseRes.error);
+    }
+    agentTitleId = parseRes.value.titleId;
+  }
 
   const hasAad = appIds.aadObjectId != undefined;
   const hasTeams = appIds.teamsAppId != undefined;
   const teamsCollaboration = new TeamsCollaboration(tokenProvider.m365TokenProvider);
   const aadCollaboration = new AadCollaboration(tokenProvider.m365TokenProvider, ctx.logProvider);
-  const appStudioRes = hasTeams
-    ? await teamsCollaboration.listCollaborator(ctx, appIds.teamsAppId!)
-    : ok([]);
+  const agentCollaboration = new AgentCollaboration(tokenProvider.m365TokenProvider);
+  const appStudioRes =
+    appIds.teamsAppId != undefined
+      ? await teamsCollaboration.listCollaborator(ctx, appIds.teamsAppId)
+      : ok([]);
   if (appStudioRes.isErr()) return err(appStudioRes.error);
   const teamsAppOwners = appStudioRes.value;
-  const aadRes = hasAad
-    ? await aadCollaboration.listCollaborator(ctx, appIds.aadObjectId!)
-    : ok([]);
+  const aadRes =
+    appIds.aadObjectId != undefined
+      ? await aadCollaboration.listCollaborator(ctx, appIds.aadObjectId)
+      : ok([]);
   if (aadRes.isErr()) return err(aadRes.error);
   const aadOwners: AadOwner[] = aadRes.value;
   const teamsAppId: string = teamsAppOwners[0]?.resourceId ?? "";
   const aadAppId: string = aadOwners[0]?.resourceId ?? "";
   const aadAppTenantId = user.tenantId;
+  const agentOwners: AgentOwner[] = [];
+  if (agentTitleId) {
+    const result = await agentCollaboration.listCollaborator(ctx, agentTitleId);
+    if (result.isErr()) return err(result.error);
+    agentOwners.push(...result.value);
+  }
 
   if (inputs.platform === Platform.CLI || inputs.platform === Platform.VSCode) {
     const message = [
@@ -411,6 +407,35 @@ export async function listCollaborator(
             color: Colors.BRIGHT_WHITE,
           },
           { content: aadOwner.userPrincipalName, color: Colors.BRIGHT_MAGENTA },
+          { content: `.\n`, color: Colors.BRIGHT_WHITE }
+        );
+      }
+    }
+
+    if (agentTitleId) {
+      message.push(
+        ...getPrintEnvMessage(
+          inputs.env,
+          getLocalizedString("core.collaboration.StartingListAllAgentOwners")
+        ),
+        {
+          content: getLocalizedString("core.collaboration.AgentTitleId"),
+          color: Colors.BRIGHT_WHITE,
+        },
+        { content: agentTitleId, color: Colors.BRIGHT_MAGENTA },
+        { content: `)\n`, color: Colors.BRIGHT_WHITE }
+      );
+
+      for (const agentOwner of agentOwners) {
+        message.push(
+          {
+            content: getLocalizedString("core.collaboration.AgentOwner"),
+            color: Colors.BRIGHT_WHITE,
+          },
+          {
+            content: agentOwner.userPrincipalName ?? agentOwner.displayName,
+            color: Colors.BRIGHT_MAGENTA,
+          },
           { content: `.\n`, color: Colors.BRIGHT_WHITE }
         );
       }
@@ -596,6 +621,16 @@ export async function grantPermission(
       return err(getAppIdsResult.error);
     }
     const appIds = getAppIdsResult.value;
+    let agentTitleId: string | undefined;
+    if (
+      inputs[QuestionNames.collaborationAppType].indexOf(CollaborationConstants.AgentOptionId) > -1
+    ) {
+      const parseRes = await parseShareAppActionYamlConfig(inputs.projectPath);
+      if (parseRes.isErr()) {
+        return err(parseRes.error);
+      }
+      agentTitleId = parseRes.value.titleId;
+    }
 
     if (inputs.platform === Platform.CLI) {
       // TODO: get tenant id from .env
@@ -620,6 +655,7 @@ export async function grantPermission(
     const isTeamsActivated = appIds.teamsAppId != undefined;
     const teamsCollaboration = new TeamsCollaboration(tokenProvider.m365TokenProvider);
     const aadCollaboration = new AadCollaboration(tokenProvider.m365TokenProvider, ctx.logProvider);
+    const agentCollaboration = new AgentCollaboration(tokenProvider.m365TokenProvider);
     const appStudioRes = isTeamsActivated
       ? await teamsCollaboration.grantPermission(ctx, appIds.teamsAppId!, userInfo)
       : ok([] as ResourcePermission[]);
@@ -635,6 +671,13 @@ export async function grantPermission(
       );
       if (aadRes.isErr()) return err(aadRes.error);
       aadRes.value.forEach((r: ResourcePermission) => {
+        permissions.push(r);
+      });
+    }
+    if (agentTitleId) {
+      const result = await agentCollaboration.grantPermission(ctx, agentTitleId, userInfo);
+      if (result.isErr()) return err(result.error);
+      result.value.forEach((r: ResourcePermission) => {
         permissions.push(r);
       });
     }

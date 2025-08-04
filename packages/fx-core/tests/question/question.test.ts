@@ -23,6 +23,7 @@ import "mocha";
 import mockedEnv, { RestoreFn } from "mocked-env";
 import * as path from "path";
 import sinon from "sinon";
+import { FeatureFlags, featureFlagManager } from "../../src";
 import { setTools } from "../../src/common/globalVars";
 import { manifestUtils } from "../../src/component/driver/teamsApp/utils/ManifestUtils";
 import {
@@ -42,29 +43,30 @@ import {
   questionNodes,
 } from "../../src/question";
 import {
+  envQuestionCondition,
+  selectAadAppManifestQuestionNode,
+} from "../../src/question/collaborator";
+import {
   ActionStartOptions,
+  GCSelectOptions,
+  KnowledgeSearchTypeOptions,
   KnowledgeSourceOptions,
   QuestionNames,
   TeamsAppValidationOptions,
-  KnowledgeSearchTypeOptions,
-  GCSelectOptions,
 } from "../../src/question/constants";
 import {
   addPluginQuestionNode,
   apiSpecApiKeyQuestion,
   createNewEnvQuestionNode,
-  envQuestionCondition,
   isAadMainifestContainsPlaceholder,
   newEnvNameValidation,
   oauthQuestion,
-  selectAadAppManifestQuestionNode,
   selectAadManifestQuestion,
   selectLocalTeamsAppManifestQuestion,
   selectTeamsAppManifestQuestion,
 } from "../../src/question/other";
 import { QuestionTreeVisitor, traverse } from "../../src/ui/visitor";
 import { MockTools, MockUserInteraction, MockedAzureAccountProvider } from "../core/utils";
-import { featureFlagManager, FeatureFlags } from "../../src";
 
 const ui = new MockUserInteraction();
 export async function callFuncs(question: Question, inputs: Inputs, answer?: string) {

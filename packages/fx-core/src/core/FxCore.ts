@@ -949,7 +949,6 @@ export class FxCore {
 
     if (
       scope === ShareScopeOption.ShareAppWithSpecificUsers ||
-      scope === ShareScopeOption.ShareAppWithOwners ||
       operation === ShareOperationOption.RemoveShareAccessFromUsers
     ) {
       emails = (inputs[QuestionNames.UserEmail] as string).split(",").map((e) => e.trim());
@@ -977,41 +976,6 @@ export class FxCore {
       return shareWithTenant(mosToken, sharedTitleId);
     } else if (scope === ShareScopeOption.ShareAppWithSpecificUsers) {
       return addSharedUsers(mosToken, sharedTitleId, emails);
-    } else if (scope === ShareScopeOption.ShareAppWithOwners) {
-      const tokenProvider = TOOLS.tokenProvider.m365TokenProvider;
-      const appStudioTokenRes = await tokenProvider.getAccessToken({
-        scopes: AppStudioScopes,
-      });
-      if (appStudioTokenRes.isErr()) {
-        return err(appStudioTokenRes.error);
-      }
-      const appStudioToken = appStudioTokenRes.value;
-      for (const email of emails) {
-        const userInfo = await CollaborationUtil.getUserInfo(tokenProvider, email);
-        if (!userInfo) {
-          return err(new InputValidationError("shareWithOwner", `Invalid user: ${email}`));
-        }
-
-        // 1. grant TDP permission
-        await teamsDevPortalClient.grantPermission(
-          appStudioToken,
-          parseRes.value.teamsappId,
-          userInfo
-        );
-
-        // 2. grant mos permission
-        const res = await PackageService.GetSharedInstance().grantPermission(
-          mosToken,
-          sharedTitleId,
-          userInfo
-        );
-        if (res.isErr()) {
-          return err(res.error);
-        }
-      }
-      const msg = getLocalizedString("core.common.shareWithOwner.success", emails);
-      TOOLS.ui?.showMessage("info", msg, false);
-      return ok(undefined);
     } else {
       return err(new InputValidationError("shareOption", "Invalid share option"));
     }
