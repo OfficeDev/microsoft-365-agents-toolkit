@@ -331,8 +331,22 @@ export async function cleanRG() {
 
 // for local test
 async function main() {
-  const searchHelper = new AzSearchHelper("fxui-rg");
-  await searchHelper.createSearch();
-  console.log("endpoint: ", searchHelper.endpoint);
-  console.log("apiKey: ", searchHelper.apiKey);
+  const sqlCommands = [
+    `CREATE TABLE Todo
+       (
+           id INT IDENTITY PRIMARY KEY,
+           description NVARCHAR(128) NOT NULL,
+           objectId NVARCHAR(36),
+           channelOrChatId NVARCHAR(128),
+           isCompleted TinyInt NOT NULL default 0,
+       )`,
+  ];
+  const azSqlHelper = new AzSqlHelper("ivan-apim-test", sqlCommands);
+  const res = await azSqlHelper?.createSql();
+  console.log("SQL_ENDPOINT:", azSqlHelper.sqlEndpoint);
+  console.log("SQL_USER_NAME:", azSqlHelper.sqlAdmin);
+  console.log("SQL_PASSWORD:", azSqlHelper.sqlPassword);
+  console.log("SQL_DATABASE_NAME:", azSqlHelper.sqlDatabaseName);
 }
+
+main();
