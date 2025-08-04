@@ -1,4 +1,4 @@
-# 3.0.1
+# 3.1.0
 - Deprecation notice: This package will be deprecated by 2026-09. Users can follow the migration guide to migrate their apps.
 
 # 3.0.0
