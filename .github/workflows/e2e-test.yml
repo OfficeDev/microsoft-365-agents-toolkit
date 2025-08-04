@@ -195,7 +195,7 @@ jobs:
         with:
           node-version: 22
 
-      - name: Setup node for SPFx project
+      - name: Setup node for Retail project
         if: contains(matrix.cases, 'Retail')
         uses: actions/setup-node@v3
         with:
