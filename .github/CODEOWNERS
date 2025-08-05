@@ -98,8 +98,8 @@
 /packages/fx-core/src/component/driver/util/utils.ts @tecton @HuihuiWu-Microsoft
 /packages/fx-core/src/component/driver/teamsApp @HuihuiWu-Microsoft @jayzhang @wh-alice
 /packages/fx-core/src/component/feature/collaboration.ts @KennethBWSong @SLdragon
-/packages/fx-core/src/component/feature/createAuthFiles.ts @KennethBWSong
-/packages/fx-core/src/component/feature/sso.ts @KennethBWSong
+/packages/fx-core/src/component/feature/createAuthFiles.ts @Alive-Fish @wh-alice
+/packages/fx-core/src/component/feature/sso.ts @Alive-Fish @wh-alice
 /packages/fx-core/src/component/generator @Yukun-dong @hund030 @JerryYangKai @eriolchan
 /packages/fx-core/src/component/generator/copilotExtension @yuqizhou77 @jayzhang @anchenyi
 /packages/fx-core/src/component/generator/declarativeAgent @HuihuiWu-Microsoft @yuqizhou77 @tecton
@@ -113,7 +113,7 @@
 /packages/fx-core/src/core/middleware/projectMigrationV3 @jayzhang @tecton @wh-alice
 /packages/fx-core/src/core/middleware/utils/debug @qinzhouxu @llhmm01 @wh-alice
 /packages/fx-core/templates/core/v3Migration @jayzhang @tecton @wh-alice
-/packages/fx-core/templates/plugins/resource/aad/ @KennethBWSong
+/packages/fx-core/templates/plugins/resource/aad/ @Alive-Fish @wh-alice
 /packages/fx-core/templates/plugins/resource/appstudio @HuihuiWu-Microsoft @anchenyi @wh-alice
 /packages/fx-core/tests/common/samples.test.ts @tecton @wenytang-ms @wh-alice
 /packages/fx-core/tests/component/developerPortalScaffoldUtils.test.ts @HuihuiWu-Microsoft @yuqizhou77 @tecton @wh-alice
@@ -126,7 +126,7 @@
 /packages/fx-core/tests/component/driver/deploy/spfx @HuihuiWu-Microsoft @yuqizhou77 @wh-alice
 /packages/fx-core/tests/component/driver/script @Siglud @Yukun-dong @JerryYangKai @eriolchan
 /packages/fx-core/tests/component/driver/util/utils.test.ts @tecton @HuihuiWu-Microsoft
-/packages/fx-core/tests/component/feature @KennethBWSong
+/packages/fx-core/tests/component/feature @Alive-Fish @wh-alice
 /packages/fx-core/tests/component/generator/declarativeAgentGenerator.test.ts @HuihuiWu-Microsoft @yuqizhou77 @jayzhang
 /packages/fx-core/tests/component/generator/generator.test.ts @Yukun-dong @hund030 @JerryYangKai @eriolchan
 /packages/fx-core/tests/component/generator/officeAddinGenerator.test.ts @llhmm01 @tecton @wh-alice
@@ -207,19 +207,19 @@
 /templates/**/declarative-agent-with-action-from-scratch @tecton @wh-alice
 /templates/**/declarative-agent-with-action-from-scratch-bearer @tecton @wh-alice
 /templates/**/declarative-agent-with-action-from-scratch-oauth @tecton @wh-alice
-/templates/**/default-bot @JerryYangKai @eriolchan @Siglud @Yukun-dong @wh-alice
-/templates/**/default-bot-message-extension @yuqizhou77 @Yukun-dong @wh-alice
+/templates/**/default-bot @tecton @wh-alice
+/templates/**/default-bot-message-extension @yuqizhou77 @tecton @wh-alice
 /templates/**/empty @Alive-Fish @HuihuiWu-Microsoft @chagong @wh-alice
-/templates/**/link-unfurling @JerryYangKai @eriolchan @Siglud @Yukun-dong @wh-alice
+/templates/**/link-unfurling @tecton @wh-alice
 /templates/**/m365-message-extension @wh-alice @tecton
-/templates/**/message-extension @yuqizhou77 @Yukun-dong @wh-alice
-/templates/**/message-extension-action @JerryYangKai @eriolchan @Siglud @Yukun-dong @wh-alice
+/templates/**/message-extension @yuqizhou77 @tecton @wh-alice
+/templates/**/message-extension-action @tecton @wh-alice
 /templates/**/message-extension-search @JerryYangKai @eriolchan @Siglud @Yukun-dong @wh-alice
 /templates/**/message-extension-with-api-from-scratch @tecton @wh-alice
 /templates/**/message-extension-with-api-from-scratch-api-key @tecton @wh-alice
 /templates/**/message-extension-with-existing-api @yuqizhou77 @Alive-Fish @jayzhang @wh-alice
-/templates/**/non-sso-tab @hund030 @eriolchan @Yimin-Jin @wh-alice
-/templates/**/non-sso-tab-default-bot @hund030 @yuqizhou77 @wh-alice
+/templates/**/non-sso-tab @tecton @wh-alice
+/templates/**/non-sso-tab-default-bot @tecton @wh-alice
 /templates/**/non-sso-tab-ssr @Yimin-Jin @eriolchan @hund030 @wh-alice
 /templates/**/notification-express @wh-alice @tecton
 /templates/**/notification-http-timer-trigger @wh-alice @tecton
@@ -238,4 +238,4 @@
 /templates/vsc/* @wh-alice @tecton
 /templates/vsc/common/declarative-agent-typespec @Alive-Fish @yuqizhou77 @wh-alice
 /templates/vsc/python @wh-alice @tecton
-/templates/vsc/**/sso-tab-naa @KennethBWSong @SLdragon @wh-alice
+/templates/vsc/**/sso-tab-naa @tecton @wh-alice
