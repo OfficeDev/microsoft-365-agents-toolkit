@@ -43,7 +43,7 @@
 /packages/cli/src/commands/models/publish.ts @HuihuiWu-Microsoft @jayzhang
 /packages/cli/src/commands/models/entraAppUpdate.ts @tecton @HuihuiWu-Microsoft
 /packages/cli/src/commands/models/teamsapp @HuihuiWu-Microsoft @jayzhang @wh-alice
-/packages/cli/src/commands/models/upgrade.ts @blackchoey
+/packages/cli/src/commands/models/upgrade.ts @jayzhang @wh-alice
 /packages/cli/src/commands/models/validate.ts @HuihuiWu-Microsoft @jayzhang
 /packages/cli/src/commonlib @HuihuiWu-Microsoft @sherylueen @jayzhang @wh-alice
 /packages/cli/src/resource/commands.json @timngmsft @sffamily @therealjohn @supkasar
@@ -78,7 +78,7 @@
 /packages/fx-core/src/common/localizeUtils.ts @HuihuiWu-Microsoft @tecton @wh-alice
 /packages/fx-core/src/common/permissionInterface.ts @SLdragon @KennethBWSong
 /packages/fx-core/src/common/samples.ts @tecton @wenytang-ms @wh-alice
-/packages/fx-core/src/common/versionMetadata.ts @blackchoey
+/packages/fx-core/src/common/versionMetadata.ts @jayzhang @wh-alice
 /packages/fx-core/src/component/m365 @HuihuiWu-Microsoft @jayzhang @wh-alice
 /packages/fx-core/src/component/debugHandler @qinzhouxu @tecton @llhmm01 @wh-alice
 /packages/fx-core/src/component/deps-checker @qinzhouxu @tecton @llhmm01 @wh-alice
