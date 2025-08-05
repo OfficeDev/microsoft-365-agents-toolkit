@@ -706,7 +706,6 @@
   "core.share.removeAccess.operator": "Cannot remove permission of the operator. Email: %s.",
   "core.shareOperationQuestion.option.removeShareAccessFromUsers": "Remove access for selected user(s)",
   "core.shareOperationQuestion.option.shareWithUsers": "Share access with selected user(s)",
-  "core.shareOptionQuestion.option.shareWithOwners": "Share agent ownership with selected user(s)",
   "core.shareOptionQuestion.placeholder": "Select how to share the agent",
   "core.shareOptionQuestion.title": "Share the agent",
   "core.shareOptionQuestion.unshare.emails.title": "Email addresses of users for agent access removal",

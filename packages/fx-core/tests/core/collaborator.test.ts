@@ -13,13 +13,18 @@ import {
 import { assert } from "chai";
 import fs from "fs-extra";
 import "mocha";
-import mockedEnv, { RestoreFn } from "mocked-env";
+import mockedEnv from "mocked-env";
 import os from "os";
 import * as path from "path";
 import sinon from "sinon";
 import { CollaborationState } from "../../src/common/permissionInterface";
 import { SolutionError } from "../../src/component/constants";
-import { AadCollaboration, TeamsCollaboration } from "../../src/component/feature/collaboration";
+import * as shareUtils from "../../src/component/driver/share/utils";
+import {
+  AadCollaboration,
+  AgentCollaboration,
+  TeamsCollaboration,
+} from "../../src/component/feature/collaboration";
 import {
   CollaborationConstants,
   CollaborationUtil,
@@ -27,7 +32,7 @@ import {
   grantPermission,
   listCollaborator,
 } from "../../src/core/collaborator";
-import { QuestionNames } from "../../src/question";
+import { QuestionNames } from "../../src/question/constants";
 import { MockedV2Context } from "../plugins/solution/util";
 import { MockedAzureAccountProvider, MockedM365Provider, randomAppName } from "./utils";
 
@@ -49,6 +54,13 @@ describe("Collaborator APIs for V3", () => {
   });
 
   describe("listCollaborator", () => {
+    let inputs: InputsWithProjectPath;
+    beforeEach(() => {
+      inputs = {
+        platform: Platform.VSCode,
+        projectPath: path.join(os.tmpdir(), randomAppName()),
+      };
+    });
     afterEach(() => {
       sandbox.restore();
     });
@@ -162,6 +174,127 @@ describe("Collaborator APIs for V3", () => {
       const result = await listCollaborator(ctx, inputs, tokenProvider);
       assert.isTrue(result.isOk());
     });
+
+    it("happy path with agent", async () => {
+      sandbox.stub(tokenProvider.m365TokenProvider, "getJsonObject").resolves(
+        ok({
+          tid: "mock_project_tenant_id",
+          oid: "fake_oid",
+          unique_name: "fake_unique_name",
+          name: "fake_name",
+        })
+      );
+      const expectedTitleId = "test-agent-title";
+      sandbox
+        .stub(shareUtils, "parseShareAppActionYamlConfig")
+        .resolves(ok({ titleId: expectedTitleId, teamsappId: "", appId: "" }));
+      sandbox.stub(AgentCollaboration.prototype, "listCollaborator").resolves(
+        ok([
+          {
+            userObjectId: "fake-agent-user-id",
+            resourceId: expectedTitleId,
+            displayName: "fake-agent-display-name",
+            userPrincipalName: "fake-agent-upn",
+          },
+        ])
+      );
+      inputs[QuestionNames.collaborationAppType] = [CollaborationConstants.AgentOptionId];
+      const result = await listCollaborator(ctx, inputs, tokenProvider);
+      assert.isTrue(result.isOk());
+    });
+
+    it("should handle failed agent config parse", async () => {
+      sandbox.stub(tokenProvider.m365TokenProvider, "getJsonObject").resolves(
+        ok({
+          tid: "mock_project_tenant_id",
+          oid: "fake_oid",
+          unique_name: "fake_unique_name",
+          name: "fake_name",
+        })
+      );
+      inputs[QuestionNames.collaborationAppType] = [CollaborationConstants.AgentOptionId];
+      sandbox
+        .stub(shareUtils, "parseShareAppActionYamlConfig")
+        .resolves(err(new UserError("source", "name", "Failed to parse config")));
+      const result = await listCollaborator(ctx, inputs, tokenProvider);
+      assert.isTrue(result.isErr());
+    });
+
+    it("happy path with agent", async () => {
+      sandbox.stub(tokenProvider.m365TokenProvider, "getJsonObject").resolves(
+        ok({
+          tid: "mock_project_tenant_id",
+          oid: "fake_oid",
+          unique_name: "fake_unique_name",
+          name: "fake_name",
+        })
+      );
+      inputs[QuestionNames.collaborationAppType] = [CollaborationConstants.AgentOptionId];
+      sandbox.stub(TeamsCollaboration.prototype, "listCollaborator").resolves(
+        ok([
+          {
+            userObjectId: "fake-aad-user-object-id",
+            resourceId: "fake-resource-id",
+            displayName: "fake-display-name",
+            userPrincipalName: "fake-user-principal-name",
+          },
+        ])
+      );
+      const expectedTitleId = "test-agent-title";
+      sandbox
+        .stub(shareUtils, "parseShareAppActionYamlConfig")
+        .resolves(ok({ titleId: expectedTitleId, teamsappId: "", appId: "" }));
+      sandbox.stub(AgentCollaboration.prototype, "listCollaborator").resolves(
+        ok([
+          {
+            userObjectId: "fake-agent-user-id",
+            resourceId: expectedTitleId,
+            displayName: "fake-agent-display-name",
+            userPrincipalName: "fake-agent-upn",
+          },
+        ])
+      );
+      const result = await listCollaborator(ctx, inputs, tokenProvider);
+      assert.isTrue(result.isOk());
+    });
+
+    it("should handle agent config parse error", async () => {
+      sandbox.stub(tokenProvider.m365TokenProvider, "getJsonObject").resolves(
+        ok({
+          tid: "mock_project_tenant_id",
+          oid: "fake_oid",
+          unique_name: "fake_unique_name",
+          name: "fake_name",
+        })
+      );
+      inputs[QuestionNames.collaborationAppType] = [CollaborationConstants.AgentOptionId];
+      sandbox
+        .stub(shareUtils, "parseShareAppActionYamlConfig")
+        .resolves(err(new UserError("source", "name", "Failed to parse agent config")));
+      const result = await listCollaborator(ctx, inputs, tokenProvider);
+      assert.isTrue(result.isErr());
+    });
+
+    it("should handle agent list collaborator error", async () => {
+      sandbox.stub(tokenProvider.m365TokenProvider, "getJsonObject").resolves(
+        ok({
+          tid: "mock_project_tenant_id",
+          oid: "fake_oid",
+          unique_name: "fake_unique_name",
+          name: "fake_name",
+        })
+      );
+      inputs[QuestionNames.collaborationAppType] = [CollaborationConstants.AgentOptionId];
+      const expectedTitleId = "test-agent-title";
+      sandbox
+        .stub(shareUtils, "parseShareAppActionYamlConfig")
+        .resolves(ok({ titleId: expectedTitleId, teamsappId: "", appId: "" }));
+      sandbox
+        .stub(AgentCollaboration.prototype, "listCollaborator")
+        .resolves(err(new UserError("source", "name", "Failed to list agent collaborators")));
+      const result = await listCollaborator(ctx, inputs, tokenProvider);
+      assert.isTrue(result.isErr());
+    });
   });
 
   describe("checkPermission", () => {
@@ -251,7 +384,15 @@ describe("Collaborator APIs for V3", () => {
       assert.isTrue(result.isOk());
     });
   });
+
   describe("grantPermission", () => {
+    let inputs: InputsWithProjectPath;
+    beforeEach(() => {
+      inputs = {
+        platform: Platform.VSCode,
+        projectPath: path.join(os.tmpdir(), randomAppName()),
+      };
+    });
     it("should return NotProvisioned state if Teamsfx project hasn't been provisioned", async () => {
       sandbox.stub(CollaborationUtil, "getUserInfo").resolves({
         tenantId: "fake_tid",
@@ -448,6 +589,85 @@ describe("Collaborator APIs for V3", () => {
       inputs.email = "your_collaborator@yourcompany.com";
       const result = await grantPermission(ctx, inputs, tokenProvider);
       assert.isTrue(result.isOk());
+    });
+
+    it("happy path with agent permission", async () => {
+      sandbox
+        .stub(CollaborationUtil, "getUserInfo")
+        .onCall(0)
+        .resolves({
+          tenantId: "mock_project_tenant_id",
+          aadId: "aadId",
+          userPrincipalName: "userPrincipalName",
+          displayName: "displayName",
+          isAdministrator: true,
+        })
+        .onCall(1)
+        .resolves({
+          tenantId: "mock_project_tenant_id",
+          aadId: "aadId2",
+          userPrincipalName: "userPrincipalName2",
+          displayName: "displayName2",
+          isAdministrator: true,
+        });
+
+      const expectedTitleId = "test-agent-title";
+      inputs.email = "your_collaborator@yourcompany.com";
+      inputs.platform = Platform.CLI;
+      inputs[QuestionNames.collaborationAppType] = [CollaborationConstants.AgentOptionId];
+
+      sandbox
+        .stub(shareUtils, "parseShareAppActionYamlConfig")
+        .resolves(ok({ titleId: expectedTitleId, teamsappId: "", appId: "" }));
+      sandbox.stub(AgentCollaboration.prototype, "grantPermission").resolves(
+        ok([
+          {
+            name: "agent_app",
+            resourceId: expectedTitleId,
+            roles: ["Owner"],
+            type: "M365",
+          },
+        ])
+      );
+
+      const result = await grantPermission(ctx, inputs, tokenProvider);
+      assert.isTrue(result.isOk());
+      if (result.isOk()) {
+        const agentPermission = result.value.permissions?.find((p) => p.name === "agent_app");
+        assert.isDefined(agentPermission);
+        assert.equal(agentPermission?.resourceId, expectedTitleId);
+      }
+    });
+
+    it("should handle agent config parse error in grant permission", async () => {
+      sandbox
+        .stub(CollaborationUtil, "getUserInfo")
+        .onCall(0)
+        .resolves({
+          tenantId: "mock_project_tenant_id",
+          aadId: "aadId",
+          userPrincipalName: "userPrincipalName",
+          displayName: "displayName",
+          isAdministrator: true,
+        })
+        .onCall(1)
+        .resolves({
+          tenantId: "mock_project_tenant_id",
+          aadId: "aadId2",
+          userPrincipalName: "userPrincipalName2",
+          displayName: "displayName2",
+          isAdministrator: true,
+        });
+
+      inputs.email = "your_collaborator@yourcompany.com";
+      inputs[QuestionNames.collaborationAppType] = [CollaborationConstants.AgentOptionId];
+
+      sandbox
+        .stub(shareUtils, "parseShareAppActionYamlConfig")
+        .resolves(err(new UserError("source", "name", "Failed to parse agent config")));
+
+      const result = await grantPermission(ctx, inputs, tokenProvider);
+      assert.isTrue(result.isErr());
     });
   });
 

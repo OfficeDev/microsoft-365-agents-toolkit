@@ -306,6 +306,7 @@ export async function listCollaborator(
   const appIds = getAppIdsResult.value;
   let agentTitleId: string | undefined;
   if (
+    inputs[QuestionNames.collaborationAppType] &&
     inputs[QuestionNames.collaborationAppType].indexOf(CollaborationConstants.AgentOptionId) > -1
   ) {
     const parseRes = await parseShareAppActionYamlConfig(inputs.projectPath);
@@ -623,6 +624,7 @@ export async function grantPermission(
     const appIds = getAppIdsResult.value;
     let agentTitleId: string | undefined;
     if (
+      inputs[QuestionNames.collaborationAppType] &&
       inputs[QuestionNames.collaborationAppType].indexOf(CollaborationConstants.AgentOptionId) > -1
     ) {
       const parseRes = await parseShareAppActionYamlConfig(inputs.projectPath);
