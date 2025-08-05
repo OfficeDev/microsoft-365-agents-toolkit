@@ -180,7 +180,7 @@
 /packages/vscode-extension/README.md @therealjohn @sffamily
 /packages/vscode-extension/src/commonlib @HuihuiWu-Microsoft @sherylueen @wh-alice
 /packages/vscode-extension/src/debug @qinzhouxu @llhmm01 @wh-alice
-/packages/vscode-extension/src/handlers/aadManifestHandlers.ts @blackchoey @wenytang-ms @KennethBWSong
+/packages/vscode-extension/src/handlers/aadManifestHandlers.ts @tecton @HuihuiWu-Microsoft
 /packages/vscode-extension/src/handlers/accounts @HuihuiWu-Microsoft @sherylueen @wh-alice
 /packages/vscode-extension/src/handlers/collaboratorHandlers.ts @KennethBWSong @SLdragon
 /packages/vscode-extension/src/officeChat @llhmm01 @tecton @wh-alice
