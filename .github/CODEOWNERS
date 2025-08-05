@@ -192,17 +192,17 @@
 
 /templates/* @tecton @wh-alice
 /templates/**/basic-custom-engine-agent @wh-alice @tecton
-/templates/**/command-and-response @wh-alice  @nliu-ms
+/templates/**/command-and-response @wh-alice @tecton @yuqizhou77
 /templates/**/copilot-gpt-existing-api @tecton @wh-alice
 /templates/**/copilot-gpt-from-scratch-plugin @tecton @wh-alice
 /templates/**/copilot-plugin-existing-api-api-key @yuqizhou77 @Alive-Fish @jayzhang @wh-alice
-/templates/**/custom-copilot-assistant-assistants-api @wh-alice @nliu-ms
-/templates/**/custom-copilot-assistant-new @wh-alice @nliu-ms
-/templates/**/custom-copilot-basic @wh-alice @nliu-ms
-/templates/**/custom-copilot-rag-azure-ai-search @wh-alice @nliu-ms
-/templates/**/custom-copilot-rag-customize-api @wh-alice @nliu-ms
-/templates/**/custom-copilot-rag-customize @wh-alice @nliu-ms
-/templates/**/custom-copilot-rag-microsoft365 @wh-alice @nliu-ms
+/templates/**/custom-copilot-assistant-assistants-api @wh-alice @yuqizhou77
+/templates/**/custom-copilot-assistant-new @wh-alice @yuqizhou77
+/templates/**/custom-copilot-basic @wh-alice @yuqizhou77
+/templates/**/custom-copilot-rag-azure-ai-search @wh-alice @yuqizhou77
+/templates/**/custom-copilot-rag-customize-api @wh-alice @yuqizhou77
+/templates/**/custom-copilot-rag-customize @wh-alice @yuqizhou77
+/templates/**/custom-copilot-rag-microsoft365 @wh-alice @yuqizhou77
 /templates/**/dashboard-tab @tecton @wh-alice
 /templates/**/declarative-agent-basic @tecton @wh-alice
 /templates/**/declarative-agent-with-action-from-existing-api @yuqizhou77 @Alive-Fish @jayzhang @anchenyi @wh-alice
@@ -213,7 +213,7 @@
 /templates/**/default-bot-message-extension @yuqizhou77 @Yukun-dong @wh-alice
 /templates/**/empty @Alive-Fish @HuihuiWu-Microsoft @chagong @wh-alice
 /templates/**/link-unfurling @JerryYangKai @eriolchan @Siglud @Yukun-dong @wh-alice
-/templates/**/m365-message-extension @wh-alice @nliu-ms
+/templates/**/m365-message-extension @wh-alice @tecton
 /templates/**/message-extension @yuqizhou77 @Yukun-dong @wh-alice
 /templates/**/message-extension-action @JerryYangKai @eriolchan @Siglud @Yukun-dong @wh-alice
 /templates/**/message-extension-search @JerryYangKai @eriolchan @Siglud @Yukun-dong @wh-alice
@@ -223,17 +223,17 @@
 /templates/**/non-sso-tab @hund030 @eriolchan @Yimin-Jin @wh-alice
 /templates/**/non-sso-tab-default-bot @hund030 @yuqizhou77 @wh-alice
 /templates/**/non-sso-tab-ssr @Yimin-Jin @eriolchan @hund030 @wh-alice
-/templates/**/notification-express @wh-alice @nliu-ms
-/templates/**/notification-http-timer-trigger @wh-alice @nliu-ms
-/templates/**/notification-http-trigger @wh-alice @nliu-ms
-/templates/**/notification-timer-trigger @wh-alice @nliu-ms
-/templates/**/notification-webapi @kimizhu @dooriya @swatDong @wh-alice
+/templates/**/notification-express @wh-alice @tecton
+/templates/**/notification-http-timer-trigger @wh-alice @tecton
+/templates/**/notification-http-trigger @wh-alice @tecton
+/templates/**/notification-timer-trigger @wh-alice @tecton
+/templates/**/notification-webapi @wh-alice @tecton
 /templates/**/office-* @llhmm01 @tecton @wh-alice
 /templates/**/spfx-* @HuihuiWu-Microsoft @yuqizhou77 @wh-alice
 /templates/**/sso-tab @hund030 @eriolchan @Yimin-Jin @wh-alice
 /templates/**/sso-tab-ssr @Yimin-Jin @eriolchan @hund030 @wh-alice
 /templates/**/weather-agent @wh-alice @tecton
-/templates/**/workflow @wh-alice @nliu-ms
+/templates/**/workflow @wh-alice @tecton @yuqizhou77
 /templates/scripts @hund030 @eriolchan @huimiu @wh-alice
 /templates/vs/* @wh-alice @tecton
 /templates/vs/csharp/custom-copilot-* @wh-alice @tecton
