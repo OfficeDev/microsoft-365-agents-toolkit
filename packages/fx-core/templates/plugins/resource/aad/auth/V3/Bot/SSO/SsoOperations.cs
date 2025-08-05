@@ -1,7 +1,7 @@
-using Microsoft.Bot.Builder;
+using bowsong080401botsso.Configuration;
+using Microsoft.Agents.Builder;
 using Microsoft.Graph;
 using Microsoft.Kiota.Abstractions.Authentication;
-using Microsoft.TeamsFx.Configuration;
 
 namespace {{YOUR_NAMESPACE}}.SSO;
 
