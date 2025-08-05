@@ -77,7 +77,7 @@
 /packages/fx-core/src/client/teamsDevPortalClient.ts @HuihuiWu-Microsoft @jayzhang @wh-alice
 /packages/fx-core/src/common/localizeUtils.ts @HuihuiWu-Microsoft @tecton @wh-alice
 /packages/fx-core/src/common/permissionInterface.ts @tecton @wh-alice
-/packages/fx-core/src/common/samples.ts @tecton @wenytang-ms @wh-alice
+/packages/fx-core/src/common/samples.ts @tecton @HuihuiWu-Microsoft @wh-alice
 /packages/fx-core/src/common/versionMetadata.ts @jayzhang @wh-alice
 /packages/fx-core/src/component/m365 @HuihuiWu-Microsoft @jayzhang @wh-alice
 /packages/fx-core/src/component/debugHandler @qinzhouxu @tecton @llhmm01 @wh-alice
