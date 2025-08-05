@@ -59,21 +59,21 @@
 /packages/function-extension @wh-alice
 
 /packages/fx-core @tecton @llhmm01 @wh-alice
-/packages/fx-core/.eslint* @tecton @wenytang-ms
-/packages/fx-core/.gitignore @tecton @wenytang-ms
-/packages/fx-core/.mocharc.js @tecton @wenytang-ms
-/packages/fx-core/.nycrc @tecton @wenytang-ms
-/packages/fx-core/.prettier* @tecton @wenytang-ms
-/packages/fx-core/.vscode/launch.json @tecton @wenytang-ms
-/packages/fx-core/CONTRIBUTING.md @tecton @wenytang-ms
-/packages/fx-core/LICENSE.txt @tecton @wenytang-ms
-/packages/fx-core/NOTICE.txt @tecton @wenytang-ms
-/packages/fx-core/package-lock.json @tecton @wenytang-ms
-/packages/fx-core/package.json @tecton @wenytang-ms
-/packages/fx-core/README.md @tecton @wenytang-ms
+/packages/fx-core/.eslint* @tecton @llhmm01 @qinzhouxu
+/packages/fx-core/.gitignore @tecton @llhmm01 @qinzhouxu
+/packages/fx-core/.mocharc.js @tecton @llhmm01 @qinzhouxu
+/packages/fx-core/.nycrc @tecton @llhmm01 @qinzhouxu
+/packages/fx-core/.prettier* @tecton @llhmm01 @qinzhouxu
+/packages/fx-core/.vscode/launch.json @tecton @llhmm01 @qinzhouxu
+/packages/fx-core/CONTRIBUTING.md @tecton @llhmm01 @qinzhouxu
+/packages/fx-core/LICENSE.txt @tecton @llhmm01 @qinzhouxu
+/packages/fx-core/NOTICE.txt @tecton @llhmm01 @qinzhouxu
+/packages/fx-core/package-lock.json @tecton @llhmm01 @qinzhouxu
+/packages/fx-core/package.json @tecton @llhmm01 @qinzhouxu
+/packages/fx-core/README.md @tecton @llhmm01 @qinzhouxu
 /packages/fx-core/resource/package.nls.json @timngmsft @sffamily @therealjohn @supkasar
 /packages/fx-core/resource/package.nls.*.json @HuihuiWu-Microsoft @tecton @wh-alice
-/packages/fx-core/resource/yaml-schema @tecton @wenytang-ms @wh-alice
+/packages/fx-core/resource/yaml-schema @tecton @wh-alice
 /packages/fx-core/src/client/teamsDevPortalClient.ts @HuihuiWu-Microsoft @jayzhang @wh-alice
 /packages/fx-core/src/common/localizeUtils.ts @HuihuiWu-Microsoft @tecton @wh-alice
 /packages/fx-core/src/common/permissionInterface.ts @tecton @wh-alice
@@ -115,7 +115,7 @@
 /packages/fx-core/templates/core/v3Migration @jayzhang @tecton @wh-alice
 /packages/fx-core/templates/plugins/resource/aad/ @Alive-Fish @wh-alice
 /packages/fx-core/templates/plugins/resource/appstudio @HuihuiWu-Microsoft @anchenyi @wh-alice
-/packages/fx-core/tests/common/samples.test.ts @tecton @wenytang-ms @wh-alice
+/packages/fx-core/tests/common/samples.test.ts @tecton @wh-alice
 /packages/fx-core/tests/component/developerPortalScaffoldUtils.test.ts @HuihuiWu-Microsoft @yuqizhou77 @tecton @wh-alice
 /packages/fx-core/tests/component/driver/aad @tecton @HuihuiWu-Microsoft
 /packages/fx-core/tests/component/driver/apiKey @yuqizhou77 @Alive-Fish @wh-alice
