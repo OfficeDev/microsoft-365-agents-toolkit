@@ -104,7 +104,7 @@
 /packages/fx-core/src/component/generator/copilotExtension @yuqizhou77 @jayzhang @anchenyi
 /packages/fx-core/src/component/generator/declarativeAgent @HuihuiWu-Microsoft @yuqizhou77 @tecton
 /packages/fx-core/src/component/generator/officeAddin @llhmm01 @tecton @wh-alice
-/packages/fx-core/src/component/generator/openApiSpec @yuqizhou77 @nliu-ms @Alive-Fish @HuihuiWu-Microsoft @jayzhang @wh-alice
+/packages/fx-core/src/component/generator/openApiSpec @yuqizhou77 @Alive-Fish @HuihuiWu-Microsoft @jayzhang @wh-alice
 /packages/fx-core/src/component/generator/other/ssrTabGenerator.ts @Yimin-Jin @hund030 @jayzhang
 /packages/fx-core/src/component/generator/other/tdpGenerator.ts @HuihuiWu-Microsoft @tecton @wh-alice
 /packages/fx-core/src/component/generator/spfx @HuihuiWu-Microsoft @yuqizhou77 @wh-alice
