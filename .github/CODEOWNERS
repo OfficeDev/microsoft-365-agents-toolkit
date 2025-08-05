@@ -111,9 +111,9 @@
 /packages/fx-core/src/component/generator/templateNames.ts @tecton @jayzhang 
 /packages/fx-core/src/component/generator/templates @tecton @jayzhang
 /packages/fx-core/src/component/resource/aadApp @KennethBWSong @SLdragon
-/packages/fx-core/src/core/middleware/projectMigrationV3 @xzf0587 @frankqianms @blackchoey @tecton @wh-alice
+/packages/fx-core/src/core/middleware/projectMigrationV3 @jayzhang @tecton @wh-alice
 /packages/fx-core/src/core/middleware/utils/debug @qinzhouxu @llhmm01 @wh-alice
-/packages/fx-core/templates/core/v3Migration @xzf0587 @frankqianms @blackchoey @tecton @wh-alice
+/packages/fx-core/templates/core/v3Migration @jayzhang @tecton @wh-alice
 /packages/fx-core/templates/plugins/resource/aad/ @KennethBWSong @xzf0587
 /packages/fx-core/templates/plugins/resource/appstudio @HuihuiWu-Microsoft @nliu-ms @anchenyi @wh-alice
 /packages/fx-core/tests/common/samples.test.ts @tecton @wenytang-ms @wh-alice
@@ -137,12 +137,12 @@
 /packages/fx-core/tests/component/util/azureAccountMock.ts @HuihuiWu-Microsoft @sherylueen @wh-alice
 /packages/fx-core/tests/core/collaborator.test.ts @KennethBWSong @SLdragon
 /packages/fx-core/tests/core/middleware/debug @qinzhouxu @llhmm01 @wh-alice
-/packages/fx-core/tests/core/middleware/migration @xzf0587 @frankqianms @blackchoey @tecton @wh-alice
-/packages/fx-core/tests/core/middleware/projectVersionChecker.test.ts @xzf0587 @frankqianms @blackchoey @tecton @wh-alice
-/packages/fx-core/tests/core/middleware/testAssets @xzf0587 @frankqianms @blackchoey @tecton @wh-alice
+/packages/fx-core/tests/core/middleware/migration @jayzhang @tecton @wh-alice
+/packages/fx-core/tests/core/middleware/projectVersionChecker.test.ts @jayzhang @tecton @wh-alice
+/packages/fx-core/tests/core/middleware/testAssets @jayzhang @tecton @wh-alice
 /packages/fx-core/tests/plugins/resource/appstudio @HuihuiWu-Microsoft @yuqizhou77 @wh-alice
 /packages/fx-core/tests/plugins/resource/spfx @HuihuiWu-Microsoft @yuqizhou77 @wh-alice
-/packages/fx-core/tests/samples/sampleV3 @xzf0587 @wenytang-ms @frankqianms @blackchoey @tecton @wh-alice
+/packages/fx-core/tests/samples/sampleV3 @jayzhang @tecton @wh-alice
 
 /packages/manifest/ @tecton @llhmm01 @wh-alice
 
