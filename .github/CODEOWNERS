@@ -36,9 +36,9 @@
 /packages/cli/src/commands/models/m365Sideloading.ts @HuihuiWu-Microsoft @jayzhang
 /packages/cli/src/commands/models/m365Unacquire.ts @HuihuiWu-Microsoft @jayzhang
 /packages/cli/src/commands/models/package.ts @HuihuiWu-Microsoft @jayzhang
-/packages/cli/src/commands/models/permission.ts @KennethBWSong @SLdragon
-/packages/cli/src/commands/models/permissionGrant.ts @KennethBWSong @SLdragon
-/packages/cli/src/commands/models/permissionStatus.ts @KennethBWSong @SLdragon
+/packages/cli/src/commands/models/permission.ts @tecton @wh-alice
+/packages/cli/src/commands/models/permissionGrant.ts @tecton @wh-alice
+/packages/cli/src/commands/models/permissionStatus.ts @tecton @wh-alice
 /packages/cli/src/commands/models/preview.ts @swatDong @kuojianlu @kimizhu
 /packages/cli/src/commands/models/publish.ts @HuihuiWu-Microsoft @jayzhang
 /packages/cli/src/commands/models/entraAppUpdate.ts @tecton @HuihuiWu-Microsoft
@@ -76,7 +76,7 @@
 /packages/fx-core/resource/yaml-schema @tecton @wenytang-ms @wh-alice
 /packages/fx-core/src/client/teamsDevPortalClient.ts @HuihuiWu-Microsoft @jayzhang @wh-alice
 /packages/fx-core/src/common/localizeUtils.ts @HuihuiWu-Microsoft @tecton @wh-alice
-/packages/fx-core/src/common/permissionInterface.ts @SLdragon @KennethBWSong
+/packages/fx-core/src/common/permissionInterface.ts @tecton @wh-alice
 /packages/fx-core/src/common/samples.ts @tecton @wenytang-ms @wh-alice
 /packages/fx-core/src/common/versionMetadata.ts @jayzhang @wh-alice
 /packages/fx-core/src/component/m365 @HuihuiWu-Microsoft @jayzhang @wh-alice
@@ -97,7 +97,7 @@
 /packages/fx-core/src/component/driver/typeSpec @yuqizhou77 @Alive-Fish @wh-alice
 /packages/fx-core/src/component/driver/util/utils.ts @tecton @HuihuiWu-Microsoft
 /packages/fx-core/src/component/driver/teamsApp @HuihuiWu-Microsoft @jayzhang @wh-alice
-/packages/fx-core/src/component/feature/collaboration.ts @KennethBWSong @SLdragon
+/packages/fx-core/src/component/feature/collaboration.ts @tecton @wh-alice
 /packages/fx-core/src/component/feature/createAuthFiles.ts @Alive-Fish @wh-alice
 /packages/fx-core/src/component/feature/sso.ts @Alive-Fish @wh-alice
 /packages/fx-core/src/component/generator @Yukun-dong @hund030 @JerryYangKai @eriolchan
@@ -133,7 +133,7 @@
 /packages/fx-core/tests/component/generator/openApiSpec @yuqizhou77 @nliu-ms @Alive-Fish @jayzhang @HuihuiWu-Microsoft @wh-alice
 /packages/fx-core/tests/component/generator/spfxGenerator.test.ts @HuihuiWu-Microsoft @yuqizhou77 @wh-alice
 /packages/fx-core/tests/component/util/azureAccountMock.ts @HuihuiWu-Microsoft @sherylueen @wh-alice
-/packages/fx-core/tests/core/collaborator.test.ts @KennethBWSong @SLdragon
+/packages/fx-core/tests/core/collaborator.test.ts @tecton @wh-alice
 /packages/fx-core/tests/core/middleware/debug @qinzhouxu @llhmm01 @wh-alice
 /packages/fx-core/tests/core/middleware/migration @jayzhang @tecton @wh-alice
 /packages/fx-core/tests/core/middleware/projectVersionChecker.test.ts @jayzhang @tecton @wh-alice
@@ -160,7 +160,7 @@
 
 /packages/tests/src/e2e/bot @JerryYangKai @eriolchan @Siglud @Yukun-dong
 /packages/tests/src/e2e/bot/tdpIntegrationTemplates @yuqizhou77 @HuihuiWu-Microsoft
-/packages/tests/src/e2e/collaboration @KennethBWSong @SLdragon
+/packages/tests/src/e2e/collaboration @tecton @wh-alice
 /packages/tests/src/e2e/debug @kimizhu @swatDong @kuojianlu
 /packages/tests/src/e2e/frontend @hund030 @eriolchan @huimiu
 /packages/tests/src/e2e/m365 @kimizhu @swatDong @kuojianlu
@@ -182,7 +182,7 @@
 /packages/vscode-extension/src/debug @qinzhouxu @llhmm01 @wh-alice
 /packages/vscode-extension/src/handlers/aadManifestHandlers.ts @tecton @HuihuiWu-Microsoft
 /packages/vscode-extension/src/handlers/accounts @HuihuiWu-Microsoft @sherylueen @wh-alice
-/packages/vscode-extension/src/handlers/collaboratorHandlers.ts @KennethBWSong @SLdragon
+/packages/vscode-extension/src/handlers/collaboratorHandlers.ts @tecton @wh-alice
 /packages/vscode-extension/src/officeChat @llhmm01 @tecton @wh-alice
 /packages/vscode-extension/src/pluginDebugger @qinzhouxu @llhmm01 @wh-alice
 /packages/vscode-extension/test/localdebug @qinzhouxu @llhmm01 @wh-alice
