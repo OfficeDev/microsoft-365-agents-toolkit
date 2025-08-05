@@ -22,6 +22,7 @@ describe("TemplateGenerator", () => {
       {
         [QuestionNames.Capabilities]: VSCapabilityOptions.tab().id,
         [QuestionNames.ProgrammingLanguage]: ProgrammingLanguage.CSharp,
+        [QuestionNames.SolutionName]: "TestSolution",
         targetFramework: "net8.0",
       },
       TemplateNames.SsoTabSSR,
