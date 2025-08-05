@@ -44,10 +44,6 @@ export const shareCommand: CLICommand = {
       command: `${process.env.TEAMSFX_CLI_BIN_NAME} share --scope users --email 'a@example.com,b@example.com' -i false`,
       description: "Share the agent with specific users",
     },
-    {
-      command: `${process.env.TEAMSFX_CLI_BIN_NAME} share --scope owners --email 'a@example.com,b@example.com' -i false`,
-      description: "Share the ownership of agent with selected users",
-    },
   ],
   commands: [shareRemoveCommand],
 };
