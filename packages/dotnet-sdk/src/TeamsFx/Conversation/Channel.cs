@@ -10,6 +10,7 @@
     /// <remarks>
     /// It's recommended to get channels from <see cref="TeamsBotInstallation.GetChannelsAsync"/>.
     /// </remarks>
+    [Obsolete("This package will be deprecated by 2026-09. Please use Microsoft 365 Agents SDK (https://github.com/microsoft/Agents-for-net) instead.")]
     public class Channel : INotificationTarget
     {
         /// <summary>

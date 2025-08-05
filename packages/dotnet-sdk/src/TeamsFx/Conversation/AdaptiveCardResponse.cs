@@ -6,6 +6,7 @@ namespace Microsoft.TeamsFx.Conversation
     /// <summary>
     /// Options used to control how the response card will be sent to users.
     /// </summary>
+    [Obsolete("This package will be deprecated by 2026-09. Please use Microsoft 365 Agents SDK (https://github.com/microsoft/Agents-for-net) instead.")]
     public enum AdaptiveCardResponse
     {
         /// <summary>

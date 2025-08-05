@@ -8,6 +8,7 @@ namespace Microsoft.TeamsFx.Conversation
     /// <summary>
     /// Represents the command message received from Teams.
     /// </summary>
+    [Obsolete("This package will be deprecated by 2026-09. Please use Microsoft 365 Agents SDK (https://github.com/microsoft/Agents-for-net) instead.")]
     public class CommandMessage
     {
         /// <summary>

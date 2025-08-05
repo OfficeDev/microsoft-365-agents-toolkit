@@ -8,6 +8,7 @@ namespace Microsoft.TeamsFx.Conversation
     /// <summary>
     /// Represents the options used to initialize a <see cref="ConversationBot"/>.
     /// </summary>
+    [Obsolete("This package will be deprecated by 2026-09. Please use Microsoft 365 Agents SDK (https://github.com/microsoft/Agents-for-net) instead.")]
     public class ConversationOptions
     {
         /// <summary>

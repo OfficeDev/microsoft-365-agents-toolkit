@@ -255,6 +255,12 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
 
+      - name: Setup node for Retail project
+        if: contains(matrix.cases, 'Retail')
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
       - name: Setup dotnet
         uses: actions/setup-dotnet@v3
         with:
