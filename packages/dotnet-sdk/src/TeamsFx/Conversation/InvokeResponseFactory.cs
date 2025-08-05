@@ -9,6 +9,7 @@ namespace Microsoft.TeamsFx.Conversation
     /// <summary>
     /// Contains utility methods for various invoke response types for an adaptiveCard/action invoke response.
     /// </summary>
+    [Obsolete("This package will be deprecated by 2026-09. Please use Microsoft 365 Agents SDK (https://github.com/microsoft/Agents-for-net) instead.")]
     public static class InvokeResponseFactory
     {
         /// <summary>

@@ -8,6 +8,7 @@ namespace Microsoft.TeamsFx.Conversation
     /// <summary>
     /// Defines a contract that represents a command handler that can handle commands received from Teams.
     /// </summary>
+    [Obsolete("This package will be deprecated by 2026-09. Please use Microsoft 365 Agents SDK (https://github.com/microsoft/Agents-for-net) instead.")]
     public interface ITeamsCommandHandler
     {
 

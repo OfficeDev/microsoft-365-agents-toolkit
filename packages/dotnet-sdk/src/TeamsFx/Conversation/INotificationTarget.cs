@@ -6,6 +6,7 @@ namespace Microsoft.TeamsFx.Conversation
     /// <summary>
     /// Represent a notification target.
     /// </summary>
+    [Obsolete("This package will be deprecated by 2026-09. Please use Microsoft 365 Agents SDK (https://github.com/microsoft/Agents-for-net) instead.")]
     public interface INotificationTarget
     {
         /// <summary>
