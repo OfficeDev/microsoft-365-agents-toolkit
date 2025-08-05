@@ -85,16 +85,16 @@
 /packages/fx-core/src/component/developerPortalScaffoldUtils.ts @HuihuiWu-Microsoft @yuqizhou77 @tecton @wh-alice
 /packages/fx-core/src/component/driver/aad @blackchoey @wenytang-ms @KennethBWSong
 /packages/fx-core/tests/component/driver/add @HuihuiWu-Microsoft @yuqizhou77 @wh-alice
-/packages/fx-core/src/component/driver/apiKey @KennethBWSong @SLdragon
-/packages/fx-core/src/component/driver/oauth @KennethBWSong @SLdragon
-/packages/fx-core/src/component/driver/typeSpec @KennethBWSong @SLdragon @wh-alice
+/packages/fx-core/src/component/driver/apiKey @Alive-Fish @yuqizhou77 @wh-alice
+/packages/fx-core/src/component/driver/oauth @Alive-Fish @yuqizhou77 @wh-alice
+/packages/fx-core/src/component/driver/typeSpec @Alive-Fish @yuqizhou77 @wh-alice
 /packages/fx-core/src/component/driver/arm @blackchoey
 /packages/fx-core/src/component/driver/botAadApp @blackchoey @wenytang-ms @KennethBWSong
 /packages/fx-core/src/component/driver/deploy/azure @Siglud @Yukun-dong @JerryYangKai @eriolchan
 /packages/fx-core/src/component/driver/deploy/spfx @HuihuiWu-Microsoft @yuqizhou77 @wh-alice
-/packages/fx-core/src/component/driver/oauth @KennethBWSong @SLdragon
+/packages/fx-core/src/component/driver/oauth @Alive-Fish @yuqizhou77 @wh-alice
 /packages/fx-core/src/component/driver/script/ @Siglud @Yukun-dong @JerryYangKai @eriolchan
-/packages/fx-core/src/component/driver/typeSpec @KennethBWSong @SLdragon @wh-alice
+/packages/fx-core/src/component/driver/typeSpec @yuqizhou77 @Alive-Fish @wh-alice
 /packages/fx-core/src/component/driver/util/utils.ts @blackchoey
 /packages/fx-core/src/component/driver/teamsApp @HuihuiWu-Microsoft @jayzhang @wh-alice
 /packages/fx-core/src/component/feature/collaboration.ts @KennethBWSong @SLdragon
@@ -104,7 +104,7 @@
 /packages/fx-core/src/component/generator/copilotExtension @yuqizhou77 @jayzhang @anchenyi
 /packages/fx-core/src/component/generator/declarativeAgent @HuihuiWu-Microsoft @yuqizhou77 @tecton
 /packages/fx-core/src/component/generator/officeAddin @llhmm01 @tecton @wh-alice
-/packages/fx-core/src/component/generator/openApiSpec @yuqizhou77 @Alive-Fish @HuihuiWu-Microsoft @jayzhang @SLdragon @KennethBWSong
+/packages/fx-core/src/component/generator/openApiSpec @yuqizhou77 @Alive-Fish @HuihuiWu-Microsoft @jayzhang @wh-alice
 /packages/fx-core/src/component/generator/other/ssrTabGenerator.ts @Yimin-Jin @hund030 @jayzhang
 /packages/fx-core/src/component/generator/other/tdpGenerator.ts @HuihuiWu-Microsoft @tecton @wh-alice
 /packages/fx-core/src/component/generator/spfx @HuihuiWu-Microsoft @yuqizhou77 @wh-alice
@@ -119,20 +119,19 @@
 /packages/fx-core/tests/common/samples.test.ts @tecton @wenytang-ms @wh-alice
 /packages/fx-core/tests/component/developerPortalScaffoldUtils.test.ts @HuihuiWu-Microsoft @yuqizhou77 @tecton @wh-alice
 /packages/fx-core/tests/component/driver/aad @blackchoey @wenytang-ms @KennethBWSong
-/packages/fx-core/tests/component/driver/apiKey @KennethBWSong @SLdragon
-/packages/fx-core/tests/component/driver/oauth @KennethBWSong @SLdragon
+/packages/fx-core/tests/component/driver/apiKey @yuqizhou77 @Alive-Fish @wh-alice
+/packages/fx-core/tests/component/driver/oauth @yuqizhou77 @Alive-Fish @wh-alice
 /packages/fx-core/tests/component/driver/arm @blackchoey
 /packages/fx-core/tests/component/driver/botAadApp @blackchoey @wenytang-ms @KennethBWSong
 /packages/fx-core/tests/component/driver/deploy/azure/ @Siglud @Yukun-dong @JerryYangKai @eriolchan
 /packages/fx-core/tests/component/driver/deploy/spfx @HuihuiWu-Microsoft @yuqizhou77 @wh-alice
-/packages/fx-core/tests/component/driver/oauth @KennethBWSong @SLdragon
 /packages/fx-core/tests/component/driver/script @Siglud @Yukun-dong @JerryYangKai @eriolchan
 /packages/fx-core/tests/component/driver/util/utils.test.ts @blackchoey
 /packages/fx-core/tests/component/feature @KennethBWSong
 /packages/fx-core/tests/component/generator/declarativeAgentGenerator.test.ts @HuihuiWu-Microsoft @yuqizhou77 @jayzhang
 /packages/fx-core/tests/component/generator/generator.test.ts @Yukun-dong @hund030 @JerryYangKai @eriolchan
 /packages/fx-core/tests/component/generator/officeAddinGenerator.test.ts @llhmm01 @tecton @wh-alice
-/packages/fx-core/tests/component/generator/openApiSpec @yuqizhou77 @Alive-Fish @jayzhang @HuihuiWu-Microsoft
+/packages/fx-core/tests/component/generator/openApiSpec @yuqizhou77 @nliu-ms @Alive-Fish @jayzhang @HuihuiWu-Microsoft @wh-alice
 /packages/fx-core/tests/component/generator/spfxGenerator.test.ts @HuihuiWu-Microsoft @yuqizhou77 @wh-alice
 /packages/fx-core/tests/component/util/azureAccountMock.ts @HuihuiWu-Microsoft @sherylueen @wh-alice
 /packages/fx-core/tests/core/collaborator.test.ts @KennethBWSong @SLdragon
@@ -156,7 +155,7 @@
 
 /packages/simpleauth @blackchoey @wenytang-ms
 
-/packages/spec-parser/ @KennethBWSong @SLdragon @wh-alice
+/packages/spec-parser/ @Alive-Fish @yuqizhou77 @wh-alice
 
 /packages/mcp-server/ @chagong @Alive-Fish @yuqizhou77
 
@@ -172,8 +171,8 @@
 /packages/tests/src/e2e/multienv @a1exwang @dooriya @qinezh @xiaolang124 @kimizhu
 /packages/tests/src/e2e/samples @tecton @ayachensiyuan
 /packages/tests/src/e2e/scaffold @hund030 @eriolchan @huimiu
-/packages/tests/src/e2e/scaffold/CopilotPluginFromScratch.tests.ts @yuqizhou77 @SLdragon
-/packages/tests/src/e2e/scaffold/CopilotPluginFromExistingApi.tests.ts @yuqizhou77 @SLdragon
+/packages/tests/src/e2e/scaffold/CopilotPluginFromScratch.tests.ts @yuqizhou77 @Alive-Fish @wh-alice
+/packages/tests/src/e2e/scaffold/CopilotPluginFromExistingApi.tests.ts @yuqizhou77 @Alive-Fish @wh-alice
 
 /packages/vscode-extension @tecton @HuihuiWu-Microsoft @wh-alice
 /packages/vscode-extension/CHANGELOG.md @therealjohn @sffamily
@@ -238,6 +237,6 @@
 /templates/vs/* @wh-alice @tecton
 /templates/vs/csharp/custom-copilot-* @wh-alice @tecton
 /templates/vsc/* @wh-alice @tecton
-/templates/vsc/common/declarative-agent-typespec @KennethBWSong @SLdragon @wh-alice
+/templates/vsc/common/declarative-agent-typespec @Alive-Fish @yuqizhou77 @wh-alice
 /templates/vsc/python @wh-alice @tecton
 /templates/vsc/**/sso-tab-naa @KennethBWSong @SLdragon @wh-alice
