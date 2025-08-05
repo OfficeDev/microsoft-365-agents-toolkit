@@ -235,9 +235,9 @@
 /templates/**/weather-agent @wh-alice @tecton
 /templates/**/workflow @wh-alice @nliu-ms
 /templates/scripts @hund030 @eriolchan @huimiu @wh-alice
-/templates/vs/* @wh-alice @wenytang-ms
+/templates/vs/* @wh-alice @tecton
 /templates/vs/csharp/custom-copilot-* @wh-alice @tecton
-/templates/vsc/* @wh-alice @wenytang-ms
+/templates/vsc/* @wh-alice @tecton
 /templates/vsc/common/declarative-agent-typespec @KennethBWSong @SLdragon @wh-alice
 /templates/vsc/python @wh-alice @tecton
 /templates/vsc/**/sso-tab-naa @KennethBWSong @SLdragon @wh-alice
