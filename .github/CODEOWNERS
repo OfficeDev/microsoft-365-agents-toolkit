@@ -41,9 +41,9 @@
 /packages/cli/src/commands/models/permissionStatus.ts @KennethBWSong @SLdragon
 /packages/cli/src/commands/models/preview.ts @swatDong @kuojianlu @kimizhu
 /packages/cli/src/commands/models/publish.ts @HuihuiWu-Microsoft @jayzhang
-/packages/cli/src/commands/models/entraAppUpdate.ts @KennethBWSong @xzf0587 @blackchoey
+/packages/cli/src/commands/models/entraAppUpdate.ts @KennethBWSong @blackchoey
 /packages/cli/src/commands/models/teamsapp @HuihuiWu-Microsoft @jayzhang @wh-alice
-/packages/cli/src/commands/models/upgrade.ts @xzf0587 @blackchoey
+/packages/cli/src/commands/models/upgrade.ts @blackchoey
 /packages/cli/src/commands/models/validate.ts @HuihuiWu-Microsoft @jayzhang
 /packages/cli/src/commonlib @HuihuiWu-Microsoft @sherylueen @jayzhang @wh-alice
 /packages/cli/src/resource/commands.json @timngmsft @sffamily @therealjohn @supkasar
@@ -78,7 +78,7 @@
 /packages/fx-core/src/common/localizeUtils.ts @HuihuiWu-Microsoft @tecton @wh-alice
 /packages/fx-core/src/common/permissionInterface.ts @SLdragon @KennethBWSong
 /packages/fx-core/src/common/samples.ts @tecton @wenytang-ms @wh-alice
-/packages/fx-core/src/common/versionMetadata.ts @xzf0587 @blackchoey
+/packages/fx-core/src/common/versionMetadata.ts @blackchoey
 /packages/fx-core/src/component/m365 @HuihuiWu-Microsoft @jayzhang @wh-alice
 /packages/fx-core/src/component/debugHandler @qinzhouxu @tecton @llhmm01 @wh-alice
 /packages/fx-core/src/component/deps-checker @qinzhouxu @tecton @llhmm01 @wh-alice
@@ -88,18 +88,18 @@
 /packages/fx-core/src/component/driver/apiKey @KennethBWSong @SLdragon
 /packages/fx-core/src/component/driver/oauth @KennethBWSong @SLdragon
 /packages/fx-core/src/component/driver/typeSpec @KennethBWSong @SLdragon @wh-alice
-/packages/fx-core/src/component/driver/arm @xzf0587 @blackchoey
+/packages/fx-core/src/component/driver/arm @blackchoey
 /packages/fx-core/src/component/driver/botAadApp @blackchoey @wenytang-ms @KennethBWSong
 /packages/fx-core/src/component/driver/deploy/azure @Siglud @Yukun-dong @JerryYangKai @eriolchan
 /packages/fx-core/src/component/driver/deploy/spfx @HuihuiWu-Microsoft @yuqizhou77 @wh-alice
 /packages/fx-core/src/component/driver/oauth @KennethBWSong @SLdragon
 /packages/fx-core/src/component/driver/script/ @Siglud @Yukun-dong @JerryYangKai @eriolchan
 /packages/fx-core/src/component/driver/typeSpec @KennethBWSong @SLdragon @wh-alice
-/packages/fx-core/src/component/driver/util/utils.ts @blackchoey @xzf0587
+/packages/fx-core/src/component/driver/util/utils.ts @blackchoey
 /packages/fx-core/src/component/driver/teamsApp @HuihuiWu-Microsoft @jayzhang @wh-alice
 /packages/fx-core/src/component/feature/collaboration.ts @KennethBWSong @SLdragon
-/packages/fx-core/src/component/feature/createAuthFiles.ts @KennethBWSong @xzf0587
-/packages/fx-core/src/component/feature/sso.ts @KennethBWSong @xzf0587
+/packages/fx-core/src/component/feature/createAuthFiles.ts @KennethBWSong
+/packages/fx-core/src/component/feature/sso.ts @KennethBWSong
 /packages/fx-core/src/component/generator @Yukun-dong @hund030 @JerryYangKai @eriolchan
 /packages/fx-core/src/component/generator/copilotExtension @yuqizhou77 @jayzhang @anchenyi
 /packages/fx-core/src/component/generator/declarativeAgent @HuihuiWu-Microsoft @yuqizhou77 @tecton
@@ -114,21 +114,21 @@
 /packages/fx-core/src/core/middleware/projectMigrationV3 @jayzhang @tecton @wh-alice
 /packages/fx-core/src/core/middleware/utils/debug @qinzhouxu @llhmm01 @wh-alice
 /packages/fx-core/templates/core/v3Migration @jayzhang @tecton @wh-alice
-/packages/fx-core/templates/plugins/resource/aad/ @KennethBWSong @xzf0587
+/packages/fx-core/templates/plugins/resource/aad/ @KennethBWSong
 /packages/fx-core/templates/plugins/resource/appstudio @HuihuiWu-Microsoft @nliu-ms @anchenyi @wh-alice
 /packages/fx-core/tests/common/samples.test.ts @tecton @wenytang-ms @wh-alice
 /packages/fx-core/tests/component/developerPortalScaffoldUtils.test.ts @HuihuiWu-Microsoft @yuqizhou77 @tecton @wh-alice
 /packages/fx-core/tests/component/driver/aad @blackchoey @wenytang-ms @KennethBWSong
 /packages/fx-core/tests/component/driver/apiKey @KennethBWSong @SLdragon
 /packages/fx-core/tests/component/driver/oauth @KennethBWSong @SLdragon
-/packages/fx-core/tests/component/driver/arm @xzf0587 @blackchoey
+/packages/fx-core/tests/component/driver/arm @blackchoey
 /packages/fx-core/tests/component/driver/botAadApp @blackchoey @wenytang-ms @KennethBWSong
 /packages/fx-core/tests/component/driver/deploy/azure/ @Siglud @Yukun-dong @JerryYangKai @eriolchan
 /packages/fx-core/tests/component/driver/deploy/spfx @HuihuiWu-Microsoft @yuqizhou77 @wh-alice
 /packages/fx-core/tests/component/driver/oauth @KennethBWSong @SLdragon
 /packages/fx-core/tests/component/driver/script @Siglud @Yukun-dong @JerryYangKai @eriolchan
-/packages/fx-core/tests/component/driver/util/utils.test.ts @blackchoey @xzf0587
-/packages/fx-core/tests/component/feature @KennethBWSong @xzf0587
+/packages/fx-core/tests/component/driver/util/utils.test.ts @blackchoey
+/packages/fx-core/tests/component/feature @KennethBWSong
 /packages/fx-core/tests/component/generator/declarativeAgentGenerator.test.ts @HuihuiWu-Microsoft @yuqizhou77 @jayzhang
 /packages/fx-core/tests/component/generator/generator.test.ts @Yukun-dong @hund030 @JerryYangKai @eriolchan
 /packages/fx-core/tests/component/generator/officeAddinGenerator.test.ts @llhmm01 @tecton @wh-alice
