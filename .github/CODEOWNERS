@@ -110,7 +110,6 @@
 /packages/fx-core/src/component/generator/spfx @HuihuiWu-Microsoft @yuqizhou77 @wh-alice
 /packages/fx-core/src/component/generator/templateNames.ts @tecton @jayzhang 
 /packages/fx-core/src/component/generator/templates @tecton @jayzhang
-/packages/fx-core/src/component/resource/aadApp @KennethBWSong @SLdragon
 /packages/fx-core/src/core/middleware/projectMigrationV3 @jayzhang @tecton @wh-alice
 /packages/fx-core/src/core/middleware/utils/debug @qinzhouxu @llhmm01 @wh-alice
 /packages/fx-core/templates/core/v3Migration @jayzhang @tecton @wh-alice
@@ -145,11 +144,11 @@
 
 /packages/manifest/ @tecton @llhmm01 @wh-alice
 
-/packages/sdk @tecton @SLdragon @wenytang-ms @HuihuiWu-Microsoft
+/packages/sdk @tecton @HuihuiWu-Microsoft @wh-alice
 
-/packages/sdk-react @tecton @HuihuiWu-Microsoft
-/packages/sdk/src/conversation @kimizhu @swatDong @a1exwang @XiaofuHuang @dooriya @SLdragon
-/packages/sdk/test/unit/node/conversation @kimizhu @swatDong @a1exwang @XiaofuHuang @dooriya
+/packages/sdk-react @tecton @HuihuiWu-Microsoft @wh-alice
+/packages/sdk/src/conversation @tecton @wh-alice
+/packages/sdk/test/unit/node/conversation @tecton @wh-alice
 
 /packages/server @HuihuiWu-Microsoft @Alive-Fish @wh-alice
 
