@@ -11,7 +11,7 @@
 
 ./lerna.json @wenytang-ms @qinezh @Siglud @tecton
 ./pnpm-workspace.yaml @wenytang-ms @qinezh @Siglud @tecton
-/.github/CODEOWNERS @adashen @eriolchan @kimizhu @wh-alice @zhenjiao-ms
+/.github/CODEOWNERS @eriolchan @kimizhu @wh-alice @zhenjiao-ms
 /.github/actions @xzf0587 @wenytang-ms @blackchoey
 /.github/workflows/cd.yml @tecton @Siglud @qinezh @wenytang-ms
 /.github/workflows/templates-ci.yml @hund030 @eriolchan @huimiu
@@ -56,7 +56,7 @@
 /packages/dotnet-sdk/src/TeamsFx.Test/Conversation @swatDong @dooriya @kimizhu
 /packages/dotnet-sdk/src/TeamsFx/Conversation @swatDong @dooriya @kimizhu
 
-/packages/function-extension @adashen @blackchoey
+/packages/function-extension @wh-alice @blackchoey
 
 /packages/fx-core @tecton @llhmm01 @wh-alice
 /packages/fx-core/.eslint* @tecton @wenytang-ms
@@ -87,14 +87,14 @@
 /packages/fx-core/tests/component/driver/add @HuihuiWu-Microsoft @yuqizhou77 @wh-alice
 /packages/fx-core/src/component/driver/apiKey @KennethBWSong @SLdragon
 /packages/fx-core/src/component/driver/oauth @KennethBWSong @SLdragon
-/packages/fx-core/src/component/driver/typeSpec @KennethBWSong @SLdragon @adashen
+/packages/fx-core/src/component/driver/typeSpec @KennethBWSong @SLdragon @wh-alice
 /packages/fx-core/src/component/driver/arm @xzf0587 @blackchoey
 /packages/fx-core/src/component/driver/botAadApp @blackchoey @wenytang-ms @KennethBWSong
 /packages/fx-core/src/component/driver/deploy/azure @Siglud @Yukun-dong @JerryYangKai @eriolchan
 /packages/fx-core/src/component/driver/deploy/spfx @HuihuiWu-Microsoft @yuqizhou77 @wh-alice
 /packages/fx-core/src/component/driver/oauth @KennethBWSong @SLdragon
 /packages/fx-core/src/component/driver/script/ @Siglud @Yukun-dong @JerryYangKai @eriolchan
-/packages/fx-core/src/component/driver/typeSpec @KennethBWSong @SLdragon @adashen
+/packages/fx-core/src/component/driver/typeSpec @KennethBWSong @SLdragon @wh-alice
 /packages/fx-core/src/component/driver/util/utils.ts @blackchoey @xzf0587
 /packages/fx-core/src/component/driver/teamsApp @HuihuiWu-Microsoft @jayzhang @wh-alice
 /packages/fx-core/src/component/feature/collaboration.ts @KennethBWSong @SLdragon
@@ -111,9 +111,9 @@
 /packages/fx-core/src/component/generator/templateNames.ts @tecton @jayzhang 
 /packages/fx-core/src/component/generator/templates @tecton @jayzhang
 /packages/fx-core/src/component/resource/aadApp @KennethBWSong @SLdragon
-/packages/fx-core/src/core/middleware/projectMigrationV3 @xzf0587 @frankqianms @blackchoey
+/packages/fx-core/src/core/middleware/projectMigrationV3 @xzf0587 @frankqianms @blackchoey @tecton @wh-alice
 /packages/fx-core/src/core/middleware/utils/debug @qinzhouxu @llhmm01 @wh-alice
-/packages/fx-core/templates/core/v3Migration @xzf0587 @frankqianms @blackchoey
+/packages/fx-core/templates/core/v3Migration @xzf0587 @frankqianms @blackchoey @tecton @wh-alice
 /packages/fx-core/templates/plugins/resource/aad/ @KennethBWSong @xzf0587
 /packages/fx-core/templates/plugins/resource/appstudio @HuihuiWu-Microsoft @nliu-ms @anchenyi @wh-alice
 /packages/fx-core/tests/common/samples.test.ts @tecton @wenytang-ms @wh-alice
@@ -137,12 +137,12 @@
 /packages/fx-core/tests/component/util/azureAccountMock.ts @HuihuiWu-Microsoft @sherylueen @wh-alice
 /packages/fx-core/tests/core/collaborator.test.ts @KennethBWSong @SLdragon
 /packages/fx-core/tests/core/middleware/debug @qinzhouxu @llhmm01 @wh-alice
-/packages/fx-core/tests/core/middleware/migration @xzf0587 @frankqianms @blackchoey
-/packages/fx-core/tests/core/middleware/projectVersionChecker.test.ts @xzf0587 @frankqianms @blackchoey
-/packages/fx-core/tests/core/middleware/testAssets @xzf0587 @frankqianms @blackchoey
+/packages/fx-core/tests/core/middleware/migration @xzf0587 @frankqianms @blackchoey @tecton @wh-alice
+/packages/fx-core/tests/core/middleware/projectVersionChecker.test.ts @xzf0587 @frankqianms @blackchoey @tecton @wh-alice
+/packages/fx-core/tests/core/middleware/testAssets @xzf0587 @frankqianms @blackchoey @tecton @wh-alice
 /packages/fx-core/tests/plugins/resource/appstudio @HuihuiWu-Microsoft @yuqizhou77 @wh-alice
 /packages/fx-core/tests/plugins/resource/spfx @HuihuiWu-Microsoft @yuqizhou77 @wh-alice
-/packages/fx-core/tests/samples/sampleV3 @xzf0587 @wenytang-ms @frankqianms @blackchoey
+/packages/fx-core/tests/samples/sampleV3 @xzf0587 @wenytang-ms @frankqianms @blackchoey @tecton @wh-alice
 
 /packages/manifest/ @tecton @llhmm01 @wh-alice
 
@@ -156,7 +156,7 @@
 
 /packages/simpleauth @blackchoey @wenytang-ms
 
-/packages/spec-parser/ @KennethBWSong @SLdragon @adashen
+/packages/spec-parser/ @KennethBWSong @SLdragon @wh-alice
 
 /packages/mcp-server/ @chagong @Alive-Fish @yuqizhou77
 
@@ -191,53 +191,53 @@
 /packages/vscode-extension/test/pluginDebugger @qinzhouxu @llhmm01 @wh-alice
 
 /templates/* @tecton @wh-alice
-/templates/**/basic-custom-engine-agent @adashen @frankqianms
-/templates/**/command-and-response @adashen  @nliu-ms
+/templates/**/basic-custom-engine-agent @wh-alice @tecton
+/templates/**/command-and-response @wh-alice  @nliu-ms
 /templates/**/copilot-gpt-existing-api @tecton @wh-alice
 /templates/**/copilot-gpt-from-scratch-plugin @tecton @wh-alice
-/templates/**/copilot-plugin-existing-api-api-key @yuqizhou77 @Alive-Fish @jayzhang @adashen
-/templates/**/custom-copilot-assistant-assistants-api @adashen @nliu-ms
-/templates/**/custom-copilot-assistant-new @adashen @nliu-ms
-/templates/**/custom-copilot-basic @adashen @nliu-ms
-/templates/**/custom-copilot-rag-azure-ai-search @adashen @nliu-ms
-/templates/**/custom-copilot-rag-customize-api @adashen @nliu-ms
-/templates/**/custom-copilot-rag-customize @adashen @nliu-ms
-/templates/**/custom-copilot-rag-microsoft365 @adashen @nliu-ms
+/templates/**/copilot-plugin-existing-api-api-key @yuqizhou77 @Alive-Fish @jayzhang @wh-alice
+/templates/**/custom-copilot-assistant-assistants-api @wh-alice @nliu-ms
+/templates/**/custom-copilot-assistant-new @wh-alice @nliu-ms
+/templates/**/custom-copilot-basic @wh-alice @nliu-ms
+/templates/**/custom-copilot-rag-azure-ai-search @wh-alice @nliu-ms
+/templates/**/custom-copilot-rag-customize-api @wh-alice @nliu-ms
+/templates/**/custom-copilot-rag-customize @wh-alice @nliu-ms
+/templates/**/custom-copilot-rag-microsoft365 @wh-alice @nliu-ms
 /templates/**/dashboard-tab @tecton @wh-alice
 /templates/**/declarative-agent-basic @tecton @wh-alice
-/templates/**/declarative-agent-with-action-from-existing-api @yuqizhou77 @Alive-Fish @jayzhang @anchenyi @adashen
+/templates/**/declarative-agent-with-action-from-existing-api @yuqizhou77 @Alive-Fish @jayzhang @anchenyi @wh-alice
 /templates/**/declarative-agent-with-action-from-scratch @tecton @wh-alice
 /templates/**/declarative-agent-with-action-from-scratch-bearer @tecton @wh-alice
 /templates/**/declarative-agent-with-action-from-scratch-oauth @tecton @wh-alice
-/templates/**/default-bot @JerryYangKai @eriolchan @Siglud @Yukun-dong @adashen
-/templates/**/default-bot-message-extension @yuqizhou77 @Yukun-dong @adashen
-/templates/**/empty @Alive-Fish @HuihuiWu-Microsoft @chagong @adashen
-/templates/**/link-unfurling @JerryYangKai @eriolchan @Siglud @Yukun-dong @adashen
-/templates/**/m365-message-extension @adashen @nliu-ms
-/templates/**/message-extension @yuqizhou77 @Yukun-dong @adashen
-/templates/**/message-extension-action @JerryYangKai @eriolchan @Siglud @Yukun-dong @adashen
-/templates/**/message-extension-search @JerryYangKai @eriolchan @Siglud @Yukun-dong @adashen
+/templates/**/default-bot @JerryYangKai @eriolchan @Siglud @Yukun-dong @wh-alice
+/templates/**/default-bot-message-extension @yuqizhou77 @Yukun-dong @wh-alice
+/templates/**/empty @Alive-Fish @HuihuiWu-Microsoft @chagong @wh-alice
+/templates/**/link-unfurling @JerryYangKai @eriolchan @Siglud @Yukun-dong @wh-alice
+/templates/**/m365-message-extension @wh-alice @nliu-ms
+/templates/**/message-extension @yuqizhou77 @Yukun-dong @wh-alice
+/templates/**/message-extension-action @JerryYangKai @eriolchan @Siglud @Yukun-dong @wh-alice
+/templates/**/message-extension-search @JerryYangKai @eriolchan @Siglud @Yukun-dong @wh-alice
 /templates/**/message-extension-with-api-from-scratch @tecton @wh-alice
 /templates/**/message-extension-with-api-from-scratch-api-key @tecton @wh-alice
-/templates/**/message-extension-with-existing-api @yuqizhou77 @Alive-Fish @jayzhang @adashen
-/templates/**/non-sso-tab @hund030 @eriolchan @Yimin-Jin @adashen
-/templates/**/non-sso-tab-default-bot @hund030 @yuqizhou77 @adashen
-/templates/**/non-sso-tab-ssr @Yimin-Jin @eriolchan @hund030 @adashen
-/templates/**/notification-express @adashen @nliu-ms
-/templates/**/notification-http-timer-trigger @adashen @nliu-ms
-/templates/**/notification-http-trigger @adashen @nliu-ms
-/templates/**/notification-timer-trigger @adashen @nliu-ms
-/templates/**/notification-webapi @kimizhu @dooriya @swatDong @adashen
+/templates/**/message-extension-with-existing-api @yuqizhou77 @Alive-Fish @jayzhang @wh-alice
+/templates/**/non-sso-tab @hund030 @eriolchan @Yimin-Jin @wh-alice
+/templates/**/non-sso-tab-default-bot @hund030 @yuqizhou77 @wh-alice
+/templates/**/non-sso-tab-ssr @Yimin-Jin @eriolchan @hund030 @wh-alice
+/templates/**/notification-express @wh-alice @nliu-ms
+/templates/**/notification-http-timer-trigger @wh-alice @nliu-ms
+/templates/**/notification-http-trigger @wh-alice @nliu-ms
+/templates/**/notification-timer-trigger @wh-alice @nliu-ms
+/templates/**/notification-webapi @kimizhu @dooriya @swatDong @wh-alice
 /templates/**/office-* @llhmm01 @tecton @wh-alice
 /templates/**/spfx-* @HuihuiWu-Microsoft @yuqizhou77 @wh-alice
-/templates/**/sso-tab @hund030 @eriolchan @Yimin-Jin @adashen
-/templates/**/sso-tab-ssr @Yimin-Jin @eriolchan @hund030 @adashen
-/templates/**/weather-agent @adashen @frankqianms
-/templates/**/workflow @adashen @nliu-ms
-/templates/scripts @hund030 @eriolchan @huimiu @adashen
-/templates/vs/* @adashen @wenytang-ms
-/templates/vs/csharp/custom-copilot-* @adashen @blackchoey @frankqianms @xzf0587 
-/templates/vsc/* @adashen @wenytang-ms
-/templates/vsc/common/declarative-agent-typespec @KennethBWSong @SLdragon @adashen
-/templates/vsc/python @adashen @blackchoey @frankqianms
-/templates/vsc/**/sso-tab-naa @KennethBWSong @SLdragon @adashen
+/templates/**/sso-tab @hund030 @eriolchan @Yimin-Jin @wh-alice
+/templates/**/sso-tab-ssr @Yimin-Jin @eriolchan @hund030 @wh-alice
+/templates/**/weather-agent @wh-alice @tecton
+/templates/**/workflow @wh-alice @nliu-ms
+/templates/scripts @hund030 @eriolchan @huimiu @wh-alice
+/templates/vs/* @wh-alice @wenytang-ms
+/templates/vs/csharp/custom-copilot-* @wh-alice @tecton
+/templates/vsc/* @wh-alice @wenytang-ms
+/templates/vsc/common/declarative-agent-typespec @KennethBWSong @SLdragon @wh-alice
+/templates/vsc/python @wh-alice @tecton
+/templates/vsc/**/sso-tab-naa @KennethBWSong @SLdragon @wh-alice
