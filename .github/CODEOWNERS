@@ -130,7 +130,7 @@
 /packages/fx-core/tests/component/generator/declarativeAgentGenerator.test.ts @HuihuiWu-Microsoft @yuqizhou77 @jayzhang
 /packages/fx-core/tests/component/generator/generator.test.ts @Yukun-dong @hund030 @JerryYangKai @eriolchan
 /packages/fx-core/tests/component/generator/officeAddinGenerator.test.ts @llhmm01 @tecton @wh-alice
-/packages/fx-core/tests/component/generator/openApiSpec @yuqizhou77 @nliu-ms @Alive-Fish @jayzhang @HuihuiWu-Microsoft @wh-alice
+/packages/fx-core/tests/component/generator/openApiSpec @yuqizhou77 @Alive-Fish @jayzhang @HuihuiWu-Microsoft @wh-alice
 /packages/fx-core/tests/component/generator/spfxGenerator.test.ts @HuihuiWu-Microsoft @yuqizhou77 @wh-alice
 /packages/fx-core/tests/component/util/azureAccountMock.ts @HuihuiWu-Microsoft @sherylueen @wh-alice
 /packages/fx-core/tests/core/collaborator.test.ts @tecton @wh-alice
