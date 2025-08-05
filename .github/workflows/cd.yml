@@ -103,8 +103,8 @@ jobs:
       
       - name: Setup git
         run: |
-          git config --global user.name 'adashen'
-          git config --global user.email 'shenwe@microsoft.com'
+          git config --global user.name 'wh-alice'
+          git config --global user.email 'alicewan@microsoft.com'
 
       - name: manage pkgs to release
         if: ${{ github.event_name == 'workflow_dispatch' }}

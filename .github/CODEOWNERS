@@ -9,11 +9,11 @@
 # In each subsection folders are ordered first by depth, then alphabetically.
 # This should make it easy to add new rules without breaking existing ones.
 
-./lerna.json @wenytang-ms @qinezh @Siglud @tecton
-./pnpm-workspace.yaml @wenytang-ms @qinezh @Siglud @tecton
+./lerna.json @wh-alice @qinzhouxu @llhmm01 @tecton
+./pnpm-workspace.yaml @wh-alice @qinzhouxu @llhmm01 @tecton
 /.github/CODEOWNERS @eriolchan @kimizhu @wh-alice @zhenjiao-ms
-/.github/actions @xzf0587 @wenytang-ms @blackchoey
-/.github/workflows/cd.yml @tecton @Siglud @qinezh @wenytang-ms
+/.github/actions @wh-alice @qinzhouxu @llhmm01
+/.github/workflows/cd.yml @wh-alice @qinzhouxu @llhmm01 @tecton
 /.github/workflows/templates-ci.yml @hund030 @eriolchan @huimiu
 
 /Localize @HuihuiWu-Microsoft @tecton @chagong @wh-alice
@@ -235,9 +235,9 @@
 /templates/**/weather-agent @wh-alice @tecton
 /templates/**/workflow @wh-alice @nliu-ms
 /templates/scripts @hund030 @eriolchan @huimiu @wh-alice
-/templates/vs/* @wh-alice @wenytang-ms
+/templates/vs/* @wh-alice @tecton
 /templates/vs/csharp/custom-copilot-* @wh-alice @tecton
-/templates/vsc/* @wh-alice @wenytang-ms
+/templates/vsc/* @wh-alice @tecton
 /templates/vsc/common/declarative-agent-typespec @KennethBWSong @SLdragon @wh-alice
 /templates/vsc/python @wh-alice @tecton
 /templates/vsc/**/sso-tab-naa @KennethBWSong @SLdragon @wh-alice

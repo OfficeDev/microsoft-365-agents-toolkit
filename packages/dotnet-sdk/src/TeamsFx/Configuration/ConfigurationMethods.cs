@@ -13,6 +13,7 @@ namespace Microsoft.Extensions.DependencyInjection;
 /// <summary>
 /// Service Registration
 /// </summary>
+[Obsolete("This package will be deprecated by 2026-09. Please use Microsoft 365 Agents SDK (https://www.nuget.org/packages/Microsoft.Agents.Core) instead.")]
 public static class TeamsFxConfigurationMethods
 {
     /// <summary>
@@ -21,6 +22,7 @@ public static class TeamsFxConfigurationMethods
     /// <param name="services">service collection for DI</param>
     /// <param name="namedConfigurationSection">configuration instance</param>
     /// <returns></returns>
+    [Obsolete("This package will be deprecated by 2026-09. Please use Microsoft 365 Agents SDK (https://www.nuget.org/packages/Microsoft.Agents.Core) instead.")]
     public static IServiceCollection AddTeamsFx(
         this IServiceCollection services,
         IConfiguration namedConfigurationSection)
@@ -50,6 +52,7 @@ public static class TeamsFxConfigurationMethods
     /// <param name="services">service collection for DI</param>
     /// <param name="configureOptions">customized action to configure option</param>
     /// <returns></returns>
+    [Obsolete("This package will be deprecated by 2026-09. Please use Microsoft 365 Agents SDK (https://www.nuget.org/packages/Microsoft.Agents.Core) instead.")]
     public static IServiceCollection AddTeamsFx(
         this IServiceCollection services,
         Action<AuthenticationOptions> configureOptions)
@@ -82,6 +85,7 @@ public static class TeamsFxConfigurationMethods
     /// <param name="services">service collection for DI</param>
     /// <param name="userOptions">customized option instance</param>
     /// <returns></returns>
+    [Obsolete("This package will be deprecated by 2026-09. Please use Microsoft 365 Agents SDK (https://www.nuget.org/packages/Microsoft.Agents.Core) instead.")]
     public static IServiceCollection AddTeamsFx(
         this IServiceCollection services,
         AuthenticationOptions userOptions)
