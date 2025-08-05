@@ -8,7 +8,7 @@ namespace Microsoft.TeamsFx.Conversation
     /// <summary>
     /// Represents a command bot to handle commands received from Teams.
     /// </summary>
-    [Obsolete("This package will be deprecated by 2026-09. Please use Microsoft 365 Agents SDK (https://www.nuget.org/packages/Microsoft.Agents.Hosting.AspNetCore) instead.")]
+    [Obsolete("This package will be deprecated by 2026-09. Please use Microsoft 365 Agents SDK (https://github.com/microsoft/Agents-for-net) instead.")]
     public class CommandBot
     {
         private readonly CloudAdapter _adapter;

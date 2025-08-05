@@ -5,7 +5,7 @@
     /// <summary>
     /// Interface for a storage provider that stores and retrieves notification target references.
     /// </summary>
-    [Obsolete("This package will be deprecated by 2026-09. Please use Microsoft 365 Agents SDK (https://www.nuget.org/packages/Microsoft.Agents.Hosting.AspNetCore) instead.")]
+    [Obsolete("This package will be deprecated by 2026-09. Please use Microsoft 365 Agents SDK (https://github.com/microsoft/Agents-for-net) instead.")]
     public interface INotificationTargetStorage
     {
         /// <summary>
