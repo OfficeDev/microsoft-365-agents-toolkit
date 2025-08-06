@@ -9,7 +9,6 @@ using Microsoft.Agents.Builder.Dialogs.Prompts;
 using Microsoft.Agents.Core.Models;
 using Microsoft.Agents.Extensions.Teams.Models;
 using Microsoft.Identity.Client;
-using Newtonsoft.Json.Linq;
 using System.Net;
 using System.Text.RegularExpressions;
 using System.IdentityModel.Tokens.Jwt;
