@@ -1,7 +1,9 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace {{YOUR_NAMESPACE}}.Configuration;
+using {{YOUR_NAMESPACE}}.Configuration;
+
+namespace {{YOUR_NAMESPACE}}.SSO;
 
 /// <summary>
 /// Contains settings for an <see cref="TeamsBotSsoPrompt"/>.
