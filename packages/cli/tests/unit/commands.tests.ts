@@ -486,11 +486,12 @@ describe("CLI commands", () => {
     });
   });
   describe("permissionGrantCommand", async () => {
-    beforeEach(() => {
-      sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
+    afterEach(() => {
+      sandbox.restore();
     });
 
     it("success with agent option", async () => {
+      sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
       sandbox
         .stub(FxCore.prototype, "grantPermission")
         .resolves(ok({ state: "OK" } as PermissionsResult));
@@ -510,6 +511,7 @@ describe("CLI commands", () => {
     });
 
     it("success with agent option in interactive mode", async () => {
+      sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
       sandbox
         .stub(FxCore.prototype, "grantPermission")
         .resolves(ok({ state: "OK" } as PermissionsResult));
@@ -529,6 +531,7 @@ describe("CLI commands", () => {
     });
 
     it("missing manifest options with agent = false", async () => {
+      sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
       sandbox
         .stub(FxCore.prototype, "grantPermission")
         .resolves(ok({ state: "OK" } as PermissionsResult));
@@ -560,6 +563,7 @@ describe("CLI commands", () => {
       const res = await permissionGrantCommand.handler!(ctx);
       assert.isTrue(res.isOk());
     });
+
     it("success interactive = true", async () => {
       sandbox
         .stub(FxCore.prototype, "grantPermission")
@@ -590,11 +594,12 @@ describe("CLI commands", () => {
     });
   });
   describe("permissionStatusCommand", async () => {
-    beforeEach(() => {
-      sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
+    afterEach(() => {
+      sandbox.restore();
     });
 
     it("listCollaborator with agent option", async () => {
+      sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
       sandbox
         .stub(FxCore.prototype, "listCollaborator")
         .resolves(ok({ state: "OK" } as ListCollaboratorResult));
@@ -614,6 +619,7 @@ describe("CLI commands", () => {
     });
 
     it("checkPermission with agent option", async () => {
+      sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
       sandbox
         .stub(FxCore.prototype, "checkPermission")
         .resolves(ok({ state: "OK" } as CollaborationStateResult));
