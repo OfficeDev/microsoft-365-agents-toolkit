@@ -365,8 +365,8 @@ devDependencies:
     specifier: ^0.5.19
     version: 0.5.19
   tmp:
-    specifier: ^0.2.1
-    version: 0.2.1
+    specifier: ^0.2.4
+    version: 0.2.4
   ts-loader:
     specifier: ^8.0.3
     version: 8.0.3(typescript@4.7.4)
@@ -6209,11 +6209,9 @@ packages:
       os-tmpdir: 1.0.2
     dev: false
 
-  /tmp@0.2.1:
-    resolution: {integrity: sha512-76SUhtfqR2Ijn+xllcI5P1oyannHNHByD80W1q447gU3mp9G9PSpGdWmjUOHRDPiHYacIk66W7ubDTuPF3BEtQ==}
-    engines: {node: '>=8.17.0'}
-    dependencies:
-      rimraf: 3.0.2
+  /tmp@0.2.4:
+    resolution: {integrity: sha512-UdiSoX6ypifLmrfQ/XfiawN6hkjSBpCjhKxxZcWlUUmoXLaCKQU0bx4HF/tdDK2uzRuchf1txGvrWBzYREssoQ==}
+    engines: {node: '>=14.14'}
     dev: true
 
   /to-regex-range@5.0.1:

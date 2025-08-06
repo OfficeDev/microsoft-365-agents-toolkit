@@ -217,7 +217,7 @@
     "rimraf": "^5.0.1",
     "sinon": "^9.2.2",
     "source-map-support": "^0.5.19",
-    "tmp": "^0.2.1",
+    "tmp": "^0.2.4",
     "ts-loader": "^8.0.3",
     "ts-morph": "^19.0.0",
     "ts-node": "^10.9.2",
