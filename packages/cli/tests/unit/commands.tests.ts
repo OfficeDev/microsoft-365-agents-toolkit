@@ -550,6 +550,7 @@ describe("CLI commands", () => {
     });
 
     it("success interactive = false", async () => {
+      sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
       sandbox
         .stub(FxCore.prototype, "grantPermission")
         .resolves(ok({ state: "OK" } as PermissionsResult));
@@ -639,6 +640,7 @@ describe("CLI commands", () => {
     });
 
     it("listCollaborator", async () => {
+      sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
       sandbox
         .stub(FxCore.prototype, "listCollaborator")
         .resolves(ok({ state: "OK" } as ListCollaboratorResult));

@@ -42,10 +42,7 @@ import {
   SPFxImportFolderQuestion,
   questionNodes,
 } from "../../src/question";
-import {
-  envQuestionCondition,
-  selectAadAppManifestQuestionNode,
-} from "../../src/question/collaborator";
+import { selectAadAppManifestQuestionNode } from "../../src/question/collaborator";
 import {
   ActionStartOptions,
   GCSelectOptions,
@@ -664,98 +661,6 @@ describe("deployAadManifest", async () => {
     sandbox.stub(fs, "pathExists").resolves(true);
     sandbox.stub(fs, "readFile").resolves(Buffer.from("test"));
     const res = await isAadMainifestContainsPlaceholder(inputs);
-    assert.isFalse(res);
-  });
-});
-
-describe("envQuestionCondition", async () => {
-  const sandbox = sinon.createSandbox();
-
-  afterEach(async () => {
-    sandbox.restore();
-  });
-
-  it("case 1", async () => {
-    const inputs: Inputs = {
-      platform: Platform.CLI_HELP,
-      projectPath: ".",
-      [QuestionNames.AadAppManifestFilePath]: "aadAppManifest",
-      [QuestionNames.TeamsAppManifestFilePath]: "teamsAppManifest",
-      [QuestionNames.collaborationAppType]: [
-        CollaborationConstants.TeamsAppQuestionId,
-        CollaborationConstants.AadAppQuestionId,
-      ],
-    };
-    sandbox.stub(CollaborationUtil, "loadManifestId").callsFake(async (manifestFilePath) => {
-      return manifestFilePath == "teamsAppManifest" ? ok("teamsAppId") : ok("aadAppId");
-    });
-    sandbox.stub(CollaborationUtil, "requireEnvQuestion").resolves(true);
-    const res = await envQuestionCondition(inputs);
-    assert.isTrue(res);
-  });
-
-  it("case 2", async () => {
-    const inputs: Inputs = {
-      platform: Platform.CLI_HELP,
-      projectPath: ".",
-      [QuestionNames.AadAppManifestFilePath]: "aadAppManifest",
-      [QuestionNames.TeamsAppManifestFilePath]: "teamsAppManifest",
-      [QuestionNames.collaborationAppType]: [
-        CollaborationConstants.TeamsAppQuestionId,
-        CollaborationConstants.AadAppQuestionId,
-      ],
-    };
-    sandbox.stub(CollaborationUtil, "loadManifestId").callsFake(async (manifestFilePath) => {
-      return manifestFilePath == "teamsAppManifest" ? ok("teamsAppId") : ok("aadAppId");
-    });
-    sandbox
-      .stub(CollaborationUtil, "requireEnvQuestion")
-      .onFirstCall()
-      .resolves(false)
-      .onSecondCall()
-      .resolves(true);
-    const res = await envQuestionCondition(inputs);
-    assert.isTrue(res);
-  });
-
-  it("case 3", async () => {
-    const inputs: Inputs = {
-      platform: Platform.CLI_HELP,
-      projectPath: ".",
-      [QuestionNames.AadAppManifestFilePath]: "aadAppManifest",
-      [QuestionNames.TeamsAppManifestFilePath]: "teamsAppManifest",
-      [QuestionNames.collaborationAppType]: [
-        CollaborationConstants.TeamsAppQuestionId,
-        CollaborationConstants.AadAppQuestionId,
-      ],
-    };
-    sandbox.stub(CollaborationUtil, "loadManifestId").resolves(err(new UserError({})));
-    const res = await envQuestionCondition(inputs);
-    assert.isFalse(res);
-  });
-
-  it("case 4", async () => {
-    const inputs: Inputs = {
-      platform: Platform.CLI_HELP,
-      projectPath: ".",
-      [QuestionNames.AadAppManifestFilePath]: "aadAppManifest",
-      [QuestionNames.collaborationAppType]: [CollaborationConstants.AadAppQuestionId],
-    };
-    sandbox.stub(CollaborationUtil, "loadManifestId").resolves(err(new UserError({})));
-    const res = await envQuestionCondition(inputs);
-    assert.isFalse(res);
-  });
-
-  it("case 5", async () => {
-    const inputs: Inputs = {
-      platform: Platform.CLI_HELP,
-      projectPath: ".",
-      [QuestionNames.collaborationAppType]: [
-        CollaborationConstants.TeamsAppQuestionId,
-        CollaborationConstants.AadAppQuestionId,
-      ],
-    };
-    const res = await envQuestionCondition(inputs);
     assert.isFalse(res);
   });
 });
