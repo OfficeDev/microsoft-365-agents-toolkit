@@ -3,7 +3,8 @@
 
 "use strict";
 
-import { LogLevel } from "@azure/msal-node";
+import { Configuration, LogLevel } from "@azure/msal-node";
+import { NativeBrokerPlugin } from "@azure/msal-node-extensions";
 import {
   BasicLogin,
   err,
@@ -28,10 +29,13 @@ const SERVER_PORT = 0;
 
 const cachePlugin = new CryptoCachePlugin(m365CacheName);
 
-const config = {
+const config: Configuration = {
   auth: {
     clientId: "7ea7c24c-b1f6-4a20-9d11-9ae12e9e7ac0",
     authority: "https://login.microsoftonline.com/common",
+  },
+  broker: {
+    nativeBrokerPlugin: new NativeBrokerPlugin(),
   },
   system: {
     loggerOptions: {

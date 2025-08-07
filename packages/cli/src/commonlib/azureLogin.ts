@@ -5,7 +5,8 @@
 
 import { SubscriptionClient } from "@azure/arm-subscriptions";
 import { AccessToken, GetTokenOptions, TokenCredential } from "@azure/core-auth";
-import { LogLevel } from "@azure/msal-node";
+import { LogLevel, Configuration } from "@azure/msal-node";
+import { NativeBrokerPlugin } from "@azure/msal-node-extensions";
 import {
   AuthenticationWWWAuthenticateRequest,
   AzureAccountProvider,
@@ -56,7 +57,7 @@ const SERVER_PORT = 0;
 
 const cachePlugin = new CryptoCachePlugin(accountName);
 
-function getConfig(tenantId?: string) {
+function getConfig(tenantId?: string): Configuration {
   let authority;
   if (tenantId && tenantId.length > 0) {
     authority = "https://login.microsoftonline.com/" + tenantId;
@@ -68,6 +69,9 @@ function getConfig(tenantId?: string) {
       clientId: "7ea7c24c-b1f6-4a20-9d11-9ae12e9e7ac0",
       authority: authority,
       clientCapabilities: ["CP1"],
+    },
+    broker: {
+      nativeBrokerPlugin: new NativeBrokerPlugin(),
     },
     system: {
       loggerOptions: {
