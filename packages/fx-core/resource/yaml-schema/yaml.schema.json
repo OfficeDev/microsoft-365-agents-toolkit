@@ -1385,6 +1385,11 @@
             "appPackagePath": {
               "type": "string",
               "description": "path to app package"
+            },
+            "scope": {
+              "type": "string",
+              "description": "The scope of the app. personal is only visible to the owners. shared is visible to other users in the tenant.",
+              "enum": ["personal", "shared"]
             }
           }
         },
@@ -1400,6 +1405,10 @@
             },
             "appId": {
               "description": "Required. The app ID of M365 title.",
+              "$ref": "#/definitions/envVarName"
+            },
+            "shareLink": {
+              "description": "Optional. The share link of the app.",
               "$ref": "#/definitions/envVarName"
             }
           }

@@ -8,9 +8,9 @@ import { hooks } from "@feathersjs/hooks/lib";
 import { FxError, Result, SystemError, UserError } from "@microsoft/teamsfx-api";
 
 import { getLocalizedString } from "../../../common/localizeUtils";
-import { PackageService } from "../../m365/packageService";
-import { MosServiceEndpoint, MosServiceScope } from "../../m365/serviceConstant";
 import { FileNotFoundError, InvalidActionInputError, assembleError } from "../../../error/common";
+import { AppScope, PackageService } from "../../m365/packageService";
+import { MosServiceEndpoint, MosServiceScope } from "../../m365/serviceConstant";
 import { getAbsolutePath, wrapRun } from "../../utils/common";
 import { logMessageKeys } from "../aad/utility/constants";
 import { DriverContext } from "../interface/commonArgs";
@@ -19,6 +19,7 @@ import { addStartAndEndTelemetry } from "../middleware/addStartAndEndTelemetry";
 
 interface AcquireArgs {
   appPackagePath?: string; // The path of the app package
+  scope?: AppScope;
 }
 
 const actionName = "teamsApp/extendToM365";
@@ -27,6 +28,7 @@ const helpLink = "https://aka.ms/teamsfx-actions/teamsapp-extendToM365";
 const outputKeys = {
   titleId: "titleId",
   appId: "appId",
+  shareLink: "shareLink",
 };
 
 @Service(actionName) // DO NOT MODIFY the service name
@@ -92,13 +94,20 @@ export class M365TitleAcquireDriver implements StepDriver {
         throw sideloadingTokenRes.error;
       }
       const sideloadingToken = sideloadingTokenRes.value;
-      const sideloadingRes = await packageService.sideLoading(sideloadingToken, appPackagePath);
+      const sideloadingRes = await packageService.sideLoading(
+        sideloadingToken,
+        appPackagePath,
+        args.scope
+      );
 
+      const mapping = new Map<string, string>();
+      mapping.set(outputEnvVarNames!.get(outputKeys.titleId)!, sideloadingRes[0]);
+      mapping.set(outputEnvVarNames!.get(outputKeys.appId)!, sideloadingRes[1]);
+      if (outputEnvVarNames?.get(outputKeys.shareLink)) {
+        mapping.set(outputEnvVarNames.get(outputKeys.shareLink)!, sideloadingRes[2]);
+      }
       return {
-        output: new Map([
-          [outputEnvVarNames!.get(outputKeys.titleId)!, sideloadingRes[0]],
-          [outputEnvVarNames!.get(outputKeys.appId)!, sideloadingRes[1]],
-        ]),
+        output: mapping,
         summaries: [getLocalizedString("driver.m365.acquire.summary", sideloadingRes[0])],
       };
     } catch (error) {
@@ -122,6 +131,10 @@ export class M365TitleAcquireDriver implements StepDriver {
 
     if (!args.appPackagePath || typeof args.appPackagePath !== "string") {
       invalidParameters.push("appPackagePath");
+    }
+
+    if (args.scope && !Object.values(AppScope).includes(args.scope)) {
+      invalidParameters.push("scope");
     }
 
     if (invalidParameters.length > 0) {
