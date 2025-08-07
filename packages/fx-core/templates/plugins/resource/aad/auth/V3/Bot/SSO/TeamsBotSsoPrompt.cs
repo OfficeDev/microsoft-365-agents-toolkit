@@ -12,8 +12,8 @@ using Microsoft.Identity.Client;
 using System.Net;
 using System.Text.RegularExpressions;
 using System.IdentityModel.Tokens.Jwt;
-using bowsong080401botsso.Configuration;
-using bowsong080401botsso.SSO;
+using {{YOUR_NAMESPACE}}.Configuration;
+using {{YOUR_NAMESPACE}}.SSO;
 using System.Text.Json;
 using Json.More;
 

@@ -1,4 +1,4 @@
-using bowsong080401botsso.Configuration;
+using {{YOUR_NAMESPACE}}.Configuration;
 using Microsoft.Agents.Builder;
 using Microsoft.Graph;
 using Microsoft.Kiota.Abstractions.Authentication;

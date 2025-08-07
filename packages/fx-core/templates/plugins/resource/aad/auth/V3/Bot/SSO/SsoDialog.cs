@@ -1,4 +1,4 @@
-﻿using bowsong080401botsso.Configuration;
+﻿using {{YOUR_NAMESPACE}}.Configuration;
 using Json.More;
 using Microsoft.Agents.Builder;
 using Microsoft.Agents.Builder.Dialogs;
