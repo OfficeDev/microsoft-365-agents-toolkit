@@ -133,7 +133,12 @@ export class M365TitleAcquireDriver implements StepDriver {
       invalidParameters.push("appPackagePath");
     }
 
-    if (args.scope && !Object.values(AppScope).includes(args.scope)) {
+    if (
+      args.scope &&
+      !Object.values(AppScope)
+        .map((v) => v.toLowerCase())
+        .includes(args.scope)
+    ) {
       invalidParameters.push("scope");
     }
 
