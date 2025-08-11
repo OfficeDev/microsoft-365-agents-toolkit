@@ -363,18 +363,24 @@ describe("defaultShell", () => {
     assert.equal(result, "/bin/bash");
   });
   it("darwin - /bin/zsh", async () => {
+    // Ensure SHELL does not override platform-specific logic
+    restoreEnv = mockedEnv({ SHELL: undefined });
     sandbox.stub(process, "platform").value("darwin");
     sandbox.stub(fs, "pathExists").resolves(true);
     const result = await defaultShell();
     assert.equal(result, "/bin/zsh");
   });
   it("darwin - /bin/bash", async () => {
+    // Ensure SHELL does not override platform-specific logic
+    restoreEnv = mockedEnv({ SHELL: undefined });
     sandbox.stub(process, "platform").value("darwin");
     sandbox.stub(fs, "pathExists").onFirstCall().resolves(false).onSecondCall().resolves(true);
     const result = await defaultShell();
     assert.equal(result, "/bin/bash");
   });
   it("darwin - undefined", async () => {
+    // Ensure SHELL does not override platform-specific logic
+    restoreEnv = mockedEnv({ SHELL: undefined });
     sandbox.stub(process, "platform").value("darwin");
     sandbox.stub(fs, "pathExists").resolves(false);
     const result = await defaultShell();
@@ -383,18 +389,22 @@ describe("defaultShell", () => {
 
   it("win32 - ComSpec", async () => {
     sandbox.stub(process, "platform").value("win32");
-    restoreEnv = mockedEnv({ ComSpec: "cmd.exe" });
+    // Ensure SHELL does not override platform-specific logic
+    restoreEnv = mockedEnv({ SHELL: undefined, ComSpec: "cmd.exe" });
     const result = await defaultShell();
     assert.equal(result, "cmd.exe");
   });
   it("win32 - cmd.exe", async () => {
     sandbox.stub(process, "platform").value("win32");
-    restoreEnv = mockedEnv({ ComSpec: undefined });
+    // Ensure SHELL does not override platform-specific logic
+    restoreEnv = mockedEnv({ SHELL: undefined, ComSpec: undefined });
     const result = await defaultShell();
     assert.equal(result, "cmd.exe");
   });
 
   it("other OS - /bin/sh", async () => {
+    // Ensure SHELL does not override platform-specific logic
+    restoreEnv = mockedEnv({ SHELL: undefined });
     sandbox.stub(process, "platform").value("other");
     sandbox.stub(fs, "pathExists").resolves(true);
     const result = await defaultShell();
@@ -402,6 +412,8 @@ describe("defaultShell", () => {
   });
 
   it("other OS - undefined", async () => {
+    // Ensure SHELL does not override platform-specific logic
+    restoreEnv = mockedEnv({ SHELL: undefined });
     sandbox.stub(process, "platform").value("other");
     sandbox.stub(fs, "pathExists").resolves(false);
     const result = await defaultShell();
