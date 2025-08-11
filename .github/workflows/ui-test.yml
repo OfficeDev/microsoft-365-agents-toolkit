@@ -657,7 +657,7 @@ jobs:
               fi
               duration=$(dateutils.ddiff "$started_at" "$completed_at" -f "%Mm %Ss" 2>/dev/null)
               if [ $? -ne 0 ]; then
-                duration="0"
+                duration=0
               fi
             else
               duration=0
