@@ -81,7 +81,12 @@ export async function msgHappyPathTestForLocalDebug(
         teamsAppId,
         Env.username,
         Env.password,
-        { projectPath: projectPath, env: "local", noAddApp: true }
+        {
+          projectPath: projectPath,
+          teamsAppName: localDebugTestContext.appName,
+          env: "local",
+          searchApp: false,
+        }
       );
       await localDebugTestContext.validateLocalStateForBot();
       await options.validationFn(page, {
@@ -135,8 +140,9 @@ export async function msgHappyPathTestForLocalDebug(
         Env.password,
         {
           projectPath: projectPath,
+          teamsAppName: localDebugTestContext.appName,
           env: "local",
-          noAddApp: true,
+          searchApp: false,
           loggedIn: true, // to avoid re-login
         }
       );
@@ -213,7 +219,12 @@ export async function msgHappyPathTestForRemoteDebug(
       teamsAppId,
       Env.username,
       Env.password,
-      { projectPath: projectPath, env: "dev", noAddApp: true }
+      {
+        projectPath: projectPath,
+        env: "dev",
+        teamsAppName: appName,
+        searchApp: false,
+      }
     );
     await driver.sleep(Timeout.longTimeWait);
     await options.validationFn(page, {
