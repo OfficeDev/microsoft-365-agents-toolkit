@@ -1,16 +1,16 @@
-import sinon from "sinon";
-import "mocha";
-import chai from "chai";
-import os from "os";
-import path, { parse } from "path";
-import AdmZip from "adm-zip";
-import fs from "fs-extra";
-import { Constants } from "../../../../src/component/driver/teamsApp/constants";
-import { pathUtils } from "../../../../src/component/utils/pathUtils";
-import { metadataUtil } from "../../../../src/component/utils/metadataUtil";
 import { err, ok, UserError } from "@microsoft/teamsfx-api";
-import { envUtil } from "../../../../src/component/utils/envUtil";
+import AdmZip from "adm-zip";
+import chai from "chai";
+import fs from "fs-extra";
+import "mocha";
+import os from "os";
+import path from "path";
+import sinon from "sinon";
 import { parseShareAppActionYamlConfig } from "../../../../src/component/driver/share/utils";
+import { Constants } from "../../../../src/component/driver/teamsApp/constants";
+import { envUtil } from "../../../../src/component/utils/envUtil";
+import { metadataUtil } from "../../../../src/component/utils/metadataUtil";
+import { pathUtils } from "../../../../src/component/utils/pathUtils";
 
 // Helper function to create a temporary ZIP file
 function createMockZipFile(): string {
@@ -50,7 +50,7 @@ describe("parseShareAppActionYamlConfig", () => {
     sandbox.stub(pathUtils, "getYmlFilePath").returns("mockTemplatePath");
     sandbox.stub(metadataUtil, "parse").resolves(
       ok({
-        share: {
+        deploy: {
           driverDefs: [
             {
               uses: "teamsApp/shareToOthers",
@@ -72,7 +72,11 @@ describe("parseShareAppActionYamlConfig", () => {
 
     chai.assert.isTrue(result.isOk());
     if (result.isOk()) {
-      chai.assert.deepEqual(result.value, ["mockManifestId", "mockTitleId", "mockAppId"]);
+      chai.assert.deepEqual(result.value, {
+        teamsappId: "mockManifestId",
+        titleId: "mockTitleId",
+        appId: "mockAppId",
+      });
     }
 
     process.env["parseShareAppActionYamlConfigMockTitleIdName"] = undefined;
@@ -98,7 +102,7 @@ describe("parseShareAppActionYamlConfig", () => {
     sandbox.stub(pathUtils, "getYmlFilePath").returns("mockTemplatePath");
     sandbox.stub(metadataUtil, "parse").resolves(
       ok({
-        share: {
+        deploy: {
           driverDefs: [
             {
               uses: "teamsApp/shareToOthers",
@@ -122,7 +126,7 @@ describe("parseShareAppActionYamlConfig", () => {
     sandbox.stub(pathUtils, "getYmlFilePath").returns("mockTemplatePath");
     sandbox.stub(metadataUtil, "parse").resolves(
       ok({
-        share: {
+        deploy: {
           driverDefs: [
             {
               uses: "teamsApp/shareToOthers",
@@ -149,7 +153,7 @@ describe("parseShareAppActionYamlConfig", () => {
     sandbox.stub(pathUtils, "getYmlFilePath").returns("mockTemplatePath");
     sandbox.stub(metadataUtil, "parse").resolves(
       ok({
-        share: {
+        deploy: {
           driverDefs: [
             {
               uses: "teamsApp/shareToOthers",
@@ -176,7 +180,7 @@ describe("parseShareAppActionYamlConfig", () => {
     chai.assert.isTrue(result.isErr());
     if (result.isErr()) {
       chai.assert.instanceOf(result.error, UserError);
-      chai.assert.equal(result.error.name, "Share to Users");
+      chai.assert.equal(result.error.name, "Share");
     }
   });
 
@@ -188,19 +192,19 @@ describe("parseShareAppActionYamlConfig", () => {
 
     chai.assert.isTrue(result.isErr());
     if (result.isErr()) {
-      chai.assert.equal(result.error.name, "Share to Users");
+      chai.assert.equal(result.error.name, "Share");
     }
   });
 
   it("should return error when shareToOthersAction is missing", async () => {
     sandbox.stub(pathUtils, "getYmlFilePath").returns("mockTemplatePath");
-    sandbox.stub(metadataUtil, "parse").resolves(ok({ share: { driverDefs: [] } } as any));
+    sandbox.stub(metadataUtil, "parse").resolves(ok({ deploy: { driverDefs: [] } } as any));
 
     const result = await parseShareAppActionYamlConfig("mockProjectPath");
 
     chai.assert.isTrue(result.isErr());
     if (result.isErr()) {
-      chai.assert.equal(result.error.name, "Share to Users");
+      chai.assert.equal(result.error.name, "Share");
     }
   });
 
@@ -209,7 +213,7 @@ describe("parseShareAppActionYamlConfig", () => {
     sandbox.stub(pathUtils, "getYmlFilePath").returns("mockTemplatePath");
     sandbox.stub(metadataUtil, "parse").resolves(
       ok({
-        share: {
+        deploy: {
           driverDefs: [
             {
               uses: "teamsApp/shareToOthers",
@@ -241,7 +245,7 @@ describe("parseShareAppActionYamlConfig", () => {
     sandbox.stub(pathUtils, "getYmlFilePath").returns("mockTemplatePath");
     sandbox.stub(metadataUtil, "parse").resolves(
       ok({
-        share: {
+        deploy: {
           driverDefs: [
             {
               uses: "teamsApp/shareToOthers",
@@ -271,7 +275,7 @@ describe("parseShareAppActionYamlConfig", () => {
     sandbox.stub(pathUtils, "getYmlFilePath").returns("mockTemplatePath");
     sandbox.stub(metadataUtil, "parse").resolves(
       ok({
-        share: {
+        deploy: {
           driverDefs: [
             {
               uses: "teamsApp/shareToOthers",

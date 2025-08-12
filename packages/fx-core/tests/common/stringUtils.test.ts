@@ -9,6 +9,7 @@ import {
   loadingDefaultPlaceholder,
   loadingOptionsPlaceholder,
   maskSecret,
+  maskSecretFromEnv,
 } from "../../src/common/stringUtils";
 import { getLocalizedString } from "../../src/common/localizeUtils";
 import { FailedToParseResourceIdError } from "../../src/error";
@@ -28,6 +29,36 @@ describe("stringUtils", () => {
     it("input undefined", async () => {
       const output = maskSecret();
       assert.equal(output, "");
+    });
+  });
+
+  describe("maskSecretFromEnv", () => {
+    it("should handle special regex characters in environment variable values", () => {
+      const originalEnv = process.env;
+      try {
+        process.env.SECRET_TEST = "+91O/snBU6On";
+
+        const input = "The secret value is +91O/snBU6On and should be masked";
+        const output = maskSecretFromEnv(input);
+
+        assert.equal(output, "The secret value is <REDACTED:secret> and should be masked");
+      } finally {
+        process.env = originalEnv;
+      }
+    });
+
+    it("should handle multiple special regex characters", () => {
+      const originalEnv = process.env;
+      try {
+        process.env.SECRET_REGEX = ".*+?^${}()|[]\\";
+
+        const input = "Secret with special chars: .*+?^${}()|[]\\";
+        const output = maskSecretFromEnv(input);
+
+        assert.equal(output, "Secret with special chars: <REDACTED:secret>");
+      } finally {
+        process.env = originalEnv;
+      }
     });
   });
 

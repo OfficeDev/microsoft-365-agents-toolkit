@@ -128,6 +128,36 @@ export class CollaborationUtil {
     };
   }
 
+  // static async getGroupInfo(
+  //   email: string,
+  //   m365TokenProvider?: M365TokenProvider
+  // ): Promise<AppGroup | undefined> {
+  //   const graphTokenRes = await m365TokenProvider?.getAccessToken({ scopes: GroupSearchScopes });
+  //   const graphToken = graphTokenRes?.isOk() ? graphTokenRes.value : undefined;
+  //   const instance = axios.create({
+  //     baseURL: "https://graph.microsoft.com/v1.0",
+  //   });
+  //   instance.defaults.headers.common["Authorization"] = `Bearer ${graphToken as string}`;
+  //   const res = await instance.get(`/groups?$filter=startsWith(mail,'${email}')`);
+  //   if (!res || !res.data || !res.data.value) {
+  //     return undefined;
+  //   }
+
+  //   const group = res.data.value.find(
+  //     (group: any) => group.mail?.toLowerCase() === email.toLowerCase()
+  //   );
+
+  //   if (!group) {
+  //     return undefined;
+  //   }
+
+  //   return {
+  //     id: group.id,
+  //     displayName: group.displayName,
+  //     email: group.mail,
+  //   };
+  // }
+
   static async loadDotEnvFile(
     dotEnvFilePath: string
   ): Promise<Result<{ [key: string]: string }, FxError>> {

@@ -8,7 +8,6 @@ import {
   CLIOptionType,
   CLIStringOption,
   IQTreeNode,
-  MultiFileQuestion,
   MultiSelectQuestion,
   Platform,
   SingleSelectQuestion,

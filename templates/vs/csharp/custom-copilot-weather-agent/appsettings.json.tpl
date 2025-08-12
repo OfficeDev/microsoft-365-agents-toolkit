@@ -1,5 +1,5 @@
 {
-  "AgentApplicationOptions": {
+  "AgentApplication": {
     "StartTypingTimer": true,
     "RemoveRecipientMention": false,
     "NormalizeMentions": false
@@ -25,6 +25,7 @@
       }
     }
   },
+
   "ConnectionsMap": [
     {
       "ServiceUrl": "*",

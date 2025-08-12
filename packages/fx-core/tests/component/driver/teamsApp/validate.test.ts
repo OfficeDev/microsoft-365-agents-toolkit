@@ -8,6 +8,7 @@ import {
   Platform,
   SystemError,
   TeamsManifestV1D19,
+  TeamsManifestVDevPreview,
 } from "@microsoft/teamsfx-api";
 import chai from "chai";
 import "mocha";
@@ -429,6 +430,64 @@ describe("teamsApp/validateManifest", async () => {
       const teamsManifest = {
         manifestVersion: "1.19",
       } as TeamsManifestV1D19.TeamsManifestV1D19;
+      teamsManifest.copilotAgents = {
+        declarativeAgents: [
+          {
+            id: "fakeId",
+            file: "fakeFile",
+          },
+        ],
+      };
+
+      sinon.stub(manifestUtils, "getManifestV3").resolves(ok(teamsManifest));
+      sinon.stub(ManifestUtil, "validateManifest").resolves([]);
+      sinon.stub(pluginManifestUtils, "validateAgainstSchema").resolves(
+        ok({
+          id: "fakeId",
+          filePath: "fakeFile",
+          validationResult: ["error1"],
+        })
+      );
+      sinon.stub(pluginManifestUtils, "logValidationErrors").returns("errorMessage1");
+
+      sinon.stub(copilotGptManifestUtils, "validateAgainstSchema").resolves(
+        ok({
+          id: "fakeId",
+          filePath: "fakeFile",
+          validationResult: ["error2"],
+          actionValidationResult: [
+            {
+              id: "fakeId",
+              filePath: "fakeFile",
+              validationResult: ["error3"],
+            },
+          ],
+        })
+      );
+      sinon.stub(copilotGptManifestUtils, "logValidationErrors").returns("errorMessage2");
+
+      const args: ValidateManifestArgs = {
+        manifestPath:
+          "./tests/plugins/resource/appstudio/resources-multi-env/templates/appPackage/v3.manifest.template.json",
+        showMessage: true,
+      };
+
+      mockedDriverContext.platform = Platform.VSCode;
+      mockedDriverContext.projectPath = "test";
+
+      const result = (await teamsAppDriver.execute(args, mockedDriverContext)).result;
+      chai.assert(result.isErr());
+      if (result.isErr()) {
+        chai.assert.equal(result.error.name, AppStudioError.ValidationFailedError.name);
+      }
+    });
+
+    it("validate with errors returned - MetaOS DA", async () => {
+      const teamsManifest = {
+        $schema:
+          "https://developer.microsoft.com/json-schemas/teams/vDevPreview/MicrosoftTeams.schema.json",
+        manifestVersion: "devPreview",
+      } as TeamsManifestVDevPreview.TeamsManifestVDevPreview;
       teamsManifest.copilotAgents = {
         declarativeAgents: [
           {

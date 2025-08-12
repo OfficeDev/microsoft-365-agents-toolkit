@@ -42,6 +42,7 @@ export class Generator {
   public static getDefaultVariables(
     appName: string,
     safeProjectNameFromVS?: string,
+    solutionNameFromVS?: string,
     targetFramework?: string,
     placeProjectFileInSolutionDir?: boolean,
     authData?: {
@@ -86,6 +87,7 @@ export class Generator {
       PlaceProjectFileInSolutionDir: placeProjectFileInSolutionDir ? "true" : "",
       SafeProjectName: safeProjectName,
       SafeProjectNameLowerCase: safeProjectName.toLocaleLowerCase(),
+      SolutionName: solutionNameFromVS ?? appName,
       ApiKey: apiKeyActionData,
       OAuth: oauthActionData,
       enableTestToolByDefault: featureFlagManager.getBooleanValue(FeatureFlags.TestTool)

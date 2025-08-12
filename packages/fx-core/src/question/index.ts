@@ -19,18 +19,17 @@ import {
   metaOSExtendToDAQuestionNode,
   oauthQuestion,
   previewWithTeamsAppManifestQuestionNode,
-  removeSharedAccessNode,
+  regeneratePluginNode,
   selectTeamsAppManifestQuestionNode,
   setSensitivityLabelNode,
-  shareNode,
   syncManifestQuestionNode,
   uninstallQuestionNode,
   validateTeamsAppQuestionNode,
-  regeneratePluginNode,
 } from "./other";
 import { scaffoldQuestionForVS } from "./scaffold/vs/createRootNode";
 import { createFromTdpNode } from "./scaffold/vsc/createFromTdpNode";
 import { scaffoldQuestionForVSCode } from "./scaffold/vsc/createRootNode";
+import { removeSharedAccessNode, shareNode } from "./share";
 export * from "./constants";
 export * from "./create";
 export * from "./inputs";

@@ -310,16 +310,16 @@ export class Member implements NotificationTarget {
     const reference = context.activity.getConversationReference();
     const personalConversation = utils.cloneConversation(reference);
 
-    const connectorClient: ConnectorClient = context.turnState.get(
-      this.parent.adapter.ConnectorClientKey
-    );
+    const connectorClient: ConnectorClient =
+      context.turnState.get(this.parent.adapter.ConnectorClientKey) ??
+      this.parent.adapter.connectorClient;
 
     const conversationParams: ConversationParameters = {
       members: [this.account],
       isGroup: false,
       agent: context.activity.recipient!,
       tenantId: context.activity.conversation!.tenantId,
-      activity: context.activity,
+      activity: undefined as any,
       channelData: context.activity.channelData,
     };
     const conversation = await connectorClient.createConversationAsync(conversationParams);
@@ -512,7 +512,8 @@ export class TeamsBotInstallation implements NotificationTarget {
           data: pagedMembers.members.map((m) => new Member(this, m)),
           continuationToken: pagedMembers.continuationToken,
         };
-      }
+      },
+      true
     );
 
     return result;

@@ -180,7 +180,7 @@
   "teamstoolkit.commandsTreeViewProvider.publishInDevPortalDescription": "Before publishing your app, we recommend to validate all integration test cases.",
   "teamstoolkit.commandsTreeViewProvider.publishTitle": "Publish to Organization",
   "teamstoolkit.commandsTreeViewProvider.shareTitle": "Share",
-  "teamstoolkit.commandsTreeViewProvider.shareDescription": "Run the 'share' lifecycle stage in m365agents.yml file.",
+  "teamstoolkit.commandsTreeViewProvider.shareDescription": "Change the shared scope of agent.",
   "teamstoolkit.commandsTreeViewProvider.getStartedTitle": "Get Started",
   "teamstoolkit.commandsTreeViewProvider.reportIssuesDescription": "Report any issues and let us know your feedback",
   "teamstoolkit.commandsTreeViewProvider.reportIssuesTitle": "Report Issues on GitHub",

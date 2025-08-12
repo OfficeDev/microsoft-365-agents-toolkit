@@ -13,6 +13,6 @@ class TabDockerTestCase extends CaseFactory {}
 new TabDockerTestCase(
   TemplateProjectFolder.TabDocker,
   27676823,
-  "yiminjin@microsoft.com",
+  "Ning.Tang@microsoft.com",
   ["aca"]
 ).test();

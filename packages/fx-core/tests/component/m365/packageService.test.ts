@@ -7,18 +7,18 @@ import * as chai from "chai";
 import chaiAsPromised from "chai-as-promised";
 import fs from "fs-extra";
 import "mocha";
-import sinon from "sinon";
+import { createSandbox } from "sinon";
+import { setTools } from "../../../src/common/globalVars";
+import { AppUser } from "../../../src/component/driver/teamsApp/interfaces/appdefinitions/appUser";
 import { NotExtendedToM365Error } from "../../../src/component/m365/errors";
 import { AppScope, PackageService } from "../../../src/component/m365/packageService";
-import { setTools } from "../../../src/common/globalVars";
 import { UnhandledError } from "../../../src/error/common";
 import { MockLogProvider } from "../../core/utils";
-import { AppUser } from "../../../src/component/driver/teamsApp/interfaces/appdefinitions/appUser";
 
 chai.use(chaiAsPromised);
 
 describe("Package Service", () => {
-  const sandbox = sinon.createSandbox();
+  const sandbox = createSandbox();
   const logger = new MockLogProvider();
   let axiosDeleteResponses: Record<string, unknown> = {};
   let axiosGetResponses: Record<string, unknown> = {};

@@ -24,6 +24,7 @@
     /// For command, set <c>Command.Commands</c> in <see cref="CommandOptions"/> to register your command handlers.
     /// </para>
     /// </remarks>
+    [Obsolete("This package will be deprecated by 2026-09. Please use Microsoft 365 Agents SDK (https://github.com/microsoft/Agents-for-net) instead.")]
     public class ConversationBot
     {
         /// <summary>

@@ -177,6 +177,7 @@ import {
   HubTypes,
   KnowledgeSearchTypeOptions,
   KnowledgeSourceOptions,
+  MAX_EMAIL_NUMBER,
   QuestionNames,
   SPFxVersionOptionIds,
   ScratchOptions,
@@ -185,6 +186,7 @@ import {
 import { ValidateTeamsAppInputs } from "../question/inputs/ValidateTeamsAppInputs";
 import { isAadMainifestContainsPlaceholder } from "../question/other";
 import { ProjectTypeOptions } from "../question/scaffold/vsc/ProjectTypeOptions";
+import { ShareOperationOption, ShareScopeOption } from "../question/share";
 import { CallbackRegistry, CoreCallbackFunc } from "./callback";
 import {
   CollaborationUtil,
@@ -205,6 +207,7 @@ import {
   getTrackingIdFromPath,
   getVersionState,
 } from "./middleware/utils/v3MigrationUtils";
+import { addSharedUsers, removeShareAccess, shareWithTenant } from "./share";
 import { CoreTelemetryEvent, CoreTelemetryProperty } from "./telemetry";
 import { CoreHookContext, PreProvisionResForVS, VersionCheckRes } from "./types";
 
@@ -845,9 +848,6 @@ export class FxCore {
     }
   }
 
-  /**
-   * lifecycle command: share
-   */
   @hooks([
     ErrorContextMW({ component: "FxCore", stage: "share", reset: true }),
     ErrorHandlerMW,
@@ -869,8 +869,8 @@ export class FxCore {
     if (parseRes.isErr()) {
       return err(parseRes.error);
     }
-    const teamsAppId = parseRes.value[0];
-    const sharedTitleId = parseRes.value[1];
+    const teamsAppId = parseRes.value.teamsappId;
+    const sharedTitleId = parseRes.value.titleId;
 
     const tokenProvider = TOOLS.tokenProvider.m365TokenProvider;
     const appStudioTokenRes = await tokenProvider.getAccessToken({
@@ -921,7 +921,7 @@ export class FxCore {
         return err(res.error);
       }
     }
-    const msg = getLocalizedString("core.common.removeShareAccess.success", emails);
+    const msg = getLocalizedString("core.common.removeOwnership.success", emails);
     TOOLS.ui?.showMessage("info", msg, false);
     return ok(undefined);
   }
@@ -943,31 +943,41 @@ export class FxCore {
     inputs: Inputs,
     ctx?: CoreHookContext
   ): Promise<Result<undefined, FxError>> {
-    const options = inputs[QuestionNames.ShareOption];
-    if (options === QuestionNames.ShareOptionShareApp) {
-      inputs.stage = Stage.share;
-      const context = createDriverContext(inputs);
-      const res = await coordinator.share(context, inputs as InputsWithProjectPath);
-      if (res.isOk()) {
-        ctx!.envVars = res.value;
-        return ok(undefined);
-      } else {
-        // for partial success scenario, output is set in inputs object
-        ctx!.envVars = inputs.envVars;
-        return err(res.error);
-      }
-    } else if (options === QuestionNames.ShareOptionShareToUser) {
-      const emails = (inputs[QuestionNames.ShareToUsers] as string).split(",").map((e) => e.trim());
-      if (!emails || emails.length === 0) {
-        return err(new MissingRequiredInputError("emails", "FxCore"));
-      }
-      const parseRes = await parseShareAppActionYamlConfig(inputs.projectPath!);
-      if (parseRes.isErr()) {
-        return err(parseRes.error);
-      }
-      const teamsAppId = parseRes.value[0];
-      const sharedTitleId = parseRes.value[1];
+    const operation = inputs[QuestionNames.ShareOperation];
+    const scope = inputs[QuestionNames.ShareScope];
+    let emails: string[] = [];
 
+    if (
+      scope === ShareScopeOption.ShareAppWithSpecificUsers ||
+      scope === ShareScopeOption.ShareAppWithOwners ||
+      operation === ShareOperationOption.RemoveShareAccessFromUsers
+    ) {
+      emails = (inputs[QuestionNames.UserEmail] as string).split(",").map((e) => e.trim());
+      if (emails.length > MAX_EMAIL_NUMBER) {
+        return err(new InputValidationError("emails", "Too many emails"));
+      }
+    }
+    const parseRes = await parseShareAppActionYamlConfig(inputs.projectPath!);
+    if (parseRes.isErr()) {
+      return err(parseRes.error);
+    }
+    const sharedTitleId = parseRes.value.titleId;
+    const tokenProvider = TOOLS.tokenProvider.m365TokenProvider;
+    const mosTokenRes = await tokenProvider.getAccessToken({
+      scopes: [MosServiceScope],
+    });
+    if (mosTokenRes.isErr()) {
+      return err(mosTokenRes.error);
+    }
+    const mosToken = mosTokenRes.value;
+
+    if (operation === ShareOperationOption.RemoveShareAccessFromUsers) {
+      return removeShareAccess(mosToken, sharedTitleId, emails);
+    } else if (scope === ShareScopeOption.ShareAppWithTenantUsers) {
+      return shareWithTenant(mosToken, sharedTitleId);
+    } else if (scope === ShareScopeOption.ShareAppWithSpecificUsers) {
+      return addSharedUsers(mosToken, sharedTitleId, emails);
+    } else if (scope === ShareScopeOption.ShareAppWithOwners) {
       const tokenProvider = TOOLS.tokenProvider.m365TokenProvider;
       const appStudioTokenRes = await tokenProvider.getAccessToken({
         scopes: AppStudioScopes,
@@ -976,21 +986,18 @@ export class FxCore {
         return err(appStudioTokenRes.error);
       }
       const appStudioToken = appStudioTokenRes.value;
-      const mosTokenRes = await tokenProvider.getAccessToken({
-        scopes: [MosServiceScope],
-      });
-      if (mosTokenRes.isErr()) {
-        return err(mosTokenRes.error);
-      }
-      const mosToken = mosTokenRes.value;
       for (const email of emails) {
         const userInfo = await CollaborationUtil.getUserInfo(tokenProvider, email);
         if (!userInfo) {
-          return err(new InputValidationError("shareToUser", `Invalid user: ${email}`));
+          return err(new InputValidationError("shareWithOwner", `Invalid user: ${email}`));
         }
 
         // 1. grant TDP permission
-        await teamsDevPortalClient.grantPermission(appStudioToken, teamsAppId, userInfo);
+        await teamsDevPortalClient.grantPermission(
+          appStudioToken,
+          parseRes.value.teamsappId,
+          userInfo
+        );
 
         // 2. grant mos permission
         const res = await PackageService.GetSharedInstance().grantPermission(
@@ -1002,7 +1009,7 @@ export class FxCore {
           return err(res.error);
         }
       }
-      const msg = getLocalizedString("core.common.shareToUser.success", emails);
+      const msg = getLocalizedString("core.common.shareWithOwner.success", emails);
       TOOLS.ui?.showMessage("info", msg, false);
       return ok(undefined);
     } else {

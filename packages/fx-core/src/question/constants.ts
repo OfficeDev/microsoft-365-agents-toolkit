@@ -4,7 +4,6 @@
 import { Inputs, OptionItem } from "@microsoft/teamsfx-api";
 import { FeatureFlags, featureFlagManager } from "../common/featureFlags";
 import { getLocalizedString } from "../common/localizeUtils";
-import { QuestionNames } from "./questionNames";
 export { QuestionNames } from "./questionNames";
 
 export const AppNamePattern =
@@ -13,6 +12,8 @@ export const AppNamePattern =
 export enum CliQuestionName {
   Capability = "capability",
 }
+
+export const MAX_EMAIL_NUMBER = 20;
 
 export enum ProgrammingLanguage {
   JS = "javascript",

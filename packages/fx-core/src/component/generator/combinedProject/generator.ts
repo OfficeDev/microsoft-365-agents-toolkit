@@ -60,11 +60,14 @@ export class CombinedProjectGenerator extends DefaultTemplateGenerator {
     const language = inputs[QuestionNames.ProgrammingLanguage] as ProgrammingLanguage;
     const safeProjectNameFromVS =
       language === "csharp" ? inputs[QuestionNames.SafeProjectName] : undefined;
+    const solutionNameFromVS =
+      language === "csharp" ? inputs[QuestionNames.SolutionName] : undefined;
 
     const replaceMap = {
       ...Generator.getDefaultVariables(
         appName,
         safeProjectNameFromVS,
+        solutionNameFromVS,
         inputs.targetFramework,
         inputs.placeProjectFileInSolutionDir === "true"
       ),

@@ -131,3 +131,4 @@ export {
   getTeamsProjectTypeByCapability,
 } from "./question/scaffold/vsc/createRootNode";
 export { ProjectTypeOptions } from "./question/scaffold/vsc/ProjectTypeOptions";
+export { ShareOperationOption } from "./question/share";

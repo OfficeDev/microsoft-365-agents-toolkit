@@ -12,7 +12,6 @@ import {
   Inputs,
   MultiFileQuestion,
   MultiSelectQuestion,
-  OptionItem,
   Platform,
   PluginManifestSchema,
   SingleFileQuestion,
@@ -23,13 +22,11 @@ import fs from "fs-extra";
 import * as os from "os";
 import * as path from "path";
 import { GraphClient } from "../client/graphClient";
-import { teamsDevPortalClient } from "../client/teamsDevPortalClient";
 import { AppStudioScopes, ConstantString, ListSensitivityLabelScope } from "../common/constants";
 import { FeatureFlags, featureFlagManager } from "../common/featureFlags";
 import { TOOLS } from "../common/globalVars";
 import { getLocalizedString } from "../common/localizeUtils";
 import { Constants } from "../component/driver/add/utility/constants";
-import { parseShareAppActionYamlConfig } from "../component/driver/share/utils";
 import { manifestUtils } from "../component/driver/teamsApp/utils/ManifestUtils";
 import { envUtil } from "../component/utils/envUtil";
 import { CollaborationConstants, CollaborationUtil } from "../core/collaborator";
@@ -59,7 +56,6 @@ import {
   folderQuestion,
   oneDriveSharePointItemConfirmQuestion,
   oneDriveSharePointItemQuestion,
-  pluginApiSpecQuestion,
   pluginManifestQuestion,
   searchTypeQuestion,
   selectApiOperationForRegenerateQuestion,
@@ -71,9 +67,11 @@ import { UninstallInputs } from "./inputs";
 import { inputOrSearchAPISpecNode } from "./scaffold/vsc/teamsProjectTypeNode";
 
 export function listCollaboratorQuestionNode(): IQTreeNode {
-  const selectTeamsAppNode = selectTeamsAppManifestQuestionNode();
-  selectTeamsAppNode.condition = { contains: CollaborationConstants.TeamsAppQuestionId };
-  selectTeamsAppNode.children!.push({
+  const selectAppManifestNode = selectTeamsAppManifestQuestionNode();
+  selectAppManifestNode.condition = {
+    contains: CollaborationConstants.TeamsAppQuestionId,
+  };
+  selectAppManifestNode.children!.push({
     condition: envQuestionCondition,
     data: selectTargetEnvQuestion(QuestionNames.Env, false, false, ""),
   });
@@ -91,16 +89,18 @@ export function listCollaboratorQuestionNode(): IQTreeNode {
         data: selectAppTypeQuestion(),
         cliOptionDisabled: "self",
         inputsDisabled: "self",
-        children: [selectTeamsAppNode, selectAadAppNode],
+        children: [selectAppManifestNode, selectAadAppNode],
       },
     ],
   };
 }
 
 export function grantPermissionQuestionNode(): IQTreeNode {
-  const selectTeamsAppNode = selectTeamsAppManifestQuestionNode();
-  selectTeamsAppNode.condition = { contains: CollaborationConstants.TeamsAppQuestionId };
-  selectTeamsAppNode.children!.push({
+  const selectAppManifestNode = selectTeamsAppManifestQuestionNode();
+  selectAppManifestNode.condition = {
+    contains: CollaborationConstants.TeamsAppQuestionId,
+  };
+  selectAppManifestNode.children!.push({
     condition: envQuestionCondition,
     data: selectTargetEnvQuestion(QuestionNames.Env, false, false, ""),
   });
@@ -119,10 +119,14 @@ export function grantPermissionQuestionNode(): IQTreeNode {
         cliOptionDisabled: "self",
         inputsDisabled: "self",
         children: [
-          selectTeamsAppNode,
+          selectAppManifestNode,
           selectAadAppNode,
           {
-            data: inputUserEmailQuestion(),
+            data: inputUserEmailQuestion(
+              getLocalizedString("core.getUserEmailQuestion.title"),
+              "Email address of the collaborator.",
+              true
+            ),
           },
         ],
       },
@@ -554,13 +558,17 @@ async function getDefaultUserEmail() {
   return defaultUserEmail;
 }
 
-export function inputUserEmailQuestion(): TextInputQuestion {
+export function inputUserEmailQuestion(
+  title: string,
+  cliDescription: string,
+  useDefaultUser: boolean
+): TextInputQuestion {
   return {
     name: QuestionNames.UserEmail,
     type: "text",
-    title: getLocalizedString("core.getUserEmailQuestion.title"),
-    cliDescription: "Email address of the collaborator.",
-    default: getDefaultUserEmail,
+    title: title,
+    cliDescription: cliDescription,
+    default: useDefaultUser ? getDefaultUserEmail : undefined,
     validation: {
       validFunc: async (input: string, previousInputs?: Inputs) => {
         if (!input || input.trim() === "") {
@@ -568,9 +576,11 @@ export function inputUserEmailQuestion(): TextInputQuestion {
         }
 
         input = input.trim();
-        const defaultUserEmail = await getDefaultUserEmail();
-        if (input === defaultUserEmail) {
-          return getLocalizedString("core.getUserEmailQuestion.validation2");
+        if (useDefaultUser) {
+          const defaultUserEmail = await getDefaultUserEmail();
+          if (input === defaultUserEmail) {
+            return getLocalizedString("core.getUserEmailQuestion.validation2");
+          }
         }
 
         const re = /\S+@\S+\.\S+/;
@@ -1678,128 +1688,6 @@ export function SelectSensitivityLabelQuestion(): SingleSelectQuestion {
           id: label.id ?? "",
           label: label.displayName ?? "",
           description: label.description ?? "",
-        });
-      }
-      return options;
-    },
-    skipValidation: true,
-  };
-}
-
-export function shareNode(): IQTreeNode {
-  return {
-    data: {
-      type: "group",
-    },
-    children: [
-      {
-        data: shareOptionQuestion(),
-        children: [
-          {
-            condition: (inputs: Inputs) => {
-              return inputs[QuestionNames.ShareOption] === QuestionNames.ShareOptionShareToUser;
-            },
-            data: ShareToUserQuestion(),
-          },
-        ],
-      },
-    ],
-  };
-}
-
-function shareOptionQuestion(): SingleSelectQuestion {
-  return {
-    name: QuestionNames.ShareOption,
-    title: getLocalizedString("core.shareOptionQuestion.title"),
-    type: "singleSelect",
-    placeholder: getLocalizedString("core.shareOptionQuestion.placeholder"),
-    staticOptions: [
-      {
-        id: QuestionNames.ShareOptionShareApp,
-        label: getLocalizedString("core.shareOptionQuestion.share"),
-      },
-      {
-        id: QuestionNames.ShareOptionShareToUser,
-        label: getLocalizedString("core.shareOptionQuestion.shareToUser"),
-      },
-    ],
-  };
-}
-
-function ShareToUserQuestion(): TextInputQuestion {
-  return {
-    name: QuestionNames.ShareToUsers,
-    title: getLocalizedString("core.shareToUser.title"),
-    type: "text",
-    cliDescription: getLocalizedString("core.shareToUser.title"),
-    validation: {
-      validFunc: (input) => {
-        if (!input || input.trim() === "") {
-          return getLocalizedString("core.addUserQuestion.validation");
-        }
-      },
-    },
-  };
-}
-
-export function removeSharedAccessNode(): IQTreeNode {
-  return {
-    data: {
-      type: "group",
-    },
-    children: [
-      {
-        data: selectUsersToRemoveSharedAccess(),
-      },
-    ],
-  };
-}
-
-export function selectUsersToRemoveSharedAccess(): MultiSelectQuestion {
-  return {
-    name: QuestionNames.RemoveUsers,
-    title: getLocalizedString("core.selectUsersToRemoveShareAccess.title"),
-    type: "multiSelect",
-    cliDescription: getLocalizedString("core.selectUsersToRemoveShareAccess.title"),
-    staticOptions: [],
-    dynamicOptions: async (inputs: Inputs) => {
-      if (!inputs.projectPath) {
-        throw new Error("Project path is not defined");
-      }
-      const tokenRes = await TOOLS.tokenProvider.m365TokenProvider.getAccessToken({
-        scopes: AppStudioScopes,
-      });
-      if (tokenRes.isErr()) {
-        throw tokenRes.error;
-      }
-      const token = tokenRes.value;
-      const configRes = await parseShareAppActionYamlConfig(inputs.projectPath);
-      if (configRes.isErr()) {
-        throw configRes.error;
-      }
-      const teamsAppId = configRes.value[0];
-      const app = await teamsDevPortalClient.getApp(token, teamsAppId);
-      if (!app.userList || app.userList.length === 0) {
-        throw new Error("No owner found in the app");
-      }
-
-      const currentUserInfoRes = await CollaborationUtil.getCurrentUserInfo(
-        TOOLS.tokenProvider.m365TokenProvider
-      );
-      if (currentUserInfoRes.isErr()) {
-        throw currentUserInfoRes.error;
-      }
-      const operatorId = currentUserInfoRes.value.aadId;
-
-      const options: OptionItem[] = [];
-      for (const user of app.userList) {
-        if (user.aadId === operatorId) {
-          continue;
-        }
-        options.push({
-          id: user.userPrincipalName,
-          label: user.displayName,
-          description: user.userPrincipalName,
         });
       }
       return options;
