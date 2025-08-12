@@ -12,15 +12,12 @@ import {
   TokenCache,
   AuthorizationUrlRequest,
 } from "@azure/msal-node";
-import express from "express";
 import * as http from "http";
-import fs from "fs-extra";
 import path from "path";
 import { Mutex } from "async-mutex";
 import { FxError, ok, Result, UserError, err } from "@microsoft/teamsfx-api";
 import VsCodeLogInstance from "./log";
 import * as crypto from "crypto";
-import { AddressInfo } from "net";
 import {
   clearCache,
   loadAccountId,
@@ -47,17 +44,11 @@ import {
 } from "../telemetry/extTelemetryEvents";
 import { getDefaultString, localize } from "../utils/localizeUtils";
 import { ExtensionErrors } from "../error/error";
-import { env, Uri } from "vscode";
 import { randomBytes } from "crypto";
 import { getExchangeCode } from "./exchangeCode";
 import * as os from "os";
-import { ErrorCategory, featureFlagManager, FeatureFlags } from "@microsoft/teamsfx-core";
 
 const BASE_AUTHORITY = "https://login.microsoftonline.com/";
-interface Deferred<T> {
-  resolve: (result: T | Promise<T>) => void;
-  reject: (reason: any) => void;
-}
 
 export class CodeFlowLogin {
   pca: PublicClientApplication;
@@ -111,114 +102,36 @@ export class CodeFlowLogin {
     ExtTelemetry.sendTelemetryEvent(TelemetryEvent.LoginStart, {
       [TelemetryProperty.AccountType]: this.accountName,
     });
-    const codeVerifier = CodeFlowLogin.toBase64UrlEncoding(
-      crypto.randomBytes(32).toString("base64")
-    );
-    const codeChallenge = CodeFlowLogin.toBase64UrlEncoding(
-      await CodeFlowLogin.sha256(codeVerifier)
-    );
-    let serverPort = this.port;
 
-    // try get an unused port
-    const app = express();
-    const server = app.listen(serverPort);
-    serverPort = (server.address() as AddressInfo).port;
+    this.status = loggingIn;
     const authority = tenantId ? BASE_AUTHORITY + tenantId : undefined;
 
-    const authCodeUrlParameters: AuthorizationUrlRequest = {
+    const interactiveRequest = {
       scopes: scopes,
-      codeChallenge: codeChallenge,
-      codeChallengeMethod: "S256",
-      redirectUri: `http://localhost:${serverPort}`,
-      prompt: !loginHint ? "select_account" : "login",
-      loginHint,
+      openBrowser: async (url: string) => {
+        await vscode.env.openExternal(vscode.Uri.parse(url));
+      },
       authority: authority,
+      prompt: !loginHint ? "select_account" : "login",
+      loginHint: loginHint,
     };
-
-    let deferredRedirect: Deferred<string>;
-    const redirectPromise: Promise<string> = new Promise<string>(
-      (resolve, reject) => (deferredRedirect = { resolve, reject })
-    );
-
-    app.get("/", (req: express.Request, res: express.Response) => {
-      this.status = loggingIn;
-      const tokenRequest = {
-        code: req.query.code as string,
-        scopes: scopes,
-        redirectUri: `http://localhost:${serverPort}`,
-        codeVerifier: codeVerifier,
-      };
-
-      this.pca
-        .acquireTokenByCode(tokenRequest)
-        .then(async (response) => {
-          if (response) {
-            if (response.account) {
-              await this.mutex?.runExclusive(async () => {
-                this.account = response.account!;
-                this.status = loggedIn;
-                await saveAccountId(this.accountName, this.account.homeAccountId);
-              });
-              deferredRedirect.resolve(response.accessToken);
-
-              const resultFilePath = path.join(__dirname, "./codeFlowResult/index.html");
-              if (fs.existsSync(resultFilePath)) {
-                sendFile(res, resultFilePath, "text/html; charset=utf-8");
-              } else {
-                // do not break if result file has issue
-                void VsCodeLogInstance.error(
-                  "[Login] " + localize("teamstoolkit.codeFlowLogin.resultFileNotFound")
-                );
-                res.sendStatus(200);
-              }
-            }
-          } else {
-            throw new Error("get no response");
-          }
-        })
-        .catch((error) => {
-          this.status = loggedOut;
-          void VsCodeLogInstance.error("[Login] " + (error.message as string));
-          deferredRedirect.reject(
-            new UserError({
-              error,
-              source: getDefaultString("teamstoolkit.codeFlowLogin.loginComponent"),
-            })
-          );
-          res.status(500).send(error);
-        });
-    });
-
-    const codeTimer = setTimeout(() => {
-      if (this.account) {
-        this.status = loggedIn;
-      } else {
-        this.status = loggedOut;
-      }
-      const err = new UserError(
-        getDefaultString("teamstoolkit.codeFlowLogin.loginComponent"),
-        getDefaultString("teamstoolkit.codeFlowLogin.loginTimeoutTitle"),
-        getDefaultString("teamstoolkit.codeFlowLogin.loginTimeoutDescription"),
-        localize("teamstoolkit.codeFlowLogin.loginTimeoutDescription")
-      );
-      err.categories = [ErrorCategory.Internal];
-      deferredRedirect.reject(err);
-    }, 5 * 60 * 1000); // keep the same as azure login
-
-    function cancelCodeTimer() {
-      clearTimeout(codeTimer);
-    }
 
     let accessToken = undefined;
     try {
-      await this.startServer(server, serverPort);
-      void this.pca.getAuthCodeUrl(authCodeUrlParameters).then((response: string) => {
-        void vscode.env.openExternal(vscode.Uri.parse(response));
-      });
+      const response = await this.pca.acquireTokenInteractive(interactiveRequest);
 
-      redirectPromise.then(cancelCodeTimer, cancelCodeTimer);
-      accessToken = await redirectPromise;
+      if (response && response.account) {
+        await this.mutex?.runExclusive(async () => {
+          this.account = response.account!;
+          this.status = loggedIn;
+          await saveAccountId(this.accountName, this.account.homeAccountId);
+        });
+        accessToken = response.accessToken;
+      } else {
+        throw new Error("No response or account from interactive login");
+      }
     } catch (e) {
+      this.status = loggedOut;
       ExtTelemetry.sendTelemetryErrorEvent(TelemetryEvent.Login, e, {
         [TelemetryProperty.AccountType]: this.accountName,
         [TelemetryProperty.Success]: TelemetrySuccess.No,
@@ -244,15 +157,14 @@ export class CodeFlowLogin {
             : "false",
         });
       }
-      server.close();
     }
 
     return accessToken;
   }
 
   async loginInCodeSpace(scopes: Array<string>, tenantId?: string): Promise<string> {
-    let callbackUri: Uri = await env.asExternalUri(
-      Uri.parse(`${env.uriScheme}://${extensionID}/${codeSpacesAuthComplete}`)
+    let callbackUri: vscode.Uri = await vscode.env.asExternalUri(
+      vscode.Uri.parse(`${vscode.env.uriScheme}://${extensionID}/${codeSpacesAuthComplete}`)
     );
     const nonce: string = randomBytes(16).toString("base64");
     const callbackQuery = new URLSearchParams(callbackUri.query);
@@ -278,8 +190,8 @@ export class CodeFlowLogin {
       authority: authority,
     };
     const signInUrl: string = await this.pca.getAuthCodeUrl(authCodeUrlParameters);
-    const uri: Uri = Uri.parse(signInUrl);
-    void env.openExternal(uri);
+    const uri: vscode.Uri = vscode.Uri.parse(signInUrl);
+    void vscode.env.openExternal(uri);
 
     const timeoutPromise = new Promise((_resolve: (value: string) => void, reject) => {
       const wait = setTimeout(() => {
@@ -424,34 +336,6 @@ export class CodeFlowLogin {
     return await saveTenantId(this.accountName, tenantId);
   }
 
-  async startServer(server: http.Server, port: number): Promise<string> {
-    // handle port timeout
-    let defferedPort: Deferred<string>;
-    const portPromise: Promise<string> = new Promise<string>(
-      (resolve, reject) => (defferedPort = { resolve, reject })
-    );
-    const portTimer = setTimeout(() => {
-      defferedPort.reject(
-        new UserError(
-          getDefaultString("teamstoolkit.codeFlowLogin.loginComponent"),
-          getDefaultString("teamstoolkit.codeFlowLogin.loginPortConflictTitle"),
-          getDefaultString("teamstoolkit.codeFlowLogin.loginPortConflictDescription"),
-          localize("teamstoolkit.codeFlowLogin.loginPortConflictDescription")
-        )
-      );
-    }, 5000);
-
-    function cancelPortTimer() {
-      clearTimeout(portTimer);
-    }
-
-    server.on("listening", () => {
-      defferedPort.resolve(`Code login server listening on port ${port}`);
-    });
-    portPromise.then(cancelPortTimer, cancelPortTimer);
-    return portPromise;
-  }
-
   static toBase64UrlEncoding(base64string: string) {
     return base64string.replace(/=/g, "").replace(/\+/g, "-").replace(/\//g, "_");
   }
@@ -459,20 +343,6 @@ export class CodeFlowLogin {
   static sha256(s: string | Uint8Array): Promise<string> {
     return require("crypto").createHash("sha256").update(s).digest("base64");
   }
-}
-
-function sendFile(res: http.ServerResponse, filepath: string, contentType: string) {
-  fs.readFile(filepath, (err, body) => {
-    if (err) {
-      void VsCodeLogInstance.error(err.message);
-    } else {
-      res.writeHead(200, {
-        "Content-Length": body.length,
-        "Content-Type": contentType,
-      });
-      res.end(body);
-    }
-  });
 }
 
 export function LoginFailureError(innerError?: any): UserError {

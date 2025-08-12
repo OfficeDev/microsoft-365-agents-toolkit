@@ -7,17 +7,13 @@ import {
   FxError,
   LogLevel,
   Result,
-  SystemError,
   UserError,
   err,
   ok,
 } from "@microsoft/teamsfx-api";
 import { Mutex } from "async-mutex";
 import * as crypto from "crypto";
-import express from "express";
-import * as fs from "fs-extra";
 import * as http from "http";
-import { AddressInfo } from "net";
 import open from "open";
 import os from "os";
 import * as path from "path";
@@ -37,7 +33,7 @@ import {
   saveAccountId,
   saveTenantId,
 } from "./cacheAccess";
-import { azureLoginMessage, env, m365LoginMessage, sendFileTimeout } from "./common/constant";
+import { azureLoginMessage, env, m365LoginMessage } from "./common/constant";
 import CliCodeLogInstance from "./log";
 import { decodeClaimsChallenge } from "./common/utils";
 
@@ -61,11 +57,6 @@ export class ErrorMessage {
     "Fail to login via username and password. Please check your username or password";
 }
 
-interface Deferred<T> {
-  resolve: (result: T | Promise<T>) => void;
-  reject: (reason: any) => void;
-}
-
 export class CodeFlowLogin {
   pca: PublicClientApplication;
   account: AccountInfo | undefined;
@@ -78,7 +69,6 @@ export class CodeFlowLogin {
   mutex: Mutex;
   msalTokenCache: TokenCache;
   accountName: string;
-  socketMap: Map<number, any>;
 
   constructor(scopes: string[], config: Configuration, port: number, accountName: string) {
     this.scopes = scopes;
@@ -88,7 +78,6 @@ export class CodeFlowLogin {
     this.pca = new PublicClientApplication(this.config);
     this.msalTokenCache = this.pca.getTokenCache();
     this.accountName = accountName;
-    this.socketMap = new Map();
   }
 
   async reloadCache() {
@@ -125,103 +114,13 @@ export class CodeFlowLogin {
       scopes = requestScopes;
     }
 
-    const codeVerifier = CodeFlowLogin.toBase64UrlEncoding(
-      crypto.randomBytes(32).toString("base64")
-    );
-    const codeChallenge = CodeFlowLogin.toBase64UrlEncoding(
-      await CodeFlowLogin.sha256(codeVerifier)
-    );
-    let serverPort = this.port;
-
-    // try get an unused port
-    const app = express();
-    const server = app.listen(serverPort);
-    serverPort = (server.address() as AddressInfo).port;
-    let lastSocketKey = 0;
-    server.on("connection", (socket) => {
-      const socketKey = ++lastSocketKey;
-      this.socketMap.set(socketKey, socket);
-      socket.on("close", () => {
-        this.socketMap.delete(socketKey);
-      });
-    });
-
-    server.on("close", () => {
-      this.destroySockets();
-    });
-
     const authority = tenantId ? env.activeDirectoryEndpointUrl + tenantId : undefined;
-    const authCodeUrlParameters = {
+    const interactiveRequest = {
       scopes: scopes,
-      codeChallenge: codeChallenge,
-      codeChallengeMethod: "S256",
-      redirectUri: `http://localhost:${serverPort}`,
-      prompt: "select_account",
       authority: authority,
+      prompt: "select_account",
       claims: claim,
-    };
-
-    let deferredRedirect: Deferred<string>;
-    const redirectPromise: Promise<string> = new Promise<string>(
-      (resolve, reject) => (deferredRedirect = { resolve, reject })
-    );
-
-    app.get("/", (req: express.Request, res: express.Response) => {
-      const tokenRequest = {
-        code: req.query.code as string,
-        scopes: scopes,
-        redirectUri: `http://localhost:${serverPort}`,
-        codeVerifier: codeVerifier,
-      };
-
-      this.pca
-        .acquireTokenByCode(tokenRequest)
-        .then(async (response) => {
-          if (response) {
-            if (response.account) {
-              await this.mutex?.runExclusive(async () => {
-                this.account = response.account!;
-                await saveAccountId(this.accountName, this.account.homeAccountId);
-              });
-              await sendFile(
-                res,
-                path.join(__dirname, "./codeFlowResult/index.html"),
-                "text/html; charset=utf-8",
-                this.accountName
-              );
-              this.destroySockets();
-              deferredRedirect.resolve(response.accessToken);
-            }
-          } else {
-            throw new Error("get no response");
-          }
-        })
-        .catch((error) => {
-          CliCodeLogInstance.necessaryLog(LogLevel.Error, "[Login] " + error.message);
-          deferredRedirect.reject(new UserError({ error, source: ErrorMessage.loginComponent }));
-
-          res.status(500).send(error);
-        });
-    });
-
-    const codeTimer = setTimeout(() => {
-      deferredRedirect.reject(
-        new UserError(
-          ErrorMessage.loginComponent,
-          ErrorMessage.loginTimeoutTitle,
-          ErrorMessage.loginTimeoutDescription
-        )
-      );
-    }, 5 * 60 * 1000);
-
-    function cancelCodeTimer() {
-      clearTimeout(codeTimer);
-    }
-
-    let accessToken = undefined;
-    try {
-      await this.startServer(server, serverPort);
-      void this.pca.getAuthCodeUrl(authCodeUrlParameters).then((url: string) => {
+      openBrowser: async (url: string) => {
         url += "#";
         if (this.accountName == "azure") {
           CliCodeLogInstance.outputInfo(
@@ -232,11 +131,23 @@ export class CodeFlowLogin {
             m365LoginMessage + colorize(url, TextType.Hyperlink) + os.EOL
           );
         }
-        void open(url);
-      });
+        await open(url);
+      },
+    };
 
-      redirectPromise.then(cancelCodeTimer, cancelCodeTimer);
-      accessToken = await redirectPromise;
+    let accessToken = undefined;
+    try {
+      const response = await this.pca.acquireTokenInteractive(interactiveRequest);
+
+      if (response && response.account) {
+        await this.mutex?.runExclusive(async () => {
+          this.account = response.account!;
+          await saveAccountId(this.accountName, this.account.homeAccountId);
+        });
+        accessToken = response.accessToken;
+      } else {
+        throw new Error("No response or account from interactive login");
+      }
     } catch (e: any) {
       CliTelemetry.sendTelemetryEvent(TelemetryEvent.AccountLogin, {
         [TelemetryProperty.AccountType]: this.accountName,
@@ -261,13 +172,16 @@ export class CodeFlowLogin {
             : "false",
         });
       }
-      server.close();
     }
 
     return accessToken;
   }
 
   async logout(): Promise<boolean> {
+    const accounts = await this.pca.getAllAccounts();
+    for (const account of accounts) {
+      await this.pca.signOut({ account: account });
+    }
     (this.msalTokenCache as any).storage.setCache({});
     await clearCache(this.accountName);
     await saveAccountId(this.accountName, undefined);
@@ -350,39 +264,6 @@ export class CodeFlowLogin {
     }
   }
 
-  async startServer(server: http.Server, port: number): Promise<string> {
-    // handle port timeout
-    let defferedPort: Deferred<string>;
-    const portPromise: Promise<string> = new Promise<string>(
-      (resolve, reject) => (defferedPort = { resolve, reject })
-    );
-    const portTimer = setTimeout(() => {
-      defferedPort.reject(
-        new SystemError(
-          ErrorMessage.loginComponent,
-          ErrorMessage.loginPortConflictTitle,
-          ErrorMessage.loginPortConflictDescription
-        )
-      );
-    }, 5000);
-
-    function cancelPortTimer() {
-      clearTimeout(portTimer);
-    }
-
-    server.on("listening", () => {
-      defferedPort.resolve(`Code login server listening on port ${port}`);
-    });
-    portPromise.then(cancelPortTimer, cancelPortTimer);
-    return portPromise;
-  }
-
-  destroySockets(): void {
-    for (const key of this.socketMap.keys()) {
-      this.socketMap.get(key).destroy();
-    }
-  }
-
   static toBase64UrlEncoding(base64string: string) {
     return base64string.replace(/=/g, "").replace(/\+/g, "-").replace(/\//g, "_");
   }
@@ -390,36 +271,6 @@ export class CodeFlowLogin {
   static sha256(s: string | Uint8Array): Promise<string> {
     return new Promise((solve) => solve(crypto.createHash("sha256").update(s).digest("base64")));
   }
-}
-
-function sendFile(
-  res: http.ServerResponse,
-  filepath: string,
-  contentType: string,
-  accountName: string
-): Promise<void> {
-  return new Promise((resolve, reject) => {
-    void (async () => {
-      let body = await fs.readFile(filepath);
-      let data = body.toString();
-      data = data.replace(/\${accountName}/g, accountName == "azure" ? "Azure" : "M365");
-      body = Buffer.from(data, UTF8);
-      res.writeHead(200, {
-        "Content-Length": body.length,
-        "Content-Type": contentType,
-      });
-
-      const timeout = setTimeout(() => {
-        CliCodeLogInstance.necessaryLog(LogLevel.Error, sendFileTimeout);
-        reject();
-      }, 10000);
-
-      res.end(body, () => {
-        clearTimeout(timeout);
-        resolve();
-      });
-    })();
-  });
 }
 
 export function LoginFailureError(innerError?: any): UserError {
