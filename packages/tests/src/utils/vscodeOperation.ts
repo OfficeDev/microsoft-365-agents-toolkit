@@ -1118,8 +1118,6 @@ export async function createNewProject(
   const filterFunc = (src: string) =>
     src.indexOf("node_modules") > -1 ? false : true;
   await fs.copy(projectPath, projectCopyPath, { filter: filterFunc });
-  console.log("Update yaml file for m365 agents");
-  await extendM365Yaml(projectCopyPath, "dev");
   console.log("open project path");
   await openExistingProject(projectCopyPath);
 }

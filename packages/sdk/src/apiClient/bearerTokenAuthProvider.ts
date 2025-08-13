@@ -7,12 +7,14 @@ import { AuthProvider } from "./authProvider";
 
 /**
  * Provider that handles Bearer Token authentication
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
  */
 export class BearerTokenAuthProvider implements AuthProvider {
   private getToken: () => Promise<string>;
 
   /**
    * @param { () => Promise<string> } getToken - Function that returns the content of bearer token used in http request
+   * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
    */
   constructor(getToken: () => Promise<string>) {
     this.getToken = getToken;
@@ -27,6 +29,7 @@ export class BearerTokenAuthProvider implements AuthProvider {
    * @returns Updated axios request config.
    *
    * @throws {@link ErrorCode|AuthorizationInfoAlreadyExists} - when Authorization header already exists in request configuration.
+   * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
    */
   public async AddAuthenticationInfo(config: AxiosRequestConfig): Promise<AxiosRequestConfig> {
     const token = await this.getToken();

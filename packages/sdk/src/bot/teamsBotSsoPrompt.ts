@@ -11,14 +11,9 @@ import {
   TokenExchangeInvokeRequest,
   TokenExchangeResource,
   TokenPostResource,
-  SigningResource,
+  SignInResource,
 } from "@microsoft/agents-hosting";
-import {
-  TeamsInfo,
-  TeamsChannelAccount,
-  verifyStateOperationName,
-  tokenExchangeOperationName,
-} from "@microsoft/agents-hosting-teams";
+import { TeamsInfo, TeamsChannelAccount } from "@microsoft/agents-hosting-extensions-teams";
 import {
   Dialog,
   DialogContext,
@@ -34,10 +29,12 @@ import { internalLogger } from "../util/logger";
 import { validateScopesType, formatString, parseJwt, validateConfig } from "../util/utils";
 import { OnBehalfOfCredentialAuthConfig } from "../models/configuration";
 import { OnBehalfOfUserCredential } from "../credential/onBehalfOfUserCredential";
+import { verifyStateOperationName, tokenExchangeOperationName } from "../conversation/interface";
 
 const invokeResponseType = "invokeResponse";
 /**
  * Response body returned for a token exchange invoke activity.
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
  */
 class TokenExchangeInvokeResponse {
   /**
@@ -50,6 +47,9 @@ class TokenExchangeInvokeResponse {
    */
   failureDetail: string;
 
+  /**
+   * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
+   */
   constructor(id: string, failureDetail: string) {
     this.id = id;
     this.failureDetail = failureDetail;
@@ -58,6 +58,7 @@ class TokenExchangeInvokeResponse {
 
 /**
  * Settings used to configure an TeamsBotSsoPrompt instance.
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
  */
 export interface TeamsBotSsoPromptSettings {
   /**
@@ -127,6 +128,7 @@ export interface TeamsBotSsoPromptSettings {
  *      }
  * ]));
  * ```
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
  */
 export class TeamsBotSsoPrompt extends Dialog {
   private authConfig: OnBehalfOfCredentialAuthConfig;
@@ -142,6 +144,7 @@ export class TeamsBotSsoPrompt extends Dialog {
    *
    * @throws {@link ErrorCode|InvalidParameter} when scopes is not a valid string or string array.
    * @throws {@link ErrorCode|RuntimeNotSupported} when runtime is browser.
+   * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
    */
   constructor(
     authConfig: OnBehalfOfCredentialAuthConfig,
@@ -174,6 +177,7 @@ export class TeamsBotSsoPrompt extends Dialog {
    * @throws {@link ErrorCode|RuntimeNotSupported} when runtime is browser.
    *
    * @returns A `Promise` representing the asynchronous operation.
+   * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
    */
   public async beginDialog(dc: DialogContext): Promise<DialogTurnResult> {
     internalLogger.info("Begin Teams Bot SSO Prompt");
@@ -225,6 +229,7 @@ export class TeamsBotSsoPrompt extends Dialog {
    *
    * @throws {@link ErrorCode|ChannelNotSupported} when bot channel is not MS Teams.
    * @throws {@link ErrorCode|RuntimeNotSupported} when runtime is browser.
+   * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
    */
   public async continueDialog(dc: DialogContext): Promise<DialogTurnResult> {
     internalLogger.info("Continue Teams Bot SSO Prompt");
@@ -317,7 +322,7 @@ export class TeamsBotSsoPrompt extends Dialog {
    *
    * @internal
    */
-  private getSignInResource(loginHint: string): SigningResource {
+  private getSignInResource(loginHint: string): SignInResource {
     internalLogger.verbose("Get sign in authentication configuration");
 
     const signInLink = `${this.initiateLoginEndpoint}?scope=${encodeURI(
@@ -451,6 +456,7 @@ export class TeamsBotSsoPrompt extends Dialog {
 
 /**
  * @internal
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
  */
 interface teamsBotSsoPromptState {
   state: any;

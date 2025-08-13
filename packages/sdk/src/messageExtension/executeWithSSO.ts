@@ -3,7 +3,7 @@
 
 import { AccessToken } from "@azure/identity";
 import { TurnContext } from "@microsoft/agents-hosting";
-import { MessagingExtensionResponse } from "@microsoft/agents-hosting-teams";
+import { MessagingExtensionResponse } from "@microsoft/agents-hosting-extensions-teams";
 import { ActivityTypes, Activity } from "@microsoft/agents-activity";
 import { parseJwt, getScopesArray, formatString } from "../util/utils";
 import { MessageExtensionTokenResponse } from "./teamsMsgExtTokenResponse";
@@ -83,6 +83,8 @@ function getSignInResponseForMessageExtensionWithAuthConfig(
 
 /**
  * execution in message extension with SSO token.
+ *
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
  *
  * @param {TurnContext} context - The context object for the current turn.
  * @param {OnBehalfOfCredentialAuthConfig} authConfig - User custom the message extension authentication configuration.
@@ -167,6 +169,8 @@ export async function executionWithTokenAndConfig(
 /**
  * Users execute query in message extension with SSO or access token.
  *
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
+ *
  * @param {TurnContext} context - The context object for the current turn.
  * @param {OnBehalfOfCredentialAuthConfig} config - User custom the message extension authentication configuration.
  * @param {initiateLoginEndpoint} initiateLoginEndpoint - Login page for Teams to redirect to.
@@ -207,6 +211,8 @@ export async function handleMessageExtensionQueryWithSSO(
 
 /**
  * Users execute link query in message extension with SSO or access token.
+ *
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
  *
  * @param {TurnContext} context - The context object for the current turn.
  * @param {OnBehalfOfCredentialAuthConfig} config - User custom the message extension authentication configuration.

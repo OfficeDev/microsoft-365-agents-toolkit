@@ -102,7 +102,7 @@ describe("Local Debug M365 Tests", function () {
           projectPath: projectPath,
           env: "local",
           teamsAppName: localDebugTestContext.appName,
-          searchApp: true,
+          searchApp: false,
         }
       );
       await localDebugTestContext.validateLocalStateForTab();
@@ -165,7 +165,7 @@ describe("Local Debug M365 Tests", function () {
             projectPath: projectPath,
             env: "dev",
             teamsAppName: appName,
-            searchApp: true,
+            searchApp: false,
           }
         );
         await validateReactTab(page, Env.displayName, true);

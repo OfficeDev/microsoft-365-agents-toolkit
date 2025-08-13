@@ -62,7 +62,7 @@ jobs:
           run_id=`gh run list --workflow cd --repo OfficeDev/TeamsFx --branch dev --json event --json databaseId --json conclusion --jq '[.[] | select(.event=="schedule") | select(.conclusion=="success")][0].databaseId'`
           echo "vsix-run-id=$run_id" >> $GITHUB_ENV
           echo "target_cli_version=alpha" >> $GITHUB_ENV
-          echo "email-receiver=vscuseengineer@microsoft.com;teamsfxqa@microsoft.com" >> $GITHUB_OUTPUT
+          echo "email-receiver=m365-atk-ui-test-notification@service.microsoft.com;teamsfxqa@microsoft.com" >> $GITHUB_OUTPUT
 
       - name: Checkout branch
         uses: actions/checkout@v3
@@ -83,13 +83,14 @@ jobs:
 
       - name: Download TTK
         run: |
+          mkdir -p release
           echo ${{ secrets.GITHUB_TOKEN }} | gh auth login --with-token 
-          gh run download ${{ env.vsix-run-id }} --repo OfficeDev/TeamsFx --name release
+          gh run download ${{ env.vsix-run-id }} --repo OfficeDev/TeamsFx --name release --dir release
 
       - name: Export TTK version
         id: ttk
         run: |
-          package=`find . -type f -name "*.vsix" | sed 's|.*/\(.*\)|\1|'`
+          package=`find release -type f -name "*.vsix" | sed 's|.*/\(.*\)|\1|'`
           version=`echo $package | sed 's|ms-teams-vscode-extension-||' | sed 's|\.vsix||'`
           echo "package=$package" >> $GITHUB_OUTPUT
           echo "version=$version" >> $GITHUB_OUTPUT
@@ -98,7 +99,7 @@ jobs:
         with:
           name: ttk
           path: |
-            ./${{ steps.ttk.outputs.package }}
+            ./release/${{ steps.ttk.outputs.package }}
       # - name: clean devtunnel
       #   run: |
       #     wget https://tunnelsassetsprod.blob.core.windows.net/cli/1.0.1249+67b1cd300c/linux-x64-devtunnel -O ./devtunnel
@@ -425,6 +426,15 @@ jobs:
         with:
           name: ttk
           path: packages/tests
+      
+      - name: Download VSC MCP Server
+        uses: dsaltares/fetch-gh-release-asset@master
+        with:
+          repo: 'wenytang-ms/vscode-mcp-server'
+          version: 'tags/0.2.0'
+          file: 'vscode-mcp-server-0.2.0.vsix'
+          target: './packages/tests/vscuse/binary/vscode-mcp-server-0.2.0.vsix'
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       # Install the VSIX
       - name: VSIX Installation
@@ -436,9 +446,14 @@ jobs:
           # get the vsix file name
           $vsix = Get-ChildItem -Path . -Filter *.vsix | Select-Object -ExpandProperty Name
           Write-Host "Detected VSIX file: $vsix"
+
+          # get the vscode mcp vsix file name
+          $mcpVsix = Get-ChildItem -Path ./vscuse/binary -Filter *.vsix | Select-Object -ExpandProperty Name
+          Write-Host "Detected MCP VSIX file: $mcpVsix"
       
           if ($vsix) {
             code --install-extension $vsix --force
+            code --install-extension ./vscuse/binary/$mcpVsix --force
           } else {
             Write-Host "No VSIX file found!"
             exit 1
@@ -449,6 +464,9 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
 
       - name: Install Python environment
         run: |
@@ -482,6 +500,7 @@ jobs:
         working-directory: packages/tests
         run: |
           npm install -g @microsoft/m365agentstoolkit-cli@${{ needs.setup.outputs.npm-tag }}
+          npm i -g mcp-remote@next
           atk --version
 
       - name: M365 Login
@@ -540,7 +559,7 @@ jobs:
         working-directory: packages/tests/vscuse/binary
         run: |
           vscuse.exe version
-          vscuse.exe agent -f "../agent_cases/${{ matrix.file }}.txt" -s ${{ steps.calc_lines.outputs.steps }} -v --remote-cache --telemetry-id atk_vsc | tee "${{ runner.temp }}\output.log"
+          vscuse.exe agent -f "../agent_cases/${{ matrix.file }}.txt" -s ${{ steps.calc_lines.outputs.steps }} -v --remote-cache --telemetry-id atk_vsc --enable-mcp --mcp-config ../mcp.json | tee "${{ runner.temp }}\output.log"
         shell: cmd
         
       - name: Check for HTML report and test result

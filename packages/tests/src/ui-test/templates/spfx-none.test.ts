@@ -77,7 +77,7 @@ describe("SPFx local debug", function () {
           projectPath: projectPath,
           env: "local",
           teamsAppName: localDebugTestContext.appName,
-          searchApp: true,
+          searchApp: false,
         }
       );
       await validateTeamsWorkbench(page, localDebugTestContext.appName);
@@ -140,7 +140,7 @@ describe("SPFx local debug", function () {
           projectPath: projectPath,
           env: "dev",
           teamsAppName: appName,
-          searchApp: true,
+          searchApp: false,
         }
       );
       await driver.sleep(Timeout.longTimeWait);

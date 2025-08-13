@@ -68,7 +68,7 @@ export interface APIPluginManifestV2D2 {
     /**
      * A set of runtime objects describing the runtimes used by the plugin.
      */
-    runtimes?: OpenAPIRuntimeObject[];
+    runtimes?: APIPluginManifestV2D[];
     /**
      * Describes capabilities of the plugin.
      */
@@ -379,17 +379,16 @@ export interface StateObject {
 }
 
 /**
- * Describes how the plugin invokes OpenAPI functions.
+ * A JSON object that describes the mechanics of how a function will be invoked. More than
+ * one runtime MUST NOT declare support for the same function either implicitly or
+ * explicitly using `run_for_functions`.
  */
-export interface OpenAPIRuntimeObject {
+export interface APIPluginManifestV2D {
     /**
-     * Identifies this runtime as an OpenAPI runtime.
+     * The type of runtime. Must be 'OpenApi' or 'LocalPlugin'.
      */
-    type: "OpenApi";
-    /**
-     * Authentication information required to invoke the runtime.
-     */
-    auth: RuntimeAuthenticationObject;
+    type: RuntimeType;
+    auth: Auth;
     /**
      * The names of the functions that are available in this runtime. If this property is
      * omitted, all functions described by the runtime are available. If a wildcard ("*") is
@@ -398,22 +397,23 @@ export interface OpenAPIRuntimeObject {
      */
     run_for_functions?: string[];
     /**
-     * Contains the OpenAPI information required to invoke the runtime.
+     * Runtime-specific configuration object.
      */
-    spec: OpenAPISpecificationObject;
-    [property: string]: any;
+    spec: Spec;
+    /**
+     * A Liquid template used to transform the plugin response payload.
+     */
+    output_template?: string;
 }
 
 /**
- * Authentication information required to invoke the runtime.
- *
- * Contains information used by the plugin to authenticate to the runtime.
+ * Authentication configuration required to invoke the runtime.
  */
-export interface RuntimeAuthenticationObject {
+export interface Auth {
     /**
      * Specifies the type of authentication required to invoke a function.
      */
-    type?: TypeEnum;
+    type: TypeEnum;
     /**
      * Specifies the type of authentication required to invoke a function.
      */
@@ -425,7 +425,6 @@ export interface RuntimeAuthenticationObject {
      * manifest.
      */
     reference_id?: string;
-    [property: string]: any;
 }
 
 /**
@@ -434,12 +433,16 @@ export interface RuntimeAuthenticationObject {
 export type TypeEnum = "None" | "OAuthPluginVault" | "ApiKeyPluginVault";
 
 /**
- * Contains the OpenAPI information required to invoke the runtime.
+ * Runtime-specific configuration object.
+ *
+ * Configuration for invoking an OpenAPI-based runtime.
+ *
+ * Configuration for invoking a local plugin runtime.
  */
-export interface OpenAPISpecificationObject {
+export interface Spec {
     /**
      * The URL to fetch the OpenAPI specification, called with a GET request. This member is
-     * required unless `api_description` is present.
+     * required unless `api_description` is present
      */
     url?: string;
     /**
@@ -448,16 +451,38 @@ export interface OpenAPISpecificationObject {
      */
     api_description?: string;
     /**
-     * The progress style that is used to display the progress of the function.
+     * A JSON string that contains the progress style that will be used to display the progress
+     * of the function. The value MUST be one of the following values: None, ShowUsage,
+     * ShowUsageWithInput, ShowUsageWithInputAndOutput.
      */
     progress_style?: ProgressStyle;
-    [property: string]: any;
+    /**
+     * A JSON string that represents a local runtime identifier that links to a specific
+     * function to invoke locally (e.g. in the case of Windows it will link to a particular
+     * app). In the case of an Office Addin that is implementing the function, the value MUST be
+     * the string Microsoft.Office.Addin.
+     */
+    local_endpoint?: "Microsoft.Office.Addin";
 }
 
 /**
- * The progress style that is used to display the progress of the function.
+ * A JSON string that represents a local runtime identifier that links to a specific
+ * function to invoke locally (e.g. in the case of Windows it will link to a particular
+ * app). In the case of an Office Addin that is implementing the function, the value MUST be
+ * the string Microsoft.Office.Addin.
+ */
+
+/**
+ * A JSON string that contains the progress style that will be used to display the progress
+ * of the function. The value MUST be one of the following values: None, ShowUsage,
+ * ShowUsageWithInput, ShowUsageWithInputAndOutput.
  */
 export type ProgressStyle = "None" | "ShowUsage" | "ShowUsageWithInput" | "ShowUsageWithInputAndOutput";
+
+/**
+ * The type of runtime. Must be 'OpenApi' or 'LocalPlugin'.
+ */
+export type RuntimeType = "OpenApi" | "LocalPlugin";
 
 // Converts JSON strings to/from your types
 // and asserts the results of JSON.parse at runtime
@@ -635,7 +660,7 @@ const typeMap: any = {
         { json: "legal_info_url", js: "legal_info_url", typ: u(undefined, "any") },
         { json: "privacy_policy_url", js: "privacy_policy_url", typ: u(undefined, "any") },
         { json: "functions", js: "functions", typ: u(undefined, a(r("FunctionObject"))) },
-        { json: "runtimes", js: "runtimes", typ: u(undefined, a(r("OpenAPIRuntimeObject"))) },
+        { json: "runtimes", js: "runtimes", typ: u(undefined, a(r("APIPluginManifestV2D"))) },
         { json: "capabilities", js: "capabilities", typ: u(undefined, r("PluginCapabilitiesObject")) },
     ], "any"),
     "PluginCapabilitiesObject": o([
@@ -700,22 +725,24 @@ const typeMap: any = {
         { json: "instructions", js: "instructions", typ: u(undefined, u(a(""), "")) },
         { json: "examples", js: "examples", typ: u(undefined, u(a(""), "")) },
     ], "any"),
-    "OpenAPIRuntimeObject": o([
+    "APIPluginManifestV2D": o([
         { json: "type", js: "type", typ: r("RuntimeType") },
-        { json: "auth", js: "auth", typ: r("RuntimeAuthenticationObject") },
+        { json: "auth", js: "auth", typ: r("Auth") },
         { json: "run_for_functions", js: "run_for_functions", typ: u(undefined, a("")) },
-        { json: "spec", js: "spec", typ: r("OpenAPISpecificationObject") },
-    ], "any"),
-    "RuntimeAuthenticationObject": o([
-        { json: "type", js: "type", typ: u(undefined, r("TypeEnum")) },
+        { json: "spec", js: "spec", typ: r("Spec") },
+        { json: "output_template", js: "output_template", typ: u(undefined, "") },
+    ], false),
+    "Auth": o([
+        { json: "type", js: "type", typ: r("TypeEnum") },
         { json: "Type", js: "Type", typ: u(undefined, r("TypeEnum")) },
         { json: "reference_id", js: "reference_id", typ: u(undefined, "") },
-    ], "any"),
-    "OpenAPISpecificationObject": o([
+    ], false),
+    "Spec": o([
         { json: "url", js: "url", typ: u(undefined, "") },
         { json: "api_description", js: "api_description", typ: u(undefined, "") },
         { json: "progress_style", js: "progress_style", typ: u(undefined, r("ProgressStyle")) },
-    ], "any"),
+        { json: "local_endpoint", js: "local_endpoint", typ: u(undefined, r("LocalEndpoint")) },
+    ], false),
     "ConfirmationType": [
         "AdaptiveCard",
         "None",
@@ -740,6 +767,9 @@ const typeMap: any = {
         "None",
         "OAuthPluginVault",
     ],
+    "LocalEndpoint": [
+        "Microsoft.Office.Addin",
+    ],
     "ProgressStyle": [
         "None",
         "ShowUsage",
@@ -747,6 +777,7 @@ const typeMap: any = {
         "ShowUsageWithInputAndOutput",
     ],
     "RuntimeType": [
+        "LocalPlugin",
         "OpenApi",
     ],
     "SchemaVersion": [

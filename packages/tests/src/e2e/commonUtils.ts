@@ -217,7 +217,7 @@ export async function setAadManifestIdentifierUrisV3(
 ) {
   const aadManifestPath = path.join(projectPath, "aad.manifest.json");
   const aadTemplate = await fs.readJson(aadManifestPath);
-  aadTemplate.identifierUris = [identifierUri];
+  aadTemplate.spa.redirectUris.push(identifierUri);
   await fs.writeJson(aadManifestPath, aadTemplate, { spaces: 4 });
 }
 

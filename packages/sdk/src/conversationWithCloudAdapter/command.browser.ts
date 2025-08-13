@@ -10,6 +10,7 @@ import { CommandResponseMiddleware } from "../conversation/middlewares/commandMi
 /**
  * A command bot for receiving commands and sending responses in Teams.
  *
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
  * @remarks
  * Only work on server side.
  */
@@ -20,6 +21,7 @@ export class CommandBot {
   /**
    * Create a new instance of the `CommandBot`.
    *
+   * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
    * @param adapter - The bound `CloudAdapter`.
    * @param commands - The commands to be registered with the command bot. Each command should implement the interface {@link TeamsFxBotCommandHandler} so that it can be correctly handled by this command bot.
    */
@@ -33,6 +35,7 @@ export class CommandBot {
   /**
    * Register a command into the command bot.
    *
+   * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
    * @param command - The command to be registered.
    *
    * @remarks
@@ -48,6 +51,7 @@ export class CommandBot {
   /**
    * Register commands into the command bot.
    *
+   * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
    * @param commands - The commands to be registered.
    *
    * @remarks
@@ -63,6 +67,7 @@ export class CommandBot {
   /**
    * Register a sso command into the command bot.
    *
+   * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
    * @param ssoCommand - The sso command to be registered.
    */
   public registerSsoCommand(ssoCommand: TeamsFxBotSsoCommandHandler): void {
@@ -75,6 +80,7 @@ export class CommandBot {
   /**
    * Register sso commands into the command bot.
    *
+   * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
    * @param ssoCommands - The sso commands to be registered.
    */
   public registerSsoCommands(ssoCommands: TeamsFxBotSsoCommandHandler[]): void {

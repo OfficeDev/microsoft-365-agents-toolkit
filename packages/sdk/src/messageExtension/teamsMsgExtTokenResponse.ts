@@ -3,6 +3,8 @@
 
 /**
  * Token response provided by Teams Bot SSO prompt
+ *
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
  */
 export interface MessageExtensionTokenResponse {
   /**

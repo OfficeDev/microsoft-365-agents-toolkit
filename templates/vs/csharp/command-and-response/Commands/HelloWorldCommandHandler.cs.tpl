@@ -2,7 +2,7 @@
 using AdaptiveCards.Templating;
 using Microsoft.Agents.Builder;
 using Microsoft.Agents.Core.Models;
-using Microsoft.TeamsFx.Conversation;
+using System.Text.RegularExpressions;
 
 namespace {{SafeProjectName}}.Commands
 {
@@ -10,15 +10,15 @@ namespace {{SafeProjectName}}.Commands
     /// The <see cref="HelloWorldCommandHandler"/> registers a pattern with the <see cref="ITeamsCommandHandler"/> and
     /// responds with an Adaptive Card if the user types the <see cref="TriggerPatterns"/>.
     /// </summary>
-    public class HelloWorldCommandHandler : ITeamsCommandHandler
+    public class HelloWorldCommandHandler
     {
         private readonly ILogger<HelloWorldCommandHandler> _logger;
         private readonly string _adaptiveCardFilePath = Path.Combine(".", "Resources", "HelloWorldCard.json");
 
-        public IEnumerable<ITriggerPattern> TriggerPatterns => new List<ITriggerPattern>
+        public IEnumerable<Regex> TriggerPatterns => new List<Regex>
         {
             // Used to trigger the command handler if the command text contains 'helloWorld'
-            new RegExpTrigger("helloWorld")
+            new Regex("helloWorld", RegexOptions.IgnoreCase)
         };
 
         public HelloWorldCommandHandler(ILogger<HelloWorldCommandHandler> logger)
@@ -26,9 +26,9 @@ namespace {{SafeProjectName}}.Commands
             _logger = logger;
         }
 
-        public async Task<ICommandResponse> HandleCommandAsync(ITurnContext turnContext, CommandMessage message, CancellationToken cancellationToken = default)
+        public async Task<IActivity> HandleCommandAsync(ITurnContext turnContext, CancellationToken cancellationToken = default)
         {
-            _logger?.LogInformation($"App received message: {message.Text}");
+            _logger?.LogInformation($"App received message: {turnContext.Activity.Text}");
 
             // Read adaptive card template
             var cardTemplate = await File.ReadAllTextAsync(_adaptiveCardFilePath, cancellationToken);
@@ -49,12 +49,12 @@ namespace {{SafeProjectName}}.Commands
                 new Attachment
                 {
                     ContentType = "application/vnd.microsoft.card.adaptive",
-                    Content = cardContent,
+                    Content = cardContent
                 }
             );
 
             // send response
-            return new ActivityCommandResponse(activity);
+            return activity;
         }
     }
 }

@@ -54,7 +54,7 @@
             "type": "array",
             "description": "A set of runtime objects describing the runtimes used by the plugin.",
             "items": {
-                "$ref": "#/$defs/runtime-object-openapi"
+                "$ref": "#/$defs/runtime"
             }
         },
         "capabilities": {
@@ -291,19 +291,18 @@
                 ]
             }
         },
-        "runtime-object-openapi": {
+        "runtime": {
             "type": "object",
-            "title": "OpenAPI runtime object",
-            "description": "Describes how the plugin invokes OpenAPI functions.",
+            "description": "A JSON object that describes the mechanics of how a function will be invoked. More than one runtime MUST NOT declare support for the same function either implicitly or explicitly using `run_for_functions`.",
+            "required": ["type", "auth", "spec"],
             "properties": {
                 "type": {
                     "type": "string",
-                    "description": "Identifies this runtime as an OpenAPI runtime.",
-                    "const": "OpenApi"
+                    "enum": ["OpenApi", "LocalPlugin"],
+                    "description": "The type of runtime. Must be 'OpenApi' or 'LocalPlugin'."
                 },
                 "auth": {
-                    "$ref": "#/$defs/auth-object",
-                    "description": "Authentication information required to invoke the runtime."
+                    "$ref": "#/$defs/auth-object"
                 },
                 "run_for_functions": {
                     "type": "array",
@@ -313,49 +312,26 @@
                     }
                 },
                 "spec": {
-                    "title": "OpenAPI specification object",
-                    "description": "Contains the OpenAPI information required to invoke the runtime.",
-                    "type": "object",
-                    "properties": {
-                        "url": {
-                            "type": "string",
-                            "description": "The URL to fetch the OpenAPI specification, called with a GET request. This member is required unless `api_description` is present."
-                        },
-                        "api_description": {
-                            "type": ["string"],
-                            "description": "A string that contains an OpenAPI description. If this member is present, `url` isn't required and is ignored if present."
-                        },
-                        "progress_style": {
-                            "type": "string",
-                            "description": "The progress style that is used to display the progress of the function.",
-                            "enum": [
-                                "None",
-                                "ShowUsage",
-                                "ShowUsageWithInput",
-                                "ShowUsageWithInputAndOutput"
-                            ]
-                        }
-                    }
+                    "description": "Runtime-specific configuration object.",
+                    "oneOf": [
+                        { "$ref": "#/$defs/open-api-spec" },
+                        { "$ref": "#/$defs/local-plugin-spec" }
+                    ]
+                },
+                "output_template": {
+                    "type": "string",
+                    "description": "A Liquid template used to transform the plugin response payload."
                 }
             },
-            "required": [
-                "type",
-                "spec",
-                "auth"
-            ],
-            "propertyNames": {
-                "enum": [
-                    "type",
-                    "auth",
-                    "run_for_functions",
-                    "spec"
-                ]
+            "additionalProperties": false,
+            "patternProperties": {
+                "^x-": {}
             }
         },
         "auth-object": {
             "type": "object",
-            "title": "Runtime authentication object",
-            "description": "Contains information used by the plugin to authenticate to the runtime.",
+            "description": "Authentication configuration required to invoke the runtime.",
+            "required": ["type"],
             "properties": {
                 "type": {
                     "type": "string",
@@ -380,12 +356,81 @@
                     "description": "A value used when `type` is `OAuthPluginVault` or `ApiKeyPluginVault`. The `reference_id` value is acquired independently when providing the necessary authentication configuration values. This mechanism exists to prevent the need for storing secret values in the plugin manifest."
                 }
             },
-            "propertyNames": {
-                "enum": [
-                    "type",
-                    "Type",
-                    "reference_id"
-                ]
+            "allOf": [
+                {
+                    "if": {
+                        "properties": { "type": { "const": "OAuthPluginVault" } }
+                    },
+                    "then": {
+                        "required": ["reference_id"]
+                    }
+                },
+                {
+                    "if": {
+                        "properties": { "type": { "const": "ApiKeyPluginVault" } }
+                    },
+                    "then": {
+                        "required": ["reference_id"]
+                    }
+                }
+            ],
+            "additionalProperties": false,
+            "patternProperties": {
+                "^x-": {}
+            }
+        },
+        "open-api-spec": {
+            "type": "object",
+            "description": "Configuration for invoking an OpenAPI-based runtime.",
+            "properties": {
+                "url": {
+                    "type": "string",
+                    "description": "The URL to fetch the OpenAPI specification, called with a GET request. This member is required unless `api_description` is present"
+                },
+                "api_description": {
+                    "type": "string",
+                    "description": "A string that contains an OpenAPI description. If this member is present, `url` isn't required and is ignored if present."
+                },
+                "progress_style": {
+                    "type": "string",
+                    "description": "A JSON string that contains the progress style that will be used to display the progress of the function. The value MUST be one of the following values: None, ShowUsage, ShowUsageWithInput, ShowUsageWithInputAndOutput.",
+                    "enum": [
+                        "None",
+                        "ShowUsage",
+                        "ShowUsageWithInput",
+                        "ShowUsageWithInputAndOutput"
+                    ]
+                }
+            },
+            "anyOf": [
+                {
+                    "required": ["url"]
+                },
+                {
+                    "required": ["api_description"]
+                }
+            ],
+            "additionalProperties": false,
+            "patternProperties": {
+                "^x-": {}
+            }
+        },
+        "local-plugin-spec": {
+            "type": "object",
+            "description": "Configuration for invoking a local plugin runtime.",
+            "required": ["local_endpoint"],
+            "properties": {
+                "local_endpoint": {
+                    "type": "string",
+                    "description": "A JSON string that represents a local runtime identifier that links to a specific function to invoke locally (e.g. in the case of Windows it will link to a particular app). In the case of an Office Addin that is implementing the function, the value MUST be the string Microsoft.Office.Addin.",
+                    "enum": [
+                        "Microsoft.Office.Addin"
+                    ]
+                }
+            },
+            "additionalProperties": false,
+            "patternProperties": {
+                "^x-": {}
             }
         },
         "function-parameters": {

@@ -57,7 +57,7 @@ describe("FuncToolChecker E2E Test", async () => {
     const installOptions = {
       projectPath: projectPath,
       symlinkDir: "./devTools/func",
-      version: "~4.0.5174",
+      version: "^4.0.5174",
     };
     const res = await funcToolChecker.resolve(installOptions);
     if (res.error) {
@@ -92,7 +92,7 @@ describe("FuncToolChecker E2E Test", async () => {
     const installOptions = {
       projectPath: projectPath,
       symlinkDir: "./devTools/func",
-      version: "~4.0.5174",
+      version: "^4.0.5174",
     };
     const res = await funcToolChecker.resolve(installOptions);
     assert.isFalse(res.isInstalled);
@@ -122,7 +122,7 @@ describe("FuncToolChecker E2E Test", async () => {
     const installOptions = {
       projectPath: projectPath,
       symlinkDir: "./devTools/func",
-      version: "~4.0.5174",
+      version: "^4.0.5174",
     };
     const depsInfo = await funcToolChecker.resolve(installOptions);
 
@@ -140,7 +140,7 @@ describe("FuncToolChecker E2E Test", async () => {
     if (!funcVersion || !isLinux()) {
       this.skip();
     }
-    if (!semver.satisfies(funcVersion, "~4.0.5174")) {
+    if (!semver.satisfies(funcVersion, "^4.0.5174")) {
       this.skip();
     }
 
@@ -151,7 +151,7 @@ describe("FuncToolChecker E2E Test", async () => {
     const installOptions = {
       projectPath: projectPath,
       symlinkDir: "./devTools/func",
-      version: "~4.0.5174",
+      version: "^4.0.5174",
     };
     const depsInfo = await funcToolChecker.resolve(installOptions);
     if (depsInfo.error) {
@@ -167,7 +167,7 @@ describe("FuncToolChecker E2E Test", async () => {
     if (isLinux()) {
       this.skip();
     }
-    if (!funcVersion || semver.satisfies(funcVersion, "~4.0.5174")) {
+    if (!funcVersion || semver.satisfies(funcVersion, "^4.0.5174")) {
       this.skip();
     }
 
@@ -180,7 +180,7 @@ describe("FuncToolChecker E2E Test", async () => {
     const installOptions = {
       projectPath: projectPath,
       symlinkDir: "./devTools/func",
-      version: "~4.0.5174",
+      version: "^4.0.5174",
     };
     const res = await funcToolChecker.resolve(installOptions);
     if (res.error) {
@@ -202,7 +202,7 @@ describe("FuncToolChecker E2E Test", async () => {
     if (isLinux()) {
       this.skip();
     }
-    if (!funcVersion || !semver.satisfies(funcVersion, "~4.0.5174")) {
+    if (!funcVersion || !semver.satisfies(funcVersion, "^4.0.5174")) {
       this.skip();
     }
 
@@ -214,7 +214,7 @@ describe("FuncToolChecker E2E Test", async () => {
     const installOptions = {
       projectPath: projectPath,
       symlinkDir: "./devTools/func",
-      version: "~4.0.5174",
+      version: "^4.0.5174",
     };
     const res = await funcToolChecker.resolve(installOptions);
     if (res.error) {

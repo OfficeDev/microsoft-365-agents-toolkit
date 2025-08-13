@@ -19,6 +19,7 @@ import { createConfidentialClientApplication } from "../util/utils.node";
 /**
  * Represent on-behalf-of flow to get user identity, and it is designed to be used in server side.
  *
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
  * @example
  * ```typescript
  * const credential = new OnBehalfOfUserCredential(ssoToken);
@@ -34,6 +35,7 @@ export class OnBehalfOfUserCredential implements TokenCredential {
   /**
    * Constructor of OnBehalfOfUserCredential
    *
+   * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
    * @remarks
    * Only works in in server side.
    *
@@ -86,6 +88,7 @@ export class OnBehalfOfUserCredential implements TokenCredential {
   /**
    * Get access token from credential.
    *
+   * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
    * @example
    * ```typescript
    * await credential.getToken([]) // Get SSO token using empty string array

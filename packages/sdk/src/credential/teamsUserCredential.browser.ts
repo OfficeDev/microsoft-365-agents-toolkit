@@ -25,6 +25,7 @@ const loginPageHeight = 535;
 /**
  * Represent Teams current user's identity, and it is used within Teams tab application.
  *
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
  * @remarks
  * Can only be used within Teams.
  */
@@ -40,6 +41,7 @@ export class TeamsUserCredential implements TokenCredential {
   /**
    * Constructor of TeamsUserCredential.
    *
+   * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
    * @example
    * ```typescript
    * const config: TeamsUserCredentialAuthConfig = {
@@ -64,6 +66,7 @@ export class TeamsUserCredential implements TokenCredential {
   /**
    * Popup login page to get user's access token with specific scopes.
    *
+   * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
    * @remarks
    * Only works in Teams client APP. User will be redirected to the authorization page to login and consent.
    *
@@ -146,6 +149,7 @@ export class TeamsUserCredential implements TokenCredential {
   /**
    * Get access token from credential.
    *
+   * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
    * Important: Access tokens are stored in sessionStorage, read more here: https://aka.ms/teamsfx-session-storage-notice
    * Important: Full trust applications do not read the resource information from the webApplicationInfo section of the app
    * manifest. Instead, this resource (along with any additional resources from which to request tokens) must be provided
@@ -254,6 +258,7 @@ export class TeamsUserCredential implements TokenCredential {
   /**
    * Get basic user info from SSO token
    *
+   * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
    * @param {string[]} resources - The optional list of resources for full trust Teams apps.
    *
    * @example

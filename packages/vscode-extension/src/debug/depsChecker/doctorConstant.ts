@@ -30,6 +30,6 @@ export const doctorConstant = {
   Port: "Ports occupancy",
   PortSuccess: "Ports (@port) are not occupied",
   DepsSuccess: `@depsName is installed at @binFolder`,
-  SandboxSuccess: `Sandbox is enabled`,
+  SandboxSuccess: `Sandbox enabled`,
   SandboxDisabled: `Sandbox is disabled, you cannot use sandboxed containers.`,
 };

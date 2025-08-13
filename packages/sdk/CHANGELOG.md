@@ -1,3 +1,7 @@
+# 4.0.1
+- Deprecation notice: This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
+- Update dependency Agents SDK to `^0.6.18`
+
 # 4.0.0
 - Update dependencies from Bot Framework SDK to [Microsoft 365 Agents SDK](https://github.com/microsoft/Agents-for-js)
 - `BotBuilderCloudAdapter` has been renamed to `AgentBuilderCloudAdapter`

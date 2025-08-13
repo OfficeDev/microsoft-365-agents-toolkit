@@ -1,29 +1,25 @@
 ﻿using {{SafeProjectName}}.Models;
 using AdaptiveCards.Templating;
 using Microsoft.Agents.Builder;
+using Microsoft.Agents.Builder.App.AdaptiveCards;
+using Microsoft.Agents.Builder.State;
 using Microsoft.Agents.Core.Models;
-using Microsoft.TeamsFx.Conversation;
-using System.Text.Json;
 
 namespace {{SafeProjectName}}.CardActions
 {
-    public class DoStuffActionHandler : IAdaptiveCardActionHandler
+    public class DoStuffActionHandler
     {
-        private readonly string _responseCardFilePath = Path.Combine(".", "Resources", "DoStuffActionResponse.json");
+        private readonly static string _responseCardFilePath = Path.Combine(".", "Resources", "DoStuffActionResponse.json");
 
         /// <summary>
-        /// A global unique string associated with the `Action.Execute` action.
+        /// A global unique string associated with the `OnActionExecute` action.
         /// The value should be the same as the `verb` property which you define in your adaptive card JSON.
         /// </summary>
-        public string TriggerVerb => "doStuff";
+        public static string TriggerVerb => "doStuff";
 
-        /// <summary>
-        /// Indicate how your action response card is sent in the conversation.
-        /// By default, the response card can only be updated for the interactor who trigger the action.
-        /// </summary>
-        public AdaptiveCardResponse AdaptiveCardResponse => AdaptiveCardResponse.ReplaceForInteractor;
+        public static ActionExecuteHandler handler = HandleActionInvokedAsync;
 
-        public async Task<InvokeResponse> HandleActionInvokedAsync(ITurnContext turnContext, object cardData, CancellationToken cancellationToken = default)
+        private static async Task<AdaptiveCardInvokeResponse> HandleActionInvokedAsync(ITurnContext turnContext, ITurnState state, object cardData, CancellationToken cancellationToken = default)
         {
             // Read adaptive card template
             var cardTemplate = await File.ReadAllTextAsync(_responseCardFilePath, cancellationToken);
@@ -39,18 +35,18 @@ namespace {{SafeProjectName}}.CardActions
             );
 
             // Send invoke response with adaptive card
-            return InvokeResponseFactory.AdaptiveCard(JsonSerializer.Deserialize<object>(cardContent));
+            return  AdaptiveCardInvokeResponseFactory.AdaptiveCard(cardContent);
 
             /**
              * If you want to send invoke response with text message, you can:
              *
-             * return InvokeResponseFactory.TextMessage("[ACK] Successfully!");
+             * return AdaptiveCardInvokeResponseFactory.Message("[ACK] Successfully!");
             */
 
             /**
              * If you want to send invoke response with error message, you can:
              *
-             * return InvokeResponseFactory.ErrorResponse(InvokeResponseErrorCode.BadRequest, "The incoming request is invalid.");
+             * return AdaptiveCardInvokeResponseFactory.Error(HttpStatusCode.BadRequest, "400","The incoming request is invalid.");
              */
         }
     }

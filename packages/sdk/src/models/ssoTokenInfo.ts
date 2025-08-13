@@ -5,6 +5,8 @@
  * Base class for SSO token payload
  * Payload claims can be found here: https://docs.microsoft.com/en-us/azure/active-directory/develop/id-tokens
  *
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
+ *
  * @internal
  */
 export interface SSOTokenInfoBase {
@@ -27,6 +29,8 @@ export interface SSOTokenInfoBase {
 /**
  * SSO token v1
  *
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
+ *
  * @internal
  */
 export interface SSOTokenV2Info extends SSOTokenInfoBase {
@@ -37,6 +41,8 @@ export interface SSOTokenV2Info extends SSOTokenInfoBase {
 
 /**
  * SSO token v2
+ *
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
  *
  * @internal
  */

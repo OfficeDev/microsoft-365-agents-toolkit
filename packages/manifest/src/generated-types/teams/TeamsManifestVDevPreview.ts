@@ -478,9 +478,7 @@ export interface Bot {
 
 export interface CommandList {
     /**
-     * Specifies whether the bot offers an experience in the context of a channel in a team, in
-     * a group chat (groupChat), an experience scoped to an individual user alone (personal) OR
-     * within Copilot surfaces. These options are non-exclusive.
+     * Specifies the scopes for which the command list is valid
      */
     scopes:   CommandListScope[];
     commands: CommandListCommand[];
@@ -928,7 +926,16 @@ export interface CustomEngineAgent {
     /**
      * The type of the Custom Engine Agent. Currently only type bot is supported.
      */
-    type: "bot";
+    type:        "bot";
+    disclaimer?: Disclaimer;
+}
+
+export interface Disclaimer {
+    /**
+     * The message shown to users before they interact with this application.
+     */
+    text: string;
+    [property: string]: any;
 }
 
 /**
@@ -1203,11 +1210,10 @@ export interface ElementExtension {
 }
 
 export interface ExtensionAlternateVersionsArray {
-    requirements?:       RequirementsExtensionElement;
-    prefer?:             Prefer;
-    hide?:               Hide;
-    alternateIcons:      AlternateIcons;
-    xllCustomFunctions?: ExtensionXllCustomFunctions;
+    requirements?:  RequirementsExtensionElement;
+    prefer?:        Prefer;
+    hide?:          Hide;
+    alternateIcons: AlternateIcons;
 }
 
 export interface AlternateIcons {
@@ -1251,7 +1257,8 @@ export interface StoreOfficeAddin {
 }
 
 export interface Prefer {
-    comAddin?: COMAddin;
+    comAddin?:           COMAddin;
+    xllCustomFunctions?: ExtensionXllCustomFunctions;
     [property: string]: any;
 }
 
@@ -1260,6 +1267,11 @@ export interface COMAddin {
      * Program ID of the alternate com extension. Maximum length is 64 characters.
      */
     progId: string;
+}
+
+export interface ExtensionXllCustomFunctions {
+    fileName?: string;
+    [property: string]: any;
 }
 
 /**
@@ -1299,11 +1311,6 @@ export interface Capability {
 export type FormFactor = "desktop" | "mobile";
 
 export type RequirementsScope = "mail" | "workbook" | "document" | "presentation";
-
-export interface ExtensionXllCustomFunctions {
-    fileName?: string;
-    [property: string]: any;
-}
 
 /**
  * Represents the copilot extension point
@@ -1715,6 +1722,11 @@ export interface ExtensionRibbonsSpamPreProcessingDialog {
      */
     description: string;
     /**
+     * Indicating if the developer will allow the user to permanently bypass the PreProcessing
+     * Dialog for this add-in. "false" is the default value if not specified.
+     */
+    spamNeverShowAgainOption?: boolean;
+    /**
      * Specifies whether the bot offers an experience in the context of a channel in a team, in
      * a 1:1 or group chat, or in an experience scoped to an individual user alone. These
      * options are non-exclusive.
@@ -1763,8 +1775,19 @@ export interface SpamReportingOptions {
      * provide a reason for reporting a message.
      */
     options: string[];
+    /**
+     * Can be set to "radio" or "checkbox". This determines if Radio Buttons or checkboxes are
+     * used for the options. "checkbox" is the default if this value is not specified.
+     */
+    type?: SpamReportingOptionsType;
     [property: string]: any;
 }
+
+/**
+ * Can be set to "radio" or "checkbox". This determines if Radio Buttons or checkboxes are
+ * used for the options. "checkbox" is the default if this value is not specified.
+ */
+export type SpamReportingOptionsType = "radio" | "checkbox";
 
 export interface ExtensionRibbonsArrayTabsItem {
     /**
@@ -2823,7 +2846,11 @@ const typeMap: any = {
     "CustomEngineAgent": o([
         { json: "id", js: "id", typ: "" },
         { json: "type", js: "type", typ: r("SourceTypeEnum") },
+        { json: "disclaimer", js: "disclaimer", typ: u(undefined, r("Disclaimer")) },
     ], false),
+    "Disclaimer": o([
+        { json: "text", js: "text", typ: "" },
+    ], "any"),
     "DeclarativeAgentRef": o([
         { json: "id", js: "id", typ: "" },
         { json: "file", js: "file", typ: "" },
@@ -2903,7 +2930,6 @@ const typeMap: any = {
         { json: "prefer", js: "prefer", typ: u(undefined, r("Prefer")) },
         { json: "hide", js: "hide", typ: u(undefined, r("Hide")) },
         { json: "alternateIcons", js: "alternateIcons", typ: r("AlternateIcons") },
-        { json: "xllCustomFunctions", js: "xllCustomFunctions", typ: u(undefined, r("ExtensionXllCustomFunctions")) },
     ], false),
     "AlternateIcons": o([
         { json: "icon", js: "icon", typ: r("ExtensionCommonIcon") },
@@ -2926,10 +2952,14 @@ const typeMap: any = {
     ], false),
     "Prefer": o([
         { json: "comAddin", js: "comAddin", typ: u(undefined, r("COMAddin")) },
+        { json: "xllCustomFunctions", js: "xllCustomFunctions", typ: u(undefined, r("ExtensionXllCustomFunctions")) },
     ], "any"),
     "COMAddin": o([
         { json: "progId", js: "progId", typ: "" },
     ], false),
+    "ExtensionXllCustomFunctions": o([
+        { json: "fileName", js: "fileName", typ: u(undefined, "") },
+    ], "any"),
     "RequirementsExtensionElement": o([
         { json: "capabilities", js: "capabilities", typ: u(undefined, a(r("Capability"))) },
         { json: "scopes", js: "scopes", typ: u(undefined, a(r("RequirementsScope"))) },
@@ -2940,9 +2970,6 @@ const typeMap: any = {
         { json: "minVersion", js: "minVersion", typ: u(undefined, "") },
         { json: "maxVersion", js: "maxVersion", typ: u(undefined, "") },
     ], false),
-    "ExtensionXllCustomFunctions": o([
-        { json: "fileName", js: "fileName", typ: u(undefined, "") },
-    ], "any"),
     "ExtensionAppDeeplinksArray": o([
         { json: "requirements", js: "requirements", typ: u(undefined, r("AppDeeplinkRequirements")) },
         { json: "contexts", js: "contexts", typ: a(r("ExtensionContext")) },
@@ -3067,6 +3094,7 @@ const typeMap: any = {
     "ExtensionRibbonsSpamPreProcessingDialog": o([
         { json: "title", js: "title", typ: "" },
         { json: "description", js: "description", typ: "" },
+        { json: "spamNeverShowAgainOption", js: "spamNeverShowAgainOption", typ: u(undefined, true) },
         { json: "spamReportingOptions", js: "spamReportingOptions", typ: u(undefined, r("SpamReportingOptions")) },
         { json: "spamFreeTextSectionTitle", js: "spamFreeTextSectionTitle", typ: u(undefined, "") },
         { json: "spamMoreInfo", js: "spamMoreInfo", typ: u(undefined, r("SpamMoreInfo")) },
@@ -3078,6 +3106,7 @@ const typeMap: any = {
     "SpamReportingOptions": o([
         { json: "title", js: "title", typ: "" },
         { json: "options", js: "options", typ: a("") },
+        { json: "type", js: "type", typ: u(undefined, r("SpamReportingOptionsType")) },
     ], "any"),
     "ExtensionRibbonsArrayTabsItem": o([
         { json: "id", js: "id", typ: u(undefined, "") },
@@ -3428,6 +3457,10 @@ const typeMap: any = {
     ],
     "FixedControlType": [
         "button",
+    ],
+    "SpamReportingOptionsType": [
+        "checkbox",
+        "radio",
     ],
     "FluffyType": [
         "mobileButton",

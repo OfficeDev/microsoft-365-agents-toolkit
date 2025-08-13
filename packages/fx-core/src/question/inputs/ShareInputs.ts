@@ -11,8 +11,10 @@
 import { Inputs } from "@microsoft/teamsfx-api";
 
 export interface ShareInputs extends Inputs {
-  /** @description option */
-  option?: "share-app" | "share-with-users";
-  /** @description Enter user emails (separated by commas) */
-  users?: string;
+  /** @description Share the agent */
+  "share-operation"?: "share" | "unshare";
+  /** @description Share the agent with users */
+  scope?: "tenant" | "users" | "owners";
+  /** @description Email addresses of users for agent sharing */
+  email?: string;
 }

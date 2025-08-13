@@ -216,11 +216,14 @@
       "^extensions\\[[0-9]\\]\\.shortcuts\\[[0-9]\\]\\.keys\\[[0-9]\\]\\.key\\.windows$": {
         "type": "string",
         "maxLength": 32
+      },
+      "^copilotAgents\\.customEngineAgents\\[0\\]\\.disclaimer.text$": {
+        "type": "string",
+        "maxLength": 500
       }
   },
   "required": [
       "name.short",
-      "name.full",
       "description.short",
       "description.full"
   ]

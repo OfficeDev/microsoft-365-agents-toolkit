@@ -19,9 +19,9 @@ jobs:
       ### tl;dr: This error is not one thing, but a category of errors. It means "something broke and we didn't have a way to catch it". We will always need a lot of detail to reproduce an error like this, or we cannot ever fix it. Every instance is unique, and your cb() never called is nothing like any other.
       # macos-latest is 10.15. We need to test 11 as well.
       matrix:
-        os: [windows-latest, macos-latest, macos-11, ubuntu-latest]
+        os: [windows-latest, macos-latest, ubuntu-latest]
         node-version: [16, 18, 20]
-        func-version: [none, "3", "4", "4.0.4670", "~4.0.5174"]
+        func-version: [none, "3", "4", "4.0.4670", "^4.0.5174"]
       max-parallel: 30
 
     runs-on: ${{ matrix.os }}

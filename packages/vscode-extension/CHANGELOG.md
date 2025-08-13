@@ -2,6 +2,33 @@
 
 > Note: This changelog only includes the changes for the stable versions of Microsoft 365 Agents Toolkit (evolved from Teams Toolkit). For the changelog of pre-released versions, please refer to the [Microsoft 365 Agents Toolkit Pre-release Changelog](https://github.com/OfficeDev/TeamsFx/blob/dev/packages/vscode-extension/PRERELEASE.md).
 
+## 6.0.3 - Jul 19, 2025
+Hotfix version
+
+- Add a fix to resolve Agents Playground installation error.
+- Add a fix to guide users to switch M365 account or switch tenant if they encounter the tenant mismatch error during debug.
+
+## 6.0.2 - Jun 26, 2025
+Hotfix version.
+
+- **Enhanced Agent project generation**
+
+Previously, users could create an Agents project without entering an OpenAI key during the initial question flow. Instead, a prompt to input the key would appear just before debugging. While this provided a smoother experience, it was not generally and consistently applied across agents templates.
+
+This issue has now been resolved. The improved flow is now supported across all templates that requires a Key, ensuring a seamless and consistent project setup experience.
+
+## 6.0.1 - Jun 03, 2025
+Hotfix version.
+
+- Updated the [app manifest version to v1.21](https://developer.microsoft.com/json-schemas/teams/v1.21/MicrosoftTeams.schema.json).
+- Updated [Declarative Agents manifest version to v1.4](https://learn.microsoft.com/en-us/microsoft-365-copilot/extensibility/declarative-agent-manifest-1.4).
+- Updated [Kiota version to 1.26.1](https://github.com/microsoft/kiota/releases/tag/v1.26.1).
+- Fixed an issue of telemetry events in Kiota integration.
+- Fixed incorrect CLI command name references in the README file and messages prompts in Office add-in projects.
+- [Preview] Fixed the typespec projects failure in lifecycle stage Provision.
+- [Preview] Updated the typespec package version to latest. Note that the typespec package is rc version now and subject to changes.
+- [Preview] Fixed a repository reference issue in typespec projects.
+
 ## 6.0.0 - May 19, 2025
 This major version upgrade is a milestone as Teams Toolkit evolves to Microsoft 365 Agents Toolkit with a set of awesome new features to provide better development experience for agents building and a brand new icon!
 

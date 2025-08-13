@@ -5,7 +5,6 @@ namespace Microsoft.TeamsFx.Conversation
 {
     using Microsoft.Agents.Core.Models;
 
-    [Obsolete]
     internal sealed class DefaultConversationReferenceStore : IConversationReferenceStore
     {
         private readonly INotificationTargetStorage _storage;

@@ -73,6 +73,7 @@ export function getAppStudioEndpoint(): string {
 
 export const AuthSvcScopes = ["https://api.spaces.skype.com/Region.ReadWrite"];
 export const GraphScopes = ["Application.ReadWrite.All", "TeamsAppInstallation.ReadForUser"];
+export const GroupSearchScopes = ["GroupMember.Read.All"];
 export const GCScopes = ["ExternalConnection.Read.All"];
 export const GraphReadUserScopes = ["https://graph.microsoft.com/User.ReadBasic.All"];
 export const SPFxScopes = (tenant: string) => [`${tenant}/Sites.FullControl.All`];

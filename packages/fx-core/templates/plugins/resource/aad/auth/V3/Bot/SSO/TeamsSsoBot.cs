@@ -1,14 +1,15 @@
-﻿using Microsoft.Bot.Builder;
-using Microsoft.Bot.Builder.Teams;
-using Microsoft.Bot.Schema;
-using Microsoft.Bot.Builder.Dialogs;
+﻿using Microsoft.Agents.Extensions.Teams.Compat;
+using Microsoft.Agents.Builder.Dialogs;
+using Microsoft.Agents.Builder.State;
+using Microsoft.Agents.Builder;
+using Microsoft.Agents.Core.Models;
 
 namespace {{YOUR_NAMESPACE}}.SSO;
 
 public class TeamsSsoBot<T> : TeamsActivityHandler where T : Dialog
 {
     private readonly ILogger<TeamsSsoBot<T>> _logger;
-    private readonly BotState _conversationState;
+    private readonly AgentState _conversationState;
     private readonly Dialog _dialog;
     private readonly IStatePropertyAccessor<DialogState> _dialogState;
     

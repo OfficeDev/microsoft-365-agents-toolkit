@@ -33,11 +33,11 @@ namespace {{SafeProjectName}}
             {
                 graphQuery = "perksplus program";
             }
-            else if (query.ToLower().Contains("company"))
+            else if (query.ToLower().Contains("company") || query.ToLower().Contains("history"))
             {
                 graphQuery = "company history";
             }
-            else if (query.ToLower().Contains("northwind"))
+            else if (query.ToLower().Contains("northwind") || query.ToLower().Contains("plan"))
             {
                 graphQuery = "northwind health";
             }

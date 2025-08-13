@@ -90,7 +90,7 @@ describe("Local Debug Tests", function () {
               projectPath: projectPath,
               teamsAppName: localDebugTestContext.appName,
               env: "local",
-              searchApp: true,
+              searchApp: false,
             }
           );
           await localDebugTestContext.validateLocalStateForBot();
@@ -111,7 +111,7 @@ describe("Local Debug Tests", function () {
               projectPath: projectPath,
               teamsAppName: localDebugTestContext.appName,
               env: "local",
-              searchApp: true,
+              searchApp: false,
               loggedIn: true,
             }
           );
@@ -183,7 +183,7 @@ describe("Local Debug Tests", function () {
             projectPath: projectPath,
             env: "dev",
             teamsAppName: appName,
-            searchApp: true,
+            searchApp: false,
           }
         );
         await driver.sleep(Timeout.longTimeWait);

@@ -7,6 +7,7 @@ import {
   ManifestUtil,
   Platform,
   TeamsAppManifest,
+  TeamsManifest,
   UserError,
   err,
   ok,
@@ -35,9 +36,9 @@ import { envUtil } from "../../../../src/component/utils/envUtil";
 import { QuestionNames } from "../../../../src/question";
 import {
   MockLogProvider,
-  MockedM365Provider,
-  MockedAzureAccountProvider,
   MockTools,
+  MockedAzureAccountProvider,
+  MockedM365Provider,
   randomAppName,
 } from "../../../core/utils";
 import { getAzureProjectRoot } from "../../../plugins/resource/appstudio/helper";
@@ -466,7 +467,7 @@ describe("App-manifest Component - v3", () => {
     const updatedManifest = { ...manifest };
     updatedManifest.version = "2.0.0";
     sandbox.stub(manifestUtils, "readAppManifest").resolves(ok(manifest));
-    sandbox.stub(manifestUtils, "getManifestV3").resolves(ok(manifest));
+    sandbox.stub(manifestUtils, "getManifestV3").resolves(ok(manifest as unknown as TeamsManifest));
     sandbox.stub(fs, "pathExists").resolves(true);
     sandbox.stub(fs, "readJSON").resolves(updatedManifest);
     sandbox.stub(fs, "readFile").resolves(new Buffer(JSON.stringify(manifest)));
@@ -483,7 +484,7 @@ describe("App-manifest Component - v3", () => {
     manifest.icons.color = "resources/color.png";
     manifest.icons.outline = "resources/outline.png";
     sandbox.stub(manifestUtils, "readAppManifest").resolves(ok(manifest));
-    sandbox.stub(manifestUtils, "getManifestV3").resolves(ok(manifest));
+    sandbox.stub(manifestUtils, "getManifestV3").resolves(ok(manifest as unknown as TeamsManifest));
     sandbox.stub(fs, "pathExists").resolves(true);
     sandbox.stub(fs, "readJSON").resolves(manifest);
     sandbox.stub(fs, "readFile").resolves(new Buffer(JSON.stringify(manifest)));
@@ -501,7 +502,7 @@ describe("App-manifest Component - v3", () => {
     const updatedManifest = { ...manifest };
     updatedManifest.version = "2.0.0";
     sandbox.stub(manifestUtils, "readAppManifest").resolves(ok(manifest));
-    sandbox.stub(manifestUtils, "getManifestV3").resolves(ok(manifest));
+    sandbox.stub(manifestUtils, "getManifestV3").resolves(ok(manifest as unknown as TeamsManifest));
     sandbox.stub(fs, "pathExists").resolves(false);
     sandbox.stub(fs, "readJSON").resolves(updatedManifest);
     sandbox.stub(fs, "readFile").resolves(new Buffer(JSON.stringify(manifest)));

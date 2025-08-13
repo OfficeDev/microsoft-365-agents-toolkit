@@ -68,7 +68,7 @@ describe("Local Debug Tests", function () {
           projectPath: projectPath,
           teamsAppName: localDebugTestContext.appName,
           env: "local",
-          searchApp: true,
+          searchApp: false,
         }
       );
       await validateBasicDashboardTab(page);

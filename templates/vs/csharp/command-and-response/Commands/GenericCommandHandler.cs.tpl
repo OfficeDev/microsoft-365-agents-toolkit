@@ -1,6 +1,6 @@
 ﻿using Microsoft.Agents.Builder;
 using Microsoft.Agents.Core.Models;
-using Microsoft.TeamsFx.Conversation;
+using System.Text.RegularExpressions;
 
 namespace {{SafeProjectName}}.Commands
 {
@@ -8,28 +8,27 @@ namespace {{SafeProjectName}}.Commands
     /// The <see cref="GenericCommandHandler"/> registers patterns with the <see cref="ITeamsCommandHandler"/> and
     /// responds with appropriate messages if the user types general command inputs, such as "hi", "hello", and "help".
     /// </summary>
-    public class GenericCommandHandler : ITeamsCommandHandler
+    public class GenericCommandHandler
     {
         private readonly ILogger<GenericCommandHandler> _logger;
-    
-        public IEnumerable<ITriggerPattern> TriggerPatterns => new List<ITriggerPattern>
-        {
+        
+        public IEnumerable<Regex> TriggerPatterns => new List<Regex>
+        { 
             // Used to trigger the command handler when the user enters a generic or unknown command
-            new RegExpTrigger("^.+$")
+            new Regex("^.+$") 
         };
-    
         public GenericCommandHandler(ILogger<GenericCommandHandler> logger)
         {
             _logger = logger;
         }
-    
-        public async Task<ICommandResponse> HandleCommandAsync(ITurnContext turnContext, CommandMessage message, CancellationToken cancellationToken = default)
+
+        public async Task<IActivity> HandleCommandAsync(ITurnContext turnContext, CancellationToken cancellationToken = default)
         {
-            _logger?.LogInformation($"App received message: {message.Text}");
+            _logger?.LogInformation($"App received message: {turnContext.Activity.Text}");
     
             // Determine the appropriate response based on the command  
             string responseText;
-            switch (message.Text)
+            switch (turnContext.Activity.Text)
             {
                 case "hi":
                     responseText = "Hi there! I'm your Command Bot, here to assist you with your tasks. Type 'help' for a list of available commands.";
@@ -48,12 +47,12 @@ namespace {{SafeProjectName}}.Commands
                     responseText = "Sorry, command unknown. Please type 'help' to see the list of available commands.";
                     break;
             }
-    
+
             // Build the response activity  
             var activity = MessageFactory.Text(responseText);
-    
+
             // Send response  
-            return new ActivityCommandResponse(activity);
+            return activity;
         }
     }
 }

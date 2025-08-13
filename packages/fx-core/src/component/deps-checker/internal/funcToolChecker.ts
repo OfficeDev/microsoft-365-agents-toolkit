@@ -398,7 +398,7 @@ export class FuncToolChecker implements DepsChecker {
         this.getExecCommand("npm"),
         "install",
         // not use -f, to avoid npm@6 bug: exit code = 0, even if install fail
-        `${funcPackageName}@${expectedFuncVersion}`,
+        `"${funcPackageName}@${expectedFuncVersion}"`,
         "--prefix",
         `"${tmpFolder}"`,
         "--no-audit"

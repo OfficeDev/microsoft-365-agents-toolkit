@@ -90,7 +90,7 @@ export async function botHappyPathTestForLocalDebug(
           projectPath: projectPath,
           teamsAppName: localDebugTestContext.appName,
           env: "local",
-          searchApp: true,
+          searchApp: false,
         }
       );
       await localDebugTestContext.validateLocalStateForBot();
@@ -114,7 +114,7 @@ export async function botHappyPathTestForLocalDebug(
           projectPath: projectPath,
           teamsAppName: localDebugTestContext.appName,
           env: "local",
-          searchApp: true,
+          searchApp: false,
           loggedIn: true, // to avoid re-login
         }
       );
@@ -201,7 +201,7 @@ export async function botHappyPathTestForRemoteDebug(
         projectPath: projectPath,
         env: "dev",
         teamsAppName: appName,
-        searchApp: true,
+        searchApp: false,
       }
     );
     await driver.sleep(Timeout.longTimeWait);

@@ -15,7 +15,7 @@ import { AxiosInstance } from 'axios';
 import { AxiosRequestConfig } from 'axios';
 import { CardAction } from '@microsoft/agents-activity';
 import { CardImage } from '@microsoft/agents-hosting';
-import { ChannelInfo } from '@microsoft/agents-hosting-teams';
+import { ChannelInfo } from '@microsoft/agents-hosting-extensions-teams';
 import { CloudAdapter } from '@microsoft/agents-hosting';
 import { ComponentDialog } from '@microsoft/agents-hosting-dialogs';
 import { ConversationReference } from '@microsoft/agents-activity';
@@ -26,22 +26,21 @@ import { DialogTurnResult } from '@microsoft/agents-hosting-dialogs';
 import { GetTokenOptions } from '@azure/identity';
 import { HeroCard } from '@microsoft/agents-hosting';
 import { InvokeResponse } from '@microsoft/agents-hosting';
-import { MessagingExtensionResponse } from '@microsoft/agents-hosting-teams';
+import { MessagingExtensionResponse } from '@microsoft/agents-hosting-extensions-teams';
 import { O365ConnectorCard } from '@microsoft/agents-hosting';
 import { ReceiptCard } from '@microsoft/agents-hosting';
 import { Request as Request_2 } from '@microsoft/agents-hosting';
 import { SecureContextOptions } from 'tls';
-import { SigninStateVerificationQuery } from '@microsoft/agents-hosting-teams';
 import { StatusCodes } from '@microsoft/agents-hosting';
 import { Storage as Storage_2 } from '@microsoft/agents-hosting';
-import { TeamDetails } from '@microsoft/agents-hosting-teams';
-import { TeamsChannelAccount } from '@microsoft/agents-hosting-teams';
+import { TeamDetails } from '@microsoft/agents-hosting-extensions-teams';
+import { TeamsChannelAccount } from '@microsoft/agents-hosting-extensions-teams';
 import { ThumbnailCard } from '@microsoft/agents-hosting';
 import { TokenCredential } from '@azure/identity';
 import { TurnContext } from '@microsoft/agents-hosting';
 import { UserState } from '@microsoft/agents-hosting';
 
-// @public
+// @public @deprecated
 export enum AdaptiveCardResponse {
     NewForAll = 2,
     ReplaceForAll = 1,
@@ -67,47 +66,56 @@ declare namespace AgentBuilderCloudAdapter {
 }
 export { AgentBuilderCloudAdapter }
 
-// @public
+// @public @deprecated
 export enum ApiKeyLocation {
     Header = 0,
     QueryParams = 1
 }
 
-// @public
+// @public @deprecated
 export class ApiKeyProvider implements AuthProvider {
+    // @deprecated
     constructor(keyName: string, keyValue: string, keyLocation: ApiKeyLocation);
+    // @deprecated
     AddAuthenticationInfo(config: AxiosRequestConfig): Promise<AxiosRequestConfig>;
 }
 
-// @public
+// @public @deprecated
 export class AppCredential implements TokenCredential {
+    // @deprecated
     constructor(authConfig: AppCredentialAuthConfig);
+    // @deprecated
     getToken(scopes: string | string[], options?: GetTokenOptions): Promise<AccessToken | null>;
 }
 
-// @public
+// @public @deprecated
 export type AppCredentialAuthConfig = OnBehalfOfCredentialAuthConfig;
 
-// @public
+// @public @deprecated
 export interface AuthProvider {
+    // @deprecated
     AddAuthenticationInfo: (config: AxiosRequestConfig) => Promise<AxiosRequestConfig>;
 }
 
 export { AxiosInstance }
 
-// @public
+// @public @deprecated
 export class BasicAuthProvider implements AuthProvider {
+    // @deprecated
     constructor(userName: string, password: string);
+    // @deprecated
     AddAuthenticationInfo(config: AxiosRequestConfig): Promise<AxiosRequestConfig>;
 }
 
-// @public
+// @public @deprecated
 export class BearerTokenAuthProvider implements AuthProvider {
+    // @deprecated
     constructor(getToken: () => Promise<string>);
+    // @deprecated
     AddAuthenticationInfo(config: AxiosRequestConfig): Promise<AxiosRequestConfig>;
 }
 
-// @public
+// @public @deprecated
 export interface BotSsoConfig {
     aad: {
         scopes: string[];
@@ -127,86 +135,109 @@ export interface BotSsoConfig {
     };
 }
 
-// @public
+// @public @deprecated
 export interface BotSsoExecutionActivityHandler {
     addCommand(handler: BotSsoExecutionDialogHandler, triggerPatterns: TriggerPatterns): void;
-    handleTeamsSigninTokenExchange(context: TurnContext, query: SigninStateVerificationQuery): Promise<void>;
-    handleTeamsSigninVerifyState(context: TurnContext, query: SigninStateVerificationQuery): Promise<void>;
+    handleTeamsSigninTokenExchange(context: TurnContext, query: {
+        state?: string;
+    }): Promise<void>;
+    handleTeamsSigninVerifyState(context: TurnContext, query: {
+        state?: string;
+    }): Promise<void>;
     run(context: TurnContext): Promise<void>;
 }
 
-// @public
+// @public @deprecated
 export class BotSsoExecutionDialog extends ComponentDialog {
+    // @deprecated
     constructor(dedupStorage: Storage_2, ssoPromptSettings: TeamsBotSsoPromptSettings, authConfig: OnBehalfOfCredentialAuthConfig, initiateLoginEndpoint: string, dialogName?: string);
+    // @deprecated
     addCommand(handler: BotSsoExecutionDialogHandler, triggerPatterns: TriggerPatterns): void;
     protected onEndDialog(context: TurnContext): Promise<void>;
+    // @deprecated
     run(context: TurnContext, accessor: AgentStatePropertyAccessor): Promise<void>;
 }
 
-// @public (undocumented)
+// @public @deprecated (undocumented)
 export type BotSsoExecutionDialogHandler = (context: TurnContext, tokenResponse: TeamsBotSsoPromptTokenResponse, message: CommandMessage) => Promise<void>;
 
-// @public
+// @public @deprecated
 class CardActionBot {
+    // @deprecated
     constructor(adapter: CloudAdapter, options?: CardActionOptions);
+    // @deprecated
     registerHandler(actionHandler: TeamsFxAdaptiveCardActionHandler): void;
+    // @deprecated
     registerHandlers(actionHandlers: TeamsFxAdaptiveCardActionHandler[]): void;
 }
 
-// @public
+// @public @deprecated
 export interface CardActionOptions {
     actions?: TeamsFxAdaptiveCardActionHandler[];
 }
 
-// @public
+// @public @deprecated
 export class CertificateAuthProvider implements AuthProvider {
+    // @deprecated
     constructor(certOption: SecureContextOptions);
+    // @deprecated
     AddAuthenticationInfo(config: AxiosRequestConfig): Promise<AxiosRequestConfig>;
 }
 
-// @public
+// @public @deprecated
 class Channel implements NotificationTarget {
+    // @deprecated
     constructor(parent: TeamsBotInstallation, info: ChannelInfo);
     readonly info: ChannelInfo;
     readonly parent: TeamsBotInstallation;
+    // @deprecated
     sendAdaptiveCard(card: unknown, onError?: (context: TurnContext, error: Error) => Promise<void>): Promise<MessageResponse>;
     // Warning: (ae-forgotten-export) The symbol "MessageResponse" needs to be exported by the entry point index.d.ts
+    //
+    // @deprecated
     sendMessage(text: string, onError?: (context: TurnContext, error: Error) => Promise<void>): Promise<MessageResponse>;
     readonly type: NotificationTargetType;
 }
 
-// @public
+// @public @deprecated
 class CommandBot {
+    // @deprecated
     constructor(adapter: CloudAdapter, options?: CommandOptions, ssoCommandActivityHandler?: BotSsoExecutionActivityHandler, ssoConfig?: BotSsoConfig);
+    // @deprecated
     registerCommand(command: TeamsFxBotCommandHandler): void;
+    // @deprecated
     registerCommands(commands: TeamsFxBotCommandHandler[]): void;
+    // @deprecated
     registerSsoCommand(ssoCommand: TeamsFxBotSsoCommandHandler): void;
+    // @deprecated
     registerSsoCommands(ssoCommands: TeamsFxBotSsoCommandHandler[]): void;
 }
 
-// @public
+// @public @deprecated
 export interface CommandMessage {
     matches?: RegExpMatchArray;
     text: string;
 }
 
-// @public
+// @public @deprecated
 export interface CommandOptions {
     commands?: TeamsFxBotCommandHandler[];
     ssoCommands?: TeamsFxBotSsoCommandHandler[];
 }
 
-// @public
+// @public @deprecated
 class ConversationBot {
+    // @deprecated
     constructor(options: ConversationOptions);
     readonly adapter: CloudAdapter;
     readonly cardAction?: CardActionBot;
     readonly command?: CommandBot;
     readonly notification?: NotificationBot;
+    // @deprecated
     requestHandler(req: Request_2, res: any, logic?: (context: TurnContext) => Promise<any>): Promise<void>;
 }
 
-// @public
+// @public @deprecated
 interface ConversationOptions {
     adapter?: CloudAdapter;
     adapterConfig?: AuthConfiguration;
@@ -222,33 +253,33 @@ interface ConversationOptions {
     ssoConfig?: BotSsoConfig;
 }
 
-// @public
+// @public @deprecated
 export interface ConversationReferenceStore {
     add(key: string, reference: Partial<ConversationReference>, options: ConversationReferenceStoreAddOptions): Promise<boolean>;
     list(pageSize?: number, continuationToken?: string): Promise<PagedData<Partial<ConversationReference>>>;
     remove(key: string, reference: Partial<ConversationReference>): Promise<boolean>;
 }
 
-// @public
+// @public @deprecated
 export interface ConversationReferenceStoreAddOptions {
     overwrite?: boolean;
 }
 
-// @public
+// @public @deprecated
 export function createApiClient(apiEndpoint: string, authProvider: AuthProvider): AxiosInstance;
 
-// @public
+// @public @deprecated
 export function createPemCertOption(cert: string | Buffer, key: string | Buffer, options?: {
     passphrase?: string;
     ca?: string | Buffer;
 }): SecureContextOptions;
 
-// @public
+// @public @deprecated
 export function createPfxCertOption(pfx: string | Buffer, options?: {
     passphrase?: string;
 }): SecureContextOptions;
 
-// @public
+// @public @deprecated
 export enum ErrorCode {
     AuthorizationInfoAlreadyExists = "AuthorizationInfoAlreadyExists",
     CannotFindCommand = "CannotFindCommand",
@@ -271,45 +302,50 @@ export enum ErrorCode {
     UiRequiredError = "UiRequiredError"
 }
 
-// @public
+// @public @deprecated
 export class ErrorWithCode extends Error {
+    // @deprecated
     constructor(message?: string, code?: ErrorCode);
     code: string | undefined;
 }
 
-// @public
+// @public @deprecated
 export function getLogLevel(): LogLevel | undefined;
 
-// @public (undocumented)
+// @public @deprecated (undocumented)
 export interface GetTeamsUserTokenOptions extends GetTokenOptions {
     // (undocumented)
     resources?: string[];
 }
 
-// @public
+// @public @deprecated
 export function handleMessageExtensionLinkQueryWithSSO(context: TurnContext, config: OnBehalfOfCredentialAuthConfig, initiateLoginEndpoint: string, scopes: string | string[], logic: (token: MessageExtensionTokenResponse) => Promise<any>): Promise<void | MessagingExtensionResponse>;
 
-// @public
+// @public @deprecated
 export function handleMessageExtensionQueryWithSSO(context: TurnContext, config: OnBehalfOfCredentialAuthConfig, initiateLoginEndpoint: string, scopes: string | string[], logic: (token: MessageExtensionTokenResponse) => Promise<any>): Promise<void | MessagingExtensionResponse>;
 
-// @public
+// @public @deprecated
 export enum InvokeResponseErrorCode {
     BadRequest = 400,
     InternalServerError = 500
 }
 
-// @public
+// @public @deprecated
 export class InvokeResponseFactory {
+    // @deprecated
     static adaptiveCard(card: unknown): InvokeResponse;
+    // @deprecated
     static createInvokeResponse(statusCode: StatusCodes, body?: unknown): InvokeResponse;
+    // @deprecated
     static errorResponse(errorCode: InvokeResponseErrorCode, errorMessage: string): InvokeResponse;
+    // @deprecated
     static textMessage(message: string): InvokeResponse;
 }
 
-// @public
+// @public @deprecated
 export type LogFunction = (level: LogLevel, message: string) => void;
 
-// @public
+// @public @deprecated
 export interface Logger {
     error(message: string): void;
     info(message: string): void;
@@ -317,7 +353,7 @@ export interface Logger {
     warn(message: string): void;
 }
 
-// @public
+// @public @deprecated
 export enum LogLevel {
     Error = 3,
     Info = 1,
@@ -325,8 +361,9 @@ export enum LogLevel {
     Warn = 2
 }
 
-// @public
+// @public @deprecated
 class Member implements NotificationTarget {
+    // @deprecated
     constructor(parent: TeamsBotInstallation, account: TeamsChannelAccount);
     readonly account: TeamsChannelAccount;
     readonly parent: TeamsBotInstallation;
@@ -335,20 +372,27 @@ class Member implements NotificationTarget {
     readonly type: NotificationTargetType;
 }
 
-// @public
+// @public @deprecated
 export class MessageBuilder {
+    // @deprecated
     static attachAdaptiveCard<TData extends object>(cardTemplate: unknown, data: TData): Partial<Activity>;
+    // @deprecated
     static attachAdaptiveCardWithoutData(card: unknown): Partial<Activity>;
+    // @deprecated
     static attachContent(attachement: Attachment): Partial<Activity>;
+    // @deprecated
     static attachHeroCard(title: string, images?: (CardImage | string)[], buttons?: (CardAction | string)[], other?: Partial<HeroCard>): Partial<Activity>;
+    // @deprecated
     static attachO365ConnectorCard(card: O365ConnectorCard): Partial<Activity>;
+    // @deprecated
     static AttachReceiptCard(card: ReceiptCard): Partial<Activity>;
+    // @deprecated
     static attachSigninCard(title: string, url: string, text?: string): Partial<Activity>;
-    // (undocumented)
+    // @deprecated (undocumented)
     static attachThumbnailCard(title: string, images?: (CardImage | string)[], buttons?: (CardAction | string)[], other?: Partial<ThumbnailCard>): Partial<Activity>;
 }
 
-// @public
+// @public @deprecated
 export interface MessageExtensionTokenResponse {
     // (undocumented)
     channelId?: string;
@@ -366,7 +410,7 @@ export interface MessageExtensionTokenResponse {
     token: string;
 }
 
-// @public
+// @public @deprecated
 class NotificationBot {
     constructor(adapter: CloudAdapter, options?: NotificationOptions_2);
     buildTeamsBotInstallation(conversationReference: Partial<ConversationReference>): TeamsBotInstallation | null;
@@ -378,27 +422,27 @@ class NotificationBot {
     validateInstallation(conversationReference: Partial<ConversationReference>): Promise<boolean>;
 }
 
-// @public
+// @public @deprecated
 interface NotificationOptions_2 {
     botAppId?: string;
     store?: ConversationReferenceStore;
 }
 
-// @public
+// @public @deprecated
 export interface NotificationTarget {
     sendAdaptiveCard(card: unknown, onError?: (context: TurnContext, error: Error) => Promise<void>): Promise<MessageResponse>;
     sendMessage(text: string, onError?: (context: TurnContext, error: Error) => Promise<void>): Promise<MessageResponse>;
     readonly type?: NotificationTargetType;
 }
 
-// @public
+// @public @deprecated
 export enum NotificationTargetType {
     Channel = "Channel",
     Group = "Group",
     Person = "Person"
 }
 
-// @public
+// @public @deprecated
 export type OnBehalfOfCredentialAuthConfig = {
     authorityHost: string;
     clientId: string;
@@ -411,20 +455,22 @@ export type OnBehalfOfCredentialAuthConfig = {
     certificateContent: string;
 });
 
-// @public
+// @public @deprecated
 export class OnBehalfOfUserCredential implements TokenCredential {
+    // @deprecated
     constructor(ssoToken: string, config: OnBehalfOfCredentialAuthConfig);
+    // @deprecated
     getToken(scopes: string | string[], options?: GetTokenOptions): Promise<AccessToken | null>;
     getUserInfo(): UserInfo;
 }
 
-// @public
+// @public @deprecated
 export interface PagedData<T> {
     continuationToken?: string;
     data: T[];
 }
 
-// @public
+// @public @deprecated
 enum SearchScope {
     All = 7,
     Channel = 4,
@@ -432,22 +478,22 @@ enum SearchScope {
     Person = 1
 }
 
-// @public
+// @public @deprecated
 function sendAdaptiveCard(target: NotificationTarget, card: unknown, onError?: (context: TurnContext, error: Error) => Promise<void>): Promise<MessageResponse>;
 
-// @public
+// @public @deprecated
 function sendMessage(target: NotificationTarget, text: string, onError?: (context: TurnContext, error: Error) => Promise<void>): Promise<MessageResponse>;
 
-// @public
+// @public @deprecated
 export function setLogFunction(logFunction?: LogFunction): void;
 
-// @public
+// @public @deprecated
 export function setLogger(logger?: Logger): void;
 
-// @public
+// @public @deprecated
 export function setLogLevel(level: LogLevel): void;
 
-// @public
+// @public @deprecated
 class TeamsBotInstallation implements NotificationTarget {
     constructor(adapter: CloudAdapter, conversationReference: Partial<ConversationReference>, botAppId: string);
     readonly adapter: CloudAdapter;
@@ -461,21 +507,24 @@ class TeamsBotInstallation implements NotificationTarget {
     readonly type?: NotificationTargetType;
 }
 
-// @public
+// @public @deprecated
 export class TeamsBotSsoPrompt extends Dialog {
+    // @deprecated
     constructor(authConfig: OnBehalfOfCredentialAuthConfig, initiateLoginEndpoint: string, dialogId: string, settings: TeamsBotSsoPromptSettings);
+    // @deprecated
     beginDialog(dc: DialogContext): Promise<DialogTurnResult>;
+    // @deprecated
     continueDialog(dc: DialogContext): Promise<DialogTurnResult>;
 }
 
-// @public
+// @public @deprecated
 export interface TeamsBotSsoPromptSettings {
     endOnInvalidMessage?: boolean;
     scopes: string[];
     timeout?: number;
 }
 
-// @public
+// @public @deprecated
 export interface TeamsBotSsoPromptTokenResponse {
     // (undocumented)
     channelId?: string;
@@ -493,43 +542,47 @@ export interface TeamsBotSsoPromptTokenResponse {
     token: string;
 }
 
-// @public
+// @public @deprecated
 export interface TeamsFxAdaptiveCardActionHandler {
     adaptiveCardResponse?: AdaptiveCardResponse;
     handleActionInvoked(context: TurnContext, actionData: any): Promise<InvokeResponse>;
     triggerVerb: string;
 }
 
-// @public
+// @public @deprecated
 export interface TeamsFxBotCommandHandler {
     handleCommandReceived(context: TurnContext, message: CommandMessage): Promise<string | Partial<Activity> | void>;
     triggerPatterns: TriggerPatterns;
 }
 
-// @public
+// @public @deprecated
 export interface TeamsFxBotSsoCommandHandler {
     handleCommandReceived(context: TurnContext, message: CommandMessage, tokenResponse: TeamsBotSsoPromptTokenResponse): Promise<string | Partial<Activity> | void>;
     triggerPatterns: TriggerPatterns;
 }
 
-// @public
+// @public @deprecated
 export class TeamsUserCredential implements TokenCredential {
+    // @deprecated
     constructor(authConfig: TeamsUserCredentialAuthConfig);
+    // @deprecated
     getToken(scopes: string | string[], options?: GetTokenOptions): Promise<AccessToken | null>;
+    // @deprecated
     getUserInfo(resources?: string[]): Promise<UserInfo>;
+    // @deprecated
     login(scopes: string | string[], resources?: string[]): Promise<void>;
 }
 
-// @public
+// @public @deprecated
 export type TeamsUserCredentialAuthConfig = {
     initiateLoginEndpoint: string;
     clientId: string;
 };
 
-// @public
+// @public @deprecated
 export type TriggerPatterns = string | RegExp | (string | RegExp)[];
 
-// @public
+// @public @deprecated
 export interface UserInfo {
     displayName: string;
     objectId: string;

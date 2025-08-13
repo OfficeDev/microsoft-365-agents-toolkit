@@ -3,7 +3,6 @@ using {{SafeProjectName}}.Commands;
 using Microsoft.Agents.Builder;
 using Microsoft.Agents.Hosting.AspNetCore;
 using Microsoft.Agents.Storage;
-using Microsoft.TeamsFx.Conversation;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,26 +24,9 @@ builder.Services.AddSingleton<IStorage, MemoryStorage>();
 // Add AgentApplicationOptions from config.
 builder.AddAgentApplicationOptions();
 
-// Create command handlers 
+// Create command handlers
 builder.Services.AddSingleton<HelloWorldCommandHandler>();
 builder.Services.AddSingleton<GenericCommandHandler>();
-
-// Keep the ConversationBot to maintain compatibility with TeamsFx SDK
-builder.Services.AddSingleton(sp =>
-{
-    var options = new ConversationOptions()
-    {
-        Adapter = sp.GetService<CloudAdapter>(),
-        Command = new CommandOptions()
-        {
-            Commands = new List<ITeamsCommandHandler> { 
-                sp.GetService<HelloWorldCommandHandler>(), 
-                sp.GetService<GenericCommandHandler>() 
-            }
-        }
-    };
-    return new ConversationBot(options);
-});
 
 // Add the bot (which is transient)
 builder.AddAgent<TeamsBot>();

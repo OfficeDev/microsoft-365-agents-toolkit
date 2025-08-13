@@ -29,11 +29,17 @@
         "@langchain/langgraph": "^0.2.66",
         "@langchain/openai": "^0.5.6",
         "@microsoft/agents-hosting": "^0.2.14",
-        "express": "^5.0.1"
+        "express": "^5.0.1",
+        "zod": "3.25.67"
     },
     "devDependencies": {
         "env-cmd": "^10.1.0",
         "nodemon": "^3.1.7",
         "shx": "^0.3.3"
+    },
+    "overrides": {
+        "**": {
+            "zod": "3.25.67"
+        }
     }
 }

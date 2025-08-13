@@ -14,6 +14,7 @@ import * as ACData from "adaptivecards-templating";
 
 /**
  * Provides utility method to build bot message with cards that supported in Teams.
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
  */
 export class MessageBuilder {
   /**
@@ -51,6 +52,7 @@ export class MessageBuilder {
    *   description: "sample card description"
    * });
    * ```
+   * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
    */
   public static attachAdaptiveCard<TData extends object>(
     cardTemplate: unknown,
@@ -69,6 +71,7 @@ export class MessageBuilder {
    *
    * @param card The adaptive card content.
    * @returns A bot message activity attached with an adaptive card.
+   * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
    */
   public static attachAdaptiveCardWithoutData(card: unknown): Partial<Activity> {
     return {
@@ -95,6 +98,7 @@ export class MessageBuilder {
    *      ['action']
    * );
    * ```
+   * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
    */
   public static attachHeroCard(
     title: string,
@@ -116,6 +120,7 @@ export class MessageBuilder {
    *
    * @remarks
    * For channels that don't natively support sign-in cards, an alternative message is rendered.
+   * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
    */
   public static attachSigninCard(title: string, url: string, text?: string): Partial<Activity> {
     return MessageBuilder.attachContent(CardFactory.signinCard(title, url, text));
@@ -126,6 +131,7 @@ export class MessageBuilder {
    *
    * @param card A description of the Office 365 connector card.
    * @returns A bot message activity attached with an Office 365 connector card.
+   * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
    */
   public static attachO365ConnectorCard(card: O365ConnectorCard): Partial<Activity> {
     return MessageBuilder.attachContent(CardFactory.o365ConnectorCard(card));
@@ -135,6 +141,7 @@ export class MessageBuilder {
    * Build a message activity attached with a receipt card.
    * @param card A description of the receipt card.
    * @returns A message activity attached with a receipt card.
+   * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
    */
   public static AttachReceiptCard(card: ReceiptCard): Partial<Activity> {
     return MessageBuilder.attachContent(CardFactory.receiptCard(card));
@@ -148,6 +155,7 @@ export class MessageBuilder {
    *      is converted to an `imBack` button with a title and value set to the value of the string.
    * @param other Optional. Any additional properties to include on the card.
    * @returns A message activity attached with a thumbnail card
+   * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
    */
   public static attachThumbnailCard(
     title: string,
@@ -162,6 +170,7 @@ export class MessageBuilder {
    * Add an attachement to a bot activity.
    * @param attachement The attachment object to attach.
    * @returns A message activity with an attachment.
+   * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
    */
   public static attachContent(attachement: Attachment): Partial<Activity> {
     return {
