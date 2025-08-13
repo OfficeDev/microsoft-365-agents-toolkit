@@ -1226,7 +1226,7 @@ export async function validateReactTab(
         const appNameWithEnv = `${appName}${env}`;
         await appSearchInput.fill(appNameWithEnv);
         const appButton = await page.waitForSelector(
-          `button:has-text("${appName}")`
+          `button:has-text("${appNameWithEnv}")`
         );
         console.log(`has app ${appNameWithEnv}`);
         await appButton.click();
