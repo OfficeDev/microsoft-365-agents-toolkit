@@ -79,6 +79,8 @@ export class DeclarativeAgentGenerator extends DefaultTemplateGenerator {
     const language = inputs[QuestionNames.ProgrammingLanguage] as ProgrammingLanguage;
     const safeProjectNameFromVS =
       language === "csharp" ? inputs[QuestionNames.SafeProjectName] : undefined;
+    const solutionNameFromVS =
+      language === "csharp" ? inputs[QuestionNames.SolutionName] : undefined;
 
     const replaceMap = {
       ...Generator.getDefaultVariables(
@@ -86,6 +88,7 @@ export class DeclarativeAgentGenerator extends DefaultTemplateGenerator {
           ? convertToAlphanumericOnly(appName)
           : appName,
         safeProjectNameFromVS,
+        solutionNameFromVS,
         inputs.targetFramework,
         inputs.placeProjectFileInSolutionDir === "true"
       ),

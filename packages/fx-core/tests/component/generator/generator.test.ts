@@ -930,7 +930,7 @@ describe("render template", () => {
       inputs.placeProjectFileInSolutionDir = "true";
       const vars = newGeneratorFlag
         ? getTemplateReplaceMap(inputs)
-        : Generator.getDefaultVariables("test", undefined, undefined, true);
+        : Generator.getDefaultVariables("test", undefined, undefined, undefined, true);
       assert.equal(vars.PlaceProjectFileInSolutionDir, "true");
     });
 
@@ -940,7 +940,7 @@ describe("render template", () => {
       inputs[QuestionNames.OpenAIKey] = "test-key";
       const vars = newGeneratorFlag
         ? getTemplateReplaceMap(inputs)
-        : Generator.getDefaultVariables("test", "test", undefined, false, undefined, {
+        : Generator.getDefaultVariables("test", "test", undefined, undefined, false, undefined, {
             llmService: "llm-service-openai",
             openAIKey: "test-key",
           });
@@ -963,7 +963,7 @@ describe("render template", () => {
       inputs[QuestionNames.AzureOpenAIDeploymentName] = "test-deployment";
       const vars = newGeneratorFlag
         ? getTemplateReplaceMap(inputs)
-        : Generator.getDefaultVariables("test", "test", undefined, false, undefined, {
+        : Generator.getDefaultVariables("test", "test", undefined, undefined, false, undefined, {
             llmService: "llm-service-azure-openai",
             azureOpenAIKey: "test-key",
             azureOpenAIEndpoint: "test-endpoint",
@@ -997,7 +997,7 @@ describe("render template", () => {
 
     it("template variables when contains auth", async () => {
       sandbox.stub(process, "env").value({ TEAMSFX_TEST_TOOL: "false" });
-      const vars = Generator.getDefaultVariables("Test", "Test", "net6", false, [
+      const vars = Generator.getDefaultVariables("Test", "Test", "Test", "net6", false, [
         {
           authName: "authName",
           openapiSpecPath: "path/to/spec.yaml",
@@ -1016,7 +1016,7 @@ describe("render template", () => {
 
     it("template variables when contains auth with special characters", async () => {
       sandbox.stub(process, "env").value({ TEAMSFX_TEST_TOOL: "false" });
-      const vars = Generator.getDefaultVariables("Test", "Test", "net6", false, [
+      const vars = Generator.getDefaultVariables("Test", "Test", "Test", "net6", false, [
         {
           authName: "authName",
           openapiSpecPath: "path/to/spec.yaml",
@@ -1044,7 +1044,7 @@ describe("render template", () => {
 
     it("template variables when contains auth with name not start with [A-Z]", async () => {
       sandbox.stub(process, "env").value({ TEAMSFX_TEST_TOOL: "false" });
-      const vars = Generator.getDefaultVariables("Test", "Test", undefined, false, [
+      const vars = Generator.getDefaultVariables("Test", "Test", "Test", undefined, false, [
         {
           authName: "authName",
           openapiSpecPath: "path/to/spec.yaml",

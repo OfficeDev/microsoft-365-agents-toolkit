@@ -118,6 +118,8 @@ export async function getTemplateInfosFromApiSpec(
   }
   const safeProjectNameFromVS =
     language === ProgrammingLanguage.CSharp ? inputs[QuestionNames.SafeProjectName] : undefined;
+  const solutionNameFromVS =
+    language === ProgrammingLanguage.CSharp ? inputs[QuestionNames.SolutionName] : undefined;
   const url = inputs[QuestionNames.ApiSpecLocation].trim();
   const isYaml = !(await isJsonSpecFile(url));
   const openapiSpecFileName = isYaml ? DefaultApiSpecYamlFileName : DefaultApiSpecJsonFileName;
@@ -152,6 +154,7 @@ export async function getTemplateInfosFromApiSpec(
   context.templateVariables = Generator.getDefaultVariables(
     inputs[QuestionNames.AppName],
     safeProjectNameFromVS,
+    solutionNameFromVS,
     inputs.targetFramework,
     inputs.placeProjectFileInSolutionDir === "true",
     convertedAuthData ?? [],

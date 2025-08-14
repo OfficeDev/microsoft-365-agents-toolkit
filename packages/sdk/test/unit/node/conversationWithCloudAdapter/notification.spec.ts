@@ -259,7 +259,11 @@ describe("Notification Tests - Node", () => {
         return { id: "1" } as any;
       });
       const stubTurnState = sandbox.createStubInstance(TurnContextStateCollection);
-      stubTurnState.get.returns(stubConnectorClient);
+      stubTurnState.get
+        .onFirstCall()
+        .returns(undefined)
+        .onSecondCall()
+        .returns(stubConnectorClient);
       const stubContext = sandbox.createStubInstance(TurnContext);
       stubContext.sendActivity.callsFake((activityOrText, speak, inputHint) => {
         if (turnError) {
@@ -287,6 +291,7 @@ describe("Notification Tests - Node", () => {
         };
       });
       const stubAdapter = sandbox.createStubInstance(CloudAdapter);
+      stubAdapter.connectorClient = stubConnectorClient;
       (
         stubAdapter.continueConversation as unknown as sinon.SinonStub<
           [Partial<ConversationReference>, (context: TurnContext) => Promise<void>],

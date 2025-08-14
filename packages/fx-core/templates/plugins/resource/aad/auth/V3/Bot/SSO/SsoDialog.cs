@@ -1,9 +1,11 @@
-﻿using Microsoft.Bot.Builder;
-using Microsoft.Bot.Builder.Dialogs;
-using Microsoft.Bot.Schema;
+﻿using {{YOUR_NAMESPACE}}.Configuration;
+using Json.More;
+using Microsoft.Agents.Builder;
+using Microsoft.Agents.Builder.Dialogs;
+using Microsoft.Agents.Builder.State;
+using Microsoft.Agents.Core.Models;
+using Microsoft.Agents.Storage;
 using Microsoft.Extensions.Options;
-using Microsoft.TeamsFx.Bot;
-using Microsoft.TeamsFx.Configuration;
 
 namespace {{YOUR_NAMESPACE}}.SSO;
 
@@ -173,9 +175,10 @@ public class SsoDialog : ComponentDialog
 
     private async Task<bool> ShouldDedup(ITurnContext context)
     {
+        var tokenResponseObject = context.Activity.Value.ToJsonDocument();
         var storeItem = new StoreItem()
         {
-            eTag = (context.Activity.Value as dynamic).id,
+            eTag = tokenResponseObject.RootElement.GetProperty("id").ToString(),
         };
         var key = GetStorageKey(context);
         var storeItems = new Dictionary<string, object>()
@@ -209,13 +212,13 @@ public class SsoDialog : ComponentDialog
             throw new Exception("TokenExchangeState can only be used with Invokes of signin/tokenExchange.");
         }
 
-        var value = activity.Value;
-        if (value == null || (value as dynamic).id == null)
+        var value = activity.Value.ToJsonDocument();
+        if (value == null || value.RootElement.GetProperty("id").ToString() == null)
         {
             throw new Exception("Invalid signin/tokenExchange. Missing activity.value.id.");
         }
 
-        return $"{channelId}/{conversationId}/{(value as dynamic).id}";
+        return $"{channelId}/{conversationId}/{value.RootElement.GetProperty("id").ToString()}";
     }
 
     private string MatchCommands(string text)

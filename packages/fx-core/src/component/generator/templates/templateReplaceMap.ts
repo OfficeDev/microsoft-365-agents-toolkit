@@ -11,6 +11,7 @@ export function getTemplateReplaceMap(inputs: Inputs): { [key: string]: string }
   const appName = inputs[QuestionNames.AppName] as string;
   const safeProjectName =
     inputs[QuestionNames.SafeProjectName] ?? convertToAlphanumericOnly(appName);
+  const solutionName = inputs[QuestionNames.SolutionName] ?? appName;
   const targetFramework = inputs.targetFramework;
   const placeProjectFileInSolutionDir = inputs.placeProjectFileInSolutionDir === "true";
   const llmService: string | undefined = inputs[QuestionNames.LLMService];
@@ -46,6 +47,7 @@ export function getTemplateReplaceMap(inputs: Inputs): { [key: string]: string }
   return {
     appName: appName,
     ProjectName: appName,
+    SolutionName: solutionName,
     TargetFramework: targetFramework ?? "net8.0",
     PlaceProjectFileInSolutionDir: placeProjectFileInSolutionDir ? "true" : "",
     SafeProjectName: safeProjectName,
