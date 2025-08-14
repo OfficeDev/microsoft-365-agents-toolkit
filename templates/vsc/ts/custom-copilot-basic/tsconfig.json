@@ -1,13 +1,22 @@
 {
   "compilerOptions": {
+    "module": "NodeNext",
+    "target": "ESNext",
+    "moduleResolution": "NodeNext",
+    "strict": true,
+    "noImplicitAny": true,
     "declaration": true,
-    "target": "es2017",
-    "module": "commonjs",
-    "outDir": "./lib",
-    "rootDir": "./",
-    "sourceMap": true,
-    "incremental": true,
-    "tsBuildInfoFile": "./lib/.tsbuildinfo",
-    "esModuleInterop": true
+    "inlineSourceMap": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": false,
+    "resolveJsonModule": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "pretty": true,
+    "outDir": "dist",
+    "rootDir": "src",
+    "types": ["node"]
   }
 }
