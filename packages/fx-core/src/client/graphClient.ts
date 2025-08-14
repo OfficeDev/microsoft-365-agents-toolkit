@@ -458,11 +458,8 @@ export class GraphClient {
     return <User>response.data;
   }
 
-  public async getGroupInfo(
-    m365TokenProvider: M365TokenProvider,
-    email: string
-  ): Promise<Group | undefined> {
-    const tokenResponse = await m365TokenProvider?.getAccessToken({ scopes: GroupSearchScopes });
+  public async getGroupInfo(email: string): Promise<Group | undefined> {
+    const tokenResponse = await this.tokenProvider.getAccessToken({ scopes: GroupSearchScopes });
     if (tokenResponse.isErr()) {
       throw tokenResponse.error;
     }

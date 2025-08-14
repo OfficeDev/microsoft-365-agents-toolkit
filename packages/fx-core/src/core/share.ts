@@ -2,6 +2,7 @@
 // Licensed under the MIT license.
 import { FxError, Result, err, ok } from "@microsoft/teamsfx-api";
 import "reflect-metadata";
+import { GraphClient } from "../client/graphClient";
 import { TOOLS } from "../common/globalVars";
 import { getLocalizedString } from "../common/localizeUtils";
 import "../component/driver/index";
@@ -48,10 +49,18 @@ export async function addSharedUsers(
     });
   }
 
+  const graphClient = new GraphClient(tokenProvider);
   for (const email of emails) {
     const userInfo = await CollaborationUtil.getUserInfo(tokenProvider, email);
     if (!userInfo) {
-      return err(new InputValidationError("shareWithUser", `Invalid user: ${email}`));
+      const groupInfo = await graphClient.getGroupInfo(email);
+      if (!groupInfo) {
+        return err(new InputValidationError("shareWithUser", `Invalid user or group: ${email}`));
+      }
+      entities.add({
+        entityId: groupInfo.id,
+        entityType: M365EntityType.Group,
+      });
     } else {
       entities.add({
         entityId: userInfo.aadId,

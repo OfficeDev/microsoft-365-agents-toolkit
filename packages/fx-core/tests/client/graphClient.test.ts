@@ -558,7 +558,28 @@ describe("GraphAPIClient Test", () => {
       sandbox.stub(tokenProvider, "getAccessToken").resolves(ok("fake-token"));
       sandbox.stub(fakeAxiosInstance, "get").resolves(mockResponse);
 
-      const result = await graphClient.getGroupInfo(tokenProvider, email);
+      const result = await graphClient.getGroupInfo(email);
+
+      expect(result).to.deep.equal(mockGroup);
+    });
+
+    it("should return group info with case-insensitive email matching", async () => {
+      const email = "TestGroup@Example.com";
+      const mockGroup = {
+        id: "test-group-id",
+        displayName: "Test Group",
+        mail: "testgroup@example.com",
+      };
+      const mockResponse = {
+        data: {
+          value: [mockGroup],
+        },
+      };
+
+      sandbox.stub(tokenProvider, "getAccessToken").resolves(ok("fake-token"));
+      sandbox.stub(fakeAxiosInstance, "get").resolves(mockResponse);
+
+      const result = await graphClient.getGroupInfo(email);
 
       expect(result).to.deep.equal(mockGroup);
     });
@@ -579,7 +600,7 @@ describe("GraphAPIClient Test", () => {
       sandbox.stub(tokenProvider, "getAccessToken").resolves(ok("fake-token"));
       sandbox.stub(fakeAxiosInstance, "get").resolves(mockResponse);
 
-      const result = await graphClient.getGroupInfo(tokenProvider, email);
+      const result = await graphClient.getGroupInfo(email);
 
       expect(result).to.be.undefined;
     });
@@ -589,7 +610,7 @@ describe("GraphAPIClient Test", () => {
       sandbox.stub(tokenProvider, "getAccessToken").resolves(ok("fake-token"));
       sandbox.stub(fakeAxiosInstance, "get").resolves({});
 
-      const result = await graphClient.getGroupInfo(tokenProvider, email);
+      const result = await graphClient.getGroupInfo(email);
 
       expect(result).to.be.undefined;
     });
@@ -604,7 +625,7 @@ describe("GraphAPIClient Test", () => {
       sandbox.stub(tokenProvider, "getAccessToken").resolves(err(error));
 
       try {
-        await graphClient.getGroupInfo(tokenProvider, email);
+        await graphClient.getGroupInfo(email);
         expect.fail("Should have thrown error");
       } catch (e) {
         expect(e).to.equal(error);
