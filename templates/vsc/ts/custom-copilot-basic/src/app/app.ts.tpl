@@ -24,54 +24,53 @@ const app = new App({
   storage
 });
 
-// Handle application errors
-app.event('error', async ({ error, send }) => {
-  console.error('Error processing message:', error);
-  await send("The agent encountered an error or bug.");
-  await send("To continue to run this agent, please fix the agent source code.");
-});
-
 // Handle incoming messages
-app.on('message', async ({ send, stream, activity }) => {
+app.on('message', async ({ send, stream, activity, log }) => {
   //Get conversation history
   const conversationKey = `${activity.conversation.id}/${activity.from.id}`;
   const messages = storage.get(conversationKey) || [];
 
-  const prompt = new ChatPrompt({
-    messages,
-    instructions,
-    {{#useOpenAI}}
-    model: new OpenAIChatModel({
-      model: config.openAIModelName,
-      apiKey: config.openAIKey
+  try {
+    const prompt = new ChatPrompt({
+      messages,
+      instructions,
+      {{#useOpenAI}}
+      model: new OpenAIChatModel({
+        model: config.openAIModelName,
+        apiKey: config.openAIKey
+      })
+      {{/useOpenAI}}
+      {{#useAzureOpenAI}}
+      model: new OpenAIChatModel({
+        model: config.azureOpenAIDeploymentName,
+        apiKey: config.azureOpenAIKey,
+        endpoint: config.azureOpenAIEndpoint,
+        apiVersion: "2024-10-21"
+      })
+      {{/useAzureOpenAI}}
     })
-    {{/useOpenAI}}
-    {{#useAzureOpenAI}}
-    model: new OpenAIChatModel({
-      model: config.azureOpenAIDeploymentName,
-      apiKey: config.azureOpenAIKey,
-      endpoint: config.azureOpenAIEndpoint,
-      apiVersion: "2024-10-21"
-    })
-    {{/useAzureOpenAI}}
-  })
 
-  if (activity.conversation.isGroup) {
-    // If the conversation is a group chat, we need to send the final response
-    // back to the group chat
-    const response = await prompt.send(activity.text);
-    const responseActivity = new MessageActivity(response.content).addAiGenerated().addFeedback();
-    await send(responseActivity);
-  } else {
-      await prompt.send(activity.text, {
-        onChunk: (chunk) => {
-          stream.emit(chunk);
-        },
-      });
-    // We wrap the final response with an AI Generated indicator
-    stream.emit(new MessageActivity().addAiGenerated().addFeedback());
+    if (activity.conversation.isGroup) {
+      // If the conversation is a group chat, we need to send the final response
+      // back to the group chat
+      const response = await prompt.send(activity.text);
+      const responseActivity = new MessageActivity(response.content).addAiGenerated().addFeedback();
+      await send(responseActivity);
+    } else {
+        await prompt.send(activity.text, {
+          onChunk: (chunk) => {
+            stream.emit(chunk);
+          },
+        });
+      // We wrap the final response with an AI Generated indicator
+      stream.emit(new MessageActivity().addAiGenerated().addFeedback());
+    }
+    storage.set(conversationKey, messages);
+  } catch (error) {
+    log.error('Error processing message:', error);
+    await send("The agent encountered an error or bug.");
+    await send("To continue to run this agent, please fix the agent source code.");
   }
-  storage.set(conversationKey, messages);
 
 });
 
