@@ -36,6 +36,7 @@ import {
 import { azureLoginMessage, env, m365LoginMessage } from "./common/constant";
 import CliCodeLogInstance from "./log";
 import { decodeClaimsChallenge } from "./common/utils";
+import { getAccountByHomeId } from "./common/tokenCacheUtils";
 
 export class ErrorMessage {
   static readonly loginFailureTitle = "LoginFail";
@@ -67,7 +68,6 @@ export class CodeFlowLogin {
   config: Configuration;
   port: number;
   mutex: Mutex;
-  msalTokenCache: TokenCache;
   accountName: string;
 
   constructor(scopes: string[], config: Configuration, port: number, accountName: string) {
@@ -76,21 +76,20 @@ export class CodeFlowLogin {
     this.port = port;
     this.mutex = new Mutex();
     this.pca = new PublicClientApplication(this.config);
-    this.msalTokenCache = this.pca.getTokenCache();
     this.accountName = accountName;
   }
 
   async reloadCache() {
     const accountCache = await loadAccountId(this.accountName);
     if (accountCache) {
-      const dataCache = await this.msalTokenCache.getAccountByHomeId(accountCache);
+      const dataCache = getAccountByHomeId(accountCache, await this.pca.getAllAccounts());
       if (dataCache) {
         this.account = dataCache;
       }
 
       const tenantCache = await loadTenantId(this.accountName);
       if (tenantCache) {
-        const allAccounts = await this.msalTokenCache.getAllAccounts();
+        const allAccounts = await this.pca.getAllAccounts();
         this.account = allAccounts.find((account) => account.tenantId == tenantCache);
       }
     } else {
@@ -182,7 +181,6 @@ export class CodeFlowLogin {
     for (const account of accounts) {
       await this.pca.signOut({ account: account });
     }
-    (this.msalTokenCache as any).storage.setCache({});
     await clearCache(this.accountName);
     await saveAccountId(this.accountName, undefined);
     await saveTenantId(this.accountName, undefined);
@@ -225,7 +223,7 @@ export class CodeFlowLogin {
 
       let tenantedAccount: AccountInfo | undefined = undefined;
       if (tenantId) {
-        const allAccounts = await this.msalTokenCache.getAllAccounts();
+        const allAccounts = await this.pca.getAllAccounts();
         tenantedAccount = allAccounts.find((account) => account.tenantId == tenantId);
         this.account = tenantedAccount ?? this.account;
       }
