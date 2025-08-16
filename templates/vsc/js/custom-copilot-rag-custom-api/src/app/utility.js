@@ -1,12 +1,11 @@
-const { CardFactory } = require("botbuilder");
 const ACData = require("adaptivecards-templating");
+
 function generateAdaptiveCard(templatePath, result) {
   const adaptiveCardTemplate = require(templatePath);
   const template = new ACData.Template(adaptiveCardTemplate);
-  const cardContent = template.expand({
+  const card = template.expand({
     $root: result.data,
   });
-  const card = CardFactory.adaptiveCard(cardContent);
   return card;
 }
 
@@ -34,4 +33,8 @@ function addAuthConfig(client) {
   });
   */
 }
-module.exports = { generateAdaptiveCard, addAuthConfig };
+
+module.exports = {
+  generateAdaptiveCard,
+  addAuthConfig,
+};

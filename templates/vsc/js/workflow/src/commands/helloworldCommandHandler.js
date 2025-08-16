@@ -5,6 +5,10 @@ const { CardFactory, MessageFactory } = require("botbuilder");
 class HelloWorldCommandHandler {
   triggerPatterns = "helloWorld";
 
+  shouldTrigger(text) {
+    return text === this.triggerPatterns;
+  }
+
   async handleCommandReceived(context, state) {
     console.log(`Bot received message: ${context.activity.text}`);
 

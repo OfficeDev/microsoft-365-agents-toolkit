@@ -22,11 +22,11 @@
         "url": "https://github.com"
     },
     "dependencies": {
-        "@microsoft/teams-ai": "^1.7.0",
+        "@azure/identity": "^4.11.1",
         "adaptive-expressions": "^4.23.1",
         "adaptivecards-templating": "^2.3.1",
-        "botbuilder": "^4.23.1",
-        "express": "^5.0.1"
+        "@microsoft/teams.apps": "preview",
+        "@microsoft/teams.common": "preview"
     },
     "devDependencies": {
         "env-cmd": "^10.1.0",

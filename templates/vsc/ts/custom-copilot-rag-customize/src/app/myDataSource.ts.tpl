@@ -1,81 +1,166 @@
-import { DataSource, Memory, RenderedPromptSection, Tokenizer } from "@microsoft/teams-ai";
-import { TurnContext } from "botbuilder";
 import * as path from "path";
 import * as fs from "fs";
 
 /**
- * A data source that searches through a local directory of files for a given query.
+ * Interface for search results containing both content and metadata
  */
-export class MyDataSource implements DataSource {
+export interface SearchResult {
+    content: string;
+    citation: string;
+}
+
+/**
+ * Interface for rendered context data
+ */
+export interface RenderedContext {
+    content: string;
+    sources: string[];
+}
+
+export class MyDataSource {
     /**
      * Name of the data source.
      */
     public readonly name: string;
 
     /**
-     * Local data.
+     * Local data loaded from files.
      */
-    private _data: { content: string; citation: string; }[];
+    private _data: { content: string; citation: string; }[] = [];
 
     /**
-     * Creates a new instance of the MyDataSource instance.
+     * Creates a new instance of the StandaloneDataSource.
+     * @param name The name identifier for this data source
      */
     public constructor(name: string) {
         this.name = name;
     }
 
     /**
-     * Initializes the data source.
+     * Initializes the data source by loading files from the data directory.
      */
-    public init() {
+    public init(): void {
         const filePath = path.join(__dirname, "../data");
+        
+        if (!fs.existsSync(filePath)) {
+            console.warn(`Data directory not found: ${filePath}`);
+            return;
+        }
+
         const files = fs.readdirSync(filePath);
+        
         this._data = files.map(file => {
-            const data = 
-            {
-                content:fs.readFileSync(path.join(filePath, file), "utf-8"),
-                citation:file
-            };
-            return data;
-        });
+            try {
+                const content = fs.readFileSync(path.join(filePath, file), "utf-8");
+                return {
+                    content: content.trim(),
+                    citation: file
+                };
+            } catch (error) {
+                console.error(`Error reading file ${file}:`, error);
+                return {
+                    content: "",
+                    citation: file
+                };
+            }
+        }).filter(item => item.content.length > 0);
+
+        console.log(`Loaded ${this._data.length} documents from ${filePath}`);
     }
 
     /**
-     * Renders the data source as a string of text.
-     * @remarks
-     * The returned output should be a string of text that will be injected into the prompt at render time.
-     * @param context Turn context for the current turn of conversation with the user.
-     * @param memory An interface for accessing state values.
-     * @param tokenizer Tokenizer to use when rendering the data source.
-     * @param maxTokens Maximum number of tokens allowed to be rendered.
-     * @returns A promise that resolves to the rendered data source.
+     * Searches for relevant content based on a query string.
+     * @param query The search query
+     * @param maxResults Maximum number of results to return (default: 3)
+     * @returns Array of search results
      */
-    public async renderData(context: TurnContext, memory: Memory, tokenizer: Tokenizer, maxTokens: number): Promise<RenderedPromptSection<string>> {
-        const query = memory.getValue("temp.input") as string;
-        if(!query) {
-            return { output: "", length: 0, tooLong: false };
+    public search(query: string, maxResults: number = 3): SearchResult[] {
+        if (!query) {
+            return [];
         }
+
+        // First, try exact matches
         for (let data of this._data) {
             if (data.content.includes(query)) {
-                return { output: this.formatDocument(`${data.content}\n Citation title:${data.citation}`), length: data.content.length, tooLong: false };
+                return [{
+                    content: data.content,
+                    citation: data.citation
+                }];
             }
         }
-        if (query.toLocaleLowerCase().includes("perksplus")) {
-            return { output: this.formatDocument(`${this._data[0].content}\n Citation title:${this._data[0].citation}`), length: this._data[0].content.length, tooLong: false };
-        } else if (query.toLocaleLowerCase().includes("company") || query.toLocaleLowerCase().includes("history")) {
-            return { output: this.formatDocument(`${this._data[1].content}\n Citation title:${this._data[1].citation}`), length: this._data[1].content.length, tooLong: false };
-        } else if (query.toLocaleLowerCase().includes("northwind") || query.toLocaleLowerCase().includes("health") || query.toLocaleLowerCase().includes("plan")) {
-            return { output: this.formatDocument(`${this._data[2].content}\n Citation title:${this._data[2].citation}`), length: this._data[2].content.length, tooLong: false };
+
+        // Keyword-based matching
+        if (query.toLowerCase().includes("perksplus")) {
+            if (this._data[0]) {
+                return [{
+                    content: this._data[0].content,
+                    citation: this._data[0].citation
+                }];
+            }
+        } else if (query.toLowerCase().includes("company") || query.toLowerCase().includes("history")) {
+            if (this._data[1]) {
+                return [{
+                    content: this._data[1].content,
+                    citation: this._data[1].citation
+                }];
+            }
+        } else if (query.toLowerCase().includes("northwind") || query.toLowerCase().includes("health")) {
+            if (this._data[2]) {
+                return [{
+                    content: this._data[2].content,
+                    citation: this._data[2].citation
+                }];
+            }
         }
-        return { output: "", length: 0, tooLong: false };
+
+        return [];
     }
 
     /**
-     * Formats the result string 
-     * @param result 
-     * @returns 
+     * Renders search results into a formatted context string for use in prompts.
+     * @param query The original search query
+     * @returns Rendered context with metadata
      */
-    private formatDocument(result: string): string {
-        return `<context>${result}</context>`;
+    public renderContext(query: string): RenderedContext {
+        const searchResults = this.search(query);
+        
+        if (searchResults.length === 0) {
+            return {
+                content: "",
+                sources: []
+            };
+        }
+
+        let contextContent = "";
+        const sources: string[] = [];
+
+        for (const result of searchResults) {
+            const formattedDoc = this.formatDocument(result.content, result.citation);
+            contextContent += formattedDoc + "\n\n";
+            sources.push(result.citation);
+        }
+
+        return {
+            content: contextContent.trim(),
+            sources
+        };
+    }
+
+    /**
+     * Get all available documents for browsing or debugging.
+     * @returns Array of all loaded documents
+     */
+    public getAllDocuments(): { content: string; citation: string; }[] {
+        return [...this._data];
+    }
+
+    /**
+     * Formats a document with its citation for inclusion in context.
+     * @param content The document content
+     * @param citation The source citation
+     * @returns Formatted document string
+     */
+    private formatDocument(content: string, citation: string): string {
+        return `<context source="${citation}">\n${content}\n</context>`;
     }
 }

@@ -1,64 +1,152 @@
 const path = require("path");
 const fs = require("fs");
 
-/**
- * A data source that searches through a local directory of files for a given query.
- */
 class MyDataSource {
     /**
-     * Creates a new instance of the MyDataSource instance.
+     * Creates a new instance of the StandaloneDataSource.
+     * @param {string} name The name identifier for this data source
      */
     constructor(name) {
+        /**
+         * Name of the data source.
+         */
         this.name = name;
+
+        /**
+         * Local data loaded from files.
+         * @private
+         */
+        this._data = [];
     }
 
     /**
-     * Initializes the data source.
+     * Initializes the data source by loading files from the data directory.
      */
     init() {
         const filePath = path.join(__dirname, "../data");
+        
+        if (!fs.existsSync(filePath)) {
+            console.warn(`Data directory not found: ${filePath}`);
+            return;
+        }
+
         const files = fs.readdirSync(filePath);
+        
         this._data = files.map(file => {
-            const data = 
-            {
-                content:fs.readFileSync(path.join(filePath, file), "utf-8"),
-                citation:file
-            };
-            return data;
-        });
+            try {
+                const content = fs.readFileSync(path.join(filePath, file), "utf-8");
+                return {
+                    content: content.trim(),
+                    citation: file
+                };
+            } catch (error) {
+                console.error(`Error reading file ${file}:`, error);
+                return {
+                    content: "",
+                    citation: file
+                };
+            }
+        }).filter(item => item.content.length > 0);
+
+        console.log(`Loaded ${this._data.length} documents from ${filePath}`);
     }
 
     /**
-     * Renders the data source as a string of text.
+     * Searches for relevant content based on a query string.
+     * @param {string} query The search query
+     * @param {number} maxResults Maximum number of results to return (default: 3)
+     * @returns {Array<{content: string, citation: string}>} Array of search results
      */
-    async renderData(context, memory, tokenizer, maxTokens) {
-        const query = memory.getValue("temp.input");
-        if(!query) {
-            return { output: "", length: 0, tooLong: false };
+    search(query, maxResults = 3) {
+        if (!query) {
+            return [];
         }
+
+        // First, try exact matches
         for (let data of this._data) {
             if (data.content.includes(query)) {
-                return { output: this.formatDocument(`${data.content}\n Citation title:${data.citation}`), length: data.content.length, tooLong: false };
+                return [{
+                    content: data.content,
+                    citation: data.citation
+                }];
             }
         }
-        if (query.toLocaleLowerCase().includes("perksplus")) {
-            return { output: this.formatDocument(`${this._data[0].content}\n Citation title:${this._data[0].citation}`), length: this._data[0].content.length, tooLong: false };
-        } else if (query.toLocaleLowerCase().includes("company") || query.toLocaleLowerCase().includes("history")) {
-            return { output: this.formatDocument(`${this._data[1].content}\n Citation title:${this._data[1].citation}`), length: this._data[1].content.length, tooLong: false };
-        } else if (query.toLocaleLowerCase().includes("northwind") || query.toLocaleLowerCase().includes("health") || query.toLocaleLowerCase().includes("plan")) {
-            return { output: this.formatDocument(`${this._data[2].content}\n Citation title:${this._data[2].citation}`), length: this._data[2].content.length, tooLong: false };
+
+        // Keyword-based matching
+        if (query.toLowerCase().includes("perksplus")) {
+            if (this._data[0]) {
+                return [{
+                    content: this._data[0].content,
+                    citation: this._data[0].citation
+                }];
+            }
+        } else if (query.toLowerCase().includes("company") || query.toLowerCase().includes("history")) {
+            if (this._data[1]) {
+                return [{
+                    content: this._data[1].content,
+                    citation: this._data[1].citation
+                }];
+            }
+        } else if (query.toLowerCase().includes("northwind") || query.toLowerCase().includes("health")) {
+            if (this._data[2]) {
+                return [{
+                    content: this._data[2].content,
+                    citation: this._data[2].citation
+                }];
+            }
         }
-        return { output: "", length: 0, tooLong: false };
+
+        return [];
     }
 
     /**
-     * Formats the result string 
+     * Renders search results into a formatted context string for use in prompts.
+     * @param {string} query The original search query
+     * @returns {{content: string, sources: string[]}} Rendered context with metadata
      */
-    formatDocument(result) {
-        return `<context>${result}</context>`;
+    renderContext(query) {
+        const searchResults = this.search(query);
+        
+        if (searchResults.length === 0) {
+            return {
+                content: "",
+                sources: []
+            };
+        }
+
+        let contextContent = "";
+        const sources = [];
+
+        for (const result of searchResults) {
+            const formattedDoc = this.formatDocument(result.content, result.citation);
+            contextContent += formattedDoc + "\n\n";
+            sources.push(result.citation);
+        }
+
+        return {
+            content: contextContent.trim(),
+            sources
+        };
+    }
+
+    /**
+     * Get all available documents for browsing or debugging.
+     * @returns {Array<{content: string, citation: string}>} Array of all loaded documents
+     */
+    getAllDocuments() {
+        return [...this._data];
+    }
+
+    /**
+     * Formats a document with its citation for inclusion in context.
+     * @param {string} content The document content
+     * @param {string} citation The source citation
+     * @returns {string} Formatted document string
+     * @private
+     */
+    formatDocument(content, citation) {
+        return `<context source="${citation}">\n${content}\n</context>`;
     }
 }
 
-module.exports = {
-  MyDataSource,
-};
+module.exports = { MyDataSource };

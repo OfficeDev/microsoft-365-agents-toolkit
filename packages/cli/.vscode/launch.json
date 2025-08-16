@@ -10,7 +10,7 @@
       "name": "Launch new command (non-interactive)",
       "skipFiles": ["<node_internals>/**"],
       "program": "${workspaceFolder}/cli.js",
-      "args": ["new", "-i", "true"],
+      "args": ["new", "-i", "false"],
       "outFiles": [
         "${workspaceFolder}/lib/**/*.js",
         "${workspaceFolder}/../fx-core/build/**/*.js",

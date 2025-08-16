@@ -1,55 +1,120 @@
-const { MemoryStorage, MessageFactory } = require("botbuilder");
-const path = require("path");
-const config = require("../config");
+const { ManagedIdentityCredential } = require('@azure/identity');
+const { App } = require('@microsoft/teams.apps');
+const { ChatPrompt } = require('@microsoft/teams.ai');
+const { OpenAIChatModel } = require('@microsoft/teams.openai');
+const config = require('../config');
+const { MessageActivity } = require('@microsoft/teams.api');
+const fs = require('fs');
+const path = require('path');
+const { createTaskHandler, deleteTaskHandler, taskStorage } = require('./taskHandlers');
 
-// See https://aka.ms/teams-ai-library to learn more about the Teams AI library.
-const { Application, ActionPlanner, OpenAIModel, PromptManager } = require("@microsoft/teams-ai");
+// Load function definitions from JSON file
+const loadFunctionDefinitions = () => {
+  const functionsPath = path.join(__dirname, 'functions.json');
+  return JSON.parse(fs.readFileSync(functionsPath, 'utf8'));
+};
 
-const { resetMessage } = require("./messages");
-const { createTask, deleteTask } = require('./actions');
+// Function to read AI instructions from file
+const getAIInstructions = () => {
+  const instructionsPath = path.join(__dirname, 'instructions.txt');
+  return fs.readFileSync(instructionsPath, 'utf8');
+};
 
-// Create AI components
-const model = new OpenAIModel({
-  {{#useOpenAI}}
-  apiKey: config.openAIKey,
-  defaultModel: config.openAIModelName,
-  {{/useOpenAI}}
-  {{#useAzureOpenAI}}
-  azureApiKey: config.azureOpenAIKey,
-  azureDefaultDeployment: config.azureOpenAIDeploymentName,
-  azureEndpoint: config.azureOpenAIEndpoint,
-  {{/useAzureOpenAI}}
+const createTokenFactory = () => {
+  return async (scope, tenantId) => {
+    const managedIdentityCredential = new ManagedIdentityCredential({
+        clientId: process.env.CLIENT_ID
+      });
+    const scopes = Array.isArray(scope) ? scope : [scope];
+    const tokenResponse = await managedIdentityCredential.getToken(scopes, {
+      tenantId: tenantId
+    });
+   
+    return tokenResponse.token;
+  };
+};
 
-  useSystemMessages: true,
-  logRequests: true,
+// Configure authentication using TokenCredentials
+const tokenCredentials = {
+  clientId: process.env.CLIENT_ID || '',
+  token: createTokenFactory()
+};
+
+const credentialOptions = config.MicrosoftAppType === "UserAssignedMsi" ? { ...tokenCredentials } : undefined;
+
+// Create the main App instance
+const app = new App({...credentialOptions});
+
+const instructions = getAIInstructions();
+
+// Handle messages with AI and task management
+app.on('message', async ({ send, activity }) => {
+  await send({ type: 'typing' });
+
+  // Handle reset command
+  if (activity.text === 'reset') {
+    const conversationId = activity.conversation.id;
+    taskStorage.delete(conversationId);
+    await send('Ok lets start this over.');
+    return;
+  }
+
+  try {
+    const conversationId = activity.conversation.id;
+    const functionDefs = loadFunctionDefinitions();
+    const currentTasks = taskStorage.get(conversationId);
+    
+    // Create a new ChatPrompt with conversation-specific functions
+    const conversationPrompt = new ChatPrompt(
+      {
+        instructions: `${instructions}\ncurrent tasks: ${JSON.stringify(currentTasks)}`,
+        {{#useOpenAI}}
+        model: new OpenAIChatModel({
+          model: config.openAIModelName,
+          apiKey: config.openAIKey
+        })
+        {{/useOpenAI}}
+        {{#useAzureOpenAI}}
+        model: new OpenAIChatModel({
+          model: config.azureOpenAIDeploymentName,
+          apiKey: config.azureOpenAIKey,
+          endpoint: config.azureOpenAIEndpoint,
+          apiVersion: "2024-10-21"
+        })
+        {{/useAzureOpenAI}}
+      }
+    ).function(
+        functionDefs.createTask.name,
+        functionDefs.createTask.description,
+        functionDefs.createTask.parameters,
+        async (parameters) => {
+          return await createTaskHandler(parameters, conversationId);
+        }
+      )
+      .function(
+        functionDefs.deleteTask.name,
+        functionDefs.deleteTask.description,
+        functionDefs.deleteTask.parameters,
+        async (parameters) => {
+          return await deleteTaskHandler(parameters, conversationId);
+        }
+      );
+
+    // Send message to AI
+    const response = await conversationPrompt.send(activity.text);
+
+    const responseActivity = new MessageActivity(response.content).addAiGenerated().addFeedback();
+    await send(responseActivity);
+  } catch (error) {
+    console.error('Error processing message:', error);
+    await send('Sorry, I encountered an error processing your request.');
+  }
 });
-const prompts = new PromptManager({
-  promptsFolder: path.join(__dirname, "../prompts"),
-});
-const planner = new ActionPlanner({
-  model,
-  prompts,
-  defaultPrompt: "planner",
-});
 
-// Define storage and application
-const storage = new MemoryStorage();
-const app = new Application({
-  storage,
-  ai: {
-    planner,
-    enable_feedback_loop: true,
-  },
-});
-
-app.feedbackLoop(async (context, state, feedbackLoopData) => {
+app.on('message.submit.feedback', async ({ activity }) => {
   //add custom feedback process logic here
-  console.log("Your feedback is " + JSON.stringify(context.activity.value));
+  console.log("Your feedback is " + JSON.stringify(activity.value));
+  return {};
 });
-
-app.message("reset", resetMessage);
-
-app.ai.action("createTask", createTask);
-app.ai.action("deleteTask", deleteTask);
 
 module.exports = app;

@@ -70,10 +70,8 @@ The following files can be customized and demonstrate an example implementation 
 | File                                 | Contents                                           |
 | - | - |
 |`src/index.js`| Sets up the agent app server.|
-|`src/adapter.js`| Sets up the agent adapter.|
 |`src/config.js`| Defines the environment variables.|
-|`src/prompts/chat/skprompt.txt`| Defines the prompt.|
-|`src/prompts/chat/config.json`| Configures the prompt.|
+|`src/app/instructions.txt`| Defines the prompt.|
 |`src/app/app.js`| Handles business logics for the Basic AI Chatbot.|
 
 The following are Microsoft 365 Agents Toolkit specific project files. You can [visit a complete guide on Github](https://github.com/OfficeDev/TeamsFx/wiki/Teams-Toolkit-Visual-Studio-Code-v5-Guide#overview) to understand how Microsoft 365 Agents Toolkit works.
@@ -102,5 +100,5 @@ You can follow [Build a Basic AI Chatbot in Teams](https://aka.ms/teamsfx-basic-
 {{#CEAEnabled}}
 
 ## Known issue
-- The agent is currently not working in any Teams group chats or Teams channels when the stream response is enabled.
+- Streaming is only currently supported for single 1:1 chats, and not for groups or channels.
 {{/CEAEnabled}}

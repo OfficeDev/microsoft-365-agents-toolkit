@@ -1,74 +1,105 @@
-const { MemoryStorage, MessageFactory } = require("botbuilder");
+const { App } = require('@microsoft/teams.apps');
+const { ChatPrompt } = require('@microsoft/teams.ai');
+const { OpenAIChatModel } = require('@microsoft/teams.openai');
+const { MessageActivity, TokenCredentials } = require('@microsoft/teams.api');
 const path = require("path");
 const config = require("../config");
+const { ManagedIdentityCredential } = require('@azure/identity');
+const fs = require("fs-extra");
+const functionHandlers = require("./handlers");
 
-// See https://aka.ms/teams-ai-library to learn more about the Teams AI library.
-const { Application, ActionPlanner, OpenAIModel, PromptManager } = require("@microsoft/teams-ai");
+// Load function definitions from JSON file
+const loadFunctionDefinitions = () => {
+  const functionsPath = path.join(__dirname, 'functions.json');
+  return JSON.parse(fs.readFileSync(functionsPath, 'utf8'));
+};
 
-// Create AI components
-const model = new OpenAIModel({
-  {{#useOpenAI}}
-  apiKey: config.openAIKey,
-  defaultModel: "gpt-3.5-turbo",
-  {{/useOpenAI}}
-  {{#useAzureOpenAI}}
-  azureApiKey: config.azureOpenAIKey,
-  azureDefaultDeployment: config.azureOpenAIDeployment,
-  azureEndpoint: config.azureOpenAIEndpoint,
-  {{/useAzureOpenAI}}
+// Function to read AI instructions from file
+const getAIInstructions = () => {
+  const instructionsPath = path.join(__dirname, 'instructions.txt');
+  return fs.readFileSync(instructionsPath, 'utf8');
+};
 
-  useSystemMessages: true,
-  logRequests: true,
-});
-const prompts = new PromptManager({
-  promptsFolder: path.join(__dirname, "../prompts"),
-});
-const planner = new ActionPlanner({
-  model,
-  prompts,
-  defaultPrompt: "chat",
-});
+const createTokenFactory = () => {
+  return async (scope, tenantId) => {
+    const managedIdentityCredential = new ManagedIdentityCredential({
+        clientId: process.env.CLIENT_ID
+      });
+    const scopes = Array.isArray(scope) ? scope : [scope];
+    const tokenResponse = await managedIdentityCredential.getToken(scopes, {
+      tenantId: tenantId
+    });
+   
+    return tokenResponse.token;
+  };
+};
 
-// Define storage and application
-const storage = new MemoryStorage();
-const app = new Application({
-  storage,
-  ai: {
-    planner,
-    enable_feedback_loop: true,
-  },
-});
+// Configure authentication using TokenCredentials
+const tokenCredentials = {
+  clientId: process.env.CLIENT_ID || '',
+  token: createTokenFactory()
+};
 
-app.conversationUpdate("membersAdded", async (turnContext) => {
-  const welcomeText = "How can I help you today?";
-  for (const member of turnContext.activity.membersAdded) {
-    if (member.id !== turnContext.activity.recipient.id) {
-      await turnContext.sendActivity(MessageFactory.text(welcomeText));
-    }
+const credentialOptions = config.MicrosoftAppType === "UserAssignedMsi" ? { ...tokenCredentials } : undefined;
+
+// Create the main App instance
+const app = new App({...credentialOptions});
+
+const instructions = getAIInstructions();
+const functionDefs = loadFunctionDefinitions();
+
+app.on('message', async ({ send, activity }) => {
+  await send({ type: 'typing' });
+
+  try {
+    const conversationPrompt = new ChatPrompt(
+      {
+        instructions: instructions,
+        {{#useOpenAI}}
+        model: new OpenAIChatModel({
+          model:  "gpt-3.5-turbo",
+          apiKey: config.openAIKey
+        })
+        {{/useOpenAI}}
+        {{#useAzureOpenAI}}
+        model: new OpenAIChatModel({
+          model: config.azureOpenAIDeployment,
+          apiKey: config.azureOpenAIKey,
+          endpoint: config.azureOpenAIEndpoint,
+          apiVersion: "2024-10-21"
+        })
+        {{/useAzureOpenAI}}
+      }
+    )
+    // Replace with function definition code
+
+
+    // Send message to AI
+    const response = await conversationPrompt.send(activity.text);
+
+    const responseActivity = new MessageActivity(response.content).addAiGenerated().addFeedback();
+    await send(responseActivity);
+  } catch (error) {
+    console.error('Error processing message:', error);
+    await send('Sorry, I encountered an error processing your request.');
   }
 });
 
-app.feedbackLoop(async (context, state, feedbackLoopData) => {
+app.on("conversationUpdate", async ({ send, activity }) => {
+  const welcomeText = "How can I help you today?";
+  if (activity.membersAdded && activity.membersAdded.length > 0) {
+    for (const member of activity.membersAdded) {
+      if (member.id !== activity.recipient?.id) {
+        await send(welcomeText);
+      }
+    }
+  }
+})
+
+app.on('message.submit.feedback', async ({ activity }) => {
   //add custom feedback process logic here
-  console.log("Your feedback is " + JSON.stringify(context.activity.value));
-});
-
-const { generateAdaptiveCard, addAuthConfig } = require("./utility.js");
-const yaml = require("js-yaml");
-const { OpenAPIClientAxios } = require("openapi-client-axios");
-const fs = require("fs-extra");
-const { Channels } = require("botbuilder")
-// Define a prompt function for getting the current status of the lights
-planner.prompts.addFunction("getAction", async (context, memory) => {
-  const specFilePath = path.join(__dirname, "../prompts/chat/actions.json");
-  const specFileContent = fs.readFileSync(specFilePath);
-  return specFileContent.toString();
-});
-const specPath = path.join(__dirname, "../../appPackage/apiSpecificationFile/{{OPENAPI_SPEC_PATH}}");
-const specContent = yaml.load(fs.readFileSync(specPath, "utf8"));
-const api = new OpenAPIClientAxios({ definition: specContent });
-api.init();
-
-// Replace with action code
+  console.log("Your feedback is " + JSON.stringify(activity.value));
+  return {};
+})
 
 module.exports = app;
