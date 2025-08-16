@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "default-bot"
+version = "1.0.0"
+description = "Microsoft 365 Agents Toolkit echo bot sample (Python)"
+authors = [{name = "Microsoft"}]
+license = {text = "MIT"}
+requires-python = ">=3.8"
+dependencies = [
+    "python-dotenv",
+    "aiohttp",
+    "microsoft-agents-hosting"
+]
+
+[tool.black]
+line-length = 100
+target-version = ['py38']
+
+[tool.flake8]
+max-line-length = 100
+exclude = [".git", "__pycache__", "venv", ".venv"]
+
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
