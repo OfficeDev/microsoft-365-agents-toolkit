@@ -99,10 +99,15 @@ export async function removeShareAccess(
   }
 
   // remove users from shared access
+  const graphClient = new GraphClient(tokenProvider);
   for (const email of emails) {
     const userInfo = await CollaborationUtil.getUserInfo(tokenProvider, email);
     if (!userInfo) {
-      return err(new InputValidationError("shareWithUser", `Invalid user: ${email}`));
+      const groupInfo = await graphClient.getGroupInfo(email);
+      if (!groupInfo) {
+        return err(new InputValidationError("shareWithUser", `Invalid user or group: ${email}`));
+      }
+      entities.add(groupInfo.id);
     } else {
       entities.add(userInfo.aadId);
     }
