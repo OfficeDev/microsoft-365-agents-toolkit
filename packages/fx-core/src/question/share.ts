@@ -25,7 +25,6 @@ export enum ShareOperationOption {
 export enum ShareScopeOption {
   ShareAppWithTenantUsers = "tenant",
   ShareAppWithSpecificUsers = "users",
-  ShareAppWithOwners = "owners",
 }
 
 export const MAX_SHARE_EMAILS = 20;
@@ -72,20 +71,13 @@ function shareScopeOptions(): IQTreeNode {
       name: QuestionNames.ShareScope,
       title: getLocalizedString("core.shareScopeQuestion.title"),
       placeholder: getLocalizedString("core.shareScopeQuestion.placeholder"),
-      staticOptions: [
-        ShareScopeOptions.shareWithTenant(),
-        ShareScopeOptions.shareWithUsers(),
-        ShareScopeOptions.shareWithOwners(),
-      ],
+      staticOptions: [ShareScopeOptions.shareWithTenant(), ShareScopeOptions.shareWithUsers()],
       default: ShareScopeOptions.shareWithUsers().id,
     },
     children: [
       {
         condition: (inputs: Inputs) => {
-          return (
-            inputs[QuestionNames.ShareScope] === ShareScopeOption.ShareAppWithOwners ||
-            inputs[QuestionNames.ShareScope] === ShareScopeOption.ShareAppWithSpecificUsers
-          );
+          return inputs[QuestionNames.ShareScope] === ShareScopeOption.ShareAppWithSpecificUsers;
         },
         data: inputUserEmailQuestion(
           getLocalizedString("core.shareScopeQuestion.emails.title"),
@@ -125,13 +117,6 @@ export class ShareScopeOptions {
     return {
       id: ShareScopeOption.ShareAppWithSpecificUsers,
       label: getLocalizedString("core.shareScopeQuestion.option.shareWithUsers"),
-    };
-  }
-
-  static shareWithOwners(): OptionItem {
-    return {
-      id: ShareScopeOption.ShareAppWithOwners,
-      label: getLocalizedString("core.shareOptionQuestion.option.shareWithOwners"),
     };
   }
 }

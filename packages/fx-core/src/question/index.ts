@@ -2,6 +2,7 @@
 // Licensed under the MIT license.
 
 import { IQTreeNode, Platform } from "@microsoft/teamsfx-api";
+import { grantPermissionQuestionNode, listCollaboratorQuestionNode } from "./collaborator";
 import { createSampleProjectQuestionNode } from "./create";
 import {
   addAuthActionQuestion,
@@ -13,9 +14,7 @@ import {
   copilotPluginAddAPIQuestionNode,
   createNewEnvQuestionNode,
   deployAadManifestQuestionNode,
-  grantPermissionQuestionNode,
   kiotaRegenerateQuestion,
-  listCollaboratorQuestionNode,
   metaOSExtendToDAQuestionNode,
   oauthQuestion,
   previewWithTeamsAppManifestQuestionNode,

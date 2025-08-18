@@ -303,7 +303,7 @@ export class AzSearchHelper {
     expect(resourceGroupSuccess).to.be.true;
 
     // create azure ai search
-    const command = `az search service create --name ${this.searchName} --resource-group ${this.resourceGroupName} --location ${this.location} --sku Standard`;
+    const command = `az search service create --name ${this.searchName} --resource-group ${this.resourceGroupName} --location ${this.location} --sku Basic`;
 
     await Executor.execute(command, process.cwd());
 

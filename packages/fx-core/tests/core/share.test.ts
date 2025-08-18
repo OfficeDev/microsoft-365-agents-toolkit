@@ -5,6 +5,7 @@ import { err, ok } from "@microsoft/teamsfx-api";
 import { assert } from "chai";
 import "mocha";
 import sinon from "sinon";
+import { GraphClient } from "../../src/client/graphClient";
 import { setTools } from "../../src/common/globalVars";
 import { AppUser } from "../../src/component/driver/teamsApp/interfaces/appdefinitions/appUser";
 import { M365AppEntity, M365EntityType } from "../../src/component/m365/interface";
@@ -133,6 +134,11 @@ describe("share", () => {
       getUserInfoStub.withArgs(sinon.match.any, mockEmails[0]).resolves(mockUserInfo1);
       getUserInfoStub.withArgs(sinon.match.any, mockEmails[1]).resolves(undefined);
 
+      // Mock GraphClient.getGroupInfo to also return undefined
+      const getGroupInfoStub = sandbox
+        .stub(GraphClient.prototype, "getGroupInfo")
+        .resolves(undefined);
+
       // Act
       const result = await addSharedUsers(mockMosToken, mockTitleId, mockEmails);
 
@@ -140,8 +146,76 @@ describe("share", () => {
       assert.isTrue(result.isErr());
       if (result.isErr()) {
         assert.instanceOf(result.error, InputValidationError);
-        assert.include(result.error.message, "Invalid user: user2@example.com");
+        assert.include(result.error.message, "Invalid user or group: user2@example.com");
       }
+      assert.isTrue(getGroupInfoStub.calledOnce);
+    });
+
+    it("should add group when user info not found but group info is found", async () => {
+      // Arrange
+      const groupEmail = "group@example.com";
+      const mockGroupInfo = {
+        id: "group-id",
+        displayName: "Test Group",
+        mail: groupEmail,
+      };
+      const emailsWithGroup = [mockEmails[0], groupEmail];
+
+      sandbox.stub(mockSharedInstance, "getSharedUsers").resolves(ok(mockExistingEntities));
+
+      const shareWithUsersStub = sandbox
+        .stub(mockSharedInstance, "shareWithUsers")
+        .resolves(ok(undefined));
+
+      const getUserInfoStub = sandbox.stub(CollaborationUtil, "getUserInfo");
+      getUserInfoStub.withArgs(sinon.match.any, mockEmails[0]).resolves(mockUserInfo1);
+      getUserInfoStub.withArgs(sinon.match.any, groupEmail).resolves(undefined);
+
+      const getGroupInfoStub = sandbox.stub(GraphClient.prototype, "getGroupInfo");
+      getGroupInfoStub.withArgs(groupEmail).resolves(mockGroupInfo);
+
+      // Act
+      const result = await addSharedUsers(mockMosToken, mockTitleId, emailsWithGroup);
+
+      // Assert
+      assert.isTrue(result.isOk());
+      assert.isTrue(getUserInfoStub.calledTwice);
+      assert.isTrue(getGroupInfoStub.calledOnce);
+      assert.isTrue(shareWithUsersStub.calledOnce);
+    });
+
+    it("should handle mixed users and groups successfully", async () => {
+      // Arrange
+      const groupEmail = "group@example.com";
+      const mockGroupInfo = {
+        id: "group-id",
+        displayName: "Test Group",
+        mail: groupEmail,
+      };
+      const emailsWithMixed = [mockEmails[0], groupEmail, mockEmails[1]];
+
+      sandbox.stub(mockSharedInstance, "getSharedUsers").resolves(ok(mockExistingEntities));
+
+      const shareWithUsersStub = sandbox
+        .stub(mockSharedInstance, "shareWithUsers")
+        .resolves(ok(undefined));
+
+      const getUserInfoStub = sandbox.stub(CollaborationUtil, "getUserInfo");
+      getUserInfoStub.withArgs(sinon.match.any, mockEmails[0]).resolves(mockUserInfo1);
+      getUserInfoStub.withArgs(sinon.match.any, groupEmail).resolves(undefined);
+      getUserInfoStub.withArgs(sinon.match.any, mockEmails[1]).resolves(mockUserInfo2);
+
+      const getGroupInfoStub = sandbox.stub(GraphClient.prototype, "getGroupInfo");
+      getGroupInfoStub.withArgs(groupEmail).resolves(mockGroupInfo);
+
+      // Act
+      const result = await addSharedUsers(mockMosToken, mockTitleId, emailsWithMixed);
+
+      // Assert
+      assert.isTrue(result.isOk());
+      assert.isTrue(getUserInfoStub.calledThrice);
+      assert.isTrue(getGroupInfoStub.calledOnce);
+      assert.isTrue(shareWithUsersStub.calledOnce);
     });
 
     it("should return error when getSharedUsers fails", async () => {
@@ -274,6 +348,39 @@ describe("share", () => {
       assert.isTrue(unshareStub.calledOnce);
     });
 
+    it("should remove group when user info not found but group info is found", async () => {
+      // Arrange
+      const groupEmail = "group@example.com";
+      const mockGroupInfo = {
+        id: "group-id",
+        displayName: "Test Group",
+        mail: groupEmail,
+      };
+      const emailsWithGroup = [mockEmails[0], groupEmail];
+
+      sandbox.stub(mockSharedInstance, "getSharedUsers").resolves(ok(mockExistingEntities));
+
+      const shareWithUsersStub = sandbox
+        .stub(mockSharedInstance, "shareWithUsers")
+        .resolves(ok(undefined));
+
+      const getUserInfoStub = sandbox.stub(CollaborationUtil, "getUserInfo");
+      getUserInfoStub.withArgs(sinon.match.any, mockEmails[0]).resolves(mockUserInfo1);
+      getUserInfoStub.withArgs(sinon.match.any, groupEmail).resolves(undefined);
+
+      const getGroupInfoStub = sandbox.stub(GraphClient.prototype, "getGroupInfo");
+      getGroupInfoStub.withArgs(groupEmail).resolves(mockGroupInfo);
+
+      // Act
+      const result = await removeShareAccess(mockMosToken, mockTitleId, emailsWithGroup);
+
+      // Assert
+      assert.isTrue(result.isOk());
+      assert.isTrue(getUserInfoStub.calledTwice);
+      assert.isTrue(getGroupInfoStub.calledOnce);
+      assert.isTrue(shareWithUsersStub.calledOnce);
+    });
+
     it("should return error when invalid user email is provided", async () => {
       // Arrange
       sandbox.stub(mockSharedInstance, "getSharedUsers").resolves(ok(mockExistingEntities));
@@ -282,6 +389,11 @@ describe("share", () => {
       getUserInfoStub.withArgs(sinon.match.any, mockEmails[0]).resolves(mockUserInfo1);
       getUserInfoStub.withArgs(sinon.match.any, mockEmails[1]).resolves(undefined);
 
+      // Mock GraphClient.getGroupInfo to also return undefined
+      const getGroupInfoStub = sandbox
+        .stub(GraphClient.prototype, "getGroupInfo")
+        .resolves(undefined);
+
       // Act
       const result = await removeShareAccess(mockMosToken, mockTitleId, mockEmails);
 
@@ -289,8 +401,9 @@ describe("share", () => {
       assert.isTrue(result.isErr());
       if (result.isErr()) {
         assert.instanceOf(result.error, InputValidationError);
-        assert.include(result.error.message, "Invalid user: user2@example.com");
+        assert.include(result.error.message, "Invalid user or group: user2@example.com");
       }
+      assert.isTrue(getGroupInfoStub.calledOnce);
     });
 
     it("should return error when getSharedUsers fails", async () => {

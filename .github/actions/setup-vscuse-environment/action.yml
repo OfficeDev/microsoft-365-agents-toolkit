@@ -41,7 +41,7 @@ runs:
     - name: Install Appium
       shell: bash
       run: |
-        npm install -g appium
+        npm install -g appium@3.0.0-rc.2
         appium driver install windows
         appium -v
 
