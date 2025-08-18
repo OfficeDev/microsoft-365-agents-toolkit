@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 storage = MemoryStorage()
 
 # Create the agent application
-teams_bot = AgentApplication(
+teams_bot = AgentApplication[TurnState](
     storage=storage
 )
 

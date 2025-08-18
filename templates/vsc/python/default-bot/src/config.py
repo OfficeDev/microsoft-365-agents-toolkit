@@ -6,7 +6,7 @@ Licensed under the MIT License.
 import os
 from dotenv import load_dotenv
 
-load_dotenv()
+load_dotenv(os.path.join(os.path.dirname(__file__), "./env/.env.dev"))
 
 class Config:
     """Bot Configuration"""
