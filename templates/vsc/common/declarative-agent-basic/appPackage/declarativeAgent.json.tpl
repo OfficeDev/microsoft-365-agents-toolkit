@@ -4,6 +4,7 @@
     "version": "v1.4",
     {{/EmbeddedKnowledgeEnabled}}
     {{#EmbeddedKnowledgeEnabled}}
+    "$schema": "https://developer.microsoft.com/json-schemas/copilot/declarative-agent/v1.6/schema.json",
     "version": "v1.6",
     {{/EmbeddedKnowledgeEnabled}}
     {{#SensitivityLabelEnabled}}
