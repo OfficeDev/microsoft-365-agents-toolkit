@@ -43,22 +43,15 @@ deploy:
     with:
       # Relative path to the build app package.
       appPackagePath: ./appPackage/build/appPackage.${{TEAMSFX_ENV}}.zip
+{{#ShareEnabled}}
+      scope: ${{AGENT_SCOPE}}
+{{/ShareEnabled}}
     # Write the information of created resources into environment file for
     # the specified environment variable(s).
     writeToEnvironmentFile:
       titleId: M365_TITLE_ID
       appId: M365_APP_ID
 {{#ShareEnabled}}
-  # Create a sharable package
-  - uses: teamsApp/shareToOthers
-    with:
-      # Relative path to the build app package.
-      appPackagePath: ./appPackage/build/appPackage.${{TEAMSFX_ENV}}.zip
-    # Write the information of created resources into environment file for
-    # the specified environment variable(s).
-    writeToEnvironmentFile:
-      titleId: SHARED_M365_TITLE_ID
-      appId: SHARED_M365_APP_ID
       shareLink: SHARE_LINK
 {{/ShareEnabled}}
 

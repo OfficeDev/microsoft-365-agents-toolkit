@@ -71,11 +71,17 @@ provision:
     with:
       # Relative path to the build app package.
       appPackagePath: ./appPackage/build/appPackage.${{TEAMSFX_ENV}}.zip
+{{#ShareEnabled}}
+      scope: ${{AGENT_SCOPE}}
+{{/ShareEnabled}}
     # Write the information of created resources into environment file for
     # the specified environment variable(s).
     writeToEnvironmentFile:
       titleId: M365_TITLE_ID
       appId: M365_APP_ID
+{{#ShareEnabled}}
+      shareLink: SHARE_LINK
+{{/ShareEnabled}}
 
 # Triggered when 'teamsapp deploy' is executed
 deploy:
@@ -103,43 +109,6 @@ deploy:
       # You can replace it with your existing Azure Resource id
       # or add it to your environment variable file.
       resourceId: ${{API_FUNCTION_RESOURCE_ID}}
-
-{{#ShareEnabled}}
-# Triggered when `teamsapp share` is executed
-share:
-  # Build app package with latest env value
-  - uses: teamsApp/zipAppPackage
-    with:
-      # Path to manifest template
-      manifestPath: ./appPackage/manifest.json
-      outputZipPath: ./appPackage/build/appPackage.${{TEAMSFX_ENV}}.zip
-      outputFolder: ./appPackage/build
-{{^EmbeddedKnowledgeEnabled}}
-  # Validate app package using validation rules
-  - uses: teamsApp/validateAppPackage
-    with:
-      # Relative path to this file. This is the path for built zip file.
-      appPackagePath: ./appPackage/build/appPackage.${{TEAMSFX_ENV}}.zip
-{{/EmbeddedKnowledgeEnabled}}
-  # Apply the app manifest to an existing app in
-  # Developer Portal.
-  # Will use the app id in manifest file to determine which app to update.
-  - uses: teamsApp/update
-    with:
-      # Relative path to this file. This is the path for built zip file.
-      appPackagePath: ./appPackage/build/appPackage.${{TEAMSFX_ENV}}.zip
-  # Share apps to others
-  - uses: teamsApp/shareToOthers
-    with:
-      # Relative path to the build app package.
-      appPackagePath: ./appPackage/build/appPackage.${{TEAMSFX_ENV}}.zip
-    # Write the information of created resources into environment file for
-    # the specified environment variable(s).
-    writeToEnvironmentFile:
-      titleId: SHARED_M365_TITLE_ID
-      appId: SHARED_M365_APP_ID
-      shareLink: SHARE_LINK
-{{/ShareEnabled}}
 
 # Triggered when 'teamsapp publish' is executed
 publish:
