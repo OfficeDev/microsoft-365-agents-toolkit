@@ -2256,8 +2256,7 @@ export class FxCore {
           );
         const destinationApiSpecPath = await pluginManifestUtils.getDefaultNextAvailableApiSpecPath(
           inputs[QuestionNames.ApiSpecLocation].trim(),
-          path.join(appPackageFolder, DefaultApiSpecFolderName),
-          undefined
+          path.join(appPackageFolder, DefaultApiSpecFolderName)
         );
 
         const generateRes = await generateFromApiSpec(

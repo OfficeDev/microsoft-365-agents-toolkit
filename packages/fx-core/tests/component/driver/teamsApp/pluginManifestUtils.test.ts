@@ -454,6 +454,9 @@ describe("pluginManifestUtils", () => {
 
   describe("getDefaultNextAvailableApiSpecPath", async () => {
     it("Json file: success on second try", async () => {
+      mockedEnvRestore = mockedEnv({
+        TEAMSFX_KIOTA_NPM_INTEGRATION: "false",
+      });
       sandbox
         .stub(fs, "pathExists")
         .onFirstCall()
@@ -471,6 +474,27 @@ describe("pluginManifestUtils", () => {
       chai.assert.equal(res, path.join("test", "openapi_2.json"));
     });
 
+    it("Json file: success on kiota flag open", async () => {
+      mockedEnvRestore = mockedEnv({
+        TEAMSFX_KIOTA_NPM_INTEGRATION: "true",
+      });
+      sandbox
+        .stub(fs, "pathExists")
+        .onFirstCall()
+        .resolves(true)
+        .onSecondCall()
+        .resolves(true)
+        .onThirdCall()
+        .resolves(false);
+
+      const res = await pluginManifestUtils.getDefaultNextAvailableApiSpecPath(
+        "testPath.json",
+        "test"
+      );
+
+      chai.assert.equal(res, path.join("test", "openapi_2.yaml"));
+    });
+
     it("Yaml file: success on first try", async () => {
       sandbox.stub(fs, "pathExists").onFirstCall().resolves(true).onSecondCall().resolves(false);
 
@@ -483,6 +507,9 @@ describe("pluginManifestUtils", () => {
     });
 
     it("success on third try with ", async () => {
+      mockedEnvRestore = mockedEnv({
+        TEAMSFX_KIOTA_NPM_INTEGRATION: "false",
+      });
       sandbox.stub(commonUtils, "isJsonSpecFile").throws("fail");
       sandbox
         .stub(fs, "pathExists")
