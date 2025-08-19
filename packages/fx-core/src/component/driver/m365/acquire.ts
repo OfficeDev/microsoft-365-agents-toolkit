@@ -22,7 +22,7 @@ interface AcquireArgs {
   scope?: AppScope;
 }
 
-const actionName = "teamsApp/extendToM365";
+export const actionName = "teamsApp/extendToM365";
 const helpLink = "https://aka.ms/teamsfx-actions/teamsapp-extendToM365";
 
 const outputKeys = {

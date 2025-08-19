@@ -53,7 +53,7 @@ describe("parseShareAppActionYamlConfig", () => {
         deploy: {
           driverDefs: [
             {
-              uses: "teamsApp/shareToOthers",
+              uses: "teamsApp/extendToM365",
               with: { appPackagePath: mockZipPath } as any,
               writeToEnvironmentFile: {
                 titleId: "parseShareAppActionYamlConfigMockTitleIdName",
@@ -105,7 +105,7 @@ describe("parseShareAppActionYamlConfig", () => {
         deploy: {
           driverDefs: [
             {
-              uses: "teamsApp/shareToOthers",
+              uses: "teamsApp/extendToM365",
             },
           ],
         },
@@ -129,7 +129,7 @@ describe("parseShareAppActionYamlConfig", () => {
         deploy: {
           driverDefs: [
             {
-              uses: "teamsApp/shareToOthers",
+              uses: "teamsApp/extendToM365",
               with: { appPackagePath: mockZipPath },
             },
           ],
@@ -156,7 +156,7 @@ describe("parseShareAppActionYamlConfig", () => {
         deploy: {
           driverDefs: [
             {
-              uses: "teamsApp/shareToOthers",
+              uses: "teamsApp/extendToM365",
               with: { appPackagePath: mockZipPath },
               writeToEnvironmentFile: {},
             },
@@ -196,7 +196,7 @@ describe("parseShareAppActionYamlConfig", () => {
     }
   });
 
-  it("should return error when shareToOthersAction is missing", async () => {
+  it("should return error when extendToM365Action is missing", async () => {
     sandbox.stub(pathUtils, "getYmlFilePath").returns("mockTemplatePath");
     sandbox.stub(metadataUtil, "parse").resolves(ok({ deploy: { driverDefs: [] } } as any));
 
@@ -216,7 +216,7 @@ describe("parseShareAppActionYamlConfig", () => {
         deploy: {
           driverDefs: [
             {
-              uses: "teamsApp/shareToOthers",
+              uses: "teamsApp/extendToM365",
               with: { appPackagePath: mockZipPath } as any,
               writeToEnvironmentFile: {
                 titleId: "parseShareAppActionYamlConfigMockTitleIdName",
@@ -248,7 +248,7 @@ describe("parseShareAppActionYamlConfig", () => {
         deploy: {
           driverDefs: [
             {
-              uses: "teamsApp/shareToOthers",
+              uses: "teamsApp/extendToM365",
               with: { appPackagePath: mockZipPath } as any,
               writeToEnvironmentFile: {
                 titleId: "parseShareAppActionYamlConfigMockTitleIdName",
@@ -278,7 +278,7 @@ describe("parseShareAppActionYamlConfig", () => {
         deploy: {
           driverDefs: [
             {
-              uses: "teamsApp/shareToOthers",
+              uses: "teamsApp/extendToM365",
               with: { appPackagePath: mockZipPath } as any,
               writeToEnvironmentFile: {
                 titleId: "parseShareAppActionYamlConfigMockTitleIdName",
