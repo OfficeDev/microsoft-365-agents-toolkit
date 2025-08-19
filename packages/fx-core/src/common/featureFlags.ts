@@ -107,15 +107,15 @@ export class FeatureFlags {
   };
   static readonly BuilderAPIEnabled = {
     name: FeatureFlagName.BuilderAPIEnabled,
-    defaultValue: "false",
+    defaultValue: "true",
   };
   static readonly EmbeddedKnowledgeEnabled = {
     name: FeatureFlagName.EmbeddedKnowledgeEnabled,
-    defaultValue: "false",
+    defaultValue: "true",
   };
   static readonly ShareEnabled = {
     name: FeatureFlagName.ShareEnabled,
-    defaultValue: "false",
+    defaultValue: "true",
   };
   static readonly AddODSPKnowledge = {
     name: FeatureFlagName.AddODSPKnowledge,
@@ -127,7 +127,7 @@ export class FeatureFlags {
   };
   static readonly SensitivityLabelEnabled = {
     name: FeatureFlagName.SensitivityLabelEnabled,
-    defaultValue: "false",
+    defaultValue: "true",
   };
   static readonly DAMetaOS = {
     name: FeatureFlagName.DAMetaOS,
