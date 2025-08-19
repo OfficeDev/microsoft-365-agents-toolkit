@@ -196,6 +196,134 @@ describe("parseShareAppActionYamlConfig", () => {
     }
   });
 
+  it("should return error when provision has no driverDefs and deploy is missing", async () => {
+    sandbox.stub(pathUtils, "getYmlFilePath").returns("mockTemplatePath");
+    sandbox.stub(metadataUtil, "parse").resolves(
+      ok({
+        provision: {},
+      } as any)
+    );
+
+    const result = await parseShareAppActionYamlConfig("mockProjectPath");
+
+    chai.assert.isTrue(result.isErr());
+    if (result.isErr()) {
+      chai.assert.equal(result.error.name, "Share");
+      chai.assert.include(result.error.message, 'Unable to find the "provision"');
+    }
+  });
+
+  it("should return error when deploy has no driverDefs and provision is missing", async () => {
+    sandbox.stub(pathUtils, "getYmlFilePath").returns("mockTemplatePath");
+    sandbox.stub(metadataUtil, "parse").resolves(
+      ok({
+        deploy: {},
+      } as any)
+    );
+
+    const result = await parseShareAppActionYamlConfig("mockProjectPath");
+
+    chai.assert.isTrue(result.isErr());
+    if (result.isErr()) {
+      chai.assert.equal(result.error.name, "Share");
+      chai.assert.include(result.error.message, 'Unable to find the "provision"');
+    }
+  });
+
+  it("should return error when both provision and deploy have no driverDefs", async () => {
+    sandbox.stub(pathUtils, "getYmlFilePath").returns("mockTemplatePath");
+    sandbox.stub(metadataUtil, "parse").resolves(
+      ok({
+        provision: {},
+        deploy: {},
+      } as any)
+    );
+
+    const result = await parseShareAppActionYamlConfig("mockProjectPath");
+
+    chai.assert.isTrue(result.isErr());
+    if (result.isErr()) {
+      chai.assert.equal(result.error.name, "Share");
+      chai.assert.include(result.error.message, 'Unable to find the "provision"');
+    }
+  });
+
+  it("should find extendToM365Action in provision when deploy doesn't have it", async () => {
+    const mockZipPath = createMockZipFile();
+    sandbox.stub(pathUtils, "getYmlFilePath").returns("mockTemplatePath");
+    sandbox.stub(metadataUtil, "parse").resolves(
+      ok({
+        provision: {
+          driverDefs: [
+            {
+              uses: "teamsApp/extendToM365",
+              with: { appPackagePath: mockZipPath } as any,
+              writeToEnvironmentFile: {
+                titleId: "parseShareAppActionYamlConfigMockTitleIdName",
+                appId: "parseShareAppActionYamlConfigMockAppIdName",
+              } as any,
+            },
+          ],
+        },
+        deploy: {
+          driverDefs: [
+            {
+              uses: "someOtherAction",
+            },
+          ],
+        },
+      } as any)
+    );
+    sandbox.stub(envUtil, "readEnv").resolves(ok({}));
+    sandbox.stub(fs, "existsSync").returns(true);
+    process.env["parseShareAppActionYamlConfigMockTitleIdName"] = "mockTitleId";
+    process.env["parseShareAppActionYamlConfigMockAppIdName"] = "mockAppId";
+
+    const result = await parseShareAppActionYamlConfig("mockProjectPath");
+
+    chai.assert.isTrue(result.isOk());
+    if (result.isOk()) {
+      chai.assert.deepEqual(result.value, {
+        teamsappId: "mockManifestId",
+        titleId: "mockTitleId",
+        appId: "mockAppId",
+      });
+    }
+
+    process.env["parseShareAppActionYamlConfigMockTitleIdName"] = undefined;
+    process.env["parseShareAppActionYamlConfigMockAppIdName"] = undefined;
+  });
+
+  it("should return error when extendToM365Action is not found in either provision or deploy", async () => {
+    sandbox.stub(pathUtils, "getYmlFilePath").returns("mockTemplatePath");
+    sandbox.stub(metadataUtil, "parse").resolves(
+      ok({
+        provision: {
+          driverDefs: [
+            {
+              uses: "someOtherAction",
+            },
+          ],
+        },
+        deploy: {
+          driverDefs: [
+            {
+              uses: "anotherAction",
+            },
+          ],
+        },
+      } as any)
+    );
+
+    const result = await parseShareAppActionYamlConfig("mockProjectPath");
+
+    chai.assert.isTrue(result.isErr());
+    if (result.isErr()) {
+      chai.assert.equal(result.error.name, "Share");
+      chai.assert.include(result.error.message, 'Unable to find the "teamsApp/extendToM365"');
+    }
+  });
+
   it("should return error when extendToM365Action is missing", async () => {
     sandbox.stub(pathUtils, "getYmlFilePath").returns("mockTemplatePath");
     sandbox.stub(metadataUtil, "parse").resolves(ok({ deploy: { driverDefs: [] } } as any));
