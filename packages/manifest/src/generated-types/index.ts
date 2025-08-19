@@ -328,7 +328,10 @@ export class AppManifestUtils {
     let result: JSONSchemaType<AppManifest>;
     try {
       const res = await fetch(schemaUrl);
-      result = (await res.json()) as JSONSchemaType<AppManifest>;
+      // workaround for invalid regex expression
+      const text = await res.text();
+      const cleanedText = text.replace(/\\a/g, "\\x07");
+      result = JSON.parse(cleanedText) as JSONSchemaType<AppManifest>;
     } catch (e: unknown) {
       if (e instanceof Error) {
         throw new Error(`Failed to get manifest at url ${schemaUrl} due to: ${e.message}`);
