@@ -1,8 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 import { CLICommand, ok } from "@microsoft/teamsfx-api";
+import { featureFlagManager, FeatureFlags } from "@microsoft/teamsfx-core";
 import { logger } from "../../commonlib/logger";
 import { FooterText } from "../../constants";
+import { commands } from "../../resource";
 import { TelemetryEvent } from "../../telemetry/cliTelemetryEvents";
 import { getVersion } from "../../utils";
 import { helper } from "../helper";
@@ -19,17 +21,15 @@ import { m365UnacquireCommand } from "./m365Unacquire";
 import { permissionCommand } from "./permission";
 import { previewCommand } from "./preview";
 import { provisionCommand } from "./provision";
+import { regenerateCommand } from "./regnereate";
+import { setCommand } from "./set";
+import { shareCommand } from "./share";
 import { teamsappDoctorCommand } from "./teamsapp/doctor";
 import { teamsappPackageCommand } from "./teamsapp/package";
 import { teamsappPublishCommand } from "./teamsapp/publish";
 import { teamsappUpdateCommand } from "./teamsapp/update";
 import { teamsappValidateCommand } from "./teamsapp/validate";
 import { upgradeCommand } from "./upgrade";
-import { commands } from "../../resource";
-import { shareCommand } from "./share";
-import { setCommand } from "./set";
-import { featureFlagManager, FeatureFlags } from "@microsoft/teamsfx-core";
-import { regenerateCommand } from "./regnereate";
 
 export const helpCommand: CLICommand = {
   name: "help",

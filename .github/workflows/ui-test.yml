@@ -651,8 +651,14 @@ jobs:
             status=`echo $jobs | jq --arg case "$case" -r '.[] | select(.name == $case ) | .conclusion'`
             started_at=`echo $jobs | jq --arg case "$case" -r '.[] | select(.name == $case ) | .started_at'`
             completed_at=`echo $jobs | jq --arg case "$case" -r '.[] | select(.name == $case ) | .completed_at'`
-            if [ ! -z "$started_at" ] && [ ! -z "$completed_at" ]; then
-              duration=`dateutils.ddiff $started_at $completed_at -f "%Mm %Ss"`
+            if [ -n "$started_at" ] && [ -n "$completed_at" ]; then
+              if [ "$(echo "$started_at" | wc -w)" -ne 1 ] || [ "$(echo "$completed_at" | wc -w)" -ne 1 ]; then
+                continue
+              fi
+              duration=$(dateutils.ddiff "$started_at" "$completed_at" -f "%Mm %Ss" 2>/dev/null)
+              if [ $? -ne 0 ]; then
+                duration=0
+              fi
             else
               duration=0
             fi

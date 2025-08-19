@@ -469,8 +469,8 @@ export class TestToolChecker implements DepsChecker {
       await cleanup(prefix);
       // @ is incorrectly identified as an email format.
       this.telemetryProperties[TelemetryProperties.InstallTestToolError] = (error.message as string)
-        ?.split(pkg)
-        ?.join(pkg);
+        ?.split(`${this.npmPackageName}@${versionRange}`)
+        ?.join(`${this.npmPackageName}{at}${versionRange}`);
       throw new DepsCheckerError(
         {
           default: getDefaultString("error.common.InstallSoftwareError", this.name),
