@@ -17,7 +17,6 @@ provision:
     writeToEnvironmentFile:
       teamsAppId: TEAMS_APP_ID
 
-deploy:
   # Build app package with latest env value
   - uses: teamsApp/zipAppPackage
     with:
