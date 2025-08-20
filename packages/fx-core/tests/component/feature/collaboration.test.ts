@@ -1,17 +1,27 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import "mocha";
-import * as sinon from "sinon";
+import { FxError } from "@microsoft/teamsfx-api";
+import axios from "axios";
 import * as chai from "chai";
 import chaiAsPromised from "chai-as-promised";
-import { AadCollaboration, TeamsCollaboration } from "../../../src/component/feature/collaboration";
-import { MockedLogProvider, MockedV2Context } from "../../plugins/solution/util";
-import { AadAppClient } from "../../../src/component/driver/aad/utility/aadAppClient";
-import axios from "axios";
-import { AppUser } from "../../../src/component/driver/teamsApp/interfaces/appdefinitions/appUser";
+import "mocha";
+import { err, ok } from "neverthrow";
+import * as sinon from "sinon";
+import { GraphClient } from "../../../src/client/graphClient";
 import { teamsDevPortalClient } from "../../../src/client/teamsDevPortalClient";
-import { MockedM365Provider } from "../../core/utils";
+import { setTools } from "../../../src/common/globalVars";
+import { AadAppClient } from "../../../src/component/driver/aad/utility/aadAppClient";
+import { AppUser } from "../../../src/component/driver/teamsApp/interfaces/appdefinitions/appUser";
+import {
+  AadCollaboration,
+  AgentCollaboration,
+  TeamsCollaboration,
+} from "../../../src/component/feature/collaboration";
+import { M365AppDefinition } from "../../../src/component/m365/interface";
+import { PackageService } from "../../../src/component/m365/packageService";
+import { MockedM365Provider, MockTools } from "../../core/utils";
+import { MockedLogProvider, MockedV2Context } from "../../plugins/solution/util";
 
 chai.use(chaiAsPromised);
 const expect = chai.expect;
@@ -538,5 +548,135 @@ describe("TeamsCollaboration", async () => {
       expectedUserInfo
     );
     expect(result.isErr() && result.error.name == "UnhandledError").to.be.true;
+  });
+});
+
+describe("AgentCollaboration", async () => {
+  const context = new MockedV2Context();
+  const m365TokenProvider = new MockedM365Provider();
+  setTools(new MockTools());
+  const agentCollaboration = new AgentCollaboration(m365TokenProvider);
+  const sandbox = sinon.createSandbox();
+  const expectedTitleId = "test-title-id";
+  const expectedUserId = "expectedUserId";
+  const expectedUserInfo: AppUser = {
+    tenantId: "tenantId",
+    aadId: expectedUserId,
+    displayName: "displayName",
+    userPrincipalName: "userPrincipalName",
+    isAdministrator: true,
+  };
+
+  afterEach(() => {
+    sandbox.restore();
+  });
+
+  it("grant permission: should add owner", async () => {
+    sandbox.stub(m365TokenProvider, "getAccessToken").resolves(ok("test-token"));
+
+    const packageServiceStub = sandbox.stub(PackageService.GetSharedInstance(), "addOwner");
+    packageServiceStub.resolves(ok(undefined));
+
+    const result = await agentCollaboration.grantPermission(
+      context,
+      expectedTitleId,
+      expectedUserInfo
+    );
+    expect(result.isOk() && result.value[0].resourceId == expectedTitleId).to.be.true;
+    expect(result.isOk() && result.value[0].roles![0] == "Owner").to.be.true;
+  });
+
+  it("list collaborator: should return all owners", async () => {
+    sandbox.stub(m365TokenProvider, "getAccessToken").resolves(ok("test-token"));
+
+    const packageServiceStub = sandbox.stub(PackageService.GetSharedInstance(), "previewApp");
+    packageServiceStub.resolves(
+      ok({
+        owners: [
+          {
+            entityId: expectedUserId,
+            entityType: "User",
+          },
+        ],
+      } as M365AppDefinition)
+    );
+
+    sandbox.stub(GraphClient.prototype, "getUserInfoFromId").resolves({
+      id: expectedUserId,
+      displayName: "displayName",
+      userPrincipalName: "userPrincipalName",
+      mail: "test@mail.com",
+    });
+
+    const result = await agentCollaboration.listCollaborator(context, expectedTitleId);
+    expect(result.isOk() && result.value[0].resourceId == expectedTitleId).to.be.true;
+    expect(result.isOk() && result.value[0].userObjectId == expectedUserId).to.be.true;
+  });
+
+  it("grant permission errors: should return error from token provider", async () => {
+    const expectedError = new Error("token error");
+    sandbox.stub(m365TokenProvider, "getAccessToken").resolves(err(expectedError as FxError));
+
+    const result = await agentCollaboration.grantPermission(
+      context,
+      expectedTitleId,
+      expectedUserInfo
+    );
+    expect(result.isErr() && result.error === expectedError).to.be.true;
+  });
+
+  it("grant permission errors: should return error from package service", async () => {
+    sandbox.stub(m365TokenProvider, "getAccessToken").resolves(ok("test-token"));
+
+    const expectedError = new Error("package service error");
+    const packageServiceStub = sandbox.stub(PackageService.GetSharedInstance(), "addOwner");
+    packageServiceStub.resolves(err(expectedError as FxError));
+
+    const result = await agentCollaboration.grantPermission(
+      context,
+      expectedTitleId,
+      expectedUserInfo
+    );
+    expect(result.isErr() && result.error === expectedError).to.be.true;
+  });
+
+  it("list collaborator: should skip users when getUserInfoFromId returns undefined", async () => {
+    sandbox.stub(m365TokenProvider, "getAccessToken").resolves(ok("test-token"));
+
+    const packageServiceStub = sandbox.stub(PackageService.GetSharedInstance(), "previewApp");
+    packageServiceStub.resolves(
+      ok({
+        owners: [
+          {
+            entityId: expectedUserId,
+            entityType: "User",
+          },
+        ],
+      } as M365AppDefinition)
+    );
+
+    sandbox.stub(GraphClient.prototype, "getUserInfoFromId").resolves(undefined);
+
+    const result = await agentCollaboration.listCollaborator(context, expectedTitleId);
+    expect(result.isOk() && result.value.length === 0).to.be.true;
+  });
+
+  it("list collaborator errors: should return error from token provider", async () => {
+    const expectedError = new Error("token error");
+    sandbox.stub(m365TokenProvider, "getAccessToken").resolves(err(expectedError as FxError));
+
+    const result = await agentCollaboration.listCollaborator(context, expectedTitleId);
+    expect(result.isErr() && result.error === expectedError).to.be.true;
+  });
+
+  it("list collaborator errors: should return error from package service", async () => {
+    sandbox.stub(m365TokenProvider, "getAccessToken").resolves(ok("test-token"));
+
+    const expectedError = new Error("package service error");
+    const packageServiceStub = sandbox.stub(PackageService.GetSharedInstance(), "previewApp");
+    packageServiceStub.resolves(err(expectedError as FxError));
+
+    const result = await agentCollaboration.listCollaborator(context, expectedTitleId);
+    expect(result.isErr() && result.error === expectedError).to.be.true;
   });
 });

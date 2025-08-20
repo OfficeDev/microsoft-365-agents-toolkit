@@ -1457,7 +1457,7 @@ describe("Package Service", () => {
     };
 
     const packageService = new PackageService("https://test-endpoint", logger);
-    const result = await packageService.grantPermission("test-token", "test-title-id", {
+    const result = await packageService.addOwner("test-token", "test-title-id", {
       aadId: "new-user",
       displayName: "New User",
       userPrincipalName: "newuser@test.com",
@@ -1490,7 +1490,7 @@ describe("Package Service", () => {
     axiosPutResponses["/builder/v1/users/titles/test-title-id/owners?idType=TitleId"] = error;
 
     const packageService = new PackageService("https://test-endpoint", logger);
-    const result = await packageService.grantPermission("test-token", "test-title-id", {
+    const result = await packageService.addOwner("test-token", "test-title-id", {
       aadId: "new-user",
       displayName: "New User",
       userPrincipalName: "newuser@test.com",
@@ -1522,7 +1522,7 @@ describe("Package Service", () => {
     // Don't need to mock put response since it won't be called for existing user
 
     const packageService = new PackageService("https://test-endpoint", logger);
-    const result = await packageService.grantPermission("test-token", "test-title-id", {
+    const result = await packageService.addOwner("test-token", "test-title-id", {
       aadId: "existing-user",
       displayName: "Existing User",
       userPrincipalName: "existinguser@test.com",
@@ -1545,7 +1545,7 @@ describe("Package Service", () => {
     axiosGetResponses["/marketplace/v1/users/titles/test-title-id/preview?idType=TitleId"] = error;
 
     const packageService = new PackageService("https://test-endpoint", logger);
-    const result = await packageService.grantPermission("test-token", "test-title-id", {
+    const result = await packageService.addOwner("test-token", "test-title-id", {
       aadId: "new-user",
       displayName: "New User",
       userPrincipalName: "newuser@test.com",

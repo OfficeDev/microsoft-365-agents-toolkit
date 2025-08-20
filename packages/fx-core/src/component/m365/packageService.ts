@@ -44,6 +44,12 @@ export enum AppScope {
   Tenant = "Tenant",
 }
 
+export const AgentPermission = {
+  name: "Agent",
+  owner: "Owner",
+  type: "M365",
+};
+
 // Call m365 service for package CRUD
 export class PackageService {
   private static sharedInstance: PackageService;
@@ -554,7 +560,7 @@ export class PackageService {
   }
 
   @hooks([ErrorContextMW({ source: M365ErrorSource, component: M365ErrorComponent })])
-  public async grantPermission(
+  public async addOwner(
     token: string,
     titleId: string,
     user: AppUser

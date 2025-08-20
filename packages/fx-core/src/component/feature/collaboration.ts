@@ -13,10 +13,18 @@ import {
 } from "@microsoft/teamsfx-api";
 import axios from "axios";
 import { Service } from "typedi";
+import { GraphClient } from "../../client/graphClient";
 import { teamsDevPortalClient } from "../../client/teamsDevPortalClient";
 import { AppStudioScopes } from "../../common/constants";
 import { ErrorContextMW } from "../../common/globalVars";
-import { AadOwner, ResourcePermission, TeamsAppAdmin } from "../../common/permissionInterface";
+import {
+  AadOwner,
+  AgentOwner,
+  ResourcePermission,
+  TeamsAppAdmin,
+} from "../../common/permissionInterface";
+import { AgentPermission, PackageService } from "../../component/m365/packageService";
+import { MosServiceScope } from "../../component/m365/serviceConstant";
 import { HttpClientError, HttpServerError, assembleError } from "../../error/common";
 import { AppIdNotExist } from "../../error/teamsApp";
 import { AadAppClient } from "../driver/aad/utility/aadAppClient";
@@ -32,6 +40,7 @@ const EventName = {
 };
 const componentNameAad = "fx-resource-aad-app-for-teams";
 const componentNameTeams = "AppStudioPlugin";
+const componentNameAgent = "AgentPlugin";
 
 @Service("aad-collaboration")
 export class AadCollaboration {
@@ -256,5 +265,84 @@ export class TeamsCollaboration {
     const message = JSON.stringify(error);
     ctx.logProvider?.error(message);
     return assembleError(error as Error, componentNameTeams);
+  }
+}
+
+@Service("agent-collaboration")
+export class AgentCollaboration {
+  private readonly tokenProvider: M365TokenProvider;
+
+  constructor(m365TokenProvider: M365TokenProvider) {
+    this.tokenProvider = m365TokenProvider;
+  }
+
+  @hooks([
+    ErrorContextMW({ source: "M365", component: "AgentCollaboration" }),
+    addStartAndEndTelemetry(EventName.grantPermission, componentNameAgent),
+  ])
+  public async grantPermission(
+    ctx: Context,
+    titleId: string,
+    userInfo: AppUser
+  ): Promise<Result<ResourcePermission[], FxError>> {
+    const mosTokenRes = await this.tokenProvider.getAccessToken({
+      scopes: [MosServiceScope],
+    });
+    if (mosTokenRes.isErr()) {
+      return err(mosTokenRes.error);
+    }
+    const mosToken = mosTokenRes.value;
+    // grant owner permission
+    const res = await PackageService.GetSharedInstance().addOwner(mosToken, titleId, userInfo);
+    if (res.isErr()) {
+      return err(res.error);
+    }
+    const result: ResourcePermission[] = [
+      {
+        name: AgentPermission.name,
+        roles: [AgentPermission.owner],
+        type: AgentPermission.type,
+        resourceId: titleId,
+      },
+    ];
+    return ok(result);
+  }
+
+  @hooks([
+    ErrorContextMW({ source: "M365", component: "AgentCollaboration" }),
+    addStartAndEndTelemetry(EventName.listCollaborator, componentNameAgent),
+  ])
+  public async listCollaborator(
+    ctx: Context,
+    titleId: string
+  ): Promise<Result<AgentOwner[], FxError>> {
+    const mosTokenRes = await this.tokenProvider.getAccessToken({
+      scopes: [MosServiceScope],
+    });
+    if (mosTokenRes.isErr()) {
+      return err(mosTokenRes.error);
+    }
+    const mosToken = mosTokenRes.value;
+
+    const res = await PackageService.GetSharedInstance().previewApp(mosToken, titleId);
+    if (res.isErr()) {
+      return err(res.error);
+    }
+    const owners = res.value.owners;
+    const agentOwners: AgentOwner[] = [];
+    const graphClient = new GraphClient(this.tokenProvider);
+    for (const owner of owners) {
+      const userInfo = await graphClient.getUserInfoFromId(owner.entityId);
+      if (userInfo) {
+        agentOwners.push({
+          userObjectId: owner.entityId,
+          displayName: userInfo.displayName,
+          userPrincipalName: userInfo.userPrincipalName,
+          resourceId: titleId,
+        });
+      }
+    }
+
+    return ok(agentOwners);
   }
 }

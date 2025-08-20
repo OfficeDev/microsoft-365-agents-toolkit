@@ -4,7 +4,7 @@
     "version": "v1.4",
     {{/EmbeddedKnowledgeEnabled}}
     {{#EmbeddedKnowledgeEnabled}}
-    "version": "v1.5",
+    "version": "v1.6",
     {{/EmbeddedKnowledgeEnabled}}
     {{#SensitivityLabelEnabled}}
     "sensitivity_label": {

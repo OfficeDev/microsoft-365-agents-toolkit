@@ -57,6 +57,13 @@ export interface TeamsAppAdmin {
   userPrincipalName: string;
 }
 
+export interface AgentOwner {
+  userObjectId: string;
+  resourceId: string;
+  displayName: string;
+  userPrincipalName: string;
+}
+
 export interface AppIds {
   teamsAppId?: string;
   aadObjectId?: string;

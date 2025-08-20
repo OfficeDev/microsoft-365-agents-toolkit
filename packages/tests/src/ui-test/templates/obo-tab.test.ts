@@ -70,11 +70,6 @@ describe("Local Debug M365 Tests", function () {
 
       try {
         await waitForTerminal(
-          LocalDebugTaskLabel.StartBackend,
-          LocalDebugTaskResult.FunctionStarted
-        );
-        await clearNotifications();
-        await waitForTerminal(
           LocalDebugTaskLabel.StartFrontend,
           LocalDebugTaskResult.FrontendReady
         );
@@ -105,8 +100,12 @@ describe("Local Debug M365 Tests", function () {
           searchApp: false,
         }
       );
-      await localDebugTestContext.validateLocalStateForTab();
-      await validateReactTab(page, Env.displayName, true);
+      await validateReactTab(
+        page,
+        Env.displayName,
+        localDebugTestContext.appName,
+        "local"
+      );
       const m365AppId = await localDebugTestContext.getM365AppId();
       const url = `https://outlook.office.com/host/${m365AppId}/index?login_hint=${Env.username}`;
       await validateReactOutlookTab(page, url, Env.displayName, true);
@@ -168,7 +167,7 @@ describe("Local Debug M365 Tests", function () {
             searchApp: false,
           }
         );
-        await validateReactTab(page, Env.displayName, true);
+        await validateReactTab(page, Env.displayName, appName, "dev");
         successFlagForRemote = true;
       } catch (error) {
         await remoteDebugTestContext.after();

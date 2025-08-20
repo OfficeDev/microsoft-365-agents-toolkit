@@ -23,7 +23,7 @@ export const ShareOptions: CLICommandOption[] = [
     type: "string",
     description: "Share the agent with users",
     default: "users",
-    choices: ["tenant", "users", "owners"],
+    choices: ["tenant", "users"],
   },
   {
     name: "email",

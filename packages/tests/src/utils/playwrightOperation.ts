@@ -1185,68 +1185,73 @@ export async function validateTab(
 export async function validateReactTab(
   page: Page,
   displayName: string,
-  includeFunction?: boolean
+  appName: string,
+  env: string
 ) {
   try {
     const frameElementHandle = await page.waitForSelector(
       `iframe[name="embedded-page-container"]`
     );
     const frame = await frameElementHandle?.contentFrame();
-    const callFunctionBtn = await frame?.waitForSelector(
-      "button:has-text('Authorize and call Azure Functions')"
+    const congContent = await frame?.waitForSelector(
+      "h1:has-text('Congratulations')"
     );
-    console.log("click callFunctionBtn");
-    if (includeFunction) {
-      await RetryHandler.retry(async () => {
-        console.log("Before popup");
-        const [popup] = await Promise.all([
-          page
-            .waitForEvent("popup")
-            .then((popup) =>
-              popup
-                .waitForEvent("close", {
-                  timeout: Timeout.playwrightConsentPopupPage,
-                })
-                .catch(() => popup)
-            )
-            .catch(() => {}),
-          callFunctionBtn?.click({
-            timeout: Timeout.playwrightAddAppButton,
-            force: true,
-            noWaitAfter: true,
-            clickCount: 2,
-            delay: 10000,
-          }),
-        ]);
-        console.log("after popup");
-
-        if (popup && !popup?.isClosed()) {
-          await popup
-            .click('button:has-text("Reload")', {
-              timeout: Timeout.playwrightConsentPageReload,
-            })
-            .catch(() => {});
-          console.log("click accept button");
-          await popup.click("input.button[type='submit'][value='Accept']");
-          await page.waitForTimeout(Timeout.shortTimeLoading);
-        }
-        if (popup && !popup?.isClosed()) {
-          await popup.close();
-          throw "popup not close.";
-        }
-      });
-      await page.waitForTimeout(Timeout.shortTimeLoading);
-      console.log("verify function info");
-      const backendElement = await frame?.waitForSelector(
-        'pre:has-text("receivedHTTPRequestBody")'
+    await congContent?.click();
+    console.log("Found Congratulations");
+    const callAuthorizeBtn = await frame?.waitForSelector(
+      "button:has-text('Authorize')"
+    );
+    await callAuthorizeBtn?.click();
+    console.log("Start to authorize:");
+    try {
+      const continueButton = await page?.waitForSelector(
+        "button:has-text('Continue')"
       );
-      const content = await backendElement?.innerText();
-      if (!content?.includes("User display name is"))
-        assert.fail("User display name is not found in the response");
-      console.log("verify function info success");
+      await continueButton?.click();
+      console.log("found authorize:");
+      await page.click("input.button[type='submit'][value='Accept']");
+      console.log("click accept button:");
+      await page.waitForTimeout(Timeout.shortTimeLoading);
+      await RetryHandler.retry(async (retries: number) => {
+        console.log(`try view more apps`);
+        const viewMoreAppsButton = await page.waitForSelector(
+          'button[aria-label="View more apps"]'
+        );
+        await viewMoreAppsButton.click();
+        await page.waitForTimeout(Timeout.shortTimeLoading);
+        console.log(`try input app`);
+        const appSearchInput = await page.waitForSelector(
+          'input[id="flyout-search-box"]'
+        );
+        const appNameWithEnv = `${appName}${env}`;
+        await appSearchInput.fill(appNameWithEnv);
+        const appButton = await page.waitForSelector(
+          `button:has-text("${appNameWithEnv}")`
+        );
+        console.log(`has app ${appNameWithEnv}`);
+        await appButton.click();
+        await page.waitForTimeout(Timeout.longTimeWait);
+        console.log(`loaded app ${appNameWithEnv}`);
+      });
+    } catch {
+      console.log("already consented to the app");
     }
-
-    await frame?.waitForSelector(`b:has-text("${displayName}")`);
+    const frameElementHandle2 = await page.waitForSelector(
+      `iframe[name="embedded-page-container"]`
+    );
+    const frame2 = await frameElementHandle2?.contentFrame();
+    const congContent2 = await frame2?.waitForSelector(
+      "h1:has-text('Congratulations')"
+    );
+    await congContent2?.click();
+    console.log("Found Congratulations");
+    const callAuthorizeBtn2 = await frame2?.waitForSelector(
+      "button:has-text('Authorize')"
+    );
+    await callAuthorizeBtn2?.click();
+    console.log("verify profile info");
+    await frame2?.waitForSelector(`pre:has-text("${displayName}")`);
+    console.log("verify profile info success");
   } catch (error) {
     await page.screenshot({
       path: getPlaywrightScreenshotPath("error"),
@@ -1260,7 +1265,7 @@ export async function validateReactOutlookTab(
   page: Page,
   url: string,
   displayName: string,
-  includeFunction?: boolean
+  includeAuthorize?: boolean
 ) {
   // choose the account signed in
   try {
@@ -1299,61 +1304,23 @@ export async function validateReactOutlookTab(
       'iframe[data-tid="app-host-iframe"]'
     );
     const frame = await frameElementHandle?.contentFrame();
-    if (includeFunction) {
-      await RetryHandler.retry(async () => {
-        console.log("Before popup");
-        const callFunctionBtn = await frame?.waitForSelector(
-          "button:has-text('Authorize and call Azure Functions')"
-        );
-        const [popup] = await Promise.all([
-          page
-            .waitForEvent("popup")
-            .then((popup) =>
-              popup
-                .waitForEvent("close", {
-                  timeout: Timeout.playwrightConsentPopupPage,
-                })
-                .catch(() => popup)
-            )
-            .catch(() => {}),
-          callFunctionBtn?.click({
-            timeout: Timeout.playwrightAddAppButton,
-            force: true,
-            noWaitAfter: true,
-            clickCount: 2,
-            delay: 10000,
-          }),
-        ]);
-        console.log("after popup");
 
-        if (popup && !popup?.isClosed()) {
-          await popup
-            .click('button:has-text("Reload")', {
-              timeout: Timeout.playwrightConsentPageReload,
-            })
-            .catch(() => {});
-          console.log("click accept button");
-          await popup.click("input.button[type='submit'][value='Accept']");
-          await page.waitForTimeout(Timeout.shortTimeLoading);
-        }
-        if (popup && !popup?.isClosed()) {
-          await popup.close();
-          throw "popup not close.";
-        }
-      });
-      await page.waitForTimeout(Timeout.shortTimeLoading);
-
-      console.log("verify function info");
-      const backendElement = await frame?.waitForSelector(
-        'pre:has-text("receivedHTTPRequestBody")'
+    await frame?.waitForSelector(`p:has-text("Outlook")`);
+    console.log("Found Outlook env");
+    if (includeAuthorize) {
+      try {
+        await page.click(`button:has-text('Continue')`);
+      } catch {
+        console.log("no Continue button for popped up information");
+      }
+      const callAuthorizeBtn = await frame?.waitForSelector(
+        "button:has-text('Authorize')"
       );
-      const content = await backendElement?.innerText();
-      if (!content?.includes("User display name is"))
-        assert.fail("User display name is not found in the response");
-      console.log("verify function info success");
+      await callAuthorizeBtn?.click();
+      console.log("verify profile info");
+      await frame?.waitForSelector(`pre:has-text("${displayName}")`);
+      console.log("verify profile info success");
     }
-
-    await frame?.waitForSelector(`b:has-text("${displayName}")`);
   } catch (error) {
     await page.screenshot({
       path: getPlaywrightScreenshotPath("error"),
@@ -1777,7 +1744,7 @@ export async function validatePrompt(
     await page.waitForTimeout(Timeout.shortTimeLoading);
     console.log("start to verify prompt");
     const contenteditableSpan = await page?.waitForSelector(
-      'span[aria-label="Message Copilot"]'
+      'span[aria-label="Chat Input"]'
     );
     await contenteditableSpan?.click();
     await contenteditableSpan.fill(options?.prompt || "list repairs");
