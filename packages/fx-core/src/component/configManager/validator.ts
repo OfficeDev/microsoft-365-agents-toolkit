@@ -18,6 +18,7 @@ const supportedVersions = [
   "v1.7",
   "v1.8",
   "v1.9",
+  "v1.10",
 ];
 
 export class Validator {
