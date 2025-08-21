@@ -929,6 +929,7 @@ describe("Package Service", () => {
       },
     };
     axiosDeleteResponses["/catalog/v1/users/acquisitions/test-title-id"] = {};
+    axiosDeleteResponses["/builder/v1/users/titles/test-title-id"] = {};
 
     let packageService = new PackageService("https://test-endpoint");
     let actualError: Error | undefined;
@@ -950,6 +951,32 @@ describe("Package Service", () => {
 
     chai.assert.isUndefined(actualError);
   });
+
+  it("unacquire happy path for personal scope DA", async () => {
+    axiosGetResponses["/config/v1/environment"] = {
+      data: {
+        titlesServiceUrl: "https://test-url",
+      },
+    };
+    axiosDeleteResponses["/catalog/v1/users/acquisitions/test-title-id"] = {};
+    axiosDeleteResponses["/builder/v1/users/titles/test-title-id"] = {
+      response: {
+        status: 404,
+      },
+      message: "test-delete-error",
+    };
+
+    const packageService = new PackageService("https://test-endpoint");
+    let actualError: Error | undefined;
+    try {
+      await packageService.unacquire("test-token", "test-title-id");
+    } catch (error: any) {
+      actualError = error;
+    }
+
+    chai.assert.isUndefined(actualError);
+  });
+
   it("unacquire throws expected error", async () => {
     axiosGetResponses["/config/v1/environment"] = {
       data: {
