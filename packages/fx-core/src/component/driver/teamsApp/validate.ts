@@ -3,7 +3,6 @@
 
 import { hooks } from "@feathersjs/hooks/lib";
 import {
-  AppManifestUtils,
   Colors,
   err,
   FxError,
@@ -78,7 +77,7 @@ export class ValidateManifestDriver implements StepDriver {
     const telemetryProperties: Record<string, string> = {};
     if (manifest.$schema) {
       try {
-        manifestValidationResult = await AppManifestUtils.validateAgainstSchema(manifest);
+        manifestValidationResult = await ManifestUtil.validateManifest(manifest);
         telemetryProperties[TelemetryPropertyKey.validationErrors] = manifestValidationResult
           .map((r: string) => r.replace(/\//g, ""))
           .join(";");
