@@ -966,7 +966,7 @@ describe("Package Service", () => {
       message: "test-delete-error",
     };
 
-    const packageService = new PackageService("https://test-endpoint");
+    let packageService = new PackageService("https://test-endpoint");
     let actualError: Error | undefined;
     try {
       await packageService.unacquire("test-token", "test-title-id");
@@ -975,6 +975,41 @@ describe("Package Service", () => {
     }
 
     chai.assert.isUndefined(actualError);
+
+    packageService = new PackageService("https://test-endpoint", logger);
+    actualError = undefined;
+    try {
+      await packageService.unacquire("test-token", "test-title-id");
+    } catch (error: any) {
+      actualError = error;
+    }
+
+    chai.assert.isUndefined(actualError);
+  });
+
+  it("unacquire throws error for shared scope DA", async () => {
+    axiosGetResponses["/config/v1/environment"] = {
+      data: {
+        titlesServiceUrl: "https://test-url",
+      },
+    };
+    axiosDeleteResponses["/catalog/v1/users/acquisitions/test-title-id"] = {};
+    axiosDeleteResponses["/builder/v1/users/titles/test-title-id"] = {
+      response: {
+        status: 401,
+      },
+      message: "test-delete-error",
+    };
+
+    const packageService = new PackageService("https://test-endpoint");
+    let actualError: Error | undefined;
+    try {
+      await packageService.unacquire("test-token", "test-title-id");
+    } catch (error: any) {
+      actualError = error;
+    }
+
+    chai.assert.isDefined(actualError);
   });
 
   it("unacquire throws expected error", async () => {
