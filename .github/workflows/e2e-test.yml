@@ -40,6 +40,7 @@ on:
     - cron: "0 22 * * *"
 
   pull_request:
+    branches: [dev, release/**]
 
 permissions:
   actions: read
