@@ -47,7 +47,7 @@ permissions:
 
 jobs:
   setup:
-    if: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.get-coverage == 'false' ) || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == 'teamsfx-bot/TeamsFx') }}
+    if: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.get-coverage == 'false' ) || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == 'OfficeDev/microsoft-365-agents-toolkit') }}
     runs-on: ubuntu-latest
     environment: engineering
     permissions:
@@ -102,7 +102,7 @@ jobs:
 
       - name: List cases for pull request
         id: pr-cases
-        if: ${{  github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == 'teamsfx-bot/TeamsFx'  }}
+        if: ${{  github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == 'OfficeDev/microsoft-365-agents-toolkit'  }}
         working-directory: packages/tests/src/e2e
         run: |
           cases=`find ./bot ./frontend -path "*.tests.ts" -and \
@@ -247,7 +247,7 @@ jobs:
           pnpm link --global
 
       - name: Update CLI and legacy-peer-deps for PR cases
-        if: ${{  github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == 'teamsfx-bot/TeamsFx'  }}
+        if: ${{  github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == 'OfficeDev/microsoft-365-agents-toolkit'  }}
         run: |
           npm install -g @microsoft/m365agentstoolkit-cli@alpha
           npm config set legacy-peer-deps false
@@ -369,7 +369,7 @@ jobs:
     permissions:
       actions: write
     needs: tear-down
-    if: ${{ (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.cases == '') || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == 'teamsfx-bot/TeamsFx')) && failure() && github.run_attempt < 5 }}
+    if: ${{ (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.cases == '') || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == 'OfficeDev/microsoft-365-agents-toolkit')) && failure() && github.run_attempt < 5 }}
     runs-on: ubuntu-latest
     steps:
       - name: rerun
