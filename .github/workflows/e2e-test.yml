@@ -79,35 +79,11 @@ jobs:
       - name: setup project
         uses: ./.github/actions/setup-project
 
-      - name: List cases for schedule
+      - name: List cases
         id: schedule-cases
-        if: ${{  github.event_name == 'schedule' }}
         working-directory: packages/tests/src/e2e
         run: |
           cases=`find . -wholename "*.tests.ts" | jq -Rsc '[split("\n") | .[]| select(.!="")]'`
-          echo "cases=$cases" >> $GITHUB_OUTPUT
-
-      - name: List cases for dispatch
-        id: dispatch-cases
-        if: ${{  github.event_name == 'workflow_dispatch' }}
-        working-directory: packages/tests/src/e2e
-        run: |
-          inputCases='${{ github.event.inputs.cases }}'
-          if [ -z "$inputCases" ]; then
-            allCases=`find . -wholename "*.tests.ts" | jq -Rsc '[split("\n") | .[]| select(.!="")]'`
-            echo "cases=$allCases" >> $GITHUB_OUTPUT
-          else
-            echo "cases=$inputCases" >> $GITHUB_OUTPUT
-          fi
-
-      - name: List cases for pull request
-        id: pr-cases
-        if: ${{  github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == 'OfficeDev/microsoft-365-agents-toolkit'  }}
-        working-directory: packages/tests/src/e2e
-        run: |
-          cases=`find ./bot ./frontend -path "*.tests.ts" -and \
-            -not '(' -path '*/*.dotnet.tests.ts' -or -path '*/Blazor*' ')' \
-            | jq -Rsc '[split("\n") | .[]| select(.!="")]'`
           echo "cases=$cases" >> $GITHUB_OUTPUT
 
       - name: E2E Test clean
