@@ -249,6 +249,15 @@
             }
         },
         {
+            "label": "Sideload App to channel",
+            "type": "teamsfx",
+            "command": "install-app",
+            "args": {
+                "env": "sandbox",
+                "appPackagePath": "${workspaceFolder}/appPackage/build/appPackage.sandbox.zip"
+            }
+        },
+        {
             "label": "Start application",
             "type": "shell",
             "command": "npm run dev:teamsfx",

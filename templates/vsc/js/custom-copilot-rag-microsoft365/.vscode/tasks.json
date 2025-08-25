@@ -128,6 +128,30 @@
             }
         },
         {
+            "label": "Start application",
+            "type": "shell",
+            "command": "npm run dev:teamsfx",
+            "isBackground": true,
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": {
+                "pattern": [
+                    {
+                        "regexp": "^.*$",
+                        "file": 0,
+                        "location": 1,
+                        "message": 2
+                    }
+                ],
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": "[nodemon] starting",
+                    "endsPattern": "app listening to|Bot/ME service listening at|[nodemon] app crashed"
+                }
+            }
+        },
+        {
             // Build project.
             // See https://aka.ms/teamsfx-tasks/deploy to know the details and how to customize the args.
             "label": "Deploy (Sandbox)",
@@ -135,6 +159,15 @@
             "command": "deploy",
             "args": {
                 "env": "sandbox"
+            }
+        },
+        {
+            "label": "Sideload App to channel",
+            "type": "teamsfx",
+            "command": "install-app",
+            "args": {
+                "env": "sandbox",
+                "appPackagePath": "${workspaceFolder}/appPackage/build/appPackage.sandbox.zip"
             }
         },
         {

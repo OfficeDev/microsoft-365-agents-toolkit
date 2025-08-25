@@ -157,6 +157,7 @@
                 "--no-first-run"
             ]
         }
+{{/CEAEnabled}}
 {{#SandBoxedTeam}}
         ,{
             "name": "Launch Agent to channel (Edge)",
@@ -174,7 +175,6 @@
             "perScriptSourcemaps": "yes"
         }
 {{/SandBoxedTeam}}
-{{/CEAEnabled}}
     ],
     "compounds": [
         {
