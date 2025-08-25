@@ -5,9 +5,6 @@
         "teamsAppId": null
     },
     "description": "Basic Custome Engine Agent with Microsoft 365 Agents SDK",
-    "engines": {
-        "node": "18 || 20 || 22"
-    },
     "author": "Microsoft",
     "license": "MIT",
     "main": "./src/index.js",
@@ -27,13 +24,12 @@
     "dependencies": {
         "@azure/identity": "^4.8.0",
         "@azure/openai": "^2.0.0",
-        "@microsoft/agents-hosting": "^0.2.14",
-        "express": "^5.0.1",
+        "@microsoft/agents-hosting-express": "^1.0.0",
         "openai": "^4.94.0"
     },
     "devDependencies": {
         "env-cmd": "^10.1.0",
-        "nodemon": "^3.1.7",
+        "nodemon": "^3.1.10",
         "shx": "^0.3.3"
     }
 }

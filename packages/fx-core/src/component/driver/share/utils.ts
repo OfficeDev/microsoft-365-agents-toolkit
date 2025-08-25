@@ -11,8 +11,8 @@ import { resolve } from "../../configManager/lifecycle";
 import { envUtil } from "../../utils/envUtil";
 import { metadataUtil } from "../../utils/metadataUtil";
 import { pathUtils } from "../../utils/pathUtils";
+import { actionName as extendToM365ActionName } from "../m365/acquire";
 import { Constants } from "../teamsApp/constants";
-import * as shareToOthers from "./shareToOthers";
 
 // Read m365agents.yaml and get the value of shared title id, and shared app id
 export async function parseShareAppActionYamlConfig(
@@ -24,26 +24,29 @@ export async function parseShareAppActionYamlConfig(
     return err(maybeProjectModel.error);
   }
   const projectModel = maybeProjectModel.value;
-  if (!projectModel.deploy || !projectModel.deploy.driverDefs) {
+  if (
+    (!projectModel.provision || !projectModel.provision.driverDefs) &&
+    (!projectModel.deploy || !projectModel.deploy.driverDefs)
+  ) {
     return err(
       new UserError("FxCore", "Share", getLocalizedString("error.share.yamlConfigNotFound"))
     );
   }
-  const shareToOthersAction = projectModel.deploy.driverDefs.find(
-    (d) => d.uses === shareToOthers.actionName
-  );
-  if (!shareToOthersAction) {
+  const extendToM365Action =
+    projectModel.provision?.driverDefs.find((d) => d.uses === extendToM365ActionName) ||
+    projectModel.deploy?.driverDefs.find((d) => d.uses === extendToM365ActionName);
+  if (!extendToM365Action) {
     return err(
       new UserError(
         "FxCore",
         "Share",
-        getLocalizedString("error.share.shareActionConfigNotFound", shareToOthers.actionName)
+        getLocalizedString("error.share.shareActionConfigNotFound", extendToM365ActionName)
       )
     );
   }
 
   // 1. get manifest id
-  const appPackagePath = (shareToOthersAction.with as any)?.appPackagePath;
+  const appPackagePath = (extendToM365Action.with as any)?.appPackagePath;
   if (!appPackagePath) {
     return err(
       new UserError(
@@ -58,7 +61,7 @@ export async function parseShareAppActionYamlConfig(
   if (readEnvRes.isErr()) {
     return err(readEnvRes.error);
   }
-  const resolvedDriver = resolve(shareToOthersAction, [], []) as DriverDefinition;
+  const resolvedDriver = resolve(extendToM365Action, [], []) as DriverDefinition;
   const resolvedAppPackagePath = path.resolve(
     projectPath,
     (resolvedDriver.with as any).appPackagePath as string
@@ -96,8 +99,8 @@ export async function parseShareAppActionYamlConfig(
   }
 
   // 2. get shared title id and shared app id
-  const sharedTitleIdEnvName = (shareToOthersAction.writeToEnvironmentFile as any)?.titleId;
-  const sharedAppIdEnvName = (shareToOthersAction.writeToEnvironmentFile as any)?.appId;
+  const sharedTitleIdEnvName = (extendToM365Action.writeToEnvironmentFile as any)?.titleId;
+  const sharedAppIdEnvName = (extendToM365Action.writeToEnvironmentFile as any)?.appId;
   if (!sharedTitleIdEnvName || !sharedAppIdEnvName) {
     return err(
       new UserError("FxCore", "Share", getLocalizedString("error.share.sharedConfigNotFound"))

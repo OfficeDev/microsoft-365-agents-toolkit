@@ -5,9 +5,6 @@
         "teamsAppId": null
     },
     "description": "Weather Agent with Microsoft 365 Agents SDK and LangChain",
-    "engines": {
-        "node": "18 || 20 || 22"
-    },
     "author": "Microsoft",
     "license": "MIT",
     "main": "./src/index.js",
@@ -28,13 +25,11 @@
         "@azure/openai": "^2.0.0",
         "@langchain/langgraph": "^0.2.66",
         "@langchain/openai": "^0.5.6",
-        "@microsoft/agents-hosting": "^0.2.14",
-        "express": "^5.0.1",
-        "zod": "3.25.67"
+        "@microsoft/agents-hosting-express": "^1.0.0"
     },
     "devDependencies": {
         "env-cmd": "^10.1.0",
-        "nodemon": "^3.1.7",
+        "nodemon": "^3.1.10",
         "shx": "^0.3.3"
     },
     "overrides": {

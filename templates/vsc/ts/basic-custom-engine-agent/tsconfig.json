@@ -1,8 +1,9 @@
 {
   "compilerOptions": {
     "declaration": true,
-    "target": "es2017",
+    "target": "es2019",
     "module": "commonjs",
+    "moduleResolution": "node",
     "outDir": "./lib",
     "rootDir": "./",
     "sourceMap": true,

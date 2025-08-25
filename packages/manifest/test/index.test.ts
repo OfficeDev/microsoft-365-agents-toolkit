@@ -4,15 +4,7 @@ import fs from "fs-extra";
 import "mocha";
 import * as path from "path";
 import sinon from "sinon";
-import {
-  AppManifestUtils,
-  ManifestUtil,
-  TeamsAppManifest,
-  TeamsManifest,
-  TeamsManifestConverter,
-  TeamsManifestLatest,
-  TeamsManifestV1D10,
-} from "../src";
+import { AppManifestUtils, ManifestUtil, TeamsAppManifest, TeamsManifestConverter } from "../src";
 
 chai.use(chaiAsPromised);
 
@@ -188,8 +180,137 @@ describe("ManifestUtil", () => {
       );
     }
   });
+
+  describe("fetchSchema", () => {
+    const mockFetch = require("node-fetch");
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it("should successfully fetch and parse schema with regex workaround", async () => {
+      const mockResponse = {
+        text: sandbox.stub().resolves('{"type":"object","properties":{},"regex":"\\\\a"}'),
+      };
+
+      sandbox.stub(mockFetch, "default").resolves(mockResponse);
+
+      const manifest = { $schema: "https://example.com/schema.json" } as TeamsAppManifest;
+      const result = await ManifestUtil.fetchSchema(manifest);
+
+      chai.expect(result).to.deep.include({ type: "object", properties: {} });
+      chai.expect(mockResponse.text.calledOnce).to.be.true;
+    });
+
+    it("should apply regex workaround for \\a characters", async () => {
+      const mockResponseText = '{"pattern":"\\\\a test pattern"}';
+      const expectedCleanedText = '{"pattern":"\\x07 test pattern"}';
+      const mockResponse = {
+        text: sandbox.stub().resolves(mockResponseText),
+      };
+
+      sandbox.stub(mockFetch, "default").resolves(mockResponse);
+      const jsonParseStub = sandbox.stub(JSON, "parse").callsFake((text) => {
+        return { pattern: "\\x07 test pattern" };
+      });
+
+      const manifest = { $schema: "https://example.com/schema.json" } as TeamsAppManifest;
+      await ManifestUtil.fetchSchema(manifest);
+
+      chai.expect(jsonParseStub.calledOnce).to.be.true;
+    });
+
+    it("should throw error with schema URL when fetch fails", async () => {
+      const fetchError = new Error("Network error");
+      sandbox.stub(mockFetch, "default").rejects(fetchError);
+
+      const manifest = { $schema: "https://example.com/invalid-schema.json" } as TeamsAppManifest;
+
+      try {
+        await ManifestUtil.fetchSchema(manifest);
+        chai.assert.fail("Expected error not thrown");
+      } catch (error: unknown) {
+        chai
+          .expect((error as Error).message)
+          .to.equal(
+            "Failed to get manifest at url https://example.com/invalid-schema.json due to: Network error"
+          );
+      }
+    });
+
+    it("should throw error with schema URL when response.text() fails", async () => {
+      const textError = new Error("Failed to read response text");
+      const mockResponse = {
+        text: sandbox.stub().rejects(textError),
+      };
+
+      sandbox.stub(mockFetch, "default").resolves(mockResponse);
+
+      const manifest = { $schema: "https://example.com/schema.json" } as TeamsAppManifest;
+
+      try {
+        await ManifestUtil.fetchSchema(manifest);
+        chai.assert.fail("Expected error not thrown");
+      } catch (error: unknown) {
+        chai
+          .expect((error as Error).message)
+          .to.equal(
+            "Failed to get manifest at url https://example.com/schema.json due to: Failed to read response text"
+          );
+      }
+    });
+
+    it("should throw error with schema URL when JSON.parse fails", async () => {
+      const mockResponse = {
+        text: sandbox.stub().resolves("invalid json content"),
+      };
+
+      sandbox.stub(mockFetch, "default").resolves(mockResponse);
+
+      const manifest = { $schema: "https://example.com/schema.json" } as TeamsAppManifest;
+
+      try {
+        await ManifestUtil.fetchSchema(manifest);
+        chai.assert.fail("Expected error not thrown");
+      } catch (error: unknown) {
+        chai
+          .expect((error as Error).message)
+          .to.include("Failed to get manifest at url https://example.com/schema.json due to:");
+      }
+    });
+
+    it("should throw generic error when non-Error exception occurs", async () => {
+      sandbox.stub(mockFetch, "default").rejects("string error");
+
+      const manifest = { $schema: "https://example.com/schema.json" } as TeamsAppManifest;
+
+      try {
+        await ManifestUtil.fetchSchema(manifest);
+        chai.assert.fail("Expected error not thrown");
+      } catch (error: unknown) {
+        chai
+          .expect((error as Error).message)
+          .to.contain("Failed to get manifest at url https://example.com/schema.json");
+      }
+    });
+
+    it("should work with manifest using 'schema' property instead of '$schema'", async () => {
+      const mockSchema = { type: "object" };
+      const mockResponse = {
+        text: sandbox.stub().resolves('{"type":"object"}'),
+      };
+
+      sandbox.stub(mockFetch, "default").resolves(mockResponse);
+
+      const manifest = { schema: "https://example.com/schema.json" } as unknown as TeamsAppManifest;
+      const result = await ManifestUtil.fetchSchema(manifest);
+
+      chai.expect(result).to.deep.equal(mockSchema);
+    });
+  });
 });
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function loadSchema(): Promise<any> {
   const schemaPath = path.join(__dirname, "MicrosoftTeams.schema.json");
   return fs.readJson(schemaPath);

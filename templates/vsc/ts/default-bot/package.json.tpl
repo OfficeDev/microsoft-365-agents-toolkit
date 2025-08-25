@@ -2,9 +2,6 @@
     "name": "{{SafeProjectNameLowerCase}}",
     "version": "1.0.0",
     "description": "Microsoft 365 Agents Toolkit echo bot sample",
-    "engines": {
-        "node": "18 || 20 || 22"
-    },
     "author": "Microsoft",
     "license": "MIT",
     "main": "./lib/index.js",
@@ -23,16 +20,15 @@
         "url": "https://github.com"
     },
     "dependencies": {
-        "@microsoft/agents-hosting": "^0.2.14",
-        "express": "^5.0.1"
+        "@microsoft/agents-hosting-express": "^1.0.0"
     },
-    "devDependencies": {
+    "devvDependencies": {
         "@types/express": "^5.0.0",
-        "@types/node": "^18.0.0",
+        "@types/node": "^22.0.0",
         "env-cmd": "^10.1.0",
-        "nodemon": "^3.1.7",
+        "nodemon": "^3.1.10",
         "shx": "^0.3.3",
-        "ts-node": "^10.4.0",
-        "typescript": "^4.4.4"
+        "ts-node": "^10.9.2",
+        "typescript": "^5.8.3"
     }
 }

@@ -1,11 +1,11 @@
 {
   "compilerOptions": {
     "declaration": true,
-    "target": "es2017",
+    "target": "es2019",
     "module": "commonjs",
+    "moduleResolution": "node",
     "outDir": "./lib",
     "rootDir": "./",
-    "moduleResolution": "nodenext",
     "sourceMap": true,
     "incremental": true,
     "tsBuildInfoFile": "./lib/.tsbuildinfo",

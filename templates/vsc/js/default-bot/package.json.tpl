@@ -5,9 +5,6 @@
       "teamsAppId": null
     },
     "description": "Microsoft 365 Agents Toolkit echo bot sample",
-    "engines": {
-        "node": "18 || 20 || 22"
-    },
     "author": "Microsoft",
     "license": "MIT",
     "main": "index.js",
@@ -21,11 +18,10 @@
         "test": "echo \"Error: no test specified\" && exit 1"
     },
     "dependencies": {
-        "@microsoft/agents-hosting": "^0.2.14",
-        "express": "^5.0.1"
+        "@microsoft/agents-hosting-express": "^1.0.0"
     },
     "devDependencies": {
         "env-cmd": "^10.1.0",
-        "nodemon": "^3.1.7"
+        "nodemon": "^3.1.10"
     }
 }

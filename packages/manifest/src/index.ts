@@ -146,7 +146,10 @@ export class ManifestUtil {
     let result: JSONSchemaType<T>;
     try {
       const res = await fetch(schemaUrl);
-      result = (await res.json()) as JSONSchemaType<T>;
+      // workaround for invalid regex expression https://github.com/OfficeDev/microsoft-teams-app-schema/issues/190
+      const text = await res.text();
+      const cleanedText = text.replace(/\\a/g, "\\x07");
+      result = JSON.parse(cleanedText) as JSONSchemaType<T>;
     } catch (e: unknown) {
       if (e instanceof Error) {
         throw new Error(`Failed to get manifest at url ${schemaUrl} due to: ${e.message}`);

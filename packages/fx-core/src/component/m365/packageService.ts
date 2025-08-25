@@ -437,6 +437,23 @@ export class PackageService {
           Authorization: `Bearer ${token}`,
         },
       });
+
+      if (featureFlagManager.getBooleanValue(FeatureFlags.BuilderAPIEnabled)) {
+        try {
+          await this.axiosInstance.delete(`/builder/v1/users/titles/${titleId}`, {
+            baseURL: serviceUrl,
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+        } catch (error: any) {
+          if (error.response && error.response.status === 404) {
+            this.logger?.debug(`TitleId ${titleId} not found, skip deleting.`);
+          } else {
+            throw error;
+          }
+        }
+      }
       this.logger?.verbose("Unacquiring done.");
     } catch (error: any) {
       if (error.response) {
