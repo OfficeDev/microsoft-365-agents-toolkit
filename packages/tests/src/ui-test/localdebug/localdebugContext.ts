@@ -41,7 +41,8 @@ export type LocalDebugTestName =
   | "cdcustomapi"
   | "msgnewapi"
   | "msgapikey"
-  | "msgmicroentra";
+  | "msgmicroentra"
+  | "daaction";
 
 export class LocalDebugTestContext extends TestContext {
   public testName: LocalDebugTestName;
@@ -52,6 +53,7 @@ export class LocalDebugTestContext extends TestContext {
   public customCopilotRagType: string;
   public customCeopilotAgent: string;
   public llmServiceType: string;
+  public apiAuth: string;
 
   constructor(
     testName: LocalDebugTestName,
@@ -69,6 +71,7 @@ export class LocalDebugTestContext extends TestContext {
         | "custom-copilot-agent-new"
         | "custom-copilot-agent-assistants-api";
       llmServiceType?: "llm-service-azure-openai" | "llm-service-openai";
+      apiAuth?: "none" | "api-key" | "microsoft-entra" | "oauth";
     }
   ) {
     super(testName);
@@ -94,6 +97,7 @@ export class LocalDebugTestContext extends TestContext {
     this.llmServiceType = option?.llmServiceType
       ? option.llmServiceType
       : "llm-service-azure-openai";
+    this.apiAuth = option?.apiAuth ? option.apiAuth : "none";
   }
 
   public async before() {
@@ -339,6 +343,12 @@ export class LocalDebugTestContext extends TestContext {
         await execCommand(
           this.testRootFolder,
           `atk new --app-name ${this.appName} --interactive false --capability custom-copilot-rag --custom-copilot-rag ${this.customCopilotRagType} --llm-service ${this.llmServiceType} --programming-language ${this.lang}  --openapi-spec-location ${apiSpecPath} --api-operation "GET /repairs" --telemetry false`
+        );
+        break;
+      case "daaction":
+        await execCommand(
+          this.testRootFolder,
+          `atk new --app-name ${this.appName} --interactive false --capability declarative-agent  --with-plugin yes --api-plugin-type new-api --api-auth ${this.apiAuth} --programming-language ${this.lang} --telemetry false`
         );
         break;
     }

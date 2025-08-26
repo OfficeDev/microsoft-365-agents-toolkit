@@ -479,6 +479,7 @@ export class LocalDebugTaskInfo {
 
 export class DebugItemSelect {
   static readonly DebugInTeamsUsingChrome = "Debug in Teams (Chrome)";
+  static readonly DebugInCopilotUsingChrome = "Debug in Copilot (Chrome)";
   static readonly DebugInAgentsPlayground =
     "Debug in Microsoft 365 Agents Playground";
 }
