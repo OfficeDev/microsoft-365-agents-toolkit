@@ -12,6 +12,7 @@
                 "Provision (Sandbox)",
                 "Deploy (Sandbox)",
                 "Start application",
+                "Sideload App to channel"
             ],
             "dependsOrder": "sequence"
         },
@@ -246,6 +247,15 @@
             "command": "deploy",
             "args": {
                 "env": "sandbox"
+            }
+        },
+                {
+            "label": "Sideload App to channel",
+            "type": "teamsfx",
+            "command": "install-app",
+            "args": {
+                "env": "sandbox",
+                "appPackagePath": "${workspaceFolder}/appPackage/build/appPackage.sandbox.zip"
             }
         },
         {
