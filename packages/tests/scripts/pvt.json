@@ -55,7 +55,10 @@
       "remotedebug-chatdata-customapi-ts-openai-win-only",
       "remotedebug-chatdata-customapi-py-azureopenai-win-only",
       "remotedebug-chatdata-customapi-py-openai-win-only",
-      "remotedebug-da-action-none-ts"
+      "da-action-none-ts",
+      "da-action-apikey-ts",
+      "da-action-microsoftentra-ts",
+      "da-action-oauth-ts"
     ],
     "node-22": [
       "obo-tab",
