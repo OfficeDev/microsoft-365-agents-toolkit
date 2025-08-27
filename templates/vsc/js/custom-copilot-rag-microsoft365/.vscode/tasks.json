@@ -34,24 +34,6 @@
             }
         },
         {
-            // Check all required prerequisites.
-            // See https://aka.ms/teamsfx-tasks/check-prerequisites to know the details and how to customize the args.
-            "label": "Validate prerequisites (Sandbox)",
-            "type": "teamsfx",
-            "command": "debug-check-prerequisites",
-            "args": {
-                "prerequisites": [
-                    "portOccupancy", // Validate available ports to ensure those debug ones are not occupied.
-                    "sandbox",
-                    "nodejs" // Validate if Node.js is installed.
-                ],
-                "portOccupancy": [
-                    3978, // app service port
-                    9239 // app inspector port for Node.js debugger
-                ]
-            }
-        },
-        {
             // Start the local tunnel service to forward public URL to local port and inspect traffic.
             // See https://aka.ms/teamsfx-tasks/local-tunnel for the detailed args definitions.
             "label": "Start local tunnel",
@@ -76,30 +58,6 @@
             "problemMatcher": "$teamsfx-local-tunnel-watch"
         },
         {
-            // Start the local tunnel service to forward public URL to local port and inspect traffic.
-            // See https://aka.ms/teamsfx-tasks/local-tunnel for the detailed args definitions.
-            "label": "Start local tunnel (Sandbox)",
-            "type": "teamsfx",
-            "command": "debug-start-local-tunnel",
-            "args": {
-                "type": "dev-tunnel",
-                "ports": [
-                    {
-                        "portNumber": 3978,
-                        "protocol": "http",
-                        "access": "public",
-                        "writeToEnvironmentFile": {
-                            "endpoint": "BOT_ENDPOINT", // output tunnel endpoint as BOT_ENDPOINT
-                            "domain": "BOT_DOMAIN" // output tunnel domain as BOT_DOMAIN
-                        }
-                    }
-                ],
-                "env": "sandbox"
-            },
-            "isBackground": true,
-            "problemMatcher": "$teamsfx-local-tunnel-watch"
-        },
-        {
             // Create the debug resources.
             // See https://aka.ms/teamsfx-tasks/provision to know the details and how to customize the args.
             "label": "Provision",
@@ -107,14 +65,6 @@
             "command": "provision",
             "args": {
                 "env": "local"
-            }
-        },
-        {
-            "label": "Provision (Sandbox)",
-            "type": "teamsfx",
-            "command": "provision",
-            "args": {
-                "env": "sandbox",
             }
         },
         {
@@ -150,37 +100,6 @@
                     "endsPattern": "app listening to|Bot/ME service listening at|[nodemon] app crashed"
                 }
             }
-        },
-        {
-            // Build project.
-            // See https://aka.ms/teamsfx-tasks/deploy to know the details and how to customize the args.
-            "label": "Deploy (Sandbox)",
-            "type": "teamsfx",
-            "command": "deploy",
-            "args": {
-                "env": "sandbox"
-            }
-        },
-        {
-            "label": "Sideload App to channel",
-            "type": "teamsfx",
-            "command": "install-app",
-            "args": {
-                "env": "sandbox",
-                "appPackagePath": "${workspaceFolder}/appPackage/build/appPackage.sandbox.zip"
-            }
-        },
-        {
-            "label": "Start Agent (Sandbox)",
-            "dependsOn": [
-                "Validate prerequisites (Sandbox)",
-                "Start local tunnel (Sandbox)",
-                "Provision (Sandbox)",
-                "Deploy (Sandbox)",
-                "Start application",
-                "Sideload App to channel"
-            ],
-            "dependsOrder": "sequence"
         },
         {
             "label": "Start Agent in Desktop Client",

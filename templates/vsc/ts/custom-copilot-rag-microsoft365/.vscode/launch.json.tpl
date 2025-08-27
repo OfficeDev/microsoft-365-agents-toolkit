@@ -7,12 +7,7 @@
             "request": "launch",
             "url": "https://teams.microsoft.com/l/app/${{TEAMS_APP_ID}}?installAppPackage=true&webjoin=true&${account-hint}",
             "presentation": {
-{{#enableTestToolByDefault}}
-                "group": "2-Teams",
-{{/enableTestToolByDefault}}
-{{^enableTestToolByDefault}}
                 "group": "1-Teams",
-{{/enableTestToolByDefault}}
                 "order": 4
             },
             "internalConsoleOptions": "neverOpen"
@@ -23,12 +18,7 @@
             "request": "launch",
             "url": "https://teams.microsoft.com/l/app/${{TEAMS_APP_ID}}?installAppPackage=true&webjoin=true&${account-hint}",
             "presentation": {
-{{#enableTestToolByDefault}}
-                "group": "2-Teams",
-{{/enableTestToolByDefault}}
-{{^enableTestToolByDefault}}
                 "group": "1-Teams",
-{{/enableTestToolByDefault}}
                 "order": 5
             },
             "internalConsoleOptions": "neverOpen"
@@ -75,23 +65,6 @@
             },
             "internalConsoleOptions": "neverOpen"
         },
-{{#SandBoxedTeam}}
-        {
-            "name": "Launch Agent to channel (Edge)",
-            "type": "msedge",
-            "request": "launch",
-            "url": "${{sandbox:CHANNEL_WEB_URL}}&webjoin=true",
-            "cascadeTerminateToConfigurations": [
-                "Attach to Local Service"
-            ],
-            "presentation": {
-                "group": "all",
-                "hidden": true
-            },
-            "internalConsoleOptions": "neverOpen",
-            "perScriptSourcemaps": "yes"
-        },
-{{/SandBoxedTeam}}
         {
             "name": "Launch Remote in Teams (Desktop)",
             "type": "node",
@@ -113,31 +86,11 @@
             ],
             "preLaunchTask": "Start Agent Locally",
             "presentation": {
-{{#enableTestToolByDefault}}
-                "group": "2-Teams",
-{{/enableTestToolByDefault}}
-{{^enableTestToolByDefault}}
-                "group": "1-Teams",
-{{/enableTestToolByDefault}}
-                "order": 1
-            },
-            "stopAll": true
-        },
-{{#SandBoxedTeam}}
-        {
-            "name": "Debug in sandbox in Teams (Edge)",
-            "configurations": [
-                "Launch Agent to channel (Edge)",
-                "Attach to Local Service"
-            ],
-            "preLaunchTask": "Start Agent (Sandbox)",
-            "presentation": {
                 "group": "1-local",
                 "order": 1
             },
             "stopAll": true
         },
-{{/SandBoxedTeam}}
         {
             "name": "Debug in Teams (Chrome)",
             "configurations": [
@@ -146,12 +99,7 @@
             ],
             "preLaunchTask": "Start Agent Locally",
             "presentation": {
-{{#enableTestToolByDefault}}
-                "group": "2-Teams",
-{{/enableTestToolByDefault}}
-{{^enableTestToolByDefault}}
-                "group": "1-Teams",
-{{/enableTestToolByDefault}}
+                "group": "1-local",
                 "order": 2
             },
             "stopAll": true
@@ -163,12 +111,7 @@
             ],
             "preLaunchTask": "Start Agent in Desktop Client",
             "presentation": {
-{{#enableTestToolByDefault}}
-                "group": "2-Teams",
-{{/enableTestToolByDefault}}
-{{^enableTestToolByDefault}}
-                "group": "1-Teams",
-{{/enableTestToolByDefault}}
+                "group": "1-local",
                 "order": 3
             },
             "stopAll": true
