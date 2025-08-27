@@ -1779,7 +1779,7 @@ export async function validatePrompt(
           await page.waitForTimeout(Timeout.shortTimeLoading);
         } catch {
           await page.screenshot({
-            path: getPlaywrightScreenshotPath("signInerror"),
+            path: getPlaywrightScreenshotPath("signInError"),
             fullPage: true,
           });
           console.log("no sign in button.");
