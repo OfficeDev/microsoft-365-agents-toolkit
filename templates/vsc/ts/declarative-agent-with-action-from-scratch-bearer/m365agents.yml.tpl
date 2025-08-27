@@ -95,9 +95,6 @@ provision:
     writeToEnvironmentFile:
       titleId: M365_TITLE_ID
       appId: M365_APP_ID
-{{#ShareEnabled}}
-      shareLink: SHARE_LINK
-{{/ShareEnabled}}
 
 # Triggered when 'teamsapp deploy' is executed
 deploy:

@@ -154,9 +154,10 @@
                 "--remote-debugging-port=9223",
                 "--no-first-run"
             ]
+
+        }
 {{#SandBoxedTeam}}
-        },
-        {
+        ,{
             "name": "Launch App to channel (Edge)",
             "type": "msedge",
             "request": "launch",
@@ -170,8 +171,8 @@
             },
             "internalConsoleOptions": "neverOpen",
             "perScriptSourcemaps": "yes"
-{{/SandBoxedTeam}}
         }
+{{/SandBoxedTeam}}
     ],
     "compounds": [
         {

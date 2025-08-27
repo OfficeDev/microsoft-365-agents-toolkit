@@ -1,3 +1,3 @@
 const { startServer } = require("@microsoft/agents-hosting-express");
-const { agentApp } = require("./agent");
-startServer(agentApp);
+const { weatherAgent } = require("./agent");
+startServer(weatherAgent);
