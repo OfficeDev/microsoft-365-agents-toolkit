@@ -112,7 +112,7 @@ namespace Microsoft.TeamsFx.Test
             {
                 ConnectionName = connectionName,
                 ChannelId = channelId?.ToString() ?? string.Empty, //turnContext.Activity.ChannelId,
-                UserId = userId
+                UserId = userId //turnContext.Activity.From.Id,
             };
 
             if (magicCode != null)
