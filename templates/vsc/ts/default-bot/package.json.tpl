@@ -22,7 +22,7 @@
     "dependencies": {
         "@microsoft/agents-hosting-express": "^1.0.0"
     },
-    "devvDependencies": {
+    "devDependencies": {
         "@types/express": "^5.0.0",
         "@types/node": "^22.0.0",
         "env-cmd": "^10.1.0",
