@@ -132,7 +132,7 @@ export async function daActionHappPathTestForRemoteDebug(
   capability: AppType,
   options: {
     lang: Lang;
-    authOption: "None" | "API Key" | "MicrosoftEntra" | "Oauth";
+    authOption: "None" | "API Key" | "Microsoft Entra" | "OAuth";
     successFlag: {
       successFlagForLocal: boolean;
       successFlagForRemote: boolean;

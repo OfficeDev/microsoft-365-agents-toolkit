@@ -556,7 +556,7 @@ export async function createNewProject(
       | "Azure AI Search"
       | "Custom API"
       | "Microsoft 365";
-    authOption?: "None" | "API Key" | "MicrosoftEntra" | "Oauth";
+    authOption?: "None" | "API Key" | "Microsoft Entra" | "OAuth";
   }
 ): Promise<void> {
   const driver = VSBrowser.instance.driver;
