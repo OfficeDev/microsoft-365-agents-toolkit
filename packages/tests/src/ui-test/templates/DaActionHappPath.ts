@@ -23,7 +23,7 @@ import {
 } from "../../utils/vscodeOperation";
 import { initCopilotPage } from "../../utils/playwrightOperation";
 import { Env } from "../../utils/env";
-import { validateFileExist } from "../../utils/commonUtils";
+import { editDotEnvFile, validateFileExist } from "../../utils/commonUtils";
 import {
   LocalDebugTestContext,
   LocalDebugTestName,
@@ -71,6 +71,11 @@ export async function daActionHappPathTestForLocalDebug(
         projectPath,
         options.fileValidation || "src/functions/repairs.ts"
       );
+    }
+    if (options.apiAuth === "api-key") {
+      const envPath = path.resolve(projectPath, "env/.env.local.user");
+      editDotEnvFile(envPath, "SECRET_API_KEY", "fakekey-Mp7t");
+      console.log("API Key set in .env.local.user");
     }
     // local debug
     console.log("======= debug with ttk ========");
@@ -154,6 +159,11 @@ export async function daActionHappPathTestForRemoteDebug(
     lang: options.lang,
     authOption: options.authOption || "None",
   });
+  if (options.authOption === "API Key") {
+    const envPath = path.resolve(projectPath, "env/.env.dev.user");
+    editDotEnvFile(envPath, "SECRET_API_KEY", "fakekey-Mp7t");
+    console.log("API Key set in .env.dev.user");
+  }
   if (options.lang === Lang.JS) {
     validateFileExist(
       projectPath,

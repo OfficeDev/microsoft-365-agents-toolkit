@@ -44,15 +44,15 @@ describe("Debug Tests", function () {
   });
 
   it(
-    "[auto][VSC][TS] Local debug for basic declarative agent with API plugin from scratch",
+    "[auto][VSC][TS] Local debug for basic declarative agent with API plugin from scratch (API key)",
     {
-      testPlanCaseId: 27971594,
+      testPlanCaseId: 34592925,
       author: "v-helzha@microsoft.com",
     },
     async function () {
       await daActionHappPathTestForLocalDebug("daaction", {
         lang: Lang.TS,
-        apiAuth: "none",
+        apiAuth: "api-key",
         successFlag: successFlag,
         fileValidation: "src/functions/repairs.ts",
         validationFn: validateFn,
@@ -60,15 +60,15 @@ describe("Debug Tests", function () {
     }
   );
   it(
-    "[auto][VSC][TS] Remote debug for basic declarative agent with API plugin from scratch",
+    "[auto][VSC][TS] Remote debug for basic declarative agent with API plugin from scratch (API key)",
     {
-      testPlanCaseId: 28941915,
+      testPlanCaseId: 28941598,
       author: "v-helzha@microsoft.com",
     },
     async function () {
       await daActionHappPathTestForRemoteDebug("daAction", {
         lang: Lang.TS,
-        authOption: "None",
+        authOption: "API Key",
         successFlag: successFlag,
         fileValidation: "src/functions/repairs.ts",
         validationFn: validateFn,
