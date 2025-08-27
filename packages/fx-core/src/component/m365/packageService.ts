@@ -34,6 +34,8 @@ import { AppUser } from "../driver/teamsApp/interfaces/appdefinitions/appUser";
 import { NotExtendedToM365Error } from "./errors";
 import { M365AppDefinition, M365AppEntity } from "./interface";
 import { MosServiceEndpoint } from "./serviceConstant";
+import { getDefaultString, getLocalizedString } from "../../common/localizeUtils";
+import { advancedDASettingUrl } from "./constants";
 
 const M365ErrorSource = "M365";
 const M365ErrorComponent = "PackageService";
@@ -828,10 +830,11 @@ export class PackageService {
     // add error details and trace to message
     const tracingId = (error.response.headers?.traceresponse ?? "") as string;
     const originalMessage = error.message as string;
-    const innerError = error.response.data?.error || { code: "", message: "" };
+    const innerError = error.response.data?.error ||
+      error.response.data.Error || { code: "", message: "" };
     const finalMessage = `${originalMessage} (tracingId: ${tracingId}) ${
-      innerError.code as string
-    }: ${innerError.message as string} `;
+      innerError.Code as string
+    }: ${innerError.Message as string} `;
 
     error.message = finalMessage;
 
@@ -842,6 +845,21 @@ export class PackageService {
         error,
         source: M365ErrorSource,
         message: finalMessage,
+      });
+    } else if (
+      error.response.status === 403 &&
+      error.response.data.Error.Message ==
+        "User does not have access to upload advanced Copilot apps."
+    ) {
+      error = new UserError({
+        name: "PackageServiceError",
+        error,
+        source: M365ErrorSource,
+        message: getDefaultString("error.m365.SharedScopeAdvancedDADisabled", advancedDASettingUrl),
+        displayMessage: getLocalizedString(
+          "error.m365.SharedScopeAdvancedDADisabled",
+          advancedDASettingUrl
+        ),
       });
     }
 
