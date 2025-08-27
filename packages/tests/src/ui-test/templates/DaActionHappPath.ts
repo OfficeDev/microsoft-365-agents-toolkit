@@ -43,10 +43,16 @@ export async function daActionHappPathTestForLocalDebug(
     fileValidation?: string;
     validationFn: (
       page: any,
-      options: { appName: string; prompt?: string; expected?: string }
+      options: {
+        appName: string;
+        prompt?: string;
+        expected?: string;
+        consent?: boolean;
+      }
     ) => Promise<void>;
     prompt?: string;
     expected?: string;
+    consent?: boolean;
   }
 ) {
   let errorMessage = "";
@@ -100,6 +106,7 @@ export async function daActionHappPathTestForLocalDebug(
         appName: copilotAgentName,
         prompt: options?.prompt,
         expected: options?.expected,
+        consent: options?.consent,
       });
     }
     options.successFlag.successFlagForLocal = true;
@@ -140,10 +147,16 @@ export async function daActionHappPathTestForRemoteDebug(
     fileValidation?: string;
     validationFn: (
       page: any,
-      options: { appName: string; prompt?: string; expected?: string }
+      options: {
+        appName: string;
+        prompt?: string;
+        expected?: string;
+        consent?: boolean;
+      }
     ) => Promise<void>;
     prompt?: string;
     expected?: string;
+    consent?: boolean;
   }
 ) {
   const remoteDebugTestContext = new RemoteDebugTestContext("danone");
@@ -190,6 +203,7 @@ export async function daActionHappPathTestForRemoteDebug(
       appName: copilotAgentName,
       prompt: options?.prompt,
       expected: options?.expected,
+      consent: options?.consent,
     });
 
     options.successFlag.successFlagForRemote = true;

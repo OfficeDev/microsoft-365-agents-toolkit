@@ -1726,6 +1726,7 @@ export async function validatePrompt(
   options: {
     prompt?: string;
     expected?: ValidationContent;
+    consent?: boolean;
   }
 ) {
   try {
@@ -1757,6 +1758,33 @@ export async function validatePrompt(
       );
       await allowButton?.click();
       await page.waitForTimeout(Timeout.shortTimeLoading);
+      if (options?.consent) {
+        try {
+          const [popup] = await Promise.all([
+            page.waitForEvent("popup"), // start listening
+            page.click('button:has-text("Sign in")'), // action that opens popup
+          ]);
+
+          await popup.screenshot({
+            path: getPlaywrightScreenshotPath("popup"),
+            fullPage: true,
+          });
+
+          // Now interact with the popup
+          const accountItemSignedin = await popup.waitForSelector(
+            `div[role="button"][tabindex="0"]`
+          );
+          await accountItemSignedin.click();
+          console.log("Clicked the account signed in.");
+          await page.waitForTimeout(Timeout.shortTimeLoading);
+        } catch {
+          await page.screenshot({
+            path: getPlaywrightScreenshotPath("signInerror"),
+            fullPage: true,
+          });
+          console.log("no sign in button.");
+        }
+      }
     } catch {
       console.log("no allow button.");
     }
