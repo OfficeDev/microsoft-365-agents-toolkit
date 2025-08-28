@@ -6,18 +6,35 @@ Licensed under the MIT License.
 import logging
 import json
 
-from microsoft.agents.hosting.core import (
+from os import environ, path
+from dotenv import load_dotenv
+
+from microsoft_agents.authentication.msal import MsalConnectionManager
+from microsoft_agents.hosting.core import (
     AgentApplication, 
     TurnState, 
     TurnContext, 
     MemoryStorage
 )
-from microsoft.agents.activity import ActivityTypes
+from microsoft_agents.activity import ActivityTypes, load_configuration_from_env
+from microsoft_agents.hosting.aiohttp import CloudAdapter
 
+# Load environment variables
+load_dotenv(path.join(path.dirname(__file__), "../env/.env.dev"))
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Define storage
+# Load configuration from environment
+agents_sdk_config = load_configuration_from_env(environ)
+
+# Create storage and connection manager
 storage = MemoryStorage()
+connection_manager = MsalConnectionManager(**agents_sdk_config)
+
+# Create adapter
+adapter = CloudAdapter(connection_manager=connection_manager)
 
 # Create the agent application
 teams_bot = AgentApplication[TurnState](
@@ -60,7 +77,7 @@ async def on_runtime_message(context: TurnContext, state: TurnState):
     """Show runtime information when user types /runtime."""
     import sys
     try:
-        from microsoft.agents.hosting.core import __version__ as agents_version
+        from microsoft_agents.hosting.core import __version__ as agents_version
     except ImportError:
         agents_version = "unknown"
     
@@ -75,7 +92,7 @@ async def on_runtime_message(context: TurnContext, state: TurnState):
 async def on_members_added(context: TurnContext, state: TurnState):
     """Welcome new members when they're added to the conversation."""
     try:
-        from microsoft.agents.hosting.core import __version__ as agents_version
+        from microsoft_agents.hosting.core import __version__ as agents_version
     except ImportError:
         agents_version = "unknown"
     
@@ -87,12 +104,16 @@ async def on_members_added(context: TurnContext, state: TurnState):
 async def on_message_activity(context: TurnContext, state: TurnState):
     """Handle all message activities - echo back what the user said with a count."""
     
+    await state.load(context, storage)
+    
     # Increment count
-    count = state.conversation.get_value("count", 0, target_cls=int)
+    count = state.conversation.get_value("count", lambda: 0, target_cls=int)
     state.conversation.set_value("count", count + 1)
+    
+    await state.save(context, storage)
 
     # Echo back user's message with count
-    await context.send_activity(f"[{state.conversation.get_value('count', 0, target_cls=int)}] you said: {context.activity.text}")
+    await context.send_activity(f"[{state.conversation.get_value('count', target_cls=int)}] you said: {context.activity.text}")
 
 # Additional pattern matching examples (similar to TypeScript version)
 # Note: These may need to be adjusted based on the actual Python API

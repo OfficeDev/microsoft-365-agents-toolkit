@@ -4,34 +4,17 @@ Licensed under the MIT License.
 """
 
 import logging
-from os import environ, path
+from os import environ
 from aiohttp import web
-from dotenv import load_dotenv
 
-from microsoft.agents.hosting.aiohttp import CloudAdapter, jwt_authorization_middleware, start_agent_process
-from microsoft.agents.authentication.msal import MsalConnectionManager
-from microsoft.agents.activity import load_configuration_from_env
-from microsoft.agents.hosting.core import Authorization, MemoryStorage, AgentApplication
+from microsoft_agents.hosting.aiohttp import CloudAdapter, jwt_authorization_middleware, start_agent_process
+from microsoft_agents.authentication.msal import MsalConnectionManager
+from microsoft_agents.activity import load_configuration_from_env
+from microsoft_agents.hosting.core import MemoryStorage, AgentApplication
 
-from bot import teams_bot
+from bot import teams_bot, connection_manager, agents_sdk_config, adapter
 
-# Load environment variables
-load_dotenv(path.join(path.dirname(__file__), "./env/.env.dev"))
-
-# Configure logging
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
-# Load configuration from environment
-agents_sdk_config = load_configuration_from_env(environ)
-
-# Create storage and connection manager
-storage = MemoryStorage()
-connection_manager = MsalConnectionManager(**agents_sdk_config)
-
-# Create adapter
-adapter = CloudAdapter(connection_manager=connection_manager)
-teams_bot.adapter = adapter
 
 # Create routes
 routes = web.RouteTableDef()
@@ -52,7 +35,7 @@ async def on_messages(req: web.Request) -> web.Response:
         return web.Response(status=500, text=str(e))
 
 # Create the web application
-aiohttp_web_app = web.Application(middlewares=jwt_authorization_middleware)
+aiohttp_web_app = web.Application(middlewares=[jwt_authorization_middleware])
 aiohttp_web_app.add_routes(routes)
 
 aiohttp_web_app["agent_configuration"] = connection_manager.get_default_connection_configuration()
