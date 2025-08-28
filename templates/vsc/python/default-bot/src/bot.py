@@ -104,8 +104,6 @@ async def on_members_added(context: TurnContext, state: TurnState):
 async def on_message_activity(context: TurnContext, state: TurnState):
     """Handle all message activities - echo back what the user said with a count."""
     
-    await state.load(context, storage)
-    
     # Increment count
     count = state.conversation.get_value("count", lambda: 0, target_cls=int)
     state.conversation.set_value("count", count + 1)
