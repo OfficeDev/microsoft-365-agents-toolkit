@@ -63,6 +63,7 @@ export enum TemplateNames {
   // WXP
   OutlookTaskpane = "office-addin-outlook-taskpane", // handled by OfficeAddinGeneratorNew
   WXPTaskpane = "office-addin-wxpo-taskpane", // handled by OfficeAddinGeneratorNew
+  ExcelCFShortcut = "office-addin-excel-cfshortcut", // handled by OfficeAddinGeneratorNew
   OfficeAddinCommon = "office-addin-config", // handled by OfficeAddinGeneratorNew
 
   // from TDP only

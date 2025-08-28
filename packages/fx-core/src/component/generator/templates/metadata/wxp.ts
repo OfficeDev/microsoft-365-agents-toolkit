@@ -18,6 +18,12 @@ export const wxpTemplates: Template[] = [
     description: "",
   },
   {
+    id: "office-addin-excel-cfshortcut-ts",
+    name: TemplateNames.ExcelCFShortcut,
+    language: "typescript",
+    description: "",
+  },
+  {
     id: "office-addin-config-ts",
     name: TemplateNames.OfficeAddinCommon,
     language: "typescript",

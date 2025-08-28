@@ -664,6 +664,8 @@
   "core.officeContentAddin.detail": "Create new objects for Excel or PowerPoint",
   "core.newTaskpaneAddin.label": "Task pane",
   "core.newTaskpaneAddin.detail": "Customize the ribbon with a button and embed content in the task pane",
+  "core.newCFShortcut.label": "Custom Function and Shortcut",
+  "core.newCFShortcut.detail": "Task pane add-in with custom function and shortcut",
   "core.summary.actionDescription": "Action %s%s",
   "core.summary.lifecycleDescription": "Lifecycle stage: %s(%s step(s) in total). The following actions will be executed: %s",
   "core.summary.lifecycleNotExecuted": "%s Lifecycle stage %s was not executed.",

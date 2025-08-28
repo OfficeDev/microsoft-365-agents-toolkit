@@ -123,6 +123,7 @@ export class OfficeAddinGeneratorNew extends DefaultTemplateGenerator {
     return [
       TemplateNames.OutlookTaskpane,
       TemplateNames.WXPTaskpane,
+      TemplateNames.ExcelCFShortcut,
       TemplateNames.OfficeAddinCommon,
       TemplateNames.DeclarativeAgentMetaOSNewProject,
       TemplateNames.DeclarativeAgentMetaOSUpgradeProject,

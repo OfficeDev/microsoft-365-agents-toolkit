@@ -340,6 +340,14 @@ export class OfficeAddinCapabilityOptions {
       data: TemplateNames.WXPTaskpane,
     };
   }
+  static excelCFShortcut(): OptionItem {
+    return {
+      id: "wxp-json-cf-shortcut",
+      label: getLocalizedString("core.newCFShortcut.label"),
+      detail: getLocalizedString("core.newCFShortcut.detail"),
+      data: TemplateNames.ExcelCFShortcut,
+    };
+  }
   static DAMetaOS(): OptionItem {
     return {
       id: "office-da-meta-os",
