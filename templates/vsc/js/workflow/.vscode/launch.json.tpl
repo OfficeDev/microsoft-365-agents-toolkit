@@ -110,7 +110,7 @@
 {{^enableTestToolByDefault}}
                 "group": "2-local",
 {{/enableTestToolByDefault}}
-                "order": 1
+                "order": 2
             },
             "stopAll": true
         },
