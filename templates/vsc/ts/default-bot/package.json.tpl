@@ -1,7 +1,7 @@
 {
     "name": "{{SafeProjectNameLowerCase}}",
     "version": "1.0.0",
-    "description": "Microsoft 365 Agents Toolkit echo bot sample test",
+    "description": "Microsoft 365 Agents Toolkit echo bot sample",
     "author": "Microsoft",
     "license": "MIT",
     "main": "./lib/index.js",
