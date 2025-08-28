@@ -25,6 +25,7 @@
         "@azure/identity": "^4.11.1",
         "adaptive-expressions": "^4.23.1",
         "adaptivecards-templating": "^2.3.1",
+        "adaptivecards": "^3.0.5",
         "@microsoft/teams.apps": "preview",
         "@microsoft/teams.common": "preview"
     },

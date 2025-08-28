@@ -26,6 +26,7 @@
         "@azure/identity": "^4.11.1",
         "adaptive-expressions": "^4.23.1",
         "adaptivecards-templating": "^2.3.1",
+        "adaptivecards": "^3.0.5",
         "@microsoft/teams.apps": "preview",
         "@microsoft/teams.common": "preview"
     },
@@ -36,6 +37,6 @@
         "nodemon": "^3.1.7",
         "shx": "^0.3.4",
         "ts-node": "^10.4.0",
-        "typescript": "^4.4.4"
+        "typescript": "~5.8.3"
     }
 }

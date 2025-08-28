@@ -33,7 +33,7 @@ export function customCopilotRagNode(): IQTreeNode {
         CustomCopilotRagOptions.customize(),
         CustomCopilotRagOptions.azureAISearch(),
         CustomCopilotRagOptions.customApi(),
-        CustomCopilotRagOptions.microsoft365(),
+        //CustomCopilotRagOptions.microsoft365(),
       ],
       default: CustomCopilotRagOptions.customize().id,
       onDidSelection: setTemplateName,
@@ -56,7 +56,7 @@ export function aiAgentNode(): IQTreeNode {
       ),
       staticOptions: [
         CustomCopilotAssistantOptions.new(),
-        CustomCopilotAssistantOptions.assistantsApi(),
+        //CustomCopilotAssistantOptions.assistantsApi(),
       ],
       default: CustomCopilotAssistantOptions.new().id,
       onDidSelection: setTemplateName,
