@@ -182,7 +182,7 @@ export class PackageService {
     ) {
       const res = await this.sideLoadingV2(token, packagePath, appScope);
       let shareLink = "";
-      if (appScope == AppScope.Shared) {
+      if (appScope.toLowerCase() === AppScope.Shared.toLowerCase()) {
         shareLink = await this.getShareLink(token, res[0]);
       }
       sendTelemetryEvent(Component.core, TelemetryEvent.MosSideloadEnd, {
