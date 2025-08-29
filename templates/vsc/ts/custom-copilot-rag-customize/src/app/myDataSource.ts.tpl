@@ -71,17 +71,16 @@ export class MyDataSource {
     /**
      * Searches for relevant content based on a query string.
      * @param query The search query
-     * @param maxResults Maximum number of results to return (default: 3)
      * @returns Array of search results
      */
-    public search(query: string, maxResults: number = 3): SearchResult[] {
+    public search(query: string): SearchResult[] {
         if (!query) {
             return [];
         }
 
         // First, try exact matches
         for (let data of this._data) {
-            if (data.content.includes(query)) {
+            if (data.content.toLowerCase().includes(query.toLowerCase())) {
                 return [{
                     content: data.content,
                     citation: data.citation
@@ -104,7 +103,7 @@ export class MyDataSource {
                     citation: this._data[1].citation
                 }];
             }
-        } else if (query.toLowerCase().includes("northwind") || query.toLowerCase().includes("health")) {
+        } else if (query.toLowerCase().includes("northwind") || query.toLowerCase().includes("health") || query.toLowerCase().includes("plan")) {
             if (this._data[2]) {
                 return [{
                     content: this._data[2].content,
@@ -115,7 +114,6 @@ export class MyDataSource {
 
         return [];
     }
-
     /**
      * Renders search results into a formatted context string for use in prompts.
      * @param query The original search query
