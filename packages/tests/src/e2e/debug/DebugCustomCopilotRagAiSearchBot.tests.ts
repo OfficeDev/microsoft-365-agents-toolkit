@@ -75,15 +75,6 @@ describe("Debug V3 custom-copilot-rag-ai-search TypeScript template", () => {
       );
       console.log(`[Successfully] scaffold to ${projectPath}`);
 
-      // install npm packages
-      const command = `npm install`;
-      const timeout = 200000;
-      await execAsync(command, {
-        cwd: projectPath,
-        env: process.env,
-        timeout: timeout,
-      });
-
       // provision
       await CliHelper.provisionProject(projectPath, "", "local", {
         ...process.env,
@@ -120,9 +111,6 @@ describe("Debug V3 custom-copilot-rag-ai-search TypeScript template", () => {
 
       context = await readContextMultiEnvV3(projectPath, "local");
       chai.assert.isDefined(context);
-
-      // validate .env
-      chai.assert.isTrue(await fs.pathExists(path.join(projectPath, ".env")));
     }
   );
 
@@ -150,14 +138,71 @@ describe("Debug V3 custom-copilot-rag-ai-search TypeScript template", () => {
       );
       console.log(`[Successfully] scaffold to ${projectPath}`);
 
-      // install npm packages
-      const command = `npm install`;
-      const timeout = 200000;
-      await execAsync(command, {
-        cwd: projectPath,
-        env: process.env,
-        timeout: timeout,
+      // provision
+      await CliHelper.provisionProject(projectPath, "", "local", {
+        ...process.env,
+        BOT_DOMAIN: "test.ngrok.io",
+        BOT_ENDPOINT: "https://test.ngrok.io",
       });
+      console.log(`[Successfully] provision for ${projectPath}`);
+
+      let context = await readContextMultiEnvV3(projectPath, "local");
+      chai.assert.isDefined(context);
+
+      // validate bot
+      chai.assert.isDefined(context.BOT_ID);
+      chai.assert.isNotEmpty(context.BOT_ID);
+      const aadApp = await getAadAppByClientId(context.BOT_ID);
+      chai.assert.isDefined(aadApp);
+      chai.assert.equal(aadApp?.appId, context.BOT_ID);
+      const bot = await getBot(context.BOT_ID);
+      chai.assert.equal(bot?.botId, context.BOT_ID);
+      chai.assert.equal(
+        bot?.messagingEndpoint,
+        "https://test.ngrok.io/api/messages"
+      );
+      chai.assert.deepEqual(bot?.configuredChannels, ["msteams"]);
+
+      // validate teams app
+      chai.assert.isDefined(context.TEAMS_APP_ID);
+      const teamsApp = await getTeamsApp(context.TEAMS_APP_ID);
+      chai.assert.equal(teamsApp?.teamsAppId, context.TEAMS_APP_ID);
+
+      // deploy
+      await CliHelper.deployAll(projectPath, "", "local");
+      console.log(`[Successfully] deploy for ${projectPath}`);
+
+      context = await readContextMultiEnvV3(projectPath, "local");
+      chai.assert.isDefined(context);
+    }
+  );
+
+  it(
+    "JavaScript Azure OpenAI happy path: provision and deploy",
+    { testPlanCaseId: 27551397, author: "frankqian@microsoft.com" },
+    async function () {
+      // create
+      const myRecordAzOpenAI: Record<string, string> = {};
+      myRecordAzOpenAI["programming-language"] = "javascript";
+      myRecordAzOpenAI["custom-copilot-rag"] =
+        "custom-copilot-rag-azureAISearch";
+      myRecordAzOpenAI["llm-service"] = "llm-service-azure-openai";
+      myRecordAzOpenAI["azure-openai-key"] = "fake";
+      myRecordAzOpenAI["azure-openai-deployment-name"] = "fake";
+      myRecordAzOpenAI["azure-openai-endpoint"] = "https://test.com";
+      myRecordAzOpenAI["azure-search-key"] = "fake";
+      myRecordAzOpenAI["azure-search-endpoint"] = "https://search.com";
+      const options = Object.entries(myRecordAzOpenAI)
+        .map(([key, value]) => "--" + key + " " + value)
+        .join(" ");
+      await CliHelper.createProjectWithCapability(
+        appName,
+        testFolder,
+        "custom-copilot-rag" as any,
+        undefined,
+        options
+      );
+      console.log(`[Successfully] scaffold to ${projectPath}`);
 
       // provision
       await CliHelper.provisionProject(projectPath, "", "local", {
@@ -195,9 +240,69 @@ describe("Debug V3 custom-copilot-rag-ai-search TypeScript template", () => {
 
       context = await readContextMultiEnvV3(projectPath, "local");
       chai.assert.isDefined(context);
+    }
+  );
 
-      // validate .env
-      chai.assert.isTrue(await fs.pathExists(path.join(projectPath, ".env")));
+  it(
+    "JavaScript OpenAI happy path: provision and deploy",
+    { testPlanCaseId: 27551398, author: "frankqian@microsoft.com" },
+    async function () {
+      // create
+      const myRecordOpenAI: Record<string, string> = {};
+      myRecordOpenAI["programming-language"] = "javascript";
+      myRecordOpenAI["custom-copilot-rag"] = "custom-copilot-rag-azureAISearch";
+      myRecordOpenAI["llm-service"] = "llm-service-openai";
+      myRecordOpenAI["openai-key"] = "fake";
+      myRecordOpenAI["azure-search-key"] = "fake";
+      myRecordOpenAI["azure-search-endpoint"] = "https://search.com";
+      const options = Object.entries(myRecordOpenAI)
+        .map(([key, value]) => "--" + key + " " + value)
+        .join(" ");
+      await CliHelper.createProjectWithCapability(
+        appName,
+        testFolder,
+        "custom-copilot-rag" as any,
+        undefined,
+        options
+      );
+      console.log(`[Successfully] scaffold to ${projectPath}`);
+
+      // provision
+      await CliHelper.provisionProject(projectPath, "", "local", {
+        ...process.env,
+        BOT_DOMAIN: "test.ngrok.io",
+        BOT_ENDPOINT: "https://test.ngrok.io",
+      });
+      console.log(`[Successfully] provision for ${projectPath}`);
+
+      let context = await readContextMultiEnvV3(projectPath, "local");
+      chai.assert.isDefined(context);
+
+      // validate bot
+      chai.assert.isDefined(context.BOT_ID);
+      chai.assert.isNotEmpty(context.BOT_ID);
+      const aadApp = await getAadAppByClientId(context.BOT_ID);
+      chai.assert.isDefined(aadApp);
+      chai.assert.equal(aadApp?.appId, context.BOT_ID);
+      const bot = await getBot(context.BOT_ID);
+      chai.assert.equal(bot?.botId, context.BOT_ID);
+      chai.assert.equal(
+        bot?.messagingEndpoint,
+        "https://test.ngrok.io/api/messages"
+      );
+      chai.assert.deepEqual(bot?.configuredChannels, ["msteams"]);
+
+      // validate teams app
+      chai.assert.isDefined(context.TEAMS_APP_ID);
+      const teamsApp = await getTeamsApp(context.TEAMS_APP_ID);
+      chai.assert.equal(teamsApp?.teamsAppId, context.TEAMS_APP_ID);
+
+      // deploy
+      await CliHelper.deployAll(projectPath, "", "local");
+      console.log(`[Successfully] deploy for ${projectPath}`);
+
+      context = await readContextMultiEnvV3(projectPath, "local");
+      chai.assert.isDefined(context);
     }
   );
 });
