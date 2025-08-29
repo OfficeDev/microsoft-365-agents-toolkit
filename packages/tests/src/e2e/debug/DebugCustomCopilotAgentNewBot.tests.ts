@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 
 /**
- * @author Frank Qian <frankqian@microsoft.com>
+ * @author Yuqi Zhou <yuqzho@microsoft.com>
  */
 
 import * as chai from "chai";
@@ -50,7 +50,7 @@ describe("Debug V3 custom-copilot-agent-new TypeScript template", () => {
 
   it(
     "Azure OpenAI happy path: provision and deploy",
-    { testPlanCaseId: 27551387, author: "frankqian@microsoft.com" },
+    { testPlanCaseId: 27042860, author: "yuqzho@microsoft.com" },
     async function () {
       // create
       const myRecordAzOpenAI: Record<string, string> = {};
@@ -66,7 +66,7 @@ describe("Debug V3 custom-copilot-agent-new TypeScript template", () => {
       await CliHelper.createProjectWithCapability(
         appName,
         testFolder,
-        "custom-copilot-agent-new" as any,
+        "custom-copilot-agent" as any,
         undefined,
         options
       );
@@ -113,7 +113,7 @@ describe("Debug V3 custom-copilot-agent-new TypeScript template", () => {
 
   it(
     "OpenAI happy path: provision and deploy",
-    { testPlanCaseId: 27551388, author: "frankqian@microsoft.com" },
+    { testPlanCaseId: 27042861, author: "yuqzho@microsoft.com" },
     async function () {
       // create
       const myRecordOpenAI: Record<string, string> = {};
@@ -127,7 +127,7 @@ describe("Debug V3 custom-copilot-agent-new TypeScript template", () => {
       await CliHelper.createProjectWithCapability(
         appName,
         testFolder,
-        "custom-copilot-agent-new" as any,
+        "custom-copilot-agent" as any,
         undefined,
         options
       );
@@ -174,7 +174,7 @@ describe("Debug V3 custom-copilot-agent-new TypeScript template", () => {
 
   it(
     "JavaScript Azure OpenAI happy path: provision and deploy",
-    { testPlanCaseId: 27551393, author: "frankqian@microsoft.com" },
+    { testPlanCaseId: 27042862, author: "yuqzho@microsoft.com" },
     async function () {
       // create
       const myRecordAzOpenAI: Record<string, string> = {};
@@ -190,7 +190,7 @@ describe("Debug V3 custom-copilot-agent-new TypeScript template", () => {
       await CliHelper.createProjectWithCapability(
         appName,
         testFolder,
-        "custom-copilot-agent-new" as any,
+        "custom-copilot-agent" as any,
         undefined,
         options
       );
@@ -237,7 +237,7 @@ describe("Debug V3 custom-copilot-agent-new TypeScript template", () => {
 
   it(
     "JavaScript OpenAI happy path: provision and deploy",
-    { testPlanCaseId: 27551394, author: "frankqian@microsoft.com" },
+    { testPlanCaseId: 27042863, author: "yuqzho@microsoft.com" },
     async function () {
       // create
       const myRecordOpenAI: Record<string, string> = {};
@@ -251,7 +251,7 @@ describe("Debug V3 custom-copilot-agent-new TypeScript template", () => {
       await CliHelper.createProjectWithCapability(
         appName,
         testFolder,
-        "custom-copilot-agent-new" as any,
+        "custom-copilot-agent" as any,
         undefined,
         options
       );

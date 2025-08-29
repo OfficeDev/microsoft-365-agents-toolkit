@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 
 /**
- * @author Frank Qian <frankqian@microsoft.com>
+ * @author Yuqi Zhou <yuqzho@microsoft.com>
  */
 
 import * as chai from "chai";
@@ -50,7 +50,7 @@ describe("Debug V3 custom-copilot-rag TypeScript template", () => {
 
   it(
     "Azure OpenAI happy path: provision and deploy",
-    { testPlanCaseId: 27551381, author: "frankqian@microsoft.com" },
+    { testPlanCaseId: 27569137, author: "yuqzho@microsoft.com" },
     async function () {
       // create
       const myRecordAzOpenAI: Record<string, string> = {};
@@ -113,7 +113,7 @@ describe("Debug V3 custom-copilot-rag TypeScript template", () => {
 
   it(
     "OpenAI happy path: provision and deploy",
-    { testPlanCaseId: 27551384, author: "frankqian@microsoft.com" },
+    { testPlanCaseId: 28869466, author: "yuqzho@microsoft.com" },
     async function () {
       // create
       const myRecordOpenAI: Record<string, string> = {};
@@ -174,7 +174,7 @@ describe("Debug V3 custom-copilot-rag TypeScript template", () => {
 
   it(
     "JavaScript Azure OpenAI happy path: provision and deploy",
-    { testPlanCaseId: 27551399, author: "frankqian@microsoft.com" },
+    { testPlanCaseId: 27569146, author: "yuqzho@microsoft.com" },
     async function () {
       // create
       const myRecordAzOpenAI: Record<string, string> = {};
@@ -237,7 +237,7 @@ describe("Debug V3 custom-copilot-rag TypeScript template", () => {
 
   it(
     "JavaScript OpenAI happy path: provision and deploy",
-    { testPlanCaseId: 27551400, author: "frankqian@microsoft.com" },
+    { testPlanCaseId: 28869495, author: "yuqzho@microsoft.com" },
     async function () {
       // create
       const myRecordOpenAI: Record<string, string> = {};
