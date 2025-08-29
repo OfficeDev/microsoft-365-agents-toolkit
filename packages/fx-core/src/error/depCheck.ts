@@ -143,7 +143,7 @@ export class DepsCheckerError extends UserError {
       message: message.default,
       displayMessage: message.localized,
       categories: [ErrorCategory.External],
-      helpLink: NodejsNotRecommendedHelpLink,
+      helpLink,
     };
     super(errorOptions);
   }

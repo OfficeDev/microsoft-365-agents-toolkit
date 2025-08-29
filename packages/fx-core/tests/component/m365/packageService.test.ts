@@ -14,6 +14,7 @@ import { NotExtendedToM365Error } from "../../../src/component/m365/errors";
 import { AppScope, PackageService } from "../../../src/component/m365/packageService";
 import { UnhandledError } from "../../../src/error/common";
 import { MockLogProvider } from "../../core/utils";
+import { advancedDASettingUrl } from "../../../src/component/m365/constants";
 
 chai.use(chaiAsPromised);
 
@@ -696,6 +697,40 @@ describe("Package Service", () => {
 
     chai.assert.isDefined(actualError);
     chai.assert.isTrue(actualError.message.includes("test-post"));
+    chai.assert.isTrue(actualError instanceof UserError);
+  });
+
+  it("sideLoading returns 403 error for advanced DA with shared scope", async () => {
+    axiosGetResponses["/config/v1/environment"] = {
+      data: {
+        titlesServiceUrl: "https://test-url",
+      },
+    };
+    const expectedError = new Error("test-post") as any;
+    expectedError.response = {
+      data: {
+        Error: {
+          Message: "User does not have access to upload advanced Copilot apps.",
+        },
+      },
+      headers: {
+        traceresponse: "tracing-id",
+      },
+      status: 403,
+    };
+    axiosPostResponses["/dev/v1/users/packages"] = expectedError;
+
+    const packageService = new PackageService("https://test-endpoint");
+    sandbox.stub(packageService, "getManifestFromZip" as keyof PackageService).returns({} as any);
+    let actualError: any;
+    try {
+      await packageService.sideLoading("test-token", "test-path");
+    } catch (error: any) {
+      actualError = error;
+    }
+
+    chai.assert.isDefined(actualError);
+    chai.assert.isTrue(actualError.message.includes(advancedDASettingUrl));
     chai.assert.isTrue(actualError instanceof UserError);
   });
 
