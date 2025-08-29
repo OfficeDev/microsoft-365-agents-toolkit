@@ -54,7 +54,7 @@ describe("Debug Tests", function () {
         lang: Lang.JS,
         apiAuth: "api-key",
         successFlag: successFlag,
-        fileValidation: "src/functions/repairs.js",
+        fileValidation: "src/functions/repair.js",
         validationFn: validateFn,
       });
     }
@@ -70,7 +70,7 @@ describe("Debug Tests", function () {
         lang: Lang.JS,
         authOption: "API Key",
         successFlag: successFlag,
-        fileValidation: "src/functions/repairs.js",
+        fileValidation: "src/functions/repair.js",
         validationFn: validateFn,
       });
     }
