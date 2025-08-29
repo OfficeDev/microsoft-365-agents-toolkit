@@ -60,7 +60,11 @@
       "da-action-microsoftentra",
       "da-action-microsoftentra-ts",
       "da-action-oauth",
-      "da-action-oauth-ts"
+      "da-action-oauth-ts",
+      "da-action-openapi-apikey",
+      "da-action-openapi-bearertoken",
+      "da-action-openapi-none",
+      "da-action-openapi-oauth"
     ],
     "node-22": [
       "obo-tab",
