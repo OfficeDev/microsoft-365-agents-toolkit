@@ -60,8 +60,8 @@ The following files can be customized and demonstrate an example implementation 
 
 | File | Contents |
 | - | - |
-| `src/index.ts` | Application entry point and `express` handlers for command and response |
-| `src/teamsBot.ts`  | An empty teams activity handler for bot customization |
+| `src/index.ts` | Application entry point |
+| `src/app.ts`  | Main application code |
 | `src/adaptiveCards/helloworldCommand.json` | A generated Adaptive Card that is sent to Teams |
 | `src/helloworldCommandHandler.ts` | The business logic to handle a command |
 
@@ -132,28 +132,24 @@ You can use the [Adaptive Card Designer](https://adaptivecards.io/designer/) to 
 Create a new file, `src/doSomethingCommandHandler.ts`:
 
 ```typescript
-import { Activity, CardFactory, MessageFactory, TurnContext } from "botbuilder";
-import { Selector } from "@microsoft/teams-ai";
-import doSomethingCard from "./adaptiveCards/doSomethingCommandResponse.json";
-import * as ACData from "adaptivecards-templating";
+export class DoSomethingCommandHandler  {
+  canHandle(text: string): boolean {
+    return text === this.triggerPattern;
+  }
 
-export class DoSomethingCommandHandler implements TeamsFxBotCommandHandler {
-  triggerPatterns: string | RegExp | Selector | (string | RegExp | Selector)[] = "doSomething";
+  async handleCommandReceived(activity: any): Promise<any> {
+    console.log(`App received message: ${activity.text}`);
 
-  async handleCommandReceived(
-    context: TurnContext,
-    state: ApplicationTurnState
-  ): Promise<string | Partial<Activity>> {
-    // verify the command arguments which are received from the client if needed.
-    console.log(`App received message: ${context.activity.text}`);
-
+    // Use ACData templating to expand the card with data
     const cardJson = new ACData.Template(helloWorldCard).expand({
       $root: {
         title: "doSomething command is added",
         body: "Congratulations! You have responded to doSomething command",
       },
     });
-    return MessageFactory.attachment(CardFactory.adaptiveCard(cardJson));
+
+    // Return the expanded adaptive card data
+    return cardJson;
   }
 }
 ```
@@ -162,20 +158,33 @@ You can customize what the command does here, including calling an API, process 
 
 ### Step 4: Register the new command
 
-Each new command needs to be configured in the `ConversationBot`, which powers the conversational flow of the command bot template. Navigate to the `src/index.ts` file and register the trigger pattern to `app.message()`:
+Each new command handler needs to be configured in the `App`, which powers the conversational flow of the command bot template. Navigate to the `src/app.ts` file and register the new command handler:
 
 ```typescript
 const doSomethingCommandHandler = new DoSomethingCommandHandler();
-app.message(
-  doSomethingCommandHandler.triggerPatterns,
-  async (context: TurnContext, state: ApplicationTurnState) => {
-    const reply = await doSomethingCommandHandler.handleCommandReceived(context, state);
 
+// Register message handler
+app.on("message", async ({ activity, send }) => {
+  const text = activity.text || "";
+
+  // Check if helloWorld command
+  if (helloWorldHandler.canHandle(text)) {
+    const reply = await helloWorldHandler.handleCommandReceived(activity);
     if (reply) {
-      await context.sendActivity(reply);
+      await send(reply);
     }
+    return;
   }
-);
+
+  // Check if doSomething command
+  if (doSomethingCommandHandler.canHandle(text)) {
+    const reply = await doSomethingCommandHandler.handleCommandReceived(activity);
+    if (reply) {
+      await send(reply);
+    }
+    return;
+  }
+});
 ```
 
 Congratulations, you've just created your own command! To learn more about the command bot template, [visit the documentation on GitHub](https://aka.ms/teamsfx-command-new). You can find more scenarios like:
@@ -204,5 +213,5 @@ Adaptive cards can be updated on user action to allow user progress through a se
 - [Collaborate with others](https://docs.microsoft.com/microsoftteams/platform/toolkit/teamsfx-collaboration)
 - [Microsoft 365 Agents Toolkit Documentations](https://docs.microsoft.com/microsoftteams/platform/toolkit/teams-toolkit-fundamentals)
 - [Microsoft 365 Agents Toolkit CLI](https://aka.ms/teamsfx-toolkit-cli)
-- [Teams AI SDK](https://learn.microsoft.com/microsoftteams/platform/bots/how-to/teams-conversational-ai/teams-conversation-ai-overview)
+- [Teams AI SDK](https://learn.microsoft.com/en-us/microsoftteams/platform/teams-ai-library/welcome)
 - [Microsoft 365 Agents Toolkit Samples](https://github.com/OfficeDev/TeamsFx-Samples)
