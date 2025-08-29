@@ -163,18 +163,8 @@ Each new command handler needs to be configured in the `App`, which powers the c
 ```typescript
 const doSomethingCommandHandler = new DoSomethingCommandHandler();
 
-// Register message handler
 app.on("message", async ({ activity, send }) => {
   const text = activity.text || "";
-
-  // Check if helloWorld command
-  if (helloWorldHandler.canHandle(text)) {
-    const reply = await helloWorldHandler.handleCommandReceived(activity);
-    if (reply) {
-      await send(reply);
-    }
-    return;
-  }
 
   // Check if doSomething command
   if (doSomethingCommandHandler.canHandle(text)) {
@@ -184,6 +174,8 @@ app.on("message", async ({ activity, send }) => {
     }
     return;
   }
+
+  // ... existing code ...
 });
 ```
 

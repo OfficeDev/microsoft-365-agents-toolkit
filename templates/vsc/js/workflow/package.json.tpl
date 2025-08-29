@@ -3,7 +3,7 @@
     "version": "1.0.0",
     "description": "Microsoft 365 Agents Toolkit Workflow Bot Sample",
     "engines": {
-        "node": "18 || 20 || 22"
+        "node": "20 || 22"
     },
     "author": "Microsoft",
     "license": "MIT",

@@ -57,12 +57,9 @@ The following files can be customized and demonstrate an example implementation 
 
 | File                                 | Contents                                           |
 | - | - |
-|`src/index.js`| Sets up the agent app server.|
-|`src/adapter.js`| Sets up the agent adapter.|
+|`src/index.js`| Application entry point.|
 |`src/config.js`| Defines the environment variables.|
-|`src/prompts/chat/skprompt.txt`| Defines the prompt.|
-|`src/prompts/chat/config.json`| Configures the prompt.|
-|`src/app/app.js`| Handles business logics for the RAG agent.|
+|`src/app/app.js`| Main application code|
 |`src/app/azureAISearchDataSource.js`| Defines the Azure AI search data source.|
 |`src/indexers/data/*.md`| Raw text data sources.|
 |`src/indexers/utils.js`| Basic index tools. |
@@ -79,9 +76,7 @@ The following are Microsoft 365 Agents Toolkit specific project files. You can [
 
 ## Extend the template
 
-- Follow [Build a Basic AI Chatbot in Teams](https://aka.ms/teamsfx-basic-ai-chatbot) to extend the template with more AI capabilities.
-- Follow [Build a RAG Bot in Teams](https://aka.ms/teamsfx-rag-bot) to extend the template with more RAG capabilities.
-- Understand more about [Azure AI Search as data source](https://aka.ms/teamsfx-rag-bot#azure-ai-search-as-data-source).
+To extend the Basic AI Chatbot template with more AI capabilities, explore [Teams AI lib V2 documentation](https://aka.ms/m365-agents-toolkit/teams-agent-extend-ai).
 
 ## Additional information and references
 

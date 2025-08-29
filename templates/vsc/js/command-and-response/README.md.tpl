@@ -60,10 +60,10 @@ The following files can be customized and demonstrate an example implementation 
 
 | File | Contents |
 | - | - |
-| `src/index.js` | Application entry point and `express` handlers for command and response |
-| `src/teamsBot.js` | An empty teams activity handler for bot customization |
+| `src/index.ts` | Application entry point |
+| `src/app.ts`  | Main application code |
 | `src/adaptiveCards/helloworldCommand.json` | A generated Adaptive Card that is sent to Teams |
-| `src/helloworldCommandHandler.js` | The business logic to handle a command  |
+| `src/helloworldCommandHandler.ts` | The business logic to handle a command |
 
 ## Extend the command bot template with more commands and responses
 
@@ -131,26 +131,36 @@ You can use the [Adaptive Card Designer](https://adaptivecards.io/designer/) to 
 
 Create a new file, `src/doSomethingCommandHandler.js`:
 
+### Step 3: Handle the command
+
+Create a new file, `src/doSomethingCommandHandler.js`:
+
 ```javascript
-const doSomethingCard = require("./adaptiveCards/doSomethingCommandResponse.json");
-const { CardFactory, MessageFactory } = require("botbuilder");
 const ACData = require("adaptivecards-templating");
+const doSomethingCard = require("./adaptiveCards/doSomethingCommandResponse.json");
 
 class DoSomethingCommandHandler {
-  triggerPatterns = "doSomething";
+  constructor() {
+    this.triggerPattern = "doSomething";
+  }
 
-  async handleCommandReceived(context, state) {
-    // verify the command arguments which are received from the client if needed.
-    console.log(`App received message: ${context.activity.text}`);
+  canHandle(text) {
+    return text === this.triggerPattern;
+  }
 
-    // do something to process your command and return message activity as the response
+  async handleCommandReceived(activity) {
+    console.log(`App received message: ${activity.text}`);
+
+    // Use ACData templating to expand the card with data
     const cardJson = new ACData.Template(doSomethingCard).expand({
       $root: {
         title: "doSomething command is added",
-      body: "Congratulations! You have responded to doSomething command",
+        body: "Congratulations! You have responded to doSomething command",
       },
     });
-    return MessageFactory.attachment(CardFactory.adaptiveCard(cardJson));
+
+    // Return the expanded adaptive card data
+    return cardJson;
   }
 }
 
@@ -163,23 +173,28 @@ You can customize what the command does here, including calling an API, process 
 
 ### Step 4: Register the new command
 
-Each new command needs to be configured in the `ConversationBot`, which powers the conversational flow of the command bot template. Navigate to the `src/index.js` file and register the trigger pattern to `app.message()`:
+Each new command handler needs to be configured in the `App`, which powers the conversational flow of the command bot template. Navigate to the `src/app.js` file and register the new command handler:
 
 ```javascript
 const { DoSomethingCommandHandler } = require("./doSomethingCommandHandler");
-// ...existing code...
-const doSomethingCommandHandler = new DoSomethingCommandHandler();
-app.message(
-  doSomethingCommandHandler.triggerPatterns,
-  async (context, state) => {
-    const reply = await doSomethingCommandHandler.handleCommandReceived(context, state);
 
+// Initialize command handlers
+const doSomethingHandler = new DoSomethingCommandHandler();
+
+app.on("message", async ({ activity, send }) => {
+  const text = activity.text || "";
+
+  // Check if doSomething command
+  if (doSomethingHandler.canHandle(text)) {
+    const reply = await doSomethingHandler.handleCommandReceived(activity);
     if (reply) {
-      await context.sendActivity(reply);
+      await send(reply);
     }
+    return;
   }
-);
-// ...existing code...
+
+  // ... existing code ...
+});
 ```
 
 Congratulations, you've just created your own command! To learn more about the command bot template, [visit the documentation on GitHub](https://aka.ms/teamsfx-command-new). You can find more scenarios like:
@@ -208,5 +223,5 @@ Adaptive cards can be updated on user action to allow user progress through a se
 - [Collaborate with others](https://docs.microsoft.com/microsoftteams/platform/toolkit/teamsfx-collaboration)
 - [Microsoft 365 Agents Toolkit Documentations](https://docs.microsoft.com/microsoftteams/platform/toolkit/teams-toolkit-fundamentals)
 - [Microsoft 365 Agents Toolkit CLI](https://aka.ms/teamsfx-toolkit-cli)
-- [Teams AI SDK](https://learn.microsoft.com/en-us/microsoftteams/platform/bots/how-to/teams-conversational-ai/teams-conversation-ai-overview)
+- [Teams AI SDK](https://learn.microsoft.com/en-us/microsoftteams/platform/teams-ai-library/welcome)
 - [Microsoft 365 Agents Toolkit Samples](https://github.com/OfficeDev/TeamsFx-Samples)
