@@ -12,7 +12,7 @@ import * as url from "url";
 import * as uuid from "uuid";
 import { getDefaultString, getLocalizedString } from "../../../common/localizeUtils";
 import { DepsCheckerError, NodejsNotFoundError } from "../../../error";
-import { v3DefaultHelpLink } from "../constant/helpLink";
+import { playgroundInstallationLink, v3DefaultHelpLink } from "../constant/helpLink";
 import { Messages } from "../constant/message";
 import { TelemetryProperties } from "../constant/telemetry";
 import {
@@ -190,7 +190,7 @@ export class TestToolChecker implements DepsChecker {
       this.telemetryProperties[TelemetryProperties.InstallTestToolError] = versionRes.error.message;
       throw new DepsCheckerError(
         Messages.failToValidateTestTool(versionRes.error.message),
-        v3DefaultHelpLink
+        playgroundInstallationLink
       );
     }
     const actualVersion = versionRes.value;
@@ -476,7 +476,7 @@ export class TestToolChecker implements DepsChecker {
           default: getDefaultString("error.common.InstallSoftwareError", this.name),
           localized: getLocalizedString("error.common.InstallSoftwareError", this.name),
         },
-        v3DefaultHelpLink
+        playgroundInstallationLink
       );
     }
   }
@@ -517,7 +517,7 @@ export class TestToolChecker implements DepsChecker {
           default: getDefaultString("error.common.VersionError", versionRange),
           localized: getLocalizedString("error.common.VersionError", versionRange),
         },
-        v3DefaultHelpLink
+        playgroundInstallationLink
       );
     }
     const release = releases.find((value) => value.version === targetVersion) as GitHubRelease;
