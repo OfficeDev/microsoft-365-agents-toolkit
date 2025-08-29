@@ -50,12 +50,9 @@ The following files can be customized and demonstrate an example implementation 
 
 | File                                 | Contents                                           |
 | - | - |
-|`src/index.ts`| Sets up the agent app server.|
-|`src/adapter.ts`| Sets up the agent adapter.|
+|`src/index.ts`| Application entry point.|
 |`src/config.ts`| Defines the environment variables.|
-|`src/prompts/chat/skprompt.txt`| Defines the prompt.|
-|`src/prompts/chat/config.json`| Configures the prompt.|
-|`src/app/app.ts`| Handles business logics for the RAG agent.|
+|`src/app/app.ts`| Main application code.|
 |`src/app/myDataSource.ts`| Defines the data source.|
 |`src/data/*.md`| Raw text data sources.|
 

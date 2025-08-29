@@ -9,7 +9,7 @@ The app template is built using the Teams AI library, which provides the capabil
 >
 > To run the template in your local dev machine, you will need:
 >
-> - [Node.js](https://nodejs.org/), supported versions: 18, 20, 22
+> - [Node.js](https://nodejs.org/), supported versions: 20, 22
 {{^enableTestToolByDefault}}
 > - A [Microsoft 365 account for development](https://docs.microsoft.com/microsoftteams/platform/toolkit/accounts)
 {{/enableTestToolByDefault}}
@@ -70,13 +70,11 @@ The following files can be customized and demonstrate an example implementation 
 
 | File                                 | Contents                                           |
 | - | - |
-|`src/index.ts`| Sets up the agent app server.|
-|`src/adapter.ts`| Sets up the agent adapter.|
+|`src/index.ts`| Application entry point.|
 |`src/config.ts`| Defines the environment variables.|
-|`src/prompts/chat/skprompt.txt`| Defines the prompt.|
-|`src/prompts/chat/config.json`| Configures the prompt.|
-|`src.prompts/chat/actions.json`| List of available actions.| 
-|`src/app/app.ts`| Handles business logics for the AI agent.|
+|`src/app/instructions.txt`| Defines the prompt.|
+|`src/app/handlers.ts`| Function handlers.|
+|`src/app/functions.json`| Defines the functions.|
 |`src/app/utility.ts`| Utility methods for the AI agent.|
 
 The following are Microsoft 365 Agents Toolkit specific project files. You can [visit a complete guide on Github](https://github.com/OfficeDev/TeamsFx/wiki/Teams-Toolkit-Visual-Studio-Code-v5-Guide#overview) to understand how Microsoft 365 Agents Toolkit works.

@@ -69,16 +69,12 @@ The following files can be customized and demonstrate an example implementation 
 
 | File                                 | Contents                                           |
 | - | - |
-|`src/index.ts`| Sets up the agent app server.|
-|`src/adapter.ts`| Sets up the agent adapter.|
+|`src/index.ts`| Application entry point.|
 |`src/config.ts`| Defines the environment variables.|
-|`src/prompts/planner/skprompt.txt`| Defines the prompt.|
-|`src/prompts/planner/config.json`| Configures the prompt.|
-|`src/prompts/planner/actions.json`| Defines the actions.|
-|`src/app/turnState.ts`| Defines the app turn state.|
+|`src/app/instructions.txt`| Defines the prompt.|
+|`src/app/taskHandlers.ts`| Function handlers.|
+|`src/app/functions.json`| Defines the functions.|
 |`src/app/app.ts`| Handles business logics for the AI Agent.|
-|`src/app/messages.ts`| Defines the message activity handlers.|
-|`src/app/actions.ts`| Defines the AI actions.|
 
 The following are Microsoft 365 Agents Toolkit specific project files. You can [visit a complete guide on Github](https://github.com/OfficeDev/TeamsFx/wiki/Teams-Toolkit-Visual-Studio-Code-v5-Guide#overview) to understand how Microsoft 365 Agents Toolkit works.
 
