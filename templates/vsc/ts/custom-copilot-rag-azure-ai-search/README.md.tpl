@@ -79,9 +79,7 @@ The following are Microsoft 365 Agents Toolkit specific project files. You can [
 
 ## Extend the template
 
-- Follow [Build a Basic AI Chatbot in Teams](https://aka.ms/teamsfx-basic-ai-chatbot) to extend the template with more AI capabilities.
-- Follow [Build a RAG Bot in Teams](https://aka.ms/teamsfx-rag-bot) to extend the template with more RAG capabilities.
-- Understand more about [Azure AI Search as data source](https://aka.ms/teamsfx-rag-bot#azure-ai-search-as-data-source).
+To extend the Basic AI Chatbot template with more AI capabilities, explore [Teams AI lib V2 documentation](https://aka.ms/m365-agents-toolkit/teams-agent-extend-ai).
 
 ## Additional information and references
 

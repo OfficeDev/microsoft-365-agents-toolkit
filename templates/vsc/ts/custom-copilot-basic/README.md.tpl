@@ -84,13 +84,7 @@ The following are Microsoft 365 Agents Toolkit specific project files. You can [
 
 ## Extend the template
 
-You can follow [Build a Basic AI Chatbot in Teams](https://aka.ms/teamsfx-basic-ai-chatbot) to extend the Basic AI Chatbot template with more AI capabilities, like:
-- [Customize prompt](https://aka.ms/teamsfx-basic-ai-chatbot#customize-prompt)
-- [Customize user input](https://aka.ms/teamsfx-basic-ai-chatbot#customize-user-input)
-- [Customize conversation history](https://aka.ms/teamsfx-basic-ai-chatbot#customize-conversation-history)
-- [Customize model type](https://aka.ms/teamsfx-basic-ai-chatbot#customize-model-type)
-- [Customize model parameters](https://aka.ms/teamsfx-basic-ai-chatbot#customize-model-parameters)
-- [Handle messages with image](https://aka.ms/teamsfx-basic-ai-chatbot#handle-messages-with-image)
+To extend the Basic AI Chatbot template with more AI capabilities, explore [Teams AI lib V2 documentation](https://aka.ms/m365-agents-toolkit/teams-agent-extend-ai).
 
 ## Additional information and references
 

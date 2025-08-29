@@ -90,8 +90,7 @@ The following are Microsoft 365 Agents Toolkit specific project files. You can [
 
 ## Extend the template
 
-You can follow [Build an AI Agent in Teams](https://aka.ms/teamsfx-ai-agent) to extend the AI Agent template with more AI capabilities, like:
-- [Add functions](https://aka.ms/teamsfx-ai-agent#add-functions-build-new)
+To extend the Basic AI Chatbot template with more AI capabilities, explore [Teams AI lib V2 documentation](https://aka.ms/m365-agents-toolkit/teams-agent-extend-ai).
 
 ## Additional information and references
 
