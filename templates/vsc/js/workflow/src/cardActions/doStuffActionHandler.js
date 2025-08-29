@@ -33,4 +33,6 @@ class DoStuffActionHandler {
   }
 }
 
-module.exports = DoStuffActionHandler;
+module.exports = {
+  DoStuffActionHandler,
+};
