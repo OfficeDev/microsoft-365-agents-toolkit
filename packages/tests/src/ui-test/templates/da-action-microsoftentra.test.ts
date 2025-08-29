@@ -46,7 +46,7 @@ describe("Debug Tests", function () {
   it(
     "[auto][VSC][JS] Local debug for basic declarative agent with API plugin from scratch (Microsoft Entra)",
     {
-      testPlanCaseId: 34594770,
+      testPlanCaseId: 34628872,
       author: "v-helzha@microsoft.com",
     },
     async function () {
@@ -62,7 +62,7 @@ describe("Debug Tests", function () {
   it(
     "[auto][VSC][JS] Remote debug for basic declarative agent with API plugin from scratch (Microsoft Entra)",
     {
-      testPlanCaseId: 29417723,
+      testPlanCaseId: 34628887,
       author: "v-helzha@microsoft.com",
     },
     async function () {

@@ -48,7 +48,7 @@ describe("Debug Tests", function () {
   it(
     "[auto][VSC][JS] Local debug for basic declarative agent with API plugin from scratch (OAuth)",
     {
-      testPlanCaseId: 28941947,
+      testPlanCaseId: 34628898,
       author: "v-helzha@microsoft.com",
     },
     async function () {
@@ -65,7 +65,7 @@ describe("Debug Tests", function () {
   it(
     "[auto][VSC][JS] Remote debug for basic declarative agent with API plugin from scratch (OAuth)",
     {
-      testPlanCaseId: 28941947,
+      testPlanCaseId: 34628911,
       author: "v-helzha@microsoft.com",
     },
     async function () {
