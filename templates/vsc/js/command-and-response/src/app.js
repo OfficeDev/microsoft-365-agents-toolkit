@@ -2,6 +2,7 @@ const { ManagedIdentityCredential } = require("@azure/identity");
 const { App } = require("@microsoft/teams.apps");
 const { HelloWorldCommandHandler } = require("./helloworldCommandHandler");
 const { GenericCommandHandler } = require("./genericCommandHandler");
+const config = require("./internal/config");
 
 const createTokenFactory = () => {
   return async (scope, tenantId) => {

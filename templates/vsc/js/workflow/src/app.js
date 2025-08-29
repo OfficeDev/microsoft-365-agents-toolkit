@@ -3,6 +3,7 @@ const { App } = require("@microsoft/teams.apps");
 const { DoStuffActionHandler } = require("./cardActions/doStuffActionHandler");
 const { GenericCommandHandler } = require("./commands/genericCommandHandler");
 const { HelloWorldCommandHandler } = require("./commands/helloworldCommandHandler");
+const config = require("./internal/config");
 
 const createTokenFactory = () => {
   return async (scope, tenantId) => {

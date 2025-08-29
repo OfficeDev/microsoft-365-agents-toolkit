@@ -27,7 +27,7 @@
         "adaptivecards-templating": "^2.3.1",
         "adaptivecards": "^3.0.5",
         "@microsoft/teams.apps": "preview",
-        "@microsoft/teams.common": "preview",
+        "@microsoft/teams.common": "preview"
     },
     "devDependencies": {
         "env-cmd": "^10.1.0",
