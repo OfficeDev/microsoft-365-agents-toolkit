@@ -20,12 +20,12 @@ myRecordAzOpenAI["llm-service"] = "llm-service-azure-openai";
 myRecordAzOpenAI["azure-openai-key"] = "fake";
 myRecordAzOpenAI["azure-openai-deployment-name"] = "fake";
 myRecordAzOpenAI["azure-openai-endpoint"] = "https://test.com";
-// new AiBotAzureOpenAITestCase(
-//   Capability.Agent,
-//   27689384,
-//   "frankqian@microsoft.com",
-//   ["bot"],
-//   ProgrammingLanguage.PY,
-//   {},
-//   myRecordAzOpenAI
-// ).test();
+new AiBotAzureOpenAITestCase(
+  Capability.Agent,
+  27689384,
+  "frankqian@microsoft.com",
+  ["bot"],
+  ProgrammingLanguage.PY,
+  {},
+  myRecordAzOpenAI
+).test();

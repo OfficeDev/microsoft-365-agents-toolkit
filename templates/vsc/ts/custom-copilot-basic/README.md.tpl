@@ -69,7 +69,7 @@ The following files can be customized and demonstrate an example implementation 
 
 | File                                 | Contents                                           |
 | - | - |
-|`src/index.ts`| Sets up the agent app server.|
+|`src/index.ts`| Application entry point. |
 |`src/config.ts`| Defines the environment variables.|
 |`src/app/instructions.txt`| Defines the prompt.|
 |`src/app/app.ts`| Handles business logics for the Basic AI Chatbot.|

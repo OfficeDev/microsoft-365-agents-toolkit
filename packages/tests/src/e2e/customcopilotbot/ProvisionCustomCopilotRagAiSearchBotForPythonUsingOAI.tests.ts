@@ -37,12 +37,12 @@ const myRecordOpenAI: Record<string, string> = {};
 myRecordOpenAI["custom-copilot-rag"] = "custom-copilot-rag-azureAISearch";
 myRecordOpenAI["llm-service"] = "llm-service-openai";
 myRecordOpenAI["openai-key"] = "fake";
-// new AiSearchBotOpenAITestCase(
-//   Capability.RAG,
-//   27454412,
-//   "frankqian@microsoft.com",
-//   ["bot"],
-//   ProgrammingLanguage.PY,
-//   {},
-//   myRecordOpenAI
-// ).test();
+new AiSearchBotOpenAITestCase(
+  Capability.RAG,
+  27454412,
+  "frankqian@microsoft.com",
+  ["bot"],
+  ProgrammingLanguage.PY,
+  {},
+  myRecordOpenAI
+).test();
