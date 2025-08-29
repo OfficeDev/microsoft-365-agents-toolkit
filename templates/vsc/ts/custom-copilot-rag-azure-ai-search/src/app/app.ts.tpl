@@ -75,7 +75,7 @@ app.on('message', async ({ send, activity }) => {
 
   try {
     // Get relevant context from the data source
-    const contextData = dataSource.renderContext(activity.text);
+    const contextData = await dataSource.renderContext(activity.text);
     
     // Build enhanced instructions that include context if available
     let enhancedInstructions = instructions;

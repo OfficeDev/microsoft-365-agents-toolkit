@@ -76,7 +76,7 @@ The following are Microsoft 365 Agents Toolkit specific project files. You can [
 
 ## Extend the template
 
-To extend the Basic AI Chatbot template with more AI capabilities, explore [Teams AI lib V2 documentation](https://aka.ms/m365-agents-toolkit/teams-agent-extend-ai).
+To extend the Basic AI Chatbot template with more AI capabilities, explore [Teams AI library V2 documentation](https://aka.ms/m365-agents-toolkit/teams-agent-extend-ai).
 
 ## Additional information and references
 

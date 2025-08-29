@@ -114,7 +114,6 @@ app.on('message', async ({ send, activity }) => {
 app.on('message.submit.feedback', async ({ activity }) => {
   //add custom feedback process logic here
   console.log("Your feedback is " + JSON.stringify(activity.value));
-  return {};
 });
 
 module.exports = app;

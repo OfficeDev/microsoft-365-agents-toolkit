@@ -99,7 +99,7 @@ async function getEmbeddingVector(text) {
     {{/useOpenAI}}
     {{#useAzureOpenAI}}
     const client = new AzureOpenAI({
-        apiKey: process.env.AZURE_OPENAI_API_KEY,
+        apiKey: process.env.SECRET_AZURE_OPENAI_API_KEY,
         endpoint: process.env.AZURE_OPENAI_ENDPOINT,
         apiVersion: "2024-02-01",
     });
