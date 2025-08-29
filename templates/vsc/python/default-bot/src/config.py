@@ -12,7 +12,7 @@ class Config:
     """Bot Configuration"""
     
     PORT = int(os.environ.get("PORT", 3978))
-    BOT_ID = os.environ.get("BOT_ID", "")
+    CONNECTIONS__SERVICE_CONNECTION__SETTINGS__CLIENTID = os.environ.get("CONNECTIONS__SERVICE_CONNECTION__SETTINGS__CLIENTID", "")
     BOT_PASSWORD = os.environ.get("BOT_PASSWORD", "")
     BOT_TYPE = os.environ.get("BOT_TYPE", "")
     BOT_TENANT_ID = os.environ.get("BOT_TENANT_ID", "")

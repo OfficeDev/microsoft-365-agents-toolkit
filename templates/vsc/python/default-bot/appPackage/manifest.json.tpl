@@ -24,7 +24,7 @@
     "accentColor": "#FFFFFF",
     "bots": [
         {
-            "botId": "${{BOT_ID}}",
+            "botId": "${{CONNECTIONS__SERVICE_CONNECTION__SETTINGS__CLIENTID}}",
             "scopes": [
                 "personal",
                 "team",
