@@ -11,6 +11,8 @@ import * as DeclarativeAgentManifestV1D0 from "./copilot/declarative-agent/Decla
 import * as DeclarativeAgentManifestV1D2 from "./copilot/declarative-agent/DeclarativeAgentManifestV1D2";
 import * as DeclarativeAgentManifestV1D3 from "./copilot/declarative-agent/DeclarativeAgentManifestV1D3";
 import * as DeclarativeAgentManifestV1D4 from "./copilot/declarative-agent/DeclarativeAgentManifestV1D4";
+import * as DeclarativeAgentManifestV1D5 from "./copilot/declarative-agent/DeclarativeAgentManifestV1D5";
+import * as DeclarativeAgentManifestV1D6 from "./copilot/declarative-agent/DeclarativeAgentManifestV1D6";
 import * as APIPluginManifestV2D1 from "./copilot/plugin/ApiPluginManifestV2D1";
 import * as APIPluginManifestV2D2 from "./copilot/plugin/ApiPluginManifestV2D2";
 import * as APIPluginManifestV2D3 from "./copilot/plugin/ApiPluginManifestV2D3";
@@ -45,6 +47,8 @@ export {
   DeclarativeAgentManifestV1D2,
   DeclarativeAgentManifestV1D3,
   DeclarativeAgentManifestV1D4,
+  DeclarativeAgentManifestV1D5,
+  DeclarativeAgentManifestV1D6,
   TeamsManifestV1D0,
   TeamsManifestV1D1,
   TeamsManifestV1D10,
@@ -97,16 +101,16 @@ export type TeamsManifest =
 
 export type TeamsManifestLatest = TeamsManifestV1D21.TeamsManifestV1D21;
 
-export { SensitivityLabel } from "./copilot/declarative-agent/DeclarativeAgentManifestV1D6";
-
 export type DeclarativeAgentManifest =
   | DeclarativeAgentManifestV1D0.DeclarativeAgentManifestV1D0
   | DeclarativeAgentManifestV1D2.DeclarativeAgentManifestV1D2
   | DeclarativeAgentManifestV1D3.DeclarativeAgentManifestV1D3
-  | DeclarativeAgentManifestV1D4.DeclarativeAgentManifestV1D4;
+  | DeclarativeAgentManifestV1D4.DeclarativeAgentManifestV1D4
+  | DeclarativeAgentManifestV1D5.DeclarativeAgentManifestV1D5
+  | DeclarativeAgentManifestV1D6.DeclarativeAgentManifestV1D6;
 
 export type DeclarativeAgentManifestLatest =
-  DeclarativeAgentManifestV1D4.DeclarativeAgentManifestV1D4;
+  DeclarativeAgentManifestV1D6.DeclarativeAgentManifestV1D6;
 
 export type APIPluginManifest =
   | APIPluginManifestV2D1.APIPluginManifestV2D1
