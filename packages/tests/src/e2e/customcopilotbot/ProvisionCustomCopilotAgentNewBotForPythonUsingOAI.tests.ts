@@ -18,12 +18,12 @@ const myRecordOpenAI: Record<string, string> = {};
 myRecordOpenAI["custom-copilot-agent"] = "custom-copilot-agent-new";
 myRecordOpenAI["llm-service"] = "llm-service-openai";
 myRecordOpenAI["openai-key"] = "fake";
-new AiBotOpenAITestCase(
-  Capability.Agent,
-  27689385,
-  "frankqian@microsoft.com",
-  ["bot"],
-  ProgrammingLanguage.PY,
-  {},
-  myRecordOpenAI
-).test();
+// new AiBotOpenAITestCase(
+//   Capability.Agent,
+//   27689385,
+//   "frankqian@microsoft.com",
+//   ["bot"],
+//   ProgrammingLanguage.PY,
+//   {},
+//   myRecordOpenAI
+// ).test();

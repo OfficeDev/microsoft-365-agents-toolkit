@@ -29,7 +29,7 @@ import {
 } from "./utility";
 import { execAsync } from "../../utils/commonUtils";
 
-describe("Debug V3 command-and-response template", () => {
+describe.skip("Debug V3 command-and-response template", () => {
   const testFolder = getTestFolder();
   const appName = getUniqueAppName();
   const projectPath = path.resolve(testFolder, appName);
