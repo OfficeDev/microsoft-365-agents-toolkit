@@ -51,12 +51,7 @@ class MyDataSource {
         console.log(`Loaded ${this._data.length} documents from ${filePath}`);
     }
 
-    /**
-     * Searches for relevant content based on a query string.
-     * @param query The search query
-     * @returns Array of search results
-     */
-    public search(query: string): SearchResult[] {
+    search(query) {
         if (!query) {
             return [];
         }
