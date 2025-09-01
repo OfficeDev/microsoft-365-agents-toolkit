@@ -1,8 +1,8 @@
 // To parse this data:
 //
-//   import { Convert, DeclarativeAgentManifestV1D4 } from "./file";
+//   import { Convert, DeclarativeAgentManifestV1D5 } from "./file";
 //
-//   const declarativeAgentManifestV1D4 = Convert.toDeclarativeAgentManifestV1D4(json);
+//   const declarativeAgentManifestV1D5 = Convert.toDeclarativeAgentManifestV1D5(json);
 //
 // These functions will throw an error if the JSON doesn't
 // match the expected interface, even if the JSON is valid.
@@ -11,11 +11,11 @@
  * The root of the declarative agent manifest document is a JSON object that contains
  * members that describe the declarative agent.
  */
-export interface DeclarativeAgentManifestV1D4 {
+export interface DeclarativeAgentManifestV1D5 {
     /**
      * Required. Not localizable. The version of the schema this manifest is using.
      */
-    version: "v1.4";
+    version: "v1.5";
     /**
      * Optional. Not localizable.
      */
@@ -154,6 +154,8 @@ export interface Suggestions {
  *
  * A JSON object whose presence indicates that the DA will be using tenant/task specific
  * models.
+ *
+ * Indicates that the DA can search through meetings.
  */
 export interface CapabilityElement {
     /**
@@ -180,6 +182,8 @@ export interface CapabilityElement {
      * Required. Must be set to People.
      *
      * Required. Must be set to the string literal `ScenarioModels`
+     *
+     * Required. Must be set to Meetings.
      */
     name: Name;
     /**
@@ -416,7 +420,7 @@ export interface ModelElement {
     [property: string]: any;
 }
 
-export type Name = "WebSearch" | "CodeInterpreter" | "OneDriveAndSharePoint" | "GraphConnectors" | "GraphicArt" | "TeamsMessages" | "Dataverse" | "Email" | "People" | "ScenarioModels";
+export type Name = "WebSearch" | "CodeInterpreter" | "OneDriveAndSharePoint" | "GraphConnectors" | "GraphicArt" | "TeamsMessages" | "Dataverse" | "Email" | "People" | "ScenarioModels" | "Meetings";
 
 /**
  * An object that identifies a site used to constrain the content accessible to the
@@ -477,12 +481,12 @@ export interface Disclaimer {
 // Converts JSON strings to/from your types
 // and asserts the results of JSON.parse at runtime
 export class Convert {
-    public static toDeclarativeAgentManifestV1D4(json: string): DeclarativeAgentManifestV1D4 {
-        return cast(JSON.parse(json), r("DeclarativeAgentManifestV1D4"));
+    public static toDeclarativeAgentManifestV1D5(json: string): DeclarativeAgentManifestV1D5 {
+        return cast(JSON.parse(json), r("DeclarativeAgentManifestV1D5"));
     }
 
-    public static declarativeAgentManifestV1D4ToJson(value: DeclarativeAgentManifestV1D4): string {
-        return JSON.stringify(uncast(value, r("DeclarativeAgentManifestV1D4")), null, 4);
+    public static declarativeAgentManifestV1D5ToJson(value: DeclarativeAgentManifestV1D5): string {
+        return JSON.stringify(uncast(value, r("DeclarativeAgentManifestV1D5")), null, 4);
     }
 }
 
@@ -639,7 +643,7 @@ function r(name: string) {
 }
 
 const typeMap: any = {
-    "DeclarativeAgentManifestV1D4": o([
+    "DeclarativeAgentManifestV1D5": o([
         { json: "version", js: "version", typ: r("Version") },
         { json: "id", js: "id", typ: u(undefined, "") },
         { json: "name", js: "name", typ: "" },
@@ -749,6 +753,7 @@ const typeMap: any = {
         "Email",
         "GraphConnectors",
         "GraphicArt",
+        "Meetings",
         "OneDriveAndSharePoint",
         "People",
         "ScenarioModels",
@@ -756,6 +761,6 @@ const typeMap: any = {
         "WebSearch",
     ],
     "Version": [
-        "v1.4",
+        "v1.5",
     ],
 };

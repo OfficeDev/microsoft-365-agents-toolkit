@@ -1,8 +1,8 @@
 // To parse this data:
 //
-//   import { Convert, DeclarativeAgentManifestV1D4 } from "./file";
+//   import { Convert, DeclarativeAgentManifestV1D6 } from "./file";
 //
-//   const declarativeAgentManifestV1D4 = Convert.toDeclarativeAgentManifestV1D4(json);
+//   const declarativeAgentManifestV1D6 = Convert.toDeclarativeAgentManifestV1D6(json);
 //
 // These functions will throw an error if the JSON doesn't
 // match the expected interface, even if the JSON is valid.
@@ -11,11 +11,11 @@
  * The root of the declarative agent manifest document is a JSON object that contains
  * members that describe the declarative agent.
  */
-export interface DeclarativeAgentManifestV1D4 {
+export interface DeclarativeAgentManifestV1D6 {
     /**
      * Required. Not localizable. The version of the schema this manifest is using.
      */
-    version: "v1.4";
+    version: "v1.6";
     /**
      * Optional. Not localizable.
      */
@@ -31,6 +31,11 @@ export interface DeclarativeAgentManifestV1D4 {
      */
     description: string;
     disclaimer?: Disclaimer;
+    /**
+     * This member is an object that specifies the sensitivity label for the DA. It is an
+     * optional member.
+     */
+    sensitivity_label?: SensitivityLabel;
     /**
      * Optional. Not localizable. The detailed instructions or guidelines on how the declarative
      * agent should behave, its functions, and any behaviors to avoid. It MUST contain at least
@@ -154,12 +159,18 @@ export interface Suggestions {
  *
  * A JSON object whose presence indicates that the DA will be using tenant/task specific
  * models.
+ *
+ * Indicates that the DA can search through meetings.
+ *
+ * A JSON object whose presence indicates that the DA will be able to use files locally in
+ * the app package as knowledge. The object MUST contain either a files member or a
+ * embedded_resource_snapshot_id member, but not both.
  */
 export interface CapabilityElement {
     /**
      * Required. The name of the capability. Allowed values are WebSearch, CodeInterpreter,
      * OneDriveAndSharePoint, GraphConnectors, TeamsMessages, Dataverse, Email, ScenarioModels,
-     * People and GraphicArt.
+     * People, GraphicArt, Meetings and EmbeddedKnowledge.
      *
      * Required. Must be set to WebSearch.
      *
@@ -180,6 +191,10 @@ export interface CapabilityElement {
      * Required. Must be set to People.
      *
      * Required. Must be set to the string literal `ScenarioModels`
+     *
+     * Required. Must be set to Meetings.
+     *
+     * Required. Must be set to EmbeddedKnowledge.
      */
     name: Name;
     /**
@@ -226,6 +241,16 @@ export interface CapabilityElement {
      * A list of Scenario Model objects denoting supported models
      */
     models?: ModelElement[];
+    /**
+     * A JSON string identifier provisioned by a an external file container storage service that
+     * can be used to locate the embedded knowledge files.
+     */
+    embedded_resource_snapshot_id?: string;
+    /**
+     * A JSON array of File Object. List of objects identifying files that contain knowledge the
+     * Agent can use for grounding.
+     */
+    files?: FileElement[];
     [property: string]: any;
 }
 
@@ -316,6 +341,18 @@ export interface ItemsByPathElement {
      * A container path to an external item
      */
     path: string;
+    [property: string]: any;
+}
+
+/**
+ * A JSON object that identifies a file via the relative path.
+ */
+export interface FileElement {
+    /**
+     * A JSON string that contains the file relative path for the embedded file. It is a
+     * required member.
+     */
+    file: string;
     [property: string]: any;
 }
 
@@ -416,7 +453,7 @@ export interface ModelElement {
     [property: string]: any;
 }
 
-export type Name = "WebSearch" | "CodeInterpreter" | "OneDriveAndSharePoint" | "GraphConnectors" | "GraphicArt" | "TeamsMessages" | "Dataverse" | "Email" | "People" | "ScenarioModels";
+export type Name = "WebSearch" | "CodeInterpreter" | "OneDriveAndSharePoint" | "GraphConnectors" | "GraphicArt" | "TeamsMessages" | "Dataverse" | "Email" | "People" | "ScenarioModels" | "Meetings" | "EmbeddedKnowledge";
 
 /**
  * An object that identifies a site used to constrain the content accessible to the
@@ -474,15 +511,33 @@ export interface Disclaimer {
     [property: string]: any;
 }
 
+/**
+ * This member is an object that specifies the sensitivity label for the DA. It is an
+ * optional member.
+ *
+ * A JSON object, when specified should match one of the GUIDs of the published sensitivity
+ * labels within the tenant to which it is being published. This label should be at least as
+ * restrictive as the most restrictive label on any knowledge files included in the agent.
+ * See https://learn.microsoft.com/en-us/purview/create-sensitivity-labels  for more
+ * information on sensitivity labels.
+ */
+export interface SensitivityLabel {
+    /**
+     * The GUID of the sensitivity_label that is pulled from Purview API
+     */
+    id?: string;
+    [property: string]: any;
+}
+
 // Converts JSON strings to/from your types
 // and asserts the results of JSON.parse at runtime
 export class Convert {
-    public static toDeclarativeAgentManifestV1D4(json: string): DeclarativeAgentManifestV1D4 {
-        return cast(JSON.parse(json), r("DeclarativeAgentManifestV1D4"));
+    public static toDeclarativeAgentManifestV1D6(json: string): DeclarativeAgentManifestV1D6 {
+        return cast(JSON.parse(json), r("DeclarativeAgentManifestV1D6"));
     }
 
-    public static declarativeAgentManifestV1D4ToJson(value: DeclarativeAgentManifestV1D4): string {
-        return JSON.stringify(uncast(value, r("DeclarativeAgentManifestV1D4")), null, 4);
+    public static declarativeAgentManifestV1D6ToJson(value: DeclarativeAgentManifestV1D6): string {
+        return JSON.stringify(uncast(value, r("DeclarativeAgentManifestV1D6")), null, 4);
     }
 }
 
@@ -639,12 +694,13 @@ function r(name: string) {
 }
 
 const typeMap: any = {
-    "DeclarativeAgentManifestV1D4": o([
+    "DeclarativeAgentManifestV1D6": o([
         { json: "version", js: "version", typ: r("Version") },
         { json: "id", js: "id", typ: u(undefined, "") },
         { json: "name", js: "name", typ: "" },
         { json: "description", js: "description", typ: "" },
         { json: "disclaimer", js: "disclaimer", typ: u(undefined, r("Disclaimer")) },
+        { json: "sensitivity_label", js: "sensitivity_label", typ: u(undefined, r("SensitivityLabel")) },
         { json: "instructions", js: "instructions", typ: u(undefined, "") },
         { json: "behavior_overrides", js: "behavior_overrides", typ: u(undefined, r("BehaviorOverrides")) },
         { json: "capabilities", js: "capabilities", typ: u(undefined, a(r("CapabilityElement"))) },
@@ -676,6 +732,8 @@ const typeMap: any = {
         { json: "folders", js: "folders", typ: u(undefined, a(r("FolderElement"))) },
         { json: "shared_mailbox", js: "shared_mailbox", typ: u(undefined, "") },
         { json: "models", js: "models", typ: u(undefined, a(r("ModelElement"))) },
+        { json: "embedded_resource_snapshot_id", js: "embedded_resource_snapshot_id", typ: u(undefined, "") },
+        { json: "files", js: "files", typ: u(undefined, a(r("FileElement"))) },
     ], "any"),
     "ConnectionElement": o([
         { json: "connection_id", js: "connection_id", typ: "" },
@@ -700,6 +758,9 @@ const typeMap: any = {
     ], "any"),
     "ItemsByPathElement": o([
         { json: "path", js: "path", typ: "" },
+    ], "any"),
+    "FileElement": o([
+        { json: "file", js: "file", typ: "" },
     ], "any"),
     "FolderElement": o([
         { json: "folder_id", js: "folder_id", typ: "" },
@@ -740,6 +801,9 @@ const typeMap: any = {
     "Disclaimer": o([
         { json: "text", js: "text", typ: "" },
     ], "any"),
+    "SensitivityLabel": o([
+        { json: "id", js: "id", typ: u(undefined, "") },
+    ], "any"),
     "PartType": [
         "OneNotePart",
     ],
@@ -747,8 +811,10 @@ const typeMap: any = {
         "CodeInterpreter",
         "Dataverse",
         "Email",
+        "EmbeddedKnowledge",
         "GraphConnectors",
         "GraphicArt",
+        "Meetings",
         "OneDriveAndSharePoint",
         "People",
         "ScenarioModels",
@@ -756,6 +822,6 @@ const typeMap: any = {
         "WebSearch",
     ],
     "Version": [
-        "v1.4",
+        "v1.6",
     ],
 };
