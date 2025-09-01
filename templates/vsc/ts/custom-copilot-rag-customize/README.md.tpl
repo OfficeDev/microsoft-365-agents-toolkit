@@ -11,7 +11,7 @@ This app template also demonstrates usage of techniques like:
 >
 > To run the template in your local dev machine, you will need:
 >
-> - [Node.js](https://nodejs.org/), supported versions: 18, 20, 22
+> - [Node.js](https://nodejs.org/), supported versions: 20, 22
 > - [Microsoft 365 Agents Toolkit Visual Studio Code Extension](https://aka.ms/teams-toolkit) version 5.0.0 and higher or [Microsoft 365 Agents Toolkit CLI](https://aka.ms/teamsfx-toolkit-cli)
 {{#useOpenAI}}
 > - An account with [OpenAI](https://platform.openai.com/).
@@ -50,12 +50,9 @@ The following files can be customized and demonstrate an example implementation 
 
 | File                                 | Contents                                           |
 | - | - |
-|`src/index.ts`| Sets up the agent app server.|
-|`src/adapter.ts`| Sets up the agent adapter.|
+|`src/index.ts`| Application entry point.|
 |`src/config.ts`| Defines the environment variables.|
-|`src/prompts/chat/skprompt.txt`| Defines the prompt.|
-|`src/prompts/chat/config.json`| Configures the prompt.|
-|`src/app/app.ts`| Handles business logics for the RAG agent.|
+|`src/app/app.ts`| Main application code.|
 |`src/app/myDataSource.ts`| Defines the data source.|
 |`src/data/*.md`| Raw text data sources.|
 
@@ -69,8 +66,7 @@ The following are Microsoft 365 Agents Toolkit specific project files. You can [
 
 ## Extend the template
 
-- Follow [Build a Basic AI Chatbot in Teams](https://aka.ms/teamsfx-basic-ai-chatbot) to extend the template with more AI capabilities.
-- Understand more about [build your own data ingestion](https://aka.ms/teamsfx-rag-bot#build-your-own-data-ingestion).
+To extend the Basic AI Chatbot template with more AI capabilities, explore [Teams AI library V2 documentation](https://aka.ms/m365-agents-toolkit/teams-agent-extend-ai).
 
 ## Additional information and references
 

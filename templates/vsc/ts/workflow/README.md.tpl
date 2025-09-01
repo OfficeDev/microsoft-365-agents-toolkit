@@ -10,7 +10,7 @@ The app template is built using the TeamsFx SDK, which provides a simple set of 
 >
 > To run the workflow bot template in your local dev machine, you will need:
 >
-> - [Node.js](https://nodejs.org/), supported versions: 18, 20, 22
+> - [Node.js](https://nodejs.org/), supported versions: 20, 22
 {{^enableTestToolByDefault}}
 > - An [Microsoft 365 account for development](https://docs.microsoft.com/microsoftteams/platform/toolkit/accounts)
 {{/enableTestToolByDefault}}
@@ -72,8 +72,8 @@ The following files can be customized and demonstrate an example implementation 
 
 | File | Contents |
 | - | - |
-| `src/index.ts`| Application entry point and `express` handlers for the Workflow bot |
-| `src/teamsBot.ts` | An empty teams activity handler for bot customization |
+| `src/index.ts` | Application entry point |
+| `src/app.ts`  | Main application code |
 | `src/commands/helloworldCommandHandler.ts` | Implementation that handles responding to a chat command |
 | `src/adaptiveCards/helloworldCommandResponse.json` | Defines the Adaptive Card (UI) that is displayed in response to a chat command |
 | `src/adaptiveCards/doStuffActionResponse.json` | A generated Adaptive Card that is sent to Teams for the response of "doStuff" action |
@@ -145,24 +145,24 @@ You can use the [Adaptive Card Designer](https://adaptivecards.io/designer/) to 
 Create a new file, `src/cardActions/doSomethingActionHandler.ts`:
 
 ```typescript
-import { AdaptiveCard } from "@microsoft/teams-ai";
-import * as ACData from "adaptivecards-templating";
-import { TurnContext } from "botbuilder";
-import responseCard from "../adaptiveCards/doSomethingResponse.json";
-
 export class DoSomethingActionHandler {
   triggerVerb = "doSomething";
 
-  async handleActionInvoked(context: TurnContext, actionData: any): Promise<string | AdaptiveCard> {
+  async handleActionInvoked(actionData?: any): Promise<any> {
+    /**
+     * You can send an adaptive card to respond to the card action invoke.
+     */
     const cardJson = new ACData.Template(responseCard).expand({
       $root: {
         title: "doSomething command is added",
         body: "Congratulations! You have responded to doSomething command",
       },
     });
-    return cardJson as AdaptiveCard;
+
+    return cardJson;
   }
 }
+
 ```
 
 > Please note:
@@ -177,16 +177,32 @@ You can customize what the action does here, including calling an API, processin
 
 ### Step 4: Register the new handler
 
-Navigate to the `src/index.ts` file and register the trigger pattern to `app.adaptiveCards.actionExecute()`:
+Navigate to the `src/app.ts` file and register the trigger pattern to `app.on("card.action")`:
 
 ```typescript
 const doSomethingActionHandler = new DoSomethingActionHandler();
-app.adaptiveCards.actionExecute(
-  doSomethingActionHandler.triggerVerb,
-  async (context: TurnContext, state, data) => {
-    return await doSomethingActionHandler.handleActionInvoked(context, data);
+app.on("card.action", async ({ activity, send }) => {
+  const verb = activity.value?.action?.verb;
+  const data = activity.value?.action?.data;
+  if (verb === doSomethingActionHandler.triggerVerb) {
+    const response = await doSomethingActionHandler.handleActionInvoked(data);
+    await send(response);
+  } else {
+    return {
+      statusCode: 400,
+      type: "application/vnd.microsoft.error",
+      value: {
+        code: "BadRequest",
+        message: "Unknown action",
+        innerHttpError: {
+          statusCode: 400,
+          body: { error: "Unknown action" },
+        },
+      },
+    };
   }
-);
+});
+
 ```
 
 Congratulations, you've just created your own workflow! To learn more about extending the Workflow bot template, [visit the documentation on GitHub](https://aka.ms/teamsfx-workflow-new). You can find more scenarios like:
@@ -216,5 +232,5 @@ The command and response feature adds the ability for your application to "liste
 - [Collaborate with others](https://docs.microsoft.com/microsoftteams/platform/toolkit/teamsfx-collaboration)
 - [Microsoft 365 Agents Toolkit Documentations](https://docs.microsoft.com/microsoftteams/platform/toolkit/teams-toolkit-fundamentals)
 - [Microsoft 365 Agents Toolkit CLI](https://aka.ms/teamsfx-toolkit-cli)
-- [Teams AI SDK](https://learn.microsoft.com/en-us/microsoftteams/platform/bots/how-to/teams-conversational-ai/teams-conversation-ai-overview)
+- [Teams AI SDK](https://learn.microsoft.com/en-us/microsoftteams/platform/teams-ai-library/welcome)
 - [Microsoft 365 Agents Toolkit Samples](https://github.com/OfficeDev/TeamsFx-Samples)

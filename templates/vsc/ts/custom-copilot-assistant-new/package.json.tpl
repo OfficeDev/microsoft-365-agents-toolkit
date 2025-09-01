@@ -6,7 +6,7 @@
     },
     "description": "Microsoft 365 Agents Toolkit AI Chat Agent Sample with Teams AI Library",
     "engines": {
-        "node": "18 || 20 || 22"
+        "node": "20 || 22"
     },
     "author": "Microsoft",
     "license": "MIT",
@@ -16,7 +16,7 @@
         "dev:teamsfx:testtool": "env-cmd --silent -f .localConfigs.playground npm run dev",
         "dev:teamsfx:launch-testtool": "env-cmd --silent -f env/.env.playground teamsapptester start",
         "dev": "nodemon --exec node --inspect=9239 --signal SIGINT -r ts-node/register ./src/index.ts",
-        "build": "tsc --build && shx cp -r ./src/prompts ./lib/src",
+        "build": "tsc --build && shx cp -r ./src/app/instructions.txt ./lib/src/app && shx cp -r ./src/app/functions.json ./lib/src/app && shx cp -r ./appPackage ./lib/appPackage",
         "start": "node ./lib/src/index.js",
         "test": "echo \"Error: no test specified\" && exit 1",
         "watch": "nodemon --exec \"npm run start\""
@@ -26,13 +26,14 @@
         "url": "https://github.com"
     },
     "dependencies": {
-        "@microsoft/teams-ai": "^1.5.3",
-        "botbuilder": "^4.23.1",
-        "express": "^5.0.1"
+        "@azure/identity": "^4.11.1",
+        "@microsoft/teams.apps": "preview",
+        "@microsoft/teams.ai": "preview",
+        "@microsoft/teams.openai": "preview",
+        "@microsoft/teams.common": "preview"
     },
     "devDependencies": {
-        "@types/express": "^5.0.0",
-        "@types/node": "^18.0.0",
+        "@types/node": "^20.0.0",
         "env-cmd": "^10.1.0",
         "ts-node": "^10.4.0",
         "typescript": "~5.8.3",

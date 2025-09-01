@@ -55,9 +55,11 @@
       "remotedebug-chatdata-customapi-ts-openai-win-only",
       "remotedebug-chatdata-customapi-py-azureopenai-win-only",
       "remotedebug-chatdata-customapi-py-openai-win-only",
+      "da-action-none",
       "da-action-none-ts",
-      "da-action-apikey-ts",
+      "da-action-microsoftentra",
       "da-action-microsoftentra-ts",
+      "da-action-oauth",
       "da-action-oauth-ts"
     ],
     "node-22": [
@@ -99,7 +101,9 @@
       "remotedebug-spfxreact-import-single",
       "remotedebug-spfxreact-import-multiple",
       "remotedebug-spfx-minimal",
-      "remotedebug-spfx-react"
+      "remotedebug-spfx-react",
+      "da-action-apikey",
+      "da-action-apikey-ts"
     ]
   },
   "ubuntu-latest": {

@@ -2,10 +2,13 @@
  * Defines the utility methods.
  */
 const { KnownAnalyzerNames } = require("@azure/search-documents");
-const { OpenAIEmbeddings } = require("@microsoft/teams-ai");
 {{#useOpenAI}}
+const { OpenAI } = require("openai");
 const config = require("../config");
 {{/useOpenAI}}
+{{#useAzureOpenAI}}
+const { AzureOpenAI } = require("openai");
+{{/useAzureOpenAI}}
 
 /**
  * A wrapper for setTimeout that resolves a promise after timeInMs milliseconds.
@@ -86,33 +89,38 @@ async function createIndexIfNotExists(client, name) {
  */
 async function getEmbeddingVector(text) {
     {{#useOpenAI}}
-    const embeddings = new OpenAIEmbeddings({
+    const client = new OpenAI({
         apiKey: process.env.SECRET_OPENAI_API_KEY,
+    });
+    const result = await client.embeddings.create({
+        input: text,
         model: config.openAIEmbeddingModelName
     });
-    const result = await embeddings.createEmbeddings(config.openAIEmbeddingModelName, text);
     {{/useOpenAI}}
     {{#useAzureOpenAI}}
-    const embeddings = new OpenAIEmbeddings({
-        azureApiKey: process.env.SECRET_AZURE_OPENAI_API_KEY,
-        azureEndpoint: process.env.AZURE_OPENAI_ENDPOINT,
-        azureDeployment: process.env.AZURE_OPENAI_EMBEDDING_DEPLOYMENT_NAME,
+    const client = new AzureOpenAI({
+        apiKey: process.env.SECRET_AZURE_OPENAI_API_KEY,
+        endpoint: process.env.AZURE_OPENAI_ENDPOINT,
+        apiVersion: "2024-02-01",
     });
-
-    const result = await embeddings.createEmbeddings( process.env.AZURE_OPENAI_EMBEDDING_DEPLOYMENT_NAME, text);
+    const result = await client.embeddings.create({
+        input: text,
+        model: process.env.AZURE_OPENAI_EMBEDDING_DEPLOYMENT_NAME,
+    });
     {{/useAzureOpenAI}}
 
-    if (result.status !== "success" || !result.output) {
+
+    if (!result.data || result.data.length === 0) {
         throw new Error(`Failed to generate embeddings for description: ${text}`);
     }
 
-    return result.output[0];
+    return result.data[0].embedding;
 }
 
 module.exports = {
-  deleteIndex,
-  createIndexIfNotExists,
-  delay,
-  upsertDocuments,
-  getEmbeddingVector,
+    delay,
+    deleteIndex,
+    upsertDocuments,
+    createIndexIfNotExists,
+    getEmbeddingVector
 };
