@@ -42,7 +42,8 @@ export type LocalDebugTestName =
   | "msgnewapi"
   | "msgapikey"
   | "msgmicroentra"
-  | "daaction";
+  | "daaction"
+  | "weather";
 
 export class LocalDebugTestContext extends TestContext {
   public testName: LocalDebugTestName;
@@ -351,6 +352,11 @@ export class LocalDebugTestContext extends TestContext {
           `atk new --app-name ${this.appName} --interactive false --capability declarative-agent  --with-plugin yes --api-plugin-type new-api --api-auth ${this.apiAuth} --programming-language ${this.lang} --telemetry false`
         );
         break;
+      case "weather":
+        await execCommand(
+          this.testRootFolder,
+          `atk new --app-name ${this.appName} --interactive false --capability weather-agent --programming-language ${this.lang} --llm-service ${this.llmServiceType} --telemetry false`
+        );
     }
     if (this.needMigrate) {
       await execCommand(this.testRootFolder, `set TEAMSFX_V3=true`);

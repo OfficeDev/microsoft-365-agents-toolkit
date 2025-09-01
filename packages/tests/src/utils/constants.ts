@@ -398,7 +398,8 @@ export type AppType =
   | "importspfx"
   | "msgmulparams"
   | "msgapikeyspec"
-  | "daAction";
+  | "daAction"
+  | "weather";
 
 export class FeatureFlagName {
   static readonly InsiderPreview = "__TEAMSFX_INSIDER_PREVIEW";
@@ -542,6 +543,9 @@ export class ValidationContent {
   static readonly AiBotErrorMessage3 = "The bot encountered an error or bug";
   static readonly AiBotErrorMessage2 = "An AI request failed";
   static readonly AiBotMeetingMessage = "Team Meeting";
+  static readonly WeatherBotMessageWelcomeInstruction =
+    "Hello and Welcome! I'm here to help with all your weather forecast needs!";
+  static readonly WeatherBotMessage = "Weather Forecast for San Francisco";
 }
 
 export class CliVersion {
