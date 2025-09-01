@@ -103,7 +103,11 @@
       "remotedebug-spfx-minimal",
       "remotedebug-spfx-react",
       "da-action-apikey",
-      "da-action-apikey-ts"
+      "da-action-apikey-ts",
+      "weather-agent-azureopenai-ts",
+      "weather-agent-azureopenai",
+      "weather-agent-openai-ts",
+      "weather-agent-openai"
     ]
   },
   "ubuntu-latest": {
