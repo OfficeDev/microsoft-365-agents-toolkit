@@ -11,17 +11,17 @@ import {
   waitForTerminal,
   execCommandIfExist,
   createNewProject,
-} from "../../utils/vscodeOperation";
+} from "../../../utils/vscodeOperation";
 import {
   initPage,
   validateWelcomeAndReplyBot,
-} from "../../utils/playwrightOperation";
-import { LocalDebugTestContext } from "../localdebug/localdebugContext";
+} from "../../../utils/playwrightOperation";
+import { LocalDebugTestContext } from "../../localdebug/localdebugContext";
 import {
   RemoteDebugTestContext,
   deployProject,
   provisionProject,
-} from "../remotedebug/remotedebugContext";
+} from "../../remotedebug/remotedebugContext";
 import {
   Timeout,
   LocalDebugTaskLabel,
@@ -29,10 +29,10 @@ import {
   ValidationContent,
   Lang,
   LocalDebugTaskResult,
-} from "../../utils/constants";
-import { Env, OpenAiKey } from "../../utils/env";
-import { it } from "../../utils/it";
-import { editDotEnvFile, validateFileExist } from "../../utils/commonUtils";
+} from "../../../utils/constants";
+import { Env, OpenAiKey } from "../../../utils/env";
+import { it } from "../../../utils/it";
+import { editDotEnvFile, validateFileExist } from "../../../utils/commonUtils";
 
 export function happyPathTest(options: {
   lang: Lang;

@@ -6,12 +6,12 @@
  */
 
 import { happyPathTest } from "./weatherAgentHappyPath";
-import { Lang } from "../../utils/constants";
+import { Lang } from "../../../utils/constants";
 
 happyPathTest({
-  testPlanCaseId_local: 34648299,
-  testPlanCaseId_dev: 34648304,
+  testPlanCaseId_local: 34648323,
+  testPlanCaseId_dev: 34648345,
   author: "v-ivanchen@microsoft.com",
   lang: Lang.JS,
-  llm: "llm-service-openai",
+  llm: "llm-service-azure-openai",
 });
