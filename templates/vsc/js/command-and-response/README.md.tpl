@@ -60,10 +60,10 @@ The following files can be customized and demonstrate an example implementation 
 
 | File | Contents |
 | - | - |
-| `src/index.ts` | Application entry point |
-| `src/app.ts`  | Main application code |
+| `src/index.js` | Application entry point |
+| `src/app.js`  | Main application code |
 | `src/adaptiveCards/helloworldCommand.json` | A generated Adaptive Card that is sent to Teams |
-| `src/helloworldCommandHandler.ts` | The business logic to handle a command |
+| `src/helloworldCommandHandler.js` | The business logic to handle a command |
 
 ## Extend the command bot template with more commands and responses
 
