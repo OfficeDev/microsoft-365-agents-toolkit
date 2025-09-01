@@ -1,6 +1,10 @@
 const ACData = require("adaptivecards-templating");
 const responseCard = require("../adaptiveCards/doStuffActionResponse.json");
 
+/**
+ * The `DoStuffActionHandler` responds
+ * with an Adaptive Card if the user clicks the Adaptive Card action with `triggerVerb`.
+ */
 class DoStuffActionHandler {
   /**
    * A global unique string associated with the `Action.Execute` action.
@@ -8,7 +12,7 @@ class DoStuffActionHandler {
    */
   triggerVerb = "doStuff";
 
-  async handleActionInvoked(context, actionData) {
+  async handleActionInvoked() {
     /**
      * You can send an adaptive card to respond to the card action invoke.
      */
@@ -18,12 +22,13 @@ class DoStuffActionHandler {
         body: "Congratulations! Your task is processed successfully.",
       },
     });
+
     return cardJson;
 
     /**
      * If you want to send invoke response with text message, you can:
-     * 
-     return "[ACK] Successfully!";
+     *
+     * return "[ACK] Successfully!";
      */
   }
 }

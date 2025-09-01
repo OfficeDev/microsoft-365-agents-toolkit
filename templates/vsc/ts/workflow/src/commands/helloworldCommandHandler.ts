@@ -1,21 +1,19 @@
-import { Selector } from "@microsoft/teams-ai";
 import * as ACData from "adaptivecards-templating";
-import { Activity, CardFactory, MessageFactory, TurnContext } from "botbuilder";
 import helloWorldCard from "../adaptiveCards/helloworldCommandResponse.json";
-import { ApplicationTurnState } from "../internal/interface";
 
 /**
  * The `HelloWorldCommandHandler` responds
  * with an Adaptive Card if the user types the `triggerPatterns`.
  */
 export class HelloWorldCommandHandler {
-  triggerPatterns: string | RegExp | Selector | (string | RegExp | Selector)[] = "helloWorld";
+  triggerPatterns = "helloWorld";
 
-  async handleCommandReceived(
-    context: TurnContext,
-    state: ApplicationTurnState
-  ): Promise<string | Partial<Activity> | void> {
-    console.log(`Bot received message: ${context.activity.text}`);
+  shouldTrigger(text: string | undefined): boolean {
+    return text === this.triggerPatterns;
+  }
+
+  async handleCommandReceived(activity: any): Promise<any> {
+    console.log(`Bot received message: ${activity.text}`);
 
     const cardJson = new ACData.Template(helloWorldCard).expand({
       $root: {
@@ -23,6 +21,7 @@ export class HelloWorldCommandHandler {
         body: "Congratulations! Your hello world bot is running. Click the button below to trigger an action.",
       },
     });
-    return MessageFactory.attachment(CardFactory.adaptiveCard(cardJson));
+
+    return cardJson;
   }
 }

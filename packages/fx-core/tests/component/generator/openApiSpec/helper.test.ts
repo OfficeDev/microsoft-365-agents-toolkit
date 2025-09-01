@@ -874,21 +874,27 @@ describe("updateForCustomApi", async () => {
   it("happy path: ts", async () => {
     sandbox.stub(fs, "ensureDir").resolves();
     sandbox.stub(fs, "writeFile").callsFake((file, data) => {
-      if (file === path.join("path", "src", "prompts", "chat", "skprompt.txt")) {
+      if (file === path.join("path", "src", "app", "instructions.txt")) {
         expect(data).to.contains("The following is a conversation with an AI assistant.");
       } else if (file === path.join("path", "src", "adaptiveCard", "hello.json")) {
         expect(data).to.contains("getHello");
-      } else if (file === path.join("path", "src", "prompts", "chat", "actions.json")) {
+      } else if (file === path.join("path", "src", "app", "functions.json")) {
         expect(data).to.contains("getHello");
       } else if (file === path.join("path", "src", "app", "app.ts")) {
-        expect(data).to.contains(`app.ai.action("getHello"`);
+        expect(data).to.contains("functionDefs.getHello");
+        expect(data).not.to.contains("// Replace with function definition code");
+      } else if (file === path.join("path", "src", "app", "handlers.ts")) {
+        expect(data).to.contains("const client = await api.getClient();");
         expect(data).not.to.contains("{{");
-        expect(data).not.to.contains("// Replace with action code");
       }
     });
     sandbox
       .stub(fs, "readFile")
-      .resolves(Buffer.from("test code // Replace with action code {{OPENAPI_SPEC_PATH}}"));
+      .resolves(
+        Buffer.from(
+          "// Replace with function definition code // Replace with function handler code {{OPENAPI_SPEC_PATH}}"
+        )
+      );
     sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
 
     sandbox
@@ -912,21 +918,27 @@ describe("updateForCustomApi", async () => {
     });
     sandbox.stub(fs, "ensureDir").resolves();
     sandbox.stub(fs, "writeFile").callsFake((file, data) => {
-      if (file === path.join("path", "src", "prompts", "chat", "skprompt.txt")) {
+      if (file === path.join("path", "src", "app", "instructions.txt")) {
         expect(data).to.contains("The following is a conversation with an AI assistant.");
       } else if (file === path.join("path", "src", "adaptiveCard", "hello.json")) {
         expect(data).to.contains("getHello");
-      } else if (file === path.join("path", "src", "prompts", "chat", "actions.json")) {
+      } else if (file === path.join("path", "src", "app", "functions.json")) {
         expect(data).to.contains("getHello");
       } else if (file === path.join("path", "src", "app", "app.ts")) {
-        expect(data).to.contains(`app.ai.action("getHello"`);
+        expect(data).to.contains("functionDefs.getHello");
+        expect(data).not.to.contains("// Replace with function definition code");
+      } else if (file === path.join("path", "src", "app", "handlers.ts")) {
+        expect(data).to.contains("const client = await api.getClient();");
         expect(data).not.to.contains("{{");
-        expect(data).not.to.contains("// Replace with action code");
       }
     });
     sandbox
       .stub(fs, "readFile")
-      .resolves(Buffer.from("test code // Replace with action code {{OPENAPI_SPEC_PATH}}"));
+      .resolves(
+        Buffer.from(
+          "// Replace with function definition code // Replace with function handler code {{OPENAPI_SPEC_PATH}}"
+        )
+      );
     sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
 
     sandbox
@@ -951,21 +963,28 @@ describe("updateForCustomApi", async () => {
   it("read manifest failed", async () => {
     sandbox.stub(fs, "ensureDir").resolves();
     sandbox.stub(fs, "writeFile").callsFake((file, data) => {
-      if (file === path.join("path", "src", "prompts", "chat", "skprompt.txt")) {
+      if (file === path.join("path", "src", "app", "instructions.txt")) {
         expect(data).to.contains("The following is a conversation with an AI assistant.");
       } else if (file === path.join("path", "src", "adaptiveCard", "hello.json")) {
         expect(data).to.contains("getHello");
-      } else if (file === path.join("path", "src", "prompts", "chat", "actions.json")) {
+      } else if (file === path.join("path", "src", "app", "functions.json")) {
         expect(data).to.contains("getHello");
       } else if (file === path.join("path", "src", "app", "app.ts")) {
-        expect(data).to.contains(`app.ai.action("getHello"`);
+        expect(data).to.contains("functionDefs.getHello");
+        expect(data).not.to.contains("// Replace with function definition code");
+      } else if (file === path.join("path", "src", "app", "handlers.ts")) {
+        expect(data).to.contains("const client = await api.getClient();");
         expect(data).not.to.contains("{{");
-        expect(data).not.to.contains("// Replace with action code");
       }
     });
     sandbox
       .stub(fs, "readFile")
-      .resolves(Buffer.from("test code // Replace with action code {{OPENAPI_SPEC_PATH}}"));
+      .resolves(
+        Buffer.from(
+          "// Replace with function definition code // Replace with function handler code {{OPENAPI_SPEC_PATH}}"
+        )
+      );
+
     sandbox
       .stub(manifestUtils, "_readAppManifest")
       .resolves(err(new SystemError("test", "", "", "")));
@@ -980,21 +999,28 @@ describe("updateForCustomApi", async () => {
   it("happy path: should contain warning if generate adaptive card failed", async () => {
     sandbox.stub(fs, "ensureDir").resolves();
     sandbox.stub(fs, "writeFile").callsFake((file, data) => {
-      if (file === path.join("path", "src", "prompts", "chat", "skprompt.txt")) {
+      if (file === path.join("path", "src", "app", "instructions.txt")) {
         expect(data).to.contains("The following is a conversation with an AI assistant.");
       } else if (file === path.join("path", "src", "adaptiveCard", "hello.json")) {
-        assert.fail("should not generate adaptive card");
-      } else if (file === path.join("path", "src", "prompts", "chat", "actions.json")) {
+        expect(data).to.contains("getHello");
+      } else if (file === path.join("path", "src", "app", "functions.json")) {
         expect(data).to.contains("getHello");
       } else if (file === path.join("path", "src", "app", "app.ts")) {
-        expect(data).to.contains(`app.ai.action("getHello"`);
+        expect(data).to.contains("functionDefs.getHello");
+        expect(data).not.to.contains("// Replace with function definition code");
+      } else if (file === path.join("path", "src", "app", "handlers.ts")) {
+        expect(data).to.contains("const client = await api.getClient();");
         expect(data).not.to.contains("{{");
-        expect(data).not.to.contains("// Replace with action code");
       }
     });
     sandbox
       .stub(fs, "readFile")
-      .resolves(Buffer.from("test code // Replace with action code {{OPENAPI_SPEC_PATH}}"));
+      .resolves(
+        Buffer.from(
+          "// Replace with function definition code // Replace with function handler code {{OPENAPI_SPEC_PATH}}"
+        )
+      );
+
     sandbox
       .stub(AdaptiveCardGenerator, "generateAdaptiveCard")
       .throws(new Error("generate adaptive card failed"));
@@ -1028,46 +1054,59 @@ describe("updateForCustomApi", async () => {
   it("happy path: js", async () => {
     sandbox.stub(fs, "ensureDir").resolves();
     sandbox.stub(fs, "writeFile").callsFake((file, data) => {
-      if (file === path.join("path", "src", "prompts", "chat", "skprompt.txt")) {
+      if (file === path.join("path", "src", "app", "instructions.txt")) {
         expect(data).to.contains("The following is a conversation with an AI assistant.");
       } else if (file === path.join("path", "src", "adaptiveCard", "hello.json")) {
         expect(data).to.contains("getHello");
-      } else if (file === path.join("path", "src", "prompts", "chat", "actions.json")) {
+      } else if (file === path.join("path", "src", "app", "functions.json")) {
         expect(data).to.contains("getHello");
-      } else if (file === path.join("path", "src", "app", "app.ts")) {
-        expect(data).to.contains(`app.ai.action("getHello"`);
+      } else if (file === path.join("path", "src", "app", "app.js")) {
+        expect(data).to.contains("functionDefs.getHello");
+        expect(data).not.to.contains("// Replace with function definition code");
+      } else if (file === path.join("path", "src", "app", "handlers.js")) {
+        expect(data).to.contains("const client = await api.getClient();");
         expect(data).not.to.contains("{{");
-        expect(data).not.to.contains("// Replace with action code");
       }
     });
-    sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
-    sandbox.stub(manifestUtils, "_writeAppManifest").resolves(ok(undefined));
     sandbox
       .stub(fs, "readFile")
-      .resolves(Buffer.from("test code // Replace with action code {{OPENAPI_SPEC_PATH}}"));
+      .resolves(
+        Buffer.from(
+          "// Replace with function definition code // Replace with function handler code {{OPENAPI_SPEC_PATH}}"
+        )
+      );
+    sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
+
+    sandbox.stub(manifestUtils, "_writeAppManifest").resolves(ok(undefined));
+
     await openApiSpecHelper.updateForCustomApi(spec, "javascript", "path", "openapi.yaml");
   });
 
   it("happy path: should contain warning if generate adaptive card data failed", async () => {
     sandbox.stub(fs, "ensureDir").resolves();
     sandbox.stub(fs, "writeFile").callsFake((file, data) => {
-      if (file === path.join("path", "src", "prompts", "chat", "skprompt.txt")) {
+      if (file === path.join("path", "src", "app", "instructions.txt")) {
         expect(data).to.contains("The following is a conversation with an AI assistant.");
       } else if (file === path.join("path", "src", "adaptiveCard", "hello.json")) {
-        assert.fail("should not generate adaptive card");
-      } else if (file === path.join("path", "src", "prompts", "chat", "actions.json")) {
+        expect(data).to.contains("getHello");
+      } else if (file === path.join("path", "src", "app", "functions.json")) {
         expect(data).to.contains("getHello");
       } else if (file === path.join("path", "src", "app", "app.ts")) {
-        expect(data).to.contains(`app.ai.action("getHello"`);
+        expect(data).to.contains("functionDefs.getHello");
+        expect(data).not.to.contains("// Replace with function definition code");
+      } else if (file === path.join("path", "src", "app", "handlers.ts")) {
+        expect(data).to.contains("const client = await api.getClient();");
         expect(data).not.to.contains("{{");
-        expect(data).not.to.contains("// Replace with action code");
-      } else if (file == path.join("path", "src", "adaptiveCard", "hello.data.json")) {
-        expect(data).to.deep.equal({});
       }
     });
     sandbox
       .stub(fs, "readFile")
-      .resolves(Buffer.from("test code // Replace with action code {{OPENAPI_SPEC_PATH}}"));
+      .resolves(
+        Buffer.from(
+          "// Replace with function definition code // Replace with function handler code {{OPENAPI_SPEC_PATH}}"
+        )
+      );
+
     sandbox.stub(AdaptiveCardGenerator, "generateAdaptiveCard").returns([
       {
         type: "AdaptiveCard",
@@ -1115,21 +1154,27 @@ describe("updateForCustomApi", async () => {
   it("happy path: js", async () => {
     sandbox.stub(fs, "ensureDir").resolves();
     sandbox.stub(fs, "writeFile").callsFake((file, data) => {
-      if (file === path.join("path", "src", "prompts", "chat", "skprompt.txt")) {
+      if (file === path.join("path", "src", "app", "instructions.txt")) {
         expect(data).to.contains("The following is a conversation with an AI assistant.");
       } else if (file === path.join("path", "src", "adaptiveCard", "hello.json")) {
         expect(data).to.contains("getHello");
-      } else if (file === path.join("path", "src", "prompts", "chat", "actions.json")) {
+      } else if (file === path.join("path", "src", "app", "functions.json")) {
         expect(data).to.contains("getHello");
       } else if (file === path.join("path", "src", "app", "app.ts")) {
-        expect(data).to.contains(`app.ai.action("getHello"`);
+        expect(data).to.contains("functionDefs.getHello");
+        expect(data).not.to.contains("// Replace with function definition code");
+      } else if (file === path.join("path", "src", "app", "handlers.ts")) {
+        expect(data).to.contains("const client = await api.getClient();");
         expect(data).not.to.contains("{{");
-        expect(data).not.to.contains("// Replace with action code");
       }
     });
     sandbox
       .stub(fs, "readFile")
-      .resolves(Buffer.from("test code // Replace with action code {{OPENAPI_SPEC_PATH}}"));
+      .resolves(
+        Buffer.from(
+          "// Replace with function definition code // Replace with function handler code {{OPENAPI_SPEC_PATH}}"
+        )
+      );
     sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
     sandbox.stub(manifestUtils, "_writeAppManifest").resolves(ok(undefined));
     await openApiSpecHelper.updateForCustomApi(spec, "javascript", "path", "openapi.yaml");
@@ -1258,18 +1303,25 @@ describe("updateForCustomApi", async () => {
     } as OpenAPIV3.Document;
     sandbox.stub(fs, "ensureDir").resolves();
     sandbox.stub(fs, "writeFile").callsFake((file, data) => {
-      if (file === path.join("path", "src", "prompts", "chat", "skprompt.txt")) {
+      if (file === path.join("path", "src", "app", "instructions.txt")) {
         expect(data).to.contains("The following is a conversation with an AI assistant.");
-      } else if (file === path.join("path", "src", "prompts", "chat", "actions.json")) {
-        expect(data).to.equals("[]");
+      } else if (file === path.join("path", "src", "app", "functions.json")) {
+        expect(data).to.equals("{}");
       } else if (file === path.join("path", "src", "app", "app.ts")) {
+        expect(data).not.to.contains("// Replace with function definition code");
+      } else if (file === path.join("path", "src", "app", "handlers.ts")) {
+        expect(data).to.contains("const client = await api.getClient();");
         expect(data).not.to.contains("{{");
-        expect(data).not.to.contains("// Replace with action code");
       }
     });
     sandbox
       .stub(fs, "readFile")
-      .resolves(Buffer.from("test code // Replace with action code {{OPENAPI_SPEC_PATH}}"));
+      .resolves(
+        Buffer.from(
+          "// Replace with function definition code // Replace with function handler code {{OPENAPI_SPEC_PATH}}"
+        )
+      );
+
     sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
     sandbox.stub(manifestUtils, "_writeAppManifest").resolves(ok(undefined));
     await openApiSpecHelper.updateForCustomApi(limitedSpec, "javascript", "path", "openapi.yaml");
@@ -1308,24 +1360,29 @@ describe("updateForCustomApi", async () => {
     } as OpenAPIV3.Document;
     sandbox.stub(fs, "ensureDir").resolves();
     const mockWriteFile = sandbox.stub(fs, "writeFile").callsFake((file, data) => {
-      if (file === path.join("path", "src", "prompts", "chat", "skprompt.txt")) {
+      if (file === path.join("path", "src", "app", "instructions.txt")) {
         expect(data).to.contains("The following is a conversation with an AI assistant.");
       } else if (file === path.join("path", "src", "adaptiveCard", "hello.json")) {
         expect(data).to.equals("[]");
-      } else if (file === path.join("path", "src", "prompts", "chat", "actions.json")) {
-        expect(data).to.equals("[]");
-      } else if (file === path.join("path", "src", "app", "app.ts")) {
+      } else if (file === path.join("path", "src", "app", "functions.json")) {
+        expect(data).to.equals("{}");
+      } else if (file === path.join("path", "src", "app", "app.js")) {
+        expect(data).not.to.contains("// Replace with function definition code");
+      } else if (file === path.join("path", "src", "app", "handlers.js")) {
         expect(data).not.to.contains("{{");
-        expect(data).not.to.contains("// Replace with action code");
       }
     });
     sandbox
       .stub(fs, "readFile")
-      .resolves(Buffer.from("test code // Replace with action code {{OPENAPI_SPEC_PATH}}"));
+      .resolves(
+        Buffer.from(
+          "// Replace with function definition code // Replace with function handler code {{OPENAPI_SPEC_PATH}}"
+        )
+      );
     sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
     sandbox.stub(manifestUtils, "_writeAppManifest").resolves(ok(undefined));
     await openApiSpecHelper.updateForCustomApi(limitedSpec, "javascript", "path", "openapi.yaml");
-    expect(mockWriteFile.calledThrice).to.be.true;
+    expect(mockWriteFile.callCount).to.equal(4);
   });
 
   it("happy path with spec with required and multiple parameter", async () => {
@@ -1401,23 +1458,29 @@ describe("updateForCustomApi", async () => {
     } as OpenAPIV3.Document;
     sandbox.stub(fs, "ensureDir").resolves();
     sandbox.stub(fs, "writeFile").callsFake((file, data) => {
-      if (file === path.join("path", "src", "prompts", "chat", "skprompt.txt")) {
+      if (file === path.join("path", "src", "app", "instructions.txt")) {
         expect(data).to.contains("The following is a conversation with an AI assistant.");
       } else if (file === path.join("path", "src", "adaptiveCard", "hello.json")) {
         expect(data).to.contains("getHello");
-      } else if (file === path.join("path", "src", "prompts", "chat", "actions.json")) {
+      } else if (file === path.join("path", "src", "app", "functions.json")) {
         expect(data).to.contains("getHello");
       } else if (file === path.join("path", "src", "app", "app.ts")) {
-        expect(data).to.contains(`app.ai.action("getHello"`);
+        expect(data).to.contains("functionDefs.getHello");
+        expect(data).not.to.contains("// Replace with function definition code");
+      } else if (file === path.join("path", "src", "app", "handlers.ts")) {
+        expect(data).to.contains("const client = await api.getClient();");
         expect(data).not.to.contains("{{");
-        expect(data).not.to.contains("// Replace with action code");
       }
     });
     sandbox
       .stub(fs, "readFile")
-      .resolves(Buffer.from("test code // Replace with action code {{OPENAPI_SPEC_PATH}}"));
-
+      .resolves(
+        Buffer.from(
+          "// Replace with function definition code // Replace with function handler code {{OPENAPI_SPEC_PATH}}"
+        )
+      );
     sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
+
     sandbox.stub(manifestUtils, "_writeAppManifest").resolves(ok(undefined));
     await openApiSpecHelper.updateForCustomApi(newSpec, "typescript", "path", "openapi.yaml");
   });
@@ -1526,28 +1589,31 @@ describe("updateForCustomApi", async () => {
     } as OpenAPIV3.Document;
     sandbox.stub(fs, "ensureDir").resolves();
     sandbox.stub(fs, "writeFile").callsFake((file, data) => {
-      if (file === path.join("path", "src", "prompts", "chat", "skprompt.txt")) {
+      if (file === path.join("path", "src", "app", "instructions.txt")) {
         expect(data).to.contains("The following is a conversation with an AI assistant.");
       } else if (file === path.join("path", "src", "adaptiveCard", "hello.json")) {
         expect(data).to.contains("getHello");
-      } else if (file === path.join("path", "src", "prompts", "chat", "actions.json")) {
+      } else if (file === path.join("path", "src", "app", "functions.json")) {
         expect(data).to.contains("getHello");
-        expect(data).to.contains("body");
-        expect(data).to.not.contains("format");
-        expect(data).to.contains("nestedObjProperty");
-        expect(data).to.contains("array");
       } else if (file === path.join("path", "src", "app", "app.ts")) {
-        expect(data).to.contains(`app.ai.action("getHello"`);
+        expect(data).to.contains("functionDefs.getHello");
+        expect(data).not.to.contains("// Replace with function definition code");
+      } else if (file === path.join("path", "src", "app", "handlers.ts")) {
+        expect(data).to.contains("const client = await api.getClient();");
         expect(data).not.to.contains("{{");
-        expect(data).not.to.contains("// Replace with action code");
       }
     });
-
-    sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
-    sandbox.stub(manifestUtils, "_writeAppManifest").resolves(ok(undefined));
     sandbox
       .stub(fs, "readFile")
-      .resolves(Buffer.from("test code // Replace with action code {{OPENAPI_SPEC_PATH}}"));
+      .resolves(
+        Buffer.from(
+          "// Replace with function definition code // Replace with function handler code {{OPENAPI_SPEC_PATH}}"
+        )
+      );
+    sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
+
+    sandbox.stub(manifestUtils, "_writeAppManifest").resolves(ok(undefined));
+
     await openApiSpecHelper.updateForCustomApi(newSpec, "typescript", "path", "openapi.yaml");
   });
 
@@ -1624,23 +1690,30 @@ describe("updateForCustomApi", async () => {
     } as OpenAPIV3.Document;
     sandbox.stub(fs, "ensureDir").resolves();
     sandbox.stub(fs, "writeFile").callsFake((file, data) => {
-      if (file === path.join("path", "src", "prompts", "chat", "skprompt.txt")) {
+      if (file === path.join("path", "src", "app", "instructions.txt")) {
         expect(data).to.contains("The following is a conversation with an AI assistant.");
       } else if (file === path.join("path", "src", "adaptiveCard", "hello.json")) {
         expect(data).to.contains("getHello");
-      } else if (file === path.join("path", "src", "prompts", "chat", "actions.json")) {
+      } else if (file === path.join("path", "src", "app", "functions.json")) {
         expect(data).to.contains("getHello");
       } else if (file === path.join("path", "src", "app", "app.ts")) {
-        expect(data).to.contains(`app.ai.action("getHello"`);
+        expect(data).to.contains("functionDefs.getHello");
+        expect(data).not.to.contains("// Replace with function definition code");
+      } else if (file === path.join("path", "src", "app", "handlers.ts")) {
+        expect(data).to.contains("const client = await api.getClient();");
         expect(data).not.to.contains("{{");
-        expect(data).not.to.contains("// Replace with action code");
       }
     });
-    sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
-    sandbox.stub(manifestUtils, "_writeAppManifest").resolves(ok(undefined));
     sandbox
       .stub(fs, "readFile")
-      .resolves(Buffer.from("test code // Replace with action code {{OPENAPI_SPEC_PATH}}"));
+      .resolves(
+        Buffer.from(
+          "// Replace with function definition code // Replace with function handler code {{OPENAPI_SPEC_PATH}}"
+        )
+      );
+    sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
+
+    sandbox.stub(manifestUtils, "_writeAppManifest").resolves(ok(undefined));
     await openApiSpecHelper.updateForCustomApi(authSpec, "typescript", "path", "openapi.yaml");
   });
 
@@ -1696,23 +1769,31 @@ describe("updateForCustomApi", async () => {
     } as OpenAPIV3.Document;
     sandbox.stub(fs, "ensureDir").resolves();
     sandbox.stub(fs, "writeFile").callsFake((file, data) => {
-      if (file === path.join("path", "src", "prompts", "chat", "skprompt.txt")) {
+      if (file === path.join("path", "src", "app", "instructions.txt")) {
         expect(data).to.contains("The following is a conversation with an AI assistant.");
       } else if (file === path.join("path", "src", "adaptiveCard", "hello.json")) {
-        expect(data).to.contains("${results}");
-      } else if (file === path.join("path", "src", "prompts", "chat", "actions.json")) {
+        expect(data).to.contains("getHello");
+      } else if (file === path.join("path", "src", "app", "functions.json")) {
         expect(data).to.contains("getHello");
       } else if (file === path.join("path", "src", "app", "app.ts")) {
-        expect(data).to.contains(`app.ai.action("getHello"`);
+        expect(data).to.contains("functionDefs.getHello");
+        expect(data).not.to.contains("// Replace with function definition code");
+      } else if (file === path.join("path", "src", "app", "handlers.ts")) {
+        expect(data).to.contains("const client = await api.getClient();");
         expect(data).not.to.contains("{{");
-        expect(data).not.to.contains("// Replace with action code");
       }
     });
-    sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
-    sandbox.stub(manifestUtils, "_writeAppManifest").resolves(ok(undefined));
     sandbox
       .stub(fs, "readFile")
-      .resolves(Buffer.from("test code // Replace with action code {{OPENAPI_SPEC_PATH}}"));
+      .resolves(
+        Buffer.from(
+          "// Replace with function definition code // Replace with function handler code {{OPENAPI_SPEC_PATH}}"
+        )
+      );
+    sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
+
+    sandbox.stub(manifestUtils, "_writeAppManifest").resolves(ok(undefined));
+
     await openApiSpecHelper.updateForCustomApi(
       specWithJsonPath,
       "typescript",

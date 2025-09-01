@@ -1,12 +1,11 @@
 class GenericCommandHandler {
-  triggerPatterns = new RegExp(/^.+$/);
-
-  async handleCommandReceived(context, state) {
-    // verify the command arguments which are received from the client if needed.
-    console.log(`App received message: ${context.activity.text}`);
+  async handleCommandReceived(activity) {
+    console.log(`App received message: ${activity.text}`);
 
     let response = "";
-    switch (context.activity.text) {
+    const text = activity.text;
+
+    switch (text) {
       case "hi":
         response =
           "Hi there! I'm your Command Bot, here to assist you with your tasks. Type 'help' for a list of available commands.";
@@ -26,6 +25,7 @@ class GenericCommandHandler {
       default:
         response = `Sorry, command unknown. Please type 'help' to see the list of available commands.`;
     }
+
     return response;
   }
 }

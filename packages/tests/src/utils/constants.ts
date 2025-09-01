@@ -279,6 +279,8 @@ export class Timeout {
 
   // open API
   public static readonly openAPIProvision: number = 20 * 1000;
+
+  public static readonly loadOpenAPI: number = 10 * 1000;
 }
 
 export class TreeViewCommands {
@@ -399,7 +401,8 @@ export type AppType =
   | "msgmulparams"
   | "msgapikeyspec"
   | "daAction"
-  | "weather";
+  | "weather"
+  | "daOpenAPI";
 
 export class FeatureFlagName {
   static readonly InsiderPreview = "__TEAMSFX_INSIDER_PREVIEW";
