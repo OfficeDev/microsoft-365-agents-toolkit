@@ -1,3 +1,98 @@
+### RELEASE release/6.0...release/6.2
+### Feature Commits
+
+#### Fx-core
+- [feat: Teams AI V2 JS TS templates (#14454)](https://github.com/OfficeDev/Teams-toolkit/commit/aa903e75a)
+- [feat: enable DA feature flags (#14426)](https://github.com/OfficeDev/Teams-toolkit/commit/360b25ab1)
+- [feat: display user friendly msg for shared scope advanced DA limitation (#14446)](https://github.com/OfficeDev/Teams-toolkit/commit/1e6f9f466)
+- [feat: teamsApp/extendToM365 action supports scope argument (#14400)](https://github.com/OfficeDev/Teams-toolkit/commit/45efd31a4)
+- [feat: support group email when removing share access for da (#14422)](https://github.com/OfficeDev/Teams-toolkit/commit/2bf294cf4)
+- [feat: move adding agent owner to collaborator (#14384)](https://github.com/OfficeDev/Teams-toolkit/commit/b45846db8)
+- [feat: support sharing agent with a scope of users (#14342)](https://github.com/OfficeDev/Teams-toolkit/commit/557ef4d24)
+- [feat: support package command in cli (#14206)](https://github.com/OfficeDev/Teams-toolkit/commit/2310dd4e8)
+- [feat: no require deploymentToken for SWA driver (#14154)](https://github.com/OfficeDev/Teams-toolkit/commit/5735b68a1)
+- [feat: update schema version as 1.9 (#14151)](https://github.com/OfficeDev/Teams-toolkit/commit/88eb0f3b5)
+- [feat: upgrade schema to 1.9 (#14143)](https://github.com/OfficeDev/Teams-toolkit/commit/f172b74a7)
+- [feat: update the 1.8 version (#14133)](https://github.com/OfficeDev/Teams-toolkit/commit/b76e5d992)
+- [feat: create v1.9 schema to set SWA write to env as non-required (#14131)](https://github.com/OfficeDev/Teams-toolkit/commit/b13a1bc91)
+
+#### CLI
+- [feat: move adding agent owner to collaborator (#14384)](https://github.com/OfficeDev/Teams-toolkit/commit/b45846db8)
+- [feat: support sharing agent with a scope of users (#14342)](https://github.com/OfficeDev/Teams-toolkit/commit/557ef4d24)
+
+#### Extension Toolkit
+- [feat: support sharing agent with a scope of users (#14342)](https://github.com/OfficeDev/Teams-toolkit/commit/557ef4d24)
+- [feat: guide user to setup MCP server (#14230)](https://github.com/OfficeDev/Teams-toolkit/commit/f3948d0fa)
+
+#### SDK
+- [feat: deprecate @microsoft/teamsfx SDK (#14256)](https://github.com/OfficeDev/Teams-toolkit/commit/8c2ae15e0)
+
+#### SDK React
+- [feat: deprecate @microsoft/teamsfx SDK (#14256)](https://github.com/OfficeDev/Teams-toolkit/commit/8c2ae15e0)
+
+#### .Net SDK
+
+
+### Fix Commits
+
+#### Fx-core
+- [fix: help link mismatch for DepsCheckerError (#14455)](https://github.com/OfficeDev/Teams-toolkit/commit/9be5eb88e)
+- [fix: bug to generate share link (#14450)](https://github.com/OfficeDev/Teams-toolkit/commit/36baaf322)
+- [fix: delete title id after removing acquisiations for shared scope DA (#14439)](https://github.com/OfficeDev/Teams-toolkit/commit/7069e1c18)
+- [fix: check api spec path in dev branch (#14429)](https://github.com/OfficeDev/Teams-toolkit/commit/ab9713206)
+- [fix: playground installation error message (#14423)](https://github.com/OfficeDev/Teams-toolkit/commit/8c564f085)
+- [fix: fix add sso docs (#14396)](https://github.com/OfficeDev/Teams-toolkit/commit/4ac681117)
+- [fix: debug profile name is incorrect when solution and project name is not the same (#14380)](https://github.com/OfficeDev/Teams-toolkit/commit/2df64786b)
+- [fix: fix add sso sample code (#14387)](https://github.com/OfficeDev/Teams-toolkit/commit/1181d7bc0)
+- [fix: open in TDP (#14373)](https://github.com/OfficeDev/Teams-toolkit/commit/5e3175d12)
+- [fix: cherry-pick function tool latest version compatibility](https://github.com/OfficeDev/Teams-toolkit/commit/221508fb1)
+- [fix: [SYNC-TO-DEV] fallback devPreview version to 1.19 to fix DA validate (#14365)](https://github.com/OfficeDev/Teams-toolkit/commit/6aca7e79c)
+- [fix: cherry-pick special character handling in cmd install command](https://github.com/OfficeDev/Teams-toolkit/commit/0264edaa2)
+- [fix: packaged embedded files are broken and failed to provision since size is changed (#14341)](https://github.com/OfficeDev/Teams-toolkit/commit/a81b57e18)
+- [fix: set general sensitivity label does not work when scaffold DA pro… (#14343)](https://github.com/OfficeDev/Teams-toolkit/commit/4a8b6d8f1)
+- [fix: fallback devPreview version to 1.19 to fix DA packing (#14336)](https://github.com/OfficeDev/Teams-toolkit/commit/9b55c8b6b)
+- [fix: import spfx solution with 1.21 doesnt work for multi web part sc… (#14334)](https://github.com/OfficeDev/Teams-toolkit/commit/be8bfcc2a)
+- [fix: invalid regular expression error (#14325)](https://github.com/OfficeDev/Teams-toolkit/commit/8a544ede4)
+- [fix: cherry pick m365 tenant mismatch improvement (#14298)](https://github.com/OfficeDev/Teams-toolkit/commit/f3c2a727b)
+- [fix: cherry-pick symbol link creation issue for test tool install](https://github.com/OfficeDev/Teams-toolkit/commit/af00fedec)
+- [fix: cherry-pick add fallback question for asking missing environment variables  (#14280)](https://github.com/OfficeDev/Teams-toolkit/commit/3f569c490)
+- [fix: fix the meta-os-da templates to the latest (#14212)](https://github.com/OfficeDev/Teams-toolkit/commit/e6b7b110d)
+- [fix: test tool download logic](https://github.com/OfficeDev/Teams-toolkit/commit/d4b194d69)
+- [fix: update env variable default value for vs (#14166)](https://github.com/OfficeDev/Teams-toolkit/commit/813290e10)
+- [fix: send telemetry with default string (#14140)](https://github.com/OfficeDev/Teams-toolkit/commit/858109a02)
+- [fix: da wording (#14108)](https://github.com/OfficeDev/Teams-toolkit/commit/6fdcf6d70)
+- [fix: create incoming webhook sample failed (#14078)](https://github.com/OfficeDev/Teams-toolkit/commit/5007931da)
+- [fix: mos api telemetry (#14029)](https://github.com/OfficeDev/Teams-toolkit/commit/491f174fd)
+- [fix: update to the newest template (#14001)](https://github.com/OfficeDev/Teams-toolkit/commit/03a49beb4)
+- [fix: cherry pick hotfixes for spfx local debug issue and rename updates (#13997)](https://github.com/OfficeDev/Teams-toolkit/commit/fc0fce5ec)
+- [fix: bugs (#13974)](https://github.com/OfficeDev/Teams-toolkit/commit/86199fa18)
+- [fix: Sync Merge #13914 to dev (hotfix meta-os-da template and unify project id) (#13949)](https://github.com/OfficeDev/Teams-toolkit/commit/9c9263bba)
+- [fix: update title (#13933)](https://github.com/OfficeDev/Teams-toolkit/commit/66c044c96)
+- [fix: sandbox v4 file filter (#13967)](https://github.com/OfficeDev/Teams-toolkit/commit/4a4855eb3)
+- [fix: cli create help (#13957)](https://github.com/OfficeDev/Teams-toolkit/commit/f655b40dc)
+- [fix: default folder name (#13926)](https://github.com/OfficeDev/Teams-toolkit/commit/cebe5216f)
+- [fix: enhance error log (#13866)](https://github.com/OfficeDev/Teams-toolkit/commit/868f1b029)
+
+#### CLI
+- [fix: cherry pick m365 tenant mismatch improvement (#14298)](https://github.com/OfficeDev/Teams-toolkit/commit/f3c2a727b)
+- [fix: update install app command description per doc team suggestion (#14135)](https://github.com/OfficeDev/Teams-toolkit/commit/4b9578f14)
+- [fix: bugs (#13974)](https://github.com/OfficeDev/Teams-toolkit/commit/86199fa18)
+- [fix: rename sensitivity label cli (#13969)](https://github.com/OfficeDev/Teams-toolkit/commit/35aa87a2c)
+
+#### Extension Toolkit
+- [fix: fix folder create bug for MCP setup (#14322)](https://github.com/OfficeDev/Teams-toolkit/commit/00df99a59)
+- [fix: login with personal azure account fails to provisoin (#14134)](https://github.com/OfficeDev/Teams-toolkit/commit/e235bc3ca)
+- [fix: bugs (#13974)](https://github.com/OfficeDev/Teams-toolkit/commit/86199fa18)
+- [fix: weather agent and changelog popup logic (#13939)](https://github.com/OfficeDev/Teams-toolkit/commit/7bebaf9f4)
+
+#### SDK
+
+
+#### SDK React
+
+
+#### .Net SDK
+- [fix: codeql csharp build error (#14448)](https://github.com/OfficeDev/Teams-toolkit/commit/6252902a0)
 # Microsoft 365 Agents Toolkit Pre-release
 
 ## Changelog
