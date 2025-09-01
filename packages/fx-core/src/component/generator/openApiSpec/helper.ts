@@ -1209,7 +1209,7 @@ async function updatePromptForCustomApi(
       spec.info.description ? ". " + spec.info.description : "."
     }\nIf the API doesn't require parameters, invoke it with default JSON object ${
       (language as ProgrammingLanguage) === ProgrammingLanguage.CSharp ? cSharpObject : object
-    }.\n\n ${
+    }.\n\n${
       shouldGenerateTeamsAIV2Code(language) ? "context:\nAvailable actions: {{getAction}}." : ""
     }`;
     await fs.writeFile(promptFilePath, prompt, { encoding: "utf-8", flag: "w" });
