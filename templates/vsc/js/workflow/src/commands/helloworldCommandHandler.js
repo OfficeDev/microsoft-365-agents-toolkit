@@ -1,12 +1,21 @@
-const helloWorldCard = require("../adaptiveCards/helloworldCommandResponse.json");
 const ACData = require("adaptivecards-templating");
-const { CardFactory, MessageFactory } = require("botbuilder");
+const helloWorldCard = require("../adaptiveCards/helloworldCommandResponse.json");
 
+/**
+ * The `HelloWorldCommandHandler` responds
+ * with an Adaptive Card if the user types the `triggerPatterns`.
+ */
 class HelloWorldCommandHandler {
-  triggerPatterns = "helloWorld";
+  constructor() {
+    this.triggerPatterns = "helloWorld";
+  }
 
-  async handleCommandReceived(context, state) {
-    console.log(`Bot received message: ${context.activity.text}`);
+  shouldTrigger(text) {
+    return text === this.triggerPatterns;
+  }
+
+  async handleCommandReceived(activity) {
+    console.log(`Bot received message: ${activity.text}`);
 
     const cardJson = new ACData.Template(helloWorldCard).expand({
       $root: {
@@ -14,10 +23,9 @@ class HelloWorldCommandHandler {
         body: "Congratulations! Your hello world bot is running. Click the button below to trigger an action.",
       },
     });
-    return MessageFactory.attachment(CardFactory.adaptiveCard(cardJson));
+
+    return cardJson;
   }
 }
 
-module.exports = {
-  HelloWorldCommandHandler,
-};
+module.exports = { HelloWorldCommandHandler };
