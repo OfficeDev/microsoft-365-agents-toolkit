@@ -77,18 +77,18 @@ export const agentForTeamsTemplates: Template[] = [
     language: "python",
     description: "",
   },
-  // {
-  //   id: "custom-copilot-rag-microsoft365-ts",
-  //   name: TemplateNames.CustomCopilotRagMicrosoft365,
-  //   language: "typescript",
-  //   description: "",
-  // },
-  // {
-  //   id: "custom-copilot-rag-microsoft365-js",
-  //   name: TemplateNames.CustomCopilotRagMicrosoft365,
-  //   language: "javascript",
-  //   description: "",
-  // },
+  {
+    id: "custom-copilot-rag-microsoft365-ts",
+    name: TemplateNames.CustomCopilotRagMicrosoft365,
+    language: "typescript",
+    description: "",
+  },
+  {
+    id: "custom-copilot-rag-microsoft365-js",
+    name: TemplateNames.CustomCopilotRagMicrosoft365,
+    language: "javascript",
+    description: "",
+  },
   {
     id: "custom-copilot-rag-microsoft365-csharp",
     name: TemplateNames.CustomCopilotRagMicrosoft365,
@@ -119,18 +119,18 @@ export const agentForTeamsTemplates: Template[] = [
     language: "python",
     description: "",
   },
-  // {
-  //   id: "custom-copilot-assistant-assistants-api-ts",
-  //   name: TemplateNames.CustomCopilotAssistantAssistantsApi,
-  //   language: "typescript",
-  //   description: "",
-  // },
-  // {
-  //   id: "custom-copilot-assistant-assistants-api-js",
-  //   name: TemplateNames.CustomCopilotAssistantAssistantsApi,
-  //   language: "javascript",
-  //   description: "",
-  // },
+  {
+    id: "custom-copilot-assistant-assistants-api-ts",
+    name: TemplateNames.CustomCopilotAssistantAssistantsApi,
+    language: "typescript",
+    description: "",
+  },
+  {
+    id: "custom-copilot-assistant-assistants-api-js",
+    name: TemplateNames.CustomCopilotAssistantAssistantsApi,
+    language: "javascript",
+    description: "",
+  },
   {
     id: "custom-copilot-assistant-assistants-api-csharp",
     name: TemplateNames.CustomCopilotAssistantAssistantsApi,
