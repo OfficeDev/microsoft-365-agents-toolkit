@@ -121,13 +121,7 @@ export function happyPathTest(options: {
         });
         validateFileExist(
           projectPath,
-          `src/${
-            options.lang === Lang.JS
-              ? "index.js"
-              : options.lang === Lang.TS
-              ? "index.ts"
-              : "app.py"
-          }`
+          `src/${options.lang === Lang.JS ? "index.js" : "index.ts"}`
         );
 
         const envPath = path.resolve(projectPath, "env", ".env.dev.user");
@@ -152,13 +146,12 @@ export function happyPathTest(options: {
           editDotEnvFile(envPath, "AZURE_OPENAI_ENDPOINT", azureOpenAiEndpoint);
           editDotEnvFile(
             envPath,
-            "AZURE_OPENAI_MODEL_DEPLOYMENT_NAME",
+            "AZURE_OPENAI_DEPLOYMENT_NAME",
             azureOpenAiModelDeploymentName
           );
         } else {
           // openai entrance
           editDotEnvFile(envPath, "SECRET_OPENAI_API_KEY", "fake");
-          editDotEnvFile(envPath, "OPENAI_ASSISTANT_ID", "fake");
         }
 
         {
@@ -190,7 +183,7 @@ export function happyPathTest(options: {
           );
           editDotEnvFile(
             localEnvPath,
-            "AZURE_OPENAI_MODEL_DEPLOYMENT_NAME",
+            "AZURE_OPENAI_DEPLOYMENT_NAME",
             azureOpenAiModelDeploymentName
           );
         }
@@ -261,13 +254,7 @@ export function happyPathTest(options: {
         );
         validateFileExist(
           projectPath,
-          `src/${
-            options.lang === Lang.JS
-              ? "index.js"
-              : options.lang === Lang.TS
-              ? "index.ts"
-              : "app.py"
-          }`
+          `src/${options.lang === Lang.JS ? "index.js" : "index.ts"}`
         );
 
         const envPath = path.resolve(projectPath, "env", ".env.local.user");
@@ -293,13 +280,12 @@ export function happyPathTest(options: {
           editDotEnvFile(envPath, "AZURE_OPENAI_ENDPOINT", azureOpenAiEndpoint);
           editDotEnvFile(
             envPath,
-            "AZURE_OPENAI_MODEL_DEPLOYMENT_NAME",
+            "AZURE_OPENAI_DEPLOYMENT_NAME",
             azureOpenAiModelDeploymentName
           );
         } else {
           // openai entrance
           editDotEnvFile(envPath, "SECRET_OPENAI_API_KEY", "fake");
-          editDotEnvFile(envPath, "OPENAI_ASSISTANT_ID", "fake");
         }
 
         await startDebugging(DebugItemSelect.DebugInTeamsUsingChrome);
@@ -307,7 +293,7 @@ export function happyPathTest(options: {
         await waitForTerminal(LocalDebugTaskLabel.StartLocalTunnel);
         await waitForTerminal(
           LocalDebugTaskLabel.StartBotApp,
-          LocalDebugTaskResult.AgentStartedSuccessfully
+          LocalDebugTaskResult.DebuggerAttached
         );
 
         const teamsAppId = await localDebugTestContext.getTeamsAppId();
