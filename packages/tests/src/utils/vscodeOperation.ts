@@ -1074,6 +1074,21 @@ export async function createNewProject(
       await input.selectQuickPick(lang);
       break;
     }
+    case "weather": {
+      await input.selectQuickPick(CreateProjectQuestion.CustomCopilot);
+      await driver.sleep(Timeout.input);
+      await input.selectQuickPick(CreateProjectQuestion.WeatherAgent);
+      await driver.sleep(Timeout.input);
+      // choose ai type
+      await input.setText(aiType);
+      await driver.sleep(Timeout.input);
+      await input.confirm();
+      await driver.sleep(Timeout.input);
+      await input.confirm();
+      // Choose programming language
+      await input.selectQuickPick(lang);
+      break;
+    }
     default:
       break;
   }

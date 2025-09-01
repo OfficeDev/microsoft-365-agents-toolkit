@@ -529,6 +529,7 @@ export class CreateProjectQuestion {
   static readonly DeclarativeAgent = "Declarative Agent";
   static readonly BasicCustomEngineAgent = "Basic Custom Engine Agent";
   static readonly BasicAgentForTeams = "Basic Agent for Teams";
+  static readonly WeatherAgent = "Weather Agent";
 }
 
 export class ValidationContent {
