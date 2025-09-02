@@ -1,6 +1,6 @@
 # Overview of the Basic AI Chatbot template
 
-This app template is built on top of [Teams AI library](https://aka.ms/teams-ai-library-v2).
+This app template is built on top of [Teams AI library V2](https://aka.ms/teams-ai-library-v2).
 It showcases an agent app that responds to user questions like ChatGPT. This enables your users to talk with the AI agent in Teams.
 
 ## Get started with the template
