@@ -67,7 +67,7 @@ export async function updateVersionForTeamsAppYamlFile(projectPath: string): Pro
           renameClientSecret(document);
         }
 
-        document.set("version", "1.8");
+        document.set("version", "v1.8");
         const docContent = document.toString();
         // yaml-language-server can be like https://aka.ms/teams-toolkit/1.0.0/yaml.schema.json and https://aka.ms/teams-toolkit/v1.2/yaml.schema.json
         const updatedContent = docContent.replace(
