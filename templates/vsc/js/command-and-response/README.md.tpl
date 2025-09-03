@@ -2,7 +2,7 @@
 
 This template showcases an app that responds to chat commands by displaying UI using an Adaptive Card. This enables your users to type in simple messages in Teams and your application can provide an appropriate response based on the contents of the message.
 
-The app template is built using the Teams AI SDK, which provides a simple set of functions over the Microsoft Bot Framework to implement this scenario.
+The app template is built on top of [Teams AI library V2](https://aka.ms/teams-ai-library-v2), which provides a simple set of functions over the Microsoft Bot Framework to implement this scenario.
 
 ## Get Started with the Command bot
 
@@ -223,5 +223,5 @@ Adaptive cards can be updated on user action to allow user progress through a se
 - [Collaborate with others](https://docs.microsoft.com/microsoftteams/platform/toolkit/teamsfx-collaboration)
 - [Microsoft 365 Agents Toolkit Documentations](https://docs.microsoft.com/microsoftteams/platform/toolkit/teams-toolkit-fundamentals)
 - [Microsoft 365 Agents Toolkit CLI](https://aka.ms/teamsfx-toolkit-cli)
-- [Teams AI SDK](https://learn.microsoft.com/en-us/microsoftteams/platform/teams-ai-library/welcome)
+- [Teams AI SDK V2](https://learn.microsoft.com/en-us/microsoftteams/platform/teams-ai-library/welcome)
 - [Microsoft 365 Agents Toolkit Samples](https://github.com/OfficeDev/TeamsFx-Samples)

@@ -1,7 +1,11 @@
 # Overview of the AI Agent template
 
 This app template is built on top of [Teams AI library](https://aka.ms/teams-ai-library) and [OpenAI Assistants API](https://platform.openai.com/docs/assistants/overview).
-It showcases how to build an AI agent in Teams capable of helping users accomplish specific tasks using natural language right in the Teams conversations, such as solving a math problem, call functions to get city weather, etc.
+It showcases how to build an AI agent in Teams capable of helping users accomplish specific tasks using natural language right in the Teams conversations, such as solving a math problem, calling functions to get city weather, etc.
+
+> **Note**
+>
+> [Teams AI library V2](https://aka.ms/teams-ai-library-v2) is recommended. This template will be upgraded to Teams AI V2 soon.
 
 ## Get started with the template
 

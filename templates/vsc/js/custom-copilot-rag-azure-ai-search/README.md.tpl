@@ -4,7 +4,7 @@ This app template showcases how to build one of the most powerful applications e
 This app template also demonstrates usage of techniques like: 
 - [Retrieval Augmented Generation](https://python.langchain.com/docs/use_cases/question_answering/#what-is-rag), or RAG.
 - [Azure AI Search](https://learn.microsoft.com/azure/search/search-what-is-azure-search)
-- [Teams AI Library](https://learn.microsoft.com/microsoftteams/platform/bots/how-to/teams%20conversational%20ai/teams-conversation-ai-overview)
+- [Teams AI library V2](https://learn.microsoft.com/microsoftteams/platform/bots/how-to/teams%20conversational%20ai/teams-conversation-ai-overview)
 
 ## Get started with the template
 

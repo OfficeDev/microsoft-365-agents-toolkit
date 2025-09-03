@@ -1,6 +1,6 @@
 # Overview of the AI Agent template
 
-This app template is built on top of [Teams AI library](https://aka.ms/teams-ai-library-v2).
+This app template is built on top of [Teams AI library V2](https://aka.ms/teams-ai-library-v2).
 It showcases how to build an AI agent in Teams capable of chatting with users and helping users accomplish a specific task using natural language right in the Teams conversations, such as managing tasks.
 
 ## Get started with the template
