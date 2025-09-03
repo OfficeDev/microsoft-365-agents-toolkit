@@ -32,6 +32,7 @@ on:
     - cron: "0 16 * * *"
 
 permissions:
+  id-token: write   # required to request OIDC token
   actions: write
   contents: write
 
@@ -364,3 +365,11 @@ jobs:
             versions.json
             *.vsix
             *.exe
+
+      # Login to Azure via OIDC (no secret required)
+      - name: Azure Login via OIDC
+        uses: azure/login@v2
+        with:
+          client-id: 'ef52cf74-a610-497c-9728-8eaefe9450a5'   # App with federated credential
+          tenant-id: '72f988bf-86f1-41af-91ab-2d7cd011db47'
+          enable-AzureAD-OIDC: true
