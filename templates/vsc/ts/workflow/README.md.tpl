@@ -2,7 +2,7 @@
 
 This template showcases an app that responds to chat commands by displaying UI using an Adaptive Card. The card has a button that demonstrates how to receive user input on the card, do something like call an API, and update the UI of that card. This can be further customized to create richer, more complex sequence of steps which forms a complete workflow.
 
-The app template is built using the TeamsFx SDK, which provides a simple set of functions over the Microsoft Bot Framework to implement this scenario.
+The app template is built on top of [Teams AI library V2](https://aka.ms/teams-ai-library-v2), which provides a simple set of functions over the Microsoft Bot Framework to implement this scenario.
 
 ## Get Started with the Workflow bot
 
