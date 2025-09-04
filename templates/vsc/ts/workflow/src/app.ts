@@ -2,7 +2,7 @@ import { App } from "@microsoft/teams.apps";
 import { DoStuffActionHandler } from "./cardActions/doStuffActionHandler";
 import { GenericCommandHandler } from "./commands/genericCommandHandler";
 import { HelloWorldCommandHandler } from "./commands/helloworldCommandHandler";
-import { TokenCredentials } from "@microsoft/teams.api";
+import { TokenCredentials, stripMentionsText } from "@microsoft/teams.api";
 import { ManagedIdentityCredential } from "@azure/identity";
 import config from "./internal/config";
 
@@ -42,15 +42,16 @@ const genericCommandHandler = new GenericCommandHandler();
 const doStuffActionHandler = new DoStuffActionHandler();
 
 app.on("message", async ({ activity, send }) => {
-  if (helloworldCommandHandler.shouldTrigger(activity.text)) {
-    const response = await helloworldCommandHandler.handleCommandReceived(activity);
+  const text: string = stripMentionsText(activity);
+  if (helloworldCommandHandler.shouldTrigger(text)) {
+    const response = await helloworldCommandHandler.handleCommandReceived(text);
     if (response) {
       await send(response);
     }
     return;
   }
 
-  const response = await genericCommandHandler.handleCommandReceived(activity);
+  const response = await genericCommandHandler.handleCommandReceived(text);
   if (response) {
     await send(response);
   }

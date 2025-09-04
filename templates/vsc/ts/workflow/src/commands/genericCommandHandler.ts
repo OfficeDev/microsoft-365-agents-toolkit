@@ -3,9 +3,9 @@
  * with appropriate messages if the user types general command inputs, such as "hi", "hello", and "help".
  */
 export class GenericCommandHandler {
-  async handleCommandReceived(activity: any): Promise<string> {
+  async handleCommandReceived(text: string): Promise<string> {
     let response = "";
-    switch (activity.text) {
+    switch (text) {
       case "hi":
         response =
           "Hi there! I'm your Workflow Bot, here to assist you with your tasks. Type 'help' for a list of available commands.";
