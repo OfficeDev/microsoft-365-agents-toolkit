@@ -12,7 +12,7 @@
         "id": ""
     },
     {{/SensitivityLabelEnabled}}
-    "name": "{{appName}}",
+    "name": "{{appName}}${{APP_NAME_SUFFIX}}",
     "description": "Declarative agent created with Microsoft 365 Agents Toolkit",
     {{^CopilotConnector}}
     "instructions": "$[file('instruction.txt')]"
