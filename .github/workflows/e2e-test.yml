@@ -54,7 +54,7 @@ jobs:
       id-token: write
       contents: read
     outputs:
-      cases: ${{ steps.schedule-cases.outputs.cases || steps.dispatch-cases.outputs.cases || steps.pr-cases.outputs.cases }}
+      cases: ${{ steps.schedule-or-pr-cases.outputs.cases || steps.dispatch-cases.outputs.cases }}
     env:
       AZURE_ACCOUNT_NAME: ${{ secrets.TEST_USER_NAME }}
       AZURE_ACCOUNT_OBJECT_ID: ${{ secrets.TEST_USER_OBJECT_ID }}
@@ -79,13 +79,27 @@ jobs:
       - name: setup project
         uses: ./.github/actions/setup-project
 
-      - name: List cases
-        id: schedule-cases
+      - name: List cases for schedule or pull request
+        id: schedule-or-pr-cases
+        if: ${{  github.event_name == 'schedule' || github.event_name == 'pull_request' }}
         working-directory: packages/tests/src/e2e
         run: |
           cases=`find . -wholename "*.tests.ts" | jq -Rsc '[split("\n") | .[]| select(.!="")]'`
           echo "cases=$cases" >> $GITHUB_OUTPUT
 
+      - name: List cases for dispatch
+        id: dispatch-cases
+        if: ${{  github.event_name == 'workflow_dispatch' }}
+        working-directory: packages/tests/src/e2e
+        run: |
+          inputCases='${{ github.event.inputs.cases }}'
+          if [ -z "$inputCases" ]; then
+            allCases=`find . -wholename "*.tests.ts" | jq -Rsc '[split("\n") | .[]| select(.!="")]'`
+            echo "cases=$allCases" >> $GITHUB_OUTPUT
+          else
+            echo "cases=$inputCases" >> $GITHUB_OUTPUT
+          fi
+          
       - name: E2E Test clean
         working-directory: packages/tests
         run: |
