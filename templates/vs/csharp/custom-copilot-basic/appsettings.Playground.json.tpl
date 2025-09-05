@@ -7,18 +7,23 @@
     }
   },
   "AllowedHosts": "*",
-  "BOT_ID": "",
-  "BOT_PASSWORD": "",
+   "Teams": {
+		"ClientId": "",
+		"ClientSecret": "",
+    "TenantId": "",
+		"BotType": ""
+	}
 {{#useOpenAI}}
   "OpenAI": {
-    "ApiKey": "{{{originalOpenAIKey}}}"
+    "ApiKey": ""，
+    "Model": "gpt-3.5-turbo"
   }
 {{/useOpenAI}}
 {{#useAzureOpenAI}}
   "Azure": {
-    "OpenAIApiKey": "{{{originalAzureOpenAIKey}}}",
-    "OpenAIEndpoint": "{{{azureOpenAIEndpoint}}}",
-    "OpenAIDeploymentName": "{{{azureOpenAIDeploymentName}}}" 
+    "OpenAIApiKey": "",
+    "OpenAIEndpoint": "",
+    "OpenAIDeploymentName": "" 
   }
 {{/useAzureOpenAI}}
 }
