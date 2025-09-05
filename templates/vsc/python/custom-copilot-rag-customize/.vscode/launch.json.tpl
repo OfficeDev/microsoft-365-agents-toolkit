@@ -1,6 +1,20 @@
 {
   "version": "0.2.0",
   "configurations": [
+{{#SandBoxedTeam}}
+    {
+      "name": "Launch Agent to channel (Edge)",
+      "type": "msedge",
+      "request": "launch",
+      "url": "${{sandbox:CHANNEL_WEB_URL}}&webjoin=true",
+      "presentation": {
+          "group": "all",
+          "hidden": true
+      },
+      "internalConsoleOptions": "neverOpen",
+      "perScriptSourcemaps": "yes"
+    },
+{{/SandBoxedTeam}}
     {
       "name": "Launch Remote (Edge)",
       "type": "msedge",
@@ -143,6 +157,19 @@
     }
   ],
   "compounds": [
+{{#SandBoxedTeam}}
+    {
+      "name": "Debug in sandbox in Teams (Edge)",
+      "configurations": ["Launch Agent to channel (Edge)", "Start Python"],
+      "cascadeTerminateToConfigurations": ["Start Python"],
+      "preLaunchTask": "Start Agent (Sandbox)",
+      "presentation": {
+          "group": "0-TestTool",
+          "order": 2
+      },
+      "stopAll": true
+    },
+{{/SandBoxedTeam}}
     {
       "name": "Debug in Teams (Edge)",
       "configurations": ["Launch Agent (Edge)", "Start Python"],
