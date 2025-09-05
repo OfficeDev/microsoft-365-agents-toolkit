@@ -1,7 +1,7 @@
 class GenericCommandHandler {
-  async handleCommandReceived(activity) {
+  async handleCommandReceived(text) {
     let response = "";
-    switch (activity.text) {
+    switch (text) {
       case "hi":
         response =
           "Hi there! I'm your Workflow Bot, here to assist you with your tasks. Type 'help' for a list of available commands.";

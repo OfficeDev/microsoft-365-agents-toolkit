@@ -1,10 +1,8 @@
 class GenericCommandHandler {
-  async handleCommandReceived(activity) {
-    console.log(`App received message: ${activity.text}`);
+  async handleCommandReceived(text) {
+    console.log(`App received message: ${text}`);
 
     let response = "";
-    const text = activity.text;
-
     switch (text) {
       case "hi":
         response =

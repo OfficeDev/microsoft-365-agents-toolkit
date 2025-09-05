@@ -1,5 +1,6 @@
 const { ManagedIdentityCredential } = require("@azure/identity");
 const { App } = require("@microsoft/teams.apps");
+const { stripMentionsText } = require("@microsoft/teams.api");
 const { HelloWorldCommandHandler } = require("./helloworldCommandHandler");
 const { GenericCommandHandler } = require("./genericCommandHandler");
 const config = require("./internal/config");
@@ -35,11 +36,11 @@ const genericHandler = new GenericCommandHandler();
 
 // Register message handler
 app.on("message", async ({ activity, send }) => {
-  const text = activity.text || "";
+  const text = stripMentionsText(activity);
 
   // Check if helloWorld command
   if (helloWorldHandler.canHandle(text)) {
-    const reply = await helloWorldHandler.handleCommandReceived(activity);
+    const reply = await helloWorldHandler.handleCommandReceived(text);
     if (reply) {
       await send(reply);
     }
@@ -47,7 +48,7 @@ app.on("message", async ({ activity, send }) => {
   }
 
   // Handle all other messages with generic handler
-  const reply = await genericHandler.handleCommandReceived(activity);
+  const reply = await genericHandler.handleCommandReceived(text);
   if (reply) {
     await send(reply);
   }
