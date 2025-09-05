@@ -182,7 +182,7 @@ const { DoSomethingCommandHandler } = require("./doSomethingCommandHandler");
 const doSomethingHandler = new DoSomethingCommandHandler();
 
 app.on("message", async ({ activity, send }) => {
-  const text = activity.text || "";
+  const text = stripMentionsText(activity);
 
   // Check if doSomething command
   if (doSomethingHandler.canHandle(text)) {

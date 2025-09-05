@@ -33,6 +33,7 @@
         "@microsoft/teams.common": "preview",
         "fs-extra": "^11.2.0",
         "js-yaml": "^4.1.0",
+        "json-schema": "^0.4.0",
         "adaptivecards-templating": "^2.3.1",
         "adaptivecards": "^3.0.5",
         "openapi-client-axios": "^7.4.0"

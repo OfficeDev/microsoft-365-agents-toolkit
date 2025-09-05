@@ -23,6 +23,8 @@ provision:
     with:
       # Name of the API Key
       name: {{ApiSpecAuthName}}
+      # Value of the API Key
+      primaryClientSecret: ${{SECRET_API_KEY}}
       # Teams app ID
       appId: ${{TEAMS_APP_ID}}
       # Path to OpenAPI description document

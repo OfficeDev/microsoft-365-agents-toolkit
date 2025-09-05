@@ -12,8 +12,8 @@ export class HelloWorldCommandHandler {
     return text === this.triggerPattern;
   }
 
-  async handleCommandReceived(activity: any): Promise<any> {
-    console.log(`App received message: ${activity.text}`);
+  async handleCommandReceived(text: string): Promise<any> {
+    console.log(`App received message: ${text}`);
 
     // Use ACData templating to expand the card with data
     const cardJson = new ACData.Template(helloWorldCard).expand({

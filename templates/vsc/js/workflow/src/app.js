@@ -1,5 +1,6 @@
 const { ManagedIdentityCredential } = require("@azure/identity");
 const { App } = require("@microsoft/teams.apps");
+const { stripMentionsText } = require("@microsoft/teams.api");
 const { DoStuffActionHandler } = require("./cardActions/doStuffActionHandler");
 const { GenericCommandHandler } = require("./commands/genericCommandHandler");
 const { HelloWorldCommandHandler } = require("./commands/helloworldCommandHandler");
@@ -37,15 +38,16 @@ const genericCommandHandler = new GenericCommandHandler();
 const doStuffActionHandler = new DoStuffActionHandler();
 
 app.on("message", async ({ activity, send }) => {
-  if (helloworldCommandHandler.shouldTrigger(activity.text)) {
-    const response = await helloworldCommandHandler.handleCommandReceived(activity);
+  const text = stripMentionsText(activity);
+  if (helloworldCommandHandler.shouldTrigger(text)) {
+    const response = await helloworldCommandHandler.handleCommandReceived(text);
     if (response) {
       await send(response);
     }
     return;
   }
 
-  const response = await genericCommandHandler.handleCommandReceived(activity);
+  const response = await genericCommandHandler.handleCommandReceived(text);
   if (response) {
     await send(response);
   }

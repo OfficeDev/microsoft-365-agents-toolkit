@@ -164,7 +164,7 @@ Each new command handler needs to be configured in the `App`, which powers the c
 const doSomethingCommandHandler = new DoSomethingCommandHandler();
 
 app.on("message", async ({ activity, send }) => {
-  const text = activity.text || "";
+  const text: string = stripMentionsText(activity);
 
   // Check if doSomething command
   if (doSomethingCommandHandler.canHandle(text)) {

@@ -1,7 +1,7 @@
 import { App } from "@microsoft/teams.apps";
 import { HelloWorldCommandHandler } from "./helloworldCommandHandler";
 import { GenericCommandHandler } from "./genericCommandHandler";
-import { TokenCredentials } from "@microsoft/teams.api";
+import { TokenCredentials, stripMentionsText } from "@microsoft/teams.api";
 import { ManagedIdentityCredential } from "@azure/identity";
 import config from "./internal/config";
 
@@ -37,11 +37,11 @@ const genericHandler = new GenericCommandHandler();
 
 // Register message handler
 app.on("message", async ({ activity, send }) => {
-  const text = activity.text || "";
+  const text: string = stripMentionsText(activity);
 
   // Check if helloWorld command
   if (helloWorldHandler.canHandle(text)) {
-    const reply = await helloWorldHandler.handleCommandReceived(activity);
+    const reply = await helloWorldHandler.handleCommandReceived(text);
     if (reply) {
       await send(reply);
     }
@@ -49,7 +49,7 @@ app.on("message", async ({ activity, send }) => {
   }
 
   // Handle all other messages with generic handler
-  const reply = await genericHandler.handleCommandReceived(activity);
+  const reply = await genericHandler.handleCommandReceived(text);
   if (reply) {
     await send(reply);
   }

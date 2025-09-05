@@ -10,8 +10,8 @@ class HelloWorldCommandHandler {
     return text === this.triggerPattern;
   }
 
-  async handleCommandReceived(activity) {
-    console.log(`App received message: ${activity.text}`);
+  async handleCommandReceived(text) {
+    console.log(`App received message: ${text}`);
 
     const cardJson = new ACData.Template(helloWorldCard).expand({
       $root: {

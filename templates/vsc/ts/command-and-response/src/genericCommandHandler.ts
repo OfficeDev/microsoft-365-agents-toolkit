@@ -3,12 +3,12 @@
  * with appropriate messages if the user types general command inputs, such as "hi", "hello", and "help".
  */
 export class GenericCommandHandler {
-  async handleCommandReceived(activity: any): Promise<string | void> {
-    console.log(`App received message: ${activity.text}`);
+  async handleCommandReceived(text: string): Promise<string | void> {
+    console.log(`App received message: ${text}`);
 
     let response = "";
 
-    switch (activity.text) {
+    switch (text) {
       case "hi":
         response =
           "Hi there! I'm your Command Bot, here to assist you with your tasks. Type 'help' for a list of available commands.";
