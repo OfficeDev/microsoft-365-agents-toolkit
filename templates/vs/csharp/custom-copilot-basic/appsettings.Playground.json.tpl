@@ -12,18 +12,18 @@
 		"ClientSecret": "",
     "TenantId": "",
 		"BotType": ""
-	}
+	}，
 {{#useOpenAI}}
   "OpenAI": {
-    "ApiKey": ""，
+    "ApiKey": "{{{originalOpenAIKey}}}"，
     "Model": "gpt-3.5-turbo"
   }
 {{/useOpenAI}}
 {{#useAzureOpenAI}}
   "Azure": {
-    "OpenAIApiKey": "",
-    "OpenAIEndpoint": "",
-    "OpenAIDeploymentName": "" 
+    "OpenAIApiKey": "{{{originalAzureOpenAIKey}}}",
+    "OpenAIEndpoint": "{{{azureOpenAIEndpoint}}}",
+    "OpenAIDeploymentName": "{{{azureOpenAIDeploymentName}}}" 
   }
 {{/useAzureOpenAI}}
 }

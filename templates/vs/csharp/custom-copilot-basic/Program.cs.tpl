@@ -42,6 +42,9 @@ if (config.Teams.BotType == "UserAssignedMsi")
     ));
 }
 
+builder.Services.AddSingleton<Controller>();
+builder.AddTeams(appBuilder);
+
 // Read instructions from file
 var instructionsPath = Path.Combine(builder.Environment.ContentRootPath, "Prompts", "instructions.txt");
 var instructions = await File.ReadAllTextAsync(instructionsPath);
@@ -60,4 +63,6 @@ builder.Services.AddOpenAI(
     {{/useAzureOpenAI}}
     new ChatPromptOptions().WithInstructions(instructions));
 
+var app = builder.Build();
+app.UseTeams();
 app.Run();

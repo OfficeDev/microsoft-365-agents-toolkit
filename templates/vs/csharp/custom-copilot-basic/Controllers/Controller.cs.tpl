@@ -28,10 +28,10 @@ namespace {{SafeProjectName}}.Controllers
         }
 
         [Microsoft.Teams.Apps.Activities.Invokes.Message.SubmitAction]
-        public async Task OnSubmitAction(IContext<Messages.SubmitActionActivity> context)
+        public Task OnSubmitAction(IContext<Messages.SubmitActionActivity> context)
         {
             Console.WriteLine($"Your feedback is {context.Activity.Value.ActionValue}");
-
+            return Task.CompletedTask;
         }
 
         [Conversation.MembersAdded]

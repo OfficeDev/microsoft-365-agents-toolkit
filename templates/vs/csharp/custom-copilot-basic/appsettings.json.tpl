@@ -12,7 +12,7 @@
 		"ClientSecret": "",
     "TenantId": "",
 		"BotType": ""
-	}
+	}，
 {{#useOpenAI}}
   "OpenAI": {
     "ApiKey": ""
