@@ -85,12 +85,20 @@ app.on('message', async ({ send, activity }) => {
     const prompt = new ChatPrompt({
       messages,
       instructions: enhancedInstructions,
+      {{#useOpenAI}}
+      model: new OpenAIChatModel({
+        model: config.openAIModelName,
+        apiKey: config.openAIKey
+      })
+      {{/useOpenAI}}
+      {{#useAzureOpenAI}}
       model: new OpenAIChatModel({
         model: config.azureOpenAIDeploymentName,
         apiKey: config.azureOpenAIKey,
         endpoint: config.azureOpenAIEndpoint,
         apiVersion: "2024-10-21"
       })
+      {{/useAzureOpenAI}}
     });
 
     const response = await prompt.send(activity.text);
