@@ -17,14 +17,22 @@ namespace {{SafeProjectName}}.Controllers
         {
             var state = State.From(context);
 
-            await _prompt.Send(context.Activity.Text, new() { Messages = state.Messages }, (chunk) => Task.Run(() =>
+            if (context.Activity.Conversation.IsGroup == true)
             {
-                context.Stream.Emit(chunk);
-            }), context.CancellationToken);
+                var response = await _prompt.Send(context.Activity.Text, new() { Messages = state.Messages }, null, context.CancellationToken);
+                await context.Send(new Microsoft.Teams.Api.Activities.MessageActivity(response.Content).AddFeedback().AddAIGenerated());
+            }
+            else
+            {
 
+                await _prompt.Send(context.Activity.Text, new() { Messages = state.Messages }, (chunk) => Task.Run(() =>
+                {
+                    context.Stream.Emit(chunk);
+                }), context.CancellationToken);
+
+                context.Stream.Emit((Microsoft.Teams.Api.Activities.MessageActivity)new Microsoft.Teams.Api.Activities.MessageActivity().AddFeedback().AddAIGenerated());
+            }
             state.Save(context);
-
-            context.Stream.Emit((Microsoft.Teams.Api.Activities.MessageActivity)new Microsoft.Teams.Api.Activities.MessageActivity().AddFeedback().AddAIGenerated());
         }
 
         [Microsoft.Teams.Apps.Activities.Invokes.Message.SubmitAction]
