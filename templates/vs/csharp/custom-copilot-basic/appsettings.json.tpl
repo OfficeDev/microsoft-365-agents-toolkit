@@ -10,7 +10,6 @@
    "Teams": {
 		"ClientId": "",
 		"ClientSecret": "",
-    "TenantId": "",
 		"BotType": ""
 	}，
 {{#useOpenAI}}
