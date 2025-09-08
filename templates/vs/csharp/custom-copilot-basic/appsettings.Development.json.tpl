@@ -3,8 +3,7 @@
     "LogLevel": {
       "Default": "Information",
       "Microsoft": "Information",
-      "Microsoft.Hosting.Lifetime": "Information",
-      "Microsoft.Teams.AI": "Trace"
+      "Microsoft.Hosting.Lifetime": "Information"
     }
   },
   "AllowedHosts": "*",
