@@ -33,6 +33,7 @@ import { QuestionNames, ScratchOptions } from "../../src/question/constants";
 import { VSCapabilityOptions } from "../../src/question/scaffold/vs/createRootNode";
 import { TabCapabilityOptions } from "../../src/question/scaffold/vsc/CapabilityOptions";
 import { ProjectTypeOptions } from "../../src/question/scaffold/vsc/ProjectTypeOptions";
+import { TeamsProjectTypeOptions } from "../../src/question/scaffold/vsc/teamsProjectTypeNode";
 import { MockTools, randomAppName } from "./utils";
 
 describe("FxCore.createProject", () => {
@@ -49,6 +50,7 @@ describe("FxCore.createProject", () => {
       platform: Platform.VSCode,
       [QuestionNames.Scratch]: ScratchOptions.yes().id,
       [QuestionNames.ProjectType]: ProjectTypeOptions.teamsOptionId,
+      [QuestionNames.TeamsAppType]: TeamsProjectTypeOptions.tabOptionId,
       [QuestionNames.Capabilities]: TabCapabilityOptions.nonSsoTab().id,
       [QuestionNames.ProgrammingLanguage]: "javascript",
       [QuestionNames.Folder]: os.tmpdir(),
