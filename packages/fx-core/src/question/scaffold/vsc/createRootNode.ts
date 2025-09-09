@@ -25,12 +25,11 @@ import {
   TabCapabilityOptions,
 } from "./CapabilityOptions";
 import { ProjectTypeOptions } from "./ProjectTypeOptions";
-import { agentForTeamsProjectTypeNode } from "./agentForTeamsNode";
 import { customEngineAgentNode } from "./customEngineAgentNode";
 import { daProjectTypeNode } from "./daProjectTypeNode";
 import { graphConnectorProjectTypeNode } from "./graphConnectorProjectTypeNode";
 import { officeAddinProjectTypeNode } from "./officeAddinProjectTypeNode";
-import { teamsAppProjectNode, TeamsProjectTypeOptions } from "./teamsProjectTypeNode";
+import { teamsProjectNode, TeamsProjectTypeOptions } from "./teamsProjectTypeNode";
 
 export const LanguageOptionMap = new Map<string, OptionItem>([
   [ProgrammingLanguage.JS, { id: ProgrammingLanguage.JS, label: "JavaScript" }],
@@ -119,8 +118,7 @@ export function scaffoldQuestionForVSCode(platform: Platform = Platform.VSCode):
             ProjectTypeOptions.declarativeAgent(platform),
             ProjectTypeOptions.customEngineAgent(platform),
             ProjectTypeOptions.graphConnector(platform),
-            ProjectTypeOptions.agentForTeams(platform),
-            ProjectTypeOptions.teamsApp(platform),
+            ProjectTypeOptions.teamsAgentsAndApps(platform),
             ProjectTypeOptions.officeAddin(platform),
             ...(featureFlagManager.getBooleanValue(FeatureFlags.ChatParticipantUIEntries)
               ? [ProjectTypeOptions.startWithGithubCopilot()]
@@ -130,8 +128,7 @@ export function scaffoldQuestionForVSCode(platform: Platform = Platform.VSCode):
         children: [
           daProjectTypeNode(),
           customEngineAgentNode(),
-          agentForTeamsProjectTypeNode(),
-          teamsAppProjectNode(platform),
+          teamsProjectNode(platform),
           graphConnectorProjectTypeNode(),
           officeAddinProjectTypeNode(),
         ],
@@ -195,7 +192,7 @@ export function getProjectTypeByCapability(capability: string): string {
       CustomCopilotCapabilityOptions.aiAgent().id,
     ].includes(capability)
   ) {
-    return ProjectTypeOptions.agentForTeamsOptionId;
+    return ProjectTypeOptions.teamsOptionId;
   }
   if (
     [
@@ -212,7 +209,7 @@ export function getProjectTypeByCapability(capability: string): string {
       MeCapabilityOptions.linkUnfurling().id,
     ].includes(capability)
   ) {
-    return ProjectTypeOptions.teamsAppOptionId;
+    return ProjectTypeOptions.teamsOptionId;
   }
   if (
     [

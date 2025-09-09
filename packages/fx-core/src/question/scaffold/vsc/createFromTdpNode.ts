@@ -22,9 +22,9 @@ import {
   selectTabWebsiteUrlQuestion,
 } from "../../create";
 import { QuestionNames } from "../../questionNames";
-import { agentForTeamsProjectTypeNode } from "./agentForTeamsNode";
 import { TdpCapabilityOptions } from "./CapabilityOptions";
 import { languageNode } from "./createRootNode";
+import { customEngineAgentNode } from "./customEngineAgentNode";
 import { daProjectTypeNode } from "./daProjectTypeNode";
 import { ProjectTypeOptions } from "./ProjectTypeOptions";
 import {
@@ -118,7 +118,7 @@ export function createFromTdpNode(platform: Platform = Platform.VSCode): IQTreeN
         },
         children: [
           daProjectTypeNode(),
-          agentForTeamsProjectTypeNode(),
+          customEngineAgentNode(),
           botProjectTypeNode(),
           tabProjectTypeNode(),
           meProjectTypeNode(),

@@ -512,19 +512,19 @@ describe("getProjectTypeByCapability", () => {
   });
   it("Agent for Teams", () => {
     const type = getProjectTypeByCapability(CustomCopilotCapabilityOptions.customCopilotRag().id);
-    assert.equal(type, ProjectTypeOptions.agentForTeamsOptionId);
+    assert.equal(type, ProjectTypeOptions.teamsOptionId);
   });
   it("Bot", () => {
     const type = getProjectTypeByCapability(BotCapabilityOptions.basicBot().id);
-    assert.equal(type, ProjectTypeOptions.teamsAppOptionId);
+    assert.equal(type, ProjectTypeOptions.teamsOptionId);
   });
   it("Tab", () => {
     const type = getProjectTypeByCapability(TabCapabilityOptions.nonSsoTab().id);
-    assert.equal(type, ProjectTypeOptions.teamsAppOptionId);
+    assert.equal(type, ProjectTypeOptions.teamsOptionId);
   });
   it("ME", () => {
     const type = getProjectTypeByCapability(MeCapabilityOptions.m365SearchMe().id);
-    assert.equal(type, ProjectTypeOptions.teamsAppOptionId);
+    assert.equal(type, ProjectTypeOptions.teamsOptionId);
   });
   it("WXP", () => {
     const type = getProjectTypeByCapability(OfficeAddinCapabilityOptions.wxpTaskPane().id);
