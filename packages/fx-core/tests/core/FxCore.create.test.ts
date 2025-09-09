@@ -48,7 +48,7 @@ describe("FxCore.createProject", () => {
     const inputs: Inputs = {
       platform: Platform.VSCode,
       [QuestionNames.Scratch]: ScratchOptions.yes().id,
-      [QuestionNames.ProjectType]: ProjectTypeOptions.teamsAppOptionId,
+      [QuestionNames.ProjectType]: ProjectTypeOptions.teamsOptionId,
       [QuestionNames.Capabilities]: TabCapabilityOptions.nonSsoTab().id,
       [QuestionNames.ProgrammingLanguage]: "javascript",
       [QuestionNames.Folder]: os.tmpdir(),
@@ -86,7 +86,7 @@ describe("FxCore.createProject", () => {
     const inputs: Inputs = {
       platform: Platform.VSCode,
       [QuestionNames.Scratch]: ScratchOptions.yes().id,
-      [QuestionNames.ProjectType]: ProjectTypeOptions.teamsApp().id,
+      [QuestionNames.ProjectType]: ProjectTypeOptions.teamsAgentsAndApps().id,
       [QuestionNames.Capabilities]: VSCapabilityOptions.tab().id,
       [QuestionNames.ProgrammingLanguage]: "javascript",
       [QuestionNames.Folder]: os.tmpdir(),
@@ -145,7 +145,7 @@ describe("createProjectFromTdp", () => {
     const inputs: Inputs = {
       platform: Platform.VSCode,
       [QuestionNames.Scratch]: ScratchOptions.yes().id,
-      [QuestionNames.ProjectType]: ProjectTypeOptions.teamsAppOptionId,
+      [QuestionNames.ProjectType]: ProjectTypeOptions.teamsOptionId,
       [QuestionNames.Capabilities]: VSCapabilityOptions.tab().id,
       [QuestionNames.ProgrammingLanguage]: "javascript",
       [QuestionNames.Folder]: os.tmpdir(),
@@ -194,7 +194,7 @@ describe("createProjectFromTdp", () => {
     const inputs: Inputs = {
       platform: Platform.VSCode,
       [QuestionNames.Scratch]: ScratchOptions.yes().id,
-      [QuestionNames.ProjectType]: ProjectTypeOptions.teamsAppOptionId,
+      [QuestionNames.ProjectType]: ProjectTypeOptions.teamsOptionId,
       [QuestionNames.Capabilities]: VSCapabilityOptions.tab().id,
       [QuestionNames.ProgrammingLanguage]: "javascript",
       [QuestionNames.Folder]: os.tmpdir(),

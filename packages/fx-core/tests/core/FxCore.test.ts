@@ -824,7 +824,7 @@ describe("Core basic APIs", () => {
         [QuestionNames.AppName]: appName,
         [QuestionNames.Scratch]: ScratchOptions.yes().id,
         [QuestionNames.ProgrammingLanguage]: "javascript",
-        [QuestionNames.ProjectType]: ProjectTypeOptions.teamsAppOptionId,
+        [QuestionNames.ProjectType]: ProjectTypeOptions.teamsOptionId,
         [QuestionNames.Capabilities]: TabCapabilityOptions.nonSsoTab().id,
         [QuestionNames.Folder]: os.tmpdir(),
         [QuestionNames.TemplateName]: TemplateNames.Tab,
