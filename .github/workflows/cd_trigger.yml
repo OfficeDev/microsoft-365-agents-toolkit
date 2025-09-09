@@ -116,6 +116,7 @@ jobs:
         with:
           app-id: ${{ vars.APP_GITHUB_APP_ID }}
           private-key: ${{ secrets.APP_GITHUB_APP_PRIVATE_KEY }}
+
       - name: Checkout branch
         uses: actions/checkout@v3
         with:
