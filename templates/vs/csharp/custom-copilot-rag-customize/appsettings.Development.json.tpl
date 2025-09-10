@@ -3,14 +3,15 @@
     "LogLevel": {
       "Default": "Information",
       "Microsoft": "Information",
-      "Microsoft.Hosting.Lifetime": "Information",
-      "Microsoft.Teams.AI": "Trace"
+      "Microsoft.Hosting.Lifetime": "Information"
     }
   },
   "AllowedHosts": "*",
-  "BOT_ID": "",
-  "BOT_PASSWORD": "",
-  "BOT_TYPE": "",
+  "Teams": {
+		"ClientId": "",
+		"ClientSecret": "",
+		"BotType": ""
+	},
 {{#useOpenAI}}
   "OpenAI": {
     "ApiKey": ""

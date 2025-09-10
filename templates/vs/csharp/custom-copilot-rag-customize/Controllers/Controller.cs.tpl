@@ -1,4 +1,5 @@
 ﻿using {{SafeProjectName}}.Models;
+using {{SafeProjectName}}.Utils;
 using Microsoft.Teams.AI.Models.OpenAI;
 using Microsoft.Teams.Api.Activities;
 using Microsoft.Teams.Api.Activities.Invokes;
@@ -17,15 +18,18 @@ namespace {{SafeProjectName}}.Controllers
         {
             var state = State.From(context);
             var text = TextUtils.StripMentionsText(context.Activity);
+            
+            var additionalContext = dataSource.RenderData(text);
+            var enrichedText = $"{text}\n\nAdditional Context: {additionalContext}";
+
             if (context.Activity.Conversation.IsGroup == true)
             {
-                var response = await _prompt.Send(text, new() { Messages = state.Messages }, null, context.CancellationToken);
+                var response = await _prompt.Send(enrichedText, new() { Messages = state.Messages }, null, context.CancellationToken);
                 await context.Send(new Microsoft.Teams.Api.Activities.MessageActivity(response.Content).AddFeedback().AddAIGenerated());
             }
             else
             {
-
-                await _prompt.Send(text, new() { Messages = state.Messages }, (chunk) => Task.Run(() =>
+                await _prompt.Send(enrichedText, new() { Messages = state.Messages }, (chunk) => Task.Run(() =>
                 {
                     context.Stream.Emit(chunk);
                 }), context.CancellationToken);
