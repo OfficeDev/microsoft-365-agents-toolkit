@@ -78,5 +78,5 @@ deploy:
     with:
       target: ./.localConfigs
       envs:
-        clientId: ${{BOT_ID}}
-        clientSecret: ${{SECRET_BOT_PASSWORD}}
+        CLIENT_ID: ${{BOT_ID}}
+        CLIENT_SECRET: ${{SECRET_BOT_PASSWORD}}
