@@ -1,9 +1,9 @@
 {
   "compilerOptions": {
     "declaration": true,
-    "target": "es2019",
-    "module": "commonjs",
-    "moduleResolution": "node",
+    "module": "NodeNext",
+    "target": "ESNext",
+    "moduleResolution": "NodeNext",
     "outDir": "./lib",
     "rootDir": "./",
     "sourceMap": true,
