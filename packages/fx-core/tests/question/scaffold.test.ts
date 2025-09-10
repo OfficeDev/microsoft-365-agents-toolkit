@@ -553,4 +553,8 @@ describe("getTeamsProjectTypeByCapability", () => {
     const type = getTeamsProjectTypeByCapability(CustomCopilotCapabilityOptions.basicChatbot().id);
     assert.equal(type, CustomCopilotCapabilityOptions.basicChatbot().id);
   });
+  it("Invalid", () => {
+    const type = getTeamsProjectTypeByCapability("invalid");
+    assert.equal(type, "");
+  });
 });
