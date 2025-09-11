@@ -1508,7 +1508,6 @@ export async function showTerminalLogs(): Promise<void> {
   } catch {
     console.log("Can't get terminal logs");
   }
-  return;
 }
 
 export async function getOutputLogs(): Promise<string | undefined> {
