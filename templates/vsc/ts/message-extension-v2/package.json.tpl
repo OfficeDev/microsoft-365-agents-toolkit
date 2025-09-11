@@ -21,7 +21,7 @@
     "lint:fix": "eslint --fix",
     "build": "tsc --build",
     "start": "node .",
-    "dev": "nodemon -w \"./src/**\" -e ts --exec \"node -r ts-node/register -r dotenv/config ./src/index.ts\"",
+    "dev": "nodemon --exec node --inspect=9239 --signal SIGINT -r ts-node/register ./src/index.ts",
     "watch": "nodemon --exec \"npm run start\""
   },
   "dependencies": {
