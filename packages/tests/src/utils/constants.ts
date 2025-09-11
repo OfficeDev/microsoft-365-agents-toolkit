@@ -477,6 +477,7 @@ export class LocalDebugTaskInfo {
   static readonly StartBotInfo = "Bot Started";
   static readonly StartBotInfo2 = "Bot started";
   static readonly AppListening = "app listening";
+  static readonly ServerListening = "Server listening";
   static readonly BackendStartedInfo = "Worker process started and initialized";
   static readonly NoError = "Found 0 errors";
 }
