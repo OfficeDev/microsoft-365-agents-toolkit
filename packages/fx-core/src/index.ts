@@ -117,7 +117,7 @@ export * from "./question/options";
 export { VSCapabilityOptions } from "./question/scaffold/vs/createRootNode";
 export {
   BotCapabilityOptions,
-  CustomCopilotCapabilityOptions,
+  TeamsAgentCapabilityOptions as CustomCopilotCapabilityOptions,
   CustomEngineAgentOptions,
   DACapabilityOptions,
   MeCapabilityOptions,
@@ -128,7 +128,8 @@ export {
 export { isTdpTemplate } from "./question/scaffold/vsc/createFromTdpNode";
 export {
   getProjectTypeByCapability,
-  getTeamsProjectTypeByCapability,
+  getTeamsAppTypeByCapability,
+  getTeamsCapabilityByCapability,
 } from "./question/scaffold/vsc/createRootNode";
 export { ProjectTypeOptions } from "./question/scaffold/vsc/ProjectTypeOptions";
 export { ShareOperationOption } from "./question/share";

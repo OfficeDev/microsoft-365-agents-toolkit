@@ -17,19 +17,19 @@ import { QuestionNames } from "../../questionNames";
 import {
   ActionStartOptions,
   BotCapabilityOptions,
-  CustomCopilotCapabilityOptions,
   CustomEngineAgentOptions,
   DACapabilityOptions,
   MeCapabilityOptions,
   OfficeAddinCapabilityOptions,
   TabCapabilityOptions,
+  TeamsAgentCapabilityOptions,
 } from "./CapabilityOptions";
 import { ProjectTypeOptions } from "./ProjectTypeOptions";
 import { customEngineAgentNode } from "./customEngineAgentNode";
 import { daProjectTypeNode } from "./daProjectTypeNode";
 import { graphConnectorProjectTypeNode } from "./graphConnectorProjectTypeNode";
 import { officeAddinProjectTypeNode } from "./officeAddinProjectTypeNode";
-import { teamsProjectNode, TeamsProjectTypeOptions } from "./teamsProjectTypeNode";
+import { teamsProjectNode } from "./teamsProjectTypeNode";
 
 export const LanguageOptionMap = new Map<string, OptionItem>([
   [ProgrammingLanguage.JS, { id: ProgrammingLanguage.JS, label: "JavaScript" }],
@@ -187,26 +187,11 @@ export function getProjectTypeByCapability(capability: string): string {
   }
   if (
     [
-      CustomCopilotCapabilityOptions.basicChatbot().id,
-      CustomCopilotCapabilityOptions.customCopilotRag().id,
-      CustomCopilotCapabilityOptions.aiAgent().id,
-    ].includes(capability)
-  ) {
-    return ProjectTypeOptions.teamsOptionId;
-  }
-  if (
-    [
+      TeamsAgentCapabilityOptions.basicChatbot().id,
+      TeamsAgentCapabilityOptions.customCopilotRag().id,
       BotCapabilityOptions.basicBot().id,
-      BotCapabilityOptions.notificationBot().id,
-      BotCapabilityOptions.commandBot().id,
-      BotCapabilityOptions.workflowBot().id,
       TabCapabilityOptions.nonSsoTab().id,
-      TabCapabilityOptions.m365SsoLaunchPage().id,
-      TabCapabilityOptions.dashboardTab().id,
-      TabCapabilityOptions.SPFxTab().id,
-      MeCapabilityOptions.m365SearchMe().id,
-      MeCapabilityOptions.collectFormMe().id,
-      MeCapabilityOptions.linkUnfurling().id,
+      MeCapabilityOptions.basicMe().id,
     ].includes(capability)
   ) {
     return ProjectTypeOptions.teamsOptionId;
@@ -232,38 +217,32 @@ export function getProjectTypeByCapability(capability: string): string {
   return "";
 }
 
-export function getTeamsProjectTypeByCapability(capability: string): string {
+export function getTeamsAppTypeByCapability(capability: string): string {
   if (
     [
+      TabCapabilityOptions.nonSsoTab().id,
       BotCapabilityOptions.basicBot().id,
-      BotCapabilityOptions.notificationBot().id,
-      BotCapabilityOptions.commandBot().id,
-      BotCapabilityOptions.workflowBot().id,
+      MeCapabilityOptions.basicMe().id,
     ].includes(capability)
   ) {
-    return TeamsProjectTypeOptions.botOptionId;
+    return "others";
   } else if (
+    [
+      TeamsAgentCapabilityOptions.basicChatbot().id,
+      TeamsAgentCapabilityOptions.customCopilotRag().id,
+    ].includes(capability)
+  ) {
+    return capability;
+  }
+  return "";
+}
+
+export function getTeamsCapabilityByCapability(capability: string): string {
+  if (
     [
       TabCapabilityOptions.nonSsoTab().id,
-      TabCapabilityOptions.m365SsoLaunchPage().id,
-      TabCapabilityOptions.dashboardTab().id,
-      TabCapabilityOptions.SPFxTab().id,
-    ].includes(capability)
-  ) {
-    return TeamsProjectTypeOptions.tabOptionId;
-  } else if (
-    [
-      MeCapabilityOptions.m365SearchMe().id,
-      MeCapabilityOptions.collectFormMe().id,
-      MeCapabilityOptions.linkUnfurling().id,
-    ].includes(capability)
-  ) {
-    return TeamsProjectTypeOptions.meOptionId;
-  } else if (
-    [
-      CustomCopilotCapabilityOptions.basicChatbot().id,
-      CustomCopilotCapabilityOptions.customCopilotRag().id,
-      CustomCopilotCapabilityOptions.aiAgent().id,
+      BotCapabilityOptions.basicBot().id,
+      MeCapabilityOptions.basicMe().id,
     ].includes(capability)
   ) {
     return capability;

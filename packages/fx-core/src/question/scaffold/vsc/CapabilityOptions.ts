@@ -38,9 +38,9 @@ export class TabCapabilityOptions {
       id: "tab-non-sso",
       label: `${getLocalizedString("core.TabNonSso.label")}`,
       detail: getLocalizedString("core.TabNonSso.detail"),
-      description: getLocalizedString(
-        "core.createProjectQuestion.option.description.worksInOutlookM365"
-      ),
+      // description: getLocalizedString(
+      //   "core.createProjectQuestion.option.description.worksInOutlookM365"
+      // ),
       data: TemplateNames.Tab,
     };
   }
@@ -88,8 +88,7 @@ export class TabCapabilityOptions {
   }
 }
 
-export class CustomCopilotCapabilityOptions {
-  // custom copilot
+export class TeamsAgentCapabilityOptions {
   static basicChatbot(): OptionItem {
     const description = featureFlagManager.getBooleanValue(FeatureFlags.CEAEnabled)
       ? getLocalizedString("core.createProjectQuestion.capability.customEngineAgent.description")
@@ -123,21 +122,33 @@ export class CustomCopilotCapabilityOptions {
     };
   }
 
-  static aiAgent(): OptionItem {
+  static others(): OptionItem {
     const description = featureFlagManager.getBooleanValue(FeatureFlags.CEAEnabled)
       ? getLocalizedString("core.createProjectQuestion.capability.customEngineAgent.description")
       : undefined;
     return {
-      id: "custom-copilot-agent",
-      label: getLocalizedString(
-        "core.createProjectQuestion.capability.customCopilotAssistantOption.label"
-      ),
-      detail: getLocalizedString(
-        "core.createProjectQuestion.capability.customCopilotAssistantOption.detail"
-      ),
+      id: "others",
+      label: getLocalizedString("core.createProjectQuestion.capability.teamsAgent.others.label"),
+      detail: getLocalizedString("core.createProjectQuestion.capability.teamsAgent.others.detail"),
       description: description,
     };
   }
+
+  // static aiAgent(): OptionItem {
+  //   const description = featureFlagManager.getBooleanValue(FeatureFlags.CEAEnabled)
+  //     ? getLocalizedString("core.createProjectQuestion.capability.customEngineAgent.description")
+  //     : undefined;
+  //   return {
+  //     id: "custom-copilot-agent",
+  //     label: getLocalizedString(
+  //       "core.createProjectQuestion.capability.customCopilotAssistantOption.label"
+  //     ),
+  //     detail: getLocalizedString(
+  //       "core.createProjectQuestion.capability.customCopilotAssistantOption.detail"
+  //     ),
+  //     description: description,
+  //   };
+  // }
 }
 
 export class CustomCopilotRagOptions {
@@ -225,6 +236,15 @@ export class CustomCopilotAssistantOptions {
 }
 
 export class MeCapabilityOptions {
+  static basicMe(): OptionItem {
+    return {
+      id: "basic-message-extension",
+      label: getLocalizedString("core.MessageExtensionOption.label"),
+      detail: getLocalizedString("core.MessageExtensionOption.detail"),
+      data: TemplateNames.DefaultMessageExtension,
+    };
+  }
+
   // need further sub-options to decide template name
   static m365SearchMe(): OptionItem {
     return {

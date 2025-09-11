@@ -59,6 +59,7 @@ export enum TemplateNames {
   MessageExtensionM365 = "m365-message-extension",
   MessageExtensionAction = "message-extension-action",
   LinkUnfurling = "link-unfurling",
+  DefaultMessageExtension = "default-message-extension",
 
   // WXP
   OutlookTaskpane = "office-addin-outlook-taskpane", // handled by OfficeAddinGeneratorNew
