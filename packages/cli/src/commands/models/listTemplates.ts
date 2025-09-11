@@ -3,7 +3,6 @@
 import { CLICommand, ok, OptionItem } from "@microsoft/teamsfx-api";
 import {
   BotCapabilityOptions,
-  CustomCopilotCapabilityOptions,
   CustomEngineAgentOptions,
   DACapabilityOptions,
   featureFlagManager,
@@ -12,6 +11,7 @@ import {
   OfficeAddinCapabilityOptions,
   TabCapabilityOptions,
   TdpCapabilityOptions,
+  TeamsAgentCapabilityOptions,
   VSCapabilityOptions,
 } from "@microsoft/teamsfx-core";
 import chalk from "chalk";
@@ -27,9 +27,9 @@ export function listAllCapabilities(): OptionItem[] {
     return [
       VSCapabilityOptions.empty(),
       VSCapabilityOptions.declarativeAgent(),
-      CustomCopilotCapabilityOptions.basicChatbot(),
-      CustomCopilotCapabilityOptions.customCopilotRag(),
-      // CustomCopilotCapabilityOptions.aiAgent(),
+      TeamsAgentCapabilityOptions.basicChatbot(),
+      TeamsAgentCapabilityOptions.customCopilotRag(),
+      // TeamsAgentCapabilityOptions.aiAgent(),
       VSCapabilityOptions.weatherAgentBot(),
       BotCapabilityOptions.basicBot(),
       BotCapabilityOptions.notificationBot(),
@@ -48,9 +48,9 @@ export function listAllCapabilities(): OptionItem[] {
     DACapabilityOptions.declarativeAgent(),
     CustomEngineAgentOptions.basicCustomEngineAgent(),
     CustomEngineAgentOptions.weatherAgent(),
-    CustomCopilotCapabilityOptions.basicChatbot(),
-    CustomCopilotCapabilityOptions.customCopilotRag(),
-    // CustomCopilotCapabilityOptions.aiAgent(),
+    TeamsAgentCapabilityOptions.basicChatbot(),
+    TeamsAgentCapabilityOptions.customCopilotRag(),
+    // TeamsAgentCapabilityOptions.aiAgent(),
     BotCapabilityOptions.basicBot(),
     // BotCapabilityOptions.notificationBot(),
     // BotCapabilityOptions.commandBot(),
