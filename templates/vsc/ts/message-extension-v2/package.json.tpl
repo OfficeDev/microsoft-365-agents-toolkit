@@ -1,7 +1,7 @@
 {
   "name": "{{SafeProjectNameLowerCase}}",
   "version": "1.0.0",
-  "description": "Microsoft 365 Agents Toolkit link unfurling sample",
+  "description": "Microsoft 365 Agents Toolkit message extension sample",
   "engines": {
     "node": "20 || 22"
   },
