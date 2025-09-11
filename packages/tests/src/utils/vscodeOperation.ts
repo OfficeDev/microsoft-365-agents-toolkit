@@ -1439,6 +1439,7 @@ export async function findWordFromTerminal(word: string): Promise<boolean> {
         await VSBrowser.instance.takeScreenshot(
           getScreenshotName("debug failed")
         );
+        await showTerminalLogs();
         assert.fail("[failed] error message found !!!");
       }
       // verify success message
@@ -1498,6 +1499,17 @@ export async function addSpfxWebPart(webPartName = "helloworld") {
   );
 }
 
+export async function showTerminalLogs(): Promise<void> {
+  try {
+    const bottomBarPanel = new BottomBarPanel();
+    const terminalView = await new TerminalView(bottomBarPanel).wait();
+    const terminalLogs = await terminalView.getText();
+    console.log("Terminal Logs: " + terminalLogs);
+  } catch {
+    console.log("Can't get terminal logs");
+  }
+}
+
 export async function getOutputLogs(): Promise<string | undefined> {
   const driver = VSBrowser.instance.driver;
   console.log("openTerminalView");
@@ -1505,7 +1517,7 @@ export async function getOutputLogs(): Promise<string | undefined> {
   console.log("openOutputView");
   const pannel = new BottomBarPanel();
   const output = await pannel.openOutputView();
-  console.log("Teams Toolkit");
+  console.log("Microsoft 365 Agents Toolkit");
   try {
     const maximize = await pannel.findElement(
       By.css("a.action-label.codicon.codicon-panel-maximize")
@@ -1516,8 +1528,8 @@ export async function getOutputLogs(): Promise<string | undefined> {
     console.log("already maximized");
   }
   try {
-    // This api is not work on macos, it will throw: Error: Channel Teams Toolkit not found
-    await output.selectChannel("Teams Toolkit");
+    // This api is not work on macos, it will throw: Error: Channel Microsoft 365 Agents Toolkit not found
+    await output.selectChannel("Microsoft 365 Agents Toolkit");
     // Get output
     console.log("Get output");
     const text = await output.getText();

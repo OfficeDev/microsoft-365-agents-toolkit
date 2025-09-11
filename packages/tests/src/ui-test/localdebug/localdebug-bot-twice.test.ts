@@ -58,7 +58,7 @@ describe("Local Debug Tests", function () {
       try {
         await waitForTerminal(
           LocalDebugTaskLabel.StartBotApp,
-          LocalDebugTaskInfo.StartBotInfo
+          LocalDebugTaskInfo.ServerListening
         );
         await stopDebugging();
         await driver.sleep(Timeout.stopdebugging);
@@ -72,14 +72,14 @@ describe("Local Debug Tests", function () {
         await waitForTerminal(LocalDebugTaskLabel.StartLocalTunnel);
         await waitForTerminal(
           LocalDebugTaskLabel.StartBotApp,
-          LocalDebugTaskInfo.StartBotInfo
+          LocalDebugTaskInfo.ServerListening
         );
 
         // check if there is error "Could not attach to main target"
         await driver.sleep(Timeout.startdebugging);
         await waitForTerminal(
           LocalDebugTaskLabel.StartBotApp,
-          LocalDebugTaskInfo.StartBotInfo
+          LocalDebugTaskInfo.ServerListening
         );
       } catch {
         const dialog = new ModalDialog();
@@ -101,14 +101,14 @@ describe("Local Debug Tests", function () {
         try {
           await waitForTerminal(
             LocalDebugTaskLabel.StartBotApp,
-            LocalDebugTaskInfo.StartBotInfo
+            LocalDebugTaskInfo.ServerListening
           );
 
           // check if there is error "Debug Anyway"
           await driver.sleep(Timeout.startdebugging);
           await waitForTerminal(
             LocalDebugTaskLabel.StartBotApp,
-            LocalDebugTaskInfo.StartBotInfo
+            LocalDebugTaskInfo.ServerListening
           );
         } catch {
           const dialog = new ModalDialog();
@@ -118,7 +118,7 @@ describe("Local Debug Tests", function () {
           await driver.sleep(Timeout.shortTimeLoading);
           await waitForTerminal(
             LocalDebugTaskLabel.StartBotApp,
-            LocalDebugTaskInfo.StartBotInfo
+            LocalDebugTaskInfo.ServerListening
           );
         }
       }
