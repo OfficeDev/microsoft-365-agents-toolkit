@@ -10,7 +10,6 @@ import {
   BotCapabilityOptions,
   MeCapabilityOptions,
   setTemplateName,
-  TdpCapabilityOptions,
   TeamsAgentCapabilityOptions,
 } from "../vsc/CapabilityOptions";
 import { folderAndAppNameCondition, languageNode } from "../vsc/createRootNode";
@@ -111,7 +110,6 @@ export function scaffoldQuestionForVS(): IQTreeNode {
             MeCapabilityOptions.collectFormMe(),
             VSCapabilityOptions.SearchMeVS(),
             MeCapabilityOptions.linkUnfurling(),
-            TdpCapabilityOptions.me(),
           ],
           onDidSelection: setTemplateName,
         },

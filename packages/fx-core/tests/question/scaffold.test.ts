@@ -28,7 +28,6 @@ import {
   MeCapabilityOptions,
   OfficeAddinCapabilityOptions,
   TabCapabilityOptions,
-  TdpCapabilityOptions,
   TeamsAgentCapabilityOptions,
 } from "../../src/question/scaffold/vsc/CapabilityOptions";
 import { ProjectTypeOptions } from "../../src/question/scaffold/vsc/ProjectTypeOptions";
@@ -118,22 +117,6 @@ describe("getTemplateName", () => {
     messageHandlers: [],
   };
 
-  it("return TabNonSsoAndDefaultBot", () => {
-    const appDefinition: AppDefinition = {
-      teamsAppId: "id",
-      staticTabs: [validStaticTab],
-      messagingExtensions: [validMessagingExtension],
-    };
-
-    const inputs: Inputs = {
-      platform: Platform.VSCode,
-      teamsAppFromTdp: appDefinition,
-    };
-
-    const res = getTemplateName(inputs);
-    assert.equal(res, TemplateNames.TabAndDefaultBot);
-  });
-
   it("return TabNonSso", () => {
     const appDefinition: AppDefinition = {
       teamsAppId: "id",
@@ -162,7 +145,7 @@ describe("getTemplateName", () => {
     };
 
     const res = getTemplateName(inputs);
-    assert.equal(res, TemplateNames.BotAndMessageExtension);
+    assert.equal(res, TemplateNames.DefaultBot);
   });
 
   it("return MessageExtension", () => {
@@ -177,7 +160,7 @@ describe("getTemplateName", () => {
     };
 
     const res = getTemplateName(inputs);
-    assert.equal(res, TemplateNames.MessageExtension);
+    assert.equal(res, TemplateNames.DefaultMessageExtension);
   });
 
   it("return bot", () => {
@@ -207,28 +190,6 @@ describe("getTemplateName", () => {
 
     const res = getTemplateName(inputs);
     assert.isUndefined(res);
-  });
-
-  it("tdp cli test", () => {
-    sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
-    const inputs: Inputs = {
-      platform: Platform.CLI,
-      nonInteractive: true,
-      [QuestionNames.Capabilities]: TdpCapabilityOptions.me().id,
-    };
-    const res = getTemplateName(inputs);
-    assert.equal(res, TemplateNames.MessageExtension);
-  });
-
-  it("isTdpTemplate", () => {
-    sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
-    const inputs: Inputs = {
-      platform: Platform.CLI,
-      nonInteractive: true,
-      [QuestionNames.Capabilities]: TdpCapabilityOptions.me().id,
-    };
-    const res = isTdpTemplate(inputs);
-    assert.isTrue(res);
   });
 });
 

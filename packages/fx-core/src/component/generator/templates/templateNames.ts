@@ -66,11 +66,6 @@ export enum TemplateNames {
   WXPTaskpane = "office-addin-wxpo-taskpane", // handled by OfficeAddinGeneratorNew
   OfficeAddinCommon = "office-addin-config", // handled by OfficeAddinGeneratorNew
 
-  // from TDP only
-  TabAndDefaultBot = "non-sso-tab-default-bot",
-  BotAndMessageExtension = "default-bot-message-extension",
-  MessageExtension = "message-extension",
-
   // VS only
   Empty = "empty",
   MessageExtensionSearch = "message-extension-search",

@@ -122,7 +122,6 @@ export {
   MeCapabilityOptions,
   OfficeAddinCapabilityOptions,
   TabCapabilityOptions,
-  TdpCapabilityOptions,
   TeamsAgentCapabilityOptions,
 } from "./question/scaffold/vsc/CapabilityOptions";
 export { isTdpTemplate } from "./question/scaffold/vsc/createFromTdpNode";

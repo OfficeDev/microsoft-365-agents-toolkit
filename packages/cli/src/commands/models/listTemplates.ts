@@ -10,7 +10,6 @@ import {
   MeCapabilityOptions,
   OfficeAddinCapabilityOptions,
   TabCapabilityOptions,
-  TdpCapabilityOptions,
   TeamsAgentCapabilityOptions,
   VSCapabilityOptions,
 } from "@microsoft/teamsfx-core";
@@ -41,7 +40,6 @@ export function listAllCapabilities(): OptionItem[] {
       MeCapabilityOptions.collectFormMe(),
       VSCapabilityOptions.SearchMeVS(),
       MeCapabilityOptions.linkUnfurling(),
-      TdpCapabilityOptions.me(),
     ];
   }
   return [
@@ -65,13 +63,6 @@ export function listAllCapabilities(): OptionItem[] {
     // MeCapabilityOptions.linkUnfurling(),
     OfficeAddinCapabilityOptions.wxpTaskPane(),
     OfficeAddinCapabilityOptions.outlookTaskPane(),
-    ...(featureFlagManager.getBooleanValue(FeatureFlags.TdpTemplateCliTest)
-      ? [
-          TdpCapabilityOptions.nonSsoTab(),
-          TdpCapabilityOptions.botAndMe(),
-          TdpCapabilityOptions.nonSsoTabAndBot(),
-        ]
-      : []),
   ];
 }
 

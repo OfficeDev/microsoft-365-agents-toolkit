@@ -281,7 +281,6 @@
   "core.LinkUnfurlingOption.detail": "Display information and actions when a URL is pasted into the text input field",
   "core.MessageExtensionOption.labelNew": "Collect Form Input and Process Data",
   "core.MessageExtensionOption.label": "Message Extension",
-  "core.MessageExtensionOption.description": "Custom UI when users compose messages in Teams",
   "core.MessageExtensionOption.detail": "Receive user input, process it, and send customized results",
   "core.NotificationOption.label": "Chat Notification Message",
   "core.NotificationOption.detail": "Notify and inform with a message that displays in Teams chats",

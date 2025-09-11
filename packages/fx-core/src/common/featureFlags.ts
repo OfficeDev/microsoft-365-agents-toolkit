@@ -17,7 +17,6 @@ export class FeatureFlagName {
   static readonly TestTool = "TEAMSFX_TEST_TOOL";
   static readonly METestTool = "TEAMSFX_ME_TEST_TOOL";
   static readonly TeamsFxRebranding = "TEAMSFX_REBRANDING";
-  static readonly TdpTemplateCliTest = "TEAMSFX_TDP_TEMPLATE_CLI_TEST";
   static readonly AsyncAppValidation = "TEAMSFX_ASYNC_APP_VALIDATION";
   static readonly NewProjectType = "TEAMSFX_NEW_PROJECT_TYPE";
   static readonly ChatParticipant = "TEAMSFX_CHAT_PARTICIPANT";
@@ -53,10 +52,6 @@ export class FeatureFlags {
   static readonly OfficeMetaOS = {
     name: FeatureFlagName.OfficeMetaOS,
     defaultValue: "true",
-  };
-  static readonly TdpTemplateCliTest = {
-    name: FeatureFlagName.TdpTemplateCliTest,
-    defaultValue: "false",
   };
   static readonly AsyncAppValidation = {
     name: FeatureFlagName.AsyncAppValidation,
