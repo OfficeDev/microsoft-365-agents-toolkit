@@ -1,0 +1,45 @@
+{
+  "name": "{{SafeProjectNameLowerCase}}",
+  "version": "1.0.0",
+  "description": "Microsoft 365 Agents Toolkit link unfurling sample",
+  "engines": {
+    "node": "20 || 22"
+  },
+  "author": "Microsoft",
+  "license": "MIT",
+  "main": "./dist/index.js",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "dev:teamsfx": "env-cmd --silent -f .localConfigs npm run dev",
+    "dev:teamsfx:testtool": "env-cmd --silent -f .localConfigs.playground npm run dev",
+    "dev:teamsfx:launch-testtool": "env-cmd --silent -f env/.env.playground teamsapptester start",
+    "clean": "rimraf ./dist",
+    "lint": "eslint",
+    "lint:fix": "eslint --fix",
+    "build": "tsc --build",
+    "start": "node .",
+    "dev": "nodemon -w \"./src/**\" -e ts --exec \"node -r ts-node/register -r dotenv/config ./src/index.ts\"",
+    "watch": "nodemon --exec \"npm run start\""
+  },
+  "dependencies": {
+    "@azure/identity": "^4.11.1",
+    "@microsoft/teams.api": "preview",
+    "@microsoft/teams.apps": "preview",
+    "@microsoft/teams.cards": "preview",
+    "@microsoft/teams.common": "preview",
+    "@microsoft/teams.dev": "preview",
+    "@microsoft/teams.graph": "preview"
+  },
+  "devDependencies": {
+    "@types/node": "^22.5.4",
+    "dotenv": "^16.4.5",
+    "nodemon": "^3.1.4",
+    "rimraf": "^6.0.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.5",
+    "env-cmd": "^11.0.0"
+  }
+}
