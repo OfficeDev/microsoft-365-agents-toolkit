@@ -136,7 +136,9 @@ export function customCopilotRagNode(): IQTreeNode {
     data: {
       type: "singleSelect",
       name: QuestionNames.CustomCopilotRag,
-      title: getLocalizedString("core.createProjectQuestion.capability.customCopilotRag.title"),
+      title: getLocalizedString(
+        "core.createProjectQuestion.capability.customCopilotRagOption.label"
+      ),
       placeholder: getLocalizedString(
         "core.createProjectQuestion.capability.customCopilotRag.placeholder"
       ),
