@@ -52,12 +52,16 @@ resource webApp 'Microsoft.Web/sites@2021-02-01' = {
           value: '1'
         }
         {
-          name: 'clientId'
+          name: 'CLIENT_ID'
           value: identity.properties.clientId
         }
         {
-          name: 'tenantId'
+          name: 'TENANT_ID'
           value: identity.properties.tenantId
+        }
+        {
+          name: 'BOT_TYPE'
+          value: 'UserAssignedMsi'
         }
       ]
       ftpsState: 'FtpsOnly'

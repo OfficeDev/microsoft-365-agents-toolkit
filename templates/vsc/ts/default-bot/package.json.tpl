@@ -1,10 +1,13 @@
 {
     "name": "{{SafeProjectNameLowerCase}}",
     "version": "1.0.0",
-    "description": "Microsoft 365 Agents Toolkit echo bot sample",
+    "description": "Microsoft 365 Agents Toolkit echo bot sample using Teams AI Library V2",
     "author": "Microsoft",
     "license": "MIT",
     "main": "./lib/index.js",
+    "engines": {
+        "node": ">=20.0.0"
+    },
     "scripts": {
         "dev:teamsfx": "env-cmd --silent -f .localConfigs npm run dev",
         "dev:teamsfx:testtool": "env-cmd --silent -f .localConfigs.playground npm run dev",
@@ -20,7 +23,9 @@
         "url": "https://github.com"
     },
     "dependencies": {
-        "@microsoft/agents-hosting-express": "^1.0.0"
+        "@azure/identity": "^4.11.1",
+        "@microsoft/teams.apps": "preview",
+        "@microsoft/teams.common": "preview"
     },
     "devDependencies": {
         "@types/express": "^5.0.0",
