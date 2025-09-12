@@ -78,13 +78,15 @@ export function isBot(appDefinition: AppDefinition): boolean {
   return !!appDefinition.bots && appDefinition.bots.length > 0;
 }
 
-export function isBotBasedMessageExtension(appDefinition: AppDefinition): boolean {
+export function containsBotBasedMessageExtension(appDefinition: AppDefinition): boolean {
   return (
     !!appDefinition.messagingExtensions &&
     appDefinition.messagingExtensions.length > 0 &&
-    !!appDefinition.messagingExtensions[0].botId &&
-    !isBot(appDefinition)
+    !!appDefinition.messagingExtensions[0].botId
   );
+}
+export function isBotBasedMessageExtension(appDefinition: AppDefinition): boolean {
+  return containsBotBasedMessageExtension(appDefinition) && !isBot(appDefinition);
 }
 
 export function isBotAndBotBasedMessageExtension(appDefinition: AppDefinition): boolean {
@@ -136,7 +138,7 @@ export function getFeaturesFromAppDefinition(appDefinition: AppDefinition): stri
     features.push(bot);
   }
 
-  if (needBotCode(appDefinition) && !isBot(appDefinition)) {
+  if (containsBotBasedMessageExtension(appDefinition)) {
     features.push(messageExtension);
   }
 
