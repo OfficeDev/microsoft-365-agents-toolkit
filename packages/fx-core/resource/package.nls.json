@@ -804,6 +804,7 @@
   "driver.aadApp.log.failExecuteDriver": "Unable to execute action %s. Error message: %s",
   "driver.aadApp.log.startCreateAadApp": "Environment variable %s does not exist, creating a new Microsoft Entra app...",
   "driver.aadApp.log.successCreateAadApp": "Created Microsoft Entra application with object id %s",
+  "driver.aadApp.log.successCreateAadAppandServicePrincipal": "Created Microsoft Entra application with object id %s and generated service principal for the application",
   "driver.aadApp.log.skipCreateAadApp": "Environment variable %s already exist, skipping new Microsoft Entra app creation step.",
   "driver.aadApp.log.startGenerateClientSecret": "Environment variable %s does not exist, generating client secret for Microsoft Entra app...",
   "driver.aadApp.log.successGenerateClientSecret": "Generated client secret for Microsoft Entra application with object id %s",

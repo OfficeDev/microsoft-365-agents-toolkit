@@ -5,23 +5,23 @@ import { hooks } from "@feathersjs/hooks/lib";
 import { LogProvider, M365TokenProvider } from "@microsoft/teamsfx-api";
 import axios, { AxiosError, AxiosInstance, AxiosRequestHeaders } from "axios";
 import axiosRetry, { IAxiosRetryConfig } from "axios-retry";
-import { GraphScopes } from "../../../../common/constants";
-import { getLocalizedString } from "../../../../common/localizeUtils";
-import { AadOwner } from "../../../../common/permissionInterface";
-import { ErrorContextMW } from "../../../../common/globalVars";
+import { GraphScopes } from "../common/constants";
+import { getLocalizedString } from "../common/localizeUtils";
+import { AadOwner } from "../common/permissionInterface";
+import { ErrorContextMW } from "../common/globalVars";
 import {
   DeleteOrUpdatePermissionFailedError,
   HostNameNotOnVerifiedDomainError,
-} from "../error/aadManifestError";
-import { ClientSecretNotAllowedError } from "../error/clientSecretNotAllowedError";
-import { CredentialInvalidLifetimeError } from "../error/credentialInvalidLifetimeError";
-import { SignInAudienceNotAllowedError } from "../error/signInAudienceNotAllowedError";
-import { AADApplication } from "../interface/AADApplication";
-import { AADManifest } from "../interface/AADManifest";
-import { IAADDefinition } from "../interface/IAADDefinition";
-import { SignInAudience } from "../interface/signInAudience";
-import { AadManifestHelper } from "./aadManifestHelper";
-import { aadErrorCode } from "./constants";
+} from "../component/driver/aad/error/aadManifestError";
+import { ClientSecretNotAllowedError } from "../component/driver/aad/error/clientSecretNotAllowedError";
+import { CredentialInvalidLifetimeError } from "../component/driver/aad/error/credentialInvalidLifetimeError";
+import { SignInAudienceNotAllowedError } from "../component/driver/aad/error/signInAudienceNotAllowedError";
+import { AADApplication } from "../component/driver/aad/interface/AADApplication";
+import { AADManifest } from "../component/driver/aad/interface/AADManifest";
+import { IAADDefinition } from "./interfaces/aad/IAADDefinition";
+import { SignInAudience } from "../component/driver/aad/interface/signInAudience";
+import { AadManifestHelper } from "../component/driver/aad/utility/aadManifestHelper";
+import { aadErrorCode } from "../component/driver/aad/utility/constants";
 // Another implementation of src\component\resource\aadApp\graph.ts to reduce call stacks
 // It's our internal utility so make sure pass valid parameters to it instead of relying on it to handle parameter errors
 
