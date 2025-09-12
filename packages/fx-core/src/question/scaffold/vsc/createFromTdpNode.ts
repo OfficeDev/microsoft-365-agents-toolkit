@@ -25,7 +25,7 @@ import { languageNode } from "./createRootNode";
 import { customEngineAgentNode } from "./customEngineAgentNode";
 import { daProjectTypeNode } from "./daProjectTypeNode";
 import { ProjectTypeOptions } from "./ProjectTypeOptions";
-import { teamsProjectNode, TeamsProjectTypeOptions } from "./teamsProjectTypeNode";
+import { teamsProjectNode } from "./teamsProjectTypeNode";
 
 export function getTemplateName(inputs: Inputs): string | undefined {
   if (inputs.teamsAppFromTdp) {
