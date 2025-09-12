@@ -88,7 +88,6 @@ export class TeamsDevPortalClient {
   regionEndpoint?: string;
 
   getGlobalEndpoint(): string {
-    return "https://dev-int.teams.microsoft.com";
     if (process.env.APP_STUDIO_ENV && process.env.APP_STUDIO_ENV === "int") {
       return "https://dev-int.teams.microsoft.com";
     } else {
