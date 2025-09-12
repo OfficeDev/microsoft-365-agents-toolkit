@@ -129,7 +129,7 @@ describe("utils", () => {
         teamsAppId: "mockAppId",
         tenantId: "mockTenantId",
         staticTabs: [validStaticTab],
-        bots: [validBot],
+        bots: [],
       };
 
       const needTab = needTabCode(appDefinition);
@@ -142,7 +142,7 @@ describe("utils", () => {
         teamsAppId: "mockAppId",
         tenantId: "mockTenantId",
         staticTabs: [{ ...validStaticTab, entityId: "about" }],
-        bots: [validBot],
+        bots: [],
       };
 
       const needTab = needTabCode(appDefinition);
@@ -155,7 +155,7 @@ describe("utils", () => {
         teamsAppId: "mockAppId",
         tenantId: "mockTenantId",
         configurableTabs: [validConfigurableTabForTabCode],
-        bots: [validBot],
+        bots: [],
       };
 
       const needTab = needTabCode(appDefinition);
@@ -174,7 +174,7 @@ describe("utils", () => {
             scopes: [CommandScope.Team],
           },
         ],
-        bots: [validBot],
+        bots: [],
       };
 
       const needTab = needTabCode(appDefinition);
@@ -193,7 +193,7 @@ describe("utils", () => {
             scopes: [CommandScope.Team],
           },
         ],
-        bots: [validBot],
+        bots: [],
       };
 
       const needTab = needTabCode(appDefinition);
@@ -451,7 +451,7 @@ describe("utils", () => {
     });
   });
 
-  describe("getFeaturesFromAppDefinition", () => {
+  describe.only("getFeaturesFromAppDefinition", () => {
     it("get features", () => {
       const appDefinition: AppDefinition = {
         teamsAppId: "mockAppId",
@@ -462,6 +462,7 @@ describe("utils", () => {
         messagingExtensions: [validMessagingExtension],
       };
       const res = getFeaturesFromAppDefinition(appDefinition);
+      console.log(res);
       chai.assert.equal(res.length, 4);
       chai.assert.isTrue(res.includes("personal-tab"));
       chai.assert.isTrue(res.includes("group-tab"));

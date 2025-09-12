@@ -136,7 +136,7 @@ export function getFeaturesFromAppDefinition(appDefinition: AppDefinition): stri
     features.push(bot);
   }
 
-  if (isBotBasedMessageExtension(appDefinition)) {
+  if (needBotCode(appDefinition) && !isBot(appDefinition)) {
     features.push(messageExtension);
   }
 
