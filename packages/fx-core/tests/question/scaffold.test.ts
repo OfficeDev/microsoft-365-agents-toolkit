@@ -34,7 +34,6 @@ import { ProjectTypeOptions } from "../../src/question/scaffold/vsc/ProjectTypeO
 import {
   createFromTdpNode,
   getTemplateName,
-  isTdpTemplate,
 } from "../../src/question/scaffold/vsc/createFromTdpNode";
 import {
   folderAndAppNameCondition,
