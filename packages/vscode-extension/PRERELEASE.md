@@ -3,6 +3,30 @@
 ## Changelog
 
 > Note: This changelog only includes the changes for the pre-release versions of Microsoft 365 Agents Toolkit (evolved from Teams Toolkit). For the changelog of stable versions, please refer to the [Microsoft 365 Agents Toolkit Changelog](https://github.com/OfficeDev/TeamsFx/blob/dev/packages/vscode-extension/CHANGELOG.md).
+
+### July 29, 2025
+
+#### New Feature
+- **Nested Authentication Support**
+Agents Toolkit now supports [nested authentication](https://msazure.visualstudio.com/Microsoft%20Teams%20Extensibility/_workitems/edit/27689272#40117480), making it easier to manage complex auth flows. Our templates have been updated to reflect this enhancement.
+
+- **New Sample: Custom Engine Agent with APIM GenAI Gateway** 
+We’ve added a new sample showcasing how to build a robust, enterprise-ready AI assistant using Azure API Management (APIM) GenAI Gateway. This sample demonstrates how to integrate Custom Engine Agents with APIM for scalable and secure AI experiences.
+
+- **TeamsFx SDK Deprecation Notice**
+We’re beginning the deprecation process for the TeamsFx SDK. Its core functionalities are now covered by the modern M365 Agents SDK and Teams AI library. While TeamsFx SDK will continue to be maintained, no new features will be added. Full deprecation is planned for July 2026.
+
+#### Enhancements
+- **Improved Sample Gallery Filters** You can now filter samples by agent type — such as Declarative Agents and Custom Engine Agents — for quicker discovery.
+
+- **Manifest Version Update** We've upgraded to v1.22 for better compatibility and new capabilities.
+
+- **Security Improvements** Deployment tokens are now securely fetched using Azure Static Web Apps (SWA), eliminating the need to store them in local environment files.
+
+- **TypeSpec Build Flexibility** TypeSpec projects can now be built without provisioning, supporting CI/CD workflows and environments with MAC governance restrictions. This also enables developers in GCC environments to build packages without logging in.
+
+- **Smoother Debug Experience** We’ve refined the debugging flow for a more seamless and intuitive developer experience.
+
 ### February 17, 2025
 
 #### New Feature
