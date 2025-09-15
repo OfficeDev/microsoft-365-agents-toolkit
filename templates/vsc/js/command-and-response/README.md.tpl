@@ -223,5 +223,5 @@ Adaptive cards can be updated on user action to allow user progress through a se
 - [Collaborate with others](https://docs.microsoft.com/microsoftteams/platform/toolkit/teamsfx-collaboration)
 - [Microsoft 365 Agents Toolkit Documentations](https://docs.microsoft.com/microsoftteams/platform/toolkit/teams-toolkit-fundamentals)
 - [Microsoft 365 Agents Toolkit CLI](https://aka.ms/teamsfx-toolkit-cli)
-- [Teams AI SDK V2](https://learn.microsoft.com/en-us/microsoftteams/platform/teams-ai-library/welcome)
+- [Teams AI SDK V2](https://aka.ms/teams-ai-library-v2)
 - [Microsoft 365 Agents Toolkit Samples](https://github.com/OfficeDev/TeamsFx-Samples)
