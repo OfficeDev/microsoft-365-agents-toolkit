@@ -7,10 +7,11 @@
     }
   },
   "AllowedHosts": "*",
-  "BOT_ID": "",
-  "BOT_PASSWORD": "",
-  "BOT_TYPE": "",
-  "BOT_TENANT_ID": "",
+   "Teams": {
+		"ClientId": "",
+		"ClientSecret": "",
+		"BotType": ""
+	},
 {{#useOpenAI}}
   "OpenAI": {
     "ApiKey": "",

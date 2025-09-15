@@ -8,9 +8,11 @@
     }
   },
   "AllowedHosts": "*",
-  "BOT_ID": "",
-  "BOT_PASSWORD": "",
-  "BOT_TYPE": "",
+  "Teams": {
+		"ClientId": "",
+		"ClientSecret": "",
+		"BotType": ""
+	},
 {{#useOpenAI}}
   "OpenAI": {
     "ApiKey": "",

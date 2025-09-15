@@ -44,9 +44,10 @@ provision:
       target: ./appsettings.Development.json
 {{/isNewProjectTypeEnabled}}
       content:
-        BOT_TYPE: 'MultiTenant'
-        BOT_ID: ${{BOT_ID}}
-        BOT_PASSWORD: ${{SECRET_BOT_PASSWORD}}
+        Teams:
+          ClientId: ${{BOT_ID}}
+          ClientSecret: ${{SECRET_BOT_PASSWORD}}
+          BotType: 'MultiTenant'
 {{#useOpenAI}}
         OpenAI:
           ApiKey: ${{SECRET_OPENAI_API_KEY}}

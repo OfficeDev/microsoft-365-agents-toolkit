@@ -22,10 +22,10 @@
   <ItemGroup>
     <PackageReference Include="Azure.Identity" Version="1.13.1" />
   	<PackageReference Include="Azure.Search.Documents" Version="11.6.0" />
-    <PackageReference Include="Microsoft.Bot.Builder" Version="4.22.9" />
-    <PackageReference Include="Microsoft.Bot.Builder.Integration.AspNet.Core" Version="4.22.9" />
-    <PackageReference Include="Microsoft.Bot.Connector" Version="4.22.9" />
-    <PackageReference Include="Microsoft.Teams.AI" Version="1.8.*" />
+    <PackageReference Include="Microsoft.Teams.Api" Version="2.0.0-preview.*" />
+    <PackageReference Include="Microsoft.Teams.Apps" Version="2.0.0-preview.*" />
+    <PackageReference Include="Microsoft.Teams.Plugins.AspNetCore" Version="2.0.0-preview.*" />
+    <PackageReference Include="Microsoft.Teams.Common" Version="2.0.0-preview.*" />
     <PackageReference Include="System.Text.Json" Version="8.0.5" />
   </ItemGroup>
 
