@@ -81,7 +81,6 @@
           { "$ref": "#/definitions/apiKeyUpdate"},
           { "$ref": "#/definitions/oauthRegister"},
           { "$ref": "#/definitions/oauthUpdate"},
-          { "$ref": "#/definitions/shareToOthers"},
           { "$ref": "#/definitions/devChannelCreate"},
           { "$ref": "#/definitions/devChannelInstallApp"},
           { "$ref": "#/definitions/typeSpecCompile"}
@@ -1395,6 +1394,10 @@
             "appPackagePath": {
               "type": "string",
               "description": "path to app package"
+            },
+            "scope": {
+              "type": "string",
+              "description": "The scope of the app (only works for declarative agent). personal is only visible to the owners. shared can be visible to other users in the tenant. Default is personal"
             }
           }
         },
@@ -1411,61 +1414,9 @@
             "appId": {
               "description": "Required. The app ID of M365 title.",
               "$ref": "#/definitions/envVarName"
-            }
-          }
-        }
-      }
-    },
-    "shareToOthers": {
-      "type": "object",
-      "additionalProperties": false,
-      "description": "Share apps to others.",
-      "required": ["uses", "with"],
-      "properties": {
-        "name": {
-          "type": "string",
-          "description": "An optional name of this action."
-        },
-        "env": {
-          "type": "object",
-          "description": "Define environment variables for this action.",
-          "additionalProperties": {
-            "type": "string"
-          }
-        },
-        "uses": {
-          "type": "string",
-          "description": "Share apps to others.",
-          "const": "teamsApp/shareToOthers"
-        },
-        "with": {
-          "type": "object",
-          "additionalProperties": false,
-          "description": "parameters for this action",
-          "required": ["appPackagePath"],
-          "properties": {
-            "appPackagePath": {
-              "type": "string",
-              "description": "path to app package"
-            }
-          }
-        },
-        "writeToEnvironmentFile": {
-          "type": "object",
-          "additionalProperties": false,
-          "description": "Write environment variables to environment file",
-          "required": ["titleId", "appId", "shareLink"],
-          "properties": {
-            "titleId": {
-              "description": "Required. The ID of M365 title.",
-              "$ref": "#/definitions/envVarName"
-            },
-            "appId": {
-              "description": "Required. The app ID of M365 title.",
-              "$ref": "#/definitions/envVarName"
             },
             "shareLink": {
-              "description": "Required. The share link of the app.",
+              "description": "Optional. The share link of the app.",
               "$ref": "#/definitions/envVarName"
             }
           }
@@ -1716,7 +1667,7 @@
       "type": "object",
       "additionalProperties": false,
       "description": "Get deployment key from Azure Static Web App.",
-      "required": ["uses", "with", "writeToEnvironmentFile"],
+      "required": ["uses", "with"],
       "properties": {
         "uses": {
           "type": "string",
