@@ -35,7 +35,8 @@ import { getProjectTypeAndCapability } from "../../src/question/create";
 import { QuestionNames } from "../../src/question/questionNames";
 import {
   BotCapabilityOptions,
-  TdpCapabilityOptions,
+  MeCapabilityOptions,
+  TabCapabilityOptions,
 } from "../../src/question/scaffold/vsc/CapabilityOptions";
 import { MockedAzureAccountProvider, MockedM365Provider, MockTools } from "../core/utils";
 
@@ -1389,18 +1390,6 @@ describe("developPortalScaffoldUtils", () => {
       messageHandlers: [],
     };
 
-    it("return TabNonSsoAndDefaultBot", () => {
-      const appDefinition: AppDefinition = {
-        teamsAppId: "id",
-        staticTabs: [validStaticTab],
-        messagingExtensions: [validMessagingExtension],
-      };
-
-      const res = getProjectTypeAndCapability(appDefinition);
-      chai.assert.equal(res?.templateId, TdpCapabilityOptions.nonSsoTabAndBot().id);
-      chai.assert.equal(res?.projectType, "tab-bot-type");
-    });
-
     it("return TabNonSso", () => {
       const appDefinition: AppDefinition = {
         teamsAppId: "id",
@@ -1408,20 +1397,8 @@ describe("developPortalScaffoldUtils", () => {
       };
 
       const res = getProjectTypeAndCapability(appDefinition);
-      chai.assert.equal(res?.templateId, TdpCapabilityOptions.nonSsoTab().id);
+      chai.assert.equal(res?.templateId, TabCapabilityOptions.nonSsoTab().id);
       chai.assert.equal(res?.projectType, "tab-type");
-    });
-
-    it("return DefaultBotAndMessageExtension", () => {
-      const appDefinition: AppDefinition = {
-        teamsAppId: "id",
-        bots: [validBot],
-        messagingExtensions: [validMessagingExtension],
-      };
-
-      const res = getProjectTypeAndCapability(appDefinition);
-      chai.assert.equal(res?.templateId, TdpCapabilityOptions.botAndMe().id);
-      chai.assert.equal(res?.projectType, "bot-me-type");
     });
 
     it("return MessageExtension", () => {
@@ -1431,7 +1408,7 @@ describe("developPortalScaffoldUtils", () => {
       };
 
       const res = getProjectTypeAndCapability(appDefinition);
-      chai.assert.equal(res?.templateId, TdpCapabilityOptions.me().id);
+      chai.assert.equal(res?.templateId, MeCapabilityOptions.basicMe().id);
       chai.assert.equal(res?.projectType, "me-type");
     });
 

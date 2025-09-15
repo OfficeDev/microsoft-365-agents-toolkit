@@ -10,6 +10,7 @@ export enum QuestionNames {
   ProjectType = "project-type",
   Capabilities = "capabilities",
   TeamsAppType = "teams-app-type",
+  TeamsCapability = "teams-capability",
   BotTrigger = "bot-host-type-trigger",
   Runtime = "runtime",
   SPFxSolution = "spfx-solution",

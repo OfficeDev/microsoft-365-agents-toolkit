@@ -54,7 +54,7 @@ import { ActionContext } from "../../../src/component/middleware/actionExecution
 import { ProgrammingLanguage, QuestionNames } from "../../../src/question";
 import {
   BotCapabilityOptions,
-  CustomCopilotCapabilityOptions,
+  TeamsAgentCapabilityOptions,
 } from "../../../src/question/scaffold/vsc/CapabilityOptions";
 import sampleConfigV3 from "../../common/samples-config-v3.json";
 import { MockTools, randomAppName } from "../../core/utils";
@@ -1257,19 +1257,16 @@ describe("render template", () => {
       const descriptionAnswer = getLocalizedString(
         "core.createProjectQuestion.capability.customEngineAgent.description"
       );
-      assert.equal(CustomCopilotCapabilityOptions.basicChatbot().description, descriptionAnswer);
-      assert.equal(
-        CustomCopilotCapabilityOptions.customCopilotRag().description,
-        descriptionAnswer
-      );
-      assert.equal(CustomCopilotCapabilityOptions.aiAgent().description, descriptionAnswer);
+      assert.equal(TeamsAgentCapabilityOptions.basicChatbot().description, descriptionAnswer);
+      assert.equal(TeamsAgentCapabilityOptions.customCopilotRag().description, descriptionAnswer);
+      // assert.equal(CustomCopilotCapabilityOptions.aiAgent().description, descriptionAnswer);
     });
 
     it("CEA works in M365 tag doesn't show when CEA disabled", async () => {
       sandbox.stub(process, "env").value({ TEAMSFX_CEA_ENABLED: "false" });
-      assert.equal(CustomCopilotCapabilityOptions.basicChatbot().description, undefined);
-      assert.equal(CustomCopilotCapabilityOptions.customCopilotRag().description, undefined);
-      assert.equal(CustomCopilotCapabilityOptions.aiAgent().description, undefined);
+      assert.equal(TeamsAgentCapabilityOptions.basicChatbot().description, undefined);
+      assert.equal(TeamsAgentCapabilityOptions.customCopilotRag().description, undefined);
+      // assert.equal(CustomCopilotCapabilityOptions.aiAgent().description, undefined);
     });
 
     it("template name with language 'common' or 'none' uses full id as folderName", async () => {

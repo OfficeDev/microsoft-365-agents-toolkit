@@ -59,16 +59,13 @@ export enum TemplateNames {
   MessageExtensionM365 = "m365-message-extension",
   MessageExtensionAction = "message-extension-action",
   LinkUnfurling = "link-unfurling",
+  DefaultMessageExtension = "default-message-extension",
 
   // WXP
   OutlookTaskpane = "office-addin-outlook-taskpane", // handled by OfficeAddinGeneratorNew
   WXPTaskpane = "office-addin-wxpo-taskpane", // handled by OfficeAddinGeneratorNew
+  ExcelCFShortcut = "office-addin-excel-cfshortcut", // handled by OfficeAddinGeneratorNew
   OfficeAddinCommon = "office-addin-config", // handled by OfficeAddinGeneratorNew
-
-  // from TDP only
-  TabAndDefaultBot = "non-sso-tab-default-bot",
-  BotAndMessageExtension = "default-bot-message-extension",
-  MessageExtension = "message-extension",
 
   // VS only
   Empty = "empty",

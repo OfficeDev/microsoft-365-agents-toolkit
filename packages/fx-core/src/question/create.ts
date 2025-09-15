@@ -44,9 +44,7 @@ import { StaticTab } from "../component/driver/teamsApp/interfaces/appdefinition
 import { pluginManifestUtils } from "../component/driver/teamsApp/utils/PluginManifestUtils";
 import {
   isBot,
-  isBotAndBotBasedMessageExtension,
   isBotBasedMessageExtension,
-  needTabAndBotCode,
   needTabCode,
 } from "../component/driver/teamsApp/utils/utils";
 import { OneDriveSharePointItemType } from "../component/generator/constant";
@@ -89,7 +87,8 @@ import {
 import {
   BotCapabilityOptions,
   DACapabilityOptions,
-  TdpCapabilityOptions,
+  MeCapabilityOptions,
+  TabCapabilityOptions,
 } from "./scaffold/vsc/CapabilityOptions";
 import { ProjectTypeOptions } from "./scaffold/vsc/ProjectTypeOptions";
 import { ensureInputs } from "./utils";
@@ -98,29 +97,19 @@ import { manifestUtils } from "../component/driver/teamsApp/utils/ManifestUtils"
 export function getProjectTypeAndCapability(
   teamsApp: AppDefinition
 ): { projectType: string; templateId: string } | undefined {
-  // tab with bot, tab with message extension, tab with bot and message extension
-  if (needTabAndBotCode(teamsApp)) {
-    return { projectType: "tab-bot-type", templateId: TdpCapabilityOptions.nonSsoTabAndBot().id };
-  }
-
-  // tab only
-  if (needTabCode(teamsApp)) {
-    return { projectType: "tab-type", templateId: TdpCapabilityOptions.nonSsoTab().id };
-  }
-
-  // bot and message extension
-  if (isBotAndBotBasedMessageExtension(teamsApp)) {
-    return { projectType: "bot-me-type", templateId: TdpCapabilityOptions.botAndMe().id };
+  // bot
+  if (isBot(teamsApp)) {
+    return { projectType: "bot-type", templateId: BotCapabilityOptions.basicBot().id };
   }
 
   // bot based message extension
   if (isBotBasedMessageExtension(teamsApp)) {
-    return { projectType: "me-type", templateId: TdpCapabilityOptions.me().id };
+    return { projectType: "me-type", templateId: MeCapabilityOptions.basicMe().id };
   }
 
-  // bot
-  if (isBot(teamsApp)) {
-    return { projectType: "bot-type", templateId: BotCapabilityOptions.basicBot().id };
+  // tab only
+  if (needTabCode(teamsApp)) {
+    return { projectType: "tab-type", templateId: TabCapabilityOptions.nonSsoTab().id };
   }
 
   return undefined;

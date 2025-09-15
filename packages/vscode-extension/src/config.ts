@@ -37,6 +37,10 @@ export class ConfigManager {
       ConfigurationKey.EnableDAMetaOS,
       false
     ).toString();
+    process.env[FeatureFlags.CFShortcutMetaOS.name] = this.getConfiguration(
+      ConfigurationKey.EnableCFShortcutMetaOS,
+      false
+    ).toString();
   }
   loadLogLevel() {
     const logLevel = this.getConfiguration(ConfigurationKey.LogLevel, "Info") as string;

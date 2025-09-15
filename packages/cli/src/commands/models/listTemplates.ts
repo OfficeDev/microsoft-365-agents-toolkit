@@ -3,7 +3,6 @@
 import { CLICommand, ok, OptionItem } from "@microsoft/teamsfx-api";
 import {
   BotCapabilityOptions,
-  CustomCopilotCapabilityOptions,
   CustomEngineAgentOptions,
   DACapabilityOptions,
   featureFlagManager,
@@ -11,7 +10,7 @@ import {
   MeCapabilityOptions,
   OfficeAddinCapabilityOptions,
   TabCapabilityOptions,
-  TdpCapabilityOptions,
+  TeamsAgentCapabilityOptions,
   VSCapabilityOptions,
 } from "@microsoft/teamsfx-core";
 import chalk from "chalk";
@@ -27,9 +26,9 @@ export function listAllCapabilities(): OptionItem[] {
     return [
       VSCapabilityOptions.empty(),
       VSCapabilityOptions.declarativeAgent(),
-      CustomCopilotCapabilityOptions.basicChatbot(),
-      CustomCopilotCapabilityOptions.customCopilotRag(),
-      CustomCopilotCapabilityOptions.aiAgent(),
+      TeamsAgentCapabilityOptions.basicChatbot(),
+      TeamsAgentCapabilityOptions.customCopilotRag(),
+      // TeamsAgentCapabilityOptions.aiAgent(),
       VSCapabilityOptions.weatherAgentBot(),
       BotCapabilityOptions.basicBot(),
       BotCapabilityOptions.notificationBot(),
@@ -41,36 +40,30 @@ export function listAllCapabilities(): OptionItem[] {
       MeCapabilityOptions.collectFormMe(),
       VSCapabilityOptions.SearchMeVS(),
       MeCapabilityOptions.linkUnfurling(),
-      TdpCapabilityOptions.me(),
     ];
   }
   return [
     DACapabilityOptions.declarativeAgent(),
     CustomEngineAgentOptions.basicCustomEngineAgent(),
     CustomEngineAgentOptions.weatherAgent(),
-    CustomCopilotCapabilityOptions.basicChatbot(),
-    CustomCopilotCapabilityOptions.customCopilotRag(),
-    CustomCopilotCapabilityOptions.aiAgent(),
+    TeamsAgentCapabilityOptions.basicChatbot(),
+    TeamsAgentCapabilityOptions.customCopilotRag(),
+    // TeamsAgentCapabilityOptions.aiAgent(),
     BotCapabilityOptions.basicBot(),
-    BotCapabilityOptions.notificationBot(),
-    BotCapabilityOptions.commandBot(),
-    BotCapabilityOptions.workflowBot(),
+    // BotCapabilityOptions.notificationBot(),
+    // BotCapabilityOptions.commandBot(),
+    // BotCapabilityOptions.workflowBot(),
     TabCapabilityOptions.nonSsoTab(),
-    TabCapabilityOptions.m365SsoLaunchPage(),
-    TabCapabilityOptions.dashboardTab(),
-    TabCapabilityOptions.SPFxTab(),
-    MeCapabilityOptions.m365SearchMe(),
-    MeCapabilityOptions.collectFormMe(),
-    MeCapabilityOptions.linkUnfurling(),
+    // TabCapabilityOptions.m365SsoLaunchPage(),
+    // TabCapabilityOptions.dashboardTab(),
+    // TabCapabilityOptions.SPFxTab(),
+    MeCapabilityOptions.basicMe(),
+    // MeCapabilityOptions.m365SearchMe(),
+    // MeCapabilityOptions.collectFormMe(),
+    // MeCapabilityOptions.linkUnfurling(),
     OfficeAddinCapabilityOptions.wxpTaskPane(),
+    OfficeAddinCapabilityOptions.excelCFShortcut(),
     OfficeAddinCapabilityOptions.outlookTaskPane(),
-    ...(featureFlagManager.getBooleanValue(FeatureFlags.TdpTemplateCliTest)
-      ? [
-          TdpCapabilityOptions.nonSsoTab(),
-          TdpCapabilityOptions.botAndMe(),
-          TdpCapabilityOptions.nonSsoTabAndBot(),
-        ]
-      : []),
   ];
 }
 

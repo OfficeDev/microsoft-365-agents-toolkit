@@ -6,6 +6,7 @@ export enum ConfigurationKey {
   LogLevel = "logLevel",
   EnableCEA = "enableLaunchAgentForTeamsInCopilot",
   EnableDAMetaOS = "enableDeclarativeAgentInOfficeAddIn",
+  EnableCFShortcutMetaOS = "enableCustomFunctionShortcutInOfficeAddIn",
 }
 
 export const AzurePortalUrl = "https://portal.azure.com";

@@ -49,12 +49,12 @@ export const specialTemplates: Template[] = [
     language: "csharp",
     description: "",
   },
-  {
-    id: "custom-copilot-rag-custom-api-python",
-    name: TemplateNames.CustomCopilotRagCustomApi,
-    language: "python",
-    description: "",
-  },
+  // {
+  //   id: "custom-copilot-rag-custom-api-python",
+  //   name: TemplateNames.CustomCopilotRagCustomApi,
+  //   language: "python",
+  //   description: "",
+  // },
   {
     id: "message-extension-with-existing-api",
     name: TemplateNames.MessageExtensionWithExistingApiSpec,

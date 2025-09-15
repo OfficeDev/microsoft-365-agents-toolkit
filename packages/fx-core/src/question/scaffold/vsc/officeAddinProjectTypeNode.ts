@@ -67,6 +67,9 @@ export function wxpAddinProjectTypeNode(): IQTreeNode {
       type: "singleSelect",
       staticOptions: [
         OfficeAddinCapabilityOptions.wxpTaskPane(),
+        ...(featureFlagManager.getBooleanValue(FeatureFlags.CFShortcutMetaOS)
+          ? [OfficeAddinCapabilityOptions.excelCFShortcut()]
+          : []),
         ...(featureFlagManager.getBooleanValue(FeatureFlags.DAMetaOS)
           ? [OfficeAddinCapabilityOptions.DAMetaOS()]
           : []),

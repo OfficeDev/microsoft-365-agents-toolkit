@@ -10,7 +10,6 @@ import { Template } from "./interface";
 import { messagingExtensionTemplates } from "./me";
 import { specialTemplates } from "./special";
 import { tabTemplates } from "./tab";
-import { tdpTemplates } from "./tdp";
 import { vsOnlyTemplates } from "./vs";
 import { wxpTemplates } from "./wxp";
 
@@ -20,7 +19,6 @@ const allTemplates: Template[] = [
   ...messagingExtensionTemplates,
   ...customEngineAgentTemplates,
   ...agentForTeamsTemplates,
-  ...tdpTemplates,
   ...specialTemplates,
   ...vsOnlyTemplates,
   ...wxpTemplates,
@@ -33,7 +31,6 @@ const defaultGeneratorTemplates: Template[] = [
   ...messagingExtensionTemplates,
   ...customEngineAgentTemplates,
   ...agentForTeamsTemplates,
-  ...tdpTemplates,
   ...vsOnlyTemplates,
   ...graphConnectorTemplates,
 ];

@@ -13,8 +13,7 @@ export enum ProjectTypeGroup {
 export class ProjectTypeOptions {
   static copilotAgentOptionId = "copilot-agent-type";
   static customEngineAgentOptionId = "custom-engine-agent-type";
-  static agentForTeamsOptionId = "agent-for-teams-type";
-  static teamsAppOptionId = "teams-app-type";
+  static teamsOptionId = "teams-agent-and-app-type";
   static outlookAddinOptionId = "outlook-addin-type";
   static officeMetaOSOptionId = "office-meta-os-type";
   static graphConnectorOptionId = "graph-connector-type";
@@ -29,24 +28,15 @@ export class ProjectTypeOptions {
     }
   }
 
-  static agentForTeams(platform: Platform = Platform.VSCode): OptionItem {
+  static teamsAgentsAndApps(platform: Platform = Platform.VSCode): OptionItem {
     return {
-      id: ProjectTypeOptions.agentForTeamsOptionId,
+      id: ProjectTypeOptions.teamsOptionId,
       label: `${
         platform === Platform.VSCode ? "$(microsoft365-agents-toolkit-teams) " : ""
-      }${getLocalizedString("core.createProjectQuestion.projectType.agentForTeams.label")}`,
-      detail: getLocalizedString("core.createProjectQuestion.projectType.agentForTeams.detail"),
-      groupName: ProjectTypeOptions.groupName(ProjectTypeGroup.M365Apps),
-    };
-  }
-
-  static teamsApp(platform: Platform = Platform.VSCode): OptionItem {
-    return {
-      id: ProjectTypeOptions.teamsAppOptionId,
-      label: `${
-        platform === Platform.VSCode ? "$(microsoft365-agents-toolkit-teams) " : ""
-      }${getLocalizedString("core.createProjectQuestion.projectType.teamsApp.label")}`,
-      detail: getLocalizedString("core.createProjectQuestion.projectType.teamsApp.detail"),
+      }${getLocalizedString("core.createProjectQuestion.projectType.teamsAgentsAndApps.label")}`,
+      detail: getLocalizedString(
+        "core.createProjectQuestion.projectType.teamsAgentsAndApps.detail"
+      ),
       groupName: ProjectTypeOptions.groupName(ProjectTypeGroup.M365Apps),
     };
   }

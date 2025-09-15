@@ -123,7 +123,10 @@ import {
   KnowledgeSourceOptions,
 } from "../../src/question/constants";
 import * as createQuestions from "../../src/question/create";
-import { TabCapabilityOptions } from "../../src/question/scaffold/vsc/CapabilityOptions";
+import {
+  TabCapabilityOptions,
+  TeamsAgentCapabilityOptions,
+} from "../../src/question/scaffold/vsc/CapabilityOptions";
 import { ProjectTypeOptions } from "../../src/question/scaffold/vsc/ProjectTypeOptions";
 import { validationUtils } from "../../src/ui/validationUtils";
 import { MockTools, MockUserInteraction, randomAppName } from "./utils";
@@ -823,9 +826,10 @@ describe("Core basic APIs", () => {
         platform: Platform.VSCode,
         [QuestionNames.AppName]: appName,
         [QuestionNames.Scratch]: ScratchOptions.yes().id,
-        [QuestionNames.ProgrammingLanguage]: "javascript",
-        [QuestionNames.ProjectType]: ProjectTypeOptions.teamsAppOptionId,
-        [QuestionNames.Capabilities]: TabCapabilityOptions.nonSsoTab().id,
+        [QuestionNames.ProgrammingLanguage]: "typescript",
+        [QuestionNames.ProjectType]: ProjectTypeOptions.teamsOptionId,
+        [QuestionNames.TeamsAppType]: TeamsAgentCapabilityOptions.others().id,
+        [QuestionNames.TeamsCapability]: TabCapabilityOptions.nonSsoTab().id,
         [QuestionNames.Folder]: os.tmpdir(),
         [QuestionNames.TemplateName]: TemplateNames.Tab,
         stage: Stage.create,
