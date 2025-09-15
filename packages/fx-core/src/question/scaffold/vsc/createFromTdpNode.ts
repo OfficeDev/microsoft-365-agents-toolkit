@@ -25,12 +25,7 @@ import { languageNode } from "./createRootNode";
 import { customEngineAgentNode } from "./customEngineAgentNode";
 import { daProjectTypeNode } from "./daProjectTypeNode";
 import { ProjectTypeOptions } from "./ProjectTypeOptions";
-import {
-  botProjectTypeNode,
-  meProjectTypeNode,
-  tabProjectTypeNode,
-  TeamsProjectTypeOptions,
-} from "./teamsProjectTypeNode";
+import { teamsProjectNode } from "./teamsProjectTypeNode";
 
 export function getTemplateName(inputs: Inputs): string | undefined {
   if (inputs.teamsAppFromTdp) {
@@ -96,18 +91,10 @@ export function createFromTdpNode(platform: Platform = Platform.VSCode): IQTreeN
           staticOptions: [
             ProjectTypeOptions.declarativeAgent(platform),
             ProjectTypeOptions.customEngineAgent(platform),
-            TeamsProjectTypeOptions.bot(platform),
-            TeamsProjectTypeOptions.tab(platform),
-            TeamsProjectTypeOptions.me(platform),
+            ProjectTypeOptions.teamsAgentsAndApps(platform),
           ],
         },
-        children: [
-          daProjectTypeNode(),
-          customEngineAgentNode(),
-          botProjectTypeNode(),
-          tabProjectTypeNode(),
-          meProjectTypeNode(),
-        ],
+        children: [daProjectTypeNode(), customEngineAgentNode(), teamsProjectNode(platform)],
       },
       {
         condition: (inputs: Inputs) =>
