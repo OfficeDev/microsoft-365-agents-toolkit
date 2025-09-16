@@ -15,12 +15,29 @@
     <None Include="infra/**/*" />
     <None Remove="devTools/**" />
     <Content Remove="devTools/**/*" />
+    <None Include="env/**/*" />
   </ItemGroup>
 
 {{/isNewProjectTypeEnabled}}
   <ItemGroup>
-    <PackageReference Include="Microsoft.Agents.Authentication.Msal" Version="1.*" />
-    <PackageReference Include="Microsoft.Agents.Hosting.AspNetCore" Version="1.*" />
+    <PackageReference Include="Azure.Identity" Version="1.13.1" />
+    <PackageReference Include="Microsoft.Teams.Api" Version="2.0.0-preview.*" />
+    <PackageReference Include="Microsoft.Teams.Apps" Version="2.0.0-preview.*" />
+    <PackageReference Include="Microsoft.Teams.Plugins.AspNetCore" Version="2.0.0-preview.*" />
+    <PackageReference Include="Microsoft.Teams.Common" Version="2.0.0-preview.*" />
   </ItemGroup>
 
+  <!-- Exclude local settings from publish -->
+  <ItemGroup>
+    <Content Remove="appsettings.Development.json" />
+    <Content Include="appsettings.Development.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>None</CopyToPublishDirectory>
+    </Content>
+    <Content Remove="appsettings.Playground.json" />
+    <Content Include="appsettings.Playground.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>None</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
 </Project>

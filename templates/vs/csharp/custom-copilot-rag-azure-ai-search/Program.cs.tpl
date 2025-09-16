@@ -42,8 +42,24 @@ if (config.Teams.BotType == "UserAssignedMsi")
     ));
 }
 
-MyDataSource myDataSource = new();
-builder.Services.AddSingleton(myDataSource);
+AzureAISearchDataSourceOptions options = new()
+{
+    IndexName = "my-documents",
+    AzureAISearchApiKey = config.Azure.AISearchApiKey,
+    AzureAISearchEndpoint = new Uri(config.Azure.AISearchEndpoint),
+{{#useOpenAI}}
+    OpenAIApiKey = config.OpenAI.ApiKey,
+    OpenAIEmbeddingModel = config.OpenAI.EmbeddingModel,
+{{/useOpenAI}}
+{{#useAzureOpenAI}}
+    AzureOpenAIApiKey = config.Azure.OpenAIApiKey,
+    AzureOpenAIEndpoint = config.Azure.OpenAIEndpoint,
+    AzureOpenAIEmbeddingDeployment = config.Azure.OpenAIEmbeddingDeploymentName,
+{{/useAzureOpenAI}}
+};
+
+AzureAISearchDataSource dataSource = new(options);
+builder.Services.AddSingleton(new AzureAISearchDataSource(options));
 
 builder.Services.AddSingleton<Controller>();
 builder.AddTeams(appBuilder);

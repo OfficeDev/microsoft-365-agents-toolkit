@@ -42,8 +42,7 @@ if (config.Teams.BotType == "UserAssignedMsi")
     ));
 }
 
-MyDataSource myDataSource = new();
-builder.Services.AddSingleton(myDataSource);
+builder.Services.AddSingleton(new MyDataSource());
 
 builder.Services.AddSingleton<Controller>();
 builder.AddTeams(appBuilder);

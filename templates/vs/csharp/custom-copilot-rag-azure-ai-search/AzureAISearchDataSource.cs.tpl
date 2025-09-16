@@ -2,20 +2,12 @@ using {{SafeProjectName}};
 using Azure;
 using Azure.Search.Documents;
 using Azure.Search.Documents.Models;
-using Microsoft.Bot.Builder;
-using Microsoft.Teams.AI.AI.DataSources;
-using Microsoft.Teams.AI.AI.Embeddings;
-using Microsoft.Teams.AI.AI.Prompts.Sections;
-using Microsoft.Teams.AI.AI.Tokenizers;
-using Microsoft.Teams.AI.State;
 using System.Text;
 
 namespace {{SafeProjectName}}
 {
-    public class AzureAISearchDataSource : IDataSource
+    public class AzureAISearchDataSource
     {
-        public string Name { get; }
-
         public readonly AzureAISearchDataSourceOptions Options;
 
         public readonly SearchClient SearchClient;
@@ -23,19 +15,16 @@ namespace {{SafeProjectName}}
         public AzureAISearchDataSource(AzureAISearchDataSourceOptions options)
         {
             Options = options;
-            Name = options.Name;
 
             AzureKeyCredential credential = new AzureKeyCredential(options.AzureAISearchApiKey);
             SearchClient = new SearchClient(options.AzureAISearchEndpoint, options.IndexName, credential);
         }
 
-        public async Task<RenderedPromptSection<string>> RenderDataAsync(ITurnContext context, IMemory memory, ITokenizer tokenizer, int maxTokens, CancellationToken cancellationToken = default)
+        public async Task<RenderedPromptSection<string>> RenderDataAsync(string query)
         {
-            string query = (string)memory.GetValue("temp.input")!;
-
             if (string.IsNullOrEmpty(query))
             {
-                return new RenderedPromptSection<string>("");
+                return string.Empty;
             }
 
             List<string> selectedFields = new() { "DocId", "DocTitle", "Description" };
@@ -60,27 +49,16 @@ namespace {{SafeProjectName}}
             };
             SearchResults<Document> search = SearchClient.Search<Document>(query, options);
 
-
-            // Concatenate the restaurant documents (i.e json object) string into a single document
-            // until the maximum token limit is reached. This can be specified in the prompt template.
-            int usedTokens = tokenizer.Encode("Contexts: ").Count;
             StringBuilder doc = new StringBuilder("Contexts: ");
             Pageable<SearchResult<Document>> results = search.GetResults();
             foreach (SearchResult<Document> result in results)
             {
                 string document = $"<context>{result.Document}</context>";
-                int tokens = tokenizer.Encode(document).Count;
-
-                if (usedTokens + tokens > maxTokens)
-                {
-                    break;
-                }
 
                 doc.Append(document);
-                usedTokens += tokens;
             }
 
-            return new RenderedPromptSection<string>(doc.ToString(), usedTokens, usedTokens > maxTokens);
+            return doc.ToString();
         }
 
         private async Task<ReadOnlyMemory<float>> _GetEmbeddingVector(string query)
@@ -100,11 +78,6 @@ namespace {{SafeProjectName}}
 
     public class AzureAISearchDataSourceOptions
     {
-        /// <summary>
-        /// Name of the data source
-        /// </summary>
-        public string Name { get; set; }
-
         /// <summary>
         /// Name of the Azure AI Search index
         /// </summary>

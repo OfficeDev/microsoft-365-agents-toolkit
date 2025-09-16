@@ -44,16 +44,10 @@ provision:
       target: ./appsettings.Development.json
 {{/isNewProjectTypeEnabled}}
       content:
-        TokenValidation:
-          Audiences:
-            ClientId: ${{BOT_ID}}
-        Connections:
-          BotServiceConnection:
-            Settings:
-              AuthType: "ClientSecret"
-              AuthorityEndpoint: "https://login.microsoftonline.com/botframework.com"
-              ClientId: ${{BOT_ID}}
-              ClientSecret: ${{SECRET_BOT_PASSWORD}}
+        Teams:
+          ClientId: ${{BOT_ID}}
+          ClientSecret: ${{SECRET_BOT_PASSWORD}}
+          BotType: 'MultiTenant'
 
   # Create or update the bot registration on dev.botframework.com
   - uses: botFramework/create

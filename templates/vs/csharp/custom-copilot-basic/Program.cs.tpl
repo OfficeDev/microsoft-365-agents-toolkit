@@ -63,13 +63,6 @@ builder.Services.AddOpenAI(
     new ChatPromptOptions().WithInstructions(instructions));
 
 var app = builder.Build();
-var teamsApp = app.UseTeams();
-teamsApp.OnError(async (sender, @event) =>
-{
-    var context = @event.Context;
-    await context.Send($"The agent encountered an unhandled error: {@event.Exception.Message}");
-    await context.Send($"To continue to run this agent, please fix the agent source code.");
-    teamsApp.Logger.Error($"[OnError] unhandled error : {@event.Exception.Message}");
-});
+app.UseTeams();
 
 app.Run();

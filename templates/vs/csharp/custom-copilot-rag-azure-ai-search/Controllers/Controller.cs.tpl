@@ -14,7 +14,7 @@ namespace {{SafeProjectName}}.Controllers
     public class Controller(OpenAIChatPrompt _prompt)
     {
         [Message]
-        public async Task OnMessage(IContext<Microsoft.Teams.Api.Activities.MessageActivity> context, [Context] IContext.Client client)
+        public async Task OnMessage(IContext<Microsoft.Teams.Api.Activities.MessageActivity> context)
         {
             var state = State.From(context);
             var text = TextUtils.StripMentionsText(context.Activity);
