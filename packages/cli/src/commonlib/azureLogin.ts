@@ -7,6 +7,7 @@ import { SubscriptionClient } from "@azure/arm-subscriptions";
 import { AccessToken, GetTokenOptions, TokenCredential } from "@azure/core-auth";
 import { LogLevel } from "@azure/msal-node";
 import {
+  AuthenticationWWWAuthenticateRequest,
   AzureAccountProvider,
   ConfigFolderName,
   FxError,
@@ -177,7 +178,13 @@ export class AzureAccountManager extends login implements AzureAccountProvider {
   /**
    * Async get identity [crendential](https://github.com/Azure/azure-sdk-for-js/blob/master/sdk/core/core-auth/src/tokenCredential.ts)
    */
-  getIdentityCredentialAsync(showDialog = true): Promise<TokenCredential | undefined> {
+  getIdentityCredentialAsync(
+    showDialog = true,
+    authenticationSessionRequest?: AuthenticationWWWAuthenticateRequest
+  ): Promise<TokenCredential | undefined> {
+    if (authenticationSessionRequest && authenticationSessionRequest.wwwAuthenticate) {
+      throw new MFARequiredError();
+    }
     return Promise.resolve(AzureAccountManager.teamsFxTokenCredential);
   }
 
@@ -557,6 +564,7 @@ async function listAll<T>(
 
 import AzureLoginCI from "./azureLoginCI";
 import AzureAccountProviderUserPassword from "./azureLoginUserPassword";
+import { MFARequiredError } from "../error";
 
 // todo delete ciEnabled
 const azureLogin = !ui.interactive
