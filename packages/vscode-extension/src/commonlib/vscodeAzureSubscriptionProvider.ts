@@ -130,7 +130,7 @@ export class VSCodeAzureSubscriptionProvider {
 }
 
 export async function getSessionFromVSCode(
-  scopes?: string | string[] | vscode.AuthenticationWWWAuthenticateRequest,
+  scopes?: string | string[] | vscode.AuthenticationWwwAuthenticateRequest,
   tenantId?: string,
   options?: vscode.AuthenticationGetSessionOptions
 ): Promise<vscode.AuthenticationSession | undefined> {
@@ -167,15 +167,15 @@ function getScopes(scopes: string | string[] | undefined, tenantId?: string): st
 }
 
 export function isAuthenticationSessionRequest(
-  scopes?: string | string[] | vscode.AuthenticationWWWAuthenticateRequest
-): scopes is vscode.AuthenticationWWWAuthenticateRequest {
+  scopes?: string | string[] | vscode.AuthenticationWwwAuthenticateRequest
+): scopes is vscode.AuthenticationWwwAuthenticateRequest {
   return !!(scopes && typeof scopes === "object" && "wwwAuthenticate" in scopes);
 }
 
 function formScopesArg(
-  scopes?: string | string[] | vscode.AuthenticationWWWAuthenticateRequest,
+  scopes?: string | string[] | vscode.AuthenticationWwwAuthenticateRequest,
   tenantId?: string
-): string[] | vscode.AuthenticationWWWAuthenticateRequest {
+): string[] | vscode.AuthenticationWwwAuthenticateRequest {
   const initialScopeList: string[] | undefined =
     typeof scopes === "string"
       ? [scopes]
@@ -184,7 +184,7 @@ function formScopesArg(
       : Array.from(scopes?.scopes ?? []);
   const scopeList = getScopes(initialScopeList, tenantId);
   return isAuthenticationSessionRequest(scopes)
-    ? { scopes: scopeList, wwwAuthenticate: scopes.wwwAuthenticate }
+    ? { fallbackScopes: scopeList, wwwAuthenticate: scopes.wwwAuthenticate }
     : scopeList;
 }
 
