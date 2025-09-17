@@ -57,6 +57,21 @@ export type AzureCredential =
       certificatePath: string;
     };
 
+export interface AuthenticationWWWAuthenticateRequest {
+  /**
+   * The raw WWW-Authenticate header value that triggered this challenge.
+   * This will be parsed by the authentication provider to extract the necessary
+   * challenge information.
+   */
+  readonly wwwAuthenticate: string;
+
+  /**
+   * Optional scopes for the session. If not provided, the authentication provider
+   * may use default scopes or extract them from the challenge.
+   */
+  readonly scopes?: readonly string[];
+}
+
 /**
  * Difference between getAccountCredential and getIdentityCredential [Node Azure Authenticate](https://docs.microsoft.com/en-us/azure/developer/javascript/core/node-sdk-azure-authenticate)
  * You can search at [Azure JS SDK](https://docs.microsoft.com/en-us/javascript/api/overview/azure/?view=azure-node-latest) to see which credential you need.
@@ -66,7 +81,10 @@ export interface AzureAccountProvider {
    * Async get identity [crendential](https://github.com/Azure/azure-sdk-for-js/blob/master/sdk/core/core-auth/src/tokenCredential.ts)
    * @param showDialog Control whether the UI layer displays pop-up windows.
    */
-  getIdentityCredentialAsync(showDialog?: boolean): Promise<TokenCredential | undefined>;
+  getIdentityCredentialAsync(
+    showDialog?: boolean,
+    authenticationSessionRequest?: AuthenticationWWWAuthenticateRequest
+  ): Promise<TokenCredential | undefined>;
 
   /**
    * To support credential per action feature, caller can specify credential info for on demand
