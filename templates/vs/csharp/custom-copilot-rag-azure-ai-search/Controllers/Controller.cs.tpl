@@ -14,12 +14,12 @@ namespace {{SafeProjectName}}.Controllers
     public class Controller(OpenAIChatPrompt _prompt)
     {
         [Message]
-        public async Task OnMessage(IContext<Microsoft.Teams.Api.Activities.MessageActivity> context)
+        public async Task OnMessage(IContext<Microsoft.Teams.Api.Activities.MessageActivity> context,  AzureAISearchDataSource dataSource)
         {
             var state = State.From(context);
             var text = TextUtils.StripMentionsText(context.Activity);
             
-            var additionalContext = dataSource.RenderData(text);
+             var additionalContext = await dataSource.RenderDataAsync(text);
             var enrichedText = $"{text}\n\nAdditional Context: {additionalContext}";
 
             if (context.Activity.Conversation.IsGroup == true)

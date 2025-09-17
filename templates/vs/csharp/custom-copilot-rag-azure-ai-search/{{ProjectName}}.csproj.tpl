@@ -26,11 +26,10 @@
     <PackageReference Include="Microsoft.Teams.Apps" Version="2.0.0-preview.*" />
     <PackageReference Include="Microsoft.Teams.Plugins.AspNetCore" Version="2.0.0-preview.*" />
     <PackageReference Include="Microsoft.Teams.Common" Version="2.0.0-preview.*" />
-    <PackageReference Include="System.Text.Json" Version="8.0.5" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="Prompts\chat\skprompt.txt">
+    <Content Include="Prompts\instructions.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>

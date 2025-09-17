@@ -2,8 +2,11 @@
   "Logging": {
     "LogLevel": {
       "Default": "Information",
-      "Microsoft": "Information",
-      "Microsoft.Hosting.Lifetime": "Information"
+      "Microsoft.AspNetCore": "Warning"
+    },
+    "Microsoft.Teams": {
+      "Enable": "*",
+      "Level": "debug"
     }
   },
   "AllowedHosts": "*",

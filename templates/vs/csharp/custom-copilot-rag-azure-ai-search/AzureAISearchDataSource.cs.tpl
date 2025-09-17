@@ -1,8 +1,9 @@
-using {{SafeProjectName}};
 using Azure;
 using Azure.Search.Documents;
 using Azure.Search.Documents.Models;
 using System.Text;
+using OpenAI.Embeddings;
+using System.ClientModel;
 
 namespace {{SafeProjectName}}
 {
@@ -20,7 +21,7 @@ namespace {{SafeProjectName}}
             SearchClient = new SearchClient(options.AzureAISearchEndpoint, options.IndexName, credential);
         }
 
-        public async Task<RenderedPromptSection<string>> RenderDataAsync(string query)
+        public async Task<string> RenderDataAsync(string query)
         {
             if (string.IsNullOrEmpty(query))
             {
@@ -64,15 +65,17 @@ namespace {{SafeProjectName}}
         private async Task<ReadOnlyMemory<float>> _GetEmbeddingVector(string query)
         {
 {{#useOpenAI}}
-            OpenAIEmbeddingsOptions options = new(this.Options.OpenAIApiKey, this.Options.OpenAIEmbeddingModel);
+            EmbeddingClient client = new(this.Options.OpenAIEmbeddingModel, this.Options.OpenAIApiKey);
 {{/useOpenAI}}
 {{#useAzureOpenAI}}
-            AzureOpenAIEmbeddingsOptions options = new(this.Options.AzureOpenAIApiKey, this.Options.AzureOpenAIEmbeddingDeployment, this.Options.AzureOpenAIEndpoint);
+            EmbeddingClient client = new(this.Options.AzureOpenAIEmbeddingDeployment, new ApiKeyCredential(this.Options.AzureOpenAIApiKey), new OpenAI.OpenAIClientOptions()
+            {
+                Endpoint = new Uri($"{this.Options.AzureOpenAIEndpoint}/openai/v1")
+            });
 {{/useAzureOpenAI}}
-            OpenAIEmbeddings embeddings = new(options);
-            EmbeddingsResponse response = await embeddings.CreateEmbeddingsAsync(new List<string> { query });
-
-            return response.Output!.First();
+           
+            OpenAIEmbedding embedding = await client.GenerateEmbeddingAsync(query);
+            return embedding.ToFloats();
         }
     }
 
