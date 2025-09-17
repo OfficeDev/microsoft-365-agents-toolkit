@@ -95,13 +95,14 @@ export async function daActionHappPathTestForLocalDebug(
     const teamsAppId = await localDebugTestContext.getTeamsAppId();
     expect(teamsAppId).to.not.be.empty;
     {
+      await driver.sleep(Timeout.longTimeWait);
+      const copilotAgentName = `${localDebugTestContext.appName}local`;
       const page = await initCopilotPage(
         localDebugTestContext.context!,
         Env.username,
-        Env.password
+        Env.password,
+        { copilotAgentName: copilotAgentName }
       );
-      await driver.sleep(Timeout.longTimeWait);
-      const copilotAgentName = `${localDebugTestContext.appName}local`;
       await options.validationFn(page, {
         appName: copilotAgentName,
         prompt: options?.prompt,
@@ -192,13 +193,14 @@ export async function daActionHappPathTestForRemoteDebug(
   try {
     await deployProject(projectPath, Timeout.botDeploy);
     const teamsAppId = await remoteDebugTestContext.getTeamsAppId(projectPath);
+    await driver.sleep(Timeout.longTimeWait);
+    const copilotAgentName = `${appName}dev`;
     const page = await initCopilotPage(
       remoteDebugTestContext.context!,
       Env.username,
-      Env.password
+      Env.password,
+      { copilotAgentName: copilotAgentName }
     );
-    await driver.sleep(Timeout.longTimeWait);
-    const copilotAgentName = `${appName}dev`;
     await options.validationFn(page, {
       appName: copilotAgentName,
       prompt: options?.prompt,

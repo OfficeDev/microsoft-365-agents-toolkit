@@ -962,7 +962,7 @@ export async function createNewProject(
     case "chatdata": {
       await input.selectQuickPick(CreateProjectQuestion.AgentForTeams);
       await driver.sleep(Timeout.input);
-      await input.selectQuickPick("Chat With Your Data");
+      await input.selectQuickPick(CreateProjectQuestion.TeamsAgentWithData);
       await driver.sleep(Timeout.input);
       await input.selectQuickPick(dataOption);
       await driver.sleep(Timeout.input);
@@ -982,7 +982,7 @@ export async function createNewProject(
     case "cdcustomapi": {
       await input.selectQuickPick(CreateProjectQuestion.AgentForTeams);
       await driver.sleep(Timeout.input);
-      await input.selectQuickPick("Chat With Your Data");
+      await input.selectQuickPick(CreateProjectQuestion.TeamsAgentWithData);
       await driver.sleep(Timeout.input);
       await input.selectQuickPick(dataOption);
       await driver.sleep(Timeout.input);

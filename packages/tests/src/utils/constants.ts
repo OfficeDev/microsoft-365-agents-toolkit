@@ -514,7 +514,7 @@ export class Notification {
 export class CreateProjectQuestion {
   static readonly CustomCopilot = "Custom Engine Agent";
   static readonly TeamsApp = "Teams App";
-  static readonly AgentForTeams = "Agent for Teams";
+  static readonly AgentForTeams = "Teams Agents and Apps";
   static readonly Bot = "Bot";
   static readonly Tab = "Tab";
   static readonly MessageExtension = "Message Extension";
@@ -532,8 +532,9 @@ export class CreateProjectQuestion {
   static readonly AgentWithApi = "Agent with API";
   static readonly DeclarativeAgent = "Declarative Agent";
   static readonly BasicCustomEngineAgent = "Basic Custom Engine Agent";
-  static readonly BasicAgentForTeams = "Basic Agent for Teams";
+  static readonly BasicAgentForTeams = "General Teams Agent";
   static readonly WeatherAgent = "Weather Agent";
+  static readonly TeamsAgentWithData = "Teams Agent with Data";
 }
 
 export class ValidationContent {
@@ -544,7 +545,7 @@ export class ValidationContent {
   static readonly AiChatBotWelcomeInstruction = "How can I help you today?";
   static readonly AiAssistantBotWelcomeInstruction =
     "I'm an assistant bot. How can I help you today?";
-  static readonly AiBotErrorMessage = "The agent encountered an error or bug";
+  static readonly AiBotErrorMessage = "encountered an error";
   static readonly AiBotErrorMessage3 = "The bot encountered an error or bug";
   static readonly AiBotErrorMessage2 = "An AI request failed";
   static readonly AiBotMeetingMessage = "Team Meeting";

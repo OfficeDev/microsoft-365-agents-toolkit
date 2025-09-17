@@ -79,7 +79,8 @@ describe("Remote debug Tests", function () {
       const page = await initCopilotPage(
         remoteDebugTestContext.context!,
         Env.username,
-        Env.password
+        Env.password,
+        { copilotAgentName: appName }
       );
       await driver.sleep(Timeout.longTimeWait);
       await validatePrompt(page, appName, {

@@ -236,12 +236,12 @@ jobs:
           echo "M365_ACCOUNT_NAME=$user" >> $env:GITHUB_ENV
 
       - name: Set m365 account for Outlook preview (unix)
-        if: matrix.os != 'windows-latest' && contains(matrix.test-case, 'obo-tab') == true
+        if: matrix.os != 'windows-latest' && (contains(matrix.test-case, 'tab') || contains(matrix.test-case, 'da-')) == true
         run: |
           echo "M365_ACCOUNT_NAME=${{ env.M365_USERNAME_5 }}" >> $GITHUB_ENV
 
       - name: Set m365 account for Outlook preview (win)
-        if: matrix.os == 'windows-latest' && contains(matrix.test-case, 'obo-tab') == true
+        if: matrix.os == 'windows-latest' && (contains(matrix.test-case, 'tab') || contains(matrix.test-case, 'da-')) == true
         run: |          
           echo "M365_ACCOUNT_NAME=${{ env.M365_USERNAME_5 }}" >> $env:GITHUB_ENV
       
