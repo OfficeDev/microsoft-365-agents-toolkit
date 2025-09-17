@@ -5,14 +5,14 @@
  * @author Huihui Wu <huihuiwu@microsoft.com>
  */
 
+import { it } from "@microsoft/extra-shot-mocha";
+import { ProgrammingLanguage } from "@microsoft/teamsfx-core";
+import { expect } from "chai";
 import * as fs from "fs-extra";
 import * as path from "path";
-import { expect } from "chai";
-import { cleanUpLocalProject, getTestFolder } from "../commonUtils";
-import { ProgrammingLanguage } from "@microsoft/teamsfx-core";
-import { it } from "@microsoft/extra-shot-mocha";
-import { Executor } from "../../utils/executor";
-import { Capability } from "../../utils/constants";
+import { Capability } from "../../../utils/constants";
+import { Executor } from "../../../utils/executor";
+import { cleanUpLocalProject, getTestFolder } from "../../commonUtils";
 
 describe("Start a new project", function () {
   let appName: string;

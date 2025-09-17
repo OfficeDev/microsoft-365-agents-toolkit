@@ -4,16 +4,16 @@
 /**
  * @author Siglud <fanhu@microsoft.com>
  **/
-import { happyPathTest } from "./BotHappyPathCommon";
-import { Runtime } from "../../commonlib/constants";
 import { it } from "@microsoft/extra-shot-mocha";
+import { Runtime } from "../../commonlib/constants";
+import { happyPathTest } from "./BotHappyPathCommon";
 
-describe("Provision message extension action Node", () => {
+describe("Provision message extension Node template", () => {
   it(
-    "Provision Resource: message extension action node",
+    "Provision Template: message extension for NodeJS",
     { testPlanCaseId: 15685647, author: "fanhu@microsoft.com" },
     async function () {
-      await happyPathTest(Runtime.Node, "collect-form-message-extension");
+      await happyPathTest(Runtime.Node, "basic-message-extension");
     }
   );
 });

@@ -5,25 +5,25 @@
  * @author Huihui Wu <huihuiwu@microsoft.com>
  */
 
-import * as fs from "fs-extra";
-import * as path from "path";
-import { expect, assert } from "chai";
-import {
-  cleanUpLocalProject,
-  cleanupSharePointPackage,
-  getTestFolder,
-  getUniqueAppName,
-  readContextMultiEnvV3,
-} from "../commonUtils";
-import { AppStudioValidator, SharepointValidator } from "../../commonlib";
 import { it } from "@microsoft/extra-shot-mocha";
 import { AppPackageFolderName } from "@microsoft/teamsfx-api";
 import {
   environmentNameManager,
   ProgrammingLanguage,
 } from "@microsoft/teamsfx-core";
-import { Capability } from "../../utils/constants";
-import { Executor } from "../../utils/executor";
+import { assert, expect } from "chai";
+import * as fs from "fs-extra";
+import * as path from "path";
+import { AppStudioValidator, SharepointValidator } from "../../../commonlib";
+import { Capability } from "../../../utils/constants";
+import { Executor } from "../../../utils/executor";
+import {
+  cleanUpLocalProject,
+  cleanupSharePointPackage,
+  getTestFolder,
+  getUniqueAppName,
+  readContextMultiEnvV3,
+} from "../../commonUtils";
 
 describe("Start a new project", function () {
   let appId: string;

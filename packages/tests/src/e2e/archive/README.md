@@ -1,0 +1,1 @@
+This folder contains template test cases that are temporarily not available in ATK and will be reused later.
