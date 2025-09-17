@@ -67,7 +67,7 @@ resource webApp 'Microsoft.Web/sites@2021-02-01' = {
           value: identity.properties.clientId
         }
         {
-          name::'Teams__TenantId'
+          name:'Teams__TenantId'
           value: identity.properties.tenantId
         }
         {
