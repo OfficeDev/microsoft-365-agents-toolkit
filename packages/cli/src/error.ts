@@ -91,12 +91,3 @@ export class UnknownCommandError extends UserError {
     });
   }
 }
-
-export class MFARequiredError extends UserError {
-  constructor() {
-    super({
-      source: constants.cliSource,
-      message: strings["error.MFARequired"],
-    });
-  }
-}

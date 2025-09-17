@@ -25,8 +25,7 @@ import {
   AzureScopes,
   isValidProjectV3,
   InvalidAzureSubscriptionError,
-  featureFlagManager,
-  FeatureFlags,
+  MFARequiredError,
 } from "@microsoft/teamsfx-core";
 import * as fs from "fs-extra";
 import * as path from "path";
@@ -183,7 +182,7 @@ export class AzureAccountManager extends login implements AzureAccountProvider {
     authenticationSessionRequest?: AuthenticationWWWAuthenticateRequest
   ): Promise<TokenCredential | undefined> {
     if (authenticationSessionRequest && authenticationSessionRequest.wwwAuthenticate) {
-      throw new MFARequiredError();
+      throw new MFARequiredError(cliSource);
     }
     return Promise.resolve(AzureAccountManager.teamsFxTokenCredential);
   }
@@ -564,7 +563,7 @@ async function listAll<T>(
 
 import AzureLoginCI from "./azureLoginCI";
 import AzureAccountProviderUserPassword from "./azureLoginUserPassword";
-import { MFARequiredError } from "../error";
+import { cliSource } from "../constants";
 
 // todo delete ciEnabled
 const azureLogin = !ui.interactive
