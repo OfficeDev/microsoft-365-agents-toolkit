@@ -13,7 +13,11 @@ import {
 } from "../utils/autoOpenHelper";
 import { updateProjectStatus } from "../utils/projectStatusUtils";
 import { openWelcomeHandler } from "./controlHandlers";
-import { openReadMeHandler, openSampleReadmeHandler } from "./readmeHandlers";
+import {
+  openReadMeHandler,
+  openSampleReadmeHandler,
+  openWorkspaceMCPConfigHandler,
+} from "./readmeHandlers";
 
 export async function autoOpenProjectHandler(): Promise<void> {
   const isOpenWalkThrough = (await globalStateGet(GlobalKey.OpenWalkThrough, false)) as boolean;
@@ -33,6 +37,7 @@ export async function autoOpenProjectHandler(): Promise<void> {
   if (isOpenReadMe === workspaceUri?.fsPath) {
     await showLocalDebugMessage();
     await openReadMeHandler(TelemetryTriggerFrom.Auto);
+    await openWorkspaceMCPConfigHandler(TelemetryTriggerFrom.Auto);
     await updateProjectStatus(workspaceUri.fsPath, CommandKey.OpenReadMe, ok(null));
     await globalStateUpdate(GlobalKey.OpenReadMe, "");
 

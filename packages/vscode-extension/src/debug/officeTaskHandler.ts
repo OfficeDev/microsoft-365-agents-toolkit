@@ -61,9 +61,9 @@ function isDebugPreLaunchTask(task: vscode.Task): boolean {
       const execution = <vscode.ShellExecution>task.execution;
       const commandLine =
         execution.commandLine ||
-        `${typeof execution.command === "string" ? execution.command : execution.command.value} ${(
-          execution.args || []
-        ).join(" ")}`;
+        `${
+          typeof execution.command === "string" ? execution.command : execution.command?.value || ""
+        } ${(execution.args || []).join(" ")}`;
       if (/npm[\s]+run[\s]+start:desktop -- --app (word|excel|powerpoint)/i.test(commandLine)) {
         return true;
       }

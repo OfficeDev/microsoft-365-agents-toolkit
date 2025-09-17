@@ -13,6 +13,7 @@ export enum TemplateNames {
   DeclarativeAgentWithExistingAction = "api-plugin-existing-api", // handled by DeclarativeAgentGenerator
   DeclarativeAgentWithTypeSpec = "declarative-agent-typespec", // handled by DeclarativeAgentGenerator
   DeclarativeAgentWithGraphConnector = "declarative-agent-with-graph-connector", // handled by DeclarativeAgentGenerator
+  DeclarativeAgentWithActionFromMCP = "declarative-agent-with-action-from-mcp", // handled by DeclarativeAgentGenerator
 
   DeclarativeAgentMetaOSNewProject = "declarative-agent-meta-os-new-project", // handled by OfficeAddinGeneratorNew
   DeclarativeAgentMetaOSUpgradeProject = "declarative-agent-meta-os-upgrade-project", // handled by OfficeAddinGeneratorNew

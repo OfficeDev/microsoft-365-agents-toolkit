@@ -38,6 +38,7 @@ export class FeatureFlagName {
   static readonly SensitivityLabelEnabled = "TEAMSFX_SENSITIVITY_LABEL";
   static readonly DAMetaOS = "TEAMSFX_DA_METAOS";
   static readonly CFShortcutMetaOS = "TEAMSFX_CF_SHORTCUT_METAOS";
+  static readonly MCPForDA = "TEAMSFX_MCP_FOR_DA";
 }
 
 export interface FeatureFlag {
@@ -132,6 +133,10 @@ export class FeatureFlags {
   static readonly CFShortcutMetaOS = {
     name: FeatureFlagName.CFShortcutMetaOS,
     defaultValue: "false",
+  };
+  static readonly MCPForDA = {
+    name: FeatureFlagName.MCPForDA,
+    defaultValue: "true",
   };
 }
 

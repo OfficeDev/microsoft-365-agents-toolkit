@@ -107,4 +107,10 @@ export const declarativeAgentTemplates: Template[] = [
     language: "common",
     description: "",
   },
+  {
+    id: "declarative-agent-with-action-from-mcp",
+    name: TemplateNames.DeclarativeAgentWithActionFromMCP,
+    language: "common",
+    description: "",
+  },
 ];
