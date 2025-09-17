@@ -7,5 +7,4 @@
   "error.UnknownArgumentError": "The command '%s' can not be executed for unknown argument '%s'.",
   "error.InvalidOptionErrorReason": "'%s' is not in the valid option list: %s.",
   "error.InvalidChoiceError": "The command '%s' can not be executed for invalid choice '%s' for option/argument '%s', allowed values: %s.",
-  "error.MFARequired": "Mandatory MFA is enforced by Azure policy - 'User must authenticate with multi-factor authentication to create or update resources'. Please enable MFA for your account to continue."
 }
