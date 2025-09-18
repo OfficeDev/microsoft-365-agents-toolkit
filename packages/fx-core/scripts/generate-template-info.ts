@@ -48,6 +48,7 @@ export function traverse(node: IQTreeNode): ITemplateContext[] {
       name?: string;
       staticOptions?: OptionItem[];
       type: string;
+      skipSingleOption?: boolean;
     };
 
     // Only process selection nodes (singleSelect)
@@ -57,6 +58,9 @@ export function traverse(node: IQTreeNode): ITemplateContext[] {
 
     // Process selection nodes
     if (question.staticOptions && Array.isArray(question.staticOptions)) {
+      // Check if we should skip recording this selection
+      const shouldSkipRecording = question.staticOptions.length === 1 && question.skipSingleOption;
+
       for (const option of question.staticOptions) {
         if (option && typeof option === "object") {
           // Check if this option has a data field that is a TemplateNames
@@ -65,26 +69,26 @@ export function traverse(node: IQTreeNode): ITemplateContext[] {
             option.data &&
             Object.values(TemplateNames).includes(option.data as TemplateNames)
           ) {
-            // Create path with this option selection
+            // Create path with this option selection (skip if single option and skipSingleOption is true)
             const pathWithCurrentSelection: {
               nodeId: string;
               optionId: string;
               optionLabel: string;
-            }[] = question.name
-              ? [
-                  ...currentPath,
-                  {
-                    nodeId: question.name,
-                    optionId: option.id,
-                    optionLabel: filterLabel(option.label),
-                  },
-                ]
-              : currentPath;
+            }[] =
+              shouldSkipRecording || !question.name
+                ? currentPath
+                : [
+                    ...currentPath,
+                    {
+                      nodeId: question.name,
+                      optionId: option.id,
+                      optionLabel: filterLabel(option.label),
+                    },
+                  ];
 
-            // Create path details with this option's detail
-            const pathDetailsWithCurrent = option.detail
-              ? [...pathDetails, option.detail]
-              : pathDetails;
+            // Create path details with this option's detail (skip if single option and skipSingleOption is true)
+            const pathDetailsWithCurrent =
+              shouldSkipRecording || !option.detail ? pathDetails : [...pathDetails, option.detail];
 
             // Create template context with joined descriptions
             const templateContext: ITemplateContext = {
@@ -109,21 +113,21 @@ export function traverse(node: IQTreeNode): ITemplateContext[] {
               nodeId: string;
               optionId: string;
               optionLabel: string;
-            }[] = question.name
-              ? [
-                  ...currentPath,
-                  {
-                    nodeId: question.name,
-                    optionId: option.id,
-                    optionLabel: filterLabel(option.label),
-                  },
-                ]
-              : currentPath;
+            }[] =
+              shouldSkipRecording || !question.name
+                ? currentPath
+                : [
+                    ...currentPath,
+                    {
+                      nodeId: question.name,
+                      optionId: option.id,
+                      optionLabel: filterLabel(option.label),
+                    },
+                  ];
 
-            // Create path details with this option's detail
-            const pathDetailsWithCurrent = option.detail
-              ? [...pathDetails, option.detail]
-              : pathDetails;
+            // Create path details with this option's detail (skip if single option and skipSingleOption is true)
+            const pathDetailsWithCurrent =
+              shouldSkipRecording || !option.detail ? pathDetails : [...pathDetails, option.detail];
 
             for (const child of currentNode.children) {
               if (child && shouldChildBeActive(child, option.id)) {
