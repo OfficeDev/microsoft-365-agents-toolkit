@@ -21,3 +21,6 @@ bld/
 [Bb]in/
 [Oo]bj/
 [Ll]og/
+
+#Node modules
+Web/node_modules/
