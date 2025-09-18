@@ -30,10 +30,10 @@
     "dependencies": {
         "@azure/identity": "^4.11.1",
         "@azure/search-documents": "^12.0.0",
-        "@microsoft/teams.apps": "preview",
-        "@microsoft/teams.ai": "preview",
-        "@microsoft/teams.openai": "preview",
-        "@microsoft/teams.common": "preview"
+        "@microsoft/teams.apps": "^2.0.0",
+        "@microsoft/teams.ai": "^2.0.0",
+        "@microsoft/teams.openai": "^2.0.0",
+        "@microsoft/teams.common": "^2.0.0"
     },
     "devDependencies": {
         "@types/node": "^20.0.0",

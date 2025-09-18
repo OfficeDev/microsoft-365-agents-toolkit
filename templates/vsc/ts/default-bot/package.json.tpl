@@ -21,8 +21,8 @@
     },
     "dependencies": {
         "@azure/identity": "^4.11.1",
-        "@microsoft/teams.apps": "preview",
-        "@microsoft/teams.common": "preview"
+        "@microsoft/teams.apps": "^2.0.0",
+        "@microsoft/teams.common": "^2.0.0"
     },
     "devDependencies": {
         "@types/node": "^20.0.0",
