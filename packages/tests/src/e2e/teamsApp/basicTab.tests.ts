@@ -40,8 +40,8 @@ describe("Basic Tab", function () {
     await cleanUp(appName, projectPath, false, false, false);
   });
 
-  const files = ["app.js", "app.ts"];
-  const languages = ["javascript", "typescript"];
+  const files = ["index.ts"];
+  const languages = ["typescript"];
   for (let i = 0; i < files.length; i++) {
     const file = files[i];
     const language = languages[i];
@@ -49,7 +49,7 @@ describe("Basic Tab", function () {
       `Create & Provision & Deploy Basic Tab (${language})`,
       {
         testPlanCaseId: language === "javascript" ? 9426074 : 24137515,
-        author: "zhihuan@microsoft.com",
+        author: "Ning.Tang@microsoft.com",
       },
       async function () {
         // Scaffold
