@@ -38,7 +38,7 @@ describe("Collaboration", function () {
 
       // new a project
       await execAsync(
-        `atk new --interactive false --capability sso-launch-page --app-name ${appName}`,
+        `atk new --interactive false --capability tab-non-sso --app-name ${appName}`,
         {
           cwd: testFolder,
           env: process.env,

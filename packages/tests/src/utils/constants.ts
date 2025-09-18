@@ -175,7 +175,7 @@ export enum Capability {
   DashboardTab = "dashboard-tab",
   Spfx = "tab-spfx",
   M365SearchApp = "search-app",
-  MessageExtension = "message-extension",
+  MessageExtension = "basic-message-extension",
   LinkUnfurling = "link-unfurling",
   // v2 only
   Tab = "tab",

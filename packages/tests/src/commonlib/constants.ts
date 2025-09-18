@@ -38,7 +38,12 @@ export type CliCapabilities =
   | "bot"
   | "basic-message-extension"
   | "BotAndMessageExtension"
-  | "TabNonSsoAndBot";
+  | "TabNonSsoAndBot"
+  // VS only
+  | "search-message-extension"
+  | "link-unfurling"
+  | "collect-form-message-extension"
+  | "notification";
 export type CliTriggerType =
   | "http-express"
   | "http-functions"

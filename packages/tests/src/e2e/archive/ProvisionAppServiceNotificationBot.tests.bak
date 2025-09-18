@@ -5,9 +5,9 @@
  * @author Siglud <fanhu@microsoft.com>
  */
 
-import { Runtime } from "../../commonlib/constants";
-import { happyPathTest } from "./NotificationBotHappyPathCommon";
 import { it } from "@microsoft/extra-shot-mocha";
+import { Runtime } from "../../commonlib/constants";
+import { happyPathTest } from "../bot/NotificationBotHappyPathCommon";
 
 describe("Provision Notification Node", () => {
   it(

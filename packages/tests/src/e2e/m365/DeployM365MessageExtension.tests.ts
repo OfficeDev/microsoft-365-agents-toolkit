@@ -5,8 +5,8 @@
  * @author Kuojian Lu <kuojianlu@microsoft.com>
  */
 
-import { describe } from "mocha";
 import * as chai from "chai";
+import { describe } from "mocha";
 import * as path from "path";
 
 import { it } from "@microsoft/extra-shot-mocha";
@@ -21,12 +21,7 @@ import {
   getUniqueAppName,
   readContextMultiEnvV3,
 } from "../commonUtils";
-import {
-  deleteAadAppByClientId,
-  deleteTeamsApp,
-  getAadAppByClientId,
-  getTeamsApp,
-} from "../debug/utility";
+import { deleteTeamsApp, getTeamsApp } from "../debug/utility";
 
 describe("Deploy V3 m365-message-extension template", () => {
   const testFolder = getTestFolder();
@@ -52,7 +47,7 @@ describe("Deploy V3 m365-message-extension template", () => {
       await CliHelper.createProjectWithCapability(
         appName,
         testFolder,
-        Capability.M365SearchApp,
+        Capability.MessageExtension,
         undefined,
         "--me-architecture bot"
       );

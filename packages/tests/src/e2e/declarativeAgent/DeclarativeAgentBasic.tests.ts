@@ -5,8 +5,8 @@
  * @author Hui Miao <huimaio@microsoft.com>
  */
 
-import { Capability } from "../../utils/constants";
 import { ProgrammingLanguage } from "@microsoft/teamsfx-core";
+import { Capability } from "../../utils/constants";
 import { CaseFactory } from "../caseFactory";
 
 class DeclarativeAgentBasicTestCase extends CaseFactory {
