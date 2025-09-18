@@ -25,7 +25,7 @@ Deep integration with Teams’ UI: adaptive cards that look and behave like nati
 
 With these updates, developers can now spin up fully functional Teams agents faster than ever, enjoy a smoother development journey, and deliver delightful user experiences that feel truly native.
 
-<img width="1128" height="686" alt="image" src="https://github.com/user-attachments/assets/fbd9bdd1-2428-47e1-bf59-dd9d809e84e2" />
+<img width="1128" height="686" alt="image" src="https://github.com/user-attachments/assets/cd50a8e4-abc6-4737-8e09-b115868602ac" />
 
 Let’s build smarter, more interactive Teams apps together! 💡
 
