@@ -9,14 +9,14 @@
         "README.md"
     ],
     "dependencies": {
-        "@microsoft/teams.api": "preview",
-        "@microsoft/teams.apps": "preview",
-        "@microsoft/teams.cards": "preview",
-        "@microsoft/teams.client": "preview",
-        "@microsoft/teams.common": "preview",
-        "@microsoft/teams.dev": "preview",
-        "@microsoft/teams.graph": "preview",
-        "@microsoft/teams.graph-endpoints": "preview",
+        "@microsoft/teams.api": "^2.0.0",
+        "@microsoft/teams.apps": "^2.0.0",
+        "@microsoft/teams.cards": "^2.0.0",
+        "@microsoft/teams.client": "^2.0.0",
+        "@microsoft/teams.common": "^2.0.0",
+        "@microsoft/teams.dev": "^2.0.0",
+        "@microsoft/teams.graph": "^2.0.0",
+        "@microsoft/teams.graph-endpoints": "^2.0.0",
         "react": "^19.0.0",
         "react-dom": "^19.0.0"
     },

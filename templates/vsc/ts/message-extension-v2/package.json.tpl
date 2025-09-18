@@ -26,12 +26,12 @@
   },
   "dependencies": {
     "@azure/identity": "^4.11.1",
-    "@microsoft/teams.api": "preview",
-    "@microsoft/teams.apps": "preview",
-    "@microsoft/teams.cards": "preview",
-    "@microsoft/teams.common": "preview",
-    "@microsoft/teams.dev": "preview",
-    "@microsoft/teams.graph": "preview"
+    "@microsoft/teams.api": "^2.0.0",
+    "@microsoft/teams.apps": "^2.0.0",
+    "@microsoft/teams.cards": "^2.0.0",
+    "@microsoft/teams.common": "^2.0.0",
+    "@microsoft/teams.dev": "^2.0.0",
+    "@microsoft/teams.graph": "^2.0.0"
   },
   "devDependencies": {
     "@types/node": "^22.5.4",
