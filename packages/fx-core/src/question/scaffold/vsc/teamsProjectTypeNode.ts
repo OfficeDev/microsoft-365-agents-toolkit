@@ -29,6 +29,7 @@ import {
 } from "../../create";
 import { QuestionNames } from "../../questionNames";
 import {
+  ActionStartOptions,
   ApiAuthOptions,
   BotCapabilityOptions,
   CustomCopilotRagOptions,
