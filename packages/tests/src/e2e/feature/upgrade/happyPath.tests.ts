@@ -9,15 +9,15 @@ import { it } from "@microsoft/extra-shot-mocha";
 import * as chai from "chai";
 import { describe } from "mocha";
 import * as path from "path";
-import { CliHelper } from "../../commonlib/cliHelper";
-import { TemplateProjectFolder } from "../../utils/constants";
-import { Cleaner } from "../../commonlib/cleaner";
-import { Executor } from "../../utils/executor";
+import { Cleaner } from "../../../commonlib/cleaner";
+import { CliHelper } from "../../../commonlib/cliHelper";
+import { TemplateProjectFolder } from "../../../utils/constants";
+import { Executor } from "../../../utils/executor";
 import {
   createResourceGroup,
   getTestFolder,
   getUniqueAppName,
-} from "../commonUtils";
+} from "../../commonUtils";
 import { checkYmlHeader } from "./utils";
 // As there is build errors for v4 template prject, skip the test for now
 describe.skip("upgrade", () => {

@@ -11,11 +11,11 @@ import * as chai from "chai";
 import fs from "fs-extra";
 import { describe } from "mocha";
 import * as path from "path";
-import { CliHelper } from "../../commonlib/cliHelper";
-import { TemplateProjectFolder } from "../../utils/constants";
-import { Cleaner } from "../../commonlib/cleaner";
-import { Executor } from "../../utils/executor";
-import { getTestFolder, getUniqueAppName } from "../commonUtils";
+import { Cleaner } from "../../../commonlib/cleaner";
+import { CliHelper } from "../../../commonlib/cliHelper";
+import { TemplateProjectFolder } from "../../../utils/constants";
+import { Executor } from "../../../utils/executor";
+import { getTestFolder, getUniqueAppName } from "../../commonUtils";
 
 describe("upgrade", () => {
   const testFolder = getTestFolder();

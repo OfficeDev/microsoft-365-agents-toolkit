@@ -75,37 +75,31 @@ describe("Basic Tab", function () {
       console.log(`[Successfully] provision for ${projectPath}`);
 
       let context = await readContextMultiEnvV3(projectPath, "local");
-      chai.assert.isDefined(context, "local env file should exist");
+      assert.isDefined(context, "local env file should exist");
 
       // validate aad
-      chai.assert.isUndefined(
-        context.AAD_APP_OBJECT_ID,
-        "AAD should not exist"
-      );
+      assert.isUndefined(context.AAD_APP_OBJECT_ID, "AAD should not exist");
 
       // validate teams app
-      chai.assert.isDefined(
-        context.TEAMS_APP_ID,
-        "teams app id should be defined"
-      );
+      assert.isDefined(context.TEAMS_APP_ID, "teams app id should be defined");
       const teamsApp = await getTeamsApp(context.TEAMS_APP_ID);
-      chai.assert.equal(teamsApp?.teamsAppId, context.TEAMS_APP_ID);
+      assert.equal(teamsApp?.teamsAppId, context.TEAMS_APP_ID);
 
       // Local Debug (Deploy)
       await CliHelper.deployAll(projectPath, "", "local");
       console.log(`[Successfully] deploy for ${projectPath}`);
 
       context = await readContextMultiEnvV3(projectPath, "local");
-      chai.assert.isDefined(context);
+      assert.isDefined(context);
 
       // validate ssl cert
-      chai.assert.isDefined(context.SSL_CRT_FILE, "ssl cert should be defined");
-      chai.assert.isNotEmpty(context.SSL_CRT_FILE);
-      chai.assert.isDefined(context.SSL_KEY_FILE, "ssl key should be defined");
-      chai.assert.isNotEmpty(context.SSL_KEY_FILE);
+      assert.isDefined(context.SSL_CRT_FILE, "ssl cert should be defined");
+      assert.isNotEmpty(context.SSL_CRT_FILE);
+      assert.isDefined(context.SSL_KEY_FILE, "ssl key should be defined");
+      assert.isNotEmpty(context.SSL_KEY_FILE);
 
       // validate .localConfigs
-      chai.assert.isTrue(
+      assert.isTrue(
         await fs.pathExists(path.join(projectPath, ".localConfigs")),
         ".localConfigs should exist"
       );
