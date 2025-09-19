@@ -29,8 +29,8 @@
         {
             "entityId": "index",
             "name": "Home",
-            "contentUrl": "${{TAB_ENDPOINT}}/tab",
-            "websiteUrl": "${{TAB_ENDPOINT}}/tab",
+            "contentUrl": "${{TAB_ENDPOINT}}/tabs/test",
+            "websiteUrl": "${{TAB_ENDPOINT}}/tabs/test",
             "scopes": [
                 "personal",
                 "groupChat",

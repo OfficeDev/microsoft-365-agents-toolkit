@@ -8,3 +8,6 @@ appsettings.Development.json
 
 # User-specific files
 *.user
+
+#Node modules
+Web/node_modules/

@@ -1,0 +1,48 @@
+﻿@inject MicrosoftTeams MicrosoftTeams;
+
+@if(isLoading)
+{
+    <div style="display: flex; justify-content: center; align-items: center; min-height: 100vh;">
+        <FluentProgressRing/>
+    </div>
+}
+else
+{
+    <div style="width: 80%; justify-content: space-between; margin: 4rem auto;">
+        <h1>Hello, World</h1>
+        <p>Your app is running @(GetHubName())</p>
+    </div>
+}
+
+@code {
+    bool isLoading = true;
+    string hubName = "";
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+
+        if(firstRender)
+        {
+            try
+            {
+                await MicrosoftTeams.InitializeAsync();
+                var context = await MicrosoftTeams.GetTeamsContextAsync();
+                hubName = context.App.Host.Name;
+            }
+            catch
+            {
+            }
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private string GetHubName()
+    {
+        if (String.IsNullOrEmpty(hubName)) {
+            return "";
+        }
+        return "in " + hubName;
+    }
+}
