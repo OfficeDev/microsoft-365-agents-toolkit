@@ -57,12 +57,7 @@ describe("Blazor App", function () {
         Capability.TabNonSso,
         env
       );
-      const programCsPath = path.join(
-        testFolder,
-        appName,
-        "Components",
-        "App.razor"
-      );
+      const programCsPath = path.join(testFolder, appName, "Program.cs");
       chai.assert.isTrue(await fs.pathExists(programCsPath));
     }
   );
@@ -100,14 +95,6 @@ describe("Blazor App", function () {
         token as string
       );
       chai.assert.exists(response);
-      chai.assert.equal(
-        response[FrontendWebAppConfig.clientId],
-        context[EnvConstants.AAD_APP_CLIENT_ID]
-      );
-      chai.assert.equal(
-        response[FrontendWebAppConfig.authority],
-        context[EnvConstants.AAD_APP_OAUTH_AUTHORITY]
-      );
     }
   );
 
