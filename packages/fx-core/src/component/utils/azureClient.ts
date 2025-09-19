@@ -37,7 +37,7 @@ class AzureClientHelper {
       if (!azureToken) {
         throw new InvalidAzureCredentialError();
       }
-      const token = (await azureToken.getToken(AzureScopes)) as { token: string };
+      const token = (await azureToken.getToken(scopes)) as { token: string };
       return token.token;
     };
 

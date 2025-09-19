@@ -2,7 +2,16 @@
 // Licensed under the MIT license.
 
 import { AccountInfo, Configuration, PublicClientApplication, TokenCache } from "@azure/msal-node";
-import { FxError, LogLevel, Result, SystemError, UserError, err, ok } from "@microsoft/teamsfx-api";
+import {
+  AuthenticationWWWAuthenticateRequest,
+  FxError,
+  LogLevel,
+  Result,
+  SystemError,
+  UserError,
+  err,
+  ok,
+} from "@microsoft/teamsfx-api";
 import { Mutex } from "async-mutex";
 import * as crypto from "crypto";
 import express from "express";
@@ -28,15 +37,8 @@ import {
   saveAccountId,
   saveTenantId,
 } from "./cacheAccess";
-import {
-  MFACode,
-  azureLoginMessage,
-  env,
-  m365LoginMessage,
-  sendFileTimeout,
-} from "./common/constant";
+import { azureLoginMessage, env, m365LoginMessage, sendFileTimeout } from "./common/constant";
 import CliCodeLogInstance from "./log";
-import { featureFlagManager, FeatureFlags } from "@microsoft/teamsfx-core";
 
 export class ErrorMessage {
   static readonly loginFailureTitle = "LoginFail";
@@ -265,7 +267,7 @@ export class CodeFlowLogin {
   }
 
   async getTokenByScopes(
-    scopes: Array<string>,
+    scopes: string | string[] | AuthenticationWWWAuthenticateRequest,
     refresh = true,
     tenantId?: string
   ): Promise<Result<string, FxError>> {
@@ -276,8 +278,17 @@ export class CodeFlowLogin {
     if (!tenantId) {
       tenantId = await loadTenantId(this.accountName);
     }
+
+    let myScopes: string[] = [];
+    if (typeof scopes === "string") {
+      myScopes = [scopes];
+    } else if (typeof scopes === "object" && "wwwAuthenticate" in scopes) {
+      myScopes = (scopes as AuthenticationWWWAuthenticateRequest).scopes ?? [];
+    } else {
+      myScopes = scopes;
+    }
     if (!this.account) {
-      const accessToken = await this.login(scopes, tenantId);
+      const accessToken = await this.login(myScopes, tenantId);
       return ok(accessToken);
     } else {
       let tenantedAccount: AccountInfo | undefined = undefined;
@@ -289,7 +300,7 @@ export class CodeFlowLogin {
       try {
         const res = await this.pca.acquireTokenSilent({
           account: this.account,
-          scopes: scopes,
+          scopes: myScopes,
           forceRefresh: tenantedAccount ? false : true,
           authority: tenantId
             ? env.activeDirectoryEndpointUrl + tenantId
@@ -313,7 +324,7 @@ export class CodeFlowLogin {
         }
         await this.logout();
         if (refresh) {
-          const accessToken = await this.login(scopes, tenantId);
+          const accessToken = await this.login(myScopes, tenantId);
           return ok(accessToken);
         }
         return err(LoginCodeFlowError(error));
