@@ -5,9 +5,9 @@
  * @author dol <dol@microsoft.com>
  */
 
-import { Runtime } from "../../commonlib/constants";
-import { happyPathTest } from "./WorkflowBotHappyPathCommon";
 import { it } from "@microsoft/extra-shot-mocha";
+import { Runtime } from "../../commonlib/constants";
+import { happyPathTest } from "../bot/WorkflowBotHappyPathCommon";
 
 describe("Provision workflow Dotnet", () => {
   it(

@@ -5,9 +5,9 @@
  * @author Siglud <fanhu@microsoft.com>
  */
 
-import { Runtime } from "../../commonlib/constants";
-import { happyPathTest } from "./CommandBotHappyPathCommon";
 import { it } from "@microsoft/extra-shot-mocha";
+import { Runtime } from "../../commonlib/constants";
+import { happyPathTest } from "../bot/CommandBotHappyPathCommon";
 
 describe("Provision CommandBot Dotnet", () => {
   it(

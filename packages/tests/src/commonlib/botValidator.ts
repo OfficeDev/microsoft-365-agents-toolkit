@@ -47,7 +47,7 @@ enum BaseConfig {
   M365_CLIENT_SECRET = "M365_CLIENT_SECRET",
   IDENTITY_ID = "IDENTITY_ID",
   M365_TENANT_ID = "M365_TENANT_ID",
-  clientId = "clientId",
+  clientId = "CLIENT_ID",
   tenantId = "tenantId",
 }
 

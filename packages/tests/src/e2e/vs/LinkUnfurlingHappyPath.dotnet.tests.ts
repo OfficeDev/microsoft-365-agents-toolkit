@@ -5,9 +5,9 @@
  * @author yukun-dong <yukundong@microsoft.com>
  */
 
-import { happyPathTest } from "./BotHappyPathCommon";
-import { Runtime } from "../../commonlib/constants";
 import { it } from "@microsoft/extra-shot-mocha";
+import { Runtime } from "../../commonlib/constants";
+import { happyPathTest } from "../bot/BotHappyPathCommon";
 
 describe("Remote happy path for link unfurling dotnet", () => {
   it(
