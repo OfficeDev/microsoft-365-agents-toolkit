@@ -2,6 +2,43 @@
 
 > Note: This changelog only includes the changes for the stable versions of Microsoft 365 Agents Toolkit (evolved from Teams Toolkit). For the changelog of pre-released versions, please refer to the [Microsoft 365 Agents Toolkit Pre-release Changelog](https://github.com/OfficeDev/TeamsFx/blob/dev/packages/vscode-extension/PRERELEASE.md).
 
+## 6.2.0 - Sep 18, 2025
+This release marks a major step forward in agent development and Teams app innovation, as we comprehensively upgrade Teams agents and app project templates to the new generation **Teams AI Library V2**.
+
+Building on the incremental enhancements previously introduced in the [prerelease version](https://github.com/OfficeDev/microsoft-365-agents-toolkit/blob/dev/packages/vscode-extension/PRERELEASE.md), this release brings a streamlined developer experience, deeper Teams integration, and expanded AI capabilities.
+
+Below you’ll find a comprehensive list of new featuree and enhancements included in this release:
+
+### New Features
+
+- **Comprehensive upgrade Teams Agents and apps templates**
+
+We’re thrilled to announce that in this release, all Teams agents and Teams app project templates have been upgraded to use the next generation and modern Teams SDK — the Teams AI Library V2!
+
+These brand-new templates showcase what’s possible with Teams AI library v2:
+
+Seamless connection to Large Language Models (LLMs) of your choice – plug in OpenAI, Azure OpenAI, or others, all without rewriting your core bot logic.
+
+Built-in support to connect to external data sources (think real-time info, domain-specific content) so your apps stay current, relevant, and responsive.
+
+Deep integration with Teams’ UI: adaptive cards that look and behave like native components, expressive emojis, rich interactive elements, and more.
+
+With these updates, developers can now spin up fully functional Teams agents faster than ever, enjoy a smoother development journey, and deliver delightful user experiences that feel truly native.
+
+<img width="1128" height="686" alt="image" src="https://github.com/user-attachments/assets/cd50a8e4-abc6-4737-8e09-b115868602ac" />
+
+Let’s build smarter, more interactive Teams apps together! 💡
+
+- **TeamsFx SDK Deprecation Notice**
+We’re beginning the deprecation process for the TeamsFx SDK. Its core functionalities are now covered by the modern M365 Agents SDK and Teams AI library. While TeamsFx SDK will continue to be maintained, no new features will be added. Full deprecation is planned for July 2026.
+
+### Enhancement 
+
+- Updated the [app manifest version to v1.23](https://developer.microsoft.com/json-schemas/teams/v1.23/MicrosoftTeams.schema.json).
+- Updated [Declarative Agents manifest version to v1.5](https://learn.microsoft.com/en-us/microsoft-365-copilot/extensibility/declarative-agent-manifest-1.5).
+- Updated [Microsoft 365 Agents SDK to v1.0.0](https://www.npmjs.com/package/@microsoft/agents-hosting).
+
+
 ## 6.0.3 - Jul 19, 2025
 Hotfix version
 
