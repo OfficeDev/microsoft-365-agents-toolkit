@@ -1350,7 +1350,7 @@ export async function validateReactOutlookTab(
 
 export async function validateBasicTab(
   page: Page,
-  content = "Hello, World",
+  content = "Welcome",
   hubState = "Teams"
 ) {
   try {
@@ -1361,7 +1361,7 @@ export async function validateBasicTab(
     console.log(`Check if ${content} showed`);
     await frame?.waitForSelector(`h1:has-text("${content}")`);
     console.log(`Check if ${hubState} showed`);
-    await frame?.waitForSelector(`#hubState:has-text("${hubState}")`);
+    await frame?.waitForSelector(`div:has-text("${hubState}")`);
     console.log(`${hubState} showed`);
   } catch (error) {
     await page.screenshot({

@@ -70,7 +70,7 @@ describe("Local Debug Tests", function () {
           localDebugTestContext.testRootFolder,
           localDebugTestContext.appName
         );
-        validateFileExist(projectPath, "src/app.ts");
+        validateFileExist(projectPath, "src/index.ts");
 
         console.log("======= debug with ttk ========");
         await startDebugging(DebugItemSelect.DebugInTeamsUsingChrome);

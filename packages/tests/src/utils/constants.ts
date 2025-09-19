@@ -437,7 +437,7 @@ export class LocalDebugTaskResult {
   static readonly FrontendSuccess = "Compiled successfully";
   static readonly FrontendReady = "ready";
   static readonly FrontendNoIssue = "webpack compiled";
-  static readonly FrontendStarted = "Express server listening on";
+  static readonly FrontendStarted = "listening on";
   static readonly StartSuccess = "started successfully";
   static readonly AzuriteSuccess = "Azurite Table service is successfully";
   static readonly CompiledSuccess = "Found 0 errors";
@@ -477,6 +477,7 @@ export class LocalDebugTaskInfo {
   static readonly StartBotInfo = "Bot Started";
   static readonly StartBotInfo2 = "Bot started";
   static readonly AppListening = "app listening";
+  static readonly ListeningOn = "listening on";
   static readonly ServerListening = "Server listening";
   static readonly BackendStartedInfo = "Worker process started and initialized";
   static readonly NoError = "Found 0 errors";
@@ -514,7 +515,7 @@ export class Notification {
 export class CreateProjectQuestion {
   static readonly CustomCopilot = "Custom Engine Agent";
   static readonly TeamsApp = "Teams App";
-  static readonly AgentForTeams = "Teams Agents and Apps";
+  static readonly TeamsAgentsAndApps = "Teams Agents and Apps";
   static readonly Bot = "Bot";
   static readonly Tab = "Tab";
   static readonly MessageExtension = "Message Extension";
@@ -535,10 +536,12 @@ export class CreateProjectQuestion {
   static readonly BasicAgentForTeams = "General Teams Agent";
   static readonly WeatherAgent = "Weather Agent";
   static readonly TeamsAgentWithData = "Teams Agent with Data";
+  static readonly OtherTeamsCapabilities = "Other Teams Capabilities";
+  static readonly SimpleBot = "Simple Bot";
 }
 
 export class ValidationContent {
-  static readonly Tab = "Hello, World";
+  static readonly Tab = "Welcome";
   static readonly Bot = "Your Hello World Bot is Running";
   static readonly BotWelcomeInstruction = "Hi there! I'm an echo bot";
   static readonly GraphBot = "Your Copilot connector Bot is Running";

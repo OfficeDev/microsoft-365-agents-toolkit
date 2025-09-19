@@ -42,7 +42,7 @@ describe("Check command name in command palette and tree view content Tests", fu
       author: "v-helzha@microsoft.com",
     },
     async function () {
-      await createNewProject("tab", appName);
+      await createNewProject("tabnsso", appName);
       const includeDevelopmentSection = await checkSectionContent(
         TreeViewCommands.DevelopmentSectionName,
         TreeViewCommands.DevelopmentSectionItems

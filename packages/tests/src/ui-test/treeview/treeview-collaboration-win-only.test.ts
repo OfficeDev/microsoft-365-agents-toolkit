@@ -75,7 +75,7 @@ describe("Collaborator Tests", function () {
       const collaborator = Env.collaborator;
       //create tab project
       const driver = VSBrowser.instance.driver;
-      await createNewProject("tab", appName);
+      await createNewProject("tabnsso", appName);
       await provisionProject(appName, projectPath);
 
       {
