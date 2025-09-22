@@ -5,9 +5,9 @@
  * @author Bowen Song <bowen.song@microsoft.com>
  */
 
-import { Capability } from "../../utils/constants";
 import { ProgrammingLanguage } from "@microsoft/teamsfx-core";
-import { CaseFactory } from "../caseFactory";
+import { Capability } from "../../../utils/constants";
+import { CaseFactory } from "../../caseFactory";
 
 class DeclarativeAgentWithTypeSpec extends CaseFactory {
   public async onAfterCreate(projectPath: string): Promise<void> {
