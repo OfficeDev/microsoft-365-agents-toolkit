@@ -5,28 +5,28 @@
  * @author Yuan Tian <tianyuan@microsoft.com>
  */
 
+import { it } from "@microsoft/extra-shot-mocha";
+import M365Login from "@microsoft/m365agentstoolkit-cli/src/commonlib/m365Login";
 import { AppPackageFolderName, BuildFolderName } from "@microsoft/teamsfx-api";
 import * as chai from "chai";
+import { expect } from "chai";
 import fs from "fs-extra";
 import { describe } from "mocha";
 import path from "path";
-import M365Login from "@microsoft/m365agentstoolkit-cli/src/commonlib/m365Login";
 import { AppStudioValidator, BotValidator } from "../../commonlib";
 import { CliHelper } from "../../commonlib/cliHelper";
+import { EnvConstants } from "../../commonlib/constants";
+import { Executor } from "../../utils/executor";
 import {
   cleanUp,
+  createResourceGroup,
   execAsync,
   execAsyncWithRetry,
   getTestFolder,
   getUniqueAppName,
   mockTeamsfxMultiEnvFeatureFlag,
   readContextMultiEnvV3,
-  createResourceGroup,
 } from "../commonUtils";
-import { expect } from "chai";
-import { Executor } from "../../utils/executor";
-import { it } from "@microsoft/extra-shot-mocha";
-import { EnvConstants } from "../../commonlib/constants";
 
 describe("Multi Env Happy Path for Azure", function () {
   const env = "e2e";
@@ -43,7 +43,7 @@ describe("Multi Env Happy Path for Azure", function () {
       try {
         let result;
         result = await execAsync(
-          `atk new --interactive false --app-name ${appName} --capability notification --bot-host-type-trigger http-functions --programming-language javascript`,
+          `atk new --interactive false --app-name ${appName} --capability bot --programming-language typescript`,
           {
             cwd: testFolder,
             env: processEnv,

@@ -6,9 +6,9 @@
  */
 
 import { it } from "@microsoft/extra-shot-mocha";
-import path from "path";
-import { M365TitleHelper } from "../../commonlib/m365TitleHelper";
 import { assert } from "chai";
+import path from "path";
+import { M365TitleHelper } from "../../../commonlib/m365TitleHelper";
 
 describe("MOS3 API", function () {
   it(
