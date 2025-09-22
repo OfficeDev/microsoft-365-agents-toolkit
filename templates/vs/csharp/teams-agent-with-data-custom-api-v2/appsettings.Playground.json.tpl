@@ -2,16 +2,24 @@
   "Logging": {
     "LogLevel": {
       "Default": "Information",
-      "Microsoft": "Warning",
-      "Microsoft.Hosting.Lifetime": "Information"
+      "Microsoft.AspNetCore": "Warning"
+    },
+    "Microsoft.Teams": {
+      "Enable": "*",
+      "Level": "debug"
     }
   },
   "AllowedHosts": "*",
-  "BOT_ID": "",
-  "BOT_PASSWORD": "",
+   "Teams": {
+		"ClientId": "",
+		"ClientSecret": "",
+    "TenantId": "",
+		"BotType": ""
+	},
 {{#useOpenAI}}
   "OpenAI": {
-    "ApiKey": "{{{originalOpenAIKey}}}"
+    "ApiKey": "{{{originalOpenAIKey}}}"，
+    "Model": "gpt-3.5-turbo"
   }
 {{/useOpenAI}}
 {{#useAzureOpenAI}}

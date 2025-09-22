@@ -32,7 +32,6 @@ var appBuilder = App.Builder();
 
 if (config.Teams.BotType == "UserAssignedMsi")
 {
-    Console.WriteLine($"Using UserAssignedMSI");
     appBuilder.AddCredentials(new TokenCredentials(
         config.Teams.ClientId ?? string.Empty,
         async (tenantId, scopes) =>

@@ -4,7 +4,10 @@
     // Launch project within Microsoft 365 Agents Playground
     "Microsoft 365 Agents Playground (browser)": {
       "commandName": "Project",
-      "environmentVariables": { "UPDATE_TEAMS_APP": "false" },
+      "environmentVariables": { 
+        "UPDATE_TEAMS_APP": "false",
+        "M365_AGENTS_PLAYGROUND_TARGET_SDK": "teams-ai-v2-dotnet"
+      },
       "launchTestTool": true,
       "launchUrl": "http://localhost:56150",
     },
@@ -24,7 +27,10 @@
     // Launch project within Microsoft 365 Agents Playground
     "Microsoft 365 Agents Playground (browser)": {
       "commandName": "Project",
-      "environmentVariables": { "UPDATE_TEAMS_APP": "false" },
+      "environmentVariables": { 
+        "UPDATE_TEAMS_APP": "false",
+        "M365_AGENTS_PLAYGROUND_TARGET_SDK": "teams-ai-v2-dotnet"
+      },
       "launchTestTool": true,
       "launchUrl": "http://localhost:56150",
     },
