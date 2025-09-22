@@ -1,4 +1,3 @@
-
 using AdaptiveCards.Templating;
 using Microsoft.Teams.Apps;
 using Microsoft.Teams.Api.Activities;

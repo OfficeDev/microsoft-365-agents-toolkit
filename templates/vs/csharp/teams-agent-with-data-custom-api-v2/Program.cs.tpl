@@ -45,7 +45,7 @@ if (config.Teams.BotType == "UserAssignedMsi")
 
 builder.Services.AddSingleton<Controller>();
 
-APIClient apiClient = new("apiSpecificationFile/openapi.yaml");
+APIClient apiClient = new("{{OPENAPI_SPEC_PATH}}");
 builder.Services.AddSingleton(apiClient);
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddSingleton<Handlers>();
