@@ -36,7 +36,7 @@ import {
   getTeamsApp,
 } from "../debug/utility";
 
-describe("Basic Message Extension", function () {
+describe("Basic Bot", function () {
   const testFolder = getTestFolder();
   const subscription = getSubscriptionId();
   const appName = getUniqueAppName();
@@ -74,13 +74,13 @@ describe("Basic Message Extension", function () {
       await CliHelper.createProjectWithCapability(
         appName,
         testFolder,
-        Capability.MessageExtension,
+        Capability.Bot,
         process.env,
         `--programming-language typescript`
       );
 
       // Validate Scaffold
-      const indexFile = path.join(projectPath, "src", "index.ts");
+      const indexFile = path.join(projectPath, "index.ts");
       fs.access(indexFile, fs.constants.F_OK, (err) => {
         assert.notExists(err, "index.ts should exist");
       });

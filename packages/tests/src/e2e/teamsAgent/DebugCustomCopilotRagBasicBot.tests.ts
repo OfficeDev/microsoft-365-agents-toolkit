@@ -6,7 +6,6 @@
  */
 
 import * as chai from "chai";
-import * as fs from "fs-extra";
 import { describe } from "mocha";
 import * as path from "path";
 
@@ -26,10 +25,9 @@ import {
   getAadAppByClientId,
   getBot,
   getTeamsApp,
-} from "./utility";
-import { execAsync } from "../../utils/commonUtils";
+} from "../debug/utility";
 
-describe("Debug V3 custom-copilot-basic TypeScript template", () => {
+describe("Debug V3 custom-copilot-rag TypeScript template", () => {
   const testFolder = getTestFolder();
   const appName = getUniqueAppName();
   const projectPath = path.resolve(testFolder, appName);
@@ -50,11 +48,12 @@ describe("Debug V3 custom-copilot-basic TypeScript template", () => {
 
   it(
     "Azure OpenAI happy path: provision and deploy",
-    { testPlanCaseId: 27042450, author: "yuqzho@microsoft.com" },
+    { testPlanCaseId: 27569137, author: "yuqzho@microsoft.com" },
     async function () {
       // create
       const myRecordAzOpenAI: Record<string, string> = {};
       myRecordAzOpenAI["programming-language"] = "typescript";
+      myRecordAzOpenAI["custom-copilot-rag"] = "custom-copilot-rag-customize";
       myRecordAzOpenAI["llm-service"] = "llm-service-azure-openai";
       myRecordAzOpenAI["azure-openai-key"] = "fake";
       myRecordAzOpenAI["azure-openai-deployment-name"] = "fake";
@@ -65,7 +64,7 @@ describe("Debug V3 custom-copilot-basic TypeScript template", () => {
       await CliHelper.createProjectWithCapability(
         appName,
         testFolder,
-        "custom-copilot-basic" as any,
+        "custom-copilot-rag" as any,
         undefined,
         options
       );
@@ -112,11 +111,12 @@ describe("Debug V3 custom-copilot-basic TypeScript template", () => {
 
   it(
     "OpenAI happy path: provision and deploy",
-    { testPlanCaseId: 27042451, author: "yuqzho@microsoft.com" },
+    { testPlanCaseId: 28869466, author: "yuqzho@microsoft.com" },
     async function () {
       // create
       const myRecordOpenAI: Record<string, string> = {};
       myRecordOpenAI["programming-language"] = "typescript";
+      myRecordOpenAI["custom-copilot-rag"] = "custom-copilot-rag-customize";
       myRecordOpenAI["llm-service"] = "llm-service-openai";
       myRecordOpenAI["openai-key"] = "fake";
       const options = Object.entries(myRecordOpenAI)
@@ -125,7 +125,7 @@ describe("Debug V3 custom-copilot-basic TypeScript template", () => {
       await CliHelper.createProjectWithCapability(
         appName,
         testFolder,
-        "custom-copilot-basic" as any,
+        "custom-copilot-rag" as any,
         undefined,
         options
       );
@@ -172,11 +172,12 @@ describe("Debug V3 custom-copilot-basic TypeScript template", () => {
 
   it(
     "JavaScript Azure OpenAI happy path: provision and deploy",
-    { testPlanCaseId: 27042416, author: "yuqzho@microsoft.com" },
+    { testPlanCaseId: 27569146, author: "yuqzho@microsoft.com" },
     async function () {
       // create
       const myRecordAzOpenAI: Record<string, string> = {};
       myRecordAzOpenAI["programming-language"] = "javascript";
+      myRecordAzOpenAI["custom-copilot-rag"] = "custom-copilot-rag-customize";
       myRecordAzOpenAI["llm-service"] = "llm-service-azure-openai";
       myRecordAzOpenAI["azure-openai-key"] = "fake";
       myRecordAzOpenAI["azure-openai-deployment-name"] = "fake";
@@ -187,7 +188,7 @@ describe("Debug V3 custom-copilot-basic TypeScript template", () => {
       await CliHelper.createProjectWithCapability(
         appName,
         testFolder,
-        "custom-copilot-basic" as any,
+        "custom-copilot-rag" as any,
         undefined,
         options
       );
@@ -234,11 +235,12 @@ describe("Debug V3 custom-copilot-basic TypeScript template", () => {
 
   it(
     "JavaScript OpenAI happy path: provision and deploy",
-    { testPlanCaseId: 27042433, author: "yuqzho@microsoft.com" },
+    { testPlanCaseId: 28869495, author: "yuqzho@microsoft.com" },
     async function () {
       // create
       const myRecordOpenAI: Record<string, string> = {};
       myRecordOpenAI["programming-language"] = "javascript";
+      myRecordOpenAI["custom-copilot-rag"] = "custom-copilot-rag-customize";
       myRecordOpenAI["llm-service"] = "llm-service-openai";
       myRecordOpenAI["openai-key"] = "fake";
       const options = Object.entries(myRecordOpenAI)
@@ -247,7 +249,7 @@ describe("Debug V3 custom-copilot-basic TypeScript template", () => {
       await CliHelper.createProjectWithCapability(
         appName,
         testFolder,
-        "custom-copilot-basic" as any,
+        "custom-copilot-rag" as any,
         undefined,
         options
       );

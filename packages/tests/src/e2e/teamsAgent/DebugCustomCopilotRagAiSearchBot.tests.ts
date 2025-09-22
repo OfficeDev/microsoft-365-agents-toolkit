@@ -26,10 +26,9 @@ import {
   getAadAppByClientId,
   getBot,
   getTeamsApp,
-} from "./utility";
-import { execAsync } from "../../utils/commonUtils";
+} from "../debug/utility";
 
-describe("Debug V3 custom-copilot-agent-new TypeScript template", () => {
+describe("Debug V3 custom-copilot-rag-ai-search TypeScript template", () => {
   const testFolder = getTestFolder();
   const appName = getUniqueAppName();
   const projectPath = path.resolve(testFolder, appName);
@@ -50,12 +49,12 @@ describe("Debug V3 custom-copilot-agent-new TypeScript template", () => {
 
   it(
     "Azure OpenAI happy path: provision and deploy",
-    { testPlanCaseId: 27042860, author: "yuqzho@microsoft.com" },
+    { testPlanCaseId: 27569074, author: "yuqzho@microsoft.com" },
     async function () {
-      // create
       const myRecordAzOpenAI: Record<string, string> = {};
-      myRecordAzOpenAI["programming-language"] = "typescript";
-      myRecordAzOpenAI["custom-copilot-agent"] = "custom-copilot-agent-new";
+      myRecordAzOpenAI["programming-language"] = "typescript ";
+      myRecordAzOpenAI["custom-copilot-rag"] =
+        "custom-copilot-rag-azureAISearch";
       myRecordAzOpenAI["llm-service"] = "llm-service-azure-openai";
       myRecordAzOpenAI["azure-openai-key"] = "fake";
       myRecordAzOpenAI["azure-openai-deployment-name"] = "fake";
@@ -66,13 +65,29 @@ describe("Debug V3 custom-copilot-agent-new TypeScript template", () => {
       await CliHelper.createProjectWithCapability(
         appName,
         testFolder,
-        "custom-copilot-agent" as any,
+        "custom-copilot-rag" as any,
         undefined,
         options
       );
       console.log(`[Successfully] scaffold to ${projectPath}`);
 
-      // provision
+      // add extra envs
+      const userFile = path.resolve(projectPath, "env", `.env.local.user`);
+      const AZURE_OPENAI_EMBEDDING_DEPLOYMENT =
+        "AZURE_OPENAI_EMBEDDING_DEPLOYMENT=fake";
+      const SECRET_AZURE_SEARCH_KEY = "SECRET_AZURE_SEARCH_KEY=fake";
+      const AZURE_SEARCH_ENDPOINT = "AZURE_SEARCH_ENDPOINT=https://test.com";
+      const KEY =
+        "\n" +
+        AZURE_OPENAI_EMBEDDING_DEPLOYMENT +
+        "\n" +
+        SECRET_AZURE_SEARCH_KEY +
+        "\n" +
+        AZURE_SEARCH_ENDPOINT;
+      fs.appendFileSync(userFile, KEY);
+      console.log(`add key ${KEY} to .env.local.user file`);
+
+      /// provision
       await CliHelper.provisionProject(projectPath, "", "local", {
         ...process.env,
         BOT_DOMAIN: "test.ngrok.io",
@@ -113,25 +128,42 @@ describe("Debug V3 custom-copilot-agent-new TypeScript template", () => {
 
   it(
     "OpenAI happy path: provision and deploy",
-    { testPlanCaseId: 27042861, author: "yuqzho@microsoft.com" },
+    { testPlanCaseId: 28970306, author: "yuqzho@microsoft.com" },
     async function () {
       // create
-      const myRecordOpenAI: Record<string, string> = {};
-      myRecordOpenAI["programming-language"] = "typescript";
-      myRecordOpenAI["llm-service"] = "llm-service-openai";
-      myRecordOpenAI["custom-copilot-agent"] = "custom-copilot-agent-new";
-      myRecordOpenAI["openai-key"] = "fake";
-      const options = Object.entries(myRecordOpenAI)
+      const myRecordAzOpenAI: Record<string, string> = {};
+      myRecordAzOpenAI["programming-language"] = "typescript ";
+      myRecordAzOpenAI["custom-copilot-rag"] =
+        "custom-copilot-rag-azureAISearch";
+      myRecordAzOpenAI["llm-service"] = "llm-service-openai";
+      myRecordAzOpenAI["openai-key"] = "fake";
+      const options = Object.entries(myRecordAzOpenAI)
         .map(([key, value]) => "--" + key + " " + value)
         .join(" ");
       await CliHelper.createProjectWithCapability(
         appName,
         testFolder,
-        "custom-copilot-agent" as any,
+        "custom-copilot-rag" as any,
         undefined,
         options
       );
       console.log(`[Successfully] scaffold to ${projectPath}`);
+
+      // add extra envs
+      const userFile = path.resolve(projectPath, "env", `.env.local.user`);
+      const AZURE_OPENAI_EMBEDDING_DEPLOYMENT =
+        "AZURE_OPENAI_EMBEDDING_DEPLOYMENT=fake";
+      const SECRET_AZURE_SEARCH_KEY = "SECRET_AZURE_SEARCH_KEY=fake";
+      const AZURE_SEARCH_ENDPOINT = "AZURE_SEARCH_ENDPOINT=https://test.com";
+      const KEY =
+        "\n" +
+        AZURE_OPENAI_EMBEDDING_DEPLOYMENT +
+        "\n" +
+        SECRET_AZURE_SEARCH_KEY +
+        "\n" +
+        AZURE_SEARCH_ENDPOINT;
+      fs.appendFileSync(userFile, KEY);
+      console.log(`add key ${KEY} to .env.local.user file`);
 
       // provision
       await CliHelper.provisionProject(projectPath, "", "local", {
@@ -174,12 +206,13 @@ describe("Debug V3 custom-copilot-agent-new TypeScript template", () => {
 
   it(
     "JavaScript Azure OpenAI happy path: provision and deploy",
-    { testPlanCaseId: 27042862, author: "yuqzho@microsoft.com" },
+    { testPlanCaseId: 27569090, author: "yuqzho@microsoft.com" },
     async function () {
       // create
       const myRecordAzOpenAI: Record<string, string> = {};
-      myRecordAzOpenAI["programming-language"] = "javascript";
-      myRecordAzOpenAI["custom-copilot-agent"] = "custom-copilot-agent-new";
+      myRecordAzOpenAI["programming-language"] = "javascript ";
+      myRecordAzOpenAI["custom-copilot-rag"] =
+        "custom-copilot-rag-azureAISearch";
       myRecordAzOpenAI["llm-service"] = "llm-service-azure-openai";
       myRecordAzOpenAI["azure-openai-key"] = "fake";
       myRecordAzOpenAI["azure-openai-deployment-name"] = "fake";
@@ -190,13 +223,29 @@ describe("Debug V3 custom-copilot-agent-new TypeScript template", () => {
       await CliHelper.createProjectWithCapability(
         appName,
         testFolder,
-        "custom-copilot-agent" as any,
+        "custom-copilot-rag" as any,
         undefined,
         options
       );
       console.log(`[Successfully] scaffold to ${projectPath}`);
 
-      // provision
+      // add extra envs
+      const userFile = path.resolve(projectPath, "env", `.env.local.user`);
+      const AZURE_OPENAI_EMBEDDING_DEPLOYMENT =
+        "AZURE_OPENAI_EMBEDDING_DEPLOYMENT=fake";
+      const SECRET_AZURE_SEARCH_KEY = "SECRET_AZURE_SEARCH_KEY=fake";
+      const AZURE_SEARCH_ENDPOINT = "AZURE_SEARCH_ENDPOINT=https://test.com";
+      const KEY =
+        "\n" +
+        AZURE_OPENAI_EMBEDDING_DEPLOYMENT +
+        "\n" +
+        SECRET_AZURE_SEARCH_KEY +
+        "\n" +
+        AZURE_SEARCH_ENDPOINT;
+      fs.appendFileSync(userFile, KEY);
+      console.log(`add key ${KEY} to .env.local.user file`);
+
+      /// provision
       await CliHelper.provisionProject(projectPath, "", "local", {
         ...process.env,
         BOT_DOMAIN: "test.ngrok.io",
@@ -237,25 +286,43 @@ describe("Debug V3 custom-copilot-agent-new TypeScript template", () => {
 
   it(
     "JavaScript OpenAI happy path: provision and deploy",
-    { testPlanCaseId: 27042863, author: "yuqzho@microsoft.com" },
+    { testPlanCaseId: 28970334, author: "yuqzho@microsoft.com" },
     async function () {
       // create
-      const myRecordOpenAI: Record<string, string> = {};
-      myRecordOpenAI["programming-language"] = "javascript";
-      myRecordOpenAI["llm-service"] = "llm-service-openai";
-      myRecordOpenAI["custom-copilot-agent"] = "custom-copilot-agent-new";
-      myRecordOpenAI["openai-key"] = "fake";
-      const options = Object.entries(myRecordOpenAI)
+      // create
+      const myRecordAzOpenAI: Record<string, string> = {};
+      myRecordAzOpenAI["programming-language"] = "javascript ";
+      myRecordAzOpenAI["custom-copilot-rag"] =
+        "custom-copilot-rag-azureAISearch";
+      myRecordAzOpenAI["llm-service"] = "llm-service-openai";
+      myRecordAzOpenAI["openai-key"] = "fake";
+      const options = Object.entries(myRecordAzOpenAI)
         .map(([key, value]) => "--" + key + " " + value)
         .join(" ");
       await CliHelper.createProjectWithCapability(
         appName,
         testFolder,
-        "custom-copilot-agent" as any,
+        "custom-copilot-rag" as any,
         undefined,
         options
       );
       console.log(`[Successfully] scaffold to ${projectPath}`);
+
+      // add extra envs
+      const userFile = path.resolve(projectPath, "env", `.env.local.user`);
+      const AZURE_OPENAI_EMBEDDING_DEPLOYMENT =
+        "AZURE_OPENAI_EMBEDDING_DEPLOYMENT=fake";
+      const SECRET_AZURE_SEARCH_KEY = "SECRET_AZURE_SEARCH_KEY=fake";
+      const AZURE_SEARCH_ENDPOINT = "AZURE_SEARCH_ENDPOINT=https://test.com";
+      const KEY =
+        "\n" +
+        AZURE_OPENAI_EMBEDDING_DEPLOYMENT +
+        "\n" +
+        SECRET_AZURE_SEARCH_KEY +
+        "\n" +
+        AZURE_SEARCH_ENDPOINT;
+      fs.appendFileSync(userFile, KEY);
+      console.log(`add key ${KEY} to .env.local.user file`);
 
       // provision
       await CliHelper.provisionProject(projectPath, "", "local", {

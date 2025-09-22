@@ -20,14 +20,15 @@ import {
 } from "../../commonlib/utilities";
 import { Capability } from "../../utils/constants";
 import {
-  cleanUp,
+  cleanUpLocalProject,
   createResourceGroup,
+  deleteResourceGroupByName,
   getSubscriptionId,
   getTestFolder,
   getUniqueAppName,
   readContextMultiEnvV3,
 } from "../commonUtils";
-import { getTeamsApp } from "../debug/utility";
+import { deleteTeamsApp, getTeamsApp } from "../debug/utility";
 
 describe("Basic Tab", function () {
   const testFolder = getTestFolder();
@@ -38,7 +39,18 @@ describe("Basic Tab", function () {
   const envName = environmentNameManager.getDefaultEnvName();
 
   afterEach(async () => {
-    await cleanUp(appName, projectPath, false, false, false);
+    // clean up
+    let context = await readContextMultiEnvV3(projectPath, "local");
+    if (context?.TEAMS_APP_ID) {
+      await deleteTeamsApp(context.TEAMS_APP_ID);
+    }
+
+    context = await readContextMultiEnvV3(projectPath, "dev");
+    if (context?.TEAMS_APP_ID) {
+      await deleteTeamsApp(context.TEAMS_APP_ID);
+    }
+    await deleteResourceGroupByName(resourceGroupName);
+    await cleanUpLocalProject(projectPath);
   });
 
   it(
