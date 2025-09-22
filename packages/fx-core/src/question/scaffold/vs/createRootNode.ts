@@ -45,7 +45,7 @@ export class VSCapabilityOptions {
       description: getLocalizedString(
         "core.createProjectQuestion.option.description.worksInOutlookM365"
       ),
-      data: TemplateNames.TabSSR,
+      data: TemplateNames.Tab,
     };
   }
   static tab(): OptionItem {
@@ -100,16 +100,18 @@ export function scaffoldQuestionForVS(): IQTreeNode {
             TeamsAgentCapabilityOptions.customCopilotRag(),
             // TeamsAgentCapabilityOptions.aiAgent(),
             VSCapabilityOptions.weatherAgentBot(),
+
             BotCapabilityOptions.basicBot(),
-            BotCapabilityOptions.notificationBot(),
-            BotCapabilityOptions.commandBot(),
-            BotCapabilityOptions.workflowBot(),
+            // BotCapabilityOptions.notificationBot(),
+            // BotCapabilityOptions.commandBot(),
+            // BotCapabilityOptions.workflowBot(),
             VSCapabilityOptions.nonSsoTab(),
-            VSCapabilityOptions.tab(),
-            MeCapabilityOptions.m365SearchMe(),
-            MeCapabilityOptions.collectFormMe(),
-            VSCapabilityOptions.SearchMeVS(),
-            MeCapabilityOptions.linkUnfurling(),
+            // VSCapabilityOptions.tab(),
+            MeCapabilityOptions.basicMe(),
+            // MeCapabilityOptions.m365SearchMe(),
+            // MeCapabilityOptions.collectFormMe(),
+            // VSCapabilityOptions.SearchMeVS(),
+            // MeCapabilityOptions.linkUnfurling(),
           ],
           onDidSelection: setTemplateName,
         },

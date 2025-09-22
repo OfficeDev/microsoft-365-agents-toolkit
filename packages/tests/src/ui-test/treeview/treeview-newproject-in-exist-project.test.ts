@@ -54,10 +54,10 @@ describe("New project in existing project Tests", function () {
     },
     async function () {
       const appName = treeViewTestContext.appName;
-      await createNewProject("tab", appName, { lang: Lang.TS });
+      await createNewProject("tabnsso", appName, { lang: Lang.TS });
       newAppFolderName = appName + appNameCopySuffix;
       projectPath = path.resolve(testRootFolder, newAppFolderName);
-      const filePath1 = path.join(projectPath, "src", "index.tsx");
+      const filePath1 = path.join(projectPath, "src", "index.ts");
       expect(fs.existsSync(filePath1), `${filePath1} must exist.`).to.eq(true);
 
       // create new project in existing project
@@ -70,13 +70,13 @@ describe("New project in existing project Tests", function () {
       );
 
       const input = await InputBox.create();
-      await input.selectQuickPick(CreateProjectQuestion.TeamsApp);
+      await input.selectQuickPick(CreateProjectQuestion.TeamsAgentsAndApps);
       await driver.sleep(Timeout.input);
+      await input.selectQuickPick(CreateProjectQuestion.OtherTeamsCapabilities);
       await input.selectQuickPick(CreateProjectQuestion.Tab);
-      await input.selectQuickPick("Basic Tab");
       await driver.sleep(Timeout.input);
       // Choose programming language
-      await input.selectQuickPick("JavaScript");
+      // await input.selectQuickPick("JavaScript");
 
       // Input folder path
       await input.selectQuickPick("Browse...");

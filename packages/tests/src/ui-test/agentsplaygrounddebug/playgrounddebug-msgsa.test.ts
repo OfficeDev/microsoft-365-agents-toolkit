@@ -15,6 +15,7 @@ import {
   LocalDebugTaskInfo,
   DebugItemSelect,
   LocalDebugTaskLabel2,
+  Lang,
 } from "../../utils/constants";
 import { it } from "../../utils/it";
 import { validateFileExist } from "../../utils/commonUtils";
@@ -32,7 +33,9 @@ describe("Test Tool Debug Tests", function () {
   beforeEach(async function () {
     // ensure workbench is ready
     this.timeout(Timeout.prepareTestCase);
-    localDebugTestContext = new LocalDebugTestContext("msgsa");
+    localDebugTestContext = new LocalDebugTestContext("msgsa", {
+      lang: Lang.TS,
+    });
     await localDebugTestContext.before();
   });
 
@@ -59,7 +62,7 @@ describe("Test Tool Debug Tests", function () {
           localDebugTestContext.testRootFolder,
           localDebugTestContext.appName
         );
-        validateFileExist(projectPath, "src/index.js");
+        validateFileExist(projectPath, "src/index.ts");
         const driver = VSBrowser.instance.driver;
 
         // local debug in Test Tool
@@ -67,7 +70,7 @@ describe("Test Tool Debug Tests", function () {
 
         await waitForTerminal(
           LocalDebugTaskLabel.StartBotApp,
-          LocalDebugTaskInfo.StartBotInfo
+          LocalDebugTaskInfo.ListeningOn
         );
 
         await waitForTerminal(LocalDebugTaskLabel2.StartAgentsPlayground);

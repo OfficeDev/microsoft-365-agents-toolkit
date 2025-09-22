@@ -12,6 +12,12 @@ export const messagingExtensionTemplates: Template[] = [
     description: "",
   },
   {
+    id: "message-extension-v2-csharp",
+    name: TemplateNames.DefaultMessageExtension,
+    language: "csharp",
+    description: "",
+  },
+  {
     id: "message-extension-with-api-from-scratch-ts",
     name: TemplateNames.MessageExtensionWithNewApiFromScratch,
     language: "typescript",
