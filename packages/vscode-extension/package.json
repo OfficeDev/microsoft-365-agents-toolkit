@@ -8,6 +8,10 @@
   "private": true,
   "icon": "media/m365-agents-toolkit-color.png",
   "main": "./out/src/extension.js",
+  "enabledApiProposals": [
+    "authenticationChallenges",
+    "authLearnMore"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/OfficeDev/TeamsFx"
