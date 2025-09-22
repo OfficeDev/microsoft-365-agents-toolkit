@@ -1,7 +1,7 @@
 using Microsoft.Teams.Api.Activities;
 using Microsoft.Teams.Api.Entities;
 
-namespace {{SafeProjectName}}.Utils
+namespace {{SafeProjectName}}.Utils {
     public static class Utils
     {
         public static string StripMentionsText(MessageActivity activity)
