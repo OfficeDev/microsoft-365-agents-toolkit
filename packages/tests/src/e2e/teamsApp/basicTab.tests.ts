@@ -26,7 +26,6 @@ import {
   getTestFolder,
   getUniqueAppName,
   readContextMultiEnvV3,
-  removeTeamsAppExtendToM365,
 } from "../commonUtils";
 import { getTeamsApp } from "../debug/utility";
 
@@ -64,12 +63,6 @@ describe("Basic Tab", function () {
         assert.notExists(err, "index.ts should exist");
       });
 
-      // remove teamsApp/extendToM365 in case it fails
-      removeTeamsAppExtendToM365(path.join(projectPath, "m365agents.yml"));
-      removeTeamsAppExtendToM365(
-        path.join(projectPath, "m365agents.local.yml")
-      );
-
       // Local Debug (Provision)
       await CliHelper.provisionProject(projectPath, "", "local");
       console.log(`[Successfully] provision for ${projectPath}`);
@@ -84,6 +77,18 @@ describe("Basic Tab", function () {
       assert.isDefined(context.TEAMS_APP_ID, "teams app id should be defined");
       const teamsApp = await getTeamsApp(context.TEAMS_APP_ID);
       assert.equal(teamsApp?.teamsAppId, context.TEAMS_APP_ID);
+
+      // validate m365
+      chai.assert.isDefined(
+        context.M365_TITLE_ID,
+        "m365 title id should be defined"
+      );
+      chai.assert.isNotEmpty(context.M365_TITLE_ID);
+      chai.assert.isDefined(
+        context.M365_APP_ID,
+        "m365 app id should be defined"
+      );
+      chai.assert.isNotEmpty(context.M365_APP_ID);
 
       // Local Debug (Deploy)
       await CliHelper.deployAll(projectPath, "", "local");
@@ -118,6 +123,18 @@ describe("Basic Tab", function () {
 
       context = await readContextMultiEnvV3(projectPath, envName);
       assert.exists(context, "env file should exist");
+
+      // validate m365
+      chai.assert.isDefined(
+        context.M365_TITLE_ID,
+        "m365 title id should be defined"
+      );
+      chai.assert.isNotEmpty(context.M365_TITLE_ID);
+      chai.assert.isDefined(
+        context.M365_APP_ID,
+        "m365 app id should be defined"
+      );
+      chai.assert.isNotEmpty(context.M365_APP_ID);
 
       const appServiceResourceId =
         context[EnvConstants.TAB_AZURE_APP_SERVICE_RESOURCE_ID];
