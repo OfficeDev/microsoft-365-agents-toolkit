@@ -10,7 +10,7 @@
     }
   },
   "AllowedHosts": "*",
-   "Teams": {
+  "Teams": {
 		"ClientId": "",
 		"ClientSecret": "",
 		"BotType": ""

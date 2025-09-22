@@ -1,5 +1,6 @@
 using {{SafeProjectName}};
 using {{SafeProjectName}}.Controllers;
+using {{SafeProjectName}}.Functions;
 using Azure.Core;
 using Azure.Identity;
 using Microsoft.Teams.AI.Models.OpenAI;
@@ -41,7 +42,14 @@ if (config.Teams.BotType == "UserAssignedMsi")
     ));
 }
 
+
 builder.Services.AddSingleton<Controller>();
+
+APIClient apiClient = new("apiSpecificationFile/openapi.yaml");
+builder.Services.AddSingleton(apiClient);
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddSingleton<Handlers>();
+
 builder.AddTeams(appBuilder);
 
 // Read instructions from file
