@@ -51,16 +51,11 @@ app.Use(async (context, next) =>
         var body = await new StreamReader(context.Request.Body).ReadToEndAsync();
         context.Request.Body.Position = 0;
 
-        // var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
         Console.WriteLine($"[RAW_REQUEST] {context.Request.Method} {context.Request.Path}: {body}");
     }
 
     await next();
 });
 
-app.UseTeams();
-
-// Serve settings page
-app.MapGet("/settings", () => Results.Content(GetSettingsHtml(), "text/html"));
 app.UseTeams();
 app.Run();
