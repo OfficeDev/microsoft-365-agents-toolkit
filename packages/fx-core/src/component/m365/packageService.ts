@@ -35,7 +35,7 @@ import { NotExtendedToM365Error } from "./errors";
 import { M365AppDefinition, M365AppEntity } from "./interface";
 import { MosServiceEndpoint } from "./serviceConstant";
 import { getDefaultString, getLocalizedString } from "../../common/localizeUtils";
-import { advancedDASettingUrl } from "./constants";
+import { advancedDASettingUrl, M365HelpLink } from "./constants";
 
 const M365ErrorSource = "M365";
 const M365ErrorComponent = "PackageService";
@@ -257,7 +257,11 @@ export class PackageService {
       if (error.response) {
         error = this.traceError(error);
       }
-      throw assembleError(error, M365ErrorSource);
+      const err = assembleError(error, M365ErrorSource);
+      if (err instanceof UserError) {
+        err.helpLink = M365HelpLink;
+      }
+      throw err;
     }
   }
 

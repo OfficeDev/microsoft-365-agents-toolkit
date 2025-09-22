@@ -544,6 +544,7 @@ describe("Package Service", () => {
         traceresponse: "tracing-id",
       },
     };
+    expectedError.code = "ERR_NO_SUFFICIENT_PERMISSION";
     axiosGetResponses["/builder/v1/users/packages/status/test-status-id-builder-api"] =
       expectedError;
     actualError = undefined;

@@ -4,6 +4,7 @@
 import { UserError } from "@microsoft/teamsfx-api";
 
 import { getDefaultString, getLocalizedString } from "../../common/localizeUtils";
+import { M365HelpLink } from "./constants";
 
 export class NotExtendedToM365Error extends UserError {
   constructor(source: string) {
@@ -12,7 +13,7 @@ export class NotExtendedToM365Error extends UserError {
       name: "NotExtendedToM365Error",
       message: getDefaultString("error.m365.NotExtendedToM365Error"),
       displayMessage: getLocalizedString("error.m365.NotExtendedToM365Error"),
-      helpLink: "https://aka.ms/teamsfx-actions/teamsapp-extendToM365",
+      helpLink: M365HelpLink,
     });
   }
 }
