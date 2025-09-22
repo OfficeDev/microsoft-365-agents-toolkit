@@ -64,6 +64,7 @@ import {
 } from "../../src/question/other";
 import { QuestionTreeVisitor, traverse } from "../../src/ui/visitor";
 import { MockTools, MockUserInteraction, MockedAzureAccountProvider } from "../core/utils";
+import { azureClientHelper } from "../../src/component/utils/azureClient";
 
 const ui = new MockUserInteraction();
 export async function callFuncs(question: Question, inputs: Inputs, answer?: string) {
@@ -697,7 +698,7 @@ describe("resourceGroupQuestionNode", async () => {
       mockToken as TokenCredential,
       mockSubscriptionId
     );
-    sandbox.stub(resourceGroupHelper, "createRmClient").resolves(mockRmClient);
+    sandbox.stub(azureClientHelper, "createRmClient").resolves(mockRmClient);
     const node = resourceGroupQuestionNode(accountProvider, mockSubscriptionId, defaultRG);
     assert.isTrue(node !== undefined);
     const inputs: Inputs = {
@@ -750,7 +751,7 @@ describe("resourceGroupQuestionNode", async () => {
       mockToken as TokenCredential,
       mockSubscriptionId
     );
-    sandbox.stub(resourceGroupHelper, "createRmClient").resolves(mockRmClient);
+    sandbox.stub(azureClientHelper, "createRmClient").resolves(mockRmClient);
     const node = resourceGroupQuestionNode(accountProvider, mockSubscriptionId, defaultRG);
     assert.isTrue(node !== undefined);
     const inputs: Inputs = {
