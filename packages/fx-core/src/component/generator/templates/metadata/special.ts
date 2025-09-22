@@ -44,7 +44,7 @@ export const specialTemplates: Template[] = [
     description: "",
   },
   {
-    id: "custom-copilot-rag-custom-api-csharp",
+    id: "custom-copilot-rag-custom-api-v2-csharp",
     name: TemplateNames.CustomCopilotRagCustomApi,
     language: "csharp",
     description: "",

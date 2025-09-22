@@ -108,7 +108,7 @@ export class FeatureFlags {
   };
   static readonly EmbeddedKnowledgeEnabled = {
     name: FeatureFlagName.EmbeddedKnowledgeEnabled,
-    defaultValue: "true",
+    defaultValue: "false",
   };
   static readonly ShareEnabled = {
     name: FeatureFlagName.ShareEnabled,
@@ -124,7 +124,7 @@ export class FeatureFlags {
   };
   static readonly SensitivityLabelEnabled = {
     name: FeatureFlagName.SensitivityLabelEnabled,
-    defaultValue: "true",
+    defaultValue: "false",
   };
   static readonly DAMetaOS = {
     name: FeatureFlagName.DAMetaOS,

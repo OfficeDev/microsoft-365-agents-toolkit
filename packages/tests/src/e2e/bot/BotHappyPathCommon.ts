@@ -5,25 +5,25 @@
  * @author Siglud <fanhu@microsoft.com>
  **/
 
+import { environmentNameManager } from "@microsoft/teamsfx-core";
+import { expect } from "chai";
 import * as path from "path";
 import { BotValidator } from "../../commonlib";
 import {
+  CliCapabilities,
+  CliTriggerType,
+  Runtime,
+} from "../../commonlib/constants";
+import { Executor } from "../../utils/executor";
+import {
   cleanUp,
+  createResourceGroup,
   execAsync,
   execAsyncWithRetry,
   getTestFolder,
   getUniqueAppName,
   readContextMultiEnvV3,
-  createResourceGroup,
 } from "../commonUtils";
-import { environmentNameManager } from "@microsoft/teamsfx-core";
-import {
-  Runtime,
-  CliCapabilities,
-  CliTriggerType,
-} from "../../commonlib/constants";
-import { Executor } from "../../utils/executor";
-import { expect } from "chai";
 
 export async function happyPathTest(
   runtime: Runtime,
@@ -83,7 +83,7 @@ export async function happyPathTest(
 
     // Validate Bot Provision
     const bot = new BotValidator(context, projectPath, envName);
-    await bot.validateProvisionV3(false);
+    await bot.validateProvisionV3(false, runtime);
   }
 
   // deploy

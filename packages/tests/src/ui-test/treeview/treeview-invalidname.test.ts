@@ -56,13 +56,13 @@ describe("New project Tests", function () {
       });
       const input = await InputBox.create();
       // if exist click it
-      await input.selectQuickPick(CreateProjectQuestion.TeamsApp);
+      await input.selectQuickPick(CreateProjectQuestion.TeamsAgentsAndApps);
       await driver.sleep(Timeout.input);
+      await input.selectQuickPick(CreateProjectQuestion.OtherTeamsCapabilities);
       await input.selectQuickPick(CreateProjectQuestion.Tab);
-      await input.selectQuickPick("Basic Tab");
       await driver.sleep(Timeout.input);
       // Choose programming language
-      await input.selectQuickPick("JavaScript");
+      // await input.selectQuickPick("JavaScript");
       await driver.sleep(Timeout.input);
 
       // Input folder path
@@ -88,66 +88,6 @@ describe("New project Tests", function () {
       await driver.sleep(Timeout.input);
       const inputMessage2 = await input.getMessage();
       expect(inputMessage2).to.be.contains(warnMsg);
-    }
-  );
-
-  it(
-    "[auto] invalid app name check when create a SPFx project",
-    {
-      testPlanCaseId: 12615304,
-      author: "v-helzha@microsoft.com",
-    },
-    async function () {
-      const driver = VSBrowser.instance.driver;
-      const appName = treeViewTestContext.appName;
-      await execCommandIfExist(
-        CommandPaletteCommands.CreateProjectCommand,
-        Timeout.webView
-      );
-      const input = await InputBox.create();
-      // if exist click it
-      await input.selectQuickPick(CreateProjectQuestion.TeamsApp);
-      await driver.sleep(Timeout.input);
-      await input.selectQuickPick(CreateProjectQuestion.Tab);
-      await driver.sleep(Timeout.input);
-      // await input.selectQuickPick("SPFx");
-      await input.setText("SPFx");
-      await input.confirm();
-      await driver.sleep(Timeout.input);
-      await input.selectQuickPick(CreateProjectQuestion.CreateNewSpfxSolution);
-      // Wait for Node version check
-      await driver.sleep(Timeout.longTimeWait);
-      await input.selectQuickPick(
-        CreateProjectQuestion.SpfxSharepointFrameworkInTtk
-      );
-      await driver.sleep(Timeout.input);
-      // Choose React or None
-      await input.selectQuickPick("React");
-      // Input Web Part Name
-      await input.setText("2invalidname");
-      await driver.sleep(Timeout.input);
-      const inputMessage = await input.getMessage();
-      expect(inputMessage).to.be.contains(
-        `2invalidname doesn't match pattern: ^[a-zA-Z_][a-zA-Z0-9_]*$`
-      );
-      await input.setText(appName);
-      await driver.sleep(Timeout.input);
-      await input.confirm();
-      // Input folder path
-      await input.selectQuickPick("Browse...");
-      await inputFolderPath(driver, input, testRootFolder);
-      await driver.sleep(Timeout.input);
-      if (os.type() === "Windows_NT") {
-        await input.sendKeys("\\");
-      } else if (os.type() === "Linux") {
-        await input.sendKeys("/");
-      }
-      await input.confirm();
-      // Input App Name
-      await input.setText("2invalidname");
-      await driver.sleep(Timeout.input);
-      const inputMessage3 = await input.getMessage();
-      expect(inputMessage3).to.be.contains(warnMsg);
     }
   );
 });

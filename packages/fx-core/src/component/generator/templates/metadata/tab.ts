@@ -11,6 +11,12 @@ export const tabTemplates: Template[] = [
     language: "typescript",
     description: "Simple Teams Tab App",
   },
+  {
+    id: "basic-tab-csharp",
+    name: TemplateNames.Tab,
+    language: "csharp",
+    description: "Simple Teams Tab App",
+  },
   // {
   //   id: "non-sso-tab-js",
   //   name: TemplateNames.Tab,

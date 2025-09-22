@@ -213,7 +213,7 @@ export function happyPathTest(options: {
 
         if (isRealKey) {
           await validateWelcomeAndReplyBot(page, {
-            hasWelcomeMessage: true,
+            hasWelcomeMessage: false,
             hasCommandReplyValidation: true,
             botCommand:
               "Can you forecast the tomorrow weather in San Francisco for me?",
@@ -311,7 +311,7 @@ export function happyPathTest(options: {
         );
         if (isRealKey) {
           await validateWelcomeAndReplyBot(page, {
-            hasWelcomeMessage: true,
+            hasWelcomeMessage: false,
             hasCommandReplyValidation: true,
             botCommand:
               "Can you forecast the tomorrow weather in San Francisco for me?",

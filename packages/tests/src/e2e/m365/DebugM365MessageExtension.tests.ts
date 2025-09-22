@@ -56,7 +56,7 @@ describe("Debug V3 m365-message-extension template", () => {
       await CliHelper.createProjectWithCapability(
         appName,
         testFolder,
-        Capability.M365SearchApp,
+        Capability.MessageExtension,
         undefined,
         "--me-architecture bot"
       );
