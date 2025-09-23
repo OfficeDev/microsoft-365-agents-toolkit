@@ -76,7 +76,7 @@ The app template is built using the Teams AI library, which provides the capabil
 You can follow [Get started with Teams AI library](https://learn.microsoft.com/en-us/microsoftteams/platform/bots/how-to/teams%20conversational%20ai/how-conversation-ai-get-started) to extend the agent template with more AI capabilities.
 
 ## Additional information and references
-- [Teams AI library V2](https://aka.ms/teams-ai-library-v2)
+- [Teams AI library](https://aka.ms/teams-ai-library)
 - [Microsoft 365 Agents Toolkit Documentations](https://docs.microsoft.com/microsoftteams/platform/toolkit/teams-toolkit-fundamentals)
 - [Microsoft 365 Agents Toolkit CLI](https://aka.ms/teamsfx-toolkit-cli)
 - [Microsoft 365 Agents Toolkit Samples](https://github.com/OfficeDev/TeamsFx-Samples)

@@ -109,7 +109,7 @@ You can follow [Build an AI Agent in Teams](https://aka.ms/teamsfx-ai-agent) to 
 - [Add functions](https://aka.ms/teamsfx-ai-agent#add-functions-with-assistants-api)
 
 ## Additional information and references
-- [Teams AI library V2](https://aka.ms/teams-ai-library-v2)
+- [Teams AI library](https://aka.ms/teams-ai-library)
 - [Microsoft 365 Agents Toolkit Documentations](https://docs.microsoft.com/microsoftteams/platform/toolkit/teams-toolkit-fundamentals)
 - [Microsoft 365 Agents Toolkit CLI](https://aka.ms/teamsfx-toolkit-cli)
 - [Microsoft 365 Agents Toolkit Samples](https://github.com/OfficeDev/TeamsFx-Samples)
