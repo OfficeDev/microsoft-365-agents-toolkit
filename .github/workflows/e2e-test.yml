@@ -226,7 +226,7 @@ jobs:
 
       - name: Setup project
         run: |
-          pnpm install
+          pnpm install --filter ./packages/cli --filter ./templates
           npm run build:e2e
 
       - name: install cli with specific version
