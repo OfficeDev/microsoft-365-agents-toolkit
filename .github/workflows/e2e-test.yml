@@ -77,7 +77,9 @@ jobs:
           subscription-id: ${{secrets.DEVOPS_SUB_ID}}
 
       - name: setup project
-        uses: ./.github/actions/setup-project
+        run: |
+          pnpm install
+          npm run build:e2e
 
       - name: List cases for schedule or pull request
         id: schedule-cases
@@ -226,7 +228,7 @@ jobs:
 
       - name: Setup project
         run: |
-          pnpm install --filter ./packages/cli --filter ./templates
+          pnpm install
           npm run build:e2e
 
       - name: install cli with specific version
