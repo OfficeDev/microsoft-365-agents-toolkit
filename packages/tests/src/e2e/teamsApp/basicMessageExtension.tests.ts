@@ -1,13 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 /**
- * @author Zhijie Huang <zhihuan@microsoft.com>, Ning Tang
+ * @author Ning Tang
  */
 
 import { it } from "@microsoft/extra-shot-mocha";
 import MockAzureAccountProvider from "@microsoft/m365agentstoolkit-cli/src/commonlib/azureLoginUserPassword";
 import { AzureScopes, environmentNameManager } from "@microsoft/teamsfx-core";
-import axios from "axios";
 import { assert } from "chai";
 import fs from "fs-extra";
 import path from "path";
@@ -28,9 +27,16 @@ import {
   getUniqueAppName,
   readContextMultiEnvV3,
 } from "../commonUtils";
-import { deleteTeamsApp, getTeamsApp } from "../debug/utility";
+import {
+  deleteAadAppByClientId,
+  deleteBot,
+  deleteTeamsApp,
+  getAadAppByClientId,
+  getBot,
+  getTeamsApp,
+} from "../debug/utility";
 
-describe("Basic Tab", function () {
+describe("Basic Message Extension", function () {
   const testFolder = getTestFolder();
   const subscription = getSubscriptionId();
   const appName = getUniqueAppName();
@@ -38,11 +44,15 @@ describe("Basic Tab", function () {
   const projectPath = path.resolve(testFolder, appName);
   const envName = environmentNameManager.getDefaultEnvName();
 
-  afterEach(async () => {
+  after(async () => {
     // clean up
     let context = await readContextMultiEnvV3(projectPath, "local");
     if (context?.TEAMS_APP_ID) {
       await deleteTeamsApp(context.TEAMS_APP_ID);
+    }
+    if (context?.BOT_ID) {
+      await deleteBot(context.BOT_ID);
+      await deleteAadAppByClientId(context.BOT_ID);
     }
 
     context = await readContextMultiEnvV3(projectPath, "dev");
@@ -56,7 +66,7 @@ describe("Basic Tab", function () {
   it(
     "typescript template",
     {
-      testPlanCaseId: 24137515,
+      testPlanCaseId: 17449538,
       author: "Ning.Tang@microsoft.com",
     },
     async function () {
@@ -64,7 +74,7 @@ describe("Basic Tab", function () {
       await CliHelper.createProjectWithCapability(
         appName,
         testFolder,
-        Capability.TabNonSso,
+        Capability.MessageExtension,
         process.env,
         `--programming-language typescript`
       );
@@ -76,7 +86,11 @@ describe("Basic Tab", function () {
       });
 
       // Local Debug (Provision)
-      await CliHelper.provisionProject(projectPath, "", "local");
+      await CliHelper.provisionProject(projectPath, "", "local", {
+        ...process.env,
+        BOT_DOMAIN: "test.ngrok.io",
+        BOT_ENDPOINT: "https://test.ngrok.io",
+      });
       console.log(`[Successfully] provision for ${projectPath}`);
 
       let context = await readContextMultiEnvV3(projectPath, "local");
@@ -90,14 +104,18 @@ describe("Basic Tab", function () {
       const teamsApp = await getTeamsApp(context.TEAMS_APP_ID);
       assert.equal(teamsApp?.teamsAppId, context.TEAMS_APP_ID);
 
-      // validate m365
-      assert.isDefined(
-        context.M365_TITLE_ID,
-        "m365 title id should be defined"
+      // validate bot
+      assert.isDefined(context.BOT_ID);
+      assert.isNotEmpty(context.BOT_ID);
+      const aadApp = await getAadAppByClientId(context.BOT_ID);
+      assert.isDefined(aadApp);
+      assert.equal(aadApp?.appId, context.BOT_ID);
+      const bot = await getBot(context.BOT_ID);
+      assert.equal(bot?.botId, context.BOT_ID);
+      assert.equal(
+        bot?.messagingEndpoint,
+        "https://test.ngrok.io/api/messages"
       );
-      assert.isNotEmpty(context.M365_TITLE_ID);
-      assert.isDefined(context.M365_APP_ID, "m365 app id should be defined");
-      assert.isNotEmpty(context.M365_APP_ID);
 
       // Local Debug (Deploy)
       await CliHelper.deployAll(projectPath, "", "local");
@@ -105,12 +123,6 @@ describe("Basic Tab", function () {
 
       context = await readContextMultiEnvV3(projectPath, "local");
       assert.isDefined(context);
-
-      // validate ssl cert
-      assert.isDefined(context.SSL_CRT_FILE, "ssl cert should be defined");
-      assert.isNotEmpty(context.SSL_CRT_FILE);
-      assert.isDefined(context.SSL_KEY_FILE, "ssl key should be defined");
-      assert.isNotEmpty(context.SSL_KEY_FILE);
 
       // validate .localConfigs
       assert.isTrue(
@@ -133,17 +145,13 @@ describe("Basic Tab", function () {
       context = await readContextMultiEnvV3(projectPath, envName);
       assert.exists(context, "env file should exist");
 
-      // validate m365
-      assert.isDefined(
-        context.M365_TITLE_ID,
-        "m365 title id should be defined"
-      );
-      assert.isNotEmpty(context.M365_TITLE_ID);
-      assert.isDefined(context.M365_APP_ID, "m365 app id should be defined");
-      assert.isNotEmpty(context.M365_APP_ID);
+      // validate teams app
+      assert.isDefined(context.TEAMS_APP_ID);
+      const remoteTeamsApp = await getTeamsApp(context.TEAMS_APP_ID);
+      assert.equal(remoteTeamsApp?.teamsAppId, context.TEAMS_APP_ID);
 
       const appServiceResourceId =
-        context[EnvConstants.TAB_AZURE_APP_SERVICE_RESOURCE_ID];
+        context[EnvConstants.BOT_AZURE_APP_SERVICE_RESOURCE_ID];
       assert.exists(
         appServiceResourceId,
         "Azure App Service resource ID should exist"
@@ -163,8 +171,8 @@ describe("Basic Tab", function () {
       assert.exists(response, "Web app settings should exist");
       assert.equal(
         response["WEBSITE_NODE_DEFAULT_VERSION"],
-        "~22",
-        "Node version should be 22"
+        "~20",
+        "Node version should be 20"
       );
       assert.equal(
         response["WEBSITE_RUN_FROM_PACKAGE"],
@@ -183,17 +191,6 @@ describe("Basic Tab", function () {
       // Validate Deploy
       context = await readContextMultiEnvV3(projectPath, envName);
       assert.exists(context, "env file should exist");
-
-      const endpoint = context[EnvConstants.TAB_ENDPOINT];
-      assert.exists(endpoint, "Tab endpoint should exist");
-
-      const axiosInstance = axios.create();
-      try {
-        const response = await axiosInstance.get(endpoint);
-        assert.equal(response.status, 200, "tab endpoint is not reachable");
-      } catch (e) {
-        assert.fail(JSON.stringify(e));
-      }
     }
   );
 });

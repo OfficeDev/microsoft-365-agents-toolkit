@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 
 /**
- * @author Kuojian Lu <kuojianlu@microsoft.com>
+ * @author Yuqi Zhou <yuqzho@microsoft.com>
  */
 
 import * as chai from "chai";
@@ -15,19 +15,16 @@ import { CliHelper } from "../../commonlib/cliHelper";
 import { Capability } from "../../utils/constants";
 import {
   cleanUpLocalProject,
-  createResourceGroup,
-  deleteResourceGroupByName,
   getTestFolder,
   getUniqueAppName,
   readContextMultiEnvV3,
 } from "../commonUtils";
 import { deleteTeamsApp, getTeamsApp } from "../debug/utility";
 
-describe("Deploy V3 m365-message-extension template", () => {
+describe("Provision V3 api-based-message-extension api-spec template", () => {
   const testFolder = getTestFolder();
   const appName = getUniqueAppName();
   const projectPath = path.resolve(testFolder, appName);
-  const resourceGroupName = `${appName}-rg`;
 
   afterEach(async function () {
     // clean up
@@ -35,35 +32,33 @@ describe("Deploy V3 m365-message-extension template", () => {
     if (context?.TEAMS_APP_ID) {
       await deleteTeamsApp(context.TEAMS_APP_ID);
     }
-    await deleteResourceGroupByName(resourceGroupName);
+
     await cleanUpLocalProject(projectPath);
   });
 
   it(
-    "happy path: provision and deploy",
-    { testPlanCaseId: 17449554, author: "kuojianlu@microsoft.com" },
+    "happy path: scaffold and provision",
+    { testPlanCaseId: 25284858, author: "yuqzho@microsoft.com" },
     async function () {
+      const apiSpecPath = path.join(__dirname, "../", "testApiSpec.yml");
       // create
       await CliHelper.createProjectWithCapability(
         appName,
         testFolder,
-        Capability.MessageExtension,
+        Capability.M365SearchApp,
         undefined,
-        "--me-architecture bot"
+        `--me-architecture api-spec --openapi-spec-location ${apiSpecPath} --api-operation "GET /repairs"`
       );
       console.log(`[Successfully] scaffold to ${projectPath}`);
 
       // provision
-      const result = await createResourceGroup(resourceGroupName, "westus");
-      chai.assert.isTrue(result);
 
       await CliHelper.provisionProject(projectPath, "", "dev", {
         ...process.env,
-        AZURE_RESOURCE_GROUP_NAME: resourceGroupName,
       });
       console.log(`[Successfully] provision for ${projectPath}`);
 
-      let context = await readContextMultiEnvV3(projectPath, "dev");
+      const context = await readContextMultiEnvV3(projectPath, "dev");
       chai.assert.isDefined(context);
 
       // validate teams app
@@ -71,22 +66,11 @@ describe("Deploy V3 m365-message-extension template", () => {
       const teamsApp = await getTeamsApp(context.TEAMS_APP_ID);
       chai.assert.equal(teamsApp?.teamsAppId, context.TEAMS_APP_ID);
 
-      // validate bot id
-      chai.assert.isDefined(context.BOT_ID);
-      chai.assert.isNotEmpty(context.BOT_ID);
-
       // validate m365
       chai.assert.isDefined(context.M365_TITLE_ID);
       chai.assert.isNotEmpty(context.M365_TITLE_ID);
       chai.assert.isDefined(context.M365_APP_ID);
       chai.assert.isNotEmpty(context.M365_APP_ID);
-
-      // deploy
-      await CliHelper.deployAll(projectPath, "", "dev");
-      console.log(`[Successfully] deploy for ${projectPath}`);
-
-      context = await readContextMultiEnvV3(projectPath, "dev");
-      chai.assert.isDefined(context);
     }
   );
 });

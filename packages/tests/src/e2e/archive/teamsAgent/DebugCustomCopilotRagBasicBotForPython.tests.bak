@@ -12,13 +12,14 @@ import * as path from "path";
 
 import { it } from "@microsoft/extra-shot-mocha";
 
-import { CliHelper } from "../../commonlib/cliHelper";
+import { CliHelper } from "../../../commonlib/cliHelper";
+import { execAsync } from "../../../utils/commonUtils";
 import {
   cleanUpLocalProject,
   getTestFolder,
   getUniqueAppName,
   readContextMultiEnvV3,
-} from "../commonUtils";
+} from "../../commonUtils";
 import {
   deleteAadAppByClientId,
   deleteBot,
@@ -26,8 +27,7 @@ import {
   getAadAppByClientId,
   getBot,
   getTeamsApp,
-} from "./utility";
-import { execAsync } from "../../utils/commonUtils";
+} from "../../debug/utility";
 
 describe("Debug V3 command-and-response template", () => {
   const testFolder = getTestFolder();
@@ -50,12 +50,12 @@ describe("Debug V3 command-and-response template", () => {
 
   it(
     "Azure OpenAI happy path: provision and deploy",
-    { testPlanCaseId: 28957868, author: "frankqian@microsoft.com" },
+    { testPlanCaseId: 27551381, author: "frankqian@microsoft.com" },
     async function () {
       // create
       const myRecordAzOpenAI: Record<string, string> = {};
       myRecordAzOpenAI["programming-language"] = "python ";
-      myRecordAzOpenAI["custom-copilot-agent"] = "custom-copilot-agent-new";
+      myRecordAzOpenAI["custom-copilot-rag"] = "custom-copilot-rag-customize";
       myRecordAzOpenAI["llm-service"] = "llm-service-azure-openai";
       myRecordAzOpenAI["azure-openai-key"] = "fake";
       myRecordAzOpenAI["azure-openai-deployment-name"] = "fake";
@@ -66,7 +66,7 @@ describe("Debug V3 command-and-response template", () => {
       await CliHelper.createProjectWithCapability(
         appName,
         testFolder,
-        "custom-copilot-agent" as any,
+        "custom-copilot-rag" as any,
         undefined,
         options
       );
@@ -125,12 +125,12 @@ describe("Debug V3 command-and-response template", () => {
 
   it(
     "Azure OpenAI happy path: provision and deploy",
-    { testPlanCaseId: 27689383, author: "frankqian@microsoft.com" },
+    { testPlanCaseId: 27551384, author: "frankqian@microsoft.com" },
     async function () {
       // create
       const myRecordAzOpenAI: Record<string, string> = {};
       myRecordAzOpenAI["programming-language"] = "python ";
-      myRecordAzOpenAI["custom-copilot-agent"] = "custom-copilot-agent-new";
+      myRecordAzOpenAI["custom-copilot-rag"] = "custom-copilot-rag-customize";
       myRecordAzOpenAI["llm-service"] = "llm-service-openai";
       myRecordAzOpenAI["openai-key"] = "fake";
       const options = Object.entries(myRecordAzOpenAI)
@@ -139,7 +139,7 @@ describe("Debug V3 command-and-response template", () => {
       await CliHelper.createProjectWithCapability(
         appName,
         testFolder,
-        "custom-copilot-agent" as any,
+        "custom-copilot-rag" as any,
         undefined,
         options
       );
