@@ -1,6 +1,6 @@
 {
     "name": "templates",
-    "version": "6.0.0",
+    "version": "6.2.0-alpha",
     "private": "true",
     "license": "MIT",
     "vsversion": "18.0.0",
