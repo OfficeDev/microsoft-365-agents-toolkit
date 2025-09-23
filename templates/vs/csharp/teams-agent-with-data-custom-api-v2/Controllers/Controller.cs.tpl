@@ -1,4 +1,5 @@
-﻿using {{SafeProjectName}}.Models;
+﻿using {{SafeProjectName}}.Functions;
+using {{SafeProjectName}}.Models;
 using Microsoft.Teams.AI.Models.OpenAI;
 using Microsoft.Teams.Api.Activities;
 using Microsoft.Teams.Api.Activities.Invokes;
@@ -6,26 +7,31 @@ using Microsoft.Teams.Apps;
 using Microsoft.Teams.Apps.Activities;
 using Microsoft.Teams.Apps.Activities.Invokes;
 using Microsoft.Teams.Apps.Annotations;
+using Microsoft.Teams.AI;
+using Json.Schema;
 
 namespace {{SafeProjectName}}.Controllers
 {
     [TeamsController]
-    public class Controller(OpenAIChatPrompt _prompt)
+    public class Controller(OpenAIChatPrompt prompt, Handlers handlers)
     {
         [Message]
-        public async Task OnMessage(IContext<Microsoft.Teams.Api.Activities.MessageActivity> context)
+        public async Task OnMessage(IContext<Microsoft.Teams.Api.Activities.MessageActivity> context, [Context] IContext.Client client)
         {
             var state = State.From(context);
-            var text = context.Activity.text;
+
+            var text = context.Activity.Text;
+
+            // Replace with function definition code
+
             if (context.Activity.Conversation.IsGroup == true)
             {
-                var response = await _prompt.Send(text, new() { Messages = state.Messages }, null, context.CancellationToken);
+                var response = await prompt.Send(text, new() { Messages = state.Messages }, null, context.CancellationToken);
                 await context.Send(new Microsoft.Teams.Api.Activities.MessageActivity(response.Content).AddFeedback().AddAIGenerated());
             }
             else
             {
-
-                await _prompt.Send(text, new() { Messages = state.Messages }, (chunk) => Task.Run(() =>
+                await prompt.Send(text, new() { Messages = state.Messages }, (chunk) => Task.Run(() =>
                 {
                     context.Stream.Emit(chunk);
                 }), context.CancellationToken);

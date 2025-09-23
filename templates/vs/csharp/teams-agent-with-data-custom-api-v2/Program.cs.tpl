@@ -1,5 +1,6 @@
 using {{SafeProjectName}};
 using {{SafeProjectName}}.Controllers;
+using {{SafeProjectName}}.Functions;
 using Azure.Core;
 using Azure.Identity;
 using Microsoft.Teams.AI.Models.OpenAI;
@@ -10,9 +11,15 @@ using Microsoft.Teams.Apps;
 using Microsoft.Teams.Apps.Extensions;
 using Microsoft.Teams.Common.Http;
 using Microsoft.Teams.Plugins.AspNetCore.Extensions;
+using OpenAPIClient;
 
 var builder = WebApplication.CreateBuilder(args);
 var config = builder.Configuration.Get<ConfigOptions>();
+
+if (config == null)
+{
+    throw new InvalidOperationException("Missing configuration for ConfigOptions");
+}
 
 Func<string[], string?, Task<ITokenResponse>> createTokenFactory = async (string[] scopes, string? tenantId) =>
 {
@@ -41,7 +48,14 @@ if (config.Teams.BotType == "UserAssignedMsi")
     ));
 }
 
+
 builder.Services.AddSingleton<Controller>();
+
+APIClient apiClient = new("{{OPENAPI_SPEC_PATH}}");
+builder.Services.AddSingleton(apiClient);
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddSingleton<Handlers>();
+
 builder.AddTeams(appBuilder);
 
 // Read instructions from file

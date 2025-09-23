@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFramework>{{TargetFramework}}</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
 {{^isNewProjectTypeEnabled}}
@@ -26,8 +27,6 @@
     <PackageReference Include="Microsoft.OpenApi" Version="1.6.19" />
     <PackageReference Include="Microsoft.OpenApi.Readers" Version="1.6.19" />
     <PackageReference Include="RestSharp" Version="112.0.0" />
-    <PackageReference Include="System.Text.Json" Version="8.0.5" />
-    <PackageReference Include="Azure.Identity" Version="1.13.1" />
     <PackageReference Include="Microsoft.Teams.Api" Version="2.0.*" />
     <PackageReference Include="Microsoft.Teams.Apps" Version="2.0.*" />
     <PackageReference Include="Microsoft.Teams.Plugins.AspNetCore" Version="2.0.*" />
@@ -38,6 +37,7 @@
     <Content Include="Prompts\instructions.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
     <Content Remove="apiSpecificationFile\{{OPENAPI_SPEC_PATH}}" />
     <Content Include="apiSpecificationFile\{{OPENAPI_SPEC_PATH}}">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

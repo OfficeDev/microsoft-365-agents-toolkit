@@ -57,7 +57,6 @@ namespace {{SafeProjectName}}.Controllers
                     await context.Send(welcomeText);
                 }
             }
-
         }
     }
 }
