@@ -87,7 +87,6 @@ jobs:
           cases=`find . -wholename "*.tests.ts" | jq -Rsc '[split("\n") | .[]| select(.!="")]'`
           echo "cases=$cases" >> $GITHUB_OUTPUT
 
-
       - name: List cases for pull request
         id: pr-cases
         if: ${{  github.event_name == 'pull_request' }}
@@ -189,50 +188,46 @@ jobs:
         with:
           node-version: 22
 
-      - name: Setup node for SPFx project
-        if: contains(matrix.cases, 'SPFx')
-        uses: actions/setup-node@v3
-        with:
-          node-version: 22
-
       - name: Setup node for Retail project
         if: contains(matrix.cases, 'Retail')
         uses: actions/setup-node@v3
         with:
           node-version: 18
 
-      - name: Setup Azure Functions Core Tools For Linux
-        run: |
-          curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg
-          sudo mv microsoft.gpg /etc/apt/trusted.gpg.d/microsoft.gpg
-          sudo sh -c 'echo "deb [arch=amd64] https://packages.microsoft.com/repos/microsoft-ubuntu-$(lsb_release -cs)-prod $(lsb_release -cs) main" > /etc/apt/sources.list.d/dotnetdev.list'
-          sudo apt-get update
-          # sudo apt-get install azure-functions-core-tools-4
-          # As a temporary solution
-          sudo apt-get remove azure-functions-core-tools-4
-          rm -rf /usr/lib/azure-functions-core-tools-4
-          npm i -g azure-functions-core-tools@4
-          which func
-          func --version
-        timeout-minutes: 5
+      # Azure Function is not used in templates now
+      # - name: Setup Azure Functions Core Tools For Linux
+      #   run: |
+      #     curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg
+      #     sudo mv microsoft.gpg /etc/apt/trusted.gpg.d/microsoft.gpg
+      #     sudo sh -c 'echo "deb [arch=amd64] https://packages.microsoft.com/repos/microsoft-ubuntu-$(lsb_release -cs)-prod $(lsb_release -cs) main" > /etc/apt/sources.list.d/dotnetdev.list'
+      #     sudo apt-get update
+      #     # sudo apt-get install azure-functions-core-tools-4
+      #     # As a temporary solution
+      #     sudo apt-get remove azure-functions-core-tools-4
+      #     rm -rf /usr/lib/azure-functions-core-tools-4
+      #     npm i -g azure-functions-core-tools@4
+      #     which func
+      #     func --version
+      #   timeout-minutes: 5
 
       - name: Setup .net
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: |
-            6.0.x
             8.0.x
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
+      # Python is not used in templates now
+      # - name: Setup Python
+      #   uses: actions/setup-python@v5
+      #   with:
+      #     python-version: '3.11'
 
       - uses: pnpm/action-setup@v4
 
       - name: Setup project
         run: |
-          npm run setup
+          pnpm install
+          npm run build:e2e
 
       - name: install cli with specific version
         if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.cli-version != '' }}

@@ -7,6 +7,7 @@
     "setup": "pnpm install && npm run build",
     "watch": "pnpm --parallel -r run watch",
     "build": "pnpm -r run build",
+    "build:e2e": "pnpm --filter @microsoft/teamsfx-test... build",
     "precommit": "lint-staged",
     "clean": "pnpm -r exec rimraf node_modules",
     "prepare": "husky install"
