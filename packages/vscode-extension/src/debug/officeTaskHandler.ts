@@ -59,13 +59,15 @@ function isDebugPreLaunchTask(task: vscode.Task): boolean {
     // Debug: Excel Desktop
     if (task.execution && <vscode.ShellExecution>task.execution) {
       const execution = <vscode.ShellExecution>task.execution;
-      const commandLine =
-        execution.commandLine ||
-        `${typeof execution.command === "string" ? execution.command : execution.command.value} ${(
-          execution.args || []
-        ).join(" ")}`;
-      if (/npm[\s]+run[\s]+start:desktop -- --app (word|excel|powerpoint)/i.test(commandLine)) {
-        return true;
+      if (execution.command) {
+        const commandLine =
+          execution.commandLine ||
+          `${
+            typeof execution.command === "string" ? execution.command : execution.command.value
+          } ${(execution.args || []).join(" ")}`;
+        if (/npm[\s]+run[\s]+start:desktop -- --app (word|excel|powerpoint)/i.test(commandLine)) {
+          return true;
+        }
       }
     }
   }
