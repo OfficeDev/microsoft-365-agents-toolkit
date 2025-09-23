@@ -86,12 +86,12 @@ export async function updateActionWithMCP(args?: any[]): Promise<Result<any, FxE
   inputs[QuestionNames.MCPForDAServerName] = mcpName;
   const allMcpTools = vscode.lm.tools;
   const tools = allMcpTools
-    .filter((tool: any) => (tool.name as string).includes(`mcp_${mcpName as string}`))
-    .map((tool: any) => {
+    .filter((tool: vscode.LanguageModelToolInformation) =>
+      tool.name.includes(`mcp_${mcpName as string}`)
+    )
+    .map((tool: vscode.LanguageModelToolInformation) => {
       const index = tool.name.indexOf(mcpName);
-      const newName = (tool.name as string).substring(
-        (index as number) + (mcpName as string).length + 1
-      );
+      const newName = tool.name.substring(index + (mcpName as string).length + 1);
       return {
         name: newName,
         description: tool.description,

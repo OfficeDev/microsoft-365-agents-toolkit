@@ -3157,6 +3157,7 @@ export class FxCore {
         }
       });
     await fs.writeJSON(aiPluginFilePath, aiPluginContent, { spaces: 4 });
+    void context.userInteraction.openFile?.(aiPluginFilePath);
     return ok(undefined);
   }
 

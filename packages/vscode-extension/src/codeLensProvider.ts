@@ -969,7 +969,8 @@ export class WorkspaceMCPConfigCodeLensProvider implements vscode.CodeLensProvid
         return codeLenses;
       }
       json = parser.getNodeValue(jsonNode);
-    } catch {
+    } catch (e) {
+      console.error("Error parsing JSON in CodeLensProvider (MCP Fetcher):", e);
       return codeLenses;
     }
     if (!json.servers || typeof json.servers !== "object") {
@@ -978,11 +979,16 @@ export class WorkspaceMCPConfigCodeLensProvider implements vscode.CodeLensProvid
     // For each server, add a codelens at the line where the server key appears
     for (const [serverName, serverConfig] of Object.entries(json.servers)) {
       // Find the line number for the server key
-      const regex = new RegExp(`"${serverName}"\s*:`);
+      const regex = new RegExp(`"${serverName}"`);
       const match = regex.exec(text);
       if (match) {
         const pos = document.positionAt(match.index);
-        const range = new vscode.Range(pos.line, pos.character, pos.line, pos.character);
+        const range = new vscode.Range(
+          pos.line,
+          pos.character,
+          pos.line,
+          pos.character + serverName.length + 2
+        );
         const command: vscode.Command = {
           title: `⚡ ATK: Fetch action from MCP`,
           command: "fx-extension.updateActionWithMCP",
