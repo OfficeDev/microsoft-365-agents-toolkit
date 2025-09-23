@@ -77,9 +77,9 @@ jobs:
           subscription-id: ${{secrets.DEVOPS_SUB_ID}}
 
       - name: setup project
-        run: |
-          pnpm install
-          npm run build:e2e
+        uses: ./.github/actions/setup-project
+        with:
+          range: "e2e"
 
       - name: List cases for schedule or pull request
         id: schedule-cases
@@ -228,8 +228,7 @@ jobs:
 
       - name: Setup project
         run: |
-          pnpm install
-          npm run build:e2e
+          npm run setup:e2e
 
       - name: install cli with specific version
         if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.cli-version != '' }}
