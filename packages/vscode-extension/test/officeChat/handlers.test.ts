@@ -44,10 +44,10 @@ describe("File: officeChat/handlers.ts", () => {
         prompt: "test",
         command: OfficeChatCommand.Create,
         references: [],
-        location: 1,
-        attempt: 0,
-        enableCommandDetection: false,
-      } as vscode.ChatRequest;
+        toolReferences: [],
+        toolInvocationToken: 0,
+        model: { name: "gpt-4o" },
+      } as unknown as vscode.ChatRequest;
       const officeCreateCommandHandlerStub = sandbox.stub(officeCreateCommandHandler, "default");
       handler.officeChatRequestHandler(
         request,
@@ -63,10 +63,13 @@ describe("File: officeChat/handlers.ts", () => {
         prompt: "test",
         command: OfficeChatCommand.GenerateCode,
         references: [],
+        toolReferences: [],
+        toolInvocationToken: 0,
+        model: { name: "gpt-4o" },
         location: 1,
         attempt: 0,
         enableCommandDetection: false,
-      } as vscode.ChatRequest;
+      } as unknown as vscode.ChatRequest;
       const generatecodeCommandHandlerStub = sandbox.stub(generatecodeCommandHandler, "default");
       handler.officeChatRequestHandler(
         request,
@@ -82,10 +85,13 @@ describe("File: officeChat/handlers.ts", () => {
         prompt: "test",
         command: OfficeChatCommand.NextStep,
         references: [],
+        toolReferences: [],
+        toolInvocationToken: 0,
+        model: { name: "gpt-4o" },
         location: 1,
         attempt: 0,
         enableCommandDetection: false,
-      } as vscode.ChatRequest;
+      } as unknown as vscode.ChatRequest;
       const officeNextStepCommandHandlerStub = sandbox.stub(
         officeNextStepCommandHandler,
         "default"
@@ -104,10 +110,13 @@ describe("File: officeChat/handlers.ts", () => {
         prompt: "test",
         command: "",
         references: [],
+        toolReferences: [],
+        toolInvocationToken: 0,
+        model: { name: "gpt-4o" },
         location: 1,
         attempt: 0,
         enableCommandDetection: false,
-      } as vscode.ChatRequest;
+      } as unknown as vscode.ChatRequest;
       const officeChatTelemetryDataMock = sandbox.createStubInstance(OfficeChatTelemetryData);
       sandbox.stub(officeChatTelemetryDataMock, "properties").get(function getterFn() {
         return undefined;
@@ -135,10 +144,13 @@ describe("File: officeChat/handlers.ts", () => {
         prompt: "",
         command: "",
         references: [],
+        toolReferences: [],
+        toolInvocationToken: 0,
+        model: { name: "gpt-4o" },
         location: 1,
         attempt: 0,
         enableCommandDetection: false,
-      } as vscode.ChatRequest;
+      } as unknown as vscode.ChatRequest;
       const officeChatTelemetryDataMock = sandbox.createStubInstance(OfficeChatTelemetryData);
       sandbox.stub(officeChatTelemetryDataMock, "properties").get(function getterFn() {
         return undefined;
