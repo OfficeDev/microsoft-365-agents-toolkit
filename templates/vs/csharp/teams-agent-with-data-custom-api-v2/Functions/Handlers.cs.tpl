@@ -24,7 +24,7 @@ namespace {{SafeProjectName}}.Functions
             return requestParam;
         }
 
-        private static string RenderCardToMessage(string cardTemplatePath, string data)
+        private static string RenderCard(string cardTemplatePath, string data)
         {
             try
             {

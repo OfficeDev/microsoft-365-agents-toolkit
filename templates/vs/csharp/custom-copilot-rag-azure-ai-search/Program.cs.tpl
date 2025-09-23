@@ -14,6 +14,11 @@ using Microsoft.Teams.Plugins.AspNetCore.Extensions;
 var builder = WebApplication.CreateBuilder(args);
 var config = builder.Configuration.Get<ConfigOptions>();
 
+if (config == null)
+{
+    throw new InvalidOperationException("Missing configuration for ConfigOptions");
+}
+
 Func<string[], string?, Task<ITokenResponse>> createTokenFactory = async (string[] scopes, string? tenantId) =>
 {
     var clientId = config.Teams.ClientId;

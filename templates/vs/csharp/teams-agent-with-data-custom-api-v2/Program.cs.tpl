@@ -11,9 +11,15 @@ using Microsoft.Teams.Apps;
 using Microsoft.Teams.Apps.Extensions;
 using Microsoft.Teams.Common.Http;
 using Microsoft.Teams.Plugins.AspNetCore.Extensions;
+using OpenAPIClient;
 
 var builder = WebApplication.CreateBuilder(args);
 var config = builder.Configuration.Get<ConfigOptions>();
+
+if (config == null)
+{
+    throw new InvalidOperationException("Missing configuration for ConfigOptions");
+}
 
 Func<string[], string?, Task<ITokenResponse>> createTokenFactory = async (string[] scopes, string? tenantId) =>
 {

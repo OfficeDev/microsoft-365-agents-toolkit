@@ -1,4 +1,5 @@
 ﻿using {{SafeProjectName}}.Models;
+using {{SafeProjectName}}.Utils;
 using Microsoft.Teams.AI.Models.OpenAI;
 using Microsoft.Teams.Api.Activities;
 using Microsoft.Teams.Api.Activities.Invokes;

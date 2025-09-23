@@ -37,6 +37,7 @@
     <Content Include="Prompts\instructions.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
     <Content Remove="apiSpecificationFile\{{OPENAPI_SPEC_PATH}}" />
     <Content Include="apiSpecificationFile\{{OPENAPI_SPEC_PATH}}">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
