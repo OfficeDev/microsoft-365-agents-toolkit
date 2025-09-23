@@ -197,20 +197,21 @@ jobs:
           node-version: 18
 
       # Azure Function is not used in templates now
-      # - name: Setup Azure Functions Core Tools For Linux
-      #   run: |
-      #     curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg
-      #     sudo mv microsoft.gpg /etc/apt/trusted.gpg.d/microsoft.gpg
-      #     sudo sh -c 'echo "deb [arch=amd64] https://packages.microsoft.com/repos/microsoft-ubuntu-$(lsb_release -cs)-prod $(lsb_release -cs) main" > /etc/apt/sources.list.d/dotnetdev.list'
-      #     sudo apt-get update
-      #     # sudo apt-get install azure-functions-core-tools-4
-      #     # As a temporary solution
-      #     sudo apt-get remove azure-functions-core-tools-4
-      #     rm -rf /usr/lib/azure-functions-core-tools-4
-      #     npm i -g azure-functions-core-tools@4
-      #     which func
-      #     func --version
-      #   timeout-minutes: 5
+      - name: Setup Azure Functions Core Tools For Linux
+        if: contains(matrix.cases, 'samples')
+        run: |
+          curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg
+          sudo mv microsoft.gpg /etc/apt/trusted.gpg.d/microsoft.gpg
+          sudo sh -c 'echo "deb [arch=amd64] https://packages.microsoft.com/repos/microsoft-ubuntu-$(lsb_release -cs)-prod $(lsb_release -cs) main" > /etc/apt/sources.list.d/dotnetdev.list'
+          sudo apt-get update
+          # sudo apt-get install azure-functions-core-tools-4
+          # As a temporary solution
+          sudo apt-get remove azure-functions-core-tools-4
+          rm -rf /usr/lib/azure-functions-core-tools-4
+          npm i -g azure-functions-core-tools@4
+          which func
+          func --version
+        timeout-minutes: 5
 
       - name: Setup .net
         uses: actions/setup-dotnet@v3
@@ -219,10 +220,11 @@ jobs:
             8.0.x
 
       # Python is not used in templates now
-      # - name: Setup Python
-      #   uses: actions/setup-python@v5
-      #   with:
-      #     python-version: '3.11'
+      - name: Setup Python
+        if: contains(matrix.cases, 'samples')
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
 
       - uses: pnpm/action-setup@v4
 
