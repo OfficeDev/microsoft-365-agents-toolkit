@@ -180,7 +180,7 @@ export class AzureAccountManager extends login implements AzureAccountProvider {
     if (authenticationSessionRequest && authenticationSessionRequest.wwwAuthenticate) {
       const claimsChallenge = parseChallenges(authenticationSessionRequest.wwwAuthenticate).claims;
       CLILogProvider.warning(
-        `Run the command below to authenticate interactively; additional arguments may be added as needed:\n atk auth logout azure\n atk auth login --claims-challenge ${claimsChallenge}`
+        `Run the command below to authenticate interactively; additional arguments may be added as needed:\n atk auth login --claims-challenge ${claimsChallenge}`
       );
       throw new MFARequiredError(cliSource);
     }
@@ -254,7 +254,8 @@ export class AzureAccountManager extends login implements AzureAccountProvider {
 
   async getJsonObject(
     showDialog = true,
-    tenantId?: string
+    tenantId?: string,
+    claimsChallenge?: string
   ): Promise<Record<string, unknown> | undefined> {
     const token = await AzureAccountManager.codeFlowInstance.getTokenByScopes(
       AzureScopes,
