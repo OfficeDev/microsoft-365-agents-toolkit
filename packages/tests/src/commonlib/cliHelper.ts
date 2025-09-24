@@ -59,7 +59,7 @@ export class CliHelper {
     processEnv?: NodeJS.ProcessEnv
   ) {
     const result = await execAsyncWithRetry(
-      `atk provision --env ${env} --interactive false --verbose ${option}`,
+      `atk auth login azure --interactive false --service-principal -u ${env.AZURE_CLIENT_ID} -p "${env.AZURE_CLIENT_SECRET}" --tenant "${env.AZURE_TENANT_ID}" && atk provision --env ${env} --interactive false --verbose ${option}`,
       {
         cwd: projectPath,
         env: processEnv ? processEnv : process.env,
