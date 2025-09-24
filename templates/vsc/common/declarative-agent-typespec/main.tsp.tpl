@@ -2,10 +2,9 @@ import "@typespec/http";
 import "@typespec/openapi3";
 import "@microsoft/typespec-m365-copilot";
 import "./actions.tsp";
+import "./variables.tsp";
 
-using TypeSpec.Http;
 using TypeSpec.M365.Copilot.Agents;
-using TypeSpec.M365.Copilot.Actions;
 
 @agent(
   "{{appName}}",
@@ -24,11 +23,5 @@ using TypeSpec.M365.Copilot.Actions;
 // })
 
 namespace {{appName}} {  
-  // Uncomment this part to add actions to the agent.
-  // @service
-  // @server(global.GitHubAPI.SERVER_URL)
-  // @actions(global.GitHubAPI.ACTIONS_METADATA)
-  // namespace GitHubAPIActions {
-  //   op searchIssues is global.GitHubAPI.searchIssues;
-  // }
+  // op searchIssues is global.GitHubAPI.searchIssues;
 }

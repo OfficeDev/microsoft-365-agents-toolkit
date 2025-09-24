@@ -22,7 +22,7 @@ namespace GitHubAPI {
   /**
    * The base URL for the GitHub API.
    */
-  const SERVER_URL = "https://api.github.com";
+  const SERVER_URL = global.GITHUB_API_URL;
 
   /**
    * Search open issues from GitHub repositories.

@@ -14,3 +14,5 @@ node_modules/
 
 # generated files
 appPackage/.generated
+# generated variables
+variables.tsp
