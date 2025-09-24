@@ -194,9 +194,9 @@ jobs:
       M365_USERNAME_3: "test03@atktesting.onmicrosoft.com"
       M365_USERNAME_4: "test04@atktesting.onmicrosoft.com"
       M365_USERNAME_5: "test05@atktesting.onmicrosoft.com"
-      M365_DISPLAY_NAME: "ttktest"
+      M365_DISPLAY_NAME: "atktest"
       M365_TENANT_ID: ${{ secrets.TEST_CLEAN_TENANT_ID_NEW }}
-      M365_COLLABORATOR: "haolong@xxbdw.onmicrosoft.com"
+      M365_COLLABORATOR: "admin@atktesting.onmicrosoft.com"
 
       AZURE_TENANT_ID: ${{ secrets.TEST_TENANT_ID }}
       AZURE_SUBSCRIPTION_ID: ${{ secrets.TEST_SUBSCRIPTION_ID }}
