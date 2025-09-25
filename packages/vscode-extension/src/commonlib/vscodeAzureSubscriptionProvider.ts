@@ -184,7 +184,7 @@ function formScopesArg(
       : Array.from(scopes?.scopes ?? []);
   const scopeList = getScopes(initialScopeList, tenantId);
   return isAuthenticationSessionRequest(scopes)
-    ? { fallbackScopes: scopeList, wwwAuthenticate: scopes.wwwAuthenticate }
+    ? { fallbackScopes: scopeList, scopes: scopeList, wwwAuthenticate: scopes.wwwAuthenticate }
     : scopeList;
 }
 
