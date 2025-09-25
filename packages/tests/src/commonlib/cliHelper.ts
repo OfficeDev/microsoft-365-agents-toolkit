@@ -58,9 +58,9 @@ export class CliHelper {
     env: "dev" | "local" = "dev",
     processEnv?: NodeJS.ProcessEnv
   ) {
-    const effectiveEnv = processEnv ?? process.env;
+    
     const result = await execAsyncWithRetry(
-      `atk auth login azure --interactive false --service-principal -u ${effectiveEnv.AZURE_ACCOUNT_OBJECT_ID} -p ${effectiveEnv.AZURE_CLIENT_SECRET} --tenant "${effectiveEnv.AZURE_TENANT_ID}" && atk provision --env ${env} --interactive false --verbose ${option}`,
+      `atk provision --env ${env} --interactive false --verbose ${option}`,
       {
         cwd: projectPath,
         env: processEnv ? processEnv : process.env,
