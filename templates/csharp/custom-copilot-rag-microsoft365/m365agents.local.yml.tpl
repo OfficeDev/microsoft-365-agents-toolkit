@@ -1,7 +1,7 @@
-# yaml-language-server: $schema=https://aka.ms/teams-toolkit/v1.8/yaml.schema.json
+# yaml-language-server: $schema=https://aka.ms/teams-toolkit/v1.11/yaml.schema.json
 # Visit https://aka.ms/teamsfx-v5.0-guide for details on this file
 # Visit https://aka.ms/teamsfx-actions for details on actions
-version: v1.8
+version: v1.11
 
 provision:
   - uses: aadApp/create # Creates a new Azure Active Directory (AAD) app to authenticate users if the environment variable that stores clientId is empty
@@ -33,6 +33,7 @@ provision:
       # The Microsoft Entra application's display name
       name: {{appName}}${{APP_NAME_SUFFIX}}
       generateClientSecret: true
+      generateServicePrincipal: true
       signInAudience: AzureADMultipleOrgs
     writeToEnvironmentFile:
       # The Microsoft Entra application's client id created for bot.
@@ -57,7 +58,8 @@ provision:
       target: ./appsettings.Development.json
 {{/isNewProjectTypeEnabled}}
       content:
-        BOT_TYPE: 'MultiTenant'
+        BOT_TENANT_ID: ${{TEAMS_APP_TENANT_ID}}
+        BOT_TYPE: 'SingleTenant'
         BOT_ID: ${{BOT_ID}}
         BOT_PASSWORD: ${{SECRET_BOT_PASSWORD}}
         BOT_DOMAIN: ${{BOT_DOMAIN}}
