@@ -61,6 +61,9 @@ export class CliHelper {
     const effectiveEnv = processEnv ?? process.env;
     console.log(`[Provision 1 ] processEnv count: ${Object.keys(effectiveEnv).length}`);
     console.log(`[Provision 1 ] processEnv ${effectiveEnv.AZURE_ACCOUNT_OBJECT_ID}`);
+    const clientSecret = effectiveEnv.AZURE_CLIENT_SECRET ?? "abcdefgh";
+    console.log(`[Provision 1 ] clientSecret prefix: ${clientSecret?.substring(0, 4)}`);
+    effectiveEnv.AZURE_CLIENT_SECRET = "TEST_CLIENT_SECRET";
     const result = await execAsyncWithRetry(
       `atk auth login azure --interactive false --service-principal -u ${effectiveEnv.AZURE_ACCOUNT_OBJECT_ID} -p ${effectiveEnv.AZURE_CLIENT_SECRET} --tenant "${effectiveEnv.AZURE_TENANT_ID}" &&  atk provision --env ${env} --interactive false --verbose ${option}`,
       {
