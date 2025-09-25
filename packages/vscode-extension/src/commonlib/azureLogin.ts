@@ -82,10 +82,13 @@ export class AzureAccountManager extends login implements AzureAccountProvider {
   /**
    * Async get identity [crendential](https://github.com/Azure/azure-sdk-for-js/blob/master/sdk/core/core-auth/src/tokenCredential.ts)
    */
-  async getIdentityCredentialAsync(showDialog = true): Promise<TokenCredential | undefined> {
+  async getIdentityCredentialAsync(
+    showDialog = true,
+    authenticationSessionRequest?: vscode.AuthenticationWwwAuthenticateRequest
+  ): Promise<TokenCredential | undefined> {
     const tenantId = await loadTenantId(azureCacheName);
     if (await this.isUserLogin(tenantId)) {
-      const res = await this.getIdentityCredentialSilently(tenantId);
+      const res = await this.getIdentityCredentialSilently(tenantId, authenticationSessionRequest);
       if (res.isOk()) {
         return res.value;
       } else {
@@ -177,7 +180,9 @@ export class AzureAccountManager extends login implements AzureAccountProvider {
     }
   }
 
-  private async doGetIdentityCredentialAsync(): Promise<TokenCredential | undefined> {
+  private async doGetIdentityCredentialAsync(
+    showDialog?: boolean
+  ): Promise<TokenCredential | undefined> {
     const tokenCredential = await this.doGetAccountCredentialAsync();
     if (tokenCredential) {
       return tokenCredential;
@@ -220,12 +225,19 @@ export class AzureAccountManager extends login implements AzureAccountProvider {
   }
 
   private async getIdentityCredentialSilently(
-    tenantId?: string
+    tenantId?: string,
+    authenticationSessionRequest?: vscode.AuthenticationWwwAuthenticateRequest
   ): Promise<Result<TokenCredential, FxError>> {
-    const session = await getSessionFromVSCode(AzureScopes, tenantId, {
-      createIfNone: false,
-      silent: true,
-    });
+    const session = await getSessionFromVSCode(
+      authenticationSessionRequest ?? AzureScopes,
+      tenantId,
+      authenticationSessionRequest
+        ? { createIfNone: true, silent: false }
+        : {
+            createIfNone: false,
+            silent: true,
+          }
+    );
     if (!session) {
       return err(LoginFailureError());
     }

@@ -8,6 +8,10 @@
   "private": true,
   "icon": "media/m365-agents-toolkit-color.png",
   "main": "./out/src/extension.js",
+  "enabledApiProposals": [
+    "authenticationChallenges",
+    "authLearnMore"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/OfficeDev/TeamsFx"
@@ -21,7 +25,7 @@
     ]
   },
   "engines": {
-    "vscode": "^1.93.0"
+    "vscode": "^1.105.0"
   },
   "license": "MIT",
   "keywords": [
@@ -1955,7 +1959,7 @@
     "@types/tmp": "^0.2.0",
     "@types/uuid": "^8.3.0",
     "@types/validator": "^13.1.1",
-    "@types/vscode": "^1.93.0",
+    "@types/vscode": "^1.104.0",
     "@typescript-eslint/eslint-plugin": "^5.0.0",
     "@typescript-eslint/parser": "^5.0.0",
     "@vitejs/plugin-react": "^4.3.1",

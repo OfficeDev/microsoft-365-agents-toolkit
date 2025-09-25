@@ -52,7 +52,7 @@ describe("CodeExplainer", () => {
 
       const model: LanguageModelChatMessage = {
         role: LanguageModelChatMessageRole.User,
-        content: "",
+        content: [{ value: "" }],
         name: undefined,
       };
 
