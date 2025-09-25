@@ -135,7 +135,7 @@ export class CliHelper {
   ) {
     const effectiveEnv = processEnv ?? process.env;
     const result = await execAsyncWithRetry(
-      `atk auth login azure --interactive false --service-principal -u ${effectiveEnv.AZURE_ACCOUNT_OBJECT_ID} -p ${effectiveEnv.AZURE_CLIENT_SECRET} --tenant "${effectiveEnv.AZURE_TENANT_ID}" && atk provision --env ${env} --interactive false --verbose ${option} --telemetry false`,
+      `atk auth login azure --interactive false --service-principal -u ${effectiveEnv.AZURE_ACCOUNT_OBJECT_ID} -p ${effectiveEnv.AZURE_CLIENT_SECRET} --tenant "${effectiveEnv.AZURE_TENANT_ID}" && az group list -o table && atk provision --env ${env} --interactive false --verbose ${option} --telemetry false`,
       {
         cwd: projectPath,
         env: effectiveEnv,
