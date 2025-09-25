@@ -7,7 +7,7 @@ import * as chai from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { AadCollaboration, TeamsCollaboration } from "../../../src/component/feature/collaboration";
 import { MockedLogProvider, MockedV2Context } from "../../plugins/solution/util";
-import { AadAppClient } from "../../../src/component/driver/aad/utility/aadAppClient";
+import { AadAppClient } from "../../../src/client/aadAppClient";
 import axios from "axios";
 import { AppUser } from "../../../src/component/driver/teamsApp/interfaces/appdefinitions/appUser";
 import { teamsDevPortalClient } from "../../../src/client/teamsDevPortalClient";
