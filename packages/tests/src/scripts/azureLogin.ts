@@ -76,7 +76,7 @@ const scopes = [
   "openid",
   "profile",
 ];
-const clientID = "aebc6443-996d-45c2-90f0-388ff96faa56";
+const clientID = "f50c23be-823a-4b0b-a1c2-d9c0aab43a04";
 const grantType = "password";
 //const tenentID = "72f988bf-86f1-41af-91ab-2d7cd011db47";
 const tenentID = "989179d1-c44d-4cf0-bb69-e911c27db18a";
