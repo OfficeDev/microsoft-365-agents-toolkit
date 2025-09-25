@@ -58,8 +58,10 @@ export class CliHelper {
     env: "dev" | "local" = "dev",
     processEnv?: NodeJS.ProcessEnv
   ) {
+    print(`AZURE_CLIENT_ID1: ${JSON.stringify(processEnv?.AZURE_CLIENT_ID)}`);
+    print(`AZURE_CLIENT_ID2: ${JSON.stringify(process?.env?.AZURE_CLIENT_ID)}`);
     const result = await execAsyncWithRetry(
-      `atk auth login azure --interactive false --service-principal -u ${env.AZURE_CLIENT_ID} -p "${env.AZURE_CLIENT_SECRET}" --tenant "${env.AZURE_TENANT_ID}" && atk provision --env ${env} --interactive false --verbose ${option}`,
+      `atk auth login azure --interactive false --service-principal -u ${env.AZURE_CLIENT_ID}  --tenant "${env.AZURE_TENANT_ID}" && atk provision --env ${env} --interactive false --verbose ${option}`,
       {
         cwd: projectPath,
         env: processEnv ? processEnv : process.env,
