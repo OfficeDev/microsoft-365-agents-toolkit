@@ -3,6 +3,8 @@
 # Visit https://aka.ms/teamsfx-actions for details on actions
 version: v1.9
 
+environmentFolderPath: ./env
+
 provision:
   # Creates an app
   - uses: teamsApp/create
@@ -80,3 +82,6 @@ deploy:
       envs:
         CLIENT_ID: ${{BOT_ID}}
         CLIENT_SECRET: ${{SECRET_BOT_PASSWORD}}
+        AOAI_ENDPOINT: ${{AOAI_ENDPOINT}}
+        AOAI_API_KEY: ${{AOAI_API_KEY}}
+        AOAI_MODEL: ${{AOAI_MODEL}}

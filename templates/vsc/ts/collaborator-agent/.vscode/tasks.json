@@ -145,7 +145,7 @@
                 "background": {
                     "activeOnStart": true,
                     "beginsPattern": "[nodemon] starting",
-                    "endsPattern": "app listening to|Bot/ME service listening at|[nodemon] app crashed"
+                    "endsPattern": "Collab Agent started on port"
                 }
             }
         },
@@ -279,7 +279,7 @@
                 "background": {
                     "activeOnStart": true,
                     "beginsPattern": "[nodemon] starting",
-                    "endsPattern": "app listening to|Bot/ME service listening at|[nodemon] app crashed"
+                    "endsPattern": "Collab Agent started on port"
                 }
             }
         },

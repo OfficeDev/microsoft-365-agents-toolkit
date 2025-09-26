@@ -22,3 +22,6 @@ deploy:
       target: ./.localConfigs.playground
       envs:
         TEAMSFX_NOTIFICATION_STORE_FILENAME: ${{TEAMSFX_NOTIFICATION_STORE_FILENAME}}
+        AOAI_ENDPOINT: ${{AOAI_ENDPOINT}}
+        AOAI_API_KEY: ${{AOAI_API_KEY}}
+        AOAI_MODEL: ${{AOAI_MODEL}}
