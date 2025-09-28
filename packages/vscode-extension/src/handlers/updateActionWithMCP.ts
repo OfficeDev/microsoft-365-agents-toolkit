@@ -132,6 +132,17 @@ export async function updateActionWithMCP(args?: any[]): Promise<Result<any, FxE
       }
     }
   }
+  if (auth === "OAuthPluginVault" && !oauthMetadataUrl) {
+    const originalURL = new URL(server);
+    const wellKnownURL = `${originalURL.protocol}//${originalURL.host}/.well-known/oauth-authorization-server`;
+    try {
+      const response = await axios.get(wellKnownURL);
+      if (response.status === 200) {
+        inputs[QuestionNames.MCPForDAAuthWellKnownUrl] = wellKnownURL;
+      }
+    } finally {
+    }
+  }
   inputs[QuestionNames.MCPForDAAuth] = auth;
   inputs[QuestionNames.MCPForDAAuthMetadataUrl] = oauthMetadataUrl;
   const result = await runCommand(Stage.updateActionWithMCP, inputs);
