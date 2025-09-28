@@ -14,15 +14,26 @@ export class MssqlKVStore implements IDatabase {
     if (this.isInitialized) return;
 
     try {
-      const sqlConfig: mssql.config = {
-        connectionString: this.config.connectionString,
-        options: {
-          encrypt: true,
-          trustServerCertificate: false,
-        },
-      };
+      // Use connection string directly or individual config properties
+      let sqlConfig: mssql.config;
 
-      this.pool = new mssql.ConnectionPool(sqlConfig);
+      if (this.config.connectionString) {
+        // When using connection string, pass it directly to ConnectionPool
+        this.pool = new mssql.ConnectionPool(this.config.connectionString);
+      } else {
+        // Use individual config properties
+        sqlConfig = {
+          server: this.config.server!,
+          database: this.config.database!,
+          user: this.config.username!,
+          password: this.config.password!,
+          options: {
+            encrypt: true,
+            trustServerCertificate: false,
+          },
+        };
+        this.pool = new mssql.ConnectionPool(sqlConfig);
+      }
       await this.pool.connect();
       await this.initializeDatabase();
       this.isInitialized = true;
