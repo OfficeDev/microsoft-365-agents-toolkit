@@ -1,24 +1,51 @@
+import { ManagedIdentityCredential } from "@azure/identity";
+import { TokenCredentials } from "@microsoft/teams.api";
 import { App } from "@microsoft/teams.apps";
 import { ConsoleLogger } from "@microsoft/teams.common";
 import { DevtoolsPlugin } from "@microsoft/teams.dev";
 import { ManagerPrompt } from "./agent/manager";
-import { SqliteKVStore } from "./storage/storage";
+import { IDatabase } from "./storage/database";
+import { StorageFactory } from "./storage/storageFactory";
 import { logModelConfigs, validateEnvironment } from "./utils/config";
 import { createMessageContext } from "./utils/messageContext";
 import { createMessageRecords, finalizePromptResponse } from "./utils/utils";
 
 const logger = new ConsoleLogger("collaborator", { level: "debug" });
 
+const createTokenFactory = () => {
+  return async (scope: string | string[], tenantId?: string): Promise<string> => {
+    const managedIdentityCredential = new ManagedIdentityCredential({
+      clientId: process.env.CLIENT_ID,
+    });
+    const scopes = Array.isArray(scope) ? scope : [scope];
+    const tokenResponse = await managedIdentityCredential.getToken(scopes, {
+      tenantId: tenantId,
+    });
+
+    return tokenResponse.token;
+  };
+};
+
+// Configure authentication using TokenCredentials
+const tokenCredentials: TokenCredentials = {
+  clientId: process.env.CLIENT_ID || "",
+  token: createTokenFactory(),
+};
+
+// Use managed identity in cloud environment, otherwise use devtools plugin for local development
+const options =
+  process.env.BOT_TYPE === "UserAssignedMsi"
+    ? { ...tokenCredentials }
+    : { plugins: [new DevtoolsPlugin()] };
+
 const app = new App({
-  plugins: [new DevtoolsPlugin()],
+  ...options,
   logger,
 });
 
 // Initialize storage
-const storage = new SqliteKVStore(logger.child("storage"));
-
-// Initialize feedback storage
-const feedbackStorage = storage;
+let storage: IDatabase;
+let feedbackStorage: IDatabase;
 
 app.on("message.submit.feedback", async ({ activity }) => {
   try {
@@ -29,7 +56,11 @@ app.on("message.submit.feedback", async ({ activity }) => {
       return;
     }
 
-    const success = feedbackStorage.recordFeedback(activity.replyToId, reaction, feedbackJson);
+    const success = await feedbackStorage.recordFeedback(
+      activity.replyToId,
+      reaction,
+      feedbackJson
+    );
 
     if (success) {
       logger.debug(`✅ Successfully recorded feedback for message ${activity.replyToId}`);
@@ -78,10 +109,16 @@ app.on("install.add", async ({ send }) => {
 });
 
 (async () => {
-  const port = +(process.env.PORT || 3978);
+  const port = process.env.PORT || process.env.port || 3978;
   try {
     validateEnvironment(logger);
     logModelConfigs(logger);
+
+    // Initialize storage
+    storage = await StorageFactory.createStorage(logger.child("storage"));
+    feedbackStorage = storage;
+
+    logger.debug("✅ Storage initialized successfully");
   } catch (error) {
     logger.error("❌ Configuration error:", error);
     process.exit(1);

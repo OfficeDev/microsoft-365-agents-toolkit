@@ -16,12 +16,11 @@ export interface ManagerResult {
 export class ManagerPrompt {
   private prompt: ChatPrompt;
 
-  constructor(private context: MessageContext, private logger: ILogger) {
-    this.prompt = this.createManagerPrompt();
-    this.addCapabilities();
-  }
+  private isInitialized = false;
 
-  private createManagerPrompt(): ChatPrompt {
+  constructor(private context: MessageContext, private logger: ILogger) {}
+
+  private async createManagerPrompt(): Promise<ChatPrompt> {
     const managerModelConfig = getModelConfig("manager");
     const prompt = new ChatPrompt({
       instructions: generateManagerPrompt(CAPABILITY_DEFINITIONS),
@@ -31,7 +30,7 @@ export class ManagerPrompt {
         endpoint: managerModelConfig.endpoint,
         apiVersion: managerModelConfig.apiVersion,
       }),
-      messages: this.context.memory.values(),
+      messages: await this.context.memory.values(),
     })
       .function(
         "calculate_time_range",
@@ -63,7 +62,7 @@ export class ManagerPrompt {
         "clear_conversation_history",
         "Clear conversation history in the database for the current conversation",
         async () => {
-          this.context.memory.clear();
+          await this.context.memory.clear();
           this.logger.debug("The conversation history has been cleared!");
         }
       );
@@ -83,8 +82,17 @@ export class ManagerPrompt {
     }
   }
 
+  private async initialize(): Promise<void> {
+    if (!this.isInitialized) {
+      this.prompt = await this.createManagerPrompt();
+      this.addCapabilities();
+      this.isInitialized = true;
+    }
+  }
+
   async processRequest(): Promise<ManagerResult> {
     try {
+      await this.initialize();
       const response = await this.prompt.send(this.context.text);
       return {
         response: response.content || "No response generated",

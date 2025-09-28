@@ -1,41 +1,46 @@
-import { MessageRecord, SqliteKVStore } from "./storage";
+import { IDatabase } from "./database";
+import { MessageRecord } from "./types";
 
 export class ConversationMemory {
-  constructor(private store: SqliteKVStore, private conversationId: string) {}
+  constructor(private store: IDatabase, private conversationId: string) {}
 
   async addMessages(messages: MessageRecord[]): Promise<void> {
     await this.store.addMessages(messages);
   }
 
-  values(): MessageRecord[] {
-    return this.store.get(this.conversationId) || [];
+  async values(): Promise<MessageRecord[]> {
+    const result = this.store.get(this.conversationId);
+    return Promise.resolve(result).then((messages) => messages || []);
   }
 
-  length(): number {
-    return this.store.countMessages(this.conversationId);
+  async length(): Promise<number> {
+    const result = this.store.countMessages(this.conversationId);
+    return Promise.resolve(result);
   }
 
-  clear() {
-    this.store.clearConversation(this.conversationId);
+  async clear(): Promise<void> {
+    await this.store.clearConversation(this.conversationId);
   }
 
-  getMessagesByTimeRange(startTime: string, endTime: string): MessageRecord[] {
-    return this.store.getMessagesByTimeRange(this.conversationId, startTime, endTime);
+  async getMessagesByTimeRange(startTime: string, endTime: string): Promise<MessageRecord[]> {
+    const result = this.store.getMessagesByTimeRange(this.conversationId, startTime, endTime);
+    return Promise.resolve(result);
   }
 
-  getRecentMessages(limit: number): MessageRecord[] {
-    return this.store.getRecentMessages(this.conversationId, limit);
+  async getRecentMessages(limit: number): Promise<MessageRecord[]> {
+    const result = this.store.getRecentMessages(this.conversationId, limit);
+    return Promise.resolve(result);
   }
 
-  getFilteredMessages(
+  async getFilteredMessages(
     conversationId: string,
     keywords: string[],
     startTime: string,
     endTime: string,
     participants?: string[],
     maxResults?: number
-  ): MessageRecord[] {
-    return this.store.getFilteredMessages(
+  ): Promise<MessageRecord[]> {
+    const result = this.store.getFilteredMessages(
       conversationId,
       keywords,
       startTime,
@@ -43,5 +48,6 @@ export class ConversationMemory {
       participants,
       maxResults
     );
+    return Promise.resolve(result);
   }
 }

@@ -10,6 +10,18 @@
     },
     "botDisplayName": {
       "value": "{{appName}}"
+    },
+    "AOAI_ENDPOINT": {
+      "value": "${{AOAI_ENDPOINT}}"
+    },
+    "AOAI_API_KEY": {
+      "value": "${{AOAI_API_KEY}}"
+    },
+    "AOAI_MODEL": {
+      "value": "${{AOAI_MODEL}}"
+    },
+    "sqlAdminPassword": {
+      "value": "${{SQL_ADMIN_PASSWORD}}"
     }
   }
 }

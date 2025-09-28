@@ -1,6 +1,6 @@
 import { CitationAppearance, Client, IMessageActivity } from "@microsoft/teams.api";
 import { ConversationMemory } from "../storage/conversationMemory";
-import { SqliteKVStore } from "../storage/storage";
+import { IDatabase } from "../storage/database";
 
 /**
  * Context object that stores all important information for processing a message
@@ -45,7 +45,7 @@ async function getConversationParticipantsFromAPI(
  * Factory function to create a MessageContext from a Teams activity
  */
 export async function createMessageContext(
-  storage: SqliteKVStore,
+  storage: IDatabase,
   activity: IMessageActivity,
   api?: Client
 ): Promise<MessageContext> {

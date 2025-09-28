@@ -8,6 +8,28 @@ export interface ModelConfig {
   apiVersion: string;
 }
 
+// Database configuration
+export interface DatabaseConfig {
+  type: "sqlite" | "mssql";
+  connectionString?: string;
+  server?: string;
+  database?: string;
+  username?: string;
+  password?: string;
+  sqlitePath?: string;
+}
+
+// Database configuration
+export const DATABASE_CONFIG: DatabaseConfig = {
+  type: process.env.RUNNING_ON_AZURE === "1" ? "mssql" : "sqlite",
+  connectionString: process.env.SQL_CONNECTION_STRING,
+  server: process.env.SQL_SERVER,
+  database: process.env.SQL_DATABASE,
+  username: process.env.SQL_USERNAME,
+  password: process.env.SQL_PASSWORD,
+  sqlitePath: process.env.CONVERSATIONS_DB_PATH,
+};
+
 // Model configurations for different capabilities
 export const AI_MODELS = {
   // Manager Capability - Uses lighter, faster model for routing decisions
@@ -75,6 +97,24 @@ export function validateEnvironment(logger: ILogger): void {
   if (missing.length > 0) {
     throw new Error(`Missing required environment variables: ${missing.join(", ")}`);
   }
+
+  // Validate database configuration
+  if (DATABASE_CONFIG.type === "mssql") {
+    const sqlRequiredVars = ["SQL_CONNECTION_STRING"];
+    const sqlMissing = sqlRequiredVars.filter((envVar) => !process.env[envVar]);
+    if (sqlMissing.length > 0) {
+      logger.warn(
+        `SQL Server configuration incomplete. Missing: ${sqlMissing.join(
+          ", "
+        )}. Falling back to SQLite.`
+      );
+      DATABASE_CONFIG.type = "sqlite";
+    } else {
+      logger.debug("✅ SQL Server configuration validated");
+    }
+  }
+
+  logger.debug(`📦 Using database: ${DATABASE_CONFIG.type}`);
   logger.debug("✅ Environment validation passed");
 }
 

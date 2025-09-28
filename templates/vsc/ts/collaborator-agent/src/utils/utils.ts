@@ -1,7 +1,7 @@
 import { IMessageActivity, MessageActivity } from "@microsoft/teams.api";
 import { ILogger } from "@microsoft/teams.common";
 import * as chrono from "chrono-node";
-import { MessageRecord } from "../storage/storage";
+import { MessageRecord } from "../storage/types";
 import { MessageContext } from "./messageContext";
 
 /**

@@ -23,7 +23,7 @@ export class ActionItemsCapability extends BaseCapability {
       "generate_action_items",
       "Generate a list of action items based on the conversation",
       async () => {
-        const allMessages = context.memory.getMessagesByTimeRange(
+        const allMessages = await context.memory.getMessagesByTimeRange(
           context.startTime,
           context.endTime
         );

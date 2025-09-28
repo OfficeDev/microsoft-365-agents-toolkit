@@ -2,7 +2,7 @@ import { ChatPrompt } from "@microsoft/teams.ai";
 import { CitationAppearance } from "@microsoft/teams.api";
 import { ILogger } from "@microsoft/teams.common";
 import { OpenAIChatModel } from "@microsoft/teams.openai";
-import { MessageRecord } from "../../storage/storage";
+import { MessageRecord } from "../../storage/types";
 import { MessageContext } from "../../utils/messageContext";
 import { BaseCapability, CapabilityDefinition } from "../capability";
 import { SEARCH_PROMPT } from "./prompt";
@@ -29,7 +29,7 @@ export class SearchCapability extends BaseCapability {
       "Search the conversation for relevant messages",
       SEARCH_MESSAGES_SCHEMA,
       async ({ keywords, participants, max_results }: SearchMessagesArgs) => {
-        const selected = context.memory.getFilteredMessages(
+        const selected = await context.memory.getFilteredMessages(
           context.conversationId,
           keywords,
           context.startTime,

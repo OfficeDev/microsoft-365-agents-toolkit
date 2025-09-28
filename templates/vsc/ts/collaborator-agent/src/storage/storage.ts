@@ -1,28 +1,10 @@
-import { Message } from "@microsoft/teams.ai";
 import { ILogger } from "@microsoft/teams.common";
 import Database from "better-sqlite3";
 import path from "node:path";
+import { IDatabase } from "./database";
+import { MessageRecord } from "./types";
 
-interface MessageRecordExtension {
-  id?: number;
-  conversation_id?: string;
-  content: string;
-  name: string;
-  timestamp: string;
-  activity_id?: string; // used to create deeplink for Search Capability
-}
-
-export type MessageRecord = Message & MessageRecordExtension;
-
-export interface FeedbackRecord {
-  id: number;
-  reply_to_id: string;
-  reaction: "like" | "dislike" | string;
-  feedback: string | null;
-  created_at: string;
-}
-
-export class SqliteKVStore {
+export class SqliteKVStore implements IDatabase {
   private db: Database.Database;
 
   constructor(private logger: ILogger, dbPath?: string) {
@@ -34,6 +16,11 @@ export class SqliteKVStore {
       : path.resolve(__dirname, "../../src/storage/conversations.db");
     this.db = new Database(resolvedDbPath);
     this.initializeDatabase();
+  }
+
+  async initialize(): Promise<void> {
+    // SQLite initialization is done in constructor, so this is a no-op for compatibility
+    return Promise.resolve();
   }
   private initializeDatabase(): void {
     this.db.exec(`
@@ -203,6 +190,13 @@ export class SqliteKVStore {
     } catch (err) {
       this.logger.error(`❌ recordFeedback error:`, err);
       return false;
+    }
+  }
+
+  close(): void {
+    if (this.db) {
+      this.db.close();
+      this.logger.debug("🔌 Closed SQLite database connection");
     }
   }
 }

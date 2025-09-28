@@ -20,7 +20,10 @@ export class SummarizerCapability extends BaseCapability {
         apiVersion: summarizerModelConfig.apiVersion,
       }),
     }).function("summarize_conversation", "Summarize the conversation history", async () => {
-      const allMessages = context.memory.getMessagesByTimeRange(context.startTime, context.endTime);
+      const allMessages = await context.memory.getMessagesByTimeRange(
+        context.startTime,
+        context.endTime
+      );
       return JSON.stringify({
         messages: allMessages.map((msg: any) => ({
           timestamp: msg.timestamp,

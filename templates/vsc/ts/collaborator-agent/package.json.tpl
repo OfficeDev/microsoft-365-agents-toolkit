@@ -25,6 +25,7 @@
         "url": "https://github.com"
     },
     "dependencies": {
+        "@azure/identity": "^4.12.0",
         "@microsoft/teams.ai": "^2.0.0-preview.5",
         "@microsoft/teams.api": "^2.0.0-preview.5",
         "@microsoft/teams.apps": "^2.0.0-preview.5",
@@ -35,11 +36,13 @@
         "@microsoft/teams.openai": "^2.0.0-preview.5",
         "@types/better-sqlite3": "^7.6.12",
         "better-sqlite3": "^11.9.0",
+        "mssql": "^11.0.1",
         "node-html-markdown": "^1.3.0",
         "winston": "^3.17.0",
         "chrono-node": "^2.7.0"
     },
     "devDependencies": {
+        "@types/mssql": "^9.1.8",
         "@types/node": "^22.5.4",
         "@types/ws": "^8.18.1",
         "dotenv": "^16.4.5",
