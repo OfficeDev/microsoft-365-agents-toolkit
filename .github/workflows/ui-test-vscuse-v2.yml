@@ -1,4 +1,4 @@
-name: ATK DAILY TESTS
+name: uitest-vscuse-v2
 
 on:
   workflow_dispatch:
@@ -57,7 +57,7 @@ jobs:
 
     env:
       AZURE_OPENAI_ENDPOINT: ${{ secrets.AZURE_OPENAI_ENDPOINT }}
-      AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_API_KEY }}
+      AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_KEY }}
       # Azure Service Principal for M365 Toolkit authentication
       AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
       AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
@@ -70,10 +70,8 @@ jobs:
       M365_TENANT_ID: ${{ secrets.M365_TENANT_ID }}
 
     steps:
-      - name: Checkout documentation repo
+      - name: Checkout repo
         uses: actions/checkout@v4
-        with:
-          path: vscuse-doc
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -90,6 +88,11 @@ jobs:
           cd vsc-use
           uv sync --no-dev
           uv pip install -e .
+
+      # - name: Run download script
+      #   run: node download-vscuse.js "latest" "${{ github.workspace }}/packages/tests/vscuse/vscode-test-cases"
+      #   shell: bash
+      #   working-directory: .github/actions/setup-vscuse-environment
 
       - name: Verify Azure Configuration
         run: |
@@ -119,11 +122,11 @@ jobs:
 
       - name: Pull pre-built Docker image
         run: |
-          echo "Pulling pre-built Docker image: ghcr.io/${{ github.repository_owner }}/vscuse-vscode:${{ github.event.inputs.image_tag || 'latest' }}"
-          docker pull ghcr.io/${{ github.repository_owner }}/vscuse-vscode:${{ github.event.inputs.image_tag || 'latest' }}
+          echo "Pulling pre-built Docker image: ghcr.io/microsoft/vscuse-vscode:${{ github.event.inputs.image_tag || 'latest' }}"
+          docker pull ghcr.io/microsoft/vscuse-vscode:${{ github.event.inputs.image_tag || 'latest' }}
           echo "✅ Image pulled successfully!"
           echo "Image details:"
-          docker images ghcr.io/${{ github.repository_owner }}/vscuse-vscode:${{ github.event.inputs.image_tag || 'latest' }}
+          docker images ghcr.io/microsoft/vscuse-vscode:${{ github.event.inputs.image_tag || 'latest' }}
 
       - name: Run test
         timeout-minutes: 15
@@ -133,7 +136,7 @@ jobs:
           echo "Test execution started at: $(date)"
 
           cd vsc-use
-          uv run vscuse execute --config-file config.yaml ../vscuse-doc/plans/${{ matrix.test_plan }}
+          uv run vscuse execute --config-file config.yaml packages/tests/vscuse/vscode-test-cases/${{ matrix.test_plan }}
 
       - name: Upload test artifacts
         if: always()
