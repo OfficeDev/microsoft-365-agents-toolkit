@@ -168,7 +168,7 @@ jobs:
         with:
           name: test-debug-artifacts-${{ matrix.test_plan }}-${{ github.run_number }}
           path: |
-            vsc-use/test_report/
+            packages/tests/vscuse/vscode-test-cases/test_report/
           retention-days: 7
           if-no-files-found: ignore
 
