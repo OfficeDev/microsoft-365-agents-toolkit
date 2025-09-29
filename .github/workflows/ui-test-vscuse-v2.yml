@@ -158,6 +158,8 @@ jobs:
           echo "Test execution started at: $(date)"
 
           cd packages/tests/vscuse/vscode-test-cases
+          python -m venv .venv
+          source .venv/bin/activate
           vscuse execute ${{ matrix.test_plan }}
 
       - name: Upload test artifacts
