@@ -80,6 +80,11 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 22
+
       # - name: Install uv
       #   run: |
       #     curl -LsSf https://astral.sh/uv/install.sh | sh
