@@ -87,7 +87,7 @@ jobs:
 
       - name: Install vscuse with uv
         run: |
-          cd vsc-use
+          cd packages/tests/vscuse/vscode-test-cases
           uv sync --no-dev
           uv pip install -e .
 
@@ -137,7 +137,7 @@ jobs:
           echo "Using image tag: ${{ github.event.inputs.image_tag || 'latest' }}"
           echo "Test execution started at: $(date)"
 
-          cd vsc-use
+          cd packages/tests/vscuse/vscode-test-cases
           uv run vscuse execute --config-file config.yaml packages/tests/vscuse/vscode-test-cases/${{ matrix.test_plan }}
 
       - name: Upload test artifacts
