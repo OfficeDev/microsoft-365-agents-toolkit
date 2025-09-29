@@ -59,7 +59,7 @@ function getBeforeCacheAccess(accountName: string) {
         fs.writeFile(
           fileCachePath,
           cacheContext.tokenCache.serialize(),
-          (err) => {
+          (err: any) => {
             if (err) {
               console.error("write token fail: " + err.message);
               reject();
@@ -81,7 +81,7 @@ function getAfterCacheAccess(scopes: string[], accountName: string) {
       fs.writeFile(
         fileCachePath,
         cacheContext.tokenCache.serialize(),
-        (err) => {
+        (err: any) => {
           if (err) {
             console.error("save token fail: " + err.message);
           }

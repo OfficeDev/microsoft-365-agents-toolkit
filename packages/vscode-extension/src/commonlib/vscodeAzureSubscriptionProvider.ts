@@ -130,11 +130,15 @@ export class VSCodeAzureSubscriptionProvider {
 }
 
 export async function getSessionFromVSCode(
-  scopes?: string | string[],
+  scopes?: string | string[] | vscode.AuthenticationWwwAuthenticateRequest,
   tenantId?: string,
   options?: vscode.AuthenticationGetSessionOptions
 ): Promise<vscode.AuthenticationSession | undefined> {
-  return await vscode.authentication.getSession(Microsoft, getScopes(scopes, tenantId), options);
+  return await vscode.authentication.getSession(
+    Microsoft,
+    formScopesArg(scopes, tenantId),
+    options
+  );
 }
 
 function ensureEndingSlash(value: string): string {
@@ -160,6 +164,28 @@ function getScopes(scopes: string | string[] | undefined, tenantId?: string): st
     scopeArr = addTenantIdScope(scopeArr, tenantId);
   }
   return scopeArr;
+}
+
+export function isAuthenticationSessionRequest(
+  scopes?: string | string[] | vscode.AuthenticationWwwAuthenticateRequest
+): scopes is vscode.AuthenticationWwwAuthenticateRequest {
+  return !!(scopes && typeof scopes === "object" && "wwwAuthenticate" in scopes);
+}
+
+function formScopesArg(
+  scopes?: string | string[] | vscode.AuthenticationWwwAuthenticateRequest,
+  tenantId?: string
+): string[] | vscode.AuthenticationWwwAuthenticateRequest {
+  const initialScopeList: string[] | undefined =
+    typeof scopes === "string"
+      ? [scopes]
+      : Array.isArray(scopes)
+      ? scopes
+      : Array.from(scopes?.scopes ?? []);
+  const scopeList = getScopes(initialScopeList, tenantId);
+  return isAuthenticationSessionRequest(scopes)
+    ? { fallbackScopes: scopeList, wwwAuthenticate: scopes.wwwAuthenticate }
+    : scopeList;
 }
 
 /**

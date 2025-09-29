@@ -11,10 +11,10 @@ using Microsoft.Teams.Apps.Annotations;
 namespace {{SafeProjectName}}.Controllers
 {
     [TeamsController]
-    public class Controller(OpenAIChatPrompt _prompt)
+    public class Controller(OpenAIChatPrompt _prompt, MyDataSource dataSource)
     {
         [Message]
-        public async Task OnMessage(IContext<Microsoft.Teams.Api.Activities.MessageActivity> context, MyDataSource dataSource)
+        public async Task OnMessage(IContext<Microsoft.Teams.Api.Activities.MessageActivity> context)
         {
             var state = State.From(context);
             var text = TextUtils.StripMentionsText(context.Activity);

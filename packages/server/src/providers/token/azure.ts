@@ -5,6 +5,7 @@ import { MessageConnection } from "vscode-jsonrpc";
 import { TokenCredential } from "@azure/core-auth";
 
 import {
+  AuthenticationWWWAuthenticateRequest,
   AzureAccountProvider,
   FxError,
   Result,
@@ -15,7 +16,7 @@ import {
 import { RequestTypes } from "../../apis";
 import { getResponseWithErrorHandling } from "../../utils";
 import { AccessToken, GetTokenOptions } from "@azure/identity";
-import { NotImplementedError } from "@microsoft/teamsfx-core";
+import { MFARequiredError, NotImplementedError } from "@microsoft/teamsfx-core";
 
 class TeamsFxTokenCredential implements TokenCredential {
   private connection: MessageConnection;
@@ -64,7 +65,13 @@ export default class ServerAzureAccountProvider implements AzureAccountProvider 
     this.teamsFxTokenCredential = new TeamsFxTokenCredential(this.connection);
   }
 
-  async getIdentityCredentialAsync(showDialog?: boolean): Promise<TokenCredential | undefined> {
+  async getIdentityCredentialAsync(
+    showDialog?: boolean,
+    authenticationSessionRequest?: AuthenticationWWWAuthenticateRequest
+  ): Promise<TokenCredential | undefined> {
+    if (authenticationSessionRequest && authenticationSessionRequest.wwwAuthenticate) {
+      throw new MFARequiredError("FxServer");
+    }
     return Promise.resolve(this.teamsFxTokenCredential);
   }
 
