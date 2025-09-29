@@ -80,21 +80,30 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Install uv
-        run: |
-          curl -LsSf https://astral.sh/uv/install.sh | sh
-          echo "$HOME/.local/bin" >> $GITHUB_PATH
+      # - name: Install uv
+      #   run: |
+      #     curl -LsSf https://astral.sh/uv/install.sh | sh
+      #     echo "$HOME/.local/bin" >> $GITHUB_PATH
 
-      - name: Install vscuse with uv
+      # - name: Install vscuse with uv
+      #   run: |
+      #     cd packages/tests/vscuse/vscode-test-cases
+      #     uv sync --no-dev
+      #     uv pip install -e .
+
+      - name: Run download script
+        run: node download-vscuse-python.js "latest" "${{ github.workspace }}/packages/tests/vscuse/vscode-test-cases"
+        shell: bash
+        working-directory: .github/actions/setup-vscuse-environment
+
+      - name: Set up Python virtual environment and install wheel
         run: |
           cd packages/tests/vscuse/vscode-test-cases
-          uv sync --no-dev
-          uv pip install -e .
-
-      # - name: Run download script
-      #   run: node download-vscuse.js "latest" "${{ github.workspace }}/packages/tests/vscuse/vscode-test-cases"
-      #   shell: bash
-      #   working-directory: .github/actions/setup-vscuse-environment
+          python -m venv .venv
+          source .venv/bin/activate
+          WHEEL_FILE=$(ls *.whl | head -n 1)
+          pip install "./$WHEEL_FILE"
+        shell: bash
 
       - name: Verify Azure Configuration
         run: |
@@ -138,7 +147,7 @@ jobs:
           echo "Test execution started at: $(date)"
 
           cd packages/tests/vscuse/vscode-test-cases
-          uv run vscuse execute --config-file config.yaml packages/tests/vscuse/vscode-test-cases/${{ matrix.test_plan }}
+          vscuse execute ${{ matrix.test_plan }}
 
       - name: Upload test artifacts
         if: always()
