@@ -38,7 +38,10 @@
       let value = match[2] || "";
 
       // strip surrounding single or double quotes
-      if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) {
+      if (
+        (value.startsWith('"') && value.endsWith('"')) ||
+        (value.startsWith("'") && value.endsWith("'"))
+      ) {
         value = value.slice(1, -1);
       }
 
@@ -65,7 +68,7 @@
       tspLines.push(`// ${originalKey}`);
 
       // Escape backslashes and double quotes for safe TS string literal
-      const escaped = value.replace(/\\/g, "\\\\").replace(/\"/g, "\\\"");
+      const escaped = value.replace(/\\/g, "\\\\").replace(/\"/g, '\\"');
 
       tspLines.push(`const ${ident} = "${escaped}";`);
       tspLines.push("");
