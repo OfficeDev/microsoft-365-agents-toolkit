@@ -63,15 +63,15 @@ jobs:
       AZURE_OPENAI_ENDPOINT: ${{ secrets.AZURE_OPENAI_ENDPOINT }}
       AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_KEY }}
       # Azure Service Principal for M365 Toolkit authentication
-      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-      AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
-      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-      AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-      AZURE_AUTH_ENABLED: ${{ secrets.AZURE_CLIENT_ID != '' && secrets.AZURE_CLIENT_SECRET != '' && secrets.AZURE_TENANT_ID != '' }}
+      AZURE_CLIENT_ID: ${{ secrets.AZURE_SERVICE_PRINCIPAL_ID }}
+      AZURE_CLIENT_SECRET: ${{ secrets.AZURE_SERVICE_PRINCIPAL_SECRET }}
+      AZURE_TENANT_ID: ${{ secrets.TEST_TENANT_ID_NEW  }}
+      AZURE_SUBSCRIPTION_ID: ${{ secrets.TEST_SUBSCRIPTION_ID_NEW }}
+      AZURE_AUTH_ENABLED: ${{ secrets.AZURE_SERVICE_PRINCIPAL_ID != '' && secrets.AZURE_SERVICE_PRINCIPAL_SECRET != '' && secrets.TEST_TENANT_ID_NEW != '' }}
       # M365 account for testing
-      M365_ACCOUNT_NAME: ${{ secrets.M365_ACCOUNT_NAME }}
-      M365_ACCOUNT_PASSWORD: ${{ secrets.M365_ACCOUNT_PASSWORD }}
-      M365_TENANT_ID: ${{ secrets.M365_TENANT_ID }}
+      M365_ACCOUNT_NAME: "test01@atktesting.onmicrosoft.com"
+      M365_ACCOUNT_PASSWORD: ${{ secrets.TEST_M365_PASSWORD_NEW }}
+      M365_TENANT_ID: ${{ secrets.TEST_CLEAN_TENANT_ID_NEW }}
 
     steps:
       - name: Checkout repo
@@ -91,16 +91,6 @@ jobs:
         run: npm install @octokit/auth-app @octokit/request @octokit/core node-fetch 
         shell: bash
 
-      # - name: Install uv
-      #   run: |
-      #     curl -LsSf https://astral.sh/uv/install.sh | sh
-      #     echo "$HOME/.local/bin" >> $GITHUB_PATH
-
-      # - name: Install vscuse with uv
-      #   run: |
-      #     cd packages/tests/vscuse/vscode-test-cases
-      #     uv sync --no-dev
-      #     uv pip install -e .
 
       - name: Run download script
         run: node download-vscuse-python.js "latest" "${{ github.workspace }}/packages/tests/vscuse/vscode-test-cases"
@@ -179,5 +169,5 @@ jobs:
 
           # Stop and remove any containers using our image
           echo "Cleaning up VSCode containers..."
-          docker stop $(docker ps -q --filter "ancestor=ghcr.io/${{ github.repository_owner }}/vscuse-vscode:${{ github.event.inputs.image_tag || 'latest' }}") 2>/dev/null || echo "No containers to stop"
-          docker rm $(docker ps -aq --filter "ancestor=ghcr.io/${{ github.repository_owner }}/vscuse-vscode:${{ github.event.inputs.image_tag || 'latest' }}") 2>/dev/null || echo "No containers to remove"
+          docker stop $(docker ps -q --filter "ancestor=ghcr.io/microsoft/vscuse-vscode:${{ github.event.inputs.image_tag || 'latest' }}") 2>/dev/null || echo "No containers to stop"
+          docker rm $(docker ps -aq --filter "ancestor=ghcr.io/microsoft/vscuse-vscode:${{ github.event.inputs.image_tag || 'latest' }}") 2>/dev/null || echo "No containers to remove"
