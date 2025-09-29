@@ -85,6 +85,10 @@ jobs:
         with:
           node-version: 22
 
+      - name: Install dependencies for download actions
+        run: npm install @octokit/auth-app @octokit/request @octokit/core node-fetch 
+        shell: bash
+
       # - name: Install uv
       #   run: |
       #     curl -LsSf https://astral.sh/uv/install.sh | sh
