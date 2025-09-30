@@ -10,7 +10,7 @@ import {
   TestFilePath,
   Notification,
 } from "../../utils/constants";
-import { globalResourceGroupLocation} from "../../commonlib/constants";
+import { globalResourceGroupLocation } from "../../commonlib/constants";
 import { Env } from "../../utils/env";
 import {
   cleanUpAadApp,

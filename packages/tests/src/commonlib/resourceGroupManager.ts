@@ -3,7 +3,10 @@
 
 "use strict";
 
-import { UsernamePasswordCredential, ClientSecretCredential} from "@azure/identity";
+import {
+  UsernamePasswordCredential,
+  ClientSecretCredential,
+} from "@azure/identity";
 import { ResourceManagementClient } from "@azure/arm-resources";
 
 import * as azureConfig from "@microsoft/m365agentstoolkit-cli/src/commonlib/common/userPasswordConfig";

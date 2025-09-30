@@ -25,7 +25,7 @@ import {
   cleanUpResourceGroup,
   createResourceGroup,
 } from "../../utils/cleanHelper";
-import { globalResourceGroupLocation} from "../../commonlib/constants";
+import { globalResourceGroupLocation } from "../../commonlib/constants";
 
 describe("Remote debug Tests", function () {
   this.timeout(Timeout.testAzureCase);

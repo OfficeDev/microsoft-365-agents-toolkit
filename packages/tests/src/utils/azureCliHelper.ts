@@ -7,7 +7,7 @@ import * as uuid from "uuid";
 import os from "os";
 import { expect } from "chai";
 import { Env } from "../utils/env";
-import { globalResourceGroupLocation} from "../commonlib/constants";
+import { globalResourceGroupLocation } from "../commonlib/constants";
 
 export class AzSqlHelper {
   public resourceGroupName: string;

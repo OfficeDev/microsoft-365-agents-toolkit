@@ -58,7 +58,6 @@ export class CliHelper {
     env: "dev" | "local" = "dev",
     processEnv?: NodeJS.ProcessEnv
   ) {
-    
     const result = await execAsyncWithRetry(
       `atk provision --env ${env} --interactive false --verbose ${option}`,
       {

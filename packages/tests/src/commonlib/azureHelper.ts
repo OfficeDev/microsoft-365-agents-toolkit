@@ -2,7 +2,10 @@
 // Licensed under the MIT license.
 
 import { ResourceGroup, ResourceManagementClient } from "@azure/arm-resources";
-import { UsernamePasswordCredential, ClientSecretCredential} from "@azure/identity";
+import {
+  UsernamePasswordCredential,
+  ClientSecretCredential,
+} from "@azure/identity";
 import * as azureConfig from "@microsoft/m365agentstoolkit-cli/src/commonlib/common/userPasswordConfig";
 import { strings } from "../utils/constants";
 

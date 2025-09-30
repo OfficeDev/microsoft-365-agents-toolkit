@@ -4,7 +4,10 @@
 "use strict";
 
 import { ResourceManagementClient } from "@azure/arm-resources";
-import { UsernamePasswordCredential, ClientSecretCredential } from "@azure/identity";
+import {
+  UsernamePasswordCredential,
+  ClientSecretCredential,
+} from "@azure/identity";
 import { Env } from "./env";
 function delay(ms: number) {
   // tslint:disable-next-line no-string-based-set-timeout
