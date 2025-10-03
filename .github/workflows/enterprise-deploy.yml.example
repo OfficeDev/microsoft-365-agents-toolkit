@@ -1,0 +1,431 @@
+# Enterprise Deployment Workflow Example
+# 
+# This is an example workflow for enterprise deployments with GitHub, Atlassian, and Slack integrations.
+# To use this workflow:
+# 1. Rename to enterprise-deploy.yml (remove .example)
+# 2. Configure the required secrets in your repository settings
+# 3. Customize environment names and deployment targets
+# 4. Adjust notification channels and approvers
+
+name: Enterprise Deployment
+
+on:
+  # Trigger on push to main branch
+  push:
+    branches:
+      - main
+      - release/*
+  
+  # Trigger on pull request to main
+  pull_request:
+    branches:
+      - main
+  
+  # Manual workflow dispatch
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: true
+        type: choice
+        options:
+          - development
+          - staging
+          - production
+      version:
+        description: 'Version to deploy (optional)'
+        required: false
+        type: string
+
+# Required secrets to configure in GitHub:
+# - BOT_ID: Microsoft Bot ID
+# - BOT_PASSWORD: Microsoft Bot Password
+# - AZURE_SUBSCRIPTION_ID: Azure subscription ID
+# - AZURE_RESOURCE_GROUP: Azure resource group name
+# - TEAMS_APP_ID: Teams application ID
+# - JIRA_API_TOKEN: Atlassian Jira API token
+# - JIRA_BASE_URL: Jira instance URL (e.g., https://yourcompany.atlassian.net)
+# - CONFLUENCE_API_TOKEN: Atlassian Confluence API token
+# - CONFLUENCE_BASE_URL: Confluence instance URL
+# - SLACK_BOT_TOKEN: Slack bot token
+# - SLACK_WEBHOOK_URL: Slack webhook URL for notifications
+
+env:
+  NODE_VERSION: '22'
+  DEPLOYMENT_NAME: 'm365-agents-deployment'
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+jobs:
+  # Job 1: Build and Test
+  build:
+    name: Build and Test
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+      
+      - name: Install pnpm
+        run: npm install -g pnpm@8.6.12
+      
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      
+      - name: Build project
+        run: pnpm run build
+        env:
+          CI: true
+      
+      - name: Run linters
+        run: |
+          echo "Running linters..."
+          # Add your linting commands here
+          # pnpm run lint
+      
+      - name: Run unit tests
+        run: |
+          echo "Running unit tests..."
+          # Add your test commands here
+          # pnpm run test
+      
+      - name: Generate test coverage
+        run: |
+          echo "Generating test coverage..."
+          # Add coverage commands here
+          # pnpm run test:coverage
+      
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifacts
+          path: |
+            packages/*/dist
+            packages/*/build
+          retention-days: 7
+      
+      - name: Notify Slack - Build Status
+        if: always()
+        uses: slackapi/slack-github-action@v1.26.0
+        with:
+          channel-id: 'deployments'
+          payload: |
+            {
+              "text": "Build ${{ job.status }}",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "🔨 *Build Status:* ${{ job.status }}\n*Repository:* ${{ github.repository }}\n*Branch:* ${{ github.ref_name }}\n*Commit:* ${{ github.sha }}\n*Triggered by:* ${{ github.actor }}"
+                  }
+                }
+              ]
+            }
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+        continue-on-error: true
+
+  # Job 2: Deploy to Development
+  deploy-dev:
+    name: Deploy to Development
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
+    environment:
+      name: development
+      url: https://dev.yourcompany.com
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifacts
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      
+      - name: Install M365 Agents Toolkit CLI
+        run: npm install -g @microsoft/m365agentstoolkit-cli
+      
+      - name: Configure environment
+        run: |
+          echo "Configuring development environment..."
+          # Set environment variables
+          echo "ENVIRONMENT=development" >> $GITHUB_ENV
+      
+      - name: Deploy to Azure
+        run: |
+          echo "Deploying to Azure Development..."
+          # Add your deployment commands here
+          # m365agents deploy --env development
+        env:
+          BOT_ID: ${{ secrets.BOT_ID }}
+          BOT_PASSWORD: ${{ secrets.BOT_PASSWORD }}
+          AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      
+      - name: Run smoke tests
+        run: |
+          echo "Running smoke tests..."
+          # Add smoke test commands here
+      
+      - name: Update Jira Issue
+        if: github.event_name == 'pull_request' || github.event_name == 'push'
+        run: |
+          echo "Updating Jira issue..."
+          # Extract issue key from commit message or PR
+          # Use Jira API to update issue status
+        env:
+          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+          JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
+        continue-on-error: true
+      
+      - name: Notify Slack - Deployment Success
+        if: success()
+        uses: slackapi/slack-github-action@v1.26.0
+        with:
+          channel-id: 'deployments'
+          payload: |
+            {
+              "text": "✅ Development Deployment Successful",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "✅ *Deployment Successful*\n*Environment:* development\n*Version:* ${{ github.sha }}\n*Deployed by:* ${{ github.actor }}"
+                  }
+                }
+              ]
+            }
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+        continue-on-error: true
+
+  # Job 3: Deploy to Staging
+  deploy-staging:
+    name: Deploy to Staging
+    needs: deploy-dev
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
+    environment:
+      name: staging
+      url: https://staging.yourcompany.com
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifacts
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      
+      - name: Install M365 Agents Toolkit CLI
+        run: npm install -g @microsoft/m365agentstoolkit-cli
+      
+      - name: Deploy to Azure Staging
+        run: |
+          echo "Deploying to Azure Staging..."
+          # Add your deployment commands here
+          # m365agents deploy --env staging
+        env:
+          BOT_ID: ${{ secrets.BOT_ID }}
+          BOT_PASSWORD: ${{ secrets.BOT_PASSWORD }}
+          AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      
+      - name: Run integration tests
+        run: |
+          echo "Running integration tests..."
+          # Add integration test commands here
+      
+      - name: Update Confluence Documentation
+        run: |
+          echo "Updating Confluence deployment documentation..."
+          # Use Confluence API to update deployment page
+        env:
+          CONFLUENCE_API_TOKEN: ${{ secrets.CONFLUENCE_API_TOKEN }}
+          CONFLUENCE_BASE_URL: ${{ secrets.CONFLUENCE_BASE_URL }}
+        continue-on-error: true
+      
+      - name: Notify Slack - Staging Deployment
+        if: success()
+        uses: slackapi/slack-github-action@v1.26.0
+        with:
+          channel-id: 'deployments'
+          payload: |
+            {
+              "text": "🚀 Staging Deployment Complete",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "🚀 *Staging Deployment Complete*\n*Environment:* staging\n*Version:* ${{ github.sha }}\n*URL:* https://staging.yourcompany.com"
+                  }
+                }
+              ]
+            }
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+        continue-on-error: true
+
+  # Job 4: Deploy to Production
+  deploy-production:
+    name: Deploy to Production
+    needs: deploy-staging
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'production'
+    environment:
+      name: production
+      url: https://prod.yourcompany.com
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifacts
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      
+      - name: Install M365 Agents Toolkit CLI
+        run: npm install -g @microsoft/m365agentstoolkit-cli
+      
+      - name: Create backup
+        run: |
+          echo "Creating production backup..."
+          # Add backup commands here
+      
+      - name: Deploy to Azure Production
+        run: |
+          echo "Deploying to Azure Production..."
+          # Add your deployment commands here
+          # m365agents deploy --env production
+        env:
+          BOT_ID: ${{ secrets.BOT_ID }}
+          BOT_PASSWORD: ${{ secrets.BOT_PASSWORD }}
+          AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      
+      - name: Run production smoke tests
+        run: |
+          echo "Running production smoke tests..."
+          # Add production smoke test commands here
+      
+      - name: Create GitHub Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ github.run_number }}
+          release_name: Release v${{ github.run_number }}
+          body: |
+            Production deployment for version ${{ github.sha }}
+            
+            Deployed by: ${{ github.actor }}
+            Deployment time: ${{ github.event.head_commit.timestamp }}
+          draft: false
+          prerelease: false
+        continue-on-error: true
+      
+      - name: Update Jira Release
+        run: |
+          echo "Updating Jira release..."
+          # Create or update Jira release/version
+        env:
+          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+          JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
+        continue-on-error: true
+      
+      - name: Notify Slack - Production Deployment
+        if: always()
+        uses: slackapi/slack-github-action@v1.26.0
+        with:
+          channel-id: 'releases'
+          payload: |
+            {
+              "text": "🎉 Production Deployment ${{ job.status }}",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "🎉 *Production Deployment ${{ job.status }}*\n*Environment:* production\n*Version:* ${{ github.sha }}\n*URL:* https://prod.yourcompany.com\n*Deployed by:* ${{ github.actor }}"
+                  }
+                }
+              ]
+            }
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+        continue-on-error: true
+
+  # Job 5: Post-Deployment Tasks
+  post-deployment:
+    name: Post-Deployment Tasks
+    needs: [deploy-dev, deploy-staging, deploy-production]
+    if: always()
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Generate deployment report
+        run: |
+          echo "Generating deployment report..."
+          cat << EOF > deployment-report.md
+          # Deployment Report
+          
+          **Date:** $(date)
+          **Triggered by:** ${{ github.actor }}
+          **Commit:** ${{ github.sha }}
+          **Branch:** ${{ github.ref_name }}
+          
+          ## Deployment Status
+          - Development: ${{ needs.deploy-dev.result }}
+          - Staging: ${{ needs.deploy-staging.result }}
+          - Production: ${{ needs.deploy-production.result }}
+          EOF
+      
+      - name: Upload deployment report
+        uses: actions/upload-artifact@v4
+        with:
+          name: deployment-report
+          path: deployment-report.md
+      
+      - name: Update Confluence with report
+        run: |
+          echo "Updating Confluence with deployment report..."
+          # Upload report to Confluence
+        env:
+          CONFLUENCE_API_TOKEN: ${{ secrets.CONFLUENCE_API_TOKEN }}
+          CONFLUENCE_BASE_URL: ${{ secrets.CONFLUENCE_BASE_URL }}
+        continue-on-error: true
+      
+      - name: Cleanup
+        run: |
+          echo "Performing cleanup tasks..."
+          # Add cleanup commands here
