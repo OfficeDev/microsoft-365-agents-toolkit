@@ -32,5 +32,15 @@
             }
         }
 {{/ShareEnabled}}
+        {
+            "label": "Install dependencies",
+            "type": "shell",
+            "command": "npm install",
+            "presentation": {
+                "reveal": "silent",
+                "panel": "new"
+            },
+            "runOptions": { "runOn": "folderOpen" }
+        }
     ]
 }

@@ -30,8 +30,10 @@ With the declarative agent, you can build a custom version of Copilot that can b
 | ------------ | ---------------------------------------------------------------------------------------- |
 | `.vscode`    | VSCode files for debugging                                                               |
 | `appPackage` | Templates for the application manifest, the manifest and the API specification           |
-| `scripts`    | Scripts helping with automation across the build process                                 |
+| `actions`    | All action files representing API surfaces                                               |
 | `env`        | Environment files                                                                        |
+| `prompts`    | All prompt files used for instructions                                                   |
+| `scripts`    | Scripts helping with automation across the build process                                 |
 
 The following files can be customized and demonstrate an example implementation to get you started.
 
@@ -47,11 +49,12 @@ The following are Microsoft 365 Agents Toolkit specific project files. You can [
 
 The following are TypeSpec template files. You need to customize these files to configure your agent.
 
-| File          | Contents                                                                                    |
-| ------------- | ------------------------------------------------------------------------------------------- |
-| `main.tsp`    | This is the root file of TSP files. Please manually update this file to add your own agent. |
-| `actions.tsp` | This is the actions file containing API endpoints to extend your declarative agent.         |
-| `env.tsp`     | This is the file containing all environment variables to be used in TypeSpec files.         |
+| File            | Contents                                                                                    |
+| --------------- | ------------------------------------------------------------------------------------------- |
+| `main.tsp`      | This is the root file of TSP files. Please manually update this file to add your own agent. |
+| `actions/*.tsp` | These are action files containing API endpoints to extend your declarative agent.           |
+| `prompts/*.tsp` | These are prompt files used for instructions inf your declarative agent.                    |
+| `env.tsp`       | This is the file containing all environment variables to be used in TypeSpec files.         |
 
 ## Extend the template
 
