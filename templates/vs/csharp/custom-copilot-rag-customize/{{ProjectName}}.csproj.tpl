@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFramework>{{TargetFramework}}</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
 {{^isNewProjectTypeEnabled}}
@@ -21,10 +22,10 @@
 {{/isNewProjectTypeEnabled}}
   <ItemGroup>
     <PackageReference Include="Azure.Identity" Version="1.13.1" />
-    <PackageReference Include="Microsoft.Teams.Api" Version="2.0.0" />
-    <PackageReference Include="Microsoft.Teams.Apps" Version="2.0.0" />
-    <PackageReference Include="Microsoft.Teams.Plugins.AspNetCore" Version="2.0.0" />
-    <PackageReference Include="Microsoft.Teams.Common" Version="2.0.0" />
+    <PackageReference Include="Microsoft.Teams.Api" Version="2.0.*" />
+    <PackageReference Include="Microsoft.Teams.Apps" Version="2.0.*" />
+    <PackageReference Include="Microsoft.Teams.Plugins.AspNetCore" Version="2.0.*" />
+    <PackageReference Include="Microsoft.Teams.Common" Version="2.0.*" />
   </ItemGroup>
 
   <ItemGroup>

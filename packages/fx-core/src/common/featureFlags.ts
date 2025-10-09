@@ -104,7 +104,7 @@ export class FeatureFlags {
   };
   static readonly BuilderAPIEnabled = {
     name: FeatureFlagName.BuilderAPIEnabled,
-    defaultValue: "true",
+    defaultValue: "false",
   };
   static readonly EmbeddedKnowledgeEnabled = {
     name: FeatureFlagName.EmbeddedKnowledgeEnabled,
@@ -112,7 +112,7 @@ export class FeatureFlags {
   };
   static readonly ShareEnabled = {
     name: FeatureFlagName.ShareEnabled,
-    defaultValue: "true",
+    defaultValue: "false",
   };
   static readonly AddODSPKnowledge = {
     name: FeatureFlagName.AddODSPKnowledge,

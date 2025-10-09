@@ -10,7 +10,7 @@
     }
   },
   "AllowedHosts": "*",
-   "Teams": {
+  "Teams": {
 		"ClientId": "",
 		"ClientSecret": "",
     "TenantId": "",
@@ -18,7 +18,7 @@
 	},
 {{#useOpenAI}}
   "OpenAI": {
-    "ApiKey": "{{{originalOpenAIKey}}}"，
+    "ApiKey": "{{{originalOpenAIKey}}}",
     "Model": "gpt-3.5-turbo"
   }
 {{/useOpenAI}}

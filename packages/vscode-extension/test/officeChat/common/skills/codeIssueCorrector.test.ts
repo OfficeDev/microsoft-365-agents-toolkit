@@ -16,6 +16,7 @@ import {
 import { ExecutionResultEnum } from "../../../../src/officeChat/common/skills/executionResultEnum";
 import { SampleProvider } from "../../../../src/officeChat/common/samples/sampleProvider";
 import { SampleData } from "../../../../src/officeChat/common/samples/sampleData";
+import { values } from "lodash";
 
 describe("CodeIssueCorrector", () => {
   const sandbox = sinon.createSandbox();
@@ -56,7 +57,7 @@ describe("CodeIssueCorrector", () => {
 
       const model: LanguageModelChatMessage = {
         role: LanguageModelChatMessageRole.User,
-        content: "",
+        content: [{ value: "" }],
         name: undefined,
       };
 
@@ -146,12 +147,12 @@ describe("CodeIssueCorrector", () => {
     const corrector = new CodeIssueCorrector();
     const fakeLanguageModelChatSystemMessage: LanguageModelChatMessage = {
       role: LanguageModelChatMessageRole.User,
-      content: "some sample message",
+      content: [{ value: "some sample message" }],
       name: undefined,
     };
     const fakeSampleCodeLanguageModelChatSystemMessage: LanguageModelChatMessage = {
       role: LanguageModelChatMessageRole.User,
-      content: sampleCodeLong,
+      content: [{ value: sampleCodeLong }],
       name: undefined,
     };
     const spec = new Spec("some user input");
@@ -194,12 +195,12 @@ describe("CodeIssueCorrector", () => {
     const corrector = new CodeIssueCorrector();
     const fakeLanguageModelChatSystemMessage: LanguageModelChatMessage = {
       role: LanguageModelChatMessageRole.User,
-      content: "some sample message",
+      content: [{ value: "some sample message" }],
       name: undefined,
     };
     const fakeSampleCodeLanguageModelChatSystemMessage: LanguageModelChatMessage = {
       role: LanguageModelChatMessageRole.User,
-      content: sampleCodeLong,
+      content: [{ value: sampleCodeLong }],
       name: undefined,
     };
 
@@ -252,12 +253,12 @@ describe("CodeIssueCorrector", () => {
     const corrector = new CodeIssueCorrector();
     const fakeLanguageModelChatSystemMessage: LanguageModelChatMessage = {
       role: LanguageModelChatMessageRole.User,
-      content: "some sample message",
+      content: [{ value: "some sample message" }],
       name: undefined,
     };
     const fakeSampleCodeLanguageModelChatSystemMessage: LanguageModelChatMessage = {
       role: LanguageModelChatMessageRole.User,
-      content: sampleCodeLong,
+      content: [{ value: sampleCodeLong }],
       name: undefined,
     };
 
@@ -310,12 +311,12 @@ describe("CodeIssueCorrector", () => {
     const corrector = new CodeIssueCorrector();
     const fakeLanguageModelChatSystemMessage: LanguageModelChatMessage = {
       role: LanguageModelChatMessageRole.User,
-      content: "some sample message",
+      content: [{ value: "some sample message" }],
       name: undefined,
     };
     const fakeSampleCodeLanguageModelChatSystemMessage: LanguageModelChatMessage = {
       role: LanguageModelChatMessageRole.User,
-      content: sampleCodeLong,
+      content: [{ value: sampleCodeLong }],
       name: undefined,
     };
 
@@ -361,7 +362,7 @@ describe("CodeIssueCorrector", () => {
     const corrector = new CodeIssueCorrector();
     const fakeLanguageModelChatSystemMessage: LanguageModelChatMessage = {
       role: LanguageModelChatMessageRole.User,
-      content: "some sample message",
+      content: [{ value: "some sample message" }],
       name: undefined,
     };
 
@@ -403,7 +404,7 @@ describe("CodeIssueCorrector", () => {
     const corrector = new CodeIssueCorrector();
     const fakeLanguageModelChatSystemMessage: LanguageModelChatMessage = {
       role: LanguageModelChatMessageRole.User,
-      content: "some sample message",
+      content: [{ value: "some sample message" }],
       name: undefined,
     };
 

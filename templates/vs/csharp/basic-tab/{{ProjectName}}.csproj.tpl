@@ -15,10 +15,10 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="9.0.0" />
     <PackageReference Include="Azure.Identity" Version="1.13.1" />
-    <PackageReference Include="Microsoft.Teams.Api" Version="2.0.0" />
-    <PackageReference Include="Microsoft.Teams.Apps" Version="2.0.0" />
-    <PackageReference Include="Microsoft.Teams.Plugins.AspNetCore" Version="2.0.0" />
-    <PackageReference Include="Microsoft.Teams.Common" Version="2.0.0" />
+    <PackageReference Include="Microsoft.Teams.Api" Version="2.0.*" />
+    <PackageReference Include="Microsoft.Teams.Apps" Version="2.0.*" />
+    <PackageReference Include="Microsoft.Teams.Plugins.AspNetCore" Version="2.0.*" />
+    <PackageReference Include="Microsoft.Teams.Common" Version="2.0.*" />
   </ItemGroup>
 
   <!-- Exclude local settings from publish -->

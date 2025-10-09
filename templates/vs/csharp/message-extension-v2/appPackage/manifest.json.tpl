@@ -57,16 +57,6 @@
                     ]
                 },
                 {
-                    "id": "fetchConversationMembers",
-                    "description": "Fetch the conversation members",
-                    "title": "Fetch Conversation Members",
-                    "type": "action",
-                    "fetchTask": true,
-                    "context": [
-                        "compose"
-                    ]
-                },
-                {
                     "id": "searchQuery",
                     "context": [
                         "compose",

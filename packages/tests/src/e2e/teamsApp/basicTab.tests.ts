@@ -20,15 +20,15 @@ import {
 } from "../../commonlib/utilities";
 import { Capability } from "../../utils/constants";
 import {
-  cleanUp,
+  cleanUpLocalProject,
   createResourceGroup,
+  deleteResourceGroupByName,
   getSubscriptionId,
   getTestFolder,
   getUniqueAppName,
   readContextMultiEnvV3,
-  removeTeamsAppExtendToM365,
 } from "../commonUtils";
-import { getTeamsApp } from "../debug/utility";
+import { deleteTeamsApp, getTeamsApp } from "../debug/utility";
 
 describe("Basic Tab", function () {
   const testFolder = getTestFolder();
@@ -39,7 +39,18 @@ describe("Basic Tab", function () {
   const envName = environmentNameManager.getDefaultEnvName();
 
   afterEach(async () => {
-    await cleanUp(appName, projectPath, false, false, false);
+    // clean up
+    let context = await readContextMultiEnvV3(projectPath, "local");
+    if (context?.TEAMS_APP_ID) {
+      await deleteTeamsApp(context.TEAMS_APP_ID);
+    }
+
+    context = await readContextMultiEnvV3(projectPath, "dev");
+    if (context?.TEAMS_APP_ID) {
+      await deleteTeamsApp(context.TEAMS_APP_ID);
+    }
+    await deleteResourceGroupByName(resourceGroupName);
+    await cleanUpLocalProject(projectPath);
   });
 
   it(
@@ -64,12 +75,6 @@ describe("Basic Tab", function () {
         assert.notExists(err, "index.ts should exist");
       });
 
-      // remove teamsApp/extendToM365 in case it fails
-      removeTeamsAppExtendToM365(path.join(projectPath, "m365agents.yml"));
-      removeTeamsAppExtendToM365(
-        path.join(projectPath, "m365agents.local.yml")
-      );
-
       // Local Debug (Provision)
       await CliHelper.provisionProject(projectPath, "", "local");
       console.log(`[Successfully] provision for ${projectPath}`);
@@ -84,6 +89,15 @@ describe("Basic Tab", function () {
       assert.isDefined(context.TEAMS_APP_ID, "teams app id should be defined");
       const teamsApp = await getTeamsApp(context.TEAMS_APP_ID);
       assert.equal(teamsApp?.teamsAppId, context.TEAMS_APP_ID);
+
+      // validate m365
+      assert.isDefined(
+        context.M365_TITLE_ID,
+        "m365 title id should be defined"
+      );
+      assert.isNotEmpty(context.M365_TITLE_ID);
+      assert.isDefined(context.M365_APP_ID, "m365 app id should be defined");
+      assert.isNotEmpty(context.M365_APP_ID);
 
       // Local Debug (Deploy)
       await CliHelper.deployAll(projectPath, "", "local");
@@ -118,6 +132,15 @@ describe("Basic Tab", function () {
 
       context = await readContextMultiEnvV3(projectPath, envName);
       assert.exists(context, "env file should exist");
+
+      // validate m365
+      assert.isDefined(
+        context.M365_TITLE_ID,
+        "m365 title id should be defined"
+      );
+      assert.isNotEmpty(context.M365_TITLE_ID);
+      assert.isDefined(context.M365_APP_ID, "m365 app id should be defined");
+      assert.isNotEmpty(context.M365_APP_ID);
 
       const appServiceResourceId =
         context[EnvConstants.TAB_AZURE_APP_SERVICE_RESOURCE_ID];

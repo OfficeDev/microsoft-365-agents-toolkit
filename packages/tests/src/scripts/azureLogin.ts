@@ -1,7 +1,6 @@
-/**
- * Azure Account extension will store refresh token by keytar. So this lib
- * will use OAuth2.0 password flow to get and store refresh token.
- */
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 import { setPassword } from "keytar";
 import { EOL, networkInterfaces } from "os";
 import { exit } from "process";
@@ -78,7 +77,8 @@ const scopes = [
 ];
 const clientID = "aebc6443-996d-45c2-90f0-388ff96faa56";
 const grantType = "password";
-const tenentID = "72f988bf-86f1-41af-91ab-2d7cd011db47";
+//const tenentID = "72f988bf-86f1-41af-91ab-2d7cd011db47";
+const tenentID = "989179d1-c44d-4cf0-bb69-e911c27db18a";
 const baseURL = "https://login.microsoftonline.com";
 
 async function findFileRecursively(path: string): Promise<string[]> {

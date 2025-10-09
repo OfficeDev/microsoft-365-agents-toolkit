@@ -7,7 +7,7 @@
 
 import { it } from "@microsoft/extra-shot-mocha";
 import { Runtime } from "../../commonlib/constants";
-import { happyPathTest } from "../bot/BotHappyPathCommon";
+import { happyPathTest } from "./BotHappyPathCommon";
 
 describe("Remote happy path for echo bot dotnet", () => {
   it(

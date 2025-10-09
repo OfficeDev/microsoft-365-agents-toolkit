@@ -31,6 +31,8 @@ export class PluginId {
   static readonly AppStudio = "fx-resource-appstudio";
 }
 
+export const globalResourceGroupLocation = "eastus2";
+
 export const fileEncoding = "UTF8";
 
 export type CliCapabilities =

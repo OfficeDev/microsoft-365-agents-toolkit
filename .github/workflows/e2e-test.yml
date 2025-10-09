@@ -78,6 +78,8 @@ jobs:
 
       - name: setup project
         uses: ./.github/actions/setup-project
+        with:
+          range: "e2e"
 
       - name: List cases for schedule or pull request
         id: schedule-cases
@@ -86,7 +88,6 @@ jobs:
         run: |
           cases=`find . -wholename "*.tests.ts" | jq -Rsc '[split("\n") | .[]| select(.!="")]'`
           echo "cases=$cases" >> $GITHUB_OUTPUT
-
 
       - name: List cases for pull request
         id: pr-cases
@@ -189,19 +190,15 @@ jobs:
         with:
           node-version: 22
 
-      - name: Setup node for SPFx project
-        if: contains(matrix.cases, 'SPFx')
-        uses: actions/setup-node@v3
-        with:
-          node-version: 22
-
       - name: Setup node for Retail project
         if: contains(matrix.cases, 'Retail')
         uses: actions/setup-node@v3
         with:
           node-version: 18
 
+      # Azure Function is not used in templates now
       - name: Setup Azure Functions Core Tools For Linux
+        if: contains(matrix.cases, 'samples')
         run: |
           curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg
           sudo mv microsoft.gpg /etc/apt/trusted.gpg.d/microsoft.gpg
@@ -220,10 +217,11 @@ jobs:
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: |
-            6.0.x
             8.0.x
 
+      # Python is not used in templates now
       - name: Setup Python
+        if: contains(matrix.cases, 'samples')
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
@@ -232,7 +230,7 @@ jobs:
 
       - name: Setup project
         run: |
-          npm run setup
+          npm run setup:e2e
 
       - name: install cli with specific version
         if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.cli-version != '' }}

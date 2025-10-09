@@ -1,4 +1,4 @@
-namespace {{SafeProjectName}};
+namespace {{SafeProjectName}}
 {
     public class MyDataSource
     {
