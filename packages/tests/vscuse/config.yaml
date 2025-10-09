@@ -1,0 +1,4 @@
+docker:
+  container_name: "vscuse-container"        # Default: "vscuse-container"
+  image_name: "ghcr.io/microsoft/vscuse-vscode:latest" # Default: "ghcr.io/microsoft/vscuse-vscode:latest"
+  vscode_insiders: false                    # Default: false (set to true to use VS Code Insider)
