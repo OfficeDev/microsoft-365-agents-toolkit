@@ -3,7 +3,7 @@
 
 import "mocha";
 import * as sinon from "sinon";
-import { AadAppClient } from "../../../../src/component/driver/aad/utility/aadAppClient";
+import { AadAppClient } from "../../../../src/client/aadAppClient";
 import chai from "chai";
 import chaiAsPromised from "chai-as-promised";
 import axios, { AxiosInstance, isAxiosError } from "axios";

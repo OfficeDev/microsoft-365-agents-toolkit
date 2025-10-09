@@ -19,7 +19,7 @@ import { ErrorContextMW } from "../../common/globalVars";
 import { AadOwner, ResourcePermission, TeamsAppAdmin } from "../../common/permissionInterface";
 import { HttpClientError, HttpServerError, assembleError } from "../../error/common";
 import { AppIdNotExist } from "../../error/teamsApp";
-import { AadAppClient } from "../driver/aad/utility/aadAppClient";
+import { AadAppClient } from "../../client/aadAppClient";
 import { permissionsKeys } from "../driver/aad/utility/constants";
 import { addStartAndEndTelemetry } from "../driver/middleware/addStartAndEndTelemetry";
 import { Constants } from "../driver/teamsApp/constants";

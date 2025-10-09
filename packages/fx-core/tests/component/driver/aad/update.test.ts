@@ -12,7 +12,7 @@ import {
   MockedTelemetryReporter,
   MockedUserInteraction,
 } from "../../../plugins/solution/util";
-import { AadAppClient } from "../../../../src/component/driver/aad/utility/aadAppClient";
+import { AadAppClient } from "../../../../src/client/aadAppClient";
 import path from "path";
 import * as fs from "fs-extra";
 import { MissingFieldInManifestUserError } from "../../../../src/component/driver/aad/error/invalidFieldInManifestError";
