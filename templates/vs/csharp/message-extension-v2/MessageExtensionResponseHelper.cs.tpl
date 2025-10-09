@@ -15,22 +15,19 @@ namespace {{SafeProjectName}}
             // Create simple search results
             for (int i = 1; i <= 5; i++)
             {
-                var card = new Microsoft.Teams.Cards.AdaptiveCard
+                var card = new AdaptiveCard(new List<CardElement>
                 {
-                    Body = new List<CardElement>
+                    new TextBlock($"Search Result {i}")
                     {
-                        new TextBlock($"Search Result {i}")
-                        {
-                            Weight = TextWeight.Bolder,
-                            Size = TextSize.Large
-                        },
-                        new TextBlock($"Query: '{query}' - Result description for item {i}")
-                        {
-                            Wrap = true,
-                            IsSubtle = true
-                        }
+                        Weight = TextWeight.Bolder,
+                        Size = TextSize.Large
+                    },
+                    new TextBlock($"Query: '{query}' - Result description for item {i}")
+                    {
+                        Wrap = true,
+                        IsSubtle = true
                     }
-                };
+                });
 
                 var previewCard = new ThumbnailCard()
                 {
@@ -70,29 +67,25 @@ namespace {{SafeProjectName}}
 
             log.Info($"[CREATE_CARD] Title: {title}, Description: {description}");
 
-            var card = new Microsoft.Teams.Cards.AdaptiveCard
+            var card = new Microsoft.Teams.Cards.AdaptiveCard(new List<CardElement>
             {
-                Schema = "http://adaptivecards.io/schemas/adaptive-card.json",
-                Body = new List<CardElement>
+                new TextBlock("Custom Card Created")
                 {
-                    new TextBlock("Custom Card Created")
-                    {
-                        Weight = TextWeight.Bolder,
-                        Size = TextSize.Large,
-                        Color = TextColor.Good
-                    },
-                    new TextBlock(title)
-                    {
-                        Weight = TextWeight.Bolder,
-                        Size = TextSize.Medium
-                    },
-                    new TextBlock(description)
-                    {
-                        Wrap = true,
-                        IsSubtle = true
-                    }
+                    Weight = TextWeight.Bolder,
+                    Size = TextSize.Large,
+                    Color = TextColor.Good
+                },
+                new TextBlock(title)
+                {
+                    Weight = TextWeight.Bolder,
+                    Size = TextSize.Medium
+                },
+                new TextBlock(description)
+                {
+                    Wrap = true,
+                    IsSubtle = true
                 }
-            };
+            });
 
             var attachment = new Microsoft.Teams.Api.MessageExtensions.Attachment
             {
@@ -118,27 +111,23 @@ namespace {{SafeProjectName}}
 
             log.Info($"[GET_MESSAGE_DETAILS] Message ID: {messageId}");
 
-            var card = new Microsoft.Teams.Cards.AdaptiveCard
+            var card = new Microsoft.Teams.Cards.AdaptiveCard(new List<CardElement>
             {
-                Schema = "http://adaptivecards.io/schemas/adaptive-card.json",
-                Body = new List<CardElement>
+                new TextBlock("Message Details")
                 {
-                    new TextBlock("Message Details")
-                    {
-                        Weight = TextWeight.Bolder,
-                        Size = TextSize.Large,
-                        Color = TextColor.Accent
-                    },
-                    new TextBlock($"Message ID: {messageId}")
-                    {
-                        Wrap = true
-                    },
-                    new TextBlock($"Content: {messageText}")
-                    {
-                        Wrap = true
-                    }
+                    Weight = TextWeight.Bolder,
+                    Size = TextSize.Large,
+                    Color = TextColor.Accent
+                },
+                new TextBlock($"Message ID: {messageId}")
+                {
+                    Wrap = true
+                },
+                new TextBlock($"Content: {messageText}")
+                {
+                    Wrap = true
                 }
-            };
+            });
 
             var attachment = new Microsoft.Teams.Api.MessageExtensions.Attachment
             {
@@ -159,28 +148,24 @@ namespace {{SafeProjectName}}
 
         public static Microsoft.Teams.Api.MessageExtensions.Response CreateLinkUnfurlResponse(string url, Microsoft.Teams.Common.Logging.ILogger log)
         {
-            var card = new Microsoft.Teams.Cards.AdaptiveCard
+            var card = new Microsoft.Teams.Cards.AdaptiveCard(new List<CardElement>
             {
-                Schema = "http://adaptivecards.io/schemas/adaptive-card.json",
-                Body = new List<CardElement>
+                new TextBlock("Link Preview")
                 {
-                    new TextBlock("Link Preview")
-                    {
-                        Weight = TextWeight.Bolder,
-                        Size = TextSize.Medium
-                    },
-                    new TextBlock($"URL: {url}")
-                    {
-                        IsSubtle = true,
-                        Wrap = true
-                    },
-                    new TextBlock("This is a preview of the linked content generated by the message extension.")
-                    {
-                        Wrap = true,
-                        Size = TextSize.Small
-                    }
+                    Weight = TextWeight.Bolder,
+                    Size = TextSize.Medium
+                },
+                new TextBlock($"URL: {url}")
+                {
+                    IsSubtle = true,
+                    Wrap = true
+                },
+                new TextBlock("This is a preview of the linked content generated by the message extension.")
+                {
+                    Wrap = true,
+                    Size = TextSize.Small
                 }
-            };
+            });
 
             var attachment = new Microsoft.Teams.Api.MessageExtensions.Attachment
             {
@@ -212,10 +197,8 @@ namespace {{SafeProjectName}}
         {
             var itemJson = JsonSerializer.Serialize(selectedItem);
 
-            var card = new Microsoft.Teams.Cards.AdaptiveCard
-            {
-                Schema = "http://adaptivecards.io/schemas/adaptive-card.json",
-                Body = new List<CardElement>
+            var card = new Microsoft.Teams.Cards.AdaptiveCard(
+                new List<CardElement>
                 {
                     new TextBlock("Item Selected")
                     {
@@ -234,6 +217,9 @@ namespace {{SafeProjectName}}
                         Separator = true
                     }
                 }
+            )
+            {
+                Schema = "http://adaptivecards.io/schemas/adaptive-card.json"
             };
 
             var attachment = new Microsoft.Teams.Api.MessageExtensions.Attachment
@@ -285,7 +271,5 @@ namespace {{SafeProjectName}}
             }
             return null;
         }
-
     }
-
 }
