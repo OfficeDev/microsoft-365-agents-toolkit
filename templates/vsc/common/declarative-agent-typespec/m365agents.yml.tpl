@@ -35,7 +35,7 @@ provision:
   - uses: cli/runNpmCommand
     name: Generate TypeSpec environment variables
     with:
-      args: run generate:variables -- ${{TEAMSFX_ENV}}
+      args: run generate:env -- ${{TEAMSFX_ENV}}
 
   # Compile typespec files and generate necessary files for agent.
   # If you want to update the outputDir, please make sure the following paths are also updated.

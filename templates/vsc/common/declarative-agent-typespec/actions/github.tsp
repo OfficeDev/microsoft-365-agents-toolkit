@@ -1,5 +1,6 @@
 import "@typespec/http";
 import "@microsoft/typespec-m365-copilot";
+import "../env.tsp";
 
 using TypeSpec.Http;
 using TypeSpec.M365.Copilot.Actions;
