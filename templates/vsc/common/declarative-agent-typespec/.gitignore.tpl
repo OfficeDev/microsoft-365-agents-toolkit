@@ -3,6 +3,7 @@ env/.env.*.user
 env/.env.local
 .localConfigs
 appPackage/build
+build
 
 # dependencies
 node_modules/
