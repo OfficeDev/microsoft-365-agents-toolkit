@@ -12,7 +12,7 @@ import {
 } from "../../../plugins/solution/util";
 import * as chai from "chai";
 import chaiAsPromised from "chai-as-promised";
-import { AadAppClient } from "../../../../src/component/driver/aad/utility/aadAppClient";
+import { AadAppClient } from "../../../../src/client/aadAppClient";
 import { AADApplication } from "../../../../src/component/driver/aad/interface/AADApplication";
 import { MissingEnvUserError } from "../../../../src/component/driver/aad/error/missingEnvError";
 import {
