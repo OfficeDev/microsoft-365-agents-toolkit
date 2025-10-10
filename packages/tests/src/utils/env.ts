@@ -31,6 +31,20 @@ export class Env {
     return this.getVal("CLEAN_CLIENT_ID", process.env.CLEAN_CLIENT_ID);
   }
 
+  static get servicePrincipalId() {
+    return this.getVal(
+      "AZURE_SERVICE_PRINCIPAL_ID",
+      process.env.AZURE_SERVICE_PRINCIPAL_ID
+    );
+  }
+
+  static get servicePrincipalSecret() {
+    return this.getVal(
+      "AZURE_SERVICE_PRINCIPAL_SECRET",
+      process.env.AZURE_SERVICE_PRINCIPAL_SECRET
+    );
+  }
+
   static get azureAccountName() {
     return this.getVal("AZURE_ACCOUNT_NAME", process.env.AZURE_ACCOUNT_NAME);
   }

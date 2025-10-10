@@ -98,6 +98,7 @@ export class CreateOrUpdateBotFrameworkBotDriver implements StepDriver {
         messagingEndpoint: args.messagingEndpoint,
         callingEndpoint: callingEndpoint ?? "",
         configuredChannels,
+        isSingleTenant: true,
       };
 
       const result = await createOrUpdateBotRegistration(

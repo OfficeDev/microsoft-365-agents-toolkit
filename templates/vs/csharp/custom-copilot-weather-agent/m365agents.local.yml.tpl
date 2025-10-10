@@ -1,7 +1,7 @@
-# yaml-language-server: $schema=https://aka.ms/m365-agents-toolkits/v1.9/yaml.schema.json
+# yaml-language-server: $schema=https://aka.ms/m365-agents-toolkits/v1.11/yaml.schema.json
 # Visit https://aka.ms/teamsfx-v5.0-guide for details on this file
 # Visit https://aka.ms/teamsfx-actions for details on actions
-version: v1.9
+version: v1.11
 
 provision:
   # Creates a Teams app
@@ -20,6 +20,7 @@ provision:
       # The Microsoft Entra application's display name
       name: {{appName}}${{APP_NAME_SUFFIX}}
       generateClientSecret: true
+      generateServicePrincipal: true
       signInAudience: AzureADMultipleOrgs
     writeToEnvironmentFile:
       # The Microsoft Entra application's client id created for bot.
@@ -51,7 +52,7 @@ provision:
           BotServiceConnection:
             Settings:
               AuthType: "ClientSecret"
-              AuthorityEndpoint: "https://login.microsoftonline.com/botframework.com"
+              TenantId: ${{TEAMS_APP_TENANT_ID}}
               ClientId: ${{BOT_ID}}
               ClientSecret: ${{SECRET_BOT_PASSWORD}}
 {{#useOpenAI}}

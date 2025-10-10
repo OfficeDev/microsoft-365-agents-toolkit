@@ -2,6 +2,12 @@
 
 > Note: This changelog only includes the changes for the stable versions of Microsoft 365 Agents Toolkit (evolved from Teams Toolkit). For the changelog of pre-released versions, please refer to the [Microsoft 365 Agents Toolkit Pre-release Changelog](https://github.com/OfficeDev/TeamsFx/blob/dev/packages/vscode-extension/PRERELEASE.md).
 
+## 6.2.1 - Sep 29, 2025
+
+Hotfix Version.
+
+Starting October 1st, MFA will be enforced for create, update, and delete operations regarding to Azure resources in VS Code extensions, requiring users to complete MFA setup to avoid 401 errors. This update ensures compliance with Microsoft's global MFA policy and improves security for all extension users.
+
 ## 6.2.0 - Sep 18, 2025
 This release marks a major step forward in agent development and Teams app innovation, as we comprehensively upgrade Teams agents and app project templates to the new generation **Teams AI Library V2**.
 

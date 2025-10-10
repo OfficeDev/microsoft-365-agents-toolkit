@@ -12,7 +12,7 @@ import {
 } from "../../../plugins/solution/util";
 import * as chai from "chai";
 import chaiAsPromised from "chai-as-promised";
-import { AadAppClient } from "../../../../src/component/driver/aad/utility/aadAppClient";
+import { AadAppClient } from "../../../../src/client/aadAppClient";
 import { AADApplication } from "../../../../src/component/driver/aad/interface/AADApplication";
 import { MissingEnvUserError } from "../../../../src/component/driver/aad/error/missingEnvError";
 import {
@@ -27,6 +27,7 @@ import { MockedM365Provider } from "../../../core/utils";
 import { UserCancelError } from "../../../../src/error/common";
 import { getLocalizedString } from "../../../../src/common/localizeUtils";
 import { constants } from "../../../../src/component/driver/aad/utility/constants";
+import { TeamsDevPortalClient } from "../../../../src/client/teamsDevPortalClient";
 
 chai.use(chaiAsPromised);
 const expect = chai.expect;
@@ -469,6 +470,49 @@ describe("aadAppCreate", async () => {
       .and.equals(
         'A http server error occurred while performing the aadApp/create task. Try again later. The error response is: {"error":{"code":"InternalServerError","message":"Internal server error"}}'
       );
+  });
+
+  it("should call TDP API to create AAD app with service principal when parameter generateServicePrincipal is true", async () => {
+    const args: any = {
+      name: "test",
+      generateClientSecret: false,
+      generateServicePrincipal: true,
+    };
+    const driverContext: any = {
+      m365TokenProvider: new MockedM365Provider(),
+      telemetryReporter: new MockedTelemetryReporter(),
+    };
+    sinon.stub(TeamsDevPortalClient.prototype, "createAADApp").resolves({
+      id: expectedObjectId,
+      displayName: expectedDisplayName,
+      appId: expectedClientId,
+    } as AADApplication);
+
+    const result = await createAadAppDriver.execute(args, driverContext, outputEnvVarNames);
+
+    expect(result.result.isOk()).to.be.true;
+  });
+
+  it("should return error when failed to get token for TDP API to create AAD app with service principal when parameter generateServicePrincipal is true", async () => {
+    const args: any = {
+      name: "test",
+      generateClientSecret: false,
+      generateServicePrincipal: true,
+    };
+    const driverContext: any = {
+      m365TokenProvider: new MockedM365Provider(),
+      telemetryReporter: new MockedTelemetryReporter(),
+    };
+    sinon.stub(MockedM365Provider.prototype, "getAccessToken").resolves(err(new UserCancelError()));
+    sinon.stub(TeamsDevPortalClient.prototype, "createAADApp").resolves({
+      id: expectedObjectId,
+      displayName: expectedDisplayName,
+      appId: expectedClientId,
+    } as AADApplication);
+
+    const result = await createAadAppDriver.execute(args, driverContext, outputEnvVarNames);
+
+    expect(result.result.isErr()).to.be.true;
   });
 
   it("should send telemetries when success", async () => {

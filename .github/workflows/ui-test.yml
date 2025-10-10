@@ -65,9 +65,9 @@ jobs:
     env:
       AUTO_TEST_PLAN_ID: ${{ github.event.inputs.source-testplan-id }}
       TARGET_TEST_PLAN_NAME: ${{ github.event.inputs.target-testplan-name }}
-      DEVTUNNEL_CLIENT_ID: ${{ secrets.TEST_CLEAN_CLIENT_ID }}
-      DEVTUNNEL_CLIENT_SECRET: ${{ secrets.TEST_CLEAN_CLIENT_SECRET }}
-      DEVTUNNEL_TENANT_ID: ${{ secrets.TEST_CLEAN_TENANT_ID }}
+      DEVTUNNEL_CLIENT_ID: ${{ secrets.TEST_CLEAN_CLIENT_ID_NEW }}
+      DEVTUNNEL_CLIENT_SECRET: ${{ secrets.TEST_CLEAN_CLIENT_SECRET_NEW }}
+      DEVTUNNEL_TENANT_ID: ${{ secrets.TEST_CLEAN_TENANT_ID_NEW }}
 
     steps:
       - name: Init GitHub CLI
@@ -181,28 +181,31 @@ jobs:
       NGROK_TOKEN: ${{ secrets.NGROK_TOKEN }}
       TARGET_CLI_VERSION: ${{ needs.setup.outputs.target_cli_version }}
 
-      CLEAN_CLIENT_ID: ${{ secrets.TEST_CLEAN_CLIENT_ID }}
-      CLEAN_TENANT_ID: ${{ secrets.TEST_CLEAN_TENANT_ID }}
+      CLEAN_CLIENT_ID: ${{ secrets.TEST_CLEAN_CLIENT_ID_NEW }}
+      CLEAN_TENANT_ID: ${{ secrets.TEST_CLEAN_TENANT_ID_NEW }}
 
-      DEVTUNNEL_CLIENT_ID: ${{ secrets.TEST_CLEAN_CLIENT_ID }}
-      DEVTUNNEL_CLIENT_SECRET: ${{ secrets.TEST_CLEAN_CLIENT_SECRET }}
-      DEVTUNNEL_TENANT_ID: ${{ secrets.TEST_CLEAN_TENANT_ID }}
+      DEVTUNNEL_CLIENT_ID: ${{ secrets.TEST_CLEAN_CLIENT_ID_NEW }}
+      DEVTUNNEL_CLIENT_SECRET: ${{ secrets.TEST_CLEAN_CLIENT_SECRET_NEW }}
+      DEVTUNNEL_TENANT_ID: ${{ secrets.TEST_CLEAN_TENANT_ID_NEW }}
 
-      M365_ACCOUNT_PASSWORD: ${{ secrets.TEST_M365_PASSWORD }}
-      M365_USERNAME: "test14@xxbdw.onmicrosoft.com"
-      M365_USERNAME_2: "test15@xxbdw.onmicrosoft.com"
-      M365_USERNAME_3: "test16@xxbdw.onmicrosoft.com"
-      M365_USERNAME_4: "test17@xxbdw.onmicrosoft.com"
-      M365_USERNAME_5: "ttktest01@xxbdw.onmicrosoft.com"
-      M365_DISPLAY_NAME: "ttktest"
-      M365_TENANT_ID: ${{ secrets.TEST_CLEAN_TENANT_ID }}
-      M365_COLLABORATOR: "haolong@xxbdw.onmicrosoft.com"
+      M365_ACCOUNT_PASSWORD: ${{ secrets.TEST_M365_PASSWORD_NEW }}
+      M365_USERNAME: "test01@atktesting.onmicrosoft.com"
+      M365_USERNAME_2: "test02@atktesting.onmicrosoft.com"
+      M365_USERNAME_3: "test03@atktesting.onmicrosoft.com"
+      M365_USERNAME_4: "test04@atktesting.onmicrosoft.com"
+      M365_USERNAME_5: "test05@atktesting.onmicrosoft.com"
+      M365_DISPLAY_NAME: "atktest"
+      M365_TENANT_ID: ${{ secrets.TEST_CLEAN_TENANT_ID_NEW }}
+      M365_COLLABORATOR: "admin@atktesting.onmicrosoft.com"
 
-      AZURE_TENANT_ID: ${{ secrets.TEST_TENANT_ID }}
-      AZURE_SUBSCRIPTION_ID: ${{ secrets.TEST_SUBSCRIPTION_ID }}
-      AZURE_SUBSCRIPTION_NAME: ${{ secrets.TEST_SUBSCRIPTION_NAME }}
-      AZURE_ACCOUNT_NAME: ${{ secrets.TEST_USER_NAME }}
-      AZURE_ACCOUNT_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
+      AZURE_TENANT_ID: ${{ secrets.TEST_TENANT_ID_NEW }}
+      AZURE_SUBSCRIPTION_ID: ${{ secrets.TEST_SUBSCRIPTION_ID_NEW }}
+      AZURE_SUBSCRIPTION_NAME: ${{ secrets.TEST_SUBSCRIPTION_NAME_NEW }}
+      AZURE_SERVICE_PRINCIPAL_ID: ${{ secrets.AZURE_SERVICE_PRINCIPAL_ID}}
+      AZURE_SERVICE_PRINCIPAL_SECRET: ${{ secrets.AZURE_SERVICE_PRINCIPAL_SECRET}}
+      AZURE_ACCOUNT_OBJECT_ID: ${{ secrets.TEST_APP_ID_NEW }}
+      AZURE_ACCOUNT_NAME: ${{ secrets.TEST_USER_NAME_NEW }}
+      AZURE_ACCOUNT_PASSWORD: ${{ secrets.TEST_USER_PASSWORD_NEW }}
       STORAGE_ACCOUNT_KEY: ${{ secrets.TEST_STORAGE_ACCOUNT_KEY }}
 
       AZURE_OPENAI_DEPLOYMENT_NAME: "gpt-4-32k"
@@ -385,7 +388,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           repository: microsoft/teams-ai
-          ref: main
+          ref: js-1.7.4
           path: packages/tests/resource
 
       - name: Download samples food catalog
@@ -692,7 +695,7 @@ jobs:
 
           done <<< $cases
           lists="$failedlist $passedlist"
-          body="Dashboard App: <a href=\\\"https:\/\/teams.microsoft.com\/l\/entity\/c439ae8d-3ab3-4efd-9223-87366d8c170c\/_djb2_msteams_prefix_1252604900?context=%7B%22channelId%22%3A%2219%3A79488ced607f4fbf8d8433e931cad176%40thread.tacv2%22%7D&tenantId=72f988bf-86f1-41af-91ab-2d7cd011db47\\\">Click Here to Open Dashboard App</a>  <br/> Release: ${{ needs.setup.outputs.ttk-package }}. <br/> <table class=\\\"w3-table w3-striped w3-bordered\\\"> <tr> <th>CASE</th> <th>OS</th> <th>NODE</th> <th>STATUS</th> <th>AUTHOR</th> <th>DURATION</th> </tr> $lists </table> <br />"
+          body="Dashboard App: <a href=\\\"https:\/\/teams.microsoft.com\/l\/entity\/c439ae8d-3ab3-4efd-9223-87366d8c170c\/_djb2_msteams_prefix_1252604900?context=%7B%22channelId%22%3A%2219%3A79488ced607f4fbf8d8433e931cad176%40thread.tacv2%22%7D&tenantId=989179d1-c44d-4cf0-bb69-e911c27db18a\\\">Click Here to Open Dashboard App</a>  <br/> Release: ${{ needs.setup.outputs.ttk-package }}. <br/> <table class=\\\"w3-table w3-striped w3-bordered\\\"> <tr> <th>CASE</th> <th>OS</th> <th>NODE</th> <th>STATUS</th> <th>AUTHOR</th> <th>DURATION</th> </tr> $lists </table> <br />"
 
           total=$((passed+failed))
 
@@ -713,6 +716,6 @@ jobs:
           TO: ${{ steps.list-jobs.outputs.to }}
           BODY: '"${{ steps.list-jobs.outputs.body }}"'
           SUBJECT: ${{ steps.list-jobs.outputs.subject }}
-          MAIL_CLIENT_ID: ${{ secrets.TEST_CLEAN_CLIENT_ID }}
-          MAIL_CLIENT_SECRET: ${{ secrets.TEST_CLEAN_CLIENT_SECRET }}
-          MAIL_TENANT_ID: ${{ secrets.TEST_CLEAN_TENANT_ID }}
+          MAIL_CLIENT_ID: ${{ secrets.TEST_CLEAN_CLIENT_ID_NEW }}
+          MAIL_CLIENT_SECRET: ${{ secrets.TEST_CLEAN_CLIENT_SECRET_NEW }}
+          MAIL_TENANT_ID: ${{ secrets.TEST_CLEAN_TENANT_ID_NEW }}

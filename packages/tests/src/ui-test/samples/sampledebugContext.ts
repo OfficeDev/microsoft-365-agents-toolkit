@@ -10,6 +10,7 @@ import {
   TemplateProjectFolder,
   TestFilePath,
 } from "../../utils/constants";
+import { globalResourceGroupLocation } from "../../commonlib/constants";
 import { dotenvUtil } from "../../utils/envUtil";
 import { InputBox, VSBrowser } from "vscode-extension-tester";
 import { getSampleAppName } from "../../utils/nameUtil";
@@ -509,7 +510,11 @@ export class SampledebugContext extends TestContext {
   ): Promise<void> {
     if (options.createRg) {
       console.log("create resource group");
-      await createResourceGroup(appName, options.env, "westus");
+      await createResourceGroup(
+        appName,
+        options.env,
+        globalResourceGroupLocation
+      );
     }
     const resourceGroupName = `${appName}-${options.env}-rg`;
     process.env["AZURE_RESOURCE_GROUP_NAME"] = resourceGroupName;

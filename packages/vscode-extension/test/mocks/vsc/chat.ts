@@ -27,7 +27,7 @@ export class LanguageModelChatMessage {
   /**
    * The content of this message.
    */
-  content: string;
+  content: Array<{ value: string }>;
 
   /**
    * The optional name of a user for this message.
@@ -43,7 +43,7 @@ export class LanguageModelChatMessage {
    */
   constructor(role: LanguageModelChatMessageRole, content: string, name?: string) {
     this.role = role;
-    this.content = content;
+    this.content = [{ value: content }];
     this.name = name;
   }
 }

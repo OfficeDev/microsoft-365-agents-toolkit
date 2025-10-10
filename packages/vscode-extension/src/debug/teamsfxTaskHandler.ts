@@ -139,11 +139,13 @@ function isTeamsfxTask(task: vscode.Task): boolean {
     let commandLine: string | undefined;
     if (task.execution && <vscode.ShellExecution>task.execution) {
       const execution = <vscode.ShellExecution>task.execution;
-      commandLine =
-        execution.commandLine ||
-        `${typeof execution.command === "string" ? execution.command : execution.command.value} ${(
-          execution.args || []
-        ).join(" ")}`;
+      if (execution.command) {
+        commandLine =
+          execution.commandLine ||
+          `${
+            typeof execution.command === "string" ? execution.command : execution.command.value
+          } ${(execution.args || []).join(" ")}`;
+      }
     }
     if (commandLine !== undefined) {
       if (/(npm|yarn)[\s]+(run )?[\s]*[^:\s]+:teamsfx/i.test(commandLine)) {
@@ -166,13 +168,15 @@ function isLaunchTestToolTask(task: vscode.Task): boolean {
     // dev:teamsfx and watch:teamsfx
     if (task.execution && <vscode.ShellExecution>task.execution) {
       const execution = <vscode.ShellExecution>task.execution;
-      const commandLine =
-        execution.commandLine ||
-        `${typeof execution.command === "string" ? execution.command : execution.command.value} ${(
-          execution.args || []
-        ).join(" ")}`;
-      if (/(npm|yarn)[\s]+(run )?[\s]*[^:\s]+:teamsfx:launch-testtool/i.test(commandLine)) {
-        return true;
+      if (execution.command) {
+        const commandLine =
+          execution.commandLine ||
+          `${
+            typeof execution.command === "string" ? execution.command : execution.command.value
+          } ${(execution.args || []).join(" ")}`;
+        if (/(npm|yarn)[\s]+(run )?[\s]*[^:\s]+:teamsfx:launch-testtool/i.test(commandLine)) {
+          return true;
+        }
       }
     }
   }

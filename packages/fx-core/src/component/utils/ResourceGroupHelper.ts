@@ -28,9 +28,9 @@ import {
 } from "../../error/azure";
 import { QuestionNames, recommendedLocations } from "../../question/constants";
 import { traverse } from "../../ui/visitor";
-import { SolutionSource } from "../constants";
 import { getLocalizedString } from "../../common/localizeUtils";
 import { InputValidationError } from "../../error";
+import { azureClientHelper } from "./azureClient";
 
 const MsResources = "Microsoft.Resources";
 const ResourceGroups = "resourceGroups";
@@ -56,10 +56,7 @@ export function selectResourceGroupQuestion(
     title: getLocalizedString("core.QuestionSelectResourceGroup.title"),
     staticOptions: [{ id: newResourceGroupOption, label: newResourceGroupOption }],
     dynamicOptions: async (inputs: Inputs): Promise<OptionItem[]> => {
-      const rmClient = await resourceGroupHelper.createRmClient(
-        azureAccountProvider,
-        subscriptionId
-      );
+      const rmClient = await azureClientHelper.createRmClient(azureAccountProvider, subscriptionId);
       const listRgRes = await resourceGroupHelper.listResourceGroups(rmClient);
       if (listRgRes.isErr()) throw listRgRes.error;
       const rgList = listRgRes.value;
@@ -90,10 +87,7 @@ export function selectResourceGroupLocationQuestion(
     title: getLocalizedString("core.QuestionNewResourceGroupLocation.title"),
     staticOptions: [],
     dynamicOptions: async (inputs: Inputs) => {
-      const rmClient = await resourceGroupHelper.createRmClient(
-        azureAccountProvider,
-        subscriptionId
-      );
+      const rmClient = await azureClientHelper.createRmClient(azureAccountProvider, subscriptionId);
       const getLocationsRes = await resourceGroupHelper.getLocations(
         azureAccountProvider,
         rmClient
@@ -197,7 +191,7 @@ class ResourceGroupHelper {
     subscriptionId: string,
     location: string
   ): Promise<Result<string, FxError>> {
-    const rmClient = await this.createRmClient(azureAccountProvider, subscriptionId);
+    const rmClient = await azureClientHelper.createRmClient(azureAccountProvider, subscriptionId);
     const maybeExist = await this.checkResourceGroupExistence(resourceGroupName, rmClient);
     if (maybeExist.isErr()) {
       return err(maybeExist.error);
@@ -390,16 +384,6 @@ class ResourceGroupHelper {
         location: location,
       });
     }
-  }
-
-  async createRmClient(azureAccountProvider: AzureAccountProvider, subscriptionId: string) {
-    const azureToken = await azureAccountProvider.getIdentityCredentialAsync();
-    if (azureToken === undefined) {
-      throw new InvalidAzureCredentialError();
-    }
-    await azureAccountProvider.setSubscription(subscriptionId);
-    const rmClient = new ResourceManagementClient(azureToken, subscriptionId);
-    return rmClient;
   }
 }
 
