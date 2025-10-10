@@ -560,6 +560,27 @@ export function updateActionWithMCP(): IQTreeNode {
           },
         },
       },
+      {
+        condition: (inputs: Inputs) => {
+          return inputs[QuestionNames.MCPForDAAuth] !== "NoneAuth";
+        },
+        data: {
+          type: "singleSelect",
+          name: QuestionNames.MCPForDAAuthType,
+          title: getLocalizedString("core.createProjectQuestion.mcpForDa.AuthType.title"),
+          staticOptions: [
+            {
+              id: "oauth",
+              label: getLocalizedString("core.createProjectQuestion.mcpForDa.Auth.OAuth"),
+            },
+            {
+              id: "entraSSO",
+              label: getLocalizedString("core.createProjectQuestion.mcpForDa.Auth.EntraSSO"),
+            },
+          ],
+          default: "oauth",
+        },
+      },
     ],
   };
 }

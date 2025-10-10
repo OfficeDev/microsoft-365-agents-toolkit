@@ -244,11 +244,12 @@ export class ActionInjector {
 
   static async injectCreateOAuthActionForMCP(
     ymlPath: string,
+    authType: string,
     authName: string,
-    authorizationUrl: string,
-    tokenUrl: string,
     registrationId: string,
     mcpServerUrl: string,
+    authorizationUrl?: string,
+    tokenUrl?: string,
     refreshUrl?: string
   ): Promise<AuthActionInjectResult | undefined> {
     const ymlContent = await fs.readFile(ymlPath, "utf-8");
@@ -283,11 +284,17 @@ export class ActionInjector {
           with: {
             name: `${authName}`,
             appId: `\${{${teamsAppIdEnvName}}}`,
-            authorizationUrl: authorizationUrl,
-            tokenUrl: tokenUrl,
-            refreshUrl: refreshUrl ?? undefined,
             flow: "authorizationCode",
-            identityProvider: "Custom",
+            ...(authType === "oauth"
+              ? {
+                  authorizationUrl: authorizationUrl,
+                  tokenUrl: tokenUrl,
+                  refreshUrl: refreshUrl ?? undefined,
+                  identityProvider: "Custom",
+                }
+              : {
+                  identityProvider: MicrosoftEntraAuthType,
+                }),
             baseUrl: mcpServerUrl,
           },
           writeToEnvironmentFile: {
