@@ -13,7 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="9.0.0" />
+    <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="9.0.9" />
     <PackageReference Include="Azure.Identity" Version="1.13.1" />
     <PackageReference Include="Microsoft.Teams.Api" Version="2.0.*" />
     <PackageReference Include="Microsoft.Teams.Apps" Version="2.0.*" />
@@ -36,6 +36,13 @@
   <ItemGroup>
     <Folder Include="Web\bin\" />
   </ItemGroup>
+
+  <!-- Add prune package to workaround https://github.com/dotnet/aspnetcore/issues/63719 -->
+  <Target Name="_PreserveFileProvidersEmbeddedPackageReference" AfterTargets="AddPrunePackageReferences">
+    <ItemGroup>
+  <PrunePackageReference Remove="Microsoft.Extensions.FileProviders.Embedded" />
+    </ItemGroup>
+  </Target>
 
   <!-- Run npm steps -->
   <Target Name="NpmInstall" BeforeTargets="BeforeBuild">
