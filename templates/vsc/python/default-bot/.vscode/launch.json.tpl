@@ -3,7 +3,7 @@
   "configurations": [
 {{#SandBoxedTeam}}
     {
-      "name": "Launch Agent to channel (Edge)",
+      "name": "Start App to channel (Edge)",
       "type": "msedge",
       "request": "launch",
       "url": "${{sandbox:CHANNEL_WEB_URL}}&webjoin=true",
@@ -41,7 +41,7 @@
       "name": "Launch Remote (Desktop)",
       "type": "node",
       "request": "launch",
-      "preLaunchTask": "Start Agent in Desktop Client (Remote)",
+      "preLaunchTask": "Start App in Desktop Client (Remote)",
       "presentation": {
         "group": "1-Teams",
         "order": 6
@@ -49,7 +49,7 @@
       "internalConsoleOptions": "neverOpen"
     },
     {
-      "name": "Launch Agent (Edge)",
+      "name": "Start App (Edge)",
       "type": "msedge",
       "request": "launch",
       "url": "https://teams.microsoft.com/l/app/${{local:TEAMS_APP_ID}}?installAppPackage=true&webjoin=true&${account-hint}",
@@ -60,7 +60,7 @@
       "internalConsoleOptions": "neverOpen"
     },
     {
-      "name": "Launch Agent (Chrome)",
+      "name": "Start App (Chrome)",
       "type": "chrome",
       "request": "launch",
       "url": "https://teams.microsoft.com/l/app/${{local:TEAMS_APP_ID}}?installAppPackage=true&webjoin=true&${account-hint}",
@@ -98,9 +98,9 @@
 {{#SandBoxedTeam}}
     {
       "name": "Debug in sandbox in Teams (Edge)",
-      "configurations": ["Launch Agent to channel (Edge)", "Start Python"],
+      "configurations": ["Start App to channel (Edge)", "Start Python"],
       "cascadeTerminateToConfigurations": ["Start Python"],
-      "preLaunchTask": "Start Agent (Sandbox)",
+      "preLaunchTask": "Start App (Sandbox)",
       "presentation": {
           "group": "0-TestTool",
           "order": 2
@@ -110,9 +110,9 @@
 {{/SandBoxedTeam}}
     {
       "name": "Debug in Teams (Edge)",
-      "configurations": ["Launch Agent (Edge)", "Start Python"],
+      "configurations": ["Start App (Edge)", "Start Python"],
       "cascadeTerminateToConfigurations": ["Start Python"],
-      "preLaunchTask": "Start Agent Locally",
+      "preLaunchTask": "Start App Locally",
       "presentation": {
         "group": "1-Teams",
         "order": 1
@@ -121,9 +121,9 @@
     },
     {
       "name": "Debug in Teams (Chrome)",
-      "configurations": ["Launch Agent (Chrome)", "Start Python"],
+      "configurations": ["Start App (Chrome)", "Start Python"],
       "cascadeTerminateToConfigurations": ["Start Python"],
-      "preLaunchTask": "Start Agent Locally",
+      "preLaunchTask": "Start App Locally",
       "presentation": {
         "group": "1-Teams",
         "order": 2
@@ -133,7 +133,7 @@
     {
       "name": "Debug in Teams (Desktop)",
       "configurations": ["Start Python"],
-      "preLaunchTask": "Start Agent in Desktop Client",
+      "preLaunchTask": "Start App in Desktop Client",
       "presentation": {
         "group": "1-Teams",
         "order": 3

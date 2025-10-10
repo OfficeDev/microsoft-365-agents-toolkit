@@ -5,7 +5,7 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "Start Agent (Sandbox)",
+            "label": "Start App (Sandbox)",
             "dependsOn": [
                 "Validate prerequisites (Sandbox)",
                 "Start local tunnel (Sandbox)",
@@ -116,7 +116,7 @@
             }
         },
         {
-            "label": "Start Agent Locally",
+            "label": "Start App Locally",
             "dependsOn": [
                 "Validate prerequisites",
                 "Start local tunnel",
@@ -186,7 +186,7 @@
             }
         },
         {
-            "label": "Start Agent in Desktop Client",
+            "label": "Start App in Desktop Client",
             "dependsOn": [
                 "Validate prerequisites",
                 "Start local tunnel",
@@ -205,7 +205,7 @@
             }
         },
         {
-            "label": "Start Agent in Desktop Client (Remote)",
+            "label": "Start App in Desktop Client (Remote)",
             "type": "teamsfx",
             "command": "launch-desktop-client",
             "args": {

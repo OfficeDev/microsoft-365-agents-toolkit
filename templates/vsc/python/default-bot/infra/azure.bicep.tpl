@@ -47,7 +47,7 @@ resource webApp 'Microsoft.Web/sites@2021-02-01' = {
       appSettings: [
         {
           name: 'WEBSITES_CONTAINER_START_TIME_LIMIT'
-          value: '1200'
+          value: '900'
         }
         {
           name: 'SCM_DO_BUILD_DURING_DEPLOYMENT'

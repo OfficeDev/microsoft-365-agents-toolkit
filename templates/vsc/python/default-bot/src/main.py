@@ -4,7 +4,6 @@ import re
 from azure.identity import ManagedIdentityCredential
 from microsoft.teams.api import MessageActivity, TypingActivityInput
 from microsoft.teams.apps import ActivityContext, App
-from microsoft.teams.devtools import DevToolsPlugin
 from config import Config
 
 def create_token_factory():
@@ -19,8 +18,7 @@ def create_token_factory():
     return get_token
 
 app = App(
-    token=create_token_factory() if Config.APP_TYPE == "UserAssignedMsi" else None,
-    plugins=[DevToolsPlugin()]
+    token=create_token_factory() if Config.APP_TYPE == "UserAssignedMsi" else None
 )
 
 @app.on_message_pattern(re.compile(r"hello|hi|greetings"))
