@@ -1038,12 +1038,12 @@ describe("oauthQuestion", async () => {
     const clientIdRes = await (clientIdCondition as ConditionFunc)(inputs);
     assert.equal(clientIdRes, true);
 
-    const clientSecretQuestion = question.children![1];
+    const clientSecretQuestion = question.children![2];
     const clientSecretCondition = clientSecretQuestion.condition;
     const clientSecretRes = await (clientSecretCondition as ConditionFunc)(inputs);
     assert.equal(clientSecretRes, true);
 
-    const confirmQuesion = question.children![2];
+    const confirmQuesion = question.children![3];
     const confirmCondition = confirmQuesion.condition;
     const confirmRes = await (confirmCondition as ConditionFunc)(inputs);
     assert.equal(confirmRes, true);
@@ -1062,12 +1062,12 @@ describe("oauthQuestion", async () => {
     const clientIdRes = await (clientIdCondition as ConditionFunc)(inputs);
     assert.equal(clientIdRes, true);
 
-    const clientSecretQuestion = question.children![1];
+    const clientSecretQuestion = question.children![2];
     const clientSecretCondition = clientSecretQuestion.condition;
     const clientSecretRes = await (clientSecretCondition as ConditionFunc)(inputs);
     assert.equal(clientSecretRes, false);
 
-    const confirmQuesion = question.children![2];
+    const confirmQuesion = question.children![3];
     const confirmCondition = confirmQuesion.condition;
     const confirmRes = await (confirmCondition as ConditionFunc)(inputs);
     assert.equal(confirmRes, true);
@@ -1086,12 +1086,12 @@ describe("oauthQuestion", async () => {
     const clientIdRes = await (clientIdCondition as ConditionFunc)(inputs);
     assert.equal(clientIdRes, false);
 
-    const clientSecretQuestion = question.children![1];
+    const clientSecretQuestion = question.children![2];
     const clientSecretCondition = clientSecretQuestion.condition;
     const clientSecretRes = await (clientSecretCondition as ConditionFunc)(inputs);
     assert.equal(clientSecretRes, true);
 
-    const confirmQuesion = question.children![2];
+    const confirmQuesion = question.children![3];
     const confirmCondition = confirmQuesion.condition;
     const confirmRes = await (confirmCondition as ConditionFunc)(inputs);
     assert.equal(confirmRes, true);
@@ -1111,12 +1111,12 @@ describe("oauthQuestion", async () => {
     const clientIdRes = await (clientIdCondition as ConditionFunc)(inputs);
     assert.equal(clientIdRes, false);
 
-    const clientSecretQuestion = question.children![1];
+    const clientSecretQuestion = question.children![2];
     const clientSecretCondition = clientSecretQuestion.condition;
     const clientSecretRes = await (clientSecretCondition as ConditionFunc)(inputs);
     assert.equal(clientSecretRes, false);
 
-    const confirmQuesion = question.children![2];
+    const confirmQuesion = question.children![3];
     const confirmCondition = confirmQuesion.condition;
     const confirmRes = await (confirmCondition as ConditionFunc)(inputs);
     assert.equal(confirmRes, false);
@@ -1138,14 +1138,14 @@ describe("oauthQuestion", async () => {
   });
 
   it("client secret validation passed", async () => {
-    const question = oauthQuestion().children![1];
+    const question = oauthQuestion().children![2];
     const validation = (question.data as TextInputQuestion).validation;
     const result = (validation as FuncValidation<string>).validFunc("mockedClientSecret");
     assert.equal(result, undefined);
   });
 
   it("client secret validation failed due to length", async () => {
-    const question = oauthQuestion().children![1];
+    const question = oauthQuestion().children![2];
     const validation = (question.data as TextInputQuestion).validation;
     const result = (validation as FuncValidation<string>).validFunc("abc");
     assert.equal(result, "Invalid client secret. It should be 10 to 512 characters long.");
@@ -1167,9 +1167,49 @@ describe("oauthQuestion", async () => {
       platform: Platform.VSCode,
       outputEnvVarNames: new Map<string, string>(),
     };
-    const question = oauthQuestion().children![1];
+    const question = oauthQuestion().children![2];
     const validation = (question.data as TextInputQuestion).additionalValidationOnAccept;
     const result = (validation as FuncValidation<string>).validFunc("mockedClientSecret", inputs);
+    assert.equal(result, undefined);
+  });
+
+  it("will pop up entra client id question for MicrosoftEntra identity provider", async () => {
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      outputEnvVarNames: new Map<string, string>(),
+      identityProvider: "MicrosoftEntra",
+    };
+    const question = oauthQuestion();
+
+    const oauthClientIdQuestion = question.children![0];
+    const oauthClientIdCondition = oauthClientIdQuestion.condition;
+    const oauthClientIdRes = await (oauthClientIdCondition as ConditionFunc)(inputs);
+    assert.equal(oauthClientIdRes, false);
+
+    const entraClientIdQuestion = question.children![1];
+    const entraClientIdCondition = entraClientIdQuestion.condition;
+    const entraClientIdRes = await (entraClientIdCondition as ConditionFunc)(inputs);
+    assert.equal(entraClientIdRes, true);
+
+    const clientSecretQuestion = question.children![2];
+    const clientSecretCondition = clientSecretQuestion.condition;
+    const clientSecretRes = await (clientSecretCondition as ConditionFunc)(inputs);
+    assert.equal(clientSecretRes, false);
+
+    const confirmQuesion = question.children![3];
+    const confirmCondition = confirmQuesion.condition;
+    const confirmRes = await (confirmCondition as ConditionFunc)(inputs);
+    assert.equal(confirmRes, false);
+  });
+
+  it("entra client id additionalValidationOnAccept passed", async () => {
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      outputEnvVarNames: new Map<string, string>(),
+    };
+    const question = oauthQuestion().children![1];
+    const validation = (question.data as TextInputQuestion).additionalValidationOnAccept;
+    const result = (validation as FuncValidation<string>).validFunc("mockedEntraClientId", inputs);
     assert.equal(result, undefined);
   });
 });
@@ -1519,5 +1559,12 @@ describe("scaffold Copilot connector", async () => {
 
     const res6 = validation.validFunc("microsoft-graph-connector");
     assert.isFalse(res6 === undefined);
+  });
+});
+
+describe("updateActionWithMCP", async () => {
+  it("should return updateActionWithMCP question node", () => {
+    const res = questionNodes.updateActionWithMCP();
+    assert.isTrue(res !== undefined);
   });
 });

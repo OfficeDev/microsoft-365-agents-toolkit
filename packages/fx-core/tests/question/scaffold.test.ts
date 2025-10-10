@@ -522,3 +522,17 @@ describe("getTeamsCapabilityByCapability", () => {
     assert.equal(type, "");
   });
 });
+
+describe("ActionStartOptions", () => {
+  it("mcp() should return correct OptionItem", () => {
+    const mcpOption = ActionStartOptions.mcp();
+
+    assert.equal(mcpOption.id, "mcp");
+    assert.equal(mcpOption.label, getLocalizedString("core.createProjectQuestion.mcpForDa.label"));
+    assert.equal(
+      mcpOption.detail,
+      getLocalizedString("core.createProjectQuestion.mcpForDa.detail")
+    );
+    assert.equal(mcpOption.data, TemplateNames.DeclarativeAgentWithActionFromMCP);
+  });
+});
