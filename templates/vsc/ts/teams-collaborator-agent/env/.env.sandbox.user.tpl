@@ -2,14 +2,6 @@
 
 # Secrets. Keys prefixed with `SECRET_` will be masked in Teams Toolkit logs.
 SECRET_BOT_PASSWORD=
-{{#useOpenAI}}
-{{#openAIKey}}
-SECRET_OPENAI_API_KEY={{{openAIKey}}}
-{{/openAIKey}}
-{{^openAIKey}}
-SECRET_OPENAI_API_KEY=
-{{/openAIKey}}
-{{/useOpenAI}}
 {{#useAzureOpenAI}}
 {{#azureOpenAIKey}}
 SECRET_AZURE_OPENAI_API_KEY={{{azureOpenAIKey}}}

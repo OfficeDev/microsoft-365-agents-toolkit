@@ -1279,6 +1279,7 @@ describe("render template", () => {
       const daTemplateInput = {
         ...inputs,
         [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentBasic,
+        [QuestionNames.ProgrammingLanguage]: commonTemplateName,
       } as Inputs;
 
       const result = await new DefaultTemplateGenerator().run(context, daTemplateInput, tmpDir);
