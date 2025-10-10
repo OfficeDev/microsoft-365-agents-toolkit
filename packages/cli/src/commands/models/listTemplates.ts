@@ -48,6 +48,7 @@ export function listAllCapabilities(): OptionItem[] {
     CustomEngineAgentOptions.weatherAgent(),
     TeamsAgentCapabilityOptions.basicChatbot(),
     TeamsAgentCapabilityOptions.customCopilotRag(),
+    TeamsAgentCapabilityOptions.collaboratorAgent(),
     // TeamsAgentCapabilityOptions.aiAgent(),
     BotCapabilityOptions.basicBot(),
     // BotCapabilityOptions.notificationBot(),

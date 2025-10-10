@@ -3,14 +3,6 @@
 # Secrets. Keys prefixed with `SECRET_` will be masked in Teams Toolkit logs.
 
 SQL_ADMIN_PASSWORD=YourSecurePassword123!
-{{#useOpenAI}}
-{{#openAIKey}}
-SECRET_OPENAI_API_KEY={{{openAIKey}}}
-{{/openAIKey}}
-{{^openAIKey}}
-SECRET_OPENAI_API_KEY=
-{{/openAIKey}}
-{{/useOpenAI}}
 {{#useAzureOpenAI}}
 {{#azureOpenAIKey}}
 SECRET_AZURE_OPENAI_API_KEY={{{azureOpenAIKey}}}

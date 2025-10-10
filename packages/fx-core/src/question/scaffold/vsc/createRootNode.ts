@@ -189,6 +189,7 @@ export function getProjectTypeByCapability(capability: string): string {
     [
       TeamsAgentCapabilityOptions.basicChatbot().id,
       TeamsAgentCapabilityOptions.customCopilotRag().id,
+      TeamsAgentCapabilityOptions.collaboratorAgent().id,
       BotCapabilityOptions.basicBot().id,
       TabCapabilityOptions.nonSsoTab().id,
       MeCapabilityOptions.basicMe().id,
@@ -231,6 +232,7 @@ export function getTeamsAppTypeByCapability(capability: string): string {
     [
       TeamsAgentCapabilityOptions.basicChatbot().id,
       TeamsAgentCapabilityOptions.customCopilotRag().id,
+      TeamsAgentCapabilityOptions.collaboratorAgent().id,
     ].includes(capability)
   ) {
     return capability;
