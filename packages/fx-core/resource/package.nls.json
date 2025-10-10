@@ -439,7 +439,7 @@
   "core.createProjectQuestion.OauthClientId": "Enter client id for OAuth registration in OpenAPI Description Document",
   "core.createProjectQuestion.OauthClientSecret": "Enter client secret for OAuth registration in OpenAPI Description Document",
   "core.createProjectQuestion.OauthClientSecretConfirm": "Microsoft 365 Agents Toolkit uploads the client id/secret for OAuth Registration to Developer Portal. It is used by Teams client to securely access your API at runtime. Microsoft 365 Agents Toolkit doesn't store your client id/secret.",
-  "core.createProjectQuestion.EntraId": "Enter Microsoft Entra id for OAuth registration in OpenAPI Description Document",
+  "core.createProjectQuestion.EntraSSOClientId": "Enter Microsoft Entra SSO client id for registration in OpenAPI Description Document",
   "core.createProjectQuestion.apiMessageExtensionAuth.title": "Authentication Type",
   "core.createProjectQuestion.apiMessageExtensionAuth.placeholder": "Select an authentication type",
   "core.createProjectQuestion.invalidApiKey.message": "Invalid client secret. It should be 10 to 512 characters long.",

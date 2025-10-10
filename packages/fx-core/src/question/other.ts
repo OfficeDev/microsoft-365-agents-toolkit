@@ -1201,7 +1201,13 @@ export function oauthQuestion(): IQTreeNode {
       {
         data: oauthClientIdQuestion(),
         condition: (inputs: Inputs) => {
-          return !inputs.clientId;
+          return !inputs.clientId && inputs.identityProvider !== "MicrosoftEntra";
+        },
+      },
+      {
+        data: entraClientIdQuestion(),
+        condition: (inputs: Inputs) => {
+          return !inputs.clientId && inputs.identityProvider === "MicrosoftEntra";
         },
       },
       {
@@ -1348,6 +1354,27 @@ function uninstallProjectPathQuestion(): FolderQuestion {
     cliDescription: "Project Path for uninstall",
     placeholder: "./",
     default: "./",
+  };
+}
+
+function entraClientIdQuestion(): TextInputQuestion {
+  return {
+    type: "text",
+    name: QuestionNames.OauthClientId,
+    cliShortName: "i",
+    title: getLocalizedString("core.createProjectQuestion.EntraSSOClientId"),
+    cliDescription: "Microsoft Entra SSO client id for OpenAPI spec.",
+    forgetLastValue: true,
+    additionalValidationOnAccept: {
+      validFunc: (input: string, inputs?: Inputs): string | undefined => {
+        if (!inputs) {
+          throw new Error("inputs is undefined"); // should never happen
+        }
+
+        process.env[QuestionNames.OauthClientId] = input;
+        return;
+      },
+    },
   };
 }
 
