@@ -1,0 +1,4 @@
+dotenv>=0.9.9
+azure-identity>=1.12.0
+microsoft-teams-apps
+microsoft-teams-devtools
