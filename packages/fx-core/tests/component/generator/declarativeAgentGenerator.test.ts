@@ -101,6 +101,106 @@ describe("copilotExtension", async () => {
       assert.equal(info.isOk() && info.value[0].templateName, "api-plugin-from-scratch");
     });
 
+    it("MCP server URL processing", async () => {
+      const generator = new DeclarativeAgentGenerator();
+      const context = createContext();
+      const inputs: Inputs = {
+        platform: Platform.CLI,
+        projectPath: "./",
+        [QuestionNames.Capabilities]: "api-plugin",
+        [QuestionNames.ActionType]: ActionStartOptions.newApi().id,
+        [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentWithActionFromMCP,
+        [QuestionNames.ApiAuth]: ApiAuthOptions.none().id,
+        [QuestionNames.AppName]: "TestApp",
+        [QuestionNames.MCPForDAServerUrl]: "https://example-mcp-server.com:8080/api",
+      };
+
+      const res = await generator.activate(context, inputs);
+      const info = await generator.getTemplateInfos(context, inputs, ".");
+
+      assert.isTrue(res);
+      assert.isTrue(info.isOk());
+
+      if (info.isOk() && info.value[0].replaceMap) {
+        const replaceMap = info.value[0].replaceMap;
+
+        // Verify MCPForDAServerUrl is included in replace map
+        assert.equal(replaceMap.MCPForDAServerUrl, "https://example-mcp-server.com:8080/api");
+
+        // Verify ServerName is correctly generated (host with alphanumeric only, max 10 chars)
+        assert.equal(replaceMap.ServerName, "examplemcp");
+
+        // Verify template name
+        assert.equal(info.value[0].templateName, "declarative-agent-with-action-from-mcp");
+      }
+    });
+
+    it("MCP server URL processing with special characters", async () => {
+      const generator = new DeclarativeAgentGenerator();
+      const context = createContext();
+      const inputs: Inputs = {
+        platform: Platform.CLI,
+        projectPath: "./",
+        [QuestionNames.Capabilities]: "api-plugin",
+        [QuestionNames.ActionType]: ActionStartOptions.newApi().id,
+        [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentWithActionFromMCP,
+        [QuestionNames.ApiAuth]: ApiAuthOptions.none().id,
+        [QuestionNames.AppName]: "TestApp",
+        [QuestionNames.MCPForDAServerUrl]: "https://my-server-123.example.com/mcp",
+      };
+
+      const res = await generator.activate(context, inputs);
+      const info = await generator.getTemplateInfos(context, inputs, ".");
+
+      assert.isTrue(res);
+      assert.isTrue(info.isOk());
+
+      if (info.isOk() && info.value[0].replaceMap) {
+        const replaceMap = info.value[0].replaceMap;
+
+        // Verify MCPForDAServerUrl is included in replace map
+        assert.equal(replaceMap.MCPForDAServerUrl, "https://my-server-123.example.com/mcp");
+
+        // Verify ServerName removes special characters and limits to 10 chars
+        assert.equal(replaceMap.ServerName, "myserver12");
+
+        // Verify template name
+        assert.equal(info.value[0].templateName, "declarative-agent-with-action-from-mcp");
+      }
+    });
+
+    it("MCP server URL processing - no URL provided", async () => {
+      const generator = new DeclarativeAgentGenerator();
+      const context = createContext();
+      const inputs: Inputs = {
+        platform: Platform.CLI,
+        projectPath: "./",
+        [QuestionNames.Capabilities]: "api-plugin",
+        [QuestionNames.ActionType]: ActionStartOptions.newApi().id,
+        [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentWithActionFromMCP,
+        [QuestionNames.ApiAuth]: ApiAuthOptions.none().id,
+        [QuestionNames.AppName]: "TestApp",
+        // No MCPForDAServerUrl provided
+      };
+
+      const res = await generator.activate(context, inputs);
+      const info = await generator.getTemplateInfos(context, inputs, ".");
+
+      assert.isTrue(res);
+      assert.isTrue(info.isOk());
+
+      if (info.isOk() && info.value[0].replaceMap) {
+        const replaceMap = info.value[0].replaceMap;
+
+        // Verify MCPForDAServerUrl and ServerName are not included when URL is not provided
+        assert.isUndefined(replaceMap.MCPForDAServerUrl);
+        assert.isUndefined(replaceMap.ServerName);
+
+        // Verify template name
+        assert.equal(info.value[0].templateName, "declarative-agent-with-action-from-mcp");
+      }
+    });
+
     it("declarative Copilot: Env func enabled", async () => {
       const generator = new DeclarativeAgentGenerator();
       const context = createContext();

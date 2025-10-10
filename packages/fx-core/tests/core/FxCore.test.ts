@@ -130,6 +130,7 @@ import {
 import { ProjectTypeOptions } from "../../src/question/scaffold/vsc/ProjectTypeOptions";
 import { validationUtils } from "../../src/ui/validationUtils";
 import { MockTools, MockUserInteraction, randomAppName } from "./utils";
+import { ActionInjector } from "../../src/component/configManager/actionInjector";
 
 const tools = new MockTools();
 
@@ -9608,5 +9609,410 @@ describe("addKnowledge", async () => {
     const core = new FxCore(tools);
     const result = await core.addKnowledge(inputs);
     assert.isTrue(result.isErr());
+  });
+});
+
+describe("updateActionWithMCP", () => {
+  const tools = new MockTools();
+  const sandbox = sinon.createSandbox();
+  const projectPath = "/test/project";
+  const pluginManifestPath = "/test/project/ai-plugin.json";
+  const mcpServerUrl = "https://example.com/mcp";
+  const serverName = "testServer";
+
+  beforeEach(() => {
+    setTools(tools);
+  });
+
+  afterEach(() => {
+    sandbox.restore();
+  });
+
+  it("should successfully update action with MCP without auth", async () => {
+    const core = new FxCore(tools);
+    const inputs: Inputs = {
+      projectPath,
+      platform: Platform.VSCode,
+      [QuestionNames.PluginManifestFilePath]: pluginManifestPath,
+      [QuestionNames.MCPForDAServerUrl]: mcpServerUrl,
+      [QuestionNames.MCPForDAServerName]: serverName,
+      [QuestionNames.MCPForDAAuth]: "None",
+      [QuestionNames.MCPForDAAvailableTools]: [
+        {
+          name: "testTool",
+          description: "Test tool description",
+          inputSchema: {
+            type: "object",
+            properties: { param1: { type: "string" } },
+            required: ["param1"],
+          },
+        },
+      ],
+      [QuestionNames.MCPForDAPreFetchTools]: ["testTool"],
+      ignoreLockByUT: true,
+    };
+
+    const existingPlugin = {
+      functions: [],
+      runtimes: [],
+    };
+
+    sandbox.stub(fs, "pathExists").resolves(true);
+    sandbox.stub(fs, "readJSON").resolves(existingPlugin);
+    const writeJSONStub = sandbox.stub(fs, "writeJSON").resolves();
+    sandbox.stub(pathUtils, "getYmlFilePath").returns("/test/project/teamsapp.yml");
+
+    const showMessageStub = sandbox.stub(tools.ui, "showMessage").resolves(ok("OK"));
+    const openFileStub = sandbox.stub(tools.ui, "openFile").resolves();
+
+    const result = await core.updateActionWithMCP(inputs);
+
+    assert.isTrue(result.isOk());
+    assert.isTrue(writeJSONStub.calledOnce);
+    assert.isTrue(showMessageStub.calledOnce);
+    assert.isTrue(openFileStub.calledOnce);
+  });
+
+  it("should successfully update action with OAuth authentication", async () => {
+    const core = new FxCore(tools);
+    const inputs: Inputs = {
+      projectPath,
+      platform: Platform.VSCode,
+      [QuestionNames.PluginManifestFilePath]: pluginManifestPath,
+      [QuestionNames.MCPForDAServerUrl]: mcpServerUrl,
+      [QuestionNames.MCPForDAServerName]: serverName,
+      [QuestionNames.MCPForDAAuth]: "OAuthPluginVault",
+      [QuestionNames.MCPForDAAuthType]: "oauth",
+      [QuestionNames.MCPForDAAuthWellKnownUrl]:
+        "https://example.com/.well-known/oauth-authorization-server",
+      [QuestionNames.MCPForDAAvailableTools]: [
+        {
+          name: "testTool",
+          description: "Test tool description",
+          inputSchema: {
+            type: "object",
+            properties: { param1: { type: "string" } },
+            required: ["param1"],
+          },
+        },
+      ],
+      [QuestionNames.MCPForDAPreFetchTools]: ["testTool"],
+      ignoreLockByUT: true,
+    };
+
+    const existingPlugin = {
+      functions: [],
+      runtimes: [],
+    };
+
+    const oauthMetadata = {
+      authorization_endpoint: "https://example.com/oauth/authorize",
+      token_endpoint: "https://example.com/oauth/token",
+      refresh_endpoint: "https://example.com/oauth/refresh",
+    };
+
+    sandbox.stub(fs, "pathExists").resolves(true);
+    sandbox.stub(fs, "readJSON").resolves(existingPlugin);
+    const writeJSONStub = sandbox.stub(fs, "writeJSON").resolves();
+    sandbox.stub(pathUtils, "getYmlFilePath").returns("/test/project/teamsapp.yml");
+    sandbox.stub(axios, "get").resolves({ status: 200, data: oauthMetadata });
+    const injectOAuthStub = sandbox
+      .stub(ActionInjector, "injectCreateOAuthActionForMCP")
+      .resolves();
+
+    const showMessageStub = sandbox.stub(tools.ui, "showMessage").resolves(ok("OK"));
+    const openFileStub = sandbox.stub(tools.ui, "openFile").resolves();
+
+    const result = await core.updateActionWithMCP(inputs);
+
+    assert.isTrue(result.isOk());
+    assert.isTrue(injectOAuthStub.calledOnce);
+    assert.isTrue(writeJSONStub.calledOnce);
+    assert.isTrue(showMessageStub.calledOnce);
+    assert.isTrue(openFileStub.calledOnce);
+  });
+
+  it("should successfully update action with OAuth authentication using metadata URL", async () => {
+    const core = new FxCore(tools);
+    const inputs: Inputs = {
+      projectPath,
+      platform: Platform.VSCode,
+      [QuestionNames.PluginManifestFilePath]: pluginManifestPath,
+      [QuestionNames.MCPForDAServerUrl]: mcpServerUrl,
+      [QuestionNames.MCPForDAServerName]: serverName,
+      [QuestionNames.MCPForDAAuth]: "OAuthPluginVault",
+      [QuestionNames.MCPForDAAuthType]: "oauth",
+      [QuestionNames.MCPForDAAuthMetadataUrl]: "https://example.com/mcp/metadata",
+      [QuestionNames.MCPForDAAvailableTools]: [
+        {
+          name: "testTool",
+          description: "Test tool description",
+          inputSchema: {
+            type: "object",
+            properties: { param1: { type: "string" } },
+            required: ["param1"],
+          },
+        },
+      ],
+      [QuestionNames.MCPForDAPreFetchTools]: ["testTool"],
+      ignoreLockByUT: true,
+    };
+
+    const existingPlugin = {
+      functions: [],
+      runtimes: [],
+    };
+
+    const mcpMetadata = {
+      authorization_servers: ["https://example.com/oauth"],
+    };
+
+    const oauthMetadata = {
+      authorization_endpoint: "https://example.com/oauth/authorize",
+      token_endpoint: "https://example.com/oauth/token",
+      refresh_endpoint: "https://example.com/oauth/refresh",
+    };
+
+    sandbox.stub(fs, "pathExists").resolves(true);
+    sandbox.stub(fs, "readJSON").resolves(existingPlugin);
+    const writeJSONStub = sandbox.stub(fs, "writeJSON").resolves();
+    sandbox.stub(pathUtils, "getYmlFilePath").returns("/test/project/teamsapp.yml");
+    sandbox
+      .stub(axios, "get")
+      .onFirstCall()
+      .resolves({ status: 200, data: mcpMetadata })
+      .onSecondCall()
+      .resolves({ status: 200, data: oauthMetadata });
+    const injectOAuthStub = sandbox
+      .stub(ActionInjector, "injectCreateOAuthActionForMCP")
+      .resolves();
+
+    const showMessageStub = sandbox.stub(tools.ui, "showMessage").resolves(ok("OK"));
+    const openFileStub = sandbox.stub(tools.ui, "openFile").resolves();
+
+    const result = await core.updateActionWithMCP(inputs);
+
+    assert.isTrue(result.isOk());
+    assert.isTrue(injectOAuthStub.calledOnce);
+    assert.isTrue(writeJSONStub.calledOnce);
+    assert.isTrue(showMessageStub.calledOnce);
+    assert.isTrue(openFileStub.calledOnce);
+  });
+
+  it("should return error when plugin manifest file does not exist", async () => {
+    const core = new FxCore(tools);
+    const inputs: Inputs = {
+      projectPath,
+      platform: Platform.VSCode,
+      [QuestionNames.PluginManifestFilePath]: pluginManifestPath,
+      [QuestionNames.MCPForDAServerUrl]: mcpServerUrl,
+      [QuestionNames.MCPForDAServerName]: serverName,
+      ignoreLockByUT: true,
+    };
+
+    sandbox.stub(fs, "pathExists").resolves(false);
+
+    const result = await core.updateActionWithMCP(inputs);
+
+    assert.isTrue(result.isErr());
+    if (result.isErr()) {
+      // Check error source/name since localization strings might be missing
+      assert.isTrue(
+        result.error.source === "MCPForDAPluginManifestNotFound" ||
+          result.error.name === "PluginManifestNotFound" ||
+          result.error.message.includes("PluginManifestNotFound")
+      );
+    }
+  });
+
+  it("should return error when projectPath is undefined", async () => {
+    const core = new FxCore(tools);
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      [QuestionNames.PluginManifestFilePath]: pluginManifestPath,
+      ignoreLockByUT: true,
+    };
+
+    try {
+      const result = await core.updateActionWithMCP(inputs);
+      // If it returns a result instead of throwing, check if it's an error
+      if (result.isErr()) {
+        assert.include(result.error.message.toLowerCase(), "project");
+      } else {
+        assert.fail("Expected error to be thrown or returned");
+      }
+    } catch (error: any) {
+      // If it throws, check the error message
+      assert.include(error.message.toLowerCase(), "project");
+    }
+  });
+
+  it("should return error when MCP tools are not provided", async () => {
+    const core = new FxCore(tools);
+    const inputs: Inputs = {
+      projectPath,
+      platform: Platform.VSCode,
+      [QuestionNames.PluginManifestFilePath]: pluginManifestPath,
+      [QuestionNames.MCPForDAServerUrl]: mcpServerUrl,
+      [QuestionNames.MCPForDAServerName]: serverName,
+      ignoreLockByUT: true,
+    };
+
+    const existingPlugin = {
+      functions: [],
+      runtimes: [],
+    };
+
+    sandbox.stub(fs, "pathExists").resolves(true);
+    sandbox.stub(fs, "readJSON").resolves(existingPlugin);
+
+    const result = await core.updateActionWithMCP(inputs);
+
+    assert.isTrue(result.isErr());
+    if (result.isErr()) {
+      // Check error source/name since localization strings might be missing
+      assert.isTrue(
+        result.error.source === "MCPForDAPreFetchToolsNotFound" ||
+          result.error.name === "PreFetchToolsNotFound" ||
+          result.error.message.includes("PreFetchToolsNotFound")
+      );
+    }
+  });
+
+  it("should properly filter and update existing MCP runtimes", async () => {
+    const core = new FxCore(tools);
+    const inputs: Inputs = {
+      projectPath,
+      platform: Platform.VSCode,
+      [QuestionNames.PluginManifestFilePath]: pluginManifestPath,
+      [QuestionNames.MCPForDAServerUrl]: mcpServerUrl,
+      [QuestionNames.MCPForDAServerName]: serverName,
+      [QuestionNames.MCPForDAAuth]: "None",
+      [QuestionNames.MCPForDAAvailableTools]: [
+        {
+          name: "newTool",
+          description: "New tool description",
+          inputSchema: {
+            type: "object",
+            properties: { param1: { type: "string" } },
+            required: ["param1"],
+          },
+        },
+      ],
+      [QuestionNames.MCPForDAPreFetchTools]: ["newTool"],
+      ignoreLockByUT: true,
+    };
+
+    const existingPlugin = {
+      functions: [
+        {
+          name: "oldTool",
+          description: "Old tool",
+          parameters: { type: "object" },
+        },
+      ],
+      runtimes: [
+        {
+          type: "RemoteMCPServer",
+          spec: {
+            url: mcpServerUrl,
+            enable_dynamic_discovery: false,
+          },
+          run_for_functions: ["oldTool"],
+        },
+        {
+          type: "RemoteMCPServer",
+          spec: {
+            url: "https://other.com/mcp",
+            enable_dynamic_discovery: false,
+          },
+          run_for_functions: ["otherTool"],
+        },
+      ],
+    };
+
+    let writtenPlugin: any;
+    sandbox.stub(fs, "pathExists").resolves(true);
+    sandbox.stub(fs, "readJSON").resolves(existingPlugin);
+    sandbox.stub(fs, "writeJSON").callsFake((path, data) => {
+      writtenPlugin = data;
+      return Promise.resolve();
+    });
+    sandbox.stub(pathUtils, "getYmlFilePath").returns("/test/project/teamsapp.yml");
+
+    const showMessageStub = sandbox.stub(tools.ui, "showMessage").resolves(ok("OK"));
+    const openFileStub = sandbox.stub(tools.ui, "openFile").resolves();
+
+    const result = await core.updateActionWithMCP(inputs);
+
+    assert.isTrue(result.isOk());
+
+    // Verify that old tool functions were removed and new ones added
+    assert.equal(writtenPlugin.functions.length, 1);
+    assert.equal(writtenPlugin.functions[0].name, "newTool");
+
+    // Verify that the existing runtime for the same server was removed and new one added
+    const mcpRuntimes = writtenPlugin.runtimes.filter(
+      (r: any) => r.type === "RemoteMCPServer" && r.spec.url === mcpServerUrl
+    );
+    assert.equal(mcpRuntimes.length, 1);
+    assert.deepEqual(mcpRuntimes[0].run_for_functions, ["newTool"]);
+
+    // Verify that other runtimes are preserved
+    const otherRuntimes = writtenPlugin.runtimes.filter(
+      (r: any) => r.type === "RemoteMCPServer" && r.spec.url === "https://other.com/mcp"
+    );
+    assert.equal(otherRuntimes.length, 1);
+  });
+
+  it("should handle provisionResources call when user clicks Provision", async () => {
+    const core = new FxCore(tools);
+    const inputs: Inputs = {
+      projectPath,
+      platform: Platform.VSCode,
+      [QuestionNames.PluginManifestFilePath]: pluginManifestPath,
+      [QuestionNames.MCPForDAServerUrl]: mcpServerUrl,
+      [QuestionNames.MCPForDAServerName]: serverName,
+      [QuestionNames.MCPForDAAuth]: "None",
+      [QuestionNames.MCPForDAAvailableTools]: [
+        {
+          name: "testTool",
+          description: "Test tool description",
+          inputSchema: {
+            type: "object",
+            properties: { param1: { type: "string" } },
+            required: ["param1"],
+          },
+        },
+      ],
+      [QuestionNames.MCPForDAPreFetchTools]: ["testTool"],
+      ignoreLockByUT: true,
+    };
+
+    const existingPlugin = {
+      functions: [],
+      runtimes: [],
+    };
+
+    sandbox.stub(fs, "pathExists").resolves(true);
+    sandbox.stub(fs, "readJSON").resolves(existingPlugin);
+    const writeJSONStub = sandbox.stub(fs, "writeJSON").resolves();
+    sandbox.stub(pathUtils, "getYmlFilePath").returns("/test/project/teamsapp.yml");
+
+    // Mock the showMessage to return "Provision" to trigger provision call
+    const showMessageStub = sandbox.stub(tools.ui, "showMessage").resolves(ok("Provision"));
+    const openFileStub = sandbox.stub(tools.ui, "openFile").resolves();
+    const provisionStub = sandbox.stub(core, "provisionResources").resolves(ok(undefined));
+
+    const result = await core.updateActionWithMCP(inputs);
+
+    assert.isTrue(result.isOk());
+    assert.isTrue(showMessageStub.calledOnce);
+    assert.isTrue(openFileStub.calledOnce);
+    assert.isTrue(writeJSONStub.calledOnce);
+
+    // Wait a bit for the async provision call
+    await new Promise((resolve) => setTimeout(resolve, 10));
+    assert.isTrue(provisionStub.calledOnce);
   });
 });
