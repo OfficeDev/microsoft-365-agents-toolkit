@@ -11,7 +11,7 @@ import * as sinon from "sinon";
 import { GraphClient } from "../../../src/client/graphClient";
 import { teamsDevPortalClient } from "../../../src/client/teamsDevPortalClient";
 import { setTools } from "../../../src/common/globalVars";
-import { AadAppClient } from "../../../src/component/driver/aad/utility/aadAppClient";
+import { AadAppClient } from "../../../src/client/aadAppClient";
 import { AppUser } from "../../../src/component/driver/teamsApp/interfaces/appdefinitions/appUser";
 import {
   AadCollaboration,

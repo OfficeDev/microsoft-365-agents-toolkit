@@ -417,6 +417,12 @@ describe("Wrapped Axios Client Test", () => {
     chai.assert.equal(apiName, APP_STUDIO_API_NAMES.LIST_BOT);
 
     apiName = WrappedAxiosClient.convertUrlToApiName(
+      getAppStudioEndpoint() + `/api/aadapp/v2`,
+      "POST"
+    );
+    chai.assert.equal(apiName, APP_STUDIO_API_NAMES.CREATE_AAD_APP);
+
+    apiName = WrappedAxiosClient.convertUrlToApiName(
       getAppStudioEndpoint() + `/api/botframework`,
       "POST"
     );

@@ -41,6 +41,8 @@ import { MockTools } from "../core/utils";
 import { getDefaultString } from "../../src/common/localizeUtils";
 import { HelpLinks } from "../../src/common/constants";
 import { expect } from "chai";
+import { AADApplication } from "../../src/component/driver/aad/interface/AADApplication";
+import { SignInAudienceNotAllowedError } from "../../src/component/driver/aad/error/signInAudienceNotAllowedError";
 
 describe("TeamsDevPortalClient Test", () => {
   const tools = new MockTools();
@@ -51,6 +53,24 @@ describe("TeamsDevPortalClient Test", () => {
     appName: "fake",
     teamsAppId: uuid(),
     userList: [],
+  };
+  const aadAppDef: AADApplication = {
+    appId: "00000000-0000-0000-0000-000000000000",
+    displayName: "fake",
+    spa: {
+      redirectUris: ["https://fake.com"],
+    },
+    identifierUris: [],
+    signInAudience: "",
+    tags: [],
+    addIns: [],
+    api: {} as any,
+    appRoles: [],
+    info: undefined as any,
+    keyCredentials: [],
+    publicClient: undefined as any,
+    requiredResourceAccess: [],
+    web: undefined as any,
   };
 
   const appApiRegistration: ApiSecretRegistration = {
@@ -2362,6 +2382,94 @@ describe("TeamsDevPortalClient Test", () => {
         chai.assert.isUndefined(res);
       } catch (e) {
         chai.assert.fail(Messages.ShouldNotReachHere);
+      }
+    });
+  });
+
+  describe("createAADApp", () => {
+    beforeEach(() => {
+      sandbox.restore();
+    });
+
+    it("happy pass", async () => {
+      const fakeAxiosInstance = axios.create();
+      sandbox.stub(axios, "create").returns(fakeAxiosInstance);
+
+      const response = {
+        data: aadAppDef,
+      };
+      sandbox.stub(fakeAxiosInstance, "post").resolves(response);
+
+      const res = await teamsDevPortalClient.createAADApp(token, "test aad app");
+      chai.assert.equal(res, aadAppDef);
+    });
+
+    it("Create AAD app failed with sign in audience not allowed error", async () => {
+      const fakeAxiosInstance = axios.create();
+      sandbox.stub(axios, "create").returns(fakeAxiosInstance);
+      sandbox.stub(axios, "isAxiosError").returns(true);
+
+      const error = {
+        response: {
+          status: 400,
+          data: {
+            statusCode: 400,
+            errorMessage:
+              "Request to create AAD app failed. Error Message: 'signInAudience' property value 'AzureADandPersonalMicrosoftAccount' is not allowed.",
+            error: {
+              code: "SignInAudienceNotAllowedAsPerAppPolicy",
+            },
+            headers: {
+              "x-correlation-id": uuid(),
+            },
+          },
+        },
+      };
+      sandbox.stub(fakeAxiosInstance, "post").throws(error);
+
+      try {
+        await teamsDevPortalClient.createAADApp(token, "test aad app");
+      } catch (error) {
+        chai.assert.isTrue(error instanceof SignInAudienceNotAllowedError);
+      }
+    });
+
+    it("Create AAD app failed with TDP error", async () => {
+      const fakeAxiosInstance = axios.create();
+      sandbox.stub(axios, "create").returns(fakeAxiosInstance);
+
+      const error = {
+        response: {
+          status: 400,
+          data: {
+            statusCode: 400,
+            errorMessage:
+              "Unsuccessful response received from TDP. Error Message: System.Net.Http.HttpConnectionResponseContent",
+          },
+          headers: {
+            "x-correlation-id": uuid(),
+          },
+        },
+      };
+      sandbox.stub(fakeAxiosInstance, "post").throws(error);
+
+      try {
+        await teamsDevPortalClient.createAADApp(token, "test aad app");
+      } catch (error) {
+        chai.assert.equal((error as any).name, DeveloperPortalAPIFailedSystemError.name);
+      }
+    });
+
+    it("Create AAD app failed with unknown error", async () => {
+      const fakeAxiosInstance = axios.create();
+      sandbox.stub(axios, "create").returns(fakeAxiosInstance);
+
+      sandbox.stub(fakeAxiosInstance, "post").resolves({});
+
+      try {
+        await teamsDevPortalClient.createAADApp(token, "test aad app");
+      } catch (error) {
+        chai.assert.exists(error);
       }
     });
   });

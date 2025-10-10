@@ -1,6 +1,6 @@
 {
-    "version": "~6.0",
-    "localVersion": "6.0.0",
+    "version": "~6.2",
+    "localVersion": "6.2.0",
     "tagPrefix": "templates@",
     "vstagPrefix": "templates-vs@",
     "vsversion": "18.0.0",
