@@ -430,9 +430,19 @@ export async function initCopilotPage(
       await page?.waitForSelector(`span:has-text("Agents")`);
       console.log("[success] copilot loaded");
       try {
+        console.log("Click All agents button:");
+        const seeMore = await page?.waitForSelector(
+          `button[aria-label='All agents']`
+        );
+        await seeMore.click();
+        console.log("Loaded more agents:");
+      } catch {
+        console.log("No All agents button:");
+      }
+      try {
         console.log("Click See more button:");
         const seeMore = await page?.waitForSelector(
-          `div[aria-label='See more']`
+          `button:has-text('See more')`
         );
         await seeMore.click();
         console.log("Loaded more agents:");
@@ -1750,7 +1760,7 @@ export async function validatePrompt(
   try {
     console.log("start to verify prompt");
     const contenteditableSpan = await page?.waitForSelector(
-      'span[aria-label="Chat Input"]'
+      'span[aria-label="Message Copilot"]'
     );
     await contenteditableSpan?.click();
     await contenteditableSpan.fill(options?.prompt || "list repairs");
