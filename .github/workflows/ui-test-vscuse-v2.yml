@@ -10,7 +10,7 @@ on:
         description: "Docker image tag to use"
         required: true
         default: "latest"
-  pull_request:
+
   schedule:
     - cron: "0 17 * * *"
 
