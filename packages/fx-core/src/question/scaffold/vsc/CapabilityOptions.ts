@@ -122,6 +122,19 @@ export class TeamsAgentCapabilityOptions {
     };
   }
 
+  static collaboratorAgent(): OptionItem {
+    return {
+      id: "teams-collaborator-agent",
+      label: getLocalizedString(
+        "core.createProjectQuestion.capability.teamsAgent.collaborator.label"
+      ),
+      detail: getLocalizedString(
+        "core.createProjectQuestion.capability.teamsAgent.collaborator.detail"
+      ),
+      data: TemplateNames.TeamsCollaboratorAgent,
+    };
+  }
+
   static others(): OptionItem {
     const description = featureFlagManager.getBooleanValue(FeatureFlags.CEAEnabled)
       ? getLocalizedString("core.createProjectQuestion.capability.customEngineAgent.description")

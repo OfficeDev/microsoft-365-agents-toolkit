@@ -3,9 +3,20 @@
 # Visit https://aka.ms/teamsfx-actions for details on actions
 version: v1.9
 
-environmentFolderPath: ./env
-
 provision:
+{{#SandBoxedTeam}}
+  # Creates a Teams channel in the specified team.
+  - uses: devChannel/create
+    with:
+      teamName: "App Development" # The name of the team in which to create the channel.
+      channelName: "{{appName}} App testing" # The default name for the channel.
+      description: "Team created via Microsoft 365 Agents Toolkit for development" # Optional team description.
+    writeToEnvironmentFile:
+      channelId: CHANNEL_ID # The ID of the created channel.
+      teamId: TEAM_ID # The ID of the team in which the channel was created.
+      channelWebUrl: CHANNEL_WEB_URL # A hyperlink to open Teams client
+{{/SandBoxedTeam}}
+
   # Creates an app
   - uses: teamsApp/create
     with:
@@ -73,7 +84,7 @@ deploy:
   - uses: cli/runNpmCommand
     name: install dependencies
     with:
-      args: install --workspaces=false
+      args: install --no-audit
 
   # Generate runtime environment variables
   - uses: file/createOrUpdateEnvironmentFile
@@ -82,6 +93,6 @@ deploy:
       envs:
         CLIENT_ID: ${{BOT_ID}}
         CLIENT_SECRET: ${{SECRET_BOT_PASSWORD}}
-        AOAI_ENDPOINT: ${{AOAI_ENDPOINT}}
-        AOAI_API_KEY: ${{AOAI_API_KEY}}
-        AOAI_MODEL: ${{AOAI_MODEL}}
+        AOAI_ENDPOINT: ${{AZURE_OPENAI_ENDPOINT}}
+        AOAI_API_KEY: ${{SECRET_AZURE_OPENAI_API_KEY}}
+        AOAI_MODEL: ${{AZURE_OPENAI_DEPLOYMENT_NAME}}

@@ -12,13 +12,13 @@
       "value": "{{appName}}"
     },
     "AOAI_ENDPOINT": {
-      "value": "${{AOAI_ENDPOINT}}"
+      "value": "${{AZURE_OPENAI_ENDPOINT}}"
     },
     "AOAI_API_KEY": {
-      "value": "${{AOAI_API_KEY}}"
+      "value": "${{SECRET_AZURE_OPENAI_API_KEY}}"
     },
     "AOAI_MODEL": {
-      "value": "${{AOAI_MODEL}}"
+      "value": "${{AZURE_OPENAI_DEPLOYMENT_NAME}}"
     },
     "sqlAdminPassword": {
       "value": "${{SQL_ADMIN_PASSWORD}}"
