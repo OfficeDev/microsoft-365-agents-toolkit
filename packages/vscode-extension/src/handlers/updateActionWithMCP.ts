@@ -19,6 +19,15 @@ import { runCommand } from "./sharedOpts";
 import { VS_CODE_UI } from "../qm/vsc_ui";
 import * as parser from "jsonc-parser";
 
+function sanitizeMCPName(name: string): string {
+  // Replace special characters except "-" with "_", but if two special characters are adjacent,
+  // only replace with one "_". Finally, substring to the first 13 characters.
+  return name
+    .replace(/[^a-zA-Z0-9-]+/g, "_")
+    .replace(/^_+|_+$/g, "")
+    .substring(0, 13);
+}
+
 export async function updateActionWithMCP(args?: any[]): Promise<Result<any, FxError>> {
   const inputs = getSystemInputs();
   let mcpName = args && args.length > 0 ? args[0].serverName : undefined;
@@ -26,7 +35,7 @@ export async function updateActionWithMCP(args?: any[]): Promise<Result<any, FxE
 
   // Sanitize mcpName if it's provided as an argument
   if (mcpName) {
-    mcpName = mcpName.replace(/[^a-zA-Z0-9]/g, "").substring(0, 10);
+    mcpName = sanitizeMCPName(mcpName);
   }
 
   if (!mcpName && !server) {
@@ -54,7 +63,7 @@ export async function updateActionWithMCP(args?: any[]): Promise<Result<any, FxE
       );
     }
     if (mcpNames.length === 1) {
-      mcpName = mcpNames[0].replace(/[^a-zA-Z0-9]/g, "").substring(0, 10);
+      mcpName = sanitizeMCPName(mcpNames[0]);
       server = mcpContent.servers[mcpNames[0]].url;
     } else {
       const mcpNameSelection: SingleSelectConfig = {
