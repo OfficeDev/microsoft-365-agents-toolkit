@@ -1,0 +1,172 @@
+name: uitest-vscuse-v2
+
+on:
+  workflow_dispatch:
+    inputs:
+      test_plan:
+        description: "Comma-separated list of test cases to run, input test case id (e.g. 33258708, 33258728)"
+        required: false
+        default: "34657839"
+      image_tag:
+        description: "Docker image tag to use"
+        required: false
+        default: "latest"
+        
+  schedule:
+    - cron: "0 17 * * *"
+
+jobs:
+  discover-test-plans:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      test-plans: ${{ steps.get-plans.outputs.plans }}
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Get test plans
+        id: get-plans
+        run: |
+          if [ -z "${{ github.event.inputs.test_plan }}" ]; then
+            # Get all JSON files from plans directory
+            plans=$(find packages/tests/vscuse/vscode-test-cases/ -name "*.json" -exec basename {} \; | jq -R -s -c 'split("\n")[:-1]')
+            echo "plans=$plans" >> $GITHUB_OUTPUT
+            echo "Found test plans: $plans"
+          else
+            # Use the input test_plan file name(s)
+            # Support comma-separated list, trim spaces
+            input_plans=$(echo "${{ github.event.inputs.test_plan }}" | tr ',' '\n' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//' | jq -R -s -c 'split("\n")[:-1]')
+            echo "plans=$input_plans" >> $GITHUB_OUTPUT
+            echo "Using input test plans: $input_plans"
+          fi
+
+  run-tests:
+    needs: discover-test-plans
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    strategy:
+      matrix:
+        test_plan: ${{ fromJson(needs.discover-test-plans.outputs.test-plans) }}
+      fail-fast: false
+      max-parallel: 5
+    permissions:
+      contents: write
+      packages: write
+
+    env:
+      GH_APP_ID: ${{ secrets.GH_APP_ID }}
+      GH_APP_PRIVATE_KEY: ${{ secrets.GH_APP_PRIVATE_KEY }}
+      AZURE_OPENAI_ENDPOINT: ${{ secrets.AZURE_OPENAI_ENDPOINT }}
+      AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_KEY }}
+      # Azure Service Principal for M365 Toolkit authentication
+      AZURE_CLIENT_ID: ${{ secrets.AZURE_SERVICE_PRINCIPAL_ID }}
+      AZURE_CLIENT_SECRET: ${{ secrets.AZURE_SERVICE_PRINCIPAL_SECRET }}
+      AZURE_TENANT_ID: ${{ secrets.TEST_TENANT_ID_NEW  }}
+      AZURE_SUBSCRIPTION_ID: ${{ secrets.TEST_SUBSCRIPTION_ID_NEW }}
+      AZURE_AUTH_ENABLED: ${{ secrets.AZURE_SERVICE_PRINCIPAL_ID != '' && secrets.AZURE_SERVICE_PRINCIPAL_SECRET != '' && secrets.TEST_TENANT_ID_NEW != '' }}
+      # M365 account for testing
+      M365_ACCOUNT_NAME: "test01@atktesting.onmicrosoft.com"
+      M365_ACCOUNT_PASSWORD: ${{ secrets.TEST_M365_PASSWORD_NEW }}
+      M365_TENANT_ID: ${{ secrets.TEST_CLEAN_TENANT_ID_NEW }}
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 22
+
+      - name: Install dependencies for download actions
+        run: npm install @octokit/auth-app @octokit/request @octokit/core node-fetch 
+        shell: bash
+
+
+      - name: Run download script
+        run: node download-vscuse-python.js "latest" "${{ github.workspace }}/packages/tests/vscuse/vscode-test-cases"
+        shell: bash
+        working-directory: .github/actions/setup-vscuse-environment
+
+      - name: Set up Python virtual environment and install wheel
+        run: |
+          cd packages/tests/vscuse/vscode-test-cases
+          python -m venv .venv
+          source .venv/bin/activate
+          WHEEL_FILE=$(ls *.whl | head -n 1)
+          pip install "./$WHEEL_FILE"
+        shell: bash
+
+      - name: Verify Azure Configuration
+        run: |
+          echo "Verifying Azure configuration..."
+
+          # Check Azure OpenAI (required)
+          if [ -z "$AZURE_OPENAI_ENDPOINT" ] || [ -z "$AZURE_OPENAI_API_KEY" ]; then
+            echo "❌ Azure OpenAI configuration missing"
+            exit 1
+          else
+            echo "✅ Azure OpenAI configured"
+          fi
+
+          # Check Azure Service Principal (optional)
+          if [ -n "$AZURE_CLIENT_ID" ] && [ -n "$AZURE_CLIENT_SECRET" ] && [ -n "$AZURE_TENANT_ID" ]; then
+            echo "✅ Azure Service Principal configured - M365 Toolkit authentication enabled"
+          else
+            echo "⚠️  Azure Service Principal not configured - M365 Toolkit authentication disabled"
+          fi
+
+      - name: Log in to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Pull pre-built Docker image
+        run: |
+          echo "Pulling pre-built Docker image: ghcr.io/microsoft/vscuse-vscode:${{ github.event.inputs.image_tag || 'latest' }}"
+          docker pull ghcr.io/microsoft/vscuse-vscode:${{ github.event.inputs.image_tag || 'latest' }}
+          echo "✅ Image pulled successfully!"
+          echo "Image details:"
+          docker images ghcr.io/microsoft/vscuse-vscode:${{ github.event.inputs.image_tag || 'latest' }}
+
+      - name: Run test
+        timeout-minutes: 15
+        run: |
+          echo "🚀 Running test plan: ${{ matrix.test_plan }}"
+          echo "Using image tag: ${{ github.event.inputs.image_tag || 'latest' }}"
+          echo "Test execution started at: $(date)"
+
+          cd packages/tests/vscuse/vscode-test-cases
+          python -m venv .venv
+          source .venv/bin/activate
+          vscuse execute ${{ matrix.test_plan }}
+
+      - name: Upload test artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-debug-artifacts-${{ matrix.test_plan }}-${{ github.run_number }}
+          path: |
+            packages/tests/vscuse/vscode-test-cases/test_report/
+          retention-days: 7
+          if-no-files-found: ignore
+
+      - name: Cleanup
+        if: always()
+        run: |
+          echo "🧹 Cleaning up resources..."
+
+          # Stop and remove any containers using our image
+          echo "Cleaning up VSCode containers..."
+          docker stop $(docker ps -q --filter "ancestor=ghcr.io/microsoft/vscuse-vscode:${{ github.event.inputs.image_tag || 'latest' }}") 2>/dev/null || echo "No containers to stop"
+          docker rm $(docker ps -aq --filter "ancestor=ghcr.io/microsoft/vscuse-vscode:${{ github.event.inputs.image_tag || 'latest' }}") 2>/dev/null || echo "No containers to remove"
