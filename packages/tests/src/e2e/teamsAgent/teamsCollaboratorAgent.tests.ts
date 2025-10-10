@@ -92,7 +92,7 @@ describe("Basic Bot", function () {
       );
 
       // Validate Scaffold
-      const indexFile = path.join(projectPath, "index.ts");
+      const indexFile = path.join(projectPath, "src", "index.ts");
       fs.access(indexFile, fs.constants.F_OK, (err) => {
         assert.notExists(err, "index.ts should exist");
       });
