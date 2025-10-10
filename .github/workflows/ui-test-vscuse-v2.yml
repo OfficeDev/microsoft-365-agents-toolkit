@@ -148,7 +148,7 @@ jobs:
           cd packages/tests/vscuse/vscode-test-cases
           python -m venv .venv
           source .venv/bin/activate
-          vscuse execute ${{ matrix.test_plan }} --config-file ./config.yaml
+          vscuse execute --config-file ./config.yaml ${{ matrix.test_plan }}.json
 
       - name: Upload test artifacts
         if: always()
