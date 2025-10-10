@@ -2,7 +2,7 @@
   "name": "{{SafeProjectNameLowerCase}}",
   "version": "1.0.0",
   "scripts": {
-    "compile": "tsp compile ./main.tsp --config ./tspconfig.yaml",
+    "compile": "tsp compile ./src/agent/main.tsp --config ./tspconfig.yaml",
     "generate:env": "node scripts/generate-env.js"
   },
   "devDependencies": {

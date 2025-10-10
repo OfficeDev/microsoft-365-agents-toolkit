@@ -16,4 +16,4 @@ node_modules/
 # generated files
 appPackage/.generated
 # generated environment variables
-env.tsp
+src/agent/env.tsp

@@ -11,7 +11,7 @@
     // src/agent is the parent of this scripts directory
     const repoAgentDir = path.resolve(__dirname, "..");
     const envFilePath = path.join(repoAgentDir, "env", `.env.${envArg}`);
-    const outTspPath = path.join(repoAgentDir, "env.tsp");
+    const outTspPath = path.join(repoAgentDir, "src/agent/env.tsp");
 
     if (!fs.existsSync(envFilePath)) {
       console.error(`Environment file not found: ${envFilePath}`);
