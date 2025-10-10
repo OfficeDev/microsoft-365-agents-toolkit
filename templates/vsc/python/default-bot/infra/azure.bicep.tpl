@@ -42,12 +42,12 @@ resource webApp 'Microsoft.Web/sites@2021-02-01' = {
     serverFarmId: serverfarm.id
     siteConfig: {
       alwaysOn: true
-      appCommandLine: 'gunicorn --bind 0.0.0.0 --worker-class aiohttp.worker.GunicornWebWorker --timeout 600 app:app'
+      appCommandLine: 'python main.py'
       linuxFxVersion: pythonVersion
       appSettings: [
         {
           name: 'WEBSITES_CONTAINER_START_TIME_LIMIT'
-          value: '600'
+          value: '1200'
         }
         {
           name: 'SCM_DO_BUILD_DURING_DEPLOYMENT'
