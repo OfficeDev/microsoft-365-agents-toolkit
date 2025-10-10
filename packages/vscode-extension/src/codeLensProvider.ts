@@ -978,11 +978,9 @@ export class WorkspaceMCPConfigCodeLensProvider implements vscode.CodeLensProvid
     }
     // For each server, add a codelens at the line where the server key appears
     for (const [serverName, serverConfig] of Object.entries(json.servers)) {
-      // Find the line number for the server key
-      const regex = new RegExp(`"${serverName}"`);
-      const match = regex.exec(text);
-      if (match) {
-        const pos = document.positionAt(match.index);
+      const start = text.indexOf(`"${serverName}"`);
+      if (start !== -1) {
+        const pos = document.positionAt(start);
         const range = new vscode.Range(
           pos.line,
           pos.character,
