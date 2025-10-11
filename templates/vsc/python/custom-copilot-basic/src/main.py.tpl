@@ -94,20 +94,11 @@ async def handle_message(ctx: ActivityContext[MessageActivity]):
     await handle_stateful_conversation(model, ctx)
 
 @app.on_message_submit_feedback
-def handle_message_feedback(ctx: ActivityContext[MessageSubmitActionInvokeActivity]):
+async def handle_message_feedback(ctx: ActivityContext[MessageSubmitActionInvokeActivity]):
     """Handle feedback submission events"""
     activity = ctx.activity
 
     print(f"your feedback is {activity.value.action_value}")
-
-@app.on_conversation_update
-async def handle_conversation_update(ctx: ActivityContext):
-    """Handle conversation update events"""
-    welcomeText = "How can I help you today?"
-    if ctx.activity.members_added and len(ctx.activity.members_added) > 0:
-        for member in ctx.activity.members_added:
-            if member.id != ctx.activity.recipient.id:
-                await ctx.send(welcomeText)
 
 if __name__ == "__main__":
     asyncio.run(app.start())

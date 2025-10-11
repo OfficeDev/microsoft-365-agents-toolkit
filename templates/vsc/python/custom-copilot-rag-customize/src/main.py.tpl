@@ -1,4 +1,5 @@
 import asyncio
+import json
 import os
 
 from azure.identity import ManagedIdentityCredential
@@ -6,7 +7,7 @@ from microsoft.teams.ai import ChatPrompt, ListMemory
 from microsoft.teams.ai.ai_model import AIModel
 from microsoft.teams.apps import App, ActivityContext
 from microsoft.teams.openai import OpenAICompletionsAIModel
-from microsoft.teams.api import MessageActivity, MessageActivityInput, MessageSubmitActionInvokeActivity
+from microsoft.teams.api import CitationAppearance, MessageActivity, MessageActivityInput, MessageSubmitActionInvokeActivity
 
 from config import Config
 from my_data_source import MyDataSource
@@ -82,16 +83,46 @@ async def handle_stateful_conversation(model: AIModel, ctx: ActivityContext[Mess
     chat_result = await chat_prompt.send(
         input=input,
         memory=memory,
-        instructions=f"{INSTRUCTIONS}\n\nAdditional Context:\n${data_context.output}",
-        on_chunk=lambda chunk: ctx.stream.emit(chunk)
+                instructions=f"{INSTRUCTIONS}\n\nAdditional Context:\n${data_context.output}"
     )
 
-    if ctx.activity.conversation.is_group:
-        # If the conversation is a group chat, we need to send the final response
-        # back to the group chat
-        await ctx.send(MessageActivityInput(text=chat_result.content).add_ai_generated().add_feedback())
-    else:
-        ctx.stream.emit(MessageActivityInput().add_ai_generated().add_feedback())
+    result = None
+    try:
+        # Attempt to parse the response as JSON
+        result = json.loads(chat_result.response.content)
+    except json.JSONDecodeError as error:
+        print(f"Error decoding JSON: {error}")
+        await ctx.send(MessageActivityInput(text=chat_result.response.content).add_ai_generated().add_feedback())
+        return
+
+    
+    citations = []
+    position = 1
+    content = ""
+    if result and result.get("results") and len(result["results"]) > 0:
+        for content_item in result["results"]:
+            
+            if content_item.get("citationTitle") and len(content_item["citationTitle"]) > 0:
+                content += f"{content_item['answer']}[{position}]<br>"
+                citations.append(
+                    {
+                        "id": position,
+                        "title": content_item.get("citationTitle", ""),
+                        "abstract": content_item.get("citationContent", "")[:160]
+                    }
+                )
+                position += 1
+            else:
+                content += f"{content_item['answer']}<br>"
+    
+    message_activity = MessageActivityInput(text=content).add_ai_generated().add_feedback()
+    for citation in citations:
+        message_activity.add_citation(
+            citation["id"],
+            CitationAppearance(name=citation["title"], abstract=citation["abstract"])
+        )
+
+    await ctx.send(message_activity)
 
 @app.on_message
 async def handle_message(ctx: ActivityContext[MessageActivity]):
@@ -99,20 +130,11 @@ async def handle_message(ctx: ActivityContext[MessageActivity]):
     await handle_stateful_conversation(model, ctx)
 
 @app.on_message_submit_feedback
-def handle_message_feedback(ctx: ActivityContext[MessageSubmitActionInvokeActivity]):
+async def handle_message_feedback(ctx: ActivityContext[MessageSubmitActionInvokeActivity]):
     """Handle feedback submission events"""
     activity = ctx.activity
 
     print(f"your feedback is {activity.value.action_value}")
-
-@app.on_conversation_update
-async def handle_conversation_update(ctx: ActivityContext):
-    """Handle conversation update events"""
-    welcomeText = "How can I help you today?"
-    if ctx.activity.members_added and len(ctx.activity.members_added) > 0:
-        for member in ctx.activity.members_added:
-            if member.id != ctx.activity.recipient.id:
-                await ctx.send(welcomeText)
 
 if __name__ == "__main__":
     asyncio.run(app.start())

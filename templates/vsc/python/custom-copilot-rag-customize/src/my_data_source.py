@@ -16,10 +16,17 @@ class MyDataSource():
         """        
         filePath = os.path.join(os.path.dirname(__file__), 'data')
         files = os.listdir(filePath)
-        self._data = [open(os.path.join(filePath, file), 'r').read() for file in files]
+        self._data = []
+        for file in files:
+            with open(os.path.join(filePath, file), 'r') as f:
+                content = f.read()
+                self._data.append({
+                    'filename': file,
+                    'content': content
+                })
         
 
-    async def render_data(self, query):
+    def render_data(self, query):
         """
         Renders the data source as a string of text.
         The returned output should be a string of text that will be injected into the prompt at render time.
@@ -27,23 +34,29 @@ class MyDataSource():
         if not query:
             return Result('', 0, False)
         
-        result=''
+        matched_files = []
+        
         # Text search
-        for data in self._data:
-            if query in data:
-                result += data
+        for data_item in self._data:
+            if query in data_item['content']:
+                matched_files.append(data_item)
+        
         # Key word search
         if 'history' in query.lower() or 'company' in query.lower():
-            result += self._data[0]
+            matched_files.append(self._data[0])
         if 'perksplus' in query.lower() or 'program' in query.lower():
-            result += self._data[1]
+            matched_files.append(self._data[1])
         if 'northwind' in query.lower() or 'health' in query.lower() or 'plan' in query.lower():
-            result += self._data[2]
+            matched_files.append(self._data[2])
        
-        return Result(self.formatDocument(result)) if result!='' else Result('')
+        return Result(self.formatDocuments(matched_files)) if matched_files else Result('')
 
-    def formatDocument(self, result):
+    def formatDocuments(self, matched_files):
         """
-        Formats the result string 
+        Formats the matched files as individual context tags
         """
-        return f"<context>{result}</context>"
+        context_list = []
+        for file_data in matched_files:
+            context_tag = f'<context source="{file_data["filename"]}">{file_data["content"]}</context>'
+            context_list.append(context_tag)
+        return '\n'.join(context_list)
