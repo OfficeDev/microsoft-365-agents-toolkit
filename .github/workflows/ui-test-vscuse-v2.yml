@@ -44,6 +44,7 @@ jobs:
   run-tests:
     needs: discover-test-plans
     runs-on: ubuntu-latest
+    name: ${{ fromJson(needs.discover-test-plans.outputs.test-plans) }}
     timeout-minutes: 20
 
     strategy:
@@ -148,7 +149,7 @@ jobs:
           cd packages/tests/vscuse/vscode-test-cases
           python -m venv .venv
           source .venv/bin/activate
-          vscuse execute --config-file ./config.yaml ${{ matrix.test_plan }}.json
+          vscuse execute --config-file ./config.yaml --groups-dir groups ${{ matrix.test_plan }}.json
 
       - name: Upload test artifacts
         if: always()
