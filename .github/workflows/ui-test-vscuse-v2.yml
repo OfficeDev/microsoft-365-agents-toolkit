@@ -41,8 +41,8 @@ jobs:
             echo "Using input test plans: $input_plans"
           fi
 
-  main:
-    name: ${{ fromJson(needs.discover-test-plans.outputs.test-plans) }}
+  run-tests:
+    name: Case-${{ fromJson(needs.discover-test-plans.outputs.test-plans) }}
     needs: discover-test-plans
     runs-on: ubuntu-latest
     timeout-minutes: 20
