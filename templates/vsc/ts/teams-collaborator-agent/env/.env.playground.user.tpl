@@ -2,7 +2,6 @@
 
 # If you're adding a secret value, add SECRET_ prefix to the name so Microsoft 365 Agents Toolkit can handle them properly
 # Secrets. Keys prefixed with `SECRET_` will be masked in Microsoft 365 Agents Toolkit logs.
-{{#useAzureOpenAI}}
 {{#azureOpenAIKey}}
 SECRET_AZURE_OPENAI_API_KEY={{{azureOpenAIKey}}}
 {{/azureOpenAIKey}}
@@ -21,4 +20,3 @@ AZURE_OPENAI_DEPLOYMENT_NAME='{{{azureOpenAIDeploymentName}}}'
 {{^azureOpenAIDeploymentName}}
 AZURE_OPENAI_DEPLOYMENT_NAME=
 {{/azureOpenAIDeploymentName}}
-{{/useAzureOpenAI}}

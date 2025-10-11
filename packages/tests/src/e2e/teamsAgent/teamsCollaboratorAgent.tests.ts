@@ -40,7 +40,7 @@ import {
   getTeamsApp,
 } from "../debug/utility";
 
-describe("Basic Bot", function () {
+describe("Teams Collaborator Agent", function () {
   const testFolder = getTestFolder();
   const subscription = getSubscriptionId();
   const appName = getUniqueAppName();
@@ -70,7 +70,7 @@ describe("Basic Bot", function () {
   it(
     "typescript template",
     {
-      testPlanCaseId: 17449538,
+      testPlanCaseId: 35527255,
       author: "Ning.Tang@microsoft.com",
     },
     async function () {
