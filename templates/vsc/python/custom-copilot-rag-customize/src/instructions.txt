@@ -5,7 +5,7 @@ Response should be a json array, list all the answers and citations.
 If citationTitle is not empty, citationContent mustn't be empty!!!
 # citationTitle must be a file name!!!
 If the answer no citation, set the citationTitle and citationContent as empty.
-Data format:
+Response should be a JSON object
 {
     "results":[
         {
