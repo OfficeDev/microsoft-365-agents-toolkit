@@ -9,8 +9,10 @@ from microsoft.teams.openai import OpenAICompletionsAIModel
 from microsoft.teams.api import MessageActivity, MessageActivityInput, MessageSubmitActionInvokeActivity
 
 from config import Config
+from my_data_source import MyDataSource
 
 config = Config()
+my_data_source = MyDataSource()
 
 # Load instructions from file
 def load_instructions() -> str:
@@ -71,13 +73,16 @@ async def handle_stateful_conversation(model: AIModel, ctx: ActivityContext[Mess
     existing_messages = await memory.get_all()
     print(f"Existing messages before sending to prompt: {len(existing_messages)} messages")
 
+    input = ctx.activity.strip_mentions_text().text
+    data_context = my_data_source.render_data(input)
+
     # Create ChatPrompt with conversation-specific memory
     chat_prompt = ChatPrompt(model)
 
     chat_result = await chat_prompt.send(
-        input=ctx.activity.text, 
+        input=input,
         memory=memory,
-        instructions=INSTRUCTIONS,
+        instructions=f"{INSTRUCTIONS}\n\nAdditional Context:\n${data_context.output}",
         on_chunk=lambda chunk: ctx.stream.emit(chunk)
     )
 
