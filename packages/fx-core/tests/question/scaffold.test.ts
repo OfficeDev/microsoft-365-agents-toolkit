@@ -4,6 +4,7 @@ import {
   ConditionFunc,
   Inputs,
   LocalFunc,
+  OptionItem,
   Platform,
   SingleSelectQuestion,
   StringValidation,
@@ -262,6 +263,84 @@ describe("daProjectTypeNode", () => {
 
     const conditionFunc = apiSpecChildNode?.condition as ConditionFunc;
     assert.isTrue(conditionFunc(testInputs));
+  });
+
+  it("should include MCP option when MCPForDA feature flag is enabled", () => {
+    sandbox.stub(featureFlagManager, "getBooleanValue").callsFake((flag) => {
+      if (flag === FeatureFlags.MCPForDA) {
+        return true;
+      }
+      return false;
+    });
+
+    const node = daProjectTypeNode();
+    const withPluginNode = node.children?.[0];
+    assert.isDefined(withPluginNode);
+
+    const actionTypeNode = withPluginNode?.children?.[0];
+    assert.isDefined(actionTypeNode);
+
+    const actionTypeData = actionTypeNode?.data as SingleSelectQuestion;
+    assert.isDefined(actionTypeData);
+    assert.isDefined(actionTypeData.staticOptions);
+
+    // Check that MCP option is included in staticOptions
+    const staticOptions = actionTypeData.staticOptions;
+    let mcpOption: string | OptionItem | undefined;
+
+    if (Array.isArray(staticOptions) && staticOptions.length > 0) {
+      if (typeof staticOptions[0] === "string") {
+        mcpOption = (staticOptions as string[]).find(
+          (option) => option === ActionStartOptions.mcp().id
+        );
+      } else {
+        mcpOption = (staticOptions as OptionItem[]).find(
+          (option) => option.id === ActionStartOptions.mcp().id
+        );
+      }
+    }
+
+    assert.isDefined(mcpOption);
+    const mcpOptionId = typeof mcpOption === "string" ? mcpOption : mcpOption?.id;
+    assert.equal(mcpOptionId, "mcp");
+  });
+
+  it("should not include MCP option when MCPForDA feature flag is disabled", () => {
+    sandbox.stub(featureFlagManager, "getBooleanValue").callsFake((flag) => {
+      if (flag === FeatureFlags.MCPForDA) {
+        return false;
+      }
+      return false;
+    });
+
+    const node = daProjectTypeNode();
+    const withPluginNode = node.children?.[0];
+    assert.isDefined(withPluginNode);
+
+    const actionTypeNode = withPluginNode?.children?.[0];
+    assert.isDefined(actionTypeNode);
+
+    const actionTypeData = actionTypeNode?.data as SingleSelectQuestion;
+    assert.isDefined(actionTypeData);
+    assert.isDefined(actionTypeData.staticOptions);
+
+    // Check that MCP option is not included in staticOptions
+    const staticOptions = actionTypeData.staticOptions;
+    let mcpOption: string | OptionItem | undefined;
+
+    if (Array.isArray(staticOptions) && staticOptions.length > 0) {
+      if (typeof staticOptions[0] === "string") {
+        mcpOption = (staticOptions as string[]).find(
+          (option) => option === ActionStartOptions.mcp().id
+        );
+      } else {
+        mcpOption = (staticOptions as OptionItem[]).find(
+          (option) => option.id === ActionStartOptions.mcp().id
+        );
+      }
+    }
+
+    assert.isUndefined(mcpOption);
   });
 });
 
