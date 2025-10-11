@@ -42,7 +42,7 @@ jobs:
           fi
 
   run-tests:
-    name: Case-${{ fromJson(needs.discover-test-plans.outputs.test-plans) }}
+    name: Case-${{ matrix.test_plan }}
     needs: discover-test-plans
     runs-on: ubuntu-latest
     timeout-minutes: 20
