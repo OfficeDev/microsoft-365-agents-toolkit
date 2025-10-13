@@ -1,4 +1,4 @@
-# Overview of the Basic Bot template
+# Overview of the Message Extensions template
 
 This app template is built on top of [Teams AI library V2](https://aka.ms/teams-ai-library-v2).
 This template showcases message extensions features:
@@ -21,13 +21,14 @@ This template showcases message extensions features:
 ### Configurations
 1. Open the command box and enter `Python: Create Environment` to create and activate your desired virtual environment. Remember to select `src/requirements.txt` as dependencies to install when creating the virtual environment.
 
-### Conversation with agent
+### Try the message extension features
 1. Select the Microsoft 365 Agents Toolkit icon on the left in the VS Code toolbar.
 1. In the Account section, sign in with your [Microsoft 365 account](https://docs.microsoft.com/microsoftteams/platform/toolkit/accounts) if you haven't already.
 1. Press F5 to start debugging which launches your app in Teams using a web browser. Select `Debug in Teams (Edge)` or `Debug in Teams (Chrome)`.
 1. When Teams launches in the browser, select the Add button in the dialog to install your app to Teams.
-1. You can send any message to get a response.
-
+1. Click the "+" button in the input box, select "Action Command" and input "createCard" into "Command Id" field. Select "Static list of parameters" and then click "Create". Fill out the form and click Submit to send an adaptive card to the current chat or channel.
+1. Click the "+" button in the input box, select "Search Command" and input "searchQuery" into "Command Id" field. Input a search query. Select one of the search results to send an adaptive card to the current chat or channel.
+1. Click the "+" button in the input box, select "Link Unfurling" and paste a link ending with .botframework.com. You should see an adaptive card unfurled. Click Send to Conversation to send it to the current chat or channel.
 **Congratulations**! You are running an application that can now interact with users in Teams:
 
 > For local debugging using Microsoft 365 Agents Toolkit CLI, you need to do some extra steps described in [Set up your Microsoft 365 Agents Toolkit CLI for local debugging](https://aka.ms/teamsfx-cli-debugging).
