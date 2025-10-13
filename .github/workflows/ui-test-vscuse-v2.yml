@@ -29,8 +29,8 @@ jobs:
         id: get-plans
         run: |
           if [ -z "${{ github.event.inputs.test_plan }}" ]; then
-            # Get all JSON files from plans directory (strip the .json extension)
-            plans=$(find packages/tests/vscuse/vscode-test-cases/ -name "*.json" -exec basename {} .json \; | jq -R -s -c 'split("\n")[:-1]')
+            # Get only top-level JSON files from plans directory (strip the .json extension)
+            plans=$(find packages/tests/vscuse/vscode-test-cases/ -maxdepth 1 -type f -name "*.json" -exec basename {} .json \; | jq -R -s -c 'split("\n")[:-1]')
             echo "plans=$plans" >> $GITHUB_OUTPUT
             echo "Found test plans: $plans"
           else
@@ -42,6 +42,7 @@ jobs:
           fi
 
   run-tests:
+    name: Case-${{ matrix.test_plan }}
     needs: discover-test-plans
     runs-on: ubuntu-latest
     timeout-minutes: 20
@@ -148,7 +149,7 @@ jobs:
           cd packages/tests/vscuse/vscode-test-cases
           python -m venv .venv
           source .venv/bin/activate
-          vscuse execute --config-file ./config.yaml ${{ matrix.test_plan }}.json
+          vscuse execute --config-file ./config.yaml --groups-dir groups ${{ matrix.test_plan }}.json
 
       - name: Upload test artifacts
         if: always()
