@@ -34,7 +34,7 @@ import { DefaultTemplateGenerator } from "../defaultGenerator";
 import { Generator } from "../generator";
 import { TemplateInfo } from "../templates/templateInfo";
 import { TemplateNames } from "../templates/templateNames";
-import { addExistingPlugin, generateForMCPForDA } from "./helper";
+import { addExistingPlugin } from "./helper";
 import { getDefaultString } from "../../../common/localizeUtils";
 import { EmbeddedKnowledgeLocalDirectoryName } from "../../driver/teamsApp/constants";
 import fs from "fs-extra";

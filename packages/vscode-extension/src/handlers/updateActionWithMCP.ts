@@ -126,7 +126,7 @@ export async function updateActionWithMCP(args?: any[]): Promise<Result<any, FxE
   let auth: "OAuthPluginVault" | "NoneAuth" = "NoneAuth";
   let oauthMetadataUrl = undefined;
   try {
-    const response = await axios.get(server);
+    await axios.get(server);
   } catch (error) {
     if (error.status == 401) {
       auth = "OAuthPluginVault";
