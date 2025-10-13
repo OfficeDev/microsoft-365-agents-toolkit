@@ -85,7 +85,7 @@ provision:
 deploy:
   - uses: cli/runDotnetCommand
     with:
-      args: publish --configuration Release  --runtime win-x86 --self-contained {{ProjectName}}.csproj
+      args: publish --configuration Release --runtime win-x86 --self-contained {{ProjectName}}.csproj
 {{#isNewProjectTypeEnabled}}
 {{#PlaceProjectFileInSolutionDir}}
       workingDirectory: ..
