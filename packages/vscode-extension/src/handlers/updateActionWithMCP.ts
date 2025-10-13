@@ -31,7 +31,7 @@ function sanitizeMCPName(name: string): string {
 export async function updateActionWithMCP(args?: any[]): Promise<Result<any, FxError>> {
   const inputs = getSystemInputs();
   let mcpName = args && args.length > 0 ? args[0].serverName : undefined;
-  let server = args && args.length > 0 ? args[0].serverConfig.url : undefined;
+  let server = args && args.length > 0 ? args[0].serverConfig?.url : undefined;
 
   // Sanitize mcpName if it's provided as an argument
   if (mcpName) {
@@ -130,14 +130,12 @@ export async function updateActionWithMCP(args?: any[]): Promise<Result<any, FxE
   } catch (error) {
     if (error.status == 401) {
       auth = "OAuthPluginVault";
-    }
-    const errorDetails = error.response.headers["www-authenticate"];
-    if (!errorDetails) {
-      auth = "NoneAuth";
-    } else {
-      const match = errorDetails.match(/resource_metadata=\s*"([^"]+)"/);
-      if (match) {
-        oauthMetadataUrl = match[1];
+      const errorDetails = error.response?.headers?.["www-authenticate"];
+      if (errorDetails) {
+        const match = errorDetails.match(/resource_metadata=\s*"([^"]+)"/);
+        if (match) {
+          oauthMetadataUrl = match[1];
+        }
       }
     }
   }
