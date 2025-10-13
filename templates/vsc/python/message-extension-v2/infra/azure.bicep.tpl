@@ -3,19 +3,6 @@
 @description('Used to generate names for all resources in this file')
 param resourceBaseName string
 
-{{#useAzureOpenAI}}
-@secure()
-@description('Required in your bot project to access Azure OpenAI service. You can get it from Azure Portal > OpenAI > Keys > Key1 > Resource Management > Endpoint')  
-param azureOpenaiKey string
-param azureOpenaiModelDeploymentName string
-param azureOpenaiEndpoint string
-{{/useAzureOpenAI}}
-{{#useOpenAI}}
-@secure()
-@description('Required in your bot project to access OpenAI service. You can get it from OpenAI > API > API Key')
-param openaiKey string
-{{/useOpenAI}}
-
 param webAppSKU string
 param linuxFxVersion string
 
@@ -70,26 +57,6 @@ resource webApp 'Microsoft.Web/sites@2021-02-01' = {
           name: 'CLIENT_ID'
           value: identity.properties.clientId
         }
-        {{#useAzureOpenAI}}
-        {
-          name: 'AZURE_OPENAI_API_KEY'
-          value: azureOpenaiKey
-        }
-        {
-          name: 'AZURE_OPENAI_MODEL_DEPLOYMENT_NAME'
-          value: azureOpenaiModelDeploymentName
-        }
-        {
-          name: 'AZURE_OPENAI_ENDPOINT'
-          value: azureOpenaiEndpoint
-        }
-        {{/useAzureOpenAI}}
-        {{#useOpenAI}}
-        {
-          name: 'OPENAI_API_KEY'
-          value: openaiKey
-        }
-        {{/useOpenAI}}
         {
           name: 'TENANT_ID'
           value: identity.properties.tenantId
