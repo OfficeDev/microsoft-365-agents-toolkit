@@ -1382,6 +1382,7 @@ publish:
             },
           },
         },
+        "CodeLens",
       ]);
     });
 
@@ -1431,6 +1432,7 @@ publish:
             args: ["app.py"],
           },
         },
+        "CodeLens",
       ]);
 
       chai.expect(codelens[1].command?.title).to.equal("⚡ ATK: Fetch action from MCP");
@@ -1443,6 +1445,7 @@ publish:
             args: ["index.js"],
           },
         },
+        "CodeLens",
       ]);
     });
 
@@ -1491,6 +1494,7 @@ publish:
             args: ["start"],
           },
         },
+        "CodeLens",
       ]);
     });
 
@@ -1718,6 +1722,7 @@ publish:
             args: ["-m", "server"],
           },
         },
+        "CodeLens",
       ]);
 
       chai.expect(codelens[1].command?.arguments).to.deep.equal([
@@ -1728,6 +1733,7 @@ publish:
             args: ["start"],
           },
         },
+        "CodeLens",
       ]);
     });
 
@@ -1768,6 +1774,7 @@ publish:
           serverName: "null-server",
           serverConfig: null,
         },
+        "CodeLens",
       ]);
 
       chai.expect(codelens[1].command?.arguments).to.deep.equal([
@@ -1777,6 +1784,7 @@ publish:
             command: "node",
           },
         },
+        "CodeLens",
       ]);
     });
   });
