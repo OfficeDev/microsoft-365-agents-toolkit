@@ -122,6 +122,12 @@ const teamsOtherTemplates: Template[] = [
     language: "typescript",
     description: "",
   },
+  {
+    id: "message-extension-v2-python",
+    name: TemplateNames.DefaultMessageExtension,
+    language: "python",
+    description: "",
+  },
   // VS templates below
   {
     id: "basic-tab-csharp",
