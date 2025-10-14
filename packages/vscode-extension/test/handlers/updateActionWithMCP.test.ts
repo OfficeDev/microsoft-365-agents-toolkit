@@ -13,6 +13,7 @@ import { Stage, err, ok, UserError, Inputs, Platform } from "@microsoft/teamsfx-
 import { updateActionWithMCP } from "../../src/handlers/updateActionWithMCP";
 import * as systemEnvUtils from "../../src/utils/systemEnvUtils";
 import * as sharedOpts from "../../src/handlers/sharedOpts";
+import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
 import * as vscUI from "../../src/qm/vsc_ui";
 import { QuestionNames } from "@microsoft/teamsfx-core";
 import { MockCore } from "../mocks/mockCore";
@@ -32,6 +33,8 @@ describe("updateActionWithMCP", () => {
     sandbox.stub(systemEnvUtils, "getSystemInputs").returns(mockInputs);
     sandbox.stub(vscode.window, "showErrorMessage");
     sandbox.stub(globalVariables, "core").value(new MockCore());
+    sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
+    sandbox.stub(ExtTelemetry, "sendTelemetryErrorEvent");
   });
 
   afterEach(() => {
