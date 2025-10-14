@@ -29,6 +29,10 @@ export class ConfigManager {
       ConfigurationKey.BicepEnvCheckerEnable,
       false
     ).toString();
+    process.env[FeatureFlags.MCPForDA.name] = this.getConfiguration(
+      ConfigurationKey.EnableMCPforDA,
+      true
+    ).toString();
     process.env[FeatureFlags.CEAEnabled.name] = this.getConfiguration(
       ConfigurationKey.EnableCEA,
       false
