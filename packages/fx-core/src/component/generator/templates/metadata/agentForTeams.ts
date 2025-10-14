@@ -23,12 +23,12 @@ export const agentForTeamsTemplates: Template[] = [
     language: "csharp",
     description: "",
   },
-  {
-    id: "custom-copilot-basic-python",
-    name: TemplateNames.CustomCopilotBasic,
-    language: "python",
-    description: "",
-  },
+  // {
+  //   id: "custom-copilot-basic-python",
+  //   name: TemplateNames.CustomCopilotBasic,
+  //   language: "python",
+  //   description: "",
+  // },
   {
     id: "custom-copilot-rag-customize-ts",
     name: TemplateNames.CustomCopilotRagCustomize,
@@ -47,12 +47,12 @@ export const agentForTeamsTemplates: Template[] = [
     language: "csharp",
     description: "",
   },
-  {
-    id: "custom-copilot-rag-customize-python",
-    name: TemplateNames.CustomCopilotRagCustomize,
-    language: "python",
-    description: "",
-  },
+  // {
+  //   id: "custom-copilot-rag-customize-python",
+  //   name: TemplateNames.CustomCopilotRagCustomize,
+  //   language: "python",
+  //   description: "",
+  // },
   {
     id: "custom-copilot-rag-azure-ai-search-ts",
     name: TemplateNames.CustomCopilotRagAzureAISearch,

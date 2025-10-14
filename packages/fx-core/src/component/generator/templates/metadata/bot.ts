@@ -93,12 +93,6 @@ export const basicBotTemplates: Template[] = [
     description: "",
   },
   {
-    id: "default-bot-python",
-    name: TemplateNames.DefaultBot,
-    language: "python",
-    description: "",
-  },
-  {
     id: "default-bot-csharp",
     name: TemplateNames.DefaultBot,
     language: "csharp",
