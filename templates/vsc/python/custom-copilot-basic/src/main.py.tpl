@@ -48,7 +48,7 @@ model = OpenAICompletionsAIModel(
 {{/useAzureOpenAI}}  
  
 {{#useOpenAI}}
-model = OpenAIModel(
+model = OpenAICompletionsAIModel
     key=config.OPENAI_API_KEY,
     model=config.OPENAI_MODEL_NAME
 )
@@ -84,7 +84,7 @@ async def handle_stateful_conversation(model: AIModel, ctx: ActivityContext[Mess
     if ctx.activity.conversation.is_group:
         # If the conversation is a group chat, we need to send the final response
         # back to the group chat
-        await ctx.send(MessageActivityInput(text=chat_result.content).add_ai_generated().add_feedback())
+        await ctx.send(MessageActivityInput(text=chat_result.response.content).add_ai_generated().add_feedback())
     else:
         ctx.stream.emit(MessageActivityInput().add_ai_generated().add_feedback())
 

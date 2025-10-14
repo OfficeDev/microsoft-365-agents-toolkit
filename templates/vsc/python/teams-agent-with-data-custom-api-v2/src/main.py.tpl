@@ -3,17 +3,16 @@ import json
 import os
 
 from azure.identity import ManagedIdentityCredential
-from microsoft.teams.ai import ChatPrompt, ListMemory
+from microsoft.teams.ai import ChatPrompt, ListMemory, Agent, Function
 from microsoft.teams.ai.ai_model import AIModel
 from microsoft.teams.apps import App, ActivityContext
 from microsoft.teams.openai import OpenAICompletionsAIModel
-from microsoft.teams.api import CitationAppearance, MessageActivity, MessageActivityInput, MessageSubmitActionInvokeActivity
+from microsoft.teams.api import MessageActivity, MessageActivityInput, MessageSubmitActionInvokeActivity
 
 from config import Config
-from my_data_source import MyDataSource
+from handlers import //Replace with functions to be imported
 
 config = Config()
-my_data_source = MyDataSource()
 
 # Load instructions from file
 def load_instructions() -> str:
@@ -25,6 +24,13 @@ def load_instructions() -> str:
         return "You are a helpful assistant."
 
 INSTRUCTIONS = load_instructions()
+
+def load_function_definitions():
+    functions_path = os.path.join(os.path.dirname(__file__), 'functions.json')
+    with open(functions_path, 'r', encoding='utf-8') as f:
+        return json.load(f)
+
+function_defs = load_function_definitions()
 
 def create_token_factory():
     def get_token(scopes, tenant_id=None):
@@ -49,7 +55,7 @@ model = OpenAICompletionsAIModel(
     api_version="2024-10-21"
 )
 {{/useAzureOpenAI}}  
- 
+
 {{#useOpenAI}}
 model = OpenAICompletionsAIModel
     key=config.OPENAI_API_KEY,
@@ -70,59 +76,25 @@ async def handle_stateful_conversation(model: AIModel, ctx: ActivityContext[Mess
     # Retrieve existing conversation memory or initialize new one
     memory = get_or_create_conversation_memory(ctx.activity.conversation.id)
 
-    # Get existing messages for logging
-    existing_messages = await memory.get_all()
-    print(f"Existing messages before sending to prompt: {len(existing_messages)} messages")
+    agent = Agent(model=model)
+    
+    def make_handler(fn, ctx):
+        async def handler(parameters):
+            result = await fn(parameters)
+            await ctx.send(result)
+            return "results are shown already. completed."
+        return handler
 
-    input = ctx.activity.strip_mentions_text().text
-    data_context = my_data_source.render_data(input)
+    // Replace with function definition code
 
-    # Create ChatPrompt with conversation-specific memory
-    chat_prompt = ChatPrompt(model)
-
-    chat_result = await chat_prompt.send(
-        input=input,
+    chat_result = await agent.send(
+        input=ctx.activity.text, 
         memory=memory,
-                instructions=f"{INSTRUCTIONS}\n\nAdditional Context:\n${data_context.output}"
+        instructions=INSTRUCTIONS,
+        on_chunk=lambda chunk: ctx.stream.emit(chunk)
     )
 
-    result = None
-    try:
-        # Attempt to parse the response as JSON
-        result = json.loads(chat_result.response.content)
-    except json.JSONDecodeError as error:
-        print(f"Error decoding JSON: {error}")
-        await ctx.send(MessageActivityInput(text=chat_result.response.content).add_ai_generated().add_feedback())
-        return
-
-    
-    citations = []
-    position = 1
-    content = ""
-    if result and result.get("results") and len(result["results"]) > 0:
-        for content_item in result["results"]:
-            
-            if content_item.get("citationTitle") and len(content_item["citationTitle"]) > 0:
-                content += f"{content_item['answer']}[{position}]<br>"
-                citations.append(
-                    {
-                        "id": position,
-                        "title": content_item.get("citationTitle", ""),
-                        "abstract": content_item.get("citationContent", "")[:160]
-                    }
-                )
-                position += 1
-            else:
-                content += f"{content_item['answer']}<br>"
-    
-    message_activity = MessageActivityInput(text=content).add_ai_generated().add_feedback()
-    for citation in citations:
-        message_activity.add_citation(
-            citation["id"],
-            CitationAppearance(name=citation["title"], abstract=citation["abstract"])
-        )
-
-    await ctx.send(message_activity)
+    await ctx.send(MessageActivityInput(text=chat_result.response.content).add_ai_generated().add_feedback())
 
 @app.on_message
 async def handle_message(ctx: ActivityContext[MessageActivity]):
