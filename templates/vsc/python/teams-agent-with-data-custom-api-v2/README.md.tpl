@@ -20,7 +20,7 @@ This template showcases an agent app that responds to user questions like an AI 
 {{/useAzureOpenAI}}
 
 ### Configurations
-1. Open the command box and enter `Python: Create Environment` to create and activate your desired virtual environment. Remember to select `src/requirements.txt` as dependencies to install when creating the virtual environment.
+1. Open the command box and enter `Python: Create Environment` to create and activate your desired virtual environment. Remember to select `requirements.txt` as dependencies to install when creating the virtual environment.
 {{#useOpenAI}}
 1. In file *env/.env.playground.user*, fill in your OpenAI key `SECRET_OPENAI_API_KEY=<your-key>`.
 {{/useOpenAI}}
