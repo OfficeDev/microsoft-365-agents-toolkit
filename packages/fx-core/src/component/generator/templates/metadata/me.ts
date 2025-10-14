@@ -6,18 +6,6 @@ import { Template } from "./interface";
 
 export const messagingExtensionTemplates: Template[] = [
   {
-    id: "message-extension-v2-ts",
-    name: TemplateNames.DefaultMessageExtension,
-    language: "typescript",
-    description: "",
-  },
-  {
-    id: "message-extension-v2-csharp",
-    name: TemplateNames.DefaultMessageExtension,
-    language: "csharp",
-    description: "",
-  },
-  {
     id: "message-extension-with-api-from-scratch-ts",
     name: TemplateNames.MessageExtensionWithNewApiFromScratch,
     language: "typescript",

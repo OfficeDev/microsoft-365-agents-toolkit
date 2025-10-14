@@ -127,7 +127,7 @@ export class DefaultTemplateGenerator implements IGenerator {
     });
 
     const templateMetadata = getAllTemplatesOnPlatform(inputs.platform).find(
-      (t) => t.name === name
+      (t) => t.name === name && t.language === templateInfo.language
     );
     const folderName =
       templateMetadata?.language === "common" || templateMetadata?.language === "none"

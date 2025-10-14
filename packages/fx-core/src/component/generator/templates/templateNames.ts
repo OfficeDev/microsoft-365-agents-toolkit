@@ -30,6 +30,7 @@ export enum TemplateNames {
   CustomCopilotRagMicrosoft365 = "custom-copilot-rag-microsoft365",
   CustomCopilotAssistantNew = "custom-copilot-assistant-new",
   CustomCopilotAssistantAssistantsApi = "custom-copilot-assistant-assistants-api",
+  TeamsCollaboratorAgent = "teams-collaborator-agent",
 
   // Copilot connector
   GraphConnector = "graph-connector", // vsc only

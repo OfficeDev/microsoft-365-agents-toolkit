@@ -55,6 +55,7 @@ export function teamsProjectNode(platform: Platform): IQTreeNode {
       staticOptions: [
         TeamsAgentCapabilityOptions.basicChatbot(),
         TeamsAgentCapabilityOptions.customCopilotRag(),
+        TeamsAgentCapabilityOptions.collaboratorAgent(),
         TeamsAgentCapabilityOptions.others(),
       ],
       placeholder: getLocalizedString(
@@ -71,6 +72,7 @@ export function teamsProjectNode(platform: Platform): IQTreeNode {
           TeamsAgentCapabilityOptions.customCopilotRag().id,
         ],
       }),
+      azureOpenAINode({ equals: TeamsAgentCapabilityOptions.collaboratorAgent().id }),
       teamsCapabilityNode(platform),
     ],
   };
@@ -183,6 +185,57 @@ export function customCopilotRagNode(): IQTreeNode {
 //   };
 // }
 
+export function azureOpenAINode(
+  condition?: StringValidation | StringArrayValidation | ConditionFunc
+): IQTreeNode {
+  return {
+    condition: condition,
+    data: {
+      type: "text",
+      password: true,
+      name: QuestionNames.AzureOpenAIKey,
+      title: getLocalizedString("core.createProjectQuestion.llmService.azureOpenAIKey.title"),
+      placeholder: getLocalizedString(
+        "core.createProjectQuestion.llmService.azureOpenAIKey.placeholder"
+      ),
+    },
+    children: [
+      {
+        condition: (inputs: Inputs) => {
+          return inputs[QuestionNames.AzureOpenAIKey]?.length > 0;
+        },
+        data: {
+          type: "text",
+          name: QuestionNames.AzureOpenAIEndpoint,
+          title: getLocalizedString(
+            "core.createProjectQuestion.llmService.azureOpenAIEndpoint.title"
+          ),
+          placeholder: getLocalizedString(
+            "core.createProjectQuestion.llmService.azureOpenAIEndpoint.placeholder"
+          ),
+        },
+        children: [
+          {
+            condition: (inputs: Inputs) => {
+              return inputs[QuestionNames.AzureOpenAIEndpoint]?.length > 0;
+            },
+            data: {
+              type: "text",
+              name: QuestionNames.AzureOpenAIDeploymentName,
+              title: getLocalizedString(
+                "core.createProjectQuestion.llmService.azureOpenAIDeploymentName.title"
+              ),
+              placeholder: getLocalizedString(
+                "core.createProjectQuestion.llmService.azureOpenAIDeploymentName.placeholder"
+              ),
+            },
+          },
+        ],
+      },
+    ],
+  };
+}
+
 export function llmServiceNode(
   condition?: StringValidation | StringArrayValidation | ConditionFunc
 ): IQTreeNode {
@@ -211,52 +264,7 @@ export function llmServiceNode(
       default: "llm-service-azure-openai",
     },
     children: [
-      {
-        condition: { equals: "llm-service-azure-openai" },
-        data: {
-          type: "text",
-          password: true,
-          name: QuestionNames.AzureOpenAIKey,
-          title: getLocalizedString("core.createProjectQuestion.llmService.azureOpenAIKey.title"),
-          placeholder: getLocalizedString(
-            "core.createProjectQuestion.llmService.azureOpenAIKey.placeholder"
-          ),
-        },
-        children: [
-          {
-            condition: (inputs: Inputs) => {
-              return inputs[QuestionNames.AzureOpenAIKey]?.length > 0;
-            },
-            data: {
-              type: "text",
-              name: QuestionNames.AzureOpenAIEndpoint,
-              title: getLocalizedString(
-                "core.createProjectQuestion.llmService.azureOpenAIEndpoint.title"
-              ),
-              placeholder: getLocalizedString(
-                "core.createProjectQuestion.llmService.azureOpenAIEndpoint.placeholder"
-              ),
-            },
-            children: [
-              {
-                condition: (inputs: Inputs) => {
-                  return inputs[QuestionNames.AzureOpenAIEndpoint]?.length > 0;
-                },
-                data: {
-                  type: "text",
-                  name: QuestionNames.AzureOpenAIDeploymentName,
-                  title: getLocalizedString(
-                    "core.createProjectQuestion.llmService.azureOpenAIDeploymentName.title"
-                  ),
-                  placeholder: getLocalizedString(
-                    "core.createProjectQuestion.llmService.azureOpenAIDeploymentName.placeholder"
-                  ),
-                },
-              },
-            ],
-          },
-        ],
-      },
+      azureOpenAINode({ equals: "llm-service-azure-openai" }),
       {
         condition: { equals: "llm-service-openai" },
         data: {

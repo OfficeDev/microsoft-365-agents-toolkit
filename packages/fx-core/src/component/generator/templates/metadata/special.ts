@@ -2,7 +2,6 @@
 // Licensed under the MIT license.
 
 import { TemplateNames } from "../templateNames";
-import { declarativeAgentTemplates } from "./da";
 import { Template } from "./interface";
 
 // these template are not handled by default generator which means they need extra steps during scaffolding
@@ -67,5 +66,4 @@ export const specialTemplates: Template[] = [
     language: "csharp",
     description: "",
   },
-  ...declarativeAgentTemplates,
 ];

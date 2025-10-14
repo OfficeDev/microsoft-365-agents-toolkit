@@ -186,6 +186,7 @@ export enum Capability {
   TaskPane = "taskpane",
   ApiPlugin = "api-plugin",
   DeclarativeAgent = "declarative-agent",
+  TeamsCollaboratorAgent = "teams-collaborator-agent",
 }
 
 export enum Trigger {
