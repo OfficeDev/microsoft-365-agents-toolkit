@@ -12,3 +12,10 @@ export function parseChallenges(header: string) {
   });
   return challengeMap;
 }
+
+export function decodeClaimsChallenge(encodedClaims: string): string | undefined {
+  try {
+    return Buffer.from(encodedClaims, "base64").toString("utf8");
+  } catch (e) {}
+  return undefined;
+}

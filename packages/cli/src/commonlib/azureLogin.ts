@@ -179,7 +179,8 @@ export class AzureAccountManager extends login implements AzureAccountProvider {
   ): Promise<TeamsFxTokenCredential | undefined> {
     if (authenticationSessionRequest && authenticationSessionRequest.wwwAuthenticate) {
       const claimsChallenge = parseChallenges(authenticationSessionRequest.wwwAuthenticate).claims;
-      CLILogProvider.warning(
+      CLILogProvider.necessaryLog(
+        LLevel.Warning,
         `Run the command below to authenticate interactively; additional arguments may be added as needed:\n atk auth login --claims-challenge ${claimsChallenge}`
       );
       throw new MFARequiredError(cliSource);
@@ -258,7 +259,7 @@ export class AzureAccountManager extends login implements AzureAccountProvider {
     claimsChallenge?: string
   ): Promise<Record<string, unknown> | undefined> {
     const token = await AzureAccountManager.codeFlowInstance.getTokenByScopes(
-      AzureScopes,
+      claimsChallenge ? { scopes: AzureScopes, wwwAuthenticate: claimsChallenge } : AzureScopes,
       true,
       tenantId
     );

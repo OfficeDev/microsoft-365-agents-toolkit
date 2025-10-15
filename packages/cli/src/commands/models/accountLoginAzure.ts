@@ -82,7 +82,7 @@ export const accountLoginAzureCommand: CLICommand = {
       isSP,
       args.username as string,
       args.password as string,
-      args.claimsChallenge as string
+      args["claims-challenge"] as string
     );
     return ok(undefined);
   },

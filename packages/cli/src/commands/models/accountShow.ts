@@ -83,7 +83,7 @@ class AccountUtils {
       await AzureTokenCIProvider.init(userName, password, tenantId);
       azureProvider = AzureTokenCIProvider;
     }
-    const result = await azureProvider.getJsonObject(true, tenantId);
+    const result = await azureProvider.getJsonObject(true, tenantId, claimsChallenge);
     if (result) {
       if (tenantId) {
         await azureProvider.switchTenant(tenantId);

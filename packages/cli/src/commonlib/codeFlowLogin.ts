@@ -39,6 +39,7 @@ import {
 } from "./cacheAccess";
 import { azureLoginMessage, env, m365LoginMessage, sendFileTimeout } from "./common/constant";
 import CliCodeLogInstance from "./log";
+import { decodeClaimsChallenge } from "./common/utils";
 
 export class ErrorMessage {
   static readonly loginFailureTitle = "LoginFail";
@@ -108,10 +109,22 @@ export class CodeFlowLogin {
     }
   }
 
-  async login(scopes: Array<string>, tenantId?: string): Promise<string> {
+  async login(
+    requestScopes: Array<string> | AuthenticationWWWAuthenticateRequest,
+    tenantId?: string
+  ): Promise<string> {
     CliTelemetry.sendTelemetryEvent(TelemetryEvent.AccountLoginStart, {
       [TelemetryProperty.AccountType]: this.accountName,
     });
+    let scopes: string[];
+    let claim = undefined;
+    if (typeof requestScopes === "object" && "wwwAuthenticate" in requestScopes) {
+      scopes = requestScopes.scopes ?? [];
+      claim = decodeClaimsChallenge(requestScopes.wwwAuthenticate);
+    } else {
+      scopes = requestScopes;
+    }
+
     const codeVerifier = CodeFlowLogin.toBase64UrlEncoding(
       crypto.randomBytes(32).toString("base64")
     );
@@ -145,6 +158,7 @@ export class CodeFlowLogin {
       redirectUri: `http://localhost:${serverPort}`,
       prompt: "select_account",
       authority: authority,
+      claims: claim,
     };
 
     let deferredRedirect: Deferred<string>;
@@ -279,18 +293,22 @@ export class CodeFlowLogin {
       tenantId = await loadTenantId(this.accountName);
     }
 
-    let myScopes: string[] = [];
-    if (typeof scopes === "string") {
-      myScopes = [scopes];
-    } else if (typeof scopes === "object" && "wwwAuthenticate" in scopes) {
-      myScopes = (scopes as AuthenticationWWWAuthenticateRequest).scopes ?? [];
-    } else {
-      myScopes = scopes;
-    }
     if (!this.account) {
-      const accessToken = await this.login(myScopes, tenantId);
+      const accessToken = await this.login(
+        typeof scopes === "string" ? [scopes] : scopes,
+        tenantId
+      );
       return ok(accessToken);
     } else {
+      let myScopes: string[] = [];
+      if (typeof scopes === "string") {
+        myScopes = [scopes];
+      } else if (typeof scopes === "object" && "wwwAuthenticate" in scopes) {
+        myScopes = (scopes as AuthenticationWWWAuthenticateRequest).scopes ?? [];
+      } else {
+        myScopes = scopes;
+      }
+
       let tenantedAccount: AccountInfo | undefined = undefined;
       if (tenantId) {
         const allAccounts = await this.msalTokenCache.getAllAccounts();
