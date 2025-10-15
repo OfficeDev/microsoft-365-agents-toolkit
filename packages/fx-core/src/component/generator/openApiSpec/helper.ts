@@ -1603,7 +1603,7 @@ async function updateCodeForCustomApi(
     const functionDefinitionTemplate = functionDefinitionCode["python"];
     const functionHandlerTemplate = functionHandlerCode["python"];
 
-    const appFilePath = path.join(appFolderPath, "main.py");
+    const appFilePath = path.join(appFolderPath, "app.py");
     const handlerFilePath = path.join(appFolderPath, "handlers.py");
     const functionDefinitionsCode = [];
     const functionHandlersCode = [];
