@@ -47,7 +47,7 @@ The following files can be customized and demonstrate an example implementation 
 
 | File                                 | Contents                                           |
 | - | - |
-|`src/main.py`| Handles business logics for the bot.|
+|`src/app.py`| Handles business logics for the bot.|
 |`src/config.py`| Defines the environment variables.|
 |`src/card_generator.py`| Manages the Adaptive card.|
 

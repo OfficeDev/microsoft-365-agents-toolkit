@@ -90,8 +90,7 @@ async def handle_stateful_conversation(model: AIModel, ctx: ActivityContext[Mess
     chat_result = await agent.send(
         input=ctx.activity.text, 
         memory=memory,
-        instructions=INSTRUCTIONS,
-        on_chunk=lambda chunk: ctx.stream.emit(chunk)
+        instructions=INSTRUCTIONS
     )
 
     await ctx.send(MessageActivityInput(text=chat_result.response.content).add_ai_generated().add_feedback())

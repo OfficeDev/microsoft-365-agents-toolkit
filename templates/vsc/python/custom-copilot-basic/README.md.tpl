@@ -57,7 +57,7 @@ The following files can be customized and demonstrate an example implementation 
 
 | File                                 | Contents                                           |
 | - | - |
-|`src/main.py`| Handles business logics for the Basic AI Chatbot.|
+|`src/app.py`| Handles business logics for the Basic AI Chatbot.|
 |`src/config.py`| Defines the environment variables.|
 |`src/instructions.txt`| Defines the prompt.|
 

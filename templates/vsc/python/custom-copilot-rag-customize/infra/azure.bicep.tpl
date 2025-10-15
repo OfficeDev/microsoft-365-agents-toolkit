@@ -55,7 +55,7 @@ resource webApp 'Microsoft.Web/sites@2021-02-01' = {
     serverFarmId: serverfarm.id
     siteConfig: {
       alwaysOn: true
-      appCommandLine: 'python main.py'
+      appCommandLine: 'python app.py'
       linuxFxVersion: pythonVersion
       appSettings: [
         {

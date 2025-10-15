@@ -44,7 +44,7 @@ The following files can be customized and demonstrate an example implementation 
 
 | File                                 | Contents                                           |
 | - | - |
-|`src/main.py`| Handles business logics for the echo bot.|
+|`src/app.py`| Handles business logics for the echo bot.|
 |`src/config.py`| Defines the environment variables.|
 
 The following are Microsoft 365 Agents Toolkit specific project files. You can [visit a complete guide on Github](https://github.com/OfficeDev/TeamsFx/wiki/Teams-Toolkit-Visual-Studio-Code-v5-Guide#overview) to understand how Microsoft 365 Agents Toolkit works.

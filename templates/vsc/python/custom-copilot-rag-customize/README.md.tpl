@@ -59,7 +59,7 @@ The following files can be customized and demonstrate an example implementation 
 
 | File                                 | Contents                                           |
 | - | - |
-|`src/main.py`| Handles business logics for the Basic RAG Bot.|
+|`src/app.py`| Handles business logics for the Basic RAG Bot.|
 |`src/config.py`| Defines the environment variables.|
 |`src/my_data_source.py`| Handles local customized text data search logics.|
 |`src/data/*.md`| Raw text data source.|
