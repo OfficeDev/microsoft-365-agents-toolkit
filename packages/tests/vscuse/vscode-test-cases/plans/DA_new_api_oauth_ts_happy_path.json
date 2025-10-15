@@ -1,18 +1,8 @@
 {
   "plan_metadata": {
-    "version": "1.1",
-    "plan_id": "plan_31558179",
-    "execution_context": {
-      "delay_between_steps": 1,
-      "stop_on_error": true,
-      "precondition_wait_timeout": 30,
-      "precondition_retry_interval": 1
-    },
-    "total_steps": 13,
-    "created_at": "2025-09-29T05:15:43.708921",
-    "name": "DA new-api oauth ts happy path",
     "description": "DA new-api oauth ts happy path",
-    "generated_at": "2025-09-29T05:15:43.708916",
+    "name": "DA new-api oauth ts happy path",
+    "generated_at": "2025-10-15T05:38:21.609833",
     "execution_order": [
       "plan_r_0928_012254",
       "step_a3e428fc",
@@ -36,14 +26,35 @@
       "plan_r_0928_095902"
     ],
     "tags": [],
-    "updated_at": "2025-09-30T05:17:57.208563"
+    "updated_at": "2025-10-15T05:38:21.609840",
+    "version": "1.1",
+    "plan_id": "plan_31558179",
+    "execution_context": {
+      "delay_between_steps": 1,
+      "stop_on_error": true,
+      "precondition_wait_timeout": 30,
+      "precondition_retry_interval": 1
+    },
+    "total_steps": 13,
+    "created_at": "2025-10-15T05:38:21.609837"
   },
   "steps": [
     {
-      "agent": "interaction",
+      "tool": "click",
+      "plan_id": "plan_31558179",
       "description": "Click the \"Declarative Agent\" option in the \"New Project\" dialog within Visual Studio Code, selecting \"Create your own agent by declaring instructions, actions...\" under \"Agents for Microsoft 365 Copilot\".",
-      "step_id": "step_a3e428fc",
       "content_refs": [],
+      "retry_count": 0,
+      "depends_on": [],
+      "postconditions": [],
+      "screenshot": "step_a3e428fc",
+      "agent": "interaction",
+      "step_id": "step_a3e428fc",
+      "parameters": {
+        "x": 348,
+        "y": 92,
+        "button": "left"
+      },
       "timeout": 30,
       "continue_on_error": "false",
       "preconditions": [
@@ -52,24 +63,24 @@
         "dhash:348:92:0:10:c8c8889090b26461"
       ],
       "tags": [],
-      "created_at": "2025-09-29T05:18:34.051435",
-      "plan_id": "plan_31558179",
+      "created_at": "2025-10-15T05:38:21.617133"
+    },
+    {
       "tool": "click",
-      "parameters": {
-        "x": 348,
-        "y": 92,
-        "button": "left"
-      },
+      "plan_id": "plan_31558179",
+      "description": "Click the \"No Action\" option in the \"Add an action to your declarative agent\" dropdown menu within the \"Create Declarative Agent\" dialog in Microsoft Visual Studio Code.",
+      "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_a3e428fc"
-    },
-    {
+      "screenshot": "step_1457edfd",
       "agent": "interaction",
-      "description": "Click the \"No Action\" option in the \"Add an action to your declarative agent\" dropdown menu within the \"Create Declarative Agent\" dialog in Microsoft Visual Studio Code.",
       "step_id": "step_1457edfd",
-      "content_refs": [],
+      "parameters": {
+        "x": 320,
+        "y": 136,
+        "button": "left"
+      },
       "timeout": 30,
       "continue_on_error": "false",
       "preconditions": [
@@ -78,24 +89,24 @@
         "dhash:320:136:0:10:c0c4b09092b26461"
       ],
       "tags": [],
-      "created_at": "2025-09-29T05:18:34.064569",
-      "plan_id": "plan_31558179",
+      "created_at": "2025-10-15T05:38:21.625122"
+    },
+    {
       "tool": "click",
-      "parameters": {
-        "x": 320,
-        "y": 136,
-        "button": "left"
-      },
+      "plan_id": "plan_31558179",
+      "description": "Click the \"Start with a New API\" option in the \"Create an Action\" dropdown within Visual Studio Code's Microsoft 365 Agents Toolkit interface.",
+      "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_1457edfd"
-    },
-    {
+      "screenshot": "step_95ebec27",
       "agent": "interaction",
-      "description": "Click the \"Start with a New API\" option in the \"Create an Action\" dropdown within Visual Studio Code's Microsoft 365 Agents Toolkit interface.",
       "step_id": "step_95ebec27",
-      "content_refs": [],
+      "parameters": {
+        "x": 339,
+        "y": 79,
+        "button": "left"
+      },
       "timeout": 30,
       "continue_on_error": "false",
       "preconditions": [
@@ -104,24 +115,24 @@
         "dhash:339:79:0:10:c0c4989092b26461"
       ],
       "tags": [],
-      "created_at": "2025-09-29T05:18:34.075962",
-      "plan_id": "plan_31558179",
+      "created_at": "2025-10-15T05:38:21.633386"
+    },
+    {
       "tool": "click",
-      "parameters": {
-        "x": 339,
-        "y": 79,
-        "button": "left"
-      },
+      "plan_id": "plan_31558179",
+      "description": "Select \"OAuth\" from the \"Authentication Type\" dropdown in the Microsoft 365 Agents Toolkit extension panel within Visual Studio Code.",
+      "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_95ebec27"
-    },
-    {
+      "screenshot": "step_e7943f29",
       "agent": "interaction",
-      "description": "Select \"OAuth\" from the \"Authentication Type\" dropdown in the Microsoft 365 Agents Toolkit extension panel within Visual Studio Code.",
       "step_id": "step_e7943f29",
-      "content_refs": [],
+      "parameters": {
+        "x": 271,
+        "y": 145,
+        "button": "left"
+      },
       "timeout": 30,
       "continue_on_error": "false",
       "preconditions": [
@@ -130,24 +141,24 @@
         "dhash:271:145:0:10:d094909092b26461"
       ],
       "tags": [],
-      "created_at": "2025-09-29T05:18:34.087036",
-      "plan_id": "plan_31558179",
+      "created_at": "2025-10-15T05:38:21.641819"
+    },
+    {
       "tool": "click",
-      "parameters": {
-        "x": 271,
-        "y": 145,
-        "button": "left"
-      },
+      "plan_id": "plan_31558179",
+      "description": "Click the \"TypeScript\" option in the \"Programming Language\" dropdown menu within Visual Studio Code.",
+      "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_e7943f29"
-    },
-    {
+      "screenshot": "step_404b3909",
       "agent": "interaction",
-      "description": "Click the \"TypeScript\" option in the \"Programming Language\" dropdown menu within Visual Studio Code.",
       "step_id": "step_404b3909",
-      "content_refs": [],
+      "parameters": {
+        "x": 301,
+        "y": 74,
+        "button": "left"
+      },
       "timeout": 30,
       "continue_on_error": "false",
       "preconditions": [
@@ -156,24 +167,24 @@
         "dhash:301:74:0:10:d090909092b26461"
       ],
       "tags": [],
-      "created_at": "2025-09-29T05:18:34.098492",
-      "plan_id": "plan_31558179",
+      "created_at": "2025-10-15T05:38:21.649892"
+    },
+    {
       "tool": "click",
-      "parameters": {
-        "x": 301,
-        "y": 74,
-        "button": "left"
-      },
+      "plan_id": "plan_31558179",
+      "description": "Click the \"Default folder\" option (/home/vscode/AgentsToolkitProjects) in the \"Workspace Folder\" dropdown within Visual Studio Code to select the project root location.",
+      "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_404b3909"
-    },
-    {
+      "screenshot": "step_d68b8f93",
       "agent": "interaction",
-      "description": "Click the \"Default folder\" option (/home/vscode/AgentsToolkitProjects) in the \"Workspace Folder\" dropdown within Visual Studio Code to select the project root location.",
       "step_id": "step_d68b8f93",
-      "content_refs": [],
+      "parameters": {
+        "x": 391,
+        "y": 72,
+        "button": "left"
+      },
       "timeout": 30,
       "continue_on_error": "false",
       "preconditions": [
@@ -182,24 +193,24 @@
         "dhash:391:72:0:10:d0b0909092b26461"
       ],
       "tags": [],
-      "created_at": "2025-09-29T05:18:34.109723",
-      "plan_id": "plan_31558179",
+      "created_at": "2025-10-15T05:38:21.658807"
+    },
+    {
       "tool": "click",
-      "parameters": {
-        "x": 391,
-        "y": 72,
-        "button": "left"
-      },
+      "plan_id": "plan_31558179",
+      "description": "Click the \"Expand Navigation\" button (icon with three horizontal lines) in the top-left corner of the M365 Copilot Chat web interface.",
+      "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_d68b8f93"
-    },
-    {
+      "screenshot": "step_009de81d",
       "agent": "interaction",
-      "description": "Click the \"Expand Navigation\" button (icon with three horizontal lines) in the top-left corner of the M365 Copilot Chat web interface.",
       "step_id": "step_009de81d",
-      "content_refs": [],
+      "parameters": {
+        "x": 38,
+        "y": 114,
+        "button": "left"
+      },
       "timeout": 30,
       "continue_on_error": "false",
       "preconditions": [
@@ -208,24 +219,24 @@
         "dhash:38:114:0:10:01cd9668506a6893"
       ],
       "tags": [],
-      "created_at": "2025-09-30T05:15:34.307074",
-      "plan_id": "plan_31558179",
+      "created_at": "2025-10-15T05:38:21.666769"
+    },
+    {
       "tool": "click",
-      "parameters": {
-        "x": 38,
-        "y": 114,
-        "button": "left"
-      },
+      "plan_id": "plan_31558179",
+      "description": "Click the message bubble containing \"Show repair records assigned to Karin Blair\" in the M365 Copilot chat interface, targeting the text within the suggestion at the bottom center of the chat window.",
+      "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_009de81d"
-    },
-    {
+      "screenshot": "step_18dda7da",
       "agent": "interaction",
-      "description": "Click the message bubble containing \"Show repair records assigned to Karin Blair\" in the M365 Copilot chat interface, targeting the text within the suggestion at the bottom center of the chat window.",
       "step_id": "step_18dda7da",
-      "content_refs": [],
+      "parameters": {
+        "x": 633,
+        "y": 591,
+        "button": "left"
+      },
       "timeout": 30,
       "continue_on_error": "false",
       "preconditions": [
@@ -234,24 +245,24 @@
         "dhash:633:591:0:10:19dde37578e4e6f3"
       ],
       "tags": [],
-      "created_at": "2025-09-30T05:15:34.324078",
-      "plan_id": "plan_31558179",
+      "created_at": "2025-10-15T05:38:21.674158"
+    },
+    {
       "tool": "click",
-      "parameters": {
-        "x": 633,
-        "y": 591,
-        "button": "left"
-      },
+      "plan_id": "plan_31558179",
+      "description": "Click the \"Close\" (X) button on the \"We'd love your feedback\" pop-up in the bottom-right corner of the M365 Copilot chat interface.",
+      "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_18dda7da"
-    },
-    {
+      "screenshot": "step_25ab4864",
       "agent": "interaction",
-      "description": "Click the \"Close\" (X) button on the \"We'd love your feedback\" pop-up in the bottom-right corner of the M365 Copilot chat interface.",
       "step_id": "step_25ab4864",
-      "content_refs": [],
+      "parameters": {
+        "x": 967,
+        "y": 467,
+        "button": "left"
+      },
       "timeout": 30,
       "continue_on_error": "false",
       "preconditions": [
@@ -260,24 +271,24 @@
         "dhash:967:467:0:10:11dde3676ce4e6f3"
       ],
       "tags": [],
-      "created_at": "2025-09-30T05:15:34.346235",
-      "plan_id": "plan_31558179",
+      "created_at": "2025-10-15T05:38:21.681446"
+    },
+    {
       "tool": "click",
-      "parameters": {
-        "x": 967,
-        "y": 467,
-        "button": "left"
-      },
+      "plan_id": "plan_31558179",
+      "description": "Click the \"Always allow\" button in the permission dialog within the M365 Copilot chat interface to authorize the app's access for processing the repair records query.",
+      "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_25ab4864"
-    },
-    {
+      "screenshot": "step_87e03213",
       "agent": "interaction",
-      "description": "Click the \"Always allow\" button in the permission dialog within the M365 Copilot chat interface to authorize the app's access for processing the repair records query.",
       "step_id": "step_87e03213",
-      "content_refs": [],
+      "parameters": {
+        "x": 417,
+        "y": 414,
+        "button": "left"
+      },
       "timeout": 30,
       "continue_on_error": "false",
       "preconditions": [
@@ -286,24 +297,24 @@
         "dhash:417:414:0:10:15f5e3591ce07263"
       ],
       "tags": [],
-      "created_at": "2025-09-30T05:15:34.366551",
-      "plan_id": "plan_31558179",
+      "created_at": "2025-10-15T05:38:21.700424"
+    },
+    {
       "tool": "click",
-      "parameters": {
-        "x": 417,
-        "y": 414,
-        "button": "left"
-      },
+      "plan_id": "plan_31558179",
+      "description": "Click the \"Sign in to ${{var:app_name}}\" button in the M365 Copilot web chat interface to initiate authentication.",
+      "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_87e03213"
-    },
-    {
+      "screenshot": "step_fb59d6d0",
       "agent": "interaction",
-      "description": "Click the \"Sign in to ${{var:app_name}}\" button in the M365 Copilot web chat interface to initiate authentication.",
       "step_id": "step_fb59d6d0",
-      "content_refs": [],
+      "parameters": {
+        "x": 420,
+        "y": 383,
+        "button": "left"
+      },
       "timeout": 30,
       "continue_on_error": "false",
       "preconditions": [
@@ -312,42 +323,42 @@
         "dhash:420:383:0:10:15f5f35d6ce07263"
       ],
       "tags": [],
-      "created_at": "2025-09-30T05:15:34.387786",
+      "created_at": "2025-10-15T05:38:21.712100"
+    },
+    {
+      "tool": "",
       "plan_id": "plan_31558179",
-      "tool": "click",
-      "parameters": {
-        "x": 420,
-        "y": 383,
-        "button": "left"
-      },
+      "description": "@assertion get ai send back message include \"Oil Change\"",
+      "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_fb59d6d0"
-    },
-    {
+      "screenshot": null,
       "agent": "assertion",
-      "description": "@assertion get ai send back message include \"Oil Change\"",
       "step_id": "step_500890c5",
-      "content_refs": [],
+      "parameters": {},
       "timeout": 30,
       "continue_on_error": "false",
       "preconditions": [],
       "tags": [],
-      "created_at": "2025-09-30T05:14:51.982632",
+      "created_at": "2025-10-15T05:38:21.723357"
+    },
+    {
+      "tool": "click",
       "plan_id": "plan_31558179",
-      "tool": "",
-      "parameters": {},
+      "description": "Click the 'Close' (X) button at the top-right corner of the \"We’d love your feedback\" popup in the bottom-right of the M365 Copilot chat interface.",
+      "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": null
-    },
-    {
+      "screenshot": "step_d29db4b8",
       "agent": "interaction",
-      "description": "Click the 'Close' (X) button at the top-right corner of the \"We’d love your feedback\" popup in the bottom-right of the M365 Copilot chat interface.",
       "step_id": "step_d29db4b8",
-      "content_refs": [],
+      "parameters": {
+        "x": 1004,
+        "y": 22,
+        "button": "left"
+      },
       "timeout": 30,
       "continue_on_error": "false",
       "preconditions": [
@@ -356,18 +367,7 @@
         "dhash:1004:22:0:10:15f5f35e58cb4b73"
       ],
       "tags": [],
-      "created_at": "2025-09-30T05:17:39.597146",
-      "plan_id": "plan_31558179",
-      "tool": "click",
-      "parameters": {
-        "x": 1004,
-        "y": 22,
-        "button": "left"
-      },
-      "retry_count": 0,
-      "depends_on": [],
-      "postconditions": [],
-      "screenshot": "step_d29db4b8"
+      "created_at": "2025-10-15T05:38:21.736016"
     }
   ],
   "screenshots": {

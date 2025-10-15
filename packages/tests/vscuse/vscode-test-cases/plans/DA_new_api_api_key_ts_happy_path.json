@@ -1,18 +1,8 @@
 {
   "plan_metadata": {
-    "version": "1.1",
-    "plan_id": "plan_23e3e818",
-    "execution_context": {
-      "delay_between_steps": 1,
-      "stop_on_error": true,
-      "precondition_wait_timeout": 30,
-      "precondition_retry_interval": 1
-    },
-    "total_steps": 12,
-    "created_at": "2025-09-28T14:25:35.506085",
-    "name": "DA new-api api-key ts happy path",
     "description": "DA new-api api-key ts happy path",
-    "generated_at": "2025-09-28T14:25:35.506068",
+    "name": "DA new-api api-key ts happy path",
+    "generated_at": "2025-10-15T05:38:21.054711",
     "execution_order": [
       "plan_r_0928_012254",
       "step_c7a5ade5",
@@ -31,20 +21,38 @@
       "plan_r_0928_020230",
       "plan_r_0928_073729",
       "plan_r_0928_075846",
-      "plan_r_0928_041352",
-      "plan_r_0928_091745",
-      "plan_r_0928_095902",
-      "plan_r_0928_091745"
+      "plan_r_0928_041352"
     ],
     "tags": [],
-    "updated_at": "2025-09-30T04:49:24.347653"
+    "updated_at": "2025-10-15T05:45:57.313707",
+    "version": "1.1",
+    "plan_id": "plan_23e3e818",
+    "execution_context": {
+      "delay_between_steps": 1,
+      "stop_on_error": true,
+      "precondition_wait_timeout": 30,
+      "precondition_retry_interval": 1
+    },
+    "total_steps": 12,
+    "created_at": "2025-10-15T05:38:21.054716"
   },
   "steps": [
     {
-      "agent": "interaction",
+      "tool": "click",
+      "plan_id": "plan_23e3e818",
       "description": "Click the \"Declarative Agent\" option in the \"New Project\" dropdown menu within the Microsoft 365 Agents Toolkit interface in Visual Studio Code.",
-      "step_id": "step_c7a5ade5",
       "content_refs": [],
+      "retry_count": 0,
+      "depends_on": [],
+      "postconditions": [],
+      "screenshot": "step_c7a5ade5",
+      "agent": "interaction",
+      "step_id": "step_c7a5ade5",
+      "parameters": {
+        "x": 355,
+        "y": 100,
+        "button": "left"
+      },
       "timeout": 30,
       "continue_on_error": "false",
       "preconditions": [
@@ -53,24 +61,24 @@
         "dhash:355:100:0:10:c8c8889090b26461"
       ],
       "tags": [],
-      "created_at": "2025-09-28T14:27:30.546727",
-      "plan_id": "plan_23e3e818",
+      "created_at": "2025-10-15T05:38:21.062778"
+    },
+    {
       "tool": "click",
-      "parameters": {
-        "x": 355,
-        "y": 100,
-        "button": "left"
-      },
+      "plan_id": "plan_23e3e818",
+      "description": "Click the \"Add an Action\" option in the dropdown menu within the \"Create Declarative Agent\" dialog in Visual Studio Code (Microsoft 365 Agents Toolkit extension).",
+      "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_c7a5ade5"
-    },
-    {
+      "screenshot": "step_1ab5855d",
       "agent": "interaction",
-      "description": "Click the \"Add an Action\" option in the dropdown menu within the \"Create Declarative Agent\" dialog in Visual Studio Code (Microsoft 365 Agents Toolkit extension).",
       "step_id": "step_1ab5855d",
-      "content_refs": [],
+      "parameters": {
+        "x": 318,
+        "y": 122,
+        "button": "left"
+      },
       "timeout": 30,
       "continue_on_error": "false",
       "preconditions": [
@@ -79,24 +87,24 @@
         "dhash:318:122:0:10:c0c4b09092b26461"
       ],
       "tags": [],
-      "created_at": "2025-09-28T14:27:30.570748",
-      "plan_id": "plan_23e3e818",
+      "created_at": "2025-10-15T05:38:21.070324"
+    },
+    {
       "tool": "click",
-      "parameters": {
-        "x": 318,
-        "y": 122,
-        "button": "left"
-      },
+      "plan_id": "plan_23e3e818",
+      "description": "Click the \"Start with a New API\" option in the \"Create an Action\" dropdown menu within the Microsoft 365 Agents Toolkit extension panel in Visual Studio Code.",
+      "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_1ab5855d"
-    },
-    {
+      "screenshot": "step_abaa1a2b",
       "agent": "interaction",
-      "description": "Click the \"Start with a New API\" option in the \"Create an Action\" dropdown menu within the Microsoft 365 Agents Toolkit extension panel in Visual Studio Code.",
       "step_id": "step_abaa1a2b",
-      "content_refs": [],
+      "parameters": {
+        "x": 332,
+        "y": 84,
+        "button": "left"
+      },
       "timeout": 30,
       "continue_on_error": "false",
       "preconditions": [
@@ -105,24 +113,24 @@
         "dhash:332:84:0:10:c0c4989092b26461"
       ],
       "tags": [],
-      "created_at": "2025-09-28T14:27:30.589693",
-      "plan_id": "plan_23e3e818",
+      "created_at": "2025-10-15T05:38:21.078650"
+    },
+    {
       "tool": "click",
-      "parameters": {
-        "x": 332,
-        "y": 84,
-        "button": "left"
-      },
+      "plan_id": "plan_23e3e818",
+      "description": "Select the \"API Key\" option from the \"Authentication Type\" dropdown menu in the Microsoft 365 Agents Toolkit extension panel within Visual Studio Code.",
+      "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_abaa1a2b"
-    },
-    {
+      "screenshot": "step_c93fa501",
       "agent": "interaction",
-      "description": "Select the \"API Key\" option from the \"Authentication Type\" dropdown menu in the Microsoft 365 Agents Toolkit extension panel within Visual Studio Code.",
       "step_id": "step_c93fa501",
-      "content_refs": [],
+      "parameters": {
+        "x": 280,
+        "y": 105,
+        "button": "left"
+      },
       "timeout": 30,
       "continue_on_error": "false",
       "preconditions": [
@@ -131,24 +139,24 @@
         "dhash:280:105:0:10:c094909092b26461"
       ],
       "tags": [],
-      "created_at": "2025-09-28T14:27:30.614159",
-      "plan_id": "plan_23e3e818",
+      "created_at": "2025-10-15T05:38:21.086403"
+    },
+    {
       "tool": "click",
-      "parameters": {
-        "x": 280,
-        "y": 105,
-        "button": "left"
-      },
+      "plan_id": "plan_23e3e818",
+      "description": "Click the \"TypeScript\" option in the \"Programming Language\" dropdown within the VS Code interface.",
+      "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_c93fa501"
-    },
-    {
+      "screenshot": "step_9d98fbfd",
       "agent": "interaction",
-      "description": "Click the \"TypeScript\" option in the \"Programming Language\" dropdown within the VS Code interface.",
       "step_id": "step_9d98fbfd",
-      "content_refs": [],
+      "parameters": {
+        "x": 301,
+        "y": 79,
+        "button": "left"
+      },
       "timeout": 30,
       "continue_on_error": "false",
       "preconditions": [
@@ -157,24 +165,24 @@
         "dhash:301:79:0:10:d090909092b26461"
       ],
       "tags": [],
-      "created_at": "2025-09-28T14:27:30.634755",
-      "plan_id": "plan_23e3e818",
+      "created_at": "2025-10-15T05:38:21.093768"
+    },
+    {
       "tool": "click",
-      "parameters": {
-        "x": 301,
-        "y": 79,
-        "button": "left"
-      },
+      "plan_id": "plan_23e3e818",
+      "description": "Click the \"Default folder\" option in the \"Workspace Folder\" dropdown within the Visual Studio Code application to select the project directory at /home/vscode/AgentsToolkitProjects.",
+      "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_9d98fbfd"
-    },
-    {
+      "screenshot": "step_80b1b782",
       "agent": "interaction",
-      "description": "Click the \"Default folder\" option in the \"Workspace Folder\" dropdown within the Visual Studio Code application to select the project directory at /home/vscode/AgentsToolkitProjects.",
       "step_id": "step_80b1b782",
-      "content_refs": [],
+      "parameters": {
+        "x": 317,
+        "y": 74,
+        "button": "left"
+      },
       "timeout": 30,
       "continue_on_error": "false",
       "preconditions": [
@@ -183,78 +191,78 @@
         "dhash:317:74:0:10:d0b0909092b26461"
       ],
       "tags": [],
-      "created_at": "2025-09-28T14:27:30.653880",
+      "created_at": "2025-10-15T05:38:21.101339"
+    },
+    {
+      "tool": "",
       "plan_id": "plan_23e3e818",
+      "description": "@code run \"npm install\" at #text:/home/vscode/AgentsToolkitProjects/${{var:app_name}}",
+      "content_refs": [],
+      "retry_count": 0,
+      "depends_on": [],
+      "postconditions": [],
+      "screenshot": null,
+      "agent": "code",
+      "step_id": "step_7cc97425",
+      "parameters": {},
+      "timeout": 30,
+      "continue_on_error": "false",
+      "preconditions": [],
+      "tags": [],
+      "created_at": "2025-10-15T05:38:21.109089"
+    },
+    {
+      "tool": "",
+      "plan_id": "plan_23e3e818",
+      "description": "@code run \"npm run keygen\" at  #text:/home/vscode/AgentsToolkitProjects/${{var:app_name}} . fillin the generated api value into file: #text:/home/vscode/AgentsToolkitProjects/${{var:app_name}}/env/.env.dev.user and #text:/home/vscode/AgentsToolkitProjects/${{var:app_name}}/env/.env.local.user, replace SECRET_API_KEY= '  ' with the new value and save the file.",
+      "content_refs": [],
+      "retry_count": 0,
+      "depends_on": [],
+      "postconditions": [],
+      "screenshot": null,
+      "agent": "code",
+      "step_id": "step_d6524e5a",
+      "parameters": {},
+      "timeout": 30,
+      "continue_on_error": "false",
+      "preconditions": [],
+      "tags": [],
+      "created_at": "2025-10-15T05:38:21.115763"
+    },
+    {
+      "tool": "",
+      "plan_id": "plan_23e3e818",
+      "description": "@code run \"npm run keygen\" at  #text:/home/vscode/AgentsToolkitProjects/${{var:app_name}} . fillin the generated api value into file: #text:/home/vscode/AgentsToolkitProjects/${{var:app_name}}/env/.env.dev.user and #text:/home/vscode/AgentsToolkitProjects/${{var:app_name}}/env/.env.local.user, replace SECRET_API_KEY= '  ' with the new value and save the file.",
+      "content_refs": [],
+      "retry_count": 0,
+      "depends_on": [],
+      "postconditions": [],
+      "screenshot": null,
+      "agent": "code",
+      "step_id": "step_5170030e",
+      "parameters": {},
+      "timeout": 30,
+      "continue_on_error": "false",
+      "preconditions": [],
+      "tags": [],
+      "created_at": "2025-10-15T05:38:21.121827"
+    },
+    {
       "tool": "click",
+      "plan_id": "plan_23e3e818",
+      "description": "Click the \"env\" folder in the Explorer panel of Visual Studio Code to expand its contents.",
+      "content_refs": [],
+      "retry_count": 0,
+      "depends_on": [],
+      "postconditions": [],
+      "screenshot": "step_daadc9d6",
+      "agent": "interaction",
+      "step_id": "step_daadc9d6",
       "parameters": {
-        "x": 317,
-        "y": 74,
+        "x": 99,
+        "y": 153,
         "button": "left"
       },
-      "retry_count": 0,
-      "depends_on": [],
-      "postconditions": [],
-      "screenshot": "step_80b1b782"
-    },
-    {
-      "agent": "code",
-      "description": "@code run \"npm install\" at #text:/home/vscode/AgentsToolkitProjects/${{var:app_name}}",
-      "step_id": "step_7cc97425",
-      "content_refs": [],
-      "timeout": 30,
-      "continue_on_error": "false",
-      "preconditions": [],
-      "tags": [],
-      "created_at": "2025-09-28T14:45:39.515558",
-      "plan_id": "plan_23e3e818",
-      "tool": "",
-      "parameters": {},
-      "retry_count": 0,
-      "depends_on": [],
-      "postconditions": [],
-      "screenshot": null
-    },
-    {
-      "agent": "code",
-      "description": "@code run \"npm run keygen\" at  #text:/home/vscode/AgentsToolkitProjects/${{var:app_name}} . fillin the generated api value into file: #text:/home/vscode/AgentsToolkitProjects/${{var:app_name}}/env/.env.dev.user and #text:/home/vscode/AgentsToolkitProjects/${{var:app_name}}/env/.env.local.user, replace SECRET_API_KEY= '  ' with the new value and save the file.",
-      "step_id": "step_d6524e5a",
-      "content_refs": [],
-      "timeout": 30,
-      "continue_on_error": "false",
-      "preconditions": [],
-      "tags": [],
-      "created_at": "2025-09-28T14:49:22.110418",
-      "plan_id": "plan_23e3e818",
-      "tool": "",
-      "parameters": {},
-      "retry_count": 0,
-      "depends_on": [],
-      "postconditions": [],
-      "screenshot": null
-    },
-    {
-      "agent": "code",
-      "description": "@code run \"npm run keygen\" at  #text:/home/vscode/AgentsToolkitProjects/${{var:app_name}} . fillin the generated api value into file: #text:/home/vscode/AgentsToolkitProjects/${{var:app_name}}/env/.env.dev.user and #text:/home/vscode/AgentsToolkitProjects/${{var:app_name}}/env/.env.local.user, replace SECRET_API_KEY= '  ' with the new value and save the file.",
-      "step_id": "step_5170030e",
-      "content_refs": [],
-      "timeout": 30,
-      "continue_on_error": "false",
-      "preconditions": [],
-      "tags": [],
-      "created_at": "2025-09-30T03:28:17.541084",
-      "plan_id": "plan_23e3e818",
-      "tool": "",
-      "parameters": {},
-      "retry_count": 0,
-      "depends_on": [],
-      "postconditions": [],
-      "screenshot": null
-    },
-    {
-      "agent": "interaction",
-      "description": "Click the \"env\" folder in the Explorer panel of Visual Studio Code to expand its contents.",
-      "step_id": "step_daadc9d6",
-      "content_refs": [],
       "timeout": 30,
       "continue_on_error": "false",
       "preconditions": [
@@ -263,24 +271,24 @@
         "dhash:99:153:0:10:22b830b032767632"
       ],
       "tags": [],
-      "created_at": "2025-09-28T15:22:57.854564",
-      "plan_id": "plan_23e3e818",
+      "created_at": "2025-10-15T05:38:21.128633"
+    },
+    {
       "tool": "click",
-      "parameters": {
-        "x": 99,
-        "y": 153,
-        "button": "left"
-      },
+      "plan_id": "plan_23e3e818",
+      "description": "Click the \".env.dev.user\" file in the \"env\" folder within the VS Code Explorer sidebar.",
+      "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_daadc9d6"
-    },
-    {
+      "screenshot": "step_bd9c606c",
       "agent": "interaction",
-      "description": "Click the \".env.dev.user\" file in the \"env\" folder within the VS Code Explorer sidebar.",
       "step_id": "step_bd9c606c",
-      "content_refs": [],
+      "parameters": {
+        "x": 153,
+        "y": 192,
+        "button": "left"
+      },
       "timeout": 30,
       "continue_on_error": "false",
       "preconditions": [
@@ -289,36 +297,25 @@
         "dhash:153:192:0:10:22b8b830b2367632"
       ],
       "tags": [],
-      "created_at": "2025-09-28T15:22:57.876241",
+      "created_at": "2025-10-15T05:38:21.136473"
+    },
+    {
+      "tool": "",
       "plan_id": "plan_23e3e818",
-      "tool": "click",
-      "parameters": {
-        "x": 153,
-        "y": 192,
-        "button": "left"
-      },
+      "description": "@assertion SECRET_API_KEY has value",
+      "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_bd9c606c"
-    },
-    {
+      "screenshot": null,
       "agent": "assertion",
-      "description": "@assertion SECRET_API_KEY has value",
       "step_id": "step_a2c6cdf4",
-      "content_refs": [],
+      "parameters": {},
       "timeout": 30,
       "continue_on_error": "false",
       "preconditions": [],
       "tags": [],
-      "created_at": "2025-09-28T15:23:43.638950",
-      "plan_id": "plan_23e3e818",
-      "tool": "",
-      "parameters": {},
-      "retry_count": 0,
-      "depends_on": [],
-      "postconditions": [],
-      "screenshot": null
+      "created_at": "2025-10-15T05:38:21.144080"
     }
   ],
   "screenshots": {

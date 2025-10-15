@@ -1,18 +1,8 @@
 {
   "plan_metadata": {
-    "version": "1.1",
-    "plan_id": "plan_8d094778",
-    "execution_context": {
-      "delay_between_steps": 1,
-      "stop_on_error": true,
-      "precondition_wait_timeout": 30,
-      "precondition_retry_interval": 1
-    },
-    "total_steps": 4,
-    "created_at": "2025-10-10T02:31:18.961872",
-    "name": "Basic tab ts happy path",
     "description": "Basic tab ts happy path",
-    "generated_at": "2025-10-10T02:31:18.961861",
+    "name": "Basic tab ts happy path",
+    "generated_at": "2025-10-15T05:38:20.589786",
     "execution_order": [
       "plan_r_0928_012254",
       "step_8e5aad69",
@@ -24,20 +14,38 @@
       "plan_r_0929_040401",
       "plan_r_0928_073729",
       "plan_r_0928_075846",
-      "plan_r_0930_063548",
-      "plan_80b15702",
-      "plan_r_0930_083113",
-      "plan_80b15702"
+      "plan_r_0930_063548"
     ],
     "tags": [],
-    "updated_at": "2025-10-10T03:12:20.734528"
+    "updated_at": "2025-10-15T05:43:20.292207",
+    "version": "1.1",
+    "plan_id": "plan_8d094778",
+    "execution_context": {
+      "delay_between_steps": 1,
+      "stop_on_error": true,
+      "precondition_wait_timeout": 30,
+      "precondition_retry_interval": 1
+    },
+    "total_steps": 4,
+    "created_at": "2025-10-15T05:38:20.589791"
   },
   "steps": [
     {
-      "agent": "interaction",
+      "tool": "click",
+      "plan_id": "plan_8d094778",
       "description": "Click the \"Teams Agents and apps\" option in the \"New Project\" dropdown menu within the Microsoft 365 Agents Toolkit interface in Visual Studio Code.",
-      "step_id": "step_8e5aad69",
       "content_refs": [],
+      "retry_count": 0,
+      "depends_on": [],
+      "postconditions": [],
+      "screenshot": "step_8e5aad69",
+      "agent": "interaction",
+      "step_id": "step_8e5aad69",
+      "parameters": {
+        "x": 372,
+        "y": 212,
+        "button": "left"
+      },
       "timeout": 30,
       "continue_on_error": "false",
       "preconditions": [
@@ -46,24 +54,24 @@
         "dhash:372:212:0:10:c8c8809090b26461"
       ],
       "tags": [],
-      "created_at": "2025-10-10T02:32:23.935931",
-      "plan_id": "plan_8d094778",
+      "created_at": "2025-10-15T05:38:20.596885"
+    },
+    {
       "tool": "click",
-      "parameters": {
-        "x": 372,
-        "y": 212,
-        "button": "left"
-      },
+      "plan_id": "plan_8d094778",
+      "description": "Click the \"Other Teams Capabilities\" option in the dropdown menu titled \"Teams Agent or App Using Teams AI Library\" within the Microsoft Visual Studio Code extension for Microsoft 365 Agents Toolkit.",
+      "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_8e5aad69"
-    },
-    {
+      "screenshot": "step_af53f188",
       "agent": "interaction",
-      "description": "Click the \"Other Teams Capabilities\" option in the dropdown menu titled \"Teams Agent or App Using Teams AI Library\" within the Microsoft Visual Studio Code extension for Microsoft 365 Agents Toolkit.",
       "step_id": "step_af53f188",
-      "content_refs": [],
+      "parameters": {
+        "x": 385,
+        "y": 172,
+        "button": "left"
+      },
       "timeout": 30,
       "continue_on_error": "false",
       "preconditions": [
@@ -72,24 +80,24 @@
         "dhash:385:172:0:10:c0c0b09092b26461"
       ],
       "tags": [],
-      "created_at": "2025-10-10T02:32:23.946112",
-      "plan_id": "plan_8d094778",
+      "created_at": "2025-10-15T05:38:20.604912"
+    },
+    {
       "tool": "click",
-      "parameters": {
-        "x": 385,
-        "y": 172,
-        "button": "left"
-      },
+      "plan_id": "plan_8d094778",
+      "description": "Click the \"Tab\" option in the \"Select an option\" dropdown within the Teams Capability popup in Visual Studio Code.",
+      "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_af53f188"
-    },
-    {
+      "screenshot": "step_baaffd14",
       "agent": "interaction",
-      "description": "Click the \"Tab\" option in the \"Select an option\" dropdown within the Teams Capability popup in Visual Studio Code.",
       "step_id": "step_baaffd14",
-      "content_refs": [],
+      "parameters": {
+        "x": 270,
+        "y": 74,
+        "button": "left"
+      },
       "timeout": 30,
       "continue_on_error": "false",
       "preconditions": [
@@ -98,24 +106,24 @@
         "dhash:270:74:0:10:d0c0909092b26461"
       ],
       "tags": [],
-      "created_at": "2025-10-10T02:32:23.956122",
-      "plan_id": "plan_8d094778",
+      "created_at": "2025-10-15T05:38:20.615254"
+    },
+    {
       "tool": "click",
-      "parameters": {
-        "x": 270,
-        "y": 74,
-        "button": "left"
-      },
+      "plan_id": "plan_8d094778",
+      "description": "Click the \"Default folder\" option in the \"Workspace Folder\" selection dropdown at the top of the VS Code window to choose the project root directory.",
+      "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_baaffd14"
-    },
-    {
+      "screenshot": "step_d0ffd1e1",
       "agent": "interaction",
-      "description": "Click the \"Default folder\" option in the \"Workspace Folder\" selection dropdown at the top of the VS Code window to choose the project root directory.",
       "step_id": "step_d0ffd1e1",
-      "content_refs": [],
+      "parameters": {
+        "x": 337,
+        "y": 78,
+        "button": "left"
+      },
       "timeout": 30,
       "continue_on_error": "false",
       "preconditions": [
@@ -124,18 +132,7 @@
         "dhash:337:78:0:10:d0b0909092b26461"
       ],
       "tags": [],
-      "created_at": "2025-10-10T02:32:23.966140",
-      "plan_id": "plan_8d094778",
-      "tool": "click",
-      "parameters": {
-        "x": 337,
-        "y": 78,
-        "button": "left"
-      },
-      "retry_count": 0,
-      "depends_on": [],
-      "postconditions": [],
-      "screenshot": "step_d0ffd1e1"
+      "created_at": "2025-10-15T05:38:20.622246"
     }
   ],
   "screenshots": {

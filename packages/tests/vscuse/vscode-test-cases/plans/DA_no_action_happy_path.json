@@ -1,18 +1,8 @@
 {
   "plan_metadata": {
-    "version": "1.1",
-    "plan_id": "plan_de947884",
-    "execution_context": {
-      "delay_between_steps": 1,
-      "stop_on_error": true,
-      "precondition_wait_timeout": 30,
-      "precondition_retry_interval": 1
-    },
-    "total_steps": 12,
-    "created_at": "2025-09-28T01:23:56.056625",
-    "name": "DA no action happy path",
     "description": "DA no action happy path",
-    "generated_at": "2025-09-28T01:23:56.056617",
+    "name": "DA no action happy path",
+    "generated_at": "2025-10-15T05:38:21.827481",
     "execution_order": [
       "plan_r_0928_012254",
       "step_e37b112d",
@@ -32,14 +22,35 @@
       "step_9724ec96"
     ],
     "tags": [],
-    "updated_at": "2025-09-28T04:44:32.760461"
+    "updated_at": "2025-10-15T05:38:21.827492",
+    "version": "1.1",
+    "plan_id": "plan_de947884",
+    "execution_context": {
+      "delay_between_steps": 1,
+      "stop_on_error": true,
+      "precondition_wait_timeout": 30,
+      "precondition_retry_interval": 1
+    },
+    "total_steps": 12,
+    "created_at": "2025-10-15T05:38:21.827488"
   },
   "steps": [
     {
-      "agent": "interaction",
+      "tool": "click",
+      "plan_id": "plan_de947884",
       "description": "Select the \"Declarative Agent – Agents for Microsoft 365 Copilot\" option in the \"New Project\" dropdown within Visual Studio Code.",
-      "step_id": "step_e37b112d",
       "content_refs": [],
+      "retry_count": 0,
+      "depends_on": [],
+      "postconditions": [],
+      "screenshot": "step_e37b112d",
+      "agent": "interaction",
+      "step_id": "step_e37b112d",
+      "parameters": {
+        "x": 354,
+        "y": 88,
+        "button": "left"
+      },
       "timeout": 30,
       "continue_on_error": "false",
       "preconditions": [
@@ -48,24 +59,24 @@
         "dhash:354:88:0:10:c8c8889090b26461"
       ],
       "tags": [],
-      "created_at": "2025-09-28T01:44:39.758770",
-      "plan_id": "plan_de947884",
+      "created_at": "2025-10-15T05:38:21.837218"
+    },
+    {
       "tool": "click",
-      "parameters": {
-        "x": 354,
-        "y": 88,
-        "button": "left"
-      },
+      "plan_id": "plan_de947884",
+      "description": "Click the \"No Action\" option in the dropdown menu within the \"Create Declarative Agent\" popup in Visual Studio Code's Microsoft 365 Agents Toolkit extension.",
+      "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_e37b112d"
-    },
-    {
+      "screenshot": "step_a42e6af5",
       "agent": "interaction",
-      "description": "Click the \"No Action\" option in the dropdown menu within the \"Create Declarative Agent\" popup in Visual Studio Code's Microsoft 365 Agents Toolkit extension.",
       "step_id": "step_a42e6af5",
-      "content_refs": [],
+      "parameters": {
+        "x": 372,
+        "y": 83,
+        "button": "left"
+      },
       "timeout": 30,
       "continue_on_error": "false",
       "preconditions": [
@@ -74,24 +85,24 @@
         "dhash:372:83:0:10:c0c4909092b26461"
       ],
       "tags": [],
-      "created_at": "2025-09-28T01:44:39.774373",
-      "plan_id": "plan_de947884",
+      "created_at": "2025-10-15T05:38:21.845461"
+    },
+    {
       "tool": "click",
-      "parameters": {
-        "x": 372,
-        "y": 83,
-        "button": "left"
-      },
+      "plan_id": "plan_de947884",
+      "description": "Click the \"Default Folder\" option in the \"Workspace Folder\" selection dropdown at the top of the Visual Studio Code window.",
+      "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_a42e6af5"
-    },
-    {
+      "screenshot": "step_86bebdff",
       "agent": "interaction",
-      "description": "Click the \"Default Folder\" option in the \"Workspace Folder\" selection dropdown at the top of the Visual Studio Code window.",
       "step_id": "step_86bebdff",
-      "content_refs": [],
+      "parameters": {
+        "x": 277,
+        "y": 75,
+        "button": "left"
+      },
       "timeout": 30,
       "continue_on_error": "false",
       "preconditions": [
@@ -100,24 +111,24 @@
         "dhash:277:75:0:10:d0b0909092b26461"
       ],
       "tags": [],
-      "created_at": "2025-09-28T01:50:40.444753",
-      "plan_id": "plan_de947884",
+      "created_at": "2025-10-15T05:38:21.853727"
+    },
+    {
       "tool": "click",
-      "parameters": {
-        "x": 277,
-        "y": 75,
-        "button": "left"
-      },
+      "plan_id": "plan_de947884",
+      "description": "Click the \"Provision\" option under the \"LIFECYCLE\" section in the left sidebar of the Microsoft 365 Agents Toolkit extension within Visual Studio Code.",
+      "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_86bebdff"
-    },
-    {
+      "screenshot": "step_21fa2009",
       "agent": "interaction",
-      "description": "Click the \"Provision\" option under the \"LIFECYCLE\" section in the left sidebar of the Microsoft 365 Agents Toolkit extension within Visual Studio Code.",
       "step_id": "step_21fa2009",
-      "content_refs": [],
+      "parameters": {
+        "x": 134,
+        "y": 529,
+        "button": "left"
+      },
       "timeout": 30,
       "continue_on_error": "false",
       "preconditions": [
@@ -126,90 +137,86 @@
         "dhash:134:529:0:10:22a4706030303236"
       ],
       "tags": [],
-      "created_at": "2025-09-28T04:08:27.569720",
+      "created_at": "2025-10-15T05:38:21.861488"
+    },
+    {
+      "tool": "key_press",
       "plan_id": "plan_de947884",
-      "tool": "click",
-      "parameters": {
-        "x": 134,
-        "y": 529,
-        "button": "left"
-      },
+      "description": "Press the F1 key to open the command palette in Visual Studio Code – Insiders, shown while viewing the \"Overview of the Declarative Agent template\" README with the \"Provision\" step selected in the Microsoft 365 Agents Toolkit sidebar.",
+      "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_21fa2009"
-    },
-    {
+      "screenshot": "step_786974b4",
       "agent": "interaction",
-      "description": "Press the F1 key to open the command palette in Visual Studio Code – Insiders, shown while viewing the \"Overview of the Declarative Agent template\" README with the \"Provision\" step selected in the Microsoft 365 Agents Toolkit sidebar.",
       "step_id": "step_786974b4",
-      "content_refs": [],
+      "parameters": {
+        "key": "f1"
+      },
       "timeout": 30,
       "continue_on_error": "false",
       "preconditions": [
         "dhash:512:384:0:20:60a4302030303232"
       ],
       "tags": [],
-      "created_at": "2025-09-28T04:08:27.597045",
+      "created_at": "2025-10-15T05:38:21.870028"
+    },
+    {
+      "tool": "type_text",
       "plan_id": "plan_de947884",
-      "tool": "key_press",
-      "parameters": {
-        "key": "f1"
-      },
+      "description": "Type 'notifications: Show Notifications' into the VS Code command palette input at the top of the window.",
+      "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_786974b4"
-    },
-    {
+      "screenshot": "step_16e5c0c3",
       "agent": "interaction",
-      "description": "Type 'notifications: Show Notifications' into the VS Code command palette input at the top of the window.",
       "step_id": "step_16e5c0c3",
-      "content_refs": [],
+      "parameters": {
+        "text": "notifications: Show Notifications"
+      },
       "timeout": 30,
       "continue_on_error": "false",
       "preconditions": [
         "dhash:512:384:0:20:e0a6302030b03236"
       ],
       "tags": [],
-      "created_at": "2025-09-28T04:08:27.621431",
+      "created_at": "2025-10-15T05:38:21.879644"
+    },
+    {
+      "tool": "key_press",
       "plan_id": "plan_de947884",
-      "tool": "type_text",
-      "parameters": {
-        "text": "notifications: Show Notifications"
-      },
+      "description": "Press Enter to select the \"Notifications: Show Notifications\" command in the Visual Studio Code command palette.",
+      "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_16e5c0c3"
-    },
-    {
+      "screenshot": "step_b46e6d95",
       "agent": "interaction",
-      "description": "Press Enter to select the \"Notifications: Show Notifications\" command in the Visual Studio Code command palette.",
       "step_id": "step_b46e6d95",
-      "content_refs": [],
+      "parameters": {
+        "key": "enter"
+      },
       "timeout": 30,
       "continue_on_error": "false",
       "preconditions": [
         "dhash:512:384:0:20:eca4302030b03236"
       ],
       "tags": [],
-      "created_at": "2025-09-28T04:08:27.648174",
+      "created_at": "2025-10-15T05:38:21.888335"
+    },
+    {
+      "tool": "",
       "plan_id": "plan_de947884",
-      "tool": "key_press",
-      "parameters": {
-        "key": "enter"
-      },
+      "description": "@assertion notification \"provision stage executed successfully\" exist.",
+      "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_b46e6d95"
-    },
-    {
+      "screenshot": null,
       "agent": "assertion",
-      "description": "@assertion notification \"provision stage executed successfully\" exist.",
       "step_id": "step_6e5d9ce5",
-      "content_refs": [],
+      "parameters": {},
       "timeout": 30,
       "continue_on_error": "false",
       "preconditions": [],
@@ -217,20 +224,24 @@
         "delay: 30",
         "precondition_wait_timeout: 60"
       ],
-      "created_at": "2025-09-28T04:12:05.039158",
+      "created_at": "2025-10-15T05:38:21.896968"
+    },
+    {
+      "tool": "click",
       "plan_id": "plan_de947884",
-      "tool": "",
-      "parameters": {},
+      "description": "Click the \"Expand Navigation\" button located in the upper-left panel of the M365 Copilot Chat web interface.",
+      "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": null
-    },
-    {
+      "screenshot": "step_4ed68212",
       "agent": "interaction",
-      "description": "Click the \"Expand Navigation\" button located in the upper-left panel of the M365 Copilot Chat web interface.",
       "step_id": "step_4ed68212",
-      "content_refs": [],
+      "parameters": {
+        "x": 30,
+        "y": 115,
+        "button": "left"
+      },
       "timeout": 30,
       "continue_on_error": "false",
       "preconditions": [
@@ -239,80 +250,69 @@
         "dhash:30:115:0:10:01cd9668c42b2980"
       ],
       "tags": [],
-      "created_at": "2025-09-28T04:37:04.087058",
+      "created_at": "2025-10-15T05:38:21.903651"
+    },
+    {
+      "tool": "type_text",
       "plan_id": "plan_de947884",
-      "tool": "click",
-      "parameters": {
-        "x": 30,
-        "y": 115,
-        "button": "left"
-      },
+      "description": "Enter the text \"how can you assistant me?\" into the main chat input box of the \"vscuse_app_XHhWMdev\" agent within the M365 Copilot web interface.",
+      "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_4ed68212"
-    },
-    {
+      "screenshot": "step_619c5cb2",
       "agent": "interaction",
-      "description": "Enter the text \"how can you assistant me?\" into the main chat input box of the \"vscuse_app_XHhWMdev\" agent within the M365 Copilot web interface.",
       "step_id": "step_619c5cb2",
-      "content_refs": [],
-      "timeout": 30,
-      "continue_on_error": "false",
-      "preconditions": [
-        "dhash:512:384:0:20:15d9e37578e0e1e0"
-      ],
-      "tags": [],
-      "created_at": "2025-09-28T04:37:04.109408",
-      "plan_id": "plan_de947884",
-      "tool": "type_text",
       "parameters": {
         "text": "how can you assistant me?"
       },
-      "retry_count": 0,
-      "depends_on": [],
-      "postconditions": [],
-      "screenshot": "step_619c5cb2"
-    },
-    {
-      "agent": "interaction",
-      "description": "Press Enter in the chat input box of the M365 Copilot web interface under the ${{var:app_name}} agent to submit the typed message.",
-      "step_id": "step_20e0d081",
-      "content_refs": [],
       "timeout": 30,
       "continue_on_error": "false",
       "preconditions": [
         "dhash:512:384:0:20:15d9e37578e0e1e0"
       ],
       "tags": [],
-      "created_at": "2025-09-28T04:37:04.132804",
-      "plan_id": "plan_de947884",
+      "created_at": "2025-10-15T05:38:21.911889"
+    },
+    {
       "tool": "key_press",
-      "parameters": {
-        "key": "enter"
-      },
+      "plan_id": "plan_de947884",
+      "description": "Press Enter in the chat input box of the M365 Copilot web interface under the ${{var:app_name}} agent to submit the typed message.",
+      "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_20e0d081"
+      "screenshot": "step_20e0d081",
+      "agent": "interaction",
+      "step_id": "step_20e0d081",
+      "parameters": {
+        "key": "enter"
+      },
+      "timeout": 30,
+      "continue_on_error": "false",
+      "preconditions": [
+        "dhash:512:384:0:20:15d9e37578e0e1e0"
+      ],
+      "tags": [],
+      "created_at": "2025-10-15T05:38:21.920485"
     },
     {
-      "agent": "assertion",
+      "tool": "",
+      "plan_id": "plan_de947884",
       "description": "@assertion get ai send back message.",
-      "step_id": "step_9724ec96",
       "content_refs": [],
+      "retry_count": 0,
+      "depends_on": [],
+      "postconditions": [],
+      "screenshot": null,
+      "agent": "assertion",
+      "step_id": "step_9724ec96",
+      "parameters": {},
       "timeout": 30,
       "continue_on_error": "false",
       "preconditions": [],
       "tags": [],
-      "created_at": "2025-09-28T04:44:32.733687",
-      "plan_id": "plan_de947884",
-      "tool": "",
-      "parameters": {},
-      "retry_count": 0,
-      "depends_on": [],
-      "postconditions": [],
-      "screenshot": null
+      "created_at": "2025-10-15T05:38:21.927265"
     }
   ],
   "screenshots": {
