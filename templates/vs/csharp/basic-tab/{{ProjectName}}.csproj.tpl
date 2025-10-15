@@ -47,12 +47,12 @@
   <!-- Run npm steps -->
   <Target Name="NpmInstall" BeforeTargets="BeforeBuild">
     <Message Text="Running npm install..." Importance="high" />
-    <Exec Command="npm install" WorkingDirectory="Web" />
+    <Exec Command="npm install" WorkingDirectory="Web" StdOutEncoding="UTF-8" StdErrEncoding="UTF-8" />
   </Target>
 
   <Target Name="NpmBuild" AfterTargets="NpmInstall" BeforeTargets="BeforeBuild">
     <Message Text="Running npm run build..." Importance="high" />
-    <Exec Command="npm run build" WorkingDirectory="Web" />
+    <Exec Command="npm run build" WorkingDirectory="Web" StdOutEncoding="UTF-8" StdErrEncoding="UTF-8" />
   </Target>
 
   <!-- Dynamically include built frontend files as embedded resources after npm build -->
