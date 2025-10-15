@@ -70,6 +70,8 @@ jobs:
       # M365 account for testing
       M365_ACCOUNT_NAME: "test01@atktesting.onmicrosoft.com"
       M365_ACCOUNT_PASSWORD: ${{ secrets.TEST_M365_PASSWORD_NEW }}
+      AZURE_ACCOUNT_NAME: "test01@atktesting.onmicrosoft.com"
+      AZURE_ACCOUNT_PASSWORD: ${{ secrets.TEST_M365_PASSWORD_NEW }}
       M365_TENANT_ID: ${{ secrets.TEST_CLEAN_TENANT_ID_NEW }}
 
     steps:
