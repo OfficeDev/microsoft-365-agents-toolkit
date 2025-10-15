@@ -990,7 +990,7 @@ export class WorkspaceMCPConfigCodeLensProvider implements vscode.CodeLensProvid
         const command: vscode.Command = {
           title: `⚡ ATK: Fetch action from MCP`,
           command: "fx-extension.updateActionWithMCP",
-          arguments: [{ serverName, serverConfig }],
+          arguments: [{ serverName, serverConfig }, TelemetryTriggerFrom.CodeLens],
         };
         codeLenses.push(new vscode.CodeLens(range, command));
       }
