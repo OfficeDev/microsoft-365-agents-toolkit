@@ -71,7 +71,7 @@ namespace OpenAPIClient
             
             ProcessParameters(param.HeaderObject, operationObj, ParameterStyle.Simple, false, (key, value) => request.AddHeader(key, value));
 
-            if (param.RequestBody != null)
+            if (param.RequestBody != null && !IsEmptyJsonObject(param.RequestBody))
             {
                 request.AddJsonBody(param.RequestBody, ContentType.Json);
             }
@@ -86,7 +86,17 @@ namespace OpenAPIClient
             throw new RequestFailedException(response);
         }
 
-        private KeyValuePair<string, string> GetParameterKeyValuePair(JsonProperty property, OpenApiOperation operationObj , ParameterStyle defaultStyle, bool defaultExplode)
+        private bool IsEmptyJsonObject(object requestBody)
+        {
+            if (requestBody is JsonElement jsonElement)
+            {
+                return jsonElement.ValueKind == JsonValueKind.Object && !jsonElement.EnumerateObject().Any();
+            }
+
+            return false;
+        }
+
+        private KeyValuePair<string, string> GetParameterKeyValuePair(JsonProperty property, OpenApiOperation operationObj, ParameterStyle defaultStyle, bool defaultExplode)
         {
             var key = property.Name;
             var value = property.Value;
