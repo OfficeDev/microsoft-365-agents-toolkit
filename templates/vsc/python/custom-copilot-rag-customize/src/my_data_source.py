@@ -43,11 +43,20 @@ class MyDataSource():
         
         # Key word search
         if 'history' in query.lower() or 'company' in query.lower():
-            matched_files.append(self._data[0])
+            for item in self._data:
+                if 'Overview' in item['filename']:
+                    matched_files.append(item)
+                    break
         if 'perksplus' in query.lower() or 'program' in query.lower():
-            matched_files.append(self._data[1])
+            for item in self._data:
+                if 'PerksPlus' in item['filename']:
+                    matched_files.append(item)
+                    break
         if 'northwind' in query.lower() or 'health' in query.lower() or 'plan' in query.lower():
-            matched_files.append(self._data[2])
+            for item in self._data:
+                if 'Plan' in item['filename']:
+                    matched_files.append(item)
+                    break
        
         return Result(self.formatDocuments(matched_files)) if matched_files else Result('')
 

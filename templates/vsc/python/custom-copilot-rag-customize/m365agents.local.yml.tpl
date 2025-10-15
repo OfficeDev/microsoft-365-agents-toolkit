@@ -33,7 +33,7 @@ provision:
   - uses: botFramework/create
     with:
       botId: ${{BOT_ID}}
-      name: basicSearch
+      name: {{appName}}
       messagingEndpoint: ${{BOT_ENDPOINT}}/api/messages
       description: ""
       channels:
