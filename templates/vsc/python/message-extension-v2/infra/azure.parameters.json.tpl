@@ -6,7 +6,7 @@
       "value": "bot${{RESOURCE_SUFFIX}}"
     },
     "webAppSKU": {
-      "value": "B1"
+      "value": "B3"
     },
     "botDisplayName": {
       "value": "{{appName}}"

@@ -57,7 +57,7 @@ model = OpenAICompletionsAIModel(
 {{/useAzureOpenAI}}  
 
 {{#useOpenAI}}
-model = OpenAICompletionsAIModel
+model = OpenAICompletionsAIModel(
     key=config.OPENAI_API_KEY,
     model=config.OPENAI_MODEL_NAME
 )
