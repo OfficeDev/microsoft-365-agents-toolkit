@@ -18,6 +18,8 @@ deploy:
     with:
       target: ./.env
       envs:
+        CLIENT_ID: ""
+        CLIENT_SECRET: ""
         {{#useOpenAI}}
         OPENAI_API_KEY: ${{SECRET_OPENAI_API_KEY}}
         {{/useOpenAI}}
