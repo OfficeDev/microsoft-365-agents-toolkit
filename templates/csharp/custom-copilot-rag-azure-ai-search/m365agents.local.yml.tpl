@@ -46,7 +46,7 @@ provision:
 {{/isNewProjectTypeEnabled}}
       content:
         BOT_TENANT_ID: ${{TEAMS_APP_TENANT_ID}}
-			  BOT_TYPE: 'SingleTenant'
+        BOT_TYPE: 'SingleTenant'
         BOT_ID: ${{BOT_ID}}
         BOT_PASSWORD: ${{SECRET_BOT_PASSWORD}}
 {{#useOpenAI}}
