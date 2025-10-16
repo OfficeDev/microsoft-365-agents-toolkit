@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 "use strict";
 
-import { AccessToken, TokenCredential } from "@azure/core-auth";
+import { AccessToken } from "@azure/core-auth";
 import { ok, Result } from "neverthrow";
 import { FxError } from "../error";
 
