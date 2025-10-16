@@ -132,64 +132,45 @@ jobs:
         run: |
           npm run setup
 
-      - name: Switch M365 account 01
-        run: |
-          username='${{ env.M365_USERNAME }}'
-          echo "M365_ACCOUNT_NAME=$username" >> $GITHUB_ENV
-
-      - name: Clean resource
+      - name: Clean resource with M365 account 01
         if: always()
+        env:
+          M365_ACCOUNT_NAME: ${{ env.M365_USERNAME }}
         run: |
           npx ts-node src/scripts/clean.ts
 
-      - name: Switch M365 account 02
-        run: |
-          username='${{ env.M365_USERNAME_2 }}'
-          echo "M365_ACCOUNT_NAME=$username" >> $GITHUB_ENV
-
-      - name: Clean resource 
+      - name: Clean resource with M365 account 02
         if: always()
+        env:
+          M365_ACCOUNT_NAME: ${{ env.M365_USERNAME_2 }}
         run: |
           npx ts-node src/scripts/clean.ts
 
-      - name: Switch M365 account 03
-        run: |
-          username='${{ env.M365_USERNAME_3 }}'
-          echo "M365_ACCOUNT_NAME=$username" >> $GITHUB_ENV
-
-      - name: Clean resource 
+      - name: Clean resource with M365 account 03
         if: always()
+        env:
+          M365_ACCOUNT_NAME: ${{ env.M365_USERNAME_3 }}
         run: |
           npx ts-node src/scripts/clean.ts
 
-      - name: Switch M365 account 04
-        run: |
-          username='${{ env.M365_USERNAME_4 }}'
-          echo "M365_ACCOUNT_NAME=$username" >> $GITHUB_ENV
-
-      - name: Clean resource 
+      - name: Clean resource with M365 account 04
         if: always()
+        env:
+          M365_ACCOUNT_NAME: ${{ env.M365_USERNAME_4 }}
         run: |
           npx ts-node src/scripts/clean.ts
 
-      - name: Switch M365 account 05
-        run: |
-          username='${{ env.M365_USERNAME_5 }}'
-          echo "M365_ACCOUNT_NAME=$username" >> $GITHUB_ENV
-
-      - name: Clean resource 
+      - name: Clean resource with M365 account 05
         if: always()
+        env:
+          M365_ACCOUNT_NAME: ${{ env.M365_USERNAME_5 }}
         run: |
           npx ts-node src/scripts/clean.ts
 
-
-
-      - name: Switch Service Principal account
-        run: |
-          echo "AZURE_SERVICE_PRINCIPAL_ID=${{ env.TEMP_AZURE_SERVICE_PRINCIPAL_ID }}" >> $GITHUB_ENV
-          echo "AZURE_SERVICE_PRINCIPAL_SECRET=${{ env.TEMP_AZURE_SERVICE_PRINCIPAL_SECRET }}" >> $GITHUB_ENV
-
-      - name: Clean resource 
+      - name: Clean resource with M365 account 05
         if: always()
+        env:
+          AZURE_SERVICE_PRINCIPAL_ID: ${{ env.TEMP_AZURE_SERVICE_PRINCIPAL_ID }}
+          AZURE_SERVICE_PRINCIPAL_SECRET: ${{ env.TEMP_AZURE_SERVICE_PRINCIPAL_SECRET }}
         run: |
           npx ts-node src/scripts/clean.ts
