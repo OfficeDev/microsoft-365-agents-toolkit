@@ -24,6 +24,12 @@ const chatWithYourDataTemplates: Template[] = [
     description: "",
   },
   {
+    id: "custom-copilot-rag-customize-python",
+    name: TemplateNames.CustomCopilotRagCustomize,
+    language: "python",
+    description: "",
+  },
+  {
     id: "custom-copilot-rag-azure-ai-search-ts",
     name: TemplateNames.CustomCopilotRagAzureAISearch,
     language: "typescript",
@@ -117,9 +123,21 @@ const teamsOtherTemplates: Template[] = [
     description: "",
   },
   {
+    id: "default-bot-python",
+    name: TemplateNames.DefaultBot,
+    language: "python",
+    description: "",
+  },
+  {
     id: "message-extension-v2-ts",
     name: TemplateNames.DefaultMessageExtension,
     language: "typescript",
+    description: "",
+  },
+  {
+    id: "message-extension-v2-python",
+    name: TemplateNames.DefaultMessageExtension,
+    language: "python",
     description: "",
   },
   // VS templates below
@@ -196,6 +214,12 @@ export const teamsAgentsAndAppsTemplates: Template[] = [
     id: "custom-copilot-basic-csharp",
     name: TemplateNames.CustomCopilotBasic,
     language: "csharp",
+    description: "",
+  },
+  {
+    id: "custom-copilot-basic-python",
+    name: TemplateNames.CustomCopilotBasic,
+    language: "python",
     description: "",
   },
   ...chatWithYourDataTemplates,

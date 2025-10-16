@@ -1,0 +1,111 @@
+import asyncio
+import json
+import os
+
+from azure.identity import ManagedIdentityCredential
+from microsoft.teams.ai import ChatPrompt, ListMemory, Agent, Function
+from microsoft.teams.ai.ai_model import AIModel
+from microsoft.teams.apps import App, ActivityContext
+from microsoft.teams.openai import OpenAICompletionsAIModel
+from microsoft.teams.api import MessageActivity, MessageActivityInput, MessageSubmitActionInvokeActivity
+
+from config import Config
+from handlers import //Replace with functions to be imported
+
+config = Config()
+
+# Load instructions from file
+def load_instructions() -> str:
+    """Load instructions from instructions.txt file"""
+    try:
+        with open(os.path.join(os.path.dirname(__file__), "instructions.txt"), "r", encoding="utf-8") as f:
+            return f.read().strip()
+    except FileNotFoundError:
+        return "You are a helpful assistant."
+
+INSTRUCTIONS = load_instructions()
+
+def load_function_definitions():
+    functions_path = os.path.join(os.path.dirname(__file__), 'functions.json')
+    with open(functions_path, 'r', encoding='utf-8') as f:
+        return json.load(f)
+
+function_defs = load_function_definitions()
+
+def create_token_factory():
+    def get_token(scopes, tenant_id=None):
+        credential = ManagedIdentityCredential(client_id=config.APP_ID)
+        if isinstance(scopes, str):
+            scopes_list = [scopes]
+        else:
+            scopes_list = scopes
+        token = credential.get_token(*scopes_list)
+        return token.token
+    return get_token
+
+app = App(
+    token=create_token_factory() if config.APP_TYPE == "UserAssignedMsi" else None
+)
+
+{{#useAzureOpenAI}}
+model = OpenAICompletionsAIModel(
+    key=config.AZURE_OPENAI_API_KEY,
+    model=config.AZURE_OPENAI_MODEL_DEPLOYMENT_NAME,
+    azure_endpoint=config.AZURE_OPENAI_ENDPOINT,
+    api_version="2024-10-21"
+)
+{{/useAzureOpenAI}}  
+
+{{#useOpenAI}}
+model = OpenAICompletionsAIModel(
+    key=config.OPENAI_API_KEY,
+    model=config.OPENAI_MODEL_NAME
+)
+{{/useOpenAI}}
+
+conversation_store: dict[str, ListMemory] = {}
+
+def get_or_create_conversation_memory(conversation_id: str) -> ListMemory:
+    """Get or create conversation memory for a specific conversation"""
+    if conversation_id not in conversation_store:
+        conversation_store[conversation_id] = ListMemory()
+    return conversation_store[conversation_id]
+
+async def handle_stateful_conversation(model: AIModel, ctx: ActivityContext[MessageActivity]) -> None:
+    """Example of stateful conversation handler that maintains conversation history"""
+    # Retrieve existing conversation memory or initialize new one
+    memory = get_or_create_conversation_memory(ctx.activity.conversation.id)
+
+    agent = Agent(model=model)
+    
+    def make_handler(fn, ctx):
+        async def handler(parameters):
+            result = await fn(parameters)
+            await ctx.send(result)
+            return "results are shown already. completed."
+        return handler
+
+    // Replace with function definition code
+
+    chat_result = await agent.send(
+        input=ctx.activity.text, 
+        memory=memory,
+        instructions=INSTRUCTIONS
+    )
+
+    await ctx.send(MessageActivityInput(text=chat_result.response.content).add_ai_generated().add_feedback())
+
+@app.on_message
+async def handle_message(ctx: ActivityContext[MessageActivity]):
+    """Handle messages using stateful conversation"""
+    await handle_stateful_conversation(model, ctx)
+
+@app.on_message_submit_feedback
+async def handle_message_feedback(ctx: ActivityContext[MessageSubmitActionInvokeActivity]):
+    """Handle feedback submission events"""
+    activity = ctx.activity
+
+    print(f"your feedback is {activity.value.action_value}")
+
+if __name__ == "__main__":
+    asyncio.run(app.start())
