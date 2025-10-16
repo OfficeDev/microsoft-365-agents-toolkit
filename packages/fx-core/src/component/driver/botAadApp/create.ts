@@ -16,7 +16,7 @@ import {
 import { wrapRun } from "../../utils/common";
 import { AadAppNameTooLongError } from "../aad/error/aadAppNameTooLongError";
 import { SignInAudience } from "../aad/interface/signInAudience";
-import { AadAppClient } from "../aad/utility/aadAppClient";
+import { AadAppClient } from "../../../client/aadAppClient";
 import { OutputEnvironmentVariableUndefinedError } from "../error/outputEnvironmentVariableUndefinedError";
 import { DriverContext } from "../interface/commonArgs";
 import { ExecutionResult, StepDriver } from "../interface/stepDriver";

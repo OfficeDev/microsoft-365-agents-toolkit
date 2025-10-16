@@ -20,6 +20,7 @@ import {
   MultiSelectConfig,
   MultiSelectResult,
   ok,
+  OptionItem,
   Result,
   SelectFileConfig,
   SelectFileResult,
@@ -174,7 +175,11 @@ export class MockUserInteraction implements UserInteraction {
   }
 
   selectOptions(config: MultiSelectConfig): Promise<Result<MultiSelectResult, FxError>> {
-    throw new Error(`Method selectOptions not implemented: ${JSON.stringify(config)}`);
+    // Return the first option as selected by default for tests
+    const options = config.options as (string | OptionItem)[];
+    const result =
+      options?.length > 0 ? [typeof options[0] === "string" ? options[0] : options[0].id] : [];
+    return Promise.resolve(ok({ type: "success", result }));
   }
 
   inputText(config: InputTextConfig): Promise<Result<InputTextResult, FxError>> {

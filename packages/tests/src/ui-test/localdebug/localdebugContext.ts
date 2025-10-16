@@ -41,7 +41,9 @@ export type LocalDebugTestName =
   | "cdcustomapi"
   | "msgnewapi"
   | "msgapikey"
-  | "msgmicroentra";
+  | "msgmicroentra"
+  | "daaction"
+  | "weather";
 
 export class LocalDebugTestContext extends TestContext {
   public testName: LocalDebugTestName;
@@ -52,6 +54,7 @@ export class LocalDebugTestContext extends TestContext {
   public customCopilotRagType: string;
   public customCeopilotAgent: string;
   public llmServiceType: string;
+  public apiAuth: string;
 
   constructor(
     testName: LocalDebugTestName,
@@ -69,6 +72,7 @@ export class LocalDebugTestContext extends TestContext {
         | "custom-copilot-agent-new"
         | "custom-copilot-agent-assistants-api";
       llmServiceType?: "llm-service-azure-openai" | "llm-service-openai";
+      apiAuth?: "none" | "api-key" | "microsoft-entra" | "oauth";
     }
   ) {
     super(testName);
@@ -94,6 +98,7 @@ export class LocalDebugTestContext extends TestContext {
     this.llmServiceType = option?.llmServiceType
       ? option.llmServiceType
       : "llm-service-azure-openai";
+    this.apiAuth = option?.apiAuth ? option.apiAuth : "none";
   }
 
   public async before() {
@@ -211,13 +216,13 @@ export class LocalDebugTestContext extends TestContext {
       case "msg":
         await execCommand(
           this.testRootFolder,
-          `atk new --app-name ${this.appName} --interactive false --capability collect-form-message-extension --programming-language ${this.lang} --telemetry false`
+          `atk new --app-name ${this.appName} --interactive false --capability basic-message-extension --programming-language ${this.lang} --telemetry false`
         );
         break;
       case "msgsa":
         await execCommand(
           this.testRootFolder,
-          `atk new --app-name ${this.appName} --interactive false --capability search-app --me-architecture bot --programming-language ${this.lang} --telemetry false`
+          `atk new --app-name ${this.appName} --interactive false --capability basic-message-extension --programming-language ${this.lang} --telemetry false`
         );
         break;
       case "tabbot":
@@ -294,7 +299,7 @@ export class LocalDebugTestContext extends TestContext {
       case "linkunfurl":
         await execCommand(
           this.testRootFolder,
-          `atk new --app-name ${this.appName} --interactive false --capability link-unfurling  --programming-language ${this.lang} --telemetry false`
+          `atk new --app-name ${this.appName} --interactive false --capability basic-message-extension  --programming-language ${this.lang} --telemetry false`
         );
         break;
       case "aichat":
@@ -341,6 +346,17 @@ export class LocalDebugTestContext extends TestContext {
           `atk new --app-name ${this.appName} --interactive false --capability custom-copilot-rag --custom-copilot-rag ${this.customCopilotRagType} --llm-service ${this.llmServiceType} --programming-language ${this.lang}  --openapi-spec-location ${apiSpecPath} --api-operation "GET /repairs" --telemetry false`
         );
         break;
+      case "daaction":
+        await execCommand(
+          this.testRootFolder,
+          `atk new --app-name ${this.appName} --interactive false --capability declarative-agent  --with-plugin yes --api-plugin-type new-api --api-auth ${this.apiAuth} --programming-language ${this.lang} --telemetry false`
+        );
+        break;
+      case "weather":
+        await execCommand(
+          this.testRootFolder,
+          `atk new --app-name ${this.appName} --interactive false --capability weather-agent --programming-language ${this.lang} --llm-service ${this.llmServiceType} --telemetry false`
+        );
     }
     if (this.needMigrate) {
       await execCommand(this.testRootFolder, `set TEAMSFX_V3=true`);

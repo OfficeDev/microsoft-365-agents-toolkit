@@ -16,7 +16,7 @@ import {
   UnhandledError,
   UnhandledUserError,
 } from "../../../../src";
-import { AadAppClient } from "../../../../src/component/driver/aad/utility/aadAppClient";
+import { AadAppClient } from "../../../../src/client/aadAppClient";
 import { AADApplication } from "../../../../src/component/driver/aad/interface/AADApplication";
 import { OutputEnvironmentVariableUndefinedError } from "../../../../src/component/driver/error/outputEnvironmentVariableUndefinedError";
 import { AadAppNameTooLongError } from "../../../../src/component/driver/aad/error/aadAppNameTooLongError";

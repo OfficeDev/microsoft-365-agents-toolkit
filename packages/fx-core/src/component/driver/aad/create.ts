@@ -13,7 +13,7 @@ import {
 } from "@microsoft/teamsfx-api";
 import axios from "axios";
 import { Service } from "typedi";
-import { GraphScopes } from "../../../common/constants";
+import { AppStudioScopes, GraphScopes } from "../../../common/constants";
 import { AadSet } from "../../../common/globalVars";
 import { getLocalizedString } from "../../../common/localizeUtils";
 import { environmentNameManager } from "../../../core/environmentName";
@@ -35,7 +35,7 @@ import { MissingEnvUserError } from "./error/missingEnvError";
 import { CreateAadAppArgs } from "./interface/createAadAppArgs";
 import { CreateAadAppOutput, OutputKeys } from "./interface/createAadAppOutput";
 import { SignInAudience } from "./interface/signInAudience";
-import { AadAppClient } from "./utility/aadAppClient";
+import { AadAppClient } from "../../../client/aadAppClient";
 import {
   constants,
   descriptionMessageKeys,
@@ -43,6 +43,7 @@ import {
   questionKeys,
   telemetryKeys,
 } from "./utility/constants";
+import { TeamsDevPortalClient } from "../../../client/teamsDevPortalClient";
 
 const actionName = "aadApp/create"; // DO NOT MODIFY the name
 const helpLink = "https://aka.ms/teamsfx-actions/aadapp-create";
@@ -114,19 +115,43 @@ export class CreateAadAppDriver implements StepDriver {
         const serviceManagementReference =
           args.serviceManagementReference || process.env.TTK_DEFAULT_SERVICE_MANAGEMENT_REFERENCE;
 
-        const aadApp = await aadAppClient.createAadApp(
-          args.name,
-          signInAudience,
-          serviceManagementReference,
-          isMsftAccount
-        );
+        let aadApp;
+        if (args.generateServicePrincipal) {
+          const tokenRes = await context.m365TokenProvider.getAccessToken({
+            scopes: AppStudioScopes,
+          });
+          if (tokenRes.isErr()) {
+            throw tokenRes.error;
+          }
+          const tdpClient = new TeamsDevPortalClient();
+          aadApp = await tdpClient.createAADApp(
+            tokenRes.value,
+            args.name,
+            signInAudience,
+            serviceManagementReference,
+            isMsftAccount
+          );
+        } else {
+          aadApp = await aadAppClient.createAadApp(
+            args.name,
+            signInAudience,
+            serviceManagementReference,
+            isMsftAccount
+          );
+        }
+
         aadAppState.clientId = aadApp.appId!;
         aadAppState.objectId = aadApp.id!;
         AadSet.add(aadApp.appId!);
         await this.setAadEndpointInfo(context.m365TokenProvider, aadAppState);
         outputs = mapStateToEnv(aadAppState, outputEnvVarNames, [OutputKeys.clientSecret]);
 
-        let summary = getLocalizedString(logMessageKeys.successCreateAadApp, aadApp.id);
+        let summary = getLocalizedString(
+          args.generateServicePrincipal
+            ? logMessageKeys.successCreateAadAppandServicePrincipal
+            : logMessageKeys.successCreateAadApp,
+          aadApp.id
+        );
         if (isMsftAccount) {
           summary += getLocalizedString(logMessageKeys.deleteAadAfterDebugging);
         }

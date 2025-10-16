@@ -71,7 +71,7 @@ describe("Local Debug Tests", function () {
         await waitForTerminal(LocalDebugTaskLabel.StartLocalTunnel);
         await waitForTerminal(
           LocalDebugTaskLabel.StartBotApp,
-          LocalDebugTaskInfo.StartBotInfo
+          LocalDebugTaskInfo.ServerListening
         );
 
         const teamsAppId = await localDebugTestContext.getTeamsAppId();

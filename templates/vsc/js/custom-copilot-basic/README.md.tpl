@@ -1,6 +1,6 @@
 # Overview of the Basic AI Chatbot template
 
-This app template is built on top of [Teams AI library](https://aka.ms/teams-ai-library). 
+This app template is built on top of [Teams AI library V2](https://aka.ms/teams-ai-library-v2). 
 It showcases an agent app that responds to user questions like ChatGPT, which enables your users to talk with the AI agent in Teams.
 
 ## Get started with the template
@@ -9,7 +9,7 @@ It showcases an agent app that responds to user questions like ChatGPT, which en
 >
 > To run the template in your local dev machine, you will need:
 >
-> - [Node.js](https://nodejs.org/), supported versions: 18, 20, 22.
+> - [Node.js](https://nodejs.org/), supported versions: 20, 22.
 {{^enableTestToolByDefault}}
 > - A [Microsoft 365 account for development](https://docs.microsoft.com/microsoftteams/platform/toolkit/accounts).
 {{/enableTestToolByDefault}}
@@ -69,11 +69,9 @@ The following files can be customized and demonstrate an example implementation 
 
 | File                                 | Contents                                           |
 | - | - |
-|`src/index.js`| Sets up the agent app server.|
-|`src/adapter.js`| Sets up the agent adapter.|
+|`src/index.js`| Application entry point. |
 |`src/config.js`| Defines the environment variables.|
-|`src/prompts/chat/skprompt.txt`| Defines the prompt.|
-|`src/prompts/chat/config.json`| Configures the prompt.|
+|`src/app/instructions.txt`| Defines the prompt.|
 |`src/app/app.js`| Handles business logics for the Basic AI Chatbot.|
 
 The following are Microsoft 365 Agents Toolkit specific project files. You can [visit a complete guide on Github](https://github.com/OfficeDev/TeamsFx/wiki/Teams-Toolkit-Visual-Studio-Code-v5-Guide#overview) to understand how Microsoft 365 Agents Toolkit works.
@@ -86,13 +84,7 @@ The following are Microsoft 365 Agents Toolkit specific project files. You can [
 
 ## Extend the template
 
-You can follow [Build a Basic AI Chatbot in Teams](https://aka.ms/teamsfx-basic-ai-chatbot) to extend the Basic AI Chatbot template with more AI capabilities, like:
-- [Customize prompt](https://aka.ms/teamsfx-basic-ai-chatbot#customize-prompt)
-- [Customize user input](https://aka.ms/teamsfx-basic-ai-chatbot#customize-user-input)
-- [Customize conversation history](https://aka.ms/teamsfx-basic-ai-chatbot#customize-conversation-history)
-- [Customize model type](https://aka.ms/teamsfx-basic-ai-chatbot#customize-model-type)
-- [Customize model parameters](https://aka.ms/teamsfx-basic-ai-chatbot#customize-model-parameters)
-- [Handle messages with image](https://aka.ms/teamsfx-basic-ai-chatbot#handle-messages-with-image)
+To extend the Basic AI Chatbot template with more AI capabilities, explore [Teams AI library V2 documentation](https://aka.ms/m365-agents-toolkit/teams-agent-extend-ai).
 
 ## Additional information and references
 
@@ -102,5 +94,5 @@ You can follow [Build a Basic AI Chatbot in Teams](https://aka.ms/teamsfx-basic-
 {{#CEAEnabled}}
 
 ## Known issue
-- The agent is currently not working in any Teams group chats or Teams channels when the stream response is enabled.
+- Streaming is only currently supported for single 1:1 chats, and not for groups or channels.
 {{/CEAEnabled}}

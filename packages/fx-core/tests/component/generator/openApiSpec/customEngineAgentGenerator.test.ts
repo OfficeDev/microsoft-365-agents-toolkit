@@ -11,9 +11,9 @@ import { CustomEngineAgentWithExistingApiSpecGenerator } from "../../../../src/c
 import * as helper from "../../../../src/component/generator/openApiSpec/helper";
 import { TemplateNames } from "../../../../src/component/generator/templates/templateNames";
 import { ActionStartOptions, ProgrammingLanguage, QuestionNames } from "../../../../src/question";
+import { TeamsAgentCapabilityOptions } from "../../../../src/question/scaffold/vsc/CapabilityOptions";
 import { MockTools } from "../../../core/utils";
 import { teamsManifest } from "./fakeData";
-import { CustomCopilotCapabilityOptions } from "../../../../src/question/scaffold/vsc/CapabilityOptions";
 
 const tools = new MockTools();
 
@@ -53,7 +53,7 @@ describe("CustomEngineAgentWithExistingApiSpecGenerator", async () => {
       const inputs: Inputs = {
         platform: Platform.CLI,
         projectPath: "./",
-        [QuestionNames.Capabilities]: CustomCopilotCapabilityOptions.customCopilotRag().id,
+        [QuestionNames.Capabilities]: TeamsAgentCapabilityOptions.customCopilotRag().id,
         [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
         [QuestionNames.TemplateName]: TemplateNames.CustomCopilotRagCustomApi,
         [QuestionNames.AppName]: "testapp",

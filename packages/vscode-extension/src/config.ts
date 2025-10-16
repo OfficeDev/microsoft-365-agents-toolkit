@@ -29,12 +29,20 @@ export class ConfigManager {
       ConfigurationKey.BicepEnvCheckerEnable,
       false
     ).toString();
+    process.env[FeatureFlags.MCPForDA.name] = this.getConfiguration(
+      ConfigurationKey.EnableMCPforDA,
+      true
+    ).toString();
     process.env[FeatureFlags.CEAEnabled.name] = this.getConfiguration(
       ConfigurationKey.EnableCEA,
       false
     ).toString();
     process.env[FeatureFlags.DAMetaOS.name] = this.getConfiguration(
       ConfigurationKey.EnableDAMetaOS,
+      false
+    ).toString();
+    process.env[FeatureFlags.CFShortcutMetaOS.name] = this.getConfiguration(
+      ConfigurationKey.EnableCFShortcutMetaOS,
       false
     ).toString();
   }

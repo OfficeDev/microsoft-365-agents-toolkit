@@ -5,6 +5,89 @@
     "version": "2.0.0",
     "tasks": [
         {
+            "label": "Start Agent (Sandbox)",
+            "dependsOn": [
+                "Validate prerequisites (Sandbox)",
+                "Start local tunnel (Sandbox)",
+                "Provision (Sandbox)",
+                "Deploy (Sandbox)",
+                "Start application",
+                "Sideload App to channel"
+            ],
+            "dependsOrder": "sequence"
+        },
+        {
+            // Check all required prerequisites.
+            // See https://aka.ms/teamsfx-tasks/check-prerequisites to know the details and how to customize the args.
+            "label": "Validate prerequisites (Sandbox)",
+            "type": "teamsfx",
+            "command": "debug-check-prerequisites",
+            "args": {
+                "prerequisites": [
+                    "portOccupancy",
+                    "sandbox",
+                    "nodejs"
+                ],
+                "portOccupancy": [
+                    3978,
+                    9239
+                ]
+            }
+        },
+        {
+            // Start the local tunnel service to forward public URL to local port and inspect traffic.
+            // See https://aka.ms/teamsfx-tasks/local-tunnel for the detailed args definitions.
+            "label": "Start local tunnel (Sandbox)",
+            "type": "teamsfx",
+            "command": "debug-start-local-tunnel",
+            "args": {
+                "type": "dev-tunnel",
+                "ports": [
+                    {
+                        "portNumber": 3978,
+                        "protocol": "http",
+                        "access": "public",
+                        "writeToEnvironmentFile": {
+                            "endpoint": "BOT_ENDPOINT",
+                            "domain": "BOT_DOMAIN"
+                        }
+                    }
+                ],
+                "env": "sandbox"
+            },
+            "isBackground": true,
+            "problemMatcher": "$teamsfx-local-tunnel-watch"
+        },
+        {
+            // Create the debug resources.
+            // See https://aka.ms/teamsfx-tasks/provision to know the details and how to customize the args.
+            "label": "Provision (Sandbox)",
+            "type": "teamsfx",
+            "command": "provision",
+            "args": {
+                "env": "sandbox"
+            }
+        },
+        {
+            // Build the project.
+            // See https://aka.ms/teamsfx-tasks/deploy to know the details and how to customize the args.
+            "label": "Deploy (Sandbox)",
+            "type": "teamsfx",
+            "command": "deploy",
+            "args": {
+                "env": "sandbox"
+            }
+        },
+        {
+            "label": "Sideload App to channel",
+            "type": "teamsfx",
+            "command": "install-app",
+            "args": {
+                "env": "sandbox",
+                "appPackagePath": "${workspaceFolder}/appPackage/build/appPackage.sandbox.zip"
+            }
+        },
+        {
             "label": "Start App in Microsoft 365 Agents Playground",
             "dependsOn": [
                 "Validate prerequisites (Microsoft 365 Agents Playground)",
@@ -62,7 +145,7 @@
                 "background": {
                     "activeOnStart": true,
                     "beginsPattern": "[nodemon] starting",
-                    "endsPattern": "Bot Started|Bot/ME service listening at|[nodemon] app crashed"
+                    "endsPattern": "app listening to|Bot/ME service listening at|[nodemon] app crashed"
                 }
             }
         },
@@ -73,8 +156,7 @@
             "isBackground": true,
             "options": {
                 "env": {
-                  "PATH": "${workspaceFolder}/devTools/teamsapptester/node_modules/.bin:${env:PATH}",
-                  "DEFAULT_CHANNEL_ID": "emulator"
+                  "PATH": "${workspaceFolder}/devTools/teamsapptester/node_modules/.bin:${env:PATH}"
                 }
             },
             "windows": {
@@ -197,7 +279,7 @@
                 "background": {
                     "activeOnStart": true,
                     "beginsPattern": "[nodemon] starting",
-                    "endsPattern": "Bot Started|Bot/ME service listening at|[nodemon] app crashed"
+                    "endsPattern": "app listening to|Bot/ME service listening at|[nodemon] app crashed"
                 }
             }
         },

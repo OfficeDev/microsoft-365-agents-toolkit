@@ -1,28 +1,29 @@
-import { Selector } from "@microsoft/teams-ai";
 import * as ACData from "adaptivecards-templating";
-import { Activity, CardFactory, MessageFactory, TurnContext } from "botbuilder";
 import helloWorldCard from "./adaptiveCards/helloworldCommand.json";
-import { ApplicationTurnState } from "./internal/interface";
 
 /**
  * The `HelloWorldCommandHandler` registers a pattern and responds
  * with an Adaptive Card if the user types the `triggerPatterns`.
  */
 export class HelloWorldCommandHandler {
-  triggerPatterns: string | RegExp | Selector | (string | RegExp | Selector)[] = "helloWorld";
+  private triggerPattern = "helloWorld";
 
-  async handleCommandReceived(
-    context: TurnContext,
-    state: ApplicationTurnState
-  ): Promise<string | Partial<Activity> | void> {
-    console.log(`App received message: ${context.activity.text}`);
+  canHandle(text: string): boolean {
+    return text === this.triggerPattern;
+  }
 
+  async handleCommandReceived(text: string): Promise<any> {
+    console.log(`App received message: ${text}`);
+
+    // Use ACData templating to expand the card with data
     const cardJson = new ACData.Template(helloWorldCard).expand({
       $root: {
         title: "Your Hello World App is Running",
         body: "Congratulations! Your Hello World App is running. Open the documentation below to learn more about how to build applications with the Microsoft 365 Agents Toolkit.",
       },
     });
-    return MessageFactory.attachment(CardFactory.adaptiveCard(cardJson));
+
+    // Return the expanded adaptive card data
+    return cardJson;
   }
 }

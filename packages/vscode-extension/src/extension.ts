@@ -36,6 +36,7 @@ import {
   PermissionsJsonFileCodeLensProvider,
   ProjectSettingsCodeLensProvider,
   TeamsAppYamlCodeLensProvider,
+  WorkspaceMCPConfigCodeLensProvider,
 } from "./codeLensProvider";
 import commandController from "./commandController";
 import azureAccountManager from "./commonlib/azureLogin";
@@ -206,6 +207,7 @@ import { checkProjectTypeAndSendTelemetry, isM365Project } from "./utils/project
 import { ReleaseNote } from "./utils/releaseNote";
 import { ExtensionSurvey } from "./utils/survey";
 import { getSettingsVersion, projectVersionCheck } from "./utils/telemetryUtils";
+import { updateActionWithMCP } from "./handlers/updateActionWithMCP";
 
 export async function activate(context: vscode.ExtensionContext) {
   const value = IsChatParticipantEnabled && semver.gte(vscode.version, "1.90.0");
@@ -647,6 +649,12 @@ function registerInternalCommands(context: vscode.ExtensionContext) {
     (...args) => Correlator.run(createDeclarativeAgentWithApiSpec, args)
   );
   context.subscriptions.push(createDeclarativeAgentWithApiSpecCommand);
+
+  const updateActionWithMcpCommand = vscode.commands.registerCommand(
+    "fx-extension.updateActionWithMCP",
+    (...args) => Correlator.run(updateActionWithMCP, args)
+  );
+  context.subscriptions.push(updateActionWithMcpCommand);
 }
 
 /**
@@ -1375,6 +1383,19 @@ function registerLanguageFeatures(context: vscode.ExtensionContext) {
       vscode.languages.registerCodeLensProvider(
         declarativeAgentManifestSelector,
         declarativeAgentSensitivityLabelCodeLensProvider
+      )
+    );
+  }
+
+  if (featureFlagManager.getBooleanValue(FeatureFlags.MCPForDA)) {
+    const workspaceMCPConfigSelector: vscode.DocumentSelector = {
+      pattern: `**/mcp.json`,
+    };
+    const workspaceMCPConfigCodeLensProvider = new WorkspaceMCPConfigCodeLensProvider();
+    context.subscriptions.push(
+      vscode.languages.registerCodeLensProvider(
+        workspaceMCPConfigSelector,
+        workspaceMCPConfigCodeLensProvider
       )
     );
   }

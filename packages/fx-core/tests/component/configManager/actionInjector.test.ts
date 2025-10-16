@@ -772,4 +772,323 @@ describe("ActionInjector", () => {
       assert.isTrue(writeStub.notCalled);
     });
   });
+
+  describe("injectCreateOAuthActionForMCP", () => {
+    const sandbox = sinon.createSandbox();
+    let writeStub: sinon.SinonStub;
+
+    beforeEach(() => {
+      writeStub = sandbox.stub(fs, "writeFile").resolves();
+    });
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it("should inject OAuth action for MCP with oauth authType successfully", async () => {
+      const ymlPath = "path/to/yml";
+      const authType = "oauth";
+      const authName = "testMCPAuth";
+      const registrationId = "MCP_OAUTH_REGISTRATION_ID";
+      const mcpServerUrl = "https://mcp.example.com";
+      const authorizationUrl = "https://auth.example.com/oauth/authorize";
+      const tokenUrl = "https://auth.example.com/oauth/token";
+      const refreshUrl = "https://auth.example.com/oauth/refresh";
+
+      const ymlContent = `
+        provision:
+          - uses: teamsApp/create
+            with:
+              name: test
+            writeToEnvironmentFile:
+              teamsAppId: TEAMS_APP_ID
+          - uses: apiKey/register
+      `;
+
+      sandbox.stub(fs, "readFile").resolves(ymlContent as any);
+      sandbox.stub(ActionInjector, "getTeamsAppIdEnvName").returns("TEAMS_APP_ID");
+
+      const result = await ActionInjector.injectCreateOAuthActionForMCP(
+        ymlPath,
+        authType,
+        authName,
+        registrationId,
+        mcpServerUrl,
+        authorizationUrl,
+        tokenUrl,
+        refreshUrl
+      );
+
+      assert.deepEqual(result, {
+        defaultRegistrationIdEnvName: registrationId,
+        registrationIdEnvName: registrationId,
+      });
+
+      const writtenContent = writeStub.args[0][1];
+      assert.isTrue(writtenContent.includes("oauth/register"));
+      assert.isTrue(writtenContent.includes(authName));
+      assert.isTrue(writtenContent.includes(registrationId));
+      assert.isTrue(writtenContent.includes(mcpServerUrl));
+      assert.isTrue(writtenContent.includes(authorizationUrl));
+      assert.isTrue(writtenContent.includes(tokenUrl));
+      assert.isTrue(writtenContent.includes("identityProvider: Custom"));
+    });
+
+    it("should inject OAuth action for MCP with Microsoft Entra authType successfully", async () => {
+      const ymlPath = "path/to/yml";
+      const authType = "microsoftEntra";
+      const authName = "testMCPEntraAuth";
+      const registrationId = "MCP_ENTRA_REGISTRATION_ID";
+      const mcpServerUrl = "https://mcp.example.com";
+
+      const ymlContent = `
+        provision:
+          - uses: teamsApp/create
+            with:
+              name: test
+            writeToEnvironmentFile:
+              teamsAppId: TEAMS_APP_ID
+          - uses: apiKey/register
+      `;
+
+      sandbox.stub(fs, "readFile").resolves(ymlContent as any);
+      sandbox.stub(ActionInjector, "getTeamsAppIdEnvName").returns("TEAMS_APP_ID");
+
+      const result = await ActionInjector.injectCreateOAuthActionForMCP(
+        ymlPath,
+        authType,
+        authName,
+        registrationId,
+        mcpServerUrl
+      );
+
+      assert.deepEqual(result, {
+        defaultRegistrationIdEnvName: registrationId,
+        registrationIdEnvName: registrationId,
+      });
+
+      const writtenContent = writeStub.args[0][1];
+      assert.isTrue(writtenContent.includes("oauth/register"));
+      assert.isTrue(writtenContent.includes(authName));
+      assert.isTrue(writtenContent.includes(registrationId));
+      assert.isTrue(writtenContent.includes(mcpServerUrl));
+      assert.isTrue(writtenContent.includes("identityProvider: MicrosoftEntra"));
+      assert.isFalse(writtenContent.includes("authorizationUrl"));
+      assert.isFalse(writtenContent.includes("tokenUrl"));
+    });
+
+    it("should handle oauth authType with optional refreshUrl as undefined", async () => {
+      const ymlPath = "path/to/yml";
+      const authType = "oauth";
+      const authName = "testMCPAuth";
+      const registrationId = "MCP_OAUTH_REGISTRATION_ID";
+      const mcpServerUrl = "https://mcp.example.com";
+      const authorizationUrl = "https://auth.example.com/oauth/authorize";
+      const tokenUrl = "https://auth.example.com/oauth/token";
+
+      const ymlContent = `
+        provision:
+          - uses: teamsApp/create
+            with:
+              name: test
+            writeToEnvironmentFile:
+              teamsAppId: TEAMS_APP_ID
+      `;
+
+      sandbox.stub(fs, "readFile").resolves(ymlContent as any);
+      sandbox.stub(ActionInjector, "getTeamsAppIdEnvName").returns("TEAMS_APP_ID");
+
+      const result = await ActionInjector.injectCreateOAuthActionForMCP(
+        ymlPath,
+        authType,
+        authName,
+        registrationId,
+        mcpServerUrl,
+        authorizationUrl,
+        tokenUrl
+      );
+
+      assert.deepEqual(result, {
+        defaultRegistrationIdEnvName: registrationId,
+        registrationIdEnvName: registrationId,
+      });
+
+      const writtenContent = writeStub.args[0][1];
+      assert.isTrue(writtenContent.includes(authorizationUrl));
+      assert.isTrue(writtenContent.includes(tokenUrl));
+      assert.isFalse(writtenContent.includes("refreshUrl"));
+    });
+
+    it("should return undefined if auth action with same registration ID already exists", async () => {
+      const ymlPath = "path/to/yml";
+      const authType = "oauth";
+      const authName = "testMCPAuth";
+      const registrationId = "EXISTING_REGISTRATION_ID";
+      const mcpServerUrl = "https://mcp.example.com";
+
+      const ymlContent = `
+        provision:
+          - uses: teamsApp/create
+            with:
+              name: test
+            writeToEnvironmentFile:
+              teamsAppId: TEAMS_APP_ID
+          - uses: oauth/register
+            with:
+              name: existingAuth
+            writeToEnvironmentFile:
+              configurationId: ${registrationId}
+      `;
+
+      sandbox.stub(fs, "readFile").resolves(ymlContent as any);
+      sandbox.stub(ActionInjector, "getTeamsAppIdEnvName").returns("TEAMS_APP_ID");
+
+      const result = await ActionInjector.injectCreateOAuthActionForMCP(
+        ymlPath,
+        authType,
+        authName,
+        registrationId,
+        mcpServerUrl
+      );
+
+      assert.isUndefined(result);
+      assert.isTrue(writeStub.notCalled);
+    });
+
+    it("should throw InjectOAuthActionFailedError if provision node is missing", async () => {
+      const ymlPath = "path/to/yml";
+      const authType = "oauth";
+      const authName = "testMCPAuth";
+      const registrationId = "MCP_OAUTH_REGISTRATION_ID";
+      const mcpServerUrl = "https://mcp.example.com";
+
+      const ymlContent = `
+        otherNode:
+          - uses: teamsApp/create
+      `;
+
+      sandbox.stub(fs, "readFile").resolves(ymlContent as any);
+
+      try {
+        await ActionInjector.injectCreateOAuthActionForMCP(
+          ymlPath,
+          authType,
+          authName,
+          registrationId,
+          mcpServerUrl
+        );
+        assert.fail("Expected InjectOAuthActionFailedError to be thrown");
+      } catch (error) {
+        assert.instanceOf(error, InjectOAuthActionFailedError);
+      }
+    });
+
+    it("should throw InjectOAuthActionFailedError if teamsApp/create action is missing", async () => {
+      const ymlPath = "path/to/yml";
+      const authType = "oauth";
+      const authName = "testMCPAuth";
+      const registrationId = "MCP_OAUTH_REGISTRATION_ID";
+      const mcpServerUrl = "https://mcp.example.com";
+
+      const ymlContent = `
+        provision:
+          - uses: otherAction
+      `;
+
+      sandbox.stub(fs, "readFile").resolves(ymlContent as any);
+      sandbox.stub(ActionInjector, "getTeamsAppIdEnvName").returns(undefined);
+
+      try {
+        await ActionInjector.injectCreateOAuthActionForMCP(
+          ymlPath,
+          authType,
+          authName,
+          registrationId,
+          mcpServerUrl
+        );
+        assert.fail("Expected InjectOAuthActionFailedError to be thrown");
+      } catch (error) {
+        assert.instanceOf(error, InjectOAuthActionFailedError);
+      }
+    });
+
+    it("should insert action after teamsApp/create action", async () => {
+      const ymlPath = "path/to/yml";
+      const authType = "oauth";
+      const authName = "testMCPAuth";
+      const registrationId = "MCP_OAUTH_REGISTRATION_ID";
+      const mcpServerUrl = "https://mcp.example.com";
+
+      const ymlContent = `
+        provision:
+          - uses: teamsApp/create
+            with:
+              name: test
+            writeToEnvironmentFile:
+              teamsAppId: TEAMS_APP_ID
+          - uses: existingAction1
+          - uses: existingAction2
+      `;
+
+      sandbox.stub(fs, "readFile").resolves(ymlContent as any);
+      sandbox.stub(ActionInjector, "getTeamsAppIdEnvName").returns("TEAMS_APP_ID");
+
+      const result = await ActionInjector.injectCreateOAuthActionForMCP(
+        ymlPath,
+        authType,
+        authName,
+        registrationId,
+        mcpServerUrl
+      );
+
+      assert.isNotNull(result);
+
+      const writtenContent = writeStub.args[0][1];
+      const teamsAppCreateIndex = writtenContent.indexOf("teamsApp/create");
+      const oauthRegisterIndex = writtenContent.indexOf("oauth/register");
+      const existingAction1Index = writtenContent.indexOf("existingAction1");
+
+      // OAuth action should be inserted after teamsApp/create but before existing actions
+      assert.isTrue(teamsAppCreateIndex < oauthRegisterIndex);
+      assert.isTrue(oauthRegisterIndex < existingAction1Index);
+    });
+
+    it("should filter out items without 'uses' property", async () => {
+      const ymlPath = "path/to/yml";
+      const authType = "oauth";
+      const authName = "testMCPAuth";
+      const registrationId = "MCP_OAUTH_REGISTRATION_ID";
+      const mcpServerUrl = "https://mcp.example.com";
+
+      const ymlContent = `
+        provision:
+          - uses: teamsApp/create
+            with:
+              name: test
+            writeToEnvironmentFile:
+              teamsAppId: TEAMS_APP_ID
+          - invalidItem: withoutUses
+          - uses: validAction
+      `;
+
+      sandbox.stub(fs, "readFile").resolves(ymlContent as any);
+      sandbox.stub(ActionInjector, "getTeamsAppIdEnvName").returns("TEAMS_APP_ID");
+
+      const result = await ActionInjector.injectCreateOAuthActionForMCP(
+        ymlPath,
+        authType,
+        authName,
+        registrationId,
+        mcpServerUrl
+      );
+
+      assert.isNotNull(result);
+
+      const writtenContent = writeStub.args[0][1];
+      assert.isTrue(writtenContent.includes("teamsApp/create"));
+      assert.isTrue(writtenContent.includes("oauth/register"));
+      assert.isTrue(writtenContent.includes("validAction"));
+      assert.isFalse(writtenContent.includes("invalidItem"));
+    });
+  });
 });

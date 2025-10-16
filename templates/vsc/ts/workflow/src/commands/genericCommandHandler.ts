@@ -1,22 +1,11 @@
-import { Selector } from "@microsoft/teams-ai";
-import { Activity, TurnContext } from "botbuilder";
-import { ApplicationTurnState } from "../internal/interface";
-
 /**
  * The `GenericCommandHandler` responds
  * with appropriate messages if the user types general command inputs, such as "hi", "hello", and "help".
  */
 export class GenericCommandHandler {
-  triggerPatterns: string | RegExp | Selector | (string | RegExp | Selector)[] = new RegExp(/^.+$/);
-
-  async handleCommandReceived(
-    context: TurnContext,
-    state: ApplicationTurnState
-  ): Promise<string | Partial<Activity> | void> {
-    console.log(`App received message: ${context.activity.text}`);
-
+  async handleCommandReceived(text: string): Promise<string> {
     let response = "";
-    switch (context.activity.text) {
+    switch (text) {
       case "hi":
         response =
           "Hi there! I'm your Workflow Bot, here to assist you with your tasks. Type 'help' for a list of available commands.";

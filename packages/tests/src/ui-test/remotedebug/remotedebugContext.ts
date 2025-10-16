@@ -10,6 +10,7 @@ import {
   TestFilePath,
   Notification,
 } from "../../utils/constants";
+import { globalResourceGroupLocation } from "../../commonlib/constants";
 import { Env } from "../../utils/env";
 import {
   cleanUpAadApp,
@@ -259,7 +260,7 @@ export async function runCliProvision(
   processEnv?: NodeJS.ProcessEnv
 ) {
   if (createRg) {
-    await createResourceGroup(appName, env, "westus");
+    await createResourceGroup(appName, env, globalResourceGroupLocation);
   }
   const resourceGroupName = `${appName}-${env}-rg`;
   await CliHelper.showVersion(projectPath, processEnv);

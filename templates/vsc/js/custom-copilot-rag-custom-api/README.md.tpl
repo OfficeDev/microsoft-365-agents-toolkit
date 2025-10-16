@@ -1,7 +1,7 @@
 # Overview of the Chat With Your Data (Using Custom API) template
 
 This template showcases how to build an AI-powered intelligent chatbot that can understand natural language to invoke the API defined in the OpenAPI description document, so you can enable your users to chat with the data provided through API service.
-The app template is built using the Teams AI library, which provides the capabilities to build AI-based applications.
+The app template is built using the [Teams AI library V2](https://aka.ms/teams-ai-library-v2), which provides the capabilities to build AI-based applications.
 
 ## Get started with the template
 
@@ -9,7 +9,7 @@ The app template is built using the Teams AI library, which provides the capabil
 >
 > To run the template in your local dev machine, you will need:
 >
-> - [Node.js](https://nodejs.org/), supported versions: 18, 20, 22
+> - [Node.js](https://nodejs.org/), supported versions: 20, 22
 {{^enableTestToolByDefault}}
 > - A [Microsoft 365 account for development](https://docs.microsoft.com/microsoftteams/platform/toolkit/accounts)
 {{/enableTestToolByDefault}}
@@ -70,13 +70,11 @@ The following files can be customized and demonstrate an example implementation 
 
 | File                                 | Contents                                           |
 | - | - |
-|`src/index.js`| Sets up the agent app server.|
-|`src/adapter.js`| Sets up the agent adapter.|
+|`src/index.js`| Application entry point.|
 |`src/config.js`| Defines the environment variables.|
-|`src/prompts/chat/skprompt.txt`| Defines the prompt.|
-|`src/prompts/chat/config.json`| Configures the prompt.|
-|`src.prompts/chat/actions.json`| List of available actions.| 
-|`src/app/app.js`| Handles business logics for the AI agent.|
+|`src/app/instructions.txt`| Defines the prompt.|
+|`src/app/handlers.js`| Function handlers.|
+|`src/app/functions.json`| Defines the functions.|
 |`src/app/utility.js`| Utility methods for the AI agent.|
 
 The following are Microsoft 365 Agents Toolkit specific project files. You can [visit a complete guide on Github](https://github.com/OfficeDev/TeamsFx/wiki/Teams-Toolkit-Visual-Studio-Code-v5-Guide#overview) to understand how Microsoft 365 Agents Toolkit works.
@@ -89,8 +87,7 @@ The following are Microsoft 365 Agents Toolkit specific project files. You can [
 
 ## Extend the template
 
-- Follow [Build a Basic AI Chatbot in Teams](https://aka.ms/teamsfx-basic-ai-chatbot) to extend the template with more AI capabilities.
-- Understand more about [Azure AI Search as data source](https://aka.ms/teamsfx-rag-bot#azure-ai-search-as-data-source).
+To extend the Basic AI Chatbot template with more AI capabilities, explore [Teams AI library V2 documentation](https://aka.ms/m365-agents-toolkit/teams-agent-extend-ai).
 
 ## Additional information and references
 

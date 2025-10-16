@@ -1,22 +1,26 @@
-const helloWorldCard = require("./adaptiveCards/helloworldCommand.json");
-const { CardFactory, MessageFactory } = require("botbuilder");
 const ACData = require("adaptivecards-templating");
+const helloWorldCard = require("./adaptiveCards/helloworldCommand.json");
 
 class HelloWorldCommandHandler {
-  triggerPatterns = "helloWorld";
+  constructor() {
+    this.triggerPattern = "helloWorld";
+  }
 
-  async handleCommandReceived(context, state) {
-    // verify the command arguments which are received from the client if needed.
-    console.log(`App received message: ${context.activity.text}`);
+  canHandle(text) {
+    return text === this.triggerPattern;
+  }
 
-    // do something to process your command and return message activity as the response
+  async handleCommandReceived(text) {
+    console.log(`App received message: ${text}`);
+
     const cardJson = new ACData.Template(helloWorldCard).expand({
       $root: {
         title: "Your Hello World App is Running",
         body: "Congratulations! Your Hello World App is running. Open the documentation below to learn more about how to build applications with the Microsoft 365 Agents Toolkit.",
       },
     });
-    return MessageFactory.attachment(CardFactory.adaptiveCard(cardJson));
+
+    return cardJson;
   }
 }
 

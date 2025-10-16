@@ -130,8 +130,8 @@ describe("FuncToolChecker E2E Test", async () => {
     expect(depsInfo.command).to.be.equal("func");
     expect(depsInfo.details.binFolders).to.be.equal(undefined);
     expect(depsInfo.error?.message).to.contains(
-      "Unable to install https://aka.ms/teamsfx-actions/devtool-install.",
-      `Expect error message contains 'Unable to install https://aka.ms/teamsfx-actions/devtool-install.'. Actual error message: ${depsInfo.error?.message}`
+      "Unable to install https://aka.ms/teamsfx-actions/function-tool-install.",
+      `Expect error message contains 'Unable to install https://aka.ms/teamsfx-actions/function-tool-install.'. Actual error message: ${depsInfo.error?.message}`
     );
   });
 

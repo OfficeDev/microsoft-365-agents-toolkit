@@ -90,15 +90,6 @@ provision:
       appId: M365_APP_ID
 
 deploy:
-{{#SandBoxedTeam}}
-  # Sideload app in sandboxed team.
-  - uses: devChannel/installApp
-    with:
-      teamId: ${{TEAM_ID}}
-      channelId: ${{CHANNEL_ID}}
-      appPackagePath: ./appPackage/build/appPackage.${{TEAMSFX_ENV}}.zip
-{{/SandBoxedTeam}}
-
   # Run npm command
   - uses: cli/runNpmCommand
     name: install dependencies
@@ -110,9 +101,8 @@ deploy:
     with:
       target: ./.localConfigs
       envs:
-        BOT_ID: ${{BOT_ID}}
-        BOT_PASSWORD: ${{SECRET_BOT_PASSWORD}}
-        BOT_TYPE: 'MultiTenant'
+        clientId: ${{BOT_ID}}
+        clientSecret: ${{SECRET_BOT_PASSWORD}}
         {{#useOpenAI}}
         OPENAI_API_KEY: ${{SECRET_OPENAI_API_KEY}}
         {{/useOpenAI}}

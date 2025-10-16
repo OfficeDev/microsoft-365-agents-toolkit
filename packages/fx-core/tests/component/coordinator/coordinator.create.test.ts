@@ -353,7 +353,7 @@ describe("coordinator create", () => {
         [QuestionNames.AppName]: randomAppName(),
         [QuestionNames.ProgrammingLanguage]: "javascript",
         teamsAppFromTdp: appDefinition,
-        [QuestionNames.TemplateName]: TemplateNames.TabAndDefaultBot,
+        [QuestionNames.TemplateName]: TemplateNames.DefaultBot,
         [QuestionNames.ReplaceWebsiteUrl]: ["tab1"],
         [QuestionNames.ReplaceContentUrl]: [],
         [QuestionNames.ReplaceBotIds]: ["bot"],

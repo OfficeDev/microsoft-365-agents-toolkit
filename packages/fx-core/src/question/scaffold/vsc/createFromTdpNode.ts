@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 import { Inputs, IQTreeNode, Platform } from "@microsoft/teamsfx-api";
-import { featureFlagManager, FeatureFlags } from "../../../common/featureFlags";
 import { getLocalizedString } from "../../../common/localizeUtils";
 import { AppDefinition } from "../../../component/driver/teamsApp/interfaces/appdefinitions/appDefinition";
 import {
@@ -22,24 +21,18 @@ import {
   selectTabWebsiteUrlQuestion,
 } from "../../create";
 import { QuestionNames } from "../../questionNames";
-import { agentForTeamsProjectTypeNode } from "./agentForTeamsNode";
-import { TdpCapabilityOptions } from "./CapabilityOptions";
 import { languageNode } from "./createRootNode";
+import { customEngineAgentNode } from "./customEngineAgentNode";
 import { daProjectTypeNode } from "./daProjectTypeNode";
 import { ProjectTypeOptions } from "./ProjectTypeOptions";
-import {
-  botProjectTypeNode,
-  meProjectTypeNode,
-  tabProjectTypeNode,
-  TeamsProjectTypeOptions,
-} from "./teamsProjectTypeNode";
+import { teamsProjectNode } from "./teamsProjectTypeNode";
 
 export function getTemplateName(inputs: Inputs): string | undefined {
   if (inputs.teamsAppFromTdp) {
     const teamsApp = inputs.teamsAppFromTdp as AppDefinition;
-    // tab with bot, tab with message extension, tab with bot and message extension
+    // tab with bot
     if (needTabAndBotCode(teamsApp)) {
-      return TemplateNames.TabAndDefaultBot;
+      return TemplateNames.DefaultBot;
     }
 
     // tab only
@@ -49,31 +42,18 @@ export function getTemplateName(inputs: Inputs): string | undefined {
 
     // bot and message extension
     if (isBotAndBotBasedMessageExtension(teamsApp)) {
-      return TemplateNames.BotAndMessageExtension;
+      return TemplateNames.DefaultBot;
     }
 
-    // bot based message extension
+    // bot based message extension, tab with message extension
     if (isBotBasedMessageExtension(teamsApp)) {
-      return TemplateNames.MessageExtension;
+      return TemplateNames.DefaultMessageExtension;
     }
 
-    // bot
+    // bot, tab with bot with message extension
     if (isBot(teamsApp)) {
       return TemplateNames.DefaultBot;
     }
-  } else if (
-    featureFlagManager.getBooleanValue(FeatureFlags.TdpTemplateCliTest) &&
-    inputs.nonInteractive
-  ) {
-    const capability = inputs[QuestionNames.Capabilities];
-    const map = {
-      [TdpCapabilityOptions.me().id]: TemplateNames.MessageExtension,
-      [TdpCapabilityOptions.nonSsoTab().id]: TemplateNames.Tab,
-      [TdpCapabilityOptions.botAndMe().id]: TemplateNames.BotAndMessageExtension,
-      [TdpCapabilityOptions.nonSsoTabAndBot().id]: TemplateNames.TabAndDefaultBot,
-    };
-    const value = map[capability];
-    return value;
   }
 }
 
@@ -111,18 +91,10 @@ export function createFromTdpNode(platform: Platform = Platform.VSCode): IQTreeN
           staticOptions: [
             ProjectTypeOptions.declarativeAgent(platform),
             ProjectTypeOptions.customEngineAgent(platform),
-            TeamsProjectTypeOptions.bot(platform),
-            TeamsProjectTypeOptions.tab(platform),
-            TeamsProjectTypeOptions.me(platform),
+            ProjectTypeOptions.teamsAgentsAndApps(platform),
           ],
         },
-        children: [
-          daProjectTypeNode(),
-          agentForTeamsProjectTypeNode(),
-          botProjectTypeNode(),
-          tabProjectTypeNode(),
-          meProjectTypeNode(),
-        ],
+        children: [daProjectTypeNode(), customEngineAgentNode(), teamsProjectNode(platform)],
       },
       {
         condition: (inputs: Inputs) =>
@@ -132,14 +104,15 @@ export function createFromTdpNode(platform: Platform = Platform.VSCode): IQTreeN
           {
             condition: (inputs: Inputs) =>
               (inputs.teamsAppFromTdp?.staticTabs.filter((o: any) => !!o.websiteUrl) || []).length >
-              0,
+                0 && !needBotCode(inputs.teamsAppFromTdp as AppDefinition),
             data: selectTabWebsiteUrlQuestion(),
           },
           {
             condition: (inputs: Inputs) =>
               !!inputs.teamsAppFromTdp &&
               (inputs.teamsAppFromTdp?.staticTabs.filter((o: any) => !!o.contentUrl) || []).length >
-                0,
+                0 &&
+              !needBotCode(inputs.teamsAppFromTdp as AppDefinition),
             data: selectTabsContentUrlQuestion(),
           },
         ],

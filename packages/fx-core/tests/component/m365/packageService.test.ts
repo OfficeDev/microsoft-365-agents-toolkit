@@ -14,6 +14,7 @@ import { NotExtendedToM365Error } from "../../../src/component/m365/errors";
 import { AppScope, PackageService } from "../../../src/component/m365/packageService";
 import { UnhandledError } from "../../../src/error/common";
 import { MockLogProvider } from "../../core/utils";
+import { advancedDASettingUrl } from "../../../src/component/m365/constants";
 
 chai.use(chaiAsPromised);
 
@@ -543,6 +544,7 @@ describe("Package Service", () => {
         traceresponse: "tracing-id",
       },
     };
+    expectedError.code = "ERR_NO_SUFFICIENT_PERMISSION";
     axiosGetResponses["/builder/v1/users/packages/status/test-status-id-builder-api"] =
       expectedError;
     actualError = undefined;
@@ -696,6 +698,40 @@ describe("Package Service", () => {
 
     chai.assert.isDefined(actualError);
     chai.assert.isTrue(actualError.message.includes("test-post"));
+    chai.assert.isTrue(actualError instanceof UserError);
+  });
+
+  it("sideLoading returns 403 error for advanced DA with shared scope", async () => {
+    axiosGetResponses["/config/v1/environment"] = {
+      data: {
+        titlesServiceUrl: "https://test-url",
+      },
+    };
+    const expectedError = new Error("test-post") as any;
+    expectedError.response = {
+      data: {
+        Error: {
+          Message: "User does not have access to upload advanced Copilot apps.",
+        },
+      },
+      headers: {
+        traceresponse: "tracing-id",
+      },
+      status: 403,
+    };
+    axiosPostResponses["/dev/v1/users/packages"] = expectedError;
+
+    const packageService = new PackageService("https://test-endpoint");
+    sandbox.stub(packageService, "getManifestFromZip" as keyof PackageService).returns({} as any);
+    let actualError: any;
+    try {
+      await packageService.sideLoading("test-token", "test-path");
+    } catch (error: any) {
+      actualError = error;
+    }
+
+    chai.assert.isDefined(actualError);
+    chai.assert.isTrue(actualError.message.includes(advancedDASettingUrl));
     chai.assert.isTrue(actualError instanceof UserError);
   });
 
@@ -929,6 +965,7 @@ describe("Package Service", () => {
       },
     };
     axiosDeleteResponses["/catalog/v1/users/acquisitions/test-title-id"] = {};
+    axiosDeleteResponses["/builder/v1/users/titles/test-title-id"] = {};
 
     let packageService = new PackageService("https://test-endpoint");
     let actualError: Error | undefined;
@@ -950,6 +987,97 @@ describe("Package Service", () => {
 
     chai.assert.isUndefined(actualError);
   });
+
+  it("unacquire happy path - Builder API OFF", async () => {
+    process.env["TEAMSFX_BUILDER_API"] = "0";
+    axiosGetResponses["/config/v1/environment"] = {
+      data: {
+        titlesServiceUrl: "https://test-url",
+      },
+    };
+    axiosDeleteResponses["/catalog/v1/users/acquisitions/test-title-id"] = {};
+
+    let packageService = new PackageService("https://test-endpoint");
+    let actualError: Error | undefined;
+    try {
+      await packageService.unacquire("test-token", "test-title-id");
+    } catch (error: any) {
+      actualError = error;
+    }
+
+    chai.assert.isUndefined(actualError);
+
+    packageService = new PackageService("https://test-endpoint", logger);
+    actualError = undefined;
+    try {
+      await packageService.unacquire("test-token", "test-title-id");
+    } catch (error: any) {
+      actualError = error;
+    }
+
+    chai.assert.isUndefined(actualError);
+  });
+
+  it("unacquire happy path for personal scope DA", async () => {
+    axiosGetResponses["/config/v1/environment"] = {
+      data: {
+        titlesServiceUrl: "https://test-url",
+      },
+    };
+    axiosDeleteResponses["/catalog/v1/users/acquisitions/test-title-id"] = {};
+    axiosDeleteResponses["/builder/v1/users/titles/test-title-id"] = {
+      response: {
+        status: 404,
+      },
+      message: "test-delete-error",
+    };
+
+    let packageService = new PackageService("https://test-endpoint");
+    let actualError: Error | undefined;
+    try {
+      await packageService.unacquire("test-token", "test-title-id");
+    } catch (error: any) {
+      actualError = error;
+    }
+
+    chai.assert.isUndefined(actualError);
+
+    packageService = new PackageService("https://test-endpoint", logger);
+    actualError = undefined;
+    try {
+      await packageService.unacquire("test-token", "test-title-id");
+    } catch (error: any) {
+      actualError = error;
+    }
+
+    chai.assert.isUndefined(actualError);
+  });
+
+  it("unacquire throws error for shared scope DA", async () => {
+    axiosGetResponses["/config/v1/environment"] = {
+      data: {
+        titlesServiceUrl: "https://test-url",
+      },
+    };
+    axiosDeleteResponses["/catalog/v1/users/acquisitions/test-title-id"] = {};
+    axiosDeleteResponses["/builder/v1/users/titles/test-title-id"] = {
+      response: {
+        status: 401,
+      },
+      message: "test-delete-error",
+    };
+
+    const packageService = new PackageService("https://test-endpoint");
+    let actualError: Error | undefined;
+    try {
+      await packageService.unacquire("test-token", "test-title-id");
+    } catch (error: any) {
+      actualError = error;
+    }
+
+    chai.assert.isDefined(actualError);
+  });
+
   it("unacquire throws expected error", async () => {
     axiosGetResponses["/config/v1/environment"] = {
       data: {
@@ -1457,7 +1585,7 @@ describe("Package Service", () => {
     };
 
     const packageService = new PackageService("https://test-endpoint", logger);
-    const result = await packageService.grantPermission("test-token", "test-title-id", {
+    const result = await packageService.addOwner("test-token", "test-title-id", {
       aadId: "new-user",
       displayName: "New User",
       userPrincipalName: "newuser@test.com",
@@ -1490,7 +1618,7 @@ describe("Package Service", () => {
     axiosPutResponses["/builder/v1/users/titles/test-title-id/owners?idType=TitleId"] = error;
 
     const packageService = new PackageService("https://test-endpoint", logger);
-    const result = await packageService.grantPermission("test-token", "test-title-id", {
+    const result = await packageService.addOwner("test-token", "test-title-id", {
       aadId: "new-user",
       displayName: "New User",
       userPrincipalName: "newuser@test.com",
@@ -1522,7 +1650,7 @@ describe("Package Service", () => {
     // Don't need to mock put response since it won't be called for existing user
 
     const packageService = new PackageService("https://test-endpoint", logger);
-    const result = await packageService.grantPermission("test-token", "test-title-id", {
+    const result = await packageService.addOwner("test-token", "test-title-id", {
       aadId: "existing-user",
       displayName: "Existing User",
       userPrincipalName: "existinguser@test.com",
@@ -1545,7 +1673,7 @@ describe("Package Service", () => {
     axiosGetResponses["/marketplace/v1/users/titles/test-title-id/preview?idType=TitleId"] = error;
 
     const packageService = new PackageService("https://test-endpoint", logger);
-    const result = await packageService.grantPermission("test-token", "test-title-id", {
+    const result = await packageService.addOwner("test-token", "test-title-id", {
       aadId: "new-user",
       displayName: "New User",
       userPrincipalName: "newuser@test.com",

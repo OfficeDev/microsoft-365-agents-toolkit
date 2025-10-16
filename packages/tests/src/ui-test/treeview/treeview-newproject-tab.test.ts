@@ -41,10 +41,10 @@ describe("New project Tests", function () {
     },
     async function () {
       const appName = treeViewTestContext.appName;
-      await createNewProject("tab", appName, { lang: Lang.TS });
+      await createNewProject("tabnsso", appName, { lang: Lang.TS });
       newAppFolderName = appName + appNameCopySuffix;
       projectPath = path.resolve(testRootFolder, newAppFolderName);
-      const filePath1 = path.join(projectPath, "src", "index.tsx");
+      const filePath1 = path.join(projectPath, "src", "index.ts");
       expect(fs.existsSync(filePath1), `${filePath1} must exist.`).to.eq(true);
     }
   );

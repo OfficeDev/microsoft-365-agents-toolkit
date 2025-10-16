@@ -30,7 +30,7 @@ namespace Microsoft.TeamsFx.Test
     {
         private readonly TestAdapter _adapter;
         private readonly Task _testTask;
-        private AgentCallbackHandler _callback;
+        private readonly AgentCallbackHandler _callback;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TestFlow"/> class.
@@ -491,14 +491,9 @@ namespace Microsoft.TeamsFx.Test
             // Chain all activities in a TestFlow, check if its a user message (send) or a bot reply (assert)
             return activities.Aggregate(this, (flow, activity) =>
             {
-                if (IsReply(activity))
-                {
-                    return flow.AssertReply((actual) => validateReply(activity, actual), description, timeout);
-                }
-                else
-                {
-                    return flow.Send(activity);
-                }
+                return IsReply(activity)
+                    ? flow.AssertReply((actual) => validateReply(activity, actual), description, timeout)
+                    : flow.Send(activity);
             });
         }
 

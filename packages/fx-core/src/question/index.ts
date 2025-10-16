@@ -2,6 +2,7 @@
 // Licensed under the MIT license.
 
 import { IQTreeNode, Platform } from "@microsoft/teamsfx-api";
+import { grantPermissionQuestionNode, listCollaboratorQuestionNode } from "./collaborator";
 import { createSampleProjectQuestionNode } from "./create";
 import {
   addAuthActionQuestion,
@@ -13,9 +14,7 @@ import {
   copilotPluginAddAPIQuestionNode,
   createNewEnvQuestionNode,
   deployAadManifestQuestionNode,
-  grantPermissionQuestionNode,
   kiotaRegenerateQuestion,
-  listCollaboratorQuestionNode,
   metaOSExtendToDAQuestionNode,
   oauthQuestion,
   previewWithTeamsAppManifestQuestionNode,
@@ -30,6 +29,7 @@ import { scaffoldQuestionForVS } from "./scaffold/vs/createRootNode";
 import { createFromTdpNode } from "./scaffold/vsc/createFromTdpNode";
 import { scaffoldQuestionForVSCode } from "./scaffold/vsc/createRootNode";
 import { removeSharedAccessNode, shareNode } from "./share";
+import { updateActionWithMCP } from "./scaffold/vsc/teamsProjectTypeNode";
 export * from "./constants";
 export * from "./create";
 export * from "./inputs";
@@ -114,6 +114,9 @@ export class QuestionNodes {
   }
   removeSharedAccess(): IQTreeNode {
     return removeSharedAccessNode();
+  }
+  updateActionWithMCP(): IQTreeNode {
+    return updateActionWithMCP();
   }
 }
 

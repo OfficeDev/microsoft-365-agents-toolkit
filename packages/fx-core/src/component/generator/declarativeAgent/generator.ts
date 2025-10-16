@@ -8,6 +8,7 @@
 import {
   AppPackageFolderName,
   Context,
+  DefaultPluginManifestFileName,
   err,
   FxError,
   GeneratorResult,
@@ -65,6 +66,7 @@ export class DeclarativeAgentGenerator extends DefaultTemplateGenerator {
       TemplateNames.DeclarativeAgentWithActionFromScratchOAuth,
       TemplateNames.DeclarativeAgentWithExistingAction,
       TemplateNames.DeclarativeAgentWithTypeSpec,
+      TemplateNames.DeclarativeAgentWithActionFromMCP,
     ].includes(inputs[QuestionNames.TemplateName]);
   }
 
@@ -82,6 +84,7 @@ export class DeclarativeAgentGenerator extends DefaultTemplateGenerator {
     const solutionNameFromVS =
       language === "csharp" ? inputs[QuestionNames.SolutionName] : undefined;
 
+    const MCPForDAServerUrl = inputs[QuestionNames.MCPForDAServerUrl];
     const replaceMap = {
       ...Generator.getDefaultVariables(
         inputs[QuestionNames.TemplateName] === TemplateNames.DeclarativeAgentWithTypeSpec
@@ -94,6 +97,14 @@ export class DeclarativeAgentGenerator extends DefaultTemplateGenerator {
       ),
       DeclarativeCopilot: "true",
       MicrosoftEntra: auth === ApiAuthOptions.microsoftEntra().id ? "true" : "",
+      ...(MCPForDAServerUrl
+        ? {
+            MCPForDAServerUrl,
+            ServerName: new URL(MCPForDAServerUrl).host
+              .replace(/[^a-zA-Z0-9]/g, "")
+              .substring(0, 10),
+          }
+        : {}),
     };
     const templateName = inputs[QuestionNames.TemplateName];
 
@@ -142,6 +153,14 @@ export class DeclarativeAgentGenerator extends DefaultTemplateGenerator {
       // best-effort
       await setGeneralSensitivityLabel(context, declarativeCopilotManifestPathRes.value);
     }
+
+    // if (
+    //   featureFlagManager.getBooleanValue(FeatureFlags.MCPForDA) &&
+    //   TemplateNames.DeclarativeAgentWithActionFromMCP === inputs[QuestionNames.TemplateName]
+    // ) {
+    //   const result = await generateForMCPForDA(destinationPath, inputs);
+    //   return result;
+    // }
 
     if (
       featureFlagManager.getBooleanValue(FeatureFlags.EmbeddedKnowledgeEnabled) &&

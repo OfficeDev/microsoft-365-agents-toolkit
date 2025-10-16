@@ -954,3 +954,47 @@ export class OneDriveSharePointCodeLensProvider implements vscode.CodeLensProvid
     return codeLenses;
   }
 }
+
+export class WorkspaceMCPConfigCodeLensProvider implements vscode.CodeLensProvider {
+  public provideCodeLenses(
+    document: vscode.TextDocument
+  ): vscode.ProviderResult<vscode.CodeLens[]> {
+    const codeLenses: vscode.CodeLens[] = [];
+    const text = document.getText();
+    let json: any;
+    try {
+      // Use jsonc-parser to handle JSON with comments
+      const jsonNode = parser.parseTree(text);
+      if (!jsonNode) {
+        return codeLenses;
+      }
+      json = parser.getNodeValue(jsonNode);
+    } catch (e) {
+      console.error("Error parsing JSON in CodeLensProvider (MCP Fetcher):", e);
+      return codeLenses;
+    }
+    if (!json.servers || typeof json.servers !== "object") {
+      return codeLenses;
+    }
+    // For each server, add a codelens at the line where the server key appears
+    for (const [serverName, serverConfig] of Object.entries(json.servers)) {
+      const start = text.indexOf(`"${serverName}"`);
+      if (start !== -1) {
+        const pos = document.positionAt(start);
+        const range = new vscode.Range(
+          pos.line,
+          pos.character,
+          pos.line,
+          pos.character + serverName.length + 2
+        );
+        const command: vscode.Command = {
+          title: `⚡ ATK: Fetch action from MCP`,
+          command: "fx-extension.updateActionWithMCP",
+          arguments: [{ serverName, serverConfig }, TelemetryTriggerFrom.CodeLens],
+        };
+        codeLenses.push(new vscode.CodeLens(range, command));
+      }
+    }
+    return codeLenses;
+  }
+}

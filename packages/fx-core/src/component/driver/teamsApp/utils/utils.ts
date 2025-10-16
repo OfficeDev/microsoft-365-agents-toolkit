@@ -71,19 +71,22 @@ export function needTabAndBotCode(appDefinition: AppDefinition): boolean {
 }
 
 export function needTabCode(appDefinition: AppDefinition): boolean {
-  return isPersonalApp(appDefinition) || isGroupApp(appDefinition);
+  return (isPersonalApp(appDefinition) || isGroupApp(appDefinition)) && !needBotCode(appDefinition);
 }
 
 export function isBot(appDefinition: AppDefinition): boolean {
   return !!appDefinition.bots && appDefinition.bots.length > 0;
 }
 
-export function isBotBasedMessageExtension(appDefinition: AppDefinition): boolean {
+export function containsBotBasedMessageExtension(appDefinition: AppDefinition): boolean {
   return (
     !!appDefinition.messagingExtensions &&
     appDefinition.messagingExtensions.length > 0 &&
     !!appDefinition.messagingExtensions[0].botId
   );
+}
+export function isBotBasedMessageExtension(appDefinition: AppDefinition): boolean {
+  return containsBotBasedMessageExtension(appDefinition) && !isBot(appDefinition);
 }
 
 export function isBotAndBotBasedMessageExtension(appDefinition: AppDefinition): boolean {
@@ -135,7 +138,7 @@ export function getFeaturesFromAppDefinition(appDefinition: AppDefinition): stri
     features.push(bot);
   }
 
-  if (isBotBasedMessageExtension(appDefinition)) {
+  if (containsBotBasedMessageExtension(appDefinition)) {
     features.push(messageExtension);
   }
 

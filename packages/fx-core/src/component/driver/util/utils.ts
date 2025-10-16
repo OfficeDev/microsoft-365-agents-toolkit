@@ -4,6 +4,7 @@
 import { Inputs } from "@microsoft/teamsfx-api";
 import fs from "fs-extra";
 import path from "path";
+import semver from "semver";
 import { parseDocument } from "yaml";
 import { TOOLS } from "../../../common/globalVars";
 import { YamlFileNames } from "../../../common/versionMetadata";
@@ -55,13 +56,14 @@ export async function updateVersionForTeamsAppYamlFile(projectPath: string): Pro
     if (await fs.pathExists(ymlPath)) {
       const ymlContent = await fs.readFile(ymlPath, "utf-8");
       const document = parseDocument(ymlContent);
-      const version = document.get("version") as string;
-      if (version <= "v1.7") {
-        if (version <= "v1.6") {
+      const version = (document.get("version") as string).slice(1);
+      const validVersion = semver.coerce(version);
+      if (validVersion && semver.lte(validVersion, "1.7.0")) {
+        if (semver.lte(validVersion, "1.6.0")) {
           convertOutputJsonPathToOutputFolder(document);
         }
 
-        if (version === "v1.3") {
+        if (semver.eq(validVersion, "1.3.0")) {
           renameClientSecret(document);
         }
 

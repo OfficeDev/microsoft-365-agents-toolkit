@@ -19,6 +19,7 @@ import {
   DebugItemSelect,
   ValidationContent,
   LocalDebugTaskResult,
+  Lang,
 } from "../../utils/constants";
 import { Env } from "../../utils/env";
 import { it } from "../../utils/it";
@@ -33,7 +34,9 @@ describe("Local Debug Tests", function () {
   beforeEach(async function () {
     // ensure workbench is ready
     this.timeout(Timeout.prepareTestCase);
-    localDebugTestContext = new LocalDebugTestContext("tabnsso");
+    localDebugTestContext = new LocalDebugTestContext("tabnsso", {
+      lang: Lang.TS,
+    });
     await localDebugTestContext.before();
   });
 
@@ -53,7 +56,7 @@ describe("Local Debug Tests", function () {
         localDebugTestContext.testRootFolder,
         localDebugTestContext.appName
       );
-      validateFileExist(projectPath, "src/app.js");
+      validateFileExist(projectPath, "src/index.ts");
       const driver = VSBrowser.instance.driver;
 
       await startDebugging(DebugItemSelect.DebugInTeamsUsingChrome);

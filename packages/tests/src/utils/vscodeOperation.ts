@@ -556,7 +556,8 @@ export async function createNewProject(
       | "Azure AI Search"
       | "Custom API"
       | "Microsoft 365";
-    authOption?: "None" | "API Key" | "MicrosoftEntra" | "Oauth";
+    authOption?: "None" | "API Key" | "Microsoft Entra" | "OAuth";
+    apiAuthOption?: "None" | "Custom API Key" | "Bearer token" | "OAuth";
   }
 ): Promise<void> {
   const driver = VSBrowser.instance.driver;
@@ -578,6 +579,7 @@ export async function createNewProject(
   const lang = option?.lang ? option.lang : "JavaScript";
   const dataOption = option?.dataOption ? option.dataOption : "Customize";
   const authOption = option?.authOption ? option.authOption : "None";
+  const apiAuthOption = option?.apiAuthOption ? option.apiAuthOption : "None";
   await RetryHandler.retry(async () => {
     await execCommandIfExist(
       CommandPaletteCommands.CreateProjectCommand,
@@ -589,13 +591,14 @@ export async function createNewProject(
   // if exist click it
   switch (appType) {
     case "tabnsso": {
-      await input.selectQuickPick(CreateProjectQuestion.TeamsApp);
+      await input.selectQuickPick(CreateProjectQuestion.TeamsAgentsAndApps);
+      await driver.sleep(Timeout.input);
+      await input.selectQuickPick(CreateProjectQuestion.OtherTeamsCapabilities);
       await driver.sleep(Timeout.input);
       await input.selectQuickPick(CreateProjectQuestion.Tab);
-      await input.selectQuickPick("Basic Tab");
       await driver.sleep(Timeout.input);
       // Choose programming language
-      await input.selectQuickPick(lang);
+      // await input.selectQuickPick(lang);
       break;
     }
     case "tab": {
@@ -609,10 +612,11 @@ export async function createNewProject(
       break;
     }
     case "bot": {
-      await input.selectQuickPick(CreateProjectQuestion.TeamsApp);
+      await input.selectQuickPick(CreateProjectQuestion.TeamsAgentsAndApps);
       await driver.sleep(Timeout.input);
-      await input.selectQuickPick(CreateProjectQuestion.Bot);
-      await input.selectQuickPick("Basic Bot");
+      await input.selectQuickPick(CreateProjectQuestion.OtherTeamsCapabilities);
+      await driver.sleep(Timeout.input);
+      await input.selectQuickPick(CreateProjectQuestion.SimpleBot);
       await driver.sleep(Timeout.input);
       // Choose programming language
       await input.selectQuickPick(lang);
@@ -669,24 +673,25 @@ export async function createNewProject(
       break;
     }
     case "msg": {
-      await input.selectQuickPick(CreateProjectQuestion.TeamsApp);
+      await input.selectQuickPick(CreateProjectQuestion.TeamsAgentsAndApps);
+      await driver.sleep(Timeout.input);
+      await input.selectQuickPick(CreateProjectQuestion.OtherTeamsCapabilities);
       await driver.sleep(Timeout.input);
       await input.selectQuickPick(CreateProjectQuestion.MessageExtension);
-      await input.selectQuickPick("Collect Form Input and Process Data");
       await driver.sleep(Timeout.input);
       // Choose programming language
-      await input.selectQuickPick(lang);
+      // await input.selectQuickPick(lang);
       break;
     }
     case "msgsa": {
-      await input.selectQuickPick(CreateProjectQuestion.TeamsApp);
+      await input.selectQuickPick(CreateProjectQuestion.TeamsAgentsAndApps);
+      await driver.sleep(Timeout.input);
+      await input.selectQuickPick(CreateProjectQuestion.OtherTeamsCapabilities);
       await driver.sleep(Timeout.input);
       await input.selectQuickPick(CreateProjectQuestion.MessageExtension);
-      await input.selectQuickPick("Custom Search Results");
-      await input.selectQuickPick("Start with a Bot");
       await driver.sleep(Timeout.input);
       // Choose programming language
-      await input.selectQuickPick(lang);
+      // await input.selectQuickPick(lang);
       break;
     }
     case "m365lp": {
@@ -871,17 +876,18 @@ export async function createNewProject(
       break;
     }
     case "linkunfurl": {
-      await input.selectQuickPick(CreateProjectQuestion.TeamsApp);
+      await input.selectQuickPick(CreateProjectQuestion.TeamsAgentsAndApps);
+      await driver.sleep(Timeout.input);
+      await input.selectQuickPick(CreateProjectQuestion.OtherTeamsCapabilities);
       await driver.sleep(Timeout.input);
       await input.selectQuickPick(CreateProjectQuestion.MessageExtension);
-      await input.selectQuickPick("Link Unfurling");
       await driver.sleep(Timeout.input);
       // Choose programming language
-      await input.selectQuickPick(lang);
+      // await input.selectQuickPick(lang);
       break;
     }
     case "aichat": {
-      await input.selectQuickPick(CreateProjectQuestion.AgentForTeams);
+      await input.selectQuickPick(CreateProjectQuestion.TeamsAgentsAndApps);
       await driver.sleep(Timeout.input);
       await input.selectQuickPick(CreateProjectQuestion.BasicAgentForTeams);
       await driver.sleep(Timeout.input);
@@ -916,7 +922,7 @@ export async function createNewProject(
       break;
     }
     case "aiagentassist": {
-      await input.selectQuickPick(CreateProjectQuestion.AgentForTeams);
+      await input.selectQuickPick(CreateProjectQuestion.TeamsAgentsAndApps);
       await driver.sleep(Timeout.input);
       // await input.selectQuickPick("Agent with API");
       await input.setText("Agent with API");
@@ -937,7 +943,7 @@ export async function createNewProject(
       break;
     }
     case "aiagentnew": {
-      await input.selectQuickPick(CreateProjectQuestion.AgentForTeams);
+      await input.selectQuickPick(CreateProjectQuestion.TeamsAgentsAndApps);
       await driver.sleep(Timeout.input);
       // await input.selectQuickPick("Agent with API");
       await input.setText("Agent with API");
@@ -958,9 +964,9 @@ export async function createNewProject(
       break;
     }
     case "chatdata": {
-      await input.selectQuickPick(CreateProjectQuestion.AgentForTeams);
+      await input.selectQuickPick(CreateProjectQuestion.TeamsAgentsAndApps);
       await driver.sleep(Timeout.input);
-      await input.selectQuickPick("Chat With Your Data");
+      await input.selectQuickPick(CreateProjectQuestion.TeamsAgentWithData);
       await driver.sleep(Timeout.input);
       await input.selectQuickPick(dataOption);
       await driver.sleep(Timeout.input);
@@ -978,9 +984,9 @@ export async function createNewProject(
     }
 
     case "cdcustomapi": {
-      await input.selectQuickPick(CreateProjectQuestion.AgentForTeams);
+      await input.selectQuickPick(CreateProjectQuestion.TeamsAgentsAndApps);
       await driver.sleep(Timeout.input);
-      await input.selectQuickPick("Chat With Your Data");
+      await input.selectQuickPick(CreateProjectQuestion.TeamsAgentWithData);
       await driver.sleep(Timeout.input);
       await input.selectQuickPick(dataOption);
       await driver.sleep(Timeout.input);
@@ -1072,6 +1078,41 @@ export async function createNewProject(
       await driver.sleep(Timeout.input);
       // Choose programming language
       await input.selectQuickPick(lang);
+      break;
+    }
+    case "weather": {
+      await input.selectQuickPick(CreateProjectQuestion.CustomCopilot);
+      await driver.sleep(Timeout.input);
+      await input.selectQuickPick(CreateProjectQuestion.WeatherAgent);
+      await driver.sleep(Timeout.input);
+      // choose ai type
+      await input.setText(aiType);
+      await driver.sleep(Timeout.input);
+      await input.confirm();
+      await driver.sleep(Timeout.input);
+      await input.confirm();
+      // Choose programming language
+      await input.selectQuickPick(lang);
+      break;
+    }
+    case "daOpenAPI": {
+      if (apiAuthOption.toLowerCase() === "none") {
+        const openAPIPath =
+          "https://raw.githubusercontent.com/SLdragon/example-openapi-spec/main/real-no-auth.yaml";
+        await createDaByopenapi(openAPIPath, driver, input);
+      } else if (apiAuthOption.toLowerCase() === "bearer token") {
+        const openAPIPath =
+          "https://raw.githubusercontent.com/SLdragon/example-openapi-spec/refs/heads/main/real-bearer.yaml";
+        await createDaByopenapi(openAPIPath, driver, input);
+      } else if (apiAuthOption.toLowerCase() === "custom api key") {
+        const openAPIPath =
+          "https://raw.githubusercontent.com/SLdragon/example-openapi-spec/refs/heads/main/real-custom-api-key.yaml";
+        await createDaByopenapi(openAPIPath, driver, input);
+      } else if (apiAuthOption.toLowerCase() === "oauth") {
+        const openAPIPath =
+          "https://raw.githubusercontent.com/SLdragon/example-openapi-spec/refs/heads/main/real-oauth.yaml";
+        await createDaByopenapi(openAPIPath, driver, input);
+      }
       break;
     }
     default:
@@ -1402,6 +1443,7 @@ export async function findWordFromTerminal(word: string): Promise<boolean> {
         await VSBrowser.instance.takeScreenshot(
           getScreenshotName("debug failed")
         );
+        await showTerminalLogs();
         assert.fail("[failed] error message found !!!");
       }
       // verify success message
@@ -1461,6 +1503,17 @@ export async function addSpfxWebPart(webPartName = "helloworld") {
   );
 }
 
+export async function showTerminalLogs(): Promise<void> {
+  try {
+    const bottomBarPanel = new BottomBarPanel();
+    const terminalView = await new TerminalView(bottomBarPanel).wait();
+    const terminalLogs = await terminalView.getText();
+    console.log("Terminal Logs: " + terminalLogs);
+  } catch {
+    console.log("Can't get terminal logs");
+  }
+}
+
 export async function getOutputLogs(): Promise<string | undefined> {
   const driver = VSBrowser.instance.driver;
   console.log("openTerminalView");
@@ -1468,7 +1521,7 @@ export async function getOutputLogs(): Promise<string | undefined> {
   console.log("openOutputView");
   const pannel = new BottomBarPanel();
   const output = await pannel.openOutputView();
-  console.log("Teams Toolkit");
+  console.log("Microsoft 365 Agents Toolkit");
   try {
     const maximize = await pannel.findElement(
       By.css("a.action-label.codicon.codicon-panel-maximize")
@@ -1479,8 +1532,8 @@ export async function getOutputLogs(): Promise<string | undefined> {
     console.log("already maximized");
   }
   try {
-    // This api is not work on macos, it will throw: Error: Channel Teams Toolkit not found
-    await output.selectChannel("Teams Toolkit");
+    // This api is not work on macos, it will throw: Error: Channel Microsoft 365 Agents Toolkit not found
+    await output.selectChannel("Microsoft 365 Agents Toolkit");
     // Get output
     console.log("Get output");
     const text = await output.getText();
@@ -1528,6 +1581,34 @@ export async function createNewProjectByApispec(
   await inputFolderPath(driver, input, apispec);
   await input.confirm();
   await driver.sleep(Timeout.shortTimeWait);
+  const ckAll = await driver.findElement(
+    By.css(".quick-input-header .monaco-checkbox")
+  );
+  await ckAll?.click();
+  await driver.sleep(Timeout.input);
+  await input.confirm();
+}
+
+export async function createDaByopenapi(
+  openapi: string,
+  driver: WebDriver,
+  input: InputBox
+): Promise<void> {
+  await input.selectQuickPick(CreateProjectQuestion.DeclarativeAgent);
+  await driver.sleep(Timeout.input);
+  await input.selectQuickPick("Add an Action");
+  await driver.sleep(Timeout.input);
+  await input.selectQuickPick("Start with an OpenAPI Description Document");
+  await driver.sleep(Timeout.input);
+  await input.selectQuickPick(
+    "Enter OpenAPI Description Document Location or Open File..."
+  );
+  await driver.sleep(Timeout.input);
+  await input.selectQuickPick("Enter OpenAPI Description Document Location");
+  await driver.sleep(Timeout.input);
+  await inputFolderPath(driver, input, openapi);
+  await input.confirm();
+  await driver.sleep(Timeout.loadOpenAPI);
   const ckAll = await driver.findElement(
     By.css(".quick-input-header .monaco-checkbox")
   );

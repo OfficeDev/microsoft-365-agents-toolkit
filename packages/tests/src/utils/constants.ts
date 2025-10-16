@@ -175,7 +175,7 @@ export enum Capability {
   DashboardTab = "dashboard-tab",
   Spfx = "tab-spfx",
   M365SearchApp = "search-app",
-  MessageExtension = "message-extension",
+  MessageExtension = "basic-message-extension",
   LinkUnfurling = "link-unfurling",
   // v2 only
   Tab = "tab",
@@ -186,6 +186,7 @@ export enum Capability {
   TaskPane = "taskpane",
   ApiPlugin = "api-plugin",
   DeclarativeAgent = "declarative-agent",
+  TeamsCollaboratorAgent = "teams-collaborator-agent",
 }
 
 export enum Trigger {
@@ -279,6 +280,8 @@ export class Timeout {
 
   // open API
   public static readonly openAPIProvision: number = 20 * 1000;
+
+  public static readonly loadOpenAPI: number = 10 * 1000;
 }
 
 export class TreeViewCommands {
@@ -398,7 +401,9 @@ export type AppType =
   | "importspfx"
   | "msgmulparams"
   | "msgapikeyspec"
-  | "daAction";
+  | "daAction"
+  | "weather"
+  | "daOpenAPI";
 
 export class FeatureFlagName {
   static readonly InsiderPreview = "__TEAMSFX_INSIDER_PREVIEW";
@@ -433,7 +438,7 @@ export class LocalDebugTaskResult {
   static readonly FrontendSuccess = "Compiled successfully";
   static readonly FrontendReady = "ready";
   static readonly FrontendNoIssue = "webpack compiled";
-  static readonly FrontendStarted = "Express server listening on";
+  static readonly FrontendStarted = "listening on";
   static readonly StartSuccess = "started successfully";
   static readonly AzuriteSuccess = "Azurite Table service is successfully";
   static readonly CompiledSuccess = "Found 0 errors";
@@ -473,12 +478,15 @@ export class LocalDebugTaskInfo {
   static readonly StartBotInfo = "Bot Started";
   static readonly StartBotInfo2 = "Bot started";
   static readonly AppListening = "app listening";
+  static readonly ListeningOn = "listening on";
+  static readonly ServerListening = "Server listening";
   static readonly BackendStartedInfo = "Worker process started and initialized";
   static readonly NoError = "Found 0 errors";
 }
 
 export class DebugItemSelect {
   static readonly DebugInTeamsUsingChrome = "Debug in Teams (Chrome)";
+  static readonly DebugInCopilotUsingChrome = "Debug in Copilot (Chrome)";
   static readonly DebugInAgentsPlayground =
     "Debug in Microsoft 365 Agents Playground";
 }
@@ -508,7 +516,7 @@ export class Notification {
 export class CreateProjectQuestion {
   static readonly CustomCopilot = "Custom Engine Agent";
   static readonly TeamsApp = "Teams App";
-  static readonly AgentForTeams = "Agent for Teams";
+  static readonly TeamsAgentsAndApps = "Teams Agents and Apps";
   static readonly Bot = "Bot";
   static readonly Tab = "Tab";
   static readonly MessageExtension = "Message Extension";
@@ -526,21 +534,28 @@ export class CreateProjectQuestion {
   static readonly AgentWithApi = "Agent with API";
   static readonly DeclarativeAgent = "Declarative Agent";
   static readonly BasicCustomEngineAgent = "Basic Custom Engine Agent";
-  static readonly BasicAgentForTeams = "Basic Agent for Teams";
+  static readonly BasicAgentForTeams = "General Teams Agent";
+  static readonly WeatherAgent = "Weather Agent";
+  static readonly TeamsAgentWithData = "Teams Agent with Data";
+  static readonly OtherTeamsCapabilities = "Other Teams Capabilities";
+  static readonly SimpleBot = "Simple Bot";
 }
 
 export class ValidationContent {
-  static readonly Tab = "Hello, World";
+  static readonly Tab = "Welcome";
   static readonly Bot = "Your Hello World Bot is Running";
   static readonly BotWelcomeInstruction = "Hi there! I'm an echo bot";
   static readonly GraphBot = "Your Copilot connector Bot is Running";
   static readonly AiChatBotWelcomeInstruction = "How can I help you today?";
   static readonly AiAssistantBotWelcomeInstruction =
     "I'm an assistant bot. How can I help you today?";
-  static readonly AiBotErrorMessage = "The agent encountered an error or bug";
+  static readonly AiBotErrorMessage = "encountered an error";
   static readonly AiBotErrorMessage3 = "The bot encountered an error or bug";
   static readonly AiBotErrorMessage2 = "An AI request failed";
   static readonly AiBotMeetingMessage = "Team Meeting";
+  static readonly WeatherBotMessageWelcomeInstruction =
+    "Hello and Welcome! I'm here to help with all your weather forecast needs!";
+  static readonly WeatherBotMessage = "Weather Forecast for San Francisco";
 }
 
 export class CliVersion {

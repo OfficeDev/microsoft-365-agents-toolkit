@@ -16,7 +16,7 @@ import { ExecutionResult, StepDriver } from "../interface/stepDriver";
 import { addStartAndEndTelemetry } from "../middleware/addStartAndEndTelemetry";
 import { UpdateAadAppArgs } from "./interface/updateAadAppArgs";
 import { UpdateAadAppOutput } from "./interface/updateAadAppOutput";
-import { AadAppClient } from "./utility/aadAppClient";
+import { AadAppClient } from "../../../client/aadAppClient";
 import { buildAadManifest } from "./utility/buildAadManifest";
 import { descriptionMessageKeys, logMessageKeys, telemetryKeys } from "./utility/constants";
 import { AadManifestHelper } from "./utility/aadManifestHelper";

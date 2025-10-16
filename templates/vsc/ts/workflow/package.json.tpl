@@ -3,7 +3,7 @@
     "version": "1.0.0",
     "description": "Microsoft 365 Agents Toolkit Workflow Bot Sample",
     "engines": {
-        "node": "18 || 20 || 22"
+        "node": "20 || 22"
     },
     "author": "Microsoft",
     "license": "MIT",
@@ -23,20 +23,20 @@
         "url": "https://github.com"
     },
     "dependencies": {
-        "@microsoft/teams-ai": "^1.7.0",
+        "@azure/identity": "^4.11.1",
         "adaptivecards-templating": "^2.3.1",
         "adaptive-expressions": "^4.23.1",
-        "botbuilder": "^4.23.1",
-        "express": "^5.0.1"
+        "adaptivecards": "^3.0.5",
+        "@microsoft/teams.apps": "^2.0.0",
+        "@microsoft/teams.common": "^2.0.0"
     },
     "devDependencies": {
-        "@types/express": "^5.0.0",
-        "@types/node": "^18.0.0",
+        "@types/node": "^20.0.0",
         "@types/json-schema": "^7.0.15",
         "env-cmd": "^10.1.0",
         "nodemon": "^3.1.7",
         "shx": "^0.3.4",
         "ts-node": "^10.4.0",
-        "typescript": "^4.4.4"
+        "typescript": "~5.8.3"
     }
 }

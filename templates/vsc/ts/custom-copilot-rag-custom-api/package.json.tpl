@@ -6,7 +6,7 @@
     },
     "description": "Microsoft 365 Agents Toolkit AI Chat Agent Sample with Teams AI Library",
     "engines": {
-        "node": "18 || 20 || 22"
+        "node": "20 || 22"
     },
     "author": "Microsoft",
     "license": "MIT",
@@ -16,7 +16,7 @@
         "dev:teamsfx:testtool": "env-cmd --silent -f .localConfigs.playground npm run dev",
         "dev:teamsfx:launch-testtool": "env-cmd --silent -f env/.env.playground teamsapptester start",
         "dev": "nodemon --exec node --inspect=9239 --signal SIGINT -r ts-node/register ./src/index.ts",
-        "build": "tsc --build && shx cp -r ./src/prompts ./lib/src && shx cp -r ./appPackage ./lib/appPackage && shx cp -r src/adaptiveCards ./lib/src",
+        "build": "tsc --build && shx cp -r ./src/app/instructions.txt ./lib/src/app && shx cp -r ./src/app/functions.json ./lib/src/app && shx cp -r ./appPackage ./lib/appPackage && shx cp -r src/adaptiveCards ./lib/src",
         "start": "node ./lib/src/index.js",
         "test": "echo \"Error: no test specified\" && exit 1",
         "watch": "nodemon --exec \"npm run start\""
@@ -26,12 +26,16 @@
         "url": "https://github.com"
     },
     "dependencies": {
-        "@microsoft/teams-ai": "^1.1.0",
-        "botbuilder": "^4.23.1",
-        "express": "^5.0.1",
+        "@azure/identity": "^4.11.1",
+        "@microsoft/teams.apps": "^2.0.0",
+        "@microsoft/teams.ai": "^2.0.0",
+        "@microsoft/teams.openai": "^2.0.0",
+        "@microsoft/teams.common": "^2.0.0",
         "fs-extra": "^11.2.0",
         "js-yaml": "^4.1.0",
+        "json-schema": "^0.4.0",
         "adaptivecards-templating": "^2.3.1",
+        "adaptivecards": "^3.0.5",
         "openapi-client-axios": "^7.4.0"
     },
     "devDependencies": {

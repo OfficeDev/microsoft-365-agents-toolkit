@@ -4,7 +4,10 @@
 "use strict";
 
 import { ResourceManagementClient } from "@azure/arm-resources";
-import { UsernamePasswordCredential } from "@azure/identity";
+import {
+  UsernamePasswordCredential,
+  ClientSecretCredential,
+} from "@azure/identity";
 import { Env } from "./env";
 function delay(ms: number) {
   // tslint:disable-next-line no-string-based-set-timeout
@@ -23,12 +26,21 @@ export class ResourceGroupManager {
   public static async init(): Promise<ResourceGroupManager> {
     if (!ResourceGroupManager.instance) {
       ResourceGroupManager.instance = new ResourceGroupManager();
-      const credential = new UsernamePasswordCredential(
-        Env.azureTenantId,
-        "7ea7c24c-b1f6-4a20-9d11-9ae12e9e7ac0",
-        Env.azureAccountName,
-        Env.azureAccountPassword
-      );
+      let credential;
+      if (Env.servicePrincipalId && Env.servicePrincipalSecret) {
+        credential = new ClientSecretCredential(
+          Env.azureTenantId,
+          Env.servicePrincipalId,
+          Env.servicePrincipalSecret
+        );
+      } else {
+        credential = new UsernamePasswordCredential(
+          Env.azureTenantId,
+          "7ea7c24c-b1f6-4a20-9d11-9ae12e9e7ac0",
+          Env.azureAccountName,
+          Env.azureAccountPassword
+        );
+      }
       ResourceGroupManager.client = new ResourceManagementClient(
         credential,
         Env.azureSubscriptionId

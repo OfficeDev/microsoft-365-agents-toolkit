@@ -1,13 +1,20 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
-import { CLICommand, InputsWithProjectPath, err, ok } from "@microsoft/teamsfx-api";
-import { PermissionListInputs, PermissionListOptions } from "@microsoft/teamsfx-core";
+import { CLICommand, err, InputsWithProjectPath, ok } from "@microsoft/teamsfx-api";
+import {
+  CollaborationConstants,
+  featureFlagManager,
+  FeatureFlags,
+  PermissionListInputs,
+  PermissionListOptions,
+  QuestionNames,
+} from "@microsoft/teamsfx-core";
 import { getFxCore } from "../../activate";
 import { logger } from "../../commonlib/logger";
 import { commands } from "../../resource";
 import { TelemetryEvent } from "../../telemetry/cliTelemetryEvents";
 import { ProjectFolderOption } from "../common";
-import { azureMessage, spfxMessage } from "./permissionGrant";
+import { agentOwnerOption, azureMessage, spfxMessage } from "./permissionGrant";
 
 export const permissionStatusCommand: CLICommand = {
   name: "status",
@@ -21,6 +28,7 @@ export const permissionStatusCommand: CLICommand = {
       type: "boolean",
       required: false,
     },
+    ...(featureFlagManager.getBooleanValue(FeatureFlags.ShareEnabled) ? [agentOwnerOption] : []),
     ProjectFolderOption,
   ],
   telemetry: {
@@ -34,6 +42,9 @@ export const permissionStatusCommand: CLICommand = {
     // print necessary messages
     logger.info(azureMessage);
     logger.info(spfxMessage);
+    if (ctx.optionValues["agent"]) {
+      inputs[QuestionNames.collaborationAppType] = [CollaborationConstants.AgentOptionId];
+    }
     const result = listAll
       ? await core.listCollaborator(inputs)
       : await core.checkPermission(inputs);

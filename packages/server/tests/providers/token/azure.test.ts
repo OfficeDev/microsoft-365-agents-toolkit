@@ -72,6 +72,19 @@ describe("azure", () => {
     chai.assert.isNull(res);
   });
 
+  it("getIdentityCredentialAsync returns MFA required error", async () => {
+    const azure = new ServerAzureAccountProvider(msgConn);
+
+    try {
+      await azure.getIdentityCredentialAsync(false, {
+        wwwAuthenticate: "test",
+        scopes: [],
+      });
+    } catch (e) {
+      chai.assert.equal((e as any).name, "MFARequiredError");
+    }
+  });
+
   it("signout", async () => {
     const azure = new ServerAzureAccountProvider(msgConn);
     chai.expect(() => azure.signout()).to.throw(NotImplementedError);

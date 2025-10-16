@@ -12,7 +12,8 @@
       "args": ["--extensionDevelopmentPath=${workspaceFolder}"],
       "env": {
         "NODE_ENV": "development",
-        "TEAMSFX_SAMPLE_CONFIG_BRANCH": "dev"
+        "TEAMSFX_SAMPLE_CONFIG_BRANCH": "dev",
+        "TEAMSFX_MCP_FOR_DA": "true"
       },
       "preLaunchTask": "watch"
     },

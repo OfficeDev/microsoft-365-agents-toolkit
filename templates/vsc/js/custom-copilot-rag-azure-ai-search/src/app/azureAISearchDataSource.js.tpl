@@ -1,5 +1,10 @@
-const { OpenAIEmbeddings } = require("@microsoft/teams-ai");
 const { AzureKeyCredential, SearchClient } = require("@azure/search-documents");
+{{#useOpenAI}}
+const { OpenAI } = require("openai");
+{{/useOpenAI}}
+{{#useAzureOpenAI}}
+const { AzureOpenAI } = require("openai");
+{{/useAzureOpenAI}}
 
 /**
  * A data source that searches through Azure AI search.
@@ -7,6 +12,20 @@ const { AzureKeyCredential, SearchClient } = require("@azure/search-documents");
 class AzureAISearchDataSource {
     /**
      * Creates a new `AzureAISearchDataSource` instance.
+     * @param {Object} options Options for creating the data source.
+     * @param {string} options.name Name of the data source.
+     * @param {string} options.indexName Name of the Azure AI Search index.
+     * @param {string} options.azureAISearchApiKey Azure AI Search API key.
+     * @param {string} options.azureAISearchEndpoint Azure AI Search endpoint.
+     {{#useOpenAI}}
+     * @param {string} options.apiKey OpenAI API key.
+     * @param {string} options.openAIEmbeddingModelName OpenAI model to use for generating embeddings.
+     {{/useOpenAI}}
+     {{#useAzureOpenAI}}
+     * @param {string} options.azureOpenAIApiKey Azure OpenAI API key.
+     * @param {string} options.azureOpenAIEndpoint Azure OpenAI endpoint.
+     * @param {string} options.azureOpenAIEmbeddingDeploymentName Azure OpenAI Embedding deployment.
+     {{/useAzureOpenAI}}
      */
     constructor(options) {
         this.name = options.name;
@@ -20,12 +39,13 @@ class AzureAISearchDataSource {
     }
 
     /**
-     * Renders the data source as a string of text.
+     * Renders search results into a formatted context string for use in prompts.
+     * @param {string} query The original search query
+     * @returns {Promise<string>} Rendered context
      */
-    async renderData(context, memory, tokenizer, maxTokens) {
-        const query = memory.getValue("temp.input");
+    async renderContext(query) {
         if(!query) {
-            return { output: "", length: 0, tooLong: false };
+            return "";
         }
         
         const selectedFields = [
@@ -35,7 +55,7 @@ class AzureAISearchDataSource {
         ];
 
         // hybrid search
-        const queryVector= await this.getEmbeddingVector(query);
+        const queryVector = await this.getEmbeddingVector(query);
         const searchResults = await this.searchClient.search(query, {
             searchFields: ["docTitle", "description"],
             select: selectedFields,
@@ -53,64 +73,62 @@ class AzureAISearchDataSource {
         });
 
         if (!searchResults.results) {
-            return { output: "", length: 0, tooLong: false };
+            return "";
         }
 
-        // Concatenate the documents string into a single document
-        // until the maximum token limit is reached. This can be specified in the prompt template.
-        let usedTokens = 0;
         let doc = "";
         for await (const result of searchResults.results) {
-            const formattedResult = this.formatDocument(`${result.document.description}\n Citation title:${result.document.docTitle}.`);
-            const tokens = tokenizer.encode(formattedResult).length;
-
-            if (usedTokens + tokens > maxTokens) {
-                break;
-            }
-
+            const formattedResult = this.formatDocument(result.document.description, result.document.docTitle);
             doc += formattedResult;
-            usedTokens += tokens;
         }
 
-        return { output: doc, length: usedTokens, tooLong: usedTokens > maxTokens };
+        return doc;
     }
 
     /**
-     * Formats the result string 
+     * Formats a document with its citation for inclusion in context.
+     * @param {string} content The document content
+     * @param {string} citation The source citation
+     * @returns {string} Formatted document string
+     * @private
      */
-    formatDocument(result) {
-        return `<context>${result}</context>`;
+    formatDocument(content, citation) {
+        return `<context source="${citation}">\n${content}\n</context>`;
     }
 
     /**
      * Generate embeddings for the user's input.
+     * @param {string} text - The user's input.
+     * @returns {Promise<number[]>} The embedding vector for the user's input.
      */
     async getEmbeddingVector(text) {
         {{#useOpenAI}}
-        const embeddings = new OpenAIEmbeddings({
-            apiKey: this.options.apiKey,
+        const client = new OpenAI({
+            apiKey: this.options.apiKey
+        });
+        const result = await client.embeddings.create({
+            input: text,
             model: this.options.openAIEmbeddingModelName,
         });
-        const result = await embeddings.createEmbeddings(this.options.openAIEmbeddingModelName, text);
         {{/useOpenAI}}
         {{#useAzureOpenAI}}
-        const embeddings = new OpenAIEmbeddings({
-            azureApiKey: this.options.azureOpenAIApiKey,
-            azureEndpoint: this.options.azureOpenAIEndpoint,
-            azureDeployment: this.options.azureOpenAIEmbeddingDeploymentName,
+        const client = new AzureOpenAI({
+            apiKey: this.options.azureOpenAIApiKey,
+            endpoint: this.options.azureOpenAIEndpoint,
+            apiVersion: "2024-02-01",
         });
-
-        const result = await embeddings.createEmbeddings(this.options.azureOpenAIEmbeddingDeploymentName, text);
+        const result = await client.embeddings.create({
+            input: text,
+            model: this.options.azureOpenAIEmbeddingDeploymentName,
+        });
         {{/useAzureOpenAI}}
 
-        if (result.status !== "success" || !result.output) {
+        if (!result.data || result.data.length === 0) {
             throw new Error(`Failed to generate embeddings for description: ${text}`);
         }
 
-        return result.output[0];
+        return result.data[0].embedding;
     }
 }
 
-module.exports = {
-  AzureAISearchDataSource,
-};
+module.exports = { AzureAISearchDataSource };

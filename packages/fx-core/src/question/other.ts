@@ -29,7 +29,6 @@ import { getLocalizedString } from "../common/localizeUtils";
 import { Constants } from "../component/driver/add/utility/constants";
 import { manifestUtils } from "../component/driver/teamsApp/utils/ManifestUtils";
 import { envUtil } from "../component/utils/envUtil";
-import { CollaborationConstants, CollaborationUtil } from "../core/collaborator";
 import { environmentNameManager } from "../core/environmentName";
 import {
   ActionStartOptions,
@@ -65,74 +64,6 @@ import {
 } from "./create";
 import { UninstallInputs } from "./inputs";
 import { inputOrSearchAPISpecNode } from "./scaffold/vsc/teamsProjectTypeNode";
-
-export function listCollaboratorQuestionNode(): IQTreeNode {
-  const selectAppManifestNode = selectTeamsAppManifestQuestionNode();
-  selectAppManifestNode.condition = {
-    contains: CollaborationConstants.TeamsAppQuestionId,
-  };
-  selectAppManifestNode.children!.push({
-    condition: envQuestionCondition,
-    data: selectTargetEnvQuestion(QuestionNames.Env, false, false, ""),
-  });
-  const selectAadAppNode = selectAadAppManifestQuestionNode();
-  selectAadAppNode.condition = { contains: CollaborationConstants.AadAppQuestionId };
-  selectAadAppNode.children!.push({
-    condition: envQuestionCondition,
-    data: selectTargetEnvQuestion(QuestionNames.Env, false, false, ""),
-  });
-  return {
-    data: { type: "group" },
-    children: [
-      {
-        condition: (inputs: Inputs) => DynamicPlatforms.includes(inputs.platform),
-        data: selectAppTypeQuestion(),
-        cliOptionDisabled: "self",
-        inputsDisabled: "self",
-        children: [selectAppManifestNode, selectAadAppNode],
-      },
-    ],
-  };
-}
-
-export function grantPermissionQuestionNode(): IQTreeNode {
-  const selectAppManifestNode = selectTeamsAppManifestQuestionNode();
-  selectAppManifestNode.condition = {
-    contains: CollaborationConstants.TeamsAppQuestionId,
-  };
-  selectAppManifestNode.children!.push({
-    condition: envQuestionCondition,
-    data: selectTargetEnvQuestion(QuestionNames.Env, false, false, ""),
-  });
-  const selectAadAppNode = selectAadAppManifestQuestionNode();
-  selectAadAppNode.condition = { contains: CollaborationConstants.AadAppQuestionId };
-  selectAadAppNode.children!.push({
-    condition: envQuestionCondition,
-    data: selectTargetEnvQuestion(QuestionNames.Env, false, false, ""),
-  });
-  return {
-    data: { type: "group" },
-    children: [
-      {
-        condition: (inputs: Inputs) => DynamicPlatforms.includes(inputs.platform),
-        data: selectAppTypeQuestion(),
-        cliOptionDisabled: "self",
-        inputsDisabled: "self",
-        children: [
-          selectAppManifestNode,
-          selectAadAppNode,
-          {
-            data: inputUserEmailQuestion(
-              getLocalizedString("core.getUserEmailQuestion.title"),
-              "Email address of the collaborator.",
-              true
-            ),
-          },
-        ],
-      },
-    ],
-  };
-}
 
 export function convertAadToNewSchemaQuestionNode(): IQTreeNode {
   return {
@@ -217,25 +148,6 @@ export function selectTeamsAppManifestQuestionNode(): IQTreeNode {
       {
         condition: (inputs: Inputs) => confirmCondition(inputs, false),
         data: confirmManifestQuestion(true, false),
-        cliOptionDisabled: "self",
-        inputsDisabled: "self",
-      },
-    ],
-  };
-}
-
-export function selectAadAppManifestQuestionNode(): IQTreeNode {
-  return {
-    data: selectAadManifestQuestion(),
-    children: [
-      {
-        condition: (inputs: Inputs) =>
-          inputs.platform === Platform.VSCode && // confirm question only works for VSC
-          inputs.projectPath &&
-          inputs[QuestionNames.AadAppManifestFilePath] &&
-          path.resolve(inputs[QuestionNames.AadAppManifestFilePath]) !==
-            path.join(inputs.projectPath, "aad.manifest.json"),
-        data: confirmManifestQuestion(false, false),
         cliOptionDisabled: "self",
         inputsDisabled: "self",
       },
@@ -377,7 +289,7 @@ export function selectLocalTeamsAppManifestQuestion(): SingleFileQuestion {
   };
 }
 
-function confirmManifestQuestion(isTeamsApp = true, isLocal = false): SingleSelectQuestion {
+export function confirmManifestQuestion(isTeamsApp = true, isLocal = false): SingleSelectQuestion {
   const map: Record<string, string> = {
     true_true: QuestionNames.ConfirmLocalManifest,
     true_false: QuestionNames.ConfirmManifest,
@@ -636,68 +548,6 @@ export function selectAadManifestQuestion(): SingleFileQuestion {
   };
 }
 
-function selectAppTypeQuestion(): MultiSelectQuestion {
-  return {
-    name: QuestionNames.collaborationAppType,
-    title: getLocalizedString("core.selectCollaborationAppTypeQuestion.title"),
-    type: "multiSelect",
-    staticOptions: [
-      {
-        id: CollaborationConstants.AadAppQuestionId,
-        label: getLocalizedString("core.aadAppQuestion.label"),
-        description: getLocalizedString("core.aadAppQuestion.description"),
-      },
-      {
-        id: CollaborationConstants.TeamsAppQuestionId,
-        label: getLocalizedString("core.teamsAppQuestion.label"),
-        description: getLocalizedString("core.teamsAppQuestion.description"),
-      },
-    ],
-    validation: { minItems: 1 },
-    validationHelp: "Please select at least one app type.",
-  };
-}
-
-export async function envQuestionCondition(inputs: Inputs): Promise<boolean> {
-  const appType = inputs[CollaborationConstants.AppType] as string[];
-  const requireAad = appType?.includes(CollaborationConstants.AadAppQuestionId);
-  const requireTeams = appType?.includes(CollaborationConstants.TeamsAppQuestionId);
-  const aadManifestPath = inputs[QuestionNames.AadAppManifestFilePath];
-  const teamsManifestPath = inputs[QuestionNames.TeamsAppManifestFilePath];
-
-  // When both is selected, only show the question once at the end
-  if ((requireAad && !aadManifestPath) || (requireTeams && !teamsManifestPath)) {
-    return false;
-  }
-
-  // Only show env question when manifest id is referencing value from .env file
-  let requireEnv = false;
-  if (requireTeams && teamsManifestPath) {
-    const teamsAppIdRes = await CollaborationUtil.loadManifestId(teamsManifestPath);
-    if (teamsAppIdRes.isOk()) {
-      requireEnv = CollaborationUtil.requireEnvQuestion(teamsAppIdRes.value);
-      if (requireEnv) {
-        return true;
-      }
-    } else {
-      return false;
-    }
-  }
-
-  if (requireAad && aadManifestPath) {
-    const aadAppIdRes = await CollaborationUtil.loadManifestId(aadManifestPath);
-    if (aadAppIdRes.isOk()) {
-      requireEnv = CollaborationUtil.requireEnvQuestion(aadAppIdRes.value);
-      if (requireEnv) {
-        return true;
-      }
-    } else {
-      return false;
-    }
-  }
-
-  return false;
-}
 export async function newEnvNameValidation(
   input: string,
   inputs?: Inputs
@@ -1351,7 +1201,13 @@ export function oauthQuestion(): IQTreeNode {
       {
         data: oauthClientIdQuestion(),
         condition: (inputs: Inputs) => {
-          return !inputs.clientId;
+          return !inputs.clientId && inputs.identityProvider !== "MicrosoftEntra";
+        },
+      },
+      {
+        data: entraClientIdQuestion(),
+        condition: (inputs: Inputs) => {
+          return !inputs.clientId && inputs.identityProvider === "MicrosoftEntra";
         },
       },
       {
@@ -1498,6 +1354,27 @@ function uninstallProjectPathQuestion(): FolderQuestion {
     cliDescription: "Project Path for uninstall",
     placeholder: "./",
     default: "./",
+  };
+}
+
+function entraClientIdQuestion(): TextInputQuestion {
+  return {
+    type: "text",
+    name: QuestionNames.OauthClientId,
+    cliShortName: "i",
+    title: getLocalizedString("core.createProjectQuestion.EntraSSOClientId"),
+    cliDescription: "Microsoft Entra SSO client id for OpenAPI spec.",
+    forgetLastValue: true,
+    additionalValidationOnAccept: {
+      validFunc: (input: string, inputs?: Inputs): string | undefined => {
+        if (!inputs) {
+          throw new Error("inputs is undefined"); // should never happen
+        }
+
+        process.env[QuestionNames.OauthClientId] = input;
+        return;
+      },
+    },
   };
 }
 

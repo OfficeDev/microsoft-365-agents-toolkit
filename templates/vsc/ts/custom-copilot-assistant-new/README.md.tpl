@@ -1,6 +1,6 @@
 # Overview of the AI Agent template
 
-This app template is built on top of [Teams AI library](https://aka.ms/teams-ai-library).
+This app template is built on top of [Teams AI library V2](https://aka.ms/teams-ai-library-v2).
 It showcases how to build an AI agent in Teams capable of chatting with users and helping users accomplish a specific task using natural language right in the Teams conversations, such as managing tasks.
 
 ## Get started with the template
@@ -9,7 +9,7 @@ It showcases how to build an AI agent in Teams capable of chatting with users an
 >
 > To run the template in your local dev machine, you will need:
 >
-> - [Node.js](https://nodejs.org/), supported versions: 18, 20, 22
+> - [Node.js](https://nodejs.org/), supported versions: 20, 22
 {{^enableTestToolByDefault}}
 > - A [Microsoft 365 account for development](https://docs.microsoft.com/microsoftteams/platform/toolkit/accounts)
 {{/enableTestToolByDefault}}
@@ -69,16 +69,12 @@ The following files can be customized and demonstrate an example implementation 
 
 | File                                 | Contents                                           |
 | - | - |
-|`src/index.ts`| Sets up the agent app server.|
-|`src/adapter.ts`| Sets up the agent adapter.|
+|`src/index.ts`| Application entry point.|
 |`src/config.ts`| Defines the environment variables.|
-|`src/prompts/planner/skprompt.txt`| Defines the prompt.|
-|`src/prompts/planner/config.json`| Configures the prompt.|
-|`src/prompts/planner/actions.json`| Defines the actions.|
-|`src/app/turnState.ts`| Defines the app turn state.|
+|`src/app/instructions.txt`| Defines the prompt.|
+|`src/app/taskHandlers.ts`| Function handlers.|
+|`src/app/functions.json`| Defines the functions.|
 |`src/app/app.ts`| Handles business logics for the AI Agent.|
-|`src/app/messages.ts`| Defines the message activity handlers.|
-|`src/app/actions.ts`| Defines the AI actions.|
 
 The following are Microsoft 365 Agents Toolkit specific project files. You can [visit a complete guide on Github](https://github.com/OfficeDev/TeamsFx/wiki/Teams-Toolkit-Visual-Studio-Code-v5-Guide#overview) to understand how Microsoft 365 Agents Toolkit works.
 
@@ -90,8 +86,7 @@ The following are Microsoft 365 Agents Toolkit specific project files. You can [
 
 ## Extend the template
 
-You can follow [Build an AI Agent in Teams](https://aka.ms/teamsfx-ai-agent) to extend the AI Agent template with more AI capabilities, like:
-- [Add functions](https://aka.ms/teamsfx-ai-agent#add-functions-build-new)
+To extend the Basic AI Chatbot template with more AI capabilities, explore [Teams AI library V2 documentation](https://aka.ms/m365-agents-toolkit/teams-agent-extend-ai).
 
 ## Additional information and references
 

@@ -17,7 +17,6 @@ export class FeatureFlagName {
   static readonly TestTool = "TEAMSFX_TEST_TOOL";
   static readonly METestTool = "TEAMSFX_ME_TEST_TOOL";
   static readonly TeamsFxRebranding = "TEAMSFX_REBRANDING";
-  static readonly TdpTemplateCliTest = "TEAMSFX_TDP_TEMPLATE_CLI_TEST";
   static readonly AsyncAppValidation = "TEAMSFX_ASYNC_APP_VALIDATION";
   static readonly NewProjectType = "TEAMSFX_NEW_PROJECT_TYPE";
   static readonly ChatParticipant = "TEAMSFX_CHAT_PARTICIPANT";
@@ -38,6 +37,8 @@ export class FeatureFlagName {
   static readonly SandBoxedTeam = "TEAMSFX_SANDBOXED_TEAM";
   static readonly SensitivityLabelEnabled = "TEAMSFX_SENSITIVITY_LABEL";
   static readonly DAMetaOS = "TEAMSFX_DA_METAOS";
+  static readonly CFShortcutMetaOS = "TEAMSFX_CF_SHORTCUT_METAOS";
+  static readonly MCPForDA = "TEAMSFX_MCP_FOR_DA";
 }
 
 export interface FeatureFlag {
@@ -53,10 +54,6 @@ export class FeatureFlags {
   static readonly OfficeMetaOS = {
     name: FeatureFlagName.OfficeMetaOS,
     defaultValue: "true",
-  };
-  static readonly TdpTemplateCliTest = {
-    name: FeatureFlagName.TdpTemplateCliTest,
-    defaultValue: "false",
   };
   static readonly AsyncAppValidation = {
     name: FeatureFlagName.AsyncAppValidation,
@@ -132,6 +129,14 @@ export class FeatureFlags {
   static readonly DAMetaOS = {
     name: FeatureFlagName.DAMetaOS,
     defaultValue: "false",
+  };
+  static readonly CFShortcutMetaOS = {
+    name: FeatureFlagName.CFShortcutMetaOS,
+    defaultValue: "false",
+  };
+  static readonly MCPForDA = {
+    name: FeatureFlagName.MCPForDA,
+    defaultValue: "true",
   };
 }
 

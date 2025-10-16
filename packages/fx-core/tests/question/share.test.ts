@@ -85,13 +85,12 @@ describe("shareNode", () => {
     assert.property(shareScopeQuestion, "type");
     assert.equal(shareScopeQuestion.type, "singleSelect");
     assert.isArray(shareScopeQuestion.staticOptions);
-    assert.lengthOf(shareScopeQuestion.staticOptions, 3);
+    assert.lengthOf(shareScopeQuestion.staticOptions, 2);
 
     // Check scope options
-    const [shareTenant, shareUsers, shareOwners] = shareScopeQuestion.staticOptions as OptionItem[];
+    const [shareTenant, shareUsers] = shareScopeQuestion.staticOptions as OptionItem[];
     assert.equal(shareTenant.id, ShareScopeOption.ShareAppWithTenantUsers);
     assert.equal(shareUsers.id, ShareScopeOption.ShareAppWithSpecificUsers);
-    assert.equal(shareOwners.id, ShareScopeOption.ShareAppWithOwners);
   });
 
   it("email input should be shown when ShareScope is specific users or owners", () => {
@@ -108,13 +107,11 @@ describe("shareNode", () => {
     const inputsSpecificUsers = {
       [QuestionNames.ShareScope]: ShareScopeOption.ShareAppWithSpecificUsers,
     };
-    const inputsOwners = { [QuestionNames.ShareScope]: ShareScopeOption.ShareAppWithOwners };
     const inputsTenant = { [QuestionNames.ShareScope]: ShareScopeOption.ShareAppWithTenantUsers };
 
     // Call the condition function with different inputs
     const conditionFunc = emailInputNode.condition as ConditionFunc;
     assert.isTrue(conditionFunc(inputsSpecificUsers as unknown as Inputs));
-    assert.isTrue(conditionFunc(inputsOwners as unknown as Inputs));
     assert.isFalse(conditionFunc(inputsTenant as unknown as Inputs));
   });
 

@@ -22,7 +22,7 @@ namespace Microsoft.TeamsFx.Test
         private readonly MockUserTokenClient _userTokenClient = new MockUserTokenClient();
 
         private int _nextId = 0;
-        private Queue<TaskCompletionSource<IActivity>> _queuedRequests = new Queue<TaskCompletionSource<IActivity>>();
+        private readonly Queue<TaskCompletionSource<IActivity>> _queuedRequests = new Queue<TaskCompletionSource<IActivity>>();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TestAdapter"/> class.
@@ -56,13 +56,9 @@ namespace Microsoft.TeamsFx.Test
         public TestAdapter(ConversationReference conversation = null, bool sendTraceActivity = false, ILogger logger = null) : base(logger)
         {
             _sendTraceActivity = sendTraceActivity;
-            if (conversation != null)
-            {
-                Conversation = conversation;
-            }
-            else
-            {
-                Conversation = new ConversationReference
+            Conversation = conversation != null
+                ? conversation
+                : new ConversationReference
                 {
                     ChannelId = Channels.Test,
                     ServiceUrl = "https://test.com",
@@ -71,7 +67,6 @@ namespace Microsoft.TeamsFx.Test
                     Conversation = new ConversationAccount(false, "convo1", "Conversation1"),
                     Locale = this.Locale,
                 };
-            }
         }
 
         /// <summary>
