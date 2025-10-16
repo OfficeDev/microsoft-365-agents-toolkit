@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
+import * as fs from "fs";
 import { Project } from "../utils/constants";
 import { Env } from "../utils/env";
 import {
@@ -26,7 +27,9 @@ async function main() {
     Env.cleanTenantId,
     Env.cleanClientId,
     Env.username,
-    Env.password
+    Env.password,
+    Env.servicePrincipalId,
+    Env.servicePrincipalSecret
   );
 
   console.log(`clean teams app (exclude ${excludePrefix})`);
@@ -46,21 +49,44 @@ async function main() {
       }
     }
   }
+  // Load AAD app names to keep from a JSON file
+  const aadKeepFilePath = "./aad-keep.json";
+  let aadKeepList: string[] = [];
+  if (fs.existsSync(aadKeepFilePath)) {
+    try {
+      const fileContent = fs.readFileSync(aadKeepFilePath, "utf-8");
+      aadKeepList = JSON.parse(fileContent);
+      if (!Array.isArray(aadKeepList)) {
+        console.warn(
+          `Warning: ${aadKeepFilePath} does not contain a valid array. Ignoring.`
+        );
+        aadKeepList = [];
+      }
+    } catch (e: any) {
+      console.warn(
+        `Warning: Failed to read or parse ${aadKeepFilePath}: ${e.message}`
+      );
+    }
+  }
 
-  console.log(`clean AAD (exclude ${excludePrefix})`);
+  console.log(
+    `clean AAD (exclude ${excludePrefix}, keep from ${aadKeepFilePath})`
+  );
   const aadList = await cleanService.listAad();
   if (aadList) {
     for (const aad of aadList) {
+      const displayName = aad.displayName ?? "";
       if (
-        !aad.displayName?.startsWith(adminMicrosoftEntraAppName) &&
-        !aad.displayName?.startsWith(excludePrefix)
+        !displayName.startsWith(adminMicrosoftEntraAppName) &&
+        !displayName.startsWith(excludePrefix) &&
+        !aadKeepList.includes(displayName)
       ) {
-        console.log(aad.displayName);
+        console.log(displayName);
         try {
           await cleanService.deleteAad(aad.id!);
         } catch (e: any) {
           console.log(
-            `Failed to delete AAD ${aad.displayName} with error: ${e.message}`
+            `Failed to delete AAD ${displayName} with error: ${e.message}`
           );
         }
       }
@@ -72,7 +98,9 @@ async function main() {
     Env.cleanTenantId,
     Env.cleanClientId,
     Env.username,
-    Env.password
+    Env.password,
+    Env.servicePrincipalId,
+    Env.servicePrincipalSecret
   );
   const appStudioAppList = await addStudioCleanService.getAppsInAppStudio();
   if (appStudioAppList) {
@@ -129,7 +157,9 @@ async function main() {
     Env.cleanTenantId,
     Env.cleanClientId,
     Env.username,
-    Env.password
+    Env.password,
+    Env.servicePrincipalId,
+    Env.servicePrincipalSecret
   );
   const sharePointAppList = await sharePointCleanService.listApp();
   if (sharePointAppList) {
@@ -154,7 +184,9 @@ async function main() {
   const devTunnelCleanHelper = await DevTunnelCleanHelper.create(
     Env.cleanTenantId,
     Env.username,
-    Env.password
+    Env.password,
+    Env.servicePrincipalId,
+    Env.servicePrincipalSecret
   );
   await devTunnelCleanHelper.deleteAll();
 
@@ -168,7 +200,9 @@ async function main() {
       Env.cleanTenantId,
       "7ea7c24c-b1f6-4a20-9d11-9ae12e9e7ac0",
       Env.username,
-      Env.password
+      Env.password,
+      Env.servicePrincipalId,
+      Env.servicePrincipalSecret
     );
     console.log(`clean M365 Titles (exclude ${excludePrefix})`);
     try {

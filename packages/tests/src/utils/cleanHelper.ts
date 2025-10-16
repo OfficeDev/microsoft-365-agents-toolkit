@@ -49,13 +49,17 @@ export class GraphApiCleanHelper extends CleanHelper {
     tenantId: string,
     clientId: string,
     username: string,
-    password: string
+    password: string,
+    service_principal_id: string,
+    service_principal_secret: string
   ): Promise<GraphApiCleanHelper> {
     const token = await this.getUserToken(
       tenantId,
       clientId,
       username,
-      password
+      password,
+      service_principal_id,
+      service_principal_secret
     );
     return new GraphApiCleanHelper(token);
   }
@@ -64,32 +68,61 @@ export class GraphApiCleanHelper extends CleanHelper {
     tenantId: string,
     clientId: string,
     username: string,
-    password: string
+    password: string,
+    service_principal_id: string,
+    service_principal_secret: string
   ): Promise<string> {
-    const config = {
-      auth: {
-        clientId: clientId,
-        authority: `https://login.microsoftonline.com/${tenantId}`,
-      },
-    };
+    if (service_principal_id && service_principal_secret) {
+      // Service principal authentication
+      const data = qs.stringify({
+        client_id: service_principal_id,
+        client_secret: service_principal_secret,
+        scope: "https://graph.microsoft.com/.default",
+        grant_type: "client_credentials",
+      });
 
-    const usernamePasswordRequest = {
-      scopes: ["https://graph.microsoft.com/.default"],
-      username: username,
-      // Need to encode password for special characters to workaround the MSAL bug:
-      // https://github.com/AzureAD/microsoft-authentication-library-for-js/issues/4326#issuecomment-995109619
-      password: encodeURIComponent(password),
-    };
+      const config: AxiosRequestConfig = {
+        method: "post",
+        url: `https://login.microsoftonline.com/${tenantId}/oauth2/v2.0/token`,
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        data: data,
+      };
 
-    const pca = new msal.PublicClientApplication(config);
-    const credential = await pca.acquireTokenByUsernamePassword(
-      usernamePasswordRequest
-    );
-    const accessToken = credential?.accessToken;
-    if (!accessToken) {
-      throw new Error("Failed to get token.");
+      const response = await axios(config);
+      const accessToken = response?.data?.access_token;
+      if (!accessToken) {
+        throw new Error("Failed to get token with service principal.");
+      }
+      return accessToken;
+    } else {
+      // Username/password authentication
+      const config = {
+        auth: {
+          clientId: clientId,
+          authority: `https://login.microsoftonline.com/${tenantId}`,
+        },
+      };
+
+      const usernamePasswordRequest = {
+        scopes: ["https://graph.microsoft.com/.default"],
+        username: username,
+        // Need to encode password for special characters to workaround the MSAL bug:
+        // https://github.com/AzureAD/microsoft-authentication-library-for-js/issues/4326#issuecomment-995109619
+        password: encodeURIComponent(password),
+      };
+
+      const pca = new msal.PublicClientApplication(config);
+      const credential = await pca.acquireTokenByUsernamePassword(
+        usernamePasswordRequest
+      );
+      const accessToken = credential?.accessToken;
+      if (!accessToken) {
+        throw new Error("Failed to get token.");
+      }
+      return accessToken;
     }
-    return accessToken;
   }
 
   public async getUserIdByName(userName: string): Promise<string> {
@@ -214,13 +247,17 @@ export class SharePointApiCleanHelper extends CleanHelper {
     tenantId: string,
     clientId: string,
     username: string,
-    password: string
+    password: string,
+    service_principal_id: string,
+    service_principal_secret: string
   ): Promise<SharePointApiCleanHelper> {
     const token = await this.getSharePointUserToken(
       tenantId,
       clientId,
       username,
-      password
+      password,
+      service_principal_id,
+      service_principal_secret
     );
     return new SharePointApiCleanHelper(token);
   }
@@ -229,33 +266,64 @@ export class SharePointApiCleanHelper extends CleanHelper {
     tenantId: string,
     clientId: string,
     username: string,
-    password: string
+    password: string,
+    service_principal_id: string,
+    service_principal_secret: string
   ): Promise<string> {
-    const config = {
-      auth: {
-        clientId: clientId,
-        authority: `https://login.microsoftonline.com/${tenantId}`,
-      },
-    };
-    const domainName = username.match(/(?<=@)\w+?(?=\.)/i);
-    const sharePointSite = domainName + ".sharepoint.com";
-    const usernamePasswordRequest = {
-      scopes: [`https://${sharePointSite}/AllSites.FullControl`],
-      username: username,
-      // Need to encode password for special characters to workaround the MSAL bug:
-      // https://github.com/AzureAD/microsoft-authentication-library-for-js/issues/4326#issuecomment-995109619
-      password: encodeURIComponent(password),
-    };
+    if (service_principal_id && service_principal_secret) {
+      // Service principal authentication
+      const domainName = username.match(/(?<=@)\w+?(?=\.)/i);
+      const sharePointSite = domainName + ".sharepoint.com";
+      const data = qs.stringify({
+        client_id: service_principal_id,
+        client_secret: service_principal_secret,
+        scope: `https://${sharePointSite}/.default`,
+        grant_type: "client_credentials",
+      });
 
-    const pca = new msal.PublicClientApplication(config);
-    const credential = await pca.acquireTokenByUsernamePassword(
-      usernamePasswordRequest
-    );
-    const accessToken = credential?.accessToken;
-    if (!accessToken) {
-      throw new Error("Failed to get token.");
+      const config: AxiosRequestConfig = {
+        method: "post",
+        url: `https://login.microsoftonline.com/${tenantId}/oauth2/v2.0/token`,
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        data: data,
+      };
+
+      const response = await axios(config);
+      const accessToken = response?.data?.access_token;
+      if (!accessToken) {
+        throw new Error("Failed to get token with service principal.");
+      }
+      return accessToken;
+    } else {
+      // Username/password authentication
+      const config = {
+        auth: {
+          clientId: clientId,
+          authority: `https://login.microsoftonline.com/${tenantId}`,
+        },
+      };
+      const domainName = username.match(/(?<=@)\w+?(?=\.)/i);
+      const sharePointSite = domainName + ".sharepoint.com";
+      const usernamePasswordRequest = {
+        scopes: [`https://${sharePointSite}/AllSites.FullControl`],
+        username: username,
+        // Need to encode password for special characters to workaround the MSAL bug:
+        // https://github.com/AzureAD/microsoft-authentication-library-for-js/issues/4326#issuecomment-995109619
+        password: encodeURIComponent(password),
+      };
+
+      const pca = new msal.PublicClientApplication(config);
+      const credential = await pca.acquireTokenByUsernamePassword(
+        usernamePasswordRequest
+      );
+      const accessToken = credential?.accessToken;
+      if (!accessToken) {
+        throw new Error("Failed to get token.");
+      }
+      return accessToken;
     }
-    return accessToken;
   }
 
   public async listApp(): Promise<any[]> {
@@ -297,13 +365,17 @@ export class AppStudioCleanHelper extends CleanHelper {
     tenantId: string,
     clientId: string,
     username: string,
-    password: string
+    password: string,
+    service_principal_id: string,
+    service_principal_secret: string
   ): Promise<AppStudioCleanHelper> {
     const token = await this.getAppStudioUserToken(
       tenantId,
       clientId,
       username,
-      password
+      password,
+      service_principal_id,
+      service_principal_secret
     );
     return new AppStudioCleanHelper(token);
   }
@@ -312,29 +384,58 @@ export class AppStudioCleanHelper extends CleanHelper {
     tenantId: string,
     clientId: string,
     username: string,
-    password: string
+    password: string,
+    service_principal_id: string,
+    service_principal_secret: string
   ) {
-    const data = qs.stringify({
-      client_id: "7ea7c24c-b1f6-4a20-9d11-9ae12e9e7ac0",
-      scope: "https://dev.teams.microsoft.com/AppDefinitions.ReadWrite",
-      username: username,
-      password: password,
-      grant_type: "password",
-    });
+    if (service_principal_id && service_principal_secret) {
+      // Service principal authentication
+      const data = qs.stringify({
+        client_id: service_principal_id,
+        client_secret: service_principal_secret,
+        scope: "https://dev.teams.microsoft.com/.default",
+        grant_type: "client_credentials",
+      });
 
-    const config: AxiosRequestConfig = {
-      method: "post",
-      url: `https://login.microsoftonline.com/${tenantId}/oauth2/v2.0/token`,
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-        Cookie:
-          "fpc=AmzaQu9yHbpLtMD2LmHazdRCGxwGAQAAAIW47NcOAAAA; x-ms-gateway-slice=estsfd; stsservicecookie=estsfd",
-      },
-      data: data,
-    };
+      const config: AxiosRequestConfig = {
+        method: "post",
+        url: `https://login.microsoftonline.com/${tenantId}/oauth2/v2.0/token`,
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        data: data,
+      };
 
-    const response = await axios(config);
-    return response?.data?.access_token;
+      const response = await axios(config);
+      const accessToken = response?.data?.access_token;
+      if (!accessToken) {
+        throw new Error("Failed to get token with service principal.");
+      }
+      return accessToken;
+    } else {
+      // Username/password authentication
+      const data = qs.stringify({
+        client_id: "7ea7c24c-b1f6-4a20-9d11-9ae12e9e7ac0",
+        scope: "https://dev.teams.microsoft.com/AppDefinitions.ReadWrite",
+        username: username,
+        password: password,
+        grant_type: "password",
+      });
+
+      const config: AxiosRequestConfig = {
+        method: "post",
+        url: `https://login.microsoftonline.com/${tenantId}/oauth2/v2.0/token`,
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          Cookie:
+            "fpc=AmzaQu9yHbpLtMD2LmHazdRCGxwGAQAAAIW47NcOAAAA; x-ms-gateway-slice=estsfd; stsservicecookie=estsfd",
+        },
+        data: data,
+      };
+
+      const response = await axios(config);
+      return response?.data?.access_token;
+    }
   }
 
   public async getApiKeyRegistration() {
@@ -400,13 +501,17 @@ export class M365TitleCleanHelper extends CleanHelper {
     tenantId: string,
     clientId: string,
     username: string,
-    password: string
+    password: string,
+    service_principal_id: string,
+    service_principal_secret: string
   ): Promise<M365TitleCleanHelper> {
     const token = await this.getUserToken(
       tenantId,
       clientId,
       username,
-      password
+      password,
+      service_principal_id,
+      service_principal_secret
     );
     return new M365TitleCleanHelper(token);
   }
@@ -415,32 +520,60 @@ export class M365TitleCleanHelper extends CleanHelper {
     tenantId: string,
     clientId: string,
     username: string,
-    password: string
+    password: string,
+    service_principal_id: string,
+    service_principal_secret: string
   ): Promise<string> {
-    const config = {
-      auth: {
-        clientId: clientId,
-        authority: `https://login.microsoftonline.com/${tenantId}`,
-      },
-    };
+    if (service_principal_id && service_principal_secret) {
+      // Service principal authentication
+      const data = qs.stringify({
+        client_id: service_principal_id,
+        client_secret: service_principal_secret,
+        scope: "https://titles.prod.mos.microsoft.com/.default",
+        grant_type: "client_credentials",
+      });
 
-    const usernamePasswordRequest = {
-      scopes: ["https://titles.prod.mos.microsoft.com/.default"],
-      username: username,
-      // Need to encode password for special characters to workaround the MSAL bug:
-      // https://github.com/AzureAD/microsoft-authentication-library-for-js/issues/4326#issuecomment-995109619
-      password: encodeURIComponent(password),
-    };
+      const config: AxiosRequestConfig = {
+        method: "post",
+        url: `https://login.microsoftonline.com/${tenantId}/oauth2/v2.0/token`,
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        data: data,
+      };
 
-    const pca = new msal.PublicClientApplication(config);
-    const credential = await pca.acquireTokenByUsernamePassword(
-      usernamePasswordRequest
-    );
-    const accessToken = credential?.accessToken;
-    if (!accessToken) {
-      throw new Error("Failed to get token.");
+      const response = await axios(config);
+      const accessToken = response?.data?.access_token;
+      if (!accessToken) {
+        throw new Error("Failed to get token with service principal.");
+      }
+      return accessToken;
+    } else {
+      const config = {
+        auth: {
+          clientId: clientId,
+          authority: `https://login.microsoftonline.com/${tenantId}`,
+        },
+      };
+
+      const usernamePasswordRequest = {
+        scopes: ["https://titles.prod.mos.microsoft.com/.default"],
+        username: username,
+        // Need to encode password for special characters to workaround the MSAL bug:
+        // https://github.com/AzureAD/microsoft-authentication-library-for-js/issues/4326#issuecomment-995109619
+        password: encodeURIComponent(password),
+      };
+
+      const pca = new msal.PublicClientApplication(config);
+      const credential = await pca.acquireTokenByUsernamePassword(
+        usernamePasswordRequest
+      );
+      const accessToken = credential?.accessToken;
+      if (!accessToken) {
+        throw new Error("Failed to get token.");
+      }
+      return accessToken;
     }
-    return accessToken;
   }
 
   public async unacquire(id: string, retryTimes = 5) {
@@ -513,39 +646,76 @@ export class DevTunnelCleanHelper {
   public static async create(
     tenantId: string,
     username: string,
-    password: string
+    password: string,
+    service_principal_id: string,
+    service_principal_secret: string
   ): Promise<DevTunnelCleanHelper> {
-    const token = await this.getToken(tenantId, username, password);
+    const token = await this.getToken(
+      tenantId,
+      username,
+      password,
+      service_principal_id,
+      service_principal_secret
+    );
     return new DevTunnelCleanHelper(token);
   }
 
   private static async getToken(
     tenantId: string,
     username: string,
-    password: string
+    password: string,
+    service_principal_id: string,
+    service_principal_secret: string
   ): Promise<string> {
-    const config = {
-      auth: {
-        clientId: "7ea7c24c-b1f6-4a20-9d11-9ae12e9e7ac0",
-        authority: `https://login.microsoftonline.com/${tenantId}`,
-      },
-    };
+    if (service_principal_id && service_principal_secret) {
+      // Service principal authentication
+      const data = qs.stringify({
+        client_id: service_principal_id,
+        client_secret: service_principal_secret,
+        scope: "https://devtunnels.msidentity.com/.default",
+        grant_type: "client_credentials",
+      });
 
-    const usernamePasswordRequest = {
-      scopes: ["46da2f7e-b5ef-422a-88d4-2a7f9de6a0b2/.default"],
-      username: username,
-      password: encodeURIComponent(password),
-    };
+      const config: AxiosRequestConfig = {
+        method: "post",
+        url: `https://login.microsoftonline.com/${tenantId}/oauth2/v2.0/token`,
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        data: data,
+      };
 
-    const pca = new msal.PublicClientApplication(config);
-    const credential = await pca.acquireTokenByUsernamePassword(
-      usernamePasswordRequest
-    );
-    const accessToken = credential?.accessToken;
-    if (!accessToken) {
-      throw new Error("Failed to get token.");
+      const response = await axios(config);
+      const accessToken = response?.data?.access_token;
+      if (!accessToken) {
+        throw new Error("Failed to get token with service principal.");
+      }
+      return accessToken;
+    } else {
+      // Username/password authentication
+      const config = {
+        auth: {
+          clientId: "7ea7c24c-b1f6-4a20-9d11-9ae12e9e7ac0",
+          authority: `https://login.microsoftonline.com/${tenantId}`,
+        },
+      };
+
+      const usernamePasswordRequest = {
+        scopes: ["46da2f7e-b5ef-422a-88d4-2a7f9de6a0b2/.default"],
+        username: username,
+        password: encodeURIComponent(password),
+      };
+
+      const pca = new msal.PublicClientApplication(config);
+      const credential = await pca.acquireTokenByUsernamePassword(
+        usernamePasswordRequest
+      );
+      const accessToken = credential?.accessToken;
+      if (!accessToken) {
+        throw new Error("Failed to get token.");
+      }
+      return accessToken;
     }
-    return accessToken;
   }
 
   public async delete(tunnelId: string, clusterId: string): Promise<void> {
@@ -672,7 +842,9 @@ export async function cleanUpAadApp(
     Env.cleanTenantId,
     Env.cleanClientId,
     Env.username,
-    Env.password
+    Env.password,
+    Env.servicePrincipalId,
+    Env.servicePrincipalSecret
   );
   const promises: Promise<boolean>[] = [];
 
@@ -712,7 +884,9 @@ export async function cleanTeamsApp(appName: string) {
       Env.cleanTenantId,
       Env.cleanClientId,
       Env.username,
-      Env.password
+      Env.password,
+      Env.servicePrincipalId,
+      Env.servicePrincipalSecret
     );
     console.log(`uninstall teams app ${appName}`);
     const teamsUserId = await cleanService.getUserIdByName(Env.username);
@@ -732,7 +906,9 @@ export async function cleanAppStudio(appName: string) {
       Env.cleanTenantId,
       Env.cleanClientId,
       Env.username,
-      Env.password
+      Env.password,
+      Env.servicePrincipalId,
+      Env.servicePrincipalSecret
     );
     const appStudioAppList = await addStudioCleanService.getAppsInAppStudio();
     console.log(`clean app ${appName} in app studio`);
@@ -766,7 +942,9 @@ export async function cleanUpStagedPublishApp(appId: string) {
       Env.cleanTenantId,
       Env.cleanClientId,
       Env.username,
-      Env.password
+      Env.password,
+      Env.servicePrincipalId,
+      Env.servicePrincipalSecret
     );
     const app = await addStudioCleanService.getAppInAdminPortal(appId);
     console.log(`App name for ${appId}: ${app[0]?.displayName}`);
