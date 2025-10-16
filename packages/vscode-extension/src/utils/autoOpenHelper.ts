@@ -102,7 +102,7 @@ export async function showLocalDebugMessage() {
     };
     ExtTelemetry.sendTelemetryEvent(TelemetryEvent.ShowLocalDebugNotification);
 
-    const messageTemplate = await getLocalDebugMessageTemplate(isWindows);
+    const messageTemplate = getLocalDebugMessageTemplate(isWindows);
 
     let message = util.format(messageTemplate, appName, workspaceUri?.fsPath);
     if (isWindows) {
