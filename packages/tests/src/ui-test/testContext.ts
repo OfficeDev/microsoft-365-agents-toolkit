@@ -109,7 +109,9 @@ export class TestContext {
         Env.cleanTenantId,
         Env.cleanClientId,
         Env.username,
-        Env.password
+        Env.password,
+        Env.servicePrincipalId,
+        Env.servicePrincipalSecret
       );
       if (hasAadPlugin) {
         const aadObjectId = await this.getAadObjectId(envName);
@@ -168,7 +170,9 @@ export class TestContext {
       const devTunnelCleanHelper = await DevTunnelCleanHelper.create(
         Env.cleanTenantId,
         Env.username,
-        Env.password
+        Env.password,
+        Env.servicePrincipalId,
+        Env.servicePrincipalSecret
       );
       for (const state of devTunnelState?.["teamsToolkit:devtunnel"]) {
         console.log(`clean tunnel ${state.tunnelId}`);
