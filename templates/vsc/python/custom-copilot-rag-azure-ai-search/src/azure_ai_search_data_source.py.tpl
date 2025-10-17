@@ -8,33 +8,26 @@ from teams.ai.embeddings import AzureOpenAIEmbeddings, AzureOpenAIEmbeddingsOpti
 {{#useOpenAI}}
 from teams.ai.embeddings import OpenAIEmbeddings, OpenAIEmbeddingsOptions
 {{/useOpenAI}}
-from teams.state.memory import Memory
-from teams.state.state import TurnContext
-from teams.ai.tokenizers import Tokenizer
-from teams.ai.data_sources import DataSource
 
 from config import Config
 
 async def get_embedding_vector(text: str):
     {{#useAzureOpenAI}}
-    embeddings = AzureOpenAIEmbeddings(AzureOpenAIEmbeddingsOptions(
-        azure_api_key=Config.AZURE_OPENAI_API_KEY,
-        azure_endpoint=Config.AZURE_OPENAI_ENDPOINT,
-        azure_deployment=Config.AZURE_OPENAI_EMBEDDING_DEPLOYMENT
-    ))
+    client = OpenAI(
+        api_key=Config.AZURE_OPENAI_API_KEY,
+        api_base=Config.AZURE_OPENAI_ENDPOINT,
+        api_version=2024-10-21
+    )
     {{/useAzureOpenAI}}
     {{#useOpenAI}}
-    embeddings=OpenAIEmbeddings(OpenAIEmbeddingsOptions(
-        api_key=Config.OPENAI_API_KEY,
-        model=Config.OPENAI_EMBEDDING_DEPLOYMENT,
-    ))
+    client = OpenAI(api_key=Config.OPENAI_API_KEY)
     {{/useOpenAI}}
     
-    result = await embeddings.create_embeddings(text)
-    if (result.status != 'success' or not result.output):
+    result = await client.embeddings.create(model=Config.OPENAI_EMBEDDING_DEPLOYMENT, input=query)
+    if (result.status != 'success' or not result.data):
         raise Exception(f"Failed to generate embeddings for description: {text}")
     
-    return result.output[0]
+    return result.data[0].embedding
 
 @dataclass
 class Doc:
@@ -56,12 +49,10 @@ import json
 
 @dataclass
 class Result:
-    def __init__(self, output, length, too_long):
+    def __init__(self, output):
         self.output = output
-        self.length = length
-        self.too_long = too_long
 
-class AzureAISearchDataSource(DataSource):
+class AzureAISearchDataSource():
     def __init__(self, options: AzureAISearchDataSourceOptions):
         self.name = options.name
         self.options = options
@@ -74,13 +65,12 @@ class AzureAISearchDataSource(DataSource):
     def name(self):
         return self.name
 
-    async def render_data(self, _context: TurnContext, memory: Memory, tokenizer: Tokenizer, maxTokens: int):
-        query = memory.get('temp.input')
+    async def render_data(self, query):
         embedding = await get_embedding_vector(query)
         vector_query = VectorizedQuery(vector=embedding, k_nearest_neighbors=2, fields="descriptionVector")
 
         if not query:
-            return Result('', 0, False)
+            return Result('')
 
         selectedFields = [
             'docTitle',
@@ -95,17 +85,7 @@ class AzureAISearchDataSource(DataSource):
         )
 
         if not searchResults:
-            return Result('', 0, False)
+            return Result('')
 
-        usedTokens = 0
-        doc = ''
-        for result in searchResults:
-            tokens = len(tokenizer.encode(json.dumps(result["description"])))
 
-            if usedTokens + tokens > maxTokens:
-                break
-
-            doc += json.dumps(result["description"])
-            usedTokens += tokens
-
-        return Result(doc, usedTokens, usedTokens > maxTokens)
+        return Result(doc)
