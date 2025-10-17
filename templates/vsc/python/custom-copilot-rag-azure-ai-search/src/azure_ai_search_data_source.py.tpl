@@ -17,15 +17,19 @@ async def get_embedding_vector(text: str):
         azure_endpoint=Config.AZURE_OPENAI_ENDPOINT,
         api_version="2024-10-21"
     )
-    {{/useAzureOpenAI}}
-    {{#useOpenAI}}
-    client = AsyncOpenAI(api_key=Config.OPENAI_API_KEY)
-    {{/useOpenAI}}
-    
     result = await client.embeddings.create(
         model=Config.AZURE_OPENAI_EMBEDDING_DEPLOYMENT, 
         input=text
     )
+    {{/useAzureOpenAI}}
+    {{#useOpenAI}}
+    client = AsyncOpenAI(api_key=Config.OPENAI_API_KEY)
+    result = await client.embeddings.create(
+        model=Config.OPENAI_EMBEDDING_DEPLOYMENT, 
+        input=text
+    )
+    {{/useOpenAI}}
+    
     if not result.data:
         raise Exception(f"Failed to generate embeddings for description: {text}")
     return result.data[0].embedding
