@@ -27,9 +27,9 @@
     "staticTabs": [
         {
             "entityId": "index0",
-            "name": "Home",
-            "contentUrl": "${{TAB_ENDPOINT}}/tabs/home",
-            "websiteUrl": "${{TAB_ENDPOINT}}/tabs/home",
+            "name": "Test",
+            "contentUrl": "${{TAB_ENDPOINT}}/tabs/test",
+            "websiteUrl": "${{TAB_ENDPOINT}}/tabs/test",
             "scopes": [
                 "personal",
                 "groupChat",
