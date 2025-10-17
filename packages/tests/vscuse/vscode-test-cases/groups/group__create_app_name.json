@@ -1,5 +1,17 @@
 {
   "plan_metadata": {
+    "name": "group: create_app_name",
+    "description": "Generated from recording r_0928_014459",
+    "generated_at": "2025-10-17T02:35:50.081899",
+    "execution_order": [
+      "step_7a47c22a",
+      "step_69fab4c1",
+      "step_49cec4cf"
+    ],
+    "tags": [
+      "group"
+    ],
+    "updated_at": "2025-10-17T03:42:04.476744",
     "version": "1.1",
     "plan_id": "plan_r_0928_014459",
     "execution_context": {
@@ -9,80 +21,66 @@
       "precondition_retry_interval": 2
     },
     "total_steps": 3,
-    "created_at": "2025-09-28T01:45:42.208923",
-    "name": "group: create_app_name",
-    "description": "Generated from recording r_0928_014459",
-    "generated_at": "2025-09-28T01:45:42.208914",
-    "execution_order": [
-      "step_7a47c22a",
-      "step_69fab4c1",
-      "step_49cec4cf"
-    ],
-    "tags": [
-      "group"
-    ],
-    "updated_at": "2025-09-30T07:04:16.469990"
+    "created_at": "2025-10-17T02:35:50.081903"
   },
   "steps": [
     {
-      "agent": "interaction",
-      "description": "Type  ${{var:app_name:vscuse_app_#####}}  into the \"Input an application name\" text field in the Microsoft 365 Agents Toolkit extension popup within Visual Studio Code.",
-      "step_id": "step_7a47c22a",
-      "content_refs": [],
+      "tool": "type_text",
+      "plan_id": "plan_r_0928_014459",
+      "parameters": {
+        "text": "${{var:app_name:vscuse_app_#####}}"
+      },
       "timeout": 30,
       "continue_on_error": "false",
       "preconditions": [
         "dhash:512:384:0:20:f0b0909092b26461"
       ],
       "tags": [],
-      "created_at": "2025-09-28T01:45:42.239846",
-      "plan_id": "plan_r_0928_014459",
-      "tool": "type_text",
-      "parameters": {
-        "text": "${{var:app_name:vscuse_app_#####}}"
-      },
+      "created_at": "2025-10-17T02:35:50.092356",
+      "step_id": "step_7a47c22a",
+      "agent": "interaction",
+      "description": "Type  ${{var:app_name:vscuse_app_#####}}  into the \"Input an application name\" text field in the Microsoft 365 Agents Toolkit extension popup within Visual Studio Code.",
+      "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
       "screenshot": "step_7a47c22a"
     },
     {
-      "agent": "interaction",
-      "description": "Press Enter to confirm the application name ${{var:app_name:vscuse_app_#####}} in the input dialog at the top of the Visual Studio Code interface.",
-      "step_id": "step_69fab4c1",
-      "content_refs": [],
+      "tool": "key_press",
+      "plan_id": "plan_r_0928_014459",
+      "parameters": {
+        "key": "enter"
+      },
       "timeout": 30,
       "continue_on_error": "false",
       "preconditions": [
         "dhash:512:384:0:20:d0b0909092b26463"
       ],
       "tags": [],
-      "created_at": "2025-09-28T01:45:42.332565",
-      "plan_id": "plan_r_0928_014459",
-      "tool": "key_press",
-      "parameters": {
-        "key": "enter"
-      },
+      "created_at": "2025-10-17T02:35:50.105135",
+      "step_id": "step_69fab4c1",
+      "agent": "interaction",
+      "description": "Press Enter to confirm the application name ${{var:app_name:vscuse_app_#####}} in the input dialog at the top of the Visual Studio Code interface.",
+      "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
       "screenshot": "step_69fab4c1"
     },
     {
-      "agent": "assertion",
-      "description": "@assertion there's ${{var:app_name}} in the \"EXPLORER\" section. Don't care if it is uppercase letter.",
-      "step_id": "step_49cec4cf",
-      "content_refs": [],
+      "tool": "",
+      "plan_id": "plan_r_0928_014459",
+      "parameters": {},
       "timeout": 30,
       "continue_on_error": "false",
       "preconditions": [],
-      "tags": [
-        "delay: 5"
-      ],
-      "created_at": "2025-09-28T01:56:49.516127",
-      "plan_id": "plan_r_0928_014459",
-      "tool": "",
-      "parameters": {},
+      "tags": [],
+      "created_at": "2025-10-17T02:35:50.116567",
+      "step_id": "step_49cec4cf",
+      "agent": "assertion",
+      "description": "@assertion there's ${{var:app_name}} in the \"EXPLORER\" section. Don't care if it is uppercase letter.",
+      "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
