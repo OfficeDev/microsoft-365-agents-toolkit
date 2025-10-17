@@ -10,10 +10,19 @@ from microsoft.teams.openai import OpenAICompletionsAIModel
 from microsoft.teams.api import CitationAppearance, MessageActivity, MessageActivityInput, MessageSubmitActionInvokeActivity
 
 from config import Config
-from azure_ai_search_data_source import AzureAISearchDataSource
+from azure_ai_search_data_source import AzureAISearchDataSource, AzureAISearchDataSourceOptions
 
 config = Config()
-azure_ai_search = AzureAISearchDataSource()
+
+# Create Azure AI Search options
+search_options = AzureAISearchDataSourceOptions(
+    name="contoso-electronics-search",
+    indexName="contoso-electronics", 
+    azureAISearchApiKey=config.AZURE_SEARCH_KEY,
+    azureAISearchEndpoint=config.AZURE_SEARCH_ENDPOINT
+)
+
+azure_ai_search = AzureAISearchDataSource(search_options)
 
 # Load instructions from file
 def load_instructions() -> str:
@@ -75,7 +84,7 @@ async def handle_stateful_conversation(model: AIModel, ctx: ActivityContext[Mess
     print(f"Existing messages before sending to prompt: {len(existing_messages)} messages")
 
     input = ctx.activity.strip_mentions_text().text
-    data_context = azure_ai_search.render_data(input)
+    data_context = await ai_search.render_data(input)
 
     # Create ChatPrompt with conversation-specific memory
     chat_prompt = ChatPrompt(model)

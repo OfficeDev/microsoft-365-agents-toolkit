@@ -3,31 +3,32 @@ from typing import Optional, List
 from azure.search.documents.indexes.models import _edm as EDM
 from azure.search.documents.models import VectorQuery, VectorizedQuery
 {{#useAzureOpenAI}}
-from teams.ai.embeddings import AzureOpenAIEmbeddings, AzureOpenAIEmbeddingsOptions
+from openai import AsyncAzureOpenAI
 {{/useAzureOpenAI}}
 {{#useOpenAI}}
-from teams.ai.embeddings import OpenAIEmbeddings, OpenAIEmbeddingsOptions
+from openai import AsyncOpenAI
 {{/useOpenAI}}
 
 from config import Config
 
 async def get_embedding_vector(text: str):
     {{#useAzureOpenAI}}
-    client = OpenAI(
+    client = AsyncAzureOpenAI(
         api_key=Config.AZURE_OPENAI_API_KEY,
-        api_base=Config.AZURE_OPENAI_ENDPOINT,
-        api_version=2024-10-21
+        azure_endpoint=Config.AZURE_OPENAI_ENDPOINT,
+        api_version="2024-10-21"
     )
     {{/useAzureOpenAI}}
     {{#useOpenAI}}
-    client = OpenAI(api_key=Config.OPENAI_API_KEY)
+    client = AsyncOpenAI(api_key=Config.OPENAI_API_KEY)
     {{/useOpenAI}}
     
-    result = await client.embeddings.create(model=Config.OPENAI_EMBEDDING_DEPLOYMENT, input=query)
-    if (result.status != 'success' or not result.data):
+    result = await client.embeddings.create(
+        model=Config.AZURE_OPENAI_EMBEDDING_DEPLOYMENT, 
+        input=text
+    )
+    if not result.data:
         raise Exception(f"Failed to generate embeddings for description: {text}")
-    
-    return result.data[0].embedding
 
 @dataclass
 class Doc:
@@ -88,4 +89,9 @@ class AzureAISearchDataSource():
             return Result('')
 
 
-        return Result(doc)
+        # Convert search results to formatted text
+        docs = []
+        for result in searchResults:
+            docs.append(f"Title: {result.get('docTitle', 'N/A')}\nDescription: {result.get('description', 'N/A')}")
+        
+        return Result('\n\n'.join(docs))
