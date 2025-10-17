@@ -93,6 +93,7 @@ async def setup(search_api_key, search_api_endpoint, args):
     embedding_model = os.getenv('AZURE_OPENAI_EMBEDDING_DEPLOYMENT')
     {{/useAzureOpenAI}}
     {{#useOpenAI}}
+    embedding_model='text-embedding-ada-002'
     embeddings=OpenAI(api_key=args.api_key, model='text-embedding-ada-002')
     {{/useOpenAI}}
     data = await get_doc_data(embeddings=embeddings, model=embedding_model)
