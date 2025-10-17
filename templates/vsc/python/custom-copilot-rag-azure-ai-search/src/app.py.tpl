@@ -84,7 +84,7 @@ async def handle_stateful_conversation(model: AIModel, ctx: ActivityContext[Mess
     print(f"Existing messages before sending to prompt: {len(existing_messages)} messages")
 
     input = ctx.activity.strip_mentions_text().text
-    data_context = await ai_search.render_data(input)
+    data_context = await azure_ai_search.render_data(input)
 
     # Create ChatPrompt with conversation-specific memory
     chat_prompt = ChatPrompt(model)

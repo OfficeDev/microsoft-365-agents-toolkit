@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 from typing import Optional, List
-from azure.search.documents.indexes.models import _edm as EDM
-from azure.search.documents.models import VectorQuery, VectorizedQuery
+from azure.search.documents.models import VectorizedQuery
 {{#useAzureOpenAI}}
 from openai import AsyncAzureOpenAI
 {{/useAzureOpenAI}}
@@ -29,6 +28,7 @@ async def get_embedding_vector(text: str):
     )
     if not result.data:
         raise Exception(f"Failed to generate embeddings for description: {text}")
+    return result.data[0].embedding
 
 @dataclass
 class Doc:
