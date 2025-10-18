@@ -135,7 +135,12 @@ jobs:
 
       - name: Pull pre-built Docker image
         run: |
-          echo "VSCUSE_VSCODE_IMAGE=ghcr.io/microsoft/vscuse-vscode:${{ github.event.inputs.image_tag || 'latest' }}" >> $GITHUB_ENV
+          IMAGE_TAG="${{ github.event.inputs.image_tag }}"
+          if [ -z "$IMAGE_TAG" ]; then
+            IMAGE_TAG="latest"
+          fi
+          VSCUSE_VSCODE_IMAGE="ghcr.io/microsoft/vscuse-vscode:$IMAGE_TAG"
+          echo "VSCUSE_VSCODE_IMAGE=$VSCUSE_VSCODE_IMAGE" >> $GITHUB_ENV
           echo "Pulling pre-built Docker image: $VSCUSE_VSCODE_IMAGE"
           docker pull $VSCUSE_VSCODE_IMAGE
           echo "✅ Image pulled successfully!"
