@@ -3,7 +3,7 @@ azure-search
 azure-search-documents
 six
 dotenv>=0.9.9
-microsoft-teams-apps>=2.0.0a2,<3.0.0
-microsoft.teams.ai>=2.0.0a2,<3.0.0
-microsoft.teams.openai>=2.0.0a2,<3.0.0
+microsoft-teams-apps>=2.0.0a3,<3.0.0
+microsoft.teams.ai>=2.0.0a3,<3.0.0
+microsoft.teams.openai>=2.0.0a3,<3.0.0
 
