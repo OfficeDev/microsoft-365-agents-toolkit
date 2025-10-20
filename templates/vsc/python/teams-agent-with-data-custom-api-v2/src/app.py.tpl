@@ -3,7 +3,7 @@ import json
 import os
 
 from azure.identity import ManagedIdentityCredential
-from microsoft.teams.ai import ChatPrompt, ListMemory, Agent, Function
+from microsoft.teams.ai import ChatPrompt, ListMemory, Function
 from microsoft.teams.ai.ai_model import AIModel
 from microsoft.teams.apps import App, ActivityContext
 from microsoft.teams.openai import OpenAICompletionsAIModel
@@ -76,7 +76,7 @@ async def handle_stateful_conversation(model: AIModel, ctx: ActivityContext[Mess
     # Retrieve existing conversation memory or initialize new one
     memory = get_or_create_conversation_memory(ctx.activity.conversation.id)
 
-    agent = Agent(model=model)
+    prompt = ChatPrompt(model=model)
     
     def make_handler(fn, ctx):
         async def handler(parameters):

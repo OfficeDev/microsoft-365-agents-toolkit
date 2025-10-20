@@ -1625,7 +1625,7 @@ async function updateCodeForCustomApi(
     const updatedAppFileContent = appFileContent
       .replace(
         "// Replace with function definition code",
-        `agent${functionDefinitionsCode.join("")}`
+        `prompt${functionDefinitionsCode.join("")}`
       )
       .replace("//Replace with functions to be imported", `${operationIds.join(", ")}`);
     await fs.writeFile(appFilePath, updatedAppFileContent);
