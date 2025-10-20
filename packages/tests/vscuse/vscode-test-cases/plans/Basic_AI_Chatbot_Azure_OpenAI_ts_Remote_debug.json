@@ -1,8 +1,8 @@
 {
   "plan_metadata": {
-    "description": "Basic AI Chatbot Azure OpenAI ts Happy Path",
+    "generated_at": "2025-10-14T14:39:59.532604",
     "name": "Basic AI Chatbot Azure OpenAI ts Happy Path",
-    "generated_at": "2025-10-15T05:38:20.391001",
+    "description": "Basic AI Chatbot Azure OpenAI ts Happy Path. \nBlock on this: \"You don't have access to this app. Due to your org's messaging policy, you are not allowed to install this app.\" when lunch teams app in the end of plan",
     "execution_order": [
       "plan_r_0928_012254",
       "step_11d7c304",
@@ -17,7 +17,7 @@
       "plan_r_0930_063548"
     ],
     "tags": [],
-    "updated_at": "2025-10-15T05:39:22.878667",
+    "updated_at": "2025-10-17T04:08:37.306973",
     "version": "1.1",
     "plan_id": "plan_2a5d5939",
     "execution_context": {
@@ -27,19 +27,20 @@
       "precondition_retry_interval": 1
     },
     "total_steps": 4,
-    "created_at": "2025-10-15T05:38:20.391007"
+    "created_at": "2025-10-14T14:39:59.532604"
   },
   "steps": [
     {
-      "tool": "click",
-      "plan_id": "plan_2a5d5939",
       "description": "Click the \"Teams Agents and Apps\" option in the \"New Project\" dialog within Visual Studio Code, under the Microsoft 365 Agents Toolkit extension.",
+      "plan_id": "plan_2a5d5939",
+      "agent": "interaction",
       "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_11d7c304",
-      "agent": "interaction",
+      "tags": [],
+      "created_at": "2025-10-17T03:26:50.105692",
+      "tool": "click",
       "step_id": "step_11d7c304",
       "parameters": {
         "x": 373,
@@ -53,19 +54,19 @@
         "dhash:373:217:96:5:92222048a4a44900",
         "dhash:373:217:0:10:c8c8809090b26461"
       ],
-      "tags": [],
-      "created_at": "2025-10-15T05:38:20.400902"
+      "screenshot": "step_11d7c304"
     },
     {
-      "tool": "click",
-      "plan_id": "plan_2a5d5939",
       "description": "Click the \"General Teams Agent\" option in the dropdown menu within the \"Teams Agent or App Using Teams AI Library\" dialog in Visual Studio Code.",
+      "plan_id": "plan_2a5d5939",
+      "agent": "interaction",
       "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_46b68abb",
-      "agent": "interaction",
+      "tags": [],
+      "created_at": "2025-10-17T03:26:50.110696",
+      "tool": "click",
       "step_id": "step_46b68abb",
       "parameters": {
         "x": 358,
@@ -79,19 +80,19 @@
         "dhash:358:82:96:5:0800586222b6d199",
         "dhash:358:82:0:10:c0c4b09092b26461"
       ],
-      "tags": [],
-      "created_at": "2025-10-15T05:38:20.409322"
+      "screenshot": "step_46b68abb"
     },
     {
-      "tool": "click",
-      "plan_id": "plan_2a5d5939",
       "description": "Click the \"TypeScript\" option in the \"Programming Language\" dropdown within Visual Studio Code's Microsoft 365 Agents Toolkit interface.",
+      "plan_id": "plan_2a5d5939",
+      "agent": "interaction",
       "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_0b4248d7",
-      "agent": "interaction",
+      "tags": [],
+      "created_at": "2025-10-17T03:26:50.116203",
+      "tool": "click",
       "step_id": "step_0b4248d7",
       "parameters": {
         "x": 295,
@@ -105,19 +106,19 @@
         "dhash:295:82:96:5:a00090a4a4a4281c",
         "dhash:295:82:0:10:d090909092b26461"
       ],
-      "tags": [],
-      "created_at": "2025-10-15T05:38:20.416967"
+      "screenshot": "step_0b4248d7"
     },
     {
-      "tool": "click",
-      "plan_id": "plan_2a5d5939",
       "description": "Click the \"Default folder /home/vscode/AgentsToolkitProjects\" option in the \"Workspace Folder\" dropdown dialog in Visual Studio Code.",
+      "plan_id": "plan_2a5d5939",
+      "agent": "interaction",
       "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_4af62f96",
-      "agent": "interaction",
+      "tags": [],
+      "created_at": "2025-10-17T03:26:50.120365",
+      "tool": "click",
       "step_id": "step_4af62f96",
       "parameters": {
         "x": 378,
@@ -131,8 +132,7 @@
         "dhash:378:74:96:5:0a44440c45060601",
         "dhash:378:74:0:10:f0b0909092b26461"
       ],
-      "tags": [],
-      "created_at": "2025-10-15T05:38:20.424235"
+      "screenshot": "step_4af62f96"
     }
   ],
   "screenshots": {

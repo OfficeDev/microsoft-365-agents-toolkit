@@ -1,0 +1,198 @@
+{
+  "plan_metadata": {
+    "version": "1.1",
+    "plan_id": "plan_f3b56e1b",
+    "execution_context": {
+      "delay_between_steps": 1,
+      "stop_on_error": true,
+      "precondition_wait_timeout": 30,
+      "precondition_retry_interval": 1
+    },
+    "total_steps": 5,
+    "created_at": "2025-10-17T08:56:31.420775",
+    "name": "Message extension Happy path",
+    "description": "Message extension Happy path",
+    "generated_at": "2025-10-17T08:56:31.420772",
+    "execution_order": [
+      "plan_r_0928_012254",
+      "step_223fac48",
+      "step_91d05fcb",
+      "step_dcd465d0",
+      "step_db88ce15",
+      "step_1eb93c4d",
+      "plan_r_0928_014459",
+      "plan_r_0928_020230",
+      "plan_r_0929_040401",
+      "plan_r_0928_073729",
+      "plan_r_0928_075846",
+      "plan_r_0930_063548",
+      "plan_r_1010_071708"
+    ],
+    "tags": [],
+    "updated_at": "2025-10-20T07:41:19.502781"
+  },
+  "steps": [
+    {
+      "agent": "interaction",
+      "description": "Click the \"Teams Agents Apps\" option in the \"New Project\" popup within Visual Studio Code to select app creation for Microsoft 365.",
+      "step_id": "step_223fac48",
+      "content_refs": [],
+      "retry_count": 0,
+      "depends_on": [],
+      "postconditions": [],
+      "screenshot": "step_223fac48",
+      "tool": "click",
+      "plan_id": "plan_f3b56e1b",
+      "parameters": {
+        "x": 354,
+        "y": 213,
+        "button": "left",
+        "text": null,
+        "keys": null,
+        "key": null,
+        "dx": null,
+        "dy": null
+      },
+      "timeout": 30,
+      "continue_on_error": "0",
+      "preconditions": [
+        "dhash:354:213:16:5:9cdad252522d5228",
+        "dhash:354:213:96:5:51ccc81652691611",
+        "dhash:354:213:0:10:c8c8808684a66179"
+      ],
+      "tags": [],
+      "created_at": "2025-10-20T07:13:15.743679"
+    },
+    {
+      "agent": "interaction",
+      "description": "Click on the \"Other Teams Capabilities\" option within the dropdown menu labeled \"Teams Agent or App Using Teams AI Library.\"",
+      "step_id": "step_91d05fcb",
+      "content_refs": [],
+      "retry_count": 0,
+      "depends_on": [],
+      "postconditions": [],
+      "screenshot": "step_91d05fcb",
+      "tool": "click",
+      "plan_id": "plan_f3b56e1b",
+      "parameters": {
+        "x": 403,
+        "y": 223,
+        "button": "left",
+        "text": null,
+        "keys": null,
+        "key": null,
+        "dx": null,
+        "dy": null
+      },
+      "timeout": 30,
+      "continue_on_error": "0",
+      "preconditions": [
+        "dhash:403:223:16:5:28245a20a5a327a7",
+        "dhash:403:223:96:5:667088482c242d51",
+        "dhash:403:223:0:10:c0c8809090926461"
+      ],
+      "tags": [],
+      "created_at": "2025-10-20T07:23:10.990308"
+    },
+    {
+      "agent": "interaction",
+      "description": "Click the \"Message Extension\" option in the \"Teams Capability\" dropdown menu within the Microsoft 365 Agents Toolkit interface in Visual Studio Code.",
+      "step_id": "step_dcd465d0",
+      "content_refs": [],
+      "retry_count": 0,
+      "depends_on": [],
+      "postconditions": [],
+      "screenshot": "step_dcd465d0",
+      "tool": "click",
+      "plan_id": "plan_f3b56e1b",
+      "parameters": {
+        "x": 361,
+        "y": 129,
+        "button": "left",
+        "text": null,
+        "keys": null,
+        "key": null,
+        "dx": null,
+        "dy": null
+      },
+      "timeout": 30,
+      "continue_on_error": "0",
+      "preconditions": [
+        "dhash:361:129:16:5:404040a0000001aa",
+        "dhash:361:129:96:5:295942459a9b2400",
+        "dhash:361:129:0:10:d0c0989092926461"
+      ],
+      "tags": [],
+      "created_at": "2025-10-20T07:13:15.768059"
+    },
+    {
+      "agent": "interaction",
+      "description": "Click on the \"TypeScript\" option in the programming language dropdown within the Visual Studio Code \"Microsoft 365 Agents Toolkit\" interface.",
+      "step_id": "step_db88ce15",
+      "content_refs": [],
+      "retry_count": 0,
+      "depends_on": [],
+      "postconditions": [],
+      "screenshot": "step_db88ce15",
+      "tool": "click",
+      "plan_id": "plan_f3b56e1b",
+      "parameters": {
+        "x": 274,
+        "y": 80,
+        "button": "left",
+        "text": null,
+        "keys": null,
+        "key": null,
+        "dx": null,
+        "dy": null
+      },
+      "timeout": 30,
+      "continue_on_error": "0",
+      "preconditions": [
+        "dhash:274:80:16:5:66c49d4d659ac511",
+        "dhash:274:80:96:5:004076a98986a05a",
+        "dhash:274:80:0:10:d090909092926461"
+      ],
+      "tags": [],
+      "created_at": "2025-10-20T07:26:49.777348"
+    },
+    {
+      "agent": "interaction",
+      "description": "Click the \"Default folder\" option in the \"Workspace Folder\" selection dialog of Visual Studio Code - Insiders, located just below the input for the project root folder path.",
+      "step_id": "step_1eb93c4d",
+      "content_refs": [],
+      "retry_count": 0,
+      "depends_on": [],
+      "postconditions": [],
+      "screenshot": "step_1eb93c4d",
+      "tool": "click",
+      "plan_id": "plan_f3b56e1b",
+      "parameters": {
+        "x": 305,
+        "y": 77,
+        "button": "left",
+        "text": null,
+        "keys": null,
+        "key": null,
+        "dx": null,
+        "dy": null
+      },
+      "timeout": 30,
+      "continue_on_error": "0",
+      "preconditions": [
+        "dhash:305:77:16:5:4235e6a5b5a546a8",
+        "dhash:305:77:96:5:d04c0db232c58018",
+        "dhash:305:77:0:10:c0b0a48686a66179"
+      ],
+      "tags": [],
+      "created_at": "2025-10-20T07:13:15.780417"
+    }
+  ],
+  "screenshots": {
+    "step_223fac48": "step_223fac48",
+    "step_dcd465d0": "step_dcd465d0",
+    "step_1eb93c4d": "step_1eb93c4d",
+    "step_91d05fcb": "step_91d05fcb",
+    "step_db88ce15": "step_db88ce15"
+  }
+}

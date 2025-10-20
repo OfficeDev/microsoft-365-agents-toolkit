@@ -1,0 +1,92 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "packages", "packages", "{809F86A1-1C4C-B159-0CD4-DF9D33D876CE}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "function-extension", "function-extension", "{6BBE1FBF-EE77-AF38-3115-AB2A2DDF362B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Azure.WebJobs.Extensions.TeamsFx", "packages\function-extension\src\Microsoft.Azure.WebJobs.Extensions.TeamsFx.csproj", "{05D5A8AA-4780-9079-51C2-9ACAF39DD170}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "dotnet-sdk", "dotnet-sdk", "{AD517D70-4F98-A042-5EF1-C2F46CA4DE5D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{BBBBBC36-0FEE-DA31-970C-AF304719DE5F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.TeamsFx", "packages\dotnet-sdk\src\TeamsFx\Microsoft.TeamsFx.csproj", "{9600EC1D-B5A2-49D9-37AE-C184B1758853}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.TeamsFx.Test", "packages\dotnet-sdk\src\TeamsFx.Test\Microsoft.TeamsFx.Test.csproj", "{E512A5E1-43F7-A707-553C-C309D009424E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{DAEEEC9C-F73E-9D4D-F632-90B96C33DCB4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Azure.WebJobs.Extensions.TeamsFx.Tests", "packages\function-extension\tests\Microsoft.Azure.WebJobs.Extensions.TeamsFx.Tests\Microsoft.Azure.WebJobs.Extensions.TeamsFx.Tests.csproj", "{811DF894-9153-FC42-AACE-ABFA90367877}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "simpleauth", "simpleauth", "{B576096D-8A95-1F84-395B-834B883C69CE}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{C121196B-412A-DA8E-542D-5C40EE333421}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.TeamsFx.SimpleAuth", "packages\simpleauth\src\TeamsFxSimpleAuth\Microsoft.TeamsFx.SimpleAuth.csproj", "{0F42C6BF-6E11-DDED-3635-7384061D317B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.TeamsFx.SimpleAuth.Tests", "packages\simpleauth\src\TeamsFxSimpleAuth.Tests\Microsoft.TeamsFx.SimpleAuth.Tests.csproj", "{8D6B3BEF-B035-0849-96BB-7935C5112EED}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TestAssets", "TestAssets", "{6F18E41B-E2A9-AA39-688A-C24D0CF10536}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Azure.WebJobs.Extensions.TeamsFx.TestsAssets.FunctionAppCSharp", "packages\function-extension\tests\TestAssets\FunctionAppCSharp\Microsoft.Azure.WebJobs.Extensions.TeamsFx.TestsAssets.FunctionAppCSharp.csproj", "{80D4B650-299F-63B2-AC79-0BEFEC7BD518}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{05D5A8AA-4780-9079-51C2-9ACAF39DD170}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{05D5A8AA-4780-9079-51C2-9ACAF39DD170}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{05D5A8AA-4780-9079-51C2-9ACAF39DD170}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{05D5A8AA-4780-9079-51C2-9ACAF39DD170}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9600EC1D-B5A2-49D9-37AE-C184B1758853}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9600EC1D-B5A2-49D9-37AE-C184B1758853}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9600EC1D-B5A2-49D9-37AE-C184B1758853}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9600EC1D-B5A2-49D9-37AE-C184B1758853}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E512A5E1-43F7-A707-553C-C309D009424E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E512A5E1-43F7-A707-553C-C309D009424E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E512A5E1-43F7-A707-553C-C309D009424E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E512A5E1-43F7-A707-553C-C309D009424E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{811DF894-9153-FC42-AACE-ABFA90367877}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{811DF894-9153-FC42-AACE-ABFA90367877}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{811DF894-9153-FC42-AACE-ABFA90367877}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{811DF894-9153-FC42-AACE-ABFA90367877}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0F42C6BF-6E11-DDED-3635-7384061D317B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0F42C6BF-6E11-DDED-3635-7384061D317B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0F42C6BF-6E11-DDED-3635-7384061D317B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0F42C6BF-6E11-DDED-3635-7384061D317B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8D6B3BEF-B035-0849-96BB-7935C5112EED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8D6B3BEF-B035-0849-96BB-7935C5112EED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8D6B3BEF-B035-0849-96BB-7935C5112EED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8D6B3BEF-B035-0849-96BB-7935C5112EED}.Release|Any CPU.Build.0 = Release|Any CPU
+		{80D4B650-299F-63B2-AC79-0BEFEC7BD518}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{80D4B650-299F-63B2-AC79-0BEFEC7BD518}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{80D4B650-299F-63B2-AC79-0BEFEC7BD518}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{80D4B650-299F-63B2-AC79-0BEFEC7BD518}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{6BBE1FBF-EE77-AF38-3115-AB2A2DDF362B} = {809F86A1-1C4C-B159-0CD4-DF9D33D876CE}
+		{05D5A8AA-4780-9079-51C2-9ACAF39DD170} = {6BBE1FBF-EE77-AF38-3115-AB2A2DDF362B}
+		{AD517D70-4F98-A042-5EF1-C2F46CA4DE5D} = {809F86A1-1C4C-B159-0CD4-DF9D33D876CE}
+		{BBBBBC36-0FEE-DA31-970C-AF304719DE5F} = {AD517D70-4F98-A042-5EF1-C2F46CA4DE5D}
+		{9600EC1D-B5A2-49D9-37AE-C184B1758853} = {BBBBBC36-0FEE-DA31-970C-AF304719DE5F}
+		{E512A5E1-43F7-A707-553C-C309D009424E} = {BBBBBC36-0FEE-DA31-970C-AF304719DE5F}
+		{DAEEEC9C-F73E-9D4D-F632-90B96C33DCB4} = {6BBE1FBF-EE77-AF38-3115-AB2A2DDF362B}
+		{811DF894-9153-FC42-AACE-ABFA90367877} = {DAEEEC9C-F73E-9D4D-F632-90B96C33DCB4}
+		{B576096D-8A95-1F84-395B-834B883C69CE} = {809F86A1-1C4C-B159-0CD4-DF9D33D876CE}
+		{C121196B-412A-DA8E-542D-5C40EE333421} = {B576096D-8A95-1F84-395B-834B883C69CE}
+		{0F42C6BF-6E11-DDED-3635-7384061D317B} = {C121196B-412A-DA8E-542D-5C40EE333421}
+		{8D6B3BEF-B035-0849-96BB-7935C5112EED} = {C121196B-412A-DA8E-542D-5C40EE333421}
+		{6F18E41B-E2A9-AA39-688A-C24D0CF10536} = {DAEEEC9C-F73E-9D4D-F632-90B96C33DCB4}
+		{80D4B650-299F-63B2-AC79-0BEFEC7BD518} = {6F18E41B-E2A9-AA39-688A-C24D0CF10536}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {586FD93D-1A81-4DFD-9529-6C9B93F58D8D}
+	EndGlobalSection
+EndGlobal
