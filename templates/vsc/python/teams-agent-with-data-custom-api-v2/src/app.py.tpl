@@ -87,7 +87,7 @@ async def handle_stateful_conversation(model: AIModel, ctx: ActivityContext[Mess
 
     // Replace with function definition code
 
-    chat_result = await agent.send(
+    chat_result = await prompt.send(
         input=ctx.activity.text, 
         memory=memory,
         instructions=INSTRUCTIONS
