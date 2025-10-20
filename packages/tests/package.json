@@ -56,7 +56,7 @@
     "mssql": "^9.1.1",
     "mustache": "^4.2.0",
     "nyc": "^15.1.0",
-    "playwright": "^1.44.1",
+    "playwright": "^1.55.1",
     "prettier": "^2.4.1",
     "rimraf": "^3.0.2",
     "sinon": "^9.2.2",
