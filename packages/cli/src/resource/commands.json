@@ -28,7 +28,8 @@
       "tenant": "Authenticate with a specific Microsoft Entra tenant.",
       "service-principal": "Authenticate Azure with a credential representing a service principal",
       "username": "Client ID for service principal",
-      "password": "Provide client secret or a pem file with key and public certificate."
+      "password": "Provide client secret or a pem file with key and public certificate.",
+      "claims-challenge": "Base64-encoded claims challenge requested by a resource API in the WWW-Authenticate header."
     }
   },
   "auth.login.m365": {

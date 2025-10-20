@@ -191,7 +191,9 @@ export class AzureAccountManager extends login implements AzureAccountProvider {
     }
   }
 
-  private async doGetAccountCredentialAsync(): Promise<TokenCredential | undefined> {
+  private async doGetAccountCredentialAsync(
+    wwwAuthenticate?: string
+  ): Promise<TokenCredential | undefined> {
     if (await this.isUserLogin()) {
       const subs = await this.vscodeAzureSubscriptionProvider.getSubscriptions();
       if (subs.length > 0) {
@@ -205,10 +207,14 @@ export class AzureAccountManager extends login implements AzureAccountProvider {
         }
         return subs[0].credential;
       } else {
-        const session = await getSessionFromVSCode(AzureScopes, undefined, {
-          createIfNone: false,
-          silent: true,
-        });
+        const session = await getSessionFromVSCode(
+          { scopes: AzureScopes, wwwAuthenticate: wwwAuthenticate ?? "" },
+          undefined,
+          {
+            createIfNone: false,
+            silent: true,
+          }
+        );
         const credential: TokenCredential = {
           // eslint-disable-next-line @typescript-eslint/require-await
           getToken: async () => {

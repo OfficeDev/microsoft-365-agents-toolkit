@@ -48,12 +48,12 @@ export const specialTemplates: Template[] = [
     language: "csharp",
     description: "",
   },
-  // {
-  //   id: "custom-copilot-rag-custom-api-python",
-  //   name: TemplateNames.CustomCopilotRagCustomApi,
-  //   language: "python",
-  //   description: "",
-  // },
+  {
+    id: "teams-agent-with-data-custom-api-v2-python",
+    name: TemplateNames.CustomCopilotRagCustomApi,
+    language: "python",
+    description: "",
+  },
   {
     id: "message-extension-with-existing-api",
     name: TemplateNames.MessageExtensionWithExistingApiSpec,

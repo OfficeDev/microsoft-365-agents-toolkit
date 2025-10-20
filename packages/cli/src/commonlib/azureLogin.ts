@@ -11,6 +11,7 @@ import {
   AzureAccountProvider,
   ConfigFolderName,
   FxError,
+  ITeamsFxTokenCredential,
   LogLevel as LLevel,
   ok,
   OptionItem,
@@ -66,6 +67,7 @@ function getConfig(tenantId?: string) {
     auth: {
       clientId: "7ea7c24c-b1f6-4a20-9d11-9ae12e9e7ac0",
       authority: authority,
+      clientCapabilities: ["CP1"],
     },
     system: {
       loggerOptions: {
@@ -89,7 +91,7 @@ function getConfig(tenantId?: string) {
 // @ts-ignore
 const memoryDictionary: { [tenantId: string]: MemoryCache } = {};
 
-class TeamsFxTokenCredential implements TokenCredential {
+class TeamsFxTokenCredential implements ITeamsFxTokenCredential {
   private codeFlowInstance: CodeFlowLogin;
   private tenantId: string;
 
@@ -103,17 +105,11 @@ class TeamsFxTokenCredential implements TokenCredential {
   }
 
   async getToken(
-    scopes: string | string[],
-    options?: GetTokenOptions | undefined
+    scopes: string | string[] | AuthenticationWWWAuthenticateRequest,
+    options?: any
   ): Promise<AccessToken | null> {
-    let myScopes: string[] = [];
-    if (typeof scopes === "string") {
-      myScopes = [scopes];
-    } else {
-      myScopes = scopes;
-    }
     const tokenRes: Result<string, FxError> = await this.codeFlowInstance.getTokenByScopes(
-      myScopes,
+      scopes,
       true,
       this.tenantId
     );
@@ -180,14 +176,19 @@ export class AzureAccountManager extends login implements AzureAccountProvider {
   getIdentityCredentialAsync(
     showDialog = true,
     authenticationSessionRequest?: AuthenticationWWWAuthenticateRequest
-  ): Promise<TokenCredential | undefined> {
+  ): Promise<TeamsFxTokenCredential | undefined> {
     if (authenticationSessionRequest && authenticationSessionRequest.wwwAuthenticate) {
+      const claimsChallenge = parseChallenges(authenticationSessionRequest.wwwAuthenticate).claims;
+      CLILogProvider.necessaryLog(
+        LLevel.Warning,
+        `Run the command below to authenticate interactively; additional arguments may be added as needed:\n atk auth login --claims-challenge ${claimsChallenge}`
+      );
       throw new MFARequiredError(cliSource);
     }
     return Promise.resolve(AzureAccountManager.teamsFxTokenCredential);
   }
 
-  async switchTenant(tenantId: string): Promise<Result<TokenCredential, FxError>> {
+  async switchTenant(tenantId: string): Promise<Result<TeamsFxTokenCredential, FxError>> {
     await saveTenantId(accountName, tenantId);
     return Promise.resolve(ok(AzureAccountManager.teamsFxTokenCredential));
   }
@@ -254,10 +255,11 @@ export class AzureAccountManager extends login implements AzureAccountProvider {
 
   async getJsonObject(
     showDialog = true,
-    tenantId?: string
+    tenantId?: string,
+    claimsChallenge?: string
   ): Promise<Record<string, unknown> | undefined> {
     const token = await AzureAccountManager.codeFlowInstance.getTokenByScopes(
-      AzureScopes,
+      claimsChallenge ? { scopes: AzureScopes, wwwAuthenticate: claimsChallenge } : AzureScopes,
       true,
       tenantId
     );
@@ -564,6 +566,7 @@ async function listAll<T>(
 import AzureLoginCI from "./azureLoginCI";
 import AzureAccountProviderUserPassword from "./azureLoginUserPassword";
 import { cliSource } from "../constants";
+import { parseChallenges } from "./common/utils";
 
 // todo delete ciEnabled
 const azureLogin = !ui.interactive

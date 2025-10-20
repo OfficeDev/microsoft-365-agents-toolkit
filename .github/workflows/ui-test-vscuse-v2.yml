@@ -30,7 +30,7 @@ jobs:
         run: |
           if [ -z "${{ github.event.inputs.test_plan }}" ]; then
             # Get only top-level JSON files from plans directory (strip the .json extension)
-            plans=$(find packages/tests/vscuse/vscode-test-cases/ -maxdepth 1 -type f -name "*.json" -exec basename {} .json \; | jq -R -s -c 'split("\n")[:-1]')
+            plans=$(find packages/tests/vscuse/vscode-test-cases/plans/ -maxdepth 1 -type f -name "*.json" -exec basename {} .json \; | jq -R -s -c 'split("\n")[:-1]')
             echo "plans=$plans" >> $GITHUB_OUTPUT
             echo "Found test plans: $plans"
           else
@@ -45,7 +45,7 @@ jobs:
     name: Case-${{ matrix.test_plan }}
     needs: discover-test-plans
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 50
 
     strategy:
       matrix:
@@ -70,6 +70,8 @@ jobs:
       # M365 account for testing
       M365_ACCOUNT_NAME: "test01@atktesting.onmicrosoft.com"
       M365_ACCOUNT_PASSWORD: ${{ secrets.TEST_M365_PASSWORD_NEW }}
+      AZURE_ACCOUNT_NAME: "test01@atktesting.onmicrosoft.com"
+      AZURE_ACCOUNT_PASSWORD: ${{ secrets.TEST_M365_PASSWORD_NEW }}
       M365_TENANT_ID: ${{ secrets.TEST_CLEAN_TENANT_ID_NEW }}
 
     steps:
@@ -133,14 +135,19 @@ jobs:
 
       - name: Pull pre-built Docker image
         run: |
-          echo "Pulling pre-built Docker image: ghcr.io/microsoft/vscuse-vscode:${{ github.event.inputs.image_tag || 'latest' }}"
-          docker pull ghcr.io/microsoft/vscuse-vscode:${{ github.event.inputs.image_tag || 'latest' }}
+          IMAGE_TAG="${{ github.event.inputs.image_tag }}"
+          if [ -z "$IMAGE_TAG" ]; then
+            IMAGE_TAG="latest"
+          fi
+          VSCUSE_VSCODE_IMAGE="ghcr.io/microsoft/vscuse-vscode:$IMAGE_TAG"
+          echo "VSCUSE_VSCODE_IMAGE=$VSCUSE_VSCODE_IMAGE" >> $GITHUB_ENV
+          echo "Pulling pre-built Docker image: $VSCUSE_VSCODE_IMAGE"
+          docker pull $VSCUSE_VSCODE_IMAGE
           echo "✅ Image pulled successfully!"
           echo "Image details:"
-          docker images ghcr.io/microsoft/vscuse-vscode:${{ github.event.inputs.image_tag || 'latest' }}
-
+          docker images $VSCUSE_VSCODE_IMAGE
+          
       - name: Run test
-        timeout-minutes: 15
         run: |
           echo "🚀 Running test plan: ${{ matrix.test_plan }}"
           echo "Using image tag: ${{ github.event.inputs.image_tag || 'latest' }}"
@@ -149,7 +156,7 @@ jobs:
           cd packages/tests/vscuse/vscode-test-cases
           python -m venv .venv
           source .venv/bin/activate
-          vscuse execute --config-file ./config.yaml --groups-dir groups ${{ matrix.test_plan }}.json
+          vscuse execute --config-file ./config.yaml --groups-dir groups ./plans/${{ matrix.test_plan }}.json
 
       - name: Upload test artifacts
         if: always()

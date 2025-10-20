@@ -17,6 +17,7 @@ import {
   SubscriptionInfo,
   signedIn,
   signedOut,
+  ITeamsFxTokenCredential,
 } from "@microsoft/teamsfx-api";
 import { LoginStatus, login } from "./common/login";
 
@@ -32,7 +33,7 @@ import { ConvertTokenToJson } from "./codeFlowLogin";
  * Prepare for service principal login, not fully implemented
  */
 export class AzureAccountManager extends login implements AzureAccountProvider {
-  static tokenCredential: TokenCredential;
+  static tokenCredential: ITeamsFxTokenCredential;
 
   private static subscriptionId: string | undefined;
 
@@ -91,7 +92,7 @@ export class AzureAccountManager extends login implements AzureAccountProvider {
     return false;
   }
 
-  async getIdentityCredentialAsync(): Promise<TokenCredential | undefined> {
+  async getIdentityCredentialAsync(): Promise<ITeamsFxTokenCredential | undefined> {
     await this.load();
     if (AzureAccountManager.tokenCredential == undefined) {
       if (await fs.pathExists(AzureAccountManager.secret)) {
@@ -125,7 +126,7 @@ export class AzureAccountManager extends login implements AzureAccountProvider {
     return true;
   }
 
-  switchTenant(tenantId: string): Promise<Result<TokenCredential, FxError>> {
+  switchTenant(tenantId: string): Promise<Result<ITeamsFxTokenCredential, FxError>> {
     return Promise.resolve(ok(AzureAccountManager.tokenCredential));
   }
 

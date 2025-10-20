@@ -1,5 +1,9 @@
-python-dotenv
-aiohttp
+azure-identity>=1.12.0
 azure-search
 azure-search-documents
-teams-ai>=1.6.0,<2.0.0
+six
+dotenv>=0.9.9
+microsoft-teams-apps>=2.0.0a3,<3.0.0
+microsoft.teams.ai>=2.0.0a3,<3.0.0
+microsoft.teams.openai>=2.0.0a3,<3.0.0
+
