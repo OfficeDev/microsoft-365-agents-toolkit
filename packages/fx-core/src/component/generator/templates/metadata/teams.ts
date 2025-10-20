@@ -48,6 +48,12 @@ const chatWithYourDataTemplates: Template[] = [
     description: "",
   },
   {
+    id: "custom-copilot-rag-azure-ai-search-python",
+    name: TemplateNames.CustomCopilotRagAzureAISearch,
+    language: "python",
+    description: "",
+  },
+  {
     id: "custom-copilot-rag-microsoft365-ts",
     name: TemplateNames.CustomCopilotRagMicrosoft365,
     language: "typescript",

@@ -14,39 +14,6 @@ provision:
     writeToEnvironmentFile: 
       teamsAppId: TEAMS_APP_ID
 
-  # Create or reuse an existing Microsoft Entra application for bot.
-  - uses: aadApp/create
-    with:
-      # The Microsoft Entra application's display name
-      name: {{appName}}${{APP_NAME_SUFFIX}}
-      generateClientSecret: true
-      signInAudience: AzureADMultipleOrgs
-    writeToEnvironmentFile:
-      # The Microsoft Entra application's client id created for bot.
-      clientId: BOT_ID
-      # The Microsoft Entra application's client secret created for bot.
-      clientSecret: SECRET_BOT_PASSWORD
-      # The Microsoft Entra application's object id created for bot.
-      objectId: BOT_OBJECT_ID
-
-  # Create or update the bot registration on dev.botframework.com
-  - uses: botFramework/create
-    with:
-      botId: ${{BOT_ID}}
-      name: {{appName}}
-      messagingEndpoint: ${{BOT_ENDPOINT}}/api/messages
-      description: ""
-      channels:
-        - name: msteams
-
-  {{^CEAEnabled}}
-  # Validate using manifest schema
-  - uses: teamsApp/validateManifest
-    with:
-      # Path to manifest template
-      manifestPath: ./appPackage/manifest.json
-  {{/CEAEnabled}}
-
   # Build app package with latest env value
   - uses: teamsApp/zipAppPackage
     with:
@@ -69,7 +36,7 @@ provision:
       # Relative path to this file. This is the path for built zip file.
       appPackagePath: ./appPackage/build/appPackage.${{TEAMSFX_ENV}}.zip
 
-  {{#CEAEnabled}}
+  # Extend your app to Outlook and the Microsoft 365 app
   - uses: teamsApp/extendToM365
     with:
       # Relative path to the build app package.
@@ -79,24 +46,23 @@ provision:
     writeToEnvironmentFile:
       titleId: M365_TITLE_ID
       appId: M365_APP_ID
-  {{/CEAEnabled}}
 
 deploy:
+  # Run npm command
+  - uses: cli/runNpmCommand
+    with:
+      args: install --no-audit
+      workingDirectory: ./src/Web
+      
+  - uses: cli/runNpmCommand
+    name: build app
+    with:
+      args: run build --if-present
+      workingDirectory: ./src/Web
+
   # Generate runtime environment variables
   - uses: file/createOrUpdateEnvironmentFile
     with:
       target: ./.env
       envs:
-        CLIENT_ID: ${{BOT_ID}}
-        CLIENT_SECRET: ${{SECRET_BOT_PASSWORD}}
-        {{#useAzureOpenAI}}
-        AZURE_OPENAI_API_KEY: ${{SECRET_AZURE_OPENAI_API_KEY}}
-        AZURE_OPENAI_MODEL_DEPLOYMENT_NAME: ${{AZURE_OPENAI_MODEL_DEPLOYMENT_NAME}}
-        AZURE_OPENAI_ENDPOINT: ${{AZURE_OPENAI_ENDPOINT}}
-        AZURE_OPENAI_EMBEDDING_DEPLOYMENT: ${{AZURE_OPENAI_EMBEDDING_DEPLOYMENT}}
-        {{/useAzureOpenAI}}
-        {{#useOpenAI}}
-        OPENAI_API_KEY: ${{SECRET_OPENAI_API_KEY}}
-        {{/useOpenAI}}
-        AZURE_SEARCH_KEY: ${{SECRET_AZURE_SEARCH_KEY}}
-        AZURE_SEARCH_ENDPOINT: ${{AZURE_SEARCH_ENDPOINT}}
+        PORT: 53000

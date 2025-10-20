@@ -100,8 +100,8 @@ deploy:
     with:
       target: ./.env
       envs:
-        BOT_ID: ${{BOT_ID}}
-        BOT_PASSWORD: ${{SECRET_BOT_PASSWORD}}
+        CLIENT_ID: ${{BOT_ID}}
+        CLIENT_SECRET: ${{SECRET_BOT_PASSWORD}}
         {{#useAzureOpenAI}}
         AZURE_OPENAI_API_KEY: ${{SECRET_AZURE_OPENAI_API_KEY}}
         AZURE_OPENAI_MODEL_DEPLOYMENT_NAME: ${{AZURE_OPENAI_MODEL_DEPLOYMENT_NAME}}

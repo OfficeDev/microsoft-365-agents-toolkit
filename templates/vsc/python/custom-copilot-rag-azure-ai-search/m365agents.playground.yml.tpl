@@ -19,8 +19,8 @@ deploy:
       target: ./.env
       envs:
         TEAMSFX_NOTIFICATION_STORE_FILENAME: ${{TEAMSFX_NOTIFICATION_STORE_FILENAME}}
-        BOT_ID: ""
-        BOT_PASSWORD: ""
+        CLIENT_ID: ""
+        CLIENT_SECRET: ""
         {{#useAzureOpenAI}}
         AZURE_OPENAI_API_KEY: ${{SECRET_AZURE_OPENAI_API_KEY}}
         AZURE_OPENAI_MODEL_DEPLOYMENT_NAME: ${{AZURE_OPENAI_MODEL_DEPLOYMENT_NAME}}
