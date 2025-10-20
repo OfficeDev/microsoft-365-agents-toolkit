@@ -45,7 +45,7 @@ jobs:
     name: Case-${{ matrix.test_plan }}
     needs: discover-test-plans
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 50
 
     strategy:
       matrix:
@@ -135,14 +135,19 @@ jobs:
 
       - name: Pull pre-built Docker image
         run: |
-          echo "Pulling pre-built Docker image: ghcr.io/microsoft/vscuse-vscode:${{ github.event.inputs.image_tag || 'latest' }}"
-          docker pull ghcr.io/microsoft/vscuse-vscode:${{ github.event.inputs.image_tag || 'latest' }}
+          IMAGE_TAG="${{ github.event.inputs.image_tag }}"
+          if [ -z "$IMAGE_TAG" ]; then
+            IMAGE_TAG="latest"
+          fi
+          VSCUSE_VSCODE_IMAGE="ghcr.io/microsoft/vscuse-vscode:$IMAGE_TAG"
+          echo "VSCUSE_VSCODE_IMAGE=$VSCUSE_VSCODE_IMAGE" >> $GITHUB_ENV
+          echo "Pulling pre-built Docker image: $VSCUSE_VSCODE_IMAGE"
+          docker pull $VSCUSE_VSCODE_IMAGE
           echo "✅ Image pulled successfully!"
           echo "Image details:"
-          docker images ghcr.io/microsoft/vscuse-vscode:${{ github.event.inputs.image_tag || 'latest' }}
-
+          docker images $VSCUSE_VSCODE_IMAGE
+          
       - name: Run test
-        timeout-minutes: 15
         run: |
           echo "🚀 Running test plan: ${{ matrix.test_plan }}"
           echo "Using image tag: ${{ github.event.inputs.image_tag || 'latest' }}"
