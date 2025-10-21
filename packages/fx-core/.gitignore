@@ -7,4 +7,5 @@ coverage
 .prettierrc.json
 .fx
 templates/**/*.zip
+resource/templates
 tests/**/TeamsSPFxApp.zip

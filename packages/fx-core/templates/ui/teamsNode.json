@@ -1,0 +1,124 @@
+{
+  "condition": {
+    "equals": "teams-agent-and-app-type"
+  },
+  "data": {
+    "title": "core.createProjectQuestion.projectType.teamsAgentsAndApps.title",
+    "name": "teams-app-type",
+    "type": "singleSelect",
+    "options": [
+      {
+        "id": "custom-copilot-basic",
+        "label": "core.createProjectQuestion.capability.customCopilotBasicOption.label",
+        "detail": "core.createProjectQuestion.capability.customCopilotBasicOption.detail",
+        "data": "custom-copilot-basic"
+      },
+      {
+        "id": "custom-copilot-rag",
+        "label": "core.createProjectQuestion.capability.customCopilotRagOption.label",
+        "detail": "core.createProjectQuestion.capability.customCopilotRagOption.detail"
+      },
+      {
+        "id": "teams-collaborator-agent",
+        "label": "core.createProjectQuestion.capability.teamsAgent.collaborator.label",
+        "detail": "core.createProjectQuestion.capability.teamsAgent.collaborator.detail",
+        "data": "teams-collaborator-agent"
+      },
+      {
+        "id": "teams-other-app-type",
+        "label": "core.createProjectQuestion.capability.teamsAgent.others.label",
+        "detail": "core.createProjectQuestion.capability.teamsAgent.others.detail"
+      }
+    ],
+    "placeholder": "question.placeholder.choose"
+  },
+  "children": [
+    {
+      "condition": {
+        "equals": "custom-copilot-rag"
+      },
+      "data": {
+        "type": "singleSelect",
+        "name": "custom-copilot-rag",
+        "title": "core.createProjectQuestion.capability.customCopilotRagOption.label",
+        "placeholder": "core.createProjectQuestion.capability.customCopilotRag.placeholder",
+        "default": "custom-copilot-rag-customize",
+        "options": [
+          {
+            "id": "custom-copilot-rag-customize",
+            "label": "core.createProjectQuestion.capability.customCopilotRagCustomizeOption.label",
+            "detail": "core.createProjectQuestion.capability.customCopilotRagCustomizeOption.detail",
+            "data": "custom-copilot-rag-customize"
+          },
+          {
+            "id": "custom-copilot-rag-azure-ai-search",
+            "label": "core.createProjectQuestion.capability.customCopilotRagAzureAISearchOption.label",
+            "detail": "core.createProjectQuestion.capability.customCopilotRagAzureAISearchOption.detail",
+            "data": "custom-copilot-rag-azure-ai-search"
+          },
+          {
+            "id": "custom-copilot-rag-custom-api",
+            "label": "core.createProjectQuestion.capability.customCopilotRagCustomApiOption.label",
+            "detail": "core.createProjectQuestion.capability.customCopilotRagCustomApiOption.detail",
+            "data": "custom-copilot-rag-custom-api"
+          }
+        ]
+      },
+      "children": [
+        {
+          "condition": {
+            "equals": "custom-copilot-rag-custom-api"
+          },
+          "node": "apiSpecNode"
+        }
+      ]
+    },
+    {
+      "condition": {
+        "enum": [
+          "custom-copilot-basic",
+          "custom-copilot-rag"
+        ]
+      },
+      "node": "llmServiceNode"
+    },
+    {
+      "condition": {
+        "equals": "teams-collaborator-agent"
+      },
+      "node": "azureOpenAINode"
+    },
+    {
+      "condition": {
+        "equals": "teams-other-app-type"
+      },
+      "data": {
+        "type": "singleSelect",
+        "name": "teams-other-app-type",
+        "title": "core.createProjectQuestion.teamsCapability.title",
+        "options": [
+          {
+            "id": "non-sso-tab",
+            "label": "core.TabNonSso.label",
+            "detail": "core.TabNonSso.detail",
+            "data": "non-sso-tab"
+          },
+          {
+            "id": "default-message-extension",
+            "label": "core.MessageExtensionOption.label",
+            "detail": "core.MessageExtensionOption.detail",
+            "data": "default-message-extension"
+          },
+          {
+            "id": "default-bot",
+            "label": "core.BotNewUIOption.label",
+            "detail": "core.BotNewUIOption.detail",
+            "data": "default-bot"
+          }
+        ],
+        "placeholder": "question.placeholder.choose"
+      },
+      "children": []
+    }
+  ]
+}

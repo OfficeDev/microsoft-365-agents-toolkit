@@ -63,7 +63,7 @@ import {
   webContentQuestion,
 } from "./create";
 import { UninstallInputs } from "./inputs";
-import { inputOrSearchAPISpecNode } from "./scaffold/vsc/teamsProjectTypeNode";
+import { inputOrSearchAPISpecNode } from "./scaffold/commonNodes";
 
 export function convertAadToNewSchemaQuestionNode(): IQTreeNode {
   return {

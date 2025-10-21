@@ -1,11 +1,11 @@
 const AdmZip = require("adm-zip");
-const { readdirSync, rmSync } = require("node:fs");
+const { readdirSync, mkdirSync } = require("node:fs");
 const path = require("path");
 
-const BUILD_PATH = path.join(__dirname, "..", "build");
+const BUILD_PATH = path.join(__dirname, "..", "build", "fallback");
 const TEMPLATE_NAMES = ["common", "js", "ts", "python"];
 
-rmSync(BUILD_PATH, { recursive: true, force: true });
+mkdirSync(BUILD_PATH, { recursive: true });
 
 TEMPLATE_NAMES.forEach((name) => {
   const zip = new AdmZip();
