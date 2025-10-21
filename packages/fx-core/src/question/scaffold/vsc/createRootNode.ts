@@ -25,11 +25,11 @@ import {
   TeamsAgentCapabilityOptions,
 } from "./CapabilityOptions";
 import { ProjectTypeOptions } from "./ProjectTypeOptions";
-import { customEngineAgentNode } from "./customEngineAgentNode";
+import { getCustomEngineAgentNode } from "./customEngineAgentNode";
 import { daProjectTypeNode } from "./daProjectTypeNode";
 import { graphConnectorProjectTypeNode } from "./graphConnectorProjectTypeNode";
 import { officeAddinProjectTypeNode } from "./officeAddinProjectTypeNode";
-import { teamsProjectNode } from "./teamsProjectTypeNode";
+import { getTeamsProjectNode } from "./teamsProjectTypeNode";
 
 export const LanguageOptionMap = new Map<string, OptionItem>([
   [ProgrammingLanguage.JS, { id: ProgrammingLanguage.JS, label: "JavaScript" }],
@@ -127,8 +127,8 @@ export function scaffoldQuestionForVSCode(platform: Platform = Platform.VSCode):
         },
         children: [
           daProjectTypeNode(),
-          customEngineAgentNode(),
-          teamsProjectNode(platform),
+          getCustomEngineAgentNode(),
+          getTeamsProjectNode(),
           graphConnectorProjectTypeNode(),
           officeAddinProjectTypeNode(),
         ],
