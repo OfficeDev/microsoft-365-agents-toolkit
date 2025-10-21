@@ -26,13 +26,13 @@
       "step_b46e6d95",
       "step_9d5f147d",
       "step_6e5d9ce5",
-      "plan_r_0928_041352",
+      "plan_r_1021_031941",
       "step_619c5cb2",
       "step_20e0d081",
       "step_9724ec96"
     ],
     "tags": [],
-    "updated_at": "2025-10-17T13:49:31.671802"
+    "updated_at": "2025-10-21T03:22:54.760694"
   },
   "steps": [
     {
@@ -44,8 +44,8 @@
       "depends_on": [],
       "postconditions": [],
       "screenshot": "step_e37b112d",
-      "plan_id": "plan_de947884",
       "tool": "click",
+      "plan_id": "plan_de947884",
       "parameters": {
         "x": 354,
         "y": 88,
@@ -64,7 +64,7 @@
         "dhash:354:88:0:10:c8c8889090b26461"
       ],
       "tags": [],
-      "created_at": "2025-10-17T10:18:17.008188"
+      "created_at": "2025-10-21T01:55:39.348191"
     },
     {
       "agent": "interaction",
@@ -75,8 +75,8 @@
       "depends_on": [],
       "postconditions": [],
       "screenshot": "step_a42e6af5",
-      "plan_id": "plan_de947884",
       "tool": "click",
+      "plan_id": "plan_de947884",
       "parameters": {
         "x": 372,
         "y": 83,
@@ -95,7 +95,7 @@
         "dhash:372:83:0:10:c0c4909092b26461"
       ],
       "tags": [],
-      "created_at": "2025-10-17T10:18:17.018438"
+      "created_at": "2025-10-21T01:55:39.358127"
     },
     {
       "agent": "interaction",
@@ -106,8 +106,8 @@
       "depends_on": [],
       "postconditions": [],
       "screenshot": "step_86bebdff",
-      "plan_id": "plan_de947884",
       "tool": "click",
+      "plan_id": "plan_de947884",
       "parameters": {
         "x": 277,
         "y": 75,
@@ -126,7 +126,7 @@
         "dhash:277:75:0:10:d0b0909092b26461"
       ],
       "tags": [],
-      "created_at": "2025-10-17T10:18:17.028406"
+      "created_at": "2025-10-21T01:55:39.371327"
     },
     {
       "agent": "interaction",
@@ -137,8 +137,8 @@
       "depends_on": [],
       "postconditions": [],
       "screenshot": "step_21fa2009",
-      "plan_id": "plan_de947884",
       "tool": "click",
+      "plan_id": "plan_de947884",
       "parameters": {
         "x": 134,
         "y": 529,
@@ -157,7 +157,7 @@
         "dhash:134:529:0:10:22a4706030303236"
       ],
       "tags": [],
-      "created_at": "2025-10-17T10:18:17.038697"
+      "created_at": "2025-10-21T01:55:39.381471"
     },
     {
       "agent": "interaction",
@@ -168,8 +168,8 @@
       "depends_on": [],
       "postconditions": [],
       "screenshot": "step_786974b4",
-      "plan_id": "plan_de947884",
       "tool": "key_press",
+      "plan_id": "plan_de947884",
       "parameters": {
         "x": null,
         "y": null,
@@ -186,7 +186,7 @@
         "dhash:512:384:0:20:60a4302030303232"
       ],
       "tags": [],
-      "created_at": "2025-10-17T10:18:17.049483"
+      "created_at": "2025-10-21T01:55:39.391755"
     },
     {
       "agent": "interaction",
@@ -197,8 +197,8 @@
       "depends_on": [],
       "postconditions": [],
       "screenshot": "step_16e5c0c3",
-      "plan_id": "plan_de947884",
       "tool": "type_text",
+      "plan_id": "plan_de947884",
       "parameters": {
         "x": null,
         "y": null,
@@ -215,7 +215,7 @@
         "dhash:512:384:0:20:e0a6302030b03236"
       ],
       "tags": [],
-      "created_at": "2025-10-17T10:18:17.060426"
+      "created_at": "2025-10-21T01:55:39.403971"
     },
     {
       "agent": "interaction",
@@ -226,8 +226,8 @@
       "depends_on": [],
       "postconditions": [],
       "screenshot": "step_b46e6d95",
-      "plan_id": "plan_de947884",
       "tool": "key_press",
+      "plan_id": "plan_de947884",
       "parameters": {
         "x": null,
         "y": null,
@@ -244,7 +244,7 @@
         "dhash:512:384:0:20:eca4302030b03236"
       ],
       "tags": [],
-      "created_at": "2025-10-17T10:18:17.070340"
+      "created_at": "2025-10-21T01:55:39.415503"
     },
     {
       "agent": "code",
@@ -255,14 +255,23 @@
       "depends_on": [],
       "postconditions": [],
       "screenshot": null,
-      "plan_id": "plan_de947884",
       "tool": "",
-      "parameters": {},
+      "plan_id": "plan_de947884",
+      "parameters": {
+        "x": null,
+        "y": null,
+        "button": null,
+        "text": null,
+        "keys": null,
+        "key": null,
+        "dx": null,
+        "dy": null
+      },
       "timeout": 30,
-      "continue_on_error": "false",
+      "continue_on_error": "0",
       "preconditions": [],
       "tags": [],
-      "created_at": "2025-10-17T13:43:59.374425"
+      "created_at": "2025-10-21T01:55:39.428069"
     },
     {
       "agent": "assertion",
@@ -273,8 +282,8 @@
       "depends_on": [],
       "postconditions": [],
       "screenshot": null,
-      "plan_id": "plan_de947884",
       "tool": "",
+      "plan_id": "plan_de947884",
       "parameters": {
         "x": null,
         "y": null,
@@ -292,7 +301,7 @@
         "precondition_wait_timeout: 60",
         "delay:50"
       ],
-      "created_at": "2025-10-17T10:18:17.080854"
+      "created_at": "2025-10-21T01:55:39.438777"
     },
     {
       "agent": "interaction",
@@ -303,8 +312,8 @@
       "depends_on": [],
       "postconditions": [],
       "screenshot": "step_619c5cb2",
-      "plan_id": "plan_de947884",
       "tool": "type_text",
+      "plan_id": "plan_de947884",
       "parameters": {
         "x": null,
         "y": null,
@@ -321,7 +330,7 @@
         "dhash:512:384:0:20:15d9e37578e0e1e0"
       ],
       "tags": [],
-      "created_at": "2025-10-17T10:18:17.101544"
+      "created_at": "2025-10-21T01:55:39.449142"
     },
     {
       "agent": "interaction",
@@ -332,8 +341,8 @@
       "depends_on": [],
       "postconditions": [],
       "screenshot": "step_20e0d081",
-      "plan_id": "plan_de947884",
       "tool": "key_press",
+      "plan_id": "plan_de947884",
       "parameters": {
         "x": null,
         "y": null,
@@ -350,7 +359,7 @@
         "dhash:512:384:0:20:15d9e37578e0e1e0"
       ],
       "tags": [],
-      "created_at": "2025-10-17T10:18:17.111722"
+      "created_at": "2025-10-21T01:55:39.458938"
     },
     {
       "agent": "assertion",
@@ -361,8 +370,8 @@
       "depends_on": [],
       "postconditions": [],
       "screenshot": null,
-      "plan_id": "plan_de947884",
       "tool": "",
+      "plan_id": "plan_de947884",
       "parameters": {
         "x": null,
         "y": null,
@@ -377,7 +386,7 @@
       "continue_on_error": "0",
       "preconditions": [],
       "tags": [],
-      "created_at": "2025-10-17T10:18:17.120902"
+      "created_at": "2025-10-21T01:55:39.468111"
     }
   ],
   "screenshots": {
