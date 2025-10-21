@@ -1,0 +1,231 @@
+{
+  "plan_metadata": {
+    "version": "1.1",
+    "plan_id": "plan_31558179",
+    "execution_context": {
+      "delay_between_steps": 1,
+      "stop_on_error": true,
+      "precondition_wait_timeout": 30,
+      "precondition_retry_interval": 1
+    },
+    "total_steps": 6,
+    "created_at": "2025-10-17T08:56:28.671607",
+    "name": "DA new-api oauth ts remote debug",
+    "description": "DA new-api oauth ts happy path",
+    "generated_at": "2025-10-17T08:56:28.671602",
+    "execution_order": [
+      "plan_r_0928_012254",
+      "step_a3e428fc",
+      "step_1457edfd",
+      "step_95ebec27",
+      "step_e7943f29",
+      "step_404b3909",
+      "step_d68b8f93",
+      "plan_r_0928_014459",
+      "plan_r_0928_020230",
+      "plan_r_0929_040401",
+      "plan_r_0928_073729",
+      "plan_r_0928_075846",
+      "plan_r_0928_041352",
+      "plan_r_0928_091745"
+    ],
+    "tags": [],
+    "updated_at": "2025-10-17T15:48:30.000747"
+  },
+  "steps": [
+    {
+      "agent": "interaction",
+      "description": "Click the \"Declarative Agent\" option in the \"New Project\" dialog within Visual Studio Code, selecting \"Create your own agent by declaring instructions, actions...\" under \"Agents for Microsoft 365 Copilot\".",
+      "step_id": "step_a3e428fc",
+      "content_refs": [],
+      "retry_count": 0,
+      "depends_on": [],
+      "postconditions": [],
+      "screenshot": "step_a3e428fc",
+      "plan_id": "plan_31558179",
+      "tool": "click",
+      "parameters": {
+        "x": 348,
+        "y": 92,
+        "button": "left",
+        "text": null,
+        "keys": null,
+        "key": null,
+        "dx": null,
+        "dy": null
+      },
+      "timeout": 30,
+      "continue_on_error": "0",
+      "preconditions": [
+        "dhash:348:92:16:5:a166aa18e6f5d5d5",
+        "dhash:348:92:96:5:204e21a0d92bcc5d",
+        "dhash:348:92:0:10:c8c8889090b26461"
+      ],
+      "tags": [],
+      "created_at": "2025-10-17T10:18:16.839916"
+    },
+    {
+      "agent": "interaction",
+      "description": "Click the \"No Action\" option in the \"Add an action to your declarative agent\" dropdown menu within the \"Create Declarative Agent\" dialog in Microsoft Visual Studio Code.",
+      "step_id": "step_1457edfd",
+      "content_refs": [],
+      "retry_count": 0,
+      "depends_on": [],
+      "postconditions": [],
+      "screenshot": "step_1457edfd",
+      "plan_id": "plan_31558179",
+      "tool": "click",
+      "parameters": {
+        "x": 320,
+        "y": 136,
+        "button": "left",
+        "text": null,
+        "keys": null,
+        "key": null,
+        "dx": null,
+        "dy": null
+      },
+      "timeout": 30,
+      "continue_on_error": "0",
+      "preconditions": [
+        "dhash:320:136:16:5:3040ab84b3bba9a9",
+        "dhash:320:136:96:5:a999a6c4d4448ad4",
+        "dhash:320:136:0:10:c0c4b09092b26461"
+      ],
+      "tags": [],
+      "created_at": "2025-10-17T10:18:16.850032"
+    },
+    {
+      "agent": "interaction",
+      "description": "Click the \"Start with a New API\" option in the \"Create an Action\" dropdown within Visual Studio Code's Microsoft 365 Agents Toolkit interface.",
+      "step_id": "step_95ebec27",
+      "content_refs": [],
+      "retry_count": 0,
+      "depends_on": [],
+      "postconditions": [],
+      "screenshot": "step_95ebec27",
+      "plan_id": "plan_31558179",
+      "tool": "click",
+      "parameters": {
+        "x": 339,
+        "y": 79,
+        "button": "left",
+        "text": null,
+        "keys": null,
+        "key": null,
+        "dx": null,
+        "dy": null
+      },
+      "timeout": 30,
+      "continue_on_error": "0",
+      "preconditions": [
+        "dhash:339:79:16:5:59abaa4e46443290",
+        "dhash:339:79:96:5:35a136c948a84ea5",
+        "dhash:339:79:0:10:c0c4989092b26461"
+      ],
+      "tags": [],
+      "created_at": "2025-10-17T10:18:16.860981"
+    },
+    {
+      "agent": "interaction",
+      "description": "Select \"OAuth\" from the \"Authentication Type\" dropdown in the Microsoft 365 Agents Toolkit extension panel within Visual Studio Code.",
+      "step_id": "step_e7943f29",
+      "content_refs": [],
+      "retry_count": 0,
+      "depends_on": [],
+      "postconditions": [],
+      "screenshot": "step_e7943f29",
+      "plan_id": "plan_31558179",
+      "tool": "click",
+      "parameters": {
+        "x": 271,
+        "y": 145,
+        "button": "left",
+        "text": null,
+        "keys": null,
+        "key": null,
+        "dx": null,
+        "dy": null
+      },
+      "timeout": 30,
+      "continue_on_error": "0",
+      "preconditions": [
+        "dhash:271:145:16:5:2408686c6c685894",
+        "dhash:271:145:96:5:b2aab3a4843f8353",
+        "dhash:271:145:0:10:d094909092b26461"
+      ],
+      "tags": [],
+      "created_at": "2025-10-17T10:18:16.870419"
+    },
+    {
+      "agent": "interaction",
+      "description": "Click the \"TypeScript\" option in the \"Programming Language\" dropdown menu within Visual Studio Code.",
+      "step_id": "step_404b3909",
+      "content_refs": [],
+      "retry_count": 0,
+      "depends_on": [],
+      "postconditions": [],
+      "screenshot": "step_404b3909",
+      "plan_id": "plan_31558179",
+      "tool": "click",
+      "parameters": {
+        "x": 301,
+        "y": 74,
+        "button": "left",
+        "text": null,
+        "keys": null,
+        "key": null,
+        "dx": null,
+        "dy": null
+      },
+      "timeout": 30,
+      "continue_on_error": "0",
+      "preconditions": [
+        "dhash:301:74:16:5:00ca2815152a0894",
+        "dhash:301:74:96:5:0000982424406098",
+        "dhash:301:74:0:10:d090909092b26461"
+      ],
+      "tags": [],
+      "created_at": "2025-10-17T10:18:16.881456"
+    },
+    {
+      "agent": "interaction",
+      "description": "Click the \"Default folder\" option (/home/vscode/AgentsToolkitProjects) in the \"Workspace Folder\" dropdown within Visual Studio Code to select the project root location.",
+      "step_id": "step_d68b8f93",
+      "content_refs": [],
+      "retry_count": 0,
+      "depends_on": [],
+      "postconditions": [],
+      "screenshot": "step_d68b8f93",
+      "plan_id": "plan_31558179",
+      "tool": "click",
+      "parameters": {
+        "x": 391,
+        "y": 72,
+        "button": "left",
+        "text": null,
+        "keys": null,
+        "key": null,
+        "dx": null,
+        "dy": null
+      },
+      "timeout": 30,
+      "continue_on_error": "0",
+      "preconditions": [
+        "dhash:391:72:16:5:050a64992775d9d5",
+        "dhash:391:72:96:5:20898b549a825003",
+        "dhash:391:72:0:10:d0b0909092b26461"
+      ],
+      "tags": [],
+      "created_at": "2025-10-17T10:18:16.892440"
+    }
+  ],
+  "screenshots": {
+    "step_a3e428fc": "step_a3e428fc",
+    "step_1457edfd": "step_1457edfd",
+    "step_95ebec27": "step_95ebec27",
+    "step_e7943f29": "step_e7943f29",
+    "step_404b3909": "step_404b3909",
+    "step_d68b8f93": "step_d68b8f93"
+  }
+}

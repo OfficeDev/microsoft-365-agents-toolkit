@@ -1,0 +1,199 @@
+{
+  "plan_metadata": {
+    "version": "1.1",
+    "plan_id": "plan_b3d77ed6",
+    "execution_context": {
+      "delay_between_steps": 1,
+      "stop_on_error": true,
+      "precondition_wait_timeout": 30,
+      "precondition_retry_interval": 1
+    },
+    "total_steps": 5,
+    "created_at": "2025-10-17T08:56:27.959648",
+    "name": "Chat with your data customize Azure openAI ts Happy path",
+    "description": "Chat with your data customize Azure openAI ts Happy path",
+    "generated_at": "2025-10-17T08:56:27.959642",
+    "execution_order": [
+      "plan_r_0928_012254",
+      "step_059653ca",
+      "step_0a27881b",
+      "step_7f88556c",
+      "plan_r_0930_054245",
+      "step_777a598b",
+      "step_75aa3781",
+      "plan_r_0928_014459",
+      "plan_r_0928_020230",
+      "plan_r_0929_040401",
+      "plan_r_0928_073729",
+      "plan_r_0928_075846",
+      "plan_r_0930_063548",
+      "plan_r_1020_110153"
+    ],
+    "tags": [],
+    "updated_at": "2025-10-20T11:04:31.866285"
+  },
+  "steps": [
+    {
+      "agent": "interaction",
+      "description": "Click on the \"Teams Agents and Apps\" option in the \"New Project\" dropdown menu within the Microsoft 365 Agents Toolkit interface in Visual Studio Code.",
+      "step_id": "step_059653ca",
+      "content_refs": [],
+      "retry_count": 0,
+      "depends_on": [],
+      "postconditions": [],
+      "screenshot": "step_059653ca",
+      "tool": "click",
+      "plan_id": "plan_b3d77ed6",
+      "parameters": {
+        "x": 335,
+        "y": 225,
+        "button": "left",
+        "text": null,
+        "keys": null,
+        "key": null,
+        "dx": null,
+        "dy": null
+      },
+      "timeout": 30,
+      "continue_on_error": "0",
+      "preconditions": [
+        "dhash:335:225:16:5:a410c24c634b4a4a",
+        "dhash:335:225:96:5:3636859412c78715",
+        "dhash:335:225:0:10:c8c8809290b26461"
+      ],
+      "tags": [],
+      "created_at": "2025-10-20T08:54:59.343142"
+    },
+    {
+      "agent": "interaction",
+      "description": "Click the \"General Teams Agent\" dropdown option within the \"Teams Agent or App Using Teams AI Library\" selection popup in Visual Studio Code.",
+      "step_id": "step_0a27881b",
+      "content_refs": [],
+      "retry_count": 0,
+      "depends_on": [],
+      "postconditions": [],
+      "screenshot": "step_0a27881b",
+      "tool": "click",
+      "plan_id": "plan_b3d77ed6",
+      "parameters": {
+        "x": 385,
+        "y": 128,
+        "button": "left",
+        "text": null,
+        "keys": null,
+        "key": null,
+        "dx": null,
+        "dy": null
+      },
+      "timeout": 30,
+      "continue_on_error": "0",
+      "preconditions": [
+        "dhash:385:128:16:5:202020d000010101",
+        "dhash:385:128:96:5:1a9224c6b83dc2b2",
+        "dhash:385:128:0:10:c0c4929092b26461"
+      ],
+      "tags": [],
+      "created_at": "2025-10-20T08:54:59.361453"
+    },
+    {
+      "agent": "interaction",
+      "description": "Click the \"Customize\" option in the \"Select an option to load your data\" dropdown within the \"Teams Agent with Data\" window in Visual Studio Code.",
+      "step_id": "step_7f88556c",
+      "content_refs": [],
+      "retry_count": 0,
+      "depends_on": [],
+      "postconditions": [],
+      "screenshot": "step_7f88556c",
+      "tool": "click",
+      "plan_id": "plan_b3d77ed6",
+      "parameters": {
+        "x": 304,
+        "y": 80,
+        "button": "left",
+        "text": null,
+        "keys": null,
+        "key": null,
+        "dx": null,
+        "dy": null
+      },
+      "timeout": 30,
+      "continue_on_error": "0",
+      "preconditions": [
+        "dhash:304:80:16:5:c820241010a84010",
+        "dhash:304:80:96:5:5a919184422accb0",
+        "dhash:304:80:0:10:c0c0989092b26461"
+      ],
+      "tags": [],
+      "created_at": "2025-10-20T08:54:59.379996"
+    },
+    {
+      "agent": "interaction",
+      "description": "Click the \"TypeScript\" option in the \"Programming Language\" dropdown within the Microsoft Visual Studio Code interface.",
+      "step_id": "step_777a598b",
+      "content_refs": [],
+      "retry_count": 0,
+      "depends_on": [],
+      "postconditions": [],
+      "screenshot": "step_777a598b",
+      "tool": "click",
+      "plan_id": "plan_b3d77ed6",
+      "parameters": {
+        "x": 325,
+        "y": 69,
+        "button": "left",
+        "text": null,
+        "keys": null,
+        "key": null,
+        "dx": null,
+        "dy": null
+      },
+      "timeout": 30,
+      "continue_on_error": "0",
+      "preconditions": [
+        "dhash:325:69:16:5:0000000042004200",
+        "dhash:325:69:96:5:0000204a00202000",
+        "dhash:325:69:0:10:d090909092b26461"
+      ],
+      "tags": [],
+      "created_at": "2025-10-20T08:54:59.398238"
+    },
+    {
+      "agent": "interaction",
+      "description": "Click the \"Default folder\" option in the \"Workspace Folder\" selection dropdown at the top of the Visual Studio Code window to set the project root directory to /home/vscode/AgentsToolkitProjects.",
+      "step_id": "step_75aa3781",
+      "content_refs": [],
+      "retry_count": 0,
+      "depends_on": [],
+      "postconditions": [],
+      "screenshot": "step_75aa3781",
+      "tool": "click",
+      "plan_id": "plan_b3d77ed6",
+      "parameters": {
+        "x": 334,
+        "y": 75,
+        "button": "left",
+        "text": null,
+        "keys": null,
+        "key": null,
+        "dx": null,
+        "dy": null
+      },
+      "timeout": 30,
+      "continue_on_error": "0",
+      "preconditions": [
+        "dhash:334:75:16:5:a462c9a24c5c5a5b",
+        "dhash:334:75:96:5:9a646490952a10c0",
+        "dhash:334:75:0:10:d0b0909092b26461"
+      ],
+      "tags": [],
+      "created_at": "2025-10-20T08:54:59.416066"
+    }
+  ],
+  "screenshots": {
+    "step_059653ca": "step_059653ca",
+    "step_0a27881b": "step_0a27881b",
+    "step_7f88556c": "step_7f88556c",
+    "step_777a598b": "step_777a598b",
+    "step_75aa3781": "step_75aa3781"
+  }
+}

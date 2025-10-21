@@ -1,0 +1,166 @@
+{
+  "plan_metadata": {
+    "version": "1.1",
+    "plan_id": "plan_2a5d5939",
+    "execution_context": {
+      "delay_between_steps": 1,
+      "stop_on_error": true,
+      "precondition_wait_timeout": 30,
+      "precondition_retry_interval": 1
+    },
+    "total_steps": 4,
+    "created_at": "2025-10-17T08:56:27.534924",
+    "name": "Basic AI Chatbot Azure OpenAI ts Happy Path",
+    "description": "Basic AI Chatbot Azure OpenAI ts Happy Path. \nBlock on this: \"You don't have access to this app. Due to your org's messaging policy, you are not allowed to install this app.\" when lunch teams app in the end of plan",
+    "generated_at": "2025-10-17T08:56:27.534920",
+    "execution_order": [
+      "plan_r_0928_012254",
+      "step_11d7c304",
+      "step_46b68abb",
+      "plan_r_0930_054245",
+      "step_0b4248d7",
+      "step_4af62f96",
+      "plan_r_0928_014459",
+      "plan_r_0929_040401",
+      "plan_r_0928_020230",
+      "plan_r_0928_073729",
+      "plan_r_0928_075846",
+      "plan_r_0930_063548",
+      "plan_r_1009_093215"
+    ],
+    "tags": [],
+    "updated_at": "2025-10-20T16:15:58.536022"
+  },
+  "steps": [
+    {
+      "agent": "interaction",
+      "description": "Click the \"Teams Agents and Apps\" option in the \"New Project\" dialog within Visual Studio Code, under the Microsoft 365 Agents Toolkit extension.",
+      "step_id": "step_11d7c304",
+      "content_refs": [],
+      "retry_count": 0,
+      "depends_on": [],
+      "postconditions": [],
+      "screenshot": "step_11d7c304",
+      "tool": "click",
+      "plan_id": "plan_2a5d5939",
+      "parameters": {
+        "x": 373,
+        "y": 217,
+        "button": "left",
+        "text": null,
+        "keys": null,
+        "key": null,
+        "dx": null,
+        "dy": null
+      },
+      "timeout": 30,
+      "continue_on_error": "0",
+      "preconditions": [
+        "dhash:373:217:16:5:ada919c40b120753",
+        "dhash:373:217:96:5:92222048a4a44900",
+        "dhash:373:217:0:10:c8c8809090b26461"
+      ],
+      "tags": [],
+      "created_at": "2025-10-20T15:17:05.575913"
+    },
+    {
+      "agent": "interaction",
+      "description": "Click the \"General Teams Agent\" option in the dropdown menu within the \"Teams Agent or App Using Teams AI Library\" dialog in Visual Studio Code.",
+      "step_id": "step_46b68abb",
+      "content_refs": [],
+      "retry_count": 0,
+      "depends_on": [],
+      "postconditions": [],
+      "screenshot": "step_46b68abb",
+      "tool": "click",
+      "plan_id": "plan_2a5d5939",
+      "parameters": {
+        "x": 358,
+        "y": 82,
+        "button": "left",
+        "text": null,
+        "keys": null,
+        "key": null,
+        "dx": null,
+        "dy": null
+      },
+      "timeout": 30,
+      "continue_on_error": "0",
+      "preconditions": [
+        "dhash:358:82:16:5:15d534946b2254a5",
+        "dhash:358:82:96:5:0800586222b6d199",
+        "dhash:358:82:0:10:c0c4b09092b26461"
+      ],
+      "tags": [],
+      "created_at": "2025-10-20T15:17:05.597592"
+    },
+    {
+      "agent": "interaction",
+      "description": "Click the \"TypeScript\" option in the \"Programming Language\" dropdown within Visual Studio Code's Microsoft 365 Agents Toolkit interface.",
+      "step_id": "step_0b4248d7",
+      "content_refs": [],
+      "retry_count": 0,
+      "depends_on": [],
+      "postconditions": [],
+      "screenshot": "step_0b4248d7",
+      "tool": "click",
+      "plan_id": "plan_2a5d5939",
+      "parameters": {
+        "x": 295,
+        "y": 82,
+        "button": "left",
+        "text": null,
+        "keys": null,
+        "key": null,
+        "dx": null,
+        "dy": null
+      },
+      "timeout": 30,
+      "continue_on_error": "0",
+      "preconditions": [
+        "dhash:295:82:16:5:b0d5d1926d109585",
+        "dhash:295:82:96:5:a00090a4a4a4281c",
+        "dhash:295:82:0:10:d090909092b26461"
+      ],
+      "tags": [],
+      "created_at": "2025-10-20T15:17:05.617884"
+    },
+    {
+      "agent": "interaction",
+      "description": "Click the \"Default folder /home/vscode/AgentsToolkitProjects\" option in the \"Workspace Folder\" dropdown dialog in Visual Studio Code.",
+      "step_id": "step_4af62f96",
+      "content_refs": [],
+      "retry_count": 0,
+      "depends_on": [],
+      "postconditions": [],
+      "screenshot": "step_4af62f96",
+      "tool": "click",
+      "plan_id": "plan_2a5d5939",
+      "parameters": {
+        "x": 378,
+        "y": 74,
+        "button": "left",
+        "text": null,
+        "keys": null,
+        "key": null,
+        "dx": null,
+        "dy": null
+      },
+      "timeout": 30,
+      "continue_on_error": "0",
+      "preconditions": [
+        "dhash:378:74:16:5:00a459a6e4697466",
+        "dhash:378:74:96:5:0a44440c45060601",
+        "dhash:378:74:0:10:f0b0909092b26461"
+      ],
+      "tags": [],
+      "created_at": "2025-10-20T15:17:05.637560"
+    }
+  ],
+  "screenshots": {
+    "step_11d7c304": "step_11d7c304",
+    "step_46b68abb": "step_46b68abb",
+    "step_0b4248d7": "step_0b4248d7",
+    "step_4af62f96": "step_4af62f96"
+  }
+}
