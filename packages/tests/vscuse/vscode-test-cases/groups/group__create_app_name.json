@@ -9,10 +9,10 @@
       "precondition_retry_interval": 2
     },
     "total_steps": 4,
-    "created_at": "2025-10-21T07:31:47.738258",
+    "created_at": "2025-10-22T04:03:43.066988",
     "name": "group: create_app_name",
     "description": "Generated from recording r_0928_014459",
-    "generated_at": "2025-10-21T07:31:47.738251",
+    "generated_at": "2025-10-22T04:03:43.066963",
     "execution_order": [
       "step_7a47c22a",
       "step_69fab4c1",
@@ -22,7 +22,7 @@
     "tags": [
       "group"
     ],
-    "updated_at": "2025-10-22T01:29:51.621620"
+    "updated_at": "2025-10-22T07:08:42.508225"
   },
   "steps": [
     {
@@ -52,7 +52,7 @@
         "dhash:512:384:0:20:f0b0909092b26461"
       ],
       "tags": [],
-      "created_at": "2025-10-22T01:18:59.062773"
+      "created_at": "2025-10-22T06:52:54.455873"
     },
     {
       "agent": "interaction",
@@ -81,7 +81,7 @@
         "dhash:512:384:0:20:d0b0909092b26463"
       ],
       "tags": [],
-      "created_at": "2025-10-22T01:18:59.079417"
+      "created_at": "2025-10-22T06:52:54.468601"
     },
     {
       "agent": "assertion",
@@ -108,7 +108,7 @@
       "continue_on_error": "0",
       "preconditions": [],
       "tags": [],
-      "created_at": "2025-10-22T01:18:59.094496"
+      "created_at": "2025-10-22T06:52:54.481445"
     },
     {
       "agent": "interaction",
@@ -134,7 +134,7 @@
         "dhash:485:50:0:10:223830a072767632"
       ],
       "tags": [],
-      "created_at": "2025-10-22T01:29:51.600182"
+      "created_at": "2025-10-22T06:52:54.494455"
     }
   ],
   "screenshots": {

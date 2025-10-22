@@ -8,20 +8,19 @@
       "precondition_wait_timeout": 60,
       "precondition_retry_interval": 2
     },
-    "total_steps": 3,
-    "created_at": "2025-09-28T01:23:17.181871",
+    "total_steps": 2,
+    "created_at": "2025-10-22T04:03:43.146960",
     "name": "group: create_new_app",
     "description": "Generated from recording r_0928_012254",
-    "generated_at": "2025-09-28T01:23:17.181855",
+    "generated_at": "2025-10-22T04:03:43.146956",
     "execution_order": [
       "step_698f8521",
-      "step_7ba2dfdf",
-      "step_75d21929"
+      "step_7ba2dfdf"
     ],
     "tags": [
       "group"
     ],
-    "updated_at": "2025-09-30T07:04:09.476903"
+    "updated_at": "2025-10-22T07:31:04.175607"
   },
   "steps": [
     {
@@ -29,6 +28,17 @@
       "description": "Click the “Source Control” icon (third item with the branch symbol and \"M3\" badge) in the left sidebar of the Visual Studio Code interface to open the Source Control view.",
       "step_id": "step_698f8521",
       "content_refs": [],
+      "retry_count": 0,
+      "depends_on": [],
+      "postconditions": [],
+      "screenshot": "step_698f8521",
+      "tool": "click",
+      "plan_id": "plan_r_0928_012254",
+      "parameters": {
+        "x": 32,
+        "y": 307,
+        "button": "left"
+      },
       "timeout": 30,
       "continue_on_error": "false",
       "preconditions": [
@@ -37,24 +47,24 @@
         "dhash:32:307:0:10:23707870f2726421"
       ],
       "tags": [],
-      "created_at": "2025-09-28T01:23:17.205442",
-      "plan_id": "plan_r_0928_012254",
-      "tool": "click",
-      "parameters": {
-        "x": 32,
-        "y": 307,
-        "button": "left"
-      },
-      "retry_count": 0,
-      "depends_on": [],
-      "postconditions": [],
-      "screenshot": "step_698f8521"
+      "created_at": "2025-10-22T07:20:48.047942"
     },
     {
       "agent": "interaction",
       "description": "Click the \"Create a New Agent/App\" button in the MICROSOFT 365 AGENTS TOOLKIT panel on the left side of the Visual Studio Code interface.",
       "step_id": "step_7ba2dfdf",
       "content_refs": [],
+      "retry_count": 0,
+      "depends_on": [],
+      "postconditions": [],
+      "screenshot": "step_7ba2dfdf",
+      "tool": "click",
+      "plan_id": "plan_r_0928_012254",
+      "parameters": {
+        "x": 187,
+        "y": 312,
+        "button": "left"
+      },
       "timeout": 30,
       "continue_on_error": "false",
       "preconditions": [
@@ -63,36 +73,7 @@
         "dhash:187:312:0:10:23b0909092b26461"
       ],
       "tags": [],
-      "created_at": "2025-09-28T01:23:17.219966",
-      "plan_id": "plan_r_0928_012254",
-      "tool": "click",
-      "parameters": {
-        "x": 187,
-        "y": 312,
-        "button": "left"
-      },
-      "retry_count": 0,
-      "depends_on": [],
-      "postconditions": [],
-      "screenshot": "step_7ba2dfdf"
-    },
-    {
-      "agent": "assertion",
-      "description": "@assertion dropdown list has items: \"Declarative Agent; Custom Engine Agent; Copilot connectors; Teams Agents and Apps; Office Add-in; Don't know how to start? Use GitHub Copilot Chat\". Check each item is exist and no typo issue.",
-      "step_id": "step_75d21929",
-      "content_refs": [],
-      "timeout": 30,
-      "continue_on_error": "false",
-      "preconditions": [],
-      "tags": [],
-      "created_at": "2025-09-28T01:39:57.223400",
-      "plan_id": "plan_r_0928_012254",
-      "tool": "",
-      "parameters": {},
-      "retry_count": 0,
-      "depends_on": [],
-      "postconditions": [],
-      "screenshot": null
+      "created_at": "2025-10-22T07:20:48.061296"
     }
   ],
   "screenshots": {

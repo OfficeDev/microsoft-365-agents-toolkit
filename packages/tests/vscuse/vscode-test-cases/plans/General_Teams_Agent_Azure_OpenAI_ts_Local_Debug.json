@@ -11,8 +11,8 @@
     },
     "total_steps": 4,
     "created_at": "2025-10-21T10:00:13.651196",
-    "name": "Basic AI Chatbot Azure OpenAI ts Local Debug",
-    "description": "Basic AI Chatbot Azure OpenAI ts Local Debug",
+    "name": "General Teams Agent Azure OpenAI ts Local Debug",
+    "description": "General Teams Agent Azure OpenAI ts Local Debug",
     "generated_at": "2025-10-21T10:00:13.651183",
     "execution_order": [
       "plan_r_0928_012254",
