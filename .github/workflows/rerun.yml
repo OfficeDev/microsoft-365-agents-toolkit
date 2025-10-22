@@ -114,6 +114,8 @@ jobs:
       AZURE_ACCOUNT_NAME: ${{ secrets.TEST_USER_NAME_NEW }}
       AZURE_ACCOUNT_PASSWORD: ${{ secrets.TEST_USER_PASSWORD_NEW }}
       MAIL_API_KEY: ${{ secrets.MAIL_API_KEY }}
+      AZURE_SERVICE_PRINCIPAL_ID: ${{ secrets.AZURE_SERVICE_PRINCIPAL_ID }}
+      AZURE_SERVICE_PRINCIPAL_SECRET: ${{ secrets.AZURE_SERVICE_PRINCIPAL_SECRET}}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
