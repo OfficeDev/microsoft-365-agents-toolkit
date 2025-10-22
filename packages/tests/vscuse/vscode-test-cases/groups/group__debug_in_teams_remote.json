@@ -8,11 +8,11 @@
       "precondition_wait_timeout": 60,
       "precondition_retry_interval": 2
     },
-    "total_steps": 13,
+    "total_steps": 15,
     "created_at": "2025-10-22T04:03:44.585773",
-    "generated_at": "2025-10-22T04:03:44.585767",
     "name": "group: debug_in_teams_remote",
     "description": "Generated from recording r_0930_063548",
+    "generated_at": "2025-10-22T04:03:44.585767",
     "execution_order": [
       "step_64456d0d",
       "step_3fb94c2c",
@@ -25,13 +25,15 @@
       "step_b2737c0c",
       "step_cd404aac",
       "step_82f6ba51",
+      "step_56f3a504",
       "step_b09d4552",
+      "step_06f77d3f",
       "step_d491dc74"
     ],
     "tags": [
       "group"
     ],
-    "updated_at": "2025-10-22T05:50:53.457054"
+    "updated_at": "2025-10-22T12:53:33.088757"
   },
   "steps": [
     {
@@ -43,8 +45,8 @@
       "depends_on": [],
       "postconditions": [],
       "screenshot": "step_64456d0d",
-      "plan_id": "plan_r_0930_063548",
       "tool": "key_press",
+      "plan_id": "plan_r_0930_063548",
       "parameters": {
         "key": "f1"
       },
@@ -54,7 +56,7 @@
         "dhash:512:384:0:20:32832723b32c6c2b"
       ],
       "tags": [],
-      "created_at": "2025-10-22T04:03:44.599409"
+      "created_at": "2025-10-22T09:13:29.456481"
     },
     {
       "agent": "interaction",
@@ -65,8 +67,8 @@
       "depends_on": [],
       "postconditions": [],
       "screenshot": "step_3fb94c2c",
-      "plan_id": "plan_r_0930_063548",
       "tool": "type_text",
+      "plan_id": "plan_r_0930_063548",
       "parameters": {
         "text": "Debug: Select and Start Debugging"
       },
@@ -76,7 +78,7 @@
         "dhash:512:384:0:20:cce44463b32c6c2b"
       ],
       "tags": [],
-      "created_at": "2025-10-22T04:03:44.613323"
+      "created_at": "2025-10-22T09:13:29.470195"
     },
     {
       "agent": "interaction",
@@ -87,8 +89,8 @@
       "depends_on": [],
       "postconditions": [],
       "screenshot": "step_0f0c12ce",
-      "plan_id": "plan_r_0930_063548",
       "tool": "key_press",
+      "plan_id": "plan_r_0930_063548",
       "parameters": {
         "key": "enter"
       },
@@ -98,7 +100,7 @@
         "dhash:512:384:0:20:e4822323b32c6c2b"
       ],
       "tags": [],
-      "created_at": "2025-10-22T04:03:44.629172"
+      "created_at": "2025-10-22T09:13:29.481663"
     },
     {
       "agent": "interaction",
@@ -109,8 +111,8 @@
       "depends_on": [],
       "postconditions": [],
       "screenshot": "step_710f99f7",
-      "plan_id": "plan_r_0930_063548",
       "tool": "type_text",
+      "plan_id": "plan_r_0930_063548",
       "parameters": {
         "text": "Launch Remote in Teams (Chrome)"
       },
@@ -120,7 +122,7 @@
         "dhash:512:384:0:20:c4c44423b32c6c2b"
       ],
       "tags": [],
-      "created_at": "2025-10-22T04:03:44.643077"
+      "created_at": "2025-10-22T09:13:29.494917"
     },
     {
       "agent": "interaction",
@@ -131,8 +133,8 @@
       "depends_on": [],
       "postconditions": [],
       "screenshot": "step_edc27950",
-      "plan_id": "plan_r_0930_063548",
       "tool": "key_press",
+      "plan_id": "plan_r_0930_063548",
       "parameters": {
         "key": "enter"
       },
@@ -142,7 +144,7 @@
         "dhash:512:384:0:20:c4832323b32c6c2b"
       ],
       "tags": [],
-      "created_at": "2025-10-22T04:03:44.664544"
+      "created_at": "2025-10-22T09:13:29.512661"
     },
     {
       "agent": "interaction",
@@ -153,8 +155,8 @@
       "depends_on": [],
       "postconditions": [],
       "screenshot": "step_28c66346",
-      "plan_id": "plan_r_0930_063548",
       "tool": "click",
+      "plan_id": "plan_r_0930_063548",
       "parameters": {
         "x": 393,
         "y": 351,
@@ -170,7 +172,7 @@
       "tags": [
         "precondition_wait_timeout: 60"
       ],
-      "created_at": "2025-10-22T04:03:44.683213"
+      "created_at": "2025-10-22T09:13:29.529737"
     },
     {
       "agent": "interaction",
@@ -181,8 +183,8 @@
       "depends_on": [],
       "postconditions": [],
       "screenshot": "step_77fb17ee",
-      "plan_id": "plan_r_0930_063548",
       "tool": "type_text",
+      "plan_id": "plan_r_0930_063548",
       "parameters": {
         "text": "${{env:M365_ACCOUNT_NAME}}"
       },
@@ -192,7 +194,7 @@
         "dhash:512:384:0:20:1b28d0d9e7e6dae4"
       ],
       "tags": [],
-      "created_at": "2025-10-22T04:03:44.696636"
+      "created_at": "2025-10-22T09:13:29.544133"
     },
     {
       "agent": "interaction",
@@ -203,8 +205,8 @@
       "depends_on": [],
       "postconditions": [],
       "screenshot": "step_fb49ae85",
-      "plan_id": "plan_r_0930_063548",
       "tool": "click",
+      "plan_id": "plan_r_0930_063548",
       "parameters": {
         "x": 648,
         "y": 481,
@@ -220,7 +222,7 @@
       "tags": [
         "delay: 3"
       ],
-      "created_at": "2025-10-22T04:03:44.708916"
+      "created_at": "2025-10-22T09:13:29.562326"
     },
     {
       "agent": "interaction",
@@ -231,8 +233,8 @@
       "depends_on": [],
       "postconditions": [],
       "screenshot": "step_b2737c0c",
-      "plan_id": "plan_r_0930_063548",
       "tool": "type_text",
+      "plan_id": "plan_r_0930_063548",
       "parameters": {
         "text": "${{secret:M365_ACCOUNT_PASSWORD}}"
       },
@@ -242,7 +244,7 @@
         "dhash:512:384:0:20:1b08f0d9d1e6e6e4"
       ],
       "tags": [],
-      "created_at": "2025-10-22T04:03:44.722969"
+      "created_at": "2025-10-22T09:13:29.576893"
     },
     {
       "agent": "interaction",
@@ -253,8 +255,8 @@
       "depends_on": [],
       "postconditions": [],
       "screenshot": "step_cd404aac",
-      "plan_id": "plan_r_0930_063548",
       "tool": "click",
+      "plan_id": "plan_r_0930_063548",
       "parameters": {
         "x": 604,
         "y": 511,
@@ -270,7 +272,7 @@
       "tags": [
         "delay: 3"
       ],
-      "created_at": "2025-10-22T04:03:44.736807"
+      "created_at": "2025-10-22T09:13:29.587202"
     },
     {
       "agent": "interaction",
@@ -281,8 +283,8 @@
       "depends_on": [],
       "postconditions": [],
       "screenshot": "step_82f6ba51",
-      "plan_id": "plan_r_0930_063548",
       "tool": "click",
+      "plan_id": "plan_r_0930_063548",
       "parameters": {
         "x": 623,
         "y": 533,
@@ -296,7 +298,27 @@
         "dhash:623:533:0:10:1c0cf0d9d9e6e6e4"
       ],
       "tags": [],
-      "created_at": "2025-10-22T04:03:44.749490"
+      "created_at": "2025-10-22T09:13:29.598424"
+    },
+    {
+      "agent": "assertion",
+      "description": "@assertion there's \"Add\" or \"Open\" blue button exist.",
+      "step_id": "step_56f3a504",
+      "content_refs": [],
+      "retry_count": 0,
+      "depends_on": [],
+      "postconditions": [],
+      "screenshot": null,
+      "tool": "",
+      "plan_id": "plan_r_0930_063548",
+      "parameters": {},
+      "timeout": 30,
+      "continue_on_error": "false",
+      "preconditions": [],
+      "tags": [
+        "step_retry_timeout: 180"
+      ],
+      "created_at": "2025-10-22T12:52:27.585056"
     },
     {
       "agent": "interaction",
@@ -307,8 +329,8 @@
       "depends_on": [],
       "postconditions": [],
       "screenshot": "step_b09d4552",
-      "plan_id": "plan_r_0930_063548",
       "tool": "click",
+      "plan_id": "plan_r_0930_063548",
       "parameters": {
         "x": 300,
         "y": 219,
@@ -321,10 +343,28 @@
         "dhash:300:219:96:5:4d0046797906808b",
         "dhash:300:219:0:10:00b4b0d8f8f8e0f8"
       ],
+      "tags": [],
+      "created_at": "2025-10-22T09:13:29.610421"
+    },
+    {
+      "agent": "assertion",
+      "description": "@assertion there's \"Open\" blue button exist.",
+      "step_id": "step_06f77d3f",
+      "content_refs": [],
+      "retry_count": 0,
+      "depends_on": [],
+      "postconditions": [],
+      "screenshot": null,
+      "tool": "",
+      "plan_id": "plan_r_0930_063548",
+      "parameters": {},
+      "timeout": 30,
+      "continue_on_error": "false",
+      "preconditions": [],
       "tags": [
-        "precondition_wait_timeout: 300"
+        "step_retry_timeout: 180"
       ],
-      "created_at": "2025-10-22T04:03:44.762286"
+      "created_at": "2025-10-22T12:53:32.347088"
     },
     {
       "agent": "interaction",
@@ -335,8 +375,8 @@
       "depends_on": [],
       "postconditions": [],
       "screenshot": "step_d491dc74",
-      "plan_id": "plan_r_0930_063548",
       "tool": "click",
+      "plan_id": "plan_r_0930_063548",
       "parameters": {
         "x": 529,
         "y": 506,
@@ -352,7 +392,7 @@
       "tags": [
         "precondition_wait_timeout: 200"
       ],
-      "created_at": "2025-10-22T04:03:44.774909"
+      "created_at": "2025-10-22T09:13:29.624261"
     }
   ],
   "screenshots": {
