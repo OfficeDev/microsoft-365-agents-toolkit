@@ -11,7 +11,7 @@
     },
     "total_steps": 28,
     "created_at": "2025-10-16T08:19:50.585990",
-    "name": "debug-all telemetry check and terminated previous tasks test",
+    "name": "Feature: Debug All Telemetry Check And Terminated Previous Tasks",
     "description": "testcaseId 1: 35579460 \ntestcaseId 2: 35579483",
     "generated_at": "2025-10-16T08:19:50.585977",
     "execution_order": [

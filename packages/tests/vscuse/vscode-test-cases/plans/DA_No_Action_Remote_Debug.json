@@ -10,8 +10,8 @@
     },
     "total_steps": 12,
     "created_at": "2025-10-17T08:40:00.898942",
-    "name": "DA no action happy path",
-    "description": "DA no action happy path",
+    "name": "DA No Action Remote Debug",
+    "description": "DA No Action Remote Debug",
     "generated_at": "2025-10-17T08:40:00.898927",
     "execution_order": [
       "plan_r_0928_012254",
