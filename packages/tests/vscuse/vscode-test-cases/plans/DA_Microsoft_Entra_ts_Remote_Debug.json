@@ -10,8 +10,8 @@
     },
     "total_steps": 6,
     "created_at": "2025-10-17T08:56:28.271096",
-    "name": "DA new-api microsoft-entra ts happy path",
-    "description": "DA new-api microsoft-entra ts happy path",
+    "name": "DA Microsoft Entra ts Remote Debug",
+    "description": "DA Microsoft Entra ts Remote Debug",
     "generated_at": "2025-10-17T08:56:28.271091",
     "execution_order": [
       "plan_r_0928_012254",

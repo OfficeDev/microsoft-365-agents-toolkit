@@ -10,8 +10,8 @@
     },
     "total_steps": 6,
     "created_at": "2025-10-17T08:56:28.407217",
-    "name": "DA new-api none js happy path",
-    "description": "DA new-api none js happy path",
+    "name": "DA Oauth ts Remote Debug",
+    "description": "DA Oauth ts Remote Debug",
     "generated_at": "2025-10-17T08:56:28.407213",
     "execution_order": [
       "plan_r_0928_012254",

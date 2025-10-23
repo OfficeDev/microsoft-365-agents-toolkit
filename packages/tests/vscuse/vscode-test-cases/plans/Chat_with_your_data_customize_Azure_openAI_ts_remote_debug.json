@@ -9,10 +9,10 @@
       "precondition_retry_interval": 1
     },
     "total_steps": 5,
-    "created_at": "2025-10-17T08:56:27.959648",
-    "name": "Chat with your data customize Azure openAI ts Happy path",
-    "description": "Chat with your data customize Azure openAI ts Happy path",
-    "generated_at": "2025-10-17T08:56:27.959642",
+    "created_at": "2025-10-22T06:41:51.318836",
+    "name": "Chat With Your Data Customize Azure OpenAI ts Remote Debug",
+    "description": "Chat With Your Data Customize Azure OpenAI ts Remote Debug",
+    "generated_at": "2025-10-22T06:41:51.318829",
     "execution_order": [
       "plan_r_0928_012254",
       "step_059653ca",
@@ -27,10 +27,10 @@
       "plan_r_0928_073729",
       "plan_r_0928_075846",
       "plan_r_0930_063548",
-      "plan_r_1020_110153"
+      "plan_r_1023_013114"
     ],
     "tags": [],
-    "updated_at": "2025-10-20T11:04:31.866285"
+    "updated_at": "2025-10-23T01:34:37.790276"
   },
   "steps": [
     {
@@ -57,12 +57,12 @@
       "timeout": 30,
       "continue_on_error": "0",
       "preconditions": [
-        "dhash:335:225:16:5:a410c24c634b4a4a",
-        "dhash:335:225:96:5:3636859412c78715",
-        "dhash:335:225:0:10:c8c8809290b26461"
+        "dhash:335:225:16:5:a418e34c634b4a4a",
+        "dhash:335:225:96:5:363685d412c5841a",
+        "dhash:335:225:0:10:c8c8809292b37071"
       ],
       "tags": [],
-      "created_at": "2025-10-20T08:54:59.343142"
+      "created_at": "2025-10-22T15:21:03.213542"
     },
     {
       "agent": "interaction",
@@ -88,12 +88,12 @@
       "timeout": 30,
       "continue_on_error": "0",
       "preconditions": [
-        "dhash:385:128:16:5:202020d000010101",
-        "dhash:385:128:96:5:1a9224c6b83dc2b2",
-        "dhash:385:128:0:10:c0c4929092b26461"
+        "dhash:385:128:16:5:202028c000800101",
+        "dhash:385:128:96:5:1a9220c2b83d4262",
+        "dhash:385:128:0:10:c0c8869492b17071"
       ],
       "tags": [],
-      "created_at": "2025-10-20T08:54:59.361453"
+      "created_at": "2025-10-22T15:21:03.226981"
     },
     {
       "agent": "interaction",
@@ -121,10 +121,10 @@
       "preconditions": [
         "dhash:304:80:16:5:c820241010a84010",
         "dhash:304:80:96:5:5a919184422accb0",
-        "dhash:304:80:0:10:c0c0989092b26461"
+        "dhash:304:80:0:10:c0c0b09492b17071"
       ],
       "tags": [],
-      "created_at": "2025-10-20T08:54:59.379996"
+      "created_at": "2025-10-22T15:21:03.241454"
     },
     {
       "agent": "interaction",
@@ -155,7 +155,7 @@
         "dhash:325:69:0:10:d090909092b26461"
       ],
       "tags": [],
-      "created_at": "2025-10-20T08:54:59.398238"
+      "created_at": "2025-10-22T15:21:03.254717"
     },
     {
       "agent": "interaction",
@@ -186,7 +186,7 @@
         "dhash:334:75:0:10:d0b0909092b26461"
       ],
       "tags": [],
-      "created_at": "2025-10-20T08:54:59.416066"
+      "created_at": "2025-10-22T15:21:03.268668"
     }
   ],
   "screenshots": {
