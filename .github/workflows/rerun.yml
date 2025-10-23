@@ -106,6 +106,7 @@ jobs:
       M365_USERNAME_3: "test03@atktesting.onmicrosoft.com"
       M365_USERNAME_4: "test04@atktesting.onmicrosoft.com"
       M365_USERNAME_5: "test05@atktesting.onmicrosoft.com"
+      M365_USERNAME_CLEAN: "delete_aad_app_user@atktesting.onmicrosoft.com"
       CLEAN_CLIENT_ID: ${{ secrets.TEST_CLEAN_CLIENT_ID_NEW }}
       CLEAN_CLIENT_SECRET: ${{ secrets.TEST_CLEAN_CLIENT_SECRET_NEW  }}
       CLEAN_TENANT_ID: ${{ secrets.TEST_CLEAN_TENANT_ID_NEW }}
@@ -175,6 +176,17 @@ jobs:
       - name: Switch M365 account
         run: |
           username='${{ env.M365_USERNAME_5 }}'
+          echo "M365_ACCOUNT_NAME=$username" >> $GITHUB_ENV
+
+      - name: Clean resource 
+        if: always()
+        run: |
+          npx ts-node src/scripts/clean.ts
+
+
+      - name: Switch M365 account to clean
+        run: |
+          username='${{ env.M365_USERNAME_CLEAN }}'
           echo "M365_ACCOUNT_NAME=$username" >> $GITHUB_ENV
 
       - name: Clean resource 
