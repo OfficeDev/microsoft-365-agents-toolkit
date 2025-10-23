@@ -29,7 +29,18 @@
         "isNotificationOnly": false,
         "supportsCalling": false,
         "supportsVideo": false,
-        "supportsFiles": false
+        "supportsFiles": false,
+        "commandLists": [
+                {
+                  "scopes": ["personal", "team", "groupChat"],
+                  "commands": [
+                      {
+                          "title": "hi",
+                          "description": "Say hi to the bot."
+                      }
+                  ]
+                }
+            ]
         }
     ],
     "composeExtensions": [],
