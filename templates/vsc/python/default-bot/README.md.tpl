@@ -28,7 +28,7 @@ This template showcases a simple bot designed to respond to user messages within
 
 > For local debugging using Microsoft 365 Agents Toolkit CLI, you need to do some extra steps described in [Set up your Microsoft 365 Agents Toolkit CLI for local debugging](https://aka.ms/teamsfx-cli-debugging).
 
-![echo bot](https://github.com/user-attachments/assets/41b6cf00-bb1e-42b3-af62-022c92844707)
+![echo bot](https://github.com/user-attachments/assets/e0e64bdf-3982-4abf-ae5c-dfc886f0dd82)
 
 ## What's included in the template
 

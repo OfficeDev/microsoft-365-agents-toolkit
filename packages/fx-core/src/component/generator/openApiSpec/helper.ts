@@ -1514,7 +1514,7 @@ module.exports = { {{operationId}}Handler };`,
 ):
   path = getattr(parameters, "path", {})
   body = getattr(parameters, "body", None)
-  query = getattr(parameters, "query", {})
+  query = getattr(parameters, "query", {}) or {}
   resp = client.{{operationId}}(**path, json=body, _headers={}, _params=query, _cookies={})
 
   if resp.status_code != 200:
