@@ -1,0 +1,48 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>{{TargetFramework}}</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+{{^isNewProjectTypeEnabled}}
+  <ItemGroup>
+    <ProjectCapability Include="TeamsFx" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="appPackage/**/*" />
+    <None Include="infra/**/*" />
+    <None Remove="devTools/**" />
+    <Content Remove="devTools/**/*" />
+    <None Include="env/**/*" />
+  </ItemGroup>
+
+{{/isNewProjectTypeEnabled}}
+  <ItemGroup>
+    <PackageReference Include="Azure.Identity" Version="1.13.2" />
+    <PackageReference Include="Microsoft.Teams.Api" Version="2.0.*" />
+    <PackageReference Include="Microsoft.Teams.Apps" Version="2.0.*" />
+    <PackageReference Include="Microsoft.Teams.Plugins.AspNetCore" Version="2.0.*" />
+    <PackageReference Include="Microsoft.Teams.Common" Version="2.0.*" />
+    <PackageReference Include="Microsoft.SemanticKernel" Version="1.45.0" />
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="9.0.0" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.0" />
+    <PackageReference Include="Microsoft.Agents.Hosting.AspNetCore" Version="1.*" />
+  </ItemGroup>
+
+  <!-- Exclude local settings from publish -->
+  <ItemGroup>
+    <Content Remove="appsettings.Development.json" />
+    <Content Include="appsettings.Development.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>None</CopyToPublishDirectory>
+    </Content>
+    <Content Remove="appsettings.Playground.json" />
+    <Content Include="appsettings.Playground.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>None</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+</Project>

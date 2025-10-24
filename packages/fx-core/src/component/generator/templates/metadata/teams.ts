@@ -235,5 +235,11 @@ export const teamsAgentsAndAppsTemplates: Template[] = [
     language: "typescript",
     description: "",
   },
+  {
+    id: "teams-collaborator-agent-csharp",
+    name: TemplateNames.TeamsCollaboratorAgent,
+    language: "csharp",
+    description: "",
+  },
   ...teamsOtherTemplates,
 ];
