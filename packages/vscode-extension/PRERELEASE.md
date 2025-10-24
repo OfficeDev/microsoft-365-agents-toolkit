@@ -31,6 +31,8 @@ This behavior is controlled through the `AGENT_SCOPE` parameter defined in the e
   
 We’ve added native support for integrating Model Context Protocol (MCP) servers into Declarative Agents through actions. Developers can now easily connect MCP servers via a discovery URL, with auto-generated manifests and authentication scaffolding for quick setup. The feature supports both static and dynamic tool discovery, secure credential handling, and streamlined workflows consistent with ATK standards. This enhancement reduces setup time, ensures a unified developer experience, and enables future-ready flexibility for evolving MCP capabilities.
 
+<img width="1340" height="791" alt="image" src="https://github.com/user-attachments/assets/ee911a1b-5d92-4e7e-a7b8-6ff0dcaae831" />
+
 Quick Start: 1> Click Create New Agent, select Declarative Agent, then choose Add an Action → Start with MCP Server. 2> Once the project is generated, you’ll land on the mcp.json configuration file. 3> Click Start to connect to the MCP server. 4> Finally, select Fetch Actions to retrieve available tools and add them as actions for your agent.
 
 - **New Templates: Teams Collaborator Agent**
