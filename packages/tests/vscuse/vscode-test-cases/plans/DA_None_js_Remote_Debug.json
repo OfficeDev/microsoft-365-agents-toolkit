@@ -1,18 +1,8 @@
 {
   "plan_metadata": {
-    "version": "1.1",
-    "plan_id": "plan_8cdc61b1",
-    "execution_context": {
-      "delay_between_steps": 1,
-      "stop_on_error": true,
-      "precondition_wait_timeout": 30,
-      "precondition_retry_interval": 1
-    },
-    "total_steps": 6,
-    "created_at": "2025-10-17T08:56:28.407217",
-    "name": "DA Oauth ts Remote Debug",
-    "description": "DA Oauth ts Remote Debug",
-    "generated_at": "2025-10-17T08:56:28.407213",
+    "name": "DA None js Remote Debug",
+    "description": "caseId: 35692256\nhttps://msazure.visualstudio.com/Microsoft%20Teams%20Extensibility/_workitems/edit/35692256",
+    "generated_at": "2025-10-22T06:41:52.177975",
     "execution_order": [
       "plan_r_0928_012254",
       "step_031380d2",
@@ -30,18 +20,20 @@
       "plan_r_0928_091745"
     ],
     "tags": [],
-    "updated_at": "2025-10-20T02:53:53.202881"
+    "updated_at": "2025-10-24T04:36:28.063680",
+    "plan_id": "plan_8cdc61b1",
+    "version": "1.1",
+    "execution_context": {
+      "delay_between_steps": 1,
+      "stop_on_error": true,
+      "precondition_wait_timeout": 30,
+      "precondition_retry_interval": 1
+    },
+    "total_steps": 6,
+    "created_at": "2025-10-22T06:41:52.177980"
   },
   "steps": [
     {
-      "agent": "interaction",
-      "step_id": "step_031380d2",
-      "description": "Click the \"Declarative Agent\" option in the \"New Project\" dialog within the Microsoft 365 Agents Toolkit extension for Visual Studio Code.",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
-      "postconditions": [],
-      "screenshot": "step_031380d2",
       "plan_id": "plan_8cdc61b1",
       "tool": "click",
       "parameters": {
@@ -62,17 +54,17 @@
         "dhash:360:84:0:10:c8c8889090b26461"
       ],
       "tags": [],
-      "created_at": "2025-10-20T02:00:18.210631"
-    },
-    {
+      "created_at": "2025-10-24T04:32:56.235739",
+      "step_id": "step_031380d2",
+      "description": "Click the \"Declarative Agent\" option in the \"New Project\" dialog within the Microsoft 365 Agents Toolkit extension for Visual Studio Code.",
       "agent": "interaction",
-      "step_id": "step_2b5f569f",
-      "description": "Click the \"No Action\" option in the \"Add an action to your declarative agent\" dropdown within the \"Create Declarative Agent\" dialog in Microsoft Visual Studio Code.",
       "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_2b5f569f",
+      "screenshot": "step_031380d2"
+    },
+    {
       "plan_id": "plan_8cdc61b1",
       "tool": "click",
       "parameters": {
@@ -93,17 +85,17 @@
         "dhash:355:138:0:10:c0c4b09092b26461"
       ],
       "tags": [],
-      "created_at": "2025-10-20T02:00:18.222633"
-    },
-    {
+      "created_at": "2025-10-24T04:32:56.247838",
+      "step_id": "step_2b5f569f",
+      "description": "Click the \"No Action\" option in the \"Add an action to your declarative agent\" dropdown within the \"Create Declarative Agent\" dialog in Microsoft Visual Studio Code.",
       "agent": "interaction",
-      "step_id": "step_b46b04f4",
-      "description": "Click the \"Start with a New API\" option in the \"Create an Action\" dropdown within the Microsoft 365 Agents Toolkit extension panel in Visual Studio Code.",
       "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_b46b04f4",
+      "screenshot": "step_2b5f569f"
+    },
+    {
       "plan_id": "plan_8cdc61b1",
       "tool": "click",
       "parameters": {
@@ -124,17 +116,17 @@
         "dhash:353:82:0:10:c0c4989092b26461"
       ],
       "tags": [],
-      "created_at": "2025-10-20T02:00:18.233045"
-    },
-    {
+      "created_at": "2025-10-24T04:32:56.260434",
+      "step_id": "step_b46b04f4",
+      "description": "Click the \"Start with a New API\" option in the \"Create an Action\" dropdown within the Microsoft 365 Agents Toolkit extension panel in Visual Studio Code.",
       "agent": "interaction",
-      "step_id": "step_cdeb78a3",
-      "description": "Click the \"None\" option in the \"Select an authentication type\" dropdown menu within the \"Authentication Type\" dialog of the Microsoft 365 Agents Toolkit extension in Visual Studio Code.",
       "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_cdeb78a3",
+      "screenshot": "step_b46b04f4"
+    },
+    {
       "plan_id": "plan_8cdc61b1",
       "tool": "click",
       "parameters": {
@@ -155,17 +147,17 @@
         "dhash:275:80:0:10:d094909092b26461"
       ],
       "tags": [],
-      "created_at": "2025-10-20T02:00:18.243948"
-    },
-    {
+      "created_at": "2025-10-24T04:32:56.272283",
+      "step_id": "step_cdeb78a3",
+      "description": "Click the \"None\" option in the \"Select an authentication type\" dropdown menu within the \"Authentication Type\" dialog of the Microsoft 365 Agents Toolkit extension in Visual Studio Code.",
       "agent": "interaction",
-      "step_id": "step_4186a49d",
-      "description": "Click the \"JavaScript\" option in the \"Programming Language\" dropdown menu at the top of the Visual Studio Code interface.",
       "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_4186a49d",
+      "screenshot": "step_cdeb78a3"
+    },
+    {
       "plan_id": "plan_8cdc61b1",
       "tool": "click",
       "parameters": {
@@ -186,17 +178,17 @@
         "dhash:281:103:0:10:d090909092b26461"
       ],
       "tags": [],
-      "created_at": "2025-10-20T02:00:18.256231"
-    },
-    {
+      "created_at": "2025-10-24T04:32:56.284950",
+      "step_id": "step_4186a49d",
+      "description": "Click the \"JavaScript\" option in the \"Programming Language\" dropdown menu at the top of the Visual Studio Code interface.",
       "agent": "interaction",
-      "step_id": "step_39cec837",
-      "description": "Click the \"Default folder /home/vscode/AgentsToolkitProjects\" option in the Workspace Folder selection dropdown in Visual Studio Code.",
       "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_39cec837",
+      "screenshot": "step_4186a49d"
+    },
+    {
       "plan_id": "plan_8cdc61b1",
       "tool": "click",
       "parameters": {
@@ -217,7 +209,15 @@
         "dhash:343:74:0:10:d0b0909092b26461"
       ],
       "tags": [],
-      "created_at": "2025-10-20T02:00:18.266637"
+      "created_at": "2025-10-24T04:32:56.299095",
+      "step_id": "step_39cec837",
+      "description": "Click the \"Default folder /home/vscode/AgentsToolkitProjects\" option in the Workspace Folder selection dropdown in Visual Studio Code.",
+      "agent": "interaction",
+      "content_refs": [],
+      "retry_count": 0,
+      "depends_on": [],
+      "postconditions": [],
+      "screenshot": "step_39cec837"
     }
   ],
   "screenshots": {

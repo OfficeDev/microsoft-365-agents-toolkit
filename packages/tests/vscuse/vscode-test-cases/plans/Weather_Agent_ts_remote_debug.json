@@ -1,17 +1,7 @@
 {
   "plan_metadata": {
-    "version": "1.1",
-    "plan_id": "plan_45db9e12",
-    "execution_context": {
-      "delay_between_steps": 1,
-      "stop_on_error": true,
-      "precondition_wait_timeout": 30,
-      "precondition_retry_interval": 1
-    },
-    "total_steps": 4,
-    "created_at": "2025-10-22T06:41:53.376287",
     "name": "Weather Agent ts Remote Debug",
-    "description": "Weather Agent ts Remote Debug",
+    "description": "caseId: 34648368\nhttps://msazure.visualstudio.com/Microsoft%20Teams%20Extensibility/_workitems/edit/34648368",
     "generated_at": "2025-10-22T06:41:53.376284",
     "execution_order": [
       "plan_r_0928_012254",
@@ -29,18 +19,20 @@
       "plan_r_1009_073154"
     ],
     "tags": [],
-    "updated_at": "2025-10-23T07:29:32.987576"
+    "updated_at": "2025-10-24T04:55:18.277832",
+    "plan_id": "plan_45db9e12",
+    "version": "1.1",
+    "execution_context": {
+      "delay_between_steps": 1,
+      "stop_on_error": true,
+      "precondition_wait_timeout": 30,
+      "precondition_retry_interval": 1
+    },
+    "total_steps": 4,
+    "created_at": "2025-10-22T06:41:53.376287"
   },
   "steps": [
     {
-      "agent": "interaction",
-      "description": "Click the \"Custom Engine Agent\" option in the \"New Project\" dropdown menu within the Microsoft 365 Agents Toolkit interface in Visual Studio Code. This selects the agent type described as \"Build intelligent agent where you manage orchestration and provide your own LLM.\"",
-      "step_id": "step_068be8e0",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
-      "postconditions": [],
-      "screenshot": "step_068be8e0",
       "plan_id": "plan_45db9e12",
       "tool": "click",
       "parameters": {
@@ -61,17 +53,17 @@
         "dhash:351:136:0:10:c0c8809090b26461"
       ],
       "tags": [],
-      "created_at": "2025-10-23T06:10:35.867216"
-    },
-    {
+      "created_at": "2025-10-24T04:54:59.458880",
+      "step_id": "step_068be8e0",
+      "description": "Click the \"Custom Engine Agent\" option in the \"New Project\" dropdown menu within the Microsoft 365 Agents Toolkit interface in Visual Studio Code. This selects the agent type described as \"Build intelligent agent where you manage orchestration and provide your own LLM.\"",
       "agent": "interaction",
-      "description": "Click the \"Weather Agent\" dropdown option in the \"App Features Using Microsoft 365 Agents SDK\" dialog in Visual Studio Code.",
-      "step_id": "step_a25df5b8",
       "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_a25df5b8",
+      "screenshot": "step_068be8e0"
+    },
+    {
       "plan_id": "plan_45db9e12",
       "tool": "click",
       "parameters": {
@@ -92,17 +84,17 @@
         "dhash:322:127:0:10:c0c4909092b26461"
       ],
       "tags": [],
-      "created_at": "2025-10-23T06:10:35.878714"
-    },
-    {
+      "created_at": "2025-10-24T04:54:59.477403",
+      "step_id": "step_a25df5b8",
+      "description": "Click the \"Weather Agent\" dropdown option in the \"App Features Using Microsoft 365 Agents SDK\" dialog in Visual Studio Code.",
       "agent": "interaction",
-      "description": "Click the \"TypeScript\" option in the \"Programming Language\" dropdown within the Visual Studio Code interface.",
-      "step_id": "step_96e721ff",
       "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_96e721ff",
+      "screenshot": "step_a25df5b8"
+    },
+    {
       "plan_id": "plan_45db9e12",
       "tool": "click",
       "parameters": {
@@ -123,17 +115,17 @@
         "dhash:279:73:0:10:d090909092b26461"
       ],
       "tags": [],
-      "created_at": "2025-10-23T06:10:35.888118"
-    },
-    {
+      "created_at": "2025-10-24T04:54:59.494429",
+      "step_id": "step_96e721ff",
+      "description": "Click the \"TypeScript\" option in the \"Programming Language\" dropdown within the Visual Studio Code interface.",
       "agent": "interaction",
-      "description": "Click the \"Default folder /home/node/AgentsToolkitProjects\" option in the \"Workspace Folder\" selection dialog in Visual Studio Code.",
-      "step_id": "step_2b78fdef",
       "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_2b78fdef",
+      "screenshot": "step_96e721ff"
+    },
+    {
       "plan_id": "plan_45db9e12",
       "tool": "click",
       "parameters": {
@@ -154,7 +146,15 @@
         "dhash:378:80:0:10:d0b0909092b26461"
       ],
       "tags": [],
-      "created_at": "2025-10-23T06:10:35.897897"
+      "created_at": "2025-10-24T04:54:59.510065",
+      "step_id": "step_2b78fdef",
+      "description": "Click the \"Default folder /home/node/AgentsToolkitProjects\" option in the \"Workspace Folder\" selection dialog in Visual Studio Code.",
+      "agent": "interaction",
+      "content_refs": [],
+      "retry_count": 0,
+      "depends_on": [],
+      "postconditions": [],
+      "screenshot": "step_2b78fdef"
     }
   ],
   "screenshots": {

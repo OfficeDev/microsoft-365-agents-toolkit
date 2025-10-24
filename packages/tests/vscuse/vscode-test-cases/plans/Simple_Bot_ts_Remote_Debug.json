@@ -1,18 +1,7 @@
 {
   "plan_metadata": {
-    "version": "1.1",
-    "plan_id": "plan_4c75349e",
-    "execution_context": {
-      "delay_between_steps": 1,
-      "stop_on_error": true,
-      "precondition_wait_timeout": 30,
-      "precondition_retry_interval": 2,
-      "step_retry_timeout": 0
-    },
-    "total_steps": 5,
-    "created_at": "2025-10-23T09:44:34.739700",
     "name": "Simple Bot ts Remote Debug",
-    "description": "Simple Bot ts Remote Debug",
+    "description": "caseId: 14134645\nhttps://msazure.visualstudio.com/Microsoft%20Teams%20Extensibility/_workitems/edit/14134645",
     "generated_at": "2025-10-23T09:44:34.739686",
     "execution_order": [
       "plan_r_0928_012254",
@@ -30,18 +19,21 @@
       "plan_r_1023_094053"
     ],
     "tags": [],
-    "updated_at": "2025-10-23T09:59:52.356779"
+    "updated_at": "2025-10-24T04:53:57.716208",
+    "plan_id": "plan_4c75349e",
+    "version": "1.1",
+    "execution_context": {
+      "delay_between_steps": 1,
+      "stop_on_error": true,
+      "precondition_wait_timeout": 30,
+      "precondition_retry_interval": 2,
+      "step_retry_timeout": 0
+    },
+    "total_steps": 5,
+    "created_at": "2025-10-23T09:44:34.739700"
   },
   "steps": [
     {
-      "agent": "interaction",
-      "description": "Click on the \"Teams Agents and Apps\" option within the dropdown menu under the \"New Project\" dialog in the Microsoft 365 Agents Toolkit interface.",
-      "step_id": "step_c62fac3a",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
-      "postconditions": [],
-      "screenshot": "step_c62fac3a",
       "plan_id": "plan_4c75349e",
       "tool": "click",
       "parameters": {
@@ -57,17 +49,17 @@
         "dhash:389:223:0:10:c8c8889090bc6d69"
       ],
       "tags": [],
-      "created_at": "2025-10-23T09:45:23.379561"
-    },
-    {
+      "created_at": "2025-10-24T04:53:35.457552",
+      "step_id": "step_c62fac3a",
+      "description": "Click on the \"Teams Agents and Apps\" option within the dropdown menu under the \"New Project\" dialog in the Microsoft 365 Agents Toolkit interface.",
       "agent": "interaction",
-      "description": "Click on the \"Other Teams Capability\" option within the dropdown menu titled \"Teams Agent or App Using Teams AI Library\" in the Microsoft 365 Agents Toolkit interface.",
-      "step_id": "step_ae2d3734",
       "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_ae2d3734",
+      "screenshot": "step_c62fac3a"
+    },
+    {
       "plan_id": "plan_4c75349e",
       "tool": "click",
       "parameters": {
@@ -83,17 +75,17 @@
         "dhash:388:211:0:10:c0c8809092bc6d69"
       ],
       "tags": [],
-      "created_at": "2025-10-23T09:45:23.398783"
-    },
-    {
+      "created_at": "2025-10-24T04:53:35.472828",
+      "step_id": "step_ae2d3734",
+      "description": "Click on the \"Other Teams Capability\" option within the dropdown menu titled \"Teams Agent or App Using Teams AI Library\" in the Microsoft 365 Agents Toolkit interface.",
       "agent": "interaction",
-      "description": "Click the \"Simple Bot\" option in the \"Teams Capability\" dropdown menu.",
-      "step_id": "step_f6096762",
       "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_f6096762",
+      "screenshot": "step_ae2d3734"
+    },
+    {
       "plan_id": "plan_4c75349e",
       "tool": "click",
       "parameters": {
@@ -109,17 +101,17 @@
         "dhash:368:174:0:10:d0c0989092bc6d69"
       ],
       "tags": [],
-      "created_at": "2025-10-23T09:45:23.414355"
-    },
-    {
+      "created_at": "2025-10-24T04:53:35.488054",
+      "step_id": "step_f6096762",
+      "description": "Click the \"Simple Bot\" option in the \"Teams Capability\" dropdown menu.",
       "agent": "interaction",
-      "description": "Click the \"TypeScript\" option in the programming language selection dropdown within the Microsoft 365 Agents Toolkit interface.",
-      "step_id": "step_71d0a3ad",
       "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_71d0a3ad",
+      "screenshot": "step_f6096762"
+    },
+    {
       "plan_id": "plan_4c75349e",
       "tool": "click",
       "parameters": {
@@ -135,17 +127,17 @@
         "dhash:395:75:0:10:d094909092bc6d69"
       ],
       "tags": [],
-      "created_at": "2025-10-23T09:45:23.425312"
-    },
-    {
+      "created_at": "2025-10-24T04:53:35.504095",
+      "step_id": "step_71d0a3ad",
+      "description": "Click the \"TypeScript\" option in the programming language selection dropdown within the Microsoft 365 Agents Toolkit interface.",
       "agent": "interaction",
-      "description": "Click the \"Default folder\" option (/home/vscode/AgentsToolkitProjects) in the \"Workspace Folder\" dropdown within the Visual Studio Code interface.",
-      "step_id": "step_02bfb398",
       "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_02bfb398",
+      "screenshot": "step_71d0a3ad"
+    },
+    {
       "plan_id": "plan_4c75349e",
       "tool": "click",
       "parameters": {
@@ -161,7 +153,15 @@
         "dhash:402:74:0:10:d0b0909092926461"
       ],
       "tags": [],
-      "created_at": "2025-10-23T09:45:23.437722"
+      "created_at": "2025-10-24T04:53:35.518779",
+      "step_id": "step_02bfb398",
+      "description": "Click the \"Default folder\" option (/home/vscode/AgentsToolkitProjects) in the \"Workspace Folder\" dropdown within the Visual Studio Code interface.",
+      "agent": "interaction",
+      "content_refs": [],
+      "retry_count": 0,
+      "depends_on": [],
+      "postconditions": [],
+      "screenshot": "step_02bfb398"
     }
   ],
   "screenshots": {

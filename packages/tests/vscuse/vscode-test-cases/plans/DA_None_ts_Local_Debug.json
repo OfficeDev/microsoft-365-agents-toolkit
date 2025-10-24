@@ -1,18 +1,7 @@
 {
   "plan_metadata": {
-    "version": "1.1",
-    "plan_id": "plan_68e92144",
-    "execution_context": {
-      "delay_between_steps": 1,
-      "stop_on_error": true,
-      "precondition_wait_timeout": 30,
-      "precondition_retry_interval": 2,
-      "step_retry_timeout": 0
-    },
-    "total_steps": 6,
-    "created_at": "2025-10-23T05:53:54.222895",
     "name": "DA None ts Local Debug",
-    "description": "DA None ts Local Debug",
+    "description": "caseId: 35692262\nhttps://msazure.visualstudio.com/Microsoft%20Teams%20Extensibility/_workitems/edit/35692262",
     "generated_at": "2025-10-23T05:53:54.222885",
     "execution_order": [
       "plan_r_0928_012254",
@@ -28,20 +17,23 @@
       "plan_r_0928_091745"
     ],
     "tags": [],
-    "updated_at": "2025-10-23T06:02:29.470460"
+    "updated_at": "2025-10-24T04:37:56.231065",
+    "plan_id": "plan_68e92144",
+    "version": "1.1",
+    "execution_context": {
+      "delay_between_steps": 1,
+      "stop_on_error": true,
+      "precondition_wait_timeout": 30,
+      "precondition_retry_interval": 2,
+      "step_retry_timeout": 0
+    },
+    "total_steps": 6,
+    "created_at": "2025-10-23T05:53:54.222895"
   },
   "steps": [
     {
-      "agent": "interaction",
-      "description": "Click on \"Agents for Microsoft 365 Copilot\" option in the dropdown menu under the \"New Project\" modal.",
-      "step_id": "step_71ef51fb",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
-      "postconditions": [],
-      "screenshot": "step_71ef51fb",
-      "tool": "click",
       "plan_id": "plan_68e92144",
+      "tool": "click",
       "parameters": {
         "x": 400,
         "y": 84,
@@ -55,19 +47,19 @@
         "dhash:400:84:0:10:c8c8809090b26461"
       ],
       "tags": [],
-      "created_at": "2025-10-23T05:55:02.568867"
-    },
-    {
+      "created_at": "2025-10-24T04:36:47.703014",
+      "step_id": "step_71ef51fb",
+      "description": "Click on \"Agents for Microsoft 365 Copilot\" option in the dropdown menu under the \"New Project\" modal.",
       "agent": "interaction",
-      "description": "Click the \"Add an Action\" option from the dropdown list in the \"Create Declarative Agent\" popup menu within the Microsoft 365 Agents Toolkit interface to proceed with adding an action.",
-      "step_id": "step_e5d28bd1",
       "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_e5d28bd1",
-      "tool": "click",
+      "screenshot": "step_71ef51fb"
+    },
+    {
       "plan_id": "plan_68e92144",
+      "tool": "click",
       "parameters": {
         "x": 305,
         "y": 138,
@@ -81,19 +73,19 @@
         "dhash:305:138:0:10:c0c4909092926461"
       ],
       "tags": [],
-      "created_at": "2025-10-23T05:55:02.587510"
-    },
-    {
+      "created_at": "2025-10-24T04:36:47.721910",
+      "step_id": "step_e5d28bd1",
+      "description": "Click the \"Add an Action\" option from the dropdown list in the \"Create Declarative Agent\" popup menu within the Microsoft 365 Agents Toolkit interface to proceed with adding an action.",
       "agent": "interaction",
-      "description": "Click on the \"Start with a New API\" option in the dropdown menu under the \"Create an Action\" dialog in the Microsoft 365 Agents Toolkit interface.",
-      "step_id": "step_b8421836",
       "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_b8421836",
-      "tool": "click",
+      "screenshot": "step_e5d28bd1"
+    },
+    {
       "plan_id": "plan_68e92144",
+      "tool": "click",
       "parameters": {
         "x": 418,
         "y": 82,
@@ -107,19 +99,19 @@
         "dhash:418:82:0:10:c0e4909092926461"
       ],
       "tags": [],
-      "created_at": "2025-10-23T05:55:02.601813"
-    },
-    {
+      "created_at": "2025-10-24T04:36:47.739750",
+      "step_id": "step_b8421836",
+      "description": "Click on the \"Start with a New API\" option in the dropdown menu under the \"Create an Action\" dialog in the Microsoft 365 Agents Toolkit interface.",
       "agent": "interaction",
-      "description": "Click on the \"None\" option within the \"Authentication Type\" dropdown menu in the Microsoft 365 Agents Toolkit interface to select it.",
-      "step_id": "step_87aeefcc",
       "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_87aeefcc",
-      "tool": "click",
+      "screenshot": "step_b8421836"
+    },
+    {
       "plan_id": "plan_68e92144",
+      "tool": "click",
       "parameters": {
         "x": 308,
         "y": 76,
@@ -133,19 +125,19 @@
         "dhash:308:76:0:10:d094909092926461"
       ],
       "tags": [],
-      "created_at": "2025-10-23T05:55:02.615359"
-    },
-    {
+      "created_at": "2025-10-24T04:36:47.755705",
+      "step_id": "step_87aeefcc",
+      "description": "Click on the \"None\" option within the \"Authentication Type\" dropdown menu in the Microsoft 365 Agents Toolkit interface to select it.",
       "agent": "interaction",
-      "description": "Click the \"TypeScript\" option in the dropdown under the \"Programming Language\" selection input field at the top of the Visual Studio Code interface.",
-      "step_id": "step_222f1861",
       "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_222f1861",
-      "tool": "click",
+      "screenshot": "step_87aeefcc"
+    },
+    {
       "plan_id": "plan_68e92144",
+      "tool": "click",
       "parameters": {
         "x": 330,
         "y": 75,
@@ -159,19 +151,19 @@
         "dhash:330:75:0:10:d090909092926461"
       ],
       "tags": [],
-      "created_at": "2025-10-23T05:55:02.626822"
-    },
-    {
+      "created_at": "2025-10-24T04:36:47.770064",
+      "step_id": "step_222f1861",
+      "description": "Click the \"TypeScript\" option in the dropdown under the \"Programming Language\" selection input field at the top of the Visual Studio Code interface.",
       "agent": "interaction",
-      "description": "Click the \"Default folder\" input field in the \"Workspace Folder\" dropdown to specify the directory path.",
-      "step_id": "step_4f8654fa",
       "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_4f8654fa",
-      "tool": "click",
+      "screenshot": "step_222f1861"
+    },
+    {
       "plan_id": "plan_68e92144",
+      "tool": "click",
       "parameters": {
         "x": 455,
         "y": 73,
@@ -185,7 +177,15 @@
         "dhash:455:73:0:10:d0b0909092926461"
       ],
       "tags": [],
-      "created_at": "2025-10-23T05:55:02.638450"
+      "created_at": "2025-10-24T04:36:47.785806",
+      "step_id": "step_4f8654fa",
+      "description": "Click the \"Default folder\" input field in the \"Workspace Folder\" dropdown to specify the directory path.",
+      "agent": "interaction",
+      "content_refs": [],
+      "retry_count": 0,
+      "depends_on": [],
+      "postconditions": [],
+      "screenshot": "step_4f8654fa"
     }
   ],
   "screenshots": {

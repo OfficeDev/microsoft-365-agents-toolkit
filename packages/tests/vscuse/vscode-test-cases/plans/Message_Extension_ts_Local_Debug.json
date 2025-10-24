@@ -1,18 +1,7 @@
 {
   "plan_metadata": {
-    "version": "1.1",
-    "plan_id": "plan_db3c78ac",
-    "execution_context": {
-      "delay_between_steps": 1,
-      "stop_on_error": true,
-      "precondition_wait_timeout": 30,
-      "precondition_retry_interval": 2,
-      "step_retry_timeout": 0
-    },
-    "total_steps": 5,
-    "created_at": "2025-10-23T06:13:39.084849",
     "name": "Message Extension ts Local Debug",
-    "description": "Message Extension ts Local Debug",
+    "description": "caseId: 34869342\nhttps://msazure.visualstudio.com/Microsoft%20Teams%20Extensibility/_workitems/edit/34869342",
     "generated_at": "2025-10-23T06:13:39.084839",
     "execution_order": [
       "plan_r_0928_012254",
@@ -28,18 +17,21 @@
       "plan_r_1010_071708"
     ],
     "tags": [],
-    "updated_at": "2025-10-23T06:25:04.444618"
+    "updated_at": "2025-10-24T04:52:10.619045",
+    "plan_id": "plan_db3c78ac",
+    "version": "1.1",
+    "execution_context": {
+      "delay_between_steps": 1,
+      "stop_on_error": true,
+      "precondition_wait_timeout": 30,
+      "precondition_retry_interval": 2,
+      "step_retry_timeout": 0
+    },
+    "total_steps": 5,
+    "created_at": "2025-10-23T06:13:39.084849"
   },
   "steps": [
     {
-      "agent": "interaction",
-      "description": "Click on the \"Teams Agents and Apps\" option within the \"New Project\" dropdown menu.",
-      "step_id": "step_eb7224d1",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
-      "postconditions": [],
-      "screenshot": "step_eb7224d1",
       "plan_id": "plan_db3c78ac",
       "tool": "click",
       "parameters": {
@@ -55,17 +47,17 @@
         "dhash:404:212:0:10:c8c8889090b26461"
       ],
       "tags": [],
-      "created_at": "2025-10-23T06:20:04.395589"
-    },
-    {
+      "created_at": "2025-10-24T04:49:19.564371",
+      "step_id": "step_eb7224d1",
+      "description": "Click on the \"Teams Agents and Apps\" option within the \"New Project\" dropdown menu.",
       "agent": "interaction",
-      "description": "Click on the \"Other Teams Capabilities\" option in the dropdown menu within the \"Teams Agent or App Using Teams AI Library\" modal.",
-      "step_id": "step_a5b1a60c",
       "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_a5b1a60c",
+      "screenshot": "step_eb7224d1"
+    },
+    {
       "plan_id": "plan_db3c78ac",
       "tool": "click",
       "parameters": {
@@ -81,17 +73,17 @@
         "dhash:382:218:0:10:c0c8809090926461"
       ],
       "tags": [],
-      "created_at": "2025-10-23T06:20:04.411842"
-    },
-    {
+      "created_at": "2025-10-24T04:49:19.580680",
+      "step_id": "step_a5b1a60c",
+      "description": "Click on the \"Other Teams Capabilities\" option in the dropdown menu within the \"Teams Agent or App Using Teams AI Library\" modal.",
       "agent": "interaction",
-      "description": "Click the \"Message Extension\" option in the \"Teams Capability\" dropdown menu.",
-      "step_id": "step_14c81761",
       "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_14c81761",
+      "screenshot": "step_a5b1a60c"
+    },
+    {
       "plan_id": "plan_db3c78ac",
       "tool": "click",
       "parameters": {
@@ -107,17 +99,17 @@
         "dhash:332:133:0:10:d0c0989092926461"
       ],
       "tags": [],
-      "created_at": "2025-10-23T06:20:04.424668"
-    },
-    {
+      "created_at": "2025-10-24T04:49:19.594831",
+      "step_id": "step_14c81761",
+      "description": "Click the \"Message Extension\" option in the \"Teams Capability\" dropdown menu.",
       "agent": "interaction",
-      "description": "Click on the \"TypeScript\" option in the \"Programming Language\" dropdown within Visual Studio Code.",
-      "step_id": "step_0a4d4d25",
       "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_0a4d4d25",
+      "screenshot": "step_14c81761"
+    },
+    {
       "plan_id": "plan_db3c78ac",
       "tool": "click",
       "parameters": {
@@ -133,17 +125,17 @@
         "dhash:391:69:0:10:d090909092926461"
       ],
       "tags": [],
-      "created_at": "2025-10-23T06:20:04.436848"
-    },
-    {
+      "created_at": "2025-10-24T04:49:19.607770",
+      "step_id": "step_0a4d4d25",
+      "description": "Click on the \"TypeScript\" option in the \"Programming Language\" dropdown within Visual Studio Code.",
       "agent": "interaction",
-      "description": "Click the \"Default folder\" dropdown at the top of the \"Workspace Folder\" selection dialog in Visual Studio Code.",
-      "step_id": "step_d5c4cad3",
       "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_d5c4cad3",
+      "screenshot": "step_0a4d4d25"
+    },
+    {
       "plan_id": "plan_db3c78ac",
       "tool": "click",
       "parameters": {
@@ -159,7 +151,15 @@
         "dhash:394:73:0:10:d0b0909092926461"
       ],
       "tags": [],
-      "created_at": "2025-10-23T06:20:04.450032"
+      "created_at": "2025-10-24T04:49:19.620543",
+      "step_id": "step_d5c4cad3",
+      "description": "Click the \"Default folder\" dropdown at the top of the \"Workspace Folder\" selection dialog in Visual Studio Code.",
+      "agent": "interaction",
+      "content_refs": [],
+      "retry_count": 0,
+      "depends_on": [],
+      "postconditions": [],
+      "screenshot": "step_d5c4cad3"
     }
   ],
   "screenshots": {

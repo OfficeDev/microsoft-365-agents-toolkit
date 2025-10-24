@@ -1,18 +1,7 @@
 {
   "plan_metadata": {
-    "version": "1.1",
-    "plan_id": "plan_2bd0acc6",
-    "execution_context": {
-      "delay_between_steps": 1,
-      "stop_on_error": true,
-      "precondition_wait_timeout": 30,
-      "precondition_retry_interval": 2,
-      "step_retry_timeout": 0
-    },
-    "total_steps": 16,
-    "created_at": "2025-10-23T03:21:40.803552",
     "name": "DA No Action Local Debug",
-    "description": "DA No Action Remote Debug",
+    "description": "caseId: 28941585\nhttps://msazure.visualstudio.com/Microsoft%20Teams%20Extensibility/_workitems/edit/28941585",
     "generated_at": "2025-10-23T03:21:40.803539",
     "execution_order": [
       "plan_r_0928_012254",
@@ -38,20 +27,23 @@
       "plan_r_1023_054001"
     ],
     "tags": [],
-    "updated_at": "2025-10-23T05:51:56.153305"
+    "updated_at": "2025-10-24T04:28:38.328352",
+    "plan_id": "plan_2bd0acc6",
+    "version": "1.1",
+    "execution_context": {
+      "delay_between_steps": 1,
+      "stop_on_error": true,
+      "precondition_wait_timeout": 30,
+      "precondition_retry_interval": 2,
+      "step_retry_timeout": 0
+    },
+    "total_steps": 16,
+    "created_at": "2025-10-23T03:21:40.803552"
   },
   "steps": [
     {
-      "agent": "interaction",
-      "description": "Click the \"Declarative Agent\" option in the dropdown under the \"New Project\" dialog.",
-      "step_id": "step_76c24ec8",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
-      "postconditions": [],
-      "screenshot": "step_76c24ec8",
-      "tool": "click",
       "plan_id": "plan_2bd0acc6",
+      "tool": "click",
       "parameters": {
         "x": 339,
         "y": 90,
@@ -65,19 +57,19 @@
         "dhash:339:90:0:10:c8c8809090bc6d69"
       ],
       "tags": [],
-      "created_at": "2025-10-23T03:22:11.627717"
-    },
-    {
+      "created_at": "2025-10-24T03:58:56.353561",
+      "step_id": "step_76c24ec8",
+      "description": "Click the \"Declarative Agent\" option in the dropdown under the \"New Project\" dialog.",
       "agent": "interaction",
-      "description": "Click the \"No Action\" entry in the dropdown menu under the \"Add an action to your declarative agent\" header, located within the Microsoft 365 Agents Toolkit interface in Visual Studio Code.",
-      "step_id": "step_39b4fb06",
       "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_39b4fb06",
-      "tool": "click",
+      "screenshot": "step_76c24ec8"
+    },
+    {
       "plan_id": "plan_2bd0acc6",
+      "tool": "click",
       "parameters": {
         "x": 330,
         "y": 78,
@@ -91,19 +83,19 @@
         "dhash:330:78:0:10:c0c4909092bc6d69"
       ],
       "tags": [],
-      "created_at": "2025-10-23T03:22:11.644874"
-    },
-    {
+      "created_at": "2025-10-24T03:58:56.371756",
+      "step_id": "step_39b4fb06",
+      "description": "Click the \"No Action\" entry in the dropdown menu under the \"Add an action to your declarative agent\" header, located within the Microsoft 365 Agents Toolkit interface in Visual Studio Code.",
       "agent": "interaction",
-      "description": "Click the \"Default folder\" dropdown in the \"Workspace Folder\" dialog to set the project root folder path (`/home/.vscode/AgentsToolkitProjects`).",
-      "step_id": "step_1611d770",
       "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_1611d770",
-      "tool": "click",
+      "screenshot": "step_39b4fb06"
+    },
+    {
       "plan_id": "plan_2bd0acc6",
+      "tool": "click",
       "parameters": {
         "x": 352,
         "y": 74,
@@ -117,19 +109,19 @@
         "dhash:352:74:0:10:d0b0909092bc6d69"
       ],
       "tags": [],
-      "created_at": "2025-10-23T03:22:11.660247"
-    },
-    {
+      "created_at": "2025-10-24T03:58:56.387877",
+      "step_id": "step_1611d770",
+      "description": "Click the \"Default folder\" dropdown in the \"Workspace Folder\" dialog to set the project root folder path (`/home/.vscode/AgentsToolkitProjects`).",
       "agent": "interaction",
-      "description": "Press the F1 key in the Visual Studio Code interface to invoke the Command Palette for performing actions.",
-      "step_id": "step_c4c4a305",
       "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_c4c4a305",
-      "tool": "key_press",
+      "screenshot": "step_1611d770"
+    },
+    {
       "plan_id": "plan_2bd0acc6",
+      "tool": "key_press",
       "parameters": {
         "key": "f1"
       },
@@ -139,19 +131,19 @@
         "dhash:512:384:0:20:b28c2a2323232421"
       ],
       "tags": [],
-      "created_at": "2025-10-23T05:34:35.777828"
-    },
-    {
+      "created_at": "2025-10-24T03:58:56.402610",
+      "step_id": "step_c4c4a305",
+      "description": "Press the F1 key in the Visual Studio Code interface to invoke the Command Palette for performing actions.",
       "agent": "interaction",
-      "description": "Type text: 'debug: Select and Start Debugging' into the Visual Studio Code Command Palette, located at the top center of the interface, to initiate the specific debugging command.",
-      "step_id": "step_bcc39d05",
       "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_bcc39d05",
-      "tool": "type_text",
+      "screenshot": "step_c4c4a305"
+    },
+    {
       "plan_id": "plan_2bd0acc6",
+      "tool": "type_text",
       "parameters": {
         "text": "debug: Select and Start Debugging"
       },
@@ -161,19 +153,19 @@
         "dhash:512:384:0:20:e4e4322323232421"
       ],
       "tags": [],
-      "created_at": "2025-10-23T05:34:35.793562"
-    },
-    {
+      "created_at": "2025-10-24T03:58:56.417807",
+      "step_id": "step_bcc39d05",
+      "description": "Type text: 'debug: Select and Start Debugging' into the Visual Studio Code Command Palette, located at the top center of the interface, to initiate the specific debugging command.",
       "agent": "interaction",
-      "description": "Press the 'Enter' key to select the \"Debug: Select and Start Debugging\" option in the command palette of Visual Studio Code.",
-      "step_id": "step_c6306208",
       "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_c6306208",
-      "tool": "key_press",
+      "screenshot": "step_bcc39d05"
+    },
+    {
       "plan_id": "plan_2bd0acc6",
+      "tool": "key_press",
       "parameters": {
         "key": "enter"
       },
@@ -183,19 +175,19 @@
         "dhash:512:384:0:20:e484322323232421"
       ],
       "tags": [],
-      "created_at": "2025-10-23T05:34:35.816669"
-    },
-    {
+      "created_at": "2025-10-24T03:58:56.436541",
+      "step_id": "step_c6306208",
+      "description": "Press the 'Enter' key to select the \"Debug: Select and Start Debugging\" option in the command palette of Visual Studio Code.",
       "agent": "interaction",
-      "description": "Type the text 'Preview Local in Copilot (chrome)' into the debug configuration dropdown field located at the top of the Visual Studio Code interface, ensuring the option is highlighted in the dropdown menu list.",
-      "step_id": "step_7b987ce8",
       "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_7b987ce8",
-      "tool": "type_text",
+      "screenshot": "step_c6306208"
+    },
+    {
       "plan_id": "plan_2bd0acc6",
+      "tool": "type_text",
       "parameters": {
         "text": "Preview Local in Copilot (chrome)"
       },
@@ -205,19 +197,19 @@
         "dhash:512:384:0:20:c484222323232421"
       ],
       "tags": [],
-      "created_at": "2025-10-23T05:34:35.844350"
-    },
-    {
+      "created_at": "2025-10-24T03:58:56.456760",
+      "step_id": "step_7b987ce8",
+      "description": "Type the text 'Preview Local in Copilot (chrome)' into the debug configuration dropdown field located at the top of the Visual Studio Code interface, ensuring the option is highlighted in the dropdown menu list.",
       "agent": "interaction",
-      "description": "Press the Enter key to select \"Preview Local in Copilot (Chrome)\" from the debug configuration dropdown in the Visual Studio Code interface.",
-      "step_id": "step_0b0a69fa",
       "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_0b0a69fa",
-      "tool": "key_press",
+      "screenshot": "step_7b987ce8"
+    },
+    {
       "plan_id": "plan_2bd0acc6",
+      "tool": "key_press",
       "parameters": {
         "key": "enter"
       },
@@ -227,19 +219,19 @@
         "dhash:512:384:0:20:c484222323232421"
       ],
       "tags": [],
-      "created_at": "2025-10-23T05:34:35.865067"
-    },
-    {
+      "created_at": "2025-10-24T03:58:56.472813",
+      "step_id": "step_0b0a69fa",
+      "description": "Press the Enter key to select \"Preview Local in Copilot (Chrome)\" from the debug configuration dropdown in the Visual Studio Code interface.",
       "agent": "interaction",
-      "description": "Click on the \"Email or phone\" input field within the Microsoft \"Sign in\" page to focus the cursor for text entry.",
-      "step_id": "step_63aec6cc",
       "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_63aec6cc",
-      "tool": "click",
+      "screenshot": "step_0b0a69fa"
+    },
+    {
       "plan_id": "plan_2bd0acc6",
+      "tool": "click",
       "parameters": {
         "x": 430,
         "y": 352,
@@ -253,19 +245,19 @@
         "dhash:430:352:0:10:0b28d0d9e7e6dae4"
       ],
       "tags": [],
-      "created_at": "2025-10-23T05:34:35.878452"
-    },
-    {
+      "created_at": "2025-10-24T03:58:56.491105",
+      "step_id": "step_63aec6cc",
+      "description": "Click on the \"Email or phone\" input field within the Microsoft \"Sign in\" page to focus the cursor for text entry.",
       "agent": "interaction",
-      "description": "Enter ${{env:M365_ACCOUNT_NAME}} into the \"Email or phone\" field on the Microsoft sign-in page in a Chrome browser.",
-      "step_id": "step_a521c1b8",
       "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_a521c1b8",
-      "tool": "type_text",
+      "screenshot": "step_63aec6cc"
+    },
+    {
       "plan_id": "plan_2bd0acc6",
+      "tool": "type_text",
       "parameters": {
         "text": "${{env:M365_ACCOUNT_NAME}}"
       },
@@ -275,19 +267,19 @@
         "dhash:512:384:0:20:1b28f0d9e7e6dae4"
       ],
       "tags": [],
-      "created_at": "2025-10-23T05:34:35.891527"
-    },
-    {
+      "created_at": "2025-10-24T03:58:56.511101",
+      "step_id": "step_a521c1b8",
+      "description": "Enter ${{env:M365_ACCOUNT_NAME}} into the \"Email or phone\" field on the Microsoft sign-in page in a Chrome browser.",
       "agent": "interaction",
-      "description": "Click the blue \"Next\" button on the Microsoft sign-in page after entering the email address ${{env:M365_ACCOUNT_NAME}} in the login.microsoftonline.com web interface.",
-      "step_id": "step_542b9ea8",
       "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_542b9ea8",
-      "tool": "key_press",
+      "screenshot": "step_a521c1b8"
+    },
+    {
       "plan_id": "plan_2bd0acc6",
+      "tool": "key_press",
       "parameters": {
         "key": "enter"
       },
@@ -299,19 +291,19 @@
       "tags": [
         "delay: 3"
       ],
-      "created_at": "2025-10-23T05:34:35.905709"
-    },
-    {
+      "created_at": "2025-10-24T03:58:56.531382",
+      "step_id": "step_542b9ea8",
+      "description": "Click the blue \"Next\" button on the Microsoft sign-in page after entering the email address ${{env:M365_ACCOUNT_NAME}} in the login.microsoftonline.com web interface.",
       "agent": "interaction",
-      "description": "Type ${{secret:M365_ACCOUNT_PASSWORD}} into the Password field on the Microsoft login page for user ${{M365.AZURE_ACCOUNT_NAME}}.",
-      "step_id": "step_cf00d488",
       "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_cf00d488",
-      "tool": "type_text",
+      "screenshot": "step_542b9ea8"
+    },
+    {
       "plan_id": "plan_2bd0acc6",
+      "tool": "type_text",
       "parameters": {
         "text": "${{secret:M365_ACCOUNT_PASSWORD}}"
       },
@@ -321,19 +313,19 @@
         "dhash:512:384:0:20:1b08f0d9d1e6e6e4"
       ],
       "tags": [],
-      "created_at": "2025-10-23T05:34:35.918166"
-    },
-    {
+      "created_at": "2025-10-24T03:58:56.550813",
+      "step_id": "step_cf00d488",
+      "description": "Type ${{secret:M365_ACCOUNT_PASSWORD}} into the Password field on the Microsoft login page for user ${{M365.AZURE_ACCOUNT_NAME}}.",
       "agent": "interaction",
-      "description": "Click the \"Sign in\" button on the Microsoft login page after entering the password for ${{env:M365_ACCOUNT_NAME}}.",
-      "step_id": "step_db18d1a5",
       "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_db18d1a5",
-      "tool": "key_press",
+      "screenshot": "step_cf00d488"
+    },
+    {
       "plan_id": "plan_2bd0acc6",
+      "tool": "key_press",
       "parameters": {
         "key": "enter"
       },
@@ -345,19 +337,19 @@
       "tags": [
         "delay: 3"
       ],
-      "created_at": "2025-10-23T05:34:35.930000"
-    },
-    {
+      "created_at": "2025-10-24T03:58:56.566873",
+      "step_id": "step_db18d1a5",
+      "description": "Click the \"Sign in\" button on the Microsoft login page after entering the password for ${{env:M365_ACCOUNT_NAME}}.",
       "agent": "interaction",
-      "description": "Press the \"Enter\" key to select the \"Yes\" button on the Microsoft \"Stay signed in?\" prompt within the login.microsoftonline.com interface.",
-      "step_id": "step_156ed394",
       "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_156ed394",
-      "tool": "key_press",
+      "screenshot": "step_db18d1a5"
+    },
+    {
       "plan_id": "plan_2bd0acc6",
+      "tool": "key_press",
       "parameters": {
         "key": "enter"
       },
@@ -369,19 +361,19 @@
       "tags": [
         "delay: 3"
       ],
-      "created_at": "2025-10-23T05:34:35.943332"
-    },
-    {
+      "created_at": "2025-10-24T03:58:56.585365",
+      "step_id": "step_156ed394",
+      "description": "Press the \"Enter\" key to select the \"Yes\" button on the Microsoft \"Stay signed in?\" prompt within the login.microsoftonline.com interface.",
       "agent": "interaction",
-      "description": "Use keyboard shortcut \"Ctrl + -\" to zoom out in the web browser displaying the \"Chat | M365 Copilot\" interface.",
-      "step_id": "step_904a54b9",
       "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_904a54b9",
-      "tool": "keyboard_shortcut",
+      "screenshot": "step_156ed394"
+    },
+    {
       "plan_id": "plan_2bd0acc6",
+      "tool": "keyboard_shortcut",
       "parameters": {
         "keys": "ctrl+-"
       },
@@ -393,25 +385,33 @@
       "tags": [
         "delay: 30"
       ],
-      "created_at": "2025-10-23T05:34:35.958154"
-    },
-    {
-      "agent": "assertion",
-      "description": "@assertion there's ${{var:app_name}}local exist.",
-      "step_id": "step_c1889d91",
+      "created_at": "2025-10-24T03:58:56.602793",
+      "step_id": "step_904a54b9",
+      "description": "Use keyboard shortcut \"Ctrl + -\" to zoom out in the web browser displaying the \"Chat | M365 Copilot\" interface.",
+      "agent": "interaction",
       "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": null,
-      "tool": "",
+      "screenshot": "step_904a54b9"
+    },
+    {
       "plan_id": "plan_2bd0acc6",
+      "tool": "",
       "parameters": {},
       "timeout": 30,
       "continue_on_error": "false",
       "preconditions": [],
       "tags": [],
-      "created_at": "2025-10-23T05:37:18.454756"
+      "created_at": "2025-10-24T03:58:56.618984",
+      "step_id": "step_c1889d91",
+      "description": "@assertion there's ${{var:app_name}}local exist.",
+      "agent": "assertion",
+      "content_refs": [],
+      "retry_count": 0,
+      "depends_on": [],
+      "postconditions": [],
+      "screenshot": null
     }
   ],
   "screenshots": {

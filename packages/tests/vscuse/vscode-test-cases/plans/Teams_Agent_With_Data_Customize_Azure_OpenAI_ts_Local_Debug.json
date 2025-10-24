@@ -1,18 +1,7 @@
 {
   "plan_metadata": {
-    "version": "1.1",
-    "plan_id": "plan_49162d78",
-    "execution_context": {
-      "delay_between_steps": 1,
-      "stop_on_error": true,
-      "precondition_wait_timeout": 30,
-      "precondition_retry_interval": 2,
-      "step_retry_count": 0
-    },
-    "total_steps": 5,
-    "created_at": "2025-10-22T06:41:51.201121",
-    "name": "Chat With Your Data Customize Azure OpenAI ts Local Debug",
-    "description": "Chat With Your Data Customize Azure OpenAI ts Local Debug",
+    "name": "Teams Agent With Data Customize Azure OpenAI ts Local Debug",
+    "description": "caseId: 27569137\nhttps://msazure.visualstudio.com/Microsoft%20Teams%20Extensibility/_workitems/edit/27569137",
     "generated_at": "2025-10-22T06:41:51.201113",
     "execution_order": [
       "plan_r_0928_012254",
@@ -28,18 +17,21 @@
       "plan_r_1023_013114"
     ],
     "tags": [],
-    "updated_at": "2025-10-23T02:56:02.947025"
+    "updated_at": "2025-10-24T03:54:48.154218",
+    "plan_id": "plan_49162d78",
+    "version": "1.1",
+    "execution_context": {
+      "delay_between_steps": 1,
+      "stop_on_error": true,
+      "precondition_wait_timeout": 30,
+      "precondition_retry_interval": 2,
+      "step_retry_count": 0
+    },
+    "total_steps": 5,
+    "created_at": "2025-10-22T06:41:51.201121"
   },
   "steps": [
     {
-      "agent": "interaction",
-      "description": "Click on the \"Teams Agents and Apps\" option within the \"New Project\" dropdown menu.",
-      "step_id": "step_c0391b40",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
-      "postconditions": [],
-      "screenshot": "step_c0391b40",
       "plan_id": "plan_49162d78",
       "tool": "click",
       "parameters": {
@@ -60,17 +52,17 @@
         "dhash:378:219:0:10:c8c8809290b17071"
       ],
       "tags": [],
-      "created_at": "2025-10-23T02:47:38.372223"
-    },
-    {
+      "created_at": "2025-10-24T03:53:17.243304",
+      "step_id": "step_c0391b40",
+      "description": "Click on the \"Teams Agents and Apps\" option within the \"New Project\" dropdown menu.",
       "agent": "interaction",
-      "description": "Click on the \"Teams Agent with D...\" option in the dropdown menu under \"Teams Agent or App Using Teams AI Library\" to select it.",
-      "step_id": "step_ae5a32de",
       "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_ae5a32de",
+      "screenshot": "step_c0391b40"
+    },
+    {
       "plan_id": "plan_49162d78",
       "tool": "click",
       "parameters": {
@@ -91,17 +83,17 @@
         "dhash:362:127:0:10:c0c8869492b17071"
       ],
       "tags": [],
-      "created_at": "2025-10-23T02:47:38.386004"
-    },
-    {
+      "created_at": "2025-10-24T03:53:17.258525",
+      "step_id": "step_ae5a32de",
+      "description": "Click on the \"Teams Agent with D...\" option in the dropdown menu under \"Teams Agent or App Using Teams AI Library\" to select it.",
       "agent": "interaction",
-      "description": "Click the \"Customize\" dropdown option in the \"Select an option to load your data\" menu within the \"Teams Agent with Data\" interface.",
-      "step_id": "step_3a57f00a",
       "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_3a57f00a",
+      "screenshot": "step_ae5a32de"
+    },
+    {
       "plan_id": "plan_49162d78",
       "tool": "click",
       "parameters": {
@@ -122,17 +114,17 @@
         "dhash:304:80:0:10:c0c0989092926461"
       ],
       "tags": [],
-      "created_at": "2025-10-23T02:47:38.400543"
-    },
-    {
+      "created_at": "2025-10-24T03:53:17.270551",
+      "step_id": "step_3a57f00a",
+      "description": "Click the \"Customize\" dropdown option in the \"Select an option to load your data\" menu within the \"Teams Agent with Data\" interface.",
       "agent": "interaction",
-      "description": "Click the \"TypeScript\" option in the programming language selection dropdown within the Microsoft 365 Agents Toolkit interface in Visual Studio Code.",
-      "step_id": "step_9931b823",
       "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_9931b823",
+      "screenshot": "step_3a57f00a"
+    },
+    {
       "plan_id": "plan_49162d78",
       "tool": "click",
       "parameters": {
@@ -153,17 +145,17 @@
         "dhash:317:77:0:10:d094909492b17071"
       ],
       "tags": [],
-      "created_at": "2025-10-23T02:47:38.415919"
-    },
-    {
+      "created_at": "2025-10-24T03:53:17.283071",
+      "step_id": "step_9931b823",
+      "description": "Click the \"TypeScript\" option in the programming language selection dropdown within the Microsoft 365 Agents Toolkit interface in Visual Studio Code.",
       "agent": "interaction",
-      "description": "Click the \"Default folder\" option located in the \"Workspace Folder\" dialog to select the predefined folder path: `/home/vscode/AgentsToolkitProjects`.",
-      "step_id": "step_fec3b932",
       "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_fec3b932",
+      "screenshot": "step_9931b823"
+    },
+    {
       "plan_id": "plan_49162d78",
       "tool": "click",
       "parameters": {
@@ -184,7 +176,15 @@
         "dhash:390:74:0:10:f0b0909092926461"
       ],
       "tags": [],
-      "created_at": "2025-10-23T02:47:38.431981"
+      "created_at": "2025-10-24T03:53:17.292131",
+      "step_id": "step_fec3b932",
+      "description": "Click the \"Default folder\" option located in the \"Workspace Folder\" dialog to select the predefined folder path: `/home/vscode/AgentsToolkitProjects`.",
+      "agent": "interaction",
+      "content_refs": [],
+      "retry_count": 0,
+      "depends_on": [],
+      "postconditions": [],
+      "screenshot": "step_fec3b932"
     }
   ],
   "screenshots": {

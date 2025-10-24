@@ -1,19 +1,8 @@
 {
   "plan_metadata": {
-    "version": "1.1",
-    "plan_id": "plan_db6d5562",
-    "execution_context": {
-      "delay_between_steps": 1,
-      "stop_on_error": true,
-      "precondition_wait_timeout": 30,
-      "precondition_retry_interval": 2,
-      "step_retry_timeout": 0
-    },
-    "total_steps": 6,
-    "created_at": "2025-10-22T03:08:45.764967",
     "name": "DA Microsoft Entra ts Local Debug",
-    "description": "DA Microsoft Entra ts Local Debug",
-    "generated_at": "2025-10-22T03:08:45.764960",
+    "description": "caseId: 34594770\nhttps://msazure.visualstudio.com/Microsoft%20Teams%20Extensibility/_workitems/edit/34594770",
+    "generated_at": "2025-10-22T06:41:51.892986",
     "execution_order": [
       "plan_r_0928_012254",
       "step_9bf53914",
@@ -27,20 +16,23 @@
       "plan_r_0928_095902"
     ],
     "tags": [],
-    "updated_at": "2025-10-22T03:11:19.192942"
+    "updated_at": "2025-10-24T03:57:52.351662",
+    "plan_id": "plan_db6d5562",
+    "version": "1.1",
+    "execution_context": {
+      "delay_between_steps": 1,
+      "stop_on_error": true,
+      "precondition_wait_timeout": 30,
+      "precondition_retry_interval": 2,
+      "step_retry_timeout": 0
+    },
+    "total_steps": 6,
+    "created_at": "2025-10-22T06:41:51.892989"
   },
   "steps": [
     {
-      "agent": "interaction",
-      "description": "Click the \"Agents for Microsoft 365 Copilot\" option in the dropdown menu under the \"New Project\" dialog.",
-      "step_id": "step_9bf53914",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
-      "postconditions": [],
-      "screenshot": "step_9bf53914",
-      "tool": "click",
       "plan_id": "plan_db6d5562",
+      "tool": "click",
       "parameters": {
         "x": 402,
         "y": 87,
@@ -54,19 +46,19 @@
         "dhash:402:87:0:10:c8c8809290b17071"
       ],
       "tags": [],
-      "created_at": "2025-10-22T03:10:35.286359"
-    },
-    {
+      "created_at": "2025-10-24T03:57:23.929527",
+      "step_id": "step_9bf53914",
+      "description": "Click the \"Agents for Microsoft 365 Copilot\" option in the dropdown menu under the \"New Project\" dialog.",
       "agent": "interaction",
-      "description": "Click on the \"Add an Action\" dropdown option under the \"Add an action to your declarative agent\" menu in the \"Create Declarative Agent\" modal in Microsoft 365 Agents Toolkit.",
-      "step_id": "step_8432e6f7",
       "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_8432e6f7",
-      "tool": "click",
+      "screenshot": "step_9bf53914"
+    },
+    {
       "plan_id": "plan_db6d5562",
+      "tool": "click",
       "parameters": {
         "x": 461,
         "y": 123,
@@ -80,19 +72,19 @@
         "dhash:461:123:0:10:c0c0b09492b17071"
       ],
       "tags": [],
-      "created_at": "2025-10-22T03:10:35.304443"
-    },
-    {
+      "created_at": "2025-10-24T03:57:23.946673",
+      "step_id": "step_8432e6f7",
+      "description": "Click on the \"Add an Action\" dropdown option under the \"Add an action to your declarative agent\" menu in the \"Create Declarative Agent\" modal in Microsoft 365 Agents Toolkit.",
       "agent": "interaction",
-      "description": "Click the \"Start with a New API\" option from the dropdown under the \"Create an Action\" modal in the Microsoft 365 Agents Toolkit interface.",
-      "step_id": "step_c31c61a9",
       "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_c31c61a9",
-      "tool": "click",
+      "screenshot": "step_8432e6f7"
+    },
+    {
       "plan_id": "plan_db6d5562",
+      "tool": "click",
       "parameters": {
         "x": 389,
         "y": 84,
@@ -106,19 +98,19 @@
         "dhash:389:84:0:10:c0c4b49492b17071"
       ],
       "tags": [],
-      "created_at": "2025-10-22T03:10:35.324457"
-    },
-    {
+      "created_at": "2025-10-24T03:57:23.964154",
+      "step_id": "step_c31c61a9",
+      "description": "Click the \"Start with a New API\" option from the dropdown under the \"Create an Action\" modal in the Microsoft 365 Agents Toolkit interface.",
       "agent": "interaction",
-      "description": "Click the \"Microsoft\" option in the dropdown menu under the \"Authentication Type\" field.",
-      "step_id": "step_4981b714",
       "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_4981b714",
-      "tool": "click",
+      "screenshot": "step_c31c61a9"
+    },
+    {
       "plan_id": "plan_db6d5562",
+      "tool": "click",
       "parameters": {
         "x": 316,
         "y": 121,
@@ -132,19 +124,19 @@
         "dhash:316:121:0:10:c094909492b17071"
       ],
       "tags": [],
-      "created_at": "2025-10-22T03:10:35.347135"
-    },
-    {
+      "created_at": "2025-10-24T03:57:23.978816",
+      "step_id": "step_4981b714",
+      "description": "Click the \"Microsoft\" option in the dropdown menu under the \"Authentication Type\" field.",
       "agent": "interaction",
-      "description": "Click the \"TypeScript\" option in the \"Programming Language\" dropdown menu at the top of the interface.",
-      "step_id": "step_20fffd1f",
       "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_20fffd1f",
-      "tool": "click",
+      "screenshot": "step_4981b714"
+    },
+    {
       "plan_id": "plan_db6d5562",
+      "tool": "click",
       "parameters": {
         "x": 344,
         "y": 73,
@@ -158,19 +150,19 @@
         "dhash:344:73:0:10:d098949492b17071"
       ],
       "tags": [],
-      "created_at": "2025-10-22T03:10:35.366075"
-    },
-    {
+      "created_at": "2025-10-24T03:57:23.994668",
+      "step_id": "step_20fffd1f",
+      "description": "Click the \"TypeScript\" option in the \"Programming Language\" dropdown menu at the top of the interface.",
       "agent": "interaction",
-      "description": "Click the \"Default folder\" dropdown field in the \"Workspace Folder\" dialog box to select the location for the project.",
-      "step_id": "step_c69b0ed1",
       "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_c69b0ed1",
-      "tool": "click",
+      "screenshot": "step_20fffd1f"
+    },
+    {
       "plan_id": "plan_db6d5562",
+      "tool": "click",
       "parameters": {
         "x": 362,
         "y": 77,
@@ -184,7 +176,15 @@
         "dhash:362:77:0:10:f0b0949492b17071"
       ],
       "tags": [],
-      "created_at": "2025-10-22T03:10:35.385506"
+      "created_at": "2025-10-24T03:57:24.013327",
+      "step_id": "step_c69b0ed1",
+      "description": "Click the \"Default folder\" dropdown field in the \"Workspace Folder\" dialog box to select the location for the project.",
+      "agent": "interaction",
+      "content_refs": [],
+      "retry_count": 0,
+      "depends_on": [],
+      "postconditions": [],
+      "screenshot": "step_c69b0ed1"
     }
   ],
   "screenshots": {

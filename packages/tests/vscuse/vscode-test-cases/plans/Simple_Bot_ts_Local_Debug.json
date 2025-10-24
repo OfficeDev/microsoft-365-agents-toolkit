@@ -1,18 +1,7 @@
 {
   "plan_metadata": {
-    "version": "1.1",
-    "plan_id": "plan_3273b80b",
-    "execution_context": {
-      "delay_between_steps": 1,
-      "stop_on_error": true,
-      "precondition_wait_timeout": 30,
-      "precondition_retry_interval": 2,
-      "step_retry_timeout": 0
-    },
-    "total_steps": 5,
-    "created_at": "2025-10-23T09:32:18.262281",
     "name": "Simple Bot ts Local Debug",
-    "description": "Simple Bot ts Local Debug",
+    "description": "caseId: 9729308\nhttps://msazure.visualstudio.com/Microsoft%20Teams%20Extensibility/_workitems/edit/9729308",
     "generated_at": "2025-10-23T09:32:18.262273",
     "execution_order": [
       "plan_r_0928_012254",
@@ -27,18 +16,21 @@
       "plan_r_1023_094053"
     ],
     "tags": [],
-    "updated_at": "2025-10-23T09:43:56.405901"
+    "updated_at": "2025-10-24T04:53:28.411980",
+    "plan_id": "plan_3273b80b",
+    "version": "1.1",
+    "execution_context": {
+      "delay_between_steps": 1,
+      "stop_on_error": true,
+      "precondition_wait_timeout": 30,
+      "precondition_retry_interval": 2,
+      "step_retry_timeout": 0
+    },
+    "total_steps": 5,
+    "created_at": "2025-10-23T09:32:18.262281"
   },
   "steps": [
     {
-      "agent": "interaction",
-      "description": "Click the \"Teams Agents and Apps\" option in the \"New Project\" dropdown menu within the Microsoft 365 Agents Toolkit interface.",
-      "step_id": "step_55f91835",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
-      "postconditions": [],
-      "screenshot": "step_55f91835",
       "plan_id": "plan_3273b80b",
       "tool": "click",
       "parameters": {
@@ -54,17 +46,17 @@
         "dhash:325:230:0:10:c8c8889090b26461"
       ],
       "tags": [],
-      "created_at": "2025-10-23T09:33:53.363278"
-    },
-    {
+      "created_at": "2025-10-24T04:52:50.711476",
+      "step_id": "step_55f91835",
+      "description": "Click the \"Teams Agents and Apps\" option in the \"New Project\" dropdown menu within the Microsoft 365 Agents Toolkit interface.",
       "agent": "interaction",
-      "description": "Click the \"General Teams Agent\" option in the dropdown menu within the \"Teams Agent or App Using Teams AI Library\" dialog.",
-      "step_id": "step_d326065c",
       "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_d326065c",
+      "screenshot": "step_55f91835"
+    },
+    {
       "plan_id": "plan_3273b80b",
       "tool": "click",
       "parameters": {
@@ -80,17 +72,17 @@
         "dhash:451:214:0:10:c0c8809090926461"
       ],
       "tags": [],
-      "created_at": "2025-10-23T09:33:53.380663"
-    },
-    {
+      "created_at": "2025-10-24T04:52:50.729395",
+      "step_id": "step_d326065c",
+      "description": "Click the \"General Teams Agent\" option in the dropdown menu within the \"Teams Agent or App Using Teams AI Library\" dialog.",
       "agent": "interaction",
-      "description": "Click the \"Simple Bot\" option in the \"Teams Capability\" dropdown menu.",
-      "step_id": "step_59a81bfa",
       "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_59a81bfa",
+      "screenshot": "step_d326065c"
+    },
+    {
       "plan_id": "plan_3273b80b",
       "tool": "click",
       "parameters": {
@@ -106,17 +98,17 @@
         "dhash:367:161:0:10:d0c0989092926461"
       ],
       "tags": [],
-      "created_at": "2025-10-23T09:33:53.397065"
-    },
-    {
+      "created_at": "2025-10-24T04:52:50.753496",
+      "step_id": "step_59a81bfa",
+      "description": "Click the \"Simple Bot\" option in the \"Teams Capability\" dropdown menu.",
       "agent": "interaction",
-      "description": "Click the \"TypeScript\" option in the \"Programming Language\" dropdown menu within the Visual Studio Code interface.",
-      "step_id": "step_b2e33b97",
       "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_b2e33b97",
+      "screenshot": "step_59a81bfa"
+    },
+    {
       "plan_id": "plan_3273b80b",
       "tool": "click",
       "parameters": {
@@ -132,17 +124,17 @@
         "dhash:381:74:0:10:d094909092926461"
       ],
       "tags": [],
-      "created_at": "2025-10-23T09:33:53.416372"
-    },
-    {
+      "created_at": "2025-10-24T04:52:50.776718",
+      "step_id": "step_b2e33b97",
+      "description": "Click the \"TypeScript\" option in the \"Programming Language\" dropdown menu within the Visual Studio Code interface.",
       "agent": "interaction",
-      "description": "Click the \"Default folder\" field in the \"Workspace Folder\" dialog to select the path \"/home/vscode/AgentsToolkitProjects\".",
-      "step_id": "step_4b053d8a",
       "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_4b053d8a",
+      "screenshot": "step_b2e33b97"
+    },
+    {
       "plan_id": "plan_3273b80b",
       "tool": "click",
       "parameters": {
@@ -158,7 +150,15 @@
         "dhash:405:76:0:10:f0b0909092926461"
       ],
       "tags": [],
-      "created_at": "2025-10-23T09:33:53.432368"
+      "created_at": "2025-10-24T04:52:50.799041",
+      "step_id": "step_4b053d8a",
+      "description": "Click the \"Default folder\" field in the \"Workspace Folder\" dialog to select the path \"/home/vscode/AgentsToolkitProjects\".",
+      "agent": "interaction",
+      "content_refs": [],
+      "retry_count": 0,
+      "depends_on": [],
+      "postconditions": [],
+      "screenshot": "step_4b053d8a"
     }
   ],
   "screenshots": {

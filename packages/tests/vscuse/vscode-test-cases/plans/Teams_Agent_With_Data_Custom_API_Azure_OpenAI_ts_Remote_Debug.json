@@ -1,18 +1,7 @@
 {
   "plan_metadata": {
-    "version": "1.1",
-    "plan_id": "plan_3042a55d",
-    "execution_context": {
-      "delay_between_steps": 1,
-      "stop_on_error": true,
-      "precondition_wait_timeout": 30,
-      "precondition_retry_interval": 2,
-      "step_retry_timeout": 0
-    },
-    "total_steps": 11,
-    "created_at": "2025-10-23T10:41:40.147965",
-    "name": "Chat With Your Data Custom API Azure OpenAI ts Remote Debug",
-    "description": "Chat With Your Data Custom API Azure OpenAI ts Remote Debug",
+    "name": "Teams Agent With Data Custom API Azure OpenAI ts Remote Debug",
+    "description": "caseId: 28891618 \nhttps://msazure.visualstudio.com/Microsoft%20Teams%20Extensibility/_workitems/edit/28891618",
     "generated_at": "2025-10-23T10:41:40.147955",
     "execution_order": [
       "plan_r_0928_012254",
@@ -37,18 +26,21 @@
       "plan_r_1023_110315"
     ],
     "tags": [],
-    "updated_at": "2025-10-24T02:20:30.529233"
+    "updated_at": "2025-10-24T03:51:19.224548",
+    "plan_id": "plan_3042a55d",
+    "version": "1.1",
+    "execution_context": {
+      "delay_between_steps": 1,
+      "stop_on_error": true,
+      "precondition_wait_timeout": 30,
+      "precondition_retry_interval": 2,
+      "step_retry_timeout": 0
+    },
+    "total_steps": 11,
+    "created_at": "2025-10-23T10:41:40.147965"
   },
   "steps": [
     {
-      "agent": "interaction",
-      "description": "Click the \"Teams Agents and Apps\" option within the dropdown menu under the \"New Project\" dialog in the Microsoft 365 Agents Toolkit interface.",
-      "step_id": "step_1ce7814a",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
-      "postconditions": [],
-      "screenshot": "step_1ce7814a",
       "plan_id": "plan_3042a55d",
       "tool": "click",
       "parameters": {
@@ -64,17 +56,17 @@
         "dhash:415:233:0:10:c8c8889090b26461"
       ],
       "tags": [],
-      "created_at": "2025-10-24T02:14:22.709925"
-    },
-    {
+      "created_at": "2025-10-24T03:49:53.181879",
+      "step_id": "step_1ce7814a",
+      "description": "Click the \"Teams Agents and Apps\" option within the dropdown menu under the \"New Project\" dialog in the Microsoft 365 Agents Toolkit interface.",
       "agent": "interaction",
-      "description": "Click the \"General Teams Agent\" option in the dropdown list within the \"Teams Agent or App Using Teams AI Library\" selection menu.",
-      "step_id": "step_14e514f7",
       "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_14e514f7",
+      "screenshot": "step_1ce7814a"
+    },
+    {
       "plan_id": "plan_3042a55d",
       "tool": "click",
       "parameters": {
@@ -90,17 +82,17 @@
         "dhash:423:128:0:10:c0c8809092926461"
       ],
       "tags": [],
-      "created_at": "2025-10-24T02:14:22.731968"
-    },
-    {
+      "created_at": "2025-10-24T03:49:53.204855",
+      "step_id": "step_14e514f7",
+      "description": "Click the \"General Teams Agent\" option in the dropdown list within the \"Teams Agent or App Using Teams AI Library\" selection menu.",
       "agent": "interaction",
-      "description": "Click the \"Custom API Preview\" option in the dropdown menu under \"Select an option to load your data\" within the Teams Agent with Data interface.",
-      "step_id": "step_4dba9b20",
       "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_4dba9b20",
+      "screenshot": "step_14e514f7"
+    },
+    {
       "plan_id": "plan_3042a55d",
       "tool": "click",
       "parameters": {
@@ -116,17 +108,17 @@
         "dhash:345:180:0:10:c0c0909092926461"
       ],
       "tags": [],
-      "created_at": "2025-10-24T02:14:22.751765"
-    },
-    {
+      "created_at": "2025-10-24T03:49:53.226247",
+      "step_id": "step_4dba9b20",
+      "description": "Click the \"Custom API Preview\" option in the dropdown menu under \"Select an option to load your data\" within the Teams Agent with Data interface.",
       "agent": "interaction",
-      "description": "Click the text input field labeled \"Enter OpenAPI Description or Document Location\" in the top bar of the Visual Studio Code interface.",
-      "step_id": "step_fe38e991",
       "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_fe38e991",
+      "screenshot": "step_4dba9b20"
+    },
+    {
       "plan_id": "plan_3042a55d",
       "tool": "click",
       "parameters": {
@@ -142,17 +134,17 @@
         "dhash:415:79:0:10:f0b0909092926461"
       ],
       "tags": [],
-      "created_at": "2025-10-24T02:14:22.769842"
-    },
-    {
+      "created_at": "2025-10-24T03:49:53.248719",
+      "step_id": "step_fe38e991",
+      "description": "Click the text input field labeled \"Enter OpenAPI Description or Document Location\" in the top bar of the Visual Studio Code interface.",
       "agent": "interaction",
-      "description": "Click inside the input field labeled \"Enter OpenAPI Description Document URL\" in the VS Code extension interface header to initiate document entry.",
-      "step_id": "step_5b80c8ee",
       "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_5b80c8ee",
+      "screenshot": "step_fe38e991"
+    },
+    {
       "plan_id": "plan_3042a55d",
       "tool": "click",
       "parameters": {
@@ -168,17 +160,17 @@
         "dhash:326:50:0:10:f0b0909092926461"
       ],
       "tags": [],
-      "created_at": "2025-10-24T02:14:22.784583"
-    },
-    {
+      "created_at": "2025-10-24T03:49:53.268643",
+      "step_id": "step_5b80c8ee",
+      "description": "Click inside the input field labeled \"Enter OpenAPI Description Document URL\" in the VS Code extension interface header to initiate document entry.",
       "agent": "interaction",
-      "description": "Type the URL 'https://raw.githubusercontent.com/SLdragon/example-openapi-spec/main/real-no-auth.yaml' into the 'Enter OpenAPI Description Document URL' input field within the Microsoft 365 Agents Toolkit extension in Visual Studio Code.",
-      "step_id": "step_9ec36fc8",
       "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_9ec36fc8",
+      "screenshot": "step_5b80c8ee"
+    },
+    {
       "plan_id": "plan_3042a55d",
       "tool": "type_text",
       "parameters": {
@@ -190,17 +182,17 @@
         "dhash:512:384:0:20:f0b0909092926461"
       ],
       "tags": [],
-      "created_at": "2025-10-24T02:14:22.801771"
-    },
-    {
+      "created_at": "2025-10-24T03:49:53.287198",
+      "step_id": "step_9ec36fc8",
+      "description": "Type the URL 'https://raw.githubusercontent.com/SLdragon/example-openapi-spec/main/real-no-auth.yaml' into the 'Enter OpenAPI Description Document URL' input field within the Microsoft 365 Agents Toolkit extension in Visual Studio Code.",
       "agent": "interaction",
-      "description": "Press the 'Enter' key to confirm the input URL displayed in the OpenAPI Description Document field within the Visual Studio Code interface.",
-      "step_id": "step_62b304ad",
       "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_62b304ad",
+      "screenshot": "step_9ec36fc8"
+    },
+    {
       "plan_id": "plan_3042a55d",
       "tool": "key_press",
       "parameters": {
@@ -212,17 +204,17 @@
         "dhash:512:384:0:20:f0b0909092926461"
       ],
       "tags": [],
-      "created_at": "2025-10-24T02:14:22.819212"
-    },
-    {
+      "created_at": "2025-10-24T03:49:53.303376",
+      "step_id": "step_62b304ad",
+      "description": "Press the 'Enter' key to confirm the input URL displayed in the OpenAPI Description Document field within the Visual Studio Code interface.",
       "agent": "interaction",
-      "description": "Click the \"Toggle all checkboxes\" option in the dropdown menu under the search field labeled \"Select Operation(s) Teams Can Interact with\" in the Microsoft 365 Agents Toolkit interface.",
-      "step_id": "step_e3c546eb",
       "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_e3c546eb",
+      "screenshot": "step_62b304ad"
+    },
+    {
       "plan_id": "plan_3042a55d",
       "tool": "click",
       "parameters": {
@@ -238,17 +230,17 @@
         "dhash:225:49:0:10:e4b0909092926461"
       ],
       "tags": [],
-      "created_at": "2025-10-24T02:14:22.836313"
-    },
-    {
+      "created_at": "2025-10-24T03:49:53.320207",
+      "step_id": "step_e3c546eb",
+      "description": "Click the \"Toggle all checkboxes\" option in the dropdown menu under the search field labeled \"Select Operation(s) Teams Can Interact with\" in the Microsoft 365 Agents Toolkit interface.",
       "agent": "interaction",
-      "description": "Click the dropdown arrow in the \"Select Operation(s) Teams Can Interact with\" menu to expand selection options.",
-      "step_id": "step_104acdf8",
       "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_104acdf8",
+      "screenshot": "step_e3c546eb"
+    },
+    {
       "plan_id": "plan_3042a55d",
       "tool": "click",
       "parameters": {
@@ -264,17 +256,17 @@
         "dhash:792:52:0:10:f490909092926461"
       ],
       "tags": [],
-      "created_at": "2025-10-24T02:14:22.853019"
-    },
-    {
+      "created_at": "2025-10-24T03:49:53.339614",
+      "step_id": "step_104acdf8",
+      "description": "Click the dropdown arrow in the \"Select Operation(s) Teams Can Interact with\" menu to expand selection options.",
       "agent": "interaction",
-      "description": "Click the \"TypeScript\" option from the programming language dropdown in the Visual Studio Code interface.",
-      "step_id": "step_9dbbfd89",
       "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_9dbbfd89",
+      "screenshot": "step_104acdf8"
+    },
+    {
       "plan_id": "plan_3042a55d",
       "tool": "click",
       "parameters": {
@@ -290,17 +282,17 @@
         "dhash:313:75:0:10:d094909092926461"
       ],
       "tags": [],
-      "created_at": "2025-10-24T02:14:22.868940"
-    },
-    {
+      "created_at": "2025-10-24T03:49:53.359649",
+      "step_id": "step_9dbbfd89",
+      "description": "Click the \"TypeScript\" option from the programming language dropdown in the Visual Studio Code interface.",
       "agent": "interaction",
-      "description": "Click on the \"Default folder\" dropdown in the \"Workspace Folder\" dialog to select the folder location for your project.",
-      "step_id": "step_8d631a28",
       "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_8d631a28",
+      "screenshot": "step_9dbbfd89"
+    },
+    {
       "plan_id": "plan_3042a55d",
       "tool": "click",
       "parameters": {
@@ -316,7 +308,15 @@
         "dhash:314:73:0:10:d0b0909092926461"
       ],
       "tags": [],
-      "created_at": "2025-10-24T02:14:22.884613"
+      "created_at": "2025-10-24T03:49:53.376832",
+      "step_id": "step_8d631a28",
+      "description": "Click on the \"Default folder\" dropdown in the \"Workspace Folder\" dialog to select the folder location for your project.",
+      "agent": "interaction",
+      "content_refs": [],
+      "retry_count": 0,
+      "depends_on": [],
+      "postconditions": [],
+      "screenshot": "step_8d631a28"
     }
   ],
   "screenshots": {
