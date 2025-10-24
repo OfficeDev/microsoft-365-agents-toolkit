@@ -34,7 +34,7 @@
     "tags": [
       "group"
     ],
-    "updated_at": "2025-10-22T13:38:33.366451"
+    "updated_at": "2025-10-23T09:58:27.284775"
   },
   "steps": [
     {
@@ -57,7 +57,7 @@
         "dhash:512:384:0:20:32832723b32c6c2b"
       ],
       "tags": [],
-      "created_at": "2025-10-22T09:13:29.456481"
+      "created_at": "2025-10-23T08:08:03.554307"
     },
     {
       "agent": "interaction",
@@ -79,7 +79,7 @@
         "dhash:512:384:0:20:cce44463b32c6c2b"
       ],
       "tags": [],
-      "created_at": "2025-10-22T09:13:29.470195"
+      "created_at": "2025-10-23T08:08:03.565701"
     },
     {
       "agent": "interaction",
@@ -101,11 +101,11 @@
         "dhash:512:384:0:20:e4822323b32c6c2b"
       ],
       "tags": [],
-      "created_at": "2025-10-22T09:13:29.481663"
+      "created_at": "2025-10-23T08:08:03.577021"
     },
     {
       "agent": "interaction",
-      "description": "Type 'Launch Remote in Teams (Chrome)' into the debug configuration dropdown at the top of the Visual Studio Code interface, within the Microsoft 365 Agents project workspace.",
+      "description": "Type #text:'Launch Remote (Chrome)' into the debug configuration dropdown at the top of the Visual Studio Code interface, within the Microsoft 365 Agents project workspace.",
       "step_id": "step_710f99f7",
       "content_refs": [],
       "retry_count": 0,
@@ -115,7 +115,7 @@
       "tool": "type_text",
       "plan_id": "plan_r_0930_063548",
       "parameters": {
-        "text": "Launch Remote in Teams (Chrome)"
+        "text": "Launch Remote (Chrome)"
       },
       "timeout": 30,
       "continue_on_error": "false",
@@ -123,11 +123,11 @@
         "dhash:512:384:0:20:c4c44423b32c6c2b"
       ],
       "tags": [],
-      "created_at": "2025-10-22T09:13:29.494917"
+      "created_at": "2025-10-23T08:08:03.587497"
     },
     {
       "agent": "interaction",
-      "description": "Press Enter to select \"Launch Remote in Teams (Chrome)\" from the debug configuration dropdown in Visual Studio Code.",
+      "description": "Press Enter to select \"Launch Remote (Chrome)\" from the debug configuration dropdown in Visual Studio Code.",
       "step_id": "step_edc27950",
       "content_refs": [],
       "retry_count": 0,
@@ -145,7 +145,7 @@
         "dhash:512:384:0:20:c4832323b32c6c2b"
       ],
       "tags": [],
-      "created_at": "2025-10-22T09:13:29.512661"
+      "created_at": "2025-10-23T08:08:03.602144"
     },
     {
       "agent": "interaction",
@@ -173,7 +173,7 @@
       "tags": [
         "precondition_wait_timeout: 60"
       ],
-      "created_at": "2025-10-22T09:13:29.529737"
+      "created_at": "2025-10-23T08:08:03.618499"
     },
     {
       "agent": "interaction",
@@ -195,7 +195,7 @@
         "dhash:512:384:0:20:1b28d0d9e7e6dae4"
       ],
       "tags": [],
-      "created_at": "2025-10-22T09:13:29.544133"
+      "created_at": "2025-10-23T08:08:03.631989"
     },
     {
       "agent": "interaction",
@@ -223,7 +223,7 @@
       "tags": [
         "delay: 3"
       ],
-      "created_at": "2025-10-22T09:13:29.562326"
+      "created_at": "2025-10-23T08:08:03.648131"
     },
     {
       "agent": "interaction",
@@ -245,7 +245,7 @@
         "dhash:512:384:0:20:1b08f0d9d1e6e6e4"
       ],
       "tags": [],
-      "created_at": "2025-10-22T09:13:29.576893"
+      "created_at": "2025-10-23T08:08:03.665284"
     },
     {
       "agent": "interaction",
@@ -273,7 +273,7 @@
       "tags": [
         "delay: 3"
       ],
-      "created_at": "2025-10-22T09:13:29.587202"
+      "created_at": "2025-10-23T08:08:03.680855"
     },
     {
       "agent": "interaction",
@@ -299,7 +299,7 @@
         "dhash:623:533:0:10:1c0cf0d9d9e6e6e4"
       ],
       "tags": [],
-      "created_at": "2025-10-22T09:13:29.598424"
+      "created_at": "2025-10-23T08:08:03.695999"
     },
     {
       "agent": "assertion",
@@ -319,7 +319,7 @@
       "tags": [
         "step_retry_timeout: 180"
       ],
-      "created_at": "2025-10-22T12:52:27.585056"
+      "created_at": "2025-10-23T08:08:03.711395"
     },
     {
       "agent": "interaction",
@@ -345,7 +345,7 @@
         "dhash:300:219:0:10:00b4b0d8f8f8e0f8"
       ],
       "tags": [],
-      "created_at": "2025-10-22T09:13:29.610421"
+      "created_at": "2025-10-23T08:08:03.724457"
     },
     {
       "agent": "assertion",
@@ -365,7 +365,7 @@
       "tags": [
         "step_retry_timeout: 180"
       ],
-      "created_at": "2025-10-22T12:53:32.347088"
+      "created_at": "2025-10-23T08:08:03.739793"
     },
     {
       "agent": "interaction",
@@ -393,7 +393,7 @@
       "tags": [
         "precondition_wait_timeout: 200"
       ],
-      "created_at": "2025-10-22T09:13:29.624261"
+      "created_at": "2025-10-23T08:08:03.751452"
     },
     {
       "agent": "assertion",
@@ -413,7 +413,7 @@
       "tags": [
         "step_retry_timeout: 60"
       ],
-      "created_at": "2025-10-22T13:38:32.441643"
+      "created_at": "2025-10-23T08:08:03.768055"
     }
   ],
   "screenshots": {

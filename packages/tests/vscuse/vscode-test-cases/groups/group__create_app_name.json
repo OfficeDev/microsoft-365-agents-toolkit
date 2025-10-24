@@ -8,7 +8,7 @@
       "precondition_wait_timeout": 60,
       "precondition_retry_interval": 2
     },
-    "total_steps": 5,
+    "total_steps": 4,
     "created_at": "2025-10-22T04:03:43.066988",
     "name": "group: create_app_name",
     "description": "Generated from recording r_0928_014459",
@@ -16,14 +16,13 @@
     "execution_order": [
       "step_7a47c22a",
       "step_69fab4c1",
-      "step_49cec4cf",
       "step_b19844ac",
       "step_bf270ab5"
     ],
     "tags": [
       "group"
     ],
-    "updated_at": "2025-10-22T11:57:01.364102"
+    "updated_at": "2025-10-23T04:16:35.670196"
   },
   "steps": [
     {
@@ -53,7 +52,7 @@
         "dhash:512:384:0:20:f0b0909092b26461"
       ],
       "tags": [],
-      "created_at": "2025-10-22T09:13:28.285451"
+      "created_at": "2025-10-23T04:14:18.805256"
     },
     {
       "agent": "interaction",
@@ -82,34 +81,7 @@
         "dhash:512:384:0:20:d0b0909092b26463"
       ],
       "tags": [],
-      "created_at": "2025-10-22T09:13:28.298140"
-    },
-    {
-      "agent": "assertion",
-      "description": "@assertion there's ${{var:app_name}} in the \"EXPLORER\" section. Don't care if it is uppercase letter.",
-      "step_id": "step_49cec4cf",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
-      "postconditions": [],
-      "screenshot": null,
-      "tool": "",
-      "plan_id": "plan_r_0928_014459",
-      "parameters": {
-        "x": null,
-        "y": null,
-        "button": null,
-        "text": null,
-        "keys": null,
-        "key": null,
-        "dx": null,
-        "dy": null
-      },
-      "timeout": 30,
-      "continue_on_error": "0",
-      "preconditions": [],
-      "tags": [],
-      "created_at": "2025-10-22T09:13:28.311953"
+      "created_at": "2025-10-23T04:14:18.822173"
     },
     {
       "agent": "interaction",
@@ -135,7 +107,7 @@
         "dhash:329:50:0:10:2224306070707276"
       ],
       "tags": [],
-      "created_at": "2025-10-22T11:56:50.529060"
+      "created_at": "2025-10-23T04:14:18.859237"
     },
     {
       "agent": "interaction",
@@ -161,7 +133,7 @@
         "dhash:377:70:0:10:222c2c6070707276"
       ],
       "tags": [],
-      "created_at": "2025-10-22T11:56:50.542905"
+      "created_at": "2025-10-23T04:14:18.881502"
     }
   ],
   "screenshots": {
