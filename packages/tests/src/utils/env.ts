@@ -4,7 +4,7 @@ import * as dotenv from "dotenv";
 dotenv.config();
 
 export class Env {
-  public static get username() {
+  static get username() {
     return this.getVal("M365_ACCOUNT_NAME", process.env.M365_ACCOUNT_NAME);
   }
 
