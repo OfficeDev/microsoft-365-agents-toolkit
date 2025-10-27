@@ -1883,12 +1883,12 @@
         },
         "M365AgentsToolkit.enableDeclarativeAgentInOfficeAddIn": {
           "type": "boolean",
-          "default": false,
+          "default": true,
           "markdownDescription": "Enable Declarative Agent support in Office Add-in project."
         },
         "M365AgentsToolkit.enableCustomFunctionShortcutInOfficeAddIn": {
           "type": "boolean",
-          "default": false,
+          "default": true,
           "markdownDescription": "Enable Custom function and Shortcut support in Office Add-in project."
         }
       }
