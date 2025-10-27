@@ -45,7 +45,7 @@ We’ve added a new Teams Collaborator Agent template to ATK, enabling developer
 
 All the Teams Agents and apps template that are powered by Teams AI library V2 supports Python language now.
 
-#### Enhacement
+#### Enhancement
 
 - **important update: single-tenant Bot registration**
  
