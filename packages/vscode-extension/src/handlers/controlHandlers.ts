@@ -97,17 +97,10 @@ export async function openWelcomeHandler(...args: unknown[]): Promise<Result<unk
 }
 
 export async function selectWalkthrough(...args: unknown[]): Promise<Result<unknown, FxError>> {
-  const TeamsToolkitOptionLabel = getDefaultString("teamstoolkit.walkthroughs.title");
   const BuildingIntelligentAppsLabel = getDefaultString(
     "teamstoolkit.walkthroughs.buildIntelligentApps.title"
   );
   const walkthroughChoices: vscode.QuickPickItem[] = [
-    {
-      label: TeamsToolkitOptionLabel,
-      detail: featureFlagManager.getBooleanValue(FeatureFlags.ChatParticipantUIEntries)
-        ? getDefaultString("teamstoolkit.walkthroughs.withChat.description")
-        : getDefaultString("teamstoolkit.walkthroughs.description"),
-    },
     {
       label: BuildingIntelligentAppsLabel,
       detail: getDefaultString("teamstoolkit.walkthroughs.buildIntelligentApps.description"),
@@ -118,9 +111,7 @@ export async function selectWalkthrough(...args: unknown[]): Promise<Result<unkn
     title: getDefaultString("teamstoolkit.walkthroughs.select.title"),
   });
   let walkthroughId = "";
-  if (walkthroughChoice?.label === TeamsToolkitOptionLabel) {
-    walkthroughId = getWalkThroughId();
-  } else {
+  if (walkthroughChoice?.label === BuildingIntelligentAppsLabel) {
     walkthroughId = getBuildIntelligentAppsWalkthroughID();
   }
   const data = await vscode.commands.executeCommand(
