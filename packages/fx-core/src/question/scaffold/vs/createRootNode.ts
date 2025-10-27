@@ -97,6 +97,7 @@ export function scaffoldQuestionForVS(): IQTreeNode {
             VSCapabilityOptions.empty(),
             VSCapabilityOptions.declarativeAgent(),
             TeamsAgentCapabilityOptions.basicChatbot(),
+            TeamsAgentCapabilityOptions.collaboratorAgent(),
             TeamsAgentCapabilityOptions.customCopilotRag(),
             // TeamsAgentCapabilityOptions.aiAgent(),
             VSCapabilityOptions.weatherAgentBot(),
@@ -123,6 +124,7 @@ export function scaffoldQuestionForVS(): IQTreeNode {
           llmServiceNode({
             enum: [
               TeamsAgentCapabilityOptions.basicChatbot().id,
+              TeamsAgentCapabilityOptions.collaboratorAgent().id,
               TeamsAgentCapabilityOptions.customCopilotRag().id,
               // TeamsAgentCapabilityOptions.aiAgent().id,
               VSCapabilityOptions.weatherAgentBot().id,

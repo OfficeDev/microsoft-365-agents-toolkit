@@ -6,20 +6,6 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
-{{^isNewProjectTypeEnabled}}
-  <ItemGroup>
-    <ProjectCapability Include="TeamsFx" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="appPackage/**/*" />
-    <None Include="infra/**/*" />
-    <None Remove="devTools/**" />
-    <Content Remove="devTools/**/*" />
-    <None Include="env/**/*" />
-  </ItemGroup>
-
-{{/isNewProjectTypeEnabled}}
   <ItemGroup>
     <PackageReference Include="Azure.Identity" Version="1.13.2" />
     <PackageReference Include="Microsoft.Teams.Api" Version="2.0.*" />
