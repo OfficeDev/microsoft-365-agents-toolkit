@@ -22,7 +22,6 @@ import {
   TelemetryUpdateAppReason,
 } from "../telemetry/extTelemetryEvents";
 import { openFolderInExplorer } from "../utils/commonUtils";
-import { getWalkThroughId } from "../utils/projectStatusUtils";
 import { getTriggerFromProperty } from "../utils/telemetryUtils";
 import { getDefaultString } from "../utils/localizeUtils";
 import { getBuildIntelligentAppsWalkthroughID } from "./walkthrough";
@@ -76,20 +75,6 @@ export async function openWelcomeHandler(...args: unknown[]): Promise<Result<unk
     data = await vscode.commands.executeCommand(
       "workbench.action.openWalkthrough",
       getBuildIntelligentAppsWalkthroughID()
-    );
-    return Promise.resolve(ok(data));
-  }
-  if (args.length > 0 && args[0] == (TelemetryTriggerFrom.SideBar as string)) {
-    const data = await vscode.commands.executeCommand(
-      "workbench.action.openWalkthrough",
-      getWalkThroughId()
-    );
-    return Promise.resolve(ok(data));
-  }
-  if (args.length > 1 && args[1] == defaultWelcomePageKey) {
-    const data = await vscode.commands.executeCommand(
-      "workbench.action.openWalkthrough",
-      getWalkThroughId()
     );
     return Promise.resolve(ok(data));
   }
