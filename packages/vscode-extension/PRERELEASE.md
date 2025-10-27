@@ -3,6 +3,56 @@
 ## Changelog
 
 > Note: This changelog only includes the changes for the pre-release versions of Microsoft 365 Agents Toolkit (evolved from Teams Toolkit). For the changelog of stable versions, please refer to the [Microsoft 365 Agents Toolkit Changelog](https://github.com/OfficeDev/TeamsFx/blob/dev/packages/vscode-extension/CHANGELOG.md).
+
+### October 24, 2025
+
+#### New Features
+
+- **Declarative agents: sharing made easy**
+ 
+Users can now share their declarative agents more flexibly — either with all tenant users or with a specific group of users by listing their email addresses. This can be done directly through the ATK UI or via the ATK CLI.
+ 
+To make this simpler, a new “Share” button has been added to the lifecycle management panel, giving you a quick and intuitive way to manage agent access.
+<img width="1031" height="661" alt="image" src="https://github.com/user-attachments/assets/7ca5ff5b-02ee-4d90-994a-c8e4f9a9b12f" />
+ 
+> If you are using ATK CLI, share the agent by:`atk share -scope [tenant/users]` or run `atk share -h` to get help.
+
+- **Declarative agents: expanded publish scope**
+ 
+In previous versions, declarative agents were uploaded to Copilot with the default `Personal` scope. With this release, developers can now upload their declarative agents using a `Shared` scope, enabling broader distribution on the Copilot platform.
+ 
+⚠️ Note: If you plan to share an agent with others later, it must be uploaded with the Shared scope from the start.
+ 
+This behavior is controlled through the `AGENT_SCOPE` parameter defined in the environment configuration files. The parameter value is passed to the `extendToM365` action during the `Provision` lifecycle stage.
+ 
+> If you are using ATK CLI, specify the install scope by: `atk install --file-path [Your zip package path] -scope [Shared/Personal] ` or run `atk install -h` to get help.
+
+- **[Preview Feature] Declarative agents: MCP server integration**
+  
+We’ve added native support for integrating Model Context Protocol (MCP) servers into Declarative Agents through actions. Developers can now easily connect MCP servers via a discovery URL, with auto-generated manifests and authentication scaffolding for quick setup. The feature supports static tool discovery, secure credential handling, and streamlined workflows consistent with ATK standards. This enhancement reduces setup time, ensures a unified developer experience, and enables future-ready flexibility for evolving MCP capabilities.
+
+<img width="1340" height="791" alt="image" src="https://github.com/user-attachments/assets/ee911a1b-5d92-4e7e-a7b8-6ff0dcaae831" />
+
+Quick Start: 1> Click Create New Agent, select Declarative Agent, then choose Add an Action → Start with MCP Server. 2> Once the project is generated, you’ll land on the mcp.json configuration file. 3> Click Start to connect to the MCP server. 4> Finally, select Fetch Actions to retrieve available tools and add them as actions for your agent. 5> Go ahead and provision your agent and start testing in multiple Copilot surface (Copilot in web, Teams, office.com etc)
+
+- **New Templates: Teams Collaborator Agent**
+
+We’ve added a new Teams Collaborator Agent template to ATK, enabling developers to build agents that enhance collaboration in Microsoft Teams. Teams collaboration agents are powered by Teams AI library V2 and assistant daily work across Teams chats, channels, and meetings using secure RSC patterns. They help summarize conversations, automate workflows, extract tasks, answer questions, and boost productivity—right where your team member collaborates. It accelerates development with ready-to-use scaffolding and best practices, helping teams stay organized and productive.
+
+<img width="1189" height="483" alt="image" src="https://github.com/user-attachments/assets/7d87479c-44e6-4c3d-a9c5-2454c1152ae7" />
+
+- **Python templates for Teams Agents and apps**
+
+All the Teams Agents and apps template that are powered by Teams AI library V2 supports Python language now.
+
+#### Enhancement
+
+- **important update: single-tenant Bot registration**
+ 
+In this release, ATK is switching from multi-tenant to single-tenant bot registrations to align with Azure Bot Service (ABS) security requirements. ABS is retiring support for multi-tenant bot registrations. All new bot registrations must now use single-tenant configuration. This change enhances security and compliance across Microsoft 365 services.
+
+Multi-tenant registration will be fully blocked. Existing multi-tenant bots will continue to function correctly but eventually migrate to single-tenant registration follow the [migration guide] ( https://learn.microsoft.com/en-us/azure/bot-service/skill-pva-convert-skill-single-tenant?view=azure-bot-service-4.0) to switch your Azure Bot Service registration to single-tenant.
+
 ### February 17, 2025
 
 #### New Feature
