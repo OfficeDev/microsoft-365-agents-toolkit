@@ -94,3 +94,7 @@ The Collaborator agent uses a sophisticated multi-capability architecture:
 The agent can be deployed to Azure App Service for production use. See following documentation for detailed instructions on setting up Azure resources and configuring the production environment.
 - Host your app in Azure by [provision cloud resources](https://learn.microsoft.com/microsoftteams/platform/toolkit/provision) and [deploy the code to cloud](https://learn.microsoft.com/microsoftteams/platform/toolkit/deploy)
 - Azure SQL Database is used to store data, you can set admin password in `env/.env.dev.user`.
+
+If you are trying to local debug / preview deployed version, then either of the two conditions must be met as a min-bar:
+1. The user doing the operation should be an admin in the org.
+2. The Entra app ID specified in webAppInfo.Id must be homed in the same tenant.
