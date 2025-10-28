@@ -1,7 +1,22 @@
 {
   "plan_metadata": {
-    "version": "1.1",
+    "name": "group: debug_in_playground",
+    "description": "Generated from recording r_1017_024203",
+    "generated_at": "2025-10-22T09:38:18.762929",
+    "execution_order": [
+      "step_81d30366",
+      "step_e52f332a",
+      "step_fa76b04f",
+      "step_173723b9",
+      "step_40555e9c",
+      "step_13cd73c7"
+    ],
+    "tags": [
+      "group"
+    ],
+    "updated_at": "2025-10-24T10:18:50.956201",
     "plan_id": "plan_r_1017_024203",
+    "version": "1.1",
     "execution_context": {
       "delay_between_steps": 0.5,
       "stop_on_error": true,
@@ -9,34 +24,20 @@
       "precondition_retry_interval": 2,
       "step_retry_count": 0
     },
-    "total_steps": 5,
-    "created_at": "2025-10-22T04:03:44.138635",
-    "generated_at": "2025-10-22T04:03:44.138627",
-    "name": "group: debug_in_playground",
-    "description": "Generated from recording r_1017_024203",
-    "execution_order": [
-      "step_81d30366",
-      "step_e52f332a",
-      "step_fa76b04f",
-      "step_173723b9",
-      "step_40555e9c"
-    ],
-    "tags": [
-      "group"
-    ],
-    "updated_at": "2025-10-22T06:35:34.334102"
+    "total_steps": 6,
+    "created_at": "2025-10-22T09:38:18.762929"
   },
   "steps": [
     {
+      "plan_id": "plan_r_1017_024203",
       "agent": "interaction",
       "description": "Press the F1 key to open the Command Palette in Visual Studio Code while viewing the \"Preview README.md\" interface.",
-      "step_id": "step_81d30366",
       "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
       "screenshot": "step_81d30366",
-      "plan_id": "plan_r_1017_024203",
+      "step_id": "step_81d30366",
       "tool": "key_press",
       "parameters": {
         "key": "f1"
@@ -47,18 +48,18 @@
         "dhash:512:384:0:20:322c2aa323636421"
       ],
       "tags": [],
-      "created_at": "2025-10-22T04:03:44.155611"
+      "created_at": "2025-10-24T10:05:12.908741"
     },
     {
+      "plan_id": "plan_r_1017_024203",
       "agent": "interaction",
       "description": "Type 'Debug: Select and Start Debugging' into the Command Palette search box in Visual Studio Code. The Command Palette is accessed via the top center overlay, indicated with a > symbol.",
-      "step_id": "step_e52f332a",
       "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
       "screenshot": "step_e52f332a",
-      "plan_id": "plan_r_1017_024203",
+      "step_id": "step_e52f332a",
       "tool": "type_text",
       "parameters": {
         "text": "Debug: Select and Start Debugging"
@@ -69,18 +70,18 @@
         "dhash:512:384:0:20:64404c8723636421"
       ],
       "tags": [],
-      "created_at": "2025-10-22T04:03:44.170930"
+      "created_at": "2025-10-24T10:05:12.940806"
     },
     {
+      "plan_id": "plan_r_1017_024203",
       "agent": "interaction",
       "description": "Press the Enter key to select the \"Debug: Select and Start Debugging\" option from the VS Code command palette.",
-      "step_id": "step_fa76b04f",
       "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
       "screenshot": "step_fa76b04f",
-      "plan_id": "plan_r_1017_024203",
+      "step_id": "step_fa76b04f",
       "tool": "key_press",
       "parameters": {
         "key": "enter"
@@ -91,18 +92,18 @@
         "dhash:512:384:0:20:646432a323636421"
       ],
       "tags": [],
-      "created_at": "2025-10-22T04:03:44.185285"
+      "created_at": "2025-10-24T10:05:12.973038"
     },
     {
+      "plan_id": "plan_r_1017_024203",
       "agent": "interaction",
       "description": "Type text 'Debug in Microsoft 365 Agents Playground' into the configuration dropdown menu of Visual Studio Code, located at the top-center of the interface.",
-      "step_id": "step_173723b9",
       "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
       "screenshot": "step_173723b9",
-      "plan_id": "plan_r_1017_024203",
+      "step_id": "step_173723b9",
       "tool": "type_text",
       "parameters": {
         "text": "Debug in Microsoft 365 Agents Playground"
@@ -113,18 +114,18 @@
         "dhash:512:384:0:20:444c40a323636421"
       ],
       "tags": [],
-      "created_at": "2025-10-22T04:03:44.200541"
+      "created_at": "2025-10-24T10:05:13.053596"
     },
     {
+      "plan_id": "plan_r_1017_024203",
       "agent": "interaction",
       "description": "Press the 'Enter' key to confirm the selection of \"Debug in Microsoft 365 Agents Playground\" from the debug configuration dropdown in Visual Studio Code.",
-      "step_id": "step_40555e9c",
       "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
       "screenshot": "step_40555e9c",
-      "plan_id": "plan_r_1017_024203",
+      "step_id": "step_40555e9c",
       "tool": "key_press",
       "parameters": {
         "key": "enter"
@@ -135,7 +136,27 @@
         "dhash:512:384:0:20:c42422a323636421"
       ],
       "tags": [],
-      "created_at": "2025-10-22T04:03:44.216329"
+      "created_at": "2025-10-24T10:05:13.109199"
+    },
+    {
+      "plan_id": "plan_r_1017_024203",
+      "agent": "assertion",
+      "description": "@assertion Microsoft 365 Agents Playground exist",
+      "content_refs": [],
+      "retry_count": 0,
+      "depends_on": [],
+      "postconditions": [],
+      "screenshot": null,
+      "step_id": "step_13cd73c7",
+      "tool": "",
+      "parameters": {},
+      "timeout": 30,
+      "continue_on_error": "false",
+      "preconditions": [],
+      "tags": [
+        "step_retry_timeout:180"
+      ],
+      "created_at": "2025-10-24T10:17:46.477504"
     }
   ],
   "screenshots": {

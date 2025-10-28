@@ -1,18 +1,7 @@
 {
   "plan_metadata": {
-    "version": "1.1",
-    "plan_id": "plan_2a5d5939",
-    "execution_context": {
-      "delay_between_steps": 1,
-      "stop_on_error": true,
-      "precondition_wait_timeout": 30,
-      "precondition_retry_interval": 1,
-      "step_retry_count": 0
-    },
-    "total_steps": 4,
-    "created_at": "2025-10-22T06:41:50.672455",
     "name": "General Teams Agent Azure OpenAI ts Remote Debug",
-    "description": "General Teams Agent Azure OpenAI ts Remote Debug",
+    "description": "caseId: 35692291\nhttps://msazure.visualstudio.com/Microsoft%20Teams%20Extensibility/_workitems/edit/35692291",
     "generated_at": "2025-10-22T06:41:50.672450",
     "execution_order": [
       "plan_r_0928_012254",
@@ -30,20 +19,23 @@
       "plan_r_1009_093215"
     ],
     "tags": [],
-    "updated_at": "2025-10-22T06:57:39.641537"
+    "updated_at": "2025-10-24T04:49:12.223162",
+    "plan_id": "plan_2a5d5939",
+    "version": "1.1",
+    "execution_context": {
+      "delay_between_steps": 1,
+      "stop_on_error": true,
+      "precondition_wait_timeout": 30,
+      "precondition_retry_interval": 1,
+      "step_retry_count": 0
+    },
+    "total_steps": 4,
+    "created_at": "2025-10-22T06:41:50.672455"
   },
   "steps": [
     {
-      "agent": "interaction",
-      "description": "Click the \"Declarative Agent\" option in the \"New Project\" dropdown menu to select it.",
-      "step_id": "step_1be932a4",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
-      "postconditions": [],
-      "screenshot": "step_1be932a4",
-      "tool": "click",
       "plan_id": "plan_2a5d5939",
+      "tool": "click",
       "parameters": {
         "x": 444,
         "y": 217,
@@ -57,19 +49,19 @@
         "dhash:444:217:0:10:c8c8809290b17071"
       ],
       "tags": [],
-      "created_at": "2025-10-22T06:56:11.543334"
-    },
-    {
+      "created_at": "2025-10-24T04:48:42.956155",
+      "step_id": "step_1be932a4",
+      "description": "Click the \"Declarative Agent\" option in the \"New Project\" dropdown menu to select it.",
       "agent": "interaction",
-      "description": "Click the \"General Teams Agent\" option from the dropdown menu in the \"Teams Agent or App Using Teams AI Library\" panel.",
-      "step_id": "step_fa6eb347",
       "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_fa6eb347",
-      "tool": "click",
+      "screenshot": "step_1be932a4"
+    },
+    {
       "plan_id": "plan_2a5d5939",
+      "tool": "click",
       "parameters": {
         "x": 342,
         "y": 83,
@@ -83,19 +75,19 @@
         "dhash:342:83:0:10:c0c8929492b17071"
       ],
       "tags": [],
-      "created_at": "2025-10-22T06:56:11.559549"
-    },
-    {
+      "created_at": "2025-10-24T04:48:42.978502",
+      "step_id": "step_fa6eb347",
+      "description": "Click the \"General Teams Agent\" option from the dropdown menu in the \"Teams Agent or App Using Teams AI Library\" panel.",
       "agent": "interaction",
-      "description": "Click on the \"TypeScript\" option within the \"Programming Language\" dropdown menu located in the top toolbar of the Visual Studio Code interface.",
-      "step_id": "step_66918344",
       "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_66918344",
-      "tool": "click",
+      "screenshot": "step_fa6eb347"
+    },
+    {
       "plan_id": "plan_2a5d5939",
+      "tool": "click",
       "parameters": {
         "x": 286,
         "y": 78,
@@ -109,19 +101,19 @@
         "dhash:286:78:0:10:d094909492b17071"
       ],
       "tags": [],
-      "created_at": "2025-10-22T06:57:39.613451"
-    },
-    {
+      "created_at": "2025-10-24T04:48:42.991603",
+      "step_id": "step_66918344",
+      "description": "Click on the \"TypeScript\" option within the \"Programming Language\" dropdown menu located in the top toolbar of the Visual Studio Code interface.",
       "agent": "interaction",
-      "description": "Click the \"Default folder\" option in the workspace folder selection dropdown at coordinates (433, 75).",
-      "step_id": "step_a86c8b2e",
       "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_a86c8b2e",
-      "tool": "click",
+      "screenshot": "step_66918344"
+    },
+    {
       "plan_id": "plan_2a5d5939",
+      "tool": "click",
       "parameters": {
         "x": 433,
         "y": 75,
@@ -135,7 +127,15 @@
         "dhash:433:75:0:10:f0b0949492b17071"
       ],
       "tags": [],
-      "created_at": "2025-10-22T06:57:39.627606"
+      "created_at": "2025-10-24T04:48:43.002337",
+      "step_id": "step_a86c8b2e",
+      "description": "Click the \"Default folder\" option in the workspace folder selection dropdown at coordinates (433, 75).",
+      "agent": "interaction",
+      "content_refs": [],
+      "retry_count": 0,
+      "depends_on": [],
+      "postconditions": [],
+      "screenshot": "step_a86c8b2e"
     }
   ],
   "screenshots": {

@@ -9,10 +9,10 @@
       "precondition_retry_interval": 2
     },
     "total_steps": 13,
-    "created_at": "2025-10-21T07:31:48.021743",
+    "created_at": "2025-10-22T04:03:43.234062",
     "name": "group: debug_in_copilot_local",
     "description": "Generated from recording r_0928_095902",
-    "generated_at": "2025-10-21T07:31:48.021739",
+    "generated_at": "2025-10-22T04:03:43.234050",
     "execution_order": [
       "step_bd2cc94b",
       "step_1d1e293c",
@@ -31,7 +31,7 @@
     "tags": [
       "group"
     ],
-    "updated_at": "2025-10-22T03:30:54.651711"
+    "updated_at": "2025-10-23T06:01:15.274878"
   },
   "steps": [
     {
@@ -54,7 +54,7 @@
         "dhash:512:384:0:20:b28c2a2323232421"
       ],
       "tags": [],
-      "created_at": "2025-10-22T03:21:42.830665"
+      "created_at": "2025-10-23T04:14:19.073261"
     },
     {
       "agent": "interaction",
@@ -76,7 +76,7 @@
         "dhash:512:384:0:20:e4c0486423222421"
       ],
       "tags": [],
-      "created_at": "2025-10-22T03:21:42.841039"
+      "created_at": "2025-10-23T04:14:19.092403"
     },
     {
       "agent": "interaction",
@@ -98,7 +98,7 @@
         "dhash:512:384:0:20:e484322323232421"
       ],
       "tags": [],
-      "created_at": "2025-10-22T03:21:42.853345"
+      "created_at": "2025-10-23T04:14:19.113115"
     },
     {
       "agent": "interaction",
@@ -120,7 +120,7 @@
         "dhash:512:384:0:20:cccc222383232c2d"
       ],
       "tags": [],
-      "created_at": "2025-10-22T03:21:42.865113"
+      "created_at": "2025-10-23T04:14:19.128658"
     },
     {
       "agent": "interaction",
@@ -142,7 +142,7 @@
         "dhash:512:384:0:20:c484222323232421"
       ],
       "tags": [],
-      "created_at": "2025-10-22T03:21:42.874987"
+      "created_at": "2025-10-23T04:14:19.145266"
     },
     {
       "agent": "interaction",
@@ -170,7 +170,7 @@
       "tags": [
         "precondition_wait_timeout: 180"
       ],
-      "created_at": "2025-10-22T03:21:42.885474"
+      "created_at": "2025-10-23T04:14:19.158992"
     },
     {
       "agent": "interaction",
@@ -192,7 +192,7 @@
         "dhash:512:384:0:20:1b28f0d9e7e6dae4"
       ],
       "tags": [],
-      "created_at": "2025-10-22T03:21:42.898171"
+      "created_at": "2025-10-23T04:14:19.170428"
     },
     {
       "agent": "interaction",
@@ -216,7 +216,7 @@
       "tags": [
         "delay: 3"
       ],
-      "created_at": "2025-10-22T03:21:42.908960"
+      "created_at": "2025-10-23T04:14:19.182464"
     },
     {
       "agent": "interaction",
@@ -238,7 +238,7 @@
         "dhash:512:384:0:20:1b08f0d9d1e6e6e4"
       ],
       "tags": [],
-      "created_at": "2025-10-22T03:21:42.921910"
+      "created_at": "2025-10-23T04:14:19.197489"
     },
     {
       "agent": "interaction",
@@ -262,7 +262,7 @@
       "tags": [
         "delay: 3"
       ],
-      "created_at": "2025-10-22T03:21:42.932926"
+      "created_at": "2025-10-23T04:14:19.209951"
     },
     {
       "agent": "interaction",
@@ -283,8 +283,10 @@
       "preconditions": [
         "dhash:512:384:0:20:1808f0d9d9e6e6e4"
       ],
-      "tags": [],
-      "created_at": "2025-10-22T03:21:42.944469"
+      "tags": [
+        "delay: 3"
+      ],
+      "created_at": "2025-10-23T04:14:19.222490"
     },
     {
       "agent": "interaction",
@@ -308,7 +310,7 @@
       "tags": [
         "delay: 30"
       ],
-      "created_at": "2025-10-22T03:21:42.956774"
+      "created_at": "2025-10-23T04:14:19.235823"
     },
     {
       "agent": "assertion",
@@ -329,7 +331,7 @@
         "delay: 10",
         "step_retry_timeout: 120"
       ],
-      "created_at": "2025-10-22T03:21:42.969919"
+      "created_at": "2025-10-23T04:14:19.247647"
     }
   ],
   "screenshots": {

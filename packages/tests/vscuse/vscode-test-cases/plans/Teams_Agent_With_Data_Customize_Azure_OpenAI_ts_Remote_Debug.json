@@ -1,17 +1,7 @@
 {
   "plan_metadata": {
-    "version": "1.1",
-    "plan_id": "plan_b3d77ed6",
-    "execution_context": {
-      "delay_between_steps": 1,
-      "stop_on_error": true,
-      "precondition_wait_timeout": 30,
-      "precondition_retry_interval": 1
-    },
-    "total_steps": 5,
-    "created_at": "2025-10-22T06:41:51.318836",
-    "name": "Chat With Your Data Customize Azure OpenAI ts Remote Debug",
-    "description": "Chat With Your Data Customize Azure OpenAI ts Remote Debug",
+    "name": "Teams Agent With Data Customize Azure OpenAI ts Remote Debug",
+    "description": "caseId: 27569142\nhttps://msazure.visualstudio.com/Microsoft%20Teams%20Extensibility/_workitems/edit/27569142",
     "generated_at": "2025-10-22T06:41:51.318829",
     "execution_order": [
       "plan_r_0928_012254",
@@ -30,20 +20,22 @@
       "plan_r_1023_013114"
     ],
     "tags": [],
-    "updated_at": "2025-10-23T01:34:37.790276"
+    "updated_at": "2025-10-24T03:55:35.342497",
+    "plan_id": "plan_b3d77ed6",
+    "version": "1.1",
+    "execution_context": {
+      "delay_between_steps": 1,
+      "stop_on_error": true,
+      "precondition_wait_timeout": 30,
+      "precondition_retry_interval": 1
+    },
+    "total_steps": 5,
+    "created_at": "2025-10-22T06:41:51.318836"
   },
   "steps": [
     {
-      "agent": "interaction",
-      "description": "Click on the \"Teams Agents and Apps\" option in the \"New Project\" dropdown menu within the Microsoft 365 Agents Toolkit interface in Visual Studio Code.",
-      "step_id": "step_059653ca",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
-      "postconditions": [],
-      "screenshot": "step_059653ca",
-      "tool": "click",
       "plan_id": "plan_b3d77ed6",
+      "tool": "click",
       "parameters": {
         "x": 335,
         "y": 225,
@@ -62,19 +54,19 @@
         "dhash:335:225:0:10:c8c8809292b37071"
       ],
       "tags": [],
-      "created_at": "2025-10-22T15:21:03.213542"
-    },
-    {
+      "created_at": "2025-10-24T03:54:54.396128",
+      "step_id": "step_059653ca",
+      "description": "Click on the \"Teams Agents and Apps\" option in the \"New Project\" dropdown menu within the Microsoft 365 Agents Toolkit interface in Visual Studio Code.",
       "agent": "interaction",
-      "description": "Click the \"General Teams Agent\" dropdown option within the \"Teams Agent or App Using Teams AI Library\" selection popup in Visual Studio Code.",
-      "step_id": "step_0a27881b",
       "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_0a27881b",
-      "tool": "click",
+      "screenshot": "step_059653ca"
+    },
+    {
       "plan_id": "plan_b3d77ed6",
+      "tool": "click",
       "parameters": {
         "x": 385,
         "y": 128,
@@ -93,19 +85,19 @@
         "dhash:385:128:0:10:c0c8869492b17071"
       ],
       "tags": [],
-      "created_at": "2025-10-22T15:21:03.226981"
-    },
-    {
+      "created_at": "2025-10-24T03:54:54.412833",
+      "step_id": "step_0a27881b",
+      "description": "Click the \"General Teams Agent\" dropdown option within the \"Teams Agent or App Using Teams AI Library\" selection popup in Visual Studio Code.",
       "agent": "interaction",
-      "description": "Click the \"Customize\" option in the \"Select an option to load your data\" dropdown within the \"Teams Agent with Data\" window in Visual Studio Code.",
-      "step_id": "step_7f88556c",
       "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_7f88556c",
-      "tool": "click",
+      "screenshot": "step_0a27881b"
+    },
+    {
       "plan_id": "plan_b3d77ed6",
+      "tool": "click",
       "parameters": {
         "x": 304,
         "y": 80,
@@ -124,19 +116,19 @@
         "dhash:304:80:0:10:c0c0b09492b17071"
       ],
       "tags": [],
-      "created_at": "2025-10-22T15:21:03.241454"
-    },
-    {
+      "created_at": "2025-10-24T03:54:54.426988",
+      "step_id": "step_7f88556c",
+      "description": "Click the \"Customize\" option in the \"Select an option to load your data\" dropdown within the \"Teams Agent with Data\" window in Visual Studio Code.",
       "agent": "interaction",
-      "description": "Click the \"TypeScript\" option in the \"Programming Language\" dropdown within the Microsoft Visual Studio Code interface.",
-      "step_id": "step_777a598b",
       "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_777a598b",
-      "tool": "click",
+      "screenshot": "step_7f88556c"
+    },
+    {
       "plan_id": "plan_b3d77ed6",
+      "tool": "click",
       "parameters": {
         "x": 325,
         "y": 69,
@@ -155,19 +147,19 @@
         "dhash:325:69:0:10:d090909092b26461"
       ],
       "tags": [],
-      "created_at": "2025-10-22T15:21:03.254717"
-    },
-    {
+      "created_at": "2025-10-24T03:54:54.441654",
+      "step_id": "step_777a598b",
+      "description": "Click the \"TypeScript\" option in the \"Programming Language\" dropdown within the Microsoft Visual Studio Code interface.",
       "agent": "interaction",
-      "description": "Click the \"Default folder\" option in the \"Workspace Folder\" selection dropdown at the top of the Visual Studio Code window to set the project root directory to /home/vscode/AgentsToolkitProjects.",
-      "step_id": "step_75aa3781",
       "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_75aa3781",
-      "tool": "click",
+      "screenshot": "step_777a598b"
+    },
+    {
       "plan_id": "plan_b3d77ed6",
+      "tool": "click",
       "parameters": {
         "x": 334,
         "y": 75,
@@ -186,7 +178,15 @@
         "dhash:334:75:0:10:d0b0909092b26461"
       ],
       "tags": [],
-      "created_at": "2025-10-22T15:21:03.268668"
+      "created_at": "2025-10-24T03:54:54.457488",
+      "step_id": "step_75aa3781",
+      "description": "Click the \"Default folder\" option in the \"Workspace Folder\" selection dropdown at the top of the Visual Studio Code window to set the project root directory to /home/vscode/AgentsToolkitProjects.",
+      "agent": "interaction",
+      "content_refs": [],
+      "retry_count": 0,
+      "depends_on": [],
+      "postconditions": [],
+      "screenshot": "step_75aa3781"
     }
   ],
   "screenshots": {

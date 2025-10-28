@@ -1,19 +1,8 @@
 {
   "plan_metadata": {
-    "version": "1.1",
-    "plan_id": "plan_17f090b5",
-    "execution_context": {
-      "delay_between_steps": 1,
-      "stop_on_error": true,
-      "precondition_wait_timeout": 30,
-      "precondition_retry_interval": 2,
-      "step_retry_count": 0
-    },
-    "total_steps": 4,
-    "created_at": "2025-10-21T10:20:13.343405",
     "name": "Basic Tab ts Local Debug",
-    "description": "Basic Tab ts Local Debug",
-    "generated_at": "2025-10-21T10:20:13.343395",
+    "description": "caseId: 15276946\nhttps://msazure.visualstudio.com/Microsoft%20Teams%20Extensibility/_workitems/edit/15276946",
+    "generated_at": "2025-10-22T06:41:50.978064",
     "execution_order": [
       "plan_r_0928_012254",
       "step_2f7da668",
@@ -26,20 +15,23 @@
       "plan_80b15702"
     ],
     "tags": [],
-    "updated_at": "2025-10-21T10:22:53.981532"
+    "updated_at": "2025-10-24T03:53:00.371575",
+    "plan_id": "plan_17f090b5",
+    "version": "1.1",
+    "execution_context": {
+      "delay_between_steps": 1,
+      "stop_on_error": true,
+      "precondition_wait_timeout": 30,
+      "precondition_retry_interval": 2,
+      "step_retry_count": 0
+    },
+    "total_steps": 4,
+    "created_at": "2025-10-22T06:41:50.978067"
   },
   "steps": [
     {
-      "agent": "interaction",
-      "description": "Click on the \"Declarative Agent\" option within the \"New Project\" dropdown menu to create an agent using instructions and actions.",
-      "step_id": "step_2f7da668",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
-      "postconditions": [],
-      "screenshot": "step_2f7da668",
-      "tool": "click",
       "plan_id": "plan_17f090b5",
+      "tool": "click",
       "parameters": {
         "x": 361,
         "y": 229,
@@ -53,19 +45,19 @@
         "dhash:361:229:0:10:c8c8809290b17071"
       ],
       "tags": [],
-      "created_at": "2025-10-21T10:21:04.512027"
-    },
-    {
+      "created_at": "2025-10-24T03:52:35.601535",
+      "step_id": "step_2f7da668",
+      "description": "Click on the \"Declarative Agent\" option within the \"New Project\" dropdown menu to create an agent using instructions and actions.",
       "agent": "interaction",
-      "description": "Click on the \"General Teams Agent\" option within the dropdown menu titled \"Teams Agent or App Using Teams AI Library\" at coordinates (474, 210).",
-      "step_id": "step_22fed58e",
       "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_22fed58e",
-      "tool": "click",
+      "screenshot": "step_2f7da668"
+    },
+    {
       "plan_id": "plan_17f090b5",
+      "tool": "click",
       "parameters": {
         "x": 474,
         "y": 210,
@@ -79,19 +71,19 @@
         "dhash:474:210:0:10:c0c8909492b17071"
       ],
       "tags": [],
-      "created_at": "2025-10-21T10:21:04.528980"
-    },
-    {
+      "created_at": "2025-10-24T03:52:35.617301",
+      "step_id": "step_22fed58e",
+      "description": "Click on the \"General Teams Agent\" option within the dropdown menu titled \"Teams Agent or App Using Teams AI Library\" at coordinates (474, 210).",
       "agent": "interaction",
-      "description": "Click on the dropdown option \"Tab\" under the \"Teams Capability\" menu in the Microsoft 365 Agents Toolkit interface.",
-      "step_id": "step_5e22e913",
       "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_5e22e913",
-      "tool": "click",
+      "screenshot": "step_22fed58e"
+    },
+    {
       "plan_id": "plan_17f090b5",
+      "tool": "click",
       "parameters": {
         "x": 328,
         "y": 76,
@@ -105,19 +97,19 @@
         "dhash:328:76:0:10:d0c0909492b17071"
       ],
       "tags": [],
-      "created_at": "2025-10-21T10:21:04.543504"
-    },
-    {
+      "created_at": "2025-10-24T03:52:35.638658",
+      "step_id": "step_5e22e913",
+      "description": "Click on the dropdown option \"Tab\" under the \"Teams Capability\" menu in the Microsoft 365 Agents Toolkit interface.",
       "agent": "interaction",
-      "description": "Click on the \"Default folder\" dropdown input field in the \"Workspace Folder\" dialog to select or specify the project directory.",
-      "step_id": "step_09a396bb",
       "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_09a396bb",
-      "tool": "click",
+      "screenshot": "step_5e22e913"
+    },
+    {
       "plan_id": "plan_17f090b5",
+      "tool": "click",
       "parameters": {
         "x": 473,
         "y": 77,
@@ -131,7 +123,15 @@
         "dhash:473:77:0:10:f0b0949492b17071"
       ],
       "tags": [],
-      "created_at": "2025-10-21T10:21:04.557611"
+      "created_at": "2025-10-24T03:52:35.656608",
+      "step_id": "step_09a396bb",
+      "description": "Click on the \"Default folder\" dropdown input field in the \"Workspace Folder\" dialog to select or specify the project directory.",
+      "agent": "interaction",
+      "content_refs": [],
+      "retry_count": 0,
+      "depends_on": [],
+      "postconditions": [],
+      "screenshot": "step_09a396bb"
     }
   ],
   "screenshots": {

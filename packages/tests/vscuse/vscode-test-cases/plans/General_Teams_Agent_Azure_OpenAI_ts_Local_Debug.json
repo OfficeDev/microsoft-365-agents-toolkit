@@ -1,19 +1,8 @@
 {
   "plan_metadata": {
-    "version": "1.1",
-    "plan_id": "plan_a644cde2",
-    "execution_context": {
-      "delay_between_steps": 1,
-      "stop_on_error": true,
-      "precondition_wait_timeout": 30,
-      "precondition_retry_interval": 2,
-      "step_retry_count": 0
-    },
-    "total_steps": 4,
-    "created_at": "2025-10-21T10:00:13.651196",
     "name": "General Teams Agent Azure OpenAI ts Local Debug",
-    "description": "General Teams Agent Azure OpenAI ts Local Debug",
-    "generated_at": "2025-10-21T10:00:13.651183",
+    "description": "caseId: 35527255\nhttps://msazure.visualstudio.com/Microsoft%20Teams%20Extensibility/_workitems/edit/35527255",
+    "generated_at": "2025-10-22T06:41:50.555255",
     "execution_order": [
       "plan_r_0928_012254",
       "step_41062f51",
@@ -27,20 +16,23 @@
       "plan_r_1009_093215"
     ],
     "tags": [],
-    "updated_at": "2025-10-21T10:17:59.974320"
+    "updated_at": "2025-10-24T04:48:37.729453",
+    "plan_id": "plan_a644cde2",
+    "version": "1.1",
+    "execution_context": {
+      "delay_between_steps": 1,
+      "stop_on_error": true,
+      "precondition_wait_timeout": 30,
+      "precondition_retry_interval": 2,
+      "step_retry_count": 0
+    },
+    "total_steps": 4,
+    "created_at": "2025-10-22T06:41:50.555263"
   },
   "steps": [
     {
-      "agent": "interaction",
-      "description": "Click on the \"Teams Agents and Apps\" option within the dropdown menu under the \"New Project\" interface in the Microsoft 365 Agents Toolkit.",
-      "step_id": "step_41062f51",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
-      "postconditions": [],
-      "screenshot": "step_41062f51",
-      "tool": "click",
       "plan_id": "plan_a644cde2",
+      "tool": "click",
       "parameters": {
         "x": 378,
         "y": 220,
@@ -54,19 +46,19 @@
         "dhash:378:220:0:10:c8c8809290b17071"
       ],
       "tags": [],
-      "created_at": "2025-10-21T10:02:57.773771"
-    },
-    {
+      "created_at": "2025-10-24T04:43:21.470335",
+      "step_id": "step_41062f51",
+      "description": "Click on the \"Teams Agents and Apps\" option within the dropdown menu under the \"New Project\" interface in the Microsoft 365 Agents Toolkit.",
       "agent": "interaction",
-      "description": "Click on the \"General Teams Agent\" option within the dropdown menu titled \"Teams Agent or App Using Teams AI Library\" to select the agent description: \"Agent that chats with users in Teams built with Teams AI Library and connects to LLMs.\"",
-      "step_id": "step_ef2c36d9",
       "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_ef2c36d9",
-      "tool": "click",
+      "screenshot": "step_41062f51"
+    },
+    {
       "plan_id": "plan_a644cde2",
+      "tool": "click",
       "parameters": {
         "x": 413,
         "y": 84,
@@ -80,19 +72,19 @@
         "dhash:413:84:0:10:c0c8929492b17071"
       ],
       "tags": [],
-      "created_at": "2025-10-21T10:02:57.790317"
-    },
-    {
+      "created_at": "2025-10-24T04:43:21.484724",
+      "step_id": "step_ef2c36d9",
+      "description": "Click on the \"General Teams Agent\" option within the dropdown menu titled \"Teams Agent or App Using Teams AI Library\" to select the agent description: \"Agent that chats with users in Teams built with Teams AI Library and connects to LLMs.\"",
       "agent": "interaction",
-      "description": "Click the \"TypeScript\" option in the programming language dropdown menu within the Microsoft 365 Agents Toolkit interface.",
-      "step_id": "step_528b1013",
       "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_528b1013",
-      "tool": "click",
+      "screenshot": "step_ef2c36d9"
+    },
+    {
       "plan_id": "plan_a644cde2",
+      "tool": "click",
       "parameters": {
         "x": 318,
         "y": 77,
@@ -106,19 +98,19 @@
         "dhash:318:77:0:10:d094909492b17071"
       ],
       "tags": [],
-      "created_at": "2025-10-21T10:04:52.582802"
-    },
-    {
+      "created_at": "2025-10-24T04:43:21.498873",
+      "step_id": "step_528b1013",
+      "description": "Click the \"TypeScript\" option in the programming language dropdown menu within the Microsoft 365 Agents Toolkit interface.",
       "agent": "interaction",
-      "description": "Click the \"Default folder\" dropdown in the \"Workspace Folder\" selection prompt to choose or locate the project's root folder.",
-      "step_id": "step_8dc14719",
       "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_8dc14719",
-      "tool": "click",
+      "screenshot": "step_528b1013"
+    },
+    {
       "plan_id": "plan_a644cde2",
+      "tool": "click",
       "parameters": {
         "x": 436,
         "y": 77,
@@ -132,7 +124,15 @@
         "dhash:436:77:0:10:f0b0949492b17071"
       ],
       "tags": [],
-      "created_at": "2025-10-21T10:04:52.601762"
+      "created_at": "2025-10-24T04:43:21.513986",
+      "step_id": "step_8dc14719",
+      "description": "Click the \"Default folder\" dropdown in the \"Workspace Folder\" selection prompt to choose or locate the project's root folder.",
+      "agent": "interaction",
+      "content_refs": [],
+      "retry_count": 0,
+      "depends_on": [],
+      "postconditions": [],
+      "screenshot": "step_8dc14719"
     }
   ],
   "screenshots": {

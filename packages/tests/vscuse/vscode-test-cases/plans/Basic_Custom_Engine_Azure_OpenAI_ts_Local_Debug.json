@@ -1,19 +1,8 @@
 {
   "plan_metadata": {
-    "version": "1.1",
-    "plan_id": "plan_86ce0c6a",
-    "execution_context": {
-      "delay_between_steps": 1,
-      "stop_on_error": true,
-      "precondition_wait_timeout": 30,
-      "precondition_retry_interval": 2,
-      "step_retry_count": 0
-    },
-    "total_steps": 4,
-    "created_at": "2025-10-21T08:09:14.437178",
     "name": "Basic Custom Engine Azure OpenAI ts Local Debug",
-    "description": "Basic Custom Engine Azure OpenAI ts Local Debug",
-    "generated_at": "2025-10-21T08:09:14.437167",
+    "description": "caseId: 35691970\nhttps://msazure.visualstudio.com/Microsoft%20Teams%20Extensibility/_workitems/edit/35691970",
+    "generated_at": "2025-10-22T06:41:50.733371",
     "execution_order": [
       "plan_r_0928_012254",
       "step_167fb6c4",
@@ -27,20 +16,23 @@
       "plan_r_1009_093215"
     ],
     "tags": [],
-    "updated_at": "2025-10-21T09:59:33.590977"
+    "updated_at": "2025-10-24T03:52:16.937512",
+    "plan_id": "plan_86ce0c6a",
+    "version": "1.1",
+    "execution_context": {
+      "delay_between_steps": 1,
+      "stop_on_error": true,
+      "precondition_wait_timeout": 30,
+      "precondition_retry_interval": 2,
+      "step_retry_count": 0
+    },
+    "total_steps": 4,
+    "created_at": "2025-10-22T06:41:50.733380"
   },
   "steps": [
     {
-      "agent": "interaction",
-      "description": "Click on the \"Custom Engine Agent\" option within the \"New Project\" dropdown menu in the Microsoft 365 Agents interface.",
-      "step_id": "step_167fb6c4",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
-      "postconditions": [],
-      "screenshot": "step_167fb6c4",
-      "tool": "click",
       "plan_id": "plan_86ce0c6a",
+      "tool": "click",
       "parameters": {
         "x": 338,
         "y": 135,
@@ -54,19 +46,19 @@
         "dhash:338:135:0:10:c8c8809290b17071"
       ],
       "tags": [],
-      "created_at": "2025-10-21T08:10:32.632430"
-    },
-    {
+      "created_at": "2025-10-24T03:51:36.177886",
+      "step_id": "step_167fb6c4",
+      "description": "Click on the \"Custom Engine Agent\" option within the \"New Project\" dropdown menu in the Microsoft 365 Agents interface.",
       "agent": "interaction",
-      "description": "Click the \"Basic Custom Engine Agent\" option in the dropdown menu to select an intelligent agent description within the Microsoft 365 Agents Toolkit interface.",
-      "step_id": "step_6897e13c",
       "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_6897e13c",
-      "tool": "click",
+      "screenshot": "step_167fb6c4"
+    },
+    {
       "plan_id": "plan_86ce0c6a",
+      "tool": "click",
       "parameters": {
         "x": 401,
         "y": 83,
@@ -80,19 +72,19 @@
         "dhash:401:83:0:10:c0d0909492b17071"
       ],
       "tags": [],
-      "created_at": "2025-10-21T08:10:32.651054"
-    },
-    {
+      "created_at": "2025-10-24T03:51:36.196084",
+      "step_id": "step_6897e13c",
+      "description": "Click the \"Basic Custom Engine Agent\" option in the dropdown menu to select an intelligent agent description within the Microsoft 365 Agents Toolkit interface.",
       "agent": "interaction",
-      "description": "Click on the \"TypeScript\" option in the programming language dropdown menu within the Microsoft 365 Agents Toolkit interface.",
-      "step_id": "step_26f3738b",
       "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_26f3738b",
-      "tool": "click",
+      "screenshot": "step_6897e13c"
+    },
+    {
       "plan_id": "plan_86ce0c6a",
+      "tool": "click",
       "parameters": {
         "x": 279,
         "y": 72,
@@ -106,19 +98,19 @@
         "dhash:279:72:0:10:d098949492b17071"
       ],
       "tags": [],
-      "created_at": "2025-10-21T08:12:10.511362"
-    },
-    {
+      "created_at": "2025-10-24T03:51:36.211764",
+      "step_id": "step_26f3738b",
+      "description": "Click on the \"TypeScript\" option in the programming language dropdown menu within the Microsoft 365 Agents Toolkit interface.",
       "agent": "interaction",
-      "description": "Click on the \"Default folder: /home/vscode/AgentsToolkitProjects\" input field under the \"Workspace Folder\" dialog to interact with the directory selection path.",
-      "step_id": "step_d484ab44",
       "content_refs": [],
       "retry_count": 0,
       "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_d484ab44",
-      "tool": "click",
+      "screenshot": "step_26f3738b"
+    },
+    {
       "plan_id": "plan_86ce0c6a",
+      "tool": "click",
       "parameters": {
         "x": 316,
         "y": 73,
@@ -132,7 +124,15 @@
         "dhash:316:73:0:10:f0b0949492b17071"
       ],
       "tags": [],
-      "created_at": "2025-10-21T08:12:10.529178"
+      "created_at": "2025-10-24T03:51:36.229458",
+      "step_id": "step_d484ab44",
+      "description": "Click on the \"Default folder: /home/vscode/AgentsToolkitProjects\" input field under the \"Workspace Folder\" dialog to interact with the directory selection path.",
+      "agent": "interaction",
+      "content_refs": [],
+      "retry_count": 0,
+      "depends_on": [],
+      "postconditions": [],
+      "screenshot": "step_d484ab44"
     }
   ],
   "screenshots": {
