@@ -1,6 +1,6 @@
 {
   "plan_metadata": {
-    "name": "Basic Tab ts Local Debug",
+    "name": "Basic Tab Local Debug",
     "description": "caseId: 15276946\nhttps://msazure.visualstudio.com/Microsoft%20Teams%20Extensibility/_workitems/edit/15276946",
     "generated_at": "2025-10-22T06:41:50.978064",
     "execution_order": [
@@ -15,9 +15,9 @@
       "plan_80b15702"
     ],
     "tags": [],
-    "updated_at": "2025-10-24T03:53:00.371575",
-    "plan_id": "plan_17f090b5",
+    "updated_at": "2025-10-28T02:12:32.262936",
     "version": "1.1",
+    "plan_id": "plan_17f090b5",
     "execution_context": {
       "delay_between_steps": 1,
       "stop_on_error": true,
@@ -45,9 +45,9 @@
         "dhash:361:229:0:10:c8c8809290b17071"
       ],
       "tags": [],
-      "created_at": "2025-10-24T03:52:35.601535",
-      "step_id": "step_2f7da668",
+      "created_at": "2025-10-28T02:12:28.338052",
       "description": "Click on the \"Declarative Agent\" option within the \"New Project\" dropdown menu to create an agent using instructions and actions.",
+      "step_id": "step_2f7da668",
       "agent": "interaction",
       "content_refs": [],
       "retry_count": 0,
@@ -71,9 +71,9 @@
         "dhash:474:210:0:10:c0c8909492b17071"
       ],
       "tags": [],
-      "created_at": "2025-10-24T03:52:35.617301",
-      "step_id": "step_22fed58e",
+      "created_at": "2025-10-28T02:12:28.359798",
       "description": "Click on the \"General Teams Agent\" option within the dropdown menu titled \"Teams Agent or App Using Teams AI Library\" at coordinates (474, 210).",
+      "step_id": "step_22fed58e",
       "agent": "interaction",
       "content_refs": [],
       "retry_count": 0,
@@ -97,9 +97,9 @@
         "dhash:328:76:0:10:d0c0909492b17071"
       ],
       "tags": [],
-      "created_at": "2025-10-24T03:52:35.638658",
-      "step_id": "step_5e22e913",
+      "created_at": "2025-10-28T02:12:28.380016",
       "description": "Click on the dropdown option \"Tab\" under the \"Teams Capability\" menu in the Microsoft 365 Agents Toolkit interface.",
+      "step_id": "step_5e22e913",
       "agent": "interaction",
       "content_refs": [],
       "retry_count": 0,
@@ -123,9 +123,9 @@
         "dhash:473:77:0:10:f0b0949492b17071"
       ],
       "tags": [],
-      "created_at": "2025-10-24T03:52:35.656608",
-      "step_id": "step_09a396bb",
+      "created_at": "2025-10-28T02:12:28.407115",
       "description": "Click on the \"Default folder\" dropdown input field in the \"Workspace Folder\" dialog to select or specify the project directory.",
+      "step_id": "step_09a396bb",
       "agent": "interaction",
       "content_refs": [],
       "retry_count": 0,
