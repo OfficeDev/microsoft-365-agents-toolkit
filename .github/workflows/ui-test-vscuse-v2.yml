@@ -73,6 +73,10 @@ jobs:
       AZURE_ACCOUNT_NAME: "test01@atktesting.onmicrosoft.com"
       AZURE_ACCOUNT_PASSWORD: ${{ secrets.TEST_M365_PASSWORD_NEW }}
       M365_TENANT_ID: ${{ secrets.TEST_CLEAN_TENANT_ID_NEW }}
+      # GITHUB test account
+      GITHUB_ACCOUNT_NAME: ${{ secrets.GH_ACCOUNT_NAME }}
+      GITHUB_ACCOUNT_PASSWORD: ${{ secrets.GH_ACCOUNT_PASSWORD }}
+      GITHUB_MFA_SECRET: ${{ secrets.GH_MFA_SECRET }}
 
     steps:
       - name: Checkout repo
