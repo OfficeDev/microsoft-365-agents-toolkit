@@ -440,6 +440,8 @@
   "core.createProjectQuestion.ApiKeyConfirm": "Microsoft 365 Agents Toolkit will upload the API key to Developer Portal. The API key will be used by Teams client to securely access your API in runtime. Microsoft 365 Agents Toolkit will not store your API key.",
   "core.createProjectQuestion.OauthClientId": "Enter client id for OAuth registration in OpenAPI Description Document",
   "core.createProjectQuestion.OauthClientSecret": "Enter client secret for OAuth registration in OpenAPI Description Document",
+  "core.createProjectQuestion.OauthScope": "(Optional) Enter scope(s) for OAuth registration, separated by a comma",
+  "core.createProjectQuestion.OauthScope.validation": "Invalid format. Use 'scope1, scope2:permission2'. Only letters, numbers, and ._/- are allowed.",
   "core.createProjectQuestion.OauthClientSecretConfirm": "Microsoft 365 Agents Toolkit uploads the client id/secret for OAuth Registration to Developer Portal. It is used by Teams client to securely access your API at runtime. Microsoft 365 Agents Toolkit doesn't store your client id/secret.",
   "core.createProjectQuestion.EntraSSOClientId": "Enter Microsoft Entra SSO client id for registration in OpenAPI Description Document",
   "core.createProjectQuestion.apiMessageExtensionAuth.title": "Authentication Type",

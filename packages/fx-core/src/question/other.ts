@@ -1221,6 +1221,16 @@ export function oauthQuestion(): IQTreeNode {
         },
       },
       {
+        data: oauthScopeCustomQuestion(),
+        condition: (inputs: Inputs) => {
+          return (
+            !inputs.isPKCEEnabled &&
+            !inputs.scope &&
+            (!inputs.identityProvider || inputs.identityProvider === "Custom")
+          );
+        },
+      },
+      {
         data: oauthConfirmQestion(),
         condition: (inputs: Inputs) => {
           return (
@@ -1433,6 +1443,35 @@ function oauthClientSecretQuestion(): TextInputQuestion {
         }
 
         process.env[QuestionNames.OauthClientSecret] = input;
+        return;
+      },
+    },
+  };
+}
+
+export function oauthScopeCustomQuestion(): TextInputQuestion {
+  return {
+    name: QuestionNames.OAuthScope,
+    title: getLocalizedString("core.createProjectQuestion.OauthScope"),
+    type: "text",
+    cliDescription: "Scope for oauth.",
+    validation: {
+      validFunc: (input: string): string | undefined => {
+        const regExp =
+          /^[a-zA-Z0-9._/-]*[./_-][a-zA-Z0-9._/-]*(:[a-zA-Z0-9._/-]+)?(\s*,\s*[a-zA-Z0-9._/-]*[./_-][a-zA-Z0-9._/-]*(:[a-zA-Z0-9._/-]+)?)*$/g;
+        if (!regExp.test(input)) {
+          return getLocalizedString("core.oauthScopeQuestion.validation.scope");
+        }
+        return undefined;
+      },
+    },
+    additionalValidationOnAccept: {
+      validFunc: (input: string, inputs?: Inputs): string | undefined => {
+        if (!inputs) {
+          throw new Error("inputs is undefined"); // should never happen
+        }
+
+        process.env[QuestionNames.OAuthScope] = input;
         return;
       },
     },
