@@ -1,8 +1,19 @@
 {
   "plan_metadata": {
-    "description": "This is a new test plan. You can:\n\n1. Record interactions using the VNC viewer (click 'Show VNC' and start recording)\n2. Manually add steps one by one\n3. Edit this description to describe your test workflow\n\nStart by clicking 'Add Cell' below or begin recording your interactions!",
-    "generated_at": "2025-10-23T07:33:47.138853",
-    "name": "Customize python local debug",
+    "version": "1.1",
+    "plan_id": "plan_bc76e4ef",
+    "execution_context": {
+      "delay_between_steps": 1,
+      "stop_on_error": true,
+      "precondition_wait_timeout": 30,
+      "precondition_retry_interval": 2,
+      "step_retry_timeout": 0
+    },
+    "total_steps": 16,
+    "created_at": "2025-10-29T03:31:12.178171",
+    "name": "Teams Agent With Data Customize Azure OpenAI py Local Debug",
+    "description": "caseId: 27551384\nhttps://msazure.visualstudio.com/Microsoft%20Teams%20Extensibility/_workitems/edit/27551384",
+    "generated_at": "2025-10-29T03:31:12.178168",
     "execution_order": [
       "plan_r_0928_012254",
       "step_5f8ab980",
@@ -27,399 +38,388 @@
       "step_c247bc34"
     ],
     "tags": [],
-    "updated_at": "2025-10-27T04:16:22.992237",
-    "version": "1.1",
-    "plan_id": "plan_bc76e4ef",
-    "execution_context": {
-      "delay_between_steps": 1,
-      "stop_on_error": true,
-      "precondition_wait_timeout": 30,
-      "precondition_retry_interval": 2,
-      "step_retry_timeout": 0
-    },
-    "total_steps": 16,
-    "created_at": "2025-10-23T07:33:47.138853"
+    "updated_at": "2025-10-29T03:38:38.835537"
   },
   "steps": [
     {
+      "step_id": "step_5f8ab980",
       "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 364,
+        "y": 214
+      },
       "description": "Click the \"Teams Agents and Apps\" option in the \"New Project\" popup within the Microsoft 365 Agents Toolkit extension for Visual Studio Code.",
-      "plan_id": "plan_bc76e4ef",
       "content_refs": [],
+      "timeout": 30,
       "retry_count": 0,
+      "continue_on_error": "false",
       "depends_on": [],
       "preconditions": [
         "dhash:364:214:16:5:34a4a494d0a7a050",
         "dhash:364:214:96:5:6399912ca6d32820",
         "dhash:364:214:0:10:c8c8889090b26461"
       ],
-      "tags": [],
-      "created_at": "2025-10-27T04:14:41.770815",
-      "tool": "click",
-      "step_id": "step_5f8ab980",
-      "parameters": {
-        "x": 364,
-        "y": 214,
-        "button": "left"
-      },
-      "timeout": 30,
-      "continue_on_error": "false",
       "postconditions": [],
-      "screenshot": "step_5f8ab980"
+      "tags": [],
+      "screenshot": "step_5f8ab980",
+      "created_at": "2025-10-29T03:37:33.543920",
+      "plan_id": "plan_bc76e4ef"
     },
     {
+      "step_id": "step_365e6acc",
       "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 307,
+        "y": 132
+      },
       "description": "Click the \"Teams Agent with Data\" dropdown option in the \"Teams Agent or App Using Teams AI Library\" selection menu within the Microsoft 365 Agents Toolkit interface in Visual Studio Code.",
-      "plan_id": "plan_bc76e4ef",
       "content_refs": [],
+      "timeout": 30,
       "retry_count": 0,
+      "continue_on_error": "false",
       "depends_on": [],
       "preconditions": [
         "dhash:307:132:16:5:9669928549126d6d",
         "dhash:307:132:96:5:cd49544449ce7656",
         "dhash:307:132:0:10:c0c8809092926461"
       ],
-      "tags": [],
-      "created_at": "2025-10-27T04:14:41.787864",
-      "tool": "click",
-      "step_id": "step_365e6acc",
-      "parameters": {
-        "x": 307,
-        "y": 132,
-        "button": "left"
-      },
-      "timeout": 30,
-      "continue_on_error": "false",
       "postconditions": [],
-      "screenshot": "step_365e6acc"
+      "tags": [],
+      "screenshot": "step_365e6acc",
+      "created_at": "2025-10-29T03:37:33.562952",
+      "plan_id": "plan_bc76e4ef"
     },
     {
+      "step_id": "step_4e61f82e",
       "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 288,
+        "y": 87
+      },
       "description": "Click the \"Custom\" option within the \"Select an option to load your data\" dropdown menu in the Teams Agent with Data extension in Visual Studio Code.",
-      "plan_id": "plan_bc76e4ef",
       "content_refs": [],
+      "timeout": 30,
       "retry_count": 0,
+      "continue_on_error": "false",
       "depends_on": [],
       "preconditions": [
         "dhash:288:87:16:5:66730ca4ea2b0c4a",
         "dhash:288:87:96:5:2c2892925952a828",
         "dhash:288:87:0:10:c0c0989092926461"
       ],
-      "tags": [],
-      "created_at": "2025-10-27T04:14:41.804330",
-      "tool": "click",
-      "step_id": "step_4e61f82e",
-      "parameters": {
-        "x": 288,
-        "y": 87,
-        "button": "left"
-      },
-      "timeout": 30,
-      "continue_on_error": "false",
       "postconditions": [],
-      "screenshot": "step_4e61f82e"
+      "tags": [],
+      "screenshot": "step_4e61f82e",
+      "created_at": "2025-10-29T03:37:33.580109",
+      "plan_id": "plan_bc76e4ef"
     },
     {
+      "step_id": "step_12406048",
       "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 315,
+        "y": 79
+      },
       "description": "Click the \"Azure OpenAI\" option in the \"Service for Large Language Model (LLM)\" dropdown menu within the Microsoft Visual Studio Code extension interface.",
-      "plan_id": "plan_bc76e4ef",
       "content_refs": [],
+      "timeout": 30,
       "retry_count": 0,
+      "continue_on_error": "false",
       "depends_on": [],
       "preconditions": [
         "dhash:315:79:16:5:9999494869309cb0",
         "dhash:315:79:96:5:24d55ba491eb0201",
         "dhash:315:79:0:10:c080909092926461"
       ],
-      "tags": [],
-      "created_at": "2025-10-27T04:14:41.823354",
-      "tool": "click",
-      "step_id": "step_12406048",
-      "parameters": {
-        "x": 315,
-        "y": 79,
-        "button": "left"
-      },
-      "timeout": 30,
-      "continue_on_error": "false",
       "postconditions": [],
-      "screenshot": "step_12406048"
+      "tags": [],
+      "screenshot": "step_12406048",
+      "created_at": "2025-10-29T03:37:33.599792",
+      "plan_id": "plan_bc76e4ef"
     },
     {
-      "agent": "interaction",
-      "description": "Type ${{secret:AZURE_OPENAI_API_KEY}} into the Azure OpenAI Key input field in the Visual Studio Code pop-up dialog.",
-      "plan_id": "plan_bc76e4ef",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
-      "preconditions": [
-        "dhash:512:384:0:20:f0b0909092926461"
-      ],
-      "tags": [],
-      "created_at": "2025-10-27T04:14:41.839504",
-      "tool": "type_text",
       "step_id": "step_8221cedb",
+      "agent": "interaction",
+      "tool": "type_text",
       "parameters": {
         "text": "${{secret:AZURE_OPENAI_API_KEY}}"
       },
-      "timeout": 30,
-      "continue_on_error": "false",
-      "postconditions": [],
-      "screenshot": "step_8221cedb"
-    },
-    {
-      "agent": "interaction",
-      "description": "Press 'Enter' to submit the Azure OpenAI Key in the password input field within the Visual Studio Code authentication prompt.",
-      "plan_id": "plan_bc76e4ef",
+      "description": "Type ${{secret:AZURE_OPENAI_API_KEY}} into the Azure OpenAI Key input field in the Visual Studio Code pop-up dialog.",
       "content_refs": [],
+      "timeout": 30,
       "retry_count": 0,
+      "continue_on_error": "false",
       "depends_on": [],
       "preconditions": [
         "dhash:512:384:0:20:f0b0909092926461"
       ],
+      "postconditions": [],
       "tags": [],
-      "created_at": "2025-10-27T04:14:41.859614",
-      "tool": "key_press",
+      "screenshot": "step_8221cedb",
+      "created_at": "2025-10-29T03:37:33.614435",
+      "plan_id": "plan_bc76e4ef"
+    },
+    {
       "step_id": "step_4063a7b2",
+      "agent": "interaction",
+      "tool": "key_press",
       "parameters": {
         "key": "enter"
       },
-      "timeout": 30,
-      "continue_on_error": "false",
-      "postconditions": [],
-      "screenshot": "step_4063a7b2"
-    },
-    {
-      "agent": "interaction",
-      "description": "Type ${{env:AZURE_OPENAI_ENDPOINT}} into the \"Azure OpenAI Endpoint\" input field at the top of the VS Code window.",
-      "plan_id": "plan_bc76e4ef",
+      "description": "Press 'Enter' to submit the Azure OpenAI Key in the password input field within the Visual Studio Code authentication prompt.",
       "content_refs": [],
+      "timeout": 30,
       "retry_count": 0,
+      "continue_on_error": "false",
       "depends_on": [],
       "preconditions": [
         "dhash:512:384:0:20:f0b0909092926461"
       ],
+      "postconditions": [],
       "tags": [],
-      "created_at": "2025-10-27T04:14:41.882069",
-      "tool": "type_text",
+      "screenshot": "step_4063a7b2",
+      "created_at": "2025-10-29T03:37:33.626555",
+      "plan_id": "plan_bc76e4ef"
+    },
+    {
       "step_id": "step_b5902ac9",
+      "agent": "interaction",
+      "tool": "type_text",
       "parameters": {
         "text": "${{env:AZURE_OPENAI_ENDPOINT}}"
       },
+      "description": "Type ${{env:AZURE_OPENAI_ENDPOINT}} into the \"Azure OpenAI Endpoint\" input field at the top of the VS Code window.",
+      "content_refs": [],
       "timeout": 30,
+      "retry_count": 0,
       "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:512:384:0:20:f0b0909092926461"
+      ],
       "postconditions": [],
-      "screenshot": "step_b5902ac9"
+      "tags": [],
+      "screenshot": "step_b5902ac9",
+      "created_at": "2025-10-29T03:37:33.638202",
+      "plan_id": "plan_bc76e4ef"
     },
     {
+      "step_id": "step_e0730591",
       "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "enter"
+      },
       "description": "Press Enter to confirm the Azure OpenAI service endpoint in the input dropdown at the top of the VS Code window.",
-      "plan_id": "plan_bc76e4ef",
       "content_refs": [],
+      "timeout": 30,
       "retry_count": 0,
+      "continue_on_error": "false",
       "depends_on": [],
       "preconditions": [
         "dhash:512:384:0:20:e0b0989092926461"
       ],
-      "tags": [],
-      "created_at": "2025-10-27T04:14:41.902880",
-      "tool": "key_press",
-      "step_id": "step_e0730591",
-      "parameters": {
-        "key": "enter"
-      },
-      "timeout": 30,
-      "continue_on_error": "false",
       "postconditions": [],
-      "screenshot": "step_e0730591"
+      "tags": [],
+      "screenshot": "step_e0730591",
+      "created_at": "2025-10-29T03:37:33.652678",
+      "plan_id": "plan_bc76e4ef"
     },
     {
-      "agent": "interaction",
-      "description": "Type 'gpt-4.1' into the \"Input Azure OpenAI deployment name now or set it later in the project\" prompt at the top of the Visual Studio Code window.",
-      "plan_id": "plan_bc76e4ef",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
-      "preconditions": [
-        "dhash:512:384:0:20:d0b0909092926461"
-      ],
-      "tags": [],
-      "created_at": "2025-10-27T04:14:41.928185",
-      "tool": "type_text",
       "step_id": "step_3848d3d0",
+      "agent": "interaction",
+      "tool": "type_text",
       "parameters": {
         "text": "gpt-4.1"
       },
-      "timeout": 30,
-      "continue_on_error": "false",
-      "postconditions": [],
-      "screenshot": "step_3848d3d0"
-    },
-    {
-      "agent": "interaction",
-      "description": "Confirm the Azure OpenAI deployment name (\"gpt-4.1\") in the input prompt at the top of the VS Code window by pressing Enter.",
-      "plan_id": "plan_bc76e4ef",
+      "description": "Type 'gpt-4.1' into the \"Input Azure OpenAI deployment name now or set it later in the project\" prompt at the top of the Visual Studio Code window.",
       "content_refs": [],
+      "timeout": 30,
       "retry_count": 0,
+      "continue_on_error": "false",
       "depends_on": [],
       "preconditions": [
         "dhash:512:384:0:20:d0b0909092926461"
       ],
+      "postconditions": [],
       "tags": [],
-      "created_at": "2025-10-27T04:14:41.958733",
-      "tool": "key_press",
+      "screenshot": "step_3848d3d0",
+      "created_at": "2025-10-29T03:37:33.666320",
+      "plan_id": "plan_bc76e4ef"
+    },
+    {
       "step_id": "step_07af4dc6",
+      "agent": "interaction",
+      "tool": "key_press",
       "parameters": {
         "key": "enter"
       },
+      "description": "Confirm the Azure OpenAI deployment name (\"gpt-4.1\") in the input prompt at the top of the VS Code window by pressing Enter.",
+      "content_refs": [],
       "timeout": 30,
+      "retry_count": 0,
       "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:512:384:0:20:d0b0909092926461"
+      ],
       "postconditions": [],
-      "screenshot": "step_07af4dc6"
+      "tags": [],
+      "screenshot": "step_07af4dc6",
+      "created_at": "2025-10-29T03:37:33.680390",
+      "plan_id": "plan_bc76e4ef"
     },
     {
+      "step_id": "step_75a8526c",
       "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 273,
+        "y": 122
+      },
       "description": "Click the \"Python\" option in the \"Programming Language\" dropdown selection dialog at the top of the Visual Studio Code interface.",
-      "plan_id": "plan_bc76e4ef",
       "content_refs": [],
+      "timeout": 30,
       "retry_count": 0,
+      "continue_on_error": "false",
       "depends_on": [],
       "preconditions": [
         "dhash:273:122:16:5:14e5d25252d22e90",
         "dhash:273:122:96:5:89a9a986a41a0383",
         "dhash:273:122:0:10:d094909092926461"
       ],
-      "tags": [],
-      "created_at": "2025-10-27T04:14:41.978051",
-      "tool": "click",
-      "step_id": "step_75a8526c",
-      "parameters": {
-        "x": 273,
-        "y": 122,
-        "button": "left"
-      },
-      "timeout": 30,
-      "continue_on_error": "false",
       "postconditions": [],
-      "screenshot": "step_75a8526c"
+      "tags": [],
+      "screenshot": "step_75a8526c",
+      "created_at": "2025-10-29T03:37:33.693842",
+      "plan_id": "plan_bc76e4ef"
     },
     {
+      "step_id": "step_5f55a8a2",
       "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 407,
+        "y": 79
+      },
       "description": "Click the \"Default folder (/home/vscode/AgentsToolkitProjects)\" option in the \"Workspace Folder\" dropdown within Visual Studio Code to select the project root location.",
-      "plan_id": "plan_bc76e4ef",
       "content_refs": [],
+      "timeout": 30,
       "retry_count": 0,
+      "continue_on_error": "false",
       "depends_on": [],
       "preconditions": [
         "dhash:407:79:16:5:354da58bca5a1552",
         "dhash:407:79:96:5:00b765282c03820d",
         "dhash:407:79:0:10:d0b0909092926461"
       ],
-      "tags": [],
-      "created_at": "2025-10-27T04:14:42.001530",
-      "tool": "click",
-      "step_id": "step_5f55a8a2",
-      "parameters": {
-        "x": 407,
-        "y": 79,
-        "button": "left"
-      },
-      "timeout": 30,
-      "continue_on_error": "false",
       "postconditions": [],
-      "screenshot": "step_5f55a8a2"
+      "tags": [],
+      "screenshot": "step_5f55a8a2",
+      "created_at": "2025-10-29T03:37:33.707814",
+      "plan_id": "plan_bc76e4ef"
     },
     {
+      "step_id": "step_512e7882",
       "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 318,
+        "y": 705
+      },
       "description": "Click the \"Type a message\" input box at the bottom of the Microsoft Teams web app in the {{var:app_name}} chat tab, indicated by the red crosshair.",
-      "plan_id": "plan_bc76e4ef",
       "content_refs": [],
+      "timeout": 30,
       "retry_count": 0,
+      "continue_on_error": "false",
       "depends_on": [],
       "preconditions": [
         "dhash:318:705:16:5:0000000000000000",
         "dhash:318:705:96:5:0000000000000000",
         "dhash:318:705:0:10:30b0b08cad6988a1"
       ],
-      "tags": [],
-      "created_at": "2025-10-27T04:14:42.380664",
-      "tool": "click",
-      "step_id": "step_512e7882",
-      "parameters": {
-        "x": 318,
-        "y": 705,
-        "button": "left"
-      },
-      "timeout": 30,
-      "continue_on_error": "false",
       "postconditions": [],
-      "screenshot": "step_512e7882"
+      "tags": [],
+      "screenshot": "step_512e7882",
+      "created_at": "2025-10-29T03:37:33.721394",
+      "plan_id": "plan_bc76e4ef"
     },
     {
+      "step_id": "step_4934a51b",
       "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "text": "List Contoso history in table"
+      },
       "description": "Type \"List Contoso history in table\" into the message input box at the bottom of the {{var:app_name}} tab in Microsoft Teams (web interface).",
-      "plan_id": "plan_bc76e4ef",
       "content_refs": [],
+      "timeout": 30,
       "retry_count": 0,
+      "continue_on_error": "false",
       "depends_on": [],
       "preconditions": [
         "dhash:512:384:0:20:30b0b08cad6988b1"
       ],
-      "tags": [],
-      "created_at": "2025-10-27T04:14:42.403168",
-      "tool": "type_text",
-      "step_id": "step_4934a51b",
-      "parameters": {
-        "text": "List Contoso history in table"
-      },
-      "timeout": 30,
-      "continue_on_error": "false",
       "postconditions": [],
-      "screenshot": "step_4934a51b"
+      "tags": [],
+      "screenshot": "step_4934a51b",
+      "created_at": "2025-10-29T03:37:33.733136",
+      "plan_id": "plan_bc76e4ef"
     },
     {
+      "step_id": "step_9ee55efd",
       "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 925,
+        "y": 719
+      },
       "description": "Click the \"Send\" button in the message input area to submit the text \"List Contoso history in table\" within the Microsoft Teams web app interface.",
-      "plan_id": "plan_bc76e4ef",
       "content_refs": [],
+      "timeout": 30,
       "retry_count": 0,
+      "continue_on_error": "false",
       "depends_on": [],
       "preconditions": [
         "dhash:925:719:16:5:717e0f010f7e79c5",
         "dhash:925:719:96:5:49c832ceca368400",
         "dhash:925:719:0:10:30b0b08cad6988b1"
       ],
-      "tags": [],
-      "created_at": "2025-10-27T04:14:42.423140",
-      "tool": "click",
-      "step_id": "step_9ee55efd",
-      "parameters": {
-        "x": 925,
-        "y": 719,
-        "button": "left"
-      },
-      "timeout": 30,
-      "continue_on_error": "false",
       "postconditions": [],
-      "screenshot": "step_9ee55efd"
+      "tags": [],
+      "screenshot": "step_9ee55efd",
+      "created_at": "2025-10-29T03:37:33.747216",
+      "plan_id": "plan_bc76e4ef"
     },
     {
+      "step_id": "step_c247bc34",
       "agent": "assertion",
+      "tool": "",
+      "parameters": {},
       "description": "@assertion there's response message having text 1985",
-      "plan_id": "plan_bc76e4ef",
       "content_refs": [],
+      "timeout": 30,
       "retry_count": 0,
+      "continue_on_error": "false",
       "depends_on": [],
       "preconditions": [],
-      "tags": [],
-      "created_at": "2025-10-27T04:14:42.445719",
-      "tool": "",
-      "step_id": "step_c247bc34",
-      "parameters": {},
-      "timeout": 30,
-      "continue_on_error": "false",
       "postconditions": [],
-      "screenshot": null
+      "tags": [],
+      "screenshot": null,
+      "created_at": "2025-10-29T03:37:33.760355",
+      "plan_id": "plan_bc76e4ef"
     }
   ],
   "screenshots": {
