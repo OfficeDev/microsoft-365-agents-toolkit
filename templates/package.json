@@ -14,7 +14,9 @@
         "build:vs": "npm run generate:vs && npm run distribute",
         "generate:vsc": "node ./scripts/generateVSCZip.js && tsx ./scripts/generate-metadata.ts",
         "generate:vs": "node ./scripts/generateVSZip.js",
-        "distribute": "copyfiles -u 1 \"build/**/*\" ../packages/fx-core/templates && copyfiles -u 3 \"src/ui/resource/**/*\" ../packages/fx-core/resource/templates/",
+        "distribute": "npm run distribute:ui && npm run distribute:template",
+        "distribute:ui": "copyfiles -u 3 \"src/ui/resource/**/*\" ../packages/fx-core/resource/templates/",
+        "distribute:template": "rimraf ../packages/fx-core/templates/metadata && copyfiles -u 1 \"build/**/*\" ../packages/fx-core/templates && copyfiles -a -u 1 \"vsc/configs/**/*\" ../packages/fx-core/templates",
         "version": "bash ../.github/scripts/pkg-version.sh template-sync && bash ../.github/scripts/pkg-version.sh core-template",
         "postversion": "npm run build"
     },

@@ -37,7 +37,9 @@ export class DefaultTemplateGenerator implements IGenerator {
     const templateName = inputs[QuestionNames.TemplateName];
     const platform = inputs.platform;
     const templates = getDefaultTemplatesOnPlatform(platform);
-    return templates.some((t) => t.name === templateName);
+    return templates.some(
+      (t) => t.name === templateName && t.language === inputs[QuestionNames.ProgrammingLanguage]
+    );
   }
 
   // The main entry of the generator. Do not override this method.

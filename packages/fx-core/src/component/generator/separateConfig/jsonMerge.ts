@@ -1,0 +1,94 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
+import * as commentJson from "comment-json";
+import * as fs from "fs-extra";
+
+/**
+ * Merge source JSON file (with comments) into target JSON file (with comments) at node level.
+ * Rules:
+ *  - If a top-level or nested property in source does not exist in target, add it (preserving source value).
+ *  - If property exists and both values are arrays, append source array elements to target array (no de-duplication).
+ *  - If property exists and both values are plain objects, recurse.
+ *  - Otherwise (primitive / mismatched types), keep the existing target value (no overwrite).
+ *  - Comments present in the existing target file are preserved. New properties won't have comments unless provided in target.
+ */
+export async function mergeJsonFile(sourcePath: string, targetPath: string): Promise<void> {
+  if (!(await fs.pathExists(sourcePath))) return; // nothing to merge
+  if (!(await fs.pathExists(targetPath))) {
+    // If target does not exist just copy source over
+    await fs.copy(sourcePath, targetPath);
+    return;
+  }
+
+  const rawSource = await fs.readFile(sourcePath, "utf8");
+  const rawTarget = await fs.readFile(targetPath, "utf8");
+
+  // Parse with comment-json to retain comments/whitespace metadata where possible
+  let source: commentJson.CommentJSONValue;
+  let target: commentJson.CommentJSONValue;
+  try {
+    // Do NOT pass 'true' as third param (that would strip comments)
+    source = commentJson.parse(rawSource);
+  } catch (e) {
+    // Fallback: attempt normal JSON parse (strip comments crudely)
+    source = JSON.parse(stripComments(rawSource));
+  }
+  try {
+    target = commentJson.parse(rawTarget);
+  } catch (e) {
+    target = JSON.parse(stripComments(rawTarget));
+  }
+
+  const merged = mergeNodes(target, source);
+
+  const output = commentJson.stringify(merged, null, 2) + "\n";
+  await fs.writeFile(targetPath, output, "utf8");
+}
+
+function isPlainObject(val: unknown): val is Record<string, unknown> {
+  return !!val && typeof val === "object" && !Array.isArray(val);
+}
+
+function mergeNodes(
+  target: commentJson.CommentJSONValue,
+  source: commentJson.CommentJSONValue
+): commentJson.CommentJSONValue {
+  if (Array.isArray(target) && Array.isArray(source)) {
+    // Append all elements from source (retain order, allow duplicates)
+    for (const el of source) {
+      (target as commentJson.CommentArray<commentJson.CommentJSONValue>).push(el);
+    }
+    return target;
+  }
+  if (isPlainObject(target) && isPlainObject(source)) {
+    for (const key of Object.keys(source)) {
+      const sVal = (source as Record<string, commentJson.CommentJSONValue>)[key];
+      if (!(key in (target as Record<string, commentJson.CommentJSONValue>))) {
+        (target as Record<string, commentJson.CommentJSONValue>)[key] = sVal;
+      } else {
+        const tVal = (target as Record<string, commentJson.CommentJSONValue>)[key];
+        if (Array.isArray(tVal) && Array.isArray(sVal)) {
+          for (const el of sVal) {
+            (tVal as commentJson.CommentArray<commentJson.CommentJSONValue>).push(el);
+          }
+        } else if (isPlainObject(tVal) && isPlainObject(sVal)) {
+          mergeNodes(
+            tVal as unknown as commentJson.CommentJSONValue,
+            sVal as unknown as commentJson.CommentJSONValue
+          );
+        } // else keep existing primitive / mismatched types
+      }
+    }
+    return target;
+  }
+  // For primitives or mismatched types: do not overwrite target per requirements
+  return target;
+}
+
+function stripComments(content: string): string {
+  // Simple removal of // and /* */ comments for fallback parsing
+  return content
+    .replace(/\/\*[^]*?\*\//g, "")
+    .replace(/([^:]|^)\/\/.*$/gm, (m, g1) => (g1 ? g1 : ""));
+}

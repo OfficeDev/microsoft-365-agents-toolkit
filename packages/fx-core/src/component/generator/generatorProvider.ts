@@ -9,12 +9,14 @@ import { DeclarativeAgentWithExistingApiSpecGenerator } from "./openApiSpec/decl
 import { MessageExtensionWithExistingApiSpecGenerator } from "./openApiSpec/messageExtensionGenerator";
 import { SsrTabGenerator } from "./other/ssrTabGenerator";
 import { TdpGenerator } from "./other/tdpGenerator";
+import { SeparateConfigGenerator } from "./separateConfig/generator";
 import { SPFxGeneratorImport, SPFxGeneratorNew } from "./spfx/spfxGenerator";
 
 // When multiple generators are activated, only the top one will be executed.
 export const Generators = [
   // TDP is the first generator because it reuses some templates from other generators.
   new TdpGenerator(),
+  new SeparateConfigGenerator(),
   // Generators below does not have overlapping templates.
   new DefaultTemplateGenerator(),
   new OfficeAddinGeneratorNew(),

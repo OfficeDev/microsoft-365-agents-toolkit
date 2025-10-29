@@ -1,0 +1,47 @@
+[
+  {
+    "id": "basic-tab-ts",
+    "components": [
+      {
+        "name": "app-manifest"
+      },
+      {
+        "name": "lifecycle"
+      },
+      {
+        "name": "local-debug"
+      },
+      {
+        "name": "tab"
+      }
+    ],
+    "features": {
+      "dev-tunnel": false,
+      "CEA": false
+    }
+  },
+  {
+    "id": "custom-copilot-rag-azure-ai-search-ts",
+    "components": [
+      {
+        "name": "app-manifest"
+      },
+      {
+        "name": "lifecycle"
+      },
+      {
+        "name": "local-debug"
+      },
+      {
+        "name": "playground"
+      },
+      {
+        "name": "bot"
+      }
+    ],
+    "features": {
+      "dev-tunnel": true,
+      "CEA": false
+    }
+  }
+]
