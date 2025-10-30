@@ -1,7 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
+import { ConfigFolderName } from "@microsoft/teamsfx-api";
 import fs from "fs-extra";
+import os from "os";
 import * as path from "path";
 import * as util from "util";
 import { getResourceFolder } from "../folder";
@@ -35,7 +37,19 @@ function getLocaleJson(locale?: string): any {
   // fx-core translation files
   loadTranslationFile(getResourceFolder(), locale);
   // template translation files
-  loadTranslationFile(path.join(getResourceFolder(), "templates"), locale);
+  const cachedResourcePath = path.join(
+    os.homedir(),
+    `.${String(ConfigFolderName)}`,
+    "ui",
+    "resource"
+  );
+
+  // Check if cached resource folder exists, otherwise fallback to bundled templates resource folder
+  if (cachedResourcePath && fs.pathExistsSync(path.join(cachedResourcePath, "package.nls.json"))) {
+    loadTranslationFile(cachedResourcePath, locale);
+  } else {
+    loadTranslationFile(path.join(getResourceFolder(), "templates"), locale);
+  }
   return LocaleStringMap.get(locale);
 }
 

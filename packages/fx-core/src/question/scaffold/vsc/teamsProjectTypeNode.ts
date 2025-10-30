@@ -3,6 +3,7 @@
 
 import {
   AppPackageFolderName,
+  ConfigFolderName,
   DefaultPluginManifestFileName,
   Inputs,
   IQTreeNode,
@@ -10,6 +11,7 @@ import {
   Platform,
 } from "@microsoft/teamsfx-api";
 import * as fs from "fs-extra";
+import os from "os";
 import path from "path";
 import { getLocalizedString } from "../../../common/localizeUtils";
 import { getTemplatesFolder } from "../../../folder";
@@ -37,7 +39,23 @@ import {
 } from "./CapabilityOptions";
 
 export function getTeamsProjectNode(): IQTreeNode {
-  const content = fs.readFileSync(path.join(getTemplatesFolder(), "ui", "teamsNode.json"), "utf-8");
+  let jsonPath: string;
+
+  const cachedJsonPath = path.join(
+    os.homedir(),
+    `.${String(ConfigFolderName)}`,
+    "ui",
+    "teamsNode.json"
+  );
+
+  // Check if cached JSON exists, otherwise fallback to bundled templates folder
+  if (cachedJsonPath && fs.pathExistsSync(cachedJsonPath)) {
+    jsonPath = cachedJsonPath;
+  } else {
+    jsonPath = path.join(getTemplatesFolder(), "ui", "teamsNode.json");
+  }
+
+  const content = fs.readFileSync(jsonPath, "utf-8");
   return constructNode(content);
 }
 
