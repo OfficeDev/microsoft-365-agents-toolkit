@@ -1369,6 +1369,7 @@ function entraClientIdQuestion(): TextInputQuestion {
     name: QuestionNames.OauthClientId,
     cliShortName: "i",
     title: getLocalizedString("core.createProjectQuestion.EntraSSOClientId"),
+    placeholder: getLocalizedString("core.createProjectQuestion.EntraSSOClientId.placeholder"),
     cliDescription: "Microsoft Entra SSO client id for OpenAPI spec.",
     forgetLastValue: true,
     additionalValidationOnAccept: {
@@ -1390,6 +1391,7 @@ function oauthClientIdQuestion(): TextInputQuestion {
     name: QuestionNames.OauthClientId,
     cliShortName: "i",
     title: getLocalizedString("core.createProjectQuestion.OauthClientId"),
+    placeholder: getLocalizedString("core.createProjectQuestion.OauthClientId.placeholder"),
     cliDescription: "Oauth client id for OpenAPI spec.",
     forgetLastValue: true,
     additionalValidationOnAccept: {
@@ -1421,6 +1423,7 @@ function oauthClientSecretQuestion(): TextInputQuestion {
     cliShortName: "c",
     password: true,
     title: getLocalizedString("core.createProjectQuestion.OauthClientSecret"),
+    placeholder: getLocalizedString("core.createProjectQuestion.OauthClientSecret.placeholder"),
     cliDescription: "Oauth client secret for OpenAPI spec.",
     forgetLastValue: true,
     validation: {
@@ -1449,6 +1452,7 @@ export function oauthScopeCustomQuestion(): TextInputQuestion {
   return {
     name: QuestionNames.OAuthScope,
     title: getLocalizedString("core.createProjectQuestion.OauthScope"),
+    placeholder: getLocalizedString("core.createProjectQuestion.OauthScope.placeholder"),
     type: "text",
     cliDescription: "Scope for oauth.",
     validation: {
