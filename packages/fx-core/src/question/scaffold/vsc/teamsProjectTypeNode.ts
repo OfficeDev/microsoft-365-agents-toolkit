@@ -500,6 +500,98 @@ export function m365SearchMeSubNode(): IQTreeNode {
   };
 }
 
+export function MCPServerTypeNode(): IQTreeNode {
+  return {
+    condition: { equals: ActionStartOptions.mcp().id },
+    data: {
+      name: QuestionNames.MCPServerType,
+      title: getLocalizedString("core.createProjectQuestion.mcpServerType.title"),
+      type: "singleSelect",
+      staticOptions: [
+        {
+          id: "remote",
+          label: getLocalizedString("core.createProjectQuestion.mcpServerType.remote.label"),
+          detail: getLocalizedString("core.createProjectQuestion.mcpServerType.remote.detail"),
+        },
+        {
+          id: "local",
+          label: getLocalizedString("core.createProjectQuestion.mcpServerType.local.label"),
+          detail: getLocalizedString("core.createProjectQuestion.mcpServerType.local.detail"),
+        },
+      ],
+      default: "remote",
+      placeholder: getLocalizedString("core.createProjectQuestion.mcpServerType.placeholder"),
+    },
+    children: [
+      {
+        condition: { equals: "remote" },
+        data: MCPForDAServerUrlNode().data,
+      },
+      MCPLocalServerSelectionNode(),
+    ],
+  };
+}
+
+export function MCPLocalServerSelectionNode(): IQTreeNode {
+  return {
+    condition: { equals: "local" },
+    data: {
+      name: QuestionNames.MCPLocalServer,
+      title: getLocalizedString("core.createProjectQuestion.mcpLocalServer.title"),
+      type: "singleSelect",
+      staticOptions: [],
+      placeholder: getLocalizedString("core.createProjectQuestion.mcpLocalServer.placeholder"),
+      dynamicOptions: async (inputs: Inputs) => {
+        const { ODRProvider } = await import("../../../component/utils/odrProvider");
+        const servers = await ODRProvider.listServers();
+
+        // Store servers in inputs for later use
+        inputs["_mcpLocalServerList"] = servers;
+
+        return servers.map((server) => ({
+          id: server.name,
+          label: server.display_name,
+          detail: `${server.description} (${server.tools.length} tools available)`,
+        }));
+      },
+    },
+    children: [MCPLocalToolSelectionNode()],
+  };
+}
+
+export function MCPLocalToolSelectionNode(): IQTreeNode {
+  return {
+    condition: (inputs: Inputs) => !!inputs[QuestionNames.MCPLocalServer],
+    data: {
+      name: QuestionNames.MCPForDAPreFetchTools,
+      title: getLocalizedString("core.createProjectQuestion.mcpLocalTool.title"),
+      type: "multiSelect",
+      staticOptions: [],
+      placeholder: getLocalizedString("core.createProjectQuestion.mcpLocalTool.placeholder"),
+      dynamicOptions: (inputs: Inputs) => {
+        const selectedServerName = inputs[QuestionNames.MCPLocalServer];
+        const serverList = inputs["_mcpLocalServerList"] || [];
+        const selectedServer = serverList.find((s: any) => s.name === selectedServerName);
+
+        if (!selectedServer) {
+          return [];
+        }
+
+        // Store server details for generator
+        inputs[QuestionNames.MCPLocalServerName] = selectedServer.name;
+        inputs[QuestionNames.MCPLocalServerIdentifier] = selectedServer.identifier;
+        inputs[QuestionNames.MCPForDAAvailableTools] = selectedServer.tools;
+
+        return selectedServer.tools.map((tool: any) => ({
+          id: tool.name,
+          label: tool.name,
+          detail: tool.description,
+        }));
+      },
+    },
+  };
+}
+
 export function MCPForDAServerUrlNode(): IQTreeNode {
   return {
     condition: { equals: ActionStartOptions.mcp().id },
