@@ -1223,11 +1223,7 @@ export function oauthQuestion(): IQTreeNode {
       {
         data: oauthScopeCustomQuestion(),
         condition: (inputs: Inputs) => {
-          return (
-            !inputs.isPKCEEnabled &&
-            !inputs.scope &&
-            (!inputs.identityProvider || inputs.identityProvider === "Custom")
-          );
+          return inputs.identityProvider === "Custom";
         },
       },
       {
