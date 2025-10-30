@@ -62,6 +62,8 @@ jobs:
       AZURE_OPENAI_ENDPOINT: ${{ secrets.AZURE_OPENAI_ENDPOINT }}
       AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_KEY }}
       AZURE_OPENAI_MODEL: "gpt-4.1"
+      AZURE_SEARCH_ENDPOINT: ${{ secrets.AZURE_SEARCH_ENDPOINT }}
+      AZURE_SEARCH_KEY: ${{ secrets.AZURE_SEARCH_KEY }}
       # Azure Service Principal for M365 Toolkit authentication
       AZURE_CLIENT_ID: ${{ secrets.AZURE_SERVICE_PRINCIPAL_ID }}
       AZURE_CLIENT_SECRET: ${{ secrets.AZURE_SERVICE_PRINCIPAL_SECRET }}
