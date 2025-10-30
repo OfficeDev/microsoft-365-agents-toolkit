@@ -1,8 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { Platform } from "@microsoft/teamsfx-api";
+import { ConfigFolderName, Platform } from "@microsoft/teamsfx-api";
 import fs from "fs-extra";
+import os from "os";
 import path from "path";
 import { getTemplatesFolder } from "../../../../folder";
 import { Template } from "./interface";
@@ -29,14 +30,31 @@ import { Template } from "./interface";
 let allTemplates: Template[] = [];
 let defaultGeneratorTemplates: Template[] = [];
 
+function getTemplateMetadataConfig(configName: string): Template[] {
+  let jsonPath: string;
+
+  const cachedJsonPath = path.join(
+    os.homedir(),
+    `.${String(ConfigFolderName)}`,
+    "metadata",
+    configName
+  );
+
+  // Check if cached JSON exists, otherwise fallback to bundled templates folder
+  if (cachedJsonPath && fs.pathExistsSync(cachedJsonPath)) {
+    jsonPath = cachedJsonPath;
+  } else {
+    jsonPath = path.join(getTemplatesFolder(), "metadata", configName);
+  }
+
+  const content = fs.readFileSync(jsonPath, "utf-8");
+  return JSON.parse(content) as Template[];
+}
+
 // used by programming language question options filter
 export function getAllTemplatesOnPlatform(platform: Platform): Template[] {
   if (allTemplates.length == 0) {
-    const data = fs.readFileSync(
-      path.join(getTemplatesFolder(), "metadata", "allTemplates.json"),
-      "utf-8"
-    );
-    allTemplates = JSON.parse(data) as Template[];
+    allTemplates = getTemplateMetadataConfig("allTemplates.json");
   }
   switch (platform) {
     case Platform.VSCode:
@@ -53,11 +71,7 @@ export function getAllTemplatesOnPlatform(platform: Platform): Template[] {
 // used by default generator
 export function getDefaultTemplatesOnPlatform(platform: Platform): Template[] {
   if (defaultGeneratorTemplates.length == 0) {
-    const data = fs.readFileSync(
-      path.join(getTemplatesFolder(), "metadata", "defaultGeneratorTemplates.json"),
-      "utf-8"
-    );
-    defaultGeneratorTemplates = JSON.parse(data) as Template[];
+    defaultGeneratorTemplates = getTemplateMetadataConfig("defaultGeneratorTemplates.json");
   }
   switch (platform) {
     case Platform.VSCode:
