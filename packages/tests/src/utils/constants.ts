@@ -482,6 +482,7 @@ export class LocalDebugTaskInfo {
   static readonly ServerListening = "Server listening";
   static readonly BackendStartedInfo = "Worker process started and initialized";
   static readonly NoError = "Found 0 errors";
+  static readonly PythonTaskStarted = "running on http://";
 }
 
 export class DebugItemSelect {

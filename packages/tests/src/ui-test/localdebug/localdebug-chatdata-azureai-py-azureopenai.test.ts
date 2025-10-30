@@ -23,6 +23,7 @@ import {
   ValidationContent,
   LocalDebugTaskLabel2,
   Lang,
+  LocalDebugTaskInfo,
 } from "../../utils/constants";
 import { Env, OpenAiKey } from "../../utils/env";
 import { it } from "../../utils/it";
@@ -65,13 +66,6 @@ describe("Local Debug Tests", function () {
       const envPath = path.resolve(projectPath, "env", ".env.local.user");
 
       const isRealKey = OpenAiKey.azureOpenAiKey ? true : false;
-      // create azure search
-      if (isRealKey) {
-        const rgName = `${localDebugTestContext.appName}-local-rg`;
-
-        azSearchHelper = new AzSearchHelper(rgName);
-        await azSearchHelper.createSearch();
-      }
       const azureOpenAiKey = OpenAiKey.azureOpenAiKey
         ? OpenAiKey.azureOpenAiKey
         : "fake";
@@ -96,9 +90,9 @@ describe("Local Debug Tests", function () {
         "AZURE_OPENAI_EMBEDDING_DEPLOYMENT",
         embeddingDeploymentName
       );
-      const searchKey = isRealKey ? azSearchHelper.apiKey : "fake";
+      const searchKey = isRealKey ? Env.azureSearchKey : "fake";
       const searchEndpoint = isRealKey
-        ? azSearchHelper.endpoint
+        ? Env.azureSearchEndpoint
         : "https://test.com";
       editDotEnvFile(envPath, "SECRET_AZURE_SEARCH_KEY", searchKey);
       editDotEnvFile(envPath, "AZURE_SEARCH_ENDPOINT", searchEndpoint);
@@ -134,7 +128,7 @@ describe("Local Debug Tests", function () {
       await waitForTerminal(LocalDebugTaskLabel.StartLocalTunnel);
       await waitForTerminal(
         LocalDebugTaskLabel2.PythonDebugConsole,
-        "Running on http://localhost:3978"
+        LocalDebugTaskInfo.PythonTaskStarted
       );
 
       const teamsAppId = await localDebugTestContext.getTeamsAppId();
