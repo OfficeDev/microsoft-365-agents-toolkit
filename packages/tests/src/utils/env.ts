@@ -102,7 +102,7 @@ export class Env {
   }
 
   static get azureSearchKey() {
-    return this.getVal("AZURE_CLIENT_SECRET", process.env.AZURE_SEARCH_KEY);
+    return this.getVal("AZURE_SEARCH_KEY", process.env.AZURE_SEARCH_KEY);
   }
 
   static get azureSearchEndpoint() {
