@@ -443,7 +443,7 @@
   "core.createProjectQuestion.OauthScope": "(Optional) Enter scope(s) for OAuth registration, separated by a comma",
   "core.createProjectQuestion.OauthScope.validation": "Invalid format. Use 'scope1, scope2:permission2'. Only letters, numbers, and ._/- are allowed.",
   "core.createProjectQuestion.OauthClientSecretConfirm": "Microsoft 365 Agents Toolkit uploads the client id/secret for OAuth Registration to Developer Portal. It is used by Teams client to securely access your API at runtime. Microsoft 365 Agents Toolkit doesn't store your client id/secret.",
-  "core.createProjectQuestion.EntraSSOClientId": "Enter Microsoft Entra SSO client id for registration in OpenAPI Description Document",
+  "core.createProjectQuestion.EntraSSOClientId": "Enter Microsoft SSO Client id (generated in AAD) for registration on Teams Developer Portal",
   "core.createProjectQuestion.apiMessageExtensionAuth.title": "Authentication Type",
   "core.createProjectQuestion.apiMessageExtensionAuth.placeholder": "Select an authentication type",
   "core.createProjectQuestion.invalidApiKey.message": "Invalid client secret. It should be 10 to 512 characters long.",

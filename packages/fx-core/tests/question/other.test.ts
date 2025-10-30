@@ -502,22 +502,22 @@ describe("addAuthActionQuestion", () => {
     assert.isUndefined(res);
   });
 
-  it("oauthScopeCustomQuestion: should return error if invalid input - no colon", async () => {
+  it("oauthScopeCustomQuestion: happy path - single scope", async () => {
     const validation = (oauthScopeCustomQuestion().validation as FuncValidation<string>).validFunc;
     const res = validation("scope", undefined);
-    assert.equal(res, getLocalizedString("core.oauthScopeQuestion.validation.scope"));
+    assert.equal(res, undefined);
   });
 
   it("oauthScopeCustomQuestion: should return error if invalid input - semicolon separator", async () => {
     const validation = (oauthScopeCustomQuestion().validation as FuncValidation<string>).validFunc;
     const res = validation("scope1:desc1; scope2:desc2", undefined);
-    assert.equal(res, getLocalizedString("core.oauthScopeQuestion.validation.scope"));
+    assert.equal(res, getLocalizedString("core.createProjectQuestion.OauthScope.validation"));
   });
 
   it("oauthScopeCustomQuestion: should return error if invalid characters", async () => {
     const validation = (oauthScopeCustomQuestion().validation as FuncValidation<string>).validFunc;
     const res = validation("scope1@:desc1, scope2:desc2", undefined);
-    assert.equal(res, getLocalizedString("core.oauthScopeQuestion.validation.scope"));
+    assert.equal(res, getLocalizedString("core.createProjectQuestion.OauthScope.validation"));
   });
 
   it("oauthScopeCustomQuestion: happy path - single scope", async () => {
