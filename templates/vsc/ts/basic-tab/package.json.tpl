@@ -26,7 +26,6 @@
         "@types/react-dom": "^19.1.9",
         "@vitejs/plugin-react": "^4.3.4",
         "dotenv": "^16.4.5",
-        "env-cmd": "^11.0.0",
         "nodemon": "^3.1.4",
         "rimraf": "^6.0.1",
         "tsup": "^8.4.0",
@@ -34,7 +33,6 @@
         "vite": "^6.2.0"
     },
     "scripts": {
-        "dev:teamsfx": "env-cmd --silent -f .localConfigs npm run start",
         "clean": "rimraf ./dist",
         "start": "nodemon",
         "prestart": "npm run build:frontend",

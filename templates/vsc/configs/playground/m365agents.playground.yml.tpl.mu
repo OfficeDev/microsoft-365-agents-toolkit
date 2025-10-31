@@ -16,11 +16,12 @@ deploy:
     with:
       args: install --no-audit
 
-<<#CEA>>
+<<#bot>>
   - uses: file/createOrUpdateEnvironmentFile
     with:
       target: ./.localConfigs.playground
       envs:
+        PORT: 3978
         {{#useOpenAI}}
         OPENAI_API_KEY: ${{SECRET_OPENAI_API_KEY}}
         {{/useOpenAI}}
@@ -30,4 +31,4 @@ deploy:
         AZURE_OPENAI_DEPLOYMENT_NAME: ${{AZURE_OPENAI_DEPLOYMENT_NAME}}
         AZURE_OPENAI_EMBEDDING_DEPLOYMENT_NAME: ${{AZURE_OPENAI_EMBEDDING_DEPLOYMENT_NAME}}
         {{/useAzureOpenAI}}
-<</CEA>>
+<</bot>>

@@ -1,47 +1,59 @@
+enum ATKConfigComponentName {
+  AppManifest = "app-manifest",
+  Basic = "atk-basic",
+  VSCodeLocalDebug = "vscode-local-debug",
+  Playground = "playground",
+  TeamsTab = "teams-tab",
+  TeamsBot = "teams-bot",
+  DA = "declarative-agent",
+}
+
+enum ATKFeatureName {
+  DevTunnel = "dev-tunnel",
+}
+
 export const templateConfigs = [
   {
     id: "basic-tab-ts",
     components: [
       {
-        name: "app-manifest",
+        name: ATKConfigComponentName.AppManifest,
       },
       {
-        name: "lifecycle",
+        name: ATKConfigComponentName.Basic,
       },
       {
-        name: "local-debug",
+        name: ATKConfigComponentName.VSCodeLocalDebug,
       },
       {
-        name: "tab",
+        name: ATKConfigComponentName.TeamsTab,
       },
     ],
     features: {
-      "dev-tunnel": false,
-      CEA: false,
+      [ATKFeatureName.DevTunnel]: false,
     },
   },
   {
     id: "custom-copilot-rag-azure-ai-search-ts",
     components: [
       {
-        name: "app-manifest",
+        name: ATKConfigComponentName.AppManifest,
       },
       {
-        name: "lifecycle",
+        name: ATKConfigComponentName.Basic,
       },
       {
-        name: "local-debug",
+        name: ATKConfigComponentName.VSCodeLocalDebug,
       },
       {
-        name: "playground",
+        name: ATKConfigComponentName.Playground,
       },
       {
-        name: "bot",
+        name: ATKConfigComponentName.TeamsBot,
       },
     ],
     features: {
-      "dev-tunnel": true,
-      CEA: false,
+      [ATKFeatureName.DevTunnel]: true,
     },
   },
 ];

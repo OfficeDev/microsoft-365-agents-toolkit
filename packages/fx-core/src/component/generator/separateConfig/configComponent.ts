@@ -26,6 +26,9 @@ export async function scaffoldConfigComponents(
   const tempFolder = await fs.mkdtemp(path.join(os.tmpdir(), "teamsfx-config-"));
   const features = templateConfig.features || {};
   for (const configComponent of templateConfig.components) {
+    features[configComponent.name] = true;
+  }
+  for (const configComponent of templateConfig.components) {
     const configPath = path.join(templatesConfigsRoot, configComponent.name);
     await mergeConfigFiles(configPath, tempFolder, features, inputs);
   }

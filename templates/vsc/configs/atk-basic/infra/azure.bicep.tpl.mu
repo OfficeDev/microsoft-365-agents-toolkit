@@ -3,6 +3,16 @@
 @description('Used to generate names for all resources in this file')
 param resourceBaseName string
 
+param webAppSku string
+
+param serverfarmsName string = resourceBaseName
+param webAppName string = resourceBaseName
+param location string = resourceGroup().location
+
+<<#bot>>
+@maxLength(42)
+param botDisplayName string
+
 {{#useOpenAI}}
 @secure()
 param openAIKey string
@@ -21,38 +31,21 @@ param azureOpenAIDeploymentName string
 param azureOpenAIEmbeddingDeploymentName string
 {{/useAzureOpenAI}}
 
-@secure()
-param azureSearchKey string
-
-@secure()
-param azureSearchEndpoint string
-
-param webAppSKU string
-
-@maxLength(42)
-param botDisplayName string
-
-param serverfarmsName string = resourceBaseName
-param webAppName string = resourceBaseName
-param identityName string = resourceBaseName
-param location string = resourceGroup().location
-
 resource identity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
   location: location
   name: identityName
 }
+<</bot>>
 
-// Compute resources for your Web App
 resource serverfarm 'Microsoft.Web/serverfarms@2021-02-01' = {
   kind: 'app'
   location: location
   name: serverfarmsName
   sku: {
-    name: webAppSKU
+    name: webAppSku
   }
 }
 
-// Web App that hosts your agent
 resource webApp 'Microsoft.Web/sites@2021-02-01' = {
   kind: 'app'
   location: location
@@ -60,8 +53,10 @@ resource webApp 'Microsoft.Web/sites@2021-02-01' = {
   properties: {
     serverFarmId: serverfarm.id
     httpsOnly: true
+<<#bot>>
+    alwaysOn: true
+<</bot>>
     siteConfig: {
-      alwaysOn: true
       appSettings: [
         {
           name: 'WEBSITE_RUN_FROM_PACKAGE'
@@ -69,12 +64,13 @@ resource webApp 'Microsoft.Web/sites@2021-02-01' = {
         }
         {
           name: 'WEBSITE_NODE_DEFAULT_VERSION'
-          value: '~20' // Set NodeJS version to 20.x for your site
+          value: '~22' // Set NodeJS version to 22.x for your site
         }
         {
           name: 'RUNNING_ON_AZURE'
           value: '1'
         }
+<<#bot>>
         {
           name: 'CLIENT_ID'
           value: identity.properties.clientId
@@ -84,7 +80,7 @@ resource webApp 'Microsoft.Web/sites@2021-02-01' = {
           value: identity.properties.tenantId
         }
         {
-          name: 'BOT_TYPE' 
+          name: 'BOT_TYPE'
           value: 'UserAssignedMsi'
         }
         {{#useOpenAI}}
@@ -111,26 +107,22 @@ resource webApp 'Microsoft.Web/sites@2021-02-01' = {
           value: azureOpenAIEmbeddingDeploymentName
         }
         {{/useAzureOpenAI}}
-        {
-          name: 'AZURE_SEARCH_KEY'
-          value: azureSearchKey
-        }
-        {
-          name: 'AZURE_SEARCH_ENDPOINT'
-          value: azureSearchEndpoint
-        }
+<</bot>>
       ]
       ftpsState: 'FtpsOnly'
     }
   }
+<<#bot>>
   identity: {
     type: 'UserAssigned'
     userAssignedIdentities: {
       '${identity.id}': {}
     }
   }
+<</bot>>
 }
 
+<<#bot>>
 // Register your web service as a bot with the Bot Framework
 module azureBotRegistration './botRegistration/azurebot.bicep' = {
   name: 'Azure-Bot-registration'
@@ -143,9 +135,13 @@ module azureBotRegistration './botRegistration/azurebot.bicep' = {
     botDisplayName: botDisplayName
   }
 }
+<</bot>>
 
 // The output will be persisted in .env.{envName}. Visit https://aka.ms/teamsfx-actions/arm-deploy for more details.
-output BOT_AZURE_APP_SERVICE_RESOURCE_ID string = webApp.id
-output BOT_DOMAIN string = webApp.properties.defaultHostName
+output AZURE_APP_SERVICE_RESOURCE_ID string = webApp.id // used in deploy stage
+output APP_DOMAIN string = webApp.properties.defaultHostName
+output APP_ENDPOINT string = 'https://${webApp.properties.defaultHostName}'
+<<#bot>>
 output BOT_ID string = identity.properties.clientId
 output BOT_TENANT_ID string = identity.properties.tenantId
+<</bot>>

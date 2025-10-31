@@ -8,7 +8,7 @@
         "check-sensitive": "npx eslint --plugin 'no-secrets' --cache --ignore-pattern 'package.json' --ignore-pattern 'package-lock.json'",
         "precommit": "npm run check-sensitive && lint-staged",
         "upgrade-schema": "node ./scripts/yamlSolver upgrade-schema",
-        "clean": "rimraf ./build",
+        "clean": "rimraf ./build && rimraf ../packages/fx-core/templates/metadata && rimraf ../packages/fx-core/templates/configs",
         "build": "npm run generate:vsc && npm run generate:vs && npm run distribute",
         "build:vsc": "npm run generate:vsc && npm run distribute",
         "build:vs": "npm run generate:vs && npm run distribute",
@@ -16,7 +16,7 @@
         "generate:vs": "node ./scripts/generateVSZip.js",
         "distribute": "npm run distribute:ui && npm run distribute:template",
         "distribute:ui": "copyfiles -u 3 \"src/ui/resource/**/*\" ../packages/fx-core/resource/templates/",
-        "distribute:template": "rimraf ../packages/fx-core/templates/metadata && copyfiles -u 1 \"build/**/*\" ../packages/fx-core/templates && copyfiles -a -u 1 \"vsc/configs/**/*\" ../packages/fx-core/templates",
+        "distribute:template": "copyfiles -u 1 \"build/**/*\" ../packages/fx-core/templates && copyfiles -a -u 1 \"vsc/configs/**/*\" ../packages/fx-core/templates",
         "version": "bash ../.github/scripts/pkg-version.sh template-sync && bash ../.github/scripts/pkg-version.sh core-template",
         "postversion": "npm run build"
     },

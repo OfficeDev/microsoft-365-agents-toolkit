@@ -56,7 +56,7 @@ export async function mergeYamlFile(sourcePath: string, targetPath: string): Pro
         ) {
           // Get items from source YAMLSeq and add to target YAMLSeq
           for (let i = 0; i < sourceStageNode.items.length; i++) {
-            targetStageNode.items.unshift(sourceStageNode.items[i]);
+            targetStageNode.items.push(sourceStageNode.items[i]);
           }
         }
       } else {

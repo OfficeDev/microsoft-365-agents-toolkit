@@ -6,18 +6,17 @@
         "name": "app-manifest"
       },
       {
-        "name": "lifecycle"
+        "name": "atk-basic"
       },
       {
-        "name": "local-debug"
+        "name": "vscode-local-debug"
       },
       {
-        "name": "tab"
+        "name": "teams-tab"
       }
     ],
     "features": {
-      "dev-tunnel": false,
-      "CEA": false
+      "dev-tunnel": false
     }
   },
   {
@@ -27,21 +26,20 @@
         "name": "app-manifest"
       },
       {
-        "name": "lifecycle"
+        "name": "atk-basic"
       },
       {
-        "name": "local-debug"
+        "name": "vscode-local-debug"
       },
       {
         "name": "playground"
       },
       {
-        "name": "bot"
+        "name": "teams-bot"
       }
     ],
     "features": {
-      "dev-tunnel": true,
-      "CEA": false
+      "dev-tunnel": true
     }
   }
 ]

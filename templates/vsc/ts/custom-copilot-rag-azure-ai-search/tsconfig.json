@@ -4,11 +4,11 @@
     "module": "NodeNext",
     "target": "ESNext",
     "moduleResolution": "NodeNext",
-    "outDir": "./lib",
-    "rootDir": "./",
+    "outDir": "./dist",
+    "rootDir": "./src",
     "sourceMap": true,
     "incremental": true,
-    "tsBuildInfoFile": "./lib/.tsbuildinfo",
+    "tsBuildInfoFile": "./dist/.tsbuildinfo",
     "esModuleInterop": true
   }
 }

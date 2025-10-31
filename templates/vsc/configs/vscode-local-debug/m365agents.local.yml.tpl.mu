@@ -1,22 +1,9 @@
-# yaml-language-server: $schema=https://aka.ms/m365-agents-toolkits/v1.9/yaml.schema.json
+# yaml-language-server: $schema=https://aka.ms/m365-agents-toolkits/v1.11/yaml.schema.json
 # Visit https://aka.ms/teamsfx-v5.0-guide for details on this file
 # Visit https://aka.ms/teamsfx-actions for details on actions
-version: v1.9
+version: v1.11
 
 provision:
-{{#SandBoxedTeam}}
-  # Creates a Teams channel in the specified team.
-  - uses: devChannel/create
-    with:
-      teamName: "App Development" # The name of the team in which to create the channel.
-      channelName: "{{appName}} App testing" # The default name for the channel.
-      description: "Team created via Microsoft 365 Agents Toolkit for development" # Optional team description.
-    writeToEnvironmentFile:
-      channelId: CHANNEL_ID # The ID of the created channel.
-      teamId: TEAM_ID # The ID of the team in which the channel was created.
-      channelWebUrl: CHANNEL_WEB_URL # A hyperlink to open Teams client
-{{/SandBoxedTeam}}
-
   # Creates an app
   - uses: teamsApp/create
     with:
@@ -27,12 +14,14 @@ provision:
     writeToEnvironmentFile:
       teamsAppId: TEAMS_APP_ID
 
+<<#bot>>
   # Create or reuse an existing Microsoft Entra application for bot.
   - uses: aadApp/create
     with:
       # The Microsoft Entra application's display name
       name: {{appName}}${{APP_NAME_SUFFIX}}
       generateClientSecret: true
+      generateServicePrincipal: true
       signInAudience: AzureADMultipleOrgs
     writeToEnvironmentFile:
       # The Microsoft Entra application's client id created for bot.
@@ -47,19 +36,17 @@ provision:
     with:
       botId: ${{BOT_ID}}
       name: {{appName}}
-      messagingEndpoint: ${{BOT_ENDPOINT}}/api/messages
+      messagingEndpoint: ${{APP_ENDPOINT}}/api/messages
       description: ""
       channels:
         - name: msteams
+<</bot>>
 
-  {{^CEAEnabled}}
   # Validate using manifest schema
   - uses: teamsApp/validateManifest
     with:
       # Path to manifest template
       manifestPath: ./appPackage/manifest.json
-  {{/CEAEnabled}}
-
   # Build app package with latest env value
   - uses: teamsApp/zipAppPackage
     with:
@@ -72,7 +59,6 @@ provision:
     with:
       # Relative path to this file. This is the path for built zip file.
       appPackagePath: ./appPackage/build/appPackage.${{TEAMSFX_ENV}}.zip
-
   # Apply the app manifest to an existing app in
   # Developer Portal.
   # Will use the app id in manifest file to determine which app to update.
@@ -80,8 +66,8 @@ provision:
     with:
       # Relative path to this file. This is the path for built zip file.
       appPackagePath: ./appPackage/build/appPackage.${{TEAMSFX_ENV}}.zip
-
-{{#CEAEnabled}}
+  
+<<#CEA>>
   - uses: teamsApp/extendToM365
     with:
       # Relative path to the build app package.
@@ -91,7 +77,7 @@ provision:
     writeToEnvironmentFile:
       titleId: M365_TITLE_ID
       appId: M365_APP_ID
-{{/CEAEnabled}}
+<</CEA>>
 
 deploy:
   # Run npm command
@@ -105,9 +91,11 @@ deploy:
     with:
       target: ./.localConfigs
       envs:
+        PORT: 3978
+<<#bot>>
         CLIENT_ID: ${{BOT_ID}}
         CLIENT_SECRET: ${{SECRET_BOT_PASSWORD}}
-        BOT_TYPE: 'MultiTenant'
+        TENANT_ID: ${{TEAMS_APP_TENANT_ID}}
         {{#useOpenAI}}
         OPENAI_API_KEY: ${{SECRET_OPENAI_API_KEY}}
         {{/useOpenAI}}
@@ -117,5 +105,4 @@ deploy:
         AZURE_OPENAI_DEPLOYMENT_NAME: ${{AZURE_OPENAI_DEPLOYMENT_NAME}}
         AZURE_OPENAI_EMBEDDING_DEPLOYMENT_NAME: ${{AZURE_OPENAI_EMBEDDING_DEPLOYMENT_NAME}}
         {{/useAzureOpenAI}}
-        AZURE_SEARCH_KEY: ${{SECRET_AZURE_SEARCH_KEY}}
-        AZURE_SEARCH_ENDPOINT: ${{AZURE_SEARCH_ENDPOINT}}
+<</bot>>
