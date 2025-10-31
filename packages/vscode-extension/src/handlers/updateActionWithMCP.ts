@@ -14,7 +14,7 @@ import { ExtTelemetry } from "../telemetry/extTelemetry";
 import { TelemetryEvent } from "../telemetry/extTelemetryEvents";
 import path from "path";
 import * as fs from "fs-extra";
-import { QuestionNames } from "@microsoft/teamsfx-core";
+import { ODRProvider, QuestionNames } from "@microsoft/teamsfx-core";
 import * as vscode from "vscode";
 import axios from "axios";
 import { runCommand } from "./sharedOpts";
@@ -42,6 +42,7 @@ export async function updateActionWithMCP(args?: any[]): Promise<Result<any, FxE
   let mcpName = args && args.length > 0 ? args[0].serverName : undefined;
   let server = args && args.length > 0 ? args[0].serverConfig?.url : undefined;
   let isLocalMCP = args && args.length > 0 && args[0].serverConfig?.type === "local";
+  let localServerIdentifier = args && args.length > 0 ? args[0].serverConfig?.endpoint : undefined;
 
   // Sanitize mcpName if it's provided as an argument
   if (mcpName) {
@@ -105,6 +106,7 @@ export async function updateActionWithMCP(args?: any[]): Promise<Result<any, FxE
       const serverConfig = mcpContent.servers[mcpNames[0]];
       server = serverConfig.url;
       isLocalMCP = serverConfig.type === "local";
+      localServerIdentifier = serverConfig.endpoint;
     } else {
       const mcpNameSelection: SingleSelectConfig = {
         name: "mcpName",
@@ -135,8 +137,9 @@ export async function updateActionWithMCP(args?: any[]): Promise<Result<any, FxE
       const serverConfig = mcpContent.servers[originalMcpName];
       server = serverConfig.url;
       isLocalMCP = serverConfig.type === "local";
+      localServerIdentifier = serverConfig.endpoint;
     }
-  } else if (!mcpName || (!server && !isLocalMCP)) {
+  } else if (!mcpName || (!server && !isLocalMCP) || (isLocalMCP && !localServerIdentifier)) {
     void vscode.window.showErrorMessage(localize("teamstoolkit.MCP.NameOrServerUrlMissing"));
     const error = new UserError(
       "da-mcp",
@@ -150,6 +153,9 @@ export async function updateActionWithMCP(args?: any[]): Promise<Result<any, FxE
 
   inputs[QuestionNames.MCPForDAServerUrl] = server;
   inputs[QuestionNames.MCPForDAServerName] = mcpName;
+  if (isLocalMCP && localServerIdentifier) {
+    inputs[QuestionNames.MCPLocalServerIdentifier] = localServerIdentifier;
+  }
 
   interface MCPTool {
     name: string;
@@ -161,21 +167,21 @@ export async function updateActionWithMCP(args?: any[]): Promise<Result<any, FxE
   let tools: MCPTool[] = [];
 
   if (isLocalMCP) {
-    const allMcpTools = vscode.lm.tools;
-    tools = allMcpTools
-      .filter((tool: vscode.LanguageModelToolInformation) =>
-        tool.name.includes(`mcp_${mcpName as string}`)
-      )
-      .map((tool: vscode.LanguageModelToolInformation) => {
-        const index = tool.name.indexOf(mcpName);
-        const newName = tool.name.substring(index + (mcpName as string).length + 1);
-        return {
-          name: newName,
+    try {
+      const servers = await ODRProvider.listServers();
+      const targetServer = servers.find((server) => server.identifier === localServerIdentifier);
+
+      if (targetServer) {
+        tools = targetServer.tools.map((tool) => ({
+          name: tool.name,
           description: tool.description,
           inputSchema: tool.inputSchema,
-          tags: tool.tags,
-        };
-      });
+          tags: [],
+        }));
+      }
+    } catch (error) {
+      ExtTelemetry.sendTelemetryErrorEvent(TelemetryEvent.UpdateActionWithMCP, error);
+    }
   } else {
     const allMcpTools = vscode.lm.tools;
     tools = allMcpTools

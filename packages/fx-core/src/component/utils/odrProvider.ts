@@ -1,6 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
+import { exec } from "child_process";
+import { promisify } from "util";
+
 /**
  * Utility for interacting with Windows ODR (On-Device Registry) for local MCP servers
  * This provides access to locally available MCP servers on Windows systems
@@ -257,20 +260,23 @@ export class ODRProvider {
    * TODO: Implement actual 'odr list' command execution when ODR provider is ready
    * For now, returns dummy data for development and testing
    */
-  static listServers(): Promise<ODRServer[]> {
-    // TODO: Implement actual command execution
-    // const { exec } = require('child_process');
-    // const { promisify } = require('util');
-    // const execAsync = promisify(exec);
-    // try {
-    //   const { stdout } = await execAsync('odr list');
-    //   const jsonOutput = JSON.parse(stdout);
-    //   return ODRProvider.parseODRListOutput(jsonOutput);
-    // } catch (error) {
-    //   console.error('Error executing odr list:', error);
-    //   return [];
-    // }
+  static async listServers(): Promise<ODRServer[]> {
+    const execAsync = promisify(exec);
+    const execOutcome = async () => {
+      try {
+        const { stdout } = await execAsync("odr list");
+        const jsonOutput = JSON.parse(stdout);
+        return ODRProvider.parseODRListOutput(jsonOutput);
+      } catch (error) {
+        console.error("Error executing odr list:", error);
+        return [];
+      }
+    };
 
-    return Promise.resolve(ODRProvider.getDummyServers());
+    return execOutcome().then((output) => {
+      return output;
+    });
+
+    // return Promise.resolve(ODRProvider.getDummyServers());
   }
 }

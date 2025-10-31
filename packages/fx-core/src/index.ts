@@ -102,6 +102,7 @@ export * from "./component/middleware/actionExecutionMW";
 export { outputScaffoldingWarningMessage } from "./component/utils/common";
 export { DotenvOutput, envUtil } from "./component/utils/envUtil";
 export { metadataUtil } from "./component/utils/metadataUtil";
+export { ODRTool, ODRServer, ODRProvider } from "./component/utils/odrProvider";
 export { pathUtils } from "./component/utils/pathUtils";
 export { newResourceGroupOption, resourceGroupHelper } from "./component/utils/ResourceGroupHelper";
 export { CoreCallbackFunc } from "./core/callback";
