@@ -4,11 +4,6 @@
 import { exec } from "child_process";
 import { promisify } from "util";
 
-/**
- * Utility for interacting with Windows ODR (On-Device Registry) for local MCP servers
- * This provides access to locally available MCP servers on Windows systems
- */
-
 export interface ODRServer {
   name: string;
   display_name: string;
@@ -276,7 +271,5 @@ export class ODRProvider {
     return execOutcome().then((output) => {
       return output;
     });
-
-    // return Promise.resolve(ODRProvider.getDummyServers());
   }
 }
