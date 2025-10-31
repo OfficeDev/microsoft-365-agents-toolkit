@@ -540,7 +540,6 @@ export class DACapabilityOptions {
       id: "type-spec",
       label: getLocalizedString("core.createProjectQuestion.apiPlugin.typeSpec.label"),
       detail: getLocalizedString("core.createProjectQuestion.apiPlugin.typeSpec.detail"),
-      description: getLocalizedString("core.createProjectQuestion.option.description.preview"),
       data: TemplateNames.DeclarativeAgentWithTypeSpec,
     };
   }
