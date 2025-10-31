@@ -39,7 +39,7 @@ The following files can be customized and demonstrate an example implementation 
 | `index.html`                     | HTML file.                                                                                                      |
 | `src/Tab/App.css`                | CSS file for the app.                                                                                           |
 | `src/Tab/App.tsx`                | Tab source file. It calls `teamsjs` SDK to get the context of on which Microsoft 365 application your app is running.      |
-| `src/index.ts`                   | Starting the app using [Teams AI(v2)](https://microsoft.github.io/teams-ai).                                                                     |
+| `src/index.ts`                   | Starting the app using [Microsoft Teams SDK](https://microsoft.github.io/teams-ai).                                                                     |
 | `vite.config.js`                 | Configuration for Vite build tool.                                                                              |  
 | `nodemon.json`                   | Configuration for Nodemon to watch and restart the server.                                                      |
 

@@ -33,7 +33,7 @@ export default function App() {
       <p>
         For more information, please refer to the{" "}
         <a href="https://microsoft.github.io/teams-ai" rel="noopener noreferrer" target="_blank">
-          Teams AI documentation
+          Microsoft Teams SDK
         </a>
         .
       </p>

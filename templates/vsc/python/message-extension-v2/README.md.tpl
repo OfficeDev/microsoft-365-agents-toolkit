@@ -1,6 +1,6 @@
 # Overview of the Message Extensions template
 
-This app template is built on top of [Teams AI library V2](https://aka.ms/teams-ai-library-v2).
+This app template is built on top of [Microsoft Teams SDK](https://aka.ms/teams-ai-library-v2).
 This template showcases message extensions features:
 
 - action commands: allows users to interact with your app through buttons and forms in the compose message area in Microsoft Teams.
