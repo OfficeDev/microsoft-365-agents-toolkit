@@ -211,6 +211,9 @@ jobs:
       AZURE_OPENAI_ENDPOINT: "https://atk-test-open-ai.openai.azure.com/"
       AZURE_OPENAI_EMBEDDING_DEPLOYMENT: "text-embedding-ada-002"
 
+      AZURE_SEARCH_ENDPOINT: ${{ secrets.AZURE_SEARCH_ENDPOINT }}
+      AZURE_SEARCH_KEY: ${{ secrets.AZURE_SEARCH_KEY }}
+
       TEAMSFX_DEV_TUNNEL_TEST: true
       TEAMSFX_TELEMETRY_TEST: true
     strategy:
@@ -272,7 +275,7 @@ jobs:
         if: contains(matrix.test-case,  'py')
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: '3.12'
 
       - name: Install Python environment
         if: contains(matrix.test-case,  'py')

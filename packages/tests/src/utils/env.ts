@@ -101,6 +101,17 @@ export class Env {
     );
   }
 
+  static get azureSearchKey() {
+    return this.getVal("AZURE_SEARCH_KEY", process.env.AZURE_SEARCH_KEY);
+  }
+
+  static get azureSearchEndpoint() {
+    return this.getVal(
+      "AZURE_SEARCH_ENDPOINT",
+      process.env.AZURE_SEARCH_ENDPOINT
+    );
+  }
+
   private static getVal(name: string, value: string | undefined): string {
     if (!value) {
       throw new Error(`Environment variable ${name} should not be empty.`);

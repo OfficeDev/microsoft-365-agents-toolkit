@@ -1044,7 +1044,7 @@ describe("oauthQuestion", async () => {
     const clientSecretRes = await (clientSecretCondition as ConditionFunc)(inputs);
     assert.equal(clientSecretRes, true);
 
-    const confirmQuesion = question.children![3];
+    const confirmQuesion = question.children![4];
     const confirmCondition = confirmQuesion.condition;
     const confirmRes = await (confirmCondition as ConditionFunc)(inputs);
     assert.equal(confirmRes, true);
@@ -1068,7 +1068,7 @@ describe("oauthQuestion", async () => {
     const clientSecretRes = await (clientSecretCondition as ConditionFunc)(inputs);
     assert.equal(clientSecretRes, false);
 
-    const confirmQuesion = question.children![3];
+    const confirmQuesion = question.children![4];
     const confirmCondition = confirmQuesion.condition;
     const confirmRes = await (confirmCondition as ConditionFunc)(inputs);
     assert.equal(confirmRes, true);
@@ -1092,8 +1092,8 @@ describe("oauthQuestion", async () => {
     const clientSecretRes = await (clientSecretCondition as ConditionFunc)(inputs);
     assert.equal(clientSecretRes, true);
 
-    const confirmQuesion = question.children![3];
-    const confirmCondition = confirmQuesion.condition;
+    const confirmQuestion = question.children![4];
+    const confirmCondition = confirmQuestion.condition;
     const confirmRes = await (confirmCondition as ConditionFunc)(inputs);
     assert.equal(confirmRes, true);
   });
@@ -1104,6 +1104,7 @@ describe("oauthQuestion", async () => {
       outputEnvVarNames: new Map<string, string>(),
       clientId: "fakeClientId",
       clientSecret: "fakeClientSecret",
+      scope: "read:user",
     };
     const question = oauthQuestion();
 
@@ -1117,7 +1118,7 @@ describe("oauthQuestion", async () => {
     const clientSecretRes = await (clientSecretCondition as ConditionFunc)(inputs);
     assert.equal(clientSecretRes, false);
 
-    const confirmQuesion = question.children![3];
+    const confirmQuesion = question.children![4];
     const confirmCondition = confirmQuesion.condition;
     const confirmRes = await (confirmCondition as ConditionFunc)(inputs);
     assert.equal(confirmRes, false);
@@ -1197,8 +1198,8 @@ describe("oauthQuestion", async () => {
     const clientSecretRes = await (clientSecretCondition as ConditionFunc)(inputs);
     assert.equal(clientSecretRes, false);
 
-    const confirmQuesion = question.children![3];
-    const confirmCondition = confirmQuesion.condition;
+    const confirmQuestion = question.children![4];
+    const confirmCondition = confirmQuestion.condition;
     const confirmRes = await (confirmCondition as ConditionFunc)(inputs);
     assert.equal(confirmRes, false);
   });

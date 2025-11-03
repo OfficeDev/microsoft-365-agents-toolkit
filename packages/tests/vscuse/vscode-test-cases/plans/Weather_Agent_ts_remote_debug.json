@@ -1,0 +1,166 @@
+{
+  "plan_metadata": {
+    "name": "Weather Agent ts Remote Debug",
+    "description": "caseId: 34648368\nhttps://msazure.visualstudio.com/Microsoft%20Teams%20Extensibility/_workitems/edit/34648368",
+    "generated_at": "2025-10-22T06:41:53.376284",
+    "execution_order": [
+      "plan_r_0928_012254",
+      "step_068be8e0",
+      "step_a25df5b8",
+      "plan_r_0930_054245",
+      "step_96e721ff",
+      "step_2b78fdef",
+      "plan_r_0928_014459",
+      "plan_r_0928_020230",
+      "plan_r_0929_040401",
+      "plan_r_0928_073729",
+      "plan_r_0928_075846",
+      "plan_r_0930_063548",
+      "plan_r_1009_073154"
+    ],
+    "tags": [ ],
+    "updated_at": "2025-10-24T04:55:18.277832",
+    "plan_id": "plan_45db9e12",
+    "version": "1.1",
+    "execution_context": {
+      "delay_between_steps": 1,
+      "stop_on_error": true,
+      "precondition_wait_timeout": 30,
+      "precondition_retry_interval": 1
+    },
+    "total_steps": 4,
+    "created_at": "2025-10-22T06:41:53.376287"
+  },
+  "steps": [
+    {
+      "plan_id": "plan_45db9e12",
+      "tool": "click",
+      "parameters": {
+        "x": 351,
+        "y": 136,
+        "button": "left",
+        "text": null,
+        "keys": null,
+        "key": null,
+        "dx": null,
+        "dy": null
+      },
+      "timeout": 30,
+      "continue_on_error": "0",
+      "preconditions": [
+        "dhash:351:136:16:5:0000c618c6b5b5d4",
+        "dhash:351:136:96:5:919348c83335c690",
+        "dhash:351:136:0:10:c0c8809090b26461"
+      ],
+      "tags": [],
+      "created_at": "2025-10-24T04:54:59.458880",
+      "step_id": "step_068be8e0",
+      "description": "Click the \"Custom Engine Agent\" option in the \"New Project\" dropdown menu within the Microsoft 365 Agents Toolkit interface in Visual Studio Code. This selects the agent type described as \"Build intelligent agent where you manage orchestration and provide your own LLM.\"",
+      "agent": "interaction",
+      "content_refs": [],
+      "retry_count": 0,
+      "depends_on": [],
+      "postconditions": [],
+      "screenshot": "step_068be8e0"
+    },
+    {
+      "plan_id": "plan_45db9e12",
+      "tool": "click",
+      "parameters": {
+        "x": 322,
+        "y": 127,
+        "button": "left",
+        "text": null,
+        "keys": null,
+        "key": null,
+        "dx": null,
+        "dy": null
+      },
+      "timeout": 30,
+      "continue_on_error": "0",
+      "preconditions": [
+        "dhash:322:127:16:5:a9a9aca493040000",
+        "dhash:322:127:96:5:9c22a14245254260",
+        "dhash:322:127:0:10:c0c4909092b26461"
+      ],
+      "tags": [],
+      "created_at": "2025-10-24T04:54:59.477403",
+      "step_id": "step_a25df5b8",
+      "description": "Click the \"Weather Agent\" dropdown option in the \"App Features Using Microsoft 365 Agents SDK\" dialog in Visual Studio Code.",
+      "agent": "interaction",
+      "content_refs": [],
+      "retry_count": 0,
+      "depends_on": [],
+      "postconditions": [],
+      "screenshot": "step_a25df5b8"
+    },
+    {
+      "plan_id": "plan_45db9e12",
+      "tool": "click",
+      "parameters": {
+        "x": 279,
+        "y": 73,
+        "button": "left",
+        "text": null,
+        "keys": null,
+        "key": null,
+        "dx": null,
+        "dy": null
+      },
+      "timeout": 30,
+      "continue_on_error": "0",
+      "preconditions": [
+        "dhash:279:73:16:5:1c022dcc31256d2d",
+        "dhash:279:73:96:5:0000a649895859a6",
+        "dhash:279:73:0:10:d090909092b26461"
+      ],
+      "tags": [],
+      "created_at": "2025-10-24T04:54:59.494429",
+      "step_id": "step_96e721ff",
+      "description": "Click the \"TypeScript\" option in the \"Programming Language\" dropdown within the Visual Studio Code interface.",
+      "agent": "interaction",
+      "content_refs": [],
+      "retry_count": 0,
+      "depends_on": [],
+      "postconditions": [],
+      "screenshot": "step_96e721ff"
+    },
+    {
+      "plan_id": "plan_45db9e12",
+      "tool": "click",
+      "parameters": {
+        "x": 378,
+        "y": 80,
+        "button": "left",
+        "text": null,
+        "keys": null,
+        "key": null,
+        "dx": null,
+        "dy": null
+      },
+      "timeout": 30,
+      "continue_on_error": "0",
+      "preconditions": [
+        "dhash:378:80:16:5:a6e46974669b44a4",
+        "dhash:378:80:96:5:404428454d000001",
+        "dhash:378:80:0:10:d0b0909092b26461"
+      ],
+      "tags": [],
+      "created_at": "2025-10-24T04:54:59.510065",
+      "step_id": "step_2b78fdef",
+      "description": "Click the \"Default folder /home/node/AgentsToolkitProjects\" option in the \"Workspace Folder\" selection dialog in Visual Studio Code.",
+      "agent": "interaction",
+      "content_refs": [],
+      "retry_count": 0,
+      "depends_on": [],
+      "postconditions": [],
+      "screenshot": "step_2b78fdef"
+    }
+  ],
+  "screenshots": {
+    "step_068be8e0": "step_068be8e0",
+    "step_a25df5b8": "step_a25df5b8",
+    "step_96e721ff": "step_96e721ff",
+    "step_2b78fdef": "step_2b78fdef"
+  }
+}

@@ -657,53 +657,58 @@ export async function cleanUpAadApp(
   hasApimPlugin?: boolean,
   envName = "dev"
 ) {
-  const userDataFile = path.join(
-    TestFilePath.configurationFolder,
-    `.env.${envName}`
-  );
-  const configFilePath = path.resolve(projectPath, userDataFile);
-  if (!fs.existsSync(configFilePath)) {
+  try {
+    const userDataFile = path.join(
+      TestFilePath.configurationFolder,
+      `.env.${envName}`
+    );
+    const configFilePath = path.resolve(projectPath, userDataFile);
+    if (!fs.existsSync(configFilePath)) {
+      return;
+    }
+    const context = dotenvUtil.deserialize(
+      await fs.readFile(configFilePath, { encoding: "utf8" })
+    );
+    const cleanService = await GraphApiCleanHelper.create(
+      Env.cleanTenantId,
+      Env.cleanClientId,
+      Env.username,
+      Env.password
+    );
+    const promises: Promise<boolean>[] = [];
+
+    const clean = async (objectId?: string) => {
+      return new Promise<boolean>(async (resolve) => {
+        if (objectId) {
+          console.log(`delete AAD ${objectId}`);
+          await cleanService.deleteAad(objectId);
+          return resolve(true);
+        }
+        return resolve(false);
+      });
+    };
+
+    if (hasAadPlugin) {
+      const objectId = context.obj.AAD_APP_OBJECT_ID;
+      promises.push(clean(objectId));
+    }
+
+    if (hasBotPlugin) {
+      const botAppId = context.obj.BOT_ID;
+      const objectId = await cleanService.getAadObjectId(botAppId);
+      promises.push(clean(objectId));
+    }
+
+    if (hasApimPlugin) {
+      // const objectId = context[apimPluginName].apimClientAADObjectId;
+      // promises.push(clean(objectId));
+    }
+
+    return Promise.all(promises);
+  } catch (e) {
+    console.log(`Failed to clean up aad, error message: ${e.message}`);
     return;
   }
-  const context = dotenvUtil.deserialize(
-    await fs.readFile(configFilePath, { encoding: "utf8" })
-  );
-  const cleanService = await GraphApiCleanHelper.create(
-    Env.cleanTenantId,
-    Env.cleanClientId,
-    Env.username,
-    Env.password
-  );
-  const promises: Promise<boolean>[] = [];
-
-  const clean = async (objectId?: string) => {
-    return new Promise<boolean>(async (resolve) => {
-      if (objectId) {
-        console.log(`delete AAD ${objectId}`);
-        await cleanService.deleteAad(objectId);
-        return resolve(true);
-      }
-      return resolve(false);
-    });
-  };
-
-  if (hasAadPlugin) {
-    const objectId = context.obj.AAD_APP_OBJECT_ID;
-    promises.push(clean(objectId));
-  }
-
-  if (hasBotPlugin) {
-    const botAppId = context.obj.BOT_ID;
-    const objectId = await cleanService.getAadObjectId(botAppId);
-    promises.push(clean(objectId));
-  }
-
-  if (hasApimPlugin) {
-    // const objectId = context[apimPluginName].apimClientAADObjectId;
-    // promises.push(clean(objectId));
-  }
-
-  return Promise.all(promises);
 }
 
 export async function cleanTeamsApp(appName: string) {

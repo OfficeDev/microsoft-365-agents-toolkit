@@ -654,6 +654,7 @@ describe("CreateOauthDriver", () => {
     envRestore = mockedEnv({
       ["oauth-client-secret"]: "mockedClientSecret",
       ["oauth-client-id"]: "mockedClientId",
+      ["oauth-scope"]: "mockedScope",
     });
 
     const args: any = {

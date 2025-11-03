@@ -43,7 +43,23 @@
       "weather-agent-azureopenai-ts",
       "weather-agent-azureopenai",
       "weather-agent-openai-ts",
-      "weather-agent-openai"
+      "weather-agent-openai",
+      "remotedebug-chatdata-customize-py-azureopenai-win-only",
+      "remotedebug-chatdata-customize-py-openai-win-only",
+      "remotedebug-aichat-bot-py-azureopenai-win-only",
+      "remotedebug-aichat-bot-py-openai-win-only",
+      "remotedebug-chatdata-customapi-py-azureopenai-win-only",
+      "remotedebug-chatdata-customapi-py-openai-win-only",
+      "localdebug-chatdata-customize-py-azureopenai",
+      "localdebug-chatdata-customize-py-openai",
+      "localdebug-aichat-bot-py-azureopenai",
+      "localdebug-aichat-bot-py-openai",
+      "localdebug-chatdata-customapi-py-azureopenai",
+      "localdebug-chatdata-customapi-py-openai",
+      "localdebug-chatdata-azureai-py-azureopenai",
+      "remotedebug-chatdata-azureai-py-azureopenai",
+      "localdebug-chatdata-azureai-py-openai",
+      "remotedebug-chatdata-azureai-py-openai"
     ]
   },
   "ubuntu-latest": {

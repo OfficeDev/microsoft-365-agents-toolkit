@@ -9,6 +9,7 @@ import * as tool from "@microsoft/teamsfx-core/build/common/tools";
 import * as globalVariables from "../../../src/globalVariables";
 import { MockTools } from "../../mocks/mockTools";
 import { ok } from "@microsoft/teamsfx-api";
+import { localize } from "../../../src/utils/localizeUtils";
 
 describe("m365Node", () => {
   const sandbox = sinon.createSandbox();
@@ -19,6 +20,7 @@ describe("m365Node", () => {
   });
 
   it("setSignedIn", async () => {
+    sandbox.stub(globalVariables, "tools").value(new MockTools());
     sandbox
       .stub(globalVariables.tools.tokenProvider.m365TokenProvider, "getAccessToken")
       .resolves(ok(""));
@@ -31,6 +33,35 @@ describe("m365Node", () => {
     chai.assert.equal(treeItem.label, "test upn");
     chai.assert.equal(treeItem.contextValue, "signedinM365");
     chai.assert.equal(treeItem.command, undefined);
+  });
+
+  it("accessibility test for m365 node", async () => {
+    sandbox.stub(globalVariables, "tools").value(new MockTools());
+    sandbox
+      .stub(globalVariables.tools.tokenProvider.m365TokenProvider, "getAccessToken")
+      .resolves(ok(""));
+    const m365Node = new M365AccountNode(eventEmitter);
+    await m365Node.setSignedIn("test upn", "");
+    const treeItem = await m365Node.getTreeItem();
+
+    chai.assert.equal(
+      treeItem.accessibilityInformation?.label,
+      "test upn. " + localize("teamstoolkit.accountTree.m365AccountTooltip")
+    );
+
+    m365Node.label = undefined;
+    const treeItem2 = await m365Node.getTreeItem();
+    chai.assert.equal(
+      treeItem2.accessibilityInformation?.label,
+      ". " + localize("teamstoolkit.accountTree.m365AccountTooltip")
+    );
+
+    m365Node.label = { label: "test label" };
+    const treeItem3 = await m365Node.getTreeItem();
+    chai.assert.equal(
+      treeItem3.accessibilityInformation?.label,
+      "test label. " + localize("teamstoolkit.accountTree.m365AccountTooltip")
+    );
   });
 
   it("setSignedIn - multitenant", async () => {
