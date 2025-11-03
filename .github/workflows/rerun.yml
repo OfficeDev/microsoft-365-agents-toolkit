@@ -99,24 +99,24 @@ jobs:
       run:
         working-directory: packages/tests
     env:
-      M365_ACCOUNT_PASSWORD: ${{ secrets.TEST_M365_PASSWORD_NEW }}
-      M365_DISPLAY_NAME: "atktest"
-      M365_USERNAME: "test01@atktesting.onmicrosoft.com"
-      M365_USERNAME_2: "test02@atktesting.onmicrosoft.com"
-      M365_USERNAME_3: "test03@atktesting.onmicrosoft.com"
-      M365_USERNAME_4: "test04@atktesting.onmicrosoft.com"
-      M365_USERNAME_5: "test05@atktesting.onmicrosoft.com"
-      M365_USERNAME_CLEAN: "delete_aad_app_user@atktesting.onmicrosoft.com"
-      CLEAN_CLIENT_ID: ${{ secrets.TEST_CLEAN_CLIENT_ID_NEW }}
-      CLEAN_CLIENT_SECRET: ${{ secrets.TEST_CLEAN_CLIENT_SECRET_NEW  }}
-      CLEAN_TENANT_ID: ${{ secrets.TEST_CLEAN_TENANT_ID_NEW }}
-      AZURE_TENANT_ID: ${{ secrets.TEST_TENANT_ID_NEW }}
-      AZURE_SUBSCRIPTION_ID: ${{ secrets.TEST_SUBSCRIPTION_ID_NEW }}
-      AZURE_ACCOUNT_NAME: ${{ secrets.TEST_USER_NAME_NEW }}
-      AZURE_ACCOUNT_PASSWORD: ${{ secrets.TEST_USER_PASSWORD_NEW }}
+      M365_ACCOUNT_PASSWORD: ${{ secrets.TEST_M365_PASSWORD }}
+      M365_DISPLAY_NAME: "test"
+      M365_USERNAME_1: "test21@xxbdw.onmicrosoft.com"
+      M365_USERNAME_2: "test22@xxbdw.onmicrosoft.com"
+      M365_USERNAME_3: "test23@xxbdw.onmicrosoft.com"
+      M365_USERNAME_4: "test24@xxbdw.onmicrosoft.com"
+      M365_USERNAME_5: "test25@xxbdw.onmicrosoft.com"
+      #M365_USERNAME_CLEAN: "delete_aad_app_user@atktesting.onmicrosoft.com"
+      CLEAN_CLIENT_ID: ${{ secrets.TEST_CLEAN_CLIENT_ID }}
+      CLEAN_CLIENT_SECRET: ${{ secrets.TEST_CLEAN_CLIENT_SECRET  }}
+      CLEAN_TENANT_ID: ${{ secrets.TEST_CLEAN_TENANT_ID }}
+      AZURE_TENANT_ID: ${{ secrets.TEST_TENANT_ID }}
+      AZURE_SUBSCRIPTION_ID: ${{ secrets.TEST_SUBSCRIPTION_ID }}
+      AZURE_ACCOUNT_NAME: ${{ secrets.TEST_USER_NAME }}
+      AZURE_ACCOUNT_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
       MAIL_API_KEY: ${{ secrets.MAIL_API_KEY }}
-      AZURE_SERVICE_PRINCIPAL_ID: ${{ secrets.AZURE_SERVICE_PRINCIPAL_ID }}
-      AZURE_SERVICE_PRINCIPAL_SECRET: ${{ secrets.AZURE_SERVICE_PRINCIPAL_SECRET}}
+      #AZURE_SERVICE_PRINCIPAL_ID: ${{ secrets.AZURE_SERVICE_PRINCIPAL_ID }}
+      #AZURE_SERVICE_PRINCIPAL_SECRET: ${{ secrets.AZURE_SERVICE_PRINCIPAL_SECRET}}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -136,7 +136,7 @@ jobs:
       - name: Clean resource with M365 account 01
         if: always()
         run: |
-          username='${{ env.M365_USERNAME }}'
+          username='${{ env.M365_USERNAME_1 }}'
           echo "M365_ACCOUNT_NAME=$username" >> $GITHUB_ENV
           npx ts-node src/scripts/clean.ts
 
@@ -168,9 +168,9 @@ jobs:
           echo "M365_ACCOUNT_NAME=$username" >> $GITHUB_ENV
           npx ts-node src/scripts/clean.ts
 
-      - name: Clean resource with M365 account clean
-        if: always()
-        run: |
-          username='${{ env.M365_USERNAME_CLEAN }}'
-          echo "M365_ACCOUNT_NAME=$username" >> $GITHUB_ENV
-          npx ts-node src/scripts/clean.ts
+      # - name: Clean resource with M365 account clean
+      #   if: always()
+      #   run: |
+      #     username='${{ env.M365_USERNAME_CLEAN }}'
+      #     echo "M365_ACCOUNT_NAME=$username" >> $GITHUB_ENV
+      #     npx ts-node src/scripts/clean.ts

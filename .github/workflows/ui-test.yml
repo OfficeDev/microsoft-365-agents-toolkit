@@ -65,9 +65,9 @@ jobs:
     env:
       AUTO_TEST_PLAN_ID: ${{ github.event.inputs.source-testplan-id }}
       TARGET_TEST_PLAN_NAME: ${{ github.event.inputs.target-testplan-name }}
-      DEVTUNNEL_CLIENT_ID: ${{ secrets.TEST_CLEAN_CLIENT_ID_NEW }}
-      DEVTUNNEL_CLIENT_SECRET: ${{ secrets.TEST_CLEAN_CLIENT_SECRET_NEW }}
-      DEVTUNNEL_TENANT_ID: ${{ secrets.TEST_CLEAN_TENANT_ID_NEW }}
+      DEVTUNNEL_CLIENT_ID: ${{ secrets.TEST_CLEAN_CLIENT_ID }}
+      DEVTUNNEL_CLIENT_SECRET: ${{ secrets.TEST_CLEAN_CLIENT_SECRET }}
+      DEVTUNNEL_TENANT_ID: ${{ secrets.TEST_CLEAN_TENANT_ID }}
 
     steps:
       - name: Init GitHub CLI
@@ -181,31 +181,31 @@ jobs:
       NGROK_TOKEN: ${{ secrets.NGROK_TOKEN }}
       TARGET_CLI_VERSION: ${{ needs.setup.outputs.target_cli_version }}
 
-      CLEAN_CLIENT_ID: ${{ secrets.TEST_CLEAN_CLIENT_ID_NEW }}
-      CLEAN_TENANT_ID: ${{ secrets.TEST_CLEAN_TENANT_ID_NEW }}
+      CLEAN_CLIENT_ID: ${{ secrets.TEST_CLEAN_CLIENT_ID }}
+      CLEAN_TENANT_ID: ${{ secrets.TEST_CLEAN_TENANT_ID }}
 
-      DEVTUNNEL_CLIENT_ID: ${{ secrets.TEST_CLEAN_CLIENT_ID_NEW }}
-      DEVTUNNEL_CLIENT_SECRET: ${{ secrets.TEST_CLEAN_CLIENT_SECRET_NEW }}
-      DEVTUNNEL_TENANT_ID: ${{ secrets.TEST_CLEAN_TENANT_ID_NEW }}
+      DEVTUNNEL_CLIENT_ID: ${{ secrets.TEST_CLEAN_CLIENT_ID }}
+      DEVTUNNEL_CLIENT_SECRET: ${{ secrets.TEST_CLEAN_CLIENT_SECRET }}
+      DEVTUNNEL_TENANT_ID: ${{ secrets.TEST_CLEAN_TENANT_ID }}
 
-      M365_ACCOUNT_PASSWORD: ${{ secrets.TEST_M365_PASSWORD_NEW }}
-      M365_USERNAME: "test01@atktesting.onmicrosoft.com"
-      M365_USERNAME_2: "test02@atktesting.onmicrosoft.com"
-      M365_USERNAME_3: "test03@atktesting.onmicrosoft.com"
-      M365_USERNAME_4: "test04@atktesting.onmicrosoft.com"
-      M365_USERNAME_5: "test05@atktesting.onmicrosoft.com"
-      M365_DISPLAY_NAME: "atktest"
-      M365_TENANT_ID: ${{ secrets.TEST_CLEAN_TENANT_ID_NEW }}
+      M365_ACCOUNT_PASSWORD: ${{ secrets.TEST_M365_PASSWORD }}
+      M365_USERNAME_1: "test21@xxbdw.onmicrosoft.com"
+      M365_USERNAME_2: "test22@xxbdw.onmicrosoft.com"
+      M365_USERNAME_3: "test23@xxbdw.onmicrosoft.com"
+      M365_USERNAME_4: "test24@xxbdw.onmicrosoft.com"
+      M365_USERNAME_5: "test25@xxbdw.onmicrosoft.com"
+      M365_DISPLAY_NAME: "test"
+      M365_TENANT_ID: ${{ secrets.TEST_CLEAN_TENANT_ID }}
       M365_COLLABORATOR: "admin@atktesting.onmicrosoft.com"
 
-      AZURE_TENANT_ID: ${{ secrets.TEST_TENANT_ID_NEW }}
-      AZURE_SUBSCRIPTION_ID: ${{ secrets.TEST_SUBSCRIPTION_ID_NEW }}
-      AZURE_SUBSCRIPTION_NAME: ${{ secrets.TEST_SUBSCRIPTION_NAME_NEW }}
-      AZURE_SERVICE_PRINCIPAL_ID: ${{ secrets.AZURE_SERVICE_PRINCIPAL_ID}}
-      AZURE_SERVICE_PRINCIPAL_SECRET: ${{ secrets.AZURE_SERVICE_PRINCIPAL_SECRET}}
-      AZURE_ACCOUNT_OBJECT_ID: ${{ secrets.TEST_APP_ID_NEW }}
-      AZURE_ACCOUNT_NAME: ${{ secrets.TEST_USER_NAME_NEW }}
-      AZURE_ACCOUNT_PASSWORD: ${{ secrets.TEST_USER_PASSWORD_NEW }}
+      AZURE_TENANT_ID: ${{ secrets.TEST_TENANT_ID }}
+      AZURE_SUBSCRIPTION_ID: ${{ secrets.TEST_SUBSCRIPTION_ID }}
+      AZURE_SUBSCRIPTION_NAME: ${{ secrets.TEST_SUBSCRIPTION_NAME }}
+      #AZURE_SERVICE_PRINCIPAL_ID: ${{ secrets.AZURE_SERVICE_PRINCIPAL_ID}}
+      #AZURE_SERVICE_PRINCIPAL_SECRET: ${{ secrets.AZURE_SERVICE_PRINCIPAL_SECRET}}
+      AZURE_ACCOUNT_OBJECT_ID: ${{ secrets.TEST_APP_ID }}
+      AZURE_ACCOUNT_NAME: ${{ secrets.TEST_USER_NAME }}
+      AZURE_ACCOUNT_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
 
       AZURE_OPENAI_DEPLOYMENT_NAME: "gpt-4.1"
       AZURE_OPENAI_ENDPOINT: "https://atk-test-open-ai.openai.azure.com/"
@@ -225,7 +225,7 @@ jobs:
       - name: Set m365 account (unix)
         if: matrix.os != 'windows-latest'
         run: |
-          users=("${{ env.M365_USERNAME }}" "${{ env.M365_USERNAME_2 }}" "${{ env.M365_USERNAME_3 }}" "${{ env.M365_USERNAME_4 }}")
+          users=("${{ env.M365_USERNAME_1 }}" "${{ env.M365_USERNAME_2 }}" "${{ env.M365_USERNAME_3 }}" "${{ env.M365_USERNAME_4 }}")
           count=${#users[@]}
           index=$((RANDOM%$count))
           echo "account index: $index"
@@ -234,7 +234,7 @@ jobs:
       - name: Set m365 account (win)
         if: matrix.os == 'windows-latest'
         run: |
-          $users=@("${{ env.M365_USERNAME }}","${{ env.M365_USERNAME_2 }}","${{ env.M365_USERNAME_3 }}","${{ env.M365_USERNAME_4 }}")
+          $users=@("${{ env.M365_USERNAME_1 }}","${{ env.M365_USERNAME_2 }}","${{ env.M365_USERNAME_3 }}","${{ env.M365_USERNAME_4 }}")
           $index=Get-Random -min 0 -max $users.count
           $user=$users[$index]
           echo "account index: $index"
@@ -718,6 +718,6 @@ jobs:
           TO: ${{ steps.list-jobs.outputs.to }}
           BODY: '"${{ steps.list-jobs.outputs.body }}"'
           SUBJECT: ${{ steps.list-jobs.outputs.subject }}
-          MAIL_CLIENT_ID: ${{ secrets.TEST_CLEAN_CLIENT_ID_NEW }}
-          MAIL_CLIENT_SECRET: ${{ secrets.TEST_CLEAN_CLIENT_SECRET_NEW }}
-          MAIL_TENANT_ID: ${{ secrets.TEST_CLEAN_TENANT_ID_NEW }}
+          MAIL_CLIENT_ID: ${{ secrets.TEST_CLEAN_CLIENT_ID }}
+          MAIL_CLIENT_SECRET: ${{ secrets.TEST_CLEAN_CLIENT_SECRET }}
+          MAIL_TENANT_ID: ${{ secrets.TEST_CLEAN_TENANT_ID }}
