@@ -4,7 +4,7 @@ This app template showcases how to build one of the most powerful applications e
 This app template also demonstrates usage of techniques like: 
 - [Retrieval Augmented Generation](https://python.langchain.com/docs/use_cases/question_answering/#what-is-rag), or RAG.
 - [Microsoft Graph Search API](https://learn.microsoft.com/graph/search-concept-overview)
-- [Teams AI Library](https://learn.microsoft.com/microsoftteams/platform/bots/how-to/teams%20conversational%20ai/teams-conversation-ai-overview)
+- [Microsoft Teams SDK](https://learn.microsoft.com/microsoftteams/platform/bots/how-to/teams%20conversational%20ai/teams-conversation-ai-overview)
 
 ## Quick Start
 
@@ -49,11 +49,11 @@ This app template also demonstrates usage of techniques like:
 
 ## Extend the agent template with more AI capabilities
 
-- You can follow [Get started with Teams AI library](https://learn.microsoft.com/en-us/microsoftteams/platform/bots/how-to/teams%20conversational%20ai/how-conversation-ai-get-started) to extend the agent template with more AI capabilities.
+- You can follow [Get started with Microsoft Teams SDK](https://learn.microsoft.com/en-us/microsoftteams/platform/bots/how-to/teams%20conversational%20ai/how-conversation-ai-get-started) to extend the agent template with more AI capabilities.
 - Understand more about [how to add additional APIs](https://aka.ms/teamsfx-rag-bot#add-more-api-for-custom-api-as-data-source).
 
 ## Additional information and references
-- [Teams AI library](https://aka.ms/teams-ai-library)
+- [Microsoft Teams SDK](https://aka.ms/teams-ai-library)
 - [Microsoft 365 Agents Toolkit Documentations](https://docs.microsoft.com/microsoftteams/platform/toolkit/teams-toolkit-fundamentals)
 - [Microsoft 365 Agents Toolkit CLI](https://aka.ms/teamsfx-toolkit-cli)
 - [Microsoft 365 Agents Toolkit Samples](https://github.com/OfficeDev/TeamsFx-Samples)

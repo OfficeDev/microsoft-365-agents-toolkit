@@ -75,7 +75,7 @@ app.on("message", async (context) => {
   if (text === "/runtime") {
     const runtime = {
       nodeversion: process.version,
-      sdkversion: "2.0.0", // Teams AI v2
+      sdkversion: "2.0.0", // Microsoft Teams SDK
     };
     await context.send(JSON.stringify(runtime));
     return;
