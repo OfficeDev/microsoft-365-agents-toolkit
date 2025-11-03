@@ -177,7 +177,9 @@ class SampleProvider {
       );
 
       if (readmeResponse && readmeResponse.data) {
-        return readmeResponse.data as string;
+        const rawReadme = readmeResponse.data as string;
+        const cleanedReadme = rawReadme.replace(/<a[^>]*class="anchor"[^>]*>.*?<\/a>/gi, "");
+        return cleanedReadme;
       } else {
         return "";
       }
