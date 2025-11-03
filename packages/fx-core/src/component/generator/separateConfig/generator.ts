@@ -2,6 +2,7 @@
 // Licensed under the MIT license.
 
 import {
+  ConfigFolderName,
   Context,
   err,
   FxError,
@@ -12,6 +13,7 @@ import {
   SystemError,
 } from "@microsoft/teamsfx-api";
 import fs from "fs-extra";
+import os from "os";
 import path from "path";
 import { getTemplatesFolder } from "../../../folder";
 import { ProgrammingLanguage, QuestionNames } from "../../../question/constants";
@@ -27,7 +29,14 @@ export class SeparateConfigGenerator extends DefaultTemplateGenerator {
 
   public override activate(context: Context, inputs: Inputs): boolean {
     const templateName = inputs[QuestionNames.TemplateName];
-    return ["non-sso-tab", "custom-copilot-rag-azure-ai-search"].includes(templateName);
+    const language = inputs[QuestionNames.ProgrammingLanguage] as ProgrammingLanguage;
+    const templateMetadata = getAllTemplatesOnPlatform(inputs.platform).find(
+      (t) => t.name === templateName && t.language === language
+    );
+    const templates = this.readTemplateConfigMetadata();
+    const templateConfig = templates.find((t) => t.id === templateMetadata?.id);
+
+    return templateConfig !== undefined;
   }
 
   protected override async post(
@@ -52,22 +61,34 @@ export class SeparateConfigGenerator extends DefaultTemplateGenerator {
         )
       );
     }
-    const templateConfigMetadata = await this.getTemplateConfigMetadata(templateMetadata.id);
+    const templateConfigMetadata = this.getTemplateConfigMetadata(templateMetadata.id);
     await scaffoldConfigComponents(templateConfigMetadata, destinationPath, inputs);
     return Promise.resolve(ok({}));
   }
 
-  private async getTemplateConfigMetadata(templateId: string) {
-    const metadataPath = path.join(getTemplatesFolder(), "metadata", "template-configs.json");
-    if (!fs.existsSync(metadataPath)) {
-      throw new Error("template-configs.json not found");
-    }
-
-    const templates: TemplateConfig[] = await fs.readJson(metadataPath);
+  private getTemplateConfigMetadata(templateId: string) {
+    const templates = this.readTemplateConfigMetadata();
     const templateConfig = templates.find((t) => t.id === templateId);
     if (!templateConfig) {
       throw new Error(`Template config for ${templateId} not found`);
     }
     return templateConfig;
+  }
+
+  private readTemplateConfigMetadata(): TemplateConfig[] {
+    // template translation files
+    let metadataPath = path.join(
+      os.homedir(),
+      `.${String(ConfigFolderName)}`,
+      "metadata",
+      "template-configs.json"
+    );
+
+    if (!fs.existsSync(metadataPath)) {
+      metadataPath = path.join(getTemplatesFolder(), "metadata", "template-configs.json");
+    }
+
+    const templates: TemplateConfig[] = fs.readJSONSync(metadataPath);
+    return templates;
   }
 }
