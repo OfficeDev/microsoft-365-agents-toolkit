@@ -2,8 +2,13 @@
   "servers": {
 {{#IsLocalMCP}}
     "{{MCPLocalServerName}}": {
-      "type": "local",
-      "endpoint": "{{MCPLocalServerIdentifier}}"
+      "type": "stdio",
+      "command": "odr.exe",
+      "args": [
+        "mcp",
+        "--proxy",
+        "{{MCPLocalServerIdentifier}}"
+      ]
     }
 {{/IsLocalMCP}}
 {{^IsLocalMCP}}

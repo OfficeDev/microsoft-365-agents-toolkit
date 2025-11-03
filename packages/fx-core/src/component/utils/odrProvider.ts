@@ -251,9 +251,8 @@ export class ODRProvider {
   }
 
   /**
-   * List all available local MCP servers
-   * TODO: Implement actual 'odr list' command execution when ODR provider is ready
-   * For now, returns dummy data for development and testing
+   * List all available local MCP servers from Windows ODR.
+   * This is used during project creation to show available servers to the user.
    */
   static async listServers(): Promise<ODRServer[]> {
     const execAsync = promisify(exec);
