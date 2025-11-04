@@ -4,7 +4,7 @@
     "msteams": {
         "teamsAppId": null
     },
-    "description": "Microsoft 365 Agents Toolkit RAG Bot Sample with Graph API and Teams AI Library",
+    "description": "Microsoft 365 Agents Toolkit RAG Bot Sample with Graph API and Microsoft Teams SDK",
     "engines": {
         "node": "18 || 20 || 22"
     },

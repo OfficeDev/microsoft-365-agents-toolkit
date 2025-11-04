@@ -1,6 +1,6 @@
 import { MemoryStorage, MessageFactory, TurnContext } from "botbuilder";
 
-// See https://aka.ms/teams-ai-library to learn more about the Teams AI library.
+// See https://aka.ms/teams-ai-library to learn more about the Microsoft Teams SDK.
 import { Application, AI, preview } from "@microsoft/teams-ai";
 
 import config from "../config";

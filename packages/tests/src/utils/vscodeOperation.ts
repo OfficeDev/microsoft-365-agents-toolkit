@@ -1552,7 +1552,7 @@ export async function createEnvironmentWithPython() {
   const driver = VSBrowser.instance.driver;
   await input.selectQuickPick("Venv");
   await driver.sleep(Timeout.input);
-  await input.selectQuickPick("Python 3.11");
+  await input.selectQuickPick("Python 3.12");
   await driver.sleep(Timeout.input);
   console.log("select all");
   await driver

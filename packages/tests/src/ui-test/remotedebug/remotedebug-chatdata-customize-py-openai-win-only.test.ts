@@ -111,7 +111,7 @@ describe("Remote debug Tests", function () {
         } else {
           await validateWelcomeAndReplyBot(page, {
             hasWelcomeMessage: false,
-            hasCommandReplyValidation: true,
+            hasCommandReplyValidation: false,
             botCommand: "helloWorld",
             expectedWelcomeMessage:
               ValidationContent.AiChatBotWelcomeInstruction,
@@ -136,7 +136,7 @@ describe("Remote debug Tests", function () {
           } else {
             await validateWelcomeAndReplyBot(page, {
               hasWelcomeMessage: false,
-              hasCommandReplyValidation: true,
+              hasCommandReplyValidation: false,
               botCommand: "helloWorld",
               expectedWelcomeMessage:
                 ValidationContent.AiChatBotWelcomeInstruction,

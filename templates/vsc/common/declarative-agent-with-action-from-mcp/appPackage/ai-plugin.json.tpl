@@ -8,7 +8,7 @@
   "namespace": "MCP",
   {{/IsLocalMCP}}
   {{^IsLocalMCP}}
-  "namespace": "{{appName}}",
+  "namespace": "{{SafeProjectNameLowerCase}}",
   {{/IsLocalMCP}}
   "functions": [],
   "runtimes": []

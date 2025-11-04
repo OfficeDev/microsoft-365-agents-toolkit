@@ -87,6 +87,10 @@ export class CreateOauthDriver implements StepDriver {
         if (clientId) {
           args.clientId = clientId;
         }
+        const scope = process.env[QuestionNames.OAuthScope];
+        if (scope) {
+          args.scope = scope;
+        }
 
         const clientSecret = process.env[QuestionNames.OauthClientSecret];
         if (clientSecret && !args.isPKCEEnabled && args.identityProvider !== "MicrosoftEntra") {
@@ -341,7 +345,7 @@ export class CreateOauthDriver implements StepDriver {
       authorizationEndpoint: authInfo.authorizationEndpoint,
       tokenExchangeEndpoint: authInfo.tokenExchangeEndpoint,
       tokenRefreshEndpoint: args.refreshUrl ?? authInfo.tokenRefreshEndpoint,
-      scopes: authInfo.scopes,
+      scopes: authInfo.scopes || [],
       identityProvider: "Custom",
       tokenExchangeMethodType: tokenExchangeMethodType,
       // TODO: add this part back after TDP update

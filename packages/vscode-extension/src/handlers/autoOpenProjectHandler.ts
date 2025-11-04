@@ -12,7 +12,6 @@ import {
   ShowScaffoldingWarningSummary,
 } from "../utils/autoOpenHelper";
 import { updateProjectStatus } from "../utils/projectStatusUtils";
-import { openWelcomeHandler } from "./controlHandlers";
 import {
   openReadMeHandler,
   openSampleReadmeHandler,

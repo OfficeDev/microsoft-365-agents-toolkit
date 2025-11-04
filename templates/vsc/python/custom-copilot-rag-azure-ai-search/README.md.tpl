@@ -4,7 +4,7 @@ This app template showcases how to build one of the most powerful applications e
 This app template also demonstrates usage of techniques like: 
 - [Retrieval Augmented Generation](https://python.langchain.com/docs/use_cases/question_answering/#what-is-rag), or RAG.
 - [Azure AI Search](https://learn.microsoft.com/azure/search/search-what-is-azure-search)
-- [Teams AI Library V2](https://aka.ms/teams-ai-library-v2)
+- [Microsoft Teams SDK](https://aka.ms/teams-ai-library-v2)
 
 ## Get started with the template
 
@@ -108,7 +108,7 @@ The following are Microsoft 365 Agents Toolkit specific project files. You can [
 
 ## Extend the template
 
-To extend the Basic AI Chatbot template with more AI capabilities, explore [Teams AI library V2 documentation](https://aka.ms/m365-agents-toolkit/teams-agent-extend-ai-python).
+To extend the Basic AI Chatbot template with more AI capabilities, explore [Microsoft Teams SDK documentation](https://aka.ms/m365-agents-toolkit/teams-agent-extend-ai-python).
 ## Additional information and references
 
 - [Microsoft 365 Agents Toolkit Documentations](https://docs.microsoft.com/microsoftteams/platform/toolkit/teams-toolkit-fundamentals)

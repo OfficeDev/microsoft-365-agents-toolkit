@@ -8,6 +8,7 @@ import { AccountItemStatus, azureIcon, loadingIcon } from "../../../src/treeview
 import { DynamicNode } from "../../../src/treeview/dynamicNode";
 import { featureFlagManager } from "@microsoft/teamsfx-core";
 import * as tools from "@microsoft/teamsfx-core/build/common/tools";
+import { localize } from "../../../src/utils/localizeUtils";
 
 describe("AzureNode", () => {
   const sandbox = sinon.createSandbox();
@@ -106,5 +107,30 @@ describe("AzureNode", () => {
   it("getChildren", () => {
     const azureNode = new AzureAccountNode(eventEmitter);
     chai.assert.isNull(azureNode.getChildren());
+  });
+
+  it("accessibility test for azure node", async () => {
+    const azureNode = new AzureAccountNode(eventEmitter);
+    await azureNode.setSignedIn("token", "", "test upn");
+    const treeItem = await azureNode.getTreeItem();
+
+    chai.assert.equal(
+      treeItem.accessibilityInformation?.label,
+      "test upn. " + localize("teamstoolkit.accountTree.azureAccountTooltip")
+    );
+
+    azureNode.label = undefined;
+    const treeItem2 = await azureNode.getTreeItem();
+    chai.assert.equal(
+      treeItem2.accessibilityInformation?.label,
+      ". " + localize("teamstoolkit.accountTree.azureAccountTooltip")
+    );
+
+    azureNode.label = { label: "test label" };
+    const treeItem3 = await azureNode.getTreeItem();
+    chai.assert.equal(
+      treeItem3.accessibilityInformation?.label,
+      "test label. " + localize("teamstoolkit.accountTree.azureAccountTooltip")
+    );
   });
 });

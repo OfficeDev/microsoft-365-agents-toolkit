@@ -1,7 +1,7 @@
 const { MemoryStorage, MessageFactory } = require("botbuilder");
 const config = require("../config");
 
-// See https://aka.ms/teams-ai-library to learn more about the Teams AI library.
+// See https://aka.ms/teams-ai-library to learn more about the Microsoft Teams SDK.
 const { Application, AI, preview } = require("@microsoft/teams-ai");
 
 {{#useOpenAI}}
