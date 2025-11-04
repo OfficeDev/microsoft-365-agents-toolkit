@@ -552,21 +552,18 @@ export function MCPLocalServerSelectionNode(): IQTreeNode {
           id: server.name,
           label: server.display_name,
           detail: `${server.description} (${server.tools.length} tools available)`,
+          data: server.identifier,
         }));
       },
-      onDidSelection: (itemOrId: string | OptionItem, inputs: Inputs) => {
-        const selectedServerName = typeof itemOrId === "string" ? itemOrId : itemOrId.id;
-        const selectedServer = mcpLocalServers.find(
-          (s: ODRServer) => s.name === selectedServerName
-        );
-
-        if (selectedServer) {
-          inputs[QuestionNames.MCPLocalServerName] = selectedServer.name;
-          inputs[QuestionNames.MCPLocalServerIdentifier] = selectedServer.identifier;
-          inputs[QuestionNames.MCPForDAAvailableTools] = selectedServer.tools;
-        }
+      onDidSelection: (item: string | OptionItem, inputs: Inputs) => {
+        try {
+          const serverInfo = item as OptionItem;
+          inputs[QuestionNames.MCPLocalServerName] = serverInfo.id;
+          inputs[QuestionNames.MCPLocalServerIdentifier] = serverInfo.data;
+        } catch {}
       },
     },
+    children: [],
   };
 }
 
