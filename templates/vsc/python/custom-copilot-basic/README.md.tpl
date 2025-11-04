@@ -1,11 +1,7 @@
 # Overview of the Basic AI Chatbot template
 
-This app template is built on top of [Teams AI library](https://aka.ms/teams-ai-library).
+This app template is built on top of [Microsoft Teams SDK](https://aka.ms/teams-ai-library-v2).
 This template showcases an agent app that responds to user questions like an AI assistant. This enables your users to talk with the AI assistant in Teams to find information.
-
-> **Note**
->
-> [Teams AI library V2](https://aka.ms/teams-ai-library-v2) is recommended. This template will be upgraded to Teams AI V2 soon.
 
 ## Get started with the template
 
@@ -13,7 +9,7 @@ This template showcases an agent app that responds to user questions like an AI 
 >
 > To run the template in your local dev machine, you will need:
 >
-> - [Python](https://www.python.org/), version 3.8 to 3.11.
+> - [Python](https://www.python.org/) v3.12 or higher.
 > - [Python extension](https://code.visualstudio.com/docs/languages/python), version v2024.0.1 or higher.
 > - [Microsoft 365 Agents Toolkit Visual Studio Code Extension](https://aka.ms/teams-toolkit) latest version or [Microsoft 365 Agents Toolkit CLI](https://aka.ms/teams-toolkit-cli).
 {{#useAzureOpenAI}}
@@ -61,11 +57,9 @@ The following files can be customized and demonstrate an example implementation 
 
 | File                                 | Contents                                           |
 | - | - |
-|`src/app.py`| Hosts an aiohttp api server and exports an app module.|
-|`src/bot.py`| Handles business logics for the Basic AI Chatbot.|
+|`src/app.py`| Handles business logics for the Basic AI Chatbot.|
 |`src/config.py`| Defines the environment variables.|
-|`src/prompts/chat/skprompt.txt`| Defines the prompt.|
-|`src/prompts/chat/config.json`| Configures the prompt.|
+|`src/instructions.txt`| Defines the prompt.|
 
 The following are Microsoft 365 Agents Toolkit specific project files. You can [visit a complete guide on Github](https://github.com/OfficeDev/TeamsFx/wiki/Teams-Toolkit-Visual-Studio-Code-v5-Guide#overview) to understand how Microsoft 365 Agents Toolkit works.
 
@@ -77,13 +71,7 @@ The following are Microsoft 365 Agents Toolkit specific project files. You can [
 
 ## Extend the template
 
-You can follow [Build a Basic AI Chatbot in Teams](https://aka.ms/teamsfx-basic-ai-chatbot) to extend the Basic AI Chatbot template with more AI capabilities, like:
-- [Customize prompt](https://aka.ms/teamsfx-basic-ai-chatbot#customize-prompt)
-- [Customize user input](https://aka.ms/teamsfx-basic-ai-chatbot#customize-user-input)
-- [Customize conversation history](https://aka.ms/teamsfx-basic-ai-chatbot#customize-conversation-history)
-- [Customize model type](https://aka.ms/teamsfx-basic-ai-chatbot#customize-model-type)
-- [Customize model parameters](https://aka.ms/teamsfx-basic-ai-chatbot#customize-model-parameters)
-- [Handle messages with image](https://aka.ms/teamsfx-basic-ai-chatbot#handle-messages-with-image)
+To extend the Basic AI Chatbot template with more AI capabilities, explore [Microsoft Teams SDK documentation](https://aka.ms/m365-agents-toolkit/teams-agent-extend-ai-python).
 
 ## Additional information and references
 

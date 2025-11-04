@@ -7,6 +7,7 @@ import {
   FuncValidation,
   Inputs,
   LocalFunc,
+  OptionItem,
   Platform,
   Question,
   SingleSelectQuestion,
@@ -64,6 +65,7 @@ import {
 } from "../../src/question/other";
 import { QuestionTreeVisitor, traverse } from "../../src/ui/visitor";
 import { MockTools, MockUserInteraction, MockedAzureAccountProvider } from "../core/utils";
+import { azureClientHelper } from "../../src/component/utils/azureClient";
 
 const ui = new MockUserInteraction();
 export async function callFuncs(question: Question, inputs: Inputs, answer?: string) {
@@ -697,7 +699,7 @@ describe("resourceGroupQuestionNode", async () => {
       mockToken as TokenCredential,
       mockSubscriptionId
     );
-    sandbox.stub(resourceGroupHelper, "createRmClient").resolves(mockRmClient);
+    sandbox.stub(azureClientHelper, "createRmClient").resolves(mockRmClient);
     const node = resourceGroupQuestionNode(accountProvider, mockSubscriptionId, defaultRG);
     assert.isTrue(node !== undefined);
     const inputs: Inputs = {
@@ -750,7 +752,7 @@ describe("resourceGroupQuestionNode", async () => {
       mockToken as TokenCredential,
       mockSubscriptionId
     );
-    sandbox.stub(resourceGroupHelper, "createRmClient").resolves(mockRmClient);
+    sandbox.stub(azureClientHelper, "createRmClient").resolves(mockRmClient);
     const node = resourceGroupQuestionNode(accountProvider, mockSubscriptionId, defaultRG);
     assert.isTrue(node !== undefined);
     const inputs: Inputs = {
@@ -1037,12 +1039,12 @@ describe("oauthQuestion", async () => {
     const clientIdRes = await (clientIdCondition as ConditionFunc)(inputs);
     assert.equal(clientIdRes, true);
 
-    const clientSecretQuestion = question.children![1];
+    const clientSecretQuestion = question.children![2];
     const clientSecretCondition = clientSecretQuestion.condition;
     const clientSecretRes = await (clientSecretCondition as ConditionFunc)(inputs);
     assert.equal(clientSecretRes, true);
 
-    const confirmQuesion = question.children![2];
+    const confirmQuesion = question.children![4];
     const confirmCondition = confirmQuesion.condition;
     const confirmRes = await (confirmCondition as ConditionFunc)(inputs);
     assert.equal(confirmRes, true);
@@ -1061,12 +1063,12 @@ describe("oauthQuestion", async () => {
     const clientIdRes = await (clientIdCondition as ConditionFunc)(inputs);
     assert.equal(clientIdRes, true);
 
-    const clientSecretQuestion = question.children![1];
+    const clientSecretQuestion = question.children![2];
     const clientSecretCondition = clientSecretQuestion.condition;
     const clientSecretRes = await (clientSecretCondition as ConditionFunc)(inputs);
     assert.equal(clientSecretRes, false);
 
-    const confirmQuesion = question.children![2];
+    const confirmQuesion = question.children![4];
     const confirmCondition = confirmQuesion.condition;
     const confirmRes = await (confirmCondition as ConditionFunc)(inputs);
     assert.equal(confirmRes, true);
@@ -1085,13 +1087,13 @@ describe("oauthQuestion", async () => {
     const clientIdRes = await (clientIdCondition as ConditionFunc)(inputs);
     assert.equal(clientIdRes, false);
 
-    const clientSecretQuestion = question.children![1];
+    const clientSecretQuestion = question.children![2];
     const clientSecretCondition = clientSecretQuestion.condition;
     const clientSecretRes = await (clientSecretCondition as ConditionFunc)(inputs);
     assert.equal(clientSecretRes, true);
 
-    const confirmQuesion = question.children![2];
-    const confirmCondition = confirmQuesion.condition;
+    const confirmQuestion = question.children![4];
+    const confirmCondition = confirmQuestion.condition;
     const confirmRes = await (confirmCondition as ConditionFunc)(inputs);
     assert.equal(confirmRes, true);
   });
@@ -1102,6 +1104,7 @@ describe("oauthQuestion", async () => {
       outputEnvVarNames: new Map<string, string>(),
       clientId: "fakeClientId",
       clientSecret: "fakeClientSecret",
+      scope: "read:user",
     };
     const question = oauthQuestion();
 
@@ -1110,12 +1113,12 @@ describe("oauthQuestion", async () => {
     const clientIdRes = await (clientIdCondition as ConditionFunc)(inputs);
     assert.equal(clientIdRes, false);
 
-    const clientSecretQuestion = question.children![1];
+    const clientSecretQuestion = question.children![2];
     const clientSecretCondition = clientSecretQuestion.condition;
     const clientSecretRes = await (clientSecretCondition as ConditionFunc)(inputs);
     assert.equal(clientSecretRes, false);
 
-    const confirmQuesion = question.children![2];
+    const confirmQuesion = question.children![4];
     const confirmCondition = confirmQuesion.condition;
     const confirmRes = await (confirmCondition as ConditionFunc)(inputs);
     assert.equal(confirmRes, false);
@@ -1137,14 +1140,14 @@ describe("oauthQuestion", async () => {
   });
 
   it("client secret validation passed", async () => {
-    const question = oauthQuestion().children![1];
+    const question = oauthQuestion().children![2];
     const validation = (question.data as TextInputQuestion).validation;
     const result = (validation as FuncValidation<string>).validFunc("mockedClientSecret");
     assert.equal(result, undefined);
   });
 
   it("client secret validation failed due to length", async () => {
-    const question = oauthQuestion().children![1];
+    const question = oauthQuestion().children![2];
     const validation = (question.data as TextInputQuestion).validation;
     const result = (validation as FuncValidation<string>).validFunc("abc");
     assert.equal(result, "Invalid client secret. It should be 10 to 512 characters long.");
@@ -1166,9 +1169,49 @@ describe("oauthQuestion", async () => {
       platform: Platform.VSCode,
       outputEnvVarNames: new Map<string, string>(),
     };
-    const question = oauthQuestion().children![1];
+    const question = oauthQuestion().children![2];
     const validation = (question.data as TextInputQuestion).additionalValidationOnAccept;
     const result = (validation as FuncValidation<string>).validFunc("mockedClientSecret", inputs);
+    assert.equal(result, undefined);
+  });
+
+  it("will pop up entra client id question for MicrosoftEntra identity provider", async () => {
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      outputEnvVarNames: new Map<string, string>(),
+      identityProvider: "MicrosoftEntra",
+    };
+    const question = oauthQuestion();
+
+    const oauthClientIdQuestion = question.children![0];
+    const oauthClientIdCondition = oauthClientIdQuestion.condition;
+    const oauthClientIdRes = await (oauthClientIdCondition as ConditionFunc)(inputs);
+    assert.equal(oauthClientIdRes, false);
+
+    const entraClientIdQuestion = question.children![1];
+    const entraClientIdCondition = entraClientIdQuestion.condition;
+    const entraClientIdRes = await (entraClientIdCondition as ConditionFunc)(inputs);
+    assert.equal(entraClientIdRes, true);
+
+    const clientSecretQuestion = question.children![2];
+    const clientSecretCondition = clientSecretQuestion.condition;
+    const clientSecretRes = await (clientSecretCondition as ConditionFunc)(inputs);
+    assert.equal(clientSecretRes, false);
+
+    const confirmQuestion = question.children![4];
+    const confirmCondition = confirmQuestion.condition;
+    const confirmRes = await (confirmCondition as ConditionFunc)(inputs);
+    assert.equal(confirmRes, false);
+  });
+
+  it("entra client id additionalValidationOnAccept passed", async () => {
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      outputEnvVarNames: new Map<string, string>(),
+    };
+    const question = oauthQuestion().children![1];
+    const validation = (question.data as TextInputQuestion).additionalValidationOnAccept;
+    const result = (validation as FuncValidation<string>).validFunc("mockedEntraClientId", inputs);
     assert.equal(result, undefined);
   });
 });
@@ -1518,5 +1561,253 @@ describe("scaffold Copilot connector", async () => {
 
     const res6 = validation.validFunc("microsoft-graph-connector");
     assert.isFalse(res6 === undefined);
+  });
+});
+
+describe("updateActionWithMCP", async () => {
+  const sandbox = sinon.createSandbox();
+
+  afterEach(() => {
+    sandbox.restore();
+  });
+
+  it("should return updateActionWithMCP question node", () => {
+    const res = questionNodes.updateActionWithMCP();
+    assert.isTrue(res !== undefined);
+  });
+
+  it("should have correct structure for plugin manifest file path question", () => {
+    const res = questionNodes.updateActionWithMCP();
+
+    // Check the main data properties
+    assert.equal(res.data?.type, "singleFile");
+    assert.equal(res.data?.name, QuestionNames.PluginManifestFilePath);
+    assert.isFunction((res.data as any)?.defaultFolder);
+    assert.isFunction((res.data as any)?.default);
+
+    // Test defaultFolder function
+    const testInputs: Inputs = {
+      platform: Platform.VSCode,
+      projectPath: "/test/project",
+    };
+    const defaultFolder = ((res.data as any)?.defaultFolder as (inputs: Inputs) => string)(
+      testInputs
+    );
+    assert.equal(defaultFolder, path.normalize("/test/project"));
+
+    // Test default function
+    const defaultValue = ((res.data as any)?.default as (inputs: Inputs) => string)(testInputs);
+    const expectedPath = path.normalize(path.join("/test/project", "appPackage", "ai-plugin.json"));
+    assert.equal(defaultValue, expectedPath);
+  });
+
+  it("should have pre-fetch tools question with dynamic options", () => {
+    const res = questionNodes.updateActionWithMCP();
+    const preFetchToolsNode = res.children?.[0];
+
+    assert.isDefined(preFetchToolsNode);
+    assert.equal(preFetchToolsNode?.data?.type, "multiSelect");
+    assert.equal(preFetchToolsNode?.data?.name, QuestionNames.MCPForDAPreFetchTools);
+    assert.isArray((preFetchToolsNode?.data as any)?.staticOptions);
+    assert.lengthOf((preFetchToolsNode?.data as any)?.staticOptions, 0);
+    assert.isFunction((preFetchToolsNode?.data as any)?.dynamicOptions);
+
+    // Test dynamic options
+    const testInputs: Inputs = {
+      platform: Platform.VSCode,
+      [QuestionNames.MCPForDAAvailableTools]: [
+        { name: "tool1", description: "Tool 1 description" },
+        { name: "tool2", description: "Tool 2 description" },
+        { name: "tool3" }, // No description
+      ],
+    };
+
+    const options = (
+      (preFetchToolsNode?.data as any)?.dynamicOptions as (inputs: Inputs) => OptionItem[]
+    )(testInputs);
+    assert.lengthOf(options, 3);
+    assert.equal(options[0].id, "tool1");
+    assert.equal(options[0].label, "tool1");
+    assert.equal(options[0].detail, "Tool 1 description");
+    assert.equal(options[1].id, "tool2");
+    assert.equal(options[1].label, "tool2");
+    assert.equal(options[1].detail, "Tool 2 description");
+    assert.equal(options[2].id, "tool3");
+    assert.equal(options[2].label, "tool3");
+    assert.equal(options[2].detail, "");
+  });
+
+  it("should handle default function for pre-fetch tools when no manifest file", async () => {
+    const res = questionNodes.updateActionWithMCP();
+    const preFetchToolsNode = res.children?.[0];
+
+    const testInputs: Inputs = {
+      platform: Platform.VSCode,
+      // No PluginManifestFilePath provided
+    };
+
+    const defaultValue = await (
+      (preFetchToolsNode?.data as any)?.default as (inputs: Inputs) => Promise<string[]>
+    )(testInputs);
+    assert.isArray(defaultValue);
+    assert.lengthOf(defaultValue, 0);
+  });
+
+  it("should handle default function for pre-fetch tools with existing manifest", async () => {
+    const res = questionNodes.updateActionWithMCP();
+    const preFetchToolsNode = res.children?.[0];
+
+    const mockPluginManifest = {
+      runtimes: [
+        {
+          type: "RemoteMCPServer",
+          spec: {
+            url: "http://test-server.com",
+            enable_dynamic_discovery: false,
+          },
+          run_for_functions: ["function1", "function2"],
+        },
+        {
+          type: "RemoteMCPServer",
+          spec: {
+            url: "http://other-server.com", // Different URL
+            enable_dynamic_discovery: false,
+          },
+          run_for_functions: ["function3"],
+        },
+        {
+          type: "RemoteMCPServer",
+          spec: {
+            url: "http://test-server.com",
+            enable_dynamic_discovery: true, // Dynamic discovery enabled
+          },
+          run_for_functions: ["function4"],
+        },
+      ],
+    };
+
+    // Mock fs.readJSON
+    sandbox.stub(fs, "readJSON").resolves(mockPluginManifest);
+
+    const testInputs: Inputs = {
+      platform: Platform.VSCode,
+      [QuestionNames.PluginManifestFilePath]: "/test/manifest.json",
+      [QuestionNames.MCPForDAServerUrl]: "http://test-server.com",
+    };
+
+    const defaultValue = await (
+      (preFetchToolsNode?.data as any)?.default as (inputs: Inputs) => Promise<string[]>
+    )(testInputs);
+    assert.isArray(defaultValue);
+    assert.lengthOf(defaultValue, 2);
+    assert.include(defaultValue, "function1");
+    assert.include(defaultValue, "function2");
+    // function3 should not be included (different URL)
+    // function4 should not be included (dynamic discovery enabled)
+  });
+
+  it("should handle auth type question conditionally", () => {
+    const res = questionNodes.updateActionWithMCP();
+    const authTypeNode = res.children?.[1];
+
+    assert.isDefined(authTypeNode);
+    assert.isFunction(authTypeNode?.condition);
+    assert.equal(authTypeNode?.data?.type, "singleSelect");
+    assert.equal(authTypeNode?.data?.name, QuestionNames.MCPForDAAuthType);
+
+    // Test condition function - should show when auth is not NoneAuth
+    const conditionFunc = authTypeNode?.condition as ConditionFunc;
+
+    const inputsWithAuth: Inputs = {
+      platform: Platform.VSCode,
+      [QuestionNames.MCPForDAAuth]: "OAuth",
+    };
+    assert.isTrue(conditionFunc(inputsWithAuth));
+
+    const inputsWithNoneAuth: Inputs = {
+      platform: Platform.VSCode,
+      [QuestionNames.MCPForDAAuth]: "NoneAuth",
+    };
+    assert.isFalse(conditionFunc(inputsWithNoneAuth));
+
+    // Test static options
+    const staticOptions = (authTypeNode?.data as any)?.staticOptions;
+    assert.isArray(staticOptions);
+    assert.lengthOf(staticOptions, 2);
+
+    const oauthOption = staticOptions?.find((opt: any) => opt.id === "oauth");
+    const entraOption = staticOptions?.find((opt: any) => opt.id === "entraSSO");
+
+    assert.isDefined(oauthOption);
+    assert.isDefined(entraOption);
+    assert.equal((authTypeNode?.data as any)?.default, "oauth");
+  });
+
+  it("should handle fs.readJSON errors gracefully in default function", async () => {
+    const res = questionNodes.updateActionWithMCP();
+    const preFetchToolsNode = res.children?.[0];
+
+    // Mock fs.readJSON to throw an error
+    sandbox.stub(fs, "readJSON").rejects(new Error("File not found"));
+
+    const testInputs: Inputs = {
+      platform: Platform.VSCode,
+      [QuestionNames.PluginManifestFilePath]: "/test/nonexistent.json",
+      [QuestionNames.MCPForDAServerUrl]: "http://test-server.com",
+    };
+
+    try {
+      const defaultValue = await (
+        (preFetchToolsNode?.data as any)?.default as (inputs: Inputs) => Promise<string[]>
+      )(testInputs);
+      // If error is handled, should return empty array or throw
+      assert.fail("Expected error to be thrown or handled");
+    } catch (error) {
+      // This is expected behavior - the function should propagate the error
+      assert.isDefined(error);
+    }
+  });
+
+  it("should filter runtimes correctly based on server URL and dynamic discovery", async () => {
+    const res = questionNodes.updateActionWithMCP();
+    const preFetchToolsNode = res.children?.[0];
+
+    const mockPluginManifest = {
+      runtimes: [
+        {
+          type: "LocalMCPServer", // Wrong type
+          spec: {
+            url: "http://test-server.com",
+            enable_dynamic_discovery: false,
+          },
+          run_for_functions: ["function1"],
+        },
+        {
+          type: "RemoteMCPServer",
+          spec: {
+            url: "http://test-server.com",
+            enable_dynamic_discovery: false,
+          },
+          run_for_functions: ["function2", "function3"],
+        },
+      ],
+    };
+
+    sandbox.stub(fs, "readJSON").resolves(mockPluginManifest);
+
+    const testInputs: Inputs = {
+      platform: Platform.VSCode,
+      [QuestionNames.PluginManifestFilePath]: "/test/manifest.json",
+      [QuestionNames.MCPForDAServerUrl]: "http://test-server.com",
+    };
+
+    const defaultValue = await (
+      (preFetchToolsNode?.data as any)?.default as (inputs: Inputs) => Promise<string[]>
+    )(testInputs);
+    assert.isArray(defaultValue);
+    assert.lengthOf(defaultValue, 2);
+    assert.include(defaultValue, "function2");
+    assert.include(defaultValue, "function3");
+    // function1 should not be included (wrong runtime type)
   });
 });

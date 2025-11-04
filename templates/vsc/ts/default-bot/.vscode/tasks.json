@@ -145,7 +145,7 @@
                 "background": {
                     "activeOnStart": true,
                     "beginsPattern": "[nodemon] starting",
-                    "endsPattern": "Server listening to|[nodemon] app crashed"
+                    "endsPattern": "app listening to|Bot/ME service listening at|[nodemon] app crashed"
                 }
             }
         },
@@ -156,8 +156,7 @@
             "isBackground": true,
             "options": {
                 "env": {
-                  "PATH": "${workspaceFolder}/devTools/teamsapptester/node_modules/.bin:${env:PATH}",
-                  "DEFAULT_CHANNEL_ID": "emulator"
+                  "PATH": "${workspaceFolder}/devTools/teamsapptester/node_modules/.bin:${env:PATH}"
                 }
             },
             "windows": {
@@ -280,7 +279,7 @@
                 "background": {
                     "activeOnStart": true,
                     "beginsPattern": "[nodemon] starting",
-                    "endsPattern": "Server listening to|[nodemon] app crashed"
+                    "endsPattern": "app listening to|Bot/ME service listening at|[nodemon] app crashed"
                 }
             }
         },

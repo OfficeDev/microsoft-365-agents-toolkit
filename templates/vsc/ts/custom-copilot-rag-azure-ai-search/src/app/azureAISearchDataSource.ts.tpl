@@ -168,7 +168,7 @@ export class AzureAISearchDataSource {
     private async getEmbeddingVector(text: string): Promise<number[]> {
         {{#useOpenAI}}
         const client = new OpenAI({
-            apiKey: this.options.azureOpenAIApiKey
+            apiKey: this.options.apiKey
         });
         const result = await client.embeddings.create({
             input: text,

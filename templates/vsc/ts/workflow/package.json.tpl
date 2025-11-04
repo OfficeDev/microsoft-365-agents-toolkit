@@ -27,8 +27,8 @@
         "adaptivecards-templating": "^2.3.1",
         "adaptive-expressions": "^4.23.1",
         "adaptivecards": "^3.0.5",
-        "@microsoft/teams.apps": "preview",
-        "@microsoft/teams.common": "preview"
+        "@microsoft/teams.apps": "^2.0.0",
+        "@microsoft/teams.common": "^2.0.0"
     },
     "devDependencies": {
         "@types/node": "^20.0.0",

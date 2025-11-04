@@ -4,6 +4,7 @@ import {
   ConditionFunc,
   Inputs,
   LocalFunc,
+  OptionItem,
   Platform,
   SingleSelectQuestion,
   StringValidation,
@@ -23,24 +24,23 @@ import { scaffoldQuestionForVS } from "../../src/question/scaffold/vs/createRoot
 import {
   ActionStartOptions,
   BotCapabilityOptions,
-  CustomCopilotCapabilityOptions,
   CustomEngineAgentOptions,
   DACapabilityOptions,
   MeCapabilityOptions,
   OfficeAddinCapabilityOptions,
   TabCapabilityOptions,
-  TdpCapabilityOptions,
+  TeamsAgentCapabilityOptions,
 } from "../../src/question/scaffold/vsc/CapabilityOptions";
 import { ProjectTypeOptions } from "../../src/question/scaffold/vsc/ProjectTypeOptions";
 import {
   createFromTdpNode,
   getTemplateName,
-  isTdpTemplate,
 } from "../../src/question/scaffold/vsc/createFromTdpNode";
 import {
   folderAndAppNameCondition,
   getProjectTypeByCapability,
-  getTeamsProjectTypeByCapability,
+  getTeamsAppTypeByCapability,
+  getTeamsCapabilityByCapability,
   languageNode,
   scaffoldQuestionForVSCode,
 } from "../../src/question/scaffold/vsc/createRootNode";
@@ -117,22 +117,6 @@ describe("getTemplateName", () => {
     messageHandlers: [],
   };
 
-  it("return TabNonSsoAndDefaultBot", () => {
-    const appDefinition: AppDefinition = {
-      teamsAppId: "id",
-      staticTabs: [validStaticTab],
-      messagingExtensions: [validMessagingExtension],
-    };
-
-    const inputs: Inputs = {
-      platform: Platform.VSCode,
-      teamsAppFromTdp: appDefinition,
-    };
-
-    const res = getTemplateName(inputs);
-    assert.equal(res, TemplateNames.TabAndDefaultBot);
-  });
-
   it("return TabNonSso", () => {
     const appDefinition: AppDefinition = {
       teamsAppId: "id",
@@ -161,7 +145,7 @@ describe("getTemplateName", () => {
     };
 
     const res = getTemplateName(inputs);
-    assert.equal(res, TemplateNames.BotAndMessageExtension);
+    assert.equal(res, TemplateNames.DefaultBot);
   });
 
   it("return MessageExtension", () => {
@@ -176,7 +160,7 @@ describe("getTemplateName", () => {
     };
 
     const res = getTemplateName(inputs);
-    assert.equal(res, TemplateNames.MessageExtension);
+    assert.equal(res, TemplateNames.DefaultMessageExtension);
   });
 
   it("return bot", () => {
@@ -206,28 +190,6 @@ describe("getTemplateName", () => {
 
     const res = getTemplateName(inputs);
     assert.isUndefined(res);
-  });
-
-  it("tdp cli test", () => {
-    sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
-    const inputs: Inputs = {
-      platform: Platform.CLI,
-      nonInteractive: true,
-      [QuestionNames.Capabilities]: TdpCapabilityOptions.me().id,
-    };
-    const res = getTemplateName(inputs);
-    assert.equal(res, TemplateNames.MessageExtension);
-  });
-
-  it("isTdpTemplate", () => {
-    sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
-    const inputs: Inputs = {
-      platform: Platform.CLI,
-      nonInteractive: true,
-      [QuestionNames.Capabilities]: TdpCapabilityOptions.me().id,
-    };
-    const res = isTdpTemplate(inputs);
-    assert.isTrue(res);
   });
 });
 
@@ -301,6 +263,84 @@ describe("daProjectTypeNode", () => {
 
     const conditionFunc = apiSpecChildNode?.condition as ConditionFunc;
     assert.isTrue(conditionFunc(testInputs));
+  });
+
+  it("should include MCP option when MCPForDA feature flag is enabled", () => {
+    sandbox.stub(featureFlagManager, "getBooleanValue").callsFake((flag) => {
+      if (flag === FeatureFlags.MCPForDA) {
+        return true;
+      }
+      return false;
+    });
+
+    const node = daProjectTypeNode();
+    const withPluginNode = node.children?.[0];
+    assert.isDefined(withPluginNode);
+
+    const actionTypeNode = withPluginNode?.children?.[0];
+    assert.isDefined(actionTypeNode);
+
+    const actionTypeData = actionTypeNode?.data as SingleSelectQuestion;
+    assert.isDefined(actionTypeData);
+    assert.isDefined(actionTypeData.staticOptions);
+
+    // Check that MCP option is included in staticOptions
+    const staticOptions = actionTypeData.staticOptions;
+    let mcpOption: string | OptionItem | undefined;
+
+    if (Array.isArray(staticOptions) && staticOptions.length > 0) {
+      if (typeof staticOptions[0] === "string") {
+        mcpOption = (staticOptions as string[]).find(
+          (option) => option === ActionStartOptions.mcp().id
+        );
+      } else {
+        mcpOption = (staticOptions as OptionItem[]).find(
+          (option) => option.id === ActionStartOptions.mcp().id
+        );
+      }
+    }
+
+    assert.isDefined(mcpOption);
+    const mcpOptionId = typeof mcpOption === "string" ? mcpOption : mcpOption?.id;
+    assert.equal(mcpOptionId, "mcp");
+  });
+
+  it("should not include MCP option when MCPForDA feature flag is disabled", () => {
+    sandbox.stub(featureFlagManager, "getBooleanValue").callsFake((flag) => {
+      if (flag === FeatureFlags.MCPForDA) {
+        return false;
+      }
+      return false;
+    });
+
+    const node = daProjectTypeNode();
+    const withPluginNode = node.children?.[0];
+    assert.isDefined(withPluginNode);
+
+    const actionTypeNode = withPluginNode?.children?.[0];
+    assert.isDefined(actionTypeNode);
+
+    const actionTypeData = actionTypeNode?.data as SingleSelectQuestion;
+    assert.isDefined(actionTypeData);
+    assert.isDefined(actionTypeData.staticOptions);
+
+    // Check that MCP option is not included in staticOptions
+    const staticOptions = actionTypeData.staticOptions;
+    let mcpOption: string | OptionItem | undefined;
+
+    if (Array.isArray(staticOptions) && staticOptions.length > 0) {
+      if (typeof staticOptions[0] === "string") {
+        mcpOption = (staticOptions as string[]).find(
+          (option) => option === ActionStartOptions.mcp().id
+        );
+      } else {
+        mcpOption = (staticOptions as OptionItem[]).find(
+          (option) => option.id === ActionStartOptions.mcp().id
+        );
+      }
+    }
+
+    assert.isUndefined(mcpOption);
   });
 });
 
@@ -511,20 +551,20 @@ describe("getProjectTypeByCapability", () => {
     assert.equal(type, ProjectTypeOptions.customEngineAgentOptionId);
   });
   it("Agent for Teams", () => {
-    const type = getProjectTypeByCapability(CustomCopilotCapabilityOptions.customCopilotRag().id);
-    assert.equal(type, ProjectTypeOptions.agentForTeamsOptionId);
+    const type = getProjectTypeByCapability(TeamsAgentCapabilityOptions.customCopilotRag().id);
+    assert.equal(type, ProjectTypeOptions.teamsOptionId);
   });
   it("Bot", () => {
     const type = getProjectTypeByCapability(BotCapabilityOptions.basicBot().id);
-    assert.equal(type, ProjectTypeOptions.teamsAppOptionId);
+    assert.equal(type, ProjectTypeOptions.teamsOptionId);
   });
   it("Tab", () => {
     const type = getProjectTypeByCapability(TabCapabilityOptions.nonSsoTab().id);
-    assert.equal(type, ProjectTypeOptions.teamsAppOptionId);
+    assert.equal(type, ProjectTypeOptions.teamsOptionId);
   });
   it("ME", () => {
-    const type = getProjectTypeByCapability(MeCapabilityOptions.m365SearchMe().id);
-    assert.equal(type, ProjectTypeOptions.teamsAppOptionId);
+    const type = getProjectTypeByCapability(MeCapabilityOptions.basicMe().id);
+    assert.equal(type, ProjectTypeOptions.teamsOptionId);
   });
   it("WXP", () => {
     const type = getProjectTypeByCapability(OfficeAddinCapabilityOptions.wxpTaskPane().id);
@@ -536,17 +576,42 @@ describe("getProjectTypeByCapability", () => {
   });
 });
 
-describe("getTeamsProjectTypeByCapability", () => {
+describe("getTeamsAppTypeByCapability", () => {
   it("Tab", () => {
-    const type = getTeamsProjectTypeByCapability(TabCapabilityOptions.nonSsoTab().id);
-    assert.equal(type, TeamsProjectTypeOptions.tabOptionId);
+    const type = getTeamsAppTypeByCapability(TabCapabilityOptions.nonSsoTab().id);
+    assert.equal(type, "others");
+  });
+  it("Invalid", () => {
+    const type = getTeamsCapabilityByCapability("invalid");
+    assert.equal(type, "");
+  });
+});
+
+describe("getTeamsCapabilityByCapability", () => {
+  it("Tab", () => {
+    const type = getTeamsCapabilityByCapability(TabCapabilityOptions.nonSsoTab().id);
+    assert.equal(type, TabCapabilityOptions.nonSsoTab().id);
   });
   it("Bot", () => {
-    const type = getTeamsProjectTypeByCapability(BotCapabilityOptions.basicBot().id);
-    assert.equal(type, TeamsProjectTypeOptions.botOptionId);
+    const type = getTeamsCapabilityByCapability(BotCapabilityOptions.basicBot().id);
+    assert.equal(type, BotCapabilityOptions.basicBot().id);
   });
-  it("Message Extension", () => {
-    const type = getTeamsProjectTypeByCapability(MeCapabilityOptions.m365SearchMe().id);
-    assert.equal(type, TeamsProjectTypeOptions.meOptionId);
+  it("Invalid", () => {
+    const type = getTeamsCapabilityByCapability("invalid");
+    assert.equal(type, "");
+  });
+});
+
+describe("ActionStartOptions", () => {
+  it("mcp() should return correct OptionItem", () => {
+    const mcpOption = ActionStartOptions.mcp();
+
+    assert.equal(mcpOption.id, "mcp");
+    assert.equal(mcpOption.label, getLocalizedString("core.createProjectQuestion.mcpForDa.label"));
+    assert.equal(
+      mcpOption.detail,
+      getLocalizedString("core.createProjectQuestion.mcpForDa.detail")
+    );
+    assert.equal(mcpOption.data, TemplateNames.DeclarativeAgentWithActionFromMCP);
   });
 });

@@ -6,14 +6,16 @@ import Cryptr from "cryptr";
 
 export class LocalCrypto implements CryptoProvider {
   private cryptr: Cryptr;
+  private fixedCryptr: Cryptr;
   private prefix = "crypto_";
 
   constructor(projectId: string) {
     this.cryptr = new Cryptr(projectId + "_teamsfx");
+    this.fixedCryptr = new Cryptr("teamsfx_global_key");
   }
 
   public encrypt(plaintext: string): Result<string, FxError> {
-    return ok(this.prefix + this.cryptr.encrypt(plaintext));
+    return ok(this.prefix + this.fixedCryptr.encrypt(plaintext));
   }
 
   public decrypt(ciphertext: string): Result<string, FxError> {
@@ -21,11 +23,15 @@ export class LocalCrypto implements CryptoProvider {
       // legacy raw secret string
       return ok(ciphertext);
     }
+    const encryptedData = ciphertext.substr(this.prefix.length);
     try {
-      return ok(this.cryptr.decrypt(ciphertext.substr(this.prefix.length)));
+      return ok(this.fixedCryptr.decrypt(encryptedData));
     } catch (e) {
-      // ciphertext is broken
-      return err(new SystemError("Core", "DecryptionError", "Cipher text is broken"));
+      try {
+        return ok(this.cryptr.decrypt(encryptedData));
+      } catch (e2) {
+        return err(new SystemError("Core", "DecryptionError", "Cipher text is broken"));
+      }
     }
   }
 }

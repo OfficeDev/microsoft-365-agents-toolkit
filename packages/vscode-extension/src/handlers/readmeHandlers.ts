@@ -103,3 +103,28 @@ export async function openSampleReadmeHandler(args?: any) {
     }
   }
 }
+
+export async function openWorkspaceMCPConfigHandler(...args: unknown[]) {
+  if (vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders.length > 0) {
+    const workspaceFolder = vscode.workspace.workspaceFolders[0];
+    const workspacePath: string = workspaceFolder.uri.fsPath;
+    const workspaceMCPConfigFile = `${workspacePath}/.vscode/mcp.json`;
+    if (await fs.pathExists(workspaceMCPConfigFile)) {
+      const document = await vscode.workspace.openTextDocument(
+        vscode.Uri.file(workspaceMCPConfigFile)
+      );
+      await vscode.window.showTextDocument(document);
+      void vscode.window
+        .showInformationMessage(
+          localize("teamstoolkit.handlers.openWorkspaceMCPConfigNotification"),
+          "Fetch Action"
+        )
+        .then((selection) => {
+          if (selection === "Fetch Action") {
+            void vscode.commands.executeCommand("fx-extension.updateActionWithMCP");
+          }
+        });
+    }
+  }
+  return ok<unknown, FxError>(null);
+}

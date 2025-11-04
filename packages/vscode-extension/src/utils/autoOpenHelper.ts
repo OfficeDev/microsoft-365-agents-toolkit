@@ -51,7 +51,7 @@ export async function showLocalDebugMessage() {
 
   const hasLocalEnv =
     (await fs.pathExists(path.join(workspaceUri!.fsPath, "teamsapp.local.yml"))) ||
-    (await fs.pathExists(path.join(workspaceUri!.fsPath, "m365agents.local.json")));
+    (await fs.pathExists(path.join(workspaceUri!.fsPath, "m365agents.local.yml")));
   const hasKeyGenJsFile = await fs.pathExists(path.join(workspaceUri!.fsPath, "/src/keyGen.js"));
   const hasKeyGenTsFile = await fs.pathExists(path.join(workspaceUri!.fsPath, "/src/keyGen.ts"));
 
@@ -102,7 +102,7 @@ export async function showLocalDebugMessage() {
     };
     ExtTelemetry.sendTelemetryEvent(TelemetryEvent.ShowLocalDebugNotification);
 
-    const messageTemplate = await getLocalDebugMessageTemplate(isWindows);
+    const messageTemplate = getLocalDebugMessageTemplate(isWindows);
 
     let message = util.format(messageTemplate, appName, workspaceUri?.fsPath);
     if (isWindows) {

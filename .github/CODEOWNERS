@@ -11,7 +11,7 @@
 
 /packages/tests/src/e2e @wh-alice @qinzhouxu @llhmm01 @tecton @sherylueen @Alive-Fish @HuihuiWu-Microsoft @yuqizhou77 @qinqingxu
 
-/templates/* @wh-alice @qinzhouxu @llhmm01 @tecton @sherylueen @Alive-Fish @HuihuiWu-Microsoft @yuqizhou77 @qinqingxu
+/templates/ @wh-alice @qinzhouxu @llhmm01 @tecton @sherylueen @Alive-Fish @HuihuiWu-Microsoft @yuqizhou77 @qinqingxu
 
 ./lerna.json @wh-alice @qinzhouxu @llhmm01 @tecton
 ./pnpm-workspace.yaml @wh-alice @qinzhouxu @llhmm01 @tecton

@@ -216,13 +216,13 @@ export class LocalDebugTestContext extends TestContext {
       case "msg":
         await execCommand(
           this.testRootFolder,
-          `atk new --app-name ${this.appName} --interactive false --capability collect-form-message-extension --programming-language ${this.lang} --telemetry false`
+          `atk new --app-name ${this.appName} --interactive false --capability basic-message-extension --programming-language ${this.lang} --telemetry false`
         );
         break;
       case "msgsa":
         await execCommand(
           this.testRootFolder,
-          `atk new --app-name ${this.appName} --interactive false --capability search-app --me-architecture bot --programming-language ${this.lang} --telemetry false`
+          `atk new --app-name ${this.appName} --interactive false --capability basic-message-extension --programming-language ${this.lang} --telemetry false`
         );
         break;
       case "tabbot":
@@ -299,7 +299,7 @@ export class LocalDebugTestContext extends TestContext {
       case "linkunfurl":
         await execCommand(
           this.testRootFolder,
-          `atk new --app-name ${this.appName} --interactive false --capability link-unfurling  --programming-language ${this.lang} --telemetry false`
+          `atk new --app-name ${this.appName} --interactive false --capability basic-message-extension  --programming-language ${this.lang} --telemetry false`
         );
         break;
       case "aichat":

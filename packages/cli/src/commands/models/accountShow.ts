@@ -75,14 +75,15 @@ class AccountUtils {
     tenantId = "",
     isServicePrincipal = false,
     userName = "",
-    password = ""
+    password = "",
+    claimsChallenge = ""
   ): Promise<boolean> {
     let azureProvider = getAzureProvider();
     if (isServicePrincipal === true || (await AzureTokenCIProvider.load())) {
       await AzureTokenCIProvider.init(userName, password, tenantId);
       azureProvider = AzureTokenCIProvider;
     }
-    const result = await azureProvider.getJsonObject(true, tenantId);
+    const result = await azureProvider.getJsonObject(true, tenantId, claimsChallenge);
     if (result) {
       if (tenantId) {
         await azureProvider.switchTenant(tenantId);

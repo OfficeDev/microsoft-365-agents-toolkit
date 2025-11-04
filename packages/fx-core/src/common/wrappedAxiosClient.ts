@@ -166,6 +166,9 @@ export class WrappedAxiosClient {
    */
   public static convertUrlToApiName(fullPath: string, method: string): string {
     if (this.isTDPApi(fullPath)) {
+      if (fullPath.match(new RegExp("/api/aadapp/v2"))) {
+        return APP_STUDIO_API_NAMES.CREATE_AAD_APP;
+      }
       if (fullPath.match(new RegExp("/api/appdefinitions/partnerCenterAppPackageValidation"))) {
         return APP_STUDIO_API_NAMES.VALIDATE_APP_PACKAGE;
       }

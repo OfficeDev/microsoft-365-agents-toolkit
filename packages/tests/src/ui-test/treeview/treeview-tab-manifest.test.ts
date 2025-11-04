@@ -37,7 +37,7 @@ describe("Execute Build Teams Package", function () {
       author: "v-helzha@microsoft.com",
     },
     async function () {
-      await createNewProject("tab", treeViewTestContext.appName);
+      await createNewProject("tabnsso", treeViewTestContext.appName);
       await zipAppPackage("dev");
       await getNotification(
         Notification.UnresolvedPlaceholderError,

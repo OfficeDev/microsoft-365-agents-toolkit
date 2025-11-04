@@ -1,0 +1,166 @@
+{
+  "plan_metadata": {
+    "name": "Basic Custom Engine Azure OpenAI ts Remote Debug",
+    "description": "caseId: 35692009\nhttps://msazure.visualstudio.com/Microsoft%20Teams%20Extensibility/_workitems/edit/35692009",
+    "generated_at": "2025-10-22T06:41:50.879505",
+    "execution_order": [
+      "plan_r_0928_012254",
+      "step_c3e4c33c",
+      "step_f4da92e4",
+      "plan_r_0930_054245",
+      "step_08ca530c",
+      "step_fe64ffbd",
+      "plan_r_0928_014459",
+      "plan_r_0928_020230",
+      "plan_r_0929_040401",
+      "plan_r_0928_073729",
+      "plan_r_0928_075846",
+      "plan_r_0930_063548",
+      "plan_r_1020_110153"
+    ],
+    "tags": [ ],
+    "updated_at": "2025-10-24T03:52:31.782979",
+    "plan_id": "plan_5b32a1a1",
+    "version": "1.1",
+    "execution_context": {
+      "delay_between_steps": 1,
+      "stop_on_error": true,
+      "precondition_wait_timeout": 30,
+      "precondition_retry_interval": 1
+    },
+    "total_steps": 4,
+    "created_at": "2025-10-22T06:41:50.879512"
+  },
+  "steps": [
+    {
+      "plan_id": "plan_5b32a1a1",
+      "tool": "click",
+      "parameters": {
+        "x": 369,
+        "y": 134,
+        "button": "left",
+        "text": null,
+        "keys": null,
+        "key": null,
+        "dx": null,
+        "dy": null
+      },
+      "timeout": 30,
+      "continue_on_error": "0",
+      "preconditions": [
+        "dhash:369:134:16:5:ca9629443bd8282a",
+        "dhash:369:134:96:5:6565293144c82423",
+        "dhash:369:134:0:10:c8c8809090b26461"
+      ],
+      "tags": [],
+      "created_at": "2025-10-24T03:52:19.307862",
+      "step_id": "step_c3e4c33c",
+      "description": "Click the \"Custom Engine Agent\" option in the \"New Project\" modal dropdown within the Microsoft 365 Agents Toolkit extension for Visual Studio Code.",
+      "agent": "interaction",
+      "content_refs": [],
+      "retry_count": 0,
+      "depends_on": [],
+      "postconditions": [],
+      "screenshot": "step_c3e4c33c"
+    },
+    {
+      "plan_id": "plan_5b32a1a1",
+      "tool": "click",
+      "parameters": {
+        "x": 352,
+        "y": 83,
+        "button": "left",
+        "text": null,
+        "keys": null,
+        "key": null,
+        "dx": null,
+        "dy": null
+      },
+      "timeout": 30,
+      "continue_on_error": "0",
+      "preconditions": [
+        "dhash:352:83:16:5:52525222519659ca",
+        "dhash:352:83:96:5:100ad56622138410",
+        "dhash:352:83:0:10:c0c4909092b26461"
+      ],
+      "tags": [],
+      "created_at": "2025-10-24T03:52:19.322300",
+      "step_id": "step_f4da92e4",
+      "description": "Click the \"Basic Custom Engine Agent\" option in the dropdown menu within the \"App Features Using Microsoft 365 Agents SDK\" window in Visual Studio Code.",
+      "agent": "interaction",
+      "content_refs": [],
+      "retry_count": 0,
+      "depends_on": [],
+      "postconditions": [],
+      "screenshot": "step_f4da92e4"
+    },
+    {
+      "plan_id": "plan_5b32a1a1",
+      "tool": "click",
+      "parameters": {
+        "x": 344,
+        "y": 69,
+        "button": "left",
+        "text": null,
+        "keys": null,
+        "key": null,
+        "dx": null,
+        "dy": null
+      },
+      "timeout": 30,
+      "continue_on_error": "0",
+      "preconditions": [
+        "dhash:344:69:16:5:0000000091009100",
+        "dhash:344:69:96:5:0000009100000000",
+        "dhash:344:69:0:10:d090909092b26461"
+      ],
+      "tags": [],
+      "created_at": "2025-10-24T03:52:19.334256",
+      "step_id": "step_08ca530c",
+      "description": "Click the \"TypeScript\" option in the \"Programming Language\" selection dropdown at the top of the Visual Studio Code window.",
+      "agent": "interaction",
+      "content_refs": [],
+      "retry_count": 0,
+      "depends_on": [],
+      "postconditions": [],
+      "screenshot": "step_08ca530c"
+    },
+    {
+      "plan_id": "plan_5b32a1a1",
+      "tool": "click",
+      "parameters": {
+        "x": 356,
+        "y": 77,
+        "button": "left",
+        "text": null,
+        "keys": null,
+        "key": null,
+        "dx": null,
+        "dy": null
+      },
+      "timeout": 30,
+      "continue_on_error": "0",
+      "preconditions": [
+        "dhash:356:77:16:5:4922483a3029adb3",
+        "dhash:356:77:96:5:00919151518a4000",
+        "dhash:356:77:0:10:d0b0909092b26461"
+      ],
+      "tags": [],
+      "created_at": "2025-10-24T03:52:19.344872",
+      "step_id": "step_fe64ffbd",
+      "description": "Click the \"Default folder /home/vscode/AgentsToolkitProjects\" option in the \"Workspace Folder\" dropdown within Visual Studio Code.",
+      "agent": "interaction",
+      "content_refs": [],
+      "retry_count": 0,
+      "depends_on": [],
+      "postconditions": [],
+      "screenshot": "step_fe64ffbd"
+    }
+  ],
+  "screenshots": {
+    "step_c3e4c33c": "step_c3e4c33c",
+    "step_f4da92e4": "step_f4da92e4",
+    "step_08ca530c": "step_08ca530c",
+    "step_fe64ffbd": "step_fe64ffbd"
+  }
+}

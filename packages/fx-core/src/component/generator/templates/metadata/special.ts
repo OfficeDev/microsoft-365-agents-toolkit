@@ -2,7 +2,6 @@
 // Licensed under the MIT license.
 
 import { TemplateNames } from "../templateNames";
-import { declarativeAgentTemplates } from "./da";
 import { Template } from "./interface";
 
 // these template are not handled by default generator which means they need extra steps during scaffolding
@@ -44,13 +43,13 @@ export const specialTemplates: Template[] = [
     description: "",
   },
   {
-    id: "custom-copilot-rag-custom-api-csharp",
+    id: "teams-agent-with-data-custom-api-v2-csharp",
     name: TemplateNames.CustomCopilotRagCustomApi,
     language: "csharp",
     description: "",
   },
   {
-    id: "custom-copilot-rag-custom-api-python",
+    id: "teams-agent-with-data-custom-api-v2-python",
     name: TemplateNames.CustomCopilotRagCustomApi,
     language: "python",
     description: "",
@@ -67,5 +66,4 @@ export const specialTemplates: Template[] = [
     language: "csharp",
     description: "",
   },
-  ...declarativeAgentTemplates,
 ];

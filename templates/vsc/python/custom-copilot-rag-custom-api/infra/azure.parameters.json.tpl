@@ -22,7 +22,7 @@
     },
     {{/useAzureOpenAI}}
     "webAppSKU": {
-      "value": "B1"
+      "value": "B3"
     },
     "botDisplayName": {
       "value": "{{appName}}"

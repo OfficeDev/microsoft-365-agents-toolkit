@@ -22,7 +22,6 @@ import {
   TelemetryUpdateAppReason,
 } from "../telemetry/extTelemetryEvents";
 import { openFolderInExplorer } from "../utils/commonUtils";
-import { getWalkThroughId } from "../utils/projectStatusUtils";
 import { getTriggerFromProperty } from "../utils/telemetryUtils";
 import { getDefaultString } from "../utils/localizeUtils";
 import { getBuildIntelligentAppsWalkthroughID } from "./walkthrough";
@@ -79,35 +78,14 @@ export async function openWelcomeHandler(...args: unknown[]): Promise<Result<unk
     );
     return Promise.resolve(ok(data));
   }
-  if (args.length > 0 && args[0] == (TelemetryTriggerFrom.SideBar as string)) {
-    const data = await vscode.commands.executeCommand(
-      "workbench.action.openWalkthrough",
-      getWalkThroughId()
-    );
-    return Promise.resolve(ok(data));
-  }
-  if (args.length > 1 && args[1] == defaultWelcomePageKey) {
-    const data = await vscode.commands.executeCommand(
-      "workbench.action.openWalkthrough",
-      getWalkThroughId()
-    );
-    return Promise.resolve(ok(data));
-  }
   return await selectWalkthrough(args);
 }
 
 export async function selectWalkthrough(...args: unknown[]): Promise<Result<unknown, FxError>> {
-  const TeamsToolkitOptionLabel = getDefaultString("teamstoolkit.walkthroughs.title");
   const BuildingIntelligentAppsLabel = getDefaultString(
     "teamstoolkit.walkthroughs.buildIntelligentApps.title"
   );
   const walkthroughChoices: vscode.QuickPickItem[] = [
-    {
-      label: TeamsToolkitOptionLabel,
-      detail: featureFlagManager.getBooleanValue(FeatureFlags.ChatParticipantUIEntries)
-        ? getDefaultString("teamstoolkit.walkthroughs.withChat.description")
-        : getDefaultString("teamstoolkit.walkthroughs.description"),
-    },
     {
       label: BuildingIntelligentAppsLabel,
       detail: getDefaultString("teamstoolkit.walkthroughs.buildIntelligentApps.description"),
@@ -118,9 +96,7 @@ export async function selectWalkthrough(...args: unknown[]): Promise<Result<unkn
     title: getDefaultString("teamstoolkit.walkthroughs.select.title"),
   });
   let walkthroughId = "";
-  if (walkthroughChoice?.label === TeamsToolkitOptionLabel) {
-    walkthroughId = getWalkThroughId();
-  } else {
+  if (walkthroughChoice?.label === BuildingIntelligentAppsLabel) {
     walkthroughId = getBuildIntelligentAppsWalkthroughID();
   }
   const data = await vscode.commands.executeCommand(

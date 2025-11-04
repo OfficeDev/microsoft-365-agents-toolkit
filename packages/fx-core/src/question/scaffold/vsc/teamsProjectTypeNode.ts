@@ -2,13 +2,18 @@
 // Licensed under the MIT license.
 
 import {
+  AppPackageFolderName,
   ConditionFunc,
+  DefaultPluginManifestFileName,
   Inputs,
   IQTreeNode,
   OptionItem,
   Platform,
+  StringArrayValidation,
   StringValidation,
+  UserError,
 } from "@microsoft/teamsfx-api";
+import { featureFlagManager, FeatureFlags } from "../../../common/featureFlags";
 import { getLocalizedString } from "../../../common/localizeUtils";
 import {
   apiOperationQuestion,
@@ -27,33 +32,71 @@ import {
   ActionStartOptions,
   ApiAuthOptions,
   BotCapabilityOptions,
+  CustomCopilotRagOptions,
   MeArchitectureOptions,
   MeCapabilityOptions,
   NotificationBotOptions,
   setTemplateName,
   TabCapabilityOptions,
+  TeamsAgentCapabilityOptions,
 } from "./CapabilityOptions";
 import { ProjectTypeOptions } from "./ProjectTypeOptions";
-import { featureFlagManager, FeatureFlags } from "../../../common/featureFlags";
+import path from "path";
+import * as fs from "fs-extra";
 
-export function teamsAppProjectNode(platform: Platform): IQTreeNode {
+export function teamsProjectNode(platform: Platform): IQTreeNode {
   return {
-    // project-type = Teams App
-    condition: { equals: ProjectTypeOptions.teamsAppOptionId },
+    // project-type = Teams Agents and Apps
+    condition: { equals: ProjectTypeOptions.teamsOptionId },
     data: {
       name: QuestionNames.TeamsAppType,
-      title: getLocalizedString("core.createProjectQuestion.projectType.teamsApp.title"),
+      title: getLocalizedString("core.createProjectQuestion.projectType.teamsAgentsAndApps.title"),
       type: "singleSelect",
       staticOptions: [
-        TeamsProjectTypeOptions.bot(platform),
-        TeamsProjectTypeOptions.tab(platform),
-        TeamsProjectTypeOptions.me(platform),
+        TeamsAgentCapabilityOptions.basicChatbot(),
+        TeamsAgentCapabilityOptions.customCopilotRag(),
+        TeamsAgentCapabilityOptions.collaboratorAgent(),
+        TeamsAgentCapabilityOptions.others(),
       ],
       placeholder: getLocalizedString(
         "core.createProjectQuestion.projectType.customCopilot.placeholder"
       ),
+      onDidSelection: setTemplateName,
     },
-    children: [botProjectTypeNode(), tabProjectTypeNode(), meProjectTypeNode()],
+    children: [
+      customCopilotRagNode(),
+      // aiAgentNode(),
+      llmServiceNode({
+        enum: [
+          TeamsAgentCapabilityOptions.basicChatbot().id,
+          TeamsAgentCapabilityOptions.customCopilotRag().id,
+        ],
+      }),
+      azureOpenAINode({ equals: TeamsAgentCapabilityOptions.collaboratorAgent().id }),
+      teamsCapabilityNode(platform),
+    ],
+  };
+}
+
+function teamsCapabilityNode(platform: Platform): IQTreeNode {
+  return {
+    // teams-app-type = Others
+    condition: { equals: TeamsAgentCapabilityOptions.others().id },
+    data: {
+      name: QuestionNames.TeamsCapability,
+      title: getLocalizedString("core.createProjectQuestion.teamsCapability.title"),
+      type: "singleSelect",
+      staticOptions: [
+        TabCapabilityOptions.nonSsoTab(),
+        MeCapabilityOptions.basicMe(),
+        BotCapabilityOptions.basicBot(),
+      ],
+      placeholder: getLocalizedString(
+        "core.createProjectQuestion.projectType.customCopilot.placeholder"
+      ),
+      onDidSelection: setTemplateName,
+    },
+    children: [],
   };
 }
 
@@ -93,6 +136,149 @@ export class TeamsProjectTypeOptions {
       ),
     };
   }
+}
+
+export function customCopilotRagNode(): IQTreeNode {
+  return {
+    condition: { equals: TeamsAgentCapabilityOptions.customCopilotRag().id },
+    data: {
+      type: "singleSelect",
+      name: QuestionNames.CustomCopilotRag,
+      title: getLocalizedString(
+        "core.createProjectQuestion.capability.customCopilotRagOption.label"
+      ),
+      placeholder: getLocalizedString(
+        "core.createProjectQuestion.capability.customCopilotRag.placeholder"
+      ),
+      staticOptions: [
+        CustomCopilotRagOptions.customize(),
+        CustomCopilotRagOptions.azureAISearch(),
+        CustomCopilotRagOptions.customApi(),
+        // CustomCopilotRagOptions.microsoft365(),
+      ],
+      default: CustomCopilotRagOptions.customize().id,
+      onDidSelection: setTemplateName,
+    },
+    children: [apiSpecNode({ equals: CustomCopilotRagOptions.customApi().id })],
+  };
+}
+
+// export function aiAgentNode(): IQTreeNode {
+//   return {
+//     condition: { equals: CustomCopilotCapabilityOptions.aiAgent().id },
+//     data: {
+//       type: "singleSelect",
+//       name: QuestionNames.CustomCopilotAssistant,
+//       title: getLocalizedString(
+//         "core.createProjectQuestion.capability.customCopilotAssistant.title"
+//       ),
+//       placeholder: getLocalizedString(
+//         "core.createProjectQuestion.capability.customCopilotAssistant.placeholder"
+//       ),
+//       staticOptions: [
+//         CustomCopilotAssistantOptions.new(),
+//         CustomCopilotAssistantOptions.assistantsApi(),
+//       ],
+//       default: CustomCopilotAssistantOptions.new().id,
+//       onDidSelection: setTemplateName,
+//     },
+//   };
+// }
+
+export function azureOpenAINode(
+  condition?: StringValidation | StringArrayValidation | ConditionFunc
+): IQTreeNode {
+  return {
+    condition: condition,
+    data: {
+      type: "text",
+      password: true,
+      name: QuestionNames.AzureOpenAIKey,
+      title: getLocalizedString("core.createProjectQuestion.llmService.azureOpenAIKey.title"),
+      placeholder: getLocalizedString(
+        "core.createProjectQuestion.llmService.azureOpenAIKey.placeholder"
+      ),
+    },
+    children: [
+      {
+        condition: (inputs: Inputs) => {
+          return inputs[QuestionNames.AzureOpenAIKey]?.length > 0;
+        },
+        data: {
+          type: "text",
+          name: QuestionNames.AzureOpenAIEndpoint,
+          title: getLocalizedString(
+            "core.createProjectQuestion.llmService.azureOpenAIEndpoint.title"
+          ),
+          placeholder: getLocalizedString(
+            "core.createProjectQuestion.llmService.azureOpenAIEndpoint.placeholder"
+          ),
+        },
+        children: [
+          {
+            condition: (inputs: Inputs) => {
+              return inputs[QuestionNames.AzureOpenAIEndpoint]?.length > 0;
+            },
+            data: {
+              type: "text",
+              name: QuestionNames.AzureOpenAIDeploymentName,
+              title: getLocalizedString(
+                "core.createProjectQuestion.llmService.azureOpenAIDeploymentName.title"
+              ),
+              placeholder: getLocalizedString(
+                "core.createProjectQuestion.llmService.azureOpenAIDeploymentName.placeholder"
+              ),
+            },
+          },
+        ],
+      },
+    ],
+  };
+}
+
+export function llmServiceNode(
+  condition?: StringValidation | StringArrayValidation | ConditionFunc
+): IQTreeNode {
+  return {
+    condition: condition,
+    data: {
+      type: "singleSelect",
+      name: QuestionNames.LLMService,
+      title: getLocalizedString("core.createProjectQuestion.llmService.title"),
+      placeholder: getLocalizedString("core.createProjectQuestion.llmService.placeholder"),
+      staticOptions: [
+        {
+          id: "llm-service-azure-openai",
+          label: getLocalizedString("core.createProjectQuestion.llmServiceAzureOpenAIOption.label"),
+          detail: getLocalizedString(
+            "core.createProjectQuestion.llmServiceAzureOpenAIOption.detail"
+          ),
+        },
+        {
+          id: "llm-service-openai",
+          label: getLocalizedString("core.createProjectQuestion.llmServiceOpenAIOption.label"),
+          detail: getLocalizedString("core.createProjectQuestion.llmServiceOpenAIOption.detail"),
+        },
+      ],
+      skipSingleOption: true,
+      default: "llm-service-azure-openai",
+    },
+    children: [
+      azureOpenAINode({ equals: "llm-service-azure-openai" }),
+      {
+        condition: { equals: "llm-service-openai" },
+        data: {
+          type: "text",
+          password: true,
+          name: QuestionNames.OpenAIKey,
+          title: getLocalizedString("core.createProjectQuestion.llmService.openAIKey.title"),
+          placeholder: getLocalizedString(
+            "core.createProjectQuestion.llmService.openAIKey.placeholder"
+          ),
+        },
+      },
+    ],
+  };
 }
 
 export function apiSpecNode(condition: StringValidation | ConditionFunc): IQTreeNode {
@@ -310,6 +496,99 @@ export function m365SearchMeSubNode(): IQTreeNode {
         },
       },
       apiSpecNode({ equals: MeArchitectureOptions.openApiSpec().id }),
+    ],
+  };
+}
+
+export function MCPForDAServerUrlNode(): IQTreeNode {
+  return {
+    condition: { equals: ActionStartOptions.mcp().id },
+    data: {
+      name: QuestionNames.MCPForDAServerUrl,
+      title: getLocalizedString("core.createProjectQuestion.mcpForDa.ServerUrl.title"),
+      type: "text",
+      placeholder: getLocalizedString("core.createProjectQuestion.mcpForDa.ServerUrl.placeholder"),
+    },
+  };
+}
+
+export function updateActionWithMCP(): IQTreeNode {
+  return {
+    data: {
+      type: "singleFile",
+      name: QuestionNames.PluginManifestFilePath,
+      title: getLocalizedString("core.createProjectQuestion.mcpForDa.File.title"),
+      defaultFolder: (inputs: Inputs) => path.normalize(inputs.projectPath as string),
+      default: (inputs: Inputs) =>
+        path.normalize(
+          path.join(
+            inputs.projectPath as string,
+            AppPackageFolderName,
+            DefaultPluginManifestFileName
+          )
+        ),
+    },
+    children: [
+      {
+        data: {
+          type: "multiSelect",
+          name: QuestionNames.MCPForDAPreFetchTools,
+          title: getLocalizedString("core.createProjectQuestion.mcpForDa.PreFetchTools.title"),
+          staticOptions: [],
+          dynamicOptions: (inputs: Inputs): OptionItem[] => {
+            const availableTools: any[] = inputs[QuestionNames.MCPForDAAvailableTools];
+            const tools = availableTools.map((tool: any) => {
+              return {
+                id: tool.name,
+                label: tool.name,
+                detail: tool.description || "",
+              };
+            });
+            return tools;
+          },
+          default: async (inputs: Inputs) => {
+            const pluginManifestFilePath = inputs[QuestionNames.PluginManifestFilePath];
+            if (!pluginManifestFilePath) {
+              return [];
+            }
+            const pluginManifest = await fs.readJSON(pluginManifestFilePath);
+            const serverUrl = inputs[QuestionNames.MCPForDAServerUrl];
+            const result: string[] = [];
+            (pluginManifest.runtimes as any[])
+              .filter(
+                (runtime: any) =>
+                  runtime.type === "RemoteMCPServer" &&
+                  runtime.spec.url === serverUrl &&
+                  runtime.spec["enable_dynamic_discovery"] === false
+              )
+              .forEach((runtime: any) => {
+                result.push(...runtime["run_for_functions"]);
+              });
+            return result;
+          },
+        },
+      },
+      {
+        condition: (inputs: Inputs) => {
+          return inputs[QuestionNames.MCPForDAAuth] !== "NoneAuth";
+        },
+        data: {
+          type: "singleSelect",
+          name: QuestionNames.MCPForDAAuthType,
+          title: getLocalizedString("core.createProjectQuestion.mcpForDa.AuthType.title"),
+          staticOptions: [
+            {
+              id: "oauth",
+              label: getLocalizedString("core.createProjectQuestion.mcpForDa.Auth.OAuth"),
+            },
+            {
+              id: "entraSSO",
+              label: getLocalizedString("core.createProjectQuestion.mcpForDa.Auth.EntraSSO"),
+            },
+          ],
+          default: "oauth",
+        },
+      },
     ],
   };
 }

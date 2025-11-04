@@ -20,15 +20,15 @@
         "url": "https://github.com"
     },
     "dependencies": {
-        "@microsoft/agents-hosting-express": "^1.0.0"
+        "@azure/identity": "^4.11.1",
+        "@microsoft/teams.apps": "^2.0.0",
+        "@microsoft/teams.common": "^2.0.0"
     },
     "devDependencies": {
-        "@types/express": "^5.0.0",
-        "@types/node": "^22.0.0",
+        "@types/node": "^20.0.0",
         "env-cmd": "^10.1.0",
-        "nodemon": "^3.1.10",
-        "shx": "^0.3.3",
-        "ts-node": "^10.9.2",
-        "typescript": "^5.8.3"
+        "nodemon": "^3.1.7",
+        "ts-node": "^10.4.0",
+        "typescript": "~5.8.3"
     }
 }

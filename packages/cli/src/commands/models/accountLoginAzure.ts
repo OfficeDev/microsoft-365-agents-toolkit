@@ -43,6 +43,12 @@ export const accountLoginAzureCommand: CLICommand = {
       type: "string",
       default: "",
     },
+    {
+      name: "claims-challenge",
+      description: commands["auth.login.azure"].options["claims-challenge"],
+      type: "string",
+      default: "",
+    },
   ],
   examples: [
     {
@@ -75,7 +81,8 @@ export const accountLoginAzureCommand: CLICommand = {
       args.tenant as string,
       isSP,
       args.username as string,
-      args.password as string
+      args.password as string,
+      args["claims-challenge"] as string
     );
     return ok(undefined);
   },

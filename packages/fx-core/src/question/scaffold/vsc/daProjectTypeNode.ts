@@ -14,7 +14,7 @@ import {
   setTemplateName,
 } from "./CapabilityOptions";
 import { ProjectTypeOptions } from "./ProjectTypeOptions";
-import { apiSpecNode, apiSpecWithSearchNode } from "./teamsProjectTypeNode";
+import { apiSpecNode, apiSpecWithSearchNode, MCPForDAServerUrlNode } from "./teamsProjectTypeNode";
 
 export function daProjectTypeNode(
   parentValue = ProjectTypeOptions.copilotAgentOptionId
@@ -65,6 +65,9 @@ export function daProjectTypeNode(
                 ...(featureFlagManager.getBooleanValue(FeatureFlags.DAMetaOS)
                   ? [ActionStartOptions.DAMetaOS()]
                   : []),
+                ...(featureFlagManager.getBooleanValue(FeatureFlags.MCPForDA)
+                  ? [ActionStartOptions.mcp()]
+                  : []),
               ],
               default: ActionStartOptions.newApi().id,
               onDidSelection: setTemplateName,
@@ -99,6 +102,7 @@ export function daProjectTypeNode(
                       inputs[QuestionNames.ActionType] === ActionStartOptions.apiSpec().id &&
                       !featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration)
                   ),
+              MCPForDAServerUrlNode(),
             ],
           },
         ],

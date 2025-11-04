@@ -22,10 +22,9 @@ You can extend declarative agents using plugins to retrieve data and execute tas
 
 1. First, select the Microsoft 365 Agents Toolkit icon on the left in the VS Code toolbar.
 2. In the Account section, sign in with your [Microsoft 365 account](https://docs.microsoft.com/microsoftteams/platform/toolkit/accounts) if you haven't already.
-3. Create app by clicking `Provision` in "Lifecycle" section.
-4. Select `Preview in Copilot (Edge)` or `Preview in Copilot (Chrome)` from the launch configuration dropdown.
-5. Select your declarative agent from the `Copilot` app.
-6. Send a prompt.
+3. Select `Preview Local in Copilot (Edge)` or `Preview Local in Copilot (Chrome)` from the launch configuration dropdown.
+4. Select your declarative agent from the `Copilot` app.
+5. Send a prompt.
 
 {{#ApiKey}}
 > [!NOTE]

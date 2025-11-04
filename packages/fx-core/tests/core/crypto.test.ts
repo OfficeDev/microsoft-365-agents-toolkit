@@ -1,0 +1,138 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
+import { assert } from "chai";
+import "mocha";
+import { createSandbox } from "sinon";
+import Cryptr from "cryptr";
+import { LocalCrypto } from "../../src/core/crypto";
+import { SystemError } from "@microsoft/teamsfx-api";
+
+describe("LocalCrypto", () => {
+  const sandbox = createSandbox();
+  const testProjectId = "test-project-123";
+  const testPlaintext = "sensitive-data-to-encrypt";
+  const prefix = "crypto_";
+
+  let localCrypto: LocalCrypto;
+  let fixedCryptr: Cryptr;
+  let projectCryptr: Cryptr;
+
+  beforeEach(() => {
+    localCrypto = new LocalCrypto(testProjectId);
+    fixedCryptr = new Cryptr("teamsfx_global_key");
+    projectCryptr = new Cryptr(testProjectId + "_teamsfx");
+  });
+
+  afterEach(() => {
+    sandbox.restore();
+  });
+
+  describe("encrypt", () => {
+    it("should encrypt plaintext with fixed global key and add prefix", () => {
+      const result = localCrypto.encrypt(testPlaintext);
+
+      assert.isTrue(result.isOk());
+      if (result.isOk()) {
+        const encrypted = result.value;
+        assert.isTrue(encrypted.startsWith(prefix));
+
+        const encryptedData = encrypted.substr(prefix.length);
+        const decrypted = fixedCryptr.decrypt(encryptedData);
+        assert.equal(decrypted, testPlaintext);
+      }
+    });
+  });
+
+  describe("decrypt", () => {
+    it("should decrypt strings encrypted with fixed global key (new encryption)", () => {
+      const encrypted = fixedCryptr.encrypt(testPlaintext);
+      const ciphertext = prefix + encrypted;
+
+      const result = localCrypto.decrypt(ciphertext);
+
+      assert.isTrue(result.isOk());
+      if (result.isOk()) {
+        assert.equal(result.value, testPlaintext);
+      }
+    });
+
+    it("should decrypt strings encrypted with project-specific key (old encryption fallback)", () => {
+      const encrypted = projectCryptr.encrypt(testPlaintext);
+      const ciphertext = prefix + encrypted;
+
+      const result = localCrypto.decrypt(ciphertext);
+
+      assert.isTrue(result.isOk());
+      if (result.isOk()) {
+        assert.equal(result.value, testPlaintext);
+      }
+    });
+
+    it("should return error when both fixed and project cryptr fail to decrypt", () => {
+      const invalidCiphertext = prefix + "invalid-cipher-text-that-cannot-be-decrypted";
+
+      const result = localCrypto.decrypt(invalidCiphertext);
+
+      assert.isTrue(result.isErr());
+      if (result.isErr()) {
+        assert.instanceOf(result.error, SystemError);
+        assert.equal(result.error.source, "Core");
+        assert.equal(result.error.name, "DecryptionError");
+        assert.equal(result.error.message, "Cipher text is broken");
+      }
+    });
+
+    it("should successfully encrypt and decrypt data (round trip)", () => {
+      const encryptResult = localCrypto.encrypt(testPlaintext);
+      assert.isTrue(encryptResult.isOk());
+
+      if (encryptResult.isOk()) {
+        const decryptResult = localCrypto.decrypt(encryptResult.value);
+        assert.isTrue(decryptResult.isOk());
+
+        if (decryptResult.isOk()) {
+          assert.equal(decryptResult.value, testPlaintext);
+        }
+      }
+    });
+
+    it("should handle cross-project compatibility for new encryption", () => {
+      const crypto1 = new LocalCrypto("project1");
+      const crypto2 = new LocalCrypto("project2");
+
+      // New encryption uses fixed global key, so it works across different project IDs
+      const encryptResult = crypto1.encrypt(testPlaintext);
+      assert.isTrue(encryptResult.isOk());
+
+      if (encryptResult.isOk()) {
+        const decryptResult = crypto2.decrypt(encryptResult.value);
+        assert.isTrue(decryptResult.isOk());
+
+        if (decryptResult.isOk()) {
+          assert.equal(decryptResult.value, testPlaintext);
+        }
+      }
+    });
+
+    it("should not decrypt legacy data from different project IDs", () => {
+      const project1Crypto = new LocalCrypto("project1");
+      const project2Crypto = new LocalCrypto("project2");
+      const project1Cryptr = new Cryptr("project1_teamsfx");
+
+      // Create legacy encrypted data with project1 key
+      const legacyEncrypted = prefix + project1Cryptr.encrypt(testPlaintext);
+
+      // project1 crypto should decrypt it (fallback to project-specific key)
+      const project1Result = project1Crypto.decrypt(legacyEncrypted);
+      assert.isTrue(project1Result.isOk());
+      if (project1Result.isOk()) {
+        assert.equal(project1Result.value, testPlaintext);
+      }
+
+      // project2 crypto should fail to decrypt it (different project key)
+      const project2Result = project2Crypto.decrypt(legacyEncrypted);
+      assert.isTrue(project2Result.isErr());
+    });
+  });
+});

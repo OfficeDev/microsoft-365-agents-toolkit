@@ -2,6 +2,9 @@
 // Licensed under the MIT license.
 
 export enum TelemetryEvent {
+  UpdateActionWithMCPStart = "update-action-with-mcp-start",
+  UpdateActionWithMCP = "update-action-with-mcp",
+
   ManageAccount = "manage-account",
   CreateAccountStart = "create-account-start",
   CreateAccount = "create-account",

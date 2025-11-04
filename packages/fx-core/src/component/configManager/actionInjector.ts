@@ -242,6 +242,80 @@ export class ActionInjector {
     return undefined;
   }
 
+  static async injectCreateOAuthActionForMCP(
+    ymlPath: string,
+    authType: string,
+    authName: string,
+    registrationId: string,
+    mcpServerUrl: string,
+    authorizationUrl?: string,
+    tokenUrl?: string,
+    refreshUrl?: string
+  ): Promise<AuthActionInjectResult | undefined> {
+    const ymlContent = await fs.readFile(ymlPath, "utf-8");
+
+    const document = parseDocument(ymlContent);
+    const provisionNode = document.get("provision") as any;
+    if (provisionNode) {
+      const hasAuthActionWithSameReferenceId = provisionNode.items.some(
+        (item: any) =>
+          (item.get("uses") as string) === "oauth/register" &&
+          !!item.get("with") &&
+          !!item.get("writeToEnvironmentFile") &&
+          (item.get("writeToEnvironmentFile").get("configurationId") as string) === registrationId
+      );
+      if (hasAuthActionWithSameReferenceId) {
+        return undefined;
+      }
+
+      provisionNode.items = provisionNode.items.filter((item: any) => {
+        const uses = item.get("uses");
+        return uses;
+      });
+
+      const teamsAppIdEnvName = ActionInjector.getTeamsAppIdEnvName(provisionNode);
+      if (teamsAppIdEnvName) {
+        const index: number = provisionNode.items.findIndex(
+          (item: any) => item.get("uses") === "teamsApp/create"
+        );
+
+        const action: any = {
+          uses: "oauth/register",
+          with: {
+            name: `${authName}`,
+            appId: `\${{${teamsAppIdEnvName}}}`,
+            flow: "authorizationCode",
+            ...(authType === "oauth"
+              ? {
+                  authorizationUrl: authorizationUrl,
+                  tokenUrl: tokenUrl,
+                  refreshUrl: refreshUrl ?? undefined,
+                  identityProvider: "Custom",
+                }
+              : {
+                  identityProvider: MicrosoftEntraAuthType,
+                }),
+            baseUrl: mcpServerUrl,
+          },
+          writeToEnvironmentFile: {
+            configurationId: registrationId,
+          },
+        };
+        provisionNode.items.splice(index + 1, 0, action);
+      } else {
+        throw new InjectOAuthActionFailedError();
+      }
+
+      await fs.writeFile(ymlPath, document.toString(), "utf8");
+      return {
+        defaultRegistrationIdEnvName: registrationId,
+        registrationIdEnvName: registrationId,
+      };
+    } else {
+      throw new InjectOAuthActionFailedError();
+    }
+  }
+
   static findNextAvailableEnvName(baseEnvName: string, existingEnvNames: string[]): string {
     let suffix = 1;
     let envName = baseEnvName;

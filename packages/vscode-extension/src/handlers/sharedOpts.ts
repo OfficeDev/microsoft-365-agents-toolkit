@@ -21,6 +21,7 @@ import { checkCoreNotEmpty } from "../utils/commonUtils";
 import { localize } from "../utils/localizeUtils";
 import { getSystemInputs } from "../utils/systemEnvUtils";
 import { getTeamsAppTelemetryInfoByEnv } from "../utils/telemetryUtils";
+import * as vscode from "vscode";
 
 export async function runCommand(
   stage: Stage,
@@ -43,6 +44,7 @@ export async function runCommand(
     switch (stage) {
       case Stage.create: {
         inputs.projectId = inputs.projectId ?? uuid.v4();
+        inputs["mcp-da-available-tools"] = vscode.lm.tools;
         const tmpResult = await core.createProject(inputs);
         if (tmpResult.isErr()) {
           result = err(tmpResult.error);
@@ -167,6 +169,10 @@ export async function runCommand(
       }
       case Stage.installApp: {
         result = await core.installAppToChannel(inputs);
+        break;
+      }
+      case Stage.updateActionWithMCP: {
+        result = await core.updateActionWithMCP(inputs);
         break;
       }
       default:

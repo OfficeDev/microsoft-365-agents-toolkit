@@ -15,6 +15,7 @@ import {
 } from "@microsoft/teamsfx-api";
 import { AxiosInstance } from "axios";
 import {
+  GraphScopes,
   GraphTeamsAppSettingsReadScopes,
   GraphTeamsChannelCreateScopes,
   GraphTeamsChannelReadScopes,
@@ -23,7 +24,6 @@ import {
   GraphTeamsTeamReadScopes,
   GroupSearchScopes,
   ListSensitivityLabelScope,
-  UserReadScopes,
 } from "../common/constants";
 import { globalStateGet, globalStateUpdate } from "../common/globalState";
 import { ErrorContextMW } from "../common/globalVars";
@@ -445,7 +445,7 @@ export class GraphClient {
   }
 
   public async getUserInfoFromId(id: string): Promise<User | undefined> {
-    const tokenResponse = await this.tokenProvider.getAccessToken({ scopes: UserReadScopes });
+    const tokenResponse = await this.tokenProvider.getAccessToken({ scopes: GraphScopes });
     if (tokenResponse.isErr()) {
       throw tokenResponse.error;
     }

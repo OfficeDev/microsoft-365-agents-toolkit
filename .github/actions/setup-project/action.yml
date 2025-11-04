@@ -5,6 +5,11 @@ inputs:
     description: 'setup project'
     required: true
     default: 'true'
+  range:  # id of input
+    description: 'package range to install (vscode, cli, e2e, all)'
+    required: false
+    default: 'all'
+  
 runs:
   using: "composite"
   steps:
@@ -22,4 +27,17 @@ runs:
         timeout_minutes: 10
         max_attempts: 5
         command: |
-          npm run setup
+          case "${{ inputs.range }}" in
+            "cli")
+              npm run setup:cli
+              ;;
+            "vscode")
+              npm run setup:vsc
+              ;;
+            "e2e")
+              npm run setup:e2e
+              ;;
+            "all"|*)
+              npm run setup
+              ;;
+          esac

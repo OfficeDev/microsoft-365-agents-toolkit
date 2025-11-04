@@ -214,6 +214,11 @@ describe("Open link handlers", () => {
   });
 
   describe("openDocumentLinkHandler", () => {
+    it("signinM365", async () => {
+      sandbox.stub(vsc_ui.VS_CODE_UI, "openUrl").resolves(ok(true));
+      const res = await openDocumentLinkHandler([{ contextValue: "signinM365" }]);
+      chai.assert.isTrue(res.isOk());
+    });
     it("signinAzure", async () => {
       sandbox.stub(vsc_ui.VS_CODE_UI, "openUrl").resolves(ok(true));
       const res = await openDocumentLinkHandler([{ contextValue: "signinAzure" }]);

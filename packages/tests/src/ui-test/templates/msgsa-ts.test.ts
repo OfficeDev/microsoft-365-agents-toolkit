@@ -55,7 +55,7 @@ describe("Debug Tests", function () {
         lang: Lang.TS,
         successFlag: successFlag,
         localDebugTaskLabel: LocalDebugTaskLabel.StartApplication,
-        localDebugTaskInfo: LocalDebugTaskInfo.StartBotInfo2,
+        localDebugTaskInfo: LocalDebugTaskInfo.ListeningOn,
         validationFn: validationNpm,
       });
     }

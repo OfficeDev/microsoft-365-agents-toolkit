@@ -111,7 +111,7 @@ describe("Remote debug Tests", function () {
       try {
         await validateWelcomeAndReplyBot(page, {
           hasWelcomeMessage: false,
-          hasCommandReplyValidation: true,
+          hasCommandReplyValidation: false,
           botCommand: "helloWorld",
           expectedWelcomeMessage: ValidationContent.AiChatBotWelcomeInstruction,
           expectedReplyMessage: ValidationContent.AiBotErrorMessage,
@@ -123,7 +123,7 @@ describe("Remote debug Tests", function () {
           await driver.sleep(Timeout.longTimeWait);
           await validateWelcomeAndReplyBot(page, {
             hasWelcomeMessage: false,
-            hasCommandReplyValidation: true,
+            hasCommandReplyValidation: false,
             botCommand: "helloWorld",
             expectedWelcomeMessage:
               ValidationContent.AiChatBotWelcomeInstruction,

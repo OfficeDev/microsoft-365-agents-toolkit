@@ -18,7 +18,9 @@
         "test": "echo \"Error: no test specified\" && exit 1"
     },
     "dependencies": {
-        "@microsoft/agents-hosting-express": "^1.0.0"
+        "@azure/identity": "^4.11.1",
+        "@microsoft/teams.apps": "^2.0.0",
+        "@microsoft/teams.common": "^2.0.0"
     },
     "devDependencies": {
         "env-cmd": "^10.1.0",

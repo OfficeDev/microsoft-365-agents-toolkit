@@ -1203,15 +1203,13 @@ async function updatePromptForCustomApi(
 ): Promise<void> {
   if (commonLanguages.includes(language as ProgrammingLanguage)) {
     const object = `{ "path": null, "body": null, "query": null }`;
-    const cSharpObject = `{ "path": {}, "body": {}, "query": {} }`;
+    const cSharpObject = `{ "path": {}, "query": {} }`;
     const promptFilePath = path.join(chatFolder, promptFileName);
     const prompt = `The following is a conversation with an AI assistant.\nThe assistant can help to call APIs for the open api spec file${
       spec.info.description ? ". " + spec.info.description : "."
     }\nIf the API doesn't require parameters, invoke it with default JSON object ${
       (language as ProgrammingLanguage) === ProgrammingLanguage.CSharp ? cSharpObject : object
-    }.\n\n${
-      shouldGenerateTeamsAIV2Code(language) ? "context:\nAvailable actions: {{getAction}}." : ""
-    }`;
+    }.\n\n`;
     await fs.writeFile(promptFilePath, prompt, { encoding: "utf-8", flag: "w" });
   }
 }
@@ -1305,20 +1303,13 @@ function filterSchema(schema: OpenAPIV3.SchemaObject): OpenAPIV3.SchemaObject {
   return filteredSchema;
 }
 
-function shouldGenerateTeamsAIV2Code(language: string) {
-  return language === ProgrammingLanguage.JS || language === ProgrammingLanguage.TS;
-}
-
 async function updateActionForCustomApi(
   specItems: SpecObject[],
   language: string,
   chatFolder: string
 ): Promise<void> {
   if (commonLanguages.includes(language as ProgrammingLanguage)) {
-    const actionsFilePath = path.join(
-      chatFolder,
-      shouldGenerateTeamsAIV2Code(language) ? "functions.json" : "actions.json"
-    );
+    const actionsFilePath = path.join(chatFolder, "functions.json");
     const actions = [];
 
     for (const item of specItems) {
@@ -1376,100 +1367,20 @@ async function updateActionForCustomApi(
       });
     }
 
-    if (shouldGenerateTeamsAIV2Code(language)) {
-      // Convert actions array to object format for Teams AI v2
-      const actionsObject: { [key: string]: any } = {};
-      for (const action of actions) {
-        if (action.name) {
-          actionsObject[action.name] = {
-            name: action.name,
-            description: action.description,
-            parameters: action.parameters,
-          };
-        }
+    // Convert actions array to object format for Teams AI v2
+    const actionsObject: { [key: string]: any } = {};
+    for (const action of actions) {
+      if (action.name) {
+        actionsObject[action.name] = {
+          name: action.name,
+          description: action.description,
+          parameters: action.parameters,
+        };
       }
-      await fs.writeFile(actionsFilePath, JSON.stringify(actionsObject, null, 2));
-    } else {
-      await fs.writeFile(actionsFilePath, JSON.stringify(actions, null, 2));
     }
+    await fs.writeFile(actionsFilePath, JSON.stringify(actionsObject, null, 2));
   }
 }
-
-const ActionCode = {
-  python: `
-@bot_app.ai.action("{{operationId}}")
-async def {{operationId}}(
-  context: ActionTurnContext[Dict[str, Any]],
-  state: AppTurnState,
-):
-  parameters = context.data
-  path = parameters.get("path", {})
-  body = parameters.get("body", None)
-  query = parameters.get("query", {})
-  resp = client.{{operationId}}(**path, json=body, _headers={}, _params=query, _cookies={})
-
-  if resp.status_code != 200:
-    await context.send_activity(resp.reason)
-  else:
-    card_template_path = os.path.join(current_dir, 'adaptiveCards/{{operationId}}.json')
-    if not os.path.exists(card_template_path):
-      json_resoponse_str = resp.text
-      await context.send_activity(json_resoponse_str)
-    else:
-      with open(card_template_path) as card_template_file:
-        adaptive_card_template = card_template_file.read()
-
-      renderer = AdaptiveCardRenderer(adaptive_card_template)
-
-      json_resoponse_str = resp.text
-      rendered_card_str = renderer.render(json_resoponse_str)
-      rendered_card_json = json.loads(rendered_card_str)
-      card = CardFactory.adaptive_card(rendered_card_json)
-      isTeamsChannel = context.activity.channel_id == "msteams"
-      message = MessageFactory.attachment(card)
-      message.entities = [
-        {
-          "type": "https://schema.org/Message",
-          "@type": "Message",
-          "@context": "https://schema.org",
-          "additionalType": ["AIGeneratedContent"],
-        },
-      ]
-      message.channel_data = {
-        "feedbackLoopEnabled": isTeamsChannel
-      }
-      
-      await context.send_activity(message)
-  return "success"
-  `,
-  cs: `
-        [Action("{{operationId}}")]
-        public async Task<string> {{functionName}}Async([ActionTurnContext] ITurnContext turnContext, [ActionTurnState] TurnState turnState, [ActionParameters] Dictionary<string, object> args)
-        {
-            try
-            {
-                RequestParams requestParam = ParseRequestParams(args);
-
-                var response = await Client.CallAsync("{{apiPath}}", Method.{{apiMethod}}, requestParam);
-                var data = response.Content;
-
-                var cardTemplatePath = "./adaptiveCards/{{operationId}}.json";
-                if (File.Exists(cardTemplatePath)) {
-                    var message = RenderCardToMessage(cardTemplatePath, data);
-                    await turnContext.SendActivityAsync(message);
-                }
-                else
-                {
-                    await turnContext.SendActivityAsync(data);
-                }
-            }
-            catch (Exception ex) {
-                await turnContext.SendActivityAsync("Failed to call API with error:  " + ex.Message);
-            }
-
-            return "complete";
-        }`,
-};
 
 const functionDefinitionCode = {
   javascript: `.function(
@@ -1500,6 +1411,20 @@ const functionDefinitionCode = {
         }
       }
   )`,
+  cs: `       
+        var {{operationId}}SchemaJson = FunctionDefinitionLoader.FunctionDefinitions["{{operationId}}"]["parameters"].ToJsonString();
+        JsonSchema {{operationId}}Schema = JsonSchema.FromText({{operationId}}SchemaJson);
+        prompt.Functions.Add(new Function(FunctionDefinitionLoader.FunctionDefinitions["{{operationId}}"]["name"].ToString(),
+        FunctionDefinitionLoader.FunctionDefinitions["{{operationId}}"]["description"].ToString(),
+        {{operationId}}Schema, (IDictionary<string, object?> args) => handlers.{{functionName}}(args).GetAwaiter().GetResult()));`,
+  python: `.with_function(
+      Function(
+            name=function_defs["{{operationId}}"]["name"],
+            description=function_defs["{{operationId}}"]["description"],
+            parameter_schema=function_defs["{{operationId}}"]["parameters"],
+            handler=make_handler({{operationId}}, ctx)
+      )
+    )`,
 };
 
 const functionHandlerCode = {
@@ -1557,6 +1482,59 @@ module.exports = { {{operationId}}Handler };`,
   }
     
 };`,
+  cs: `
+      public async Task<string> {{functionName}}(IDictionary<string, object?> args)
+      {
+          try
+          {
+              RequestParams requestParam = ParseRequestParams(args);
+              var response = await Client.CallAsync("{{apiPath}}", Method.{{apiMethod}}, requestParam);
+              var data = response.Content;
+
+              var cardTemplatePath = "./adaptiveCards/{{operationId}}.json";
+              if (File.Exists(cardTemplatePath)) {
+                  var card = RenderCard(cardTemplatePath, data);
+                  await context.Send(new MessageActivity().AddAttachment(System.Text.Json.JsonSerializer.Deserialize<Microsoft.Teams.Cards.AdaptiveCard>(card)));
+              }
+              else
+              {
+                  await context.Send(data);
+              }
+          }
+          catch (Exception ex)
+          {
+              Console.WriteLine(ex.Message);
+          }
+
+          return "results are shown already. completed.";
+      }
+`,
+  python: `async def {{operationId}}(
+  parameters,
+):
+  path = getattr(parameters, "path", {})
+  body = getattr(parameters, "body", None)
+  query = getattr(parameters, "query", {}) or {}
+  resp = client.{{operationId}}(**path, json=body, _headers={}, _params=query, _cookies={})
+
+  if resp.status_code != 200:
+    return resp.reason
+  else:
+    card_template_path = os.path.join(current_dir, 'adaptiveCards/{{operationId}}.json')
+    if not os.path.exists(card_template_path):
+      json_resoponse_str = resp.text
+      return json_resoponse_str
+    else:
+      with open(card_template_path) as card_template_file:
+        adaptive_card_template = card_template_file.read()
+
+      renderer = AdaptiveCardRenderer(adaptive_card_template)
+
+      json_resoponse_str = resp.text
+      rendered_card_str = renderer.render(json_resoponse_str)
+      rendered_card_json = json.loads(rendered_card_str)
+      return AdaptiveCard.model_validate(rendered_card_json)
+  `,
 };
 
 const AuthCode = {
@@ -1621,41 +1599,84 @@ async function updateCodeForCustomApi(
       .replace("// Replace with function handler code", functionHandlersCode.join("\t\t\n"));
     await fs.writeFile(handlerFilePath, updatedHandlerFileContent);
   } else if (language === ProgrammingLanguage.PY) {
-    // Update code in bot.py
-    const actionsCode = [];
-    const codeTemplate = ActionCode["python"];
+    const appFolderPath = path.join(destinationPath, "src");
+    const functionDefinitionTemplate = functionDefinitionCode["python"];
+    const functionHandlerTemplate = functionHandlerCode["python"];
+
+    const appFilePath = path.join(appFolderPath, "app.py");
+    const handlerFilePath = path.join(appFolderPath, "handlers.py");
+    const functionDefinitionsCode = [];
+    const functionHandlersCode = [];
+    const operationIds: string[] = [];
     for (const item of specItems) {
-      const code = codeTemplate
-        .replace(/{{operationId}}/g, item.item.operationId!)
-        .replace(/{{pathUrl}}/g, item.pathUrl)
-        .replace(/{{method}}/g, item.method);
-      actionsCode.push(code);
+      functionDefinitionsCode.push(
+        functionDefinitionTemplate.replace(/{{operationId}}/g, item.item.operationId!)
+      );
+      functionHandlersCode.push(
+        functionHandlerTemplate
+          .replace(/{{operationId}}/g, item.item.operationId!)
+          .replace(/{{pathUrl}}/g, item.pathUrl)
+          .replace(/{{method}}/g, item.method)
+      );
+      operationIds.push(`${item.item.operationId!}`);
     }
 
-    const botFilePath = path.join(destinationPath, "src", "bot.py");
-    const botFileContent = (await fs.readFile(botFilePath)).toString();
-    const updateBotFileContent = botFileContent
+    const appFileContent = (await fs.readFile(appFilePath)).toString();
+    const updatedAppFileContent = appFileContent
+      .replace(
+        "// Replace with function definition code",
+        `prompt${functionDefinitionsCode.join("")}`
+      )
+      .replace("//Replace with functions to be imported", `${operationIds.join(", ")}`);
+    await fs.writeFile(appFilePath, updatedAppFileContent);
+
+    const handlerFileContent = (await fs.readFile(handlerFilePath)).toString();
+    const updatedHandlerFileContent = handlerFileContent
       .replace("{{OPENAPI_SPEC_PATH}}", openapiSpecFileName)
-      .replace("# Replace with action code", actionsCode.join("\n"));
-    await fs.writeFile(botFilePath, updateBotFileContent);
+      .replace("// Replace with function handler code", functionHandlersCode.join("\t\t\n"));
+    await fs.writeFile(handlerFilePath, updatedHandlerFileContent);
   } else if (language === ProgrammingLanguage.CSharp) {
-    const actionsCode = [];
-    const codeTemplate = ActionCode["cs"];
+    const functionDefinitionsCode = [];
+    const functionHandlersCode = [];
+    const functionDefinitionTemplate = functionDefinitionCode["cs"];
+    const functionHandlerTemplate = functionHandlerCode["cs"];
     for (const item of specItems) {
-      const code = codeTemplate
+      functionDefinitionsCode.push(
+        functionDefinitionTemplate
+          .replace(/{{operationId}}/g, item.item.operationId!)
+          .replace(/{{functionName}}/g, Utils.updateFirstLetter(item.item.operationId!))
+      );
+      const code = functionHandlerTemplate
         .replace(/{{operationId}}/g, item.item.operationId!)
         .replace(/{{apiPath}}/g, item.pathUrl)
         .replace(/{{apiMethod}}/g, Utils.updateFirstLetter(item.method))
         .replace(/{{functionName}}/g, Utils.updateFirstLetter(item.item.operationId!));
-      actionsCode.push(code);
+      functionHandlersCode.push(code);
     }
 
-    const apiActionCsFilePath = path.join(destinationPath, "APIActions.cs");
-    const apiActionCsFileContent = (await fs.readFile(apiActionCsFilePath)).toString();
-    const updateApiActionCsFileContent = apiActionCsFileContent
-      .replace("{{OPENAPI_SPEC_PATH}}", "apiSpecificationFile/" + openapiSpecFileName)
-      .replace("// Replace with action code", actionsCode.join("\n"));
-    await fs.writeFile(apiActionCsFilePath, updateApiActionCsFileContent);
+    const controllerFilePath = path.join(destinationPath, "Controllers", "Controller.cs");
+    const controllerFileContent = (await fs.readFile(controllerFilePath)).toString();
+    const updatedControllerFileContent = controllerFileContent.replace(
+      "// Replace with function definition code",
+      `${functionDefinitionsCode.join("\n")};`
+    );
+    await fs.writeFile(controllerFilePath, updatedControllerFileContent);
+
+    const handlerFilePath = path.join(destinationPath, "Functions", "Handlers.cs");
+    const handlerFileContent = (await fs.readFile(handlerFilePath)).toString();
+    const updatedHandlerFileContent = handlerFileContent.replace(
+      "// Replace with function handler code",
+      `${functionHandlersCode.join("\n")}`
+    );
+    await fs.writeFile(handlerFilePath, updatedHandlerFileContent);
+
+    const startFilePath = path.join(destinationPath, "Program.cs");
+    const startFileContent = (await fs.readFile(startFilePath)).toString();
+    const updatedStartFileContent = startFileContent.replace(
+      "{{OPENAPI_SPEC_PATH}}",
+      "apiSpecificationFile/" + openapiSpecFileName
+    );
+    await fs.writeFile(startFilePath, updatedStartFileContent);
 
     const files = await fs.readdir(destinationPath);
     const projectFileName = files.find((file) => file.endsWith(".csproj"));
@@ -1676,21 +1697,16 @@ export async function updateForCustomApi(
   openapiSpecFileName: string
 ): Promise<WarningResult[]> {
   const warnings: WarningResult[] = [];
-  let chatFolder = shouldGenerateTeamsAIV2Code(language)
-    ? path.join(destinationPath, "src", "app")
-    : path.join(destinationPath, "src", "prompts", "chat");
+  let chatFolder = path.join(destinationPath, "src", "app");
   if (language === ProgrammingLanguage.CSharp) {
-    chatFolder = path.join(destinationPath, "prompts", "Chat");
+    chatFolder = path.join(destinationPath, "Functions");
+  } else if (language === ProgrammingLanguage.PY) {
+    chatFolder = path.join(destinationPath, "src");
   }
   await fs.ensureDir(chatFolder);
 
   // 1. update prompt folder
-  await updatePromptForCustomApi(
-    spec,
-    language,
-    chatFolder,
-    shouldGenerateTeamsAIV2Code(language) ? "instructions.txt" : "skprompt.txt"
-  );
+  await updatePromptForCustomApi(spec, language, chatFolder, "instructions.txt");
 
   const [specItems, needAuth] = parseSpec(spec);
 

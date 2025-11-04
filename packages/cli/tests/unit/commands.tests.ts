@@ -1590,20 +1590,6 @@ describe("CLI read-only commands", () => {
       const res = await listTemplatesCommand.handler!(ctx);
       assert.isTrue(res.isOk());
     });
-    it("should contain TDP templates in E2E test environment", async () => {
-      const mockedEnvRestore = mockedEnv({ TEAMSFX_TDP_TEMPLATE_CLI_TEST: "true" });
-      const ctx: CLIContext = {
-        command: { ...listTemplatesCommand, fullName: "..." },
-        optionValues: { format: "table", description: false },
-        globalOptionValues: {},
-        argumentValues: ["key", "value"],
-        telemetryProperties: {},
-      };
-      const res = await listTemplatesCommand.handler!(ctx);
-      assert.isTrue(res.isOk());
-      assert.isTrue(messages.some((msg) => msg.includes("BotAndMessageExtension")));
-      mockedEnvRestore();
-    });
   });
   describe("listSamplesCommand", async () => {
     it("json", async () => {

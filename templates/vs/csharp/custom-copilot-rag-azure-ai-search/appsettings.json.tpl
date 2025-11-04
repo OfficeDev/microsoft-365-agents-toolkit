@@ -2,15 +2,19 @@
   "Logging": {
     "LogLevel": {
       "Default": "Information",
-      "Microsoft": "Information",
-      "Microsoft.Hosting.Lifetime": "Information"
+      "Microsoft.AspNetCore": "Warning"
+    },
+    "Microsoft.Teams": {
+      "Enable": "*",
+      "Level": "debug"
     }
   },
   "AllowedHosts": "*",
-  "BOT_ID": "",
-  "BOT_PASSWORD": "",
-  "BOT_TYPE": "",
-  "BOT_TENANT_ID": "",
+  "Teams": {
+		"ClientId": "",
+		"ClientSecret": "",
+		"BotType": ""
+	},
 {{#useOpenAI}}
   "OpenAI": {
     "ApiKey": "",

@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 "use strict";
 
-import { TokenCredential } from "@azure/core-auth";
+import { AccessToken } from "@azure/core-auth";
 import { ok, Result } from "neverthrow";
 import { FxError } from "../error";
 
@@ -57,6 +57,34 @@ export type AzureCredential =
       certificatePath: string;
     };
 
+export interface ITeamsFxTokenCredential {
+  /**
+   * Gets the token provided by this credential.
+   *
+   * @param scopes - The list of scopes for which the token will have access. wwwAuthenticate is passed to handle 401 error due to MFA enforcement
+   * @param options - The options used to configure any requests this TokenCredential implementation might make.
+   */
+  getToken(
+    scopes: string | string[] | AuthenticationWWWAuthenticateRequest,
+    options?: any
+  ): Promise<AccessToken | null>;
+}
+
+export interface AuthenticationWWWAuthenticateRequest {
+  /**
+   * The raw WWW-Authenticate header value that triggered this challenge.
+   * This will be parsed by the authentication provider to extract the necessary
+   * challenge information.
+   */
+  readonly wwwAuthenticate: string;
+
+  /**
+   * Optional scopes for the session. If not provided, the authentication provider
+   * may use default scopes or extract them from the challenge.
+   */
+  readonly scopes?: string[];
+}
+
 /**
  * Difference between getAccountCredential and getIdentityCredential [Node Azure Authenticate](https://docs.microsoft.com/en-us/azure/developer/javascript/core/node-sdk-azure-authenticate)
  * You can search at [Azure JS SDK](https://docs.microsoft.com/en-us/javascript/api/overview/azure/?view=azure-node-latest) to see which credential you need.
@@ -66,14 +94,17 @@ export interface AzureAccountProvider {
    * Async get identity [crendential](https://github.com/Azure/azure-sdk-for-js/blob/master/sdk/core/core-auth/src/tokenCredential.ts)
    * @param showDialog Control whether the UI layer displays pop-up windows.
    */
-  getIdentityCredentialAsync(showDialog?: boolean): Promise<TokenCredential | undefined>;
+  getIdentityCredentialAsync(
+    showDialog?: boolean,
+    authenticationSessionRequest?: AuthenticationWWWAuthenticateRequest
+  ): Promise<ITeamsFxTokenCredential | undefined>;
 
   /**
    * To support credential per action feature, caller can specify credential info for on demand
    * This method will be optional until V3 first release, after that it will be changed to required
    * @param credential
    */
-  getIdentityCredential?(credential: AzureCredential): Promise<TokenCredential | undefined>;
+  getIdentityCredential?(credential: AzureCredential): Promise<ITeamsFxTokenCredential | undefined>;
 
   /**
    * Azure sign out
@@ -83,7 +114,7 @@ export interface AzureAccountProvider {
    * Switch to specified tenant for current user account
    * @param tenantId id of tenant that user wants to switch to
    */
-  switchTenant(tenantId: string): Promise<Result<TokenCredential, FxError>>;
+  switchTenant(tenantId: string): Promise<Result<ITeamsFxTokenCredential, FxError>>;
   /**
    * Add update account info callback
    * @param name callback name

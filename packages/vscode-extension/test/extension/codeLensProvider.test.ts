@@ -19,6 +19,7 @@ import {
   PlaceholderCodeLens,
   SharePointIdCodeLens,
   TeamsAppYamlCodeLensProvider,
+  WorkspaceMCPConfigCodeLensProvider,
 } from "../../src/codeLensProvider";
 import * as globalVariables from "../../src/globalVariables";
 import { setTools, tools } from "../../src/globalVariables";
@@ -1323,6 +1324,468 @@ publish:
       chai.assert.equal((codelens as vscode.CodeLens[]).length, 1);
       const lens = codelens[0] as vscode.CodeLens;
       chai.assert.equal(lens.command?.command, "fx-extension.setSensitivityLabel");
+    });
+  });
+
+  describe("WorkspaceMCPConfigCodeLensProvider", () => {
+    const sandbox = sinon.createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it("should provide codelens for valid MCP config with single server", async () => {
+      const mcpConfigText = `{
+  // MCP Server Configuration
+  "servers": {
+    "my-server": {
+      "command": "node",
+      "args": ["server.js"],
+      "env": {
+        "API_KEY": "test-key"
+      }
+    }
+  }
+}`;
+
+      const document = {
+        fileName: "mcp-config.json",
+        getText: () => {
+          return mcpConfigText;
+        },
+        positionAt: (offset: number) => {
+          const lines = mcpConfigText.substring(0, offset).split("\n");
+          return new vscode.Position(lines.length - 1, lines[lines.length - 1].length);
+        },
+        lineAt: () => {
+          return {
+            lineNumber: 0,
+            text: mcpConfigText,
+          };
+        },
+      } as unknown as vscode.TextDocument;
+
+      const provider = new WorkspaceMCPConfigCodeLensProvider();
+      const codelens: vscode.CodeLens[] = provider.provideCodeLenses(document) as vscode.CodeLens[];
+
+      chai.assert.equal(codelens.length, 1);
+      chai.expect(codelens[0].command?.title).to.equal("⚡ ATK: Fetch action from MCP");
+      chai.expect(codelens[0].command?.command).to.equal("fx-extension.updateActionWithMCP");
+      chai.expect(codelens[0].command?.arguments).to.deep.equal([
+        {
+          serverName: "my-server",
+          serverConfig: {
+            command: "node",
+            args: ["server.js"],
+            env: {
+              API_KEY: "test-key",
+            },
+          },
+        },
+        "CodeLens",
+      ]);
+    });
+
+    it("should provide codelens for multiple servers", async () => {
+      const mcpConfigText = `{
+  "servers": {
+    "server-one": {
+      "command": "python",
+      "args": ["app.py"]
+    },
+    "server-two": {
+      "command": "node", 
+      "args": ["index.js"]
+    }
+  }
+}`;
+
+      const document = {
+        fileName: "mcp-config.json",
+        getText: () => {
+          return mcpConfigText;
+        },
+        positionAt: (offset: number) => {
+          const lines = mcpConfigText.substring(0, offset).split("\n");
+          return new vscode.Position(lines.length - 1, lines[lines.length - 1].length);
+        },
+        lineAt: () => {
+          return {
+            lineNumber: 0,
+            text: mcpConfigText,
+          };
+        },
+      } as unknown as vscode.TextDocument;
+
+      const provider = new WorkspaceMCPConfigCodeLensProvider();
+      const codelens: vscode.CodeLens[] = provider.provideCodeLenses(document) as vscode.CodeLens[];
+
+      chai.assert.equal(codelens.length, 2);
+
+      chai.expect(codelens[0].command?.title).to.equal("⚡ ATK: Fetch action from MCP");
+      chai.expect(codelens[0].command?.command).to.equal("fx-extension.updateActionWithMCP");
+      chai.expect(codelens[0].command?.arguments).to.deep.equal([
+        {
+          serverName: "server-one",
+          serverConfig: {
+            command: "python",
+            args: ["app.py"],
+          },
+        },
+        "CodeLens",
+      ]);
+
+      chai.expect(codelens[1].command?.title).to.equal("⚡ ATK: Fetch action from MCP");
+      chai.expect(codelens[1].command?.command).to.equal("fx-extension.updateActionWithMCP");
+      chai.expect(codelens[1].command?.arguments).to.deep.equal([
+        {
+          serverName: "server-two",
+          serverConfig: {
+            command: "node",
+            args: ["index.js"],
+          },
+        },
+        "CodeLens",
+      ]);
+    });
+
+    it("should handle JSON with comments (JSONC)", async () => {
+      const mcpConfigText = `{
+  // This is a comment
+  "servers": {
+    // Another comment
+    "test-server": {
+      "command": "npm",
+      "args": ["start"] // inline comment
+    }
+  }
+  /* Multi-line
+     comment */
+}`;
+
+      const document = {
+        fileName: "mcp-config.json",
+        getText: () => {
+          return mcpConfigText;
+        },
+        positionAt: (offset: number) => {
+          const lines = mcpConfigText.substring(0, offset).split("\n");
+          return new vscode.Position(lines.length - 1, lines[lines.length - 1].length);
+        },
+        lineAt: () => {
+          return {
+            lineNumber: 0,
+            text: mcpConfigText,
+          };
+        },
+      } as unknown as vscode.TextDocument;
+
+      const provider = new WorkspaceMCPConfigCodeLensProvider();
+      const codelens: vscode.CodeLens[] = provider.provideCodeLenses(document) as vscode.CodeLens[];
+
+      chai.assert.equal(codelens.length, 1);
+      chai.expect(codelens[0].command?.title).to.equal("⚡ ATK: Fetch action from MCP");
+      chai.expect(codelens[0].command?.command).to.equal("fx-extension.updateActionWithMCP");
+      chai.expect(codelens[0].command?.arguments).to.deep.equal([
+        {
+          serverName: "test-server",
+          serverConfig: {
+            command: "npm",
+            args: ["start"],
+          },
+        },
+        "CodeLens",
+      ]);
+    });
+
+    it("should return empty array when no servers property exists", async () => {
+      const mcpConfigText = `{
+  "otherProperty": {
+    "value": "test"
+  }
+}`;
+
+      const document = {
+        fileName: "mcp-config.json",
+        getText: () => {
+          return mcpConfigText;
+        },
+        positionAt: () => {
+          return new vscode.Position(0, 0);
+        },
+        lineAt: () => {
+          return {
+            lineNumber: 0,
+            text: mcpConfigText,
+          };
+        },
+      } as unknown as vscode.TextDocument;
+
+      const provider = new WorkspaceMCPConfigCodeLensProvider();
+      const codelens: vscode.CodeLens[] = provider.provideCodeLenses(document) as vscode.CodeLens[];
+
+      chai.assert.equal(codelens.length, 0);
+    });
+
+    it("should return empty array when servers is not an object", async () => {
+      const mcpConfigText = `{
+  "servers": "not-an-object"
+}`;
+
+      const document = {
+        fileName: "mcp-config.json",
+        getText: () => {
+          return mcpConfigText;
+        },
+        positionAt: () => {
+          return new vscode.Position(0, 0);
+        },
+        lineAt: () => {
+          return {
+            lineNumber: 0,
+            text: mcpConfigText,
+          };
+        },
+      } as unknown as vscode.TextDocument;
+
+      const provider = new WorkspaceMCPConfigCodeLensProvider();
+      const codelens: vscode.CodeLens[] = provider.provideCodeLenses(document) as vscode.CodeLens[];
+
+      chai.assert.equal(codelens.length, 0);
+    });
+
+    it("should return empty array when servers object is empty", async () => {
+      const mcpConfigText = `{
+  "servers": {}
+}`;
+
+      const document = {
+        fileName: "mcp-config.json",
+        getText: () => {
+          return mcpConfigText;
+        },
+        positionAt: () => {
+          return new vscode.Position(0, 0);
+        },
+        lineAt: () => {
+          return {
+            lineNumber: 0,
+            text: mcpConfigText,
+          };
+        },
+      } as unknown as vscode.TextDocument;
+
+      const provider = new WorkspaceMCPConfigCodeLensProvider();
+      const codelens: vscode.CodeLens[] = provider.provideCodeLenses(document) as vscode.CodeLens[];
+
+      chai.assert.equal(codelens.length, 0);
+    });
+
+    it("should handle empty document", async () => {
+      const mcpConfigText = "";
+
+      const document = {
+        fileName: "mcp-config.json",
+        getText: () => {
+          return mcpConfigText;
+        },
+        positionAt: () => {
+          return new vscode.Position(0, 0);
+        },
+        lineAt: () => {
+          return {
+            lineNumber: 0,
+            text: mcpConfigText,
+          };
+        },
+      } as unknown as vscode.TextDocument;
+
+      const provider = new WorkspaceMCPConfigCodeLensProvider();
+      const codelens: vscode.CodeLens[] = provider.provideCodeLenses(document) as vscode.CodeLens[];
+
+      chai.assert.equal(codelens.length, 0);
+    });
+
+    it("should handle document with only whitespace", async () => {
+      const mcpConfigText = "   \n   \t   \n   ";
+
+      const document = {
+        fileName: "mcp-config.json",
+        getText: () => {
+          return mcpConfigText;
+        },
+        positionAt: () => {
+          return new vscode.Position(0, 0);
+        },
+        lineAt: () => {
+          return {
+            lineNumber: 0,
+            text: mcpConfigText,
+          };
+        },
+      } as unknown as vscode.TextDocument;
+
+      const provider = new WorkspaceMCPConfigCodeLensProvider();
+      const codelens: vscode.CodeLens[] = provider.provideCodeLenses(document) as vscode.CodeLens[];
+
+      chai.assert.equal(codelens.length, 0);
+    });
+
+    it("should calculate correct range for server name", async () => {
+      const mcpConfigText = `{
+  "servers": {
+    "my-test-server": {
+      "command": "node"
+    }
+  }
+}`;
+
+      const document = {
+        fileName: "mcp-config.json",
+        getText: () => {
+          return mcpConfigText;
+        },
+        positionAt: (offset: number) => {
+          // Find the line and character position
+          const beforeOffset = mcpConfigText.substring(0, offset);
+          const lines = beforeOffset.split("\n");
+          const line = lines.length - 1;
+          const character = lines[line].length;
+          return new vscode.Position(line, character);
+        },
+        lineAt: () => {
+          return {
+            lineNumber: 0,
+            text: mcpConfigText,
+          };
+        },
+      } as unknown as vscode.TextDocument;
+
+      const provider = new WorkspaceMCPConfigCodeLensProvider();
+      const codelens: vscode.CodeLens[] = provider.provideCodeLenses(document) as vscode.CodeLens[];
+
+      chai.assert.equal(codelens.length, 1);
+
+      // The range should cover the server name with quotes
+      const expectedStartPos = mcpConfigText.indexOf('"my-test-server"');
+      chai.assert.isTrue(expectedStartPos !== -1, "Server name should be found in the text");
+
+      // Check that the range properties are set correctly
+      chai.assert.equal(codelens[0].range.start.line, codelens[0].range.end.line);
+      chai.assert.equal(
+        codelens[0].range.end.character - codelens[0].range.start.character,
+        "my-test-server".length + 2
+      );
+    });
+
+    it("should handle server names with special characters", async () => {
+      const mcpConfigText = `{
+  "servers": {
+    "server-with-dashes_and_underscores.123": {
+      "command": "python",
+      "args": ["-m", "server"]
+    },
+    "@scoped/server-name": {
+      "command": "npm",
+      "args": ["start"]
+    }
+  }
+}`;
+
+      const document = {
+        fileName: "mcp-config.json",
+        getText: () => {
+          return mcpConfigText;
+        },
+        positionAt: (offset: number) => {
+          const lines = mcpConfigText.substring(0, offset).split("\n");
+          return new vscode.Position(lines.length - 1, lines[lines.length - 1].length);
+        },
+        lineAt: () => {
+          return {
+            lineNumber: 0,
+            text: mcpConfigText,
+          };
+        },
+      } as unknown as vscode.TextDocument;
+
+      const provider = new WorkspaceMCPConfigCodeLensProvider();
+      const codelens: vscode.CodeLens[] = provider.provideCodeLenses(document) as vscode.CodeLens[];
+
+      chai.assert.equal(codelens.length, 2);
+
+      chai.expect(codelens[0].command?.arguments).to.deep.equal([
+        {
+          serverName: "server-with-dashes_and_underscores.123",
+          serverConfig: {
+            command: "python",
+            args: ["-m", "server"],
+          },
+        },
+        "CodeLens",
+      ]);
+
+      chai.expect(codelens[1].command?.arguments).to.deep.equal([
+        {
+          serverName: "@scoped/server-name",
+          serverConfig: {
+            command: "npm",
+            args: ["start"],
+          },
+        },
+        "CodeLens",
+      ]);
+    });
+
+    it("should handle null or undefined server configurations", async () => {
+      const mcpConfigText = `{
+  "servers": {
+    "null-server": null,
+    "undefined-server": {
+      "command": "node"
+    }
+  }
+}`;
+
+      const document = {
+        fileName: "mcp-config.json",
+        getText: () => {
+          return mcpConfigText;
+        },
+        positionAt: (offset: number) => {
+          const lines = mcpConfigText.substring(0, offset).split("\n");
+          return new vscode.Position(lines.length - 1, lines[lines.length - 1].length);
+        },
+        lineAt: () => {
+          return {
+            lineNumber: 0,
+            text: mcpConfigText,
+          };
+        },
+      } as unknown as vscode.TextDocument;
+
+      const provider = new WorkspaceMCPConfigCodeLensProvider();
+      const codelens: vscode.CodeLens[] = provider.provideCodeLenses(document) as vscode.CodeLens[];
+
+      chai.assert.equal(codelens.length, 2);
+
+      chai.expect(codelens[0].command?.arguments).to.deep.equal([
+        {
+          serverName: "null-server",
+          serverConfig: null,
+        },
+        "CodeLens",
+      ]);
+
+      chai.expect(codelens[1].command?.arguments).to.deep.equal([
+        {
+          serverName: "undefined-server",
+          serverConfig: {
+            command: "node",
+          },
+        },
+        "CodeLens",
+      ]);
     });
   });
 });

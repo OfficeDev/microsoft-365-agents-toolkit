@@ -25,6 +25,7 @@ import {
   cleanUpResourceGroup,
   createResourceGroup,
 } from "../../utils/cleanHelper";
+import { globalResourceGroupLocation } from "../../commonlib/constants";
 
 describe("Remote debug Tests", function () {
   this.timeout(Timeout.testAzureCase);
@@ -75,7 +76,7 @@ describe("Remote debug Tests", function () {
       await cleanUpResourceGroup(appName, "dev");
       // wait for resource group to be deleted
       await driver.sleep(180 * 1000);
-      await createResourceGroup(appName, "dev", "westus");
+      await createResourceGroup(appName, "dev", globalResourceGroupLocation);
       // rerun provision
       await provisionProject(appName, projectPath, false);
       await deployProject(projectPath, Timeout.botDeploy);

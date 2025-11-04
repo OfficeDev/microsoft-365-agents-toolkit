@@ -18,7 +18,11 @@ import { delay } from "../utils/retryHandler";
 const appNamePrefixList: string[] = [Project.namePrefix, "vs", "fx"];
 // const aadNamePrefixList: string[] = [Project.namePrefix, "vs"];
 const rgNamePrefixList: string[] = [Project.namePrefix, "vs"];
-const adminMicrosoftEntraAppName = "delete-client";
+const adminMicrosoftEntraAppName = [
+  "delete-client",
+  "ATK Test SP",
+  "TravelAgent-AADlocal",
+];
 const excludePrefix: string = getAppNamePrefix();
 
 async function main() {
@@ -52,7 +56,9 @@ async function main() {
   if (aadList) {
     for (const aad of aadList) {
       if (
-        !aad.displayName?.startsWith(adminMicrosoftEntraAppName) &&
+        !adminMicrosoftEntraAppName.some((name) =>
+          aad.displayName?.startsWith(name)
+        ) &&
         !aad.displayName?.startsWith(excludePrefix)
       ) {
         console.log(aad.displayName);

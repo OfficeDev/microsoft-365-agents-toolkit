@@ -16,7 +16,8 @@ import {
   featureFlagManager,
   FeatureFlags,
   getProjectTypeByCapability,
-  getTeamsProjectTypeByCapability,
+  getTeamsAppTypeByCapability,
+  getTeamsCapabilityByCapability,
   isTdpTemplate,
   MeArchitectureOptions,
   QuestionNames,
@@ -84,8 +85,10 @@ export function getCreateCommand(): CLICommand {
           const capability = inputs.capabilities as string;
           const projectType = getProjectTypeByCapability(capability);
           inputs["project-type"] = projectType as any;
-          const teamsAppType = getTeamsProjectTypeByCapability(capability);
+          const teamsAppType = getTeamsAppTypeByCapability(capability);
           inputs["teams-app-type"] = teamsAppType;
+          const teamsCapability = getTeamsCapabilityByCapability(capability);
+          inputs["teams-capability"] = teamsCapability;
         }
       }
       const isTdp = isTdpTemplate(inputs);

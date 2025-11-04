@@ -13,6 +13,7 @@ export enum TemplateNames {
   DeclarativeAgentWithExistingAction = "api-plugin-existing-api", // handled by DeclarativeAgentGenerator
   DeclarativeAgentWithTypeSpec = "declarative-agent-typespec", // handled by DeclarativeAgentGenerator
   DeclarativeAgentWithGraphConnector = "declarative-agent-with-graph-connector", // handled by DeclarativeAgentGenerator
+  DeclarativeAgentWithActionFromMCP = "declarative-agent-with-action-from-mcp", // handled by DeclarativeAgentGenerator
 
   DeclarativeAgentMetaOSNewProject = "declarative-agent-meta-os-new-project", // handled by OfficeAddinGeneratorNew
   DeclarativeAgentMetaOSUpgradeProject = "declarative-agent-meta-os-upgrade-project", // handled by OfficeAddinGeneratorNew
@@ -29,6 +30,7 @@ export enum TemplateNames {
   CustomCopilotRagMicrosoft365 = "custom-copilot-rag-microsoft365",
   CustomCopilotAssistantNew = "custom-copilot-assistant-new",
   CustomCopilotAssistantAssistantsApi = "custom-copilot-assistant-assistants-api",
+  TeamsCollaboratorAgent = "teams-collaborator-agent",
 
   // Copilot connector
   GraphConnector = "graph-connector", // vsc only
@@ -59,16 +61,13 @@ export enum TemplateNames {
   MessageExtensionM365 = "m365-message-extension",
   MessageExtensionAction = "message-extension-action",
   LinkUnfurling = "link-unfurling",
+  DefaultMessageExtension = "default-message-extension",
 
   // WXP
   OutlookTaskpane = "office-addin-outlook-taskpane", // handled by OfficeAddinGeneratorNew
   WXPTaskpane = "office-addin-wxpo-taskpane", // handled by OfficeAddinGeneratorNew
+  ExcelCFShortcut = "office-addin-excel-cfshortcut", // handled by OfficeAddinGeneratorNew
   OfficeAddinCommon = "office-addin-config", // handled by OfficeAddinGeneratorNew
-
-  // from TDP only
-  TabAndDefaultBot = "non-sso-tab-default-bot",
-  BotAndMessageExtension = "default-bot-message-extension",
-  MessageExtension = "message-extension",
 
   // VS only
   Empty = "empty",

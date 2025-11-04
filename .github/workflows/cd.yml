@@ -237,14 +237,14 @@ jobs:
         if: ${{ github.event_name == 'workflow_dispatch' && (github.event.inputs.preid != 'alpha') }}
         run: bash .github/scripts/chat-participant-disabled.sh
 
-      - name: disable api proposals in package.json
-        if: ${{ github.event_name == 'workflow_dispatch' && (github.event.inputs.preid != 'alpha') }}
-        uses: jossef/action-set-json-field@v2.1
-        with:
-          file: packages/vscode-extension/package.json
-          field: enabledApiProposals
-          value: '[]'
-          parse_json: true
+      # - name: disable api proposals in package.json
+      #   if: ${{ github.event_name == 'workflow_dispatch' && (github.event.inputs.preid != 'alpha') }}
+      #   uses: jossef/action-set-json-field@v2.1
+      #   with:
+      #     file: packages/vscode-extension/package.json
+      #     field: enabledApiProposals
+      #     value: '[]'
+      #     parse_json: true
 
       - name: disable chat participant in package.json
         if: ${{ github.event_name == 'workflow_dispatch' && (github.event.inputs.preid != 'alpha') }}

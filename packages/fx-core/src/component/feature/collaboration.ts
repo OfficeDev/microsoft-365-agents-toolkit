@@ -27,7 +27,7 @@ import { AgentPermission, PackageService } from "../../component/m365/packageSer
 import { MosServiceScope } from "../../component/m365/serviceConstant";
 import { HttpClientError, HttpServerError, assembleError } from "../../error/common";
 import { AppIdNotExist } from "../../error/teamsApp";
-import { AadAppClient } from "../driver/aad/utility/aadAppClient";
+import { AadAppClient } from "../../client/aadAppClient";
 import { permissionsKeys } from "../driver/aad/utility/constants";
 import { addStartAndEndTelemetry } from "../driver/middleware/addStartAndEndTelemetry";
 import { Constants } from "../driver/teamsApp/constants";

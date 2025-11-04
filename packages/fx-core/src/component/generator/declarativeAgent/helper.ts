@@ -1,10 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 import {
+  AppPackageFolderName,
   Context,
   DefaultApiSpecFolderName,
+  DefaultPluginManifestFileName,
   err,
   FxError,
+  GeneratorResult,
+  Inputs,
   ok,
   PluginManifestSchema,
   Result,
@@ -31,6 +35,7 @@ import {
   ItemMetadata,
 } from "./oneDriveSharePointHandler";
 import { createContext } from "../../../common/globalVars";
+import { QuestionNames } from "../../../question/questionNames";
 
 const logMessageKeys = {
   failValidateOneDriveSharePointItem:
@@ -347,4 +352,107 @@ export async function getGraphConnectors(): Promise<GCItem[]> {
       throw err;
     }
   }
+}
+
+export async function generateForMCPForDA(
+  destinationPath: string,
+  inputs: Inputs
+): Promise<Result<GeneratorResult, FxError>> {
+  // 1. Get ai-plugin.json
+  const aiPluginFilePath = path.join(
+    destinationPath,
+    AppPackageFolderName,
+    DefaultPluginManifestFileName
+  );
+  if (!(await fs.pathExists(aiPluginFilePath))) {
+    const error = new SystemError(
+      "MCPForDAPluginManifestNotFound",
+      "PluginManifestNotFound",
+      getDefaultString("core.MCPForDA.pluginManifestNotFound", aiPluginFilePath),
+      getLocalizedString("core.MCPForDA.pluginManifestNotFound", aiPluginFilePath)
+    );
+    return err(error);
+  }
+
+  const mcpServerUrl = inputs[QuestionNames.MCPForDAServerUrl];
+  const serverName = inputs[QuestionNames.MCPForDAServerName];
+  const mcpTool = inputs[QuestionNames.MCPForDATool];
+
+  // 2. Read ai-plugin.json
+  const aiPluginContent = await fs.readJSON(aiPluginFilePath);
+
+  // For dynamic fetch tools, keep the functions empty and add runtime info
+  if (mcpTool === "dynamic-fetch") {
+    aiPluginContent.functions = [];
+    aiPluginContent.runtimes = [
+      {
+        type: "RemoteMCPServer",
+        spec: {
+          url: mcpServerUrl,
+          enable_dynamic_discovery: true,
+        },
+      },
+    ];
+  } else {
+    // For pre-fetch tools, add the tool info to ai-plugin.json
+    const mcpToolsDetail = inputs[QuestionNames.MCPForDAAvailableTools];
+    const mcpToolsSelected = inputs[QuestionNames.MCPForDAPreFetchTools];
+    const mcpAuth = inputs[QuestionNames.MCPForDAAuth];
+    if (!mcpToolsDetail || !mcpToolsSelected) {
+      const error = new UserError(
+        "MCPForDAPreFetchToolsNotFound",
+        "PreFetchToolsNotFound",
+        getDefaultString("core.MCPForDA.preFetchToolsNotFound"),
+        getLocalizedString("core.MCPForDA.preFetchToolsNotFound")
+      );
+      return err(error);
+    }
+    aiPluginContent.functions = mcpToolsDetail
+      .filter((tool: any) => tool.name.includes(serverName))
+      .map((tool: any) => {
+        const index = tool.name.indexOf(serverName);
+        const newName = (tool.name as string).substring(
+          (index as number) + (serverName.length as number) + 1
+        );
+        return {
+          name: newName,
+          description: tool.description,
+          inputSchema: tool.inputSchema,
+          tags: tool.tags,
+        };
+      })
+      .filter((tool: any) => mcpToolsSelected.includes(tool.name))
+      .map((tool: any) => {
+        return {
+          name: tool.name,
+          description: tool.description,
+          parameters: {
+            type: tool.inputSchema.type || "object",
+            properties: tool.inputSchema.properties,
+            required: tool.inputSchema.required || [],
+          },
+        };
+      });
+    aiPluginContent.runtimes = [
+      {
+        type: "RemoteMCPServer",
+        spec: {
+          url: mcpServerUrl,
+          enable_dynamic_discovery: false,
+        },
+        run_for_functions: aiPluginContent.functions.map((func: any) => func.name),
+      },
+    ];
+    if (mcpAuth === "OAuthPluginVault") {
+      aiPluginContent.runtimes[0].auth = {
+        type: "OAuthPluginVault",
+        reference_id: "${{MCP_DA_AUTH_ID}}",
+      };
+    }
+  }
+
+  // 3. Write ai-plugin.json
+  await fs.writeJSON(aiPluginFilePath, aiPluginContent, { spaces: 4 });
+
+  return ok([] as GeneratorResult); // Return empty warnings
 }

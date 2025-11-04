@@ -111,10 +111,16 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
+      - id: generate-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ vars.APP_GITHUB_APP_ID }}
+          private-key: ${{ secrets.APP_GITHUB_APP_PRIVATE_KEY }}
+
       - name: Checkout branch
         uses: actions/checkout@v3
         with:
-          token: ${{ secrets.CD_PAT }}
+          token: ${{ steps.generate-token.outputs.token }}
           ref: ${{ github.event.workflow_run.head_branch }}
 
       - name: Setup node

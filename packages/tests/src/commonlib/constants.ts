@@ -31,19 +31,21 @@ export class PluginId {
   static readonly AppStudio = "fx-resource-appstudio";
 }
 
+export const globalResourceGroupLocation = "westus";
+
 export const fileEncoding = "UTF8";
 
 export type CliCapabilities =
-  | "notification"
-  | "command-bot"
   | "tab"
   | "bot"
-  | "link-unfurling"
-  | "search-message-extension"
-  | "collect-form-message-extension"
-  | "message-extension"
+  | "basic-message-extension"
   | "BotAndMessageExtension"
-  | "TabNonSsoAndBot";
+  | "TabNonSsoAndBot"
+  // VS only
+  | "search-message-extension"
+  | "link-unfurling"
+  | "collect-form-message-extension"
+  | "notification";
 export type CliTriggerType =
   | "http-express"
   | "http-functions"

@@ -31,7 +31,10 @@ import { setTools } from "../../src/common/globalVars";
 import { coordinator } from "../../src/component/coordinator";
 import { QuestionNames, ScratchOptions } from "../../src/question/constants";
 import { VSCapabilityOptions } from "../../src/question/scaffold/vs/createRootNode";
-import { TabCapabilityOptions } from "../../src/question/scaffold/vsc/CapabilityOptions";
+import {
+  TabCapabilityOptions,
+  TeamsAgentCapabilityOptions,
+} from "../../src/question/scaffold/vsc/CapabilityOptions";
 import { ProjectTypeOptions } from "../../src/question/scaffold/vsc/ProjectTypeOptions";
 import { MockTools, randomAppName } from "./utils";
 
@@ -48,8 +51,69 @@ describe("FxCore.createProject", () => {
     const inputs: Inputs = {
       platform: Platform.VSCode,
       [QuestionNames.Scratch]: ScratchOptions.yes().id,
-      [QuestionNames.ProjectType]: ProjectTypeOptions.teamsAppOptionId,
-      [QuestionNames.Capabilities]: TabCapabilityOptions.nonSsoTab().id,
+      [QuestionNames.ProjectType]: ProjectTypeOptions.teamsOptionId,
+      [QuestionNames.TeamsAppType]: TeamsAgentCapabilityOptions.others().id,
+      [QuestionNames.TeamsCapability]: TabCapabilityOptions.nonSsoTab().id,
+      [QuestionNames.ProgrammingLanguage]: "typescript",
+      [QuestionNames.Folder]: os.tmpdir(),
+      [QuestionNames.AppName]: randomAppName(),
+    };
+    sandbox.stub(tools, "logProvider").value(undefined);
+    const core = new FxCore(tools);
+    const res = await core.createProject(inputs);
+    assert.isTrue(res.isOk());
+  });
+
+  it("create teams agent with key", async () => {
+    sandbox.stub(coordinator, "create").resolves(ok({ projectPath: "" }));
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      [QuestionNames.Scratch]: ScratchOptions.yes().id,
+      [QuestionNames.ProjectType]: ProjectTypeOptions.teamsOptionId,
+      [QuestionNames.TeamsAppType]: "custom-copilot-basic",
+      [QuestionNames.LLMService]: "llm-service-azure-openai",
+      [QuestionNames.AzureOpenAIKey]: "mockedAzureOpenAIKey",
+      [QuestionNames.AzureOpenAIEndpoint]: "mockedAzureOpenAIEndpoint",
+      [QuestionNames.AzureOpenAIDeploymentName]: "mockedAzureOpenAIDeploymentName",
+      [QuestionNames.ProgrammingLanguage]: "javascript",
+      [QuestionNames.Folder]: os.tmpdir(),
+      [QuestionNames.AppName]: randomAppName(),
+    };
+    sandbox.stub(tools, "logProvider").value(undefined);
+    const core = new FxCore(tools);
+    const res = await core.createProject(inputs);
+    assert.isTrue(res.isOk());
+  });
+
+  it("create teams agent without AI key", async () => {
+    sandbox.stub(coordinator, "create").resolves(ok({ projectPath: "" }));
+    const inputs: Inputs = {
+      platform: Platform.CLI,
+      nonInteractive: true,
+      [QuestionNames.Scratch]: ScratchOptions.yes().id,
+      [QuestionNames.ProjectType]: ProjectTypeOptions.teamsOptionId,
+      [QuestionNames.TeamsAppType]: "custom-copilot-basic",
+      [QuestionNames.LLMService]: "llm-service-azure-openai",
+      [QuestionNames.ProgrammingLanguage]: "javascript",
+      [QuestionNames.Folder]: os.tmpdir(),
+      [QuestionNames.AppName]: randomAppName(),
+    };
+    sandbox.stub(tools, "logProvider").value(undefined);
+    const core = new FxCore(tools);
+    const res = await core.createProject(inputs);
+    assert.isTrue(res.isOk());
+  });
+
+  it("create teams agent without AI endpoint", async () => {
+    sandbox.stub(coordinator, "create").resolves(ok({ projectPath: "" }));
+    const inputs: Inputs = {
+      platform: Platform.CLI,
+      nonInteractive: true,
+      [QuestionNames.Scratch]: ScratchOptions.yes().id,
+      [QuestionNames.ProjectType]: ProjectTypeOptions.teamsOptionId,
+      [QuestionNames.TeamsAppType]: "custom-copilot-basic",
+      [QuestionNames.LLMService]: "llm-service-azure-openai",
+      [QuestionNames.AzureOpenAIKey]: "test",
       [QuestionNames.ProgrammingLanguage]: "javascript",
       [QuestionNames.Folder]: os.tmpdir(),
       [QuestionNames.AppName]: randomAppName(),
@@ -86,7 +150,7 @@ describe("FxCore.createProject", () => {
     const inputs: Inputs = {
       platform: Platform.VSCode,
       [QuestionNames.Scratch]: ScratchOptions.yes().id,
-      [QuestionNames.ProjectType]: ProjectTypeOptions.teamsApp().id,
+      [QuestionNames.ProjectType]: ProjectTypeOptions.teamsAgentsAndApps().id,
       [QuestionNames.Capabilities]: VSCapabilityOptions.tab().id,
       [QuestionNames.ProgrammingLanguage]: "javascript",
       [QuestionNames.Folder]: os.tmpdir(),
@@ -145,7 +209,7 @@ describe("createProjectFromTdp", () => {
     const inputs: Inputs = {
       platform: Platform.VSCode,
       [QuestionNames.Scratch]: ScratchOptions.yes().id,
-      [QuestionNames.ProjectType]: ProjectTypeOptions.teamsAppOptionId,
+      [QuestionNames.ProjectType]: ProjectTypeOptions.teamsOptionId,
       [QuestionNames.Capabilities]: VSCapabilityOptions.tab().id,
       [QuestionNames.ProgrammingLanguage]: "javascript",
       [QuestionNames.Folder]: os.tmpdir(),
@@ -194,7 +258,7 @@ describe("createProjectFromTdp", () => {
     const inputs: Inputs = {
       platform: Platform.VSCode,
       [QuestionNames.Scratch]: ScratchOptions.yes().id,
-      [QuestionNames.ProjectType]: ProjectTypeOptions.teamsAppOptionId,
+      [QuestionNames.ProjectType]: ProjectTypeOptions.teamsOptionId,
       [QuestionNames.Capabilities]: VSCapabilityOptions.tab().id,
       [QuestionNames.ProgrammingLanguage]: "javascript",
       [QuestionNames.Folder]: os.tmpdir(),

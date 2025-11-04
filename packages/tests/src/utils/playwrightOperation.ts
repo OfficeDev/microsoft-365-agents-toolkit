@@ -370,9 +370,10 @@ export async function initCopilotPage(
   context: BrowserContext,
   username: string,
   password: string,
-  options?: {
-    teamsAppName?: string;
+  options: {
+    copilotAgentName: string;
     dashboardFlag?: boolean;
+    loggedIn?: boolean;
   }
 ): Promise<Page> {
   let page = await context.newPage();
@@ -383,34 +384,36 @@ export async function initCopilotPage(
   // https://github.com/puppeteer/puppeteer/issues/3338
   await Promise.all([page.goto(copilotUrl), page.waitForNavigation()]);
 
-  // input username
-  await RetryHandler.retry(async () => {
-    await page.fill("input.input[type='email']", username);
-    console.log(`fill in username ${username}`);
+  if (!options?.loggedIn) {
+    // input username
+    await RetryHandler.retry(async () => {
+      await page.fill("input.input[type='email']", username);
+      console.log(`fill in username ${username}`);
 
-    // next
-    await Promise.all([
-      page.click("input.button[type='submit']"),
-      page.waitForNavigation(),
-    ]);
-    // input password
-    console.log(`fill in password`);
-    await page.fill("input.input[type='password'][name='passwd']", password);
+      // next
+      await Promise.all([
+        page.click("input.button[type='submit']"),
+        page.waitForNavigation(),
+      ]);
+      // input password
+      console.log(`fill in password`);
+      await page.fill("input.input[type='password'][name='passwd']", password);
 
-    // sign in
-    await Promise.all([
-      page.click("input.button[type='submit']"),
-      page.waitForNavigation(),
-    ]);
+      // sign in
+      await Promise.all([
+        page.click("input.button[type='submit']"),
+        page.waitForNavigation(),
+      ]);
 
-    // stay signed in confirm page
-    console.log(`stay signed confirm`);
-    await Promise.all([
-      page.click("input.button[type='submit'][value='Yes']"),
-      page.waitForNavigation(),
-    ]);
-    await page.waitForTimeout(Timeout.shortTimeLoading);
-  });
+      // stay signed in confirm page
+      console.log(`stay signed confirm`);
+      await Promise.all([
+        page.click("input.button[type='submit'][value='Yes']"),
+        page.waitForNavigation(),
+      ]);
+      await page.waitForTimeout(Timeout.shortTimeLoading);
+    });
+  }
 
   // add app
   await RetryHandler.retry(async (retries: number) => {
@@ -426,12 +429,37 @@ export async function initCopilotPage(
     try {
       await page?.waitForSelector(`span:has-text("Agents")`);
       console.log("[success] copilot loaded");
+      try {
+        console.log("Click All agents button:");
+        const seeMore = await page?.waitForSelector(
+          `button[aria-label='All agents']`
+        );
+        await seeMore.click();
+        console.log("Loaded more agents:");
+      } catch {
+        console.log("No All agents button:");
+      }
+      try {
+        console.log("Click See more button:");
+        const seeMore = await page?.waitForSelector(
+          `button:has-text('See more')`
+        );
+        await seeMore.click();
+        console.log("Loaded more agents:");
+      } catch {
+        console.log("No See more button:");
+      }
+      const copilotAgent = page
+        ?.getByLabel(`${options.copilotAgentName}`)
+        .first();
+      await copilotAgent?.click();
+      await page.waitForTimeout(Timeout.shortTimeLoading);
     } catch {
       await page.screenshot({
         path: getPlaywrightScreenshotPath("copiloterror_page"),
         fullPage: true,
       });
-      throw "error to load copilot";
+      throw new Error("error to load copilot");
     }
   });
 
@@ -1332,7 +1360,7 @@ export async function validateReactOutlookTab(
 
 export async function validateBasicTab(
   page: Page,
-  content = "Hello, World",
+  content = "Welcome",
   hubState = "Teams"
 ) {
   try {
@@ -1343,7 +1371,7 @@ export async function validateBasicTab(
     console.log(`Check if ${content} showed`);
     await frame?.waitForSelector(`h1:has-text("${content}")`);
     console.log(`Check if ${hubState} showed`);
-    await frame?.waitForSelector(`#hubState:has-text("${hubState}")`);
+    await frame?.waitForSelector(`div:has-text("${hubState}")`);
     console.log(`${hubState} showed`);
   } catch (error) {
     await page.screenshot({
@@ -1730,22 +1758,9 @@ export async function validatePrompt(
   }
 ) {
   try {
-    try {
-      console.log("Click See more button:");
-      const seeMore = await page?.waitForSelector(
-        `button:has-text("See more")`
-      );
-      await seeMore?.click();
-      console.log("Loaded more agents:");
-    } catch {
-      console.log("No See more button:");
-    }
-    const copilotAgent = page?.getByLabel(`${copilotAgentName}`).first();
-    await copilotAgent?.click();
-    await page.waitForTimeout(Timeout.shortTimeLoading);
     console.log("start to verify prompt");
     const contenteditableSpan = await page?.waitForSelector(
-      'span[aria-label="Chat Input"]'
+      'span[aria-label="Message Copilot"]'
     );
     await contenteditableSpan?.click();
     await contenteditableSpan.fill(options?.prompt || "list repairs");

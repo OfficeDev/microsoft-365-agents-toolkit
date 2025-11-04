@@ -6,17 +6,23 @@ import { Template } from "./interface";
 
 export const tabTemplates: Template[] = [
   {
-    id: "non-sso-tab-ts",
+    id: "basic-tab-ts",
     name: TemplateNames.Tab,
     language: "typescript",
     description: "Simple Teams Tab App",
   },
   {
-    id: "non-sso-tab-js",
+    id: "basic-tab-csharp",
     name: TemplateNames.Tab,
-    language: "javascript",
+    language: "csharp",
     description: "Simple Teams Tab App",
   },
+  // {
+  //   id: "non-sso-tab-js",
+  //   name: TemplateNames.Tab,
+  //   language: "javascript",
+  //   description: "Simple Teams Tab App",
+  // },
   {
     id: "sso-tab-naa-ts",
     name: TemplateNames.SsoTabNaa,

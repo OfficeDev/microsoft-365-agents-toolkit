@@ -31,13 +31,13 @@
       "value": "${{AZURE_SEARCH_ENDPOINT}}"
     },
     "webAppSKU": {
-      "value": "B1"
+      "value": "B3"
     },
     "botDisplayName": {
       "value": "{{appName}}"
     },
     "linuxFxVersion": {
-      "value": "PYTHON|3.11"
+      "value": "PYTHON|3.12"
     }
   }
 }

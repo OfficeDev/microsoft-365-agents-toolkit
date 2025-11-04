@@ -6,7 +6,7 @@ import { getLocalizedString } from "../../../common/localizeUtils";
 import { QuestionNames } from "../../questionNames";
 import { CustomEngineAgentOptions, setTemplateName } from "./CapabilityOptions";
 import { ProjectTypeOptions } from "./ProjectTypeOptions";
-import { llmServiceNode } from "./agentForTeamsNode";
+import { llmServiceNode } from "./teamsProjectTypeNode";
 
 export function customEngineAgentNode(): IQTreeNode {
   return {

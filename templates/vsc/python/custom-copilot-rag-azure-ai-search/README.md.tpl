@@ -4,11 +4,7 @@ This app template showcases how to build one of the most powerful applications e
 This app template also demonstrates usage of techniques like: 
 - [Retrieval Augmented Generation](https://python.langchain.com/docs/use_cases/question_answering/#what-is-rag), or RAG.
 - [Azure AI Search](https://learn.microsoft.com/azure/search/search-what-is-azure-search)
-- [Teams AI Library](https://learn.microsoft.com/microsoftteams/platform/bots/how-to/teams%20conversational%20ai/teams-conversation-ai-overview)
-
-> **Note**
->
-> [Teams AI library V2](https://aka.ms/teams-ai-library-v2) is recommended. This template will be upgraded to Teams AI V2 soon.
+- [Microsoft Teams SDK](https://aka.ms/teams-ai-library-v2)
 
 ## Get started with the template
 
@@ -16,7 +12,7 @@ This app template also demonstrates usage of techniques like:
 >
 > To run the template in your local dev machine, you will need:
 >
-> - [Python](https://www.python.org/), version 3.8 to 3.11.
+> - [Python](https://www.python.org/), version 3.12 or higher.
 > - [Python extension](https://code.visualstudio.com/docs/languages/python), version v2024.0.1 or higher.
 > - [Microsoft 365 Agents Toolkit Visual Studio Code Extension](https://aka.ms/teams-toolkit) latest version or [Microsoft 365 Agents Toolkit CLI](https://aka.ms/teams-toolkit-cli).
 {{#useAzureOpenAI}}
@@ -88,12 +84,10 @@ The following files can be customized and demonstrate an example implementation 
 
 | File                                 | Contents                                           |
 | - | - |
-|`src/bot.py`| Handles business logics for the AI Search Bot.|
 |`src/config.py`| Defines the environment variables.|
 |`src/app.py`| Main module of the AI Search Bot, hosts a aiohttp api server for the app.|
 |`src/azure_ai_search_data_source.py.py`| Handles data search logics.|
-|`src/prompts/chat/skprompt.txt`| Defines the prompt.|
-|`src/prompts/chat/config.json`| Configures the prompt.|
+|`src/instructions.txt`| Defines the prompt.|
 
 The following files are scripts and raw texts that help you to prepare or clean data source in Azure Search.
 
@@ -114,11 +108,7 @@ The following are Microsoft 365 Agents Toolkit specific project files. You can [
 
 ## Extend the template
 
-- Follow [Build a Basic AI Chatbot in Teams](https://aka.ms/teamsfx-basic-ai-chatbot) to extend the template with more AI capabilities.
-- Follow [Build a RAG Bot in Teams](https://aka.ms/teamsfx-rag-bot) to extend the template with more RAG capabilities. In this template, we upload raw text data to Azure AI Search. Azure AI Search also allows you to create vectorized data and do vector similarity search. 
-You can refer to the section [integrate-vectorization](https://github.com/OfficeDev/TeamsFx/wiki/Build-a-RAG-Bot-in-Teams#integrate-vectorization) or the demo [integrated-vectorization](https://github.com/Azure/azure-search-vector-samples/tree/main/demo-python/code/integrated-vectorization) for more details.
-- Understand more about [Azure AI Search as data source](https://aka.ms/teamsfx-rag-bot#azure-ai-search-as-data-source).
-
+To extend the Basic AI Chatbot template with more AI capabilities, explore [Microsoft Teams SDK documentation](https://aka.ms/m365-agents-toolkit/teams-agent-extend-ai-python).
 ## Additional information and references
 
 - [Microsoft 365 Agents Toolkit Documentations](https://docs.microsoft.com/microsoftteams/platform/toolkit/teams-toolkit-fundamentals)

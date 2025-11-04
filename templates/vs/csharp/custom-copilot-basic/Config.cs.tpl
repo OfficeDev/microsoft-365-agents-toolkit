@@ -2,10 +2,7 @@ namespace {{SafeProjectName}}
 {
     public class ConfigOptions
     {
-        public string BOT_ID { get; set; }
-        public string BOT_PASSWORD { get; set; }
-        public string BOT_TYPE { get; set; }
-        public string BOT_TENANT_ID { get; set; }
+        public TeamsConfigOptions Teams { get; set; }
 {{#useOpenAI}}
         public OpenAIConfigOptions OpenAI { get; set; }
 {{/useOpenAI}}
@@ -14,6 +11,13 @@ namespace {{SafeProjectName}}
 {{/useAzureOpenAI}}
     }
 
+    public class TeamsConfigOptions
+    {
+        public string BotType { get; set; }
+        public string ClientId { get; set; }
+        public string ClientSecret { get; set; }
+        public string TenantId { get; set; }
+    }
 {{#useOpenAI}}
     /// <summary>
     /// Options for Open AI

@@ -10,6 +10,7 @@ export enum QuestionNames {
   ProjectType = "project-type",
   Capabilities = "capabilities",
   TeamsAppType = "teams-app-type",
+  TeamsCapability = "teams-capability",
   BotTrigger = "bot-host-type-trigger",
   Runtime = "runtime",
   SPFxSolution = "spfx-solution",
@@ -142,4 +143,13 @@ export enum QuestionNames {
   SelectPluginId = "select-plugin-id",
 
   DAMetaOSCapability = "da-meta-os-capability",
+  MCPForDAServerUrl = "mcp-da-server-url",
+  MCPForDAServerName = "mcp-da-server-name",
+  MCPForDATool = "mcp-da-tool",
+  MCPForDAAvailableTools = "mcp-da-available-tools",
+  MCPForDAPreFetchTools = "mcp-da-pre-fetch-tools",
+  MCPForDAAuth = "mcp-da-auth",
+  MCPForDAAuthMetadataUrl = "mcp-da-auth-metadata-url",
+  MCPForDAAuthWellKnownUrl = "mcp-da-auth-well-known-url",
+  MCPForDAAuthType = "mcp-da-auth-type",
 }

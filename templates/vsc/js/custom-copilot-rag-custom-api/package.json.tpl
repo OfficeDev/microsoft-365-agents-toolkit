@@ -4,7 +4,7 @@
     "msteams": {
         "teamsAppId": null
     },
-    "description": "Microsoft 365 Agents Toolkit AI Chat Agent Sample with Teams AI Library",
+    "description": "Microsoft 365 Agents Toolkit AI Chat Agent Sample with Microsoft Teams SDK",
     "engines": {
         "node": "20 || 22"
     },
@@ -26,10 +26,10 @@
     },
     "dependencies": {
         "@azure/identity": "^4.11.1",
-        "@microsoft/teams.apps": "preview",
-        "@microsoft/teams.ai": "preview",
-        "@microsoft/teams.openai": "preview",
-        "@microsoft/teams.common": "preview",
+        "@microsoft/teams.apps": "^2.0.0",
+        "@microsoft/teams.ai": "^2.0.0",
+        "@microsoft/teams.openai": "^2.0.0",
+        "@microsoft/teams.common": "^2.0.0",
         "fs-extra": "^11.2.0",
         "js-yaml": "^4.1.0",
         "adaptivecards-templating": "^2.3.1",

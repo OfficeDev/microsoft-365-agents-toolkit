@@ -284,7 +284,7 @@ export class DeclarativeAgentManifestConverter {
     const version = manifest.version as string;
     const converters = daConverterMap[version as keyof typeof daConverterMap];
     if (!converters) {
-      return JSON.stringify(manifest);
+      return JSON.stringify(manifest, undefined, 4);
     }
     return converters[1](manifest);
   }

@@ -17,20 +17,19 @@ import { QuestionNames } from "../../questionNames";
 import {
   ActionStartOptions,
   BotCapabilityOptions,
-  CustomCopilotCapabilityOptions,
   CustomEngineAgentOptions,
   DACapabilityOptions,
   MeCapabilityOptions,
   OfficeAddinCapabilityOptions,
   TabCapabilityOptions,
+  TeamsAgentCapabilityOptions,
 } from "./CapabilityOptions";
 import { ProjectTypeOptions } from "./ProjectTypeOptions";
-import { agentForTeamsProjectTypeNode } from "./agentForTeamsNode";
 import { customEngineAgentNode } from "./customEngineAgentNode";
 import { daProjectTypeNode } from "./daProjectTypeNode";
 import { graphConnectorProjectTypeNode } from "./graphConnectorProjectTypeNode";
 import { officeAddinProjectTypeNode } from "./officeAddinProjectTypeNode";
-import { teamsAppProjectNode, TeamsProjectTypeOptions } from "./teamsProjectTypeNode";
+import { teamsProjectNode } from "./teamsProjectTypeNode";
 
 export const LanguageOptionMap = new Map<string, OptionItem>([
   [ProgrammingLanguage.JS, { id: ProgrammingLanguage.JS, label: "JavaScript" }],
@@ -54,6 +53,17 @@ export function getLanguageOptions(inputs: Inputs): OptionItem[] {
         label: "None",
       }
   );
+  if (inputs[QuestionNames.ProjectType] === ProjectTypeOptions.teamsAgentsAndApps().id) {
+    const pythonOptionIndex = languageOptions.findIndex(
+      (option) => option.id === ProgrammingLanguage.PY
+    );
+    if (pythonOptionIndex !== -1) {
+      languageOptions[pythonOptionIndex] = {
+        ...languageOptions[pythonOptionIndex],
+        description: getLocalizedString("core.createProjectQuestion.option.description.preview"),
+      };
+    }
+  }
   return languageOptions;
 }
 
@@ -119,8 +129,7 @@ export function scaffoldQuestionForVSCode(platform: Platform = Platform.VSCode):
             ProjectTypeOptions.declarativeAgent(platform),
             ProjectTypeOptions.customEngineAgent(platform),
             ProjectTypeOptions.graphConnector(platform),
-            ProjectTypeOptions.agentForTeams(platform),
-            ProjectTypeOptions.teamsApp(platform),
+            ProjectTypeOptions.teamsAgentsAndApps(platform),
             ProjectTypeOptions.officeAddin(platform),
             ...(featureFlagManager.getBooleanValue(FeatureFlags.ChatParticipantUIEntries)
               ? [ProjectTypeOptions.startWithGithubCopilot()]
@@ -130,8 +139,7 @@ export function scaffoldQuestionForVSCode(platform: Platform = Platform.VSCode):
         children: [
           daProjectTypeNode(),
           customEngineAgentNode(),
-          agentForTeamsProjectTypeNode(),
-          teamsAppProjectNode(platform),
+          teamsProjectNode(platform),
           graphConnectorProjectTypeNode(),
           officeAddinProjectTypeNode(),
         ],
@@ -190,33 +198,20 @@ export function getProjectTypeByCapability(capability: string): string {
   }
   if (
     [
-      CustomCopilotCapabilityOptions.basicChatbot().id,
-      CustomCopilotCapabilityOptions.customCopilotRag().id,
-      CustomCopilotCapabilityOptions.aiAgent().id,
-    ].includes(capability)
-  ) {
-    return ProjectTypeOptions.agentForTeamsOptionId;
-  }
-  if (
-    [
+      TeamsAgentCapabilityOptions.basicChatbot().id,
+      TeamsAgentCapabilityOptions.customCopilotRag().id,
+      TeamsAgentCapabilityOptions.collaboratorAgent().id,
       BotCapabilityOptions.basicBot().id,
-      BotCapabilityOptions.notificationBot().id,
-      BotCapabilityOptions.commandBot().id,
-      BotCapabilityOptions.workflowBot().id,
       TabCapabilityOptions.nonSsoTab().id,
-      TabCapabilityOptions.m365SsoLaunchPage().id,
-      TabCapabilityOptions.dashboardTab().id,
-      TabCapabilityOptions.SPFxTab().id,
-      MeCapabilityOptions.m365SearchMe().id,
-      MeCapabilityOptions.collectFormMe().id,
-      MeCapabilityOptions.linkUnfurling().id,
+      MeCapabilityOptions.basicMe().id,
     ].includes(capability)
   ) {
-    return ProjectTypeOptions.teamsAppOptionId;
+    return ProjectTypeOptions.teamsOptionId;
   }
   if (
     [
       OfficeAddinCapabilityOptions.wxpTaskPane().id,
+      OfficeAddinCapabilityOptions.excelCFShortcut().id,
       OfficeAddinCapabilityOptions.officeAddinImport().id,
     ].includes(capability)
   ) {
@@ -235,33 +230,36 @@ export function getProjectTypeByCapability(capability: string): string {
   return "";
 }
 
-export function getTeamsProjectTypeByCapability(capability: string): string {
+export function getTeamsAppTypeByCapability(capability: string): string {
   if (
     [
+      TabCapabilityOptions.nonSsoTab().id,
       BotCapabilityOptions.basicBot().id,
-      BotCapabilityOptions.notificationBot().id,
-      BotCapabilityOptions.commandBot().id,
-      BotCapabilityOptions.workflowBot().id,
+      MeCapabilityOptions.basicMe().id,
     ].includes(capability)
   ) {
-    return TeamsProjectTypeOptions.botOptionId;
+    return "others";
   } else if (
+    [
+      TeamsAgentCapabilityOptions.basicChatbot().id,
+      TeamsAgentCapabilityOptions.customCopilotRag().id,
+      TeamsAgentCapabilityOptions.collaboratorAgent().id,
+    ].includes(capability)
+  ) {
+    return capability;
+  }
+  return "";
+}
+
+export function getTeamsCapabilityByCapability(capability: string): string {
+  if (
     [
       TabCapabilityOptions.nonSsoTab().id,
-      TabCapabilityOptions.m365SsoLaunchPage().id,
-      TabCapabilityOptions.dashboardTab().id,
-      TabCapabilityOptions.SPFxTab().id,
+      BotCapabilityOptions.basicBot().id,
+      MeCapabilityOptions.basicMe().id,
     ].includes(capability)
   ) {
-    return TeamsProjectTypeOptions.tabOptionId;
-  } else if (
-    [
-      MeCapabilityOptions.m365SearchMe().id,
-      MeCapabilityOptions.collectFormMe().id,
-      MeCapabilityOptions.linkUnfurling().id,
-    ].includes(capability)
-  ) {
-    return TeamsProjectTypeOptions.meOptionId;
+    return capability;
   }
   return "";
 }

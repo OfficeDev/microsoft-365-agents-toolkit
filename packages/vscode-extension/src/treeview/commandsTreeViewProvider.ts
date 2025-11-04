@@ -23,6 +23,19 @@ export class CommandsTreeViewProvider implements vscode.TreeDataProvider<TreeVie
   }
 
   public getTreeItem(element: TreeViewCommand): vscode.TreeItem {
+    const label = element.label
+      ? typeof element.label === "string"
+        ? element.label
+        : element.label.label
+      : "";
+    const tooltip = element.tooltip
+      ? typeof element.tooltip === "string"
+        ? element.tooltip
+        : element.tooltip.value
+      : "";
+    element.accessibilityInformation = {
+      label: `${label}. ${tooltip}`.trim(),
+    };
     return element;
   }
 
