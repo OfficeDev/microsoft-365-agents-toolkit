@@ -99,7 +99,7 @@ export class DeclarativeAgentGenerator extends DefaultTemplateGenerator {
       ),
       DeclarativeCopilot: "true",
       MicrosoftEntra: auth === ApiAuthOptions.microsoftEntra().id ? "true" : "",
-      ...(isLocalMCP ? { IsLocalMCP: "true" } : {}),
+      IsLocalMCP: isLocalMCP ? "true" : "",
       ...(isLocalMCP
         ? {
             MCPLocalServerName: inputs[QuestionNames.MCPLocalServerName],

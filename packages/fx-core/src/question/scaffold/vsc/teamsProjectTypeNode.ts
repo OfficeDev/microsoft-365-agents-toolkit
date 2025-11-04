@@ -43,6 +43,7 @@ import {
 import { ProjectTypeOptions } from "./ProjectTypeOptions";
 import path from "path";
 import * as fs from "fs-extra";
+import { ODRProvider, ODRServer } from "../../../component/utils/odrProvider";
 
 export function teamsProjectNode(platform: Platform): IQTreeNode {
   return {
@@ -533,6 +534,8 @@ export function MCPServerTypeNode(): IQTreeNode {
 }
 
 export function MCPLocalServerSelectionNode(): IQTreeNode {
+  let mcpLocalServers: ODRServer[] = [];
+
   return {
     condition: { equals: "local" },
     data: {
@@ -541,12 +544,9 @@ export function MCPLocalServerSelectionNode(): IQTreeNode {
       type: "singleSelect",
       staticOptions: [],
       placeholder: getLocalizedString("core.createProjectQuestion.mcpLocalServer.placeholder"),
-      dynamicOptions: async (inputs: Inputs) => {
-        const { ODRProvider } = await import("../../../component/utils/odrProvider");
+      dynamicOptions: async () => {
         const servers = await ODRProvider.listServers();
-
-        // Store servers in inputs for later use
-        inputs["_mcpLocalServerList"] = servers;
+        mcpLocalServers = servers;
 
         return servers.map((server) => ({
           id: server.name,
@@ -554,39 +554,17 @@ export function MCPLocalServerSelectionNode(): IQTreeNode {
           detail: `${server.description} (${server.tools.length} tools available)`,
         }));
       },
-    },
-    children: [MCPLocalToolSelectionNode()],
-  };
-}
+      onDidSelection: (itemOrId: string | OptionItem, inputs: Inputs) => {
+        const selectedServerName = typeof itemOrId === "string" ? itemOrId : itemOrId.id;
+        const selectedServer = mcpLocalServers.find(
+          (s: ODRServer) => s.name === selectedServerName
+        );
 
-export function MCPLocalToolSelectionNode(): IQTreeNode {
-  return {
-    condition: (inputs: Inputs) => !!inputs[QuestionNames.MCPLocalServer],
-    data: {
-      name: QuestionNames.MCPForDAPreFetchTools,
-      title: getLocalizedString("core.createProjectQuestion.mcpLocalTool.title"),
-      type: "multiSelect",
-      staticOptions: [],
-      placeholder: getLocalizedString("core.createProjectQuestion.mcpLocalTool.placeholder"),
-      dynamicOptions: (inputs: Inputs) => {
-        const selectedServerName = inputs[QuestionNames.MCPLocalServer];
-        const serverList = inputs["_mcpLocalServerList"] || [];
-        const selectedServer = serverList.find((s: any) => s.name === selectedServerName);
-
-        if (!selectedServer) {
-          return [];
+        if (selectedServer) {
+          inputs[QuestionNames.MCPLocalServerName] = selectedServer.name;
+          inputs[QuestionNames.MCPLocalServerIdentifier] = selectedServer.identifier;
+          inputs[QuestionNames.MCPForDAAvailableTools] = selectedServer.tools;
         }
-
-        // Store server details for generator
-        inputs[QuestionNames.MCPLocalServerName] = selectedServer.name;
-        inputs[QuestionNames.MCPLocalServerIdentifier] = selectedServer.identifier;
-        inputs[QuestionNames.MCPForDAAvailableTools] = selectedServer.tools;
-
-        return selectedServer.tools.map((tool: any) => ({
-          id: tool.name,
-          label: tool.name,
-          detail: tool.description,
-        }));
       },
     },
   };
