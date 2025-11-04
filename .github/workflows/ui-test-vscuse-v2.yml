@@ -71,7 +71,7 @@ jobs:
       AZURE_SUBSCRIPTION_ID: ${{ secrets.TEST_SUBSCRIPTION_ID_NEW }}
       AZURE_AUTH_ENABLED: ${{ secrets.AZURE_SERVICE_PRINCIPAL_ID != '' && secrets.AZURE_SERVICE_PRINCIPAL_SECRET != '' && secrets.TEST_TENANT_ID_NEW != '' }}
       # M365 account for testing
-      M365_ACCOUNT_NAME: "test25@xxbdw.onmicrosoft.com"
+      M365_ACCOUNT_NAME: "test21@xxbdw.onmicrosoft.com"
       M365_ACCOUNT_PASSWORD: ${{ secrets.TEST_M365_PASSWORD }}
       
       AZURE_ACCOUNT_NAME: ${{ secrets.TEST_USER_NAME_NEW }}
