@@ -18,6 +18,12 @@ export const customEngineAgentTemplates: Template[] = [
     description: "",
   },
   {
+    id: "basic-custom-engine-agent-python",
+    name: TemplateNames.BasicCustomEngineAgent,
+    language: "python",
+    description: "",
+  },
+  {
     id: "weather-agent-ts",
     name: TemplateNames.WeatherAgent,
     language: "typescript",
