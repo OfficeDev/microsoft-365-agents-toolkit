@@ -3073,7 +3073,7 @@ export class FxCore {
       );
       return err(error);
     }
-    // aiPluginContent.functions = [];
+
     const toolsSelectedPrevious: string[] = [];
     aiPluginContent.runtimes
       .filter(
@@ -3111,21 +3111,35 @@ export class FxCore {
         runtime.spec.url !== mcpServerUrl ||
         runtime.spec["enable_dynamic_discovery"] === true
     );
-    (aiPluginContent.runtimes as any[]).push({
-      type: "RemoteMCPServer",
-      spec: {
-        url: mcpServerUrl,
-        enable_dynamic_discovery: false,
-      },
-      run_for_functions: mcpToolsSelected,
-      auth:
-        mcpAuth === "OAuthPluginVault" && !!registrationId
-          ? {
-              type: "OAuthPluginVault",
-              reference_id: `$\{\{${registrationId}\}\}`,
-            }
-          : undefined,
-    });
+
+    if (aiPluginContent.namespace == "MCP") {
+      (aiPluginContent.runtimes as any[]).push({
+        type: "LocalPlugin",
+        spec: {
+          local_endpoint: inputs[QuestionNames.MCPLocalServerIdentifier],
+        },
+        run_for_functions: mcpToolsSelected,
+        auth: {
+          type: "None",
+        },
+      });
+    } else {
+      (aiPluginContent.runtimes as any[]).push({
+        type: "RemoteMCPServer",
+        spec: {
+          url: mcpServerUrl,
+          enable_dynamic_discovery: false,
+        },
+        run_for_functions: mcpToolsSelected,
+        auth:
+          mcpAuth === "OAuthPluginVault" && !!registrationId
+            ? {
+                type: "OAuthPluginVault",
+                reference_id: `$\{\{${registrationId}\}\}`,
+              }
+            : undefined,
+      });
+    }
 
     if (mcpAuth === "OAuthPluginVault" && !!registrationId) {
       // insert oauth info in teamsapp.yaml

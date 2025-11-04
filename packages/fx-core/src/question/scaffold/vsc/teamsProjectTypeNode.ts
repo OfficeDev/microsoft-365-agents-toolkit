@@ -545,50 +545,22 @@ export function MCPLocalServerSelectionNode(): IQTreeNode {
         const { ODRProvider } = await import("../../../component/utils/odrProvider");
         const servers = await ODRProvider.listServers();
 
-        // Store servers in inputs for later use
-        inputs["_mcpLocalServerList"] = servers;
-
         return servers.map((server) => ({
           id: server.name,
           label: server.display_name,
           detail: `${server.description} (${server.tools.length} tools available)`,
+          data: server.identifier,
         }));
       },
-    },
-    children: [MCPLocalToolSelectionNode()],
-  };
-}
-
-export function MCPLocalToolSelectionNode(): IQTreeNode {
-  return {
-    condition: (inputs: Inputs) => !!inputs[QuestionNames.MCPLocalServer],
-    data: {
-      name: QuestionNames.MCPForDAPreFetchTools,
-      title: getLocalizedString("core.createProjectQuestion.mcpLocalTool.title"),
-      type: "multiSelect",
-      staticOptions: [],
-      placeholder: getLocalizedString("core.createProjectQuestion.mcpLocalTool.placeholder"),
-      dynamicOptions: (inputs: Inputs) => {
-        const selectedServerName = inputs[QuestionNames.MCPLocalServer];
-        const serverList = inputs["_mcpLocalServerList"] || [];
-        const selectedServer = serverList.find((s: any) => s.name === selectedServerName);
-
-        if (!selectedServer) {
-          return [];
-        }
-
-        // Store server details for generator
-        inputs[QuestionNames.MCPLocalServerName] = selectedServer.name;
-        inputs[QuestionNames.MCPLocalServerIdentifier] = selectedServer.identifier;
-        inputs[QuestionNames.MCPForDAAvailableTools] = selectedServer.tools;
-
-        return selectedServer.tools.map((tool: any) => ({
-          id: tool.name,
-          label: tool.name,
-          detail: tool.description,
-        }));
+      onDidSelection: (item: string | OptionItem, inputs: Inputs) => {
+        try {
+          const serverInfo = item as OptionItem;
+          inputs[QuestionNames.MCPLocalServerName] = serverInfo.id;
+          inputs[QuestionNames.MCPLocalServerIdentifier] = serverInfo.data;
+        } catch {}
       },
     },
+    children: [],
   };
 }
 
