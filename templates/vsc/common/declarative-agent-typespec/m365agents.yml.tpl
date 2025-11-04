@@ -96,7 +96,7 @@ publish:
   # 3. manifestPath in teamsApp/zipAppPackage action. Please set the value to the same as manifestPath in this action.
   - uses: typeSpec/compile
     with:
-      path: ./main.tsp
+      path: ./src/agent/main.tsp
       manifestPath: ./appPackage/manifest.json
       outputDir: ./appPackage/.generated
       typeSpecConfigPath: ./tspconfig.yaml
