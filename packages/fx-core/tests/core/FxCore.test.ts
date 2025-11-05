@@ -53,6 +53,7 @@ import { TeamsfxVersionState, projectTypeChecker } from "../../src/common/projec
 import { TelemetryEvent } from "../../src/common/telemetry";
 import * as CommonTools from "../../src/common/tools";
 import { MetadataV3, VersionSource, VersionState } from "../../src/common/versionMetadata";
+import { ActionInjector } from "../../src/component/configManager/actionInjector";
 import {
   DriverDefinition,
   DriverInstance,
@@ -130,7 +131,6 @@ import {
 import { ProjectTypeOptions } from "../../src/question/scaffold/vsc/ProjectTypeOptions";
 import { validationUtils } from "../../src/ui/validationUtils";
 import { MockTools, MockUserInteraction, randomAppName } from "./utils";
-import { ActionInjector } from "../../src/component/configManager/actionInjector";
 
 const tools = new MockTools();
 
@@ -2092,6 +2092,7 @@ describe("createEnvCopyV3", async () => {
     "# this is a comment",
     "TEAMSFX_ENV=dev",
     "APP_NAME_SUFFIX=dev",
+    "AGENT_SCOPE=shared",
     "",
     "_KEY1=value1",
     "KEY2=value2",
@@ -2138,17 +2139,21 @@ describe("createEnvCopyV3", async () => {
       writeStreamContent[2] === `APP_NAME_SUFFIX=newEnv${os.EOL}`,
       "APP_NAME_SUFFIX's value should be new env name"
     );
-    assert(writeStreamContent[3] === `${os.EOL}`, "empty line should be coped");
     assert(
-      writeStreamContent[4] === `_KEY1=${os.EOL}`,
+      writeStreamContent[3] === `AGENT_SCOPE=shared${os.EOL}`,
+      "AGENT_SCOPE's value should be shared"
+    );
+    assert(writeStreamContent[4] === `${os.EOL}`, "empty line should be coped");
+    assert(
+      writeStreamContent[5] === `_KEY1=${os.EOL}`,
       "key starts with _ should be copied with empty value"
     );
     assert(
-      writeStreamContent[5] === `KEY2=${os.EOL}`,
+      writeStreamContent[6] === `KEY2=${os.EOL}`,
       "key not starts with _ should be copied with empty value"
     );
     assert(
-      writeStreamContent[6] === `SECRET_KEY3=${os.EOL}`,
+      writeStreamContent[7] === `SECRET_KEY3=${os.EOL}`,
       "key not starts with SECRET_ should be copied with empty value"
     );
   });

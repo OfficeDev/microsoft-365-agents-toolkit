@@ -20,7 +20,6 @@ import {
   CreateProjectResult,
   CryptoProvider,
   DefaultApiSpecFolderName,
-  DefaultPluginManifestFileName,
   Func,
   FxError,
   IGenerator,
@@ -42,6 +41,7 @@ import {
   err,
   ok,
 } from "@microsoft/teamsfx-api";
+import axios from "axios";
 import { DotenvParseOutput } from "dotenv";
 import fs from "fs-extra";
 import * as jsonschema from "jsonschema";
@@ -78,6 +78,7 @@ import { TelemetryEvent, TelemetryProperty, telemetryUtils } from "../common/tel
 import { runForTypeSpecProject } from "../common/tools";
 import { generateDriverContext } from "../common/utils";
 import { MetadataV3, MetadataV4, VersionSource, VersionState } from "../common/versionMetadata";
+import { ActionInjector } from "../component/configManager/actionInjector";
 import {
   APIKeyAuthType,
   MicrosoftEntraAuthType,
@@ -212,8 +213,6 @@ import {
 import { addSharedUsers, removeShareAccess, shareWithTenant } from "./share";
 import { CoreTelemetryEvent, CoreTelemetryProperty } from "./telemetry";
 import { CoreHookContext, PreProvisionResForVS, VersionCheckRes } from "./types";
-import axios from "axios";
-import { ActionInjector } from "../component/configManager/actionInjector";
 
 export class FxCore {
   constructor(tools: Tools) {
@@ -1620,6 +1619,8 @@ export class FxCore {
             writeStream.write(`TEAMSFX_ENV=${targetEnvName}${os.EOL}`);
           } else if (match[1].startsWith("APP_NAME_SUFFIX=")) {
             writeStream.write(`APP_NAME_SUFFIX=${targetEnvName}${os.EOL}`);
+          } else if (match[1].startsWith("AGENT_SCOPE=")) {
+            writeStream.write(`AGENT_SCOPE=shared${os.EOL}`);
           } else {
             writeStream.write(`${match[1]}${os.EOL}`);
           }
