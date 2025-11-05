@@ -22,7 +22,6 @@ This template showcases how Microsoft Teams supports the ability to run web-base
 
 ![Basic Tab](https://github.com/user-attachments/assets/e8121c82-ddbc-493f-9afb-34db2a4b8e73)
 
-
 ## What's included in the template
 
 | Folder       | Contents                                     |
