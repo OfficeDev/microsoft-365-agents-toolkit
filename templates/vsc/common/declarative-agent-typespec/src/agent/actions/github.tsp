@@ -1,5 +1,6 @@
 import "@typespec/http";
 import "@microsoft/typespec-m365-copilot";
+import "../env.tsp";
 
 using TypeSpec.Http;
 using TypeSpec.M365.Copilot.Actions;
@@ -22,7 +23,7 @@ namespace GitHubAPI {
   /**
    * The base URL for the GitHub API.
    */
-  const SERVER_URL = "https://api.github.com";
+  const SERVER_URL = Environment.GITHUB_API_URL;
 
   /**
    * Search open issues from GitHub repositories.
@@ -30,7 +31,14 @@ namespace GitHubAPI {
    * @param per_page The number of results per page. Default is 5.
    */
   @route("/search/issues")
-  @card(#{ dataPath: "$.items", title: "$.title", url: "$.html_url", file: "adaptiveCards/searchIssues.json" })
+  @card(#{
+    dataPath: "$.items",
+    file: "adaptiveCards/searchIssues.json",
+    properties: #{
+      title: "$.title",
+      url: "$.html_url"
+    }
+  })
   @get op searchIssues(
     @query q: string = "repo:OfficeDev/microsoft-365-agents-toolkit is:issue is:open", 
     @query per_page: integer = 5
