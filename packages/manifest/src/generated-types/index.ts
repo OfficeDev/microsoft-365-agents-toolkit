@@ -31,6 +31,8 @@ import * as TeamsManifestV1D2 from "./teams/TeamsManifestV1D2";
 import * as TeamsManifestV1D20 from "./teams/TeamsManifestV1D20";
 import * as TeamsManifestV1D21 from "./teams/TeamsManifestV1D21";
 import * as TeamsManifestV1D22 from "./teams/TeamsManifestV1D22";
+import * as TeamsManifestV1D23 from "./teams/TeamsManifestV1D23";
+import * as TeamsManifestV1D24 from "./teams/TeamsManifestV1D24";
 import * as TeamsManifestV1D3 from "./teams/TeamsManifestV1D3";
 import * as TeamsManifestV1D4 from "./teams/TeamsManifestV1D4";
 import * as TeamsManifestV1D5 from "./teams/TeamsManifestV1D5";
@@ -63,6 +65,9 @@ export {
   TeamsManifestV1D2,
   TeamsManifestV1D20,
   TeamsManifestV1D21,
+  TeamsManifestV1D22,
+  TeamsManifestV1D23,
+  TeamsManifestV1D24,
   TeamsManifestV1D3,
   TeamsManifestV1D4,
   TeamsManifestV1D5,
@@ -97,6 +102,8 @@ export type TeamsManifest =
   | TeamsManifestV1D20.TeamsManifestV1D20
   | TeamsManifestV1D21.TeamsManifestV1D21
   | TeamsManifestV1D22.TeamsManifestV1D22
+  | TeamsManifestV1D23.TeamsManifestV1D23
+  | TeamsManifestV1D24.TeamsManifestV1D24
   | TeamsManifestVDevPreview.TeamsManifestVDevPreview;
 
 export type TeamsManifestLatest = TeamsManifestV1D21.TeamsManifestV1D21;
@@ -209,6 +216,14 @@ const TeamsManifestConverterMap: Converters = {
   "1.22": [
     TeamsManifestV1D22.Convert.toTeamsManifestV1D22,
     TeamsManifestV1D22.Convert.teamsManifestV1D22ToJson,
+  ],
+  "1.23": [
+    TeamsManifestV1D23.Convert.toTeamsManifestV1D23,
+    TeamsManifestV1D23.Convert.teamsManifestV1D23ToJson,
+  ],
+  "1.24": [
+    TeamsManifestV1D24.Convert.toTeamsManifestV1D24,
+    TeamsManifestV1D24.Convert.teamsManifestV1D24ToJson,
   ],
   devPreview: [
     TeamsManifestVDevPreview.Convert.toTeamsManifestVDevPreview,
