@@ -3078,9 +3078,10 @@ export class FxCore {
     aiPluginContent.runtimes
       .filter(
         (runtime: any) =>
-          runtime.type === "RemoteMCPServer" &&
-          runtime.spec.url === mcpServerUrl &&
-          runtime.spec["enable_dynamic_discovery"] === false
+          (runtime.type === "RemoteMCPServer" &&
+            runtime.spec.url === mcpServerUrl &&
+            runtime.spec["enable_dynamic_discovery"] === false) ||
+          runtime.type === "LocalPlugin"
       )
       .forEach((runtime: any) => {
         toolsSelectedPrevious.push(...runtime.run_for_functions);
@@ -3107,12 +3108,12 @@ export class FxCore {
 
     aiPluginContent.runtimes = aiPluginContent.runtimes.filter(
       (runtime: any) =>
-        runtime.type !== "RemoteMCPServer" ||
+        (runtime.type !== "RemoteMCPServer" && runtime.type !== "LocalPlugin") ||
         runtime.spec.url !== mcpServerUrl ||
         runtime.spec["enable_dynamic_discovery"] === true
     );
 
-    if (aiPluginContent.namespace == "MCP") {
+    if (inputs[QuestionNames.MCPLocalServerIdentifier] != null) {
       (aiPluginContent.runtimes as any[]).push({
         type: "LocalPlugin",
         spec: {

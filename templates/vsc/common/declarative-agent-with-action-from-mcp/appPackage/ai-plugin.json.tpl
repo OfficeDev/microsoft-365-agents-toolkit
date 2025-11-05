@@ -4,12 +4,7 @@
   "name_for_human": "{{appName}}",
   "description_for_human": "{{appName}}${{APP_NAME_SUFFIX}}",
   "contact_email": "publisher-email@example.com",
-  {{#IsLocalMCP}}
-  "namespace": "MCP",
-  {{/IsLocalMCP}}
-  {{^IsLocalMCP}}
   "namespace": "{{SafeProjectNameLowerCase}}",
-  {{/IsLocalMCP}}
   "functions": [],
   "runtimes": []
 }

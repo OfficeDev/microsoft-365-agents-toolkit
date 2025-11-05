@@ -40,20 +40,23 @@ export class ODRProvider {
         ]?.manifest;
       const staticResponses = manifest?._meta?.["com.microsoft.windows"]?.static_responses;
       const toolsList = staticResponses?.["tools/list"]?.tools || [];
+      const packageFamily = manifest?._meta?.["com.microsoft.windows"]?.package_family_name;
 
-      servers.push({
-        name: server.name,
-        display_name: manifest?.display_name || server.name,
-        description: server.description || "",
-        version: server.version || "1.0.0",
-        identifier: server.packages?.[0]?.identifier || "",
-        tools: toolsList.map((tool: any) => ({
-          name: tool.name,
-          description: tool.description || "",
-          inputSchema: tool.inputSchema,
-          outputSchema: tool.outputSchema,
-        })),
-      });
+      if (packageFamily) {
+        servers.push({
+          name: server.name,
+          display_name: manifest?.display_name || server.name,
+          description: server.description || "",
+          version: server.version || "1.0.0",
+          identifier: server.packages?.[0]?.identifier || "",
+          tools: toolsList.map((tool: any) => ({
+            name: tool.name,
+            description: tool.description || "",
+            inputSchema: tool.inputSchema,
+            outputSchema: tool.outputSchema,
+          })),
+        });
+      }
     }
 
     return servers;
