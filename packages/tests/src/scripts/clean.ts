@@ -74,7 +74,7 @@ async function main() {
   }
 
   console.log(`clean Enterprise Application (exclude ${excludePrefix})`);
-  const spList = await cleanService.listAad();
+  const spList = await cleanService.listEntrpriseAplications();
   if (spList) {
     for (const sp of spList) {
       if (
