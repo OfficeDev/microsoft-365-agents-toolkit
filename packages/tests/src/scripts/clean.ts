@@ -74,7 +74,7 @@ async function main() {
   }
 
   console.log(`clean Enterprise Application (exclude ${excludePrefix})`);
-  const spList = await cleanService.listEnterpriseAplications();
+  const spList = await cleanService.listEnterpriseApplications();
   if (spList) {
     for (const sp of spList) {
       if (
@@ -85,7 +85,7 @@ async function main() {
       ) {
         console.log(sp.displayName);
         try {
-          await cleanService.deleteEnterpriseAplication(sp.id!);
+          await cleanService.deleteEnterpriseApplication(sp.id!);
         } catch (e: any) {
           console.log(
             `Failed to delete Enterprise Application ${sp.displayName} with error: ${e.message}`

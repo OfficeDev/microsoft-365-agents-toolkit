@@ -187,7 +187,7 @@ export class GraphApiCleanHelper extends CleanHelper {
     return result;
   }
 
-  public async listEnterpriseAplications(): Promise<any[]> {
+  public async listEnterpriseApplications(): Promise<any[]> {
     const result: any[] = [];
     const response = await this.execute("get", `/servicePrincipals`, undefined);
     if (response?.data?.value) {
@@ -204,12 +204,12 @@ export class GraphApiCleanHelper extends CleanHelper {
     return result;
   }
 
-  public async deleteEnterpriseAplication(id: string): Promise<void> {
+  public async deleteEnterpriseApplication(id: string): Promise<void> {
     await this.execute("delete", `/servicePrincipals/${id}`, undefined);
     await this.execute("delete", `/directory/deletedItems/${id}`, undefined);
   }
 
-  public async listDeletedEnterpriseAplications(): Promise<any[]> {
+  public async listDeletedEnterpriseApplications(): Promise<any[]> {
     const result: any[] = [];
     const response = await this.execute(
       "get",
