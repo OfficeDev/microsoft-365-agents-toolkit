@@ -71,6 +71,11 @@ export class ODRProvider {
     const execOutcome = async () => {
       try {
         const { stdout } = await execAsync("odr list");
+
+        if (!stdout) {
+          return [];
+        }
+
         const jsonOutput = JSON.parse(stdout);
         return ODRProvider.parseODRListOutput(jsonOutput);
       } catch (error) {

@@ -534,8 +534,6 @@ export function MCPServerTypeNode(): IQTreeNode {
 }
 
 export function MCPLocalServerSelectionNode(): IQTreeNode {
-  let mcpLocalServers: ODRServer[] = [];
-
   return {
     condition: { equals: "local" },
     data: {
@@ -546,7 +544,6 @@ export function MCPLocalServerSelectionNode(): IQTreeNode {
       placeholder: getLocalizedString("core.createProjectQuestion.mcpLocalServer.placeholder"),
       dynamicOptions: async () => {
         const servers = await ODRProvider.listServers();
-        mcpLocalServers = servers;
 
         return servers.map((server) => ({
           id: server.name,
