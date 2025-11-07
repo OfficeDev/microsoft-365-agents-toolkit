@@ -202,7 +202,6 @@ jobs:
 
 
       - name: Rename test_report.html to index.html
-        if: always()
         run: |
           REPORT_DIR="packages/tests/vscuse/vscode-test-cases/test_report"
           if [ -f "$REPORT_DIR/test_report.html" ]; then
@@ -214,6 +213,7 @@ jobs:
 
       # Upload files to Azure Blob Storage
       - name : Login to Azure
+        if: always()
         uses: azure/login@v2
         with:
           client-id: ${{secrets.DEVOPS_CLIENT_ID}}
@@ -222,6 +222,7 @@ jobs:
           enable-AzPSSession: true
 
       - name: Upload files to Azure Blob Storage
+        if: always()
         shell: pwsh
         run: |
           $guid = '${{ steps.guid.outputs.guid }}'
