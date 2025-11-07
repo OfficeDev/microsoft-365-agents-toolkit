@@ -75,7 +75,6 @@ jobs:
       M365_USERNAME_2: "test22@xxbdw.onmicrosoft.com"
       M365_USERNAME_3: "test23@xxbdw.onmicrosoft.com"
       M365_USERNAME_4: "test24@xxbdw.onmicrosoft.com"
-      M365_USERNAME_5: "test25@xxbdw.onmicrosoft.com"
       M365_ACCOUNT_PASSWORD: ${{ secrets.TEST_M365_PASSWORD }}
 
       # The test account for Copilot features
@@ -150,7 +149,7 @@ jobs:
 
       - name: Set m365 account randomly
         run: |
-          users=("${{ env.M365_USERNAME_1 }}" "${{ env.M365_USERNAME_2 }}" "${{ env.M365_USERNAME_3 }}" "${{ env.M365_USERNAME_4 }}" "${{ env.M365_USERNAME_5 }}")
+          users=("${{ env.M365_USERNAME_1 }}" "${{ env.M365_USERNAME_2 }}" "${{ env.M365_USERNAME_3 }}" "${{ env.M365_USERNAME_4 }}")
           count=${#users[@]}
           index=$((RANDOM%$count))
           echo "account index: $index"
