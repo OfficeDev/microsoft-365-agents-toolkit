@@ -13,7 +13,8 @@ on:
 
   schedule:
     - cron: "0 17 * * *"
-
+permissions:
+  actions: read
 jobs:
   discover-test-plans:
     runs-on: ubuntu-latest
@@ -53,8 +54,11 @@ jobs:
       fail-fast: false
       max-parallel: 20
     permissions:
-      contents: write
+      contents: read
       packages: write
+      id-token: write
+      security-events: write
+    environment: engineering
 
     env:
       GH_APP_ID: ${{ secrets.GH_APP_ID }}
@@ -196,6 +200,50 @@ jobs:
             packages/tests/vscuse/vscode-test-cases/test_report/
           retention-days: 7
           if-no-files-found: ignore
+
+
+      - name: Rename test_report.html to index.html
+        if: always()
+        run: |
+          REPORT_DIR="packages/tests/vscuse/vscode-test-cases/test_report"
+          if [ -f "$REPORT_DIR/test_report.html" ]; then
+            mv "$REPORT_DIR/test_report.html" "$REPORT_DIR/index.html"
+            echo "Renamed test_report.html to index.html"
+          else
+            echo "No test_report.html found to rename"
+          fi
+      # Upload files to Azure Blob Storage
+      - name : Login to Azure
+        if: always()
+        uses: azure/login@v2
+        with:
+          client-id: ${{secrets.DEVOPS_CLIENT_ID}}
+          tenant-id: ${{secrets.DEVOPS_TENANT_ID}}
+          subscription-id: ${{secrets.DEVOPS_SUB_ID}}
+          enable-AzPSSession: true
+
+      - name: Upload files to Azure Blob Storage
+        if: always()
+        shell: pwsh
+        run: |
+          $guid = [guid]::NewGuid().ToString()
+          $account = $env:AZURE_STORAGE_ACCOUNT
+          $sourcePath = "packages/tests/vscuse/vscode-test-cases/test_report/"
+          $destination = "`$web/$guid"
+          $storageUrl = "https://vscusedownload.z13.web.core.windows.net/$guid/index.html"
+      
+          Write-Host "🌐Here is the report: $storageUrl"
+
+          echo "$storageUrl" > storage_url.txt
+      
+          az storage blob upload-batch `
+            --account-name $account `
+            --auth-mode login `
+            --destination $destination `
+            --source "$sourcePath" `
+            --overwrite
+        env:
+          AZURE_STORAGE_ACCOUNT: vscusedownload
 
       - name: Cleanup
         if: always()
