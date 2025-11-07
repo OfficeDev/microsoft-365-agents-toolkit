@@ -54,6 +54,7 @@ jobs:
       max-parallel: 20
     permissions:
       contents: read
+      packages: write
       id-token: write
       security-events: write
     environment: engineering
