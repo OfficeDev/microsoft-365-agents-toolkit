@@ -212,15 +212,6 @@ jobs:
           else
             echo "No test_report.html found to rename"
           fi
-
-      - name: Generate UUID (Windows compatible)
-        if: always()
-        id: guid
-        shell: pwsh
-        run: |
-          $guid = [guid]::NewGuid().ToString()
-          echo "guid=$guid" >> $env:GITHUB_OUTPUT
-
       # Upload files to Azure Blob Storage
       - name : Login to Azure
         if: always()
@@ -235,6 +226,7 @@ jobs:
         if: always()
         shell: pwsh
         run: |
+          $guid = [guid]::NewGuid().ToString()
           $account = $env:AZURE_STORAGE_ACCOUNT
           $sourcePath = "packages/tests/vscuse/vscode-test-cases/test_report/"
           $destination = "`$web/$guid"
