@@ -202,6 +202,7 @@ jobs:
 
 
       - name: Rename test_report.html to index.html
+        if: always()
         run: |
           REPORT_DIR="packages/tests/vscuse/vscode-test-cases/test_report"
           if [ -f "$REPORT_DIR/test_report.html" ]; then
