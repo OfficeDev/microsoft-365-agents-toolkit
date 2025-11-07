@@ -51,7 +51,7 @@ jobs:
       matrix:
         test_plan: ${{ fromJson(needs.discover-test-plans.outputs.test-plans) }}
       fail-fast: false
-      max-parallel: 80
+      max-parallel: 20
     permissions:
       contents: write
       packages: write
@@ -71,8 +71,15 @@ jobs:
       AZURE_SUBSCRIPTION_ID: ${{ secrets.TEST_SUBSCRIPTION_ID_NEW }}
       AZURE_AUTH_ENABLED: ${{ secrets.AZURE_SERVICE_PRINCIPAL_ID != '' && secrets.AZURE_SERVICE_PRINCIPAL_SECRET != '' && secrets.TEST_TENANT_ID_NEW != '' }}
       # M365 account for testing
-      M365_ACCOUNT_NAME: "test21@xxbdw.onmicrosoft.com"
+      M365_USERNAME_1: "test21@xxbdw.onmicrosoft.com"
+      M365_USERNAME_2: "test22@xxbdw.onmicrosoft.com"
+      M365_USERNAME_3: "test23@xxbdw.onmicrosoft.com"
+      M365_USERNAME_4: "test24@xxbdw.onmicrosoft.com"
       M365_ACCOUNT_PASSWORD: ${{ secrets.TEST_M365_PASSWORD }}
+
+      # The test account for Copilot features
+      M365_ACCOUNT_NAME_EnableCopilotAccess: "test01@atktesting.onmicrosoft.com"
+      M365_ACCOUNT_PASSWORD_EnableCopilotAccess: ${{ secrets.TEST_M365_PASSWORD_NEW }}
       
       AZURE_ACCOUNT_NAME: ${{ secrets.TEST_USER_NAME_NEW }}
       AZURE_ACCOUNT_PASSWORD: ${{ secrets.TEST_USER_PASSWORD_NEW }}
@@ -139,6 +146,14 @@ jobs:
           else
             echo "⚠️  Azure Service Principal not configured - M365 Toolkit authentication disabled"
           fi
+
+      - name: Set m365 account randomly
+        run: |
+          users=("${{ env.M365_USERNAME_1 }}" "${{ env.M365_USERNAME_2 }}" "${{ env.M365_USERNAME_3 }}" "${{ env.M365_USERNAME_4 }}")
+          count=${#users[@]}
+          index=$((RANDOM%$count))
+          echo "account index: $index"
+          echo "M365_ACCOUNT_NAME=${users[index]}" >> $GITHUB_ENV
 
       - name: Log in to Container Registry
         uses: docker/login-action@v3
