@@ -43,7 +43,7 @@ import {
 import { ProjectTypeOptions } from "./ProjectTypeOptions";
 import path from "path";
 import * as fs from "fs-extra";
-import { ODRProvider, ODRServer } from "../../../component/utils/odrProvider";
+import { ODRProvider } from "../../../component/utils/odrProvider";
 
 export function teamsProjectNode(platform: Platform): IQTreeNode {
   return {

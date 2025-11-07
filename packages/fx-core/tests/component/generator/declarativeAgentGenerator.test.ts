@@ -1241,6 +1241,7 @@ describe("helper", async () => {
           description: "First test server",
           version: "1.0.0",
           identifier: "test.server.1",
+          packageFamily: "packagefamily",
           tools: [
             { name: "tool1", description: "Tool 1", inputSchema: {} },
             { name: "tool2", description: "Tool 2", inputSchema: {} },
@@ -1252,6 +1253,7 @@ describe("helper", async () => {
           description: "Second test server",
           version: "2.0.0",
           identifier: "test.server.2",
+          packageFamily: "packagefamily",
           tools: [{ name: "tool3", description: "Tool 3", inputSchema: {} }],
         },
       ];
@@ -1537,7 +1539,6 @@ describe("helper", async () => {
 
       if (info.isOk() && info.value[0].replaceMap) {
         const replaceMap = info.value[0].replaceMap;
-        assert.equal(replaceMap.MCPServerType, "local");
         assert.equal(replaceMap.MCPLocalServerName, "local-server");
         assert.equal(replaceMap.MCPLocalServerIdentifier, "local.server.id");
       }

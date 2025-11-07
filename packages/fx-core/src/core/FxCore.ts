@@ -214,6 +214,7 @@ import { CoreTelemetryEvent, CoreTelemetryProperty } from "./telemetry";
 import { CoreHookContext, PreProvisionResForVS, VersionCheckRes } from "./types";
 import axios from "axios";
 import { ActionInjector } from "../component/configManager/actionInjector";
+import { LocalMcpPrefix } from "../component/constants";
 
 export class FxCore {
   constructor(tools: Tools) {
@@ -3117,7 +3118,9 @@ export class FxCore {
       (aiPluginContent.runtimes as any[]).push({
         type: "LocalPlugin",
         spec: {
-          local_endpoint: inputs[QuestionNames.MCPLocalServerIdentifier],
+          local_endpoint: `${LocalMcpPrefix}${
+            inputs[QuestionNames.MCPLocalServerIdentifier] as string
+          }`,
         },
         run_for_functions: mcpToolsSelected,
         auth: {

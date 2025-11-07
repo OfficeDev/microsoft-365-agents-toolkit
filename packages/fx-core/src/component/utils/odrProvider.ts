@@ -11,6 +11,7 @@ export interface ODRServer {
   version: string;
   identifier: string;
   tools: ODRTool[];
+  packageFamily: string;
 }
 
 export interface ODRTool {
@@ -45,6 +46,7 @@ export class ODRProvider {
       if (packageFamily) {
         servers.push({
           name: server.name,
+          packageFamily: packageFamily,
           display_name: manifest?.display_name || server.name,
           description: server.description || "",
           version: server.version || "1.0.0",

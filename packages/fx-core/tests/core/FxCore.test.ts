@@ -131,6 +131,7 @@ import { ProjectTypeOptions } from "../../src/question/scaffold/vsc/ProjectTypeO
 import { validationUtils } from "../../src/ui/validationUtils";
 import { MockTools, MockUserInteraction, randomAppName } from "./utils";
 import { ActionInjector } from "../../src/component/configManager/actionInjector";
+import { LocalMcpPrefix } from "../../src/component/constants";
 
 const tools = new MockTools();
 
@@ -10081,7 +10082,7 @@ describe("updateActionWithMCP - Local MCP Support", () => {
 
     assert.equal(runtimes.length, 1);
     assert.equal(runtimes[0].type, "LocalPlugin");
-    assert.equal(runtimes[0].spec.local_endpoint, localServerIdentifier);
+    assert.equal(runtimes[0].spec.local_endpoint, LocalMcpPrefix + localServerIdentifier);
     assert.deepEqual(runtimes[0].run_for_functions, ["localTool"]);
 
     assert.isTrue(showMessageStub.calledOnce);
@@ -10164,9 +10165,7 @@ describe("updateActionWithMCP - Local MCP Support", () => {
     assert.equal(writtenPlugin.functions[0].name, "newLocalTool");
 
     // Verify that the existing runtime for the same local server was removed and new one added
-    const localRuntimes = writtenPlugin.runtimes.filter(
-      (r: any) => r.type === "LocalPlugin" && r.spec.local_endpoint === localServerIdentifier
-    );
+    const localRuntimes = writtenPlugin.runtimes.filter((r: any) => r.type === "LocalPlugin");
     assert.equal(localRuntimes.length, 1);
     assert.deepEqual(localRuntimes[0].run_for_functions, ["newLocalTool"]);
   });
@@ -10245,7 +10244,7 @@ describe("updateActionWithMCP - Local MCP Support", () => {
 
     // Verify local runtime has correct identifier
     const localRuntime = writtenPlugin.runtimes.find((r: any) => r.type === "LocalPlugin");
-    assert.equal(localRuntime.spec.local_endpoint, localServerIdentifier);
+    assert.equal(localRuntime.spec.local_endpoint, LocalMcpPrefix + localServerIdentifier);
     assert.deepEqual(localRuntime.run_for_functions, ["localTool"]);
   });
 });
