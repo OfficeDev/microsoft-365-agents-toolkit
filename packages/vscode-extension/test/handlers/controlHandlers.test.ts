@@ -9,7 +9,6 @@ import { PanelType } from "../../src/controls/PanelType";
 import { WebviewPanel } from "../../src/controls/webviewPanel";
 import * as globalVariables from "../../src/globalVariables";
 import {
-  defaultWelcomePageKey,
   openFolderHandler,
   openLifecycleTreeview,
   openSamplesHandler,

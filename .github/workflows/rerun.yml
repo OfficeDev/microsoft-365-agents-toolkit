@@ -133,39 +133,58 @@ jobs:
         run: |
           npm run setup
 
-      - name: Clean resource with M365 account 01
+      - name: Switch to M365 account 01
         if: always()
         run: |
           username='${{ env.M365_USERNAME_1 }}'
           echo "M365_ACCOUNT_NAME=$username" >> $GITHUB_ENV
+          
+      - name: Clean resource with M365 account 01
+        if: always()
+        run: |
           npx ts-node src/scripts/clean.ts
-
-      - name: Clean resource with M365 account 02
+      - name: Switch to M365 account 02
         if: always()
         run: |
           username='${{ env.M365_USERNAME_2 }}'
           echo "M365_ACCOUNT_NAME=$username" >> $GITHUB_ENV
+
+      - name: Clean resource with M365 account 02
+        if: always()
+        run: |
           npx ts-node src/scripts/clean.ts
 
-      - name: Clean resource with M365 account 03
+      - name: Switch to M365 account 03
         if: always()
         run: |
           username='${{ env.M365_USERNAME_3 }}'
           echo "M365_ACCOUNT_NAME=$username" >> $GITHUB_ENV
+
+      - name: Clean resource with M365 account 03
+        if: always()
+        run: |
           npx ts-node src/scripts/clean.ts
 
-      - name: Clean resource with M365 account 04
+      - name: Switch to M365 account 04
         if: always()
         run: |
           username='${{ env.M365_USERNAME_4 }}'
           echo "M365_ACCOUNT_NAME=$username" >> $GITHUB_ENV
+
+      - name: Clean resource with M365 account 04
+        if: always()
+        run: |
           npx ts-node src/scripts/clean.ts
 
-      - name: Clean resource with M365 account 05
+      - name: Switch to M365 account 05
         if: always()
         run: |
           username='${{ env.M365_USERNAME_5 }}'
           echo "M365_ACCOUNT_NAME=$username" >> $GITHUB_ENV
+
+      - name: Clean resource with M365 account 05
+        if: always()
+        run: |
           npx ts-node src/scripts/clean.ts
 
       # - name: Clean resource with M365 account clean

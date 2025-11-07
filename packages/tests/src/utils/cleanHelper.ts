@@ -166,6 +166,74 @@ export class GraphApiCleanHelper extends CleanHelper {
     );
   }
 
+  public async listDeletedAad(): Promise<any[]> {
+    const result: any[] = [];
+    const response = await this.execute(
+      "get",
+      `/directory/deletedItems/microsoft.graph.application`,
+      undefined
+    );
+    if (response?.data?.value) {
+      result.push(...(response?.data?.value as any[]));
+    }
+
+    let next = response?.data["@odata.nextLink"] as string;
+    while (next) {
+      const responseNext = await this.execute("get", next, undefined);
+      next = responseNext?.data["@odata.nextLink"] as string;
+      result.push(...(responseNext?.data?.value as any[]));
+    }
+
+    return result;
+  }
+
+  public async listEnterpriseApplications(): Promise<any[]> {
+    const result: any[] = [];
+    const response = await this.execute("get", `/servicePrincipals`, undefined);
+    if (response?.data?.value) {
+      result.push(...(response?.data?.value as any[]));
+    }
+
+    let next = response?.data["@odata.nextLink"] as string;
+    while (next) {
+      const responseNext = await this.execute("get", next, undefined);
+      next = responseNext?.data["@odata.nextLink"] as string;
+      result.push(...(responseNext?.data?.value as any[]));
+    }
+
+    return result;
+  }
+
+  public async deleteEnterpriseApplication(id: string): Promise<void> {
+    await this.execute("delete", `/servicePrincipals/${id}`, undefined);
+    await this.execute("delete", `/directory/deletedItems/${id}`, undefined);
+  }
+
+  public async listDeletedEnterpriseApplications(): Promise<any[]> {
+    const result: any[] = [];
+    const response = await this.execute(
+      "get",
+      `/directory/deletedItems/microsoft.graph.servicePrincipal`,
+      undefined
+    );
+    if (response?.data?.value) {
+      result.push(...(response?.data?.value as any[]));
+    }
+
+    let next = response?.data["@odata.nextLink"] as string;
+    while (next) {
+      const responseNext = await this.execute("get", next, undefined);
+      next = responseNext?.data["@odata.nextLink"] as string;
+      result.push(...(responseNext?.data?.value as any[]));
+    }
+
+    return result;
+  }
+
+  public async deleteDeletedItem(id: string): Promise<void> {
+    await this.execute("delete", `/directory/deletedItems/${id}`, undefined);
+  }
+
   public async listTeamsApp(userId: string): Promise<any | undefined> {
     const response = await this.execute(
       "get",
