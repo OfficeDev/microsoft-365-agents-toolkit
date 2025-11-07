@@ -13,7 +13,8 @@ on:
 
   schedule:
     - cron: "0 17 * * *"
-
+permissions:
+  actions: read
 jobs:
   discover-test-plans:
     runs-on: ubuntu-latest
@@ -212,6 +213,14 @@ jobs:
             echo "No test_report.html found to rename"
           fi
 
+      - name: Generate UUID (Windows compatible)
+        if: always()
+        id: guid
+        shell: pwsh
+        run: |
+          $guid = [guid]::NewGuid().ToString()
+          echo "guid=$guid" >> $env:GITHUB_OUTPUT
+
       # Upload files to Azure Blob Storage
       - name : Login to Azure
         if: always()
@@ -226,11 +235,10 @@ jobs:
         if: always()
         shell: pwsh
         run: |
-          $guid = '${{ steps.guid.outputs.guid }}'
           $account = $env:AZURE_STORAGE_ACCOUNT
           $sourcePath = "packages/tests/vscuse/vscode-test-cases/test_report/"
           $destination = "`$web/$guid"
-          $storageUrl = "https://vscusedownload.z13.web.core.windows.net/$guid/$env:REPORT_CHILD_PATH"
+          $storageUrl = "https://vscusedownload.z13.web.core.windows.net/$guid/index.html"
       
           Write-Host "🌐Here is the report: $storageUrl"
 
