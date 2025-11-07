@@ -19,6 +19,12 @@ import { WrapDriverContext } from "../util/wrapUtil";
 import { Constants } from "./constants";
 import { PublishAppPackageArgs } from "./interfaces/PublishAppPackageArgs";
 import { TelemetryPropertyKey } from "./utils/telemetry";
+import { ODRProvider } from "../../utils/odrProvider";
+import { exec } from "child_process";
+import { promisify } from "util";
+import { LocalMcpPrefix } from "../../constants";
+import { AppStudioError } from "./errors";
+import { AppStudioResultFactory } from "./results";
 
 export const actionName = "teamsApp/publishAppPackage";
 
@@ -72,6 +78,22 @@ export class PublishAppPackageDriver implements StepDriver {
     const archivedFile = await fs.readFile(appPackagePath);
 
     const zipEntries = new AdmZip(archivedFile).getEntries();
+
+    const pluginFile = zipEntries.find((x) => x.entryName === "ai-plugin.json");
+    if (pluginFile) {
+      const isValid = await this.verifyLocalPluginCerts(pluginFile);
+
+      if (!isValid) {
+        const message =
+          "MSIX package certificate verification failed. One or more local mcp servers do not have a cert or have a self-signed cert.";
+        return err(
+          AppStudioResultFactory.UserError(AppStudioError.ValidationFailedError.name, [
+            message,
+            message,
+          ])
+        );
+      }
+    }
 
     const manifestFile = zipEntries.find((x) => x.entryName === Constants.MANIFEST_FILE);
     if (!manifestFile) {
@@ -197,6 +219,55 @@ export class PublishAppPackageDriver implements StepDriver {
       );
     } else {
       return ok(undefined);
+    }
+  }
+
+  private async verifyLocalPluginCerts(pluginFile: AdmZip.IZipEntry): Promise<boolean> {
+    const pluginContent = pluginFile.getData().toString();
+    const pluginContentAsJson = JSON.parse(pluginContent);
+
+    const servers = await ODRProvider.listServers();
+
+    let allValidCerts = true;
+
+    pluginContentAsJson.runtimes
+      .filter((runtime: any) => runtime.type === "LocalPlugin")
+      .forEach(async (runtime: any) => {
+        const serverInfo = servers.find(
+          (x) => x.identifier === runtime.spec.local_endpoint.substring(LocalMcpPrefix.length)
+        );
+        if (serverInfo) {
+          const valid = await this.verifyPackageFamilyCertIsValid(serverInfo.packageFamily);
+
+          if (!valid) {
+            allValidCerts = false;
+          }
+        } else {
+          allValidCerts = false;
+        }
+      });
+
+    return allValidCerts;
+  }
+
+  private async verifyPackageFamilyCertIsValid(packageName: string): Promise<boolean> {
+    const execAsync = promisify(exec);
+    const command = `powershell.exe -Command "& Get-AppxPackage | where { $_.PackageFamilyName -eq '${packageName}' } | select { $_.SignatureKind }"`;
+
+    try {
+      const { stdout } = await execAsync(command);
+
+      if (!stdout) {
+        return false;
+      }
+
+      if (stdout.toLowerCase().includes("developer")) {
+        return false;
+      }
+      return true;
+    } catch (error) {
+      console.error("Unable to get cert info for package name", error);
+      return false;
     }
   }
 }
