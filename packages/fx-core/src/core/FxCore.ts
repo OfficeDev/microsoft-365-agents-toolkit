@@ -3123,9 +3123,6 @@ export class FxCore {
           }`,
         },
         run_for_functions: mcpToolsSelected,
-        auth: {
-          type: "None",
-        },
       });
     } else {
       (aiPluginContent.runtimes as any[]).push({

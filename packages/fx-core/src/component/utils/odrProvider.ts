@@ -67,27 +67,26 @@ export class ODRProvider {
   /**
    * List all available local MCP servers from Windows ODR.
    * This is used during project creation to show available servers to the user.
+   * @returns Array of ODR servers. Returns empty array if not on Windows or if ODR command fails.
    */
   static async listServers(): Promise<ODRServer[]> {
+    if (process.platform !== "win32") {
+      return [];
+    }
+
     const execAsync = promisify(exec);
-    const execOutcome = async () => {
-      try {
-        const { stdout } = await execAsync("odr list");
+    try {
+      const { stdout } = await execAsync("odr list");
 
-        if (!stdout) {
-          return [];
-        }
-
-        const jsonOutput = JSON.parse(stdout);
-        return ODRProvider.parseODRListOutput(jsonOutput);
-      } catch (error) {
-        console.error("Error executing odr list:", error);
+      if (!stdout) {
         return [];
       }
-    };
 
-    return execOutcome().then((output) => {
-      return output;
-    });
+      const jsonOutput = JSON.parse(stdout);
+      return ODRProvider.parseODRListOutput(jsonOutput);
+    } catch (error) {
+      console.error("Error executing odr list:", error);
+      return [];
+    }
   }
 }

@@ -28,6 +28,7 @@ import mockedEnv, { RestoreFn } from "mocked-env";
 import { MockedLogProvider, MockedTelemetryReporter } from "../../../plugins/solution/util";
 import { createContext, setTools } from "../../../../src/common/globalVars";
 import * as commonUtils from "../../../../src/common/utils";
+import { ODRProvider } from "../../../../src/component/utils/odrProvider";
 import { WrapDriverContext } from "../../../../src/component/driver/util/wrapUtil";
 import { MockTools } from "../../../core/utils";
 
@@ -389,6 +390,7 @@ describe("pluginManifestUtils", () => {
       sandbox.stub(fs, "pathExists").resolves(true);
       sandbox.stub(fs, "readFile").resolves(JSON.stringify(pluginManifest) as any);
       sandbox.stub(ManifestUtil, "validateManifest").resolves([]);
+      sandbox.stub(pluginManifestUtils, "validateLocalPluginRuntimes").resolves([]);
 
       const res = await pluginManifestUtils.validateAgainstSchema(
         { id: "1", file: "file" },
@@ -525,6 +527,732 @@ describe("pluginManifestUtils", () => {
       const res = await pluginManifestUtils.getDefaultNextAvailableApiSpecPath("testPath", "test");
 
       chai.assert.equal(res, path.join("test", "openapi_3.json"));
+    });
+  });
+
+  describe("validateLocalPluginRuntimes", () => {
+    const mockContext = {
+      logProvider: new MockedLogProvider(),
+      telemetryReporter: new MockedTelemetryReporter(),
+      projectPath: "/test/project",
+    } as any;
+
+    beforeEach(() => {
+      sandbox.stub(process, "platform").value("win32");
+    });
+
+    describe("local_endpoint format", () => {
+      it("should pass when local_endpoint starts with 'mcp://'", async () => {
+        const manifest: PluginManifestSchema = {
+          schema_version: "v2.1",
+          name_for_human: "Test Plugin",
+          description_for_human: "Test",
+          functions: [{ name: "test_func" }],
+          runtimes: [
+            {
+              type: "LocalPlugin",
+              spec: { local_endpoint: "mcp://test-server" },
+              run_for_functions: ["test_func"],
+            },
+          ],
+        };
+
+        const mockServers = [
+          {
+            name: "test-server",
+            display_name: "Test Server",
+            description: "Test",
+            version: "1.0.0",
+            identifier: "test-server",
+            packageFamily: "test-pkg",
+            tools: [
+              {
+                name: "test_func",
+                description: "",
+                inputSchema: { type: "object", properties: {} },
+              },
+            ],
+          },
+        ];
+        sandbox.stub(ODRProvider, "listServers").resolves(mockServers);
+
+        const errors = await pluginManifestUtils.validateLocalPluginRuntimes(manifest, mockContext);
+        chai.assert.isEmpty(errors);
+      });
+
+      it("should fail when local_endpoint does not start with 'mcp://'", async () => {
+        const manifest: PluginManifestSchema = {
+          schema_version: "v2.1",
+          name_for_human: "Test Plugin",
+          description_for_human: "Test",
+          functions: [{ name: "test_func" }],
+          runtimes: [
+            {
+              type: "LocalPlugin",
+              spec: { local_endpoint: "http://localhost:3000" },
+              run_for_functions: ["test_func"],
+            },
+          ],
+        };
+
+        const errors = await pluginManifestUtils.validateLocalPluginRuntimes(manifest, mockContext);
+        chai.assert.isNotEmpty(errors);
+        chai.assert.include(errors[0], 'must start with "mcp://"');
+        chai.assert.include(errors[0], "http://localhost:3000");
+      });
+
+      it("should handle empty local_endpoint", async () => {
+        const manifest: PluginManifestSchema = {
+          schema_version: "v2.1",
+          name_for_human: "Test Plugin",
+          description_for_human: "Test",
+          functions: [{ name: "test_func" }],
+          runtimes: [
+            {
+              type: "LocalPlugin",
+              spec: { local_endpoint: "" },
+              run_for_functions: ["test_func"],
+            },
+          ],
+        };
+
+        const errors = await pluginManifestUtils.validateLocalPluginRuntimes(manifest, mockContext);
+        chai.assert.isNotEmpty(errors);
+        chai.assert.include(errors[0], 'must start with "mcp://"');
+      });
+
+      it("should handle multiple LocalPlugin runtimes", async () => {
+        const manifest: PluginManifestSchema = {
+          schema_version: "v2.1",
+          name_for_human: "Test Plugin",
+          description_for_human: "Test",
+          functions: [{ name: "func1" }, { name: "func2" }],
+          runtimes: [
+            {
+              type: "LocalPlugin",
+              spec: { local_endpoint: "mcp://server1" },
+              run_for_functions: ["func1"],
+            },
+            {
+              type: "LocalPlugin",
+              spec: { local_endpoint: "http://invalid" },
+              run_for_functions: ["func2"],
+            },
+          ],
+        };
+
+        const errors = await pluginManifestUtils.validateLocalPluginRuntimes(manifest, mockContext);
+        chai.assert.isNotEmpty(errors);
+        chai.assert.include(errors[0], "http://invalid");
+      });
+    });
+
+    describe("Functions referenced by runtimes", () => {
+      it("should pass when all functions are referenced", async () => {
+        const manifest: PluginManifestSchema = {
+          schema_version: "v2.1",
+          name_for_human: "Test Plugin",
+          description_for_human: "Test",
+          functions: [{ name: "func1" }, { name: "func2" }],
+          runtimes: [
+            {
+              type: "LocalPlugin",
+              spec: { local_endpoint: "mcp://test-server" },
+              run_for_functions: ["func1", "func2"],
+            },
+          ],
+        };
+
+        const mockServers = [
+          {
+            name: "test-server",
+            display_name: "Test Server",
+            description: "Test",
+            version: "1.0.0",
+            identifier: "test-server",
+            packageFamily: "test-pkg",
+            tools: [
+              { name: "func1", description: "", inputSchema: { type: "object", properties: {} } },
+              { name: "func2", description: "", inputSchema: { type: "object", properties: {} } },
+            ],
+          },
+        ];
+        sandbox.stub(ODRProvider, "listServers").resolves(mockServers);
+
+        const errors = await pluginManifestUtils.validateLocalPluginRuntimes(manifest, mockContext);
+        chai.assert.isEmpty(errors);
+      });
+
+      it("should fail when functions are not referenced", async () => {
+        const manifest: PluginManifestSchema = {
+          schema_version: "v2.1",
+          name_for_human: "Test Plugin",
+          description_for_human: "Test",
+          functions: [{ name: "func1" }, { name: "func2" }, { name: "func3" }],
+          runtimes: [
+            {
+              type: "LocalPlugin",
+              spec: { local_endpoint: "mcp://test-server" },
+              run_for_functions: ["func1"],
+            },
+          ],
+        };
+
+        const errors = await pluginManifestUtils.validateLocalPluginRuntimes(manifest, mockContext);
+        chai.assert.isNotEmpty(errors);
+        chai.assert.include(errors[0], "Functions not referenced by any runtime");
+        chai.assert.include(errors[0], "func2");
+        chai.assert.include(errors[0], "func3");
+      });
+
+      it("should pass when functions are referenced across multiple runtimes", async () => {
+        const manifest: PluginManifestSchema = {
+          schema_version: "v2.1",
+          name_for_human: "Test Plugin",
+          description_for_human: "Test",
+          functions: [{ name: "func1" }, { name: "func2" }],
+          runtimes: [
+            {
+              type: "LocalPlugin",
+              spec: { local_endpoint: "mcp://server1" },
+              run_for_functions: ["func1"],
+            },
+            {
+              type: "OpenApi",
+              spec: { url: "openapi.json" },
+              run_for_functions: ["func2"],
+            },
+          ],
+        };
+
+        const mockServers = [
+          {
+            name: "server1",
+            display_name: "Server 1",
+            description: "Test",
+            version: "1.0.0",
+            identifier: "server1",
+            packageFamily: "server1-pkg",
+            tools: [
+              { name: "func1", description: "", inputSchema: { type: "object", properties: {} } },
+            ],
+          },
+        ];
+        sandbox.stub(ODRProvider, "listServers").resolves(mockServers);
+
+        const errors = await pluginManifestUtils.validateLocalPluginRuntimes(manifest, mockContext);
+        chai.assert.isEmpty(errors);
+      });
+
+      it("should pass when no functions are defined", async () => {
+        const manifest: PluginManifestSchema = {
+          schema_version: "v2.1",
+          name_for_human: "Test Plugin",
+          description_for_human: "Test",
+          functions: [],
+          runtimes: [
+            {
+              type: "LocalPlugin",
+              spec: { local_endpoint: "mcp://test-server" },
+              run_for_functions: [],
+            },
+          ],
+        };
+
+        const mockServers = [
+          {
+            name: "test-server",
+            display_name: "Test Server",
+            description: "Test",
+            version: "1.0.0",
+            identifier: "test-server",
+            packageFamily: "test-pkg",
+            tools: [],
+          },
+        ];
+        sandbox.stub(ODRProvider, "listServers").resolves(mockServers);
+
+        const errors = await pluginManifestUtils.validateLocalPluginRuntimes(manifest, mockContext);
+        chai.assert.isEmpty(errors);
+      });
+    });
+
+    describe("MCP Server Validation", () => {
+      const mockODRServers = [
+        {
+          name: "test-server",
+          display_name: "Test MCP Server",
+          description: "Test server",
+          version: "1.0.0",
+          identifier: "test-server",
+          packageFamily: "test-server-pkg",
+          tools: [
+            {
+              name: "get_weather",
+              description: "Get weather information",
+              inputSchema: {
+                type: "object",
+                properties: {
+                  location: { type: "string" },
+                  units: { type: "string", enum: ["celsius", "fahrenheit"] },
+                },
+                required: ["location"],
+              },
+            },
+            {
+              name: "send_email",
+              description: "Send an email",
+              inputSchema: {
+                type: "object",
+                properties: {
+                  to: { type: "string" },
+                  subject: { type: "string" },
+                  body: { type: "string" },
+                },
+                required: ["to", "subject"],
+              },
+            },
+          ],
+        },
+      ];
+
+      it("should throw on non-Windows platforms", async () => {
+        sandbox.restore();
+        sandbox.stub(process, "platform").value("darwin");
+
+        const manifest: PluginManifestSchema = {
+          schema_version: "v2.1",
+          name_for_human: "Test Plugin",
+          description_for_human: "Test",
+          functions: [{ name: "get_weather" }],
+          runtimes: [
+            {
+              type: "LocalPlugin",
+              spec: { local_endpoint: "mcp://test-server" },
+              run_for_functions: ["get_weather"],
+            },
+          ],
+        };
+
+        try {
+          await pluginManifestUtils.validateLocalPluginRuntimes(manifest, mockContext);
+          chai.assert.fail("Should have thrown an error");
+        } catch (error: any) {
+          chai.assert.include(error.message, "only available on Windows");
+        }
+      });
+
+      it("should throw when no MCP servers found", async () => {
+        sandbox.stub(ODRProvider, "listServers").resolves([]);
+
+        const manifest: PluginManifestSchema = {
+          schema_version: "v2.1",
+          name_for_human: "Test Plugin",
+          description_for_human: "Test",
+          functions: [{ name: "test_func" }],
+          runtimes: [
+            {
+              type: "LocalPlugin",
+              spec: { local_endpoint: "mcp://test-server" },
+              run_for_functions: ["test_func"],
+            },
+          ],
+        };
+
+        try {
+          await pluginManifestUtils.validateLocalPluginRuntimes(manifest, mockContext);
+          chai.assert.fail("Should have thrown an error");
+        } catch (error: any) {
+          chai.assert.include(error.message, "No MCP servers found");
+        }
+      });
+
+      it("should fail when MCP server identifier not found", async () => {
+        sandbox.stub(ODRProvider, "listServers").resolves(mockODRServers);
+
+        const manifest: PluginManifestSchema = {
+          schema_version: "v2.1",
+          name_for_human: "Test Plugin",
+          description_for_human: "Test",
+          functions: [{ name: "test_func" }],
+          runtimes: [
+            {
+              type: "LocalPlugin",
+              spec: { local_endpoint: "mcp://non-existent-server" },
+              run_for_functions: ["test_func"],
+            },
+          ],
+        };
+
+        const errors = await pluginManifestUtils.validateLocalPluginRuntimes(manifest, mockContext);
+        chai.assert.isNotEmpty(errors);
+        chai.assert.include(errors[0], "MCP server");
+        chai.assert.include(errors[0], "non-existent-server");
+        chai.assert.include(errors[0], "not found");
+      });
+
+      it("should fail when tool in run_for_functions not found in MCP server", async () => {
+        sandbox.stub(ODRProvider, "listServers").resolves(mockODRServers);
+
+        const manifest: PluginManifestSchema = {
+          schema_version: "v2.1",
+          name_for_human: "Test Plugin",
+          description_for_human: "Test",
+          functions: [{ name: "non_existent_tool" }],
+          runtimes: [
+            {
+              type: "LocalPlugin",
+              spec: { local_endpoint: "mcp://test-server" },
+              run_for_functions: ["non_existent_tool"],
+            },
+          ],
+        };
+
+        const errors = await pluginManifestUtils.validateLocalPluginRuntimes(manifest, mockContext);
+        chai.assert.isNotEmpty(errors);
+        chai.assert.include(errors[0], "Tool");
+        chai.assert.include(errors[0], "non_existent_tool");
+        chai.assert.include(errors[0], "not found");
+      });
+
+      it("should pass when parameters match MCP tool definition", async () => {
+        sandbox.stub(ODRProvider, "listServers").resolves(mockODRServers);
+
+        const manifest: PluginManifestSchema = {
+          schema_version: "v2.1",
+          name_for_human: "Test Plugin",
+          description_for_human: "Test",
+          functions: [
+            {
+              name: "get_weather",
+              parameters: {
+                type: "object",
+                properties: {
+                  location: { type: "string" },
+                  units: { type: "string", enum: ["celsius", "fahrenheit"] },
+                },
+                required: ["location"],
+              },
+            },
+          ],
+          runtimes: [
+            {
+              type: "LocalPlugin",
+              spec: { local_endpoint: "mcp://test-server" },
+              run_for_functions: ["get_weather"],
+            },
+          ],
+        };
+
+        const errors = await pluginManifestUtils.validateLocalPluginRuntimes(manifest, mockContext);
+        chai.assert.isEmpty(errors);
+      });
+
+      it("should fail when manifest has extra parameters", async () => {
+        sandbox.stub(ODRProvider, "listServers").resolves(mockODRServers);
+
+        const manifest: PluginManifestSchema = {
+          schema_version: "v2.1",
+          name_for_human: "Test Plugin",
+          description_for_human: "Test",
+          functions: [
+            {
+              name: "get_weather",
+              parameters: {
+                type: "object",
+                properties: {
+                  location: { type: "string" },
+                  units: { type: "string", enum: ["celsius", "fahrenheit"] },
+                  extra_param: { type: "string" },
+                },
+                required: ["location"],
+              },
+            },
+          ],
+          runtimes: [
+            {
+              type: "LocalPlugin",
+              spec: { local_endpoint: "mcp://test-server" },
+              run_for_functions: ["get_weather"],
+            },
+          ],
+        };
+
+        const errors = await pluginManifestUtils.validateLocalPluginRuntimes(manifest, mockContext);
+        chai.assert.isNotEmpty(errors);
+        chai.assert.include(errors[0], "extra_param");
+        chai.assert.include(errors[0], "Extra parameter");
+      });
+
+      it("should fail when manifest is missing required parameters", async () => {
+        sandbox.stub(ODRProvider, "listServers").resolves(mockODRServers);
+
+        const manifest: PluginManifestSchema = {
+          schema_version: "v2.1",
+          name_for_human: "Test Plugin",
+          description_for_human: "Test",
+          functions: [
+            {
+              name: "get_weather",
+              parameters: {
+                type: "object",
+                properties: {
+                  location: { type: "string" },
+                },
+                required: ["location"],
+              },
+            },
+          ],
+          runtimes: [
+            {
+              type: "LocalPlugin",
+              spec: { local_endpoint: "mcp://test-server" },
+              run_for_functions: ["get_weather"],
+            },
+          ],
+        };
+
+        const errors = await pluginManifestUtils.validateLocalPluginRuntimes(manifest, mockContext);
+        chai.assert.isNotEmpty(errors);
+        chai.assert.include(errors[0], "units");
+        chai.assert.include(errors[0], "Missing parameter");
+      });
+
+      it("should fail when parameter types mismatch", async () => {
+        sandbox.stub(ODRProvider, "listServers").resolves(mockODRServers);
+
+        const manifest: PluginManifestSchema = {
+          schema_version: "v2.1",
+          name_for_human: "Test Plugin",
+          description_for_human: "Test",
+          functions: [
+            {
+              name: "get_weather",
+              parameters: {
+                type: "object",
+                properties: {
+                  location: { type: "number" },
+                  units: { type: "string", enum: ["celsius", "fahrenheit"] },
+                },
+                required: ["location"],
+              },
+            },
+          ],
+          runtimes: [
+            {
+              type: "LocalPlugin",
+              spec: { local_endpoint: "mcp://test-server" },
+              run_for_functions: ["get_weather"],
+            },
+          ],
+        };
+
+        const errors = await pluginManifestUtils.validateLocalPluginRuntimes(manifest, mockContext);
+        chai.assert.isNotEmpty(errors);
+        chai.assert.include(errors[0], "Type mismatch");
+        chai.assert.include(errors[0], "location");
+      });
+
+      it("should fail when enum values mismatch", async () => {
+        sandbox.stub(ODRProvider, "listServers").resolves(mockODRServers);
+
+        const manifest: PluginManifestSchema = {
+          schema_version: "v2.1",
+          name_for_human: "Test Plugin",
+          description_for_human: "Test",
+          functions: [
+            {
+              name: "get_weather",
+              parameters: {
+                type: "object",
+                properties: {
+                  location: { type: "string" },
+                  units: { type: "string", enum: ["celsius", "kelvin"] },
+                },
+                required: ["location"],
+              },
+            },
+          ],
+          runtimes: [
+            {
+              type: "LocalPlugin",
+              spec: { local_endpoint: "mcp://test-server" },
+              run_for_functions: ["get_weather"],
+            },
+          ],
+        };
+
+        const errors = await pluginManifestUtils.validateLocalPluginRuntimes(manifest, mockContext);
+        chai.assert.isNotEmpty(errors);
+        chai.assert.include(errors[0], "Enum mismatch");
+      });
+
+      it("should fail when required array differs", async () => {
+        sandbox.stub(ODRProvider, "listServers").resolves(mockODRServers);
+
+        const manifest: PluginManifestSchema = {
+          schema_version: "v2.1",
+          name_for_human: "Test Plugin",
+          description_for_human: "Test",
+          functions: [
+            {
+              name: "get_weather",
+              parameters: {
+                type: "object",
+                properties: {
+                  location: { type: "string" },
+                  units: { type: "string", enum: ["celsius", "fahrenheit"] },
+                },
+                required: ["location", "units"],
+              },
+            },
+          ],
+          runtimes: [
+            {
+              type: "LocalPlugin",
+              spec: { local_endpoint: "mcp://test-server" },
+              run_for_functions: ["get_weather"],
+            },
+          ],
+        };
+
+        const errors = await pluginManifestUtils.validateLocalPluginRuntimes(manifest, mockContext);
+        chai.assert.isNotEmpty(errors);
+        chai.assert.include(errors[0], "Extra required parameters");
+        chai.assert.include(errors[0], "units");
+      });
+
+      it("should handle ODR failures gracefully", async () => {
+        sandbox.stub(ODRProvider, "listServers").rejects(new Error("ODR command failed"));
+
+        const manifest: PluginManifestSchema = {
+          schema_version: "v2.1",
+          name_for_human: "Test Plugin",
+          description_for_human: "Test",
+          functions: [{ name: "test_func" }],
+          runtimes: [
+            {
+              type: "LocalPlugin",
+              spec: { local_endpoint: "mcp://test-server" },
+              run_for_functions: ["test_func"],
+            },
+          ],
+        };
+
+        try {
+          await pluginManifestUtils.validateLocalPluginRuntimes(manifest, mockContext);
+          chai.assert.fail("Should have thrown an error");
+        } catch (error: any) {
+          chai.assert.include(error.message, "ODR command failed");
+        }
+      });
+    });
+
+    describe("Edge cases", () => {
+      it("should return empty errors for manifest without runtimes", async () => {
+        const manifest: PluginManifestSchema = {
+          schema_version: "v2.1",
+          name_for_human: "Test Plugin",
+          description_for_human: "Test",
+          functions: [{ name: "test_func" }],
+        };
+
+        const errors = await pluginManifestUtils.validateLocalPluginRuntimes(manifest, mockContext);
+        chai.assert.isEmpty(errors);
+      });
+
+      it("should only validate LocalPlugin runtimes, ignore others", async () => {
+        const manifest: PluginManifestSchema = {
+          schema_version: "v2.1",
+          name_for_human: "Test Plugin",
+          description_for_human: "Test",
+          functions: [{ name: "func1" }, { name: "func2" }],
+          runtimes: [
+            {
+              type: "OpenApi",
+              spec: { url: "invalid-url" },
+              run_for_functions: ["func1"],
+            },
+            {
+              type: "LocalPlugin",
+              spec: { local_endpoint: "mcp://test-server" },
+              run_for_functions: ["func2"],
+            },
+          ],
+        };
+
+        const mockServers = [
+          {
+            name: "test-server",
+            display_name: "Test Server",
+            description: "Test",
+            version: "1.0.0",
+            identifier: "test-server",
+            packageFamily: "test-pkg",
+            tools: [
+              { name: "func2", description: "", inputSchema: { type: "object", properties: {} } },
+            ],
+          },
+        ];
+        sandbox.stub(ODRProvider, "listServers").resolves(mockServers);
+
+        const errors = await pluginManifestUtils.validateLocalPluginRuntimes(manifest, mockContext);
+        chai.assert.isEmpty(errors);
+      });
+
+      it("should handle multiple LocalPlugin runtimes with different servers", async () => {
+        const mockServers = [
+          {
+            name: "server1",
+            display_name: "Server 1",
+            description: "Test",
+            version: "1.0.0",
+            identifier: "server1",
+            packageFamily: "server1-pkg",
+            tools: [
+              { name: "tool1", description: "", inputSchema: { type: "object", properties: {} } },
+            ],
+          },
+          {
+            name: "server2",
+            display_name: "Server 2",
+            description: "Test",
+            version: "1.0.0",
+            identifier: "server2",
+            packageFamily: "server2-pkg",
+            tools: [
+              { name: "tool2", description: "", inputSchema: { type: "object", properties: {} } },
+            ],
+          },
+        ];
+
+        sandbox.stub(ODRProvider, "listServers").resolves(mockServers);
+
+        const manifest: PluginManifestSchema = {
+          schema_version: "v2.1",
+          name_for_human: "Test Plugin",
+          description_for_human: "Test",
+          functions: [
+            { name: "tool1", parameters: { type: "object", properties: {} } },
+            { name: "tool2", parameters: { type: "object", properties: {} } },
+          ],
+          runtimes: [
+            {
+              type: "LocalPlugin",
+              spec: { local_endpoint: "mcp://server1" },
+              run_for_functions: ["tool1"],
+            },
+            {
+              type: "LocalPlugin",
+              spec: { local_endpoint: "mcp://server2" },
+              run_for_functions: ["tool2"],
+            },
+          ],
+        };
+
+        const errors = await pluginManifestUtils.validateLocalPluginRuntimes(manifest, mockContext);
+        chai.assert.isEmpty(errors);
+      });
     });
   });
 });
