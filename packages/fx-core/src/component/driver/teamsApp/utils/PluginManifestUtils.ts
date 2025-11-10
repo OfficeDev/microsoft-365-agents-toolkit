@@ -311,8 +311,7 @@ export class PluginManifestUtils {
       errors.push(`Functions not referenced by any runtime: ${unreferencedFunctions.join(", ")}`);
     }
 
-    // MCP tool validation
-    if (localPluginRuntimes.length > 0) {
+    if (localPluginRuntimes.length > 0 && errors.length === 0) {
       if (process.platform !== "win32") {
         throw new Error("MCP validation failed: ODR is only available on Windows platform.");
       }

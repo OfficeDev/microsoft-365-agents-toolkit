@@ -1325,7 +1325,7 @@ describe("helper", async () => {
     });
 
     it("ODRProvider listServers should handle empty output", async () => {
-      // Mock exec to return empty servers array
+      sandbox.stub(process, "platform").value("win32");
       const execStub = sandbox
         .stub(require("child_process"), "exec")
         .callsArgWith(1, null, JSON.stringify({ servers: [] }), "");
@@ -1338,7 +1338,7 @@ describe("helper", async () => {
     });
 
     it("ODRProvider listServers should handle malformed JSON", async () => {
-      // Mock exec to return invalid JSON
+      sandbox.stub(process, "platform").value("win32");
       const execStub = sandbox
         .stub(require("child_process"), "exec")
         .callsArgWith(1, null, "invalid json", "");
@@ -1351,10 +1351,28 @@ describe("helper", async () => {
     });
 
     it("ODRProvider listServers should handle exec errors", async () => {
-      // Mock exec to return error
+      sandbox.stub(process, "platform").value("win32");
       const execStub = sandbox
         .stub(require("child_process"), "exec")
         .callsArgWith(1, new Error("Command failed"), "", "error output");
+
+      const servers = await ODRProvider.listServers();
+
+      assert.isArray(servers);
+      assert.equal(servers.length, 0);
+      assert.isTrue(execStub.calledOnce);
+    });
+
+    it("ODRProvider listServers should handle command not found (ODR not installed)", async () => {
+      sandbox.stub(process, "platform").value("win32");
+      const execStub = sandbox
+        .stub(require("child_process"), "exec")
+        .callsArgWith(
+          1,
+          new Error("'odr' is not recognized as an internal or external command"),
+          "",
+          ""
+        );
 
       const servers = await ODRProvider.listServers();
 

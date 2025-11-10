@@ -67,7 +67,10 @@ export class ODRProvider {
   /**
    * List all available local MCP servers from Windows ODR.
    * This is used during project creation to show available servers to the user.
-   * @returns Array of ODR servers. Returns empty array if not on Windows or if ODR command fails.
+   * @returns Array of ODR servers. Returns empty array if:
+   *   - Not on Windows platform
+   *   - ODR command is not available (not installed)
+   *   - ODR command fails or returns invalid output
    */
   static async listServers(): Promise<ODRServer[]> {
     if (process.platform !== "win32") {
