@@ -143,6 +143,12 @@ export class M365AccountNode extends DynamicNode {
     } else {
       this.iconPath = m365Icon;
     }
+    this.accessibilityInformation = {
+      label:
+        (this.label ? (typeof this.label === "string" ? this.label : this.label.label) : "") +
+        ". " +
+        localize("teamstoolkit.accountTree.m365AccountTooltip"),
+    };
     return this;
   }
 }

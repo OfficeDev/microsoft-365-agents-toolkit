@@ -1221,6 +1221,12 @@ export function oauthQuestion(): IQTreeNode {
         },
       },
       {
+        data: oauthScopeCustomQuestion(),
+        condition: (inputs: Inputs) => {
+          return inputs.identityProvider === "Custom";
+        },
+      },
+      {
         data: oauthConfirmQestion(),
         condition: (inputs: Inputs) => {
           return (
@@ -1363,6 +1369,7 @@ function entraClientIdQuestion(): TextInputQuestion {
     name: QuestionNames.OauthClientId,
     cliShortName: "i",
     title: getLocalizedString("core.createProjectQuestion.EntraSSOClientId"),
+    placeholder: getLocalizedString("core.createProjectQuestion.EntraSSOClientId.placeholder"),
     cliDescription: "Microsoft Entra SSO client id for OpenAPI spec.",
     forgetLastValue: true,
     additionalValidationOnAccept: {
@@ -1384,6 +1391,7 @@ function oauthClientIdQuestion(): TextInputQuestion {
     name: QuestionNames.OauthClientId,
     cliShortName: "i",
     title: getLocalizedString("core.createProjectQuestion.OauthClientId"),
+    placeholder: getLocalizedString("core.createProjectQuestion.OauthClientId.placeholder"),
     cliDescription: "Oauth client id for OpenAPI spec.",
     forgetLastValue: true,
     additionalValidationOnAccept: {
@@ -1415,6 +1423,7 @@ function oauthClientSecretQuestion(): TextInputQuestion {
     cliShortName: "c",
     password: true,
     title: getLocalizedString("core.createProjectQuestion.OauthClientSecret"),
+    placeholder: getLocalizedString("core.createProjectQuestion.OauthClientSecret.placeholder"),
     cliDescription: "Oauth client secret for OpenAPI spec.",
     forgetLastValue: true,
     validation: {
@@ -1433,6 +1442,36 @@ function oauthClientSecretQuestion(): TextInputQuestion {
         }
 
         process.env[QuestionNames.OauthClientSecret] = input;
+        return;
+      },
+    },
+  };
+}
+
+export function oauthScopeCustomQuestion(): TextInputQuestion {
+  return {
+    name: QuestionNames.OAuthScope,
+    title: getLocalizedString("core.createProjectQuestion.OauthScope"),
+    placeholder: getLocalizedString("core.createProjectQuestion.OauthScope.placeholder"),
+    type: "text",
+    cliDescription: "Scope for oauth.",
+    validation: {
+      validFunc: (input: string): string | undefined => {
+        const regExp =
+          /^$|^[a-zA-Z0-9._/-]+(:[a-zA-Z0-9._/-]+)?(\s*,\s*[a-zA-Z0-9._/-]+(:[a-zA-Z0-9._/-]+)?)*$/g;
+        if (!regExp.test(input)) {
+          return getLocalizedString("core.createProjectQuestion.OauthScope.validation");
+        }
+        return undefined;
+      },
+    },
+    additionalValidationOnAccept: {
+      validFunc: (input: string, inputs?: Inputs): string | undefined => {
+        if (!inputs) {
+          throw new Error("inputs is undefined"); // should never happen
+        }
+
+        process.env[QuestionNames.OAuthScope] = input;
         return;
       },
     },

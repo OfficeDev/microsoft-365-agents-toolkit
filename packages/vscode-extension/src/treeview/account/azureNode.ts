@@ -84,7 +84,12 @@ export class AzureAccountNode extends DynamicNode {
     this.tooltip = new vscode.MarkdownString(
       localize("teamstoolkit.accountTree.azureAccountTooltip")
     );
-
+    this.accessibilityInformation = {
+      label:
+        (this.label ? (typeof this.label === "string" ? this.label : this.label.label) : "") +
+        ". " +
+        localize("teamstoolkit.accountTree.azureAccountTooltip"),
+    };
     return this;
   }
 }

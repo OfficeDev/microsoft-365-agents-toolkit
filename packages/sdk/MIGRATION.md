@@ -97,9 +97,9 @@ app.message(
 );
 ```
 
-### Option 2: Use Teams AI library
+### Option 2: Use Microsoft Teams SDK
 
-[Teams AI Library](https://www.npmjs.com/package/@microsoft/teams-ai) provides a simple set of functions over the Microsoft Bot Framework to implement this scenario.
+[Microsoft Teams SDK](https://www.npmjs.com/package/@microsoft/teams-ai) provides a simple set of functions over the Microsoft Bot Framework to implement this scenario.
 
 
 ```ts
@@ -144,9 +144,9 @@ TeamsFx SDK provides a `TeamsBotSsoPrompt` class to simplify the authentication 
 
 You can refer to [bot-sso sample](https://github.com/OfficeDev/microsoft-365-agents-toolkit-samples/tree/dev/bot-sso).
 
-### Option 2: Use Teams AI Library
+### Option 2: Use Microsoft Teams SDK
 
-[Teams AI Library](https://www.npmjs.com/package/@microsoft/teams-ai) also integrates with `TeamsBotSsoPrompt`. You can add authentication configurations to Application.
+[Microsoft Teams SDK](https://www.npmjs.com/package/@microsoft/teams-ai) also integrates with `TeamsBotSsoPrompt`. You can add authentication configurations to Application.
 
 ```ts
 const app = new ApplicationBuilder()

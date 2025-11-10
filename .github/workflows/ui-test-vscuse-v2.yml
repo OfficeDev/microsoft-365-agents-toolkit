@@ -13,7 +13,8 @@ on:
 
   schedule:
     - cron: "0 17 * * *"
-
+permissions:
+  actions: read
 jobs:
   discover-test-plans:
     runs-on: ubuntu-latest
@@ -51,33 +52,50 @@ jobs:
       matrix:
         test_plan: ${{ fromJson(needs.discover-test-plans.outputs.test-plans) }}
       fail-fast: false
-      max-parallel: 5
+      max-parallel: 20
     permissions:
-      contents: write
+      contents: read
       packages: write
+      id-token: write
+      security-events: write
+    environment: engineering
 
     env:
       GH_APP_ID: ${{ secrets.GH_APP_ID }}
       GH_APP_PRIVATE_KEY: ${{ secrets.GH_APP_PRIVATE_KEY }}
-      AZURE_OPENAI_ENDPOINT: ${{ secrets.AZURE_OPENAI_ENDPOINT }}
-      AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_KEY }}
+      AZURE_OPENAI_ENDPOINT: ${{ secrets.AZURE_OPENAI_ENDPOINT_NEW }}
+      AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_KEY_NEW }}
       AZURE_OPENAI_MODEL: "gpt-4.1"
+      AZURE_SEARCH_ENDPOINT: ${{ secrets.AZURE_SEARCH_ENDPOINT_NEW }}
+      AZURE_SEARCH_KEY: ${{ secrets.AZURE_SEARCH_KEY_NEW }}
       # Azure Service Principal for M365 Toolkit authentication
-      AZURE_CLIENT_ID: ${{ secrets.AZURE_SERVICE_PRINCIPAL_ID }}
-      AZURE_CLIENT_SECRET: ${{ secrets.AZURE_SERVICE_PRINCIPAL_SECRET }}
+      #AZURE_CLIENT_ID: ${{ secrets.AZURE_SERVICE_PRINCIPAL_ID }}
+      #AZURE_CLIENT_SECRET: ${{ secrets.AZURE_SERVICE_PRINCIPAL_SECRET }}
       AZURE_TENANT_ID: ${{ secrets.TEST_TENANT_ID_NEW  }}
       AZURE_SUBSCRIPTION_ID: ${{ secrets.TEST_SUBSCRIPTION_ID_NEW }}
       AZURE_AUTH_ENABLED: ${{ secrets.AZURE_SERVICE_PRINCIPAL_ID != '' && secrets.AZURE_SERVICE_PRINCIPAL_SECRET != '' && secrets.TEST_TENANT_ID_NEW != '' }}
       # M365 account for testing
-      M365_ACCOUNT_NAME: "test01@atktesting.onmicrosoft.com"
-      M365_ACCOUNT_PASSWORD: ${{ secrets.TEST_M365_PASSWORD_NEW }}
-      AZURE_ACCOUNT_NAME: "test01@atktesting.onmicrosoft.com"
-      AZURE_ACCOUNT_PASSWORD: ${{ secrets.TEST_M365_PASSWORD_NEW }}
-      M365_TENANT_ID: ${{ secrets.TEST_CLEAN_TENANT_ID_NEW }}
+      M365_USERNAME_1: "test21@xxbdw.onmicrosoft.com"
+      M365_USERNAME_2: "test22@xxbdw.onmicrosoft.com"
+      M365_USERNAME_3: "test23@xxbdw.onmicrosoft.com"
+      M365_USERNAME_4: "test24@xxbdw.onmicrosoft.com"
+      M365_ACCOUNT_PASSWORD: ${{ secrets.TEST_M365_PASSWORD }}
+
+      # The test account for Copilot features
+      M365_ACCOUNT_NAME_EnableCopilotAccess: "test01@atktesting.onmicrosoft.com"
+      M365_ACCOUNT_PASSWORD_EnableCopilotAccess: ${{ secrets.TEST_M365_PASSWORD_NEW }}
+      
+      AZURE_ACCOUNT_NAME: ${{ secrets.TEST_USER_NAME_NEW }}
+      AZURE_ACCOUNT_PASSWORD: ${{ secrets.TEST_USER_PASSWORD_NEW }}
+      M365_TENANT_ID: ${{ secrets.TEST_CLEAN_TENANT_ID }}
       # GITHUB test account
       GITHUB_ACCOUNT_NAME: ${{ secrets.GH_ACCOUNT_NAME }}
       GITHUB_ACCOUNT_PASSWORD: ${{ secrets.GH_ACCOUNT_PASSWORD }}
       GITHUB_MFA_SECRET: ${{ secrets.GH_MFA_SECRET }}
+      #Additional value:
+      DA_MCP_ENTRA_SSO_CLIENTID: ${{ secrets.DA_MCP_ENTRA_SSO_CLIENTID }}
+      DA_MCP_OAUTH_CLIENT_SECERT: ${{ secrets.DA_MCP_OAUTH_CLIENT_SECERT }}
+      DA_MCP_OAUTH_CLIENTID: ${{ secrets.DA_MCP_OAUTH_CLIENTID }}
 
     steps:
       - name: Checkout repo
@@ -133,6 +151,14 @@ jobs:
             echo "⚠️  Azure Service Principal not configured - M365 Toolkit authentication disabled"
           fi
 
+      - name: Set m365 account randomly
+        run: |
+          users=("${{ env.M365_USERNAME_1 }}" "${{ env.M365_USERNAME_2 }}" "${{ env.M365_USERNAME_3 }}" "${{ env.M365_USERNAME_4 }}")
+          count=${#users[@]}
+          index=$((RANDOM%$count))
+          echo "account index: $index"
+          echo "M365_ACCOUNT_NAME=${users[index]}" >> $GITHUB_ENV
+
       - name: Log in to Container Registry
         uses: docker/login-action@v3
         with:
@@ -174,6 +200,50 @@ jobs:
             packages/tests/vscuse/vscode-test-cases/test_report/
           retention-days: 7
           if-no-files-found: ignore
+
+
+      - name: Rename test_report.html to index.html
+        if: always()
+        run: |
+          REPORT_DIR="packages/tests/vscuse/vscode-test-cases/test_report"
+          if [ -f "$REPORT_DIR/test_report.html" ]; then
+            mv "$REPORT_DIR/test_report.html" "$REPORT_DIR/index.html"
+            echo "Renamed test_report.html to index.html"
+          else
+            echo "No test_report.html found to rename"
+          fi
+      # Upload files to Azure Blob Storage
+      - name : Login to Azure
+        if: always()
+        uses: azure/login@v2
+        with:
+          client-id: ${{secrets.DEVOPS_CLIENT_ID}}
+          tenant-id: ${{secrets.DEVOPS_TENANT_ID}}
+          subscription-id: ${{secrets.DEVOPS_SUB_ID}}
+          enable-AzPSSession: true
+
+      - name: Upload files to Azure Blob Storage
+        if: always()
+        shell: pwsh
+        run: |
+          $guid = [guid]::NewGuid().ToString()
+          $account = $env:AZURE_STORAGE_ACCOUNT
+          $sourcePath = "packages/tests/vscuse/vscode-test-cases/test_report/"
+          $destination = "`$web/$guid"
+          $storageUrl = "https://vscusedownload.z13.web.core.windows.net/$guid/index.html"
+      
+          Write-Host "🌐Here is the report: $storageUrl"
+
+          echo "$storageUrl" > storage_url.txt
+      
+          az storage blob upload-batch `
+            --account-name $account `
+            --auth-mode login `
+            --destination $destination `
+            --source "$sourcePath" `
+            --overwrite
+        env:
+          AZURE_STORAGE_ACCOUNT: vscusedownload
 
       - name: Cleanup
         if: always()

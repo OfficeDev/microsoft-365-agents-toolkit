@@ -20,7 +20,7 @@ This template showcases how Microsoft Teams supports the ability to run web-base
 
 **Congratulations**! You are running an application that can now show a basic web page in Teams, Outlook and the Microsoft 365 app.
 
-![Basic Tab](https://github.com/user-attachments/assets/d87fa70b-238b-4f9f-bde8-cf16c086332d)
+![Basic Tab](https://github.com/user-attachments/assets/e8121c82-ddbc-493f-9afb-34db2a4b8e73)
 
 ## What's included in the template
 
@@ -39,7 +39,7 @@ The following files can be customized and demonstrate an example implementation 
 | `index.html`                     | HTML file.                                                                                                      |
 | `src/Tab/App.css`                | CSS file for the app.                                                                                           |
 | `src/Tab/App.tsx`                | Tab source file. It calls `teamsjs` SDK to get the context of on which Microsoft 365 application your app is running.      |
-| `src/index.ts`                   | Starting the app using [Teams AI(v2)](https://microsoft.github.io/teams-ai).                                                                     |
+| `src/index.ts`                   | Starting the app using [Microsoft Teams SDK](https://microsoft.github.io/teams-ai).                                                                     |
 | `vite.config.js`                 | Configuration for Vite build tool.                                                                              |  
 | `nodemon.json`                   | Configuration for Nodemon to watch and restart the server.                                                      |
 

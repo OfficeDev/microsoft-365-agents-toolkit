@@ -25,10 +25,17 @@ provision:
     writeToEnvironmentFile:
       teamsAppId: TEAMS_APP_ID
 
+  # Install all dependencies (including TypeSpec for Microsoft 365 Copilot)
   - uses: cli/runNpmCommand
     name: install dependencies
     with:
       args: install --no-audit --progress=false
+
+  # Generates a TypeSpec version of the environment variables
+  - uses: cli/runNpmCommand
+    name: Generate TypeSpec environment variables
+    with:
+      args: run generate:env -- ${{TEAMSFX_ENV}}
 
   # Compile typespec files and generate necessary files for agent.
   # If you want to update the outputDir, please make sure the following paths are also updated.
@@ -37,7 +44,7 @@ provision:
   # 3. manifestPath in teamsApp/zipAppPackage action. Please set the value to the same as manifestPath in this action.
   - uses: typeSpec/compile
     with:
-      path: ./main.tsp
+      path: ./src/agent/main.tsp
       manifestPath: ./appPackage/manifest.json
       outputDir: ./appPackage/.generated
       typeSpecConfigPath: ./tspconfig.yaml
@@ -74,6 +81,9 @@ provision:
     writeToEnvironmentFile:
       titleId: M365_TITLE_ID
       appId: M365_APP_ID
+{{#ShareEnabled}}
+      shareLink: SHARE_LINK
+{{/ShareEnabled}}
 
 # Triggered when 'teamsapp publish' is executed
 publish:
@@ -89,7 +99,7 @@ publish:
   # 3. manifestPath in teamsApp/zipAppPackage action. Please set the value to the same as manifestPath in this action.
   - uses: typeSpec/compile
     with:
-      path: ./main.tsp
+      path: ./src/agent/main.tsp
       manifestPath: ./appPackage/manifest.json
       outputDir: ./appPackage/.generated
       typeSpecConfigPath: ./tspconfig.yaml

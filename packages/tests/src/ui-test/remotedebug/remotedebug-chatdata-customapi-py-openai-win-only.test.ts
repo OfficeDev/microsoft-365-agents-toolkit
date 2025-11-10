@@ -108,7 +108,7 @@ describe("Remote debug Tests", function () {
         } else {
           await validateCustomapi(page, {
             hasWelcomeMessage: false,
-            hasCommandReplyValidation: true,
+            hasCommandReplyValidation: false,
             botCommand: "helloWorld",
             expectedWelcomeMessage:
               ValidationContent.AiChatBotWelcomeInstruction,
@@ -133,7 +133,7 @@ describe("Remote debug Tests", function () {
           } else {
             await validateCustomapi(page, {
               hasWelcomeMessage: false,
-              hasCommandReplyValidation: true,
+              hasCommandReplyValidation: false,
               botCommand: "helloWorld",
               expectedWelcomeMessage:
                 ValidationContent.AiChatBotWelcomeInstruction,

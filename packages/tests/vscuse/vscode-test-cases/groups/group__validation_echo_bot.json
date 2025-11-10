@@ -7,7 +7,7 @@
       "stop_on_error": true,
       "precondition_wait_timeout": 60,
       "precondition_retry_interval": 2,
-      "step_retry_timeout": 0
+      "step_retry_timeout": 0.0
     },
     "total_steps": 3,
     "created_at": "2025-10-23T09:41:35.235615",
@@ -22,80 +22,80 @@
     "tags": [
       "group"
     ],
-    "updated_at": "2025-10-23T09:43:48.252289"
+    "updated_at": "2025-10-29T05:07:32.680120"
   },
   "steps": [
     {
-      "agent": "interaction",
-      "description": "Click the \"Hi\" button in the vscuse_app_s92Y1local interface to initiate a conversation with the bot.",
       "step_id": "step_0fba078d",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
-      "postconditions": [],
-      "screenshot": "step_0fba078d",
-      "plan_id": "plan_r_1023_094053",
+      "agent": "interaction",
       "tool": "click",
       "parameters": {
+        "button": "left",
         "x": 415,
-        "y": 503,
-        "button": "left"
+        "y": 503
       },
+      "description": "Click the \"Hi\" button in the vscuse_app_s92Y1local interface to initiate a conversation with the bot.",
+      "content_refs": [],
       "timeout": 30,
+      "retry_count": 0,
       "continue_on_error": "false",
+      "depends_on": [],
       "preconditions": [
         "dhash:415:503:16:5:0000000000800080",
         "dhash:415:503:96:5:0000204030b04010",
         "dhash:415:503:0:10:30b0b08e8e9680a1"
       ],
+      "postconditions": [],
       "tags": [],
-      "created_at": "2025-10-23T09:41:35.263425"
+      "screenshot": "step_0fba078d",
+      "created_at": "2025-10-29T03:34:23.685623",
+      "plan_id": "plan_r_1023_094053"
     },
     {
-      "agent": "interaction",
-      "description": "Click the \"Send\" button located in the message input area of the Microsoft Teams application to submit the entered text.",
       "step_id": "step_7ac0e08c",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
-      "postconditions": [],
-      "screenshot": "step_7ac0e08c",
-      "plan_id": "plan_r_1023_094053",
+      "agent": "interaction",
       "tool": "click",
       "parameters": {
+        "button": "left",
         "x": 924,
-        "y": 714,
-        "button": "left"
+        "y": 714
       },
+      "description": "Click the \"Send\" button located in the message input area of the Microsoft Teams application to submit the entered text.",
+      "content_refs": [],
       "timeout": 30,
+      "retry_count": 0,
       "continue_on_error": "false",
+      "depends_on": [],
       "preconditions": [
         "dhash:924:714:16:5:34cc733c0f03033f",
         "dhash:924:714:96:5:0bc832cbcd172600",
         "dhash:924:714:0:10:30b0b08e8eb68081"
       ],
+      "postconditions": [],
       "tags": [],
-      "created_at": "2025-10-23T09:41:35.277986"
+      "screenshot": "step_7ac0e08c",
+      "created_at": "2025-10-29T03:34:23.699932",
+      "plan_id": "plan_r_1023_094053"
     },
     {
-      "agent": "assertion",
-      "description": "@assertion \"you said: Hi\" exist.",
       "step_id": "step_7c90defb",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
-      "postconditions": [],
-      "screenshot": null,
-      "plan_id": "plan_r_1023_094053",
+      "agent": "assertion",
       "tool": "",
       "parameters": {},
+      "description": "@assertion bot reply message: \"[1] you said: Hi\" exist.",
+      "content_refs": [],
       "timeout": 30,
+      "retry_count": 0,
       "continue_on_error": "false",
+      "depends_on": [],
       "preconditions": [],
+      "postconditions": [],
       "tags": [
         "step_retry_timeout: 30"
       ],
-      "created_at": "2025-10-23T09:42:57.491568"
+      "screenshot": null,
+      "created_at": "2025-10-29T03:34:23.712248",
+      "plan_id": "plan_r_1023_094053"
     }
   ],
   "screenshots": {

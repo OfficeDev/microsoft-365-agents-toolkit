@@ -1,6 +1,6 @@
 # Overview of the Basic Bot template
 
-This app template is built on top of [Teams AI library V2](https://aka.ms/teams-ai-library-v2).
+This app template is built on top of [Microsoft Teams SDK](https://aka.ms/teams-ai-library-v2).
 This template showcases a simple bot designed to respond to user messages within Microsoft Teams.
 
 ## Get started with the template

@@ -1,6 +1,6 @@
 # Overview of the AI Agent template
 
-This app template is built on top of [Teams AI library V2](https://aka.ms/teams-ai-library-v2). 
+This app template is built on top of [Microsoft Teams SDK](https://aka.ms/teams-ai-library-v2). 
 It showcases how to build an AI agent in Teams capable of chatting with users and helping users accomplish a specific task using natural language right in the Teams conversations, such as managing tasks.
 
 ## Get started with the template
@@ -86,10 +86,10 @@ The following are Microsoft 365 Agents Toolkit specific project files. You can [
 
 ## Extend the AI Agent template with more AI capabilities
 
-To extend the Basic AI Chatbot template with more AI capabilities, explore [Teams AI library V2 documentation](https://aka.ms/m365-agents-toolkit/teams-agent-extend-ai).
+To extend the Basic AI Chatbot template with more AI capabilities, explore [Microsoft Teams SDK documentation](https://aka.ms/m365-agents-toolkit/teams-agent-extend-ai).
 
 ## Additional information and references
-- [Teams AI library V2](https://aka.ms/teams-ai-library-v2)
+- [Microsoft Teams SDK](https://aka.ms/teams-ai-library-v2)
 - [Microsoft 365 Agents Toolkit Documentations](https://docs.microsoft.com/microsoftteams/platform/toolkit/teams-toolkit-fundamentals)
 - [Microsoft 365 Agents Toolkit CLI](https://aka.ms/teamsfx-toolkit-cli)
 - [Microsoft 365 Agents Toolkit Samples](https://github.com/OfficeDev/TeamsFx-Samples)

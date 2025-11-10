@@ -7,7 +7,7 @@ Examples of Microsoft Teams bots in everyday use include:
 - Bots that provide travel information.
 
 A bot interaction can be a quick question and answer, or it can be a complex conversation. Being a cloud application, a bot can provide valuable and secure access to cloud services and corporate resources. 
-This app template is built on top of [Teams AI library V2](https://aka.ms/teams-ai-library-v2).
+This app template is built on top of [Microsoft Teams SDK](https://aka.ms/teams-ai-library-v2).
 ## Get started with the Basic Bot template
 
 > **Prerequisites**

@@ -3,7 +3,7 @@ const path = require("path");
 const config = require("../config");
 const customSayCommand = require("./customSayCommand");
 
-// See https://aka.ms/teams-ai-library to learn more about the Teams AI library.
+// See https://aka.ms/teams-ai-library to learn more about the Microsoft Teams SDK.
 const { AI, Application, ActionPlanner, OpenAIModel, PromptManager } = require("@microsoft/teams-ai");
 const { GraphDataSource } = require("./graphDataSource");
 

@@ -21,6 +21,7 @@ import path from "path";
 import * as sinon from "sinon";
 import { manifestUtils } from "../../src";
 import { GraphClient } from "../../src/client/graphClient";
+import { getLocalizedString } from "../../src/common/localizeUtils";
 import { setTools, TOOLS } from "../../src/common/globalVars";
 import { environmentNameManager } from "../../src/core/environmentName";
 import { QuestionNames } from "../../src/question/constants";
@@ -33,6 +34,7 @@ import {
   oauthAuthorizationUrlQuestion,
   oauthRefreshUrlQuestion,
   oauthScopeQuestion,
+  oauthScopeCustomQuestion,
   oauthTokenUrlQuestion,
   selectDeclarativeAgentManifestQuestion,
   selectTargetEnvQuestion,
@@ -500,13 +502,92 @@ describe("addAuthActionQuestion", () => {
     assert.isUndefined(res);
   });
 
+  it("oauthScopeCustomQuestion: happy path - single scope", async () => {
+    const validation = (oauthScopeCustomQuestion().validation as FuncValidation<string>).validFunc;
+    const res = validation("scope", undefined);
+    assert.equal(res, undefined);
+  });
+
+  it("oauthScopeCustomQuestion: should return error if invalid input - semicolon separator", async () => {
+    const validation = (oauthScopeCustomQuestion().validation as FuncValidation<string>).validFunc;
+    const res = validation("scope1:desc1; scope2:desc2", undefined);
+    assert.equal(res, getLocalizedString("core.createProjectQuestion.OauthScope.validation"));
+  });
+
+  it("oauthScopeCustomQuestion: should return error if invalid characters", async () => {
+    const validation = (oauthScopeCustomQuestion().validation as FuncValidation<string>).validFunc;
+    const res = validation("scope1@:desc1, scope2:desc2", undefined);
+    assert.equal(res, getLocalizedString("core.createProjectQuestion.OauthScope.validation"));
+  });
+
+  it("oauthScopeCustomQuestion: happy path - single scope", async () => {
+    const validation = (oauthScopeCustomQuestion().validation as FuncValidation<string>).validFunc;
+    const res = validation("api.read", undefined);
+    assert.isUndefined(res);
+  });
+
+  it("oauthScopeCustomQuestion: happy path - single scope with colon", async () => {
+    const validation = (oauthScopeCustomQuestion().validation as FuncValidation<string>).validFunc;
+    const res = validation("api.read:description", undefined);
+    assert.isUndefined(res);
+  });
+
+  it("oauthScopeCustomQuestion: happy path - multiple scopes with comma separator", async () => {
+    const validation = (oauthScopeCustomQuestion().validation as FuncValidation<string>).validFunc;
+    const res = validation("api.read, api.write, user.profile", undefined);
+    assert.isUndefined(res);
+  });
+
+  it("oauthScopeCustomQuestion: happy path - multiple scopes with colon and comma", async () => {
+    const validation = (oauthScopeCustomQuestion().validation as FuncValidation<string>).validFunc;
+    const res = validation(
+      "api.read:ReadAPI, api.write:WriteAPI, user.profile:UserProfile",
+      undefined
+    );
+    assert.isUndefined(res);
+  });
+
+  it("oauthScopeCustomQuestion: happy path - complex scopes with various characters", async () => {
+    const validation = (oauthScopeCustomQuestion().validation as FuncValidation<string>).validFunc;
+    const res = validation(
+      "api/read-write:ReadAndWrite, user_profile.access:UserProfileAccess",
+      undefined
+    );
+    assert.isUndefined(res);
+  });
+
+  it("oauthScopeCustomQuestion: additionalValidationOnAccept should set environment variable", async () => {
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+    };
+    const additionalValidation = (
+      oauthScopeCustomQuestion().additionalValidationOnAccept as FuncValidation<string>
+    ).validFunc;
+    const testScope = "api.read, api.write";
+
+    // Clear any existing environment variable
+    delete process.env[QuestionNames.OAuthScope];
+
+    const res = additionalValidation(testScope, inputs);
+    assert.isUndefined(res);
+    assert.equal(process.env[QuestionNames.OAuthScope], testScope);
+  });
+
+  it("oauthScopeCustomQuestion: additionalValidationOnAccept should throw error if no inputs", async () => {
+    const additionalValidation = (
+      oauthScopeCustomQuestion().additionalValidationOnAccept as FuncValidation<string>
+    ).validFunc;
+    try {
+      const res = additionalValidation("api.read", undefined);
+    } catch (error) {
+      assert.equal((error as Error).message, "inputs is undefined");
+    }
+  });
+
   it("authNameQuestion: should throw error if no input", async () => {
     const validation = (authNameQuestion().validation as FuncValidation<string>).validFunc;
-    try {
-      const res = await validation("", undefined);
-    } catch (error) {
-      assert.equal(error.message, "Auth name cannot be empty.");
-    }
+    const res = await validation("", undefined);
+    assert.equal(res, "Auth name cannot be empty.");
   });
 
   it("authNameQuestion: happy path", async () => {

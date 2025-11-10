@@ -53,6 +53,17 @@ export function getLanguageOptions(inputs: Inputs): OptionItem[] {
         label: "None",
       }
   );
+  if (inputs[QuestionNames.ProjectType] === ProjectTypeOptions.teamsAgentsAndApps().id) {
+    const pythonOptionIndex = languageOptions.findIndex(
+      (option) => option.id === ProgrammingLanguage.PY
+    );
+    if (pythonOptionIndex !== -1) {
+      languageOptions[pythonOptionIndex] = {
+        ...languageOptions[pythonOptionIndex],
+        description: getLocalizedString("core.createProjectQuestion.option.description.preview"),
+      };
+    }
+  }
   return languageOptions;
 }
 

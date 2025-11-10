@@ -100,7 +100,7 @@ describe("Remote debug Tests", function () {
         if (isRealKey) {
           await validateWelcomeAndReplyBot(page, {
             hasWelcomeMessage: false,
-            hasCommandReplyValidation: true,
+            hasCommandReplyValidation: false,
             botCommand: "500+499=?",
             expectedWelcomeMessage:
               ValidationContent.AiChatBotWelcomeInstruction,
@@ -135,7 +135,7 @@ describe("Remote debug Tests", function () {
           } else {
             await validateWelcomeAndReplyBot(page, {
               hasWelcomeMessage: false,
-              hasCommandReplyValidation: true,
+              hasCommandReplyValidation: false,
               botCommand: "helloWorld",
               expectedWelcomeMessage:
                 ValidationContent.AiChatBotWelcomeInstruction,

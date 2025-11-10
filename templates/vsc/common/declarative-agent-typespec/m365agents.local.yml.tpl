@@ -19,6 +19,11 @@ provision:
     with:
       args: install --no-audit --progress=false
 
+  - uses: cli/runNpmCommand
+    name: Generate TypeSpec environment variables
+    with:
+      args: run generate:env -- ${{TEAMSFX_ENV}}
+
   # Compile typespec files and generate necessary files for agent.
   # If you want to update the outputDir, please make sure the following paths are also updated.
   # 1. File paths in tspconfig.yaml.
@@ -26,7 +31,7 @@ provision:
   # 3. manifestPath in teamsApp/zipAppPackage action. Please set the value to the same as manifestPath in this action.
   - uses: typeSpec/compile
     with:
-      path: ./main.tsp
+      path: ./src/agent/main.tsp
       manifestPath: ./appPackage/manifest.json
       outputDir: ./appPackage/.generated
       typeSpecConfigPath: ./tspconfig.yaml
