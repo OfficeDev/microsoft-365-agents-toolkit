@@ -1,11 +1,11 @@
 # Overview of the AI Agent template
 
-This app template is built on top of [Teams AI library](https://aka.ms/teams-ai-library) and [OpenAI Assistants API](https://platform.openai.com/docs/assistants/overview).
+This app template is built on top of [Microsoft Teams SDK](https://aka.ms/teams-ai-library) and [OpenAI Assistants API](https://platform.openai.com/docs/assistants/overview).
 It showcases how to build an AI agent in Teams capable of helping users accomplish specific tasks using natural language right in the Teams conversations, such as solving a math problem, call functions to get city weather, etc.
 
 > **Note**
 >
-> [Teams AI library V2](https://aka.ms/teams-ai-library-v2) is recommended. This template will be upgraded to Teams AI V2 soon.
+> [Microsoft Teams SDK](https://aka.ms/teams-ai-library-v2) is recommended. This template will be upgraded to Microsoft Teams SDK soon.
 
 ## Get started with the template
 
@@ -27,7 +27,7 @@ It showcases how to build an AI agent in Teams capable of helping users accompli
 >
 > **Note**
 >
-> The `AssistantsPlanner` in Teams AI Library is currently in preview version.
+> The `AssistantsPlanner` in Microsoft Teams SDK is currently in preview version.
 > For local debugging using Microsoft 365 Agents Toolkit CLI, you need to do some extra steps described in [Set up your Microsoft 365 Agents Toolkit CLI for local debugging](https://aka.ms/teamsfx-cli-debugging).
 
 ### Create your own OpenAI Assistant

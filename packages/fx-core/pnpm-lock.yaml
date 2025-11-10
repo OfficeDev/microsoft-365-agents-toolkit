@@ -45,8 +45,8 @@ dependencies:
     specifier: 1.1.9
     version: 1.1.9
   '@microsoft/kiota':
-    specifier: 1.26.1
-    version: 1.26.1
+    specifier: 1.29.0
+    version: 1.29.0
   '@microsoft/m365-spec-parser':
     specifier: workspace:^
     version: link:../spec-parser
@@ -1070,12 +1070,12 @@ packages:
       - supports-color
     dev: false
 
-  /@microsoft/kiota@1.26.1:
-    resolution: {integrity: sha512-0LBfqV0tP2SC4KbtqJf2fAa8okVFzN+PyLYre9/F8CY8jP9/WRwsX6bR61k5BItSbF8Ur7Oja1SHXlXdh95oMg==}
+  /@microsoft/kiota@1.29.0:
+    resolution: {integrity: sha512-qqIlTz48OJ5ZMRoTA/uQA70B7ltS4lPSs9atG5PUn+dKZcgXny3LzQPe12B1LsKoBJYbwhaU3fD8/C1DsLW6Cw==}
     dependencies:
       adm-zip: 0.5.16
       original-fs: 1.2.0
-      uuid: 11.1.0
+      uuid: 13.0.0
       vscode-jsonrpc: 8.2.1
     dev: false
 
@@ -6522,8 +6522,8 @@ packages:
       inherits: 2.0.3
     dev: false
 
-  /uuid@11.1.0:
-    resolution: {integrity: sha512-0/A9rDy9P7cJ+8w1c9WD9V//9Wj15Ce2MPz8Ri6032usz+NfePxx5AcN3bN+r6ZL6jEo066/yNYB3tn4pQEx+A==}
+  /uuid@13.0.0:
+    resolution: {integrity: sha512-XQegIaBTVUjSHliKqcnFqYypAd4S+WCYt5NIeRs6w/UAry7z8Y9j5ZwRRL4kzq9U3sD6v+85er9FvkEaBpji2w==}
     hasBin: true
     dev: false
 

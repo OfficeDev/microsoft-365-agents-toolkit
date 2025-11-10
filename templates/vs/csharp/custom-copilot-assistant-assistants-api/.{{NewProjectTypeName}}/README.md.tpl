@@ -2,7 +2,7 @@
 
 This template showcases an agent that responds to user questions like an AI assistant. This enables your users to talk with the AI assistant in Teams to find information.
 
-The app template is built using the Teams AI library, which provides the capabilities to build AI-based applications.
+The app template is built using the Microsoft Teams SDK, which provides the capabilities to build AI-based applications.
 
 ## Quick Start
 
@@ -109,7 +109,7 @@ You can follow [Build an AI Agent in Teams](https://aka.ms/teamsfx-ai-agent) to 
 - [Add functions](https://aka.ms/teamsfx-ai-agent#add-functions-with-assistants-api)
 
 ## Additional information and references
-- [Teams AI library](https://aka.ms/teams-ai-library)
+- [Microsoft Teams SDK](https://aka.ms/teams-ai-library)
 - [Microsoft 365 Agents Toolkit Documentations](https://docs.microsoft.com/microsoftteams/platform/toolkit/teams-toolkit-fundamentals)
 - [Microsoft 365 Agents Toolkit CLI](https://aka.ms/teamsfx-toolkit-cli)
 - [Microsoft 365 Agents Toolkit Samples](https://github.com/OfficeDev/TeamsFx-Samples)

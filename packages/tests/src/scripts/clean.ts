@@ -73,6 +73,28 @@ async function main() {
     }
   }
 
+  console.log(`clean Enterprise Application (exclude ${excludePrefix})`);
+  const spList = await cleanService.listEnterpriseApplications();
+  if (spList) {
+    for (const sp of spList) {
+      if (
+        !adminMicrosoftEntraAppName.some((name) =>
+          sp.displayName?.startsWith(name)
+        ) &&
+        !sp.displayName?.startsWith(excludePrefix)
+      ) {
+        console.log(sp.displayName);
+        try {
+          await cleanService.deleteEnterpriseApplication(sp.id!);
+        } catch (e: any) {
+          console.log(
+            `Failed to delete Enterprise Application ${sp.displayName} with error: ${e.message}`
+          );
+        }
+      }
+    }
+  }
+
   console.log(`clean app in app studio`);
   const addStudioCleanService = await AppStudioCleanHelper.create(
     Env.cleanTenantId,

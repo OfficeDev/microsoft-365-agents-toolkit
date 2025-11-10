@@ -3,7 +3,7 @@ import * as path from "path";
 import config from "../config";
 import * as customSayCommand  from "./customSayCommand";
 
-// See https://aka.ms/teams-ai-library to learn more about the Teams AI library.
+// See https://aka.ms/teams-ai-library to learn more about the Microsoft Teams SDK.
 import { AI, Application, ActionPlanner, OpenAIModel, PromptManager, TurnState } from "@microsoft/teams-ai";
 import { GraphDataSource } from "./graphDataSource";
 

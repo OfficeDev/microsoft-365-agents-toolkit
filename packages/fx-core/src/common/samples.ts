@@ -13,7 +13,7 @@ const packageJson = require("../../package.json");
 const SampleConfigOwner = "OfficeDev";
 const SampleConfigRepo = "TeamsFx-Samples";
 const SampleConfigFile = ".config/samples-config-v3.json";
-export const SampleConfigTag = "v3.0.0";
+export const SampleConfigTag = "v3.1.0";
 // prerelease tag is always using a branch.
 export const SampleConfigBranchForPrerelease = "main";
 
@@ -177,7 +177,9 @@ class SampleProvider {
       );
 
       if (readmeResponse && readmeResponse.data) {
-        return readmeResponse.data as string;
+        const rawReadme = readmeResponse.data as string;
+        const cleanedReadme = rawReadme.replace(/<a[^>]*class="anchor"[^>]*>.*?<\/a>/gi, "");
+        return cleanedReadme;
       } else {
         return "";
       }

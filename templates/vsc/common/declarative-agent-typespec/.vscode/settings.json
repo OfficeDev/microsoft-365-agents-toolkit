@@ -9,6 +9,7 @@
         }
     ],
     "files.readonlyInclude": {
-        "appPackage/.generated/**/*": true
+        "appPackage/.generated/**/*": true,
+        "src/agent/env.tsp": true
     }
 }

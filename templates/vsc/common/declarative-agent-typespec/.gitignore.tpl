@@ -3,6 +3,7 @@ env/.env.*.user
 env/.env.local
 .localConfigs
 appPackage/build
+build
 
 # dependencies
 node_modules/
@@ -14,3 +15,5 @@ node_modules/
 
 # generated files
 appPackage/.generated
+# generated environment variables
+src/agent/env.tsp

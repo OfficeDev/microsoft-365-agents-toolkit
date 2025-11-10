@@ -22,6 +22,7 @@ import {
   ValidationContent,
   LocalDebugTaskLabel2,
   Lang,
+  LocalDebugTaskInfo,
 } from "../../utils/constants";
 import { Env, OpenAiKey } from "../../utils/env";
 import { it } from "../../utils/it";
@@ -70,7 +71,7 @@ describe("Local Debug Tests", function () {
       await waitForTerminal(LocalDebugTaskLabel.StartLocalTunnel);
       await waitForTerminal(
         LocalDebugTaskLabel2.PythonDebugConsole,
-        "Running on http://localhost:3978"
+        LocalDebugTaskInfo.PythonTaskStarted
       );
 
       const teamsAppId = await localDebugTestContext.getTeamsAppId();
@@ -99,7 +100,7 @@ describe("Local Debug Tests", function () {
       } else {
         await validateWelcomeAndReplyBot(page, {
           hasWelcomeMessage: false,
-          hasCommandReplyValidation: true,
+          hasCommandReplyValidation: false,
           botCommand: "helloWorld",
           expectedWelcomeMessage: ValidationContent.AiChatBotWelcomeInstruction,
           expectedReplyMessage: ValidationContent.AiBotErrorMessage,

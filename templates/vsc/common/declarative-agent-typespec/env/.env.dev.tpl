@@ -3,6 +3,7 @@
 # Built-in environment variables
 TEAMSFX_ENV=dev
 APP_NAME_SUFFIX=dev
+GITHUB_API_URL=https://api.github.com
 {{#ShareEnabled}}
 AGENT_SCOPE=shared
 {{/ShareEnabled}}

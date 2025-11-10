@@ -14,7 +14,7 @@ New to Teams app development or Microsoft 365 Agents Toolkit? Learn more about
 Teams app manifests, deploying to the cloud, and more in the documentation 
 at https://aka.ms/teams-toolkit-vs-docs
 
-This app template is built using the [Teams AI library V2](https://aka.ms/teams-ai-library-v2).
+This app template is built using the [Microsoft Teams SDK](https://aka.ms/teams-ai-library-v2).
 
 ## Report an issue
 
