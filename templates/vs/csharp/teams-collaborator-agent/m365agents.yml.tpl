@@ -78,7 +78,7 @@ provision:
     writeToEnvironmentFile:
       titleId: M365_TITLE_ID
       appId: M365_APP_ID
-      
+
 {{/CEAEnabled}}
 # Triggered when 'teamsapp deploy' is executed
 deploy:

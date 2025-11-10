@@ -29,7 +29,6 @@
   },
 {{/useAzureOpenAI}}
   "Storage": {
-    "Type": "sqlite",
-    "ConnectionString": "Data Source=conversations.db"
+    "Type": ""
   }
 }

@@ -19,14 +19,58 @@ param webAppSKU string
 @maxLength(42)
 param botDisplayName string
 
+@secure()
+param sqlAdminLogin string = 'sqladmin'
+@secure()
+param sqlAdminPassword string
+
 param serverfarmsName string = resourceBaseName
 param webAppName string = resourceBaseName
 param identityName string = resourceBaseName
+param sqlServerName string = '${resourceBaseName}-sqlserver'
+param sqlDatabaseName string = '${resourceBaseName}-db'
 param location string = resourceGroup().location
 
 resource identity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
   location: location
   name: identityName
+}
+
+// SQL Server
+resource sqlServer 'Microsoft.Sql/servers@2023-05-01-preview' = {
+  name: sqlServerName
+  location: location
+  properties: {
+    administratorLogin: sqlAdminLogin
+    administratorLoginPassword: sqlAdminPassword
+    version: '12.0'
+  }
+}
+
+// SQL Database
+resource sqlDatabase 'Microsoft.Sql/servers/databases@2023-05-01-preview' = {
+  parent: sqlServer
+  name: sqlDatabaseName
+  location: location
+  sku: {
+    name: 'Basic'
+    tier: 'Basic'
+    capacity: 5
+  }
+  properties: {
+    collation: 'SQL_Latin1_General_CP1_CI_AS'
+    maxSizeBytes: 2147483648 // 2GB
+  }
+}
+
+// Allow Azure services to access SQL Server
+resource sqlFirewallRule 'Microsoft.Sql/servers/firewallRules@2023-05-01-preview' = {
+  parent: sqlServer
+  name: 'AllowAllWindowsAzureIps'
+  properties: {
+    startIpAddress: '0.0.0.0'
+    endIpAddress: '0.0.0.0'
+  }
 }
 
 // Compute resources for your Web App
@@ -39,7 +83,7 @@ resource serverfarm 'Microsoft.Web/serverfarms@2021-02-01' = {
   }
 }
 
-// Web App that hosts your bot
+// Web App that hosts your agent
 resource webApp 'Microsoft.Web/sites@2021-02-01' = {
   kind: 'app'
   location: location
@@ -90,6 +134,30 @@ resource webApp 'Microsoft.Web/sites@2021-02-01' = {
           value: azureOpenAIDeploymentName
         }
 {{/useAzureOpenAI}}
+        {
+          name: 'Database__Type'
+          value: 'mssql'
+        }
+        {
+          name: 'Database__ConnectionString'
+          value: 'Server=tcp:${sqlServer.properties.fullyQualifiedDomainName},1433;Initial Catalog=${sqlDatabaseName};Persist Security Info=False;User ID=${sqlAdminLogin};Password=${sqlAdminPassword};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;'
+        }
+        {
+          name: 'Database__Server'
+          value: sqlServer.properties.fullyQualifiedDomainName
+        }
+        {
+          name: 'Database__Database'
+          value: sqlDatabaseName
+        }
+        {
+          name: 'Database__Username'
+          value: sqlAdminLogin
+        }
+        {
+          name: 'Database__Password'
+          value: sqlAdminPassword
+        }
       ]
       ftpsState: 'FtpsOnly'
     }
@@ -120,3 +188,5 @@ output BOT_AZURE_APP_SERVICE_RESOURCE_ID string = webApp.id
 output BOT_DOMAIN string = webApp.properties.defaultHostName
 output BOT_ID string = identity.properties.clientId
 output BOT_TENANT_ID string = identity.properties.tenantId
+output SQL_SERVER_FQDN string = sqlServer.properties.fullyQualifiedDomainName
+output SQL_DATABASE_NAME string = sqlDatabaseName

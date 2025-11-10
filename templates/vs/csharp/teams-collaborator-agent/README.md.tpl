@@ -1,74 +1,99 @@
-# Teams Collaborator Agent
+# Collaborator Agent for Microsoft Teams
 
-An intelligent agent for Microsoft Teams that helps teams collaborate more effectively by:
+This intelligent collaboration assistant is built with the [Teams AI Library v2](https://aka.ms/teamsai-v2), and showcases how to create a sophisticated bot that can analyze conversations, manage tasks, and search through chat history using advanced AI capabilities and natural language processing.
 
-- **Summarizing Conversations**: Generate concise summaries of chat discussions
-- **Tracking Action Items**: Automatically identify and track action items from conversations
-- **Searching Chat History**: Search through conversation history with natural language
+This agent can listen to all messages in a group chat (even without being @mentioned) using RSC (Resource Specific Control) permissions defined in [App Manifest](appPackage/manifest.json). For more details, see the documentation [RSC Documentation](https://staticsint.teams.cdn.office.net/evergreen-assets/safelinks/2/atp-safelinks.html).
 
-## Features
+## Key Features
 
-### Conversation Summarization
-Ask the agent to summarize a chat conversation, and it will provide a concise overview of key points discussed.
+- 📋 **Intelligent Summarization** - Analyze conversations and provide structured summaries with proper participant attribution and topic identification
+- ✅ **Action Items** - Automatically identify and create action items from team discussions with smart assignment
+- 🔍 **Conversation Search** - Search through chat history using natural language queries with time-based filtering and deep linking to original messages
 
-### Action Item Extraction
-The agent can identify action items, tasks, and commitments from conversations and present them in an organized format.
+## Adding Custom Capabilities
 
-### Conversation Search
-Search through your chat history using natural language queries to quickly find relevant information.
+Adding your own capabilities only requires a few steps:
 
-## Getting Started
+1. Copy the template folder under capabilities [template](Capabilities\Template\TemplateCapability.cs)
+2. Customize your capability to do what you want (helpful to look at existing capabilities)
+3. Make sure to create a CapabilityDefinition at the bottom of your main file
+4. Register your capability by importing the CapabilityDefinition and adding to the definition list in [registry](Agent\CapabilityRegistry.cs)
+5. The manager will automatically be instantiated with the capability you defined!
+
+## Agent Architecture
+
+![architecture](./img/architecture.png)
+
+## Flow of the Agent
+
+![flow](./img/flow.png)
+
+If Collab Agent is added to a groupchat or private message, it will always listen and log each message to its database. The messages are stored in an SQLite DB by the conversation ID of the given conversation. 
+The agent will respond whenever @mentioned in groupchats and will always respond in 1-on-1 messages. When the agent responds, the request is first passed through a manger prompt.
+This manager may route to a capability based on the request--this capability returns its result back to the manager where it will be passed back to the user.
+
+## Running the Sample
 
 ### Prerequisites
-- .NET 8.0 SDK or later
-- Microsoft 365 Agents Toolkit for Visual Studio
-- Azure OpenAI or OpenAI API key
 
-### Configuration
+- [.NET 8.0 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) or later
+- [Microsoft 365 Agents Toolkit](https://marketplace.visualstudio.com/items?itemName=TeamsDevApp.ms-teams-vscode-extension) for Visual Studio
+- [Visual Studio 2022](https://visualstudio.microsoft.com/vs/) with .NET development workload
+- A Microsoft Teams account with the ability to upload custom apps
+- Azure OpenAI resource with GPT-4 deployment
 
-1. Update `appsettings.Development.json` with your credentials:
-   - `Teams.ClientId`: Your Bot ID
-   - `Teams.ClientSecret`: Your Bot Password
-   - `OpenAI.ApiKey` or `Azure.OpenAIApiKey`: Your AI model credentials
-   - `Storage.Type`: Choose "sqlite" or "sqlserver"
-   - `Storage.ConnectionString`: Database connection string
+### Environment Variables
 
-2. For local development, the agent uses SQLite by default. For production, configure SQL Server.
+Update the `.env.*.user` file with your configuration:
+  - `SECRET_AZURE_OPENAI_API_KEY`: Your Azure OpenAI API key
+  - `AZURE_OPENAI_ENDPOINT`: Your Azure OpenAI endpoint URL
+  - `AZURE_OPENAI_DEPLOYMENT_NAME`: Your GPT-4 model deployment name
 
-### Running Locally
+### Running the Bot
 
-1. Press F5 in Visual Studio to start debugging
-2. The agent will be available in Teams or Bot Framework Emulator
-3. Start a conversation and @mention the agent to interact with it
+> For local debugging using Microsoft 365 Agents Toolkit CLI, you need to do some extra steps described in [Set up your Microsoft 365 Agents Toolkit CLI for local debugging](https://aka.ms/teamsfx-cli-debugging).
+
+1. First, select the Microsoft 365 Agents Toolkit icon on the left in the Visual Studio toolbar.
+2. Press F5 to start debugging which launches your app in Microsoft 365 Agents Playground using a web browser. Select `Debug in Microsoft 365 Agents Playground`.
+3. The browser will pop up to open Microsoft 365 Agents Playground.
+4. You will receive a welcome message from the agent, and you can send anything to the agent to get an response.
+5. @mention the bot in any conversation to start using its capabilities!
+
+#### Sample Questions
+
+You can ask the Collaborator agent questions like:
+
+**Summarization:**
+- "@Collaborator summarize yesterday's discussion"
+- "@Collaborator what were the main topics from last week?"
+- "@Collaborator give me an overview of recent messages"
+
+**Action Items:**
+- "@Collaborator find action items from the past 3 days"
+- "@Collaborator create a task to review the proposal by Friday"
+- "@Collaborator what tasks are assigned to me?"
+
+**Search:**
+- "@Collaborator find messages about the project deadline"
+- "@Collaborator search for conversations between Alice and Bob"
+- "@Collaborator locate discussions from this morning about the budget"
 
 ## Architecture
 
-The agent uses:
-- **Microsoft.SemanticKernel** for AI orchestration
-- **Microsoft.Teams.Apps** for Teams integration
-- **SQLite/SQL Server** for conversation storage
-- **Azure OpenAI** or **OpenAI** for language models
+The Collaborator agent uses a sophisticated multi-capability architecture:
 
-## Project Structure
-
-```
-├── Agent/              # Agent manager and routing logic
-├── Capabilities/       # Individual capability implementations
-│   ├── Summarizer/    # Conversation summarization
-│   ├── ActionItems/   # Action item extraction
-│   └── Search/        # Conversation search
-├── Storage/           # Database and conversation storage
-├── appPackage/        # Teams app manifest and icons
-├── infra/             # Azure deployment templates
-└── Program.cs         # Application entry point
-```
+- **Manager**: Coordinates between specialized capabilities and handles natural language time parsing
+- **Summarizer**: Analyzes conversation content and provides structured summaries
+- **Action Items**: Identifies tasks, manages assignments, and tracks completion
+- **Search**: Performs semantic search across conversation history with citation support
+- **Context Management**: Global message context handling for concurrent request support
 
 ## Deployment
 
-Deploy to Azure using the provided Bicep templates in the `infra/` directory.
+The agent can be deployed to Azure App Service for production use. See following documentation for detailed instructions on setting up Azure resources and configuring the production environment.
+- Host your app in Azure by [provision cloud resources](https://learn.microsoft.com/microsoftteams/platform/toolkit/provision) and [deploy the code to cloud](https://learn.microsoft.com/microsoftteams/platform/toolkit/deploy)
+- Azure SQL Database is used to store data, you can set admin password in `env/.env.dev.user`.
 
-## Learn More
-
-- [Microsoft 365 Agents Toolkit Documentation](https://aka.ms/m365-agents-toolkit)
-- [Semantic Kernel Documentation](https://learn.microsoft.com/semantic-kernel)
-- [Teams AI Library](https://learn.microsoft.com/microsoftteams/platform/bots/how-to/teams-conversational-ai/teams-conversation-ai-overview)
+If you are trying to local debug / preview deployed version, then either of the two conditions must be met as a min-bar:
+1. The user doing the operation should be an admin in the org.
+2. The Entra app ID specified in webAppInfo.Id must be homed in the same tenant.
