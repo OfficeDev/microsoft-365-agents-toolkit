@@ -1,8 +1,18 @@
 {
   "plan_metadata": {
+    "version": "1.1",
+    "plan_id": "plan_r_0928_075846",
+    "execution_context": {
+      "delay_between_steps": 0.5,
+      "stop_on_error": true,
+      "precondition_wait_timeout": 60,
+      "precondition_retry_interval": 2
+    },
+    "total_steps": 9,
+    "created_at": "2025-11-03T09:21:03.960510",
     "name": "group: deploy",
     "description": "Generated from recording r_0928_075846",
-    "generated_at": "2025-10-22T04:03:44.864035",
+    "generated_at": "2025-11-03T09:21:03.960504",
     "execution_order": [
       "step_d4b66db1",
       "step_802acfa0",
@@ -17,218 +27,208 @@
     "tags": [
       "group"
     ],
-    "updated_at": "2025-10-24T08:47:34.034110",
-    "plan_id": "plan_r_0928_075846",
-    "version": "1.1",
-    "execution_context": {
-      "delay_between_steps": 0.5,
-      "stop_on_error": true,
-      "precondition_wait_timeout": 60,
-      "precondition_retry_interval": 2
-    },
-    "total_steps": 9,
-    "created_at": "2025-10-22T04:03:44.864043"
+    "updated_at": "2025-11-06T09:50:17.699291"
   },
   "steps": [
     {
-      "plan_id": "plan_r_0928_075846",
+      "step_id": "step_d4b66db1",
+      "agent": "interaction",
       "tool": "key_press",
       "parameters": {
         "key": "f1"
       },
+      "description": "Press the F1 key to open the command palette in Visual Studio Code.",
+      "content_refs": [],
       "timeout": 30,
+      "retry_count": 0,
       "continue_on_error": "false",
+      "depends_on": [],
       "preconditions": [
         "dhash:512:384:0:20:32942a23233b2e2d"
       ],
-      "tags": [],
-      "created_at": "2025-10-24T08:13:58.812888",
-      "agent": "interaction",
-      "step_id": "step_d4b66db1",
-      "description": "Press the F1 key to open the command palette in Visual Studio Code.",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_d4b66db1"
+      "tags": [],
+      "screenshot": "step_d4b66db1",
+      "created_at": "2025-11-06T09:34:38.482832",
+      "plan_id": "plan_r_0928_075846"
     },
     {
-      "plan_id": "plan_r_0928_075846",
+      "step_id": "step_802acfa0",
+      "agent": "interaction",
       "tool": "click",
       "parameters": {
+        "button": "left",
         "x": 298,
-        "y": 25,
-        "button": "left"
+        "y": 25
       },
+      "description": "Click the search input field in the VS Code command palette at the top center of the interface to activate command selection.",
+      "content_refs": [],
       "timeout": 30,
+      "retry_count": 0,
       "continue_on_error": "false",
+      "depends_on": [],
       "preconditions": [
         "dhash:298:25:16:5:0000000000000000",
         "dhash:298:25:96:5:000000512c22c268",
         "dhash:298:25:0:10:cce44063233b2e2d"
       ],
-      "tags": [],
-      "created_at": "2025-10-24T08:13:58.828767",
-      "agent": "interaction",
-      "step_id": "step_802acfa0",
-      "description": "Click the search input field in the VS Code command palette at the top center of the interface to activate command selection.",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_802acfa0"
+      "tags": [],
+      "screenshot": "step_802acfa0",
+      "created_at": "2025-11-06T09:34:38.500512",
+      "plan_id": "plan_r_0928_075846"
     },
     {
-      "plan_id": "plan_r_0928_075846",
+      "step_id": "step_a3c79019",
+      "agent": "interaction",
       "tool": "type_text",
       "parameters": {
         "text": "deploy"
       },
+      "description": "Type the text 'deploy' into the Visual Studio Code command palette input box at the top of the window.",
+      "content_refs": [],
       "timeout": 30,
+      "retry_count": 0,
       "continue_on_error": "false",
+      "depends_on": [],
       "preconditions": [
         "dhash:512:384:0:20:cce44063233b2e2d"
       ],
-      "tags": [],
-      "created_at": "2025-10-24T08:13:58.842604",
-      "agent": "interaction",
-      "step_id": "step_a3c79019",
-      "description": "Type the text 'deploy' into the Visual Studio Code command palette input box at the top of the window.",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_a3c79019"
+      "tags": [],
+      "screenshot": "step_a3c79019",
+      "created_at": "2025-11-06T09:34:38.514839",
+      "plan_id": "plan_r_0928_075846"
     },
     {
-      "plan_id": "plan_r_0928_075846",
+      "step_id": "step_4bcad13d",
+      "agent": "interaction",
       "tool": "key_press",
       "parameters": {
         "key": "enter"
       },
+      "description": "Press Enter to select \"Microsoft 365 Agents: Deploy\" in the VS Code command palette.",
+      "content_refs": [],
       "timeout": 30,
+      "retry_count": 0,
       "continue_on_error": "false",
+      "depends_on": [],
       "preconditions": [
         "dhash:512:384:0:20:c4942a23233b2e2d"
       ],
-      "tags": [],
-      "created_at": "2025-10-24T08:13:58.856919",
-      "agent": "interaction",
-      "step_id": "step_4bcad13d",
-      "description": "Press Enter to select \"Microsoft 365 Agents: Deploy\" in the VS Code command palette.",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_4bcad13d"
+      "tags": [],
+      "screenshot": "step_4bcad13d",
+      "created_at": "2025-11-06T09:34:38.528602",
+      "plan_id": "plan_r_0928_075846"
     },
     {
-      "plan_id": "plan_r_0928_075846",
+      "step_id": "step_3128e920",
+      "agent": "interaction",
       "tool": "key_press",
       "parameters": {
         "key": "enter"
       },
+      "description": "Press the Enter key to activate the \"Deploy\" button in the \"Do you want to deploy resources in dev environment?\" dialog within Visual Studio Code.",
+      "content_refs": [],
       "timeout": 30,
+      "retry_count": 0,
       "continue_on_error": "false",
+      "depends_on": [],
       "preconditions": [
         "dhash:512:384:0:20:a4843a23233b2e2d"
       ],
-      "tags": [],
-      "created_at": "2025-10-24T08:13:58.876310",
-      "agent": "interaction",
-      "step_id": "step_3128e920",
-      "description": "Press the Enter key to activate the \"Deploy\" button in the \"Do you want to deploy resources in dev environment?\" dialog within Visual Studio Code.",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_3128e920"
+      "tags": [],
+      "screenshot": "step_3128e920",
+      "created_at": "2025-11-06T09:34:38.542337",
+      "plan_id": "plan_r_0928_075846"
     },
     {
-      "plan_id": "plan_r_0928_075846",
+      "step_id": "step_c7b1a7eb",
+      "agent": "interaction",
       "tool": "key_press",
       "parameters": {
         "key": "f1"
       },
+      "description": "Press the F1 key to open the command palette in Visual Studio Code.",
+      "content_refs": [],
       "timeout": 30,
+      "retry_count": 0,
       "continue_on_error": "false",
+      "depends_on": [],
       "preconditions": [
         "dhash:512:384:0:20:32832723382e6e29"
       ],
-      "tags": [],
-      "created_at": "2025-10-24T08:13:58.892484",
-      "agent": "interaction",
-      "step_id": "step_c7b1a7eb",
-      "description": "Press the F1 key to open the command palette in Visual Studio Code.",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_c7b1a7eb"
+      "tags": [],
+      "screenshot": "step_c7b1a7eb",
+      "created_at": "2025-11-06T09:34:38.556395",
+      "plan_id": "plan_r_0928_075846"
     },
     {
-      "plan_id": "plan_r_0928_075846",
+      "step_id": "step_da2171f4",
+      "agent": "interaction",
       "tool": "type_text",
       "parameters": {
         "text": "Notifications: Show Notifications"
       },
+      "description": "Type 'Notifications: Show Notifications' into the VS Code command palette input field at the top center of the Visual Studio Code interface.",
+      "content_refs": [],
       "timeout": 30,
+      "retry_count": 0,
       "continue_on_error": "false",
+      "depends_on": [],
       "preconditions": [
         "dhash:512:384:0:20:cce44463382e6e2d"
       ],
-      "tags": [],
-      "created_at": "2025-10-24T08:13:58.908091",
-      "agent": "interaction",
-      "step_id": "step_da2171f4",
-      "description": "Type 'Notifications: Show Notifications' into the VS Code command palette input field at the top center of the Visual Studio Code interface.",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_da2171f4"
+      "tags": [],
+      "screenshot": "step_da2171f4",
+      "created_at": "2025-11-06T09:34:38.570916",
+      "plan_id": "plan_r_0928_075846"
     },
     {
-      "plan_id": "plan_r_0928_075846",
+      "step_id": "step_b8da45e9",
+      "agent": "interaction",
       "tool": "key_press",
       "parameters": {
         "key": "enter"
       },
+      "description": "Press Enter to select \"Notifications: Show Notifications\" in the Visual Studio Code command palette.",
+      "content_refs": [],
       "timeout": 30,
+      "retry_count": 0,
       "continue_on_error": "false",
+      "depends_on": [],
       "preconditions": [
         "dhash:512:384:0:20:cc832323b82e6e2d"
       ],
-      "tags": [],
-      "created_at": "2025-10-24T08:13:58.925089",
-      "agent": "interaction",
-      "step_id": "step_b8da45e9",
-      "description": "Press Enter to select \"Notifications: Show Notifications\" in the Visual Studio Code command palette.",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_b8da45e9"
+      "tags": [],
+      "screenshot": "step_b8da45e9",
+      "created_at": "2025-11-06T09:34:38.586317",
+      "plan_id": "plan_r_0928_075846"
     },
     {
-      "plan_id": "plan_r_0928_075846",
+      "step_id": "step_5e954ae0",
+      "agent": "assertion",
       "tool": "",
       "parameters": {},
-      "timeout": 30,
-      "continue_on_error": "false",
-      "preconditions": [],
-      "tags": [
-        "step_retry_timeout: 180"
-      ],
-      "created_at": "2025-10-24T08:13:58.940598",
-      "agent": "assertion",
-      "step_id": "step_5e954ae0",
       "description": "@assertion notification \"actions in deploy stage executed successfully\" exist.",
       "content_refs": [],
+      "timeout": 30,
       "retry_count": 0,
+      "continue_on_error": "false",
       "depends_on": [],
+      "preconditions": [],
       "postconditions": [],
-      "screenshot": null
+      "tags": [
+        "step_retry_timeout: 240"
+      ],
+      "screenshot": null,
+      "created_at": "2025-11-06T09:34:38.597947",
+      "plan_id": "plan_r_0928_075846"
     }
   ],
   "screenshots": {
