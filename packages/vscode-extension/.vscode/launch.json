@@ -13,7 +13,8 @@
       "env": {
         "NODE_ENV": "development",
         "TEAMSFX_SAMPLE_CONFIG_BRANCH": "dev",
-        "TEAMSFX_MCP_FOR_DA": "true"
+        "TEAMSFX_MCP_FOR_DA": "true",
+        "SAMPLE_FILE_INFO_PATH": "C:\\Users\\zhiyou\\Downloads\\samples-config-v3.json"
       },
       "preLaunchTask": "watch"
     },

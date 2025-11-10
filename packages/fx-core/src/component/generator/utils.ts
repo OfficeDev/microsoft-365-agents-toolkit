@@ -281,6 +281,23 @@ type SampleFileInfo = {
 };
 
 export async function getSampleFileInfo(urlInfo: SampleUrlInfo, retryLimits: number): Promise<any> {
+  if (!urlInfo.owner && fs.pathExistsSync(urlInfo.dir)) {
+    const fileUrlPrefix = path.resolve(urlInfo.dir) + path.sep;
+    const samplePaths: string[] = [];
+    const walkDir = async (currentPath: string) => {
+      const entries = await fs.readdir(currentPath, { withFileTypes: true });
+      for (const entry of entries) {
+        const entryPath = path.join(currentPath, entry.name);
+        if (entry.isDirectory()) {
+          await walkDir(entryPath);
+        } else {
+          samplePaths.push(path.relative(urlInfo.dir, entryPath).replace(/\\/g, "/"));
+        }
+      }
+    };
+    await walkDir(urlInfo.dir);
+    return { samplePaths, fileUrlPrefix };
+  }
   const fileInfoUrl = `https://api.github.com/repos/${urlInfo.owner}/${urlInfo.repository}/git/trees/${urlInfo.ref}?recursive=1`;
   const fileInfo = (
     await sendRequestWithRetry(async () => {
@@ -304,7 +321,14 @@ async function downloadSampleFiles(
   retryLimits: number,
   concurrencyLimits: number
 ): Promise<void> {
+  await fs.ensureDir(dstPath);
   const downloadCallback = async (samplePath: string) => {
+    if (fs.pathExistsSync(fileUrlPrefix + samplePath)) {
+      const filePath = path.join(dstPath, samplePath);
+      await fs.ensureFile(filePath);
+      await fs.copyFile(fileUrlPrefix + samplePath, filePath);
+      return;
+    }
     const lfsRegex = /^.*oid sha256:[0-9a-f]+\nsize \d+/gm;
     const file = (await sendRequestWithRetry(async () => {
       const content = await axios.get(fileUrlPrefix + samplePath, { responseType: "arraybuffer" });

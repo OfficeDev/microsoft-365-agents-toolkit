@@ -15,6 +15,12 @@ export default class SampleCard extends React.Component<SampleProps, { imageUrl:
   constructor(props: SampleProps) {
     super(props);
     const downloadUrlInfo = props.sample.downloadUrlInfo;
+    if (props.sample.thumbnailPath.startsWith("data:image/")) {
+      this.state = {
+        imageUrl: props.sample.thumbnailPath,
+      };
+      return;
+    }
     this.state = {
       imageUrl: `https://github.com/${downloadUrlInfo.owner}/${downloadUrlInfo.repository}/blob/${downloadUrlInfo.ref}/${downloadUrlInfo.dir}/${props.sample.thumbnailPath}?raw=1`,
     };

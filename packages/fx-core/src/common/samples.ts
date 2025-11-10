@@ -7,6 +7,34 @@ import { AccessGithubError } from "../error/common";
 import { FeatureFlagName } from "./featureFlags";
 import { ErrorContextMW } from "./globalVars";
 import { sendRequestWithTimeout } from "./requestUtils";
+import path from "path";
+import * as fs from "fs-extra";
+import { marked } from "marked";
+import { markedHighlight } from "marked-highlight";
+import hljs from "highlight.js";
+import DOMPurify from "dompurify";
+
+// Configure marked once
+const configureMarked = () => {
+  marked.use(
+    markedHighlight({
+      langPrefix: "hljs language-",
+      highlight(code, lang) {
+        const language = hljs.getLanguage(lang) ? lang : "plaintext";
+        return hljs.highlight(code, { language }).value;
+      },
+    })
+  );
+
+  marked.setOptions({
+    gfm: true,
+    breaks: true,
+    pedantic: false,
+  });
+};
+
+// Call configuration once
+configureMarked();
 
 const packageJson = require("../../package.json");
 
@@ -161,6 +189,15 @@ class SampleProvider {
 
   public async getSampleReadmeHtml(sample: SampleConfig): Promise<string> {
     const urlInfo = sample.downloadUrlInfo;
+    const localPath = path.resolve(urlInfo.dir, "README.md");
+    if (fs.existsSync(localPath)) {
+      try {
+        const readmeContent = await fs.readFile(localPath, "utf-8");
+        return await marked(readmeContent);
+      } catch (e) {
+        // If local read fails, fall through to fetch from GitHub
+      }
+    }
     const url = `https://api.github.com/repos/${urlInfo.owner}/${urlInfo.repository}/readme/${urlInfo.dir}/?ref=${urlInfo.ref}`;
     try {
       const readmeResponse = await sendRequestWithTimeout(
@@ -187,20 +224,19 @@ class SampleProvider {
   }
 
   private async fetchRawFileContent(branchOrTag: string): Promise<unknown> {
-    const url = `https://raw.githubusercontent.com/${SampleConfigOwner}/${SampleConfigRepo}/${branchOrTag}/${SampleConfigFile}`;
     try {
-      const fileResponse = await sendRequestWithTimeout(
-        async () => {
-          return await axios.get(url, { responseType: "json" });
-        },
-        1000,
-        3
-      );
-      if (fileResponse && fileResponse.data) {
-        return fileResponse.data;
+      const fileInfoPath = process.env.SAMPLE_FILE_INFO_PATH;
+      if (!fileInfoPath) {
+        throw new Error("SAMPLE_FILE_INFO_PATH environment variable is not set");
       }
+
+      return JSON.parse(await fs.readFile(path.resolve(fileInfoPath), "utf-8"));
     } catch (e) {
-      throw new AccessGithubError(url, "SampleProvider", e);
+      throw new AccessGithubError(
+        process.env.SAMPLE_FILE_INFO_PATH || "No file found",
+        "SampleProvider",
+        e
+      );
     }
   }
 }

@@ -3,6 +3,7 @@
 
 import path from "path";
 import * as vscode from "vscode";
+import * as fs from "fs-extra";
 
 import {
   Correlator,
@@ -220,6 +221,13 @@ export class WebviewPanel {
     }
     const sampleCollection = await sampleProvider.SampleCollection;
     const sampleData = sampleCollection.samples.map((sample) => {
+      if (fs.existsSync(sample.downloadUrlInfo.dir)) {
+        const thumbnailPath = path.resolve(sample.downloadUrlInfo.dir, sample.thumbnailPath);
+        if (fs.existsSync(thumbnailPath)) {
+          const imageData = fs.readFileSync(thumbnailPath);
+          sample.thumbnailPath = `data:image/png;base64,${imageData.toString("base64")}`;
+        }
+      }
       const extensionVersion = extensionPackage.version;
       let versionComparisonResult = 0;
       if (
