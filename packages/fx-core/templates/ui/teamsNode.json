@@ -3,34 +3,34 @@
     "equals": "teams-agent-and-app-type"
   },
   "data": {
-    "title": "core.createProjectQuestion.projectType.teamsAgentsAndApps.title",
+    "title": "template.teams.title",
     "name": "teams-app-type",
     "type": "singleSelect",
     "options": [
       {
         "id": "custom-copilot-basic",
-        "label": "core.createProjectQuestion.capability.customCopilotBasicOption.label",
-        "detail": "core.createProjectQuestion.capability.customCopilotBasicOption.detail",
+        "label": "template.teams.general.label",
+        "detail": "template.teams.general.detail",
         "data": "custom-copilot-basic"
       },
       {
         "id": "custom-copilot-rag",
-        "label": "core.createProjectQuestion.capability.customCopilotRagOption.label",
-        "detail": "core.createProjectQuestion.capability.customCopilotRagOption.detail"
+        "label": "template.teams.rag.label",
+        "detail": "template.teams.rag.detail"
       },
       {
         "id": "teams-collaborator-agent",
-        "label": "core.createProjectQuestion.capability.teamsAgent.collaborator.label",
-        "detail": "core.createProjectQuestion.capability.teamsAgent.collaborator.detail",
+        "label": "template.teams.collaboratorAgent.label",
+        "detail": "template.teams.collaboratorAgent.detail",
         "data": "teams-collaborator-agent"
       },
       {
         "id": "teams-other-app-type",
-        "label": "core.createProjectQuestion.capability.teamsAgent.others.label",
-        "detail": "core.createProjectQuestion.capability.teamsAgent.others.detail"
+        "label": "template.teams.others.label",
+        "detail": "template.teams.others.detail"
       }
     ],
-    "placeholder": "question.placeholder.choose"
+    "placeholder": "template.customEngineAgent.placeholder"
   },
   "children": [
     {
@@ -40,26 +40,26 @@
       "data": {
         "type": "singleSelect",
         "name": "custom-copilot-rag",
-        "title": "core.createProjectQuestion.capability.customCopilotRagOption.label",
-        "placeholder": "core.createProjectQuestion.capability.customCopilotRag.placeholder",
+        "title": "template.teams.rag.label",
+        "placeholder": "template.teams.rag.source.placeholder",
         "default": "custom-copilot-rag-customize",
         "options": [
           {
             "id": "custom-copilot-rag-customize",
-            "label": "core.createProjectQuestion.capability.customCopilotRagCustomizeOption.label",
-            "detail": "core.createProjectQuestion.capability.customCopilotRagCustomizeOption.detail",
+            "label": "template.teams.rag.source.customize.label",
+            "detail": "template.teams.rag.source.customize.detail",
             "data": "custom-copilot-rag-customize"
           },
           {
             "id": "custom-copilot-rag-azure-ai-search",
-            "label": "core.createProjectQuestion.capability.customCopilotRagAzureAISearchOption.label",
-            "detail": "core.createProjectQuestion.capability.customCopilotRagAzureAISearchOption.detail",
+            "label": "template.teams.rag.source.azureAISearch.label",
+            "detail": "template.teams.rag.source.azureAISearch.detail",
             "data": "custom-copilot-rag-azure-ai-search"
           },
           {
             "id": "custom-copilot-rag-custom-api",
-            "label": "core.createProjectQuestion.capability.customCopilotRagCustomApiOption.label",
-            "detail": "core.createProjectQuestion.capability.customCopilotRagCustomApiOption.detail",
+            "label": "template.teams.rag.source.customApi.label",
+            "detail": "template.teams.rag.source.customApi.detail",
             "data": "custom-copilot-rag-custom-api"
           }
         ]
@@ -95,28 +95,28 @@
       "data": {
         "type": "singleSelect",
         "name": "teams-other-app-type",
-        "title": "core.createProjectQuestion.teamsCapability.title",
+        "title": "template.teams.others.capability.title",
         "options": [
           {
             "id": "non-sso-tab",
-            "label": "core.TabNonSso.label",
-            "detail": "core.TabNonSso.detail",
+            "label": "template.teams.others.tab.label",
+            "detail": "template.teams.others.tab.detail",
             "data": "non-sso-tab"
           },
           {
             "id": "default-message-extension",
-            "label": "core.MessageExtensionOption.label",
-            "detail": "core.MessageExtensionOption.detail",
+            "label": "template.teams.others.messageExtension.label",
+            "detail": "template.teams.others.messageExtension.detail",
             "data": "default-message-extension"
           },
           {
             "id": "default-bot",
-            "label": "core.BotNewUIOption.label",
-            "detail": "core.BotNewUIOption.detail",
+            "label": "template.teams.others.bot.label",
+            "detail": "template.teams.others.bot.detail",
             "data": "default-bot"
           }
         ],
-        "placeholder": "question.placeholder.choose"
+        "placeholder": "template.customEngineAgent.placeholder"
       },
       "children": []
     }

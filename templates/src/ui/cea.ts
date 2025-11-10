@@ -6,24 +6,24 @@ export const ceaNode = {
     equals: "custom-engine-agent-type",
   },
   data: {
-    title: "question.customEngineAgent.title",
+    title: "template.customEngineAgent.title",
     name: QuestionNames.customEngineAgentType,
     type: "singleSelect",
     options: [
       {
         id: TemplateNames.BasicCustomEngineAgent,
-        label: "question.customEngineAgent.option.basic.label",
-        detail: "question.customEngineAgent.option.basic.detail",
+        label: "template.customEngineAgent.basic.label",
+        detail: "template.customEngineAgent.basic.detail",
         data: TemplateNames.BasicCustomEngineAgent,
       },
       {
         id: TemplateNames.WeatherAgent,
-        label: "question.customEngineAgent.option.weather.label",
-        detail: "question.customEngineAgent.option.weather.detail",
+        label: "template.customEngineAgent.weather.label",
+        detail: "template.customEngineAgent.weather.detail",
         data: TemplateNames.WeatherAgent,
       },
     ],
-    placeholder: "question.placeholder.choose",
+    placeholder: "template.customEngineAgent.placeholder",
   },
   children: [
     {

@@ -36,8 +36,8 @@ export class TabCapabilityOptions {
   static nonSsoTab(): OptionItem {
     return {
       id: "tab-non-sso",
-      label: `${getLocalizedString("core.TabNonSso.label")}`,
-      detail: getLocalizedString("core.TabNonSso.detail"),
+      label: `${getLocalizedString("template.teams.others.tab.label")}`,
+      detail: getLocalizedString("template.teams.others.tab.detail"),
       // description: getLocalizedString(
       //   "core.createProjectQuestion.option.description.worksInOutlookM365"
       // ),
@@ -252,8 +252,8 @@ export class MeCapabilityOptions {
   static basicMe(): OptionItem {
     return {
       id: "basic-message-extension",
-      label: getLocalizedString("core.MessageExtensionOption.label"),
-      detail: getLocalizedString("core.MessageExtensionOption.detail"),
+      label: getLocalizedString("template.teams.others.messageExtension.label"),
+      detail: getLocalizedString("template.teams.others.messageExtension.detail"),
       data: TemplateNames.DefaultMessageExtension,
     };
   }
@@ -270,8 +270,8 @@ export class MeCapabilityOptions {
   static collectFormMe(): OptionItem {
     return {
       id: "collect-form-message-extension",
-      label: `${getLocalizedString("core.MessageExtensionOption.labelNew")}`,
-      detail: getLocalizedString("core.MessageExtensionOption.detail"),
+      label: `${getLocalizedString("template.teams.others.messageExtension.labelNew")}`,
+      detail: getLocalizedString("template.teams.others.messageExtension.detail"),
       data: TemplateNames.MessageExtensionAction,
     };
   }
@@ -399,8 +399,8 @@ export class BotCapabilityOptions {
   static basicBot(): OptionItem {
     return {
       id: BotCapabilityOptions.basicBotId,
-      label: `${getLocalizedString("core.BotNewUIOption.label")}`,
-      detail: getLocalizedString("core.BotNewUIOption.detail"),
+      label: `${getLocalizedString("template.teams.others.bot.label")}`,
+      detail: getLocalizedString("template.teams.others.bot.detail"),
       data: TemplateNames.DefaultBot,
     };
   }

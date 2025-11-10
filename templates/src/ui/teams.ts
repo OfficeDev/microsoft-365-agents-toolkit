@@ -6,34 +6,34 @@ export const teamsNode = {
     equals: "teams-agent-and-app-type",
   },
   data: {
-    title: "core.createProjectQuestion.projectType.teamsAgentsAndApps.title",
+    title: "template.teams.title",
     name: QuestionNames.teamsAgentAndAppType,
     type: "singleSelect",
     options: [
       {
         id: TemplateNames.CustomCopilotBasic,
-        label: "core.createProjectQuestion.capability.customCopilotBasicOption.label",
-        detail: "core.createProjectQuestion.capability.customCopilotBasicOption.detail",
+        label: "template.teams.general.label",
+        detail: "template.teams.general.detail",
         data: TemplateNames.CustomCopilotBasic,
       },
       {
         id: QuestionNames.customCopilotRagType,
-        label: "core.createProjectQuestion.capability.customCopilotRagOption.label",
-        detail: "core.createProjectQuestion.capability.customCopilotRagOption.detail",
+        label: "template.teams.rag.label",
+        detail: "template.teams.rag.detail",
       },
       {
         id: TemplateNames.TeamsCollaboratorAgent,
-        label: "core.createProjectQuestion.capability.teamsAgent.collaborator.label",
-        detail: "core.createProjectQuestion.capability.teamsAgent.collaborator.detail",
+        label: "template.teams.collaboratorAgent.label",
+        detail: "template.teams.collaboratorAgent.detail",
         data: TemplateNames.TeamsCollaboratorAgent,
       },
       {
         id: QuestionNames.teamsOtherAppType,
-        label: "core.createProjectQuestion.capability.teamsAgent.others.label",
-        detail: "core.createProjectQuestion.capability.teamsAgent.others.detail",
+        label: "template.teams.others.label",
+        detail: "template.teams.others.detail",
       },
     ],
-    placeholder: "question.placeholder.choose",
+    placeholder: "template.customEngineAgent.placeholder",
   },
   children: [
     {
@@ -43,28 +43,26 @@ export const teamsNode = {
       data: {
         type: "singleSelect",
         name: QuestionNames.customCopilotRagType,
-        title: "core.createProjectQuestion.capability.customCopilotRagOption.label",
-        placeholder: "core.createProjectQuestion.capability.customCopilotRag.placeholder",
+        title: "template.teams.rag.label",
+        placeholder: "template.teams.rag.source.placeholder",
         default: TemplateNames.CustomCopilotRagCustomize,
         options: [
           {
             id: TemplateNames.CustomCopilotRagCustomize,
-            label: "core.createProjectQuestion.capability.customCopilotRagCustomizeOption.label",
-            detail: "core.createProjectQuestion.capability.customCopilotRagCustomizeOption.detail",
+            label: "template.teams.rag.source.customize.label",
+            detail: "template.teams.rag.source.customize.detail",
             data: TemplateNames.CustomCopilotRagCustomize,
           },
           {
             id: TemplateNames.CustomCopilotRagAzureAISearch,
-            label:
-              "core.createProjectQuestion.capability.customCopilotRagAzureAISearchOption.label",
-            detail:
-              "core.createProjectQuestion.capability.customCopilotRagAzureAISearchOption.detail",
+            label: "template.teams.rag.source.azureAISearch.label",
+            detail: "template.teams.rag.source.azureAISearch.detail",
             data: TemplateNames.CustomCopilotRagAzureAISearch,
           },
           {
             id: TemplateNames.CustomCopilotRagCustomApi,
-            label: "core.createProjectQuestion.capability.customCopilotRagCustomApiOption.label",
-            detail: "core.createProjectQuestion.capability.customCopilotRagCustomApiOption.detail",
+            label: "template.teams.rag.source.customApi.label",
+            detail: "template.teams.rag.source.customApi.detail",
             data: TemplateNames.CustomCopilotRagCustomApi,
           },
         ],
@@ -97,28 +95,28 @@ export const teamsNode = {
       data: {
         type: "singleSelect",
         name: QuestionNames.teamsOtherAppType,
-        title: "core.createProjectQuestion.teamsCapability.title",
+        title: "template.teams.others.capability.title",
         options: [
           {
             id: TemplateNames.Tab,
-            label: "core.TabNonSso.label",
-            detail: "core.TabNonSso.detail",
+            label: "template.teams.others.tab.label",
+            detail: "template.teams.others.tab.detail",
             data: TemplateNames.Tab,
           },
           {
             id: TemplateNames.DefaultMessageExtension,
-            label: "core.MessageExtensionOption.label",
-            detail: "core.MessageExtensionOption.detail",
+            label: "template.teams.others.messageExtension.label",
+            detail: "template.teams.others.messageExtension.detail",
             data: TemplateNames.DefaultMessageExtension,
           },
           {
             id: TemplateNames.DefaultBot,
-            label: "core.BotNewUIOption.label",
-            detail: "core.BotNewUIOption.detail",
+            label: "template.teams.others.bot.label",
+            detail: "template.teams.others.bot.detail",
             data: TemplateNames.DefaultBot,
           },
         ],
-        placeholder: "question.placeholder.choose",
+        placeholder: "template.customEngineAgent.placeholder",
       },
       children: [],
     },

@@ -88,7 +88,7 @@ export class TeamsProjectTypeOptions {
     return {
       id: TeamsProjectTypeOptions.meOptionId,
       label: `${platform === Platform.VSCode ? "$(symbol-keyword) " : ""}${getLocalizedString(
-        "core.MessageExtensionOption.label"
+        "template.teams.others.messageExtension.label"
       )}`,
       detail: getLocalizedString(
         "core.createProjectQuestion.projectType.messageExtension.copilotEnabled.detail"

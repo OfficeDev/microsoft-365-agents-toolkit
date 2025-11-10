@@ -456,7 +456,7 @@ describe("TeamsProjectTypeOptions", () => {
     const bot = TeamsProjectTypeOptions.bot(Platform.CLI);
     assert.equal(bot.label, getLocalizedString("core.createProjectQuestion.projectType.bot.label"));
     const me = TeamsProjectTypeOptions.me(Platform.CLI);
-    assert.equal(me.label, getLocalizedString("core.MessageExtensionOption.label"));
+    assert.equal(me.label, getLocalizedString("template.teams.others.messageExtension.label"));
   });
 });
 

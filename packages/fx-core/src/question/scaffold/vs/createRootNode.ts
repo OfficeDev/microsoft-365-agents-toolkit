@@ -40,8 +40,8 @@ export class VSCapabilityOptions {
   static nonSsoTab(): OptionItem {
     return {
       id: "tab-non-sso",
-      label: `${getLocalizedString("core.TabNonSso.label")}`,
-      detail: getLocalizedString("core.TabNonSso.detail"),
+      label: `${getLocalizedString("template.teams.others.tab.label")}`,
+      detail: getLocalizedString("template.teams.others.tab.detail"),
       description: getLocalizedString(
         "core.createProjectQuestion.option.description.worksInOutlookM365"
       ),
