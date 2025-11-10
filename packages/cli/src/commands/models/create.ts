@@ -88,7 +88,7 @@ export function getCreateCommand(): CLICommand {
           const teamsAppType = getTeamsAppTypeByCapability(capability);
           inputs["teams-app-type"] = teamsAppType;
           const teamsCapability = getTeamsCapabilityByCapability(capability);
-          inputs["teams-capability"] = teamsCapability;
+          inputs["teams-other-app-type"] = teamsCapability;
         }
       }
       const isTdp = isTdpTemplate(inputs);
