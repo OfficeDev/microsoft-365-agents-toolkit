@@ -225,12 +225,12 @@
       </Item>
       <Item ItemId=";core.BotNewUIOption.label" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Basic Bot]]></Val>
+          <Val><![CDATA[Simple Bot]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[基本 Bot]]></Val>
+            <Val><![CDATA[簡單 Bot]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Bot]]></Val>
+            <Val><![CDATA[Basic Bot]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -559,11 +559,47 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";core.MessageExtensionOption.description" ItemType="0" PsrId="306" Leaf="true">
+      <Item ItemId=";core.MCPForDA.authUrlNotFound" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Custom UI when users compose messages in Teams]]></Val>
+          <Val><![CDATA[Unable to find the authentication URL(s) from response of Authorization Server Metadata of the MCP server.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[使用者在 Teams 中撰寫訊息時自訂 UI]]></Val>
+            <Val><![CDATA[無法從 MCP 伺服器的授權伺服器中繼資料回應中找到驗證 URL。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.MCPForDA.mcpAuthMetadataMissingError" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to find the authentication metadata in the MCP server. Please make sure your MCP server is configured correctly and try again. Details: %s]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[在 MCP 伺服器中找不到驗證中繼資料。請確定您的 MCP 伺服器已正確設定，然後再試一次。詳細資料: %s]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.MCPForDA.mcpAuthMetadataUrlNotFound" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to find the authentication metadata from property "resource_metadata" from response of the MCP server.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[無法從 MCP 伺服器的回應中找到來自 "resource_metadata" 屬性的驗證中繼資料。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.MCPForDA.mcpServerMetadataUrlNotFound" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to find the server metadata from property "authorization_servers" from repsonse of the Protected Resource Metadata of the MCP server.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[無法從 MCP 伺服器的受保護資源中繼資料回應中找到來自 "authorization_servers" 屬性的伺服器中繼資料。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.MCPForDA.updatePluginManifest" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The operations selected from your MCP server are successfully added for Copilot to interact with. You can go to the '%s' to check on details. Now you are able to provision your declarative agent to continue.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[已順利新增從 MCP 伺服器選取的作業，讓 Copilot 與其互動。您可以前往 '%s' 來查看詳細資料。現在，您可以佈建宣告式代理程式以繼續。]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -882,12 +918,12 @@
       </Item>
       <Item ItemId=";core.TabNonSso.label" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Basic Tab]]></Val>
+          <Val><![CDATA[Tab]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[基本索引標籤]]></Val>
+            <Val><![CDATA[索引標籤]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Tab]]></Val>
+            <Val><![CDATA[Basic Tab]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -1429,54 +1465,6 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";core.addUserQuestion.validation" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Invalid email address]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[無效的電子郵件地址]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.aiAssistantBotOption.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[A custom AI Agent bot in Teams using Teams AI library and OpenAI Assistants API]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[使用 Teams AI 連結庫和 OpenAI 助理 API 在 Teams 中的自定義 AI 代理程式 Bot]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.aiAssistantBotOption.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[AI Agent Bot]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[AI 代理程式 Bot]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.aiBotOption.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[A basic AI chat bot in Teams using Teams AI library]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams 中使用 Teams AI 程式庫的基本 AI 聊天機器人]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[A chat bot using Teams AI library]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.aiBotOption.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[AI Chat Bot]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[AI 聊天機器人]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
       <Item ItemId=";core.authNameQuestion.validation.empty" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Auth name cannot be empty.]]></Val>
@@ -1512,6 +1500,24 @@
           <Val><![CDATA[Account used to check: ]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[用來檢查的帳戶: ]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.collaboration.AgentOwner" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Agent Owner: ]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[代理程式擁有者:]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.collaboration.AgentTitleId" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Agent (ID: ]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[代理程式 (識別碼:]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -1690,6 +1696,15 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";core.collaboration.StartingListAllAgentOwners" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[]A;Starting to list all agent owners for environment: ]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[]A;開始列出環境的所有代理程式擁有者:]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";core.collaboration.StartingListAllTeamsAppOwners" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[]A;Starting to list all app owners for environment: ]]></Val>
@@ -1728,6 +1743,24 @@
           <Val><![CDATA[undefined]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[未定義]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.collaboration.agent.description" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Microsoft 365 Agent]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Microsoft 365 代理程式]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.collaboration.agent.label" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Agent]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[代理程式]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -2143,23 +2176,41 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";core.common.removeOwnership.success" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Shared agent ownership removed from the users: %s.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[已從使用者移除共用代理程式擁有權: %s。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";core.common.removeShareAccess.success" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Shared app access removed from the users: %s.]]></Val>
+          <Val><![CDATA[Shared access successfully removed from users: %s.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[已從使用者移除共用應用程式存取: %s。]]></Val>
+            <Val><![CDATA[已從使用者成功移除共用存取: %s。]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Shared app access removed for the users: %s.]]></Val>
+            <Val><![CDATA[Shared app access removed from the users: %s.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";core.common.shareToUser.success" ItemType="0" PsrId="306" Leaf="true">
+      <Item ItemId=";core.common.shareWithTenant.success" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Successfully shared the app with users: %s.]]></Val>
+          <Val><![CDATA[Agent successfully shared with tenant.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[已成功與使用者共用應用程式: %s。]]></Val>
+            <Val><![CDATA[代理程式已成功與租用戶共用。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.common.shareWithUser.success" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Agent successfully shared with users: %s.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[代理程式已成功與使用者共用: %s。]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -2605,33 +2656,102 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";core.createProjectQuestion.EntraSSOClientId" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Entra SSO client ID]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Entra SSO 用戶端識別碼]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.EntraSSOClientId.placeholder" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Input Microsoft SSO client ID generated in AAD for registration on Developer Portal]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[在開發人員入口網站上輸入為了註冊在 AAD 中產生的 Microsoft SSO 用戶端識別碼]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";core.createProjectQuestion.OauthClientId" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Enter client id for OAuth registration in OpenAPI Description Document]]></Val>
+          <Val><![CDATA[Oauth registration client ID]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[在 OpenAPI 描述檔中輸入 OAuth 註冊的用戶端識別碼]]></Val>
+            <Val><![CDATA[OAuth 註冊用戶端識別碼]]></Val>
+          </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Enter client id for OAuth registration in OpenAPI Description Document]]></Val>
+          </Prev>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.OauthClientId.placeholder" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Input client ID for OAuth registration in OpenAPI Description Document]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[OpenAPI 描述文件中 OAuth 註冊的輸入用戶端識別碼]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.createProjectQuestion.OauthClientSecret" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Enter client secret for OAuth registration in OpenAPI Description Document]]></Val>
+          <Val><![CDATA[OAuth registration client secret]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[在 OpenAPI 描述檔中輸入 OAuth 註冊的客戶端密碼]]></Val>
+            <Val><![CDATA[OAuth 註冊用戶端密碼]]></Val>
+          </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Enter client secret for OAuth registration in OpenAPI Description Document]]></Val>
+          </Prev>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.OauthClientSecret.placeholder" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Input client secret for OAuth registration in OpenAPI Description Document]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[OpenAPI 描述文件中 OAuth 註冊的輸入用戶端密碼]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.createProjectQuestion.OauthClientSecretConfirm" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Microsoft 365 Agents Toolkit uploads the client id/secret for OAuth Registration to Developer Portal. It is used by Teams client to securely access your API at runtime. Microsoft 365 Agents Toolkit doesn't store your client id/secret.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit uploads the client ID/Secret for OAuth Registration to Developer Portal. It is used by Teams client to securely access your API at runtime. Microsoft 365 Agents Toolkit doesn't store your client ID/Secret.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Microsoft 365 Agents 工具組會將 OAuth 註冊的用戶端識別碼/祕密上傳至開發人員入口網站。Teams 用戶端會在執行階段使用它來安全地存取您的 API。Microsoft 365 Agents 工具組不會儲存您的用戶端識別碼/祕密。]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Microsoft 365 Agents Toolkit uploads the client id/secret for OAuth Registration to Teams Developer Portal. It is used by Teams client to securely access your API at runtime. Microsoft 365 Agents Toolkit doesn't store your client id/secret.]]></Val>
+            <Val><![CDATA[Microsoft 365 Agents Toolkit uploads the client id/secret for OAuth Registration to Developer Portal. It is used by Teams client to securely access your API at runtime. Microsoft 365 Agents Toolkit doesn't store your client id/secret.]]></Val>
           </Prev>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.OauthScope" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Scope(s) for OAuth registration]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[OAuth 註冊的範圍]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.OauthScope.placeholder" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[(optional) Input scopes for OAuth registration, separate by comma]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[(選用) OAuth 註冊的輸入範圍 (以逗號分隔)]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.OauthScope.validation" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Invalid format. Use 'scope1, scope2:permission2'. Only letters, numbers, and ._/- are allowed.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[無效的格式。使用 'scope1, scope2:permission2'。只允許字母、數字及 ._/-。]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -3126,10 +3246,13 @@
       </Item>
       <Item ItemId=";core.createProjectQuestion.capability.customCopilotAssistantAssistantsApiOption.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Build an AI agent with OpenAI Assistants API and Teams AI Library]]></Val>
+          <Val><![CDATA[Build an AI agent with OpenAI Assistants API and Microsoft Teams SDK]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[使用 OpenAI 助理 API 和 Teams AI 連結庫建置 AI 代理程式]]></Val>
+            <Val><![CDATA[使用 OpenAI 助理 API 和 Microsoft Teams SDK 建置 AI 代理程式]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Build an AI agent with OpenAI Assistants API and Teams AI Library]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -3144,10 +3267,13 @@
       </Item>
       <Item ItemId=";core.createProjectQuestion.capability.customCopilotAssistantNewOption.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Build your own AI Agent from scratch using Teams AI Library]]></Val>
+          <Val><![CDATA[Build your own AI Agent from scratch using Microsoft Teams SDK]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[使用 Teams AI 連結庫從頭建立您自己的 AI 代理程式]]></Val>
+            <Val><![CDATA[使用 Microsoft Teams SDK 從頭開始建置自己的 AI 代理程式]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Build your own AI Agent from scratch using Teams AI Library]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -3186,24 +3312,24 @@
       </Item>
       <Item ItemId=";core.createProjectQuestion.capability.customCopilotBasicOption.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Agent that chats with users in Teams built with Teams AI Library and connects to LLMs]]></Val>
+          <Val><![CDATA[Agent that chats with users in Teams built with Microsoft Teams SDK and connects to LLMs]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[建置於 Teams 上、採用 Teams AI 程式庫並連線至 LLM 的聊天代理程式]]></Val>
+            <Val><![CDATA[Teams 中使用 Microsoft Teams SDK 建置的代理程式，可與使用者聊天並連線至 LLM]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Build a basic AI chatbot in Teams]]></Val>
+            <Val><![CDATA[Agent that chats with users in Teams built with Teams AI Library and connects to LLMs]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.createProjectQuestion.capability.customCopilotBasicOption.label" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Basic Agent for Teams]]></Val>
+          <Val><![CDATA[General Teams Agent]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams 的基本代理程式]]></Val>
+            <Val><![CDATA[一般 Teams 代理程式]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Basic AI Chatbot]]></Val>
+            <Val><![CDATA[Basic Agent for Teams]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -3312,10 +3438,13 @@
       </Item>
       <Item ItemId=";core.createProjectQuestion.capability.customCopilotRagOption.label" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Chat With Your Data]]></Val>
+          <Val><![CDATA[Teams Agent with Data]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[與您的資料聊天]]></Val>
+            <Val><![CDATA[Teams 代理程式與資料]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Chat With Your Data]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -3487,6 +3616,42 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";core.createProjectQuestion.capability.teamsAgent.collaborator.detail" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Agent that enhances collaboration in group chat, channels or meetings through summarization, task management, and conversation search]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[透過摘要、工作管理和交談搜尋，增強在群組聊天、通道或會議中共同作業的代理程式]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.capability.teamsAgent.collaborator.label" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Teams Collaborator Agent]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Teams 共同作業者代理程式]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.capability.teamsAgent.others.detail" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[App that uses tab, bot and message extension]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[使用 Tab、Bot 和訊息延伸模組的應用程式]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.capability.teamsAgent.others.label" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Other Teams Capabilities]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[其他 Teams 功能]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";core.createProjectQuestion.capability.weatherAgentOption.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[A weather forecast agent that is built with Microsoft 365 Agents SDK and LangChain]]></Val>
@@ -3583,6 +3748,24 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";core.createProjectQuestion.llmService.azureOpenAIAssistantID.placeholder" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Enter Azure OpenAI Assistant ID now or set it later in the project]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[現在輸入 Azure OpenAI 助理識別碼，或稍後在專案中加以設定]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.llmService.azureOpenAIAssistantID.title" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Azure OpenAI Assistant ID]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Azure OpenAI 助理識別碼]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";core.createProjectQuestion.llmService.azureOpenAIDeploymentName.placeholder" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Input Azure OpenAI deployment name now or set it later in the project]]></Val>
@@ -3597,6 +3780,24 @@
           <Val><![CDATA[Azure OpenAI Deployment Name]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Azure OpenAI 部署名稱]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.llmService.azureOpenAIEmbeddingDeploymentName.placeholder" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Enter Azure OpenAI embedding deployment name now or set it later in the project]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[現在輸入 Azure OpenAI 內嵌部署名稱，或稍後在專案中加以設定]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.llmService.azureOpenAIEmbeddingDeploymentName.title" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Azure OpenAI Embedding Deployment Name]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Azure OpenAI 內嵌部署名稱]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3633,6 +3834,24 @@
           <Val><![CDATA[Azure OpenAI Key]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Azure OpenAI 金鑰]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.llmService.openAIAssistantID.placeholder" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Enter OpenAI Assistant ID now or set it later in the project]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[現在輸入 OpenAI 助理識別碼，或稍後在專案中加以設定]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.llmService.openAIAssistantID.title" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[OpenAI Assistant ID]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[OpenAI 助理識別碼]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3727,6 +3946,87 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";core.createProjectQuestion.mcpForDa.Auth.EntraSSO" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Entra SSO]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Entra SSO]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.mcpForDa.Auth.OAuth" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[OAuth (with static registration)]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[OAuth (具有靜態註冊)]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.mcpForDa.AuthType.title" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Select Authentication Type]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[選取驗證類型]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.mcpForDa.File.title" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Select the action manifest you want to update]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[選取您想要更新的動作資訊清單]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.mcpForDa.PreFetchTools.title" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Select Operation(s) Copilot can interact with]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[選取 Copilot 可以互動的作業]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.mcpForDa.ServerUrl.placeholder" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Enter your MCP server URL(e.g. https://example-mcp.com)]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[輸入您的 MCP 伺服器 URL (例如 https://example-mcp.com)]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.mcpForDa.ServerUrl.title" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[MCP Server URL]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[MCP 伺服器 URL]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.mcpForDa.detail" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Create actions from your existing MCP server]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[從現有的 MCP 伺服器建立動作]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.mcpForDa.label" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Start with an MCP server]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[從 MCP 伺服器開始]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";core.createProjectQuestion.meArchitecture.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Architecture of Search Based Message Extension]]></Val>
@@ -3802,33 +4102,6 @@
           <Prev Cat="Text">
             <Val><![CDATA[Works in Teams, Outlook and the Microsoft 365 app]]></Val>
           </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.projectType.agentForTeams.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Build an agent for Microsoft Teams easily using Teams AI Library]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[使用 Teams AI 程式庫建置適用於 Microsoft Teams 的代理程式]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.projectType.agentForTeams.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Agent for Teams]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams 的代理程式]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.projectType.agentForTeams.title" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Agent for Teams Using Teams AI Library]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[使用 Teams AI 程式庫之適用於 Teams 的代理程式]]></Val>
-          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -4084,29 +4357,38 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";core.createProjectQuestion.projectType.teamsApp.detail" ItemType="0" PsrId="306" Leaf="true">
+      <Item ItemId=";core.createProjectQuestion.projectType.teamsAgentsAndApps.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Create your own web page, chat bot or message extension for Microsoft Teams]]></Val>
+          <Val><![CDATA[Create agent, chat bot, web pages or other apps in Microsoft Teams using Microsoft Teams SDK.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[為 Microsoft Teams 建立您自己的網頁、聊天機器人或訊息擴充]]></Val>
+            <Val><![CDATA[使用 Microsoft Teams SDK 在 Microsoft Teams 中建立代理程式、聊天機器人、網頁或其他應用程式。]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";core.createProjectQuestion.projectType.teamsApp.label" ItemType="0" PsrId="306" Leaf="true">
+      <Item ItemId=";core.createProjectQuestion.projectType.teamsAgentsAndApps.label" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams App]]></Val>
+          <Val><![CDATA[Teams Agents and Apps]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams 應用程式]]></Val>
+            <Val><![CDATA[Teams 代理程式和應用程式]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";core.createProjectQuestion.projectType.teamsApp.title" ItemType="0" PsrId="306" Leaf="true">
+      <Item ItemId=";core.createProjectQuestion.projectType.teamsAgentsAndApps.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[App Features Used in Microsoft Teams]]></Val>
+          <Val><![CDATA[Teams Agent or App Using Microsoft Teams SDK]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[在 Microsoft Teams 中使用的應用程式功能]]></Val>
+            <Val><![CDATA[使用 Microsoft Teams SDK 的 Teams 代理程式或應用程式]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.teamsCapability.title" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Teams Capability]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Teams 功能]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4579,6 +4861,24 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";core.newCFShortcut.detail" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Task pane add-in with custom function and shortcut]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[具有自訂功能和捷徑的工作窗格附加元件]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.newCFShortcut.label" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Custom Function and Shortcut]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[自訂函式和捷徑]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";core.newTaskpaneAddin.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Customize the ribbon with a button and embed content in the task pane]]></Val>
@@ -4893,6 +5193,24 @@
           <Val><![CDATA[Provision]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[佈建]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.provision.switchAccount" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[You're signed in with a Microsoft 365 account that doesn't match this environment. Please sign out and sign in with the correct one.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[您已使用符合此環境的 Microsoft 365 帳戶登入。請登出，然後使用正確的帳戶登入。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.provision.switchAccount.continue" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Continue]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[繼續]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -5230,38 +5548,95 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";core.shareOperationQuestion.option.removeShareAccessFromUsers" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Remove access for selected user(s)]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[移除所選使用者的存取權]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.shareOperationQuestion.option.shareWithUsers" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Share access with selected user(s)]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[與選取的使用者共用存取權]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";core.shareOptionQuestion.placeholder" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Select an option]]></Val>
+          <Val><![CDATA[Select how to share the agent]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[選取選項]]></Val>
+            <Val><![CDATA[選取如何共用代理程式]]></Val>
+          </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Select an option]]></Val>
+          </Prev>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.shareOptionQuestion.title" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Share the agent]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[共用代理程式]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";core.shareOptionQuestion.share" ItemType="0" PsrId="306" Leaf="true">
+      <Item ItemId=";core.shareOptionQuestion.unshare.emails.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Share the app]]></Val>
+          <Val><![CDATA[Email addresses of users or groups for agent access removal]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[共用應用程式]]></Val>
+            <Val><![CDATA[用於代理程式存取移除的使用者或群組電子郵件位址]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";core.shareOptionQuestion.shareToUser" ItemType="0" PsrId="306" Leaf="true">
+      <Item ItemId=";core.shareScopeQuestion.emails.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Share with user(s)]]></Val>
+          <Val><![CDATA[Email addresses of users or groups for agent sharing]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[與使用者共用]]></Val>
+            <Val><![CDATA[用於代理程式共用的使用者或群組電子郵件位址]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";core.shareToUser.title" ItemType="0" PsrId="306" Leaf="true">
+      <Item ItemId=";core.shareScopeQuestion.option.shareWithTenant" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Enter user emails (separated by commas)]]></Val>
+          <Val><![CDATA[Share the agent with all tenant users]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[輸入使用者電子郵件 (以逗號分隔)]]></Val>
+            <Val><![CDATA[與所有租用戶使用者共用代理程式]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.shareScopeQuestion.option.shareWithUsers" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Share the agent with selected user(s)]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[與選取的使用者共用代理程式]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.shareScopeQuestion.placeholder" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Select a sharing scope]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[選取共用範圍]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.shareScopeQuestion.title" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Share the agent with users]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[與使用者共用代理程式]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -5316,10 +5691,13 @@
       </Item>
       <Item ItemId=";core.summary.actionSucceeded" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[%s was executed successfully.]]></Val>
+          <Val><![CDATA[%s executed successfully.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[已成功執行 %s。]]></Val>
+            <Val><![CDATA[%s 執行成功。]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[%s was executed successfully.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -5988,12 +6366,12 @@
       </Item>
       <Item ItemId=";depChecker.failToValidateFuncCoreTool" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Unable to validate Azure Functions Core Tools after installation.]]></Val>
+          <Val><![CDATA[Unable to validate Azure Functions Core Tools after installation. %s]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[安裝後無法驗證 Azure Functions Core Tools。]]></Val>
+            <Val><![CDATA[安裝後無法驗證 Azure Functions Core Tools。%s]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Failed to validate @NameVersion after installation.]]></Val>
+            <Val><![CDATA[Unable to validate Azure Functions Core Tools after installation.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -6385,6 +6763,15 @@
           <Prev Cat="Text">
             <Val><![CDATA[Created Azure Active Directory application with object id %s]]></Val>
           </Prev>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.aadApp.log.successCreateAadAppandServicePrincipal" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Created Microsoft Entra application with object id %s and generated service principal for the application]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[已建立物件識別碼為 %s 的 Microsoft Entra 應用程式和為應用程式產生的服務主體]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -6960,10 +7347,13 @@
       </Item>
       <Item ItemId=";driver.devChannel.description" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Create a sandboxed Team and channel for development and testing]]></Val>
+          <Val><![CDATA[Create a sandbox in Teams with a channel for development and testing]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[建立用於開發和測試的沙箱化小組和頻道]]></Val>
+            <Val><![CDATA[在 Teams 中建立具有開發與測試通道的沙箱]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Create a sandboxed Team and channel for development and testing]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -7026,10 +7416,13 @@
       </Item>
       <Item ItemId=";driver.devChannel.success" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Team %s with default channel %s created. Channel ID: %s, Team ID: %s]]></Val>
+          <Val><![CDATA[Team %s with default channel %s created. Channel ID: %s Team ID: %s]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[小組 %s (具有預設頻道 %s) 已建立。頻道識別碼: %s，小組識別碼: %s]]></Val>
+            <Val><![CDATA[已建立預設通道 %s 的小組 %s。通道識別碼: %s 小組識別碼: %s]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Team %s with default channel %s created. Channel ID: %s, Team ID: %s]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -7047,6 +7440,15 @@
           <Val><![CDATA[Environment variable %s and %s already exist, skipping new sandboxed Team creation step.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[環境變數 %s 和 %s 已存在，正在略過新的沙箱化小組建立步驟。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.file.createOrUpdateEnvironmentFile.OpenAIAssistantID.validation" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[OpenAI assistant ID cannot be empty.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[OpenAI 助理識別碼不可空白。]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -7069,6 +7471,15 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";driver.file.createOrUpdateEnvironmentFile.OpenAIEmbeddingDeploymentName.validation" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Azure OpenAI embedding deployment name cannot be empty.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Azure OpenAI 內嵌部署名稱不可空白。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";driver.file.createOrUpdateEnvironmentFile.OpenAIKey.validation" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[OpenAI key cannot be empty.]]></Val>
@@ -7087,6 +7498,15 @@
           <Prev Cat="Text">
             <Val><![CDATA[Create or update variables to environment file.]]></Val>
           </Prev>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.file.createOrUpdateEnvironmentFile.genericEnvVar.validation" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Environment variable value required.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[需要環境變數值。]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -7510,33 +7930,6 @@
           <Prev Cat="Text">
             <Val><![CDATA[Successful execution of the `%s` command at `%s`.]]></Val>
           </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";driver.shareToOthers.description" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[share your app to others]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[將您的應用程式分享給其他人]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";driver.shareToOthers.progress.message" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Sharing your app...]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[正在分享您的應用程式...]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";driver.shareToOthers.summary" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Shared apps successfully (%s).]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[已成功分享應用程式 (%s)。]]></Val>
-          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -8088,12 +8481,12 @@
       </Item>
       <Item ItemId=";driver.typeSpec.compile.reprovision" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[File %s is updated. Rerun the provision process to account for these changes]]></Val>
+          <Val><![CDATA[File %s is updated. A new provision process has started to apply the changes.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[檔案 %s 已更新。請重新執行佈建程序，以納入這些變更]]></Val>
+            <Val><![CDATA[檔案 %s 已更新。已開始新的佈建程序來套用變更。]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[File %s is updated. Please run provision again.]]></Val>
+            <Val><![CDATA[File %s is updated. Rerun the provision process to account for these changes]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -8143,6 +8536,15 @@
           <Prev Cat="Text">
             <Val><![CDATA[Failed to get '%s' from resource id: '%s']]></Val>
           </Prev>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.MFARequired" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Mandatory MFA is enforced by Azure policy - 'User must authenticate with multi-factor authentication to create or update resources'. Please enable MFA for your account to continue.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[強制 MFA 已由 Azure 原則強制執行 -「使用者必須使用多重要素驗證進行驗證，以建立或更新資源」。請為您的帳戶啟用 MFA 以繼續。]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -9727,6 +10129,15 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";error.m365.SharedScopeAdvancedDADisabled" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Deployment blocked: Advanced declarative agent can't be deployed due to tenant permission settings. Get more info: [Manage agents for Microsoft 365 Copilot in the Microsoft 365 admin center - Microsoft 365 admin | Microsoft Learn]5D;(%s)]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[已封鎖部署：因為租用戶權限設定而無法部署進階宣告式代理程式。取得詳細資訊：[在 Microsoft 365 系統管理中心管理 Microsoft 365 Copilot 的代理程式 - Microsoft 365 系統管理員 | Microsoft Learn]5D;(%s)]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";error.readDeclarativeAgentManifest.failed" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Unable to read declarative agent manifest file. Error: %s]]></Val>
@@ -9843,19 +10254,25 @@
       </Item>
       <Item ItemId=";error.share.sharedIdNotFound" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Unable to get shared title id or shared app id in the .env file. Shared title id: %s, shared app id: %s. You need to share the app first.]]></Val>
+          <Val><![CDATA[Unable to get title id or app id in the .env file. Shared title id: %s, shared app id: %s. You need to deploy the agent before sharing.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[無法取得 .env 檔案中的共用標題識別碼或共用應用程式識別碼。共用的標題識別碼: %s，共用的應用程式識別碼: %s。您必須先共用應用程式。]]></Val>
+            <Val><![CDATA[無法在 .env 檔案中取得標題識別碼或應用程式識別碼。共用的標題識別碼: %s，共用的應用程式識別碼: %s。共用之前，您需要部署代理程式。]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Unable to get shared title id or shared app id in the .env file. Shared title id: %s, shared app id: %s. You need to share the app first.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";error.share.yamlConfigNotFound" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Unable to find the "share" config in the m365agents.yml]]></Val>
+          <Val><![CDATA[Unable to find the "provision" or "deploy" config in the m365agents.yml]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[在 m365agents.yml 中找不到 "share" 設定]]></Val>
+            <Val><![CDATA[在 m365agents.yml 中找不到「佈建」或「部署」設定]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Unable to find the "share" config in the m365agents.yml]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
