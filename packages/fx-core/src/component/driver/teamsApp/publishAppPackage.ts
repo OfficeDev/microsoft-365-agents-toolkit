@@ -79,22 +79,6 @@ export class PublishAppPackageDriver implements StepDriver {
 
     const zipEntries = new AdmZip(archivedFile).getEntries();
 
-    const pluginFile = zipEntries.find((x) => x.entryName === "ai-plugin.json");
-    if (pluginFile) {
-      const isValid = await this.verifyLocalPluginCerts(pluginFile);
-
-      if (!isValid) {
-        const message =
-          "MSIX package certificate verification failed. One or more local mcp servers do not have a cert or have a self-signed cert.";
-        return err(
-          AppStudioResultFactory.UserError(AppStudioError.ValidationFailedError.name, [
-            message,
-            message,
-          ])
-        );
-      }
-    }
-
     const manifestFile = zipEntries.find((x) => x.entryName === Constants.MANIFEST_FILE);
     if (!manifestFile) {
       return err(
@@ -107,6 +91,39 @@ export class PublishAppPackageDriver implements StepDriver {
     }
     const manifestString = manifestFile.getData().toString();
     const manifest = JSON.parse(manifestString) as TeamsAppManifest;
+
+    const declarativeAgents =
+      manifest.copilotExtensions?.declarativeCopilots || manifest.copilotAgents?.declarativeAgents;
+
+    if (declarativeAgents && declarativeAgents.length > 0) {
+      const declarativeAgentFile = zipEntries.find(
+        (x) => x.entryName === declarativeAgents[0].file
+      );
+
+      if (declarativeAgentFile) {
+        const declarativeAgentContent = declarativeAgentFile.getData().toString();
+        const declarativeAgentManifest = JSON.parse(declarativeAgentContent);
+
+        if (declarativeAgentManifest.actions) {
+          for (const action of declarativeAgentManifest.actions) {
+            const actionFile = zipEntries.find((x) => x.entryName === action.file);
+            if (actionFile) {
+              const isValid = await this.verifyLocalMCPPluginCerts(actionFile);
+              if (!isValid) {
+                const message =
+                  "MSIX package certificate verification failed. One or more local mcp servers do not have a cert or have a self-signed cert.";
+                return err(
+                  AppStudioResultFactory.UserError(AppStudioError.ValidationFailedError.name, [
+                    message,
+                    message,
+                  ])
+                );
+              }
+            }
+          }
+        }
+      }
+    }
 
     // manifest.id === externalID
     const appStudioTokenRes = await context.m365TokenProvider.getAccessToken({
@@ -222,30 +239,43 @@ export class PublishAppPackageDriver implements StepDriver {
     }
   }
 
-  private async verifyLocalPluginCerts(pluginFile: AdmZip.IZipEntry): Promise<boolean> {
+  private async verifyLocalMCPPluginCerts(pluginFile: AdmZip.IZipEntry): Promise<boolean> {
     const pluginContent = pluginFile.getData().toString();
-    const pluginContentAsJson = JSON.parse(pluginContent);
+    const pluginManifest = JSON.parse(pluginContent);
+    if (!pluginManifest.runtimes || !Array.isArray(pluginManifest.runtimes)) {
+      return true;
+    }
 
     const servers = await ODRProvider.listServers();
 
     let allValidCerts = true;
 
-    pluginContentAsJson.runtimes
-      .filter((runtime: any) => runtime.type === "LocalPlugin")
-      .forEach(async (runtime: any) => {
-        const serverInfo = servers.find(
-          (x) => x.identifier === runtime.spec.local_endpoint.substring(LocalMcpPrefix.length)
-        );
-        if (serverInfo) {
-          const valid = await this.verifyPackageFamilyCertIsValid(serverInfo.packageFamily);
+    const localPluginRuntimes = pluginManifest.runtimes.filter(
+      (runtime: { type: string }) => runtime.type === "LocalPlugin"
+    );
 
-          if (!valid) {
-            allValidCerts = false;
-          }
-        } else {
-          allValidCerts = false;
-        }
-      });
+    for (const runtime of localPluginRuntimes) {
+      const localEndpoint = (runtime as { spec?: { local_endpoint?: string } }).spec
+        ?.local_endpoint;
+
+      if (!localEndpoint || !localEndpoint.startsWith(LocalMcpPrefix)) {
+        continue;
+      }
+
+      const mcpIdentifier = localEndpoint.substring(LocalMcpPrefix.length);
+      const serverInfo = servers.find((x) => x.identifier === mcpIdentifier);
+
+      if (!serverInfo) {
+        continue;
+      }
+
+      const valid = await this.verifyPackageFamilyCertIsValid(serverInfo.packageFamily);
+
+      if (!valid) {
+        allValidCerts = false;
+        break;
+      }
+    }
 
     return allValidCerts;
   }

@@ -21,6 +21,7 @@ export interface ODRTool {
   description: string;
   inputSchema: any;
   outputSchema?: any;
+  _meta?: any;
 }
 
 export class ODRProvider {
@@ -32,7 +33,7 @@ export class ODRProvider {
   static parseODRListOutput(jsonOutput: any): ODRServer[] {
     const servers: ODRServer[] = [];
 
-    if (!jsonOutput.servers || !Array.isArray(jsonOutput.servers)) {
+    if (!jsonOutput || !jsonOutput.servers || !Array.isArray(jsonOutput.servers)) {
       return servers;
     }
 
