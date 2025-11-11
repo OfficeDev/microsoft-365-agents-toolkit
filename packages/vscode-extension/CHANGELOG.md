@@ -4,7 +4,7 @@
 
 ## 6.4.0 - Nov 14, 2025
 
-Building on the incremental enhancements previously introduced in the [prerelease version](https://github.com/OfficeDev/microsoft-365-agents-toolkit/blob/dev/packages/vscode-extension/PRERELEASE.md), this release brings a streamlined developer experience, deeper Teams integration, and expanded AI capabilities. Below you’ll find a comprehensive list of new featuree and enhancements included in this release:
+Building on the incremental enhancements previously introduced in the [prerelease version](https://github.com/OfficeDev/microsoft-365-agents-toolkit/blob/dev/packages/vscode-extension/PRERELEASE.md), this release brings a streamlined developer experience, deeper Teams integration, and expanded AI capabilities. Below you’ll find a comprehensive list of new features and enhancements included in this release:
 
 ### New Features
 - **Declarative agents: sharing made easy**
