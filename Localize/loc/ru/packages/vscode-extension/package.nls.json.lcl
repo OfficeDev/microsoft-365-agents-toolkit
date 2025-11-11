@@ -211,6 +211,60 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";teamstoolkit.MCP.ContentInvalid" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[MCP configuration file content is invalid. Please ensure the content in .vscode/mcp.json is correct.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Содержимое файла конфигурации MCP недействительно. Проверьте правильность содержимого в .vscode/mcp.json.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";teamstoolkit.MCP.FileNotFound" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[MCP configuration file not found in .vscode/mcp.json. Please ensure you have set up the MCP server.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Файл конфигурации MCP не найден в .vscode/mcp.json. Убедитесь, что сервер MCP настроен.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";teamstoolkit.MCP.NameOrServerUrlMissing" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[MCP name or server URL is missing.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Отсутствует имя MCP или URL-адрес сервера.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";teamstoolkit.MCP.SelectServerFailed" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Failed to select MCP server.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Не удалось выбрать сервер MCP.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";teamstoolkit.MCP.ServerNotFound" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[No MCP server found in the MCP file.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[В файле MCP не найден сервер MCP.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";teamstoolkit.MCP.ToolsNotFound" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[No tools found for the MCP server. Please run the server first.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Инструменты для сервера MCP не найдены. Сначала запустите сервер.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";teamstoolkit.accountTree.azureAccountTooltip" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[AZURE ACCOUNT  ]A;The Microsoft 365 Agents Toolkit requires Azure subscription to deploy the Azure resources for your project.]]></Val>
@@ -315,10 +369,13 @@
       </Item>
       <Item ItemId=";teamstoolkit.accountTree.sandboxedTeam.button" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Debug in Teams Sandbox (Edge)]]></Val>
+          <Val><![CDATA[Debug in sandbox in Teams (Edge)]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Отладка в песочнице Teams (Edge)]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Debug in Teams Sandbox (Edge)]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -351,10 +408,13 @@
       </Item>
       <Item ItemId=";teamstoolkit.accountTree.sandboxedTeamEnabled.tooltip" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[You can create sandboxed Team for local testing.]]></Val>
+          <Val><![CDATA[You can create a sandbox in Teams for local testing instead.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Вы можете создать изолированную команду для локального тестирования.]]></Val>
+            <Val><![CDATA[Вместо этого можно создать песочницу в Teams для локального тестирования.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[You can create sandboxed Team for local testing.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -483,10 +543,13 @@
       </Item>
       <Item ItemId=";teamstoolkit.accountTree.suggestSandboxedTeam" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[[Custom app upload]5D;(https://learn.microsoft.com/en-us/microsoftteams/platform/concepts/deploy-and-publish/apps-upload) is disabled in your Microsoft 365 account. But you can create a sandboxed Team for local testing.]]></Val>
+          <Val><![CDATA[[Custom app upload]5D;(https://learn.microsoft.com/en-us/microsoftteams/platform/concepts/deploy-and-publish/apps-upload) is disabled in your Microsoft 365 account. You can create a sandbox in Teams with a channel for development and testing.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[[Отправка пользовательского приложения]5D;(https://learn.microsoft.com/en-us/microsoftteams/platform/concepts/deploy-and-publish/apps-upload) отключена в вашей учетной записи Microsoft 365. Но вы можете создать изолированную команду для локального тестирования.]]></Val>
+            <Val><![CDATA[[Отправка пользовательского приложения]5D;(https://learn.microsoft.com/en-us/microsoftteams/platform/concepts/deploy-and-publish/apps-upload) отключена в вашей учетной записи Microsoft 365. Вы можете создать песочницу в Teams с каналом для разработки и тестирования.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[[Custom app upload]5D;(https://learn.microsoft.com/en-us/microsoftteams/platform/concepts/deploy-and-publish/apps-upload) is disabled in your Microsoft 365 account. But you can create a sandboxed Team for local testing.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -537,12 +600,12 @@
       </Item>
       <Item ItemId=";teamstoolkit.azureLogin.failToFindSubscription" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[We couldn't find a subscription.]]></Val>
+          <Val><![CDATA[No subscription found. Switch to a tenant with a linked subscription.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Не удалось найти подписку.]]></Val>
+            <Val><![CDATA[Подписка не найдена. Переключитесь на клиент со связанной подпиской.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Failed to find a subscription.]]></Val>
+            <Val><![CDATA[We couldn't find a subscription.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -1870,6 +1933,15 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";teamstoolkit.commands.updateActionWithMCP.title" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Fetch action from MCP]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Получить действие из MCP]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";teamstoolkit.commands.updateManifest.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Update App]]></Val>
@@ -2847,12 +2919,12 @@
       </Item>
       <Item ItemId=";teamstoolkit.commandsTreeViewProvider.shareDescription" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Run the 'share' lifecycle stage in m365agents.yml file.]]></Val>
+          <Val><![CDATA[Change the shared scope of agent.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Запустите этап жизненного цикла "поделиться" в файле m365agents.yml.]]></Val>
+            <Val><![CDATA[Измените общую область агента.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Run the 'share' lifecycle stage in teamsapp.yml file.]]></Val>
+            <Val><![CDATA[Run the 'share' lifecycle stage in m365agents.yml file.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -3079,33 +3151,6 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";teamstoolkit.config.enableKiota" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Do you want to use Kiota extension to generate OpenAPI specification and plugin manifest? You can also update this setting from the settings page.]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Хотите использовать расширение Kiota для генерации спецификации OpenAPI и манифеста подключаемого модуля? Этот параметр также можно обновить на странице настроек.]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";teamstoolkit.config.enableKiota.no" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[No]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Нет]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";teamstoolkit.config.enableKiota.yes" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Yes]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Да]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
       <Item ItemId=";teamstoolkit.devPortalIntegration.appStudioLogin.message" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Please log in to your Microsoft 365 account to proceed.]]></Val>
@@ -3261,15 +3306,6 @@
           <Val><![CDATA['%s' environment is provisioned in Azure subscription '%s']]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Среда «%s» подготовлена в подписке Azure «%s»]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";teamstoolkit.error.KiotaNotInstalled" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[You need to install Microsoft Kiota extension with minimum version %s to use this feature.]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Чтобы использовать эту функцию, необходимо установить расширение Microsoft Kiota с минимальной %s версии.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3738,24 +3774,6 @@
           <Val><![CDATA[Provision]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Подготовить к работе]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";teamstoolkit.handler.createDeclarativeAgentWithApiSpec.error.invalidParameter" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Invalid parameter in the createDeclarativeAgentWithApiSpec command. Usage: createDeclarativeAgentWithApiSpec(API_SPEC_PATH: string).]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Недопустимый параметр в команде createDeclarativeAgentWithApiSpec. Использование: createDeclarativeAgentWithApiSpec(API_SPEC_PATH: string).]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";teamstoolkit.handler.createPluginWithManifest.error.missingParameter" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Invalid parameter in the createPluginWithManifest command. Usage: createPluginWithManifest(API_SPEC_PATH:string, PLUGIN_MANIFEST_PATH: string, { lastCommand: string }, OUTPUT_FOLDER?: string). Valid values for LAST_COMMAND: createPluginWithManifest, createDeclarativeCopilotWithManifest.]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Недопустимый параметр в команде createPluginWithManifest. Использование: createPluginWithManifest(API_SPEC_PATH:string, PLUGIN_MANIFEST_PATH: string, { lastCommand: string }, OUTPUT_FOLDER?: string). Допустимые значения для LAST_COMMAND: createPluginWithManifest, createDeclarativeCopilotWithManifest.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4327,6 +4345,15 @@
           <Prev Cat="Text">
             <Val><![CDATA[Open folder]]></Val>
           </Prev>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";teamstoolkit.handlers.openWorkspaceMCPConfigNotification" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Declarative agent project successfully created with a MCP wrapped. You can now start the MCP server from CodeLens button "Start" or customize your MCP server in .vscode/mcp.json file.]A;To fetch tools from MCP server, click "ATK: Update Action with MCP" from the CodeLens or Command Palatte.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Проект декларативного агента создан с оболочкой MCP. Теперь вы можете запустить сервер MCP из кнопки "Пуск" в CodeLens или настроить сервер MCP в файле .vscode/mcp.json.]A;Чтобы получить инструменты с сервера MCP, выберите "ATK: обновить действие с MCP" в CodeLens или палитре команд.]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -5211,10 +5238,13 @@
       </Item>
       <Item ItemId=";teamstoolkit.localDebug.useTestTool" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Alternatively, you can skip this step by choosing the %s option.]]></Val>
+          <Val><![CDATA[Alternatively, you can use %s to continue.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Вы также можете пропустить этот шаг, выбрав %s.]]></Val>
+            <Val><![CDATA[Или вы можете использовать %s для продолжения.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Alternatively, you can skip this step by choosing the %s option.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -5281,6 +5311,51 @@
           <Prev Cat="Text">
             <Val><![CDATA[List app owners]]></Val>
           </Prev>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";teamstoolkit.mcpUtils.setupMcpServer.confirm" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Confirm]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Подтвердить]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";teamstoolkit.mcpUtils.setupMcpServer.errorMessage" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to configure M365 Agents Toolkit MCP server. Error: %s]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Не удается настроить сервер MCP набора инструментов для создания агентов M365. Ошибка: %s]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";teamstoolkit.mcpUtils.setupMcpServer.message" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Configure M365 Agents Toolkit MCP server? (This will create or update %s in your workspace)]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Настроить сервер MCP набора инструментов для создания агентов M365? (Это создаст или обновит %s в вашей рабочей области)]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";teamstoolkit.mcpUtils.setupMcpServer.skip" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Skip]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Пропустить]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";teamstoolkit.mcpUtils.setupMcpServer.successMessage" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[M365 Agents Toolkit MCP server configured successfully!]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Сервер MCP набора инструментов для создания агентов M365 настроен!]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -6066,24 +6141,24 @@
       </Item>
       <Item ItemId=";teamstoolkit.viewsWelcome.teamsfx-empty-project-with-chat-preview-tag.content" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Welcome to Microsoft 365 Agents Toolkit!]A;Get started with a guided tutorial]A;[Build a Declarative Agent]5D;(command:fx-extension.buildIntelligentAppsWalkthrough?%5B%22SideBar%22%5D)]A; Or jump right into the app development with app templates or samples]A;[Create a New Agent/App]5D;(command:fx-extension.create?%5B%22SideBar%22%5D)]A;[View Samples]5D;(command:fx-extension.openSamples?%5B%22SideBar%22%5D)]A;Create your new app effortlessly with GitHub Copilot. ]A;[Create App with GitHub Copilot (Preview)]5D;(command:fx-extension.invokeChatWithPreviewTag?%5B%22SideBar%22%5D)]A;Visit our documentation to build apps for [Microsoft Teams]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-apps%22%5D) or extend [Microsoft 365 Copilot]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-agents%22%5D).]]></Val>
+          <Val><![CDATA[Welcome to Microsoft 365 Agents Toolkit!]A;Get started with a guided tutorial]A;[Build a Declarative Agent]5D;(command:fx-extension.buildIntelligentAppsWalkthrough?%5B%22SideBar%22%5D)]A; Or jump right into the app development with app templates or samples]A;[Create a New Agent/App]5D;(command:fx-extension.create?%5B%22SideBar%22%5D)]A;[View Samples]5D;(command:fx-extension.openSamples?%5B%22SideBar%22%5D)]A;Visit our documentation to build apps for [Microsoft Teams]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-apps%22%5D) or extend [Microsoft 365 Copilot]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-agents%22%5D).]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Добро пожаловать в набор средств агентов Microsoft 365!]A;Начало работы с интерактивным руководством]A;[Создать декларативный агент]5D;(command:fx-extension.buildIntelligentAppsWalkthrough?%5B%22SideBar%22%5D)]A; Также можно перейти к разработке приложений с использованием шаблонов приложений и примеров]A;[Создать новый агент или приложение]5D;(command:fx-extension.create?%5B%22SideBar%22%5D)]A;[Просмотреть примеры]5D;(command:fx-extension.openSamples?%5B%22SideBar%22%5D)]A;Легко создавайте новые приложения, используя GitHub Copilot. ]A;[Создать приложение с помощью GitHub Copilot (предварительная версия)]5D;(command:fx-extension.invokeChatWithPreviewTag?%5B%22SideBar%22%5D)]A;Ознакомьтесь с документацией, чтобы создавать приложения для [Microsoft Teams]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-apps%22%5D) или расширить возможности [Microsoft 365 Copilot]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-agents%22%5D).]]></Val>
+            <Val><![CDATA[Добро пожаловать в набор инструментов для создания агентов Microsoft 365!]A;Начало работы с интерактивным руководством]A;[Создать декларативный агент]5D;(command:fx-extension.buildIntelligentAppsWalkthrough?%5B%22SideBar%22%5D)]A; Также можно перейти к разработке приложений с использованием шаблонов приложений и примеров]A;[Создать новый агент или приложение]5D;(command:fx-extension.create?%5B%22SideBar%22%5D)]A;[Просмотреть примеры]5D;(command:fx-extension.openSamples?%5B%22SideBar%22%5D)]A;Ознакомьтесь с документацией, чтобы создавать приложения для [Microsoft Teams]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-apps%22%5D) или расширить возможности [Microsoft 365 Copilot]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-agents%22%5D).]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Welcome to Microsoft 365 Agents Toolkit!]A;Get started with a guided tutorial]A;[Build a Notification Bot]5D;(command:fx-extension.openWelcome?%5B%22SideBar%22%5D)]A;[Build a Declarative Agent]5D;(command:fx-extension.buildIntelligentAppsWalkthrough?%5B%22SideBar%22%5D)]A; Or jump right into the app development with app templates or samples]A;[Create a New App]5D;(command:fx-extension.create?%5B%22SideBar%22%5D)]A;[View Samples]5D;(command:fx-extension.openSamples?%5B%22SideBar%22%5D)]A;Create your new app effortlessly with GitHub Copilot. ]A;[Create App with GitHub Copilot (Preview)]5D;(command:fx-extension.invokeChatWithPreviewTag?%5B%22SideBar%22%5D)]A;Visit our documentation to build apps for [Microsoft Teams]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-apps%22%5D) or extend [Microsoft 365 Copilot]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-agents%22%5D).]]></Val>
+            <Val><![CDATA[Welcome to Microsoft 365 Agents Toolkit!]A;Get started with a guided tutorial]A;[Build a Declarative Agent]5D;(command:fx-extension.buildIntelligentAppsWalkthrough?%5B%22SideBar%22%5D)]A; Or jump right into the app development with app templates or samples]A;[Create a New Agent/App]5D;(command:fx-extension.create?%5B%22SideBar%22%5D)]A;[View Samples]5D;(command:fx-extension.openSamples?%5B%22SideBar%22%5D)]A;Create your new app effortlessly with GitHub Copilot. ]A;[Create App with GitHub Copilot (Preview)]5D;(command:fx-extension.invokeChatWithPreviewTag?%5B%22SideBar%22%5D)]A;Visit our documentation to build apps for [Microsoft Teams]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-apps%22%5D) or extend [Microsoft 365 Copilot]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-agents%22%5D).]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";teamstoolkit.viewsWelcome.teamsfx-empty-project-with-chat.content" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Welcome to Microsoft 365 Agents Toolkit!]A;Get started with a guided tutorial]A;[Build a Declarative Agent]5D;(command:fx-extension.buildIntelligentAppsWalkthrough?%5B%22SideBar%22%5D)]A; Or jump right into the app development with app templates or samples]A;[Create a New Agent/App]5D;(command:fx-extension.create?%5B%22SideBar%22%5D)]A;[View Samples]5D;(command:fx-extension.openSamples?%5B%22SideBar%22%5D)]A;Create your new app effortlessly with GitHub Copilot.]A;[Create App with GitHub Copilot]5D;(command:fx-extension.invokeChat?%5B%22SideBar%22%5D)]A;Visit our documentation to build apps for [Microsoft Teams]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-apps%22%5D) or extend [Microsoft 365 Copilot]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-agents%22%5D).]]></Val>
+          <Val><![CDATA[Welcome to Microsoft 365 Agents Toolkit!]A;Get started with a guided tutorial]A;[Build a Declarative Agent]5D;(command:fx-extension.buildIntelligentAppsWalkthrough?%5B%22SideBar%22%5D)]A; Or jump right into the app development with app templates or samples]A;[Create a New Agent/App]5D;(command:fx-extension.create?%5B%22SideBar%22%5D)]A;[View Samples]5D;(command:fx-extension.openSamples?%5B%22SideBar%22%5D)]A;Visit our documentation to build apps for [Microsoft Teams]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-apps%22%5D) or extend [Microsoft 365 Copilot]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-agents%22%5D).]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Добро пожаловать в набор средств агентов Microsoft 365!]A;Начало работы с интерактивным руководством]A;[Создать декларативный агент]5D;(command:fx-extension.buildIntelligentAppsWalkthrough?%5B%22SideBar%22%5D)]A; Также можно перейти к разработке приложений с использованием шаблонов приложений и примеров]A;[Создать новый агент или приложение]5D;(command:fx-extension.create?%5B%22SideBar%22%5D)]A;[Просмотреть примеры]5D;(command:fx-extension.openSamples?%5B%22SideBar%22%5D)]A;Легко создавайте новые приложения, используя GitHub Copilot.]A;[Создать приложение с помощью GitHub Copilot]5D;(command:fx-extension.invokeChat?%5B%22SideBar%22%5D)]A;Ознакомьтесь с документацией, чтобы создавать приложения для [Microsoft Teams]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-apps%22%5D) или расширить возможности [Microsoft 365 Copilot]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-agents%22%5D).]]></Val>
+            <Val><![CDATA[Добро пожаловать в набор инструментов для создания агентов Microsoft 365!]A;Начало работы с интерактивным руководством]A;[Создать декларативный агент]5D;(command:fx-extension.buildIntelligentAppsWalkthrough?%5B%22SideBar%22%5D)]A; Также можно перейти к разработке приложений с использованием шаблонов приложений и примеров]A;[Создать новый агент или приложение]5D;(command:fx-extension.create?%5B%22SideBar%22%5D)]A;[Просмотреть примеры]5D;(command:fx-extension.openSamples?%5B%22SideBar%22%5D)]A;Ознакомьтесь с документацией, чтобы создавать приложения для [Microsoft Teams]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-apps%22%5D) или расширить возможности [Microsoft 365 Copilot]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-agents%22%5D).]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Welcome to Microsoft 365 Agents Toolkit!]A;Get started with a guided tutorial]A;[Build a Notification Bot]5D;(command:fx-extension.openWelcome?%5B%22SideBar%22%5D)]A;[Build a Declarative Agent]5D;(command:fx-extension.buildIntelligentAppsWalkthrough?%5B%22SideBar%22%5D)]A; Or jump right into the app development with app templates or samples]A;[Create a New App]5D;(command:fx-extension.create?%5B%22SideBar%22%5D)]A;[View Samples]5D;(command:fx-extension.openSamples?%5B%22SideBar%22%5D)]A;Create your new app effortlessly with GitHub Copilot.]A;[Create App with GitHub Copilot]5D;(command:fx-extension.invokeChat?%5B%22SideBar%22%5D)]A;Visit our documentation to build apps for [Microsoft Teams]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-apps%22%5D) or extend [Microsoft 365 Copilot]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-agents%22%5D).]]></Val>
+            <Val><![CDATA[Welcome to Microsoft 365 Agents Toolkit!]A;Get started with a guided tutorial]A;[Build a Declarative Agent]5D;(command:fx-extension.buildIntelligentAppsWalkthrough?%5B%22SideBar%22%5D)]A; Or jump right into the app development with app templates or samples]A;[Create a New Agent/App]5D;(command:fx-extension.create?%5B%22SideBar%22%5D)]A;[View Samples]5D;(command:fx-extension.openSamples?%5B%22SideBar%22%5D)]A;Create your new app effortlessly with GitHub Copilot.]A;[Create App with GitHub Copilot]5D;(command:fx-extension.invokeChat?%5B%22SideBar%22%5D)]A;Visit our documentation to build apps for [Microsoft Teams]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-apps%22%5D) or extend [Microsoft 365 Copilot]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-agents%22%5D).]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -6156,12 +6231,12 @@
       </Item>
       <Item ItemId=";teamstoolkit.walkthroughs.buildIntelligentApps.customCopilot.description" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Build your intelligent, natural language-driven experiences in Teams, leveraging its vast user base for collaboration. ]A;Microsoft 365 Agents Toolkit integrates with Azure OpenAI and Teams AI Library to streamline copilot development and offer unique Teams-based capabilities. ]A;Explore [Teams AI Library]5D;(https://learn.microsoft.com/en-us/microsoftteams/platform/bots/how-to/teams%20conversational%20ai/teams-conversation-ai-overview) and [Azure OpenAI Service]5D;(https://learn.microsoft.com/en-us/azure/ai-services/openai/overview)]]></Val>
+          <Val><![CDATA[Build your intelligent, natural language-driven experiences in Teams, leveraging its vast user base for collaboration. ]A;Microsoft 365 Agents Toolkit integrates with Azure OpenAI and Microsoft Teams SDK to streamline copilot development and offer unique Teams-based capabilities. ]A;Explore [Microsoft Teams SDK]5D;(https://aka.ms/teams-ai-library-v2) and [Azure OpenAI Service]5D;(https://learn.microsoft.com/en-us/azure/ai-services/openai/overview)]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Создавайте интеллектуальные пользовательские интерфейсы на основе естественного языка в Teams, используя обширную базу пользователей для совместной работы. ]A;Набор средств агентов Microsoft 365 интегрируется с Azure OpenAI и библиотекой ИИ Teams, чтобы упростить разработку помощников и реализовать уникальные возможности на базе Teams. ]A;Ознакомьтесь с [библиотекой ИИ Teams]5D;(https://learn.microsoft.com/en-us/microsoftteams/platform/bots/how-to/teams%20conversational%20ai/teams-conversation-ai-overview) и [Службой Azure OpenAI]5D;(https://learn.microsoft.com/en-us/azure/ai-services/openai/overview)]]></Val>
+            <Val><![CDATA[Создавайте интеллектуальные пользовательские интерфейсы на основе естественного языка в Teams, используя обширную базу пользователей для совместной работы. ]A;Набор инструментов для создания агентов Microsoft 365 интегрируется с Azure OpenAI и пакетом SDK для Microsoft Teams, чтобы упростить разработку помощников и реализовать уникальные возможности на базе Teams. ]A;Обзор [пакета SDK для Microsoft Teams]5D;(https://aka.ms/teams-ai-library-v2) и [Службой Azure OpenAI]5D;(https://learn.microsoft.com/en-us/azure/ai-services/openai/overview)]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Build your intelligent, natural language-driven experiences in Teams, leveraging its vast user base for collaboration. ]A;Teams toolkit integrates with Azure OpenAI and Teams AI Library to streamline copilot development and offer unique Teams-based capabilities. ]A;Explore [Teams AI Library]5D;(https://learn.microsoft.com/en-us/microsoftteams/platform/bots/how-to/teams%20conversational%20ai/teams-conversation-ai-overview) and [Azure OpenAI Service]5D;(https://learn.microsoft.com/en-us/azure/ai-services/openai/overview)]]></Val>
+            <Val><![CDATA[Build your intelligent, natural language-driven experiences in Teams, leveraging its vast user base for collaboration. ]A;Microsoft 365 Agents Toolkit integrates with Azure OpenAI and Teams AI Library to streamline copilot development and offer unique Teams-based capabilities. ]A;Explore [Teams AI Library]5D;(https://learn.microsoft.com/en-us/microsoftteams/platform/bots/how-to/teams%20conversational%20ai/teams-conversation-ai-overview) and [Azure OpenAI Service]5D;(https://learn.microsoft.com/en-us/azure/ai-services/openai/overview)]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -6312,10 +6387,13 @@
       </Item>
       <Item ItemId=";teamstoolkit.walkthroughs.buildIntelligentApps.twoPathsToIntelligentApps.description" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Build your intelligent apps with Microsoft 365 in two ways:]A;🎯 Extend Microsoft Copilot with a plugin, Or]A;✨ Build your own Copilot in Teams using Teams AI Library and Azure services]]></Val>
+          <Val><![CDATA[Build your intelligent apps with Microsoft 365 in two ways:]A;🎯 Extend Microsoft Copilot with a plugin, Or]A;✨ Build your own Copilot in Teams using Microsoft Teams SDK and Azure services]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Создавайте интеллектуальные приложения с Microsoft 365 двумя способами:]A;🎯 Расширить Microsoft Copilot с помощью подключаемого модуля или]A;✨ Создавайте собственные Copilot в Teams с помощью библиотеки ИИ Teams и служб Azure]]></Val>
+            <Val><![CDATA[Создавайте интеллектуальные приложения с Microsoft 365 двумя способами:]A;🎯 Расширьте Microsoft Copilot с помощью плагина или]A;✨ Создайте собственный Copilot в Teams с помощью пакета SDK для Microsoft Teams и служб Azure]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Build your intelligent apps with Microsoft 365 in two ways:]A;🎯 Extend Microsoft Copilot with a plugin, Or]A;✨ Build your own Copilot in Teams using Teams AI Library and Azure services]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>

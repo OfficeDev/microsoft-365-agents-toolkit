@@ -226,8 +226,8 @@
       <Item ItemId=";core.BotNewUIOption.label" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Simple Bot]]></Val>
-          <Tgt Cat="Text" Stat="Update" Orig="New">
-            <Val><![CDATA[Базовый бот]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Простой бот]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Basic Bot]]></Val>
@@ -562,30 +562,45 @@
       <Item ItemId=";core.MCPForDA.authUrlNotFound" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Unable to find the authentication URL(s) from response of Authorization Server Metadata of the MCP server.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Не удалось найти URL-адрес проверки подлинности в ответе метаданных сервера авторизации MCP.]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.MCPForDA.mcpAuthMetadataMissingError" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Unable to find the authentication metadata in the MCP server. Please make sure your MCP server is configured correctly and try again. Details: %s]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Не удалось найти метаданные проверки подлинности на сервере MCP. Убедитесь, что сервер MCP настроен правильно, и повторите попытку. Сведения: %s]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.MCPForDA.mcpAuthMetadataUrlNotFound" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Unable to find the authentication metadata from property "resource_metadata" from response of the MCP server.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Не удалось найти метаданные проверки подлинности в свойстве "resource_metadata" в ответе сервера MCP.]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.MCPForDA.mcpServerMetadataUrlNotFound" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Unable to find the server metadata from property "authorization_servers" from repsonse of the Protected Resource Metadata of the MCP server.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Не удалось найти метаданные сервера в свойстве "authorization_servers" в ответе метаданных защищенных ресурсов сервера MCP.]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.MCPForDA.updatePluginManifest" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[The operations selected from your MCP server are successfully added for Copilot to interact with. You can go to the '%s' to check on details. Now you are able to provision your declarative agent to continue.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Операции, выбранные на сервере MCP, добавлены для взаимодействия в Copilot. Вы можете перейти в "%s" для просмотра подробностей. Теперь можно подготовить декларативный агент для продолжения.]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -1492,12 +1507,18 @@
       <Item ItemId=";core.collaboration.AgentOwner" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Agent Owner: ]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Владелец агента: ]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.collaboration.AgentTitleId" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Agent (ID: ]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Агент (ИД: ]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -1678,6 +1699,9 @@
       <Item ItemId=";core.collaboration.StartingListAllAgentOwners" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[]A;Starting to list all agent owners for environment: ]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[]A;Начало перечисления всех владельцев приложений для среды: ]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -1726,12 +1750,18 @@
       <Item ItemId=";core.collaboration.agent.description" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Microsoft 365 Agent]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Агент Microsoft 365]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.collaboration.agent.label" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Agent]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Агент]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -2149,14 +2179,17 @@
       <Item ItemId=";core.common.removeOwnership.success" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Shared agent ownership removed from the users: %s.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Совместное владение агентом удалено у пользователей: %s.]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.common.removeShareAccess.success" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Shared access successfully removed from users: %s.]]></Val>
-          <Tgt Cat="Text" Stat="Update" Orig="New">
-            <Val><![CDATA[Общий доступ к приложению закрыт для пользователей: %s.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Общий доступ удален у пользователей: %s.]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Shared app access removed from the users: %s.]]></Val>
@@ -2167,12 +2200,18 @@
       <Item ItemId=";core.common.shareWithTenant.success" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Agent successfully shared with tenant.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[К агенту предоставлен общий доступ клиенту.]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.common.shareWithUser.success" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Agent successfully shared with users: %s.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[К агенту предоставлен общий доступ пользователям: %s.]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -2620,20 +2659,26 @@
       <Item ItemId=";core.createProjectQuestion.EntraSSOClientId" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Entra SSO client ID]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Идентификатор клиента единого входа Entra]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.createProjectQuestion.EntraSSOClientId.placeholder" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Input Microsoft SSO client ID generated in AAD for registration on Developer Portal]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Введите идентификатор клиента единого входа Майкрософт, созданный в AAD, для регистрации на портале разработчика]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.createProjectQuestion.OauthClientId" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Oauth registration client ID]]></Val>
-          <Tgt Cat="Text" Stat="Update" Orig="New">
-            <Val><![CDATA[Введите идентификатор клиента для регистрации OAuth в документе описания OpenAPI]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Идентификатор клиента регистрации OAuth]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Enter client id for OAuth registration in OpenAPI Description Document]]></Val>
@@ -2644,14 +2689,17 @@
       <Item ItemId=";core.createProjectQuestion.OauthClientId.placeholder" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Input client ID for OAuth registration in OpenAPI Description Document]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Введите идентификатор клиента для регистрации OAuth в документе описания OpenAPI]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.createProjectQuestion.OauthClientSecret" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[OAuth registration client secret]]></Val>
-          <Tgt Cat="Text" Stat="Update" Orig="New">
-            <Val><![CDATA[Введите секрет клиента для регистрации OAuth в документе описания OpenAPI]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Секрет клиента регистрации OAuth]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Enter client secret for OAuth registration in OpenAPI Description Document]]></Val>
@@ -2662,14 +2710,17 @@
       <Item ItemId=";core.createProjectQuestion.OauthClientSecret.placeholder" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Input client secret for OAuth registration in OpenAPI Description Document]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Введите секрет клиента для регистрации OAuth в документе описания OpenAPI]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.createProjectQuestion.OauthClientSecretConfirm" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Microsoft 365 Agents Toolkit uploads the client ID/Secret for OAuth Registration to Developer Portal. It is used by Teams client to securely access your API at runtime. Microsoft 365 Agents Toolkit doesn't store your client ID/Secret.]]></Val>
-          <Tgt Cat="Text" Stat="Update" Orig="New">
-            <Val><![CDATA[Набор инструментов Microsoft 365 Agents Toolkit загружает идентификатор/секрет клиента для регистрации OAuth на портал разработчика. Он используется клиентом Teams для безопасного доступа к вашему API во время выполнения. Набор инструментов Microsoft 365 Agents не хранит ваш идентификатор/секрет клиента.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Набор инструментов для создания агентов Microsoft 365 отправляет идентификатор/секрет клиента для регистрации OAuth на портал разработчика. Он используется клиентом Teams для безопасного доступа к вашему API во время выполнения. Набор инструментов для создания агентов Microsoft 365 не хранит ваш идентификатор/секрет клиента.]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Microsoft 365 Agents Toolkit uploads the client id/secret for OAuth Registration to Developer Portal. It is used by Teams client to securely access your API at runtime. Microsoft 365 Agents Toolkit doesn't store your client id/secret.]]></Val>
@@ -2680,18 +2731,27 @@
       <Item ItemId=";core.createProjectQuestion.OauthScope" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Scope(s) for OAuth registration]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Области для регистрации OAuth]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.createProjectQuestion.OauthScope.placeholder" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[(optional) Input scopes for OAuth registration, separate by comma]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[(необязательно) Введите области для регистрации OAuth, разделенные запятыми]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.createProjectQuestion.OauthScope.validation" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Invalid format. Use 'scope1, scope2:permission2'. Only letters, numbers, and ._/- are allowed.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Недопустимый формат. Используйте "scope1, scope2:permission2". Можно использовать только буквы, цифры и символы ._/-.]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -3187,8 +3247,8 @@
       <Item ItemId=";core.createProjectQuestion.capability.customCopilotAssistantAssistantsApiOption.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Build an AI agent with OpenAI Assistants API and Microsoft Teams SDK]]></Val>
-          <Tgt Cat="Text" Stat="Update" Orig="New">
-            <Val><![CDATA[Создание агента ИИ с помощью API помощников OpenAI и библиотеки ИИ Teams]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Создайте агент ИИ с помощью API помощников OpenAI и пакета SDK для Microsoft Teams]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Build an AI agent with OpenAI Assistants API and Teams AI Library]]></Val>
@@ -3208,8 +3268,8 @@
       <Item ItemId=";core.createProjectQuestion.capability.customCopilotAssistantNewOption.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Build your own AI Agent from scratch using Microsoft Teams SDK]]></Val>
-          <Tgt Cat="Text" Stat="Update" Orig="New">
-            <Val><![CDATA[Создайте собственный агент ИИ с нуля с помощью библиотеки ИИ Teams]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Создайте собственный агент ИИ с нуля с помощью пакета SDK для Microsoft Teams]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Build your own AI Agent from scratch using Teams AI Library]]></Val>
@@ -3253,8 +3313,8 @@
       <Item ItemId=";core.createProjectQuestion.capability.customCopilotBasicOption.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Agent that chats with users in Teams built with Microsoft Teams SDK and connects to LLMs]]></Val>
-          <Tgt Cat="Text" Stat="Update" Orig="New">
-            <Val><![CDATA[Агент для общения в чате с пользователями в Teams, созданный с использованием библиотеки ИИ Teams и подключенный к большим языковым моделям]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Агент для общения в чате с пользователями в Teams, созданный с применением пакета SDK для Microsoft Teams и подключенный к большим языковым моделям]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Agent that chats with users in Teams built with Teams AI Library and connects to LLMs]]></Val>
@@ -3265,8 +3325,8 @@
       <Item ItemId=";core.createProjectQuestion.capability.customCopilotBasicOption.label" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[General Teams Agent]]></Val>
-          <Tgt Cat="Text" Stat="Update" Orig="New">
-            <Val><![CDATA[Базовый агент для Teams]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Общий агент Teams]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Basic Agent for Teams]]></Val>
@@ -3559,24 +3619,36 @@
       <Item ItemId=";core.createProjectQuestion.capability.teamsAgent.collaborator.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Agent that enhances collaboration in group chat, channels or meetings through summarization, task management, and conversation search]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Агент, который улучшает совместную работу в групповом чате, каналах или собраниях с помощью сводок, управления задачами и поиска бесед]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.createProjectQuestion.capability.teamsAgent.collaborator.label" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Teams Collaborator Agent]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Агент участников совместной работы Teams]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.createProjectQuestion.capability.teamsAgent.others.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[App that uses tab, bot and message extension]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Приложение, использующее вкладку, бот и расширение сообщений]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.createProjectQuestion.capability.teamsAgent.others.label" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Other Teams Capabilities]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Другие возможности Teams]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -3679,12 +3751,18 @@
       <Item ItemId=";core.createProjectQuestion.llmService.azureOpenAIAssistantID.placeholder" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Enter Azure OpenAI Assistant ID now or set it later in the project]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Введите идентификатор помощника Azure OpenAI сейчас или настройте его позже в проекте]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.createProjectQuestion.llmService.azureOpenAIAssistantID.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Azure OpenAI Assistant ID]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Идентификатор помощника Azure OpenAI]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -3709,12 +3787,18 @@
       <Item ItemId=";core.createProjectQuestion.llmService.azureOpenAIEmbeddingDeploymentName.placeholder" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Enter Azure OpenAI embedding deployment name now or set it later in the project]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Введите имя развертывания внедрения Azure OpenAI сейчас или настройте его позже в проекте]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.createProjectQuestion.llmService.azureOpenAIEmbeddingDeploymentName.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Azure OpenAI Embedding Deployment Name]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Имя развертывания внедрения Azure OpenAI]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -3757,12 +3841,18 @@
       <Item ItemId=";core.createProjectQuestion.llmService.openAIAssistantID.placeholder" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Enter OpenAI Assistant ID now or set it later in the project]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Введите идентификатор помощника OpenAI сейчас или настройте его позже в проекте]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.createProjectQuestion.llmService.openAIAssistantID.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[OpenAI Assistant ID]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Идентификатор помощника OpenAI]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -3859,54 +3949,81 @@
       <Item ItemId=";core.createProjectQuestion.mcpForDa.Auth.EntraSSO" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Entra SSO]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Единый вход Entra]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.createProjectQuestion.mcpForDa.Auth.OAuth" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[OAuth (with static registration)]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[OAuth (со статической регистрацией)]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.createProjectQuestion.mcpForDa.AuthType.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Select Authentication Type]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Выберите тип проверки подлинности]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.createProjectQuestion.mcpForDa.File.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Select the action manifest you want to update]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Выберите манифест действия для обновления]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.createProjectQuestion.mcpForDa.PreFetchTools.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Select Operation(s) Copilot can interact with]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Выберите операции, с которыми может взаимодействовать Copilot]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.createProjectQuestion.mcpForDa.ServerUrl.placeholder" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Enter your MCP server URL(e.g. https://example-mcp.com)]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Введите URL-адрес сервера MCP (например, https://example-mcp.com)]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.createProjectQuestion.mcpForDa.ServerUrl.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[MCP Server URL]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[URL-адрес сервера MCP]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.createProjectQuestion.mcpForDa.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Create actions from your existing MCP server]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Создайте действия из существующего сервера MCP]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.createProjectQuestion.mcpForDa.label" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Start with an MCP server]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Начать с сервера MCP]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -4243,24 +4360,36 @@
       <Item ItemId=";core.createProjectQuestion.projectType.teamsAgentsAndApps.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Create agent, chat bot, web pages or other apps in Microsoft Teams using Microsoft Teams SDK.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Создавайте агенты, чат-боты, веб-страницы и другие приложения в Microsoft Teams с помощью пакета SDK для Microsoft Teams.]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.createProjectQuestion.projectType.teamsAgentsAndApps.label" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Teams Agents and Apps]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Агенты и приложения Teams]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.createProjectQuestion.projectType.teamsAgentsAndApps.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Teams Agent or App Using Microsoft Teams SDK]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Агент Teams или приложение, использующие пакет SDK для Microsoft Teams]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.createProjectQuestion.teamsCapability.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Teams Capability]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Возможность Teams]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -4735,12 +4864,18 @@
       <Item ItemId=";core.newCFShortcut.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Task pane add-in with custom function and shortcut]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Надстройка области задач с настраиваемой функцией и ярлыком]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.newCFShortcut.label" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Custom Function and Shortcut]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Настраиваемая функция и ярлык]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -5065,12 +5200,18 @@
       <Item ItemId=";core.provision.switchAccount" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[You're signed in with a Microsoft 365 account that doesn't match this environment. Please sign out and sign in with the correct one.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Вы вошли с учетной записью Microsoft 365, которая не соответствует этой среде. Выйдите и войдите с правильной учетной записью.]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.provision.switchAccount.continue" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Continue]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Продолжить]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -5410,20 +5551,26 @@
       <Item ItemId=";core.shareOperationQuestion.option.removeShareAccessFromUsers" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Remove access for selected user(s)]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Удалить доступ для выбранных пользователей]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.shareOperationQuestion.option.shareWithUsers" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Share access with selected user(s)]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Предоставить общий доступ выбранным пользователям]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.shareOptionQuestion.placeholder" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Select how to share the agent]]></Val>
-          <Tgt Cat="Text" Stat="Update" Orig="New">
-            <Val><![CDATA[Выберите вариант]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Выберите способ совместного использования агента]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Select an option]]></Val>
@@ -5434,42 +5581,63 @@
       <Item ItemId=";core.shareOptionQuestion.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Share the agent]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Поделиться приложением]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.shareOptionQuestion.unshare.emails.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Email addresses of users or groups for agent access removal]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Адреса электронной почты пользователей или групп для удаления доступа к агенту]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.shareScopeQuestion.emails.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Email addresses of users or groups for agent sharing]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Адреса электронной почты пользователей или групп для предоставления общего доступа к агенту]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.shareScopeQuestion.option.shareWithTenant" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Share the agent with all tenant users]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Предоставить общий доступ к агенту всем пользователям клиента]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.shareScopeQuestion.option.shareWithUsers" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Share the agent with selected user(s)]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Поделиться агентом с выбранными пользователями]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.shareScopeQuestion.placeholder" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Select a sharing scope]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Выберите область общего доступа]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.shareScopeQuestion.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Share the agent with users]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Поделиться агентом с пользователями]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -5524,8 +5692,8 @@
       <Item ItemId=";core.summary.actionSucceeded" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[%s executed successfully.]]></Val>
-          <Tgt Cat="Text" Stat="Update" Orig="New">
-            <Val><![CDATA[Успешное выполнение %s.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[%s выполнено.]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[%s was executed successfully.]]></Val>
@@ -6199,8 +6367,8 @@
       <Item ItemId=";depChecker.failToValidateFuncCoreTool" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Unable to validate Azure Functions Core Tools after installation. %s]]></Val>
-          <Tgt Cat="Text" Stat="Update" Orig="New">
-            <Val><![CDATA[Не удалось проверить Azure Functions Core Tools после установки.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Не удалось проверить Azure Functions Core Tools после установки. %s]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Unable to validate Azure Functions Core Tools after installation.]]></Val>
@@ -6601,6 +6769,9 @@
       <Item ItemId=";driver.aadApp.log.successCreateAadAppandServicePrincipal" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Created Microsoft Entra application with object id %s and generated service principal for the application]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Создано приложение Microsoft Entra с идентификатором объекта %s и сгенерирован субъект-служба для приложения]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -7177,8 +7348,8 @@
       <Item ItemId=";driver.devChannel.description" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Create a sandbox in Teams with a channel for development and testing]]></Val>
-          <Tgt Cat="Text" Stat="Update" Orig="New">
-            <Val><![CDATA[Создайте изолированную команду и канал для разработки и тестирования]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Создайте песочницу в Teams с каналом для разработки и тестирования]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Create a sandboxed Team and channel for development and testing]]></Val>
@@ -7246,7 +7417,7 @@
       <Item ItemId=";driver.devChannel.success" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Team %s with default channel %s created. Channel ID: %s Team ID: %s]]></Val>
-          <Tgt Cat="Text" Stat="Update" Orig="New">
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Команда %s с каналом по умолчанию %s создана. Идентификатор канала: %s, идентификатор команды: %s]]></Val>
           </Tgt>
           <Prev Cat="Text">
@@ -7276,6 +7447,9 @@
       <Item ItemId=";driver.file.createOrUpdateEnvironmentFile.OpenAIAssistantID.validation" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[OpenAI assistant ID cannot be empty.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Идентификатор помощника OpenAI не может быть пустым.]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -7300,6 +7474,9 @@
       <Item ItemId=";driver.file.createOrUpdateEnvironmentFile.OpenAIEmbeddingDeploymentName.validation" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Azure OpenAI embedding deployment name cannot be empty.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Имя развертывания внедрения Azure OpenAI не может быть пустым.]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -7327,6 +7504,9 @@
       <Item ItemId=";driver.file.createOrUpdateEnvironmentFile.genericEnvVar.validation" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Environment variable value required.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Требуется значение переменной среды.]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -8302,8 +8482,8 @@
       <Item ItemId=";driver.typeSpec.compile.reprovision" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[File %s is updated. A new provision process has started to apply the changes.]]></Val>
-          <Tgt Cat="Text" Stat="Update" Orig="New">
-            <Val><![CDATA[Файл %s обновлен. Повторно запустите процесс подготовки, чтобы учесть эти изменения]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Файл %s обновлен. Запущен новый процесс подготовки для применения изменений.]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[File %s is updated. Rerun the provision process to account for these changes]]></Val>
@@ -8362,6 +8542,9 @@
       <Item ItemId=";error.MFARequired" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Mandatory MFA is enforced by Azure policy - 'User must authenticate with multi-factor authentication to create or update resources'. Please enable MFA for your account to continue.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Обязательная многофакторная проверка подлинности применена политикой Azure — "Пользователь должен пройти многофакторную проверку подлинности для создания или обновления ресурсов". Чтобы продолжить, включите многофакторную проверку подлинности для своей учетной записи.]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -9949,6 +10132,9 @@
       <Item ItemId=";error.m365.SharedScopeAdvancedDADisabled" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Deployment blocked: Advanced declarative agent can't be deployed due to tenant permission settings. Get more info: [Manage agents for Microsoft 365 Copilot in the Microsoft 365 admin center - Microsoft 365 admin | Microsoft Learn]5D;(%s)]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Развертывание заблокировано: расширенный декларативный агент нельзя развернуть из-за параметров разрешений клиента. Подробнее: [Управление агентами для Microsoft 365 Copilot в Центре администрирования Microsoft 365 — администратор Microsoft 365 | Microsoft Learn]5D;(%s)]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -10069,8 +10255,8 @@
       <Item ItemId=";error.share.sharedIdNotFound" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Unable to get title id or app id in the .env file. Shared title id: %s, shared app id: %s. You need to deploy the agent before sharing.]]></Val>
-          <Tgt Cat="Text" Stat="Update" Orig="New">
-            <Val><![CDATA[Невозможно получить идентификатор общего заголовка или идентификатор общего приложения в файле .env. Идентификатор общего заголовка: %s, идентификатор общего приложения: %s. Сначала вам нужно поделиться приложением.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Невозможно получить идентификатор заголовка или идентификатор приложения в файле ENV. Идентификатор общего заголовка: %s, идентификатор общего приложения: %s. Необходимо развернуть агент перед совместным использованием.]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Unable to get shared title id or shared app id in the .env file. Shared title id: %s, shared app id: %s. You need to share the app first.]]></Val>
@@ -10081,8 +10267,8 @@
       <Item ItemId=";error.share.yamlConfigNotFound" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Unable to find the "provision" or "deploy" config in the m365agents.yml]]></Val>
-          <Tgt Cat="Text" Stat="Update" Orig="New">
-            <Val><![CDATA[Не удалось найти конфигурацию "share» в m365agents.yml]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Не удалось найти конфигурацию "provision" или "deploy" в m365agents.yml]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Unable to find the "share" config in the m365agents.yml]]></Val>
