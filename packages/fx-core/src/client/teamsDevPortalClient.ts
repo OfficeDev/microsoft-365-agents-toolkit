@@ -15,6 +15,10 @@ import {
 } from "../common/telemetry";
 import { WrappedAxiosClient } from "../common/wrappedAxiosClient";
 import { HttpStatusCode } from "../component/constant/commonConstant";
+import { SignInAudienceNotAllowedError } from "../component/driver/aad/error/signInAudienceNotAllowedError";
+import { AADApplication } from "../component/driver/aad/interface/AADApplication";
+import { SignInAudience } from "../component/driver/aad/interface/signInAudience";
+import { aadErrorCode } from "../component/driver/aad/utility/constants";
 import {
   APP_STUDIO_API_NAMES,
   Constants,
@@ -56,11 +60,7 @@ import {
   DeveloperPortalAPIFailedSystemError,
   DeveloperPortalAPIFailedUserError,
 } from "../error/teamsApp";
-import { SignInAudience } from "../component/driver/aad/interface/signInAudience";
 import { IAADDefinition } from "./interfaces/aad/IAADDefinition";
-import { AADApplication } from "../component/driver/aad/interface/AADApplication";
-import { aadErrorCode } from "../component/driver/aad/utility/constants";
-import { SignInAudienceNotAllowedError } from "../component/driver/aad/error/signInAudienceNotAllowedError";
 
 export class RetryHandler {
   public static RETRIES = 6;
@@ -706,7 +706,7 @@ export class TeamsDevPortalClient {
       const response = await RetryHandler.Retry(() =>
         requester.get(`/api/v1.0/appvalidations/${appValidationId}`)
       );
-      return <AsyncAppValidationResultsResponse>response?.data;
+      return response?.data as AsyncAppValidationResultsResponse;
     } catch (e) {
       throw this.wrapException(e, APP_STUDIO_API_NAMES.GET_APP_VALIDATION_RESULT);
     }

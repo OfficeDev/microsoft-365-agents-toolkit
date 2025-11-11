@@ -53,9 +53,7 @@ function getTemplateMetadataConfig(configName: string): Template[] {
 
 // used by programming language question options filter
 export function getAllTemplatesOnPlatform(platform: Platform): Template[] {
-  if (allTemplates.length == 0) {
-    allTemplates = getTemplateMetadataConfig("allTemplates.json");
-  }
+  allTemplates = getTemplateMetadataConfig("allTemplates.json");
   switch (platform) {
     case Platform.VSCode:
       return allTemplates.filter((t) => t.language !== "csharp");

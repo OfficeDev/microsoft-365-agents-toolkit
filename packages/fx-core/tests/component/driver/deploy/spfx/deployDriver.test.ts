@@ -1,32 +1,32 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import "mocha";
 import { M365TokenProvider, ok, Platform } from "@microsoft/teamsfx-api";
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 import chai from "chai";
 import chaiAsPromised from "chai-as-promised";
 import faker from "faker";
 import fs from "fs-extra";
+import "mocha";
 import sinon from "sinon";
 
-import { Constants } from "../../../../../src/component/driver/deploy/spfx/utility/constants";
-import { MockedLogProvider, MockedUserInteraction } from "../../../../plugins/solution/util";
-import { SPFxDeployDriver } from "../../../../../src/component/driver/deploy/spfx/deployDriver";
-import { SPOClient } from "../../../../../src/component/driver/deploy/spfx/utility/spoClient";
-import * as Tools from "../../../../../src/common/tools";
-import { DeploySPFxArgs } from "../../../../../src/component/driver/deploy/spfx/interface/deployArgs";
-import { InsufficientPermissionError } from "../../../../../src/component/driver/deploy/spfx/error/insufficientPermissionError";
 import path from "path";
-import { GetSPOTokenFailedError } from "../../../../../src/component/driver/deploy/spfx/error/getSPOTokenFailedError";
+import * as Tools from "../../../../../src/common/tools";
+import { SPFxDeployDriver } from "../../../../../src/component/driver/deploy/spfx/deployDriver";
 import { CreateAppCatalogFailedError } from "../../../../../src/component/driver/deploy/spfx/error/createAppCatalogFailedError";
-import { NoValidAppCatelog } from "../../../../../src/component/driver/deploy/spfx/error/noValidAppCatelogError";
-import { NoSPPackageError } from "../../../../../src/component/driver/deploy/spfx/error/noSPPackageError";
-import { UploadAppPackageFailedError } from "../../../../../src/component/driver/deploy/spfx/error/uploadAppPackageFailedError";
 import { GetGraphTokenFailedError } from "../../../../../src/component/driver/deploy/spfx/error/getGraphTokenFailedError";
+import { GetSPOTokenFailedError } from "../../../../../src/component/driver/deploy/spfx/error/getSPOTokenFailedError";
 import { GetTenantFailedError } from "../../../../../src/component/driver/deploy/spfx/error/getTenantFailedError";
+import { InsufficientPermissionError } from "../../../../../src/component/driver/deploy/spfx/error/insufficientPermissionError";
+import { NoSPPackageError } from "../../../../../src/component/driver/deploy/spfx/error/noSPPackageError";
+import { NoValidAppCatelog } from "../../../../../src/component/driver/deploy/spfx/error/noValidAppCatelogError";
+import { UploadAppPackageFailedError } from "../../../../../src/component/driver/deploy/spfx/error/uploadAppPackageFailedError";
+import { DeploySPFxArgs } from "../../../../../src/component/driver/deploy/spfx/interface/deployArgs";
+import { Constants } from "../../../../../src/component/driver/deploy/spfx/utility/constants";
+import { SPOClient } from "../../../../../src/component/driver/deploy/spfx/utility/spoClient";
 import { FileNotFoundError } from "../../../../../src/error/common";
 import { MockedM365Provider } from "../../../../core/utils";
+import { MockedLogProvider, MockedUserInteraction } from "../../../../plugins/solution/util";
 
 chai.use(chaiAsPromised);
 const expect = chai.expect;
@@ -332,7 +332,7 @@ describe("SPFx Deploy Driver", async () => {
 });
 
 export function mockM365TokenProvider(): M365TokenProvider {
-  const provider = <M365TokenProvider>{};
+  const provider = {} as M365TokenProvider;
   const mockTokenObject = {
     tid: faker.datatype.uuid(),
   };

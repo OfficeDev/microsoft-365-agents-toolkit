@@ -1,5 +1,7 @@
 "use strict";
 
+process.env.TS_NODE_PROJECT = "./tsconfig.json";
+
 module.exports = {
   color: true,
   delay: false,
@@ -7,9 +9,10 @@ module.exports = {
   parallel: false,
   recursive: false,
   reporter: "spec",
-  require: "ts-node/register",
+  require: ["ts-node/register"],
   retries: 1,
   slow: "75",
   timeout: 0,
   extensions: ["ts", "tsx"],
+  "node-option": ["no-experimental-strip-types"],
 };
