@@ -90,7 +90,7 @@ The Teams Agents and apps templates which are powered by Teams SDK supports Pyth
  
 In this release, ATK is switching from multi-tenant to single-tenant bot registrations to align with Azure Bot Service (ABS) security requirements. ABS is retiring support for multi-tenant bot registrations. All new bot registrations must now use single-tenant configuration. This change enhances security and compliance across Microsoft 365 services.
 
-Multi-tenant registration will be fully blocked. Existing multi-tenant bots will continue to function correctly but eventually migrate to single-tenant registration follow the [migration guide] ( https://learn.microsoft.com/en-us/azure/bot-service/skill-pva-convert-skill-single-tenant?view=azure-bot-service-4.0) to switch your Azure Bot Service registration to single-tenant.
+Multi-tenant registration will be fully blocked. Existing multi-tenant bots will continue to function correctly but should eventually migrate to single-tenant registration. Follow the [migration guide](https://learn.microsoft.com/en-us/azure/bot-service/skill-pva-convert-skill-single-tenant?view=azure-bot-service-4.0) to switch your Azure Bot Service registration to single-tenant.
 
 - **Important update: enforcing MFA**
 
