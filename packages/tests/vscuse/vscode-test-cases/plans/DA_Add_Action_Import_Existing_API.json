@@ -12,7 +12,7 @@
     "total_steps": 36,
     "created_at": "2025-11-07T05:54:44.083850",
     "name": "DA Add Action Import Existing API",
-    "description": "",
+    "description": "caseId: 29293050\nhttps://msazure.visualstudio.com/Microsoft%20Teams%20Extensibility/_workitems/edit/29293050",
     "generated_at": "2025-11-07T05:54:44.083846",
     "execution_order": [
       "plan_r_0928_012254",
@@ -58,7 +58,7 @@
       "plan_r_1023_054001"
     ],
     "tags": [],
-    "updated_at": "2025-11-07T12:29:46.197615"
+    "updated_at": "2025-11-11T04:25:38.882242"
   },
   "steps": [
     {
@@ -84,7 +84,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_9deedf4f",
-      "created_at": "2025-11-07T12:14:35.151074",
+      "created_at": "2025-11-11T04:25:08.833800",
       "plan_id": "plan_4194b6b9"
     },
     {
@@ -110,7 +110,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_2094acbd",
-      "created_at": "2025-11-07T12:14:35.167446",
+      "created_at": "2025-11-11T04:25:08.850131",
       "plan_id": "plan_4194b6b9"
     },
     {
@@ -136,7 +136,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_332d53e0",
-      "created_at": "2025-11-07T12:14:35.184318",
+      "created_at": "2025-11-11T04:25:08.866032",
       "plan_id": "plan_4194b6b9"
     },
     {
@@ -162,7 +162,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_51a5e816",
-      "created_at": "2025-11-07T12:14:35.199234",
+      "created_at": "2025-11-11T04:25:08.884096",
       "plan_id": "plan_4194b6b9"
     },
     {
@@ -188,7 +188,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_55db7dd4",
-      "created_at": "2025-11-07T12:14:35.213289",
+      "created_at": "2025-11-11T04:25:08.898722",
       "plan_id": "plan_4194b6b9"
     },
     {
@@ -214,7 +214,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_75e63ddd",
-      "created_at": "2025-11-07T12:14:35.229805",
+      "created_at": "2025-11-11T04:25:08.913697",
       "plan_id": "plan_4194b6b9"
     },
     {
@@ -240,7 +240,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_ac3fa557",
-      "created_at": "2025-11-07T12:14:35.246069",
+      "created_at": "2025-11-11T04:25:08.927546",
       "plan_id": "plan_4194b6b9"
     },
     {
@@ -266,7 +266,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_66e1866a",
-      "created_at": "2025-11-07T12:14:35.261371",
+      "created_at": "2025-11-11T04:25:08.940893",
       "plan_id": "plan_4194b6b9"
     },
     {
@@ -292,7 +292,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_ac106ea7",
-      "created_at": "2025-11-07T12:14:35.277289",
+      "created_at": "2025-11-11T04:25:08.952139",
       "plan_id": "plan_4194b6b9"
     },
     {
@@ -318,7 +318,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_b04d09de",
-      "created_at": "2025-11-07T12:14:35.295717",
+      "created_at": "2025-11-11T04:25:08.963476",
       "plan_id": "plan_4194b6b9"
     },
     {
@@ -344,7 +344,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_4f1704a3",
-      "created_at": "2025-11-07T12:14:35.312767",
+      "created_at": "2025-11-11T04:25:08.974671",
       "plan_id": "plan_4194b6b9"
     },
     {
@@ -370,7 +370,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_dcfefdf7",
-      "created_at": "2025-11-07T12:14:35.331736",
+      "created_at": "2025-11-11T04:25:08.985074",
       "plan_id": "plan_4194b6b9"
     },
     {
@@ -392,7 +392,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_a1c7212d",
-      "created_at": "2025-11-07T12:14:35.347069",
+      "created_at": "2025-11-11T04:25:08.995627",
       "plan_id": "plan_4194b6b9"
     },
     {
@@ -414,7 +414,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_b297806c",
-      "created_at": "2025-11-07T12:14:35.363703",
+      "created_at": "2025-11-11T04:25:09.006806",
       "plan_id": "plan_4194b6b9"
     },
     {
@@ -436,7 +436,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_baaf7b28",
-      "created_at": "2025-11-07T12:14:35.378564",
+      "created_at": "2025-11-11T04:25:09.017830",
       "plan_id": "plan_4194b6b9"
     },
     {
@@ -458,7 +458,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_0f140413",
-      "created_at": "2025-11-07T12:14:35.390626",
+      "created_at": "2025-11-11T04:25:09.028522",
       "plan_id": "plan_4194b6b9"
     },
     {
@@ -480,7 +480,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_439b0590",
-      "created_at": "2025-11-07T12:14:35.404307",
+      "created_at": "2025-11-11T04:25:09.039502",
       "plan_id": "plan_4194b6b9"
     },
     {
@@ -506,7 +506,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_538d4659",
-      "created_at": "2025-11-07T12:14:35.422219",
+      "created_at": "2025-11-11T04:25:09.050440",
       "plan_id": "plan_4194b6b9"
     },
     {
@@ -532,7 +532,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_b8da23cf",
-      "created_at": "2025-11-07T12:14:35.438067",
+      "created_at": "2025-11-11T04:25:09.061539",
       "plan_id": "plan_4194b6b9"
     },
     {
@@ -558,7 +558,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_ac91d9ce",
-      "created_at": "2025-11-07T12:14:35.453573",
+      "created_at": "2025-11-11T04:25:09.071510",
       "plan_id": "plan_4194b6b9"
     },
     {
@@ -584,7 +584,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_af54ff7d",
-      "created_at": "2025-11-07T12:14:35.468296",
+      "created_at": "2025-11-11T04:25:09.081719",
       "plan_id": "plan_4194b6b9"
     },
     {
@@ -610,7 +610,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_1b3b4948",
-      "created_at": "2025-11-07T12:14:35.483819",
+      "created_at": "2025-11-11T04:25:09.092982",
       "plan_id": "plan_4194b6b9"
     },
     {
@@ -636,7 +636,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_859da6bd",
-      "created_at": "2025-11-07T12:14:35.496743",
+      "created_at": "2025-11-11T04:25:09.103659",
       "plan_id": "plan_4194b6b9"
     },
     {
@@ -662,7 +662,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_214ae59d",
-      "created_at": "2025-11-07T12:14:35.511486",
+      "created_at": "2025-11-11T04:25:09.115440",
       "plan_id": "plan_4194b6b9"
     },
     {
@@ -688,7 +688,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_dc2d9f33",
-      "created_at": "2025-11-07T12:14:35.525150",
+      "created_at": "2025-11-11T04:25:09.126168",
       "plan_id": "plan_4194b6b9"
     },
     {
@@ -714,7 +714,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_75160c95",
-      "created_at": "2025-11-07T12:14:35.537788",
+      "created_at": "2025-11-11T04:25:09.138642",
       "plan_id": "plan_4194b6b9"
     },
     {
@@ -742,7 +742,7 @@
         "precondition_wait_timeout: 60"
       ],
       "screenshot": "step_4ca41030",
-      "created_at": "2025-11-07T12:14:35.549815",
+      "created_at": "2025-11-11T04:25:09.150357",
       "plan_id": "plan_4194b6b9"
     },
     {
@@ -768,7 +768,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_2805a9de",
-      "created_at": "2025-11-07T12:14:35.561439",
+      "created_at": "2025-11-11T04:25:09.163889",
       "plan_id": "plan_4194b6b9"
     },
     {
@@ -794,7 +794,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_fd1c594e",
-      "created_at": "2025-11-07T12:14:35.572421",
+      "created_at": "2025-11-11T04:25:09.174231",
       "plan_id": "plan_4194b6b9"
     },
     {
@@ -820,7 +820,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_fd6daa06",
-      "created_at": "2025-11-07T12:14:35.583410",
+      "created_at": "2025-11-11T04:25:09.184430",
       "plan_id": "plan_4194b6b9"
     },
     {
@@ -842,7 +842,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_43e34799",
-      "created_at": "2025-11-07T12:14:35.593134",
+      "created_at": "2025-11-11T04:25:09.195628",
       "plan_id": "plan_4194b6b9"
     },
     {
@@ -864,7 +864,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_d8403d3b",
-      "created_at": "2025-11-07T12:14:35.604964",
+      "created_at": "2025-11-11T04:25:09.206760",
       "plan_id": "plan_4194b6b9"
     },
     {
@@ -890,7 +890,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_02b31bcc",
-      "created_at": "2025-11-07T12:14:35.617366",
+      "created_at": "2025-11-11T04:25:09.217751",
       "plan_id": "plan_4194b6b9"
     },
     {
@@ -916,7 +916,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_3863b803",
-      "created_at": "2025-11-07T12:14:35.628192",
+      "created_at": "2025-11-11T04:25:09.231140",
       "plan_id": "plan_4194b6b9"
     },
     {
@@ -942,7 +942,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_70feeb9d",
-      "created_at": "2025-11-07T12:14:35.640046",
+      "created_at": "2025-11-11T04:25:09.244084",
       "plan_id": "plan_4194b6b9"
     },
     {
@@ -962,7 +962,7 @@
         "step_retry_timeout: 60"
       ],
       "screenshot": null,
-      "created_at": "2025-11-07T12:14:35.652917",
+      "created_at": "2025-11-11T04:25:09.255965",
       "plan_id": "plan_4194b6b9"
     }
   ],

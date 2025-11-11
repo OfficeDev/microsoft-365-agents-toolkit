@@ -30,7 +30,7 @@
     "tags": [
       "group"
     ],
-    "updated_at": "2025-11-10T04:35:23.705362"
+    "updated_at": "2025-11-11T06:00:11.429315"
   },
   "steps": [
     {
@@ -59,7 +59,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_0c9af223",
-      "created_at": "2025-11-10T03:08:23.092199",
+      "created_at": "2025-11-11T05:59:01.043066",
       "plan_id": "plan_r_0928_073729"
     },
     {
@@ -88,7 +88,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_37ee24a6",
-      "created_at": "2025-11-10T03:08:23.110578",
+      "created_at": "2025-11-11T05:59:01.061404",
       "plan_id": "plan_r_0928_073729"
     },
     {
@@ -117,7 +117,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_338413ba",
-      "created_at": "2025-11-10T03:08:23.128976",
+      "created_at": "2025-11-11T05:59:01.074894",
       "plan_id": "plan_r_0928_073729"
     },
     {
@@ -150,7 +150,7 @@
         "precondition_wait_timeout: 30"
       ],
       "screenshot": "step_d23bc917",
-      "created_at": "2025-11-10T03:08:23.142013",
+      "created_at": "2025-11-11T05:59:01.092220",
       "plan_id": "plan_r_0928_073729"
     },
     {
@@ -163,11 +163,11 @@
         "dy": null,
         "key": null,
         "keys": null,
-        "text": "${{var:app_name}}-###-rg",
+        "text": "${{var:app_name}}-${{var:random:###}}-rg",
         "x": null,
         "y": null
       },
-      "description": "Type #text:${{var:app_name}}-###-rg into the \"New resource group name\" input field in the Visual Studio Code \"Provision\" workflow dialog.",
+      "description": "Type #text:${{var:app_name}}-${{var:random:###}}-rg into the \"New resource group name\" input field in the Visual Studio Code \"Provision\" workflow dialog.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -179,7 +179,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_e580b57b",
-      "created_at": "2025-11-10T03:08:23.154925",
+      "created_at": "2025-11-11T05:59:01.106777",
       "plan_id": "plan_r_0928_073729"
     },
     {
@@ -208,7 +208,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_da6eceff",
-      "created_at": "2025-11-10T03:08:23.168541",
+      "created_at": "2025-11-11T05:59:01.119332",
       "plan_id": "plan_r_0928_073729"
     },
     {
@@ -241,7 +241,7 @@
         "delay: 5"
       ],
       "screenshot": "step_5345ca22",
-      "created_at": "2025-11-10T03:08:23.182826",
+      "created_at": "2025-11-11T05:59:01.138424",
       "plan_id": "plan_r_0928_073729"
     },
     {
@@ -272,7 +272,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_9fdc28fd",
-      "created_at": "2025-11-10T03:08:23.196919",
+      "created_at": "2025-11-11T05:59:01.151279",
       "plan_id": "plan_r_0928_073729"
     },
     {
@@ -301,7 +301,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_0e4c9160",
-      "created_at": "2025-11-10T03:08:23.211486",
+      "created_at": "2025-11-11T05:59:01.171553",
       "plan_id": "plan_r_0928_073729"
     },
     {
@@ -330,7 +330,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_3d32b4eb",
-      "created_at": "2025-11-10T03:08:23.222716",
+      "created_at": "2025-11-11T05:59:01.188264",
       "plan_id": "plan_r_0928_073729"
     },
     {
@@ -359,7 +359,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_9820e8a7",
-      "created_at": "2025-11-10T03:08:23.236294",
+      "created_at": "2025-11-11T05:59:01.210778",
       "plan_id": "plan_r_0928_073729"
     },
     {
@@ -388,7 +388,7 @@
         "step_retry_timeout: 180"
       ],
       "screenshot": null,
-      "created_at": "2025-11-10T03:08:23.260976",
+      "created_at": "2025-11-11T05:59:01.231356",
       "plan_id": "plan_r_0928_073729"
     }
   ],
