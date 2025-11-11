@@ -1242,6 +1242,8 @@ describe("helper", async () => {
           version: "1.0.0",
           identifier: "test.server.1",
           packageFamily: "packagefamily",
+          command: "odr.exe",
+          args: ["mcp", "--proxy", "test.server.1"],
           tools: [
             { name: "tool1", description: "Tool 1", inputSchema: {} },
             { name: "tool2", description: "Tool 2", inputSchema: {} },
@@ -1254,6 +1256,8 @@ describe("helper", async () => {
           version: "2.0.0",
           identifier: "test.server.2",
           packageFamily: "packagefamily",
+          command: "odr.exe",
+          args: ["mcp", "--proxy", "test.server.2"],
           tools: [{ name: "tool3", description: "Tool 3", inputSchema: {} }],
         },
       ];
@@ -1275,13 +1279,19 @@ describe("helper", async () => {
       assert.equal(options[0].id, "test-server-1");
       assert.equal(options[0].label, "Test Server 1");
       assert.equal(options[0].detail, "First test server (2 tools available)");
-      assert.equal(options[0].data, "test.server.1");
+      const data1 = JSON.parse(options[0].data as string);
+      assert.equal(data1.identifier, "test.server.1");
+      assert.equal(data1.command, "odr.exe");
+      assert.deepEqual(data1.args, ["mcp", "--proxy", "test.server.1"]);
 
       // Test second option
       assert.equal(options[1].id, "test-server-2");
       assert.equal(options[1].label, "Test Server 2");
       assert.equal(options[1].detail, "Second test server (1 tools available)");
-      assert.equal(options[1].data, "test.server.2");
+      const data2 = JSON.parse(options[1].data as string);
+      assert.equal(data2.identifier, "test.server.2");
+      assert.equal(data2.command, "odr.exe");
+      assert.deepEqual(data2.args, ["mcp", "--proxy", "test.server.2"]);
     });
 
     it("MCPLocalServerSelectionNode onDidSelection should set correct inputs", async () => {
@@ -1289,13 +1299,17 @@ describe("helper", async () => {
       const inputs: Inputs = {
         platform: Platform.CLI,
       };
-      const nodeData = node.data as SingleSelectQuestion;
+      const nodeData = (await node.data) as SingleSelectQuestion;
 
-      const selectedItem = {
+      const selectedItem: OptionItem = {
         id: "selected-server",
         label: "Selected Server",
         detail: "Test server detail",
-        data: "selected.server.identifier",
+        data: JSON.stringify({
+          identifier: "selected.server.identifier",
+          command: "odr.exe",
+          args: ["mcp", "--proxy", "selected.server.identifier"],
+        }),
       };
 
       // Test onDidSelection
@@ -1303,6 +1317,11 @@ describe("helper", async () => {
 
       assert.equal(inputs[QuestionNames.MCPLocalServerName], "selected-server");
       assert.equal(inputs[QuestionNames.MCPLocalServerIdentifier], "selected.server.identifier");
+      assert.equal(inputs[QuestionNames.MCPLocalServerCommand], "odr.exe");
+      assert.equal(
+        inputs[QuestionNames.MCPLocalServerArgs],
+        '"mcp", "--proxy", "selected.server.identifier"'
+      );
     });
 
     it("MCPLocalServerSelectionNode onDidSelection should handle errors gracefully", async () => {
@@ -1329,6 +1348,28 @@ describe("helper", async () => {
       const execStub = sandbox
         .stub(require("child_process"), "exec")
         .callsArgWith(1, null, JSON.stringify({ servers: [] }), "");
+
+      const servers = await ODRProvider.listServers();
+
+      assert.isArray(servers);
+      assert.equal(servers.length, 0);
+      assert.isTrue(execStub.calledOnce);
+    });
+
+    it("ODRProvider listServers should return empty array on non-Windows platform", async () => {
+      sandbox.stub(process, "platform").value("darwin"); // macOS
+      const execStub = sandbox.stub(require("child_process"), "exec");
+
+      const servers = await ODRProvider.listServers();
+
+      assert.isArray(servers);
+      assert.equal(servers.length, 0);
+      assert.isFalse(execStub.called); // Should not even attempt to call exec
+    });
+
+    it("ODRProvider listServers should return empty array when stdout is empty", async () => {
+      sandbox.stub(process, "platform").value("win32");
+      const execStub = sandbox.stub(require("child_process"), "exec").callsArgWith(1, null, "", "");
 
       const servers = await ODRProvider.listServers();
 
@@ -1394,6 +1435,12 @@ describe("helper", async () => {
                 "com.microsoft.windows": {
                   manifest: {
                     display_name: "Test MCP Server",
+                    server: {
+                      mcp_config: {
+                        command: "odr.exe",
+                        args: ["mcp", "--proxy", "com.test.server"],
+                      },
+                    },
                     _meta: {
                       "com.microsoft.windows": {
                         package_family_name: "TestPackageFamily",
@@ -1429,6 +1476,8 @@ describe("helper", async () => {
       assert.equal(server.description, "Test server description");
       assert.equal(server.version, "1.0.0");
       assert.equal(server.identifier, "com.test.server");
+      assert.equal(server.command, "odr.exe");
+      assert.deepEqual(server.args, ["mcp", "--proxy", "com.test.server"]);
       assert.equal(server.tools.length, 1);
       assert.equal(server.tools[0].name, "test-tool");
     });
@@ -1442,6 +1491,12 @@ describe("helper", async () => {
               "io.modelcontextprotocol.registry/publisher-provided": {
                 "com.microsoft.windows": {
                   manifest: {
+                    server: {
+                      mcp_config: {
+                        command: "odr.exe",
+                        args: ["mcp", "--proxy", "valid.server"],
+                      },
+                    },
                     _meta: {
                       "com.microsoft.windows": {
                         package_family_name: "ValidPackage",
@@ -1458,6 +1513,12 @@ describe("helper", async () => {
               "io.modelcontextprotocol.registry/publisher-provided": {
                 "com.microsoft.windows": {
                   manifest: {
+                    server: {
+                      mcp_config: {
+                        command: "odr.exe",
+                        args: ["mcp", "--proxy", "invalid.server"],
+                      },
+                    },
                     _meta: {
                       "com.microsoft.windows": {
                         // Missing package_family_name
@@ -1476,6 +1537,70 @@ describe("helper", async () => {
       assert.isArray(servers);
       assert.equal(servers.length, 1);
       assert.equal(servers[0].name, "valid-server");
+    });
+
+    it("ODRProvider parseODRListOutput should return empty array when servers is not an array", async () => {
+      const mockInput = {
+        servers: "not-an-array",
+      };
+
+      const servers = ODRProvider.parseODRListOutput(mockInput);
+
+      assert.isArray(servers);
+      assert.equal(servers.length, 0);
+    });
+
+    it("ODRProvider parseODRListOutput should return empty array when servers property is missing", async () => {
+      const mockInput = {
+        notServers: [],
+      };
+
+      const servers = ODRProvider.parseODRListOutput(mockInput);
+
+      assert.isArray(servers);
+      assert.equal(servers.length, 0);
+    });
+
+    it("ODRProvider parseODRListOutput should handle servers with empty tools list", async () => {
+      const mockInput = {
+        servers: [
+          {
+            name: "server-no-tools",
+            packages: [{ identifier: "com.test.server" }],
+            _meta: {
+              "io.modelcontextprotocol.registry/publisher-provided": {
+                "com.microsoft.windows": {
+                  manifest: {
+                    display_name: "Test Server",
+                    server: {
+                      mcp_config: {
+                        command: "test-command",
+                        args: ["test-arg"],
+                      },
+                    },
+                    _meta: {
+                      "com.microsoft.windows": {
+                        package_family_name: "TestPackage",
+                        static_responses: {
+                          "tools/list": {
+                            tools: [],
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        ],
+      };
+
+      const servers = ODRProvider.parseODRListOutput(mockInput);
+
+      assert.isArray(servers);
+      assert.equal(servers.length, 1);
+      assert.equal(servers[0].tools.length, 0);
     });
 
     it("declarative agent generator should handle local MCP server inputs", async () => {

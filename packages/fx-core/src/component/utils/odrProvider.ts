@@ -12,6 +12,8 @@ export interface ODRServer {
   identifier: string;
   tools: ODRTool[];
   packageFamily: string;
+  command: string;
+  args: string[];
 }
 
 export interface ODRTool {
@@ -42,8 +44,9 @@ export class ODRProvider {
       const staticResponses = manifest?._meta?.["com.microsoft.windows"]?.static_responses;
       const toolsList = staticResponses?.["tools/list"]?.tools || [];
       const packageFamily = manifest?._meta?.["com.microsoft.windows"]?.package_family_name;
+      const mcpConfig = manifest?.server?.mcp_config;
 
-      if (packageFamily) {
+      if (packageFamily && mcpConfig) {
         servers.push({
           name: server.name,
           packageFamily: packageFamily,
@@ -51,6 +54,8 @@ export class ODRProvider {
           description: server.description || "",
           version: server.version || "1.0.0",
           identifier: server.packages?.[0]?.identifier || "",
+          command: mcpConfig.command || "",
+          args: mcpConfig.args || [],
           tools: toolsList.map((tool: any) => ({
             name: tool.name,
             description: tool.description || "",

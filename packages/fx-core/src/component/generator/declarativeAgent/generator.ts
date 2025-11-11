@@ -104,6 +104,8 @@ export class DeclarativeAgentGenerator extends DefaultTemplateGenerator {
         ? {
             MCPLocalServerName: inputs[QuestionNames.MCPLocalServerName],
             MCPLocalServerIdentifier: inputs[QuestionNames.MCPLocalServerIdentifier],
+            MCPCommand: inputs[QuestionNames.MCPLocalServerCommand],
+            MCPArgs: inputs[QuestionNames.MCPLocalServerArgs],
             ServerName: inputs[QuestionNames.MCPLocalServerName],
           }
         : MCPForDAServerUrl

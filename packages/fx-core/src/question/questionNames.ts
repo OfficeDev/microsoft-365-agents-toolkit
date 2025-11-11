@@ -147,6 +147,8 @@ export enum QuestionNames {
   MCPLocalServer = "mcp-local-server",
   MCPLocalServerName = "mcp-local-server-name",
   MCPLocalServerIdentifier = "mcp-local-server-identifier",
+  MCPLocalServerCommand = "mcp-local-server-command",
+  MCPLocalServerArgs = "mcp-local-server-args",
   MCPForDAServerUrl = "mcp-da-server-url",
   MCPForDAServerName = "mcp-da-server-name",
   MCPForDATool = "mcp-da-tool",

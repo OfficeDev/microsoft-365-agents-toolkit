@@ -454,20 +454,90 @@ describe("updateActionWithMCP", () => {
     });
 
     it("should handle tools with missing name parts", async () => {
-      const args = [{ serverName: "testServer", serverConfig: { url: "http://test.com" } }];
+      const args = [
+        {
+          serverName: "testServer",
+          serverConfig: { type: "http", url: "http://test.com" },
+        },
+      ];
       const mockTools = [
+        { name: "mcp_testServer_tool1", description: "Test", inputSchema: {}, tags: [] },
+      ];
+
+      sandbox.stub(vscode.lm, "tools").value(mockTools);
+      sandbox.stub(axios, "get").resolves({ status: 200 });
+      const runCommandStub = sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+
+      const result = await updateActionWithMCP(args);
+
+      chai.assert.isTrue(result.isOk());
+      const calledInputs = runCommandStub.getCall(0).args[1] as Inputs;
+      chai.assert.isUndefined(calledInputs[QuestionNames.MCPLocalServerIdentifier]);
+    });
+
+    it("should handle local MCP with stdio type", async () => {
+      const args = [
         {
-          name: "mcp_testServer", // Missing tool name part
-          description: "Test",
-          inputSchema: {},
-          tags: [],
+          serverName: "localServer",
+          serverConfig: { type: "stdio", args: ["node", "server.js", "local-identifier"] },
         },
+      ];
+      const mockTools = [
+        { name: "mcp_localServer_tool1", description: "Test", inputSchema: {}, tags: [] },
+      ];
+
+      sandbox.stub(vscode.lm, "tools").value(mockTools);
+      const runCommandStub = sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+
+      const result = await updateActionWithMCP(args);
+
+      chai.assert.isTrue(result.isOk());
+      const calledInputs = runCommandStub.getCall(0).args[1] as Inputs;
+      chai.assert.equal(calledInputs[QuestionNames.MCPLocalServerIdentifier], "local-identifier");
+    });
+
+    it("should error when local MCP missing identifier", async () => {
+      const args = [
         {
-          name: "mcp_testServer_validTool",
-          description: "Valid tool",
-          inputSchema: {},
-          tags: [],
+          serverName: "localServer",
+          serverConfig: { type: "stdio" },
         },
+      ];
+      const mockTools = [
+        { name: "mcp_localServer_tool1", description: "Test", inputSchema: {}, tags: [] },
+      ];
+
+      sandbox.stub(vscode.lm, "tools").value(mockTools);
+
+      const result = await updateActionWithMCP(args);
+
+      chai.assert.isTrue(result.isErr());
+    });
+
+    it("should set mcp-type to local for stdio servers", async () => {
+      const args = [
+        {
+          serverName: "localServer",
+          serverConfig: { type: "stdio", args: ["node", "server.js", "local-id"] },
+        },
+      ];
+      const mockTools = [
+        { name: "mcp_localServer_tool1", description: "Test", inputSchema: {}, tags: [] },
+      ];
+
+      sandbox.stub(vscode.lm, "tools").value(mockTools);
+      const runCommandStub = sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+
+      await updateActionWithMCP(args);
+
+      const telemetryCall = (ExtTelemetry.sendTelemetryEvent as sinon.SinonStub).lastCall;
+      chai.assert.equal(telemetryCall.args[1]["mcp-type"], "local");
+    });
+
+    it("should set mcp-type to remote for non-stdio servers", async () => {
+      const args = [{ serverName: "remoteServer", serverConfig: { url: "http://remote.com" } }];
+      const mockTools = [
+        { name: "mcp_remoteServer_tool1", description: "Test", inputSchema: {}, tags: [] },
       ];
 
       sandbox.stub(vscode.lm, "tools").value(mockTools);
@@ -476,12 +546,82 @@ describe("updateActionWithMCP", () => {
 
       await updateActionWithMCP(args);
 
-      const calledInputs = runCommandStub.getCall(0).args[1] as Inputs;
-      const tools = calledInputs[QuestionNames.MCPForDAAvailableTools];
+      const telemetryCall = (ExtTelemetry.sendTelemetryEvent as sinon.SinonStub).lastCall;
+      chai.assert.equal(telemetryCall.args[1]["mcp-type"], "remote");
+    });
 
-      // Should handle the malformed tool name gracefully
-      chai.assert.equal(tools.length, 2);
-      chai.assert.equal(tools[1].name, "validTool");
+    it("should handle 401 error with no response headers", async () => {
+      const args = [{ serverName: "testServer", serverConfig: { url: "http://test.com" } }];
+      const mockTools = [
+        { name: "mcp_testServer_tool1", description: "Test", inputSchema: {}, tags: [] },
+      ];
+      const axiosError = {
+        status: 401,
+        response: {},
+      };
+
+      sandbox.stub(vscode.lm, "tools").value(mockTools);
+      const axiosStub = sandbox.stub(axios, "get");
+      axiosStub.withArgs("http://test.com").throws(axiosError);
+      axiosStub
+        .withArgs("http://test.com/.well-known/oauth-authorization-server")
+        .resolves({ status: 200 });
+      const runCommandStub = sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+
+      await updateActionWithMCP(args);
+
+      const calledInputs = runCommandStub.getCall(0).args[1] as Inputs;
+      chai.assert.equal(calledInputs[QuestionNames.MCPForDAAuth], "OAuthPluginVault");
+    });
+
+    it("should parse www-authenticate header with match", async () => {
+      const args = [{ serverName: "testServer", serverConfig: { url: "http://test.com" } }];
+      const mockTools = [
+        { name: "mcp_testServer_tool1", description: "Test", inputSchema: {}, tags: [] },
+      ];
+      const axiosError = {
+        status: 401,
+        response: {
+          headers: {
+            "www-authenticate": 'Bearer resource_metadata="http://auth.test.com/metadata"',
+          },
+        },
+      };
+
+      sandbox.stub(vscode.lm, "tools").value(mockTools);
+      sandbox.stub(axios, "get").onFirstCall().throws(axiosError);
+      const runCommandStub = sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+
+      await updateActionWithMCP(args);
+
+      const calledInputs = runCommandStub.getCall(0).args[1] as Inputs;
+      chai.assert.equal(
+        calledInputs[QuestionNames.MCPForDAAuthMetadataUrl],
+        "http://auth.test.com/metadata"
+      );
+    });
+
+    it("should skip auth check for local MCP servers", async () => {
+      const args = [
+        {
+          serverName: "localServer",
+          serverConfig: { type: "stdio", args: ["node", "server.js", "local-id"] },
+        },
+      ];
+      const mockTools = [
+        { name: "mcp_localServer_tool1", description: "Test", inputSchema: {}, tags: [] },
+      ];
+
+      sandbox.stub(vscode.lm, "tools").value(mockTools);
+      const axiosStub = sandbox.stub(axios, "get");
+      const runCommandStub = sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+
+      await updateActionWithMCP(args);
+
+      // Axios should not be called for local MCP
+      chai.assert.isFalse(axiosStub.called);
+      const calledInputs = runCommandStub.getCall(0).args[1] as Inputs;
+      chai.assert.equal(calledInputs[QuestionNames.MCPForDAAuth], "NoneAuth");
     });
   });
 });

@@ -549,14 +549,24 @@ export function MCPLocalServerSelectionNode(): IQTreeNode {
           id: server.name,
           label: server.display_name,
           detail: `${server.description} (${server.tools.length} tools available)`,
-          data: server.identifier,
+          data: JSON.stringify({
+            identifier: server.identifier,
+            command: server.command,
+            args: server.args,
+          }),
         }));
       },
       onDidSelection: (item: string | OptionItem, inputs: Inputs) => {
         try {
           const serverInfo = item as OptionItem;
+          const serverData = JSON.parse(serverInfo.data as string);
           inputs[QuestionNames.MCPLocalServerName] = serverInfo.id;
-          inputs[QuestionNames.MCPLocalServerIdentifier] = serverInfo.data;
+          inputs[QuestionNames.MCPLocalServerIdentifier] = serverData.identifier;
+          inputs[QuestionNames.MCPLocalServerCommand] = serverData.command;
+          // Store args in the format needed by the template: "arg1", "arg2", "arg3"
+          inputs[QuestionNames.MCPLocalServerArgs] = serverData.args
+            .map((arg: string) => `"${arg}"`)
+            .join(", ");
         } catch {}
       },
     },
