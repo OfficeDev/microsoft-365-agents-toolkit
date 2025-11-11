@@ -1,6 +1,6 @@
 # Collaborator Agent for Microsoft Teams
 
-This intelligent collaboration assistant is built with the [Microsoft Teams SDK](https://aka.ms/teamsai-v2), and showcases how to create a sophisticated bot that can analyze conversations, manage tasks, and search through chat history using advanced AI capabilities and natural language processing.
+This intelligent collaboration assistant is built with the [Microsoft Teams SDK](https://aka.ms/teams-ai-library-v2), and showcases how to create a sophisticated bot that can analyze conversations, manage tasks, and search through chat history using advanced AI capabilities and natural language processing.
 
 This agent can listen to all messages in a group chat (even without being @mentioned) using RSC (Resource Specific Control) permissions defined in [App Manifest](appPackage/manifest.json). For more details, see the documentation [RSC Documentation](https://staticsint.teams.cdn.office.net/evergreen-assets/safelinks/2/atp-safelinks.html).
 
