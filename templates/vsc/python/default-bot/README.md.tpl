@@ -9,7 +9,7 @@ This template showcases a simple bot designed to respond to user messages within
 >
 > To run the template in your local dev machine, you will need:
 >
-> - [Python](https://www.python.org/) v3.12 or higher.
+> - [Python](https://www.python.org/) >=3.12,<3.14.
 > - [Python extension](https://code.visualstudio.com/docs/languages/python), version v2024.0.1 or higher.
 > - [Microsoft 365 Agents Toolkit Visual Studio Code Extension](https://aka.ms/teams-toolkit) latest version or [Microsoft 365 Agents Toolkit CLI](https://aka.ms/teams-toolkit-cli).
 > - A [Microsoft 365 account for development](https://docs.microsoft.com/microsoftteams/platform/toolkit/accounts).
