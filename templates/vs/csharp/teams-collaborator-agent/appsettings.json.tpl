@@ -28,7 +28,8 @@
     "OpenAIDeploymentName": "" 
   },
 {{/useAzureOpenAI}}
-  "Storage": {
-    "Type": ""
+  "Database": {
+    "Type": "",
+    "Password": ""
   }
 }

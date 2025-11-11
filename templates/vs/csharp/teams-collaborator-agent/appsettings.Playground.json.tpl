@@ -28,7 +28,7 @@
     "OpenAIDeploymentName": "${{AZURE_OPENAI_DEPLOYMENT_NAME}}" 
   },
 {{/useAzureOpenAI}}
-  "Storage": {
+  "Database": {
     "Type": "sqlite",
     "SqlitePath": "conversations.db"
   }

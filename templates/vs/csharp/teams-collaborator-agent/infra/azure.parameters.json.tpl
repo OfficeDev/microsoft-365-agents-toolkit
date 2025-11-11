@@ -26,6 +26,9 @@
       },
       "botDisplayName": {
         "value": "{{appName}}"
+      },
+      "sqlAdminPassword": {
+        "value": "${{PASSWORD}}"
       }
     }
   }
