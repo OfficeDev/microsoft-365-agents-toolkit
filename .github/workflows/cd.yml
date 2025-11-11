@@ -81,6 +81,19 @@ jobs:
           token: ${{ steps.generate-token.outputs.token }}
           ref: ${{ github.ref }}
 
+      - name: Set up Python for README image analysis
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Install Python dependencies for image analysis
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install requests
+
+      - name: Check README images in VSC templates
+        run: |
+          python .github/scripts/analyze_readme_images.py --scan-directory templates/vsc --file-patterns "**/README.md" "**/README.md.tpl"
       - uses: actions/setup-node@v3
         with:
           node-version: 22
