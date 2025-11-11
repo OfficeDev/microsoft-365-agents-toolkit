@@ -642,4 +642,320 @@ describe("teamsApp/publishAppPackage", async () => {
       chai.assert.isTrue(result.result.isOk());
     });
   });
+
+  // eslint-disable-next-line no-secrets/no-secrets
+  describe("verifyPackageFamilyCertIsValid", () => {
+    const teamsAppDriver = new PublishAppPackageDriver();
+    let execStub: sinon.SinonStub;
+
+    beforeEach(() => {
+      const childProcess = require("child_process");
+      execStub = sinon.stub(childProcess, "exec");
+    });
+
+    afterEach(() => {
+      sinon.restore();
+    });
+
+    it("should return true when package has valid certificate (Store signature)", async () => {
+      execStub.callsFake(
+        (
+          command: string,
+          callback: (error: Error | null, result: { stdout: string; stderr: string }) => void
+        ) => {
+          callback(null, {
+            stdout: "$_.SignatureKind\n-----------------\nStore\n",
+            stderr: "",
+          });
+        }
+      );
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const result = await (teamsAppDriver as any).verifyPackageFamilyCertIsValid(
+        "TestPackage_12345"
+      );
+      chai.assert.isTrue(result);
+    });
+
+    it("should return true when package has System signature", async () => {
+      execStub.callsFake(
+        (
+          command: string,
+          callback: (error: Error | null, result: { stdout: string; stderr: string }) => void
+        ) => {
+          callback(null, {
+            stdout: "$_.SignatureKind\n-----------------\nSystem\n",
+            stderr: "",
+          });
+        }
+      );
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const result = await (teamsAppDriver as any).verifyPackageFamilyCertIsValid(
+        "TestPackage_12345"
+      );
+      chai.assert.isTrue(result);
+    });
+
+    it("should return false when package has Developer signature (self-signed)", async () => {
+      execStub.callsFake(
+        (
+          command: string,
+          callback: (error: Error | null, result: { stdout: string; stderr: string }) => void
+        ) => {
+          callback(null, {
+            stdout: "$_.SignatureKind\n-----------------\nDeveloper\n",
+            stderr: "",
+          });
+        }
+      );
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const result = await (teamsAppDriver as any).verifyPackageFamilyCertIsValid(
+        "TestPackage_12345"
+      );
+      chai.assert.isFalse(result);
+    });
+
+    it("should return false when package has developer in mixed case", async () => {
+      execStub.callsFake(
+        (
+          command: string,
+          callback: (error: Error | null, result: { stdout: string; stderr: string }) => void
+        ) => {
+          callback(null, {
+            stdout: "$_.SignatureKind\n-----------------\nDEVELOPER\n",
+            stderr: "",
+          });
+        }
+      );
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const result = await (teamsAppDriver as any).verifyPackageFamilyCertIsValid(
+        "TestPackage_12345"
+      );
+      chai.assert.isFalse(result);
+    });
+
+    it("should return false when stdout is empty", async () => {
+      execStub.callsFake(
+        (
+          command: string,
+          callback: (error: Error | null, result: { stdout: string; stderr: string }) => void
+        ) => {
+          callback(null, {
+            stdout: "",
+            stderr: "",
+          });
+        }
+      );
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const result = await (teamsAppDriver as any).verifyPackageFamilyCertIsValid(
+        "TestPackage_12345"
+      );
+      chai.assert.isFalse(result);
+    });
+
+    it("should return false when stdout is null", async () => {
+      execStub.callsFake(
+        (
+          command: string,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          callback: (error: Error | null, result: { stdout: any; stderr: string }) => void
+        ) => {
+          callback(null, {
+            stdout: null,
+            stderr: "",
+          });
+        }
+      );
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const result = await (teamsAppDriver as any).verifyPackageFamilyCertIsValid(
+        "TestPackage_12345"
+      );
+      chai.assert.isFalse(result);
+    });
+
+    it("should return false when stdout is undefined", async () => {
+      execStub.callsFake(
+        (
+          command: string,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          callback: (error: Error | null, result: { stdout: any; stderr: string }) => void
+        ) => {
+          callback(null, {
+            stdout: undefined,
+            stderr: "",
+          });
+        }
+      );
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const result = await (teamsAppDriver as any).verifyPackageFamilyCertIsValid(
+        "TestPackage_12345"
+      );
+      chai.assert.isFalse(result);
+    });
+
+    it("should return false when PowerShell command fails", async () => {
+      execStub.callsFake(
+        (
+          command: string,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          callback: (error: Error | null, result: any) => void
+        ) => {
+          callback(new Error("PowerShell execution failed"), null);
+        }
+      );
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const result = await (teamsAppDriver as any).verifyPackageFamilyCertIsValid(
+        "TestPackage_12345"
+      );
+      chai.assert.isFalse(result);
+    });
+
+    it("should return false when package not found", async () => {
+      execStub.callsFake(
+        (
+          command: string,
+          callback: (error: Error | null, result: { stdout: string; stderr: string }) => void
+        ) => {
+          callback(null, {
+            stdout: "",
+            stderr: "Get-AppxPackage : No packages were found",
+          });
+        }
+      );
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const result = await (teamsAppDriver as any).verifyPackageFamilyCertIsValid(
+        "NonExistentPackage_99999"
+      );
+      chai.assert.isFalse(result);
+    });
+
+    it("should return true when package has Enterprise signature", async () => {
+      execStub.callsFake(
+        (
+          command: string,
+          callback: (error: Error | null, result: { stdout: string; stderr: string }) => void
+        ) => {
+          callback(null, {
+            stdout: "$_.SignatureKind\n-----------------\nEnterprise\n",
+            stderr: "",
+          });
+        }
+      );
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const result = await (teamsAppDriver as any).verifyPackageFamilyCertIsValid(
+        "TestPackage_12345"
+      );
+      chai.assert.isTrue(result);
+    });
+
+    it("should handle stdout with extra whitespace", async () => {
+      execStub.callsFake(
+        (
+          command: string,
+          callback: (error: Error | null, result: { stdout: string; stderr: string }) => void
+        ) => {
+          callback(null, {
+            stdout: "  \n\n  Store  \n\n  ",
+            stderr: "",
+          });
+        }
+      );
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const result = await (teamsAppDriver as any).verifyPackageFamilyCertIsValid(
+        "TestPackage_12345"
+      );
+      chai.assert.isTrue(result);
+    });
+
+    it("should correctly use the package name in PowerShell command", async () => {
+      const packageName = "MyApp_abc123xyz";
+      execStub.callsFake(
+        (
+          command: string,
+          callback: (error: Error | null, result: { stdout: string; stderr: string }) => void
+        ) => {
+          chai.assert.include(command, packageName);
+          callback(null, {
+            stdout: "Store",
+            stderr: "",
+          });
+        }
+      );
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await (teamsAppDriver as any).verifyPackageFamilyCertIsValid(packageName);
+      chai.assert.isTrue(execStub.calledOnce);
+    });
+
+    it("should handle timeout errors gracefully", async () => {
+      execStub.callsFake(
+        (
+          command: string,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          callback: (error: NodeJS.ErrnoException | null, result: any) => void
+        ) => {
+          const timeoutError = new Error("Command timed out") as NodeJS.ErrnoException;
+          timeoutError.code = "ETIMEDOUT";
+          callback(timeoutError, null);
+        }
+      );
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const result = await (teamsAppDriver as any).verifyPackageFamilyCertIsValid(
+        "TestPackage_12345"
+      );
+      chai.assert.isFalse(result);
+    });
+
+    it("should return false when stdout contains developer anywhere in text", async () => {
+      execStub.callsFake(
+        (
+          command: string,
+          callback: (error: Error | null, result: { stdout: string; stderr: string }) => void
+        ) => {
+          callback(null, {
+            stdout:
+              "SignatureKind: Developer (Self-signed certificate)\nPackageFullName: TestPackage",
+            stderr: "",
+          });
+        }
+      );
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const result = await (teamsAppDriver as any).verifyPackageFamilyCertIsValid(
+        "TestPackage_12345"
+      );
+      chai.assert.isFalse(result);
+    });
+
+    it("should handle PowerShell access denied errors", async () => {
+      execStub.callsFake(
+        (
+          command: string,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          callback: (error: NodeJS.ErrnoException | null, result: any) => void
+        ) => {
+          const accessError = new Error("Access denied") as NodeJS.ErrnoException;
+          accessError.code = "EACCES";
+          callback(accessError, null);
+        }
+      );
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const result = await (teamsAppDriver as any).verifyPackageFamilyCertIsValid(
+        "TestPackage_12345"
+      );
+      chai.assert.isFalse(result);
+    });
+  });
 });
