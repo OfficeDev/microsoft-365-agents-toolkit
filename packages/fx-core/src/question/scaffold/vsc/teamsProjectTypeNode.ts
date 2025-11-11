@@ -14,6 +14,7 @@ import * as fs from "fs-extra";
 import os from "os";
 import path from "path";
 import { getLocalizedString } from "../../../common/localizeUtils";
+import templateConfig from "../../../common/templates-config.json";
 import { getTemplatesFolder } from "../../../folder";
 import {
   SPFxFrameworkQuestion,
@@ -49,7 +50,7 @@ export function getTeamsProjectNode(): IQTreeNode {
   );
 
   // Check if cached JSON exists, otherwise fallback to bundled templates folder
-  if (cachedJsonPath && fs.pathExistsSync(cachedJsonPath)) {
+  if (!templateConfig.useLocalTemplate && fs.pathExistsSync(cachedJsonPath)) {
     jsonPath = cachedJsonPath;
   } else {
     jsonPath = path.join(getTemplatesFolder(), "ui", "teamsNode.json");

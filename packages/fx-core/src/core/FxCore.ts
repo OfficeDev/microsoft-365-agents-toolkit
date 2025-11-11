@@ -51,6 +51,7 @@ import * as path from "path";
 import "reflect-metadata";
 import { Container } from "typedi";
 import { pathToFileURL } from "url";
+import { version as coreVersion } from "../../package.json";
 import { teamsDevPortalClient } from "../client/teamsDevPortalClient";
 import { ApiKeyParameters, AuthParameters, OAuthParameters } from "../common/authInterface";
 import { AppStudioScopes, VSCodeExtensionCommand } from "../common/constants";
@@ -147,7 +148,7 @@ import {
   listOperations,
 } from "../component/generator/openApiSpec/helper";
 import { TemplateNames } from "../component/generator/templates/templateNames";
-import { fetchZipFromUrl, unzip } from "../component/generator/utils";
+import { fetchZipFromUrl, getTemplateLatestVersion, unzip } from "../component/generator/utils";
 import { LaunchHelper } from "../component/m365/launchHelper";
 import { PackageService } from "../component/m365/packageService";
 import { MosServiceEndpoint, MosServiceScope } from "../component/m365/serviceConstant";
@@ -3168,18 +3169,26 @@ export class FxCore {
     ErrorHandlerMW,
   ])
   async fetchOnlineTemplateMetadata(): Promise<Result<undefined, FxError>> {
+    if (templateConfig.useLocalTemplate) {
+      return ok(undefined); // Skip if using local templates
+    }
     // Downloads the latest online template metadata (metadata.zip) into user's home .fx folder.
     // Caches the template version so subsequent calls avoid redundant downloads if unchanged.
     try {
       // Determine latest template version (respect prerelease env variable similar to getTemplateVSCUrl)
-      const latestVersion = "0.0.0-rc";
-      // if (version.includes("beta") || version.includes("rc")) {
-      //   // prerelease or rc
-      //   latestVersion = "0.0.0-rc";
-      // } else {
-      //   // stable version
-      //   latestVersion = await getTemplateLatestVersion();
-      // }
+
+      let latestVersion = "0.0.0-rc";
+      if (
+        coreVersion.includes("alpha") ||
+        coreVersion.includes("beta") ||
+        coreVersion.includes("rc")
+      ) {
+        // daily build, prerelease or rc
+        latestVersion = "0.0.0-rc";
+      } else {
+        // stable version
+        latestVersion = await getTemplateLatestVersion();
+      }
 
       const homedir = os.homedir();
       const metadataDir = path.join(homedir, `.${String(ConfigFolderName)}`);
