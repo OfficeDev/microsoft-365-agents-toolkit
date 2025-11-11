@@ -63,5 +63,5 @@ Following documentation will help you to extend the Basic Tab template.
 - [Collaborate on app development](https://learn.microsoft.com/microsoftteams/platform/toolkit/teamsfx-collaboration)
 - [Set up the CI/CD pipeline](https://learn.microsoft.com/microsoftteams/platform/toolkit/use-cicd-template)
 - [Publish the app to your organization or the Microsoft app store](https://learn.microsoft.com/microsoftteams/platform/toolkit/publish)
-- [Enable the app for multi-tenant](https://github.com/OfficeDev/TeamsFx/wiki/Multi-tenancy-Support-for-Azure-AD-app)
+- [Enable the app for multi-tenant](https://github.com/OfficeDev/microsoft-365-agents-toolkit/wiki/Multi-tenancy-Support-for-Microsoft-Entra-app)
 - [Preview the app on mobile clients](https://aka.ms/teamsfx-mobile)
