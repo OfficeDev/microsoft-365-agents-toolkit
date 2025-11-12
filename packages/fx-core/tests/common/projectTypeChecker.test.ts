@@ -1,12 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
+import * as chai from "chai";
 import { assert } from "chai";
 import fs from "fs-extra";
 import "mocha";
 import path from "path";
 import sinon from "sinon";
 import {
+  IsDeclarativeAgentManifest,
   ProjectTypeResult,
   SPFxKey,
   TeamsfxVersionState,
@@ -15,9 +17,7 @@ import {
   projectTypeChecker,
 } from "../../src/common/projectTypeChecker";
 import { MetadataV2, MetadataV3 } from "../../src/common/versionMetadata";
-import { IsDeclarativeAgentManifest } from "../../build/common/projectTypeChecker";
 import { pathUtils } from "../../src/component/utils/pathUtils";
-import * as chai from "chai";
 
 describe("ProjectTypeChecker", () => {
   const sandbox = sinon.createSandbox();

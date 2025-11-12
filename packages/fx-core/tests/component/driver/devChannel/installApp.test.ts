@@ -1,26 +1,24 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { expect } from "chai";
-import { createSandbox } from "sinon";
-import axios from "axios";
-import "mocha";
-import mockedEnv from "mocked-env";
-import fs from "fs-extra";
-import path from "path";
-import AdmZip from "adm-zip";
 import { TeamsAppManifest } from "@microsoft/teamsfx-api";
-import { InstallAppToChannelDriver } from "../../../../src/component/driver/devChannel/installApp";
+import AdmZip from "adm-zip";
+import axios from "axios";
+import { expect } from "chai";
+import fs from "fs-extra";
+import "mocha";
+import { createSandbox } from "sinon";
 import { GraphClient } from "../../../../src/client/graphClient";
-import { MockedM365Provider, MockLogProvider } from "../../../core/utils";
+import { InstallAppToChannelDriver } from "../../../../src/component/driver/devChannel/installApp";
+import { InstallAppArgs } from "../../../../src/component/driver/devChannel/interfaces/InstallAppArgs";
 import { WrapDriverContext } from "../../../../src/component/driver/util/wrapUtil";
 import {
-  InvalidActionInputError,
   FileNotFoundError,
   HttpClientError,
+  InvalidActionInputError,
 } from "../../../../src/error/common";
+import { MockedM365Provider, MockLogProvider } from "../../../core/utils";
 import { Constants } from "./../../../../src/component/driver/teamsApp/constants";
-import { InstallAppArgs } from "../../../../build/component/driver/devChannel/interfaces/InstallAppArgs";
 
 describe("InstallAppToChannelDriver", () => {
   const sandbox = createSandbox();
