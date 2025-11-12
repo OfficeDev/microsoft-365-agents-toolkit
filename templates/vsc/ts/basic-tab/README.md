@@ -39,7 +39,7 @@ The following files can be customized and demonstrate an example implementation 
 | `index.html`                     | HTML file.                                                                                                      |
 | `src/Tab/App.css`                | CSS file for the app.                                                                                           |
 | `src/Tab/App.tsx`                | Tab source file. It calls `teamsjs` SDK to get the context of on which Microsoft 365 application your app is running.      |
-| `src/index.ts`                   | Starting the app using [Microsoft Teams SDK](https://microsoft.github.io/teams-ai).                                                                     |
+| `src/index.ts`                   | Starting the app using [Microsoft Teams SDK](https://aka.ms/teams-ai-library-v2).                                                                     |
 | `vite.config.js`                 | Configuration for Vite build tool.                                                                              |  
 | `nodemon.json`                   | Configuration for Nodemon to watch and restart the server.                                                      |
 
@@ -63,5 +63,5 @@ Following documentation will help you to extend the Basic Tab template.
 - [Collaborate on app development](https://learn.microsoft.com/microsoftteams/platform/toolkit/teamsfx-collaboration)
 - [Set up the CI/CD pipeline](https://learn.microsoft.com/microsoftteams/platform/toolkit/use-cicd-template)
 - [Publish the app to your organization or the Microsoft app store](https://learn.microsoft.com/microsoftteams/platform/toolkit/publish)
-- [Enable the app for multi-tenant](https://github.com/OfficeDev/TeamsFx/wiki/Multi-tenancy-Support-for-Azure-AD-app)
+- [Enable the app for multi-tenant](https://aka.ms/m365-agent-multi-tenancy-entra-app)
 - [Preview the app on mobile clients](https://aka.ms/teamsfx-mobile)
