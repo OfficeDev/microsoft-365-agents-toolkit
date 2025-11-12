@@ -309,7 +309,7 @@ export default class SampleGallery extends React.Component<SampleGalleryProps, S
     );
     let filteredSamples = this.samples.filter((sample: SampleInfo) => {
       return (
-        containsTag(capabilitiesFilter, sample.tags) &&
+        containsTag(capabilitiesFilter, sample.types) &&
         containsTag(languagesFilter, sample.tags) &&
         containsTag(technologiesFilter, sample.tags)
       );
