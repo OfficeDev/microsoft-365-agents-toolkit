@@ -1,15 +1,15 @@
-import * as chai from "chai";
-import * as sinon from "sinon";
-import chaiPromised from "chai-as-promised";
-import * as vscode from "vscode";
-import * as utils from "../../src/officeChat/utils";
-import * as chatUtils from "../../src/chat/utils";
-import * as dynamicPrompt from "../../src/officeChat/dynamicPrompt";
-import { CancellationToken } from "../mocks/vsc";
+import * as requestUtils from "@microsoft/teamsfx-core/build/src/common/requestUtils";
 import { AxiosResponse } from "axios";
+import * as chai from "chai";
+import chaiPromised from "chai-as-promised";
+import * as sinon from "sinon";
+import * as vscode from "vscode";
+import * as chatUtils from "../../src/chat/utils";
 import { Spec } from "../../src/officeChat/common/skills/spec";
+import * as dynamicPrompt from "../../src/officeChat/dynamicPrompt";
 import { OfficeChatTelemetryData } from "../../src/officeChat/telemetry";
-import * as requestUtils from "@microsoft/teamsfx-core/build/common/requestUtils";
+import * as utils from "../../src/officeChat/utils";
+import { CancellationToken } from "../mocks/vsc";
 
 chai.use(chaiPromised);
 

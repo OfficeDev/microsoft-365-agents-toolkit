@@ -1,5 +1,5 @@
 import { OptionItem, err, ok } from "@microsoft/teamsfx-api";
-import * as templateMetadata from "@microsoft/teamsfx-core/build/component/generator/templates/metadata";
+import * as templateMetadata from "@microsoft/teamsfx-core/build/src/component/generator/templates/metadata";
 import * as chai from "chai";
 import * as sinon from "sinon";
 import { PanelType } from "../../src/controls/PanelType";

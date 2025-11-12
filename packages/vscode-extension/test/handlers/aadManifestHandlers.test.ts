@@ -1,24 +1,24 @@
-import * as sinon from "sinon";
+import { err, ok } from "@microsoft/teamsfx-api";
+import { environmentManager } from "@microsoft/teamsfx-core";
+import * as localizeUtils from "@microsoft/teamsfx-core/build/src/common/localizeUtils";
+import * as projectSettingsHelper from "@microsoft/teamsfx-core/build/src/common/projectSettingsHelper";
 import * as chai from "chai";
 import fs from "fs-extra";
-import * as globalVariables from "../../src/globalVariables";
-import * as vsc_ui from "../../src/qm/vsc_ui";
+import * as sinon from "sinon";
 import * as vscode from "vscode";
-import * as projectSettingsHelper from "@microsoft/teamsfx-core/build/common/projectSettingsHelper";
-import * as localizeUtils from "@microsoft/teamsfx-core/build/common/localizeUtils";
 import * as errorCommon from "../../src/error/common";
-import * as sharedOpts from "../../src/handlers/sharedOpts";
-import * as envHandlers from "../../src/handlers/envHandlers";
-import { FxError, err, ok } from "@microsoft/teamsfx-api";
-import { environmentManager } from "@microsoft/teamsfx-core";
-import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
-import { MockCore } from "../mocks/mockCore";
+import * as globalVariables from "../../src/globalVariables";
 import {
   convertAadToNewSchemaHandler,
   editAadManifestTemplateHandler,
   openPreviewAadFileHandler,
   updateAadAppManifestHandler,
 } from "../../src/handlers/aadManifestHandlers";
+import * as envHandlers from "../../src/handlers/envHandlers";
+import * as sharedOpts from "../../src/handlers/sharedOpts";
+import * as vsc_ui from "../../src/qm/vsc_ui";
+import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
+import { MockCore } from "../mocks/mockCore";
 
 describe("aadManifestHandlers", () => {
   describe("openPreviewAadFileHandler", () => {

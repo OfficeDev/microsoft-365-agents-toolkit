@@ -1,31 +1,31 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import * as tmp from "tmp";
-import officeTemplateMeatdata from "./officeTemplateMetadata.json";
+import { CreateProjectInputs } from "@microsoft/teamsfx-api";
+import { getSampleFileInfo } from "@microsoft/teamsfx-core/build/src/component/generator/utils";
 import fs from "fs-extra";
 import path from "path";
+import * as tmp from "tmp";
 import {
-  ChatRequest,
   CancellationToken,
-  ChatResponseStream,
+  ChatRequest,
   ChatResponseFileTree,
-  Uri,
+  ChatResponseStream,
   LanguageModelChatMessage,
   LanguageModelChatMessageRole,
+  Uri,
 } from "vscode";
+import { buildFileTree, fileTreeAdd } from "../../../chat/commands/create/helper";
 import { ProjectMetadata } from "../../../chat/commands/create/types";
 import { getCopilotResponseAsString } from "../../../chat/utils";
-import { getOfficeProjectMatchSystemPrompt } from "../../officePrompts";
-import { officeSampleProvider } from "./officeSamples";
-import { fileTreeAdd, buildFileTree } from "../../../chat/commands/create/helper";
-import { getOfficeSample } from "../../utils";
-import { getSampleFileInfo } from "@microsoft/teamsfx-core/build/component/generator/utils";
-import { OfficeChatTelemetryData } from "../../telemetry";
-import { OfficeXMLAddinGenerator } from "./officeXMLAddinGenerator/generator";
-import { CreateProjectInputs } from "@microsoft/teamsfx-api";
 import { core } from "../../../globalVariables";
+import { getOfficeProjectMatchSystemPrompt } from "../../officePrompts";
+import { OfficeChatTelemetryData } from "../../telemetry";
 import { OfficeProjectInfo } from "../../types";
+import { getOfficeSample } from "../../utils";
+import { officeSampleProvider } from "./officeSamples";
+import officeTemplateMeatdata from "./officeTemplateMetadata.json";
+import { OfficeXMLAddinGenerator } from "./officeXMLAddinGenerator/generator";
 
 export async function matchOfficeProject(
   request: ChatRequest,

@@ -2,16 +2,16 @@
 // Licensed under the MIT license.
 
 import { AzureScopes, featureFlagManager, FeatureFlags } from "@microsoft/teamsfx-core";
+import { listAllTenants } from "@microsoft/teamsfx-core/build/src/common/tools";
 import * as vscode from "vscode";
+import { tools } from "../../globalVariables";
 import { TelemetryTriggerFrom } from "../../telemetry/extTelemetryEvents";
 import { localize } from "../../utils/localizeUtils";
 import { DynamicNode } from "../dynamicNode";
 import { AccountItemStatus, loadingIcon, m365Icon } from "./common";
 import { CopilotNode } from "./copilotNode";
-import { SideloadingNode } from "./sideloadingNode";
-import { tools } from "../../globalVariables";
-import { listAllTenants } from "@microsoft/teamsfx-core/build/common/tools";
 import { SandboxNode } from "./sandBoxNode";
+import { SideloadingNode } from "./sideloadingNode";
 
 export class M365AccountNode extends DynamicNode {
   public status: AccountItemStatus;

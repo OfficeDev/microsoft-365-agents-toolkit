@@ -1,12 +1,12 @@
+import { featureFlagManager, GraphClient } from "@microsoft/teamsfx-core";
+import * as tools from "@microsoft/teamsfx-core/build/src/common/tools";
 import * as chai from "chai";
 import * as sinon from "sinon";
 import * as vscode from "vscode";
-import * as tools from "@microsoft/teamsfx-core/build/common/tools";
+import * as checkAccessCallback from "../../../src/handlers/accounts/checkAccessCallback";
 import { errorIcon, infoIcon, passIcon } from "../../../src/treeview/account/common";
 import { SideloadingNode } from "../../../src/treeview/account/sideloadingNode";
 import { DynamicNode } from "../../../src/treeview/dynamicNode";
-import * as checkAccessCallback from "../../../src/handlers/accounts/checkAccessCallback";
-import { featureFlagManager, GraphClient } from "@microsoft/teamsfx-core";
 
 describe("sideloadingNode", () => {
   const sandbox = sinon.createSandbox();

@@ -1,9 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
+import { Correlator } from "@microsoft/teamsfx-core";
+import { ConstantString } from "@microsoft/teamsfx-core/build/src/common/constants";
 import fs from "fs-extra";
-import path from "path";
 import os from "os";
+import path from "path";
 import {
   CancellationToken,
   ChatContext,
@@ -18,26 +20,24 @@ import {
   Uri,
   window,
 } from "vscode";
-import { OfficeChatCommand, officeChatParticipantId } from "./consts";
-import { Correlator } from "@microsoft/teamsfx-core";
 import followupProvider from "../chat/followupProvider";
+import { ITelemetryData } from "../chat/types";
+import { verbatimCopilotInteraction } from "../chat/utils";
 import { ExtTelemetry } from "../telemetry/extTelemetry";
 import {
   TelemetryEvent,
   TelemetryProperty,
   TelemetryTriggerFrom,
 } from "../telemetry/extTelemetryEvents";
+import { localize } from "../utils/localizeUtils";
+import { openOfficeDevFolder } from "../utils/workspaceUtils";
 import officeCreateCommandHandler from "./commands/create/officeCreateCommandHandler";
 import generatecodeCommandHandler from "./commands/generatecode/generatecodeCommandHandler";
 import officeNextStepCommandHandler from "./commands/nextStep/officeNextstepCommandHandler";
+import { OfficeChatCommand, officeChatParticipantId } from "./consts";
 import { defaultOfficeSystemPrompt } from "./officePrompts";
-import { verbatimCopilotInteraction } from "../chat/utils";
-import { localize } from "../utils/localizeUtils";
-import { ICopilotChatOfficeResult } from "./types";
-import { ITelemetryData } from "../chat/types";
 import { OfficeChatTelemetryData } from "./telemetry";
-import { ConstantString } from "@microsoft/teamsfx-core/build/common/constants";
-import { openOfficeDevFolder } from "../utils/workspaceUtils";
+import { ICopilotChatOfficeResult } from "./types";
 
 export function officeChatRequestHandler(
   request: ChatRequest,

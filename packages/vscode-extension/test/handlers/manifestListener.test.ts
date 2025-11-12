@@ -1,13 +1,13 @@
+import { TeamsAppManifest } from "@microsoft/teamsfx-api";
+import * as projectSettingsHelper from "@microsoft/teamsfx-core/build/src/common/projectSettingsHelper";
 import * as chai from "chai";
+import path from "path";
 import * as sinon from "sinon";
 import * as vscode from "vscode";
 import * as globalVariables from "../../src/globalVariables";
 import { manifestListener } from "../../src/manifestListener";
-import { TeamsAppManifest } from "@microsoft/teamsfx-api";
-import path from "path";
-import TreeViewManagerInstance from "../../src/treeview/treeViewManager";
-import * as projectSettingsHelper from "@microsoft/teamsfx-core/build/common/projectSettingsHelper";
 import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
+import TreeViewManagerInstance from "../../src/treeview/treeViewManager";
 
 describe("registerManifestListener", () => {
   const sandbox = sinon.createSandbox();

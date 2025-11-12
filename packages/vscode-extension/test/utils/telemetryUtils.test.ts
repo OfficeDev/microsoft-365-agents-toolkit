@@ -1,21 +1,21 @@
+import { err, Inputs, ok, UserError } from "@microsoft/teamsfx-api";
+import { VersionCheckRes } from "@microsoft/teamsfx-core";
+import * as coreUtils from "@microsoft/teamsfx-core/build/src/common/projectSettingsHelper";
 import * as chai from "chai";
 import * as sinon from "sinon";
 import { Uri } from "vscode";
-import { err, Inputs, ok, UserError } from "@microsoft/teamsfx-api";
 import * as globalVariables from "../../src/globalVariables";
+import { TelemetryProperty, TelemetryTriggerFrom } from "../../src/telemetry/extTelemetryEvents";
+import * as systemEnvUtils from "../../src/utils/systemEnvUtils";
 import {
   getPackageVersion,
   getProjectId,
+  getSettingsVersion,
+  getTeamsAppTelemetryInfoByEnv,
   getTriggerFromProperty,
   isTriggerFromWalkThrough,
-  getTeamsAppTelemetryInfoByEnv,
-  getSettingsVersion,
 } from "../../src/utils/telemetryUtils";
-import * as systemEnvUtils from "../../src/utils/systemEnvUtils";
 import { MockCore } from "../mocks/mockCore";
-import { TelemetryProperty, TelemetryTriggerFrom } from "../../src/telemetry/extTelemetryEvents";
-import * as coreUtils from "@microsoft/teamsfx-core/build/common/projectSettingsHelper";
-import { VersionCheckRes } from "@microsoft/teamsfx-core";
 
 describe("TelemetryUtils", () => {
   describe("getPackageVersion", () => {

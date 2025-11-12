@@ -1,13 +1,14 @@
 import { ConfigFolderName, err, ok, Void } from "@microsoft/teamsfx-api";
+import { environmentManager, pathUtils } from "@microsoft/teamsfx-core";
+import * as localizeUtils from "@microsoft/teamsfx-core/build/src/common/localizeUtils";
+import * as projectSettingsHelper from "@microsoft/teamsfx-core/build/src/common/projectSettingsHelper";
 import * as chai from "chai";
+import fs from "fs-extra";
+import path from "path";
 import * as sinon from "sinon";
 import * as vscode from "vscode";
-import path from "path";
-import fs from "fs-extra";
+import { ExtensionErrors } from "../../src/error/error";
 import * as globalVariables from "../../src/globalVariables";
-import * as projectSettingsHelper from "@microsoft/teamsfx-core/build/common/projectSettingsHelper";
-import * as localizeUtils from "@microsoft/teamsfx-core/build/common/localizeUtils";
-import * as vsc_ui from "../../src/qm/vsc_ui";
 import {
   askTargetEnvironment,
   createNewEnvironment,
@@ -15,10 +16,9 @@ import {
   refreshEnvironment,
 } from "../../src/handlers/envHandlers";
 import * as shared from "../../src/handlers/sharedOpts";
+import * as vsc_ui from "../../src/qm/vsc_ui";
 import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
 import envTreeProviderInstance from "../../src/treeview/environmentTreeViewProvider";
-import { environmentManager, pathUtils } from "@microsoft/teamsfx-core";
-import { ExtensionErrors } from "../../src/error/error";
 
 describe("Env handlers", () => {
   describe("createNewEnvironment", () => {

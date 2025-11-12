@@ -1,18 +1,18 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { listAllTenants } from "@microsoft/teamsfx-core/build/common/tools";
+import { FxError, SingleSelectConfig, SystemError } from "@microsoft/teamsfx-api";
+import { AzureScopes, isUserCancelError } from "@microsoft/teamsfx-core";
+import { listAllTenants } from "@microsoft/teamsfx-core/build/src/common/tools";
+import azureAccountManager from "../../commonlib/azureLogin";
+import M365TokenInstance from "../../commonlib/m365Login";
+import { showError } from "../../error/common";
+import { ExtensionSource } from "../../error/error";
+import { VS_CODE_UI } from "../../qm/vsc_ui";
 import { ExtTelemetry } from "../../telemetry/extTelemetry";
 import { AccountType, TelemetryEvent, TelemetryProperty } from "../../telemetry/extTelemetryEvents";
-import { getTriggerFromProperty } from "../../utils/telemetryUtils";
-import M365TokenInstance from "../../commonlib/m365Login";
-import azureAccountManager from "../../commonlib/azureLogin";
-import { AzureScopes, isUserCancelError } from "@microsoft/teamsfx-core";
-import { FxError, SingleSelectConfig, SystemError } from "@microsoft/teamsfx-api";
 import { localize } from "../../utils/localizeUtils";
-import { VS_CODE_UI } from "../../qm/vsc_ui";
-import { ExtensionSource } from "../../error/error";
-import { showError } from "../../error/common";
+import { getTriggerFromProperty } from "../../utils/telemetryUtils";
 
 export async function onSwitchM365Tenant(...args: unknown[]): Promise<void> {
   ExtTelemetry.sendTelemetryEvent(TelemetryEvent.SwitchTenantStart, {

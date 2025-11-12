@@ -1,11 +1,11 @@
-import * as sinon from "sinon";
+import * as globalState from "@microsoft/teamsfx-core/build/src/common/globalState";
+import * as projectSettingsHelper from "@microsoft/teamsfx-core/build/src/common/projectSettingsHelper";
 import * as chai from "chai";
+import * as sinon from "sinon";
 import * as vscode from "vscode";
-import * as telemetryUtils from "../../src/utils/telemetryUtils";
 import * as globalVariables from "../../src/globalVariables";
-import * as globalState from "@microsoft/teamsfx-core/build/common/globalState";
-import * as projectSettingsHelper from "@microsoft/teamsfx-core/build/common/projectSettingsHelper";
 import { updateAutoOpenGlobalKey } from "../../src/utils/globalStateUtils";
+import * as telemetryUtils from "../../src/utils/telemetryUtils";
 
 describe("GlobalStateUtils", () => {
   const sandbox = sinon.createSandbox();

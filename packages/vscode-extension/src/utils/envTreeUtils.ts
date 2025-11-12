@@ -2,12 +2,12 @@
 // Licensed under the MIT license.
 
 import { SubscriptionInfo } from "@microsoft/teamsfx-api";
-import { getProvisionResultJson } from "./fileSystemUtils";
+import { dotenvUtil } from "@microsoft/teamsfx-core/build/src/component/utils/envUtil";
+import fs from "fs-extra";
+import path from "path";
 import { workspaceUri } from "../globalVariables";
 import { getV3TeamsAppId } from "./appDefinitionUtils";
-import path from "path";
-import fs from "fs-extra";
-import { dotenvUtil } from "@microsoft/teamsfx-core/build/component/utils/envUtil";
+import { getProvisionResultJson } from "./fileSystemUtils";
 
 export async function getSubscriptionInfoFromEnv(
   env: string

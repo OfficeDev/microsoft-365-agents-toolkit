@@ -1,20 +1,20 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { dotenvUtil } from "@microsoft/teamsfx-core/build/component/utils/envUtil";
-import M365TokenInstance from "../commonlib/m365Login";
-import * as globalVariables from "../globalVariables";
+import { FxError } from "@microsoft/teamsfx-api";
+import { AadSet, GraphScopes } from "@microsoft/teamsfx-core";
+import { dotenvUtil } from "@microsoft/teamsfx-core/build/src/component/utils/envUtil";
+import axios from "axios";
 import * as fs from "fs-extra";
 import * as path from "path";
-import { AadSet, GraphScopes } from "@microsoft/teamsfx-core";
-import axios from "axios";
+import * as util from "util";
 import { ConvertTokenToJson } from "../commonlib/codeFlowLogin";
 import VsCodeLogInstance from "../commonlib/log";
-import * as util from "util";
-import { localize } from "../utils/localizeUtils";
+import M365TokenInstance from "../commonlib/m365Login";
+import * as globalVariables from "../globalVariables";
 import { ExtTelemetry } from "../telemetry/extTelemetry";
 import { TelemetryEvent } from "../telemetry/extTelemetryEvents";
-import { FxError } from "@microsoft/teamsfx-api";
+import { localize } from "../utils/localizeUtils";
 
 const defaultNotificationLocalFile = ".notification.localstore.json";
 export async function deleteAad(): Promise<boolean> {

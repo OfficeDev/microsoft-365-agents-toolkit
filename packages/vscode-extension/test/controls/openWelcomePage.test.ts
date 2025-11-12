@@ -1,7 +1,7 @@
+import * as globalState from "@microsoft/teamsfx-core/build/src/common/globalState";
 import * as chai from "chai";
 import * as sinon from "sinon";
 import * as vscode from "vscode";
-import * as globalState from "@microsoft/teamsfx-core/build/common/globalState";
 import { openWelcomePageAfterExtensionInstallation } from "../../src/controls/openWelcomePage";
 import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
 

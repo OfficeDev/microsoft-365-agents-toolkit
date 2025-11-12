@@ -1,48 +1,45 @@
 import { err, ok, SystemError, UserError } from "@microsoft/teamsfx-api";
 import {
   AppDefinition,
-  FeatureFlagName,
   teamsDevPortalClient,
   UnhandledError,
   UserCancelError,
 } from "@microsoft/teamsfx-core";
-import * as projectSettingsHelper from "@microsoft/teamsfx-core/build/common/projectSettingsHelper";
+import * as globalState from "@microsoft/teamsfx-core/build/src/common/globalState";
+import * as projectSettingsHelper from "@microsoft/teamsfx-core/build/src/common/projectSettingsHelper";
 import { ProgressHandler } from "@microsoft/vscode-ui";
 import { assert } from "chai";
+import { RestoreFn } from "mocked-env";
 import * as sinon from "sinon";
 import * as vscode from "vscode";
+import M365TokenInstance from "../../src/commonlib/m365Login";
 import * as globalVariables from "../../src/globalVariables";
 import * as copilotHandler from "../../src/handlers/copilotChatHandlers";
 import {
   addAuthActionHandler,
+  addKnowledgeHandler,
   addPluginHandler,
   addWebpartHandler,
   copilotPluginAddAPIHandler,
   createNewProjectHandler,
   deployHandler,
+  m365PreAuthHandler,
+  metaOSExtendToDAHandler,
   provisionHandler,
   publishHandler,
-  scaffoldFromDeveloperPortalHandler,
-  addKnowledgeHandler,
-  shareHandler,
-  setSensitivityLabelHandler,
-  m365PreAuthHandler,
-  shareRemoveHandler,
   regeneratePluginHandler,
-  metaOSExtendToDAHandler,
+  scaffoldFromDeveloperPortalHandler,
+  setSensitivityLabelHandler,
+  shareHandler,
+  shareRemoveHandler,
 } from "../../src/handlers/lifecycleHandlers";
 import * as shared from "../../src/handlers/sharedOpts";
 import * as vsc_ui from "../../src/qm/vsc_ui";
 import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
 import envTreeProviderInstance from "../../src/treeview/environmentTreeViewProvider";
 import * as workspaceUtils from "../../src/utils/workspaceUtils";
-import M365TokenInstance from "../../src/commonlib/m365Login";
 import { MockCore } from "../mocks/mockCore";
-import * as globalState from "@microsoft/teamsfx-core/build/common/globalState";
-import mockedEnv, { RestoreFn } from "mocked-env";
-import VsCodeLogInstance from "../../src/commonlib/log";
 import { MockTools } from "../mocks/mockTools";
-import { shareRemoveCommand } from "../../../cli/src/commands/models/shareRemove";
 
 describe("Lifecycle handlers", () => {
   const sandbox = sinon.createSandbox();

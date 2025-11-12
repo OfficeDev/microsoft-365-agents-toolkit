@@ -3,7 +3,7 @@ import * as sinon from "sinon";
 import { stubInterface } from "ts-sinon";
 
 import { AzureAccountProvider, M365TokenProvider, ok, TokenRequest } from "@microsoft/teamsfx-api";
-import * as projectSettingsHelper from "@microsoft/teamsfx-core/build/common/projectSettingsHelper";
+import * as projectSettingsHelper from "@microsoft/teamsfx-core/build/src/common/projectSettingsHelper";
 
 import * as globalVariables from "../../../src/globalVariables";
 import AccountTreeViewProvider from "../../../src/treeview/account/accountTreeViewProvider";

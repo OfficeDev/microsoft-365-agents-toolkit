@@ -3,7 +3,7 @@ import * as sinon from "sinon";
 
 import { ok } from "@microsoft/teamsfx-api";
 import { environmentManager } from "@microsoft/teamsfx-core";
-import * as projectSettingsHelper from "@microsoft/teamsfx-core/build/common/projectSettingsHelper";
+import * as projectSettingsHelper from "@microsoft/teamsfx-core/build/src/common/projectSettingsHelper";
 
 import * as globalVariables from "../../src/globalVariables";
 import EnvironmentTreeViewProvider from "../../src/treeview/environmentTreeViewProvider";

@@ -8,7 +8,7 @@ import {
   ok,
 } from "@microsoft/teamsfx-api";
 import { CoreCallbackFunc } from "@microsoft/teamsfx-core";
-import { ProjectTypeResult } from "@microsoft/teamsfx-core/build/common/projectTypeChecker";
+import { ProjectTypeResult } from "@microsoft/teamsfx-core/build/src/common/projectTypeChecker";
 
 export class MockCore {
   constructor() {}

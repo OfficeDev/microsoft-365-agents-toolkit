@@ -2,12 +2,12 @@ import * as chai from "chai";
 import * as sinon from "sinon";
 import * as vscode from "vscode";
 
+import { featureFlagManager } from "@microsoft/teamsfx-core";
+import * as tools from "@microsoft/teamsfx-core/build/src/common/tools";
 import { AzureAccountManager } from "../../../src/commonlib/azureLogin";
 import { AzureAccountNode } from "../../../src/treeview/account/azureNode";
 import { AccountItemStatus, azureIcon, loadingIcon } from "../../../src/treeview/account/common";
 import { DynamicNode } from "../../../src/treeview/dynamicNode";
-import { featureFlagManager } from "@microsoft/teamsfx-core";
-import * as tools from "@microsoft/teamsfx-core/build/common/tools";
 import { localize } from "../../../src/utils/localizeUtils";
 
 describe("AzureNode", () => {
