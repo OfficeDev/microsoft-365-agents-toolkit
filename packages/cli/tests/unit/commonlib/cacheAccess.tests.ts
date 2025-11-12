@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
+import fs, { WriteFileOptions } from "fs-extra";
+import sinon, { SinonStub } from "sinon";
 import { AzureAccountManager } from "../../../src/commonlib/azureLogin";
 import {
   AccountCrypto,
@@ -11,10 +13,8 @@ import {
   loadTenantId,
   saveTenantId,
 } from "../../../src/commonlib/cacheAccess";
-import { expect } from "../utils";
-import fs, { WriteFileOptions } from "fs-extra";
-import sinon, { SinonStub } from "sinon";
 import VsCodeLogInstance from "../../../src/commonlib/log";
+import { expect } from "../utils";
 
 class MockKeytar {
   public async getPassword(service: string, account: string): Promise<string | null> {
@@ -47,7 +47,7 @@ describe("AccountCrypto Tests", function () {
 
   it("Encrypt/Decrypt Content", async () => {
     const accountCrypto = new AccountCrypto("test");
-    (<any>accountCrypto).keytar = new MockKeytar();
+    (accountCrypto as any).keytar = new MockKeytar();
 
     const content =
       '{"clientId":"clientId","secret":"secret","tenantId":"3c8f28dd-b990-4925-96a6-3ea9495654b8"}';
@@ -59,8 +59,8 @@ describe("AccountCrypto Tests", function () {
 
   it("Encrypt/Decrypt Content - Unknown key", async () => {
     const accountCrypto = new AccountCrypto("test");
-    (<any>accountCrypto).keytar = new MockKeytar();
-    (<any>accountCrypto).keytar.getPassword = Promise.reject();
+    (accountCrypto as any).keytar = new MockKeytar();
+    (accountCrypto as any).keytar.getPassword = Promise.reject();
 
     const content =
       '{"clientId":"clientId","secret":"secret","tenantId":"3c8f28dd-b990-4925-96a6-3ea9495654b8"}';
@@ -110,7 +110,7 @@ describe("AccountCrypto Service principal Tests", function () {
   });
 
   it("AzureSpCrypto test", async () => {
-    (<any>AzureSpCrypto).accountCrypto.keytar = new MockKeytar();
+    (AzureSpCrypto as any).accountCrypto.keytar = new MockKeytar();
     await AzureSpCrypto.saveAzureSP("clientId", "secret", "tenantId");
     const checkAzureSp = AzureSpCrypto.checkAzureSPFile();
     expect(checkAzureSp).to.be.true;
