@@ -1,8 +1,8 @@
 {
   "name": "@microsoft/teamsfx-core",
   "version": "3.0.6",
-  "main": "build/index.js",
-  "types": "build/index.d.ts",
+  "main": "build/src/index.js",
+  "types": "build/src/index.d.ts",
   "license": "MIT",
   "scripts": {
     "lint:staged": "lint-staged",
@@ -79,7 +79,7 @@
     "test:metadataUtil": "nyc mocha \"tests/component/util/metadataUtil.test.ts\"",
     "test:migrate": "nyc mocha \"tests/component/migrate.test.ts\"",
     "test:retry": "npx mocha \"tests/core/middleware/retry.test.ts\"",
-    "clean": "rm -rf build",
+    "clean": "rimraf build",
     "prebuild": "npm run gen:cli",
     "build": "tsc -p ./ --incremental",
     "lint:fix": "eslint --fix \"src/**/*.ts\" \"tests/**/*.ts\"",

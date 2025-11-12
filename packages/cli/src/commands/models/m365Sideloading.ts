@@ -1,13 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 import { CLICommand, err, ok } from "@microsoft/teamsfx-api";
-import { PackageService, MosServiceEndpoint, MosServiceScope } from "@microsoft/teamsfx-core";
+import { MosServiceEndpoint, MosServiceScope, PackageService } from "@microsoft/teamsfx-core";
+import { AppScope } from "@microsoft/teamsfx-core/build/src/component/m365/packageService";
 import { logger } from "../../commonlib/logger";
 import M365TokenProvider from "../../commonlib/m365Login";
 import { ArgumentConflictError, MissingRequiredOptionError } from "../../error";
 import { commands } from "../../resource";
 import { TelemetryEvent } from "../../telemetry/cliTelemetryEvents";
-import { AppScope } from "@microsoft/teamsfx-core/build/component/m365/packageService";
 
 export const sideloadingServiceEndpoint =
   process.env.SIDELOADING_SERVICE_ENDPOINT ?? MosServiceEndpoint;

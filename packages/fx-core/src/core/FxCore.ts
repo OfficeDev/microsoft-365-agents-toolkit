@@ -3162,10 +3162,10 @@ export class FxCore {
   }
 
   /**
-   * uninstall sideloaded appps in M365
+   * dynamic template metadata download
    */
   @hooks([
-    ErrorContextMW({ component: "FxCore", stage: "fetchOnlineTemplateMetadata", reset: true }),
+    ErrorContextMW({ component: "FxCore", stage: "fetchOnlineTemplateMetadata" }),
     ErrorHandlerMW,
   ])
   async fetchOnlineTemplateMetadata(): Promise<Result<undefined, FxError>> {
