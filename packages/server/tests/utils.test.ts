@@ -2,15 +2,15 @@
 // Licensed under the MIT license.
 
 import { err, FxError, ok, SystemError, UIConfig, UserError } from "@microsoft/teamsfx-api";
-import "mocha";
 import { expect } from "chai";
+import "mocha";
+import { CustomizeFuncRequestType } from "../src/apis";
+import { reset } from "../src/customizedFuncAdapter";
 import {
   convertUIConfigToJson,
   getResponseWithErrorHandling,
   standardizeResult,
 } from "../src/utils";
-import { CustomizeFuncRequestType } from "../src/apis";
-import { reset } from "../src/customizedFuncAdapter";
 
 describe("utils", () => {
   describe("getResponseWithErrorHandling", () => {
@@ -108,10 +108,10 @@ describe("utils", () => {
         { id: "option2", label: "option2" },
       ],
     };
-    (exp as any).validation = <CustomizeFuncRequestType>{
+    (exp as any).validation = {
       id: 1,
       type: "ValidateFunc",
-    };
+    } as CustomizeFuncRequestType;
     expect(res).to.eql(exp);
   });
 

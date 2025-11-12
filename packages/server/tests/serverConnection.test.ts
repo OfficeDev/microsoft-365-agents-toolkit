@@ -21,6 +21,7 @@ import {
   teamsDevPortalClient,
   TestToolInstallOptions,
 } from "@microsoft/teamsfx-core";
+import { SyncManifestInputsForVS } from "@microsoft/teamsfx-core/build/src/component/driver/teamsApp/interfaces/SyncManifest";
 import { assert } from "chai";
 import "mocha";
 import sinon from "sinon";
@@ -28,7 +29,6 @@ import { Duplex } from "stream";
 import { CancellationToken, createMessageConnection } from "vscode-jsonrpc";
 import { setFunc } from "../src/customizedFuncAdapter";
 import ServerConnection from "../src/serverConnection";
-import { SyncManifestInputsForVS } from "@microsoft/teamsfx-core/build/component/driver/teamsApp/interfaces/SyncManifest";
 
 class TestStream extends Duplex {
   _write(chunk: string, _encoding: string, done: () => void) {
