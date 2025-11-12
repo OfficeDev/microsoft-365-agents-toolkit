@@ -1,0 +1,12 @@
+{
+  "testSuite": "smoke-test",
+  "description": "Collection of JSON files for smoke testing",
+  "files": [
+    "Basic_Custom_Engine_Azure_OpenAI_js_remote_debug.json",
+    "Basic_Tab_Remote_Debug.json",
+    "DA_None_ts_Local_Debug.json",
+    "General_Teams_Agent_Azure_OpenAI_ts_Local_Debug.json",
+    "Simple_Bot_ts_Local_Debug.json",
+    "Teams_Agent_With_Data_Customize_Azure_OpenAI_py_Local_Debug.json"
+  ]
+}

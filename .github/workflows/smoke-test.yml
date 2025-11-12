@@ -1,0 +1,273 @@
+name: Smoke Test
+
+on:
+  workflow_dispatch:
+    inputs:
+      test_plan:
+        description: "Comma-separated list of test cases to run, input test case id (e.g. 33258708, 33258728)"
+        required: false
+      image_tag:
+        description: "Docker image tag to use"
+        required: true
+        default: "latest"
+
+  schedule:
+    - cron: "0 17 * * *"
+permissions:
+  actions: read
+jobs:
+  discover-test-plans:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      test-plans: ${{ steps.get-plans.outputs.plans }}
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Get test plans
+        id: get-plans
+        run: |
+          if [ -z "${{ github.event.inputs.test_plan }}" ]; then
+            # Get only top-level JSON files from plans directory (strip the .json extension)
+            plans=$(find packages/tests/vscuse/vscode-test-cases/plans/ -maxdepth 1 -type f -name "*.json" -exec basename {} .json \; | jq -R -s -c 'split("\n")[:-1]')
+            echo "plans=$plans" >> $GITHUB_OUTPUT
+            echo "Found test plans: $plans"
+          else
+            # Use the input test_plan file name(s)
+            # Support comma-separated list, trim spaces
+            input_plans=$(echo "${{ github.event.inputs.test_plan }}" | tr ',' '\n' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//' | jq -R -s -c 'split("\n")[:-1]')
+            echo "plans=$input_plans" >> $GITHUB_OUTPUT
+            echo "Using input test plans: $input_plans"
+          fi
+
+  main:
+    name: Case-${{ matrix.test_plan }}
+    needs: discover-test-plans
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+
+    strategy:
+      matrix:
+        test_plan: ${{ fromJson(needs.discover-test-plans.outputs.test-plans) }}
+      fail-fast: false
+      max-parallel: 20
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+      security-events: write
+    environment: engineering
+
+    env:
+      GH_APP_ID: ${{ secrets.GH_APP_ID }}
+      GH_APP_PRIVATE_KEY: ${{ secrets.GH_APP_PRIVATE_KEY }}
+      AZURE_OPENAI_ENDPOINT: ${{ secrets.AZURE_OPENAI_ENDPOINT_NEW }}
+      AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_KEY_NEW }}
+      AZURE_OPENAI_MODEL: "gpt-4.1"
+      AZURE_SEARCH_ENDPOINT: ${{ secrets.AZURE_SEARCH_ENDPOINT_NEW }}
+      AZURE_SEARCH_KEY: ${{ secrets.AZURE_SEARCH_KEY_NEW }}
+      # Azure Service Principal for M365 Toolkit authentication
+      #AZURE_CLIENT_ID: ${{ secrets.AZURE_SERVICE_PRINCIPAL_ID }}
+      #AZURE_CLIENT_SECRET: ${{ secrets.AZURE_SERVICE_PRINCIPAL_SECRET }}
+      AZURE_TENANT_ID: ${{ secrets.TEST_TENANT_ID_NEW  }}
+      AZURE_SUBSCRIPTION_ID: ${{ secrets.TEST_SUBSCRIPTION_ID_NEW }}
+      AZURE_AUTH_ENABLED: ${{ secrets.AZURE_SERVICE_PRINCIPAL_ID != '' && secrets.AZURE_SERVICE_PRINCIPAL_SECRET != '' && secrets.TEST_TENANT_ID_NEW != '' }}
+      # M365 account for testing
+      M365_USERNAME_1: "test21@xxbdw.onmicrosoft.com"
+      M365_USERNAME_2: "test22@xxbdw.onmicrosoft.com"
+      M365_USERNAME_3: "test23@xxbdw.onmicrosoft.com"
+      M365_USERNAME_4: "test24@xxbdw.onmicrosoft.com"
+      M365_ACCOUNT_PASSWORD: ${{ secrets.TEST_M365_PASSWORD }}
+
+      # The test account for Copilot features
+      M365_ACCOUNT_NAME_EnableCopilotAccess: "test01@atktesting.onmicrosoft.com"
+      M365_ACCOUNT_PASSWORD_EnableCopilotAccess: ${{ secrets.TEST_M365_PASSWORD_NEW }}
+      
+      AZURE_ACCOUNT_NAME: ${{ secrets.TEST_USER_NAME_NEW }}
+      AZURE_ACCOUNT_PASSWORD: ${{ secrets.TEST_USER_PASSWORD_NEW }}
+      M365_TENANT_ID: ${{ secrets.TEST_CLEAN_TENANT_ID }}
+      # GITHUB test account
+      GITHUB_ACCOUNT_NAME: ${{ secrets.GH_ACCOUNT_NAME }}
+      GITHUB_ACCOUNT_PASSWORD: ${{ secrets.GH_ACCOUNT_PASSWORD }}
+      GITHUB_MFA_SECRET: ${{ secrets.GH_MFA_SECRET }}
+      #Additional value:
+      DA_MCP_ENTRA_SSO_CLIENTID: ${{ secrets.DA_MCP_ENTRA_SSO_CLIENTID }}
+      DA_MCP_OAUTH_CLIENT_SECERT: ${{ secrets.DA_MCP_OAUTH_CLIENT_SECERT }}
+      DA_MCP_OAUTH_CLIENTID: ${{ secrets.DA_MCP_OAUTH_CLIENTID }}
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 22
+
+      - name: Install dependencies for download actions
+        run: npm install @octokit/auth-app @octokit/request @octokit/core node-fetch 
+        shell: bash
+
+
+      - name: Run download script
+        run: node download-vscuse-python.js "latest" "${{ github.workspace }}/packages/tests/vscuse/vscode-test-cases"
+        shell: bash
+        working-directory: .github/actions/setup-vscuse-environment
+
+      - name: Set up Python virtual environment and install wheel
+        run: |
+          cd packages/tests/vscuse/vscode-test-cases
+          python -m venv .venv
+          source .venv/bin/activate
+          WHEEL_FILE=$(ls *.whl | head -n 1)
+          pip install "./$WHEEL_FILE"
+        shell: bash
+
+      - name: Verify Azure Configuration
+        run: |
+          echo "Verifying Azure configuration..."
+
+          # Check Azure OpenAI (required)
+          if [ -z "$AZURE_OPENAI_ENDPOINT" ] || [ -z "$AZURE_OPENAI_API_KEY" ]; then
+            echo "❌ Azure OpenAI configuration missing"
+            exit 1
+          else
+            echo "✅ Azure OpenAI configured"
+          fi
+
+          # Check Azure Service Principal (optional)
+          if [ -n "$AZURE_CLIENT_ID" ] && [ -n "$AZURE_CLIENT_SECRET" ] && [ -n "$AZURE_TENANT_ID" ]; then
+            echo "✅ Azure Service Principal configured - M365 Toolkit authentication enabled"
+          else
+            echo "⚠️  Azure Service Principal not configured - M365 Toolkit authentication disabled"
+          fi
+
+      - name: Set m365 account randomly
+        run: |
+          users=("${{ env.M365_USERNAME_1 }}" "${{ env.M365_USERNAME_2 }}" "${{ env.M365_USERNAME_3 }}" "${{ env.M365_USERNAME_4 }}")
+          count=${#users[@]}
+          index=$((RANDOM%$count))
+          echo "account index: $index"
+          echo "M365_ACCOUNT_NAME=${users[index]}" >> $GITHUB_ENV
+
+      - name: Log in to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Pull pre-built Docker image
+        run: |
+          IMAGE_TAG="${{ github.event.inputs.image_tag }}"
+          if [ -z "$IMAGE_TAG" ]; then
+            IMAGE_TAG="latest"
+          fi
+          VSCUSE_VSCODE_IMAGE="ghcr.io/microsoft/vscuse-vscode:$IMAGE_TAG"
+          echo "VSCUSE_VSCODE_IMAGE=$VSCUSE_VSCODE_IMAGE" >> $GITHUB_ENV
+          echo "Pulling pre-built Docker image: $VSCUSE_VSCODE_IMAGE"
+          docker pull $VSCUSE_VSCODE_IMAGE
+          echo "✅ Image pulled successfully!"
+          echo "Image details:"
+          docker images $VSCUSE_VSCODE_IMAGE
+          
+      - name: Run test
+        run: |
+          echo "🚀 Running test plan: ${{ matrix.test_plan }}"
+          echo "Using image tag: ${{ github.event.inputs.image_tag || 'latest' }}"
+          echo "Test execution started at: $(date)"
+
+          cd packages/tests/vscuse/vscode-test-cases
+          python -m venv .venv
+          source .venv/bin/activate
+          vscuse execute --config-file ./config.yaml --groups-dir groups ./plans/${{ matrix.test_plan }}.json
+
+      - name: Upload test artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-debug-artifacts-${{ matrix.test_plan }}-${{ github.run_number }}
+          path: |
+            packages/tests/vscuse/vscode-test-cases/test_report/
+          retention-days: 7
+          if-no-files-found: ignore
+
+
+      - name: Rename test_report.html to index.html
+        if: always()
+        run: |
+          REPORT_DIR="packages/tests/vscuse/vscode-test-cases/test_report"
+          if [ -f "$REPORT_DIR/test_report.html" ]; then
+            mv "$REPORT_DIR/test_report.html" "$REPORT_DIR/index.html"
+            echo "Renamed test_report.html to index.html"
+          else
+            echo "No test_report.html found to rename"
+          fi
+      # Upload files to Azure Blob Storage
+      - name : Login to Azure
+        if: always()
+        uses: azure/login@v2
+        with:
+          client-id: ${{secrets.DEVOPS_CLIENT_ID}}
+          tenant-id: ${{secrets.DEVOPS_TENANT_ID}}
+          subscription-id: ${{secrets.DEVOPS_SUB_ID}}
+          enable-AzPSSession: true
+
+      - name: Upload files to Azure Blob Storage
+        if: always()
+        shell: pwsh
+        run: |
+          $guid = [guid]::NewGuid().ToString()
+          $account = $env:AZURE_STORAGE_ACCOUNT
+          $sourcePath = "packages/tests/vscuse/vscode-test-cases/test_report/"
+          $destination = "`$web/$guid"
+          $storageUrl = "https://vscusedownload.z13.web.core.windows.net/$guid/index.html"
+      
+          Write-Host "🌐Here is the report: $storageUrl"
+
+          echo "$storageUrl" > storage_url.txt
+      
+          az storage blob upload-batch `
+            --account-name $account `
+            --auth-mode login `
+            --destination $destination `
+            --source "$sourcePath" `
+            --overwrite
+        env:
+          AZURE_STORAGE_ACCOUNT: vscusedownload
+
+      - name: Cleanup
+        if: always()
+        run: |
+          echo "🧹 Cleaning up resources..."
+
+          # Stop and remove any containers using our image
+          echo "Cleaning up VSCode containers..."
+          docker stop $(docker ps -q --filter "ancestor=ghcr.io/microsoft/vscuse-vscode:${{ github.event.inputs.image_tag || 'latest' }}") 2>/dev/null || echo "No containers to stop"
+          docker rm $(docker ps -aq --filter "ancestor=ghcr.io/microsoft/vscuse-vscode:${{ github.event.inputs.image_tag || 'latest' }}") 2>/dev/null || echo "No containers to remove"
+
+  rerun:
+    permissions:
+      actions: write
+    needs: main
+    if: ${{ (github.event_name == 'workflow_dispatch' || github.event_name == 'schedule') && failure() && github.run_attempt < 3 }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: trigger rerun workflow
+        run: |
+          curl \
+            -X POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}"\
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            https://api.github.com/repos/${{ github.repository }}/actions/workflows/rerun.yml/dispatches \
+            -d '{"ref":"${{ github.ref_name }}","inputs":{"run_id":"${{ github.run_id }}", "max_attempts":"3"}}'
