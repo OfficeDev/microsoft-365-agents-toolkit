@@ -10132,6 +10132,9 @@
       <Item ItemId=";error.m365.SharedScopeAdvancedDADisabled" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Deployment blocked: Advanced declarative agent can't be deployed due to tenant permission settings. Get more info: [Manage agents for Microsoft 365 Copilot in the Microsoft 365 admin center - Microsoft 365 admin | Microsoft Learn]5D;(%s)]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Distribuzione bloccata: l'agente dichiarativo avanzato non può essere distribuito a causa delle impostazioni delle autorizzazioni del tenant. Altre informazioni: [Gestisci agenti per Microsoft 365 Copilot nell'interfaccia di amministrazione di Microsoft 365 - amministratore di Microsoft 365 | Microsoft Learn]5D;(%s)]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
