@@ -1,0 +1,59 @@
+{
+  "id": "${{AAD_APP_OBJECT_ID}}",
+  "appId": "${{AAD_APP_CLIENT_ID}}",
+  "displayName": "TravelAgent-AAD${{APP_NAME_SUFFIX}}",
+  "identifierUris": ["api://${{AAD_APP_CLIENT_ID}}"],
+  "signInAudience": "AzureADMyOrg",
+  "api": {
+    "requestedAccessTokenVersion": 2,
+    "oauth2PermissionScopes": [
+      {
+        "adminConsentDescription": "Teams can call the app's web APIs as the current user",
+        "adminConsentDisplayName": "Teams can access user profile",
+        "id": "d3b2b4e0-d96e-457c-82b1-2c20d8d76457",
+        "isEnabled": true,
+        "type": "User",
+        "value": "access_as_user"
+      }
+    ],
+    "preAuthorizedApplications": []
+  },
+  "info": {},
+  "optionalClaims": null,
+  "publicClient": {
+    "redirectUris": []
+  },
+  "requiredResourceAccess": [
+    {
+      "resourceAppId": "00000003-0000-0000-c000-000000000000",
+      "resourceAccess": [
+        {
+          "id": "922f9392-b1b7-483c-a4be-0089be7704fb",
+          "type": "Scope"
+        },
+        {
+          "id": "df85f4d6-205c-4ac5-a5ea-6bf408dba283",
+          "type": "Scope"
+        },
+        {
+          "id": "205e70e5-aba6-4c52-a976-6d2d46c48043",
+          "type": "Scope"
+        },
+        {
+          "id": "e1fe6dd8-ba31-4d61-89e7-88639da4683d",
+          "type": "Scope"
+        }
+      ]
+    }
+  ],
+  "web": {
+    "redirectUris": ["https://token.botframework.com/.auth/web/redirect"],
+    "implicitGrantSettings": {
+      "enableIdTokenIssuance": false,
+      "enableAccessTokenIssuance": false
+    }
+  },
+  "spa": {
+    "redirectUris": []
+  }
+}
