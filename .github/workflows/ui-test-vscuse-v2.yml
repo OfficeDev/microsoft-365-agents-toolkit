@@ -222,7 +222,7 @@ jobs:
           subscription-id: ${{secrets.DEVOPS_SUB_ID}}
           enable-AzPSSession: true
 
-      - name: Upload files to Azure Blob Storage
+      - name: 🌐Upload files to Azure Blob Storage
         if: always()
         shell: pwsh
         run: |
