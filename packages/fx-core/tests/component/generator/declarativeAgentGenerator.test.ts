@@ -1206,6 +1206,22 @@ describe("helper", async () => {
 
   describe("MCPServerTypeNode and Local MCP Server Support", async () => {
     it("MCPServerTypeNode should return correct structure", async () => {
+      const mockServers = [
+        {
+          name: "test-server",
+          display_name: "Test Server",
+          description: "Test server",
+          version: "1.0.0",
+          identifier: "test.server",
+          packageFamily: "packagefamily",
+          command: "odr.exe",
+          args: ["mcp", "--proxy", "test.server"],
+          tools: [{ name: "tool1", description: "Tool 1", inputSchema: {} }],
+        },
+      ];
+
+      const listServersStub = sandbox.stub(ODRProvider, "listServers").resolves(mockServers);
+
       const node = MCPServerTypeNode();
 
       // Test basic structure
@@ -1223,14 +1239,37 @@ describe("helper", async () => {
       assert.equal(questionData.name, QuestionNames.MCPServerType);
       assert.equal(questionData.type, "singleSelect");
       assert.equal(questionData.default, "remote");
-      assert.equal(questionData.staticOptions.length, 2);
+      assert.equal(questionData.staticOptions.length, 0);
 
-      const options = questionData.staticOptions as OptionItem[];
+      const inputs: Inputs = { platform: Platform.CLI };
+      const options = (await (questionData.dynamicOptions as DynamicOptions)(
+        inputs
+      )) as OptionItem[];
+      assert.equal(options.length, 2);
       assert.equal(options[0].id, "remote");
       assert.equal(options[1].id, "local");
+      assert.isTrue(listServersStub.calledOnce);
 
       // Test children structure
       assert.equal(node.children?.length, 2);
+    });
+
+    it("MCPServerTypeNode should only show remote option when no servers available", async () => {
+      const listServersStub = sandbox.stub(ODRProvider, "listServers").resolves([]);
+
+      const node = MCPServerTypeNode();
+      const questionData = (await node.data) as SingleSelectQuestion;
+
+      const inputs: Inputs = { platform: Platform.CLI };
+      const options = (await (questionData.dynamicOptions as DynamicOptions)(
+        inputs
+      )) as OptionItem[];
+
+      assert.equal(options.length, 1);
+      assert.equal(options[0].id, "remote");
+      assert.isTrue(listServersStub.calledOnce);
+
+      assert.deepEqual(inputs["_McpOdrOutput"], []);
     });
 
     it("MCPLocalServerSelectionNode dynamicOptions should work correctly", async () => {
@@ -1262,15 +1301,19 @@ describe("helper", async () => {
         },
       ];
 
-      const listServersStub = sandbox.stub(ODRProvider, "listServers").resolves(mockServers);
-
       const node = MCPLocalServerSelectionNode();
       const questionData = (await node.data) as SingleSelectQuestion;
-      const options = (await (questionData.dynamicOptions as DynamicOptions)({
-        platform: Platform.CLI,
-      })) as OptionItem[];
 
-      assert.isTrue(listServersStub.calledOnce);
+      // Set up the inputs with the mock servers as if MCPServerTypeNode had set them
+      const inputs: Inputs = {
+        platform: Platform.CLI,
+        _McpOdrOutput: mockServers,
+      };
+
+      const options = (await (questionData.dynamicOptions as DynamicOptions)(
+        inputs
+      )) as OptionItem[];
+
       assert.isArray(options);
       assert.isDefined(options);
       assert.equal(options?.length, 2);
