@@ -22,7 +22,6 @@
       }
     ]
   },
-{{/enableTestToolByDefault}}
   {
     "Name": "Microsoft Teams (browser)",
     "Projects": [
@@ -116,6 +115,5 @@
       }
     ]
 {{/CEAEnabled}}
-{{#enableTestToolByDefault}}
   }
 ]

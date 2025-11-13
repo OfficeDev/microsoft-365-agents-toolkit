@@ -11,21 +11,21 @@
   },
   "AllowedHosts": "*",
   "Teams": {
-    "ClientId": "${{BOT_ID}}",
-    "ClientSecret": "${{SECRET_BOT_PASSWORD}}",
+    "ClientId": "",
+    "ClientSecret": "",
     "BotType": ""
   },
 {{#useOpenAI}}
   "OpenAI": {
-    "ApiKey": "${{SECRET_OPENAI_API_KEY}}",
-    "DefaultModel": "${{OPENAI_MODEL_NAME}}"
+    "ApiKey": "",
+    "DefaultModel": "gpt-3.5-turbo"
   },
 {{/useOpenAI}}
 {{#useAzureOpenAI}}
   "Azure": {
-    "OpenAIApiKey": "${{SECRET_AZURE_OPENAI_API_KEY}}",
-    "OpenAIEndpoint": "${{AZURE_OPENAI_ENDPOINT}}",
-    "OpenAIDeploymentName": "${{AZURE_OPENAI_DEPLOYMENT_NAME}}" 
+    "OpenAIApiKey": "",
+    "OpenAIEndpoint": "",
+    "OpenAIDeploymentName": "" 
   },
 {{/useAzureOpenAI}}
   "Database": {

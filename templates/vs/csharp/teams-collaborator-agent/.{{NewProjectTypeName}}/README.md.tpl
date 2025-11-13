@@ -32,33 +32,67 @@ If Collab Agent is added to a groupchat or private message, it will always liste
 The agent will respond whenever @mentioned in groupchats and will always respond in 1-on-1 messages. When the agent responds, the request is first passed through a manger prompt.
 This manager may route to a capability based on the request--this capability returns its result back to the manager where it will be passed back to the user.
 
-## Running the Sample
-
-### Prerequisites
-
-- [.NET 8.0 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) or later
-- [Microsoft 365 Agents Toolkit](https://marketplace.visualstudio.com/items?itemName=TeamsDevApp.ms-teams-vscode-extension) for Visual Studio
-- [Visual Studio 2022](https://visualstudio.microsoft.com/vs/) with .NET development workload
-- A Microsoft Teams account with the ability to upload custom apps
-- Azure OpenAI resource with GPT-4 deployment
-
-### Environment Variables
-
-Update the `.env.*.user` file with your configuration:
-  - `SECRET_AZURE_OPENAI_API_KEY`: Your Azure OpenAI API key
-  - `AZURE_OPENAI_ENDPOINT`: Your Azure OpenAI endpoint URL
-  - `AZURE_OPENAI_DEPLOYMENT_NAME`: Your GPT-4 model deployment name
-
 ### Running the Bot
 
+**Prerequisites**
+> To run the agent template in your local dev machine, you will need:
+>
+{{#useOpenAI}}
+> - an account with [OpenAI](https://platform.openai.com).
+{{/useOpenAI}}
+{{#useAzureOpenAI}}
+> - [Azure OpenAI](https://aka.ms/oai/access) resource
+{{/useAzureOpenAI}}
+
+### Debug agent in Microsoft 365 Agents Playground
+{{#useOpenAI}}
+1. Ensure your OpenAI API Key is filled in `appsettings.Playground.json`.
+    ```
+    "OpenAI": {
+      "ApiKey": "<your-openai-api-key>"
+    }
+    ```
+{{/useOpenAI}}
+{{#useAzureOpenAI}}
+1. Ensure your Azure OpenAI settings are filled in `appsettings.Playground.json`.
+    ```
+    "Azure": {
+      "OpenAIApiKey": "<your-azure-openai-api-key>",
+      "OpenAIEndpoint": "<your-azure-openai-endpoint>",
+      "OpenAIDeploymentName": "<your-azure-openai-deployment-name>"
+    }
+    ```
+{{/useAzureOpenAI}}
+1. Set `Startup Item` as `Microsoft 365 Agents Playground (browser)`.
+![image](https://raw.githubusercontent.com/OfficeDev/TeamsFx/dev/docs/images/visualstudio/debug/switch-to-test-tool.png)
+1. Press F5, or select the Debug > Start Debugging menu in Visual Studio.
+1. In Microsoft 365 Agents Playground from the launched browser, type and send anything to your agent to trigger a response.
+
+### Debug agent in Teams Web Client
+{{#useOpenAI}}
+1. Ensure your OpenAI API Key is filled in `env/.env.local.user`.
+    ```
+    SECRET_OPENAI_API_KEY="<your-openai-api-key>"
+    ```
+{{/useOpenAI}}
+{{#useAzureOpenAI}}
+1. Ensure your Azure OpenAI settings are filled in `env/.env.local.user`.
+    ```
+    SECRET_AZURE_OPENAI_API_KEY="<your-azure-openai-api-key>"
+    AZURE_OPENAI_ENDPOINT="<your-azure-openai-endpoint>"
+    AZURE_OPENAI_DEPLOYMENT_NAME="<your-azure-openai-deployment-name>"
+    ```
+{{/useAzureOpenAI}}
+1. In the debug dropdown menu, select Dev Tunnels > Create A Tunnel (set authentication type to Public) or select an existing public dev tunnel.
+2. Right-click the '{{NewProjectTypeName}}' project in Solution Explorer and select **Microsoft 365 Agents Toolkit > Select Microsoft 365 Account**
+3. Sign in to Microsoft 365 Agents Toolkit with a **Microsoft 365 work or school account**
+4. Set `Startup Item` as `Microsoft Teams (browser)`.
+5. Press F5, or select Debug > Start Debugging menu in Visual Studio to start your app
+</br>![image](https://raw.githubusercontent.com/OfficeDev/TeamsFx/dev/docs/images/visualstudio/debug/debug-button.png)
+6. In the opened web browser, select Add button to install the app in Teams
+7. In the chat bar, type and send anything to your agent to trigger a response.
+
 > For local debugging using Microsoft 365 Agents Toolkit CLI, you need to do some extra steps described in [Set up your Microsoft 365 Agents Toolkit CLI for local debugging](https://aka.ms/teamsfx-cli-debugging).
-
-1. First, select the Microsoft 365 Agents Toolkit icon on the left in the Visual Studio toolbar.
-2. Press F5 to start debugging which launches your app in Microsoft 365 Agents Playground using a web browser. Select `Debug in Microsoft 365 Agents Playground`.
-3. The browser will pop up to open Microsoft 365 Agents Playground.
-4. You will receive a welcome message from the agent, and you can send anything to the agent to get an response.
-5. @mention the bot in any conversation to start using its capabilities!
-
 #### Sample Questions
 
 You can ask the Collaborator agent questions like:

@@ -25,7 +25,6 @@ if (config == null)
 }
 
 var teamsLogger = new TeamsLogging.ConsoleLogger("collaborator", TeamsLogging.LogLevel.Debug);
-builder.Logging.ClearProviders();
 builder.Logging.AddTeams(teamsLogger);
 builder.Services.AddSingleton<TeamsLogging.ILogger>(teamsLogger);
 
