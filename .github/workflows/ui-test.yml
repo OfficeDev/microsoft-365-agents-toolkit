@@ -412,12 +412,12 @@ jobs:
       - name: Get VSCode
         working-directory: packages/tests
         run: |
-          npx extest get-vscode --storage .test-resources --type stable
+          npx extest get-vscode --storage .test-resources --type stable --code_version 1.104
 
       - name: Get chromedriver
         working-directory: packages/tests
         run: |
-          npx extest get-chromedriver --storage .test-resources --type stable
+          npx extest get-chromedriver --storage .test-resources --type stable --code_version 1.104
 
       - name: M365 Login
         working-directory: packages/tests
