@@ -28,6 +28,8 @@ import {
   isValidProjectV3,
   InvalidAzureSubscriptionError,
   MFARequiredError,
+  featureFlagManager,
+  FeatureFlags,
 } from "@microsoft/teamsfx-core";
 import * as fs from "fs-extra";
 import * as path from "path";
