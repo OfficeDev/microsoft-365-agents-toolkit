@@ -189,14 +189,14 @@ jobs:
       DEVTUNNEL_TENANT_ID: ${{ secrets.TEST_CLEAN_TENANT_ID }}
 
       M365_ACCOUNT_PASSWORD: ${{ secrets.TEST_M365_PASSWORD }}
-      M365_USERNAME_1: "test21@xxbdw.onmicrosoft.com"
+      M365_USERNAME_1: "test25@xxbdw.onmicrosoft.com"
       M365_USERNAME_2: "test22@xxbdw.onmicrosoft.com"
       M365_USERNAME_3: "test23@xxbdw.onmicrosoft.com"
       M365_USERNAME_4: "test24@xxbdw.onmicrosoft.com"
-      M365_USERNAME_5: "test25@xxbdw.onmicrosoft.com"
+      M365_USERNAME_5: "test21@xxbdw.onmicrosoft.com"
       M365_DISPLAY_NAME: "test"
       M365_TENANT_ID: ${{ secrets.TEST_CLEAN_TENANT_ID }}
-      M365_COLLABORATOR: "admin@atktesting.onmicrosoft.com"
+      M365_COLLABORATOR: "haolong@xxbdw.onmicrosoft.com"
 
       AZURE_TENANT_ID: ${{ secrets.TEST_TENANT_ID }}
       AZURE_SUBSCRIPTION_ID: ${{ secrets.TEST_SUBSCRIPTION_ID }}
@@ -249,6 +249,15 @@ jobs:
         if: matrix.os == 'windows-latest' && (contains(matrix.test-case, 'tab') || contains(matrix.test-case, 'da-')) == true
         run: |          
           echo "M365_ACCOUNT_NAME=${{ env.M365_USERNAME_5 }}" >> $env:GITHUB_ENV
+
+      - name: Set Env for OpenAI Key (unix)
+        if: matrix.os != 'windows-latest' && contains(matrix.test-case, '-py-openai') == true
+        run: |
+          echo "AZURE_OPENAI_ENDPOINT=" >> $GITHUB_ENV
+      - name: Set Env for OpenAI Key (win)
+        if: matrix.os == 'windows-latest' && contains(matrix.test-case, '-py-openai') == true
+        run: |          
+          echo "AZURE_OPENAI_ENDPOINT=" >> $env:GITHUB_ENV
       
       - name: Checkout branch
         uses: actions/checkout@v3
