@@ -250,11 +250,11 @@ jobs:
         run: |          
           echo "M365_ACCOUNT_NAME=${{ env.M365_USERNAME_5 }}" >> $env:GITHUB_ENV
 
-      - name: Set Env for OpenAI Key (unix)
+      - name: Remove Azure OpenAI Key if use OpenAI Key (unix)
         if: matrix.os != 'windows-latest' && contains(matrix.test-case, '-py-openai') == true
         run: |
           echo "AZURE_OPENAI_ENDPOINT=" >> $GITHUB_ENV
-      - name: Set Env for OpenAI Key (win)
+      - name: Azure OpenAI Key if use OpenAI Key (win)
         if: matrix.os == 'windows-latest' && contains(matrix.test-case, '-py-openai') == true
         run: |          
           echo "AZURE_OPENAI_ENDPOINT=" >> $env:GITHUB_ENV
