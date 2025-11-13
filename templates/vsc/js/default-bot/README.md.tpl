@@ -57,7 +57,7 @@ The following files can be customized and demonstrate an example implementation 
 
 | File                                 | Contents                                           |
 | - | - |
-|`teamsBot.js`| Handles business logics for the echo bot.|
+|`app.js`| Handles business logics for the echo bot.|
 |`index.js`|`index.js` is used to setup and configure the echo bot.|
 
 The following are Microsoft 365 Agents Toolkit specific project files. You can [visit a complete guide on Github](https://github.com/OfficeDev/TeamsFx/wiki/Teams-Toolkit-Visual-Studio-Code-v5-Guide#overview) to understand how Microsoft 365 Agents Toolkit works.
@@ -66,7 +66,7 @@ The following are Microsoft 365 Agents Toolkit specific project files. You can [
 | - | - |
 |`m365agents.yml`|This is the main Microsoft 365 Agents Toolkit project file. The project file defines two primary things:  Properties and configuration Stage definitions. |
 |`m365agents.local.yml`|This overrides `m365agents.yml` with actions that enable local execution and debugging.|
-|`m365agents.testtool.yml`| This overrides `m365agents.yml` with actions that enable local execution and debugging in Microsoft 365 Agents Playground.|
+|`m365agents.playground.yml`| This overrides `m365agents.yml` with actions that enable local execution and debugging in Microsoft 365 Agents Playground.|
 
 ## Extend the Basic Bot template
 
