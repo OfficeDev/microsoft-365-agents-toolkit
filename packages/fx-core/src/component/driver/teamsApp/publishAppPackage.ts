@@ -110,8 +110,9 @@ export class PublishAppPackageDriver implements StepDriver {
             if (actionFile) {
               const isValid = await this.verifyLocalMCPPluginCerts(actionFile);
               if (!isValid) {
-                const message =
-                  "MSIX package certificate verification failed. One or more local mcp servers do not have a cert or have a self-signed cert.";
+                const message = getLocalizedString(
+                  "driver.teamsApp.error.localMcpCertVerificationFailed"
+                );
                 return err(
                   AppStudioResultFactory.UserError(AppStudioError.ValidationFailedError.name, [
                     message,

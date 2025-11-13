@@ -925,6 +925,7 @@
   "driver.teamsApp.summary.publishTeamsAppExists": "App with id %s already exists in the organization's app store.",
   "driver.teamsApp.summary.publishTeamsAppNotExists": "App with id %s does not exist in the organization's app store.",
   "driver.teamsApp.summary.publishTeamsAppSuccess": "App %s successfully published to the admin portal.",
+  "driver.teamsApp.error.localMcpCertVerificationFailed": "MSIX package certificate verification failed. One or more local mcp servers do not have a cert or have a self-signed cert.",
   "driver.teamsApp.summary.copyAppPackageSuccess": "App %s was successfully copied to %s.",
   "driver.teamsApp.summary.copyIconSuccess": "%s icon(s) were successfully updated under %s.",
   "driver.teamsApp.summary.validate": "Microsoft 365 Agents Toolkit has checked against all validation rules:\n\nSummary:\n%s.\n%s%s\n%s\n\nA complete log of validations can be found in %s",
