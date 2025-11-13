@@ -1,26 +1,5 @@
 {
   "plan_metadata": {
-    "description": "This is a new test plan. You can:\n\n1. Record interactions using the VNC viewer (click 'Show VNC' and start recording)\n2. Manually add steps one by one\n3. Edit this description to describe your test workflow\n\nStart by clicking 'Add Cell' below or begin recording your interactions!",
-    "generated_at": "2025-10-24T10:00:19.869830",
-    "name": "Simple bot py local debug",
-    "execution_order": [
-      "plan_r_0928_012254",
-      "step_6395141f",
-      "step_fafa6c1b",
-      "step_6e6924c1",
-      "step_716ca477",
-      "step_82ffdaf0",
-      "plan_r_0928_014459",
-      "plan_cfbed8f1",
-      "plan_r_1021_081410",
-      "plan_r_0930_083113",
-      "step_1836a587",
-      "step_f91d7bc0",
-      "step_66c1d46d",
-      "step_eb91e635"
-    ],
-    "tags": [],
-    "updated_at": "2025-10-27T08:38:00.381693",
     "version": "1.1",
     "plan_id": "plan_fc95f19d",
     "execution_context": {
@@ -31,230 +10,252 @@
       "step_retry_timeout": 0
     },
     "total_steps": 9,
-    "created_at": "2025-10-24T10:00:19.869830"
+    "created_at": "2025-11-12T05:19:35.461631",
+    "name": "Simple bot py local debug",
+    "description": "This is a new test plan. You can:\n\n1. Record interactions using the VNC viewer (click 'Show VNC' and start recording)\n2. Manually add steps one by one\n3. Edit this description to describe your test workflow\n\nStart by clicking 'Add Cell' below or begin recording your interactions!",
+    "generated_at": "2025-11-12T05:19:35.461625",
+    "execution_order": [
+      "plan_r_0928_012254",
+      "step_6395141f",
+      "step_fafa6c1b",
+      "step_6e6924c1",
+      "step_716ca477",
+      "step_82ffdaf0",
+      "plan_r_0928_014459",
+      "plan_cfbed8f1",
+      "plan_r_0929_040401",
+      "plan_r_1021_081410",
+      "plan_r_0930_083113",
+      "step_1836a587",
+      "step_f91d7bc0",
+      "step_66c1d46d",
+      "step_eb91e635"
+    ],
+    "tags": [],
+    "updated_at": "2025-11-12T07:39:55.838781"
   },
   "steps": [
     {
+      "step_id": "step_6395141f",
       "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 364,
+        "y": 214
+      },
       "description": "Click the \"Teams Agents and Apps\" option in the \"New Project\" popup within the Microsoft 365 Agents Toolkit extension for Visual Studio Code.",
-      "plan_id": "plan_fc95f19d",
       "content_refs": [],
+      "timeout": 30,
       "retry_count": 0,
+      "continue_on_error": "false",
       "depends_on": [],
       "preconditions": [
         "dhash:364:214:16:5:34a4a494d0a7a050",
         "dhash:364:214:96:5:6399912ca6d32820",
         "dhash:364:214:0:10:c8c8889090b26461"
       ],
-      "tags": [],
-      "created_at": "2025-10-27T08:34:37.856580",
-      "tool": "click",
-      "step_id": "step_6395141f",
-      "parameters": {
-        "x": 364,
-        "y": 214,
-        "button": "left"
-      },
-      "timeout": 30,
-      "continue_on_error": "false",
       "postconditions": [],
-      "screenshot": "step_6395141f"
+      "tags": [],
+      "screenshot": "step_6395141f",
+      "created_at": "2025-11-12T05:19:35.474692",
+      "plan_id": "plan_fc95f19d"
     },
     {
+      "step_id": "step_fafa6c1b",
       "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 389,
+        "y": 217
+      },
       "description": "Click the \"Other Teams Capabilities\" dropdown option in the \"Teams Agent or App Using Teams AI Library\" selector within the Microsoft 365 Agents Toolkit extension for Visual Studio Code.",
-      "plan_id": "plan_fc95f19d",
       "content_refs": [],
+      "timeout": 30,
       "retry_count": 0,
+      "continue_on_error": "false",
       "depends_on": [],
       "preconditions": [
         "dhash:389:217:16:5:b92932c8a0000012",
         "dhash:389:217:96:5:61b9c424dad22400",
         "dhash:389:217:0:10:c0c8809090b26461"
       ],
-      "tags": [],
-      "created_at": "2025-10-27T08:34:37.877396",
-      "tool": "click",
-      "step_id": "step_fafa6c1b",
-      "parameters": {
-        "x": 389,
-        "y": 217,
-        "button": "left"
-      },
-      "timeout": 30,
-      "continue_on_error": "false",
       "postconditions": [],
-      "screenshot": "step_fafa6c1b"
+      "tags": [],
+      "screenshot": "step_fafa6c1b",
+      "created_at": "2025-11-12T05:19:35.487324",
+      "plan_id": "plan_fc95f19d"
     },
     {
+      "step_id": "step_6e6924c1",
       "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 296,
+        "y": 174
+      },
       "description": "Select the \"Simple Bot\" option from the \"Teams Capability\" dropdown menu in the Microsoft 365 Agents Toolkit interface within Visual Studio Code.",
-      "plan_id": "plan_fc95f19d",
       "content_refs": [],
+      "timeout": 30,
       "retry_count": 0,
+      "continue_on_error": "false",
       "depends_on": [],
       "preconditions": [
         "dhash:296:174:16:5:688c72ac5584d2d9",
         "dhash:296:174:96:5:d212a1a05d994a48",
         "dhash:296:174:0:10:d0c0989092b26461"
       ],
-      "tags": [],
-      "created_at": "2025-10-27T08:34:37.898935",
-      "tool": "click",
-      "step_id": "step_6e6924c1",
-      "parameters": {
-        "x": 296,
-        "y": 174,
-        "button": "left"
-      },
-      "timeout": 30,
-      "continue_on_error": "false",
       "postconditions": [],
-      "screenshot": "step_6e6924c1"
+      "tags": [],
+      "screenshot": "step_6e6924c1",
+      "created_at": "2025-11-12T05:19:35.500238",
+      "plan_id": "plan_fc95f19d"
     },
     {
+      "step_id": "step_716ca477",
       "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 270,
+        "y": 127
+      },
       "description": "Click the \"Python\" option in the \"Programming Language\" dropdown within Visual Studio Code, selecting it from the language list.",
-      "plan_id": "plan_fc95f19d",
       "content_refs": [],
+      "timeout": 30,
       "retry_count": 0,
+      "continue_on_error": "false",
       "depends_on": [],
       "preconditions": [
         "dhash:270:127:16:5:a4a5a525ca200000",
         "dhash:270:127:96:5:8ca98982212b8303",
         "dhash:270:127:0:10:d094909092b26461"
       ],
-      "tags": [],
-      "created_at": "2025-10-27T08:34:37.920282",
-      "tool": "click",
-      "step_id": "step_716ca477",
-      "parameters": {
-        "x": 270,
-        "y": 127,
-        "button": "left"
-      },
-      "timeout": 30,
-      "continue_on_error": "false",
       "postconditions": [],
-      "screenshot": "step_716ca477"
+      "tags": [],
+      "screenshot": "step_716ca477",
+      "created_at": "2025-11-12T05:19:35.515446",
+      "plan_id": "plan_fc95f19d"
     },
     {
+      "step_id": "step_82ffdaf0",
       "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 407,
+        "y": 79
+      },
       "description": "Click the \"Default folder (/home/vscode/AgentsToolkitProjects)\" option in the \"Workspace Folder\" dropdown within Visual Studio Code to select the project root location.",
-      "plan_id": "plan_fc95f19d",
       "content_refs": [],
+      "timeout": 30,
       "retry_count": 0,
+      "continue_on_error": "false",
       "depends_on": [],
       "preconditions": [
         "dhash:407:79:16:5:354da58bca5a1552",
         "dhash:407:79:96:5:00b765282c03820d",
         "dhash:407:79:0:10:d0b0909092926461"
       ],
-      "tags": [],
-      "created_at": "2025-10-27T08:34:37.938495",
-      "tool": "click",
-      "step_id": "step_82ffdaf0",
-      "parameters": {
-        "x": 407,
-        "y": 79,
-        "button": "left"
-      },
-      "timeout": 30,
-      "continue_on_error": "false",
       "postconditions": [],
-      "screenshot": "step_82ffdaf0"
+      "tags": [],
+      "screenshot": "step_82ffdaf0",
+      "created_at": "2025-11-12T05:19:35.528838",
+      "plan_id": "plan_fc95f19d"
     },
     {
+      "step_id": "step_1836a587",
       "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 277,
+        "y": 722
+      },
       "description": "Click the \"Type a message\" input box at the bottom of the Microsoft Teams chat interface.",
-      "plan_id": "plan_fc95f19d",
       "content_refs": [],
+      "timeout": 30,
       "retry_count": 0,
+      "continue_on_error": "false",
       "depends_on": [],
       "preconditions": [
         "dhash:277:722:16:5:c0c0c00000000000",
         "dhash:277:722:96:5:0000983030400000",
         "dhash:277:722:0:10:30b0b08e8e8885a1"
       ],
-      "tags": [],
-      "created_at": "2025-10-27T08:34:37.957430",
-      "tool": "click",
-      "step_id": "step_1836a587",
-      "parameters": {
-        "x": 277,
-        "y": 722,
-        "button": "left"
-      },
-      "timeout": 30,
-      "continue_on_error": "false",
       "postconditions": [],
-      "screenshot": "step_1836a587"
+      "tags": [],
+      "screenshot": "step_1836a587",
+      "created_at": "2025-11-12T05:19:35.541519",
+      "plan_id": "plan_fc95f19d"
     },
     {
+      "step_id": "step_f91d7bc0",
       "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "text": "Hi"
+      },
       "description": "Type \"Hi\" into the message input box at the bottom of a Microsoft Teams bot chat interface within the {{$var:app_name}} app.",
-      "plan_id": "plan_fc95f19d",
       "content_refs": [],
+      "timeout": 30,
       "retry_count": 0,
+      "continue_on_error": "false",
       "depends_on": [],
       "preconditions": [
         "dhash:512:384:0:20:30b0b08e8e888081"
       ],
-      "tags": [],
-      "created_at": "2025-10-27T08:34:37.973253",
-      "tool": "type_text",
-      "step_id": "step_f91d7bc0",
-      "parameters": {
-        "text": "Hi"
-      },
-      "timeout": 30,
-      "continue_on_error": "false",
       "postconditions": [],
-      "screenshot": "step_f91d7bc0"
+      "tags": [],
+      "screenshot": "step_f91d7bc0",
+      "created_at": "2025-11-12T05:19:35.553588",
+      "plan_id": "plan_fc95f19d"
     },
     {
+      "step_id": "step_66c1d46d",
       "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 920,
+        "y": 720
+      },
       "description": "Click the \"Send\" button (paper plane icon) in the chat input area of the Microsoft Teams web app to submit the message \"Hi\" to the {{$var:app_name}} bot.",
-      "plan_id": "plan_fc95f19d",
       "content_refs": [],
+      "timeout": 30,
       "retry_count": 0,
+      "continue_on_error": "false",
       "depends_on": [],
       "preconditions": [
         "dhash:920:720:16:5:8f4b400043cf9cb3",
         "dhash:920:720:96:5:e8e8114d4d130000",
         "dhash:920:720:0:10:30b0b08e8e888081"
       ],
-      "tags": [],
-      "created_at": "2025-10-27T08:34:37.992056",
-      "tool": "click",
-      "step_id": "step_66c1d46d",
-      "parameters": {
-        "x": 920,
-        "y": 720,
-        "button": "left"
-      },
-      "timeout": 30,
-      "continue_on_error": "false",
       "postconditions": [],
-      "screenshot": "step_66c1d46d"
+      "tags": [],
+      "screenshot": "step_66c1d46d",
+      "created_at": "2025-11-12T05:19:35.566237",
+      "plan_id": "plan_fc95f19d"
     },
     {
+      "step_id": "step_eb91e635",
       "agent": "assertion",
+      "tool": "",
+      "parameters": {},
       "description": "@assertion bot has response with text \"You said\"",
-      "plan_id": "plan_fc95f19d",
       "content_refs": [],
+      "timeout": 30,
       "retry_count": 0,
+      "continue_on_error": "false",
       "depends_on": [],
       "preconditions": [],
-      "tags": [],
-      "created_at": "2025-10-27T08:34:38.007473",
-      "tool": "",
-      "step_id": "step_eb91e635",
-      "parameters": {},
-      "timeout": 30,
-      "continue_on_error": "false",
       "postconditions": [],
-      "screenshot": null
+      "tags": [],
+      "screenshot": null,
+      "created_at": "2025-11-12T05:19:35.578574",
+      "plan_id": "plan_fc95f19d"
     }
   ],
   "screenshots": {
