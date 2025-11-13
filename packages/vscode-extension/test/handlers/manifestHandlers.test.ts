@@ -46,7 +46,7 @@ describe("Manifest handlers", () => {
       sandbox.stub(globalVariables, "workspaceUri").value(vscode.Uri.file("path"));
     });
     it("publish in developer portal - success", async () => {
-      sandbox.stub(vsc_ui, "VS_CODE_UI").value(new vsc_ui.VsCodeUI(<vscode.ExtensionContext>{}));
+      sandbox.stub(vsc_ui, "VS_CODE_UI").value(new vsc_ui.VsCodeUI({} as vscode.ExtensionContext));
       sandbox
         .stub(vsc_ui.VS_CODE_UI, "selectFile")
         .resolves(ok({ type: "success", result: "test.zip" }));
@@ -64,7 +64,7 @@ describe("Manifest handlers", () => {
     });
 
     it("publish in developer portal - cancelled", async () => {
-      sandbox.stub(vsc_ui, "VS_CODE_UI").value(new vsc_ui.VsCodeUI(<vscode.ExtensionContext>{}));
+      sandbox.stub(vsc_ui, "VS_CODE_UI").value(new vsc_ui.VsCodeUI({} as vscode.ExtensionContext));
       sandbox
         .stub(vsc_ui.VS_CODE_UI, "selectFile")
         .resolves(ok({ type: "success", result: "test2.zip" }));
@@ -75,7 +75,7 @@ describe("Manifest handlers", () => {
       assert.isTrue(res.isOk());
     });
     it("select file error", async () => {
-      sandbox.stub(vsc_ui, "VS_CODE_UI").value(new vsc_ui.VsCodeUI(<vscode.ExtensionContext>{}));
+      sandbox.stub(vsc_ui, "VS_CODE_UI").value(new vsc_ui.VsCodeUI({} as vscode.ExtensionContext));
       sandbox.stub(vsc_ui.VS_CODE_UI, "selectFile").resolves(err(new UserCancelError("VSC")));
       sandbox.stub(fs, "pathExists").resolves(true);
       sandbox.stub(fs, "readdir").resolves(["test.zip", "test.json"] as any);
@@ -83,7 +83,7 @@ describe("Manifest handlers", () => {
       assert.isTrue(res.isOk());
     });
     it("runCommand error", async () => {
-      sandbox.stub(vsc_ui, "VS_CODE_UI").value(new vsc_ui.VsCodeUI(<vscode.ExtensionContext>{}));
+      sandbox.stub(vsc_ui, "VS_CODE_UI").value(new vsc_ui.VsCodeUI({} as vscode.ExtensionContext));
       sandbox
         .stub(vsc_ui.VS_CODE_UI, "selectFile")
         .resolves(ok({ type: "success", result: "test.zip" }));

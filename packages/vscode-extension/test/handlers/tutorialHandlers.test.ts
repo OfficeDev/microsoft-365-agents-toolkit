@@ -26,6 +26,7 @@ describe("tutorialHandlers", () => {
       sandbox.stub(ExtTelemetry, "sendTelemetryErrorEvent");
       sandbox.stub(TreatmentVariableValue, "inProductDoc").value(true);
       sandbox.stub(globalVariables, "isSPFxProject").value(false);
+      sandbox.stub(templateMetadata, "getDefaultTemplatesOnPlatform").returns([]);
       let tutorialOptions: OptionItem[] = [];
       sandbox.stub(vsc_ui, "VS_CODE_UI").value({
         selectOption: (options: any) => {
@@ -48,6 +49,7 @@ describe("tutorialHandlers", () => {
       sandbox.stub(ExtTelemetry, "sendTelemetryErrorEvent");
       sandbox.stub(TreatmentVariableValue, "inProductDoc").value(true);
       sandbox.stub(globalVariables, "isSPFxProject").value(false);
+      sandbox.stub(templateMetadata, "getDefaultTemplatesOnPlatform").returns([]);
       let tutorialOptions: OptionItem[] = [];
       sandbox.stub(vsc_ui, "VS_CODE_UI").value({
         selectOption: (options: any) => {
@@ -69,6 +71,7 @@ describe("tutorialHandlers", () => {
       sandbox.stub(ExtTelemetry, "sendTelemetryErrorEvent");
       sandbox.stub(TreatmentVariableValue, "inProductDoc").value(true);
       sandbox.stub(globalVariables, "isSPFxProject").value(true);
+      sandbox.stub(templateMetadata, "getDefaultTemplatesOnPlatform").returns([]);
       let tutorialOptions: OptionItem[] = [];
       sandbox.stub(vsc_ui, "VS_CODE_UI").value({
         selectOption: (options: any) => {

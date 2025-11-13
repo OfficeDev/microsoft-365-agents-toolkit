@@ -1,5 +1,6 @@
 import { err, ok, SystemError, SystemErrorOptions, TeamsAppManifest } from "@microsoft/teamsfx-api";
 import { copilotGptManifestUtils, envUtil, featureFlagManager } from "@microsoft/teamsfx-core";
+import { GraphClient } from "@microsoft/teamsfx-core/build/src/client/graphClient";
 import * as chai from "chai";
 import fs from "fs-extra";
 import { afterEach, describe } from "mocha";
@@ -25,7 +26,6 @@ import * as globalVariables from "../../src/globalVariables";
 import { setTools, tools } from "../../src/globalVariables";
 import { TelemetryTriggerFrom } from "../../src/telemetry/extTelemetryEvents";
 import { MockTools } from "../mocks/mockTools";
-import { GraphClient } from "@microsoft/teamsfx-core/build/client/graphClient";
 
 describe("CodeLens Provider", () => {
   afterEach(() => {
@@ -108,12 +108,12 @@ describe("CodeLens Provider", () => {
     });
 
     it("ComputeTemplateCodeLenses for AAD manifest template", async () => {
-      const document = <vscode.TextDocument>{
+      const document = {
         fileName: "./aad.manifest.json",
         getText: () => {
           return '{"name": "test"}';
         },
-      };
+      } as vscode.TextDocument;
 
       const aadProvider = new AadAppTemplateCodeLensProvider();
       const res = await aadProvider.provideCodeLenses(document);
@@ -127,12 +127,12 @@ describe("CodeLens Provider", () => {
     });
 
     it("ComputeTemplateCodeLenses for AAD manifest template with new schema", async () => {
-      const document = <vscode.TextDocument>{
+      const document = {
         fileName: "./aad.manifest.json",
         getText: () => {
           return '{"displayName": "test"}';
         },
-      };
+      } as vscode.TextDocument;
 
       const aadProvider = new AadAppTemplateCodeLensProvider();
       const res = await aadProvider.provideCodeLenses(document);
@@ -145,12 +145,12 @@ describe("CodeLens Provider", () => {
 
     it("ComputeTemplateCodeLenses for aad manifest", async () => {
       sandbox.stub(fs, "pathExistsSync").returns(true);
-      const document = <vscode.TextDocument>{
+      const document = {
         fileName: "./build/aad.manifest.dev.json",
         getText: () => {
           return "{name: 'test'}";
         },
-      };
+      } as vscode.TextDocument;
 
       sandbox
         .stub(vscode.workspace, "workspaceFolders")
@@ -169,12 +169,12 @@ describe("CodeLens Provider", () => {
 
     it("ComputeTemplateCodeLenses for aad manifest if template not exist", async () => {
       sandbox.stub(fs, "pathExistsSync").returns(false);
-      const document = <vscode.TextDocument>{
+      const document = {
         fileName: "./build/aad.manifest.dev.json",
         getText: () => {
           return "{name: 'test'}";
         },
-      };
+      } as vscode.TextDocument;
 
       sandbox
         .stub(vscode.workspace, "workspaceFolders")
@@ -195,12 +195,12 @@ describe("CodeLens Provider", () => {
       sandbox
         .stub(vscode.workspace, "workspaceFolders")
         .value([{ uri: { fsPath: "workspacePath" } }]);
-      const document = <vscode.TextDocument>{
+      const document = {
         fileName: "./aad.manifest.json",
         getText: () => {
           return "{name: 'test'}";
         },
-      };
+      } as vscode.TextDocument;
 
       const permissionsJsonFile = new PermissionsJsonFileCodeLensProvider();
       const res = await permissionsJsonFile.provideCodeLenses(document);

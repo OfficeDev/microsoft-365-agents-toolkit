@@ -204,7 +204,7 @@ describe("Lifecycle handlers", () => {
 
     it("missing args", async () => {
       const progressHandler = new ProgressHandler("title", 1);
-      sandbox.stub(vsc_ui, "VS_CODE_UI").value(new vsc_ui.VsCodeUI(<vscode.ExtensionContext>{}));
+      sandbox.stub(vsc_ui, "VS_CODE_UI").value(new vsc_ui.VsCodeUI({} as vscode.ExtensionContext));
       const createProgressBar = sandbox
         .stub(vsc_ui.VS_CODE_UI, "createProgressBar")
         .returns(progressHandler);
@@ -217,7 +217,7 @@ describe("Lifecycle handlers", () => {
 
     it("incorrect number of args", async () => {
       const progressHandler = new ProgressHandler("title", 1);
-      sandbox.stub(vsc_ui, "VS_CODE_UI").value(new vsc_ui.VsCodeUI(<vscode.ExtensionContext>{}));
+      sandbox.stub(vsc_ui, "VS_CODE_UI").value(new vsc_ui.VsCodeUI({} as vscode.ExtensionContext));
       const createProgressBar = sandbox
         .stub(vsc_ui.VS_CODE_UI, "createProgressBar")
         .returns(progressHandler);
@@ -229,7 +229,7 @@ describe("Lifecycle handlers", () => {
     });
 
     it("general error when signing in M365", async () => {
-      sandbox.stub(vsc_ui, "VS_CODE_UI").value(new vsc_ui.VsCodeUI(<vscode.ExtensionContext>{}));
+      sandbox.stub(vsc_ui, "VS_CODE_UI").value(new vsc_ui.VsCodeUI({} as vscode.ExtensionContext));
       const progressHandler = new ProgressHandler("title", 1);
       const startProgress = sandbox.stub(progressHandler, "start").resolves();
       const endProgress = sandbox.stub(progressHandler, "end").resolves();
@@ -251,7 +251,7 @@ describe("Lifecycle handlers", () => {
     });
 
     it("error when signing M365", async () => {
-      sandbox.stub(vsc_ui, "VS_CODE_UI").value(new vsc_ui.VsCodeUI(<vscode.ExtensionContext>{}));
+      sandbox.stub(vsc_ui, "VS_CODE_UI").value(new vsc_ui.VsCodeUI({} as vscode.ExtensionContext));
       const progressHandler = new ProgressHandler("title", 1);
       const startProgress = sandbox.stub(progressHandler, "start").resolves();
       const endProgress = sandbox.stub(progressHandler, "end").resolves();
@@ -273,7 +273,7 @@ describe("Lifecycle handlers", () => {
     });
 
     it("error when signing in M365 but missing display message", async () => {
-      sandbox.stub(vsc_ui, "VS_CODE_UI").value(new vsc_ui.VsCodeUI(<vscode.ExtensionContext>{}));
+      sandbox.stub(vsc_ui, "VS_CODE_UI").value(new vsc_ui.VsCodeUI({} as vscode.ExtensionContext));
       const progressHandler = new ProgressHandler("title", 1);
       const startProgress = sandbox.stub(progressHandler, "start").resolves();
       const endProgress = sandbox.stub(progressHandler, "end").resolves();
@@ -295,7 +295,7 @@ describe("Lifecycle handlers", () => {
     });
 
     it("failed to get teams app", async () => {
-      sandbox.stub(vsc_ui, "VS_CODE_UI").value(new vsc_ui.VsCodeUI(<vscode.ExtensionContext>{}));
+      sandbox.stub(vsc_ui, "VS_CODE_UI").value(new vsc_ui.VsCodeUI({} as vscode.ExtensionContext));
       const progressHandler = new ProgressHandler("title", 1);
       const startProgress = sandbox.stub(progressHandler, "start").resolves();
       const endProgress = sandbox.stub(progressHandler, "end").resolves();
@@ -321,7 +321,7 @@ describe("Lifecycle handlers", () => {
     });
 
     it("happy path", async () => {
-      sandbox.stub(vsc_ui, "VS_CODE_UI").value(new vsc_ui.VsCodeUI(<vscode.ExtensionContext>{}));
+      sandbox.stub(vsc_ui, "VS_CODE_UI").value(new vsc_ui.VsCodeUI({} as vscode.ExtensionContext));
       const progressHandler = new ProgressHandler("title", 1);
       const startProgress = sandbox.stub(progressHandler, "start").resolves();
       const endProgress = sandbox.stub(progressHandler, "end").resolves();

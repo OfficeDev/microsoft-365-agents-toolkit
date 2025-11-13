@@ -380,7 +380,7 @@ describe("autoOpenProjectHandler", () => {
       }
     });
     const globalStateStub = sandbox.stub(globalState, "globalStateUpdate");
-    sandbox.stub(vsc_ui, "VS_CODE_UI").value(new VsCodeUI(<vscode.ExtensionContext>{}));
+    sandbox.stub(vsc_ui, "VS_CODE_UI").value(new VsCodeUI({} as vscode.ExtensionContext));
     const runCommandStub = sandbox.stub(vsc_ui.VS_CODE_UI, "runCommand");
     sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
 

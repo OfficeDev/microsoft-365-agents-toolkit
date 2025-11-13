@@ -23,7 +23,7 @@ describe("AccountHandlers", () => {
 
     beforeEach(() => {
       sandbox.stub(localizeUtils, "localize").returns("test");
-      sandbox.stub(vsc_ui, "VS_CODE_UI").value(new vsc_ui.VsCodeUI(<vscode.ExtensionContext>{}));
+      sandbox.stub(vsc_ui, "VS_CODE_UI").value(new vsc_ui.VsCodeUI({} as vscode.ExtensionContext));
     });
 
     it("create M365 account", async () => {
@@ -109,7 +109,7 @@ describe("AccountHandlers", () => {
       };
       sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
       sandbox.stub(vscode.window, "createQuickPick").returns(stubQuickPick as any);
-      sandbox.stub(vsc_ui, "VS_CODE_UI").value(new vsc_ui.VsCodeUI(<vscode.ExtensionContext>{}));
+      sandbox.stub(vsc_ui, "VS_CODE_UI").value(new vsc_ui.VsCodeUI({} as vscode.ExtensionContext));
       sandbox.stub(vsc_ui.VS_CODE_UI, "selectOption").resolves(ok({ result: "unknown" } as any));
     });
 

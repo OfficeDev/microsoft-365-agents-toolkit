@@ -43,7 +43,7 @@ describe("copilotChatHandler", async () => {
       hide: () => {},
       dispose: () => {},
     });
-    sandbox.stub(vsc_ui, "VS_CODE_UI").value(new vsc_ui.VsCodeUI(<vscode.ExtensionContext>{}));
+    sandbox.stub(vsc_ui, "VS_CODE_UI").value(new vsc_ui.VsCodeUI({} as vscode.ExtensionContext));
   });
 
   describe("openGithubCopilotChat", async () => {

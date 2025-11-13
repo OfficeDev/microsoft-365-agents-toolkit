@@ -1,22 +1,22 @@
-import * as vscode from "vscode";
+import { TokenCredential } from "@azure/core-auth";
+import { AccessToken, GetTokenOptions } from "@azure/identity";
 import {
-  Tools,
-  TokenProvider,
-  LogLevel,
-  LogProvider,
   AzureAccountProvider,
   FxError,
   LoginStatus,
+  LogLevel,
+  LogProvider,
   M365TokenProvider,
   Result,
   SubscriptionInfo,
   TelemetryReporter,
+  TokenProvider,
   TokenRequest,
+  Tools,
 } from "@microsoft/teamsfx-api";
-import { VsCodeUI } from "../../src/qm/vsc_ui";
-import { TokenCredential } from "@azure/core-auth";
-import { AccessToken, GetTokenOptions } from "@azure/identity";
+import * as vscode from "vscode";
 import { IExperimentationService } from "vscode-tas-client";
+import { VsCodeUI } from "../../src/qm/vsc_ui";
 
 export class MockTools implements Tools {
   logProvider = new MockLogProvider();
@@ -25,7 +25,7 @@ export class MockTools implements Tools {
     m365TokenProvider: new MockM365TokenProvider(),
   };
   telemetryReporter = new MockTelemetryReporter();
-  ui = new VsCodeUI(<vscode.ExtensionContext>{});
+  ui = new VsCodeUI({} as vscode.ExtensionContext);
   expServiceProvider = {} as IExperimentationService;
 }
 

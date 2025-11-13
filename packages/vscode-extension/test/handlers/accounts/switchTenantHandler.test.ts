@@ -25,7 +25,7 @@ describe("onSwitchM365Tenant", () => {
   beforeEach(() => {
     sendTelemetryEventStub = sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
     sendTelemetryErrorEventStub = sandbox.stub(ExtTelemetry, "sendTelemetryErrorEvent");
-    sandbox.stub(vsc_ui, "VS_CODE_UI").value(new vsc_ui.VsCodeUI(<vscode.ExtensionContext>{}));
+    sandbox.stub(vsc_ui, "VS_CODE_UI").value(new vsc_ui.VsCodeUI({} as vscode.ExtensionContext));
   });
 
   afterEach(() => {
@@ -146,7 +146,7 @@ describe("onSwitchAzureTenant", () => {
   beforeEach(() => {
     sendTelemetryEventStub = sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
     sendTelemetryErrorEventStub = sandbox.stub(ExtTelemetry, "sendTelemetryErrorEvent");
-    sandbox.stub(vsc_ui, "VS_CODE_UI").value(new vsc_ui.VsCodeUI(<vscode.ExtensionContext>{}));
+    sandbox.stub(vsc_ui, "VS_CODE_UI").value(new vsc_ui.VsCodeUI({} as vscode.ExtensionContext));
   });
 
   afterEach(() => {

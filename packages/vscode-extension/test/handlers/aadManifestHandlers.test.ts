@@ -71,7 +71,7 @@ describe("aadManifestHandlers", () => {
       sandbox.stub(projectSettingsHelper, "isValidProject").returns(true);
       sandbox.stub(fs, "existsSync").returns(false);
       sandbox.stub(environmentManager, "listAllEnvConfigs").resolves(ok(["dev"]));
-      sandbox.stub(vsc_ui, "VS_CODE_UI").value(new vsc_ui.VsCodeUI(<vscode.ExtensionContext>{}));
+      sandbox.stub(vsc_ui, "VS_CODE_UI").value(new vsc_ui.VsCodeUI({} as vscode.ExtensionContext));
       sandbox.stub(vsc_ui.VS_CODE_UI, "selectOption").resolves(
         ok({
           type: "success",
@@ -91,7 +91,7 @@ describe("aadManifestHandlers", () => {
       sandbox.stub(projectSettingsHelper, "isValidProject").returns(true);
       sandbox.stub(fs, "existsSync").returns(true);
       sandbox.stub(environmentManager, "listAllEnvConfigs").resolves(ok(["dev"]));
-      sandbox.stub(vsc_ui, "VS_CODE_UI").value(new vsc_ui.VsCodeUI(<vscode.ExtensionContext>{}));
+      sandbox.stub(vsc_ui, "VS_CODE_UI").value(new vsc_ui.VsCodeUI({} as vscode.ExtensionContext));
       sandbox.stub(vsc_ui.VS_CODE_UI, "selectOption").resolves(
         ok({
           type: "success",

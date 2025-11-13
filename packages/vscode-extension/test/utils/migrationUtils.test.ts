@@ -55,7 +55,7 @@ describe("migrationUtils", () => {
       const phantomMigrationV3Stub = sandbox
         .stub(globalVariables.core, "phantomMigrationV3")
         .resolves(ok(undefined));
-      sandbox.stub(vsc_ui, "VS_CODE_UI").value(new VsCodeUI(<ExtensionContext>{}));
+      sandbox.stub(vsc_ui, "VS_CODE_UI").value(new VsCodeUI({} as ExtensionContext));
       const vscUIReloadStub = sandbox.stub(vsc_ui.VS_CODE_UI, "reload").resolves();
       await migrationUtils.triggerV3Migration();
       chai.assert.isTrue(

@@ -21,7 +21,7 @@ describe("checkAccessCallback", () => {
     });
 
     beforeEach(() => {
-      sandbox.stub(vsc_ui, "VS_CODE_UI").value(new vsc_ui.VsCodeUI(<vscode.ExtensionContext>{}));
+      sandbox.stub(vsc_ui, "VS_CODE_UI").value(new vsc_ui.VsCodeUI({} as vscode.ExtensionContext));
     });
 
     it("checkCopilotCallback() and open url", async () => {
@@ -76,7 +76,7 @@ describe("checkAccessCallback", () => {
 
     beforeEach(() => {
       sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
-      sandbox.stub(vsc_ui, "VS_CODE_UI").value(new vsc_ui.VsCodeUI(<vscode.ExtensionContext>{}));
+      sandbox.stub(vsc_ui, "VS_CODE_UI").value(new vsc_ui.VsCodeUI({} as vscode.ExtensionContext));
     });
 
     it("checkSideloadingCallback() - click enable custom app upload button", async () => {

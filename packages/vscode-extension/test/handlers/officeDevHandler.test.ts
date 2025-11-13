@@ -26,7 +26,7 @@ describe("officeDevHandler", () => {
     openLinkFunc: (args?: any[]) => Promise<Result<boolean, FxError>>,
     urlPath: string
   ) {
-    sandbox.stub(vsc_ui, "VS_CODE_UI").value(new vsc_ui.VsCodeUI(<vscode.ExtensionContext>{}));
+    sandbox.stub(vsc_ui, "VS_CODE_UI").value(new vsc_ui.VsCodeUI({} as vscode.ExtensionContext));
     const openUrl = sandbox.stub(vsc_ui.VS_CODE_UI, "openUrl").resolves(ok(true));
     const res = await openLinkFunc(undefined);
     chai.assert.isTrue(openUrl.calledOnce);
