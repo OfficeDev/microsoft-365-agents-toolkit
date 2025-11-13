@@ -36,7 +36,7 @@ async function main() {
     sourcemap: !production,
     sourcesContent: false,
     platform: "node",
-    external: ["vscode"],
+    external: ["vscode", "keytar"],
     mainFields: ["module", "main"], // https://github.com/microsoft/node-jsonc-parser/issues/57
     logLevel: production ? "silent" : "info",
     plugins: [
