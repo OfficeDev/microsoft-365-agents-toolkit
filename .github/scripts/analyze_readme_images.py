@@ -39,6 +39,8 @@ class ImprovedReadmeImageAnalyzer:
         self.request_timeout = request_timeout
         self.max_total_time = max_total_time
         self.start_time = time.time()
+        self.last_request_time = 0
+        self.min_request_interval = 0.2  # Minimum 200ms between requests
         # Normalize exclude directories to Path objects for easier comparison
         self.exclude_paths = [Path(d) for d in self.exclude_dirs]
         self.results = {
@@ -120,6 +122,15 @@ class ImprovedReadmeImageAnalyzer:
     def _is_time_exceeded(self) -> bool:
         """Check if maximum execution time has been exceeded"""
         return (time.time() - self.start_time) > self.max_total_time
+    
+    def _rate_limit(self):
+        """Enforce rate limiting between requests"""
+        current_time = time.time()
+        time_since_last = current_time - self.last_request_time
+        if time_since_last < self.min_request_interval:
+            sleep_time = self.min_request_interval - time_since_last
+            time.sleep(sleep_time)
+        self.last_request_time = time.time()
 
     def extract_images_from_content(self, content: str, file_path: Path) -> List[Dict]:
         """Extract all image links from file content"""
@@ -194,26 +205,58 @@ class ImprovedReadmeImageAnalyzer:
                 resolved_url = url if url.startswith(('http://', 'https://')) else f"https:{url}"
                 result["resolved_url"] = resolved_url
                 
-                # Check HTTP availability
-                response = self.session.head(resolved_url, timeout=self.request_timeout, allow_redirects=True)
-                http_status = response.status_code
+                # Apply rate limiting
+                self._rate_limit()
                 
-                # If HEAD request fails, try GET request (some servers don't support HEAD)
-                if http_status >= 400:
+                # Check HTTP availability with retry logic for 429 errors
+                max_retries = 3
+                retry_delays = [1, 2, 4]  # Exponential backoff
+                
+                for attempt in range(max_retries + 1):
                     try:
-                        response = self.session.get(resolved_url, timeout=self.request_timeout, allow_redirects=True, stream=True)
+                        response = self.session.head(resolved_url, timeout=self.request_timeout, allow_redirects=True)
                         http_status = response.status_code
-                        # Only read a small part of content to confirm this is an image
-                        response.close()
-                    except:
-                        pass
+                        
+                        # If HEAD request fails, try GET request (some servers don't support HEAD)
+                        if http_status >= 400:
+                            try:
+                                response = self.session.get(resolved_url, timeout=self.request_timeout, allow_redirects=True, stream=True)
+                                http_status = response.status_code
+                                # Only read a small part of content to confirm this is an image
+                                response.close()
+                            except:
+                                pass
+                        
+                        # Handle rate limiting
+                        if http_status == 429 and attempt < max_retries:
+                            retry_delay = retry_delays[attempt]
+                            safe_print(f"Rate limited (429), retrying in {retry_delay}s... (attempt {attempt + 1}/{max_retries + 1})")
+                            time.sleep(retry_delay)
+                            continue
+                        
+                        # Break out of retry loop on success or non-429 error
+                        break
+                        
+                    except Exception as e:
+                        if attempt < max_retries:
+                            retry_delay = retry_delays[attempt]
+                            safe_print(f"Request failed ({str(e)}), retrying in {retry_delay}s... (attempt {attempt + 1}/{max_retries + 1})")
+                            time.sleep(retry_delay)
+                            continue
+                        else:
+                            # Last attempt failed
+                            http_status = 0
+                            break
                 
                 result["http_status"] = http_status
                 result["http_available"] = 200 <= http_status < 400
                 result["status"] = "working" if result["http_available"] else "broken"
                 
                 if not result["http_available"]:
-                    result["error"] = f"HTTP error: {http_status}"
+                    if http_status == 429:
+                        result["error"] = f"HTTP error: {http_status} (Rate Limited - too many requests)"
+                    else:
+                        result["error"] = f"HTTP error: {http_status}"
                 
                 return result
                 
@@ -315,8 +358,6 @@ class ImprovedReadmeImageAnalyzer:
                             except Exception:
                                 safe_print(f"Remote check {completed_count}/{len(remote_images)} ({elapsed}s): [URL with special chars]... - {result['status']}")
                             
-                            # Shorter delay for GitHub Actions
-                            time.sleep(0.05)
                         except Exception as e:
                             safe_print(f"Error processing remote image {completed_count+1}/{len(remote_images)}: {str(e)}")
                             completed_count += 1
@@ -412,8 +453,8 @@ def main():
         "--max-concurrent",
         "-c",
         type=int,
-        default=5,
-        help="Maximum number of concurrent HTTP requests (default: 5)"
+        default=3,
+        help="Maximum number of concurrent HTTP requests (default: 3)"
     )
     parser.add_argument(
         "--request-timeout",
