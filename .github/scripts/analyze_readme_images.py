@@ -40,7 +40,7 @@ class ImprovedReadmeImageAnalyzer:
         self.max_total_time = max_total_time
         self.start_time = time.time()
         self.last_request_time = 0
-        self.min_request_interval = 0.3  # Minimum 200ms between requests
+        self.min_request_interval = 0.3  # Minimum 300ms between requests
         # Normalize exclude directories to Path objects for easier comparison
         self.exclude_paths = [Path(d) for d in self.exclude_dirs]
         self.results = {
