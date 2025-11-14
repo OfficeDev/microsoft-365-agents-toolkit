@@ -31,7 +31,7 @@ def safe_print(message):
 
 class ImprovedReadmeImageAnalyzer:
     def __init__(self, base_path: str, scan_patterns: List[str] = None, exclude_dirs: List[str] = None, 
-                 max_concurrent: int = 5, request_timeout: int = 5, max_total_time: int = 300):
+                 max_concurrent: int = 5, request_timeout: int = 10, max_total_time: int = 300):
         self.base_path = Path(base_path)
         self.scan_patterns = scan_patterns or ["**/README.md", "**/README.md.tpl", "**/CHANGELOG.md", "**/PRERELEASE.md"]
         self.exclude_dirs = exclude_dirs or []
@@ -40,7 +40,7 @@ class ImprovedReadmeImageAnalyzer:
         self.max_total_time = max_total_time
         self.start_time = time.time()
         self.last_request_time = 0
-        self.min_request_interval = 0.2  # Minimum 200ms between requests
+        self.min_request_interval = 0.3  # Minimum 200ms between requests
         # Normalize exclude directories to Path objects for easier comparison
         self.exclude_paths = [Path(d) for d in self.exclude_dirs]
         self.results = {
@@ -453,22 +453,22 @@ def main():
         "--max-concurrent",
         "-c",
         type=int,
-        default=3,
-        help="Maximum number of concurrent HTTP requests (default: 3)"
+        default=2,
+        help="Maximum number of concurrent HTTP requests (default: 2)"
     )
     parser.add_argument(
         "--request-timeout",
         "-t",
         type=int,
-        default=5,
-        help="HTTP request timeout in seconds (default: 5)"
+        default=10,
+        help="HTTP request timeout in seconds (default: 10)"
     )
     parser.add_argument(
         "--max-total-time",
         "-m",
         type=int,
-        default=300,
-        help="Maximum total execution time in seconds (default: 300 = 5 minutes)"
+        default=600,
+        help="Maximum total execution time in seconds (default: 600 = 10 minutes)"
     )
     
     args = parser.parse_args()
