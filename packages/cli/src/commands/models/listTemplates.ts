@@ -27,6 +27,7 @@ export function listAllCapabilities(): OptionItem[] {
       VSCapabilityOptions.empty(),
       VSCapabilityOptions.declarativeAgent(),
       TeamsAgentCapabilityOptions.basicChatbot(),
+      TeamsAgentCapabilityOptions.collaboratorAgent(),
       TeamsAgentCapabilityOptions.customCopilotRag(),
       // TeamsAgentCapabilityOptions.aiAgent(),
       VSCapabilityOptions.weatherAgentBot(),
