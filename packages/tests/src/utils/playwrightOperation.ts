@@ -2924,7 +2924,7 @@ export async function messageExtensionActivate(page: Page, appName: string) {
   await messageExtensionChatWindow(page, Env.collaborator);
   console.log("start to activate message extension");
   const extButton = await page.waitForSelector(
-    "button[title='Actions and apps']"
+    "button[aria-label='Actions and apps']"
   );
   console.log("click Actions and apps");
   await extButton?.click();
