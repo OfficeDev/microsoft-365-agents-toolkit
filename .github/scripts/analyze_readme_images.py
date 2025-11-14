@@ -29,9 +29,12 @@ def safe_print(message):
         print(f"[Print error: {type(e).__name__}]")
 
 class ImprovedReadmeImageAnalyzer:
-    def __init__(self, base_path: str, scan_patterns: List[str] = None):
+    def __init__(self, base_path: str, scan_patterns: List[str] = None, exclude_dirs: List[str] = None):
         self.base_path = Path(base_path)
-        self.scan_patterns = scan_patterns or ["**/README.md", "**/README.md.tpl"]
+        self.scan_patterns = scan_patterns or ["**/README.md", "**/README.md.tpl", "**/CHANGELOG.md", "**/PRERELEASE.md"]
+        self.exclude_dirs = exclude_dirs or []
+        # Normalize exclude directories to Path objects for easier comparison
+        self.exclude_paths = [Path(d) for d in self.exclude_dirs]
         self.results = {
             "files_analyzed": [],
             "images_found": [],
@@ -54,12 +57,36 @@ class ImprovedReadmeImageAnalyzer:
         })
 
     def find_readme_files(self) -> List[Path]:
-        """Find all README.md and README.md.tpl files"""
+        """Find all README.md and README.md.tpl files, excluding specified directories"""
         readme_files = []
         
         # Use configured scan patterns to find files
         for pattern in self.scan_patterns:
             readme_files.extend(self.base_path.glob(pattern))
+        
+        # Filter out files in excluded directories
+        if self.exclude_dirs:
+            filtered_files = []
+            for file_path in readme_files:
+                should_exclude = False
+                relative_path = file_path.relative_to(self.base_path)
+                
+                # Check if file is in any excluded directory
+                for exclude_dir in self.exclude_dirs:
+                    exclude_path = Path(exclude_dir)
+                    try:
+                        # Check if the file path starts with the excluded directory
+                        relative_path.relative_to(exclude_path)
+                        should_exclude = True
+                        break
+                    except ValueError:
+                        # relative_to raises ValueError if the path is not relative to exclude_path
+                        continue
+                
+                if not should_exclude:
+                    filtered_files.append(file_path)
+            
+            readme_files = filtered_files
         
         return sorted(readme_files)
 
@@ -309,6 +336,7 @@ class ImprovedReadmeImageAnalyzer:
                 if img.get('http_status'):
                     print(f"  HTTP status: {img.get('http_status', 'N/A')}")
                 print(f"  Error: {img.get('error', 'N/A')}")
+                print(f"---------------------------------------------")
                 print()
 
 def main():
@@ -327,6 +355,13 @@ def main():
         default=["**/README.md", "**/README.md.tpl"],
         help="File patterns to scan (default: README.md and README.md.tpl)"
     )
+    parser.add_argument(
+        "--exclude-dirs",
+        "-e",
+        nargs="+",
+        default=[],
+        help="Directory patterns to exclude from scanning (e.g., node_modules, .git, temp)"
+    )
     
     args = parser.parse_args()
     
@@ -335,9 +370,11 @@ def main():
     
     print(f"Scan directory: {scan_directory}")
     print(f"File patterns: {', '.join(args.file_patterns)}")
+    if args.exclude_dirs:
+        print(f"Excluded directories: {', '.join(args.exclude_dirs)}")
     
     # Create analyzer instance
-    analyzer = ImprovedReadmeImageAnalyzer(scan_directory, args.file_patterns)
+    analyzer = ImprovedReadmeImageAnalyzer(scan_directory, args.file_patterns, args.exclude_dirs)
     
     # Execute analysis
     results = analyzer.analyze_files()
