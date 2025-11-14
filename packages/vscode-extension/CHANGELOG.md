@@ -86,7 +86,7 @@ The Teams Agents and apps templates which are powered by Teams SDK supports Pyth
 
 #### Enhancement
 
-- **important update: single-tenant Bot registration**
+- **Important update: single-tenant Bot registration**
  
 In this release, ATK is switching from multi-tenant to single-tenant bot registrations to align with Azure Bot Service (ABS) security requirements. ABS is retiring support for multi-tenant bot registrations. All new bot registrations must now use single-tenant configuration. This change enhances security and compliance across Microsoft 365 services.
 
@@ -98,7 +98,6 @@ Starting October 1, 2025, Microsoft Entra MFA enforcement applies to all Create,
 
 - Enhanced the filters and other UI elements in sample gallery for users to easier locate the right sample.
 - Updated the [app manifest version to v1.24](https://developer.microsoft.com/json-schemas/teams/v1.24/MicrosoftTeams.schema.json).
-- Updated [Declarative Agents manifest version to v1.6](https://learn.microsoft.com/en-us/microsoft-365-copilot/extensibility/declarative-agent-manifest-1.6).
 - Updated the [TypeSpec version to v1.0](https://www.npmjs.com/package/@microsoft/typespec-m365-copilot)
   
 ## 6.2.2 - Oct 16, 2025
