@@ -16,8 +16,8 @@ import {
   envUtil,
   featureFlagManager,
 } from "@microsoft/teamsfx-core";
-import * as settingHelper from "@microsoft/teamsfx-core/build/common/projectSettingsHelper";
-import * as tools from "@microsoft/teamsfx-core/build/common/tools";
+import * as settingHelper from "@microsoft/teamsfx-core/build/src/common/projectSettingsHelper";
+import * as tools from "@microsoft/teamsfx-core/build/src/common/tools";
 import { assert } from "chai";
 import "mocha";
 import mockedEnv, { RestoreFn } from "mocked-env";

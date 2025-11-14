@@ -31,14 +31,14 @@ import {
   QuestionNames,
   SyncManifestInputs,
   TestToolInstallOptions,
+  VersionCheckRes,
   assembleError,
   environmentNameManager,
   getSideloadingStatus,
   listDevTunnels,
   teamsDevPortalClient,
 } from "@microsoft/teamsfx-core";
-import { SyncManifestInputsForVS } from "@microsoft/teamsfx-core/build/component/driver/teamsApp/interfaces/SyncManifest";
-import { VersionCheckRes } from "@microsoft/teamsfx-core/build/core/types";
+import { SyncManifestInputsForVS } from "@microsoft/teamsfx-core/build/src/component/driver/teamsApp/interfaces/SyncManifest";
 import path from "path";
 import { CancellationToken, MessageConnection } from "vscode-jsonrpc";
 import { DependencyStatusRPC, IServerConnection, Namespaces } from "./apis";

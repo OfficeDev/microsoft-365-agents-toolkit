@@ -1,14 +1,14 @@
-import * as handlers from "../../src/handlers/sharedOpts";
-import * as environmentUtils from "../../src/utils/systemEnvUtils";
+import { Inputs, ok } from "@microsoft/teamsfx-api";
+import { expect } from "chai";
+import * as sinon from "sinon";
 import * as vscode from "vscode";
-import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
+import * as handlers from "../../src/handlers/sharedOpts";
 import {
   createProjectFromWalkthroughHandler,
   openBuildIntelligentAppsWalkthroughHandler,
 } from "../../src/handlers/walkthrough";
-import * as sinon from "sinon";
-import { expect } from "chai";
-import { Inputs, ok } from "@microsoft/teamsfx-api";
+import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
+import * as environmentUtils from "../../src/utils/systemEnvUtils";
 
 describe("walkthrough", () => {
   const sandbox = sinon.createSandbox();
@@ -44,10 +44,12 @@ describe("walkthrough", () => {
 
     await openBuildIntelligentAppsWalkthroughHandler();
     sandbox.assert.calledOnce(sendTelemetryEventStub);
-    sandbox.assert.calledOnceWithExactly(
-      executeCommands,
-      "workbench.action.openWalkthrough",
-      "TeamsDevApp.ms-teams-vscode-extension#buildIntelligentApps"
-    );
+    sandbox.assert.calledOnce(executeCommands);
+    const args = executeCommands.getCall(0).args;
+    expect(args[0]).equals("workbench.action.openWalkthrough");
+    expect([
+      "TeamsDevApp.ms-teams-vscode-extension#buildIntelligentApps",
+      "TeamsDevApp.ms-teams-vscode-extension#buildIntelligentAppsWithChat",
+    ]).includes(args[1]);
   });
 });

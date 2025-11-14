@@ -1,6 +1,6 @@
 import { ok, TeamsAppManifest } from "@microsoft/teamsfx-api";
 import { featureFlagManager, manifestUtils } from "@microsoft/teamsfx-core";
-import * as projectSettingsHelper from "@microsoft/teamsfx-core/build/common/projectSettingsHelper";
+import * as projectSettingsHelper from "@microsoft/teamsfx-core/build/src/common/projectSettingsHelper";
 import * as chai from "chai";
 import fs from "fs-extra";
 import * as sinon from "sinon";
@@ -150,7 +150,9 @@ describe("Control Handlers", () => {
       const result = await openFolderHandler("file://path/to/folder");
 
       chai.assert.isTrue(sendTelemetryStub.called);
-      chai.assert.isTrue(openFolderInExplorerStub.calledOnceWith("/path/to/folder"));
+      chai.assert.isTrue(openFolderInExplorerStub.calledOnce);
+      const normalized = openFolderInExplorerStub.getCall(0).args[0].replace(/\\/g, "/");
+      chai.assert.equal(normalized, "/path/to/folder");
       chai.assert.isTrue(result.isOk());
     });
   });
@@ -232,7 +234,8 @@ describe("Control Handlers", () => {
       chai.assert.isTrue(isValidProjectStub.calledThrice);
       chai.assert.equal(isValidProjectStub.getCall(0).args[0], "/path/to/workspace");
       chai.assert.equal(isValidProjectStub.getCall(1).args[0], "/dirname");
-      chai.assert.equal(isValidProjectStub.getCall(2).args[0], "/");
+      const lastArg = (isValidProjectStub.getCall(2).args[0] as string).replace(/\\/g, "/");
+      chai.assert.equal(lastArg, "/");
       chai.assert.equal(sendTelemetryEventStub.getCall(0).args[0], TelemetryEvent.UpdateTeamsApp);
       chai.assert.deepEqual(sendTelemetryEventStub.getCall(0).args[1], {
         [TelemetryProperty.UpdateTeamsAppReason]: TelemetryUpdateAppReason.FocusOut,

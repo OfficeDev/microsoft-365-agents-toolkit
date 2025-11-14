@@ -1,15 +1,15 @@
+import { ok } from "@microsoft/teamsfx-api";
 import { featureFlagManager } from "@microsoft/teamsfx-core";
+import * as tool from "@microsoft/teamsfx-core/build/src/common/tools";
 import * as chai from "chai";
 import * as sinon from "sinon";
 import * as vscode from "vscode";
+import * as globalVariables from "../../../src/globalVariables";
 import { AccountItemStatus, loadingIcon, m365Icon } from "../../../src/treeview/account/common";
 import { M365AccountNode } from "../../../src/treeview/account/m365Node";
 import { DynamicNode } from "../../../src/treeview/dynamicNode";
-import * as tool from "@microsoft/teamsfx-core/build/common/tools";
-import * as globalVariables from "../../../src/globalVariables";
-import { MockTools } from "../../mocks/mockTools";
-import { ok } from "@microsoft/teamsfx-api";
 import { localize } from "../../../src/utils/localizeUtils";
+import { MockTools } from "../../mocks/mockTools";
 
 describe("m365Node", () => {
   const sandbox = sinon.createSandbox();

@@ -1,11 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import * as cp from "child_process";
-import * as vscode from "vscode";
-import * as util from "util";
 import { err, FxError, ok, Result, UserError, Void } from "@microsoft/teamsfx-api";
-import { BaseTaskTerminal } from "./baseTaskTerminal";
 import {
   AppStudioScopes,
   Correlator,
@@ -13,17 +9,21 @@ import {
   MissingEnvironmentVariablesError,
   UserCancelError,
 } from "@microsoft/teamsfx-core";
-import { localTelemetryReporter, maskValue } from "../localTelemetryReporter";
-import { getLocalDebugSession } from "../common/localDebugSession";
-import { TelemetryEvent, TelemetryProperty } from "../../telemetry/extTelemetryEvents";
-import { ExtensionErrors, ExtensionSource } from "../../error/error";
-import { getDefaultString, localize } from "../../utils/localizeUtils";
-import { openTerminalDisplayMessage, openTerminalMessage } from "../common/debugConstants";
-import { getSystemInputs } from "../../utils/systemEnvUtils";
-import { core, tools } from "../../globalVariables";
-import path from "path";
-import { dotenvUtil } from "@microsoft/teamsfx-core/build/component/utils/envUtil";
+import { dotenvUtil } from "@microsoft/teamsfx-core/build/src/component/utils/envUtil";
+import * as cp from "child_process";
 import * as fs from "fs";
+import path from "path";
+import * as util from "util";
+import * as vscode from "vscode";
+import { ExtensionErrors, ExtensionSource } from "../../error/error";
+import { core, tools } from "../../globalVariables";
+import { TelemetryEvent, TelemetryProperty } from "../../telemetry/extTelemetryEvents";
+import { getDefaultString, localize } from "../../utils/localizeUtils";
+import { getSystemInputs } from "../../utils/systemEnvUtils";
+import { openTerminalDisplayMessage, openTerminalMessage } from "../common/debugConstants";
+import { getLocalDebugSession } from "../common/localDebugSession";
+import { localTelemetryReporter, maskValue } from "../localTelemetryReporter";
+import { BaseTaskTerminal } from "./baseTaskTerminal";
 
 const showDebugDesktopClientWizard = "SHOW_DEBUG_DESKTOP_CLIENT_WIZARD";
 

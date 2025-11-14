@@ -4,43 +4,43 @@
  * @author Siglud <siglud@gmail.com>
  */
 
+import * as appService from "@azure/arm-appservice";
+import {
+  WebAppsListPublishingCredentialsResponse,
+  WebSiteManagementClient,
+} from "@azure/arm-appservice";
+import { RestError } from "@azure/storage-blob";
+import * as chai from "chai";
+import chaiAsPromised from "chai-as-promised";
+import * as fs from "fs-extra";
 import "mocha";
+import * as os from "os";
+import * as path from "path";
+import * as sinon from "sinon";
+import * as tools from "../../../../../src/common/utils";
+import { HttpStatusCode } from "../../../../../src/component/constant/commonConstant";
+import { DeployStatus } from "../../../../../src/component/constant/deployConstant";
+import { AzureDeployImpl } from "../../../../../src/component/driver/deploy/azure/impl/azureDeployImpl";
+import { AzureZipDeployImpl } from "../../../../../src/component/driver/deploy/azure/impl/AzureZipDeployImpl";
 import {
   AzureUploadConfig,
   DeployArgs,
 } from "../../../../../src/component/driver/interface/buildAndDeployArgs";
-import { TestLogProvider } from "../../../util/logProviderMock";
-import {
-  MockedAzureAccountProvider,
-  MockTelemetryReporter,
-  MockUserInteraction,
-  MyTokenCredential,
-} from "../../../../core/utils";
-import { AzureZipDeployImpl } from "../../../../../src/component/driver/deploy/azure/impl/AzureZipDeployImpl";
-import * as tools from "../../../../../src/common/utils";
-import * as sinon from "sinon";
-import { AzureDeployImpl } from "../../../../../src/component/driver/deploy/azure/impl/azureDeployImpl";
+import { AzureResourceInfo } from "../../../../../src/component/driver/interface/commonArgs";
 import {
   CheckDeploymentStatusError,
   CheckDeploymentStatusTimeoutError,
   DeployZipPackageError,
   GetPublishingCredentialsError,
 } from "../../../../../src/error/deploy";
-import * as chai from "chai";
-import chaiAsPromised = require("chai-as-promised");
-chai.use(chaiAsPromised);
-import * as appService from "@azure/arm-appservice";
-import { RestError } from "@azure/storage-blob";
 import {
-  WebAppsListPublishingCredentialsResponse,
-  WebSiteManagementClient,
-} from "@azure/arm-appservice";
-import { HttpStatusCode } from "../../../../../src/component/constant/commonConstant";
-import { DeployStatus } from "../../../../../src/component/constant/deployConstant";
-import * as fs from "fs-extra";
-import * as os from "os";
-import * as path from "path";
-import { AzureResourceInfo } from "../../../../../src/component/driver/interface/commonArgs";
+  MockedAzureAccountProvider,
+  MockTelemetryReporter,
+  MockUserInteraction,
+  MyTokenCredential,
+} from "../../../../core/utils";
+import { TestLogProvider } from "../../../util/logProviderMock";
+chai.use(chaiAsPromised);
 
 describe("AzureDeployImpl zip deploy acceleration", () => {
   const sandbox = sinon.createSandbox();

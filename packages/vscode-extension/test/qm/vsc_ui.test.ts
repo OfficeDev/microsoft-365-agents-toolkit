@@ -13,8 +13,6 @@ import {
   languages,
   QuickInputButton,
   QuickPick,
-  tasks,
-  Terminal,
   TextDocument,
   window,
   workspace,
@@ -29,12 +27,11 @@ import {
   SingleSelectConfig,
   UserError,
 } from "@microsoft/teamsfx-api";
+import { featureFlagManager } from "@microsoft/teamsfx-core";
 import { FxQuickPickItem, sleep, UserCancelError } from "@microsoft/vscode-ui";
+import * as globalVariables from "../../src/globalVariables";
 import { VsCodeUI } from "../../src/qm/vsc_ui";
 import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
-import { VsCodeLogProvider } from "../../src/commonlib/log";
-import { featureFlagManager } from "@microsoft/teamsfx-core";
-import * as globalVariables from "../../src/globalVariables";
 
 describe("UI Unit Tests", async () => {
   afterEach(() => {
@@ -44,7 +41,7 @@ describe("UI Unit Tests", async () => {
   describe("Manually", () => {
     it("Show Progress 2", async function (this: Mocha.Context) {
       this.timeout(0);
-      const VS_CODE_UI = new VsCodeUI(<ExtensionContext>{});
+      const VS_CODE_UI = new VsCodeUI({} as ExtensionContext);
       const handler = VS_CODE_UI.createProgressBar("Test Progress Bar", 3);
 
       await handler.start("Prepare");
@@ -71,7 +68,7 @@ describe("UI Unit Tests", async () => {
     });
 
     it("has returns default folder", async function (this: Mocha.Context) {
-      const ui = new VsCodeUI(<ExtensionContext>{});
+      const ui = new VsCodeUI({} as ExtensionContext);
       const config: SelectFolderConfig = {
         name: "name",
         title: "title",
@@ -115,7 +112,7 @@ describe("UI Unit Tests", async () => {
     });
 
     it("has returns user cancel", async function (this: Mocha.Context) {
-      const ui = new VsCodeUI(<ExtensionContext>{});
+      const ui = new VsCodeUI({} as ExtensionContext);
       const config: SelectFolderConfig = {
         name: "name",
         title: "title",
@@ -163,7 +160,7 @@ describe("UI Unit Tests", async () => {
     });
 
     it("has returns default file", async function (this: Mocha.Context) {
-      const ui = new VsCodeUI(<ExtensionContext>{});
+      const ui = new VsCodeUI({} as ExtensionContext);
       const config: SelectFileConfig = {
         name: "name",
         title: "title",
@@ -202,7 +199,7 @@ describe("UI Unit Tests", async () => {
     });
 
     it("has returns user cancel", async function (this: Mocha.Context) {
-      const ui = new VsCodeUI(<ExtensionContext>{});
+      const ui = new VsCodeUI({} as ExtensionContext);
       const config: SelectFileConfig = {
         name: "name",
         title: "title",
@@ -242,7 +239,7 @@ describe("UI Unit Tests", async () => {
     });
 
     it("has returns item in possible files", async function (this: Mocha.Context) {
-      const ui = new VsCodeUI(<ExtensionContext>{});
+      const ui = new VsCodeUI({} as ExtensionContext);
       const config: SelectFileConfig = {
         name: "name",
         title: "title",
@@ -291,7 +288,7 @@ describe("UI Unit Tests", async () => {
     });
 
     it("has returns invalid input item id", async function (this: Mocha.Context) {
-      const ui = new VsCodeUI(<ExtensionContext>{});
+      const ui = new VsCodeUI({} as ExtensionContext);
       const config: SelectFileConfig = {
         name: "name",
         title: "title",
@@ -314,7 +311,7 @@ describe("UI Unit Tests", async () => {
     });
 
     it("selects a file which pass validation", async function (this: Mocha.Context) {
-      const ui = new VsCodeUI(<ExtensionContext>{});
+      const ui = new VsCodeUI({} as ExtensionContext);
       const config: SelectFileConfig = {
         name: "name",
         title: "title",
@@ -356,7 +353,7 @@ describe("UI Unit Tests", async () => {
     });
 
     it("selects a file with error thrown when validating result", async function (this: Mocha.Context) {
-      const ui = new VsCodeUI(<ExtensionContext>{});
+      const ui = new VsCodeUI({} as ExtensionContext);
       const config: SelectFileConfig = {
         name: "name",
         title: "title",
@@ -403,7 +400,7 @@ describe("UI Unit Tests", async () => {
     });
 
     it("open the preview of Markdown file", async function (this: Mocha.Context) {
-      const ui = new VsCodeUI(<ExtensionContext>{});
+      const ui = new VsCodeUI({} as ExtensionContext);
       sandbox.stub(workspace, "openTextDocument").resolves({} as TextDocument);
       let executedCommand = "";
       sandbox.stub(commands, "executeCommand").callsFake((command: string, ...args: any[]) => {
@@ -428,7 +425,7 @@ describe("UI Unit Tests", async () => {
     });
 
     it("select success with validation", async function (this: Mocha.Context) {
-      const ui = new VsCodeUI(<ExtensionContext>{});
+      const ui = new VsCodeUI({} as ExtensionContext);
       let hasRun = false;
       const config: SingleSelectConfig = {
         name: "name",
@@ -477,7 +474,7 @@ describe("UI Unit Tests", async () => {
     });
 
     it("select fail with validation", async function (this: Mocha.Context) {
-      const ui = new VsCodeUI(<ExtensionContext>{});
+      const ui = new VsCodeUI({} as ExtensionContext);
       const hasRun = false;
       const config: SingleSelectConfig = {
         name: "name",
@@ -520,7 +517,7 @@ describe("UI Unit Tests", async () => {
     });
 
     it("loads dynamic options in a short time", async function (this: Mocha.Context) {
-      const ui = new VsCodeUI(<ExtensionContext>{});
+      const ui = new VsCodeUI({} as ExtensionContext);
       const config: SingleSelectConfig = {
         name: "name",
         title: "title",
@@ -564,7 +561,7 @@ describe("UI Unit Tests", async () => {
     });
 
     it("loads dynamic option in a short time and auto select", async function (this: Mocha.Context) {
-      const ui = new VsCodeUI(<ExtensionContext>{});
+      const ui = new VsCodeUI({} as ExtensionContext);
       const config: SingleSelectConfig = {
         name: "name",
         title: "title",
@@ -606,7 +603,7 @@ describe("UI Unit Tests", async () => {
     });
 
     it("loads dynamic options in a short time and shows", async function (this: Mocha.Context) {
-      const ui = new VsCodeUI(<ExtensionContext>{});
+      const ui = new VsCodeUI({} as ExtensionContext);
       const config: SingleSelectConfig = {
         name: "name",
         title: "title",
@@ -656,7 +653,7 @@ describe("UI Unit Tests", async () => {
     });
 
     it("loads dynamic option in a long time and shows", async function (this: Mocha.Context) {
-      const ui = new VsCodeUI(<ExtensionContext>{});
+      const ui = new VsCodeUI({} as ExtensionContext);
       const config: SingleSelectConfig = {
         name: "name",
         title: "title",
@@ -712,7 +709,7 @@ describe("UI Unit Tests", async () => {
     });
 
     it("selects local file successfully", async function (this: Mocha.Context) {
-      const ui = new VsCodeUI(<ExtensionContext>{});
+      const ui = new VsCodeUI({} as ExtensionContext);
       const config: SingleFileOrInputConfig = {
         name: "name",
         title: "title",
@@ -742,7 +739,7 @@ describe("UI Unit Tests", async () => {
     });
 
     it("selects local file error", async function (this: Mocha.Context) {
-      const ui = new VsCodeUI(<ExtensionContext>{});
+      const ui = new VsCodeUI({} as ExtensionContext);
       const config: SingleFileOrInputConfig = {
         name: "name",
         title: "title",
@@ -772,7 +769,7 @@ describe("UI Unit Tests", async () => {
     });
 
     it("inputs a value sucessfully", async function (this: Mocha.Context) {
-      const ui = new VsCodeUI(<ExtensionContext>{});
+      const ui = new VsCodeUI({} as ExtensionContext);
       const config: SingleFileOrInputConfig = {
         name: "name",
         title: "title",
@@ -805,7 +802,7 @@ describe("UI Unit Tests", async () => {
     });
 
     it("inputs a value error", async function (this: Mocha.Context) {
-      const ui = new VsCodeUI(<ExtensionContext>{});
+      const ui = new VsCodeUI({} as ExtensionContext);
       const config: SingleFileOrInputConfig = {
         name: "name",
         title: "title",
@@ -838,7 +835,7 @@ describe("UI Unit Tests", async () => {
     });
 
     it("inputs a value back and then sucessfully", async function (this: Mocha.Context) {
-      const ui = new VsCodeUI(<ExtensionContext>{});
+      const ui = new VsCodeUI({} as ExtensionContext);
       const config: SingleFileOrInputConfig = {
         name: "name",
         title: "title",
@@ -885,7 +882,7 @@ describe("UI Unit Tests", async () => {
 
     it("do nothing if feature flag is disabled", () => {
       sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
-      const ui = new VsCodeUI(<ExtensionContext>{});
+      const ui = new VsCodeUI({} as ExtensionContext);
       ui.showDiagnosticInfo([]);
     });
 
@@ -899,7 +896,7 @@ describe("UI Unit Tests", async () => {
       } as unknown as DiagnosticCollection;
 
       sandbox.stub(languages, "createDiagnosticCollection").returns(collection as any);
-      const ui = new VsCodeUI(<ExtensionContext>{});
+      const ui = new VsCodeUI({} as ExtensionContext);
 
       ui.showDiagnosticInfo([
         {
@@ -930,7 +927,7 @@ describe("UI Unit Tests", async () => {
       } as unknown as DiagnosticCollection;
 
       globalVariables.setDiagnosticCollection(collection);
-      const ui = new VsCodeUI(<ExtensionContext>{});
+      const ui = new VsCodeUI({} as ExtensionContext);
 
       ui.showDiagnosticInfo([
         {

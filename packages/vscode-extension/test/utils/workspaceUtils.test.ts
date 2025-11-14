@@ -1,10 +1,10 @@
+import * as globalState from "@microsoft/teamsfx-core/build/src/common/globalState";
 import * as chai from "chai";
 import * as sinon from "sinon";
-import * as globalState from "@microsoft/teamsfx-core/build/common/globalState";
-import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
 import { Uri, commands } from "vscode";
-import { openOfficeDevFolder } from "../../src/utils/workspaceUtils";
 import { GlobalKey } from "../../src/constants";
+import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
+import { openOfficeDevFolder } from "../../src/utils/workspaceUtils";
 
 describe("WorkspaceUtils", () => {
   describe("openOfficeDevFolder", () => {

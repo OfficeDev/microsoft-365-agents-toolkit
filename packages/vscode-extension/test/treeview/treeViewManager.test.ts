@@ -1,6 +1,5 @@
 import { TeamsAppManifest, ok } from "@microsoft/teamsfx-api";
 import { featureFlagManager, manifestUtils } from "@microsoft/teamsfx-core";
-import * as featureFlags from "@microsoft/teamsfx-core/build/common/featureFlags";
 import * as chai from "chai";
 import * as sinon from "sinon";
 import * as vscode from "vscode";

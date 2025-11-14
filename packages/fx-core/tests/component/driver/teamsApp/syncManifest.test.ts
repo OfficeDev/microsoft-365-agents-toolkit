@@ -1,19 +1,17 @@
+import { err, FxError, ok, Result, TeamsAppManifest, UserError } from "@microsoft/teamsfx-api";
 import chai from "chai";
-import * as sinon from "sinon";
-import "mocha";
 import fs from "fs-extra";
-import { SyncManifestDriver } from "../../../../src/component/driver/teamsApp/syncManifest";
+import "mocha";
+import * as sinon from "sinon";
+import { DotenvOutput, metadataUtil, pathUtils } from "../../../../src";
+import * as appStudio from "../../../../src/component/driver/teamsApp/appStudio";
 import { AppStudioError } from "../../../../src/component/driver/teamsApp/errors";
 import { SyncManifestArgs } from "../../../../src/component/driver/teamsApp/interfaces/SyncManifest";
-import { MockedLogProvider } from "../../../plugins/solution/util";
-import { envUtil } from "../../../../src/component/utils/envUtil";
+import { SyncManifestDriver } from "../../../../src/component/driver/teamsApp/syncManifest";
 import { manifestUtils } from "../../../../src/component/driver/teamsApp/utils/ManifestUtils";
-import { ok, err, TeamsAppManifest, Err, UserError, Result, FxError } from "@microsoft/teamsfx-api";
-import * as appStudio from "../../../../src/component/driver/teamsApp/appStudio";
-import { DotenvOutput, getLocalizedString } from "../../../../build";
-import { metadataUtil, pathUtils } from "../../../../src";
-import { ILifecycle, ProjectModel } from "../../../../src/component/configManager/interface";
+import { envUtil } from "../../../../src/component/utils/envUtil";
 import { MockedM365Provider } from "../../../core/utils";
+import { MockedLogProvider } from "../../../plugins/solution/util";
 
 describe("teamsApp/syncManifest", async () => {
   const syncManifestDriver = new SyncManifestDriver();

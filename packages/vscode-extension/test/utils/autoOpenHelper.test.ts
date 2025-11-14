@@ -1,7 +1,7 @@
 import { ok, TeamsAppManifest } from "@microsoft/teamsfx-api";
 import { manifestUtils, pluginManifestUtils } from "@microsoft/teamsfx-core";
-import * as globalState from "@microsoft/teamsfx-core/build/common/globalState";
-import * as apiSpec from "@microsoft/teamsfx-core/build/component/generator/openApiSpec/helper";
+import * as globalState from "@microsoft/teamsfx-core/build/src/common/globalState";
+import * as apiSpec from "@microsoft/teamsfx-core/build/src/component/generator/openApiSpec/helper";
 import * as chai from "chai";
 import fs from "fs-extra";
 import * as sinon from "sinon";

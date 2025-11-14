@@ -1,29 +1,29 @@
+import { Correlator } from "@microsoft/teamsfx-core";
+import { ConstantString } from "@microsoft/teamsfx-core/build/src/common/constants";
 import * as chai from "chai";
-import * as sinon from "sinon";
 import chaiPromised from "chai-as-promised";
-import * as vscode from "vscode";
 import fs from "fs-extra";
-import path from "path";
 import os from "os";
-import * as handler from "../../src/officeChat/handlers";
+import path from "path";
+import * as sinon from "sinon";
+import * as vscode from "vscode";
 import * as util from "../../src/chat/utils";
-import * as localizeUtils from "../../src/utils/localizeUtils";
 import * as officeCreateCommandHandler from "../../src/officeChat/commands/create/officeCreateCommandHandler";
 import * as generatecodeCommandHandler from "../../src/officeChat/commands/generatecode/generatecodeCommandHandler";
 import * as officeNextStepCommandHandler from "../../src/officeChat/commands/nextStep/officeNextstepCommandHandler";
-import * as workspaceUtils from "../../src/utils/workspaceUtils";
-import { URI } from "../mocks/vsc/uri";
 import { OfficeChatCommand } from "../../src/officeChat/consts";
-import { CancellationToken } from "../mocks/vsc";
+import * as handler from "../../src/officeChat/handlers";
+import { OfficeChatTelemetryData } from "../../src/officeChat/telemetry";
 import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
 import {
   TelemetryEvent,
   TelemetryProperty,
   TelemetryTriggerFrom,
 } from "../../src/telemetry/extTelemetryEvents";
-import { Correlator } from "@microsoft/teamsfx-core";
-import { ConstantString } from "@microsoft/teamsfx-core/build/common/constants";
-import { OfficeChatTelemetryData } from "../../src/officeChat/telemetry";
+import * as localizeUtils from "../../src/utils/localizeUtils";
+import * as workspaceUtils from "../../src/utils/workspaceUtils";
+import { CancellationToken } from "../mocks/vsc";
+import { URI } from "../mocks/vsc/uri";
 
 chai.use(chaiPromised);
 

@@ -1,20 +1,20 @@
-import * as sinon from "sinon";
 import * as chai from "chai";
+import * as sinon from "sinon";
 import * as vscode from "vscode";
 
-import { ExtTelemetry } from "../../../src/telemetry/extTelemetry";
-import M365TokenInstance from "../../../src/commonlib/m365Login";
-import azureAccountManager from "../../../src/commonlib/azureLogin";
 import { err, ok, SystemError } from "@microsoft/teamsfx-api";
 import { NetworkError, UserCancelError } from "@microsoft/teamsfx-core";
-import {
-  onSwitchM365Tenant,
-  onSwitchAzureTenant,
-} from "../../../src/handlers/accounts/switchTenantHandler";
-import { TelemetryTriggerFrom } from "../../../src/telemetry/extTelemetryEvents";
-import * as tool from "@microsoft/teamsfx-core/build/common/tools";
-import * as vsc_ui from "../../../src/qm/vsc_ui";
+import * as tool from "@microsoft/teamsfx-core/build/src/common/tools";
+import azureAccountManager from "../../../src/commonlib/azureLogin";
 import { LoginFailureError } from "../../../src/commonlib/codeFlowLogin";
+import M365TokenInstance from "../../../src/commonlib/m365Login";
+import {
+  onSwitchAzureTenant,
+  onSwitchM365Tenant,
+} from "../../../src/handlers/accounts/switchTenantHandler";
+import * as vsc_ui from "../../../src/qm/vsc_ui";
+import { ExtTelemetry } from "../../../src/telemetry/extTelemetry";
+import { TelemetryTriggerFrom } from "../../../src/telemetry/extTelemetryEvents";
 
 describe("onSwitchM365Tenant", () => {
   const sandbox = sinon.createSandbox();
@@ -25,7 +25,7 @@ describe("onSwitchM365Tenant", () => {
   beforeEach(() => {
     sendTelemetryEventStub = sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
     sendTelemetryErrorEventStub = sandbox.stub(ExtTelemetry, "sendTelemetryErrorEvent");
-    sandbox.stub(vsc_ui, "VS_CODE_UI").value(new vsc_ui.VsCodeUI(<vscode.ExtensionContext>{}));
+    sandbox.stub(vsc_ui, "VS_CODE_UI").value(new vsc_ui.VsCodeUI({} as vscode.ExtensionContext));
   });
 
   afterEach(() => {
@@ -146,7 +146,7 @@ describe("onSwitchAzureTenant", () => {
   beforeEach(() => {
     sendTelemetryEventStub = sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
     sendTelemetryErrorEventStub = sandbox.stub(ExtTelemetry, "sendTelemetryErrorEvent");
-    sandbox.stub(vsc_ui, "VS_CODE_UI").value(new vsc_ui.VsCodeUI(<vscode.ExtensionContext>{}));
+    sandbox.stub(vsc_ui, "VS_CODE_UI").value(new vsc_ui.VsCodeUI({} as vscode.ExtensionContext));
   });
 
   afterEach(() => {

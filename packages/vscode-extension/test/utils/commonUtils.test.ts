@@ -1,3 +1,4 @@
+import * as tools from "@microsoft/teamsfx-core/build/src/common/tools";
 import * as chai from "chai";
 import cp from "child_process";
 import fs from "fs-extra";
@@ -16,7 +17,6 @@ import {
   isWindows,
   openFolderInExplorer,
 } from "../../src/utils/commonUtils";
-import * as tools from "@microsoft/teamsfx-core/build/common/tools";
 
 describe("CommonUtils", () => {
   afterEach(() => {

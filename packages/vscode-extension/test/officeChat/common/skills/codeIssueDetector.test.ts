@@ -1,12 +1,12 @@
 import * as chai from "chai";
 import * as sinon from "sinon";
-import { ChatResponseStream, comments } from "vscode";
-import ts = require("typescript");
+import * as stringSimilarity from "string-similarity";
+import * as ts from "typescript";
+import { ChatResponseStream } from "vscode";
 import {
   CodeIssueDetector,
   DetectionResult,
 } from "../../../../src/officeChat/common/skills/codeIssueDetector";
-import * as utils from "../../../../src/officeChat/common/utils";
 import {
   MeasurementCompilieErrorArgumentCountMismatchCount,
   MeasurementCompilieErrorArgumentTypeMismatchCount,
@@ -23,7 +23,7 @@ import {
   MeasurementCompilieErrorTopLevelExpressionForbidenCount,
   MeasurementCompilieErrorTypeIsNotAssignableToTypeCount,
 } from "../../../../src/officeChat/common/telemetryConsts";
-import stringSimilarity = require("string-similarity");
+import * as utils from "../../../../src/officeChat/common/utils";
 
 describe("File: codeIssueDetector", () => {
   const sandbox = sinon.createSandbox();
@@ -96,6 +96,8 @@ describe("File: codeIssueDetector", () => {
             telemetryData
           );
         };
+        // Avoid real network/file fetch during tests to prevent timeouts.
+        sandbox.stub(utils, "fetchRawFileContent").resolves("");
       });
 
       it("normal input should works", async () => {
@@ -123,7 +125,6 @@ describe("File: codeIssueDetector", () => {
         Reflect.set(detector, "completeMemberNames", [{}]);
         Reflect.set(detector, "definionFile", undefined);
         Reflect.set(detector, "processNamespace", () => ["a", "b", "c"]);
-        sandbox.stub(utils, "fetchRawFileContent").resolves("test");
         sandbox.stub(ts, "createSourceFile").returns([] as any);
         sandbox.stub(ts, "forEachChild").callsFake((node, fn) => {
           (node as unknown as []).forEach((n) => {

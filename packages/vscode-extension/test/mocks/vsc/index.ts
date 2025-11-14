@@ -280,7 +280,7 @@ export class Hover {
       throw new Error("Illegal argument, contents must be defined");
     }
     if (Array.isArray(contents)) {
-      this.contents = <vscode.MarkdownString[] | vscode.MarkedString[]>contents;
+      this.contents = contents as vscode.MarkdownString[] | vscode.MarkedString[];
     } else if (MarkdownString.isMarkdownString(contents)) {
       this.contents = [contents];
     } else {

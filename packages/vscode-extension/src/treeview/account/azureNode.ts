@@ -3,12 +3,11 @@
 
 import * as vscode from "vscode";
 
+import { listAllTenants } from "@microsoft/teamsfx-core/build/src/common/tools";
 import { TelemetryTriggerFrom } from "../../telemetry/extTelemetryEvents";
 import { localize } from "../../utils/localizeUtils";
 import { DynamicNode } from "../dynamicNode";
 import { AccountItemStatus, azureIcon, loadingIcon } from "./common";
-import { featureFlagManager, FeatureFlags } from "@microsoft/teamsfx-core";
-import { listAllTenants } from "@microsoft/teamsfx-core/build/common/tools";
 
 export class AzureAccountNode extends DynamicNode {
   public status: AccountItemStatus;

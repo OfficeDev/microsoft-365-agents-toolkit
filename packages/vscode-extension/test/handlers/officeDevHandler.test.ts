@@ -1,5 +1,5 @@
 import { FxError, Result, ok } from "@microsoft/teamsfx-api";
-import * as globalState from "@microsoft/teamsfx-core/build/common/globalState";
+import * as globalState from "@microsoft/teamsfx-core/build/src/common/globalState";
 import * as chai from "chai";
 import * as mockfs from "mock-fs";
 import * as sinon from "sinon";
@@ -8,11 +8,11 @@ import { OfficeDevTerminal, TriggerCmdType } from "../../src/debug/taskTerminal/
 import * as globalVariables from "../../src/globalVariables";
 import * as officeDevHandlers from "../../src/handlers/officeDevHandlers";
 import { generateManifestGUID, stopOfficeAddInDebug } from "../../src/handlers/officeDevHandlers";
+import * as readmeHandlers from "../../src/handlers/readmeHandlers";
 import * as vsc_ui from "../../src/qm/vsc_ui";
 import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
-import { openOfficeDevFolder } from "../../src/utils/workspaceUtils";
 import * as autoOpenHelper from "../../src/utils/autoOpenHelper";
-import * as readmeHandlers from "../../src/handlers/readmeHandlers";
+import { openOfficeDevFolder } from "../../src/utils/workspaceUtils";
 
 describe("officeDevHandler", () => {
   const sandbox = sinon.createSandbox();
@@ -26,7 +26,7 @@ describe("officeDevHandler", () => {
     openLinkFunc: (args?: any[]) => Promise<Result<boolean, FxError>>,
     urlPath: string
   ) {
-    sandbox.stub(vsc_ui, "VS_CODE_UI").value(new vsc_ui.VsCodeUI(<vscode.ExtensionContext>{}));
+    sandbox.stub(vsc_ui, "VS_CODE_UI").value(new vsc_ui.VsCodeUI({} as vscode.ExtensionContext));
     const openUrl = sandbox.stub(vsc_ui.VS_CODE_UI, "openUrl").resolves(ok(true));
     const res = await openLinkFunc(undefined);
     chai.assert.isTrue(openUrl.calledOnce);

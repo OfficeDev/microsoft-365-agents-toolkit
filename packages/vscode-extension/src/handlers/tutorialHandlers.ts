@@ -11,7 +11,7 @@ import {
   err,
   ok,
 } from "@microsoft/teamsfx-api";
-import { getDefaultTemplatesOnPlatform } from "@microsoft/teamsfx-core/build/component/generator/templates/metadata";
+import { getDefaultTemplatesOnPlatform } from "@microsoft/teamsfx-core/build/src/component/generator/templates/metadata";
 import { PanelType } from "../controls/PanelType";
 import { WebviewPanel } from "../controls/webviewPanel";
 import { TreatmentVariableValue } from "../exp/treatmentVariables";

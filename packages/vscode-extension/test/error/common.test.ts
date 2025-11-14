@@ -1,17 +1,17 @@
-import * as sinon from "sinon";
+import { SystemError, UserError } from "@microsoft/teamsfx-api";
+import { featureFlagManager, FeatureFlagName, GraphClient } from "@microsoft/teamsfx-core";
+import * as tools from "@microsoft/teamsfx-core/build/src/common/tools";
 import * as chai from "chai";
-import * as vscode from "vscode";
-import * as localizeUtils from "../../src/utils/localizeUtils";
 import fs from "fs-extra";
+import * as sinon from "sinon";
+import * as vscode from "vscode";
+import { MaximumNotificationOutputTroubleshootCount } from "../../src/constants";
+import { RecommendedOperations } from "../../src/debug/common/debugConstants";
+import { notifyOutputTroubleshoot, showError } from "../../src/error/common";
 import * as globalVariables from "../../src/globalVariables";
 import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
-import { SystemError, UserError } from "@microsoft/teamsfx-api";
-import { notifyOutputTroubleshoot, showError } from "../../src/error/common";
 import { TelemetryEvent } from "../../src/telemetry/extTelemetryEvents";
-import { RecommendedOperations } from "../../src/debug/common/debugConstants";
-import { featureFlagManager, GraphClient, FeatureFlagName } from "@microsoft/teamsfx-core";
-import { MaximumNotificationOutputTroubleshootCount } from "../../src/constants";
-import * as tools from "@microsoft/teamsfx-core/build/common/tools";
+import * as localizeUtils from "../../src/utils/localizeUtils";
 
 describe("common", async () => {
   const sandbox = sinon.createSandbox();

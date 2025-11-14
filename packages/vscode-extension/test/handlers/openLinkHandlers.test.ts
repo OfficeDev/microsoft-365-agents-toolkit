@@ -36,7 +36,7 @@ describe("Open link handlers", () => {
   beforeEach(() => {
     sandbox.stub(ExtTelemetry, "sendTelemetryEvent").resolves();
     sandbox.stub(ExtTelemetry, "sendTelemetryErrorEvent").resolves();
-    sandbox.stub(vsc_ui, "VS_CODE_UI").value(new vsc_ui.VsCodeUI(<vscode.ExtensionContext>{}));
+    sandbox.stub(vsc_ui, "VS_CODE_UI").value(new vsc_ui.VsCodeUI({} as vscode.ExtensionContext));
   });
 
   afterEach(() => {
@@ -51,7 +51,7 @@ describe("Open link handlers", () => {
     });
 
     it("open link with loginHint", async () => {
-      sandbox.stub(vsc_ui, "VS_CODE_UI").value(new vsc_ui.VsCodeUI(<vscode.ExtensionContext>{}));
+      sandbox.stub(vsc_ui, "VS_CODE_UI").value(new vsc_ui.VsCodeUI({} as vscode.ExtensionContext));
       sandbox.stub(globalVariables, "core").value(new MockCore());
       sandbox.stub(M365TokenInstance, "getStatus").resolves(
         ok({
@@ -70,7 +70,7 @@ describe("Open link handlers", () => {
     });
 
     it("open link without loginHint", async () => {
-      sandbox.stub(vsc_ui, "VS_CODE_UI").value(new vsc_ui.VsCodeUI(<vscode.ExtensionContext>{}));
+      sandbox.stub(vsc_ui, "VS_CODE_UI").value(new vsc_ui.VsCodeUI({} as vscode.ExtensionContext));
       sandbox.stub(M365TokenInstance, "getStatus").resolves(
         ok({
           status: signedOut,
@@ -106,7 +106,7 @@ describe("Open link handlers", () => {
 
   describe("openDocumentHandler", () => {
     it("opens upgrade guide when clicked from sidebar", async () => {
-      sandbox.stub(vsc_ui, "VS_CODE_UI").value(new vsc_ui.VsCodeUI(<vscode.ExtensionContext>{}));
+      sandbox.stub(vsc_ui, "VS_CODE_UI").value(new vsc_ui.VsCodeUI({} as vscode.ExtensionContext));
       const openUrl = sandbox.stub(vsc_ui.VS_CODE_UI, "openUrl").resolves(ok(true));
 
       await openDocumentHandler(TelemetryTriggerFrom.SideBar, "learnmore");
@@ -114,7 +114,7 @@ describe("Open link handlers", () => {
       chai.assert.isTrue(openUrl.calledOnceWith("https://aka.ms/teams-toolkit-5.0-upgrade"));
     });
     it("opens build app guide when clicked from left pane", async () => {
-      sandbox.stub(vsc_ui, "VS_CODE_UI").value(new vsc_ui.VsCodeUI(<vscode.ExtensionContext>{}));
+      sandbox.stub(vsc_ui, "VS_CODE_UI").value(new vsc_ui.VsCodeUI({} as vscode.ExtensionContext));
       const openUrl = sandbox.stub(vsc_ui.VS_CODE_UI, "openUrl").resolves(ok(true));
 
       await openDocumentHandler("documentName", "build-apps");
@@ -122,7 +122,7 @@ describe("Open link handlers", () => {
       chai.assert.isTrue(openUrl.calledOnceWith("https://aka.ms/teamstoolkit-build-app"));
     });
     it("opens build agent guide when clicked from left pane", async () => {
-      sandbox.stub(vsc_ui, "VS_CODE_UI").value(new vsc_ui.VsCodeUI(<vscode.ExtensionContext>{}));
+      sandbox.stub(vsc_ui, "VS_CODE_UI").value(new vsc_ui.VsCodeUI({} as vscode.ExtensionContext));
       const openUrl = sandbox.stub(vsc_ui.VS_CODE_UI, "openUrl").resolves(ok(true));
 
       await openDocumentHandler("documentName", "build-agents");

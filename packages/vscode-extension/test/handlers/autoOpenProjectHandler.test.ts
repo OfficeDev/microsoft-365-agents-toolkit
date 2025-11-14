@@ -1,7 +1,7 @@
 import { err, ok, SystemError, UserError } from "@microsoft/teamsfx-api";
 import { manifestUtils, pluginManifestUtils } from "@microsoft/teamsfx-core";
-import * as globalState from "@microsoft/teamsfx-core/build/common/globalState";
-import * as pluginGeneratorHelper from "@microsoft/teamsfx-core/build/component/generator/openApiSpec/helper";
+import * as globalState from "@microsoft/teamsfx-core/build/src/common/globalState";
+import * as pluginGeneratorHelper from "@microsoft/teamsfx-core/build/src/component/generator/openApiSpec/helper";
 import * as chai from "chai";
 import path from "path";
 import * as sinon from "sinon";
@@ -380,7 +380,7 @@ describe("autoOpenProjectHandler", () => {
       }
     });
     const globalStateStub = sandbox.stub(globalState, "globalStateUpdate");
-    sandbox.stub(vsc_ui, "VS_CODE_UI").value(new VsCodeUI(<vscode.ExtensionContext>{}));
+    sandbox.stub(vsc_ui, "VS_CODE_UI").value(new VsCodeUI({} as vscode.ExtensionContext));
     const runCommandStub = sandbox.stub(vsc_ui.VS_CODE_UI, "runCommand");
     sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
 

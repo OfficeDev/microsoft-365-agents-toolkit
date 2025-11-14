@@ -1,0 +1,21 @@
+{
+  "template.teams.others.bot.detail": "已備妥供自訂的回應機器人的簡易實作",
+  "template.teams.others.bot.label": "基本 Bot",
+  "template.teams.others.messageExtension.detail": "接收使用者輸入、處理並傳送自定義結果",
+  "template.teams.others.messageExtension.label": "訊息延伸模組",
+  "template.teams.others.tab.detail": "簡易實作準備好自訂的 Web 應用程式",
+  "template.teams.others.tab.label": "基本索引標籤",
+  "template.teams.general.detail": "在 Teams 中建立基本 AI 聊天機器人",
+  "template.teams.general.label": "基本 AI 聊天機器人",
+  "template.teams.rag.source.placeholder": "選取載入資料的選項",
+  "template.teams.rag.source.azureAISearch.detail": "從 Azure AI 搜尋服務載入您的資料",
+  "template.teams.rag.source.azureAISearch.label": "Azure AI 搜尋服務",
+  "template.teams.rag.source.customApi.detail": "根據 OpenAPI 描述文件，從自訂 API 載入您的資料",
+  "template.teams.rag.source.customApi.label": "自訂 API",
+  "template.teams.rag.source.customize.detail": "決定如何載入您的資料",
+  "template.teams.rag.source.customize.label": "自訂",
+  "template.teams.rag.detail": "使用您的內容擴展 AI Bot 的知識，以取得問題的正確解答",
+  "template.teams.rag.label": "與您的資料聊天",
+  "template.customEngineAgent.placeholder": "選取選項",
+  "template.customEngineAgent.title": "使用 Teams AI 連結庫的應用程式功能"
+}

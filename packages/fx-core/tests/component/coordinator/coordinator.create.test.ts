@@ -51,7 +51,7 @@ describe("coordinator create", () => {
     sandbox.stub(fs, "ensureDir").resolves();
     sandbox.stub(manifestUtils, "trimManifestShortName").resolves(ok(undefined));
     generator = sandbox
-      .stub(DefaultTemplateGenerator.prototype, <any>"scaffolding")
+      .stub(DefaultTemplateGenerator.prototype, "scaffolding" as any)
       .resolves(ok(undefined));
   });
   afterEach(() => {

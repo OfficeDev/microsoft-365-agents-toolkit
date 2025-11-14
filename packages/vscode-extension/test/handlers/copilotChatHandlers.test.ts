@@ -2,16 +2,16 @@ import * as chai from "chai";
 import * as sinon from "sinon";
 import * as vscode from "vscode";
 
+import { err, ok, SystemError } from "@microsoft/teamsfx-api";
+import * as globalState from "@microsoft/teamsfx-core/build/src/common/globalState";
 import VsCodeLogInstance from "../../src/commonlib/log";
+import { GlobalKey } from "../../src/constants";
 import * as handlers from "../../src/handlers/copilotChatHandlers";
+import * as vsc_ui from "../../src/qm/vsc_ui";
 import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
 import * as extTelemetryEvents from "../../src/telemetry/extTelemetryEvents";
-import * as versionUtils from "../../src/utils/versionUtil";
-import * as globalState from "@microsoft/teamsfx-core/build/common/globalState";
-import * as vsc_ui from "../../src/qm/vsc_ui";
-import { err, ok, SystemError } from "@microsoft/teamsfx-api";
-import { GlobalKey } from "../../src/constants";
 import { TelemetryTriggerFrom } from "../../src/telemetry/extTelemetryEvents";
+import * as versionUtils from "../../src/utils/versionUtil";
 
 after(() => {
   sinon.restore();
@@ -43,7 +43,7 @@ describe("copilotChatHandler", async () => {
       hide: () => {},
       dispose: () => {},
     });
-    sandbox.stub(vsc_ui, "VS_CODE_UI").value(new vsc_ui.VsCodeUI(<vscode.ExtensionContext>{}));
+    sandbox.stub(vsc_ui, "VS_CODE_UI").value(new vsc_ui.VsCodeUI({} as vscode.ExtensionContext));
   });
 
   describe("openGithubCopilotChat", async () => {

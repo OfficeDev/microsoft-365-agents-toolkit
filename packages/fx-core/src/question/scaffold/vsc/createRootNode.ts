@@ -14,6 +14,7 @@ import {
 } from "../../create";
 import { QuestionNames } from "../../questionNames";
 
+import { TemplateNames } from "../../../component/generator/templates/templateNames";
 import {
   ActionStartOptions,
   BotCapabilityOptions,
@@ -25,11 +26,11 @@ import {
   TeamsAgentCapabilityOptions,
 } from "./CapabilityOptions";
 import { ProjectTypeOptions } from "./ProjectTypeOptions";
-import { customEngineAgentNode } from "./customEngineAgentNode";
+import { getCustomEngineAgentNode } from "./customEngineAgentNode";
 import { daProjectTypeNode } from "./daProjectTypeNode";
 import { graphConnectorProjectTypeNode } from "./graphConnectorProjectTypeNode";
 import { officeAddinProjectTypeNode } from "./officeAddinProjectTypeNode";
-import { teamsProjectNode } from "./teamsProjectTypeNode";
+import { getTeamsProjectNode } from "./teamsProjectTypeNode";
 
 export const LanguageOptionMap = new Map<string, OptionItem>([
   [ProgrammingLanguage.JS, { id: ProgrammingLanguage.JS, label: "JavaScript" }],
@@ -138,8 +139,8 @@ export function scaffoldQuestionForVSCode(platform: Platform = Platform.VSCode):
         },
         children: [
           daProjectTypeNode(),
-          customEngineAgentNode(),
-          teamsProjectNode(platform),
+          getCustomEngineAgentNode(),
+          getTeamsProjectNode(),
           graphConnectorProjectTypeNode(),
           officeAddinProjectTypeNode(),
         ],
@@ -231,35 +232,33 @@ export function getProjectTypeByCapability(capability: string): string {
 }
 
 export function getTeamsAppTypeByCapability(capability: string): string {
+  // Maps capability to the "teams-app-type" value (the equals condition value in teamsNode.json)
   if (
-    [
-      TabCapabilityOptions.nonSsoTab().id,
-      BotCapabilityOptions.basicBot().id,
-      MeCapabilityOptions.basicMe().id,
-    ].includes(capability)
-  ) {
-    return "others";
-  } else if (
     [
       TeamsAgentCapabilityOptions.basicChatbot().id,
       TeamsAgentCapabilityOptions.customCopilotRag().id,
-      TeamsAgentCapabilityOptions.collaboratorAgent().id,
     ].includes(capability)
   ) {
+    // These map to options under teams-app-type that have their own equals conditions
     return capability;
+  }
+  if (TeamsAgentCapabilityOptions.collaboratorAgent().id === capability) {
+    return "teams-collaborator-agent";
+  }
+  if (["bot", "tab-non-sso", "message-extension"].includes(capability)) {
+    // These fall under "teams-other-app-type" option
+    return "teams-other-app-type";
   }
   return "";
 }
 
 export function getTeamsCapabilityByCapability(capability: string): string {
-  if (
-    [
-      TabCapabilityOptions.nonSsoTab().id,
-      BotCapabilityOptions.basicBot().id,
-      MeCapabilityOptions.basicMe().id,
-    ].includes(capability)
-  ) {
-    return capability;
+  if (capability === "bot") {
+    return TemplateNames.DefaultBot;
+  } else if (capability === "tab-non-sso") {
+    return TemplateNames.Tab;
+  } else if (capability === "message-extension") {
+    return TemplateNames.DefaultMessageExtension;
   }
   return "";
 }

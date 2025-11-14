@@ -1,16 +1,16 @@
-import * as sinon from "sinon";
+import * as projectSettingsHelper from "@microsoft/teamsfx-core/build/src/common/projectSettingsHelper";
 import * as chai from "chai";
-import * as globalVariables from "../../src/globalVariables";
 import fs from "fs-extra";
+import * as sinon from "sinon";
 import * as vscode from "vscode";
+import * as globalVariables from "../../src/globalVariables";
 import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
+import TreeViewManagerInstance from "../../src/treeview/treeViewManager";
 import {
   addFileSystemWatcher,
   refreshSPFxTreeOnFileChanged,
   sendSDKVersionTelemetry,
 } from "../../src/utils/fileSystemWatcher";
-import TreeViewManagerInstance from "../../src/treeview/treeViewManager";
-import * as projectSettingsHelper from "@microsoft/teamsfx-core/build/common/projectSettingsHelper";
 
 describe("FileSystemWatcher", function () {
   describe("addFileSystemWatcher", function () {

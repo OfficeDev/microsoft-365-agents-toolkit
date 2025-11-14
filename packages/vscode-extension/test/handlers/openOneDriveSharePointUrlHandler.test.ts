@@ -17,7 +17,7 @@ describe("openOneDriveSharePointUrlHandler", () => {
   const sandbox = sinon.createSandbox();
 
   beforeEach(() => {
-    sandbox.stub(vsc_ui, "VS_CODE_UI").value(new vsc_ui.VsCodeUI(<vscode.ExtensionContext>{}));
+    sandbox.stub(vsc_ui, "VS_CODE_UI").value(new vsc_ui.VsCodeUI({} as vscode.ExtensionContext));
   });
 
   afterEach(() => {

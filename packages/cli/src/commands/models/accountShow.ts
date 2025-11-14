@@ -1,23 +1,18 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 import { CLICommand, err, ok, signedIn } from "@microsoft/teamsfx-api";
-import {
-  AppStudioScopes,
-  AzureScopes,
-  featureFlagManager,
-  FeatureFlags,
-} from "@microsoft/teamsfx-core";
-import { TextType, colorize } from "../../colorize";
+import { AppStudioScopes, AzureScopes } from "@microsoft/teamsfx-core";
+import { listAllTenants } from "@microsoft/teamsfx-core/build/src/common/tools";
+import { colorize, TextType } from "../../colorize";
 import AzureTokenProvider, { getAzureProvider } from "../../commonlib/azureLogin";
 import AzureTokenCIProvider from "../../commonlib/azureLoginCI";
+import { AzureSpCrypto } from "../../commonlib/cacheAccess";
 import { checkIsOnline } from "../../commonlib/codeFlowLogin";
+import { env } from "../../commonlib/common/constant";
 import { logger } from "../../commonlib/logger";
 import M365TokenProvider from "../../commonlib/m365Login";
 import { commands, strings } from "../../resource";
 import { TelemetryEvent } from "../../telemetry/cliTelemetryEvents";
-import { listAllTenants } from "@microsoft/teamsfx-core/build/common/tools";
-import { env } from "../../commonlib/common/constant";
-import { AzureSpCrypto } from "../../commonlib/cacheAccess";
 
 class AccountUtils {
   outputAccountInfoOffline(accountType: string, username: string): boolean {

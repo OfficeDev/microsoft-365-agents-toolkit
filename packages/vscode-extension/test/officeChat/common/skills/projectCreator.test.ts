@@ -1,16 +1,16 @@
+import { CreateProjectResult, ok } from "@microsoft/teamsfx-api";
 import * as chai from "chai";
+import fs from "fs-extra";
+import * as path from "path";
 import sinon from "ts-sinon";
-import { Spec } from "../../../../src/officeChat/common/skills/spec";
+import * as vscode from "vscode";
 import { CancellationToken, LanguageModelChatMessage, LanguageModelChatMessageRole } from "vscode";
+import * as helper from "../../../../src/chat/commands/create/helper";
+import { core } from "../../../../src/globalVariables";
+import { SampleData } from "../../../../src/officeChat/common/samples/sampleData";
 import { ExecutionResultEnum } from "../../../../src/officeChat/common/skills/executionResultEnum";
 import { projectCreator } from "../../../../src/officeChat/common/skills/projectCreator";
-import path = require("path");
-import * as helper from "../../../../src/chat/commands/create/helper";
-import fs from "fs-extra";
-import * as vscode from "vscode";
-import { SampleData } from "../../../../src/officeChat/common/samples/sampleData";
-import { CreateProjectResult, ok } from "@microsoft/teamsfx-api";
-import { core } from "../../../../src/globalVariables";
+import { Spec } from "../../../../src/officeChat/common/skills/spec";
 
 describe("projectCreator", () => {
   let invokeParametersInit: () => any;

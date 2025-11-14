@@ -1,14 +1,14 @@
-import sinon from "ts-sinon";
-import * as chai from "chai";
-import { OfficeChatTelemetryData } from "../../src/officeChat/telemetry";
 import { Correlator } from "@microsoft/teamsfx-core";
+import * as coreTools from "@microsoft/teamsfx-core/build/src/common/stringUtils";
+import * as chai from "chai";
+import sinon from "ts-sinon";
+import * as utils from "../../src/chat/utils";
+import { OfficeChatTelemetryData } from "../../src/officeChat/telemetry";
 import {
   TelemetryProperty,
   TelemetrySuccess,
   TelemetryTriggerFrom,
 } from "../../src/telemetry/extTelemetryEvents";
-import * as utils from "../../src/chat/utils";
-import * as coreTools from "@microsoft/teamsfx-core/build/common/stringUtils";
 
 describe("OfficeChatTelemetryData", () => {
   const sandbox = sinon.createSandbox();

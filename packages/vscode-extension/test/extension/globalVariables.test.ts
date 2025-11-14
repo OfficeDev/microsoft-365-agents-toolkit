@@ -1,13 +1,13 @@
 import * as chai from "chai";
 import fs from "fs-extra";
+import "mocha";
 import * as sinon from "sinon";
 import { ExtensionContext, Uri } from "vscode";
-import "mocha";
 
-import * as globalVariables from "../../src/globalVariables";
-import * as projectSettingHelper from "@microsoft/teamsfx-core/build/common/projectSettingsHelper";
 import { err, ok, SystemError, TeamsAppManifest } from "@microsoft/teamsfx-api";
-import { manifestUtils, copilotGptManifestUtils } from "@microsoft/teamsfx-core";
+import { copilotGptManifestUtils, manifestUtils } from "@microsoft/teamsfx-core";
+import * as projectSettingHelper from "@microsoft/teamsfx-core/build/src/common/projectSettingsHelper";
+import * as globalVariables from "../../src/globalVariables";
 
 describe("Global Variables", () => {
   describe("isSPFxProject", () => {

@@ -1,26 +1,25 @@
-import * as sinon from "sinon";
+import { ok, signedIn, signedOut } from "@microsoft/teamsfx-api";
+import { FxCore } from "@microsoft/teamsfx-core";
+import * as projectSettingsHelper from "@microsoft/teamsfx-core/build/src/common/projectSettingsHelper";
 import * as chai from "chai";
-import * as vscode from "vscode";
 import path from "path";
-import * as fileSystemWatcher from "../../src/utils/fileSystemWatcher";
+import * as sinon from "sinon";
+import * as vscode from "vscode";
+import envTreeProviderInstance from "../../src//treeview/environmentTreeViewProvider";
+import commandController from "../../src/commandController";
+import { AzureAccountManager } from "../../src/commonlib/azureLogin";
+import M365TokenInstance from "../../src/commonlib/m365Login";
 import * as globalVariables from "../../src/globalVariables";
-import * as projectSettingsHelper from "@microsoft/teamsfx-core/build/common/projectSettingsHelper";
 import {
   activate,
   refreshEnvTreeOnEnvFileChanged,
   refreshEnvTreeOnFilesNameChanged,
   refreshEnvTreeOnProjectSettingFileChanged,
 } from "../../src/handlers/activate";
-import { ok } from "@microsoft/teamsfx-api";
-import { FxCore } from "@microsoft/teamsfx-core";
-import commandController from "../../src/commandController";
-import { AzureAccountManager } from "../../src/commonlib/azureLogin";
-import { signedIn, signedOut } from "@microsoft/teamsfx-api";
 import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
 import accountTreeViewProviderInstance from "../../src/treeview/account/accountTreeViewProvider";
-import envTreeProviderInstance from "../../src//treeview/environmentTreeViewProvider";
 import TreeViewManagerInstance from "../../src/treeview/treeViewManager";
-import M365TokenInstance from "../../src/commonlib/m365Login";
+import * as fileSystemWatcher from "../../src/utils/fileSystemWatcher";
 import { MockCore } from "../mocks/mockCore";
 
 describe("Activate", function () {

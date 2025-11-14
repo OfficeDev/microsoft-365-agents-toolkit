@@ -1,10 +1,10 @@
-import * as chai from "chai";
-import * as sinon from "sinon";
-import fs from "fs";
-import chaiPromised from "chai-as-promised";
-import * as commonUtils from "../../../src/officeChat/common/utils";
-import * as requestUtils from "@microsoft/teamsfx-core/build/common/requestUtils";
+import * as requestUtils from "@microsoft/teamsfx-core/build/src/common/requestUtils";
 import { AxiosResponse } from "axios";
+import * as chai from "chai";
+import chaiPromised from "chai-as-promised";
+import fs from "fs";
+import * as sinon from "sinon";
+import * as commonUtils from "../../../src/officeChat/common/utils";
 
 chai.use(chaiPromised);
 

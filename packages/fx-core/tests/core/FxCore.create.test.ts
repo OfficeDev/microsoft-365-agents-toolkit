@@ -31,10 +31,7 @@ import { setTools } from "../../src/common/globalVars";
 import { coordinator } from "../../src/component/coordinator";
 import { QuestionNames, ScratchOptions } from "../../src/question/constants";
 import { VSCapabilityOptions } from "../../src/question/scaffold/vs/createRootNode";
-import {
-  TabCapabilityOptions,
-  TeamsAgentCapabilityOptions,
-} from "../../src/question/scaffold/vsc/CapabilityOptions";
+import { TabCapabilityOptions } from "../../src/question/scaffold/vsc/CapabilityOptions";
 import { ProjectTypeOptions } from "../../src/question/scaffold/vsc/ProjectTypeOptions";
 import { MockTools, randomAppName } from "./utils";
 
@@ -52,8 +49,8 @@ describe("FxCore.createProject", () => {
       platform: Platform.VSCode,
       [QuestionNames.Scratch]: ScratchOptions.yes().id,
       [QuestionNames.ProjectType]: ProjectTypeOptions.teamsOptionId,
-      [QuestionNames.TeamsAppType]: TeamsAgentCapabilityOptions.others().id,
-      [QuestionNames.TeamsCapability]: TabCapabilityOptions.nonSsoTab().id,
+      [QuestionNames.TeamsAppType]: "teams-other-app-type",
+      ["teams-other-app-type"]: "non-sso-tab",
       [QuestionNames.ProgrammingLanguage]: "typescript",
       [QuestionNames.Folder]: os.tmpdir(),
       [QuestionNames.AppName]: randomAppName(),

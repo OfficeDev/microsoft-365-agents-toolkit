@@ -1,26 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 import ts = require("typescript");
-import { fetchRawFileContent } from "../utils";
-import {
-  MeasurementCompilieErrorArgumentCountMismatchCount,
-  MeasurementCompilieErrorArgumentTypeMismatchCount,
-  MeasurementCompilieErrorCannotAssignToReadOnlyPropertyCount,
-  MeasurementCompilieErrorCannotFindModuleCount,
-  MeasurementCompilieErrorCannotFindNameCount,
-  MeasurementCompilieErrorConvertTypeToTypeMistakeCount,
-  MeasurementCompilieErrorExpressionExpectedCount,
-  MeasurementCompilieErrorOperatorAddOnTypeMismatchCount,
-  MeasurementCompilieErrorOthersCount,
-  MeasurementCompilieErrorOverloadMismatchCount,
-  MeasurementCompilieErrorPropertyDoesNotExistOnTypeCount,
-  MeasurementCompilieErrorPropertyDoesNotExistOnTypeWithSuggestionCount,
-  MeasurementCompilieErrorPropertyDoesNotExistOnTypeWithSuggestionsCount,
-  MeasurementCompilieErrorTopLevelExpressionForbidenCount,
-  MeasurementCompilieErrorTypeIsNotAssignableToTypeCount,
-} from "../telemetryConsts";
 import { ChatResponseStream } from "vscode";
-import stringSimilarity = require("string-similarity");
 import {
   getFixSuggestionArgumentCountMismatchGeneral,
   getFixSuggestionArgumentCountMismatchHasSignature,
@@ -53,6 +34,25 @@ import {
   getSuggestionOnExcelA1NotationInStringConcatenationLeft,
   getSuggestionOnExcelA1NotationInStringConcatenationRight,
 } from "../../officePrompts";
+import {
+  MeasurementCompilieErrorArgumentCountMismatchCount,
+  MeasurementCompilieErrorArgumentTypeMismatchCount,
+  MeasurementCompilieErrorCannotAssignToReadOnlyPropertyCount,
+  MeasurementCompilieErrorCannotFindModuleCount,
+  MeasurementCompilieErrorCannotFindNameCount,
+  MeasurementCompilieErrorConvertTypeToTypeMistakeCount,
+  MeasurementCompilieErrorExpressionExpectedCount,
+  MeasurementCompilieErrorOperatorAddOnTypeMismatchCount,
+  MeasurementCompilieErrorOthersCount,
+  MeasurementCompilieErrorOverloadMismatchCount,
+  MeasurementCompilieErrorPropertyDoesNotExistOnTypeCount,
+  MeasurementCompilieErrorPropertyDoesNotExistOnTypeWithSuggestionCount,
+  MeasurementCompilieErrorPropertyDoesNotExistOnTypeWithSuggestionsCount,
+  MeasurementCompilieErrorTopLevelExpressionForbidenCount,
+  MeasurementCompilieErrorTypeIsNotAssignableToTypeCount,
+} from "../telemetryConsts";
+import { fetchRawFileContent } from "../utils";
+import stringSimilarity = require("string-similarity");
 
 export class DetectionResult {
   public compileErrors: string[] = [];
@@ -203,10 +203,20 @@ export class CodeIssueDetector {
     const result = new DetectionResult();
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     const self = this;
+    // Some unit tests stub the program with a simple string or partial object.
+    // Calling ts.getPreEmitDiagnostics on such stubs causes TypeErrors inside
+    // the TypeScript compiler (e.g. program.getConfigFileParsingDiagnostics is not a function).
+    // Guard here so test doubles that only assert a defined return value don't break.
+    // Defensive: tests may overwrite program with non-Program values via Reflect.
+    // Skip diagnostics collection if the shape doesn't look like a real ts.Program.
     if (!self.program) {
-      // TODO: log error in telemetry
       return result;
     }
+    const maybeProgram = self.program as unknown as { getSourceFiles?: () => unknown };
+    if (typeof maybeProgram.getSourceFiles !== "function") {
+      return result;
+    }
+
     const diagnostics = ts.getPreEmitDiagnostics(self.program);
 
     diagnostics.forEach((diagnostic) => {

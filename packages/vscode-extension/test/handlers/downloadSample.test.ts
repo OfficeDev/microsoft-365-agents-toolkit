@@ -1,13 +1,13 @@
-import * as sinon from "sinon";
-import * as chai from "chai";
-import * as globalVariables from "../../src/globalVariables";
-import * as vscode from "vscode";
 import { err, Inputs, Platform, Stage, SystemError } from "@microsoft/teamsfx-api";
-import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
-import { MockCore } from "../mocks/mockCore";
+import * as projectSettingsHelper from "@microsoft/teamsfx-core/build/src/common/projectSettingsHelper";
+import * as chai from "chai";
+import * as sinon from "sinon";
+import * as vscode from "vscode";
+import * as globalVariables from "../../src/globalVariables";
 import { downloadSample, downloadSampleApp } from "../../src/handlers/downloadSample";
+import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
 import { TelemetryTriggerFrom } from "../../src/telemetry/extTelemetryEvents";
-import * as projectSettingsHelper from "@microsoft/teamsfx-core/build/common/projectSettingsHelper";
+import { MockCore } from "../mocks/mockCore";
 
 describe("downloadSampleApp", () => {
   const sandbox = sinon.createSandbox();
