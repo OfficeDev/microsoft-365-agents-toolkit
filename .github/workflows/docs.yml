@@ -24,7 +24,7 @@ jobs:
       - name: List akas
         id: list-akas
         run: |
-          links=`git grep -hEo "https?://[a-zA-Z0-9./?=_%:#@&-]*[a-zA-Z0-9]" | sort -nr | uniq`
+          links=$(git grep -hEo "https?://[a-zA-Z0-9./?=_%:-]*[a-zA-Z0-9]" | sort -nr | uniq)
 
           white_list="https://aka.ms/dotnet;https://aka.ms/teamsfx-migrate-v1;https://aka.ms/officeversions"
 
