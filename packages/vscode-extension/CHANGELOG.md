@@ -68,7 +68,7 @@ The Travel Agent leverages Azure OpenAI and the Microsoft 365 Retrieval API to a
     * Deployment and debugging of agents in Microsoft Teams
 
 - **New Sample using Teams SDK: Coffee Agent**
-This sample is built with the [Microsoft Teams SDK](https://aka.ms/teamsai-v2), and showcases how easy it is to use activity handlers, adaptive cards, and AI to create a fun, interactive bot with just a few building blocks.
+This sample is built with the [Microsoft Teams SDK](https://aka.ms/teams-ai-library-v2), and showcases how easy it is to use activity handlers, adaptive cards, and AI to create a fun, interactive bot with just a few building blocks.
 
 This Coffee Agent helps teams coordinate their daily coffee orders by randomly selecting coffee shops and orderers, managing team coffee orders, and maintaining information about available coffee shops and their offerings. It's perfect for teams that want to streamline their coffee coordination process while having fun with their daily caffeine routine.
 
