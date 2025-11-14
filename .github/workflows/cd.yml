@@ -28,6 +28,10 @@ on:
         type: boolean
         default: false
         description: "Whether to release TTK as publish product"
+      skipimagecheck:
+        type: boolean
+        default: false
+        description: "Whether to skip the image availability check"
   schedule:
     - cron: "0 16 * * *"
 
@@ -91,9 +95,10 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install requests
 
-      - name: Check README images in VSC templates
+      - name: Check Markdown files image availability
+        if: ${{ !github.event.inputs.skipimagecheck }}
         run: |
-          python .github/scripts/analyze_readme_images.py --file-patterns "**/README.md" "**/README.md.tpl" "**/CHANGELOG.md" "**/PRERELEASE.md"  --exclude-dirs "packages/tests"
+          python .github/scripts/analyze_readme_images.py --file-patterns "**/README.md" "**/README.md.tpl" "**/CHANGELOG.md" "**/PRERELEASE.md"  --exclude-dirs "packages/tests" "node_modules" ".git" "temp" "dist" "build" "vendor" ".vscode"
       - uses: actions/setup-node@v3
         with:
           node-version: 22
