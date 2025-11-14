@@ -9,6 +9,7 @@ import re
 import requests
 import time
 import argparse
+import fnmatch
 from pathlib import Path
 from urllib.parse import urljoin, urlparse
 from typing import List, Dict, Tuple
@@ -57,12 +58,12 @@ class ImprovedReadmeImageAnalyzer:
         })
 
     def find_readme_files(self) -> List[Path]:
-        """Find all README.md and README.md.tpl files, excluding specified directories"""
+        """Find all README.md and README.md.tpl files, excluding specified directories (case-insensitive)"""
         readme_files = []
         
-        # Use configured scan patterns to find files
+        # Use configured scan patterns to find files with case-insensitive matching
         for pattern in self.scan_patterns:
-            readme_files.extend(self.base_path.glob(pattern))
+            readme_files.extend(self._glob_case_insensitive(pattern))
         
         # Filter out files in excluded directories
         if self.exclude_dirs:
@@ -89,6 +90,27 @@ class ImprovedReadmeImageAnalyzer:
             readme_files = filtered_files
         
         return sorted(readme_files)
+    
+    def _glob_case_insensitive(self, pattern: str) -> List[Path]:
+        """Perform case-insensitive glob matching"""
+        matching_files = []
+        
+        # Handle different pattern types
+        if pattern.startswith('**/'):  # Recursive pattern
+            pattern_without_recursive = pattern[3:]  # Remove '**/' prefix
+            for root, dirs, files in os.walk(self.base_path):
+                root_path = Path(root)
+                for file in files:
+                    if fnmatch.fnmatch(file.lower(), pattern_without_recursive.lower()):
+                        matching_files.append(root_path / file)
+        else:
+            # Non-recursive pattern - use regular glob but check case-insensitively
+            all_files = self.base_path.glob(pattern.replace('*', '*').replace('?', '?'))
+            for file_path in all_files:
+                if fnmatch.fnmatch(file_path.name.lower(), Path(pattern).name.lower()):
+                    matching_files.append(file_path)
+        
+        return matching_files
 
     def extract_images_from_content(self, content: str, file_path: Path) -> List[Dict]:
         """Extract all image links from file content"""

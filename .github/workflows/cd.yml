@@ -93,7 +93,7 @@ jobs:
 
       - name: Check README images in VSC templates
         run: |
-          python .github/scripts/analyze_readme_images.py --file-patterns "**/README.md" "**/README.md.tpl" "**/CHANGELOG.MD" "**/CHANGELOG.md.tpl" --exclude-dirs "packages/tests"
+          python .github/scripts/analyze_readme_images.py --file-patterns "**/README.md" "**/README.md.tpl" "**/CHANGELOG.md" "**/PRERELEASE.md"  --exclude-dirs "packages/tests"
       - uses: actions/setup-node@v3
         with:
           node-version: 22
