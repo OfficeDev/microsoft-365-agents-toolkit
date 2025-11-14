@@ -30,10 +30,15 @@ def safe_print(message):
         print(f"[Print error: {type(e).__name__}]")
 
 class ImprovedReadmeImageAnalyzer:
-    def __init__(self, base_path: str, scan_patterns: List[str] = None, exclude_dirs: List[str] = None):
+    def __init__(self, base_path: str, scan_patterns: List[str] = None, exclude_dirs: List[str] = None, 
+                 max_concurrent: int = 5, request_timeout: int = 5, max_total_time: int = 300):
         self.base_path = Path(base_path)
         self.scan_patterns = scan_patterns or ["**/README.md", "**/README.md.tpl", "**/CHANGELOG.md", "**/PRERELEASE.md"]
         self.exclude_dirs = exclude_dirs or []
+        self.max_concurrent = max_concurrent
+        self.request_timeout = request_timeout
+        self.max_total_time = max_total_time
+        self.start_time = time.time()
         # Normalize exclude directories to Path objects for easier comparison
         self.exclude_paths = [Path(d) for d in self.exclude_dirs]
         self.results = {
@@ -111,6 +116,10 @@ class ImprovedReadmeImageAnalyzer:
                     matching_files.append(file_path)
         
         return matching_files
+    
+    def _is_time_exceeded(self) -> bool:
+        """Check if maximum execution time has been exceeded"""
+        return (time.time() - self.start_time) > self.max_total_time
 
     def extract_images_from_content(self, content: str, file_path: Path) -> List[Dict]:
         """Extract all image links from file content"""
@@ -186,13 +195,13 @@ class ImprovedReadmeImageAnalyzer:
                 result["resolved_url"] = resolved_url
                 
                 # Check HTTP availability
-                response = self.session.head(resolved_url, timeout=10, allow_redirects=True)
+                response = self.session.head(resolved_url, timeout=self.request_timeout, allow_redirects=True)
                 http_status = response.status_code
                 
                 # If HEAD request fails, try GET request (some servers don't support HEAD)
                 if http_status >= 400:
                     try:
-                        response = self.session.get(resolved_url, timeout=10, allow_redirects=True, stream=True)
+                        response = self.session.get(resolved_url, timeout=self.request_timeout, allow_redirects=True, stream=True)
                         http_status = response.status_code
                         # Only read a small part of content to confirm this is an image
                         response.close()
@@ -271,15 +280,28 @@ class ImprovedReadmeImageAnalyzer:
         
         # Process remote images concurrently
         if remote_images:
-            print("Starting to check remote images...")
+            print(f"Starting to check remote images (max {self.max_concurrent} concurrent, {self.request_timeout}s timeout each)...")
+            print(f"Maximum total time allowed: {self.max_total_time}s")
+            
             try:
-                with ThreadPoolExecutor(max_workers=10) as executor:
+                with ThreadPoolExecutor(max_workers=self.max_concurrent) as executor:
                     future_to_image = {executor.submit(self.check_image_availability, img): img for img in remote_images}
                     
+                    completed_count = 0
                     for i, future in enumerate(as_completed(future_to_image)):
+                        # Check if time limit exceeded
+                        if self._is_time_exceeded():
+                            print(f"\n⚠️  Time limit exceeded ({self.max_total_time}s). Stopping after {completed_count} remote images.")
+                            # Cancel remaining futures
+                            for remaining_future in future_to_image:
+                                if not remaining_future.done():
+                                    remaining_future.cancel()
+                            break
+                            
                         try:
                             result = future.result()
                             self.results["images_found"].append(result)
+                            completed_count += 1
                             
                             if result["status"] == "working":
                                 self.results["working_images"].append(result)
@@ -288,14 +310,16 @@ class ImprovedReadmeImageAnalyzer:
                             
                             try:
                                 safe_url = result['url'][:50].encode('ascii', 'replace').decode('ascii')
-                                safe_print(f"Remote check {i+1}/{len(remote_images)}: {safe_url}... - {result['status']}")
+                                elapsed = int(time.time() - self.start_time)
+                                safe_print(f"Remote check {completed_count}/{len(remote_images)} ({elapsed}s): {safe_url}... - {result['status']}")
                             except Exception:
-                                safe_print(f"Remote check {i+1}/{len(remote_images)}: [URL with special chars]... - {result['status']}")
+                                safe_print(f"Remote check {completed_count}/{len(remote_images)} ({elapsed}s): [URL with special chars]... - {result['status']}")
                             
-                            # Avoid too frequent requests
-                            time.sleep(0.1)
+                            # Shorter delay for GitHub Actions
+                            time.sleep(0.05)
                         except Exception as e:
-                            safe_print(f"Error processing remote image {i+1}/{len(remote_images)}: {str(e)}")
+                            safe_print(f"Error processing remote image {completed_count+1}/{len(remote_images)}: {str(e)}")
+                            completed_count += 1
             except Exception as e:
                 safe_print(f"Error in concurrent processing: {str(e)}")
                 # Fallback to sequential processing
@@ -384,6 +408,27 @@ def main():
         default=[],
         help="Directory patterns to exclude from scanning (e.g., node_modules, .git, temp)"
     )
+    parser.add_argument(
+        "--max-concurrent",
+        "-c",
+        type=int,
+        default=5,
+        help="Maximum number of concurrent HTTP requests (default: 5)"
+    )
+    parser.add_argument(
+        "--request-timeout",
+        "-t",
+        type=int,
+        default=5,
+        help="HTTP request timeout in seconds (default: 5)"
+    )
+    parser.add_argument(
+        "--max-total-time",
+        "-m",
+        type=int,
+        default=300,
+        help="Maximum total execution time in seconds (default: 300 = 5 minutes)"
+    )
     
     args = parser.parse_args()
     
@@ -394,9 +439,19 @@ def main():
     print(f"File patterns: {', '.join(args.file_patterns)}")
     if args.exclude_dirs:
         print(f"Excluded directories: {', '.join(args.exclude_dirs)}")
+    print(f"Max concurrent requests: {args.max_concurrent}")
+    print(f"Request timeout: {args.request_timeout}s")
+    print(f"Max total time: {args.max_total_time}s")
     
     # Create analyzer instance
-    analyzer = ImprovedReadmeImageAnalyzer(scan_directory, args.file_patterns, args.exclude_dirs)
+    analyzer = ImprovedReadmeImageAnalyzer(
+        scan_directory, 
+        args.file_patterns, 
+        args.exclude_dirs,
+        args.max_concurrent,
+        args.request_timeout,
+        args.max_total_time
+    )
     
     # Execute analysis
     results = analyzer.analyze_files()
