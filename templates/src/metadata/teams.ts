@@ -146,61 +146,6 @@ const teamsOtherTemplates: Template[] = [
     language: "python",
     description: "",
   },
-  // VS templates below
-  {
-    id: "basic-tab-csharp",
-    name: TemplateNames.Tab,
-    language: "csharp",
-    description: "Simple Teams Tab App",
-  },
-  {
-    id: "default-bot-csharp",
-    name: TemplateNames.DefaultBot,
-    language: "csharp",
-    description: "",
-  },
-  {
-    id: "notification-http-trigger-csharp",
-    name: TemplateNames.NotificationHttpTrigger,
-    language: "csharp",
-    description: "",
-  },
-  {
-    id: "notification-timer-trigger-csharp",
-    name: TemplateNames.NotificationTimerTrigger,
-    language: "csharp",
-    description: "",
-  },
-  {
-    id: "notification-http-timer-trigger-csharp",
-    name: TemplateNames.NotificationHttpTimerTrigger,
-    language: "csharp",
-    description: "",
-  },
-  {
-    id: "notification-webapi-csharp",
-    name: TemplateNames.NotificationWebApi,
-    language: "csharp",
-    description: "",
-  },
-  {
-    id: "command-and-response-csharp",
-    name: TemplateNames.CommandAndResponse,
-    language: "csharp",
-    description: "",
-  },
-  {
-    id: "workflow-csharp",
-    name: TemplateNames.Workflow,
-    language: "csharp",
-    description: "",
-  },
-  {
-    id: "message-extension-v2-csharp",
-    name: TemplateNames.DefaultMessageExtension,
-    language: "csharp",
-    description: "",
-  },
 ];
 
 export const teamsAgentsAndAppsTemplates: Template[] = [
