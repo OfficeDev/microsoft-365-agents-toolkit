@@ -101,11 +101,22 @@ jobs:
     env:
       M365_ACCOUNT_PASSWORD: ${{ secrets.TEST_M365_PASSWORD }}
       M365_DISPLAY_NAME: "test"
-      M365_USERNAME_1: "test21@xxbdw.onmicrosoft.com"
-      M365_USERNAME_2: "test22@xxbdw.onmicrosoft.com"
-      M365_USERNAME_3: "test23@xxbdw.onmicrosoft.com"
-      M365_USERNAME_4: "test24@xxbdw.onmicrosoft.com"
-      M365_USERNAME_5: "test25@xxbdw.onmicrosoft.com"
+      M365_USERNAME_1: "test14@xxbdw.onmicrosoft.com"
+      M365_USERNAME_2: "test15@xxbdw.onmicrosoft.com"
+      M365_USERNAME_3: "test16@xxbdw.onmicrosoft.com"
+      M365_USERNAME_4: "test17@xxbdw.onmicrosoft.com"
+      M365_USERNAME_5: "test21@xxbdw.onmicrosoft.com"
+      M365_USERNAME_6: "test22@xxbdw.onmicrosoft.com"
+      M365_USERNAME_7: "test23@xxbdw.onmicrosoft.com"
+      M365_USERNAME_8: "test24@xxbdw.onmicrosoft.com"
+      M365_USERNAME_9: "test31@xxbdw.onmicrosoft.com"
+      M365_USERNAME_10: "test32@xxbdw.onmicrosoft.com"
+      M365_USERNAME_11: "test33@xxbdw.onmicrosoft.com"
+      M365_USERNAME_12: "test34@xxbdw.onmicrosoft.com"
+      M365_USERNAME_13: "test35@xxbdw.onmicrosoft.com"
+      M365_USERNAME_14: "test36@xxbdw.onmicrosoft.com"
+      M365_USERNAME_15: "test37@xxbdw.onmicrosoft.com"
+      M365_USERNAME_16: "test38@xxbdw.onmicrosoft.com"
       #M365_USERNAME_CLEAN: "delete_aad_app_user@atktesting.onmicrosoft.com"
       CLEAN_CLIENT_ID: ${{ secrets.TEST_CLEAN_CLIENT_ID }}
       CLEAN_CLIENT_SECRET: ${{ secrets.TEST_CLEAN_CLIENT_SECRET  }}
@@ -138,11 +149,12 @@ jobs:
         run: |
           username='${{ env.M365_USERNAME_1 }}'
           echo "M365_ACCOUNT_NAME=$username" >> $GITHUB_ENV
-          
+
       - name: Clean resource with M365 account 01
         if: always()
         run: |
           npx ts-node src/scripts/clean.ts
+
       - name: Switch to M365 account 02
         if: always()
         run: |
@@ -183,6 +195,127 @@ jobs:
           echo "M365_ACCOUNT_NAME=$username" >> $GITHUB_ENV
 
       - name: Clean resource with M365 account 05
+        if: always()
+        run: |
+          npx ts-node src/scripts/clean.ts
+
+      - name: Switch to M365 account 06
+        if: always()
+        run: |
+          username='${{ env.M365_USERNAME_6 }}'
+          echo "M365_ACCOUNT_NAME=$username" >> $GITHUB_ENV
+
+      - name: Clean resource with M365 account 06
+        if: always()
+        run: |
+          npx ts-node src/scripts/clean.ts
+
+      - name: Switch to M365 account 07
+        if: always()
+        run: |
+          username='${{ env.M365_USERNAME_7 }}'
+          echo "M365_ACCOUNT_NAME=$username" >> $GITHUB_ENV
+
+      - name: Clean resource with M365 account 07
+        if: always()
+        run: |
+          npx ts-node src/scripts/clean.ts
+
+      - name: Switch to M365 account 08
+        if: always()
+        run: |
+          username='${{ env.M365_USERNAME_8 }}'
+          echo "M365_ACCOUNT_NAME=$username" >> $GITHUB_ENV
+
+      - name: Clean resource with M365 account 08
+        if: always()
+        run: |
+          npx ts-node src/scripts/clean.ts
+
+      - name: Switch to M365 account 09
+        if: always()
+        run: |
+          username='${{ env.M365_USERNAME_9 }}'
+          echo "M365_ACCOUNT_NAME=$username" >> $GITHUB_ENV
+
+      - name: Clean resource with M365 account 09
+        if: always()
+        run: |
+          npx ts-node src/scripts/clean.ts
+
+      - name: Switch to M365 account 10
+        if: always()
+        run: |
+          username='${{ env.M365_USERNAME_10 }}'
+          echo "M365_ACCOUNT_NAME=$username" >> $GITHUB_ENV
+
+      - name: Clean resource with M365 account 10
+        if: always()
+        run: |
+          npx ts-node src/scripts/clean.ts
+
+      - name: Switch to M365 account 11
+        if: always()
+        run: |
+          username='${{ env.M365_USERNAME_11 }}'
+          echo "M365_ACCOUNT_NAME=$username" >> $GITHUB_ENV
+
+      - name: Clean resource with M365 account 11
+        if: always()
+        run: |
+          npx ts-node src/scripts/clean.ts
+
+      - name: Switch to M365 account 12
+        if: always()
+        run: |
+          username='${{ env.M365_USERNAME_12 }}'
+          echo "M365_ACCOUNT_NAME=$username" >> $GITHUB_ENV
+
+      - name: Clean resource with M365 account 12
+        if: always()
+        run: |
+          npx ts-node src/scripts/clean.ts
+
+      - name: Switch to M365 account 13
+        if: always()
+        run: |
+          username='${{ env.M365_USERNAME_13 }}'
+          echo "M365_ACCOUNT_NAME=$username" >> $GITHUB_ENV
+
+      - name: Clean resource with M365 account 13
+        if: always()
+        run: |
+          npx ts-node src/scripts/clean.ts
+
+      - name: Switch to M365 account 14
+        if: always()
+        run: |
+          username='${{ env.M365_USERNAME_14 }}'
+          echo "M365_ACCOUNT_NAME=$username" >> $GITHUB_ENV
+
+      - name: Clean resource with M365 account 14
+        if: always()
+        run: |
+          npx ts-node src/scripts/clean.ts
+
+      - name: Switch to M365 account 15
+        if: always()
+        run: |
+          username='${{ env.M365_USERNAME_15 }}'
+          echo "M365_ACCOUNT_NAME=$username" >> $GITHUB_ENV
+
+      - name: Clean resource with M365 account 15
+        if: always()
+        run: |
+          npx ts-node src/scripts/clean.ts
+
+      - name: Switch to M365 account 16
+        if: always()
+        run: |
+          username='${{ env.M365_USERNAME_16 }}'
+          echo "M365_ACCOUNT_NAME=$username" >> $GITHUB_ENV
+
+      - name: Clean resource with M365 account 16
         if: always()
         run: |
           npx ts-node src/scripts/clean.ts
