@@ -103,12 +103,12 @@ jobs:
       - name: Check Markdown files image availability
         if: ${{ github.event.inputs.skipimagecheck == 'false' || github.event.inputs.skipimagecheck == '' }}
         run: |
-          python .github/scripts/analyze_readme_images.py -u --file-patterns "**/README.md" "**/README.md.tpl" "**/CHANGELOG.md" "**/PRERELEASE.md"  --exclude-dirs "packages/tests" "node_modules" ".git" "temp" "dist" "build" ".vscode"
+          python -u .github/scripts/analyze_readme_images.py --file-patterns "**/README.md" "**/README.md.tpl" "**/CHANGELOG.md" "**/PRERELEASE.md"  --exclude-dirs "packages/tests" "node_modules" ".git" "temp" "dist" "build" ".vscode"
           
       - name: Check Markdown files hyperlink availability
         if: ${{ github.event.inputs.skiphyperlinkcheck == 'false' || github.event.inputs.skiphyperlinkcheck == '' }}
         run: |
-          python .github/scripts/analyze_readme_hyperlinks.py -u --scan-directory "templates/vsc" --file-patterns "**/README.md" "**/README.md.tpl" "**/CHANGELOG.md" "**/PRERELEASE.md"
+          python -u .github/scripts/analyze_readme_hyperlinks.py --scan-directory "templates/vsc" --file-patterns "**/README.md" "**/README.md.tpl" "**/CHANGELOG.md" "**/PRERELEASE.md"
 
       - uses: actions/setup-node@v3
         with:
