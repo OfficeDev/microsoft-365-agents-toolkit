@@ -31,7 +31,7 @@ def safe_print(message):
 
 class ImprovedReadmeImageAnalyzer:
     def __init__(self, base_path: str, scan_patterns: List[str] = None, exclude_dirs: List[str] = None, 
-                 max_concurrent: int = 5, request_timeout: int = 10, max_total_time: int = 300):
+                 max_concurrent: int = 5, request_timeout: int = 10, max_total_time: int = 600):
         self.base_path = Path(base_path)
         self.scan_patterns = scan_patterns or ["**/README.md", "**/README.md.tpl", "**/CHANGELOG.md", "**/PRERELEASE.md"]
         self.exclude_dirs = exclude_dirs or []
@@ -40,7 +40,7 @@ class ImprovedReadmeImageAnalyzer:
         self.max_total_time = max_total_time
         self.start_time = time.time()
         self.last_request_time = 0
-        self.min_request_interval = 0.3  # Minimum 300ms between requests
+        self.min_request_interval = 0.4  # Minimum 0.4s between requests
         # Normalize exclude directories to Path objects for easier comparison
         self.exclude_paths = [Path(d) for d in self.exclude_dirs]
         self.results = {
@@ -209,8 +209,8 @@ class ImprovedReadmeImageAnalyzer:
                 self._rate_limit()
                 
                 # Check HTTP availability with retry logic for 429 errors
-                max_retries = 3
-                retry_delays = [1, 2, 4]  # Exponential backoff
+                max_retries = 6
+                retry_delays = [2, 4, 8, 16, 32, 64]  # Exponential backoff
                 
                 for attempt in range(max_retries + 1):
                     try:
