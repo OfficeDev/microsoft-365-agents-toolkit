@@ -368,7 +368,7 @@ class MarkdownFileAnalyzer:
             else:
                 image_check_results["broken"].append(result)
             try:
-                safe_url = result['url'][:100].encode('ascii', 'replace').decode('ascii')
+                safe_url = result['url'][:200].encode('ascii', 'replace').decode('ascii')
                 safe_print(f"Local image check {i+1}/{len(all_local_images)}: {safe_url}... - {result['status']}")
             except Exception:
                 safe_print(f"Local image check {i+1}/{len(all_local_images)}: [URL with special chars]... - {result['status']}")
@@ -397,7 +397,7 @@ class MarkdownFileAnalyzer:
                             else:
                                 image_check_results["broken"].append(result)
                             try:
-                                safe_url = result['url'][:100].encode('ascii', 'replace').decode('ascii')
+                                safe_url = result['url'][:200].encode('ascii', 'replace').decode('ascii')
                                 elapsed = int(time.time() - self.start_time)
                                 safe_print(f"Remote image check {completed_count}/{len(all_remote_images)} ({elapsed}s): {safe_url}... - {result['status']}")
                             except Exception:
