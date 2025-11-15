@@ -185,7 +185,7 @@ class MarkdownFileAnalyzer:
             # Relative path, based on current file location
             return file_path.parent / url
 
-    def check_image_availability(self, image_info: Dict) -> Dict:
+    def check_image_or_link_availability(self, image_info: Dict) -> Dict:
         """Check availability of a single image - prioritize local file system"""
         url = image_info["url"]
         file_path = Path(self.base_path) / image_info["file"]
@@ -215,43 +215,67 @@ class MarkdownFileAnalyzer:
                     result["error"] = f"Local file does not exist: {local_path}"
                     return result
             
-            # For remote URLs, perform HTTP check
+
+            # For remote URLs, perform HTTP check (prefer HEAD, fallback to GET)
             else:
                 resolved_url = url if url.startswith(('http://', 'https://')) else f"https:{url}"
                 result["resolved_url"] = resolved_url
-                
+
                 # Apply rate limiting
                 self._rate_limit()
-                
+
                 # Check HTTP availability with retry logic for 429 errors
                 max_retries = 6
                 retry_delays = [2, 4, 8, 16, 32, 64]  # Exponential backoff
-                
+                http_status = 0
+                available = False
+
                 for attempt in range(max_retries + 1):
                     try:
-                        response = self.session.head(resolved_url, timeout=self.request_timeout, allow_redirects=True)
+                        # # Try HEAD first
+                        # response = self.session.head(resolved_url, timeout=self.request_timeout, allow_redirects=True)
+                        # http_status = response.status_code
+                        # response.close()
+
+                        # # Treat 2xx and 301 as available
+                        # if (200 <= http_status < 300) or http_status == 301:
+                        #     available = True
+                        #     break
+
+                        # If HEAD is not available, try GET
+                        response = self.session.get(resolved_url, timeout=self.request_timeout, stream=True, allow_redirects=True)
                         http_status = response.status_code
-                        
-                        # If HEAD request fails, try GET request (some servers don't support HEAD)
-                        if http_status >= 400:
-                            try:
-                                response = self.session.get(resolved_url, timeout=self.request_timeout, allow_redirects=True, stream=True)
-                                http_status = response.status_code
-                                # Only read a small part of content to confirm this is an image
-                                response.close()
-                            except:
-                                pass
-                        
+                        final_url = response.url
+                        response.close()
+                        # Check for aka.ms special handling
+                        parsed = urlparse(resolved_url)
+                        if parsed.hostname and parsed.hostname.lower().endswith("aka.ms"):
+                            # If redirected to bing.com, treat as unavailable
+                            if "bing.com" in final_url.lower():
+                                available = False
+                                http_status = 404  # Treat as broken
+                                break
+                            else:
+                                # aka.ms but not redirected to bing.com, treat as available if status is 301 or 2xx
+                                if (200 <= http_status < 400):
+                                    available = True
+                                    break
+                        else:
+                            # Not aka.ms, rely on status code
+                            if (200 <= http_status < 400):
+                                available = True
+                                break
+
                         # Handle rate limiting
                         if http_status == 429 and attempt < max_retries:
                             retry_delay = retry_delays[attempt]
                             safe_print(f"Rate limited (429), retrying in {retry_delay}s... (attempt {attempt + 1}/{max_retries + 1})")
                             time.sleep(retry_delay)
                             continue
-                        
-                        # Break out of retry loop on success or non-429 error
+
+                        # For other codes, break unless retrying 429
                         break
-                        
+
                     except Exception as e:
                         if attempt < max_retries:
                             retry_delay = retry_delays[attempt]
@@ -262,17 +286,17 @@ class MarkdownFileAnalyzer:
                             # Last attempt failed
                             http_status = 0
                             break
-                
+
                 result["http_status"] = http_status
-                result["http_available"] = 200 <= http_status < 400
-                result["status"] = "working" if result["http_available"] else "broken"
-                
-                if not result["http_available"]:
+                result["http_available"] = available
+                result["status"] = "working" if available else "broken"
+
+                if not available:
                     if http_status == 429:
                         result["error"] = f"HTTP error: {http_status} (Rate Limited - too many requests)"
                     else:
                         result["error"] = f"HTTP error: {http_status}"
-                
+
                 return result
                 
         except Exception as e:
@@ -337,14 +361,14 @@ class MarkdownFileAnalyzer:
         print(f"\nFound {len(all_local_images)} local images, {len(all_remote_images)} unique remote images.")
         image_check_results = {"local": [], "remote": [], "broken": [], "working": []}
         for i, img in enumerate(all_local_images):
-            result = self.check_image_availability(img)
+            result = self.check_image_or_link_availability(img)
             image_check_results["local"].append(result)
             if result["status"] == "working":
                 image_check_results["working"].append(result)
             else:
                 image_check_results["broken"].append(result)
             try:
-                safe_url = result['url'][:50].encode('ascii', 'replace').decode('ascii')
+                safe_url = result['url'][:100].encode('ascii', 'replace').decode('ascii')
                 safe_print(f"Local image check {i+1}/{len(all_local_images)}: {safe_url}... - {result['status']}")
             except Exception:
                 safe_print(f"Local image check {i+1}/{len(all_local_images)}: [URL with special chars]... - {result['status']}")
@@ -355,7 +379,7 @@ class MarkdownFileAnalyzer:
             print(f"Maximum total time allowed: {self.max_total_time}s")
             try:
                 with ThreadPoolExecutor(max_workers=self.max_concurrent) as executor:
-                    future_to_item = {executor.submit(self.check_image_availability, item): item for item in all_remote_images}
+                    future_to_item = {executor.submit(self.check_image_or_link_availability, item): item for item in all_remote_images}
                     completed_count = 0
                     for i, future in enumerate(as_completed(future_to_item)):
                         if self._is_time_exceeded():
@@ -373,7 +397,7 @@ class MarkdownFileAnalyzer:
                             else:
                                 image_check_results["broken"].append(result)
                             try:
-                                safe_url = result['url'][:50].encode('ascii', 'replace').decode('ascii')
+                                safe_url = result['url'][:100].encode('ascii', 'replace').decode('ascii')
                                 elapsed = int(time.time() - self.start_time)
                                 safe_print(f"Remote image check {completed_count}/{len(all_remote_images)} ({elapsed}s): {safe_url}... - {result['status']}")
                             except Exception:
@@ -385,7 +409,7 @@ class MarkdownFileAnalyzer:
                 safe_print(f"Error in concurrent processing: {str(e)}")
                 for i, item in enumerate(all_remote_images):
                     try:
-                        result = self.check_image_availability(item)
+                        result = self.check_image_or_link_availability(item)
                         image_check_results["remote"].append(result)
                         if result["status"] == "working":
                             image_check_results["working"].append(result)
@@ -403,7 +427,7 @@ class MarkdownFileAnalyzer:
             print(f"Maximum total time allowed: {self.max_total_time}s")
             try:
                 with ThreadPoolExecutor(max_workers=self.max_concurrent) as executor:
-                    future_to_item = {executor.submit(self.check_image_availability, item): item for item in all_hyperlinks}
+                    future_to_item = {executor.submit(self.check_image_or_link_availability, item): item for item in all_hyperlinks}
                     completed_count = 0
                     for i, future in enumerate(as_completed(future_to_item)):
                         if self._is_time_exceeded():
@@ -433,7 +457,7 @@ class MarkdownFileAnalyzer:
                 safe_print(f"Error in concurrent processing: {str(e)}")
                 for i, item in enumerate(all_hyperlinks):
                     try:
-                        result = self.check_image_availability(item)
+                        result = self.check_image_or_link_availability(item)
                         hyperlink_check_results["remote"].append(result)
                         if result["status"] == "working":
                             hyperlink_check_results["working"].append(result)
