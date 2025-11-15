@@ -32,6 +32,10 @@ on:
         type: boolean
         default: false
         description: "Whether to skip the image availability check"
+      skiphyperlinkcheck:
+        type: boolean
+        default: false
+        description: "Whether to skip the hyperlink availability check"
   schedule:
     - cron: "0 16 * * *"
 
@@ -90,8 +94,8 @@ jobs:
         with:
           python-version: '3.x'
 
-      - name: Install Python dependencies for image analysis
-        if: ${{ github.event.inputs.skipimagecheck == 'false' || github.event.inputs.skipimagecheck == '' }}
+      - name: Install Python dependencies for image or hyperlink analysis
+        if: ${{ github.event.inputs.skipimagecheck == 'false' || github.event.inputs.skipimagecheck == '' || github.event.inputs.skiphyperlinkcheck == 'false' || github.event.inputs.skiphyperlinkcheck == '' }}
         run: |
           python -m pip install --upgrade pip
           python -m pip install requests
@@ -99,7 +103,13 @@ jobs:
       - name: Check Markdown files image availability
         if: ${{ github.event.inputs.skipimagecheck == 'false' || github.event.inputs.skipimagecheck == '' }}
         run: |
-          python .github/scripts/analyze_readme_images.py --file-patterns "**/README.md" "**/README.md.tpl" "**/CHANGELOG.md" "**/PRERELEASE.md"  --exclude-dirs "packages/tests" "node_modules" ".git" "temp" "dist" "build" "vendor" ".vscode"
+          python .github/scripts/analyze_readme_images.py --file-patterns "**/README.md" "**/README.md.tpl" "**/CHANGELOG.md" "**/PRERELEASE.md"  --exclude-dirs "packages/tests" "node_modules" ".git" "temp" "dist" "build" ".vscode"
+          
+      - name: Check Markdown files hyperlink availability
+        if: ${{ github.event.inputs.skiphyperlinkcheck == 'false' || github.event.inputs.skiphyperlinkcheck == '' }}
+        run: |
+          python .github/scripts/analyze_readme_hyperlinks.py --file-patterns "**/README.md" "**/README.md.tpl" "**/CHANGELOG.md" "**/PRERELEASE.md"  --exclude-dirs "packages/tests" "node_modules" ".git" "temp" "dist" "build" ".vscode"
+
       - uses: actions/setup-node@v3
         with:
           node-version: 22
