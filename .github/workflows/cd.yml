@@ -91,12 +91,13 @@ jobs:
           python-version: '3.x'
 
       - name: Install Python dependencies for image analysis
+        if: ${{ github.event.inputs.skipimagecheck == 'false' || github.event.inputs.skipimagecheck == '' }}
         run: |
           python -m pip install --upgrade pip
           python -m pip install requests
 
       - name: Check Markdown files image availability
-        if: ${{ !github.event.inputs.skipimagecheck }}
+        if: ${{ github.event.inputs.skipimagecheck == 'false' || github.event.inputs.skipimagecheck == '' }}
         run: |
           python .github/scripts/analyze_readme_images.py --file-patterns "**/README.md" "**/README.md.tpl" "**/CHANGELOG.md" "**/PRERELEASE.md"  --exclude-dirs "packages/tests" "node_modules" ".git" "temp" "dist" "build" "vendor" ".vscode"
       - uses: actions/setup-node@v3
