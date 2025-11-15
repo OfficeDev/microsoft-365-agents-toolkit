@@ -108,7 +108,7 @@ jobs:
       - name: Check Markdown files hyperlink availability
         if: ${{ github.event.inputs.skiphyperlinkcheck == 'false' || github.event.inputs.skiphyperlinkcheck == '' }}
         run: |
-          python .github/scripts/analyze_readme_hyperlinks.py --file-patterns "**/README.md" "**/README.md.tpl" "**/CHANGELOG.md" "**/PRERELEASE.md"  --exclude-dirs "packages/tests" "node_modules" ".git" "temp" "dist" "build" ".vscode"
+          python .github/scripts/analyze_readme_hyperlinks.py --scan-directory "templates/vsc" --file-patterns "**/README.md" "**/README.md.tpl" "**/CHANGELOG.md" "**/PRERELEASE.md"  --exclude-dirs "packages/tests" "node_modules" ".git" "temp" "dist" "build" ".vscode"
 
       - uses: actions/setup-node@v3
         with:
