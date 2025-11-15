@@ -29,7 +29,7 @@ def safe_print(message):
         # Ultimate fallback
         print(f"[Print error: {type(e).__name__}]")
 
-class ImprovedReadmeImageAnalyzer:
+class MarkdownFileAnalyzer:
     def __init__(self, base_path: str, scan_patterns: List[str] = None, exclude_dirs: List[str] = None, 
                  max_concurrent: int = 5, request_timeout: int = 10, max_total_time: int = 600):
         self.base_path = Path(base_path)
@@ -443,11 +443,10 @@ class ImprovedReadmeImageAnalyzer:
                     except Exception as e:
                         safe_print(f"Error in sequential processing {i+1}/{len(all_hyperlinks)}: {str(e)}")
 
-        # Save two separate reports
-        with open(self.base_path / "image_check_report.json", 'w', encoding='utf-8') as f:
-            json.dump(image_check_results, f, indent=2, ensure_ascii=False)
-        with open(self.base_path / "hyperlink_check_report.json", 'w', encoding='utf-8') as f:
-            json.dump(hyperlink_check_results, f, indent=2, ensure_ascii=False)
+
+        # Do not save any report, just display in summary
+        self.image_check_results = image_check_results
+        self.hyperlink_check_results = hyperlink_check_results
 
         # Generate summary including both image and hyperlink check results
         self.results["summary"] = {
@@ -515,7 +514,14 @@ class ImprovedReadmeImageAnalyzer:
             print("Success rate: N/A")
         if summary.get('broken_hyperlinks', 0) > 0:
             print(f"\nBroken hyperlinks:")
-            # Optionally, could print details if needed (not implemented here)
+            for link in getattr(self, 'hyperlink_check_results', {}).get('broken', []):
+                print(f"  File: {link.get('file', 'N/A')}")
+                print(f"  Link: {link.get('url', 'N/A')}")
+                if link.get('http_status'):
+                    print(f"  HTTP status: {link.get('http_status', 'N/A')}")
+                print(f"  Error: {link.get('error', 'N/A')}")
+                print(f"---------------------------------------------")
+                print()
 
 def main():
     # Set up command line argument parsing
@@ -576,7 +582,7 @@ def main():
     print(f"Max total time: {args.max_total_time}s")
     
     # Create analyzer instance
-    analyzer = ImprovedReadmeImageAnalyzer(
+    analyzer = MarkdownFileAnalyzer(
         scan_directory, 
         args.file_patterns, 
         args.exclude_dirs,
@@ -591,21 +597,25 @@ def main():
     # Print summary
     analyzer.print_summary()
         
-    # Check if all image links are available
+
+    # Check if all image and hyperlink links are available
     summary = results["summary"]
-    success_rate = summary.get("success_rate_images", summary.get("success_rate", 0))
-    broken_count = summary.get("broken_images", 0)
+    broken_images = summary.get("broken_images", 0)
+    broken_hyperlinks = summary.get("broken_hyperlinks", 0)
 
     print(f"\n{'='*60}")
     print("PIPELINE CHECK RESULTS")
     print(f"{'='*60}")
 
-    if broken_count == 0:
-        print("✅ All image links are working!")
+    if broken_images == 0 and broken_hyperlinks == 0:
+        print("✅ All image links and hyperlinks are working!")
         print("✅ PIPELINE check passed - can continue execution")
         exit_code = 0
     else:
-        print(f"❌ Found {broken_count} broken image links!")
+        if broken_images > 0:
+            print(f"❌ Found {broken_images} broken image links!")
+        if broken_hyperlinks > 0:
+            print(f"❌ Found {broken_hyperlinks} broken hyperlinks!")
         print("❌ PIPELINE check failed - recommend stopping execution")
         exit_code = 1
 
