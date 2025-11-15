@@ -28,14 +28,10 @@ on:
         type: boolean
         default: false
         description: "Whether to release TTK as publish product"
-      skipimagecheck:
+      skipmarkdowncheck:
         type: boolean
         default: false
-        description: "Whether to skip the image availability check"
-      skiphyperlinkcheck:
-        type: boolean
-        default: false
-        description: "Whether to skip the hyperlink availability check"
+        description: "Whether to skip Markdown files check"
   schedule:
     - cron: "0 16 * * *"
 
@@ -95,21 +91,16 @@ jobs:
           python-version: '3.x'
 
       - name: Install Python dependencies for image or hyperlink analysis
-        if: ${{ github.event.inputs.skipimagecheck == 'false' || github.event.inputs.skipimagecheck == '' || github.event.inputs.skiphyperlinkcheck == 'false' || github.event.inputs.skiphyperlinkcheck == '' }}
+        if: ${{ github.event.inputs.skipmarkdowncheck == 'false' || github.event.inputs.skipmarkdowncheck == ''}}
         run: |
           python -m pip install --upgrade pip
           python -m pip install requests
 
-      - name: Check Markdown files image availability
-        if: ${{ github.event.inputs.skipimagecheck == 'false' || github.event.inputs.skipimagecheck == '' }}
+      - name: Check Markdown files image/hyperlink availability
+        if: ${{ github.event.inputs.skipmarkdowncheck == 'false' || github.event.inputs.skipmarkdowncheck == '' }}
         run: |
-          python -u .github/scripts/analyze_readme_images.py --file-patterns "**/README.md" "**/README.md.tpl" "**/CHANGELOG.md" "**/PRERELEASE.md"  --exclude-dirs "packages/tests" "node_modules" ".git" "temp" "dist" "build" ".vscode"
+          python -u .github/scripts/analyze_markdown.py --scan-directory "templates/vsc"  --file-patterns "**/README.md" "**/README.md.tpl" "**/CHANGELOG.md" "**/PRERELEASE.md" 
           
-      - name: Check Markdown files hyperlink availability
-        if: ${{ github.event.inputs.skiphyperlinkcheck == 'false' || github.event.inputs.skiphyperlinkcheck == '' }}
-        run: |
-          python -u .github/scripts/analyze_readme_hyperlinks.py --scan-directory "templates/vsc" --file-patterns "**/README.md" "**/README.md.tpl" "**/CHANGELOG.md" "**/PRERELEASE.md"
-
       - uses: actions/setup-node@v3
         with:
           node-version: 22

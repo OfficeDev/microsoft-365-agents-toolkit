@@ -57,12 +57,27 @@ class ImprovedReadmeImageAnalyzer:
             r'<img[^>]+src="([^"]+)"[^>]*>',  # HTML img tag
             r'<img[^>]+src=\'([^\']+)\'[^>]*>',  # HTML img tag (single quotes)
         ]
-        
+        # Hyperlink regex (exclude image links)
+        self.url_pattern = re.compile(r'(?<!!)\[[^]]+\]\((https?://[^)]+)\)')
+        self.allowed_hostnames = {"aka.ms", "github.com", "microsoft.com", "visualstudio.com", "githubusercontent.com"}
         # Session settings to avoid repeated connections
         self.session = requests.Session()
         self.session.headers.update({
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
         })
+
+    def extract_links_from_content(self, content: str, file_path: Path) -> list:
+        """Extract all hyperlinks from file content (excluding images)"""
+        links = []
+        for match in self.url_pattern.findall(content):
+            url = match.strip()
+            if url:
+                links.append({
+                    "url": url,
+                    "file": str(file_path.relative_to(self.base_path)),
+                    "type": "absolute"
+                })
+        return links
 
     def find_readme_files(self) -> List[Path]:
         """Find all README.md and README.md.tpl files, excluding specified directories (case-insensitive)"""
@@ -266,129 +281,197 @@ class ImprovedReadmeImageAnalyzer:
             return result
 
     def analyze_files(self) -> Dict:
-        """Analyze all README files"""
+        """Analyze all README files for images and hyperlinks (unique URLs only)"""
         readme_files = self.find_readme_files()
         print(f"Found {len(readme_files)} README files")
-        
-        all_images = []
-        
+
+
+        all_items = []  # images + hyperlinks
+        url_seen = set()
+
         # Analyze files one by one
         for file_path in readme_files:
             try:
                 with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
                     content = f.read()
-                
+
                 # Extract image links
                 images = self.extract_images_from_content(content, file_path)
-                all_images.extend(images)
-                
+                # Extract hyperlinks
+                links = self.extract_links_from_content(content, file_path)
+
+                # Merge and deduplicate (keep only the first occurrence of file/type)
+                for item in images + links:
+                    url = item["url"]
+                    if url not in url_seen:
+                        url_seen.add(url)
+                        all_items.append(item)
+
                 self.results["files_analyzed"].append({
                     "file": str(file_path.relative_to(self.base_path)),
-                    "images_count": len(images)
+                    "images_count": len(images),
+                    "hyperlinks_count": len(links)
                 })
-                
+
                 try:
                     safe_path = str(file_path.relative_to(self.base_path)).encode('ascii', 'replace').decode('ascii')
-                    safe_print(f"Analyzing file: {safe_path} - found {len(images)} images")
+                    safe_print(f"Analyzing file: {safe_path} - found {len(images)} images, {len(links)} hyperlinks")
                 except Exception:
-                    safe_print(f"Analyzing file: [file with special chars] - found {len(images)} images")
-                
+                    safe_print(f"Analyzing file: [file with special chars] - found {len(images)} images, {len(links)} hyperlinks")
+
             except Exception as e:
                 print(f"Failed to read file {file_path}: {e}")
-        
-        print(f"\nFound {len(all_images)} image links in total")
-        print("Starting to check image availability...")
-        
-        # Check image availability - check local files directly, remote files with concurrent requests
-        local_images = [img for img in all_images if img["type"] in ["relative", "root_relative"]]
-        remote_images = [img for img in all_images if img["type"] in ["absolute", "protocol_relative"]]
-        
-        print(f"Local images: {len(local_images)}, Remote images: {len(remote_images)}")
-        
-        # Process local images
-        for i, img in enumerate(local_images):
-            result = self.check_image_availability(img)
+
+        print(f"\nFound {len(all_items)} unique image/hyperlink URLs in total")
+        print("Starting to check availability...")
+
+
+        # Categorize
+        local_items = [item for item in all_items if item["type"] in ["relative", "root_relative"]]
+        remote_items = [item for item in all_items if item["type"] in ["absolute", "protocol_relative"]]
+
+        print(f"Local files: {len(local_items)}, Remote URLs: {len(remote_items)}")
+
+        # Process local files
+        for i, item in enumerate(local_items):
+            result = self.check_image_availability(item)
             self.results["images_found"].append(result)
-            
+
             if result["status"] == "working":
                 self.results["working_images"].append(result)
             else:
                 self.results["broken_images"].append(result)
-            
+
             try:
                 safe_url = result['url'][:50].encode('ascii', 'replace').decode('ascii')
-                safe_print(f"Local check {i+1}/{len(local_images)}: {safe_url}... - {result['status']}")
+                safe_print(f"Local check {i+1}/{len(local_items)}: {safe_url}... - {result['status']}")
             except Exception:
-                safe_print(f"Local check {i+1}/{len(local_images)}: [URL with special chars]... - {result['status']}")
-        
-        # Process remote images concurrently
-        if remote_images:
-            print(f"Starting to check remote images (max {self.max_concurrent} concurrent, {self.request_timeout}s timeout each)...")
+                safe_print(f"Local check {i+1}/{len(local_items)}: [URL with special chars]... - {result['status']}")
+
+
+        # Process remote links: images and hyperlinks are handled separately for domain filtering
+        image_remote_items = []
+        hyperlink_remote_items = []
+        for item in remote_items:
+            # Determine if this is an image (by source: images/links)
+            # Here, by the order in all_items, images come first, links come after
+            if item in images:
+                image_remote_items.append(item)
+            else:
+                # Hyperlinks need allowed_hostnames filtering
+                try:
+                    hostname = urlparse(item["url"]).hostname
+                    if hostname and any(hostname.endswith(allowed) for allowed in self.allowed_hostnames):
+                        hyperlink_remote_items.append(item)
+                except Exception:
+                    continue
+
+        # Check all remote images
+        if image_remote_items:
+            print(f"Starting to check remote image URLs (max {self.max_concurrent} concurrent, {self.request_timeout}s timeout each)...")
             print(f"Maximum total time allowed: {self.max_total_time}s")
-            
             try:
                 with ThreadPoolExecutor(max_workers=self.max_concurrent) as executor:
-                    future_to_image = {executor.submit(self.check_image_availability, img): img for img in remote_images}
-                    
+                    future_to_item = {executor.submit(self.check_image_availability, item): item for item in image_remote_items}
                     completed_count = 0
-                    for i, future in enumerate(as_completed(future_to_image)):
-                        # Check if time limit exceeded
+                    for i, future in enumerate(as_completed(future_to_item)):
                         if self._is_time_exceeded():
-                            print(f"\n⚠️  Time limit exceeded ({self.max_total_time}s). Stopping after {completed_count} remote images.")
-                            # Cancel remaining futures
-                            for remaining_future in future_to_image:
+                            print(f"\n⚠️  Time limit exceeded ({self.max_total_time}s). Stopping after {completed_count} remote image URLs.")
+                            for remaining_future in future_to_item:
                                 if not remaining_future.done():
                                     remaining_future.cancel()
                             break
-                            
                         try:
                             result = future.result()
                             self.results["images_found"].append(result)
                             completed_count += 1
-                            
                             if result["status"] == "working":
                                 self.results["working_images"].append(result)
                             else:
                                 self.results["broken_images"].append(result)
-                            
                             try:
                                 safe_url = result['url'][:50].encode('ascii', 'replace').decode('ascii')
                                 elapsed = int(time.time() - self.start_time)
-                                safe_print(f"Remote check {completed_count}/{len(remote_images)} ({elapsed}s): {safe_url}... - {result['status']}")
+                                safe_print(f"Remote image check {completed_count}/{len(image_remote_items)} ({elapsed}s): {safe_url}... - {result['status']}")
                             except Exception:
-                                safe_print(f"Remote check {completed_count}/{len(remote_images)} ({elapsed}s): [URL with special chars]... - {result['status']}")
-                            
+                                safe_print(f"Remote image check {completed_count}/{len(image_remote_items)} ({elapsed}s): [URL with special chars]... - {result['status']}")
                         except Exception as e:
-                            safe_print(f"Error processing remote image {completed_count+1}/{len(remote_images)}: {str(e)}")
+                            safe_print(f"Error processing remote image URL {completed_count+1}/{len(image_remote_items)}: {str(e)}")
                             completed_count += 1
             except Exception as e:
                 safe_print(f"Error in concurrent processing: {str(e)}")
-                # Fallback to sequential processing
-                for i, img in enumerate(remote_images):
+                for i, item in enumerate(image_remote_items):
                     try:
-                        result = self.check_image_availability(img)
+                        result = self.check_image_availability(item)
                         self.results["images_found"].append(result)
-                        
                         if result["status"] == "working":
                             self.results["working_images"].append(result)
                         else:
                             self.results["broken_images"].append(result)
-                        
-                        safe_print(f"Remote check (sequential) {i+1}/{len(remote_images)}: [URL]... - {result['status']}")
+                        safe_print(f"Remote image check (sequential) {i+1}/{len(image_remote_items)}: [URL]... - {result['status']}")
                     except Exception as e:
-                        safe_print(f"Error in sequential processing {i+1}/{len(remote_images)}: {str(e)}")
-        
+                        safe_print(f"Error in sequential processing {i+1}/{len(image_remote_items)}: {str(e)}")
+
+        # Check remote hyperlinks only for allowed domains
+        if hyperlink_remote_items:
+            print(f"Starting to check remote hyperlink URLs (max {self.max_concurrent} concurrent, {self.request_timeout}s timeout each)...")
+            print(f"Maximum total time allowed: {self.max_total_time}s")
+            try:
+                with ThreadPoolExecutor(max_workers=self.max_concurrent) as executor:
+                    future_to_item = {executor.submit(self.check_image_availability, item): item for item in hyperlink_remote_items}
+                    completed_count = 0
+                    for i, future in enumerate(as_completed(future_to_item)):
+                        if self._is_time_exceeded():
+                            print(f"\n⚠️  Time limit exceeded ({self.max_total_time}s). Stopping after {completed_count} remote hyperlink URLs.")
+                            for remaining_future in future_to_item:
+                                if not remaining_future.done():
+                                    remaining_future.cancel()
+                            break
+                        try:
+                            result = future.result()
+                            self.results["images_found"].append(result)
+                            completed_count += 1
+                            if result["status"] == "working":
+                                self.results["working_images"].append(result)
+                            else:
+                                self.results["broken_images"].append(result)
+                            try:
+                                safe_url = result['url'][:50].encode('ascii', 'replace').decode('ascii')
+                                elapsed = int(time.time() - self.start_time)
+                                safe_print(f"Remote hyperlink check {completed_count}/{len(hyperlink_remote_items)} ({elapsed}s): {safe_url}... - {result['status']}")
+                            except Exception:
+                                safe_print(f"Remote hyperlink check {completed_count}/{len(hyperlink_remote_items)} ({elapsed}s): [URL with special chars]... - {result['status']}")
+                        except Exception as e:
+                            safe_print(f"Error processing remote hyperlink URL {completed_count+1}/{len(hyperlink_remote_items)}: {str(e)}")
+                            completed_count += 1
+            except Exception as e:
+                safe_print(f"Error in concurrent processing: {str(e)}")
+                for i, item in enumerate(hyperlink_remote_items):
+                    try:
+                        result = self.check_image_availability(item)
+                        self.results["images_found"].append(result)
+                        if result["status"] == "working":
+                            self.results["working_images"].append(result)
+                        else:
+                            self.results["broken_images"].append(result)
+                        safe_print(f"Remote hyperlink check (sequential) {i+1}/{len(hyperlink_remote_items)}: [URL]... - {result['status']}")
+                    except Exception as e:
+                        safe_print(f"Error in sequential processing {i+1}/{len(hyperlink_remote_items)}: {str(e)}")
+
         # Generate summary
         self.results["summary"] = {
             "total_files": len(readme_files),
-            "total_images": len(all_images),
-            "local_images": len(local_images),
-            "remote_images": len(remote_images),
+            "total_images": sum(f.get("images_count", 0) for f in self.results["files_analyzed"]),
+            "total_hyperlinks": sum(f.get("hyperlinks_count", 0) for f in self.results["files_analyzed"]),
+            "unique_urls": len(all_items),
+            "local_items": len(local_items),
+            "remote_image_items": len(image_remote_items),
+            "remote_hyperlink_items": len(hyperlink_remote_items),
             "working_images": len(self.results["working_images"]),
             "broken_images": len(self.results["broken_images"]),
-            "success_rate": len(self.results["working_images"]) / len(all_images) * 100 if all_images else 0
+            "success_rate": len(self.results["working_images"]) / len(all_items) * 100 if all_items else 0
         }
-        
+
         return self.results
 
     def save_results(self, output_file: str = "improved_readme_image_analysis.json"):
