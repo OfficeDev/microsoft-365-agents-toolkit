@@ -66,6 +66,7 @@
 
 - **Regenerate Actions for Declarative Agent**: Teams Toolkit now offers the ability to regenerate actions for declarative agents by integrating with Microsoft Kiota, enabling developers to refresh the agent's capabilities and ensure that it remains up-to-date with the latest features and enhancements.
   
+
 #### Enhancements
 
 - **Improved `script` Action Output Using Native TTY Terminal UX**: The output mechanism for the `script` action has been enhanced to leverage the native TTY terminal user experience. This update addresses the occasional rendering issues that were previously experienced in the Visual Studio Code output channel, providing a more stable and reliable interaction interface for developers.
