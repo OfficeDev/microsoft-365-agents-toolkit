@@ -30,7 +30,7 @@ def safe_print(message):
         print(f"[Print error: {type(e).__name__}]")
 
 class MarkdownFileAnalyzer:
-    def __init__(self, base_paths, scan_patterns: List[str] = None, exclude_dirs: List[str] = None, 
+    def __init__(self, base_paths, scan_patterns: List[str] = None, extra_files: List[str] = None,
                  max_concurrent: int = 5, request_timeout: int = 10, max_total_time: int = 600):
         # Support multiple scan directories
         if isinstance(base_paths, str):
@@ -38,15 +38,13 @@ class MarkdownFileAnalyzer:
         else:
             self.base_paths = [Path(p) for p in base_paths]
         self.scan_patterns = scan_patterns or ["**/README.md", "**/README.md.tpl", "**/CHANGELOG.md", "**/PRERELEASE.md"]
-        self.exclude_dirs = exclude_dirs or []
+        self.extra_files = [Path(f) for f in extra_files] if extra_files else []
         self.max_concurrent = max_concurrent
         self.request_timeout = request_timeout
         self.max_total_time = max_total_time
         self.start_time = time.time()
         self.last_request_time = 0
         self.min_request_interval = 0.4  # Minimum 0.4s between requests
-        # Normalize exclude directories to Path objects for easier comparison
-        self.exclude_paths = [Path(d) for d in self.exclude_dirs]
         self.results = {
             "files_analyzed": [],
             "images_found": [],
@@ -69,7 +67,7 @@ class MarkdownFileAnalyzer:
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
         })
 
-    def extract_links_from_content(self, content: str, file_path: Path, base_path: Path) -> list:
+    def extract_links_from_content(self, content: str, file_path: Path) -> list:
         """Extract all hyperlinks from file content (excluding images)"""
         links = []
         for match in self.url_pattern.findall(content):
@@ -77,42 +75,21 @@ class MarkdownFileAnalyzer:
             if url:
                 links.append({
                     "url": url,
-                    "file": str(file_path.relative_to(base_path)),
+                    "file": file_path,
                     "type": "absolute"
                 })
         return links
 
     def find_readme_files(self) -> List[Path]:
-        """Find all README.md and similar files in all scan directories, excluding specified directories (case-insensitive)"""
+        """Find all README.md and similar files in all scan directories (case-insensitive)"""
         readme_files = []
         for base_path in self.base_paths:
             for pattern in self.scan_patterns:
                 readme_files.extend(self._glob_case_insensitive(pattern, base_path))
         # Remove duplicates
         readme_files = list({str(f): f for f in readme_files}.values())
-        # Filter out files in excluded directories
-        if self.exclude_dirs:
-            filtered_files = []
-            for file_path in readme_files:
-                should_exclude = False
-                for base_path in self.base_paths:
-                    try:
-                        relative_path = file_path.relative_to(base_path)
-                    except Exception:
-                        continue
-                    for exclude_dir in self.exclude_dirs:
-                        exclude_path = Path(exclude_dir)
-                        try:
-                            relative_path.relative_to(exclude_path)
-                            should_exclude = True
-                            break
-                        except ValueError:
-                            continue
-                    if should_exclude:
-                        break
-                if not should_exclude:
-                    filtered_files.append(file_path)
-            readme_files = filtered_files
+        # Include extra files
+        readme_files.extend(self.extra_files)
         return sorted(readme_files)
     
     def _glob_case_insensitive(self, pattern: str, base_path: Path) -> List[Path]:
@@ -145,7 +122,7 @@ class MarkdownFileAnalyzer:
             time.sleep(sleep_time)
         self.last_request_time = time.time()
 
-    def extract_images_from_content(self, content: str, file_path: Path, base_path: Path) -> List[Dict]:
+    def extract_images_from_content(self, content: str, file_path: Path) -> List[Dict]:
         """Extract all image links from file content"""
         images = []
         for pattern in self.image_patterns:
@@ -155,12 +132,12 @@ class MarkdownFileAnalyzer:
                 if image_url:
                     images.append({
                         "url": image_url,
-                        "file": str(file_path.relative_to(base_path)),
-                        "type": self._get_url_type(image_url, file_path)
+                        "file": file_path,
+                        "type": self._get_url_type(image_url)
                     })
         return images
 
-    def _get_url_type(self, url: str, file_path: Path) -> str:
+    def _get_url_type(self, url: str) -> str:
         """Determine URL type"""
         if url.startswith(('http://', 'https://')):
             return "absolute"
@@ -311,26 +288,15 @@ class MarkdownFileAnalyzer:
         remote_image_url_seen = set()
         remote_link_url_seen = set()
 
-        # For each file, determine which base_path it belongs to
-        def get_base_path_for_file(file_path):
-            for base_path in self.base_paths:
-                try:
-                    file_path.relative_to(base_path)
-                    return base_path
-                except Exception:
-                    continue
-            return self.base_paths[0]  # fallback
-
         for file_path in readme_files:
-            base_path = get_base_path_for_file(file_path)
             try:
                 with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
                     content = f.read()
 
                 # Extract image links
-                images = self.extract_images_from_content(content, file_path, base_path)
+                images = self.extract_images_from_content(content, file_path)
                 # Extract hyperlinks (text links, not images)
-                links = self.extract_links_from_content(content, file_path, base_path)
+                links = self.extract_links_from_content(content, file_path)
 
                 # Classify images
                 for img in images:
@@ -350,13 +316,13 @@ class MarkdownFileAnalyzer:
                             all_hyperlinks.append(link)
 
                 self.results["files_analyzed"].append({
-                    "file": str(file_path.relative_to(base_path)),
+                    "file": file_path,
                     "images_count": len(images),
                     "hyperlinks_count": len(links)
                 })
 
                 try:
-                    safe_path = str(file_path.relative_to(base_path)).encode('ascii', 'replace').decode('ascii')
+                    safe_path = str(file_path).encode('ascii', 'replace').decode('ascii')
                     safe_print(f"Analyzing file: {safe_path} - found {len(images)} images, {len(links)} hyperlinks")
                 except Exception:
                     safe_print(f"Analyzing file: [file with special chars] - found {len(images)} images, {len(links)} hyperlinks")
@@ -572,11 +538,10 @@ def main():
         help="File patterns to scan (default: README.md and README.md.tpl)"
     )
     parser.add_argument(
-        "--exclude-dirs",
-        "-e",
+        "--extra-files",
         nargs="+",
         default=[],
-        help="Directory patterns to exclude from scanning (e.g., node_modules, .git, temp)"
+        help="Additional specific files to include in the scan (space-separated list of file paths)"
     )
     parser.add_argument(
         "--max-concurrent",
@@ -607,8 +572,7 @@ def main():
 
     print(f"Scan directories: {', '.join(scan_directories)}")
     print(f"File patterns: {', '.join(args.file_patterns)}")
-    if args.exclude_dirs:
-        print(f"Excluded directories: {', '.join(args.exclude_dirs)}")
+    print(f"Extra files: {', '.join(args.extra_files) if args.extra_files else 'None'}")
     print(f"Max concurrent requests: {args.max_concurrent}")
     print(f"Request timeout: {args.request_timeout}s")
     print(f"Max total time: {args.max_total_time}s")
@@ -617,7 +581,7 @@ def main():
     analyzer = MarkdownFileAnalyzer(
         scan_directories, 
         args.file_patterns, 
-        args.exclude_dirs,
+        args.extra_files,
         args.max_concurrent,
         args.request_timeout,
         args.max_total_time
