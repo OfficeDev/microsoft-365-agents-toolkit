@@ -147,31 +147,18 @@ class MarkdownFileAnalyzer:
             return "relative"
 
     def _resolve_local_path(self, url: str, file_path: Path) -> Path:
-        """Resolve relative URL to local absolute path"""
+        """Resolve relative or root-relative URL to local absolute path"""
         if url.startswith('/'):
-            # Root relative path
-            return self.base_path / url.lstrip('/')
+            # Root relative path: resolve from the first scan directory (project root)
+            return self.base_paths[0] / url.lstrip('/')
         else:
-            # Relative path, based on current file location
+            # Relative path: resolve from the markdown file's parent directory
             return file_path.parent / url
 
     def check_image_or_link_availability(self, image_info: Dict) -> Dict:
         """Check availability of a single image - prioritize local file system"""
         url = image_info["url"]
-        # Determine the correct base_path for this file
-        file_path = None
-        for base_path in getattr(self, 'base_paths', []):
-            try:
-                candidate = base_path / image_info["file"]
-                # Only check existence for local files, but always return a Path
-                if candidate.exists() or image_info["type"] not in ["relative", "root_relative"]:
-                    file_path = candidate
-                    break
-            except Exception:
-                continue
-        if file_path is None:
-            # fallback: just join with the first base_path
-            file_path = self.base_paths[0] / image_info["file"]
+        file_path = image_info["file"]  # This is the markdown file path
 
         result = {
             **image_info,
@@ -206,9 +193,7 @@ class MarkdownFileAnalyzer:
                 # Apply rate limiting
                 self._rate_limit()
 
-                token = os.environ.get("GITHUB_TOKEN")
                 headers = {
-                    "Authorization": f"Bearer {token}",
                     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
                             "AppleWebKit/537.36 (KHTML, like Gecko) "
                             "Chrome/142.0.0.0 Safari/537.36",
