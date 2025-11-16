@@ -14,6 +14,7 @@
 - **GitHub Copilot Extension Walkthrough**: To make it easier for users to get started with the GitHub Copilot Extension "@teamsapp," Teams Toolkit has added a walkthrough UI experience. This guide helps users understand how to install and use this helpful AI assistant to build Teams apps.
 
   <img width="1306" alt="image" src="https://github.com/user-attachments/assets/0af92cf1-c784-4e5c-ac2e-9a6e07133546" />
+
 #### Enhancement
 - **Declarative Agent API Key Authentication**: API Key Authentication in the DA project was actually implemented using Bearer Tokens in the past. Recently, the Teams platform has added support for developers to specify the key name in the API request header or query URL. As a result, we have updated the corresponding templates to reflect this change.
   
@@ -66,7 +67,6 @@
 
 - **Regenerate Actions for Declarative Agent**: Teams Toolkit now offers the ability to regenerate actions for declarative agents by integrating with Microsoft Kiota, enabling developers to refresh the agent's capabilities and ensure that it remains up-to-date with the latest features and enhancements.
   
-
 #### Enhancements
 
 - **Improved `script` Action Output Using Native TTY Terminal UX**: The output mechanism for the `script` action has been enhanced to leverage the native TTY terminal user experience. This update addresses the occasional rendering issues that were previously experienced in the Visual Studio Code output channel, providing a more stable and reliable interaction interface for developers.
