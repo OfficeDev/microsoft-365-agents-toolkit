@@ -155,6 +155,7 @@ jobs:
     needs: setup
     runs-on: ubuntu-latest
     environment: engineering
+    
     permissions:
       id-token: write
       contents: read
@@ -162,6 +163,7 @@ jobs:
       fail-fast: false
       matrix:
         cases: ${{ fromJson(needs.setup.outputs.cases) }}
+      max-parallel: 10
     name: ${{ matrix.cases }}
     outputs:
       cases: ${{ matrix.cases }}
@@ -183,7 +185,7 @@ jobs:
           count=${#users[@]}
           index=$((RANDOM%$count))
           echo "account index: $index"
-          echo "M365_ACCOUNT_NAME=${users[index]}" >> $GITHUB_ENV
+          echo "M365_ACCOUcd NT_NAME=${users[index]}" >> $GITHUB_ENV
 
       - name: Setup node
         uses: actions/setup-node@v3
