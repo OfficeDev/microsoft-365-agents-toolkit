@@ -6,6 +6,7 @@ Support custom scan directories and file types
 
 import os
 import re
+import token
 import requests
 import time
 import argparse
@@ -208,6 +209,8 @@ class MarkdownFileAnalyzer:
                 # Apply rate limiting
                 self._rate_limit()
 
+                token = os.environ.get("GITHUB_TOKEN")
+                headers = {"Authorization": f"Bearer {token}", "Accept": "application/vnd.github+json"}
                 # Check HTTP availability with retry logic for 429 errors
                 max_retries = 6
                 retry_delays = [2, 4, 8, 16, 32, 64]  # Exponential backoff
@@ -216,7 +219,7 @@ class MarkdownFileAnalyzer:
 
                 for attempt in range(max_retries + 1):
                     try:
-                        response = self.session.get(resolved_url, timeout=self.request_timeout, stream=True, allow_redirects=True)
+                        response = self.session.get(resolved_url, timeout=self.request_timeout, stream=True, allow_redirects=True, headers=headers)
                         http_status = response.status_code
                         final_url = response.url
                         response.close()
