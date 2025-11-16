@@ -64,9 +64,6 @@ class MarkdownFileAnalyzer:
         self.allowed_hostnames = {"aka.ms", "github.com", "microsoft.com", "visualstudio.com", "githubusercontent.com"}
         # Session settings to avoid repeated connections
         self.session = requests.Session()
-        self.session.headers.update({
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-        })
 
     def extract_links_from_content(self, content: str, file_path: Path) -> list:
         """Extract all hyperlinks from file content (excluding images)"""
@@ -210,7 +207,13 @@ class MarkdownFileAnalyzer:
                 self._rate_limit()
 
                 token = os.environ.get("GITHUB_TOKEN")
-                headers = {"Authorization": f"Bearer {token}", "Accept": "application/vnd.github+json"}
+                headers = {
+                    "Authorization": f"Bearer {token}",
+                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                            "AppleWebKit/537.36 (KHTML, like Gecko) "
+                            "Chrome/142.0.0.0 Safari/537.36",
+                    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8"}
+                
                 # Check HTTP availability with retry logic for 429 errors
                 max_retries = 6
                 retry_delays = [2, 4, 8, 16, 32, 64]  # Exponential backoff
@@ -447,6 +450,8 @@ class MarkdownFileAnalyzer:
         # Do not save any report, just display in summary
         self.image_check_results = image_check_results
         self.hyperlink_check_results = hyperlink_check_results
+        # Ensure broken_images is available for summary printing
+        self.results["broken_images"] = image_check_results["broken"]
 
         # Generate summary including both image and hyperlink check results
         self.results["summary"] = {
