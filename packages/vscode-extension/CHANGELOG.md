@@ -2,6 +2,104 @@
 
 > Note: This changelog only includes the changes for the stable versions of Microsoft 365 Agents Toolkit (evolved from Teams Toolkit). For the changelog of pre-released versions, please refer to the [Microsoft 365 Agents Toolkit Pre-release Changelog](https://github.com/OfficeDev/TeamsFx/blob/dev/packages/vscode-extension/PRERELEASE.md).
 
+## 6.4.0 - Nov 14, 2025
+
+Building on the incremental enhancements previously introduced in the [prerelease version](https://github.com/OfficeDev/microsoft-365-agents-toolkit/blob/dev/packages/vscode-extension/PRERELEASE.md), this release brings a streamlined developer experience, deeper Teams integration, and expanded AI capabilities. Below you’ll find a comprehensive list of new features and enhancements included in this release:
+
+### New Features
+- **Declarative agents: sharing made easy**
+ 
+Users can now share their declarative agents more flexibly — either with all tenant users or with a specific group of users by listing their email addresses. This can be done directly through the ATK UI or via the ATK CLI.
+ 
+To make this simpler, a new “Share” button has been added to the lifecycle management panel, giving you a quick and intuitive way to manage agent access.
+<img width="1031" height="661" alt="image" src="https://github.com/user-attachments/assets/7ca5ff5b-02ee-4d90-994a-c8e4f9a9b12f" />
+ 
+> If you are using ATK CLI, share the agent by:`atk share -scope [tenant/users]` or run `atk share -h` to get help.
+
+- **Declarative agents: expanded publish scope**
+ 
+In previous versions, declarative agents were uploaded to Copilot with the default `Personal` scope. With this release, developers can now upload their declarative agents using a `Shared` scope, enabling broader distribution on the Copilot platform.
+ 
+⚠️ Note: If you plan to share an agent with others later, it must be uploaded with the Shared scope from the start.
+ 
+This behavior is controlled through the `AGENT_SCOPE` parameter defined in the environment configuration files. The parameter value is passed to the `extendToM365` action during the `Provision` lifecycle stage.
+ 
+> If you are using ATK CLI, specify the install scope by: `atk install --file-path [Your zip package path] -scope [Shared/Personal] ` or run `atk install -h` to get help.
+
+- **[Preview Feature] Declarative agents: MCP server integration**
+  
+We’ve added native support for integrating Model Context Protocol (MCP) servers into Declarative Agents through actions. Developers can now easily connect MCP servers via a discovery URL, with auto-generated manifests and authentication scaffolding for quick setup. The feature supports static tool discovery, secure credential handling, and streamlined workflows consistent with ATK standards. This enhancement reduces setup time, ensures a unified developer experience, and enables future-ready flexibility for evolving MCP capabilities.
+
+<img width="1340" height="791" alt="image" src="https://github.com/user-attachments/assets/ee911a1b-5d92-4e7e-a7b8-6ff0dcaae831" />
+
+Quick Start: 1> Click Create New Agent, select Declarative Agent, then choose Add an Action → Start with MCP Server. 2> Once the project is generated, you’ll land on the mcp.json configuration file. 3> Click Start to connect to the MCP server. 4> Finally, select Fetch Actions to retrieve available tools and add them as actions for your agent. 5> Go ahead and provision your agent and start testing in multiple Copilot surface (Copilot in web, Teams, office.com etc)
+
+- **New Templates: Teams Collaborator Agent**
+
+We’ve added a new Teams Collaborator Agent template to ATK, enabling developers to build agents that enhance collaboration in Microsoft Teams. Teams collaboration agents are powered by Teams SDK and assistant daily work across Teams chats, channels, and meetings using secure RSC patterns. They help summarize conversations, automate workflows, extract tasks, answer questions, and boost productivity—right where your team member collaborates. It accelerates development with ready-to-use scaffolding and best practices, helping teams stay organized and productive.
+
+<img width="1189" height="483" alt="image" src="https://github.com/user-attachments/assets/7d87479c-44e6-4c3d-a9c5-2454c1152ae7" />
+
+- **New Sample: AI Foundry to M365 Proxy Agent**
+  
+We've added a new sample to show how to integrate AI Foundry agents—grounded in SharePoint—into Microsoft 365 Copilot and Teams using Agent Framework v2 and the M365 Agents SDK. It turns a complex, multi-day setup into a secure, two-click experience. You can easily find new samples in "View Samples" from ATK menu.
+
+    What You’ll Learn in this sample:
+
+    * How to connect AI Foundry agents to M365 Copilot and Teams.
+    * How to leverage SharePoint grounding for enterprise-ready solutions.
+    * How Agent Framework v2 and M365 Agents SDK simplify deployment.
+    * Secure identity flow with SSO and user impersonation for SharePoint grounding.
+    * How this approach complements the “Publish to M365” feature in the Foundry portal.
+
+- **New Sample using M365 Retrieval API: Travel Agent**
+
+We added a new sample to demonstrate how to build an intelligent travel agent using the Microsoft 365 Agents Toolkit. The agent provides comprehensive travel assistance by answering travel-related questions, helping users understand company travel policies, and finding flights and hotels that comply with organizational guidelines. You can easily find new samples in "View Samples" from ATK menu.
+
+The Travel Agent leverages Azure OpenAI and the Microsoft 365 Retrieval API to access company travel documents and policies stored in SharePoint or OneDrive for Business, providing contextual and policy-compliant travel recommendations directly within Microsoft Teams. 
+
+    This sample illustrates:
+
+    * How to build an intelligent agent using Microsoft 365 Agents Toolkit and .NET 9.0
+    * Integration with Azure OpenAI for natural language processing and conversation handling
+    * Use of Microsoft 365 Retrieval API to access and search company documents
+    * Implementation of custom plugins for specialized travel assistance
+    * Authentication and authorization with Microsoft 365 services
+    * Deployment and debugging of agents in Microsoft Teams
+
+- **New Sample using Teams SDK: Coffee Agent**
+This sample is built with the [Microsoft Teams SDK](https://aka.ms/teams-ai-library-v2), and showcases how easy it is to use activity handlers, adaptive cards, and AI to create a fun, interactive bot with just a few building blocks.
+
+This Coffee Agent helps teams coordinate their daily coffee orders by randomly selecting coffee shops and orderers, managing team coffee orders, and maintaining information about available coffee shops and their offerings. It's perfect for teams that want to streamline their coffee coordination process while having fun with their daily caffeine routine.
+
+    This sample illustrates:
+    
+    * Use Microsoft 365 Agents Toolkit to create an AI-powered Teams bot
+    * Use Microsoft Teams SDK for activity handlers and adaptive cards
+    * Implement tool calling and function execution in Teams bots
+    * Create interactive experiences with adaptive cards and AI responses
+    * Build a collaborative team management bot for daily coordination
+
+- **[Preview] Python templates for Teams Agents and apps is in preview**
+
+The Teams Agents and apps templates which are powered by Teams SDK supports Python language now.
+
+#### Enhancement
+
+- **Important update: single-tenant Bot registration**
+ 
+In this release, ATK is switching from multi-tenant to single-tenant bot registrations to align with Azure Bot Service (ABS) security requirements. ABS is retiring support for multi-tenant bot registrations. All new bot registrations must now use single-tenant configuration. This change enhances security and compliance across Microsoft 365 services.
+
+Multi-tenant registration will be fully blocked. Existing multi-tenant bots will continue to function correctly but should eventually migrate to single-tenant registration. Follow the [migration guide](https://learn.microsoft.com/en-us/azure/bot-service/skill-pva-convert-skill-single-tenant?view=azure-bot-service-4.0) to switch your Azure Bot Service registration to single-tenant.
+
+- **Important update: enforcing MFA**
+
+Starting October 1, 2025, Microsoft Entra MFA enforcement applies to all Create, Update, and Delete operations on Azure resources accessed through the Microsoft 365 Agents Toolkit (ATK) Visual Studio extension. Users without MFA enabled in their tenant will encounter 401 errors for these operations, while read-only actions remain unaffected. Admins should enable MFA for users or configure security defaults to avoid disruptions. See more information in [Mandatory MFA](https://learn.microsoft.com/en-us/entra/identity/authentication/concept-mandatory-multifactor-authentication?tabs=dotnet#enforcement-phases)
+
+- Enhanced the filters and other UI elements in sample gallery for users to easier locate the right sample.
+- Updated the [app manifest version to v1.24](https://developer.microsoft.com/json-schemas/teams/v1.24/MicrosoftTeams.schema.json).
+- Updated the [TypeSpec version to v1.0](https://www.npmjs.com/package/@microsoft/typespec-m365-copilot)
+  
 ## 6.2.2 - Oct 16, 2025
 
 Hotfix Version.
