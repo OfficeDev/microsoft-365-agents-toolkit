@@ -680,7 +680,7 @@ export async function createNewProject(
       await input.selectQuickPick(CreateProjectQuestion.MessageExtension);
       await driver.sleep(Timeout.input);
       // Choose programming language
-      // await input.selectQuickPick(lang);
+      await input.selectQuickPick(lang);
       break;
     }
     case "msgsa": {
@@ -691,7 +691,7 @@ export async function createNewProject(
       await input.selectQuickPick(CreateProjectQuestion.MessageExtension);
       await driver.sleep(Timeout.input);
       // Choose programming language
-      // await input.selectQuickPick(lang);
+      await input.selectQuickPick(lang);
       break;
     }
     case "m365lp": {

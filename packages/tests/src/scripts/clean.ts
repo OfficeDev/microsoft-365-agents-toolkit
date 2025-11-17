@@ -95,6 +95,28 @@ async function main() {
     }
   }
 
+  console.log(`Clean up Enterprise Application in recycle bin`);
+  const deletedServicePrincialList =
+    await cleanService.listDeletedEnterpriseApplications();
+  if (deletedServicePrincialList) {
+    for (const sp of deletedServicePrincialList) {
+      if (
+        !adminMicrosoftEntraAppName.some((name) =>
+          sp.displayName?.startsWith(name)
+        )
+      ) {
+        console.log(sp.displayName);
+        try {
+          await cleanService.deleteDeletedItem(sp.id!);
+        } catch (e: any) {
+          console.log(
+            `Failed to delete Enterprise Application ${sp.displayName} with error: ${e.message}`
+          );
+        }
+      }
+    }
+  }
+
   console.log(`clean app in app studio`);
   const addStudioCleanService = await AppStudioCleanHelper.create(
     Env.cleanTenantId,
@@ -152,30 +174,36 @@ async function main() {
     }
   }
 
-  console.log(`clean SharePoint app package files`);
-  const sharePointCleanService = await SharePointApiCleanHelper.create(
-    Env.cleanTenantId,
-    Env.cleanClientId,
-    Env.username,
-    Env.password
-  );
-  const sharePointAppList = await sharePointCleanService.listApp();
-  if (sharePointAppList) {
-    for (const app of sharePointAppList) {
-      for (const name of appNamePrefixList) {
-        if (
-          app.Title?.startsWith(name) &&
-          !app.Title?.startsWith(excludePrefix)
-        ) {
-          console.log(app.Title);
-          try {
-            await sharePointCleanService.deleteApp(app.ID!);
-          } catch {
-            console.log(`Failed to delete SharePoint app ${app.ID!}`);
+  try {
+    console.log(`clean SharePoint app package files`);
+    const sharePointCleanService = await SharePointApiCleanHelper.create(
+      Env.cleanTenantId,
+      Env.cleanClientId,
+      Env.username,
+      Env.password
+    );
+    const sharePointAppList = await sharePointCleanService.listApp();
+    if (sharePointAppList) {
+      for (const app of sharePointAppList) {
+        for (const name of appNamePrefixList) {
+          if (
+            app.Title?.startsWith(name) &&
+            !app.Title?.startsWith(excludePrefix)
+          ) {
+            console.log(app.Title);
+            try {
+              await sharePointCleanService.deleteApp(app.ID!);
+            } catch {
+              console.log(`Failed to delete SharePoint app ${app.ID!}`);
+            }
           }
         }
       }
     }
+  } catch (e: any) {
+    console.log(
+      `Failed to clean up SharePoint app package files, ${e.message}`
+    );
   }
 
   console.log(`clean dev tunnel`);

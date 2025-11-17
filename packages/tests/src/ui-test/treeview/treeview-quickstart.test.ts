@@ -60,16 +60,15 @@ describe("Openning Quick Start Tests", function () {
         CommandPaletteCommands.QuickStartCommand,
         Timeout.webView
       );
-      const input = await InputBox.create();
-      await input.selectQuickPick(CreateProjectQuestion.BuildNotificationBot);
-
       const webView = new WebView();
 
       const element = await webView.findWebElement(
         By.className("category-description-container")
       );
       const type1Title = await element.getText();
-      expect(type1Title).has.string(CreateProjectQuestion.BuildNotificationBot);
+      expect(type1Title).has.string(
+        CreateProjectQuestion.BuildDeclarativeAgent
+      );
 
       // Check item "Get your environment ready"
       const type1Item1 = await getExpandedButton(
@@ -81,68 +80,24 @@ describe("Openning Quick Start Tests", function () {
         By.css(".button-container .monaco-button")
       );
       const type1Item1ButtonValue = await type1Item1Button.getText();
-      expect(type1Item1ButtonValue).has.string("Check Prerequisites");
-      console.log('Found the button "Check Prerequisites"');
+      expect(type1Item1ButtonValue).has.string("Check Copilot License");
+      console.log('Found the button "Check Copilot License"');
 
       // Check item "Create a notification bot"
       const type1Item2 = await getExpandedButton(
         webView,
         false,
-        "Build a notification bot"
+        "Build a declarative agent"
       );
       const type1Item2Button = await type1Item2?.findElement(
         By.css(".button-container .monaco-button")
       );
       const type1Item2ButtonValue = await type1Item2Button.getText();
-      expect(type1Item2ButtonValue).has.string("Build Notification Bot");
-      console.log('Found the button "Build Notification Bot"');
+      expect(type1Item2ButtonValue).has.string("Build Declarative Agent");
+      console.log('Found the button "Build Declarative Agent"');
 
       await new EditorView().closeAllEditors();
       console.log("Closed all opened editor view.");
-
-      // get started page for "Build a Declarative Agent"
-      await execCommandIfExist(
-        CommandPaletteCommands.QuickStartCommand,
-        Timeout.webView
-      );
-      const input2 = await InputBox.create();
-      await input2.selectQuickPick(CreateProjectQuestion.BuildDeclarativeAgent);
-
-      const webView2 = new WebView();
-
-      const element2 = await webView2.findWebElement(
-        By.className("category-description-container")
-      );
-      const type2Title = await element2.getText();
-      expect(type2Title).has.string(
-        CreateProjectQuestion.BuildDeclarativeAgent
-      );
-
-      // Check item "Get your environment ready"
-      const type2Item1 = await getExpandedButton(
-        webView,
-        false,
-        "Set up your environment"
-      );
-      const type2Item1Button = await type2Item1?.findElement(
-        By.css(".button-container .monaco-button")
-      );
-      const type2Item1ButtonValue = await type2Item1Button.getText();
-      expect(type2Item1ButtonValue).has.string("Check Copilot License");
-      console.log('Found the button "Check Copilot License"');
-
-      // Check item "Build a declarative agent"
-      const type2Item2 = await getExpandedButton(
-        webView,
-        false,
-        "Build a declarative agent"
-      );
-      const type2Item2Button = await type2Item2?.findElement(
-        By.css(".button-container .monaco-button")
-      );
-      const type2Item2ButtonValue = await type2Item2Button.getText();
-      expect(type2Item2ButtonValue).has.string("Build Declarative Agent");
-      console.log('Found the button "Build Declarative Agent"');
     }
   );
 });
