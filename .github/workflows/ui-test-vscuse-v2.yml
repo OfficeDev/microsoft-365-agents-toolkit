@@ -12,7 +12,7 @@ on:
         default: "latest"
 
   schedule:
-    - cron: "0 17 * * *"
+    - cron: "30 12 * * *"   # UTC+8 20:30 daily
 permissions:
   actions: read
 jobs:
