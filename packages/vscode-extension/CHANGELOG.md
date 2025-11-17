@@ -2,6 +2,13 @@
 
 > Note: This changelog only includes the changes for the stable versions of Microsoft 365 Agents Toolkit (evolved from Teams Toolkit). For the changelog of pre-released versions, please refer to the [Microsoft 365 Agents Toolkit Pre-release Changelog](https://github.com/OfficeDev/TeamsFx/blob/dev/packages/vscode-extension/PRERELEASE.md).
 
+## 6.4.1 - Nov 17, 2025
+
+Hotfix Version.
+
+### Enhancement
+Increased retry duration for the Check Status API to reduce 429 (Too Many Requests) errors during local debugging or provisioning.
+
 ## 6.4.0 - Nov 14, 2025
 
 Building on the incremental enhancements previously introduced in the [prerelease version](https://github.com/OfficeDev/microsoft-365-agents-toolkit/blob/dev/packages/vscode-extension/PRERELEASE.md), this release brings a streamlined developer experience, deeper Teams integration, and expanded AI capabilities. Below you’ll find a comprehensive list of new features and enhancements included in this release:
