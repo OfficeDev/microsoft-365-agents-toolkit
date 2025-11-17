@@ -214,7 +214,7 @@ jobs:
       AZURE_OPENAI_EMBEDDING_DEPLOYMENT: "text-embedding-ada-002"
 
       AZURE_SEARCH_ENDPOINT: ${{ secrets.AZURE_SEARCH_ENDPOINT }}
-      AZURE_SEARCH_KEY: ${{ secrets.AZURE_SEARCH_KEY }}
+      SECRET_AZURE_SEARCH_KEY: ${{ secrets.AZURE_SEARCH_KEY }}
 
       TEAMSFX_DEV_TUNNEL_TEST: true
       TEAMSFX_TELEMETRY_TEST: true
@@ -456,7 +456,7 @@ jobs:
           npx extest install-vsix --storage .test-resources --extensions_dir .test-resources --type stable --vsix_file $vsix
 
       - name: Setup OpenAI key(unix)
-        if: ${{ matrix.os == 'ubuntu-latest' && github.event_name != 'schedule' }}
+        if: ${{ matrix.os == 'ubuntu-latest' }}
         uses: alsosee/envset@v1
         with:
           name: SECRET_AZURE_OPENAI_API_KEY
