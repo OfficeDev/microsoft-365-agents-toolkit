@@ -92,7 +92,7 @@ describe("Teams Collaborator Agent for csharp version", function () {
       );
 
       // Validate Scaffold
-      const indexFile = path.join(testFolder, appName, "program.cs");
+      const indexFile = path.join(testFolder, appName, "Program.cs");
       fs.access(indexFile, fs.constants.F_OK, (err) => {
         assert.notExists(err, "program.cs should exist");
       });
