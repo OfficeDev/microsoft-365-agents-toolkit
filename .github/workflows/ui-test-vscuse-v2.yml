@@ -12,7 +12,7 @@ on:
         default: "latest"
 
   schedule:
-    - cron: "0 17 * * *"
+    - cron: "30 12 * * *"   # UTC+8 20:30 daily
 permissions:
   actions: read
 jobs:
@@ -222,7 +222,7 @@ jobs:
           subscription-id: ${{secrets.DEVOPS_SUB_ID}}
           enable-AzPSSession: true
 
-      - name: Upload files to Azure Blob Storage
+      - name: 🌐Upload files to Azure Blob Storage
         if: always()
         shell: pwsh
         run: |
