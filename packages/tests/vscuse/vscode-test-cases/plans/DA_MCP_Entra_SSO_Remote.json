@@ -12,7 +12,7 @@
     "total_steps": 42,
     "created_at": "2025-11-11T04:26:01.913745",
     "name": "DA MCP Entra SSO Remote",
-    "description": "Generated from recording r_1024_023252",
+    "description": "",
     "generated_at": "2025-11-11T04:26:01.913734",
     "execution_order": [
       "plan_r_0928_012254",

@@ -11,7 +11,7 @@
     "total_steps": 4,
     "created_at": "2025-11-06T05:02:12.181693",
     "name": "Basic Custom Engine Azure OpenAI js remote debug",
-    "description": "caseId: 35718833\nhttps://msazure.visualstudio.com/Microsoft%20Teams%20Extensibility/_workitems/edit/35718833",
+    "description": "35718833",
     "generated_at": "2025-11-06T05:02:12.181684",
     "execution_order": [
       "plan_r_0928_012254",

@@ -12,7 +12,7 @@
     "total_steps": 4,
     "created_at": "2025-11-06T01:40:53.567336",
     "name": "Basic Tab Local Debug",
-    "description": "caseId: 15276946\nhttps://msazure.visualstudio.com/Microsoft%20Teams%20Extensibility/_workitems/edit/15276946",
+    "description": "15276946",
     "generated_at": "2025-11-06T01:40:53.567331",
     "execution_order": [
       "plan_r_0928_012254",

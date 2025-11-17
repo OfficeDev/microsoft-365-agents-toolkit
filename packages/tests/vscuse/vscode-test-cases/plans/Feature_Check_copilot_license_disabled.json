@@ -12,7 +12,7 @@
     "total_steps": 15,
     "created_at": "2025-11-04T08:31:50.148360",
     "name": "Feature Check Copilot License Disabled",
-    "description": "https://msazure.visualstudio.com/Microsoft%20Teams%20Extensibility/_workitems/edit/28202384",
+    "description": "28202384",
     "generated_at": "2025-11-04T08:31:50.148360",
     "execution_order": [
       "step_4c78e453",

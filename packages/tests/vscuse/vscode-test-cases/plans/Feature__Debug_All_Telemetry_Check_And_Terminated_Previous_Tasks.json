@@ -12,7 +12,7 @@
     "total_steps": 28,
     "created_at": "2025-11-11T04:26:56.800566",
     "name": "Feature: Debug All Telemetry Check And Terminated Previous Tasks",
-    "description": "caseId 1: 35579460 \ncaseId 2: 35579483\nhttps://msazure.visualstudio.com/Microsoft%20Teams%20Extensibility/_workitems/edit/35579460\nhttps://msazure.visualstudio.com/Microsoft%20Teams%20Extensibility/_workitems/edit/35579483",
+    "description": "35579460,35579483",
     "generated_at": "2025-11-11T04:26:56.800557",
     "execution_order": [
       "plan_r_0928_012254",
