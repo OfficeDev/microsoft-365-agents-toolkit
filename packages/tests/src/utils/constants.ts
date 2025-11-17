@@ -166,7 +166,7 @@ export enum ResourceToDeploy {
 }
 
 export enum Capability {
-  Bot = "bot",
+  Bot = "default-bot",
   Notification = "notification",
   CommandBot = "command-bot",
   WorkflowBot = "workflow-bot",
@@ -175,7 +175,7 @@ export enum Capability {
   DashboardTab = "dashboard-tab",
   Spfx = "tab-spfx",
   M365SearchApp = "search-app",
-  MessageExtension = "basic-message-extension",
+  MessageExtension = "default-message-extension",
   LinkUnfurling = "link-unfurling",
   // v2 only
   Tab = "tab",

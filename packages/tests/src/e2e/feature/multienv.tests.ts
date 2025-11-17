@@ -43,7 +43,7 @@ describe("Multi Env Happy Path for Azure", function () {
       try {
         let result;
         result = await execAsync(
-          `atk new --interactive false --app-name ${appName} --capability bot --programming-language typescript`,
+          `atk new --interactive false --app-name ${appName} --capability default-bot --programming-language typescript`,
           {
             cwd: testFolder,
             env: processEnv,
