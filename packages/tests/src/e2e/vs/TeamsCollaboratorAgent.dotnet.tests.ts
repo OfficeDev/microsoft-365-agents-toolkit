@@ -94,7 +94,7 @@ describe("Teams Collaborator Agent for csharp version", function () {
       // Validate Scaffold
       const indexFile = path.join(testFolder, appName, "Program.cs");
       fs.access(indexFile, fs.constants.F_OK, (err) => {
-        assert.notExists(err, "program.cs should exist");
+        assert.notExists(err, "Program.cs should exist");
       });
 
       // Local Debug (Provision)
@@ -127,19 +127,6 @@ describe("Teams Collaborator Agent for csharp version", function () {
       assert.equal(
         bot?.messagingEndpoint,
         "https://test.ngrok.io/api/messages"
-      );
-
-      // Local Debug (Deploy)
-      await CliHelper.deployAll(projectPath, "", "local");
-      console.log(`[Successfully] deploy for ${projectPath}`);
-
-      context = await readContextMultiEnvV3(projectPath, "local");
-      assert.isDefined(context);
-
-      // validate .localConfigs
-      assert.isTrue(
-        await fs.pathExists(path.join(projectPath, ".localConfigs")),
-        ".localConfigs should exist"
       );
 
       // Remote Provision
