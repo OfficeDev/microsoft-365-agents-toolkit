@@ -5,8 +5,8 @@
  * @author Hui Miao <huimaio@microsoft.com>
  */
 
-import { Capability } from "../../utils/constants";
 import { ProgrammingLanguage } from "@microsoft/teamsfx-core";
+import { Capability } from "../../utils/constants";
 import { CaseFactory } from "../caseFactory";
 
 class DeclarativeAgentWithOAutTestCase extends CaseFactory {}
@@ -17,7 +17,7 @@ myRecord["api-plugin-type"] = "new-api";
 myRecord["api-auth"] = "oauth";
 
 new DeclarativeAgentWithOAutTestCase(
-  Capability.DeclarativeAgent,
+  Capability.DeclarativeAgentWithActionFromScratchOAuth,
   30310025,
   "huimaio@microsoft.com",
   ["function"],
@@ -27,7 +27,7 @@ new DeclarativeAgentWithOAutTestCase(
 ).test();
 
 new DeclarativeAgentWithOAutTestCase(
-  Capability.DeclarativeAgent,
+  Capability.DeclarativeAgentWithActionFromScratchOAuth,
   30032802,
   "huimaio@microsoft.com",
   ["function"],
