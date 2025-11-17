@@ -5,7 +5,6 @@ import { Inputs, IQTreeNode, OptionItem, Platform } from "@microsoft/teamsfx-api
 import { featureFlagManager, FeatureFlags } from "../../../common/featureFlags";
 import { getLocalizedString } from "../../../common/localizeUtils";
 import { getAllTemplatesOnPlatform } from "../../../component/generator/templates/metadata";
-import { TemplateNames } from "../../../component/generator/templates/templateNames";
 import { ProgrammingLanguage } from "../../constants";
 import {
   appNameQuestion,
@@ -14,16 +13,7 @@ import {
   GCNameQuestion,
 } from "../../create";
 import { QuestionNames } from "../../questionNames";
-import {
-  ActionStartOptions,
-  BotCapabilityOptions,
-  CustomEngineAgentOptions,
-  DACapabilityOptions,
-  MeCapabilityOptions,
-  OfficeAddinCapabilityOptions,
-  TabCapabilityOptions,
-  TeamsAgentCapabilityOptions,
-} from "./CapabilityOptions";
+import { ActionStartOptions, DACapabilityOptions } from "./CapabilityOptions";
 import { ProjectTypeOptions } from "./ProjectTypeOptions";
 import { getCustomEngineAgentNode } from "./customEngineAgentNode";
 import { daProjectTypeNode } from "./daProjectTypeNode";
@@ -178,86 +168,4 @@ export function scaffoldQuestionForVSCode(platform: Platform = Platform.VSCode):
     ],
   };
   return node;
-}
-
-/**
- * CLI non-interactive mode has no "project-type" input, to make it compatible to the question model,
- * we need to convert capability to project type
- */
-export function getProjectTypeByCapability(capability: string): string {
-  if ([DACapabilityOptions.declarativeAgent().id].includes(capability)) {
-    return ProjectTypeOptions.copilotAgentOptionId;
-  }
-  if (
-    [
-      CustomEngineAgentOptions.basicCustomEngineAgent().id,
-      CustomEngineAgentOptions.weatherAgent().id,
-    ].includes(capability)
-  ) {
-    return ProjectTypeOptions.customEngineAgentOptionId;
-  }
-  if (
-    [
-      TeamsAgentCapabilityOptions.basicChatbot().id,
-      TeamsAgentCapabilityOptions.customCopilotRag().id,
-      TeamsAgentCapabilityOptions.collaboratorAgent().id,
-      BotCapabilityOptions.basicBot().id,
-      TabCapabilityOptions.nonSsoTab().id,
-      MeCapabilityOptions.basicMe().id,
-    ].includes(capability)
-  ) {
-    return ProjectTypeOptions.teamsOptionId;
-  }
-  if (
-    [
-      OfficeAddinCapabilityOptions.wxpTaskPane().id,
-      OfficeAddinCapabilityOptions.excelCFShortcut().id,
-      OfficeAddinCapabilityOptions.officeAddinImport().id,
-    ].includes(capability)
-  ) {
-    return ProjectTypeOptions.officeMetaOSOptionId;
-  }
-
-  if (
-    [
-      OfficeAddinCapabilityOptions.outlookTaskPane().id,
-      OfficeAddinCapabilityOptions.outlookAddinImport().id,
-    ].includes(capability)
-  ) {
-    return ProjectTypeOptions.outlookAddinOptionId;
-  }
-
-  return "";
-}
-
-export function getTeamsAppTypeByCapability(capability: string): string {
-  // Maps capability to the "teams-app-type" value (the equals condition value in teamsNode.json)
-  if (
-    [
-      TeamsAgentCapabilityOptions.basicChatbot().id,
-      TeamsAgentCapabilityOptions.customCopilotRag().id,
-    ].includes(capability)
-  ) {
-    // These map to options under teams-app-type that have their own equals conditions
-    return capability;
-  }
-  if (TeamsAgentCapabilityOptions.collaboratorAgent().id === capability) {
-    return "teams-collaborator-agent";
-  }
-  if (["bot", "tab-non-sso", "message-extension"].includes(capability)) {
-    // These fall under "teams-other-app-type" option
-    return "teams-other-app-type";
-  }
-  return "";
-}
-
-export function getTeamsCapabilityByCapability(capability: string): string {
-  if (capability === "bot") {
-    return TemplateNames.DefaultBot;
-  } else if (capability === "tab-non-sso") {
-    return TemplateNames.Tab;
-  } else if (capability === "message-extension") {
-    return TemplateNames.DefaultMessageExtension;
-  }
-  return "";
 }

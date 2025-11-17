@@ -9,6 +9,6 @@ export const graphConnectorTemplates: Template[] = [
     id: "graph-connector-ts",
     name: TemplateNames.GraphConnector,
     language: "typescript",
-    description: "",
+    description: "Ingest external data into Microsoft Graph for enhanced search and discovery",
   },
 ];

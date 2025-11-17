@@ -3,319 +3,319 @@
     "id": "basic-custom-engine-agent-ts",
     "name": "basic-custom-engine-agent",
     "language": "typescript",
-    "description": ""
+    "description": "Build an AI agent with your own reasoning engine and custom logic"
   },
   {
     "id": "basic-custom-engine-agent-js",
     "name": "basic-custom-engine-agent",
     "language": "javascript",
-    "description": ""
+    "description": "Build an AI agent with your own reasoning engine and custom logic"
   },
   {
     "id": "basic-custom-engine-agent-python",
     "name": "basic-custom-engine-agent",
     "language": "python",
-    "description": ""
+    "description": "Build an AI agent with your own reasoning engine and custom logic"
   },
   {
     "id": "weather-agent-ts",
     "name": "weather-agent",
     "language": "typescript",
-    "description": ""
+    "description": "AI agent that provides weather information using custom engine"
   },
   {
     "id": "weather-agent-js",
     "name": "weather-agent",
     "language": "javascript",
-    "description": ""
+    "description": "AI agent that provides weather information using custom engine"
   },
   {
     "id": "custom-copilot-weather-agent-csharp",
     "name": "weather-agent",
     "language": "csharp",
-    "description": ""
+    "description": "AI agent that provides weather information using custom engine"
   },
   {
     "id": "custom-copilot-basic-ts",
     "name": "custom-copilot-basic",
     "language": "typescript",
-    "description": ""
+    "description": "Build a basic AI chatbot for Microsoft Teams"
   },
   {
     "id": "custom-copilot-basic-js",
     "name": "custom-copilot-basic",
     "language": "javascript",
-    "description": ""
+    "description": "Build a basic AI chatbot for Microsoft Teams"
   },
   {
     "id": "custom-copilot-basic-csharp",
     "name": "custom-copilot-basic",
     "language": "csharp",
-    "description": ""
+    "description": "Build a basic AI chatbot for Microsoft Teams"
   },
   {
     "id": "custom-copilot-basic-python",
     "name": "custom-copilot-basic",
     "language": "python",
-    "description": ""
+    "description": "Build a basic AI chatbot for Microsoft Teams"
   },
   {
     "id": "custom-copilot-rag-customize-ts",
     "name": "custom-copilot-rag-customize",
     "language": "typescript",
-    "description": ""
+    "description": "Build a custom AI agent that can chat with your data using RAG (Retrieval Augmented Generation)"
   },
   {
     "id": "custom-copilot-rag-customize-js",
     "name": "custom-copilot-rag-customize",
     "language": "javascript",
-    "description": ""
+    "description": "Build a custom AI agent that can chat with your data using RAG (Retrieval Augmented Generation)"
   },
   {
     "id": "custom-copilot-rag-customize-csharp",
     "name": "custom-copilot-rag-customize",
     "language": "csharp",
-    "description": ""
+    "description": "Build a custom AI agent that can chat with your data using RAG (Retrieval Augmented Generation)"
   },
   {
     "id": "custom-copilot-rag-customize-python",
     "name": "custom-copilot-rag-customize",
     "language": "python",
-    "description": ""
+    "description": "Build a custom AI agent that can chat with your data using RAG (Retrieval Augmented Generation)"
   },
   {
     "id": "custom-copilot-rag-azure-ai-search-ts",
     "name": "custom-copilot-rag-azure-ai-search",
     "language": "typescript",
-    "description": ""
+    "description": "AI agent with Azure AI Search integration for intelligent data retrieval"
   },
   {
     "id": "custom-copilot-rag-azure-ai-search-js",
     "name": "custom-copilot-rag-azure-ai-search",
     "language": "javascript",
-    "description": ""
+    "description": "AI agent with Azure AI Search integration for intelligent data retrieval"
   },
   {
     "id": "custom-copilot-rag-azure-ai-search-csharp",
     "name": "custom-copilot-rag-azure-ai-search",
     "language": "csharp",
-    "description": ""
+    "description": "AI agent with Azure AI Search integration for intelligent data retrieval"
   },
   {
     "id": "custom-copilot-rag-azure-ai-search-python",
     "name": "custom-copilot-rag-azure-ai-search",
     "language": "python",
-    "description": ""
+    "description": "AI agent with Azure AI Search integration for intelligent data retrieval"
   },
   {
     "id": "custom-copilot-rag-microsoft365-ts",
     "name": "custom-copilot-rag-microsoft365",
     "language": "typescript",
-    "description": ""
+    "description": "AI agent that searches and reasons over Microsoft 365 content"
   },
   {
     "id": "custom-copilot-rag-microsoft365-js",
     "name": "custom-copilot-rag-microsoft365",
     "language": "javascript",
-    "description": ""
+    "description": "AI agent that searches and reasons over Microsoft 365 content"
   },
   {
     "id": "custom-copilot-rag-microsoft365-csharp",
     "name": "custom-copilot-rag-microsoft365",
     "language": "csharp",
-    "description": ""
+    "description": "AI agent that searches and reasons over Microsoft 365 content"
   },
   {
     "id": "custom-copilot-assistant-new-ts",
     "name": "custom-copilot-assistant-new",
     "language": "typescript",
-    "description": ""
+    "description": "Create a new AI assistant with custom capabilities"
   },
   {
     "id": "custom-copilot-assistant-new-js",
     "name": "custom-copilot-assistant-new",
     "language": "javascript",
-    "description": ""
+    "description": "Create a new AI assistant with custom capabilities"
   },
   {
     "id": "custom-copilot-assistant-new-csharp",
     "name": "custom-copilot-assistant-new",
     "language": "csharp",
-    "description": ""
+    "description": "Create a new AI assistant with custom capabilities"
   },
   {
     "id": "custom-copilot-assistant-assistants-api-ts",
     "name": "custom-copilot-assistant-assistants-api",
     "language": "typescript",
-    "description": ""
+    "description": "Build an AI assistant using OpenAI Assistants API"
   },
   {
     "id": "custom-copilot-assistant-assistants-api-js",
     "name": "custom-copilot-assistant-assistants-api",
     "language": "javascript",
-    "description": ""
+    "description": "Build an AI assistant using OpenAI Assistants API"
   },
   {
     "id": "custom-copilot-assistant-assistants-api-csharp",
     "name": "custom-copilot-assistant-assistants-api",
     "language": "csharp",
-    "description": ""
+    "description": "Build an AI assistant using OpenAI Assistants API"
   },
   {
     "id": "teams-collaborator-agent-ts",
     "name": "teams-collaborator-agent",
     "language": "typescript",
-    "description": ""
+    "description": "AI agent that can collaborate with users in Microsoft Teams"
   },
   {
     "id": "basic-tab-ts",
     "name": "non-sso-tab",
     "language": "typescript",
-    "description": "Simple Teams Tab App"
+    "description": "A simple implementation of a web app that's ready to customize"
   },
   {
     "id": "default-bot-ts",
     "name": "default-bot",
     "language": "typescript",
-    "description": ""
+    "description": "A simple implementation of an echo bot that's ready for customization"
   },
   {
     "id": "default-bot-js",
     "name": "default-bot",
     "language": "javascript",
-    "description": ""
+    "description": "A simple implementation of an echo bot that's ready for customization"
   },
   {
     "id": "default-bot-python",
     "name": "default-bot",
     "language": "python",
-    "description": ""
+    "description": "A simple implementation of an echo bot that's ready for customization"
   },
   {
     "id": "message-extension-v2-ts",
     "name": "default-message-extension",
     "language": "typescript",
-    "description": ""
+    "description": "Receive user input, process it, and send customized results"
   },
   {
     "id": "message-extension-v2-python",
     "name": "default-message-extension",
     "language": "python",
-    "description": ""
+    "description": "Receive user input, process it, and send customized results"
   },
   {
     "id": "message-extension-with-api-from-scratch-ts",
     "name": "copilot-plugin-from-scratch",
     "language": "typescript",
-    "description": ""
+    "description": "Build a message extension with a new API built from scratch"
   },
   {
     "id": "message-extension-with-api-from-scratch-js",
     "name": "copilot-plugin-from-scratch",
     "language": "javascript",
-    "description": ""
+    "description": "Build a message extension with a new API built from scratch"
   },
   {
     "id": "message-extension-with-api-from-scratch-csharp",
     "name": "copilot-plugin-from-scratch",
     "language": "csharp",
-    "description": ""
+    "description": "Build a message extension with a new API built from scratch"
   },
   {
     "id": "message-extension-with-api-from-scratch-api-key-ts",
     "name": "copilot-plugin-from-scratch-api-key",
     "language": "typescript",
-    "description": ""
+    "description": "Message extension with API using API Key authentication"
   },
   {
     "id": "message-extension-with-api-from-scratch-api-key-js",
     "name": "copilot-plugin-from-scratch-api-key",
     "language": "javascript",
-    "description": ""
+    "description": "Message extension with API using API Key authentication"
   },
   {
     "id": "message-extension-with-api-from-scratch-api-key-csharp",
     "name": "copilot-plugin-from-scratch-api-key",
     "language": "csharp",
-    "description": ""
+    "description": "Message extension with API using API Key authentication"
   },
   {
     "id": "message-extension-with-api-from-scratch-sso-ts",
     "name": "api-message-extension-sso",
     "language": "typescript",
-    "description": ""
+    "description": "Message extension with API using OAuth authentication"
   },
   {
     "id": "message-extension-with-api-from-scratch-sso-js",
     "name": "api-message-extension-sso",
     "language": "javascript",
-    "description": ""
+    "description": "Message extension with API using OAuth authentication"
   },
   {
     "id": "message-extension-with-api-from-scratch-sso-csharp",
     "name": "api-message-extension-sso",
     "language": "csharp",
-    "description": ""
+    "description": "Message extension with API using OAuth authentication"
   },
   {
     "id": "m365-message-extension-ts",
     "name": "m365-message-extension",
     "language": "typescript",
-    "description": ""
+    "description": "Message extension that works across Microsoft 365"
   },
   {
     "id": "m365-message-extension-js",
     "name": "m365-message-extension",
     "language": "javascript",
-    "description": ""
+    "description": "Message extension that works across Microsoft 365"
   },
   {
     "id": "message-extension-action-csharp",
     "name": "message-extension-action",
     "language": "csharp",
-    "description": ""
+    "description": "Collect input from users and process it in your app"
   },
   {
     "id": "message-extension-action-ts",
     "name": "message-extension-action",
     "language": "typescript",
-    "description": ""
+    "description": "Collect input from users and process it in your app"
   },
   {
     "id": "message-extension-action-js",
     "name": "message-extension-action",
     "language": "javascript",
-    "description": ""
+    "description": "Collect input from users and process it in your app"
   },
   {
     "id": "link-unfurling-ts",
     "name": "link-unfurling",
     "language": "typescript",
-    "description": ""
+    "description": "Display rich previews when URLs are pasted in Teams conversations"
   },
   {
     "id": "link-unfurling-js",
     "name": "link-unfurling",
     "language": "javascript",
-    "description": ""
+    "description": "Display rich previews when URLs are pasted in Teams conversations"
   },
   {
     "id": "link-unfurling-csharp",
     "name": "link-unfurling",
     "language": "csharp",
-    "description": ""
+    "description": "Display rich previews when URLs are pasted in Teams conversations"
   },
   {
     "id": "empty-csharp",
     "name": "empty",
     "language": "csharp",
-    "description": ""
+    "description": "Start with a minimal Teams app project"
   },
   {
     "id": "message-extension-search-csharp",
     "name": "message-extension-search",
     "language": "csharp",
-    "description": ""
+    "description": "Search-based message extension for Teams"
   },
   {
     "id": "basic-tab-csharp",
@@ -327,54 +327,54 @@
     "id": "default-bot-csharp",
     "name": "default-bot",
     "language": "csharp",
-    "description": ""
+    "description": "A simple implementation of an echo bot that's ready for customization"
   },
   {
     "id": "notification-http-trigger-csharp",
     "name": "notification-http-trigger",
     "language": "csharp",
-    "description": ""
+    "description": "Send notifications to Teams using HTTP-triggered Azure Function"
   },
   {
     "id": "notification-timer-trigger-csharp",
     "name": "notification-timer-trigger",
     "language": "csharp",
-    "description": ""
+    "description": "Send scheduled notifications to Teams using timer-triggered Azure Function"
   },
   {
     "id": "notification-http-timer-trigger-csharp",
     "name": "notification-http-timer-trigger",
     "language": "csharp",
-    "description": ""
+    "description": "Send notifications to Teams using both HTTP and timer triggers"
   },
   {
     "id": "notification-webapi-csharp",
     "name": "notification-webapi",
     "language": "csharp",
-    "description": ""
+    "description": "Send notifications to Teams using ASP.NET Core Web API"
   },
   {
     "id": "command-and-response-csharp",
     "name": "command-and-response",
     "language": "csharp",
-    "description": ""
+    "description": "Respond to simple commands in Teams chat"
   },
   {
     "id": "workflow-csharp",
     "name": "workflow",
     "language": "csharp",
-    "description": ""
+    "description": "Build a sequential workflow bot for Teams"
   },
   {
     "id": "message-extension-v2-csharp",
     "name": "default-message-extension",
     "language": "csharp",
-    "description": ""
+    "description": "Receive user input, process it, and send customized results"
   },
   {
     "id": "graph-connector-ts",
     "name": "graph-connector",
     "language": "typescript",
-    "description": ""
+    "description": "Ingest external data into Microsoft Graph for enhanced search and discovery"
   }
 ]
