@@ -77,6 +77,8 @@ export function getCreateCommand(): CLICommand {
         if (featureFlagManager.getBooleanValue(FeatureFlags.CLIDotNet)) {
           // this feature is used in e2e test to scaffold VS project in non-interactive mode
           inputs.platform = Platform.VS;
+          inputs["template-name"] = inputs.capabilities;
+          inputs["programming-language"] = "csharp";
         } else {
           // for non-interactive mode, we need to preset project-type from capability to make sure the question model works
           const capability = inputs.capabilities as string;

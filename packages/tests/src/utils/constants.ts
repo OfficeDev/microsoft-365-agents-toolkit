@@ -170,7 +170,7 @@ export enum Capability {
   Notification = "notification",
   CommandBot = "command-bot",
   WorkflowBot = "workflow-bot",
-  TabNonSso = "tab-non-sso",
+  TabNonSso = "non-sso-tab",
   M365SsoLaunchPage = "sso-launch-page",
   DashboardTab = "dashboard-tab",
   Spfx = "tab-spfx",
