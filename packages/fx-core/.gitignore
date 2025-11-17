@@ -9,3 +9,4 @@ coverage
 templates/**/*.zip
 tests/**/TeamsSPFxApp.zip
 resource/templates
+tsconfig.tsbuildinfo

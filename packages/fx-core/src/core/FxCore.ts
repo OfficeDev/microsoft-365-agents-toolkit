@@ -51,7 +51,6 @@ import * as path from "path";
 import "reflect-metadata";
 import { Container } from "typedi";
 import { pathToFileURL } from "url";
-import { version as coreVersion } from "../../package.json";
 import { teamsDevPortalClient } from "../client/teamsDevPortalClient";
 import { ApiKeyParameters, AuthParameters, OAuthParameters } from "../common/authInterface";
 import { AppStudioScopes, VSCodeExtensionCommand } from "../common/constants";
@@ -3176,6 +3175,7 @@ export class FxCore {
     // Caches the template version so subsequent calls avoid redundant downloads if unchanged.
     try {
       // Determine latest template version (respect prerelease env variable similar to getTemplateVSCUrl)
+      const coreVersion = require("../../package.json").version as string;
 
       let latestVersion = "0.0.0-rc";
       if (

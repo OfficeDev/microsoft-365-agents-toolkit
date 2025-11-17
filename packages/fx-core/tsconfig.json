@@ -6,6 +6,7 @@
     "module": "commonjs",
     "target": "es2017",
     "outDir": "build",
+    "rootDir": "src",
     "lib": ["es6", "dom.iterable", "dom"],
     "allowJs": true,
     "importHelpers": true,
@@ -23,6 +24,6 @@
     "declaration": true,
     "plugins": []
   },
-  "include": ["src"],
+  "include": ["src/**/*"],
   "exclude": ["node_modules", "**/tests/*"]
 }
