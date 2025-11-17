@@ -83,11 +83,13 @@ describe("Teams Collaborator Agent for csharp version", function () {
       const options = Object.entries(myRecordAzOpenAI)
         .map(([key, value]) => "--" + key + " " + value)
         .join(" ");
+      const env = Object.assign({}, process.env);
+      env["TEAMSFX_CLI_DOTNET"] = "true";
       await CliHelper.createProjectWithCapability(
         appName,
         testFolder,
         Capability.TeamsCollaboratorAgent,
-        process.env,
+        env,
         options
       );
 
