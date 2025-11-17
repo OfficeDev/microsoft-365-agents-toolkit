@@ -5,15 +5,15 @@
  * @author Quke <quke@microsoft.com>
  */
 
-import { it } from "@microsoft/extra-shot-mocha";
-import MockAzureAccountProvider from "@microsoft/m365agentstoolkit-cli/src/commonlib/azureLoginUserPassword";
-import { AzureScopes } from "@microsoft/teamsfx-core";
-import { environmentNameManager } from "@microsoft/teamsfx-core/build/core/environmentName";
-import axios from "axios";
-import * as chai from "chai";
-import fs from "fs-extra";
 import { describe } from "mocha";
-import path from "path";
+import * as path from "path";
+
+import { it } from "@microsoft/extra-shot-mocha";
+
+import MockAzureAccountProvider from "@microsoft/m365agentstoolkit-cli/src/commonlib/azureLoginUserPassword";
+import { AzureScopes, environmentNameManager } from "@microsoft/teamsfx-core";
+import { assert } from "chai";
+import fs from "fs-extra";
 import { CliHelper } from "../../commonlib/cliHelper";
 import { EnvConstants } from "../../commonlib/constants";
 import {
@@ -23,107 +23,181 @@ import {
 } from "../../commonlib/utilities";
 import { Capability } from "../../utils/constants";
 import {
-  cleanUp,
+  cleanUpLocalProject,
   createResourceGroup,
+  deleteResourceGroupByName,
   getSubscriptionId,
   getTestFolder,
   getUniqueAppName,
   readContextMultiEnvV3,
-  setProvisionParameterValueV3,
 } from "../commonUtils";
+import {
+  deleteAadAppByClientId,
+  deleteBot,
+  deleteTeamsApp,
+  getAadAppByClientId,
+  getBot,
+  getTeamsApp,
+} from "../debug/utility";
 
-describe("Teams Collaborator Agent C#", function () {
+describe("Teams Collaborator Agent for csharp version", function () {
   const testFolder = getTestFolder();
-  const appName = getUniqueAppName();
   const subscription = getSubscriptionId();
+  const appName = getUniqueAppName();
+  const resourceGroupName = `${appName}-rg`;
   const projectPath = path.resolve(testFolder, appName);
   const envName = environmentNameManager.getDefaultEnvName();
-  const resourceGroupName = `${appName}-rg`;
-  const env = Object.assign({}, process.env);
-  env["TEAMSFX_CLI_DOTNET"] = "true";
 
   after(async () => {
     // clean up
-    await cleanUp(appName, projectPath, false, false, false);
+    let context = await readContextMultiEnvV3(projectPath, "local");
+    if (context?.TEAMS_APP_ID) {
+      await deleteTeamsApp(context.TEAMS_APP_ID);
+    }
+    if (context?.BOT_ID) {
+      await deleteBot(context.BOT_ID);
+      await deleteAadAppByClientId(context.BOT_ID);
+    }
+
+    context = await readContextMultiEnvV3(projectPath, "dev");
+    if (context?.TEAMS_APP_ID) {
+      await deleteTeamsApp(context.TEAMS_APP_ID);
+    }
+    await deleteResourceGroupByName(resourceGroupName);
+    await cleanUpLocalProject(projectPath);
   });
 
   it(
-    `Create Teams Collaborator Agent app`,
-    { testPlanCaseId: 99999999, author: "quke@microsoft.com" },
-    async () => {
-      await CliHelper.createDotNetProject(
+    "csharp template",
+    {
+      testPlanCaseId: 35527255,
+      author: "quke@microsoft.com",
+    },
+    async function () {
+      // Scaffold
+      const myRecordAzOpenAI: Record<string, string> = {};
+      myRecordAzOpenAI["programming-language"] = "csharp";
+      myRecordAzOpenAI["azure-openai-key"] = "fake";
+      myRecordAzOpenAI["azure-openai-deployment-name"] = "fake";
+      myRecordAzOpenAI["azure-openai-endpoint"] = "https://test.com";
+      const options = Object.entries(myRecordAzOpenAI)
+        .map(([key, value]) => "--" + key + " " + value)
+        .join(" ");
+      await CliHelper.createProjectWithCapability(
         appName,
         testFolder,
         Capability.TeamsCollaboratorAgent,
-        env,
-        "--programming-language csharp"
+        process.env,
+        options
       );
-      const managerCsPath = path.join(
-        testFolder,
-        appName,
-        "Agent",
-        "Manager.cs"
-      );
-      chai.assert.isTrue(await fs.pathExists(managerCsPath));
-    }
-  );
 
-  it(
-    `Provision Resource`,
-    { testPlanCaseId: 99999998, author: "quke@microsoft.com" },
-    async () => {
-      const result = await createResourceGroup(resourceGroupName, "westus");
-      chai.assert.isTrue(result);
-
-      await setProvisionParameterValueV3(projectPath, envName, {
-        key: "webAppSKU",
-        value: "B1",
+      // Validate Scaffold
+      const indexFile = path.join(projectPath, "src", "program.cs");
+      fs.access(indexFile, fs.constants.F_OK, (err) => {
+        assert.notExists(err, "program.cs should exist");
       });
-      await CliHelper.provisionProject(projectPath, "", envName as "dev", {
-        ...env,
+
+      // Local Debug (Provision)
+      await CliHelper.provisionProject(projectPath, "", "local", {
+        ...process.env,
+        BOT_DOMAIN: "test.ngrok.io",
+        BOT_ENDPOINT: "https://test.ngrok.io",
+      });
+      console.log(`[Successfully] provision for ${projectPath}`);
+
+      let context = await readContextMultiEnvV3(projectPath, "local");
+      assert.isDefined(context, "local env file should exist");
+
+      // validate aad
+      assert.isUndefined(context.AAD_APP_OBJECT_ID, "AAD should not exist");
+
+      // validate teams app
+      assert.isDefined(context.TEAMS_APP_ID, "teams app id should be defined");
+      const teamsApp = await getTeamsApp(context.TEAMS_APP_ID);
+      assert.equal(teamsApp?.teamsAppId, context.TEAMS_APP_ID);
+
+      // validate bot
+      assert.isDefined(context.BOT_ID);
+      assert.isNotEmpty(context.BOT_ID);
+      const aadApp = await getAadAppByClientId(context.BOT_ID);
+      assert.isDefined(aadApp);
+      assert.equal(aadApp?.appId, context.BOT_ID);
+      const bot = await getBot(context.BOT_ID);
+      assert.equal(bot?.botId, context.BOT_ID);
+      assert.equal(
+        bot?.messagingEndpoint,
+        "https://test.ngrok.io/api/messages"
+      );
+
+      // Local Debug (Deploy)
+      await CliHelper.deployAll(projectPath, "", "local");
+      console.log(`[Successfully] deploy for ${projectPath}`);
+
+      context = await readContextMultiEnvV3(projectPath, "local");
+      assert.isDefined(context);
+
+      // validate .localConfigs
+      assert.isTrue(
+        await fs.pathExists(path.join(projectPath, ".localConfigs")),
+        ".localConfigs should exist"
+      );
+
+      // Remote Provision
+      const result = await createResourceGroup(resourceGroupName, "westus");
+      assert.isTrue(
+        result,
+        `failed to create resource group: ${resourceGroupName}`
+      );
+
+      await CliHelper.provisionProject(projectPath, "", "dev", {
+        ...process.env,
         AZURE_RESOURCE_GROUP_NAME: resourceGroupName,
       });
+
+      context = await readContextMultiEnvV3(projectPath, envName);
+      assert.exists(context, "env file should exist");
+
+      // validate teams app
+      assert.isDefined(context.TEAMS_APP_ID);
+      const remoteTeamsApp = await getTeamsApp(context.TEAMS_APP_ID);
+      assert.equal(remoteTeamsApp?.teamsAppId, context.TEAMS_APP_ID);
+
+      const appServiceResourceId =
+        context[EnvConstants.BOT_AZURE_APP_SERVICE_RESOURCE_ID];
+      assert.exists(
+        appServiceResourceId,
+        "Azure App Service resource ID should exist"
+      );
 
       const tokenProvider = MockAzureAccountProvider;
       const tokenCredential = await tokenProvider.getIdentityCredentialAsync();
       const token = (await tokenCredential?.getToken(AzureScopes))?.token;
-      chai.assert.exists(token);
+      assert.exists(token);
 
-      const context = await readContextMultiEnvV3(projectPath, envName);
-      const resourceId =
-        context[EnvConstants.BOT_AZURE_APP_SERVICE_RESOURCE_ID];
-      chai.assert.exists(context);
-      chai.assert.exists(resourceId);
       const response = await getWebappSettings(
         subscription,
-        getResourceGroupNameFromResourceId(resourceId),
-        getSiteNameFromResourceId(resourceId),
+        getResourceGroupNameFromResourceId(appServiceResourceId),
+        getSiteNameFromResourceId(appServiceResourceId),
         token as string
       );
-      chai.assert.exists(response);
-    }
-  );
+      assert.exists(response, "Web app settings should exist");
+      assert.equal(
+        response["WEBSITE_RUN_FROM_PACKAGE"],
+        "1",
+        "Run from package should be 1"
+      );
+      assert.equal(
+        response["RUNNING_ON_AZURE"],
+        "1",
+        "Running on azure should be 1"
+      );
 
-  it(
-    "Deploy Teams Collaborator Agent app to Azure Web APP",
-    { testPlanCaseId: 99999997, author: "quke@microsoft.com" },
-    async () => {
-      await CliHelper.deployAll(projectPath, "", envName as "dev", env);
+      // Remote Deploy
+      await CliHelper.deployAll(projectPath);
 
-      const context = await readContextMultiEnvV3(projectPath, envName);
-      const endpoint = context[EnvConstants.BOT_DOMAIN];
-      chai.assert.exists(endpoint);
-
-      const axiosInstance = axios.create();
-      try {
-        // wait until the web app starts
-        setTimeout(async () => {
-          const response = await axiosInstance.get(`https://${endpoint}`);
-          chai.assert.equal(response.status, 200);
-        }, 30000);
-      } catch (e) {
-        chai.assert.notExists(e);
-      }
+      // Validate Deploy
+      context = await readContextMultiEnvV3(projectPath, envName);
+      assert.exists(context, "env file should exist");
     }
   );
 });
