@@ -20,6 +20,7 @@ import { MessagingExtension } from "../../src/component/driver/teamsApp/interfac
 import { StaticTab } from "../../src/component/driver/teamsApp/interfaces/appdefinitions/staticTab";
 import { TemplateNames } from "../../src/component/generator/templates/templateNames";
 import { ProgrammingLanguage, QuestionNames } from "../../src/question/constants";
+import { apiSpecNode, apiSpecWithSearchNode } from "../../src/question/scaffold/commonNodes";
 import { scaffoldQuestionForVS } from "../../src/question/scaffold/vs/createRootNode";
 import {
   ActionStartOptions,
@@ -44,14 +45,10 @@ import {
   languageNode,
   scaffoldQuestionForVSCode,
 } from "../../src/question/scaffold/vsc/createRootNode";
-import { customEngineAgentNode } from "../../src/question/scaffold/vsc/customEngineAgentNode";
+import { getCustomEngineAgentNode } from "../../src/question/scaffold/vsc/customEngineAgentNode";
 import { daProjectTypeNode } from "../../src/question/scaffold/vsc/daProjectTypeNode";
 import { officeAddinProjectTypeNode } from "../../src/question/scaffold/vsc/officeAddinProjectTypeNode";
-import {
-  apiSpecNode,
-  apiSpecWithSearchNode,
-  TeamsProjectTypeOptions,
-} from "../../src/question/scaffold/vsc/teamsProjectTypeNode";
+import { TeamsProjectTypeOptions } from "../../src/question/scaffold/vsc/teamsProjectTypeNode";
 
 describe("vsc", () => {
   const sandbox = sinon.createSandbox();
@@ -352,7 +349,7 @@ describe("customEngineAgentProjectTypeNode", () => {
   });
 
   it("customEngineAgentProjectTypeNode basic structure", () => {
-    const node = customEngineAgentNode();
+    const node = getCustomEngineAgentNode();
     const conditionFunc = node?.condition as StringValidation;
 
     assert.equal(conditionFunc.equals, ProjectTypeOptions.customEngineAgentOptionId);
