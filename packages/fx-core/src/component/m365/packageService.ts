@@ -250,7 +250,7 @@ export class PackageService {
           this.logger?.verbose("Sideloading done.");
           return [titleId, appId];
         } else {
-          await waitSeconds(2);
+          await waitSeconds(7);
         }
       } while (true);
     } catch (error: any) {
@@ -323,7 +323,7 @@ export class PackageService {
           this.logger?.verbose("Sideloading done.");
           return [titleId, appId];
         } else {
-          await waitSeconds(2);
+          await waitSeconds(7);
         }
       } while (true);
     } catch (error: any) {
