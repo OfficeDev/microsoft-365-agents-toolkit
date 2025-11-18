@@ -110,9 +110,9 @@ describe("Local Debug Tests", function () {
       // create azure search data
       if (isRealKey) {
         console.log("Start to install dependencies");
-        const installRequirmentCmd = `pip install -r src/requirements.txt`;
+        const installRequirementCmd = `pip install -r src/requirements.txt`;
         const r1 = await Executor.execute(
-          installRequirmentCmd,
+          installRequirementCmd,
           projectPath,
           undefined,
           undefined,

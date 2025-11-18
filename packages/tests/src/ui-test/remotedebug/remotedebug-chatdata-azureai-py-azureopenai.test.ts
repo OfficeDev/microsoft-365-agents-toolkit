@@ -156,9 +156,9 @@ describe("Remote debug Tests", function () {
         editDotEnvFile(localEnvPath, "AZURE_SEARCH_ENDPOINT", searchEndpoint);
 
         console.log("Start to install dependencies");
-        const installRequirmentCmd = `pip install -r src/requirements.txt`;
+        const installRequirementCmd = `pip install -r src/requirements.txt`;
         const r1 = await Executor.execute(
-          installRequirmentCmd,
+          installRequirementCmd,
           projectPath,
           undefined,
           undefined,
