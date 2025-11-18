@@ -41,4 +41,10 @@ export const customEngineAgentTemplates: Template[] = [
     language: "csharp",
     description: "",
   },
+  {
+    id: "custom-copilot-travel-agent-csharp",
+    name: TemplateNames.TravelAgent,
+    language: "csharp",
+    description: "",
+  },
 ];
