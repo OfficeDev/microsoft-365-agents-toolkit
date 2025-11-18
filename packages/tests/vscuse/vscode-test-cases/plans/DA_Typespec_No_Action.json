@@ -12,7 +12,7 @@
     "total_steps": 6,
     "created_at": "2025-11-07T13:30:54.389859",
     "name": "DA Typespec No Action",
-    "description": "caseId: 32237977\nhttps://msazure.visualstudio.com/Microsoft%20Teams%20Extensibility/_workitems/edit/32237977",
+    "description": "32237977",
     "generated_at": "2025-11-07T13:30:54.389852",
     "execution_order": [
       "plan_r_0928_012254",

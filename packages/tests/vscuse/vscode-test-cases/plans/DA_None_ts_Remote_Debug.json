@@ -11,7 +11,7 @@
     "total_steps": 6,
     "created_at": "2025-11-07T08:22:27.051766",
     "name": "DA None ts Remote Debug",
-    "description": "caseId: 35692270\nhttps://msazure.visualstudio.com/Microsoft%20Teams%20Extensibility/_workitems/edit/35692270",
+    "description": "35692270",
     "generated_at": "2025-11-07T08:22:27.051757",
     "execution_order": [
       "plan_r_0928_012254",

@@ -12,7 +12,7 @@
     "total_steps": 6,
     "created_at": "2025-11-04T01:49:43.911872",
     "name": "DA None ts Local Debug",
-    "description": "caseId: 35692262\nhttps://msazure.visualstudio.com/Microsoft%20Teams%20Extensibility/_workitems/edit/35692262",
+    "description": "35692262",
     "generated_at": "2025-11-04T01:49:43.911862",
     "execution_order": [
       "plan_r_0928_012254",

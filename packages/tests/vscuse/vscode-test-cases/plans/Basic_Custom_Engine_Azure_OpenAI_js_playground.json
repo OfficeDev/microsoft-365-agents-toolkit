@@ -12,7 +12,7 @@
     "total_steps": 8,
     "created_at": "2025-11-11T04:23:20.249007",
     "name": "Basic Custom Engine Azure OpenAI js playground",
-    "description": "Basic_Custom_Engine_Azure_OpenAI_js_playground.json",
+    "description": "",
     "generated_at": "2025-11-11T04:23:20.249003",
     "execution_order": [
       "plan_r_0928_012254",

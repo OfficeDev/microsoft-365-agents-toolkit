@@ -12,7 +12,7 @@
     "total_steps": 11,
     "created_at": "2025-11-11T04:27:11.498862",
     "name": "New Test Plan",
-    "description": "This is a new test plan. You can:\n\n1. Record interactions using the VNC viewer (click 'Show VNC' and start recording)\n2. Manually add steps one by one\n3. Edit this description to describe your test workflow\n\nStart by clicking 'Add Cell' below or begin recording your interactions!",
+    "description": "",
     "generated_at": "2025-11-11T04:27:11.498855",
     "execution_order": [
       "plan_r_0928_012254",

@@ -12,7 +12,7 @@
     "total_steps": 5,
     "created_at": "2025-11-05T10:00:56.307772",
     "name": "Teams Agent With Data Customize Azure OpenAI js Local Debug",
-    "description": "caseId: 27569146\nhttps://msazure.visualstudio.com/Microsoft%20Teams%20Extensibility/_workitems/edit/27569146",
+    "description": "27569146",
     "generated_at": "2025-11-05T10:00:56.307762",
     "execution_order": [
       "plan_r_0928_012254",
