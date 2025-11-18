@@ -35,7 +35,7 @@
       "step_d8d9a6e0"
     ],
     "tags": [],
-    "updated_at": "2025-11-18T08:12:28.466002"
+    "updated_at": "2025-11-18T09:27:39.253987"
   },
   "steps": [
     {
@@ -61,7 +61,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_65538eaf",
-      "created_at": "2025-11-18T08:12:06.976559",
+      "created_at": "2025-11-18T09:27:25.826382",
       "plan_id": "plan_0643485a"
     },
     {
@@ -87,7 +87,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_641bf369",
-      "created_at": "2025-11-18T08:12:06.994476",
+      "created_at": "2025-11-18T09:27:25.841088",
       "plan_id": "plan_0643485a"
     },
     {
@@ -113,7 +113,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_dd0290c3",
-      "created_at": "2025-11-18T08:12:07.010552",
+      "created_at": "2025-11-18T09:27:25.865461",
       "plan_id": "plan_0643485a"
     },
     {
@@ -121,7 +121,7 @@
       "agent": "assertion",
       "tool": "",
       "parameters": {},
-      "description": "@assertion there's notification: \"Ok to proceed? (y/n)\" exist",
+      "description": "@assertion there's notification: \"Ok to proceed? (y)\" exist.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -133,7 +133,7 @@
         "step_retry_timeout: 180"
       ],
       "screenshot": null,
-      "created_at": "2025-11-18T08:12:07.026353",
+      "created_at": "2025-11-18T09:27:25.886843",
       "plan_id": "plan_0643485a"
     },
     {
@@ -159,7 +159,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_032c6489",
-      "created_at": "2025-11-18T08:12:07.038793",
+      "created_at": "2025-11-18T09:27:25.907680",
       "plan_id": "plan_0643485a"
     },
     {
@@ -181,7 +181,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_4409d9e6",
-      "created_at": "2025-11-18T08:12:07.052227",
+      "created_at": "2025-11-18T09:27:25.926555",
       "plan_id": "plan_0643485a"
     },
     {
@@ -201,7 +201,7 @@
         "step_retry_timeout: 180"
       ],
       "screenshot": null,
-      "created_at": "2025-11-18T08:12:07.066436",
+      "created_at": "2025-11-18T09:27:25.948363",
       "plan_id": "plan_0643485a"
     },
     {
@@ -227,7 +227,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_6b0b5bd9",
-      "created_at": "2025-11-18T08:12:07.079147",
+      "created_at": "2025-11-18T09:27:25.962681",
       "plan_id": "plan_0643485a"
     },
     {
@@ -249,7 +249,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_54752429",
-      "created_at": "2025-11-18T08:12:07.093747",
+      "created_at": "2025-11-18T09:27:25.985153",
       "plan_id": "plan_0643485a"
     },
     {
@@ -275,7 +275,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_69c9350c",
-      "created_at": "2025-11-18T08:12:07.105024",
+      "created_at": "2025-11-18T09:27:25.999339",
       "plan_id": "plan_0643485a"
     },
     {
@@ -301,7 +301,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_c7584dc4",
-      "created_at": "2025-11-18T08:12:07.115540",
+      "created_at": "2025-11-18T09:27:26.018815",
       "plan_id": "plan_0643485a"
     },
     {
@@ -321,7 +321,7 @@
         "step_retry_timeout: 30"
       ],
       "screenshot": null,
-      "created_at": "2025-11-18T08:12:13.807895",
+      "created_at": "2025-11-18T09:27:26.031803",
       "plan_id": "plan_0643485a"
     }
   ],
