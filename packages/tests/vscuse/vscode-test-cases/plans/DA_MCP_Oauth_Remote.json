@@ -12,7 +12,7 @@
     "total_steps": 47,
     "created_at": "2025-11-13T04:40:11.122141",
     "name": "DA_with_MCP Server(Oauth)",
-    "description": "Generated from recording r_1024_023252",
+    "description": "",
     "generated_at": "2025-11-13T04:40:11.122131",
     "execution_order": [
       "plan_r_0928_012254",

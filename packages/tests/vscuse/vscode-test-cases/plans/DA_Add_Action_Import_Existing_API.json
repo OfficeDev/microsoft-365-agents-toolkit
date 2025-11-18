@@ -12,7 +12,7 @@
     "total_steps": 36,
     "created_at": "2025-11-07T05:54:44.083850",
     "name": "DA Add Action Import Existing API",
-    "description": "caseId: 29293050\nhttps://msazure.visualstudio.com/Microsoft%20Teams%20Extensibility/_workitems/edit/29293050",
+    "description": "29293050",
     "generated_at": "2025-11-07T05:54:44.083846",
     "execution_order": [
       "plan_r_0928_012254",

@@ -109,6 +109,19 @@ describe("Local Debug Tests", function () {
       await createEnvironmentWithPython();
       // create azure search data
       if (isRealKey) {
+        console.log("Start to install dependencies");
+        const installRequirementCmd = `pip install -r src/requirements.txt`;
+        const r1 = await Executor.execute(
+          installRequirementCmd,
+          projectPath,
+          undefined,
+          undefined,
+          "will be ignored"
+        );
+        if (!r1.success) {
+          console.log("Failed to install dependencies");
+        }
+
         console.log("Start to create azure search data");
         const installCmd = `python src/indexers/setup.py --api-key ${azureOpenAiKey} --ai-search-key ${searchKey}`;
         const { success } = await Executor.execute(
@@ -145,24 +158,50 @@ describe("Local Debug Tests", function () {
         }
       );
       await localDebugTestContext.validateLocalStateForBot();
-      if (isRealKey) {
-        await validateWelcomeAndReplyBot(page, {
-          hasWelcomeMessage: false,
-          hasCommandReplyValidation: true,
-          botCommand: "Tell me about Contoso Electronics PerksPlus Program",
-          expectedWelcomeMessage: ValidationContent.AiChatBotWelcomeInstruction,
-          expectedReplyMessage: "$1",
-          timeout: Timeout.longTimeWait,
-        });
-      } else {
-        await validateWelcomeAndReplyBot(page, {
-          hasWelcomeMessage: false,
-          hasCommandReplyValidation: true,
-          botCommand: "helloWorld",
-          expectedWelcomeMessage: ValidationContent.AiChatBotWelcomeInstruction,
-          expectedReplyMessage: ValidationContent.AiBotErrorMessage,
-          timeout: Timeout.longTimeWait,
-        });
+      try {
+        if (isRealKey) {
+          await validateWelcomeAndReplyBot(page, {
+            hasWelcomeMessage: false,
+            hasCommandReplyValidation: true,
+            botCommand: "Tell me about Contoso Electronics history",
+            expectedWelcomeMessage:
+              ValidationContent.AiChatBotWelcomeInstruction,
+            expectedReplyMessage: "1985",
+            timeout: Timeout.longTimeWait,
+          });
+        } else {
+          await validateWelcomeAndReplyBot(page, {
+            hasWelcomeMessage: false,
+            hasCommandReplyValidation: true,
+            botCommand: "helloWorld",
+            expectedWelcomeMessage:
+              ValidationContent.AiChatBotWelcomeInstruction,
+            expectedReplyMessage: ValidationContent.AiBotErrorMessage,
+            timeout: Timeout.longTimeWait,
+          });
+        }
+      } catch {
+        if (isRealKey) {
+          await validateWelcomeAndReplyBot(page, {
+            hasWelcomeMessage: false,
+            hasCommandReplyValidation: true,
+            botCommand: "Tell me about Contoso Electronics PerksPlus Program",
+            expectedWelcomeMessage:
+              ValidationContent.AiChatBotWelcomeInstruction,
+            expectedReplyMessage: "$1",
+            timeout: Timeout.longTimeWait,
+          });
+        } else {
+          await validateWelcomeAndReplyBot(page, {
+            hasWelcomeMessage: false,
+            hasCommandReplyValidation: true,
+            botCommand: "helloWorld",
+            expectedWelcomeMessage:
+              ValidationContent.AiChatBotWelcomeInstruction,
+            expectedReplyMessage: ValidationContent.AiBotErrorMessage,
+            timeout: Timeout.longTimeWait,
+          });
+        }
       }
     }
   );

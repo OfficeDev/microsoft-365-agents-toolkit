@@ -12,7 +12,7 @@
     "total_steps": 8,
     "created_at": "2025-11-14T05:49:24.054331",
     "name": "Basic_Custom_Engine_Azure_OpenAI_ts_playground",
-    "description": "Basic_Custom_Engine_Azure_OpenAI_ts_playground",
+    "description": "",
     "generated_at": "2025-11-14T05:49:24.054321",
     "execution_order": [
       "plan_r_0928_012254",

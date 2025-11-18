@@ -12,7 +12,7 @@
     "total_steps": 4,
     "created_at": "2025-11-14T05:17:23.282930",
     "name": "General Teams Agent Azure OpenAI ts Local Debug",
-    "description": "caseId: 35527255\nhttps://msazure.visualstudio.com/Microsoft%20Teams%20Extensibility/_workitems/edit/35527255",
+    "description": "35527255",
     "generated_at": "2025-11-14T05:17:23.282921",
     "execution_order": [
       "plan_r_0928_012254",

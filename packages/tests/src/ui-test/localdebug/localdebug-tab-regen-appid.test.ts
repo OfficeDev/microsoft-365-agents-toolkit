@@ -152,7 +152,12 @@ describe("Local Debug Tests", function () {
           searchApp: false,
         }
       );
-      await validateBasicTab(page, ValidationContent.Tab);
+      await validateBasicTab(
+        page,
+        ValidationContent.Tab,
+        ValidationContent.Teams,
+        "local"
+      );
     }
   );
 });

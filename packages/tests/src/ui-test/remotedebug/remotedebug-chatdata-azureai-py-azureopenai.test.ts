@@ -147,8 +147,27 @@ describe("Remote debug Tests", function () {
           "AZURE_OPENAI_MODEL_DEPLOYMENT_NAME",
           azureOpenAiModelDeploymentName
         );
+        editDotEnvFile(
+          localEnvPath,
+          "AZURE_OPENAI_EMBEDDING_DEPLOYMENT",
+          embeddingDeploymentName
+        );
         editDotEnvFile(localEnvPath, "SECRET_AZURE_SEARCH_KEY", searchKey);
         editDotEnvFile(localEnvPath, "AZURE_SEARCH_ENDPOINT", searchEndpoint);
+
+        console.log("Start to install dependencies");
+        const installRequirementCmd = `pip install -r src/requirements.txt`;
+        const r1 = await Executor.execute(
+          installRequirementCmd,
+          projectPath,
+          undefined,
+          undefined,
+          "will be ignored"
+        );
+        if (!r1.success) {
+          console.log("Failed to install dependencies");
+        }
+
         const installCmd = `python src/indexers/setup.py --api-key ${azureOpenAiKey} --ai-search-key ${searchKey}`;
         const { success } = await Executor.execute(installCmd, projectPath);
         if (!success) {

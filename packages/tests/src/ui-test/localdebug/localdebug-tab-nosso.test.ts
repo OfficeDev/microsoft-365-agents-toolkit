@@ -91,7 +91,12 @@ describe("Local Debug Tests", function () {
               teamsAppName: localDebugTestContext.appName,
             }
           );
-          await validateBasicTab(page, ValidationContent.Tab);
+          await validateBasicTab(
+            page,
+            ValidationContent.Tab,
+            ValidationContent.Teams,
+            "local"
+          );
         }
 
         // cli preview
