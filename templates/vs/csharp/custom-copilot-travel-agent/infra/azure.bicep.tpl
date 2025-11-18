@@ -2,11 +2,17 @@
 @minLength(4)
 @description('Used to generate names for all resources in this file')
 param resourceBaseName string
+{{#useOpenAI}}
+@secure()
+param openAIApiKey string
+{{/useOpenAI}}
+{{#useAzureOpenAI}}
 @secure()
 param azureOpenAIApiKey string
 
 param azureOpenAIEndpoint string
 param azureOpenAIDeploymentName string
+{{/useAzureOpenAI}}
 
 param webAppSKU string
 
@@ -74,6 +80,13 @@ resource webApp 'Microsoft.Web/sites@2021-02-01' = if (deployAppService) {
           name: 'TokenValidation__Audiences__0'
           value: identity.properties.clientId
         }
+{{#useOpenAI}}
+        {
+          name: 'OpenAI__ApiKey'
+          value: openAIApiKey
+        }
+{{/useOpenAI}}
+{{#useAzureOpenAI}}
         {
           name: 'Azure__OpenAIApiKey'
           value: azureOpenAIApiKey
@@ -86,6 +99,7 @@ resource webApp 'Microsoft.Web/sites@2021-02-01' = if (deployAppService) {
           name: 'Azure__OpenAIDeploymentName'
           value: azureOpenAIDeploymentName
         }
+{{/useAzureOpenAI}}
       ]
       ftpsState: 'FtpsOnly'
     }

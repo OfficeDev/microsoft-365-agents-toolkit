@@ -52,9 +52,16 @@
 
   // This is the configuration for the AI services, use environeent variables or user secrets to store sensitive information.
   // Do not store sensitive information in this file
+  {{#useAzureOpenAI}}
   "Azure": {
     "OpenAIApiKey": "",
     "OpenAIEndpoint": "",
     "OpenAIDeploymentName": ""
   }
+  {{/useAzureOpenAI}}
+  {{#useOpenAI}}
+  "OpenAI": {
+    "ApiKey": ""
+  }
+  {{/useOpenAI}}
 }

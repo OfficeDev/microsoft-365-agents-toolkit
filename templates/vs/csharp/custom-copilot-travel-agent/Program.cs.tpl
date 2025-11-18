@@ -1,5 +1,10 @@
+{{#useAzureOpenAI}}
 using Azure.AI.OpenAI;
 using Azure;
+{{/useAzureOpenAI}}
+{{#useOpenAI}}
+using OpenAI;
+{{/useOpenAI}}
 using {{SafeProjectName}};
 using Microsoft.Agents.Hosting.AspNetCore;
 using Microsoft.Agents.Builder.App;
@@ -18,11 +23,18 @@ var config = builder.Configuration.Get<ConfigOptions>();
 
 builder.Services.AddSingleton(serviceProvider =>
 {
+{{#useAzureOpenAI}}
     return new AzureOpenAIClient(
         new Uri(config.Azure.OpenAIEndpoint),
         new AzureKeyCredential(config.Azure.OpenAIApiKey))
         .GetChatClient(config.Azure.OpenAIDeploymentName)
         .AsIChatClient();
+{{/useAzureOpenAI}}
+{{#useOpenAI}}
+    return new OpenAIClient(config.OpenAI.ApiKey)
+        .GetChatClient(config.OpenAI.DefaultModel)
+        .AsIChatClient();
+{{/useOpenAI}}
 });
 
 // Register the {{SafeProjectName}}Bot

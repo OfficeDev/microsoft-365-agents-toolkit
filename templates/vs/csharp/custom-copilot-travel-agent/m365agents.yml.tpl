@@ -3,9 +3,6 @@
 # Visit https://aka.ms/teamsfx-actions for details on actions
 version: v1.11
 
-additionalMetadata:
-  sampleTag: TeamsFx-Samples:travel-agent
-
 environmentFolderPath: ./env
 
 # Triggered when 'teamsapp provision' is executed

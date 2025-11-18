@@ -20,6 +20,7 @@ provision:
       # The AAD app's display name
       name: {{appName}}-AAD${{APP_NAME_SUFFIX}}
       generateClientSecret: true
+      generateServicePrincipal: true
       signInAudience: AzureADMyOrg
     writeToEnvironmentFile:
       clientId: AAD_APP_CLIENT_ID
@@ -84,10 +85,16 @@ provision:
               ClientId: ${{AAD_APP_CLIENT_ID}}
               ClientSecret: ${{SECRET_AAD_APP_CLIENT_SECRET}}
               TenantId: ${{AAD_APP_TENANT_ID}}
+{{#useOpenAI}}
+        OpenAI:
+          ApiKey: ${{SECRET_OPENAI_API_KEY}}
+{{/useOpenAI}}
+{{#useAzureOpenAI}}
         Azure:
           OpenAIApiKey: ${{SECRET_AZURE_OPENAI_API_KEY}}
           OpenAIEndpoint: ${{AZURE_OPENAI_ENDPOINT}}
           OpenAIDeploymentName: ${{AZURE_OPENAI_DEPLOYMENT_NAME}}
+{{/useAzureOpenAI}}
 
   # Validate using manifest schema
   - uses: teamsApp/validateManifest

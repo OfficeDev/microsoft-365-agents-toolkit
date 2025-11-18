@@ -42,10 +42,16 @@
       "Connection": "BotServiceConnection"
     }
   ],
-
+  {{#useAzureOpenAI}}
   "Azure": {
     "OpenAIApiKey": "",
     "OpenAIEndpoint": "",
     "OpenAIDeploymentName": ""
   }
+  {{/useAzureOpenAI}}
+  {{#useOpenAI}}
+  "OpenAI": {
+    "ApiKey": ""
+  }
+  {{/useOpenAI}}
 }

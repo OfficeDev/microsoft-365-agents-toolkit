@@ -2,9 +2,25 @@ namespace {{SafeProjectName}}
 {
     public class ConfigOptions
     {
+{{#useOpenAI}}
+        public OpenAIConfigOptions OpenAI { get; set; }
+{{/useOpenAI}}
+{{#useAzureOpenAI}}
         public AzureConfigOptions Azure { get; set; }
+{{/useAzureOpenAI}}
     }
 
+{{#useOpenAI}}
+    /// <summary>
+    /// Options for Open AI
+    /// </summary>
+    public class OpenAIConfigOptions
+    {
+        public string ApiKey { get; set; }
+        public string DefaultModel = "gpt-3.5-turbo";
+    }
+{{/useOpenAI}}
+{{#useAzureOpenAI}}
     /// <summary>
     /// Options for Azure OpenAI and Azure Content Safety
     /// </summary>
@@ -14,4 +30,5 @@ namespace {{SafeProjectName}}
         public string OpenAIEndpoint { get; set; }
         public string OpenAIDeploymentName { get; set; }
     }
+{{/useAzureOpenAI}}
 }
