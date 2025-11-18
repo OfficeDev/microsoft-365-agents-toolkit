@@ -78,6 +78,19 @@ export class VSCapabilityOptions {
       data: TemplateNames.WeatherAgent,
     };
   }
+
+  static travelAgentBot(): OptionItem {
+    return {
+      id: "custom-copilot-travel-agent",
+      label: getLocalizedString(
+        "core.createProjectQuestion.capability.customCopilotTravelOption.label"
+      ),
+      detail: getLocalizedString(
+        "core.createProjectQuestion.capability.customCopilotTravelOption.detail"
+      ),
+      data: TemplateNames.TravelAgent,
+    };
+  }
 }
 
 /**
@@ -100,6 +113,7 @@ export function scaffoldQuestionForVS(): IQTreeNode {
             TeamsAgentCapabilityOptions.customCopilotRag(),
             // TeamsAgentCapabilityOptions.aiAgent(),
             VSCapabilityOptions.weatherAgentBot(),
+            VSCapabilityOptions.travelAgentBot(),
 
             BotCapabilityOptions.basicBot(),
             // BotCapabilityOptions.notificationBot(),
@@ -126,6 +140,7 @@ export function scaffoldQuestionForVS(): IQTreeNode {
               TeamsAgentCapabilityOptions.customCopilotRag().id,
               // TeamsAgentCapabilityOptions.aiAgent().id,
               VSCapabilityOptions.weatherAgentBot().id,
+              VSCapabilityOptions.travelAgentBot().id,
             ],
           }),
           notificationBotTriggerNode(Platform.VS),

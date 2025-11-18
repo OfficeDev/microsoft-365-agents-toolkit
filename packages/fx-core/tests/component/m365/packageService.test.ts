@@ -501,6 +501,129 @@ describe("Package Service", () => {
     chai.assert.isUndefined(actualError);
   });
 
+  it("sideload status api with 202 on first try and 200 on second try", async () => {
+    axiosPostResponses["/dev/v1/users/packages"] = {
+      data: {
+        operationId: "test-operation-id",
+        titlePreview: {
+          titleId: "test-title-id-preview",
+        },
+      },
+    };
+    axiosPostResponses["/dev/v1/users/packages/acquisitions"] = {
+      data: {
+        statusId: "test-status-id",
+      },
+    };
+
+    sandbox
+      .stub(testAxiosInstance, "get")
+      .withArgs("/dev/v1/users/packages/status/test-status-id", {
+        baseURL: "https://test-url",
+        headers: { Authorization: `Bearer test-token` },
+      })
+      .onFirstCall()
+      .resolves({
+        status: 202,
+      })
+      .onSecondCall()
+      .resolves({
+        status: 200,
+        data: {
+          titleId: "test-title-id",
+          appId: "test-app-id",
+        },
+      })
+      .withArgs("/config/v1/environment", {
+        baseURL: "https://test-endpoint",
+        headers: { Authorization: `Bearer test-token` },
+      })
+      .resolves({
+        data: {
+          titlesServiceUrl: "https://test-url",
+        },
+      });
+
+    const packageService = new PackageService("https://test-endpoint", logger);
+    sandbox.stub(packageService, "getManifestFromZip" as keyof PackageService).returns({} as any);
+    let actualError: Error | undefined;
+    try {
+      const result = await packageService.sideLoading("test-token", "test-path");
+      chai.assert.equal(result[0], "test-title-id");
+      chai.assert.equal(result[1], "test-app-id");
+    } catch (error: any) {
+      actualError = error;
+    }
+
+    chai.assert.isUndefined(actualError);
+  });
+
+  it("sideload builder status api with 202 on first try and 200 on second try", async () => {
+    axiosPostResponses["/builder/v1/users/packages"] = {
+      data: {
+        statusId: "test-status-id-builder-api",
+        titlePreview: {
+          titleId: "test-title-id-preview-builder-api",
+        },
+      },
+    };
+    axiosPostResponses["/dev/v1/users/packages/acquisitions"] = {
+      data: {
+        statusId: "test-status-id",
+      },
+    };
+
+    sandbox
+      .stub(testAxiosInstance, "get")
+      .withArgs("/builder/v1/users/packages/status/test-status-id-builder-api", {
+        baseURL: "https://test-url",
+        headers: { Authorization: `Bearer test-token` },
+      })
+      .onFirstCall()
+      .resolves({
+        status: 202,
+      })
+      .onSecondCall()
+      .resolves({
+        status: 200,
+        data: {
+          titleId: "test-title-id-builder-api",
+          appId: "test-app-id-builder-api",
+        },
+      })
+      .withArgs("/config/v1/environment", {
+        baseURL: "https://test-endpoint",
+        headers: { Authorization: `Bearer test-token` },
+      })
+      .resolves({
+        data: {
+          titlesServiceUrl: "https://test-url",
+        },
+      });
+
+    const packageService = new PackageService("https://test-endpoint", logger);
+    sandbox.stub(packageService, "getManifestFromZip" as keyof PackageService).returns({
+      copilotAgents: {
+        declarativeAgents: [
+          {
+            id: "declarativeAgent",
+            file: "declarativeAgent.json",
+          },
+        ],
+      },
+    } as any);
+    let actualError: Error | undefined;
+    try {
+      const result = await packageService.sideLoading("test-token", "test-path");
+      chai.assert.equal(result[0], "test-title-id-builder-api");
+      chai.assert.equal(result[1], "test-app-id-builder-api");
+    } catch (error: any) {
+      actualError = error;
+    }
+
+    chai.assert.isUndefined(actualError);
+  });
+
   it("sideloading throws error in get status", async () => {
     axiosGetResponses["/config/v1/environment"] = {
       data: {

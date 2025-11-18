@@ -283,7 +283,7 @@ export class Timeout {
   public static readonly addCollaborator: number = 60 * 1000;
 
   // open API
-  public static readonly openAPIProvision: number = 20 * 1000;
+  public static readonly openAPIProvision: number = 30 * 1000;
 
   public static readonly loadOpenAPI: number = 10 * 1000;
 }

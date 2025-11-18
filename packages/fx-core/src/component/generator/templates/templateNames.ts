@@ -21,6 +21,7 @@ export enum TemplateNames {
   // custom engine agent
   BasicCustomEngineAgent = "basic-custom-engine-agent",
   WeatherAgent = "weather-agent",
+  TravelAgent = "travel-agent",
 
   // agent for Teams
   CustomCopilotBasic = "custom-copilot-basic",
