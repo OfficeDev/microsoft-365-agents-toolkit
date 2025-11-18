@@ -544,6 +544,7 @@ export class CreateProjectQuestion {
 
 export class ValidationContent {
   static readonly Tab = "Welcome";
+  static readonly Teams = "Teams";
   static readonly Bot = "Your Hello World Bot is Running";
   static readonly BotWelcomeInstruction = "Hi there! I'm an echo bot";
   static readonly GraphBot = "Your Copilot connector Bot is Running";
