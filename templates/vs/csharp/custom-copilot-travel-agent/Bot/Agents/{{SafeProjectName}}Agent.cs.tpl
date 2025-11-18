@@ -1,13 +1,13 @@
-﻿using Microsoft.Agents.AI;
+using Microsoft.Agents.AI;
 using Microsoft.Agents.Builder;
 using Microsoft.Agents.Builder.App;
 using Microsoft.Extensions.AI;
 using System.Text.Json.Nodes;
-using TravelAgent.Bot.Plugins;
+using {{SafeProjectName}}.Bot.Plugins;
 
-namespace TravelAgent.Bot.Agents;
+namespace {{SafeProjectName}}.Bot.Agents;
 
-public class TravelAgent
+public class {{SafeProjectName}}Agent
 {
     private readonly AIAgent _agent;
 
@@ -40,12 +40,12 @@ public class TravelAgent
         """;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="TravelAgent"/> class.
+    /// Initializes a new instance of the <see cref="{{SafeProjectName}}Agent"/> class.
     /// </summary>
     /// <param name="chatClient">An instance of <see cref="IChatClient"/> for interacting with an LLM.</param>
     /// <param name="app">The agent application instance.</param>
     /// <param name="turnContext">The turn context for the current conversation.</param>
-    public TravelAgent(IChatClient chatClient, AgentApplication app, ITurnContext turnContext)
+    public {{SafeProjectName}}Agent(IChatClient chatClient, AgentApplication app, ITurnContext turnContext)
     {
         var tools = new List<AITool>();
         

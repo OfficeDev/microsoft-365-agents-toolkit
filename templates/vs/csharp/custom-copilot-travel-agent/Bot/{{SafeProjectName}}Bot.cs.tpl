@@ -1,4 +1,4 @@
-﻿using TravelAgent.Bot.Agents;
+using {{SafeProjectName}}.Bot.Agents;
 using Microsoft.Agents.Builder;
 using Microsoft.Agents.Builder.App;
 using Microsoft.Agents.Builder.State;
@@ -7,19 +7,22 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.AI;
 
 
-namespace TravelAgent.Bot;
+namespace {{SafeProjectName}}.Bot;
 
-public class TravelAgentBot : AgentApplication
+public class {{SafeProjectName}}Bot : AgentApplication
 {
-    private Agents.TravelAgent _travelAgent;
+    private Agents.{{SafeProjectName}}Agent _travelAgent;
     private IChatClient _chatClient;
 
-    public TravelAgentBot(AgentApplicationOptions options, IChatClient chatClient) : base(options)
+    public {{SafeProjectName}}Bot(AgentApplicationOptions options, IChatClient chatClient) : base(options)
     {
         _chatClient = chatClient ?? throw new ArgumentNullException(nameof(chatClient));
 
         OnConversationUpdate(ConversationUpdateEvents.MembersAdded, WelcomeMessageAsync);
-        OnActivity(ActivityTypes.Message, MessageActivityAsync, rank: RouteRank.Last, autoSignInHandlers: ["graph"]);
+
+        // Replace with following line to enable SSO for calling Microsoft 365 Retrieval API
+        //OnActivity(ActivityTypes.Message, MessageActivityAsync, rank: RouteRank.Last, autoSignInHandlers: ["graph"]);
+        OnActivity(ActivityTypes.Message, MessageActivityAsync, rank: RouteRank.Last);
     }
 
     protected async Task MessageActivityAsync(ITurnContext turnContext, ITurnState turnState, CancellationToken cancellationToken)
@@ -35,7 +38,7 @@ public class TravelAgentBot : AgentApplication
         await turnContext.StreamingResponse.QueueInformativeUpdateAsync("Working on a response for you");
 
         IList<ChatMessage> chatHistory = turnState.GetValue("conversation.chatHistory", () => new List<ChatMessage>());
-        _travelAgent = new Agents.TravelAgent(_chatClient, this, turnContext);
+        _travelAgent = new Agents.{{SafeProjectName}}Agent(_chatClient, this, turnContext);
 
         // Invoke the TravelAgent to process the message
         TravelAgentResponse travelResponse = await _travelAgent.InvokeAgentAsync(turnContext.Activity.Text, chatHistory);

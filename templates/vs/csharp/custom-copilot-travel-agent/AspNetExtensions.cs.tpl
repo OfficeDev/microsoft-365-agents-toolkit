@@ -1,4 +1,4 @@
-﻿using Microsoft.Agents.Authentication;
+using Microsoft.Agents.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Protocols;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
@@ -8,7 +8,7 @@ using System.Collections.Concurrent;
 using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
 
-namespace TravelAgent;
+namespace {{SafeProjectName}};
 
 public static class AspNetExtensions
 {

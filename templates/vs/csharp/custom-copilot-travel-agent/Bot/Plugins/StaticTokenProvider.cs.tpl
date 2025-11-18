@@ -1,6 +1,6 @@
 using Microsoft.Kiota.Abstractions.Authentication;
 
-namespace TravelAgent.Bot.Plugins;
+namespace {{SafeProjectName}}.Bot.Plugins;
 
 public class StaticTokenProvider(string token) : IAccessTokenProvider
 {

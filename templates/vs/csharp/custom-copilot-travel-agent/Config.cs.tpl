@@ -1,4 +1,4 @@
-namespace TravelAgent
+namespace {{SafeProjectName}}
 {
     public class ConfigOptions
     {

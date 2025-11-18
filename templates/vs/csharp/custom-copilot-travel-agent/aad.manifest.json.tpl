@@ -1,7 +1,7 @@
 {
   "id": "${{AAD_APP_OBJECT_ID}}",
   "appId": "${{AAD_APP_CLIENT_ID}}",
-  "displayName": "TravelAgent-AAD${{APP_NAME_SUFFIX}}",
+  "displayName": "{{appName}}-AAD${{APP_NAME_SUFFIX}}",
   "identifierUris": ["api://${{AAD_APP_CLIENT_ID}}"],
   "signInAudience": "AzureADMyOrg",
   "api": {

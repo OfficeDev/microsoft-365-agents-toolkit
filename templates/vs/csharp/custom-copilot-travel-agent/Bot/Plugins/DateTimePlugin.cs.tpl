@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using System;
 
-namespace TravelAgent.Bot.Plugins;
+namespace {{SafeProjectName}}.Bot.Plugins;
 
 /// <summary>
 /// Semantic Kernel plugins for date and time.

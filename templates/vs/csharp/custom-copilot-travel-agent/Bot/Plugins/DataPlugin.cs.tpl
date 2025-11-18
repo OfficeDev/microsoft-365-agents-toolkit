@@ -2,7 +2,7 @@ using System.ComponentModel;
 using System.Text.RegularExpressions;
 using System.Text.Json;
 
-namespace TravelAgent.Bot.Plugins
+namespace {{SafeProjectName}}.Bot.Plugins
 {
     public class DataPlugin
     {

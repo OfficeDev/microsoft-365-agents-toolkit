@@ -7,7 +7,7 @@ using Microsoft.Kiota.Http.HttpClientLibrary;
 using Microsoft.Agents.M365Copilot.Beta.Models;
 using Microsoft.Agents.Builder;
 
-namespace TravelAgent.Bot.Plugins
+namespace {{SafeProjectName}}.Bot.Plugins
 {
     public class RetrievalPlugin(AgentApplication app, ITurnContext turnContext)
     {

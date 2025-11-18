@@ -1,6 +1,6 @@
 using Azure.AI.OpenAI;
 using Azure;
-using TravelAgent;
+using {{SafeProjectName}};
 using Microsoft.Agents.Hosting.AspNetCore;
 using Microsoft.Agents.Builder.App;
 using Microsoft.Agents.Builder;
@@ -25,8 +25,8 @@ builder.Services.AddSingleton(serviceProvider =>
         .AsIChatClient();
 });
 
-// Register the TravelAgent
-builder.Services.AddTransient<TravelAgent.Bot.TravelAgentBot>();
+// Register the {{SafeProjectName}}Bot
+builder.Services.AddTransient<{{SafeProjectName}}.Bot.{{SafeProjectName}}Bot>();
 
 // Add AspNet token validation
 builder.Services.AddBotAspNetAuthentication(builder.Configuration);
@@ -44,7 +44,7 @@ builder.AddAgentApplicationOptions();
 builder.Services.AddTransient<AgentApplicationOptions>();
 
 // Add the bot (which is transient)
-builder.AddAgent<TravelAgent.Bot.TravelAgentBot>();
+builder.AddAgent<{{SafeProjectName}}.Bot.{{SafeProjectName}}Bot>();
 
 var app = builder.Build();
 
@@ -66,7 +66,7 @@ app.MapPost("/api/messages", async (HttpRequest request, HttpResponse response, 
 
 if (app.Environment.IsDevelopment())
 {
-    app.MapGet("/", () => "Travel Agent");
+    app.MapGet("/", () => "{{ProjectName}}");
     app.UseDeveloperExceptionPage();
     app.MapControllers().AllowAnonymous();
 }

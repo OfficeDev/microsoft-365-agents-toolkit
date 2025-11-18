@@ -1,6 +1,6 @@
 {
-  "$schema": "https://developer.microsoft.com/en-us/json-schemas/teams/v1.22/MicrosoftTeams.schema.json",
-  "manifestVersion": "1.22",
+  "$schema": "https://developer.microsoft.com/en-us/json-schemas/teams/v1.24/MicrosoftTeams.schema.json",
+  "manifestVersion": "1.24",
   "version": "1.0.0",
   "id": "${{TEAMS_APP_ID}}",
   "developer": {
@@ -14,12 +14,12 @@
     "outline": "outline.png"
   },
   "name": {
-    "short": "TravelAgent${{APP_NAME_SUFFIX}}",
-    "full": "full name for TravelAgent"
+    "short": "{{appName}}${{APP_NAME_SUFFIX}}",
+    "full": "full name for {{appName}}"
   },
   "description": {
-    "short": "Short description of TravelAgent",
-    "full": "Full description of TravelAgent"
+    "short": "Short description of {{appName}}",
+    "full": "Full description of {{appName}}"
   },
   "accentColor": "#FFFFFF",
   "copilotAgents": {

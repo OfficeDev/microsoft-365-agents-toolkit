@@ -1,7 +1,7 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using System.Text.Json.Serialization;
 
-namespace TravelAgent.Bot.Agents;
+namespace {{SafeProjectName}}.Bot.Agents;
 
 public enum TravelAgentResponseContentType
 {
