@@ -1817,11 +1817,7 @@ export async function validatePrompt(
     } catch {
       console.log("no allow button.");
     }
-    try {
-      await page?.waitForSelector(`span:has-text("${options?.expected}")`);
-    } catch {
-      await page?.waitForSelector(`div:has-text("${options?.expected}")`);
-    }
+    await page?.waitForSelector(`text=${options?.expected}`);
     console.log(`verify prompt successfully having ${options?.expected} !!!`);
   } catch (error) {
     await page.screenshot({
