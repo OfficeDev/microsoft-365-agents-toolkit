@@ -5,31 +5,31 @@
  * @author Ivan Chen <v-ivanchen@microsoft.com>
  */
 
-import { expect } from "chai";
-import * as fs from "fs-extra";
-import * as path from "path";
 import { it } from "@microsoft/extra-shot-mocha";
-import {
-  getTestFolder,
-  getUniqueAppName,
-  readContextMultiEnvV3,
-  validateTabAndBotProjectProvision,
-  createResourceGroup,
-} from "./commonUtils";
-import { Executor } from "../utils/executor";
-import { Cleaner } from "../commonlib/cleaner";
-import { Capability } from "../utils/constants";
+import m365Login from "@microsoft/m365agentstoolkit-cli/src/commonlib/m365Login";
 import {
   environmentNameManager,
   ProgrammingLanguage,
 } from "@microsoft/teamsfx-core";
+import { expect } from "chai";
+import * as fs from "fs-extra";
+import * as path from "path";
 import {
   AadValidator,
   BotValidator,
   FunctionValidator,
   ValidatorType,
 } from "../commonlib";
-import m365Login from "@microsoft/m365agentstoolkit-cli/src/commonlib/m365Login";
+import { Cleaner } from "../commonlib/cleaner";
+import { Capability } from "../utils/constants";
+import { Executor } from "../utils/executor";
+import {
+  createResourceGroup,
+  getTestFolder,
+  getUniqueAppName,
+  readContextMultiEnvV3,
+  validateTabAndBotProjectProvision,
+} from "./commonUtils";
 
 export abstract class CaseFactory {
   public capability: Capability;
@@ -213,7 +213,13 @@ export abstract class CaseFactory {
                 context,
                 projectPath,
                 env,
-                capability === Capability.DeclarativeAgent
+                [
+                  Capability.DeclarativeAgent,
+                  Capability.DeclarativeAgentWithActionFromScratch,
+                  Capability.DeclarativeAgentWithTypeSpec,
+                  Capability.DeclarativeAgentWithActionFromScratchBearer,
+                  Capability.DeclarativeAgentWithActionFromScratchOAuth,
+                ].includes(capability)
                   ? [ValidatorType.FUNCTION_NAME]
                   : [ValidatorType.API_ENDPOINT]
               );
