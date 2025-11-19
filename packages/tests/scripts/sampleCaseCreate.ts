@@ -13,7 +13,6 @@ const windows_22 = [
   "sample-contact-exporter",
   "sample-hello-world-tab-with-backend",
   "sample-npm-search",
-  "sample-hello-world-meeting",
   "sample-one-productivity-hub",
   "sample-stock-update",
   "sample-query-org",
