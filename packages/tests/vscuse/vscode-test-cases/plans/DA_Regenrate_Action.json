@@ -55,7 +55,7 @@
         "x": 291,
         "y": 98
       },
-      "description": "",
+      "description": "Select the \"Declarative Agent\" option in the \"New Project\" dropdown within the Microsoft 365 Agents Toolkit extension for Visual Studio Code.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
