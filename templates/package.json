@@ -46,7 +46,7 @@
         "eslint-plugin-no-secrets": "^0.8.9",
         "eslint-plugin-office-addins": "3.0.2",
         "eslint-plugin-prettier": "^4.0.0",
-        "js-yaml": "^4.1.0",
+        "js-yaml": "^4.1.1",
         "lint-staged": "^10.5.4",
         "mustache": "^4.2.0",
         "prettier": "^2.4.1",
