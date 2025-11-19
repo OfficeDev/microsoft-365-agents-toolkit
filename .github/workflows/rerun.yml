@@ -24,7 +24,7 @@ on:
   schedule:
     - cron: "0 11 * * *"  # UTC+8 19:00 before any auto pipeline run, to clear all the resources
     - cron: "30 16 * * *"  # UTC+8 00:30 after the vscuse 2.0 done, to clear all the resources
-    - cron: "30 0 * * *"  # UTC+8 08:30 after the uitest done, to clear all the resources
+    - cron: "0 1 * * *"  # UTC+8 09:00 after the uitest done, to clear all the resources
 
 permissions:
   actions: read
