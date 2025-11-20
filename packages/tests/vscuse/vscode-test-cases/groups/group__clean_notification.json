@@ -9,10 +9,10 @@
       "precondition_retry_interval": 2
     },
     "total_steps": 3,
-    "created_at": "2025-10-22T04:03:42.966693",
-    "generated_at": "2025-10-22T04:03:42.966688",
+    "created_at": "2025-11-17T17:18:42.795541",
     "name": "group: clean_notification",
     "description": "clean_notification",
+    "generated_at": "2025-11-17T17:18:42.795541",
     "execution_order": [
       "step_a686eab5",
       "step_21f18976",
@@ -21,74 +21,74 @@
     "tags": [
       "group"
     ],
-    "updated_at": "2025-10-22T04:58:24.887185"
+    "updated_at": "2025-11-20T03:24:25.343734"
   },
   "steps": [
     {
-      "agent": "interaction",
-      "description": "Press the F1 key to open the command palette in Visual Studio Code, while viewing the \"Preview README.md\" file within the \"MICROSOFT 365 AGENTS TOOLKIT\" workspace.",
       "step_id": "step_a686eab5",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
-      "postconditions": [],
-      "screenshot": "step_a686eab5",
-      "plan_id": "plan_r_0929_040401",
+      "agent": "interaction",
       "tool": "key_press",
       "parameters": {
         "key": "f1"
       },
+      "description": "Press the F1 key to open the command palette in Visual Studio Code.",
+      "content_refs": [],
       "timeout": 30,
+      "retry_count": 0,
       "continue_on_error": "false",
+      "depends_on": [],
       "preconditions": [
         "dhash:512:384:0:20:b2942a2323232421"
       ],
+      "postconditions": [],
       "tags": [],
-      "created_at": "2025-10-22T04:03:42.980168"
+      "screenshot": "step_a686eab5",
+      "created_at": "2025-11-19T05:49:14.801024",
+      "plan_id": "plan_r_0929_040401"
     },
     {
-      "agent": "interaction",
-      "description": "Type the text 'Notifications: Clear All Notificatiions' into the Command Palette input box at the top of the Visual Studio Code interface.",
       "step_id": "step_21f18976",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
-      "postconditions": [],
-      "screenshot": "step_21f18976",
-      "plan_id": "plan_r_0929_040401",
+      "agent": "interaction",
       "tool": "type_text",
       "parameters": {
         "text": "Notifications: Clear All Notificatiions"
       },
+      "description": "Type the text 'Notifications: Clear All Notificatiions' into the Command Palette input box at the top of the Visual Studio Code interface.",
+      "content_refs": [],
       "timeout": 30,
+      "retry_count": 0,
       "continue_on_error": "false",
+      "depends_on": [],
       "preconditions": [
         "dhash:512:384:0:20:e4c0486723232421"
       ],
+      "postconditions": [],
       "tags": [],
-      "created_at": "2025-10-22T04:03:42.995944"
+      "screenshot": "step_21f18976",
+      "created_at": "2025-11-19T05:49:14.823587",
+      "plan_id": "plan_r_0929_040401"
     },
     {
-      "agent": "interaction",
-      "description": "Press the Enter key to select \"Notifications: Clear All Notifications\" in the VS Code command palette.",
       "step_id": "step_5e61d416",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
-      "postconditions": [],
-      "screenshot": "step_5e61d416",
-      "plan_id": "plan_r_0929_040401",
+      "agent": "interaction",
       "tool": "key_press",
       "parameters": {
         "key": "enter"
       },
+      "description": "Press the Enter key to select \"Notifications: Clear All Notifications\" in the VS Code command palette.",
+      "content_refs": [],
       "timeout": 30,
+      "retry_count": 0,
       "continue_on_error": "false",
+      "depends_on": [],
       "preconditions": [
         "dhash:512:384:0:20:cc8c222323232421"
       ],
+      "postconditions": [],
       "tags": [],
-      "created_at": "2025-10-22T04:03:43.010600"
+      "screenshot": "step_5e61d416",
+      "created_at": "2025-11-19T05:49:14.840221",
+      "plan_id": "plan_r_0929_040401"
     }
   ],
   "screenshots": {
