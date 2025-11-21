@@ -34,7 +34,6 @@ const ubuntu_22 = [
   "sample-dice-roller",
   "sample-todo-list-with-spfx",
   "sample-spfx-productivity-dashboard",
-  "sample-react-retail-dashboard",
   "sample-reddit-link",
   "sample-proactive-message",
   // "sample-share-now", //share now sql resource will casue security issue temporarily disabled
