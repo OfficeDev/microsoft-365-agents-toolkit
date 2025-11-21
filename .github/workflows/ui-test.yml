@@ -414,12 +414,6 @@ jobs:
         run: |
           npx extest get-chromedriver --storage .test-resources --type stable --code_version 1.105.1
 
-      - name: Setup node for Retail project
-        if: contains(matrix.test-case, 'react-retail')
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18
-
       - name: M365 Login
         working-directory: packages/tests
         run: | # rm -r -f ~/.fx/account
@@ -455,6 +449,12 @@ jobs:
           $vsix = (Get-ChildItem *.vsix | Select-Object -ExpandProperty Name)
           npx extest install-vsix --storage .test-resources --extensions_dir .test-resources --type stable --vsix_file $vsix
 
+      - name: Setup node for Retail project
+        if: contains(matrix.test-case, 'react-retail')
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          
       - name: Setup OpenAI key(unix)
         if: ${{ matrix.os == 'ubuntu-latest' }}
         uses: alsosee/envset@v1
