@@ -261,6 +261,12 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
 
+      - name: Setup node for Retail project
+        if: contains(matrix.cases, 'Retail')
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
       - name: Setup dotnet
         uses: actions/setup-dotnet@v3
         with:
@@ -449,12 +455,6 @@ jobs:
           $vsix = (Get-ChildItem *.vsix | Select-Object -ExpandProperty Name)
           npx extest install-vsix --storage .test-resources --extensions_dir .test-resources --type stable --vsix_file $vsix
 
-      - name: Setup node for Retail project
-        if: contains(matrix.test-case, 'react-retail')
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18
-          
       - name: Setup OpenAI key(unix)
         if: ${{ matrix.os == 'ubuntu-latest' }}
         uses: alsosee/envset@v1

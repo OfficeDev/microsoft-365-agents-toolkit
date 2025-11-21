@@ -85,9 +85,6 @@
       "localdebug-chatdata-customapi-ts-azureopenai",
       "localdebug-chatdata-customapi-ts-openai",
       "localization"
-    ],
-    "node-18": [
-      "sample-react-retail-dashboard"
     ]
   },
   "macos-latest": {
