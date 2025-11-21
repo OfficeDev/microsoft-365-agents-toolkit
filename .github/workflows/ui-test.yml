@@ -261,12 +261,6 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
 
-      - name: Setup node for Retail project
-        if: contains(matrix.cases, 'Retail')
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18
-
       - name: Setup dotnet
         uses: actions/setup-dotnet@v3
         with:
@@ -420,6 +414,12 @@ jobs:
         run: |
           npx extest get-chromedriver --storage .test-resources --type stable --code_version 1.105.1
 
+      - name: Setup node for Retail project
+        if: contains(matrix.cases, 'react-retail')
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          
       - name: M365 Login
         working-directory: packages/tests
         run: | # rm -r -f ~/.fx/account
