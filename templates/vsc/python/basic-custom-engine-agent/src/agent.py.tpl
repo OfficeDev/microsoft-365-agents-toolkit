@@ -40,6 +40,7 @@ client = AzureOpenAI(
     api_version="2024-12-01-preview",
     api_key=config.azure_openai_api_key,
     azure_endpoint=config.azure_openai_endpoint,
+    azure_deployment=config.azure_openai_deployment_name,
 )
 {{/useAzureOpenAI}}
 
