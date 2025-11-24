@@ -9,7 +9,6 @@ const windows_22 = [
   "sample-outlook-signature",
   "sample-chef-bot",
   "sample-food-catalog",
-  "sample-contact-exporter",
   "sample-hello-world-tab-with-backend",
   "sample-npm-search",
   "sample-stock-update",
