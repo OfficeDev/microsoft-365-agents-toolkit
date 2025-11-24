@@ -9,13 +9,12 @@
       "precondition_retry_interval": 2.0,
       "step_retry_timeout": 0.0
     },
-    "total_steps": 8,
+    "total_steps": 7,
     "created_at": "2025-11-10T01:37:06.705183",
     "name": "Weather Agent ts Local Copilot",
     "description": "",
     "generated_at": "2025-11-10T01:37:06.705183",
     "execution_order": [
-      "step_b528fd4b",
       "plan_r_0928_012254",
       "step_72fd1d61",
       "step_03192c5e",
@@ -30,27 +29,9 @@
       "step_4824a4ea"
     ],
     "tags": [],
-    "updated_at": "2025-11-19T03:22:14.749534"
+    "updated_at": "2025-11-24T03:57:35.217045"
   },
   "steps": [
-    {
-      "step_id": "step_b528fd4b",
-      "agent": "code",
-      "tool": "",
-      "parameters": {},
-      "description": "",
-      "content_refs": [],
-      "timeout": 30,
-      "retry_count": 0,
-      "continue_on_error": "false",
-      "depends_on": [],
-      "preconditions": [],
-      "postconditions": [],
-      "tags": [],
-      "screenshot": null,
-      "created_at": "2025-11-19T02:53:50.887583",
-      "plan_id": "plan_075ea097"
-    },
     {
       "step_id": "step_72fd1d61",
       "agent": "interaction",
@@ -74,7 +55,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_72fd1d61",
-      "created_at": "2025-11-19T02:53:50.900460",
+      "created_at": "2025-11-24T03:55:03.903906",
       "plan_id": "plan_075ea097"
     },
     {
@@ -100,7 +81,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_03192c5e",
-      "created_at": "2025-11-19T02:53:50.915888",
+      "created_at": "2025-11-24T03:55:03.927706",
       "plan_id": "plan_075ea097"
     },
     {
@@ -126,7 +107,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_365792a0",
-      "created_at": "2025-11-19T02:53:50.941780",
+      "created_at": "2025-11-24T03:55:03.960150",
       "plan_id": "plan_075ea097"
     },
     {
@@ -152,7 +133,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_a8732494",
-      "created_at": "2025-11-19T02:53:50.968034",
+      "created_at": "2025-11-24T03:55:03.990495",
       "plan_id": "plan_075ea097"
     },
     {
@@ -178,7 +159,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_cf75b666",
-      "created_at": "2025-11-19T03:19:39.470431",
+      "created_at": "2025-11-24T03:55:04.025741",
       "plan_id": "plan_075ea097"
     },
     {
@@ -204,7 +185,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_9417f5e9",
-      "created_at": "2025-11-19T03:19:39.483897",
+      "created_at": "2025-11-24T03:55:04.048978",
       "plan_id": "plan_075ea097"
     },
     {
@@ -224,7 +205,7 @@
         "step_retry_timeout:60"
       ],
       "screenshot": null,
-      "created_at": "2025-11-19T03:21:44.134842",
+      "created_at": "2025-11-24T03:55:04.072735",
       "plan_id": "plan_075ea097"
     }
   ],
