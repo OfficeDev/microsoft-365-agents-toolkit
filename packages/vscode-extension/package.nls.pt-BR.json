@@ -624,7 +624,7 @@
   "teamstoolkit.walkthroughs.buildIntelligentApps.intelligentAppResources.title": "Recursos",
   "teamstoolkit.walkthroughs.buildIntelligentApps.intelligentAppResources.description": "Explore esses recursos para criar aplicativos inteligentes e aprimorar seus projetos de desenvolvimento\n🗒️ [Generative AI for Beginners](https://github.com/microsoft/generative-ai-for-beginners/tree/main)\n✨ [Retrieval Augmented Generation (RAG)](https://learn.microsoft.com/en-us/azure/search/retrieval-augmented-generation-overview)\n📚 [AI Learning and Community Hub](https://learn.microsoft.com/en-us/ai/)",
   "teamstoolkit.m365.needSignIn.message": "Você precisa entrar em sua conta Microsoft 365 conta.",
-  "teamstoolkit.handeler.addAuthConfig.notification": "O Kit de ferramentas do Microsoft 365 Agents atualizou com sucesso os arquivos de configuração do seu projeto (teamsapp.yaml e teamsapp.local.yaml) com uma ação adicionada para suportar o fluxo de autenticação. Você pode prosseguir para o provisionamento remoto.",
+  "teamstoolkit.handeler.addAuthConfig.notification": "Microsoft 365 Agents Toolkit has successfully updated your project configuration (m365agents.yaml and m365agents.local.yaml) files with added action to support authentication flow. You can proceed to remote provision.",
   "teamstoolkit.handeler.addAuthConfig.notification.provision": "Provisão",
   "teamstoolkit.mcpUtils.setupMcpServer.message": "Configurar o servidor MCP do Kit de Ferramentas do M365 Agents? (Isso criará ou atualizará %s em seu espaço de trabalho)",
   "teamstoolkit.mcpUtils.setupMcpServer.confirm": "Confirmar",

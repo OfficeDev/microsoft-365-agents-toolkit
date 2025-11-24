@@ -390,6 +390,8 @@
   "core.createProjectQuestion.capability.customCopilotAssistant.placeholder": "选择如何管理 AI 任务",
   "core.createProjectQuestion.capability.customCopilotWeatherOption.label": "天气代理",
   "core.createProjectQuestion.capability.customCopilotWeatherOption.detail": "一个天气预报智能体，它是使用 Microsoft 365 智能体 SDK 和语义内核生成的",
+  "core.createProjectQuestion.capability.customCopilotTravelOption.label": "Travel Agent",
+  "core.createProjectQuestion.capability.customCopilotTravelOption.detail": "A travel planning agent, which is built with Microsoft 365 Agents SDK, Microsoft 365 Retrieval API and Agent Framework",
   "core.createProjectQuestion.capability.customEngineAgent.description": "在 Teams 和适用于 Microsoft 365 的 Copilot 中工作",
   "core.createProjectQuestion.capability.knowledgeWebSearch.label": "Web 搜索",
   "core.createProjectQuestion.capability.knowledgeWebSearch.detail": "在 Web 上搜索接地信息。",

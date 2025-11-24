@@ -624,7 +624,7 @@
   "teamstoolkit.walkthroughs.buildIntelligentApps.intelligentAppResources.title": "Prostředky",
   "teamstoolkit.walkthroughs.buildIntelligentApps.intelligentAppResources.description": "Prozkoumejte tyto prostředky a vytvářejte inteligentní aplikace a vylepšete své vývojové projekty.\n🗒️ [Generative AI for Beginners](https://github.com/microsoft/generative-ai-for-beginners/tree/main)\n✨ [Načítání rozšířené generace (RAG)](https://learn.microsoft.com/en-us/azure/search/retrieval-augmented-generation-overview)\n📚 [AI Learning and Community Hub](https://learn.microsoft.com/en-us/ai/)",
   "teamstoolkit.m365.needSignIn.message": "Musíte se přihlásit ke svému účtu Microsoft 365.",
-  "teamstoolkit.handeler.addAuthConfig.notification": "Rozšíření Microsoft 365 Agents Toolkit úspěšně aktualizovalo konfigurační soubory projektu (teamsapp.yaml a teamsapp.local.yaml) o přidanou akci podporující tok ověřování. Můžete pokračovat ke vzdálenému zřizování.",
+  "teamstoolkit.handeler.addAuthConfig.notification": "Microsoft 365 Agents Toolkit has successfully updated your project configuration (m365agents.yaml and m365agents.local.yaml) files with added action to support authentication flow. You can proceed to remote provision.",
   "teamstoolkit.handeler.addAuthConfig.notification.provision": "Zřídit",
   "teamstoolkit.mcpUtils.setupMcpServer.message": "Chcete nakonfigurovat MCP server nástrojů Microsoft 365 Sada nástrojů pro agenty? (Tim se vytvoří nebo aktualizuje %s ve vašem pracovním prostoru)",
   "teamstoolkit.mcpUtils.setupMcpServer.confirm": "Potvrdit",

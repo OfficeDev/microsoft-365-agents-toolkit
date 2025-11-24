@@ -390,6 +390,8 @@
   "core.createProjectQuestion.capability.customCopilotAssistant.placeholder": "AI タスクの管理方法を選択します",
   "core.createProjectQuestion.capability.customCopilotWeatherOption.label": "天気エージェント",
   "core.createProjectQuestion.capability.customCopilotWeatherOption.detail": "Microsoft 365 Agents SDK と Semantic Kernel を使用してビルドされた天気予報エージェント",
+  "core.createProjectQuestion.capability.customCopilotTravelOption.label": "Travel Agent",
+  "core.createProjectQuestion.capability.customCopilotTravelOption.detail": "A travel planning agent, which is built with Microsoft 365 Agents SDK, Microsoft 365 Retrieval API and Agent Framework",
   "core.createProjectQuestion.capability.customEngineAgent.description": "Teams と Microsoft 365 Copilot で動作します",
   "core.createProjectQuestion.capability.knowledgeWebSearch.label": "Web Search",
   "core.createProjectQuestion.capability.knowledgeWebSearch.detail": "Web で基礎情報を検索します。",
