@@ -12,7 +12,6 @@ const windows_22 = [
   "sample-contact-exporter",
   "sample-hello-world-tab-with-backend",
   "sample-npm-search",
-  "sample-one-productivity-hub",
   "sample-stock-update",
   "sample-query-org",
   "sample-assistant-dashboard",
@@ -24,7 +23,6 @@ const windows_22 = [
 ];
 const ubuntu_22 = [
   "sample-adaptive-card",
-  "sample-copilot-connector",
   "sample-todo-list-sql",
   "sample-large-scale-notification",
   "sample-bot-sso-docker",
