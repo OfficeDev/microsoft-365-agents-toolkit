@@ -624,7 +624,7 @@
   "teamstoolkit.walkthroughs.buildIntelligentApps.intelligentAppResources.title": "Ресурсы",
   "teamstoolkit.walkthroughs.buildIntelligentApps.intelligentAppResources.description": "Ознакомьтесь с этими ресурсами, чтобы создавать интеллектуальные приложения и улучшать проекты разработки\n🗒️ [Генеративный ИИ для начинающих](https://github.com/microsoft/generative-ai-for-beginners/tree/main)\n✨ [Создание ответов с дополнением результатами поиска (RAG)](https://learn.microsoft.com/en-us/azure/search/retrieval-augmented-generation-overview)\n📚 [Обучение ИИ и Центр сообщества](https://learn.microsoft.com/en-us/ai/)",
   "teamstoolkit.m365.needSignIn.message": "Необходимо войти в учетную запись Microsoft 365 учетной записи.",
-  "teamstoolkit.handeler.addAuthConfig.notification": "Набор средств агентов Microsoft 365 успешно обновил конфигурацию вашего проекта (файлы teamsapp.yaml и teamsapp.local.yaml) с добавленным действием для поддержки потока проверки подлинности. Вы можете перейти к удаленной подготовке.",
+  "teamstoolkit.handeler.addAuthConfig.notification": "Microsoft 365 Agents Toolkit has successfully updated your project configuration (m365agents.yaml and m365agents.local.yaml) files with added action to support authentication flow. You can proceed to remote provision.",
   "teamstoolkit.handeler.addAuthConfig.notification.provision": "Подготовить к работе",
   "teamstoolkit.mcpUtils.setupMcpServer.message": "Настроить сервер MCP набора инструментов для создания агентов M365? (Это создаст или обновит %s в вашей рабочей области)",
   "teamstoolkit.mcpUtils.setupMcpServer.confirm": "Подтвердить",

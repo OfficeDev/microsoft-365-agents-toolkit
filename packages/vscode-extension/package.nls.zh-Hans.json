@@ -624,7 +624,7 @@
   "teamstoolkit.walkthroughs.buildIntelligentApps.intelligentAppResources.title": "资源",
   "teamstoolkit.walkthroughs.buildIntelligentApps.intelligentAppResources.description": "浏览这些资源以生成智能应用并增强你的开发项目\n🗒️ [Generative AI for Beginners](https://github.com/microsoft/generative-ai-for-beginners/tree/main)\n✨ [Retrieval Augmented Generation (RAG)](https://learn.microsoft.com/en-us/azure/search/retrieval-augmented-generation-overview)\n📚 [AI Learning and Community Hub](https://learn.microsoft.com/en-us/ai/)",
   "teamstoolkit.m365.needSignIn.message": "你需要登录Microsoft 365帐户。",
-  "teamstoolkit.handeler.addAuthConfig.notification": "Microsoft 365 代理工具包已成功更新项目配置(teamsapp.yaml 和 teamsapp.local.yaml)文件，并添加了支持身份验证流的操作。可以继续进行远程预配。",
+  "teamstoolkit.handeler.addAuthConfig.notification": "Microsoft 365 Agents Toolkit has successfully updated your project configuration (m365agents.yaml and m365agents.local.yaml) files with added action to support authentication flow. You can proceed to remote provision.",
   "teamstoolkit.handeler.addAuthConfig.notification.provision": "预配",
   "teamstoolkit.mcpUtils.setupMcpServer.message": "是否配置 M365 智能体工具包 MCP 服务器?(这将在你的工作区中创建或更新 %s)",
   "teamstoolkit.mcpUtils.setupMcpServer.confirm": "确认",

@@ -510,15 +510,6 @@ jobs:
           name: screenshots ${{ matrix.test-case }} ${{ matrix.os }}
           path: packages/tests/.test-resources/screenshots/
 
-      - name: Upload source code
-        uses: actions/upload-artifact@v4
-        if: failure()
-        with:
-          name: source code ${{ matrix.test-case }} ${{ matrix.os }}
-          path: |
-            packages/tests/**/teamsfxuitest*/*
-            !packages/tests/**/node_modules/*
-
       - name: Upload telemetry
         uses: actions/upload-artifact@v4
         if: always() && startsWith(matrix.test-case, 'telemetry')

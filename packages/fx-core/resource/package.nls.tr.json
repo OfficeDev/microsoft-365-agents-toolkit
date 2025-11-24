@@ -390,6 +390,8 @@
   "core.createProjectQuestion.capability.customCopilotAssistant.placeholder": "Yapay zeka görevlerinizi nasıl yönetmek istediğinizi seçin",
   "core.createProjectQuestion.capability.customCopilotWeatherOption.label": "Hava Durumu Aracısı",
   "core.createProjectQuestion.capability.customCopilotWeatherOption.detail": "Microsoft 365 Aracı SDK'sı ve Anlamsal Çekirdek ile oluşturulan bir hava durumu tahmin aracı",
+  "core.createProjectQuestion.capability.customCopilotTravelOption.label": "Travel Agent",
+  "core.createProjectQuestion.capability.customCopilotTravelOption.detail": "A travel planning agent, which is built with Microsoft 365 Agents SDK, Microsoft 365 Retrieval API and Agent Framework",
   "core.createProjectQuestion.capability.customEngineAgent.description": "Teams ve Microsoft 365 Copilot'ta çalışır",
   "core.createProjectQuestion.capability.knowledgeWebSearch.label": "Web Araması",
   "core.createProjectQuestion.capability.knowledgeWebSearch.detail": "Web'de topraklama bilgilerini arayın.",

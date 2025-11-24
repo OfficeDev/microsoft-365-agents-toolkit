@@ -23,7 +23,7 @@
     "tags": [
       "group"
     ],
-    "updated_at": "2025-11-18T08:16:57.252383"
+    "updated_at": "2025-11-19T04:31:35.413452"
   },
   "steps": [
     {
@@ -45,7 +45,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_77067d6d",
-      "created_at": "2025-11-18T08:16:37.504655",
+      "created_at": "2025-11-19T04:31:23.711145",
       "plan_id": "plan_d097227e"
     },
     {
@@ -67,7 +67,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_9a173225",
-      "created_at": "2025-11-18T08:16:37.510005",
+      "created_at": "2025-11-19T04:31:23.718219",
       "plan_id": "plan_d097227e"
     },
     {
@@ -91,7 +91,7 @@
         "delay:3"
       ],
       "screenshot": "step_850864ec",
-      "created_at": "2025-11-18T08:16:37.515994",
+      "created_at": "2025-11-19T04:31:23.726518",
       "plan_id": "plan_d097227e"
     },
     {
@@ -115,7 +115,7 @@
         "delay:3"
       ],
       "screenshot": "step_d4e8bc15",
-      "created_at": "2025-11-18T08:16:37.522500",
+      "created_at": "2025-11-19T04:31:23.732498",
       "plan_id": "plan_d097227e"
     },
     {
@@ -140,10 +140,10 @@
       ],
       "postconditions": [],
       "tags": [
-        "delay:1"
+        "delay:2"
       ],
       "screenshot": "step_ebbc1154",
-      "created_at": "2025-11-18T08:16:37.528028",
+      "created_at": "2025-11-19T04:31:23.741062",
       "plan_id": "plan_d097227e"
     }
   ],

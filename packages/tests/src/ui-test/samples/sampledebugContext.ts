@@ -545,6 +545,8 @@ export class SampledebugContext extends TestContext {
     if (!success) {
       if (stderr.includes("npm warn")) {
         console.log("[Skip warning]: ", stderr);
+      } else if (stderr.includes("npx update-browserslist-db")) {
+        console.log("[Skip warning]: ", stderr);
       } else {
         console.log(`stderr: ${stderr}`);
         expect(success).to.be.true;

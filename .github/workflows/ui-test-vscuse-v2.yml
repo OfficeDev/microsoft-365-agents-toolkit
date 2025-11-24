@@ -6,6 +6,11 @@ on:
       test_plan:
         description: "Comma-separated list of test cases to run, input test case id (e.g. 33258708, 33258728)"
         required: false
+      pre_release_testing:
+        description: "Run pre-release testing (overrides test_plan)"
+        required: false
+        type: boolean
+        default: false
       image_tag:
         description: "Docker image tag to use"
         required: true
@@ -29,7 +34,16 @@ jobs:
       - name: Get test plans
         id: get-plans
         run: |
-          if [ -z "${{ github.event.inputs.test_plan }}" ]; then
+          if [ "${{ github.event.inputs.pre_release_testing }}" == "true" ]; then
+            if [ -f "packages/tests/vscuse/vscode-test-cases/pre-release-test-cases.json" ]; then
+              plans=$(cat packages/tests/vscuse/vscode-test-cases/pre-release-test-cases.json | jq -c '.')
+              echo "plans=$plans" >> $GITHUB_OUTPUT
+              echo "Using pre-release test plans: $plans"
+            else
+              echo "Error: pre-release-test-cases.json not found"
+              exit 1
+            fi
+          elif [ -z "${{ github.event.inputs.test_plan }}" ]; then
             # Get only top-level JSON files from plans directory (strip the .json extension)
             plans=$(find packages/tests/vscuse/vscode-test-cases/plans/ -maxdepth 1 -type f -name "*.json" -exec basename {} .json \; | jq -R -s -c 'split("\n")[:-1]')
             echo "plans=$plans" >> $GITHUB_OUTPUT
@@ -52,7 +66,7 @@ jobs:
       matrix:
         test_plan: ${{ fromJson(needs.discover-test-plans.outputs.test-plans) }}
       fail-fast: false
-      max-parallel: 20
+      max-parallel: 10
     permissions:
       contents: read
       packages: write
@@ -259,7 +273,7 @@ jobs:
     permissions:
       actions: write
     needs: main
-    if: ${{ (github.event_name == 'workflow_dispatch' || github.event_name == 'schedule') && failure() && github.run_attempt < 6 }}
+    if: ${{ (github.event_name == 'workflow_dispatch' || github.event_name == 'schedule') && failure() && github.run_attempt < 5 }}
     runs-on: ubuntu-latest
     steps:
       - name: trigger rerun workflow
@@ -270,4 +284,4 @@ jobs:
             -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}"\
             -H "X-GitHub-Api-Version: 2022-11-28" \
             https://api.github.com/repos/${{ github.repository }}/actions/workflows/rerun.yml/dispatches \
-            -d '{"ref":"${{ github.ref_name }}","inputs":{"run_id":"${{ github.run_id }}", "max_attempts":"6"}}'
+            -d '{"ref":"${{ github.ref_name }}","inputs":{"run_id":"${{ github.run_id }}", "max_attempts":"5"}}'

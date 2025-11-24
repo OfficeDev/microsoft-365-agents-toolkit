@@ -390,6 +390,8 @@
   "core.createProjectQuestion.capability.customCopilotAssistant.placeholder": "Выберите способ управления задачами ИИ",
   "core.createProjectQuestion.capability.customCopilotWeatherOption.label": "Агент погоды",
   "core.createProjectQuestion.capability.customCopilotWeatherOption.detail": "Агент прогноза погоды, созданный с использованием Microsoft 365 Agents SDK и Semantic Kernel",
+  "core.createProjectQuestion.capability.customCopilotTravelOption.label": "Travel Agent",
+  "core.createProjectQuestion.capability.customCopilotTravelOption.detail": "A travel planning agent, which is built with Microsoft 365 Agents SDK, Microsoft 365 Retrieval API and Agent Framework",
   "core.createProjectQuestion.capability.customEngineAgent.description": "Работает в Teams и Microsoft 365 Copilot",
   "core.createProjectQuestion.capability.knowledgeWebSearch.label": "Поиск в Интернете",
   "core.createProjectQuestion.capability.knowledgeWebSearch.detail": "Поиск сведений о заземлениех в Интернете.",

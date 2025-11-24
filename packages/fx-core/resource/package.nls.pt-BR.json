@@ -390,6 +390,8 @@
   "core.createProjectQuestion.capability.customCopilotAssistant.placeholder": "Escolha como você deseja gerenciar suas tarefas de IA",
   "core.createProjectQuestion.capability.customCopilotWeatherOption.label": "Agente de Clima",
   "core.createProjectQuestion.capability.customCopilotWeatherOption.detail": "Um agente de previsão do tempo, criado com o SDK do Microsoft 365 Agents e o Kernel Semântico",
+  "core.createProjectQuestion.capability.customCopilotTravelOption.label": "Travel Agent",
+  "core.createProjectQuestion.capability.customCopilotTravelOption.detail": "A travel planning agent, which is built with Microsoft 365 Agents SDK, Microsoft 365 Retrieval API and Agent Framework",
   "core.createProjectQuestion.capability.customEngineAgent.description": "Funciona no Teams e no Microsoft 365 Copilot",
   "core.createProjectQuestion.capability.knowledgeWebSearch.label": "Pesquisa na Web",
   "core.createProjectQuestion.capability.knowledgeWebSearch.detail": "Pesquise na Web por informações de aterramento.",

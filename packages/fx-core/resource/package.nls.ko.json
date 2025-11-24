@@ -390,6 +390,8 @@
   "core.createProjectQuestion.capability.customCopilotAssistant.placeholder": "AI 작업 관리 방법 선택",
   "core.createProjectQuestion.capability.customCopilotWeatherOption.label": "날씨 에이전트",
   "core.createProjectQuestion.capability.customCopilotWeatherOption.detail": "Microsoft 365 Agents SDK 및 의미 체계 커널을 사용하여 빌드된 일기 예보 에이전트",
+  "core.createProjectQuestion.capability.customCopilotTravelOption.label": "Travel Agent",
+  "core.createProjectQuestion.capability.customCopilotTravelOption.detail": "A travel planning agent, which is built with Microsoft 365 Agents SDK, Microsoft 365 Retrieval API and Agent Framework",
   "core.createProjectQuestion.capability.customEngineAgent.description": "Teams 및 Microsoft 365 Copilot에서 작업",
   "core.createProjectQuestion.capability.knowledgeWebSearch.label": "Web Search",
   "core.createProjectQuestion.capability.knowledgeWebSearch.detail": "웹에서 접지 정보를 검색합니다.",
