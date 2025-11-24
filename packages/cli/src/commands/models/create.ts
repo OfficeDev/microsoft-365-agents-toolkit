@@ -6,7 +6,6 @@ import {
   CLIContext,
   err,
   ok,
-  OptionItem,
   Platform,
 } from "@microsoft/teamsfx-api";
 import {
@@ -16,8 +15,6 @@ import {
   featureFlagManager,
   FeatureFlags,
   isTdpTemplate,
-  MeArchitectureOptions,
-  QuestionNames,
 } from "@microsoft/teamsfx-core";
 import chalk from "chalk";
 import { assign } from "lodash";
@@ -35,14 +32,6 @@ function adjustOptions(options: CLICommandOption[]) {
     if (option.type === "string" && option.name === CliQuestionName.Capability) {
       // use dynamic options for capability question
       option.choices = listAllTemplates().map((o) => o.name);
-      break;
-    }
-  }
-
-  for (const option of options) {
-    if (option.type === "string" && option.name === QuestionNames.MeArchitectureType.toString()) {
-      // use dynamic options for ME architecture question
-      option.choices = MeArchitectureOptions.all().map((o: OptionItem) => o.id);
       break;
     }
   }
