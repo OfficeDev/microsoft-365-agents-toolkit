@@ -212,5 +212,11 @@ export const teamsAgentsAndAppsTemplates: Template[] = [
     displayName: "Teams Collaborator Agent",
     description: "AI agent that can collaborate with users in Microsoft Teams",
   },
+  {
+    id: "teams-collaborator-agent-csharp",
+    name: TemplateNames.TeamsCollaboratorAgent,
+    language: "csharp",
+    description: "",
+  },
   ...teamsOtherTemplates,
 ];

@@ -329,6 +329,12 @@
     "description": "AI agent that can collaborate with users in Microsoft Teams"
   },
   {
+    "id": "teams-collaborator-agent-csharp",
+    "name": "teams-collaborator-agent",
+    "language": "csharp",
+    "description": ""
+  },
+  {
     "id": "basic-tab-ts",
     "name": "non-sso-tab",
     "language": "typescript",

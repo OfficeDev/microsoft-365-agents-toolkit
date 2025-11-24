@@ -388,3 +388,7 @@ mochawesome-report
 .metrics
 
 package-lock.json
+
+# add claude related ignores
+.claude/
+CLAUDE.md
