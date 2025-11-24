@@ -180,15 +180,6 @@ import {
 } from "./handlers/walkthrough";
 import { ManifestTemplateHoverProvider } from "./hoverProvider";
 import { manifestListener } from "./manifestListener";
-import {
-  CHAT_CREATE_OFFICE_PROJECT_COMMAND_ID,
-  officeChatParticipantId,
-} from "./officeChat/consts";
-import {
-  chatCreateOfficeProjectCommandHandler,
-  handleOfficeFeedback,
-  officeChatRequestHandler,
-} from "./officeChat/handlers";
 import { VS_CODE_UI, initVSCodeUI } from "./qm/vsc_ui";
 import { releaseControlledFeatureSettings } from "./releaseBasedFeatureSettings";
 import { ExtTelemetry } from "./telemetry/extTelemetry";
@@ -243,10 +234,6 @@ export async function activate(context: vscode.ExtensionContext) {
   registerActivateCommands(context);
 
   registerInternalCommands(context);
-
-  if (featureFlagManager.getBooleanValue(CoreFeatureFlags.ChatParticipant)) {
-    registerOfficeChatParticipant(context);
-  }
 
   if (isTeamsFxProject) {
     activateTeamsFxRegistration(context);
@@ -655,29 +642,6 @@ function registerInternalCommands(context: vscode.ExtensionContext) {
     (...args) => Correlator.run(updateActionWithMCP, args)
   );
   context.subscriptions.push(updateActionWithMcpCommand);
-}
-
-/**
- * Copilot Chat Participant for Office Add-in
- */
-function registerOfficeChatParticipant(context: vscode.ExtensionContext) {
-  const participant = vscode.chat.createChatParticipant(officeChatParticipantId, (...args) =>
-    Correlator.run(officeChatRequestHandler, ...args)
-  );
-  participant.iconPath = vscode.Uri.joinPath(context.extensionUri, "media", "office.png");
-  participant.followupProvider = followupProvider;
-  participant.onDidReceiveFeedback((...args) => Correlator.run(handleOfficeFeedback, ...args));
-
-  context.subscriptions.push(
-    participant,
-    vscode.commands.registerCommand("fx-extension.openOfficeDevDocument", (...args) =>
-      Correlator.run(officeDevHandlers.openDocumentHandler, args)
-    ),
-    vscode.commands.registerCommand(
-      CHAT_CREATE_OFFICE_PROJECT_COMMAND_ID,
-      chatCreateOfficeProjectCommandHandler
-    )
-  );
 }
 
 function registerTreeViewCommandsInDevelopment(context: vscode.ExtensionContext) {
