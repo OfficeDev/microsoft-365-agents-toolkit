@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 import { QuestionNames } from "../questionNames";
 import { TemplateNames } from "../templateNames";
 

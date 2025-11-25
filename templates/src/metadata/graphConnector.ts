@@ -9,7 +9,7 @@ export const graphConnectorTemplates: Template[] = [
     id: "graph-connector-ts",
     name: TemplateNames.GraphConnector,
     language: "typescript",
-    displayName: "Graph Connector",
-    description: "Ingest external data into Microsoft Graph for enhanced search and discovery",
+    displayName: "Copilot Connector",
+    description: "Embed your organization data to make it searchable in Microsoft 365 Copilot",
   },
 ];

@@ -95,7 +95,7 @@ function jsonToTable(templates: TemplateGroup[]): string {
 
   const table = new Table({
     head: [
-      chalk.cyanBright("Capability"),
+      chalk.cyanBright("Capability(Id)"),
       chalk.cyanBright("Name"),
       chalk.cyanBright("Description"),
     ],
