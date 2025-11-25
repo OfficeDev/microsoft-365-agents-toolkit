@@ -1,0 +1,147 @@
+{
+  "plan_metadata": {
+    "version": "1.1",
+    "plan_id": "plan_8b079de7",
+    "execution_context": {
+      "delay_between_steps": 1,
+      "stop_on_error": true,
+      "precondition_wait_timeout": 30,
+      "precondition_retry_interval": 1,
+      "step_retry_count": 0
+    },
+    "total_steps": 4,
+    "created_at": "2025-11-25T05:53:24.065945",
+    "name": "General Teams Agent OpenAI js Remote Debug",
+    "description": "27042829",
+    "generated_at": "2025-11-25T05:53:24.065945",
+    "execution_order": [
+      "plan_r_0928_012254",
+      "step_a3409346",
+      "step_30ff6448",
+      "plan_r_1125_053636",
+      "step_468e35d4",
+      "step_7621b63f",
+      "plan_r_0928_014459",
+      "plan_r_0929_040401",
+      "plan_r_0928_020230",
+      "plan_r_0928_073729",
+      "plan_r_0928_075846",
+      "plan_r_0930_063548",
+      "plan_63057c17"
+    ],
+    "tags": [],
+    "updated_at": "2025-11-25T05:54:09.032318"
+  },
+  "steps": [
+    {
+      "step_id": "step_a3409346",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 444,
+        "y": 217
+      },
+      "description": "Click the \"Declarative Agent\" option in the \"New Project\" dropdown menu to select it.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:444:217:16:5:00000000000000a4",
+        "dhash:444:217:96:5:ac8c110a35658800",
+        "dhash:444:217:0:10:c8c88094b2717075"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_a3409346",
+      "created_at": "2025-11-25T05:53:24.095024",
+      "plan_id": "plan_8b079de7"
+    },
+    {
+      "step_id": "step_30ff6448",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 342,
+        "y": 83
+      },
+      "description": "Click the \"General Teams Agent\" option from the dropdown menu in the \"Teams Agent or App Using Teams AI Library\" panel.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:342:83:16:5:b585d57cb947d429",
+        "dhash:342:83:96:5:804aa410d9c9246c",
+        "dhash:342:83:0:10:c0c89294b2717075"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_30ff6448",
+      "created_at": "2025-11-25T05:53:24.109852",
+      "plan_id": "plan_8b079de7"
+    },
+    {
+      "step_id": "step_468e35d4",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 303,
+        "y": 98
+      },
+      "description": "Click the \"JavaScript\" option in the \"Programming Language\" dropdown menu located at the top center of the Visual Studio Code interface.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:303:98:16:5:8080800000000000",
+        "dhash:303:98:96:5:906464484e2929de",
+        "dhash:303:98:0:10:d0949094b2717075"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_468e35d4",
+      "created_at": "2025-11-25T05:53:24.133759",
+      "plan_id": "plan_8b079de7"
+    },
+    {
+      "step_id": "step_7621b63f",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 433,
+        "y": 75
+      },
+      "description": "Click the \"Default folder\" option in the workspace folder selection dropdown at coordinates (433, 75).",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:433:75:16:5:0444916e55894d63",
+        "dhash:433:75:96:5:2298b9cda1260f36",
+        "dhash:433:75:0:10:f0b09494b2717075"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_7621b63f",
+      "created_at": "2025-11-25T05:53:24.150630",
+      "plan_id": "plan_8b079de7"
+    }
+  ],
+  "screenshots": {
+    "step_a3409346": "step_a3409346",
+    "step_30ff6448": "step_30ff6448",
+    "step_468e35d4": "step_468e35d4",
+    "step_7621b63f": "step_7621b63f"
+  }
+}
