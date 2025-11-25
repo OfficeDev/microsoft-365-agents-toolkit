@@ -83,7 +83,8 @@
           { "$ref": "#/definitions/oauthUpdate"},
           { "$ref": "#/definitions/devChannelCreate"},
           { "$ref": "#/definitions/devChannelInstallApp"},
-          { "$ref": "#/definitions/typeSpecCompile"}
+          { "$ref": "#/definitions/typeSpecCompile"},
+          { "$ref": "#/definitions/sharePointEmbeddedContainerTypeCreate"}
         ]
       }
     },
@@ -2059,6 +2060,65 @@
             "typeSpecConfigPath": {
               "type": "string",
               "description": "Path to TypeSpec config file."
+            }
+          }
+        }
+      }
+    },
+    "sharePointEmbeddedContainerTypeCreate": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Create a new SharePointEmbedded container type.",
+      "required": ["uses", "with", "writeToEnvironmentFile"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "An optional name of this action."
+        },
+        "env": {
+          "type": "object",
+          "description": "Define environment variables for this action.",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "uses": {
+          "type": "string",
+          "description": "This action will create a new SPE container type. TODO add more description",
+          "const": "sharePointEmbeddedContainerType/create"
+        },
+        "with": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Parameters for this action",
+          "required": ["owningApplicationId", "billingClassification", "name", "discoverable"],
+          "properties": {
+            "owningApplicationId": {
+              "type": "string",
+              "description": "application Id for the owning application for the SPE container type"
+            },
+            "billingClassification": {
+              "type": "string",
+              "description": "The billingClassification for the container type. Can be standard, trial, dtc"
+            },
+            "name": {
+              "type": "string",
+              "description": "The name for the container type"
+            },
+            "discoverable": {
+              "type": "boolean",
+              "description": "determines whether the drive items in the container of the container type are discoverable"
+            }
+          }
+        },
+        "writeToEnvironmentFile": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Write environment variables to environment file",
+          "required": ["containerTypeId"],
+          "properties": {
+            "containerTypeId": {
+              "$ref": "#/definitions/envVarName"
             }
           }
         }

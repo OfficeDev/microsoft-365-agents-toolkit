@@ -39,3 +39,4 @@ import "./teamsApp/validate";
 import "./teamsApp/validateAppPackage";
 import "./teamsApp/validateTestCases";
 import "./typeSpec/compile";
+import "./sharePointEmbeddedContainerType/create";
