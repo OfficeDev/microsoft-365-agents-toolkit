@@ -19,7 +19,6 @@ const windows_22 = [
   "sample-bot-sso",
   "sample-sso-tab-via-apim-proxy",
   "sample-copilot-connector-bot",
-  "sample-incoming-webhook",
 ];
 const ubuntu_22 = [
   "sample-adaptive-card",
