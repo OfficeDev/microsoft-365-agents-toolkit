@@ -50,7 +50,7 @@
     "html-loader": "^5.0.0",
     "html-webpack-plugin": "^5.6.0",
     "office-addin-cli": "^1.6.3",
-    "office-addin-debugging": "6.0.4",
+    "office-addin-debugging": "6.0.6",
     "office-addin-dev-settings": "3.0.4",
     "office-addin-dev-certs": "^1.13.3",
     "office-addin-lint": "^2.3.3",
