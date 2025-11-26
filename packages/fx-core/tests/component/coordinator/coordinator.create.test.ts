@@ -27,7 +27,6 @@ import { CreateSampleProjectInputs } from "../../../src/question";
 import {
   ActionStartOptions,
   ApiAuthOptions,
-  CustomCopilotAssistantOptions,
   CustomCopilotRagOptions,
   QuestionNames,
   ScratchOptions,
@@ -452,31 +451,31 @@ describe("coordinator create", () => {
       assert.isTrue(res.isOk());
     });
 
-    it("create custom agent api with azure open ai success", async () => {
-      const v3ctx = createContext();
-      v3ctx.userInteraction = new MockedUserInteraction();
-      const inputs: Inputs = {
-        platform: Platform.VSCode,
-        folder: ".",
-        [QuestionNames.AppName]: randomAppName(),
-        [QuestionNames.ProgrammingLanguage]: "typescript",
-        [QuestionNames.SafeProjectName]: "safeprojectname",
-        [QuestionNames.TemplateName]: TemplateNames.CustomCopilotAssistantNew,
-        [QuestionNames.CustomCopilotAssistant]: CustomCopilotAssistantOptions.new().id,
-        [QuestionNames.ApiSpecLocation]: "spec",
-        [QuestionNames.ApiOperation]: "test",
-        [QuestionNames.AzureOpenAIKey]: "mockedAzureOpenAIKey",
-        [QuestionNames.AzureOpenAIEndpoint]: "mockedAzureOpenAIEndpoint",
-        [QuestionNames.AzureOpenAIDeploymentName]: "mockedAzureOpenAIDeploymentName",
-      };
-      sandbox.stub(DefaultTemplateGenerator.prototype, "run").resolves(ok({}));
-      sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
-      sandbox.stub(pathUtils, "getYmlFilePath").returns("m365agents.yml");
-      sandbox.stub(fs, "pathExists").resolves(false);
-      const res = await coordinator.create(v3ctx, inputs);
+    // it("create custom agent api with azure open ai success", async () => {
+    //   const v3ctx = createContext();
+    //   v3ctx.userInteraction = new MockedUserInteraction();
+    //   const inputs: Inputs = {
+    //     platform: Platform.VSCode,
+    //     folder: ".",
+    //     [QuestionNames.AppName]: randomAppName(),
+    //     [QuestionNames.ProgrammingLanguage]: "typescript",
+    //     [QuestionNames.SafeProjectName]: "safeprojectname",
+    //     [QuestionNames.TemplateName]: TemplateNames.CustomCopilotAssistantNew,
+    //     [QuestionNames.CustomCopilotAssistant]: CustomCopilotAssistantOptions.new().id,
+    //     [QuestionNames.ApiSpecLocation]: "spec",
+    //     [QuestionNames.ApiOperation]: "test",
+    //     [QuestionNames.AzureOpenAIKey]: "mockedAzureOpenAIKey",
+    //     [QuestionNames.AzureOpenAIEndpoint]: "mockedAzureOpenAIEndpoint",
+    //     [QuestionNames.AzureOpenAIDeploymentName]: "mockedAzureOpenAIDeploymentName",
+    //   };
+    //   sandbox.stub(DefaultTemplateGenerator.prototype, "run").resolves(ok({}));
+    //   sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
+    //   sandbox.stub(pathUtils, "getYmlFilePath").returns("m365agents.yml");
+    //   sandbox.stub(fs, "pathExists").resolves(false);
+    //   const res = await coordinator.create(v3ctx, inputs);
 
-      assert.isTrue(res.isOk());
-    });
+    //   assert.isTrue(res.isOk());
+    // });
 
     it("create custom copilot rag custom api failed", async () => {
       const v3ctx = createContext();

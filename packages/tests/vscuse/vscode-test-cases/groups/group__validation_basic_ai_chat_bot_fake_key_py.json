@@ -1,0 +1,133 @@
+{
+  "plan_metadata": {
+    "version": "1.1",
+    "plan_id": "plan_32700ea5",
+    "execution_context": {
+      "delay_between_steps": 0.5,
+      "stop_on_error": true,
+      "precondition_wait_timeout": 60,
+      "precondition_retry_interval": 2
+    },
+    "total_steps": 4,
+    "created_at": "2025-11-26T01:19:45.913597",
+    "name": "group  validation basic ai chat bot fake key py",
+    "description": "Generated from recording r_1009_093215",
+    "generated_at": "2025-11-26T01:19:45.913597",
+    "execution_order": [
+      "step_549ddda3",
+      "step_374f104b",
+      "step_21c97145",
+      "step_e46c78df"
+    ],
+    "tags": [
+      "group"
+    ],
+    "updated_at": "2025-11-26T03:18:16.615396"
+  },
+  "steps": [
+    {
+      "step_id": "step_549ddda3",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 278,
+        "y": 721
+      },
+      "description": "Click the 'Type a message' input field in the Microsoft Teams app window at coordinates (278, 721).",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:278:721:16:5:8080c08000000000",
+        "dhash:278:721:96:5:002050b030400000",
+        "dhash:278:721:0:10:24b4b08e8e9681a1"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_549ddda3",
+      "created_at": "2025-11-26T02:08:46.711420",
+      "plan_id": "plan_32700ea5"
+    },
+    {
+      "step_id": "step_374f104b",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "text": "How to develop agent for Teams?"
+      },
+      "description": "Type the text 'How to develop agent for Teams?' into the input field located at the bottom of the chat interface within the Teams application, under the section titled 'vscuse_app_QTSvnlocal'.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:512:384:0:20:24b4b08e8e9680a1"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_374f104b",
+      "created_at": "2025-11-26T02:08:46.722761",
+      "plan_id": "plan_32700ea5"
+    },
+    {
+      "step_id": "step_21c97145",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "enter"
+      },
+      "description": "Press the \"Enter\" key to submit the message typed in the input field at the bottom of the Microsoft Teams interface in the  conversation.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:512:384:0:20:28b4b08e8e9680b1"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_21c97145",
+      "created_at": "2025-11-26T02:08:46.735560",
+      "plan_id": "plan_32700ea5"
+    },
+    {
+      "step_id": "step_e46c78df",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 999,
+        "y": 18
+      },
+      "description": "Click the \"Close\" button (X) at the top-right corner of the Google Chrome window to exit the Microsoft Teams web app.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:999:18:16:5:0d19246691916624",
+        "dhash:999:18:96:5:c233333342006666",
+        "dhash:999:18:0:10:30b8b48080b13da9"
+      ],
+      "postconditions": [],
+      "tags": [
+        "delay: 10"
+      ],
+      "screenshot": "step_e46c78df",
+      "created_at": "2025-11-26T02:08:46.752048",
+      "plan_id": "plan_32700ea5"
+    }
+  ],
+  "screenshots": {
+    "step_549ddda3": "step_549ddda3",
+    "step_374f104b": "step_374f104b",
+    "step_21c97145": "step_21c97145",
+    "step_e46c78df": "step_e46c78df"
+  }
+}

@@ -5,8 +5,8 @@ import { Inputs, IQTreeNode, OptionItem } from "@microsoft/teamsfx-api";
 import { featureFlagManager, FeatureFlags } from "../../../common/featureFlags";
 import { getLocalizedString } from "../../../common/localizeUtils";
 import { ProgrammingLanguage } from "../../constants";
-import { pluginApiSpecQuestion, pluginManifestQuestion } from "../../create";
 import { QuestionNames } from "../../questionNames";
+import { apiSpecNode, apiSpecWithSearchNode } from "../commonNodes";
 import {
   ActionStartOptions,
   ApiAuthOptions,
@@ -14,7 +14,7 @@ import {
   setTemplateName,
 } from "./CapabilityOptions";
 import { ProjectTypeOptions } from "./ProjectTypeOptions";
-import { apiSpecNode, apiSpecWithSearchNode, MCPForDAServerUrlNode } from "./teamsProjectTypeNode";
+import { MCPServerTypeNode } from "./teamsProjectTypeNode";
 
 export function daProjectTypeNode(
   parentValue = ProjectTypeOptions.copilotAgentOptionId
@@ -102,7 +102,7 @@ export function daProjectTypeNode(
                       inputs[QuestionNames.ActionType] === ActionStartOptions.apiSpec().id &&
                       !featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration)
                   ),
-              MCPForDAServerUrlNode(),
+              MCPServerTypeNode(),
             ],
           },
         ],

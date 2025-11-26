@@ -6,7 +6,6 @@ import {
   CLIContext,
   err,
   ok,
-  OptionItem,
   Platform,
 } from "@microsoft/teamsfx-api";
 import {
@@ -15,12 +14,7 @@ import {
   CreateProjectOptions,
   featureFlagManager,
   FeatureFlags,
-  getProjectTypeByCapability,
-  getTeamsAppTypeByCapability,
-  getTeamsCapabilityByCapability,
   isTdpTemplate,
-  MeArchitectureOptions,
-  QuestionNames,
 } from "@microsoft/teamsfx-core";
 import chalk from "chalk";
 import { assign } from "lodash";
@@ -31,21 +25,13 @@ import { logger } from "../../commonlib/logger";
 import { commands } from "../../resource";
 import { TelemetryEvent, TelemetryProperty } from "../../telemetry/cliTelemetryEvents";
 import { createSampleCommand } from "./createSample";
-import { listAllCapabilities } from "./listTemplates";
+import { listAllTemplates } from "./listTemplates";
 
 function adjustOptions(options: CLICommandOption[]) {
   for (const option of options) {
     if (option.type === "string" && option.name === CliQuestionName.Capability) {
       // use dynamic options for capability question
-      option.choices = listAllCapabilities().map((o) => o.id);
-      break;
-    }
-  }
-
-  for (const option of options) {
-    if (option.type === "string" && option.name === QuestionNames.MeArchitectureType.toString()) {
-      // use dynamic options for ME architecture question
-      option.choices = MeArchitectureOptions.all().map((o: OptionItem) => o.id);
+      option.choices = listAllTemplates().map((o) => o.name);
       break;
     }
   }
@@ -60,12 +46,12 @@ export function getCreateCommand(): CLICommand {
     options: [...adjustOptions(CreateProjectOptions)],
     examples: [
       {
-        command: `${process.env.TEAMSFX_CLI_BIN_NAME} new -c notification -t timer-functions -l typescript -n myapp -i false`,
-        description: "Create a new timer triggered notification bot",
+        command: `${process.env.TEAMSFX_CLI_BIN_NAME} new -c copilot-gpt-basic -n myagent -i false`,
+        description: "Create a new declarative agent",
       },
       {
-        command: `${process.env.TEAMSFX_CLI_BIN_NAME} new -c tab-spfx -s import --spfx-folder <folder-path> -n myapp -i false`,
-        description: "Import an existing SharePoint Framework solution",
+        command: `${process.env.TEAMSFX_CLI_BIN_NAME} new -c basic-custom-engine-agent -l typescript -n mycea -i false`,
+        description: "Create a new basic custom engine agent",
       },
     ],
     commands: [createSampleCommand],
@@ -80,15 +66,20 @@ export function getCreateCommand(): CLICommand {
         if (featureFlagManager.getBooleanValue(FeatureFlags.CLIDotNet)) {
           // this feature is used in e2e test to scaffold VS project in non-interactive mode
           inputs.platform = Platform.VS;
+          inputs["template-name"] = inputs.capabilities;
+          inputs["programming-language"] = "csharp";
         } else {
           // for non-interactive mode, we need to preset project-type from capability to make sure the question model works
           const capability = inputs.capabilities as string;
-          const projectType = getProjectTypeByCapability(capability);
-          inputs["project-type"] = projectType as any;
-          const teamsAppType = getTeamsAppTypeByCapability(capability);
-          inputs["teams-app-type"] = teamsAppType;
-          const teamsCapability = getTeamsCapabilityByCapability(capability);
-          inputs["teams-capability"] = teamsCapability;
+          inputs["template-name"] = capability;
+          if (inputs["programming-language"] === undefined) {
+            // preset programming language if not specified
+            const templates = listAllTemplates();
+            const matched = templates.find((t) => t.name === capability);
+            if (matched) {
+              inputs["programming-language"] = matched.language as any;
+            }
+          }
         }
       }
       const isTdp = isTdpTemplate(inputs);

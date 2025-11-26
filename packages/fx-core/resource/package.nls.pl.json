@@ -390,6 +390,8 @@
   "core.createProjectQuestion.capability.customCopilotAssistant.placeholder": "Wybierz sposób zarządzania zadaniami AI",
   "core.createProjectQuestion.capability.customCopilotWeatherOption.label": "Agent pogody",
   "core.createProjectQuestion.capability.customCopilotWeatherOption.detail": "Agent prognozy pogody utworzony przy użyciu zestawu SDK agentów platformy Microsoft 365 i jądra semantycznego",
+  "core.createProjectQuestion.capability.customCopilotTravelOption.label": "Travel Agent",
+  "core.createProjectQuestion.capability.customCopilotTravelOption.detail": "A travel planning agent, which is built with Microsoft 365 Agents SDK, Microsoft 365 Retrieval API and Agent Framework",
   "core.createProjectQuestion.capability.customEngineAgent.description": "Działa w usłudze Teams i rozwiązaniu Microsoft 365 Copilot",
   "core.createProjectQuestion.capability.knowledgeWebSearch.label": "Wyszukiwanie w sieci Web",
   "core.createProjectQuestion.capability.knowledgeWebSearch.detail": "Wyszukaj informacje o uziemieniach w sieci Web.",

@@ -15,6 +15,10 @@ import {
   signedIn,
   DeclarativeAgentManifest,
   signedOut,
+  SingleFileQuestion,
+  SingleSelectQuestion,
+  DynamicOptions,
+  OptionItem,
 } from "@microsoft/teamsfx-api";
 import { assert } from "chai";
 import fs from "fs-extra";
@@ -30,11 +34,17 @@ import * as generatorHelper from "../../../src/component/generator/declarativeAg
 import { TemplateNames } from "../../../src/component/generator/templates/templateNames";
 import * as commons from "../../../src/component/utils/common";
 import { ActionStartOptions, ApiAuthOptions, QuestionNames } from "../../../src/question";
+import { ActionStartOptions as CapabilityActionStartOptions } from "../../../src/question/scaffold/vsc/CapabilityOptions";
 import { MockLogProvider, MockTools } from "../../core/utils";
 import { GraphClient } from "../../../src/client/graphClient";
 import { featureFlagManager } from "../../../src/common/featureFlags";
 import * as utils from "../../../src/component/generator/utils";
 import { DACapabilityOptions } from "../../../src/question/scaffold/vsc/CapabilityOptions";
+import {
+  MCPServerTypeNode,
+  MCPLocalServerSelectionNode,
+} from "../../../src/question/scaffold/vsc/teamsProjectTypeNode";
+import { ODRProvider } from "../../../src/component/utils/odrProvider";
 
 describe("copilotExtension", async () => {
   setTools(new MockTools());
@@ -1191,6 +1201,533 @@ describe("helper", async () => {
         properties: undefined,
         required: [], // Default fallback
       });
+    });
+  });
+
+  describe("MCPServerTypeNode and Local MCP Server Support", async () => {
+    it("MCPServerTypeNode should return correct structure", async () => {
+      const mockServers = [
+        {
+          name: "test-server",
+          display_name: "Test Server",
+          description: "Test server",
+          version: "1.0.0",
+          identifier: "test.server",
+          packageFamily: "packagefamily",
+          command: "odr.exe",
+          args: ["mcp", "--proxy", "test.server"],
+          tools: [{ name: "tool1", description: "Tool 1", inputSchema: {} }],
+        },
+      ];
+
+      const listServersStub = sandbox.stub(ODRProvider, "listServers").resolves(mockServers);
+
+      const node = MCPServerTypeNode();
+
+      // Test basic structure
+      assert.isDefined(node);
+      assert.isDefined(node.condition);
+      assert.isDefined(node.data);
+      assert.isDefined(node.children);
+
+      // Test condition
+      assert.deepEqual(node.condition, { equals: CapabilityActionStartOptions.mcp().id });
+
+      const questionData = (await node.data) as SingleSelectQuestion;
+
+      // Test data properties
+      assert.equal(questionData.name, QuestionNames.MCPServerType);
+      assert.equal(questionData.type, "singleSelect");
+      assert.equal(questionData.default, "remote");
+      assert.equal(questionData.staticOptions.length, 0);
+
+      const inputs: Inputs = { platform: Platform.CLI };
+      const options = (await (questionData.dynamicOptions as DynamicOptions)(
+        inputs
+      )) as OptionItem[];
+      assert.equal(options.length, 2);
+      assert.equal(options[0].id, "remote");
+      assert.equal(options[1].id, "local");
+      assert.isTrue(listServersStub.calledOnce);
+
+      // Test children structure
+      assert.equal(node.children?.length, 2);
+    });
+
+    it("MCPServerTypeNode should only show remote option when no servers available", async () => {
+      const listServersStub = sandbox.stub(ODRProvider, "listServers").resolves([]);
+
+      const node = MCPServerTypeNode();
+      const questionData = (await node.data) as SingleSelectQuestion;
+
+      const inputs: Inputs = { platform: Platform.CLI };
+      const options = (await (questionData.dynamicOptions as DynamicOptions)(
+        inputs
+      )) as OptionItem[];
+
+      assert.equal(options.length, 1);
+      assert.equal(options[0].id, "remote");
+      assert.isTrue(listServersStub.calledOnce);
+
+      assert.deepEqual(inputs["_McpOdrOutput"], []);
+    });
+
+    it("MCPLocalServerSelectionNode dynamicOptions should work correctly", async () => {
+      const mockServers = [
+        {
+          name: "test-server-1",
+          display_name: "Test Server 1",
+          description: "First test server",
+          version: "1.0.0",
+          identifier: "test.server.1",
+          packageFamily: "packagefamily",
+          command: "odr.exe",
+          args: ["mcp", "--proxy", "test.server.1"],
+          tools: [
+            { name: "tool1", description: "Tool 1", inputSchema: {} },
+            { name: "tool2", description: "Tool 2", inputSchema: {} },
+          ],
+        },
+        {
+          name: "test-server-2",
+          display_name: "Test Server 2",
+          description: "Second test server",
+          version: "2.0.0",
+          identifier: "test.server.2",
+          packageFamily: "packagefamily",
+          command: "odr.exe",
+          args: ["mcp", "--proxy", "test.server.2"],
+          tools: [{ name: "tool3", description: "Tool 3", inputSchema: {} }],
+        },
+      ];
+
+      const node = MCPLocalServerSelectionNode();
+      const questionData = (await node.data) as SingleSelectQuestion;
+
+      // Set up the inputs with the mock servers as if MCPServerTypeNode had set them
+      const inputs: Inputs = {
+        platform: Platform.CLI,
+        _McpOdrOutput: mockServers,
+      };
+
+      const options = (await (questionData.dynamicOptions as DynamicOptions)(
+        inputs
+      )) as OptionItem[];
+
+      assert.isArray(options);
+      assert.isDefined(options);
+      assert.equal(options?.length, 2);
+
+      // Test first option
+      assert.equal(options[0].id, "test-server-1");
+      assert.equal(options[0].label, "Test Server 1");
+      assert.equal(options[0].detail, "First test server (2 tools available)");
+      const data1 = JSON.parse(options[0].data as string);
+      assert.equal(data1.identifier, "test.server.1");
+      assert.equal(data1.command, "odr.exe");
+      assert.deepEqual(data1.args, ["mcp", "--proxy", "test.server.1"]);
+
+      // Test second option
+      assert.equal(options[1].id, "test-server-2");
+      assert.equal(options[1].label, "Test Server 2");
+      assert.equal(options[1].detail, "Second test server (1 tools available)");
+      const data2 = JSON.parse(options[1].data as string);
+      assert.equal(data2.identifier, "test.server.2");
+      assert.equal(data2.command, "odr.exe");
+      assert.deepEqual(data2.args, ["mcp", "--proxy", "test.server.2"]);
+    });
+
+    it("MCPLocalServerSelectionNode onDidSelection should set correct inputs", async () => {
+      const node = MCPLocalServerSelectionNode();
+      const inputs: Inputs = {
+        platform: Platform.CLI,
+      };
+      const nodeData = (await node.data) as SingleSelectQuestion;
+
+      const selectedItem: OptionItem = {
+        id: "selected-server",
+        label: "Selected Server",
+        detail: "Test server detail",
+        data: JSON.stringify({
+          identifier: "selected.server.identifier",
+          command: "odr.exe",
+          args: ["mcp", "--proxy", "selected.server.identifier"],
+        }),
+      };
+
+      // Test onDidSelection
+      nodeData.onDidSelection?.(selectedItem, inputs);
+
+      assert.equal(inputs[QuestionNames.MCPLocalServerName], "selected-server");
+      assert.equal(inputs[QuestionNames.MCPLocalServerIdentifier], "selected.server.identifier");
+      assert.equal(inputs[QuestionNames.MCPLocalServerCommand], "odr.exe");
+      assert.equal(
+        inputs[QuestionNames.MCPLocalServerArgs],
+        '"mcp", "--proxy", "selected.server.identifier"'
+      );
+    });
+
+    it("MCPLocalServerSelectionNode onDidSelection should handle errors gracefully", async () => {
+      const { MCPLocalServerSelectionNode } = await import(
+        "../../../src/question/scaffold/vsc/teamsProjectTypeNode"
+      );
+
+      const node = MCPLocalServerSelectionNode();
+      const inputs: Inputs = {
+        platform: Platform.CLI,
+      };
+
+      const nodeData = node.data as SingleSelectQuestion;
+      // Test with invalid item (string instead of OptionItem)
+      nodeData.onDidSelection?.("invalid-item", inputs);
+
+      // Should not throw error and should not set any inputs
+      assert.isUndefined(inputs[QuestionNames.MCPLocalServerName]);
+      assert.isUndefined(inputs[QuestionNames.MCPLocalServerIdentifier]);
+    });
+
+    it("ODRProvider listServers should handle empty output", async () => {
+      sandbox.stub(process, "platform").value("win32");
+      const execStub = sandbox
+        .stub(require("child_process"), "exec")
+        .callsArgWith(1, null, JSON.stringify({ servers: [] }), "");
+
+      const servers = await ODRProvider.listServers();
+
+      assert.isArray(servers);
+      assert.equal(servers.length, 0);
+      assert.isTrue(execStub.calledOnce);
+    });
+
+    it("ODRProvider listServers should return empty array on non-Windows platform", async () => {
+      sandbox.stub(process, "platform").value("darwin"); // macOS
+      const execStub = sandbox.stub(require("child_process"), "exec");
+
+      const servers = await ODRProvider.listServers();
+
+      assert.isArray(servers);
+      assert.equal(servers.length, 0);
+      assert.isFalse(execStub.called); // Should not even attempt to call exec
+    });
+
+    it("ODRProvider listServers should return empty array when stdout is empty", async () => {
+      sandbox.stub(process, "platform").value("win32");
+      const execStub = sandbox.stub(require("child_process"), "exec").callsArgWith(1, null, "", "");
+
+      const servers = await ODRProvider.listServers();
+
+      assert.isArray(servers);
+      assert.equal(servers.length, 0);
+      assert.isTrue(execStub.calledOnce);
+    });
+
+    it("ODRProvider listServers should handle malformed JSON", async () => {
+      sandbox.stub(process, "platform").value("win32");
+      const execStub = sandbox
+        .stub(require("child_process"), "exec")
+        .callsArgWith(1, null, "invalid json", "");
+
+      const servers = await ODRProvider.listServers();
+
+      assert.isArray(servers);
+      assert.equal(servers.length, 0);
+      assert.isTrue(execStub.calledOnce);
+    });
+
+    it("ODRProvider listServers should handle exec errors", async () => {
+      sandbox.stub(process, "platform").value("win32");
+      const execStub = sandbox
+        .stub(require("child_process"), "exec")
+        .callsArgWith(1, new Error("Command failed"), "", "error output");
+
+      const servers = await ODRProvider.listServers();
+
+      assert.isArray(servers);
+      assert.equal(servers.length, 0);
+      assert.isTrue(execStub.calledOnce);
+    });
+
+    it("ODRProvider listServers should handle command not found (ODR not installed)", async () => {
+      sandbox.stub(process, "platform").value("win32");
+      const execStub = sandbox
+        .stub(require("child_process"), "exec")
+        .callsArgWith(
+          1,
+          new Error("'odr' is not recognized as an internal or external command"),
+          "",
+          ""
+        );
+
+      const servers = await ODRProvider.listServers();
+
+      assert.isArray(servers);
+      assert.equal(servers.length, 0);
+      assert.isTrue(execStub.calledOnce);
+    });
+
+    it("ODRProvider parseODRListOutput should parse valid server data", async () => {
+      const mockInput = {
+        servers: [
+          {
+            name: "test-server",
+            description: "Test server description",
+            version: "1.0.0",
+            packages: [{ identifier: "com.test.server" }],
+            _meta: {
+              "io.modelcontextprotocol.registry/publisher-provided": {
+                "com.microsoft.windows": {
+                  manifest: {
+                    display_name: "Test MCP Server",
+                    server: {
+                      mcp_config: {
+                        command: "odr.exe",
+                        args: ["mcp", "--proxy", "com.test.server"],
+                      },
+                    },
+                    _meta: {
+                      "com.microsoft.windows": {
+                        package_family_name: "TestPackageFamily",
+                        static_responses: {
+                          "tools/list": {
+                            tools: [
+                              {
+                                name: "test-tool",
+                                description: "Test tool description",
+                                inputSchema: { type: "object", properties: {} },
+                              },
+                            ],
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        ],
+      };
+
+      const servers = ODRProvider.parseODRListOutput(mockInput);
+
+      assert.isArray(servers);
+      assert.equal(servers.length, 1);
+
+      const server = servers[0];
+      assert.equal(server.name, "test-server");
+      assert.equal(server.display_name, "Test MCP Server");
+      assert.equal(server.description, "Test server description");
+      assert.equal(server.version, "1.0.0");
+      assert.equal(server.identifier, "com.test.server");
+      assert.equal(server.command, "odr.exe");
+      assert.deepEqual(server.args, ["mcp", "--proxy", "com.test.server"]);
+      assert.equal(server.tools.length, 1);
+      assert.equal(server.tools[0].name, "test-tool");
+    });
+
+    it("ODRProvider parseODRListOutput should filter servers without package family", async () => {
+      const mockInput = {
+        servers: [
+          {
+            name: "valid-server",
+            _meta: {
+              "io.modelcontextprotocol.registry/publisher-provided": {
+                "com.microsoft.windows": {
+                  manifest: {
+                    server: {
+                      mcp_config: {
+                        command: "odr.exe",
+                        args: ["mcp", "--proxy", "valid.server"],
+                      },
+                    },
+                    _meta: {
+                      "com.microsoft.windows": {
+                        package_family_name: "ValidPackage",
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          {
+            name: "invalid-server",
+            _meta: {
+              "io.modelcontextprotocol.registry/publisher-provided": {
+                "com.microsoft.windows": {
+                  manifest: {
+                    server: {
+                      mcp_config: {
+                        command: "odr.exe",
+                        args: ["mcp", "--proxy", "invalid.server"],
+                      },
+                    },
+                    _meta: {
+                      "com.microsoft.windows": {
+                        // Missing package_family_name
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        ],
+      };
+
+      const servers = ODRProvider.parseODRListOutput(mockInput);
+
+      assert.isArray(servers);
+      assert.equal(servers.length, 1);
+      assert.equal(servers[0].name, "valid-server");
+    });
+
+    it("ODRProvider parseODRListOutput should return empty array when servers is not an array", async () => {
+      const mockInput = {
+        servers: "not-an-array",
+      };
+
+      const servers = ODRProvider.parseODRListOutput(mockInput);
+
+      assert.isArray(servers);
+      assert.equal(servers.length, 0);
+    });
+
+    it("ODRProvider parseODRListOutput should return empty array when servers property is missing", async () => {
+      const mockInput = {
+        notServers: [],
+      };
+
+      const servers = ODRProvider.parseODRListOutput(mockInput);
+
+      assert.isArray(servers);
+      assert.equal(servers.length, 0);
+    });
+
+    it("ODRProvider parseODRListOutput should handle servers with empty tools list", async () => {
+      const mockInput = {
+        servers: [
+          {
+            name: "server-no-tools",
+            packages: [{ identifier: "com.test.server" }],
+            _meta: {
+              "io.modelcontextprotocol.registry/publisher-provided": {
+                "com.microsoft.windows": {
+                  manifest: {
+                    display_name: "Test Server",
+                    server: {
+                      mcp_config: {
+                        command: "test-command",
+                        args: ["test-arg"],
+                      },
+                    },
+                    _meta: {
+                      "com.microsoft.windows": {
+                        package_family_name: "TestPackage",
+                        static_responses: {
+                          "tools/list": {
+                            tools: [],
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        ],
+      };
+
+      const servers = ODRProvider.parseODRListOutput(mockInput);
+
+      assert.isArray(servers);
+      assert.equal(servers.length, 1);
+      assert.equal(servers[0].tools.length, 0);
+    });
+
+    it("declarative agent generator should handle local MCP server inputs", async () => {
+      const generator = new DeclarativeAgentGenerator();
+      const context = createContext();
+      const inputs: Inputs = {
+        platform: Platform.CLI,
+        projectPath: "./",
+        [QuestionNames.Capabilities]: "api-plugin",
+        [QuestionNames.ActionType]: CapabilityActionStartOptions.mcp().id,
+        [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentWithActionFromMCP,
+        [QuestionNames.ApiAuth]: ApiAuthOptions.none().id,
+        [QuestionNames.AppName]: "TestApp",
+        [QuestionNames.MCPServerType]: "local",
+        [QuestionNames.MCPLocalServerName]: "test-local-server",
+        [QuestionNames.MCPLocalServerIdentifier]: "com.test.local.server",
+      };
+
+      const res = await generator.activate(context, inputs);
+      const info = await generator.getTemplateInfos(context, inputs, ".");
+
+      assert.isTrue(res);
+      assert.isTrue(info.isOk());
+
+      if (info.isOk() && info.value[0].replaceMap) {
+        const replaceMap = info.value[0].replaceMap;
+
+        // Verify local server information is included in replace map
+        assert.equal(replaceMap.MCPLocalServerName, "test-local-server");
+        assert.equal(replaceMap.MCPLocalServerIdentifier, "com.test.local.server");
+
+        // Verify template name
+        assert.equal(info.value[0].templateName, "declarative-agent-with-action-from-mcp");
+      }
+    });
+
+    it("declarative agent generator should handle both remote and local MCP server configurations", async () => {
+      const generator = new DeclarativeAgentGenerator();
+      const context = createContext();
+
+      // Test remote configuration
+      const remoteInputs: Inputs = {
+        platform: Platform.CLI,
+        projectPath: "./",
+        [QuestionNames.Capabilities]: "api-plugin",
+        [QuestionNames.ActionType]: CapabilityActionStartOptions.mcp().id,
+        [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentWithActionFromMCP,
+        [QuestionNames.ApiAuth]: ApiAuthOptions.none().id,
+        [QuestionNames.AppName]: "TestApp",
+        [QuestionNames.MCPServerType]: "remote",
+        [QuestionNames.MCPForDAServerUrl]: "https://remote-mcp.example.com",
+      };
+
+      let res = await generator.activate(context, remoteInputs);
+      let info = await generator.getTemplateInfos(context, remoteInputs, ".");
+
+      assert.isTrue(res);
+      assert.isTrue(info.isOk());
+
+      // Test local configuration
+      const localInputs: Inputs = {
+        platform: Platform.CLI,
+        projectPath: "./",
+        [QuestionNames.Capabilities]: "api-plugin",
+        [QuestionNames.ActionType]: CapabilityActionStartOptions.mcp().id,
+        [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentWithActionFromMCP,
+        [QuestionNames.ApiAuth]: ApiAuthOptions.none().id,
+        [QuestionNames.AppName]: "TestApp",
+        [QuestionNames.MCPServerType]: "local",
+        [QuestionNames.MCPLocalServerName]: "local-server",
+        [QuestionNames.MCPLocalServerIdentifier]: "local.server.id",
+      };
+
+      res = await generator.activate(context, localInputs);
+      info = await generator.getTemplateInfos(context, localInputs, ".");
+
+      assert.isTrue(res);
+      assert.isTrue(info.isOk());
+
+      if (info.isOk() && info.value[0].replaceMap) {
+        const replaceMap = info.value[0].replaceMap;
+        assert.equal(replaceMap.MCPLocalServerName, "local-server");
+        assert.equal(replaceMap.MCPLocalServerIdentifier, "local.server.id");
+      }
     });
   });
 });

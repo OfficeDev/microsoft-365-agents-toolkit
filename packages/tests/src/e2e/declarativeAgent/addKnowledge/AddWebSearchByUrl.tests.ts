@@ -5,11 +5,11 @@
  * @author Yimin Jin <yiminjin@microsoft.com>
  */
 
-import { Capability } from "../../../utils/constants";
 import { ProgrammingLanguage } from "@microsoft/teamsfx-core";
-import { CaseFactory } from "../../caseFactory";
-import { Executor } from "../../../utils/executor";
 import { expect } from "chai";
+import { Capability } from "../../../utils/constants";
+import { Executor } from "../../../utils/executor";
+import { CaseFactory } from "../../caseFactory";
 
 class AddWebSearchByUrl extends CaseFactory {
   public async onAfterCreate(projectPath: string): Promise<void> {
@@ -26,7 +26,7 @@ myRecord["api-plugin-type"] = "new-api";
 myRecord["api-auth"] = "none";
 
 new AddWebSearchByUrl(
-  Capability.DeclarativeAgent,
+  Capability.DeclarativeAgentWithActionFromScratch,
   31721023,
   "yiminjin@microsoft.com",
   ["function"],

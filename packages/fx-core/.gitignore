@@ -8,3 +8,5 @@ coverage
 .fx
 templates/**/*.zip
 tests/**/TeamsSPFxApp.zip
+resource/templates
+tsconfig.tsbuildinfo

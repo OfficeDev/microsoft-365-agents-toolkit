@@ -6,6 +6,7 @@ import { getLocalizedString } from "../../../common/localizeUtils";
 import { TemplateNames } from "../../../component/generator/templates/templateNames";
 import { appNameQuestion, folderQuestion } from "../../create";
 import { QuestionNames } from "../../questionNames";
+import { llmServiceNode } from "../commonNodes";
 import {
   BotCapabilityOptions,
   MeCapabilityOptions,
@@ -16,7 +17,6 @@ import { folderAndAppNameCondition, languageNode } from "../vsc/createRootNode";
 import { daProjectTypeNode } from "../vsc/daProjectTypeNode";
 import {
   customCopilotRagNode,
-  llmServiceNode,
   m365SearchMeSubNode,
   notificationBotTriggerNode,
 } from "../vsc/teamsProjectTypeNode";
@@ -78,6 +78,19 @@ export class VSCapabilityOptions {
       data: TemplateNames.WeatherAgent,
     };
   }
+
+  static travelAgentBot(): OptionItem {
+    return {
+      id: "custom-copilot-travel-agent",
+      label: getLocalizedString(
+        "core.createProjectQuestion.capability.customCopilotTravelOption.label"
+      ),
+      detail: getLocalizedString(
+        "core.createProjectQuestion.capability.customCopilotTravelOption.detail"
+      ),
+      data: TemplateNames.TravelAgent,
+    };
+  }
 }
 
 /**
@@ -97,9 +110,11 @@ export function scaffoldQuestionForVS(): IQTreeNode {
             VSCapabilityOptions.empty(),
             VSCapabilityOptions.declarativeAgent(),
             TeamsAgentCapabilityOptions.basicChatbot(),
+            TeamsAgentCapabilityOptions.collaboratorAgent(),
             TeamsAgentCapabilityOptions.customCopilotRag(),
             // TeamsAgentCapabilityOptions.aiAgent(),
             VSCapabilityOptions.weatherAgentBot(),
+            VSCapabilityOptions.travelAgentBot(),
 
             BotCapabilityOptions.basicBot(),
             // BotCapabilityOptions.notificationBot(),
@@ -123,9 +138,11 @@ export function scaffoldQuestionForVS(): IQTreeNode {
           llmServiceNode({
             enum: [
               TeamsAgentCapabilityOptions.basicChatbot().id,
+              TeamsAgentCapabilityOptions.collaboratorAgent().id,
               TeamsAgentCapabilityOptions.customCopilotRag().id,
               // TeamsAgentCapabilityOptions.aiAgent().id,
               VSCapabilityOptions.weatherAgentBot().id,
+              VSCapabilityOptions.travelAgentBot().id,
             ],
           }),
           notificationBotTriggerNode(Platform.VS),

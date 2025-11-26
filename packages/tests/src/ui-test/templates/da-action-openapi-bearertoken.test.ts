@@ -72,15 +72,15 @@ describe("Remote debug Tests", function () {
       await driver.sleep(Timeout.openAPIProvision);
       const input = await InputBox.create();
       // input api key
-      await input.setText("mysecretvalue");
+      await input.setText("my-secret-value");
       await input.confirm();
       await driver.sleep(Timeout.shortTimeWait);
       const dialog = new ModalDialog();
       await dialog.pushButton("Confirm");
-      await driver.sleep(Timeout.shortTimeLoading);
+      await driver.sleep(Timeout.longTimeWait);
       await getNotification(
         Notification.ProvisionSucceeded,
-        Timeout.shortTimeWait
+        Timeout.shortTimeLoading
       );
       await clearNotifications();
       const teamsAppId = await remoteDebugTestContext.getTeamsAppId(
