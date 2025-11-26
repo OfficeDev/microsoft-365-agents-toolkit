@@ -3,24 +3,21 @@
 
 import {
   AppPackageFolderName,
-  ConditionFunc,
+  ConfigFolderName,
   DefaultPluginManifestFileName,
   Inputs,
   IQTreeNode,
   OptionItem,
   Platform,
-  StringArrayValidation,
-  StringValidation,
-  UserError,
 } from "@microsoft/teamsfx-api";
-import { featureFlagManager, FeatureFlags } from "../../../common/featureFlags";
+import * as fs from "fs-extra";
+import os from "os";
+import path from "path";
 import { getLocalizedString } from "../../../common/localizeUtils";
+import templateConfig from "../../../common/templates-config.json";
+import { ODRProvider, ODRServer } from "../../../component/utils/odrProvider";
+import { getTemplatesFolder } from "../../../folder";
 import {
-  apiOperationQuestion,
-  apiSpecLocationQuestion,
-  apiSpecTypeSelectQuestion,
-  searchOpenAPISpecQueryQuestion,
-  selectOpenApiSpecQuestion,
   SPFxFrameworkQuestion,
   SPFxImportFolderQuestion,
   SPFxPackageSelectQuestion,
@@ -28,6 +25,8 @@ import {
   SPFxWebpartNameQuestion,
 } from "../../create";
 import { QuestionNames } from "../../questionNames";
+import { apiSpecNode } from "../commonNodes";
+import { constructNode } from "../constructNode";
 import {
   ActionStartOptions,
   ApiAuthOptions,
@@ -40,65 +39,26 @@ import {
   TabCapabilityOptions,
   TeamsAgentCapabilityOptions,
 } from "./CapabilityOptions";
-import { ProjectTypeOptions } from "./ProjectTypeOptions";
-import path from "path";
-import * as fs from "fs-extra";
-import { ODRProvider, ODRServer } from "../../../component/utils/odrProvider";
 
-export function teamsProjectNode(platform: Platform): IQTreeNode {
-  return {
-    // project-type = Teams Agents and Apps
-    condition: { equals: ProjectTypeOptions.teamsOptionId },
-    data: {
-      name: QuestionNames.TeamsAppType,
-      title: getLocalizedString("core.createProjectQuestion.projectType.teamsAgentsAndApps.title"),
-      type: "singleSelect",
-      staticOptions: [
-        TeamsAgentCapabilityOptions.basicChatbot(),
-        TeamsAgentCapabilityOptions.customCopilotRag(),
-        TeamsAgentCapabilityOptions.collaboratorAgent(),
-        TeamsAgentCapabilityOptions.others(),
-      ],
-      placeholder: getLocalizedString(
-        "core.createProjectQuestion.projectType.customCopilot.placeholder"
-      ),
-      onDidSelection: setTemplateName,
-    },
-    children: [
-      customCopilotRagNode(),
-      // aiAgentNode(),
-      llmServiceNode({
-        enum: [
-          TeamsAgentCapabilityOptions.basicChatbot().id,
-          TeamsAgentCapabilityOptions.customCopilotRag().id,
-        ],
-      }),
-      azureOpenAINode({ equals: TeamsAgentCapabilityOptions.collaboratorAgent().id }),
-      teamsCapabilityNode(platform),
-    ],
-  };
-}
+export function getTeamsProjectNode(): IQTreeNode {
+  let jsonPath: string;
 
-function teamsCapabilityNode(platform: Platform): IQTreeNode {
-  return {
-    // teams-app-type = Others
-    condition: { equals: TeamsAgentCapabilityOptions.others().id },
-    data: {
-      name: QuestionNames.TeamsCapability,
-      title: getLocalizedString("core.createProjectQuestion.teamsCapability.title"),
-      type: "singleSelect",
-      staticOptions: [
-        TabCapabilityOptions.nonSsoTab(),
-        MeCapabilityOptions.basicMe(),
-        BotCapabilityOptions.basicBot(),
-      ],
-      placeholder: getLocalizedString(
-        "core.createProjectQuestion.projectType.customCopilot.placeholder"
-      ),
-      onDidSelection: setTemplateName,
-    },
-    children: [],
-  };
+  const cachedJsonPath = path.join(
+    os.homedir(),
+    `.${String(ConfigFolderName)}`,
+    "ui",
+    "teamsNode.json"
+  );
+
+  // Check if cached JSON exists, otherwise fallback to bundled templates folder
+  if (!templateConfig.useLocalTemplate && fs.pathExistsSync(cachedJsonPath)) {
+    jsonPath = cachedJsonPath;
+  } else {
+    jsonPath = path.join(getTemplatesFolder(), "ui", "teamsNode.json");
+  }
+
+  const content = fs.readFileSync(jsonPath, "utf-8");
+  return constructNode(content);
 }
 
 export class TeamsProjectTypeOptions {
@@ -185,166 +145,6 @@ export function customCopilotRagNode(): IQTreeNode {
 //     },
 //   };
 // }
-
-export function azureOpenAINode(
-  condition?: StringValidation | StringArrayValidation | ConditionFunc
-): IQTreeNode {
-  return {
-    condition: condition,
-    data: {
-      type: "text",
-      password: true,
-      name: QuestionNames.AzureOpenAIKey,
-      title: getLocalizedString("core.createProjectQuestion.llmService.azureOpenAIKey.title"),
-      placeholder: getLocalizedString(
-        "core.createProjectQuestion.llmService.azureOpenAIKey.placeholder"
-      ),
-    },
-    children: [
-      {
-        condition: (inputs: Inputs) => {
-          return inputs[QuestionNames.AzureOpenAIKey]?.length > 0;
-        },
-        data: {
-          type: "text",
-          name: QuestionNames.AzureOpenAIEndpoint,
-          title: getLocalizedString(
-            "core.createProjectQuestion.llmService.azureOpenAIEndpoint.title"
-          ),
-          placeholder: getLocalizedString(
-            "core.createProjectQuestion.llmService.azureOpenAIEndpoint.placeholder"
-          ),
-        },
-        children: [
-          {
-            condition: (inputs: Inputs) => {
-              return inputs[QuestionNames.AzureOpenAIEndpoint]?.length > 0;
-            },
-            data: {
-              type: "text",
-              name: QuestionNames.AzureOpenAIDeploymentName,
-              title: getLocalizedString(
-                "core.createProjectQuestion.llmService.azureOpenAIDeploymentName.title"
-              ),
-              placeholder: getLocalizedString(
-                "core.createProjectQuestion.llmService.azureOpenAIDeploymentName.placeholder"
-              ),
-            },
-          },
-        ],
-      },
-    ],
-  };
-}
-
-export function llmServiceNode(
-  condition?: StringValidation | StringArrayValidation | ConditionFunc
-): IQTreeNode {
-  return {
-    condition: condition,
-    data: {
-      type: "singleSelect",
-      name: QuestionNames.LLMService,
-      title: getLocalizedString("core.createProjectQuestion.llmService.title"),
-      placeholder: getLocalizedString("core.createProjectQuestion.llmService.placeholder"),
-      staticOptions: [
-        {
-          id: "llm-service-azure-openai",
-          label: getLocalizedString("core.createProjectQuestion.llmServiceAzureOpenAIOption.label"),
-          detail: getLocalizedString(
-            "core.createProjectQuestion.llmServiceAzureOpenAIOption.detail"
-          ),
-        },
-        {
-          id: "llm-service-openai",
-          label: getLocalizedString("core.createProjectQuestion.llmServiceOpenAIOption.label"),
-          detail: getLocalizedString("core.createProjectQuestion.llmServiceOpenAIOption.detail"),
-        },
-      ],
-      skipSingleOption: true,
-      default: "llm-service-azure-openai",
-    },
-    children: [
-      azureOpenAINode({ equals: "llm-service-azure-openai" }),
-      {
-        condition: { equals: "llm-service-openai" },
-        data: {
-          type: "text",
-          password: true,
-          name: QuestionNames.OpenAIKey,
-          title: getLocalizedString("core.createProjectQuestion.llmService.openAIKey.title"),
-          placeholder: getLocalizedString(
-            "core.createProjectQuestion.llmService.openAIKey.placeholder"
-          ),
-        },
-      },
-    ],
-  };
-}
-
-export function apiSpecNode(condition: StringValidation | ConditionFunc): IQTreeNode {
-  return {
-    condition: condition,
-    data: { type: "group", name: QuestionNames.FromExistingApi },
-    children: [
-      {
-        data: apiSpecLocationQuestion(),
-      },
-      {
-        condition: (inputs: Inputs) => {
-          return !inputs[QuestionNames.ActionManifestPath];
-        },
-        data: apiOperationQuestion(),
-      },
-    ],
-  };
-}
-
-export function apiSpecWithSearchNode(): IQTreeNode {
-  return {
-    data: { type: "group", name: QuestionNames.FromExistingApi },
-    condition: { equals: "api-spec" },
-    children: [inputOrSearchAPISpecNode()],
-  };
-}
-
-export function inputOrSearchAPISpecNode(): IQTreeNode {
-  return {
-    data: apiSpecTypeSelectQuestion(),
-    condition: (inputs: Inputs) => {
-      return featureFlagManager.getBooleanValue(FeatureFlags.KiotaNPMIntegration);
-    },
-    children: [
-      {
-        condition: { equals: "enter-url-or-open-local-file" },
-        data: apiSpecLocationQuestion(),
-        children: [
-          {
-            condition: (inputs: Inputs) => {
-              return !inputs[QuestionNames.ActionManifestPath];
-            },
-            data: apiOperationQuestion(true, true),
-          },
-        ],
-      },
-      {
-        condition: { equals: "search-api" },
-        data: searchOpenAPISpecQueryQuestion(),
-        children: [
-          {
-            data: selectOpenApiSpecQuestion(),
-          },
-          {
-            condition: (inputs: Inputs) => {
-              return !!inputs[QuestionNames.SelectOpenApiSpec];
-            },
-            data: apiOperationQuestion(true, true),
-          },
-        ],
-      },
-    ],
-  };
-}
 
 export function notificationBotTriggerNode(platform: Platform = Platform.VSCode): IQTreeNode {
   return {

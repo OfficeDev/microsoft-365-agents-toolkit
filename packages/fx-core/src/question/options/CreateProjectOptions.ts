@@ -8,7 +8,7 @@
  * Please don't manually change its contents, as any modifications will be overwritten! *
  ***************************************************************************************/
 
-import { CLICommandOption, CLICommandArgument } from "@microsoft/teamsfx-api";
+import { CLICommandArgument, CLICommandOption } from "@microsoft/teamsfx-api";
 
 export const CreateProjectOptions: CLICommandOption[] = [
   {
@@ -51,62 +51,6 @@ export const CreateProjectOptions: CLICommandOption[] = [
       "office-content-addin",
     ],
     choiceListCommand: "atk list templates",
-  },
-  {
-    name: "bot-host-type-trigger",
-    type: "string",
-    shortName: "t",
-    description: "Specifies the trigger for `Chat Notification Message` app template.",
-    default: "http-express",
-    choices: [
-      "http-express",
-      "http-webapi",
-      "http-and-timer-functions",
-      "http-functions",
-      "timer-functions",
-    ],
-  },
-  {
-    name: "spfx-solution",
-    type: "string",
-    shortName: "s",
-    description: "Create a new or import an existing SharePoint Framework solution.",
-    default: "new",
-    choices: ["new", "import"],
-  },
-  {
-    name: "spfx-install-latest-package",
-    type: "boolean",
-    description: "Install the latest version of SharePoint Framework.",
-    default: true,
-  },
-  {
-    name: "spfx-framework-type",
-    type: "string",
-    shortName: "k",
-    description: "Framework.",
-    default: "react",
-    choices: ["react", "minimal", "none"],
-  },
-  {
-    name: "spfx-webpart-name",
-    type: "string",
-    shortName: "w",
-    description: "Name for SharePoint Framework Web Part.",
-    default: "helloworld",
-  },
-  {
-    name: "spfx-folder",
-    type: "string",
-    description: "Directory or Path that contains the existing SharePoint Framework solution.",
-  },
-  {
-    name: "me-architecture",
-    type: "string",
-    shortName: "m",
-    description: "Architecture of Search Based Message Extension.",
-    default: "new-api",
-    choices: ["new-api", "api-spec", "bot"],
   },
   {
     name: "with-plugin",

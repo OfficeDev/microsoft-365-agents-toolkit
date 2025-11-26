@@ -19,7 +19,7 @@ const myRecord: Record<string, string> = {};
 myRecord["with-plugin"] = "type-spec";
 
 new DeclarativeAgentWithTypeSpec(
-  Capability.DeclarativeAgent,
+  Capability.DeclarativeAgentWithTypeSpec,
   32237977,
   "bowsong@microsoft.com",
   [],

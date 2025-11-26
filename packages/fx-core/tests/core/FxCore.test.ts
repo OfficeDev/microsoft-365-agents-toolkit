@@ -28,6 +28,7 @@ import {
   err,
   ok,
 } from "@microsoft/teamsfx-api";
+import AdmZip from "adm-zip";
 import axios from "axios";
 import { assert, expect } from "chai";
 import fs from "fs-extra";
@@ -37,6 +38,7 @@ import mockedEnv, { RestoreFn } from "mocked-env";
 import * as os from "os";
 import * as path from "path";
 import sinon from "sinon";
+import packageJson from "../../package.json";
 import {
   FxCore,
   PackageService,
@@ -51,6 +53,7 @@ import { TOOLS, setTools } from "../../src/common/globalVars";
 import * as projectHelper from "../../src/common/projectSettingsHelper";
 import { TeamsfxVersionState, projectTypeChecker } from "../../src/common/projectTypeChecker";
 import { TelemetryEvent } from "../../src/common/telemetry";
+import templateConfigModule from "../../src/common/templates-config.json";
 import * as CommonTools from "../../src/common/tools";
 import { MetadataV3, VersionSource, VersionState } from "../../src/common/versionMetadata";
 import { ActionInjector } from "../../src/component/configManager/actionInjector";
@@ -65,6 +68,7 @@ import {
   UnresolvedPlaceholders,
 } from "../../src/component/configManager/interface";
 import { YamlParser } from "../../src/component/configManager/parser";
+import { LocalMcpPrefix } from "../../src/component/constants";
 import { coordinator } from "../../src/component/coordinator";
 import { UpdateAadAppDriver } from "../../src/component/driver/aad/update";
 import * as buildAadManifest from "../../src/component/driver/aad/utility/buildAadManifest";
@@ -90,6 +94,7 @@ import * as declarativeAgentHelper from "../../src/component/generator/declarati
 import * as oneDriveSharePointHandler from "../../src/component/generator/declarativeAgent/oneDriveSharePointHandler";
 import * as openApiSpecHelper from "../../src/component/generator/openApiSpec/helper";
 import { TemplateNames } from "../../src/component/generator/templates/templateNames";
+import * as generatorUtils from "../../src/component/generator/utils";
 import { LaunchHelper } from "../../src/component/m365/launchHelper";
 import { envUtil } from "../../src/component/utils/envUtil";
 import { metadataUtil } from "../../src/component/utils/metadataUtil";
@@ -124,14 +129,8 @@ import {
   KnowledgeSourceOptions,
 } from "../../src/question/constants";
 import * as createQuestions from "../../src/question/create";
-import {
-  TabCapabilityOptions,
-  TeamsAgentCapabilityOptions,
-} from "../../src/question/scaffold/vsc/CapabilityOptions";
-import { ProjectTypeOptions } from "../../src/question/scaffold/vsc/ProjectTypeOptions";
 import { validationUtils } from "../../src/ui/validationUtils";
 import { MockTools, MockUserInteraction, randomAppName } from "./utils";
-import { LocalMcpPrefix } from "../../src/component/constants";
 
 const tools = new MockTools();
 
@@ -829,9 +828,6 @@ describe("Core basic APIs", () => {
         [QuestionNames.AppName]: appName,
         [QuestionNames.Scratch]: ScratchOptions.yes().id,
         [QuestionNames.ProgrammingLanguage]: "typescript",
-        [QuestionNames.ProjectType]: ProjectTypeOptions.teamsOptionId,
-        [QuestionNames.TeamsAppType]: TeamsAgentCapabilityOptions.others().id,
-        [QuestionNames.TeamsCapability]: TabCapabilityOptions.nonSsoTab().id,
         [QuestionNames.Folder]: os.tmpdir(),
         [QuestionNames.TemplateName]: TemplateNames.Tab,
         stage: Stage.create,
@@ -10251,5 +10247,351 @@ describe("updateActionWithMCP - Local MCP Support", () => {
     const localRuntime = writtenPlugin.runtimes.find((r: any) => r.type === "LocalPlugin");
     assert.equal(localRuntime.spec.local_endpoint, LocalMcpPrefix + localServerIdentifier);
     assert.deepEqual(localRuntime.run_for_functions, ["localTool"]);
+  });
+});
+
+describe("fetchOnlineTemplateMetadata", () => {
+  const sandbox = sinon.createSandbox();
+  let core: FxCore;
+  let mockedEnvRestore: RestoreFn | undefined;
+
+  beforeEach(() => {
+    setTools(tools);
+    core = new FxCore(tools);
+  });
+
+  afterEach(() => {
+    sandbox.restore();
+    if (mockedEnvRestore) {
+      mockedEnvRestore();
+      mockedEnvRestore = undefined;
+    }
+  });
+
+  it("should skip download when using local template", async () => {
+    sandbox.stub(templateConfigModule, "useLocalTemplate").value(true);
+
+    const result = await core.fetchOnlineTemplateMetadata();
+
+    assert.isTrue(result.isOk());
+    if (result.isOk()) {
+      assert.isUndefined(result.value);
+    }
+  });
+
+  it("should download metadata for rc version when coreVersion contains 'rc'", async () => {
+    sandbox.stub(templateConfigModule, "useLocalTemplate").value(false);
+    sandbox.stub(templateConfigModule, "tagPrefix").value("templates@");
+    sandbox
+      .stub(templateConfigModule, "templateDownloadBaseURL")
+      .value("https://example.com/releases/download");
+    sandbox.stub(packageJson, "version").value("1.0.0-rc.1");
+
+    const mockZip = new AdmZip();
+    const fetchZipStub = sandbox.stub(generatorUtils, "fetchZipFromUrl").resolves(mockZip);
+    const unzipStub = sandbox.stub(generatorUtils, "unzip").resolves();
+
+    sandbox.stub(fs, "pathExists").resolves(false);
+    sandbox.stub(fs, "ensureDir").resolves();
+    const writeFileStub = sandbox.stub(fs, "writeFile").resolves();
+
+    const result = await core.fetchOnlineTemplateMetadata();
+
+    assert.isTrue(result.isOk());
+    assert.isTrue(fetchZipStub.calledOnce);
+    assert.isTrue(
+      fetchZipStub.calledWith(
+        "https://example.com/releases/download/templates@0.0.0-rc/metadata.zip"
+      )
+    );
+    assert.isTrue(unzipStub.calledOnce);
+    assert.isTrue(writeFileStub.calledOnce);
+  });
+
+  it("should download metadata for stable version", async () => {
+    sandbox.stub(templateConfigModule, "useLocalTemplate").value(false);
+    sandbox.stub(templateConfigModule, "tagPrefix").value("templates@");
+    sandbox
+      .stub(templateConfigModule, "templateDownloadBaseURL")
+      .value("https://example.com/releases/download");
+    sandbox.stub(packageJson, "version").value("1.0.0");
+
+    const getTemplateLatestVersionStub = sandbox
+      .stub(generatorUtils, "getTemplateLatestVersion")
+      .resolves("2.0.0");
+    const mockZip = new AdmZip();
+    const fetchZipStub = sandbox.stub(generatorUtils, "fetchZipFromUrl").resolves(mockZip);
+    const unzipStub = sandbox.stub(generatorUtils, "unzip").resolves();
+
+    sandbox.stub(fs, "pathExists").resolves(false);
+    sandbox.stub(fs, "ensureDir").resolves();
+    const writeFileStub = sandbox.stub(fs, "writeFile").resolves();
+
+    const result = await core.fetchOnlineTemplateMetadata();
+
+    assert.isTrue(result.isOk());
+    assert.isTrue(getTemplateLatestVersionStub.calledOnce);
+    assert.isTrue(fetchZipStub.calledOnce);
+    assert.isTrue(
+      fetchZipStub.calledWith("https://example.com/releases/download/templates@2.0.0/metadata.zip")
+    );
+    assert.isTrue(unzipStub.calledOnce);
+    assert.isTrue(writeFileStub.calledWith(sinon.match.string, "2.0.0", { encoding: "utf-8" }));
+  });
+
+  it("should skip download when cached version matches latest version", async () => {
+    sandbox.stub(templateConfigModule, "useLocalTemplate").value(false);
+    sandbox.stub(packageJson, "version").value("1.0.0");
+
+    sandbox.stub(generatorUtils, "getTemplateLatestVersion").resolves("2.0.0");
+    const fetchZipStub = sandbox.stub(generatorUtils, "fetchZipFromUrl");
+    const unzipStub = sandbox.stub(generatorUtils, "unzip");
+
+    sandbox.stub(fs, "pathExists").resolves(true);
+    sandbox.stub(fs, "ensureDir").resolves();
+    sandbox.stub(fs, "readFile").resolves("2.0.0" as any);
+    sandbox.stub(fs, "writeFile").resolves();
+
+    const result = await core.fetchOnlineTemplateMetadata();
+
+    assert.isTrue(result.isOk());
+    assert.equal(fetchZipStub.called, false);
+    assert.equal(unzipStub.called, false);
+  });
+
+  it("should download when cached version file does not exist", async () => {
+    sandbox.stub(templateConfigModule, "useLocalTemplate").value(false);
+    sandbox.stub(templateConfigModule, "tagPrefix").value("templates@");
+    sandbox
+      .stub(templateConfigModule, "templateDownloadBaseURL")
+      .value("https://example.com/releases/download");
+    sandbox.stub(packageJson, "version").value("1.0.0");
+
+    sandbox.stub(generatorUtils, "getTemplateLatestVersion").resolves("2.0.0");
+    const mockZip = new AdmZip();
+    const fetchZipStub = sandbox.stub(generatorUtils, "fetchZipFromUrl").resolves(mockZip);
+    const unzipStub = sandbox.stub(generatorUtils, "unzip").resolves();
+
+    sandbox.stub(fs, "pathExists").resolves(false);
+    sandbox.stub(fs, "ensureDir").resolves();
+    sandbox.stub(fs, "writeFile").resolves();
+
+    const result = await core.fetchOnlineTemplateMetadata();
+
+    assert.isTrue(result.isOk());
+    assert.isTrue(fetchZipStub.calledOnce);
+    assert.isTrue(unzipStub.calledOnce);
+  });
+
+  it("should download when cached version differs from latest version", async () => {
+    sandbox.stub(templateConfigModule, "useLocalTemplate").value(false);
+    sandbox.stub(templateConfigModule, "tagPrefix").value("templates@");
+    sandbox
+      .stub(templateConfigModule, "templateDownloadBaseURL")
+      .value("https://example.com/releases/download");
+    sandbox.stub(packageJson, "version").value("1.0.0");
+
+    sandbox.stub(generatorUtils, "getTemplateLatestVersion").resolves("2.0.0");
+    const mockZip = new AdmZip();
+    const fetchZipStub = sandbox.stub(generatorUtils, "fetchZipFromUrl").resolves(mockZip);
+    const unzipStub = sandbox.stub(generatorUtils, "unzip").resolves();
+
+    sandbox.stub(fs, "pathExists").resolves(true);
+    sandbox.stub(fs, "ensureDir").resolves();
+    sandbox.stub(fs, "readFile").resolves("1.0.0" as any); // Old cached version
+    sandbox.stub(fs, "writeFile").resolves();
+
+    const result = await core.fetchOnlineTemplateMetadata();
+
+    assert.isTrue(result.isOk());
+    assert.isTrue(fetchZipStub.calledOnce);
+    assert.isTrue(unzipStub.calledOnce);
+  });
+
+  it("should re-download when cached version file is corrupted", async () => {
+    sandbox.stub(templateConfigModule, "useLocalTemplate").value(false);
+    sandbox.stub(templateConfigModule, "tagPrefix").value("templates@");
+    sandbox
+      .stub(templateConfigModule, "templateDownloadBaseURL")
+      .value("https://example.com/releases/download");
+    sandbox.stub(packageJson, "version").value("1.0.0");
+
+    sandbox.stub(generatorUtils, "getTemplateLatestVersion").resolves("2.0.0");
+    const mockZip = new AdmZip();
+    const fetchZipStub = sandbox.stub(generatorUtils, "fetchZipFromUrl").resolves(mockZip);
+    const unzipStub = sandbox.stub(generatorUtils, "unzip").resolves();
+
+    sandbox.stub(fs, "pathExists").resolves(true);
+    sandbox.stub(fs, "ensureDir").resolves();
+    sandbox.stub(fs, "readFile").rejects(new Error("File read error"));
+    sandbox.stub(fs, "writeFile").resolves();
+
+    const result = await core.fetchOnlineTemplateMetadata();
+
+    assert.isTrue(result.isOk());
+    assert.isTrue(fetchZipStub.calledOnce);
+    assert.isTrue(unzipStub.calledOnce);
+  });
+
+  it("should handle alpha version correctly", async () => {
+    sandbox.stub(templateConfigModule, "useLocalTemplate").value(false);
+    sandbox.stub(templateConfigModule, "tagPrefix").value("templates@");
+    sandbox
+      .stub(templateConfigModule, "templateDownloadBaseURL")
+      .value("https://example.com/releases/download");
+    sandbox.stub(packageJson, "version").value("1.0.0-alpha.1");
+
+    const mockZip = new AdmZip();
+    const fetchZipStub = sandbox.stub(generatorUtils, "fetchZipFromUrl").resolves(mockZip);
+    const unzipStub = sandbox.stub(generatorUtils, "unzip").resolves();
+
+    sandbox.stub(fs, "pathExists").resolves(false);
+    sandbox.stub(fs, "ensureDir").resolves();
+    sandbox.stub(fs, "writeFile").resolves();
+
+    const result = await core.fetchOnlineTemplateMetadata();
+
+    assert.isTrue(result.isOk());
+    assert.isTrue(
+      fetchZipStub.calledWith(
+        "https://example.com/releases/download/templates@0.0.0-rc/metadata.zip"
+      )
+    );
+  });
+
+  it("should handle beta version correctly", async () => {
+    sandbox.stub(templateConfigModule, "useLocalTemplate").value(false);
+    sandbox.stub(templateConfigModule, "tagPrefix").value("templates@");
+    sandbox
+      .stub(templateConfigModule, "templateDownloadBaseURL")
+      .value("https://example.com/releases/download");
+    sandbox.stub(packageJson, "version").value("1.0.0-beta.1");
+
+    const mockZip = new AdmZip();
+    const fetchZipStub = sandbox.stub(generatorUtils, "fetchZipFromUrl").resolves(mockZip);
+    const unzipStub = sandbox.stub(generatorUtils, "unzip").resolves();
+
+    sandbox.stub(fs, "pathExists").resolves(false);
+    sandbox.stub(fs, "ensureDir").resolves();
+    sandbox.stub(fs, "writeFile").resolves();
+
+    const result = await core.fetchOnlineTemplateMetadata();
+
+    assert.isTrue(result.isOk());
+    assert.isTrue(
+      fetchZipStub.calledWith(
+        "https://example.com/releases/download/templates@0.0.0-rc/metadata.zip"
+      )
+    );
+  });
+
+  it("should return error when fetchZipFromUrl fails", async () => {
+    sandbox.stub(templateConfigModule, "useLocalTemplate").value(false);
+    sandbox.stub(templateConfigModule, "tagPrefix").value("templates@");
+    sandbox
+      .stub(templateConfigModule, "templateDownloadBaseURL")
+      .value("https://example.com/releases/download");
+    sandbox.stub(packageJson, "version").value("1.0.0");
+
+    sandbox.stub(generatorUtils, "getTemplateLatestVersion").resolves("2.0.0");
+    sandbox
+      .stub(generatorUtils, "fetchZipFromUrl")
+      .rejects(new Error("Network error: Failed to fetch"));
+
+    sandbox.stub(fs, "pathExists").resolves(false);
+    sandbox.stub(fs, "ensureDir").resolves();
+
+    const result = await core.fetchOnlineTemplateMetadata();
+
+    assert.isTrue(result.isErr());
+    if (result.isErr()) {
+      assert.equal(result.error.source, "FetchOnlineTemplateMetadata");
+      assert.equal(result.error.name, "DownloadFailed");
+      assert.include(result.error.message, "Network error: Failed to fetch");
+    }
+  });
+
+  it("should return error when unzip fails", async () => {
+    sandbox.stub(templateConfigModule, "useLocalTemplate").value(false);
+    sandbox.stub(templateConfigModule, "tagPrefix").value("templates@");
+    sandbox
+      .stub(templateConfigModule, "templateDownloadBaseURL")
+      .value("https://example.com/releases/download");
+    sandbox.stub(packageJson, "version").value("1.0.0");
+
+    sandbox.stub(generatorUtils, "getTemplateLatestVersion").resolves("2.0.0");
+    const mockZip = new AdmZip();
+    sandbox.stub(generatorUtils, "fetchZipFromUrl").resolves(mockZip);
+    sandbox.stub(generatorUtils, "unzip").rejects(new Error("Unzip failed: Invalid archive"));
+
+    sandbox.stub(fs, "pathExists").resolves(false);
+    sandbox.stub(fs, "ensureDir").resolves();
+
+    const result = await core.fetchOnlineTemplateMetadata();
+
+    assert.isTrue(result.isErr());
+    if (result.isErr()) {
+      assert.equal(result.error.source, "FetchOnlineTemplateMetadata");
+      assert.equal(result.error.name, "DownloadFailed");
+      assert.include(result.error.message, "Unzip failed: Invalid archive");
+    }
+  });
+
+  it("should return error when fs.writeFile fails", async () => {
+    sandbox.stub(templateConfigModule, "useLocalTemplate").value(false);
+    sandbox.stub(templateConfigModule, "tagPrefix").value("templates@");
+    sandbox
+      .stub(templateConfigModule, "templateDownloadBaseURL")
+      .value("https://example.com/releases/download");
+    sandbox.stub(packageJson, "version").value("1.0.0");
+
+    sandbox.stub(generatorUtils, "getTemplateLatestVersion").resolves("2.0.0");
+    const mockZip = new AdmZip();
+    sandbox.stub(generatorUtils, "fetchZipFromUrl").resolves(mockZip);
+    sandbox.stub(generatorUtils, "unzip").resolves();
+
+    sandbox.stub(fs, "pathExists").resolves(false);
+    sandbox.stub(fs, "ensureDir").resolves();
+    sandbox.stub(fs, "writeFile").rejects(new Error("Permission denied"));
+
+    const result = await core.fetchOnlineTemplateMetadata();
+
+    assert.isTrue(result.isErr());
+    if (result.isErr()) {
+      assert.equal(result.error.source, "FetchOnlineTemplateMetadata");
+      assert.equal(result.error.name, "DownloadFailed");
+      assert.include(result.error.message, "Permission denied");
+    }
+  });
+
+  it("should use correct metadata directory path", async () => {
+    sandbox.stub(templateConfigModule, "useLocalTemplate").value(false);
+    sandbox.stub(templateConfigModule, "tagPrefix").value("templates@");
+    sandbox
+      .stub(templateConfigModule, "templateDownloadBaseURL")
+      .value("https://example.com/releases/download");
+    sandbox.stub(packageJson, "version").value("1.0.0");
+
+    sandbox.stub(generatorUtils, "getTemplateLatestVersion").resolves("2.0.0");
+    const mockZip = new AdmZip();
+    sandbox.stub(generatorUtils, "fetchZipFromUrl").resolves(mockZip);
+    const unzipStub = sandbox.stub(generatorUtils, "unzip").resolves();
+
+    sandbox.stub(fs, "pathExists").resolves(false);
+    const ensureDirStub = sandbox.stub(fs, "ensureDir").resolves();
+    const writeFileStub = sandbox.stub(fs, "writeFile").resolves();
+
+    const expectedMetadataDir = path.join(os.homedir(), ".fx");
+
+    const result = await core.fetchOnlineTemplateMetadata();
+
+    assert.isTrue(result.isOk());
+    assert.isTrue(ensureDirStub.calledWith(expectedMetadataDir));
+    assert.isTrue(unzipStub.calledWith(mockZip, expectedMetadataDir));
+    assert.isTrue(
+      writeFileStub.calledWith(path.join(expectedMetadataDir, "template-version.txt"), "2.0.0", {
+        encoding: "utf-8",
+      })
+    );
   });
 });

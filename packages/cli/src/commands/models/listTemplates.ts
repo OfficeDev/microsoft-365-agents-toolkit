@@ -1,17 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
-import { CLICommand, ok, OptionItem } from "@microsoft/teamsfx-api";
+import { CLICommand, ok, Platform } from "@microsoft/teamsfx-api";
 import {
-  BotCapabilityOptions,
-  CustomEngineAgentOptions,
-  DACapabilityOptions,
   featureFlagManager,
   FeatureFlags,
-  MeCapabilityOptions,
-  OfficeAddinCapabilityOptions,
-  TabCapabilityOptions,
-  TeamsAgentCapabilityOptions,
-  VSCapabilityOptions,
+  getAllTemplatesOnPlatform,
 } from "@microsoft/teamsfx-core";
 import chalk from "chalk";
 import Table from "cli-table3";
@@ -20,53 +13,35 @@ import { commands } from "../../resource";
 import { TelemetryEvent } from "../../telemetry/cliTelemetryEvents";
 import { ListFormatOption } from "../common";
 
-export function listAllCapabilities(): OptionItem[] {
+interface TemplateGroup {
+  name: string;
+  displayName: string;
+  description: string;
+  language: string;
+}
+
+export function listAllTemplates(): TemplateGroup[] {
+  let templates = getAllTemplatesOnPlatform(Platform.VSCode);
   if (featureFlagManager.getBooleanValue(FeatureFlags.CLIDotNet)) {
-    // return all capabilities for .NET
-    return [
-      VSCapabilityOptions.empty(),
-      VSCapabilityOptions.declarativeAgent(),
-      TeamsAgentCapabilityOptions.basicChatbot(),
-      TeamsAgentCapabilityOptions.collaboratorAgent(),
-      TeamsAgentCapabilityOptions.customCopilotRag(),
-      // TeamsAgentCapabilityOptions.aiAgent(),
-      VSCapabilityOptions.weatherAgentBot(),
-      BotCapabilityOptions.basicBot(),
-      BotCapabilityOptions.notificationBot(),
-      BotCapabilityOptions.commandBot(),
-      BotCapabilityOptions.workflowBot(),
-      VSCapabilityOptions.nonSsoTab(),
-      VSCapabilityOptions.tab(),
-      MeCapabilityOptions.m365SearchMe(),
-      MeCapabilityOptions.collectFormMe(),
-      VSCapabilityOptions.SearchMeVS(),
-      MeCapabilityOptions.linkUnfurling(),
-    ];
+    templates = getAllTemplatesOnPlatform(Platform.VS);
   }
-  return [
-    DACapabilityOptions.declarativeAgent(),
-    CustomEngineAgentOptions.basicCustomEngineAgent(),
-    CustomEngineAgentOptions.weatherAgent(),
-    TeamsAgentCapabilityOptions.basicChatbot(),
-    TeamsAgentCapabilityOptions.customCopilotRag(),
-    TeamsAgentCapabilityOptions.collaboratorAgent(),
-    // TeamsAgentCapabilityOptions.aiAgent(),
-    BotCapabilityOptions.basicBot(),
-    // BotCapabilityOptions.notificationBot(),
-    // BotCapabilityOptions.commandBot(),
-    // BotCapabilityOptions.workflowBot(),
-    TabCapabilityOptions.nonSsoTab(),
-    // TabCapabilityOptions.m365SsoLaunchPage(),
-    // TabCapabilityOptions.dashboardTab(),
-    // TabCapabilityOptions.SPFxTab(),
-    MeCapabilityOptions.basicMe(),
-    // MeCapabilityOptions.m365SearchMe(),
-    // MeCapabilityOptions.collectFormMe(),
-    // MeCapabilityOptions.linkUnfurling(),
-    OfficeAddinCapabilityOptions.wxpTaskPane(),
-    OfficeAddinCapabilityOptions.excelCFShortcut(),
-    OfficeAddinCapabilityOptions.outlookTaskPane(),
-  ];
+
+  // Group by template name, ignoring programming language
+  const groupedTemplates = new Map<string, TemplateGroup>();
+
+  templates.forEach((template) => {
+    if (!groupedTemplates.has(template.name)) {
+      const templateWithDisplay = template as typeof template & { displayName?: string };
+      groupedTemplates.set(template.name, {
+        name: template.name,
+        displayName: templateWithDisplay.displayName || template.name,
+        description: template.description,
+        language: template.language,
+      });
+    }
+  });
+
+  return Array.from(groupedTemplates.values());
 }
 
 export const listTemplatesCommand: CLICommand = {
@@ -76,11 +51,12 @@ export const listTemplatesCommand: CLICommand = {
   defaultInteractiveOption: false,
   handler: (ctx) => {
     const format = ctx.optionValues.format;
+    const templates = listAllTemplates();
     let result;
     if (format === "table") {
-      result = jsonToTable(listAllCapabilities());
+      result = jsonToTable(templates);
     } else {
-      result = JSON.stringify(listAllCapabilities(), null, 2);
+      result = JSON.stringify(templates, null, 2);
     }
     logger.info(result);
     return ok(undefined);
@@ -90,45 +66,47 @@ export const listTemplatesCommand: CLICommand = {
   },
 };
 
-function jsonToTable(capabilities: OptionItem[]): string {
-  let maxUrlLength = 0;
+function jsonToTable(templates: TemplateGroup[]): string {
   let maxIdLength = 0;
-  let maxLabelLength = 0;
-  capabilities.forEach((item) => {
-    if (item.data && (item.data as string).length > maxUrlLength) {
-      maxUrlLength = (item.data as string).length;
+  let maxNameLength = 0;
+  let maxDescriptionLength = 0;
+  templates.forEach((template) => {
+    if (template.name.length > maxIdLength) {
+      maxIdLength = template.name.length;
     }
-    if (("id: " + item.id).length > maxIdLength) {
-      maxIdLength = ("id: " + item.id).length;
+    if (template.displayName.length > maxNameLength) {
+      maxNameLength = template.displayName.length;
     }
-    if (item.label.length > maxLabelLength) {
-      maxLabelLength = item.label.length;
+    if (template.description.length > maxDescriptionLength) {
+      maxDescriptionLength = template.description.length;
     }
   });
-  maxUrlLength += 2;
   maxIdLength += 2;
-  maxLabelLength += 2;
-
-  const col1Length = Math.max(maxIdLength, maxLabelLength);
-
-  maxUrlLength = Math.max(80, maxUrlLength);
+  maxNameLength += 2;
+  maxDescriptionLength += 2;
 
   const terminalWidth = process.stdout.isTTY ? process.stdout.columns : 80;
+  const idColWidth = Math.max(15, maxIdLength);
+  const nameColWidth = Math.max(20, maxNameLength);
+  const descColWidth = Math.min(
+    maxDescriptionLength,
+    terminalWidth - idColWidth - nameColWidth - 4
+  );
 
   const table = new Table({
-    head: [chalk.cyanBright("Template"), chalk.cyanBright("Description")],
-    colAligns: ["left", "left"],
-    colWidths: [col1Length, Math.min(maxUrlLength, terminalWidth - col1Length - 3)],
+    head: [
+      chalk.cyanBright("Capability(Id)"),
+      chalk.cyanBright("Name"),
+      chalk.cyanBright("Description"),
+    ],
+    colAligns: ["left", "left", "left"],
+    colWidths: [idColWidth, nameColWidth, descColWidth],
     wordWrap: true,
   });
-  capabilities.forEach((item) => {
-    const row = [item.label + chalk.gray("\nid: " + item.id)];
-    row.push(
-      chalk.gray([item.description, item.detail].filter((i) => !!i).join(". ")) +
-        "\n" +
-        (item.data ? chalk.underline.blue(item.data) : "")
-    );
-    table.push(row);
+
+  templates.forEach((template) => {
+    table.push([template.name, template.displayName, template.description]);
   });
+
   return table.toString();
 }

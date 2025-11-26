@@ -6,6 +6,7 @@ import { getLocalizedString } from "../../../common/localizeUtils";
 import { TemplateNames } from "../../../component/generator/templates/templateNames";
 import { appNameQuestion, folderQuestion } from "../../create";
 import { QuestionNames } from "../../questionNames";
+import { llmServiceNode } from "../commonNodes";
 import {
   BotCapabilityOptions,
   MeCapabilityOptions,
@@ -16,7 +17,6 @@ import { folderAndAppNameCondition, languageNode } from "../vsc/createRootNode";
 import { daProjectTypeNode } from "../vsc/daProjectTypeNode";
 import {
   customCopilotRagNode,
-  llmServiceNode,
   m365SearchMeSubNode,
   notificationBotTriggerNode,
 } from "../vsc/teamsProjectTypeNode";

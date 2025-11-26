@@ -14,6 +14,7 @@ import {
   ApiOperation,
   AppPackageFolderName,
   BuildFolderName,
+  ConfigFolderName,
   Context,
   CoreCallbackEvent,
   CreateProjectInputs,
@@ -75,6 +76,7 @@ import {
   projectTypeChecker,
 } from "../common/projectTypeChecker";
 import { TelemetryEvent, TelemetryProperty, telemetryUtils } from "../common/telemetry";
+import templateConfig from "../common/templates-config.json";
 import { runForTypeSpecProject } from "../common/tools";
 import { generateDriverContext } from "../common/utils";
 import { MetadataV3, MetadataV4, VersionSource, VersionState } from "../common/versionMetadata";
@@ -145,6 +147,7 @@ import {
   listOperations,
 } from "../component/generator/openApiSpec/helper";
 import { TemplateNames } from "../component/generator/templates/templateNames";
+import { fetchZipFromUrl, getTemplateLatestVersion, unzip } from "../component/generator/utils";
 import { LaunchHelper } from "../component/m365/launchHelper";
 import { PackageService } from "../component/m365/packageService";
 import { MosServiceEndpoint, MosServiceScope } from "../component/m365/serviceConstant";
@@ -222,7 +225,6 @@ export class FxCore {
 
   /**
    * @todo this's a really primitive implement. Maybe could use Subscription Model to
-// Copyright (c) Microsoft Corporation.
    * refactor later.
    */
   public on(event: CoreCallbackEvent, callback: CoreCallbackFunc): void {
@@ -3171,6 +3173,75 @@ export class FxCore {
     await fs.writeJSON(aiPluginFilePath, aiPluginContent, { spaces: 4 });
     void context.userInteraction.openFile?.(aiPluginFilePath);
     return ok(undefined);
+  }
+
+  /**
+   * dynamic template metadata download
+   */
+  @hooks([
+    ErrorContextMW({ component: "FxCore", stage: "fetchOnlineTemplateMetadata" }),
+    ErrorHandlerMW,
+  ])
+  async fetchOnlineTemplateMetadata(): Promise<Result<undefined, FxError>> {
+    if (templateConfig.useLocalTemplate) {
+      return ok(undefined); // Skip if using local templates
+    }
+    // Downloads the latest online template metadata (metadata.zip) into user's home .fx folder.
+    // Caches the template version so subsequent calls avoid redundant downloads if unchanged.
+    try {
+      // Determine latest template version (respect prerelease env variable similar to getTemplateVSCUrl)
+      const coreVersion = require("../../package.json").version as string;
+
+      let latestVersion = "0.0.0-rc";
+      if (
+        coreVersion.includes("alpha") ||
+        coreVersion.includes("beta") ||
+        coreVersion.includes("rc")
+      ) {
+        // daily build, prerelease or rc
+        latestVersion = "0.0.0-rc";
+      } else {
+        // stable version
+        latestVersion = await getTemplateLatestVersion();
+      }
+
+      const homedir = os.homedir();
+      const metadataDir = path.join(homedir, `.${String(ConfigFolderName)}`);
+      await fs.ensureDir(metadataDir);
+
+      const versionFile = path.join(metadataDir, "template-version.txt");
+      const needDownload = async (): Promise<boolean> => {
+        if (!(await fs.pathExists(versionFile))) return true;
+        try {
+          const cachedVersion = (await fs.readFile(versionFile, "utf-8")).trim();
+          return cachedVersion !== latestVersion;
+        } catch {
+          return true; // re-download if any issue reading cached version
+        }
+      };
+
+      if (!(await needDownload())) {
+        return ok(undefined); // Already up-to-date
+      }
+
+      // Construct metadata.zip download URL based on tag prefix and version
+      const tag = `${templateConfig.tagPrefix}${latestVersion}`;
+      const metadataZipUrl = `${templateConfig.templateDownloadBaseURL}/${tag}/metadata.zip`;
+
+      const zip = await fetchZipFromUrl(metadataZipUrl);
+      await unzip(zip, metadataDir);
+      await fs.writeFile(versionFile, latestVersion, { encoding: "utf-8" });
+      return ok(undefined);
+    } catch (error: any) {
+      const message = error?.message || "Unknown error while fetching template metadata";
+      const systemErr = new SystemError(
+        "FetchOnlineTemplateMetadata",
+        "DownloadFailed",
+        message,
+        message
+      );
+      return err(systemErr);
+    }
   }
 
   private async updateAuthActionInYaml(

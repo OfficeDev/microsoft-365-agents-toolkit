@@ -525,6 +525,22 @@ describe("Generator error", async () => {
   const sandbox = createSandbox();
   const tmpDir = path.join(__dirname, "tmp");
 
+  beforeEach(() => {
+    sandbox.stub(fs, "readFileSync").returns(`[{
+          "id": "default-bot-ts",
+          "name": "default-bot",
+          "language": "typescript",
+          "description": ""},
+          {"id": "declarative-agent-basic",
+          "name": "copilot-gpt-basic",
+          "language": "common",
+          "description": ""},
+          {"id": "message-extension-with-existing-api",
+          "name": "copilot-plugin-existing-api",
+          "language": "common",
+          "description": ""}]`);
+  });
+
   afterEach(async () => {
     if (await fs.pathExists(tmpDir)) {
       await fs.remove(tmpDir);
@@ -536,7 +552,7 @@ describe("Generator error", async () => {
     it("template fallback error", async () => {
       sandbox.stub(process, "env").value({ TEAMSFX_NEW_GENERATOR: `${newGeneratorFlag}` });
       sandbox.stub(ScaffoldRemoteTemplateAction, "run").resolves();
-      sandbox.stub(folderUtils, "getTemplatesFolder").resolves("foobar");
+      sandbox.stub(folderUtils, "getTemplatesFolder").returns("foobar");
       const result = newGeneratorFlag
         ? await new DefaultTemplateGenerator().run(ctx, inputs, tmpDir)
         : await Generator.generateTemplate(ctx, tmpDir, "bot", "ts");
@@ -819,6 +835,19 @@ describe("render template", () => {
         [QuestionNames.TemplateName]: TemplateNames.DefaultBot,
       } as Inputs;
       sandbox.stub(process, "env").value({ TEAMSFX_NEW_GENERATOR: "true" });
+      sandbox.stub(fs, "readFileSync").returns(`[{
+          "id": "default-bot-ts",
+          "name": "default-bot",
+          "language": "typescript",
+          "description": ""},
+          {"id": "declarative-agent-basic",
+          "name": "copilot-gpt-basic",
+          "language": "common",
+          "description": ""},
+          {"id": "message-extension-with-existing-api",
+          "name": "copilot-plugin-existing-api",
+          "language": "common",
+          "description": ""}]`);
     });
 
     afterEach(async () => {

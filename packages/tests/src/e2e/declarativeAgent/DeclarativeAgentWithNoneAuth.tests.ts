@@ -5,8 +5,8 @@
  * @author Yimin Jin <yiminjin@microsoft.com>
  */
 
-import { Capability } from "../../utils/constants";
 import { ProgrammingLanguage } from "@microsoft/teamsfx-core";
+import { Capability } from "../../utils/constants";
 import { CaseFactory } from "../caseFactory";
 
 class DeclarativeAgentWithNoneAuth extends CaseFactory {}
@@ -17,7 +17,7 @@ myRecord["api-plugin-type"] = "new-api";
 myRecord["api-auth"] = "none";
 
 new DeclarativeAgentWithNoneAuth(
-  Capability.DeclarativeAgent,
+  Capability.DeclarativeAgentWithActionFromScratch,
   30310138,
   "yiminjin@microsoft.com",
   ["function"],
@@ -27,7 +27,7 @@ new DeclarativeAgentWithNoneAuth(
 ).test();
 
 new DeclarativeAgentWithNoneAuth(
-  Capability.DeclarativeAgent,
+  Capability.DeclarativeAgentWithActionFromScratch,
   30309984,
   "yiminjin@microsoft.com",
   ["function"],

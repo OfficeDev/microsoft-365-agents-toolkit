@@ -14,7 +14,7 @@ describe("Remote happy path for echo bot dotnet", () => {
     "Remote happy path for echo bot dotnet",
     { testPlanCaseId: 24916323, author: "yukundong@microsoft.com" },
     async function () {
-      await happyPathTest(Runtime.Dotnet, "bot");
+      await happyPathTest(Runtime.Dotnet, "default-bot");
     }
   );
 });

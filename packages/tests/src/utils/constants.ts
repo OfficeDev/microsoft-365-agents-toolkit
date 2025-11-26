@@ -166,16 +166,16 @@ export enum ResourceToDeploy {
 }
 
 export enum Capability {
-  Bot = "bot",
+  Bot = "default-bot",
   Notification = "notification",
   CommandBot = "command-bot",
   WorkflowBot = "workflow-bot",
-  TabNonSso = "tab-non-sso",
+  TabNonSso = "non-sso-tab",
   M365SsoLaunchPage = "sso-launch-page",
   DashboardTab = "dashboard-tab",
   Spfx = "tab-spfx",
   M365SearchApp = "search-app",
-  MessageExtension = "basic-message-extension",
+  MessageExtension = "default-message-extension",
   LinkUnfurling = "link-unfurling",
   // v2 only
   Tab = "tab",
@@ -185,7 +185,11 @@ export enum Capability {
   Agent = "custom-copilot-agent",
   TaskPane = "taskpane",
   ApiPlugin = "api-plugin",
-  DeclarativeAgent = "declarative-agent",
+  DeclarativeAgent = "copilot-gpt-basic",
+  DeclarativeAgentWithActionFromScratchBearer = "api-plugin-from-scratch-bearer",
+  DeclarativeAgentWithActionFromScratchOAuth = "api-plugin-from-scratch-oauth",
+  DeclarativeAgentWithActionFromScratch = "api-plugin-from-scratch",
+  DeclarativeAgentWithTypeSpec = "declarative-agent-typespec",
   TeamsCollaboratorAgent = "teams-collaborator-agent",
 }
 

@@ -17,7 +17,6 @@ import {
   TelemetryReporter,
   UserError,
   UserInteraction,
-  Void,
   err,
   ok,
 } from "@microsoft/teamsfx-api";
@@ -29,6 +28,7 @@ import {
   UserCancelError,
   assembleError,
 } from "../error";
+import { QuestionNames } from "../question/questionNames";
 import { getValidationFunction, validate, validationUtils } from "./validationUtils";
 
 async function isAutoSkipSelect(q: Question, inputs: Inputs): Promise<boolean> {
@@ -410,6 +410,10 @@ export async function traverse(
   telemetryReporter?: TelemetryReporter,
   visitor: QuestionTreeVisitor = questionVisitor
 ): Promise<Result<undefined, FxError>> {
+  // short circuit for template scaffolding if template name is provided which is used in CLI non-interactive mode
+  if (inputs[QuestionNames.TemplateName]) {
+    return ok(undefined);
+  }
   // The reason to clone is that we don't want to change the original inputs if user cancel the process
   let currentInput = cloneDeep(inputs);
   const parentMap = new Map<IQTreeNode, IQTreeNode>();
