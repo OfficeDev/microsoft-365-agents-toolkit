@@ -3460,6 +3460,9 @@
       <Item ItemId=";core.createProjectQuestion.capability.customCopilotTravelOption.label" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Travel Agent]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[旅行エージェント]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
