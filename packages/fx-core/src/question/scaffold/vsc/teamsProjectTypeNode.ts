@@ -15,6 +15,7 @@ import os from "os";
 import path from "path";
 import { getLocalizedString } from "../../../common/localizeUtils";
 import templateConfig from "../../../common/templates-config.json";
+import { ODRProvider, ODRServer } from "../../../component/utils/odrProvider";
 import { getTemplatesFolder } from "../../../folder";
 import {
   SPFxFrameworkQuestion,
@@ -297,6 +298,91 @@ export function m365SearchMeSubNode(): IQTreeNode {
       },
       apiSpecNode({ equals: MeArchitectureOptions.openApiSpec().id }),
     ],
+  };
+}
+
+export function MCPServerTypeNode(): IQTreeNode {
+  return {
+    condition: { equals: ActionStartOptions.mcp().id },
+    data: {
+      name: QuestionNames.MCPServerType,
+      title: getLocalizedString("core.createProjectQuestion.mcpServerType.title"),
+      type: "singleSelect",
+      staticOptions: [],
+      dynamicOptions: async (inputs: Inputs) => {
+        const servers = await ODRProvider.listServers();
+        inputs["_McpOdrOutput"] = servers;
+
+        const options = [
+          {
+            id: "remote",
+            label: getLocalizedString("core.createProjectQuestion.mcpServerType.remote.label"),
+            detail: getLocalizedString("core.createProjectQuestion.mcpServerType.remote.detail"),
+          },
+        ];
+
+        if (servers.length > 0) {
+          options.push({
+            id: "local",
+            label: getLocalizedString("core.createProjectQuestion.mcpServerType.local.label"),
+            detail: getLocalizedString("core.createProjectQuestion.mcpServerType.local.detail"),
+          });
+        }
+
+        return options;
+      },
+      default: "remote",
+      placeholder: getLocalizedString("core.createProjectQuestion.mcpServerType.placeholder"),
+      skipSingleOption: true,
+    },
+    children: [
+      {
+        condition: { equals: "remote" },
+        data: MCPForDAServerUrlNode().data,
+      },
+      MCPLocalServerSelectionNode(),
+    ],
+  };
+}
+
+export function MCPLocalServerSelectionNode(): IQTreeNode {
+  return {
+    condition: { equals: "local" },
+    data: {
+      name: QuestionNames.MCPLocalServer,
+      title: getLocalizedString("core.createProjectQuestion.mcpLocalServer.title"),
+      type: "singleSelect",
+      staticOptions: [],
+      placeholder: getLocalizedString("core.createProjectQuestion.mcpLocalServer.placeholder"),
+      dynamicOptions: (inputs: Inputs) => {
+        const servers = inputs["_McpOdrOutput"] as ODRServer[];
+
+        return servers.map((server) => ({
+          id: server.name,
+          label: server.display_name,
+          detail: `${server.description} (${server.tools.length} tools available)`,
+          data: JSON.stringify({
+            identifier: server.identifier,
+            command: server.command,
+            args: server.args,
+          }),
+        }));
+      },
+      onDidSelection: (item: string | OptionItem, inputs: Inputs) => {
+        try {
+          const serverInfo = item as OptionItem;
+          const serverData = JSON.parse(serverInfo.data as string);
+          inputs[QuestionNames.MCPLocalServerName] = serverInfo.id;
+          inputs[QuestionNames.MCPLocalServerIdentifier] = serverData.identifier;
+          inputs[QuestionNames.MCPLocalServerCommand] = serverData.command;
+          // Store args in the format needed by the template: "arg1", "arg2", "arg3"
+          inputs[QuestionNames.MCPLocalServerArgs] = serverData.args
+            .map((arg: string) => `"${arg}"`)
+            .join(", ");
+        } catch {}
+      },
+    },
+    children: [],
   };
 }
 

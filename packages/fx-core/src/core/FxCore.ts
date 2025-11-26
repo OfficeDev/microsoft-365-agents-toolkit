@@ -216,6 +216,7 @@ import {
 import { addSharedUsers, removeShareAccess, shareWithTenant } from "./share";
 import { CoreTelemetryEvent, CoreTelemetryProperty } from "./telemetry";
 import { CoreHookContext, PreProvisionResForVS, VersionCheckRes } from "./types";
+import { LocalMcpPrefix } from "../component/constants";
 
 export class FxCore {
   constructor(tools: Tools) {
@@ -3076,14 +3077,15 @@ export class FxCore {
       );
       return err(error);
     }
-    // aiPluginContent.functions = [];
+
     const toolsSelectedPrevious: string[] = [];
     aiPluginContent.runtimes
       .filter(
         (runtime: any) =>
-          runtime.type === "RemoteMCPServer" &&
-          runtime.spec.url === mcpServerUrl &&
-          runtime.spec["enable_dynamic_discovery"] === false
+          (runtime.type === "RemoteMCPServer" &&
+            runtime.spec.url === mcpServerUrl &&
+            runtime.spec["enable_dynamic_discovery"] === false) ||
+          runtime.type === "LocalPlugin"
       )
       .forEach((runtime: any) => {
         toolsSelectedPrevious.push(...runtime.run_for_functions);
@@ -3110,25 +3112,38 @@ export class FxCore {
 
     aiPluginContent.runtimes = aiPluginContent.runtimes.filter(
       (runtime: any) =>
-        runtime.type !== "RemoteMCPServer" ||
+        (runtime.type !== "RemoteMCPServer" && runtime.type !== "LocalPlugin") ||
         runtime.spec.url !== mcpServerUrl ||
         runtime.spec["enable_dynamic_discovery"] === true
     );
-    (aiPluginContent.runtimes as any[]).push({
-      type: "RemoteMCPServer",
-      spec: {
-        url: mcpServerUrl,
-        enable_dynamic_discovery: false,
-      },
-      run_for_functions: mcpToolsSelected,
-      auth:
-        mcpAuth === "OAuthPluginVault" && !!registrationId
-          ? {
-              type: "OAuthPluginVault",
-              reference_id: `$\{\{${registrationId}\}\}`,
-            }
-          : undefined,
-    });
+
+    if (inputs[QuestionNames.MCPLocalServerIdentifier] != null) {
+      (aiPluginContent.runtimes as any[]).push({
+        type: "LocalPlugin",
+        spec: {
+          local_endpoint: `${LocalMcpPrefix}${
+            inputs[QuestionNames.MCPLocalServerIdentifier] as string
+          }`,
+        },
+        run_for_functions: mcpToolsSelected,
+      });
+    } else {
+      (aiPluginContent.runtimes as any[]).push({
+        type: "RemoteMCPServer",
+        spec: {
+          url: mcpServerUrl,
+          enable_dynamic_discovery: false,
+        },
+        run_for_functions: mcpToolsSelected,
+        auth:
+          mcpAuth === "OAuthPluginVault" && !!registrationId
+            ? {
+                type: "OAuthPluginVault",
+                reference_id: `$\{\{${registrationId}\}\}`,
+              }
+            : undefined,
+      });
+    }
 
     if (mcpAuth === "OAuthPluginVault" && !!registrationId) {
       // insert oauth info in teamsapp.yaml

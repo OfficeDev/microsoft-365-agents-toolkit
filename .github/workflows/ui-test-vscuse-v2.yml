@@ -111,6 +111,12 @@ jobs:
       DA_MCP_OAUTH_CLIENT_SECERT: ${{ secrets.DA_MCP_OAUTH_CLIENT_SECERT }}
       DA_MCP_OAUTH_CLIENTID: ${{ secrets.DA_MCP_OAUTH_CLIENTID }}
 
+      # SQL server
+      SQL_USER: ${{ secrets.SQL_USER }}
+      SECRET_SQL_PASSWORD: ${{ secrets.SECRET_SQL_PASSWORD }}
+      SQL_SERVER: "vscuse-test-sql.database.windows.net"
+      SQL_DATABASE: "vscuse-test-db"
+
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
