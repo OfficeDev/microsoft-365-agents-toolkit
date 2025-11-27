@@ -369,7 +369,7 @@ export class LocalDebugTestContext extends TestContext {
           case "microsoft-entra":
             await execCommand(
               this.testRootFolder,
-              `atk new --app-name ${this.appName} --interactive false  --capability api-plugin-from-scratch-oauth --api-auth ${this.apiAuth} --programming-language ${this.lang} --telemetry false`
+              `atk new --app-name ${this.appName} --interactive false --capability api-plugin-from-scratch-oauth --api-auth ${this.apiAuth} --programming-language ${this.lang} --telemetry false`
             );
             break;
         }
