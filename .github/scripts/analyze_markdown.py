@@ -17,6 +17,8 @@ from typing import List, Dict, Tuple
 import json
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import sys
+from datetime import datetime, timedelta
+from dateutil.relativedelta import relativedelta
 
 def safe_print(message):
     """Safely print message, handling encoding issues"""
@@ -64,11 +66,56 @@ class MarkdownFileAnalyzer:
         self.allowed_hostnames = {"aka.ms", "github.com", "microsoft.com", "visualstudio.com", "githubusercontent.com"}
         # Session settings to avoid repeated connections
         self.session = requests.Session()
+        # Changelog date pattern: ## X.X.X - Mon DD, YYYY
+        self.changelog_date_pattern = re.compile(r'^##\s+[\d.]+\s+-\s+(\w+\s+\d{1,2},\s+\d{4})', re.MULTILINE)
+        # Months cutoff for CHANGELOG.md files
+        self.changelog_months_cutoff = 18
+
+    def _filter_changelog_content(self, content: str, file_path: Path) -> str:
+        """Filter CHANGELOG.md content to only include entries from the last 18 months"""
+        # Only apply filtering to CHANGELOG.md files
+        if file_path.name.upper() != "CHANGELOG.MD":
+            return content
+        
+        cutoff_date = datetime.now() - relativedelta(months=self.changelog_months_cutoff)
+        
+        # Find all version headers with dates
+        version_matches = list(self.changelog_date_pattern.finditer(content))
+        
+        if not version_matches:
+            # No date patterns found, return full content
+            return content
+        
+        # Parse dates and find the cutoff position
+        cutoff_position = len(content)  # Default to end of content
+        
+        for match in version_matches:
+            date_str = match.group(1)
+            try:
+                # Parse date like "Oct 16, 2025"
+                entry_date = datetime.strptime(date_str, "%b %d, %Y")
+                if entry_date < cutoff_date:
+                    # This entry is older than 18 months, cut off here
+                    cutoff_position = match.start()
+                    break
+            except ValueError:
+                # If date parsing fails, continue to next match
+                continue
+        
+        filtered_content = content[:cutoff_position]
+        
+        if cutoff_position < len(content):
+            safe_print(f"  Filtering CHANGELOG.md: only including entries from last {self.changelog_months_cutoff} months (cutoff: {cutoff_date.strftime('%b %d, %Y')})")
+        
+        return filtered_content
 
     def extract_links_from_content(self, content: str, file_path: Path) -> list:
         """Extract all hyperlinks from file content (excluding images)"""
+        # Filter content for CHANGELOG.md files
+        filtered_content = self._filter_changelog_content(content, file_path)
+        
         links = []
-        for match in self.url_pattern.findall(content):
+        for match in self.url_pattern.findall(filtered_content):
             url = match.strip()
             if url:
                 links.append({
@@ -122,9 +169,12 @@ class MarkdownFileAnalyzer:
 
     def extract_images_from_content(self, content: str, file_path: Path) -> List[Dict]:
         """Extract all image links from file content"""
+        # Filter content for CHANGELOG.md files
+        filtered_content = self._filter_changelog_content(content, file_path)
+        
         images = []
         for pattern in self.image_patterns:
-            matches = re.findall(pattern, content, re.IGNORECASE | re.DOTALL)
+            matches = re.findall(pattern, filtered_content, re.IGNORECASE | re.DOTALL)
             for match in matches:
                 image_url = match.strip()
                 if image_url:
