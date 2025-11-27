@@ -5,7 +5,38 @@ import { TemplateNames } from "../templateNames";
 import { getString } from "../ui/helper";
 import { Template } from "./interface";
 
-const chatWithYourDataTemplates: Template[] = [
+export const generalTeamsAgentTemplates: Template[] = [
+  {
+    id: "custom-copilot-basic-ts",
+    name: TemplateNames.CustomCopilotBasic,
+    language: "typescript",
+    displayName: getString("template.teams.general.label"),
+    description: getString("template.teams.general.detail"),
+  },
+  {
+    id: "custom-copilot-basic-js",
+    name: TemplateNames.CustomCopilotBasic,
+    language: "javascript",
+    displayName: getString("template.teams.general.label"),
+    description: getString("template.teams.general.detail"),
+  },
+  {
+    id: "custom-copilot-basic-csharp",
+    name: TemplateNames.CustomCopilotBasic,
+    language: "csharp",
+    displayName: getString("template.teams.general.label"),
+    description: getString("template.teams.general.detail"),
+  },
+  {
+    id: "custom-copilot-basic-python",
+    name: TemplateNames.CustomCopilotBasic,
+    language: "python",
+    displayName: getString("template.teams.general.label"),
+    description: getString("template.teams.general.detail"),
+  },
+];
+
+export const chatWithYourDataTemplates: Template[] = [
   {
     id: "custom-copilot-rag-customize-ts",
     name: TemplateNames.CustomCopilotRagCustomize,
@@ -127,7 +158,55 @@ const chatWithYourDataTemplates: Template[] = [
   // },
 ];
 
-const teamsOtherTemplates: Template[] = [
+export const customApiFromOpenApiSpecTemplates: Template[] = [
+  {
+    id: "custom-copilot-rag-custom-api-ts",
+    name: TemplateNames.CustomCopilotRagCustomApi,
+    language: "typescript",
+    displayName: "Teams Agent with Data from Custom API using OpenAPI Spec",
+    description: getString("template.teams.rag.detail"),
+  },
+  {
+    id: "custom-copilot-rag-custom-api-js",
+    name: TemplateNames.CustomCopilotRagCustomApi,
+    language: "javascript",
+    displayName: "Teams Agent with Data from Custom API using OpenAPI Spec",
+    description: getString("template.teams.rag.detail"),
+  },
+  {
+    id: "teams-agent-with-data-custom-api-v2-csharp",
+    name: TemplateNames.CustomCopilotRagCustomApi,
+    language: "csharp",
+    displayName: "Teams Agent with Data from Custom API using OpenAPI Spec",
+    description: getString("template.teams.rag.detail"),
+  },
+  {
+    id: "teams-agent-with-data-custom-api-v2-python",
+    name: TemplateNames.CustomCopilotRagCustomApi,
+    language: "python",
+    displayName: "Teams Agent with Data from Custom API using OpenAPI Spec",
+    description: getString("template.teams.rag.detail"),
+  },
+];
+
+export const collaboratorAgentTemplates: Template[] = [
+  {
+    id: "teams-collaborator-agent-ts",
+    name: TemplateNames.TeamsCollaboratorAgent,
+    language: "typescript",
+    displayName: getString("template.teams.collaboratorAgent.label"),
+    description: getString("template.teams.collaboratorAgent.detail"),
+  },
+  {
+    id: "teams-collaborator-agent-csharp",
+    name: TemplateNames.TeamsCollaboratorAgent,
+    language: "csharp",
+    displayName: getString("template.teams.collaboratorAgent.label"),
+    description: getString("template.teams.collaboratorAgent.detail"),
+  },
+];
+
+export const teamsOtherTemplates: Template[] = [
   {
     id: "basic-tab-ts",
     name: TemplateNames.Tab,
@@ -173,48 +252,9 @@ const teamsOtherTemplates: Template[] = [
 ];
 
 export const teamsAgentsAndAppsTemplates: Template[] = [
-  {
-    id: "custom-copilot-basic-ts",
-    name: TemplateNames.CustomCopilotBasic,
-    language: "typescript",
-    displayName: getString("template.teams.general.label"),
-    description: getString("template.teams.general.detail"),
-  },
-  {
-    id: "custom-copilot-basic-js",
-    name: TemplateNames.CustomCopilotBasic,
-    language: "javascript",
-    displayName: getString("template.teams.general.label"),
-    description: getString("template.teams.general.detail"),
-  },
-  {
-    id: "custom-copilot-basic-csharp",
-    name: TemplateNames.CustomCopilotBasic,
-    language: "csharp",
-    displayName: getString("template.teams.general.label"),
-    description: getString("template.teams.general.detail"),
-  },
-  {
-    id: "custom-copilot-basic-python",
-    name: TemplateNames.CustomCopilotBasic,
-    language: "python",
-    displayName: getString("template.teams.general.label"),
-    description: getString("template.teams.general.detail"),
-  },
+  ...generalTeamsAgentTemplates,
   ...chatWithYourDataTemplates,
-  {
-    id: "teams-collaborator-agent-ts",
-    name: TemplateNames.TeamsCollaboratorAgent,
-    language: "typescript",
-    displayName: getString("template.teams.collaboratorAgent.label"),
-    description: getString("template.teams.collaboratorAgent.detail"),
-  },
-  {
-    id: "teams-collaborator-agent-csharp",
-    name: TemplateNames.TeamsCollaboratorAgent,
-    language: "csharp",
-    displayName: getString("template.teams.collaboratorAgent.label"),
-    description: getString("template.teams.collaboratorAgent.detail"),
-  },
+  ...customApiFromOpenApiSpecTemplates,
+  ...collaboratorAgentTemplates,
   ...teamsOtherTemplates,
 ];
