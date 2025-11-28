@@ -19,6 +19,8 @@ export enum SolutionError {
   FailedToLoadManifestFile = "FailedToLoadManifestFile",
 }
 
+export const LocalMcpPrefix = "mcp://";
+
 export const ViewAadAppHelpLinkV5 = "https://aka.ms/teamsfx-view-aad-app-v5";
 
 // This is the max length specified in

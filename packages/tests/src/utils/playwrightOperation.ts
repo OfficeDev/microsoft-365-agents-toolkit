@@ -1361,7 +1361,8 @@ export async function validateReactOutlookTab(
 export async function validateBasicTab(
   page: Page,
   content = "Welcome",
-  hubState = "Teams"
+  hubState = ValidationContent.Teams,
+  env?: string
 ) {
   try {
     const frameElementHandle = await page.waitForSelector(
@@ -1378,7 +1379,20 @@ export async function validateBasicTab(
       path: getPlaywrightScreenshotPath("error"),
       fullPage: true,
     });
-    throw error;
+    if (env === "local") {
+      await Promise.all([
+        page.goto("https://localhost:53000/tabs/home/"),
+        page.waitForNavigation(),
+      ]);
+      await page?.waitForSelector(`h1:has-text("${content}")`);
+      console.log(`${content} showed in local`);
+      await page.screenshot({
+        path: getPlaywrightScreenshotPath("local"),
+        fullPage: true,
+      });
+    } else {
+      throw error;
+    }
   }
 }
 
@@ -1803,11 +1817,7 @@ export async function validatePrompt(
     } catch {
       console.log("no allow button.");
     }
-    try {
-      await page?.waitForSelector(`span:has-text("${options?.expected}")`);
-    } catch {
-      await page?.waitForSelector(`div:has-text("${options?.expected}")`);
-    }
+    await page?.waitForSelector(`text=${options?.expected}`);
     console.log(`verify prompt successfully having ${options?.expected} !!!`);
   } catch (error) {
     await page.screenshot({

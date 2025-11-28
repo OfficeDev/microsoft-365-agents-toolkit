@@ -11,7 +11,7 @@
     "total_steps": 4,
     "created_at": "2025-11-06T04:24:48.703566",
     "name": "Basic Tab Remote Debug",
-    "description": "caseId: 14134646\nhttps://msazure.visualstudio.com/Microsoft%20Teams%20Extensibility/_workitems/edit/14134646",
+    "description": "14134646",
     "generated_at": "2025-11-06T04:24:48.703561",
     "execution_order": [
       "plan_r_0928_012254",

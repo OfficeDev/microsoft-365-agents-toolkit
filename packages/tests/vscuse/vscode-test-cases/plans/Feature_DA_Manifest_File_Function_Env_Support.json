@@ -1,0 +1,784 @@
+{
+  "plan_metadata": {
+    "version": "1.1",
+    "plan_id": "plan_15c94e14",
+    "execution_context": {
+      "delay_between_steps": 1,
+      "stop_on_error": true,
+      "precondition_wait_timeout": 30,
+      "precondition_retry_interval": 1
+    },
+    "total_steps": 29,
+    "created_at": "2025-11-25T01:49:40.201521",
+    "name": "Feature DA Manifest File Function Env Support",
+    "description": "29307045",
+    "generated_at": "2025-11-25T01:49:40.201521",
+    "execution_order": [
+      "plan_r_0928_012254",
+      "step_da53fa4f",
+      "step_87d4f789",
+      "step_e4ae3a07",
+      "plan_r_0928_014459",
+      "plan_r_0929_040401",
+      "plan_r_1021_081410",
+      "step_4611ca24",
+      "step_f2c526b3",
+      "step_51d06256",
+      "step_8bf0b504",
+      "step_3903aa55",
+      "step_3f6f7a3a",
+      "step_2e659d34",
+      "step_6045092e",
+      "step_e9ade749",
+      "step_4fbad495",
+      "step_6610109a",
+      "step_1064fd11",
+      "step_430ef3f2",
+      "step_0a9f3dfb",
+      "step_8dbee599",
+      "step_8b220be6",
+      "step_0817d4d5",
+      "step_e2147fda",
+      "step_a4a0b56d",
+      "step_74b37376",
+      "step_255598fd",
+      "step_f9118994",
+      "step_1fad20bc",
+      "step_007ebbd0",
+      "step_f029af98",
+      "step_11f3ef17"
+    ],
+    "tags": [],
+    "updated_at": "2025-11-25T06:10:35.868885"
+  },
+  "steps": [
+    {
+      "step_id": "step_da53fa4f",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "dx": null,
+        "dy": null,
+        "key": null,
+        "keys": null,
+        "text": null,
+        "x": 354,
+        "y": 88
+      },
+      "description": "Select the \"Declarative Agent – Agents for Microsoft 365 Copilot\" option in the \"New Project\" dropdown within Visual Studio Code.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "0",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:354:88:16:5:cb344ba391947b6a",
+        "dhash:354:88:96:5:008c626292b3d888",
+        "dhash:354:88:0:10:c8c88094b2717075"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_da53fa4f",
+      "created_at": "2025-11-25T05:38:07.385197",
+      "plan_id": "plan_15c94e14"
+    },
+    {
+      "step_id": "step_87d4f789",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "dx": null,
+        "dy": null,
+        "key": null,
+        "keys": null,
+        "text": null,
+        "x": 372,
+        "y": 83
+      },
+      "description": "Click the \"No Action\" option in the dropdown menu within the \"Create Declarative Agent\" popup in Visual Studio Code's Microsoft 365 Agents Toolkit extension.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "0",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:372:83:16:5:00910000000066ab",
+        "dhash:372:83:96:5:58caa5c433b34400",
+        "dhash:372:83:0:10:c0c0b094b2717075"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_87d4f789",
+      "created_at": "2025-11-25T05:38:07.409957",
+      "plan_id": "plan_15c94e14"
+    },
+    {
+      "step_id": "step_e4ae3a07",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "dx": null,
+        "dy": null,
+        "key": null,
+        "keys": null,
+        "text": null,
+        "x": 277,
+        "y": 75
+      },
+      "description": "Click the \"Default Folder\" option in the \"Workspace Folder\" selection dropdown at the top of the Visual Studio Code window.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "0",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:277:75:16:5:4c952b63636b2333",
+        "dhash:277:75:96:5:140acb1cae515026",
+        "dhash:277:75:0:10:f0b09494b2717075"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_e4ae3a07",
+      "created_at": "2025-11-25T05:38:07.429941",
+      "plan_id": "plan_15c94e14"
+    },
+    {
+      "step_id": "step_4611ca24",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "dx": null,
+        "dy": null,
+        "key": null,
+        "keys": null,
+        "text": null,
+        "x": 134,
+        "y": 529
+      },
+      "description": "Click the \"Provision\" option under the \"LIFECYCLE\" section in the left sidebar of the Microsoft 365 Agents Toolkit extension within Visual Studio Code.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "0",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:134:529:16:5:2d4e39b4d4b435ca",
+        "dhash:134:529:96:5:2e246442a14cae09",
+        "dhash:134:529:0:10:328c6a632383a431"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_4611ca24",
+      "created_at": "2025-11-25T05:38:07.452759",
+      "plan_id": "plan_15c94e14"
+    },
+    {
+      "step_id": "step_f2c526b3",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "button": null,
+        "dx": null,
+        "dy": null,
+        "key": "f1",
+        "keys": null,
+        "text": null,
+        "x": null,
+        "y": null
+      },
+      "description": "Press the F1 key to open the command palette in Visual Studio Code – Insiders, shown while viewing the \"Overview of the Declarative Agent template\" README with the \"Provision\" step selected in the Microsoft 365 Agents Toolkit sidebar.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "0",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:512:384:0:20:328c2a2323032421"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_f2c526b3",
+      "created_at": "2025-11-25T05:38:07.474482",
+      "plan_id": "plan_15c94e14"
+    },
+    {
+      "step_id": "step_51d06256",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "button": null,
+        "dx": null,
+        "dy": null,
+        "key": null,
+        "keys": null,
+        "text": "notifications: Show Notifications",
+        "x": null,
+        "y": null
+      },
+      "description": "Type 'notifications: Show Notifications' into the VS Code command palette input at the top of the window.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "0",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:512:384:0:20:e4c048672303a421"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_51d06256",
+      "created_at": "2025-11-25T05:38:07.491703",
+      "plan_id": "plan_15c94e14"
+    },
+    {
+      "step_id": "step_8bf0b504",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "button": null,
+        "dx": null,
+        "dy": null,
+        "key": "enter",
+        "keys": null,
+        "text": null,
+        "x": null,
+        "y": null
+      },
+      "description": "Press Enter to select the \"Notifications: Show Notifications\" command in the Visual Studio Code command palette.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "0",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:512:384:0:20:cc8422232303a421"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_8bf0b504",
+      "created_at": "2025-11-25T05:38:07.506776",
+      "plan_id": "plan_15c94e14"
+    },
+    {
+      "step_id": "step_3903aa55",
+      "agent": "code",
+      "tool": "",
+      "parameters": {
+        "button": null,
+        "dx": null,
+        "dy": null,
+        "key": null,
+        "keys": null,
+        "text": null,
+        "x": null,
+        "y": null
+      },
+      "description": "@code wait for #text:/home/vscode/AgentsToolkitProjects/${{var:app_name}}/appPackage/build/manifest.dev.json exist. Timeout: 120s",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "0",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": null,
+      "created_at": "2025-11-25T05:38:07.524101",
+      "plan_id": "plan_15c94e14"
+    },
+    {
+      "step_id": "step_3f6f7a3a",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {
+        "button": null,
+        "dx": null,
+        "dy": null,
+        "key": null,
+        "keys": null,
+        "text": null,
+        "x": null,
+        "y": null
+      },
+      "description": "@assertion notification \"provision stage executed successfully\" exist.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "0",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "step_retry_timeout: 60"
+      ],
+      "screenshot": null,
+      "created_at": "2025-11-25T05:38:07.540080",
+      "plan_id": "plan_15c94e14"
+    },
+    {
+      "step_id": "step_2e659d34",
+      "agent": "code",
+      "tool": "",
+      "parameters": {},
+      "description": "@code open file #text:/home/vscode/AgentsToolkitProjects/${{var:app_name}}/env/.env.dev, press enter to start a new line",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": null,
+      "created_at": "2025-11-25T06:10:35.846074",
+      "plan_id": "plan_15c94e14"
+    },
+    {
+      "step_id": "step_6045092e",
+      "agent": "code",
+      "tool": "",
+      "parameters": {},
+      "description": "@code open file #text:/home/vscode/AgentsToolkitProjects/${{var:app_name}}/env/.env.dev, press enter to start a new line, add #text:INSTRUCTION_PATH=./instruction.txt to the new line",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": null,
+      "created_at": "2025-11-25T05:38:07.556018",
+      "plan_id": "plan_15c94e14"
+    },
+    {
+      "step_id": "step_e9ade749",
+      "agent": "code",
+      "tool": "",
+      "parameters": {},
+      "description": "@code open json file #text:/home/vscode/AgentsToolkitProjects/${{var:app_name}}/appPackage/declarativeAgent.json, set value for \"instructions\" to a new value `\"$[file(${{INSTRUCTION_PATH}})]\"`",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": null,
+      "created_at": "2025-11-25T05:38:07.576998",
+      "plan_id": "plan_15c94e14"
+    },
+    {
+      "step_id": "step_4fbad495",
+      "agent": "code",
+      "tool": "",
+      "parameters": {},
+      "description": "@code open json file #text:/home/vscode/AgentsToolkitProjects/${{var:app_name}}/appPackage/manifest.json, set value for \"version\" to a new value \"1.0.1\"",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": null,
+      "created_at": "2025-11-25T05:38:07.591221",
+      "plan_id": "plan_15c94e14"
+    },
+    {
+      "step_id": "step_6610109a",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "f1"
+      },
+      "description": "Press F1 to open the Command Palette in Visual Studio Code while the Microsoft 365 Agents Toolkit extension panel is active.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:512:384:0:20:b28c2a23231a2c2c"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_6610109a",
+      "created_at": "2025-11-25T05:38:07.607748",
+      "plan_id": "plan_15c94e14"
+    },
+    {
+      "step_id": "step_1064fd11",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "text": "NOTIFICATIONS: CLEAR ALL NOTIFICATIONS"
+      },
+      "description": "Type text 'Notifications: Clear All Notifications' into the Visual Studio Code command palette input field at the top center of the interface.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:512:384:0:20:e48c3223231a2c2c"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_1064fd11",
+      "created_at": "2025-11-25T05:38:07.616820",
+      "plan_id": "plan_15c94e14"
+    },
+    {
+      "step_id": "step_430ef3f2",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "enter"
+      },
+      "description": "Press Enter to select \"Notifications: Clear All Notifications\" from the command palette dropdown in Visual Studio Code.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:512:384:0:20:ec8c3223231a2c2c"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_430ef3f2",
+      "created_at": "2025-11-25T05:38:07.626654",
+      "plan_id": "plan_15c94e14"
+    },
+    {
+      "step_id": "step_0a9f3dfb",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "f1"
+      },
+      "description": "Press the F1 key to open the command palette in Visual Studio Code, while the \"MICROSOFT 365 AGENTS TOOLKIT\" sidebar is active.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:512:384:0:20:b28c2a2323032421"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_0a9f3dfb",
+      "created_at": "2025-11-25T05:38:07.635195",
+      "plan_id": "plan_15c94e14"
+    },
+    {
+      "step_id": "step_8dbee599",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "text": "PROVISION"
+      },
+      "description": "Type 'PROVISION' into the Visual Studio Code command palette input field to search for the \"Microsoft 365 Agents: Provision\" command.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:512:384:0:20:c4942a2323032421"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_8dbee599",
+      "created_at": "2025-11-25T05:38:07.648649",
+      "plan_id": "plan_15c94e14"
+    },
+    {
+      "step_id": "step_8b220be6",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "enter"
+      },
+      "description": "Press Enter to select the \"Microsoft 365 Agents: Provision\" command in the VS Code command palette.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:512:384:0:20:c4942a2323032421"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_8b220be6",
+      "created_at": "2025-11-25T05:38:07.660903",
+      "plan_id": "plan_15c94e14"
+    },
+    {
+      "step_id": "step_0817d4d5",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "f1"
+      },
+      "description": "Press the F1 key to open the command palette in Visual Studio Code while the Microsoft 365 Agents Toolkit extension panel is active.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:512:384:0:20:b28c2a2323032421"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_0817d4d5",
+      "created_at": "2025-11-25T05:38:07.669445",
+      "plan_id": "plan_15c94e14"
+    },
+    {
+      "step_id": "step_e2147fda",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "text": "NOTIFICATIONS: SHOW NOTIFICATIONS"
+      },
+      "description": "Type 'NOTIFICATIONS: SHOW NOTIFICATIONS' into the VS Code Command Palette input at the top center of the window.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:512:384:0:20:e0a4322323032421"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_e2147fda",
+      "created_at": "2025-11-25T05:38:07.678637",
+      "plan_id": "plan_15c94e14"
+    },
+    {
+      "step_id": "step_a4a0b56d",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "enter"
+      },
+      "description": "Press Enter to select the \"Notifications: Show Notifications\" command from the Visual Studio Code command palette.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:512:384:0:20:e484222323032421"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_a4a0b56d",
+      "created_at": "2025-11-25T05:38:07.686165",
+      "plan_id": "plan_15c94e14"
+    },
+    {
+      "step_id": "step_74b37376",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion There is a notification showing provision is successfully executed.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "delay: 60"
+      ],
+      "screenshot": null,
+      "created_at": "2025-11-25T05:38:07.698790",
+      "plan_id": "plan_15c94e14"
+    },
+    {
+      "step_id": "step_255598fd",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 24,
+        "y": 57
+      },
+      "description": "Click the \"MICROSOFT 365 AGENTS TOOLKIT\" panel icon in the Visual Studio Code sidebar to expand or focus the toolkit panel.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:24:57:16:5:d6d697d4dad4d0ca",
+        "dhash:24:57:96:5:ccce69e5c4cd17cb",
+        "dhash:24:57:0:10:328c2a2323032929"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_255598fd",
+      "created_at": "2025-11-25T05:38:07.707379",
+      "plan_id": "plan_15c94e14"
+    },
+    {
+      "step_id": "step_f9118994",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 76,
+        "y": 127
+      },
+      "description": "Click the \"appPackage\" folder in the Explorer panel of Visual Studio Code to expand its contents.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:76:127:16:5:2893cdcd952441a1",
+        "dhash:76:127:96:5:52ad1dfedd3c1cac",
+        "dhash:76:127:0:10:32ac2a6363636928"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_f9118994",
+      "created_at": "2025-11-25T05:38:07.716521",
+      "plan_id": "plan_15c94e14"
+    },
+    {
+      "step_id": "step_1fad20bc",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 114,
+        "y": 145
+      },
+      "description": "Click the editable text field for renaming the \"build\" folder in the File Explorer panel of Visual Studio Code.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:114:145:16:5:c5aba3aeaaabaaa4",
+        "dhash:114:145:96:5:59f1ce527027276c",
+        "dhash:114:145:0:10:32a42223e3636c2d"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_1fad20bc",
+      "created_at": "2025-11-25T05:38:07.728287",
+      "plan_id": "plan_15c94e14"
+    },
+    {
+      "step_id": "step_007ebbd0",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 223,
+        "y": 190
+      },
+      "description": "Click the \"declarativeAgent.dev.json\" file in the build folder of the Explorer panel in Visual Studio Code to select or open it.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:223:190:16:5:b9464d5d56505ca3",
+        "dhash:223:190:96:5:58a4a55614cf8f3f",
+        "dhash:223:190:0:10:32809923a3636928"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_007ebbd0",
+      "created_at": "2025-11-25T05:38:07.740800",
+      "plan_id": "plan_15c94e14"
+    },
+    {
+      "step_id": "step_f029af98",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 537,
+        "y": 195
+      },
+      "description": "Click on the text editor area in Visual Studio Code, specifically within the \"declarativeAgent.dev.json\" file at the start of the instructions string, to position the cursor for editing.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:537:195:16:5:13aca5bb5b5b5b24",
+        "dhash:537:195:96:5:da5145333aa40800",
+        "dhash:537:195:0:10:23a8b921a161692c"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_f029af98",
+      "created_at": "2025-11-25T05:38:07.753590",
+      "plan_id": "plan_15c94e14"
+    },
+    {
+      "step_id": "step_11f3ef17",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the value of instructions is starting with \"You are a declarative agent\"",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": null,
+      "created_at": "2025-11-25T05:38:07.766908",
+      "plan_id": "plan_15c94e14"
+    }
+  ],
+  "screenshots": {
+    "step_da53fa4f": "step_da53fa4f",
+    "step_87d4f789": "step_87d4f789",
+    "step_e4ae3a07": "step_e4ae3a07",
+    "step_4611ca24": "step_4611ca24",
+    "step_f2c526b3": "step_f2c526b3",
+    "step_51d06256": "step_51d06256",
+    "step_8bf0b504": "step_8bf0b504",
+    "step_6610109a": "step_6610109a",
+    "step_1064fd11": "step_1064fd11",
+    "step_430ef3f2": "step_430ef3f2",
+    "step_0a9f3dfb": "step_0a9f3dfb",
+    "step_8dbee599": "step_8dbee599",
+    "step_8b220be6": "step_8b220be6",
+    "step_0817d4d5": "step_0817d4d5",
+    "step_e2147fda": "step_e2147fda",
+    "step_a4a0b56d": "step_a4a0b56d",
+    "step_255598fd": "step_255598fd",
+    "step_f9118994": "step_f9118994",
+    "step_1fad20bc": "step_1fad20bc",
+    "step_007ebbd0": "step_007ebbd0",
+    "step_f029af98": "step_f029af98"
+  }
+}

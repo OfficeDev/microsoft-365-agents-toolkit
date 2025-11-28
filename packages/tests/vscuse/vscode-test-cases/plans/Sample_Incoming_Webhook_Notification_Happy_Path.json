@@ -1,0 +1,231 @@
+{
+  "plan_metadata": {
+    "version": "1.0",
+    "plan_id": "plan_728a9c98",
+    "execution_context": {
+      "delay_between_steps": 0.5,
+      "stop_on_error": true,
+      "precondition_wait_timeout": 60.0,
+      "precondition_retry_interval": 2.0,
+      "step_retry_timeout": 0.0
+    },
+    "total_steps": 8,
+    "created_at": "2025-11-25T04:56:46.102866",
+    "name": "Sample Incoming Webhook Notification Happy Path",
+    "description": "caseId: 14524902",
+    "generated_at": "2025-11-25T04:56:46.102866",
+    "execution_order": [
+      "plan_r_1107_015711",
+      "step_e25c391c",
+      "step_54382195",
+      "step_53b636b9",
+      "step_98c93354",
+      "step_1b7b7e2c",
+      "step_8c549057",
+      "step_b514c20e",
+      "step_ecbbb13d"
+    ],
+    "tags": [],
+    "updated_at": "2025-11-25T04:57:10.562891"
+  },
+  "steps": [
+    {
+      "step_id": "step_e25c391c",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 409,
+        "y": 171
+      },
+      "description": "Click on the \"Search\" input box within the \"Samples\" tab of the Microsoft 365 Agents Toolkit interface in Visual Studio Code to activate the search field for filtering sample projects.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:409:171:16:5:132cd4a6a4b4932c",
+        "dhash:409:171:96:5:72659a6145880000",
+        "dhash:409:171:0:10:64a4b4b464747476"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_e25c391c",
+      "created_at": "2025-11-25T04:56:46.133013",
+      "plan_id": "plan_728a9c98"
+    },
+    {
+      "step_id": "step_54382195",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "text": "incoming"
+      },
+      "description": "Type 'incoming' into the sample search bar within the 'Samples' tab of the Microsoft 365 Agents Toolkit extension in Visual Studio Code.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:512:384:0:20:64a4a4b47c7c747c"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_54382195",
+      "created_at": "2025-11-25T04:56:46.152231",
+      "plan_id": "plan_728a9c98"
+    },
+    {
+      "step_id": "step_53b636b9",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 778,
+        "y": 236
+      },
+      "description": "Click the blue \"Create\" button next to the \"Incoming Webhook Notification\" sample in the Microsoft 365 Agents Toolkit panel within Visual Studio Code.\nAnd input ${{var:app_name:incoming-webhook-notification}} into the run time variable.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:778:236:16:5:245b99b5b3996698",
+        "dhash:778:236:96:5:0001446878060000",
+        "dhash:778:236:0:10:64a4b68960e06061"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_53b636b9",
+      "created_at": "2025-11-25T04:56:46.169562",
+      "plan_id": "plan_728a9c98"
+    },
+    {
+      "step_id": "step_98c93354",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 453,
+        "y": 58
+      },
+      "description": "Click the \"Default folder /home/vscode/AgentsToolkitProjects\" option in the \"Workspace Folder\" selection dialog within Visual Studio Code's Microsoft 365 Agents Toolkit interface.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:453:58:16:5:000094c2a3494a93",
+        "dhash:453:58:96:5:2d05b39bcd240000",
+        "dhash:453:58:0:10:60a4b69160e06061"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_98c93354",
+      "created_at": "2025-11-25T04:56:46.186607",
+      "plan_id": "plan_728a9c98"
+    },
+    {
+      "step_id": "step_1b7b7e2c",
+      "agent": "code",
+      "tool": "",
+      "parameters": {},
+      "description": "@code replace line 8 with const webhookUrl: string = \"https://test.com\" in file \"/home/vscode/AgentsToolkitProjects/${{var:app_name}}/src/index.ts\"",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": null,
+      "created_at": "2025-11-25T04:56:46.203060",
+      "plan_id": "plan_728a9c98"
+    },
+    {
+      "step_id": "step_8c549057",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 33,
+        "y": 195
+      },
+      "description": "Click the \"Run and Debug\" icon in the Visual Studio Code Activity Bar on the left to open the Run and Debug panel.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:33:195:16:5:0000ca3188c57199",
+        "dhash:33:195:96:5:cade2e4ecece3aca",
+        "dhash:33:195:0:10:32842a6363636421"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_8c549057",
+      "created_at": "2025-11-25T04:56:46.219881",
+      "plan_id": "plan_728a9c98"
+    },
+    {
+      "step_id": "step_b514c20e",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 135,
+        "y": 54
+      },
+      "description": "Click the \"Attach...\" dropdown in the Run and Debug panel at the top left of the Visual Studio Code interface.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:135:54:16:5:a46368666c6166a8",
+        "dhash:135:54:96:5:3232c93637a08458",
+        "dhash:135:54:0:10:b2646a6363236421"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_b514c20e",
+      "created_at": "2025-11-25T04:56:46.235912",
+      "plan_id": "plan_728a9c98"
+    },
+    {
+      "step_id": "step_ecbbb13d",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion there's message: \"failed to send adaptive card. Error: socket hang up\" exist",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "step_retry_timeout: 60"
+      ],
+      "screenshot": null,
+      "created_at": "2025-11-25T04:56:46.251429",
+      "plan_id": "plan_728a9c98"
+    }
+  ],
+  "screenshots": {
+    "step_e25c391c": "step_e25c391c",
+    "step_54382195": "step_54382195",
+    "step_53b636b9": "step_53b636b9",
+    "step_98c93354": "step_98c93354",
+    "step_8c549057": "step_8c549057",
+    "step_b514c20e": "step_b514c20e"
+  }
+}

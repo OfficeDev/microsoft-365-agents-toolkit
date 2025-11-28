@@ -166,16 +166,16 @@ export enum ResourceToDeploy {
 }
 
 export enum Capability {
-  Bot = "bot",
+  Bot = "default-bot",
   Notification = "notification",
   CommandBot = "command-bot",
   WorkflowBot = "workflow-bot",
-  TabNonSso = "tab-non-sso",
+  TabNonSso = "non-sso-tab",
   M365SsoLaunchPage = "sso-launch-page",
   DashboardTab = "dashboard-tab",
   Spfx = "tab-spfx",
   M365SearchApp = "search-app",
-  MessageExtension = "basic-message-extension",
+  MessageExtension = "default-message-extension",
   LinkUnfurling = "link-unfurling",
   // v2 only
   Tab = "tab",
@@ -185,7 +185,11 @@ export enum Capability {
   Agent = "custom-copilot-agent",
   TaskPane = "taskpane",
   ApiPlugin = "api-plugin",
-  DeclarativeAgent = "declarative-agent",
+  DeclarativeAgent = "copilot-gpt-basic",
+  DeclarativeAgentWithActionFromScratchBearer = "api-plugin-from-scratch-bearer",
+  DeclarativeAgentWithActionFromScratchOAuth = "api-plugin-from-scratch-oauth",
+  DeclarativeAgentWithActionFromScratch = "api-plugin-from-scratch",
+  DeclarativeAgentWithTypeSpec = "declarative-agent-typespec",
   TeamsCollaboratorAgent = "teams-collaborator-agent",
 }
 
@@ -279,7 +283,7 @@ export class Timeout {
   public static readonly addCollaborator: number = 60 * 1000;
 
   // open API
-  public static readonly openAPIProvision: number = 20 * 1000;
+  public static readonly openAPIProvision: number = 30 * 1000;
 
   public static readonly loadOpenAPI: number = 10 * 1000;
 }
@@ -544,6 +548,7 @@ export class CreateProjectQuestion {
 
 export class ValidationContent {
   static readonly Tab = "Welcome";
+  static readonly Teams = "Teams";
   static readonly Bot = "Your Hello World Bot is Running";
   static readonly BotWelcomeInstruction = "Hi there! I'm an echo bot";
   static readonly GraphBot = "Your Copilot connector Bot is Running";

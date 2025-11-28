@@ -5,8 +5,8 @@
  * @author Yimin Jin <yiminjin@microsoft.com>
  */
 
-import { Capability } from "../../utils/constants";
 import { ProgrammingLanguage } from "@microsoft/teamsfx-core";
+import { Capability } from "../../utils/constants";
 import { CaseFactory } from "../caseFactory";
 
 class DeclarativeAgentWithEntra extends CaseFactory {}
@@ -17,7 +17,7 @@ myRecord["api-plugin-type"] = "new-api";
 myRecord["api-auth"] = "microsoft-entra";
 
 new DeclarativeAgentWithEntra(
-  Capability.DeclarativeAgent,
+  Capability.DeclarativeAgentWithActionFromScratchOAuth,
   30310142,
   "yiminjin@microsoft.com",
   ["function"],
@@ -27,7 +27,7 @@ new DeclarativeAgentWithEntra(
 ).test();
 
 new DeclarativeAgentWithEntra(
-  Capability.DeclarativeAgent,
+  Capability.DeclarativeAgentWithActionFromScratchOAuth,
   30309989,
   "yiminjin@microsoft.com",
   ["function"],
