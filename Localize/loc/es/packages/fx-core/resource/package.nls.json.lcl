@@ -3448,6 +3448,24 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";core.createProjectQuestion.capability.customCopilotTravelOption.detail" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[A travel planning agent, which is built with Microsoft 365 Agents SDK, Microsoft 365 Retrieval API and Agent Framework]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Un agente de planificación de viajes, creado con el SDK de agentes de Microsoft 365, la API de recuperación de Microsoft 365 y Agent Framework]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.capability.customCopilotTravelOption.label" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Travel Agent]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Agente de viajes]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";core.createProjectQuestion.capability.customCopilotWeatherOption.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[A weather forecast agent, which is built with Microsoft 365 Agents SDK and Semantic Kernel]]></Val>

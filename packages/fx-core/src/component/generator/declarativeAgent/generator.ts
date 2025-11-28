@@ -84,6 +84,8 @@ export class DeclarativeAgentGenerator extends DefaultTemplateGenerator {
     const solutionNameFromVS =
       language === "csharp" ? inputs[QuestionNames.SolutionName] : undefined;
 
+    const MCPServerType = inputs[QuestionNames.MCPServerType];
+    const isLocalMCP = MCPServerType === "local";
     const MCPForDAServerUrl = inputs[QuestionNames.MCPForDAServerUrl];
     const replaceMap = {
       ...Generator.getDefaultVariables(
@@ -97,7 +99,16 @@ export class DeclarativeAgentGenerator extends DefaultTemplateGenerator {
       ),
       DeclarativeCopilot: "true",
       MicrosoftEntra: auth === ApiAuthOptions.microsoftEntra().id ? "true" : "",
-      ...(MCPForDAServerUrl
+      IsLocalMCP: isLocalMCP ? "true" : "",
+      ...(isLocalMCP
+        ? {
+            MCPLocalServerName: inputs[QuestionNames.MCPLocalServerName],
+            MCPLocalServerIdentifier: inputs[QuestionNames.MCPLocalServerIdentifier],
+            MCPCommand: inputs[QuestionNames.MCPLocalServerCommand],
+            MCPArgs: inputs[QuestionNames.MCPLocalServerArgs],
+            ServerName: inputs[QuestionNames.MCPLocalServerName],
+          }
+        : MCPForDAServerUrl
         ? {
             MCPForDAServerUrl,
             ServerName: new URL(MCPForDAServerUrl).host

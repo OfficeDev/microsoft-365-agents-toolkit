@@ -22,10 +22,10 @@ import {
 } from "../../create";
 import { QuestionNames } from "../../questionNames";
 import { languageNode } from "./createRootNode";
-import { customEngineAgentNode } from "./customEngineAgentNode";
+import { getCustomEngineAgentNode } from "./customEngineAgentNode";
 import { daProjectTypeNode } from "./daProjectTypeNode";
 import { ProjectTypeOptions } from "./ProjectTypeOptions";
-import { teamsProjectNode } from "./teamsProjectTypeNode";
+import { getTeamsProjectNode } from "./teamsProjectTypeNode";
 
 export function getTemplateName(inputs: Inputs): string | undefined {
   if (inputs.teamsAppFromTdp) {
@@ -94,7 +94,7 @@ export function createFromTdpNode(platform: Platform = Platform.VSCode): IQTreeN
             ProjectTypeOptions.teamsAgentsAndApps(platform),
           ],
         },
-        children: [daProjectTypeNode(), customEngineAgentNode(), teamsProjectNode(platform)],
+        children: [daProjectTypeNode(), getCustomEngineAgentNode(), getTeamsProjectNode()],
       },
       {
         condition: (inputs: Inputs) =>

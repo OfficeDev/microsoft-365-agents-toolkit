@@ -12,6 +12,11 @@
           "SourceFile": "packages\\fx-core\\resource\\package.nls.json",
           "CopyOption": "LangIDOnName",
           "OutputPath": "packages\\fx-core\\resource"
+        },
+        {
+          "SourceFile": "templates\\src\\ui\\resource\\package.nls.json",
+          "CopyOption": "LangIDOnName",
+          "OutputPath": "templates\\src\\ui\\resource"
         }
       ]
     }

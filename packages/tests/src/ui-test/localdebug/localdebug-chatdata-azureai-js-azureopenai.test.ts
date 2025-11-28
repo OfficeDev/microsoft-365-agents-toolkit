@@ -32,7 +32,7 @@ describe("Local Debug Tests", function () {
     // ensure workbench is ready
     this.timeout(Timeout.prepareTestCase);
     localDebugTestContext = new LocalDebugTestContext("chatdata", {
-      customCopilotRagType: "custom-copilot-rag-azureAISearch",
+      customCopilotRagType: "custom-copilot-rag-azure-ai-search",
     });
     await localDebugTestContext.before();
   });

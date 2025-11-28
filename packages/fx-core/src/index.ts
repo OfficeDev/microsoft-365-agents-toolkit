@@ -88,6 +88,7 @@ export { pluginManifestUtils } from "./component/driver/teamsApp/utils/PluginMan
 export { DefaultTemplateGenerator } from "./component/generator/defaultGenerator";
 export { HelperMethods } from "./component/generator/officeAddin/helperMethods";
 export { generateScaffoldingSummary } from "./component/generator/openApiSpec/helper";
+export { getAllTemplatesOnPlatform } from "./component/generator/templates/metadata";
 export { TemplateInfo } from "./component/generator/templates/templateInfo";
 export { getSampleFileInfo, runWithLimitedConcurrency } from "./component/generator/utils";
 export * from "./component/local/constants";
@@ -102,6 +103,7 @@ export * from "./component/middleware/actionExecutionMW";
 export { outputScaffoldingWarningMessage } from "./component/utils/common";
 export { DotenvOutput, envUtil } from "./component/utils/envUtil";
 export { metadataUtil } from "./component/utils/metadataUtil";
+export { ODRTool, ODRServer, ODRProvider } from "./component/utils/odrProvider";
 export { pathUtils } from "./component/utils/pathUtils";
 export { newResourceGroupOption, resourceGroupHelper } from "./component/utils/ResourceGroupHelper";
 export { CoreCallbackFunc } from "./core/callback";
@@ -125,10 +127,5 @@ export {
   TeamsAgentCapabilityOptions,
 } from "./question/scaffold/vsc/CapabilityOptions";
 export { isTdpTemplate } from "./question/scaffold/vsc/createFromTdpNode";
-export {
-  getProjectTypeByCapability,
-  getTeamsAppTypeByCapability,
-  getTeamsCapabilityByCapability,
-} from "./question/scaffold/vsc/createRootNode";
 export { ProjectTypeOptions } from "./question/scaffold/vsc/ProjectTypeOptions";
 export { ShareOperationOption } from "./question/share";

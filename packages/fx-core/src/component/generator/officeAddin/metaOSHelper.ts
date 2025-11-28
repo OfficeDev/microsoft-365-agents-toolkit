@@ -488,8 +488,7 @@ Office.onReady((info) => {
     const pkgJsonPath = path.join(projectFolder, PKG_JSON_FILE_NAME);
     if (fse.existsSync(pkgJsonPath)) {
       const pkgJson = await fse.readJSON(pkgJsonPath);
-      pkgJson["devDependencies"]["office-addin-debugging"] = "6.0.4";
-      pkgJson["devDependencies"]["office-addin-dev-settings"] = "3.0.4";
+      pkgJson["devDependencies"]["office-addin-debugging"] = "6.0.6";
       await fse.writeJSON(pkgJsonPath, pkgJson, { spaces: 2 });
     } else {
       throw new Error(`package.json file doesn't exist!`);

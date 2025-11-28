@@ -14,11 +14,9 @@ const windows_22 = [
   "sample-stock-update",
   "sample-query-org",
   "sample-assistant-dashboard",
-  "sample-hello-world-tab-outlook",
   "sample-bot-sso",
   "sample-sso-tab-via-apim-proxy",
   "sample-copilot-connector-bot",
-  "sample-incoming-webhook",
 ];
 const ubuntu_22 = [
   "sample-adaptive-card",

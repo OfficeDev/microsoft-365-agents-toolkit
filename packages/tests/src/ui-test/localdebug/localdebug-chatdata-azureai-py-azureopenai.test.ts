@@ -41,7 +41,7 @@ describe("Local Debug Tests", function () {
     this.timeout(Timeout.prepareTestCase);
     localDebugTestContext = new LocalDebugTestContext("chatdata", {
       lang: Lang.PY,
-      customCopilotRagType: "custom-copilot-rag-azureAISearch",
+      customCopilotRagType: "custom-copilot-rag-azure-ai-search",
     });
     await localDebugTestContext.before();
   });

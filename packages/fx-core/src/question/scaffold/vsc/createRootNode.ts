@@ -13,23 +13,13 @@ import {
   GCNameQuestion,
 } from "../../create";
 import { QuestionNames } from "../../questionNames";
-
-import {
-  ActionStartOptions,
-  BotCapabilityOptions,
-  CustomEngineAgentOptions,
-  DACapabilityOptions,
-  MeCapabilityOptions,
-  OfficeAddinCapabilityOptions,
-  TabCapabilityOptions,
-  TeamsAgentCapabilityOptions,
-} from "./CapabilityOptions";
+import { ActionStartOptions, DACapabilityOptions } from "./CapabilityOptions";
 import { ProjectTypeOptions } from "./ProjectTypeOptions";
-import { customEngineAgentNode } from "./customEngineAgentNode";
+import { getCustomEngineAgentNode } from "./customEngineAgentNode";
 import { daProjectTypeNode } from "./daProjectTypeNode";
 import { graphConnectorProjectTypeNode } from "./graphConnectorProjectTypeNode";
 import { officeAddinProjectTypeNode } from "./officeAddinProjectTypeNode";
-import { teamsProjectNode } from "./teamsProjectTypeNode";
+import { getTeamsProjectNode } from "./teamsProjectTypeNode";
 
 export const LanguageOptionMap = new Map<string, OptionItem>([
   [ProgrammingLanguage.JS, { id: ProgrammingLanguage.JS, label: "JavaScript" }],
@@ -138,8 +128,8 @@ export function scaffoldQuestionForVSCode(platform: Platform = Platform.VSCode):
         },
         children: [
           daProjectTypeNode(),
-          customEngineAgentNode(),
-          teamsProjectNode(platform),
+          getCustomEngineAgentNode(),
+          getTeamsProjectNode(),
           graphConnectorProjectTypeNode(),
           officeAddinProjectTypeNode(),
         ],
@@ -178,88 +168,4 @@ export function scaffoldQuestionForVSCode(platform: Platform = Platform.VSCode):
     ],
   };
   return node;
-}
-
-/**
- * CLI non-interactive mode has no "project-type" input, to make it compatible to the question model,
- * we need to convert capability to project type
- */
-export function getProjectTypeByCapability(capability: string): string {
-  if ([DACapabilityOptions.declarativeAgent().id].includes(capability)) {
-    return ProjectTypeOptions.copilotAgentOptionId;
-  }
-  if (
-    [
-      CustomEngineAgentOptions.basicCustomEngineAgent().id,
-      CustomEngineAgentOptions.weatherAgent().id,
-    ].includes(capability)
-  ) {
-    return ProjectTypeOptions.customEngineAgentOptionId;
-  }
-  if (
-    [
-      TeamsAgentCapabilityOptions.basicChatbot().id,
-      TeamsAgentCapabilityOptions.customCopilotRag().id,
-      TeamsAgentCapabilityOptions.collaboratorAgent().id,
-      BotCapabilityOptions.basicBot().id,
-      TabCapabilityOptions.nonSsoTab().id,
-      MeCapabilityOptions.basicMe().id,
-    ].includes(capability)
-  ) {
-    return ProjectTypeOptions.teamsOptionId;
-  }
-  if (
-    [
-      OfficeAddinCapabilityOptions.wxpTaskPane().id,
-      OfficeAddinCapabilityOptions.excelCFShortcut().id,
-      OfficeAddinCapabilityOptions.officeAddinImport().id,
-    ].includes(capability)
-  ) {
-    return ProjectTypeOptions.officeMetaOSOptionId;
-  }
-
-  if (
-    [
-      OfficeAddinCapabilityOptions.outlookTaskPane().id,
-      OfficeAddinCapabilityOptions.outlookAddinImport().id,
-    ].includes(capability)
-  ) {
-    return ProjectTypeOptions.outlookAddinOptionId;
-  }
-
-  return "";
-}
-
-export function getTeamsAppTypeByCapability(capability: string): string {
-  if (
-    [
-      TabCapabilityOptions.nonSsoTab().id,
-      BotCapabilityOptions.basicBot().id,
-      MeCapabilityOptions.basicMe().id,
-    ].includes(capability)
-  ) {
-    return "others";
-  } else if (
-    [
-      TeamsAgentCapabilityOptions.basicChatbot().id,
-      TeamsAgentCapabilityOptions.customCopilotRag().id,
-      TeamsAgentCapabilityOptions.collaboratorAgent().id,
-    ].includes(capability)
-  ) {
-    return capability;
-  }
-  return "";
-}
-
-export function getTeamsCapabilityByCapability(capability: string): string {
-  if (
-    [
-      TabCapabilityOptions.nonSsoTab().id,
-      BotCapabilityOptions.basicBot().id,
-      MeCapabilityOptions.basicMe().id,
-    ].includes(capability)
-  ) {
-    return capability;
-  }
-  return "";
 }

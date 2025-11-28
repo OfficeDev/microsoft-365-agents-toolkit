@@ -1,24 +1,22 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import {
-  execAsync,
-  execAsyncWithRetry,
-  editDotEnvFile,
-  getKeyVaultNameFromResourceId,
-  getProvisionParameterValueByKey,
-  getKeyVaultSecretReference,
-} from "./utilities";
+import * as path from "path";
+import { Capability, TemplateProjectFolder } from "../utils/constants";
 import {
   PluginId,
   provisionParametersKey,
-  Resource,
   ResourceToDeploy,
   StateConfigKey,
 } from "./constants";
-import { TemplateProjectFolder } from "../utils/constants";
-import { Capability } from "../utils/constants";
-import * as path from "path";
+import {
+  editDotEnvFile,
+  execAsync,
+  execAsyncWithRetry,
+  getKeyVaultNameFromResourceId,
+  getKeyVaultSecretReference,
+  getProvisionParameterValueByKey,
+} from "./utilities";
 
 export class CliHelper {
   static async addEnv(
@@ -190,7 +188,7 @@ export class CliHelper {
   static async createProjectWithCapability(
     appName: string,
     testFolder: string,
-    capability: Capability,
+    capability: string,
     processEnv?: NodeJS.ProcessEnv,
     options = "",
     npx = false

@@ -1,6 +1,6 @@
 # Overview of the Basic Custom Engine Agent template
 
-This app template is built on top of [Microsoft 365 Agents SDK](https://aka.ms/m365-agents-sdk).
+This app template is built on top of [Microsoft 365 Agents SDK](https://aka.ms/m365sdkdocs).
 This template showcases a custom engine agent app that connects to your own LLM and responds to user questions like an AI assistant. This enables your users to talk with the AI assistant in Teams to find information.
 
 ## Get started with the template
@@ -61,14 +61,12 @@ The following files can be customized and demonstrate an example implementation 
 |`src/config.py`| Defines the environment variables.|
 |`src/app.py`| Hosts the agent using aiohttp|
 
-## Extend the template
-
-You can follow [Build an agent for Microsoft 365 Copilot](https://aka.ms/teams-toolkit-ai-agent) to extend the Basic Custom Engine Agent template with more AI capabilities, like:
-- [Customize the agent](https://aka.ms/teams-toolkit-ai-agent#customize-the-agent)
-- [Add tools for the agent](https://aka.ms/teams-toolkit-ai-agent#add-tools-for-the-agent)
 
 ## Additional information and references
 
-- [Microsoft 365 Agents SDK](https://aka.ms/m365-agents-sdk)
+- [Microsoft 365 Agents Toolkit Documentations](https://docs.microsoft.com/microsoftteams/platform/toolkit/teams-toolkit-fundamentals)
+- [Microsoft 365 Agents Toolkit CLI](https://aka.ms/teamsfx-toolkit-cli)
+- [Microsoft 365 Agents Toolkit Samples](https://github.com/OfficeDev/TeamsFx-Samples)
+- [Microsoft 365 Agents SDK](https://github.com/microsoft/Agents)
 - [Microsoft 365 Agents for Python](https://github.com/microsoft/Agents-for-python)
 - [Microsoft 365 Agents SDK QuickStart](https://github.com/microsoft/Agents/tree/main/samples/python/quickstart)
