@@ -6,14 +6,20 @@ on:
       test_plan:
         description: "Comma-separated list of test cases to run, input test case id (e.g. 33258708, 33258728)"
         required: false
+      pre_release_testing:
+        description: "Run pre-release testing (overrides test_plan)"
+        required: false
+        type: boolean
+        default: false
       image_tag:
         description: "Docker image tag to use"
         required: true
         default: "latest"
 
   schedule:
-    - cron: "0 17 * * *"
-
+    - cron: "30 12 * * *"   # UTC+8 20:30 daily
+permissions:
+  actions: read
 jobs:
   discover-test-plans:
     runs-on: ubuntu-latest
@@ -28,7 +34,16 @@ jobs:
       - name: Get test plans
         id: get-plans
         run: |
-          if [ -z "${{ github.event.inputs.test_plan }}" ]; then
+          if [ "${{ github.event.inputs.pre_release_testing }}" == "true" ]; then
+            if [ -f "packages/tests/vscuse/vscode-test-cases/pre-release-test-cases.json" ]; then
+              plans=$(cat packages/tests/vscuse/vscode-test-cases/pre-release-test-cases.json | jq -c '.')
+              echo "plans=$plans" >> $GITHUB_OUTPUT
+              echo "Using pre-release test plans: $plans"
+            else
+              echo "Error: pre-release-test-cases.json not found"
+              exit 1
+            fi
+          elif [ -z "${{ github.event.inputs.test_plan }}" ]; then
             # Get only top-level JSON files from plans directory (strip the .json extension)
             plans=$(find packages/tests/vscuse/vscode-test-cases/plans/ -maxdepth 1 -type f -name "*.json" -exec basename {} .json \; | jq -R -s -c 'split("\n")[:-1]')
             echo "plans=$plans" >> $GITHUB_OUTPUT
@@ -51,10 +66,13 @@ jobs:
       matrix:
         test_plan: ${{ fromJson(needs.discover-test-plans.outputs.test-plans) }}
       fail-fast: false
-      max-parallel: 5
+      max-parallel: 10
     permissions:
-      contents: write
+      contents: read
       packages: write
+      id-token: write
+      security-events: write
+    environment: engineering
 
     env:
       GH_APP_ID: ${{ secrets.GH_APP_ID }}
@@ -71,8 +89,15 @@ jobs:
       AZURE_SUBSCRIPTION_ID: ${{ secrets.TEST_SUBSCRIPTION_ID_NEW }}
       AZURE_AUTH_ENABLED: ${{ secrets.AZURE_SERVICE_PRINCIPAL_ID != '' && secrets.AZURE_SERVICE_PRINCIPAL_SECRET != '' && secrets.TEST_TENANT_ID_NEW != '' }}
       # M365 account for testing
-      M365_ACCOUNT_NAME: "test21@xxbdw.onmicrosoft.com"
+      M365_USERNAME_1: "test21@xxbdw.onmicrosoft.com"
+      M365_USERNAME_2: "test22@xxbdw.onmicrosoft.com"
+      M365_USERNAME_3: "test23@xxbdw.onmicrosoft.com"
+      M365_USERNAME_4: "test24@xxbdw.onmicrosoft.com"
       M365_ACCOUNT_PASSWORD: ${{ secrets.TEST_M365_PASSWORD }}
+
+      # The test account for Copilot features
+      M365_ACCOUNT_NAME_EnableCopilotAccess: "test01@atktesting.onmicrosoft.com"
+      M365_ACCOUNT_PASSWORD_EnableCopilotAccess: ${{ secrets.TEST_M365_PASSWORD_NEW }}
       
       AZURE_ACCOUNT_NAME: ${{ secrets.TEST_USER_NAME_NEW }}
       AZURE_ACCOUNT_PASSWORD: ${{ secrets.TEST_USER_PASSWORD_NEW }}
@@ -85,6 +110,12 @@ jobs:
       DA_MCP_ENTRA_SSO_CLIENTID: ${{ secrets.DA_MCP_ENTRA_SSO_CLIENTID }}
       DA_MCP_OAUTH_CLIENT_SECERT: ${{ secrets.DA_MCP_OAUTH_CLIENT_SECERT }}
       DA_MCP_OAUTH_CLIENTID: ${{ secrets.DA_MCP_OAUTH_CLIENTID }}
+
+      # SQL server
+      SQL_USER: ${{ secrets.SQL_USER }}
+      SECRET_SQL_PASSWORD: ${{ secrets.SECRET_SQL_PASSWORD }}
+      SQL_SERVER: "vscuse-test-sql.database.windows.net"
+      SQL_DATABASE: "vscuse-test-db"
 
     steps:
       - name: Checkout repo
@@ -140,6 +171,14 @@ jobs:
             echo "⚠️  Azure Service Principal not configured - M365 Toolkit authentication disabled"
           fi
 
+      - name: Set m365 account randomly
+        run: |
+          users=("${{ env.M365_USERNAME_1 }}" "${{ env.M365_USERNAME_2 }}" "${{ env.M365_USERNAME_3 }}" "${{ env.M365_USERNAME_4 }}")
+          count=${#users[@]}
+          index=$((RANDOM%$count))
+          echo "account index: $index"
+          echo "M365_ACCOUNT_NAME=${users[index]}" >> $GITHUB_ENV
+
       - name: Log in to Container Registry
         uses: docker/login-action@v3
         with:
@@ -182,6 +221,50 @@ jobs:
           retention-days: 7
           if-no-files-found: ignore
 
+
+      - name: Rename test_report.html to index.html
+        if: always()
+        run: |
+          REPORT_DIR="packages/tests/vscuse/vscode-test-cases/test_report"
+          if [ -f "$REPORT_DIR/test_report.html" ]; then
+            mv "$REPORT_DIR/test_report.html" "$REPORT_DIR/index.html"
+            echo "Renamed test_report.html to index.html"
+          else
+            echo "No test_report.html found to rename"
+          fi
+      # Upload files to Azure Blob Storage
+      - name : Login to Azure
+        if: always()
+        uses: azure/login@v2
+        with:
+          client-id: ${{secrets.DEVOPS_CLIENT_ID}}
+          tenant-id: ${{secrets.DEVOPS_TENANT_ID}}
+          subscription-id: ${{secrets.DEVOPS_SUB_ID}}
+          enable-AzPSSession: true
+
+      - name: 🌐Upload files to Azure Blob Storage
+        if: always()
+        shell: pwsh
+        run: |
+          $guid = [guid]::NewGuid().ToString()
+          $account = $env:AZURE_STORAGE_ACCOUNT
+          $sourcePath = "packages/tests/vscuse/vscode-test-cases/test_report/"
+          $destination = "`$web/$guid"
+          $storageUrl = "https://vscusedownload.z13.web.core.windows.net/$guid/index.html"
+      
+          Write-Host "🌐Here is the report: $storageUrl"
+
+          echo "$storageUrl" > storage_url.txt
+      
+          az storage blob upload-batch `
+            --account-name $account `
+            --auth-mode login `
+            --destination $destination `
+            --source "$sourcePath" `
+            --overwrite
+        env:
+          AZURE_STORAGE_ACCOUNT: vscusedownload
+
       - name: Cleanup
         if: always()
         run: |
@@ -196,7 +279,7 @@ jobs:
     permissions:
       actions: write
     needs: main
-    if: ${{ (github.event_name == 'workflow_dispatch' || github.event_name == 'schedule') && failure() && github.run_attempt < 3 }}
+    if: ${{ (github.event_name == 'workflow_dispatch' || github.event_name == 'schedule') && failure() && github.run_attempt < 5 }}
     runs-on: ubuntu-latest
     steps:
       - name: trigger rerun workflow
@@ -207,4 +290,4 @@ jobs:
             -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}"\
             -H "X-GitHub-Api-Version: 2022-11-28" \
             https://api.github.com/repos/${{ github.repository }}/actions/workflows/rerun.yml/dispatches \
-            -d '{"ref":"${{ github.ref_name }}","inputs":{"run_id":"${{ github.run_id }}", "max_attempts":"3"}}'
+            -d '{"ref":"${{ github.ref_name }}","inputs":{"run_id":"${{ github.run_id }}", "max_attempts":"5"}}'

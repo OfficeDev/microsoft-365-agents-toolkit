@@ -28,7 +28,6 @@ import { Executor } from "../../utils/executor";
 describe("Local Debug Tests", function () {
   this.timeout(Timeout.testCase);
   let localDebugTestContext: LocalDebugTestContext;
-  let azSearchHelper: AzSearchHelper;
 
   beforeEach(async function () {
     // ensure workbench is ready
@@ -60,13 +59,7 @@ describe("Local Debug Tests", function () {
       const envPath = path.resolve(projectPath, "env", ".env.local.user");
 
       const isRealKey = OpenAiKey.azureOpenAiKey ? true : false;
-      // create azure search
-      if (isRealKey) {
-        const rgName = `${localDebugTestContext.appName}-local-rg`;
 
-        azSearchHelper = new AzSearchHelper(rgName);
-        await azSearchHelper.createSearch();
-      }
       const azureOpenAiKey = OpenAiKey.azureOpenAiKey
         ? OpenAiKey.azureOpenAiKey
         : "fake";
@@ -81,10 +74,6 @@ describe("Local Debug Tests", function () {
       const embeddingDeploymentName =
         OpenAiKey.azureOpenAiEmbeddingDeploymentName ?? "fake";
 
-      const searchKey = isRealKey ? azSearchHelper.apiKey : "fake";
-      const searchEndpoint = isRealKey
-        ? azSearchHelper.endpoint
-        : "https://test.com";
       editDotEnvFile(envPath, "SECRET_AZURE_OPENAI_API_KEY", azureOpenAiKey);
       editDotEnvFile(envPath, "AZURE_OPENAI_ENDPOINT", azureOpenAiEndpoint);
       editDotEnvFile(
@@ -97,6 +86,10 @@ describe("Local Debug Tests", function () {
         "AZURE_OPENAI_EMBEDDING_DEPLOYMENT_NAME",
         embeddingDeploymentName
       );
+      const searchKey = isRealKey ? Env.azureSearchKey : "fake";
+      const searchEndpoint = isRealKey
+        ? Env.azureSearchEndpoint
+        : "https://test.com";
       editDotEnvFile(envPath, "SECRET_AZURE_SEARCH_KEY", searchKey);
       editDotEnvFile(envPath, "AZURE_SEARCH_ENDPOINT", searchEndpoint);
 
@@ -153,13 +146,22 @@ describe("Local Debug Tests", function () {
           throw new Error("Failed to install packages");
         }
 
+        const deleteDataCmd = `npm run indexer:delete -- ${searchKey}`;
+        const { success: deleteDataSuccess } = await Executor.execute(
+          deleteDataCmd,
+          projectPath
+        );
+        if (!deleteDataSuccess) {
+          console.error("Failed to delete data");
+        }
+
         const insertDataCmd = `npm run indexer:create -- ${searchKey} ${azureOpenAiKey}`;
         const { success: insertDataSuccess } = await Executor.execute(
           insertDataCmd,
           projectPath
         );
         if (!insertDataSuccess) {
-          throw new Error("Failed to insert data");
+          console.error("Failed to insert data");
         }
       }
 

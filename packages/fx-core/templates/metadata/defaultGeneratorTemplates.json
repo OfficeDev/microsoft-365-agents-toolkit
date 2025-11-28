@@ -1,0 +1,275 @@
+[
+  {
+    "id": "basic-custom-engine-agent-ts",
+    "name": "basic-custom-engine-agent",
+    "language": "typescript",
+    "displayName": "Basic Custom Engine Agent",
+    "description": "Intelligent agent that is built with Microsoft 365 Agents SDK and connects to your LLM"
+  },
+  {
+    "id": "basic-custom-engine-agent-js",
+    "name": "basic-custom-engine-agent",
+    "language": "javascript",
+    "displayName": "Basic Custom Engine Agent",
+    "description": "Intelligent agent that is built with Microsoft 365 Agents SDK and connects to your LLM"
+  },
+  {
+    "id": "basic-custom-engine-agent-python",
+    "name": "basic-custom-engine-agent",
+    "language": "python",
+    "displayName": "Basic Custom Engine Agent",
+    "description": "Intelligent agent that is built with Microsoft 365 Agents SDK and connects to your LLM"
+  },
+  {
+    "id": "weather-agent-ts",
+    "name": "weather-agent",
+    "language": "typescript",
+    "displayName": "Weather Agent",
+    "description": "A weather forecast agent that is built with Microsoft 365 Agents SDK and LangChain"
+  },
+  {
+    "id": "weather-agent-js",
+    "name": "weather-agent",
+    "language": "javascript",
+    "displayName": "Weather Agent",
+    "description": "A weather forecast agent that is built with Microsoft 365 Agents SDK and LangChain"
+  },
+  {
+    "id": "custom-copilot-weather-agent-csharp",
+    "name": "weather-agent",
+    "language": "csharp",
+    "displayName": "Weather Agent",
+    "description": "A weather forecast agent that is built with Microsoft 365 Agents SDK and LangChain"
+  },
+  {
+    "id": "custom-copilot-travel-agent-csharp",
+    "name": "travel-agent",
+    "language": "csharp",
+    "displayName": "Travel Agent",
+    "description": "A travel planning agent, which is built with Microsoft 365 Agents SDK, Microsoft 365 Retrieval API and Agent Framework"
+  },
+  {
+    "id": "custom-copilot-basic-ts",
+    "name": "custom-copilot-basic",
+    "language": "typescript",
+    "displayName": "General Teams Agent",
+    "description": "Agent that chats with users in Teams built with Teams AI Library and connects to LLMs"
+  },
+  {
+    "id": "custom-copilot-basic-js",
+    "name": "custom-copilot-basic",
+    "language": "javascript",
+    "displayName": "General Teams Agent",
+    "description": "Agent that chats with users in Teams built with Teams AI Library and connects to LLMs"
+  },
+  {
+    "id": "custom-copilot-basic-csharp",
+    "name": "custom-copilot-basic",
+    "language": "csharp",
+    "displayName": "General Teams Agent",
+    "description": "Agent that chats with users in Teams built with Teams AI Library and connects to LLMs"
+  },
+  {
+    "id": "custom-copilot-basic-python",
+    "name": "custom-copilot-basic",
+    "language": "python",
+    "displayName": "General Teams Agent",
+    "description": "Agent that chats with users in Teams built with Teams AI Library and connects to LLMs"
+  },
+  {
+    "id": "custom-copilot-rag-customize-ts",
+    "name": "custom-copilot-rag-customize",
+    "language": "typescript",
+    "displayName": "Teams Agent with Data from Customized Source",
+    "description": "Agent that uses your content and knowledge to accurately answer domain-specific questions"
+  },
+  {
+    "id": "custom-copilot-rag-customize-js",
+    "name": "custom-copilot-rag-customize",
+    "language": "javascript",
+    "displayName": "Teams Agent with Data from Customized Source",
+    "description": "Agent that uses your content and knowledge to accurately answer domain-specific questions"
+  },
+  {
+    "id": "custom-copilot-rag-customize-csharp",
+    "name": "custom-copilot-rag-customize",
+    "language": "csharp",
+    "displayName": "Teams Agent with Data from Customized Source",
+    "description": "Agent that uses your content and knowledge to accurately answer domain-specific questions"
+  },
+  {
+    "id": "custom-copilot-rag-customize-python",
+    "name": "custom-copilot-rag-customize",
+    "language": "python",
+    "displayName": "Teams Agent with Data from Customized Source",
+    "description": "Agent that uses your content and knowledge to accurately answer domain-specific questions"
+  },
+  {
+    "id": "custom-copilot-rag-azure-ai-search-ts",
+    "name": "custom-copilot-rag-azure-ai-search",
+    "language": "typescript",
+    "displayName": "Teams Agent with Data from Azure AI Search",
+    "description": "Agent that uses your content and knowledge to accurately answer domain-specific questions"
+  },
+  {
+    "id": "custom-copilot-rag-azure-ai-search-js",
+    "name": "custom-copilot-rag-azure-ai-search",
+    "language": "javascript",
+    "displayName": "Teams Agent with Data from Azure AI Search",
+    "description": "Agent that uses your content and knowledge to accurately answer domain-specific questions"
+  },
+  {
+    "id": "custom-copilot-rag-azure-ai-search-csharp",
+    "name": "custom-copilot-rag-azure-ai-search",
+    "language": "csharp",
+    "displayName": "Teams Agent with Data from Azure AI Search",
+    "description": "Agent that uses your content and knowledge to accurately answer domain-specific questions"
+  },
+  {
+    "id": "custom-copilot-rag-azure-ai-search-python",
+    "name": "custom-copilot-rag-azure-ai-search",
+    "language": "python",
+    "displayName": "Teams Agent with Data from Azure AI Search",
+    "description": "Agent that uses your content and knowledge to accurately answer domain-specific questions"
+  },
+  {
+    "id": "teams-collaborator-agent-ts",
+    "name": "teams-collaborator-agent",
+    "language": "typescript",
+    "displayName": "Teams Collaborator Agent",
+    "description": "Agent that enhances collaboration in group chat, channels or meetings through summarization, task management, and conversation search"
+  },
+  {
+    "id": "teams-collaborator-agent-csharp",
+    "name": "teams-collaborator-agent",
+    "language": "csharp",
+    "displayName": "Teams Collaborator Agent",
+    "description": "Agent that enhances collaboration in group chat, channels or meetings through summarization, task management, and conversation search"
+  },
+  {
+    "id": "basic-tab-ts",
+    "name": "non-sso-tab",
+    "language": "typescript",
+    "displayName": "Tab",
+    "description": "A simple implementation of a web app that's ready to customize"
+  },
+  {
+    "id": "default-bot-ts",
+    "name": "default-bot",
+    "language": "typescript",
+    "displayName": "Simple Bot",
+    "description": "A simple implementation of an echo bot that's ready for customization"
+  },
+  {
+    "id": "default-bot-js",
+    "name": "default-bot",
+    "language": "javascript",
+    "displayName": "Simple Bot",
+    "description": "A simple implementation of an echo bot that's ready for customization"
+  },
+  {
+    "id": "default-bot-python",
+    "name": "default-bot",
+    "language": "python",
+    "displayName": "Simple Bot",
+    "description": "A simple implementation of an echo bot that's ready for customization"
+  },
+  {
+    "id": "message-extension-v2-ts",
+    "name": "default-message-extension",
+    "language": "typescript",
+    "displayName": "Message Extension",
+    "description": "Receive user input, process it, and send customized results"
+  },
+  {
+    "id": "message-extension-v2-python",
+    "name": "default-message-extension",
+    "language": "python",
+    "displayName": "Message Extension",
+    "description": "Receive user input, process it, and send customized results"
+  },
+  {
+    "id": "empty-csharp",
+    "name": "empty",
+    "language": "csharp",
+    "displayName": "Empty Project",
+    "description": "Start with a minimal Teams app project"
+  },
+  {
+    "id": "message-extension-search-csharp",
+    "name": "message-extension-search",
+    "language": "csharp",
+    "displayName": "Message Extension (Search)",
+    "description": "Search-based message extension for Teams"
+  },
+  {
+    "id": "basic-tab-csharp",
+    "name": "non-sso-tab",
+    "language": "csharp",
+    "displayName": "Basic Tab",
+    "description": "Simple Teams Tab App"
+  },
+  {
+    "id": "default-bot-csharp",
+    "name": "default-bot",
+    "language": "csharp",
+    "displayName": "Echo Bot",
+    "description": "A simple implementation of an echo bot that's ready for customization"
+  },
+  {
+    "id": "notification-http-trigger-csharp",
+    "name": "notification-http-trigger",
+    "language": "csharp",
+    "displayName": "Notification Bot (HTTP Trigger)",
+    "description": "Send notifications to Teams using HTTP-triggered Azure Function"
+  },
+  {
+    "id": "notification-timer-trigger-csharp",
+    "name": "notification-timer-trigger",
+    "language": "csharp",
+    "displayName": "Notification Bot (Timer Trigger)",
+    "description": "Send scheduled notifications to Teams using timer-triggered Azure Function"
+  },
+  {
+    "id": "notification-http-timer-trigger-csharp",
+    "name": "notification-http-timer-trigger",
+    "language": "csharp",
+    "displayName": "Notification Bot (HTTP & Timer Trigger)",
+    "description": "Send notifications to Teams using both HTTP and timer triggers"
+  },
+  {
+    "id": "notification-webapi-csharp",
+    "name": "notification-webapi",
+    "language": "csharp",
+    "displayName": "Notification Bot (Web API)",
+    "description": "Send notifications to Teams using ASP.NET Core Web API"
+  },
+  {
+    "id": "command-and-response-csharp",
+    "name": "command-and-response",
+    "language": "csharp",
+    "displayName": "Command and Response Bot",
+    "description": "Respond to simple commands in Teams chat"
+  },
+  {
+    "id": "workflow-csharp",
+    "name": "workflow",
+    "language": "csharp",
+    "displayName": "Workflow Bot",
+    "description": "Build a sequential workflow bot for Teams"
+  },
+  {
+    "id": "message-extension-v2-csharp",
+    "name": "default-message-extension",
+    "language": "csharp",
+    "displayName": "Message Extension",
+    "description": "Receive user input, process it, and send customized results"
+  },
+  {
+    "id": "graph-connector-ts",
+    "name": "graph-connector",
+    "language": "typescript",
+    "displayName": "Copilot Connector",
+    "description": "Embed your organization data to make it searchable in Microsoft 365 Copilot"
+  }
+]

@@ -64,7 +64,7 @@ describe("Debug V3 custom-copilot-rag TypeScript template", () => {
       await CliHelper.createProjectWithCapability(
         appName,
         testFolder,
-        "custom-copilot-rag" as any,
+        "custom-copilot-rag-customize",
         undefined,
         options
       );
@@ -125,7 +125,7 @@ describe("Debug V3 custom-copilot-rag TypeScript template", () => {
       await CliHelper.createProjectWithCapability(
         appName,
         testFolder,
-        "custom-copilot-rag" as any,
+        "custom-copilot-rag-customize",
         undefined,
         options
       );
@@ -188,7 +188,7 @@ describe("Debug V3 custom-copilot-rag TypeScript template", () => {
       await CliHelper.createProjectWithCapability(
         appName,
         testFolder,
-        "custom-copilot-rag" as any,
+        "custom-copilot-rag-customize",
         undefined,
         options
       );
@@ -249,7 +249,7 @@ describe("Debug V3 custom-copilot-rag TypeScript template", () => {
       await CliHelper.createProjectWithCapability(
         appName,
         testFolder,
-        "custom-copilot-rag" as any,
+        "custom-copilot-rag-customize",
         undefined,
         options
       );

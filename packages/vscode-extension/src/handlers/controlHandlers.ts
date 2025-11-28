@@ -26,8 +26,6 @@ import { getTriggerFromProperty } from "../utils/telemetryUtils";
 import { getDefaultString } from "../utils/localizeUtils";
 import { getBuildIntelligentAppsWalkthroughID } from "./walkthrough";
 
-export const defaultWelcomePageKey = "defaultWelcomePage";
-
 export async function openLifecycleTreeview(args?: any[]) {
   ExtTelemetry.sendTelemetryEvent(
     TelemetryEvent.ClickOpenLifecycleTreeview,
@@ -41,44 +39,14 @@ export async function openLifecycleTreeview(args?: any[]) {
 }
 
 // args[0] is telemetry trigger from
-// args[1] is whether to open default welcome page. Pass const var defaultWelcomePageKey to open default welcome page.
 export async function openWelcomeHandler(...args: unknown[]): Promise<Result<unknown, FxError>> {
   ExtTelemetry.sendTelemetryEvent(TelemetryEvent.GetStarted, getTriggerFromProperty(args));
-  // Open different walkthrough depending on the project type
-  let isCopilotApp = false;
-  if (workspaceUri?.fsPath) {
-    const manifestRes = await manifestUtils.readAppManifest(workspaceUri?.fsPath);
-    if (manifestRes.isOk()) {
-      const capabilities = manifestUtils.getCapabilities(manifestRes.value);
-      isCopilotApp = capabilities.includes("copilotGpt");
-    }
-    if (!isCopilotApp) {
-      // Use dependency to determine if it is a copilot app for now.
-      // TODO: use getCapabilities after manifest supports custom engine copilot.
-      const packageJsonPath = path.join(workspaceUri.fsPath, "package.json");
-      const requirementsPath = path.join(workspaceUri.fsPath, "src", "requirements.txt");
-      if (await fs.pathExists(packageJsonPath)) {
-        const packageJson = await fs.readFile(packageJsonPath);
-        if (packageJson.toString().includes('"@microsoft/teams-ai"')) {
-          isCopilotApp = true;
-        }
-      } else if (await fs.pathExists(requirementsPath)) {
-        const requirements = await fs.readFile(requirementsPath);
-        if (requirements.toString().includes("teams-ai")) {
-          isCopilotApp = true;
-        }
-      }
-    }
-  }
-  let data: unknown;
-  if (isCopilotApp) {
-    data = await vscode.commands.executeCommand(
-      "workbench.action.openWalkthrough",
-      getBuildIntelligentAppsWalkthroughID()
-    );
-    return Promise.resolve(ok(data));
-  }
-  return await selectWalkthrough(args);
+
+  const data = await vscode.commands.executeCommand(
+    "workbench.action.openWalkthrough",
+    getBuildIntelligentAppsWalkthroughID()
+  );
+  return Promise.resolve(ok(data));
 }
 
 export async function selectWalkthrough(...args: unknown[]): Promise<Result<unknown, FxError>> {

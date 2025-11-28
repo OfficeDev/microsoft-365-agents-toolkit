@@ -94,7 +94,12 @@ describe("Local Debug Tests", function () {
               searchApp: false,
             }
           );
-          await validateBasicTab(page, ValidationContent.Tab);
+          await validateBasicTab(
+            page,
+            ValidationContent.Tab,
+            ValidationContent.Teams,
+            "local"
+          );
         }
 
         // cli preview
@@ -114,7 +119,12 @@ describe("Local Debug Tests", function () {
               loggedIn: true,
             }
           );
-          await validateBasicTab(page, ValidationContent.Tab);
+          await validateBasicTab(
+            page,
+            ValidationContent.Tab,
+            ValidationContent.Teams,
+            "local"
+          );
         }
       } catch (error) {
         successFlag = false;

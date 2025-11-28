@@ -23,7 +23,6 @@ import {
 import * as semver from "semver";
 import * as vscode from "vscode";
 import { IsChatParticipantEnabled } from "./chat/consts";
-import followupProvider from "./chat/followupProvider";
 import {
   AadAppTemplateCodeLensProvider,
   ApiPluginCodeLensProvider,
@@ -56,6 +55,7 @@ import { showError } from "./error/common";
 import * as exp from "./exp";
 import { TreatmentVariableValue, TreatmentVariables } from "./exp/treatmentVariables";
 import {
+  core,
   diagnosticCollection,
   initializeGlobalVariables,
   isDeclarativeCopilotApp,
@@ -174,22 +174,14 @@ import {
 import { openReadMeHandler } from "./handlers/readmeHandlers";
 import { showOutputChannelHandler } from "./handlers/showOutputChannel";
 import { openTutorialHandler, selectTutorialsHandler } from "./handlers/tutorialHandlers";
+import { updateActionWithMCP } from "./handlers/updateActionWithMCP";
 import {
   createProjectFromWalkthroughHandler,
   openBuildIntelligentAppsWalkthroughHandler,
 } from "./handlers/walkthrough";
 import { ManifestTemplateHoverProvider } from "./hoverProvider";
 import { manifestListener } from "./manifestListener";
-import {
-  CHAT_CREATE_OFFICE_PROJECT_COMMAND_ID,
-  officeChatParticipantId,
-} from "./officeChat/consts";
-import {
-  chatCreateOfficeProjectCommandHandler,
-  handleOfficeFeedback,
-  officeChatRequestHandler,
-} from "./officeChat/handlers";
-import { VS_CODE_UI, initVSCodeUI } from "./qm/vsc_ui";
+import { initVSCodeUI } from "./qm/vsc_ui";
 import { releaseControlledFeatureSettings } from "./releaseBasedFeatureSettings";
 import { ExtTelemetry } from "./telemetry/extTelemetry";
 import { TelemetryEvent, TelemetryTriggerFrom } from "./telemetry/extTelemetryEvents";
@@ -199,15 +191,14 @@ import { TreeViewCommand } from "./treeview/treeViewCommand";
 import TreeViewManagerInstance from "./treeview/treeViewManager";
 import { UriHandler, setUriEventHandler } from "./uriHandler";
 import { signOutAzure, signOutM365 } from "./utils/accountUtils";
-import { setupMCPServer } from "./utils/mcpUtils";
 import { acpInstalled, delay, hasAdaptiveCardInWorkspace } from "./utils/commonUtils";
 import { updateAutoOpenGlobalKey } from "./utils/globalStateUtils";
-import { loadLocalizedStrings, localize } from "./utils/localizeUtils";
+import { loadLocalizedStrings } from "./utils/localizeUtils";
+import { setupMCPServer } from "./utils/mcpUtils";
 import { checkProjectTypeAndSendTelemetry, isM365Project } from "./utils/projectChecker";
 import { ReleaseNote } from "./utils/releaseNote";
 import { ExtensionSurvey } from "./utils/survey";
 import { getSettingsVersion, projectVersionCheck } from "./utils/telemetryUtils";
-import { updateActionWithMCP } from "./handlers/updateActionWithMCP";
 
 export async function activate(context: vscode.ExtensionContext) {
   const value = IsChatParticipantEnabled && semver.gte(vscode.version, "1.90.0");
@@ -243,10 +234,6 @@ export async function activate(context: vscode.ExtensionContext) {
   registerActivateCommands(context);
 
   registerInternalCommands(context);
-
-  if (featureFlagManager.getBooleanValue(CoreFeatureFlags.ChatParticipant)) {
-    registerOfficeChatParticipant(context);
-  }
 
   if (isTeamsFxProject) {
     activateTeamsFxRegistration(context);
@@ -655,29 +642,6 @@ function registerInternalCommands(context: vscode.ExtensionContext) {
     (...args) => Correlator.run(updateActionWithMCP, args)
   );
   context.subscriptions.push(updateActionWithMcpCommand);
-}
-
-/**
- * Copilot Chat Participant for Office Add-in
- */
-function registerOfficeChatParticipant(context: vscode.ExtensionContext) {
-  const participant = vscode.chat.createChatParticipant(officeChatParticipantId, (...args) =>
-    Correlator.run(officeChatRequestHandler, ...args)
-  );
-  participant.iconPath = vscode.Uri.joinPath(context.extensionUri, "media", "office.png");
-  participant.followupProvider = followupProvider;
-  participant.onDidReceiveFeedback((...args) => Correlator.run(handleOfficeFeedback, ...args));
-
-  context.subscriptions.push(
-    participant,
-    vscode.commands.registerCommand("fx-extension.openOfficeDevDocument", (...args) =>
-      Correlator.run(officeDevHandlers.openDocumentHandler, args)
-    ),
-    vscode.commands.registerCommand(
-      CHAT_CREATE_OFFICE_PROJECT_COMMAND_ID,
-      chatCreateOfficeProjectCommandHandler
-    )
-  );
 }
 
 function registerTreeViewCommandsInDevelopment(context: vscode.ExtensionContext) {
@@ -1466,6 +1430,8 @@ async function runBackgroundAsyncTasks(
 
   const survey = ExtensionSurvey.getInstance();
   survey.activate();
+
+  await core.fetchOnlineTemplateMetadata();
 
   await recommendACPExtension();
 

@@ -81,6 +81,19 @@ jobs:
           token: ${{ steps.generate-token.outputs.token }}
           ref: ${{ github.ref }}
 
+      - name: Set up Python for README image analysis
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Install Python dependencies for image analysis
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install requests
+
+      - name: Check README images in VSC templates
+        run: |
+          python .github/scripts/analyze_readme_images.py --scan-directory templates/vsc --file-patterns "**/README.md" "**/README.md.tpl"
       - uses: actions/setup-node@v3
         with:
           node-version: 22
@@ -157,7 +170,7 @@ jobs:
           token: ${{ steps.generate-token.outputs.token }}
           prerelease: true
           tag: "templates@0.0.0-rc"
-          artifacts: ${{ github.workspace }}/templates/build/*.zip
+          artifacts: ${{ github.workspace }}/templates/build/fallback/*.zip,${{ github.workspace }}/templates/build/metadata.zip
           allowUpdates: true
           removeArtifacts: true
 
@@ -165,7 +178,7 @@ jobs:
         if: ${{ contains(steps.version-change.outputs.CHANGED, 'templates@') && github.event_name == 'workflow_dispatch' && github.event.inputs.preid == 'stable' }}
         uses: ncipollo/release-action@v1.10.0
         with:
-          artifacts: ${{ github.workspace }}/templates/build/*.zip
+          artifacts: ${{ github.workspace }}/templates/build/fallback/*.zip,${{ github.workspace }}/templates/build/metadata.zip
           name: "Release for ${{ steps.version-change.outputs.TEMPLATE_VERSION }}"
           token: ${{ steps.generate-token.outputs.token }}
           tag: ${{ steps.version-change.outputs.TEMPLATE_VERSION }}

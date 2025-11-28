@@ -5,11 +5,11 @@
  * @author Yimin Jin <yiminjin@microsoft.com>
  */
 
-import { Capability } from "../../utils/constants";
 import { ProgrammingLanguage } from "@microsoft/teamsfx-core";
-import { CaseFactory } from "../caseFactory";
-import path from "path";
 import * as fs from "fs-extra";
+import path from "path";
+import { Capability } from "../../utils/constants";
+import { CaseFactory } from "../caseFactory";
 
 class DeclarativeAgentWithApiKeyAuth extends CaseFactory {
   public override async onAfterCreate(projectPath: string): Promise<void> {
@@ -28,7 +28,7 @@ myRecord["api-plugin-type"] = "new-api";
 myRecord["api-auth"] = "api-key";
 
 new DeclarativeAgentWithApiKeyAuth(
-  Capability.DeclarativeAgent,
+  Capability.DeclarativeAgentWithActionFromScratchBearer,
   30310079,
   "yiminjin@microsoft.com",
   ["function"],
@@ -38,7 +38,7 @@ new DeclarativeAgentWithApiKeyAuth(
 ).test();
 
 new DeclarativeAgentWithApiKeyAuth(
-  Capability.DeclarativeAgent,
+  Capability.DeclarativeAgentWithActionFromScratchBearer,
   30309977,
   "yiminjin@microsoft.com",
   ["function"],

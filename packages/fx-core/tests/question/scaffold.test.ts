@@ -20,17 +20,9 @@ import { MessagingExtension } from "../../src/component/driver/teamsApp/interfac
 import { StaticTab } from "../../src/component/driver/teamsApp/interfaces/appdefinitions/staticTab";
 import { TemplateNames } from "../../src/component/generator/templates/templateNames";
 import { ProgrammingLanguage, QuestionNames } from "../../src/question/constants";
+import { apiSpecNode, apiSpecWithSearchNode } from "../../src/question/scaffold/commonNodes";
 import { scaffoldQuestionForVS } from "../../src/question/scaffold/vs/createRootNode";
-import {
-  ActionStartOptions,
-  BotCapabilityOptions,
-  CustomEngineAgentOptions,
-  DACapabilityOptions,
-  MeCapabilityOptions,
-  OfficeAddinCapabilityOptions,
-  TabCapabilityOptions,
-  TeamsAgentCapabilityOptions,
-} from "../../src/question/scaffold/vsc/CapabilityOptions";
+import { ActionStartOptions } from "../../src/question/scaffold/vsc/CapabilityOptions";
 import { ProjectTypeOptions } from "../../src/question/scaffold/vsc/ProjectTypeOptions";
 import {
   createFromTdpNode,
@@ -38,20 +30,13 @@ import {
 } from "../../src/question/scaffold/vsc/createFromTdpNode";
 import {
   folderAndAppNameCondition,
-  getProjectTypeByCapability,
-  getTeamsAppTypeByCapability,
-  getTeamsCapabilityByCapability,
   languageNode,
   scaffoldQuestionForVSCode,
 } from "../../src/question/scaffold/vsc/createRootNode";
-import { customEngineAgentNode } from "../../src/question/scaffold/vsc/customEngineAgentNode";
+import { getCustomEngineAgentNode } from "../../src/question/scaffold/vsc/customEngineAgentNode";
 import { daProjectTypeNode } from "../../src/question/scaffold/vsc/daProjectTypeNode";
 import { officeAddinProjectTypeNode } from "../../src/question/scaffold/vsc/officeAddinProjectTypeNode";
-import {
-  apiSpecNode,
-  apiSpecWithSearchNode,
-  TeamsProjectTypeOptions,
-} from "../../src/question/scaffold/vsc/teamsProjectTypeNode";
+import { TeamsProjectTypeOptions } from "../../src/question/scaffold/vsc/teamsProjectTypeNode";
 
 describe("vsc", () => {
   const sandbox = sinon.createSandbox();
@@ -352,7 +337,7 @@ describe("customEngineAgentProjectTypeNode", () => {
   });
 
   it("customEngineAgentProjectTypeNode basic structure", () => {
-    const node = customEngineAgentNode();
+    const node = getCustomEngineAgentNode();
     const conditionFunc = node?.condition as StringValidation;
 
     assert.equal(conditionFunc.equals, ProjectTypeOptions.customEngineAgentOptionId);
@@ -538,67 +523,6 @@ describe("folderAndAppNameCondition", () => {
     sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
     const res = folderAndAppNameCondition(inputs);
     assert.isFalse(res);
-  });
-});
-
-describe("getProjectTypeByCapability", () => {
-  it("DA", () => {
-    const type = getProjectTypeByCapability(DACapabilityOptions.declarativeAgent().id);
-    assert.equal(type, ProjectTypeOptions.copilotAgentOptionId);
-  });
-  it("Custom Engine Agent", () => {
-    const type = getProjectTypeByCapability(CustomEngineAgentOptions.basicCustomEngineAgent().id);
-    assert.equal(type, ProjectTypeOptions.customEngineAgentOptionId);
-  });
-  it("Agent for Teams", () => {
-    const type = getProjectTypeByCapability(TeamsAgentCapabilityOptions.customCopilotRag().id);
-    assert.equal(type, ProjectTypeOptions.teamsOptionId);
-  });
-  it("Bot", () => {
-    const type = getProjectTypeByCapability(BotCapabilityOptions.basicBot().id);
-    assert.equal(type, ProjectTypeOptions.teamsOptionId);
-  });
-  it("Tab", () => {
-    const type = getProjectTypeByCapability(TabCapabilityOptions.nonSsoTab().id);
-    assert.equal(type, ProjectTypeOptions.teamsOptionId);
-  });
-  it("ME", () => {
-    const type = getProjectTypeByCapability(MeCapabilityOptions.basicMe().id);
-    assert.equal(type, ProjectTypeOptions.teamsOptionId);
-  });
-  it("WXP", () => {
-    const type = getProjectTypeByCapability(OfficeAddinCapabilityOptions.wxpTaskPane().id);
-    assert.equal(type, ProjectTypeOptions.officeMetaOSOptionId);
-  });
-  it("Outlook", () => {
-    const type = getProjectTypeByCapability(OfficeAddinCapabilityOptions.outlookTaskPane().id);
-    assert.equal(type, ProjectTypeOptions.outlookAddinOptionId);
-  });
-});
-
-describe("getTeamsAppTypeByCapability", () => {
-  it("Tab", () => {
-    const type = getTeamsAppTypeByCapability(TabCapabilityOptions.nonSsoTab().id);
-    assert.equal(type, "others");
-  });
-  it("Invalid", () => {
-    const type = getTeamsCapabilityByCapability("invalid");
-    assert.equal(type, "");
-  });
-});
-
-describe("getTeamsCapabilityByCapability", () => {
-  it("Tab", () => {
-    const type = getTeamsCapabilityByCapability(TabCapabilityOptions.nonSsoTab().id);
-    assert.equal(type, TabCapabilityOptions.nonSsoTab().id);
-  });
-  it("Bot", () => {
-    const type = getTeamsCapabilityByCapability(BotCapabilityOptions.basicBot().id);
-    assert.equal(type, BotCapabilityOptions.basicBot().id);
-  });
-  it("Invalid", () => {
-    const type = getTeamsCapabilityByCapability("invalid");
-    assert.equal(type, "");
   });
 });
 

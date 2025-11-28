@@ -33,6 +33,10 @@ function sanitizeMCPName(name: string): string {
     .substring(0, 13);
 }
 
+function extractLocalServerIdentifier(serverConfig: any): string | undefined {
+  return serverConfig?.type === "stdio" ? serverConfig.args?.[2] : undefined;
+}
+
 export async function updateActionWithMCP(args?: any[]): Promise<Result<any, FxError>> {
   ExtTelemetry.sendTelemetryEvent(
     TelemetryEvent.UpdateActionWithMCPStart,
@@ -41,14 +45,29 @@ export async function updateActionWithMCP(args?: any[]): Promise<Result<any, FxE
   const inputs = getSystemInputs();
   let mcpName = args && args.length > 0 ? args[0].serverName : undefined;
   let server = args && args.length > 0 ? args[0].serverConfig?.url : undefined;
+  let isLocalMCP = args && args.length > 0 && args[0].serverConfig?.type === "stdio";
+  // For stdio type (local MCP), extract identifier from args array (e.g., args[2] contains the identifier)
+  let localServerIdentifier =
+    args && args.length > 0 ? extractLocalServerIdentifier(args[0].serverConfig) : undefined;
 
   // Sanitize mcpName if it's provided as an argument
   if (mcpName) {
     mcpName = sanitizeMCPName(mcpName);
   }
 
-  if (!mcpName && !server) {
-    const mcpFile = path.join(inputs.projectPath!, ".vscode", "mcp.json");
+  if (!mcpName && !server && !isLocalMCP) {
+    const projectPath = inputs.projectPath;
+    if (!projectPath) {
+      return err(
+        new UserError(
+          "da-mcp",
+          ExtensionErrors.MCPFileNotFound,
+          getDefaultString("teamstoolkit.MCP.FileNotFound"),
+          localize("teamstoolkit.MCP.FileNotFound")
+        )
+      );
+    }
+    const mcpFile = path.join(projectPath, ".vscode", "mcp.json");
     if (!fs.pathExistsSync(mcpFile)) {
       void vscode.window.showErrorMessage(localize("teamstoolkit.MCP.FileNotFound"));
       const error = new UserError(
@@ -90,16 +109,27 @@ export async function updateActionWithMCP(args?: any[]): Promise<Result<any, FxE
     }
     if (mcpNames.length === 1) {
       mcpName = sanitizeMCPName(mcpNames[0]);
-      server = mcpContent.servers[mcpNames[0]].url;
+      const serverConfig = mcpContent.servers[mcpNames[0]];
+      server = serverConfig.url;
+      isLocalMCP = serverConfig.type === "stdio";
+      localServerIdentifier = extractLocalServerIdentifier(serverConfig);
     } else {
       const mcpNameSelection: SingleSelectConfig = {
         name: "mcpName",
         title: "Select MCP Server",
-        options: mcpNames.map((name) => ({
-          id: name,
-          label: name,
-          detail: mcpContent.servers[name].url,
-        })),
+        options: mcpNames.map((name) => {
+          const serverConfig = mcpContent.servers[name];
+          const identifier = extractLocalServerIdentifier(serverConfig);
+          const detail =
+            serverConfig.type === "stdio"
+              ? `${identifier as string}`
+              : (serverConfig.url as string);
+          return {
+            id: name,
+            label: name,
+            detail: detail,
+          };
+        }),
       };
       const result = await VS_CODE_UI.selectOption(mcpNameSelection);
       if (result.isErr()) {
@@ -111,9 +141,14 @@ export async function updateActionWithMCP(args?: any[]): Promise<Result<any, FxE
       }
       const originalMcpName = result.value.result as string;
       mcpName = originalMcpName.replace(/[^a-zA-Z0-9]/g, "").substring(0, 10);
-      server = mcpContent.servers[originalMcpName].url;
+      const serverConfig = mcpContent.servers[originalMcpName];
+      server = serverConfig.url;
+      isLocalMCP = serverConfig.type === "stdio";
+      localServerIdentifier = extractLocalServerIdentifier(serverConfig);
     }
-  } else if (!mcpName || !server) {
+  }
+
+  if (!mcpName || (!isLocalMCP && !server) || (isLocalMCP && !localServerIdentifier)) {
     void vscode.window.showErrorMessage(localize("teamstoolkit.MCP.NameOrServerUrlMissing"));
     const error = new UserError(
       "da-mcp",
@@ -127,6 +162,10 @@ export async function updateActionWithMCP(args?: any[]): Promise<Result<any, FxE
 
   inputs[QuestionNames.MCPForDAServerUrl] = server;
   inputs[QuestionNames.MCPForDAServerName] = mcpName;
+  if (isLocalMCP && localServerIdentifier) {
+    inputs[QuestionNames.MCPLocalServerIdentifier] = localServerIdentifier;
+  }
+
   const allMcpTools = vscode.lm.tools;
   const tools = allMcpTools
     .filter((tool: vscode.LanguageModelToolInformation) =>
@@ -142,6 +181,7 @@ export async function updateActionWithMCP(args?: any[]): Promise<Result<any, FxE
         tags: tool.tags,
       };
     });
+
   if (tools.length === 0) {
     void vscode.window.showErrorMessage(localize("teamstoolkit.MCP.ToolsNotFound"));
     const error = new UserError(
@@ -157,31 +197,35 @@ export async function updateActionWithMCP(args?: any[]): Promise<Result<any, FxE
 
   let auth: "OAuthPluginVault" | "NoneAuth" = "NoneAuth";
   let oauthMetadataUrl = undefined;
-  try {
-    await axios.get(server);
-  } catch (error) {
-    if (error.status == 401) {
-      auth = "OAuthPluginVault";
-      const errorDetails = error.response?.headers?.["www-authenticate"];
-      if (errorDetails) {
-        const match = errorDetails.match(/resource_metadata=\s*"([^"]+)"/);
-        if (match) {
-          oauthMetadataUrl = match[1];
+
+  if (!isLocalMCP && server) {
+    try {
+      await axios.get(server);
+    } catch (error) {
+      if (error.status == 401) {
+        auth = "OAuthPluginVault";
+        const errorDetails = error.response?.headers?.["www-authenticate"];
+        if (errorDetails) {
+          const match = errorDetails.match(/resource_metadata=\s*"([^"]+)"/);
+          if (match) {
+            oauthMetadataUrl = match[1];
+          }
         }
       }
     }
-  }
-  if (auth === "OAuthPluginVault" && !oauthMetadataUrl) {
-    const originalURL = new URL(server);
-    const wellKnownURL = `${originalURL.protocol}//${originalURL.host}/.well-known/oauth-authorization-server`;
-    try {
-      const response = await axios.get(wellKnownURL);
-      if (response.status === 200) {
-        inputs[QuestionNames.MCPForDAAuthWellKnownUrl] = wellKnownURL;
+    if (auth === "OAuthPluginVault" && !oauthMetadataUrl) {
+      const originalURL = new URL(server);
+      const wellKnownURL = `${originalURL.protocol}//${originalURL.host}/.well-known/oauth-authorization-server`;
+      try {
+        const response = await axios.get(wellKnownURL);
+        if (response.status === 200) {
+          inputs[QuestionNames.MCPForDAAuthWellKnownUrl] = wellKnownURL;
+        }
+      } finally {
       }
-    } finally {
     }
   }
+
   inputs[QuestionNames.MCPForDAAuth] = auth;
   inputs[QuestionNames.MCPForDAAuthMetadataUrl] = oauthMetadataUrl;
   const result = await runCommand(Stage.updateActionWithMCP, inputs);
@@ -189,11 +233,13 @@ export async function updateActionWithMCP(args?: any[]): Promise<Result<any, FxE
     ExtTelemetry.sendTelemetryErrorEvent(TelemetryEvent.UpdateActionWithMCP, result.error, {
       "auth-type": auth,
       "tool-number": tools.length.toString(),
+      "mcp-type": isLocalMCP ? "local" : "remote",
     });
   } else {
     ExtTelemetry.sendTelemetryEvent(TelemetryEvent.UpdateActionWithMCP, {
       "auth-type": auth,
       "tool-number": tools.length.toString(),
+      "mcp-type": isLocalMCP ? "local" : "remote",
     });
   }
   return result;
