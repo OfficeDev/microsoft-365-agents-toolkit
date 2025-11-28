@@ -15,6 +15,10 @@ on:
         description: "Docker image tag to use"
         required: true
         default: "latest"
+      email-receiver:
+        description: "email notification receiver"
+        required: false
+        type: string
 
   schedule:
     - cron: "30 12 * * *"   # UTC+8 20:30 daily
@@ -27,10 +31,15 @@ jobs:
       contents: write
     outputs:
       test-plans: ${{ steps.get-plans.outputs.plans }}
+      email-receiver: ${{ steps.get-plans.outputs.email-receiver }}
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
-
+      - name: Schedule run
+        id: bvt
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        run: |
+          echo "email-receiver=teamsfxqa@microsoft.com" >> $GITHUB_OUTPUT
       - name: Get test plans
         id: get-plans
         run: |
