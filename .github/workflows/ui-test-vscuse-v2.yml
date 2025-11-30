@@ -36,15 +36,18 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Set the email receiver
-        id: bvt
-        if: ${{ github.event_name == 'workflow_dispatch' }}
-        run: |
-          echo "email-receiver=teamsfxqa@microsoft.com" >> $GITHUB_OUTPUT
-
       - name: Get test plans
         id: get-plans
         run: |
+          # Set email receiver - use user input if provided, otherwise use default
+          if [ -n "${{ github.event.inputs.email-receiver }}" ]; then
+            echo "email-receiver=${{ github.event.inputs.email-receiver }}" >> $GITHUB_OUTPUT
+            echo "Using user-provided email receiver: ${{ github.event.inputs.email-receiver }}"
+          else
+            echo "email-receiver=teamsfxqa@microsoft.com" >> $GITHUB_OUTPUT
+            echo "Using default email receiver: teamsfxqa@microsoft.com"
+          fi
+
           if [ "${{ github.event.inputs.pre_release_testing }}" == "true" ]; then
             if [ -f "packages/tests/vscuse/vscode-test-cases/pre-release-test-cases.json" ]; then
               plans=$(cat packages/tests/vscuse/vscode-test-cases/pre-release-test-cases.json | jq -c '.')
@@ -276,6 +279,15 @@ jobs:
         env:
           AZURE_STORAGE_ACCOUNT: vscusedownload
 
+      - name: Upload storage URL artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: storage-url-${{ matrix.test_plan }}-${{ github.run_id }}
+          path: storage_url.txt
+          retention-days: 7
+          if-no-files-found: ignore
+
       - name: Cleanup
         if: always()
         run: |
@@ -303,51 +315,18 @@ jobs:
             https://api.github.com/repos/${{ github.repository }}/actions/workflows/rerun.yml/dispatches \
             -d '{"ref":"${{ github.ref_name }}","inputs":{"run_id":"${{ github.run_id }}", "max_attempts":"5"}}'
 
-
-
-
   report:
-    if: ${{ (github.event_name == 'workflow_dispatch' && needs.setup.outputs.email-receiver) || (github.event_name == 'schedule' && (success() || (failure() && github.run_attempt >= 5))) }}
+    if: ${{ always() && ((github.event_name == 'workflow_dispatch' && needs.discover-test-plans.outputs.email-receiver) || (github.event_name == 'schedule' && (success() || (failure() && github.run_attempt >= 5)))) }}
     needs: [discover-test-plans, main]
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: packages/tests
+        working-directory: packages/tests/vscuse
     steps:
       - name: Checkout
         uses: actions/checkout@v3
 
 
-      - name: Ensure vscuse-related folder exists
-        shell: pwsh
-        run: |
-          $casesFolderPath = "packages/tests/vscuse/agent_cases"
-          if (-not (Test-Path -Path $casesFolderPath)) {
-            New-Item -ItemType Directory -Path $casesFolderPath | Out-Null
-            Write-Host "Created folder: $casesFolderPath"
-          } else {
-            Write-Host "Folder already exists: $casesFolderPath"
-          }
-      # Download test case files artifact and unzip to agent_cases
-      - name: Download vscuse-agent-cases artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: vscuse-agent-cases
-          path: packages/tests/vscuse/agent_cases
-
-      - name: Unzip test case files if zipped
-        shell: pwsh
-        run: |
-          $zipFiles = Get-ChildItem -Path "packages/tests/vscuse/agent_cases" -Filter *.zip
-          if ($zipFiles.Count -eq 0) {
-            Write-Host "No zip files found in agent_cases directory."
-          }
-          foreach ($zip in $zipFiles) {
-            Write-Host "Unzipping $($zip.FullName)..."
-            Expand-Archive -Path $zip.FullName -DestinationPath "packages/tests/vscuse/agent_cases" -Force
-            Remove-Item $zip.FullName
-          }
-          Get-ChildItem -Path "packages/tests/vscuse/agent_cases" -Recurse | ForEach-Object { Write-Host $_.FullName }
       - name: Download storage URLs
         uses: actions/download-artifact@v4
         with:
@@ -369,9 +348,15 @@ jobs:
             
             # Find all storage_url.txt files and process them
             find /tmp/storage-urls -type f -name "storage_url.txt" | while read file; do
-              # Extract the job ID from the parent directory name (storage-url-CASENAME_RUNID)
+              # Extract the test_plan and run_id from the parent directory name (storage-url-TESTPLAN-RUNID)
               dir_name=$(basename $(dirname "$file"))
-              case_run_id=$(echo "$dir_name" | rev | cut -d'-' -f1 | rev)
+              # Format: storage-url-{test_plan}-{run_id}
+              # Extract test_plan (everything between 'storage-url-' and the last '-{run_id}')
+              run_id=$(echo "$dir_name" | rev | cut -d'-' -f1 | rev)
+              test_plan=$(echo "$dir_name" | sed "s/^storage-url-//" | sed "s/-${run_id}$//")
+              case_run_id="${test_plan}-${run_id}"
+              
+              echo "Processing: dir_name=$dir_name, test_plan=$test_plan, run_id=$run_id, case_run_id=$case_run_id"
               
               # Read the content of the file
               content=$(cat "$file" | tr -d '\n' | tr -d '\r')
@@ -393,7 +378,7 @@ jobs:
             cat /tmp/url_mapping.json
             
             # Count total files processed
-            total_urls=$(find /tmp/storage-urls -type f -name "/tmp/storage_url.txt" | wc -l)
+            total_urls=$(find /tmp/storage-urls -type f -name "storage_url.txt" | wc -l)
             echo "Total storage URL files processed: $total_urls"
           else
             echo "No storage URL artifacts found"
@@ -448,7 +433,7 @@ jobs:
           passedlist=""
           lists=""
 
-          emails="${{ needs.setup.outputs.email-receiver }}"
+            emails="${{ needs.discover-test-plans.outputs.email-receiver }}"
           echo "Initial email list: $emails"
 
           while IFS= read -r case;
@@ -468,31 +453,30 @@ jobs:
             author="N/A"
             work_item_url="N/A"
 
-            # Extract the title and author, and url from the corresponding agent_cases file
-            case_file="./agent_cases/${case_id}.txt"
-            echo "Looking for case file: $case_file"
-            if [ -f "$case_file" ]; then
-              echo "Found case file: $case_file"
-              echo "whole file content:"
-              cat "$case_file"
-              # Get title
-              title=$(grep -m1 '^#Title:' "$case_file" | sed 's/^#Title:[[:space:]]*//')
+            # Extract the title from the plan JSON file
+            plan_file="./vscode-test-cases/plans/${case_id}.json"
+            echo "Looking for plan file: $plan_file"
+            if [ -f "$plan_file" ]; then
+              echo "Found plan file: $plan_file"
+              # Get title from plan_metadata.name
+              title=$(jq -r '.plan_metadata.name // "Unknown Test Case Title"' "$plan_file")
               echo "Extracted title: $title"
-
-
-              # Get author
-              author_line=$(grep -m1 '^#Author:' "$case_file" | sed 's/^#Author:[[:space:]]*//')
-              if [ -n "$author_line" ]; then
-              author="<a href=\\\"mailto:$author_line\\\"><span>$author_line</span></a>"
+              
+              # Get description (work item ID) from plan_metadata.description
+              description=$(jq -r '.plan_metadata.description // ""' "$plan_file")
+              if [ -n "$description" ] && [ "$description" != "null" ]; then
+                # If description looks like a work item ID (numeric), create a link
+                if [[ "$description" =~ ^[0-9]+$ ]]; then
+                  work_item_url="<a href=\\\"https://dev.azure.com/AzureDevOpsTestOrg/TestProject/_workitems/edit/$description\\\">$description</a>"
+                else
+                  work_item_url="$description"
+                fi
               fi
-              echo "Extracted author: $author"
-
-              # Get work item URL
-              url_line=$(grep -m1 '^#URL:' "$case_file" | sed 's/^#URL:[[:space:]]*//')
-              if [ -n "$url_line" ]; then
-                work_item_url="<a href=\\\"$url_line\\\">Work Item</a>"
-              fi
-              echo "Extracted work item URL: $work_item_url"
+              echo "Extracted work item: $work_item_url"
+            else
+              echo "Plan file not found: $plan_file"
+              # Fallback: use case_id as title with underscores replaced by spaces
+              title=$(echo "$case_id" | tr '_' ' ')
             fi
 
             echo "Extracted info - Name: $name, OS: $os, Node: $node, Branch: $branch, Case ID: $case_id, Title: $title, Author: $author, Work Item URL: $work_item_url"
@@ -506,8 +490,8 @@ jobs:
             run_id=$(echo "$jobs" | jq --arg case "$case" -r '.[] | select(.name == $case ) | .run_id')
             echo "Run Id: $run_id"
 
-            # Combine the case_id and run_id to create a lookup key
-            lookup_key="${case_id}_${run_id}"
+            # Combine the case name and run_id to create a lookup key
+            lookup_key="${case_id}-${run_id}"
 
             echo "Lookup Key: $lookup_key"
 
@@ -548,7 +532,7 @@ jobs:
             url="<a href=\\\"$url\\\">$name</a>"
             echo "Job URL: $url"
 
-            row="<tr> <td style=\\\"text-align: left;\\\">$url</td> <td style=\\\"text-align: left;\\\">$title</td> <td style=\\\"text-align: left;\\\">$os</td> <td style=\\\"text-align: left;\\\">$node</td> <td style=\\\"text-align: center;\\\">$label</td> <td style=\\\"text-align: center;\\\">$author</td> <td style=\\\"text-align: center;\\\">$work_item_url</td> <td style=\\\"text-align: center;\\\">$duration</td>  <td style=\\\"text-align: center;\\\">$report_url</td> </tr>"
+            row="<tr> <td style=\\\"text-align: left;\\\">$url</td> <td style=\\\"text-align: left;\\\">$title</td> <td style=\\\"text-align: left;\\\">$os</td> <td style=\\\"text-align: left;\\\">$node</td> <td style=\\\"text-align: center;\\\">$label</td> <td style=\\\"text-align: center;\\\">$work_item_url</td> <td style=\\\"text-align: center;\\\">$duration</td>  <td style=\\\"text-align: center;\\\">$report_url</td> </tr>"
             echo "Generated row: $row"
 
             if [[ "$status" == "success" && $passed -lt $passedlimit ]]; then
@@ -563,7 +547,7 @@ jobs:
           echo "Final failed list: $failedlist"
           echo "Final passed list: $passedlist"
 
-          body="<a href=\\\"https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\\\">Test report link.</a>  <br/> Release: ${{ needs.setup.outputs.ttk-package }}. <br/> <table class=\\\"w3-table w3-striped w3-bordered\\\"> <tr> <th>CASE</th> <th>TITLE</th> <th>OS</th> <th>NODE</th> <th>STATUS</th> <th>AUTHOR</th><th>WORK ITEM</th> <th>DURATION</th> <th>Report URL</th> </tr> $lists </table> <br />"
+          body="<a href=\\\"https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\\\">Test report link.</a>  <br/> <table class=\\\"w3-table w3-striped w3-bordered\\\"> <tr> <th>CASE</th> <th>TITLE</th> <th>OS</th> <th>NODE</th> <th>STATUS</th> <th>WORK ITEM</th> <th>DURATION</th> <th>REPORT</th> </tr> $lists </table> <br />"
           echo "Generated email body: $body"
 
           total=$((passed+failed))
