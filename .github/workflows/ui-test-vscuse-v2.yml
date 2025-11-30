@@ -546,7 +546,8 @@ jobs:
             echo "Job result label: $label"
 
             url=$(echo "$jobs" | jq --arg case "$case" -r '.[] | select(.name == $case ) | .html_url')
-            url="<a href=\\\"$url\\\">$name</a>"
+            display_name=$(echo "$name" | sed 's/^Case-//')
+            url="<a href=\\\"$url\\\">$display_name</a>"
             echo "Job URL: $url"
 
             owner="N/A"
