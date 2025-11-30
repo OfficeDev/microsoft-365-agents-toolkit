@@ -19,6 +19,11 @@ on:
         description: "email notification receiver"
         required: false
         type: string
+      max_retries:
+        description: "Maximum number of retry attempts (1-20, default: 5)"
+        required: false
+        type: number
+        default: 5
 
   schedule:
     - cron: "30 12 * * *"   # UTC+8 20:30 daily
@@ -302,9 +307,24 @@ jobs:
     permissions:
       actions: write
     needs: main
-    if: ${{ (github.event_name == 'workflow_dispatch' || github.event_name == 'schedule') && failure() && github.run_attempt < 5 }}
+    if: ${{ (github.event_name == 'workflow_dispatch' || github.event_name == 'schedule') && failure() && github.run_attempt < (github.event.inputs.max_retries || 5) }}
     runs-on: ubuntu-latest
+    env:
+      MAX_RETRIES: ${{ github.event.inputs.max_retries || 5 }}
     steps:
+      - name: Calculate max retries
+        id: calc-retries
+        run: |
+          # Get max retries from input, default to 5, cap at 20
+          max_retries=${{ github.event.inputs.max_retries || 5 }}
+          if [ "$max_retries" -gt 20 ]; then
+            max_retries=20
+          fi
+          if [ "$max_retries" -lt 1 ]; then
+            max_retries=1
+          fi
+          echo "max_retries=$max_retries" >> $GITHUB_OUTPUT
+          echo "Using max retries: $max_retries"
       - name: trigger rerun workflow
         run: |
           curl \
@@ -313,11 +333,11 @@ jobs:
             -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}"\
             -H "X-GitHub-Api-Version: 2022-11-28" \
             https://api.github.com/repos/${{ github.repository }}/actions/workflows/rerun.yml/dispatches \
-            -d '{"ref":"${{ github.ref_name }}","inputs":{"run_id":"${{ github.run_id }}", "max_attempts":"5"}}'
+            -d '{"ref":"${{ github.ref_name }}","inputs":{"run_id":"${{ github.run_id }}", "max_attempts":"${{ steps.calc-retries.outputs.max_retries }}"}}'
 
   report:
-    # Only send email on the last attempt (attempt 5) or when all tests pass
-    if: ${{ always() && needs.discover-test-plans.outputs.email-receiver && (success() || github.run_attempt >= 5) }}
+    # Only send email on the last attempt or when all tests pass
+    if: ${{ always() && needs.discover-test-plans.outputs.email-receiver && (success() || github.run_attempt >= (github.event.inputs.max_retries || 5)) }}
     needs: [discover-test-plans, main]
     runs-on: ubuntu-latest
     defaults:
@@ -391,12 +411,34 @@ jobs:
       - name: list jobs
         id: list-jobs
         working-directory: packages/tests/vscuse
+        env:
+          AZURE_DEVOPS_PAT: ${{ secrets.AZURE_DEVOPS_PAT }}
+          AZURE_DEVOPS_ORG: "msazure"
+          AZURE_DEVOPS_PROJECT: "Microsoft%20Teams%20Extensibility"
         run: |
           page=1
           jobs="[]"
           echo "Initial jobs: $jobs"
           
           report_map_json_file_path="/tmp/url_mapping.json"
+          
+          # Function to query Azure DevOps for bugs with specific tag
+          query_bugs_by_tag() {
+            local tag="$1"
+            local encoded_tag=$(echo "$tag" | sed 's/ /%20/g')
+            
+            # WIQL query to find active bugs with the specific tag
+            local wiql_query="{\"query\": \"SELECT [System.Id], [System.Title], [System.State] FROM WorkItems WHERE [System.WorkItemType] = 'Bug' AND [System.State] = 'Active' AND [System.Tags] CONTAINS '${tag}'\"}"
+            
+            local response=$(curl -s -u ":${AZURE_DEVOPS_PAT}" \
+              -H "Content-Type: application/json" \
+              -X POST \
+              "https://dev.azure.com/${AZURE_DEVOPS_ORG}/${AZURE_DEVOPS_PROJECT}/_apis/wit/wiql?api-version=7.0" \
+              -d "$wiql_query")
+            
+            echo "$response"
+          }
+          
           while :
           do
             url="https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/attempts/${{ github.run_attempt }}/jobs?per_page=100&page=$page"
@@ -552,6 +594,57 @@ jobs:
 
             owner="N/A"
             linked_bugs=""
+            
+            # Query Azure DevOps for linked bugs if the case failed
+            if [ "$status" != "success" ]; then
+              echo "Case failed, querying Azure DevOps for bugs with tag: $display_name"
+              
+              # Try to query Azure DevOps, with error handling
+              bug_response=""
+              query_error=""
+              
+              if [ -z "$AZURE_DEVOPS_PAT" ]; then
+                query_error="⚠️No ADO PAT configured"
+                echo "Azure DevOps PAT not configured, skipping bug query"
+              else
+                bug_response=$(query_bugs_by_tag "$display_name" 2>&1) || query_error="⚠️Network issue"
+                echo "Bug query response: $bug_response"
+                
+                # Check if the response is valid JSON and contains workItems
+                if [ -z "$query_error" ]; then
+                  # Check for API errors in response
+                  api_error=$(echo "$bug_response" | jq -r '.message // empty' 2>/dev/null)
+                  if [ -n "$api_error" ]; then
+                    query_error="⚠️ADO API error"
+                    echo "Azure DevOps API error: $api_error"
+                  fi
+                fi
+              fi
+              
+              if [ -n "$query_error" ]; then
+                linked_bugs="$query_error"
+                echo "Bug query failed: $query_error"
+              else
+                # Extract work item IDs from the response
+                bug_ids=$(echo "$bug_response" | jq -r '.workItems[]?.id // empty' 2>/dev/null)
+                
+                if [ -n "$bug_ids" ]; then
+                  bug_links=""
+                  for bug_id in $bug_ids; do
+                    if [ -n "$bug_links" ]; then
+                      bug_links="$bug_links, "
+                    fi
+                    bug_links="$bug_links<a href=\\\"https://dev.azure.com/${AZURE_DEVOPS_ORG}/${AZURE_DEVOPS_PROJECT}/_workitems/edit/$bug_id\\\">🐞$bug_id</a>"
+                  done
+                  linked_bugs="$bug_links"
+                  echo "Found linked bugs: $linked_bugs"
+                else
+                  linked_bugs="❌Failed but no bug yet"
+                  echo "No linked bugs found for failed case"
+                fi
+              fi
+            fi
+            
             row="<tr> <td style=\\\"text-align: left;\\\">$url</td> <td style=\\\"text-align: left;\\\">$title</td> <td style=\\\"text-align: center;\\\">$label</td> <td style=\\\"text-align: center;\\\">$owner</td> <td style=\\\"text-align: center;\\\">$work_item_url</td> <td style=\\\"text-align: center;\\\">$linked_bugs</td> <td style=\\\"text-align: center;\\\">$duration</td>  <td style=\\\"text-align: center;\\\">$report_url</td> </tr>"
             echo "Generated row: $row"
 
