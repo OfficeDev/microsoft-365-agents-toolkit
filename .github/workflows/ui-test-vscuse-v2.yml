@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       test_plan:
-        description: "Comma-separated list of test cases to run, input test case id (e.g. 33258708, 33258728)"
+        description: "Comma-separated list of test plan to run (e.g. DA_Regenrate_Action, Message_Extension_py_Local_Debug)"
         required: false
       pre_release_testing:
         description: "Run pre-release testing (overrides test_plan)"
@@ -20,10 +20,10 @@ on:
         required: false
         type: string
       max_retries:
-        description: "Maximum number of retry attempts (1-20, default: 5)"
+        description: "Maximum number of retry attempts (1-20, default: 7)"
         required: false
         type: number
-        default: 5
+        default: 7
 
   schedule:
     - cron: "30 12 * * *"   # UTC+8 20:30 daily
@@ -307,16 +307,16 @@ jobs:
     permissions:
       actions: write
     needs: main
-    if: ${{ (github.event_name == 'workflow_dispatch' || github.event_name == 'schedule') && failure() && github.run_attempt < (github.event.inputs.max_retries || 5) }}
+    if: ${{ (github.event_name == 'workflow_dispatch' || github.event_name == 'schedule') && failure() && github.run_attempt < (github.event.inputs.max_retries || 7) }}
     runs-on: ubuntu-latest
     env:
-      MAX_RETRIES: ${{ github.event.inputs.max_retries || 5 }}
+      MAX_RETRIES: ${{ github.event.inputs.max_retries || 7 }}
     steps:
       - name: Calculate max retries
         id: calc-retries
         run: |
-          # Get max retries from input, default to 5, cap at 20
-          max_retries=${{ github.event.inputs.max_retries || 5 }}
+          # Get max retries from input, default to 7, cap at 20
+          max_retries=${{ github.event.inputs.max_retries || 7 }}
           if [ "$max_retries" -gt 20 ]; then
             max_retries=20
           fi
@@ -337,7 +337,7 @@ jobs:
 
   report:
     # Only send email on the last attempt or when all tests pass
-    if: ${{ always() && needs.discover-test-plans.outputs.email-receiver && (success() || github.run_attempt >= (github.event.inputs.max_retries || 5)) }}
+    if: ${{ always() && needs.discover-test-plans.outputs.email-receiver && (success() || github.run_attempt >= (github.event.inputs.max_retries || 7)) }}
     needs: [discover-test-plans, main]
     runs-on: ubuntu-latest
     defaults:
