@@ -428,7 +428,7 @@ jobs:
             local encoded_tag=$(echo "$tag" | sed 's/ /%20/g')
             
             # WIQL query to find active bugs with the specific tag
-            local wiql_query="{\"query\": \"SELECT [System.Id], [System.Title], [System.State] FROM WorkItems WHERE [System.WorkItemType] = 'Bug' AND [System.State] = 'Active' AND [System.Tags] CONTAINS '${tag}'\"}"
+            local wiql_query="{\"query\": \"SELECT [System.Id], [System.Title], [System.State] FROM WorkItems WHERE [System.WorkItemType] = 'Bug' AND [System.State] IN ('Active','New','Committed') AND [System.Tags] CONTAINS '${tag}'\"}"
             
             local response=$(curl -s -u ":${AZURE_DEVOPS_PAT}" \
               -H "Content-Type: application/json" \
