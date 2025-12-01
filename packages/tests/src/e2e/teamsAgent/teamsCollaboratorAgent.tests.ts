@@ -163,7 +163,7 @@ describe("Teams Collaborator Agent", function () {
       assert.equal(remoteTeamsApp?.teamsAppId, context.TEAMS_APP_ID);
 
       const appServiceResourceId =
-        context[EnvConstants.BOT_AZURE_APP_SERVICE_RESOURCE_ID];
+        context[EnvConstants.AZURE_APP_SERVICE_RESOURCE_ID];
       assert.exists(
         appServiceResourceId,
         "Azure App Service resource ID should exist"

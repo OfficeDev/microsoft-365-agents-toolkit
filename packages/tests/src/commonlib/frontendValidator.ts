@@ -245,7 +245,7 @@ export class FrontendValidator {
   private static getResourceIdFromCtx(ctx: any): string {
     return (
       ctx[EnvConstants.TAB_AZURE_STORAGE_RESOURCE_ID] ??
-      ctx[EnvConstants.TAB_AZURE_APP_SERVICE_RESOURCE_ID]
+      ctx[EnvConstants.AZURE_APP_SERVICE_RESOURCE_ID]
     );
   }
 

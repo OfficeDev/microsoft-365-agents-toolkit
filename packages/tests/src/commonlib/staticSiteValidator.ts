@@ -26,6 +26,6 @@ export class StaticSiteValidator {
 
   private static getStaticSiteEndpointFromContext(context: any): string {
     console.log("context: ", JSON.stringify(context));
-    return context[EnvConstants.TAB_ENDPOINT];
+    return context[EnvConstants.APP_ENDPOINT];
   }
 }

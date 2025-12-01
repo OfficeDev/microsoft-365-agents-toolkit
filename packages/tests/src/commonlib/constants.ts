@@ -153,18 +153,15 @@ export class EnvConstants {
   // FrontEnd
   static readonly TAB_AZURE_STORAGE_RESOURCE_ID =
     "TAB_AZURE_STORAGE_RESOURCE_ID";
-  static readonly TAB_AZURE_APP_SERVICE_RESOURCE_ID =
-    "TAB_AZURE_APP_SERVICE_RESOURCE_ID";
-  static readonly TAB_ENDPOINT = "TAB_ENDPOINT";
-  static readonly TAB_DOMAIN = "TAB_DOMAIN";
+  static readonly APP_ENDPOINT = "APP_ENDPOINT";
+  static readonly APP_DOMAIN = "APP_DOMAIN";
   // BOT
   static readonly BOT_ID = "BOT_ID";
   static readonly BOT_PASSWORD = "SECRET_BOT_PASSWORD";
-  static readonly BOT_AZURE_APP_SERVICE_RESOURCE_ID =
-    "BOT_AZURE_APP_SERVICE_RESOURCE_ID";
+  static readonly AZURE_APP_SERVICE_RESOURCE_ID =
+    "AZURE_APP_SERVICE_RESOURCE_ID";
   static readonly BOT_AZURE_FUNCTION_RESOURCE_ID =
     "BOT_AZURE_FUNCTION_APP_RESOURCE_ID";
-  static readonly BOT_DOMAIN = "BOT_DOMAIN";
   // FUNCTION
   static readonly FUNCTION_ID = "FUNCTION_RESOURCE_ID";
   static readonly FUNCTION_ID_2 = "API_FUNCTION_RESOURCE_ID";

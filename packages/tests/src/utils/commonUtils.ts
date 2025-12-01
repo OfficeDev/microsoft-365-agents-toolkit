@@ -1,13 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
-import { FeatureFlagName } from "./constants";
-import * as path from "path";
-import * as fs from "fs-extra";
 import * as chai from "chai";
-import { dotenvUtil } from "./envUtil";
-import { TestFilePath } from "./constants";
 import { exec, spawn, SpawnOptionsWithoutStdio } from "child_process";
+import * as fs from "fs-extra";
+import * as path from "path";
 import { promisify } from "util";
+import { FeatureFlagName, TestFilePath } from "./constants";
+import { dotenvUtil } from "./envUtil";
 
 export const execAsync = promisify(exec);
 
@@ -151,7 +150,7 @@ export async function updateAppShortName(
 export async function getBotSiteEndpoint(
   projectPath: string,
   envName = "dev",
-  endpoint = "BOT_DOMAIN"
+  endpoint = "APP_DOMAIN"
 ): Promise<string | undefined> {
   const userDataFile = path.join(
     TestFilePath.configurationFolder,

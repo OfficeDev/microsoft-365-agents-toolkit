@@ -1,3 +1,5 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
 export type DotenvOutput = {
   [k: string]: string;
 };
@@ -69,7 +71,7 @@ export const dotenvUtil = new DotenvUtil();
 // SECRET_BOT_PASSWORD=
 // TEAMS_APP_ID=
 // BOT_AZURE_FUNCTION_APP_RESOURCE_ID=
-// BOT_DOMAIN=
+// APP_DOMAIN=
 // BOT_FUNCTION_ENDPOINT=
 // TEAMS_APP_TENANT_ID=
 // `;

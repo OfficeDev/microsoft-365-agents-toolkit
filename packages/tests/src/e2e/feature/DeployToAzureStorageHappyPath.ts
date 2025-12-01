@@ -4,7 +4,13 @@
  * @author Siglud <siglud@gmail.com>
  */
 
+import { environmentNameManager } from "@microsoft/teamsfx-core";
+import { expect } from "chai";
+import * as fs from "fs";
 import { describe } from "mocha";
+import * as path from "path";
+import { getUuid } from "../../commonlib";
+import { Executor } from "../../utils/executor";
 import {
   cleanUp,
   createResourceGroup,
@@ -12,12 +18,6 @@ import {
   getTestFolder,
   getUniqueAppName,
 } from "../commonUtils";
-import * as path from "path";
-import * as fs from "fs";
-import { getUuid } from "../../commonlib";
-import { expect } from "chai";
-import { environmentNameManager } from "@microsoft/teamsfx-core";
-import { Executor } from "../../utils/executor";
 
 describe("Provision and deploy a Azure Storage", async function () {
   // create a project with Azure Storage
@@ -87,7 +87,7 @@ resource storage 'Microsoft.Storage/storageAccounts@2021-06-01' = {
 }
 
 output TAB_AZURE_STORAGE_RESOURCE_ID string = storage.id
-output TAB_DOMAIN string = storage.properties.primaryEndpoints.web`,
+output APP_DOMAIN string = storage.properties.primaryEndpoints.web`,
       { encoding: "utf-8", flag: "w" }
     );
     // write azure.parameters.json
@@ -146,7 +146,7 @@ output TAB_DOMAIN string = storage.properties.primaryEndpoints.web`,
       "utf-8"
     );
     const line = file.split("\n").filter((line) => {
-      return line.startsWith("TAB_DOMAIN");
+      return line.startsWith("APP_DOMAIN");
     });
     const domain = line[0].split("=")[1];
     const response = await fetch(domain);

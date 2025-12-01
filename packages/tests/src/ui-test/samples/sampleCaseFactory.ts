@@ -5,34 +5,34 @@
  * @author Ivan Chen <v-ivanchen@microsoft.com>
  */
 
+import { expect } from "chai";
+import { ChildProcess, ChildProcessWithoutNullStreams } from "child_process";
+import fs from "fs-extra";
+import path from "path";
+import { Page } from "playwright";
+import { VSBrowser } from "vscode-extension-tester";
+import { AzSqlHelper } from "../../utils/azureCliHelper";
+import { initDebugPort } from "../../utils/commonUtils";
 import {
-  Timeout,
-  TemplateProject,
-  sampleProjectMap,
+  LocalDebugError,
   LocalDebugTaskLabel,
   LocalDebugTaskResult,
-  LocalDebugError,
+  TemplateProject,
+  Timeout,
+  sampleProjectMap,
 } from "../../utils/constants";
-import { waitForTerminal, stopDebugging } from "../../utils/vscodeOperation";
+import { Env } from "../../utils/env";
+import { Executor } from "../../utils/executor";
+import { it } from "../../utils/it";
+import { getScreenshotName } from "../../utils/nameUtil";
 import {
   debugInitMap,
   initPage,
   reopenPage,
 } from "../../utils/playwrightOperation";
-import { Env } from "../../utils/env";
-import { SampledebugContext } from "./sampledebugContext";
-import { it } from "../../utils/it";
-import { VSBrowser } from "vscode-extension-tester";
-import { getScreenshotName } from "../../utils/nameUtil";
-import { AzSqlHelper } from "../../utils/azureCliHelper";
-import { expect } from "chai";
-import { Page } from "playwright";
-import fs from "fs-extra";
-import path from "path";
-import { Executor } from "../../utils/executor";
-import { ChildProcess, ChildProcessWithoutNullStreams } from "child_process";
-import { initDebugPort } from "../../utils/commonUtils";
+import { stopDebugging, waitForTerminal } from "../../utils/vscodeOperation";
 import { CliHelper } from "../cliHelper";
+import { SampledebugContext } from "./sampledebugContext";
 
 const debugMap: Record<LocalDebugTaskLabel, () => Promise<void>> = {
   [LocalDebugTaskLabel.StartFrontend]: async () => {
@@ -512,7 +512,7 @@ export abstract class CaseFactory {
                 );
                 envContent = fs.readFileSync(envFile, "utf-8");
                 // if bot project setup devtunnel
-                botFlag = envContent.includes("BOT_DOMAIN");
+                botFlag = envContent.includes("APP_DOMAIN");
               } catch (error) {
                 console.log("read file error", error);
               }

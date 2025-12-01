@@ -83,8 +83,7 @@ describe("Blazor App", function () {
       chai.assert.exists(token);
 
       const context = await readContextMultiEnvV3(projectPath, envName);
-      const resourceId =
-        context[EnvConstants.TAB_AZURE_APP_SERVICE_RESOURCE_ID];
+      const resourceId = context[EnvConstants.AZURE_APP_SERVICE_RESOURCE_ID];
       chai.assert.exists(context);
       chai.assert.exists(resourceId);
       const response = await getWebappSettings(
@@ -104,7 +103,7 @@ describe("Blazor App", function () {
       await CliHelper.deployAll(projectPath, "", envName as "dev", env);
 
       const context = await readContextMultiEnvV3(projectPath, envName);
-      const endpoint = context[EnvConstants.TAB_ENDPOINT];
+      const endpoint = context[EnvConstants.APP_ENDPOINT];
       chai.assert.exists(endpoint);
       const axiosInstance = axios.create();
       try {

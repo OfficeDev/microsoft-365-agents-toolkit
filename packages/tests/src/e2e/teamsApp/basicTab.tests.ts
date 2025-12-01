@@ -143,7 +143,7 @@ describe("Basic Tab", function () {
       assert.isNotEmpty(context.M365_APP_ID);
 
       const appServiceResourceId =
-        context[EnvConstants.TAB_AZURE_APP_SERVICE_RESOURCE_ID];
+        context[EnvConstants.AZURE_APP_SERVICE_RESOURCE_ID];
       assert.exists(
         appServiceResourceId,
         "Azure App Service resource ID should exist"
@@ -184,7 +184,7 @@ describe("Basic Tab", function () {
       context = await readContextMultiEnvV3(projectPath, envName);
       assert.exists(context, "env file should exist");
 
-      const endpoint = context[EnvConstants.TAB_ENDPOINT];
+      const endpoint = context[EnvConstants.APP_ENDPOINT];
       assert.exists(endpoint, "Tab endpoint should exist");
 
       const axiosInstance = axios.create();

@@ -88,8 +88,7 @@ export class BotValidator {
   }
 
   private getResourceIdV3(ctx: any): string {
-    const botWebAppResourceId =
-      ctx[EnvConstants.BOT_AZURE_APP_SERVICE_RESOURCE_ID];
+    const botWebAppResourceId = ctx[EnvConstants.AZURE_APP_SERVICE_RESOURCE_ID];
     const botFunctionAppResourceId =
       ctx[EnvConstants.BOT_AZURE_FUNCTION_RESOURCE_ID];
     const botResourceId = ctx[EnvConstants.BOT_ID];
