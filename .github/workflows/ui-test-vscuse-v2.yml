@@ -85,7 +85,7 @@ jobs:
       matrix:
         test_plan: ${{ fromJson(needs.discover-test-plans.outputs.test-plans) }}
       fail-fast: false
-      max-parallel: 10
+      max-parallel: 30
     permissions:
       contents: read
       packages: write
@@ -112,6 +112,14 @@ jobs:
       M365_USERNAME_2: "test22@xxbdw.onmicrosoft.com"
       M365_USERNAME_3: "test23@xxbdw.onmicrosoft.com"
       M365_USERNAME_4: "test24@xxbdw.onmicrosoft.com"
+      M365_USERNAME_5: "test31@xxbdw.onmicrosoft.com"
+      M365_USERNAME_6: "test32@xxbdw.onmicrosoft.com"
+      M365_USERNAME_7: "test33@xxbdw.onmicrosoft.com"
+      M365_USERNAME_8: "test34@xxbdw.onmicrosoft.com"
+      M365_USERNAME_9: "test35@xxbdw.onmicrosoft.com"
+      M365_USERNAME_10: "test36@xxbdw.onmicrosoft.com"
+      M365_USERNAME_11: "test37@xxbdw.onmicrosoft.com"
+      M365_USERNAME_12: "test38@xxbdw.onmicrosoft.com"
       M365_ACCOUNT_PASSWORD: ${{ secrets.TEST_M365_PASSWORD }}
 
       # The test account for Copilot features
@@ -192,7 +200,7 @@ jobs:
 
       - name: Set m365 account randomly
         run: |
-          users=("${{ env.M365_USERNAME_1 }}" "${{ env.M365_USERNAME_2 }}" "${{ env.M365_USERNAME_3 }}" "${{ env.M365_USERNAME_4 }}")
+          users=("${{ env.M365_USERNAME_1 }}" "${{ env.M365_USERNAME_2 }}" "${{ env.M365_USERNAME_3 }}" "${{ env.M365_USERNAME_4 }}" "${{ env.M365_USERNAME_5 }}" "${{ env.M365_USERNAME_6 }}" "${{ env.M365_USERNAME_7 }}" "${{ env.M365_USERNAME_8 }}" "${{ env.M365_USERNAME_9 }}" "${{ env.M365_USERNAME_10 }}" "${{ env.M365_USERNAME_11 }}" "${{ env.M365_USERNAME_12 }}")
           count=${#users[@]}
           index=$((RANDOM%$count))
           echo "account index: $index"
