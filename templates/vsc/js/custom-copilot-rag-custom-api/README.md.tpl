@@ -10,9 +10,6 @@ The app template is built using the [Microsoft Teams SDK](https://aka.ms/teams-a
 > To run the template in your local dev machine, you will need:
 >
 > - [Node.js](https://nodejs.org/), supported versions: 20, 22
-{{^enableTestToolByDefault}}
-> - A [Microsoft 365 account for development](https://docs.microsoft.com/microsoftteams/platform/toolkit/accounts)
-{{/enableTestToolByDefault}}
 > - [Microsoft 365 Agents Toolkit Visual Studio Code Extension](https://aka.ms/teams-toolkit) version 5.0.0 and higher or [Microsoft 365 Agents Toolkit CLI](https://aka.ms/teamsfx-toolkit-cli)
 {{#useOpenAI}}
 > - An account with [OpenAI](https://platform.openai.com/)
@@ -24,7 +21,6 @@ The app template is built using the [Microsoft Teams SDK](https://aka.ms/teams-a
 > For local debugging using Microsoft 365 Agents Toolkit CLI, you need to do some extra steps described in [Set up your Microsoft 365 Agents Toolkit CLI for local debugging](https://aka.ms/teamsfx-cli-debugging).
 
 1. First, select the Microsoft 365 Agents Toolkit icon on the left in the VS Code toolbar.
-{{#enableTestToolByDefault}}
 {{#useOpenAI}}
 1. In file *env/.env.playground.user*, fill in your OpenAI key `SECRET_OPENAI_API_KEY=<your-key>`.
 {{/useOpenAI}}
@@ -37,23 +33,6 @@ The app template is built using the [Microsoft Teams SDK](https://aka.ms/teams-a
 **Congratulations**! You are running an application that can now interact with users in Microsoft 365 Agents Playground:
 
 ![custom api template](https://github.com/user-attachments/assets/8dcc7c2d-3438-4270-b91f-0693155fa8e0)
-{{/enableTestToolByDefault}}
-{{^enableTestToolByDefault}}
-1. In the Account section, sign in with your [Microsoft 365 account](https://docs.microsoft.com/microsoftteams/platform/toolkit/accounts) if you haven't yet.
-{{#useOpenAI}}
-1. In file *env/.env.local.user*, fill in your OpenAI key `SECRET_OPENAI_API_KEY=<your-key>`.
-{{/useOpenAI}}
-{{#useAzureOpenAI}}
-1. In file *env/.env.local.user*, fill in your Azure OpenAI key `SECRET_AZURE_OPENAI_ENDPOINT=<your-key>`, endpoint `SECRET_AZURE_OPENAI_ENDPOINT=<your-endpoint> and deployment name `AZURE_OPENAI_MODEL_DEPLOYMENT_NAME=<your-deployment-name>`.
-{{/useAzureOpenAI}}
-1. Press F5 to start debugging which launches your app in Teams using a web browser. Select `Debug in Teams (Edge)` or `Debug in Teams (Chrome)`.
-1. When Teams launches in the browser, select the Add button in the dialog to install your app to Teams.
-1. You can send any message to get a response from the agent.
-
-**Congratulations**! You are running an application that can now interact with users in Teams:
-
-![custom api template](https://github.com/OfficeDev/TeamsFx/assets/63089166/19f4c825-c296-4d29-a957-bedb88b6aa5b)
-{{/enableTestToolByDefault}}
 
 ## What's included in the template
 

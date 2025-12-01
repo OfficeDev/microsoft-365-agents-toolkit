@@ -903,22 +903,6 @@ describe("render template", () => {
       assert.isTrue(result.isOk());
     });
 
-    it("template variables when test tool enabled", async () => {
-      sandbox.stub(process, "env").value({ TEAMSFX_TEST_TOOL: "true" });
-      const vars = newGeneratorFlag
-        ? getTemplateReplaceMap(inputs)
-        : Generator.getDefaultVariables("test");
-      assert.equal(vars.enableTestToolByDefault, "true");
-    });
-
-    it("template variables when test tool disabled", async () => {
-      sandbox.stub(process, "env").value({ TEAMSFX_TEST_TOOL: "false" });
-      const vars = newGeneratorFlag
-        ? getTemplateReplaceMap(inputs)
-        : Generator.getDefaultVariables("test");
-      assert.equal(vars.enableTestToolByDefault, "");
-    });
-
     it("template variables when ME test tool enabled", async () => {
       sandbox.stub(process, "env").value({ TEAMSFX_ME_TEST_TOOL: "true" });
       const vars = newGeneratorFlag
@@ -1034,7 +1018,6 @@ describe("render template", () => {
           authType: "apiKey",
         },
       ]);
-      assert.equal(vars.enableTestToolByDefault, "");
       assert.equal(vars.appName, "Test");
       assert.equal(vars.ApiKey[0].ApiSpecAuthName, "authName");
       assert.equal(vars.ApiKey[0].ApiSpecPath, "path/to/spec.yaml");
@@ -1059,7 +1042,6 @@ describe("render template", () => {
           authType: "apiKey",
         },
       ]);
-      assert.equal(vars.enableTestToolByDefault, "");
       assert.equal(vars.appName, "Test");
       assert.equal(vars.OAuth[0].ApiSpecAuthName, "authName");
       assert.equal(vars.OAuth[0].ApiSpecPath, "path/to/spec.yaml");
@@ -1081,7 +1063,6 @@ describe("render template", () => {
           authType: "apiKey",
         },
       ]);
-      assert.equal(vars.enableTestToolByDefault, "");
       assert.equal(vars.appName, "Test");
       assert.equal(vars.ApiKey[0].ApiSpecAuthName, "authName");
       assert.equal(vars.ApiKey[0].ApiSpecPath, "path/to/spec.yaml");
