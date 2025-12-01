@@ -45,6 +45,24 @@ export class VSCapabilityOptions {
     };
   }
 
+  static tab(): OptionItem {
+    return {
+      id: "tab",
+      label: getLocalizedString("core.TabOption.label"),
+      description: getLocalizedString("core.TabOption.description"),
+      detail: getLocalizedString("core.TabOption.detail"),
+      data: TemplateNames.SsoTabSSR,
+    };
+  }
+  static SearchMeVS(): OptionItem {
+    return {
+      id: "search-message-extension",
+      label: `${getLocalizedString("core.M365SearchAppOptionItem.label")}`,
+      detail: getLocalizedString("core.SearchAppOptionItem.detail"),
+      data: TemplateNames.MessageExtensionSearch,
+    };
+  }
+
   static weatherAgentBot(): OptionItem {
     return {
       id: "custom-copilot-weather-agent",
