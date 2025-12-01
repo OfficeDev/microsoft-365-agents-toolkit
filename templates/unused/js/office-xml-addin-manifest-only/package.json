@@ -1,0 +1,13 @@
+{
+  "name": "<%= projectInternalName %>",
+  "description": "",
+  "author": "",
+  "version": "0.1.0",
+  "scripts": {
+    "validate": "office-toolbox validate -m manifest.xml"
+  },
+  "dependencies": {
+    "office-toolbox": "^0.1.1"
+  },
+  "devDependencies": {}
+}

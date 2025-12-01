@@ -1,0 +1,16 @@
+* {
+  box-sizing: border-box;
+  /* outline: 1px dashed #f00; */
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu",
+    "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow: auto;  
+}
+
+::-webkit-scrollbar {
+  display: none;
+}

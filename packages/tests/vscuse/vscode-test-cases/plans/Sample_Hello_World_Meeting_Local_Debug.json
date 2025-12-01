@@ -12,7 +12,7 @@
     "total_steps": 13,
     "created_at": "2025-11-19T05:49:56.828855",
     "name": "Sample Hello World Meeting Local Debug",
-    "description": "caseId: 14571880",
+    "description": "14571880",
     "generated_at": "2025-11-19T05:49:56.828855",
     "execution_order": [
       "plan_r_1107_015711",

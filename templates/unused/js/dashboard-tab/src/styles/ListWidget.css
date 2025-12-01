@@ -1,0 +1,30 @@
+.list-body {
+  display: grid;
+  row-gap: var(--spacingVerticalS);
+  align-content: start;
+  min-width: 13.5rem;
+}
+
+.list-body div {
+  display: grid;
+}
+
+.list-body .divider {
+  margin: 0 -2rem 0.5rem;
+  height: var(--strokeWidthThin);
+  background: var(--colorNeutralStroke2);
+}
+
+.list-body .title {
+  font-weight: var(--fontWeightSemibold);
+}
+
+.list-body .content {
+  font-size: var(--fontSizeBase200);
+}
+
+.loading {
+  display: grid;
+  justify-content: center;
+  height: 100%;
+}

@@ -1,0 +1,77 @@
+﻿@using Microsoft.Extensions.Configuration
+@using Microsoft.AspNetCore.Hosting
+@using Microsoft.Extensions.Hosting
+@inject TeamsUserCredential teamsUserCredential
+@inject IWebHostEnvironment HostEnvironment
+@inject IConfiguration Configuration
+@inject NavigationManager MyNavigationManager
+
+@if (isLoading)
+{
+    <div style="display: flex; justify-content: center; align-items: center; min-height: 100vh;">
+        <FluentProgressRing />
+    </div>
+}
+else
+{
+    <div class="welcome page">
+        <div class="narrow page-padding">
+            <img src="hello.png" />
+            <h1 class="center">Congratulations@(!String.IsNullOrEmpty(userName) ? ", " + userName : "")!</h1>
+            <p class="center">Your app is running in your @(GetEnvironmentName())</p>
+            <FluentTabs style="width: 80%; justify-content: space-between; margin: 4rem auto;">
+                <FluentTab style="font-size: 14px; min-height: 32px;">
+                    <Header>1. Build your app locally</Header>
+                    <Content>
+                        <div style="display:block; min-width:max-content;">
+                            <EditCode />
+                                <CurrentUser UserName="@userName" />
+                            <Graph ErrorMessage="@errorMessage" />
+                        </div>
+                    </Content>
+                </FluentTab>
+                <FluentTab>
+                    <Header>2. Provision and Deploy to the Cloud</Header>
+                    <Content>
+                        <Deploy />
+                    </Content>
+                </FluentTab>
+                <FluentTab>
+                    <Header>3. Publish to Teams</Header>
+                    <Content>
+                        <Publish />
+                    </Content>
+                </FluentTab>
+            </FluentTabs>
+        </div>
+    </div>
+}
+
+@code {
+    string userName;
+    string errorMessage;
+    bool isLoading = true;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+        try
+        {
+            if (firstRender)
+            {
+                var user = await teamsUserCredential.GetUserInfoAsync();
+                userName = user.DisplayName;
+            }
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private string GetEnvironmentName()
+    {
+        return HostEnvironment.IsDevelopment() ? "local environment" : "Azure environment";
+    }
+}

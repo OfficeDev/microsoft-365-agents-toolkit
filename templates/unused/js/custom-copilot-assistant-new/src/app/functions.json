@@ -1,0 +1,34 @@
+{
+  "createTask": {
+    "name": "createTask",
+    "description": "Create a new task with title and description",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "description": "The title of the task to create"
+        },
+        "description": {
+          "type": "string",
+          "description": "The detailed description of the task to create"
+        }
+      },
+      "required": ["title", "description"]
+    }
+  },
+  "deleteTask": {
+    "name": "deleteTask",
+    "description": "Delete an existing task",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "description": "The title of the task to delete"
+        }
+      },
+      "required": ["title"]
+    }
+  }
+}

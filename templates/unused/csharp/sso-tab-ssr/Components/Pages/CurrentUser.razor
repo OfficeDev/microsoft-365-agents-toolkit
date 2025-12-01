@@ -1,0 +1,16 @@
+﻿<div>
+    <h2>Get the current user</h2>
+    <p>Access basic information about the user like this:</p>
+    <pre>var user = await teamsUserCredential.GetUserInfoAsync();</pre>
+    @if (!string.IsNullOrEmpty(UserName))
+    {
+        <p>
+            The currently logged in user's name is <b>@UserName</b>
+        </p>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public string UserName { get; set; }
+}

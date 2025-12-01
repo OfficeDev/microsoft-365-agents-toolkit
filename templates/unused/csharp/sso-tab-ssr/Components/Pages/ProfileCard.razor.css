@@ -1,0 +1,28 @@
+﻿.profile {
+    display: flex;
+    align-items: center;
+}
+
+    .profile .avatar {        
+        flex: 1 0 auto;
+    }
+
+    .profile .avatar img {
+        margin: 15px;
+        height: 64px;
+        width: 64px;
+        border-radius: 32px;
+    }
+
+    .profile .info {
+        margin: 0 2em;
+        flex: 4 0 auto;
+    }
+
+        .profile .info > h3 {
+            margin: 0;
+        }
+
+        .profile .info > p {
+            margin: 0;
+        }

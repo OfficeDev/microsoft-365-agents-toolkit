@@ -1,0 +1,42 @@
+﻿@using Microsoft.Graph
+@using Microsoft.Graph.Models;
+
+<FluentCard style="height: max-content; margin: 0.5em 0; width: 380px; min-width:max-content;">
+	@if (IsLoading)
+	{
+		<div class="profile">
+			<div class="avatar">
+				<FluentSkeleton style="border-radius: 32px; width: 64px; height: 64px; margin: 15px;" Shape="SkeletonShape.Circle" Shimmer="true"></FluentSkeleton>
+			</div>
+			<div class="info">
+				<FluentSkeleton style="border-radius: 4px; height: 14px;" Shape="SkeletonShape.Rect" Shimmer="true"></FluentSkeleton>        
+				<FluentSkeleton style="border-radius: 4px; margin-top: 5px; height: 10px;" Shape="SkeletonShape.Rect" Shimmer="true"></FluentSkeleton>
+				<FluentSkeleton style="border-radius: 4px; margin-top: 5px; height: 10px;" Shape="SkeletonShape.Rect" Shimmer="true"></FluentSkeleton>
+			</div>
+		</div>
+	}
+	else if (!IsLoading && Profile != null)
+	{
+		<div class="profile">
+			<div class="avatar">
+				@if (!string.IsNullOrEmpty(@UserPhotoUri)) {
+					<img src="@UserPhotoUri" />
+				}
+			</div>
+			<div class="info">
+				<h3>@Profile.DisplayName</h3>
+				<p>@Profile.Mail</p>
+				<p>@Profile.OfficeLocation</p>
+			</div>
+		</div>
+	}
+</FluentCard>
+
+@code {
+	[Parameter]
+	public bool IsLoading { get; set; }
+	[Parameter]
+	public User Profile { get; set; }
+	[Parameter]
+	public string UserPhotoUri { get; set; }
+}

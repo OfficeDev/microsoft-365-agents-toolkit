@@ -1,0 +1,33 @@
+.time-span {
+  display: grid;
+  gap: var(--spacingVerticalXL) var(--spacingHorizontalXL);
+  grid-template-columns: repeat(3, max-content);
+}
+
+.time-span button {
+  font-size: var(--fontSizeBase100);
+  line-height: var(--lineHeightBase100);
+  min-width: max-content;
+}
+
+.area-chart {
+  position: relative;
+  height: 200px;
+  width: 100%;
+}
+
+.area-chart .tick text {
+  fill: var(--colorNeutralForeground1);
+}
+
+.area-chart div {
+  color: var(--colorNeutralForeground1);
+}
+
+.area-chart line {
+  stroke: var(--colorNeutralStroke2);
+}
+
+#chart-footer {
+  color: var(--colorBrandForeground1);
+}

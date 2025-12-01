@@ -1,0 +1,24 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+      "resourceBaseName": {
+        "value": "ssotab${{RESOURCE_SUFFIX}}"
+      },
+      "tabAadAppClientId": {
+        "value": "${{AAD_APP_CLIENT_ID}}"
+      },
+      "tabAadAppClientSecret": {
+        "value": "${{SECRET_AAD_APP_CLIENT_SECRET}}"
+      },
+      "tabAadAppOauthAuthorityHost": {
+        "value": "${{AAD_APP_OAUTH_AUTHORITY_HOST}}"
+      },
+      "tabAadAppTenantId": {
+        "value": "${{AAD_APP_TENANT_ID}}"
+      },
+      "webAppSKU": {
+        "value": "F1"
+      }
+    }
+  }

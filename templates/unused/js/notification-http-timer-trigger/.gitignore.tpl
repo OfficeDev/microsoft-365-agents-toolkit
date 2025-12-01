@@ -1,0 +1,35 @@
+# TeamsFx files
+env/.env.*.user
+env/.env.local
+appPackage/build
+
+# Dependency directories
+node_modules
+
+# Azure Functions artifacts
+bin
+obj
+appsettings.json
+
+# ignore local.settings.json if it contains your own credentials
+# local.settings.json
+
+# misc
+.DS_Store
+.deployment
+.env
+
+# Azurite emulator
+_storage_emulator
+
+# Local data
+.localConfigs.playground
+.localConfigs
+.notification.localstore.json
+.notification.playgroundstore.json
+
+# production
+/build
+
+# Dev tool directories
+/devTools/

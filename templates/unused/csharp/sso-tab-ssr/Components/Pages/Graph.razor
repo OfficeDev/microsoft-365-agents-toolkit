@@ -1,0 +1,147 @@
+﻿@using System.IO
+@using Azure.Core
+@using Azure.Identity;
+@using Microsoft.Graph
+@using Microsoft.Graph.Models;
+@using Microsoft.Extensions.Configuration
+@inject TeamsFx teamsfx
+@inject TeamsUserCredential teamsUserCredential
+@inject IConfiguration Configuration
+
+<div>
+    <h2>Get the user's profile photo</h2>
+    @if (NeedConsent)
+    {
+        <p>Click below to authorize this app to read your profile photo using Microsoft Graph.</p>
+        <FluentButton Appearance="Appearance.Accent" Disabled="@IsLoading" @onclick="ConsentAndShow">Authorize</FluentButton>
+    }
+    @if (IsLoading)
+    {
+        <ProfileCard IsLoading="true" />
+    }
+    else if (!string.IsNullOrEmpty(@ErrorMessage))
+    {
+        <div class="error">@ErrorMessage</div>
+    }
+    else if (Profile != null)
+    {
+        <ProfileCard IsLoading="false" Profile="@Profile" UserPhotoUri="@UserPhotoUri" />
+    }
+</div>
+
+@code {
+    [Parameter]
+    public string ErrorMessage { get; set; }
+
+    public bool IsLoading { get; set; }
+    public bool NeedConsent { get; set; }
+    public User Profile { get; set; }
+    public string UserPhotoUri { get; set; }
+
+    private readonly string _scope = "User.Read";
+
+    protected override async Task OnInitializedAsync()
+    {
+        IsLoading = true;
+        if (await HasPermission(_scope))
+        {
+            await ShowProfile();
+        }
+    }
+
+    private async Task ShowProfile()
+    {
+        IsLoading = true;
+        var tokenCredential = await GetOnBehalfOfCredential();
+        var graph = GetGraphServiceClient(tokenCredential);
+
+        Profile = await graph.Me.GetAsync();
+        UserPhotoUri = await GetPhotoAsync(graph);
+
+        IsLoading = false;
+        ErrorMessage = string.Empty;
+    }
+
+    private async Task ConsentAndShow()
+    {
+        try
+        {
+            await teamsUserCredential.LoginAsync(_scope);
+            NeedConsent = false;
+            await ShowProfile();
+        }
+        catch (ExceptionWithCode e)
+        {
+            ErrorMessage = e.Message;
+        }
+    }
+
+    private async Task<bool> HasPermission(string scope)
+    {
+        IsLoading = true;
+        try
+        {
+            var tokenCredential = await GetOnBehalfOfCredential();
+            await tokenCredential.GetTokenAsync(new TokenRequestContext(new string[] { _scope }), new CancellationToken());
+
+            return true;
+        }
+        catch (Exception e)
+        {
+            if (e.Message.Contains("AADSTS65001"))
+            {
+                NeedConsent = true;
+            }
+            else
+            {
+                ErrorMessage = e.Message;
+            }
+
+        }
+        IsLoading = false;
+        return false;
+    }
+
+    private async Task<OnBehalfOfCredential> GetOnBehalfOfCredential()
+    {
+        var config = Configuration.Get<ConfigOptions>();
+        var tenantId = config.TeamsFx.Authentication.OAuthAuthority.Remove(0, "https://login.microsoftonline.com/".Length);
+        AccessToken ssoToken = await teamsUserCredential.GetTokenAsync(new TokenRequestContext(null), new CancellationToken());
+        return new OnBehalfOfCredential(
+            tenantId,
+            config.TeamsFx.Authentication.ClientId,
+            config.TeamsFx.Authentication.ClientSecret,
+            ssoToken.Token
+        );
+    }
+
+    private GraphServiceClient GetGraphServiceClient(TokenCredential tokenCredential)
+    {
+        var client = new GraphServiceClient(tokenCredential, new string[] { _scope });
+        return client;
+    }
+
+    private async Task<string> GetPhotoAsync(GraphServiceClient graph)
+    {
+        string userPhoto = "";
+        try
+        {
+            var photoStream = await graph.Me.Photo.Content.GetAsync();
+
+            if (photoStream != null)
+            {
+                // Copy the photo stream to a memory stream
+                // to get the bytes out of it
+                var memoryStream = new MemoryStream();
+                photoStream.CopyTo(memoryStream);
+                var photoBytes = memoryStream.ToArray();
+
+                // Generate a data URI for the photo
+                userPhoto = $"data:image/png;base64,{Convert.ToBase64String(photoBytes)}";
+            }
+        }
+        catch (Exception) { /* Unable to get the users photo */ }
+
+        return userPhoto;
+    }
+}
