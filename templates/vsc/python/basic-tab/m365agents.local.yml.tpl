@@ -51,7 +51,7 @@ deploy:
   # Run npm command
   - uses: cli/runNpmCommand
     with:
-      args: install --no-audit
+      args: install
       workingDirectory: ./src/Web
       
   - uses: cli/runNpmCommand

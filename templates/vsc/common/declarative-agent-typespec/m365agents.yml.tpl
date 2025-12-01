@@ -29,7 +29,7 @@ provision:
   - uses: cli/runNpmCommand
     name: install dependencies
     with:
-      args: install --no-audit --progress=false
+      args: install --progress=false
 
   # Generates a TypeSpec version of the environment variables
   - uses: cli/runNpmCommand
@@ -90,7 +90,7 @@ publish:
   - uses: cli/runNpmCommand
     name: install dependencies
     with:
-      args: install --no-audit --progress=false
+      args: install --progress=false
 
   # Compile typespec files and generate necessary files for agent.
   # If you want to update the outputDir, please make sure the following paths are also updated.

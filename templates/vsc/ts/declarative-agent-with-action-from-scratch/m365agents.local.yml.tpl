@@ -72,4 +72,4 @@ deploy:
   - uses: cli/runNpmCommand
     name: install dependencies
     with:
-      args: install --no-audit
+      args: install

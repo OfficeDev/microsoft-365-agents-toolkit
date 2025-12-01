@@ -98,7 +98,7 @@ deploy:
   - uses: cli/runNpmCommand
     name: install dependencies
     with:
-      args: install --no-audit
+      args: install
 
   # Generate runtime environment variables
   - uses: file/createOrUpdateEnvironmentFile
