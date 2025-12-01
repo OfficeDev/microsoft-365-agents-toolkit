@@ -14,10 +14,10 @@ components:
       description: AAD configuration for the repair service
       flows:
         authorizationCode:
-          authorizationUrl: https://login.microsoftonline.com/${{AAD_APP_TENANT_ID}}/oauth2/v2.0/authorize
-          tokenUrl: https://login.microsoftonline.com/${{AAD_APP_TENANT_ID}}/oauth2/v2.0/token
+          authorizationUrl: https://login.microsoftonline.com/${{APP_TENANT_ID}}/oauth2/v2.0/authorize
+          tokenUrl: https://login.microsoftonline.com/${{APP_TENANT_ID}}/oauth2/v2.0/token
           scopes:
-            api://${{OPENAPI_SERVER_DOMAIN}}/${{AAD_APP_CLIENT_ID}}/repairs_read: Read repair records
+            api://${{OPENAPI_SERVER_DOMAIN}}/${{APP_CLIENT_ID}}/repairs_read: Read repair records
 {{/MicrosoftEntra}}
 {{^MicrosoftEntra}}
     oAuth2AuthCode:
@@ -25,10 +25,10 @@ components:
       description: OAuth configuration for the repair service
       flows:
         authorizationCode:
-          authorizationUrl: https://login.microsoftonline.com/${{AAD_APP_TENANT_ID}}/oauth2/v2.0/authorize
-          tokenUrl: https://login.microsoftonline.com/${{AAD_APP_TENANT_ID}}/oauth2/v2.0/token
+          authorizationUrl: https://login.microsoftonline.com/${{APP_TENANT_ID}}/oauth2/v2.0/authorize
+          tokenUrl: https://login.microsoftonline.com/${{APP_TENANT_ID}}/oauth2/v2.0/token
           scopes:
-            api://${{AAD_APP_CLIENT_ID}}/repairs_read: Read repair records
+            api://${{APP_CLIENT_ID}}/repairs_read: Read repair records
 {{/MicrosoftEntra}}
 paths:
   /repairs:
@@ -39,11 +39,11 @@ paths:
       security:
 {{#MicrosoftEntra}}
         - aadAuthCode:
-          - api://${{OPENAPI_SERVER_DOMAIN}}/${{AAD_APP_CLIENT_ID}}/repairs_read
+          - api://${{OPENAPI_SERVER_DOMAIN}}/${{APP_CLIENT_ID}}/repairs_read
 {{/MicrosoftEntra}}
 {{^MicrosoftEntra}}
         - oAuth2AuthCode:
-          - api://${{AAD_APP_CLIENT_ID}}/repairs_read
+          - api://${{APP_CLIENT_ID}}/repairs_read
 {{/MicrosoftEntra}}
       parameters:
         - name: assignedTo

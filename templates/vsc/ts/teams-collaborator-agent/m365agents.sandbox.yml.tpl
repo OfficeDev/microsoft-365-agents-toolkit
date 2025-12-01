@@ -36,18 +36,18 @@ provision:
       signInAudience: AzureADMultipleOrgs
     writeToEnvironmentFile:
       # The Microsoft Entra application's client id created for bot.
-      clientId: BOT_ID
+      clientId: APP_CLIENT_ID
       # The Microsoft Entra application's client secret created for bot.
-      clientSecret: SECRET_BOT_PASSWORD
+      clientSecret: SECRET_APP_CLIENT_SECRET
       # The Microsoft Entra application's object id created for bot.
-      objectId: BOT_OBJECT_ID
+      objectId: APP_OBJECT_ID
 
   # Create or update the bot registration on dev.botframework.com
   - uses: botFramework/create
     with:
-      botId: ${{BOT_ID}}
+      botId: ${{APP_CLIENT_ID}}
       name: {{appName}}
-      messagingEndpoint: ${{BOT_ENDPOINT}}/api/messages
+      messagingEndpoint: ${{APP_ENDPOINT}}/api/messages
       description: ""
       channels:
         - name: msteams
@@ -91,8 +91,8 @@ deploy:
     with:
       target: ./.localConfigs
       envs:
-        CLIENT_ID: ${{BOT_ID}}
-        CLIENT_SECRET: ${{SECRET_BOT_PASSWORD}}
+        CLIENT_ID: ${{APP_CLIENT_ID}}
+        CLIENT_SECRET: ${{SECRET_APP_CLIENT_SECRET}}
         AOAI_ENDPOINT: ${{AZURE_OPENAI_ENDPOINT}}
         AOAI_API_KEY: ${{SECRET_AZURE_OPENAI_API_KEY}}
         AOAI_MODEL: ${{AZURE_OPENAI_DEPLOYMENT_NAME}}

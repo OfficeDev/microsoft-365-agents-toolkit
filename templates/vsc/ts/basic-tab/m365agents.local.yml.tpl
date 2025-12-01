@@ -14,12 +14,12 @@ provision:
     writeToEnvironmentFile:
       teamsAppId: TEAMS_APP_ID
 
-  # Set TAB_DOMAIN and TAB_ENDPOINT for local launch
+  # Set APP_DOMAIN and APP_ENDPOINT for local launch
   - uses: script
     with:
       run:
-        echo "::set-teamsfx-env TAB_DOMAIN=localhost";
-        echo "::set-teamsfx-env TAB_ENDPOINT=https://localhost:53000";
+        echo "::set-teamsfx-env APP_DOMAIN=localhost";
+        echo "::set-teamsfx-env APP_ENDPOINT=https://localhost:53000";
 
   # Validate using manifest schema
   - uses: teamsApp/validateManifest

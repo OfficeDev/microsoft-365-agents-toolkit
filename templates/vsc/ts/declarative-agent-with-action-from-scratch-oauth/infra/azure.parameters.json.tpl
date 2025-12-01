@@ -9,13 +9,13 @@
       "value": "Y1"
     },
     "aadAppClientId": {
-      "value": "${{AAD_APP_CLIENT_ID}}"
+      "value": "${{APP_CLIENT_ID}}"
     },
     "aadAppTenantId": {
-      "value": "${{AAD_APP_TENANT_ID}}"
+      "value": "${{APP_TENANT_ID}}"
     },
     "aadAppOauthAuthorityHost": {
-      "value": "${{AAD_APP_OAUTH_AUTHORITY_HOST}}"
+      "value": "${{APP_AUTHORITY_HOST}}"
     }
   }
 }

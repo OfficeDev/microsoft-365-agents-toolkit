@@ -1,14 +1,14 @@
 {
-    "id": "${{AAD_APP_OBJECT_ID}}",
-    "appId": "${{AAD_APP_CLIENT_ID}}",
+    "id": "${{APP_OBJECT_ID}}",
+    "appId": "${{APP_CLIENT_ID}}",
     "displayName": "{{appName}}-aad",
     "identifierUris": [
 {{#MicrosoftEntra}}
-        "api://${{OPENAPI_SERVER_DOMAIN}}/${{AAD_APP_CLIENT_ID}}",
+        "api://${{OPENAPI_SERVER_DOMAIN}}/${{APP_CLIENT_ID}}",
         "${{AADAUTHCODE_APPLICATION_ID_URI}}"
 {{/MicrosoftEntra}}
 {{^MicrosoftEntra}}
-        "api://${{AAD_APP_CLIENT_ID}}"
+        "api://${{APP_CLIENT_ID}}"
 {{/MicrosoftEntra}}
     ],
     "signInAudience": "AzureADMyOrg",

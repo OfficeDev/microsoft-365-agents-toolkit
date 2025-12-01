@@ -1,6 +1,6 @@
 {
-  "id": "${{AAD_APP_OBJECT_ID}}",
-  "appId": "${{AAD_APP_CLIENT_ID}}",
+  "id": "${{APP_OBJECT_ID}}",
+  "appId": "${{APP_CLIENT_ID}}",
   "displayName": "{{appName}}-${{TEAMSFX_ENV}}",
   "signInAudience": "AzureADMyOrg",
   "api": {

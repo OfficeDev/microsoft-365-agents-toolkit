@@ -45,8 +45,8 @@
                         "protocol": "http",
                         "access": "public",
                         "writeToEnvironmentFile": {
-                            "endpoint": "TAB_ENDPOINT", // output tunnel endpoint as TAB_ENDPOINT
-                            "domain": "TAB_DOMAIN" // output tunnel domain as TAB_DOMAIN
+                            "endpoint": "APP_ENDPOINT", // output tunnel endpoint as APP_ENDPOINT
+                            "domain": "APP_DOMAIN" // output tunnel domain as APP_DOMAIN
                         }
                     }
                 ],

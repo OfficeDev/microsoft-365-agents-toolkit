@@ -58,12 +58,12 @@ provision:
       generateClientSecret: true
       signInAudience: AzureADMultipleOrgs
     writeToEnvironmentFile:
-      clientId: AAD_APP_CLIENT_ID
-      clientSecret: SECRET_AAD_APP_CLIENT_SECRET
-      objectId: AAD_APP_OBJECT_ID
-      tenantId: AAD_APP_TENANT_ID
-      authority: AAD_APP_OAUTH_AUTHORITY
-      authorityHost: AAD_APP_OAUTH_AUTHORITY_HOST
+      clientId: APP_CLIENT_ID
+      clientSecret: SECRET_APP_CLIENT_SECRET
+      objectId: APP_OBJECT_ID
+      tenantId: APP_TENANT_ID
+      authority: APP_AUTHORITY
+      authorityHost: APP_AUTHORITY_HOST
 
   - uses: aadApp/update
     with:

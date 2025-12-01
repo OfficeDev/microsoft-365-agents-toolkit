@@ -2,7 +2,7 @@
 
 # If you're adding a secret value, add SECRET_ prefix to the name so Microsoft 365 Agents Toolkit can handle them properly
 # Secrets. Keys prefixed with `SECRET_` will be masked in Microsoft 365 Agents Toolkit logs.
-SECRET_BOT_PASSWORD=
+SECRET_APP_CLIENT_SECRET=
 {{#useOpenAI}}
 {{#openAIKey}}
 SECRET_OPENAI_API_KEY={{{openAIKey}}}

@@ -13,12 +13,12 @@ provision:
       generateClientSecret: true
       signInAudience: AzureADMultipleOrgs
     writeToEnvironmentFile:
-      clientId: AAD_APP_CLIENT_ID
-      clientSecret: SECRET_AAD_APP_CLIENT_SECRET
-      objectId: AAD_APP_OBJECT_ID
-      tenantId: AAD_APP_TENANT_ID
-      authority: AAD_APP_OAUTH_AUTHORITY
-      authorityHost: AAD_APP_OAUTH_AUTHORITY_HOST
+      clientId: APP_CLIENT_ID
+      clientSecret: SECRET_APP_CLIENT_SECRET
+      objectId: APP_OBJECT_ID
+      tenantId: APP_TENANT_ID
+      authority: APP_AUTHORITY
+      authorityHost: APP_AUTHORITY_HOST
 
   - uses: aadApp/update
     with:
@@ -35,9 +35,9 @@ provision:
           AzureWebJobsStorage: UseDevelopmentStorage=true
           AzureWebJobsFeatureFlags: EnableWorkerIndexing
           TEAMSFX_ENV: ${{TEAMSFX_ENV}}
-          AZURE_CLIENT_ID: ${{AAD_APP_CLIENT_ID}}
-          AZURE_CLIENT_SECRET: ${{SECRET_AAD_APP_CLIENT_SECRET}}
-          AZURE_TENANT_ID: ${{AAD_APP_TENANT_ID}}
+          AZURE_CLIENT_ID: ${{APP_CLIENT_ID}}
+          AZURE_CLIENT_SECRET: ${{SECRET_APP_CLIENT_SECRET}}
+          AZURE_TENANT_ID: ${{APP_TENANT_ID}}
           CONNECTOR_ID: ${{CONNECTOR_ID}}
           CONNECTOR_NAME: ${{CONNECTOR_NAME}}
           CONNECTOR_DESCRIPTION: ${{CONNECTOR_DESCRIPTION}}

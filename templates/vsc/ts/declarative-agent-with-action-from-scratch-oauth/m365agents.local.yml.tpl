@@ -26,16 +26,16 @@ provision:
     # Write the information of created resources into environment file for the
     # specified environment variable(s).
     writeToEnvironmentFile:
-      clientId: AAD_APP_CLIENT_ID
+      clientId: APP_CLIENT_ID
       # Environment variable that starts with `SECRET_` will be stored to the
       # .env.{envName}.user environment file
 {{^MicrosoftEntra}}
-      clientSecret: SECRET_AAD_APP_CLIENT_SECRET
+      clientSecret: SECRET_APP_CLIENT_SECRET
 {{/MicrosoftEntra}}
-      objectId: AAD_APP_OBJECT_ID
-      tenantId: AAD_APP_TENANT_ID
-      authority: AAD_APP_OAUTH_AUTHORITY
-      authorityHost: AAD_APP_OAUTH_AUTHORITY_HOST
+      objectId: APP_OBJECT_ID
+      tenantId: APP_TENANT_ID
+      authority: APP_AUTHORITY
+      authorityHost: APP_AUTHORITY_HOST
 
   # Creates an app
   - uses: teamsApp/create
@@ -60,7 +60,7 @@ provision:
       name: aadAuthCode
       flow: authorizationCode
       appId: ${{TEAMS_APP_ID}}
-      clientId: ${{AAD_APP_CLIENT_ID}}
+      clientId: ${{APP_CLIENT_ID}}
       # Path to OpenAPI description document
       apiSpecPath: ./appPackage/apiSpecificationFile/repair.yml
       # Use below property to change token exchange behaviour, BasicAuthorizationHeader: token exchange is done via HTTP headers. PostRequestBody: token exchange is done via request body
@@ -74,8 +74,8 @@ provision:
       name: oAuth2AuthCode
       flow: authorizationCode
       appId: ${{TEAMS_APP_ID}}
-      clientId: ${{AAD_APP_CLIENT_ID}}
-      clientSecret: ${{SECRET_AAD_APP_CLIENT_SECRET}}
+      clientId: ${{APP_CLIENT_ID}}
+      clientSecret: ${{SECRET_APP_CLIENT_SECRET}}
       # Path to OpenAPI description document
       apiSpecPath: ./appPackage/apiSpecificationFile/repair.yml
       # Use below property to change token exchange behaviour, BasicAuthorizationHeader: token exchange is done via HTTP headers. PostRequestBody: token exchange is done via request body
@@ -89,7 +89,7 @@ provision:
 {{#MicrosoftEntra}}
       name: aadAuthCode
       appId: ${{TEAMS_APP_ID}}
-      clientId: ${{AAD_APP_CLIENT_ID}}
+      clientId: ${{APP_CLIENT_ID}}
       # Path to OpenAPI description document
       apiSpecPath: ./appPackage/apiSpecificationFile/repair.yml
       configurationId: ${{AADAUTHCODE_CONFIGURATION_ID}}
@@ -97,7 +97,7 @@ provision:
 {{^MicrosoftEntra}}
       name: oAuth2AuthCode
       appId: ${{TEAMS_APP_ID}}
-      clientId: ${{AAD_APP_CLIENT_ID}}
+      clientId: ${{APP_CLIENT_ID}}
       # Path to OpenAPI description document
       apiSpecPath: ./appPackage/apiSpecificationFile/repair.yml
       configurationId: ${{OAUTH2AUTHCODE_CONFIGURATION_ID}}
@@ -170,5 +170,5 @@ deploy:
     with:
       target: ./.localConfigs
       envs:
-        aadAppTenantId: ${{AAD_APP_TENANT_ID}}
-        aadAppClientId: ${{AAD_APP_CLIENT_ID}}
+        AAD_APP_TENANT_ID: ${{APP_TENANT_ID}}
+        AAD_APP_CLIENT_ID: ${{APP_CLIENT_ID}}

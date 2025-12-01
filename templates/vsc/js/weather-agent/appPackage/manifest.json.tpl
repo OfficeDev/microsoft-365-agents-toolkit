@@ -26,13 +26,13 @@
         "customEngineAgents": [
             {
                 "type": "bot",
-                "id": "${{BOT_ID}}"
+                "id": "${{APP_CLIENT_ID}}"
             }
         ]
     },
     "bots": [
         {
-            "botId": "${{BOT_ID}}",
+            "botId": "${{APP_CLIENT_ID}}",
             "scopes": [
                 "copilot",
                 "personal",

@@ -38,7 +38,7 @@
     ],
     "bots": [
         {
-            "botId": "${{BOT_ID}}",
+            "botId": "${{APP_CLIENT_ID}}",
             "scopes": [
                 "personal",
                 "team",
@@ -52,7 +52,7 @@
     ],
     "composeExtensions": [
         {
-            "botId": "${{BOT_ID}}",
+            "botId": "${{APP_CLIENT_ID}}",
             "commands": [
                 {
                     "id": "createCard",
@@ -131,7 +131,7 @@
         "messageTeamMembers"
     ],
     "validDomains": [
-        "${{BOT_DOMAIN}}",
+        "${{APP_DOMAIN}}",
         "*.botframework.com",
         "*.com"
     ]

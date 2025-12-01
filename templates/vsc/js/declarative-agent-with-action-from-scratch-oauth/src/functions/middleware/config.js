@@ -1,6 +1,6 @@
 const config = {
-  aadAppClientId: process.env.aadAppClientId,
-  aadAppTenantId: process.env.aadAppTenantId,
+  aadAppClientId: process.env.AAD_APP_CLIENT_ID,
+  aadAppTenantId: process.env.AAD_APP_TENANT_ID,
 };
 
 module.exports = config;
