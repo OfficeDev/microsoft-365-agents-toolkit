@@ -34,10 +34,9 @@
         "vite": "^6.2.0"
     },
     "scripts": {
-        "dev:teamsfx": "env-cmd --silent -f .localConfigs npm run start",
+        "dev:teamsfx": "env-cmd --silent -f .localConfigs npm run dev",
         "clean": "rimraf ./dist",
-        "start": "nodemon",
-        "prestart": "npm run build:frontend",
+        "dev": "npm run build:frontend && nodemon",
         "build": "tsup && npm run build:frontend",
         "build:frontend": "vite build --outDir dist/client"
     }

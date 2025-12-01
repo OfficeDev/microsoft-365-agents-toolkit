@@ -12,8 +12,8 @@
     ],
     "scripts": {
         "dev:teamsfx": "env-cmd --silent -f .localConfigs npm run dev",
-        "dev:teamsfx:testtool": "env-cmd --silent -f .localConfigs.playground npm run dev",
-        "dev:teamsfx:launch-testtool": "env-cmd --silent -f env/.env.playground teamsapptester start",
+        "dev:teamsfx:playground": "env-cmd --silent -f .localConfigs.playground npm run dev",
+        "dev:teamsfx:launch-playground": "env-cmd --silent -f env/.env.playground teamsapptester start",
         "dev": "npx nodemon -w \"./src/**\" -e ts --exec \"node --inspect=9239 -r ts-node/register ./src/index.ts\"",
         "clean": "npx rimraf ./dist",
         "build": "npx tsup",
