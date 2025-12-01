@@ -73,8 +73,8 @@ describe("Debug V3 custom-copilot-rag TypeScript template", () => {
       // provision
       await CliHelper.provisionProject(projectPath, "", "local", {
         ...process.env,
-        BOT_DOMAIN: "test.ngrok.io",
-        BOT_ENDPOINT: "https://test.ngrok.io",
+        APP_DOMAIN: "test.ngrok.io",
+        APP_ENDPOINT: "https://test.ngrok.io",
       });
       console.log(`[Successfully] provision for ${projectPath}`);
 
@@ -134,8 +134,8 @@ describe("Debug V3 custom-copilot-rag TypeScript template", () => {
       // provision
       await CliHelper.provisionProject(projectPath, "", "local", {
         ...process.env,
-        BOT_DOMAIN: "test.ngrok.io",
-        BOT_ENDPOINT: "https://test.ngrok.io",
+        APP_DOMAIN: "test.ngrok.io",
+        APP_ENDPOINT: "https://test.ngrok.io",
       });
       console.log(`[Successfully] provision for ${projectPath}`);
 
@@ -197,8 +197,8 @@ describe("Debug V3 custom-copilot-rag TypeScript template", () => {
       // provision
       await CliHelper.provisionProject(projectPath, "", "local", {
         ...process.env,
-        BOT_DOMAIN: "test.ngrok.io",
-        BOT_ENDPOINT: "https://test.ngrok.io",
+        APP_DOMAIN: "test.ngrok.io",
+        APP_ENDPOINT: "https://test.ngrok.io",
       });
       console.log(`[Successfully] provision for ${projectPath}`);
 
@@ -258,8 +258,8 @@ describe("Debug V3 custom-copilot-rag TypeScript template", () => {
       // provision
       await CliHelper.provisionProject(projectPath, "", "local", {
         ...process.env,
-        BOT_DOMAIN: "test.ngrok.io",
-        BOT_ENDPOINT: "https://test.ngrok.io",
+        APP_DOMAIN: "test.ngrok.io",
+        APP_ENDPOINT: "https://test.ngrok.io",
       });
       console.log(`[Successfully] provision for ${projectPath}`);
 
