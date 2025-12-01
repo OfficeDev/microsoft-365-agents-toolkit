@@ -9,10 +9,10 @@
       "precondition_retry_interval": 2,
       "step_retry_timeout": 0
     },
-    "total_steps": 9,
+    "total_steps": 7,
     "created_at": "2025-12-01T02:12:50.783456",
     "name": "Teams Agent With Data AI Search Azure OpenAI ts Local Debug",
-    "description": "caseId: 27569074",
+    "description": "27569074",
     "generated_at": "2025-12-01T02:12:50.783456",
     "execution_order": [
       "plan_r_0928_012254",
@@ -26,13 +26,11 @@
       "plan_r_1021_081410",
       "step_0ade2e7a",
       "step_f3d911e8",
-      "step_3a70916c",
-      "step_c65a7ae8",
       "plan_r_0930_083113",
       "plan_r_1023_110315"
     ],
     "tags": [],
-    "updated_at": "2025-12-01T03:39:04.395697"
+    "updated_at": "2025-12-01T12:38:09.578306"
   },
   "steps": [
     {
@@ -58,7 +56,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_568fe5b7",
-      "created_at": "2025-12-01T03:38:47.730054",
+      "created_at": "2025-12-01T12:36:21.241495",
       "plan_id": "plan_d23ea72f"
     },
     {
@@ -84,7 +82,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_de18a8b3",
-      "created_at": "2025-12-01T03:38:47.747566",
+      "created_at": "2025-12-01T12:36:21.255070",
       "plan_id": "plan_d23ea72f"
     },
     {
@@ -110,7 +108,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_3066aa3a",
-      "created_at": "2025-12-01T03:38:47.760519",
+      "created_at": "2025-12-01T12:36:21.269257",
       "plan_id": "plan_d23ea72f"
     },
     {
@@ -136,7 +134,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_5a6b189d",
-      "created_at": "2025-12-01T03:38:47.783194",
+      "created_at": "2025-12-01T12:36:21.281059",
       "plan_id": "plan_d23ea72f"
     },
     {
@@ -162,15 +160,17 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_07e69593",
-      "created_at": "2025-12-01T03:38:47.798840",
+      "created_at": "2025-12-01T12:36:21.291980",
       "plan_id": "plan_d23ea72f"
     },
     {
       "step_id": "step_0ade2e7a",
       "agent": "code",
       "tool": "",
-      "parameters": {},
-      "description": "@code in file \"/home/vscode/AgentsToolkitProjects/${{var:app_name}}/env/.env.local.user\"\nreplace line 9 with \"AZURE_OPENAI_EMBEDDING_DEPLOYMENT_NAME=text-embedding-ada-002\";\nreplace line 10 with \"SECRET_AZURE_SEARCH_KEY=${{env:AZURE_SEARCH_KEY}}\";\nreplace line 11 with \"AZURE_SEARCH_ENDPOINT=${{env:AZURE_SEARCH_ENDPOINT}}\"",
+      "parameters": {
+        "sample": "=== Generated Script ===\nLanguage: bash\n\n```bash\n# Define the path to the .env.local.user file\nENV_FILE=\"/home/vscode/AgentsToolkitProjects/vscuse_app_Xr7g7/env/.env.local.user\"\n\n# Ensure the file exists\nif [ ! -f \"$ENV_FILE\" ]; then\n  echo \"File not found: $ENV_FILE\" >&2\n  exit 1\nfi\n\n# Values to set\nEMBEDDING_NAME=\"AZURE_OPENAI_EMBEDDING_DEPLOYMENT_NAME=text-embedding-ada-002\"\nSEARCH_KEY=\"SECRET_AZURE_SEARCH_KEY=${{secret:AZURE_SEARCH_KEY:}}\"\nSEARCH_ENDPOINT=\"AZURE_SEARCH_ENDPOINT=https://atktest-ai-search.search.windows.net\"\n\n# Function to add or replace variable in env file\ntouch \"$ENV_FILE\"\nreplace_or_add() {\n    VAR_NAME=\"$1\"\n    VAR_VALUE=\"$2\"\n    if grep -q \"^$VAR_NAME=\" \"$ENV_FILE\"; then\n        sed -i \"s|^$VAR_NAME=.*|$VAR_NAME=$VAR_VALUE|\" \"$ENV_FILE\"\n    else\n        echo \"$VAR_NAME=$VAR_VALUE\" >> \"$ENV_FILE\"\n    fi\n}\n\nreplace_or_add \"AZURE_OPENAI_EMBEDDING_DEPLOYMENT_NAME\" \"text-embedding-ada-002\"\nreplace_or_add \"SECRET_AZURE_SEARCH_KEY\" \"${{secret:AZURE_SEARCH_KEY:}}\"\nreplace_or_add \"AZURE_SEARCH_ENDPOINT\" \"https://atktest-ai-search.search.windows.net\"\n\necho \"Updated $ENV_FILE:\"\ngrep -E \"^(AZURE_OPENAI_EMBEDDING_DEPLOYMENT_NAME|SECRET_AZURE_SEARCH_KEY|AZURE_SEARCH_ENDPOINT)=\" \"$ENV_FILE\"\n```\n\n=== Execution Results ===\nExit Code: 0\n\n=== STDOUT ===\nUpdated /home/vscode/AgentsToolkitProjects/vscuse_app_Xr7g7/env/.env.local.user:\nAZURE_OPENAI_EMBEDDING_DEPLOYMENT_NAME=text-embedding-ada-002\nSECRET_AZURE_SEARCH_KEY=${{secret:AZURE_SEARCH_KEY:}}\nAZURE_SEARCH_ENDPOINT=https://atktest-ai-search.search.windows.net\n\n✓ Script executed successfully"
+      },
+      "description": "@code in file \"/home/vscode/AgentsToolkitProjects/${{var:app_name}}/env/.env.local.user\"\nfill in \"AZURE_OPENAI_EMBEDDING_DEPLOYMENT_NAME=text-embedding-ada-002\";\nfill in \"SECRET_AZURE_SEARCH_KEY=${{secret:AZURE_SEARCH_KEY}}\";\nfill in \"AZURE_SEARCH_ENDPOINT=${{env:AZURE_SEARCH_ENDPOINT}}\";",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -180,15 +180,17 @@
       "postconditions": [],
       "tags": [],
       "screenshot": null,
-      "created_at": "2025-12-01T03:38:47.815940",
+      "created_at": "2025-12-01T12:36:21.303011",
       "plan_id": "plan_d23ea72f"
     },
     {
       "step_id": "step_f3d911e8",
       "agent": "code",
       "tool": "",
-      "parameters": {},
-      "description": "@code in file \"/home/vscode/AgentsToolkitProjects/${{var:app_name}}/env/.env.playground.user\"\nreplace line 8 with \"AZURE_OPENAI_EMBEDDING_DEPLOYMENT_NAME=text-embedding-ada-002\";\nreplace line 9 with \"SECRET_AZURE_SEARCH_KEY=${{env:AZURE_SEARCH_KEY}}\";\nreplace line 10 with \"AZURE_SEARCH_ENDPOINT=${{env:AZURE_SEARCH_ENDPOINT}}\";",
+      "parameters": {
+        "sample": "=== Generated Script ===\nLanguage: bash\n\n```bash\nENV_FILE=\"/home/vscode/AgentsToolkitProjects/vscuse_app_Xr7g7/env/.env.playground.user\"\n\nif [ ! -f \"$ENV_FILE\" ]; then\n  echo \"Error: File $ENV_FILE does not exist.\"\n  exit 1\nfi\n\ngrep -q \"^AZURE_OPENAI_EMBEDDING_DEPLOYMENT_NAME=\" \"$ENV_FILE\" && \\\n  sed -i 's|^AZURE_OPENAI_EMBEDDING_DEPLOYMENT_NAME=.*|AZURE_OPENAI_EMBEDDING_DEPLOYMENT_NAME=text-embedding-ada-002|' \"$ENV_FILE\" || \\\n  echo \"AZURE_OPENAI_EMBEDDING_DEPLOYMENT_NAME=text-embedding-ada-002\" >> \"$ENV_FILE\"\n\ngrep -q \"^SECRET_AZURE_SEARCH_KEY=\" \"$ENV_FILE\" && \\\n  sed -i 's|^SECRET_AZURE_SEARCH_KEY=.*|SECRET_AZURE_SEARCH_KEY=${{secret:AZURE_SEARCH_KEY:}}|' \"$ENV_FILE\" || \\\n  echo \"SECRET_AZURE_SEARCH_KEY=${{secret:AZURE_SEARCH_KEY:}}\" >> \"$ENV_FILE\"\n\ngrep -q \"^AZURE_SEARCH_ENDPOINT=\" \"$ENV_FILE\" && \\\n  sed -i 's|^AZURE_SEARCH_ENDPOINT=.*|AZURE_SEARCH_ENDPOINT=https://atktest-ai-search.search.windows.net|' \"$ENV_FILE\" || \\\n  echo \"AZURE_SEARCH_ENDPOINT=https://atktest-ai-search.search.windows.net\" >> \"$ENV_FILE\"\n\necho \"Done updating $ENV_FILE.\"\n```\n\n=== Execution Results ===\nExit Code: 0\n\n=== STDOUT ===\nDone updating /home/vscode/AgentsToolkitProjects/vscuse_app_Xr7g7/env/.env.playground.user.\n\n✓ Script executed successfully"
+      },
+      "description": "@code in file \"/home/vscode/AgentsToolkitProjects/${{var:app_name}}/env/.env.playground.user\"\nfill in \"AZURE_OPENAI_EMBEDDING_DEPLOYMENT_NAME=text-embedding-ada-002\";\nfill in \"SECRET_AZURE_SEARCH_KEY=${{secret:AZURE_SEARCH_KEY}}\";\nfill in \"AZURE_SEARCH_ENDPOINT=${{env:AZURE_SEARCH_ENDPOINT}}\";",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -198,43 +200,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": null,
-      "created_at": "2025-12-01T03:38:47.836171",
-      "plan_id": "plan_d23ea72f"
-    },
-    {
-      "step_id": "step_3a70916c",
-      "agent": "code",
-      "tool": "",
-      "parameters": {},
-      "description": "@code run \"npm install\" at \"/home/vscode/AgentsToolkitProjects/${{var:app_name}}\"",
-      "content_refs": [],
-      "timeout": 30,
-      "retry_count": 0,
-      "continue_on_error": "false",
-      "depends_on": [],
-      "preconditions": [],
-      "postconditions": [],
-      "tags": [],
-      "screenshot": null,
-      "created_at": "2025-12-01T03:38:47.856910",
-      "plan_id": "plan_d23ea72f"
-    },
-    {
-      "step_id": "step_c65a7ae8",
-      "agent": "code",
-      "tool": "",
-      "parameters": {},
-      "description": "@code run script \"npm run indexer:create -- ${{secret:AZURE_SEARCH_KEY}} ${{secret:AZURE_OPENAI_API_KEY}}\"  at \"/home/vscode/AgentsToolkitProjects/${{var:app_name}}\"",
-      "content_refs": [],
-      "timeout": 30,
-      "retry_count": 0,
-      "continue_on_error": "false",
-      "depends_on": [],
-      "preconditions": [],
-      "postconditions": [],
-      "tags": [],
-      "screenshot": null,
-      "created_at": "2025-12-01T03:38:47.876174",
+      "created_at": "2025-12-01T12:36:21.317528",
       "plan_id": "plan_d23ea72f"
     }
   ],

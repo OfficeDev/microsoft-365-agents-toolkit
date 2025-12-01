@@ -12,7 +12,7 @@
     "total_steps": 35,
     "created_at": "2025-11-21T03:27:11.988845",
     "name": "Sample Contact Exporter Remote Debug2",
-    "description": "caseId: 14571878",
+    "description": "14571878",
     "generated_at": "2025-11-21T03:27:11.988845",
     "execution_order": [
       "plan_r_1107_015711",

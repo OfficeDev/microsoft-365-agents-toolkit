@@ -12,7 +12,7 @@
     "total_steps": 8,
     "created_at": "2025-11-25T04:56:46.102866",
     "name": "Sample Incoming Webhook Notification Happy Path",
-    "description": "caseId: 14524902",
+    "description": "14524902",
     "generated_at": "2025-11-25T04:56:46.102866",
     "execution_order": [
       "plan_r_1107_015711",
