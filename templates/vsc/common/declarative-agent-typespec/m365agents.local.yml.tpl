@@ -17,7 +17,7 @@ provision:
   - uses: cli/runNpmCommand
     name: install dependencies
     with:
-      args: install --no-audit --progress=false
+      args: install --progress=false
 
   - uses: cli/runNpmCommand
     name: Generate TypeSpec environment variables

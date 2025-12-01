@@ -71,7 +71,7 @@ deploy:
   # Run npm command
   - uses: cli/runNpmCommand
     with:
-      args: install --no-audit
+      args: install
 
   # Generate runtime environment variables
   - uses: file/createOrUpdateEnvironmentFile
