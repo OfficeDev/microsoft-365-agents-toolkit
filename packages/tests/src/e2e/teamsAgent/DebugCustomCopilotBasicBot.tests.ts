@@ -40,8 +40,8 @@ describe("Debug V3 custom-copilot-basic TypeScript template", () => {
       await deleteTeamsApp(context.TEAMS_APP_ID);
     }
     if (context?.BOT_ID) {
-      await deleteBot(context.BOT_ID);
-      await deleteAadAppByClientId(context.BOT_ID);
+      await deleteBot(context.APP_CLIENT_ID);
+      await deleteAadAppByClientId(context.APP_CLIENT_ID);
     }
     await cleanUpLocalProject(projectPath);
   });
@@ -81,13 +81,13 @@ describe("Debug V3 custom-copilot-basic TypeScript template", () => {
       chai.assert.isDefined(context);
 
       // validate bot
-      chai.assert.isDefined(context.BOT_ID);
-      chai.assert.isNotEmpty(context.BOT_ID);
-      const aadApp = await getAadAppByClientId(context.BOT_ID);
+      chai.assert.isDefined(context.APP_CLIENT_ID);
+      chai.assert.isNotEmpty(context.APP_CLIENT_ID);
+      const aadApp = await getAadAppByClientId(context.APP_CLIENT_ID);
       chai.assert.isDefined(aadApp);
-      chai.assert.equal(aadApp?.appId, context.BOT_ID);
-      const bot = await getBot(context.BOT_ID);
-      chai.assert.equal(bot?.botId, context.BOT_ID);
+      chai.assert.equal(aadApp?.appId, context.APP_CLIENT_ID);
+      const bot = await getBot(context.APP_CLIENT_ID);
+      chai.assert.equal(bot?.botId, context.APP_CLIENT_ID);
       chai.assert.equal(
         bot?.messagingEndpoint,
         "https://test.ngrok.io/api/messages"
@@ -141,13 +141,13 @@ describe("Debug V3 custom-copilot-basic TypeScript template", () => {
       chai.assert.isDefined(context);
 
       // validate bot
-      chai.assert.isDefined(context.BOT_ID);
-      chai.assert.isNotEmpty(context.BOT_ID);
-      const aadApp = await getAadAppByClientId(context.BOT_ID);
+      chai.assert.isDefined(context.APP_CLIENT_ID);
+      chai.assert.isNotEmpty(context.APP_CLIENT_ID);
+      const aadApp = await getAadAppByClientId(context.APP_CLIENT_ID);
       chai.assert.isDefined(aadApp);
-      chai.assert.equal(aadApp?.appId, context.BOT_ID);
-      const bot = await getBot(context.BOT_ID);
-      chai.assert.equal(bot?.botId, context.BOT_ID);
+      chai.assert.equal(aadApp?.appId, context.APP_CLIENT_ID);
+      const bot = await getBot(context.APP_CLIENT_ID);
+      chai.assert.equal(bot?.botId, context.APP_CLIENT_ID);
       chai.assert.equal(
         bot?.messagingEndpoint,
         "https://test.ngrok.io/api/messages"
@@ -203,13 +203,13 @@ describe("Debug V3 custom-copilot-basic TypeScript template", () => {
       chai.assert.isDefined(context);
 
       // validate bot
-      chai.assert.isDefined(context.BOT_ID);
-      chai.assert.isNotEmpty(context.BOT_ID);
-      const aadApp = await getAadAppByClientId(context.BOT_ID);
+      chai.assert.isDefined(context.APP_CLIENT_ID);
+      chai.assert.isNotEmpty(context.APP_CLIENT_ID);
+      const aadApp = await getAadAppByClientId(context.APP_CLIENT_ID);
       chai.assert.isDefined(aadApp);
-      chai.assert.equal(aadApp?.appId, context.BOT_ID);
-      const bot = await getBot(context.BOT_ID);
-      chai.assert.equal(bot?.botId, context.BOT_ID);
+      chai.assert.equal(aadApp?.appId, context.APP_CLIENT_ID);
+      const bot = await getBot(context.APP_CLIENT_ID);
+      chai.assert.equal(bot?.botId, context.APP_CLIENT_ID);
       chai.assert.equal(
         bot?.messagingEndpoint,
         "https://test.ngrok.io/api/messages"
@@ -263,13 +263,13 @@ describe("Debug V3 custom-copilot-basic TypeScript template", () => {
       chai.assert.isDefined(context);
 
       // validate bot
-      chai.assert.isDefined(context.BOT_ID);
-      chai.assert.isNotEmpty(context.BOT_ID);
-      const aadApp = await getAadAppByClientId(context.BOT_ID);
+      chai.assert.isDefined(context.APP_CLIENT_ID);
+      chai.assert.isNotEmpty(context.APP_CLIENT_ID);
+      const aadApp = await getAadAppByClientId(context.APP_CLIENT_ID);
       chai.assert.isDefined(aadApp);
-      chai.assert.equal(aadApp?.appId, context.BOT_ID);
-      const bot = await getBot(context.BOT_ID);
-      chai.assert.equal(bot?.botId, context.BOT_ID);
+      chai.assert.equal(aadApp?.appId, context.APP_CLIENT_ID);
+      const bot = await getBot(context.APP_CLIENT_ID);
+      chai.assert.equal(bot?.botId, context.APP_CLIENT_ID);
       chai.assert.equal(
         bot?.messagingEndpoint,
         "https://test.ngrok.io/api/messages"

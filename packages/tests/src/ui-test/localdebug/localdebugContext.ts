@@ -1,18 +1,17 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import * as path from "path";
-import {
-  extendM365Yaml,
-  openExistingProject,
-} from "../../utils/vscodeOperation";
 import * as fs from "fs-extra";
-import { execCommand } from "../../utils/execCommand";
-import { stopDebugging } from "../../utils/vscodeOperation";
-import { TestContext } from "../testContext";
-import { dotenvUtil } from "../../utils/envUtil";
-import { TestFilePath, Lang } from "../../utils/constants";
+import * as path from "path";
 import { VSBrowser } from "vscode-extension-tester";
+import { Lang, TestFilePath } from "../../utils/constants";
+import { dotenvUtil } from "../../utils/envUtil";
+import { execCommand } from "../../utils/execCommand";
+import {
+  openExistingProject,
+  stopDebugging,
+} from "../../utils/vscodeOperation";
+import { TestContext } from "../testContext";
 
 export type LocalDebugTestName =
   | "tab"
@@ -441,7 +440,7 @@ export class LocalDebugTestContext extends TestContext {
       await fs.readFile(localStatePath, { encoding: "utf8" })
     );
 
-    const botPassword = localState.obj.SECRET_BOT_PASSWORD as string;
+    const botPassword = localState.obj.SECRET_APP_CLIENT_SECRET as string;
 
     if (!botPassword.startsWith("crypto_")) {
       throw new Error(`Secret fields are not encrypted for bot project`);

@@ -68,7 +68,7 @@ export const dotenvUtil = new DotenvUtil();
 
 // # Generated during provision, you can also add your own variables. If you're adding a secret value, add SECRET_ prefix to the name so Teams Toolkit can handle them properly
 // BOT_ID=
-// SECRET_BOT_PASSWORD=
+// SECRET_APP_CLIENT_SECRET=
 // TEAMS_APP_ID=
 // BOT_AZURE_FUNCTION_APP_RESOURCE_ID=
 // APP_DOMAIN=

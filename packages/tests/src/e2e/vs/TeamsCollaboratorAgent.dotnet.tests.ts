@@ -55,8 +55,8 @@ describe("Teams Collaborator Agent for csharp version", function () {
       await deleteTeamsApp(context.TEAMS_APP_ID);
     }
     if (context?.BOT_ID) {
-      await deleteBot(context.BOT_ID);
-      await deleteAadAppByClientId(context.BOT_ID);
+      await deleteBot(context.APP_CLIENT_ID);
+      await deleteAadAppByClientId(context.APP_CLIENT_ID);
     }
 
     context = await readContextMultiEnvV3(projectPath, "dev");
@@ -111,7 +111,7 @@ describe("Teams Collaborator Agent for csharp version", function () {
       assert.isDefined(context, "local env file should exist");
 
       // validate aad
-      assert.isUndefined(context.AAD_APP_OBJECT_ID, "AAD should not exist");
+      assert.isUndefined(context.APP_OBJECT_ID, "AAD should not exist");
 
       // validate teams app
       assert.isDefined(context.TEAMS_APP_ID, "teams app id should be defined");
@@ -119,13 +119,13 @@ describe("Teams Collaborator Agent for csharp version", function () {
       assert.equal(teamsApp?.teamsAppId, context.TEAMS_APP_ID);
 
       // validate bot
-      assert.isDefined(context.BOT_ID);
-      assert.isNotEmpty(context.BOT_ID);
-      const aadApp = await getAadAppByClientId(context.BOT_ID);
+      assert.isDefined(context.APP_CLIENT_ID);
+      assert.isNotEmpty(context.APP_CLIENT_ID);
+      const aadApp = await getAadAppByClientId(context.APP_CLIENT_ID);
       assert.isDefined(aadApp);
-      assert.equal(aadApp?.appId, context.BOT_ID);
-      const bot = await getBot(context.BOT_ID);
-      assert.equal(bot?.botId, context.BOT_ID);
+      assert.equal(aadApp?.appId, context.APP_CLIENT_ID);
+      const bot = await getBot(context.APP_CLIENT_ID);
+      assert.equal(bot?.botId, context.APP_CLIENT_ID);
       assert.equal(
         bot?.messagingEndpoint,
         "https://test.ngrok.io/api/messages"
