@@ -20,3 +20,17 @@ AZURE_OPENAI_DEPLOYMENT_NAME='{{{azureOpenAIDeploymentName}}}'
 {{^azureOpenAIDeploymentName}}
 AZURE_OPENAI_DEPLOYMENT_NAME=
 {{/azureOpenAIDeploymentName}}
+# Optional: Azure OpenAI API version; defaults in code if unset
+{{#azureOpenAIApiVersion}}
+AZURE_OPENAI_API_VERSION='{{{azureOpenAIApiVersion}}}'
+{{/azureOpenAIApiVersion}}
+{{^azureOpenAIApiVersion}}
+AZURE_OPENAI_API_VERSION=
+{{/azureOpenAIApiVersion}}
+# Optional: OpenAI model ID when using OpenAI (non-Azure)
+{{#openAIModel}}
+OPENAI_MODEL='{{{openAIModel}}}'
+{{/openAIModel}}
+{{^openAIModel}}
+OPENAI_MODEL=
+{{/openAIModel}}
