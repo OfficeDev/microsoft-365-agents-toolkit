@@ -76,7 +76,7 @@ resource webApp 'Microsoft.Web/sites@2021-02-01' = {
           value: azureOpenaiKey
         }
         {
-          name: 'AZURE_OPENAI_MODEL_DEPLOYMENT_NAME'
+          name: 'AZURE_OPENAI_DEPLOYMENT_NAME'
           value: azureOpenaiModelDeploymentName
         }
         {
