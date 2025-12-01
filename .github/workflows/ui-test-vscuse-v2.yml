@@ -49,7 +49,7 @@ jobs:
             echo "email-receiver=${{ github.event.inputs.email-receiver }}" >> $GITHUB_OUTPUT
             echo "Using user-provided email receiver: ${{ github.event.inputs.email-receiver }}"
           else
-            echo "email-receiver=teamsfxqa@microsoft.com" >> $GITHUB_OUTPUT
+            echo "email-receiver=zhendr@microsoft.com;teamsfxqa@microsoft.com" >> $GITHUB_OUTPUT
             echo "Using default email receiver: teamsfxqa@microsoft.com"
           fi
 
