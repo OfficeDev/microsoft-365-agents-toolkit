@@ -21,4 +21,3 @@ deploy:
     with:
       target: ./.localConfigs.playground
       envs:
-        TEAMSFX_NOTIFICATION_STORE_FILENAME: ${{TEAMSFX_NOTIFICATION_STORE_FILENAME}}

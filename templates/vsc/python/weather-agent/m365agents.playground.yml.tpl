@@ -18,7 +18,6 @@ deploy:
     with:
       target: ./.env
       envs:
-        TEAMSFX_NOTIFICATION_STORE_FILENAME: ${{TEAMSFX_NOTIFICATION_STORE_FILENAME}}
         BOT_ID: ""
         BOT_PASSWORD: ""
         {{#useOpenAI}}
