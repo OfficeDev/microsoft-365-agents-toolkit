@@ -12,7 +12,7 @@
     "total_steps": 8,
     "created_at": "2025-11-18T10:58:58.455179",
     "name": "Sample Hello World Meeting Remote Debug",
-    "description": "caseId: 14571880",
+    "description": "14571880",
     "generated_at": "2025-11-18T10:58:58.455179",
     "execution_order": [
       "plan_r_1107_015711",

@@ -12,7 +12,7 @@
     "total_steps": 7,
     "created_at": "2025-11-25T07:22:29.611307",
     "name": "Weather Agent OpenAI ts Copilot Remote Debug",
-    "description": "36011407\n",
+    "description": "36011407",
     "generated_at": "2025-11-25T07:22:29.611307",
     "execution_order": [
       "plan_r_0928_012254",

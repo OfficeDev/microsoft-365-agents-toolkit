@@ -12,7 +12,7 @@
     "total_steps": 9,
     "created_at": "2025-12-01T01:32:19.704957",
     "name": "Simple bot py local debug",
-    "description": "caseId: 35636569",
+    "description": "35636569",
     "generated_at": "2025-12-01T01:32:19.704957",
     "execution_order": [
       "plan_r_0928_012254",

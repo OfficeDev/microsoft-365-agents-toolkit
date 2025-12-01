@@ -12,7 +12,7 @@
     "total_steps": 15,
     "created_at": "2025-11-17T17:24:24.945446",
     "name": "Sample Tab With Azure Backend Local Debug",
-    "description": "caseId: 12684063",
+    "description": "12684063",
     "generated_at": "2025-11-17T17:24:24.945446",
     "execution_order": [
       "plan_r_1107_015711",

@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       test_plan:
-        description: "Comma-separated list of test cases to run, input test case id (e.g. 33258708, 33258728)"
+        description: "Comma-separated list of test plan to run (e.g. DA_Regenrate_Action, Message_Extension_py_Local_Debug)"
         required: false
       pre_release_testing:
         description: "Run pre-release testing (overrides test_plan)"
@@ -15,6 +15,15 @@ on:
         description: "Docker image tag to use"
         required: true
         default: "latest"
+      email-receiver:
+        description: "email notification receiver"
+        required: false
+        type: string
+      max_retries:
+        description: "Maximum number of retry attempts (1-20, default: 7)"
+        required: false
+        type: number
+        default: 7
 
   schedule:
     - cron: "30 12 * * *"   # UTC+8 20:30 daily
@@ -27,6 +36,7 @@ jobs:
       contents: write
     outputs:
       test-plans: ${{ steps.get-plans.outputs.plans }}
+      email-receiver: ${{ steps.get-plans.outputs.email-receiver }}
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -34,6 +44,15 @@ jobs:
       - name: Get test plans
         id: get-plans
         run: |
+          # Set email receiver - use user input if provided, otherwise use default
+          if [ -n "${{ github.event.inputs.email-receiver }}" ]; then
+            echo "email-receiver=${{ github.event.inputs.email-receiver }}" >> $GITHUB_OUTPUT
+            echo "Using user-provided email receiver: ${{ github.event.inputs.email-receiver }}"
+          else
+            echo "email-receiver=zhendr@microsoft.com;teamsfxqa@microsoft.com" >> $GITHUB_OUTPUT
+            echo "Using default email receiver: teamsfxqa@microsoft.com"
+          fi
+
           if [ "${{ github.event.inputs.pre_release_testing }}" == "true" ]; then
             if [ -f "packages/tests/vscuse/vscode-test-cases/pre-release-test-cases.json" ]; then
               plans=$(cat packages/tests/vscuse/vscode-test-cases/pre-release-test-cases.json | jq -c '.')
@@ -265,6 +284,15 @@ jobs:
         env:
           AZURE_STORAGE_ACCOUNT: vscusedownload
 
+      - name: Upload storage URL artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: storage-url-${{ matrix.test_plan }}-${{ github.run_id }}
+          path: storage_url.txt
+          retention-days: 7
+          if-no-files-found: ignore
+
       - name: Cleanup
         if: always()
         run: |
@@ -279,9 +307,24 @@ jobs:
     permissions:
       actions: write
     needs: main
-    if: ${{ (github.event_name == 'workflow_dispatch' || github.event_name == 'schedule') && failure() && github.run_attempt < 5 }}
+    if: ${{ (github.event_name == 'workflow_dispatch' || github.event_name == 'schedule') && failure() && github.run_attempt < (github.event.inputs.max_retries || 7) }}
     runs-on: ubuntu-latest
+    env:
+      MAX_RETRIES: ${{ github.event.inputs.max_retries || 7 }}
     steps:
+      - name: Calculate max retries
+        id: calc-retries
+        run: |
+          # Get max retries from input, default to 7, cap at 20
+          max_retries=${{ github.event.inputs.max_retries || 7 }}
+          if [ "$max_retries" -gt 20 ]; then
+            max_retries=20
+          fi
+          if [ "$max_retries" -lt 1 ]; then
+            max_retries=1
+          fi
+          echo "max_retries=$max_retries" >> $GITHUB_OUTPUT
+          echo "Using max retries: $max_retries"
       - name: trigger rerun workflow
         run: |
           curl \
@@ -290,4 +333,358 @@ jobs:
             -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}"\
             -H "X-GitHub-Api-Version: 2022-11-28" \
             https://api.github.com/repos/${{ github.repository }}/actions/workflows/rerun.yml/dispatches \
-            -d '{"ref":"${{ github.ref_name }}","inputs":{"run_id":"${{ github.run_id }}", "max_attempts":"5"}}'
+            -d '{"ref":"${{ github.ref_name }}","inputs":{"run_id":"${{ github.run_id }}", "max_attempts":"${{ steps.calc-retries.outputs.max_retries }}"}}'
+
+  report:
+    # Only send email on the last attempt or when all tests pass
+    if: ${{ always() && needs.discover-test-plans.outputs.email-receiver && (success() || github.run_attempt >= (github.event.inputs.max_retries || 7)) }}
+    needs: [discover-test-plans, main]
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: packages/tests/vscuse
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+
+      - name: Download storage URLs
+        uses: actions/download-artifact@v4
+        with:
+          pattern: storage-url-*
+          path: /tmp/storage-urls
+
+      - name: Process storage URLs
+        shell: bash
+        run: |
+          if [ -d "/tmp/storage-urls" ]; then
+            echo "Found storage URLs folder. Processing contents..."
+            
+            # Find and extract all zip files to /tmp/storage-urls directory
+            find /tmp/storage-urls -name "*.zip" -exec unzip -o {} -d /tmp/storage-urls \;
+            
+            # Create a JSON object from all storage_url.txt files
+            echo "{" > /tmp/url_mapping.json
+            first_entry=true
+            
+            # Find all storage_url.txt files and process them
+            find /tmp/storage-urls -type f -name "storage_url.txt" | while read file; do
+              # Extract the test_plan and run_id from the parent directory name (storage-url-TESTPLAN-RUNID)
+              dir_name=$(basename $(dirname "$file"))
+              # Format: storage-url-{test_plan}-{run_id}
+              # Extract test_plan (everything between 'storage-url-' and the last '-{run_id}')
+              run_id=$(echo "$dir_name" | rev | cut -d'-' -f1 | rev)
+              test_plan=$(echo "$dir_name" | sed "s/^storage-url-//" | sed "s/-${run_id}$//")
+              case_run_id="${test_plan}-${run_id}"
+              
+              echo "Processing: dir_name=$dir_name, test_plan=$test_plan, run_id=$run_id, case_run_id=$case_run_id"
+              
+              # Read the content of the file
+              content=$(cat "$file" | tr -d '\n' | tr -d '\r')
+              
+              # Add comma for all entries except the first one
+              if [ "$first_entry" = true ]; then
+                first_entry=false
+              else
+                echo "," >> /tmp/url_mapping.json
+              fi
+              
+              # Add the entry to JSON (properly escaped)
+              echo "  \"$case_run_id\": \"$content\"" >> /tmp/url_mapping.json
+            done
+            
+            echo "}" >> /tmp/url_mapping.json
+            
+            echo "Generated JSON mapping:"
+            cat /tmp/url_mapping.json
+            
+            # Count total files processed
+            total_urls=$(find /tmp/storage-urls -type f -name "storage_url.txt" | wc -l)
+            echo "Total storage URL files processed: $total_urls"
+          else
+            echo "No storage URL artifacts found"
+            echo "{}" > /tmp/url_mapping.json
+          fi
+      - name: Install Dateutils
+        run: |
+          sudo apt install dateutils
+      - name: list jobs
+        id: list-jobs
+        working-directory: packages/tests/vscuse
+        env:
+          AZURE_DEVOPS_PAT: ${{ secrets.AZURE_DEVOPS_PAT }}
+          AZURE_DEVOPS_ORG: "msazure"
+          AZURE_DEVOPS_PROJECT: "Microsoft%20Teams%20Extensibility"
+        run: |
+          page=1
+          jobs="[]"
+          echo "Initial jobs: $jobs"
+          
+          report_map_json_file_path="/tmp/url_mapping.json"
+          
+          # Function to query Azure DevOps for bugs with specific tag
+          query_bugs_by_tag() {
+            local tag="$1"
+            local encoded_tag=$(echo "$tag" | sed 's/ /%20/g')
+            
+            # WIQL query to find active bugs with the specific tag
+            local wiql_query="{\"query\": \"SELECT [System.Id], [System.Title], [System.State] FROM WorkItems WHERE [System.WorkItemType] = 'Bug' AND [System.State] IN ('Active','New','Committed') AND [System.Tags] CONTAINS '${tag}'\"}"
+            
+            local response=$(curl -s -u ":${AZURE_DEVOPS_PAT}" \
+              -H "Content-Type: application/json" \
+              -X POST \
+              "https://dev.azure.com/${AZURE_DEVOPS_ORG}/${AZURE_DEVOPS_PROJECT}/_apis/wit/wiql?api-version=7.0" \
+              -d "$wiql_query")
+            
+            echo "$response"
+          }
+          
+          while :
+          do
+            url="https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/attempts/${{ github.run_attempt }}/jobs?per_page=100&page=$page"
+            echo "Fetching URL: $url"
+      
+            resp=$(curl -s -H "Accept: application/vnd.github.v3+json" -u:${{ secrets.GITHUB_TOKEN }} "$url")
+            echo "Response from GitHub API: $resp"
+
+            new_jobs=$(echo "$resp" | jq -cr '.jobs')
+            echo "New jobs extracted: $new_jobs"
+
+            jobs=$(jq -cr --slurp 'add' <(echo "$jobs") <(echo "$new_jobs"))
+            echo "Updated jobs list: $jobs"
+
+            has_next=$(curl -I -H "Accept: application/vnd.github.v3+json" -u:${{ secrets.GITHUB_TOKEN }} "$url" | grep -Fi "link:" | grep "rel=\"last\"" || true)
+            echo "Has next page: $has_next"
+
+            if [ -z "$has_next" ]; then
+              break
+            fi
+
+            page=$((page+1))
+          done
+
+          echo "Final job list: $jobs"
+
+          cases=$(echo "$jobs" | jq -r '.[] | select(.name | contains("Case-")) | .name')
+          echo "Extracted case names: $cases"
+
+          passed=0
+          failed=0
+          failedlimit=100
+          passedlimit=100
+          failedlist=""
+          passedlist=""
+          lists=""
+
+            emails="${{ needs.discover-test-plans.outputs.email-receiver }}"
+          echo "Initial email list: $emails"
+
+          while IFS= read -r case;
+          do
+            if [ -z "$case" ]; then
+              continue
+            fi
+
+            echo "Processing case: $case"
+            name=$(echo "$case" | awk -F '|' '{print $1}')
+            case_id=$(echo "$name" | awk -F '-' '{print $2}')
+            os=$(echo "$case" | awk -F '|' '{print $2}')
+            node=$(echo "$case" | awk -F '|' '{print $3}')
+            branch=$(echo "$case" | awk -F '|' '{print $4}')
+
+            title="Unknown Test Case Title"
+            author="N/A"
+            work_item_url="N/A"
+
+            # Extract the title from the plan JSON file
+            plan_file="./vscode-test-cases/plans/${case_id}.json"
+            echo "Looking for plan file: $plan_file"
+            if [ -f "$plan_file" ]; then
+              echo "Found plan file: $plan_file"
+              # Get title from plan_metadata.name
+              title=$(jq -r '.plan_metadata.name // "Unknown Test Case Title"' "$plan_file")
+              echo "Extracted title: $title"
+              
+              # Get description (work item IDs) from plan_metadata.description
+              # Description may contain multiple work item IDs separated by comma, space, or semicolon
+              description=$(jq -r '.plan_metadata.description // ""' "$plan_file")
+              if [ -n "$description" ] && [ "$description" != "null" ]; then
+                # Split by comma, space, or semicolon and process each work item ID
+                work_item_links=""
+                # Replace commas and semicolons with spaces, then iterate
+                for item_id in $(echo "$description" | tr ',;' ' '); do
+                  # Trim whitespace
+                  item_id=$(echo "$item_id" | xargs)
+                  if [ -n "$item_id" ]; then
+                    # If it looks like a work item ID (numeric), create a link
+                    if [[ "$item_id" =~ ^[0-9]+$ ]]; then
+                      if [ -n "$work_item_links" ]; then
+                        work_item_links="$work_item_links, "
+                      fi
+                      work_item_links="$work_item_links<a href=\\\"https://msazure.visualstudio.com/Microsoft%20Teams%20Extensibility/_workitems/edit/$item_id\\\">$item_id</a>"
+                    fi
+                  fi
+                done
+                if [ -n "$work_item_links" ]; then
+                  work_item_url="$work_item_links"
+                else
+                  work_item_url="$description"
+                fi
+              fi
+              echo "Extracted work items: $work_item_url"
+            else
+              echo "Plan file not found: $plan_file"
+              # Fallback: use case_id as title with underscores replaced by spaces
+              title=$(echo "$case_id" | tr '_' ' ')
+            fi
+
+            echo "Extracted info - Name: $name, OS: $os, Node: $node, Branch: $branch, Case ID: $case_id, Title: $title, Author: $author, Work Item URL: $work_item_url"
+
+            # file=$(find src -name "$name.test.ts" 2>/dev/null)
+            # echo "Test file found: $file"
+
+            status=$(echo "$jobs" | jq --arg case "$case" -r '.[] | select(.name == $case ) | .conclusion')
+            echo "Job status: $status"
+
+            run_id=$(echo "$jobs" | jq --arg case "$case" -r '.[] | select(.name == $case ) | .run_id')
+            echo "Run Id: $run_id"
+
+            # Combine the case name and run_id to create a lookup key
+            lookup_key="${case_id}-${run_id}"
+
+            echo "Lookup Key: $lookup_key"
+
+            # Get the report URL from the JSON file using the lookup_key
+            report_url=$(jq -r --arg key "$lookup_key" '.[$key]' "$report_map_json_file_path")
+            if [ -z "$report_url" ] || [ "$report_url" = "null" ]; then
+              report_url="N/A"
+            else
+              report_url="<a href=\\\"$report_url\\\">Report</a>"
+            fi
+            echo "Report URL: $report_url"
+
+            if [[ -n "$email" && ! "$emails" == *"$email"* && "$status" == "failure" ]]; then
+              emails="$emails;$email;"
+            fi
+            echo "Updated email list: $emails"
+
+            started_at=$(echo "$jobs" | jq --arg case "$case" -r '.[] | select(.name == $case ) | .started_at')
+            completed_at=$(echo "$jobs" | jq --arg case "$case" -r '.[] | select(.name == $case ) | .completed_at')
+            echo "Start time: $started_at, Completed time: $completed_at"
+
+            duration=$(dateutils.ddiff "$started_at" "$completed_at" -f "%Mm %Ss" 2>/dev/null)
+            echo "Calculated duration: $duration"
+
+
+
+            label=""
+            if [ "$status" == "success" ]; then
+              passed=$((passed+1))
+              label="<span style=\\\"background-color:#2aa198;color:white;font-weight:bold;\\\">PASSED</span>"
+            else
+              failed=$((failed+1))
+              label="<span style=\\\"background-color: #dc322f;color:white;font-weight:bold;\\\">FAILED</span>"
+            fi
+            echo "Job result label: $label"
+
+            url=$(echo "$jobs" | jq --arg case "$case" -r '.[] | select(.name == $case ) | .html_url')
+            display_name=$(echo "$name" | sed 's/^Case-//')
+            url="<a href=\\\"$url\\\">$display_name</a>"
+            echo "Job URL: $url"
+
+            owner="N/A"
+            linked_bugs=""
+            
+            # Query Azure DevOps for linked bugs if the case failed
+            if [ "$status" != "success" ]; then
+              echo "Case failed, querying Azure DevOps for bugs with tag: $display_name"
+              
+              # Try to query Azure DevOps, with error handling
+              bug_response=""
+              query_error=""
+              
+              if [ -z "$AZURE_DEVOPS_PAT" ]; then
+                query_error="⚠️No ADO PAT configured"
+                echo "Azure DevOps PAT not configured, skipping bug query"
+              else
+                bug_response=$(query_bugs_by_tag "$display_name" 2>&1) || query_error="⚠️Network issue"
+                echo "Bug query response: $bug_response"
+                
+                # Check if the response is valid JSON and contains workItems
+                if [ -z "$query_error" ]; then
+                  # Check for API errors in response
+                  api_error=$(echo "$bug_response" | jq -r '.message // empty' 2>/dev/null)
+                  if [ -n "$api_error" ]; then
+                    query_error="⚠️ADO API error"
+                    echo "Azure DevOps API error: $api_error"
+                  fi
+                fi
+              fi
+              
+              if [ -n "$query_error" ]; then
+                linked_bugs="$query_error"
+                echo "Bug query failed: $query_error"
+              else
+                # Extract work item IDs from the response
+                bug_ids=$(echo "$bug_response" | jq -r '.workItems[]?.id // empty' 2>/dev/null)
+                
+                if [ -n "$bug_ids" ]; then
+                  bug_links=""
+                  for bug_id in $bug_ids; do
+                    if [ -n "$bug_links" ]; then
+                      bug_links="$bug_links, "
+                    fi
+                    bug_links="$bug_links<a href=\\\"https://dev.azure.com/${AZURE_DEVOPS_ORG}/${AZURE_DEVOPS_PROJECT}/_workitems/edit/$bug_id\\\">🐞$bug_id</a>"
+                  done
+                  linked_bugs="$bug_links"
+                  echo "Found linked bugs: $linked_bugs"
+                else
+                  linked_bugs="❌Failed but no bug yet"
+                  echo "No linked bugs found for failed case"
+                fi
+              fi
+            fi
+            
+            row="<tr> <td style=\\\"text-align: left;\\\">$url</td> <td style=\\\"text-align: left;\\\">$title</td> <td style=\\\"text-align: center;\\\">$label</td> <td style=\\\"text-align: center;\\\">$owner</td> <td style=\\\"text-align: center;\\\">$work_item_url</td> <td style=\\\"text-align: center;\\\">$linked_bugs</td> <td style=\\\"text-align: center;\\\">$duration</td>  <td style=\\\"text-align: center;\\\">$report_url</td> </tr>"
+            echo "Generated row: $row"
+
+            if [[ "$status" == "success" && $passed -lt $passedlimit ]]; then
+              passedlist="$passedlist $row"
+            elif [[ "$status" != "success" && $failed -lt $failedlimit ]]; then
+              failedlist="$failedlist $row"
+            fi
+
+          done <<< "$cases"
+
+          lists="$failedlist $passedlist"
+          echo "Final failed list: $failedlist"
+          echo "Final passed list: $passedlist"
+
+          body="<a href=\\\"https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\\\">Test report link.</a>  <br/> <table class=\\\"w3-table w3-striped w3-bordered\\\"> <tr> <th>CASE</th> <th>TITLE</th> <th>STATUS</th> <th>OWNER</th> <th>WORK ITEM</th> <th>LINKED BUG(S)</th> <th>DURATION</th> <th>REPORT</th> </tr> $lists </table> <br />"
+          echo "Generated email body: $body"
+
+          total=$((passed+failed))
+          echo "Total jobs: $total, Passed: $passed, Failed: $failed"
+
+          subject="Vsc Use UI Test Report ($passed/$total Passed)"
+          if [ $failed -gt 0 ]; then
+            subject="[FAILED] $subject"
+          else
+            subject="[PASSED] $subject"
+          fi
+          echo "Final subject: $subject"
+
+          echo "body=$body" >> $GITHUB_OUTPUT
+          echo "to=$emails" >> $GITHUB_OUTPUT
+          echo "subject=$subject" >> $GITHUB_OUTPUT
+
+
+      - name: Send E-mail
+        uses: ./.github/actions/send-email-report
+        env:
+          TO: ${{ steps.list-jobs.outputs.to }}
+          BODY: '"${{ steps.list-jobs.outputs.body }}"'
+          SUBJECT: ${{ steps.list-jobs.outputs.subject }}
+          MAIL_CLIENT_ID: ${{ secrets.TEST_CLEAN_CLIENT_ID }}
+          MAIL_CLIENT_SECRET: ${{ secrets.TEST_CLEAN_CLIENT_SECRET }}
+          MAIL_TENANT_ID: ${{ secrets.TEST_CLEAN_TENANT_ID }}
