@@ -11,22 +11,11 @@ import { TemplateInfo } from "../../../src/component/generator/templates/templat
 import { TemplateNames } from "../../../src/component/generator/templates/templateNames";
 import { ProgrammingLanguage } from "../../../src/question/constants";
 import { QuestionNames } from "../../../src/question/questionNames";
-import { VSCapabilityOptions } from "../../../src/question/scaffold/vs/createRootNode";
 import { TabCapabilityOptions } from "../../../src/question/scaffold/vsc/CapabilityOptions";
 import { MockTools, randomAppName } from "../../core/utils";
 
 describe("TemplateGenerator", () => {
   const testInputsToTemplateName = new Map([
-    // ...inputsToTemplateName,
-    [
-      {
-        [QuestionNames.Capabilities]: VSCapabilityOptions.tab().id,
-        [QuestionNames.ProgrammingLanguage]: ProgrammingLanguage.CSharp,
-        [QuestionNames.SolutionName]: "TestSolution",
-        targetFramework: "net8.0",
-      },
-      TemplateNames.SsoTabSSR,
-    ],
     [
       {
         [QuestionNames.Capabilities]: TabCapabilityOptions.nonSsoTab().id,
@@ -34,14 +23,6 @@ describe("TemplateGenerator", () => {
         targetFramework: "net8.0",
       },
       TemplateNames.TabSSR,
-    ],
-    [
-      {
-        [QuestionNames.Capabilities]: VSCapabilityOptions.tab().id,
-        [QuestionNames.ProgrammingLanguage]: ProgrammingLanguage.CSharp,
-        targetFramework: "net9.0",
-      },
-      TemplateNames.SsoTabSSR,
     ],
     [
       {
