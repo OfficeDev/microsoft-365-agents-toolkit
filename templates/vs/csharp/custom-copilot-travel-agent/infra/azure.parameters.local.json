@@ -21,7 +21,7 @@
         "value": "TravelAgent"
       },
       "botDomain": {
-        "value": "${{BOT_DOMAIN}}"
+        "value": "${{APP_DOMAIN}}"
       },
       "environment": {
         "value": "local"

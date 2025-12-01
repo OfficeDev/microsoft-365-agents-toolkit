@@ -24,7 +24,7 @@
     "accentColor": "#FFFFFF",
     "composeExtensions": [
         {
-            "botId": "${{BOT_ID}}",
+            "botId": "${{APP_CLIENT_ID}}",
             "commands": [
                 {
                     "id": "createCard",
@@ -93,7 +93,7 @@
         "messageTeamMembers"
     ],
     "validDomains": [
-        "${{BOT_DOMAIN}}",
+        "${{APP_DOMAIN}}",
         "*.botframework.com",
         "*.com"
     ]

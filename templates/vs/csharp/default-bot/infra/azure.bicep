@@ -80,7 +80,7 @@ module azureBotRegistration './botRegistration/azurebot.bicep' = {
 }
 
 // The output will be persisted in .env.{envName}. Visit https://aka.ms/teamsfx-actions/arm-deploy for more details.
-output BOT_AZURE_APP_SERVICE_RESOURCE_ID string = webApp.id
-output BOT_DOMAIN string = webApp.properties.defaultHostName
-output BOT_ID string = identity.properties.clientId
+output AZURE_APP_SERVICE_RESOURCE_ID string = webApp.id
+output APP_DOMAIN string = webApp.properties.defaultHostName
+output APP_CLIENT_ID string = identity.properties.clientId
 output BOT_TENANT_ID string = identity.properties.tenantId

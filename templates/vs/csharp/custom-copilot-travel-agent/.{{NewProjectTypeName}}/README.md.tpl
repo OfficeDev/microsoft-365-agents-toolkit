@@ -105,7 +105,7 @@ Open `{{NewProjectTypeName}}/m365agents.local.yml` and replace the following sec
 - uses: script
   with:
     run:
-      echo "::set-teamsfx-env BOT_ID=${{AAD_APP_CLIENT_ID}}";
+      echo "::set-teamsfx-env APP_CLIENT_ID=${{AAD_APP_CLIENT_ID}}";
 ```
 
 With this:

@@ -24,7 +24,7 @@
     "accentColor": "#FFFFFF",
     "bots": [
         {
-            "botId": "${{BOT_ID}}",
+            "botId": "${{APP_CLIENT_ID}}",
             "scopes": [
                 "personal",
                 "team",
@@ -35,12 +35,12 @@
         }
     ],
     "validDomains": [
-        "${{BOT_DOMAIN}}",
+        "${{APP_DOMAIN}}",
         "*.botframework.com"
     ],
     "webApplicationInfo": {
-        "id": "${{BOT_ID}}",
-        "resource": "api://botid-${{BOT_ID}}"
+        "id": "${{APP_CLIENT_ID}}",
+        "resource": "api://botid-${{APP_CLIENT_ID}}"
     },
     "authorization": {
         "permissions": {

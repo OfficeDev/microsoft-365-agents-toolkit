@@ -7,7 +7,7 @@
 
   "TokenValidation": {
     "Audiences": [
-      "{{BOT_ID}}" // this is the Client ID used for the Azure Bot
+      "{{APP_CLIENT_ID}}" // this is the Client ID used for the Azure Bot
     ]
   },
 
@@ -17,7 +17,7 @@
       "Type": "MsalAuth",
       "Settings": {
         "AuthType": "UserManagedIdentity", // this is the AuthType for the connection, valid values can be found in Microsoft.Agents.Authentication.Msal.Model.AuthTypes.
-        "ClientId": "{{BOT_ID}}", // this is the Client ID used for the connection.
+        "ClientId": "{{APP_CLIENT_ID}}", // this is the Client ID used for the connection.
         "TenantId": "{{BOT_TENANT_ID}}",
         "Scopes": [
           "https://api.botframework.com/.default"

@@ -5,6 +5,6 @@ TEAMSFX_ENV=local
 APP_NAME_SUFFIX=local
 
 # Generated during provision, you can also add your own variables. 
-BOT_ID=
+APP_CLIENT_ID=
 TEAMS_APP_ID=
-BOT_DOMAIN=
+APP_DOMAIN=

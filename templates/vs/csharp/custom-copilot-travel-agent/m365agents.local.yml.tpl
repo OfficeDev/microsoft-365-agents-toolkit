@@ -58,7 +58,7 @@ provision:
   - uses: script
     with:
       run:
-        echo "::set-teamsfx-env BOT_ID=${{AAD_APP_CLIENT_ID}}";
+        echo "::set-teamsfx-env APP_CLIENT_ID=${{AAD_APP_CLIENT_ID}}";
 
   # Generate runtime appsettings to JSON file
   - uses: file/createOrUpdateJsonFile

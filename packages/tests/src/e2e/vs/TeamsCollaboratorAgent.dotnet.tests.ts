@@ -111,7 +111,7 @@ describe("Teams Collaborator Agent for csharp version", function () {
       assert.isDefined(context, "local env file should exist");
 
       // validate aad
-      assert.isUndefined(context.APP_OBJECT_ID, "AAD should not exist");
+      assert.isUndefined(context.AAD_APP_OBJECT_ID, "AAD should not exist");
 
       // validate teams app
       assert.isDefined(context.TEAMS_APP_ID, "teams app id should be defined");

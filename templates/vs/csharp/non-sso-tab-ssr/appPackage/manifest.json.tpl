@@ -29,8 +29,8 @@
         {
             "entityId": "index",
             "name": "Home",
-            "contentUrl": "${{TAB_ENDPOINT}}/tab",
-            "websiteUrl": "${{TAB_ENDPOINT}}/tab",
+            "contentUrl": "${{APP_ENDPOINT}}/tab",
+            "websiteUrl": "${{APP_ENDPOINT}}/tab",
             "scopes": [
                 "personal",
                 "groupChat",
@@ -43,6 +43,6 @@
         "messageTeamMembers"
     ],
     "validDomains": [
-        "${{TAB_DOMAIN}}"
+        "${{APP_DOMAIN}}"
     ]
 }
