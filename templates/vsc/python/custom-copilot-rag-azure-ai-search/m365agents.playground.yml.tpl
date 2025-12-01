@@ -18,7 +18,7 @@ deploy:
     with:
       target: ./.env
       envs:
-        TEAMSFX_NOTIFICATION_STORE_FILENAME: ${{TEAMSFX_NOTIFICATION_STORE_FILENAME}}
+
         CLIENT_ID: ""
         CLIENT_SECRET: ""
         {{#useAzureOpenAI}}

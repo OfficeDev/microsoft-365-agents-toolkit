@@ -19,6 +19,6 @@ deploy:
       target: ./.env
       envs:
         PORT: 3978
-        TEAMSFX_NOTIFICATION_STORE_FILENAME: ${{TEAMSFX_NOTIFICATION_STORE_FILENAME}}
+
         CLIENT_ID: ""
         CLIENT_SECRET: ""
