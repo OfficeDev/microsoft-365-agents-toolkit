@@ -238,14 +238,16 @@ jobs:
           source .venv/bin/activate
           vscuse execute --config-file ./config.yaml --groups-dir groups ./plans/${{ matrix.test_plan }}.json
 
-      - name: Encrypt test artifacts
+      - name: Encrypt and upload test artifacts
         if: always()
         run: |
           cd packages/tests/vscuse/vscode-test-cases
           if [ -d "test_report" ]; then
-            tar -czvf test_report.tar.gz test_report/
-            gpg --batch --yes --symmetric --cipher-algo AES256 --passphrase "${{ secrets.ARTIFACT_PASSWORD }}" test_report.tar.gz
-            rm test_report.tar.gz
+            sudo apt-get install -y p7zip-full
+            7z a -p"${{ secrets.ARTIFACT_PASSWORD }}" -mhe=on test_report.7z test_report/
+            echo "✅ Test report encrypted successfully"
+          else
+            echo "⚠️ No test_report directory found"
           fi
 
       - name: Upload test artifacts
@@ -254,7 +256,7 @@ jobs:
         with:
           name: test-debug-artifacts-${{ matrix.test_plan }}-${{ github.run_number }}
           path: |
-            packages/tests/vscuse/vscode-test-cases/test_report.tar.gz.gpg
+            packages/tests/vscuse/vscode-test-cases/test_report.7z
           retention-days: 7
           if-no-files-found: ignore
 
