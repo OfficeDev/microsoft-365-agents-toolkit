@@ -46,7 +46,7 @@
       "plan_r_1023_013114"
     ],
     "tags": [],
-    "updated_at": "2025-12-02T05:41:20.607406"
+    "updated_at": "2025-12-02T06:24:49.043774"
   },
   "steps": [
     {
@@ -72,7 +72,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_3658ce6b",
-      "created_at": "2025-12-02T05:18:33.660019",
+      "created_at": "2025-12-02T06:24:42.681573",
       "plan_id": "plan_46ed1075"
     },
     {
@@ -98,7 +98,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_5a6a201a",
-      "created_at": "2025-12-02T05:18:33.680231",
+      "created_at": "2025-12-02T06:24:42.699373",
       "plan_id": "plan_46ed1075"
     },
     {
@@ -124,7 +124,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_dd12065a",
-      "created_at": "2025-12-02T05:18:33.696640",
+      "created_at": "2025-12-02T06:24:42.715763",
       "plan_id": "plan_46ed1075"
     },
     {
@@ -150,7 +150,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_1ca53f6a",
-      "created_at": "2025-12-02T05:18:33.711353",
+      "created_at": "2025-12-02T06:24:42.734362",
       "plan_id": "plan_46ed1075"
     },
     {
@@ -176,7 +176,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_5885dcec",
-      "created_at": "2025-12-02T05:18:33.726318",
+      "created_at": "2025-12-02T06:24:42.748209",
       "plan_id": "plan_46ed1075"
     },
     {
@@ -202,7 +202,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_d57d2a06",
-      "created_at": "2025-12-02T05:22:47.906616",
+      "created_at": "2025-12-02T06:24:42.765531",
       "plan_id": "plan_46ed1075"
     },
     {
@@ -228,7 +228,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_f43adfbc",
-      "created_at": "2025-12-02T05:22:47.916655",
+      "created_at": "2025-12-02T06:24:42.782712",
       "plan_id": "plan_46ed1075"
     },
     {
@@ -254,7 +254,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_a4f80765",
-      "created_at": "2025-12-02T05:24:13.595095",
+      "created_at": "2025-12-02T06:24:42.809219",
       "plan_id": "plan_46ed1075"
     },
     {
@@ -276,7 +276,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_248e8381",
-      "created_at": "2025-12-02T05:24:13.617273",
+      "created_at": "2025-12-02T06:24:42.831848",
       "plan_id": "plan_46ed1075"
     },
     {
@@ -302,7 +302,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_cb8a8d30",
-      "created_at": "2025-12-02T05:32:01.379637",
+      "created_at": "2025-12-02T06:24:42.857516",
       "plan_id": "plan_46ed1075"
     },
     {
@@ -328,7 +328,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_21e35e1f",
-      "created_at": "2025-12-02T05:32:01.391131",
+      "created_at": "2025-12-02T06:24:42.885619",
       "plan_id": "plan_46ed1075"
     },
     {
@@ -350,7 +350,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_7ba8513d",
-      "created_at": "2025-12-02T05:32:01.403276",
+      "created_at": "2025-12-02T06:24:42.918386",
       "plan_id": "plan_46ed1075"
     },
     {
@@ -376,7 +376,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_b187a964",
-      "created_at": "2025-12-02T05:38:34.537073",
+      "created_at": "2025-12-02T06:24:42.943837",
       "plan_id": "plan_46ed1075"
     },
     {
@@ -398,7 +398,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_052a65be",
-      "created_at": "2025-12-02T05:38:34.549838",
+      "created_at": "2025-12-02T06:24:42.960067",
       "plan_id": "plan_46ed1075"
     },
     {
@@ -420,7 +420,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_568170af",
-      "created_at": "2025-12-02T05:38:34.561856",
+      "created_at": "2025-12-02T06:24:42.976881",
       "plan_id": "plan_46ed1075"
     },
     {
@@ -428,9 +428,9 @@
       "agent": "interaction",
       "tool": "type_text",
       "parameters": {
-        "text": "${{secret:AZURE_SEARCH_KEY}}"
+        "text": "${{env:AZURE_SEARCH_KEY}}"
       },
-      "description": "Type ${{secret:AZURE_SEARCH_KEY}} at the end of line 10, after 'SECRET_AZURE_SEARCH_KEY=' in the .env.playground.user file within Visual Studio Code.",
+      "description": "Type ${{env:AZURE_SEARCH_KEY}} at the end of line 10, after 'SECRET_AZURE_SEARCH_KEY=' in the .env.playground.user file within Visual Studio Code.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -442,7 +442,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_d8c53cd7",
-      "created_at": "2025-12-02T05:38:34.575527",
+      "created_at": "2025-12-02T06:24:42.990580",
       "plan_id": "plan_46ed1075"
     },
     {
@@ -464,7 +464,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_95fadc53",
-      "created_at": "2025-12-02T05:38:34.587592",
+      "created_at": "2025-12-02T06:24:43.007992",
       "plan_id": "plan_46ed1075"
     },
     {
@@ -486,7 +486,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_4012575d",
-      "created_at": "2025-12-02T05:38:34.599320",
+      "created_at": "2025-12-02T06:24:43.019820",
       "plan_id": "plan_46ed1075"
     },
     {
@@ -508,7 +508,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_a0317f35",
-      "created_at": "2025-12-02T05:38:34.610860",
+      "created_at": "2025-12-02T06:24:43.035533",
       "plan_id": "plan_46ed1075"
     },
     {
@@ -534,7 +534,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_022d0b75",
-      "created_at": "2025-12-02T05:40:10.309110",
+      "created_at": "2025-12-02T06:24:43.051666",
       "plan_id": "plan_46ed1075"
     },
     {
@@ -560,7 +560,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_5a557d05",
-      "created_at": "2025-12-02T05:40:10.329915",
+      "created_at": "2025-12-02T06:24:43.066287",
       "plan_id": "plan_46ed1075"
     }
   ],

@@ -28,7 +28,7 @@
     "tags": [
       "group"
     ],
-    "updated_at": "2025-12-02T04:52:33.777904"
+    "updated_at": "2025-12-02T06:24:19.660880"
   },
   "steps": [
     {
@@ -54,7 +54,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_8017d928",
-      "created_at": "2025-12-02T04:52:09.704869",
+      "created_at": "2025-12-02T06:24:13.365656",
       "plan_id": "plan_4b4ea226"
     },
     {
@@ -76,7 +76,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_0e2da2fb",
-      "created_at": "2025-12-02T04:52:09.717412",
+      "created_at": "2025-12-02T06:24:13.383955",
       "plan_id": "plan_4b4ea226"
     },
     {
@@ -98,7 +98,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_624c1823",
-      "created_at": "2025-12-02T04:52:09.730489",
+      "created_at": "2025-12-02T06:24:13.395374",
       "plan_id": "plan_4b4ea226"
     },
     {
@@ -106,9 +106,9 @@
       "agent": "interaction",
       "tool": "type_text",
       "parameters": {
-        "text": "${{secret:AZURE_SEARCH_KEY}}"
+        "text": "${{env:AZURE_SEARCH_KEY}}"
       },
-      "description": "Type ${{secret:AZURE_SEARCH_KEY}}  in the  file next to AZURE_OPENAI_EMBEDDING_DEPLOYMENT_NAME, using the Visual Studio Code editor.",
+      "description": "Type ${{env:AZURE_SEARCH_KEY}}  in the  file next to AZURE_OPENAI_EMBEDDING_DEPLOYMENT_NAME, using the Visual Studio Code editor.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -120,7 +120,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_c9308320",
-      "created_at": "2025-12-02T04:52:09.741755",
+      "created_at": "2025-12-02T06:24:13.413979",
       "plan_id": "plan_4b4ea226"
     },
     {
@@ -142,7 +142,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_4c72aed6",
-      "created_at": "2025-12-02T04:52:09.753086",
+      "created_at": "2025-12-02T06:24:13.496883",
       "plan_id": "plan_4b4ea226"
     },
     {
@@ -164,7 +164,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_0e57a07e",
-      "created_at": "2025-12-02T04:52:09.765272",
+      "created_at": "2025-12-02T06:24:13.510143",
       "plan_id": "plan_4b4ea226"
     },
     {
@@ -186,7 +186,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_1a8cf4e9",
-      "created_at": "2025-12-02T04:52:09.774803",
+      "created_at": "2025-12-02T06:24:13.527471",
       "plan_id": "plan_4b4ea226"
     },
     {
@@ -212,7 +212,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_7f5c73b8",
-      "created_at": "2025-12-02T04:52:27.261127",
+      "created_at": "2025-12-02T06:24:13.546177",
       "plan_id": "plan_4b4ea226"
     },
     {
@@ -238,7 +238,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_a5403336",
-      "created_at": "2025-12-02T04:52:27.276743",
+      "created_at": "2025-12-02T06:24:13.562922",
       "plan_id": "plan_4b4ea226"
     }
   ],

@@ -28,7 +28,7 @@
     "tags": [
       "group"
     ],
-    "updated_at": "2025-12-02T05:02:01.740994"
+    "updated_at": "2025-12-02T06:23:53.056287"
   },
   "steps": [
     {
@@ -106,9 +106,9 @@
       "agent": "interaction",
       "tool": "type_text",
       "parameters": {
-        "text": "${{secret:AZURE_SEARCH_KEY}}"
+        "text": "${{env:AZURE_SEARCH_KEY}}"
       },
-      "description": "Type ${{secret:AZURE_SEARCH_KEY}}  in the  file next to AZURE_OPENAI_EMBEDDING_DEPLOYMENT_NAME, using the Visual Studio Code editor.",
+      "description": "Type ${{env:AZURE_SEARCH_KEY}}  in the  file next to AZURE_OPENAI_EMBEDDING_DEPLOYMENT_NAME, using the Visual Studio Code editor.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
