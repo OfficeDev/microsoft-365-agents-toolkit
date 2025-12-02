@@ -9,7 +9,7 @@
       "precondition_retry_interval": 2,
       "step_retry_timeout": 0
     },
-    "total_steps": 12,
+    "total_steps": 13,
     "created_at": "2025-12-02T01:27:30.438076",
     "name": "test-code",
     "description": "27569119",
@@ -24,7 +24,8 @@
       "step_137a4d07",
       "plan_r_0928_014459",
       "step_87c4cf0a",
-      "step_da07d02a",
+      "step_83478413",
+      "step_e7b0355e",
       "step_3bae4ead",
       "step_946f4bba",
       "step_e508c71f",
@@ -32,7 +33,7 @@
       "step_a6d5c2a7"
     ],
     "tags": [],
-    "updated_at": "2025-12-02T01:31:44.891125"
+    "updated_at": "2025-12-02T01:54:18.969186"
   },
   "steps": [
     {
@@ -169,10 +170,8 @@
       "step_id": "step_87c4cf0a",
       "agent": "code",
       "tool": "",
-      "parameters": {
-        "sample": "=== Generated Script ===\nLanguage: bash\n\n```bash\nENV_FILE=\"/home/vscode/AgentsToolkitProjects/vscuse_app_Xr7g7/env/.env.dev.user\"\n\n# Ensure the file exists before proceeding\nif [ ! -f \"$ENV_FILE\" ]; then\n  echo \"File not found: $ENV_FILE\"\n  exit 1\nfi\n\n# Helper function to add or update a key-value pair\nupdate_env_var() {\n  local key=\"$1\"\n  local value=\"$2\"\n  local file=\"$3\"\n  if grep -q \"^$key=\" \"$file\"; then\n    sed -i \"s/^$key=.*/$key=$value/\" \"$file\"\n  else\n    echo \"$key=$value\" >> \"$file\"\n  fi\n}\n\nupdate_env_var \"AZURE_OPENAI_EMBEDDING_DEPLOYMENT_NAME\" \"text-embedding-ada-002\" \"$ENV_FILE\"\nupdate_env_var \"SECRET_AZURE_SEARCH_KEY\" \"${{secret:AZURE_SEARCH_KEY:}}\" \"$ENV_FILE\"\nupdate_env_var \"AZURE_SEARCH_ENDPOINT\" \"https://atktest-ai-search.search.windows.net\" \"$ENV_FILE\"\n\necho \"Updated environment variables in $ENV_FILE:\"\ngrep -E \"^(AZURE_OPENAI_EMBEDDING_DEPLOYMENT_NAME|SECRET_AZURE_SEARCH_KEY|AZURE_SEARCH_ENDPOINT)=\" \"$ENV_FILE\"\n```\n\n=== Execution Results ===\nExit Code: 0\n\n=== STDOUT ===\nUpdated environment variables in /home/vscode/AgentsToolkitProjects/vscuse_app_Xr7g7/env/.env.dev.user:\nAZURE_OPENAI_EMBEDDING_DEPLOYMENT_NAME=text-embedding-ada-002\nSECRET_AZURE_SEARCH_KEY=${{secret:AZURE_SEARCH_KEY:}}\nAZURE_SEARCH_ENDPOINT=https://atktest-ai-search.search.windows.net\n\n=== STDERR ===\nsed: -e expression #1, char 58: unknown option to `s'\n\n✓ Script executed successfully"
-      },
-      "description": "@code in file \"/home/vscode/AgentsToolkitProjects/${{var:app_name}}/env/.env.dev.user\"\nfill in \"AZURE_OPENAI_EMBEDDING_DEPLOYMENT_NAME=text-embedding-ada-002\";\nfill in \"SECRET_AZURE_SEARCH_KEY=${{secret:AZURE_SEARCH_KEY}}\";\nfill in \"AZURE_SEARCH_ENDPOINT=${{env:AZURE_SEARCH_ENDPOINT}}\";",
+      "parameters": {},
+      "description": "@code in file \"/home/vscode/AgentsToolkitProjects/${{var:app_name}}/env/.env.dev.user\"\nfill in \"AZURE_OPENAI_EMBEDDING_DEPLOYMENT_NAME=text-embedding-ada-002\";",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -186,13 +185,11 @@
       "plan_id": "plan_9014336f"
     },
     {
-      "step_id": "step_da07d02a",
+      "step_id": "step_83478413",
       "agent": "code",
       "tool": "",
-      "parameters": {
-        "sample": "=== Generated Script ===\nLanguage: bash\n\n```bash\nfile=\"/home/vscode/AgentsToolkitProjects/vscuse_app_Xr7g7/env/.env.playground.user\"\nif [ ! -f \"$file\" ]; then\n  echo \"File does not exist: $file\"\n  exit 1\nfi\nawk -v RS='\\n' -v ORS='\\n' \\\n  'BEGIN{repl[\"AZURE_OPENAI_EMBEDDING_DEPLOYMENT_NAME\"]=\"text-embedding-ada-002\";repl[\"SECRET_AZURE_SEARCH_KEY\"]=\"${{secret:AZURE_SEARCH_KEY:}}\";repl[\"AZURE_SEARCH_ENDPOINT\"]=\"https://atktest-ai-search.search.windows.net\";}\n   {split($0,a,\"=\");\n    if (a[1] in repl) print a[1]\"=\"repl[a[1]]; else print $0;}' \"$file\" > \"$file.tmp\"\n\nfor key in AZURE_OPENAI_EMBEDDING_DEPLOYMENT_NAME SECRET_AZURE_SEARCH_KEY AZURE_SEARCH_ENDPOINT; do\n  if ! grep -q \"^${key}=\" \"$file.tmp\"; then\n    echo \"${key}=${repl[$key]}\" >> \"$file.tmp\"\n  fi\ndone\n\nmv \"$file.tmp\" \"$file\"\necho \"Updated file: $file\"\ngrep -E '^(AZURE_OPENAI_EMBEDDING_DEPLOYMENT_NAME|SECRET_AZURE_SEARCH_KEY|AZURE_SEARCH_ENDPOINT)=' \"$file\"\n```\n\n=== Execution Results ===\nExit Code: 0\n\n=== STDOUT ===\nUpdated file: /home/vscode/AgentsToolkitProjects/vscuse_app_Xr7g7/env/.env.playground.user\nAZURE_OPENAI_EMBEDDING_DEPLOYMENT_NAME=text-embedding-ada-002\nSECRET_AZURE_SEARCH_KEY=${{secret:AZURE_SEARCH_KEY:}}\nAZURE_SEARCH_ENDPOINT=https://atktest-ai-search.search.windows.net\n\n✓ Script executed successfully"
-      },
-      "description": "@code in file \"/home/vscode/AgentsToolkitProjects/${{var:app_name}}/env/.env.playground.user\"\nfill in \"AZURE_OPENAI_EMBEDDING_DEPLOYMENT_NAME=text-embedding-ada-002\";\nfill in \"SECRET_AZURE_SEARCH_KEY=${{secret:AZURE_SEARCH_KEY}}\";\nfill in \"AZURE_SEARCH_ENDPOINT=${{env:AZURE_SEARCH_ENDPOINT}}\";",
+      "parameters": {},
+      "description": "@code fill in \"SECRET_AZURE_SEARCH_KEY=${{secret:AZURE_SEARCH_KEY}}\"  in file \"/home/vscode/AgentsToolkitProjects/${{var:app_name}}/env/.env.dev.user\".",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -202,7 +199,25 @@
       "postconditions": [],
       "tags": [],
       "screenshot": null,
-      "created_at": "2025-12-02T01:27:30.566674",
+      "created_at": "2025-12-02T01:51:52.896124",
+      "plan_id": "plan_9014336f"
+    },
+    {
+      "step_id": "step_e7b0355e",
+      "agent": "code",
+      "tool": "",
+      "parameters": {},
+      "description": "@code fill in \"AZURE_SEARCH_ENDPOINT=${{env:AZURE_SEARCH_ENDPOINT}}\"  in file \"/home/vscode/AgentsToolkitProjects/${{var:app_name}}/env/.env.dev.user\".",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": null,
+      "created_at": "2025-12-02T01:53:45.619805",
       "plan_id": "plan_9014336f"
     },
     {
