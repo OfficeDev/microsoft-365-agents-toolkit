@@ -238,13 +238,23 @@ jobs:
           source .venv/bin/activate
           vscuse execute --config-file ./config.yaml --groups-dir groups ./plans/${{ matrix.test_plan }}.json
 
+      - name: Encrypt test artifacts
+        if: always()
+        run: |
+          cd packages/tests/vscuse/vscode-test-cases
+          if [ -d "test_report" ]; then
+            tar -czvf test_report.tar.gz test_report/
+            gpg --batch --yes --symmetric --cipher-algo AES256 --passphrase "${{ secrets.ARTIFACT_PASSWORD }}" test_report.tar.gz
+            rm test_report.tar.gz
+          fi
+
       - name: Upload test artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: test-debug-artifacts-${{ matrix.test_plan }}-${{ github.run_number }}
           path: |
-            packages/tests/vscuse/vscode-test-cases/test_report/
+            packages/tests/vscuse/vscode-test-cases/test_report.tar.gz.gpg
           retention-days: 7
           if-no-files-found: ignore
 
