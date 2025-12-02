@@ -1,10 +1,36 @@
 import * as esbuild from "esbuild";
 import copyStaticFiles from "esbuild-copy-static-files";
 import path from "node:path";
+import { glob } from "glob";
+import fs from "fs-extra";
 
 const outputDirectory = "out";
 const production = process.argv.includes("--production");
 const watch = process.argv.includes("--watch");
+
+const isWindows = process.platform === "win32";
+const windowsArches = ["x64"];
+
+let platformFolder;
+switch (process.platform) {
+  case "win32":
+    platformFolder = "windows";
+    break;
+  case "darwin":
+    platformFolder = "macos";
+    break;
+  case "linux":
+    platformFolder = "linux";
+    break;
+  default:
+    throw new Error(`Unsupported platform: ${process.platform}`);
+}
+
+const arch = process.env.VSCODE_ARCH || process.arch;
+console.log(`Building Teams Toolkit Extension for ${process.platform} (${arch})`);
+
+// Check if we should copy native MSAL modules
+const shouldCopyNativeModules = isWindows && windowsArches.includes(arch);
 
 let toolkitResolvePlugin = {
   name: "toolkit dependency resolve",
@@ -23,10 +49,48 @@ let toolkitResolvePlugin = {
         loader: "js",
       };
     });
+
+    // Alias keytar to a mock implementation
+    build.onResolve({ filter: /^keytar$/ }, (args) => {
+      return {
+        path: path.resolve(import.meta.dirname, "packageMocks", "keytar", "index.js"),
+      };
+    });
+
+    // Handle msal-node-runtime as external
+    // The @azure/msal-node-runtime package requires this native node module (.node).
+    // It is currently only included on Windows, but the package handles unsupported platforms gracefully.
+    build.onResolve({ filter: /^\.\/msal-node-runtime$/ }, (args) => {
+      return {
+        path: "./msal-node-runtime",
+        external: true,
+      };
+    });
   },
 };
 
 async function main() {
+  // Copy native MSAL modules if supported on this platform
+  if (shouldCopyNativeModules) {
+    const pattern = `**/dist/${platformFolder}/${arch}/{lib,}msal*.{node,dll,dylib,so}`;
+    const files = await glob(pattern, { cwd: process.cwd(), dot: true });
+
+    if (files.length > 0) {
+      console.log(`Copying ${files.length} native MSAL module(s) for ${platformFolder}/${arch}`);
+      for (const file of files) {
+        const fileName = path.basename(file);
+        const destPath = path.join(outputDirectory, "src", fileName);
+        await fs.ensureDir(path.dirname(destPath));
+        await fs.copy(file, destPath);
+        console.log(`  Copied: ${fileName}`);
+      }
+    } else {
+      console.log(`No native MSAL modules found for ${platformFolder}/${arch}`);
+    }
+  } else {
+    console.log(`Skipping native MSAL module copy for ${process.platform}/${arch} (not supported)`);
+  }
+
   const ctx = await esbuild.context({
     entryPoints: ["./src/extension.ts"],
     outdir: path.join(outputDirectory, "src"),
@@ -36,7 +100,7 @@ async function main() {
     sourcemap: !production,
     sourcesContent: false,
     platform: "node",
-    external: ["vscode", "keytar"],
+    external: ["vscode"],
     mainFields: ["module", "main"], // https://github.com/microsoft/node-jsonc-parser/issues/57
     logLevel: production ? "silent" : "info",
     plugins: [
