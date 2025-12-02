@@ -14,7 +14,6 @@ export class FeatureFlagName {
   static readonly CLIDotNet = "TEAMSFX_CLI_DOTNET";
   static readonly OfficeMetaOS = "TEAMSFX_OFFICE_METAOS";
   static readonly SampleConfigBranch = "TEAMSFX_SAMPLE_CONFIG_BRANCH";
-  static readonly TestTool = "TEAMSFX_TEST_TOOL";
   static readonly METestTool = "TEAMSFX_ME_TEST_TOOL";
   static readonly TeamsFxRebranding = "TEAMSFX_REBRANDING";
   static readonly AsyncAppValidation = "TEAMSFX_ASYNC_APP_VALIDATION";
@@ -49,7 +48,6 @@ export interface FeatureFlag {
 
 export class FeatureFlags {
   static readonly CLIDotNet = { name: FeatureFlagName.CLIDotNet, defaultValue: "false" };
-  static readonly TestTool = { name: FeatureFlagName.TestTool, defaultValue: "true" };
   static readonly METestTool = { name: FeatureFlagName.METestTool, defaultValue: "true" };
   static readonly OfficeMetaOS = {
     name: FeatureFlagName.OfficeMetaOS,

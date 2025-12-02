@@ -1,11 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 import { Inputs } from "@microsoft/teamsfx-api";
+import os from "os";
 import { featureFlagManager, FeatureFlags } from "../../../common/featureFlags";
 import { convertToAlphanumericOnly } from "../../../common/stringUtils";
-import { QuestionNames } from "../../../question/constants";
 import { LocalCrypto } from "../../../core/crypto";
-import os from "os";
+import { QuestionNames } from "../../../question/constants";
 
 export function getTemplateReplaceMap(inputs: Inputs): { [key: string]: string } {
   const appName = inputs[QuestionNames.AppName] as string;
@@ -52,9 +52,6 @@ export function getTemplateReplaceMap(inputs: Inputs): { [key: string]: string }
     PlaceProjectFileInSolutionDir: placeProjectFileInSolutionDir ? "true" : "",
     SafeProjectName: safeProjectName,
     SafeProjectNameLowerCase: safeProjectName.toLocaleLowerCase(),
-    enableTestToolByDefault: featureFlagManager.getBooleanValue(FeatureFlags.TestTool)
-      ? "true"
-      : "",
     enableMETestToolByDefault: featureFlagManager.getBooleanValue(FeatureFlags.METestTool)
       ? "true"
       : "",
