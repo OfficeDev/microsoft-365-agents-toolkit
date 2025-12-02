@@ -114,6 +114,9 @@ export class CodeFlowLogin {
       authority: authority,
       prompt: !loginHint ? "select_account" : "login",
       loginHint: loginHint,
+      windowHandle: vscode.window.nativeHandle
+        ? Buffer.from(vscode.window.nativeHandle)
+        : undefined,
     };
 
     let accessToken = undefined;

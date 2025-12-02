@@ -10,7 +10,8 @@
   "main": "./out/src/extension.js",
   "enabledApiProposals": [
     "authenticationChallenges",
-    "authLearnMore"
+    "authLearnMore",
+    "nativeWindowHandle"
   ],
   "repository": {
     "type": "git",
