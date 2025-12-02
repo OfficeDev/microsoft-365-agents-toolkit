@@ -25,7 +25,9 @@ docker:
   vscode_insiders: false   
   environment:
     TEAMSFX_TELEMETRY_TEST: "true"                 # Default: false (set to true to use VS Code Insider)
-
+    AZURE_SEARCH_KEY: ${AZURE_SEARCH_KEY}
+    AZURE_SEARCH_ENDPOINT: ${AZURE_SEARCH_ENDPOINT}
+    
 execution:
   delay_between_steps: 0.5         # Default: 0.5 (seconds between steps)
   stop_on_error: true              # Default: true (stop execution on first error)
