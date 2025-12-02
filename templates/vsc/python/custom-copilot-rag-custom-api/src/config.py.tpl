@@ -19,7 +19,7 @@ class Config:
     APP_TENANTID = os.environ.get("BOT_TENANT_ID", "")
     {{#useAzureOpenAI}}
     AZURE_OPENAI_API_KEY = os.environ["AZURE_OPENAI_API_KEY"] # Azure OpenAI API key
-    AZURE_OPENAI_MODEL_DEPLOYMENT_NAME = os.environ["AZURE_OPENAI_DEPLOYMENT"] # Azure OpenAI model deployment name
+    AZURE_OPENAI_DEPLOYMENT_NAME = os.environ["AZURE_OPENAI_DEPLOYMENT_NAME"] # Azure OpenAI model deployment name
     AZURE_OPENAI_ENDPOINT = os.environ["AZURE_OPENAI_ENDPOINT"] # Azure OpenAI endpoint
     {{/useAzureOpenAI}}
     {{#useOpenAI}}

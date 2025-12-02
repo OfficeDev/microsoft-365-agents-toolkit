@@ -4,7 +4,6 @@ env/.env.local
 env/.env.sandbox
 .localConfigs
 .localConfigs.playground
-.localConfigs
 .notification.localstore.json
 .notification.playgroundstore.json
 appPackage/build
