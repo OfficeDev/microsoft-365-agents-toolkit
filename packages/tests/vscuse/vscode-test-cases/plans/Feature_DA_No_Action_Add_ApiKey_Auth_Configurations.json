@@ -822,7 +822,7 @@
       "agent": "interaction",
       "tool": "type_text",
       "parameters": {
-        "text": "my-secret-value"
+        "text": "mysecretvalue"
       },
       "description": "Type 'mysecretvalue' into the \"Enter API Key in OpenAPI Description Document\" input field in Visual Studio Code’s prompt dialog.",
       "content_refs": [],
