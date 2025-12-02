@@ -128,7 +128,7 @@
         {
             "label": "Start application (Microsoft 365 Agents Playground)",
             "type": "shell",
-            "command": "npm run dev:teamsfx:testtool",
+            "command": "npm run dev:teamsfx:playground",
             "isBackground": true,
             "options": {
                 "cwd": "${workspaceFolder}",
@@ -152,7 +152,7 @@
         {
             "label": "Start Microsoft 365 Agents Playground",
             "type": "shell",
-            "command": "npm run dev:teamsfx:launch-testtool",
+            "command": "npm run dev:teamsfx:launch-playground",
             "isBackground": true,
             "options": {
                 "env": {

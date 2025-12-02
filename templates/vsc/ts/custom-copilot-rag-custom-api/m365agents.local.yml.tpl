@@ -86,7 +86,7 @@ deploy:
   - uses: cli/runNpmCommand
     name: install dependencies
     with:
-      args: install --no-audit
+      args: install
 
   # Generate runtime environment variables
   - uses: file/createOrUpdateEnvironmentFile
@@ -102,5 +102,5 @@ deploy:
         {{#useAzureOpenAI}}
         AZURE_OPENAI_API_KEY: ${{SECRET_AZURE_OPENAI_API_KEY}}
         AZURE_OPENAI_ENDPOINT: ${{AZURE_OPENAI_ENDPOINT}}
-        AZURE_OPENAI_DEPLOYMENT: ${{AZURE_OPENAI_MODEL_DEPLOYMENT_NAME}}
+        AZURE_OPENAI_DEPLOYMENT_NAME: ${{AZURE_OPENAI_DEPLOYMENT_NAME}}
         {{/useAzureOpenAI}}

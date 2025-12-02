@@ -94,7 +94,7 @@ resource webApp 'Microsoft.Web/sites@2021-02-01' = {
           value: azureOpenAIEndpoint
         }
         {
-          name: 'AZURE_OPENAI_DEPLOYMENT'
+          name: 'AZURE_OPENAI_DEPLOYMENT_NAME'
           value: azureOpenAIDeployment
         }
         {{/useAzureOpenAI}}

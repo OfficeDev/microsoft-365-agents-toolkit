@@ -1,7 +1,7 @@
-# yaml-language-server: $schema=https://aka.ms/m365-agents-toolkits/v1.9/yaml.schema.json
+# yaml-language-server: $schema=https://aka.ms/m365-agents-toolkits/v1.11/yaml.schema.json
 # Visit https://aka.ms/teamsfx-v5.0-guide for details on this file
 # Visit https://aka.ms/teamsfx-actions for details on actions
-version: v1.9
+version: v1.11
 
 deploy:
   # Install development tool(s)
@@ -14,7 +14,7 @@ deploy:
   # Run npm command
   - uses: cli/runNpmCommand
     with:
-      args: install --no-audit
+      args: install
 
   # Generate runtime environment variables
   - uses: file/createOrUpdateEnvironmentFile
@@ -32,4 +32,3 @@ deploy:
         {{/useAzureOpenAI}}
         AZURE_SEARCH_KEY: ${{SECRET_AZURE_SEARCH_KEY}}
         AZURE_SEARCH_ENDPOINT: ${{AZURE_SEARCH_ENDPOINT}}
-        TEAMSFX_NOTIFICATION_STORE_FILENAME: ${{TEAMSFX_NOTIFICATION_STORE_FILENAME}}
