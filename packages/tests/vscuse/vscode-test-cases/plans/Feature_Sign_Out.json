@@ -544,8 +544,8 @@
       "tool": "click",
       "parameters": {
         "button": "left",
-        "x": 259,
-        "y": 18
+        "x": 1004,
+        "y": 19
       },
       "description": "Click the close (\"X\") button on the \"M365 Account - Sign In\" browser tab in Google Chrome to close the authentication tab after successful sign-in.",
       "content_refs": [],
