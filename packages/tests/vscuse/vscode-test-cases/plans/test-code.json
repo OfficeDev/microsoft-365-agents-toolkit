@@ -32,7 +32,7 @@
       "step_2563e862"
     ],
     "tags": [],
-    "updated_at": "2025-12-02T02:39:41.894703"
+    "updated_at": "2025-12-02T02:54:54.474909"
   },
   "steps": [
     {
@@ -169,9 +169,7 @@
       "step_id": "step_87c4cf0a",
       "agent": "code",
       "tool": "",
-      "parameters": {
-        "sample": "=== Generated Script ===\nLanguage: bash\n\n```bash\nENV_FILE=\"/home/vscode/AgentsToolkitProjects/vscuse_app_jn3ex/env/.env.dev.user\"\n\n# Ensure the file exists before proceeding\nif [ ! -f \"$ENV_FILE\" ]; then\n  echo \"File not found: $ENV_FILE\"\n  exit 1\nfi\n\n# Helper function to add or update a key-value pair\nupdate_env_var() {\n  local key=\"$1\"\n  local value=\"$2\"\n  local file=\"$3\"\n  if grep -q \"^$key=\" \"$file\"; then\n    sed -i \"s|^$key=.*|$key=$value|\" \"$file\"\n  else\n    echo \"$key=$value\" >> \"$file\"\n  fi\n}\n\nupdate_env_var \"AZURE_OPENAI_EMBEDDING_DEPLOYMENT_NAME\" \"text-embedding-ada-002\" \"$ENV_FILE\"\nupdate_env_var \"SECRET_AZURE_SEARCH_KEY\" \"${{secret:AZURE_SEARCH_KEY:}}\" \"$ENV_FILE\"\nupdate_env_var \"AZURE_SEARCH_ENDPOINT\" \"https://atktest-ai-search.search.windows.net\" \"$ENV_FILE\"\n\necho \"Updated environment variables in $ENV_FILE:\"\ngrep -E \"^(AZURE_OPENAI_EMBEDDING_DEPLOYMENT_NAME|SECRET_AZURE_SEARCH_KEY|AZURE_SEARCH_ENDPOINT)=\" \"$ENV_FILE\"\n```\n\n=== Execution Results ===\nExit Code: 0\n\n=== STDOUT ===\nUpdated environment variables in /home/vscode/AgentsToolkitProjects/vscuse_app_jn3ex/env/.env.dev.user:\nAZURE_OPENAI_EMBEDDING_DEPLOYMENT_NAME=text-embedding-ada-002\nSECRET_AZURE_SEARCH_KEY=${{secret:AZURE_SEARCH_KEY:}}\nAZURE_SEARCH_ENDPOINT=https://atktest-ai-search.search.windows.net\n\n✓ Script executed successfully"
-      },
+      "parameters": {},
       "description": "@code in file \"/home/vscode/AgentsToolkitProjects/${{var:app_name}}/env/.env.dev.user\"\nreplace line 7 with \"AZURE_OPENAI_EMBEDDING_DEPLOYMENT_NAME=text-embedding-ada-002\";",
       "content_refs": [],
       "timeout": 30,
@@ -190,7 +188,7 @@
       "agent": "code",
       "tool": "",
       "parameters": {},
-      "description": "@code replace line 8 with \"SECRET_AZURE_SEARCH_KEY=${{secret:AZURE_SEARCH_KEY}}\"  in file \"/home/vscode/AgentsToolkitProjects/${{var:app_name}}/env/.env.dev.user\".",
+      "description": "@code replace line 8 with \"SECRET_AZURE_SEARCH_KEY=${{env:AZURE_SEARCH_KEY}}\"  in file \"/home/vscode/AgentsToolkitProjects/${{var:app_name}}/env/.env.dev.user\".",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
