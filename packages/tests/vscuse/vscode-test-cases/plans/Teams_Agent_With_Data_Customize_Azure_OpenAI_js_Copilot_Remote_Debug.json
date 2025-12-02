@@ -1,0 +1,174 @@
+{
+  "plan_metadata": {
+    "version": "1.1",
+    "plan_id": "plan_c9402085",
+    "execution_context": {
+      "delay_between_steps": 1,
+      "stop_on_error": true,
+      "precondition_wait_timeout": 30,
+      "precondition_retry_interval": 1
+    },
+    "total_steps": 5,
+    "created_at": "2025-12-01T08:14:26.428314",
+    "name": "Teams Agent With Data Customize Azure OpenAI js Copilot Remote Debug",
+    "description": "36048277",
+    "generated_at": "2025-12-01T08:14:26.428314",
+    "execution_order": [
+      "plan_r_1127_001034",
+      "plan_r_0928_012254",
+      "step_74f76ed8",
+      "step_3bce3437",
+      "step_8ce4bdff",
+      "step_d340d360",
+      "plan_r_0930_054245",
+      "plan_r_1127_011918",
+      "step_3d14479b",
+      "plan_r_0928_014459",
+      "plan_r_0928_020230",
+      "plan_r_0929_040401",
+      "plan_r_0928_073729",
+      "plan_r_0928_075846",
+      "plan_c795f9af",
+      "plan_54e8adce"
+    ],
+    "tags": [],
+    "updated_at": "2025-12-01T08:21:08.289873"
+  },
+  "steps": [
+    {
+      "step_id": "step_74f76ed8",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "dx": null,
+        "dy": null,
+        "key": null,
+        "keys": null,
+        "text": null,
+        "x": 335,
+        "y": 225
+      },
+      "description": "Click on the \"Teams Agents and Apps\" option in the \"New Project\" dropdown menu within the Microsoft 365 Agents Toolkit interface in Visual Studio Code.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "0",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:335:225:16:5:a410c24c634b4a4a",
+        "dhash:335:225:96:5:3636859412c78616",
+        "dhash:335:225:0:10:c8c88094b0717075"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_74f76ed8",
+      "created_at": "2025-12-01T08:14:26.445496",
+      "plan_id": "plan_c9402085"
+    },
+    {
+      "step_id": "step_3bce3437",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "dx": null,
+        "dy": null,
+        "key": null,
+        "keys": null,
+        "text": null,
+        "x": 385,
+        "y": 128
+      },
+      "description": "Click the \"General Teams Agent\" dropdown option within the \"Teams Agent or App Using Teams AI Library\" selection popup in Visual Studio Code.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "0",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:385:128:16:5:202020d000010101",
+        "dhash:385:128:96:5:1a9224c6b81d4262",
+        "dhash:385:128:0:10:c0c88694b2717075"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_3bce3437",
+      "created_at": "2025-12-01T08:14:26.465487",
+      "plan_id": "plan_c9402085"
+    },
+    {
+      "step_id": "step_8ce4bdff",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "text": "Customize"
+      },
+      "description": "Type text: 'Customize' into the dropdown field labeled 'Select an option to load your data' within the 'Teams Agent with Data' interface in Microsoft 365 Agents Toolkit.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:512:384:0:20:c0c0b094b2717075"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_8ce4bdff",
+      "created_at": "2025-12-01T08:14:26.482240",
+      "plan_id": "plan_c9402085"
+    },
+    {
+      "step_id": "step_d340d360",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "enter"
+      },
+      "description": "Press the \"Enter\" key to select the \"Customize\" option from the dropdown list in the \"Teams Agent with Data\" interface of Visual Studio Code.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:512:384:0:20:d0b89494b2717075"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_d340d360",
+      "created_at": "2025-12-01T08:14:26.500726",
+      "plan_id": "plan_c9402085"
+    },
+    {
+      "step_id": "step_3d14479b",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "enter"
+      },
+      "description": "Press the \"Enter\" key to confirm the selection of the \"Default folder\" within the \"Workspace Folder\" dialog in Visual Studio Code's Microsoft 365 Agents Toolkit interface.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:512:384:0:20:f0b09494b2717075"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_3d14479b",
+      "created_at": "2025-12-01T08:14:26.513172",
+      "plan_id": "plan_c9402085"
+    }
+  ],
+  "screenshots": {
+    "step_74f76ed8": "step_74f76ed8",
+    "step_3bce3437": "step_3bce3437",
+    "step_8ce4bdff": "step_8ce4bdff",
+    "step_d340d360": "step_d340d360",
+    "step_3d14479b": "step_3d14479b"
+  }
+}
