@@ -18,8 +18,9 @@ deploy:
     with:
       target: ./.env
       envs:
-        BOT_ID: ""
-        BOT_PASSWORD: ""
+        CONNECTIONS__SERVICE_CONNECTION__SETTINGS__CLIENTID: ""
+        CONNECTIONS__SERVICE_CONNECTION__SETTINGS__CLIENTSECRET: ""
+        CONNECTIONS__SERVICE_CONNECTION__SETTINGS__TENANTID: ""
         {{#useOpenAI}}
         OPENAI_API_KEY: ${{SECRET_OPENAI_API_KEY}}
         {{/useOpenAI}}
