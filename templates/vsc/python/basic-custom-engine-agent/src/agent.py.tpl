@@ -65,7 +65,7 @@ async def on_members_added(context: TurnContext, _state: TurnState):
 @agent_app.activity(ActivityTypes.message)
 async def on_message(context: TurnContext, _state: TurnState):
     # Echo back users request
-    result = await client.chat.completions.create(
+    result = client.chat.completions.create(
         messages=[
             {
                 "role": "system",
