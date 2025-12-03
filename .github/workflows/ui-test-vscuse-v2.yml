@@ -41,18 +41,24 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Get test plans
-        id: get-plans
+      - name: Set email receiver
+        id: set-email
         run: |
-          # Set email receiver - use user input if provided, otherwise use default
-          if [ -n "${{ github.event.inputs.email-receiver }}" ]; then
+          # Set email receiver based on trigger type
+          if [ "${{ github.event_name }}" == "schedule" ]; then
+            echo "email-receiver=zhendr@microsoft.com;teamsfxqa@microsoft.com" >> $GITHUB_OUTPUT
+            echo "Schedule trigger: Using default email receivers"
+          elif [ -n "${{ github.event.inputs.email-receiver }}" ]; then
             echo "email-receiver=${{ github.event.inputs.email-receiver }}" >> $GITHUB_OUTPUT
             echo "Using user-provided email receiver: ${{ github.event.inputs.email-receiver }}"
           else
-            echo "email-receiver=zhendr@microsoft.com;teamsfxqa@microsoft.com" >> $GITHUB_OUTPUT
-            echo "Using default email receiver: teamsfxqa@microsoft.com"
+            echo "email-receiver=" >> $GITHUB_OUTPUT
+            echo "No email receiver specified"
           fi
-
+          
+      - name: Get test plans
+        id: get-plans
+        run: |
           if [ "${{ github.event.inputs.pre_release_testing }}" == "true" ]; then
             if [ -f "packages/tests/vscuse/vscode-test-cases/pre-release-test-cases.json" ]; then
               plans=$(cat packages/tests/vscuse/vscode-test-cases/pre-release-test-cases.json | jq -c '.')
@@ -347,7 +353,8 @@ jobs:
 
   report:
     # Only send email on the last attempt or when all tests pass
-    if: ${{ always() && needs.discover-test-plans.outputs.email-receiver && (success() || github.run_attempt >= (github.event.inputs.max_retries || 7)) }}
+    # Send email if: (1) triggered by schedule, OR (2) triggered manually with email-receiver input provided
+    if: ${{ always() && (github.event_name == 'schedule' || github.event.inputs.email-receiver != '') && (success() || github.run_attempt >= (github.event.inputs.max_retries || 7)) }}
     needs: [discover-test-plans, main]
     runs-on: ubuntu-latest
     defaults:
