@@ -21,3 +21,4 @@ deploy:
     with:
       target: ./.localConfigs.playground
       envs:
+        TEAMSFX_ENV: playground
