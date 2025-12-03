@@ -178,7 +178,6 @@ export async function updateActionWithMCP(args?: any[]): Promise<Result<any, FxE
         name: newName,
         description: tool.description,
         inputSchema: tool.inputSchema,
-        tags: tool.tags,
       };
     });
 

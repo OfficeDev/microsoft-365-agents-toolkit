@@ -445,7 +445,7 @@ export function updateActionWithMCP(): IQTreeNode {
                 (runtime: any) =>
                   runtime.type === "RemoteMCPServer" &&
                   runtime.spec.url === serverUrl &&
-                  runtime.spec["enable_dynamic_discovery"] === false
+                  !runtime.spec["enable_dynamic_discovery"]
               )
               .forEach((runtime: any) => {
                 result.push(...runtime["run_for_functions"]);
