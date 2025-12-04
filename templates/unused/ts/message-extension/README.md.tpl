@@ -23,7 +23,6 @@ This app template has a search command, an action command and a link unfurling.
 > For local debugging using Microsoft 365 Agents Toolkit CLI, you need to do some extra steps described in [Set up your Microsoft 365 Agents Toolkit CLI for local debugging](https://aka.ms/teamsfx-cli-debugging).
 
 1. First, select the Microsoft 365 Agents Toolkit icon on the left in the VS Code toolbar.
-{{#enableMETestToolByDefault}}
 2. Press F5 to start debugging which launches your app in Microsoft 365 Agents Playground using a web browser.
 3. To trigger the Message Extension to invoke commands:
    1. To trigger search commands, click the `+` in compose message area and select `Search command`.
@@ -33,7 +32,6 @@ This app template has a search command, an action command and a link unfurling.
 ![Search app demo](https://github.com/user-attachments/assets/b780de4e-d537-424f-9782-f48f06713283)
 
 ![action-ME](https://github.com/user-attachments/assets/43e6b7bb-daa7-476d-a76d-ea43dfcb24ee)
-{{/enableMETestToolByDefault}}
 {{^enableMETestToolByDefault}}
 2. In the Account section, sign in with your [Microsoft 365 account](https://docs.microsoft.com/microsoftteams/platform/toolkit/accounts) if you haven't already.
 3. Press F5 to start debugging which launches your app in Teams using a web browser. Select `Debug in Teams (Edge)` or `Debug in Teams (Chrome)`.

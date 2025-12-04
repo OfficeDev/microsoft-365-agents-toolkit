@@ -52,9 +52,6 @@ export function getTemplateReplaceMap(inputs: Inputs): { [key: string]: string }
     PlaceProjectFileInSolutionDir: placeProjectFileInSolutionDir ? "true" : "",
     SafeProjectName: safeProjectName,
     SafeProjectNameLowerCase: safeProjectName.toLocaleLowerCase(),
-    enableMETestToolByDefault: featureFlagManager.getBooleanValue(FeatureFlags.METestTool)
-      ? "true"
-      : "",
     useOpenAI: llmService === "llm-service-openai" ? "true" : "",
     useAzureOpenAI: llmService === "llm-service-azure-openai" ? "true" : "",
     openAIKey: openAIKey ?? "",

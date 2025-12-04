@@ -18,14 +18,12 @@ This app template is a search-based [message extension](https://docs.microsoft.c
 > For local debugging using Microsoft 365 Agents Toolkit CLI, you need to do some extra steps described in [Set up your Microsoft 365 Agents Toolkit CLI for local debugging](https://aka.ms/teamsfx-cli-debugging).
 
 1. First, select the Microsoft 365 Agents Toolkit icon on the left in the VS Code toolbar.
-{{#enableMETestToolByDefault}}
 2. Press F5 to start debugging which launches your app in Microsoft 365 Agents Playground using a web browser. Select `Debug in Microsoft 365 Agents Playground`.
 3. To trigger the Message Extension, you can click the `+` in compose message area and select `Search Command`
 
 **Congratulations**! You are running an application that can now search npm registries in Microsoft 365 Agents Playground.
 
 ![Search app demo](https://github.com/user-attachments/assets/b780de4e-d537-424f-9782-f48f06713283)
-{{/enableMETestToolByDefault}}
 {{^enableMETestToolByDefault}}
 2. In the Account section, sign in with your [Microsoft 365 account](https://docs.microsoft.com/microsoftteams/platform/toolkit/accounts) if you haven't already.
 3. Press F5 to start debugging which launches your app in Teams using a web browser. Select `Debug in Teams (Edge)` or `Debug in Teams (Chrome)`.

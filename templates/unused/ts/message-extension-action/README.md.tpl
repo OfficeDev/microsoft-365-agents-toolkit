@@ -19,14 +19,12 @@ This app template implements action command that allows you to present your user
 > For local debugging using Microsoft 365 Agents Toolkit CLI, you need to do some extra steps described in [Set up your Microsoft 365 Agents Toolkit CLI for local debugging](https://aka.ms/teamsfx-cli-debugging).
 
 1. First, select the Microsoft 365 Agents Toolkit icon on the left in the VS Code toolbar.
-{{#enableMETestToolByDefault}}
 2. Press F5 to start debugging which launches your app in Microsoft 365 Agents Playground using a web browser.
 3. To trigger the action command, you can click the `+` under compose message area and select `Action Command`.
 
 **Congratulations**! You are running an application that can share information in rich format by creating an Adaptive Card in Microsoft 365 Agents Playground.
 
 ![action-ME](https://github.com/user-attachments/assets/43e6b7bb-daa7-476d-a76d-ea43dfcb24ee)
-{{/enableMETestToolByDefault}}
 {{^enableMETestToolByDefault}}
 2. In the Account section, sign in with your [Microsoft 365 account](https://docs.microsoft.com/microsoftteams/platform/toolkit/accounts) if you haven't already.
 3. Press F5 to start debugging which launches your app in Teams using a web browser. Select `Debug in Teams (Edge)` or `Debug in Teams (Chrome)`.

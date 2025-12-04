@@ -903,22 +903,6 @@ describe("render template", () => {
       assert.isTrue(result.isOk());
     });
 
-    it("template variables when ME test tool enabled", async () => {
-      sandbox.stub(process, "env").value({ TEAMSFX_ME_TEST_TOOL: "true" });
-      const vars = newGeneratorFlag
-        ? getTemplateReplaceMap(inputs)
-        : Generator.getDefaultVariables("test");
-      assert.equal(vars.enableMETestToolByDefault, "true");
-    });
-
-    it("template variables when ME test tool disabled", async () => {
-      sandbox.stub(process, "env").value({ TEAMSFX_ME_TEST_TOOL: "false" });
-      const vars = newGeneratorFlag
-        ? getTemplateReplaceMap(inputs)
-        : Generator.getDefaultVariables("test");
-      assert.equal(vars.enableMETestToolByDefault, "");
-    });
-
     it("template variables when new project enabled", async () => {
       sandbox.stub(process, "env").value({
         TEAMSFX_NEW_PROJECT_TYPE: "true",
