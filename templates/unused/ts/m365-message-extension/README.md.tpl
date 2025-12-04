@@ -9,10 +9,6 @@ This app template is a search-based [message extension](https://docs.microsoft.c
 > To run the template in your local dev machine, you will need:
 >
 > - [Node.js](https://nodejs.org/), supported versions: 18, 20, 22
-{{^enableMETestToolByDefault}}
-> - A [Microsoft 365 account for development](https://docs.microsoft.com/microsoftteams/platform/toolkit/accounts)
->   Please note that after you enrolled your developer tenant in Office 365 Target Release, it may take couple days for the enrollment to take effect.
-{{/enableMETestToolByDefault}}
 > - [Microsoft 365 Agents Toolkit Visual Studio Code Extension](https://aka.ms/teams-toolkit) version 5.0.0 and higher or [Microsoft 365 Agents Toolkit CLI](https://aka.ms/teamsfx-toolkit-cli)
 
 > For local debugging using Microsoft 365 Agents Toolkit CLI, you need to do some extra steps described in [Set up your Microsoft 365 Agents Toolkit CLI for local debugging](https://aka.ms/teamsfx-cli-debugging).
@@ -24,18 +20,6 @@ This app template is a search-based [message extension](https://docs.microsoft.c
 **Congratulations**! You are running an application that can now search npm registries in Microsoft 365 Agents Playground.
 
 ![Search app demo](https://github.com/user-attachments/assets/b780de4e-d537-424f-9782-f48f06713283)
-{{^enableMETestToolByDefault}}
-2. In the Account section, sign in with your [Microsoft 365 account](https://docs.microsoft.com/microsoftteams/platform/toolkit/accounts) if you haven't already.
-3. Press F5 to start debugging which launches your app in Teams using a web browser. Select `Debug in Teams (Edge)` or `Debug in Teams (Chrome)`.
-4. When Teams launches in the browser, select the Add button in the dialog to install your app to Teams.
-5. To trigger the Message Extension, you can:
-   1. In Teams: Click the `...` under compose message area to find your message extension.
-   2. In Outlook: click the `More apps` icon under compose email area to find your message extension.
-
-**Congratulations**! You are running an application that can now search npm registries in Teams and Outlook.
-
-![Search app demo](https://github.com/OfficeDev/TeamsFx/assets/25220706/27fefae9-c51f-49af-a175-c8c9d5a71af0)
-{{/enableMETestToolByDefault}}
 
 ## What's included in the template
 

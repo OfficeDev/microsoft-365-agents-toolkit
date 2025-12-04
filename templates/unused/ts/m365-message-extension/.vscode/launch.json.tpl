@@ -138,9 +138,6 @@
             "preLaunchTask": "Start App in Microsoft 365 Agents Playground",
             "presentation": {
                 "group": "group 0: Microsoft 365 Agents Playground",
-{{^enableMETestToolByDefault}}
-                "group": "group 3: Microsoft 365 Agents Playground",
-{{/enableMETestToolByDefault}}
                 "order": 1
             },
             "stopAll": true

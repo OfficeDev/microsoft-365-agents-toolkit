@@ -90,9 +90,6 @@ export class Generator {
       SolutionName: solutionNameFromVS ?? appName,
       ApiKey: apiKeyActionData,
       OAuth: oauthActionData,
-      enableMETestToolByDefault: featureFlagManager.getBooleanValue(FeatureFlags.METestTool)
-        ? "true"
-        : "",
       useOpenAI: llmServiceData?.llmService === "llm-service-openai" ? "true" : "",
       useAzureOpenAI: llmServiceData?.llmService === "llm-service-azure-openai" ? "true" : "",
       openAIKey: llmServiceData?.openAIKey ?? "",
