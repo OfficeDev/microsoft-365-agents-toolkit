@@ -29,7 +29,7 @@ on:
         default: false
         description: "Whether to release TTK as publish product"
   schedule:
-    - cron: "0 16 * * *"
+    - cron: "0 11 * * *"  # UTC+8 19:00 make sure the daily build generated before the daily test pipeline trigger
 
 permissions:
   actions: write
