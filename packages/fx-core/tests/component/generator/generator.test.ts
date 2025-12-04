@@ -1302,22 +1302,6 @@ describe("render template", () => {
       assert.equal(vars.EmbeddedKnowledgeEnabled, "");
     });
 
-    it("template variables when share enabled", async () => {
-      sandbox.stub(process, "env").value({ TEAMSFX_SHARE: "true" });
-      const vars = newGeneratorFlag
-        ? getTemplateReplaceMap(inputs)
-        : Generator.getDefaultVariables("test");
-      assert.equal(vars.ShareEnabled, "true");
-    });
-
-    it("template variables when share disabled", async () => {
-      sandbox.stub(process, "env").value({ TEAMSFX_SHARE: "false" });
-      const vars = newGeneratorFlag
-        ? getTemplateReplaceMap(inputs)
-        : Generator.getDefaultVariables("test");
-      assert.equal(vars.ShareEnabled, "");
-    });
-
     it("template variables with Copilot connector scaffold", async () => {
       inputs.projectId = "test-id";
       inputs[QuestionNames.GCName] = "test-name";

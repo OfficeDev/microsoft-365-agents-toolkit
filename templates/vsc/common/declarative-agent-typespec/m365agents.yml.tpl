@@ -1,15 +1,7 @@
-{{#ShareEnabled}}
 # yaml-language-server: $schema=https://aka.ms/m365-agents-toolkits/v1.11/yaml.schema.json
 # Visit https://aka.ms/teamsfx-v5.0-guide for details on this file
 # Visit https://aka.ms/teamsfx-actions for details on actions
 version: v1.11
-{{/ShareEnabled}}
-{{^ShareEnabled}}
-# yaml-language-server: $schema=https://aka.ms/m365-agents-toolkits/v1.9/yaml.schema.json
-# Visit https://aka.ms/teamsfx-v5.0-guide for details on this file
-# Visit https://aka.ms/teamsfx-actions for details on actions
-version: v1.9
-{{/ShareEnabled}}
 
 environmentFolderPath: ./env
 
@@ -73,17 +65,13 @@ provision:
     with:
       # Relative path to the build app package.
       appPackagePath: ./appPackage/build/appPackage.${{TEAMSFX_ENV}}.zip
-{{#ShareEnabled}}
       scope: ${{AGENT_SCOPE}}
-{{/ShareEnabled}}
     # Write the information of created resources into environment file for
     # the specified environment variable(s).
     writeToEnvironmentFile:
       titleId: M365_TITLE_ID
       appId: M365_APP_ID
-{{#ShareEnabled}}
       shareLink: SHARE_LINK
-{{/ShareEnabled}}
 
 # Triggered when 'teamsapp publish' is executed
 publish:

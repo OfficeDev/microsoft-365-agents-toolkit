@@ -107,7 +107,6 @@ export class Generator {
       )
         ? "true"
         : "",
-      ShareEnabled: featureFlagManager.getBooleanValue(FeatureFlags.ShareEnabled) ? "true" : "",
       SensitivityLabelEnabled: featureFlagManager.getBooleanValue(
         FeatureFlags.SensitivityLabelEnabled
       )
