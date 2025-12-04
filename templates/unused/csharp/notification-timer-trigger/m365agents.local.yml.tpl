@@ -32,17 +32,12 @@ provision:
   # Generate runtime appsettings to JSON file
   - uses: file/createOrUpdateJsonFile
     with:
-{{#isNewProjectTypeEnabled}}
 {{#PlaceProjectFileInSolutionDir}}
       target: ../appsettings.Development.json
 {{/PlaceProjectFileInSolutionDir}}
 {{^PlaceProjectFileInSolutionDir}}
       target: ../{{appName}}/appsettings.Development.json
 {{/PlaceProjectFileInSolutionDir}}
-{{/isNewProjectTypeEnabled}}
-{{^isNewProjectTypeEnabled}}
-      target: ./appsettings.Development.json
-{{/isNewProjectTypeEnabled}}
       content:
         TokenValidation:
           Audiences:
@@ -90,21 +85,3 @@ provision:
     with:
       # Relative path to this file. This is the path for built zip file.
       appPackagePath: ./appPackage/build/appPackage.${{TEAMSFX_ENV}}.zip
-{{^isNewProjectTypeEnabled}}
-
-  # Create or update debug profile in lauchsettings file
-  - uses: file/createOrUpdateJsonFile
-    with:
-      target: ./Properties/launchSettings.json
-      content:
-        profiles:
-          Microsoft Teams (browser):
-            commandName: "Project"
-            commandLineArgs: "host start --port 5130 --pause-on-error"
-            dotnetRunMessages: true
-            launchBrowser: true
-            launchUrl: "https://teams.microsoft.com/l/app/${{TEAMS_APP_ID}}?installAppPackage=true&webjoin=true&appTenantId=${{TEAMS_APP_TENANT_ID}}&login_hint=${{TEAMSFX_M365_USER_NAME}}"
-            environmentVariables:
-              ASPNETCORE_ENVIRONMENT: "Development"
-              TEAMSFX_NOTIFICATION_LOCALSTORE_DIR: "../../.."
-{{/isNewProjectTypeEnabled}}

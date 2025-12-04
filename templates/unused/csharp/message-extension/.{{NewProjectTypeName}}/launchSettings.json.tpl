@@ -1,6 +1,5 @@
 {
   "profiles": {
-{{#enableTestToolByDefault}}
     // Launch project within Microsoft 365 Agents Playground
     "Microsoft 365 Agents Playground (browser)": {
       "commandName": "Project",
@@ -8,7 +7,6 @@
       "launchTestTool": true,
       "launchUrl": "http://localhost:56150",
     },
-{{/enableTestToolByDefault}}
     // Debug project within Teams
     "Microsoft Teams (browser)": {
       "commandName": "Project",
@@ -29,14 +27,5 @@
       "environmentVariables": { "UPDATE_TEAMS_APP": "false" },
       "launchUrl": "https://outlook.office.com/mail?login_hint=${{TEAMSFX_M365_USER_NAME}}",
     },
-{{^enableTestToolByDefault}}
-    // Launch project within Microsoft 365 Agents Playground
-    "Microsoft 365 Agents Playground (browser)": {
-      "commandName": "Project",
-      "environmentVariables": { "UPDATE_TEAMS_APP": "false", "DEFAULT_CHANNEL_ID": "emulator" },
-      "launchTestTool": true,
-      "launchUrl": "http://localhost:56150",
-    },
-{{/enableTestToolByDefault}}
   }
 }

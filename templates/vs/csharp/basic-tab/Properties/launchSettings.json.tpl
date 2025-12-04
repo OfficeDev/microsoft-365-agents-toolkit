@@ -48,7 +48,6 @@
     //  "hotReloadProfile": "aspnetcore"
     //}
 {{/isNewProjectTypeEnabled}}
-{{#isNewProjectTypeEnabled}}
     "Start Project": {
       "commandName": "Project",
       "dotnetRunMessages": true,
@@ -58,6 +57,5 @@
       },
       "hotReloadProfile": "aspnetcore"
     }
-{{/isNewProjectTypeEnabled}}
   }
 }

@@ -104,12 +104,7 @@
             ],
             "preLaunchTask": "Start Agent (Sandbox)",
             "presentation": {
-{{#enableTestToolByDefault}}
                 "group": "1-local",
-{{/enableTestToolByDefault}}
-{{^enableTestToolByDefault}}
-                "group": "2-local",
-{{/enableTestToolByDefault}}
                 "order": 2
             },
             "stopAll": true
@@ -123,12 +118,7 @@
             ],
             "preLaunchTask": "Start App Locally",
             "presentation": {
-{{#enableTestToolByDefault}}
                 "group": "2-local",
-{{/enableTestToolByDefault}}
-{{^enableTestToolByDefault}}
-                "group": "1-local",
-{{/enableTestToolByDefault}}
                 "order": 1
             },
             "stopAll": true
@@ -141,12 +131,7 @@
             ],
             "preLaunchTask": "Start App Locally",
             "presentation": {
-{{#enableTestToolByDefault}}
                 "group": "2-local",
-{{/enableTestToolByDefault}}
-{{^enableTestToolByDefault}}
-                "group": "1-local",
-{{/enableTestToolByDefault}}
                 "order": 2
             },
             "stopAll": true
@@ -170,12 +155,7 @@
             ],
             "preLaunchTask": "Start App in Microsoft 365 Agents Playground",
             "presentation": {
-{{#enableTestToolByDefault}}
                 "group": "1-local",
-{{/enableTestToolByDefault}}
-{{^enableTestToolByDefault}}
-                "group": "2-local",
-{{/enableTestToolByDefault}}
                 "order": 1
             },
             "stopAll": true

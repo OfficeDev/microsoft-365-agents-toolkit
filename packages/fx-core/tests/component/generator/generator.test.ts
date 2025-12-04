@@ -903,26 +903,6 @@ describe("render template", () => {
       assert.isTrue(result.isOk());
     });
 
-    it("template variables when new project enabled", async () => {
-      sandbox.stub(process, "env").value({
-        TEAMSFX_NEW_PROJECT_TYPE: "true",
-        TEAMSFX_NEW_PROJECT_TYPE_NAME: "M365",
-        TEAMSFX_NEW_PROJECT_TYPE_EXTENSION: "maproj",
-      });
-      const vars = newGeneratorFlag
-        ? getTemplateReplaceMap(inputs)
-        : Generator.getDefaultVariables("test");
-      assert.equal(vars.isNewProjectTypeEnabled, "true");
-    });
-
-    it("template variables when test tool disabled", async () => {
-      sandbox.stub(process, "env").value({ TEAMSFX_NEW_PROJECT_TYPE: "false" });
-      const vars = newGeneratorFlag
-        ? getTemplateReplaceMap(inputs)
-        : Generator.getDefaultVariables("test");
-      assert.equal(vars.isNewProjectTypeEnabled, "");
-    });
-
     it("template variables when set placeProjectFileInSolutionDir to true", async () => {
       inputs.placeProjectFileInSolutionDir = "true";
       const vars = newGeneratorFlag

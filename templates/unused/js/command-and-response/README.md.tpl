@@ -11,9 +11,6 @@ The app template is built on top of [Microsoft Teams SDK](https://aka.ms/teams-a
 > To run the command bot template in your local dev machine, you will need:
 >
 > - [Node.js](https://nodejs.org/), supported versions: 20, 22
-{{^enableTestToolByDefault}}
-> - A [Microsoft 365 account for development](https://docs.microsoft.com/microsoftteams/platform/toolkit/accounts)
-{{/enableTestToolByDefault}}
 > - [Microsoft 365 Agents Toolkit Visual Studio Code Extension](https://aka.ms/teams-toolkit) version 5.0.0 and higher or [Microsoft 365 Agents Toolkit CLI](https://aka.ms/teamsfx-toolkit-cli)
 >
 > **Note**
@@ -22,26 +19,13 @@ The app template is built on top of [Microsoft Teams SDK](https://aka.ms/teams-a
 > For local debugging using Microsoft 365 Agents Toolkit CLI, you need to do some extra steps described in [Set up your Microsoft 365 Agents Toolkit CLI for local debugging](https://aka.ms/teamsfx-cli-debugging).
 
 1. First, select the Microsoft 365 Agents Toolkit icon on the left in the VS Code toolbar.
-{{#enableTestToolByDefault}}
 2. Press F5 to start debugging which launches your app in Microsoft 365 Agents Playground using a web browser. Select `Debug in Microsoft 365 Agents Playground`.
 3. The browser will pop up to open Microsoft 365 Agents Playground.
 4. Type or select `helloWorld` in the chat to send it to your bot - this is the default command provided by the template.
-{{/enableTestToolByDefault}}
-{{^enableTestToolByDefault}}
-2. In the Account section, sign in with your [Microsoft 365 account](https://docs.microsoft.com/microsoftteams/platform/toolkit/accounts) if you haven't already.
-3. Press F5 to start debugging which launches your app in Teams using a web browser. Select `Debug in Teams (Edge)` or `Debug in Teams (Chrome)`.
-4. When Teams launches in the browser, select the Add button in the dialog to install your app to Teams.
-5. Type or select `helloWorld` in the chat to send it to your bot - this is the default command provided by the template.
-{{/enableTestToolByDefault}}
 
 The bot will respond to the `helloWorld` command with an Adaptive Card:
 
-{{#enableTestToolByDefault}}
 ![Command and Response in Microsoft 365 Agents Playground](https://github.com/user-attachments/assets/b6672639-33b6-4769-9b7c-e33297d3c432)
-{{/enableTestToolByDefault}}
-{{^enableTestToolByDefault}}
-![Command and Response in Teams](https://user-images.githubusercontent.com/11220663/165891754-16916b68-c1b5-499d-b6a8-bdfb195f1fd0.png)
-{{/enableTestToolByDefault}}
 
 ## What's included in the template
 

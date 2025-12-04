@@ -16,7 +16,6 @@ export class FeatureFlagName {
   static readonly SampleConfigBranch = "TEAMSFX_SAMPLE_CONFIG_BRANCH";
   static readonly TeamsFxRebranding = "TEAMSFX_REBRANDING";
   static readonly AsyncAppValidation = "TEAMSFX_ASYNC_APP_VALIDATION";
-  static readonly NewProjectType = "TEAMSFX_NEW_PROJECT_TYPE";
   static readonly ChatParticipant = "TEAMSFX_CHAT_PARTICIPANT";
   static readonly ChatParticipantUIEntries = "TEAMSFX_CHAT_PARTICIPANT_ENTRIES";
   static readonly HideGitHubCopilotPreviewTag = "TEAMSFX_HIDE_GITHUB_COPILOT_PREVIEW_TAG";
@@ -56,7 +55,6 @@ export class FeatureFlags {
     name: FeatureFlagName.AsyncAppValidation,
     defaultValue: "true",
   };
-  static readonly NewProjectType = { name: FeatureFlagName.NewProjectType, defaultValue: "true" };
   static readonly ChatParticipant = {
     name: FeatureFlagName.ChatParticipant,
     defaultValue: "false",

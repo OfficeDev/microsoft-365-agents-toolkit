@@ -1,5 +1,4 @@
 [
-{{#enableTestToolByDefault}}
   {
     "Name": "Microsoft 365 Agents Playground (browser)",
     "Projects": [
@@ -23,7 +22,6 @@
       }
     ]
   },
-{{/enableTestToolByDefault}}
   {
     "Name": "Microsoft Teams (browser)",
     "Projects": [
@@ -69,9 +67,7 @@
         "DebugTarget": "Start Project"
       }
     ]
-{{#enableTestToolByDefault}}
   }
-{{/enableTestToolByDefault}}
 {{^enableTestToolByDefault}}
   },
   {
