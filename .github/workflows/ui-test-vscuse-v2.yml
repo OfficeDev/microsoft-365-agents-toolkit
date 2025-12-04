@@ -36,7 +36,7 @@ jobs:
       contents: write
     outputs:
       test-plans: ${{ steps.get-plans.outputs.plans }}
-      email-receiver: ${{ steps.get-plans.outputs.email-receiver }}
+      email-receiver: ${{ steps.set-email.outputs.email-receiver }}
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -354,7 +354,7 @@ jobs:
   report:
     # Only send email on the last attempt or when all tests pass
     # Send email if: (1) triggered by schedule, OR (2) triggered manually with email-receiver input provided
-    if: ${{ always() && (github.event_name == 'schedule' || github.event.inputs.email-receiver != '') && (success() || github.run_attempt >= (github.event.inputs.max_retries || 7)) }}
+    if: ${{ always() && (github.event_name == 'schedule' || needs.discover-test-plans.outputs.email-receiver != '') && (success() || github.run_attempt >= (github.event.inputs.max_retries || 7)) }}
     needs: [discover-test-plans, main]
     runs-on: ubuntu-latest
     defaults:
