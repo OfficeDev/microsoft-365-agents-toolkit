@@ -179,7 +179,11 @@ function isLaunchTestToolTask(task: vscode.Task): boolean {
               : execution.command.value
             : ""
         } ${(execution.args || []).join(" ")}`;
-      if (/(npm|yarn)[\s]+(run )?[\s]*[^:\s]+:teamsfx:launch-testtool/i.test(commandLine)) {
+      if (
+        /(npm|yarn)[\s]+(run )?[\s]*[^:\s]+:teamsfx:(launch-testtool|launch-playground)/i.test(
+          commandLine
+        )
+      ) {
         return true;
       }
     }
