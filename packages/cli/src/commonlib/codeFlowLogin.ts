@@ -1,7 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { AccountInfo, Configuration, PublicClientApplication, TokenCache } from "@azure/msal-node";
+import {
+  AccountInfo,
+  Configuration,
+  PublicClientApplication,
+  SilentFlowRequest,
+} from "@azure/msal-node";
 import {
   AuthenticationWWWAuthenticateRequest,
   FxError,
@@ -70,6 +75,7 @@ interface Deferred<T> {
 export class CodeFlowLogin {
   pca: PublicClientApplication;
   account: AccountInfo | undefined;
+  isBrokerAvailable: boolean;
   /**
    * @deprecated will be removed after unify m365 login
    */
@@ -88,6 +94,7 @@ export class CodeFlowLogin {
     this.pca = new PublicClientApplication(this.config);
     this.accountName = accountName;
     this.socketMap = new Map();
+    this.isBrokerAvailable = config.broker?.nativeBrokerPlugin?.isBrokerAvailable || false;
   }
 
   async reloadCache() {
@@ -414,15 +421,20 @@ export class CodeFlowLogin {
         tenantedAccount = allAccounts.find((account) => account.tenantId == tenantId);
         this.account = tenantedAccount ?? this.account;
       }
+      let tokenRequest: SilentFlowRequest = {
+        account: this.account,
+        scopes: myScopes,
+        authority: tenantId
+          ? env.activeDirectoryEndpointUrl + tenantId
+          : this.config.auth.authority,
+      };
+      tokenRequest = this.isBrokerAvailable
+        ? // HACK: Broker doesn't support forceRefresh so we need to pass in claims which will force a refresh
+          { ...tokenRequest, claims: '{ "id_token": {}}' }
+        : { ...tokenRequest, forceRefresh: tenantedAccount ? false : true };
+
       try {
-        const res = await this.pca.acquireTokenSilent({
-          account: this.account,
-          scopes: myScopes,
-          forceRefresh: tenantedAccount ? false : true,
-          authority: tenantId
-            ? env.activeDirectoryEndpointUrl + tenantId
-            : this.config.auth.authority,
-        });
+        const res = await this.pca.acquireTokenSilent(tokenRequest);
         if (res) {
           return ok(res.accessToken);
         } else {

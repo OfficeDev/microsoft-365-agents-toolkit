@@ -11,6 +11,7 @@ import {
   Configuration,
   TokenCache,
   AuthorizationUrlRequest,
+  SilentFlowRequest,
 } from "@azure/msal-node";
 import * as http from "http";
 import path from "path";
@@ -62,6 +63,7 @@ interface Deferred<T> {
 export class CodeFlowLogin {
   pca: PublicClientApplication;
   account: AccountInfo | undefined;
+  isBrokerAvailable: boolean;
   /**
    * @deprecated will be removed after unify m365 login
    */
@@ -82,6 +84,7 @@ export class CodeFlowLogin {
     this.msalTokenCache = this.pca.getTokenCache();
     this.accountName = accountName;
     this.status = loggedOut;
+    this.isBrokerAvailable = config.broker?.nativeBrokerPlugin?.isBrokerAvailable || false;
   }
 
   async reloadCache() {
@@ -455,13 +458,17 @@ export class CodeFlowLogin {
         this.account = tenantedAccount ?? this.account;
       }
 
+      let tokenRequest: SilentFlowRequest = {
+        account: this.account,
+        scopes: scopes,
+        authority: tenantId ? BASE_AUTHORITY + tenantId : this.config.auth.authority,
+      };
+      tokenRequest = this.isBrokerAvailable
+        ? // HACK: Broker doesn't support forceRefresh so we need to pass in claims which will force a refresh
+          { ...tokenRequest, claims: '{ "id_token": {}}' }
+        : { ...tokenRequest, forceRefresh: tenantedAccount ? false : true };
       try {
-        const res = await this.pca.acquireTokenSilent({
-          account: this.account,
-          scopes: scopes,
-          forceRefresh: tenantedAccount ? false : true,
-          authority: tenantId ? BASE_AUTHORITY + tenantId : this.config.auth.authority,
-        });
+        const res = await this.pca.acquireTokenSilent(tokenRequest);
         if (res) {
           return ok(res.accessToken);
         } else {
