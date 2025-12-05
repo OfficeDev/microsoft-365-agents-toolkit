@@ -5,16 +5,23 @@
       "localdebug-tab-regen-appid",
       "treeview-newproject-outlook-add-in",
       "treeview-newproject-tab",
-      "treeview-collaboration-win-only",
+      "treeview-collaboration-win-only",      
+      "remotedebug-tab-nosso-ts-win-only",
       "remotedebug-tab-publish",
       "remotedebug-bot-reprovision-win-only",
       "remotedebug-tab-reprovision-win-only",
       "remotedebug-tab-regen-appid-win-only",
+      "remotedebug-chatdata-customize-js-azureopenai-win-only",
+      "remotedebug-chatdata-customapi-ts-azureopenai-win-only",
+      "da-action-none-ts",
       "da-action-openapi-apikey",
       "da-action-openapi-none",
       "da-action-openapi-oauth"
     ],
-    "node-22": [    ]
+    "node-22": [  
+      "basic-bot-ts",
+      "msgsa-ts"
+      ]
   },
   "ubuntu-latest": {
     "node-22": [
@@ -30,6 +37,8 @@
   },
   "macos-latest": {
     "node-22": [
+      "localdebug-chatdata-azureai-ts-azureopenai",
+      "remotedebug-chatdata-azureai-js-azureopenai"
     ]
   }
 }
