@@ -294,6 +294,11 @@ export class CodeFlowLogin {
     }
 
     const authority = tenantId ? env.activeDirectoryEndpointUrl + tenantId : undefined;
+    const loopbackTemplatePath = path.join(__dirname, "codeFlowResult", "index.html");
+    let loopbackTemplate = undefined;
+    if (fs.pathExistsSync(loopbackTemplatePath)) {
+      loopbackTemplate = await fs.readFile(loopbackTemplatePath, "utf-8");
+    }
     const interactiveRequest = {
       scopes: scopes,
       authority: authority,
@@ -312,6 +317,8 @@ export class CodeFlowLogin {
         }
         await open(url);
       },
+      successTemplate: loopbackTemplate,
+      errorTemplate: loopbackTemplate,
     };
 
     let accessToken = undefined;

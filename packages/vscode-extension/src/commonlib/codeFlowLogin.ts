@@ -277,6 +277,12 @@ export class CodeFlowLogin {
     this.status = loggingIn;
     const authority = tenantId ? BASE_AUTHORITY + tenantId : undefined;
 
+    const loopbackTemplatePath = path.join(__dirname, "codeFlowResult", "index.html");
+    let loopbackTemplate = undefined;
+    if (fs.pathExistsSync(loopbackTemplatePath)) {
+      loopbackTemplate = await fs.readFile(loopbackTemplatePath, "utf-8");
+    }
+
     const interactiveRequest = {
       scopes: scopes,
       openBrowser: async (url: string) => {
@@ -288,6 +294,8 @@ export class CodeFlowLogin {
       windowHandle: vscode.window.nativeHandle
         ? Buffer.from(vscode.window.nativeHandle)
         : undefined,
+      successTemplate: loopbackTemplate,
+      errorTemplate: loopbackTemplate,
     };
 
     let accessToken = undefined;
