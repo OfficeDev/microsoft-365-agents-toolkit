@@ -8,149 +8,149 @@
 // match the expected interface, even if the JSON is valid.
 
 export interface TeamsManifestV1D24 {
-  $schema?: string;
-  /**
-   * The version of the schema this manifest is using. This schema version supports extending
-   * Teams apps to other parts of the Microsoft 365 ecosystem. More info at
-   * https://aka.ms/extendteamsapps.
-   */
-  manifestVersion: "1.24";
-  /**
-   * The version of the app. Changes to your manifest should cause a version change. This
-   * version string must follow the semver standard (http://semver.org).
-   */
-  version: string;
-  /**
-   * A unique identifier for this app. This id must be a GUID.
-   */
-  id: string;
-  localizationInfo?: LocalizationInfo;
-  developer: Developer;
-  name: NameClass;
-  description: Description;
-  icons: Icons;
-  /**
-   * A color to use in conjunction with the icon. The value must be a valid HTML color code
-   * starting with '#', for example `#4464ee`.
-   */
-  accentColor: string;
-  /**
-   * These are tabs users can optionally add to their channels and 1:1 or group chats and
-   * require extra configuration before they are added. Configurable tabs are not supported in
-   * the personal scope. Currently only one configurable tab per app is supported.
-   */
-  configurableTabs?: ConfigurableTab[];
-  /**
-   * A set of tabs that may be 'pinned' by default, without the user adding them manually.
-   * Static tabs declared in personal scope are always pinned to the app's personal
-   * experience. Static tabs do not currently support the 'teams' scope.
-   */
-  staticTabs?: StaticTab[];
-  /**
-   * The set of bots for this app. Currently only one bot per app is supported.
-   */
-  bots?: Bot[];
-  /**
-   * The set of Office365 connectors for this app. Currently only one connector per app is
-   * supported.
-   */
-  connectors?: Connector[];
-  /**
-   * Subscription offer associated with this app.
-   */
-  subscriptionOffer?: SubscriptionOffer;
-  /**
-   * The set of compose extensions for this app. Currently only one compose extension per app
-   * is supported.
-   */
-  composeExtensions?: ComposeExtension[];
-  /**
-   * Specifies the permissions the app requests from users.
-   */
-  permissions?: Permission[];
-  /**
-   * Specify the native features on a user's device that your app may request access to.
-   */
-  devicePermissions?: DevicePermission[];
-  /**
-   * A list of valid domains from which the tabs expect to load any content. Domain listings
-   * can include wildcards, for example `*.example.com`. If your tab configuration or content
-   * UI needs to navigate to any other domain besides the one use for tab configuration, that
-   * domain must be specified here.
-   */
-  validDomains?: string[];
-  /**
-   * Specify your AAD App ID and Graph information to help users seamlessly sign into your AAD
-   * app.
-   */
-  webApplicationInfo?: WebApplicationInfo;
-  /**
-   * Specify the app's Graph connector configuration. If this is present then
-   * webApplicationInfo.id must also be specified.
-   */
-  graphConnector?: GraphConnector;
-  /**
-   * A value indicating whether or not show loading indicator when app/tab is loading
-   */
-  showLoadingIndicator?: boolean;
-  /**
-   * A value indicating whether a personal app is rendered without a tab header-bar
-   */
-  isFullScreen?: boolean;
-  activities?: Activities;
-  /**
-   * A list of tenant configured properties for an app
-   */
-  configurableProperties?: ConfigurableProperty[];
-  /**
-   * List of 'non-standard' channel types that the app supports. Note: Channels of standard
-   * type are supported by default if the app supports team scope.
-   */
-  supportedChannelTypes?: SupportedChannelType[];
-  /**
-   * A value indicating whether an app is blocked by default until admin allows it
-   */
-  defaultBlockUntilAdminAction?: boolean;
-  /**
-   * The url to the page that provides additional app information for the admins
-   */
-  publisherDocsUrl?: string;
-  /**
-   * The install scope defined for this app by default. This will be the option displayed on
-   * the button when a user tries to add the app
-   */
-  defaultInstallScope?: DefaultInstallScope;
-  /**
-   * When a group install scope is selected, this will define the default capability when the
-   * user installs the app
-   */
-  defaultGroupCapability?: DefaultGroupCapability;
-  /**
-   * Specify meeting extension definition.
-   */
-  meetingExtensionDefinition?: MeetingExtensionDefinition;
-  /**
-   * Specify and consolidates authorization related information for the App.
-   */
-  authorization?: TeamsManifestV1D24Authorization;
-  extensions?: ElementExtension[];
-  /**
-   * Defines the list of cards which could be pinned to dashboards that can provide summarized
-   * view of information relevant to user.
-   */
-  dashboardCards?: DashboardCard[];
-  copilotAgents?: CopilotAgents;
-  /**
-   * The Intune-related properties for the app.
-   */
-  intuneInfo?: IntuneInfo;
-  elementRelationshipSet?: ElementRelationshipSet;
-  /**
-   * Optional property containing background loading configuration. By opting in to this
-   * performance enhancement, your app is eligible to be loaded in the background in any
-   * Microsoft 365 application host that supports this feature.
-   */
-  backgroundLoadConfiguration?: BackgroundLoadConfiguration;
+    $schema?: string;
+    /**
+     * The version of the schema this manifest is using. This schema version supports extending
+     * Teams apps to other parts of the Microsoft 365 ecosystem. More info at
+     * https://aka.ms/extendteamsapps.
+     */
+    manifestVersion: "1.24";
+    /**
+     * The version of the app. Changes to your manifest should cause a version change. This
+     * version string must follow the semver standard (http://semver.org).
+     */
+    version: string;
+    /**
+     * A unique identifier for this app. This id must be a GUID.
+     */
+    id:                string;
+    localizationInfo?: LocalizationInfo;
+    developer:         Developer;
+    name:              NameClass;
+    description:       Description;
+    icons:             Icons;
+    /**
+     * A color to use in conjunction with the icon. The value must be a valid HTML color code
+     * starting with '#', for example `#4464ee`.
+     */
+    accentColor: string;
+    /**
+     * These are tabs users can optionally add to their channels and 1:1 or group chats and
+     * require extra configuration before they are added. Configurable tabs are not supported in
+     * the personal scope. Currently only one configurable tab per app is supported.
+     */
+    configurableTabs?: ConfigurableTab[];
+    /**
+     * A set of tabs that may be 'pinned' by default, without the user adding them manually.
+     * Static tabs declared in personal scope are always pinned to the app's personal
+     * experience. Static tabs do not currently support the 'teams' scope.
+     */
+    staticTabs?: StaticTab[];
+    /**
+     * The set of bots for this app. Currently only one bot per app is supported.
+     */
+    bots?: Bot[];
+    /**
+     * The set of Office365 connectors for this app. Currently only one connector per app is
+     * supported.
+     */
+    connectors?: Connector[];
+    /**
+     * Subscription offer associated with this app.
+     */
+    subscriptionOffer?: SubscriptionOffer;
+    /**
+     * The set of compose extensions for this app. Currently only one compose extension per app
+     * is supported.
+     */
+    composeExtensions?: ComposeExtension[];
+    /**
+     * Specifies the permissions the app requests from users.
+     */
+    permissions?: Permission[];
+    /**
+     * Specify the native features on a user's device that your app may request access to.
+     */
+    devicePermissions?: DevicePermission[];
+    /**
+     * A list of valid domains from which the tabs expect to load any content. Domain listings
+     * can include wildcards, for example `*.example.com`. If your tab configuration or content
+     * UI needs to navigate to any other domain besides the one use for tab configuration, that
+     * domain must be specified here.
+     */
+    validDomains?: string[];
+    /**
+     * Specify your AAD App ID and Graph information to help users seamlessly sign into your AAD
+     * app.
+     */
+    webApplicationInfo?: WebApplicationInfo;
+    /**
+     * Specify the app's Graph connector configuration. If this is present then
+     * webApplicationInfo.id must also be specified.
+     */
+    graphConnector?: GraphConnector;
+    /**
+     * A value indicating whether or not show loading indicator when app/tab is loading
+     */
+    showLoadingIndicator?: boolean;
+    /**
+     * A value indicating whether a personal app is rendered without a tab header-bar
+     */
+    isFullScreen?: boolean;
+    activities?:   Activities;
+    /**
+     * A list of tenant configured properties for an app
+     */
+    configurableProperties?: ConfigurableProperty[];
+    /**
+     * List of 'non-standard' channel types that the app supports. Note: Channels of standard
+     * type are supported by default if the app supports team scope.
+     */
+    supportedChannelTypes?: SupportedChannelType[];
+    /**
+     * A value indicating whether an app is blocked by default until admin allows it
+     */
+    defaultBlockUntilAdminAction?: boolean;
+    /**
+     * The url to the page that provides additional app information for the admins
+     */
+    publisherDocsUrl?: string;
+    /**
+     * The install scope defined for this app by default. This will be the option displayed on
+     * the button when a user tries to add the app
+     */
+    defaultInstallScope?: DefaultInstallScope;
+    /**
+     * When a group install scope is selected, this will define the default capability when the
+     * user installs the app
+     */
+    defaultGroupCapability?: DefaultGroupCapability;
+    /**
+     * Specify meeting extension definition.
+     */
+    meetingExtensionDefinition?: MeetingExtensionDefinition;
+    /**
+     * Specify and consolidates authorization related information for the App.
+     */
+    authorization?: TeamsManifestV1D24Authorization;
+    extensions?:    ElementExtension[];
+    /**
+     * Defines the list of cards which could be pinned to dashboards that can provide summarized
+     * view of information relevant to user.
+     */
+    dashboardCards?: DashboardCard[];
+    copilotAgents?:  CopilotAgents;
+    /**
+     * The Intune-related properties for the app.
+     */
+    intuneInfo?:             IntuneInfo;
+    elementRelationshipSet?: ElementRelationshipSet;
+    /**
+     * Optional property containing background loading configuration. By opting in to this
+     * performance enhancement, your app is eligible to be loaded in the background in any
+     * Microsoft 365 application host that supports this feature.
+     */
+    backgroundLoadConfiguration?: BackgroundLoadConfiguration;
 }
 
 export interface Activities {
@@ -2965,12 +2965,8 @@ const typeMap: any = {
       { json: "icon", js: "icon", typ: r("ExtensionCommonIcon") },
       { json: "highResolutionIcon", js: "highResolutionIcon", typ: r("ExtensionCommonIcon") },
     ],
-    false
-  ),
-  ExtensionCommonIcon: o(
-    [
-      { json: "size", js: "size", typ: 3.14 },
-      { json: "url", js: "url", typ: "" },
+    "ManifestVersion": [
+        "1.24",
     ],
     false
   ),

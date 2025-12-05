@@ -5,12 +5,18 @@ import { getFxCore } from "../../../activate";
 import { commands } from "../../../resource";
 import { TelemetryEvent } from "../../../telemetry/cliTelemetryEvents";
 import { TeamsAppManifestFileOption } from "../../common";
-import { localDebugOption, programmingLanguageOption, remoteDeployOption } from "./initOption";
+import {
+  localDebugOption,
+  playgroundOption,
+  programmingLanguageOption,
+  remoteDeployOption,
+} from "./initOption";
 
 export const initCommand: CLICommand = {
   name: "init",
   description: commands.init.description,
   options: [
+    playgroundOption,
     localDebugOption,
     remoteDeployOption,
     programmingLanguageOption,

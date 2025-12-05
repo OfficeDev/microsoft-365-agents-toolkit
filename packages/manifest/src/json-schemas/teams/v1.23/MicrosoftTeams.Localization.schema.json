@@ -197,39 +197,39 @@
       "type": "string",
       "maxLength": 2048
     },
-    "^extensions\\[[0-9]\\]\\.runtimes\\[[1]?[0-9]\\]\\.customFunctions\\.functions\\[[0-9]\\]\\.name$": {
+    "^extensions\\[[0]\\]\\.runtimes\\[[1]?[0-9]\\]\\.customFunctions\\.functions\\[[0-9]\\]\\.name$": {
       "type": "string",
       "maxLength": 64
     },
-    "^extensions\\[[0-9]\\]\\.runtimes\\[[1]?[0-9]\\]\\.customFunctions\\.functions\\[[0-9]\\]\\.description$": {
+    "^extensions\\[[0]\\]\\.runtimes\\[[1]?[0-9]\\]\\.customFunctions\\.functions\\[[0-9]\\]\\.description$": {
       "type": "string",
       "maxLength": 128
     },
-    "^extensions\\[[0-9]\\]\\.runtimes\\[[1]?[0-9]\\]\\.customFunctions\\.functions\\[[0-9]\\]\\.parameters\\[[0-9]\\]\\.name$": {
+    "^extensions\\[[0]\\]\\.runtimes\\[[1]?[0-9]\\]\\.customFunctions\\.functions\\[[0-9]\\]\\.parameters\\[[0-9]\\]\\.name$": {
       "type": "string",
       "maxLength": 64
     },
-    "^extensions\\[[0-9]\\]\\.runtimes\\[[1]?[0-9]\\]\\.customFunctions\\.functions\\[[0-9]\\]\\.parameters\\[[0-9]\\]\\.description$": {
+    "^extensions\\[[0]\\]\\.runtimes\\[[1]?[0-9]\\]\\.customFunctions\\.functions\\[[0-9]\\]\\.parameters\\[[0-9]\\]\\.description$": {
       "type": "string",
       "maxLength": 128
     },
-    "^extensions\\[[0-9]\\]\\.runtimes\\[[1]?[0-9]\\]\\.customFunctions\\.namespace\\.name$": {
+    "^extensions\\[[0]\\]\\.runtimes\\[[1]?[0-9]\\]\\.customFunctions\\.namespace\\.name$": {
       "type": "string",
       "maxLength": 32
     },
-    "^extensions\\[[0-9]\\]\\.shortcuts\\[[0-9]\\]\\.keys\\[[0-9]\\]\\.key\\.default$": {
+    "^extensions\\[[0]\\]\\.keyboardShortcuts\\[[0-9]\\]\\.shortcuts\\[[0-9]\\]\\.key\\.default$": {
       "type": "string",
       "maxLength": 32
     },
-    "^extensions\\[[0-9]\\]\\.shortcuts\\[[0-9]\\]\\.keys\\[[0-9]\\]\\.key\\.mac$": {
+    "^extensions\\[[0]\\]\\.keyboardShortcuts\\[[0-9]\\]\\.shortcuts\\[[0-9]\\]\\.key\\.mac$": {
       "type": "string",
       "maxLength": 32
     },
-    "^extensions\\[[0-9]\\]\\.shortcuts\\[[0-9]\\]\\.keys\\[[0-9]\\]\\.key\\.web$": {
+    "^extensions\\[[0]\\]\\.keyboardShortcuts\\[[0-9]\\]\\.shortcuts\\[[0-9]\\]\\.key\\.web$": {
       "type": "string",
       "maxLength": 32
     },
-    "^extensions\\[[0-9]\\]\\.shortcuts\\[[0-9]\\]\\.keys\\[[0-9]\\]\\.key\\.windows$": {
+    "^extensions\\[[0]\\]\\.keyboardShortcuts\\[[0-9]\\]\\.shortcuts\\[[0-9]\\]\\.key\\.windows$": {
       "type": "string",
       "maxLength": 32
     },

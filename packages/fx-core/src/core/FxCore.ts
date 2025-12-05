@@ -3278,7 +3278,7 @@ export class FxCore {
    */
   @hooks([ErrorContextMW({ component: "FxCore", stage: "generateConfigFiles" }), ErrorHandlerMW])
   async generateConfigFiles(inputs: Inputs): Promise<Result<undefined, FxError>> {
-    const appManifestFilePath = inputs[QuestionNames.ManifestPath] as string;
+    const appManifestFilePath = inputs["manifest-file"] as string;
     const includePlayground = inputs["include-playground"];
     const includeLocalDebug = inputs["include-local"];
     const includeRemoteDeploy = inputs["include-remote"];
