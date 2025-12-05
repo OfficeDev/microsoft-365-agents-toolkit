@@ -7910,7 +7910,7 @@
         <Str Cat="Text">
           <Val><![CDATA[There is no valid app catalog in your tenant. You can update the property 'createAppCatalogIfNotExist' in %s to true if you want Microsoft 365 Agents Toolkit to create it for you or you can create it by yourself.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Non è presente nessun catalogo app valido nel tenant. Puoi aggiornare la proprietà “createAppCatalogIfNotExist” in %s su true se vuoi che Microsoft 365 Agents Toolkit la crei automaticamente o puoi crearla manualmente.]]></Val>
+            <Val><![CDATA[Non è presente alcun catalogo app valido nel tenant. Puoi aggiornare la proprietà "createAppCatalogIfNotExist" in %s su true se vuoi che Toolkit agenti di Microsoft 365 la crei automaticamente o puoi crearla manualmente.]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[There is no valid app catalog in your tenant. You can update the property 'createAppCatalogIfNotExist' in %s to true if you want Teams Toolkit to create it for you or you can create it by yourself.]]></Val>
