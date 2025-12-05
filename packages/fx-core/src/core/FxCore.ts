@@ -203,6 +203,7 @@ import {
 } from "./collaborator";
 import { LocalCrypto } from "./crypto";
 import { environmentNameManager } from "./environmentName";
+import { generateConfigFiles } from "./generateConfigFiles";
 import { ConcurrentLockerMW } from "./middleware/concurrentLocker";
 import { ContextInjectorMW } from "./middleware/contextInjector";
 import { ErrorHandlerMW } from "./middleware/errorHandler";
@@ -3270,6 +3271,25 @@ export class FxCore {
       );
       return err(systemErr);
     }
+  }
+
+  /**
+   * dynamic template metadata download
+   */
+  @hooks([ErrorContextMW({ component: "FxCore", stage: "generateConfigFiles" }), ErrorHandlerMW])
+  async generateConfigFiles(inputs: Inputs): Promise<Result<undefined, FxError>> {
+    const appManifestFilePath = inputs[QuestionNames.ManifestPath] as string;
+    const includePlayground = inputs["include-playground"];
+    const includeLocalDebug = inputs["include-local"];
+    const includeRemoteDeploy = inputs["include-remote"];
+    const programmingLanguage = inputs["programming-language"];
+    return await generateConfigFiles(
+      appManifestFilePath,
+      programmingLanguage,
+      includePlayground,
+      includeLocalDebug,
+      includeRemoteDeploy
+    );
   }
 
   private async updateAuthActionInYaml(

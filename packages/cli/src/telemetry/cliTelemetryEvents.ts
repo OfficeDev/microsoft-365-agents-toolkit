@@ -130,6 +130,9 @@ export enum TelemetryEvent {
   AddAuthAction = "add-auth-action",
 
   SetSensitivityLabel = "set-sensitivity-label",
+
+  GenerateConfigStart = "generate-config-start",
+  GenerateConfig = "generate-config",
 }
 
 export enum TelemetryProperty {

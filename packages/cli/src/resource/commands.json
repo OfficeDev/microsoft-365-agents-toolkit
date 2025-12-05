@@ -116,6 +116,9 @@
   "env.reset": {
     "description": "Reset environment file."
   },
+  "init": {
+    "description": "Initialize an existing project to Microsoft 365 Agents Toolkit project."
+  },
   "list": {
     "description": "List available app templates and samples."
   },
