@@ -7910,7 +7910,7 @@
         <Str Cat="Text">
           <Val><![CDATA[There is no valid app catalog in your tenant. You can update the property 'createAppCatalogIfNotExist' in %s to true if you want Microsoft 365 Agents Toolkit to create it for you or you can create it by yourself.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Non è presente nessun catalogo app valido nel tenant. Puoi aggiornare la proprietà “createAppCatalogIfNotExist” in %s su true se vuoi che Microsoft 365 Agents Toolkit la crei automaticamente o puoi crearla manualmente.]]></Val>
+            <Val><![CDATA[Non è presente alcun catalogo app valido nel tenant. Puoi aggiornare la proprietà "createAppCatalogIfNotExist" in %s su true se vuoi che Toolkit agenti di Microsoft 365 la crei automaticamente o puoi crearla manualmente.]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[There is no valid app catalog in your tenant. You can update the property 'createAppCatalogIfNotExist' in %s to true if you want Teams Toolkit to create it for you or you can create it by yourself.]]></Val>
@@ -9608,7 +9608,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to clear blob files in Azure Storage Account '%s'. The error responses from Azure are:]A; %s. ]A;If the error message specifies the reason, fix the error and try again.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Impossibile cancellare i file BLOB nell'account Archiviazione di Azure '%s'. Le risposte di errore di Azure sono:]A; %s. ]A; Se il messaggio di errore specifica il motivo, correggere l'errore e riprovare.]]></Val>
+            <Val><![CDATA[Impossibile cancellare i file BLOB nell'account di archiviazione di Azure '%s'. Le risposte di errore di Azure sono:]A; %s. ]A; Se il messaggio di errore specifica il motivo, correggi l'errore e riprova.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9617,7 +9617,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to clear blob files in Azure Storage Account '%s'. Refer to the [Output panel]5D;(command:fx-extension.showOutputChannel) for more details.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Impossibile cancellare i file BLOB nell'account Archiviazione di Azure '%s'. Per altri dettagli, vedere [Pannello di output]5D;(command:fx-extension.showOutputChannel).]]></Val>
+            <Val><![CDATA[Impossibile cancellare i file BLOB nell'account di archiviazione di Azure '%s'. Per altri dettagli, vedi [Pannello di output]5D;(command:fx-extension.showOutputChannel).]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9626,7 +9626,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to get Azure Storage container '%s' in Azure Storage Account '%s' due to error: %s. The error responses from Azure are:]A; %s. ]A;If the error message specifies the reason, fix the error and try again.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Impossibile ottenere Archiviazione di Azure contenitore '%s' nell'account Archiviazione di Azure '%s' a causa dell'errore: %s. Le risposte di errore di Azure sono:]A; %s. ]A; Se il messaggio di errore specifica il motivo, correggere l'errore e riprovare.]]></Val>
+            <Val><![CDATA[Impossibile ottenere Archiviazione di Azure contenitore '%s' nell'account di archiviazione di Azure '%s' a causa dell'errore: %s. Le risposte di errore di Azure sono:]A; %s. ]A; Se il messaggio di errore specifica il motivo, correggi l'errore e riprova.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9635,7 +9635,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to get Azure Storage container '%s' in Azure Storage Account '%s' due to error: %s. Refer to the [Output panel]5D;(command:fx-extension.showOutputChannel) for more details.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Impossibile ottenere Archiviazione di Azure contenitore '%s' nell'account Archiviazione di Azure '%s' a causa dell'errore: %s. Per altri dettagli, vedere [Pannello di output]5D;(command:fx-extension.showOutputChannel).]]></Val>
+            <Val><![CDATA[Impossibile ottenere il contenitore di archiviazione di Azure '%s' nell'account di archiviazione di Azure '%s' a causa dell'errore: %s. Per altri dettagli, vedi [Pannello di output]5D;(command:fx-extension.showOutputChannel).]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9644,7 +9644,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to get properties of container '%s' in Azure Storage Account '%s' due to error: %s. The error responses from Azure are:]A; %s. ]A;If the error message specifies the reason, fix the error and try again.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Impossibile ottenere le proprietà del contenitore '%s' nell'account Archiviazione di Azure '%s' a causa dell'errore: %s. Le risposte di errore di Azure sono:]A; %s. ]A; Se il messaggio di errore specifica il motivo, correggere l'errore e riprovare.]]></Val>
+            <Val><![CDATA[Impossibile ottenere le proprietà del contenitore '%s' nell'account di archiviazione di Azure '%s' a causa dell'errore: %s. Le risposte di errore di Azure sono:]A; %s. ]A; Se il messaggio di errore specifica il motivo, correggi l'errore e riprova.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9653,7 +9653,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to get properties of container '%s' in Azure Storage Account '%s' due to error: %s. Refer to the [Output panel]5D;(command:fx-extension.showOutputChannel) for more details.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Impossibile ottenere le proprietà del contenitore '%s' nell'account Archiviazione di Azure '%s' a causa dell'errore: %s. Per altri dettagli, vedere [Pannello di output]5D;(command:fx-extension.showOutputChannel).]]></Val>
+            <Val><![CDATA[Impossibile ottenere le proprietà del contenitore '%s' nell'account di archiviazione di Azure '%s' a causa dell'errore: %s. Per altri dettagli, vedi [Pannello di output]5D;(command:fx-extension.showOutputChannel).]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9662,7 +9662,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to set properties of container '%s' in Azure Storage Account '%s' due to error: %s. The error responses from Azure are:]A; %s. ]A;If the error message specifies the reason, fix the error and try again.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Impossibile impostare le proprietà del contenitore '%s' nell'account Archiviazione di Azure '%s' a causa dell'errore: %s. Le risposte di errore di Azure sono:]A; %s. ]A; Se il messaggio di errore specifica il motivo, correggere l'errore e riprovare.]]></Val>
+            <Val><![CDATA[Impossibile impostare le proprietà del contenitore '%s' nell'account di archiviazione di Azure '%s' a causa dell'errore: %s. Le risposte di errore di Azure sono:]A; %s. ]A; Se il messaggio di errore specifica il motivo, correggi l'errore e riprova.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9671,7 +9671,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to set properties of container '%s' in Azure Storage Account '%s' due to error: %s. Refer to the [Output panel]5D;(command:fx-extension.showOutputChannel) for more details.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Impossibile impostare le proprietà del contenitore '%s' nell'account Archiviazione di Azure '%s' a causa dell'errore: %s. Per altri dettagli, vedere [Pannello di output]5D;(command:fx-extension.showOutputChannel).]]></Val>
+            <Val><![CDATA[Impossibile impostare le proprietà del contenitore '%s' nell'account di archiviazione di Azure '%s' a causa dell'errore: %s. Per altri dettagli, vedi [Pannello di output]5D;(command:fx-extension.showOutputChannel).]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9680,7 +9680,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to upload local folder '%s' to Azure Storage Account '%s'. The error responses from Azure are:]A; %s. ]A;If the error message specifies the reason, fix the error and try again.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Impossibile caricare la cartella locale '%s' nell'account Archiviazione di Azure '%s'. Le risposte di errore di Azure sono:]A; %s. ]A; Se il messaggio di errore specifica il motivo, correggere l'errore e riprovare.]]></Val>
+            <Val><![CDATA[Impossibile caricare la cartella locale '%s' nell'account di archiviazione di Azure '%s'. Le risposte di errore di Azure sono:]A; %s. ]A; Se il messaggio di errore specifica il motivo, correggi l'errore e riprova.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9689,7 +9689,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to upload local folder '%s' to Azure Storage Account '%s'. Refer to the [Output panel]5D;(command:fx-extension.showOutputChannel) for more details.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Impossibile caricare la cartella locale '%s' nell'account Archiviazione di Azure '%s'. Per altri dettagli, vedere [Pannello di output]5D;(command:fx-extension.showOutputChannel).]]></Val>
+            <Val><![CDATA[Impossibile caricare la cartella locale '%s' nell'account di archiviazione di Azure '%s'. Per altri dettagli, vedi [Pannello di output]5D;(command:fx-extension.showOutputChannel).]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -10934,7 +10934,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Check if you have permissions to your Azure Storage Account.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Verificare di disporre delle autorizzazioni per l'account Archiviazione di Azure.]]></Val>
+            <Val><![CDATA[Verifica di disporre delle autorizzazioni per l'account di archiviazione di Azure.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
