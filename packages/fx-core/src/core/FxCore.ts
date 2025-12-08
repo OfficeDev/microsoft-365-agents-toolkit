@@ -3278,18 +3278,7 @@ export class FxCore {
    */
   @hooks([ErrorContextMW({ component: "FxCore", stage: "generateConfigFiles" }), ErrorHandlerMW])
   async generateConfigFiles(inputs: Inputs): Promise<Result<undefined, FxError>> {
-    const appManifestFilePath = inputs["manifest-file"] as string;
-    const includePlayground = inputs["include-playground"];
-    const includeLocalDebug = inputs["include-local"];
-    const includeRemoteDeploy = inputs["include-remote"];
-    const programmingLanguage = inputs["programming-language"];
-    return await generateConfigFiles(
-      appManifestFilePath,
-      programmingLanguage,
-      includePlayground,
-      includeLocalDebug,
-      includeRemoteDeploy
-    );
+    return await generateConfigFiles(inputs);
   }
 
   private async updateAuthActionInYaml(

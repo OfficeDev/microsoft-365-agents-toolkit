@@ -15,7 +15,7 @@
         "build:release": "node ./scripts/generateRelease.js",
         "generate:vsc": "node ./scripts/generateVSCZip.js && tsx ./scripts/generate-metadata.ts",
         "generate:vs": "node ./scripts/generateVSZip.js",
-        "distribute": "copyfiles -u 1 \"build/**/*\" ../packages/fx-core/templates && copyfiles -u 3 \"src/ui/resource/**/*\" ../packages/fx-core/resource/templates/",
+        "distribute": "copyfiles -u 1 \"build/**/*\" ../packages/fx-core/templates/ && copyfiles -u 3 \"src/ui/resource/**/*\" ../packages/fx-core/resource/templates/ && shx cp -r configs/ ../packages/fx-core/templates/",
         "version": "bash ../.github/scripts/pkg-version.sh template-sync && bash ../.github/scripts/pkg-version.sh core-template",
         "postversion": "npm run build"
     },
@@ -58,6 +58,7 @@
         "prettier": "^2.4.1",
         "rimraf": "^6.0.1",
         "semver": "^7.3.5",
+        "shx": "^0.3.4",
         "tslint": "^6.1.3",
         "tsx": "^4.20.6",
         "typescript": "^5.0.4"

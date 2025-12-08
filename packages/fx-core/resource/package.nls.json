@@ -243,6 +243,7 @@
   "error.generator.SampleNotFoundError": "Unable to find sample: %s.",
   "error.generator.UnzipError": "Unable to extract templates and save them to disk.",
   "error.generator.MissKeyError": "Unable to find key %s",
+  "error.generator.FileConflictError": "File conflict at %s",
   "error.generator.FetchSampleInfoError": "Unable to fetch sample info",
   "error.generator.DownloadSampleApiLimitError": "Unable to download sample due to rate limitation. Try again in an  hour after rate limit reset or you can manually clone the repo from %s.",
   "error.generator.DownloadSampleNetworkError": "Unable to download sample due to network error. Check your network connection and try again or you can manually clone the repo from %s",

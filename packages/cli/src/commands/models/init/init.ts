@@ -4,7 +4,7 @@ import { CLICommand, err, Inputs, ok } from "@microsoft/teamsfx-api";
 import { getFxCore } from "../../../activate";
 import { commands } from "../../../resource";
 import { TelemetryEvent } from "../../../telemetry/cliTelemetryEvents";
-import { TeamsAppManifestFileOption } from "../../common";
+import { ProjectFolderOptionWithoutValidation, TeamsAppManifestFileOption } from "../../common";
 import {
   localDebugOption,
   playgroundOption,
@@ -21,6 +21,7 @@ export const initCommand: CLICommand = {
     remoteDeployOption,
     programmingLanguageOption,
     { ...TeamsAppManifestFileOption, required: true },
+    ProjectFolderOptionWithoutValidation,
   ],
   defaultInteractiveOption: false,
   telemetry: {
