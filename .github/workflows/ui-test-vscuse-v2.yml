@@ -37,9 +37,26 @@ jobs:
     outputs:
       test-plans: ${{ steps.get-plans.outputs.plans }}
       email-receiver: ${{ steps.set-email.outputs.email-receiver }}
+      account-count: ${{ steps.get-accounts.outputs.account-count }}
+      test-matrix: ${{ steps.build-matrix.outputs.matrix }}
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
+
+      - name: Get test accounts
+        id: get-accounts
+        run: |
+          # Read accounts from config file
+          if [ -f ".github/config/test-accounts.json" ]; then
+            accounts=$(cat .github/config/test-accounts.json | jq -c '.accounts')
+            account_count=$(echo "$accounts" | jq 'length')
+            echo "accounts=$accounts" >> $GITHUB_OUTPUT
+            echo "account-count=$account_count" >> $GITHUB_OUTPUT
+            echo "Found $account_count test accounts"
+          else
+            echo "Error: test-accounts.json not found"
+            exit 1
+          fi
 
       - name: Set email receiver
         id: set-email
@@ -81,17 +98,38 @@ jobs:
             echo "Using input test plans: $input_plans"
           fi
 
+      - name: Build test matrix with account assignment
+        id: build-matrix
+        run: |
+          # Get test plans and accounts
+          plans='${{ steps.get-plans.outputs.plans }}'
+          accounts='${{ steps.get-accounts.outputs.accounts }}'
+          account_count=${{ steps.get-accounts.outputs.account-count }}
+          
+          # Build matrix: assign each test plan to an account index
+          # This ensures each parallel job gets a unique account
+          matrix=$(echo "$plans" | jq -c --argjson acc_count "$account_count" '
+            to_entries | map({
+              test_plan: .value,
+              account_index: (.key % $acc_count)
+            })
+          ')
+          
+          echo "matrix=$matrix" >> $GITHUB_OUTPUT
+          echo "Built matrix with $(echo "$matrix" | jq 'length') jobs"
+          echo "Matrix: $matrix"
+
   main:
-    name: Case-${{ matrix.test_plan }}
+    name: Case-${{ matrix.item.test_plan }}
     needs: discover-test-plans
     runs-on: ubuntu-latest
     timeout-minutes: 50
 
     strategy:
       matrix:
-        test_plan: ${{ fromJson(needs.discover-test-plans.outputs.test-plans) }}
+        item: ${{ fromJson(needs.discover-test-plans.outputs.test-matrix) }}
       fail-fast: false
-      max-parallel: 30
+      max-parallel: ${{ fromJson(needs.discover-test-plans.outputs.account-count) }}
     permissions:
       contents: read
       packages: write
@@ -115,19 +153,7 @@ jobs:
       AZURE_TENANT_ID: ${{ secrets.TEST_TENANT_ID_NEW  }}
       AZURE_SUBSCRIPTION_ID: ${{ secrets.TEST_SUBSCRIPTION_ID_NEW }}
       AZURE_AUTH_ENABLED: ${{ secrets.AZURE_SERVICE_PRINCIPAL_ID != '' && secrets.AZURE_SERVICE_PRINCIPAL_SECRET != '' && secrets.TEST_TENANT_ID_NEW != '' }}
-      # M365 account for testing
-      M365_USERNAME_1: "test21@xxbdw.onmicrosoft.com"
-      M365_USERNAME_2: "test22@xxbdw.onmicrosoft.com"
-      M365_USERNAME_3: "test23@xxbdw.onmicrosoft.com"
-      M365_USERNAME_4: "test24@xxbdw.onmicrosoft.com"
-      M365_USERNAME_5: "test31@xxbdw.onmicrosoft.com"
-      M365_USERNAME_6: "test32@xxbdw.onmicrosoft.com"
-      M365_USERNAME_7: "test33@xxbdw.onmicrosoft.com"
-      M365_USERNAME_8: "test34@xxbdw.onmicrosoft.com"
-      M365_USERNAME_9: "test35@xxbdw.onmicrosoft.com"
-      M365_USERNAME_10: "test36@xxbdw.onmicrosoft.com"
-      M365_USERNAME_11: "test37@xxbdw.onmicrosoft.com"
-      M365_USERNAME_12: "test38@xxbdw.onmicrosoft.com"
+      # M365 account for testing - loaded from config file in Set M365 account step
       M365_ACCOUNT_PASSWORD: ${{ secrets.TEST_M365_PASSWORD }}
 
       # The test account for Copilot features
@@ -206,13 +232,14 @@ jobs:
             echo "⚠️  Azure Service Principal not configured - M365 Toolkit authentication disabled"
           fi
 
-      - name: Set m365 account randomly
+      - name: Set M365 account from assigned index
         run: |
-          users=("${{ env.M365_USERNAME_1 }}" "${{ env.M365_USERNAME_2 }}" "${{ env.M365_USERNAME_3 }}" "${{ env.M365_USERNAME_4 }}" "${{ env.M365_USERNAME_5 }}" "${{ env.M365_USERNAME_6 }}" "${{ env.M365_USERNAME_7 }}" "${{ env.M365_USERNAME_8 }}" "${{ env.M365_USERNAME_9 }}" "${{ env.M365_USERNAME_10 }}" "${{ env.M365_USERNAME_11 }}" "${{ env.M365_USERNAME_12 }}")
-          count=${#users[@]}
-          index=$((RANDOM%$count))
-          echo "account index: $index"
-          echo "M365_ACCOUNT_NAME=${users[index]}" >> $GITHUB_ENV
+          # Read accounts from config file and get the account at the assigned index
+          account_index=${{ matrix.item.account_index }}
+          account=$(cat .github/config/test-accounts.json | jq -r --argjson idx "$account_index" '.accounts[$idx]')
+          echo "Assigned account index: $account_index"
+          echo "Using account: $account"
+          echo "M365_ACCOUNT_NAME=$account" >> $GITHUB_ENV
 
       - name: Log in to Container Registry
         uses: docker/login-action@v3
@@ -237,20 +264,21 @@ jobs:
           
       - name: Run test
         run: |
-          echo "🚀 Running test plan: ${{ matrix.test_plan }}"
+          echo "🚀 Running test plan: ${{ matrix.item.test_plan }}"
           echo "Using image tag: ${{ github.event.inputs.image_tag || 'latest' }}"
+          echo "Using account index: ${{ matrix.item.account_index }}"
           echo "Test execution started at: $(date)"
 
           cd packages/tests/vscuse/vscode-test-cases
           python -m venv .venv
           source .venv/bin/activate
-          vscuse execute --config-file ./config.yaml --groups-dir groups ./plans/${{ matrix.test_plan }}.json
+          vscuse execute --config-file ./config.yaml --groups-dir groups ./plans/${{ matrix.item.test_plan }}.json
 
       - name: Upload test artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: test-debug-artifacts-${{ matrix.test_plan }}-${{ github.run_number }}
+          name: test-debug-artifacts-${{ matrix.item.test_plan }}-${{ github.run_number }}
           path: |
             packages/tests/vscuse/vscode-test-cases/test_report/
           retention-days: 7
@@ -304,7 +332,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: storage-url-${{ matrix.test_plan }}-${{ github.run_id }}
+          name: storage-url-${{ matrix.item.test_plan }}-${{ github.run_id }}
           path: storage_url.txt
           retention-days: 7
           if-no-files-found: ignore
