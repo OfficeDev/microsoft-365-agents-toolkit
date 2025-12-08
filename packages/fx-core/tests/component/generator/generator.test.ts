@@ -903,42 +903,6 @@ describe("render template", () => {
       assert.isTrue(result.isOk());
     });
 
-    it("template variables when ME test tool enabled", async () => {
-      sandbox.stub(process, "env").value({ TEAMSFX_ME_TEST_TOOL: "true" });
-      const vars = newGeneratorFlag
-        ? getTemplateReplaceMap(inputs)
-        : Generator.getDefaultVariables("test");
-      assert.equal(vars.enableMETestToolByDefault, "true");
-    });
-
-    it("template variables when ME test tool disabled", async () => {
-      sandbox.stub(process, "env").value({ TEAMSFX_ME_TEST_TOOL: "false" });
-      const vars = newGeneratorFlag
-        ? getTemplateReplaceMap(inputs)
-        : Generator.getDefaultVariables("test");
-      assert.equal(vars.enableMETestToolByDefault, "");
-    });
-
-    it("template variables when new project enabled", async () => {
-      sandbox.stub(process, "env").value({
-        TEAMSFX_NEW_PROJECT_TYPE: "true",
-        TEAMSFX_NEW_PROJECT_TYPE_NAME: "M365",
-        TEAMSFX_NEW_PROJECT_TYPE_EXTENSION: "maproj",
-      });
-      const vars = newGeneratorFlag
-        ? getTemplateReplaceMap(inputs)
-        : Generator.getDefaultVariables("test");
-      assert.equal(vars.isNewProjectTypeEnabled, "true");
-    });
-
-    it("template variables when test tool disabled", async () => {
-      sandbox.stub(process, "env").value({ TEAMSFX_NEW_PROJECT_TYPE: "false" });
-      const vars = newGeneratorFlag
-        ? getTemplateReplaceMap(inputs)
-        : Generator.getDefaultVariables("test");
-      assert.equal(vars.isNewProjectTypeEnabled, "");
-    });
-
     it("template variables when set placeProjectFileInSolutionDir to true", async () => {
       inputs.placeProjectFileInSolutionDir = "true";
       const vars = newGeneratorFlag
@@ -1336,22 +1300,6 @@ describe("render template", () => {
         ? getTemplateReplaceMap(inputs)
         : Generator.getDefaultVariables("test");
       assert.equal(vars.EmbeddedKnowledgeEnabled, "");
-    });
-
-    it("template variables when share enabled", async () => {
-      sandbox.stub(process, "env").value({ TEAMSFX_SHARE: "true" });
-      const vars = newGeneratorFlag
-        ? getTemplateReplaceMap(inputs)
-        : Generator.getDefaultVariables("test");
-      assert.equal(vars.ShareEnabled, "true");
-    });
-
-    it("template variables when share disabled", async () => {
-      sandbox.stub(process, "env").value({ TEAMSFX_SHARE: "false" });
-      const vars = newGeneratorFlag
-        ? getTemplateReplaceMap(inputs)
-        : Generator.getDefaultVariables("test");
-      assert.equal(vars.ShareEnabled, "");
     });
 
     it("template variables with Copilot connector scaffold", async () => {

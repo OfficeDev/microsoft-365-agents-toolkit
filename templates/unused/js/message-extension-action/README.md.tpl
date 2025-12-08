@@ -11,32 +11,17 @@ This app template implements action command that allows you to present your user
 > To run the template in your local dev machine, you will need:
 >
 > - [Node.js](https://nodejs.org/), supported versions: 18, 20, 22
-{{^enableMETestToolByDefault}}
-> - A [Microsoft 365 account for development](https://docs.microsoft.com/microsoftteams/platform/toolkit/accounts)
-{{/enableMETestToolByDefault}}
 > - [Microsoft 365 Agents Toolkit Visual Studio Code Extension](https://aka.ms/teams-toolkit) version 5.0.0 and higher or [Microsoft 365 Agents Toolkit CLI](https://aka.ms/teamsfx-toolkit-cli)
 
 > For local debugging using Microsoft 365 Agents Toolkit CLI, you need to do some extra steps described in [Set up your Microsoft 365 Agents Toolkit CLI for local debugging](https://aka.ms/teamsfx-cli-debugging).
 
 1. First, select the Microsoft 365 Agents Toolkit icon on the left in the VS Code toolbar.
-{{#enableMETestToolByDefault}}
 2. Press F5 to start debugging which launches your app in Microsoft 365 Agents Playground using a web browser.
 3. To trigger the action command, you can click the `+` under compose message area and select `Action Command`.
 
 **Congratulations**! You are running an application that can share information in rich format by creating an Adaptive Card in Microsoft 365 Agents Playground.
 
 ![action-ME](https://github.com/user-attachments/assets/43e6b7bb-daa7-476d-a76d-ea43dfcb24ee)
-{{/enableMETestToolByDefault}}
-{{^enableMETestToolByDefault}}
-2. In the Account section, sign in with your [Microsoft 365 account](https://docs.microsoft.com/microsoftteams/platform/toolkit/accounts) if you haven't already.
-3. Press F5 to start debugging which launches your app in Teams using a web browser. Select `Debug in Teams (Edge)` or `Debug in Teams (Chrome)`.
-4. When Teams launches in the browser, select the Add button in the dialog to install your app to Teams.
-5. To trigger the action command, you can click the `...` under compose message area to find your message extension.
-
-**Congratulations**! You are running an application that can share information in rich format by creating an Adaptive Card in Teams.
-
-![action-ME](https://github.com/OfficeDev/TeamsFx/assets/25220706/378ea4d7-9332-4aec-9f85-59891d086b80)
-{{/enableMETestToolByDefault}}
 
 ## What's included in the template
 

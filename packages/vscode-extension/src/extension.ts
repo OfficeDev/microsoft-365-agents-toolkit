@@ -289,12 +289,6 @@ export async function activate(context: vscode.ExtensionContext) {
 
   await vscode.commands.executeCommand(
     "setContext",
-    "fx-extension.isSharedEnabled",
-    featureFlagManager.getBooleanValue(CoreFeatureFlags.ShareEnabled)
-  );
-
-  await vscode.commands.executeCommand(
-    "setContext",
     "fx-extension.isDeclarativeCopilotApp",
     isDeclarativeCopilotApp
   );

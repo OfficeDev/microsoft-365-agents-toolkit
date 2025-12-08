@@ -2,11 +2,9 @@
 
 ## Quick Start
 
-{{#enableTestToolByDefault}}
 1. Press F5, or select Debug > Start Debugging menu in Visual Studio to start your app
 </br>![image](https://raw.githubusercontent.com/OfficeDev/TeamsFx/dev/docs/images/visualstudio/debug/debug-button.png)
 2. In Microsoft 365 Agents Playground from the launched browser, type and send "helloWorld" to your app to trigger a response
-{{/enableTestToolByDefault}}
 {{^enableTestToolByDefault}}
 1. In the debug dropdown menu, select Dev Tunnels > Create A Tunnel (set authentication type to Public) or select an existing public dev tunnel
 </br>![image](https://raw.githubusercontent.com/OfficeDev/TeamsFx/dev/docs/images/visualstudio/debug/create-devtunnel-button.png)

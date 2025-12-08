@@ -4,9 +4,7 @@
     <DebuggerFlavor>ProjectDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup>
-{{#enableTestToolByDefault}}
     <ActiveDebugProfile>Microsoft 365 Agents Playground (browser)</ActiveDebugProfile>
-{{/enableTestToolByDefault}}
 {{^enableTestToolByDefault}}
     <ActiveDebugProfile>Microsoft Teams (browser)</ActiveDebugProfile>
 {{/enableTestToolByDefault}}

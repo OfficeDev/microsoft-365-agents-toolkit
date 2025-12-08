@@ -5,19 +5,6 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
-{{^isNewProjectTypeEnabled}}
-  <ItemGroup>
-    <ProjectCapability Include="TeamsFx" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="appPackage/**/*" />
-    <None Include="infra/**/*" />
-    <None Remove="devTools/**" />
-    <Content Remove="devTools/**/*" />
-  </ItemGroup>
-
-{{/isNewProjectTypeEnabled}}
   <ItemGroup>
     <PackageReference Include="AdaptiveCards.Templating" Version="2.0.5" />
     <PackageReference Include="Microsoft.Agents.Authentication.Msal" Version="1.*" />
