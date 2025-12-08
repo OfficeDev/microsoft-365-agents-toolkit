@@ -104,6 +104,9 @@ dependencies:
   jsonc-parser:
     specifier: ^3.0.0
     version: 3.3.1
+  keytar:
+    specifier: file:./packageMocks/keytar
+    version: file:packageMocks/keytar
   log4js:
     specifier: ^6.4.0
     version: 6.9.1
@@ -12081,3 +12084,8 @@ packages:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
     dev: true
+
+  file:packageMocks/keytar:
+    resolution: {directory: packageMocks/keytar, type: directory}
+    name: keytar
+    dev: false
