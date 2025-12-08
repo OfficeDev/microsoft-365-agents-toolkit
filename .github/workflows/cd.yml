@@ -28,6 +28,10 @@ on:
         type: boolean
         default: false
         description: "Whether to release TTK as publish product"
+      skipmarkdowncheck:
+        type: boolean
+        default: false
+        description: "Whether to skip Markdown files check"
   schedule:
     - cron: "0 11 * * *"  # UTC+8 19:00 make sure the daily build generated before the daily test pipeline trigger
 
@@ -38,6 +42,8 @@ permissions:
 jobs:
   cd:
     runs-on: ubuntu-latest
+    outputs:
+      markdown-check-result: ${{ steps.markdown-check.outcome }}
     env:
       CI: true
       PREID: ${{ github.event.inputs.preid }}
@@ -86,14 +92,20 @@ jobs:
         with:
           python-version: '3.x'
 
-      - name: Install Python dependencies for image analysis
+      - name: Install Python dependencies for image or hyperlink analysis
+        if: ${{ github.event.inputs.skipmarkdowncheck == 'false' || github.event.inputs.skipmarkdowncheck == ''}}
         run: |
           python -m pip install --upgrade pip
+          python -m pip install python-dateutil
           python -m pip install requests
 
-      - name: Check README images in VSC templates
+      - name: Check Markdown files image/hyperlink availability
+        id: markdown-check
+        if: ${{ github.event.inputs.skipmarkdowncheck == 'false' || github.event.inputs.skipmarkdowncheck == '' }}
+        continue-on-error: true  # Temporary allow failure
         run: |
-          python .github/scripts/analyze_readme_images.py --scan-directory templates/vsc --file-patterns "**/README.md" "**/README.md.tpl"
+          python -u .github/scripts/analyze_markdown.py --scan-directory "templates/vsc" "templates/vs"  --file-patterns "**/README.md" "**/README.md.tpl" --extra-files "packages/vscode-extension/CHANGELOG.md"
+
       - uses: actions/setup-node@v3
         with:
           node-version: 22
@@ -377,3 +389,21 @@ jobs:
             versions.json
             *.vsix
             *.exe
+
+  notify-markdown-check-failure:
+    needs: cd
+    if: ${{ needs.cd.outputs.markdown-check-result == 'failure' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v3
+
+      - name: Send email notification on Markdown check failure
+        uses: ./.github/actions/send-email-report
+        env:
+          TO: M365AgentsToolkitEngineerTeam@microsoft.com
+          BODY: '"Markdown files image/hyperlink availability check failed in CD pipeline.<br/><br/>Please check the <a href=\"https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\">workflow run</a> for details."'
+          SUBJECT: "[CD Pipeline] Markdown Check Failed - ${{ github.ref_name }}"
+          MAIL_CLIENT_ID: ${{ secrets.TEST_CLEAN_CLIENT_ID }}
+          MAIL_CLIENT_SECRET: ${{ secrets.TEST_CLEAN_CLIENT_SECRET }}
+          MAIL_TENANT_ID: ${{ secrets.TEST_CLEAN_TENANT_ID }}
