@@ -401,7 +401,7 @@ jobs:
       - name: Send email notification on Markdown check failure
         uses: ./.github/actions/send-email-report
         env:
-          TO: qinqiangxu@microsoft.com
+          TO: M365AgentToolkitEngineerTeam@microsoft.com
           BODY: '"Markdown files image/hyperlink availability check failed in CD pipeline.<br/><br/>Please check the <a href=\"https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\">workflow run</a> for details."'
           SUBJECT: "[CD Pipeline] Markdown Check Failed - ${{ github.ref_name }}"
           MAIL_CLIENT_ID: ${{ secrets.TEST_CLEAN_CLIENT_ID }}
