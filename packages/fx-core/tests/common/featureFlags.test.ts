@@ -42,6 +42,6 @@ describe("FeatureFlagManager", () => {
   it("listEnabled", async () => {
     mockedEnvRestore = mockedEnv({ TEAMSFX_CLI_DOTNET: "true", SME_OAUTH: "true" });
     const list = featureFlagManager.listEnabled();
-    chai.assert.deepEqual(list, ["TEAMSFX_CLI_DOTNET", "SME_OAUTH"]);
+    chai.assert.deepEqual(list, ["TEAMSFX_CLI_DOTNET", "SME_OAUTH", "TEAMSFX_DA_METAOS"]);
   });
 });

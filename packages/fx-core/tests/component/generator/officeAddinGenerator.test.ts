@@ -718,6 +718,7 @@ describe("MetaOSHelper", () => {
     const writeManifestStub = sandbox.stub(AppManifestUtils, "writeTeamsManifest").resolves();
     const readFileStub = sandbox.stub(fse, "readFile").resolves(Buffer.from(`{"id": "test"}`));
     const writeFileStub = sandbox.stub(fse, "writeFile").resolves();
+    const pathExistsStub = sandbox.stub(fse, "pathExists").resolves(true);
     const deserializeStub = sandbox.stub(dotenvUtil, "deserialize").returns({ obj: {} } as any);
     const serializeStub = sandbox.stub(dotenvUtil, "serialize").returns("test");
 
@@ -727,6 +728,7 @@ describe("MetaOSHelper", () => {
     chai.assert.isTrue(writeManifestStub.calledOnce);
     chai.assert.isTrue(readFileStub.calledOnce);
     chai.assert.isTrue(writeFileStub.calledOnce);
+    chai.assert.isTrue(pathExistsStub.calledOnce);
     chai.assert.isTrue(deserializeStub.calledOnce);
     chai.assert.isTrue(serializeStub.calledOnce);
   });
