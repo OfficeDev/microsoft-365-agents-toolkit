@@ -3,8 +3,6 @@
 import { CLICommand, err, InputsWithProjectPath, ok } from "@microsoft/teamsfx-api";
 import {
   CollaborationConstants,
-  featureFlagManager,
-  FeatureFlags,
   PermissionListInputs,
   PermissionListOptions,
   QuestionNames,
@@ -28,7 +26,7 @@ export const permissionStatusCommand: CLICommand = {
       type: "boolean",
       required: false,
     },
-    ...(featureFlagManager.getBooleanValue(FeatureFlags.ShareEnabled) ? [agentOwnerOption] : []),
+    agentOwnerOption,
     ProjectFolderOption,
   ],
   telemetry: {

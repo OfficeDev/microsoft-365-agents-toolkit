@@ -7,20 +7,6 @@
     <NoWarn>$(NoWarn);SKEXP0110;SKEXP0010</NoWarn>
   </PropertyGroup>
 
-{{^isNewProjectTypeEnabled}}
-  <ItemGroup>
-    <ProjectCapability Include="TeamsFx" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="appPackage/**/*" />
-    <None Include="infra/**/*" />
-    <None Remove="devTools/**" />
-    <Content Remove="devTools/**/*" />
-    <None Include="env/**/*" />
-  </ItemGroup>
-
-{{/isNewProjectTypeEnabled}}
   <ItemGroup>
     <PackageReference Include="Azure.AI.OpenAI" Version="2.1.0" />
     <PackageReference Include="Azure.Identity" Version="1.17.0" />

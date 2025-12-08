@@ -111,6 +111,7 @@ async def create_dummy_cards(search_query: str) -> List[Dict[str, Any]]:
             "thumbnail": {
                 "title": item["title"],
                 "text": item["description"],
+                "images": []
             },
         }
         cards.append(card_data)
@@ -122,7 +123,8 @@ def create_link_unfurl_card(url: str) -> Dict[str, Any]:
     """Create a card for link unfurling."""
     thumbnail = {
         "title": "Unfurled Link",
-        "text": url
+        "text": url,
+        "images": []
     }
 
     card = AdaptiveCard.model_validate({

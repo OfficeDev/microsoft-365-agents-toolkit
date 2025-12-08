@@ -4,7 +4,6 @@
 {
     "version": "2.0.0",
     "tasks": [
-{{#ShareEnabled}}
         {
             "label": "Start Agent Locally",
             "dependsOn": [
@@ -31,7 +30,6 @@
                 "env": "local"
             }
         }
-{{/ShareEnabled}}
         {
             "label": "Install dependencies",
             "type": "shell",

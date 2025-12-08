@@ -1,6 +1,5 @@
 {
   "profiles": {
-{{#enableTestToolByDefault}}
     // Launch project within Microsoft 365 Agents Playground
     "Microsoft 365 Agents Playground (browser)": {
       "commandName": "Project",
@@ -8,7 +7,6 @@
       "launchTestTool": true,
       "launchUrl": "http://localhost:56150",
     },
-{{/enableTestToolByDefault}}
     // Launch project within Teams
     "Microsoft Teams (browser)": {
       "commandName": "Project",

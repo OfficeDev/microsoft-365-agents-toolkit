@@ -14,11 +14,8 @@ export class FeatureFlagName {
   static readonly CLIDotNet = "TEAMSFX_CLI_DOTNET";
   static readonly OfficeMetaOS = "TEAMSFX_OFFICE_METAOS";
   static readonly SampleConfigBranch = "TEAMSFX_SAMPLE_CONFIG_BRANCH";
-  static readonly TestTool = "TEAMSFX_TEST_TOOL";
-  static readonly METestTool = "TEAMSFX_ME_TEST_TOOL";
   static readonly TeamsFxRebranding = "TEAMSFX_REBRANDING";
   static readonly AsyncAppValidation = "TEAMSFX_ASYNC_APP_VALIDATION";
-  static readonly NewProjectType = "TEAMSFX_NEW_PROJECT_TYPE";
   static readonly ChatParticipant = "TEAMSFX_CHAT_PARTICIPANT";
   static readonly ChatParticipantUIEntries = "TEAMSFX_CHAT_PARTICIPANT_ENTRIES";
   static readonly HideGitHubCopilotPreviewTag = "TEAMSFX_HIDE_GITHUB_COPILOT_PREVIEW_TAG";
@@ -32,7 +29,6 @@ export class FeatureFlagName {
   static readonly CEAEnabled = "TEAMSFX_CEA_ENABLED";
   static readonly BuilderAPIEnabled = "TEAMSFX_BUILDER_API";
   static readonly EmbeddedKnowledgeEnabled = "TEAMSFX_EMBEDDED_KNOWLEDGE";
-  static readonly ShareEnabled = "TEAMSFX_SHARE";
   static readonly AddODSPKnowledge = "TEAMSFX_ADD_ODSP_KNOWLEDGE";
   static readonly SandBoxedTeam = "TEAMSFX_SANDBOXED_TEAM";
   static readonly SensitivityLabelEnabled = "TEAMSFX_SENSITIVITY_LABEL";
@@ -48,9 +44,8 @@ export interface FeatureFlag {
 }
 
 export class FeatureFlags {
+  // Testing feature flags - not for production use
   static readonly CLIDotNet = { name: FeatureFlagName.CLIDotNet, defaultValue: "false" };
-  static readonly TestTool = { name: FeatureFlagName.TestTool, defaultValue: "true" };
-  static readonly METestTool = { name: FeatureFlagName.METestTool, defaultValue: "true" };
   static readonly OfficeMetaOS = {
     name: FeatureFlagName.OfficeMetaOS,
     defaultValue: "true",
@@ -59,7 +54,6 @@ export class FeatureFlags {
     name: FeatureFlagName.AsyncAppValidation,
     defaultValue: "true",
   };
-  static readonly NewProjectType = { name: FeatureFlagName.NewProjectType, defaultValue: "true" };
   static readonly ChatParticipant = {
     name: FeatureFlagName.ChatParticipant,
     defaultValue: "false",
@@ -109,10 +103,6 @@ export class FeatureFlags {
   static readonly EmbeddedKnowledgeEnabled = {
     name: FeatureFlagName.EmbeddedKnowledgeEnabled,
     defaultValue: "false",
-  };
-  static readonly ShareEnabled = {
-    name: FeatureFlagName.ShareEnabled,
-    defaultValue: "true",
   };
   static readonly AddODSPKnowledge = {
     name: FeatureFlagName.AddODSPKnowledge,

@@ -1,6 +1,5 @@
 {
   "profiles": {
-{{#enableTestToolByDefault}}
     // Launch project within Microsoft 365 Agents Playground
     "Microsoft 365 Agents Playground (browser)": {
       "commandName": "Project",
@@ -8,7 +7,6 @@
       "launchTestTool": true,
       "launchUrl": "http://localhost:56150",
     },
-{{/enableTestToolByDefault}}
     // Launch project within Teams
     "Microsoft Teams (browser)": {
       "commandName": "Project",
@@ -20,15 +18,6 @@
       "environmentVariables": { "UPDATE_TEAMS_APP": "false" },
       "launchUrl": "https://teams.microsoft.com/l/app/${{TEAMS_APP_ID}}?installAppPackage=true&webjoin=true&appTenantId=${{TEAMS_APP_TENANT_ID}}&login_hint=${{TEAMSFX_M365_USER_NAME}}"
     },
-{{^enableTestToolByDefault}}
-    // Launch project within Microsoft 365 Agents Playground
-    "Microsoft 365 Agents Playground (browser)": {
-      "commandName": "Project",
-      "environmentVariables": { "UPDATE_TEAMS_APP": "false" },
-      "launchTestTool": true,
-      "launchUrl": "http://localhost:56150",
-    },
-{{/enableTestToolByDefault}}
 {{#CEAEnabled}}
     // Launch project within M365 Copilot
     "Microsoft 365 Copilot (browser)": {

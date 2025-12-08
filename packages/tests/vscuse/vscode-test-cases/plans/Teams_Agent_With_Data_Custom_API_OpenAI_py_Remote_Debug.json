@@ -1,0 +1,318 @@
+{
+  "plan_metadata": {
+    "version": "1.1",
+    "plan_id": "plan_1a551e3b",
+    "execution_context": {
+      "delay_between_steps": 1,
+      "stop_on_error": true,
+      "precondition_wait_timeout": 30,
+      "precondition_retry_interval": 2,
+      "step_retry_count": 0
+    },
+    "total_steps": 11,
+    "created_at": "2025-12-02T02:44:02.155478",
+    "name": "Teams Agent With Data Custom API OpenAI py Remote Debug",
+    "description": "29165762",
+    "generated_at": "2025-12-02T02:44:02.155478",
+    "execution_order": [
+      "plan_r_0928_012254",
+      "step_8e27a81a",
+      "step_3da1142e",
+      "step_9d89eee6",
+      "step_ed95f866",
+      "step_ff1b3a33",
+      "step_7ca5e897",
+      "step_196375a9",
+      "step_d00dd661",
+      "step_f98a3a68",
+      "plan_r_1124_081758",
+      "plan_r_1127_012050",
+      "step_c8843555",
+      "plan_r_0928_014459",
+      "plan_r_0928_020230",
+      "plan_r_0929_040401",
+      "plan_r_0928_073729",
+      "plan_r_0928_075846",
+      "plan_r_0930_063548",
+      "step_c012ddad"
+    ],
+    "tags": [],
+    "updated_at": "2025-12-02T03:05:31.253957"
+  },
+  "steps": [
+    {
+      "step_id": "step_8e27a81a",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "dx": null,
+        "dy": null,
+        "key": null,
+        "keys": null,
+        "text": null,
+        "x": 378,
+        "y": 219
+      },
+      "description": "Click on the \"Teams Agents and Apps\" option within the \"New Project\" dropdown menu.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "0",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:378:219:16:5:694f2a5a942ad5c3",
+        "dhash:378:219:96:5:266254582cad5251",
+        "dhash:378:219:0:10:c0c88094b2717075"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_8e27a81a",
+      "created_at": "2025-12-02T02:44:02.180809",
+      "plan_id": "plan_1a551e3b"
+    },
+    {
+      "step_id": "step_3da1142e",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "dx": null,
+        "dy": null,
+        "key": null,
+        "keys": null,
+        "text": null,
+        "x": 362,
+        "y": 127
+      },
+      "description": "Click on the \"Teams Agent with D...\" option in the dropdown menu under \"Teams Agent or App Using Teams AI Library\" to select it.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "0",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:362:127:16:5:ddd5b558ab100000",
+        "dhash:362:127:96:5:42a6c0912665d858",
+        "dhash:362:127:0:10:c0c88694b2717075"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_3da1142e",
+      "created_at": "2025-12-02T02:44:02.190000",
+      "plan_id": "plan_1a551e3b"
+    },
+    {
+      "step_id": "step_9d89eee6",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "text": "Custom API"
+      },
+      "description": "Type 'Custom API' into the dropdown field labeled 'Select an option to load your data' within the 'Teams Agent with Data' interface in Microsoft 365 Agents Toolkit.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:512:384:0:20:c0c0b094b2717075"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_9d89eee6",
+      "created_at": "2025-12-02T02:44:02.199092",
+      "plan_id": "plan_1a551e3b"
+    },
+    {
+      "step_id": "step_ed95f866",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "enter"
+      },
+      "description": "Press the 'Enter' key to select the 'Custom API Preview' option in the dropdown under the search bar within the Microsoft 365 Agents Toolkit interface.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:512:384:0:20:d0b89494b2717075"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_ed95f866",
+      "created_at": "2025-12-02T02:44:02.206461",
+      "plan_id": "plan_1a551e3b"
+    },
+    {
+      "step_id": "step_ff1b3a33",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "enter"
+      },
+      "description": "Press the \"Enter\" key to confirm the selected file path in the \"Enter OpenAPI Description Document Location\" input field within the Microsoft 365 Agents Toolkit interface.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:512:384:0:20:f0b09494b2717075"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_ff1b3a33",
+      "created_at": "2025-12-02T02:44:02.215042",
+      "plan_id": "plan_1a551e3b"
+    },
+    {
+      "step_id": "step_7ca5e897",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "text": "https://raw.githubusercontent.com/SLdragon/example-openapi-spec/main/real-no-auth.yaml"
+      },
+      "description": "Type 'https://raw.githubusercontent.com/SLdragon/example-openapi-spec/main/real-no-auth.yaml' into the \"Enter OpenAPI Description Document URL\" input field at the top of the \"Microsoft 365 Agents Toolkit\" interface in Visual Studio Code.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:512:384:0:20:e0b09494b2717075"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_7ca5e897",
+      "created_at": "2025-12-02T02:44:02.220604",
+      "plan_id": "plan_1a551e3b"
+    },
+    {
+      "step_id": "step_196375a9",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "enter"
+      },
+      "description": "Confirm the URL input in the \"Enter OpenAPI Description Document URL\" prompt within the Microsoft 365 Agents Toolkit interface by pressing the \"Enter\" key.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:512:384:0:20:f0b09494b2717075"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_196375a9",
+      "created_at": "2025-12-02T02:44:02.224896",
+      "plan_id": "plan_1a551e3b"
+    },
+    {
+      "step_id": "step_d00dd661",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 231,
+        "y": 58
+      },
+      "description": "Click select all check box ",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:231:58:16:5:89898912810544cb",
+        "dhash:231:58:96:5:e4602c3c6e769d2d",
+        "dhash:231:58:0:10:e4b89494b2717075"
+      ],
+      "postconditions": [],
+      "tags": [
+        "delay:3"
+      ],
+      "screenshot": "step_d00dd661",
+      "created_at": "2025-12-02T02:44:02.230735",
+      "plan_id": "plan_1a551e3b"
+    },
+    {
+      "step_id": "step_f98a3a68",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "enter"
+      },
+      "description": "Press the \"Enter\" key to confirm the selection of a GET/POST operation in the dropdown menu within the Microsoft 365 Agents Toolkit interface.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:512:384:0:20:e4989494b2717075"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_f98a3a68",
+      "created_at": "2025-12-02T02:44:02.237287",
+      "plan_id": "plan_1a551e3b"
+    },
+    {
+      "step_id": "step_c8843555",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "enter"
+      },
+      "description": "Press the \"Enter\" key to select the \"Default folder\" option under the \"Choose the folder where your project root folder will be located\" dropdown in Visual Studio Code's Workspace Folder setup interface.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:512:384:0:20:f0b09494b2717075"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_c8843555",
+      "created_at": "2025-12-02T02:44:02.244814",
+      "plan_id": "plan_1a551e3b"
+    },
+    {
+      "step_id": "step_c012ddad",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion 'List all repairs without auth' is visible",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": null,
+      "created_at": "2025-12-02T03:04:50.175118",
+      "plan_id": "plan_1a551e3b"
+    }
+  ],
+  "screenshots": {
+    "step_8e27a81a": "step_8e27a81a",
+    "step_3da1142e": "step_3da1142e",
+    "step_9d89eee6": "step_9d89eee6",
+    "step_ed95f866": "step_ed95f866",
+    "step_ff1b3a33": "step_ff1b3a33",
+    "step_7ca5e897": "step_7ca5e897",
+    "step_196375a9": "step_196375a9",
+    "step_d00dd661": "step_d00dd661",
+    "step_f98a3a68": "step_f98a3a68",
+    "step_c8843555": "step_c8843555"
+  }
+}

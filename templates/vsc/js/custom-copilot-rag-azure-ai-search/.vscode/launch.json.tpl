@@ -7,12 +7,7 @@
             "request": "launch",
             "url": "https://teams.microsoft.com/l/app/${{TEAMS_APP_ID}}?installAppPackage=true&webjoin=true&${account-hint}",
             "presentation": {
-{{#enableTestToolByDefault}}
                 "group": "2-Teams",
-{{/enableTestToolByDefault}}
-{{^enableTestToolByDefault}}
-                "group": "1-Teams",
-{{/enableTestToolByDefault}}
                 "order": 4
             },
             "internalConsoleOptions": "neverOpen"
@@ -23,12 +18,7 @@
             "request": "launch",
             "url": "https://teams.microsoft.com/l/app/${{TEAMS_APP_ID}}?installAppPackage=true&webjoin=true&${account-hint}",
             "presentation": {
-{{#enableTestToolByDefault}}
                 "group": "2-Teams",
-{{/enableTestToolByDefault}}
-{{^enableTestToolByDefault}}
-                "group": "1-Teams",
-{{/enableTestToolByDefault}}
                 "order": 5
             },
             "internalConsoleOptions": "neverOpen"
@@ -81,12 +71,7 @@
             "request": "launch",
             "preLaunchTask": "Start Agent in Desktop Client (Remote)",
             "presentation": {
-{{#enableTestToolByDefault}}
                 "group": "2-Teams",
-{{/enableTestToolByDefault}}
-{{^enableTestToolByDefault}}
-                "group": "1-Teams",
-{{/enableTestToolByDefault}}
                 "order": 6
             },
             "internalConsoleOptions": "neverOpen"
@@ -185,12 +170,7 @@
             ],
             "preLaunchTask": "Start Agent Locally",
             "presentation": {
-{{#enableTestToolByDefault}}
                 "group": "2-Teams",
-{{/enableTestToolByDefault}}
-{{^enableTestToolByDefault}}
-                "group": "1-Teams",
-{{/enableTestToolByDefault}}
                 "order": 1
             },
             "stopAll": true
@@ -218,12 +198,7 @@
             ],
             "preLaunchTask": "Start Agent Locally",
             "presentation": {
-{{#enableTestToolByDefault}}
                 "group": "2-Teams",
-{{/enableTestToolByDefault}}
-{{^enableTestToolByDefault}}
-                "group": "1-Teams",
-{{/enableTestToolByDefault}}
                 "order": 2
             },
             "stopAll": true
@@ -235,12 +210,7 @@
             ],
             "preLaunchTask": "Start Agent in Desktop Client",
             "presentation": {
-{{#enableTestToolByDefault}}
                 "group": "2-Teams",
-{{/enableTestToolByDefault}}
-{{^enableTestToolByDefault}}
-                "group": "1-Teams",
-{{/enableTestToolByDefault}}
                 "order": 3
             },
             "stopAll": true
@@ -252,12 +222,7 @@
             ],
             "preLaunchTask": "Start Agent in Microsoft 365 Agents Playground",
             "presentation": {
-{{#enableTestToolByDefault}}
                 "group": "1-local",
-{{/enableTestToolByDefault}}
-{{^enableTestToolByDefault}}
-                "group": "2-local",
-{{/enableTestToolByDefault}}
                 "order": 1
             },
             "stopAll": true

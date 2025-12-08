@@ -8,18 +8,6 @@
     <RootNamespace>{{SafeProjectName}}</RootNamespace>
   </PropertyGroup>
 
-{{^isNewProjectTypeEnabled}}
-  <ItemGroup>
-    <ProjectCapability Include="TeamsFx" />
-    <ProjectCapability Include="APIME" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="appPackage/**/*" />
-    <None Include="infra/**/*" />
-  </ItemGroup>
-
-{{/isNewProjectTypeEnabled}}
   <ItemGroup>
     <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="2.50.0-preview1" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http" Version="3.1.0" />
