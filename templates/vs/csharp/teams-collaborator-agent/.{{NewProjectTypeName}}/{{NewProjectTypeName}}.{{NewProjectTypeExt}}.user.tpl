@@ -4,6 +4,6 @@
     <DebuggerFlavor>ProjectDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup>
-    <ActiveDebugProfile>Microsoft Teams (browser)</ActiveDebugProfile>
+    <ActiveDebugProfile>Microsoft 365 Agents Playground (browser)</ActiveDebugProfile>
   </PropertyGroup>
 </Project>
