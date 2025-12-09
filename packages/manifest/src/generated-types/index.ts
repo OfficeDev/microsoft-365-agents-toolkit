@@ -334,10 +334,6 @@ export class AppManifestUtils {
     let result: JSONSchemaType<AppManifest>;
     try {
       const res = await fetch(schemaUrl);
-      // workaround for invalid regex expression https://github.com/OfficeDev/microsoft-teams-app-schema/issues/190
-      // Replace invalid JavaScript regex escape sequences:
-      // \a (alert/bell) -> \u0007
-      // \v (vertical tab) -> \u000b
       const text = await res.text();
       const cleanedText = text
         .replace(/\\a/g, "\\u0007")
