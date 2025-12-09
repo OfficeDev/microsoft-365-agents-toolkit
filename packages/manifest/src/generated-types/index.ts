@@ -334,7 +334,15 @@ export class AppManifestUtils {
     let result: JSONSchemaType<AppManifest>;
     try {
       const res = await fetch(schemaUrl);
-      result = (await res.json()) as JSONSchemaType<AppManifest>;
+      // workaround for invalid regex expression https://github.com/OfficeDev/microsoft-teams-app-schema/issues/190
+      // Replace invalid JavaScript regex escape sequences:
+      // \a (alert/bell) -> \u0007
+      // \v (vertical tab) -> \u000b
+      const text = await res.text();
+      const cleanedText = text
+        .replace(/\\a/g, "\\u0007")
+        .replace(/\\v/g, "\\u000b");
+      result = JSON.parse(cleanedText) as JSONSchemaType<AppManifest>;
     } catch (e: unknown) {
       if (e instanceof Error) {
         throw new Error(`Failed to get manifest at url ${schemaUrl} due to: ${e.message}`);
