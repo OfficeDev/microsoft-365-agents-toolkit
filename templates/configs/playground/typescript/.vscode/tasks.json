@@ -59,14 +59,14 @@
                 "background": {
                     "activeOnStart": true,
                     "beginsPattern": "[nodemon] starting",
-                    "endsPattern": "app listening to|Bot/ME service listening at|[nodemon] app crashed"
+                    "endsPattern": "listening on port 3978|Bot/ME service listening at|[nodemon] app crashed"
                 }
             }
         },
         {
             "label": "Start Microsoft 365 Agents Playground",
             "type": "shell",
-            "command": "npm run dev:teamsfx:playground",
+            "command": "npm run dev:teamsfx:launch-playground",
             "isBackground": true,
             "options": {
                 "env": {
