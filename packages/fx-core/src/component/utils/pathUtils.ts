@@ -46,8 +46,11 @@ class PathUtils {
       throw new MissingRequiredFileError("core", "Debug ", ymlPathV4);
     }
   }
-  async getEnvFolderPath(projectPath: string): Promise<Result<string | undefined, FxError>> {
-    const ymlFilePath = this.getYmlFilePath(projectPath, "dev") as string;
+  async getEnvFolderPath(
+    projectPath: string,
+    env = "dev"
+  ): Promise<Result<string | undefined, FxError>> {
+    const ymlFilePath = this.getYmlFilePath(projectPath, env) as string;
     const ymlContent = await fs.readFile(ymlFilePath, "utf-8");
     const yamlObj = yaml.parse(ymlContent);
     const folderPath = yamlObj.environmentFolderPath?.toString() || "./env";
@@ -61,7 +64,7 @@ class PathUtils {
     projectPath: string,
     env: string
   ): Promise<Result<string | undefined, FxError>> {
-    const envFolderPathRes = await this.getEnvFolderPath(projectPath);
+    const envFolderPathRes = await this.getEnvFolderPath(projectPath, env);
     if (envFolderPathRes.isErr()) return err(envFolderPathRes.error);
     const folderPath = envFolderPathRes.value;
     if (!folderPath) return ok(undefined);

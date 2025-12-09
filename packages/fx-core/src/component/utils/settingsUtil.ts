@@ -1,11 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { FxError, Settings, Result, ok, err } from "@microsoft/teamsfx-api";
+import { err, FxError, ok, Result, Settings } from "@microsoft/teamsfx-api";
 import * as fs from "fs-extra";
 import * as uuid from "uuid";
-import { globalVars } from "../../common/globalVars";
 import { parseDocument } from "yaml";
+import { globalVars } from "../../common/globalVars";
 import {
   Component,
   sendTelemetryEvent,
@@ -20,9 +20,9 @@ class SettingsUtils {
     projectPath: string,
     ensureTrackingId = true
   ): Promise<Result<Settings, FxError>> {
-    const projectYamlPath = pathUtils.getYmlFilePath(projectPath, "dev") as string;
-    if (!(await fs.pathExists(projectYamlPath))) {
-      return err(new FileNotFoundError("SettingsUtils", projectYamlPath));
+    const projectYamlPath = this.getAvailableYmlFilePath(projectPath);
+    if (!projectYamlPath || !(await fs.pathExists(projectYamlPath))) {
+      return err(new FileNotFoundError("SettingsUtils", projectYamlPath || "m365agents.*.yml"));
     }
     const yamlFileContent: string = await fs.readFile(projectYamlPath, "utf8");
     const appYaml = parseDocument(yamlFileContent);
@@ -44,15 +44,24 @@ class SettingsUtils {
     return ok(projectSettings);
   }
   async writeSettings(projectPath: string, settings: Settings): Promise<Result<string, FxError>> {
-    const projectYamlPath = pathUtils.getYmlFilePath(projectPath, "dev") as string;
-    if (!(await fs.pathExists(projectYamlPath))) {
-      return err(new FileNotFoundError("SettingsUtils", projectYamlPath));
+    const projectYamlPath = this.getAvailableYmlFilePath(projectPath);
+    if (!projectYamlPath || !(await fs.pathExists(projectYamlPath))) {
+      return err(new FileNotFoundError("SettingsUtils", projectYamlPath || "m365agents.*.yml"));
     }
     const yamlFileContent: string = await fs.readFile(projectYamlPath, "utf8");
     const appYaml = parseDocument(yamlFileContent);
     appYaml.set("projectId", settings.trackingId);
     await fs.writeFile(projectYamlPath, appYaml.toString());
     return ok(projectYamlPath);
+  }
+
+  private getAvailableYmlFilePath(projectPath: string): string | undefined {
+    const possibleEnvs = ["dev", "playground", "local"];
+    for (const env of possibleEnvs) {
+      const ymlPath = pathUtils.getYmlFilePath(projectPath, env, true);
+      if (ymlPath) return ymlPath;
+    }
+    return undefined;
   }
 }
 
