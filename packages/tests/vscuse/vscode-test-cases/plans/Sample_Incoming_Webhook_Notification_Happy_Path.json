@@ -26,7 +26,7 @@
       "step_ecbbb13d"
     ],
     "tags": [],
-    "updated_at": "2025-12-08T08:46:20.107664"
+    "updated_at": "2025-12-09T05:56:35.715838"
   },
   "steps": [
     {
@@ -52,7 +52,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_e25c391c",
-      "created_at": "2025-12-08T08:37:27.402475",
+      "created_at": "2025-12-09T05:55:40.255772",
       "plan_id": "plan_728a9c98"
     },
     {
@@ -74,7 +74,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_54382195",
-      "created_at": "2025-12-08T08:37:27.418397",
+      "created_at": "2025-12-09T05:55:40.269125",
       "plan_id": "plan_728a9c98"
     },
     {
@@ -100,7 +100,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_53b636b9",
-      "created_at": "2025-12-08T08:37:27.434502",
+      "created_at": "2025-12-09T05:55:40.280633",
       "plan_id": "plan_728a9c98"
     },
     {
@@ -126,7 +126,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_98c93354",
-      "created_at": "2025-12-08T08:37:27.451789",
+      "created_at": "2025-12-09T05:55:40.293905",
       "plan_id": "plan_728a9c98"
     },
     {
@@ -144,7 +144,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": null,
-      "created_at": "2025-12-08T08:37:27.463926",
+      "created_at": "2025-12-09T05:55:40.308215",
       "plan_id": "plan_728a9c98"
     },
     {
@@ -170,7 +170,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_8c549057",
-      "created_at": "2025-12-08T08:37:27.482334",
+      "created_at": "2025-12-09T05:55:40.319910",
       "plan_id": "plan_728a9c98"
     },
     {
@@ -196,7 +196,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_b514c20e",
-      "created_at": "2025-12-08T08:37:27.499913",
+      "created_at": "2025-12-09T05:55:40.332635",
       "plan_id": "plan_728a9c98"
     },
     {
@@ -204,7 +204,7 @@
       "agent": "assertion",
       "tool": "",
       "parameters": {},
-      "description": "@assertion there's message: \"failed to send adaptive card. Error: connect \" exist",
+      "description": "@assertion there's message: \"failed to send adaptive card. Error: Request failed with status code 405\" exist.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -216,7 +216,7 @@
         "step_retry_timeout: 60"
       ],
       "screenshot": null,
-      "created_at": "2025-12-08T08:37:27.522509",
+      "created_at": "2025-12-09T05:55:40.347570",
       "plan_id": "plan_728a9c98"
     }
   ],
