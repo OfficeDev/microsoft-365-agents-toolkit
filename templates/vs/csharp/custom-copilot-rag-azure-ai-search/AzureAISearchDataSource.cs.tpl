@@ -84,49 +84,49 @@ namespace {{SafeProjectName}}
         /// <summary>
         /// Name of the Azure AI Search index
         /// </summary>
-        public string IndexName { get; set; }
+        public string? IndexName { get; set; }
 
         /// <summary>
         /// Azure AI Search API key
         /// </summary>
-        public string AzureAISearchApiKey { get; set; }
+        public string AzureAISearchApiKey { get; set; } = string.Empty;
 
         /// <summary>
         /// Azure AI Search endpoint
         /// </summary>
-        public Uri AzureAISearchEndpoint { get; set; }
+        public Uri? AzureAISearchEndpoint { get; set; }
         
 {{#useOpenAI}}
         /// <summary>
         /// OpenAI API key
         /// </summary>
-        public string OpenAIApiKey { get; set; }
+        public string OpenAIApiKey { get; set; } = string.Empty;
 
         /// <summary>
         /// OpenAI embeddings deployment name
         /// </summary>
-        public string OpenAIEmbeddingModel { get; set; }
+        public string OpenAIEmbeddingModel { get; set; } = string.Empty;
 {{/useOpenAI}}
 {{#useAzureOpenAI}}
         /// <summary>
         /// Azure OpenAI API key
         /// </summary>
-        public string AzureOpenAIApiKey { get; set; }
+        public string AzureOpenAIApiKey { get; set; } = string.Empty;
 
         /// <summary>
         /// Azure OpenAI endpoint
         /// </summary>
-        public string AzureOpenAIEndpoint { get; set; }
+        public string AzureOpenAIEndpoint { get; set; } = string.Empty;
 
         /// <summary>
         /// Azure OpenAI deployment name
         /// </summary>
-        public string AzureOpenAIDeploymentName { get; set; }
+        public string AzureOpenAIDeploymentName { get; set; } = string.Empty;
 
         /// <summary>
         /// Azure OpenAI embeddings deployment name
         /// </summary>
-        public string AzureOpenAIEmbeddingDeployment { get; set; }
+        public string AzureOpenAIEmbeddingDeployment { get; set; } = string.Empty;
 {{/useAzureOpenAI}}
     }
 }
