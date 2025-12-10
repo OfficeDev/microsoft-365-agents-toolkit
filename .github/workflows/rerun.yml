@@ -119,6 +119,11 @@ jobs:
           - { name: "M365_USERNAME_14", value: "test36@xxbdw.onmicrosoft.com" }
           - { name: "M365_USERNAME_15", value: "test37@xxbdw.onmicrosoft.com" }
           - { name: "M365_USERNAME_16", value: "test38@xxbdw.onmicrosoft.com" }
+          - { name: "M365_USERNAME_17", value: "test01@xxbdw.onmicrosoft.com" }
+          - { name: "M365_USERNAME_18", value: "test02@xxbdw.onmicrosoft.com" }
+          - { name: "M365_USERNAME_19", value: "test25@xxbdw.onmicrosoft.com" }
+          - { name: "M365_USERNAME_20", value: "test39@xxbdw.onmicrosoft.com" }
+          - { name: "M365_USERNAME_21", value: "test40@xxbdw.onmicrosoft.com" }
     env:
       M365_ACCOUNT_PASSWORD: ${{ secrets.TEST_M365_PASSWORD }}
       M365_DISPLAY_NAME: "test"
