@@ -44,7 +44,6 @@ namespace {{SafeProjectName}}
         {
             string[] Documents = Directory.GetFiles("data");
 
-            int i = 0;
             foreach (string doc in Documents)
             {
                 string readText = File.ReadAllText(doc);

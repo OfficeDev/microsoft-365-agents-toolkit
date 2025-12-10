@@ -19,6 +19,6 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
       "hotReloadProfile": "aspnetcore"
-    },
+    }
   }
 }
