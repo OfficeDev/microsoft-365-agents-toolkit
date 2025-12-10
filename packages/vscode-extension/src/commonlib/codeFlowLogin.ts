@@ -52,6 +52,7 @@ import { randomBytes } from "crypto";
 import { getExchangeCode } from "./exchangeCode";
 import * as os from "os";
 import { ErrorCategory, featureFlagManager, FeatureFlags } from "@microsoft/teamsfx-core";
+import { getAccountByHomeId } from "./common/tokenCacheUtils";
 
 const BASE_AUTHORITY = "https://login.microsoftonline.com/";
 
@@ -90,7 +91,7 @@ export class CodeFlowLogin {
   async reloadCache() {
     const accountCache = await loadAccountId(this.accountName);
     if (accountCache) {
-      const dataCache = await this.msalTokenCache.getAccountByHomeId(accountCache);
+      const dataCache = getAccountByHomeId(accountCache, await this.pca.getAllAccounts());
       if (dataCache) {
         this.account = dataCache;
         this.status = loggedIn;
@@ -98,7 +99,7 @@ export class CodeFlowLogin {
 
       const tenantCache = await loadTenantId(this.accountName);
       if (tenantCache) {
-        const allAccounts = await this.msalTokenCache.getAllAccounts();
+        const allAccounts = await this.pca.getAllAccounts();
         this.account = allAccounts.find((account) => account.tenantId == tenantCache);
       }
     } else if (this.status !== loggingIn) {
@@ -406,7 +407,10 @@ export class CodeFlowLogin {
     try {
       await saveAccountId(this.accountName, undefined);
       await saveTenantId(this.accountName, undefined);
-      (this.msalTokenCache as any).storage.setCache({});
+      const accounts = await this.pca.getAllAccounts();
+      for (const account of accounts) {
+        await this.pca.signOut({ account: account });
+      }
       await clearCache(this.accountName);
       this.account = undefined;
       this.status = loggedOut;
@@ -453,7 +457,7 @@ export class CodeFlowLogin {
     } else {
       let tenantedAccount: AccountInfo | undefined = undefined;
       if (tenantId) {
-        const allAccounts = await this.msalTokenCache.getAllAccounts();
+        const allAccounts = await this.pca.getAllAccounts();
         tenantedAccount = allAccounts.find((account) => account.tenantId == tenantId);
         this.account = tenantedAccount ?? this.account;
       }
