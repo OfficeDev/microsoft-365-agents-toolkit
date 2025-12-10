@@ -188,14 +188,14 @@ jobs:
       DEVTUNNEL_TENANT_ID: ${{ secrets.TEST_CLEAN_TENANT_ID }}
 
       M365_ACCOUNT_PASSWORD: ${{ secrets.TEST_M365_PASSWORD }}
-      M365_USERNAME_1: "test31@xxbdw.onmicrosoft.com"
-      M365_USERNAME_2: "test32@xxbdw.onmicrosoft.com"
-      M365_USERNAME_3: "test33@xxbdw.onmicrosoft.com"
-      M365_USERNAME_4: "test34@xxbdw.onmicrosoft.com"
-      M365_USERNAME_5: "test35@xxbdw.onmicrosoft.com"
-      M365_USERNAME_6: "test36@xxbdw.onmicrosoft.com"
-      M365_USERNAME_7: "test37@xxbdw.onmicrosoft.com"
-      M365_USERNAME_8: "test38@xxbdw.onmicrosoft.com"
+      M365_USERNAME_1: "test001@xxbdw.onmicrosoft.com"
+      M365_USERNAME_2: "test002@xxbdw.onmicrosoft.com"
+      M365_USERNAME_3: "test003@xxbdw.onmicrosoft.com"
+      M365_USERNAME_4: "test004@xxbdw.onmicrosoft.com"
+      M365_USERNAME_5: "test005@xxbdw.onmicrosoft.com"
+      M365_USERNAME_6: "test006@xxbdw.onmicrosoft.com"
+      M365_USERNAME_7: "test007@xxbdw.onmicrosoft.com"
+      M365_USERNAME_8: "test008@xxbdw.onmicrosoft.com"
       M365_DISPLAY_NAME: "test"
       M365_TENANT_ID: ${{ secrets.TEST_CLEAN_TENANT_ID }}
       M365_COLLABORATOR: "haolong@xxbdw.onmicrosoft.com"
