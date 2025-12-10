@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 
 /**
- * @author Ivan Chen <v-ivanchen@microsoft.com>
+ * @author Huihui Wu <huihuiwu@microsoft.com>
  */
 
 import { TemplateProjectFolder } from "../../utils/constants";
@@ -21,6 +21,6 @@ class SpfxProductivityTestCase extends CaseFactory {
 new SpfxProductivityTestCase(
   TemplateProjectFolder.SpfxProductivity,
   24753056,
-  "ning.tang@microsoft.com",
+  "huihuiwu@microsoft.com",
   ["spfx"]
 ).test();

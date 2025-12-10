@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 
 /**
- * @author Ivan Chen <v-ivanchen@microsoft.com>
+ * @author Huihui Wu <huihuiwu@microsoft.com>
  */
 
 import { TemplateProjectFolder } from "../../utils/constants";
@@ -21,6 +21,6 @@ class TodoListSpfxTestCase extends CaseFactory {
 new TodoListSpfxTestCase(
   TemplateProjectFolder.TodoListSpfx,
   15277466,
-  "ning.tang@microsoft.com",
+  "huihuiwu@microsoft.com",
   ["spfx"]
 ).test();
