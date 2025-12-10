@@ -8,20 +8,27 @@
         "M365_AGENTS_PLAYGROUND_TARGET_SDK": "teams-ai-v2-dotnet"
       },
       "launchTestTool": true,
-      "launchUrl": "http://localhost:56150",
+      "launchUrl": "http://localhost:56150"
     },
     // Launch project within Teams
     "Microsoft Teams (browser)": {
       "commandName": "Project",
-      "launchUrl": "https://teams.microsoft.com/l/app/${{TEAMS_APP_ID}}?installAppPackage=true&webjoin=true&appTenantId=${{TEAMS_APP_TENANT_ID}}&login_hint=${{TEAMSFX_M365_USER_NAME}}",
+      "launchUrl": "https://teams.microsoft.com/l/app/${{TEAMS_APP_ID}}?installAppPackage=true&webjoin=true&appTenantId=${{TEAMS_APP_TENANT_ID}}&login_hint=${{TEAMSFX_M365_USER_NAME}}"
     },
     // Launch project within Teams without prepare app dependencies
+{{^CEAEnabled}}  
+    "Microsoft Teams (browser) (skip update app)": {
+      "commandName": "Project",
+      "environmentVariables": { "UPDATE_TEAMS_APP": "false" },
+      "launchUrl": "https://teams.microsoft.com/l/app/${{TEAMS_APP_ID}}?installAppPackage=true&webjoin=true&appTenantId=${{TEAMS_APP_TENANT_ID}}&login_hint=${{TEAMSFX_M365_USER_NAME}}"
+    }
+{{/CEAEnabled}}
+{{#CEAEnabled}}
     "Microsoft Teams (browser) (skip update app)": {
       "commandName": "Project",
       "environmentVariables": { "UPDATE_TEAMS_APP": "false" },
       "launchUrl": "https://teams.microsoft.com/l/app/${{TEAMS_APP_ID}}?installAppPackage=true&webjoin=true&appTenantId=${{TEAMS_APP_TENANT_ID}}&login_hint=${{TEAMSFX_M365_USER_NAME}}"
     },
-{{#CEAEnabled}}
     // Launch project within M365 Copilot
     "Microsoft 365 Copilot (browser)": {
       "commandName": "Project",
