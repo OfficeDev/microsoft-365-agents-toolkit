@@ -512,6 +512,20 @@ describe("OfficeAddinGeneratorNew", () => {
       chai.assert.isTrue(res.isOk());
     });
 
+    it("getTemplateInfos: DeclarativeAgentMetaOSNewProject should return empty array", async () => {
+      const inputs: Inputs = {
+        platform: Platform.VSCode,
+        projectPath: "./",
+      };
+      inputs[QuestionNames.TemplateName] = TemplateNames.DeclarativeAgentMetaOSUpgradeProject;
+      const result = await generator.getTemplateInfos(context, inputs, "destinationPath");
+      chai.assert.isTrue(result.isOk());
+      if (result.isOk()) {
+        // Should return empty array because upgrade doesn't need scaffolding
+        chai.assert.equal(result.value.length, 0);
+      }
+    });
+
     it(`should return office-addin-config template outlookAddin`, async () => {
       sandbox.stub(OfficeAddinGenerator, "doScaffolding").resolves(ok(undefined));
       const inputs: Inputs = {
@@ -893,5 +907,24 @@ describe("MetaOSHelper", () => {
     } catch (e) {
       chai.assert.isNotNull(e);
     }
+  });
+
+  it("unifyProjectID: env file doesn't exist", async () => {
+    const readManifestStub = sandbox.stub(AppManifestUtils, "readTeamsManifest").resolves({
+      id: "test",
+    } as any);
+    const writeManifestStub = sandbox.stub(AppManifestUtils, "writeTeamsManifest").resolves();
+    const writeFileStub = sandbox.stub(fse, "writeFile").resolves();
+    const pathExistsStub = sandbox.stub(fse, "pathExists").resolves(false); // File doesn't exist
+    const ensureDirStub = sandbox.stub(fse, "ensureDir").resolves();
+    await MetaOSHelper.unifyProjectID("projectFolder");
+    chai.assert.isTrue(readManifestStub.calledOnce);
+    chai.assert.isTrue(writeManifestStub.calledOnce);
+    chai.assert.isTrue(pathExistsStub.calledOnce);
+    chai.assert.isTrue(ensureDirStub.calledOnce);
+    chai.assert.isTrue(writeFileStub.calledOnce);
+    // Verify that the env file content contains TEAMS_APP_ID
+    const writeFileCall = writeFileStub.getCall(0);
+    chai.assert.include(writeFileCall.args[1], "TEAMS_APP_ID=");
   });
 });
