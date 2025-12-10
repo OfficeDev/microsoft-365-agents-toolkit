@@ -6,7 +6,7 @@ export interface CopyPolicy {
   policy: "add" | "skip" | "error";
 }
 
-export const playground: Record<string, CopyPolicy> = {
+export const playgroundNode: Record<string, CopyPolicy> = {
   "package.json": { allowExistingFile: true, policy: "add" },
   ".vscode/launch.json": { allowExistingFile: true, policy: "add" },
   ".vscode/tasks.json": { allowExistingFile: true, policy: "add" },
@@ -16,6 +16,15 @@ export const playground: Record<string, CopyPolicy> = {
   ".localConfigs.playground": { allowExistingFile: true, policy: "skip" },
 };
 
+export const localNode: Record<string, CopyPolicy> = {
+  "package.json": { allowExistingFile: true, policy: "add" },
+  ".vscode/launch.json": { allowExistingFile: true, policy: "add" },
+  ".vscode/tasks.json.tpl": { allowExistingFile: true, policy: "add" },
+  "env/.env.local": { allowExistingFile: false, policy: "skip" },
+  "m365agents.local.yml.tpl": { allowExistingFile: false, policy: "error" },
+};
+
 export const policys: Record<string, Record<string, CopyPolicy>> = {
-  "playground-typescript": playground,
+  "playground-typescript": playgroundNode,
+  "local-typescript": localNode,
 };

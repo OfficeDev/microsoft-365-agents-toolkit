@@ -8,7 +8,7 @@ import * as fs from "fs-extra";
  * Merge source JSON file (with comments) into target JSON file (with comments) at node level.
  * Rules:
  *  - If a top-level or nested property in source does not exist in target, add it (preserving source value).
- *  - If property exists and both values are arrays, append source array elements to target array (no de-duplication).
+ *  - If property exists and both values are arrays, append source array elements to target array (with de-duplication).
  *  - If property exists and both values are plain objects, recurse.
  *  - Otherwise (primitive / mismatched types), keep the existing target value (no overwrite).
  *  - Comments present in the existing target file are preserved. New properties won't have comments unless provided in target.
@@ -50,14 +50,25 @@ function isPlainObject(val: unknown): val is Record<string, unknown> {
   return !!val && typeof val === "object" && !Array.isArray(val);
 }
 
+function arrayContains(arr: unknown[], el: unknown): boolean {
+  // For primitives, use strict equality
+  if (typeof el !== "object" || el === null) {
+    return arr.includes(el);
+  }
+  // For objects/arrays, use deep equality check
+  return arr.some((item) => JSON.stringify(item) === JSON.stringify(el));
+}
+
 function mergeNodes(
   target: commentJson.CommentJSONValue,
   source: commentJson.CommentJSONValue
 ): commentJson.CommentJSONValue {
   if (Array.isArray(target) && Array.isArray(source)) {
-    // Append all elements from source (retain order, allow duplicates)
+    // Append all elements from source (retain order, no duplicates)
     for (const el of source) {
-      (target as commentJson.CommentArray<commentJson.CommentJSONValue>).push(el);
+      if (!arrayContains(target, el)) {
+        (target as commentJson.CommentArray<commentJson.CommentJSONValue>).push(el);
+      }
     }
     return target;
   }
@@ -70,7 +81,9 @@ function mergeNodes(
         const tVal = (target as Record<string, commentJson.CommentJSONValue>)[key];
         if (Array.isArray(tVal) && Array.isArray(sVal)) {
           for (const el of sVal) {
-            (tVal as commentJson.CommentArray<commentJson.CommentJSONValue>).push(el);
+            if (!arrayContains(tVal, el)) {
+              (tVal as commentJson.CommentArray<commentJson.CommentJSONValue>).push(el);
+            }
           }
         } else if (isPlainObject(tVal) && isPlainObject(sVal)) {
           mergeNodes(

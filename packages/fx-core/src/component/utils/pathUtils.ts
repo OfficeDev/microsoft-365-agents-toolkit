@@ -10,6 +10,15 @@ import { environmentNameManager } from "../../core/environmentName";
 import { MissingRequiredFileError } from "../../error/common";
 
 class PathUtils {
+  getAvailableYmlFilePath(projectPath: string): string | undefined {
+    const possibleEnvs = ["dev", "playground", "local"];
+    for (const env of possibleEnvs) {
+      const ymlPath = this.getYmlFilePath(projectPath, env, true);
+      if (ymlPath) return ymlPath;
+    }
+    return undefined;
+  }
+
   getYmlFilePath(projectPath: string, env?: string, silent = false): string | undefined {
     if (process.env.TEAMSFX_CONFIG_FILE_PATH) return process.env.TEAMSFX_CONFIG_FILE_PATH;
     const envName = env || process.env.TEAMSFX_ENV || "dev";

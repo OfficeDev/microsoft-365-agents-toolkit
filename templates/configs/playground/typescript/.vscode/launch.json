@@ -22,7 +22,7 @@
             ],
             "preLaunchTask": "Start App in Microsoft 365 Agents Playground",
             "presentation": {
-                "group": "0-playground",
+                "group": "1-playground",
                 "order": 1
             },
             "stopAll": true

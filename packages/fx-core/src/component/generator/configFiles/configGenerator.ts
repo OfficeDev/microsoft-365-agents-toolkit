@@ -20,6 +20,7 @@ import { ProgressTitles } from "../../messages";
 import { ActionExecutionMW } from "../../middleware/actionExecutionMW";
 import { CopyPolicy, policys } from "./copyPolicy";
 import { mergeJsonFile } from "./jsonMerger";
+import { renderTemplate } from "./renderTemplate";
 
 export class ConfigGenerator {
   componentName = "ConfigGenerator";
@@ -36,7 +37,8 @@ export class ConfigGenerator {
   public async run(
     context: Context,
     destinationPath: string,
-    components: { name: string; programmingLanguage: string }[]
+    components: { name: string; programmingLanguage: string }[],
+    features: Record<string, unknown>
   ): Promise<Result<GeneratorResult, FxError>> {
     await context.userInteraction.showMessage("info", "Generating configuration files...", false);
     for (const component of components) {
@@ -54,7 +56,7 @@ export class ConfigGenerator {
         component.name,
         component.programmingLanguage
       );
-      await this.generateConfigFilesByPolicy(sourcePath, destinationPath, policy);
+      await this.generateConfigFilesByPolicy(sourcePath, destinationPath, policy, features);
     }
     return ok({});
   }
@@ -85,21 +87,38 @@ export class ConfigGenerator {
   private async generateConfigFilesByPolicy(
     sourcePath: string,
     destinationPath: string,
-    policy: Record<string, CopyPolicy>
+    policy: Record<string, CopyPolicy>,
+    features: Record<string, unknown>
   ): Promise<void> {
     for (const [filePath, copyPolicy] of Object.entries(policy)) {
-      const srcFilePath = path.join(sourcePath, filePath);
-      const destFilePath = path.join(destinationPath, filePath);
+      let srcFilePath = path.join(sourcePath, filePath);
+      let srcFileSuffix = path.extname(srcFilePath);
+      let destFilePath = path.join(destinationPath, filePath);
+      if (filePath.endsWith(".tpl")) {
+        // render template first
+        srcFileSuffix = path.extname(srcFilePath.slice(0, -4)); // remove .tpl suffix
+        const renderedFilePath = destFilePath.slice(0, -3) + "rendered"; // remove .tpl suffix
+        const renderedContent = renderTemplate(srcFilePath, features);
+        await fs.writeFile(renderedFilePath, renderedContent, "utf-8");
+        srcFilePath = renderedFilePath;
+        destFilePath = destFilePath.slice(0, -4); // remove .tpl suffix
+      }
+
       const fileExists = await fs.pathExists(destFilePath);
       if (fileExists) {
         if (copyPolicy.policy === "add") {
-          if (srcFilePath.endsWith(".json")) {
+          if (srcFileSuffix === ".json") {
             await mergeJsonFile(srcFilePath, destFilePath);
           }
         }
       } else {
         // If the file does not exist, just copy it.
         await fs.copy(srcFilePath, destFilePath);
+      }
+      if (filePath.endsWith(".tpl")) {
+        // clean up rendered temp file
+        const renderedFilePath = destFilePath + ".rendered"; // remove .tpl suffix
+        await fs.remove(renderedFilePath);
       }
     }
   }

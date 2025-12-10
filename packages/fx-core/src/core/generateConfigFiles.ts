@@ -6,6 +6,7 @@ import {
   Inputs,
   Result,
   TeamsManifest,
+  TeamsManifestV1D24,
   ok,
 } from "@microsoft/teamsfx-api";
 import path from "path";
@@ -26,10 +27,11 @@ export async function generateConfigFiles(inputs: Inputs): Promise<Result<undefi
     path.join(projectPath, appManifestFilePath)
   );
   const appName = appManifest.name.short;
+  const features = detectAppFeatures(appManifest);
   const configComponents: { name: string; programmingLanguage: string }[] = [];
 
   if (includePlayground) {
-    if (isPlaygroundSupported(appManifest)) {
+    if (features.hasBot) {
       configComponents.push({ name: "playground", programmingLanguage });
     } else {
       await TOOLS.ui?.showMessage(
@@ -40,15 +42,21 @@ export async function generateConfigFiles(inputs: Inputs): Promise<Result<undefi
     }
   }
 
+  if (includeLocalDebug) {
+    configComponents.push({ name: "local", programmingLanguage });
+  }
+
   const context = createContext();
-  await configGenerator.run(context, projectPath, configComponents);
+  await configGenerator.run(context, projectPath, configComponents, { ...features, appName });
 
   return ok(undefined);
 }
 
-function isPlaygroundSupported(manifest: TeamsManifest): boolean {
-  if (manifest.bots && manifest.bots.length > 0) {
-    return true;
-  }
-  return false;
+function detectAppFeatures(manifest: TeamsManifest): Record<string, boolean> {
+  const features: Record<string, boolean> = {};
+  features["hasTab"] = manifest.staticTabs !== undefined && manifest.staticTabs.length > 0;
+  features["hasBot"] = manifest.bots !== undefined && manifest.bots.length > 0;
+  features["hasCopilot"] =
+    (manifest as TeamsManifestV1D24.TeamsManifestV1D24).copilotAgents !== undefined;
+  return features;
 }
