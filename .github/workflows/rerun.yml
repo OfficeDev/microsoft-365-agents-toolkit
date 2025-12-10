@@ -103,22 +103,24 @@ jobs:
     strategy:
       matrix:
         m365_user:
-          - { name: "M365_USERNAME_1", value: "test14@xxbdw.onmicrosoft.com" }
-          - { name: "M365_USERNAME_2", value: "test15@xxbdw.onmicrosoft.com" }
-          - { name: "M365_USERNAME_3", value: "test16@xxbdw.onmicrosoft.com" }
-          - { name: "M365_USERNAME_4", value: "test17@xxbdw.onmicrosoft.com" }
-          - { name: "M365_USERNAME_5", value: "test21@xxbdw.onmicrosoft.com" }
-          - { name: "M365_USERNAME_6", value: "test22@xxbdw.onmicrosoft.com" }
-          - { name: "M365_USERNAME_7", value: "test23@xxbdw.onmicrosoft.com" }
-          - { name: "M365_USERNAME_8", value: "test24@xxbdw.onmicrosoft.com" }
-          - { name: "M365_USERNAME_9", value: "test31@xxbdw.onmicrosoft.com" }
-          - { name: "M365_USERNAME_10", value: "test32@xxbdw.onmicrosoft.com" }
-          - { name: "M365_USERNAME_11", value: "test33@xxbdw.onmicrosoft.com" }
-          - { name: "M365_USERNAME_12", value: "test34@xxbdw.onmicrosoft.com" }
-          - { name: "M365_USERNAME_13", value: "test35@xxbdw.onmicrosoft.com" }
-          - { name: "M365_USERNAME_14", value: "test36@xxbdw.onmicrosoft.com" }
-          - { name: "M365_USERNAME_15", value: "test37@xxbdw.onmicrosoft.com" }
-          - { name: "M365_USERNAME_16", value: "test38@xxbdw.onmicrosoft.com" }
+          - { name: "M365_USERNAME_1", value: "test001@xxbdw.onmicrosoft.com" }
+          - { name: "M365_USERNAME_2", value: "test002@xxbdw.onmicrosoft.com" }
+          - { name: "M365_USERNAME_3", value: "test003@xxbdw.onmicrosoft.com" }
+          - { name: "M365_USERNAME_4", value: "test004@xxbdw.onmicrosoft.com" }
+          - { name: "M365_USERNAME_5", value: "test005@xxbdw.onmicrosoft.com" }
+          - { name: "M365_USERNAME_6", value: "test006@xxbdw.onmicrosoft.com" }
+          - { name: "M365_USERNAME_7", value: "test007@xxbdw.onmicrosoft.com" }
+          - { name: "M365_USERNAME_8", value: "test008@xxbdw.onmicrosoft.com" }
+          - { name: "M365_USERNAME_9", value: "test009@xxbdw.onmicrosoft.com" }
+          - { name: "M365_USERNAME_10", value: "test010@xxbdw.onmicrosoft.com" }
+          - { name: "M365_USERNAME_11", value: "test011@xxbdw.onmicrosoft.com" }
+          - { name: "M365_USERNAME_12", value: "test012@xxbdw.onmicrosoft.com" }
+          - { name: "M365_USERNAME_13", value: "test013@xxbdw.onmicrosoft.com" }
+          - { name: "M365_USERNAME_14", value: "test014@xxbdw.onmicrosoft.com" }
+          - { name: "M365_USERNAME_15", value: "test015@xxbdw.onmicrosoft.com" }
+          - { name: "M365_USERNAME_16", value: "test016@xxbdw.onmicrosoft.com" }
+          - { name: "M365_USERNAME_17", value: "test017@xxbdw.onmicrosoft.com" }
+          - { name: "M365_USERNAME_admin", value: "test14@xxbdw.onmicrosoft.com"}
     env:
       M365_ACCOUNT_PASSWORD: ${{ secrets.TEST_M365_PASSWORD }}
       M365_DISPLAY_NAME: "test"

@@ -116,20 +116,24 @@ jobs:
       AZURE_SUBSCRIPTION_ID: ${{ secrets.TEST_SUBSCRIPTION_ID_NEW }}
       AZURE_AUTH_ENABLED: ${{ secrets.AZURE_SERVICE_PRINCIPAL_ID != '' && secrets.AZURE_SERVICE_PRINCIPAL_SECRET != '' && secrets.TEST_TENANT_ID_NEW != '' }}
       # M365 account for testing
-      M365_USERNAME_1: "test21@xxbdw.onmicrosoft.com"
-      M365_USERNAME_2: "test22@xxbdw.onmicrosoft.com"
-      M365_USERNAME_3: "test23@xxbdw.onmicrosoft.com"
-      M365_USERNAME_4: "test24@xxbdw.onmicrosoft.com"
-      M365_USERNAME_5: "test31@xxbdw.onmicrosoft.com"
-      M365_USERNAME_6: "test32@xxbdw.onmicrosoft.com"
-      M365_USERNAME_7: "test33@xxbdw.onmicrosoft.com"
-      M365_USERNAME_8: "test34@xxbdw.onmicrosoft.com"
-      M365_USERNAME_9: "test35@xxbdw.onmicrosoft.com"
-      M365_USERNAME_10: "test36@xxbdw.onmicrosoft.com"
-      M365_USERNAME_11: "test37@xxbdw.onmicrosoft.com"
-      M365_USERNAME_12: "test38@xxbdw.onmicrosoft.com"
+      M365_USERNAME_1: "test001@xxbdw.onmicrosoft.com"
+      M365_USERNAME_2: "test002@xxbdw.onmicrosoft.com"
+      M365_USERNAME_3: "test003@xxbdw.onmicrosoft.com"
+      M365_USERNAME_4: "test004@xxbdw.onmicrosoft.com"
+      M365_USERNAME_5: "test005@xxbdw.onmicrosoft.com"
+      M365_USERNAME_6: "test006@xxbdw.onmicrosoft.com"
+      M365_USERNAME_7: "test007@xxbdw.onmicrosoft.com"
+      M365_USERNAME_8: "test008@xxbdw.onmicrosoft.com"
+      M365_USERNAME_9: "test009@xxbdw.onmicrosoft.com"
+      M365_USERNAME_10: "test010@xxbdw.onmicrosoft.com"
+      M365_USERNAME_11: "test011@xxbdw.onmicrosoft.com"
+      M365_USERNAME_12: "test012@xxbdw.onmicrosoft.com"
+      M365_USERNAME_13: "test013@xxbdw.onmicrosoft.com"
+      M365_USERNAME_14: "test014@xxbdw.onmicrosoft.com"
+      M365_USERNAME_15: "test015@xxbdw.onmicrosoft.com"
+      M365_USERNAME_16: "test016@xxbdw.onmicrosoft.com"
+      M365_USERNAME_17: "test017@xxbdw.onmicrosoft.com"
       M365_ACCOUNT_PASSWORD: ${{ secrets.TEST_M365_PASSWORD }}
-
       # The test account for Copilot features
       M365_ACCOUNT_NAME_EnableCopilotAccess: "test01@atktesting.onmicrosoft.com"
       M365_ACCOUNT_PASSWORD_EnableCopilotAccess: ${{ secrets.TEST_M365_PASSWORD_NEW }}
