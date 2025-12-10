@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFramework>{{TargetFramework}}</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
