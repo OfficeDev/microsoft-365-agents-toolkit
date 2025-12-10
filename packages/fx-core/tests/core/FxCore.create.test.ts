@@ -19,6 +19,7 @@ import fs from "fs-extra";
 import "mocha";
 import * as os from "os";
 import sinon from "sinon";
+import { TemplateNames } from "../../../../templates/src/templateNames";
 import {
   AppDefinition,
   featureFlagManager,
@@ -31,10 +32,7 @@ import { setTools } from "../../src/common/globalVars";
 import { coordinator } from "../../src/component/coordinator";
 import { QuestionNames, ScratchOptions } from "../../src/question/constants";
 import { VSCapabilityOptions } from "../../src/question/scaffold/vs/createRootNode";
-import {
-  TabCapabilityOptions,
-  TeamsAgentCapabilityOptions,
-} from "../../src/question/scaffold/vsc/CapabilityOptions";
+import { TabCapabilityOptions } from "../../src/question/scaffold/vsc/CapabilityOptions";
 import { ProjectTypeOptions } from "../../src/question/scaffold/vsc/ProjectTypeOptions";
 import { MockTools, randomAppName } from "./utils";
 
@@ -51,9 +49,7 @@ describe("FxCore.createProject", () => {
     const inputs: Inputs = {
       platform: Platform.VSCode,
       [QuestionNames.Scratch]: ScratchOptions.yes().id,
-      [QuestionNames.ProjectType]: ProjectTypeOptions.teamsOptionId,
-      [QuestionNames.TeamsAppType]: TeamsAgentCapabilityOptions.others().id,
-      [QuestionNames.TeamsCapability]: TabCapabilityOptions.nonSsoTab().id,
+      [QuestionNames.TemplateName]: TemplateNames.Tab,
       [QuestionNames.ProgrammingLanguage]: "typescript",
       [QuestionNames.Folder]: os.tmpdir(),
       [QuestionNames.AppName]: randomAppName(),
@@ -151,7 +147,7 @@ describe("FxCore.createProject", () => {
       platform: Platform.VSCode,
       [QuestionNames.Scratch]: ScratchOptions.yes().id,
       [QuestionNames.ProjectType]: ProjectTypeOptions.teamsAgentsAndApps().id,
-      [QuestionNames.Capabilities]: VSCapabilityOptions.tab().id,
+      [QuestionNames.Capabilities]: VSCapabilityOptions.nonSsoTab().id,
       [QuestionNames.ProgrammingLanguage]: "javascript",
       [QuestionNames.Folder]: os.tmpdir(),
       [QuestionNames.AppName]: randomAppName(),
@@ -210,7 +206,7 @@ describe("createProjectFromTdp", () => {
       platform: Platform.VSCode,
       [QuestionNames.Scratch]: ScratchOptions.yes().id,
       [QuestionNames.ProjectType]: ProjectTypeOptions.teamsOptionId,
-      [QuestionNames.Capabilities]: VSCapabilityOptions.tab().id,
+      [QuestionNames.Capabilities]: VSCapabilityOptions.nonSsoTab().id,
       [QuestionNames.ProgrammingLanguage]: "javascript",
       [QuestionNames.Folder]: os.tmpdir(),
       [QuestionNames.AppName]: randomAppName(),
@@ -259,7 +255,7 @@ describe("createProjectFromTdp", () => {
       platform: Platform.VSCode,
       [QuestionNames.Scratch]: ScratchOptions.yes().id,
       [QuestionNames.ProjectType]: ProjectTypeOptions.teamsOptionId,
-      [QuestionNames.Capabilities]: VSCapabilityOptions.tab().id,
+      [QuestionNames.Capabilities]: VSCapabilityOptions.nonSsoTab().id,
       [QuestionNames.ProgrammingLanguage]: "javascript",
       [QuestionNames.Folder]: os.tmpdir(),
       [QuestionNames.AppName]: randomAppName(),

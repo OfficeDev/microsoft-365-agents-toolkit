@@ -1,7 +1,6 @@
 {
     "version": "0.2.0",
     "configurations": [
-{{#ShareEnabled}}
         {
             "name": "Launch Agent in Copilot (Edge)",
             "type": "msedge",
@@ -32,7 +31,6 @@
                 "--no-first-run"
             ]
         },
-{{/ShareEnabled}}
         {
             "name": "Preview in Copilot (Edge)",
             "type": "msedge",
@@ -65,7 +63,6 @@
         }
     ],
     "compounds": [
-{{#ShareEnabled}}
         {
             "name": "Preview Local in Copilot (Edge)",
             "configurations": [
@@ -90,6 +87,5 @@
             },
             "stopAll": true
         }
-{{/ShareEnabled}}
     ]
 }

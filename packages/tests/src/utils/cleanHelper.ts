@@ -213,7 +213,7 @@ export class GraphApiCleanHelper extends CleanHelper {
     const result: any[] = [];
     const response = await this.execute(
       "get",
-      `/directory/deletedItems/microsoft.graph.servicePrincipal`,
+      `/directory/deletedItems/microsoft.graph.servicePrincipal?$top=999`,
       undefined
     );
     if (response?.data?.value) {

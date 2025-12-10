@@ -1,7 +1,11 @@
 {
   "plan_metadata": {
     "name": "group: validation_message_extension",
-    "description": "Generated from recording r_1010_071708",
+    "description": {
+      "owner": "",
+      "workitem": "",
+      "other": "Generated from recording r_1010_071708"
+    },
     "generated_at": "2025-10-22T04:03:47.071035",
     "execution_order": [
       "step_f5d6ece5",

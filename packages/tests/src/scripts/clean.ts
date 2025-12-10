@@ -33,158 +33,208 @@ async function main() {
     Env.password
   );
 
-  console.log(`clean teams app (exclude ${excludePrefix})`);
-  const teamsUserId = await cleanService.getUserIdByName(Env.username);
-  const teamsAppList = await cleanService.listTeamsApp(teamsUserId);
-  if (teamsAppList) {
-    for (const app of teamsAppList) {
-      if (!app?.teamsAppDefinition?.displayName?.startsWith(excludePrefix)) {
-        console.log(app?.teamsAppDefinition?.displayName);
-        try {
-          await cleanService.uninstallTeamsApp(teamsUserId, app?.id ?? "");
-        } catch {
-          console.log(
-            `Failed to uninstall Teams App ${app?.teamsAppDefinition?.displayName}`
-          );
-        }
-      }
-    }
-  }
-
-  console.log(`clean AAD (exclude ${excludePrefix})`);
-  const aadList = await cleanService.listAad();
-  if (aadList) {
-    for (const aad of aadList) {
-      if (
-        !adminMicrosoftEntraAppName.some((name) =>
-          aad.displayName?.startsWith(name)
-        ) &&
-        !aad.displayName?.startsWith(excludePrefix)
-      ) {
-        console.log(aad.displayName);
-        try {
-          await cleanService.deleteAad(aad.id!);
-        } catch (e: any) {
-          console.log(
-            `Failed to delete AAD ${aad.displayName} with error: ${e.message}`
-          );
-        }
-      }
-    }
-  }
-
-  console.log(`clean Enterprise Application (exclude ${excludePrefix})`);
-  const spList = await cleanService.listEnterpriseApplications();
-  if (spList) {
-    for (const sp of spList) {
-      if (
-        !adminMicrosoftEntraAppName.some((name) =>
-          sp.displayName?.startsWith(name)
-        ) &&
-        !sp.displayName?.startsWith(excludePrefix)
-      ) {
-        console.log(sp.displayName);
-        try {
-          await cleanService.deleteEnterpriseApplication(sp.id!);
-        } catch (e: any) {
-          console.log(
-            `Failed to delete Enterprise Application ${sp.displayName} with error: ${e.message}`
-          );
-        }
-      }
-    }
-  }
-
-  console.log(`clean app in app studio`);
-  const addStudioCleanService = await AppStudioCleanHelper.create(
-    Env.cleanTenantId,
-    Env.cleanClientId,
-    Env.username,
-    Env.password
-  );
-  const appStudioAppList = await addStudioCleanService.getAppsInAppStudio();
-  if (appStudioAppList) {
-    for (const app of appStudioAppList) {
-      if (!app?.displayName?.startsWith(excludePrefix)) {
-        console.log(app?.displayName);
-        try {
-          await addStudioCleanService.deleteAppInAppStudio(
-            app?.appDefinitionId
-          );
-        } catch {
-          console.log(
-            `Failed to delete Teams App ${app?.displayName} in App Studio`
-          );
-        }
-      }
-    }
-  }
-
-  console.log(`clean api key registration`);
-  const apiKeyRegistrationList =
-    await addStudioCleanService.getApiKeyRegistration();
-  if (apiKeyRegistrationList) {
-    for (const apiKey of apiKeyRegistrationList) {
-      try {
-        await addStudioCleanService.deleteApiKeyRegistration(apiKey?.id);
-        console.log(apiKey?.id, " is deleted");
-      } catch {
-        console.log(`Failed to delete api key ${apiKey?.id}`);
-      }
-    }
-  }
-
-  console.log(
-    `clean up the Azure resource group with name start with ${Project.namePrefix} (exclude ${excludePrefix})`
-  );
-  const rgNameList: string[] = [];
-  for (const name of rgNamePrefixList) {
-    const group = await filterResourceGroupByName(name);
-    group.map((rgName) => rgNameList.push(rgName));
-  }
-  if (rgNameList.length > 0) {
-    for (const rgName of rgNameList) {
-      for (const name of rgNamePrefixList) {
-        if (rgName.startsWith(name) && !rgName.startsWith(excludePrefix)) {
-          await deleteResourceGroupByName(rgName);
-        }
-      }
-    }
-  }
-
-  console.log(`clean SharePoint app package files`);
-  const sharePointCleanService = await SharePointApiCleanHelper.create(
-    Env.cleanTenantId,
-    Env.cleanClientId,
-    Env.username,
-    Env.password
-  );
-  const sharePointAppList = await sharePointCleanService.listApp();
-  if (sharePointAppList) {
-    for (const app of sharePointAppList) {
-      for (const name of appNamePrefixList) {
-        if (
-          app.Title?.startsWith(name) &&
-          !app.Title?.startsWith(excludePrefix)
-        ) {
-          console.log(app.Title);
+  try {
+    console.log(`clean teams app (exclude ${excludePrefix})`);
+    const teamsUserId = await cleanService.getUserIdByName(Env.username);
+    const teamsAppList = await cleanService.listTeamsApp(teamsUserId);
+    if (teamsAppList) {
+      for (const app of teamsAppList) {
+        if (!app?.teamsAppDefinition?.displayName?.startsWith(excludePrefix)) {
+          console.log(app?.teamsAppDefinition?.displayName);
           try {
-            await sharePointCleanService.deleteApp(app.ID!);
+            await cleanService.uninstallTeamsApp(teamsUserId, app?.id ?? "");
           } catch {
-            console.log(`Failed to delete SharePoint app ${app.ID!}`);
+            console.log(
+              `Failed to uninstall Teams App ${app?.teamsAppDefinition?.displayName}`
+            );
           }
         }
       }
     }
+  } catch (e: any) {
+    console.log(`Failed to clean teams app`);
   }
 
-  console.log(`clean dev tunnel`);
-  const devTunnelCleanHelper = await DevTunnelCleanHelper.create(
-    Env.cleanTenantId,
-    Env.username,
-    Env.password
-  );
-  await devTunnelCleanHelper.deleteAll();
+  try {
+    console.log(`clean AAD (exclude ${excludePrefix})`);
+    const aadList = await cleanService.listAad();
+    if (aadList) {
+      for (const aad of aadList) {
+        if (
+          !adminMicrosoftEntraAppName.some((name) =>
+            aad.displayName?.startsWith(name)
+          ) &&
+          !aad.displayName?.startsWith(excludePrefix)
+        ) {
+          console.log(aad.displayName);
+          try {
+            await cleanService.deleteAad(aad.id!);
+          } catch (e: any) {
+            console.log(
+              `Failed to delete AAD ${aad.displayName} with error: ${e.message}`
+            );
+          }
+        }
+      }
+    }
+
+    console.log(`clean Enterprise Application (exclude ${excludePrefix})`);
+    const spList = await cleanService.listEnterpriseApplications();
+    if (spList) {
+      for (const sp of spList) {
+        if (
+          !adminMicrosoftEntraAppName.some((name) =>
+            sp.displayName?.startsWith(name)
+          ) &&
+          !sp.displayName?.startsWith(excludePrefix)
+        ) {
+          console.log(sp.displayName);
+          try {
+            await cleanService.deleteEnterpriseApplication(sp.id!);
+          } catch (e: any) {
+            console.log(
+              `Failed to delete Enterprise Application ${sp.displayName} with error: ${e.message}`
+            );
+          }
+        }
+      }
+    }
+
+    console.log(`Clean up Enterprise Application in recycle bin`);
+    const deletedServicePrincialList =
+      await cleanService.listDeletedEnterpriseApplications();
+    if (deletedServicePrincialList) {
+      for (const sp of deletedServicePrincialList) {
+        if (
+          !adminMicrosoftEntraAppName.some((name) =>
+            sp.displayName?.startsWith(name)
+          )
+        ) {
+          console.log(sp.displayName);
+          try {
+            await cleanService.deleteDeletedItem(sp.id!);
+          } catch (e: any) {
+            console.log(
+              `Failed to delete Enterprise Application ${sp.displayName} with error: ${e.message}`
+            );
+          }
+        }
+      }
+    }
+  } catch (e: any) {
+    console.log(`Failed to clean AAD`);
+  }
+
+  try {
+    console.log(`clean app in app studio`);
+    const addStudioCleanService = await AppStudioCleanHelper.create(
+      Env.cleanTenantId,
+      Env.cleanClientId,
+      Env.username,
+      Env.password
+    );
+    const appStudioAppList = await addStudioCleanService.getAppsInAppStudio();
+    if (appStudioAppList) {
+      for (const app of appStudioAppList) {
+        if (!app?.displayName?.startsWith(excludePrefix)) {
+          console.log(app?.displayName);
+          try {
+            await addStudioCleanService.deleteAppInAppStudio(
+              app?.appDefinitionId
+            );
+          } catch {
+            console.log(
+              `Failed to delete Teams App ${app?.displayName} in App Studio`
+            );
+          }
+        }
+      }
+    }
+
+    console.log(`clean api key registration`);
+    const apiKeyRegistrationList =
+      await addStudioCleanService.getApiKeyRegistration();
+    if (apiKeyRegistrationList) {
+      for (const apiKey of apiKeyRegistrationList) {
+        try {
+          await addStudioCleanService.deleteApiKeyRegistration(apiKey?.id);
+          console.log(apiKey?.id, " is deleted");
+        } catch {
+          console.log(`Failed to delete api key ${apiKey?.id}`);
+        }
+      }
+    }
+  } catch (e: any) {
+    console.log(`Failed to clean app in app studio`);
+  }
+
+  try {
+    console.log(
+      `clean up the Azure resource group with name start with ${Project.namePrefix} (exclude ${excludePrefix})`
+    );
+    const rgNameList: string[] = [];
+    for (const name of rgNamePrefixList) {
+      const group = await filterResourceGroupByName(name);
+      group.map((rgName) => rgNameList.push(rgName));
+    }
+    if (rgNameList.length > 0) {
+      for (const rgName of rgNameList) {
+        for (const name of rgNamePrefixList) {
+          if (rgName.startsWith(name) && !rgName.startsWith(excludePrefix)) {
+            await deleteResourceGroupByName(rgName);
+          }
+        }
+      }
+    }
+  } catch (e: any) {
+    console.log(
+      `Failed to clean up the Azure resource group with name start with ${Project.namePrefix} (exclude ${excludePrefix})`
+    );
+  }
+
+  try {
+    console.log(`clean SharePoint app package files`);
+    const sharePointCleanService = await SharePointApiCleanHelper.create(
+      Env.cleanTenantId,
+      Env.cleanClientId,
+      Env.username,
+      Env.password
+    );
+    const sharePointAppList = await sharePointCleanService.listApp();
+    if (sharePointAppList) {
+      for (const app of sharePointAppList) {
+        for (const name of appNamePrefixList) {
+          if (
+            app.Title?.startsWith(name) &&
+            !app.Title?.startsWith(excludePrefix)
+          ) {
+            console.log(app.Title);
+            try {
+              await sharePointCleanService.deleteApp(app.ID!);
+            } catch {
+              console.log(`Failed to delete SharePoint app ${app.ID!}`);
+            }
+          }
+        }
+      }
+    }
+  } catch (e: any) {
+    console.log(
+      `Failed to clean up SharePoint app package files, ${e.message}`
+    );
+  }
+
+  try {
+    console.log(`clean dev tunnel`);
+    const devTunnelCleanHelper = await DevTunnelCleanHelper.create(
+      Env.cleanTenantId,
+      Env.username,
+      Env.password
+    );
+    await devTunnelCleanHelper.deleteAll();
+  } catch (e: any) {
+    console.log(`Failed to clean dev tunnel`);
+  }
 
   let retry: boolean;
   let count = 10;

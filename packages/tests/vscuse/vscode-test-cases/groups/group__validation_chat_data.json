@@ -12,7 +12,11 @@
     "total_steps": 6,
     "created_at": "2025-10-20T11:02:40.946777",
     "name": "group: validation_chat_data",
-    "description": "Generated from recording r_1020_110153",
+    "description": {
+      "owner": "",
+      "workitem": "",
+      "other": "Generated from recording r_1020_110153"
+    },
     "generated_at": "2025-10-20T11:02:40.946767",
     "execution_order": [
       "step_8c6b26a7",

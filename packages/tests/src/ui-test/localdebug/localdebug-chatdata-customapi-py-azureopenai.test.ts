@@ -34,7 +34,7 @@ describe("Local Debug Tests", function () {
     this.timeout(Timeout.prepareTestCase);
     localDebugTestContext = new LocalDebugTestContext("cdcustomapi", {
       lang: Lang.PY,
-      customCopilotRagType: "custom-copilot-rag-customApi",
+      customCopilotRagType: "custom-copilot-rag-custom-api",
     });
     await localDebugTestContext.before();
   });

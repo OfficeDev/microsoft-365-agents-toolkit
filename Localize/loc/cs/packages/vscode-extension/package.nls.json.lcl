@@ -3759,12 +3759,12 @@
       </Item>
       <Item ItemId=";teamstoolkit.handeler.addAuthConfig.notification" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Microsoft 365 Agents Toolkit has successfully updated your project configuration (teamsapp.yaml and teamsapp.local.yaml) files with added action to support authentication flow. You can proceed to remote provision.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit has successfully updated your project configuration (m365agents.yaml and m365agents.local.yaml) files with added action to support authentication flow. You can proceed to remote provision.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Rozšíření Microsoft 365 Agents Toolkit úspěšně aktualizovalo konfigurační soubory projektu (teamsapp.yaml a teamsapp.local.yaml) o přidanou akci podporující tok ověřování. Můžete pokračovat ke vzdálenému zřizování.]]></Val>
+            <Val><![CDATA[Microsoft 365 Sada nástrojů pro agenty úspěšně aktualizovala konfigurační soubory projektu (m365agents.yaml a m365agents.local.yaml) o přidanou akci podporující tok ověřování. Můžete pokračovat ke vzdálenému zřizování.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Teams Toolkit has successfully updated your project configuration (teamsapp.yaml and teamsapp.local.yaml) files with added action to support authentication flow. You can proceed to remote provision.]]></Val>
+            <Val><![CDATA[Microsoft 365 Agents Toolkit has successfully updated your project configuration (teamsapp.yaml and teamsapp.local.yaml) files with added action to support authentication flow. You can proceed to remote provision.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />

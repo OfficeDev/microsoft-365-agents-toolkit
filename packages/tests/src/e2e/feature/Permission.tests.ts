@@ -38,7 +38,7 @@ describe("Collaboration", function () {
 
       // new a project
       await execAsync(
-        `atk new --interactive false --capability declarative-agent --app-name ${appName} --programming-language typescript --with-plugin yes --api-plugin-type new-api --api-auth oauth`,
+        `atk new --interactive false --capability api-plugin-from-scratch-oauth --app-name ${appName} --programming-language typescript`,
         {
           cwd: testFolder,
           env: process.env,

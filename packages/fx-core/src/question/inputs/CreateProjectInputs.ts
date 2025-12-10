@@ -13,49 +13,8 @@ import { Inputs } from "@microsoft/teamsfx-api";
 export interface CreateProjectInputs extends Inputs {
   /** @description Microsoft 365 Agents Toolkit: select runtime for your app */
   runtime?: "node" | "dotnet";
-  /** @description New Project */
-  "project-type"?: "bot-type" | "tab-type" | "me-type" | "outlook-addin-type";
   /** @description Capabilities */
-  capabilities?:
-    | "empty"
-    | "bot"
-    | "notification"
-    | "command-bot"
-    | "workflow-bot"
-    | "tab-non-sso"
-    | "sso-launch-page"
-    | "dashboard-tab"
-    | "tab-spfx"
-    | "search-app"
-    | "collect-form-message-extension"
-    | "search-message-extension"
-    | "link-unfurling"
-    | "declarative-agent"
-    | "custom-copilot-basic"
-    | "custom-copilot-rag"
-    | "custom-copilot-agent"
-    | "message-extension"
-    | "BotAndMessageExtension"
-    | "TabNonSsoAndBot"
-    | "json-taskpane"
-    | "office-content-addin";
-  /** @description Select triggers */
-  "bot-host-type-trigger"?:
-    | "http-express"
-    | "http-webapi"
-    | "http-and-timer-functions"
-    | "http-functions"
-    | "timer-functions";
-  /** @description SharePoint Solution */
-  "spfx-solution"?: "new" | "import";
-  /** @description SharePoint Framework */
-  "spfx-install-latest-package"?: boolean;
-  /** @description Framework */
-  "spfx-framework-type"?: "react" | "minimal" | "none";
-  /** @description Name for SharePoint Framework Web Part */
-  "spfx-webpart-name"?: string;
-  /** @description SPFx solution folder */
-  "spfx-folder"?: string;
+  capabilities?: string;
   /** @description Architecture of Search Based Message Extension */
   "me-architecture"?: "new-api" | "api-spec" | "bot";
   /** @description Create Declarative Agent */

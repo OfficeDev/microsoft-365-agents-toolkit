@@ -53,7 +53,7 @@ export const rootCommand: CLICommand = {
     regenerateCommand(),
     provisionCommand,
     deployCommand,
-    ...(featureFlagManager.getBooleanValue(FeatureFlags.ShareEnabled) ? [shareCommand] : []),
+    shareCommand,
     previewCommand,
     envCommand,
     permissionCommand,

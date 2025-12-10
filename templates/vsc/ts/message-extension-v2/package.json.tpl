@@ -14,8 +14,8 @@
   ],
   "scripts": {
     "dev:teamsfx": "env-cmd --silent -f .localConfigs npm run dev",
-    "dev:teamsfx:testtool": "env-cmd --silent -f .localConfigs.playground npm run dev",
-    "dev:teamsfx:launch-testtool": "env-cmd --silent -f env/.env.playground teamsapptester start",
+    "dev:teamsfx:playground": "env-cmd --silent -f .localConfigs.playground npm run dev",
+    "dev:teamsfx:launch-playground": "env-cmd --silent -f env/.env.playground teamsapptester start",
     "clean": "rimraf ./dist",
     "lint": "eslint",
     "lint:fix": "eslint --fix",

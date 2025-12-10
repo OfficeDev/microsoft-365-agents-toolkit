@@ -1,7 +1,11 @@
 {
   "plan_metadata": {
     "name": "group  validation message extension PY",
-    "description": "Generated from recording r_1010_071708",
+    "description": {
+      "owner": "",
+      "workitem": "",
+      "other": "Generated from recording r_1010_071708"
+    },
     "generated_at": "2025-10-24T09:12:39.801762",
     "execution_order": [
       "step_4b3e637b",

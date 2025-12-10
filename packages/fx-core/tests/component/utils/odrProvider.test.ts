@@ -1,0 +1,657 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
+import { assert } from "chai";
+import "mocha";
+import * as sinon from "sinon";
+import { ODRProvider } from "../../../src/component/utils/odrProvider";
+
+describe("ODRProvider", () => {
+  const sandbox = sinon.createSandbox();
+
+  afterEach(() => {
+    sandbox.restore();
+  });
+
+  describe("listServers", () => {
+    it("should return empty array on non-Windows platform", async () => {
+      sandbox.stub(process, "platform").value("darwin"); // macOS
+      const execStub = sandbox.stub(require("child_process"), "exec");
+
+      const servers = await ODRProvider.listServers();
+
+      assert.isArray(servers);
+      assert.equal(servers.length, 0);
+      assert.isFalse(execStub.called);
+    });
+  });
+
+  describe("parseODRListOutput", () => {
+    it("should parse valid server data correctly", () => {
+      const mockInput = {
+        servers: [
+          {
+            name: "test-server",
+            description: "Test server description",
+            version: "1.0.0",
+            packages: [{ identifier: "com.test.server" }],
+            _meta: {
+              "io.modelcontextprotocol.registry/publisher-provided": {
+                "com.microsoft.windows": {
+                  manifest: {
+                    display_name: "Test MCP Server",
+                    server: {
+                      mcp_config: {
+                        command: "odr.exe",
+                        args: ["mcp", "--proxy", "com.test.server"],
+                      },
+                    },
+                    _meta: {
+                      "com.microsoft.windows": {
+                        package_family_name: "TestPackageFamily",
+                        static_responses: {
+                          "tools/list": {
+                            tools: [
+                              {
+                                name: "test-tool",
+                                description: "Test tool description",
+                                inputSchema: { type: "object", properties: {} },
+                              },
+                            ],
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        ],
+      };
+
+      const servers = ODRProvider.parseODRListOutput(mockInput);
+
+      assert.isArray(servers);
+      assert.equal(servers.length, 1);
+
+      const server = servers[0];
+      assert.equal(server.name, "test-server");
+      assert.equal(server.display_name, "Test MCP Server");
+      assert.equal(server.description, "Test server description");
+      assert.equal(server.version, "1.0.0");
+      assert.equal(server.identifier, "com.test.server");
+      assert.equal(server.packageFamily, "TestPackageFamily");
+      assert.equal(server.command, "odr.exe");
+      assert.deepEqual(server.args, ["mcp", "--proxy", "com.test.server"]);
+      assert.equal(server.tools.length, 1);
+      assert.equal(server.tools[0].name, "test-tool");
+      assert.equal(server.tools[0].description, "Test tool description");
+    });
+
+    it("should filter out servers without package family", () => {
+      const mockInput = {
+        servers: [
+          {
+            name: "valid-server",
+            packages: [{ identifier: "com.valid" }],
+            _meta: {
+              "io.modelcontextprotocol.registry/publisher-provided": {
+                "com.microsoft.windows": {
+                  manifest: {
+                    server: {
+                      mcp_config: {
+                        command: "odr.exe",
+                        args: ["mcp", "--proxy", "valid.server"],
+                      },
+                    },
+                    _meta: {
+                      "com.microsoft.windows": {
+                        package_family_name: "ValidPackage",
+                        static_responses: {
+                          "tools/list": {
+                            tools: [],
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          {
+            name: "invalid-server",
+            packages: [{ identifier: "com.invalid" }],
+            _meta: {
+              "io.modelcontextprotocol.registry/publisher-provided": {
+                "com.microsoft.windows": {
+                  manifest: {
+                    server: {
+                      mcp_config: {
+                        command: "odr.exe",
+                        args: ["mcp", "--proxy", "invalid.server"],
+                      },
+                    },
+                    _meta: {
+                      "com.microsoft.windows": {
+                        // Missing package_family_name
+                        static_responses: {
+                          "tools/list": {
+                            tools: [],
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        ],
+      };
+
+      const servers = ODRProvider.parseODRListOutput(mockInput);
+
+      assert.isArray(servers);
+      assert.equal(servers.length, 1);
+      assert.equal(servers[0].name, "valid-server");
+    });
+
+    it("should filter out servers without mcp_config", () => {
+      const mockInput = {
+        servers: [
+          {
+            name: "invalid-server",
+            packages: [{ identifier: "com.invalid" }],
+            _meta: {
+              "io.modelcontextprotocol.registry/publisher-provided": {
+                "com.microsoft.windows": {
+                  manifest: {
+                    server: {
+                      // Missing mcp_config
+                    },
+                    _meta: {
+                      "com.microsoft.windows": {
+                        package_family_name: "InvalidPackage",
+                        static_responses: {
+                          "tools/list": {
+                            tools: [],
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        ],
+      };
+
+      const servers = ODRProvider.parseODRListOutput(mockInput);
+
+      assert.isArray(servers);
+      assert.equal(servers.length, 0);
+    });
+
+    it("should return empty array when servers property is missing", () => {
+      const mockInput = {
+        notServers: [],
+      };
+
+      const servers = ODRProvider.parseODRListOutput(mockInput);
+
+      assert.isArray(servers);
+      assert.equal(servers.length, 0);
+    });
+
+    it("should return empty array when servers is not an array", () => {
+      const mockInput = {
+        servers: "not-an-array",
+      };
+
+      const servers = ODRProvider.parseODRListOutput(mockInput);
+
+      assert.isArray(servers);
+      assert.equal(servers.length, 0);
+    });
+
+    it("should return empty array when input is null", () => {
+      const servers = ODRProvider.parseODRListOutput(null);
+
+      assert.isArray(servers);
+      assert.equal(servers.length, 0);
+    });
+
+    it("should return empty array when input is undefined", () => {
+      const servers = ODRProvider.parseODRListOutput(undefined);
+
+      assert.isArray(servers);
+      assert.equal(servers.length, 0);
+    });
+
+    it("should handle servers with empty tools list", () => {
+      const mockInput = {
+        servers: [
+          {
+            name: "server-no-tools",
+            packages: [{ identifier: "com.test.server" }],
+            _meta: {
+              "io.modelcontextprotocol.registry/publisher-provided": {
+                "com.microsoft.windows": {
+                  manifest: {
+                    display_name: "Test Server",
+                    server: {
+                      mcp_config: {
+                        command: "test-command",
+                        args: ["test-arg"],
+                      },
+                    },
+                    _meta: {
+                      "com.microsoft.windows": {
+                        package_family_name: "TestPackage",
+                        static_responses: {
+                          "tools/list": {
+                            tools: [],
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        ],
+      };
+
+      const servers = ODRProvider.parseODRListOutput(mockInput);
+
+      assert.isArray(servers);
+      assert.equal(servers.length, 1);
+      assert.equal(servers[0].tools.length, 0);
+    });
+
+    it("should handle servers with missing tools list", () => {
+      const mockInput = {
+        servers: [
+          {
+            name: "server-no-tools-list",
+            packages: [{ identifier: "com.test.server" }],
+            _meta: {
+              "io.modelcontextprotocol.registry/publisher-provided": {
+                "com.microsoft.windows": {
+                  manifest: {
+                    display_name: "Test Server",
+                    server: {
+                      mcp_config: {
+                        command: "test-command",
+                        args: ["test-arg"],
+                      },
+                    },
+                    _meta: {
+                      "com.microsoft.windows": {
+                        package_family_name: "TestPackage",
+                        static_responses: {
+                          // Missing tools/list
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        ],
+      };
+
+      const servers = ODRProvider.parseODRListOutput(mockInput);
+
+      assert.isArray(servers);
+      assert.equal(servers.length, 1);
+      assert.equal(servers[0].tools.length, 0);
+    });
+
+    it("should use server name as display_name when display_name is missing", () => {
+      const mockInput = {
+        servers: [
+          {
+            name: "test-server",
+            packages: [{ identifier: "com.test.server" }],
+            _meta: {
+              "io.modelcontextprotocol.registry/publisher-provided": {
+                "com.microsoft.windows": {
+                  manifest: {
+                    // Missing display_name
+                    server: {
+                      mcp_config: {
+                        command: "test-command",
+                        args: [],
+                      },
+                    },
+                    _meta: {
+                      "com.microsoft.windows": {
+                        package_family_name: "TestPackage",
+                        static_responses: {
+                          "tools/list": {
+                            tools: [],
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        ],
+      };
+
+      const servers = ODRProvider.parseODRListOutput(mockInput);
+
+      assert.isArray(servers);
+      assert.equal(servers.length, 1);
+      assert.equal(servers[0].display_name, "test-server");
+    });
+
+    it("should use empty string for missing description", () => {
+      const mockInput = {
+        servers: [
+          {
+            name: "test-server",
+            // Missing description
+            packages: [{ identifier: "com.test.server" }],
+            _meta: {
+              "io.modelcontextprotocol.registry/publisher-provided": {
+                "com.microsoft.windows": {
+                  manifest: {
+                    server: {
+                      mcp_config: {
+                        command: "test-command",
+                        args: [],
+                      },
+                    },
+                    _meta: {
+                      "com.microsoft.windows": {
+                        package_family_name: "TestPackage",
+                        static_responses: {
+                          "tools/list": {
+                            tools: [],
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        ],
+      };
+
+      const servers = ODRProvider.parseODRListOutput(mockInput);
+
+      assert.isArray(servers);
+      assert.equal(servers.length, 1);
+      assert.equal(servers[0].description, "");
+    });
+
+    it("should use default version when version is missing", () => {
+      const mockInput = {
+        servers: [
+          {
+            name: "test-server",
+            // Missing version
+            packages: [{ identifier: "com.test.server" }],
+            _meta: {
+              "io.modelcontextprotocol.registry/publisher-provided": {
+                "com.microsoft.windows": {
+                  manifest: {
+                    server: {
+                      mcp_config: {
+                        command: "test-command",
+                        args: [],
+                      },
+                    },
+                    _meta: {
+                      "com.microsoft.windows": {
+                        package_family_name: "TestPackage",
+                        static_responses: {
+                          "tools/list": {
+                            tools: [],
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        ],
+      };
+
+      const servers = ODRProvider.parseODRListOutput(mockInput);
+
+      assert.isArray(servers);
+      assert.equal(servers.length, 1);
+      assert.equal(servers[0].version, "1.0.0");
+    });
+
+    it("should use empty string for missing identifier", () => {
+      const mockInput = {
+        servers: [
+          {
+            name: "test-server",
+            packages: [], // Empty packages array
+            _meta: {
+              "io.modelcontextprotocol.registry/publisher-provided": {
+                "com.microsoft.windows": {
+                  manifest: {
+                    server: {
+                      mcp_config: {
+                        command: "test-command",
+                        args: [],
+                      },
+                    },
+                    _meta: {
+                      "com.microsoft.windows": {
+                        package_family_name: "TestPackage",
+                        static_responses: {
+                          "tools/list": {
+                            tools: [],
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        ],
+      };
+
+      const servers = ODRProvider.parseODRListOutput(mockInput);
+
+      assert.isArray(servers);
+      assert.equal(servers.length, 1);
+      assert.equal(servers[0].identifier, "");
+    });
+
+    it("should handle tools with missing description", () => {
+      const mockInput = {
+        servers: [
+          {
+            name: "test-server",
+            packages: [{ identifier: "com.test" }],
+            _meta: {
+              "io.modelcontextprotocol.registry/publisher-provided": {
+                "com.microsoft.windows": {
+                  manifest: {
+                    server: {
+                      mcp_config: {
+                        command: "cmd",
+                        args: [],
+                      },
+                    },
+                    _meta: {
+                      "com.microsoft.windows": {
+                        package_family_name: "Package",
+                        static_responses: {
+                          "tools/list": {
+                            tools: [
+                              {
+                                name: "tool1",
+                                // Missing description
+                                inputSchema: { type: "object" },
+                              },
+                            ],
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        ],
+      };
+
+      const servers = ODRProvider.parseODRListOutput(mockInput);
+
+      assert.isArray(servers);
+      assert.equal(servers.length, 1);
+      assert.equal(servers[0].tools.length, 1);
+      assert.equal(servers[0].tools[0].description, "");
+    });
+
+    it("should handle tools without outputSchema", () => {
+      const mockInput = {
+        servers: [
+          {
+            name: "test-server",
+            packages: [{ identifier: "com.test" }],
+            _meta: {
+              "io.modelcontextprotocol.registry/publisher-provided": {
+                "com.microsoft.windows": {
+                  manifest: {
+                    server: {
+                      mcp_config: {
+                        command: "cmd",
+                        args: [],
+                      },
+                    },
+                    _meta: {
+                      "com.microsoft.windows": {
+                        package_family_name: "Package",
+                        static_responses: {
+                          "tools/list": {
+                            tools: [
+                              {
+                                name: "tool1",
+                                description: "Tool 1",
+                                inputSchema: { type: "object" },
+                                // Missing outputSchema
+                              },
+                            ],
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        ],
+      };
+
+      const servers = ODRProvider.parseODRListOutput(mockInput);
+
+      assert.isArray(servers);
+      assert.equal(servers.length, 1);
+      assert.equal(servers[0].tools.length, 1);
+      assert.isUndefined(servers[0].tools[0].outputSchema);
+    });
+
+    it("should handle empty command and args", () => {
+      const mockInput = {
+        servers: [
+          {
+            name: "test-server",
+            packages: [{ identifier: "com.test" }],
+            _meta: {
+              "io.modelcontextprotocol.registry/publisher-provided": {
+                "com.microsoft.windows": {
+                  manifest: {
+                    server: {
+                      mcp_config: {
+                        // Missing command and args
+                      },
+                    },
+                    _meta: {
+                      "com.microsoft.windows": {
+                        package_family_name: "Package",
+                        static_responses: {
+                          "tools/list": {
+                            tools: [],
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        ],
+      };
+
+      const servers = ODRProvider.parseODRListOutput(mockInput);
+
+      assert.isArray(servers);
+      assert.equal(servers.length, 1);
+      assert.equal(servers[0].command, "");
+      assert.deepEqual(servers[0].args, []);
+    });
+
+    it("should handle deeply nested missing properties gracefully", () => {
+      const mockInput = {
+        servers: [
+          {
+            name: "test-server",
+            _meta: {
+              "io.modelcontextprotocol.registry/publisher-provided": {
+                "com.microsoft.windows": {
+                  manifest: {
+                    server: {
+                      mcp_config: {
+                        command: "cmd",
+                        args: [],
+                      },
+                    },
+                    _meta: {
+                      "com.microsoft.windows": {
+                        package_family_name: "Package",
+                        // Missing static_responses entirely
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        ],
+      };
+
+      const servers = ODRProvider.parseODRListOutput(mockInput);
+
+      assert.isArray(servers);
+      assert.equal(servers.length, 1);
+      assert.equal(servers[0].tools.length, 0);
+    });
+  });
+});

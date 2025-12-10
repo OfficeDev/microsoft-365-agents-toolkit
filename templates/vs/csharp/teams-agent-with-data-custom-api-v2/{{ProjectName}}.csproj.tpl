@@ -6,20 +6,6 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
-{{^isNewProjectTypeEnabled}}
-  <ItemGroup>
-    <ProjectCapability Include="TeamsFx" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="appPackage/**/*" />
-    <None Include="infra/**/*" />
-    <None Remove="devTools/**" />
-    <Content Remove="devTools/**/*" />
-    <None Include="env/**/*" />
-  </ItemGroup>
-
-{{/isNewProjectTypeEnabled}}
   <ItemGroup>
     <PackageReference Include="AdaptiveCards" Version="3.1.0" />
     <PackageReference Include="AdaptiveCards.Templating" Version="1.5.0" />

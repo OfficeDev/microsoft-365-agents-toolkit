@@ -1,7 +1,11 @@
 {
   "plan_metadata": {
     "name": "group: debug_in_playground",
-    "description": "Generated from recording r_1017_024203",
+    "description": {
+      "owner": "",
+      "workitem": "",
+      "other": "Generated from recording r_1017_024203"
+    },
     "generated_at": "2025-10-22T09:38:18.762929",
     "execution_order": [
       "step_81d30366",
