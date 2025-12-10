@@ -1,6 +1,6 @@
 # Overview of the Weather Agent template
 
-This app template is built on top of [Microsoft 365 Agents SDK](https://aka.ms/m365-agents-sdk) and [LangChain](https://www.langchain.com/).
+This app template is built on top of [Microsoft 365 Agents SDK](https://aka.ms/m365sdkdocs) and [LangChain](https://www.langchain.com/).
 This template showcases a weather agent app that responds to user questions about weather forecasts. This enables your users to ask for weather information in Teams and get accurate, formatted responses.
 
 ## Get started with the template
@@ -63,15 +63,13 @@ The following files can be customized and demonstrate an example implementation 
 |`src/tools/date_time_tool.py`| Provides current date and time functionality.|
 |`src/tools/get_weather_tool.py`| Provides weather forecast functionality.|
 
-## Extend the template
-
-You can follow [Build an agent for Microsoft 365 Copilot](https://aka.ms/teams-toolkit-ai-agent) to extend the Weather Agent template with more AI capabilities, like:
-- [Customize the agent](https://aka.ms/teams-toolkit-ai-agent#customize-the-agent)
-- [Add more tools for the agent](https://aka.ms/teams-toolkit-ai-agent#add-tools-for-the-agent)
 
 ## Additional information and references
 
-- [Microsoft 365 Agents SDK](https://aka.ms/m365-agents-sdk)
+- [Microsoft 365 Agents Toolkit Documentations](https://docs.microsoft.com/microsoftteams/platform/toolkit/teams-toolkit-fundamentals)
+- [Microsoft 365 Agents Toolkit CLI](https://aka.ms/teamsfx-toolkit-cli)
+- [Microsoft 365 Agents Toolkit Samples](https://github.com/OfficeDev/TeamsFx-Samples)
+- [Microsoft 365 Agents SDK](https://github.com/microsoft/Agents)
 - [Microsoft 365 Agents for Python](https://github.com/microsoft/Agents-for-python)
 - [LangChain Python Documentation](https://python.langchain.com/)
 - [LangGraph Documentation](https://langchain-ai.github.io/langgraph/)
