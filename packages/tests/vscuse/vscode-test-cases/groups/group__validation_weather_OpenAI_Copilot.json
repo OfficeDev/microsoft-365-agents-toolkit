@@ -11,7 +11,11 @@
     "total_steps": 3,
     "created_at": "2025-11-25T06:39:50.331649",
     "name": "group  validation weather OpenAI Copilot",
-    "description": "Generated from recording r_1009_073154",
+    "description": {
+      "owner": "",
+      "workitem": "",
+      "other": "Generated from recording r_1009_073154"
+    },
     "generated_at": "2025-11-25T06:39:50.331649",
     "execution_order": [
       "step_cb84f547",

@@ -12,7 +12,11 @@
     "total_steps": 4,
     "created_at": "2025-11-25T06:14:38.809135",
     "name": "General Teams Agent OpenAI ts Remote Debug",
-    "description": "27042831",
+    "description": {
+      "owner": "",
+      "workitem": "",
+      "other": "27042831"
+    },
     "generated_at": "2025-11-25T06:14:38.809135",
     "execution_order": [
       "plan_r_0928_012254",

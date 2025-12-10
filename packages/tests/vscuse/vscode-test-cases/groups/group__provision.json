@@ -11,7 +11,11 @@
     "total_steps": 12,
     "created_at": "2025-11-03T09:21:04.801155",
     "name": "group: provision",
-    "description": "Generated from recording r_0928_073729",
+    "description": {
+      "owner": "",
+      "workitem": "",
+      "other": "Generated from recording r_0928_073729"
+    },
     "generated_at": "2025-11-03T09:21:04.801148",
     "execution_order": [
       "step_0c9af223",

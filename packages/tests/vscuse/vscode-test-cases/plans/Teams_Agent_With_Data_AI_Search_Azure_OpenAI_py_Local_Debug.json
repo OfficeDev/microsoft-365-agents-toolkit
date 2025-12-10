@@ -12,7 +12,11 @@
     "total_steps": 5,
     "created_at": "2025-11-28T04:50:27.605098",
     "name": "Teams Agent With Data AI Search Azure OpenAI py Local Debug",
-    "description": "27454153",
+    "description": {
+      "owner": "",
+      "workitem": "",
+      "other": "27454153"
+    },
     "generated_at": "2025-11-28T04:50:27.605098",
     "execution_order": [
       "plan_r_0928_012254",

@@ -12,7 +12,11 @@
     "total_steps": 51,
     "created_at": "2025-11-21T15:18:10.744508",
     "name": "Sample One Productivity Hub using Toolkit Remote Debug",
-    "description": "24121468",
+    "description": {
+      "owner": "",
+      "workitem": "",
+      "other": "24121468"
+    },
     "generated_at": "2025-11-21T15:18:10.744508",
     "execution_order": [
       "plan_r_1107_015711",

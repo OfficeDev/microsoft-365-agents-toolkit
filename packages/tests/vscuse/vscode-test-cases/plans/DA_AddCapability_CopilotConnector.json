@@ -12,7 +12,11 @@
     "total_steps": 15,
     "created_at": "2025-11-11T04:25:51.290429",
     "name": "DA AddCapability CopilotConnector",
-    "description": "",
+    "description": {
+      "owner": "",
+      "workitem": "",
+      "other": ""
+    },
     "generated_at": "2025-11-11T04:25:51.290424",
     "execution_order": [
       "plan_r_0928_012254",

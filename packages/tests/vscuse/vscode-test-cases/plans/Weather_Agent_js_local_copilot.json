@@ -12,7 +12,11 @@
     "total_steps": 4,
     "created_at": "2025-11-19T05:51:31.722594",
     "name": "Weather Agent js Local Copilot",
-    "description": "33338500",
+    "description": {
+      "owner": "",
+      "workitem": "",
+      "other": "33338500"
+    },
     "generated_at": "2025-11-19T05:51:31.722594",
     "execution_order": [
       "plan_r_0928_012254",

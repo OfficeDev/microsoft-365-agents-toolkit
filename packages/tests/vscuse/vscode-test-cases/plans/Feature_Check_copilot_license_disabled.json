@@ -12,7 +12,11 @@
     "total_steps": 15,
     "created_at": "2025-11-04T08:31:50.148360",
     "name": "Feature Check Copilot License Disabled",
-    "description": "28202384",
+    "description": {
+      "owner": "",
+      "workitem": "",
+      "other": "28202384"
+    },
     "generated_at": "2025-11-04T08:31:50.148360",
     "execution_order": [
       "step_4c78e453",

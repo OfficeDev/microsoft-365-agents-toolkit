@@ -12,7 +12,11 @@
     "total_steps": 13,
     "created_at": "2025-11-27T09:08:12.676768",
     "name": "group  validation contoso OpenAI Python In Copilot",
-    "description": "check 401 in termianl",
+    "description": {
+      "owner": "",
+      "workitem": "",
+      "other": "check 401 in termianl"
+    },
     "generated_at": "2025-11-27T09:08:12.676768",
     "execution_order": [
       "step_21499f37",

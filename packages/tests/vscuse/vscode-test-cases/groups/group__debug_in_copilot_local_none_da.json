@@ -11,7 +11,11 @@
     "total_steps": 11,
     "created_at": "2025-11-25T06:57:03.650909",
     "name": "group__debug_in_copilot_local_none_da",
-    "description": "Generated from recording r_0928_095902",
+    "description": {
+      "owner": "",
+      "workitem": "",
+      "other": "Generated from recording r_0928_095902"
+    },
     "generated_at": "2025-11-25T06:57:03.650909",
     "execution_order": [
       "step_47e7ae0a",

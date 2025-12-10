@@ -12,7 +12,11 @@
     "total_steps": 3,
     "created_at": "2025-11-26T02:29:07.591936",
     "name": "group  validation contoso OpenAI In teams",
-    "description": "Generated from recording r_1023_013114",
+    "description": {
+      "owner": "",
+      "workitem": "",
+      "other": "Generated from recording r_1023_013114"
+    },
     "generated_at": "2025-11-26T02:29:07.591936",
     "execution_order": [
       "step_820bb288",

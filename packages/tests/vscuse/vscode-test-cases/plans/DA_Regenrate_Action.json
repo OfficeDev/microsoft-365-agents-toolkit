@@ -12,7 +12,11 @@
     "total_steps": 24,
     "created_at": "2025-11-13T02:56:42.294612",
     "name": "DA Regenrate Action",
-    "description": "",
+    "description": {
+      "owner": "",
+      "workitem": "",
+      "other": ""
+    },
     "generated_at": "2025-11-13T02:56:42.294559",
     "execution_order": [
       "plan_r_0928_012254",

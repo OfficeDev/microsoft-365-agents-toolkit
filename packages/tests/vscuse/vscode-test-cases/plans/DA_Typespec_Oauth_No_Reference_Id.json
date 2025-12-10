@@ -12,7 +12,11 @@
     "total_steps": 25,
     "created_at": "2025-11-19T01:23:53.534558",
     "name": "DA Typespec Oauth No Reference Id",
-    "description": "32238176",
+    "description": {
+      "owner": "",
+      "workitem": "",
+      "other": "32238176"
+    },
     "generated_at": "2025-11-19T01:23:53.534558",
     "execution_order": [
       "plan_r_0928_012254",

@@ -12,7 +12,11 @@
     "total_steps": 27,
     "created_at": "2025-11-20T10:24:13.184412",
     "name": "Sample Copilot Connection Remote Debug",
-    "description": "14571877",
+    "description": {
+      "owner": "",
+      "workitem": "",
+      "other": "14571877"
+    },
     "generated_at": "2025-11-20T10:24:13.183389",
     "execution_order": [
       "plan_r_1107_015711",

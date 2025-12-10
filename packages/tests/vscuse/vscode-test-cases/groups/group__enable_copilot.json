@@ -12,7 +12,11 @@
     "total_steps": 7,
     "created_at": "2025-11-27T00:11:42.849529",
     "name": "group  enable copilot",
-    "description": "enable copilot",
+    "description": {
+      "owner": "",
+      "workitem": "",
+      "other": "enable copilot"
+    },
     "generated_at": "2025-11-27T00:11:42.849529",
     "execution_order": [
       "step_0313fb2b",

@@ -11,7 +11,11 @@
     "total_steps": 3,
     "created_at": "2025-11-25T04:13:13.189712",
     "name": "Basic Custom Engine OpenAI js Copilot Remote Debug",
-    "description": "36010146",
+    "description": {
+      "owner": "",
+      "workitem": "",
+      "other": "36010146"
+    },
     "generated_at": "2025-11-25T04:13:13.189712",
     "execution_order": [
       "plan_r_0928_012254",

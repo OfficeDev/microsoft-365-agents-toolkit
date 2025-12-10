@@ -12,7 +12,11 @@
     "total_steps": 9,
     "created_at": "2025-12-01T01:48:25.016295",
     "name": "Simple bot py remote debug",
-    "description": "27569119",
+    "description": {
+      "owner": "",
+      "workitem": "",
+      "other": "27569119"
+    },
     "generated_at": "2025-12-01T01:48:25.016295",
     "execution_order": [
       "plan_r_0928_012254",

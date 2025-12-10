@@ -12,7 +12,11 @@
     "total_steps": 15,
     "created_at": "2025-11-26T02:05:57.827845",
     "name": "New Test Plan",
-    "description": "35527255",
+    "description": {
+      "owner": "",
+      "workitem": "",
+      "other": "35527255"
+    },
     "generated_at": "2025-11-26T02:05:57.827845",
     "execution_order": [
       "plan_r_0928_012254",

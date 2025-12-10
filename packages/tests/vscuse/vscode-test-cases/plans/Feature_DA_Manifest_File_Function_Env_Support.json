@@ -11,7 +11,11 @@
     "total_steps": 29,
     "created_at": "2025-11-25T01:49:40.201521",
     "name": "Feature DA Manifest File Function Env Support",
-    "description": "29307045",
+    "description": {
+      "owner": "",
+      "workitem": "",
+      "other": "29307045"
+    },
     "generated_at": "2025-11-25T01:49:40.201521",
     "execution_order": [
       "plan_r_0928_012254",

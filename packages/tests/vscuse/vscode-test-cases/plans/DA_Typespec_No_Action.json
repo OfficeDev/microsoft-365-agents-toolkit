@@ -12,7 +12,11 @@
     "total_steps": 8,
     "created_at": "2025-11-27T01:10:25.425925",
     "name": "DA Typespec No Action",
-    "description": "32237977",
+    "description": {
+      "owner": "",
+      "workitem": "",
+      "other": "32237977"
+    },
     "generated_at": "2025-11-27T01:10:25.425925",
     "execution_order": [
       "plan_r_0928_012254",

@@ -12,7 +12,11 @@
     "total_steps": 6,
     "created_at": "2025-12-01T08:11:03.901637",
     "name": "Teams Agent With Data Customize Azure OpenAI ts Copilot Local Debug",
-    "description": "36048259",
+    "description": {
+      "owner": "",
+      "workitem": "",
+      "other": "36048259"
+    },
     "generated_at": "2025-12-01T08:11:03.901637",
     "execution_order": [
       "plan_r_1127_001034",

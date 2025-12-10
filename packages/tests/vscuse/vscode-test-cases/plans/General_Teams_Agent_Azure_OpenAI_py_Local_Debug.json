@@ -12,7 +12,11 @@
     "total_steps": 4,
     "created_at": "2025-11-25T06:19:43.272872",
     "name": "General Teams Agent Azure OpenAI py Local Debug",
-    "description": "27178027",
+    "description": {
+      "owner": "",
+      "workitem": "",
+      "other": "27178027"
+    },
     "generated_at": "2025-11-25T06:19:43.272872",
     "execution_order": [
       "plan_r_0928_012254",

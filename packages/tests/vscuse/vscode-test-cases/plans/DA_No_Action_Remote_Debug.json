@@ -11,7 +11,11 @@
     "total_steps": 9,
     "created_at": "2025-11-14T03:22:19.400509",
     "name": "DA No Action Remote Debug",
-    "description": "35692238",
+    "description": {
+      "owner": "",
+      "workitem": "",
+      "other": "35692238"
+    },
     "generated_at": "2025-11-14T03:22:19.400500",
     "execution_order": [
       "plan_r_0928_012254",

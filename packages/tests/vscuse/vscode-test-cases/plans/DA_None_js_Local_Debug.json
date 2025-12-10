@@ -12,7 +12,11 @@
     "total_steps": 6,
     "created_at": "2025-11-06T07:28:22.456801",
     "name": "DA None js Local Debug",
-    "description": "35692256",
+    "description": {
+      "owner": "",
+      "workitem": "",
+      "other": "35692256"
+    },
     "generated_at": "2025-11-06T07:28:22.456793",
     "execution_order": [
       "plan_r_0928_012254",

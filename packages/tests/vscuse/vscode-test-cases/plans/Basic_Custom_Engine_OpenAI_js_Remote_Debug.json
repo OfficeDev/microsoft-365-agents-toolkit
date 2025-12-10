@@ -11,7 +11,11 @@
     "total_steps": 3,
     "created_at": "2025-11-25T01:40:20.645271",
     "name": "Basic_Custom_Engine_OpenAI_js_Remote_Debug",
-    "description": "35718833",
+    "description": {
+      "owner": "",
+      "workitem": "",
+      "other": "35718833"
+    },
     "generated_at": "2025-11-25T01:40:20.645271",
     "execution_order": [
       "plan_r_0928_012254",

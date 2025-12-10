@@ -12,7 +12,11 @@
     "total_steps": 14,
     "created_at": "2025-11-28T05:38:07.245205",
     "name": "group  login github",
-    "description": "login github",
+    "description": {
+      "owner": "",
+      "workitem": "",
+      "other": "login github"
+    },
     "generated_at": "2025-11-28T05:38:07.245205",
     "execution_order": [
       "step_1c9eb195",

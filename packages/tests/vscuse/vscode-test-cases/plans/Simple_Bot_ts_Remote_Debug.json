@@ -12,7 +12,11 @@
     "total_steps": 5,
     "created_at": "2025-11-14T06:50:04.426413",
     "name": "Simple Bot ts Remote Debug",
-    "description": "14134645",
+    "description": {
+      "owner": "",
+      "workitem": "",
+      "other": "14134645"
+    },
     "generated_at": "2025-11-14T06:50:04.426402",
     "execution_order": [
       "plan_r_0928_012254",

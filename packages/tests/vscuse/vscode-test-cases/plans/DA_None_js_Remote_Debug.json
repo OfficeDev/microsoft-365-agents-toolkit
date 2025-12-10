@@ -11,7 +11,11 @@
     "total_steps": 6,
     "created_at": "2025-11-14T02:35:08.751602",
     "name": "DA None js Remote Debug",
-    "description": "35719151",
+    "description": {
+      "owner": "",
+      "workitem": "",
+      "other": "35719151"
+    },
     "generated_at": "2025-11-14T02:35:08.751593",
     "execution_order": [
       "plan_r_0928_012254",

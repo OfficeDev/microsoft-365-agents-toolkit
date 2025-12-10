@@ -12,7 +12,11 @@
     "total_steps": 12,
     "created_at": "2025-11-07T05:20:32.399564",
     "name": "DA Api Key js Local Debug",
-    "description": "34628854",
+    "description": {
+      "owner": "",
+      "workitem": "",
+      "other": "34628854"
+    },
     "generated_at": "2025-11-07T05:20:32.399559",
     "execution_order": [
       "plan_r_0928_012254",

@@ -12,7 +12,11 @@
     "total_steps": 4,
     "created_at": "2025-11-25T02:19:26.069529",
     "name": "Basic Custom Engine OpenAI ts Local Debug",
-    "description": "36009300",
+    "description": {
+      "owner": "",
+      "workitem": "",
+      "other": "36009300"
+    },
     "generated_at": "2025-11-25T02:19:26.069529",
     "execution_order": [
       "plan_r_0928_012254",

@@ -12,7 +12,11 @@
     "total_steps": 6,
     "created_at": "2025-11-04T01:49:43.911872",
     "name": "DA None ts Local Debug",
-    "description": "35692262",
+    "description": {
+      "owner": "",
+      "workitem": "",
+      "other": "35692262"
+    },
     "generated_at": "2025-11-04T01:49:43.911862",
     "execution_order": [
       "plan_r_0928_012254",

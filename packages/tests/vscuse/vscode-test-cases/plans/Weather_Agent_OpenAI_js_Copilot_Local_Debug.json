@@ -12,7 +12,11 @@
     "total_steps": 7,
     "created_at": "2025-11-25T05:57:11.599835",
     "name": "Weather Agent OpenAI js Local Debug Copilot",
-    "description": "36011399",
+    "description": {
+      "owner": "",
+      "workitem": "",
+      "other": "36011399"
+    },
     "generated_at": "2025-11-25T05:57:11.599835",
     "execution_order": [
       "plan_r_0928_012254",

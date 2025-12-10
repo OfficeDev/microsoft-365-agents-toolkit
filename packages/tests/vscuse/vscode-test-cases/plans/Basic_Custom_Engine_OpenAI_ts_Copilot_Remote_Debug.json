@@ -11,7 +11,11 @@
     "total_steps": 4,
     "created_at": "2025-11-25T05:11:48.530852",
     "name": "Basic Custom Engine OpenAI ts Copilot Remote Debug",
-    "description": "36010157",
+    "description": {
+      "owner": "",
+      "workitem": "",
+      "other": "36010157"
+    },
     "generated_at": "2025-11-25T05:11:48.530852",
     "execution_order": [
       "plan_r_0928_012254",

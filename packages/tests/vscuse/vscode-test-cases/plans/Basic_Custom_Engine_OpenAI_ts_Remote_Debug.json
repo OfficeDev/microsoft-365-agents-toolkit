@@ -11,7 +11,11 @@
     "total_steps": 4,
     "created_at": "2025-11-25T02:25:09.203269",
     "name": "Basic Custom Engine OpenAI ts Remote Debug",
-    "description": "36009400",
+    "description": {
+      "owner": "",
+      "workitem": "",
+      "other": "36009400"
+    },
     "generated_at": "2025-11-25T02:25:09.203269",
     "execution_order": [
       "plan_r_0928_012254",

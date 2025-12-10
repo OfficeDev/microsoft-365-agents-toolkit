@@ -12,7 +12,11 @@
     "total_steps": 4,
     "created_at": "2025-11-14T09:01:42.213875",
     "name": "group  login m365 withoutCommand",
-    "description": "login m365 account without command",
+    "description": {
+      "owner": "",
+      "workitem": "",
+      "other": "login m365 account without command"
+    },
     "generated_at": "2025-11-14T09:01:42.213875",
     "execution_order": [
       "step_7e16204b",

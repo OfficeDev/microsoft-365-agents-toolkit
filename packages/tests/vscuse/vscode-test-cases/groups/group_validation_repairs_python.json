@@ -12,7 +12,11 @@
     "total_steps": 4,
     "created_at": "2025-11-27T04:25:28.554427",
     "name": "group validation repairs python",
-    "description": "Generated from recording r_1127_042352",
+    "description": {
+      "owner": "",
+      "workitem": "",
+      "other": "Generated from recording r_1127_042352"
+    },
     "generated_at": "2025-11-27T04:25:28.554427",
     "execution_order": [
       "step_303fd129",

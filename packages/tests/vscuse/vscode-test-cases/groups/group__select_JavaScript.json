@@ -12,7 +12,11 @@
     "total_steps": 2,
     "created_at": "2025-11-27T01:20:00.656394",
     "name": "group  select JavaScript",
-    "description": "Generated from recording r_1127_011918",
+    "description": {
+      "owner": "",
+      "workitem": "",
+      "other": "Generated from recording r_1127_011918"
+    },
     "generated_at": "2025-11-27T01:20:00.655331",
     "execution_order": [
       "step_27ab639e",

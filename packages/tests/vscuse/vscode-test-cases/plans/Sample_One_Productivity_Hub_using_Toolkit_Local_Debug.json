@@ -12,7 +12,11 @@
     "total_steps": 38,
     "created_at": "2025-11-21T00:51:08.643295",
     "name": "Sample One Productivity Hub using Toolkit Local Debug",
-    "description": "15090375",
+    "description": {
+      "owner": "",
+      "workitem": "",
+      "other": "15090375"
+    },
     "generated_at": "2025-11-21T00:51:08.643295",
     "execution_order": [
       "plan_r_1107_015711",

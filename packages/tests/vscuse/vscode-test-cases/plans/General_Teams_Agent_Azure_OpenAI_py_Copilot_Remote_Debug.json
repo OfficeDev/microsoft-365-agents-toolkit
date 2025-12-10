@@ -12,7 +12,11 @@
     "total_steps": 4,
     "created_at": "2025-11-27T09:43:41.148568",
     "name": "General Teams Agent Azure OpenAI py Copilot Remote Debug",
-    "description": "36033322",
+    "description": {
+      "owner": "",
+      "workitem": "",
+      "other": "36033322"
+    },
     "generated_at": "2025-11-27T09:43:41.148568",
     "execution_order": [
       "plan_r_1127_001034",

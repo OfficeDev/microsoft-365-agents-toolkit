@@ -12,7 +12,11 @@
     "total_steps": 35,
     "created_at": "2025-10-24T02:33:42.773023",
     "name": "DA_with_MCP Server(Oauth)",
-    "description": "35613058",
+    "description": {
+      "owner": "",
+      "workitem": "",
+      "other": "35613058"
+    },
     "generated_at": "2025-10-24T02:33:42.773023",
     "execution_order": [
       "plan_r_0928_012254",

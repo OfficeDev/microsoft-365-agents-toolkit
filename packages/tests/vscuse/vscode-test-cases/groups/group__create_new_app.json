@@ -11,7 +11,11 @@
     "total_steps": 4,
     "created_at": "2025-11-03T09:21:02.520441",
     "name": "group: create_new_app",
-    "description": "Generated from recording r_0928_012254",
+    "description": {
+      "owner": "",
+      "workitem": "",
+      "other": "Generated from recording r_0928_012254"
+    },
     "generated_at": "2025-11-03T09:21:02.520436",
     "execution_order": [
       "step_698f8521",

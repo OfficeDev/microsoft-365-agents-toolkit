@@ -12,7 +12,11 @@
     "total_steps": 6,
     "created_at": "2025-11-06T04:48:51.709604",
     "name": "DA Microsoft Entra js Local Debug",
-    "description": "34628872",
+    "description": {
+      "owner": "",
+      "workitem": "",
+      "other": "34628872"
+    },
     "generated_at": "2025-11-06T04:48:51.709594",
     "execution_order": [
       "plan_r_0928_012254",

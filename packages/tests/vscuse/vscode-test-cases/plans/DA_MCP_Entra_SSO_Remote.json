@@ -12,7 +12,11 @@
     "total_steps": 28,
     "created_at": "2025-10-30T03:01:50.746644",
     "name": "DA MCP Entra SSO Remote",
-    "description": "35613646",
+    "description": {
+      "owner": "",
+      "workitem": "",
+      "other": "35613646"
+    },
     "generated_at": "2025-10-30T03:01:50.746644",
     "execution_order": [
       "plan_r_0928_012254",

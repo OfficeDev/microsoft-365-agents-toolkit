@@ -11,7 +11,11 @@
     "total_steps": 45,
     "created_at": "2025-11-20T02:45:25.130254",
     "name": "Feature DA Manifest File Function Path Support",
-    "description": "29306940",
+    "description": {
+      "owner": "",
+      "workitem": "",
+      "other": "29306940"
+    },
     "generated_at": "2025-11-20T02:45:25.130254",
     "execution_order": [
       "plan_r_0928_012254",

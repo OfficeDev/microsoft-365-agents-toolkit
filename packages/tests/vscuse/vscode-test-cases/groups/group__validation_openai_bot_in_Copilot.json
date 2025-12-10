@@ -12,7 +12,11 @@
     "total_steps": 4,
     "created_at": "2025-11-25T03:14:27.456740",
     "name": "group  validation openai bot in Copilot",
-    "description": "validation in copilot",
+    "description": {
+      "owner": "",
+      "workitem": "",
+      "other": "validation in copilot"
+    },
     "generated_at": "2025-11-25T03:14:27.456740",
     "execution_order": [
       "step_2952da62",

@@ -12,7 +12,11 @@
     "total_steps": 41,
     "created_at": "2025-11-28T01:33:13.864629",
     "name": "Feature DA No Action Add Bearer Auth Configurations",
-    "description": "31043015",
+    "description": {
+      "owner": "",
+      "workitem": "",
+      "other": "31043015"
+    },
     "generated_at": "2025-11-28T01:33:13.864629",
     "execution_order": [
       "plan_r_0928_012254",

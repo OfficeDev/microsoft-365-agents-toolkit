@@ -11,7 +11,11 @@
     "total_steps": 15,
     "created_at": "2025-11-18T13:59:08.245284",
     "name": "group  debug in teams group remote",
-    "description": "Generated from recording r_0930_063548",
+    "description": {
+      "owner": "",
+      "workitem": "",
+      "other": "Generated from recording r_0930_063548"
+    },
     "generated_at": "2025-11-18T13:59:08.245284",
     "execution_order": [
       "step_d19c67e6",

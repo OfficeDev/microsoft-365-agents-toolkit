@@ -11,7 +11,11 @@
     "total_steps": 5,
     "created_at": "2025-11-06T12:33:48.500556",
     "name": "Message Extension ts Remote Debug",
-    "description": "35692309",
+    "description": {
+      "owner": "",
+      "workitem": "",
+      "other": "35692309"
+    },
     "generated_at": "2025-11-06T12:33:48.500546",
     "execution_order": [
       "plan_r_0928_012254",

@@ -11,7 +11,11 @@
     "total_steps": 29,
     "created_at": "2025-10-22T04:03:45.151986",
     "name": "group: login_azure_and_m365",
-    "description": "Generated from recording r_0928_020230",
+    "description": {
+      "owner": "",
+      "workitem": "",
+      "other": "Generated from recording r_0928_020230"
+    },
     "generated_at": "2025-10-22T04:03:45.151982",
     "execution_order": [
       "step_24fb4797",

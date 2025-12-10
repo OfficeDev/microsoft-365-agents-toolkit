@@ -12,7 +12,11 @@
     "total_steps": 15,
     "created_at": "2025-11-07T07:37:38.615062",
     "name": "Feature Check Copilot License Enabled",
-    "description": "28202384",
+    "description": {
+      "owner": "",
+      "workitem": "",
+      "other": "28202384"
+    },
     "generated_at": "2025-11-07T07:37:38.615062",
     "execution_order": [
       "step_eb544d52",

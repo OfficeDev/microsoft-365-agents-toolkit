@@ -12,7 +12,11 @@
     "total_steps": 12,
     "created_at": "2025-11-17T17:18:42.964195",
     "name": "group: create enironment",
-    "description": "This is a new test plan. You can:\n\n1. Record interactions using the VNC viewer (click 'Show VNC' and start recording)\n2. Manually add steps one by one\n3. Edit this description to describe your test workflow\n\nStart by clicking 'Add Cell' below or begin recording your interactions!",
+    "description": {
+      "owner": "",
+      "workitem": "",
+      "other": "This is a new test plan. You can:\n\n1. Record interactions using the VNC viewer (click 'Show VNC' and start recording)\n2. Manually add steps one by one\n3. Edit this description to describe your test workflow\n\nStart by clicking 'Add Cell' below or begin recording your interactions!"
+    },
     "generated_at": "2025-11-17T17:18:42.964195",
     "execution_order": [
       "step_460fe5c1",

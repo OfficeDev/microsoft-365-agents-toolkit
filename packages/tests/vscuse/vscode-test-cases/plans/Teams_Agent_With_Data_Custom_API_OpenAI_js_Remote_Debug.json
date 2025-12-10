@@ -12,7 +12,11 @@
     "total_steps": 10,
     "created_at": "2025-12-02T01:51:58.401505",
     "name": "Teams Agent With Data Custom API OpenAI js Remote Debug",
-    "description": "28939529",
+    "description": {
+      "owner": "",
+      "workitem": "",
+      "other": "28939529"
+    },
     "generated_at": "2025-12-02T01:51:58.401505",
     "execution_order": [
       "plan_r_0928_012254",

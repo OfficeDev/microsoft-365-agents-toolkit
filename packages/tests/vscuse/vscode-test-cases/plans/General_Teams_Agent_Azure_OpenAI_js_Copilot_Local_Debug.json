@@ -12,7 +12,11 @@
     "total_steps": 4,
     "created_at": "2025-11-27T01:53:59.273709",
     "name": "General Teams Agent Azure OpenAI js Copilot Local Debug",
-    "description": "36031468\n",
+    "description": {
+      "owner": "",
+      "workitem": "",
+      "other": "36031468\n"
+    },
     "generated_at": "2025-11-27T01:53:59.273709",
     "execution_order": [
       "plan_r_1127_001034",

@@ -11,7 +11,11 @@
     "total_steps": 5,
     "created_at": "2025-11-14T09:04:36.691738",
     "name": "group  login azure withoutCommand",
-    "description": "login m365 account first, then login azure account",
+    "description": {
+      "owner": "",
+      "workitem": "",
+      "other": "login m365 account first, then login azure account"
+    },
     "generated_at": "2025-11-14T09:04:36.691738",
     "execution_order": [
       "step_77067d6d",

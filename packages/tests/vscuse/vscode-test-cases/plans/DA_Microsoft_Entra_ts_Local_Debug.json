@@ -12,7 +12,11 @@
     "total_steps": 6,
     "created_at": "2025-11-14T03:04:41.575202",
     "name": "DA Microsoft Entra ts Local Debug",
-    "description": "34594770",
+    "description": {
+      "owner": "",
+      "workitem": "",
+      "other": "34594770"
+    },
     "generated_at": "2025-11-14T03:04:41.575192",
     "execution_order": [
       "plan_r_0928_012254",

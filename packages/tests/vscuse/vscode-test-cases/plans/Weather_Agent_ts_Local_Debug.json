@@ -12,7 +12,11 @@
     "total_steps": 4,
     "created_at": "2025-11-14T07:16:29.840844",
     "name": "Weather Agent ts Local Debug",
-    "description": "34648342",
+    "description": {
+      "owner": "",
+      "workitem": "",
+      "other": "34648342"
+    },
     "generated_at": "2025-11-14T07:16:29.840835",
     "execution_order": [
       "plan_r_0928_012254",

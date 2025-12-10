@@ -1,7 +1,11 @@
 {
   "plan_metadata": {
     "name": "group: validation_basic_ai_chat_bot",
-    "description": "Generated from recording r_1009_093215",
+    "description": {
+      "owner": "",
+      "workitem": "",
+      "other": "Generated from recording r_1009_093215"
+    },
     "generated_at": "2025-10-22T04:03:46.415133",
     "execution_order": [
       "step_ca70af4b",

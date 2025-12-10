@@ -12,7 +12,11 @@
     "total_steps": 3,
     "created_at": "2025-11-24T08:18:26.360898",
     "name": "group  openai steps",
-    "description": "openai steps",
+    "description": {
+      "owner": "",
+      "workitem": "",
+      "other": "openai steps"
+    },
     "generated_at": "2025-11-24T08:18:26.360898",
     "execution_order": [
       "step_e82f9182",

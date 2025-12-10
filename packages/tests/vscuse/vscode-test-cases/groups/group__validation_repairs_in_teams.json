@@ -1,7 +1,11 @@
 {
   "plan_metadata": {
     "name": "group: validation_repairs_in_teams",
-    "description": "Generated from recording r_1023_110315",
+    "description": {
+      "owner": "",
+      "workitem": "",
+      "other": "Generated from recording r_1023_110315"
+    },
     "generated_at": "2025-10-23T11:04:07.597213",
     "execution_order": [
       "step_d9c72d50",

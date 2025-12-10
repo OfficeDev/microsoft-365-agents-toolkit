@@ -12,7 +12,11 @@
     "total_steps": 6,
     "created_at": "2025-11-27T09:18:29.163865",
     "name": "Teams Agent With Data Customize OpenAI py Copilot Remote Debug",
-    "description": "36031923",
+    "description": {
+      "owner": "",
+      "workitem": "",
+      "other": "36031923"
+    },
     "generated_at": "2025-11-27T09:18:29.163865",
     "execution_order": [
       "plan_r_1127_001034",

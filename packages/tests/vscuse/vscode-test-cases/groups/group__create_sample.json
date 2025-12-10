@@ -12,7 +12,11 @@
     "total_steps": 3,
     "created_at": "2025-11-11T04:38:31.089447",
     "name": "group: create sample",
-    "description": "Generated from recording r_1111_043711",
+    "description": {
+      "owner": "",
+      "workitem": "",
+      "other": "Generated from recording r_1111_043711"
+    },
     "generated_at": "2025-11-11T04:38:31.089442",
     "execution_order": [
       "step_e44f410f",

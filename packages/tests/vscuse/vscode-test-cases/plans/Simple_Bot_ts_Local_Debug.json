@@ -12,7 +12,11 @@
     "total_steps": 5,
     "created_at": "2025-11-14T06:44:58.792972",
     "name": "Simple Bot ts Local Debug",
-    "description": "9729308",
+    "description": {
+      "owner": "",
+      "workitem": "",
+      "other": "9729308"
+    },
     "generated_at": "2025-11-14T06:44:58.792962",
     "execution_order": [
       "plan_r_0928_012254",

@@ -12,7 +12,11 @@
     "total_steps": 4,
     "created_at": "2025-11-05T09:33:57.549028",
     "name": "Basic Custom Engine Azure OpenAI js Local Debug",
-    "description": "34834059",
+    "description": {
+      "owner": "",
+      "workitem": "",
+      "other": "34834059"
+    },
     "generated_at": "2025-11-05T09:33:57.549018",
     "execution_order": [
       "plan_r_0928_012254",

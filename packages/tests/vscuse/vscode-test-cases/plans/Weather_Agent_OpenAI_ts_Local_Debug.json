@@ -12,7 +12,11 @@
     "total_steps": 7,
     "created_at": "2025-11-25T02:29:00.766028",
     "name": "Weather Agent OpenAI ts Local Debug",
-    "description": "34648300",
+    "description": {
+      "owner": "",
+      "workitem": "",
+      "other": "34648300"
+    },
     "generated_at": "2025-11-25T02:29:00.766028",
     "execution_order": [
       "plan_r_0928_012254",

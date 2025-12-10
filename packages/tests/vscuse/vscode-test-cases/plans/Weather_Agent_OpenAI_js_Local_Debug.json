@@ -12,7 +12,11 @@
     "total_steps": 7,
     "created_at": "2025-11-24T08:43:36.982517",
     "name": "Weather Agent OpenAI js Local Debug2",
-    "description": "34648299",
+    "description": {
+      "owner": "",
+      "workitem": "",
+      "other": "34648299"
+    },
     "generated_at": "2025-11-24T08:43:36.982517",
     "execution_order": [
       "plan_r_0928_012254",

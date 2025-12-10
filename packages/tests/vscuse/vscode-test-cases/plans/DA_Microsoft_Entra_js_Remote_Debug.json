@@ -11,7 +11,11 @@
     "total_steps": 6,
     "created_at": "2025-11-11T04:26:14.578574",
     "name": "DA Microsoft Entra js Remote Debug",
-    "description": "34628887",
+    "description": {
+      "owner": "",
+      "workitem": "",
+      "other": "34628887"
+    },
     "generated_at": "2025-11-11T04:26:14.578569",
     "execution_order": [
       "plan_r_0928_012254",

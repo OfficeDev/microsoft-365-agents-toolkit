@@ -12,7 +12,11 @@
     "total_steps": 10,
     "created_at": "2025-11-14T04:21:44.719406",
     "name": "Teams Agent With Data Custom API Azure OpenAI ts Local Debug",
-    "description": "27588564",
+    "description": {
+      "owner": "",
+      "workitem": "",
+      "other": "27588564"
+    },
     "generated_at": "2025-11-14T04:21:44.719400",
     "execution_order": [
       "plan_r_0928_012254",

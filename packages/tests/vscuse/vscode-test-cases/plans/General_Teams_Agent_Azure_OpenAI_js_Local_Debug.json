@@ -12,7 +12,11 @@
     "total_steps": 4,
     "created_at": "2025-11-05T10:36:54.745375",
     "name": "General Teams Agent Azure OpenAI js Local Debug",
-    "description": "35721424",
+    "description": {
+      "owner": "",
+      "workitem": "",
+      "other": "35721424"
+    },
     "generated_at": "2025-11-05T10:36:54.745366",
     "execution_order": [
       "plan_r_0928_012254",

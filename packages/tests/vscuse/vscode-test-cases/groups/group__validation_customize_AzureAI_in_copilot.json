@@ -11,7 +11,11 @@
     "total_steps": 4,
     "created_at": "2025-12-01T07:57:17.602474",
     "name": "group  validation customize AzureAI in copilot",
-    "description": "Generated from recording r_1009_093215",
+    "description": {
+      "owner": "",
+      "workitem": "",
+      "other": "Generated from recording r_1009_093215"
+    },
     "generated_at": "2025-12-01T07:57:17.602474",
     "execution_order": [
       "step_daefff63",

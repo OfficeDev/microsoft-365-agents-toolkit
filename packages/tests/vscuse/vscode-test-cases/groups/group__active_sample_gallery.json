@@ -12,7 +12,11 @@
     "total_steps": 6,
     "created_at": "2025-11-07T01:57:57.157071",
     "name": "group active sample gallery",
-    "description": "Generated from recording r_1107_015711",
+    "description": {
+      "owner": "",
+      "workitem": "",
+      "other": "Generated from recording r_1107_015711"
+    },
     "generated_at": "2025-11-07T01:57:57.157067",
     "execution_order": [
       "step_92d4a98e",

@@ -11,7 +11,11 @@
     "total_steps": 3,
     "created_at": "2025-11-17T17:18:42.795541",
     "name": "group: clean_notification",
-    "description": "clean_notification",
+    "description": {
+      "owner": "",
+      "workitem": "",
+      "other": "clean_notification"
+    },
     "generated_at": "2025-11-17T17:18:42.795541",
     "execution_order": [
       "step_a686eab5",
