@@ -53,7 +53,7 @@ app = App(
 {{#useAzureOpenAI}}
 model = OpenAICompletionsAIModel(
     key=config.AZURE_OPENAI_API_KEY,
-    model=config.AZURE_OPENAI_MODEL_DEPLOYMENT_NAME,
+    model=config.AZURE_OPENAI_DEPLOYMENT_NAME,
     azure_endpoint=config.AZURE_OPENAI_ENDPOINT,
     api_version="2024-10-21"
 )

@@ -35,7 +35,7 @@
       {
         "type": "shell",
         "label": "Install Dependencies",
-        "command": "npm install --no-audit"
+        "command": "npm install"
       },
       {
         "type": "shell",

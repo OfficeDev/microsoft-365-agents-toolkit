@@ -23,7 +23,7 @@ This template showcases a custom engine agent app that connects to your own LLM 
 ### Configurations
 1. Open the command box and enter `Python: Create Environment` to create and activate your desired virtual environment. Remember to select `src/requirements.txt` as dependencies to install when creating the virtual environment.
 {{#useAzureOpenAI}}
-1. In file *env/.env.local.user*, fill in your Azure OpenAI key `SECRET_AZURE_OPENAI_API_KEY`, deployment name `AZURE_OPENAI_MODEL_DEPLOYMENT_NAME` and endpoint `AZURE_OPENAI_ENDPOINT`.
+1. In file *env/.env.local.user*, fill in your Azure OpenAI key `SECRET_AZURE_OPENAI_API_KEY`, deployment name `AZURE_OPENAI_DEPLOYMENT_NAME` and endpoint `AZURE_OPENAI_ENDPOINT`.
 {{/useAzureOpenAI}}
 {{#useOpenAI}}
 1. In file *env/.env.local.user*, fill in your OpenAI key `SECRET_OPENAI_API_KEY`. 

@@ -91,7 +91,7 @@ jobs:
           echo "npm-tag=alpha" >> $GITHUB_OUTPUT
           echo "sample-ref=dev" >> $GITHUB_OUTPUT
           echo "branch=dev" >> $GITHUB_OUTPUT
-          echo "email-receiver=teamsfxqa@microsoft.com" >> $GITHUB_OUTPUT
+          echo "email-receiver=teamsfxqa@microsoft.com;zhendr@microsoft.com" >> $GITHUB_OUTPUT
 
           run_id=`gh run list --workflow cd --repo OfficeDev/TeamsFx --branch dev --json event --json databaseId --json conclusion --jq '[.[] | select(.event=="schedule") | select(.conclusion=="success")][0].databaseId'`
           echo "vsix-run-id=$run_id" >> $GITHUB_ENV

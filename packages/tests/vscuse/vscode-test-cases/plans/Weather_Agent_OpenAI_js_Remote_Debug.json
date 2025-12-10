@@ -12,7 +12,7 @@
     "total_steps": 7,
     "created_at": "2025-11-25T02:47:32.937242",
     "name": "Weather Agent OpenAI js Remote Debug",
-    "description": "34648304\n",
+    "description": "34648304",
     "generated_at": "2025-11-25T02:47:32.937242",
     "execution_order": [
       "plan_r_0928_012254",

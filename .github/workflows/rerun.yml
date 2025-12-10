@@ -132,7 +132,9 @@ jobs:
       MAIL_API_KEY: ${{ secrets.MAIL_API_KEY }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
 
       - name: Setup node
         uses: actions/setup-node@v3
@@ -144,7 +146,7 @@ jobs:
       - name: Setup project
         working-directory: ./
         run: |
-          npm run setup
+          npm run setup:e2e
 
       - name: Set M365_ACCOUNT_NAME
         run: |

@@ -2,7 +2,7 @@
 
 This intelligent collaboration assistant is built with the [Microsoft Teams SDK](https://aka.ms/teamsai-v2), and showcases how to create a sophisticated bot that can analyze conversations, manage tasks, and search through chat history using advanced AI capabilities and natural language processing.
 
-This agent can listen to all messages in a group chat (even without being @mentioned) using RSC (Resource Specific Control) permissions defined in [App Manifest](appPackage/manifest.json). For more details, see the documentation [RSC Documentation](https://staticsint.teams.cdn.office.net/evergreen-assets/safelinks/2/atp-safelinks.html).
+This agent can listen to all messages in a group chat (even without being @mentioned) using RSC (Resource Specific Control) permissions defined in [App Manifest](appPackage/manifest.json). For more details, see the documentation [RSC Documentation](https://learn.microsoft.com/en-us/microsoftteams/platform/graph-api/rsc/resource-specific-consent).
 
 ## Key Features
 
@@ -14,10 +14,10 @@ This agent can listen to all messages in a group chat (even without being @menti
 
 Adding your own capabilities only requires a few steps:
 
-1. Copy the template folder under capabilities [template](Capabilities\Template\TemplateCapability.cs)
-2. Customize your capability to do what you want (helpful to look at existing capabilities)
-3. Make sure to create a CapabilityDefinition at the bottom of your main file
-4. Register your capability by importing the CapabilityDefinition and adding to the definition list in [registry](Agent\CapabilityRegistry.cs)
+1. Copy the template folder under capabilities.
+2. Customize your capability to do what you want (helpful to look at existing capabilities).
+3. Make sure to create a CapabilityDefinition at the bottom of your main file.
+4. Register your capability by importing the CapabilityDefinition and adding to the definition list in Program.cs.
 5. The manager will automatically be instantiated with the capability you defined!
 
 ## Agent Architecture

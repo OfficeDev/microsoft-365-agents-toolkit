@@ -12,7 +12,7 @@
     "total_steps": 17,
     "created_at": "2025-11-24T09:22:35.109104",
     "name": "Sample Tab And Outlook Addin Remote Debug",
-    "description": "caseId: 24121457",
+    "description": "24121457",
     "generated_at": "2025-11-24T09:22:35.109104",
     "execution_order": [
       "plan_r_1107_015711",
