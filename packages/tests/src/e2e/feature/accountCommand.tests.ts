@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 
 /**
- * @author Zhiyu You <zhiyou@microsoft.com>
+ * @author Huihui Wu <huihuiwu@microsoft.com>
  */
 
 import { it } from "@microsoft/extra-shot-mocha";
@@ -44,7 +44,7 @@ describe("account command", function () {
 
   it(
     `auth list`,
-    { testPlanCaseId: 15232246, author: "zhiyou@microsoft.com" },
+    { testPlanCaseId: 15232246, author: "huihuiwu@microsoft.com" },
     async function () {
       stdlog = await execAsync(`atk auth list`, {
         env: { ...process.env, TEAMSFX_MULTI_TENANT: "true" },
@@ -58,7 +58,7 @@ describe("account command", function () {
 
   it(
     `auth logout`,
-    { testPlanCaseId: 15232255, author: "zhiyou@microsoft.com" },
+    { testPlanCaseId: 15232255, author: "huihuiwu@microsoft.com" },
     async function () {
       stdlog = await execAsync(`atk auth logout azure`, {
         env: process.env,
