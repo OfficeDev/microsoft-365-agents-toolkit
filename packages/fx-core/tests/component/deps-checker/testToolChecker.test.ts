@@ -38,7 +38,7 @@ function trimQuotes(s: string) {
 
 function mockInstallInfoFile(projectPath: string) {
   return {
-    [path.join(projectPath, "devTools", ".testTool.installInfo.json")]: JSON.stringify({
+    [path.join(projectPath, "devTools", ".playground.installInfo.json")]: JSON.stringify({
       lastCheckTimestamp: new Date().getTime(),
     }),
   };
@@ -96,7 +96,10 @@ function mockEnvironmentNpm(
         } else {
           return info.npmVersion;
         }
-      } else if (command.includes("teamsapptester") && args.includes("--version")) {
+      } else if (
+        (command.includes("agentsplayground") || command.includes("teamsapptester")) &&
+        args.includes("--version")
+      ) {
         if (status.installed) {
           if (info.testToolVersionAfterInstall === undefined) {
             throw new Error("not found");
@@ -163,7 +166,10 @@ function mockEnvironmentBinary(
     .callsFake(async (_cwd, _logger, _options, command, ...args) => {
       command = trimQuotes(command);
       args = args.map(trimQuotes);
-      if (command.includes("teamsapptester") && args.includes("--version")) {
+      if (
+        (command.includes("agentsplayground") || command.includes("teamsapptester")) &&
+        args.includes("--version")
+      ) {
         if (status.installed) {
           if (info.testToolVersionAfterInstall === undefined) {
             throw new Error("not found");
@@ -186,7 +192,7 @@ function mockEnvironmentBinary(
 describe("Test Tool Checker Test (npm version)", () => {
   const sandbox = sinon.createSandbox();
   const projectPath = "projectPath";
-  const homePortablesDir = path.join(os.homedir(), ".fx", "bin", "testTool");
+  const homePortablesDir = path.join(os.homedir(), ".fx", "bin", "agentsPlayground");
   const releaseType = TestToolReleaseType.Npm;
 
   beforeEach(() => {});
@@ -221,7 +227,7 @@ describe("Test Tool Checker Test (npm version)", () => {
       expect(status.error).to.be.undefined;
       expect(envStatus.installed).to.be.true;
       expect(writtenFiles.map((f) => path.resolve(f))).to.include(
-        path.resolve(path.join(projectPath, "devTools", ".testTool.installInfo.json"))
+        path.resolve(path.join(projectPath, "devTools", ".playground.installInfo.json"))
       );
       expect(status.telemetryProperties?.[TelemetryProperties.InstallTestToolReleaseType]).to.eq(
         TestToolReleaseType.Npm
@@ -261,8 +267,13 @@ describe("Test Tool Checker Test (npm version)", () => {
       const symlinkDir = "symlinkDir";
       const versionRange = "~1.2.3";
       let npmInstalled = false;
-      const homePortableDir = path.join(os.homedir(), ".fx", "bin", "testTool", "1.2.3");
-      const homePortableExec = path.join(homePortableDir, "node_modules", ".bin", "teamsapptester");
+      const homePortableDir = path.join(os.homedir(), ".fx", "bin", "agentsPlayground", "1.2.3");
+      const homePortableExec = path.join(
+        homePortableDir,
+        "node_modules",
+        ".bin",
+        "agentsplayground"
+      );
       mockfs({
         [homePortableExec]: "",
         ...mockInstallInfoFile(projectPath),
@@ -621,7 +632,7 @@ describe("Test Tool Checker Test (npm version)", () => {
       const homePortableDir = path.join(homePortablesDir, "1.2.3");
       const homePortableExec = path.join(homePortableDir, "node_modules", ".bin", "teamsapptester");
       mockfs({
-        [path.join(projectPath, "devTools", ".testTool.installInfo.json")]: "",
+        [path.join(projectPath, "devTools", ".playground.installInfo.json")]: "",
         [homePortableExec]: "",
       });
       sandbox
@@ -660,7 +671,7 @@ describe("Test Tool Checker Test (npm version)", () => {
       sandbox.stub(fileHelper, "rename").resolves();
       sandbox.stub(fileHelper, "createSymlink").resolves();
       mockfs({
-        [path.join(projectPath, "devTools", ".testTool.installInfo.json")]: "",
+        [path.join(projectPath, "devTools", ".playground.installInfo.json")]: "",
         [homePortableExec]: "",
       });
       sandbox
@@ -705,7 +716,7 @@ describe("Test Tool Checker Test (npm version)", () => {
       sandbox.stub(fileHelper, "rename").resolves();
       sandbox.stub(fileHelper, "createSymlink").resolves();
       mockfs({
-        [path.join(projectPath, "devTools", ".testTool.installInfo.json")]: "",
+        [path.join(projectPath, "devTools", ".playground.installInfo.json")]: "",
         [homePortableExec]: "",
       });
       let installedVersion = "1.2.3";
@@ -749,7 +760,7 @@ describe("Test Tool Checker Test (npm version)", () => {
       sandbox.stub(fileHelper, "rename").resolves();
       sandbox.stub(fileHelper, "createSymlink").resolves();
       mockfs({
-        [path.join(projectPath, "devTools", ".testTool.installInfo.json")]: "",
+        [path.join(projectPath, "devTools", ".playground.installInfo.json")]: "",
         [homePortableExec]: "",
       });
       let installedVersion = "1.2.3";
@@ -796,7 +807,7 @@ describe("Test Tool Checker Test (npm version)", () => {
         linkTargets.push(target);
       });
       mockfs({
-        [path.join(projectPath, "devTools", ".testTool.installInfo.json")]: "",
+        [path.join(projectPath, "devTools", ".playground.installInfo.json")]: "",
         [homePortableExec]: "",
       });
       sandbox
@@ -842,7 +853,7 @@ describe("Test Tool Checker Test (npm version)", () => {
       const homePortableDir = path.join(homePortablesDir, "1.2.3");
       const homePortableExec = path.join(homePortableDir, "node_modules", ".bin", "teamsapptester");
       mockfs({
-        [path.join(projectPath, "devTools", ".testTool.installInfo.json")]: "",
+        [path.join(projectPath, "devTools", ".playground.installInfo.json")]: "",
         [homePortableExec]: "",
       });
       sandbox

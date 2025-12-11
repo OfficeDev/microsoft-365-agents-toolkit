@@ -44,12 +44,20 @@ const InstallTimeout = 5 * 60 * 1000;
 export class TestToolChecker implements DepsChecker {
   private telemetryProperties: { [key: string]: string };
   private readonly name = "Microsoft 365 Agents Playground";
-  private readonly npmPackageName = "@microsoft/teams-app-test-tool";
+  // eslint-disable-next-line no-secrets/no-secrets
+  private readonly npmPackageName = "@microsoft/m365agentsplayground";
   private readonly checkUpdateTimeout = 10 * 1000;
-  private readonly npmCommandName = isWindows() ? "teamsapptester.cmd" : "teamsapptester";
-  private readonly binaryCommandName = isWindows() ? "teamsapptester.exe" : "teamsapptester";
-  private readonly portableDirNameNpm = "testTool";
-  private readonly portableDirNameBinary = "testToolBinary";
+  private readonly npmCommandName = isWindows() ? "agentsplayground.cmd" : "agentsplayground";
+  private readonly binaryCommandName = isWindows() ? "agentsplayground.exe" : "agentsplayground";
+  private readonly portableDirNameNpm = "agentsPlayground";
+  private readonly portableDirNameBinary = "agentsPlaygroundBinary";
+
+  // Legacy names for backward compatibility
+  private readonly legacyNpmCommandName = isWindows() ? "teamsapptester.cmd" : "teamsapptester";
+  private readonly legacyBinaryCommandName = isWindows() ? "teamsapptester.exe" : "teamsapptester";
+  private readonly legacyPortableDirNameNpm = "testTool";
+  private readonly legacyPortableDirNameBinary = "testToolBinary";
+
   // Limit 1 hour check update internval because of GitHub API throttling limitation
   // https://docs.github.com/en/rest/using-the-rest-api/rate-limits-for-the-rest-api?apiVersion=2022-11-28#primary-rate-limit-for-unauthenticated-users
   private readonly defaultUpdateInterval = 1 * 60 * 60 * 1000;
@@ -398,8 +406,17 @@ export class TestToolChecker implements DepsChecker {
           )
         );
       }
-    } catch (error: any) {
-      return err(new DepsCheckerError(error.message, v3DefaultHelpLink));
+    } catch (error: unknown) {
+      const errorMessage = (error as Error)?.message || String(error);
+      return err(
+        new DepsCheckerError(
+          {
+            default: errorMessage,
+            localized: errorMessage,
+          },
+          v3DefaultHelpLink
+        )
+      );
     }
   }
 
@@ -407,18 +424,39 @@ export class TestToolChecker implements DepsChecker {
     releaseType: TestToolReleaseType,
     binFolder: string | undefined
   ): Promise<string> {
-    const commandName =
-      releaseType === TestToolReleaseType.Npm ? this.npmCommandName : this.binaryCommandName;
-    const execPath = binFolder ? path.resolve(binFolder, commandName) : commandName;
-    const output = await cpUtils.executeCommand(
-      undefined,
-      undefined,
-      // avoid powershell execution policy issue.
-      { shell: isWindows() ? "cmd.exe" : true, timeout: InstallTimeout },
-      `"${execPath}"`,
-      "--version"
-    );
-    return output.trim();
+    try {
+      const commandName =
+        releaseType === TestToolReleaseType.Npm ? this.npmCommandName : this.binaryCommandName;
+      const execPath = binFolder ? path.resolve(binFolder, commandName) : commandName;
+      return await this.runQueryVersion(execPath);
+    } catch (error) {
+      // Fallback to legacy command name for backward compatibility
+      const legacyCommandName =
+        releaseType === TestToolReleaseType.Npm
+          ? this.legacyNpmCommandName
+          : this.legacyBinaryCommandName;
+      const legacyExecPath = binFolder
+        ? path.resolve(binFolder, legacyCommandName)
+        : legacyCommandName;
+      return await this.runQueryVersion(legacyExecPath);
+    }
+  }
+
+  private async runQueryVersion(execPath: string): Promise<string> {
+    try {
+      const output = await cpUtils.executeCommand(
+        undefined,
+        undefined,
+        // avoid powershell execution policy issue.
+        { shell: isWindows() ? "cmd.exe" : true, timeout: InstallTimeout },
+        `"${execPath}"`,
+        "--version"
+      );
+      return output.trim();
+    } catch (error: unknown) {
+      const errorMessage = (error as Error)?.message || String(error);
+      throw new Error(`${execPath} --version: ${errorMessage}`);
+    }
   }
 
   private async hasNode(): Promise<boolean> {
@@ -487,7 +525,11 @@ export class TestToolChecker implements DepsChecker {
       const files = await fs.readdir(dir);
       for (const fileName of files) {
         const fullPath = path.join(dir, fileName);
-        if (fileName.match(/microsoft-teams-app-test-tool.*\.tgz/i)) {
+        // Check for both new and legacy package names
+        if (
+          fileName.match(/m365agentsplayground.*\.tgz/i) ||
+          fileName.match(/microsoft-teams-app-test-tool.*\.tgz/i)
+        ) {
           try {
             const st = await fs.stat(fullPath);
             if (st.isFile()) {
@@ -544,27 +586,43 @@ export class TestToolChecker implements DepsChecker {
     }
   }
   private getPortableVersionsDir(releaseType: string): string {
-    if (releaseType === TestToolReleaseType.Npm) {
-      return path.join(
-        os.homedir(),
-        `.${String(ConfigFolderName)}`,
-        "bin",
-        this.portableDirNameNpm
-      );
-    } else {
-      return path.join(
-        os.homedir(),
-        `.${String(ConfigFolderName)}`,
-        "bin",
-        this.portableDirNameBinary
-      );
-    }
+    const newDirName =
+      releaseType === TestToolReleaseType.Npm
+        ? this.portableDirNameNpm
+        : this.portableDirNameBinary;
+    const newPath = path.join(os.homedir(), `.${String(ConfigFolderName)}`, "bin", newDirName);
+
+    // Check if new directory exists, otherwise return legacy path for compatibility
+    try {
+      if (fs.existsSync(newPath)) {
+        return newPath;
+      }
+    } catch {}
+
+    const legacyDirName =
+      releaseType === TestToolReleaseType.Npm
+        ? this.legacyPortableDirNameNpm
+        : this.legacyPortableDirNameBinary;
+    const legacyPath = path.join(
+      os.homedir(),
+      `.${String(ConfigFolderName)}`,
+      "bin",
+      legacyDirName
+    );
+
+    try {
+      if (fs.existsSync(legacyPath)) {
+        return legacyPath;
+      }
+    } catch {}
+
+    return newPath;
   }
   private getPortableInstallPath(releaseType: TestToolReleaseType, version: string): string {
     return path.join(this.getPortableVersionsDir(releaseType), version);
   }
   private getInstallInfoPath(projectDir: string): string {
-    return path.join(projectDir, "devTools", ".testTool.installInfo.json");
+    return path.join(projectDir, "devTools", ".playground.installInfo.json");
   }
   private async getSuccessDepsInfo(
     version: string,
@@ -613,17 +671,20 @@ export interface GitHubRelease {
 }
 
 export class GitHubHelpers {
-  private static readonly releasePackageName = "teams-app-test-tool";
-  private static readonly artifactNamePrefix = "teamsapptester";
+  private static readonly releasePackageName = "microsoft-365-agents-playground";
+  private static readonly artifactNamePrefix = "agentsplayground";
   public static async listGitHubReleases(): Promise<GitHubRelease[]> {
     // GitHub API without auth
-    const response = await fetch("https://api.github.com/repos/OfficeDev/TeamsFx/releases", {
-      headers: {
-        Accept: "application/vnd.github+json",
-        "X-Github-Api-Version": "2022-11-28",
-      },
-      timeout: InstallTimeout,
-    });
+    const response = await fetch(
+      "https://api.github.com/repos/OfficeDev/microsoft-365-agents-toolkit/releases",
+      {
+        headers: {
+          Accept: "application/vnd.github+json",
+          "X-Github-Api-Version": "2022-11-28",
+        },
+        timeout: InstallTimeout,
+      }
+    );
     const releases: {
       tag_name: string;
       assets: { name: string; url: string }[];
