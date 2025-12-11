@@ -562,14 +562,14 @@ jobs:
               title=$(jq -r '.plan_metadata.name // "Unknown Test Case Title"' "$plan_file")
               echo "Extracted title: $title"
               
-              # Get description (work item IDs) from plan_metadata.description
-              # Description may contain multiple work item IDs separated by comma, space, or semicolon
-              description=$(jq -r '.plan_metadata.description // ""' "$plan_file")
-              if [ -n "$description" ] && [ "$description" != "null" ]; then
+              # Get work item IDs from plan_metadata.description.workitem
+              # Workitem may contain multiple work item IDs separated by comma, space, or semicolon
+              workitem=$(jq -r '.plan_metadata.description.workitem // ""' "$plan_file")
+              if [ -n "$workitem" ] && [ "$workitem" != "null" ]; then
                 # Split by comma, space, or semicolon and process each work item ID
                 work_item_links=""
                 # Replace commas and semicolons with spaces, then iterate
-                for item_id in $(echo "$description" | tr ',;' ' '); do
+                for item_id in $(echo "$workitem" | tr ',;' ' '); do
                   # Trim whitespace
                   item_id=$(echo "$item_id" | xargs)
                   if [ -n "$item_id" ]; then
@@ -585,7 +585,7 @@ jobs:
                 if [ -n "$work_item_links" ]; then
                   work_item_url="$work_item_links"
                 else
-                  work_item_url="$description"
+                  work_item_url="$workitem"
                 fi
               fi
               echo "Extracted work items: $work_item_url"
