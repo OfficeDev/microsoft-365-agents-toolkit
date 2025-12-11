@@ -183,25 +183,41 @@ export class TestToolChecker implements DepsChecker {
     const tmpVersion = `tmp-${uuid.v4().slice(0, 6)}`;
     const tmpPath = this.getPortableInstallPath(releaseType, tmpVersion);
     await fs.ensureDir(tmpPath);
+    let knownBinaryVersion: string | undefined;
     if (releaseType === TestToolReleaseType.Npm) {
       await this.npmInstall(projectPath, tmpPath, versionRange);
     } else {
-      await this.binaryInstall(tmpPath, versionRange);
+      knownBinaryVersion = await this.binaryInstall(tmpPath, versionRange);
     }
     const versionRes = await this.checkVersion(
       releaseType,
       versionRange,
       this.getBinFolder(releaseType, tmpPath)
     );
+    let actualVersion: string;
     if (versionRes.isErr()) {
-      await cleanup(tmpPath);
-      this.telemetryProperties[TelemetryProperties.InstallTestToolError] = versionRes.error.message;
-      throw new DepsCheckerError(
-        Messages.failToValidateTestTool(versionRes.error.message),
-        playgroundInstallationLink
+      // Fallback: use known version from installation source instead of --version
+      const fallbackVersion = await this.getFallbackVersion(
+        releaseType,
+        tmpPath,
+        knownBinaryVersion
       );
+      if (!fallbackVersion || !semver.satisfies(fallbackVersion, versionRange)) {
+        await cleanup(tmpPath);
+        this.telemetryProperties[TelemetryProperties.InstallTestToolError] =
+          versionRes.error.message;
+        throw new DepsCheckerError(
+          Messages.failToValidateTestTool(versionRes.error.message),
+          playgroundInstallationLink
+        );
+      }
+      actualVersion = fallbackVersion;
+      this.telemetryProperties[TelemetryProperties.InstallTestToolVersionFallback] = "true";
+      this.telemetryProperties[TelemetryProperties.InstallTestToolVersionError] =
+        versionRes.error.message;
+    } else {
+      actualVersion = versionRes.value;
     }
-    const actualVersion = versionRes.value;
     this.telemetryProperties[TelemetryProperties.InstalledTestToolVersion] = actualVersion;
 
     const portablePath = this.getPortableInstallPath(releaseType, actualVersion);
@@ -382,11 +398,42 @@ export class TestToolChecker implements DepsChecker {
         this.telemetryProperties[TelemetryProperties.VersioningTestToolVersionError] =
           (this.telemetryProperties[TelemetryProperties.VersioningTestToolVersionError] ?? "") +
           `[${version}] ${String(checkVersionRes.error.message)}`;
+
+        // Fallback: if --version fails, check if binary exists and trust folder name as version
+        const binFolder = this.getBinFolder(releaseType, portablePath);
+        const commandName =
+          releaseType === TestToolReleaseType.Npm ? this.npmCommandName : this.binaryCommandName;
+        const binaryPath = path.join(binFolder, commandName);
+
+        if (await this.isBinaryAccessible(binaryPath)) {
+          this.telemetryProperties[TelemetryProperties.VersioningTestToolVersionFallback] = version;
+          return version;
+        }
       }
     } catch {
       // ignore errors if portable dir doesn't exist
     }
     return undefined;
+  }
+
+  private async isBinaryAccessible(binaryPath: string): Promise<boolean> {
+    try {
+      const stats = await fs.stat(binaryPath);
+      return stats.isFile();
+    } catch {
+      // Try legacy binary name as fallback
+      try {
+        const legacyBinaryPath = binaryPath.replace(
+          /agentsplayground(\.(exe|cmd))?$/,
+          // eslint-disable-next-line no-secrets/no-secrets
+          "teamsapptester$1"
+        );
+        const stats = await fs.stat(legacyBinaryPath);
+        return stats.isFile();
+      } catch {
+        return false;
+      }
+    }
   }
 
   private async checkVersion(
@@ -547,7 +594,7 @@ export class TestToolChecker implements DepsChecker {
     return undefined;
   }
 
-  private async binaryInstall(installPath: string, versionRange: string): Promise<void> {
+  private async binaryInstall(installPath: string, versionRange: string): Promise<string> {
     const releases = await GitHubHelpers.listGitHubReleases();
     const targetVersion = maxSatisfying(
       releases.map((release) => release.version),
@@ -576,6 +623,34 @@ export class TestToolChecker implements DepsChecker {
         await unzip(filePath, installPath);
       }
     );
+    return targetVersion;
+  }
+
+  private async getFallbackVersion(
+    releaseType: TestToolReleaseType,
+    installPath: string,
+    knownBinaryVersion?: string
+  ): Promise<string | undefined> {
+    try {
+      if (releaseType === TestToolReleaseType.Npm) {
+        // For NPM installs, read version from package.json
+        const packageJsonPath = path.join(
+          installPath,
+          "node_modules",
+          this.npmPackageName.replace(/^@/, "").replace(/\//g, path.sep),
+          "package.json"
+        );
+        const packageJson = await fs.readJson(packageJsonPath);
+        return packageJson.version;
+      } else {
+        // For binary installs, use the known version from GitHub release
+        return knownBinaryVersion;
+      }
+    } catch (error) {
+      this.telemetryProperties[TelemetryProperties.GetFallbackVersionError] =
+        (error as Error)?.message || String(error);
+      return undefined;
+    }
   }
 
   private getBinFolder(releaseType: TestToolReleaseType, installPath: string) {
