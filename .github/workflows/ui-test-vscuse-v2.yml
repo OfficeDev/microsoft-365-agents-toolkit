@@ -250,17 +250,6 @@ jobs:
           source .venv/bin/activate
           vscuse execute --config-file ./config.yaml --groups-dir groups ./plans/${{ matrix.test_plan }}.json
 
-      - name: Upload test artifacts
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-debug-artifacts-${{ matrix.test_plan }}-${{ github.run_number }}
-          path: |
-            packages/tests/vscuse/vscode-test-cases/test_report/
-          retention-days: 7
-          if-no-files-found: ignore
-
-
       - name: Rename test_report.html to index.html
         if: always()
         run: |
@@ -271,6 +260,39 @@ jobs:
           else
             echo "No test_report.html found to rename"
           fi
+      - name: Encrypt and zip test report
+        if: always()
+        run: |
+          REPORT_DIR="packages/tests/vscuse/vscode-test-cases/test_report"
+          ZIP_FILE="test-report-${{ matrix.test_plan }}-${{ github.run_number }}.zip"
+
+          if [ -z "${{ secrets.ARTIFACT_ZIP_PASSWORD }}" ]; then
+            echo "❌ Error: ARTIFACT_ZIP_PASSWORD secret is not set"
+            echo "Please configure the ARTIFACT_ZIP_PASSWORD secret in repository settings"
+            exit 1
+          fi
+          
+          # Install zip if not available
+          sudo apt-get update && sudo apt-get install -y zip
+          
+          # Create encrypted zip file in the report directory
+          cd "$REPORT_DIR"
+          zip -e -P "${{ secrets.ARTIFACT_ZIP_PASSWORD }}" "$ZIP_FILE" index.html
+          cd -
+          
+          echo "✅ Created encrypted zip: $REPORT_DIR/$ZIP_FILE"
+          echo "ZIP_FILE=$ZIP_FILE" >> $GITHUB_ENV
+        shell: bash
+
+      - name: Upload encrypted test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-report-${{ matrix.test_plan }}-${{ github.run_number }}
+          path: packages/tests/vscuse/vscode-test-cases/test_report/${{ env.ZIP_FILE }}
+          retention-days: 7
+          if-no-files-found: ignore
+
       # Upload files to Azure Blob Storage
       - name : Login to Azure
         if: always()
