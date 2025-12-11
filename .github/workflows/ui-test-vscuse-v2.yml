@@ -212,7 +212,7 @@ jobs:
 
       - name: Set m365 account randomly
         run: |
-          users=("${{ env.M365_USERNAME_1 }}" "${{ env.M365_USERNAME_2 }}" "${{ env.M365_USERNAME_3 }}" "${{ env.M365_USERNAME_4 }}" "${{ env.M365_USERNAME_5 }}" "${{ env.M365_USERNAME_6 }}" "${{ env.M365_USERNAME_7 }}" "${{ env.M365_USERNAME_8 }}" "${{ env.M365_USERNAME_9 }}" "${{ env.M365_USERNAME_10 }}" "${{ env.M365_USERNAME_11 }}" "${{ env.M365_USERNAME_12 }}" "${{ env.M365_USERNAME_13 }}" "${{ env.M365_USERNAME_14 }}" "${{ env.M365_USERNAME_15 }}" "${{ env.M365_USERNAME_16 }}" "${{ env.M365_USERNAME_17 }}")
+          users=("${{ env.M365_USERNAME_2 }}" "${{ env.M365_USERNAME_3 }}" "${{ env.M365_USERNAME_6 }}" "${{ env.M365_USERNAME_9 }}" "${{ env.M365_USERNAME_10 }}" "${{ env.M365_USERNAME_15 }}")
           count=${#users[@]}
           index=$((RANDOM%$count))
           echo "account index: $index"
