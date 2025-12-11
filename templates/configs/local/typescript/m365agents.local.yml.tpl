@@ -14,6 +14,15 @@ provision:
     writeToEnvironmentFile:
       teamsAppId: TEAMS_APP_ID
 
+{{#hasTab}}
+  # Set BOT_DOMAIN and BOT_ENDPOINT for local launch
+  - uses: script
+    with:
+      run:
+        echo "::set-teamsfx-env BOT_DOMAIN=localhost";
+        echo "::set-teamsfx-env BOT_ENDPOINT=https://localhost:3978";
+{{/hasTab}}
+
 {{#hasBot}}
   # Create or reuse an existing Microsoft Entra application for bot.
   - uses: aadApp/create
@@ -82,6 +91,19 @@ provision:
 {{/hasCopilot}}
 
 deploy:
+{{#hasTab}}
+  # Install development tool(s)
+  - uses: devTool/install
+    with:
+      devCert:
+        trust: true
+    # Write the information of installed development tool(s) into environment
+    # file for the specified environment variable(s).
+    writeToEnvironmentFile:
+      sslCertFile: SSL_CRT_FILE
+      sslKeyFile: SSL_KEY_FILE
+
+{{/hasTab}}
   # Run npm command
   - uses: cli/runNpmCommand
     name: install dependencies
@@ -99,3 +121,7 @@ deploy:
         CLIENT_SECRET: $\{{SECRET_BOT_PASSWORD}}
         TENANT_ID: $\{{TEAMS_APP_TENANT_ID}}
 {{/hasBot}}
+{{#hasTab}}
+        SSL_CRT_FILE: ${{SSL_CRT_FILE}}
+        SSL_KEY_FILE: ${{SSL_KEY_FILE}}
+{{/hasTab}}
