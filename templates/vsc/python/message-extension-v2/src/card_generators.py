@@ -1,6 +1,6 @@
 from typing import Dict, List, Any
-from microsoft.teams.api import Account
-from microsoft.teams.cards import AdaptiveCard
+from microsoft_teams.api import Account
+from microsoft_teams.cards import AdaptiveCard
 
 
 def create_card(data: Dict[str, str]) -> AdaptiveCard:

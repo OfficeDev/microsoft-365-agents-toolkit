@@ -2,8 +2,8 @@ import asyncio
 import re
 
 from azure.identity import ManagedIdentityCredential
-from microsoft.teams.api import MessageActivity, TypingActivityInput
-from microsoft.teams.apps import ActivityContext, App
+from microsoft_teams.api import MessageActivity, TypingActivityInput
+from microsoft_teams.apps import ActivityContext, App
 from config import Config
 
 config = Config()

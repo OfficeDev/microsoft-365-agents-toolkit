@@ -2,11 +2,11 @@ import asyncio
 import os
 
 from azure.identity import ManagedIdentityCredential
-from microsoft.teams.ai import ChatPrompt, ListMemory
-from microsoft.teams.ai.ai_model import AIModel
-from microsoft.teams.apps import App, ActivityContext
-from microsoft.teams.openai import OpenAICompletionsAIModel
-from microsoft.teams.api import MessageActivity, MessageActivityInput, MessageSubmitActionInvokeActivity
+from microsoft_teams.ai import ChatPrompt, ListMemory
+from microsoft_teams.ai.ai_model import AIModel
+from microsoft_teams.apps import App, ActivityContext
+from microsoft_teams.openai import OpenAICompletionsAIModel
+from microsoft_teams.api import MessageActivity, MessageActivityInput, MessageSubmitActionInvokeActivity
 
 from config import Config
 
