@@ -11,7 +11,7 @@
     "scripts": {
         "dev:teamsfx": "env-cmd --silent -f .localConfigs npm run dev",
         "dev:teamsfx:playground": "env-cmd --silent -f .localConfigs.playground npm run dev",
-        "dev:teamsfx:launch-playground": "env-cmd --silent -f env/.env.playground teamsapptester start",
+        "dev:teamsfx:launch-playground": "env-cmd --silent -f env/.env.playground agentsplayground start",
         "dev": "nodemon --inspect=9239 --signal SIGINT ./index.js",
         "start": "node ./index.js",
         "watch": "nodemon ./index.js",

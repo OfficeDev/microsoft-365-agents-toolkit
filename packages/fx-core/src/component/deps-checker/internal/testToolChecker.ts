@@ -40,16 +40,31 @@ interface InstallationInfoFile {
 }
 
 const InstallTimeout = 5 * 60 * 1000;
+const QueryVersionTimeout = 5 * 1000;
 
 export class TestToolChecker implements DepsChecker {
   private telemetryProperties: { [key: string]: string };
   private readonly name = "Microsoft 365 Agents Playground";
-  private readonly npmPackageName = "@microsoft/teams-app-test-tool";
+  // eslint-disable-next-line no-secrets/no-secrets
+  private readonly npmPackageName = "@microsoft/m365agentsplayground";
   private readonly checkUpdateTimeout = 10 * 1000;
-  private readonly npmCommandName = isWindows() ? "teamsapptester.cmd" : "teamsapptester";
-  private readonly binaryCommandName = isWindows() ? "teamsapptester.exe" : "teamsapptester";
-  private readonly portableDirNameNpm = "testTool";
-  private readonly portableDirNameBinary = "testToolBinary";
+  private readonly commandName = "agentsplayground";
+  private readonly npmCommandName = isWindows() ? `${this.commandName}.cmd` : this.commandName;
+  private readonly binaryCommandName = isWindows() ? `${this.commandName}.exe` : this.commandName;
+  private readonly portableDirNameNpm = "agentsPlayground";
+  private readonly portableDirNameBinary = "agentsPlaygroundBinary";
+
+  // Legacy names for backward compatibility
+  private readonly legacyCommandName = "teamsapptester";
+  private readonly legacyNpmCommandName = isWindows()
+    ? `${this.legacyCommandName}.cmd`
+    : this.legacyCommandName;
+  private readonly legacyBinaryCommandName = isWindows()
+    ? `${this.legacyCommandName}.exe`
+    : this.legacyCommandName;
+  private readonly legacyPortableDirNameNpm = "testTool";
+  private readonly legacyPortableDirNameBinary = "testToolBinary";
+
   // Limit 1 hour check update internval because of GitHub API throttling limitation
   // https://docs.github.com/en/rest/using-the-rest-api/rate-limits-for-the-rest-api?apiVersion=2022-11-28#primary-rate-limit-for-unauthenticated-users
   private readonly defaultUpdateInterval = 1 * 60 * 60 * 1000;
@@ -175,25 +190,41 @@ export class TestToolChecker implements DepsChecker {
     const tmpVersion = `tmp-${uuid.v4().slice(0, 6)}`;
     const tmpPath = this.getPortableInstallPath(releaseType, tmpVersion);
     await fs.ensureDir(tmpPath);
+    let knownBinaryVersion: string | undefined;
     if (releaseType === TestToolReleaseType.Npm) {
       await this.npmInstall(projectPath, tmpPath, versionRange);
     } else {
-      await this.binaryInstall(tmpPath, versionRange);
+      knownBinaryVersion = await this.binaryInstall(tmpPath, versionRange);
     }
     const versionRes = await this.checkVersion(
       releaseType,
       versionRange,
       this.getBinFolder(releaseType, tmpPath)
     );
+    let actualVersion: string;
     if (versionRes.isErr()) {
-      await cleanup(tmpPath);
-      this.telemetryProperties[TelemetryProperties.InstallTestToolError] = versionRes.error.message;
-      throw new DepsCheckerError(
-        Messages.failToValidateTestTool(versionRes.error.message),
-        playgroundInstallationLink
+      // Fallback: use known version from installation source instead of --version
+      const fallbackVersion = await this.getFallbackVersion(
+        releaseType,
+        tmpPath,
+        knownBinaryVersion
       );
+      if (!fallbackVersion || !semver.satisfies(fallbackVersion, versionRange)) {
+        await cleanup(tmpPath);
+        this.telemetryProperties[TelemetryProperties.InstallTestToolError] =
+          versionRes.error.message;
+        throw new DepsCheckerError(
+          Messages.failToValidateTestTool(versionRes.error.message),
+          playgroundInstallationLink
+        );
+      }
+      actualVersion = fallbackVersion;
+      this.telemetryProperties[TelemetryProperties.InstallTestToolVersionFallback] = "true";
+      this.telemetryProperties[TelemetryProperties.InstallTestToolVersionError] =
+        versionRes.error.message;
+    } else {
+      actualVersion = versionRes.value;
     }
-    const actualVersion = versionRes.value;
     this.telemetryProperties[TelemetryProperties.InstalledTestToolVersion] = actualVersion;
 
     const portablePath = this.getPortableInstallPath(releaseType, actualVersion);
@@ -374,11 +405,42 @@ export class TestToolChecker implements DepsChecker {
         this.telemetryProperties[TelemetryProperties.VersioningTestToolVersionError] =
           (this.telemetryProperties[TelemetryProperties.VersioningTestToolVersionError] ?? "") +
           `[${version}] ${String(checkVersionRes.error.message)}`;
+
+        // Fallback: if --version fails, check if binary exists and trust folder name as version
+        const binFolder = this.getBinFolder(releaseType, portablePath);
+        const commandName =
+          releaseType === TestToolReleaseType.Npm ? this.npmCommandName : this.binaryCommandName;
+        const binaryPath = path.join(binFolder, commandName);
+
+        if (await this.isBinaryAccessible(binaryPath)) {
+          this.telemetryProperties[TelemetryProperties.VersioningTestToolVersionFallback] = version;
+          return version;
+        }
       }
     } catch {
       // ignore errors if portable dir doesn't exist
     }
     return undefined;
+  }
+
+  private async isBinaryAccessible(binaryPath: string): Promise<boolean> {
+    try {
+      const stats = await fs.stat(binaryPath);
+      return stats.isFile();
+    } catch {
+      // Try legacy binary name as fallback
+      try {
+        const legacyBinaryPath = binaryPath.replace(
+          /agentsplayground(\.(exe|cmd))?$/,
+          // eslint-disable-next-line no-secrets/no-secrets
+          "teamsapptester$1"
+        );
+        const stats = await fs.stat(legacyBinaryPath);
+        return stats.isFile();
+      } catch {
+        return false;
+      }
+    }
   }
 
   private async checkVersion(
@@ -398,8 +460,17 @@ export class TestToolChecker implements DepsChecker {
           )
         );
       }
-    } catch (error: any) {
-      return err(new DepsCheckerError(error.message, v3DefaultHelpLink));
+    } catch (error: unknown) {
+      const errorMessage = (error as Error)?.message || String(error);
+      return err(
+        new DepsCheckerError(
+          {
+            default: errorMessage,
+            localized: errorMessage,
+          },
+          v3DefaultHelpLink
+        )
+      );
     }
   }
 
@@ -407,18 +478,48 @@ export class TestToolChecker implements DepsChecker {
     releaseType: TestToolReleaseType,
     binFolder: string | undefined
   ): Promise<string> {
-    const commandName =
-      releaseType === TestToolReleaseType.Npm ? this.npmCommandName : this.binaryCommandName;
-    const execPath = binFolder ? path.resolve(binFolder, commandName) : commandName;
-    const output = await cpUtils.executeCommand(
-      undefined,
-      undefined,
-      // avoid powershell execution policy issue.
-      { shell: isWindows() ? "cmd.exe" : true, timeout: InstallTimeout },
-      `"${execPath}"`,
-      "--version"
-    );
-    return output.trim();
+    try {
+      const commandName =
+        releaseType === TestToolReleaseType.Npm ? this.npmCommandName : this.binaryCommandName;
+      const execPath = binFolder ? path.resolve(binFolder, commandName) : commandName;
+      return await this.runQueryVersion(execPath);
+    } catch (error) {
+      // For global installations on Windows, try without .cmd extension
+      if (!binFolder && isWindows() && releaseType === TestToolReleaseType.Npm) {
+        try {
+          return await this.runQueryVersion(this.commandName);
+        } catch {
+          return await this.runQueryVersion(this.legacyCommandName);
+        }
+      }
+
+      // Fallback to legacy command name for backward compatibility
+      const legacyCommandName =
+        releaseType === TestToolReleaseType.Npm
+          ? this.legacyNpmCommandName
+          : this.legacyBinaryCommandName;
+      const legacyExecPath = binFolder
+        ? path.resolve(binFolder, legacyCommandName)
+        : legacyCommandName;
+      return await this.runQueryVersion(legacyExecPath);
+    }
+  }
+
+  private async runQueryVersion(execPath: string): Promise<string> {
+    try {
+      const output = await cpUtils.executeCommand(
+        undefined,
+        undefined,
+        // avoid powershell execution policy issue.
+        { shell: isWindows() ? "cmd.exe" : true, timeout: QueryVersionTimeout },
+        `"${execPath}"`,
+        "--version"
+      );
+      return output.trim();
+    } catch (error: unknown) {
+      const errorMessage = (error as Error)?.message || String(error);
+      throw new Error(`${execPath} --version: ${errorMessage}`);
+    }
   }
 
   private async hasNode(): Promise<boolean> {
@@ -487,7 +588,11 @@ export class TestToolChecker implements DepsChecker {
       const files = await fs.readdir(dir);
       for (const fileName of files) {
         const fullPath = path.join(dir, fileName);
-        if (fileName.match(/microsoft-teams-app-test-tool.*\.tgz/i)) {
+        // Check for both new and legacy package names
+        if (
+          fileName.match(/m365agentsplayground.*\.tgz/i) ||
+          fileName.match(/microsoft-teams-app-test-tool.*\.tgz/i)
+        ) {
           try {
             const st = await fs.stat(fullPath);
             if (st.isFile()) {
@@ -505,7 +610,7 @@ export class TestToolChecker implements DepsChecker {
     return undefined;
   }
 
-  private async binaryInstall(installPath: string, versionRange: string): Promise<void> {
+  private async binaryInstall(installPath: string, versionRange: string): Promise<string> {
     const releases = await GitHubHelpers.listGitHubReleases();
     const targetVersion = maxSatisfying(
       releases.map((release) => release.version),
@@ -534,6 +639,34 @@ export class TestToolChecker implements DepsChecker {
         await unzip(filePath, installPath);
       }
     );
+    return targetVersion;
+  }
+
+  private async getFallbackVersion(
+    releaseType: TestToolReleaseType,
+    installPath: string,
+    knownBinaryVersion?: string
+  ): Promise<string | undefined> {
+    try {
+      if (releaseType === TestToolReleaseType.Npm) {
+        // For NPM installs, read version from package.json
+        const packageJsonPath = path.join(
+          installPath,
+          "node_modules",
+          this.npmPackageName.replace(/\//g, path.sep),
+          "package.json"
+        );
+        const packageJson = await fs.readJson(packageJsonPath);
+        return packageJson.version;
+      } else {
+        // For binary installs, use the known version from GitHub release
+        return knownBinaryVersion;
+      }
+    } catch (error) {
+      this.telemetryProperties[TelemetryProperties.GetFallbackVersionError] =
+        (error as Error)?.message || String(error);
+      return undefined;
+    }
   }
 
   private getBinFolder(releaseType: TestToolReleaseType, installPath: string) {
@@ -544,27 +677,43 @@ export class TestToolChecker implements DepsChecker {
     }
   }
   private getPortableVersionsDir(releaseType: string): string {
-    if (releaseType === TestToolReleaseType.Npm) {
-      return path.join(
-        os.homedir(),
-        `.${String(ConfigFolderName)}`,
-        "bin",
-        this.portableDirNameNpm
-      );
-    } else {
-      return path.join(
-        os.homedir(),
-        `.${String(ConfigFolderName)}`,
-        "bin",
-        this.portableDirNameBinary
-      );
-    }
+    const newDirName =
+      releaseType === TestToolReleaseType.Npm
+        ? this.portableDirNameNpm
+        : this.portableDirNameBinary;
+    const newPath = path.join(os.homedir(), `.${String(ConfigFolderName)}`, "bin", newDirName);
+
+    // Check if new directory exists, otherwise return legacy path for compatibility
+    try {
+      if (fs.existsSync(newPath)) {
+        return newPath;
+      }
+    } catch {}
+
+    const legacyDirName =
+      releaseType === TestToolReleaseType.Npm
+        ? this.legacyPortableDirNameNpm
+        : this.legacyPortableDirNameBinary;
+    const legacyPath = path.join(
+      os.homedir(),
+      `.${String(ConfigFolderName)}`,
+      "bin",
+      legacyDirName
+    );
+
+    try {
+      if (fs.existsSync(legacyPath)) {
+        return legacyPath;
+      }
+    } catch {}
+
+    return newPath;
   }
   private getPortableInstallPath(releaseType: TestToolReleaseType, version: string): string {
     return path.join(this.getPortableVersionsDir(releaseType), version);
   }
   private getInstallInfoPath(projectDir: string): string {
-    return path.join(projectDir, "devTools", ".testTool.installInfo.json");
+    return path.join(projectDir, "devTools", ".playground.installInfo.json");
   }
   private async getSuccessDepsInfo(
     version: string,
@@ -613,17 +762,20 @@ export interface GitHubRelease {
 }
 
 export class GitHubHelpers {
-  private static readonly releasePackageName = "teams-app-test-tool";
-  private static readonly artifactNamePrefix = "teamsapptester";
+  private static readonly releasePackageName = "microsoft-365-agents-playground";
+  private static readonly artifactNamePrefix = "agentsplayground";
   public static async listGitHubReleases(): Promise<GitHubRelease[]> {
     // GitHub API without auth
-    const response = await fetch("https://api.github.com/repos/OfficeDev/TeamsFx/releases", {
-      headers: {
-        Accept: "application/vnd.github+json",
-        "X-Github-Api-Version": "2022-11-28",
-      },
-      timeout: InstallTimeout,
-    });
+    const response = await fetch(
+      "https://api.github.com/repos/OfficeDev/microsoft-365-agents-toolkit/releases",
+      {
+        headers: {
+          Accept: "application/vnd.github+json",
+          "X-Github-Api-Version": "2022-11-28",
+        },
+        timeout: InstallTimeout,
+      }
+    );
     const releases: {
       tag_name: string;
       assets: { name: string; url: string }[];
