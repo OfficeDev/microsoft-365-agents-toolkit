@@ -393,7 +393,10 @@ describe("Test Tool Checker Test (npm version)", () => {
               const dirNames = pathSplit(relPath);
               const version = dirNames[0];
               return version;
-            } else if (command.startsWith("teamsapptester")) {
+            } else if (
+              command.startsWith("teamsapptester") ||
+              command.startsWith("agentsplayground")
+            ) {
               // global check
               return "1.2.3";
             }
@@ -412,7 +415,7 @@ describe("Test Tool Checker Test (npm version)", () => {
       expect(status.isInstalled).to.be.true;
       expect(status.details.binFolders).to.be.empty;
       expect(status.error).to.be.undefined;
-      expect(createSymlinkStub.notCalled);
+      expect(createSymlinkStub.notCalled).to.be.true;
       expect(checkedUpdate).to.be.false;
       expect(status.telemetryProperties?.[TelemetryProperties.InstallTestToolReleaseType]).to.eq(
         TestToolReleaseType.Npm
@@ -1169,13 +1172,13 @@ describe("GitHubHelpers", () => {
         {
           tag_name: "teams-app-test-tool@1.0.0",
           assets: [
-            { name: `teamsapptester-${os.platform()}-${os.arch()}`, url: "https://example0.com" },
+            { name: `agentsplayground-${os.platform()}-${os.arch()}`, url: "https://example0.com" },
           ],
         },
         {
           tag_name: "teams-app-test-tool@1.0.1",
           assets: [
-            { name: `teamsapptester-${os.platform()}-${os.arch()}`, url: "https://example1.com" },
+            { name: `agentsplayground-${os.platform()}-${os.arch()}`, url: "https://example1.com" },
           ],
         },
       ];

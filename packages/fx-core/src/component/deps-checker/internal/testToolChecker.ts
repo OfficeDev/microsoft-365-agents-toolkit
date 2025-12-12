@@ -48,14 +48,20 @@ export class TestToolChecker implements DepsChecker {
   // eslint-disable-next-line no-secrets/no-secrets
   private readonly npmPackageName = "@microsoft/m365agentsplayground";
   private readonly checkUpdateTimeout = 10 * 1000;
-  private readonly npmCommandName = isWindows() ? "agentsplayground.cmd" : "agentsplayground";
-  private readonly binaryCommandName = isWindows() ? "agentsplayground.exe" : "agentsplayground";
+  private readonly commandName = "agentsplayground";
+  private readonly npmCommandName = isWindows() ? `${this.commandName}.cmd` : this.commandName;
+  private readonly binaryCommandName = isWindows() ? `${this.commandName}.exe` : this.commandName;
   private readonly portableDirNameNpm = "agentsPlayground";
   private readonly portableDirNameBinary = "agentsPlaygroundBinary";
 
   // Legacy names for backward compatibility
-  private readonly legacyNpmCommandName = isWindows() ? "teamsapptester.cmd" : "teamsapptester";
-  private readonly legacyBinaryCommandName = isWindows() ? "teamsapptester.exe" : "teamsapptester";
+  private readonly legacyCommandName = "teamsapptester";
+  private readonly legacyNpmCommandName = isWindows()
+    ? `${this.legacyCommandName}.cmd`
+    : this.legacyCommandName;
+  private readonly legacyBinaryCommandName = isWindows()
+    ? `${this.legacyCommandName}.exe`
+    : this.legacyCommandName;
   private readonly legacyPortableDirNameNpm = "testTool";
   private readonly legacyPortableDirNameBinary = "testToolBinary";
 
@@ -478,6 +484,15 @@ export class TestToolChecker implements DepsChecker {
       const execPath = binFolder ? path.resolve(binFolder, commandName) : commandName;
       return await this.runQueryVersion(execPath);
     } catch (error) {
+      // For global installations on Windows, try without .cmd extension
+      if (!binFolder && isWindows() && releaseType === TestToolReleaseType.Npm) {
+        try {
+          return await this.runQueryVersion(this.commandName);
+        } catch {
+          return await this.runQueryVersion(this.legacyCommandName);
+        }
+      }
+
       // Fallback to legacy command name for backward compatibility
       const legacyCommandName =
         releaseType === TestToolReleaseType.Npm
