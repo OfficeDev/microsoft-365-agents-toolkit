@@ -25,20 +25,9 @@ export async function mergeJsonFile(sourcePath: string, targetPath: string): Pro
   const rawTarget = await fs.readFile(targetPath, "utf8");
 
   // Parse with comment-json to retain comments/whitespace metadata where possible
-  let source: commentJson.CommentJSONValue;
-  let target: commentJson.CommentJSONValue;
-  try {
-    // Do NOT pass 'true' as third param (that would strip comments)
-    source = commentJson.parse(rawSource);
-  } catch (e) {
-    // Fallback: attempt normal JSON parse (strip comments crudely)
-    source = JSON.parse(stripComments(rawSource));
-  }
-  try {
-    target = commentJson.parse(rawTarget);
-  } catch (e) {
-    target = JSON.parse(stripComments(rawTarget));
-  }
+  // Do NOT pass 'true' as third param (that would strip comments)
+  const source = commentJson.parse(rawSource);
+  const target = commentJson.parse(rawTarget);
 
   const merged = mergeNodes(target, source);
 
@@ -97,11 +86,4 @@ function mergeNodes(
   }
   // For primitives or mismatched types: do not overwrite target per requirements
   return target;
-}
-
-function stripComments(content: string): string {
-  // Simple removal of // and /* */ comments for fallback parsing
-  return content
-    .replace(/\/\*[^]*?\*\//g, "")
-    .replace(/([^:]|^)\/\/.*$/gm, (m, g1) => (g1 ? g1 : ""));
 }
