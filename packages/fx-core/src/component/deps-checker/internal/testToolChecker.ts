@@ -40,6 +40,7 @@ interface InstallationInfoFile {
 }
 
 const InstallTimeout = 5 * 60 * 1000;
+const QueryVersionTimeout = 5 * 1000;
 
 export class TestToolChecker implements DepsChecker {
   private telemetryProperties: { [key: string]: string };
@@ -495,7 +496,7 @@ export class TestToolChecker implements DepsChecker {
         undefined,
         undefined,
         // avoid powershell execution policy issue.
-        { shell: isWindows() ? "cmd.exe" : true, timeout: InstallTimeout },
+        { shell: isWindows() ? "cmd.exe" : true, timeout: QueryVersionTimeout },
         `"${execPath}"`,
         "--version"
       );
@@ -637,7 +638,7 @@ export class TestToolChecker implements DepsChecker {
         const packageJsonPath = path.join(
           installPath,
           "node_modules",
-          this.npmPackageName.replace(/^@/, "").replace(/\//g, path.sep),
+          this.npmPackageName.replace(/\//g, path.sep),
           "package.json"
         );
         const packageJson = await fs.readJson(packageJsonPath);
