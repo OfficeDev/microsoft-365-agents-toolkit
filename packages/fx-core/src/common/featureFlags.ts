@@ -14,7 +14,6 @@ export class FeatureFlagName {
   static readonly CLIDotNet = "TEAMSFX_CLI_DOTNET";
   static readonly OfficeMetaOS = "TEAMSFX_OFFICE_METAOS";
   static readonly SampleConfigBranch = "TEAMSFX_SAMPLE_CONFIG_BRANCH";
-  static readonly TeamsFxRebranding = "TEAMSFX_REBRANDING";
   static readonly ChatParticipant = "TEAMSFX_CHAT_PARTICIPANT";
   static readonly ChatParticipantUIEntries = "TEAMSFX_CHAT_PARTICIPANT_ENTRIES";
   static readonly HideGitHubCopilotPreviewTag = "TEAMSFX_HIDE_GITHUB_COPILOT_PREVIEW_TAG";
@@ -28,7 +27,6 @@ export class FeatureFlagName {
   static readonly CEAEnabled = "TEAMSFX_CEA_ENABLED";
   static readonly BuilderAPIEnabled = "TEAMSFX_BUILDER_API";
   static readonly EmbeddedKnowledgeEnabled = "TEAMSFX_EMBEDDED_KNOWLEDGE";
-  static readonly AddODSPKnowledge = "TEAMSFX_ADD_ODSP_KNOWLEDGE";
   static readonly SandBoxedTeam = "TEAMSFX_SANDBOXED_TEAM";
   static readonly SensitivityLabelEnabled = "TEAMSFX_SENSITIVITY_LABEL";
   static readonly DAMetaOS = "TEAMSFX_DA_METAOS";
@@ -98,10 +96,6 @@ export class FeatureFlags {
   static readonly EmbeddedKnowledgeEnabled = {
     name: FeatureFlagName.EmbeddedKnowledgeEnabled,
     defaultValue: "false",
-  };
-  static readonly AddODSPKnowledge = {
-    name: FeatureFlagName.AddODSPKnowledge,
-    defaultValue: "true",
   };
   static readonly SandBoxedTeam = {
     name: FeatureFlagName.SandBoxedTeam,

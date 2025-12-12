@@ -5,35 +5,33 @@ import {
   AppPackageFolderName,
   ManifestTemplateFileName,
   SensitivityLabel,
-  signedIn,
   TeamsAppManifest,
   TemplateFolderName,
+  signedIn,
 } from "@microsoft/teamsfx-api";
 import {
-  FeatureFlags,
+  GraphClient,
+  ListSensitivityLabelScope,
   MetadataV3,
+  copilotGptManifestUtils,
   envUtil,
   environmentNameManager,
-  featureFlagManager,
   getAllowedAppMaps,
   getPermissionMap,
-  ListSensitivityLabelScope,
-  GraphClient,
-  copilotGptManifestUtils,
   manifestUtils,
 } from "@microsoft/teamsfx-core";
 import fs from "fs-extra";
 import * as parser from "jsonc-parser";
+import * as _ from "lodash";
+import path from "path";
+import * as util from "util";
 import isUUID from "validator/lib/isUUID";
 import * as vscode from "vscode";
 import { environmentVariableRegex } from "./constants";
 import { commandIsRunning, core, tools } from "./globalVariables";
-import { getSystemInputs } from "./utils/systemEnvUtils";
 import { TelemetryTriggerFrom } from "./telemetry/extTelemetryEvents";
 import { localize } from "./utils/localizeUtils";
-import * as _ from "lodash";
-import path from "path";
-import * as util from "util";
+import { getSystemInputs } from "./utils/systemEnvUtils";
 
 async function resolveEnvironmentVariablesCodeLens(lens: vscode.CodeLens, from: string) {
   // Get environment variables
@@ -864,10 +862,6 @@ export class OneDriveSharePointCodeLensProvider implements vscode.CodeLensProvid
   public provideCodeLenses(
     document: vscode.TextDocument
   ): vscode.CodeLens[] | Thenable<vscode.CodeLens[]> {
-    if (!featureFlagManager.getBooleanValue(FeatureFlags.AddODSPKnowledge)) {
-      return [];
-    }
-
     const inputs = getSystemInputs();
 
     if (inputs.projectPath) {
