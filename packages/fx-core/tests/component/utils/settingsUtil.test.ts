@@ -10,7 +10,7 @@ import path from "path";
 import { createSandbox, SinonSandbox } from "sinon";
 import { featureFlagManager, FeatureFlags } from "../../../src/common/featureFlags";
 import { globalVars } from "../../../src/common/globalVars";
-import { sendTelemetryEvent } from "../../../src/common/telemetry";
+import * as telemetryModule from "../../../src/common/telemetry";
 import * as pathUtils from "../../../src/component/utils/pathUtils";
 import { settingsUtil } from "../../../src/component/utils/settingsUtil";
 
@@ -81,7 +81,7 @@ describe("SettingsUtils", () => {
           getYmlFilePath: sandbox.stub().returns(ymlPath),
           getAvailableYmlFilePath: sandbox.stub(),
         });
-        sandbox.stub(sendTelemetryEvent);
+        sandbox.stub(telemetryModule, "sendTelemetryEvent").resolves();
 
         const result = await settingsUtil.readSettings(projectPath, true);
 
@@ -170,10 +170,10 @@ describe("SettingsUtils", () => {
         await fs.writeFile(ymlPath, "version: 1.0");
 
         sandbox.stub(pathUtils, "pathUtils").value({
-          getYmlFilePath: sandbox.stub(),
+          getYmlFilePath: sandbox.stub().returns(ymlPath),
           getAvailableYmlFilePath: sandbox.stub().returns(ymlPath),
         });
-        sandbox.stub(sendTelemetryEvent);
+        sandbox.stub(telemetryModule, "sendTelemetryEvent").resolves();
 
         const result = await settingsUtil.readSettings(projectPath, true);
 
