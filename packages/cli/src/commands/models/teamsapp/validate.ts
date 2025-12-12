@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 import { CLICommand, CLICommandOption, TeamsAppInputs, err } from "@microsoft/teamsfx-api";
-import { FeatureFlags, featureFlagManager } from "@microsoft/teamsfx-core";
 import { getFxCore } from "../../../activate";
 import { commands } from "../../../resource";
 import { TelemetryEvent } from "../../../telemetry/cliTelemetryEvents";
@@ -46,11 +45,8 @@ function getOptions(): CLICommandOption[] {
     EnvOption,
     EnvFileOption,
     ProjectFolderOption,
+    ValidateMethodOption,
   ];
-
-  if (featureFlagManager.getBooleanValue(FeatureFlags.AsyncAppValidation)) {
-    options.push(ValidateMethodOption);
-  }
 
   return options;
 }

@@ -339,11 +339,11 @@ export function confirmManifestQuestion(isTeamsApp = true, isLocal = false): Sin
 }
 
 function selectTeamsAppValidationMethodQuestion(): SingleSelectQuestion {
-  const options = [TeamsAppValidationOptions.schema(), TeamsAppValidationOptions.package()];
-
-  if (featureFlagManager.getBooleanValue(FeatureFlags.AsyncAppValidation)) {
-    options.push(TeamsAppValidationOptions.testCases());
-  }
+  const options = [
+    TeamsAppValidationOptions.schema(),
+    TeamsAppValidationOptions.package(),
+    TeamsAppValidationOptions.testCases(),
+  ];
 
   return {
     name: QuestionNames.ValidateMethod,

@@ -15,7 +15,6 @@ export class FeatureFlagName {
   static readonly OfficeMetaOS = "TEAMSFX_OFFICE_METAOS";
   static readonly SampleConfigBranch = "TEAMSFX_SAMPLE_CONFIG_BRANCH";
   static readonly TeamsFxRebranding = "TEAMSFX_REBRANDING";
-  static readonly AsyncAppValidation = "TEAMSFX_ASYNC_APP_VALIDATION";
   static readonly ChatParticipant = "TEAMSFX_CHAT_PARTICIPANT";
   static readonly ChatParticipantUIEntries = "TEAMSFX_CHAT_PARTICIPANT_ENTRIES";
   static readonly HideGitHubCopilotPreviewTag = "TEAMSFX_HIDE_GITHUB_COPILOT_PREVIEW_TAG";
@@ -48,10 +47,6 @@ export class FeatureFlags {
   static readonly CLIDotNet = { name: FeatureFlagName.CLIDotNet, defaultValue: "false" };
   static readonly OfficeMetaOS = {
     name: FeatureFlagName.OfficeMetaOS,
-    defaultValue: "true",
-  };
-  static readonly AsyncAppValidation = {
-    name: FeatureFlagName.AsyncAppValidation,
     defaultValue: "true",
   };
   static readonly ChatParticipant = {
