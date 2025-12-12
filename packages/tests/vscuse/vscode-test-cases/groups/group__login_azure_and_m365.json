@@ -9,14 +9,14 @@
       "precondition_retry_interval": 2
     },
     "total_steps": 29,
-    "created_at": "2025-10-22T04:03:45.151986",
+    "created_at": "2025-12-12T01:59:23.510063",
     "name": "group: login_azure_and_m365",
     "description": {
+      "other": "Generated from recording r_0928_020230",
       "owner": "",
-      "workitem": "",
-      "other": "Generated from recording r_0928_020230"
+      "workitem": ""
     },
-    "generated_at": "2025-10-22T04:03:45.151982",
+    "generated_at": "2025-12-12T01:59:23.510063",
     "execution_order": [
       "step_24fb4797",
       "step_fad9abbb",
@@ -51,707 +51,709 @@
     "tags": [
       "group"
     ],
-    "updated_at": "2025-10-23T04:18:10.053018"
+    "updated_at": "2025-12-12T02:22:06.579963"
   },
   "steps": [
     {
-      "agent": "interaction",
-      "description": "Press the F1 key to open the Command Palette in Visual Studio Code.",
       "step_id": "step_24fb4797",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
-      "postconditions": [],
-      "screenshot": "step_24fb4797",
+      "agent": "interaction",
       "tool": "key_press",
-      "plan_id": "plan_r_0928_020230",
       "parameters": {
         "key": "f1"
       },
+      "description": "Press the F1 key to open the Command Palette in Visual Studio Code.",
+      "content_refs": [],
       "timeout": 30,
+      "retry_count": 0,
       "continue_on_error": "false",
+      "depends_on": [],
       "preconditions": [
         "dhash:512:384:0:20:322c2a6363636421"
       ],
+      "postconditions": [],
       "tags": [],
-      "created_at": "2025-10-23T04:14:22.087157"
+      "screenshot": "step_24fb4797",
+      "created_at": "2025-12-12T01:59:23.526226",
+      "plan_id": "plan_r_0928_020230"
     },
     {
-      "agent": "interaction",
-      "description": "Type 'View: Show Microsoft 365 Agents Toolkit' into the Visual Studio Code command palette input box at the top of the window.",
       "step_id": "step_fad9abbb",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
-      "postconditions": [],
-      "screenshot": "step_fad9abbb",
+      "agent": "interaction",
       "tool": "type_text",
-      "plan_id": "plan_r_0928_020230",
       "parameters": {
         "text": "View: Show Microsoft 365 Agents Toolkit"
       },
+      "description": "Type 'View: Show Microsoft 365 Agents Toolkit' into the Visual Studio Code command palette input box at the top of the window.",
+      "content_refs": [],
       "timeout": 30,
+      "retry_count": 0,
       "continue_on_error": "false",
+      "depends_on": [],
       "preconditions": [
         "dhash:512:384:0:20:64404ca723e36421"
       ],
+      "postconditions": [],
       "tags": [],
-      "created_at": "2025-10-23T04:14:22.107654"
+      "screenshot": "step_fad9abbb",
+      "created_at": "2025-12-12T01:59:23.544647",
+      "plan_id": "plan_r_0928_020230"
     },
     {
-      "agent": "interaction",
-      "description": "Press Enter to select \"View: Show Microsoft 365 Agents Toolkit\" from the Visual Studio Code command palette.",
       "step_id": "step_ce2cbc54",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
-      "postconditions": [],
-      "screenshot": "step_ce2cbc54",
+      "agent": "interaction",
       "tool": "key_press",
-      "plan_id": "plan_r_0928_020230",
       "parameters": {
         "key": "enter"
       },
+      "description": "Press Enter to select \"View: Show Microsoft 365 Agents Toolkit\" from the Visual Studio Code command palette.",
+      "content_refs": [],
       "timeout": 30,
+      "retry_count": 0,
       "continue_on_error": "false",
+      "depends_on": [],
       "preconditions": [
         "dhash:512:384:0:20:e0602aa363e36421"
       ],
+      "postconditions": [],
       "tags": [],
-      "created_at": "2025-10-23T04:14:22.126128"
+      "screenshot": "step_ce2cbc54",
+      "created_at": "2025-12-12T01:59:23.560485",
+      "plan_id": "plan_r_0928_020230"
     },
     {
-      "agent": "interaction",
-      "description": "Press the F1 key to open the command palette in Visual Studio Code while viewing the \"Overview of the Declarative Agent template\" in the Microsoft 365 Agents Toolkit extension.",
       "step_id": "step_4ffa0f6a",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
-      "postconditions": [],
-      "screenshot": "step_4ffa0f6a",
+      "agent": "interaction",
       "tool": "key_press",
-      "plan_id": "plan_r_0928_020230",
       "parameters": {
         "key": "f1"
       },
+      "description": "Press the F1 key to open the command palette in Visual Studio Code while viewing the \"Overview of the Declarative Agent template\" in the Microsoft 365 Agents Toolkit extension.",
+      "content_refs": [],
       "timeout": 30,
+      "retry_count": 0,
       "continue_on_error": "false",
+      "depends_on": [],
       "preconditions": [
         "dhash:512:384:0:20:322c6a2323232421"
       ],
+      "postconditions": [],
       "tags": [],
-      "created_at": "2025-10-23T04:14:22.143271"
+      "screenshot": "step_4ffa0f6a",
+      "created_at": "2025-12-12T01:59:23.579578",
+      "plan_id": "plan_r_0928_020230"
     },
     {
-      "agent": "interaction",
-      "description": "Type 'Microsoft 365 Agents: Accounts' into the Visual Studio Code command palette input field at the top center of the interface.",
       "step_id": "step_81a2b98b",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
-      "postconditions": [],
-      "screenshot": "step_81a2b98b",
+      "agent": "interaction",
       "tool": "type_text",
-      "plan_id": "plan_r_0928_020230",
       "parameters": {
         "text": "Microsoft 365 Agents: Accounts"
       },
+      "description": "Type 'Microsoft 365 Agents: Accounts' into the Visual Studio Code command palette input field at the top center of the interface.",
+      "content_refs": [],
       "timeout": 30,
+      "retry_count": 0,
       "continue_on_error": "false",
+      "depends_on": [],
       "preconditions": [
         "dhash:512:384:0:20:e4c0486723232421"
       ],
+      "postconditions": [],
       "tags": [],
-      "created_at": "2025-10-23T04:14:22.157544"
+      "screenshot": "step_81a2b98b",
+      "created_at": "2025-12-12T01:59:23.598083",
+      "plan_id": "plan_r_0928_020230"
     },
     {
-      "agent": "interaction",
-      "description": "Click the \"Microsoft 365 Agents: Toolkit: Accounts\" command in the Visual Studio Code command palette.",
       "step_id": "step_25b4302d",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
-      "postconditions": [],
-      "screenshot": "step_25b4302d",
+      "agent": "interaction",
       "tool": "click",
-      "plan_id": "plan_r_0928_020230",
       "parameters": {
+        "button": "left",
         "x": 456,
-        "y": 74,
-        "button": "left"
+        "y": 74
       },
+      "description": "Click the \"Microsoft 365 Agents: Toolkit: Accounts\" command in the Visual Studio Code command palette.",
+      "content_refs": [],
       "timeout": 30,
+      "retry_count": 0,
       "continue_on_error": "false",
+      "depends_on": [],
       "preconditions": [
         "dhash:456:74:16:5:a083ccc8d8cecc33",
         "dhash:456:74:96:5:49223af1905b2a84",
         "dhash:456:74:0:10:e0602a2323232421"
       ],
+      "postconditions": [],
       "tags": [],
-      "created_at": "2025-10-23T04:14:22.171484"
+      "screenshot": "step_25b4302d",
+      "created_at": "2025-12-12T01:59:23.615526",
+      "plan_id": "plan_r_0928_020230"
     },
     {
-      "agent": "interaction",
-      "description": "Click the \"Sign in to Azure\" dropdown option in the Visual Studio Code command palette to initiate Microsoft 365 authentication.",
       "step_id": "step_eade3653",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
-      "postconditions": [],
-      "screenshot": "step_eade3653",
+      "agent": "interaction",
       "tool": "click",
-      "plan_id": "plan_r_0928_020230",
       "parameters": {
+        "button": "left",
         "x": 349,
-        "y": 79,
-        "button": "left"
+        "y": 79
       },
+      "description": "Click the \"Sign in to Azure\" dropdown option in the Visual Studio Code command palette to initiate Microsoft 365 authentication.",
+      "content_refs": [],
       "timeout": 30,
+      "retry_count": 0,
       "continue_on_error": "false",
+      "depends_on": [],
       "preconditions": [
         "dhash:349:79:16:5:0000000000000000",
         "dhash:349:79:96:5:9b74640b04644450",
         "dhash:349:79:0:10:c84422232323a401"
       ],
+      "postconditions": [],
       "tags": [],
-      "created_at": "2025-10-23T04:14:22.181795"
+      "screenshot": "step_eade3653",
+      "created_at": "2025-12-12T01:59:23.633604",
+      "plan_id": "plan_r_0928_020230"
     },
     {
-      "agent": "interaction",
-      "description": "Click the \"Sign in\" button on the Microsoft authentication popup in Visual Studio Code to proceed with Azure authorization for the Microsoft 365 Agents Toolkit.",
       "step_id": "step_fcd91e77",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
-      "postconditions": [],
-      "screenshot": "step_fcd91e77",
+      "agent": "interaction",
       "tool": "click",
-      "plan_id": "plan_r_0928_020230",
       "parameters": {
+        "button": "left",
         "x": 534,
-        "y": 98,
-        "button": "left"
+        "y": 98
       },
+      "description": "Click the \"Sign in\" button on the Microsoft authentication popup in Visual Studio Code to proceed with Azure authorization for the Microsoft 365 Agents Toolkit.",
+      "content_refs": [],
       "timeout": 30,
+      "retry_count": 0,
       "continue_on_error": "false",
+      "depends_on": [],
       "preconditions": [
         "dhash:534:98:16:5:554a54555555468f",
         "dhash:534:98:96:5:0002740b0a700800",
         "dhash:534:98:0:10:12322e2323232421"
       ],
+      "postconditions": [],
       "tags": [],
-      "created_at": "2025-10-23T04:14:22.192785"
+      "screenshot": "step_fcd91e77",
+      "created_at": "2025-12-12T01:59:23.651418",
+      "plan_id": "plan_r_0928_020230"
     },
     {
-      "agent": "interaction",
-      "description": "Click the \"Allow\" button in the Microsoft 365 sign-in prompt to authorize the extension \"Microsoft 365 Agents Toolkit\" within Visual Studio Code.",
       "step_id": "step_77f7d945",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
-      "postconditions": [],
-      "screenshot": "step_77f7d945",
+      "agent": "interaction",
       "tool": "click",
-      "plan_id": "plan_r_0928_020230",
       "parameters": {
+        "button": "left",
         "x": 457,
-        "y": 96,
-        "button": "left"
+        "y": 96
       },
+      "description": "Click the \"Allow\" button in the Microsoft 365 sign-in prompt to authorize the extension \"Microsoft 365 Agents Toolkit\" within Visual Studio Code.",
+      "content_refs": [],
       "timeout": 30,
+      "retry_count": 0,
       "continue_on_error": "false",
+      "depends_on": [],
       "preconditions": [
         "dhash:457:96:16:5:524d5552564cb3ca",
         "dhash:457:96:96:5:0004609c0c600400",
         "dhash:457:96:0:10:d2322e2323232421"
       ],
+      "postconditions": [],
       "tags": [],
-      "created_at": "2025-10-23T04:14:22.203346"
+      "screenshot": "step_77f7d945",
+      "created_at": "2025-12-12T01:59:23.665735",
+      "plan_id": "plan_r_0928_020230"
     },
     {
-      "agent": "interaction",
-      "description": "Click on the \"Email, phone, or Skype\" input field in the Microsoft sign-in dialog on the login.microsoftonline.com webpage to activate text entry.",
       "step_id": "step_bd700ff4",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
-      "postconditions": [],
-      "screenshot": "step_bd700ff4",
+      "agent": "interaction",
       "tool": "click",
-      "plan_id": "plan_r_0928_020230",
       "parameters": {
+        "button": "left",
         "x": 432,
-        "y": 327,
-        "button": "left"
+        "y": 327
       },
+      "description": "Click on the \"Email, phone, or Skype\" input field in the Microsoft sign-in dialog on the login.microsoftonline.com webpage to activate text entry.",
+      "content_refs": [],
       "timeout": 30,
+      "retry_count": 0,
       "continue_on_error": "false",
+      "depends_on": [],
       "preconditions": [
         "dhash:432:327:16:5:114c134b4a13b2cc",
         "dhash:432:327:96:5:686000a2a95500cb",
         "dhash:432:327:0:10:1361717965617935"
       ],
+      "postconditions": [],
       "tags": [
         "precondition_wait_timeout: 60"
       ],
-      "created_at": "2025-10-23T04:14:22.215222"
+      "screenshot": "step_bd700ff4",
+      "created_at": "2025-12-12T01:59:23.690179",
+      "plan_id": "plan_r_0928_020230"
     },
     {
-      "agent": "interaction",
-      "description": "Enter ${{env:AZURE_ACCOUNT_NAME}} into the email or username input field on the Microsoft Sign in page at login.microsoftonline.com in a Chrome browser.",
       "step_id": "step_7d82b1cc",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
-      "postconditions": [],
-      "screenshot": "step_7d82b1cc",
+      "agent": "interaction",
       "tool": "type_text",
-      "plan_id": "plan_r_0928_020230",
       "parameters": {
         "text": "${{env:AZURE_ACCOUNT_NAME}}"
       },
+      "description": "Enter ${{env:AZURE_ACCOUNT_NAME}} into the email or username input field on the Microsoft Sign in page at login.microsoftonline.com in a Chrome browser.",
+      "content_refs": [],
       "timeout": 30,
+      "retry_count": 0,
       "continue_on_error": "false",
+      "depends_on": [],
       "preconditions": [
         "dhash:512:384:0:20:1b28d0d9e7e4dae4"
       ],
+      "postconditions": [],
       "tags": [
         "precondition_wait_timeout: 60"
       ],
-      "created_at": "2025-10-23T04:14:22.230331"
+      "screenshot": "step_7d82b1cc",
+      "created_at": "2025-12-12T01:59:23.708181",
+      "plan_id": "plan_r_0928_020230"
     },
     {
-      "agent": "interaction",
-      "description": "Press Enter to submit the email address in the Microsoft Sign in dialog and activate the Next button on login.microsoftonline.com.",
       "step_id": "step_09cf8236",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
-      "postconditions": [],
-      "screenshot": "step_09cf8236",
+      "agent": "interaction",
       "tool": "key_press",
-      "plan_id": "plan_r_0928_020230",
       "parameters": {
         "key": "enter"
       },
+      "description": "Press Enter to submit the email address in the Microsoft Sign in dialog and activate the Next button on login.microsoftonline.com.",
+      "content_refs": [],
       "timeout": 30,
+      "retry_count": 0,
       "continue_on_error": "false",
+      "depends_on": [],
       "preconditions": [
         "dhash:512:384:0:20:1b28d0d9e7e4dae4"
       ],
+      "postconditions": [],
       "tags": [
         "delay: 3"
       ],
-      "created_at": "2025-10-23T04:14:22.247834"
+      "screenshot": "step_09cf8236",
+      "created_at": "2025-12-12T01:59:23.726903",
+      "plan_id": "plan_r_0928_020230"
     },
     {
-      "agent": "interaction",
-      "description": "Type ${{secret:AZURE_ACCOUNT_PASSWORD}} into the 'Password' field on the Microsoft login page for user ${{env:AZURE_ACCOUNT_NAME}}.",
       "step_id": "step_903f3532",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
-      "postconditions": [],
-      "screenshot": "step_903f3532",
+      "agent": "interaction",
       "tool": "type_text",
-      "plan_id": "plan_r_0928_020230",
       "parameters": {
         "text": "${{secret:AZURE_ACCOUNT_PASSWORD}}"
       },
+      "description": "Type ${{secret:AZURE_ACCOUNT_PASSWORD}} into the 'Password' field on the Microsoft login page for user ${{env:AZURE_ACCOUNT_NAME}}.",
+      "content_refs": [],
       "timeout": 30,
+      "retry_count": 0,
       "continue_on_error": "false",
+      "depends_on": [],
       "preconditions": [
         "dhash:512:384:0:20:1908f0d9d1e6e6e4"
       ],
+      "postconditions": [],
       "tags": [
         "precondition_wait_timeout: 60",
         "delay:5"
       ],
-      "created_at": "2025-10-23T04:14:22.265303"
+      "screenshot": "step_903f3532",
+      "created_at": "2025-12-12T01:59:23.746233",
+      "plan_id": "plan_r_0928_020230"
     },
     {
-      "agent": "interaction",
-      "description": "Press Enter in the password field on the Microsoft login page to submit credentials for the account ${{env:M365_ACCOUNT_NAME}}.",
       "step_id": "step_a1f23fa8",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
-      "postconditions": [],
-      "screenshot": "step_a1f23fa8",
+      "agent": "interaction",
       "tool": "key_press",
-      "plan_id": "plan_r_0928_020230",
       "parameters": {
         "key": "enter"
       },
+      "description": "Press Enter in the password field on the Microsoft login page to submit credentials for the account ${{env:M365_ACCOUNT_NAME}}.",
+      "content_refs": [],
       "timeout": 30,
+      "retry_count": 0,
       "continue_on_error": "false",
+      "depends_on": [],
       "preconditions": [
         "dhash:512:384:0:20:1908f0d9d1e6e6e4"
       ],
+      "postconditions": [],
       "tags": [
         "delay: 3"
       ],
-      "created_at": "2025-10-23T04:14:22.280361"
+      "screenshot": "step_a1f23fa8",
+      "created_at": "2025-12-12T01:59:23.764808",
+      "plan_id": "plan_r_0928_020230"
     },
     {
-      "agent": "interaction",
-      "description": "Click the red close (X) button in the top-right corner of the Google Chrome window to close the Visual Studio Code sign-in confirmation page.",
       "step_id": "step_85ab9b54",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
-      "postconditions": [],
-      "screenshot": "step_85ab9b54",
+      "agent": "interaction",
       "tool": "click",
-      "plan_id": "plan_r_0928_020230",
       "parameters": {
+        "button": "left",
         "x": 991,
-        "y": 18,
-        "button": "left"
+        "y": 18
       },
+      "description": "Click the red close (X) button in the top-right corner of the Google Chrome window to close the Visual Studio Code sign-in confirmation page.",
+      "content_refs": [],
       "timeout": 30,
+      "retry_count": 0,
       "continue_on_error": "false",
+      "depends_on": [],
       "preconditions": [
         "dhash:991:18:16:5:b020624245454242",
         "dhash:991:18:96:5:629393936a903232",
         "dhash:991:18:0:10:0021410169414141"
       ],
+      "postconditions": [],
       "tags": [
         "delay: 3"
       ],
-      "created_at": "2025-10-23T04:14:22.301995"
+      "screenshot": "step_85ab9b54",
+      "created_at": "2025-12-12T01:59:23.784186",
+      "plan_id": "plan_r_0928_020230"
     },
     {
-      "agent": "assertion",
-      "description": "@assertion there's ${{env:AZURE_ACCOUNT_NAME}} in the \"ACCOUNTS\" section",
       "step_id": "step_d05b3569",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
-      "postconditions": [],
-      "screenshot": null,
+      "agent": "assertion",
       "tool": "",
-      "plan_id": "plan_r_0928_020230",
       "parameters": {},
+      "description": "@assertion there's ${{env:AZURE_ACCOUNT_NAME}} in the \"ACCOUNTS\" section",
+      "content_refs": [],
       "timeout": 30,
+      "retry_count": 0,
       "continue_on_error": "false",
+      "depends_on": [],
       "preconditions": [],
+      "postconditions": [],
       "tags": [
         "step_retry_timeout: 60"
       ],
-      "created_at": "2025-10-23T04:14:22.319812"
+      "screenshot": null,
+      "created_at": "2025-12-12T01:59:23.799458",
+      "plan_id": "plan_r_0928_020230"
     },
     {
-      "agent": "interaction",
-      "description": "Click the \"Sign in to Microsoft 365\" link in the ACCOUNTS section of the Microsoft 365 Agents Toolkit panel within Visual Studio Code.",
       "step_id": "step_71c576dc",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
-      "postconditions": [],
-      "screenshot": "step_71c576dc",
+      "agent": "interaction",
       "tool": "click",
-      "plan_id": "plan_r_0928_020230",
       "parameters": {
+        "button": "left",
         "x": 322,
-        "y": 100,
-        "button": "left"
+        "y": 100
       },
+      "description": "Click the \"Sign in to Microsoft 365\" link in the ACCOUNTS section of the Microsoft 365 Agents Toolkit panel within Visual Studio Code.",
+      "content_refs": [],
       "timeout": 30,
+      "retry_count": 0,
       "continue_on_error": "false",
+      "depends_on": [],
       "preconditions": [
         "dhash:322:100:16:5:0000000000000000",
         "dhash:322:100:96:5:60202040c0406040",
         "dhash:322:100:0:10:322c2a23a3232421"
       ],
+      "postconditions": [],
       "tags": [],
-      "created_at": "2025-10-23T04:14:22.335119"
+      "screenshot": "step_71c576dc",
+      "created_at": "2025-12-12T01:59:23.823820",
+      "plan_id": "plan_r_0928_020230"
     },
     {
-      "agent": "interaction",
-      "description": "Press F1 to open the command palette in Visual Studio Code while viewing the \"Overview of the Declarative Agent template\" in the README.md preview.",
       "step_id": "step_cced634e",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
-      "postconditions": [],
-      "screenshot": "step_cced634e",
+      "agent": "interaction",
       "tool": "key_press",
-      "plan_id": "plan_r_0928_020230",
       "parameters": {
         "key": "f1"
       },
+      "description": "Press F1 to open the command palette in Visual Studio Code while viewing the \"Overview of the Declarative Agent template\" in the README.md preview.",
+      "content_refs": [],
       "timeout": 30,
+      "retry_count": 0,
       "continue_on_error": "false",
+      "depends_on": [],
       "preconditions": [
         "dhash:512:384:0:20:32ac2a23a3232421"
       ],
+      "postconditions": [],
       "tags": [],
-      "created_at": "2025-10-23T04:14:22.351669"
+      "screenshot": "step_cced634e",
+      "created_at": "2025-12-12T01:59:23.842043",
+      "plan_id": "plan_r_0928_020230"
     },
     {
-      "agent": "interaction",
-      "description": "Type 'Microsoft 365 Agents: Accounts' into the Visual Studio Code command palette input field to search for Microsoft 365 Agents-related commands.",
       "step_id": "step_575df63c",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
-      "postconditions": [],
-      "screenshot": "step_575df63c",
+      "agent": "interaction",
       "tool": "type_text",
-      "plan_id": "plan_r_0928_020230",
       "parameters": {
         "text": "Microsoft 365 Agents: Accounts"
       },
+      "description": "Type 'Microsoft 365 Agents: Accounts' into the Visual Studio Code command palette input field to search for Microsoft 365 Agents-related commands.",
+      "content_refs": [],
       "timeout": 30,
+      "retry_count": 0,
       "continue_on_error": "false",
+      "depends_on": [],
       "preconditions": [
         "dhash:512:384:0:20:e4c04827a3232421"
       ],
+      "postconditions": [],
       "tags": [],
-      "created_at": "2025-10-23T04:14:22.366425"
+      "screenshot": "step_575df63c",
+      "created_at": "2025-12-12T01:59:23.865803",
+      "plan_id": "plan_r_0928_020230"
     },
     {
-      "agent": "interaction",
-      "description": "Press Enter to select \"Microsoft 365 Agents: Accounts\" from the VS Code command palette dropdown.",
       "step_id": "step_2cd0cd3b",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
-      "postconditions": [],
-      "screenshot": "step_2cd0cd3b",
+      "agent": "interaction",
       "tool": "key_press",
-      "plan_id": "plan_r_0928_020230",
       "parameters": {
         "key": "enter"
       },
+      "description": "Press Enter to select \"Microsoft 365 Agents: Accounts\" from the VS Code command palette dropdown.",
+      "content_refs": [],
       "timeout": 30,
+      "retry_count": 0,
       "continue_on_error": "false",
+      "depends_on": [],
       "preconditions": [
         "dhash:512:384:0:20:c4b02a23a3232421"
       ],
+      "postconditions": [],
       "tags": [],
-      "created_at": "2025-10-23T04:14:22.379901"
+      "screenshot": "step_2cd0cd3b",
+      "created_at": "2025-12-12T01:59:23.886824",
+      "plan_id": "plan_r_0928_020230"
     },
     {
-      "agent": "interaction",
-      "description": "Click the \"Sign in to Microsoft 365\" option in the account dropdown menu at the top of the Visual Studio Code interface to initiate Microsoft 365 authentication.",
       "step_id": "step_7b5387ee",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
-      "postconditions": [],
-      "screenshot": "step_7b5387ee",
+      "agent": "interaction",
       "tool": "click",
-      "plan_id": "plan_r_0928_020230",
       "parameters": {
+        "button": "left",
         "x": 322,
-        "y": 49,
-        "button": "left"
+        "y": 49
       },
+      "description": "Click the \"Sign in to Microsoft 365\" option in the account dropdown menu at the top of the Visual Studio Code interface to initiate Microsoft 365 authentication.",
+      "content_refs": [],
       "timeout": 30,
+      "retry_count": 0,
       "continue_on_error": "false",
+      "depends_on": [],
       "preconditions": [
         "dhash:322:49:16:5:000024d92669692d",
         "dhash:322:49:96:5:00003044cd6a2b44",
         "dhash:322:49:0:10:c0842223a3232421"
       ],
+      "postconditions": [],
       "tags": [],
-      "created_at": "2025-10-23T04:14:22.395722"
+      "screenshot": "step_7b5387ee",
+      "created_at": "2025-12-12T01:59:23.907257",
+      "plan_id": "plan_r_0928_020230"
     },
     {
-      "agent": "interaction",
-      "description": "Press Enter to activate the \"Sign in\" button in the Microsoft 365 Toolkit account permission prompt bar at the top of Visual Studio Code.",
       "step_id": "step_4bce0996",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
-      "postconditions": [],
-      "screenshot": "step_4bce0996",
+      "agent": "interaction",
       "tool": "key_press",
-      "plan_id": "plan_r_0928_020230",
       "parameters": {
         "key": "enter"
       },
+      "description": "Press Enter to activate the \"Sign in\" button in the Microsoft 365 Toolkit account permission prompt bar at the top of Visual Studio Code.",
+      "content_refs": [],
       "timeout": 30,
+      "retry_count": 0,
       "continue_on_error": "false",
+      "depends_on": [],
       "preconditions": [
         "dhash:512:384:0:20:94682322a3232421"
       ],
+      "postconditions": [],
       "tags": [],
-      "created_at": "2025-10-23T04:14:22.410718"
+      "screenshot": "step_4bce0996",
+      "created_at": "2025-12-12T01:59:23.924107",
+      "plan_id": "plan_r_0928_020230"
     },
     {
-      "agent": "interaction",
-      "description": "Click the \"Use another account\" option on the Microsoft sign-in page within Google Chrome to initiate logging in with a different account.",
       "step_id": "step_e2cc78ad",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
-      "postconditions": [],
-      "screenshot": "step_e2cc78ad",
+      "agent": "interaction",
       "tool": "click",
-      "plan_id": "plan_r_0928_020230",
       "parameters": {
+        "button": "left",
         "x": 507,
-        "y": 492,
-        "button": "left"
+        "y": 492
       },
+      "description": "Click the \"Use another account\" option on the Microsoft sign-in page within Google Chrome to initiate logging in with a different account.",
+      "content_refs": [],
       "timeout": 30,
+      "retry_count": 0,
       "continue_on_error": "false",
+      "depends_on": [],
       "preconditions": [
         "dhash:507:492:16:5:55555525c8458b00",
         "dhash:507:492:96:5:0148842d4c000000",
         "dhash:507:492:0:10:1b18e0d89ed6e6e4"
       ],
+      "postconditions": [],
       "tags": [],
-      "created_at": "2025-10-23T04:14:22.425724"
+      "screenshot": "step_e2cc78ad",
+      "created_at": "2025-12-12T01:59:23.943938",
+      "plan_id": "plan_r_0928_020230"
     },
     {
-      "agent": "interaction",
-      "description": "Enter  ${{env:M365_ACCOUNT_NAME}} into the 'Email or phone' input field on the Microsoft login page in Google Chrome.",
       "step_id": "step_301225ad",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
-      "postconditions": [],
-      "screenshot": "step_301225ad",
+      "agent": "interaction",
       "tool": "type_text",
-      "plan_id": "plan_r_0928_020230",
       "parameters": {
         "text": "${{env:M365_ACCOUNT_NAME}}"
       },
+      "description": "Enter  ${{env:M365_ACCOUNT_NAME}} into the 'Email or phone' input field on the Microsoft login page in Google Chrome.",
+      "content_refs": [],
       "timeout": 30,
+      "retry_count": 0,
       "continue_on_error": "false",
+      "depends_on": [],
       "preconditions": [
         "dhash:512:384:0:20:1b18e0d0c5e6dae4"
       ],
+      "postconditions": [],
       "tags": [],
-      "created_at": "2025-10-23T04:14:22.441306"
+      "screenshot": "step_301225ad",
+      "created_at": "2025-12-12T01:59:23.956084",
+      "plan_id": "plan_r_0928_020230"
     },
     {
-      "agent": "interaction",
-      "description": "Click the \"Next\" button on the Microsoft sign-in page in Google Chrome after entering the account email address.",
       "step_id": "step_961d5765",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
-      "postconditions": [],
-      "screenshot": "step_961d5765",
+      "agent": "interaction",
       "tool": "click",
-      "plan_id": "plan_r_0928_020230",
       "parameters": {
+        "button": "left",
         "x": 626,
-        "y": 517,
-        "button": "left"
+        "y": 517
       },
+      "description": "Click the \"Next\" button on the Microsoft sign-in page in Google Chrome after entering the account email address.",
+      "content_refs": [],
       "timeout": 30,
+      "retry_count": 0,
       "continue_on_error": "false",
+      "depends_on": [],
       "preconditions": [
         "dhash:626:517:16:5:9a9b89249a440000",
         "dhash:626:517:96:5:004a71714e000000",
         "dhash:626:517:0:10:1b18f0d8c5e6dae4"
       ],
-      "tags": [],
-      "created_at": "2025-10-23T04:14:22.455875"
+      "postconditions": [],
+      "tags": [
+        "delay: 5"
+      ],
+      "screenshot": "step_961d5765",
+      "created_at": "2025-12-12T01:59:23.975649",
+      "plan_id": "plan_r_0928_020230"
     },
     {
-      "agent": "interaction",
-      "description": "Type  ${{secret:M365_ACCOUNT_PASSWORD}} into the password input field on the Microsoft account login page for user ${{M365:AZURE_ACCOUNT_NAME}} in Google Chrome.",
       "step_id": "step_bc756061",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
-      "postconditions": [],
-      "screenshot": "step_bc756061",
+      "agent": "interaction",
       "tool": "type_text",
-      "plan_id": "plan_r_0928_020230",
       "parameters": {
         "text": "${{secret:M365_ACCOUNT_PASSWORD}}"
       },
+      "description": "Type  ${{secret:M365_ACCOUNT_PASSWORD}} into the password input field on the Microsoft account login page for user ${{M365:AZURE_ACCOUNT_NAME}} in Google Chrome.",
+      "content_refs": [],
       "timeout": 30,
+      "retry_count": 0,
       "continue_on_error": "false",
+      "depends_on": [],
       "preconditions": [
         "dhash:512:384:0:20:1b18e0d8d9e6e6e4"
       ],
+      "postconditions": [],
       "tags": [
         "delay:5"
       ],
-      "created_at": "2025-10-23T04:14:22.473356"
+      "screenshot": "step_bc756061",
+      "created_at": "2025-12-12T01:59:23.990187",
+      "plan_id": "plan_r_0928_020230"
     },
     {
-      "agent": "interaction",
-      "description": "Click the blue \"Sign in\" button on the Microsoft account password entry screen in Google Chrome.",
       "step_id": "step_c1b49ad1",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
-      "postconditions": [],
-      "screenshot": "step_c1b49ad1",
+      "agent": "interaction",
       "tool": "click",
-      "plan_id": "plan_r_0928_020230",
       "parameters": {
+        "button": "left",
         "x": 635,
-        "y": 542,
-        "button": "left"
+        "y": 542
       },
+      "description": "Click the blue \"Sign in\" button on the Microsoft account password entry screen in Google Chrome.",
+      "content_refs": [],
       "timeout": 30,
+      "retry_count": 0,
       "continue_on_error": "false",
+      "depends_on": [],
       "preconditions": [
         "dhash:635:542:16:5:402699d45434544b",
         "dhash:635:542:96:5:0000166961160000",
         "dhash:635:542:0:10:1b18e0d8d9f6e6e4"
       ],
+      "postconditions": [],
       "tags": [],
-      "created_at": "2025-10-23T04:14:22.492817"
+      "screenshot": "step_c1b49ad1",
+      "created_at": "2025-12-12T01:59:24.010026",
+      "plan_id": "plan_r_0928_020230"
     },
     {
-      "agent": "interaction",
-      "description": "Click the \"Close\" (X) button in the top-right corner of the Google Chrome window displaying a Visual Studio Code sign-in confirmation.",
       "step_id": "step_af16cb6a",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
-      "postconditions": [],
-      "screenshot": "step_af16cb6a",
+      "agent": "interaction",
       "tool": "click",
-      "plan_id": "plan_r_0928_020230",
       "parameters": {
+        "button": "left",
         "x": 1008,
-        "y": 23,
-        "button": "left"
+        "y": 23
       },
+      "description": "Click the \"Close\" (X) button in the top-right corner of the Google Chrome window displaying a Visual Studio Code sign-in confirmation.",
+      "content_refs": [],
       "timeout": 30,
+      "retry_count": 0,
       "continue_on_error": "false",
+      "depends_on": [],
       "preconditions": [
         "dhash:1008:23:16:5:c95a325ac922ab07",
         "dhash:1008:23:96:5:926363639200c6c4",
         "dhash:1008:23:0:10:1b19215569694541"
       ],
+      "postconditions": [],
       "tags": [
         "delay: 3"
       ],
-      "created_at": "2025-10-23T04:14:22.512448"
+      "screenshot": "step_af16cb6a",
+      "created_at": "2025-12-12T01:59:24.028330",
+      "plan_id": "plan_r_0928_020230"
     },
     {
-      "agent": "assertion",
-      "description": "@assertion there's ${{secret:M365_ACCOUNT_NAME}} in the \"ACCOUNTS\" section",
       "step_id": "step_cec7b653",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
-      "postconditions": [],
-      "screenshot": null,
+      "agent": "assertion",
       "tool": "",
-      "plan_id": "plan_r_0928_020230",
       "parameters": {},
+      "description": "@assertion there's ${{secret:M365_ACCOUNT_NAME}} in the \"ACCOUNTS\" section",
+      "content_refs": [],
       "timeout": 30,
+      "retry_count": 0,
       "continue_on_error": "false",
+      "depends_on": [],
       "preconditions": [],
+      "postconditions": [],
       "tags": [
         "step_retry_timeout: 60"
       ],
-      "created_at": "2025-10-23T04:14:22.531091"
+      "screenshot": null,
+      "created_at": "2025-12-12T01:59:24.042267",
+      "plan_id": "plan_r_0928_020230"
     }
   ],
   "screenshots": {

@@ -10,14 +10,14 @@
       "step_retry_count": 0
     },
     "total_steps": 24,
-    "created_at": "2025-11-06T02:54:35.708045",
+    "created_at": "2025-12-12T02:11:43.103831",
     "name": "Feature: Share Basic DA",
     "description": {
+      "other": "",
       "owner": "",
-      "workitem": "",
-      "other": "31339288"
+      "workitem": "31339288"
     },
-    "generated_at": "2025-11-06T02:54:35.708040",
+    "generated_at": "2025-12-12T02:11:43.103831",
     "execution_order": [
       "plan_r_0928_012254",
       "step_4124bb2a",
@@ -48,7 +48,7 @@
       "step_ccf247b7"
     ],
     "tags": [],
-    "updated_at": "2025-11-06T05:18:00.672558"
+    "updated_at": "2025-12-12T02:37:35.132851"
   },
   "steps": [
     {
@@ -79,7 +79,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_4124bb2a",
-      "created_at": "2025-11-06T05:14:44.268226",
+      "created_at": "2025-12-12T02:31:09.075726",
       "plan_id": "plan_112b671d"
     },
     {
@@ -110,7 +110,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_c98c0ff7",
-      "created_at": "2025-11-06T05:14:44.279034",
+      "created_at": "2025-12-12T02:31:09.096247",
       "plan_id": "plan_112b671d"
     },
     {
@@ -141,7 +141,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_7a92532f",
-      "created_at": "2025-11-06T05:14:44.289180",
+      "created_at": "2025-12-12T02:31:09.116292",
       "plan_id": "plan_112b671d"
     },
     {
@@ -172,7 +172,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_3111acda",
-      "created_at": "2025-11-06T05:14:44.300712",
+      "created_at": "2025-12-12T02:31:09.138670",
       "plan_id": "plan_112b671d"
     },
     {
@@ -201,7 +201,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_5f8da47d",
-      "created_at": "2025-11-06T05:14:44.313057",
+      "created_at": "2025-12-12T02:31:09.156407",
       "plan_id": "plan_112b671d"
     },
     {
@@ -230,7 +230,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_ba7ddada",
-      "created_at": "2025-11-06T05:14:44.322423",
+      "created_at": "2025-12-12T02:31:09.183185",
       "plan_id": "plan_112b671d"
     },
     {
@@ -259,7 +259,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_befcd6ec",
-      "created_at": "2025-11-06T05:14:44.333739",
+      "created_at": "2025-12-12T02:31:09.203321",
       "plan_id": "plan_112b671d"
     },
     {
@@ -288,7 +288,7 @@
         "step_retry_timeout: 120"
       ],
       "screenshot": null,
-      "created_at": "2025-11-06T05:14:44.344590",
+      "created_at": "2025-12-12T02:31:09.226884",
       "plan_id": "plan_112b671d"
     },
     {
@@ -319,7 +319,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_966acdd5",
-      "created_at": "2025-11-06T05:14:44.355053",
+      "created_at": "2025-12-12T02:31:09.247757",
       "plan_id": "plan_112b671d"
     },
     {
@@ -350,7 +350,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_cb96ac5f",
-      "created_at": "2025-11-06T05:14:44.365592",
+      "created_at": "2025-12-12T02:31:09.270496",
       "plan_id": "plan_112b671d"
     },
     {
@@ -381,7 +381,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_0f078ca3",
-      "created_at": "2025-11-06T05:14:44.375598",
+      "created_at": "2025-12-12T02:31:09.286300",
       "plan_id": "plan_112b671d"
     },
     {
@@ -394,11 +394,11 @@
         "dy": null,
         "key": null,
         "keys": null,
-        "text": "test01@xxbdw.onmicrosoft.com",
+        "text": "ivan01@xxbdw.onmicrosoft.com",
         "x": null,
         "y": null
       },
-      "description": "Type the email address #text:test01@xxbdw.onmicrosoft.com into the 'Email addresses of users or groups for agent sharing' field in the Microsoft 365 Agents Toolkit interface.",
+      "description": "Type the email address #text:ivan01@xxbdw.onmicrosoft.com into the 'Email addresses of users or groups for agent sharing' field in the Microsoft 365 Agents Toolkit interface.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -410,7 +410,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_47dc04af",
-      "created_at": "2025-11-06T05:14:44.388316",
+      "created_at": "2025-12-12T02:31:09.303576",
       "plan_id": "plan_112b671d"
     },
     {
@@ -427,7 +427,7 @@
         "x": null,
         "y": null
       },
-      "description": "Press the 'Enter' key in the input field labeled \"Email addresses of users or groups for agent sharing\" to confirm the entered email address: `test02@atktesting.onmicrosoft.com`.",
+      "description": "Press the 'Enter' key in the input field labeled \"Email addresses of users or groups for agent sharing\" to confirm the entered email address: `ivan01@xxbdw.onmicrosoft.com`.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -439,7 +439,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_76a12bd8",
-      "created_at": "2025-11-06T05:14:44.400734",
+      "created_at": "2025-12-12T02:31:09.321165",
       "plan_id": "plan_112b671d"
     },
     {
@@ -468,7 +468,7 @@
         "step_retry_timeout: 30"
       ],
       "screenshot": "step_c07e9c35",
-      "created_at": "2025-11-06T05:14:44.411941",
+      "created_at": "2025-12-12T02:31:09.344604",
       "plan_id": "plan_112b671d"
     },
     {
@@ -494,7 +494,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_37b35750",
-      "created_at": "2025-11-06T05:14:44.423704",
+      "created_at": "2025-12-12T02:31:09.362421",
       "plan_id": "plan_112b671d"
     },
     {
@@ -520,7 +520,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_66d49531",
-      "created_at": "2025-11-06T05:14:44.435481",
+      "created_at": "2025-12-12T02:31:09.381446",
       "plan_id": "plan_112b671d"
     },
     {
@@ -546,7 +546,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_d395340c",
-      "created_at": "2025-11-06T05:14:44.448808",
+      "created_at": "2025-12-12T02:31:09.402465",
       "plan_id": "plan_112b671d"
     },
     {
@@ -554,9 +554,9 @@
       "agent": "interaction",
       "tool": "type_text",
       "parameters": {
-        "text": "test01@xxbdw.onmicrosoft.com"
+        "text": "ivan01@xxbdw.onmicrosoft.com"
       },
-      "description": "Type the email address #text:test01@xxbdw.onmicrosoft.com into the input field labeled 'Email addresses of users or groups for agent access removal' within the Microsoft 365 Agents Toolkit interface in Visual Studio Code.",
+      "description": "Type the email address #text:ivan01@xxbdw.onmicrosoft.com into the input field labeled 'Email addresses of users or groups for agent access removal' within the Microsoft 365 Agents Toolkit interface in Visual Studio Code.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -568,7 +568,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_3ae6aaf0",
-      "created_at": "2025-11-06T05:14:44.464365",
+      "created_at": "2025-12-12T02:31:09.417777",
       "plan_id": "plan_112b671d"
     },
     {
@@ -592,7 +592,7 @@
         "delay: 3"
       ],
       "screenshot": "step_a3c1dfe3",
-      "created_at": "2025-11-06T05:14:44.477594",
+      "created_at": "2025-12-12T02:31:09.440317",
       "plan_id": "plan_112b671d"
     },
     {
@@ -612,7 +612,7 @@
         "step_retry_timeout: 30"
       ],
       "screenshot": null,
-      "created_at": "2025-11-06T05:14:44.488643",
+      "created_at": "2025-12-12T02:31:09.459470",
       "plan_id": "plan_112b671d"
     },
     {
@@ -643,7 +643,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_75b841d0",
-      "created_at": "2025-11-06T05:14:44.498866",
+      "created_at": "2025-12-12T02:31:09.476685",
       "plan_id": "plan_112b671d"
     },
     {
@@ -674,7 +674,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_109438b8",
-      "created_at": "2025-11-06T05:14:44.509011",
+      "created_at": "2025-12-12T02:31:09.493142",
       "plan_id": "plan_112b671d"
     },
     {
@@ -705,7 +705,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_90b31297",
-      "created_at": "2025-11-06T05:14:44.520021",
+      "created_at": "2025-12-12T02:31:09.514063",
       "plan_id": "plan_112b671d"
     },
     {
@@ -734,7 +734,7 @@
         "step_retry_timeout: 30"
       ],
       "screenshot": null,
-      "created_at": "2025-11-06T05:14:44.529460",
+      "created_at": "2025-12-12T02:31:09.532997",
       "plan_id": "plan_112b671d"
     }
   ],
