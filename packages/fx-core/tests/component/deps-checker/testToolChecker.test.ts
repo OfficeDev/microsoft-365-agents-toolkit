@@ -1170,13 +1170,13 @@ describe("GitHubHelpers", () => {
     sandbox.stub(fetchModule, "default").callsFake(async () => {
       const releases = [
         {
-          tag_name: "teams-app-test-tool@1.0.0",
+          tag_name: "microsoft-365-agents-playground@1.0.0",
           assets: [
             { name: `agentsplayground-${os.platform()}-${os.arch()}`, url: "https://example0.com" },
           ],
         },
         {
-          tag_name: "teams-app-test-tool@1.0.1",
+          tag_name: "microsoft-365-agents-playground@1.0.1",
           assets: [
             { name: `agentsplayground-${os.platform()}-${os.arch()}`, url: "https://example1.com" },
           ],
@@ -1197,13 +1197,13 @@ describe("GitHubHelpers", () => {
         {
           tag_name: "templates@1.0.0",
           assets: [
-            { name: `teamsapptester-${os.platform()}-${os.arch()}`, url: "https://example0.com" },
+            { name: `agentsplayground-${os.platform()}-${os.arch()}`, url: "https://example0.com" },
           ],
         },
         {
           tag_name: "templates@1.0.1",
           assets: [
-            { name: `teamsapptester-${os.platform()}-${os.arch()}`, url: "https://example1.com" },
+            { name: `agentsplayground-${os.platform()}-${os.arch()}`, url: "https://example1.com" },
           ],
         },
       ];
@@ -1216,7 +1216,7 @@ describe("GitHubHelpers", () => {
     sandbox.stub(fetchModule, "default").callsFake(async () => {
       const releases = [
         {
-          tag_name: "teams-app-test-tool@1.0.0",
+          tag_name: "microsoft-365-agents-playground@1.0.0",
           assets: [],
         },
       ];
