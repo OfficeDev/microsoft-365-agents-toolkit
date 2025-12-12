@@ -41,15 +41,28 @@ export class ConfigGenerator {
     features: Record<string, unknown>
   ): Promise<Result<GeneratorResult, FxError>> {
     await context.userInteraction.showMessage("info", "Generating configuration files...", false);
+
+    // Process all components: detect conflicts and generate files in a single pass
     for (const component of components) {
-      const policy = policys[`${component.name}-${component.programmingLanguage}`];
+      const policyKey = this.getPolicyKey(component);
+      const policy = policys[policyKey];
+
+      if (!policy) {
+        return err(
+          new UserError(
+            this.componentName,
+            "UnknownPolicyError",
+            getDefaultString("error.generator.UnknownPolicy", policyKey)
+          )
+        );
+      }
+
       const fileDetectionResult = await this.detectFileConflict(destinationPath, policy);
       if (fileDetectionResult.isErr()) {
-        return err(fileDetectionResult.error);
+        await context.userInteraction.showMessage("warn", fileDetectionResult.error.message, false);
+        continue;
       }
-    }
-    for (const component of components) {
-      const policy = policys[`${component.name}-${component.programmingLanguage}`];
+
       const sourcePath = path.join(
         getTemplatesFolder(),
         "configs",
@@ -61,16 +74,19 @@ export class ConfigGenerator {
     return ok({});
   }
 
+  private getPolicyKey(component: { name: string; programmingLanguage: string }): string {
+    return `${component.name}-${component.programmingLanguage}`;
+  }
+
   private async detectFileConflict(
     destinationPath: string,
     policy: Record<string, CopyPolicy>
   ): Promise<Result<void, FxError>> {
     for (const [filePath, copyPolicy] of Object.entries(policy)) {
-      // Here we should check if the file exists in the destinationPath.
-      const fullPath = path.join(destinationPath, filePath);
-      const fileExists = await fs.pathExists(fullPath);
-      if (fileExists) {
-        if (copyPolicy.allowExistingFile === false) {
+      if (!copyPolicy.allowExistingFile) {
+        const fullPath = path.join(destinationPath, filePath);
+        const fileExists = await fs.pathExists(fullPath);
+        if (fileExists) {
           return err(
             new UserError(
               this.componentName,
@@ -84,6 +100,11 @@ export class ConfigGenerator {
     return ok(undefined);
   }
 
+  private getFileExtensionWithoutTemplate(filePath: string): string {
+    const withoutTemplate = filePath.endsWith(".tpl") ? filePath.slice(0, -4) : filePath;
+    return path.extname(withoutTemplate);
+  }
+
   private async generateConfigFilesByPolicy(
     sourcePath: string,
     destinationPath: string,
@@ -91,34 +112,40 @@ export class ConfigGenerator {
     features: Record<string, unknown>
   ): Promise<void> {
     for (const [filePath, copyPolicy] of Object.entries(policy)) {
+      const isTemplate = filePath.endsWith(".tpl");
       let srcFilePath = path.join(sourcePath, filePath);
-      let srcFileSuffix = path.extname(srcFilePath);
-      let destFilePath = path.join(destinationPath, filePath);
-      if (filePath.endsWith(".tpl")) {
-        // render template first
-        srcFileSuffix = path.extname(srcFilePath.slice(0, -4)); // remove .tpl suffix
-        const renderedFilePath = destFilePath.slice(0, -3) + "rendered"; // remove .tpl suffix
+      const destFilePath = path.join(
+        destinationPath,
+        isTemplate ? filePath.slice(0, -4) : filePath
+      );
+      const fileExtension = this.getFileExtensionWithoutTemplate(filePath);
+      let renderedFilePath: string | null = null;
+
+      // Render template if needed
+      if (isTemplate) {
+        renderedFilePath = destFilePath + ".rendered";
         const renderedContent = renderTemplate(srcFilePath, features);
         await fs.writeFile(renderedFilePath, renderedContent, "utf-8");
         srcFilePath = renderedFilePath;
-        destFilePath = destFilePath.slice(0, -4); // remove .tpl suffix
       }
 
-      const fileExists = await fs.pathExists(destFilePath);
-      if (fileExists) {
-        if (copyPolicy.policy === "add") {
-          if (srcFileSuffix === ".json") {
+      try {
+        // Handle existing files
+        const fileExists = await fs.pathExists(destFilePath);
+        if (fileExists) {
+          if (copyPolicy.policy === "add" && fileExtension === ".json") {
             await mergeJsonFile(srcFilePath, destFilePath);
           }
+          // For "skip" or non-JSON files, do nothing
+        } else {
+          // If the file does not exist, just copy it.
+          await fs.copy(srcFilePath, destFilePath);
         }
-      } else {
-        // If the file does not exist, just copy it.
-        await fs.copy(srcFilePath, destFilePath);
-      }
-      if (filePath.endsWith(".tpl")) {
-        // clean up rendered temp file
-        const renderedFilePath = destFilePath + ".rendered"; // remove .tpl suffix
-        await fs.remove(renderedFilePath);
+      } finally {
+        // Clean up rendered temp file
+        if (renderedFilePath !== null) {
+          await fs.remove(renderedFilePath);
+        }
       }
     }
   }
