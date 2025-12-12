@@ -10,14 +10,14 @@
       "step_retry_count": 0
     },
     "total_steps": 4,
-    "created_at": "2025-11-26T08:32:03.394262",
+    "created_at": "2025-12-12T05:36:14.939361",
     "name": "General Teams Agent Azure OpenAI py Remote Debug",
     "description": {
+      "other": "",
       "owner": "",
-      "workitem": "",
-      "other": "27178027"
+      "workitem": "27178027"
     },
-    "generated_at": "2025-11-26T08:32:03.394262",
+    "generated_at": "2025-12-12T05:36:14.938358",
     "execution_order": [
       "plan_r_0928_012254",
       "step_a222c44b",
@@ -26,8 +26,8 @@
       "step_49c7ff7a",
       "step_35362aaa",
       "plan_r_0928_014459",
-      "plan_r_0928_020230",
       "plan_cfbed8f1",
+      "plan_r_0928_020230",
       "plan_r_0929_040401",
       "plan_r_0928_073729",
       "plan_r_0928_075846",
@@ -35,7 +35,7 @@
       "plan_r_1009_093215"
     ],
     "tags": [],
-    "updated_at": "2025-11-26T08:33:17.819557"
+    "updated_at": "2025-12-12T05:36:38.679245"
   },
   "steps": [
     {
@@ -61,7 +61,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_a222c44b",
-      "created_at": "2025-11-26T08:32:03.417655",
+      "created_at": "2025-12-12T05:36:14.952630",
       "plan_id": "plan_a0ce5e4f"
     },
     {
@@ -87,7 +87,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_9340f45c",
-      "created_at": "2025-11-26T08:32:03.432839",
+      "created_at": "2025-12-12T05:36:14.965278",
       "plan_id": "plan_a0ce5e4f"
     },
     {
@@ -113,7 +113,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_49c7ff7a",
-      "created_at": "2025-11-26T08:32:03.446848",
+      "created_at": "2025-12-12T05:36:14.981446",
       "plan_id": "plan_a0ce5e4f"
     },
     {
@@ -139,7 +139,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_35362aaa",
-      "created_at": "2025-11-26T08:32:03.460564",
+      "created_at": "2025-12-12T05:36:14.999456",
       "plan_id": "plan_a0ce5e4f"
     }
   ],
