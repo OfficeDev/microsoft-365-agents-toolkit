@@ -14,8 +14,8 @@
     "name": "Teams Agent With Data AI Search Azure OpenAI py Remote Debug",
     "description": {
       "owner": "",
-      "workitem": "",
-      "other": "27454388"
+      "workitem": "27454388",
+      "other": ""
     },
     "generated_at": "2025-12-01T04:39:33.686860",
     "execution_order": [

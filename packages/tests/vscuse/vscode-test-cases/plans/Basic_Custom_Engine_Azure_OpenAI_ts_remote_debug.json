@@ -13,8 +13,8 @@
     "name": "Basic Custom Engine Azure OpenAI ts Remote Debug",
     "description": {
       "owner": "",
-      "workitem": "",
-      "other": "35692009"
+      "workitem": "35692009",
+      "other": ""
     },
     "generated_at": "2025-11-14T05:50:41.380998",
     "execution_order": [

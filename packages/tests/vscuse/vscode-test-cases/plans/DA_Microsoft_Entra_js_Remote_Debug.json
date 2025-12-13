@@ -13,8 +13,8 @@
     "name": "DA Microsoft Entra js Remote Debug",
     "description": {
       "owner": "",
-      "workitem": "",
-      "other": "34628887"
+      "workitem": "34628887",
+      "other": ""
     },
     "generated_at": "2025-11-11T04:26:14.578569",
     "execution_order": [

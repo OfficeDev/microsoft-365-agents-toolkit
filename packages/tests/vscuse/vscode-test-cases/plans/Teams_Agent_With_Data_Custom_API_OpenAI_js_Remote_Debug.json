@@ -14,8 +14,8 @@
     "name": "Teams Agent With Data Custom API OpenAI js Remote Debug",
     "description": {
       "owner": "",
-      "workitem": "",
-      "other": "28939529"
+      "workitem": "28939529",
+      "other": ""
     },
     "generated_at": "2025-12-02T01:51:58.401505",
     "execution_order": [

@@ -14,8 +14,8 @@
     "name": "DA Microsoft Entra js Local Debug",
     "description": {
       "owner": "",
-      "workitem": "",
-      "other": "34628872"
+      "workitem": "34628872",
+      "other": ""
     },
     "generated_at": "2025-11-06T04:48:51.709594",
     "execution_order": [

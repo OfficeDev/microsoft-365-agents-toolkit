@@ -14,8 +14,8 @@
     "name": "Sample Tab And Outlook Addin Local Debug",
     "description": {
       "owner": "",
-      "workitem": "",
-      "other": "17451443"
+      "workitem": "17451443",
+      "other": ""
     },
     "generated_at": "2025-11-24T05:25:50.569623",
     "execution_order": [

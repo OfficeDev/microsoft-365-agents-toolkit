@@ -13,8 +13,8 @@
     "name": "Teams Agent With Data Customize Azure OpenAI ts Copilot Remote Debug",
     "description": {
       "owner": "",
-      "workitem": "",
-      "other": "36048528"
+      "workitem": "36048528",
+      "other": ""
     },
     "generated_at": "2025-12-01T08:59:25.947194",
     "execution_order": [

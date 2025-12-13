@@ -14,8 +14,8 @@
     "name": "General Teams Agent Azure OpenAI ts Copilot Remote Debug",
     "description": {
       "owner": "",
-      "workitem": "",
-      "other": "36033075"
+      "workitem": "36033075",
+      "other": ""
     },
     "generated_at": "2025-11-27T07:22:22.853869",
     "execution_order": [

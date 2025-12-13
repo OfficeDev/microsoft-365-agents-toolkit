@@ -14,8 +14,8 @@
     "name": "Feature DA No Action Add Bearer Auth Configurations",
     "description": {
       "owner": "",
-      "workitem": "",
-      "other": "31043015"
+      "workitem": "31043015",
+      "other": ""
     },
     "generated_at": "2025-11-28T01:33:13.864629",
     "execution_order": [

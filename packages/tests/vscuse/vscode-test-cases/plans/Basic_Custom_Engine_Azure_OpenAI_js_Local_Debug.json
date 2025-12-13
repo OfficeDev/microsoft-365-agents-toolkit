@@ -14,8 +14,8 @@
     "name": "Basic Custom Engine Azure OpenAI js Local Debug",
     "description": {
       "owner": "",
-      "workitem": "",
-      "other": "34834059"
+      "workitem": "34834059",
+      "other": ""
     },
     "generated_at": "2025-11-05T09:33:57.549018",
     "execution_order": [

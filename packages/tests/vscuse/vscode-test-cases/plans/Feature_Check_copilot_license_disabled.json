@@ -14,8 +14,8 @@
     "name": "Feature Check Copilot License Disabled",
     "description": {
       "owner": "",
-      "workitem": "",
-      "other": "28202384"
+      "workitem": "28202384",
+      "other": ""
     },
     "generated_at": "2025-11-04T08:31:50.148360",
     "execution_order": [

@@ -14,8 +14,8 @@
     "name": "Basic Custom Engine OpenAI js Copilot Local Debug",
     "description": {
       "owner": "",
-      "workitem": "",
-      "other": "36010130"
+      "workitem": "36010130",
+      "other": ""
     },
     "generated_at": "2025-11-25T02:57:38.350950",
     "execution_order": [

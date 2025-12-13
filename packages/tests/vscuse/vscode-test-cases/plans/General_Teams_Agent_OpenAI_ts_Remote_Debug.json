@@ -14,8 +14,8 @@
     "name": "General Teams Agent OpenAI ts Remote Debug",
     "description": {
       "owner": "",
-      "workitem": "",
-      "other": "27042831"
+      "workitem": "27042831",
+      "other": ""
     },
     "generated_at": "2025-11-25T06:14:38.809135",
     "execution_order": [

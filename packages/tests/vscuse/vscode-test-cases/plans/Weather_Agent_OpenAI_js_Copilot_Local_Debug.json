@@ -14,8 +14,8 @@
     "name": "Weather Agent OpenAI js Local Debug Copilot",
     "description": {
       "owner": "",
-      "workitem": "",
-      "other": "36011399"
+      "workitem": "36011399",
+      "other": ""
     },
     "generated_at": "2025-11-25T05:57:11.599835",
     "execution_order": [

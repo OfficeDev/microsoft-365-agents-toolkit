@@ -14,8 +14,8 @@
     "name": "Weather Agent OpenAI js Remote Debug",
     "description": {
       "owner": "",
-      "workitem": "",
-      "other": "34648304"
+      "workitem": "34648304",
+      "other": ""
     },
     "generated_at": "2025-11-25T02:47:32.937242",
     "execution_order": [

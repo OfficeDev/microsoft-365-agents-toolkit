@@ -13,8 +13,8 @@
     "name": "Basic Custom Engine OpenAI ts Remote Debug",
     "description": {
       "owner": "",
-      "workitem": "",
-      "other": "36009400"
+      "workitem": "36009400",
+      "other": ""
     },
     "generated_at": "2025-11-25T02:25:09.203269",
     "execution_order": [

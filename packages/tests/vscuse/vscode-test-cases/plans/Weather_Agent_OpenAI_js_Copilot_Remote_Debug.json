@@ -14,8 +14,8 @@
     "name": "Weather Agent OpenAI js Copilot Remote Debug",
     "description": {
       "owner": "",
-      "workitem": "",
-      "other": "36011418"
+      "workitem": "36011418",
+      "other": ""
     },
     "generated_at": "2025-11-25T07:31:50.096866",
     "execution_order": [

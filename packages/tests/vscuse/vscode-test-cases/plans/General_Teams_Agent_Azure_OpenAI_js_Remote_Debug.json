@@ -14,8 +14,8 @@
     "name": "General Teams Agent Azure OpenAI js Remote Debug",
     "description": {
       "owner": "",
-      "workitem": "",
-      "other": "35721426"
+      "workitem": "35721426",
+      "other": ""
     },
     "generated_at": "2025-11-14T05:14:16.968472",
     "execution_order": [

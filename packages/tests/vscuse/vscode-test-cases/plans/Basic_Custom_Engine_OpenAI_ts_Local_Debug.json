@@ -14,8 +14,8 @@
     "name": "Basic Custom Engine OpenAI ts Local Debug",
     "description": {
       "owner": "",
-      "workitem": "",
-      "other": "36009300"
+      "workitem": "36009300",
+      "other": ""
     },
     "generated_at": "2025-11-25T02:19:26.069529",
     "execution_order": [

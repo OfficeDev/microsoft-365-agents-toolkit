@@ -14,8 +14,8 @@
     "name": "Sample Tab And Outlook Addin Remote Debug",
     "description": {
       "owner": "",
-      "workitem": "",
-      "other": "24121457"
+      "workitem": "24121457",
+      "other": ""
     },
     "generated_at": "2025-11-24T09:22:35.109104",
     "execution_order": [

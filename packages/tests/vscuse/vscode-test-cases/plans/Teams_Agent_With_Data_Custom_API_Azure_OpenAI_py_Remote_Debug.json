@@ -14,8 +14,8 @@
     "name": "Teams Agent With Data Custom API Azure OpenAI py Remote Debug",
     "description": {
       "owner": "",
-      "workitem": "",
-      "other": "29165758"
+      "workitem": "29165758",
+      "other": ""
     },
     "generated_at": "2025-11-26T14:44:03.437749",
     "execution_order": [

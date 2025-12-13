@@ -14,8 +14,8 @@
     "name": "Teams Agent With Data Customize OpenAI py Copilot Local Debug",
     "description": {
       "owner": "",
-      "workitem": "",
-      "other": "36031920"
+      "workitem": "36031920",
+      "other": ""
     },
     "generated_at": "2025-11-27T08:37:39.762408",
     "execution_order": [

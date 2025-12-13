@@ -14,8 +14,8 @@
     "name": "Teams Agent With Data Customize OpenAI ts Local Debug",
     "description": {
       "owner": "",
-      "workitem": "",
-      "other": "28869466"
+      "workitem": "28869466",
+      "other": ""
     },
     "generated_at": "2025-11-26T02:09:37.153539",
     "execution_order": [

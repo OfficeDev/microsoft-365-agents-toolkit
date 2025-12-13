@@ -14,8 +14,8 @@
     "name": "General Teams Agent Azure OpenAI ts Local Debug",
     "description": {
       "owner": "",
-      "workitem": "",
-      "other": "35527255"
+      "workitem": "35527255",
+      "other": ""
     },
     "generated_at": "2025-11-14T05:17:23.282921",
     "execution_order": [

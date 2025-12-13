@@ -13,8 +13,8 @@
     "name": "Basic Custom Engine OpenAI js Copilot Remote Debug",
     "description": {
       "owner": "",
-      "workitem": "",
-      "other": "36010146"
+      "workitem": "36010146",
+      "other": ""
     },
     "generated_at": "2025-11-25T04:13:13.189712",
     "execution_order": [

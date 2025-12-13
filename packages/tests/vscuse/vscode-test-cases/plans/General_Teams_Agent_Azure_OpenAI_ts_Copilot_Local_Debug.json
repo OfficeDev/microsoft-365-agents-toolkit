@@ -14,8 +14,8 @@
     "name": "General Teams Agent Azure OpenAI ts Copilot Local Debug",
     "description": {
       "owner": "",
-      "workitem": "",
-      "other": "36033050\n"
+      "workitem": "36033050",
+      "other": ""
     },
     "generated_at": "2025-11-27T07:06:04.136111",
     "execution_order": [
