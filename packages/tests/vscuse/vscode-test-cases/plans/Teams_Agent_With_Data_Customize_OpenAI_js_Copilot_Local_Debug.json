@@ -13,9 +13,9 @@
     "created_at": "2025-11-27T00:16:09.250199",
     "name": "Teams Agent With Data Customize OpenAI js Copilot Local Debug",
     "description": {
-      "owner": "",
-      "workitem": "",
-      "other": "36031895"
+      "owner": "v-yajunlu@microsoft.com",
+      "workitem": "36031895",
+      "other": ""
     },
     "generated_at": "2025-11-27T00:16:09.250199",
     "execution_order": [

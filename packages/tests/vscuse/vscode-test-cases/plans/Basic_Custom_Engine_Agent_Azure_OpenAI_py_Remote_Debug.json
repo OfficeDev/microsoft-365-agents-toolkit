@@ -13,9 +13,9 @@
     "created_at": "2025-12-11T06:35:26.072467",
     "name": "Basic Custom Engine Agent Azure OpenAI py Remote Debug",
     "description": {
-      "other": "36162207",
+      "other": "",
       "owner": "v-helzha@microsoft.com",
-      "workitem": ""
+      "workitem": "36162207"
     },
     "generated_at": "2025-12-11T06:35:26.072467",
     "execution_order": [

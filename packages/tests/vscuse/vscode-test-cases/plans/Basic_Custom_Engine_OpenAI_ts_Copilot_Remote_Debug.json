@@ -12,9 +12,9 @@
     "created_at": "2025-11-25T05:11:48.530852",
     "name": "Basic Custom Engine OpenAI ts Copilot Remote Debug",
     "description": {
-      "owner": "",
-      "workitem": "",
-      "other": "36010157"
+      "owner": "v-yajunlu@microsoft.com",
+      "workitem": "36010157",
+      "other": ""
     },
     "generated_at": "2025-11-25T05:11:48.530852",
     "execution_order": [

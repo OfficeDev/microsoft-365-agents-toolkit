@@ -13,9 +13,9 @@
     "created_at": "2025-11-17T17:24:24.945446",
     "name": "Sample Tab With Azure Backend Local Debug",
     "description": {
-      "owner": "",
-      "workitem": "",
-      "other": "12684063"
+      "owner": "v-ivanchen@microsoft.com",
+      "workitem": "12684063",
+      "other": ""
     },
     "generated_at": "2025-11-17T17:24:24.945446",
     "execution_order": [

@@ -13,9 +13,9 @@
     "created_at": "2025-11-27T01:10:25.425925",
     "name": "DA Typespec No Action",
     "description": {
-      "owner": "",
-      "workitem": "",
-      "other": "32237977"
+      "owner": "v-ivanchen@microsoft.com",
+      "workitem": "32237977",
+      "other": ""
     },
     "generated_at": "2025-11-27T01:10:25.425925",
     "execution_order": [
