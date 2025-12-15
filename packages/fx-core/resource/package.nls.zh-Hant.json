@@ -823,7 +823,7 @@
   "driver.spfx.info.tenantAppCatalogCreated": "SharePoint 租用戶應用程式目錄 %s 已建立。請稍候幾分鐘，讓它成為使用中。",
   "driver.spfx.warn.noTenantAppCatalogFound": "找不到租用戶應用程式目錄，請再試一次: %s",
   "driver.spfx.error.failedToGetAppCatalog": "建立后無法取得應用程式目錄網站 URL。請稍候數分鐘，然後再試一次。",
-  "driver.spfx.error.noValidAppCatelog": "您的租用戶中沒有有效的應用程式目錄。如果您希望 Microsoft 365 代理程式工具組為您建立屬性，或者您可以自行建立，您可以將 %s 中的屬性 'createAppCatalogIfNotExist' 更新為 true。",
+  "driver.spfx.error.noValidAppCatelog": "您的租用戶中沒有有效的應用程式目錄。如果您希望 Microsoft 365 Agents 工具組為您建立屬性，或者您可以自行建立，您可以將 %s 中的屬性 'createAppCatalogIfNotExist' 更新為 true。",
   "driver.spfx.add.description": "將其他網頁組件新增至 SPFx 專案",
   "driver.spfx.add.successNotice": "Web 組件 %s 已成功新增至專案。",
   "driver.spfx.add.progress.title": "Scaffolding 網頁組件",

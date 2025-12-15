@@ -823,7 +823,7 @@
   "driver.spfx.info.tenantAppCatalogCreated": "Katalog aplikací tenanta SharePointu %s se vytvořil. Počkejte prosím několik minut, než bude aktivní.",
   "driver.spfx.warn.noTenantAppCatalogFound": "Nenašel se žádný katalog aplikací tenanta. Zkuste to znovu: %s",
   "driver.spfx.error.failedToGetAppCatalog": "Po vytvoření se nepovedlo získat adresu URL webu katalogu aplikací. Počkejte několik minut a zkuste to znovu.",
-  "driver.spfx.error.noValidAppCatelog": "Ve vašem tenantovi není žádný platný katalog aplikací. Pokud chcete, aby ho pro vás vytvořila sada Microsoft 365 Agents Toolkit, můžete aktualizovat vlastnost createAppCatalogIfNotExist v %s na hodnotu true, případně ho můžete vytvořit sami.",
+  "driver.spfx.error.noValidAppCatelog": "Ve vašem tenantovi není žádný platný katalog aplikací. Pokud chcete, aby ho pro vás vytvořila Microsoft 365 Sada nástrojů pro agenty, můžete aktualizovat vlastnost createAppCatalogIfNotExist v %s na hodnotu true, případně ho můžete vytvořit sami.",
   "driver.spfx.add.description": "přidat další webovou část do projektu SPFx",
   "driver.spfx.add.successNotice": "Webová část %s se úspěšně přidala do projektu.",
   "driver.spfx.add.progress.title": "Webová část generování uživatelského rozhraní",
