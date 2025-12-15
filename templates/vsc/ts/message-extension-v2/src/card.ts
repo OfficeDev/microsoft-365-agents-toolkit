@@ -9,7 +9,7 @@ import {
 } from "@microsoft/teams.cards";
 
 const IMAGE_URL =
-  "https://github.com/OfficeDev/microsoft-365-agents-toolkit/raw/release/6.4/templates/vsc/python/message-extension-v2/appPackage/color.png";
+  "https://github.com/OfficeDev/microsoft-365-agents-toolkit/raw/release/6.4/templates/vsc/ts/message-extension-v2/appPackage/color.png";
 
 // :snippet-start: message-ext-create-card
 interface IFormData {
