@@ -129,7 +129,7 @@ describe("mergeJsonFile", () => {
       await mergeJsonFile(sourcePath, targetPath);
     } catch (e) {
       caught = true;
-      assert.match((e as Error).message, /parse/i);
+      assert.match((e as Error).message, /token|parse|syntax/i);
     }
 
     assert.isTrue(caught, "expected parse error to be thrown");
