@@ -13,9 +13,9 @@
     "created_at": "2025-11-19T01:23:53.534558",
     "name": "DA Typespec Oauth No Reference Id",
     "description": {
-      "owner": "",
-      "workitem": "",
-      "other": "32238176"
+      "owner": "v-ivanchen@microsoft.com",
+      "workitem": "32238176",
+      "other": ""
     },
     "generated_at": "2025-11-19T01:23:53.534558",
     "execution_order": [

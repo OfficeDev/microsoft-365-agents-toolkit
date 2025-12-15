@@ -12,9 +12,9 @@
     "created_at": "2025-11-14T03:06:29.987627",
     "name": "DA Microsoft Entra ts Remote Debug",
     "description": {
-      "owner": "",
-      "workitem": "",
-      "other": "29417723"
+      "owner": "v-ivanchen@microsoft.com",
+      "workitem": "29417723",
+      "other": ""
     },
     "generated_at": "2025-11-14T03:06:29.987617",
     "execution_order": [

@@ -13,9 +13,9 @@
     "created_at": "2025-12-01T02:54:59.557279",
     "name": "Teams Agent With Data AI Search Azure OpenAI ts Remote Debug",
     "description": {
-      "owner": "",
-      "workitem": "",
-      "other": "27569083"
+      "owner": "v-ivanchen@microsoft.com",
+      "workitem": "27569083",
+      "other": ""
     },
     "generated_at": "2025-12-01T02:54:59.557279",
     "execution_order": [
