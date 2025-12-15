@@ -350,7 +350,7 @@ export class AzureAccountManager extends login implements AzureAccountProvider {
           AzureAccountManager.codeFlowInstance
         );
         const cachedTenantId = await loadTenantId(accountName);
-        for await (const page of tenantClient.tenants.list().byPage({ maxPageSize: 100 })) {
+        for await (const page of tenantClient.tenants.list().byPage()) {
           for (const tenant of page) {
             if (
               cachedTenantId
@@ -360,9 +360,7 @@ export class AzureAccountManager extends login implements AzureAccountProvider {
               try {
                 tenantTokenCredential.setTenantId(tenant.tenantId as string);
                 const subscriptionClient = new SubscriptionClient(tenantTokenCredential);
-                for await (const subPage of subscriptionClient.subscriptions
-                  .list()
-                  .byPage({ maxPageSize: 100 })) {
+                for await (const subPage of subscriptionClient.subscriptions.list().byPage()) {
                   for (const item of subPage) {
                     arr.push({
                       subscriptionId: item.subscriptionId!,
@@ -388,9 +386,7 @@ export class AzureAccountManager extends login implements AzureAccountProvider {
         const subscriptionClient = new SubscriptionClient(
           AzureAccountManager.teamsFxTokenCredential
         );
-        for await (const page of subscriptionClient.subscriptions
-          .list()
-          .byPage({ maxPageSize: 100 })) {
+        for await (const page of subscriptionClient.subscriptions.list().byPage()) {
           for (const item of page) {
             arr.push({
               subscriptionId: item.subscriptionId!,
