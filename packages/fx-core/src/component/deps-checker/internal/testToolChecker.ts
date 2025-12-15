@@ -47,6 +47,7 @@ export class TestToolChecker implements DepsChecker {
   private readonly name = "Microsoft 365 Agents Playground";
   // eslint-disable-next-line no-secrets/no-secrets
   private readonly npmPackageName = "@microsoft/m365agentsplayground";
+  private readonly legacyNpmPackageName = "@microsoft/teams-app-test-tool"; // for backward compatibility
   private readonly checkUpdateTimeout = 10 * 1000;
   private readonly commandName = "agentsplayground";
   private readonly npmCommandName = isWindows() ? `${this.commandName}.cmd` : this.commandName;
@@ -192,7 +193,7 @@ export class TestToolChecker implements DepsChecker {
     await fs.ensureDir(tmpPath);
     let knownBinaryVersion: string | undefined;
     if (releaseType === TestToolReleaseType.Npm) {
-      await this.npmInstall(projectPath, tmpPath, versionRange);
+      await this.npmInstall(projectPath, tmpPath, versionRange, symlinkDir);
     } else {
       knownBinaryVersion = await this.binaryInstall(tmpPath, versionRange);
     }
@@ -484,15 +485,6 @@ export class TestToolChecker implements DepsChecker {
       const execPath = binFolder ? path.resolve(binFolder, commandName) : commandName;
       return await this.runQueryVersion(execPath);
     } catch (error) {
-      // For global installations on Windows, try without .cmd extension
-      if (!binFolder && isWindows() && releaseType === TestToolReleaseType.Npm) {
-        try {
-          return await this.runQueryVersion(this.commandName);
-        } catch {
-          return await this.runQueryVersion(this.legacyCommandName);
-        }
-      }
-
       // Fallback to legacy command name for backward compatibility
       const legacyCommandName =
         releaseType === TestToolReleaseType.Npm
@@ -501,7 +493,20 @@ export class TestToolChecker implements DepsChecker {
       const legacyExecPath = binFolder
         ? path.resolve(binFolder, legacyCommandName)
         : legacyCommandName;
-      return await this.runQueryVersion(legacyExecPath);
+
+      try {
+        return await this.runQueryVersion(legacyExecPath);
+      } catch (legacyError) {
+        // For global installations on Windows, try without .cmd extension
+        if (!binFolder && isWindows() && releaseType === TestToolReleaseType.Npm) {
+          try {
+            return await this.runQueryVersion(this.commandName);
+          } catch {
+            return await this.runQueryVersion(this.legacyCommandName);
+          }
+        }
+        throw legacyError;
+      }
     }
   }
 
@@ -520,6 +525,13 @@ export class TestToolChecker implements DepsChecker {
       const errorMessage = (error as Error)?.message || String(error);
       throw new Error(`${execPath} --version: ${errorMessage}`);
     }
+  }
+
+  private getPackageName(symlinkDir?: string): string {
+    if (symlinkDir && symlinkDir.includes(this.legacyCommandName)) {
+      return this.legacyNpmPackageName;
+    }
+    return this.npmPackageName;
   }
 
   private async hasNode(): Promise<boolean> {
@@ -543,7 +555,8 @@ export class TestToolChecker implements DepsChecker {
   private async npmInstall(
     projectPath: string,
     prefix: string,
-    versionRange: string
+    versionRange: string,
+    symlinkDir?: string
   ): Promise<void> {
     let pkg: string | undefined;
 
@@ -551,7 +564,8 @@ export class TestToolChecker implements DepsChecker {
     pkg ||= await this.findLocalNpmPackage(projectPath);
     pkg ||= await this.findLocalNpmPackage(path.join(projectPath, "devTools"));
 
-    pkg ||= `${this.npmPackageName}@${versionRange}`;
+    const packageName = this.getPackageName(symlinkDir);
+    pkg ||= `${packageName}@${versionRange}`;
 
     try {
       await cpUtils.executeCommand(
@@ -569,9 +583,10 @@ export class TestToolChecker implements DepsChecker {
     } catch (error: any) {
       await cleanup(prefix);
       // @ is incorrectly identified as an email format.
+      const packageName = this.getPackageName(symlinkDir);
       this.telemetryProperties[TelemetryProperties.InstallTestToolError] = (error.message as string)
-        ?.split(`${this.npmPackageName}@${versionRange}`)
-        ?.join(`${this.npmPackageName}{at}${versionRange}`);
+        ?.split(`${packageName}@${versionRange}`)
+        ?.join(`${packageName}{at}${versionRange}`);
       throw new DepsCheckerError(
         {
           default: getDefaultString("error.common.InstallSoftwareError", this.name),
