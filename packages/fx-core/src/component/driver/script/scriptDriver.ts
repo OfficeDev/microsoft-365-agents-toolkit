@@ -112,7 +112,7 @@ export async function executeCommand(
       env: { ...process.env, ...env } as { [k: string]: string },
     });
     if (res.isErr()) {
-      return err(res.error);
+      return err(convertScriptErrorToFxError(res.error, command));
     }
     const outputString = res.value;
     const outputObject = parseSetOutputCommand(command);

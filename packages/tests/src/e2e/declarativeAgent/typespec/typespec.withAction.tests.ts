@@ -14,7 +14,7 @@ import { CaseFactory } from "../../caseFactory";
 class DeclarativeAgentWithTypeSpec extends CaseFactory {
   public async onAfterCreate(projectPath: string): Promise<void> {
     // Update the project to remove comments
-    const mainFilePath = path.join(projectPath, "main.tsp");
+    const mainFilePath = path.join(projectPath, "src", "agent", "main.tsp");
     const mainFileContent = await fs.readFile(mainFilePath, "utf-8");
     const updateContent = mainFileContent
       .replace(
@@ -36,7 +36,7 @@ const myRecord: Record<string, string> = {};
 myRecord["with-plugin"] = "type-spec";
 
 new DeclarativeAgentWithTypeSpec(
-  Capability.DeclarativeAgent,
+  Capability.DeclarativeAgentWithTypeSpec,
   32772441,
   "bowsong@microsoft.com",
   [],

@@ -10,6 +10,8 @@ import {
   ManifestUtil,
   Platform,
   PluginManifestSchema,
+  FunctionObject,
+  RuntimeObjectLocalplugin,
   Result,
   TeamsAppManifest,
   err,
@@ -31,6 +33,8 @@ import { ManifestType } from "../../../utils/envFunctionUtils";
 import { DriverContext } from "../../interface/commonArgs";
 import { isJsonSpecFile } from "../../../../common/utils";
 import { featureFlagManager, FeatureFlags } from "../../../../common/featureFlags";
+import { ODRProvider, ODRServer, ODRTool } from "../../../utils/odrProvider";
+import { LocalMcpPrefix } from "../../../constants";
 
 export class PluginManifestUtils {
   public async readPluginManifestFile(
@@ -91,11 +95,14 @@ export class PluginManifestUtils {
     }
 
     try {
-      const res = await ManifestUtil.validateManifest(manifestRes.value);
+      const schemaErrors = await ManifestUtil.validateManifest(manifestRes.value);
+      const localMCPPluginErrors = await this.validateLocalMCPPluginRuntimes(manifestRes.value);
+      const allErrors = [...schemaErrors, ...localMCPPluginErrors];
+
       return ok({
         id: plugin.id,
         filePath: path,
-        validationResult: res,
+        validationResult: allErrors,
       });
     } catch (e: any) {
       return err(
@@ -252,6 +259,201 @@ export class PluginManifestUtils {
     }
 
     return files;
+  }
+
+  /**
+   * Validate LocalPlugin runtimes that use MCP servers.
+   * Validates four requirements:
+   * 1. local_endpoint must start with mcp://
+   * 2. run_for_functions entries must match tool names in MCP server
+   * 3. Function names must appear in run_for_functions
+   * 4. Functions cannot redefine parameters—must match MCP server
+   * @param manifest The plugin manifest to validate
+   * @param _context Driver context for logging
+   * @returns Array of validation error strings
+   */
+  public async validateLocalMCPPluginRuntimes(manifest: PluginManifestSchema): Promise<string[]> {
+    const errors: string[] = [];
+
+    if (!manifest.runtimes) {
+      return errors;
+    }
+
+    const localPluginRuntimes = manifest.runtimes.filter(
+      (rt): rt is RuntimeObjectLocalplugin => rt.type === "LocalPlugin"
+    );
+
+    if (localPluginRuntimes.length === 0) {
+      return errors;
+    }
+
+    let mcpServers: ODRServer[] = [];
+    if (process.platform === "win32") {
+      try {
+        mcpServers = await ODRProvider.listServers();
+      } catch (error) {
+        return errors;
+      }
+    }
+
+    const mcpServerMap = new Map(mcpServers.map((s) => [s.identifier, s]));
+
+    for (const runtime of localPluginRuntimes) {
+      const runtimeIdx = manifest.runtimes.indexOf(runtime);
+      const localEndpoint = runtime.spec.local_endpoint;
+
+      // 1. Only check the ones with endpoint starting with mcp://
+      if (!localEndpoint.startsWith(LocalMcpPrefix)) {
+        continue;
+      }
+
+      const mcpIdentifier = localEndpoint.replace(new RegExp(`^${LocalMcpPrefix}`), "");
+      const mcpServer = mcpServerMap.get(mcpIdentifier);
+
+      if (!mcpServer) {
+        errors.push(
+          `/runtimes/${runtimeIdx}/spec/local_endpoint: ` +
+            `MCP server "${mcpIdentifier}" not found in ODR provider.`
+        );
+        continue;
+      }
+
+      const mcpToolNames = new Set(mcpServer.tools.map((t) => t.name));
+
+      // 2. run_for_functions entries must match tool names in MCP server
+      runtime.run_for_functions?.forEach((funcName, funcIdx) => {
+        if (!mcpToolNames.has(funcName)) {
+          const availableTools = Array.from(mcpToolNames).join(", ");
+          errors.push(
+            `/runtimes/${runtimeIdx}/run_for_functions[${funcIdx}]: ` +
+              `Tool "${funcName}" not found in MCP server "${mcpServer.display_name}". ` +
+              `Available tools: ${availableTools}`
+          );
+        }
+      });
+
+      // 3. Function names must appear in run_for_functions
+      const runForFunctionsSet = new Set(runtime.run_for_functions || []);
+      manifest.functions?.forEach((func, funcIdx) => {
+        if (mcpToolNames.has(func.name) && !runForFunctionsSet.has(func.name)) {
+          errors.push(
+            `/functions[${funcIdx}]: ` +
+              `Function "${func.name}" exists in MCP server but is not listed in /runtimes/${runtimeIdx}/run_for_functions.`
+          );
+        }
+      });
+
+      // 4. Functions cannot redefine parameters—must match MCP server
+      runtime.run_for_functions?.forEach((funcName) => {
+        const manifestFunc = manifest.functions?.find((f) => f.name === funcName);
+        const mcpTool = mcpServer.tools.find((t) => t.name === funcName);
+
+        if (manifestFunc && mcpTool) {
+          const paramErrors = this.validateFunctionParameters(manifestFunc, mcpTool, funcName);
+          errors.push(...paramErrors);
+        }
+      });
+    }
+
+    return errors;
+  }
+
+  /**
+   * Validate that function parameters match exactly between manifest and MCP tool.
+   * @param manifestFunc The function definition from the manifest
+   * @param mcpTool The tool definition from MCP server
+   * @param funcName The function name for error messages
+   * @returns Array of validation error strings
+   */
+  private validateFunctionParameters(
+    manifestFunc: FunctionObject,
+    mcpTool: ODRTool,
+    funcName: string
+  ): string[] {
+    const errors: string[] = [];
+    const manifestParams = manifestFunc.parameters?.properties || {};
+    const mcpParams = mcpTool.inputSchema?.properties || {};
+    const manifestRequired = manifestFunc.parameters?.required || [];
+    const mcpRequired = mcpTool.inputSchema?.required || [];
+
+    const manifestParamNames = new Set(Object.keys(manifestParams));
+    const mcpParamNames = new Set(Object.keys(mcpParams));
+
+    // Extra parameters in manifest not in MCP
+    manifestParamNames.forEach((prop) => {
+      if (!mcpParamNames.has(prop)) {
+        errors.push(
+          `/functions["${funcName}"]/parameters/properties/${prop}: ` +
+            `Parameter not defined in MCP server. Functions cannot redefine parameters.`
+        );
+      }
+    });
+
+    // Missing parameters from MCP
+    mcpParamNames.forEach((prop) => {
+      if (!manifestParamNames.has(prop)) {
+        errors.push(
+          `/functions["${funcName}"]/parameters/properties/${prop}: ` +
+            `Missing parameter defined in MCP server. All MCP parameters must be included.`
+        );
+      }
+    });
+
+    // Validate required array matches
+    const manifestRequiredSet = new Set(manifestRequired);
+    const mcpRequiredSet = new Set(mcpRequired);
+
+    const extraRequired = manifestRequired.filter((r) => !mcpRequiredSet.has(r));
+    const missingRequired = (mcpRequired as string[]).filter((r) => !manifestRequiredSet.has(r));
+
+    if (extraRequired.length > 0) {
+      errors.push(
+        `/functions["${funcName}"]/parameters/required: ` +
+          `Extra required parameters not in MCP server: ${extraRequired.join(", ")}`
+      );
+    }
+
+    if (missingRequired.length > 0) {
+      errors.push(
+        `/functions["${funcName}"]/parameters/required: ` +
+          `Missing required parameters from MCP server: ${missingRequired.join(", ")}`
+      );
+    }
+
+    // Validate parameter types and properties for matching parameters
+    manifestParamNames.forEach((prop) => {
+      if (mcpParamNames.has(prop)) {
+        const manifestParam = manifestParams[prop];
+        const mcpParam = mcpParams[prop];
+
+        // Type check
+        if (manifestParam.type !== mcpParam.type) {
+          errors.push(
+            `/functions["${funcName}"]/parameters/properties/${prop}/type: ` +
+              `Type mismatch. Manifest has "${String(manifestParam.type)}", ` +
+              `MCP server has "${String(mcpParam.type)}".`
+          );
+        }
+
+        // Enum check
+        if (manifestParam.enum || mcpParam.enum) {
+          const manifestEnumSorted = manifestParam.enum
+            ? [...manifestParam.enum].sort()
+            : undefined;
+          const mcpEnumSorted = mcpParam.enum ? [...mcpParam.enum].sort() : undefined;
+
+          if (JSON.stringify(manifestEnumSorted) !== JSON.stringify(mcpEnumSorted)) {
+            errors.push(
+              `/functions["${funcName}"]/parameters/properties/${prop}/enum: ` +
+                `Enum mismatch. Manifest: ${JSON.stringify(manifestParam.enum)}, ` +
+                `MCP: ${JSON.stringify(mcpParam.enum)}.`
+            );
+          }
+        }
+      }
+    });
+
+    return errors;
   }
 }
 

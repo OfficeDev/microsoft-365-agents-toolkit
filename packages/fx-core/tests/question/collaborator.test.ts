@@ -14,7 +14,6 @@ import {
 import { assert } from "chai";
 import "mocha";
 import sinon from "sinon";
-import { featureFlagManager } from "../../src/common/featureFlags";
 import { CollaborationConstants, CollaborationUtil } from "../../src/core/collaborator";
 import {
   envQuestionCondition,
@@ -74,28 +73,6 @@ describe("Collaboration Question Node Tests", () => {
       assert.include(emailQuestion.title!, "Add owner to");
     });
 
-    it("should include agent option when ShareEnabled flag is true", () => {
-      sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
-      const node = grantPermissionQuestionNode();
-      const appTypeQuestion = node.children![0].data as MultiSelectQuestion;
-
-      assert.isDefined(appTypeQuestion.staticOptions);
-      const options = appTypeQuestion.staticOptions as { id: string }[];
-      assert.lengthOf(options, 3);
-      assert.isTrue(options.some((o) => o.id === CollaborationConstants.AgentOptionId));
-    });
-
-    it("should not include agent option when ShareEnabled flag is false", () => {
-      sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
-      const node = grantPermissionQuestionNode();
-      const appTypeQuestion = node.children![0].data as MultiSelectQuestion;
-
-      assert.isDefined(appTypeQuestion.staticOptions);
-      const options = appTypeQuestion.staticOptions as { id: string }[];
-      assert.lengthOf(options, 2);
-      assert.isFalse(options.some((o) => o.id === CollaborationConstants.AgentOptionId));
-    });
-
     it("should require at least one app type selection", () => {
       const node = grantPermissionQuestionNode();
       if (!node.children) return;
@@ -145,8 +122,7 @@ describe("Collaboration Question Node Tests", () => {
       });
     });
 
-    it("should include agent option when ShareEnabled flag is true", () => {
-      sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
+    it("should include agent option", () => {
       const node = listCollaboratorQuestionNode();
       const appTypeQuestion = node.children![0].data as MultiSelectQuestion;
 
@@ -154,17 +130,6 @@ describe("Collaboration Question Node Tests", () => {
       const options = appTypeQuestion.staticOptions as { id: string }[];
       assert.lengthOf(options, 3);
       assert.isTrue(options.some((o) => o.id === CollaborationConstants.AgentOptionId));
-    });
-
-    it("should not include agent option when ShareEnabled flag is false", () => {
-      sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
-      const node = listCollaboratorQuestionNode();
-      const appTypeQuestion = node.children![0].data as MultiSelectQuestion;
-
-      assert.isDefined(appTypeQuestion.staticOptions);
-      const options = appTypeQuestion.staticOptions as { id: string }[];
-      assert.lengthOf(options, 2);
-      assert.isFalse(options.some((o) => o.id === CollaborationConstants.AgentOptionId));
     });
 
     it("should require at least one app type selection", () => {

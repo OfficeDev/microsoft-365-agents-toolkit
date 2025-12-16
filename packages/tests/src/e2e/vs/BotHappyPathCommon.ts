@@ -9,11 +9,7 @@ import { environmentNameManager } from "@microsoft/teamsfx-core";
 import { expect } from "chai";
 import * as path from "path";
 import { BotValidator } from "../../commonlib";
-import {
-  CliCapabilities,
-  CliTriggerType,
-  Runtime,
-} from "../../commonlib/constants";
+import { CliTriggerType, Runtime } from "../../commonlib/constants";
 import { Executor } from "../../utils/executor";
 import {
   cleanUp,
@@ -27,7 +23,7 @@ import {
 
 export async function happyPathTest(
   runtime: Runtime,
-  capabilities: CliCapabilities,
+  capabilities: string,
   trigger?: CliTriggerType[],
   isTdpIntegrationTemplatesOnly?: boolean
 ): Promise<void> {

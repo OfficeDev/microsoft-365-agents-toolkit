@@ -68,7 +68,7 @@ describe("Remote debug Tests", function () {
       const driver = VSBrowser.instance.driver;
       await createNewProject("msgapikey", appName, { lang: Lang.TS });
       const userFile = path.resolve(projectPath, "env", ".env.dev.user");
-      const SECRET_API_KEY = "SECRET_API_KEY=gbxEWvk4p3sg";
+      const SECRET_API_KEY = "SECRET_API_KEY=fakekey";
       const KEY = "\n" + SECRET_API_KEY;
       fs.appendFileSync(userFile, KEY);
       console.log("add SECRET_API_KEY=yourapikey to .env file");

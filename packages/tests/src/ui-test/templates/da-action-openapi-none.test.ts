@@ -67,7 +67,7 @@ describe("Remote debug Tests", function () {
       await createNewProject("daOpenAPI", appName, { apiAuthOption: "None" });
       await clearNotifications();
       await execCommandIfExist(CommandPaletteCommands.ProvisionCommand);
-      await driver.sleep(Timeout.openAPIProvision);
+      await driver.sleep(Timeout.longTimeWait);
       await getNotification(
         Notification.ProvisionSucceeded,
         Timeout.shortTimeWait

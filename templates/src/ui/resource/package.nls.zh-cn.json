@@ -1,0 +1,21 @@
+{
+  "template.teams.others.bot.detail": "轻松实现可随时自定义的 Echo Bot",
+  "template.teams.others.bot.label": "基本机器人",
+  "template.teams.others.messageExtension.detail": "接收用户输入、处理它并发送自定义结果",
+  "template.teams.others.messageExtension.label": "消息扩展",
+  "template.teams.others.tab.detail": "轻松实现可随时自定义的 Web 应用",
+  "template.teams.others.tab.label": "“基本”选项卡",
+  "template.teams.general.detail": "在 Teams 中生成基本 AI 聊天机器人",
+  "template.teams.general.label": "基本 AI Chatbot",
+  "template.teams.rag.source.placeholder": "选择一个选项以加载数据",
+  "template.teams.rag.source.azureAISearch.detail": "从 Azure AI 搜索服务加载数据",
+  "template.teams.rag.source.azureAISearch.label": "Azure AI 搜索",
+  "template.teams.rag.source.customApi.detail": "基于 OpenAPI 说明文档从自定义 API 加载数据",
+  "template.teams.rag.source.customApi.label": "自定义 API",
+  "template.teams.rag.source.customize.detail": "决定如何加载数据",
+  "template.teams.rag.source.customize.label": "自定义",
+  "template.teams.rag.detail": "使用你的内容扩展 AI 机器人的知识，以获得问题的准确答案",
+  "template.teams.rag.label": "与你的数据聊天",
+  "template.customEngineAgent.placeholder": "选择选项",
+  "template.customEngineAgent.title": "使用 Teams AI 库的应用功能"
+}

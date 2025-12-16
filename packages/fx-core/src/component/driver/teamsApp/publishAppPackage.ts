@@ -19,6 +19,12 @@ import { WrapDriverContext } from "../util/wrapUtil";
 import { Constants } from "./constants";
 import { PublishAppPackageArgs } from "./interfaces/PublishAppPackageArgs";
 import { TelemetryPropertyKey } from "./utils/telemetry";
+import { ODRProvider } from "../../utils/odrProvider";
+import { exec } from "child_process";
+import { promisify } from "util";
+import { LocalMcpPrefix } from "../../constants";
+import { AppStudioError } from "./errors";
+import { AppStudioResultFactory } from "./results";
 
 export const actionName = "teamsApp/publishAppPackage";
 
@@ -85,6 +91,40 @@ export class PublishAppPackageDriver implements StepDriver {
     }
     const manifestString = manifestFile.getData().toString();
     const manifest = JSON.parse(manifestString) as TeamsAppManifest;
+
+    const declarativeAgents =
+      manifest.copilotExtensions?.declarativeCopilots || manifest.copilotAgents?.declarativeAgents;
+
+    if (declarativeAgents && declarativeAgents.length > 0) {
+      const declarativeAgentFile = zipEntries.find(
+        (x) => x.entryName === declarativeAgents[0].file
+      );
+
+      if (declarativeAgentFile) {
+        const declarativeAgentContent = declarativeAgentFile.getData().toString();
+        const declarativeAgentManifest = JSON.parse(declarativeAgentContent);
+
+        if (declarativeAgentManifest.actions) {
+          for (const action of declarativeAgentManifest.actions) {
+            const actionFile = zipEntries.find((x) => x.entryName === action.file);
+            if (actionFile) {
+              const isValid = await this.verifyLocalMCPPluginCerts(actionFile);
+              if (!isValid) {
+                const message = getLocalizedString(
+                  "driver.teamsApp.error.localMcpCertVerificationFailed"
+                );
+                return err(
+                  AppStudioResultFactory.UserError(AppStudioError.ValidationFailedError.name, [
+                    message,
+                    message,
+                  ])
+                );
+              }
+            }
+          }
+        }
+      }
+    }
 
     // manifest.id === externalID
     const appStudioTokenRes = await context.m365TokenProvider.getAccessToken({
@@ -197,6 +237,68 @@ export class PublishAppPackageDriver implements StepDriver {
       );
     } else {
       return ok(undefined);
+    }
+  }
+
+  private async verifyLocalMCPPluginCerts(pluginFile: AdmZip.IZipEntry): Promise<boolean> {
+    const pluginContent = pluginFile.getData().toString();
+    const pluginManifest = JSON.parse(pluginContent);
+    if (!pluginManifest.runtimes || !Array.isArray(pluginManifest.runtimes)) {
+      return true;
+    }
+
+    const servers = await ODRProvider.listServers();
+
+    let allValidCerts = true;
+
+    const localPluginRuntimes = pluginManifest.runtimes.filter(
+      (runtime: { type: string }) => runtime.type === "LocalPlugin"
+    );
+
+    for (const runtime of localPluginRuntimes) {
+      const localEndpoint = (runtime as { spec?: { local_endpoint?: string } }).spec
+        ?.local_endpoint;
+
+      if (!localEndpoint || !localEndpoint.startsWith(LocalMcpPrefix)) {
+        continue;
+      }
+
+      const mcpIdentifier = localEndpoint.substring(LocalMcpPrefix.length);
+      const serverInfo = servers.find((x) => x.identifier === mcpIdentifier);
+
+      if (!serverInfo) {
+        continue;
+      }
+
+      const valid = await this.verifyPackageFamilyCertIsValid(serverInfo.packageFamily);
+
+      if (!valid) {
+        allValidCerts = false;
+        break;
+      }
+    }
+
+    return allValidCerts;
+  }
+
+  private async verifyPackageFamilyCertIsValid(packageName: string): Promise<boolean> {
+    const execAsync = promisify(exec);
+    const command = `powershell.exe -Command "& Get-AppxPackage | where { $_.PackageFamilyName -eq '${packageName}' } | select { $_.SignatureKind }"`;
+
+    try {
+      const { stdout } = await execAsync(command);
+
+      if (!stdout) {
+        return false;
+      }
+
+      if (stdout.toLowerCase().includes("developer")) {
+        return false;
+      }
+      return true;
+    } catch (error) {
+      console.error("Unable to get cert info for package name", error);
+      return false;
     }
   }
 }

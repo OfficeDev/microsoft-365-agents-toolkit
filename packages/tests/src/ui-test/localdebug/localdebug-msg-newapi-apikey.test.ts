@@ -43,7 +43,7 @@ describe("Local Debug Tests", function () {
       );
       validateFileExist(projectPath, "src/functions/repair.js");
       const userFile = path.resolve(projectPath, "env", ".env.local.user");
-      const SECRET_API_KEY = "SECRET_API_KEY=gbxEWvk4p3sg";
+      const SECRET_API_KEY = "SECRET_API_KEY=fakekey";
       const KEY = "\n" + SECRET_API_KEY;
       fs.appendFileSync(userFile, KEY);
       console.log("add SECRET_API_KEY=yourapikey to .env file");

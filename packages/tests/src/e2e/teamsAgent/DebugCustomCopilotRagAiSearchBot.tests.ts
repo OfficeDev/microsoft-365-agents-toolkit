@@ -65,7 +65,7 @@ describe("Debug V3 custom-copilot-rag-ai-search TypeScript template", () => {
       await CliHelper.createProjectWithCapability(
         appName,
         testFolder,
-        "custom-copilot-rag" as any,
+        "custom-copilot-rag-azure-ai-search",
         undefined,
         options
       );
@@ -143,7 +143,7 @@ describe("Debug V3 custom-copilot-rag-ai-search TypeScript template", () => {
       await CliHelper.createProjectWithCapability(
         appName,
         testFolder,
-        "custom-copilot-rag" as any,
+        "custom-copilot-rag-azure-ai-search",
         undefined,
         options
       );
@@ -223,7 +223,7 @@ describe("Debug V3 custom-copilot-rag-ai-search TypeScript template", () => {
       await CliHelper.createProjectWithCapability(
         appName,
         testFolder,
-        "custom-copilot-rag" as any,
+        "custom-copilot-rag-azure-ai-search",
         undefined,
         options
       );
@@ -302,7 +302,7 @@ describe("Debug V3 custom-copilot-rag-ai-search TypeScript template", () => {
       await CliHelper.createProjectWithCapability(
         appName,
         testFolder,
-        "custom-copilot-rag" as any,
+        "custom-copilot-rag-azure-ai-search",
         undefined,
         options
       );

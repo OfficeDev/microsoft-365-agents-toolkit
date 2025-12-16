@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 
 /**
- * @author Yuan Tian <tianyuan@microsoft.com>
+ * @author Huihui Wu <huihuiwu@microsoft.com>
  */
 
 import { it } from "@microsoft/extra-shot-mocha";
@@ -38,12 +38,12 @@ describe("Multi Env Happy Path for Azure", function () {
 
   it(
     `Can create/provision/deploy/build/validate/launch remote a azure bot project`,
-    { testPlanCaseId: 24137694, author: "tianyuan@microsoft.com" },
+    { testPlanCaseId: 24137694, author: "huihuiwu@microsoft.com" },
     async function () {
       try {
         let result;
         result = await execAsync(
-          `atk new --interactive false --app-name ${appName} --capability bot --programming-language typescript`,
+          `atk new --interactive false --app-name ${appName} --capability default-bot --programming-language typescript`,
           {
             cwd: testFolder,
             env: processEnv,

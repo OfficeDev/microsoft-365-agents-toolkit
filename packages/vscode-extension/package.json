@@ -2,7 +2,7 @@
   "name": "ms-teams-vscode-extension",
   "displayName": "Microsoft 365 Agents Toolkit",
   "description": "Create, debug, and deploy agents with Microsoft 365 Agents Toolkit",
-  "version": "6.4.0-rc",
+  "version": "6.4.1",
   "publisher": "TeamsDevApp",
   "author": "Microsoft Corporation",
   "private": true,
@@ -617,12 +617,6 @@
     },
     "commands": [
       {
-        "command": "fx-extension.updateActionWithMCP",
-        "title": "%teamstoolkit.commands.updateActionWithMCP.title%",
-        "enablement": "!fx-extension.commandLocked",
-        "category": "Microsoft 365 Agents"
-      },
-      {
         "command": "fx-extension.create",
         "title": "%teamstoolkit.commands.createProject.title%",
         "enablement": "!fx-extension.commandLocked",
@@ -1045,6 +1039,12 @@
         "enablement": "true"
       },
       {
+        "command": "fx-extension.updateActionWithMCP",
+        "title": "%teamstoolkit.commands.updateActionWithMCP.title%",
+        "enablement": "fx-extension.isTeamsFx && isWorkspaceTrusted",
+        "category": "Microsoft 365 Agents"
+      },
+      {
         "command": "fx-extension.openTeamsAgentWalkthrough",
         "title": "%teamsagent.walkthrough.title%",
         "category": "Microsoft 365 Agents",
@@ -1054,7 +1054,7 @@
         "command": "fx-extension.removeSharedAccess",
         "title": "%teamstoolkit.commands.removeSharedAccess%",
         "category": "Microsoft 365 Agents",
-        "enablement": "fx-extension.isSharedEnabled"
+        "enablement": "fx-extension.isTeamsFx && isWorkspaceTrusted"
       }
     ],
     "taskDefinitions": [

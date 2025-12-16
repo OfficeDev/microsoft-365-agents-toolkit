@@ -79,7 +79,7 @@ describe("Remote debug Tests", function () {
       await driver.sleep(Timeout.shortTimeWait);
       const dialog = new ModalDialog();
       await dialog.pushButton("Confirm");
-      await driver.sleep(Timeout.shortTimeLoading);
+      await driver.sleep(Timeout.longTimeWait);
       await getNotification(
         Notification.ProvisionSucceeded,
         Timeout.shortTimeWait
