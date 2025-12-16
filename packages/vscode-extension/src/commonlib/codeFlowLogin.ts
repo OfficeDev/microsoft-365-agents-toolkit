@@ -469,7 +469,9 @@ export class CodeFlowLogin {
       };
       tokenRequest = this.isBrokerAvailable
         ? // HACK: Broker doesn't support forceRefresh so we need to pass in claims which will force a refresh
-          { ...tokenRequest, claims: '{ "id_token": {}}' }
+          tenantedAccount
+          ? tokenRequest
+          : { ...tokenRequest, claims: '{ "id_token": {}}' }
         : { ...tokenRequest, forceRefresh: tenantedAccount ? false : true };
       try {
         const res = await this.pca.acquireTokenSilent(tokenRequest);
