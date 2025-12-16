@@ -9,7 +9,7 @@ import {
 } from "@microsoft/teams.cards";
 
 const IMAGE_URL =
-  "https://github.com/microsoft/teams-agent-accelerator-samples/raw/main/python/memory-sample-agent/docs/images/memory-thumbnail.png";
+  "https://github.com/OfficeDev/microsoft-365-agents-toolkit/raw/release/6.4/templates/vsc/ts/message-extension-v2/appPackage/color.png";
 
 // :snippet-start: message-ext-create-card
 interface IFormData {
@@ -158,6 +158,11 @@ export async function createDummyCards(searchQuery: string) {
       thumbnail: {
         title: item.title,
         text: item.description,
+        images: [
+          {
+            url: IMAGE_URL,
+          },
+        ],
         // When a user clicks on a list item in Teams:
         // - If the thumbnail has a `tap` property: Teams will trigger the `message.ext.select-item` activity
         // - If no `tap` property: Teams will insert the full adaptive card into the compose box
