@@ -13,6 +13,7 @@ import { policys } from "../../../src/component/generator/configFiles/copyPolicy
 import * as jsonMerger from "../../../src/component/generator/configFiles/jsonMerger";
 import * as renderTemplateModule from "../../../src/component/generator/configFiles/renderTemplate";
 import * as telemetryModule from "../../../src/component/telemetry";
+import * as settingsUtilModule from "../../../src/component/utils/settingsUtil";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AnyConfigGenerator = any;
@@ -116,6 +117,191 @@ describe("ConfigGenerator", () => {
 
       // Middleware may wrap results; just verify warning behavior and skip
       assert.isFalse(copyStub.called);
+    });
+
+    it("should read settings and generate trackingId if missing", async () => {
+      const destPath = path.join(tempDir, "dest");
+      await fs.ensureDir(destPath);
+
+      const readSettingsStub = sandbox
+        .stub(settingsUtilModule.settingsUtil, "readSettings")
+        .resolves({
+          isOk: () => true,
+          value: { trackingId: "", version: "1.0" },
+        } as any);
+      const writeSettingsStub = sandbox
+        .stub(settingsUtilModule.settingsUtil, "writeSettings")
+        .resolves({
+          isOk: () => true,
+          value: destPath,
+        } as any);
+
+      sandbox.stub(fs, "pathExists").resolves(false);
+      sandbox.stub(fs, "copy").resolves();
+
+      const components = [{ name: "playground", programmingLanguage: "typescript" }];
+      const result = await configGenerator.run(mockContext, destPath, components, {});
+
+      assert.isTrue(result.isOk());
+      assert.isTrue(readSettingsStub.calledOnce);
+      assert.isTrue(writeSettingsStub.calledOnce);
+      const writeCall = writeSettingsStub.firstCall;
+      const settings = writeCall.args[1];
+      assert.isTrue(settings.trackingId.length > 0);
+    });
+
+    it("should use existing trackingId if present", async () => {
+      const destPath = path.join(tempDir, "dest");
+      await fs.ensureDir(destPath);
+      const existingId = "existing-tracking-id";
+
+      const readSettingsStub = sandbox
+        .stub(settingsUtilModule.settingsUtil, "readSettings")
+        .resolves({
+          isOk: () => true,
+          value: { trackingId: existingId, version: "1.0" },
+        } as any);
+      const writeSettingsStub = sandbox
+        .stub(settingsUtilModule.settingsUtil, "writeSettings")
+        .resolves({
+          isOk: () => true,
+          value: destPath,
+        } as any);
+
+      sandbox.stub(fs, "pathExists").resolves(false);
+      sandbox.stub(fs, "copy").resolves();
+
+      const components = [{ name: "playground", programmingLanguage: "typescript" }];
+      const result = await configGenerator.run(mockContext, destPath, components, {});
+
+      assert.isTrue(result.isOk());
+      const writeCall = writeSettingsStub.firstCall;
+      const settings = writeCall.args[1];
+      assert.equal(settings.trackingId, existingId);
+    });
+
+    it("should return error when readSettings fails", async () => {
+      const destPath = path.join(tempDir, "dest");
+      await fs.ensureDir(destPath);
+
+      sandbox.stub(settingsUtilModule.settingsUtil, "readSettings").resolves({
+        isErr: () => true,
+        error: new Error("Settings read failed"),
+      } as any);
+
+      sandbox.stub(fs, "pathExists").resolves(false);
+      sandbox.stub(fs, "copy").resolves();
+
+      const components = [{ name: "playground", programmingLanguage: "typescript" }];
+      const result = await configGenerator.run(mockContext, destPath, components, {});
+
+      assert.isTrue(result.isErr());
+    });
+
+    it("should send telemetry event with correct properties", async () => {
+      const destPath = path.join(tempDir, "dest");
+      await fs.ensureDir(destPath);
+
+      sandbox.stub(settingsUtilModule.settingsUtil, "readSettings").resolves({
+        isOk: () => true,
+        value: { trackingId: "test-id", version: "1.0" },
+      } as any);
+      sandbox.stub(settingsUtilModule.settingsUtil, "writeSettings").resolves({
+        isOk: () => true,
+        value: destPath,
+      } as any);
+
+      sandbox.stub(fs, "pathExists").resolves(false);
+      sandbox.stub(fs, "copy").resolves();
+
+      const components = [
+        { name: "playground", programmingLanguage: "typescript" },
+        { name: "local", programmingLanguage: "typescript" },
+      ];
+      const features = { hasBot: true, hasTab: true, appName: "TestApp" };
+      const result = await configGenerator.run(mockContext, destPath, components, features);
+
+      assert.isTrue(result.isOk());
+      assert.isTrue(mockContext.telemetryReporter.sendTelemetryEvent.calledOnce);
+
+      const telemetryCall = mockContext.telemetryReporter.sendTelemetryEvent.firstCall;
+      const eventName = telemetryCall.args[0];
+      const eventProps = telemetryCall.args[1];
+
+      assert.equal(eventName, "GenerateConfigSummary");
+      assert.isTrue(eventProps.trackingId === "test-id");
+      assert.isTrue(eventProps.successComponents.includes("playground-typescript"));
+      assert.isTrue(eventProps.successComponents.includes("local-typescript"));
+    });
+
+    it("should include failed components in telemetry", async () => {
+      const destPath = path.join(tempDir, "dest");
+      await fs.ensureDir(destPath);
+
+      const policyKey = Object.keys(policys)[0];
+      const [componentName, language] = policyKey.split("-");
+
+      sandbox.stub(settingsUtilModule.settingsUtil, "readSettings").resolves({
+        isOk: () => true,
+        value: { trackingId: "test-id", version: "1.0" },
+      } as any);
+      sandbox.stub(settingsUtilModule.settingsUtil, "writeSettings").resolves({
+        isOk: () => true,
+        value: destPath,
+      } as any);
+
+      sandbox.stub(fs, "pathExists").resolves(true);
+      sandbox.stub(fs, "copy").resolves();
+
+      const components = [
+        { name: componentName, programmingLanguage: language },
+        { name: "local", programmingLanguage: "typescript" },
+      ];
+      const result = await configGenerator.run(mockContext, destPath, components, {});
+
+      const telemetryCall = mockContext.telemetryReporter.sendTelemetryEvent.firstCall;
+      const eventProps = telemetryCall.args[1];
+
+      assert.isTrue(eventProps.failedComponents.length > 0);
+    });
+
+    it("should collect all capabilities in telemetry", async () => {
+      const destPath = path.join(tempDir, "dest");
+      await fs.ensureDir(destPath);
+
+      sandbox.stub(settingsUtilModule.settingsUtil, "readSettings").resolves({
+        isOk: () => true,
+        value: { trackingId: "test-id", version: "1.0" },
+      } as any);
+      sandbox.stub(settingsUtilModule.settingsUtil, "writeSettings").resolves({
+        isOk: () => true,
+        value: destPath,
+      } as any);
+
+      sandbox.stub(fs, "pathExists").resolves(false);
+      sandbox.stub(fs, "copy").resolves();
+
+      const components = [{ name: "playground", programmingLanguage: "typescript" }];
+      const features = {
+        hasTab: true,
+        hasBot: true,
+        hasMessageExtension: true,
+        hasDeclarativeAgent: true,
+        hasCustomEngineAgent: true,
+      };
+
+      const result = await configGenerator.run(mockContext, destPath, components, features);
+
+      assert.isTrue(result.isOk());
+      const telemetryCall = mockContext.telemetryReporter.sendTelemetryEvent.firstCall;
+      const eventProps = telemetryCall.args[1];
+
+      const capabilities = eventProps.TeamsManifestCapabilities;
+      assert.isTrue(capabilities.includes("Tab"));
+      assert.isTrue(capabilities.includes("Bot"));
+      assert.isTrue(capabilities.includes("ME"));
+      assert.isTrue(capabilities.includes("DA"));
+      assert.isTrue(capabilities.includes("CEA"));
     });
   });
 
