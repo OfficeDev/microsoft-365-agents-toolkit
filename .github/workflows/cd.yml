@@ -561,7 +561,7 @@ jobs:
           SUBJECT_PARTS=""
           
           if [ "${{ needs.cd.outputs.markdown-check-result }}" == "failure" ]; then
-            BODY="${BODY}Markdown Check Failed: Markdown files image/hyperlink availability check failed. "
+            BODY="${BODY}<b>Markdown Check Failed</b><br/>Markdown files image/hyperlink availability check failed.<br/><br/>"
             SUBJECT_PARTS="Markdown Check"
           fi
           
@@ -571,7 +571,7 @@ jobs:
             else
               SUBJECT_PARTS="Security Check (VSC)"
             fi
-            BODY="${BODY}Security Check Failed (VSC Templates): Security vulnerabilities found in package.json files under templates/vsc. "
+            BODY="${BODY}<b>Security Check Failed (VSC Templates)</b><br/>Security vulnerabilities found in package.json files under templates/vsc.<br/><br/>"
           fi
           
           if [ "${{ needs.cd.outputs.security-check-vs-result }}" == "failure" ]; then
@@ -580,10 +580,10 @@ jobs:
             else
               SUBJECT_PARTS="Security Check (VS)"
             fi
-            BODY="${BODY}Security Check Failed (VS Templates): Vulnerable NuGet packages found in C# projects under templates/vs. "
+            BODY="${BODY}<b>Security Check Failed (VS Templates)</b><br/>Vulnerable NuGet packages found in C# projects under templates/vs.<br/><br/>"
           fi
           
-          BODY="${BODY}Please check the workflow run for details."
+          BODY="${BODY}Please check the workflow run for details: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
           
           echo "BODY=${BODY}" >> $GITHUB_OUTPUT
           echo "SUBJECT=[CD Pipeline] ${SUBJECT_PARTS} Failed - ${{ github.ref_name }}" >> $GITHUB_OUTPUT
