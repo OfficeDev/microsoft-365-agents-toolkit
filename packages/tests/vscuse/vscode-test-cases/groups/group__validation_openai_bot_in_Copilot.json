@@ -10,14 +10,14 @@
       "step_retry_timeout": 0.0
     },
     "total_steps": 4,
-    "created_at": "2025-11-25T03:14:27.456740",
+    "created_at": "2025-12-11T03:06:23.497232",
     "name": "group  validation openai bot in Copilot",
     "description": {
+      "other": "validation in copilot",
       "owner": "v-yajunlu@microsoft.com",
-      "workitem": "",
-      "other": "validation in copilot"
+      "workitem": ""
     },
-    "generated_at": "2025-11-25T03:14:27.456740",
+    "generated_at": "2025-12-11T03:06:23.497232",
     "execution_order": [
       "step_2952da62",
       "step_4298c4f6",
@@ -27,7 +27,7 @@
     "tags": [
       "group"
     ],
-    "updated_at": "2025-11-28T07:17:27.994449"
+    "updated_at": "2025-12-16T02:05:24.957206"
   },
   "steps": [
     {
@@ -53,7 +53,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_2952da62",
-      "created_at": "2025-11-27T22:50:04.861590",
+      "created_at": "2025-12-16T01:23:00.341425",
       "plan_id": "plan_r_1125_031353"
     },
     {
@@ -75,7 +75,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_4298c4f6",
-      "created_at": "2025-11-27T22:50:04.871222",
+      "created_at": "2025-12-16T01:23:00.360383",
       "plan_id": "plan_r_1125_031353"
     },
     {
@@ -97,7 +97,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_9830333b",
-      "created_at": "2025-11-27T22:50:04.878740",
+      "created_at": "2025-12-16T01:23:00.362397",
       "plan_id": "plan_r_1125_031353"
     },
     {
@@ -114,10 +114,10 @@
       "preconditions": [],
       "postconditions": [],
       "tags": [
-        "delay:45"
+        "step_retry_timeout:60"
       ],
       "screenshot": null,
-      "created_at": "2025-11-27T22:50:04.886211",
+      "created_at": "2025-12-16T01:23:00.373397",
       "plan_id": "plan_r_1125_031353"
     }
   ],
