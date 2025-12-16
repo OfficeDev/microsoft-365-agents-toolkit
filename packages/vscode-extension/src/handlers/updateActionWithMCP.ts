@@ -14,7 +14,7 @@ import { ExtTelemetry } from "../telemetry/extTelemetry";
 import { TelemetryEvent } from "../telemetry/extTelemetryEvents";
 import path from "path";
 import * as fs from "fs-extra";
-import { QuestionNames } from "@microsoft/teamsfx-core";
+import { QuestionNames, ODRProvider } from "@microsoft/teamsfx-core";
 import * as vscode from "vscode";
 import axios from "axios";
 import { runCommand } from "./sharedOpts";
@@ -30,11 +30,54 @@ function sanitizeMCPName(name: string): string {
   return name
     .replace(/[^a-zA-Z0-9-]+/g, "_")
     .replace(/^_+|_+$/g, "")
-    .substring(0, 13);
+    .substring(0, 13)
+    .toLowerCase();
 }
 
-function extractLocalServerIdentifier(serverConfig: any): string | undefined {
-  return serverConfig?.type === "stdio" ? serverConfig.args?.[2] : undefined;
+/**
+ * Extract local server identifier from serverConfig.
+ * For ODR-based servers, matches against odr list output to get proper identifier.
+ * For non-ODR servers, returns original serverName as fallback.
+ */
+async function extractLocalServerIdentifier(
+  serverConfig: any,
+  originalServerName: string
+): Promise<string> {
+  if (serverConfig?.type !== "stdio") {
+    return originalServerName;
+  }
+
+  const configCommand = serverConfig.command || serverConfig.args?.[0] || "";
+  const isODRCommand =
+    configCommand.toLowerCase() === "odr" || configCommand.toLowerCase().endsWith("odr.exe");
+
+  if (isODRCommand) {
+    try {
+      const odrServers = await ODRProvider.listServers();
+
+      // Match by command and args to find the right ODR server
+      const matchingServer = odrServers.find((odrServer) => {
+        if (!serverConfig.command && !serverConfig.args) {
+          return false;
+        }
+
+        const configArgs = serverConfig.command
+          ? serverConfig.args || []
+          : serverConfig.args?.slice(1) || [];
+
+        return (
+          odrServer.command === configCommand &&
+          JSON.stringify(odrServer.args) === JSON.stringify(configArgs)
+        );
+      });
+
+      if (matchingServer?.identifier) {
+        return matchingServer.identifier;
+      }
+    } catch (error) {}
+  }
+
+  return originalServerName;
 }
 
 export async function updateActionWithMCP(args?: any[]): Promise<Result<any, FxError>> {
@@ -46,14 +89,16 @@ export async function updateActionWithMCP(args?: any[]): Promise<Result<any, FxE
   let mcpName = args && args.length > 0 ? args[0].serverName : undefined;
   let server = args && args.length > 0 ? args[0].serverConfig?.url : undefined;
   let isLocalMCP = args && args.length > 0 && args[0].serverConfig?.type === "stdio";
-  // For stdio type (local MCP), extract identifier from args array (e.g., args[2] contains the identifier)
-  let localServerIdentifier =
-    args && args.length > 0 ? extractLocalServerIdentifier(args[0].serverConfig) : undefined;
 
   // Sanitize mcpName if it's provided as an argument
   if (mcpName) {
     mcpName = sanitizeMCPName(mcpName);
   }
+
+  let localServerIdentifier =
+    args && args.length > 0 && isLocalMCP
+      ? await extractLocalServerIdentifier(args[0].serverConfig, args[0].serverName)
+      : undefined;
 
   if (!mcpName && !server && !isLocalMCP) {
     const projectPath = inputs.projectPath;
@@ -112,18 +157,28 @@ export async function updateActionWithMCP(args?: any[]): Promise<Result<any, FxE
       const serverConfig = mcpContent.servers[mcpNames[0]];
       server = serverConfig.url;
       isLocalMCP = serverConfig.type === "stdio";
-      localServerIdentifier = extractLocalServerIdentifier(serverConfig);
+      localServerIdentifier = await extractLocalServerIdentifier(serverConfig, mcpNames[0]);
     } else {
       const mcpNameSelection: SingleSelectConfig = {
         name: "mcpName",
         title: "Select MCP Server",
         options: mcpNames.map((name) => {
           const serverConfig = mcpContent.servers[name];
-          const identifier = extractLocalServerIdentifier(serverConfig);
-          const detail =
-            serverConfig.type === "stdio"
-              ? `${identifier as string}`
-              : (serverConfig.url as string);
+          let detail: string;
+          if (serverConfig.type === "stdio") {
+            if (serverConfig.command) {
+              const args = serverConfig.args ? (serverConfig.args as string[]).join(" ") : "";
+              detail = args
+                ? `${serverConfig.command as string} ${args}`
+                : (serverConfig.command as string);
+            } else if (serverConfig.args && Array.isArray(serverConfig.args)) {
+              detail = (serverConfig.args as string[]).join(" ");
+            } else {
+              detail = "stdio";
+            }
+          } else {
+            detail = (serverConfig.url as string) || "";
+          }
           return {
             id: name,
             label: name,
@@ -140,11 +195,11 @@ export async function updateActionWithMCP(args?: any[]): Promise<Result<any, FxE
         return err(result.error);
       }
       const originalMcpName = result.value.result as string;
-      mcpName = originalMcpName.replace(/[^a-zA-Z0-9]/g, "").substring(0, 10);
+      mcpName = sanitizeMCPName(originalMcpName);
       const serverConfig = mcpContent.servers[originalMcpName];
       server = serverConfig.url;
       isLocalMCP = serverConfig.type === "stdio";
-      localServerIdentifier = extractLocalServerIdentifier(serverConfig);
+      localServerIdentifier = await extractLocalServerIdentifier(serverConfig, originalMcpName);
     }
   }
 
@@ -162,7 +217,7 @@ export async function updateActionWithMCP(args?: any[]): Promise<Result<any, FxE
 
   inputs[QuestionNames.MCPForDAServerUrl] = server;
   inputs[QuestionNames.MCPForDAServerName] = mcpName;
-  if (isLocalMCP && localServerIdentifier) {
+  if (isLocalMCP) {
     inputs[QuestionNames.MCPLocalServerIdentifier] = localServerIdentifier;
   }
 
