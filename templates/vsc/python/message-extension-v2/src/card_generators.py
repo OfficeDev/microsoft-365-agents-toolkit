@@ -4,7 +4,6 @@ from microsoft.teams.cards import AdaptiveCard
 
 IMAGE_URL = "https://github.com/OfficeDev/microsoft-365-agents-toolkit/raw/release/6.4/templates/vsc/python/message-extension-v2/appPackage/color.png"
 
-
 def create_card(data: Dict[str, str]) -> AdaptiveCard:
     """Create an adaptive card from form data."""
     return AdaptiveCard.model_validate({
