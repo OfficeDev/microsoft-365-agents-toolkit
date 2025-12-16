@@ -561,7 +561,7 @@ jobs:
           SUBJECT_PARTS=""
           
           if [ "${{ needs.cd.outputs.markdown-check-result }}" == "failure" ]; then
-            BODY="${BODY}<b>❌ Markdown Check Failed</b><br/>Markdown files image/hyperlink availability check failed.<br/><br/>"
+            BODY="${BODY}<b>Markdown Check Failed</b><br/>Markdown files image/hyperlink availability check failed.<br/><br/>"
             SUBJECT_PARTS="Markdown Check"
           fi
           
@@ -571,7 +571,7 @@ jobs:
             else
               SUBJECT_PARTS="Security Check (VSC)"
             fi
-            BODY="${BODY}<b>❌ Security Check Failed (VSC Templates)</b><br/>Security vulnerabilities found in package.json files under templates/vsc.<br/><br/>"
+            BODY="${BODY}<b>Security Check Failed (VSC Templates)</b><br/>Security vulnerabilities found in package.json files under templates/vsc.<br/><br/>"
           fi
           
           if [ "${{ needs.cd.outputs.security-check-vs-result }}" == "failure" ]; then
@@ -580,10 +580,11 @@ jobs:
             else
               SUBJECT_PARTS="Security Check (VS)"
             fi
-            BODY="${BODY}<b>❌ Security Check Failed (VS Templates)</b><br/>Vulnerable NuGet packages found in C# projects under templates/vs.<br/><br/>"
+            BODY="${BODY}<b>Security Check Failed (VS Templates)</b><br/>Vulnerable NuGet packages found in C# projects under templates/vs.<br/><br/>"
           fi
           
-          BODY="${BODY}Please check the <a href=\"https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\">workflow run</a> for details."
+          WORKFLOW_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          BODY="${BODY}Please check the workflow run for details: ${WORKFLOW_URL}"
           
           echo "BODY=${BODY}" >> $GITHUB_OUTPUT
           echo "SUBJECT=[CD Pipeline] ${SUBJECT_PARTS} Failed - ${{ github.ref_name }}" >> $GITHUB_OUTPUT
@@ -592,7 +593,7 @@ jobs:
         uses: ./.github/actions/send-email-report
         env:
           TO: qinqiangxu@microsoft.com
-          BODY: '"${{ steps.build-message.outputs.BODY }}"'
+          BODY: "${{ steps.build-message.outputs.BODY }}"
           SUBJECT: "${{ steps.build-message.outputs.SUBJECT }}"
           MAIL_CLIENT_ID: ${{ secrets.TEST_CLEAN_CLIENT_ID }}
           MAIL_CLIENT_SECRET: ${{ secrets.TEST_CLEAN_CLIENT_SECRET }}

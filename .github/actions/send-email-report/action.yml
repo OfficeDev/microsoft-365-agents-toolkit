@@ -11,11 +11,18 @@ runs:
             "https://login.microsoftonline.com/${{ env.MAIL_TENANT_ID }}/oauth2/token")
 
           access_token=`echo $response | jq -r '. | select(.access_token) | .access_token'`
+          
+          # Use jq to properly construct JSON with escaped values
+          json_payload=$(jq -n \
+            --arg to "${{ env.TO }}" \
+            --arg body "${{ env.BODY }}" \
+            --arg subject "${{ env.SUBJECT }}" \
+            '{to: $to, body: $body, subject: $subject}')
 
           curl \
             --request POST \
             --header "Content-Type: application/json" \
             --header "Authorization: Bearer $access_token" \
-            --data '{"to": "${{ env.TO }}", "body": ${{ env.BODY }}, "subject": "${{ env.SUBJECT }}"}' \
+            --data "$json_payload" \
             'https://prod-18.northcentralus.logic.azure.com:443/workflows/b33d7861bfc64832a6f62cc8f2213988/triggers/manual/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0'
       shell: bash
