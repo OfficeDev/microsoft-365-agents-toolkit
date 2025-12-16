@@ -161,6 +161,7 @@ export enum TelemetryEvent {
   GenerateTemplate = "generate-template",
   GenerateSample = "generate-sample",
   GenerateConfig = "generate-config",
+  GenerateConfigSummary = "generate-config-summary",
   ConfirmProvision = "confirm-provision",
   CheckLocalDebugTenant = "check-local-debug-tenant",
   DebugSetUpSSO = "debug-set-up-sso",

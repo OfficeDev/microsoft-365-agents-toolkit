@@ -21,9 +21,11 @@ class SettingsUtils {
     projectPath: string,
     ensureTrackingId = true
   ): Promise<Result<Settings, FxError>> {
-    let projectYamlPath = pathUtils.getYmlFilePath(projectPath, "dev");
+    let projectYamlPath: string | undefined;
     if (featureFlagManager.getBooleanValue(FeatureFlags.GenerateConfigFiles)) {
       projectYamlPath = pathUtils.getAvailableYmlFilePath(projectPath);
+    } else {
+      projectYamlPath = pathUtils.getYmlFilePath(projectPath, "dev");
     }
 
     if (!projectYamlPath || !(await fs.pathExists(projectYamlPath))) {
@@ -49,9 +51,11 @@ class SettingsUtils {
     return ok(projectSettings);
   }
   async writeSettings(projectPath: string, settings: Settings): Promise<Result<string, FxError>> {
-    let projectYamlPath = pathUtils.getYmlFilePath(projectPath, "dev");
+    let projectYamlPath: string | undefined;
     if (featureFlagManager.getBooleanValue(FeatureFlags.GenerateConfigFiles)) {
       projectYamlPath = pathUtils.getAvailableYmlFilePath(projectPath);
+    } else {
+      projectYamlPath = pathUtils.getYmlFilePath(projectPath, "dev");
     }
 
     if (!projectYamlPath || !(await fs.pathExists(projectYamlPath))) {

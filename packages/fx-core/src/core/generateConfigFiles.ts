@@ -54,9 +54,19 @@ export async function generateConfigFiles(inputs: Inputs): Promise<Result<undefi
 
 function detectAppFeatures(manifest: TeamsManifest): Record<string, boolean> {
   const features: Record<string, boolean> = {};
+  const manifestV1D24 = manifest as TeamsManifestV1D24.TeamsManifestV1D24;
   features["hasTab"] = manifest.staticTabs !== undefined && manifest.staticTabs.length > 0;
   features["hasBot"] = manifest.bots !== undefined && manifest.bots.length > 0;
-  features["hasCopilot"] =
-    (manifest as TeamsManifestV1D24.TeamsManifestV1D24).copilotAgents !== undefined;
+  features["hasCopilot"] = manifestV1D24.copilotAgents !== undefined;
+  features["hasMessageExtension"] =
+    manifest.composeExtensions !== undefined && manifest.composeExtensions.length > 0;
+  features["hasDeclarativeAgent"] =
+    manifestV1D24.copilotAgents !== undefined &&
+    manifestV1D24.copilotAgents.declarativeAgents !== undefined &&
+    manifestV1D24.copilotAgents.declarativeAgents.length > 0;
+  features["hasCustomEngineAgent"] =
+    manifestV1D24.copilotAgents !== undefined &&
+    manifestV1D24.copilotAgents.customEngineAgents !== undefined &&
+    manifestV1D24.copilotAgents.customEngineAgents.length > 0;
   return features;
 }

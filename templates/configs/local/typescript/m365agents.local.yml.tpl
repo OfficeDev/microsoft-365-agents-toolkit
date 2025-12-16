@@ -122,6 +122,6 @@ deploy:
         TENANT_ID: $\{{TEAMS_APP_TENANT_ID}}
 {{/hasBot}}
 {{#hasTab}}
-        SSL_CRT_FILE: ${{SSL_CRT_FILE}}
-        SSL_KEY_FILE: ${{SSL_KEY_FILE}}
+        SSL_CRT_FILE: $\{{SSL_CRT_FILE}}
+        SSL_KEY_FILE: $\{{SSL_KEY_FILE}}
 {{/hasTab}}

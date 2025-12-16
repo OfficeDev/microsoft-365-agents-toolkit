@@ -13,11 +13,13 @@ import {
 } from "@microsoft/teamsfx-api";
 import fs from "fs-extra";
 import path from "path";
+import * as uuid from "uuid";
 import { getDefaultString } from "../../../common/localizeUtils";
-import { TelemetryEvent } from "../../../common/telemetry";
+import { ProjectTypeProps, TelemetryEvent } from "../../../common/telemetry";
 import { getTemplatesFolder } from "../../../folder";
 import { ProgressTitles } from "../../messages";
 import { ActionExecutionMW } from "../../middleware/actionExecutionMW";
+import { settingsUtil } from "../../utils/settingsUtil";
 import { CopyPolicy, policys } from "./copyPolicy";
 import { mergeJsonFile } from "./jsonMerger";
 import { renderTemplate } from "./renderTemplate";
@@ -41,6 +43,9 @@ export class ConfigGenerator {
     features: Record<string, unknown>
   ): Promise<Result<GeneratorResult, FxError>> {
     await context.userInteraction.showMessage("info", "Generating configuration files...", false);
+    // telemetry props
+    const successComponents: string[] = [];
+    const failedComponents: string[] = [];
 
     // Process all components: detect conflicts and generate files in a single pass
     for (const component of components) {
@@ -60,6 +65,7 @@ export class ConfigGenerator {
       const fileDetectionResult = await this.detectFileConflict(destinationPath, policy);
       if (fileDetectionResult.isErr()) {
         await context.userInteraction.showMessage("warn", fileDetectionResult.error.message, false);
+        failedComponents.push(policyKey);
         continue;
       }
 
@@ -70,8 +76,34 @@ export class ConfigGenerator {
         component.programmingLanguage
       );
       await this.generateConfigFilesByPolicy(sourcePath, destinationPath, policy, features);
+      successComponents.push(policyKey);
     }
+
+    const settingsRes = await settingsUtil.readSettings(destinationPath, false);
+    if (settingsRes.isErr()) return err(settingsRes.error);
+    const settings = settingsRes.value;
+    if (!settings.trackingId) {
+      settings.trackingId = uuid.v4();
+    }
+    await settingsUtil.writeSettings(destinationPath, settings);
+
+    context.telemetryReporter.sendTelemetryEvent(TelemetryEvent.GenerateConfigSummary, {
+      [ProjectTypeProps.TeamsManifestCapabilities]: this.getCapabilities(features).join(",") || "",
+      successComponents: successComponents.join(",") || "",
+      failedComponents: failedComponents.join(",") || "",
+      trackingId: settings.trackingId || "",
+    });
     return ok({});
+  }
+
+  private getCapabilities(features: Record<string, unknown>): string[] {
+    const capabilities: string[] = [];
+    if (features["hasTab"]) capabilities.push("Tab");
+    if (features["hasBot"]) capabilities.push("Bot");
+    if (features["hasMessageExtension"]) capabilities.push("ME");
+    if (features["hasDeclarativeAgent"]) capabilities.push("DA");
+    if (features["hasCustomEngineAgent"]) capabilities.push("CEA");
+    return capabilities;
   }
 
   private getPolicyKey(component: { name: string; programmingLanguage: string }): string {

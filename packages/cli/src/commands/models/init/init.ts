@@ -25,7 +25,7 @@ export const initCommand: CLICommand = {
   ],
   defaultInteractiveOption: false,
   telemetry: {
-    event: TelemetryEvent.GenerateConfig,
+    event: TelemetryEvent.InitProject,
   },
   handler: async (ctx) => {
     const inputs = ctx.optionValues;
