@@ -191,7 +191,7 @@ describe("File: officeChat/utils.ts", () => {
     beforeEach(() => {
       sandbox
         .stub(requestUtils, "sendRequestWithTimeout")
-        .resolves({ data: fakedOfficeSampleConfig } as AxiosResponse);
+        .resolves({ data: fakedOfficeSampleConfig } as any);
     });
     afterEach(() => {
       sandbox.restore();

@@ -242,9 +242,17 @@ Usage: @office Ask questions about Office Add-ins development.`);
       sandbox.stub(localizeUtils, "localize").returns("Default folder");
       const pathExistsSyncStub = sandbox.stub(fs, "pathExistsSync");
       pathExistsSyncStub.withArgs(path.join(defaultFolder, "fakeAppId")).returns(true);
-      sandbox
-        .stub(fs, "readdirSync")
-        .returns([path.join(defaultFolder, "fakeAppId") as any as fs.Dirent]);
+      const mockDirent = {
+        name: "fakeAppId",
+        isFile: () => false,
+        isDirectory: () => true,
+        isBlockDevice: () => false,
+        isCharacterDevice: () => false,
+        isSymbolicLink: () => false,
+        isFIFO: () => false,
+        isSocket: () => false,
+      } as fs.Dirent;
+      sandbox.stub(fs, "readdirSync").returns([mockDirent] as any);
       await handler.chatCreateOfficeProjectCommandHandler(
         "fakeFolder",
         "fakeId",

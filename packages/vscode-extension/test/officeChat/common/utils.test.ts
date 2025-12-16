@@ -4,7 +4,6 @@ import fs from "fs";
 import chaiPromised from "chai-as-promised";
 import * as commonUtils from "../../../src/officeChat/common/utils";
 import * as requestUtils from "@microsoft/teamsfx-core/build/common/requestUtils";
-import { AxiosResponse } from "axios";
 
 chai.use(chaiPromised);
 
@@ -19,7 +18,7 @@ describe("File: officeChat/common/utils", () => {
     it("return file response data", async () => {
       sandbox.stub(requestUtils, "sendRequestWithTimeout").resolves({
         data: "testData",
-      } as AxiosResponse);
+      } as any);
       const result = await commonUtils.fetchRawFileContent("test");
       chai.assert.equal(result, "testData");
     });
