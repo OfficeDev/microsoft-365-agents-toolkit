@@ -523,7 +523,7 @@ jobs:
             url="https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/attempts/${{ github.run_attempt }}/jobs?per_page=80&page=$page"
             echo "Fetching URL: $url"
       
-            resp=$(curl -s -H "Accept: application/vnd.github.v3+json" -u:${{ secrets.GITHUB_TOKEN }} "$url")
+            resp=$(curl -s -H "Accept: application/vnd.github.v3+json" -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" "$url")
             echo "Response from GitHub API: $resp"
 
             new_jobs=$(echo "$resp" | jq -cr '.jobs')
@@ -532,7 +532,7 @@ jobs:
             jobs=$(jq -cr --slurp 'add' <(echo "$jobs") <(echo "$new_jobs"))
             echo "Updated jobs list: $jobs"
 
-            has_next=$(curl -I -H "Accept: application/vnd.github.v3+json" -u:${{ secrets.GITHUB_TOKEN }} "$url" | grep -Fi "link:" | grep "rel=\"last\"" || true)
+            has_next=$(curl -I -H "Accept: application/vnd.github.v3+json" -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" "$url" | grep -Fi "link:" | grep "rel=\"last\"" || true)
             echo "Has next page: $has_next"
 
             if [ -z "$has_next" ]; then
