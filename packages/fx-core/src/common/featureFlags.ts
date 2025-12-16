@@ -106,7 +106,7 @@ export class FeatureFlags {
   };
   static readonly EmbeddedKnowledgeEnabled = {
     name: FeatureFlagName.EmbeddedKnowledgeEnabled,
-    defaultValue: "false",
+    defaultValue: "true",
   };
   static readonly ShareEnabled = {
     name: FeatureFlagName.ShareEnabled,
