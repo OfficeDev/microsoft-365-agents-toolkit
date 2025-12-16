@@ -1,6 +1,8 @@
-from typing import Dict, List, Any
-from microsoft.teams.api import Account
+from typing import Dict, List, Any, Sequence, Union
+from microsoft.teams.api import Account, TeamsChannelAccount
 from microsoft.teams.cards import AdaptiveCard
+
+IMAGE_URL = "https://github.com/OfficeDev/microsoft-365-agents-toolkit/raw/release/6.4/templates/vsc/python/message-extension-v2/appPackage/color.png"
 
 
 def create_card(data: Dict[str, str]) -> AdaptiveCard:
@@ -34,7 +36,7 @@ def create_card(data: Dict[str, str]) -> AdaptiveCard:
     })
 
 
-def create_conversation_members_card(members: List[Account]) -> AdaptiveCard:
+def create_conversation_members_card(members: Sequence[Union[Account, TeamsChannelAccount]]) -> AdaptiveCard:
     """Create a card showing conversation members."""
     members_list = ", ".join(member.name for member in members if member.name)
 
@@ -111,7 +113,7 @@ async def create_dummy_cards(search_query: str) -> List[Dict[str, Any]]:
             "thumbnail": {
                 "title": item["title"],
                 "text": item["description"],
-                "images": []
+                "images": [{"url": IMAGE_URL}],
             },
         }
         cards.append(card_data)
@@ -124,7 +126,7 @@ def create_link_unfurl_card(url: str) -> Dict[str, Any]:
     thumbnail = {
         "title": "Unfurled Link",
         "text": url,
-        "images": []
+        "images": [{"url": IMAGE_URL}],
     }
 
     card = AdaptiveCard.model_validate({
