@@ -9662,7 +9662,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to set properties of container '%s' in Azure Storage Account '%s' due to error: %s. The error responses from Azure are:]A; %s. ]A;If the error message specifies the reason, fix the error and try again.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Не удалось задать свойства контейнера "%s"' в учетной записи хранение Azure "%s" из-за ошибки: %s. Ответы об ошибках от Azure:]A; %s. ]A;Если в сообщении об ошибке указана причина, исправьте ошибку и повторите попытку.]]></Val>
+            <Val><![CDATA[Не удалось задать свойства контейнера "%s"' в учетной записи хранения Azure "%s" из-за ошибки: %s. Ответы об ошибках от Azure:]A; %s. ]A;Если в сообщении об ошибке указана причина, исправьте ошибку и повторите попытку.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -10934,7 +10934,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Check if you have permissions to your Azure Storage Account.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Проверьте, есть ли у вас разрешения для учетной записи службы хранилища Azure.]]></Val>
+            <Val><![CDATA[Проверьте, есть ли у вас разрешения для учетной записи хранения Azure.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
