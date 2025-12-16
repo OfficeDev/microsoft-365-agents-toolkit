@@ -102,8 +102,8 @@ jobs:
     env:
       GH_APP_ID: ${{ secrets.GH_APP_ID }}
       GH_APP_PRIVATE_KEY: ${{ secrets.GH_APP_PRIVATE_KEY }}
-      AZURE_OPENAI_ENDPOINT: ${{ secrets.AZURE_OPENAI_ENDPOINT_NEW }}
-      AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_KEY_NEW }}
+      AZURE_OPENAI_ENDPOINT: ${{ secrets.AZURE_OPENAI_ENDPOINT }}
+      AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_KEY }}
       AZURE_OPENAI_MODEL: "gpt-4.1"
       # AZURE AI search
       AZURE_OPENAI_EMBEDDING_DEPLOYMENT_NAME: "text-embedding-ada-002"
@@ -112,9 +112,9 @@ jobs:
       # Azure Service Principal for M365 Toolkit authentication
       #AZURE_CLIENT_ID: ${{ secrets.AZURE_SERVICE_PRINCIPAL_ID }}
       #AZURE_CLIENT_SECRET: ${{ secrets.AZURE_SERVICE_PRINCIPAL_SECRET }}
-      AZURE_TENANT_ID: ${{ secrets.TEST_TENANT_ID_NEW  }}
-      AZURE_SUBSCRIPTION_ID: ${{ secrets.TEST_SUBSCRIPTION_ID_NEW }}
-      AZURE_AUTH_ENABLED: ${{ secrets.AZURE_SERVICE_PRINCIPAL_ID != '' && secrets.AZURE_SERVICE_PRINCIPAL_SECRET != '' && secrets.TEST_TENANT_ID_NEW != '' }}
+      AZURE_TENANT_ID: ${{ secrets.TEST_TENANT_ID  }}
+      AZURE_SUBSCRIPTION_ID: ${{ secrets.TEST_SUBSCRIPTION_ID }}
+      AZURE_AUTH_ENABLED: ${{ secrets.AZURE_SERVICE_PRINCIPAL_ID != '' && secrets.AZURE_SERVICE_PRINCIPAL_SECRET != '' && secrets.TEST_TENANT_ID != '' }}
       # M365 account for testing
       M365_USERNAME_1: "test001@xxbdw.onmicrosoft.com"
       M365_USERNAME_2: "test002@xxbdw.onmicrosoft.com"
@@ -138,8 +138,8 @@ jobs:
       M365_ACCOUNT_NAME_EnableCopilotAccess: "test01@atktesting.onmicrosoft.com"
       M365_ACCOUNT_PASSWORD_EnableCopilotAccess: ${{ secrets.TEST_M365_PASSWORD_NEW }}
       
-      AZURE_ACCOUNT_NAME: ${{ secrets.TEST_USER_NAME_NEW }}
-      AZURE_ACCOUNT_PASSWORD: ${{ secrets.TEST_USER_PASSWORD_NEW }}
+      AZURE_ACCOUNT_NAME: ${{ secrets.TEST_USER_NAME }}
+      AZURE_ACCOUNT_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
       M365_TENANT_ID: ${{ secrets.TEST_CLEAN_TENANT_ID }}
       # GITHUB test account
       GITHUB_ACCOUNT_NAME: ${{ secrets.GH_ACCOUNT_NAME }}
