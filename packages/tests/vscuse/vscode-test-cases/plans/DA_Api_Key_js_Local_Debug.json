@@ -10,14 +10,14 @@
       "step_retry_count": 0
     },
     "total_steps": 12,
-    "created_at": "2025-12-16T02:09:33.951621",
+    "created_at": "2025-11-07T05:20:32.399564",
     "name": "DA Api Key js Local Debug",
     "description": {
-      "other": "",
       "owner": "v-ivanchen@microsoft.com",
-      "workitem": "34628854"
+      "workitem": "34628854",
+      "other": ""
     },
-    "generated_at": "2025-12-16T02:09:33.951621",
+    "generated_at": "2025-11-07T05:20:32.399559",
     "execution_order": [
       "plan_r_0928_012254",
       "step_3de1b179",
@@ -38,7 +38,7 @@
       "plan_r_0928_091745"
     ],
     "tags": [],
-    "updated_at": "2025-12-16T02:15:59.269502"
+    "updated_at": "2025-11-14T02:54:36.614864"
   },
   "steps": [
     {
@@ -64,7 +64,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_3de1b179",
-      "created_at": "2025-12-16T02:09:33.984698",
+      "created_at": "2025-11-14T02:49:04.808122",
       "plan_id": "plan_39dad59a"
     },
     {
@@ -90,7 +90,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_7a6801c0",
-      "created_at": "2025-12-16T02:09:34.007461",
+      "created_at": "2025-11-14T02:49:04.824171",
       "plan_id": "plan_39dad59a"
     },
     {
@@ -116,7 +116,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_3de92fbf",
-      "created_at": "2025-12-16T02:09:34.037571",
+      "created_at": "2025-11-14T02:49:04.839304",
       "plan_id": "plan_39dad59a"
     },
     {
@@ -142,7 +142,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_22f3d3ef",
-      "created_at": "2025-12-16T02:09:34.071927",
+      "created_at": "2025-11-14T02:49:04.856087",
       "plan_id": "plan_39dad59a"
     },
     {
@@ -168,7 +168,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_e98b11ec",
-      "created_at": "2025-12-16T02:09:34.104660",
+      "created_at": "2025-11-14T02:49:04.868933",
       "plan_id": "plan_39dad59a"
     },
     {
@@ -194,7 +194,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_8ab7ee4b",
-      "created_at": "2025-12-16T02:09:34.145053",
+      "created_at": "2025-11-14T02:49:04.885170",
       "plan_id": "plan_39dad59a"
     },
     {
@@ -212,14 +212,16 @@
       "postconditions": [],
       "tags": [],
       "screenshot": null,
-      "created_at": "2025-12-16T02:09:34.174451",
+      "created_at": "2025-11-14T02:49:04.904624",
       "plan_id": "plan_39dad59a"
     },
     {
       "step_id": "step_456602d9",
       "agent": "code",
       "tool": "",
-      "parameters": {},
+      "parameters": {
+        "sample": "=== Generated Script ===\nLanguage: bash\n\n```bash\ncd /home/vscode/AgentsToolkitProjects/vscuse_app_4HybD\necho \"Checking for package.json...\"\nif [ ! -f package.json ]; then\n  echo \"Error: package.json not found. Aborting.\"\n  exit 1\nfi\nnpm run keygen > keygen_output.txt\nAPI_KEY=$(grep -oP 'Generated a new API Key: \\K.*' keygen_output.txt | head -1)\necho \"Extracted API Key: $API_KEY\"\nif [ -z \"$API_KEY\" ]; then\n  echo \"API Key not found in npm output. Aborting.\"\n  exit 2\nfi\nENV_FILE=\"/home/vscode/AgentsToolkitProjects/vscuse_app_4HybD/env/.env.local.user\"\necho \"Verifying env file path...\"\nif [ ! -f \"$ENV_FILE\" ]; then\n  echo \"Error: ENV file $ENV_FILE not found. Aborting.\"\n  exit 3\nfi\nsed -i \"s|SECRET_API_KEY=[ ]*['\\\"]*.*['\\\"]*|SECRET_API_KEY='$API_KEY'|\" \"$ENV_FILE\"\necho \"Updated ENV file with new API key.\"\ncat \"$ENV_FILE\"\n```\n\n=== Execution Results ===\nExit Code: 0\n\n=== STDOUT ===\nChecking for package.json...\nExtracted API Key: rBAuaG5VrBaH\nVerifying env file path...\nUpdated ENV file with new API key.\n# This file includes environment variables that will not be committed to git by default. You can set these environment variables in your CI/CD system for your project.\n\n# Secrets. Keys prefixed with `SECRET_` will be masked in Teams Toolkit logs.\nSECRET_API_KEY='fakeapikey'\n\n✓ Script executed successfully\n\n=== STDERR ===\n\nSuccess"
+      },
       "description": "@code run \"npm run keygen\" at /home/vscode/AgentsToolkitProjects/${{var:app_name}}. fill in the \"Generated a new API Key: <value>\" into /home/vscode/AgentsToolkitProjects/${{var:app_name}}/env/.env.local.user, replace SECRET_API_KEY= ' ' with the  <value> and save the file.",
       "content_refs": [],
       "timeout": 30,
@@ -230,7 +232,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": null,
-      "created_at": "2025-12-16T02:09:34.199395",
+      "created_at": "2025-11-14T02:49:04.919886",
       "plan_id": "plan_39dad59a"
     },
     {
@@ -256,7 +258,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_d728e592",
-      "created_at": "2025-12-16T02:09:34.227694",
+      "created_at": "2025-11-14T02:49:04.933681",
       "plan_id": "plan_39dad59a"
     },
     {
@@ -282,7 +284,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_52700b04",
-      "created_at": "2025-12-16T02:09:34.260077",
+      "created_at": "2025-11-14T02:49:04.948708",
       "plan_id": "plan_39dad59a"
     },
     {
@@ -300,7 +302,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": null,
-      "created_at": "2025-12-16T02:09:34.290021",
+      "created_at": "2025-11-14T02:49:04.962219",
       "plan_id": "plan_39dad59a"
     },
     {
@@ -326,7 +328,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_e4b31d6b",
-      "created_at": "2025-12-16T02:09:34.310587",
+      "created_at": "2025-11-14T02:49:04.975304",
       "plan_id": "plan_39dad59a"
     }
   ],

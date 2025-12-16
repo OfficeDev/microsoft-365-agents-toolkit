@@ -9,14 +9,14 @@
       "precondition_retry_interval": 1
     },
     "total_steps": 13,
-    "created_at": "2025-12-16T02:16:40.704031",
+    "created_at": "2025-11-03T09:36:24.220609",
     "name": "DA Api Key js Remote Debug",
     "description": {
-      "other": "",
       "owner": "v-ivanchen@microsoft.com",
-      "workitem": "34628865"
+      "workitem": "34628865",
+      "other": ""
     },
-    "generated_at": "2025-12-16T02:16:40.704031",
+    "generated_at": "2025-11-03T09:36:24.220599",
     "execution_order": [
       "plan_r_0928_012254",
       "step_c51c9e31",
@@ -41,7 +41,7 @@
       "plan_r_0928_091745"
     ],
     "tags": [],
-    "updated_at": "2025-12-16T02:17:13.248305"
+    "updated_at": "2025-11-16T01:18:01.509877"
   },
   "steps": [
     {
@@ -72,7 +72,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_c51c9e31",
-      "created_at": "2025-12-16T02:16:40.731749",
+      "created_at": "2025-11-16T01:17:31.662129",
       "plan_id": "plan_9e8bca35"
     },
     {
@@ -103,7 +103,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_9bed7121",
-      "created_at": "2025-12-16T02:16:40.755848",
+      "created_at": "2025-11-16T01:17:31.678032",
       "plan_id": "plan_9e8bca35"
     },
     {
@@ -134,7 +134,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_61492a3b",
-      "created_at": "2025-12-16T02:16:40.779968",
+      "created_at": "2025-11-16T01:17:31.692826",
       "plan_id": "plan_9e8bca35"
     },
     {
@@ -165,7 +165,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_921fc869",
-      "created_at": "2025-12-16T02:16:40.801011",
+      "created_at": "2025-11-16T01:17:31.707650",
       "plan_id": "plan_9e8bca35"
     },
     {
@@ -191,7 +191,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_e8cd8ad4",
-      "created_at": "2025-12-16T02:16:40.819933",
+      "created_at": "2025-11-16T01:17:31.721754",
       "plan_id": "plan_9e8bca35"
     },
     {
@@ -222,7 +222,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_49bc0e54",
-      "created_at": "2025-12-16T02:16:40.839916",
+      "created_at": "2025-11-16T01:17:31.735299",
       "plan_id": "plan_9e8bca35"
     },
     {
@@ -249,7 +249,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": null,
-      "created_at": "2025-12-16T02:16:40.862673",
+      "created_at": "2025-11-16T01:17:31.750934",
       "plan_id": "plan_9e8bca35"
     },
     {
@@ -262,6 +262,7 @@
         "dy": null,
         "key": null,
         "keys": null,
+        "sample": "=== Generated Script ===\nLanguage: bash\n\n```bash\ncd /home/vscode/AgentsToolkitProjects/vscuse_app_MCcAh\nnpm run keygen\n```\n\n=== Execution Results ===\nExit Code: 0\n\n=== STDOUT ===\n> vscuseappmccah@1.0.0 keygen\n> node ./src/keyGen.js\n\nGenerated a new API Key: oD1SLOnx4xyH\n\n✓ Script executed successfully\n=== Generated Script ===\nLanguage: bash\n\n```bash\nENV_FILE=\"/home/vscode/AgentsToolkitProjects/vscuse_app_MCcAh/env/.env.dev.user\"\nAPI_KEY=\"oD1SLOnx4xyH\"\nif [ ! -f \"$ENV_FILE\\\" ]; then\\n  echo \\\"File $ENV_FILE does not exist.\\\" >&2\\n  exit 1\\nfi\\nsed -i \\\"s/^SECRET_API_KEY=[[:space:]]*'.*'/SECRET_API_KEY='$API_KEY'/\\\" \\\"$ENV_FILE\\\"\\necho \\\"Updated SECRET_API_KEY in $ENV_FILE with $API_KEY\\\"\",\"language\":\"bash\",\"timeout\":30}\n```\n\n=== Execution Results ===\nExit Code: 0\n\n=== STDOUT ===\nUpdated SECRET_API_KEY in /home/vscode/AgentsToolkitProjects/vscuse_app_MCcAh/env/.env.dev.user with fakekey\n\n✓ Script executed successfully",
         "text": null,
         "x": null,
         "y": null
@@ -276,7 +277,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": null,
-      "created_at": "2025-12-16T02:16:40.882466",
+      "created_at": "2025-11-16T01:17:31.763573",
       "plan_id": "plan_9e8bca35"
     },
     {
@@ -307,7 +308,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_86fbc85e",
-      "created_at": "2025-12-16T02:16:40.907338",
+      "created_at": "2025-11-16T01:17:31.775921",
       "plan_id": "plan_9e8bca35"
     },
     {
@@ -338,7 +339,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_173f135f",
-      "created_at": "2025-12-16T02:16:40.933157",
+      "created_at": "2025-11-16T01:17:31.789026",
       "plan_id": "plan_9e8bca35"
     },
     {
@@ -365,7 +366,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": null,
-      "created_at": "2025-12-16T02:16:40.958824",
+      "created_at": "2025-11-16T01:17:31.802564",
       "plan_id": "plan_9e8bca35"
     },
     {
@@ -391,7 +392,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_818cebef",
-      "created_at": "2025-12-16T02:16:40.975051",
+      "created_at": "2025-11-16T01:17:31.815866",
       "plan_id": "plan_9e8bca35"
     },
     {
@@ -417,7 +418,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_51101c7e",
-      "created_at": "2025-12-16T02:16:40.992714",
+      "created_at": "2025-11-16T01:17:31.830465",
       "plan_id": "plan_9e8bca35"
     }
   ],
