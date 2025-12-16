@@ -197,6 +197,49 @@ describe("updateActionWithMCP", () => {
       sinon.assert.calledOnce(runCommandStub);
     });
 
+    it("should handle ODR server with command but no args", async () => {
+      const args = [
+        {
+          serverName: "odrServerNoArgs",
+          serverConfig: { type: "stdio", command: "odr" },
+        },
+      ];
+      const mockTools = [
+        {
+          name: "mcp_odrservernoargs_tool1",
+          description: "Test tool",
+          inputSchema: {},
+          tags: [],
+        },
+      ];
+      const mockODRServers = [
+        {
+          name: "my-server-noargs",
+          display_name: "My Server NoArgs",
+          description: "Test Server NoArgs",
+          version: "1.0.0",
+          identifier: "my-server-identifier-noargs",
+          tools: [],
+          packageFamily: "test.package",
+          command: "odr",
+          args: [],
+        },
+      ];
+
+      sandbox.stub(vscode.lm, "tools").value(mockTools);
+      sandbox.stub(ODRProvider, "listServers").resolves(mockODRServers);
+      const runCommandStub = sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+
+      const result = await updateActionWithMCP(args);
+
+      chai.assert.isTrue(result.isOk());
+      const calledInputs = runCommandStub.getCall(0).args[1] as Inputs;
+      chai.assert.equal(
+        calledInputs[QuestionNames.MCPLocalServerIdentifier],
+        "my-server-identifier-noargs"
+      );
+    });
+
     it("should process single local MCP server automatically (non-ODR)", async () => {
       const mcpContent = {
         servers: {
@@ -1093,6 +1136,97 @@ describe("updateActionWithMCP", () => {
       chai.assert.isFalse(axiosStub.called);
       const calledInputs = runCommandStub.getCall(0).args[1] as Inputs;
       chai.assert.equal(calledInputs[QuestionNames.MCPForDAAuth], "NoneAuth");
+    });
+
+    it("should handle server config without type field in selection UI", async () => {
+      const mcpContent = {
+        servers: {
+          "remote-server": { url: "http://remote.com" },
+          "remote-server2": { url: "" },
+        },
+      };
+      const mockTools = [
+        {
+          name: "mcp_remote-server_tool1",
+          description: "Test tool",
+          inputSchema: {},
+          tags: [],
+        },
+      ];
+
+      const expectedPath = path.join(mockProjectPath, ".vscode", "mcp.json");
+      sandbox.stub(fs, "pathExistsSync").withArgs(expectedPath).returns(true);
+      sandbox
+        .stub(fs, "readFileSync")
+        .withArgs(expectedPath, "utf-8")
+        .returns(JSON.stringify(mcpContent));
+      sandbox.stub(parser, "parse").returns(mcpContent);
+      Object.defineProperty(vscode.lm, "tools", { value: mockTools, configurable: true });
+      sandbox.stub(axios, "get").resolves({ status: 200 });
+
+      let capturedOptions: any;
+      sandbox.stub(vscUI, "VS_CODE_UI").value({
+        selectOption: sandbox.stub().callsFake((config: any) => {
+          capturedOptions = config.options;
+          return Promise.resolve(ok({ type: "success", result: "remote-server" }));
+        }),
+      });
+      sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+
+      await updateActionWithMCP();
+
+      const remoteServer2Option = capturedOptions.find((opt: any) => opt.id === "remote-server2");
+      chai.assert.equal(remoteServer2Option.detail, "");
+    });
+
+    it("should handle ODR server config in mcp.json with only args array", async () => {
+      const mcpContent = {
+        servers: {
+          "odr-server": {
+            type: "stdio",
+            args: ["odr.exe"],
+          },
+        },
+      };
+      const mockTools = [
+        {
+          name: "mcp_odr-server_tool1",
+          description: "Test tool",
+          inputSchema: {},
+          tags: [],
+        },
+      ];
+      const mockODRServers = [
+        {
+          name: "my-server",
+          display_name: "My Server",
+          description: "Test Server",
+          version: "1.0.0",
+          identifier: "my-server-id",
+          tools: [],
+          packageFamily: "test.package",
+          command: "odr",
+          args: ["run", "server"],
+        },
+      ];
+
+      const expectedPath = path.join(mockProjectPath, ".vscode", "mcp.json");
+      sandbox.stub(fs, "pathExistsSync").withArgs(expectedPath).returns(true);
+      sandbox
+        .stub(fs, "readFileSync")
+        .withArgs(expectedPath, "utf-8")
+        .returns(JSON.stringify(mcpContent));
+      sandbox.stub(parser, "parse").returns(mcpContent);
+      sandbox.stub(ODRProvider, "listServers").resolves(mockODRServers);
+      Object.defineProperty(vscode.lm, "tools", { value: mockTools, configurable: true });
+      const runCommandStub = sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+
+      const result = await updateActionWithMCP();
+
+      chai.assert.isTrue(result.isOk());
+      // Should fallback to original name since args is just ["odr.exe"] which won't match any ODR server
+      const calledInputs = runCommandStub.getCall(0).args[1] as Inputs;
+      chai.assert.equal(calledInputs[QuestionNames.MCPLocalServerIdentifier], "odr-server");
     });
   });
 });

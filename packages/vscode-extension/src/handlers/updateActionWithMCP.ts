@@ -57,10 +57,6 @@ async function extractLocalServerIdentifier(
 
       // Match by command and args to find the right ODR server
       const matchingServer = odrServers.find((odrServer) => {
-        if (!serverConfig.command && !serverConfig.args) {
-          return false;
-        }
-
         const configArgs = serverConfig.command
           ? serverConfig.args || []
           : serverConfig.args?.slice(1) || [];
@@ -171,8 +167,6 @@ export async function updateActionWithMCP(args?: any[]): Promise<Result<any, FxE
               detail = args
                 ? `${serverConfig.command as string} ${args}`
                 : (serverConfig.command as string);
-            } else if (serverConfig.args && Array.isArray(serverConfig.args)) {
-              detail = (serverConfig.args as string[]).join(" ");
             } else {
               detail = "stdio";
             }
