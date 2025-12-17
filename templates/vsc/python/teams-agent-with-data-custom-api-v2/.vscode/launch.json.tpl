@@ -82,7 +82,7 @@
         "name": "Start Microsoft 365 Agents Playground",
         "type": "node",
         "request": "launch",
-        "program": "${workspaceFolder}/devTools/teamsapptester/node_modules/@microsoft/teams-app-test-tool/cli.js",
+        "program": "${workspaceFolder}/devTools/playground/node_modules/@microsoft/m365agentsplayground/cli.js",
         "args": [
             "start"
         ],
