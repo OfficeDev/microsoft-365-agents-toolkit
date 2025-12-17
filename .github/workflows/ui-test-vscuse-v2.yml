@@ -574,6 +574,7 @@ jobs:
             title="Unknown Test Case Title"
             author="N/A"
             work_item_url="N/A"
+            owner="N/A"
 
             # Extract the title from the plan JSON file
             plan_file="./vscode-test-cases/plans/${case_id}.json"
@@ -583,6 +584,10 @@ jobs:
               # Get title from plan_metadata.name
               title=$(jq -r '.plan_metadata.name // "Unknown Test Case Title"' "$plan_file")
               echo "Extracted title: $title"
+              
+              # Get owner from plan_metadata.description.owner
+              owner=$(jq -r '.plan_metadata.description.owner // "N/A"' "$plan_file")
+              echo "Extracted owner: $owner"
               
               # Get work item IDs from plan_metadata.description.workitem
               # Workitem may contain multiple work item IDs separated by comma, space, or semicolon
@@ -671,7 +676,6 @@ jobs:
             url="<a href=\\\"$url\\\">$display_name</a>"
             echo "Job URL: $url"
 
-            owner="N/A"
             linked_bugs=""
             
             # Query Azure DevOps for linked bugs if the case failed
