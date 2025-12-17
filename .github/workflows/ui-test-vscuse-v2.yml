@@ -532,7 +532,7 @@ jobs:
             jobs=$(jq -cr --slurp 'add' <(echo "$jobs") <(echo "$new_jobs"))
             echo "Updated jobs list: $jobs"
 
-            has_next=$(curl -I -H "Accept: application/vnd.github.v3+json" -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" "$url" | grep -Fi "link:" | grep "rel=\"last\"" || true)
+            has_next=$(curl -I -H "Accept: application/vnd.github.v3+json" -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" "$url" | grep -Fi "link:" | grep "rel=\"next\"" || true)
             echo "Has next page: $has_next"
 
             if [ -z "$has_next" ]; then
