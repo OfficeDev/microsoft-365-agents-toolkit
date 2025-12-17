@@ -1,12 +1,22 @@
 {
   "plan_metadata": {
+    "version": "1.1",
+    "plan_id": "plan_r_1010_071708",
+    "execution_context": {
+      "delay_between_steps": 0.5,
+      "stop_on_error": true,
+      "precondition_wait_timeout": 60,
+      "precondition_retry_interval": 2
+    },
+    "total_steps": 30,
+    "created_at": "2025-12-12T01:59:28.316432",
     "name": "group: validation_message_extension",
     "description": {
+      "other": "Generated from recording r_1010_071708",
       "owner": "v-ivanchen@microsoft.com",
-      "workitem": "",
-      "other": "Generated from recording r_1010_071708"
+      "workitem": ""
     },
-    "generated_at": "2025-10-22T04:03:47.071035",
+    "generated_at": "2025-12-12T01:59:28.316432",
     "execution_order": [
       "step_f5d6ece5",
       "step_07b168b2",
@@ -42,782 +52,772 @@
     "tags": [
       "group"
     ],
-    "updated_at": "2025-10-24T10:03:14.489869",
-    "plan_id": "plan_r_1010_071708",
-    "version": "1.1",
-    "execution_context": {
-      "delay_between_steps": 0.5,
-      "stop_on_error": true,
-      "precondition_wait_timeout": 60,
-      "precondition_retry_interval": 2
-    },
-    "total_steps": 30,
-    "created_at": "2025-10-22T04:03:47.071039"
+    "updated_at": "2025-12-17T02:02:09.770887"
   },
   "steps": [
     {
-      "plan_id": "plan_r_1010_071708",
+      "step_id": "step_f5d6ece5",
+      "agent": "interaction",
       "tool": "click",
       "parameters": {
-        "x": 877,
-        "y": 724,
         "button": "left",
-        "text": null,
-        "keys": null,
-        "key": null,
         "dx": null,
-        "dy": null
+        "dy": null,
+        "key": null,
+        "keys": null,
+        "text": null,
+        "x": 877,
+        "y": 724
       },
+      "description": "Click the \"Send\" button (paper plane icon) in the message input area of the Microsoft Teams web chat interface.",
+      "content_refs": [],
       "timeout": 30,
+      "retry_count": 0,
       "continue_on_error": "0",
+      "depends_on": [],
       "preconditions": [
         "dhash:877:724:16:5:0404200404010000",
         "dhash:877:724:96:5:5644202424910000",
         "dhash:877:724:0:10:20b4b08080ac2da1"
       ],
-      "tags": [],
-      "created_at": "2025-10-24T09:12:15.699338",
-      "agent": "interaction",
-      "step_id": "step_f5d6ece5",
-      "description": "Click the \"Send\" button (paper plane icon) in the message input area of the Microsoft Teams web chat interface.",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_f5d6ece5"
+      "tags": [],
+      "screenshot": "step_f5d6ece5",
+      "created_at": "2025-12-16T05:59:17.954178",
+      "plan_id": "plan_r_1010_071708"
     },
     {
-      "plan_id": "plan_r_1010_071708",
+      "step_id": "step_07b168b2",
+      "agent": "interaction",
       "tool": "click",
       "parameters": {
-        "x": 780,
-        "y": 386,
         "button": "left",
-        "text": null,
-        "keys": null,
-        "key": null,
         "dx": null,
-        "dy": null
+        "dy": null,
+        "key": null,
+        "keys": null,
+        "text": null,
+        "x": 780,
+        "y": 386
       },
+      "description": "Click the search box labeled \"Search for apps\" within the Apps panel of the Microsoft Teams web interface.",
+      "content_refs": [],
       "timeout": 30,
+      "retry_count": 0,
       "continue_on_error": "0",
+      "depends_on": [],
       "preconditions": [
         "dhash:780:386:16:5:ec315b4a5a32cc92",
         "dhash:780:386:96:5:000014cbcb1400b7",
         "dhash:780:386:0:10:20b4b08083a32da1"
       ],
-      "tags": [],
-      "created_at": "2025-10-24T09:12:15.711445",
-      "agent": "interaction",
-      "step_id": "step_07b168b2",
-      "description": "Click the search box labeled \"Search for apps\" within the Apps panel of the Microsoft Teams web interface.",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_07b168b2"
+      "tags": [],
+      "screenshot": "step_07b168b2",
+      "created_at": "2025-12-16T05:59:17.966940",
+      "plan_id": "plan_r_1010_071708"
     },
     {
-      "plan_id": "plan_r_1010_071708",
+      "step_id": "step_05042a27",
+      "agent": "interaction",
       "tool": "type_text",
       "parameters": {
-        "x": null,
-        "y": null,
         "button": null,
-        "text": "${{var:app_name}}",
-        "keys": null,
-        "key": null,
         "dx": null,
-        "dy": null
+        "dy": null,
+        "key": null,
+        "keys": null,
+        "text": "${{var:app_name}}",
+        "x": null,
+        "y": null
       },
+      "description": "Type text ${{var:app_name}} into the search bar within the Microsoft Teams web interface to find and select the app ${{var:app_name}} from search results.",
+      "content_refs": [],
       "timeout": 30,
+      "retry_count": 0,
       "continue_on_error": "0",
+      "depends_on": [],
       "preconditions": [
         "dhash:512:384:0:20:20b4b08083a32da1"
       ],
-      "tags": [],
-      "created_at": "2025-10-24T09:12:15.724781",
-      "agent": "interaction",
-      "step_id": "step_05042a27",
-      "description": "Type text ${{var:app_name}} into the search bar within the Microsoft Teams web interface to find and select the app ${{var:app_name}} from search results.",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_05042a27"
+      "tags": [],
+      "screenshot": "step_05042a27",
+      "created_at": "2025-12-16T05:59:17.979585",
+      "plan_id": "plan_r_1010_071708"
     },
     {
-      "plan_id": "plan_r_1010_071708",
+      "step_id": "step_7377c5ac",
+      "agent": "assertion",
       "tool": "",
       "parameters": {},
+      "description": "@assertion there's ${{var:app_name}}dev or ${{var:app_name}}local in search result list.",
+      "content_refs": [],
       "timeout": 30,
+      "retry_count": 0,
       "continue_on_error": "false",
+      "depends_on": [],
       "preconditions": [],
+      "postconditions": [],
       "tags": [
         "step_retry_timeout: 30"
       ],
-      "created_at": "2025-10-24T09:12:15.739508",
-      "agent": "assertion",
-      "step_id": "step_7377c5ac",
-      "description": "@assertion there's ${{var:app_name}}dev or ${{var:app_name}}local in search result list.",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
-      "postconditions": [],
-      "screenshot": null
+      "screenshot": null,
+      "created_at": "2025-12-16T05:59:17.985535",
+      "plan_id": "plan_r_1010_071708"
     },
     {
-      "plan_id": "plan_r_1010_071708",
+      "step_id": "step_2522aadf",
+      "agent": "interaction",
       "tool": "click",
       "parameters": {
-        "x": 972,
-        "y": 511,
         "button": "left",
-        "text": null,
-        "keys": null,
-        "key": null,
         "dx": null,
-        "dy": null
+        "dy": null,
+        "key": null,
+        "keys": null,
+        "text": null,
+        "x": 972,
+        "y": 511
       },
+      "description": "Click the \"Add\" button next to the search result for  in the Microsoft Teams app.",
+      "content_refs": [],
       "timeout": 30,
+      "retry_count": 0,
       "continue_on_error": "0",
+      "depends_on": [],
       "preconditions": [
         "dhash:972:511:16:5:0000000000000000",
         "dhash:972:511:96:5:0101050d05050101",
         "dhash:972:511:0:10:30b8b08381a92ca1"
       ],
+      "postconditions": [],
       "tags": [
         "precondition_wait_timeout: 60"
       ],
-      "created_at": "2025-10-24T09:12:15.750517",
-      "agent": "interaction",
-      "step_id": "step_2522aadf",
-      "description": "Click the \"Add\" button next to the search result for  in the Microsoft Teams app.",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
-      "postconditions": [],
-      "screenshot": "step_2522aadf"
+      "screenshot": "step_2522aadf",
+      "created_at": "2025-12-16T05:59:17.996826",
+      "plan_id": "plan_r_1010_071708"
     },
     {
-      "plan_id": "plan_r_1010_071708",
+      "step_id": "step_d6695e2b",
+      "agent": "interaction",
       "tool": "type_text",
       "parameters": {
-        "x": null,
-        "y": null,
         "button": null,
-        "text": "test",
-        "keys": null,
-        "key": null,
         "dx": null,
-        "dy": null
+        "dy": null,
+        "key": null,
+        "keys": null,
+        "text": "test",
+        "x": null,
+        "y": null
       },
+      "description": "Type 'test' into the command input box of the vscuse_app_zZUs8local extension within the Microsoft Teams web application.",
+      "content_refs": [],
       "timeout": 30,
+      "retry_count": 0,
       "continue_on_error": "0",
+      "depends_on": [],
       "preconditions": [
         "dhash:512:384:0:20:30b8b08383ac2ca1"
       ],
-      "tags": [],
-      "created_at": "2025-10-24T09:12:15.762232",
-      "agent": "interaction",
-      "step_id": "step_d6695e2b",
-      "description": "Type 'test' into the command input box of the vscuse_app_zZUs8local extension within the Microsoft Teams web application.",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_d6695e2b"
+      "tags": [],
+      "screenshot": "step_d6695e2b",
+      "created_at": "2025-12-16T05:59:18.015828",
+      "plan_id": "plan_r_1010_071708"
     },
     {
-      "plan_id": "plan_r_1010_071708",
+      "step_id": "step_f43e5a3b",
+      "agent": "assertion",
       "tool": "",
       "parameters": {},
+      "description": "@assertion there's \"Item 1\" exist.",
+      "content_refs": [],
       "timeout": 30,
+      "retry_count": 0,
       "continue_on_error": "false",
+      "depends_on": [],
       "preconditions": [],
+      "postconditions": [],
       "tags": [
         "step_retry_timeout: 30"
       ],
-      "created_at": "2025-10-24T09:12:15.774745",
-      "agent": "assertion",
-      "step_id": "step_f43e5a3b",
-      "description": "@assertion there's \"Item 1\" exist.",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
-      "postconditions": [],
-      "screenshot": null
+      "screenshot": null,
+      "created_at": "2025-12-16T05:59:18.028560",
+      "plan_id": "plan_r_1010_071708"
     },
     {
-      "plan_id": "plan_r_1010_071708",
+      "step_id": "step_3e8d876c",
+      "agent": "interaction",
       "tool": "click",
       "parameters": {
-        "x": 862,
-        "y": 511,
         "button": "left",
-        "text": null,
-        "keys": null,
-        "key": null,
         "dx": null,
-        "dy": null
+        "dy": null,
+        "key": null,
+        "keys": null,
+        "text": null,
+        "x": 862,
+        "y": 511
       },
+      "description": "Click the \"Item 1\" result in the message extension search panel within the Microsoft Teams web app, directly on the line displaying \"This is the first item and this is your search query: test\".",
+      "content_refs": [],
       "timeout": 30,
+      "retry_count": 0,
       "continue_on_error": "0",
+      "depends_on": [],
       "preconditions": [
         "dhash:862:511:16:5:aa6aaa9b6a800000",
         "dhash:862:511:96:5:0001c49b008c9d58",
         "dhash:862:511:0:10:30b8b08383b22aa1"
       ],
+      "postconditions": [],
       "tags": [
         "precondition_wait_timeout:60"
       ],
-      "created_at": "2025-10-24T09:12:15.786521",
-      "agent": "interaction",
-      "step_id": "step_3e8d876c",
-      "description": "Click the \"Item 1\" result in the message extension search panel within the Microsoft Teams web app, directly on the line displaying \"This is the first item and this is your search query: test\".",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
-      "postconditions": [],
-      "screenshot": "step_3e8d876c"
+      "screenshot": "step_3e8d876c",
+      "created_at": "2025-12-16T05:59:18.040643",
+      "plan_id": "plan_r_1010_071708"
     },
     {
-      "plan_id": "plan_r_1010_071708",
+      "step_id": "step_f4e518f9",
+      "agent": "interaction",
       "tool": "click",
       "parameters": {
-        "x": 926,
-        "y": 717,
         "button": "left",
-        "text": null,
-        "keys": null,
-        "key": null,
         "dx": null,
-        "dy": null
+        "dy": null,
+        "key": null,
+        "keys": null,
+        "text": null,
+        "x": 926,
+        "y": 717
       },
+      "description": "Click the \"Send\" button (paper plane icon) in the message input area of a Microsoft Teams chat window to submit a message.",
+      "content_refs": [],
       "timeout": 30,
+      "retry_count": 0,
       "continue_on_error": "0",
+      "depends_on": [],
       "preconditions": [
         "dhash:926:717:16:5:ccf37c0f030f7cf2",
         "dhash:926:717:96:5:59d932cb8a368600",
         "dhash:926:717:0:10:30b8b480acacb4a9"
       ],
+      "postconditions": [],
       "tags": [
         "delay: 3"
       ],
-      "created_at": "2025-10-24T09:12:15.800009",
-      "agent": "interaction",
-      "step_id": "step_f4e518f9",
-      "description": "Click the \"Send\" button (paper plane icon) in the message input area of a Microsoft Teams chat window to submit a message.",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
-      "postconditions": [],
-      "screenshot": "step_f4e518f9"
+      "screenshot": "step_f4e518f9",
+      "created_at": "2025-12-16T05:59:18.048280",
+      "plan_id": "plan_r_1010_071708"
     },
     {
-      "plan_id": "plan_r_1010_071708",
+      "step_id": "step_d0225482",
+      "agent": "assertion",
       "tool": "",
       "parameters": {
-        "x": null,
-        "y": null,
         "button": null,
-        "text": null,
-        "keys": null,
-        "key": null,
         "dx": null,
-        "dy": null
+        "dy": null,
+        "key": null,
+        "keys": null,
+        "text": null,
+        "x": null,
+        "y": null
       },
-      "timeout": 30,
-      "continue_on_error": "0",
-      "preconditions": [],
-      "tags": [],
-      "created_at": "2025-10-24T09:12:15.811465",
-      "agent": "assertion",
-      "step_id": "step_d0225482",
       "description": "@assertion there's \"This is the first item and this is your search query: test\" exist.",
       "content_refs": [],
+      "timeout": 30,
       "retry_count": 0,
+      "continue_on_error": "0",
       "depends_on": [],
+      "preconditions": [],
       "postconditions": [],
-      "screenshot": null
+      "tags": [],
+      "screenshot": null,
+      "created_at": "2025-12-16T05:59:18.063954",
+      "plan_id": "plan_r_1010_071708"
     },
     {
-      "plan_id": "plan_r_1010_071708",
+      "step_id": "step_a8ec54a3",
+      "agent": "interaction",
       "tool": "click",
       "parameters": {
+        "button": "left",
         "x": 237,
-        "y": 712,
-        "button": "left"
+        "y": 712
       },
+      "description": "Click inside the \"Type a message\" input field in the Microsoft Teams chat interface to enable text entry.",
+      "content_refs": [],
       "timeout": 30,
+      "retry_count": 0,
       "continue_on_error": "false",
+      "depends_on": [],
       "preconditions": [
         "dhash:237:712:16:5:5061883367331173",
         "dhash:237:712:96:5:0002c43b13c20900",
         "dhash:237:712:0:10:30b8b02c8d87a1a9"
       ],
-      "tags": [],
-      "created_at": "2025-10-24T09:12:15.823608",
-      "agent": "interaction",
-      "step_id": "step_a8ec54a3",
-      "description": "Click inside the \"Type a message\" input field in the Microsoft Teams chat interface to enable text entry.",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_a8ec54a3"
+      "tags": [],
+      "screenshot": "step_a8ec54a3",
+      "created_at": "2025-12-16T05:59:18.067975",
+      "plan_id": "plan_r_1010_071708"
     },
     {
-      "plan_id": "plan_r_1010_071708",
+      "step_id": "step_402b9b93",
+      "agent": "interaction",
       "tool": "type_text",
       "parameters": {
         "text": "https://www.botframework.com "
       },
+      "description": "Type the URL 'https://www.botframework.com ' into the message input field of the Microsoft Teams chat interface.",
+      "content_refs": [],
       "timeout": 30,
+      "retry_count": 0,
       "continue_on_error": "false",
+      "depends_on": [],
       "preconditions": [
         "dhash:512:384:0:20:30b8b02c8d87a1b9"
       ],
-      "tags": [],
-      "created_at": "2025-10-24T09:12:15.837428",
-      "agent": "interaction",
-      "step_id": "step_402b9b93",
-      "description": "Type the URL 'https://www.botframework.com ' into the message input field of the Microsoft Teams chat interface.",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_402b9b93"
+      "tags": [],
+      "screenshot": "step_402b9b93",
+      "created_at": "2025-12-16T05:59:18.085737",
+      "plan_id": "plan_r_1010_071708"
     },
     {
-      "plan_id": "plan_r_1010_071708",
+      "step_id": "step_f9972e1a",
+      "agent": "assertion",
       "tool": "",
       "parameters": {},
+      "description": "@assertion there's \"Unfurled Link\" exist",
+      "content_refs": [],
       "timeout": 30,
+      "retry_count": 0,
       "continue_on_error": "false",
+      "depends_on": [],
       "preconditions": [],
+      "postconditions": [],
       "tags": [
         "step_retry_timeout: 30"
       ],
-      "created_at": "2025-10-24T09:12:15.849050",
-      "agent": "assertion",
-      "step_id": "step_f9972e1a",
-      "description": "@assertion there's \"Unfurled Link\" exist",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
-      "postconditions": [],
-      "screenshot": "step_f9972e1a"
+      "screenshot": "step_f9972e1a",
+      "created_at": "2025-12-16T05:59:18.095182",
+      "plan_id": "plan_r_1010_071708"
     },
     {
-      "plan_id": "plan_r_1010_071708",
+      "step_id": "step_ff2ce2f1",
+      "agent": "interaction",
       "tool": "click",
       "parameters": {
+        "button": "left",
         "x": 925,
-        "y": 716,
-        "button": "left"
+        "y": 716
       },
+      "description": "Click the \"Send\" button in the Microsoft Teams chat interface located in the bottom-right corner, to submit a message.",
+      "content_refs": [],
       "timeout": 30,
+      "retry_count": 0,
       "continue_on_error": "false",
+      "depends_on": [],
       "preconditions": [
         "dhash:925:716:16:5:88e37d1f03071f7c",
         "dhash:925:716:96:5:4bc832cecc364600",
         "dhash:925:716:0:10:30b8a587e0b8bcb1"
       ],
-      "tags": [],
-      "created_at": "2025-10-24T09:12:15.860157",
-      "agent": "interaction",
-      "step_id": "step_ff2ce2f1",
-      "description": "Click the \"Send\" button in the Microsoft Teams chat interface located in the bottom-right corner, to submit a message.",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_ff2ce2f1"
+      "tags": [],
+      "screenshot": "step_ff2ce2f1",
+      "created_at": "2025-12-16T05:59:18.099103",
+      "plan_id": "plan_r_1010_071708"
     },
     {
-      "plan_id": "plan_r_1010_071708",
+      "step_id": "step_b92f228a",
+      "agent": "assertion",
       "tool": "",
       "parameters": {},
+      "description": "@assertion you said \"https://www.botframework.com\"  exist.",
+      "content_refs": [],
       "timeout": 30,
+      "retry_count": 0,
       "continue_on_error": "false",
+      "depends_on": [],
       "preconditions": [],
+      "postconditions": [],
       "tags": [
         "step_retry_timeout: 30"
       ],
-      "created_at": "2025-10-24T09:12:15.871785",
-      "agent": "assertion",
-      "step_id": "step_b92f228a",
-      "description": "@assertion you said \"https://www.botframework.com\"  exist.",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
-      "postconditions": [],
-      "screenshot": null
+      "screenshot": null,
+      "created_at": "2025-12-16T05:59:18.117043",
+      "plan_id": "plan_r_1010_071708"
     },
     {
-      "plan_id": "plan_r_1010_071708",
+      "step_id": "step_fa936a6c",
+      "agent": "interaction",
       "tool": "click",
       "parameters": {
+        "button": "left",
         "x": 886,
-        "y": 719,
-        "button": "left"
+        "y": 719
       },
+      "description": "Click the \"Actions and apps\" button (horizontal ellipsis icon) in the Microsoft Teams message input area toolbar.",
+      "content_refs": [],
       "timeout": 30,
+      "retry_count": 0,
       "continue_on_error": "false",
+      "depends_on": [],
       "preconditions": [
         "dhash:886:719:16:5:9290979b96949694",
         "dhash:886:719:96:5:65ad934849324000",
         "dhash:886:719:0:10:20b0ade1a585bdf1"
       ],
-      "tags": [],
-      "created_at": "2025-10-24T09:12:15.882253",
-      "agent": "interaction",
-      "step_id": "step_fa936a6c",
-      "description": "Click the \"Actions and apps\" button (horizontal ellipsis icon) in the Microsoft Teams message input area toolbar.",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_fa936a6c"
+      "tags": [],
+      "screenshot": "step_fa936a6c",
+      "created_at": "2025-12-16T05:59:18.125760",
+      "plan_id": "plan_r_1010_071708"
     },
     {
-      "plan_id": "plan_r_1010_071708",
+      "step_id": "step_a149d88e",
+      "agent": "interaction",
       "tool": "click",
       "parameters": {
+        "button": "left",
         "x": 767,
-        "y": 388,
-        "button": "left"
+        "y": 388
       },
+      "description": "Click on the \"Search for apps\" input field in the app menu within the Microsoft Teams application to initiate an app search.",
+      "content_refs": [],
       "timeout": 30,
+      "retry_count": 0,
       "continue_on_error": "false",
+      "depends_on": [],
       "preconditions": [
         "dhash:767:388:16:5:d3d2525252ad4502",
         "dhash:767:388:96:5:00408ad4740a009d",
         "dhash:767:388:0:10:28b8ade3a387b1f1"
       ],
-      "tags": [],
-      "created_at": "2025-10-24T09:12:15.893453",
-      "agent": "interaction",
-      "step_id": "step_a149d88e",
-      "description": "Click on the \"Search for apps\" input field in the app menu within the Microsoft Teams application to initiate an app search.",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_a149d88e"
+      "tags": [],
+      "screenshot": "step_a149d88e",
+      "created_at": "2025-12-16T05:59:18.136555",
+      "plan_id": "plan_r_1010_071708"
     },
     {
-      "plan_id": "plan_r_1010_071708",
+      "step_id": "step_5f3844b4",
+      "agent": "interaction",
       "tool": "type_text",
       "parameters": {
         "text": "${{var:app_name}}"
       },
+      "description": "Type text ${{var:app_name}} into the search bar at the top of the Microsoft Teams interface to locate specific apps in the \"Search results\" dropdown.",
+      "content_refs": [],
       "timeout": 30,
+      "retry_count": 0,
       "continue_on_error": "false",
+      "depends_on": [],
       "preconditions": [
         "dhash:512:384:0:20:28b8afe3a587b9f1"
       ],
-      "tags": [],
-      "created_at": "2025-10-24T09:12:15.905274",
-      "agent": "interaction",
-      "step_id": "step_5f3844b4",
-      "description": "Type text ${{var:app_name}} into the search bar at the top of the Microsoft Teams interface to locate specific apps in the \"Search results\" dropdown.",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_5f3844b4"
+      "tags": [],
+      "screenshot": "step_5f3844b4",
+      "created_at": "2025-12-16T05:59:18.146564",
+      "plan_id": "plan_r_1010_071708"
     },
     {
-      "plan_id": "plan_r_1010_071708",
+      "step_id": "step_21482887",
+      "agent": "assertion",
       "tool": "",
       "parameters": {},
+      "description": "@assertion there's ${{var:app_name}}dev or ${{var:app_name}}local in search result list.",
+      "content_refs": [],
       "timeout": 30,
+      "retry_count": 0,
       "continue_on_error": "false",
+      "depends_on": [],
       "preconditions": [],
+      "postconditions": [],
       "tags": [
         "step_retry_timeout: 30"
       ],
-      "created_at": "2025-10-24T09:12:15.917815",
-      "agent": "assertion",
-      "step_id": "step_21482887",
-      "description": "@assertion there's ${{var:app_name}}dev or ${{var:app_name}}local in search result list.",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
-      "postconditions": [],
-      "screenshot": null
+      "screenshot": null,
+      "created_at": "2025-12-16T05:59:18.155348",
+      "plan_id": "plan_r_1010_071708"
     },
     {
-      "plan_id": "plan_r_1010_071708",
+      "step_id": "step_78dec540",
+      "agent": "interaction",
       "tool": "click",
       "parameters": {
+        "button": "left",
         "x": 823,
-        "y": 511,
-        "button": "left"
+        "y": 511
       },
+      "description": "Click the  option in the search results dropdown within the Microsoft Teams app interface.",
+      "content_refs": [],
       "timeout": 30,
+      "retry_count": 0,
       "continue_on_error": "false",
+      "depends_on": [],
       "preconditions": [
         "dhash:823:511:16:5:e1192da5ada53432",
         "dhash:823:511:96:5:0000204b4c20454b",
         "dhash:823:511:0:10:28b8afe3a585b9f1"
       ],
-      "tags": [],
-      "created_at": "2025-10-24T09:12:15.930408",
-      "agent": "interaction",
-      "step_id": "step_78dec540",
-      "description": "Click the  option in the search results dropdown within the Microsoft Teams app interface.",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_78dec540"
+      "tags": [],
+      "screenshot": "step_78dec540",
+      "created_at": "2025-12-16T05:59:18.163571",
+      "plan_id": "plan_r_1010_071708"
     },
     {
-      "plan_id": "plan_r_1010_071708",
+      "step_id": "step_b5276245",
+      "agent": "interaction",
       "tool": "click",
       "parameters": {
+        "button": "left",
         "x": 973,
-        "y": 383,
-        "button": "left"
+        "y": 383
       },
+      "description": "Click the search icon (magnifying glass) in the \"Your search query\" input box within the app's context panel in Microsoft Teams.",
+      "content_refs": [],
       "timeout": 30,
+      "retry_count": 0,
       "continue_on_error": "false",
+      "depends_on": [],
       "preconditions": [
         "dhash:973:383:16:5:222281025b5b0a20",
         "dhash:973:383:96:5:0204010d0d01254d",
         "dhash:973:383:0:10:24b0ade3a185bcf1"
       ],
-      "tags": [],
-      "created_at": "2025-10-24T09:12:15.950396",
-      "agent": "interaction",
-      "step_id": "step_b5276245",
-      "description": "Click the search icon (magnifying glass) in the \"Your search query\" input box within the app's context panel in Microsoft Teams.",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_b5276245"
+      "tags": [],
+      "screenshot": "step_b5276245",
+      "created_at": "2025-12-16T05:59:18.181755",
+      "plan_id": "plan_r_1010_071708"
     },
     {
-      "plan_id": "plan_r_1010_071708",
+      "step_id": "step_606bea3d",
+      "agent": "interaction",
       "tool": "click",
       "parameters": {
+        "button": "left",
         "x": 918,
-        "y": 418,
-        "button": "left"
+        "y": 418
       },
+      "description": "Click the \"Create Card\" option from the dropdown menu  in the Microsoft Teams interface.",
+      "content_refs": [],
       "timeout": 30,
+      "retry_count": 0,
       "continue_on_error": "false",
+      "depends_on": [],
       "preconditions": [
         "dhash:918:418:16:5:0000000000000000",
         "dhash:918:418:96:5:c0d00040089469ed",
         "dhash:918:418:0:10:24b0ade3a584bcf1"
       ],
-      "tags": [],
-      "created_at": "2025-10-24T09:12:15.965931",
-      "agent": "interaction",
-      "step_id": "step_606bea3d",
-      "description": "Click the \"Create Card\" option from the dropdown menu  in the Microsoft Teams interface.",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_606bea3d"
+      "tags": [],
+      "screenshot": "step_606bea3d",
+      "created_at": "2025-12-16T05:59:18.192284",
+      "plan_id": "plan_r_1010_071708"
     },
     {
-      "plan_id": "plan_r_1010_071708",
+      "step_id": "step_6ebad7f9",
+      "agent": "interaction",
       "tool": "type_text",
       "parameters": {
         "text": "1"
       },
+      "description": "Type '1' into the 'Card title' input field in the popup form within the Microsoft Teams interface.",
+      "content_refs": [],
       "timeout": 30,
+      "retry_count": 0,
       "continue_on_error": "false",
+      "depends_on": [],
       "preconditions": [
         "dhash:512:384:0:20:2137796179616906"
       ],
-      "tags": [],
-      "created_at": "2025-10-24T09:12:15.981372",
-      "agent": "interaction",
-      "step_id": "step_6ebad7f9",
-      "description": "Type '1' into the 'Card title' input field in the popup form within the Microsoft Teams interface.",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_6ebad7f9"
+      "tags": [],
+      "screenshot": "step_6ebad7f9",
+      "created_at": "2025-12-16T05:59:18.197013",
+      "plan_id": "plan_r_1010_071708"
     },
     {
-      "plan_id": "plan_r_1010_071708",
+      "step_id": "step_90e6e08e",
+      "agent": "interaction",
       "tool": "click",
       "parameters": {
+        "button": "left",
         "x": 402,
-        "y": 428,
-        "button": "left"
+        "y": 428
       },
+      "description": "Click on the \"Subtitle for the card\" text field in the pop-up window of the Microsoft Teams app interface to activate it for editing.",
+      "content_refs": [],
       "timeout": 30,
+      "retry_count": 0,
       "continue_on_error": "false",
+      "depends_on": [],
       "preconditions": [
         "dhash:402:428:16:5:b3b4959793689100",
         "dhash:402:428:96:5:0020944949940000",
         "dhash:402:428:0:10:2137796169616906"
       ],
-      "tags": [],
-      "created_at": "2025-10-24T09:12:15.996004",
-      "agent": "interaction",
-      "step_id": "step_90e6e08e",
-      "description": "Click on the \"Subtitle for the card\" text field in the pop-up window of the Microsoft Teams app interface to activate it for editing.",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_90e6e08e"
+      "tags": [],
+      "screenshot": "step_90e6e08e",
+      "created_at": "2025-12-16T05:59:18.213761",
+      "plan_id": "plan_r_1010_071708"
     },
     {
-      "plan_id": "plan_r_1010_071708",
+      "step_id": "step_3f29ca93",
+      "agent": "interaction",
       "tool": "type_text",
       "parameters": {
         "text": "2"
       },
+      "description": "Enter '2' into the 'Card title' input field within the popup form in the Microsoft Teams application.",
+      "content_refs": [],
       "timeout": 30,
+      "retry_count": 0,
       "continue_on_error": "false",
+      "depends_on": [],
       "preconditions": [
         "dhash:512:384:0:20:2137796169616906"
       ],
-      "tags": [],
-      "created_at": "2025-10-24T09:12:16.013300",
-      "agent": "interaction",
-      "step_id": "step_3f29ca93",
-      "description": "Enter '2' into the 'Card title' input field within the popup form in the Microsoft Teams application.",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_3f29ca93"
+      "tags": [],
+      "screenshot": "step_3f29ca93",
+      "created_at": "2025-12-16T05:59:18.225713",
+      "plan_id": "plan_r_1010_071708"
     },
     {
-      "plan_id": "plan_r_1010_071708",
+      "step_id": "step_d1f28d20",
+      "agent": "interaction",
       "tool": "click",
       "parameters": {
+        "button": "left",
         "x": 388,
-        "y": 526,
-        "button": "left"
+        "y": 526
       },
+      "description": "Click the \"Submit\" button in the form dialog within the Microsoft Teams application at coordinates (388, 526).",
+      "content_refs": [],
       "timeout": 30,
+      "retry_count": 0,
       "continue_on_error": "false",
+      "depends_on": [],
       "preconditions": [
         "dhash:388:526:16:5:0000000000000000",
         "dhash:388:526:96:5:b393000000000000",
         "dhash:388:526:0:10:213779616961690e"
       ],
-      "tags": [],
-      "created_at": "2025-10-24T09:12:16.029716",
-      "agent": "interaction",
-      "step_id": "step_d1f28d20",
-      "description": "Click the \"Submit\" button in the form dialog within the Microsoft Teams application at coordinates (388, 526).",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_d1f28d20"
+      "tags": [],
+      "screenshot": "step_d1f28d20",
+      "created_at": "2025-12-16T05:59:18.235809",
+      "plan_id": "plan_r_1010_071708"
     },
     {
-      "plan_id": "plan_r_1010_071708",
+      "step_id": "step_f9329e7e",
+      "agent": "interaction",
       "tool": "type_text",
       "parameters": {
         "text": "3"
       },
+      "description": "Type '3' into the 'Card title' input field within the activity popup on the Microsoft Teams application interface.",
+      "content_refs": [],
       "timeout": 30,
+      "retry_count": 0,
       "continue_on_error": "false",
+      "depends_on": [],
       "preconditions": [
         "dhash:512:384:0:20:213779616961610e"
       ],
-      "tags": [],
-      "created_at": "2025-10-24T09:12:16.042731",
-      "agent": "interaction",
-      "step_id": "step_f9329e7e",
-      "description": "Type '3' into the 'Card title' input field within the activity popup on the Microsoft Teams application interface.",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_f9329e7e"
+      "tags": [],
+      "screenshot": "step_f9329e7e",
+      "created_at": "2025-12-16T05:59:18.249885",
+      "plan_id": "plan_r_1010_071708"
     },
     {
-      "plan_id": "plan_r_1010_071708",
+      "step_id": "step_f9047624",
+      "agent": "interaction",
       "tool": "click",
       "parameters": {
+        "button": "left",
         "x": 702,
-        "y": 596,
-        "button": "left"
+        "y": 596
       },
+      "description": "Click the \"Submit\" button in the popup form within Microsoft Teams to finalize the input.",
+      "content_refs": [],
       "timeout": 30,
+      "retry_count": 0,
       "continue_on_error": "false",
+      "depends_on": [],
       "preconditions": [
         "dhash:702:596:16:5:08b6d2dad2d225d2",
         "dhash:702:596:96:5:010383171f000404",
         "dhash:702:596:0:10:213779616961600e"
       ],
-      "tags": [],
-      "created_at": "2025-10-24T09:12:16.055593",
-      "agent": "interaction",
-      "step_id": "step_f9047624",
-      "description": "Click the \"Submit\" button in the popup form within Microsoft Teams to finalize the input.",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
       "postconditions": [],
-      "screenshot": "step_f9047624"
+      "tags": [],
+      "screenshot": "step_f9047624",
+      "created_at": "2025-12-16T05:59:18.261144",
+      "plan_id": "plan_r_1010_071708"
     },
     {
-      "plan_id": "plan_r_1010_071708",
+      "step_id": "step_164f0297",
+      "agent": "interaction",
       "tool": "click",
       "parameters": {
+        "button": "left",
         "x": 923,
-        "y": 717,
-        "button": "left"
+        "y": 717
       },
+      "description": "Click the \"Send\" button located in the bottom-right corner of the Microsoft Teams chat interface to submit the message.",
+      "content_refs": [],
       "timeout": 30,
+      "retry_count": 0,
       "continue_on_error": "false",
+      "depends_on": [],
       "preconditions": [
         "dhash:923:717:16:5:673c3f0300033f3c",
         "dhash:923:717:96:5:c9c833cfcd170600",
         "dhash:923:717:0:10:28b4b087a5c22c2d"
       ],
+      "postconditions": [],
       "tags": [
         "delay: 5"
       ],
-      "created_at": "2025-10-24T09:12:16.072680",
-      "agent": "interaction",
-      "step_id": "step_164f0297",
-      "description": "Click the \"Send\" button located in the bottom-right corner of the Microsoft Teams chat interface to submit the message.",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
-      "postconditions": [],
-      "screenshot": "step_164f0297"
+      "screenshot": "step_164f0297",
+      "created_at": "2025-12-16T05:59:18.272119",
+      "plan_id": "plan_r_1010_071708"
     },
     {
-      "plan_id": "plan_r_1010_071708",
+      "step_id": "step_6ac07d44",
+      "agent": "assertion",
       "tool": "",
       "parameters": {},
+      "description": "@assertion there's message: 'you said \"undefined\" ' in the chat area.",
+      "content_refs": [],
       "timeout": 30,
+      "retry_count": 0,
       "continue_on_error": "false",
+      "depends_on": [],
       "preconditions": [],
+      "postconditions": [],
       "tags": [
         "step_retry_timeout: 30"
       ],
-      "created_at": "2025-10-24T09:12:16.092808",
-      "agent": "assertion",
-      "step_id": "step_6ac07d44",
-      "description": "@assertion there's robot picture exist in the chat area.",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
-      "postconditions": [],
-      "screenshot": null
+      "screenshot": null,
+      "created_at": "2025-12-16T05:59:18.279888",
+      "plan_id": "plan_r_1010_071708"
     }
   ],
   "screenshots": {
