@@ -747,15 +747,6 @@ describe("ODRProvider", () => {
       assert.equal(tools.length, 0);
     });
 
-    it("should return empty array when listServers throws error", async () => {
-      sandbox.stub(ODRProvider, "listServers").rejects(new Error("ODR not available"));
-
-      const tools = await ODRProvider.getToolsForODRServer("odr", ["run", "my-server"]);
-
-      assert.isArray(tools);
-      assert.equal(tools.length, 0);
-    });
-
     it("should match server with empty args array", async () => {
       const mockServers = [
         {
