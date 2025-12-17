@@ -5,6 +5,7 @@ import { err, FxError, ok, Result } from "@microsoft/teamsfx-api";
 import fs from "fs-extra";
 import * as path from "path";
 import yaml from "yaml";
+import { featureFlagManager, FeatureFlags } from "../../common/featureFlags";
 import { MetadataV3, MetadataV4 } from "../../common/versionMetadata";
 import { environmentNameManager } from "../../core/environmentName";
 import { MissingRequiredFileError } from "../../error/common";
@@ -21,7 +22,10 @@ class PathUtils {
 
   getYmlFilePath(projectPath: string, env?: string, silent = false): string | undefined {
     if (process.env.TEAMSFX_CONFIG_FILE_PATH) return process.env.TEAMSFX_CONFIG_FILE_PATH;
-    const envName = env || process.env.TEAMSFX_ENV || "dev";
+    let envName = env || process.env.TEAMSFX_ENV || "dev";
+    if (featureFlagManager.getBooleanValue(FeatureFlags.GenerateConfigFiles)) {
+      envName = pathUtils.getAvailableYmlFilePath(projectPath) || "";
+    }
     const ymlPathV4 = path.join(
       projectPath,
       envName === environmentNameManager.getLocalEnvName()
