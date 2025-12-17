@@ -34,8 +34,8 @@ export class ODRProvider {
     if (serverConfig?.type !== "stdio" || !serverConfig.command) {
       return false;
     }
-    const configCommand = serverConfig.command;
-    return configCommand.toLowerCase() === "odr" || configCommand.toLowerCase().endsWith("odr.exe");
+    const configCommand = serverConfig.command.toLowerCase();
+    return configCommand === "odr" || configCommand.endsWith("odr.exe");
   }
 
   /**
