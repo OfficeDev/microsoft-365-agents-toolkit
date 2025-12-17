@@ -5,8 +5,8 @@
  * @author Huajie Zhang <huajiezhang@microsoft.com>
  */
 import { IBot, IComposeExtension, IConfigurableTab, IStaticTab } from "@microsoft/teamsfx-api";
-import { ComponentNames } from "../../migrate";
 import semver from "semver";
+import { ComponentNames } from "../../migrate";
 
 const AAD_STATE_KEY = ComponentNames.AadApp;
 const TAB_STATE_KEY = ComponentNames.TeamsTab;
@@ -291,7 +291,7 @@ export class Constants {
   public static readonly BUILD_OR_PUBLISH_QUESTION = "build-or-publish";
   public static readonly INCLUDE_APP_MANIFEST = "include-app-manifest";
   public static readonly DEVELOPER_PORTAL_APP_PACKAGE_URL =
-    "https://dev.teams.microsoft.com/apps/%s/app-package?login_hint=%s";
+    "https://dev.teams.microsoft.com/apps/%s/app-package-editor?login_hint=%s";
   public static readonly PUBLISH_GUIDE = "https://aka.ms/teamsfx-publish";
   public static readonly TEAMS_ADMIN_PORTAL = "https://aka.ms/teamsfx-mtac";
   public static readonly TEAMS_MANAGE_APP_DOC = "https://aka.ms/teamsfx-mtac-doc";
