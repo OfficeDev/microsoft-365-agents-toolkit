@@ -14,7 +14,7 @@ import { ExtTelemetry } from "../telemetry/extTelemetry";
 import { TelemetryEvent } from "../telemetry/extTelemetryEvents";
 import path from "path";
 import * as fs from "fs-extra";
-import { QuestionNames, ODRProvider } from "@microsoft/teamsfx-core";
+import { QuestionNames, ODRProvider, ODRTool } from "@microsoft/teamsfx-core";
 import * as vscode from "vscode";
 import axios from "axios";
 import { runCommand } from "./sharedOpts";
@@ -46,33 +46,27 @@ async function extractLocalServerIdentifier(
   serverConfig: any,
   originalServerName: string
 ): Promise<string> {
-  if (serverConfig?.type !== "stdio" || !serverConfig.command) {
+  if (!ODRProvider.isODRServer(serverConfig)) {
     return originalServerName;
   }
 
-  const configCommand = serverConfig.command;
-  const isODRCommand =
-    configCommand.toLowerCase() === "odr" || configCommand.toLowerCase().endsWith("odr.exe");
+  try {
+    const odrServers = await ODRProvider.listServers();
+    const configCommand = serverConfig.command;
+    const configArgs = serverConfig.args || [];
 
-  if (isODRCommand) {
-    try {
-      const odrServers = await ODRProvider.listServers();
+    // Match by command and args to find the right ODR server
+    const matchingServer = odrServers.find((odrServer) => {
+      return (
+        odrServer.command === configCommand &&
+        JSON.stringify(odrServer.args) === JSON.stringify(configArgs)
+      );
+    });
 
-      // Match by command and args to find the right ODR server
-      const matchingServer = odrServers.find((odrServer) => {
-        const configArgs = serverConfig.args || [];
-
-        return (
-          odrServer.command === configCommand &&
-          JSON.stringify(odrServer.args) === JSON.stringify(configArgs)
-        );
-      });
-
-      if (matchingServer?.identifier) {
-        return matchingServer.identifier;
-      }
-    } catch (error) {}
-  }
+    if (matchingServer?.identifier) {
+      return matchingServer.identifier;
+    }
+  } catch (error) {}
 
   return originalServerName;
 }
@@ -87,6 +81,7 @@ export async function updateActionWithMCP(args?: any[]): Promise<Result<any, FxE
   let server = args && args.length > 0 ? args[0].serverConfig?.url : undefined;
   let command = args && args.length > 0 ? args[0].serverConfig?.command : undefined;
   let isLocalMCP = args && args.length > 0 && args[0].serverConfig?.type === "stdio";
+  let serverConfig = args && args.length > 0 ? args[0].serverConfig : undefined;
 
   // Sanitize mcpName if it's provided as an argument
   if (mcpName) {
@@ -94,7 +89,7 @@ export async function updateActionWithMCP(args?: any[]): Promise<Result<any, FxE
   }
 
   let localServerIdentifier = isLocalMCP
-    ? await extractLocalServerIdentifier(args?.[0].serverConfig, args?.[0].serverName)
+    ? await extractLocalServerIdentifier(serverConfig, args?.[0].serverName)
     : undefined;
 
   if (!mcpName && !server && !isLocalMCP) {
@@ -151,7 +146,7 @@ export async function updateActionWithMCP(args?: any[]): Promise<Result<any, FxE
     }
     if (mcpNames.length === 1) {
       mcpName = sanitizeMCPName(mcpNames[0]);
-      const serverConfig = mcpContent.servers[mcpNames[0]];
+      serverConfig = mcpContent.servers[mcpNames[0]];
       server = serverConfig.url;
       command = serverConfig.command;
       isLocalMCP = serverConfig.type === "stdio";
@@ -187,7 +182,7 @@ export async function updateActionWithMCP(args?: any[]): Promise<Result<any, FxE
       }
       const originalMcpName = result.value.result as string;
       mcpName = sanitizeMCPName(originalMcpName);
-      const serverConfig = mcpContent.servers[originalMcpName];
+      serverConfig = mcpContent.servers[originalMcpName];
       server = serverConfig.url;
       command = serverConfig.command;
       isLocalMCP = serverConfig.type === "stdio";
@@ -224,21 +219,39 @@ export async function updateActionWithMCP(args?: any[]): Promise<Result<any, FxE
     inputs[QuestionNames.MCPLocalServerIdentifier] = localServerIdentifier;
   }
 
-  const allMcpTools = vscode.lm.tools;
-  const tools = allMcpTools
-    .filter((tool: vscode.LanguageModelToolInformation) =>
-      tool.name.toLowerCase().includes(`mcp_${(mcpName as string).toLowerCase()}`)
-    )
-    .map((tool: vscode.LanguageModelToolInformation) => {
-      const index = tool.name.indexOf(mcpName);
-      const newName = tool.name.substring(index + (mcpName as string).length + 1);
-      return {
-        name: newName,
-        description: tool.description,
-        inputSchema: tool.inputSchema,
-        tags: tool.tags,
-      };
-    });
+  let tools: Array<{
+    name: string;
+    description: string;
+    inputSchema: any;
+    tags?: readonly string[];
+  }>;
+  if (ODRProvider.isODRServer(serverConfig)) {
+    const odrTools = await ODRProvider.getToolsForODRServer(
+      serverConfig.command,
+      serverConfig.args || []
+    );
+    tools = odrTools.map((tool: ODRTool) => ({
+      name: tool.name,
+      description: tool.description,
+      inputSchema: tool.inputSchema,
+    }));
+  } else {
+    const allMcpTools = vscode.lm.tools;
+    tools = allMcpTools
+      .filter((tool: vscode.LanguageModelToolInformation) =>
+        tool.name.toLowerCase().includes(`mcp_${(mcpName as string).toLowerCase()}`)
+      )
+      .map((tool: vscode.LanguageModelToolInformation) => {
+        const index = tool.name.indexOf(mcpName);
+        const newName = tool.name.substring(index + (mcpName as string).length + 1);
+        return {
+          name: newName,
+          description: tool.description,
+          inputSchema: tool.inputSchema,
+          tags: tool.tags,
+        };
+      });
+  }
 
   if (tools.length === 0) {
     void vscode.window.showErrorMessage(localize("teamstoolkit.MCP.ToolsNotFound"));
