@@ -24,14 +24,17 @@ import { getDefaultString, localize } from "../utils/localizeUtils";
 import { ExtensionErrors } from "../error/error";
 import { getTriggerFromProperty } from "../utils/telemetryUtils";
 
+/**
+ * Sanitize MCP server name to match VS Code's tool prefix generation logic.
+ * Based on VS Code's McpPrefixGenerator class.
+ * See: https://github.com/microsoft/vscode/blob/main/src/vs/workbench/contrib/mcp/common/mcpService.ts#L231
+ */
 function sanitizeMCPName(name: string): string {
-  // Replace special characters except "-" with "_", but if two special characters are adjacent,
-  // only replace with one "_". Finally, substring to the first 13 characters.
+  // VS Code's logic: lowercase, replace non-alphanumeric (except _.-) with _, truncate to 13 chars
   return name
-    .replace(/[^a-zA-Z0-9-]+/g, "_")
-    .replace(/^_+|_+$/g, "")
-    .substring(0, 13)
-    .toLowerCase();
+    .toLowerCase()
+    .replace(/[^a-z0-9_.-]+/g, "_")
+    .slice(0, 13);
 }
 
 /**
@@ -43,11 +46,11 @@ async function extractLocalServerIdentifier(
   serverConfig: any,
   originalServerName: string
 ): Promise<string> {
-  if (serverConfig?.type !== "stdio") {
+  if (serverConfig?.type !== "stdio" || !serverConfig.command) {
     return originalServerName;
   }
 
-  const configCommand = serverConfig.command || serverConfig.args?.[0] || "";
+  const configCommand = serverConfig.command;
   const isODRCommand =
     configCommand.toLowerCase() === "odr" || configCommand.toLowerCase().endsWith("odr.exe");
 
@@ -57,9 +60,7 @@ async function extractLocalServerIdentifier(
 
       // Match by command and args to find the right ODR server
       const matchingServer = odrServers.find((odrServer) => {
-        const configArgs = serverConfig.command
-          ? serverConfig.args || []
-          : serverConfig.args?.slice(1) || [];
+        const configArgs = serverConfig.args || [];
 
         return (
           odrServer.command === configCommand &&
@@ -84,6 +85,7 @@ export async function updateActionWithMCP(args?: any[]): Promise<Result<any, FxE
   const inputs = getSystemInputs();
   let mcpName = args && args.length > 0 ? args[0].serverName : undefined;
   let server = args && args.length > 0 ? args[0].serverConfig?.url : undefined;
+  let command = args && args.length > 0 ? args[0].serverConfig?.command : undefined;
   let isLocalMCP = args && args.length > 0 && args[0].serverConfig?.type === "stdio";
 
   // Sanitize mcpName if it's provided as an argument
@@ -91,10 +93,9 @@ export async function updateActionWithMCP(args?: any[]): Promise<Result<any, FxE
     mcpName = sanitizeMCPName(mcpName);
   }
 
-  let localServerIdentifier =
-    args && args.length > 0 && isLocalMCP
-      ? await extractLocalServerIdentifier(args[0].serverConfig, args[0].serverName)
-      : undefined;
+  let localServerIdentifier = isLocalMCP
+    ? await extractLocalServerIdentifier(args?.[0].serverConfig, args?.[0].serverName)
+    : undefined;
 
   if (!mcpName && !server && !isLocalMCP) {
     const projectPath = inputs.projectPath;
@@ -152,6 +153,7 @@ export async function updateActionWithMCP(args?: any[]): Promise<Result<any, FxE
       mcpName = sanitizeMCPName(mcpNames[0]);
       const serverConfig = mcpContent.servers[mcpNames[0]];
       server = serverConfig.url;
+      command = serverConfig.command;
       isLocalMCP = serverConfig.type === "stdio";
       localServerIdentifier = await extractLocalServerIdentifier(serverConfig, mcpNames[0]);
     } else {
@@ -162,14 +164,9 @@ export async function updateActionWithMCP(args?: any[]): Promise<Result<any, FxE
           const serverConfig = mcpContent.servers[name];
           let detail: string;
           if (serverConfig.type === "stdio") {
-            if (serverConfig.command) {
-              const args = serverConfig.args ? (serverConfig.args as string[]).join(" ") : "";
-              detail = args
-                ? `${serverConfig.command as string} ${args}`
-                : (serverConfig.command as string);
-            } else {
-              detail = "stdio";
-            }
+            const command = (serverConfig.command as string) || "";
+            const args = serverConfig.args ? (serverConfig.args as string[]).join(" ") : "";
+            detail = args ? `${command} ${args}` : command;
           } else {
             detail = (serverConfig.url as string) || "";
           }
@@ -192,18 +189,30 @@ export async function updateActionWithMCP(args?: any[]): Promise<Result<any, FxE
       mcpName = sanitizeMCPName(originalMcpName);
       const serverConfig = mcpContent.servers[originalMcpName];
       server = serverConfig.url;
+      command = serverConfig.command;
       isLocalMCP = serverConfig.type === "stdio";
       localServerIdentifier = await extractLocalServerIdentifier(serverConfig, originalMcpName);
     }
   }
 
-  if (!mcpName || (!isLocalMCP && !server) || (isLocalMCP && !localServerIdentifier)) {
+  if (!mcpName || (!isLocalMCP && !server)) {
     void vscode.window.showErrorMessage(localize("teamstoolkit.MCP.NameOrServerUrlMissing"));
     const error = new UserError(
       "da-mcp",
       ExtensionErrors.MCPNameOrServerUrlMissing,
       getDefaultString("teamstoolkit.MCP.NameOrServerUrlMissing"),
       localize("teamstoolkit.MCP.NameOrServerUrlMissing")
+    );
+    ExtTelemetry.sendTelemetryErrorEvent(TelemetryEvent.UpdateActionWithMCP, error);
+    return err(error);
+  }
+  if (isLocalMCP && !command) {
+    void vscode.window.showErrorMessage(localize("teamstoolkit.MCP.LocalMcpCommandMissing"));
+    const error = new UserError(
+      "da-mcp",
+      ExtensionErrors.MCPLocalMcpCommandMissing,
+      getDefaultString("teamstoolkit.MCP.LocalMcpCommandMissing"),
+      localize("teamstoolkit.MCP.LocalMcpCommandMissing")
     );
     ExtTelemetry.sendTelemetryErrorEvent(TelemetryEvent.UpdateActionWithMCP, error);
     return err(error);
@@ -218,7 +227,7 @@ export async function updateActionWithMCP(args?: any[]): Promise<Result<any, FxE
   const allMcpTools = vscode.lm.tools;
   const tools = allMcpTools
     .filter((tool: vscode.LanguageModelToolInformation) =>
-      tool.name.includes(`mcp_${mcpName as string}`)
+      tool.name.toLowerCase().includes(`mcp_${(mcpName as string).toLowerCase()}`)
     )
     .map((tool: vscode.LanguageModelToolInformation) => {
       const index = tool.name.indexOf(mcpName);
