@@ -27,7 +27,7 @@
     "tags": [
       "group"
     ],
-    "updated_at": "2025-12-18T10:46:45.761159"
+    "updated_at": "2025-12-18T12:24:44.472079"
   },
   "steps": [
     {
@@ -39,7 +39,7 @@
         "x": 230,
         "y": 719
       },
-      "description": "Click on the text input field labeled \"Type a message...\" at the bottom of the Microsoft 365 Agents Playground interface.",
+      "description": "Click the input field labeled \"Type a message\" located at the bottom of the Microsoft 365 Agents Playground page.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -53,7 +53,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_f91cfcf5",
-      "created_at": "2025-12-18T10:46:08.356245",
+      "created_at": "2025-12-18T12:24:03.533392",
       "plan_id": "plan_6174fb34"
     },
     {
@@ -63,7 +63,7 @@
       "parameters": {
         "text": "Hi"
       },
-      "description": "Type text: 'Hi' into the input field at the bottom of the \"Microsoft 365 Agents Playground\" interface, adjacent to the send button icon.",
+      "description": "Type text: 'Hi' in the input field at the bottom of the chat interface within the \"Microsoft 365 Agents Playground\" application.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -75,7 +75,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_61009ccb",
-      "created_at": "2025-12-18T10:46:08.389738",
+      "created_at": "2025-12-18T12:24:03.569507",
       "plan_id": "plan_6174fb34"
     },
     {
@@ -85,7 +85,7 @@
       "parameters": {
         "key": "enter"
       },
-      "description": "Press the \"Enter\" key to submit the text \"Hi\" in the input field located at the bottom of the Microsoft 365 Agents Playground interface.",
+      "description": "Press the Enter key to submit the text input in the message box of the \"Microsoft 365 Agents Playground\" chat interface.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -97,7 +97,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_4c956426",
-      "created_at": "2025-12-18T10:46:08.406740",
+      "created_at": "2025-12-18T12:24:03.597756",
       "plan_id": "plan_6174fb34"
     },
     {
@@ -105,7 +105,7 @@
       "agent": "assertion",
       "tool": "",
       "parameters": {},
-      "description": "@assertion bot reply message: \"[1] you said: Hi\" or \"You said:Hi\" exist.",
+      "description": "@assertion bot reply message: \"[1] you said: Hi\" or \"You said: Hi\" exist.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -117,7 +117,7 @@
         "step_retry_timeout: 30"
       ],
       "screenshot": null,
-      "created_at": "2025-12-18T10:46:08.424529",
+      "created_at": "2025-12-18T12:24:03.625249",
       "plan_id": "plan_6174fb34"
     }
   ],
