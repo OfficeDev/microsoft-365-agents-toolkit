@@ -12,20 +12,17 @@ import { MissingRequiredFileError } from "../../error/common";
 
 class PathUtils {
   getAvailableYmlFilePath(projectPath: string): string | undefined {
-    const possibleEnvs = ["dev", "playground", "local"];
+    const possibleEnvs = ["", ".playground", ".local"];
     for (const env of possibleEnvs) {
-      const ymlPath = this.getYmlFilePath(projectPath, env, true);
-      if (ymlPath) return ymlPath;
+      const ymlPath = path.join(projectPath, `m365agents${env}.yml`);
+      if (fs.pathExistsSync(ymlPath)) return ymlPath;
     }
     return undefined;
   }
 
   getYmlFilePath(projectPath: string, env?: string, silent = false): string | undefined {
     if (process.env.TEAMSFX_CONFIG_FILE_PATH) return process.env.TEAMSFX_CONFIG_FILE_PATH;
-    let envName = env || process.env.TEAMSFX_ENV || "dev";
-    if (featureFlagManager.getBooleanValue(FeatureFlags.GenerateConfigFiles)) {
-      envName = pathUtils.getAvailableYmlFilePath(projectPath) || "";
-    }
+    const envName = env || process.env.TEAMSFX_ENV || "dev";
     const ymlPathV4 = path.join(
       projectPath,
       envName === environmentNameManager.getLocalEnvName()
@@ -51,6 +48,12 @@ class PathUtils {
     );
     if (fs.pathExistsSync(ymlPathV3)) {
       return ymlPathV3;
+    }
+    if (featureFlagManager.getBooleanValue(FeatureFlags.GenerateConfigFiles)) {
+      const availableYmlFilePath = this.getAvailableYmlFilePath(projectPath) || "";
+      if (fs.pathExistsSync(availableYmlFilePath)) {
+        return availableYmlFilePath;
+      }
     }
     if (silent) return undefined;
     if (environmentNameManager.isRemoteEnvironment(envName)) {
