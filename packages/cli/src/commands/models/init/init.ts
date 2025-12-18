@@ -27,6 +27,23 @@ export const initCommand: CLICommand = {
   telemetry: {
     event: TelemetryEvent.InitProject,
   },
+  examples: [
+    {
+      command: `${process.env.TEAMSFX_CLI_BIN_NAME} init`,
+      description:
+        "Initialize current project as a Microsoft 365 Agents Toolkit project, local debug is enabled by default",
+    },
+    {
+      command: `${process.env.TEAMSFX_CLI_BIN_NAME} init --remote true`,
+      description:
+        "Initialize current project as a Microsoft 365 Agents Toolkit project including remote deployment configuration",
+    },
+    {
+      command: `${process.env.TEAMSFX_CLI_BIN_NAME} init --playground true --local false`,
+      description:
+        "Initialize current project as a Microsoft 365 Agents Toolkit project with Playground debug option only",
+    },
+  ],
   handler: async (ctx) => {
     const inputs = ctx.optionValues;
     const core = getFxCore();
