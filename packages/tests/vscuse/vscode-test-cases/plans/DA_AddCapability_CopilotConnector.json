@@ -10,14 +10,14 @@
       "step_retry_timeout": 0
     },
     "total_steps": 15,
-    "created_at": "2025-11-11T04:25:51.290429",
+    "created_at": "2025-12-18T01:33:58.632338",
     "name": "DA AddCapability CopilotConnector",
     "description": {
+      "other": "",
       "owner": "v-helzha@microsoft.com",
-      "workitem": "",
-      "other": ""
+      "workitem": "31677285"
     },
-    "generated_at": "2025-11-11T04:25:51.290424",
+    "generated_at": "2025-12-18T01:33:58.632338",
     "execution_order": [
       "plan_r_0928_012254",
       "step_ca61d34c",
@@ -38,7 +38,7 @@
       "step_d3b3aaf3"
     ],
     "tags": [],
-    "updated_at": "2025-11-13T02:38:57.372100"
+    "updated_at": "2025-12-18T01:36:31.350460"
   },
   "steps": [
     {
@@ -64,7 +64,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_ca61d34c",
-      "created_at": "2025-11-13T02:33:02.481401",
+      "created_at": "2025-12-18T01:33:58.641129",
       "plan_id": "plan_5f04c1e2"
     },
     {
@@ -90,7 +90,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_f2f066a1",
-      "created_at": "2025-11-13T02:33:02.509956",
+      "created_at": "2025-12-18T01:33:58.651114",
       "plan_id": "plan_5f04c1e2"
     },
     {
@@ -116,7 +116,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_ced814ef",
-      "created_at": "2025-11-13T02:33:02.528623",
+      "created_at": "2025-12-18T01:33:58.661890",
       "plan_id": "plan_5f04c1e2"
     },
     {
@@ -138,7 +138,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_bec7633d",
-      "created_at": "2025-11-13T02:33:02.545700",
+      "created_at": "2025-12-18T01:33:58.670945",
       "plan_id": "plan_5f04c1e2"
     },
     {
@@ -160,7 +160,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_497d2f04",
-      "created_at": "2025-11-13T02:33:02.561770",
+      "created_at": "2025-12-18T01:33:58.679928",
       "plan_id": "plan_5f04c1e2"
     },
     {
@@ -186,7 +186,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_81c94b4b",
-      "created_at": "2025-11-13T02:33:02.584029",
+      "created_at": "2025-12-18T01:33:58.690432",
       "plan_id": "plan_5f04c1e2"
     },
     {
@@ -212,7 +212,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_6020267d",
-      "created_at": "2025-11-13T02:33:02.616279",
+      "created_at": "2025-12-18T01:33:58.698640",
       "plan_id": "plan_5f04c1e2"
     },
     {
@@ -238,7 +238,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_27f33a9f",
-      "created_at": "2025-11-13T02:33:02.642708",
+      "created_at": "2025-12-18T01:33:58.706756",
       "plan_id": "plan_5f04c1e2"
     },
     {
@@ -260,7 +260,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_1ef850a1",
-      "created_at": "2025-11-13T02:33:02.659421",
+      "created_at": "2025-12-18T01:33:58.716364",
       "plan_id": "plan_5f04c1e2"
     },
     {
@@ -282,7 +282,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_8f780d9a",
-      "created_at": "2025-11-13T02:33:02.673904",
+      "created_at": "2025-12-18T01:33:58.726516",
       "plan_id": "plan_5f04c1e2"
     },
     {
@@ -308,7 +308,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_6d935416",
-      "created_at": "2025-11-13T02:33:02.686661",
+      "created_at": "2025-12-18T01:33:58.733029",
       "plan_id": "plan_5f04c1e2"
     },
     {
@@ -334,7 +334,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_4608f655",
-      "created_at": "2025-11-13T02:33:02.699845",
+      "created_at": "2025-12-18T01:33:58.740033",
       "plan_id": "plan_5f04c1e2"
     },
     {
@@ -360,7 +360,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_82b0dcf2",
-      "created_at": "2025-11-13T02:33:02.710370",
+      "created_at": "2025-12-18T01:33:58.747934",
       "plan_id": "plan_5f04c1e2"
     },
     {
@@ -386,7 +386,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_dc750603",
-      "created_at": "2025-11-13T02:33:02.721129",
+      "created_at": "2025-12-18T01:33:58.756061",
       "plan_id": "plan_5f04c1e2"
     },
     {
@@ -412,7 +412,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_d3b3aaf3",
-      "created_at": "2025-11-13T02:33:02.731544",
+      "created_at": "2025-12-18T01:33:58.763672",
       "plan_id": "plan_5f04c1e2"
     }
   ],
