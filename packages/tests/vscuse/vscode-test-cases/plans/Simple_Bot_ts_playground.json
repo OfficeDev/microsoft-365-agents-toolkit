@@ -1,0 +1,174 @@
+{
+  "plan_metadata": {
+    "version": "1.1",
+    "plan_id": "plan_82273f1e",
+    "execution_context": {
+      "delay_between_steps": 1,
+      "stop_on_error": true,
+      "precondition_wait_timeout": 30,
+      "precondition_retry_interval": 2,
+      "step_retry_timeout": 0
+    },
+    "total_steps": 5,
+    "created_at": "2025-12-18T10:36:59.694697",
+    "name": "Simple Bot ts playground",
+    "description": {
+      "other": "",
+      "owner": "v-liliu2@microsoft.com",
+      "workitem": "9729308"
+    },
+    "generated_at": "2025-12-18T10:36:59.694697",
+    "execution_order": [
+      "plan_r_0928_012254",
+      "step_0efbbbda",
+      "step_8cebd49b",
+      "step_af3e8d55",
+      "step_0ac88b10",
+      "step_2e0c64ee",
+      "plan_r_0928_014459",
+      "plan_r_1017_024203",
+      "plan_6174fb34"
+    ],
+    "tags": [],
+    "updated_at": "2025-12-18T10:38:04.115241"
+  },
+  "steps": [
+    {
+      "step_id": "step_0efbbbda",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 325,
+        "y": 230
+      },
+      "description": "Click the \"Teams Agents and Apps\" option in the \"New Project\" dropdown menu within the Microsoft 365 Agents Toolkit interface.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:325:230:16:5:b3a959b331598230",
+        "dhash:325:230:96:5:995342c98d47c696",
+        "dhash:325:230:0:10:c8c88094b0717075"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_0efbbbda",
+      "created_at": "2025-12-18T10:36:59.717612",
+      "plan_id": "plan_82273f1e"
+    },
+    {
+      "step_id": "step_8cebd49b",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 451,
+        "y": 214
+      },
+      "description": "Click the \"General Teams Agent\" option in the dropdown menu within the \"Teams Agent or App Using Teams AI Library\" dialog.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:451:214:16:5:0000000000000000",
+        "dhash:451:214:96:5:4842062982d22000",
+        "dhash:451:214:0:10:c0c89094b2717075"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_8cebd49b",
+      "created_at": "2025-12-18T10:36:59.738476",
+      "plan_id": "plan_82273f1e"
+    },
+    {
+      "step_id": "step_af3e8d55",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 367,
+        "y": 161
+      },
+      "description": "Click the \"Simple Bot\" option in the \"Teams Capability\" dropdown menu.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:367:161:16:5:0000000000000000",
+        "dhash:367:161:96:5:c95a922104535024",
+        "dhash:367:161:0:10:d0c0b094b2717075"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_af3e8d55",
+      "created_at": "2025-12-18T10:36:59.752864",
+      "plan_id": "plan_82273f1e"
+    },
+    {
+      "step_id": "step_0ac88b10",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 381,
+        "y": 74
+      },
+      "description": "Click the \"TypeScript\" option in the \"Programming Language\" dropdown menu within the Visual Studio Code interface.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:381:74:16:5:0042000000000000",
+        "dhash:381:74:96:5:0000004200000000",
+        "dhash:381:74:0:10:d0949094b2717075"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_0ac88b10",
+      "created_at": "2025-12-18T10:36:59.768904",
+      "plan_id": "plan_82273f1e"
+    },
+    {
+      "step_id": "step_2e0c64ee",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 405,
+        "y": 76
+      },
+      "description": "Click the \"Default folder\" field in the \"Workspace Folder\" dialog to select the path \"/home/vscode/AgentsToolkitProjects\".",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:405:76:16:5:401b22325a4535cc",
+        "dhash:405:76:96:5:4837252a2d060f04",
+        "dhash:405:76:0:10:f0b09494b2717075"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_2e0c64ee",
+      "created_at": "2025-12-18T10:36:59.783273",
+      "plan_id": "plan_82273f1e"
+    }
+  ],
+  "screenshots": {
+    "step_0efbbbda": "step_0efbbbda",
+    "step_8cebd49b": "step_8cebd49b",
+    "step_af3e8d55": "step_af3e8d55",
+    "step_0ac88b10": "step_0ac88b10",
+    "step_2e0c64ee": "step_2e0c64ee"
+  }
+}

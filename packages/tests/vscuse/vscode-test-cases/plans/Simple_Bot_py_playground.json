@@ -1,0 +1,175 @@
+{
+  "plan_metadata": {
+    "version": "1.1",
+    "plan_id": "plan_25edc1c7",
+    "execution_context": {
+      "delay_between_steps": 1,
+      "stop_on_error": true,
+      "precondition_wait_timeout": 30,
+      "precondition_retry_interval": 2,
+      "step_retry_timeout": 0
+    },
+    "total_steps": 5,
+    "created_at": "2025-12-18T10:14:05.036549",
+    "name": "Simple bot py playground",
+    "description": {
+      "other": "",
+      "owner": "v-liliu2@microsoft.com",
+      "workitem": "35636569"
+    },
+    "generated_at": "2025-12-18T10:14:05.036549",
+    "execution_order": [
+      "plan_r_0928_012254",
+      "step_6e8f0c3c",
+      "step_09c93e92",
+      "step_39de1e34",
+      "step_d08ae1c8",
+      "step_84443991",
+      "plan_r_0928_014459",
+      "plan_cfbed8f1",
+      "plan_r_1017_024203",
+      "plan_6174fb34"
+    ],
+    "tags": [],
+    "updated_at": "2025-12-18T10:15:16.806471"
+  },
+  "steps": [
+    {
+      "step_id": "step_6e8f0c3c",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 364,
+        "y": 214
+      },
+      "description": "Click the \"Teams Agents and Apps\" option in the \"New Project\" popup within the Microsoft 365 Agents Toolkit extension for Visual Studio Code.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:364:214:16:5:34a4a494d0a7a050",
+        "dhash:364:214:96:5:6399912ca6d32820",
+        "dhash:364:214:0:10:c8c88094b2717075"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_6e8f0c3c",
+      "created_at": "2025-12-18T10:14:05.050464",
+      "plan_id": "plan_25edc1c7"
+    },
+    {
+      "step_id": "step_09c93e92",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 389,
+        "y": 217
+      },
+      "description": "Click the \"Other Teams Capabilities\" dropdown option in the \"Teams Agent or App Using Teams AI Library\" selector within the Microsoft 365 Agents Toolkit extension for Visual Studio Code.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:389:217:16:5:b92932c8a0000012",
+        "dhash:389:217:96:5:61b9c424dad22400",
+        "dhash:389:217:0:10:c0c89094b2717075"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_09c93e92",
+      "created_at": "2025-12-18T10:14:05.064627",
+      "plan_id": "plan_25edc1c7"
+    },
+    {
+      "step_id": "step_39de1e34",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 296,
+        "y": 174
+      },
+      "description": "Select the \"Simple Bot\" option from the \"Teams Capability\" dropdown menu in the Microsoft 365 Agents Toolkit interface within Visual Studio Code.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:296:174:16:5:688c72ac5584d2d9",
+        "dhash:296:174:96:5:d212a1a05d994a48",
+        "dhash:296:174:0:10:d0c0b094b2717075"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_39de1e34",
+      "created_at": "2025-12-18T10:14:05.075704",
+      "plan_id": "plan_25edc1c7"
+    },
+    {
+      "step_id": "step_d08ae1c8",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 270,
+        "y": 127
+      },
+      "description": "Click the \"Python\" option in the \"Programming Language\" dropdown within Visual Studio Code, selecting it from the language list.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:270:127:16:5:a4a5a525ca200000",
+        "dhash:270:127:96:5:8ca98985222b8303",
+        "dhash:270:127:0:10:d09c9094b2717075"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_d08ae1c8",
+      "created_at": "2025-12-18T10:14:05.085364",
+      "plan_id": "plan_25edc1c7"
+    },
+    {
+      "step_id": "step_84443991",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 407,
+        "y": 79
+      },
+      "description": "Click the \"Default folder (/home/vscode/AgentsToolkitProjects)\" option in the \"Workspace Folder\" dropdown within Visual Studio Code to select the project root location.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:407:79:16:5:15cda58bca5a35c9",
+        "dhash:407:79:96:5:00b7252a2c06210c",
+        "dhash:407:79:0:10:f0b09494b2717075"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_84443991",
+      "created_at": "2025-12-18T10:14:05.095084",
+      "plan_id": "plan_25edc1c7"
+    }
+  ],
+  "screenshots": {
+    "step_6e8f0c3c": "step_6e8f0c3c",
+    "step_09c93e92": "step_09c93e92",
+    "step_39de1e34": "step_39de1e34",
+    "step_d08ae1c8": "step_d08ae1c8",
+    "step_84443991": "step_84443991"
+  }
+}
