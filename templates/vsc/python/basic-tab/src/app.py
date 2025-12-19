@@ -7,7 +7,7 @@ import asyncio
 from pathlib import Path
 from typing import Any
 
-from microsoft.teams.apps import App
+from microsoft_teams.apps import App
 
 app = App()
 app.tab("test", str(Path("Web/dist").resolve()))

@@ -1,7 +1,7 @@
 import asyncio
 
 from azure.identity import ManagedIdentityCredential
-from microsoft.teams.api import (
+from microsoft_teams.api import (
     MessageExtensionSubmitActionInvokeActivity,
     MessageExtensionFetchTaskInvokeActivity,
     MessageExtensionQueryInvokeActivity,
@@ -19,7 +19,7 @@ from microsoft.teams.api import (
     CardTaskModuleTaskInfo,
     TaskModuleContinueResponse
 )
-from microsoft.teams.apps import ActivityContext, App
+from microsoft_teams.apps import ActivityContext, App
 
 from config import Config
 from card_generators import (
