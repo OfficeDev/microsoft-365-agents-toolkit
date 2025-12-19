@@ -1,0 +1,68 @@
+{
+  "plan_metadata": {
+    "version": "1.0",
+    "plan_id": "plan_96b99199",
+    "execution_context": {
+      "delay_between_steps": 0.5,
+      "stop_on_error": true,
+      "precondition_wait_timeout": 60.0,
+      "precondition_retry_interval": 2.0,
+      "step_retry_timeout": 0.0
+    },
+    "total_steps": 2,
+    "created_at": "2025-12-19T03:05:38.690758",
+    "name": "group: fillin sql env",
+    "description": "",
+    "generated_at": "2025-12-19T03:05:38.690758",
+    "execution_order": [
+      "step_14b9d008",
+      "step_10fd771e"
+    ],
+    "tags": [
+      "group"
+    ],
+    "updated_at": "2025-12-19T03:08:00.852205"
+  },
+  "steps": [
+    {
+      "step_id": "step_14b9d008",
+      "agent": "code",
+      "tool": "",
+      "parameters": {
+        "sample": "=== Generated Script ===\nLanguage: bash\n\n```bash\nENV_FILE=\"/home/vscode/AgentsToolkitProjects/todo-list-with-Azure-backend/env/.env.local.user\"\n\necho \"SQL_ENDPOINT='vscuse-test-sql.database.windows.net'\" > \"$ENV_FILE\"\necho \"SQL_DATABASE_NAME='vscuse-test-db'\" >> \"$ENV_FILE\"\necho \"SQL_USER_NAME='${{secret:SQL_USER:}}'\" >> \"$ENV_FILE\"\necho \"SQL_PASSWORD='${{secret:SECRET_SQL_PASSWORD:}}'\" >> \"$ENV_FILE\"\n\ncat \"$ENV_FILE\"\n```\n\n=== Execution Results ===\nExit Code: 0\n\n=== STDOUT ===\nSQL_ENDPOINT='vscuse-test-sql.database.windows.net'\nSQL_DATABASE_NAME='vscuse-test-db'\nSQL_USER_NAME='${{secret:SQL_USER:}}'\nSQL_PASSWORD='${{secret:SECRET_SQL_PASSWORD:}}'\n\n✓ Script executed successfully"
+      },
+      "description": "@code in file: \"/home/vscode/AgentsToolkitProjects/${{var:app_name}}/env/.env.local.user\"\nfill in value: \nSQL_ENDPOINT='vscuse-test-sql.database.windows.net'\nSQL_DATABASE_NAME='vscuse-test-db'\nSQL_USER_NAME='${{secret:SQL_USER}}'\nSQL_PASSWORD='${{secret:SECRET_SQL_PASSWORD}}'",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": null,
+      "created_at": "2025-12-19T03:06:00.147056",
+      "plan_id": "plan_96b99199"
+    },
+    {
+      "step_id": "step_10fd771e",
+      "agent": "code",
+      "tool": "",
+      "parameters": {
+        "sample": "=== Generated Script ===\nLanguage: bash\n\n```bash\nENV_FILE=\"/home/vscode/AgentsToolkitProjects/todo-list-with-Azure-backend/env/.env.dev.user\"\n\nif [ -f \"$ENV_FILE\" ]; then\n  echo \"SQL_ENDPOINT='vscuse-test-sql.database.windows.net'\" >> \"$ENV_FILE\"\n  echo \"SQL_DATABASE_NAME='vscuse-test-db'\" >> \"$ENV_FILE\"\n  echo \"SQL_USER_NAME='${{secret:SQL_USER:}}'\" >> \"$ENV_FILE\"\n  echo \"SQL_PASSWORD='${{secret:SECRET_SQL_PASSWORD:}}'\" >> \"$ENV_FILE\"\n  echo \"Successfully updated $ENV_FILE\"\nelse\n  echo \"File not found: $ENV_FILE\" >&2\n  exit 1\nfi\n```\n\n=== Execution Results ===\nExit Code: 0\n\n=== STDOUT ===\nSuccessfully updated /home/vscode/AgentsToolkitProjects/todo-list-with-Azure-backend/env/.env.dev.user\n\n✓ Script executed successfully"
+      },
+      "description": "@code in file: \"/home/vscode/AgentsToolkitProjects/${{var:app_name}}/env/.env.dev.user\"\nfill in value: \nSQL_ENDPOINT='vscuse-test-sql.database.windows.net'\nSQL_DATABASE_NAME='vscuse-test-db'\nSQL_USER_NAME='${{secret:SQL_USER}}'\nSQL_PASSWORD='${{secret:SECRET_SQL_PASSWORD}}'",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": null,
+      "created_at": "2025-12-19T03:07:14.465367",
+      "plan_id": "plan_96b99199"
+    }
+  ]
+}
