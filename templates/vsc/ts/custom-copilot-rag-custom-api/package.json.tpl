@@ -14,7 +14,7 @@
     "scripts": {
         "dev:teamsfx": "env-cmd --silent -f .localConfigs npm run dev",
         "dev:teamsfx:playground": "env-cmd --silent -f .localConfigs.playground npm run dev",
-        "dev:teamsfx:launch-playground": "env-cmd --silent -f env/.env.playground teamsapptester start",
+        "dev:teamsfx:launch-playground": "env-cmd --silent -f env/.env.playground agentsplayground start",
         "dev": "nodemon --exec node --inspect=9239 --signal SIGINT -r ts-node/register ./src/index.ts",
         "build": "tsc --build && shx cp -r ./src/app/instructions.txt ./lib/src/app && shx cp -r ./src/app/functions.json ./lib/src/app && shx cp -r ./appPackage ./lib/appPackage && shx cp -r src/adaptiveCards ./lib/src",
         "start": "node ./lib/src/index.js",

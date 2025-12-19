@@ -2251,10 +2251,6 @@ describe("Teams app APIs", async () => {
   it("validate with test cases", async () => {
     const appName = await mockV3Project();
 
-    const mockedEnvRestore = mockedEnv({
-      [FeatureFlagName.AsyncAppValidation]: "true",
-    });
-
     const inputs: Inputs = {
       platform: Platform.VSCode,
       [QuestionNames.Folder]: os.tmpdir(),
@@ -2266,8 +2262,6 @@ describe("Teams app APIs", async () => {
     const runSpy = sinon.spy(ValidateWithTestCasesDriver.prototype, "execute");
     await core.validateApplication(inputs);
     sinon.assert.calledOnce(runSpy);
-
-    mockedEnvRestore();
   });
 
   it("create app package", async () => {

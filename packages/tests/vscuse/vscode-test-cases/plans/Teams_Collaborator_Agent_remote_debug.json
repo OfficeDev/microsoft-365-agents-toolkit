@@ -13,9 +13,9 @@
     "created_at": "2025-11-11T04:27:11.498862",
     "name": "Teams Collaborator Agent Remote Debug",
     "description": {
-      "owner": "",
-      "workitem": "",
-      "other": "35692291"
+      "owner": "v-liliu2@microsoft.com",
+      "workitem": "35692291",
+      "other": ""
     },
     "generated_at": "2025-11-11T04:27:11.498855",
     "execution_order": [

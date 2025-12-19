@@ -2,6 +2,14 @@
 
 > Note: This changelog only includes the changes for the stable versions of Microsoft 365 Agents Toolkit (evolved from Teams Toolkit). For the changelog of pre-released versions, please refer to the [Microsoft 365 Agents Toolkit Pre-release Changelog](https://github.com/OfficeDev/TeamsFx/blob/dev/packages/vscode-extension/PRERELEASE.md).
 
+## 6.4.2 - Dec 15, 2025
+
+Hotfix version.
+
+### Enhancement
+- Improved the Agents Playground installation flow to make setup more reliable and reduce potential debugging failures caused by installation issues.
+- Updated Teams message extension template to prevent npm build errors triggered by certain parameter types, ensuring a smoother development experience.
+
 ## 6.4.1 - Nov 17, 2025
 
 Hotfix Version.

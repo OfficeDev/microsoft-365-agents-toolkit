@@ -12,9 +12,9 @@
     "created_at": "2025-11-07T08:22:27.051766",
     "name": "DA None ts Remote Debug",
     "description": {
-      "owner": "",
-      "workitem": "",
-      "other": "35692270"
+      "owner": "v-ivanchen@microsoft.com",
+      "workitem": "35692270",
+      "other": ""
     },
     "generated_at": "2025-11-07T08:22:27.051757",
     "execution_order": [

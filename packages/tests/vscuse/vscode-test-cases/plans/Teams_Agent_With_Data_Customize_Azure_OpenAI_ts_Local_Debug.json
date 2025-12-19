@@ -13,9 +13,9 @@
     "created_at": "2025-11-06T09:35:47.157923",
     "name": "Teams Agent With Data Customize Azure OpenAI ts Local Debug",
     "description": {
-      "owner": "",
-      "workitem": "",
-      "other": "27569137"
+      "owner": "v-ivanchen@microsoft.com",
+      "workitem": "27569137",
+      "other": ""
     },
     "generated_at": "2025-11-06T09:35:47.157919",
     "execution_order": [

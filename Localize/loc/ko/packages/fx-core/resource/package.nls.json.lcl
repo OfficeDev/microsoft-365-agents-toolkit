@@ -9608,7 +9608,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to clear blob files in Azure Storage Account '%s'. The error responses from Azure are:]A; %s. ]A;If the error message specifies the reason, fix the error and try again.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Azure Storage 계정 '%s'에서 Blob 파일을 지울 수 없습니다. Azure의 오류 응답은 다음과 같습니다.]A; %s.]A;오류 메시지에 이유가 명시되어 있으면 오류를 수정하고 다시 시도하세요.]]></Val>
+            <Val><![CDATA[Azure 스토리지 계정 '%s'에서 Blob 파일을 지울 수 없습니다. Azure의 오류 응답은 다음과 같습니다.]A; %s.]A;오류 메시지에 이유가 명시되어 있으면 오류를 수정하고 다시 시도하세요.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9617,7 +9617,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to clear blob files in Azure Storage Account '%s'. Refer to the [Output panel]5D;(command:fx-extension.showOutputChannel) for more details.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Azure Storage 계정 '%s'에서 Blob 파일을 지울 수 없습니다. 자세한 내용은 [출력 패널]5D;(command:fx-extension.showOutputChannel)을 참조하세요.]]></Val>
+            <Val><![CDATA[Azure 스토리지 계정 '%s'에서 Blob 파일을 지울 수 없습니다. 자세한 내용은 [출력 패널]5D;(command:fx-extension.showOutputChannel)을 참조하세요.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9626,7 +9626,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to get Azure Storage container '%s' in Azure Storage Account '%s' due to error: %s. The error responses from Azure are:]A; %s. ]A;If the error message specifies the reason, fix the error and try again.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[오류로 인해 Azure Storage 계정 '%s'에서 Azure Storage 컨테이너 '%s'을(를) 가져올 수 없습니다: %s. Azure의 오류 응답은 다음과 같습니다.]A; %s.]A;오류 메시지에 이유가 명시되어 있으면 오류를 수정하고 다시 시도하세요.]]></Val>
+            <Val><![CDATA[오류로 인해 Azure 스토리지 계정 '%s'에서 Azure Storage 컨테이너 '%s'을(를) 가져올 수 없습니다: %s. Azure의 오류 응답은 다음과 같습니다.]A; %s.]A;오류 메시지에 이유가 명시되어 있으면 오류를 수정하고 다시 시도하세요.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9635,7 +9635,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to get Azure Storage container '%s' in Azure Storage Account '%s' due to error: %s. Refer to the [Output panel]5D;(command:fx-extension.showOutputChannel) for more details.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA['%s' 오류로 인해 Azure Storage 계정 '%s'에서 '%s' Azure Storage 컨테이너를 가져올 수 없습니다. 자세한 내용은 [출력 패널]5D;(command:fx-extension.showOutputChannel)을 참조하세요.]]></Val>
+            <Val><![CDATA['%s' 오류로 인해 Azure 스토리지 계정 '%s'에서 '%s' Azure Storage 컨테이너를 가져올 수 없습니다. 자세한 내용은 [출력 패널]5D;(command:fx-extension.showOutputChannel)을 참조하세요.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9644,7 +9644,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to get properties of container '%s' in Azure Storage Account '%s' due to error: %s. The error responses from Azure are:]A; %s. ]A;If the error message specifies the reason, fix the error and try again.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[오류로 인해 Azure Storage 계정 '%s'에서 컨테이너 '%s'의 속성을 가져올 수 없습니다: %s. Azure의 오류 응답은 다음과 같습니다.]A; %s.]A;오류 메시지에 이유가 명시되어 있으면 오류를 수정하고 다시 시도하세요.]]></Val>
+            <Val><![CDATA[오류로 인해 Azure 스토리지 계정 '%s'에서 컨테이너 '%s'의 속성을 가져올 수 없습니다: %s. Azure의 오류 응답은 다음과 같습니다.]A; %s.]A;오류 메시지에 이유가 명시되어 있으면 오류를 수정하고 다시 시도하세요.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9653,7 +9653,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to get properties of container '%s' in Azure Storage Account '%s' due to error: %s. Refer to the [Output panel]5D;(command:fx-extension.showOutputChannel) for more details.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA['%s' 오류로 인해 Azure Storage 계정 '%s'에서 컨테이너 '%s'의 속성을 가져올 수 없습니다. 자세한 내용은 [출력 패널]5D;(command:fx-extension.showOutputChannel)을 참조하세요.]]></Val>
+            <Val><![CDATA['%s' 오류로 인해 Azure 스토리지 계정 '%s'에서 컨테이너 '%s'의 속성을 가져올 수 없습니다. 자세한 내용은 [출력 패널]5D;(command:fx-extension.showOutputChannel)을 참조하세요.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9662,7 +9662,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to set properties of container '%s' in Azure Storage Account '%s' due to error: %s. The error responses from Azure are:]A; %s. ]A;If the error message specifies the reason, fix the error and try again.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA['%s' 오류로 인해 Azure Storage 계정 '%s'에서 컨테이너 '%s'의 속성을 설정할 수 없습니다. Azure의 오류 응답은 다음과 같습니다.]A; %s. ]A;오류 메시지에 이유가 명시되어 있는 경우 오류를 수정하고 다시 시도하세요.]]></Val>
+            <Val><![CDATA['%s' 오류로 인해 Azure 스토리지 계정 '%s'에서 컨테이너 '%s'의 속성을 설정할 수 없습니다. Azure의 오류 응답은 다음과 같습니다.]A; %s. ]A;오류 메시지에 이유가 명시되어 있는 경우 오류를 수정하고 다시 시도하세요.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9671,7 +9671,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to set properties of container '%s' in Azure Storage Account '%s' due to error: %s. Refer to the [Output panel]5D;(command:fx-extension.showOutputChannel) for more details.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[오류로 인해 Azure Storage 계정 '%s'에서 컨테이너 '%s'의 속성을 설정할 수 없습니다: %s. 자세한 내용은 [출력 패널]5D;(command:fx-extension.showOutputChannel)을 참조하세요.]]></Val>
+            <Val><![CDATA[오류로 인해 Azure 스토리지 계정 '%s'에서 컨테이너 '%s'의 속성을 설정할 수 없습니다: %s. 자세한 내용은 [출력 패널]5D;(command:fx-extension.showOutputChannel)을 참조하세요.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9680,7 +9680,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to upload local folder '%s' to Azure Storage Account '%s'. The error responses from Azure are:]A; %s. ]A;If the error message specifies the reason, fix the error and try again.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Azure Storage 계정 '%s'에 로컬 폴더 '%s'을(를) 업로드할 수 없습니다. Azure의 오류 응답은 다음과 같습니다.]A; %s.]A;오류 메시지에 이유가 명시되어 있으면 오류를 수정하고 다시 시도하세요.]]></Val>
+            <Val><![CDATA[Azure 스토리지 계정 '%s'에 로컬 폴더 '%s'을(를) 업로드할 수 없습니다. Azure의 오류 응답은 다음과 같습니다.]A; %s.]A;오류 메시지에 이유가 명시되어 있으면 오류를 수정하고 다시 시도하세요.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9689,7 +9689,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to upload local folder '%s' to Azure Storage Account '%s'. Refer to the [Output panel]5D;(command:fx-extension.showOutputChannel) for more details.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Azure Storage 계정 '%s'에 '%s' 로컬 폴더를 업로드할 수 없습니다. 자세한 내용은 [출력 패널]5D;(command:fx-extension.showOutputChannel)을 참조하세요.]]></Val>
+            <Val><![CDATA[Azure 스토리지 계정 '%s'에 '%s' 로컬 폴더를 업로드할 수 없습니다. 자세한 내용은 [출력 패널]5D;(command:fx-extension.showOutputChannel)을 참조하세요.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -10934,7 +10934,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Check if you have permissions to your Azure Storage Account.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Azure Storage 계정에 대한 권한이 있는지 확인합니다.]]></Val>
+            <Val><![CDATA[Azure 스토리지 계정에 대한 권한이 있는지 확인합니다.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />

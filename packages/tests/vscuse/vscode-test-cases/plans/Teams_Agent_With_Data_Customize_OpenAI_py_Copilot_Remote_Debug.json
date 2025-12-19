@@ -13,9 +13,9 @@
     "created_at": "2025-11-27T09:18:29.163865",
     "name": "Teams Agent With Data Customize OpenAI py Copilot Remote Debug",
     "description": {
-      "owner": "",
-      "workitem": "",
-      "other": "36031923"
+      "owner": "v-yajunlu@microsoft.com",
+      "workitem": "36031923",
+      "other": ""
     },
     "generated_at": "2025-11-27T09:18:29.163865",
     "execution_order": [

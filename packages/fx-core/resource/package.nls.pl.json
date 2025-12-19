@@ -823,7 +823,7 @@
   "driver.spfx.info.tenantAppCatalogCreated": "Utworzono wykaz aplikacji dzierżawy programu SharePoint %s. Poczekaj kilka minut, aż będzie aktywny.",
   "driver.spfx.warn.noTenantAppCatalogFound": "Nie znaleziono wykazu aplikacji dzierżawy. Spróbuj ponownie: %s",
   "driver.spfx.error.failedToGetAppCatalog": "Nie można pobrać adresu URL witryny wykazu aplikacji po utworzeniu. Poczekaj kilka minut i spróbuj ponownie.",
-  "driver.spfx.error.noValidAppCatelog": "Brak prawidłowego wykazu aplikacji w dzierżawie. Możesz zaktualizować właściwość „createAppCatalogIfNotExist” w lokalizacji %s do wartości true, jeśli chcesz, aby zestaw narzędzi agentów platformy Microsoft 365 utworzył ją za Ciebie lub możesz utworzyć ją samodzielnie.",
+  "driver.spfx.error.noValidAppCatelog": "Brak prawidłowego wykazu aplikacji w dzierżawie. Możesz zaktualizować właściwość „createAppCatalogIfNotExist” w lokalizacji %s do wartości true, jeśli chcesz, aby Zestaw narzędzi agentów Microsoft 365 utworzył ją za Ciebie lub możesz utworzyć ją samodzielnie.",
   "driver.spfx.add.description": "dodawanie dodatkowego składnika Web Part do projektu programu SPFx",
   "driver.spfx.add.successNotice": "Składnik Web Part %s został pomyślnie dodany do projektu.",
   "driver.spfx.add.progress.title": "Składnik Web Part szkieletu",

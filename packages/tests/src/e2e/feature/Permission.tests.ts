@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 
 /**
- * @author Bowen Song <bowen.song@microsoft.com>
+ * @author Ning Tang <Ning.Tang@microsoft.com>
  */
 
 import { expect } from "chai";

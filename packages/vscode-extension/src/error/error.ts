@@ -61,5 +61,6 @@ export enum ExtensionErrors {
   MCPContentInvalid = "MCPContentInvalid",
   MCPServerNotFound = "MCPServerNotFound",
   MCPNameOrServerUrlMissing = "MCPNameOrServerUrlMissing",
+  MCPLocalMcpCommandMissing = "MCPLocalMcpCommandMissing",
   MCPToolsNotFound = "MCPToolsNotFound",
 }

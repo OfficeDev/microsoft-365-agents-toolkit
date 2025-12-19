@@ -1,0 +1,148 @@
+{
+  "plan_metadata": {
+    "version": "1.1",
+    "plan_id": "plan_7fb5e663",
+    "execution_context": {
+      "delay_between_steps": 1,
+      "stop_on_error": true,
+      "precondition_wait_timeout": 30,
+      "precondition_retry_interval": 2,
+      "step_retry_count": 0
+    },
+    "total_steps": 4,
+    "created_at": "2025-12-17T06:38:19.056645",
+    "name": "Basic Custom Engine Agent Azure OpenAI py playground",
+    "description": {
+      "other": "",
+      "owner": "v-liliu2@microsoft.com",
+      "workitem": "36229811"
+    },
+    "generated_at": "2025-12-17T06:38:19.056645",
+    "execution_order": [
+      "plan_r_0928_012254",
+      "step_8a71d7f4",
+      "step_bc4a7a73",
+      "plan_r_0930_054245",
+      "step_50f024fe",
+      "step_4fcadec9",
+      "plan_r_0928_014459",
+      "plan_cfbed8f1",
+      "plan_r_1017_024203",
+      "plan_6c55dfc3"
+    ],
+    "tags": [],
+    "updated_at": "2025-12-17T06:40:11.366350"
+  },
+  "steps": [
+    {
+      "step_id": "step_8a71d7f4",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 319,
+        "y": 129
+      },
+      "description": "Select the \"Custom Engine Agent\" option in the \"New Project\" dropdown within the Microsoft 365 Agents Toolkit interface in Visual Studio Code.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:319:129:16:5:a9a59f6c91040024",
+        "dhash:319:129:96:5:94922839d266b8a8",
+        "dhash:319:129:0:10:c0c88094b2717075"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_8a71d7f4",
+      "created_at": "2025-12-17T06:38:19.083488",
+      "plan_id": "plan_7fb5e663"
+    },
+    {
+      "step_id": "step_bc4a7a73",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 333,
+        "y": 85
+      },
+      "description": "Select \"Basic Custom Engine Agent\" from the dropdown menu in the \"App Features Using Microsoft 365 Agents SDK\" panel within Visual Studio Code.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:333:85:16:5:359495714854339b",
+        "dhash:333:85:96:5:84a235994844a280",
+        "dhash:333:85:0:10:c0d89094b2717075"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_bc4a7a73",
+      "created_at": "2025-12-17T06:38:19.101564",
+      "plan_id": "plan_7fb5e663"
+    },
+    {
+      "step_id": "step_50f024fe",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 264,
+        "y": 119
+      },
+      "description": "Click the \"Python\" option in the \"Programming Language\" dropdown within Visual Studio Code.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:264:119:16:5:256a8966525a7624",
+        "dhash:264:119:96:5:c4c4f4a1d20d21d1",
+        "dhash:264:119:0:10:d0949094b2717075"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_50f024fe",
+      "created_at": "2025-12-17T06:38:19.119706",
+      "plan_id": "plan_7fb5e663"
+    },
+    {
+      "step_id": "step_4fcadec9",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 436,
+        "y": 77
+      },
+      "description": "Click the \"Default folder\" dropdown in the \"Workspace Folder\" selection prompt to choose or locate the project's root folder.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:436:77:16:5:106399555515856b",
+        "dhash:436:77:96:5:06b9294564060e24",
+        "dhash:436:77:0:10:f0b09494b2717075"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_4fcadec9",
+      "created_at": "2025-12-17T06:38:19.140985",
+      "plan_id": "plan_7fb5e663"
+    }
+  ],
+  "screenshots": {
+    "step_8a71d7f4": "step_8a71d7f4",
+    "step_bc4a7a73": "step_bc4a7a73",
+    "step_50f024fe": "step_50f024fe",
+    "step_4fcadec9": "step_4fcadec9"
+  }
+}

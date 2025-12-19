@@ -13,9 +13,9 @@
     "created_at": "2025-11-25T02:29:00.766028",
     "name": "Weather Agent OpenAI ts Local Debug",
     "description": {
-      "owner": "",
-      "workitem": "",
-      "other": "34648300"
+      "owner": "v-annefu@microsoft.com",
+      "workitem": "34648300",
+      "other": ""
     },
     "generated_at": "2025-11-25T02:29:00.766028",
     "execution_order": [
