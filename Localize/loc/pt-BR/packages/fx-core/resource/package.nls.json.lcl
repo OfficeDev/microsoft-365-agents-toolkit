@@ -7910,7 +7910,7 @@
         <Str Cat="Text">
           <Val><![CDATA[There is no valid app catalog in your tenant. You can update the property 'createAppCatalogIfNotExist' in %s to true if you want Microsoft 365 Agents Toolkit to create it for you or you can create it by yourself.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Não há um catálogo de aplicativos válido em seu locatário. Você pode atualizar a propriedade "createAppCatalogIfNotExist" em %s para true se quiser que o Microsoft 365 Agents Toolkit o crie para você ou se você mesmo o criar.]]></Val>
+            <Val><![CDATA[Não há um catálogo de aplicativos válido em seu locatário. Você pode atualizar a propriedade "createAppCatalogIfNotExist" em %s para true se quiser que o Kit de ferramentas de agentes do Microsoft 365 crie para você ou se você mesmo o criar.]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[There is no valid app catalog in your tenant. You can update the property 'createAppCatalogIfNotExist' in %s to true if you want Teams Toolkit to create it for you or you can create it by yourself.]]></Val>
@@ -9608,7 +9608,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to clear blob files in Azure Storage Account '%s'. The error responses from Azure are:]A; %s. ]A;If the error message specifies the reason, fix the error and try again.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Não é possível limpar arquivos de blob na conta de Armazenamento do Microsoft Azure '%s'. As respostas de erro do Azure são:]A; %s. ]A;Se a mensagem de erro especifica o motivo, corrija o erro e tente novamente.]]></Val>
+            <Val><![CDATA[Não é possível limpar arquivos de blob na conta de armazenamento do Azure '%s'. As respostas de erro do Azure são:]A; %s. ]A;Se a mensagem de erro especifica o motivo, corrija o erro e tente novamente.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9626,7 +9626,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to get Azure Storage container '%s' in Azure Storage Account '%s' due to error: %s. The error responses from Azure are:]A; %s. ]A;If the error message specifies the reason, fix the error and try again.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Não é possível obter o contêiner de Armazenamento do Microsoft Azure '%s' na conta de armazenamento do Microsoft Azure '%s' devido ao erro: %s. As respostas de erro do Azure são:]A; %s. ]A;Se a mensagem de erro especifica o motivo, corrija o erro e tente novamente.]]></Val>
+            <Val><![CDATA[Não é possível obter o contêiner de Armazenamento do Microsoft Azure '%s' na conta de armazenamento do Azure '%s' devido ao erro: %s. As respostas de erro do Azure são:]A; %s. ]A;Se a mensagem de erro especifica o motivo, corrija o erro e tente novamente.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9644,7 +9644,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to get properties of container '%s' in Azure Storage Account '%s' due to error: %s. The error responses from Azure are:]A; %s. ]A;If the error message specifies the reason, fix the error and try again.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Não é possível obter propriedades do contêiner '%s' na conta de Armazenamento do Microsoft Azure '%s' devido ao erro: %s. As respostas de erro do Azure são:]A; %s. ]A;Se a mensagem de erro especifica o motivo, corrija o erro e tente novamente.]]></Val>
+            <Val><![CDATA[Não é possível obter propriedades do contêiner '%s' na conta de armazenamento do Azure '%s' devido ao erro: %s. As respostas de erro do Azure são:]A; %s. ]A;Se a mensagem de erro especifica o motivo, corrija o erro e tente novamente.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9671,7 +9671,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to set properties of container '%s' in Azure Storage Account '%s' due to error: %s. Refer to the [Output panel]5D;(command:fx-extension.showOutputChannel) for more details.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Não é possível definir as propriedades do contêiner '%s' na conta de Armazenamento do Microsoft Azure '%s' devido ao erro: %s. Consulte o [Output panel]5D;(command:fx-extension.showOutputChannel) para obter mais detalhes.]]></Val>
+            <Val><![CDATA[Não é possível definir as propriedades do contêiner '%s' na conta de armazenamento do Azure '%s' devido ao erro: %s. Consulte o [Output panel]5D;(command:fx-extension.showOutputChannel) para obter mais detalhes.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9680,7 +9680,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to upload local folder '%s' to Azure Storage Account '%s'. The error responses from Azure are:]A; %s. ]A;If the error message specifies the reason, fix the error and try again.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Não é possível carregar a pasta local '%s' a conta de Armazenamento do Microsoft Azure '%s'. As respostas de erro do Azure são:]A; %s. ]A;Se a mensagem de erro especifica o motivo, corrija o erro e tente novamente.]]></Val>
+            <Val><![CDATA[Não é possível carregar a pasta local '%s' a conta de armazenamento do Azure '%s'. As respostas de erro do Azure são:]A; %s. ]A;Se a mensagem de erro especifica o motivo, corrija o erro e tente novamente.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -10934,7 +10934,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Check if you have permissions to your Azure Storage Account.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Verifique se você tem permissões para sua Conta de Armazenamento do Microsoft Azure.]]></Val>
+            <Val><![CDATA[Verifique se você tem permissões para sua conta de armazenamento do Azure.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
