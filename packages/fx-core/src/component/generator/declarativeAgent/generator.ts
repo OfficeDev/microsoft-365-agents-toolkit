@@ -15,6 +15,7 @@ import {
   Inputs,
   ManifestTemplateFileName,
   ok,
+  OptionItem,
   Platform,
   Result,
   signedIn,
@@ -49,6 +50,84 @@ const enum telemetryProperties {
   isDeclarativeCopilot = "is-declarative-copilot",
   isMicrosoftEntra = "is-microsoft-entra",
   needAddPluginFromExisting = "need-add-plugin-from-existing",
+  mcpServerParseFailures = "mcp-server-parse-failures",
+  mcpServerParseFailureIds = "mcp-server-parse-failure-ids",
+}
+
+/**
+ * Process selected MCP local servers from inputs and format for template
+ * Handles both single and multiple server selection for backward compatibility
+ */
+function processMCPLocalServers(
+  inputs: Inputs,
+  context?: ActionContext
+): {
+  MCPLocalServers: Array<{
+    name: string;
+    identifier: string;
+    command: string;
+    args: string;
+    notLast: boolean;
+  }>;
+} {
+  const selectedOptions = inputs[QuestionNames.MCPLocalServer] as OptionItem[] | undefined;
+
+  // Handle empty/invalid selection
+  if (!selectedOptions || !Array.isArray(selectedOptions) || selectedOptions.length === 0) {
+    return {
+      MCPLocalServers: [],
+    };
+  }
+
+  const failures: string[] = [];
+
+  // Map selected options to server configs
+  const servers = selectedOptions
+    .map((option, index) => {
+      try {
+        // Validate option structure
+        if (!option.data || typeof option.data !== "string") {
+          throw new Error("Invalid option data structure");
+        }
+
+        const serverData = JSON.parse(option.data);
+
+        // Validate parsed data
+        if (!serverData.identifier || !serverData.command || !Array.isArray(serverData.args)) {
+          throw new Error("Invalid server data format");
+        }
+
+        return {
+          name: option.id,
+          identifier: serverData.identifier,
+          command: serverData.command,
+          args: serverData.args.map((arg: string) => `"${arg}"`).join(", "),
+          notLast: index < selectedOptions.length - 1,
+        };
+      } catch (error) {
+        // Track failure for telemetry
+        failures.push(option.id);
+        return null;
+      }
+    })
+    .filter((server): server is NonNullable<typeof server> => server !== null);
+
+  // Track failures for telemetry
+  if (failures.length > 0) {
+    merge(context?.telemetryProps, {
+      [telemetryProperties.mcpServerParseFailures]: failures.length.toString(),
+      [telemetryProperties.mcpServerParseFailureIds]: failures.join(","),
+    });
+  }
+
+  // If ALL servers failed, throw error
+  if (servers.length === 0) {
+    throw new Error(`All ${selectedOptions.length} selected MCP servers failed to parse`);
+  }
+
+  return {
+    MCPLocalServers: servers,
+  };
 }
 
 /**
@@ -101,13 +180,7 @@ export class DeclarativeAgentGenerator extends DefaultTemplateGenerator {
       MicrosoftEntra: auth === ApiAuthOptions.microsoftEntra().id ? "true" : "",
       IsLocalMCP: isLocalMCP ? "true" : "",
       ...(isLocalMCP
-        ? {
-            MCPLocalServerName: inputs[QuestionNames.MCPLocalServerName],
-            MCPLocalServerIdentifier: inputs[QuestionNames.MCPLocalServerIdentifier],
-            MCPCommand: inputs[QuestionNames.MCPLocalServerCommand],
-            MCPArgs: inputs[QuestionNames.MCPLocalServerArgs],
-            ServerName: inputs[QuestionNames.MCPLocalServerName],
-          }
+        ? processMCPLocalServers(inputs, actionContext)
         : MCPForDAServerUrl
         ? {
             MCPForDAServerUrl,

@@ -351,7 +351,8 @@ export function MCPLocalServerSelectionNode(): IQTreeNode {
     data: {
       name: QuestionNames.MCPLocalServer,
       title: getLocalizedString("core.createProjectQuestion.mcpLocalServer.title"),
-      type: "singleSelect",
+      type: "multiSelect",
+      returnObject: true,
       staticOptions: [],
       placeholder: getLocalizedString("core.createProjectQuestion.mcpLocalServer.placeholder"),
       dynamicOptions: (inputs: Inputs) => {
@@ -368,19 +369,10 @@ export function MCPLocalServerSelectionNode(): IQTreeNode {
           }),
         }));
       },
-      onDidSelection: (item: string | OptionItem, inputs: Inputs) => {
-        try {
-          const serverInfo = item as OptionItem;
-          const serverData = JSON.parse(serverInfo.data as string);
-          inputs[QuestionNames.MCPLocalServerName] = serverInfo.id;
-          inputs[QuestionNames.MCPLocalServerIdentifier] = serverData.identifier;
-          inputs[QuestionNames.MCPLocalServerCommand] = serverData.command;
-          // Store args in the format needed by the template: "arg1", "arg2", "arg3"
-          inputs[QuestionNames.MCPLocalServerArgs] = serverData.args
-            .map((arg: string) => `"${arg}"`)
-            .join(", ");
-        } catch {}
-      },
+      validation: { minItems: 1 },
+      validationHelp: getLocalizedString(
+        "core.createProjectQuestion.mcpLocalServer.validationHelp"
+      ),
     },
     children: [],
   };
