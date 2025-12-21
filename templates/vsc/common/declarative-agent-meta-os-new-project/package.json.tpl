@@ -30,7 +30,7 @@
     "start:desktop:powerpoint": "office-addin-debugging start appPackage/manifest.json desktop --app powerpoint",
     "start:desktop:outlook": "office-addin-debugging start appPackage/manifest.json desktop --app outlook",
     "start:web": "office-addin-debugging start appPackage/manifest.json web",
-    "stop": "office-addin-debugging stop appPackage/manifest.json",
+    "stop": "powershell -ExecutionPolicy Bypass -File ./scripts/uninstall-addin.ps1",
     "validate": "office-addin-manifest validate appPackage/manifest.json",
     "watch": "webpack --mode development --watch"
   },
