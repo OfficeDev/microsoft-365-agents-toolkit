@@ -1,0 +1,118 @@
+{
+  "plan_metadata": {
+    "version": "1.0",
+    "plan_id": "plan_400661ce",
+    "execution_context": {
+      "delay_between_steps": 0.5,
+      "stop_on_error": true,
+      "precondition_wait_timeout": 60.0,
+      "precondition_retry_interval": 2.0,
+      "step_retry_timeout": 0.0
+    },
+    "total_steps": 3,
+    "created_at": "2025-12-22T07:59:00.276717",
+    "name": "Sample Npm Search Connector Remote Debug",
+    "description": {
+      "other": "",
+      "owner": "v-annefu@microsoft.com",
+      "workitem": "14571879"
+    },
+    "generated_at": "2025-12-22T07:59:00.276717",
+    "execution_order": [
+      "plan_r_1107_015711",
+      "step_5f473ece",
+      "step_5831e694",
+      "step_83944401",
+      "plan_r_1111_043711",
+      "plan_r_0928_020230",
+      "plan_r_0928_073729",
+      "plan_r_0929_040401",
+      "plan_r_0928_075846",
+      "plan_7d672320",
+      "plan_16c0f785"
+    ],
+    "tags": [],
+    "updated_at": "2025-12-22T08:54:25.742540"
+  },
+  "steps": [
+    {
+      "step_id": "step_5f473ece",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 405,
+        "y": 171
+      },
+      "description": "Click the search input field in the \"Samples\" tab of Microsoft 365 Agents Toolkit within Visual Studio Code, where users can enter text to filter sample projects.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:405:171:16:5:06c935aca9ac1689",
+        "dhash:405:171:96:5:6a6217a024840000",
+        "dhash:405:171:0:10:64a4b4b464747476"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_5f473ece",
+      "created_at": "2025-12-22T08:47:54.531662",
+      "plan_id": "plan_400661ce"
+    },
+    {
+      "step_id": "step_5831e694",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "text": "npm"
+      },
+      "description": "Type text: 'npm' into the \"Samples\" search input field within the Microsoft 365 Agents Toolkit interface in Visual Studio Code. The search bar is located near the top center of the \"Samples\" tab, beneath the section header and above the featured samples list.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:512:384:0:20:64a4b4b464747476"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_5831e694",
+      "created_at": "2025-12-22T08:47:54.543037",
+      "plan_id": "plan_400661ce"
+    },
+    {
+      "step_id": "step_83944401",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 792,
+        "y": 227
+      },
+      "description": "Click the \"Create\" button for the \"NPM Search Connector\" sample in the Microsoft 365 Agents Toolkit Samples section within the Visual Studio Code interface. And input ${{var:app_name:npmSearchConnector}} into the run time variable.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:792:227:16:5:0850287252a126a5",
+        "dhash:792:227:96:5:80800688f3f188f3",
+        "dhash:792:227:0:10:64a0b4a441e06061"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_83944401",
+      "created_at": "2025-12-22T08:47:54.557442",
+      "plan_id": "plan_400661ce"
+    }
+  ],
+  "screenshots": {
+    "step_5f473ece": "step_5f473ece",
+    "step_5831e694": "step_5831e694",
+    "step_83944401": "step_83944401"
+  }
+}

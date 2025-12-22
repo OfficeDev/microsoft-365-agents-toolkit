@@ -10,7 +10,6 @@ const windows_22 = [
   "sample-chef-bot",
   "sample-food-catalog",
   "sample-hello-world-tab-with-backend",
-  "sample-npm-search",
   "sample-query-org",
   "sample-assistant-dashboard",
   "sample-bot-sso",
