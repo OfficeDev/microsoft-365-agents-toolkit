@@ -9653,7 +9653,10 @@ describe("updateActionWithMCP", () => {
       runtimes: [],
     };
 
-    sandbox.stub(fs, "pathExists").resolves(true);
+    sandbox.stub(fs, "pathExists").callsFake(async (filePath: string) => {
+      // Return false for mcp-tools.json to avoid infinite loop, true for ai-plugin.json
+      return !filePath.includes("mcp-tools");
+    });
     sandbox.stub(fs, "readJSON").resolves(existingPlugin);
     const writeJSONStub = sandbox.stub(fs, "writeJSON").resolves();
     sandbox.stub(pathUtils, "getYmlFilePath").returns("/test/project/teamsapp.yml");
@@ -9707,7 +9710,10 @@ describe("updateActionWithMCP", () => {
       refresh_endpoint: "https://example.com/oauth/refresh",
     };
 
-    sandbox.stub(fs, "pathExists").resolves(true);
+    sandbox.stub(fs, "pathExists").callsFake(async (filePath: string) => {
+      // Return false for mcp-tools.json to avoid infinite loop, true for ai-plugin.json
+      return !filePath.includes("mcp-tools");
+    });
     sandbox.stub(fs, "readJSON").resolves(existingPlugin);
     const writeJSONStub = sandbox.stub(fs, "writeJSON").resolves();
     sandbox.stub(pathUtils, "getYmlFilePath").returns("/test/project/teamsapp.yml");
@@ -9769,7 +9775,10 @@ describe("updateActionWithMCP", () => {
       refresh_endpoint: "https://example.com/oauth/refresh",
     };
 
-    sandbox.stub(fs, "pathExists").resolves(true);
+    sandbox.stub(fs, "pathExists").callsFake(async (filePath: string) => {
+      // Return false for mcp-tools.json to avoid infinite loop, true for ai-plugin.json
+      return !filePath.includes("mcp-tools");
+    });
     sandbox.stub(fs, "readJSON").resolves(existingPlugin);
     const writeJSONStub = sandbox.stub(fs, "writeJSON").resolves();
     sandbox.stub(pathUtils, "getYmlFilePath").returns("/test/project/teamsapp.yml");
@@ -9929,7 +9938,10 @@ describe("updateActionWithMCP", () => {
 
     let writtenPlugin: any;
     let writtenMcpTools: any;
-    sandbox.stub(fs, "pathExists").resolves(true);
+    sandbox.stub(fs, "pathExists").callsFake(async (filePath: string) => {
+      // Return false for mcp-tools.json to avoid infinite loop, true for ai-plugin.json
+      return !filePath.includes("mcp-tools");
+    });
     sandbox.stub(fs, "readJSON").resolves(existingPlugin);
     sandbox.stub(fs, "writeJSON").callsFake((filePath: string, data) => {
       if (filePath.includes("mcp-tools")) {
@@ -10005,7 +10017,10 @@ describe("updateActionWithMCP", () => {
       runtimes: [],
     };
 
-    sandbox.stub(fs, "pathExists").resolves(true);
+    sandbox.stub(fs, "pathExists").callsFake(async (filePath: string) => {
+      // Return false for mcp-tools.json to avoid infinite loop, true for ai-plugin.json
+      return !filePath.includes("mcp-tools");
+    });
     sandbox.stub(fs, "readJSON").resolves(existingPlugin);
     const writeJSONStub = sandbox.stub(fs, "writeJSON").resolves();
     sandbox.stub(pathUtils, "getYmlFilePath").returns("/test/project/teamsapp.yml");
