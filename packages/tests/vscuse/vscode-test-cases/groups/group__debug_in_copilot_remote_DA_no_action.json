@@ -10,14 +10,14 @@
       "step_retry_count": 0
     },
     "total_steps": 12,
-    "created_at": "2025-11-17T17:18:43.602560",
+    "created_at": "2025-12-11T03:06:21.151184",
     "name": "group: debug_in_copilot_remote_DA_no_action",
     "description": {
+      "other": "Generated from recording r_1021_031941",
       "owner": "v-ivanchen@microsoft.com",
-      "workitem": "",
-      "other": "Generated from recording r_1021_031941"
+      "workitem": ""
     },
-    "generated_at": "2025-11-17T17:18:43.602560",
+    "generated_at": "2025-12-11T03:06:21.151184",
     "execution_order": [
       "step_62d2e78d",
       "step_2caff74a",
@@ -35,7 +35,7 @@
     "tags": [
       "group"
     ],
-    "updated_at": "2025-11-27T01:07:36.397467"
+    "updated_at": "2025-12-22T03:13:38.019884"
   },
   "steps": [
     {
@@ -57,7 +57,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_62d2e78d",
-      "created_at": "2025-11-26T08:30:02.001242",
+      "created_at": "2025-12-22T03:13:24.884919",
       "plan_id": "plan_r_1021_031941"
     },
     {
@@ -79,7 +79,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_2caff74a",
-      "created_at": "2025-11-26T08:30:02.011473",
+      "created_at": "2025-12-22T03:13:24.890447",
       "plan_id": "plan_r_1021_031941"
     },
     {
@@ -101,7 +101,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_b66c8c76",
-      "created_at": "2025-11-26T08:30:02.017169",
+      "created_at": "2025-12-22T03:13:24.894592",
       "plan_id": "plan_r_1021_031941"
     },
     {
@@ -123,7 +123,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_eafcbe26",
-      "created_at": "2025-11-26T08:30:02.030487",
+      "created_at": "2025-12-22T03:13:24.899646",
       "plan_id": "plan_r_1021_031941"
     },
     {
@@ -149,7 +149,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_3d026f03",
-      "created_at": "2025-11-26T08:30:02.043078",
+      "created_at": "2025-12-22T03:13:24.906183",
       "plan_id": "plan_r_1021_031941"
     },
     {
@@ -177,7 +177,7 @@
         "precondition_wait_timeout: 60"
       ],
       "screenshot": "step_d7fafaa1",
-      "created_at": "2025-11-26T08:30:02.053210",
+      "created_at": "2025-12-22T03:13:24.912752",
       "plan_id": "plan_r_1021_031941"
     },
     {
@@ -199,7 +199,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_0967fa8d",
-      "created_at": "2025-11-26T08:30:02.056471",
+      "created_at": "2025-12-22T03:13:24.918579",
       "plan_id": "plan_r_1021_031941"
     },
     {
@@ -223,7 +223,7 @@
         "delay: 3"
       ],
       "screenshot": "step_62386955",
-      "created_at": "2025-11-26T08:30:02.066852",
+      "created_at": "2025-12-22T03:13:24.922647",
       "plan_id": "plan_r_1021_031941"
     },
     {
@@ -247,7 +247,7 @@
         "precondition_wait_timeout: 60"
       ],
       "screenshot": "step_4c68873a",
-      "created_at": "2025-11-26T08:30:02.079327",
+      "created_at": "2025-12-22T03:13:24.926653",
       "plan_id": "plan_r_1021_031941"
     },
     {
@@ -271,7 +271,7 @@
         "delay: 3"
       ],
       "screenshot": "step_7cfe3868",
-      "created_at": "2025-11-26T08:30:02.087541",
+      "created_at": "2025-12-22T03:13:24.931722",
       "plan_id": "plan_r_1021_031941"
     },
     {
@@ -297,7 +297,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_88c03f8a",
-      "created_at": "2025-11-26T08:30:02.098036",
+      "created_at": "2025-12-22T03:13:24.936476",
       "plan_id": "plan_r_1021_031941"
     },
     {
@@ -318,10 +318,11 @@
       ],
       "postconditions": [],
       "tags": [
-        "delay: 30"
+        "delay: 30",
+        "force_run:true"
       ],
       "screenshot": "step_0f74bc59",
-      "created_at": "2025-11-26T08:30:02.109146",
+      "created_at": "2025-12-22T03:13:24.941894",
       "plan_id": "plan_r_1021_031941"
     }
   ],
