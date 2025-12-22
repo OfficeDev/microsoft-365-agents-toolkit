@@ -11,7 +11,6 @@ const windows_22 = [
   "sample-food-catalog",
   "sample-hello-world-tab-with-backend",
   "sample-npm-search",
-  "sample-stock-update",
   "sample-query-org",
   "sample-assistant-dashboard",
   "sample-bot-sso",
