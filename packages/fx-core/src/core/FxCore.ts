@@ -3136,9 +3136,6 @@ export class FxCore {
           suffix += 1;
         }
       }
-      if (await fs.pathExists(path.join(path.dirname(aiPluginFilePath), mcpFile))) {
-        await fs.chmod(path.join(path.dirname(aiPluginFilePath), mcpFile), 0o600); // remove read-only
-      }
       await fs.writeJSON(
         path.join(path.dirname(aiPluginFilePath), mcpFile),
         {
@@ -3155,7 +3152,7 @@ export class FxCore {
               }),
           ],
         },
-        { spaces: 4, mode: 0o400 }
+        { spaces: 4 }
       );
       (aiPluginContent.runtimes as any[]).push({
         type: "RemoteMCPServer",
