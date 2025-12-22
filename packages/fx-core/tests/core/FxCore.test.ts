@@ -9664,7 +9664,7 @@ describe("updateActionWithMCP", () => {
     const result = await core.updateActionWithMCP(inputs);
 
     assert.isTrue(result.isOk());
-    assert.isTrue(writeJSONStub.calledOnce);
+    assert.isTrue(writeJSONStub.calledTwice); // mcp-tools.json and ai-plugin.json
     assert.isTrue(showMessageStub.calledOnce);
     assert.isTrue(openFileStub.calledOnce);
   });
@@ -9723,7 +9723,7 @@ describe("updateActionWithMCP", () => {
 
     assert.isTrue(result.isOk());
     assert.isTrue(injectOAuthStub.calledOnce);
-    assert.isTrue(writeJSONStub.calledOnce);
+    assert.isTrue(writeJSONStub.calledTwice); // mcp-tools.json and ai-plugin.json
     assert.isTrue(showMessageStub.calledOnce);
     assert.isTrue(openFileStub.calledOnce);
   });
@@ -9790,7 +9790,7 @@ describe("updateActionWithMCP", () => {
 
     assert.isTrue(result.isOk());
     assert.isTrue(injectOAuthStub.calledOnce);
-    assert.isTrue(writeJSONStub.calledOnce);
+    assert.isTrue(writeJSONStub.calledTwice); // mcp-tools.json and ai-plugin.json
     assert.isTrue(showMessageStub.calledOnce);
     assert.isTrue(openFileStub.calledOnce);
   });
@@ -9928,10 +9928,15 @@ describe("updateActionWithMCP", () => {
     };
 
     let writtenPlugin: any;
+    let writtenMcpTools: any;
     sandbox.stub(fs, "pathExists").resolves(true);
     sandbox.stub(fs, "readJSON").resolves(existingPlugin);
-    sandbox.stub(fs, "writeJSON").callsFake((path, data) => {
-      writtenPlugin = data;
+    sandbox.stub(fs, "writeJSON").callsFake((filePath: string, data) => {
+      if (filePath.includes("mcp-tools")) {
+        writtenMcpTools = data;
+      } else {
+        writtenPlugin = data;
+      }
       return Promise.resolve();
     });
     sandbox.stub(pathUtils, "getYmlFilePath").returns("/test/project/teamsapp.yml");
@@ -9943,9 +9948,19 @@ describe("updateActionWithMCP", () => {
 
     assert.isTrue(result.isOk());
 
-    // Verify that old tool functions were removed and new ones added
+    // Verify mcp-tools.json contains tools with full details including title and inputSchema
+    assert.isDefined(writtenMcpTools);
+    assert.equal(writtenMcpTools.tools.length, 1);
+    assert.equal(writtenMcpTools.tools[0].name, "newTool");
+    assert.isDefined(writtenMcpTools.tools[0].inputSchema);
+    assert.isDefined(writtenMcpTools.tools[0].title);
+
+    // Verify that old tool functions were removed and new ones added (only name and description)
     assert.equal(writtenPlugin.functions.length, 1);
     assert.equal(writtenPlugin.functions[0].name, "newTool");
+    assert.isDefined(writtenPlugin.functions[0].description);
+    assert.isUndefined(writtenPlugin.functions[0].parameters);
+    assert.isUndefined(writtenPlugin.functions[0].inputSchema);
 
     // Verify that the existing runtime for the same server was removed and new one added
     const mcpRuntimes = writtenPlugin.runtimes.filter(
@@ -10005,7 +10020,7 @@ describe("updateActionWithMCP", () => {
     assert.isTrue(result.isOk());
     assert.isTrue(showMessageStub.calledOnce);
     assert.isTrue(openFileStub.calledOnce);
-    assert.isTrue(writeJSONStub.calledOnce);
+    assert.isTrue(writeJSONStub.calledTwice); // mcp-tools.json and ai-plugin.json
 
     // Wait a bit for the async provision call
     await new Promise((resolve) => setTimeout(resolve, 10));
