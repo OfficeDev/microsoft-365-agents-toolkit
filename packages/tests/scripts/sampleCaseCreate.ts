@@ -18,7 +18,6 @@ const windows_22 = [
   "sample-copilot-connector-bot",
 ];
 const ubuntu_22 = [
-  "sample-adaptive-card",
   "sample-todo-list-sql",
   "sample-large-scale-notification",
   "sample-bot-sso-docker",
