@@ -8,7 +8,7 @@ namespace {{SafeProjectName}}.Utils
         public static string StripMentionsText(MessageActivity activity)
         {
             if (string.IsNullOrEmpty(activity?.Text))
-                return activity?.Text;
+                return string.Empty;
 
             var text = activity.Text;
 

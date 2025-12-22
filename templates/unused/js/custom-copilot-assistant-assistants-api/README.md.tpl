@@ -14,9 +14,6 @@ It showcases how to build an AI agent in Teams capable of helping users accompli
 > To run the template in your local dev machine, you will need:
 >
 > - [Node.js](https://nodejs.org/), supported versions: 18, 20, 22
-{{^enableTestToolByDefault}}
-> - A [Microsoft 365 account for development](https://docs.microsoft.com/microsoftteams/platform/toolkit/accounts)
-{{/enableTestToolByDefault}}
 > - [Microsoft 365 Agents Toolkit Visual Studio Code Extension](https://aka.ms/teams-toolkit) version 5.0.0 and higher or [Microsoft 365 Agents Toolkit CLI](https://aka.ms/teamsfx-toolkit-cli)
 {{#useAzureOpenAI}}
 > - An account with [Azure OpenAI](https://aka.ms/oai/access).
@@ -103,24 +100,12 @@ Before running or debugging your agent, please follow these steps to setup your 
 > For local debugging using Microsoft 365 Agents Toolkit CLI, you need to do some extra steps described in [Set up your Microsoft 365 Agents Toolkit CLI for local debugging](https://aka.ms/teamsfx-cli-debugging).
 
 1. First, select the Microsoft 365 Agents Toolkit icon on the left in the VS Code toolbar.
-{{#enableTestToolByDefault}}
 1. Press F5 to start debugging which launches your app in Microsoft 365 Agents Playground using a web browser. Select `Debug in Microsoft 365 Agents Playground`.
 1. You can send any message to get a response from the agent.
 
 **Congratulations**! You are running an application that can now interact with users in Microsoft 365 Agents Playground:
 
 ![AI Agent in Microsoft 365 Agents Playground](https://github.com/user-attachments/assets/79841a5c-58fb-44c0-ac60-5dbd1d7bb2cc)
-{{/enableTestToolByDefault}}
-{{^enableTestToolByDefault}}
-1. In the Account section, sign in with your [Microsoft 365 account](https://docs.microsoft.com/microsoftteams/platform/toolkit/accounts) if you haven't yet.
-1. Press F5 to start debugging which launches your app in Teams using a web browser. Select `Debug in Teams (Edge)` or `Debug in Teams (Chrome)`.
-1. When Teams launches in the browser, select the Add button in the dialog to install your app to Teams.
-1. You can send any message to get a response from the agent.
-
-**Congratulations**! You are running an application that can now interact with users in Teams:
-
-![AI Agent in Teams](https://github.com/OfficeDev/TeamsFx/assets/37978464/fd1cf673-e7d8-4826-9cac-e9481a74ee1e)
-{{/enableTestToolByDefault}}
 
 ## What's included in the template
 

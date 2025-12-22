@@ -1,0 +1,147 @@
+{
+  "plan_metadata": {
+    "version": "1.1",
+    "plan_id": "plan_9326a440",
+    "execution_context": {
+      "delay_between_steps": 1,
+      "stop_on_error": true,
+      "precondition_wait_timeout": 30,
+      "precondition_retry_interval": 2,
+      "step_retry_count": 0
+    },
+    "total_steps": 4,
+    "created_at": "2025-12-17T02:57:04.096230",
+    "name": "General Teams Agent Azure OpenAI js Local Playground",
+    "description": {
+      "other": "",
+      "owner": "v-liliu2@microsoft.com",
+      "workitem": "36217287"
+    },
+    "generated_at": "2025-12-17T02:57:04.096230",
+    "execution_order": [
+      "plan_r_0928_012254",
+      "step_e266a94e",
+      "step_b6d44862",
+      "plan_r_0930_054245",
+      "step_8f6b9daf",
+      "step_7df792f3",
+      "plan_r_0928_014459",
+      "plan_r_1017_024203",
+      "plan_6c55dfc3"
+    ],
+    "tags": [],
+    "updated_at": "2025-12-17T05:20:04.651359"
+  },
+  "steps": [
+    {
+      "step_id": "step_e266a94e",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 378,
+        "y": 220
+      },
+      "description": "Click on the \"Teams Agents and Apps\" option within the dropdown menu under the \"New Project\" interface in the Microsoft 365 Agents Toolkit.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:378:220:16:5:cdd2aa581618c6c7",
+        "dhash:378:220:96:5:222250582cad5205",
+        "dhash:378:220:0:10:c8c88094b2717075"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_e266a94e",
+      "created_at": "2025-12-17T05:17:07.523300",
+      "plan_id": "plan_9326a440"
+    },
+    {
+      "step_id": "step_b6d44862",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 413,
+        "y": 84
+      },
+      "description": "Click on the \"General Teams Agent\" option within the dropdown menu titled \"Teams Agent or App Using Teams AI Library\" to select the agent description: \"Agent that chats with users in Teams built with Teams AI Library and connects to LLMs.\"",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:413:84:16:5:42000000004618e9",
+        "dhash:413:84:96:5:00800068c4c62820",
+        "dhash:413:84:0:10:c0c89294b2717075"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_b6d44862",
+      "created_at": "2025-12-17T05:17:07.541326",
+      "plan_id": "plan_9326a440"
+    },
+    {
+      "step_id": "step_8f6b9daf",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 308,
+        "y": 98
+      },
+      "description": "Click the \"JavaScript\" option in the programming language selection dropdown within the Visual Studio Code interface.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:308:98:16:5:0000000000000000",
+        "dhash:308:98:96:5:b04848484e596996",
+        "dhash:308:98:0:10:d0989094b2717075"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_8f6b9daf",
+      "created_at": "2025-12-17T05:17:07.562309",
+      "plan_id": "plan_9326a440"
+    },
+    {
+      "step_id": "step_7df792f3",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 436,
+        "y": 77
+      },
+      "description": "Click the \"Default folder\" dropdown in the \"Workspace Folder\" selection prompt to choose or locate the project's root folder.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:436:77:16:5:106399555515856b",
+        "dhash:436:77:96:5:06b9294564060e24",
+        "dhash:436:77:0:10:f0b09494b2717075"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_7df792f3",
+      "created_at": "2025-12-17T05:17:07.585167",
+      "plan_id": "plan_9326a440"
+    }
+  ],
+  "screenshots": {
+    "step_e266a94e": "step_e266a94e",
+    "step_b6d44862": "step_b6d44862",
+    "step_8f6b9daf": "step_8f6b9daf",
+    "step_7df792f3": "step_7df792f3"
+  }
+}

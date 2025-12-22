@@ -13,6 +13,46 @@ describe("ODRProvider", () => {
     sandbox.restore();
   });
 
+  describe("isODRServer", () => {
+    it("should return true for ODR server with lowercase odr command", () => {
+      const serverConfig = { type: "stdio", command: "odr" };
+      assert.isTrue(ODRProvider.isODRServer(serverConfig));
+    });
+
+    it("should return true for ODR server with odr.exe command", () => {
+      const serverConfig = { type: "stdio", command: "odr.exe" };
+      assert.isTrue(ODRProvider.isODRServer(serverConfig));
+    });
+
+    it("should return true for ODR server with path ending in odr.exe", () => {
+      const serverConfig = { type: "stdio", command: "C:\\Program Files\\odr.exe" };
+      assert.isTrue(ODRProvider.isODRServer(serverConfig));
+    });
+
+    it("should return false for non-stdio server", () => {
+      const serverConfig = { type: "sse", command: "odr" };
+      assert.isFalse(ODRProvider.isODRServer(serverConfig));
+    });
+
+    it("should return false for server without command", () => {
+      const serverConfig = { type: "stdio" };
+      assert.isFalse(ODRProvider.isODRServer(serverConfig));
+    });
+
+    it("should return false for non-ODR command", () => {
+      const serverConfig = { type: "stdio", command: "node" };
+      assert.isFalse(ODRProvider.isODRServer(serverConfig));
+    });
+
+    it("should return false for null serverConfig", () => {
+      assert.isFalse(ODRProvider.isODRServer(null));
+    });
+
+    it("should return false for undefined serverConfig", () => {
+      assert.isFalse(ODRProvider.isODRServer(undefined));
+    });
+  });
+
   describe("listServers", () => {
     it("should return empty array on non-Windows platform", async () => {
       sandbox.stub(process, "platform").value("darwin"); // macOS
@@ -652,6 +692,105 @@ describe("ODRProvider", () => {
       assert.isArray(servers);
       assert.equal(servers.length, 1);
       assert.equal(servers[0].tools.length, 0);
+    });
+  });
+
+  describe("getToolsForODRServer", () => {
+    it("should return tools for matching ODR server", async () => {
+      const mockServers = [
+        {
+          name: "my-server",
+          display_name: "My Server",
+          description: "Test",
+          version: "1.0.0",
+          identifier: "com.test.server",
+          packageFamily: "TestPackage",
+          command: "odr",
+          args: ["run", "my-server"],
+          tools: [
+            { name: "tool1", description: "Tool 1", inputSchema: { type: "object" } },
+            { name: "tool2", description: "Tool 2", inputSchema: { type: "string" } },
+          ],
+        },
+      ];
+
+      sandbox.stub(ODRProvider, "listServers").resolves(mockServers);
+
+      const tools = await ODRProvider.getToolsForODRServer("odr", ["run", "my-server"]);
+
+      assert.isArray(tools);
+      assert.equal(tools.length, 2);
+      assert.equal(tools[0].name, "tool1");
+      assert.equal(tools[1].name, "tool2");
+    });
+
+    it("should return empty array when no matching server found", async () => {
+      const mockServers = [
+        {
+          name: "my-server",
+          display_name: "My Server",
+          description: "Test",
+          version: "1.0.0",
+          identifier: "com.test.server",
+          packageFamily: "TestPackage",
+          command: "odr",
+          args: ["run", "my-server"],
+          tools: [],
+        },
+      ];
+
+      sandbox.stub(ODRProvider, "listServers").resolves(mockServers);
+
+      const tools = await ODRProvider.getToolsForODRServer("odr", ["run", "different-server"]);
+
+      assert.isArray(tools);
+      assert.equal(tools.length, 0);
+    });
+
+    it("should match server with empty args array", async () => {
+      const mockServers = [
+        {
+          name: "my-server",
+          display_name: "My Server",
+          description: "Test",
+          version: "1.0.0",
+          identifier: "com.test.server",
+          packageFamily: "TestPackage",
+          command: "odr",
+          args: [],
+          tools: [{ name: "tool1", description: "Tool 1", inputSchema: {} }],
+        },
+      ];
+
+      sandbox.stub(ODRProvider, "listServers").resolves(mockServers);
+
+      const tools = await ODRProvider.getToolsForODRServer("odr", []);
+
+      assert.isArray(tools);
+      assert.equal(tools.length, 1);
+    });
+
+    it("should match server with default empty args when not provided", async () => {
+      const mockServers = [
+        {
+          name: "my-server",
+          display_name: "My Server",
+          description: "Test",
+          version: "1.0.0",
+          identifier: "com.test.server",
+          packageFamily: "TestPackage",
+          command: "odr",
+          args: [],
+          tools: [{ name: "tool1", description: "Tool 1", inputSchema: {} }],
+        },
+      ];
+
+      sandbox.stub(ODRProvider, "listServers").resolves(mockServers);
+
+      const tools = await ODRProvider.getToolsForODRServer("odr");
+
+      assert.isArray(tools);
+      assert.equal(tools.length, 1);
     });
   });
 });

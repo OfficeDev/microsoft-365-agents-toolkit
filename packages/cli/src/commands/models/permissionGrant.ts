@@ -9,8 +9,6 @@ import {
 } from "@microsoft/teamsfx-api";
 import {
   CollaborationConstants,
-  featureFlagManager,
-  FeatureFlags,
   PermissionGrantInputs,
   PermissionGrantOptions,
   QuestionNames,
@@ -43,11 +41,7 @@ export const agentOwnerOption: CLICommandOption = {
 export const permissionGrantCommand: CLICommand = {
   name: "grant",
   description: commands["collaborator.grant"].description,
-  options: [
-    ...PermissionGrantOptions,
-    ProjectFolderOption,
-    ...(featureFlagManager.getBooleanValue(FeatureFlags.ShareEnabled) ? [agentOwnerOption] : []),
-  ],
+  options: [...PermissionGrantOptions, ProjectFolderOption, agentOwnerOption],
   telemetry: {
     event: TelemetryEvent.GrantPermission,
   },
@@ -56,15 +50,10 @@ export const permissionGrantCommand: CLICommand = {
       command: `${process.env.TEAMSFX_CLI_BIN_NAME} collaborator grant -i false --manifest-file ./appPackage/manifest.json --env dev --email other@email.com`,
       description: "Grant permission for another Microsoft 365 account to collaborate on the app.",
     },
-    ...(featureFlagManager.getBooleanValue(FeatureFlags.ShareEnabled)
-      ? [
-          {
-            command: `${process.env.TEAMSFX_CLI_BIN_NAME} collaborator grant -i false --agent true --env dev --email other@email.com`,
-            description:
-              "Grant permission for another Microsoft 365 account as owner of the agent.",
-          },
-        ]
-      : []),
+    {
+      command: `${process.env.TEAMSFX_CLI_BIN_NAME} collaborator grant -i false --agent true --env dev --email other@email.com`,
+      description: "Grant permission for another Microsoft 365 account as owner of the agent.",
+    },
   ],
   handler: async (ctx) => {
     const inputs = ctx.optionValues as PermissionGrantInputs & InputsWithProjectPath;

@@ -6,11 +6,9 @@ import {
   Inputs,
   IQTreeNode,
   MultiSelectQuestion,
-  OptionItem,
   Platform,
 } from "@microsoft/teamsfx-api";
 import * as path from "path";
-import { featureFlagManager, FeatureFlags } from "../common/featureFlags";
 import { getLocalizedString } from "../common/localizeUtils";
 import { CollaborationConstants, CollaborationUtil } from "../core/collaborator";
 import { QuestionNames } from "./constants";
@@ -167,16 +165,14 @@ function selectAppTypeQuestion(): MultiSelectQuestion {
         label: getLocalizedString("core.teamsAppQuestion.label"),
         description: getLocalizedString("core.teamsAppQuestion.description"),
       },
+      {
+        id: CollaborationConstants.AgentOptionId,
+        label: getLocalizedString("core.collaboration.agent.label"),
+        description: getLocalizedString("core.collaboration.agent.description"),
+      },
     ],
     validation: { minItems: 1 },
     validationHelp: "Please select at least one app type.",
   };
-  if (featureFlagManager.getBooleanValue(FeatureFlags.ShareEnabled)) {
-    (options.staticOptions as OptionItem[]).push({
-      id: CollaborationConstants.AgentOptionId,
-      label: getLocalizedString("core.collaboration.agent.label"),
-      description: getLocalizedString("core.collaboration.agent.description"),
-    });
-  }
   return options;
 }

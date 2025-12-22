@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 
 /**
- * @author Huajie Zhang <huajiezhang@microsoft.com>
+ * @author Huihui Wu <huihuiwu@microsoft.com>
  */
 
 import { it } from "@microsoft/extra-shot-mocha";
@@ -13,7 +13,7 @@ import { M365TitleHelper } from "../../../commonlib/m365TitleHelper";
 describe("MOS3 API", function () {
   it(
     "install & uninstall for non DA app",
-    { testPlanCaseId: 31339285, author: "huajiezhang@microsoft.com" },
+    { testPlanCaseId: 31339285, author: "huihuiwu@microsoft.com" },
     async function () {
       const m365TitleHelper = await M365TitleHelper.init(
         "https://titles.prod.mos.microsoft.com",
@@ -41,7 +41,7 @@ describe("MOS3 API", function () {
 
   it(
     "install & uninstall for DA app",
-    { testPlanCaseId: 31339285, author: "huajiezhang@microsoft.com" },
+    { testPlanCaseId: 31339285, author: "huihuiwu@microsoft.com" },
     async function () {
       const m365TitleHelper = await M365TitleHelper.init(
         "https://titles.prod.mos.microsoft.com",

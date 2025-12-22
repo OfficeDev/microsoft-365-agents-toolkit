@@ -1,9 +1,9 @@
 {
     "name": "templates",
-    "version": "6.2.1",
+    "version": "6.2.3",
     "private": "true",
     "license": "MIT",
-    "vsversion": "18.0.0",
+    "vsversion": "18.3.0",
     "scripts": {
         "check-sensitive": "npx eslint --plugin 'no-secrets' --cache --ignore-pattern 'package.json' --ignore-pattern 'package-lock.json'",
         "precommit": "npm run check-sensitive && lint-staged",

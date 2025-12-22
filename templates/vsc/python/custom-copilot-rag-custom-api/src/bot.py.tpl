@@ -32,7 +32,7 @@ model: OpenAIModel
 model = OpenAIModel(
     AzureOpenAIModelOptions(
         api_key=config.AZURE_OPENAI_API_KEY,
-        default_model=config.AZURE_OPENAI_MODEL_DEPLOYMENT_NAME,
+        default_model=config.AZURE_OPENAI_DEPLOYMENT_NAME,
         endpoint=config.AZURE_OPENAI_ENDPOINT,
     )
 )

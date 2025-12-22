@@ -15,15 +15,11 @@ This app template is built on top of [Microsoft Teams SDK](https://aka.ms/teams-
 > To run the Basic Bot template in your local dev machine, you will need:
 >
 > - [Node.js](https://nodejs.org/), supported versions: 20, 22
-{{^enableTestToolByDefault}}
-> - A [Microsoft 365 account for development](https://docs.microsoft.com/microsoftteams/platform/toolkit/accounts)
-{{/enableTestToolByDefault}}
 > - [Microsoft 365 Agents Toolkit Visual Studio Code Extension](https://aka.ms/teams-toolkit) version 5.0.0 and higher or [Microsoft 365 Agents Toolkit CLI](https://aka.ms/teamsfx-toolkit-cli)
 
 > For local debugging using Microsoft 365 Agents Toolkit CLI, you need to do some extra steps described in [Set up your Microsoft 365 Agents Toolkit CLI for local debugging](https://aka.ms/teamsfx-cli-debugging).
 
 1. First, select the Microsoft 365 Agents Toolkit icon on the left in the VS Code toolbar.
-{{#enableTestToolByDefault}}
 2. Press F5 to start debugging which launches your app in Microsoft 365 Agents Playground using a web browser. Select `Debug in Microsoft 365 Agents Playground`.
 3. The browser will pop up to open Microsoft 365 Agents Playground.
 4. You will receive a welcome message from the bot, and you can send anything to the bot to get an echoed response.
@@ -32,17 +28,6 @@ This app template is built on top of [Microsoft Teams SDK](https://aka.ms/teams-
 
 ![basic bot](./img/echo-bot.png)
 
-{{/enableTestToolByDefault}}
-{{^enableTestToolByDefault}}
-2. In the Account section, sign in with your [Microsoft 365 account](https://docs.microsoft.com/microsoftteams/platform/toolkit/accounts) if you haven't already.
-3. Press F5 to start debugging which launches your app in Teams using a web browser. Select `Debug in Teams (Edge)` or `Debug in Teams (Chrome)`.
-4. When Teams launches in the browser, select the Add button in the dialog to install your app to Teams.
-5. You will receive a welcome message from the bot, and you can send anything to the bot to get an echoed response.
-
-**Congratulations**! You are running an application that can now interact with users in Teams:
-
-![basic bot](https://github.com/OfficeDev/TeamsFx/assets/25220706/170096d2-b353-4d4e-b55a-2c8ae4d97514)
-{{/enableTestToolByDefault}}
 
 ## What's included in the template
 

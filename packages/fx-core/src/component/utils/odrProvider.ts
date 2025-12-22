@@ -26,6 +26,19 @@ export interface ODRTool {
 
 export class ODRProvider {
   /**
+   * Check if a server configuration is ODR-based.
+   * @param serverConfig The server configuration object
+   * @returns True if the server is ODR-based, false otherwise
+   */
+  static isODRServer(serverConfig: any): boolean {
+    if (serverConfig?.type !== "stdio" || !serverConfig.command) {
+      return false;
+    }
+    const configCommand = serverConfig.command.toLowerCase();
+    return configCommand === "odr" || configCommand.endsWith("odr.exe");
+  }
+
+  /**
    * Parse the output of 'odr list' command
    * @param jsonOutput The JSON output from 'odr list' command
    * @returns Array of parsed ODR servers with their tools
@@ -97,5 +110,23 @@ export class ODRProvider {
       console.error("Error executing odr list:", error);
       return [];
     }
+  }
+
+  /**
+   * Get tools for a specific ODR server by matching command and arguments.
+   * @param command The command of the ODR server (e.g., "odr")
+   * @param args The arguments array for the ODR server
+   * @returns Array of tools from the matching ODR server, or empty array if no match found
+   */
+  static async getToolsForODRServer(command: string, args: string[] = []): Promise<ODRTool[]> {
+    const odrServers = await ODRProvider.listServers();
+
+    const matchingServer = odrServers.find((odrServer) => {
+      return (
+        odrServer.command === command && JSON.stringify(odrServer.args) === JSON.stringify(args)
+      );
+    });
+
+    return matchingServer?.tools || [];
   }
 }

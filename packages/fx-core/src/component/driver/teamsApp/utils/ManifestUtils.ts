@@ -463,16 +463,16 @@ export class ManifestUtils {
     if (fs.pathExistsSync(manifestPath)) {
       const manifest = (await fs.readJson(manifestPath)) as TeamsAppManifest;
       const shortName = manifest.name.short;
-      let hasSuffix = false;
-      let trimmedName = shortName;
-      if (shortName.includes("${{APP_NAME_SUFFIX}}")) {
-        hasSuffix = true;
-        trimmedName = shortName.replace("${{APP_NAME_SUFFIX}}", "");
-      }
+      // Extract placeholder strings like ${{xxx}}
+      const placeholderRegex = /\$\{\{[^}]+\}\}/g;
+      const placeholders = shortName.match(placeholderRegex) || [];
+      const trimmedName = shortName.replace(placeholderRegex, "");
+
       if (trimmedName.length <= maxLength) return ok(undefined);
       let newShortName = trimmedName.replace(/\s/g, "").slice(0, maxLength);
-      if (hasSuffix) {
-        newShortName += "${{APP_NAME_SUFFIX}}";
+      // Restore all placeholders at the end
+      if (placeholders.length > 0) {
+        newShortName += placeholders.join("");
       }
       manifest.name.short = newShortName;
       await fs.writeFile(manifestPath, JSON.stringify(manifest, null, 2));

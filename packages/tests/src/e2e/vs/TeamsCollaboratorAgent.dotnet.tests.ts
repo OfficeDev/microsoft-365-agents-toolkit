@@ -80,6 +80,7 @@ describe("Teams Collaborator Agent for csharp version", function () {
       myRecordAzOpenAI["azure-openai-key"] = "fake";
       myRecordAzOpenAI["azure-openai-deployment-name"] = "fake";
       myRecordAzOpenAI["azure-openai-endpoint"] = "https://test.com";
+      myRecordAzOpenAI["llm-service"] = "llm-service-azure-openai";
       const options = Object.entries(myRecordAzOpenAI)
         .map(([key, value]) => "--" + key + " " + value)
         .join(" ");

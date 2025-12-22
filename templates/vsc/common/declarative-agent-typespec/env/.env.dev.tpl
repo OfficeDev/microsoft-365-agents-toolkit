@@ -4,9 +4,7 @@
 TEAMSFX_ENV=dev
 APP_NAME_SUFFIX=dev
 GITHUB_API_URL=https://api.github.com
-{{#ShareEnabled}}
 AGENT_SCOPE=shared
-{{/ShareEnabled}}
 
 # Generated during provision, you can also add your own variables.
 TEAMS_APP_ID=

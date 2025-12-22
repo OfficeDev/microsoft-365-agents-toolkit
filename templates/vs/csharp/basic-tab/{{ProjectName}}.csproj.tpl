@@ -4,7 +4,6 @@
     <TargetFramework>{{TargetFramework}}</TargetFramework>
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
-		<GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
 		<DisableFastUpToDateCheck>true</DisableFastUpToDateCheck>
 	</PropertyGroup>
 
@@ -57,6 +56,9 @@
 
   <!-- Dynamically include built frontend files as embedded resources after npm build -->
   <Target Name="IncludeFrontendAssets" AfterTargets="NpmBuild" BeforeTargets="BeforeBuild">
+    <PropertyGroup>
+      <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
+    </PropertyGroup>
     <ItemGroup>
       <EmbeddedResource Include="Web\bin\**" />
     </ItemGroup>

@@ -11,7 +11,11 @@
     "total_steps": 13,
     "created_at": "2025-11-07T05:49:19.677167",
     "name": "DA Api Key ts Remote Debug",
-    "description": "28941598",
+    "description": {
+      "owner": "v-ivanchen@microsoft.com",
+      "workitem": "28941598",
+      "other": ""
+    },
     "generated_at": "2025-11-07T05:49:19.677154",
     "execution_order": [
       "plan_r_0928_012254",
@@ -263,7 +267,7 @@
         "dy": null,
         "key": null,
         "keys": null,
-        "sample": "=== Generated Script ===\nLanguage: bash\n\n```bash\ncd /home/vscode/AgentsToolkitProjects/vscuse_app_b3fM7 && npm run keygen\n```\n\n=== Execution Results ===\nExit Code: 0\n\n=== STDOUT ===\n> vscuseappb3fm7@1.0.0 keygen\n> node -r ts-node/register ./src/keyGen.ts\n\nGenerated a new API Key: zxq/KAjTtptd\n\n✓ Script executed successfully\n=== Generated Script ===\nLanguage: bash\n\n```bash\nENV_FILE=\"/home/vscode/AgentsToolkitProjects/vscuse_app_b3fM7/env/.env.dev.user\"\nAPI_KEY=\"zxq/KAjTtptd\"\n# Verify the env file exists\nif [ -f \"$ENV_FILE\" ]; then\n  # Use sed to replace the SECRET_API_KEY line\n  sed -i \"s|SECRET_API_KEY=.*|SECRET_API_KEY='$API_KEY'|\" \"$ENV_FILE\"\n  echo \"Updated .env.dev.user file:\"\n  cat \"$ENV_FILE\"\nelse\n  echo \".env.dev.user file does not exist at $ENV_FILE\" >&2\n  exit 1\nfi\n```\n\n=== Execution Results ===\nExit Code: 0\n\n=== STDOUT ===\nUpdated .env.dev.user file:\n# This file includes environment variables that will not be committed to git by default. You can set these environment variables in your CI/CD system for your project.\n\n# Secrets. Keys prefixed with `SECRET_` will be masked in Teams Toolkit logs.\nSECRET_API_KEY='zxq/KAjTtptd'\n\n✓ Script executed successfully",
+        "sample": "=== Generated Script ===\nLanguage: bash\n\n```bash\ncd /home/vscode/AgentsToolkitProjects/vscuse_app_b3fM7 && npm run keygen\n```\n\n=== Execution Results ===\nExit Code: 0\n\n=== STDOUT ===\n> vscuseappb3fm7@1.0.0 keygen\n> node -r ts-node/register ./src/keyGen.ts\n\nGenerated a new API Key: zxq/KAjTtptd\n\n✓ Script executed successfully\n=== Generated Script ===\nLanguage: bash\n\n```bash\nENV_FILE=\"/home/vscode/AgentsToolkitProjects/vscuse_app_b3fM7/env/.env.dev.user\"\nAPI_KEY=\"zxq/KAjTtptd\"\n# Verify the env file exists\nif [ -f \"$ENV_FILE\" ]; then\n  # Use sed to replace the SECRET_API_KEY line\n  sed -i \"s|SECRET_API_KEY=.*|SECRET_API_KEY='$API_KEY'|\" \"$ENV_FILE\"\n  echo \"Updated .env.dev.user file:\"\n  cat \"$ENV_FILE\"\nelse\n  echo \".env.dev.user file does not exist at $ENV_FILE\" >&2\n  exit 1\nfi\n```\n\n=== Execution Results ===\nExit Code: 0\n\n=== STDOUT ===\nUpdated .env.dev.user file:\n# This file includes environment variables that will not be committed to git by default. You can set these environment variables in your CI/CD system for your project.\n\n# Secrets. Keys prefixed with `SECRET_` will be masked in Teams Toolkit logs.\nSECRET_API_KEY='fakekey'\n\n✓ Script executed successfully",
         "text": null,
         "x": null,
         "y": null

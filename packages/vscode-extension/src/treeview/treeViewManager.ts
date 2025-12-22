@@ -7,8 +7,8 @@ import { featureFlagManager, FeatureFlags, manifestUtils } from "@microsoft/team
 
 import {
   isDeclarativeCopilotApp,
-  isSPFxProject,
   isMetaOSAddinProject,
+  isSPFxProject,
   workspaceUri,
 } from "../globalVariables";
 import { hasAdaptiveCardInWorkspace } from "../utils/commonUtils";
@@ -368,7 +368,7 @@ class TreeViewManager {
         "deploy",
         { name: "cloud-upload", custom: false }
       ),
-      ...(isDeclarativeCopilotApp && featureFlagManager.getBooleanValue(FeatureFlags.ShareEnabled)
+      ...(isDeclarativeCopilotApp
         ? [
             new TreeViewCommand(
               localize("teamstoolkit.commandsTreeViewProvider.shareTitle"),

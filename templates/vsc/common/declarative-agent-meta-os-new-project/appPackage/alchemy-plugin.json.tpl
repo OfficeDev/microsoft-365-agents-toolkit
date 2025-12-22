@@ -89,6 +89,9 @@
   "runtimes": [
     {
       "type": "LocalPlugin",
+      "auth": {
+        "type": "None"
+      },
       "spec": {
         "local_endpoint": "Microsoft.Office.Addin"
       },
