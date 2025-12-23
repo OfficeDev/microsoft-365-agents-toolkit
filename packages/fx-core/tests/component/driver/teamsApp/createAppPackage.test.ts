@@ -1140,6 +1140,123 @@ describe("teamsApp/createAppPackage", async () => {
     }
   });
 
+  it("happy path - RemoteMCPServer with mcp_tool_description file", async () => {
+    const args: CreateAppPackageArgs = {
+      manifestPath:
+        "./tests/plugins/resource/appstudio/resources-multi-env/templates/appPackage/v3.manifest.template.json",
+      outputZipPath:
+        "./tests/plugins/resource/appstudio/resources-multi-env/build/appPackage/appPackage.dev.zip",
+      outputJsonPath:
+        "./tests/plugins/resource/appstudio/resources-multi-env/build/appPackage/manifest.dev.json",
+    };
+
+    const manifest = {
+      manifestVersion: "1.19",
+    } as TeamsManifestV1D19.TeamsManifestV1D19;
+    manifest.copilotAgents = {
+      declarativeAgents: [
+        {
+          file: "resources/declarativeAgent.json",
+          id: "dc1",
+        },
+      ],
+    };
+    manifest.icons = {
+      color: "resources/color.png",
+      outline: "resources/outline.png",
+    };
+
+    const declarativeAgentManifest = {
+      name: "test-da-mcp",
+      description: "Declarative agent for testing MCP server integration",
+      instructions: "This is test instructions for MCP",
+      actions: [
+        {
+          id: "action_mcp",
+          file: "ai-plugin.json",
+        },
+      ],
+    } as DeclarativeCopilotManifestSchema;
+
+    const mcpPluginContent = {
+      schema_version: "v2",
+      name_for_human: "MCP Plugin",
+      description_for_model: "MCP Plugin for remote server",
+      runtimes: [
+        {
+          type: "RemoteMCPServer",
+          auth: { type: "none" },
+          spec: {
+            url: "https://example.com/mcp",
+            mcp_tool_description: {
+              file: "./mcp-tool-description.json",
+            },
+          },
+        },
+      ],
+    };
+
+    const mcpToolDescriptionContent = {
+      tools: [
+        {
+          name: "test-tool",
+          description: "A test MCP tool",
+        },
+      ],
+    };
+
+    sinon.stub(manifestUtils, "getManifestV3").resolves(ok(manifest));
+    sinon.stub(fs, "chmod").callsFake(async () => {});
+    sinon.stub(fs, "writeFile").callsFake(async () => {});
+    sinon.stub(copilotGptManifestUtils, "getManifest").resolves(ok(declarativeAgentManifest));
+    sinon.stub(fs, "readJSON").callsFake(async (filePath: string) => {
+      if (filePath.toString().includes("ai-plugin")) {
+        return mcpPluginContent;
+      }
+      return mcpToolDescriptionContent;
+    });
+    sinon.stub(fs, "stat").callsFake(async () => {
+      return { mode: 0o644 } as any;
+    });
+    sinon.stub(fs, "readFile").callsFake((async (filePath: any, options?: any) => {
+      let content: string;
+      if (filePath.toString().includes("ai-plugin")) {
+        content = JSON.stringify(mcpPluginContent);
+      } else if (filePath.toString().includes("mcp-tool-description")) {
+        content = JSON.stringify(mcpToolDescriptionContent);
+      } else if (filePath.toString().includes("declarativeAgent")) {
+        content = JSON.stringify(declarativeAgentManifest);
+      } else {
+        content = "{}";
+      }
+      if (options === "utf8" || options?.encoding === "utf8") {
+        return content;
+      }
+      return Buffer.from(content);
+    }) as any);
+    sinon.stub(fs, "pathExists").resolves(true);
+
+    // Stub addFileInZip to track calls and prevent actual file read
+    const addedFiles: string[] = [];
+    sinon
+      .stub(teamsAppDriver as any, "addFileInZip")
+      .callsFake((zip: any, zipPath: string, filePath: string) => {
+        addedFiles.push(filePath);
+      });
+
+    const result = (await teamsAppDriver.execute(args, mockedDriverContext)).result;
+    if (result.isErr()) {
+      console.log(result.error);
+    }
+    chai.assert.isTrue(result.isOk());
+
+    // Verify addFileInZip was called for mcp-tool-description.json
+    const mcpToolDescriptionAdded = addedFiles.some((file) =>
+      file.includes("mcp-tool-description.json")
+    );
+    chai.assert.isTrue(mcpToolDescriptionAdded, "mcp-tool-description.json should be added to zip");
+  });
+
   it("invalid color file", async () => {
     const args: CreateAppPackageArgs = {
       manifestPath:
