@@ -1236,15 +1236,16 @@ describe("teamsApp/createAppPackage", async () => {
     }) as any);
     sinon.stub(fs, "pathExists").resolves(true);
 
-    // Stub addFileInZip to track calls and prevent actual file read
+    // Create a new driver instance and stub addFileInZip to track calls and prevent actual file read
+    const testDriver = new CreateAppPackageDriver();
     const addedFiles: string[] = [];
     sinon
-      .stub(teamsAppDriver as any, "addFileInZip")
+      .stub(testDriver as any, "addFileInZip")
       .callsFake((zip: any, zipPath: string, filePath: string) => {
         addedFiles.push(filePath);
       });
 
-    const result = (await teamsAppDriver.execute(args, mockedDriverContext)).result;
+    const result = (await testDriver.execute(args, mockedDriverContext)).result;
     if (result.isErr()) {
       console.log(result.error);
     }
