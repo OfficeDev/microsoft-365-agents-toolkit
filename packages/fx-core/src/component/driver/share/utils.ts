@@ -28,11 +28,7 @@ export async function parseShareAppActionYamlConfig(
   if (version && semver.lt(version, "1.10.0")) {
     // it's not supported before v1.10.
     return err(
-      new UserError(
-        "FxCore",
-        "Share",
-        getLocalizedString("error.share.yamlConfigNotSupported", maybeProjectModel.value.version)
-      )
+      new UserError("FxCore", "Share", getLocalizedString("error.share.yamlConfigNotSupported"))
     );
   }
   const projectModel = maybeProjectModel.value;
