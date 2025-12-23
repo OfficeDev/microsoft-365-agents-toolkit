@@ -441,7 +441,10 @@ describe("parseShareAppActionYamlConfig", () => {
       chai.assert.instanceOf(result.error, UserError);
       chai.assert.equal(result.error.name, "Share");
       // message should include the unsupported version string
-      chai.assert.include(result.error.message, "v1.9");
+      chai.assert.include(
+        result.error.message,
+        "Share feature only supports m365agents.yml version v1.10 or above"
+      );
     }
   });
 
