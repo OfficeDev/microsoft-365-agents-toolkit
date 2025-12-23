@@ -79,6 +79,164 @@ describe("updateActionWithMCP", () => {
     assert.isTrue(openFileStub.calledOnce);
   });
 
+  it("should create default mcp-tools.json when mcpFile is undefined (no matched runtime)", async () => {
+    const core = new FxCore(tools);
+    const inputs: Inputs = {
+      projectPath,
+      platform: Platform.VSCode,
+      [QuestionNames.PluginManifestFilePath]: pluginManifestPath,
+      [QuestionNames.MCPForDAServerUrl]: mcpServerUrl,
+      [QuestionNames.MCPForDAServerName]: serverName,
+      [QuestionNames.MCPForDAAuth]: "None",
+      [QuestionNames.MCPForDAAvailableTools]: [
+        {
+          name: "testTool",
+          description: "Test tool description",
+          inputSchema: {
+            type: "object",
+            properties: { param1: { type: "string" } },
+            required: ["param1"],
+          },
+        },
+      ],
+      [QuestionNames.MCPForDAPreFetchTools]: ["testTool"],
+      ignoreLockByUT: true,
+    };
+
+    // No existing runtime with mcp_tool_description.file, so mcpFile will be undefined
+    const existingPlugin = {
+      functions: [],
+      runtimes: [],
+    };
+
+    let writtenMcpToolsPath = "";
+    let writtenMcpToolsData: any;
+    let writtenPluginData: any;
+
+    sandbox.stub(fs, "pathExists").callsFake(async (filePath: string) => {
+      // Return false for mcp-tools.json so it uses the default name
+      if (filePath.includes("mcp-tools")) {
+        return false;
+      }
+      return true; // ai-plugin.json exists
+    });
+    sandbox.stub(fs, "readJSON").resolves(existingPlugin);
+    sandbox.stub(fs, "writeJSON").callsFake((filePath: string, data) => {
+      if (filePath.includes("mcp-tools")) {
+        writtenMcpToolsPath = filePath;
+        writtenMcpToolsData = data;
+      } else {
+        writtenPluginData = data;
+      }
+      return Promise.resolve();
+    });
+    sandbox.stub(pathUtils, "getYmlFilePath").returns("/test/project/teamsapp.yml");
+
+    sandbox.stub(tools.ui, "showMessage").resolves(ok("OK"));
+    sandbox.stub(tools.ui, "openFile").resolves();
+
+    const result = await core.updateActionWithMCP(inputs);
+
+    assert.isTrue(result.isOk());
+
+    // Verify mcp-tools.json was created with default name (not incremented)
+    assert.isTrue(writtenMcpToolsPath.includes("mcp-tools.json"));
+    assert.isFalse(writtenMcpToolsPath.includes("mcp-tools-"));
+
+    // Verify mcp-tools.json contains the tool with full details
+    assert.isDefined(writtenMcpToolsData);
+    assert.equal(writtenMcpToolsData.tools.length, 1);
+    assert.equal(writtenMcpToolsData.tools[0].name, "testTool");
+    assert.isDefined(writtenMcpToolsData.tools[0].inputSchema);
+    assert.isDefined(writtenMcpToolsData.tools[0].title);
+
+    // Verify the runtime was added with mcp_tool_description.file reference
+    const mcpRuntime = writtenPluginData.runtimes.find(
+      (r: any) => r.type === "RemoteMCPServer" && r.spec.url === mcpServerUrl
+    );
+    assert.isDefined(mcpRuntime);
+    assert.equal(mcpRuntime.spec.mcp_tool_description.file, "mcp-tools.json");
+  });
+
+  it("should reuse existing mcp_tool_description.file when matched runtime exists", async () => {
+    const core = new FxCore(tools);
+    const inputs: Inputs = {
+      projectPath,
+      platform: Platform.VSCode,
+      [QuestionNames.PluginManifestFilePath]: pluginManifestPath,
+      [QuestionNames.MCPForDAServerUrl]: mcpServerUrl,
+      [QuestionNames.MCPForDAServerName]: serverName,
+      [QuestionNames.MCPForDAAuth]: "None",
+      [QuestionNames.MCPForDAAvailableTools]: [
+        {
+          name: "newTool",
+          description: "New tool description",
+          inputSchema: {
+            type: "object",
+            properties: { param1: { type: "string" } },
+            required: ["param1"],
+          },
+        },
+      ],
+      [QuestionNames.MCPForDAPreFetchTools]: ["newTool"],
+      ignoreLockByUT: true,
+    };
+
+    // Existing runtime with mcp_tool_description.file set
+    const existingPlugin = {
+      functions: [
+        {
+          name: "oldTool",
+          description: "Old tool",
+        },
+      ],
+      runtimes: [
+        {
+          type: "RemoteMCPServer",
+          spec: {
+            url: mcpServerUrl,
+            mcp_tool_description: {
+              file: "existing-mcp-tools.json",
+            },
+          },
+          run_for_functions: ["oldTool"],
+        },
+      ],
+    };
+
+    let writtenMcpToolsPath = "";
+    let writtenPluginData: any;
+
+    sandbox.stub(fs, "pathExists").resolves(true);
+    sandbox.stub(fs, "readJSON").resolves(existingPlugin);
+    sandbox.stub(fs, "writeJSON").callsFake((filePath: string, data) => {
+      if (filePath.includes("mcp-tools") || filePath.includes("existing-mcp-tools")) {
+        writtenMcpToolsPath = filePath;
+      } else {
+        writtenPluginData = data;
+      }
+      return Promise.resolve();
+    });
+    sandbox.stub(pathUtils, "getYmlFilePath").returns("/test/project/teamsapp.yml");
+
+    sandbox.stub(tools.ui, "showMessage").resolves(ok("OK"));
+    sandbox.stub(tools.ui, "openFile").resolves();
+
+    const result = await core.updateActionWithMCP(inputs);
+
+    assert.isTrue(result.isOk());
+
+    // Verify the existing mcp_tool_description.file is reused
+    assert.isTrue(writtenMcpToolsPath.includes("existing-mcp-tools.json"));
+
+    // Verify the runtime uses the same file reference
+    const mcpRuntime = writtenPluginData.runtimes.find(
+      (r: any) => r.type === "RemoteMCPServer" && r.spec.url === mcpServerUrl
+    );
+    assert.isDefined(mcpRuntime);
+    assert.equal(mcpRuntime.spec.mcp_tool_description.file, "existing-mcp-tools.json");
+  });
+
   it("should successfully update action with OAuth authentication", async () => {
     const core = new FxCore(tools);
     const inputs: Inputs = {
