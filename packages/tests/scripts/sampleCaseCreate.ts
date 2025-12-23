@@ -13,7 +13,6 @@ const windows_22 = [
   "sample-query-org",
   "sample-assistant-dashboard",
   "sample-bot-sso",
-  "sample-sso-tab-via-apim-proxy",
   "sample-copilot-connector-bot",
 ];
 const ubuntu_22 = [

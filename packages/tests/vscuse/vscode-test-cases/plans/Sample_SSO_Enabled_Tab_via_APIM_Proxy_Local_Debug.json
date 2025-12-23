@@ -1,0 +1,1023 @@
+{
+  "plan_metadata": {
+    "version": "1.0",
+    "plan_id": "plan_142a4eb5",
+    "execution_context": {
+      "delay_between_steps": 0.5,
+      "stop_on_error": true,
+      "precondition_wait_timeout": 60.0,
+      "precondition_retry_interval": 2.0,
+      "step_retry_timeout": 0.0
+    },
+    "total_steps": 38,
+    "created_at": "2025-12-23T06:16:18.852084",
+    "name": "Sample SSO Enabled Tab via APIM Proxy Local Debug",
+    "description": {
+      "other": "",
+      "owner": "v-helzha@microsoft.com",
+      "workitem": "25190654"
+    },
+    "generated_at": "2025-12-23T06:16:18.852084",
+    "execution_order": [
+      "plan_r_1107_015711",
+      "step_1ce9dae2",
+      "step_2806d1b0",
+      "plan_r_1111_043711",
+      "plan_r_0928_020230",
+      "step_0cee2a14",
+      "step_0a54e8b9",
+      "step_aef6faa3",
+      "step_074521fc",
+      "step_80263308",
+      "step_df507cf7",
+      "step_6fe92028",
+      "step_149b1f7b",
+      "step_d0a4c35b",
+      "step_3fef2a75",
+      "step_529b2215",
+      "step_e31b1908",
+      "step_366beeda",
+      "step_389f64d5",
+      "step_5d41e9c6",
+      "step_002069a8",
+      "step_b80c48ae",
+      "step_4bb0ab3b",
+      "step_23fc0afc",
+      "step_67b9bfba",
+      "step_a53794bb",
+      "step_a8272093",
+      "step_c5e1c5bb",
+      "step_4a550571",
+      "step_e9ae13cd",
+      "step_491c3292",
+      "step_51cfc757",
+      "step_99198cf9",
+      "step_8693ce01",
+      "step_3947acb4",
+      "step_f80f00a4",
+      "step_77f13108",
+      "step_3b0c60e1",
+      "step_ff15d3b7",
+      "step_1dbc0ffd",
+      "step_ee8f63ce"
+    ],
+    "tags": [],
+    "updated_at": "2025-12-23T07:09:50.041701"
+  },
+  "steps": [
+    {
+      "step_id": "step_1ce9dae2",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "text": "SSO Enabled Tab via APIM Proxy"
+      },
+      "description": "Type the text \"SSO Enabled Tab via APIM Proxy\" into the search input field labeled \"🔍 APIM Proxy\" within the \"Samples\" tab of the Microsoft 365 Agents Toolkit extension in Visual Studio Code.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:512:384:0:20:64a4bc9160e06061"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_1ce9dae2",
+      "created_at": "2025-12-23T06:16:18.874303",
+      "plan_id": "plan_142a4eb5"
+    },
+    {
+      "step_id": "step_2806d1b0",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 784,
+        "y": 234
+      },
+      "description": "Click the \"Clone\" button in the \"Samples\" tab of the Microsoft 365 Agents Toolkit extension within Visual Studio Code, visually indicated by a blue button to the right of sample metadata filters. And input ${{var:app_name:sso-tab-via-apim}} into the run time variable.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:784:234:16:5:92649bd91595c924",
+        "dhash:784:234:96:5:0022c46971cc2200",
+        "dhash:784:234:0:10:64a4bc9160e06061"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_2806d1b0",
+      "created_at": "2025-12-23T06:16:18.886692",
+      "plan_id": "plan_142a4eb5"
+    },
+    {
+      "step_id": "step_0cee2a14",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 553,
+        "y": 204
+      },
+      "description": "Click on the central workspace area of the Visual Studio Code window, which currently displays the VS Code logo and no open files, within the \"MICROSOFT 365 AGENTS TOOLKIT\" extension view.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:553:204:16:5:0000000000000000",
+        "dhash:553:204:96:5:0000000000000000",
+        "dhash:553:204:0:10:b2846a23a3232421"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_0cee2a14",
+      "created_at": "2025-12-23T06:16:18.903783",
+      "plan_id": "plan_142a4eb5"
+    },
+    {
+      "step_id": "step_0a54e8b9",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "f1"
+      },
+      "description": "Press the F1 key in the Visual Studio Code interface to open the command palette, with the Microsoft 365 Agents Toolkit extension sidebar active.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:512:384:0:20:b2842a23a3232421"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_0a54e8b9",
+      "created_at": "2025-12-23T06:16:18.912282",
+      "plan_id": "plan_142a4eb5"
+    },
+    {
+      "step_id": "step_aef6faa3",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "text": "Debug: Select and Start Debugging"
+      },
+      "description": "Type the text \"Debug: Select and Start Debugging\" into the Visual Studio Code command palette input field at the top center of the interface, triggering the suggestion for the \"Debug: Select and Start Debugging\" command.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:512:384:0:20:e4c43223a3232421"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_aef6faa3",
+      "created_at": "2025-12-23T06:16:18.921045",
+      "plan_id": "plan_142a4eb5"
+    },
+    {
+      "step_id": "step_074521fc",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 537,
+        "y": 27
+      },
+      "description": "Click the \"Debug: Select and Start Debugging\" option in the Visual Studio Code command palette to initiate the debugging process.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:537:27:16:5:0000000000000000",
+        "dhash:537:27:96:5:000000000000c000",
+        "dhash:537:27:0:10:e4843223a3232421"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_074521fc",
+      "created_at": "2025-12-23T06:16:18.929197",
+      "plan_id": "plan_142a4eb5"
+    },
+    {
+      "step_id": "step_80263308",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "enter"
+      },
+      "description": "Press the Enter key to select \"Debug: Select and Start Debugging\" from the command palette in Visual Studio Code.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:512:384:0:20:e4843223a3232421"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_80263308",
+      "created_at": "2025-12-23T06:16:18.942211",
+      "plan_id": "plan_142a4eb5"
+    },
+    {
+      "step_id": "step_df507cf7",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "text": "Debug in Teams (Chrome)"
+      },
+      "description": "Type the text \"Debug in Teams (Chrome)\" into the command palette search bar at the top of the Visual Studio Code interface.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:512:384:0:20:cc842223a3232421"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_df507cf7",
+      "created_at": "2025-12-23T06:16:18.975501",
+      "plan_id": "plan_142a4eb5"
+    },
+    {
+      "step_id": "step_6fe92028",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "enter"
+      },
+      "description": "Press the Enter key to select the highlighted \"Debug in Teams (Chrome)\" option in the Visual Studio Code command palette.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:512:384:0:20:cc842223a3232421"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_6fe92028",
+      "created_at": "2025-12-23T06:16:19.006755",
+      "plan_id": "plan_142a4eb5"
+    },
+    {
+      "step_id": "step_149b1f7b",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "enter"
+      },
+      "description": "Press the Enter key to confirm selection of \"+ New resource group\" in the \"Select a resource group\" dropdown within the Microsoft Visual Studio Code extension for Microsoft 365 Agents.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:512:384:0:20:c0c04463ba342020"
+      ],
+      "postconditions": [],
+      "tags": [
+        "delay: 30"
+      ],
+      "screenshot": "step_149b1f7b",
+      "created_at": "2025-12-23T06:16:19.017879",
+      "plan_id": "plan_142a4eb5"
+    },
+    {
+      "step_id": "step_d0a4c35b",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "enter"
+      },
+      "description": "Press the Enter key to confirm the entry of a new resource group name in the input field at the top of the Visual Studio Code (VS Code) interface while using the Microsoft 365 Agents extension.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:512:384:0:20:c0932723aa342020"
+      ],
+      "postconditions": [],
+      "tags": [
+        "delay: 3"
+      ],
+      "screenshot": "step_d0a4c35b",
+      "created_at": "2025-12-23T06:16:19.031577",
+      "plan_id": "plan_142a4eb5"
+    },
+    {
+      "step_id": "step_3fef2a75",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "enter"
+      },
+      "description": "Press Enter to select \"Central US\" from the region dropdown list in the \"Loading options...\" modal while creating a new resource group in Visual Studio Code.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:512:384:0:20:d4c44043aa342020"
+      ],
+      "postconditions": [],
+      "tags": [
+        "delay: 3"
+      ],
+      "screenshot": "step_3fef2a75",
+      "created_at": "2025-12-23T06:16:19.042882",
+      "plan_id": "plan_142a4eb5"
+    },
+    {
+      "step_id": "step_529b2215",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 483,
+        "y": 146
+      },
+      "description": "Click the \"Provision\" button in the provisioning confirmation dialog within Visual Studio Code, confirming the initiation of resource provisioning using the listed Azure and Microsoft 365 accounts.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:483:146:16:5:4919dc195359d8d3",
+        "dhash:483:146:96:5:0000c02736c00100",
+        "dhash:483:146:0:10:12322723aa342020"
+      ],
+      "postconditions": [],
+      "tags": [
+        "delay: 10"
+      ],
+      "screenshot": "step_529b2215",
+      "created_at": "2025-12-23T06:16:19.056450",
+      "plan_id": "plan_142a4eb5"
+    },
+    {
+      "step_id": "step_e31b1908",
+      "agent": "code",
+      "tool": "",
+      "parameters": {},
+      "description": "@code echo wait for debugging",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "delay: 300"
+      ],
+      "screenshot": null,
+      "created_at": "2025-12-23T06:16:19.065098",
+      "plan_id": "plan_142a4eb5"
+    },
+    {
+      "step_id": "step_366beeda",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 374,
+        "y": 348
+      },
+      "description": "Click on the \"Email, phone, or Skype\" input field in the Microsoft sign-in dialog within a Chrome browser window. The red crosshair marks the precise entry point for user credentials.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:374:348:16:5:90089c94d6d3d6d6",
+        "dhash:374:348:96:5:3b1b005353245132",
+        "dhash:374:348:0:10:1328d0d9e7e6dae4"
+      ],
+      "postconditions": [],
+      "tags": [
+        "precondition_wait_timeout: 180"
+      ],
+      "screenshot": "step_366beeda",
+      "created_at": "2025-12-23T06:16:19.073004",
+      "plan_id": "plan_142a4eb5"
+    },
+    {
+      "step_id": "step_389f64d5",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "text": "${{env:M365_ACCOUNT_NAME}}"
+      },
+      "description": "Type \"${{env:M365_ACCOUNT_NAME}}\" into the email or username input field on the Microsoft sign-in page (login.microsoftonline.com) in a web browser, positioned above the \"Next\" button and below the \"Sign in\" heading.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:512:384:0:20:1328f0d9e7e6dae4"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_389f64d5",
+      "created_at": "2025-12-23T06:16:19.079790",
+      "plan_id": "plan_142a4eb5"
+    },
+    {
+      "step_id": "step_5d41e9c6",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 627,
+        "y": 490
+      },
+      "description": "Click the \"Next\" button on the Microsoft account sign-in page after entering the email address, confirming the action to proceed with authentication. The blue \"Next\" button is visually highlighted and is located below the email input field in the web browser interface.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:627:490:16:5:b6b29a6d92204000",
+        "dhash:627:490:96:5:000a717148001000",
+        "dhash:627:490:0:10:1328f0d9e7e6dae4"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_5d41e9c6",
+      "created_at": "2025-12-23T06:16:19.089968",
+      "plan_id": "plan_142a4eb5"
+    },
+    {
+      "step_id": "step_002069a8",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 485,
+        "y": 424
+      },
+      "description": "Click the password input field on the Microsoft account sign-in page in Chrome, where the cursor is positioned for password entry.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:485:424:16:5:0000000000000000",
+        "dhash:485:424:96:5:5d04200000008080",
+        "dhash:485:424:0:10:1308f0d9d1e6e6e4"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_002069a8",
+      "created_at": "2025-12-23T06:16:19.100589",
+      "plan_id": "plan_142a4eb5"
+    },
+    {
+      "step_id": "step_b80c48ae",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "text": "${{secret:M365_ACCOUNT_PASSWORD}}"
+      },
+      "description": "Enter \"${{secret:M365_ACCOUNT_PASSWORD}}\" into the password input field on the Microsoft login page for the account ${{env:M365_ACCOUNT_NAME}}.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:512:384:0:20:1308f0d9d1e6e6e4"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_b80c48ae",
+      "created_at": "2025-12-23T06:16:19.119036",
+      "plan_id": "plan_142a4eb5"
+    },
+    {
+      "step_id": "step_4bb0ab3b",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "enter"
+      },
+      "description": "Press the Enter key in the password input field on the Microsoft login page to submit the entered password for account ${{env:M365_ACCOUNT_NAME}}.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:512:384:0:20:1308f0d9d1e6e6e4"
+      ],
+      "postconditions": [],
+      "tags": [
+        "delay: 3"
+      ],
+      "screenshot": "step_4bb0ab3b",
+      "created_at": "2025-12-23T06:16:19.129780",
+      "plan_id": "plan_142a4eb5"
+    },
+    {
+      "step_id": "step_23fc0afc",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 637,
+        "y": 527
+      },
+      "description": "Click the \"No\" button on the Microsoft \"Stay signed in?\" prompt during the login process at login.microsoftonline.com. The button is visually highlighted in blue and located at the bottom right of the dialog box.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:637:527:16:5:8a996654c66e2489",
+        "dhash:637:527:96:5:00008c32b20c0000",
+        "dhash:637:527:0:10:1c0cf0d9d9e6e6e4"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_23fc0afc",
+      "created_at": "2025-12-23T06:16:19.139900",
+      "plan_id": "plan_142a4eb5"
+    },
+    {
+      "step_id": "step_67b9bfba",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion there is blue button \"Add\" or \"Open\" available to click",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "step_retry_timeout: 180"
+      ],
+      "screenshot": null,
+      "created_at": "2025-12-23T06:16:19.147478",
+      "plan_id": "plan_142a4eb5"
+    },
+    {
+      "step_id": "step_a53794bb",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 305,
+        "y": 216
+      },
+      "description": "Click the \"Add\" button in the Microsoft Teams app modal to add the \"sso-tab-via-apimlocal\" personal app.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:305:216:16:5:eb221a9a92dac832",
+        "dhash:305:216:96:5:520246797946002f",
+        "dhash:305:216:0:10:20b4b0d8fcfce0d8"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_a53794bb",
+      "created_at": "2025-12-23T06:16:19.162898",
+      "plan_id": "plan_142a4eb5"
+    },
+    {
+      "step_id": "step_a8272093",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion there is blue button \"Open\" available to click",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "step_retry_timeout: 60"
+      ],
+      "screenshot": null,
+      "created_at": "2025-12-23T06:16:19.172337",
+      "plan_id": "plan_142a4eb5"
+    },
+    {
+      "step_id": "step_c5e1c5bb",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 512,
+        "y": 508
+      },
+      "description": "Click the \"Open\" button in the \"Added successfully!\" confirmation dialog for the \"sso-tab-via-apimlocal\" app within the Microsoft Teams web interface.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:512:508:16:5:0096314e6d696d4e",
+        "dhash:512:508:96:5:00009669618600b2",
+        "dhash:512:508:0:10:16696969696971f9"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_c5e1c5bb",
+      "created_at": "2025-12-23T06:16:19.181683",
+      "plan_id": "plan_142a4eb5"
+    },
+    {
+      "step_id": "step_4a550571",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 295,
+        "y": 20
+      },
+      "description": "Click the red crosshair on the browser tab's close button (\"X\") in the Google Chrome window while viewing Microsoft Teams (web app).",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:295:20:16:5:5aa5e48707e4255a",
+        "dhash:295:20:96:5:8c0c4c0c0c912c6d",
+        "dhash:295:20:0:10:20b030412c4c5040"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_4a550571",
+      "created_at": "2025-12-23T06:16:19.189820",
+      "plan_id": "plan_142a4eb5"
+    },
+    {
+      "step_id": "step_e9ae13cd",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 227,
+        "y": 68
+      },
+      "description": "Click the address bar at the top of the Google Chrome browser window to focus it for URL or search input.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:227:68:16:5:0000004200000000",
+        "dhash:227:68:96:5:5d82090000000000",
+        "dhash:227:68:0:10:65008c0d15848084"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_e9ae13cd",
+      "created_at": "2025-12-23T06:16:19.203583",
+      "plan_id": "plan_142a4eb5"
+    },
+    {
+      "step_id": "step_491c3292",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "text": "https://localhost:53000/index.html#/tab"
+      },
+      "description": "Type the URL 'https://localhost:53000/index.html#/tab' into the Chrome browser's address bar on a new tab page, highlighting the suggested matching address in the dropdown.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:512:384:0:20:74394c0d15848084"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_491c3292",
+      "created_at": "2025-12-23T06:16:19.213185",
+      "plan_id": "plan_142a4eb5"
+    },
+    {
+      "step_id": "step_51cfc757",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "enter"
+      },
+      "description": "Press the Enter key to load the highlighted URL \"https://localhost:53000/index.html#/tab\" in the Chrome browser address bar.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:512:384:0:20:74394c0d15848084"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_51cfc757",
+      "created_at": "2025-12-23T06:16:19.224797",
+      "plan_id": "plan_142a4eb5"
+    },
+    {
+      "step_id": "step_99198cf9",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 273,
+        "y": 520
+      },
+      "description": "Click the \"Advanced\" button on the Chrome privacy error page for https://localhost:53000, where a red crosshair marks the interaction point just below the \"Your connection is not private\" warning.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:273:520:16:5:e64c596e26990400",
+        "dhash:273:520:96:5:0016435717030000",
+        "dhash:273:520:0:10:6010282e32238082"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_99198cf9",
+      "created_at": "2025-12-23T06:16:19.234121",
+      "plan_id": "plan_142a4eb5"
+    },
+    {
+      "step_id": "step_8693ce01",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 302,
+        "y": 668
+      },
+      "description": "Click the \"Proceed to localhost (unsafe)\" link on the Chrome \"Your connection is not private\" security warning page.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:302:668:16:5:8c20ccdc31d98c32",
+        "dhash:302:668:96:5:232000d5c5000000",
+        "dhash:302:668:0:10:6010282e32233e70"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_8693ce01",
+      "created_at": "2025-12-23T06:16:19.242848",
+      "plan_id": "plan_142a4eb5"
+    },
+    {
+      "step_id": "step_3947acb4",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 500,
+        "y": 18
+      },
+      "description": "Click the \"+\" (New Tab) button in the Chrome browser’s tab bar, positioned to the right of the \"Microsoft Teams Tab\" tab.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:500:18:16:5:081e576f1b1b6f57",
+        "dhash:500:18:96:5:3209490801088a57",
+        "dhash:500:18:0:10:7098808080808080"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_3947acb4",
+      "created_at": "2025-12-23T06:16:19.249238",
+      "plan_id": "plan_142a4eb5"
+    },
+    {
+      "step_id": "step_f80f00a4",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 996,
+        "y": 199
+      },
+      "description": "Click the red plus (+) icon at the top-right of the \"sso-tab-via-apimlocal\" tab in the Microsoft Teams web interface to add a new item or tab.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:996:199:16:5:828950aa2525aa11",
+        "dhash:996:199:96:5:d62a800626000400",
+        "dhash:996:199:0:10:18b830412c4c5040"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_f80f00a4",
+      "created_at": "2025-12-23T06:16:19.258595",
+      "plan_id": "plan_142a4eb5"
+    },
+    {
+      "step_id": "step_77f13108",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 953,
+        "y": 242
+      },
+      "description": "Click the \"Reload app\" option in the dropdown menu within the Microsoft Teams web interface. The interaction point is precisely on the \"Reload app\" text, indicated by the red crosshair in the top-right dropdown of the sso-tab-via-apimlocal tab.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:953:242:16:5:69682962e916b923",
+        "dhash:953:242:96:5:001048d31381a58a",
+        "dhash:953:242:0:10:18b833432c4c5040"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_77f13108",
+      "created_at": "2025-12-23T06:16:19.266471",
+      "plan_id": "plan_142a4eb5"
+    },
+    {
+      "step_id": "step_3b0c60e1",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 390,
+        "y": 240
+      },
+      "description": "Click the \"Allow\" button in the Chrome permission popup that appears when teams.microsoft.com requests access to look for and connect to devices on your local network in the Microsoft Teams web app interface.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:390:240:16:5:9269644a5a5b4f64",
+        "dhash:390:240:96:5:b200271f17230022",
+        "dhash:390:240:0:10:20e0948080808080"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_3b0c60e1",
+      "created_at": "2025-12-23T06:16:19.273968",
+      "plan_id": "plan_142a4eb5"
+    },
+    {
+      "step_id": "step_ff15d3b7",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 571,
+        "y": 467
+      },
+      "description": "Click the \"Consent and log in\" button in the \"SSO Enabled Tab via APIM proxy\" view within the Microsoft Teams web app interface.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:571:467:16:5:63634321dab5aa01",
+        "dhash:571:467:96:5:0084336dc4030000",
+        "dhash:571:467:0:10:10b0a8928eac9080"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_ff15d3b7",
+      "created_at": "2025-12-23T06:16:19.280008",
+      "plan_id": "plan_142a4eb5"
+    },
+    {
+      "step_id": "step_1dbc0ffd",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 633,
+        "y": 584
+      },
+      "description": "Click the \"Accept\" button on the Microsoft \"Permissions requested\" dialog to grant access for the application \"sso-enabled-tab-via-apim-proxy-aad\" during the login.microsoftonline.com OAuth2 authorization flow.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:633:584:16:5:6a9956663291648b",
+        "dhash:633:584:96:5:0000966969960000",
+        "dhash:633:584:0:10:0c70d999d9c6e6d3"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_1dbc0ffd",
+      "created_at": "2025-12-23T06:16:19.288560",
+      "plan_id": "plan_142a4eb5"
+    },
+    {
+      "step_id": "step_ee8f63ce",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion  there is an item including \"test\" under \"Current Login Account\"",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": null,
+      "created_at": "2025-12-23T06:16:19.296197",
+      "plan_id": "plan_142a4eb5"
+    }
+  ],
+  "screenshots": {
+    "step_1ce9dae2": "step_1ce9dae2",
+    "step_2806d1b0": "step_2806d1b0",
+    "step_0cee2a14": "step_0cee2a14",
+    "step_0a54e8b9": "step_0a54e8b9",
+    "step_aef6faa3": "step_aef6faa3",
+    "step_074521fc": "step_074521fc",
+    "step_80263308": "step_80263308",
+    "step_df507cf7": "step_df507cf7",
+    "step_6fe92028": "step_6fe92028",
+    "step_149b1f7b": "step_149b1f7b",
+    "step_d0a4c35b": "step_d0a4c35b",
+    "step_3fef2a75": "step_3fef2a75",
+    "step_529b2215": "step_529b2215",
+    "step_366beeda": "step_366beeda",
+    "step_389f64d5": "step_389f64d5",
+    "step_5d41e9c6": "step_5d41e9c6",
+    "step_002069a8": "step_002069a8",
+    "step_b80c48ae": "step_b80c48ae",
+    "step_4bb0ab3b": "step_4bb0ab3b",
+    "step_23fc0afc": "step_23fc0afc",
+    "step_a53794bb": "step_a53794bb",
+    "step_c5e1c5bb": "step_c5e1c5bb",
+    "step_4a550571": "step_4a550571",
+    "step_e9ae13cd": "step_e9ae13cd",
+    "step_491c3292": "step_491c3292",
+    "step_51cfc757": "step_51cfc757",
+    "step_99198cf9": "step_99198cf9",
+    "step_8693ce01": "step_8693ce01",
+    "step_3947acb4": "step_3947acb4",
+    "step_f80f00a4": "step_f80f00a4",
+    "step_77f13108": "step_77f13108",
+    "step_3b0c60e1": "step_3b0c60e1",
+    "step_ff15d3b7": "step_ff15d3b7",
+    "step_1dbc0ffd": "step_1dbc0ffd"
+  }
+}
