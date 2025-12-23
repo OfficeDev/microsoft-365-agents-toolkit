@@ -93,6 +93,7 @@ import {
   KiotaLastCommands,
   SingleSignOnOptionItem,
   ViewAadAppHelpLinkV5,
+  LocalMcpPrefix,
 } from "../component/constants";
 import { coordinator } from "../component/coordinator";
 import { UpdateAadAppArgs } from "../component/driver/aad/interface/updateAadAppArgs";
@@ -216,7 +217,6 @@ import {
 import { addSharedUsers, removeShareAccess, shareWithTenant } from "./share";
 import { CoreTelemetryEvent, CoreTelemetryProperty } from "./telemetry";
 import { CoreHookContext, PreProvisionResForVS, VersionCheckRes } from "./types";
-import { LocalMcpPrefix } from "../component/constants";
 
 export class FxCore {
   constructor(tools: Tools) {
