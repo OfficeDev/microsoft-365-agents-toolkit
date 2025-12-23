@@ -1,0 +1,137 @@
+{
+  "plan_metadata": {
+    "version": "1.0",
+    "plan_id": "plan_e2fdef47",
+    "execution_context": {
+      "delay_between_steps": 0.5,
+      "stop_on_error": true,
+      "precondition_wait_timeout": 60.0,
+      "precondition_retry_interval": 2.0,
+      "step_retry_timeout": 0.0
+    },
+    "total_steps": 4,
+    "created_at": "2025-12-23T03:23:30.459705",
+    "name": "Sample CoffeeAgent Remote",
+    "description": {
+      "other": "",
+      "owner": "v-liliu2@microsoft.com",
+      "workitem": "35872737"
+    },
+    "generated_at": "2025-12-23T03:23:30.459395",
+    "execution_order": [
+      "plan_r_1107_015711",
+      "step_5ee81cfe",
+      "step_9aa652cf",
+      "step_be032ea0",
+      "plan_r_1111_043711",
+      "step_f74998ca",
+      "plan_ede8fb96",
+      "plan_r_0928_020230",
+      "plan_r_0928_073729",
+      "plan_r_0928_075846",
+      "plan_r_0930_063548",
+      "plan_1036a28e"
+    ],
+    "tags": [],
+    "updated_at": "2025-12-23T12:11:16.459359"
+  },
+  "steps": [
+    {
+      "step_id": "step_5ee81cfe",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 394,
+        "y": 169
+      },
+      "description": "Click on the search input field within the \"Samples\" section of the Microsoft 365 Agents Toolkit interface to activate it for text entry.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:394:169:16:5:a090136ce65a4e64",
+        "dhash:394:169:96:5:b53902c0a0884100",
+        "dhash:394:169:0:10:64a4b4b464747476"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_5ee81cfe",
+      "created_at": "2025-12-23T12:11:15.132564",
+      "plan_id": "plan_e2fdef47"
+    },
+    {
+      "step_id": "step_9aa652cf",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "text": "coffee agent"
+      },
+      "description": "Type text: 'coffee agent' into the search bar located at the top of the \"Samples\" tab within the Microsoft 365 Agents Toolkit interface.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:512:384:0:20:64a4b4b476764165"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_9aa652cf",
+      "created_at": "2025-12-23T12:11:15.145482",
+      "plan_id": "plan_e2fdef47"
+    },
+    {
+      "step_id": "step_be032ea0",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 780,
+        "y": 277
+      },
+      "description": "Click the \"Create\" button associated with the \"Coffee ...\" featured sample in the \"Samples\" section of the Microsoft 365 Agents Toolkit interface.And input ${{var:app_name:coffee-agent}} into the run time variable.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:780:277:16:5:265926574d6699a4",
+        "dhash:780:277:96:5:0022c46878866878",
+        "dhash:780:277:0:10:64a4b4b4747c7664"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_be032ea0",
+      "created_at": "2025-12-23T12:11:15.155504",
+      "plan_id": "plan_e2fdef47"
+    },
+    {
+      "step_id": "step_f74998ca",
+      "agent": "code",
+      "tool": "",
+      "parameters": {},
+      "description": "@code run \"npm install\" at #text:/home/vscode/AgentsToolkitProjects/${{var:app_name}}",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": null,
+      "created_at": "2025-12-23T12:11:15.166817",
+      "plan_id": "plan_e2fdef47"
+    }
+  ],
+  "screenshots": {
+    "step_5ee81cfe": "step_5ee81cfe",
+    "step_9aa652cf": "step_9aa652cf",
+    "step_be032ea0": "step_be032ea0"
+  }
+}
