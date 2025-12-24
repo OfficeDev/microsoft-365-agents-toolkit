@@ -425,7 +425,7 @@ jobs:
           has_mos_api_failure=false
           mos_api_failed_lists=""
 
-          emails="teamsfxqa@microsoft.com;"
+          emails="teamsfxqa@microsoft.com;M365AgentsToolkitEngineerTeam@microsoft.com"
           while IFS= read -r case;
           do
             if [ -z "$case" ]; then
@@ -486,7 +486,7 @@ jobs:
                   failed=$((failed+1))
                   label="<span style=\\\"background-color: #dc322f;color:white;font-weight:bold;\\\">FAILED</span>"
                   if [[ ! -z "$email" && ! "$emails" == *"$email"* ]]; then
-                    emails="$emails;$email;zhendr@microsoft.com"
+                    emails="$emails;$email;zhenjiao@microsoft.com"
                   fi
                 elif [[ ! -z `echo $test | jq 'select(.skipped==true)'` || ! -z `echo $test | jq 'select(.pending==true)'` ]]; then
                   skipped=$((skipped+1))
