@@ -1487,6 +1487,145 @@ describe("helper", async () => {
       }
     });
 
+    it("processMCPLocalServers handles option data malformed gracefully", async () => {
+      const generator = new DeclarativeAgentGenerator();
+      const context = createContext();
+      const inputs: Inputs = {
+        platform: Platform.CLI,
+        projectPath: "./",
+        [QuestionNames.Capabilities]: "api-plugin",
+        [QuestionNames.ActionType]: CapabilityActionStartOptions.mcp().id,
+        [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentWithActionFromMCP,
+        [QuestionNames.ApiAuth]: ApiAuthOptions.none().id,
+        [QuestionNames.AppName]: "TestApp",
+        [QuestionNames.MCPServerType]: "local",
+        [QuestionNames.MCPLocalServer]: [
+          {
+            id: "server-1",
+            label: "Server 1",
+            data: {
+              identifier: "server.1",
+              command: "odr.exe",
+              args: ["mcp", "--proxy", "server.1"],
+            },
+          },
+          {
+            id: "server-2",
+            label: "Server 2",
+            data: JSON.stringify({
+              identifier: "server.2",
+              command: "odr.exe",
+              args: ["mcp", "--proxy", "server.2"],
+            }),
+          },
+        ],
+      };
+
+      const res = await generator.activate(context, inputs);
+      const info = await generator.getTemplateInfos(context, inputs, ".");
+
+      assert.isTrue(res);
+      assert.isTrue(info.isOk());
+
+      if (info.isOk() && info.value[0].replaceMap) {
+        const replaceMap = info.value[0].replaceMap;
+
+        // Verify MCPLocalServers array has one server
+        assert.isDefined(replaceMap.MCPLocalServers);
+        assert.isArray(replaceMap.MCPLocalServers);
+        assert.equal(replaceMap.MCPLocalServers.length, 1);
+
+        // Verify second server
+        assert.equal(replaceMap.MCPLocalServers[0].name, "server-2");
+        assert.equal(replaceMap.MCPLocalServers[0].notLast, false);
+      }
+    });
+
+    it("processMCPLocalServers handles partial option data gracefully", async () => {
+      const generator = new DeclarativeAgentGenerator();
+      const context = createContext();
+      const inputs: Inputs = {
+        platform: Platform.CLI,
+        projectPath: "./",
+        [QuestionNames.Capabilities]: "api-plugin",
+        [QuestionNames.ActionType]: CapabilityActionStartOptions.mcp().id,
+        [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentWithActionFromMCP,
+        [QuestionNames.ApiAuth]: ApiAuthOptions.none().id,
+        [QuestionNames.AppName]: "TestApp",
+        [QuestionNames.MCPServerType]: "local",
+        [QuestionNames.MCPLocalServer]: [
+          {
+            id: "server-1",
+            label: "Server 1",
+            data: JSON.stringify({
+              identifier: "server.1",
+              args: ["mcp", "--proxy", "server.1"],
+            }),
+          },
+          {
+            id: "server-2",
+            label: "Server 2",
+            data: JSON.stringify({
+              identifier: "server.2",
+              command: "odr.exe",
+              args: ["mcp", "--proxy", "server.2"],
+            }),
+          },
+        ],
+      };
+
+      const res = await generator.activate(context, inputs);
+      const info = await generator.getTemplateInfos(context, inputs, ".");
+
+      assert.isTrue(res);
+      assert.isTrue(info.isOk());
+
+      if (info.isOk() && info.value[0].replaceMap) {
+        const replaceMap = info.value[0].replaceMap;
+
+        // Verify MCPLocalServers array has one server
+        assert.isDefined(replaceMap.MCPLocalServers);
+        assert.isArray(replaceMap.MCPLocalServers);
+        assert.equal(replaceMap.MCPLocalServers.length, 1);
+
+        // Verify second server
+        assert.equal(replaceMap.MCPLocalServers[0].name, "server-2");
+        assert.equal(replaceMap.MCPLocalServers[0].notLast, false);
+      }
+    });
+
+    it("processMCPLocalServers throws when all option data malformed", async () => {
+      const generator = new DeclarativeAgentGenerator();
+      const context = createContext();
+      const inputs: Inputs = {
+        platform: Platform.CLI,
+        projectPath: "./",
+        [QuestionNames.Capabilities]: "api-plugin",
+        [QuestionNames.ActionType]: CapabilityActionStartOptions.mcp().id,
+        [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentWithActionFromMCP,
+        [QuestionNames.ApiAuth]: ApiAuthOptions.none().id,
+        [QuestionNames.AppName]: "TestApp",
+        [QuestionNames.MCPServerType]: "local",
+        [QuestionNames.MCPLocalServer]: [
+          {
+            id: "server-1",
+            label: "Server 1",
+            data: {
+              identifier: "server.1",
+              command: "odr.exe",
+              args: ["mcp", "--proxy", "server.1"],
+            },
+          },
+        ],
+      };
+
+      const res = await generator.activate(context, inputs);
+      const info = await generator.getTemplateInfos(context, inputs, ".");
+
+      assert.isTrue(res);
+      assert.isTrue(info.isErr() && info.error.name === "processMCPLocalServers");
+    });
+
     it("ODRProvider listServers should handle empty output", async () => {
       sandbox.stub(process, "platform").value("win32");
       const execStub = sandbox
