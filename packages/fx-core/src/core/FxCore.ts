@@ -55,7 +55,6 @@ import { teamsDevPortalClient } from "../client/teamsDevPortalClient";
 import { ApiKeyParameters, AuthParameters, OAuthParameters } from "../common/authInterface";
 import { AppStudioScopes, VSCodeExtensionCommand } from "../common/constants";
 import { listAPIInfo, parseAndUpdatePluginManifestForKiota } from "../common/daSpecParser";
-import { FeatureFlags, featureFlagManager } from "../common/featureFlags";
 import {
   ErrorContextMW,
   TOOLS,
@@ -90,10 +89,9 @@ import { ILifecycle, LifecycleName } from "../component/configManager/interface"
 import { YamlParser } from "../component/configManager/parser";
 import {
   AadConstants,
-  KiotaLastCommands,
+  LocalMcpPrefix,
   SingleSignOnOptionItem,
   ViewAadAppHelpLinkV5,
-  LocalMcpPrefix,
 } from "../component/constants";
 import { coordinator } from "../component/coordinator";
 import { UpdateAadAppArgs } from "../component/driver/aad/interface/updateAadAppArgs";
@@ -2038,29 +2036,11 @@ export class FxCore {
       throw new Error("projectPath is undefined"); // should never happen
     }
 
-    // Call Kiota to select the OpenAPI spec file
-    if (
-      inputs.platform === Platform.VSCode &&
-      featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration) &&
-      inputs[QuestionNames.ActionType] === ActionStartOptions.apiSpec().id &&
-      !!!inputs[QuestionNames.ActionManifestPath]
-    ) {
-      return ok({
-        projectPath: inputs.projectPath,
-        lastCommand: KiotaLastCommands.addPlugin,
-        manifestPath: inputs[QuestionNames.ManifestPath],
-      });
-    }
-
     const context = createContext();
     const teamsManifestPath = inputs[QuestionNames.ManifestPath];
     const appPackageFolder = path.dirname(teamsManifestPath);
     const isGenerateFromApiSpec =
       inputs[QuestionNames.ActionType] === ActionStartOptions.apiSpec().id;
-    const isKiotaIntegration =
-      inputs.platform === Platform.VSCode &&
-      featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration) &&
-      !!inputs[QuestionNames.ActionManifestPath];
 
     // validate the project is valid for adding plugin
     const manifestRes = await manifestUtils._readAppManifest(teamsManifestPath);
@@ -2107,22 +2087,12 @@ export class FxCore {
     let specParser: SpecParser | undefined = undefined;
     let authNameAndSchemes: { authName: string; authScheme: AuthType }[] = [];
 
-    if (isGenerateFromApiSpec && !isKiotaIntegration) {
+    if (isGenerateFromApiSpec) {
       specParser = new SpecParser(
         inputs[QuestionNames.ApiSpecLocation].trim(),
         getParserOptions(ProjectType.Copilot, true)
       );
       const listResult = await listAPIInfo(inputs[QuestionNames.ApiSpecLocation].trim());
-      if (
-        inputs.platform === Platform.VSCode &&
-        featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration) &&
-        inputs[QuestionNames.ActionType] === ActionStartOptions.apiSpec().id &&
-        !!inputs[QuestionNames.ActionManifestPath]
-      ) {
-        inputs[QuestionNames.ApiOperation] = listResult.APIs.filter((value) => value.isValid).map(
-          (value) => value.api
-        );
-      }
       authNameAndSchemes = this.parseAuthNameAndScheme(listResult, inputs);
 
       if (authNameAndSchemes.length > 0) {

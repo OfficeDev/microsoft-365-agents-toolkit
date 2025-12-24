@@ -15,33 +15,11 @@ import {
 import fs from "fs-extra";
 import { err, ok, Result } from "neverthrow";
 import path from "path";
-import { featureFlagManager, FeatureFlags } from "../../../common/featureFlags";
+import { parseAndUpdatePluginManifestForKiota } from "../../../common/daSpecParser";
 import { QuestionNames } from "../../../question";
 import { copilotGptManifestUtils } from "../../driver/teamsApp/utils/CopilotGptManifestUtils";
 import { defaultDeclarativeAgentActionId, defaultDeclarativeAgentManifestFileName } from "./const";
 import { copyKiotaFolder, generateAdaptiveCardInPluginManifestForKiota } from "./helper";
-import { parseAndUpdatePluginManifestForKiota } from "../../../common/daSpecParser";
-
-export function isKiotaIntegrated(inputs: Inputs): boolean {
-  return (
-    featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration) &&
-    inputs[QuestionNames.ActionManifestPath]
-  );
-}
-
-export async function getAuthDataFromKiota(
-  context: Context,
-  inputs: Inputs
-): Promise<
-  { authName: string; authType: "apiKey" | "oauth2"; registrationId: string }[] | undefined
-> {
-  // For Kiota integration, we need to get auth info here
-  if (isKiotaIntegrated(inputs)) {
-    const pluginManifestPath = inputs[QuestionNames.ActionManifestPath] as string;
-    return await parseAndUpdatePluginManifestForKiota(pluginManifestPath, false);
-  }
-  return undefined;
-}
 
 export async function kiotaPostProcess(
   context: Context,
