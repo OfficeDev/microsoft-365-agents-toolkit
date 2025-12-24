@@ -16,8 +16,8 @@ import AdmZip from "adm-zip";
 import FormData from "form-data";
 import fs from "fs-extra";
 import stripBom from "strip-bom";
-import { featureFlagManager, FeatureFlags } from "../../common/featureFlags";
 import { ErrorContextMW, TOOLS } from "../../common/globalVars";
+import { getDefaultString, getLocalizedString } from "../../common/localizeUtils";
 import { IsDeclarativeAgentManifest } from "../../common/projectTypeChecker";
 import {
   Component,
@@ -31,11 +31,10 @@ import { WrappedAxiosClient } from "../../common/wrappedAxiosClient";
 import { assembleError } from "../../error/common";
 import { ErrorCategory } from "../../error/types";
 import { AppUser } from "../driver/teamsApp/interfaces/appdefinitions/appUser";
+import { advancedDASettingUrl, M365HelpLink } from "./constants";
 import { NotExtendedToM365Error } from "./errors";
 import { M365AppDefinition, M365AppEntity } from "./interface";
 import { MosServiceEndpoint } from "./serviceConstant";
-import { getDefaultString, getLocalizedString } from "../../common/localizeUtils";
-import { advancedDASettingUrl, M365HelpLink } from "./constants";
 
 const M365ErrorSource = "M365";
 const M365ErrorComponent = "PackageService";
@@ -178,10 +177,7 @@ export class PackageService {
       throw new Error("Invalid app package zip. manifest.json is missing");
     }
     const isDelcarativeAgentApp = IsDeclarativeAgentManifest(manifest);
-    if (
-      isDelcarativeAgentApp &&
-      featureFlagManager.getBooleanValue(FeatureFlags.BuilderAPIEnabled)
-    ) {
+    if (isDelcarativeAgentApp) {
       const res = await this.sideLoadingV2(token, packagePath, appScope);
       let shareLink = "";
       if (appScope.toLowerCase() === AppScope.Shared.toLowerCase()) {
@@ -444,20 +440,18 @@ export class PackageService {
         },
       });
 
-      if (featureFlagManager.getBooleanValue(FeatureFlags.BuilderAPIEnabled)) {
-        try {
-          await this.axiosInstance.delete(`/builder/v1/users/titles/${titleId}`, {
-            baseURL: serviceUrl,
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
-        } catch (error: any) {
-          if (error.response && error.response.status === 404) {
-            this.logger?.debug(`TitleId ${titleId} not found, skip deleting.`);
-          } else {
-            throw error;
-          }
+      try {
+        await this.axiosInstance.delete(`/builder/v1/users/titles/${titleId}`, {
+          baseURL: serviceUrl,
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+      } catch (error: any) {
+        if (error.response && error.response.status === 404) {
+          this.logger?.debug(`TitleId ${titleId} not found, skip deleting.`);
+        } else {
+          throw error;
         }
       }
       this.logger?.verbose("Unacquiring done.");

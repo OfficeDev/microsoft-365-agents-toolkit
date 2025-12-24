@@ -25,7 +25,6 @@ export class FeatureFlagName {
   static readonly KiotaIntegration = "TEAMSFX_KIOTA_INTEGRATION";
   static readonly KiotaNPMIntegration = "TEAMSFX_KIOTA_NPM_INTEGRATION";
   static readonly CEAEnabled = "TEAMSFX_CEA_ENABLED";
-  static readonly BuilderAPIEnabled = "TEAMSFX_BUILDER_API";
   static readonly EmbeddedKnowledgeEnabled = "TEAMSFX_EMBEDDED_KNOWLEDGE";
   static readonly SandBoxedTeam = "TEAMSFX_SANDBOXED_TEAM";
   static readonly SensitivityLabelEnabled = "TEAMSFX_SENSITIVITY_LABEL";
@@ -88,10 +87,6 @@ export class FeatureFlags {
   static readonly CEAEnabled = {
     name: FeatureFlagName.CEAEnabled,
     defaultValue: "false",
-  };
-  static readonly BuilderAPIEnabled = {
-    name: FeatureFlagName.BuilderAPIEnabled,
-    defaultValue: "true",
   };
   static readonly EmbeddedKnowledgeEnabled = {
     name: FeatureFlagName.EmbeddedKnowledgeEnabled,
