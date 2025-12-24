@@ -239,7 +239,7 @@ export async function updateActionWithMCP(args?: any[]): Promise<Result<any, FxE
     const allMcpTools = vscode.lm.tools;
     tools = allMcpTools
       .filter((tool: vscode.LanguageModelToolInformation) =>
-        tool.name.toLowerCase().includes(`mcp_${(mcpName as string).toLowerCase()}`)
+        tool.name.includes(`mcp_${mcpName as string}`)
       )
       .map((tool: vscode.LanguageModelToolInformation) => {
         const index = tool.name.indexOf(mcpName);
@@ -248,7 +248,6 @@ export async function updateActionWithMCP(args?: any[]): Promise<Result<any, FxE
           name: newName,
           description: tool.description,
           inputSchema: tool.inputSchema,
-          tags: tool.tags,
         };
       });
   }

@@ -109,7 +109,7 @@ jobs:
         run: |
           files=(*)
           lists=""
-          emails="teamsfxqa@microsoft.com"
+          emails="teamsfxqa@microsoft.com;M365AgentsToolkitEngineerTeam@microsoft.com"
           valid=0
           invalid=0
 
@@ -162,7 +162,7 @@ jobs:
           subject="TeamsFx AKA Link Report ($valid/$total Passed)"
           if [ $invalid -gt 0 ]; then
             subject="[FAILED] $subject"
-            emails="$emails;zhendr@microsoft.com"
+            emails="$emails;zhenjiao@microsoft.com"
           else
             subject="[PASSED] $subject"
           fi

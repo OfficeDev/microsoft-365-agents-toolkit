@@ -46,7 +46,7 @@ jobs:
         run: |
           # Set email receiver based on trigger type
           if [ "${{ github.event_name }}" == "schedule" ]; then
-            echo "email-receiver=zhendr@microsoft.com;teamsfxqa@microsoft.com" >> $GITHUB_OUTPUT
+            echo "email-receiver=zhenjiao@microsoft.com;M365AgentsToolkitEngineerTeam@microsoft.com;teamsfxqa@microsoft.com" >> $GITHUB_OUTPUT
             echo "Schedule trigger: Using default email receivers"
           elif [ -n "${{ github.event.inputs.email-receiver }}" ]; then
             echo "email-receiver=${{ github.event.inputs.email-receiver }}" >> $GITHUB_OUTPUT

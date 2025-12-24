@@ -10,8 +10,6 @@ const windows_22 = [
   "sample-chef-bot",
   "sample-food-catalog",
   "sample-hello-world-tab-with-backend",
-  "sample-npm-search",
-  "sample-stock-update",
   "sample-query-org",
   "sample-assistant-dashboard",
   "sample-bot-sso",
@@ -19,7 +17,6 @@ const windows_22 = [
   "sample-copilot-connector-bot",
 ];
 const ubuntu_22 = [
-  "sample-adaptive-card",
   "sample-todo-list-sql",
   "sample-large-scale-notification",
   "sample-bot-sso-docker",

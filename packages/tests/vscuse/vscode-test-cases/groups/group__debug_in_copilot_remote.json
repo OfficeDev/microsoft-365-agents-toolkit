@@ -9,14 +9,14 @@
       "precondition_retry_interval": 2
     },
     "total_steps": 14,
-    "created_at": "2025-10-22T04:03:43.540680",
-    "generated_at": "2025-10-22T04:03:43.540667",
+    "created_at": "2025-12-11T03:06:21.085006",
     "name": "group: debug_in_copilot_remote",
     "description": {
+      "other": "Generated from recording r_0928_041352",
       "owner": "v-ivanchen@microsoft.com",
-      "workitem": "",
-      "other": "Generated from recording r_0928_041352"
+      "workitem": ""
     },
+    "generated_at": "2025-12-11T03:06:21.085006",
     "execution_order": [
       "step_1f4f9871",
       "step_21d33988",
@@ -36,349 +36,350 @@
     "tags": [
       "group"
     ],
-    "updated_at": "2025-10-22T05:26:48.721539"
+    "updated_at": "2025-12-22T03:14:00.976992"
   },
   "steps": [
     {
-      "agent": "interaction",
-      "description": "Press the F1 key to open the Command Palette in Visual Studio Code while viewing the Microsoft 365 Agents Toolkit workspace.",
       "step_id": "step_1f4f9871",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
-      "postconditions": [],
-      "screenshot": "step_1f4f9871",
-      "plan_id": "plan_r_0928_041352",
+      "agent": "interaction",
       "tool": "key_press",
       "parameters": {
         "key": "f1"
       },
+      "description": "Press the F1 key to open the Command Palette in Visual Studio Code while viewing the Microsoft 365 Agents Toolkit workspace.",
+      "content_refs": [],
       "timeout": 30,
+      "retry_count": 0,
       "continue_on_error": "false",
+      "depends_on": [],
       "preconditions": [
         "dhash:512:384:0:20:32836763286e6e2d"
       ],
+      "postconditions": [],
       "tags": [],
-      "created_at": "2025-10-22T04:03:43.561698"
+      "screenshot": "step_1f4f9871",
+      "created_at": "2025-12-22T03:13:53.267885",
+      "plan_id": "plan_r_0928_041352"
     },
     {
-      "agent": "interaction",
-      "description": "Type 'Debug: Select and Start Debugging' into the Visual Studio Code command palette input box at the top center of the interface.",
       "step_id": "step_21d33988",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
-      "postconditions": [],
-      "screenshot": "step_21d33988",
-      "plan_id": "plan_r_0928_041352",
+      "agent": "interaction",
       "tool": "type_text",
       "parameters": {
         "text": "Debug: Select and Start Debugging"
       },
+      "description": "Type 'Debug: Select and Start Debugging' into the Visual Studio Code command palette input box at the top center of the interface.",
+      "content_refs": [],
       "timeout": 30,
+      "retry_count": 0,
       "continue_on_error": "false",
+      "depends_on": [],
       "preconditions": [
         "dhash:512:384:0:20:cce44463382e6e2d"
       ],
+      "postconditions": [],
       "tags": [],
-      "created_at": "2025-10-22T04:03:43.584229"
+      "screenshot": "step_21d33988",
+      "created_at": "2025-12-22T03:13:53.275898",
+      "plan_id": "plan_r_0928_041352"
     },
     {
-      "agent": "interaction",
-      "description": "Click the \"Debug: Select and Start Debugging\" option in the command palette at the top of the Visual Studio Code window.",
       "step_id": "step_763cc4e5",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
-      "postconditions": [],
-      "screenshot": "step_763cc4e5",
-      "plan_id": "plan_r_0928_041352",
+      "agent": "interaction",
       "tool": "click",
       "parameters": {
+        "button": "left",
         "x": 379,
-        "y": 50,
-        "button": "left"
+        "y": 50
       },
+      "description": "Click the \"Debug: Select and Start Debugging\" option in the command palette at the top of the Visual Studio Code window.",
+      "content_refs": [],
       "timeout": 30,
+      "retry_count": 0,
       "continue_on_error": "false",
+      "depends_on": [],
       "preconditions": [
         "dhash:379:50:16:5:08649a1919c9498d",
         "dhash:379:50:96:5:48a636d591664463",
         "dhash:379:50:0:10:e4822323286e6e2d"
       ],
+      "postconditions": [],
       "tags": [],
-      "created_at": "2025-10-22T04:03:43.602396"
+      "screenshot": "step_763cc4e5",
+      "created_at": "2025-12-22T03:13:53.283894",
+      "plan_id": "plan_r_0928_041352"
     },
     {
-      "agent": "interaction",
-      "description": "Type \"Preview in Copilot (Chrome)\" into the VS Code \"Run and Debug\" configuration dropdown input at the top of the main window.",
       "step_id": "step_2bfda40e",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
-      "postconditions": [],
-      "screenshot": "step_2bfda40e",
-      "plan_id": "plan_r_0928_041352",
+      "agent": "interaction",
       "tool": "type_text",
       "parameters": {
         "text": "Preview in Copilot (Chrome)"
       },
+      "description": "Type \"Preview in Copilot (Chrome)\" into the VS Code \"Run and Debug\" configuration dropdown input at the top of the main window.",
+      "content_refs": [],
       "timeout": 30,
+      "retry_count": 0,
       "continue_on_error": "false",
+      "depends_on": [],
       "preconditions": [
         "dhash:512:384:0:20:ccc42723b82e6e2d"
       ],
+      "postconditions": [],
       "tags": [],
-      "created_at": "2025-10-22T04:03:43.619553"
+      "screenshot": "step_2bfda40e",
+      "created_at": "2025-12-22T03:13:53.291593",
+      "plan_id": "plan_r_0928_041352"
     },
     {
-      "agent": "interaction",
-      "description": "Press Enter to select \"Preview in Copilot (Chrome)\" from the run configuration dropdown in the Visual Studio Code toolbar.",
       "step_id": "step_e40f1af6",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
-      "postconditions": [],
-      "screenshot": "step_e40f1af6",
-      "plan_id": "plan_r_0928_041352",
+      "agent": "interaction",
       "tool": "key_press",
       "parameters": {
         "key": "enter"
       },
+      "description": "Press Enter to select \"Preview in Copilot (Chrome)\" from the run configuration dropdown in the Visual Studio Code toolbar.",
+      "content_refs": [],
       "timeout": 30,
+      "retry_count": 0,
       "continue_on_error": "false",
+      "depends_on": [],
       "preconditions": [
         "dhash:512:384:0:20:c4832723b82e6e2d"
       ],
+      "postconditions": [],
       "tags": [],
-      "created_at": "2025-10-22T04:03:43.632983"
+      "screenshot": "step_e40f1af6",
+      "created_at": "2025-12-22T03:13:53.300281",
+      "plan_id": "plan_r_0928_041352"
     },
     {
-      "agent": "interaction",
-      "description": "Click inside the \"Email or phone\" input field on the Microsoft Sign in page to focus the cursor for credential entry.",
       "step_id": "step_998a7696",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
-      "postconditions": [],
-      "screenshot": "step_998a7696",
-      "plan_id": "plan_r_0928_041352",
+      "agent": "interaction",
       "tool": "click",
       "parameters": {
+        "button": "left",
         "x": 551,
-        "y": 359,
-        "button": "left"
+        "y": 359
       },
+      "description": "Click inside the \"Email or phone\" input field on the Microsoft Sign in page to focus the cursor for credential entry.",
+      "content_refs": [],
       "timeout": 30,
+      "retry_count": 0,
       "continue_on_error": "false",
+      "depends_on": [],
       "preconditions": [
         "dhash:551:359:16:5:0000000000000000",
         "dhash:551:359:96:5:0000000000000000",
         "dhash:551:359:0:10:0b28d0d9e7e6dae4"
       ],
+      "postconditions": [],
       "tags": [
         "precondition_wait_timeout: 60"
       ],
-      "created_at": "2025-10-22T04:03:43.648202"
+      "screenshot": "step_998a7696",
+      "created_at": "2025-12-22T03:13:53.307131",
+      "plan_id": "plan_r_0928_041352"
     },
     {
-      "agent": "interaction",
-      "description": "Enter ${{env:M365_ACCOUNT_NAME}} into the \"Email or phone\" field on the Microsoft sign-in page in a Chrome browser.",
       "step_id": "step_73a699fd",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
-      "postconditions": [],
-      "screenshot": "step_73a699fd",
-      "plan_id": "plan_r_0928_041352",
+      "agent": "interaction",
       "tool": "type_text",
       "parameters": {
         "text": "${{env:M365_ACCOUNT_NAME}}"
       },
+      "description": "Enter ${{env:M365_ACCOUNT_NAME}} into the \"Email or phone\" field on the Microsoft sign-in page in a Chrome browser.",
+      "content_refs": [],
       "timeout": 30,
+      "retry_count": 0,
       "continue_on_error": "false",
+      "depends_on": [],
       "preconditions": [
         "dhash:512:384:0:20:1b28d0d9e7e6dae4"
       ],
+      "postconditions": [],
       "tags": [],
-      "created_at": "2025-10-22T04:03:43.664266"
+      "screenshot": "step_73a699fd",
+      "created_at": "2025-12-22T03:13:53.314800",
+      "plan_id": "plan_r_0928_041352"
     },
     {
-      "agent": "interaction",
-      "description": "Click the blue \"Next\" button on the Microsoft sign-in page after entering the email address ${{env:M365_ACCOUNT_NAME}} in the login.microsoftonline.com web interface.",
       "step_id": "step_4dad9f83",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
-      "postconditions": [],
-      "screenshot": "step_4dad9f83",
-      "plan_id": "plan_r_0928_041352",
+      "agent": "interaction",
       "tool": "click",
       "parameters": {
+        "button": "left",
         "x": 650,
-        "y": 490,
-        "button": "left"
+        "y": 490
       },
+      "description": "Click the blue \"Next\" button on the Microsoft sign-in page after entering the email address ${{env:M365_ACCOUNT_NAME}} in the login.microsoftonline.com web interface.",
+      "content_refs": [],
       "timeout": 30,
+      "retry_count": 0,
       "continue_on_error": "false",
+      "depends_on": [],
       "preconditions": [
         "dhash:650:490:16:5:d4dc48b440000000",
         "dhash:650:490:96:5:002bc3c32b004300",
         "dhash:650:490:0:10:1b28f0d9e7e6dae4"
       ],
+      "postconditions": [],
       "tags": [
         "delay: 5"
       ],
-      "created_at": "2025-10-22T04:03:43.681298"
+      "screenshot": "step_4dad9f83",
+      "created_at": "2025-12-22T03:13:53.320720",
+      "plan_id": "plan_r_0928_041352"
     },
     {
-      "agent": "interaction",
-      "description": "Click inside the \"Password\" input field on the Microsoft sign-in page to focus for password entry.",
       "step_id": "step_f83feee1",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
-      "postconditions": [],
-      "screenshot": "step_f83feee1",
-      "plan_id": "plan_r_0928_041352",
+      "agent": "interaction",
       "tool": "click",
       "parameters": {
+        "button": "left",
         "x": 535,
-        "y": 426,
-        "button": "left"
+        "y": 426
       },
+      "description": "Click inside the \"Password\" input field on the Microsoft sign-in page to focus for password entry.",
+      "content_refs": [],
       "timeout": 30,
+      "retry_count": 0,
       "continue_on_error": "false",
+      "depends_on": [],
       "preconditions": [
         "dhash:535:426:16:5:0000000000000000",
         "dhash:535:426:96:5:c000800000000000",
         "dhash:535:426:0:10:1b08f0d9d1e6e6e4"
       ],
+      "postconditions": [],
       "tags": [],
-      "created_at": "2025-10-22T04:03:43.697852"
+      "screenshot": "step_f83feee1",
+      "created_at": "2025-12-22T03:13:53.326808",
+      "plan_id": "plan_r_0928_041352"
     },
     {
-      "agent": "interaction",
-      "description": "Type  ${{secret:M365_ACCOUNT_PASSWORD}} into the Password field on the Microsoft login page for user ${{M365.AZURE_ACCOUNT_NAME}}.",
       "step_id": "step_5c6eb288",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
-      "postconditions": [],
-      "screenshot": "step_5c6eb288",
-      "plan_id": "plan_r_0928_041352",
+      "agent": "interaction",
       "tool": "type_text",
       "parameters": {
         "text": "${{secret:M365_ACCOUNT_PASSWORD}}"
       },
+      "description": "Type  ${{secret:M365_ACCOUNT_PASSWORD}} into the Password field on the Microsoft login page for user ${{M365.AZURE_ACCOUNT_NAME}}.",
+      "content_refs": [],
       "timeout": 30,
+      "retry_count": 0,
       "continue_on_error": "false",
+      "depends_on": [],
       "preconditions": [
         "dhash:512:384:0:20:1b08f0d9d1e6e6e4"
       ],
+      "postconditions": [],
       "tags": [
         "precondition_wait_timeout:60"
       ],
-      "created_at": "2025-10-22T04:03:43.713295"
+      "screenshot": "step_5c6eb288",
+      "created_at": "2025-12-22T03:13:53.333313",
+      "plan_id": "plan_r_0928_041352"
     },
     {
-      "agent": "interaction",
-      "description": "Click the \"Sign in\" button on the Microsoft login page after entering the password for ${{env:M365_ACCOUNT_NAME}}.",
       "step_id": "step_ae7fbcbb",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
-      "postconditions": [],
-      "screenshot": "step_ae7fbcbb",
-      "plan_id": "plan_r_0928_041352",
+      "agent": "interaction",
       "tool": "click",
       "parameters": {
+        "button": "left",
         "x": 631,
-        "y": 519,
-        "button": "left"
+        "y": 519
       },
+      "description": "Click the \"Sign in\" button on the Microsoft login page after entering the password for ${{env:M365_ACCOUNT_NAME}}.",
+      "content_refs": [],
       "timeout": 30,
+      "retry_count": 0,
       "continue_on_error": "false",
+      "depends_on": [],
       "preconditions": [
         "dhash:631:519:16:5:5a75554545d2c21b",
         "dhash:631:519:96:5:00008b65740a0000",
         "dhash:631:519:0:10:1b08f0d9d1e6e6e4"
       ],
+      "postconditions": [],
       "tags": [
         "delay: 5"
       ],
-      "created_at": "2025-10-22T04:03:43.729083"
+      "screenshot": "step_ae7fbcbb",
+      "created_at": "2025-12-22T03:13:53.340467",
+      "plan_id": "plan_r_0928_041352"
     },
     {
-      "agent": "interaction",
-      "description": "Click the \"Yes\" button in the Microsoft \"Stay signed in?\" dialog on the login.microsoftonline.com sign-in page.",
       "step_id": "step_c9a61771",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
-      "postconditions": [],
-      "screenshot": "step_c9a61771",
-      "plan_id": "plan_r_0928_041352",
+      "agent": "interaction",
       "tool": "click",
       "parameters": {
+        "button": "left",
         "x": 616,
-        "y": 534,
-        "button": "left"
+        "y": 534
       },
+      "description": "Click the \"Yes\" button in the Microsoft \"Stay signed in?\" dialog on the login.microsoftonline.com sign-in page.",
+      "content_refs": [],
       "timeout": 30,
+      "retry_count": 0,
       "continue_on_error": "false",
+      "depends_on": [],
       "preconditions": [
         "dhash:616:534:16:5:131a0b150a010400",
         "dhash:616:534:96:5:0025084c2c038000",
         "dhash:616:534:0:10:1808f0d9d9e6e6e4"
       ],
+      "postconditions": [],
       "tags": [],
-      "created_at": "2025-10-22T04:03:43.745288"
+      "screenshot": "step_c9a61771",
+      "created_at": "2025-12-22T03:13:53.346073",
+      "plan_id": "plan_r_0928_041352"
     },
     {
-      "agent": "interaction",
-      "description": "Zoom out the viewport in the browser displaying the \"Chat | M365 Copilot\" page by using the keyboard shortcut: Ctrl + -.",
       "step_id": "step_cc9e3f90",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
-      "postconditions": [],
-      "screenshot": "step_cc9e3f90",
-      "plan_id": "plan_r_0928_041352",
+      "agent": "interaction",
       "tool": "keyboard_shortcut",
       "parameters": {
         "keys": "ctrl+-"
       },
+      "description": "Zoom out the viewport in the browser displaying the \"Chat | M365 Copilot\" page by using the keyboard shortcut: Ctrl + -.",
+      "content_refs": [],
       "timeout": 30,
+      "retry_count": 0,
       "continue_on_error": "false",
+      "depends_on": [],
       "preconditions": [
         "dhash:512:384:0:20:13a282828a828282"
       ],
+      "postconditions": [],
       "tags": [
-        "delay: 30"
+        "delay: 30",
+        "force_run:true"
       ],
-      "created_at": "2025-10-22T04:03:43.764104"
+      "screenshot": "step_cc9e3f90",
+      "created_at": "2025-12-22T03:13:53.351672",
+      "plan_id": "plan_r_0928_041352"
     },
     {
-      "agent": "assertion",
-      "description": "@assertion  ${{var:app_name}}dev can be found.",
       "step_id": "step_074de24c",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
-      "postconditions": [],
-      "screenshot": "step_074de24c",
-      "plan_id": "plan_r_0928_041352",
+      "agent": "assertion",
       "tool": "",
       "parameters": {},
+      "description": "@assertion  ${{var:app_name}}dev can be found.",
+      "content_refs": [],
       "timeout": 30,
+      "retry_count": 0,
       "continue_on_error": "false",
+      "depends_on": [],
       "preconditions": [],
+      "postconditions": [],
       "tags": [
         "step_retry_timeout: 120",
         "delay: 10"
       ],
-      "created_at": "2025-10-22T04:03:43.781891"
+      "screenshot": "step_074de24c",
+      "created_at": "2025-12-22T03:13:53.359699",
+      "plan_id": "plan_r_0928_041352"
     }
   ],
   "screenshots": {

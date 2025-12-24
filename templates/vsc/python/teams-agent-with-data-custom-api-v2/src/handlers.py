@@ -1,7 +1,7 @@
 import json
 import os
 
-from microsoft.teams.cards import AdaptiveCard
+from microsoft_teams.cards import AdaptiveCard
 
 from lib.adaptive_card_renderer import AdaptiveCardRenderer
 from lib.requests_openapi import OpenAPIClient
