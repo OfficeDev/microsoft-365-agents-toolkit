@@ -306,7 +306,7 @@
                 },
                 "run_for_functions": {
                     "type": "array",
-                    "description": "The names of the functions that are available in this runtime. If this property is omitted, all functions described by the runtime are available. If a wildcard (\"*\") is specified as the only string, all functions are considered. More than one runtime MUST NOT declare support for the same function either implicitly or explicitly.",
+                    "description": "The names of the functions that are available in this runtime. If this property is omitted, all functions described by the runtime are available. If a wildcard (\\\"*\\\") is specified as the only string, all functions are considered. More than one runtime MUST NOT declare support for the same function either implicitly or explicitly",
                     "items": {
                         "type": "string"
                     }
@@ -330,7 +330,8 @@
         },
         "auth-object": {
             "type": "object",
-            "description": "Authentication configuration required to invoke the runtime.",
+            "title": "Runtime authentication object",
+            "description": "Contains information used by the plugin to authenticate to the runtime.",
             "required": ["type"],
             "properties": {
                 "type": {
