@@ -20,9 +20,7 @@ import {
   featureFlagManager,
   teamsDevPortalClient,
 } from "@microsoft/teamsfx-core";
-import * as semver from "semver";
 import * as vscode from "vscode";
-import { IsChatParticipantEnabled } from "./chat/consts";
 import {
   AadAppTemplateCodeLensProvider,
   ApiPluginCodeLensProvider,
@@ -201,9 +199,6 @@ import { ExtensionSurvey } from "./utils/survey";
 import { getSettingsVersion, projectVersionCheck } from "./utils/telemetryUtils";
 
 export async function activate(context: vscode.ExtensionContext) {
-  const value = IsChatParticipantEnabled && semver.gte(vscode.version, "1.90.0");
-  featureFlagManager.setBooleanValue(FeatureFlags.ChatParticipant, value);
-
   // control whether to show chat participant ui entries
   const shouldEnableChatParticipantUIEntries =
     releaseControlledFeatureSettings.shouldEnableTeamsCopilotChatUI;
