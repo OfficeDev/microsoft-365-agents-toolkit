@@ -56,7 +56,6 @@ import { TelemetryEvent } from "../../src/common/telemetry";
 import templateConfigModule from "../../src/common/templates-config.json";
 import * as CommonTools from "../../src/common/tools";
 import { MetadataV3, VersionSource, VersionState } from "../../src/common/versionMetadata";
-import { ActionInjector } from "../../src/component/configManager/actionInjector";
 import {
   DriverDefinition,
   DriverInstance,
@@ -68,7 +67,6 @@ import {
   UnresolvedPlaceholders,
 } from "../../src/component/configManager/interface";
 import { YamlParser } from "../../src/component/configManager/parser";
-import { LocalMcpPrefix } from "../../src/component/constants";
 import { coordinator } from "../../src/component/coordinator";
 import { UpdateAadAppDriver } from "../../src/component/driver/aad/update";
 import * as buildAadManifest from "../../src/component/driver/aad/utility/buildAadManifest";
@@ -528,7 +526,7 @@ describe("Core basic APIs", () => {
 
       assert.include(
         res.error.message,
-        "For new Microsoft 365 Agents Toolkit projects, make sure you've run provision or debug to set these variables correctly."
+        "For new projects, run local debugging or provision a remote environment to set these variables."
       );
     }
   });
