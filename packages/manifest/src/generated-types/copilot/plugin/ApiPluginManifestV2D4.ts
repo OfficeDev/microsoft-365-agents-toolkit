@@ -1,8 +1,8 @@
 // To parse this data:
 //
-//   import { Convert, APIPluginManifestV2D2 } from "./file";
+//   import { Convert, APIPluginManifestV2D4 } from "./file";
 //
-//   const aPIPluginManifestV2D2 = Convert.toAPIPluginManifestV2D2(json);
+//   const aPIPluginManifestV2D4 = Convert.toAPIPluginManifestV2D4(json);
 //
 // These functions will throw an error if the JSON doesn't
 // match the expected interface, even if the JSON is valid.
@@ -11,11 +11,11 @@
  * The root of the plugin manifest document is a JSON object that contains members that
  * describe the plugin.
  */
-export interface APIPluginManifestV2D2 {
+export interface APIPluginManifestV2D4 {
     /**
-     * The schema version. Previous versions are `v1` and `v2`, `v2.1`.
+     * The schema version. Previous versions are `v1`, `v2`, `v2.1`, `v2.2`, and `v2.3`.
      */
-    schema_version: "v2.2";
+    schema_version: "v2.4";
     /**
      * A short, human-readable name for the plugin. It MUST contain at least one nonwhitespace
      * character. Characters beyond 20 MAY be ignored. This property is localizable.
@@ -24,7 +24,7 @@ export interface APIPluginManifestV2D2 {
     /**
      * An identifier used to prevent name conflicts between function names from different
      * plugins that are used within the same execution context. The value MUST match the regex
-     * ^[A-Za-z0-9_]+ as defined by [RFC9485]. This is a required member.
+     * ^[A-Za-z0-9-]+ as defined by [RFC9485]. This is a required member.
      */
     namespace: string;
     /**
@@ -66,7 +66,7 @@ export interface APIPluginManifestV2D2 {
      */
     functions?: FunctionObject[];
     /**
-     * A set of runtime objects describing the runtimes used by the plugin.
+     * A list of runtime configurations that determine how functions are invoked.
      */
     runtimes?: APIPluginManifestV2D[];
     /**
@@ -186,6 +186,12 @@ export interface ConfirmationObject {
      * The text of the confirmation dialog. This property is localizable.
      */
     body?: string;
+    /**
+     * Indicates the function is non-consequential. If true users may choose Always Allow.
+     * Default false. For OpenAPI GET only and ignored if x-oai-isConsequential is present or
+     * method != GET.
+     */
+    isNonConsequential?: boolean;
     [property: string]: any;
 }
 
@@ -213,13 +219,16 @@ export interface ResponseSemanticsObject {
      */
     properties?: ResponseSemanticsPropertiesObject;
     /**
-     * A JSON object that conforms with the [Adaptive Card
-     * Schema](https://adaptivecards.io/schemas/adaptive-card.json) and templating language.
+     * A JSON object that either: conforms with the [Adaptive Card
+     * Schema](https://adaptivecards.io/schemas/adaptive-card.json) and templating language, or
+     * contains a `file` property that references a file containing the Adaptive Card Schema.
      * This Adaptive Card instance is used to render a result from the plugin response. This
      * value is used if the `template_selector` isn't present or fails to resolve to an adaptive
-     * card.
+     * card. If using the file reference option, the value of `file` MUST be a relative path to
+     * a JSON file containing a valid Adaptive Card Schema. The path is relative to the location
+     * of the manifest document.
      */
-    static_template?: { [key: string]: any };
+    static_template?: StaticTemplate;
     /**
      * A JSON string containing a JSONPath query that when applied to the response payload will
      * return an [Adaptive Card
@@ -261,6 +270,31 @@ export interface ResponseSemanticsPropertiesObject {
      * response to be used for rendering the result.
      */
     template_selector?: string;
+    [property: string]: any;
+}
+
+/**
+ * A JSON object that either: conforms with the [Adaptive Card
+ * Schema](https://adaptivecards.io/schemas/adaptive-card.json) and templating language, or
+ * contains a `file` property that references a file containing the Adaptive Card Schema.
+ * This Adaptive Card instance is used to render a result from the plugin response. This
+ * value is used if the `template_selector` isn't present or fails to resolve to an adaptive
+ * card. If using the file reference option, the value of `file` MUST be a relative path to
+ * a JSON file containing a valid Adaptive Card Schema. The path is relative to the location
+ * of the manifest document.
+ *
+ * An inline Adaptive Card definition that conforms with the Adaptive Card Schema and
+ * templating language.
+ *
+ * A file reference to an Adaptive Card definition. The file property MUST contain a
+ * relative path to a JSON file containing a valid Adaptive Card Schema.
+ */
+export interface StaticTemplate {
+    /**
+     * A relative path to a JSON file containing a valid Adaptive Card Schema. The path is
+     * relative to the location of the manifest document.
+     */
+    file?: string;
     [property: string]: any;
 }
 
@@ -379,21 +413,18 @@ export interface StateObject {
 }
 
 /**
- * A JSON object that describes the mechanics of how a function will be invoked. More than
- * one runtime MUST NOT declare support for the same function either implicitly or
- * explicitly using `run_for_functions`.
+ * Defines how a specific runtime invokes functions, including auth and spec details.
  */
 export interface APIPluginManifestV2D {
     /**
-     * The type of runtime. Must be 'OpenApi' or 'LocalPlugin'.
+     * The type of runtime. Must be 'OpenApi', 'LocalPlugin', or 'RemoteMCPServer'.
      */
     type: RuntimeType;
     auth: RuntimeAuthenticationObject;
     /**
-     * The names of the functions that are available in this runtime. If this property is
-     * omitted, all functions described by the runtime are available. If a wildcard (\"*\") is
-     * specified as the only string, all functions are considered. More than one runtime MUST
-     * NOT declare support for the same function either implicitly or explicitly
+     * The names of the functions that are available in this runtime. A single wildcard ("*")
+     * value can be provided to enable all functions in the OpenAPI description. More than one
+     * runtime MUST NOT declare support for the same function either implicitly or explicitly.
      */
     run_for_functions?: string[];
     /**
@@ -438,11 +469,15 @@ export type TypeEnum = "None" | "OAuthPluginVault" | "ApiKeyPluginVault";
  * Configuration for invoking an OpenAPI-based runtime.
  *
  * Configuration for invoking a local plugin runtime.
+ *
+ * Configuration for invoking a remote MCP server runtime.
  */
 export interface Spec {
     /**
-     * The URL to fetch the OpenAPI specification, called with a GET request. This member is
-     * required unless `api_description` is present
+     * The URL to the OpenAPI specification (ignored if api_description is present).
+     *
+     * A JSON string that represents the URL of the MCP server. This URL MUST be a valid
+     * absolute URL. This member is required when the type is RemoteMCPServer.
      */
     url?: string;
     /**
@@ -463,7 +498,21 @@ export interface Spec {
      * the string Microsoft.Office.Addin.
      */
     local_endpoint?: "Microsoft.Office.Addin";
+    /**
+     * An optional JSON array of enumerated strings that can take values as mail, workbook,
+     * document or presentation. The value represent the host apps this LocalPlugin can run-in.
+     */
+    allowed_host?: AllowedHost[];
+    /**
+     * A JSON object that contains either a reference to an external MCP tool description file
+     * or inline tool definitions. When present, this indicates that static tool definitions
+     * should be used instead of dynamic discovery. When absent, the runtime MUST use dynamic
+     * tool discovery by calling the MCP server's tools/list method.
+     */
+    mcp_tool_description?: MCPTool;
 }
+
+export type AllowedHost = "mail" | "workbook" | "document" | "presentation";
 
 /**
  * A JSON string that represents a local runtime identifier that links to a specific
@@ -473,6 +522,27 @@ export interface Spec {
  */
 
 /**
+ * A JSON object that contains either a reference to an external MCP tool description file
+ * or inline tool definitions. When present, this indicates that static tool definitions
+ * should be used instead of dynamic discovery. When absent, the runtime MUST use dynamic
+ * tool discovery by calling the MCP server's tools/list method.
+ *
+ * A reference to an external MCP tool description file.
+ *
+ * Inline tool definitions matching the format returned by the MCP server's tools/list
+ * method.
+ */
+export interface MCPTool {
+    /**
+     * A string that identifies the relative path to the MCP tool description file within the
+     * app package. The file MUST be a valid JSON file that contains tool descriptions matching
+     * the format returned by the MCP server's tools/list method.
+     */
+    file?: string;
+    [property: string]: any;
+}
+
+/**
  * A JSON string that contains the progress style that will be used to display the progress
  * of the function. The value MUST be one of the following values: None, ShowUsage,
  * ShowUsageWithInput, ShowUsageWithInputAndOutput.
@@ -480,19 +550,19 @@ export interface Spec {
 export type ProgressStyle = "None" | "ShowUsage" | "ShowUsageWithInput" | "ShowUsageWithInputAndOutput";
 
 /**
- * The type of runtime. Must be 'OpenApi' or 'LocalPlugin'.
+ * The type of runtime. Must be 'OpenApi', 'LocalPlugin', or 'RemoteMCPServer'.
  */
-export type RuntimeType = "OpenApi" | "LocalPlugin";
+export type RuntimeType = "OpenApi" | "LocalPlugin" | "RemoteMCPServer";
 
 // Converts JSON strings to/from your types
 // and asserts the results of JSON.parse at runtime
 export class Convert {
-    public static toAPIPluginManifestV2D2(json: string): APIPluginManifestV2D2 {
-        return cast(JSON.parse(json), r("APIPluginManifestV2D2"));
+    public static toAPIPluginManifestV2D4(json: string): APIPluginManifestV2D4 {
+        return cast(JSON.parse(json), r("APIPluginManifestV2D4"));
     }
 
-    public static aPIPluginManifestV2D2ToJson(value: APIPluginManifestV2D2): string {
-        return JSON.stringify(uncast(value, r("APIPluginManifestV2D2")), null, 4);
+    public static aPIPluginManifestV2D4ToJson(value: APIPluginManifestV2D4): string {
+        return JSON.stringify(uncast(value, r("APIPluginManifestV2D4")), null, 4);
     }
 }
 
@@ -649,7 +719,7 @@ function r(name: string) {
 }
 
 const typeMap: any = {
-    "APIPluginManifestV2D2": o([
+    "APIPluginManifestV2D4": o([
         { json: "schema_version", js: "schema_version", typ: r("SchemaVersion") },
         { json: "name_for_human", js: "name_for_human", typ: "" },
         { json: "namespace", js: "namespace", typ: "" },
@@ -688,11 +758,12 @@ const typeMap: any = {
         { json: "type", js: "type", typ: u(undefined, r("ConfirmationType")) },
         { json: "title", js: "title", typ: u(undefined, "") },
         { json: "body", js: "body", typ: u(undefined, "") },
+        { json: "isNonConsequential", js: "isNonConsequential", typ: u(undefined, true) },
     ], "any"),
     "ResponseSemanticsObject": o([
         { json: "data_path", js: "data_path", typ: "" },
         { json: "properties", js: "properties", typ: u(undefined, r("ResponseSemanticsPropertiesObject")) },
-        { json: "static_template", js: "static_template", typ: u(undefined, m("any")) },
+        { json: "static_template", js: "static_template", typ: u(undefined, r("StaticTemplate")) },
         { json: "oauth_card_path", js: "oauth_card_path", typ: u(undefined, "") },
     ], "any"),
     "ResponseSemanticsPropertiesObject": o([
@@ -702,6 +773,9 @@ const typeMap: any = {
         { json: "thumbnail_url", js: "thumbnail_url", typ: u(undefined, "") },
         { json: "information_protection_label", js: "information_protection_label", typ: u(undefined, "") },
         { json: "template_selector", js: "template_selector", typ: u(undefined, "") },
+    ], "any"),
+    "StaticTemplate": o([
+        { json: "file", js: "file", typ: u(undefined, "") },
     ], "any"),
     "SecurityInfoObject": o([
         { json: "data_handling", js: "data_handling", typ: u(undefined, a(r("DataHandling"))) },
@@ -742,7 +816,12 @@ const typeMap: any = {
         { json: "api_description", js: "api_description", typ: u(undefined, "") },
         { json: "progress_style", js: "progress_style", typ: u(undefined, r("ProgressStyle")) },
         { json: "local_endpoint", js: "local_endpoint", typ: u(undefined, r("LocalEndpoint")) },
+        { json: "allowed_host", js: "allowed_host", typ: u(undefined, a(r("AllowedHost"))) },
+        { json: "mcp_tool_description", js: "mcp_tool_description", typ: u(undefined, r("MCPTool")) },
     ], false),
+    "MCPTool": o([
+        { json: "file", js: "file", typ: u(undefined, "") },
+    ], "any"),
     "ConfirmationType": [
         "AdaptiveCard",
         "None",
@@ -767,6 +846,12 @@ const typeMap: any = {
         "None",
         "OAuthPluginVault",
     ],
+    "AllowedHost": [
+        "document",
+        "mail",
+        "presentation",
+        "workbook",
+    ],
     "LocalEndpoint": [
         "Microsoft.Office.Addin",
     ],
@@ -779,8 +864,9 @@ const typeMap: any = {
     "RuntimeType": [
         "LocalPlugin",
         "OpenApi",
+        "RemoteMCPServer",
     ],
     "SchemaVersion": [
-        "v2.2",
+        "v2.4",
     ],
 };

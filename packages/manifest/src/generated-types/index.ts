@@ -16,6 +16,7 @@ import * as DeclarativeAgentManifestV1D6 from "./copilot/declarative-agent/Decla
 import * as APIPluginManifestV2D1 from "./copilot/plugin/ApiPluginManifestV2D1";
 import * as APIPluginManifestV2D2 from "./copilot/plugin/ApiPluginManifestV2D2";
 import * as APIPluginManifestV2D3 from "./copilot/plugin/ApiPluginManifestV2D3";
+import * as APIPluginManifestV2D4 from "./copilot/plugin/ApiPluginManifestV2D4";
 import * as TeamsManifestV1D0 from "./teams/TeamsManifestV1D0";
 import * as TeamsManifestV1D1 from "./teams/TeamsManifestV1D1";
 import * as TeamsManifestV1D10 from "./teams/TeamsManifestV1D10";
@@ -31,6 +32,8 @@ import * as TeamsManifestV1D2 from "./teams/TeamsManifestV1D2";
 import * as TeamsManifestV1D20 from "./teams/TeamsManifestV1D20";
 import * as TeamsManifestV1D21 from "./teams/TeamsManifestV1D21";
 import * as TeamsManifestV1D22 from "./teams/TeamsManifestV1D22";
+import * as TeamsManifestV1D23 from "./teams/TeamsManifestV1D23";
+import * as TeamsManifestV1D24 from "./teams/TeamsManifestV1D24";
 import * as TeamsManifestV1D3 from "./teams/TeamsManifestV1D3";
 import * as TeamsManifestV1D4 from "./teams/TeamsManifestV1D4";
 import * as TeamsManifestV1D5 from "./teams/TeamsManifestV1D5";
@@ -43,6 +46,7 @@ export {
   APIPluginManifestV2D1,
   APIPluginManifestV2D2,
   APIPluginManifestV2D3,
+  APIPluginManifestV2D4,
   DeclarativeAgentManifestV1D0,
   DeclarativeAgentManifestV1D2,
   DeclarativeAgentManifestV1D3,
@@ -63,6 +67,9 @@ export {
   TeamsManifestV1D2,
   TeamsManifestV1D20,
   TeamsManifestV1D21,
+  TeamsManifestV1D22,
+  TeamsManifestV1D23,
+  TeamsManifestV1D24,
   TeamsManifestV1D3,
   TeamsManifestV1D4,
   TeamsManifestV1D5,
@@ -97,6 +104,8 @@ export type TeamsManifest =
   | TeamsManifestV1D20.TeamsManifestV1D20
   | TeamsManifestV1D21.TeamsManifestV1D21
   | TeamsManifestV1D22.TeamsManifestV1D22
+  | TeamsManifestV1D23.TeamsManifestV1D23
+  | TeamsManifestV1D24.TeamsManifestV1D24
   | TeamsManifestVDevPreview.TeamsManifestVDevPreview;
 
 export type TeamsManifestLatest = TeamsManifestV1D21.TeamsManifestV1D21;
@@ -117,8 +126,9 @@ export type DeclarativeAgentManifestLatest =
 export type APIPluginManifest =
   | APIPluginManifestV2D1.APIPluginManifestV2D1
   | APIPluginManifestV2D2.APIPluginManifestV2D2
-  | APIPluginManifestV2D3.APIPluginManifestV2D3;
-export type APIPluginManifestLatest = APIPluginManifestV2D3.APIPluginManifestV2D3;
+  | APIPluginManifestV2D3.APIPluginManifestV2D3
+  | APIPluginManifestV2D4.APIPluginManifestV2D4;
+export type APIPluginManifestLatest = APIPluginManifestV2D4.APIPluginManifestV2D4;
 
 export type AppManifest = TeamsManifest | DeclarativeAgentManifest | APIPluginManifest;
 
@@ -210,6 +220,14 @@ const TeamsManifestConverterMap: Converters = {
     TeamsManifestV1D22.Convert.toTeamsManifestV1D22,
     TeamsManifestV1D22.Convert.teamsManifestV1D22ToJson,
   ],
+  "1.23": [
+    TeamsManifestV1D23.Convert.toTeamsManifestV1D23,
+    TeamsManifestV1D23.Convert.teamsManifestV1D23ToJson,
+  ],
+  "1.24": [
+    TeamsManifestV1D24.Convert.toTeamsManifestV1D24,
+    TeamsManifestV1D24.Convert.teamsManifestV1D24ToJson,
+  ],
   devPreview: [
     TeamsManifestVDevPreview.Convert.toTeamsManifestVDevPreview,
     TeamsManifestVDevPreview.Convert.teamsManifestVDevPreviewToJson,
@@ -245,6 +263,10 @@ const ApiPluginConverterMap: Converters = {
   "v2.3": [
     APIPluginManifestV2D3.Convert.toAPIPluginManifestV2D3,
     APIPluginManifestV2D3.Convert.aPIPluginManifestV2D3ToJson,
+  ],
+  "v2.4": [
+    APIPluginManifestV2D4.Convert.toAPIPluginManifestV2D4,
+    APIPluginManifestV2D4.Convert.aPIPluginManifestV2D4ToJson,
   ],
 };
 
@@ -335,9 +357,7 @@ export class AppManifestUtils {
     try {
       const res = await fetch(schemaUrl);
       const text = await res.text();
-      const cleanedText = text
-        .replace(/\\a/g, "\\u0007")
-        .replace(/\\v/g, "\\u000b");
+      const cleanedText = text.replace(/\\a/g, "\\u0007").replace(/\\v/g, "\\u000b");
       result = JSON.parse(cleanedText) as JSONSchemaType<AppManifest>;
     } catch (e: unknown) {
       if (e instanceof Error) {

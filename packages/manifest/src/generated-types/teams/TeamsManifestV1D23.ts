@@ -1,20 +1,20 @@
 // To parse this data:
 //
-//   import { Convert, TeamsManifestV1D19 } from "./file";
+//   import { Convert, TeamsManifestV1D23 } from "./file";
 //
-//   const teamsManifestV1D19 = Convert.toTeamsManifestV1D19(json);
+//   const teamsManifestV1D23 = Convert.toTeamsManifestV1D23(json);
 //
 // These functions will throw an error if the JSON doesn't
 // match the expected interface, even if the JSON is valid.
 
-export interface TeamsManifestV1D19 {
+export interface TeamsManifestV1D23 {
     $schema?: string;
     /**
      * The version of the schema this manifest is using. This schema version supports extending
      * Teams apps to other parts of the Microsoft 365 ecosystem. More info at
      * https://aka.ms/extendteamsapps.
      */
-    manifestVersion: "1.19";
+    manifestVersion: "1.23";
     /**
      * The version of the app. Changes to your manifest should cause a version change. This
      * version string must follow the semver standard (http://semver.org).
@@ -26,7 +26,7 @@ export interface TeamsManifestV1D19 {
     id:                string;
     localizationInfo?: LocalizationInfo;
     developer:         Developer;
-    name:              Name;
+    name:              NameClass;
     description:       Description;
     icons:             Icons;
     /**
@@ -132,7 +132,7 @@ export interface TeamsManifestV1D19 {
     /**
      * Specify and consolidates authorization related information for the App.
      */
-    authorization?: TeamsManifestV1D19Authorization;
+    authorization?: TeamsManifestV1D23Authorization;
     extensions?:    ElementExtension[];
     /**
      * Defines the list of cards which could be pinned to dashboards that can provide summarized
@@ -140,6 +140,17 @@ export interface TeamsManifestV1D19 {
      */
     dashboardCards?: DashboardCard[];
     copilotAgents?:  CopilotAgents;
+    /**
+     * The Intune-related properties for the app.
+     */
+    intuneInfo?:             IntuneInfo;
+    elementRelationshipSet?: ElementRelationshipSet;
+    /**
+     * Optional property containing background loading configuration. By opting in to this
+     * performance enhancement, your app is eligible to be loaded in the background in any
+     * Microsoft 365 application host that supports this feature.
+     */
+    backgroundLoadConfiguration?: BackgroundLoadConfiguration;
 }
 
 export interface Activities {
@@ -147,18 +158,37 @@ export interface Activities {
      * Specify the types of activites that your app can post to a users activity feed
      */
     activityTypes?: ActivityType[];
+    /**
+     * Specify the customized icons that your app can post to a users activity feed
+     */
+    activityIcons?: ActivityIcon[];
+}
+
+export interface ActivityIcon {
+    /**
+     * Represents the unique icon ID.
+     */
+    id: string;
+    /**
+     * Represents the relative path to the icon image. Image should be size 32x32.
+     */
+    iconFile: string;
 }
 
 export interface ActivityType {
     type:         string;
     description:  string;
     templateText: string;
+    /**
+     * An array containing valid icon IDs per activity type.
+     */
+    allowedIconIds?: string[];
 }
 
 /**
  * Specify and consolidates authorization related information for the App.
  */
-export interface TeamsManifestV1D19Authorization {
+export interface TeamsManifestV1D23Authorization {
     /**
      * List of permissions that the app needs to function.
      */
@@ -191,6 +221,31 @@ export interface ResourceSpecific {
  */
 export type ResourceSpecificType = "Application" | "Delegated";
 
+/**
+ * Optional property containing background loading configuration. By opting in to this
+ * performance enhancement, your app is eligible to be loaded in the background in any
+ * Microsoft 365 application host that supports this feature.
+ */
+export interface BackgroundLoadConfiguration {
+    /**
+     * Optional property within backgroundLoadConfiguration containing tab settings for
+     * background loading.
+     */
+    tabConfiguration?: TabConfiguration;
+}
+
+/**
+ * Optional property within backgroundLoadConfiguration containing tab settings for
+ * background loading.
+ */
+export interface TabConfiguration {
+    /**
+     * Required URL for background loading. This can be the same contentUrl from the staticTabs
+     * section or an alternative endpoint used for background loading.
+     */
+    contentUrl: string;
+}
+
 export interface Bot {
     /**
      * The Microsoft App ID specified for the bot in the Bot Framework portal
@@ -222,8 +277,8 @@ export interface Bot {
     supportsVideo?: boolean;
     /**
      * Specifies whether the bot offers an experience in the context of a channel in a team, in
-     * a 1:1 or group chat, or in an experience scoped to an individual user alone. These
-     * options are non-exclusive.
+     * a group chat (groupChat), an experience scoped to an individual user alone (personal) OR
+     * within Copilot surfaces. These options are non-exclusive.
      */
     scopes: CommandListScope[];
     /**
@@ -231,7 +286,13 @@ export interface Bot {
      * scope for which the commands are valid. A separate command list should be used for each
      * scope.
      */
-    commandLists?: CommandList[];
+    commandLists?:   CommandList[];
+    requirementSet?: ElementRequirementSet;
+    /**
+     * System‑generated metadata. This information is maintained by Microsoft services and must
+     * not be modified manually.
+     */
+    registrationInfo?: RegistrationInfo;
 }
 
 export interface CommandList {
@@ -253,7 +314,7 @@ export interface CommandListCommand {
     description: string;
 }
 
-export type CommandListScope = "team" | "personal" | "groupChat";
+export type CommandListScope = "team" | "personal" | "groupChat" | "copilot";
 
 export interface Configuration {
     team?:      Team;
@@ -286,7 +347,69 @@ export interface TaskInfo {
     url?: string;
 }
 
+/**
+ * System‑generated metadata. This information is maintained by Microsoft services and must
+ * not be modified manually.
+ */
+export interface RegistrationInfo {
+    /**
+     * The partner source through which the bot is registered. System‑generated metadata. This
+     * information is maintained by Microsoft services and must not be modified manually.
+     */
+    source: Source;
+    /**
+     * A Power Platform environment that serves as a container for building apps under a
+     * Microsoft 365 tenant and can only be accessed by users within that tenant.
+     * System‑generated metadata. This information is maintained by Microsoft services and must
+     * not be modified manually.
+     */
+    environment?: string;
+    /**
+     * The Copilot Studio copilot schema name. System‑generated metadata. This information is
+     * maintained by Microsoft services and must not be modified manually.
+     */
+    schemaName?: string;
+    /**
+     * The core services cluster category for Copilot Studio copilots. System‑generated
+     * metadata. This information is maintained by Microsoft services and must not be modified
+     * manually.
+     */
+    clusterCategory?: string;
+}
+
+/**
+ * The partner source through which the bot is registered. System‑generated metadata. This
+ * information is maintained by Microsoft services and must not be modified manually.
+ */
+export type Source = "standard" | "microsoftCopilotStudio" | "onedriveSharepoint";
+
+/**
+ * An object representing a set of requirements that the host must support for the element.
+ */
+export interface ElementRequirementSet {
+    hostMustSupportFunctionalities: HostFunctionality[];
+}
+
+/**
+ * An object representing a specific functionality that a host must support.
+ */
+export interface HostFunctionality {
+    /**
+     * The name of the functionality.
+     */
+    name: HostMustSupportFunctionalityName;
+}
+
+/**
+ * The name of the functionality.
+ */
+export type HostMustSupportFunctionalityName = "dialogUrl" | "dialogUrlBot" | "dialogAdaptiveCard" | "dialogAdaptiveCardBot";
+
 export interface ComposeExtension {
+    /**
+     * A unique identifier for the compose extension.
+     */
+    id?: string;
     /**
      * The Microsoft App ID specified for the bot powering the compose extension in the Bot
      * Framework portal (https://dev.botframework.com/bots)
@@ -314,6 +437,7 @@ export interface ComposeExtension {
      * A list of handlers that allow apps to be invoked when certain conditions are met
      */
     messageHandlers?: MessageHandler[];
+    requirementSet?:  ElementRequirementSet;
 }
 
 /**
@@ -499,12 +623,15 @@ export interface Value {
      * flow.
      */
     supportsAnonymizedPayloads?: boolean;
-    [property: string]: any;
 }
 
 export type ConfigurableProperty = "name" | "shortDescription" | "longDescription" | "smallImageUrl" | "largeImageUrl" | "accentColor" | "developerUrl" | "privacyUrl" | "termsOfUseUrl";
 
 export interface ConfigurableTab {
+    /**
+     * A unique identifier for the tab. This id must be unique within the app manifest.
+     */
+    id?: string;
     /**
      * The url to use when configuring the tab.
      */
@@ -570,8 +697,41 @@ export interface CopilotAgents {
      * An array of declarative agent elements references. Currently, only one declarative agent
      * per application is supported.
      */
-    declarativeAgents: DeclarativeAgentRef[];
+    declarativeAgents?: DeclarativeAgentRef[];
+    /**
+     * An array of Custom Engine Agents. Currently only one Custom Engine Agent per application
+     * is supported. Support is currently in public preview.
+     */
+    customEngineAgents?: CustomEngineAgent[];
 }
+
+export interface CustomEngineAgent {
+    /**
+     * The id of the Custom Engine Agent. If it is of type bot, the id must match the id
+     * specified in a bot in the bots node and the referenced bot must have personal scope. The
+     * app short name and short description must also be defined.
+     */
+    id: string;
+    /**
+     * The type of the Custom Engine Agent. Currently only type bot is supported.
+     */
+    type:        "bot";
+    disclaimer?: Disclaimer;
+}
+
+export interface Disclaimer {
+    /**
+     * The message shown to users before they interact with this application.
+     */
+    text: string;
+    [property: string]: any;
+}
+
+/**
+ * The type of the Custom Engine Agent. Currently only type bot is supported.
+ *
+ * The content of the dashboard card is sourced from a bot.
+ */
 
 /**
  * A reference to a declarative agent element. The element's definition is in a separate
@@ -642,10 +802,6 @@ export interface BotConfiguration {
 }
 
 /**
- * The content of the dashboard card is sourced from a bot.
- */
-
-/**
  * Rendering Size for dashboard card.
  */
 export type DefaultSize = "medium" | "large";
@@ -703,7 +859,7 @@ export type Groupchat = "tab" | "bot" | "connector";
  * The install scope defined for this app by default. This will be the option displayed on
  * the button when a user tries to add the app
  */
-export type DefaultInstallScope = "personal" | "team" | "groupChat" | "meetings";
+export type DefaultInstallScope = "personal" | "team" | "groupChat" | "meetings" | "copilot";
 
 export interface Description {
     /**
@@ -744,15 +900,54 @@ export interface Developer {
 
 export type DevicePermission = "geolocation" | "media" | "notifications" | "midi" | "openExternal";
 
+export interface ElementRelationshipSet {
+    /**
+     * An array containing multiple instances of unidirectional dependency relationships (each
+     * represented by a oneWayDependency object).
+     */
+    oneWayDependencies?: OneWayDependency[];
+    /**
+     * An array containing multiple instances of mutual dependency relationships between
+     * elements (each represented by a mutualDependency object).
+     */
+    mutualDependencies?: Array<ElementReference[]>;
+}
+
+/**
+ * A specific instance of mutual dependency between two or more elements, indicating that
+ * each element depends on the others in a bidirectional manner.
+ */
+export interface ElementReference {
+    name:        MutualDependencyName;
+    id:          string;
+    commandIds?: string[];
+}
+
+export type MutualDependencyName = "bots" | "staticTabs" | "composeExtensions" | "configurableTabs";
+
+/**
+ * An object representing a unidirectional dependency relationship, where one specific
+ * element (referred to as the `element`) relies on an array of other elements (referred to
+ * as the `dependsOn`) in a single direction.
+ */
+export interface OneWayDependency {
+    element:   ElementReference;
+    dependsOn: ElementReference[];
+}
+
 /**
  * The set of extensions for this app. Currently only one extensions per app is supported.
  */
 export interface ElementExtension {
-    requirements?:  RequirementsExtensionElement;
-    runtimes?:      ExtensionRuntimesArray[];
-    ribbons?:       ExtensionRibbonsArray[];
-    autoRunEvents?: ExtensionAutoRunEventsArray[];
-    alternates?:    ExtensionAlternateVersionsArray[];
+    requirements?:       RequirementsExtensionElement;
+    runtimes?:           ExtensionRuntimesArray[];
+    ribbons?:            ExtensionRibbonsArray[];
+    autoRunEvents?:      ExtensionAutoRunEventsArray[];
+    alternates?:         ExtensionAlternateVersionsArray[];
+    contentRuntimes?:    ExtensionContentRuntimeArray[];
+    getStartedMessages?: ExtensionGetStartedMessageArray[];
+    contextMenus?:       ExtensionContextMenuArray[];
+    keyboardShortcuts?:  ExtensionKeyboardShortcut[];
     /**
      * The url for your extension, used to validate Exchange user identity tokens.
      */
@@ -807,7 +1002,8 @@ export interface StoreOfficeAddin {
 }
 
 export interface Prefer {
-    comAddin?: COMAddin;
+    comAddin?:           COMAddin;
+    xllCustomFunctions?: ExtensionXllCustomFunctions;
     [property: string]: any;
 }
 
@@ -818,10 +1014,23 @@ export interface COMAddin {
     progId: string;
 }
 
+export interface ExtensionXllCustomFunctions {
+    fileName?: string;
+    [property: string]: any;
+}
+
+/**
+ * Specifies limitations on which clients the add-in can be installed on, including
+ * limitations on the Office host application, the form factors, and the requirement sets
+ * that the client must support.
+ *
+ * Specifies the Office requirement sets.
+ */
 export interface RequirementsExtensionElement {
     capabilities?: Capability[];
     /**
-     * Identifies the scopes in which the add-in can run.
+     * Identifies the scopes in which the add-in can run. Supported values: 'mail', 'workbook',
+     * 'document', 'presentation'.
      */
     scopes?: RequirementsScope[];
     /**
@@ -879,18 +1088,436 @@ export interface Options {
 
 export type SendMode = "promptUser" | "softBlock" | "block";
 
-export interface ExtensionRibbonsArray {
+/**
+ * Content runtime is for 'ContentApp', which can be embedded directly into Excel or
+ * PowerPoint documents.
+ */
+export interface ExtensionContentRuntimeArray {
+    /**
+     * Specifies the Office requirement sets for content add-in runtime. If the user's Office
+     * version doesn't support the specified requirements, the component will not be available
+     * in that client.
+     */
+    requirements?: ContentRuntimeRequirements;
+    /**
+     * A unique identifier for this runtime within the app. This is developer specified.
+     */
+    id: string;
+    /**
+     * Specifies the location of code for this runtime. Depending on the runtime.type, add-ins
+     * use either a JavaScript file or an HTML page with an embedded <script> tag that specifies
+     * the URL of a JavaScript file.
+     */
+    code: ExtensionRuntimeCode;
+    /**
+     * The desired height in pixels for the initial content placeholder. This value MUST be
+     * between 32 and 1000 pixels. Default value will be determined by host.
+     */
+    requestedHeight?: number;
+    /**
+     * The desired width in pixels for the initial content placeholder. This value MUST be
+     * between 32 and 1000 pixels. Default value will be determined by host.
+     */
+    requestedWidth?: number;
+    /**
+     * Specifies whether a snapshot image of your content add-in is saved with the host
+     * document. Default value is false. Set true to disable.
+     */
+    disableSnapshot?: boolean;
+}
+
+/**
+ * Specifies the location of code for this runtime. Depending on the runtime.type, add-ins
+ * use either a JavaScript file or an HTML page with an embedded <script> tag that specifies
+ * the URL of a JavaScript file.
+ */
+export interface ExtensionRuntimeCode {
+    /**
+     * URL of the .html page to be loaded in browser-based runtimes.
+     */
+    page: string;
+    /**
+     * URL of the .js script file to be loaded in UI-less runtimes.
+     */
+    script?: string;
+}
+
+/**
+ * Specifies the Office requirement sets for content add-in runtime. If the user's Office
+ * version doesn't support the specified requirements, the component will not be available
+ * in that client.
+ *
+ * Specifies limitations on which clients the add-in can be installed on, including
+ * limitations on the Office host application, the form factors, and the requirement sets
+ * that the client must support.
+ *
+ * Specifies the Office requirement sets.
+ */
+export interface ContentRuntimeRequirements {
+    capabilities?: Capability[];
+    /**
+     * Identifies the scopes in which the add-in can run. Supported values: 'mail', 'workbook',
+     * 'document', 'presentation'.
+     */
+    scopes?: RequirementsScope[];
+    /**
+     * Identifies the form factors that support the add-in. Supported values: mobile, desktop.
+     */
+    formFactors?: FormFactor[];
+}
+
+/**
+ * Specifies the context menus for your extension. A context menu is a shortcut menu that
+ * appears when a user right-clicks (selects and holds) in the Office UI. Minimum size is 1.
+ */
+export interface ExtensionContextMenuArray {
+    requirements?: ContextMenuRequirements;
+    /**
+     * Configures the context menus. Minimum size is 1.
+     */
+    menus: ExtensionMenuItem[];
+}
+
+/**
+ * Configures the context menus. Minimum size is 1.
+ *
+ * The title used for the top of the callout.
+ */
+export interface ExtensionMenuItem {
+    /**
+     * Use 'text' or 'cell' here for Office context menu. Use 'text' if the context menu should
+     * open when a user right-clicks (selects and holds) on the selected text. Use 'cell' if the
+     * context menu should open when the user right-clicks (selects and holds) on a cell in an
+     * Excel spreadsheet.
+     */
+    entryPoint: EntryPoint;
+    controls:   ExtensionCommonCustomGroupControlsItem[];
+}
+
+/**
+ * The control type should be 'menu'. Minimum size is 1.
+ */
+export interface ExtensionCommonCustomGroupControlsItem {
+    /**
+     * A unique identifier for this control within the app. Maximum length is 64 characters.
+     */
+    id: string;
+    /**
+     * Defines the type of control whether button or menu.
+     */
+    type: PurpleType;
+    /**
+     * Id of an existing office control. Maximum length is 64 characters.
+     */
+    builtInControlId?: string;
+    /**
+     * Displayed text for the control. Maximum length is 64 characters.
+     */
+    label: string;
+    /**
+     * Configures the icons for the custom control.
+     */
+    icons:    ExtensionCommonIcon[];
+    supertip: ExtensionCommonSuperToolTip;
+    /**
+     * The ID of an execution-type action that handles this key combination. Maximum length is
+     * 64 characters.
+     */
+    actionId?: string;
+    /**
+     * Specifies whether a group, button, menu, or menu item will be hidden on application and
+     * platform combinations that support the API (Office.ribbon.requestCreateControls) that
+     * installs custom contextual tabs on the ribbon. Default is false.
+     */
+    overriddenByRibbonApi?: boolean;
+    /**
+     * Whether the control is initially enabled.
+     */
+    enabled?: boolean;
+    /**
+     * Configures the items for a menu control.
+     */
+    items?: ExtensionCommonCustomControlMenuItem[];
+}
+
+export interface ExtensionCommonCustomControlMenuItem {
+    /**
+     * A unique identifier for this control within the app. Maximum length is 64 characters.
+     */
+    id: string;
+    /**
+     * Supported values: menuItem.
+     */
+    type: "menuItem";
+    /**
+     * Displayed text for the control. Maximum length is 64 characters.
+     */
+    label:    string;
+    icons?:   ExtensionCommonIcon[];
+    supertip: ExtensionCommonSuperToolTip;
+    /**
+     * The ID of an action defined in runtimes. Maximum length is 64 characters.
+     */
+    actionId: string;
+    /**
+     * Whether the control is initially enabled.
+     */
+    enabled?:               boolean;
+    overriddenByRibbonApi?: boolean;
+}
+
+export interface ExtensionCommonSuperToolTip {
+    /**
+     * Title text of the super tip. Maximum length is 64 characters.
+     */
+    title: string;
+    /**
+     * Description of the super tip. Maximum length is 250 characters.
+     */
+    description: string;
+}
+
+/**
+ * Supported values: menuItem.
+ */
+
+/**
+ * Defines the type of control whether button or menu.
+ */
+export type PurpleType = "button" | "menu";
+
+/**
+ * Use 'text' or 'cell' here for Office context menu. Use 'text' if the context menu should
+ * open when a user right-clicks (selects and holds) on the selected text. Use 'cell' if the
+ * context menu should open when the user right-clicks (selects and holds) on a cell in an
+ * Excel spreadsheet.
+ */
+export type EntryPoint = "text" | "cell";
+
+/**
+ * Specifies limitations on which clients the add-in can be installed on, including
+ * limitations on the Office host application, the form factors, and the requirement sets
+ * that the client must support.
+ *
+ * Specifies the Office requirement sets.
+ */
+export interface ContextMenuRequirements {
+    capabilities?: Capability[];
+    /**
+     * Identifies the scopes in which the add-in can run. Supported values: 'mail', 'workbook',
+     * 'document', 'presentation'.
+     */
+    scopes?: RequirementsScope[];
+    /**
+     * Identifies the form factors that support the add-in. Supported values: mobile, desktop.
+     */
+    formFactors?: FormFactor[];
+}
+
+/**
+ * Provides information used by the callout that appears when the add-in is installed.
+ * Minimum size is 1. Maximum size is 3.
+ */
+export interface ExtensionGetStartedMessageArray {
+    requirements?: GetStartedMessageRequirements;
+    /**
+     * The title used for the top of the callout.
+     */
+    title: string;
+    /**
+     * The description/body content for the callout.
+     */
+    description: string;
+    /**
+     * A URL to a page that explains the add-in in detail.
+     */
+    learnMoreUrl: string;
+}
+
+/**
+ * Specifies limitations on which clients the add-in can be installed on, including
+ * limitations on the Office host application, the form factors, and the requirement sets
+ * that the client must support.
+ *
+ * Specifies the Office requirement sets.
+ */
+export interface GetStartedMessageRequirements {
+    capabilities?: Capability[];
+    /**
+     * Identifies the scopes in which the add-in can run. Supported values: 'mail', 'workbook',
+     * 'document', 'presentation'.
+     */
+    scopes?: RequirementsScope[];
+    /**
+     * Identifies the form factors that support the add-in. Supported values: mobile, desktop.
+     */
+    formFactors?: FormFactor[];
+}
+
+export interface ExtensionKeyboardShortcut {
+    /**
+     * Specifies the Office requirement sets.
+     */
     requirements?: RequirementsExtensionElement;
-    contexts?:     ExtensionContext[];
-    tabs:          ExtensionRibbonsArrayTabsItem[];
+    /**
+     * Array of mappings from actions to the key combinations that invoke the actions.
+     */
+    shortcuts: ExtensionShortcut[];
+    [property: string]: any;
+}
+
+export interface ExtensionShortcut {
+    key: Key;
+    /**
+     * The ID of an execution-type action that handles this key combination.
+     */
+    actionId: string;
+    [property: string]: any;
+}
+
+/**
+ * Key combinations in different platform (i.e. default, windows, web and mac).
+ */
+export interface Key {
+    /**
+     * Fallback key for any platform that isn't specified.
+     */
+    default: string;
+    /**
+     * key for mac platform. Alt is mapped to the Option key.
+     */
+    mac?: string;
+    /**
+     * key for web platform.
+     */
+    web?: string;
+    /**
+     * key for windows platform. Command is mapped to the Ctrl key.
+     */
+    windows?: string;
+    [property: string]: any;
+}
+
+export interface ExtensionRibbonsArray {
+    requirements?:            RequirementsExtensionElement;
+    contexts?:                ExtensionContext[];
+    tabs:                     ExtensionRibbonsArrayTabsItem[];
+    fixedControls?:           ExtensionRibbonsArrayFixedControlItem[];
+    spamPreProcessingDialog?: ExtensionRibbonsSpamPreProcessingDialog;
 }
 
 /**
  * Specifies the Office application windows in which the ribbon customization is available
  * to the user. Each item in the array is a member of a string array. Possible values are:
- * mailRead, mailCompose, meetingDetailsOrganizer, meetingDetailsAttendee.
+ * mailRead, mailCompose, meetingDetailsOrganizer, meetingDetailsAttendee,
+ * onlineMeetingDetailsOrganizer, logEventMeetingDetailsAttendee, spamReportingOverride.
  */
-export type ExtensionContext = "mailRead" | "mailCompose" | "meetingDetailsOrganizer" | "meetingDetailsAttendee" | "onlineMeetingDetailsOrganizer" | "logEventMeetingDetailsAttendee" | "default";
+export type ExtensionContext = "mailRead" | "mailCompose" | "meetingDetailsOrganizer" | "meetingDetailsAttendee" | "onlineMeetingDetailsOrganizer" | "logEventMeetingDetailsAttendee" | "default" | "spamReportingOverride";
+
+export interface ExtensionRibbonsArrayFixedControlItem {
+    /**
+     * A unique identifier for this control within the app. Maximum length is 64 characters.
+     */
+    id: string;
+    /**
+     * Defines the type of control.
+     */
+    type: "button";
+    /**
+     * Displayed text for the control. Maximum length is 64 characters.
+     */
+    label:    string;
+    icons:    ExtensionCommonIcon[];
+    supertip: ExtensionCommonSuperToolTip;
+    /**
+     * The ID of an execution-type action that handles this key combination. Maximum length is
+     * 64 characters.
+     */
+    actionId: string;
+    /**
+     * Whether the control is initially enabled.
+     */
+    enabled: boolean;
+}
+
+/**
+ * Defines the type of control.
+ */
+
+export interface ExtensionRibbonsSpamPreProcessingDialog {
+    /**
+     * Specifies the custom title of the preprocessing dialog.
+     */
+    title: string;
+    /**
+     * Specifies the custom text that appears in the preprocessing dialog.
+     */
+    description: string;
+    /**
+     * Indicating if the developer will allow the user to permanently bypass the PreProcessing
+     * Dialog for this add-in. "false" is the default value if not specified.
+     */
+    spamNeverShowAgainOption?: boolean;
+    /**
+     * Specifies up to five options that a user can select from the preprocessing dialog to
+     * provide a reason for reporting a message.
+     */
+    spamReportingOptions?: SpamReportingOptions;
+    /**
+     * A text box to the preprocessing dialog to allow users to provide additional information
+     * on the message they're reporting. This value is the title of that text box.
+     */
+    spamFreeTextSectionTitle?: string;
+    /**
+     * Specifies the custom text and URL to provide informational resources to the users.
+     */
+    spamMoreInfo?: SpamMoreInfo;
+}
+
+/**
+ * Specifies the custom text and URL to provide informational resources to the users.
+ */
+export interface SpamMoreInfo {
+    /**
+     * Specifies display content of the hyperlink pointing to the site containing informational
+     * resources in the preprocessing dialog of a spam-reporting add-in.
+     */
+    text: string;
+    /**
+     * Specifies the URL of the hyperlink pointing to the site containing informational
+     * resources in the preprocessing dialog of a spam-reporting add-in.
+     */
+    url: string;
+    [property: string]: any;
+}
+
+/**
+ * Specifies up to five options that a user can select from the preprocessing dialog to
+ * provide a reason for reporting a message.
+ */
+export interface SpamReportingOptions {
+    /**
+     * Specifies the title listed before the reporting options list.
+     */
+    title: string;
+    /**
+     * Specifies the custom options that a user can select from the preprocessing dialog to
+     * provide a reason for reporting a message.
+     */
+    options: string[];
+    /**
+     * Can be set to "radio" or "checkbox". This determines if Radio Buttons or checkboxes are
+     * used for the options. "checkbox" is the default if this value is not specified.
+     */
+    type?: SpamReportingOptionsType;
+    [property: string]: any;
+}
+
+/**
+ * Can be set to "radio" or "checkbox". This determines if Radio Buttons or checkboxes are
+ * used for the options. "checkbox" is the default if this value is not specified.
+ */
+export type SpamReportingOptionsType = "radio" | "checkbox";
 
 export interface ExtensionRibbonsArrayTabsItem {
     /**
@@ -978,93 +1605,13 @@ export interface ExtensionRibbonsCustomTabGroupsItem {
      * Id of a built-in Group. Maximum length is 64 characters.
      */
     builtInGroupId?: string;
-}
-
-export interface ExtensionCommonCustomGroupControlsItem {
     /**
-     * A unique identifier for this control within the app. Maximum length is 64 characters.
-     */
-    id: string;
-    /**
-     * Defines the type of control whether button or menu.
-     */
-    type: FluffyType;
-    /**
-     * Id of the existing office control. Maximum length is 64 characters.
-     */
-    builtInControlId?: string;
-    /**
-     * Displayed text for the control. Maximum length is 64 characters.
-     */
-    label:    string;
-    icons:    ExtensionCommonIcon[];
-    supertip: ExtensionCommonSuperToolTip;
-    /**
-     * The ID of an execution-type action that handles this key combination. Maximum length is
-     * 64 characters.
-     */
-    actionId: string;
-    /**
-     * Specifies whether a group, button, menu, or menu item will be hidden on application and
-     * platform combinations that support the API (Office.ribbon.requestCreateControls) that
-     * installs custom contextual tabs on the ribbon. Default is false.
+     * Specifies whether a group will be hidden on application and platform combinations that
+     * support the API (Office.ribbon.requestCreateControls) that installs custom contextual
+     * tabs on the ribbon. Default is false.
      */
     overriddenByRibbonApi?: boolean;
-    /**
-     * Whether the control is initially enabled.
-     */
-    enabled?: boolean;
-    /**
-     * Configures the items for a menu control.
-     */
-    items?: ExtensionCommonCustomControlMenuItem[];
 }
-
-export interface ExtensionCommonCustomControlMenuItem {
-    /**
-     * A unique identifier for this control within the app. Maximum length is 64 characters.
-     */
-    id: string;
-    /**
-     * Supported values: menuItem.
-     */
-    type: "menuItem";
-    /**
-     * Displayed text for the control. Maximum length is 64 characters.
-     */
-    label:    string;
-    icons?:   ExtensionCommonIcon[];
-    supertip: ExtensionCommonSuperToolTip;
-    /**
-     * The ID of an action defined in runtimes. Maximum length is 64 characters.
-     */
-    actionId: string;
-    /**
-     * Whether the control is initially enabled.
-     */
-    enabled?:               boolean;
-    overriddenByRibbonApi?: boolean;
-}
-
-export interface ExtensionCommonSuperToolTip {
-    /**
-     * Title text of the super tip. Maximum length is 64 characters.
-     */
-    title: string;
-    /**
-     * Description of the super tip. Maximum length is 250 characters.
-     */
-    description: string;
-}
-
-/**
- * Supported values: menuItem.
- */
-
-/**
- * Defines the type of control whether button or menu.
- */
-export type FluffyType = "button" | "menu";
 
 export interface Position {
     /**
@@ -1100,8 +1647,9 @@ export interface ExtensionRuntimesArray {
      * Runtimes with a short lifetime do not preserve state across executions. Runtimes with a
      * long lifetime do.
      */
-    lifetime?: Lifetime;
-    actions?:  ExtensionRuntimesActionsItem[];
+    lifetime?:        Lifetime;
+    actions?:         ExtensionRuntimesActionsItem[];
+    customFunctions?: ExtensionCustomFunctions;
 }
 
 /**
@@ -1149,15 +1697,166 @@ export interface ExtensionRuntimesActionsItem {
  */
 export type ActionType = "executeFunction" | "openPage";
 
-export interface ExtensionRuntimeCode {
+/**
+ * Custom function enable developers to add new functions to Excel by defining those
+ * functions in JavaScript as part of an add-in. Users within Excel can access custom
+ * functions just as they would any native function in Excel, such as SUM().
+ */
+export interface ExtensionCustomFunctions {
     /**
-     * URL of the .html page to be loaded in browser-based runtimes.
+     * Array of function object which defines function metadata.
      */
-    page: string;
+    functions: ExtensionFunction[];
+    namespace: ExtensionCustomFunctionsNamespace;
     /**
-     * URL of the .js script file to be loaded in UI-less runtimes.
+     * Allows a custom function to accept Excel data types as parameters and return values.
      */
-    script?: string;
+    allowCustomDataForDataTypeAny?: boolean;
+    [property: string]: any;
+}
+
+export interface ExtensionFunction {
+    /**
+     * A unique ID for the function.
+     */
+    id: string;
+    /**
+     * The name of the function that end users see in Excel. In Excel, this function name is
+     * prefixed by the custom functions namespace that's specified in the manifest file.
+     */
+    name: string;
+    /**
+     * The description of the function that end users see in Excel.
+     */
+    description?: string;
+    /**
+     * URL that provides information about the function. (It is displayed in a task pane.)
+     */
+    helpUrl?: string;
+    /**
+     * Array that defines the input parameters for the function.
+     */
+    parameters: ExtensionFunctionParameter[];
+    result:     ExtensionResult;
+    /**
+     * If true, the function can output repeatedly to the cell even when invoked only once. This
+     * option is useful for rapidly-changing data sources, such as a stock price. The function
+     * should have no return statement. Instead, the result value is passed as the argument of
+     * the StreamingInvocation.setResult callback function.
+     */
+    stream?: boolean;
+    /**
+     * If true, the function recalculates each time Excel recalculates, instead of only when the
+     * formula's dependent values have changed. A function can't use both the stream and
+     * volatile properties. If the stream and volatile properties are both set to true, the
+     * volatile property will be ignored.
+     */
+    volatile?: boolean;
+    /**
+     * If true, Excel calls the CancelableInvocation handler whenever the user takes an action
+     * that has the effect of canceling the function; for example, manually triggering
+     * recalculation or editing a cell that is referenced by the function. Cancelable functions
+     * are typically only used for asynchronous functions that return a single result and need
+     * to handle the cancellation of a request for data. A function can't use both the stream
+     * and cancelable properties.
+     */
+    cancelable?: boolean;
+    /**
+     * If true, your custom function can access the address of the cell that invoked it. The
+     * address property of the invocation parameter contains the address of the cell that
+     * invoked your custom function. A function can't use both the stream and requiresAddress
+     * properties.
+     */
+    requiresAddress?: boolean;
+    /**
+     * If true, your custom function can access the addresses of the function's input
+     * parameters. This property must be used in combination with the dimensionality property of
+     * the result object, and dimensionality must be set to matrix.
+     */
+    requiresParameterAddress?: boolean;
+    [property: string]: any;
+}
+
+export interface ExtensionFunctionParameter {
+    /**
+     * The name of the parameter. This name is displayed in Excel's IntelliSense.
+     */
+    name: string;
+    /**
+     * A description of the parameter. This is displayed in Excel's IntelliSense.
+     */
+    description?: string;
+    /**
+     * The data type of the parameter. It can only be 'boolean', 'number', 'string', 'any',
+     * 'CustomFunctions.Invocation', 'CustomFunctions.StreamingInvocation' or
+     * 'CustomFunctions.CancelableInvocation', 'any' allows you to use any of other types.
+     */
+    type?: string;
+    /**
+     * A subfield of the type property. Specifies the Excel data types accepted by the custom
+     * function. Accepts the values 'cellvalue', 'booleancellvalue', 'doublecellvalue',
+     * 'entitycellvalue', 'errorcellvalue', 'formattednumbercellvalue', 'linkedentitycellvalue',
+     * 'localimagecellvalue', 'stringcellvalue', 'webimagecellvalue'
+     */
+    cellValueType?: CellValueType;
+    /**
+     * Must be either scalar (a non-array value) or matrix (a 2-dimensional array).
+     */
+    dimensionality?: Dimensionality;
+    /**
+     * If true, the parameter is optional.
+     */
+    optional?: boolean | null;
+    /**
+     * If true, parameters populate from a specified array. Note that functions all repeating
+     * parameters are considered optional parameters by definition.
+     */
+    repeating?: boolean;
+    [property: string]: any;
+}
+
+/**
+ * A subfield of the type property. Specifies the Excel data types accepted by the custom
+ * function. Accepts the values 'cellvalue', 'booleancellvalue', 'doublecellvalue',
+ * 'entitycellvalue', 'errorcellvalue', 'formattednumbercellvalue', 'linkedentitycellvalue',
+ * 'localimagecellvalue', 'stringcellvalue', 'webimagecellvalue'
+ */
+export type CellValueType = "cellvalue" | "booleancellvalue" | "doublecellvalue" | "entitycellvalue" | "errorcellvalue" | "formattednumbercellvalue" | "linkedentitycellvalue" | "localimagecellvalue" | "stringcellvalue" | "webimagecellvalue";
+
+/**
+ * Must be either scalar (a non-array value) or matrix (a 2-dimensional array).
+ *
+ * Must be either scalar (a non-array value) or matrix (a 2-dimensional array). Default:
+ * scalar.
+ */
+export type Dimensionality = "scalar" | "matrix";
+
+/**
+ * Object that defines the type of information that is returned by the function.
+ */
+export interface ExtensionResult {
+    /**
+     * Must be either scalar (a non-array value) or matrix (a 2-dimensional array). Default:
+     * scalar.
+     */
+    dimensionality?: Dimensionality;
+    [property: string]: any;
+}
+
+/**
+ * Defines the namespace for your custom functions. A namespace prepends itself to your
+ * custom functions to help customers identify your functions as part of your add-in.
+ */
+export interface ExtensionCustomFunctionsNamespace {
+    /**
+     * Non-localizable version of the namespace.
+     */
+    id: string;
+    /**
+     * Localizable version of the namespace.
+     */
+    name: string;
+    [property: string]: any;
 }
 
 /**
@@ -1191,6 +1890,20 @@ export interface Icons {
      * A relative file path to a full color PNG icon. Size 192x192.
      */
     color: string;
+    /**
+     * A relative file path to a full color PNG icon with transparent background. Size 32x32.
+     */
+    color32x32?: string;
+}
+
+/**
+ * The Intune-related properties for the app.
+ */
+export interface IntuneInfo {
+    /**
+     * Supported mobile app managment version that the app is compliant with.
+     */
+    supportedMobileAppManagementVersion?: string;
 }
 
 export interface LocalizationInfo {
@@ -1224,6 +1937,10 @@ export interface MeetingExtensionDefinition {
      * Meeting supported scenes.
      */
     scenes?: Scene[];
+    /**
+     * Represents if the app has added support for sharing to stage.
+     */
+    supportsCustomShareToStage?: boolean;
     /**
      * A boolean value indicating whether this app can stream the meeting's audio video content
      * to an RTMP endpoint.
@@ -1262,7 +1979,7 @@ export interface Scene {
     seatsReservedForOrganizersOrPresenters: number;
 }
 
-export interface Name {
+export interface NameClass {
     /**
      * A short display name for the app.
      */
@@ -1270,7 +1987,7 @@ export interface Name {
     /**
      * The full name of the app, used if the full app name exceeds 30 characters.
      */
-    full: string;
+    full?: string;
 }
 
 export type Permission = "identity" | "messageTeamMembers";
@@ -1306,14 +2023,17 @@ export interface StaticTab {
      * an experience scoped to an individual user alone or group chat. These options are
      * non-exclusive. Currently static tabs are only supported in the 'personal' scope.
      */
-    scopes: CommandListScope[];
+    scopes: StaticTabScope[];
     /**
      * The set of contextItem scopes that a tab belong to
      */
-    context?: StaticTabContext[];
+    context?:        StaticTabContext[];
+    requirementSet?: ElementRequirementSet;
 }
 
 export type StaticTabContext = "personalTab" | "channelTab" | "privateChatTab" | "meetingChatTab" | "meetingDetailsTab" | "meetingSidePanel" | "meetingStage" | "teamLevelApp";
+
+export type StaticTabScope = "team" | "personal" | "groupChat";
 
 /**
  * Subscription offer associated with this app.
@@ -1340,17 +2060,42 @@ export interface WebApplicationInfo {
      * Resource url of app for acquiring auth token for SSO.
      */
     resource?: string;
+    /**
+     * By including this property, an NAA token based on its contents will be prefetched when
+     * the tab is loaded.
+     */
+    nestedAppAuthInfo?: NestedAppAuthInfo[];
+}
+
+export interface NestedAppAuthInfo {
+    /**
+     * Represents the nested app's valid redirect URI (always a base origin).
+     */
+    redirectUri: string;
+    /**
+     * Represents the stringified list of scopes the access token requested requires. Order must
+     * match that of the proceeding NAA request in the app.
+     */
+    scopes: string[];
+    /**
+     * An optional JSON formatted object of client capabilities that represents if the resource
+     * server is CAE capable. Do not use an empty string for this value. If unsupported, keep
+     * the field undefined. If supported, use the following string exactly:
+     * '{"access_token":{"xms_cc":{"values":["CP1"]}}}'. More info on client capabilities here:
+     * https://learn.microsoft.com/en-us/entra/identity-platform/claims-challenge?tabs=dotnet#how-to-communicate-client-capabilities-to-microsoft-entra-id
+     */
+    claims?: string;
 }
 
 // Converts JSON strings to/from your types
 // and asserts the results of JSON.parse at runtime
 export class Convert {
-    public static toTeamsManifestV1D19(json: string): TeamsManifestV1D19 {
-        return cast(JSON.parse(json), r("TeamsManifestV1D19"));
+    public static toTeamsManifestV1D23(json: string): TeamsManifestV1D23 {
+        return cast(JSON.parse(json), r("TeamsManifestV1D23"));
     }
 
-    public static teamsManifestV1D19ToJson(value: TeamsManifestV1D19): string {
-        return JSON.stringify(uncast(value, r("TeamsManifestV1D19")), null, 4);
+    public static teamsManifestV1D23ToJson(value: TeamsManifestV1D23): string {
+        return JSON.stringify(uncast(value, r("TeamsManifestV1D23")), null, 4);
     }
 }
 
@@ -1507,14 +2252,14 @@ function r(name: string) {
 }
 
 const typeMap: any = {
-    "TeamsManifestV1D19": o([
+    "TeamsManifestV1D23": o([
         { json: "$schema", js: "$schema", typ: u(undefined, "") },
         { json: "manifestVersion", js: "manifestVersion", typ: r("ManifestVersion") },
         { json: "version", js: "version", typ: "" },
         { json: "id", js: "id", typ: "" },
         { json: "localizationInfo", js: "localizationInfo", typ: u(undefined, r("LocalizationInfo")) },
         { json: "developer", js: "developer", typ: r("Developer") },
-        { json: "name", js: "name", typ: r("Name") },
+        { json: "name", js: "name", typ: r("NameClass") },
         { json: "description", js: "description", typ: r("Description") },
         { json: "icons", js: "icons", typ: r("Icons") },
         { json: "accentColor", js: "accentColor", typ: "" },
@@ -1539,20 +2284,29 @@ const typeMap: any = {
         { json: "defaultInstallScope", js: "defaultInstallScope", typ: u(undefined, r("DefaultInstallScope")) },
         { json: "defaultGroupCapability", js: "defaultGroupCapability", typ: u(undefined, r("DefaultGroupCapability")) },
         { json: "meetingExtensionDefinition", js: "meetingExtensionDefinition", typ: u(undefined, r("MeetingExtensionDefinition")) },
-        { json: "authorization", js: "authorization", typ: u(undefined, r("TeamsManifestV1D19Authorization")) },
+        { json: "authorization", js: "authorization", typ: u(undefined, r("TeamsManifestV1D23Authorization")) },
         { json: "extensions", js: "extensions", typ: u(undefined, a(r("ElementExtension"))) },
         { json: "dashboardCards", js: "dashboardCards", typ: u(undefined, a(r("DashboardCard"))) },
         { json: "copilotAgents", js: "copilotAgents", typ: u(undefined, r("CopilotAgents")) },
+        { json: "intuneInfo", js: "intuneInfo", typ: u(undefined, r("IntuneInfo")) },
+        { json: "elementRelationshipSet", js: "elementRelationshipSet", typ: u(undefined, r("ElementRelationshipSet")) },
+        { json: "backgroundLoadConfiguration", js: "backgroundLoadConfiguration", typ: u(undefined, r("BackgroundLoadConfiguration")) },
     ], false),
     "Activities": o([
         { json: "activityTypes", js: "activityTypes", typ: u(undefined, a(r("ActivityType"))) },
+        { json: "activityIcons", js: "activityIcons", typ: u(undefined, a(r("ActivityIcon"))) },
+    ], false),
+    "ActivityIcon": o([
+        { json: "id", js: "id", typ: "" },
+        { json: "iconFile", js: "iconFile", typ: "" },
     ], false),
     "ActivityType": o([
         { json: "type", js: "type", typ: "" },
         { json: "description", js: "description", typ: "" },
         { json: "templateText", js: "templateText", typ: "" },
+        { json: "allowedIconIds", js: "allowedIconIds", typ: u(undefined, a("")) },
     ], false),
-    "TeamsManifestV1D19Authorization": o([
+    "TeamsManifestV1D23Authorization": o([
         { json: "permissions", js: "permissions", typ: u(undefined, r("Permissions")) },
     ], false),
     "Permissions": o([
@@ -1561,6 +2315,12 @@ const typeMap: any = {
     "ResourceSpecific": o([
         { json: "name", js: "name", typ: "" },
         { json: "type", js: "type", typ: r("ResourceSpecificType") },
+    ], false),
+    "BackgroundLoadConfiguration": o([
+        { json: "tabConfiguration", js: "tabConfiguration", typ: u(undefined, r("TabConfiguration")) },
+    ], false),
+    "TabConfiguration": o([
+        { json: "contentUrl", js: "contentUrl", typ: "" },
     ], false),
     "Bot": o([
         { json: "botId", js: "botId", typ: "" },
@@ -1572,6 +2332,8 @@ const typeMap: any = {
         { json: "supportsVideo", js: "supportsVideo", typ: u(undefined, true) },
         { json: "scopes", js: "scopes", typ: a(r("CommandListScope")) },
         { json: "commandLists", js: "commandLists", typ: u(undefined, a(r("CommandList"))) },
+        { json: "requirementSet", js: "requirementSet", typ: u(undefined, r("ElementRequirementSet")) },
+        { json: "registrationInfo", js: "registrationInfo", typ: u(undefined, r("RegistrationInfo")) },
     ], false),
     "CommandList": o([
         { json: "scopes", js: "scopes", typ: a(r("CommandListScope")) },
@@ -1595,7 +2357,20 @@ const typeMap: any = {
         { json: "height", js: "height", typ: u(undefined, "") },
         { json: "url", js: "url", typ: u(undefined, "") },
     ], false),
+    "RegistrationInfo": o([
+        { json: "source", js: "source", typ: r("Source") },
+        { json: "environment", js: "environment", typ: u(undefined, "") },
+        { json: "schemaName", js: "schemaName", typ: u(undefined, "") },
+        { json: "clusterCategory", js: "clusterCategory", typ: u(undefined, "") },
+    ], false),
+    "ElementRequirementSet": o([
+        { json: "hostMustSupportFunctionalities", js: "hostMustSupportFunctionalities", typ: a(r("HostFunctionality")) },
+    ], false),
+    "HostFunctionality": o([
+        { json: "name", js: "name", typ: r("HostMustSupportFunctionalityName") },
+    ], false),
     "ComposeExtension": o([
+        { json: "id", js: "id", typ: u(undefined, "") },
         { json: "botId", js: "botId", typ: u(undefined, "") },
         { json: "composeExtensionType", js: "composeExtensionType", typ: u(undefined, r("ComposeExtensionType")) },
         { json: "authorization", js: "authorization", typ: u(undefined, r("ComposeExtensionAuthorization")) },
@@ -1603,6 +2378,7 @@ const typeMap: any = {
         { json: "canUpdateConfiguration", js: "canUpdateConfiguration", typ: u(undefined, u(true, null)) },
         { json: "commands", js: "commands", typ: u(undefined, a(r("ComposeExtensionCommand"))) },
         { json: "messageHandlers", js: "messageHandlers", typ: u(undefined, a(r("MessageHandler"))) },
+        { json: "requirementSet", js: "requirementSet", typ: u(undefined, r("ElementRequirementSet")) },
     ], false),
     "ComposeExtensionAuthorization": o([
         { json: "authType", js: "authType", typ: u(undefined, r("AuthType")) },
@@ -1653,8 +2429,9 @@ const typeMap: any = {
     "Value": o([
         { json: "domains", js: "domains", typ: u(undefined, a("")) },
         { json: "supportsAnonymizedPayloads", js: "supportsAnonymizedPayloads", typ: u(undefined, true) },
-    ], "any"),
+    ], false),
     "ConfigurableTab": o([
+        { json: "id", js: "id", typ: u(undefined, "") },
         { json: "configurationUrl", js: "configurationUrl", typ: "" },
         { json: "canUpdateConfiguration", js: "canUpdateConfiguration", typ: u(undefined, true) },
         { json: "scopes", js: "scopes", typ: a(r("ConfigurableTabScope")) },
@@ -1669,8 +2446,17 @@ const typeMap: any = {
         { json: "scopes", js: "scopes", typ: a(r("ConnectorScope")) },
     ], false),
     "CopilotAgents": o([
-        { json: "declarativeAgents", js: "declarativeAgents", typ: a(r("DeclarativeAgentRef")) },
+        { json: "declarativeAgents", js: "declarativeAgents", typ: u(undefined, a(r("DeclarativeAgentRef"))) },
+        { json: "customEngineAgents", js: "customEngineAgents", typ: u(undefined, a(r("CustomEngineAgent"))) },
     ], false),
+    "CustomEngineAgent": o([
+        { json: "id", js: "id", typ: "" },
+        { json: "type", js: "type", typ: r("SourceTypeEnum") },
+        { json: "disclaimer", js: "disclaimer", typ: u(undefined, r("Disclaimer")) },
+    ], false),
+    "Disclaimer": o([
+        { json: "text", js: "text", typ: "" },
+    ], "any"),
     "DeclarativeAgentRef": o([
         { json: "id", js: "id", typ: "" },
         { json: "file", js: "file", typ: "" },
@@ -1685,7 +2471,7 @@ const typeMap: any = {
         { json: "defaultSize", js: "defaultSize", typ: r("DefaultSize") },
     ], false),
     "DashboardCardContentSource": o([
-        { json: "sourceType", js: "sourceType", typ: u(undefined, r("SourceType")) },
+        { json: "sourceType", js: "sourceType", typ: u(undefined, r("SourceTypeEnum")) },
         { json: "botConfiguration", js: "botConfiguration", typ: u(undefined, r("BotConfiguration")) },
     ], false),
     "BotConfiguration": o([
@@ -1711,12 +2497,29 @@ const typeMap: any = {
         { json: "privacyUrl", js: "privacyUrl", typ: "" },
         { json: "termsOfUseUrl", js: "termsOfUseUrl", typ: "" },
     ], false),
+    "ElementRelationshipSet": o([
+        { json: "oneWayDependencies", js: "oneWayDependencies", typ: u(undefined, a(r("OneWayDependency"))) },
+        { json: "mutualDependencies", js: "mutualDependencies", typ: u(undefined, a(a(r("ElementReference")))) },
+    ], false),
+    "ElementReference": o([
+        { json: "name", js: "name", typ: r("MutualDependencyName") },
+        { json: "id", js: "id", typ: "" },
+        { json: "commandIds", js: "commandIds", typ: u(undefined, a("")) },
+    ], false),
+    "OneWayDependency": o([
+        { json: "element", js: "element", typ: r("ElementReference") },
+        { json: "dependsOn", js: "dependsOn", typ: a(r("ElementReference")) },
+    ], false),
     "ElementExtension": o([
         { json: "requirements", js: "requirements", typ: u(undefined, r("RequirementsExtensionElement")) },
         { json: "runtimes", js: "runtimes", typ: u(undefined, a(r("ExtensionRuntimesArray"))) },
         { json: "ribbons", js: "ribbons", typ: u(undefined, a(r("ExtensionRibbonsArray"))) },
         { json: "autoRunEvents", js: "autoRunEvents", typ: u(undefined, a(r("ExtensionAutoRunEventsArray"))) },
         { json: "alternates", js: "alternates", typ: u(undefined, a(r("ExtensionAlternateVersionsArray"))) },
+        { json: "contentRuntimes", js: "contentRuntimes", typ: u(undefined, a(r("ExtensionContentRuntimeArray"))) },
+        { json: "getStartedMessages", js: "getStartedMessages", typ: u(undefined, a(r("ExtensionGetStartedMessageArray"))) },
+        { json: "contextMenus", js: "contextMenus", typ: u(undefined, a(r("ExtensionContextMenuArray"))) },
+        { json: "keyboardShortcuts", js: "keyboardShortcuts", typ: u(undefined, a(r("ExtensionKeyboardShortcut"))) },
         { json: "audienceClaimUrl", js: "audienceClaimUrl", typ: u(undefined, "") },
     ], false),
     "ExtensionAlternateVersionsArray": o([
@@ -1746,10 +2549,14 @@ const typeMap: any = {
     ], false),
     "Prefer": o([
         { json: "comAddin", js: "comAddin", typ: u(undefined, r("COMAddin")) },
+        { json: "xllCustomFunctions", js: "xllCustomFunctions", typ: u(undefined, r("ExtensionXllCustomFunctions")) },
     ], "any"),
     "COMAddin": o([
         { json: "progId", js: "progId", typ: "" },
     ], false),
+    "ExtensionXllCustomFunctions": o([
+        { json: "fileName", js: "fileName", typ: u(undefined, "") },
+    ], "any"),
     "RequirementsExtensionElement": o([
         { json: "capabilities", js: "capabilities", typ: u(undefined, a(r("Capability"))) },
         { json: "scopes", js: "scopes", typ: u(undefined, a(r("RequirementsScope"))) },
@@ -1772,51 +2579,39 @@ const typeMap: any = {
     "Options": o([
         { json: "sendMode", js: "sendMode", typ: r("SendMode") },
     ], false),
-    "ExtensionRibbonsArray": o([
-        { json: "requirements", js: "requirements", typ: u(undefined, r("RequirementsExtensionElement")) },
-        { json: "contexts", js: "contexts", typ: u(undefined, a(r("ExtensionContext"))) },
-        { json: "tabs", js: "tabs", typ: a(r("ExtensionRibbonsArrayTabsItem")) },
-    ], false),
-    "ExtensionRibbonsArrayTabsItem": o([
-        { json: "id", js: "id", typ: u(undefined, "") },
-        { json: "label", js: "label", typ: u(undefined, "") },
-        { json: "position", js: "position", typ: u(undefined, r("Position")) },
-        { json: "builtInTabId", js: "builtInTabId", typ: u(undefined, "") },
-        { json: "groups", js: "groups", typ: u(undefined, a(r("ExtensionRibbonsCustomTabGroupsItem"))) },
-        { json: "customMobileRibbonGroups", js: "customMobileRibbonGroups", typ: u(undefined, a(r("ExtensionRibbonsCustomMobileGroupItem"))) },
-    ], false),
-    "ExtensionRibbonsCustomMobileGroupItem": o([
+    "ExtensionContentRuntimeArray": o([
+        { json: "requirements", js: "requirements", typ: u(undefined, r("ContentRuntimeRequirements")) },
         { json: "id", js: "id", typ: "" },
-        { json: "label", js: "label", typ: "" },
-        { json: "controls", js: "controls", typ: a(r("ExtensionRibbonsCustomMobileControlButtonItem")) },
-    ], "any"),
-    "ExtensionRibbonsCustomMobileControlButtonItem": o([
-        { json: "id", js: "id", typ: "" },
-        { json: "type", js: "type", typ: r("PurpleType") },
-        { json: "label", js: "label", typ: "" },
-        { json: "icons", js: "icons", typ: a(r("ExtensionCustomMobileIcon")) },
-        { json: "actionId", js: "actionId", typ: "" },
-    ], "any"),
-    "ExtensionCustomMobileIcon": o([
-        { json: "size", js: "size", typ: 3.14 },
-        { json: "url", js: "url", typ: "" },
-        { json: "scale", js: "scale", typ: 3.14 },
+        { json: "code", js: "code", typ: r("ExtensionRuntimeCode") },
+        { json: "requestedHeight", js: "requestedHeight", typ: u(undefined, 3.14) },
+        { json: "requestedWidth", js: "requestedWidth", typ: u(undefined, 3.14) },
+        { json: "disableSnapshot", js: "disableSnapshot", typ: u(undefined, true) },
     ], false),
-    "ExtensionRibbonsCustomTabGroupsItem": o([
-        { json: "id", js: "id", typ: u(undefined, "") },
-        { json: "label", js: "label", typ: u(undefined, "") },
-        { json: "icons", js: "icons", typ: u(undefined, a(r("ExtensionCommonIcon"))) },
-        { json: "controls", js: "controls", typ: u(undefined, a(r("ExtensionCommonCustomGroupControlsItem"))) },
-        { json: "builtInGroupId", js: "builtInGroupId", typ: u(undefined, "") },
+    "ExtensionRuntimeCode": o([
+        { json: "page", js: "page", typ: "" },
+        { json: "script", js: "script", typ: u(undefined, "") },
+    ], false),
+    "ContentRuntimeRequirements": o([
+        { json: "capabilities", js: "capabilities", typ: u(undefined, a(r("Capability"))) },
+        { json: "scopes", js: "scopes", typ: u(undefined, a(r("RequirementsScope"))) },
+        { json: "formFactors", js: "formFactors", typ: u(undefined, a(r("FormFactor"))) },
+    ], false),
+    "ExtensionContextMenuArray": o([
+        { json: "requirements", js: "requirements", typ: u(undefined, r("ContextMenuRequirements")) },
+        { json: "menus", js: "menus", typ: a(r("ExtensionMenuItem")) },
+    ], false),
+    "ExtensionMenuItem": o([
+        { json: "entryPoint", js: "entryPoint", typ: r("EntryPoint") },
+        { json: "controls", js: "controls", typ: a(r("ExtensionCommonCustomGroupControlsItem")) },
     ], false),
     "ExtensionCommonCustomGroupControlsItem": o([
         { json: "id", js: "id", typ: "" },
-        { json: "type", js: "type", typ: r("FluffyType") },
+        { json: "type", js: "type", typ: r("PurpleType") },
         { json: "builtInControlId", js: "builtInControlId", typ: u(undefined, "") },
         { json: "label", js: "label", typ: "" },
         { json: "icons", js: "icons", typ: a(r("ExtensionCommonIcon")) },
         { json: "supertip", js: "supertip", typ: r("ExtensionCommonSuperToolTip") },
-        { json: "actionId", js: "actionId", typ: "" },
+        { json: "actionId", js: "actionId", typ: u(undefined, "") },
         { json: "overriddenByRibbonApi", js: "overriddenByRibbonApi", typ: u(undefined, true) },
         { json: "enabled", js: "enabled", typ: u(undefined, true) },
         { json: "items", js: "items", typ: u(undefined, a(r("ExtensionCommonCustomControlMenuItem"))) },
@@ -1835,6 +2630,102 @@ const typeMap: any = {
         { json: "title", js: "title", typ: "" },
         { json: "description", js: "description", typ: "" },
     ], false),
+    "ContextMenuRequirements": o([
+        { json: "capabilities", js: "capabilities", typ: u(undefined, a(r("Capability"))) },
+        { json: "scopes", js: "scopes", typ: u(undefined, a(r("RequirementsScope"))) },
+        { json: "formFactors", js: "formFactors", typ: u(undefined, a(r("FormFactor"))) },
+    ], false),
+    "ExtensionGetStartedMessageArray": o([
+        { json: "requirements", js: "requirements", typ: u(undefined, r("GetStartedMessageRequirements")) },
+        { json: "title", js: "title", typ: "" },
+        { json: "description", js: "description", typ: "" },
+        { json: "learnMoreUrl", js: "learnMoreUrl", typ: "" },
+    ], false),
+    "GetStartedMessageRequirements": o([
+        { json: "capabilities", js: "capabilities", typ: u(undefined, a(r("Capability"))) },
+        { json: "scopes", js: "scopes", typ: u(undefined, a(r("RequirementsScope"))) },
+        { json: "formFactors", js: "formFactors", typ: u(undefined, a(r("FormFactor"))) },
+    ], false),
+    "ExtensionKeyboardShortcut": o([
+        { json: "requirements", js: "requirements", typ: u(undefined, r("RequirementsExtensionElement")) },
+        { json: "shortcuts", js: "shortcuts", typ: a(r("ExtensionShortcut")) },
+    ], "any"),
+    "ExtensionShortcut": o([
+        { json: "key", js: "key", typ: r("Key") },
+        { json: "actionId", js: "actionId", typ: "" },
+    ], "any"),
+    "Key": o([
+        { json: "default", js: "default", typ: "" },
+        { json: "mac", js: "mac", typ: u(undefined, "") },
+        { json: "web", js: "web", typ: u(undefined, "") },
+        { json: "windows", js: "windows", typ: u(undefined, "") },
+    ], "any"),
+    "ExtensionRibbonsArray": o([
+        { json: "requirements", js: "requirements", typ: u(undefined, r("RequirementsExtensionElement")) },
+        { json: "contexts", js: "contexts", typ: u(undefined, a(r("ExtensionContext"))) },
+        { json: "tabs", js: "tabs", typ: a(r("ExtensionRibbonsArrayTabsItem")) },
+        { json: "fixedControls", js: "fixedControls", typ: u(undefined, a(r("ExtensionRibbonsArrayFixedControlItem"))) },
+        { json: "spamPreProcessingDialog", js: "spamPreProcessingDialog", typ: u(undefined, r("ExtensionRibbonsSpamPreProcessingDialog")) },
+    ], false),
+    "ExtensionRibbonsArrayFixedControlItem": o([
+        { json: "id", js: "id", typ: "" },
+        { json: "type", js: "type", typ: r("FixedControlType") },
+        { json: "label", js: "label", typ: "" },
+        { json: "icons", js: "icons", typ: a(r("ExtensionCommonIcon")) },
+        { json: "supertip", js: "supertip", typ: r("ExtensionCommonSuperToolTip") },
+        { json: "actionId", js: "actionId", typ: "" },
+        { json: "enabled", js: "enabled", typ: true },
+    ], false),
+    "ExtensionRibbonsSpamPreProcessingDialog": o([
+        { json: "title", js: "title", typ: "" },
+        { json: "description", js: "description", typ: "" },
+        { json: "spamNeverShowAgainOption", js: "spamNeverShowAgainOption", typ: u(undefined, true) },
+        { json: "spamReportingOptions", js: "spamReportingOptions", typ: u(undefined, r("SpamReportingOptions")) },
+        { json: "spamFreeTextSectionTitle", js: "spamFreeTextSectionTitle", typ: u(undefined, "") },
+        { json: "spamMoreInfo", js: "spamMoreInfo", typ: u(undefined, r("SpamMoreInfo")) },
+    ], false),
+    "SpamMoreInfo": o([
+        { json: "text", js: "text", typ: "" },
+        { json: "url", js: "url", typ: "" },
+    ], "any"),
+    "SpamReportingOptions": o([
+        { json: "title", js: "title", typ: "" },
+        { json: "options", js: "options", typ: a("") },
+        { json: "type", js: "type", typ: u(undefined, r("SpamReportingOptionsType")) },
+    ], "any"),
+    "ExtensionRibbonsArrayTabsItem": o([
+        { json: "id", js: "id", typ: u(undefined, "") },
+        { json: "label", js: "label", typ: u(undefined, "") },
+        { json: "position", js: "position", typ: u(undefined, r("Position")) },
+        { json: "builtInTabId", js: "builtInTabId", typ: u(undefined, "") },
+        { json: "groups", js: "groups", typ: u(undefined, a(r("ExtensionRibbonsCustomTabGroupsItem"))) },
+        { json: "customMobileRibbonGroups", js: "customMobileRibbonGroups", typ: u(undefined, a(r("ExtensionRibbonsCustomMobileGroupItem"))) },
+    ], false),
+    "ExtensionRibbonsCustomMobileGroupItem": o([
+        { json: "id", js: "id", typ: "" },
+        { json: "label", js: "label", typ: "" },
+        { json: "controls", js: "controls", typ: a(r("ExtensionRibbonsCustomMobileControlButtonItem")) },
+    ], "any"),
+    "ExtensionRibbonsCustomMobileControlButtonItem": o([
+        { json: "id", js: "id", typ: "" },
+        { json: "type", js: "type", typ: r("FluffyType") },
+        { json: "label", js: "label", typ: "" },
+        { json: "icons", js: "icons", typ: a(r("ExtensionCustomMobileIcon")) },
+        { json: "actionId", js: "actionId", typ: "" },
+    ], "any"),
+    "ExtensionCustomMobileIcon": o([
+        { json: "size", js: "size", typ: 3.14 },
+        { json: "url", js: "url", typ: "" },
+        { json: "scale", js: "scale", typ: 3.14 },
+    ], false),
+    "ExtensionRibbonsCustomTabGroupsItem": o([
+        { json: "id", js: "id", typ: u(undefined, "") },
+        { json: "label", js: "label", typ: u(undefined, "") },
+        { json: "icons", js: "icons", typ: u(undefined, a(r("ExtensionCommonIcon"))) },
+        { json: "controls", js: "controls", typ: u(undefined, a(r("ExtensionCommonCustomGroupControlsItem"))) },
+        { json: "builtInGroupId", js: "builtInGroupId", typ: u(undefined, "") },
+        { json: "overriddenByRibbonApi", js: "overriddenByRibbonApi", typ: u(undefined, true) },
+    ], false),
     "Position": o([
         { json: "builtInTabId", js: "builtInTabId", typ: "" },
         { json: "align", js: "align", typ: r("Align") },
@@ -1846,6 +2737,7 @@ const typeMap: any = {
         { json: "code", js: "code", typ: r("ExtensionRuntimeCode") },
         { json: "lifetime", js: "lifetime", typ: u(undefined, r("Lifetime")) },
         { json: "actions", js: "actions", typ: u(undefined, a(r("ExtensionRuntimesActionsItem"))) },
+        { json: "customFunctions", js: "customFunctions", typ: u(undefined, r("ExtensionCustomFunctions")) },
     ], false),
     "ExtensionRuntimesActionsItem": o([
         { json: "id", js: "id", typ: "" },
@@ -1856,16 +2748,50 @@ const typeMap: any = {
         { json: "multiselect", js: "multiselect", typ: u(undefined, true) },
         { json: "supportsNoItemContext", js: "supportsNoItemContext", typ: u(undefined, true) },
     ], false),
-    "ExtensionRuntimeCode": o([
-        { json: "page", js: "page", typ: "" },
-        { json: "script", js: "script", typ: u(undefined, "") },
-    ], false),
+    "ExtensionCustomFunctions": o([
+        { json: "functions", js: "functions", typ: a(r("ExtensionFunction")) },
+        { json: "namespace", js: "namespace", typ: r("ExtensionCustomFunctionsNamespace") },
+        { json: "allowCustomDataForDataTypeAny", js: "allowCustomDataForDataTypeAny", typ: u(undefined, true) },
+    ], "any"),
+    "ExtensionFunction": o([
+        { json: "id", js: "id", typ: "" },
+        { json: "name", js: "name", typ: "" },
+        { json: "description", js: "description", typ: u(undefined, "") },
+        { json: "helpUrl", js: "helpUrl", typ: u(undefined, "") },
+        { json: "parameters", js: "parameters", typ: a(r("ExtensionFunctionParameter")) },
+        { json: "result", js: "result", typ: r("ExtensionResult") },
+        { json: "stream", js: "stream", typ: u(undefined, true) },
+        { json: "volatile", js: "volatile", typ: u(undefined, true) },
+        { json: "cancelable", js: "cancelable", typ: u(undefined, true) },
+        { json: "requiresAddress", js: "requiresAddress", typ: u(undefined, true) },
+        { json: "requiresParameterAddress", js: "requiresParameterAddress", typ: u(undefined, true) },
+    ], "any"),
+    "ExtensionFunctionParameter": o([
+        { json: "name", js: "name", typ: "" },
+        { json: "description", js: "description", typ: u(undefined, "") },
+        { json: "type", js: "type", typ: u(undefined, "") },
+        { json: "cellValueType", js: "cellValueType", typ: u(undefined, r("CellValueType")) },
+        { json: "dimensionality", js: "dimensionality", typ: u(undefined, r("Dimensionality")) },
+        { json: "optional", js: "optional", typ: u(undefined, u(true, null)) },
+        { json: "repeating", js: "repeating", typ: u(undefined, true) },
+    ], "any"),
+    "ExtensionResult": o([
+        { json: "dimensionality", js: "dimensionality", typ: u(undefined, r("Dimensionality")) },
+    ], "any"),
+    "ExtensionCustomFunctionsNamespace": o([
+        { json: "id", js: "id", typ: "" },
+        { json: "name", js: "name", typ: "" },
+    ], "any"),
     "GraphConnector": o([
         { json: "notificationUrl", js: "notificationUrl", typ: "" },
     ], false),
     "Icons": o([
         { json: "outline", js: "outline", typ: "" },
         { json: "color", js: "color", typ: "" },
+        { json: "color32x32", js: "color32x32", typ: u(undefined, "") },
+    ], false),
+    "IntuneInfo": o([
+        { json: "supportedMobileAppManagementVersion", js: "supportedMobileAppManagementVersion", typ: u(undefined, "") },
     ], false),
     "LocalizationInfo": o([
         { json: "defaultLanguageTag", js: "defaultLanguageTag", typ: "" },
@@ -1878,6 +2804,7 @@ const typeMap: any = {
     ], false),
     "MeetingExtensionDefinition": o([
         { json: "scenes", js: "scenes", typ: u(undefined, a(r("Scene"))) },
+        { json: "supportsCustomShareToStage", js: "supportsCustomShareToStage", typ: u(undefined, true) },
         { json: "supportsStreaming", js: "supportsStreaming", typ: u(undefined, true) },
         { json: "supportsAnonymousGuestUsers", js: "supportsAnonymousGuestUsers", typ: u(undefined, true) },
     ], false),
@@ -1889,9 +2816,9 @@ const typeMap: any = {
         { json: "maxAudience", js: "maxAudience", typ: 0 },
         { json: "seatsReservedForOrganizersOrPresenters", js: "seatsReservedForOrganizersOrPresenters", typ: 0 },
     ], false),
-    "Name": o([
+    "NameClass": o([
         { json: "short", js: "short", typ: "" },
-        { json: "full", js: "full", typ: "" },
+        { json: "full", js: "full", typ: u(undefined, "") },
     ], false),
     "StaticTab": o([
         { json: "entityId", js: "entityId", typ: "" },
@@ -1900,8 +2827,9 @@ const typeMap: any = {
         { json: "contentBotId", js: "contentBotId", typ: u(undefined, "") },
         { json: "websiteUrl", js: "websiteUrl", typ: u(undefined, "") },
         { json: "searchUrl", js: "searchUrl", typ: u(undefined, "") },
-        { json: "scopes", js: "scopes", typ: a(r("CommandListScope")) },
+        { json: "scopes", js: "scopes", typ: a(r("StaticTabScope")) },
         { json: "context", js: "context", typ: u(undefined, a(r("StaticTabContext"))) },
+        { json: "requirementSet", js: "requirementSet", typ: u(undefined, r("ElementRequirementSet")) },
     ], false),
     "SubscriptionOffer": o([
         { json: "offerId", js: "offerId", typ: "" },
@@ -1909,15 +2837,33 @@ const typeMap: any = {
     "WebApplicationInfo": o([
         { json: "id", js: "id", typ: "" },
         { json: "resource", js: "resource", typ: u(undefined, "") },
+        { json: "nestedAppAuthInfo", js: "nestedAppAuthInfo", typ: u(undefined, a(r("NestedAppAuthInfo"))) },
+    ], false),
+    "NestedAppAuthInfo": o([
+        { json: "redirectUri", js: "redirectUri", typ: "" },
+        { json: "scopes", js: "scopes", typ: a("") },
+        { json: "claims", js: "claims", typ: u(undefined, "") },
     ], false),
     "ResourceSpecificType": [
         "Application",
         "Delegated",
     ],
     "CommandListScope": [
+        "copilot",
         "groupChat",
         "personal",
         "team",
+    ],
+    "Source": [
+        "microsoftCopilotStudio",
+        "onedriveSharepoint",
+        "standard",
+    ],
+    "HostMustSupportFunctionalityName": [
+        "dialogAdaptiveCard",
+        "dialogAdaptiveCardBot",
+        "dialogUrl",
+        "dialogUrlBot",
     ],
     "AuthType": [
         "apiSecretServiceAuth",
@@ -1984,7 +2930,7 @@ const typeMap: any = {
     "ConnectorScope": [
         "team",
     ],
-    "SourceType": [
+    "SourceTypeEnum": [
         "bot",
     ],
     "DefaultSize": [
@@ -1997,6 +2943,7 @@ const typeMap: any = {
         "tab",
     ],
     "DefaultInstallScope": [
+        "copilot",
         "groupChat",
         "meetings",
         "personal",
@@ -2008,6 +2955,12 @@ const typeMap: any = {
         "media",
         "notifications",
         "openExternal",
+    ],
+    "MutualDependencyName": [
+        "bots",
+        "composeExtensions",
+        "configurableTabs",
+        "staticTabs",
     ],
     "FormFactor": [
         "desktop",
@@ -2024,6 +2977,17 @@ const typeMap: any = {
         "promptUser",
         "softBlock",
     ],
+    "ItemType": [
+        "menuItem",
+    ],
+    "PurpleType": [
+        "button",
+        "menu",
+    ],
+    "EntryPoint": [
+        "cell",
+        "text",
+    ],
     "ExtensionContext": [
         "default",
         "logEventMeetingDetailsAttendee",
@@ -2032,16 +2996,17 @@ const typeMap: any = {
         "meetingDetailsAttendee",
         "meetingDetailsOrganizer",
         "onlineMeetingDetailsOrganizer",
+        "spamReportingOverride",
     ],
-    "PurpleType": [
-        "mobileButton",
+    "FixedControlType": [
+        "button",
     ],
-    "ItemType": [
-        "menuItem",
+    "SpamReportingOptionsType": [
+        "checkbox",
+        "radio",
     ],
     "FluffyType": [
-        "button",
-        "menu",
+        "mobileButton",
     ],
     "Align": [
         "after",
@@ -2051,6 +3016,22 @@ const typeMap: any = {
         "executeFunction",
         "openPage",
     ],
+    "CellValueType": [
+        "booleancellvalue",
+        "cellvalue",
+        "doublecellvalue",
+        "entitycellvalue",
+        "errorcellvalue",
+        "formattednumbercellvalue",
+        "linkedentitycellvalue",
+        "localimagecellvalue",
+        "stringcellvalue",
+        "webimagecellvalue",
+    ],
+    "Dimensionality": [
+        "matrix",
+        "scalar",
+    ],
     "Lifetime": [
         "long",
         "short",
@@ -2059,7 +3040,7 @@ const typeMap: any = {
         "general",
     ],
     "ManifestVersion": [
-        "1.19",
+        "1.23",
     ],
     "Permission": [
         "identity",
@@ -2074,6 +3055,11 @@ const typeMap: any = {
         "personalTab",
         "privateChatTab",
         "teamLevelApp",
+    ],
+    "StaticTabScope": [
+        "groupChat",
+        "personal",
+        "team",
     ],
     "SupportedChannelType": [
         "privateChannels",
