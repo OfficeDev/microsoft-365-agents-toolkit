@@ -28,8 +28,12 @@ on:
         type: boolean
         default: false
         description: "Whether to release TTK as publish product"
+      skipmarkdowncheck:
+        type: boolean
+        default: false
+        description: "Whether to skip Markdown files check"
   schedule:
-    - cron: "0 16 * * *"
+    - cron: "0 11 * * *"  # UTC+8 19:00 make sure the daily build generated before the daily test pipeline trigger
 
 permissions:
   actions: write
@@ -38,6 +42,10 @@ permissions:
 jobs:
   cd:
     runs-on: ubuntu-latest
+    outputs:
+      markdown-check-result: ${{ steps.markdown-check.outcome }}
+      security-check-vsc-result: ${{ steps.security-check-vsc.outcome }}
+      security-check-vs-result: ${{ steps.security-check-vs.outcome }}
     env:
       CI: true
       PREID: ${{ github.event.inputs.preid }}
@@ -86,19 +94,42 @@ jobs:
         with:
           python-version: '3.x'
 
-      - name: Install Python dependencies for image analysis
+      - name: Install Python dependencies for image or hyperlink analysis
+        if: ${{ github.event.inputs.skipmarkdowncheck == 'false' || github.event.inputs.skipmarkdowncheck == ''}}
         run: |
           python -m pip install --upgrade pip
+          python -m pip install python-dateutil
           python -m pip install requests
 
-      - name: Check README images in VSC templates
+      - name: Check Markdown files image/hyperlink availability
+        id: markdown-check
+        if: ${{ github.event.inputs.skipmarkdowncheck == 'false' || github.event.inputs.skipmarkdowncheck == '' }}
+        continue-on-error: true  # Temporary allow failure
         run: |
-          python .github/scripts/analyze_readme_images.py --scan-directory templates/vsc --file-patterns "**/README.md" "**/README.md.tpl"
+          python -u .github/scripts/analyze_markdown.py --scan-directory "templates/vsc" "templates/vs"  --file-patterns "**/README.md" "**/README.md.tpl" --extra-files "packages/vscode-extension/CHANGELOG.md"
+
       - uses: actions/setup-node@v3
         with:
           node-version: 22
 
       - uses: pnpm/action-setup@v4
+
+      - name: Check package.json files for security vulnerabilities(VSC)
+        id: security-check-vsc
+        continue-on-error: true  # Allow pipeline to continue, notification will be sent on failure
+        run: |
+          python -u .github/scripts/check_npm_vulnerabilities.py --scan-directory "templates/vsc"
+
+      - name: Setup .NET for NuGet security check
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Check C# project NuGet packages for security vulnerabilities(VS)
+        id: security-check-vs
+        continue-on-error: true  # Allow pipeline to continue, notification will be sent on failure
+        run: |
+          python -u .github/scripts/check_nuget_vulnerabilities.py --scan-directory "templates/vs"
 
       - name: Install wine64
         run: |
@@ -377,3 +408,55 @@ jobs:
             versions.json
             *.vsix
             *.exe
+
+  notify-check-failures:
+    needs: cd
+    if: ${{ needs.cd.outputs.markdown-check-result == 'failure' || needs.cd.outputs.security-check-vsc-result == 'failure' || needs.cd.outputs.security-check-vs-result == 'failure' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v3
+
+      - name: Build failure message and subject
+        id: build-message
+        run: |
+          BODY=""
+          SUBJECT_PARTS=""
+          
+          if [ "${{ needs.cd.outputs.markdown-check-result }}" == "failure" ]; then
+            BODY="${BODY}<b>Markdown Check Failed</b><br/>Markdown files image/hyperlink availability check failed.<br/><br/>"
+            SUBJECT_PARTS="Markdown Check"
+          fi
+          
+          if [ "${{ needs.cd.outputs.security-check-vsc-result }}" == "failure" ]; then
+            if [ -n "$SUBJECT_PARTS" ]; then
+              SUBJECT_PARTS="${SUBJECT_PARTS}, Security Check (VSC)"
+            else
+              SUBJECT_PARTS="Security Check (VSC)"
+            fi
+            BODY="${BODY}<b>Security Check Failed (VSC Templates)</b><br/>Security vulnerabilities found in package.json files under templates/vsc.<br/><br/>"
+          fi
+          
+          if [ "${{ needs.cd.outputs.security-check-vs-result }}" == "failure" ]; then
+            if [ -n "$SUBJECT_PARTS" ]; then
+              SUBJECT_PARTS="${SUBJECT_PARTS}, Security Check (VS)"
+            else
+              SUBJECT_PARTS="Security Check (VS)"
+            fi
+            BODY="${BODY}<b>Security Check Failed (VS Templates)</b><br/>Vulnerable NuGet packages found in C# projects under templates/vs.<br/><br/>"
+          fi
+          
+          BODY="${BODY}Please check the workflow run for details: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          
+          echo "BODY=${BODY}" >> $GITHUB_OUTPUT
+          echo "SUBJECT=[CD Pipeline] ${SUBJECT_PARTS} Failed - ${{ github.ref_name }}" >> $GITHUB_OUTPUT
+
+      - name: Send email notification on check failures
+        uses: ./.github/actions/send-email-report
+        env:
+          TO: M365AgentsToolkitEngineerTeam@microsoft.com
+          BODY: '"${{ steps.build-message.outputs.BODY }}"'
+          SUBJECT: "${{ steps.build-message.outputs.SUBJECT }}"
+          MAIL_CLIENT_ID: ${{ secrets.TEST_CLEAN_CLIENT_ID }}
+          MAIL_CLIENT_SECRET: ${{ secrets.TEST_CLEAN_CLIENT_SECRET }}
+          MAIL_TENANT_ID: ${{ secrets.TEST_CLEAN_TENANT_ID }}

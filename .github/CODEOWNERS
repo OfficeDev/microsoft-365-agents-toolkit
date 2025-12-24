@@ -72,9 +72,9 @@
 /packages/vscode-extension/PRERELEASE.md @summzhan @sffamily
 /packages/vscode-extension/README.md @summzhan @sffamily
 
-/packages/vscode-extension/src/commonlib @HuihuiWu-Microsoft @sherylueen @wh-alice
+/packages/vscode-extension/src/commonlib @HuihuiWu-Microsoft @tecton @wh-alice
 /packages/vscode-extension/src/debug @qinzhouxu @llhmm01 @wh-alice
-/packages/vscode-extension/src/handlers/accounts @HuihuiWu-Microsoft @sherylueen @wh-alice
+/packages/vscode-extension/src/handlers/accounts @HuihuiWu-Microsoft @tecton @wh-alice
 /packages/vscode-extension/src/officeChat @llhmm01 @tecton @wh-alice
 /packages/vscode-extension/src/pluginDebugger @qinzhouxu @llhmm01 @wh-alice
 

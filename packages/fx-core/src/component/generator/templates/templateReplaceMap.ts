@@ -52,9 +52,6 @@ export function getTemplateReplaceMap(inputs: Inputs): { [key: string]: string }
     PlaceProjectFileInSolutionDir: placeProjectFileInSolutionDir ? "true" : "",
     SafeProjectName: safeProjectName,
     SafeProjectNameLowerCase: safeProjectName.toLocaleLowerCase(),
-    enableMETestToolByDefault: featureFlagManager.getBooleanValue(FeatureFlags.METestTool)
-      ? "true"
-      : "",
     useOpenAI: llmService === "llm-service-openai" ? "true" : "",
     useAzureOpenAI: llmService === "llm-service-azure-openai" ? "true" : "",
     openAIKey: openAIKey ?? "",
@@ -70,9 +67,6 @@ export function getTemplateReplaceMap(inputs: Inputs): { [key: string]: string }
     gcName: gcName ?? "",
     gcConnectionId: gcConnectionId ?? "",
     openAIEmbeddingModel: openAIEmbeddingModel ?? "",
-    isNewProjectTypeEnabled: featureFlagManager.getBooleanValue(FeatureFlags.NewProjectType)
-      ? "true"
-      : "",
     NewProjectTypeName: process.env.TEAMSFX_NEW_PROJECT_TYPE_NAME ?? "M365Agent",
     NewProjectTypeExt: process.env.TEAMSFX_NEW_PROJECT_TYPE_EXTENSION ?? "atkproj",
     CEAEnabled: featureFlagManager.getBooleanValue(FeatureFlags.CEAEnabled) ? "true" : "",
@@ -81,7 +75,6 @@ export function getTemplateReplaceMap(inputs: Inputs): { [key: string]: string }
     )
       ? "true"
       : "",
-    ShareEnabled: featureFlagManager.getBooleanValue(FeatureFlags.ShareEnabled) ? "true" : "",
     SensitivityLabelEnabled: featureFlagManager.getBooleanValue(
       FeatureFlags.SensitivityLabelEnabled
     )

@@ -45,7 +45,7 @@
     "html-loader": "^5.0.0",
     "html-webpack-plugin": "^5.6.0",
     "office-addin-cli": "^1.6.5",
-    "office-addin-debugging": "^5.1.6",
+    "office-addin-debugging": "^6.0.6",
     "office-addin-dev-certs": "^1.13.5",
     "office-addin-lint": "^2.3.5",
     "office-addin-manifest": "^1.13.6",
@@ -56,7 +56,7 @@
     "typescript": "^5.4.2",
     "webpack": "^5.95.0",
     "webpack-cli": "^5.1.4",
-    "webpack-dev-server": "5.1.0"
+    "webpack-dev-server": "^5.2.2"
   },
   "prettier": "office-addin-prettier-config",
   "browserslist": [

@@ -60,5 +60,18 @@
     "Teams_Agent_With_Data_Customize_Azure_OpenAI_ts_Local_Debug",
     "Teams_Agent_With_Data_Customize_Azure_OpenAI_ts_Remote_Debug",
     "Sample_Tab_With_Azure_Backend_Local_Debug",
-    "Sample_Teams_Conversation_Bot_using_Python_Only_Remote"
+    "Sample_Teams_Conversation_Bot_using_Python_Only_Remote",
+    "Feature_Adapt_Different_Themes",
+    "Feature_Check_copilot_license_disabled",
+    "Feature_Check_Copilot_License_Enabled",
+    "Feature_DA_Manifest_File_Function_Env_Support",
+    "Feature_DA_Manifest_File_Function_Manifest_Plugin_Support",
+    "Feature_DA_Manifest_File_Function_Path_Support",
+    "Feature_DA_No_Action_Add_ApiKey_Auth_Configurations",
+    "Feature_DA_No_Action_Add_Bearer_Auth_Configurations",
+    "Feature_Redirect_to_Correct_Docs",
+    "Feature_Setup_MCP_Server_Configurations",
+    "Feature_Sign_Out",
+    "Feature__Debug_All_Telemetry_Check_And_Terminated_Previous_Tasks",
+    "Feature__Share_Basic_DA"
 ]

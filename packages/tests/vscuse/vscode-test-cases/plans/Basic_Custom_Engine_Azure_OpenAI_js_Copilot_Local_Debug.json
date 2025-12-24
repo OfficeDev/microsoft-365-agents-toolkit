@@ -1,0 +1,117 @@
+{
+  "plan_metadata": {
+    "version": "1.1",
+    "plan_id": "plan_be7fa060",
+    "execution_context": {
+      "delay_between_steps": 1,
+      "stop_on_error": true,
+      "precondition_wait_timeout": 30,
+      "precondition_retry_interval": 2,
+      "step_retry_count": 0
+    },
+    "total_steps": 3,
+    "created_at": "2025-12-16T05:37:42.081767",
+    "name": "Basic Custom Engine Azure OpenAI js Copilot Local Debug",
+    "description": {
+      "other": "",
+      "owner": "v-yajunlu@microsoft.com",
+      "workitem": "33338523"
+    },
+    "generated_at": "2025-12-16T05:37:42.081767",
+    "execution_order": [
+      "plan_r_0928_012254",
+      "step_7e9c839e",
+      "step_30632b2b",
+      "plan_r_0930_054245",
+      "plan_r_1127_011918",
+      "step_c1920713",
+      "plan_r_0928_014459",
+      "plan_r_1021_081410",
+      "plan_f355465c",
+      "plan_568c0a08"
+    ],
+    "tags": [],
+    "updated_at": "2025-12-16T06:22:45.886490"
+  },
+  "steps": [
+    {
+      "step_id": "step_7e9c839e",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 338,
+        "y": 135
+      },
+      "description": "Click on the \"Custom Engine Agent\" option within the \"New Project\" dropdown menu in the Microsoft 365 Agents interface.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:338:135:16:5:22900047183ddd35",
+        "dhash:338:135:96:5:6c68a4668988d4aa",
+        "dhash:338:135:0:10:c8c88094b2717075"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_7e9c839e",
+      "created_at": "2025-12-16T06:21:52.342768",
+      "plan_id": "plan_be7fa060"
+    },
+    {
+      "step_id": "step_30632b2b",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 401,
+        "y": 83
+      },
+      "description": "Click the \"Basic Custom Engine Agent\" option in the dropdown menu to select an intelligent agent description within the Microsoft 365 Agents Toolkit interface.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:401:83:16:5:4a4a4a4bd40a921d",
+        "dhash:401:83:96:5:002812426a368900",
+        "dhash:401:83:0:10:c0d09094b2717075"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_30632b2b",
+      "created_at": "2025-12-16T06:21:52.350398",
+      "plan_id": "plan_be7fa060"
+    },
+    {
+      "step_id": "step_c1920713",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "enter"
+      },
+      "description": "Press the \"Enter\" key to select the \"Default folder\" option in the Workspace Folder dialog within the Microsoft 365 Agents Toolkit interface.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:512:384:0:20:f0b09494b2717075"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_c1920713",
+      "created_at": "2025-12-16T06:21:52.358179",
+      "plan_id": "plan_be7fa060"
+    }
+  ],
+  "screenshots": {
+    "step_7e9c839e": "step_7e9c839e",
+    "step_30632b2b": "step_30632b2b",
+    "step_c1920713": "step_c1920713"
+  }
+}

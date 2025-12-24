@@ -90,18 +90,12 @@ export class Generator {
       SolutionName: solutionNameFromVS ?? appName,
       ApiKey: apiKeyActionData,
       OAuth: oauthActionData,
-      enableMETestToolByDefault: featureFlagManager.getBooleanValue(FeatureFlags.METestTool)
-        ? "true"
-        : "",
       useOpenAI: llmServiceData?.llmService === "llm-service-openai" ? "true" : "",
       useAzureOpenAI: llmServiceData?.llmService === "llm-service-azure-openai" ? "true" : "",
       openAIKey: llmServiceData?.openAIKey ?? "",
       azureOpenAIKey: llmServiceData?.azureOpenAIKey ?? "",
       azureOpenAIEndpoint: llmServiceData?.azureOpenAIEndpoint ?? "",
       azureOpenAIDeploymentName: llmServiceData?.azureOpenAIDeploymentName ?? "",
-      isNewProjectTypeEnabled: featureFlagManager.getBooleanValue(FeatureFlags.NewProjectType)
-        ? "true"
-        : "",
       NewProjectTypeName: process.env.TEAMSFX_NEW_PROJECT_TYPE_NAME ?? "M365Agent",
       NewProjectTypeExt: process.env.TEAMSFX_NEW_PROJECT_TYPE_EXTENSION ?? "atkproj",
       CEAEnabled: featureFlagManager.getBooleanValue(FeatureFlags.CEAEnabled) ? "true" : "",
@@ -110,7 +104,6 @@ export class Generator {
       )
         ? "true"
         : "",
-      ShareEnabled: featureFlagManager.getBooleanValue(FeatureFlags.ShareEnabled) ? "true" : "",
       SensitivityLabelEnabled: featureFlagManager.getBooleanValue(
         FeatureFlags.SensitivityLabelEnabled
       )

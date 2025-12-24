@@ -3,9 +3,7 @@
 # Built-in environment variables
 TEAMSFX_ENV=dev
 APP_NAME_SUFFIX=dev
-{{#ShareEnabled}}
-AGENT_SCOPE=shared
-{{/ShareEnabled}}
+AGENT_SCOPE=personal
 
 # Generated during provision, you can also add your own variables.
 TEAMS_APP_ID=

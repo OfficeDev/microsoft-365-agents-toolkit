@@ -630,6 +630,22 @@ export class CreateAppPackageDriver implements StepDriver {
           if (addFileWithVariableRes.isErr()) {
             return err(addFileWithVariableRes.error);
           }
+        } else if (
+          (runtime as any).type === "RemoteMCPServer" &&
+          (runtime as any).spec?.mcp_tool_description?.file
+        ) {
+          const mcpFile = path.resolve(
+            path.dirname(pluginFilePath),
+            (runtime as any).spec.mcp_tool_description.file
+          );
+          // add mcp tool description file
+          const checkExistenceRes = await this.validateReferencedFile(mcpFile, appDirectory);
+          if (checkExistenceRes.isErr()) {
+            return err(checkExistenceRes.error);
+          }
+
+          const entryName = path.relative(appDirectory, mcpFile);
+          this.addFileInZip(zip, path.dirname(entryName), mcpFile);
         }
       }
     }

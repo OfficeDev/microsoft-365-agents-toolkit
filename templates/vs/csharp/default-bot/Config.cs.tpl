@@ -2,14 +2,14 @@ namespace {{SafeProjectName}}
 {
     public class ConfigOptions
     {
-        public TeamsConfigOptions Teams { get; set; }
+        public TeamsConfigOptions Teams { get; set; } = new();
     }
 
     public class TeamsConfigOptions
     {
-        public string BotType { get; set; }
-        public string ClientId { get; set; }
-        public string ClientSecret { get; set; }
-        public string TenantId { get; set; }
+        public string? BotType { get; set; }
+        public string? ClientId { get; set; }
+        public string? ClientSecret { get; set; }
+        public string? TenantId { get; set; }
     }
 }

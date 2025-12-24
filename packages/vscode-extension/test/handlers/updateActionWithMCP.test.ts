@@ -15,7 +15,7 @@ import * as systemEnvUtils from "../../src/utils/systemEnvUtils";
 import * as sharedOpts from "../../src/handlers/sharedOpts";
 import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
 import * as vscUI from "../../src/qm/vsc_ui";
-import { QuestionNames } from "@microsoft/teamsfx-core";
+import { QuestionNames, ODRProvider } from "@microsoft/teamsfx-core";
 import { MockCore } from "../mocks/mockCore";
 import * as globalVariables from "../../src/globalVariables";
 
@@ -79,13 +79,13 @@ describe("updateActionWithMCP", () => {
       const args = [{ serverName: "testServer", serverConfig: { url: "http://test.com" } }];
       const mockTools = [
         {
-          name: "mcp_testServer_tool1",
+          name: "mcp_testserver_tool1",
           description: "Test tool 1",
           inputSchema: {},
           tags: [],
         },
         {
-          name: "mcp_testServer_tool2",
+          name: "mcp_testserver_tool2",
           description: "Test tool 2",
           inputSchema: {},
           tags: [],
@@ -197,12 +197,58 @@ describe("updateActionWithMCP", () => {
       sinon.assert.calledOnce(runCommandStub);
     });
 
-    it("should process single local MCP server automatically", async () => {
+    it("should handle ODR server with command but no args", async () => {
+      const args = [
+        {
+          serverName: "odrServerNoArgs",
+          serverConfig: { type: "stdio", command: "odr" },
+        },
+      ];
+      const mockODRTools = [
+        {
+          name: "tool1",
+          description: "Test tool",
+          inputSchema: {},
+        },
+      ];
+      const mockODRServers = [
+        {
+          name: "my-server-noargs",
+          display_name: "My Server NoArgs",
+          description: "Test Server NoArgs",
+          version: "1.0.0",
+          identifier: "my-server-identifier-noargs",
+          tools: mockODRTools,
+          packageFamily: "test.package",
+          command: "odr",
+          args: [],
+        },
+      ];
+
+      sandbox.stub(ODRProvider, "listServers").resolves(mockODRServers);
+      sandbox.stub(ODRProvider, "getToolsForODRServer").resolves(mockODRTools);
+      sandbox.stub(ODRProvider, "isODRServer").returns(true);
+      const runCommandStub = sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+
+      const result = await updateActionWithMCP(args);
+
+      chai.assert.isTrue(result.isOk());
+      const calledInputs = runCommandStub.getCall(0).args[1] as Inputs;
+      chai.assert.equal(
+        calledInputs[QuestionNames.MCPLocalServerIdentifier],
+        "my-server-identifier-noargs"
+      );
+      chai.assert.equal(calledInputs[QuestionNames.MCPForDAAvailableTools].length, 1);
+      chai.assert.equal(calledInputs[QuestionNames.MCPForDAAvailableTools][0].name, "tool1");
+    });
+
+    it("should process single local MCP server automatically (non-ODR)", async () => {
       const mcpContent = {
         servers: {
           "local-server": {
             type: "stdio",
-            args: ["node", "server.js", "local-identifier"],
+            command: "node",
+            args: ["server.js"],
           },
         },
       };
@@ -222,7 +268,7 @@ describe("updateActionWithMCP", () => {
         .withArgs(expectedPath, "utf-8")
         .returns(JSON.stringify(mcpContent));
       sandbox.stub(parser, "parse").returns(mcpContent);
-      Object.defineProperty(vscode.lm, "tools", { value: mockTools, configurable: true });
+      sandbox.stub(vscode.lm, "tools").value(mockTools);
       const runCommandStub = sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
 
       const result = await updateActionWithMCP();
@@ -230,19 +276,72 @@ describe("updateActionWithMCP", () => {
       chai.assert.isTrue(result.isOk());
       sinon.assert.calledOnce(runCommandStub);
       const calledInputs = runCommandStub.getCall(0).args[1] as Inputs;
-      chai.assert.equal(calledInputs[QuestionNames.MCPLocalServerIdentifier], "local-identifier");
+      chai.assert.equal(calledInputs[QuestionNames.MCPLocalServerIdentifier], "local-server");
+    });
+
+    it("should process single local MCP server automatically (ODR)", async () => {
+      const mcpContent = {
+        servers: {
+          "odr-server": {
+            type: "stdio",
+            command: "odr",
+            args: ["run", "my-mcp-server"],
+          },
+        },
+      };
+      const mockODRTools = [
+        {
+          name: "tool1",
+          description: "Test tool",
+          inputSchema: {},
+        },
+      ];
+      const mockODRServers = [
+        {
+          name: "my-mcp-server",
+          display_name: "My MCP Server",
+          description: "Test MCP Server",
+          version: "1.0.0",
+          identifier: "my-mcp-server-id",
+          tools: mockODRTools,
+          packageFamily: "test.package",
+          command: "odr",
+          args: ["run", "my-mcp-server"],
+        },
+      ];
+
+      const expectedPath = path.join(mockProjectPath, ".vscode", "mcp.json");
+      sandbox.stub(fs, "pathExistsSync").withArgs(expectedPath).returns(true);
+      sandbox
+        .stub(fs, "readFileSync")
+        .withArgs(expectedPath, "utf-8")
+        .returns(JSON.stringify(mcpContent));
+      sandbox.stub(parser, "parse").returns(mcpContent);
+      sandbox.stub(ODRProvider, "listServers").resolves(mockODRServers);
+      sandbox.stub(ODRProvider, "getToolsForODRServer").resolves(mockODRTools);
+      sandbox.stub(ODRProvider, "isODRServer").returns(true);
+      const runCommandStub = sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+
+      const result = await updateActionWithMCP();
+
+      chai.assert.isTrue(result.isOk());
+      sinon.assert.calledOnce(runCommandStub);
+      const calledInputs = runCommandStub.getCall(0).args[1] as Inputs;
+      chai.assert.equal(calledInputs[QuestionNames.MCPLocalServerIdentifier], "my-mcp-server-id");
+      chai.assert.equal(calledInputs[QuestionNames.MCPForDAAvailableTools].length, 1);
+      chai.assert.equal(calledInputs[QuestionNames.MCPForDAAvailableTools][0].name, "tool1");
     });
 
     it("should show selection UI for multiple MCP servers", async () => {
       const mcpContent = {
         servers: {
-          server1: { url: "http://server1.com" },
-          server2: { url: "http://server2.com" },
+          "remote-server": { url: "http://remote.com" },
+          "remote-server2": { url: "http://remote2.com" },
         },
       };
       const mockTools = [
         {
-          name: "mcp_server1_tool1",
+          name: "mcp_remote-server_tool1",
           description: "Test tool",
           inputSchema: {},
           tags: [],
@@ -259,7 +358,7 @@ describe("updateActionWithMCP", () => {
       Object.defineProperty(vscode.lm, "tools", { value: mockTools, configurable: true });
       sandbox.stub(axios, "get").resolves({ status: 200 });
       sandbox.stub(vscUI, "VS_CODE_UI").value({
-        selectOption: sandbox.stub().resolves(ok({ type: "success", result: "server1" })),
+        selectOption: sandbox.stub().resolves(ok({ type: "success", result: "remote-server" })),
       });
       const runCommandStub = sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
 
@@ -275,13 +374,14 @@ describe("updateActionWithMCP", () => {
           "remote-server": { url: "http://remote.com" },
           "local-server": {
             type: "stdio",
-            args: ["node", "server.js", "local-id"],
+            command: "node",
+            args: ["server.js"],
           },
         },
       };
       const mockTools = [
         {
-          name: "mcp_localserver_tool1",
+          name: "mcp_local-server_tool1",
           description: "Test tool",
           inputSchema: {},
           tags: [],
@@ -295,6 +395,7 @@ describe("updateActionWithMCP", () => {
         .withArgs(expectedPath, "utf-8")
         .returns(JSON.stringify(mcpContent));
       sandbox.stub(parser, "parse").returns(mcpContent);
+      sandbox.stub(ODRProvider, "listServers").resolves([]);
       Object.defineProperty(vscode.lm, "tools", { value: mockTools, configurable: true });
       sandbox.stub(vscUI, "VS_CODE_UI").value({
         selectOption: sandbox.stub().resolves(ok({ type: "success", result: "local-server" })),
@@ -306,14 +407,14 @@ describe("updateActionWithMCP", () => {
       chai.assert.isTrue(result.isOk());
       sinon.assert.calledOnce(runCommandStub);
       const calledInputs = runCommandStub.getCall(0).args[1] as Inputs;
-      chai.assert.equal(calledInputs[QuestionNames.MCPLocalServerIdentifier], "local-id");
+      chai.assert.equal(calledInputs[QuestionNames.MCPLocalServerIdentifier], "local-server");
     });
 
     it("should return error when user cancels server selection", async () => {
       const mcpContent = {
         servers: {
-          server1: { url: "http://server1.com" },
-          server2: { url: "http://server2.com" },
+          "remote-server": { url: "http://remote.com" },
+          "remote-server2": { url: "http://remote2.com" },
         },
       };
 
@@ -341,7 +442,8 @@ describe("updateActionWithMCP", () => {
           "remote-server": { url: "http://remote.com" },
           "local-server": {
             type: "stdio",
-            args: ["node", "server.js", "my-local-identifier"],
+            command: "node",
+            args: ["server.js", "arg1"],
           },
         },
       };
@@ -375,11 +477,9 @@ describe("updateActionWithMCP", () => {
 
       await updateActionWithMCP();
 
-      // Verify that local server has correct detail with identifier
       const localServerOption = capturedOptions.find((opt: any) => opt.id === "local-server");
-      chai.assert.equal(localServerOption.detail, "my-local-identifier");
+      chai.assert.equal(localServerOption.detail, "node server.js arg1");
 
-      // Verify that remote server has correct detail with URL
       const remoteServerOption = capturedOptions.find((opt: any) => opt.id === "remote-server");
       chai.assert.equal(remoteServerOption.detail, "http://remote.com");
     });
@@ -400,19 +500,19 @@ describe("updateActionWithMCP", () => {
       const args = [{ serverName: "testServer", serverConfig: { url: "http://test.com" } }];
       const mockTools = [
         {
-          name: "mcp_testServer_getTodos",
+          name: "mcp_testserver_getTodos",
           description: "Get todos",
           inputSchema: { type: "object" },
           tags: ["todo"],
         },
         {
-          name: "mcp_testServer_createTodo",
+          name: "mcp_testserver_createTodo",
           description: "Create todo",
           inputSchema: { type: "object" },
           tags: ["todo"],
         },
         {
-          name: "mcp_otherServer_tool", // Should be filtered out
+          name: "mcp_otherserver_tool", // Should be filtered out
           description: "Other tool",
           inputSchema: {},
           tags: [],
@@ -441,7 +541,7 @@ describe("updateActionWithMCP", () => {
     it("should handle no authentication (200 response)", async () => {
       const args = [{ serverName: "testServer", serverConfig: { url: "http://test.com" } }];
       const mockTools = [
-        { name: "mcp_testServer_tool1", description: "Test", inputSchema: {}, tags: [] },
+        { name: "mcp_testserver_tool1", description: "Test", inputSchema: {}, tags: [] },
       ];
 
       sandbox.stub(vscode.lm, "tools").value(mockTools);
@@ -457,7 +557,7 @@ describe("updateActionWithMCP", () => {
     it("should handle OAuth authentication (401 response)", async () => {
       const args = [{ serverName: "testServer", serverConfig: { url: "http://test.com" } }];
       const mockTools = [
-        { name: "mcp_testServer_tool1", description: "Test", inputSchema: {}, tags: [] },
+        { name: "mcp_testserver_tool1", description: "Test", inputSchema: {}, tags: [] },
       ];
       const axiosError = {
         status: 401,
@@ -490,7 +590,7 @@ describe("updateActionWithMCP", () => {
     it("should handle OAuth with well-known URL fallback", async () => {
       const args = [{ serverName: "testServer", serverConfig: { url: "https://api.test.com/v1" } }];
       const mockTools = [
-        { name: "mcp_testServer_tool1", description: "Test", inputSchema: {}, tags: [] },
+        { name: "mcp_testserver_tool1", description: "Test", inputSchema: {}, tags: [] },
       ];
       const axiosError = {
         status: 401,
@@ -520,7 +620,7 @@ describe("updateActionWithMCP", () => {
     it("should handle network errors gracefully", async () => {
       const args = [{ serverName: "testServer", serverConfig: { url: "http://test.com" } }];
       const mockTools = [
-        { name: "mcp_testServer_tool1", description: "Test", inputSchema: {}, tags: [] },
+        { name: "mcp_testserver_tool1", description: "Test", inputSchema: {}, tags: [] },
       ];
       const networkError = new Error("Network error");
 
@@ -539,7 +639,7 @@ describe("updateActionWithMCP", () => {
     it("should set correct input values", async () => {
       const args = [{ serverName: "testServer", serverConfig: { url: "http://test.com" } }];
       const mockTools = [
-        { name: "mcp_testServer_tool1", description: "Test", inputSchema: {}, tags: [] },
+        { name: "mcp_testserver_tool1", description: "Test", inputSchema: {}, tags: [] },
       ];
 
       sandbox.stub(vscode.lm, "tools").value(mockTools);
@@ -550,7 +650,7 @@ describe("updateActionWithMCP", () => {
 
       const calledInputs = runCommandStub.getCall(0).args[1] as Inputs;
       chai.assert.equal(calledInputs[QuestionNames.MCPForDAServerUrl], "http://test.com");
-      chai.assert.equal(calledInputs[QuestionNames.MCPForDAServerName], "testServer");
+      chai.assert.equal(calledInputs[QuestionNames.MCPForDAServerName], "testserver");
       chai.assert.isArray(calledInputs[QuestionNames.MCPForDAAvailableTools]);
       chai.assert.equal(calledInputs[QuestionNames.MCPForDAAuth], "NoneAuth");
     });
@@ -558,7 +658,7 @@ describe("updateActionWithMCP", () => {
     it("should propagate runCommand errors", async () => {
       const args = [{ serverName: "testServer", serverConfig: { url: "http://test.com" } }];
       const mockTools = [
-        { name: "mcp_testServer_tool1", description: "Test", inputSchema: {}, tags: [] },
+        { name: "mcp_testserver_tool1", description: "Test", inputSchema: {}, tags: [] },
       ];
       const runCommandError = new UserError("test", "RunCommandError", "Run command failed");
 
@@ -574,6 +674,126 @@ describe("updateActionWithMCP", () => {
   });
 
   describe("edge cases", () => {
+    it("should handle server config with no command", async () => {
+      const mcpContent = {
+        servers: {
+          "local-server": {
+            type: "stdio",
+          },
+        },
+      };
+      const mockTools = [
+        {
+          name: "mcp_local-server_tool1",
+          description: "Test tool",
+          inputSchema: {},
+          tags: [],
+        },
+      ];
+
+      const expectedPath = path.join(mockProjectPath, ".vscode", "mcp.json");
+      sandbox.stub(fs, "pathExistsSync").withArgs(expectedPath).returns(true);
+      sandbox
+        .stub(fs, "readFileSync")
+        .withArgs(expectedPath, "utf-8")
+        .returns(JSON.stringify(mcpContent));
+      sandbox.stub(parser, "parse").returns(mcpContent);
+      sandbox.stub(ODRProvider, "listServers").resolves([]);
+      Object.defineProperty(vscode.lm, "tools", { value: mockTools, configurable: true });
+
+      const result = await updateActionWithMCP();
+
+      chai.assert.isTrue(result.isErr());
+    });
+
+    it("should handle server config with empty args for detail fallback", async () => {
+      const mcpContent = {
+        servers: {
+          "remote-server": { url: "http://remote.com" },
+          "local-server": {
+            type: "stdio",
+            command: "python",
+            args: [],
+          },
+        },
+      };
+      const mockTools = [
+        {
+          name: "mcp_remote-server_tool1",
+          description: "Test tool",
+          inputSchema: {},
+          tags: [],
+        },
+      ];
+
+      const expectedPath = path.join(mockProjectPath, ".vscode", "mcp.json");
+      sandbox.stub(fs, "pathExistsSync").withArgs(expectedPath).returns(true);
+      sandbox
+        .stub(fs, "readFileSync")
+        .withArgs(expectedPath, "utf-8")
+        .returns(JSON.stringify(mcpContent));
+      sandbox.stub(parser, "parse").returns(mcpContent);
+      Object.defineProperty(vscode.lm, "tools", { value: mockTools, configurable: true });
+      sandbox.stub(axios, "get").resolves({ status: 200 });
+
+      let capturedOptions: any;
+      sandbox.stub(vscUI, "VS_CODE_UI").value({
+        selectOption: sandbox.stub().callsFake((config: any) => {
+          capturedOptions = config.options;
+          return Promise.resolve(ok({ type: "success", result: "remote-server" }));
+        }),
+      });
+      sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+
+      await updateActionWithMCP();
+
+      const localServerOption = capturedOptions.find((opt: any) => opt.id === "local-server");
+      chai.assert.equal(localServerOption.detail, "python");
+    });
+
+    it("should handle remote server config with empty url", async () => {
+      const mcpContent = {
+        servers: {
+          "remote-server": { url: "http://remote.com" },
+          "remote-server2": {
+            url: "",
+          },
+        },
+      };
+      const mockTools = [
+        {
+          name: "mcp_remote-server_tool1",
+          description: "Test tool",
+          inputSchema: {},
+          tags: [],
+        },
+      ];
+
+      const expectedPath = path.join(mockProjectPath, ".vscode", "mcp.json");
+      sandbox.stub(fs, "pathExistsSync").withArgs(expectedPath).returns(true);
+      sandbox
+        .stub(fs, "readFileSync")
+        .withArgs(expectedPath, "utf-8")
+        .returns(JSON.stringify(mcpContent));
+      sandbox.stub(parser, "parse").returns(mcpContent);
+      Object.defineProperty(vscode.lm, "tools", { value: mockTools, configurable: true });
+      sandbox.stub(axios, "get").resolves({ status: 200 });
+
+      let capturedOptions: any;
+      sandbox.stub(vscUI, "VS_CODE_UI").value({
+        selectOption: sandbox.stub().callsFake((config: any) => {
+          capturedOptions = config.options;
+          return Promise.resolve(ok({ type: "success", result: "remote-server" }));
+        }),
+      });
+      sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+
+      await updateActionWithMCP();
+
+      const remoteServer2Option = capturedOptions.find((opt: any) => opt.id === "remote-server2");
+      chai.assert.equal(remoteServer2Option.detail, "");
+    });
+
     it("should handle undefined args", async () => {
       const expectedPath = path.join(mockProjectPath, ".vscode", "mcp.json");
       sandbox.stub(fs, "pathExistsSync").withArgs(expectedPath).returns(false);
@@ -600,7 +820,7 @@ describe("updateActionWithMCP", () => {
         },
       ];
       const mockTools = [
-        { name: "mcp_testServer_tool1", description: "Test", inputSchema: {}, tags: [] },
+        { name: "mcp_testserver_tool1", description: "Test", inputSchema: {}, tags: [] },
       ];
 
       sandbox.stub(vscode.lm, "tools").value(mockTools);
@@ -614,75 +834,80 @@ describe("updateActionWithMCP", () => {
       chai.assert.isUndefined(calledInputs[QuestionNames.MCPLocalServerIdentifier]);
     });
 
-    it("should handle local MCP with stdio type", async () => {
+    it("should handle local MCP with stdio type (non-ODR)", async () => {
       const args = [
         {
           serverName: "localServer",
-          serverConfig: { type: "stdio", args: ["node", "server.js", "local-identifier"] },
+          serverConfig: { type: "stdio", command: "node", args: ["server.js"] },
         },
       ];
       const mockTools = [
-        { name: "mcp_localServer_tool1", description: "Test", inputSchema: {}, tags: [] },
+        { name: "mcp_localserver_tool1", description: "Test", inputSchema: {}, tags: [] },
       ];
 
       sandbox.stub(vscode.lm, "tools").value(mockTools);
+      sandbox.stub(ODRProvider, "listServers").resolves([]);
       const runCommandStub = sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
 
       const result = await updateActionWithMCP(args);
 
       chai.assert.isTrue(result.isOk());
       const calledInputs = runCommandStub.getCall(0).args[1] as Inputs;
-      chai.assert.equal(calledInputs[QuestionNames.MCPLocalServerIdentifier], "local-identifier");
+      chai.assert.equal(calledInputs[QuestionNames.MCPLocalServerIdentifier], "localServer");
     });
 
-    it("should error when local MCP missing identifier", async () => {
+    it("should handle local MCP with stdio type (ODR)", async () => {
       const args = [
         {
-          serverName: "localServer",
-          serverConfig: { type: "stdio" },
+          serverName: "odrServer",
+          serverConfig: { type: "stdio", command: "odr", args: ["run", "my-server"] },
         },
       ];
-      const mockTools = [
-        { name: "mcp_localServer_tool1", description: "Test", inputSchema: {}, tags: [] },
+      const mockODRTools = [{ name: "tool1", description: "Test", inputSchema: {} }];
+      const mockODRServers = [
+        {
+          name: "my-server",
+          display_name: "My Server",
+          description: "Test Server",
+          version: "1.0.0",
+          identifier: "my-server-identifier",
+          tools: mockODRTools,
+          packageFamily: "test.package",
+          command: "odr",
+          args: ["run", "my-server"],
+        },
       ];
 
-      sandbox.stub(vscode.lm, "tools").value(mockTools);
+      sandbox.stub(ODRProvider, "listServers").resolves(mockODRServers);
+      sandbox.stub(ODRProvider, "getToolsForODRServer").resolves(mockODRTools);
+      sandbox.stub(ODRProvider, "isODRServer").returns(true);
+      const runCommandStub = sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
 
       const result = await updateActionWithMCP(args);
 
-      chai.assert.isTrue(result.isErr());
-    });
-
-    it("should error when local MCP missing identifier from args array", async () => {
-      const args = [
-        {
-          serverName: "localServer",
-          serverConfig: { type: "stdio", args: ["node", "server.js"] },
-        },
-      ];
-      const mockTools = [
-        { name: "mcp_localServer_tool1", description: "Test", inputSchema: {}, tags: [] },
-      ];
-
-      sandbox.stub(vscode.lm, "tools").value(mockTools);
-
-      const result = await updateActionWithMCP(args);
-
-      chai.assert.isTrue(result.isErr());
+      chai.assert.isTrue(result.isOk());
+      const calledInputs = runCommandStub.getCall(0).args[1] as Inputs;
+      chai.assert.equal(
+        calledInputs[QuestionNames.MCPLocalServerIdentifier],
+        "my-server-identifier"
+      );
+      chai.assert.equal(calledInputs[QuestionNames.MCPForDAAvailableTools].length, 1);
+      chai.assert.equal(calledInputs[QuestionNames.MCPForDAAvailableTools][0].name, "tool1");
     });
 
     it("should set mcp-type to local for stdio servers", async () => {
       const args = [
         {
           serverName: "localServer",
-          serverConfig: { type: "stdio", args: ["node", "server.js", "local-id"] },
+          serverConfig: { type: "stdio", command: "node", args: ["server.js"] },
         },
       ];
       const mockTools = [
-        { name: "mcp_localServer_tool1", description: "Test", inputSchema: {}, tags: [] },
+        { name: "mcp_localserver_tool1", description: "Test", inputSchema: {}, tags: [] },
       ];
 
       sandbox.stub(vscode.lm, "tools").value(mockTools);
+      sandbox.stub(ODRProvider, "listServers").resolves([]);
       sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
 
       await updateActionWithMCP(args);
@@ -694,7 +919,7 @@ describe("updateActionWithMCP", () => {
     it("should set mcp-type to remote for non-stdio servers", async () => {
       const args = [{ serverName: "remoteServer", serverConfig: { url: "http://remote.com" } }];
       const mockTools = [
-        { name: "mcp_remoteServer_tool1", description: "Test", inputSchema: {}, tags: [] },
+        { name: "mcp_remoteserver_tool1", description: "Test", inputSchema: {}, tags: [] },
       ];
 
       sandbox.stub(vscode.lm, "tools").value(mockTools);
@@ -711,15 +936,16 @@ describe("updateActionWithMCP", () => {
       const args = [
         {
           serverName: "localServer",
-          serverConfig: { type: "stdio", args: ["node", "server.js", "local-id"] },
+          serverConfig: { type: "stdio", command: "node", args: ["server.js"] },
         },
       ];
       const mockTools = [
-        { name: "mcp_localServer_tool1", description: "Test", inputSchema: {}, tags: [] },
+        { name: "mcp_localserver_tool1", description: "Test", inputSchema: {}, tags: [] },
       ];
       const runCommandError = new UserError("test", "RunCommandError", "Run command failed");
 
       sandbox.stub(vscode.lm, "tools").value(mockTools);
+      sandbox.stub(ODRProvider, "listServers").resolves([]);
       sandbox.stub(sharedOpts, "runCommand").resolves(err(runCommandError));
 
       await updateActionWithMCP(args);
@@ -731,7 +957,7 @@ describe("updateActionWithMCP", () => {
     it("should handle 401 error with no response headers", async () => {
       const args = [{ serverName: "testServer", serverConfig: { url: "http://test.com" } }];
       const mockTools = [
-        { name: "mcp_testServer_tool1", description: "Test", inputSchema: {}, tags: [] },
+        { name: "mcp_testserver_tool1", description: "Test", inputSchema: {}, tags: [] },
       ];
       const axiosError = {
         status: 401,
@@ -755,7 +981,7 @@ describe("updateActionWithMCP", () => {
     it("should parse www-authenticate header with match", async () => {
       const args = [{ serverName: "testServer", serverConfig: { url: "http://test.com" } }];
       const mockTools = [
-        { name: "mcp_testServer_tool1", description: "Test", inputSchema: {}, tags: [] },
+        { name: "mcp_testserver_tool1", description: "Test", inputSchema: {}, tags: [] },
       ];
       const axiosError = {
         status: 401,
@@ -783,14 +1009,15 @@ describe("updateActionWithMCP", () => {
       const args = [
         {
           serverName: "localServer",
-          serverConfig: { type: "stdio", args: ["node", "server.js", "local-id"] },
+          serverConfig: { type: "stdio", command: "node", args: ["server.js"] },
         },
       ];
       const mockTools = [
-        { name: "mcp_localServer_tool1", description: "Test", inputSchema: {}, tags: [] },
+        { name: "mcp_localserver_tool1", description: "Test", inputSchema: {}, tags: [] },
       ];
 
       sandbox.stub(vscode.lm, "tools").value(mockTools);
+      sandbox.stub(ODRProvider, "listServers").resolves([]);
       const axiosStub = sandbox.stub(axios, "get");
       const runCommandStub = sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
 
@@ -800,6 +1027,67 @@ describe("updateActionWithMCP", () => {
       chai.assert.isFalse(axiosStub.called);
       const calledInputs = runCommandStub.getCall(0).args[1] as Inputs;
       chai.assert.equal(calledInputs[QuestionNames.MCPForDAAuth], "NoneAuth");
+    });
+
+    it("should return original server name when serverConfig type is not stdio", async () => {
+      const args = [
+        {
+          serverName: "remoteServer",
+          serverConfig: { type: "sse", url: "http://test.com" },
+        },
+      ];
+      const mockTools = [
+        { name: "mcp_remoteserver_tool1", description: "Test", inputSchema: {}, tags: [] },
+      ];
+
+      sandbox.stub(vscode.lm, "tools").value(mockTools);
+      sandbox.stub(axios, "get").resolves({ status: 200 });
+      const runCommandStub = sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+
+      const result = await updateActionWithMCP(args);
+
+      chai.assert.isTrue(result.isOk());
+      const calledInputs = runCommandStub.getCall(0).args[1] as Inputs;
+      chai.assert.isUndefined(calledInputs[QuestionNames.MCPLocalServerIdentifier]);
+    });
+
+    it("should construct detail with command only when args is undefined", async () => {
+      const mcpContent = {
+        servers: {
+          "test-server": { url: "http://test.com" },
+          "test-server2": {
+            type: "stdio",
+            command: "node",
+          },
+        },
+      };
+      const mockTools = [
+        { name: "mcp_test-server_tool1", description: "Test tool", inputSchema: {}, tags: [] },
+      ];
+
+      const expectedPath = path.join(mockProjectPath, ".vscode", "mcp.json");
+      sandbox.stub(fs, "pathExistsSync").withArgs(expectedPath).returns(true);
+      sandbox
+        .stub(fs, "readFileSync")
+        .withArgs(expectedPath, "utf-8")
+        .returns(JSON.stringify(mcpContent));
+      sandbox.stub(parser, "parse").returns(mcpContent);
+      Object.defineProperty(vscode.lm, "tools", { value: mockTools, configurable: true });
+      sandbox.stub(axios, "get").resolves({ status: 200 });
+
+      let capturedOptions: any;
+      sandbox.stub(vscUI, "VS_CODE_UI").value({
+        selectOption: sandbox.stub().callsFake((config: any) => {
+          capturedOptions = config.options;
+          return Promise.resolve(ok({ type: "success", result: "test-server" }));
+        }),
+      });
+      sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+
+      await updateActionWithMCP();
+
+      const server2Option = capturedOptions.find((opt: any) => opt.id === "test-server2");
+      chai.assert.equal(server2Option.detail, "node");
     });
   });
 });

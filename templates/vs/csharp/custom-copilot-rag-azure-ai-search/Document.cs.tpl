@@ -7,13 +7,13 @@ namespace {{SafeProjectName}}
     public class Document
     {
         [SimpleField(IsKey = true, IsFilterable = true, IsSortable = true)]
-        public string DocId { get; set; }
+        public string? DocId { get; set; }
 
         [SearchableField(IsFilterable = true, IsSortable = true)]
-        public string DocTitle { get; set; }
+        public string? DocTitle { get; set; }
 
         [SearchableField(AnalyzerName = LexicalAnalyzerName.Values.EnLucene)]
-        public string Description { get; set; }
+        public string? Description { get; set; }
 
         [VectorSearchField(VectorSearchDimensions = 1536, VectorSearchProfileName = "my-vector-config")]
         public IReadOnlyList<float>? DescriptionVector { get; set; } = null;

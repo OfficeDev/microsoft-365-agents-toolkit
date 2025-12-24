@@ -599,9 +599,7 @@ export class KnowledgeSourceOptions {
   static allWithFeatureFlags(): OptionItem[] {
     const items: OptionItem[] = [
       KnowledgeSourceOptions.webSearch(),
-      ...(featureFlagManager.getBooleanValue(FeatureFlags.AddODSPKnowledge)
-        ? [KnowledgeSourceOptions.oneDriveSharePoint()]
-        : []),
+      KnowledgeSourceOptions.oneDriveSharePoint(),
       KnowledgeSourceOptions.graphConnector(),
     ];
     if (featureFlagManager.getBooleanValue(FeatureFlags.EmbeddedKnowledgeEnabled)) {

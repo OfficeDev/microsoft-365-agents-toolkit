@@ -37,6 +37,10 @@ This template shows how to wrap your existing MCP Server into a Microsoft 365 
 
     When prompted, Click ATK:Fetch Action from MCP" in the mcp.json file choose Pre‑fetch tools (for offline IntelliSense) or Dynamic. ATK will list all available MCP actions—check the ones you want in your agent.
 
+    > If you need the complete tool definitions, open [MCP Inspector](https://github.com/modelcontextprotocol/inspector?tab=readme-ov-file#running-the-inspector) and retrieve the full details there. Then replace the corresponding schema section in your `mcp-tools.json` file with the full definitions.
+
+    ![image](https://github.com/user-attachments/assets/9184ddcc-e42c-4fee-bd83-830d199755e6)
+
 7. Configure Auth
 
     ATK will retrieve the authentication information for your MCP server and store these values are in env/.env.development and a secure reference is injected into appPackage/ai-plugin.json. If the inputted MCP server authentication information is not configure correctly according to the MCP protocol, ATK will prompt errors.

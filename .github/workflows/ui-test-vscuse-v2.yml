@@ -36,23 +36,29 @@ jobs:
       contents: write
     outputs:
       test-plans: ${{ steps.get-plans.outputs.plans }}
-      email-receiver: ${{ steps.get-plans.outputs.email-receiver }}
+      email-receiver: ${{ steps.set-email.outputs.email-receiver }}
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Get test plans
-        id: get-plans
+      - name: Set email receiver
+        id: set-email
         run: |
-          # Set email receiver - use user input if provided, otherwise use default
-          if [ -n "${{ github.event.inputs.email-receiver }}" ]; then
+          # Set email receiver based on trigger type
+          if [ "${{ github.event_name }}" == "schedule" ]; then
+            echo "email-receiver=zhenjiao@microsoft.com;M365AgentsToolkitEngineerTeam@microsoft.com;teamsfxqa@microsoft.com" >> $GITHUB_OUTPUT
+            echo "Schedule trigger: Using default email receivers"
+          elif [ -n "${{ github.event.inputs.email-receiver }}" ]; then
             echo "email-receiver=${{ github.event.inputs.email-receiver }}" >> $GITHUB_OUTPUT
             echo "Using user-provided email receiver: ${{ github.event.inputs.email-receiver }}"
           else
-            echo "email-receiver=zhendr@microsoft.com;teamsfxqa@microsoft.com" >> $GITHUB_OUTPUT
-            echo "Using default email receiver: teamsfxqa@microsoft.com"
+            echo "email-receiver=" >> $GITHUB_OUTPUT
+            echo "No email receiver specified"
           fi
-
+          
+      - name: Get test plans
+        id: get-plans
+        run: |
           if [ "${{ github.event.inputs.pre_release_testing }}" == "true" ]; then
             if [ -f "packages/tests/vscuse/vscode-test-cases/pre-release-test-cases.json" ]; then
               plans=$(cat packages/tests/vscuse/vscode-test-cases/pre-release-test-cases.json | jq -c '.')
@@ -85,7 +91,7 @@ jobs:
       matrix:
         test_plan: ${{ fromJson(needs.discover-test-plans.outputs.test-plans) }}
       fail-fast: false
-      max-parallel: 30
+      max-parallel: 50
     permissions:
       contents: read
       packages: write
@@ -99,8 +105,10 @@ jobs:
       AZURE_OPENAI_ENDPOINT: ${{ secrets.AZURE_OPENAI_ENDPOINT_NEW }}
       AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_KEY_NEW }}
       AZURE_OPENAI_MODEL: "gpt-4.1"
-      AZURE_SEARCH_ENDPOINT: ${{ secrets.AZURE_SEARCH_ENDPOINT_NEW }}
-      AZURE_SEARCH_KEY: ${{ secrets.AZURE_SEARCH_KEY_NEW }}
+      # AZURE AI search
+      AZURE_OPENAI_EMBEDDING_DEPLOYMENT_NAME: "text-embedding-ada-002"
+      AZURE_SEARCH_ENDPOINT: ${{ secrets.AZURE_SEARCH_ENDPOINT }}
+      AZURE_SEARCH_KEY: ${{ secrets.AZURE_SEARCH_KEY }}
       # Azure Service Principal for M365 Toolkit authentication
       #AZURE_CLIENT_ID: ${{ secrets.AZURE_SERVICE_PRINCIPAL_ID }}
       #AZURE_CLIENT_SECRET: ${{ secrets.AZURE_SERVICE_PRINCIPAL_SECRET }}
@@ -108,20 +116,24 @@ jobs:
       AZURE_SUBSCRIPTION_ID: ${{ secrets.TEST_SUBSCRIPTION_ID_NEW }}
       AZURE_AUTH_ENABLED: ${{ secrets.AZURE_SERVICE_PRINCIPAL_ID != '' && secrets.AZURE_SERVICE_PRINCIPAL_SECRET != '' && secrets.TEST_TENANT_ID_NEW != '' }}
       # M365 account for testing
-      M365_USERNAME_1: "test21@xxbdw.onmicrosoft.com"
-      M365_USERNAME_2: "test22@xxbdw.onmicrosoft.com"
-      M365_USERNAME_3: "test23@xxbdw.onmicrosoft.com"
-      M365_USERNAME_4: "test24@xxbdw.onmicrosoft.com"
-      M365_USERNAME_5: "test31@xxbdw.onmicrosoft.com"
-      M365_USERNAME_6: "test32@xxbdw.onmicrosoft.com"
-      M365_USERNAME_7: "test33@xxbdw.onmicrosoft.com"
-      M365_USERNAME_8: "test34@xxbdw.onmicrosoft.com"
-      M365_USERNAME_9: "test35@xxbdw.onmicrosoft.com"
-      M365_USERNAME_10: "test36@xxbdw.onmicrosoft.com"
-      M365_USERNAME_11: "test37@xxbdw.onmicrosoft.com"
-      M365_USERNAME_12: "test38@xxbdw.onmicrosoft.com"
+      M365_USERNAME_1: "test001@xxbdw.onmicrosoft.com"
+      M365_USERNAME_2: "test002@xxbdw.onmicrosoft.com"
+      M365_USERNAME_3: "test003@xxbdw.onmicrosoft.com"
+      M365_USERNAME_4: "test004@xxbdw.onmicrosoft.com"
+      M365_USERNAME_5: "test005@xxbdw.onmicrosoft.com"
+      M365_USERNAME_6: "test006@xxbdw.onmicrosoft.com"
+      M365_USERNAME_7: "test007@xxbdw.onmicrosoft.com"
+      M365_USERNAME_8: "test008@xxbdw.onmicrosoft.com"
+      M365_USERNAME_9: "test009@xxbdw.onmicrosoft.com"
+      M365_USERNAME_10: "test010@xxbdw.onmicrosoft.com"
+      M365_USERNAME_11: "test011@xxbdw.onmicrosoft.com"
+      M365_USERNAME_12: "test012@xxbdw.onmicrosoft.com"
+      M365_USERNAME_13: "test013@xxbdw.onmicrosoft.com"
+      M365_USERNAME_14: "test014@xxbdw.onmicrosoft.com"
+      M365_USERNAME_15: "test015@xxbdw.onmicrosoft.com"
+      M365_USERNAME_16: "test016@xxbdw.onmicrosoft.com"
+      M365_USERNAME_17: "test017@xxbdw.onmicrosoft.com"
       M365_ACCOUNT_PASSWORD: ${{ secrets.TEST_M365_PASSWORD }}
-
       # The test account for Copilot features
       M365_ACCOUNT_NAME_EnableCopilotAccess: "test01@atktesting.onmicrosoft.com"
       M365_ACCOUNT_PASSWORD_EnableCopilotAccess: ${{ secrets.TEST_M365_PASSWORD_NEW }}
@@ -200,7 +212,7 @@ jobs:
 
       - name: Set m365 account randomly
         run: |
-          users=("${{ env.M365_USERNAME_1 }}" "${{ env.M365_USERNAME_2 }}" "${{ env.M365_USERNAME_3 }}" "${{ env.M365_USERNAME_4 }}" "${{ env.M365_USERNAME_5 }}" "${{ env.M365_USERNAME_6 }}" "${{ env.M365_USERNAME_7 }}" "${{ env.M365_USERNAME_8 }}" "${{ env.M365_USERNAME_9 }}" "${{ env.M365_USERNAME_10 }}" "${{ env.M365_USERNAME_11 }}" "${{ env.M365_USERNAME_12 }}")
+          users=("${{ env.M365_USERNAME_1 }}" "${{ env.M365_USERNAME_2 }}" "${{ env.M365_USERNAME_3 }}" "${{ env.M365_USERNAME_4 }}" "${{ env.M365_USERNAME_5 }}" "${{ env.M365_USERNAME_6 }}" "${{ env.M365_USERNAME_7 }}" "${{ env.M365_USERNAME_8 }}" "${{ env.M365_USERNAME_9 }}" "${{ env.M365_USERNAME_10 }}" "${{ env.M365_USERNAME_11 }}" "${{ env.M365_USERNAME_12 }}" "${{ env.M365_USERNAME_13 }}" "${{ env.M365_USERNAME_14 }}" "${{ env.M365_USERNAME_15 }}" "${{ env.M365_USERNAME_16 }}" "${{ env.M365_USERNAME_17 }}")
           count=${#users[@]}
           index=$((RANDOM%$count))
           echo "account index: $index"
@@ -238,17 +250,6 @@ jobs:
           source .venv/bin/activate
           vscuse execute --config-file ./config.yaml --groups-dir groups ./plans/${{ matrix.test_plan }}.json
 
-      - name: Upload test artifacts
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-debug-artifacts-${{ matrix.test_plan }}-${{ github.run_number }}
-          path: |
-            packages/tests/vscuse/vscode-test-cases/test_report/
-          retention-days: 7
-          if-no-files-found: ignore
-
-
       - name: Rename test_report.html to index.html
         if: always()
         run: |
@@ -259,6 +260,39 @@ jobs:
           else
             echo "No test_report.html found to rename"
           fi
+      - name: Encrypt and zip test report
+        if: always()
+        run: |
+          REPORT_DIR="packages/tests/vscuse/vscode-test-cases/test_report"
+          ZIP_FILE="test-report-${{ matrix.test_plan }}-${{ github.run_number }}.zip"
+
+          if [ -z "${{ secrets.ARTIFACT_ZIP_PASSWORD }}" ]; then
+            echo "❌ Error: ARTIFACT_ZIP_PASSWORD secret is not set"
+            echo "Please configure the ARTIFACT_ZIP_PASSWORD secret in repository settings"
+            exit 1
+          fi
+          
+          # Install zip if not available
+          sudo apt-get update && sudo apt-get install -y zip
+          
+          # Create encrypted zip file in the report directory
+          cd "$REPORT_DIR"
+          zip -e -P "${{ secrets.ARTIFACT_ZIP_PASSWORD }}" "$ZIP_FILE" index.html
+          cd -
+          
+          echo "✅ Created encrypted zip: $REPORT_DIR/$ZIP_FILE"
+          echo "ZIP_FILE=$ZIP_FILE" >> $GITHUB_ENV
+        shell: bash
+
+      - name: Upload encrypted test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-report-${{ matrix.test_plan }}-${{ github.run_number }}
+          path: packages/tests/vscuse/vscode-test-cases/test_report/${{ env.ZIP_FILE }}
+          retention-days: 7
+          if-no-files-found: ignore
+
       # Upload files to Azure Blob Storage
       - name : Login to Azure
         if: always()
@@ -319,7 +353,43 @@ jobs:
     runs-on: ubuntu-latest
     env:
       MAX_RETRIES: ${{ github.event.inputs.max_retries || 7 }}
+      M365_ACCOUNT_PASSWORD: ${{ secrets.TEST_M365_PASSWORD }}
+      M365_ACCOUNT_NAME: "test14@xxbdw.onmicrosoft.com"
+      CLEAN_CLIENT_ID: ${{ secrets.TEST_CLEAN_CLIENT_ID }}
+      CLEAN_CLIENT_SECRET: ${{ secrets.TEST_CLEAN_CLIENT_SECRET }}
+      CLEAN_TENANT_ID: ${{ secrets.TEST_CLEAN_TENANT_ID }}
+      AZURE_TENANT_ID: ${{ secrets.TEST_TENANT_ID }}
+      AZURE_SUBSCRIPTION_ID: ${{ secrets.TEST_SUBSCRIPTION_ID }}
+      AZURE_ACCOUNT_NAME: ${{ secrets.TEST_USER_NAME }}
+      AZURE_ACCOUNT_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
     steps:
+      - name: Checkout
+        if: ${{ github.event_name == 'schedule' }}
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+
+      - name: Setup node
+        if: ${{ github.event_name == 'schedule' }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: 22
+
+      - uses: pnpm/action-setup@v4
+        if: ${{ github.event_name == 'schedule' }}
+
+      - name: Setup project
+        if: ${{ github.event_name == 'schedule' }}
+        working-directory: ./
+        run: |
+          npm run setup:e2e
+
+      - name: Clean resources
+        if: ${{ github.event_name == 'schedule' }}
+        working-directory: packages/tests
+        run: |
+          npx ts-node src/scripts/clean.ts
+
       - name: Calculate max retries
         id: calc-retries
         run: |
@@ -345,7 +415,8 @@ jobs:
 
   report:
     # Only send email on the last attempt or when all tests pass
-    if: ${{ always() && needs.discover-test-plans.outputs.email-receiver && (success() || github.run_attempt >= (github.event.inputs.max_retries || 7)) }}
+    # Send email if: (1) triggered by schedule, OR (2) triggered manually with email-receiver input provided
+    if: ${{ always() && (github.event_name == 'schedule' || needs.discover-test-plans.outputs.email-receiver != '') && (success() || github.run_attempt >= (github.event.inputs.max_retries || 7)) }}
     needs: [discover-test-plans, main]
     runs-on: ubuntu-latest
     defaults:
@@ -449,10 +520,10 @@ jobs:
           
           while :
           do
-            url="https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/attempts/${{ github.run_attempt }}/jobs?per_page=100&page=$page"
+            url="https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/attempts/${{ github.run_attempt }}/jobs?per_page=80&page=$page"
             echo "Fetching URL: $url"
       
-            resp=$(curl -s -H "Accept: application/vnd.github.v3+json" -u:${{ secrets.GITHUB_TOKEN }} "$url")
+            resp=$(curl -s -H "Accept: application/vnd.github.v3+json" -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" "$url")
             echo "Response from GitHub API: $resp"
 
             new_jobs=$(echo "$resp" | jq -cr '.jobs')
@@ -461,7 +532,7 @@ jobs:
             jobs=$(jq -cr --slurp 'add' <(echo "$jobs") <(echo "$new_jobs"))
             echo "Updated jobs list: $jobs"
 
-            has_next=$(curl -I -H "Accept: application/vnd.github.v3+json" -u:${{ secrets.GITHUB_TOKEN }} "$url" | grep -Fi "link:" | grep "rel=\"last\"" || true)
+            has_next=$(curl -I -H "Accept: application/vnd.github.v3+json" -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" "$url" | grep -Fi "link:" | grep "rel=\"next\"" || true)
             echo "Has next page: $has_next"
 
             if [ -z "$has_next" ]; then
@@ -503,6 +574,7 @@ jobs:
             title="Unknown Test Case Title"
             author="N/A"
             work_item_url="N/A"
+            owner="N/A"
 
             # Extract the title from the plan JSON file
             plan_file="./vscode-test-cases/plans/${case_id}.json"
@@ -513,14 +585,18 @@ jobs:
               title=$(jq -r '.plan_metadata.name // "Unknown Test Case Title"' "$plan_file")
               echo "Extracted title: $title"
               
-              # Get description (work item IDs) from plan_metadata.description
-              # Description may contain multiple work item IDs separated by comma, space, or semicolon
-              description=$(jq -r '.plan_metadata.description // ""' "$plan_file")
-              if [ -n "$description" ] && [ "$description" != "null" ]; then
+              # Get owner from plan_metadata.description.owner
+              owner=$(jq -r '.plan_metadata.description.owner // "N/A"' "$plan_file")
+              echo "Extracted owner: $owner"
+              
+              # Get work item IDs from plan_metadata.description.workitem
+              # Workitem may contain multiple work item IDs separated by comma, space, or semicolon
+              workitem=$(jq -r '.plan_metadata.description.workitem // ""' "$plan_file")
+              if [ -n "$workitem" ] && [ "$workitem" != "null" ]; then
                 # Split by comma, space, or semicolon and process each work item ID
                 work_item_links=""
                 # Replace commas and semicolons with spaces, then iterate
-                for item_id in $(echo "$description" | tr ',;' ' '); do
+                for item_id in $(echo "$workitem" | tr ',;' ' '); do
                   # Trim whitespace
                   item_id=$(echo "$item_id" | xargs)
                   if [ -n "$item_id" ]; then
@@ -536,7 +612,7 @@ jobs:
                 if [ -n "$work_item_links" ]; then
                   work_item_url="$work_item_links"
                 else
-                  work_item_url="$description"
+                  work_item_url="$workitem"
                 fi
               fi
               echo "Extracted work items: $work_item_url"
@@ -600,7 +676,6 @@ jobs:
             url="<a href=\\\"$url\\\">$display_name</a>"
             echo "Job URL: $url"
 
-            owner="N/A"
             linked_bugs=""
             
             # Query Azure DevOps for linked bugs if the case failed

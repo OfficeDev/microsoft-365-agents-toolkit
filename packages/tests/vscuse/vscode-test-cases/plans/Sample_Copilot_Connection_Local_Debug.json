@@ -12,7 +12,11 @@
     "total_steps": 28,
     "created_at": "2025-11-19T06:14:57.218204",
     "name": "Sample Copilot Connection Local Debug",
-    "description": "14171510",
+    "description": {
+      "owner": "v-yajunlu@microsoft.com",
+      "workitem": "14171510",
+      "other": ""
+    },
     "generated_at": "2025-11-19T06:14:57.218204",
     "execution_order": [
       "plan_r_1107_015711",

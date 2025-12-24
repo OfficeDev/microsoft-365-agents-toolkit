@@ -27,6 +27,7 @@ docker:
     TEAMSFX_TELEMETRY_TEST: "true"                 # Default: false (set to true to use VS Code Insider)
     AZURE_SEARCH_KEY: "${AZURE_SEARCH_KEY}"
     AZURE_SEARCH_ENDPOINT: "${AZURE_SEARCH_ENDPOINT}"
+    AZURE_OPENAI_EMBEDDING_DEPLOYMENT_NAME: "${AZURE_OPENAI_EMBEDDING_DEPLOYMENT_NAME}"
 
 execution:
   delay_between_steps: 0.5         # Default: 0.5 (seconds between steps)

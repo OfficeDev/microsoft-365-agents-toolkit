@@ -1,4 +1,4 @@
-import { Account, Message, ThumbnailCard } from "@microsoft/teams.api";
+import { Account, Message, TeamsChannelAccount, ThumbnailCard } from "@microsoft/teams.api";
 import {
   ActionSet,
   AdaptiveCard,
@@ -110,7 +110,7 @@ export function createMessageDetailsCard(messagePayload: Message) {
 // :snippet-end: message-ext-create-message-details-card
 
 // :snippet-start: message-ext-create-conversation-members-card
-export function createConversationMembersCard(members: Account[]) {
+export function createConversationMembersCard(members: (Account | TeamsChannelAccount)[]) {
   const membersList = members.map((member) => member.name).join(", ");
 
   return new AdaptiveCard(

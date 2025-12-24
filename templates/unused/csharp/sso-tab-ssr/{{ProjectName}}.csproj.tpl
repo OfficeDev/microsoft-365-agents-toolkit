@@ -5,18 +5,6 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
-{{^isNewProjectTypeEnabled}}
-  <ItemGroup>
-    <ProjectCapability Include="TeamsFx" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="appPackage/**/*" />
-    <None Include="infra/**/*" />
-    <Content Remove="build/**/*" />
-  </ItemGroup>
-
-{{/isNewProjectTypeEnabled}}
   <ItemGroup>
     <PackageReference Include="Azure.Identity" Version="1.12.0" />
     <PackageReference Include="Microsoft.Graph" Version="5.56.0" />

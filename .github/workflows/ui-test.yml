@@ -91,7 +91,7 @@ jobs:
           echo "npm-tag=alpha" >> $GITHUB_OUTPUT
           echo "sample-ref=dev" >> $GITHUB_OUTPUT
           echo "branch=dev" >> $GITHUB_OUTPUT
-          echo "email-receiver=teamsfxqa@microsoft.com;zhendr@microsoft.com" >> $GITHUB_OUTPUT
+          echo "email-receiver=teamsfxqa@microsoft.com;zhenjiao@microsoft.com;M365AgentsToolkitEngineerTeam@microsoft.com" >> $GITHUB_OUTPUT
 
           run_id=`gh run list --workflow cd --repo OfficeDev/TeamsFx --branch dev --json event --json databaseId --json conclusion --jq '[.[] | select(.event=="schedule") | select(.conclusion=="success")][0].databaseId'`
           echo "vsix-run-id=$run_id" >> $GITHUB_ENV
@@ -110,7 +110,7 @@ jobs:
       - uses: pnpm/action-setup@v4
 
       - name: add sample cases into pvt file
-        if: ${{ github.event.schedule == '0 18 * * *' }} || ${{ github.event.inputs.test-case }} == ''
+        if: ${{ github.event.schedule == '0 18 * * *' || github.event.inputs.test-case == '' }}
         working-directory: packages/tests
         run: |
           curl -O https://raw.githubusercontent.com/OfficeDev/microsoft-365-agents-toolkit-samples/refs/heads/dev/.config/samples-config-v3.json
@@ -188,14 +188,14 @@ jobs:
       DEVTUNNEL_TENANT_ID: ${{ secrets.TEST_CLEAN_TENANT_ID }}
 
       M365_ACCOUNT_PASSWORD: ${{ secrets.TEST_M365_PASSWORD }}
-      M365_USERNAME_1: "test31@xxbdw.onmicrosoft.com"
-      M365_USERNAME_2: "test32@xxbdw.onmicrosoft.com"
-      M365_USERNAME_3: "test33@xxbdw.onmicrosoft.com"
-      M365_USERNAME_4: "test34@xxbdw.onmicrosoft.com"
-      M365_USERNAME_5: "test35@xxbdw.onmicrosoft.com"
-      M365_USERNAME_6: "test36@xxbdw.onmicrosoft.com"
-      M365_USERNAME_7: "test37@xxbdw.onmicrosoft.com"
-      M365_USERNAME_8: "test38@xxbdw.onmicrosoft.com"
+      M365_USERNAME_1: "test001@xxbdw.onmicrosoft.com"
+      M365_USERNAME_2: "test002@xxbdw.onmicrosoft.com"
+      M365_USERNAME_3: "test003@xxbdw.onmicrosoft.com"
+      M365_USERNAME_4: "test004@xxbdw.onmicrosoft.com"
+      M365_USERNAME_5: "test005@xxbdw.onmicrosoft.com"
+      M365_USERNAME_6: "test006@xxbdw.onmicrosoft.com"
+      M365_USERNAME_7: "test007@xxbdw.onmicrosoft.com"
+      M365_USERNAME_8: "test008@xxbdw.onmicrosoft.com"
       M365_DISPLAY_NAME: "test"
       M365_TENANT_ID: ${{ secrets.TEST_CLEAN_TENANT_ID }}
       M365_COLLABORATOR: "haolong@xxbdw.onmicrosoft.com"
@@ -642,7 +642,7 @@ jobs:
 
             status=`echo $jobs | jq --arg case "$case" -r '.[] | select(.name == $case ) | .conclusion'`
             if [[ ! -z "$email" && ! "$emails" == *"$email"* && "$status" == "failure" ]]; then
-              emails="teamsfxqa@microsoft.com;zhendr@microsoft.com"
+              emails="teamsfxqa@microsoft.com;zhenjiao@microsoft.com;M365AgentsToolkitEngineerTeam@microsoft.com"
             fi
 
             status=`echo $jobs | jq --arg case "$case" -r '.[] | select(.name == $case ) | .conclusion'`

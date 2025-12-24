@@ -14,10 +14,10 @@ This agent can listen to all messages in a group chat (even without being @menti
 
 Adding your own capabilities only requires a few steps:
 
-1. Copy the template folder under capabilities [template](Capabilities\Template\TemplateCapability.cs)
-2. Customize your capability to do what you want (helpful to look at existing capabilities)
-3. Make sure to create a CapabilityDefinition at the bottom of your main file
-4. Register your capability by importing the CapabilityDefinition and adding to the definition list in [registry](Agent\CapabilityRegistry.cs)
+1. Copy the template folder under capabilities.
+2. Customize your capability to do what you want (helpful to look at existing capabilities).
+3. Make sure to create a CapabilityDefinition at the bottom of your main file.
+4. Register your capability by importing the CapabilityDefinition and adding to the definition list in Program.cs.
 5. The manager will automatically be instantiated with the capability you defined!
 
 ## Agent Architecture

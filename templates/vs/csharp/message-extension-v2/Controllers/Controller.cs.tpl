@@ -20,7 +20,7 @@ namespace {{SafeProjectName}}.Controllers
             log.Info("[MESSAGE_EXT_QUERY] Search query received");
 
             var commandId = activity.Value?.CommandId;
-            var query = activity.Value?.Parameters?.FirstOrDefault(p => p.Name == "searchQuery")?.Value?.ToString() ?? "";
+            var query = activity.Value?.Parameters?[0]?.Value?.ToString() ?? "";
 
             log.Info($"[MESSAGE_EXT_QUERY] Command: {commandId}, Query: {query}");
 

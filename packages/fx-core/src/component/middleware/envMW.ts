@@ -4,6 +4,8 @@ import { Middleware, NextFunction } from "@feathersjs/hooks";
 import { Inputs, err } from "@microsoft/teamsfx-api";
 import _ from "lodash";
 import { TOOLS } from "../../common/globalVars";
+import { IsDeclarativeAgentManifest } from "../../common/projectTypeChecker";
+import { manifestUtils } from "../../component/driver/teamsApp/utils/ManifestUtils";
 import { environmentNameManager } from "../../core/environmentName";
 import { CoreHookContext } from "../../core/types";
 import { NoProjectOpenedError } from "../../error";
@@ -57,6 +59,11 @@ const envLoaderMWImpl = async (
       process.env.TEAMSFX_ENV = "dev"; // set TEAMSFX_ENV = dev is to avoid unexpected error in other components that depends on this env variable
       await next();
       return;
+    }
+    const manifestRes = await manifestUtils.readAppManifest(projectPath);
+    if (manifestRes.isOk() && IsDeclarativeAgentManifest(manifestRes.value)) {
+      // Enable local env provision for DA
+      withLocalEnv = true;
     }
     const question = selectTargetEnvQuestion(QuestionNames.Env, !withLocalEnv, true);
     const res = await traverse({ data: question }, inputs, TOOLS.ui);
