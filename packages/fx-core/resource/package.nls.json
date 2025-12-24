@@ -956,7 +956,7 @@
   "error.yaml.InvalidActionInputError": "The '%s' action cannot be completed as the following parameter(s): %s, are either missing or have an invalid value in the provided yaml file: %s. Ensure that the required parameters are provided and have valid values and try again.",
   "error.common.InstallSoftwareError": "Unable to install %s. You can install manually and restart Visual Studio Code if you are using the Toolkit in Visual Studio Code.",
   "error.common.VersionError": "Unable to find a version satisfying the version range %s.",
-  "error.common.MissingEnvironmentVariablesError": "Missing environment variables '%s' for file: %s. Please edit the .env file '%s' or '%s', or adjust system environment variables. For new Microsoft 365 Agents Toolkit projects, make sure you've run provision or debug to set these variables correctly.",
+  "error.common.MissingEnvironmentVariablesError": "Missing environment variables '%s' for file: %s. Please edit the .env file '%s' or '%s', or adjust system environment variables. For new projects, run local debugging or provision a remote environment to set these variables.",
   "error.common.InvalidProjectError": "This command only works for project created by Microsoft 365 Agents Toolkit. 'm365agents.yml' or 'm365agents.local.yml' not found",
   "error.common.InvalidProjectError.display": "This command only works for project created by Microsoft 365 Agents Toolkit. Yaml file not found: %s",
   "error.common.FileNotFoundError": "The file or directory is not found: '%s'. Check if it exists and you have permission to access it.",
