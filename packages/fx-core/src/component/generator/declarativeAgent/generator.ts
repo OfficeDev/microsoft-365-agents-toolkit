@@ -18,13 +18,13 @@ import {
   Platform,
   Result,
   SystemError,
+  UserError,
 } from "@microsoft/teamsfx-api";
 import fs from "fs-extra";
 import { merge } from "lodash";
 import path from "path";
 import { featureFlagManager, FeatureFlags } from "../../../common/featureFlags";
 import { convertToAlphanumericOnly } from "../../../common/stringUtils";
-import { assembleError } from "../../../error";
 import {
   ActionStartOptions,
   ApiAuthOptions,
@@ -47,8 +47,6 @@ const enum telemetryProperties {
   isDeclarativeCopilot = "is-declarative-copilot",
   isMicrosoftEntra = "is-microsoft-entra",
   needAddPluginFromExisting = "need-add-plugin-from-existing",
-  mcpServerParseFailures = "mcp-server-parse-failures",
-  mcpServerParseFailureIds = "mcp-server-parse-failure-ids",
 }
 
 /**
@@ -103,7 +101,7 @@ export class DeclarativeAgentGenerator extends DefaultTemplateGenerator {
         MicrosoftEntra: auth === ApiAuthOptions.microsoftEntra().id ? "true" : "",
         IsLocalMCP: isLocalMCP ? "true" : "",
         ...(isLocalMCP
-          ? this.processMCPLocalServers(inputs, actionContext)
+          ? this.processMCPLocalServers(inputs)
           : MCPForDAServerUrl
           ? {
               MCPForDAServerUrl,
@@ -133,10 +131,7 @@ export class DeclarativeAgentGenerator extends DefaultTemplateGenerator {
         ])
       );
     } catch (error) {
-      if (error instanceof SystemError) {
-        return err(error);
-      }
-      throw assembleError(error as Error, this.componentName);
+      return err(error);
     }
   }
 
@@ -217,10 +212,7 @@ export class DeclarativeAgentGenerator extends DefaultTemplateGenerator {
    * Process selected MCP local servers from inputs and format for template
    * Handles both single and multiple server selection for backward compatibility
    */
-  private processMCPLocalServers(
-    inputs: Inputs,
-    context?: ActionContext
-  ): {
+  private processMCPLocalServers(inputs: Inputs): {
     MCPLocalServers: Array<{
       name: string;
       identifier: string;
@@ -232,69 +224,50 @@ export class DeclarativeAgentGenerator extends DefaultTemplateGenerator {
     const selectedOptions = inputs[QuestionNames.MCPLocalServer] as OptionItem[] | undefined;
 
     // Handle empty/invalid selection
-    if (!selectedOptions || !Array.isArray(selectedOptions) || selectedOptions.length === 0) {
+    if (!selectedOptions || selectedOptions.length === 0) {
       return {
         MCPLocalServers: [],
       };
     }
 
-    const failures: string[] = [];
-
     // Map selected options to server configs
-    const servers = selectedOptions
-      .map((option, index) => {
-        try {
-          // Validate option structure
-          if (!option.data || typeof option.data !== "string") {
-            throw new SystemError(
-              this.componentName,
-              "processMCPLocalServers",
-              "Invalid option data structure"
-            );
-          }
+    const servers = selectedOptions.map((option, index) => {
+      // Validate option structure
+      if (!option.data || typeof option.data !== "string") {
+        throw new SystemError(
+          this.componentName,
+          "processMCPLocalServers",
+          "Invalid option data structure"
+        );
+      }
 
-          const serverData = JSON.parse(option.data);
+      const serverData = JSON.parse(option.data);
 
-          // Validate parsed data
-          if (!serverData.identifier || !serverData.command || !Array.isArray(serverData.args)) {
-            throw new SystemError(
-              this.componentName,
-              "processMCPLocalServers",
-              "Invalid server data format"
-            );
-          }
+      // Validate parsed data
+      if (!serverData.identifier || !Array.isArray(serverData.args)) {
+        throw new SystemError(
+          this.componentName,
+          "processMCPLocalServers",
+          "Invalid server data format"
+        );
+      }
 
-          return {
-            name: option.id,
-            identifier: serverData.identifier,
-            command: serverData.command,
-            args: serverData.args.map((arg: string) => `"${arg}"`).join(", "),
-            notLast: index < selectedOptions.length - 1,
-          };
-        } catch (error) {
-          // Track failure for telemetry
-          failures.push(option.id);
-          return null;
-        }
-      })
-      .filter((server): server is NonNullable<typeof server> => server !== null);
+      if (!serverData.command || typeof serverData.command !== "string") {
+        throw new UserError(
+          this.componentName,
+          "processMCPLocalServers",
+          "Invalid or missing command in server data"
+        );
+      }
 
-    // If ALL servers failed, throw error
-    if (servers.length === 0) {
-      throw new SystemError(
-        this.componentName,
-        "processMCPLocalServers",
-        `All ${selectedOptions.length} selected MCP servers failed to parse`
-      );
-    }
-
-    // Track failures for telemetry
-    if (failures.length > 0) {
-      merge(context?.telemetryProps, {
-        [telemetryProperties.mcpServerParseFailures]: failures.length.toString(),
-        [telemetryProperties.mcpServerParseFailureIds]: failures.join(","),
-      });
-    }
+      return {
+        name: option.id,
+        identifier: serverData.identifier,
+        command: serverData.command,
+        args: serverData.args.map((arg: string) => `"${arg}"`).join(", "),
+        notLast: index < selectedOptions.length - 1,
+      };
+    });
 
     return {
       MCPLocalServers: servers,
