@@ -41,17 +41,6 @@ export class ProjectTypeOptions {
     };
   }
 
-  static outlookAddin(platform: Platform = Platform.VSCode): OptionItem {
-    return {
-      id: ProjectTypeOptions.outlookAddinOptionId,
-      label: `${platform === Platform.VSCode ? "$(mail) " : ""}${getLocalizedString(
-        "core.createProjectQuestion.projectType.outlookAddin.label"
-      )}`,
-      detail: getLocalizedString("core.createProjectQuestion.projectType.outlookAddin.detail"),
-      groupName: ProjectTypeOptions.groupName(ProjectTypeGroup.M365Apps),
-    };
-  }
-
   static officeMetaOS(platform: Platform = Platform.VSCode): OptionItem {
     return {
       id: ProjectTypeOptions.officeMetaOSOptionId,
@@ -64,11 +53,7 @@ export class ProjectTypeOptions {
   }
 
   static officeAddin(platform: Platform = Platform.VSCode): OptionItem {
-    if (featureFlagManager.getBooleanValue(FeatureFlags.OfficeMetaOS)) {
-      return this.officeMetaOS(platform);
-    } else {
-      return this.outlookAddin(platform);
-    }
+    return this.officeMetaOS(platform);
   }
 
   static declarativeAgent(platform: Platform = Platform.VSCode): OptionItem {
