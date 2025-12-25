@@ -10,14 +10,14 @@
       "step_retry_timeout": 0.0
     },
     "total_steps": 18,
-    "created_at": "2025-11-07T12:46:39.320604",
+    "created_at": "2025-12-25T00:54:14.408546",
     "name": "DA Add Action Import Existing API Bearer token",
     "description": {
+      "other": "",
       "owner": "v-ivanchen@microsoft.com",
-      "workitem": "31434602",
-      "other": ""
+      "workitem": "31434602"
     },
-    "generated_at": "2025-11-07T12:46:39.320598",
+    "generated_at": "2025-12-25T00:54:14.408546",
     "execution_order": [
       "plan_r_0928_012254",
       "step_ba3c842f",
@@ -34,6 +34,7 @@
       "plan_r_0928_014459",
       "plan_r_1021_081410",
       "step_72e5afd4",
+      "plan_r_1225_005741",
       "step_d51a67c1",
       "step_3334a5aa",
       "step_a3b08ec6",
@@ -44,7 +45,7 @@
       "plan_r_0928_091745"
     ],
     "tags": [],
-    "updated_at": "2025-11-11T04:25:04.686633"
+    "updated_at": "2025-12-25T00:59:52.275531"
   },
   "steps": [
     {
@@ -70,7 +71,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_ba3c842f",
-      "created_at": "2025-11-11T04:23:27.957667",
+      "created_at": "2025-12-25T00:59:35.184385",
       "plan_id": "plan_d847597e"
     },
     {
@@ -96,7 +97,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_2501e618",
-      "created_at": "2025-11-11T04:23:27.969216",
+      "created_at": "2025-12-25T00:59:35.192537",
       "plan_id": "plan_d847597e"
     },
     {
@@ -122,7 +123,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_8dc53776",
-      "created_at": "2025-11-11T04:23:27.979986",
+      "created_at": "2025-12-25T00:59:35.200842",
       "plan_id": "plan_d847597e"
     },
     {
@@ -148,7 +149,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_09bea1cb",
-      "created_at": "2025-11-11T04:23:27.994765",
+      "created_at": "2025-12-25T00:59:35.210741",
       "plan_id": "plan_d847597e"
     },
     {
@@ -174,7 +175,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_3afe8a5b",
-      "created_at": "2025-11-11T04:23:28.009381",
+      "created_at": "2025-12-25T00:59:35.220554",
       "plan_id": "plan_d847597e"
     },
     {
@@ -200,7 +201,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_d7af280a",
-      "created_at": "2025-11-11T04:23:28.021668",
+      "created_at": "2025-12-25T00:59:35.229300",
       "plan_id": "plan_d847597e"
     },
     {
@@ -222,7 +223,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_ce7cbbf0",
-      "created_at": "2025-11-11T04:23:28.034430",
+      "created_at": "2025-12-25T00:59:35.237194",
       "plan_id": "plan_d847597e"
     },
     {
@@ -244,7 +245,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_706053fa",
-      "created_at": "2025-11-11T04:23:28.046755",
+      "created_at": "2025-12-25T00:59:35.245339",
       "plan_id": "plan_d847597e"
     },
     {
@@ -272,7 +273,7 @@
         "precondition_wait_timeout: 60"
       ],
       "screenshot": "step_89c4655b",
-      "created_at": "2025-11-11T04:23:28.059667",
+      "created_at": "2025-12-25T00:59:35.253632",
       "plan_id": "plan_d847597e"
     },
     {
@@ -298,7 +299,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_557cb6fe",
-      "created_at": "2025-11-11T04:23:28.071495",
+      "created_at": "2025-12-25T00:59:35.259402",
       "plan_id": "plan_d847597e"
     },
     {
@@ -324,7 +325,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_cd450c8e",
-      "created_at": "2025-11-11T04:23:28.083114",
+      "created_at": "2025-12-25T00:59:35.270721",
       "plan_id": "plan_d847597e"
     },
     {
@@ -350,7 +351,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_72e5afd4",
-      "created_at": "2025-11-11T04:23:28.092911",
+      "created_at": "2025-12-25T00:59:35.278864",
       "plan_id": "plan_d847597e"
     },
     {
@@ -378,7 +379,7 @@
         "precondition_wait_timeout: 30"
       ],
       "screenshot": "step_d51a67c1",
-      "created_at": "2025-11-11T04:23:28.103941",
+      "created_at": "2025-12-25T00:59:35.286976",
       "plan_id": "plan_d847597e"
     },
     {
@@ -400,7 +401,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_3334a5aa",
-      "created_at": "2025-11-11T04:23:28.113648",
+      "created_at": "2025-12-25T00:59:35.295273",
       "plan_id": "plan_d847597e"
     },
     {
@@ -424,7 +425,7 @@
         "delay: 3"
       ],
       "screenshot": "step_a3b08ec6",
-      "created_at": "2025-11-11T04:23:28.125226",
+      "created_at": "2025-12-25T00:59:35.303356",
       "plan_id": "plan_d847597e"
     },
     {
@@ -452,7 +453,7 @@
         "precondition_wait_timeout: 60"
       ],
       "screenshot": "step_99b5f4aa",
-      "created_at": "2025-11-11T04:23:28.136568",
+      "created_at": "2025-12-25T00:59:35.311872",
       "plan_id": "plan_d847597e"
     },
     {
@@ -478,7 +479,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_98415422",
-      "created_at": "2025-11-11T04:23:28.147542",
+      "created_at": "2025-12-25T00:59:35.319726",
       "plan_id": "plan_d847597e"
     },
     {
@@ -498,7 +499,7 @@
         "step_retry_timeout: 60"
       ],
       "screenshot": null,
-      "created_at": "2025-11-11T04:23:28.159218",
+      "created_at": "2025-12-25T00:59:35.326326",
       "plan_id": "plan_d847597e"
     }
   ],

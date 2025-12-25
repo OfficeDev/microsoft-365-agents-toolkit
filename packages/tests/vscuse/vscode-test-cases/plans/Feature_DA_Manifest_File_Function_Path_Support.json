@@ -9,14 +9,14 @@
       "precondition_retry_interval": 1
     },
     "total_steps": 45,
-    "created_at": "2025-11-20T02:45:25.130254",
+    "created_at": "2025-12-25T01:04:58.523720",
     "name": "Feature DA Manifest File Function Path Support",
     "description": {
+      "other": "",
       "owner": "v-helzha@microsoft.com",
-      "workitem": "29306940",
-      "other": ""
+      "workitem": "29306940"
     },
-    "generated_at": "2025-11-20T02:45:25.130254",
+    "generated_at": "2025-12-25T01:04:58.523720",
     "execution_order": [
       "plan_r_0928_012254",
       "step_74a7b615",
@@ -39,6 +39,7 @@
       "step_1d185148",
       "step_467bdb00",
       "step_56b287f9",
+      "plan_r_1225_005741",
       "step_6fdbe73d",
       "step_b9c399de",
       "step_4a55600d",
@@ -69,7 +70,7 @@
       "step_aacfd07c"
     ],
     "tags": [],
-    "updated_at": "2025-12-03T02:15:47.081997"
+    "updated_at": "2025-12-25T01:05:08.907599"
   },
   "steps": [
     {
@@ -100,7 +101,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_74a7b615",
-      "created_at": "2025-12-03T02:01:09.927948",
+      "created_at": "2025-12-25T01:04:58.534218",
       "plan_id": "plan_5dff80b2"
     },
     {
@@ -131,7 +132,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_228287d5",
-      "created_at": "2025-12-03T02:01:09.942531",
+      "created_at": "2025-12-25T01:04:58.543603",
       "plan_id": "plan_5dff80b2"
     },
     {
@@ -162,7 +163,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_3895cf9c",
-      "created_at": "2025-12-03T02:01:09.957365",
+      "created_at": "2025-12-25T01:04:58.550814",
       "plan_id": "plan_5dff80b2"
     },
     {
@@ -193,7 +194,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_baf6cee4",
-      "created_at": "2025-12-03T02:01:09.971019",
+      "created_at": "2025-12-25T01:04:58.560194",
       "plan_id": "plan_5dff80b2"
     },
     {
@@ -222,7 +223,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_41348483",
-      "created_at": "2025-12-03T02:01:09.981603",
+      "created_at": "2025-12-25T01:04:58.567965",
       "plan_id": "plan_5dff80b2"
     },
     {
@@ -251,7 +252,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_7cb3871c",
-      "created_at": "2025-12-03T02:01:09.995255",
+      "created_at": "2025-12-25T01:04:58.576545",
       "plan_id": "plan_5dff80b2"
     },
     {
@@ -280,7 +281,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_010a4e75",
-      "created_at": "2025-12-03T02:01:10.010032",
+      "created_at": "2025-12-25T01:04:58.586163",
       "plan_id": "plan_5dff80b2"
     },
     {
@@ -307,7 +308,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": null,
-      "created_at": "2025-12-03T02:01:10.023126",
+      "created_at": "2025-12-25T01:04:58.593720",
       "plan_id": "plan_5dff80b2"
     },
     {
@@ -336,7 +337,7 @@
         "step_retry_timeout: 60"
       ],
       "screenshot": null,
-      "created_at": "2025-12-03T02:01:10.038024",
+      "created_at": "2025-12-25T01:04:58.603030",
       "plan_id": "plan_5dff80b2"
     },
     {
@@ -354,7 +355,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": null,
-      "created_at": "2025-12-03T02:01:10.056307",
+      "created_at": "2025-12-25T01:04:58.610460",
       "plan_id": "plan_5dff80b2"
     },
     {
@@ -372,7 +373,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": null,
-      "created_at": "2025-12-03T02:01:10.073616",
+      "created_at": "2025-12-25T01:04:58.614970",
       "plan_id": "plan_5dff80b2"
     },
     {
@@ -394,7 +395,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_5f3a09e0",
-      "created_at": "2025-12-03T02:01:10.097109",
+      "created_at": "2025-12-25T01:04:58.629497",
       "plan_id": "plan_5dff80b2"
     },
     {
@@ -416,7 +417,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_758f76be",
-      "created_at": "2025-12-03T02:01:10.117838",
+      "created_at": "2025-12-25T01:04:58.639278",
       "plan_id": "plan_5dff80b2"
     },
     {
@@ -438,7 +439,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_bcfcb296",
-      "created_at": "2025-12-03T02:01:10.134233",
+      "created_at": "2025-12-25T01:04:58.648233",
       "plan_id": "plan_5dff80b2"
     },
     {
@@ -460,7 +461,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_1d185148",
-      "created_at": "2025-12-03T02:01:10.149640",
+      "created_at": "2025-12-25T01:04:58.656290",
       "plan_id": "plan_5dff80b2"
     },
     {
@@ -482,7 +483,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_467bdb00",
-      "created_at": "2025-12-03T02:01:10.166569",
+      "created_at": "2025-12-25T01:04:58.665543",
       "plan_id": "plan_5dff80b2"
     },
     {
@@ -504,7 +505,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_56b287f9",
-      "created_at": "2025-12-03T02:01:10.181761",
+      "created_at": "2025-12-25T01:04:58.672849",
       "plan_id": "plan_5dff80b2"
     },
     {
@@ -526,7 +527,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_6fdbe73d",
-      "created_at": "2025-12-03T02:01:10.193616",
+      "created_at": "2025-12-25T01:04:58.683512",
       "plan_id": "plan_5dff80b2"
     },
     {
@@ -548,7 +549,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_b9c399de",
-      "created_at": "2025-12-03T02:01:10.205350",
+      "created_at": "2025-12-25T01:04:58.691598",
       "plan_id": "plan_5dff80b2"
     },
     {
@@ -570,7 +571,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_4a55600d",
-      "created_at": "2025-12-03T02:01:10.217769",
+      "created_at": "2025-12-25T01:04:58.699723",
       "plan_id": "plan_5dff80b2"
     },
     {
@@ -590,7 +591,7 @@
         "delay:60"
       ],
       "screenshot": null,
-      "created_at": "2025-12-03T02:01:10.228540",
+      "created_at": "2025-12-25T01:04:58.706995",
       "plan_id": "plan_5dff80b2"
     },
     {
@@ -616,7 +617,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_e4ee04b8",
-      "created_at": "2025-12-03T02:01:10.239729",
+      "created_at": "2025-12-25T01:04:58.715982",
       "plan_id": "plan_5dff80b2"
     },
     {
@@ -642,7 +643,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_2718db31",
-      "created_at": "2025-12-03T02:01:10.254086",
+      "created_at": "2025-12-25T01:04:58.724226",
       "plan_id": "plan_5dff80b2"
     },
     {
@@ -668,7 +669,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_311a4be5",
-      "created_at": "2025-12-03T02:01:10.269107",
+      "created_at": "2025-12-25T01:04:58.732981",
       "plan_id": "plan_5dff80b2"
     },
     {
@@ -694,7 +695,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_c4bc2054",
-      "created_at": "2025-12-03T02:01:10.285173",
+      "created_at": "2025-12-25T01:04:58.738726",
       "plan_id": "plan_5dff80b2"
     },
     {
@@ -720,7 +721,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_4c7b5028",
-      "created_at": "2025-12-03T02:01:10.299850",
+      "created_at": "2025-12-25T01:04:58.750122",
       "plan_id": "plan_5dff80b2"
     },
     {
@@ -738,7 +739,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": null,
-      "created_at": "2025-12-03T02:01:10.312887",
+      "created_at": "2025-12-25T01:04:58.757671",
       "plan_id": "plan_5dff80b2"
     },
     {
@@ -756,7 +757,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": null,
-      "created_at": "2025-12-03T02:01:10.323922",
+      "created_at": "2025-12-25T01:04:58.766458",
       "plan_id": "plan_5dff80b2"
     },
     {
@@ -778,7 +779,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_768c4e12",
-      "created_at": "2025-12-03T02:01:10.334585",
+      "created_at": "2025-12-25T01:04:58.774185",
       "plan_id": "plan_5dff80b2"
     },
     {
@@ -800,7 +801,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_103141c1",
-      "created_at": "2025-12-03T02:01:10.347692",
+      "created_at": "2025-12-25T01:04:58.783096",
       "plan_id": "plan_5dff80b2"
     },
     {
@@ -822,7 +823,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_8630422c",
-      "created_at": "2025-12-03T02:01:10.361209",
+      "created_at": "2025-12-25T01:04:58.792010",
       "plan_id": "plan_5dff80b2"
     },
     {
@@ -844,7 +845,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_ec0ef967",
-      "created_at": "2025-12-03T02:01:10.373544",
+      "created_at": "2025-12-25T01:04:58.800187",
       "plan_id": "plan_5dff80b2"
     },
     {
@@ -866,7 +867,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_8e14c466",
-      "created_at": "2025-12-03T02:01:10.382708",
+      "created_at": "2025-12-25T01:04:58.810528",
       "plan_id": "plan_5dff80b2"
     },
     {
@@ -884,7 +885,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": null,
-      "created_at": "2025-12-03T02:01:10.394726",
+      "created_at": "2025-12-25T01:04:58.818548",
       "plan_id": "plan_5dff80b2"
     },
     {
@@ -906,7 +907,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_51a25ed5",
-      "created_at": "2025-12-03T02:01:10.404562",
+      "created_at": "2025-12-25T01:04:58.826855",
       "plan_id": "plan_5dff80b2"
     },
     {
@@ -928,7 +929,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_48c0a238",
-      "created_at": "2025-12-03T02:01:10.415578",
+      "created_at": "2025-12-25T01:04:58.835363",
       "plan_id": "plan_5dff80b2"
     },
     {
@@ -950,7 +951,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_677f3930",
-      "created_at": "2025-12-03T02:01:10.426492",
+      "created_at": "2025-12-25T01:04:58.844233",
       "plan_id": "plan_5dff80b2"
     },
     {
@@ -972,7 +973,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_db7638b0",
-      "created_at": "2025-12-03T02:01:10.438350",
+      "created_at": "2025-12-25T01:04:58.854285",
       "plan_id": "plan_5dff80b2"
     },
     {
@@ -990,7 +991,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": null,
-      "created_at": "2025-12-03T02:01:10.450553",
+      "created_at": "2025-12-25T01:04:58.863122",
       "plan_id": "plan_5dff80b2"
     },
     {
@@ -1012,7 +1013,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_f22ce2f7",
-      "created_at": "2025-12-03T02:01:10.459470",
+      "created_at": "2025-12-25T01:04:58.871263",
       "plan_id": "plan_5dff80b2"
     },
     {
@@ -1034,7 +1035,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_7343c373",
-      "created_at": "2025-12-03T02:01:10.474752",
+      "created_at": "2025-12-25T01:04:58.881192",
       "plan_id": "plan_5dff80b2"
     },
     {
@@ -1056,7 +1057,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_63478b40",
-      "created_at": "2025-12-03T02:01:10.487368",
+      "created_at": "2025-12-25T01:04:58.891050",
       "plan_id": "plan_5dff80b2"
     },
     {
@@ -1078,7 +1079,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_b3123236",
-      "created_at": "2025-12-03T02:01:10.499081",
+      "created_at": "2025-12-25T01:04:58.900100",
       "plan_id": "plan_5dff80b2"
     },
     {
@@ -1100,7 +1101,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_a3a03cf5",
-      "created_at": "2025-12-03T02:01:10.519992",
+      "created_at": "2025-12-25T01:04:58.908073",
       "plan_id": "plan_5dff80b2"
     },
     {
@@ -1118,7 +1119,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": null,
-      "created_at": "2025-12-03T02:01:10.537814",
+      "created_at": "2025-12-25T01:04:58.917254",
       "plan_id": "plan_5dff80b2"
     }
   ],
