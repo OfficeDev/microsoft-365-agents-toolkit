@@ -642,7 +642,7 @@
   "teamstoolkit.mcpUtils.setupMcpServer.skip": "Skip",
   "teamstoolkit.mcpUtils.setupMcpServer.successMessage": "M365 Agents Toolkit MCP server configured successfully!",
   "teamstoolkit.mcpUtils.setupMcpServer.errorMessage": "Unable to configure M365 Agents Toolkit MCP server. Error: %s",
-  "teamstoolkit.handlers.openWorkspaceMCPConfigNotification": "Declarative agent project successfully created with a MCP wrapped. You can now start the MCP server from CodeLens button \"Start\" or customize your MCP server in .vscode/mcp.json file.\nTo fetch tools from MCP server, click \"ATK: Update Action with MCP\" from the CodeLens or Command Palatte.",
+  "teamstoolkit.handlers.openWorkspaceMCPConfigNotification": "Declarative agent project successfully created with a MCP wrapped. You can now start the MCP server from CodeLens button \"Start\" or customize your MCP server in .vscode/mcp.json file.\nTo fetch tools from MCP server, click \"ATK: Fetch action from MCP\" from the CodeLens or Command Palatte.",
   "teamstoolkit.commands.updateActionWithMCP.title": "Fetch action from MCP",
   "teamstoolkit.MCP.FileNotFound": "MCP configuration file not found in .vscode/mcp.json. Please ensure you have set up the MCP server.",
   "teamstoolkit.MCP.ContentInvalid": "MCP configuration file content is invalid. Please ensure the content in .vscode/mcp.json is correct.",
