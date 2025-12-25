@@ -223,6 +223,14 @@ export class DeclarativeAgentGenerator extends DefaultTemplateGenerator {
   } {
     const selectedOptions = inputs[QuestionNames.MCPLocalServer] as OptionItem[] | undefined;
 
+    if (selectedOptions && !Array.isArray(selectedOptions)) {
+      throw new SystemError(
+        this.componentName,
+        "processMCPLocalServers",
+        "Expected MCPLocalServer input to be an array"
+      );
+    }
+
     // Handle empty/invalid selection
     if (!selectedOptions || selectedOptions.length === 0) {
       return {
