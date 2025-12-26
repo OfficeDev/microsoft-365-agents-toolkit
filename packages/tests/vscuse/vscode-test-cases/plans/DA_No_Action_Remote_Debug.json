@@ -9,14 +9,14 @@
       "precondition_retry_interval": 1
     },
     "total_steps": 9,
-    "created_at": "2025-11-14T03:22:19.400509",
+    "created_at": "2025-12-25T01:06:08.255960",
     "name": "DA No Action Remote Debug",
     "description": {
+      "other": "",
       "owner": "v-ivanchen@microsoft.com",
-      "workitem": "35692238",
-      "other": ""
+      "workitem": "35692238"
     },
-    "generated_at": "2025-11-14T03:22:19.400500",
+    "generated_at": "2025-12-25T01:06:08.255960",
     "execution_order": [
       "plan_r_0928_012254",
       "step_e37b112d",
@@ -26,6 +26,7 @@
       "plan_r_0929_040401",
       "plan_r_0928_020230",
       "step_21fa2009",
+      "plan_r_1225_005741",
       "step_786974b4",
       "step_16e5c0c3",
       "step_b46e6d95",
@@ -35,7 +36,7 @@
       "plan_r_1023_054001"
     ],
     "tags": [],
-    "updated_at": "2025-11-14T03:25:58.943160"
+    "updated_at": "2025-12-25T01:06:30.182414"
   },
   "steps": [
     {
@@ -66,7 +67,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_e37b112d",
-      "created_at": "2025-11-14T03:22:19.417957",
+      "created_at": "2025-12-25T01:06:08.264804",
       "plan_id": "plan_de947884"
     },
     {
@@ -97,7 +98,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_a42e6af5",
-      "created_at": "2025-11-14T03:22:19.439142",
+      "created_at": "2025-12-25T01:06:08.273598",
       "plan_id": "plan_de947884"
     },
     {
@@ -128,7 +129,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_86bebdff",
-      "created_at": "2025-11-14T03:22:19.463336",
+      "created_at": "2025-12-25T01:06:08.283112",
       "plan_id": "plan_de947884"
     },
     {
@@ -159,7 +160,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_21fa2009",
-      "created_at": "2025-11-14T03:22:19.491446",
+      "created_at": "2025-12-25T01:06:08.292200",
       "plan_id": "plan_de947884"
     },
     {
@@ -188,7 +189,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_786974b4",
-      "created_at": "2025-11-14T03:22:19.523033",
+      "created_at": "2025-12-25T01:06:08.300750",
       "plan_id": "plan_de947884"
     },
     {
@@ -217,7 +218,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_16e5c0c3",
-      "created_at": "2025-11-14T03:22:19.552097",
+      "created_at": "2025-12-25T01:06:08.307981",
       "plan_id": "plan_de947884"
     },
     {
@@ -246,7 +247,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_b46e6d95",
-      "created_at": "2025-11-14T03:22:19.581242",
+      "created_at": "2025-12-25T01:06:08.312894",
       "plan_id": "plan_de947884"
     },
     {
@@ -273,7 +274,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": null,
-      "created_at": "2025-11-14T03:22:19.607878",
+      "created_at": "2025-12-25T01:06:08.325102",
       "plan_id": "plan_de947884"
     },
     {
@@ -302,7 +303,7 @@
         "step_retry_timeout: 60"
       ],
       "screenshot": null,
-      "created_at": "2025-11-14T03:22:19.632799",
+      "created_at": "2025-12-25T01:06:08.332613",
       "plan_id": "plan_de947884"
     }
   ],

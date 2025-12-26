@@ -53,7 +53,7 @@ export interface DeclarativeAgentManifestV1D6 {
     capabilities?: CapabilityElement[];
     /**
      * Optional. A list of examples of questions that the declarative agent can answer. There
-     * MUST NOT be more than six objects in the array.
+     * MUST NOT be more than twelve objects in the array.
      */
     conversation_starters?: ConversationStarterElement[];
     /**
@@ -61,6 +61,15 @@ export interface DeclarativeAgentManifestV1D6 {
      * the declarative agent.
      */
     actions?: ActionElement[];
+    /**
+     * Optional. A list of objects that identify declarative agents to act as worker agents.
+     */
+    worker_agents?: WorkerAgentElement[];
+    /**
+     * Optional. A list of objects that allow the DA author to specify capabilities that can be
+     * modified by users and the allowed actions.
+     */
+    user_overrides?: UserOverrideElement[];
     [property: string]: any;
 }
 
@@ -163,8 +172,7 @@ export interface Suggestions {
  * Indicates that the DA can search through meetings.
  *
  * A JSON object whose presence indicates that the DA will be able to use files locally in
- * the app package as knowledge. The object MUST contain either a files member or a
- * embedded_resource_snapshot_id member, but not both.
+ * the app package as knowledge.
  */
 export interface CapabilityElement {
     /**
@@ -238,14 +246,26 @@ export interface CapabilityElement {
      */
     shared_mailbox?: string;
     /**
+     * A JSON array of strings containing SMTP addresses of group mailboxes. The presence of
+     * this field indicates that the DA can search for relevant emails in the specified group
+     * mailboxes. A maximum of 25 mailboxes are supported.
+     */
+    group_mailboxes?: string[];
+    /**
+     * Boolean. If true, include related documents, emails, and Teams messages worked on by
+     * people in your organization when searching People data. If false or omitted, only basic
+     * org info (org charts, names, email addresses, skills). Default false.
+     */
+    include_related_content?: boolean;
+    /**
      * A list of Scenario Model objects denoting supported models
      */
     models?: ModelElement[];
     /**
-     * A JSON string identifier provisioned by a an external file container storage service that
-     * can be used to locate the embedded knowledge files.
+     * A JSON array of objects that identify meetings. This array constrains the DA content
+     * access to only the meetings specified by the members of each Meeting Identifier Object.
      */
-    embedded_resource_snapshot_id?: string;
+    items_by_id?: ItemsByIDElement[];
     /**
      * A JSON array of File Object. List of objects identifying files that contain knowledge the
      * Agent can use for grounding.
@@ -362,6 +382,21 @@ export interface FolderElement {
      * of the well known names.
      */
     folder_id: string;
+    [property: string]: any;
+}
+
+/**
+ * A JSON object that identifies a meeting by its ICalUID.
+ */
+export interface ItemsByIDElement {
+    /**
+     * A JSON string that contains the ICalUID of a specific meeting. This member is required.
+     */
+    id: string;
+    /**
+     * A JSON boolean that indicates whether the meeting is a series. This member is required.
+     */
+    is_series: boolean;
     [property: string]: any;
 }
 
@@ -526,6 +561,37 @@ export interface SensitivityLabel {
      * The GUID of the sensitivity_label that is pulled from Purview API
      */
     id?: string;
+    [property: string]: any;
+}
+
+/**
+ * A JSON object that allows the DA author to specify the path of a capability that can be
+ * modified and a set of allowed actions for those capabilities.
+ */
+export interface UserOverrideElement {
+    /**
+     * Required. A JSON string that contains a JSONPath expression identifying the capability or
+     * configuration element that users can modify. The JSONPath expression allows targeting
+     * specific capabilities by name only.
+     */
+    path: string;
+    /**
+     * Required. A JSON array of strings that specifies what actions can be taken for the
+     * specified path. The only supported action is 'remove'.
+     */
+    allowed_actions: "remove"[];
+    [property: string]: any;
+}
+
+/**
+ * A JSON object used to identify a declarative agent to act as a worker agent. Declarative
+ * agents can be referenced via their id (Agent Id).
+ */
+export interface WorkerAgentElement {
+    /**
+     * Required. Not localizable. A unique identifier for a declarative agent.
+     */
+    id: string;
     [property: string]: any;
 }
 
@@ -706,6 +772,8 @@ const typeMap: any = {
         { json: "capabilities", js: "capabilities", typ: u(undefined, a(r("CapabilityElement"))) },
         { json: "conversation_starters", js: "conversation_starters", typ: u(undefined, a(r("ConversationStarterElement"))) },
         { json: "actions", js: "actions", typ: u(undefined, a(r("ActionElement"))) },
+        { json: "worker_agents", js: "worker_agents", typ: u(undefined, a(r("WorkerAgentElement"))) },
+        { json: "user_overrides", js: "user_overrides", typ: u(undefined, a(r("UserOverrideElement"))) },
     ], "any"),
     "ActionElement": o([
         { json: "id", js: "id", typ: "" },
@@ -731,8 +799,10 @@ const typeMap: any = {
         { json: "knowledge_sources", js: "knowledge_sources", typ: u(undefined, a(r("KnowledgeSourceElement"))) },
         { json: "folders", js: "folders", typ: u(undefined, a(r("FolderElement"))) },
         { json: "shared_mailbox", js: "shared_mailbox", typ: u(undefined, "") },
+        { json: "group_mailboxes", js: "group_mailboxes", typ: u(undefined, a("")) },
+        { json: "include_related_content", js: "include_related_content", typ: u(undefined, true) },
         { json: "models", js: "models", typ: u(undefined, a(r("ModelElement"))) },
-        { json: "embedded_resource_snapshot_id", js: "embedded_resource_snapshot_id", typ: u(undefined, "") },
+        { json: "items_by_id", js: "items_by_id", typ: u(undefined, a(r("ItemsByIDElement"))) },
         { json: "files", js: "files", typ: u(undefined, a(r("FileElement"))) },
     ], "any"),
     "ConnectionElement": o([
@@ -764,6 +834,10 @@ const typeMap: any = {
     ], "any"),
     "FolderElement": o([
         { json: "folder_id", js: "folder_id", typ: "" },
+    ], "any"),
+    "ItemsByIDElement": o([
+        { json: "id", js: "id", typ: "" },
+        { json: "is_series", js: "is_series", typ: true },
     ], "any"),
     "ItemsBySharepointIDElement": o([
         { json: "site_id", js: "site_id", typ: u(undefined, "") },
@@ -804,6 +878,13 @@ const typeMap: any = {
     "SensitivityLabel": o([
         { json: "id", js: "id", typ: u(undefined, "") },
     ], "any"),
+    "UserOverrideElement": o([
+        { json: "path", js: "path", typ: "" },
+        { json: "allowed_actions", js: "allowed_actions", typ: a(r("AllowedAction")) },
+    ], "any"),
+    "WorkerAgentElement": o([
+        { json: "id", js: "id", typ: "" },
+    ], "any"),
     "PartType": [
         "OneNotePart",
     ],
@@ -820,6 +901,9 @@ const typeMap: any = {
         "ScenarioModels",
         "TeamsMessages",
         "WebSearch",
+    ],
+    "AllowedAction": [
+        "remove",
     ],
     "Version": [
         "v1.6",
