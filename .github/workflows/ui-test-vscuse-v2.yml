@@ -310,8 +310,8 @@ jobs:
           $guid = [guid]::NewGuid().ToString()
           $account = $env:AZURE_STORAGE_ACCOUNT
           $sourcePath = "packages/tests/vscuse/vscode-test-cases/test_report/"
-          $destination = "`$web/$guid"
-          $storageUrl = "https://vscusedownload.z13.web.core.windows.net/$guid/index.html"
+          $destination = "`content/$guid"
+          $storageUrl = "https://storproxy-app-ttlndcx66gxto.azurewebsites.net/$guid/index.html"
       
           Write-Host "🌐Here is the report: $storageUrl"
 
@@ -324,7 +324,7 @@ jobs:
             --source "$sourcePath" `
             --overwrite
         env:
-          AZURE_STORAGE_ACCOUNT: vscusedownload
+          AZURE_STORAGE_ACCOUNT: storproxystttlndcx66gxto 
 
       - name: Upload storage URL artifact
         if: always()
