@@ -157,7 +157,7 @@ jobs:
 
       - name: Set M365_ACCOUNT_NAME
         run: |
-          if [ "${{ matrix.m365_user.value }}" == "USE_ENV_TEST_TENANT" ]; then
+          if [[ "${{ matrix.m365_user.value }}" == "USE_ENV_TEST_TENANT" ]]; then
             echo "M365_ACCOUNT_NAME=${{ env.TEST_TENANT_M365_ACCOUNT_NAME }}" >> $GITHUB_ENV
           else
             echo "M365_ACCOUNT_NAME=${{ matrix.m365_user.value }}" >> $GITHUB_ENV
