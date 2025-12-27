@@ -1,23 +1,6 @@
 import fs from "fs";
 import path from "path";
 import fetch from "node-fetch";
-
-// Helper: retry async function with delay
-async function retryAsync(fn, retries = 3, delayMs = 2000) {
-  let lastErr;
-  for (let i = 0; i < retries; i++) {
-    try {
-      return await fn();
-    } catch (err) {
-      lastErr = err;
-      if (i < retries - 1) {
-        console.warn(`Retrying after error: ${err.message}`);
-        await new Promise(res => setTimeout(res, delayMs));
-      }
-    }
-  }
-  throw lastErr;
-}
 import { createAppAuth } from "@octokit/auth-app";
 import { Octokit } from "@octokit/core";
 
@@ -51,14 +34,12 @@ console.log("GH_APP_PRIVATE_KEY length:", process.env.GH_APP_PRIVATE_KEY ? proce
     const appAuth = await auth({ type: "app" });
 
     console.log("📥 Fetching installations...");
-    // Fetch installations with timeout and retry
-    const installationsRes = await retryAsync(() => fetch("https://api.github.com/app/installations", {
+    const installationsRes = await fetch("https://api.github.com/app/installations", {
       headers: {
         Authorization: `Bearer ${appAuth.token}`,
         Accept: "application/vnd.github+json",
       },
-      timeout: 30000 // 30 seconds
-    }), 3, 3000);
+    });
     const installations = await installationsRes.json();
     const installation = installations.find(i => i.account.login.toLowerCase() === owner.toLowerCase());
     if (!installation) throw new Error(`No installation found for account: ${owner}`);
@@ -72,12 +53,10 @@ console.log("GH_APP_PRIVATE_KEY length:", process.env.GH_APP_PRIVATE_KEY ? proce
     const octokit = new Octokit({ auth: installationAuth.token });
 
     console.log("📄 Fetching releases...");
-    // Fetch releases with retry
-    const releases = await retryAsync(() => octokit.request("GET /repos/{owner}/{repo}/releases", {
+    const releases = await octokit.request("GET /repos/{owner}/{repo}/releases", {
       owner,
       repo,
-      request: { timeout: 30000 }
-    }), 3, 3000);
+    });
 
     console.log(`🎯 Found ${releases.data.length} releases`);
     for (const r of releases.data) {
@@ -103,16 +82,14 @@ console.log("GH_APP_PRIVATE_KEY length:", process.env.GH_APP_PRIVATE_KEY ? proce
     if (!exeAsset) throw new Error("No .exe file found in release assets");
 
     console.log(`⬇️ Downloading ${exeAsset.name}...`);
-    // Download asset with retry
-    const res = await retryAsync(() => octokit.request('GET /repos/{owner}/{repo}/releases/assets/{asset_id}', {
+    const res = await octokit.request('GET /repos/{owner}/{repo}/releases/assets/{asset_id}', {
       owner,
       repo,
       asset_id: exeAsset.id,
       headers: {
         'Accept': 'application/octet-stream'
-      },
-      request: { timeout: 30000 }
-    }), 3, 3000);
+      }
+    });
 
     if (!res.data) throw new Error(`Failed to download asset`);
 
