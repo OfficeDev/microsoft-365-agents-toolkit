@@ -172,10 +172,6 @@ jobs:
         with:
           node-version: 22
 
-      - name: Setup project dependencies
-        run: npm run setup:e2e
-        shell: bash
-
       - name: Install dependencies for download actions
         run: |
           mkdir -p /tmp/download-deps
@@ -360,12 +356,15 @@ jobs:
           echo "Extracted app name: $app_name"
           echo "APP_NAME=$app_name" >> $GITHUB_ENV
 
-
-      - name: Setup project dependencies
+      - uses: pnpm/action-setup@v4
         if: ${{ env.APP_NAME != '' }}
-        run: npm run setup:e2e
-        shell: bash
-        
+
+      - name: Setup project
+        if: ${{ env.APP_NAME != '' }}
+        working-directory: ./
+        run: |
+          npm run setup:e2
+      
       - name: 🧹Clean App 
         if: ${{ env.APP_NAME != '' }}
         working-directory: packages/tests
