@@ -246,6 +246,7 @@
   "error.m365.NotExtendedToM365Error": "Uygulama, Microsoft 365’e genişletilemiyor. Uygulamayı Microsoft 365’e genişletmek için 'teamsApp/extendToM365' eylemini kullanın.",
   "error.m365.SharedScopeAdvancedDADisabled": "Dağıtım engellendi: Kiracı izin ayarları nedeniyle gelişmiş bildirimsel aracı dağıtılamıyor. Daha fazla bilgi edinin: [Microsoft 365 yönetim merkezinde Microsoft 365 Copilot için aracıları yönetin - Microsoft 365 yöneticisi | Microsoft Learn](%s)",
   "error.share.yamlConfigNotFound": "m365agents.yml dosyasında \"provision\" veya \"deploy\" yapılandırması bulunamadı",
+  "error.share.yamlConfigNotSupported": "Share feature only supports m365agents.yml version v1.10 or above, follow [the guide](https://github.com/OfficeDev/microsoft-365-agents-toolkit/wiki/Share-Declarative-Agents-with-Others#About-YAML-schema) to upgrade and proceed.",
   "error.share.shareActionConfigNotFound": "m365agents.yml dosyasında \"%s\" eylem yapılandırması bulunamadı",
   "error.share.appPackageConfigNotFound": "m365agents.yml dosyasında appPackagePath yapılandırması bulunamadı",
   "error.share.manifestFileNotFound": "Uygulama paketinde bildirim kimliği bulunamadı",

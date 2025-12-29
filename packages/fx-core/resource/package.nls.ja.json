@@ -246,6 +246,7 @@
   "error.m365.NotExtendedToM365Error": "アプリを Microsoft 365 に拡張できません。'teamsApp/extendToM365' アクションを使用して、アプリを Microsoft 365 に拡張します。",
   "error.m365.SharedScopeAdvancedDADisabled": "デプロイがブロックされました: テナントのアクセス許可の設定により、高度な宣言エージェントをデプロイできません。詳細情報: [Microsoft 365 管理センターで Microsoft 365 Copilot のエージェントを管理する - Microsoft 365管理者 | Microsoft Learn](%s)",
   "error.share.yamlConfigNotFound": "m365agents.yml に \"provision\" または \"deploy\" の構成が見つかりません",
+  "error.share.yamlConfigNotSupported": "Share feature only supports m365agents.yml version v1.10 or above, follow [the guide](https://github.com/OfficeDev/microsoft-365-agents-toolkit/wiki/Share-Declarative-Agents-with-Others#About-YAML-schema) to upgrade and proceed.",
   "error.share.shareActionConfigNotFound": "m365agents.yml に \"%s\" アクション構成が見つかりません",
   "error.share.appPackageConfigNotFound": "m365agents.yml に appPackagePath 構成が見つかりません",
   "error.share.manifestFileNotFound": "アプリ パッケージにマニフェスト ファイルが見つかりません",

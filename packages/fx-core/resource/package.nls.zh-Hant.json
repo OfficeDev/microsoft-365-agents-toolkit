@@ -246,6 +246,7 @@
   "error.m365.NotExtendedToM365Error": "無法將應用程式延伸至 Microsoft 365。使用 'teamsApp/extendToM365' 動作將應用程式延伸至 Microsoft 365。",
   "error.m365.SharedScopeAdvancedDADisabled": "已封鎖部署：因為租用戶權限設定而無法部署進階宣告式代理程式。取得詳細資訊：[在 Microsoft 365 系統管理中心管理 Microsoft 365 Copilot 的代理程式 - Microsoft 365 系統管理員 | Microsoft Learn](%s)",
   "error.share.yamlConfigNotFound": "在 m365agents.yml 中找不到「佈建」或「部署」設定",
+  "error.share.yamlConfigNotSupported": "Share feature only supports m365agents.yml version v1.10 or above, follow [the guide](https://github.com/OfficeDev/microsoft-365-agents-toolkit/wiki/Share-Declarative-Agents-with-Others#About-YAML-schema) to upgrade and proceed.",
   "error.share.shareActionConfigNotFound": "在 m365agents.yml 中找不到 \"%s\" 動作設定",
   "error.share.appPackageConfigNotFound": "在 m365agents.yml 中找不到 appPackagePath 設定",
   "error.share.manifestFileNotFound": "在應用程式套件中找不到資訊清單檔案",
