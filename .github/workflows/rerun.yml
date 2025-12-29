@@ -100,6 +100,18 @@ jobs:
     defaults:
       run:
         working-directory: packages/tests
+    env:
+      M365_ACCOUNT_PASSWORD: ${{ secrets.TEST_M365_PASSWORD }}
+      M365_DISPLAY_NAME: "test"
+      CLEAN_CLIENT_ID: ${{ secrets.TEST_CLEAN_CLIENT_ID }}
+      CLEAN_CLIENT_SECRET: ${{ secrets.TEST_CLEAN_CLIENT_SECRET  }}
+      CLEAN_TENANT_ID: ${{ secrets.TEST_CLEAN_TENANT_ID }}
+      AZURE_TENANT_ID: ${{ secrets.TEST_TENANT_ID }}
+      AZURE_SUBSCRIPTION_ID: ${{ secrets.TEST_SUBSCRIPTION_ID }}
+      AZURE_ACCOUNT_NAME: ${{ secrets.TEST_USER_NAME }}
+      AZURE_ACCOUNT_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
+      MAIL_API_KEY: ${{ secrets.MAIL_API_KEY }}
+      TEST_TENANT_M365_ACCOUNT_NAME: ${{ secrets.TEST_TENANT_M365_ACCOUNT_NAME }}
     strategy:
       matrix:
         m365_user:
@@ -124,17 +136,7 @@ jobs:
           - { name: "M365_USERNAME_admin_15", value: "test15@xxbdw.onmicrosoft.com"}
           - { name: "M365_USERNAME_admin_16", value: "test16@xxbdw.onmicrosoft.com"}
           - { name: "M365_USERNAME_admin_17", value: "test17@xxbdw.onmicrosoft.com"}
-    env:
-      M365_ACCOUNT_PASSWORD: ${{ secrets.TEST_M365_PASSWORD }}
-      M365_DISPLAY_NAME: "test"
-      CLEAN_CLIENT_ID: ${{ secrets.TEST_CLEAN_CLIENT_ID }}
-      CLEAN_CLIENT_SECRET: ${{ secrets.TEST_CLEAN_CLIENT_SECRET  }}
-      CLEAN_TENANT_ID: ${{ secrets.TEST_CLEAN_TENANT_ID }}
-      AZURE_TENANT_ID: ${{ secrets.TEST_TENANT_ID }}
-      AZURE_SUBSCRIPTION_ID: ${{ secrets.TEST_SUBSCRIPTION_ID }}
-      AZURE_ACCOUNT_NAME: ${{ secrets.TEST_USER_NAME }}
-      AZURE_ACCOUNT_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
-      MAIL_API_KEY: ${{ secrets.MAIL_API_KEY }}
+          - { name: "M365_USERNAME_With_Copilot", value: "USE_ENV_TEST_TENANT" }
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -155,7 +157,11 @@ jobs:
 
       - name: Set M365_ACCOUNT_NAME
         run: |
-          echo "M365_ACCOUNT_NAME=${{ matrix.m365_user.value }}" >> $GITHUB_ENV
+          if [[ "${{ matrix.m365_user.value }}" == "USE_ENV_TEST_TENANT" ]]; then
+            echo "M365_ACCOUNT_NAME=${{ env.TEST_TENANT_M365_ACCOUNT_NAME }}" >> $GITHUB_ENV
+          else
+            echo "M365_ACCOUNT_NAME=${{ matrix.m365_user.value }}" >> $GITHUB_ENV
+          fi
 
       - name: Clean resource with ${{ matrix.m365_user.name }}
         run: |
