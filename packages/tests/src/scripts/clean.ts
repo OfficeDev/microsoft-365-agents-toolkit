@@ -25,6 +25,32 @@ const adminMicrosoftEntraAppName = [
 ];
 const excludePrefix: string = getAppNamePrefix();
 
+// Parse command-line arguments for specific app names to clean
+// Usage: npm run clean -- --names "app1,app2,app3"
+const args = process.argv.slice(2);
+let specificAppNames: string[] | null = null;
+
+for (let i = 0; i < args.length; i++) {
+  if (args[i] === "--names" && i + 1 < args.length) {
+    specificAppNames = args[i + 1].split(",").map((name: string) => name.trim());
+    console.log(`Targeting specific apps: ${specificAppNames!.join(", ")}`);
+    break;
+  }
+}
+
+// Helper function to check if an app should be cleaned
+function shouldCleanApp(appName: string | undefined): boolean {
+  if (!appName) return false;
+  
+  // If specific names are provided, only clean those
+  if (specificAppNames && specificAppNames.length > 0) {
+    return specificAppNames.some((name) => appName.includes(name));
+  }
+  
+  // Default behavior: clean all except excluded ones
+  return !appName.startsWith(excludePrefix);
+}
+
 async function main() {
   const cleanService = await GraphApiCleanHelper.create(
     Env.cleanTenantId,
@@ -39,7 +65,7 @@ async function main() {
     const teamsAppList = await cleanService.listTeamsApp(teamsUserId);
     if (teamsAppList) {
       for (const app of teamsAppList) {
-        if (!app?.teamsAppDefinition?.displayName?.startsWith(excludePrefix)) {
+        if (shouldCleanApp(app?.teamsAppDefinition?.displayName)) {
           console.log(app?.teamsAppDefinition?.displayName);
           try {
             await cleanService.uninstallTeamsApp(teamsUserId, app?.id ?? "");
@@ -60,12 +86,10 @@ async function main() {
     const aadList = await cleanService.listAad();
     if (aadList) {
       for (const aad of aadList) {
-        if (
-          !adminMicrosoftEntraAppName.some((name) =>
-            aad.displayName?.startsWith(name)
-          ) &&
-          !aad.displayName?.startsWith(excludePrefix)
-        ) {
+        const isAdminApp = adminMicrosoftEntraAppName.some((name) =>
+          aad.displayName?.startsWith(name)
+        );
+        if (!isAdminApp && shouldCleanApp(aad.displayName)) {
           console.log(aad.displayName);
           try {
             await cleanService.deleteAad(aad.id!);
@@ -82,12 +106,10 @@ async function main() {
     const spList = await cleanService.listEnterpriseApplications();
     if (spList) {
       for (const sp of spList) {
-        if (
-          !adminMicrosoftEntraAppName.some((name) =>
-            sp.displayName?.startsWith(name)
-          ) &&
-          !sp.displayName?.startsWith(excludePrefix)
-        ) {
+        const isAdminApp = adminMicrosoftEntraAppName.some((name) =>
+          sp.displayName?.startsWith(name)
+        );
+        if (!isAdminApp && shouldCleanApp(sp.displayName)) {
           console.log(sp.displayName);
           try {
             await cleanService.deleteEnterpriseApplication(sp.id!);
@@ -105,11 +127,10 @@ async function main() {
       await cleanService.listDeletedEnterpriseApplications();
     if (deletedServicePrincialList) {
       for (const sp of deletedServicePrincialList) {
-        if (
-          !adminMicrosoftEntraAppName.some((name) =>
-            sp.displayName?.startsWith(name)
-          )
-        ) {
+        const isAdminApp = adminMicrosoftEntraAppName.some((name) =>
+          sp.displayName?.startsWith(name)
+        );
+        if (!isAdminApp && shouldCleanApp(sp.displayName)) {
           console.log(sp.displayName);
           try {
             await cleanService.deleteDeletedItem(sp.id!);
@@ -136,7 +157,7 @@ async function main() {
     const appStudioAppList = await addStudioCleanService.getAppsInAppStudio();
     if (appStudioAppList) {
       for (const app of appStudioAppList) {
-        if (!app?.displayName?.startsWith(excludePrefix)) {
+        if (shouldCleanApp(app?.displayName)) {
           console.log(app?.displayName);
           try {
             await addStudioCleanService.deleteAppInAppStudio(
@@ -203,17 +224,15 @@ async function main() {
     const sharePointAppList = await sharePointCleanService.listApp();
     if (sharePointAppList) {
       for (const app of sharePointAppList) {
-        for (const name of appNamePrefixList) {
-          if (
-            app.Title?.startsWith(name) &&
-            !app.Title?.startsWith(excludePrefix)
-          ) {
-            console.log(app.Title);
-            try {
-              await sharePointCleanService.deleteApp(app.ID!);
-            } catch {
-              console.log(`Failed to delete SharePoint app ${app.ID!}`);
-            }
+        const matchesPrefix = appNamePrefixList.some((name) =>
+          app.Title?.startsWith(name)
+        );
+        if (matchesPrefix && shouldCleanApp(app.Title)) {
+          console.log(app.Title);
+          try {
+            await sharePointCleanService.deleteApp(app.ID!);
+          } catch {
+            console.log(`Failed to delete SharePoint app ${app.ID!}`);
           }
         }
       }
@@ -253,7 +272,7 @@ async function main() {
       const acquisitions = await m365TitleCleanService.listAcquisitions();
       if (acquisitions) {
         for (const acquisition of acquisitions) {
-          if (!acquisition.titleDefinition.name.startsWith(excludePrefix)) {
+          if (shouldCleanApp(acquisition.titleDefinition.name)) {
             console.log(acquisition.titleDefinition.name);
             console.log(acquisition.titleId);
             const result = await m365TitleCleanService.unacquire(
