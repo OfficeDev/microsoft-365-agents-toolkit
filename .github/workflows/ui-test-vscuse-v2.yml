@@ -173,19 +173,14 @@ jobs:
           node-version: 22
 
       - name: Install dependencies for download actions
-        run: |
-          mkdir -p /tmp/download-deps
-          cd /tmp/download-deps
-          npm install @octokit/auth-app @octokit/request @octokit/core node-fetch
+        run: npm install @octokit/auth-app @octokit/request @octokit/core node-fetch 
         shell: bash
 
       - name: Run download script
-        run: |
-          export NODE_PATH=/tmp/download-deps/node_modules:$NODE_PATH
-          node download-vscuse-python.js "latest" "${{ github.workspace }}/packages/tests/vscuse/vscode-test-cases"
+        run: node download-vscuse-python.js "latest" "${{ github.workspace }}/packages/tests/vscuse/vscode-test-cases"
         shell: bash
         working-directory: .github/actions/setup-vscuse-environment
-
+        
       - name: Set up Python virtual environment and install wheel
         run: |
           cd packages/tests/vscuse/vscode-test-cases
