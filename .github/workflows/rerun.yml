@@ -113,6 +113,7 @@ jobs:
       MAIL_API_KEY: ${{ secrets.MAIL_API_KEY }}
       TEST_TENANT_M365_ACCOUNT_NAME: ${{ secrets.TEST_TENANT_M365_ACCOUNT_NAME }}
     strategy:
+      fail-fast: false
       matrix:
         m365_user:
           - { name: "M365_USERNAME_1", value: "test001@xxbdw.onmicrosoft.com" }
@@ -136,7 +137,7 @@ jobs:
           - { name: "M365_USERNAME_admin_15", value: "test15@xxbdw.onmicrosoft.com"}
           - { name: "M365_USERNAME_admin_16", value: "test16@xxbdw.onmicrosoft.com"}
           - { name: "M365_USERNAME_admin_17", value: "test17@xxbdw.onmicrosoft.com"}
-          - { name: "M365_USERNAME_With_Copilot", value: "USE_ENV_TEST_TENANT" }
+          - { name: "M365_USERNAME_With_Copilot", value: "test01@atktesting03.onmicrosoft.com"}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -157,11 +158,7 @@ jobs:
 
       - name: Set M365_ACCOUNT_NAME
         run: |
-          if [[ "${{ matrix.m365_user.value }}" == "USE_ENV_TEST_TENANT" ]]; then
-            echo "M365_ACCOUNT_NAME=${{ env.TEST_TENANT_M365_ACCOUNT_NAME }}" >> $GITHUB_ENV
-          else
-            echo "M365_ACCOUNT_NAME=${{ matrix.m365_user.value }}" >> $GITHUB_ENV
-          fi
+          echo "M365_ACCOUNT_NAME=${{ matrix.m365_user.value }}" >> $GITHUB_ENV
 
       - name: Clean resource with ${{ matrix.m365_user.name }}
         run: |
