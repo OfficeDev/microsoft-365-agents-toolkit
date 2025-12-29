@@ -358,7 +358,7 @@ jobs:
         if: ${{ env.APP_NAME != '' }}
         working-directory: ./
         run: |
-          npm run setup:e2e
+          pnpm install --no-frozen-lockfile && pnpm --filter templates --filter @microsoft/teamsfx-test... build
       
       - name: 🧹Clean App 
         if: ${{ env.APP_NAME != '' }}
@@ -414,7 +414,7 @@ jobs:
         if: ${{ github.event_name == 'schedule' }}
         working-directory: ./
         run: |
-          npm run setup:e2e
+          pnpm install --no-frozen-lockfile && pnpm --filter templates --filter @microsoft/teamsfx-test... build
 
       - name: Clean resources
         if: ${{ github.event_name == 'schedule' }}
