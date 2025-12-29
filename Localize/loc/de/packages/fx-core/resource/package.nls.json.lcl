@@ -7910,7 +7910,7 @@
         <Str Cat="Text">
           <Val><![CDATA[There is no valid app catalog in your tenant. You can update the property 'createAppCatalogIfNotExist' in %s to true if you want Microsoft 365 Agents Toolkit to create it for you or you can create it by yourself.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[In Ihrem Mandanten ist kein gültiger App-Katalog vorhanden. Sie können die Eigenschaft „createAppCatalogIfNotExist“ in „%s“ auf WAHR aktualisieren, wenn Sie möchten, dass das Microsoft 365 Agents-Toolkit sie für Sie erstellt, oder Sie können sie selbst erstellen.]]></Val>
+            <Val><![CDATA[In Ihrem Mandanten ist kein gültiger App-Katalog vorhanden. Wenn Sie möchten, dass das Microsoft 365-Agents-Toolkit für Sie erstellt wird, können Sie die Eigenschaft 'createAppCatalogIfNotExist' in % auf TRUE aktualisieren, oder Sie können es selbst erstellen.]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[There is no valid app catalog in your tenant. You can update the property 'createAppCatalogIfNotExist' in %s to true if you want Teams Toolkit to create it for you or you can create it by yourself.]]></Val>
@@ -9608,7 +9608,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to clear blob files in Azure Storage Account '%s'. The error responses from Azure are:]A; %s. ]A;If the error message specifies the reason, fix the error and try again.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Die Blob-Dateien in Azure Storage Konto „%s“ können nicht gelöscht werden. Die Fehlerantworten von Azure sind:]A; %s. ]A; Wenn die Fehlermeldung den Grund angibt, beheben Sie den Fehler, und versuchen Sie es noch mal.]]></Val>
+            <Val><![CDATA[Die Blobdateien in Azure-Speicherkonto '%s' können nicht gelöscht werden. Die Fehlerantworten von Azure sind:]A; %s. ]A;Wenn die Fehlermeldung den Grund angibt, beheben Sie den Fehler, und versuchen Sie es noch mal.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9617,7 +9617,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to clear blob files in Azure Storage Account '%s'. Refer to the [Output panel]5D;(command:fx-extension.showOutputChannel) for more details.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Die Blob-Dateien im Azure Storage-Konto „%s“ können nicht gelöscht werden. Weitere Informationen finden Sie im [Ausgabebereich]5D;(command:fx-extension.showOutputChannel).]]></Val>
+            <Val><![CDATA[Blobdateien im Azure-Speicherkonto '%s' können nicht gelöscht werden. Weitere Informationen finden Sie im [Ausgabebereich]5D;(command:fx-extension.showOutputChannel).]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9626,7 +9626,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to get Azure Storage container '%s' in Azure Storage Account '%s' due to error: %s. The error responses from Azure are:]A; %s. ]A;If the error message specifies the reason, fix the error and try again.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Der Azure Storage-Container „%s“ im Azure Storage-Konto "%s" kann aufgrund eines Fehlers nicht festgelegt werden: %s. Die Fehlerantworten von Azure lauten:]A; %s. ]A;Wenn die Fehlermeldung den Grund angibt, beheben Sie den Fehler und versuchen Sie es erneut.]]></Val>
+            <Val><![CDATA[Der Azure-Speichercontainer '%s' im Azure-Speicherkonto '%s' kann aufgrund des folgenden Fehlers nicht abgerufen werden: %s. Die Fehlerantworten von Azure lauten:]A; %s. ]A;Wenn die Fehlermeldung den Grund angibt, beheben Sie den Fehler und versuchen Sie es erneut.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9635,7 +9635,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to get Azure Storage container '%s' in Azure Storage Account '%s' due to error: %s. Refer to the [Output panel]5D;(command:fx-extension.showOutputChannel) for more details.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Der Azure Storage-Containers „%s“ im Azure-Speicherkonto „%s“ kann aufgrund eines Fehlers nicht abgerufen werden: %s. Weitere Einzelheiten finden Sie im [Ausgabebereich]5D;(command:fx-extension.showOutputChannel).]]></Val>
+            <Val><![CDATA[Der Azure-Speichercontainers '%s' im Azure-Speicherkonto '%s' kann aufgrund des folgenden Fehlers nicht abgerufen werden: %s. Weitere Einzelheiten finden Sie im [Ausgabebereich]5D;(command:fx-extension.showOutputChannel).]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9644,7 +9644,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to get properties of container '%s' in Azure Storage Account '%s' due to error: %s. The error responses from Azure are:]A; %s. ]A;If the error message specifies the reason, fix the error and try again.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Die Eigenschaften des Containers „%s“ in Azure Storage Konto „%s“ können aufgrund des folgenden Fehlers nicht abgerufen werden: %s. Die Fehlerantworten von Azure sind:]A; %s. ]A; Wenn die Fehlermeldung den Grund angibt, beheben Sie den Fehler, und versuchen Sie es noch mal.]]></Val>
+            <Val><![CDATA[Die Eigenschaften des Containers '%s' im Azure-Speicherkonto '%s' können aufgrund des folgenden Fehlers nicht abgerufen werden: %s. Die Fehlerantworten von Azure sind:]A; %s. ]A;Wenn die Fehlermeldung den Grund angibt, beheben Sie den Fehler, und versuchen Sie es noch mal.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9653,7 +9653,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to get properties of container '%s' in Azure Storage Account '%s' due to error: %s. Refer to the [Output panel]5D;(command:fx-extension.showOutputChannel) for more details.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Die Eigenschaften des Containers „%s“ im Azure Storage-Konto „%s“ können aufgrund eines Fehlers nicht abgerufen werden: %s. Weitere Einzelheiten finden Sie im [Ausgabebereich]5D;(command:fx-extension.showOutputChannel).]]></Val>
+            <Val><![CDATA[Die Eigenschaften des Containers '%s' im Azure-Speicherkonto '%s' können aufgrund des folgenden Fehlers nicht abgerufen werden: %s. Weitere Einzelheiten finden Sie im [Ausgabebereich]5D;(command:fx-extension.showOutputChannel).]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9662,7 +9662,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to set properties of container '%s' in Azure Storage Account '%s' due to error: %s. The error responses from Azure are:]A; %s. ]A;If the error message specifies the reason, fix the error and try again.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Die Eigenschaften des Containers „%s“ im Azure Storage-Konto "%s" können aufgrund eines Fehlers nicht festgelegt werden: %s. Die Fehlerantworten von Azure lauten:]A; %s. ]A;Wenn die Fehlermeldung den Grund angibt, beheben Sie den Fehler und versuchen Sie es erneut.]]></Val>
+            <Val><![CDATA[Die Eigenschaften des Containers '%s' im Azure-Speicherkonto '%s' können aufgrund des folgenden Fehlers nicht festgelegt werden: %s. Die Fehlerantworten von Azure lauten:]A; %s. ]A;Wenn die Fehlermeldung den Grund angibt, beheben Sie den Fehler und versuchen Sie es erneut.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9671,7 +9671,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to set properties of container '%s' in Azure Storage Account '%s' due to error: %s. Refer to the [Output panel]5D;(command:fx-extension.showOutputChannel) for more details.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Die Eigenschaften des Containers „%s“ können in Azure Storage Konto „%s“ aufgrund des folgenden Fehlers nicht festgelegt werden: %s. Weitere Informationen finden Sie im [Ausgabebereich]5D;(command:fx-extension.showOutputChannel).]]></Val>
+            <Val><![CDATA[Die Eigenschaften des Containers '%s' im Azure-Speicherkonto '%s' können aufgrund des folgenden Fehlers nicht festgelegt werden: %s. Weitere Informationen finden Sie im [Ausgabebereich]5D;(command:fx-extension.showOutputChannel).]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9680,7 +9680,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to upload local folder '%s' to Azure Storage Account '%s'. The error responses from Azure are:]A; %s. ]A;If the error message specifies the reason, fix the error and try again.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Der lokale Ordner „%s“ kann nicht in das Azure Storage-Konto „%s“ hochgeladen werden. Die Fehlerantworten von Azure sind:]A; %s. ]A; Wenn die Fehlermeldung den Grund angibt, beheben Sie den Fehler, und versuchen Sie es noch mal.]]></Val>
+            <Val><![CDATA[Der lokale Ordner '%s' kann nicht in das Azure-Speicherkonto '%s' hochgeladen werden. Die Fehlerantworten von Azure sind:]A; %s. ]A;Wenn die Fehlermeldung den Grund angibt, beheben Sie den Fehler, und versuchen Sie es noch mal.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9689,7 +9689,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to upload local folder '%s' to Azure Storage Account '%s'. Refer to the [Output panel]5D;(command:fx-extension.showOutputChannel) for more details.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Lokaler Ordner "%s" kann nicht in Azure Storage-Konto „%s“ hochgeladen werden. Weitere Informationen finden Sie im [Ausgabebereich]5D;(command:fx-extension.showOutputChannel).]]></Val>
+            <Val><![CDATA[Der lokale Ordner '%s' kann nicht in das Azure-Speicherkonto '%s' hochgeladen werden. Weitere Informationen finden Sie im [Ausgabebereich]5D;(command:fx-extension.showOutputChannel).]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -10150,6 +10150,15 @@
           <Prev Cat="Text">
             <Val><![CDATA[Unable to find the "share" config in the m365agents.yml]]></Val>
           </Prev>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.share.yamlConfigNotSupported" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Share feature only supports m365agents.yml version v1.10 or above, follow [the guide]5D;(https://github.com/OfficeDev/microsoft-365-agents-toolkit/wiki/Share-Declarative-Agents-with-Others#About-YAML-schema) to upgrade and proceed.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Die Freigabefunktion unterstützt nur m365agents.yml Version v1.10 oder höher. Folgen Sie [dem Leitfaden]5D;(https://github.com/OfficeDev/microsoft-365-agents-toolkit/wiki/Share-Declarative-Agents-with-Others#About-YAML-schema), um ein Upgrade durchzuführen und fortzufahren.]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -10934,7 +10943,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Check if you have permissions to your Azure Storage Account.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Überprüfen Sie, ob Sie über Berechtigungen für Ihr Azure Storage-Konto verfügen.]]></Val>
+            <Val><![CDATA[Überprüfen Sie, ob Sie über Berechtigungen für Ihr Azure-Speicherkonto verfügen.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />

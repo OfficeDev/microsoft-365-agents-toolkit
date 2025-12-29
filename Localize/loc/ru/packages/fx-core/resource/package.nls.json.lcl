@@ -9662,7 +9662,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to set properties of container '%s' in Azure Storage Account '%s' due to error: %s. The error responses from Azure are:]A; %s. ]A;If the error message specifies the reason, fix the error and try again.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Не удалось задать свойства контейнера "%s"' в учетной записи хранение Azure "%s" из-за ошибки: %s. Ответы об ошибках от Azure:]A; %s. ]A;Если в сообщении об ошибке указана причина, исправьте ошибку и повторите попытку.]]></Val>
+            <Val><![CDATA[Не удалось задать свойства контейнера "%s"' в учетной записи хранения Azure "%s" из-за ошибки: %s. Ответы об ошибках от Azure:]A; %s. ]A;Если в сообщении об ошибке указана причина, исправьте ошибку и повторите попытку.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -10150,6 +10150,15 @@
           <Prev Cat="Text">
             <Val><![CDATA[Unable to find the "share" config in the m365agents.yml]]></Val>
           </Prev>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.share.yamlConfigNotSupported" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Share feature only supports m365agents.yml version v1.10 or above, follow [the guide]5D;(https://github.com/OfficeDev/microsoft-365-agents-toolkit/wiki/Share-Declarative-Agents-with-Others#About-YAML-schema) to upgrade and proceed.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Функция общего доступа поддерживает только m365agents.yml версии 1.10 и более поздних. Для обновления и продолжения работы следуйте [руководству]5D;(https://github.com/OfficeDev/microsoft-365-agents-toolkit/wiki/Share-Declarative-Agents-with-Others#About-YAML-schema).]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -10934,7 +10943,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Check if you have permissions to your Azure Storage Account.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Проверьте, есть ли у вас разрешения для учетной записи службы хранилища Azure.]]></Val>
+            <Val><![CDATA[Проверьте, есть ли у вас разрешения для учетной записи хранения Azure.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
