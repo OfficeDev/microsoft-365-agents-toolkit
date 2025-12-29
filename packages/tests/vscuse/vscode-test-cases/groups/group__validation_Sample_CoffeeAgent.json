@@ -28,7 +28,7 @@
     "tags": [
       "group"
     ],
-    "updated_at": "2025-12-26T12:43:39.059169"
+    "updated_at": "2025-12-29T08:43:51.038085"
   },
   "steps": [
     {
@@ -54,7 +54,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_14636eea",
-      "created_at": "2025-12-26T12:42:10.368215",
+      "created_at": "2025-12-29T08:43:23.469487",
       "plan_id": "plan_1036a28e"
     },
     {
@@ -76,7 +76,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_520fd6b8",
-      "created_at": "2025-12-26T12:42:10.393982",
+      "created_at": "2025-12-29T08:43:23.489247",
       "plan_id": "plan_1036a28e"
     },
     {
@@ -98,7 +98,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_f9a64e29",
-      "created_at": "2025-12-26T12:42:10.412621",
+      "created_at": "2025-12-29T08:43:23.513386",
       "plan_id": "plan_1036a28e"
     },
     {
@@ -106,7 +106,7 @@
       "agent": "assertion",
       "tool": "",
       "parameters": {},
-      "description": "@assertion  \"I'll add the coffee shop to your list\" exist",
+      "description": "@assertion bot has responsed user's question.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -114,9 +114,11 @@
       "depends_on": [],
       "preconditions": [],
       "postconditions": [],
-      "tags": [],
+      "tags": [
+        "step_retry_timeout:20"
+      ],
       "screenshot": null,
-      "created_at": "2025-12-26T12:42:10.426872",
+      "created_at": "2025-12-29T08:43:23.528197",
       "plan_id": "plan_1036a28e"
     },
     {
@@ -142,7 +144,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_96aa9e7e",
-      "created_at": "2025-12-26T12:42:10.440208",
+      "created_at": "2025-12-29T08:43:23.539761",
       "plan_id": "plan_1036a28e"
     }
   ],
