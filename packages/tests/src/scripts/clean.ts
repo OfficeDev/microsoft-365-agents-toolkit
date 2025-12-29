@@ -26,7 +26,7 @@ const adminMicrosoftEntraAppName = [
 const excludePrefix: string = getAppNamePrefix();
 
 // Parse command-line arguments for specific app names to clean
-// Usage: npm run clean -- --names "app1,app2,app3"
+// Usage: npm run clean --names "app1,app2,app3"
 const args = process.argv.slice(2);
 let specificAppNames: string[] | null = null;
 

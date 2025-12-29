@@ -248,7 +248,8 @@ jobs:
           cd packages/tests/vscuse/vscode-test-cases
           python -m venv .venv
           source .venv/bin/activate
-          vscuse execute --config-file ./config.yaml --groups-dir groups ./plans/${{ matrix.test_plan }}.json
+          
+          vscuse execute --config-file ./config.yaml --groups-dir groups ./plans/${{ matrix.test_plan }}.json | tee /tmp/vscuse_run_result.log
 
       - name: Rename test_report.html to index.html
         if: always()
@@ -335,10 +336,39 @@ jobs:
           retention-days: 7
           if-no-files-found: ignore
 
-      - name: Cleanup
+
+      - name: Extract app name from test log
+        id: extract-app-name
+        run: |
+          LOG_FILE="/tmp/vscuse_run_result.log"
+          app_name=""
+            if [ -f "$LOG_FILE" ]; then
+            # Look for line containing 'app_name:' and extract the value after the colon
+            app_name=$(grep -E '^\s*app_name:\s*' "$LOG_FILE" | awk -F': ' '{print $2}' | head -n 1)
+            app_name=${app_name:-""}
+          else
+            app_name=""
+          fi
+          echo "Extracted app name: $app_name"
+          echo "APP_NAME=$app_name" >> $GITHUB_ENV
+          
+      - name: Setup project for cleanup 
+        if: ${{ always() && env.APP_NAME != '' }}
+        working-directory: ./
+        run: |
+          npm run setup:e2e
+
+      - name: 🧹Clean App 
+        if: ${{ always() && env.APP_NAME != '' }}
+        working-directory: packages/tests
+        run: |
+          npx ts-node src/scripts/clean.ts --names "${{ env.APP_NAME }}"
+
+
+      - name: 🧹Cleanup Docker containers
         if: always()
         run: |
-          echo "🧹 Cleaning up resources..."
+          echo "Cleaning up resources..."
 
           # Stop and remove any containers using our image
           echo "Cleaning up VSCode containers..."
