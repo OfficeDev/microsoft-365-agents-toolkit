@@ -180,7 +180,7 @@ jobs:
         run: node download-vscuse-python.js "latest" "${{ github.workspace }}/packages/tests/vscuse/vscode-test-cases"
         shell: bash
         working-directory: .github/actions/setup-vscuse-environment
-        
+
       - name: Set up Python virtual environment and install wheel
         run: |
           cd packages/tests/vscuse/vscode-test-cases
@@ -358,7 +358,7 @@ jobs:
         if: ${{ env.APP_NAME != '' }}
         working-directory: ./
         run: |
-          npm run setup:e2
+          npm run setup:e2e
       
       - name: 🧹Clean App 
         if: ${{ env.APP_NAME != '' }}
