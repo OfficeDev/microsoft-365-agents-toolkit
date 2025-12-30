@@ -10,14 +10,14 @@
       "step_retry_timeout": 0
     },
     "total_steps": 10,
-    "created_at": "2025-11-14T04:21:44.719406",
+    "created_at": "2025-12-29T09:35:45.175130",
     "name": "Teams Agent With Data Custom API Azure OpenAI ts Local Debug",
     "description": {
+      "other": "",
       "owner": "v-ivanchen@microsoft.com",
-      "workitem": "27588564",
-      "other": ""
+      "workitem": "27588564"
     },
-    "generated_at": "2025-11-14T04:21:44.719400",
+    "generated_at": "2025-12-29T09:35:45.175130",
     "execution_order": [
       "plan_r_0928_012254",
       "step_ebf34a2e",
@@ -33,11 +33,12 @@
       "step_17237d51",
       "plan_r_0928_014459",
       "plan_r_1021_081410",
+      "plan_r_1229_080428",
       "plan_r_0930_083113",
       "plan_r_1023_110315"
     ],
     "tags": [],
-    "updated_at": "2025-11-14T04:25:04.743919"
+    "updated_at": "2025-12-29T09:45:57.631688"
   },
   "steps": [
     {
@@ -63,7 +64,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_ebf34a2e",
-      "created_at": "2025-11-14T04:21:44.734961",
+      "created_at": "2025-12-29T09:35:45.194740",
       "plan_id": "plan_5405cbbc"
     },
     {
@@ -89,7 +90,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_dd4614a1",
-      "created_at": "2025-11-14T04:21:44.749690",
+      "created_at": "2025-12-29T09:35:45.205341",
       "plan_id": "plan_5405cbbc"
     },
     {
@@ -115,7 +116,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_d754525c",
-      "created_at": "2025-11-14T04:21:44.763894",
+      "created_at": "2025-12-29T09:35:45.216031",
       "plan_id": "plan_5405cbbc"
     },
     {
@@ -141,7 +142,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_a862fe90",
-      "created_at": "2025-11-14T04:21:44.785162",
+      "created_at": "2025-12-29T09:35:45.224937",
       "plan_id": "plan_5405cbbc"
     },
     {
@@ -163,7 +164,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_e8db5c93",
-      "created_at": "2025-11-14T04:21:44.801116",
+      "created_at": "2025-12-29T09:35:45.234150",
       "plan_id": "plan_5405cbbc"
     },
     {
@@ -185,7 +186,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_2982b32d",
-      "created_at": "2025-11-14T04:21:44.817153",
+      "created_at": "2025-12-29T09:35:45.243968",
       "plan_id": "plan_5405cbbc"
     },
     {
@@ -211,7 +212,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_130d6755",
-      "created_at": "2025-11-14T04:21:44.834227",
+      "created_at": "2025-12-29T09:35:45.253869",
       "plan_id": "plan_5405cbbc"
     },
     {
@@ -237,7 +238,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_97a1691c",
-      "created_at": "2025-11-14T04:21:44.844854",
+      "created_at": "2025-12-29T09:35:45.262089",
       "plan_id": "plan_5405cbbc"
     },
     {
@@ -263,7 +264,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_1a27fbea",
-      "created_at": "2025-11-14T04:21:44.855421",
+      "created_at": "2025-12-29T09:35:45.270637",
       "plan_id": "plan_5405cbbc"
     },
     {
@@ -289,7 +290,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_17237d51",
-      "created_at": "2025-11-14T04:21:44.870779",
+      "created_at": "2025-12-29T09:35:45.279804",
       "plan_id": "plan_5405cbbc"
     }
   ],
