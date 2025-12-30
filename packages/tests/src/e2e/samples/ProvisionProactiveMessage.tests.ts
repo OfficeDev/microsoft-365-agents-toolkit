@@ -28,7 +28,7 @@ class ProactiveMessagingTestCase extends CaseFactory {
   override async onBeforeProvision(projectPath: string): Promise<void> {
     await setBotSkuNameToB1Bicep(
       projectPath,
-      "templates/azure/azure.parameters.dev.json"
+      "nodejs/templates/azure/azure.parameters.dev.json"
     );
   }
 
