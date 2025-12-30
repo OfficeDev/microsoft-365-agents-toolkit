@@ -311,7 +311,7 @@ jobs:
           $account = $env:AZURE_STORAGE_ACCOUNT
           $sourcePath = "packages/tests/vscuse/vscode-test-cases/test_report/"
           $destination = "`content/$guid"
-          $storageUrl = "https://storproxy-app-ttlndcx66gxto.azurewebsites.net/$guid/index.html"
+          $storageUrl = "https://storproxy-app-voazuxhhvtgiq.azurewebsites.net/$guid/index.html"
       
           Write-Host "🌐Here is the report: $storageUrl"
 
@@ -324,7 +324,7 @@ jobs:
             --source "$sourcePath" `
             --overwrite
         env:
-          AZURE_STORAGE_ACCOUNT: storproxystttlndcx66gxto 
+          AZURE_STORAGE_ACCOUNT: storproxystvoazuxhhvtgiq 
 
       - name: Upload storage URL artifact
         if: always()
