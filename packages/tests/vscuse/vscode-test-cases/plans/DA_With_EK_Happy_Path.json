@@ -9,14 +9,14 @@
       "precondition_retry_interval": 1
     },
     "total_steps": 25,
-    "created_at": "2025-12-31T02:14:47.017387",
+    "created_at": "2025-12-31T02:55:31.923903",
     "name": "DA With EK Happy Path",
     "description": {
       "other": "",
       "owner": "v-ivanchen@microsoft.com",
       "workitem": "34657755"
     },
-    "generated_at": "2025-12-31T02:14:47.017387",
+    "generated_at": "2025-12-31T02:55:31.923903",
     "execution_order": [
       "plan_r_0928_012254",
       "step_3f5fbd48",
@@ -24,7 +24,7 @@
       "step_131ebdfa",
       "plan_r_0928_014459",
       "plan_r_0929_040401",
-      "plan_b36c23b3",
+      "plan_r_0928_020230",
       "step_e7a5feb5",
       "step_68ac811b",
       "step_9122cb15",
@@ -51,7 +51,7 @@
       "step_6057659d"
     ],
     "tags": [],
-    "updated_at": "2025-12-31T02:25:17.827265"
+    "updated_at": "2025-12-31T03:07:22.602443"
   },
   "steps": [
     {
@@ -82,7 +82,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_3f5fbd48",
-      "created_at": "2025-12-31T02:14:47.037776",
+      "created_at": "2025-12-31T02:55:31.945019",
       "plan_id": "plan_13457846"
     },
     {
@@ -113,7 +113,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_d04487d7",
-      "created_at": "2025-12-31T02:14:47.046295",
+      "created_at": "2025-12-31T02:55:31.956583",
       "plan_id": "plan_13457846"
     },
     {
@@ -144,14 +144,16 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_131ebdfa",
-      "created_at": "2025-12-31T02:14:47.054827",
+      "created_at": "2025-12-31T02:55:31.967548",
       "plan_id": "plan_13457846"
     },
     {
       "step_id": "step_e7a5feb5",
       "agent": "code",
       "tool": "",
-      "parameters": {},
+      "parameters": {
+        "sample": "=== Generated Script ===\nLanguage: bash\n\n```bash\n#!/bin/bash\n\nTARGET_DIR=\"/home/vscode/AgentsToolkitProjects/vscuse_app_XfRJT\"\nFILE_URL=\"https://raw.githubusercontent.com/ayachensiyuan/vscuse-resources/refs/heads/main/DA-EK/Document.docx\"\nFILE_NAME=\"Document.docx\"\n\n# Create target directory if it doesn't exist\nmkdir -p \"$TARGET_DIR\"\n\n# Download file with timeout\ncurl -L --max-time 120 \"$FILE_URL\" -o \"$TARGET_DIR/$FILE_NAME\"\n```\n\n=== Execution Results ===\nExit Code: 0\n\n=== STDERR ===\n% Total    % Received % Xferd  Average Speed   Time    Time     Time  Current\n                                 Dload  Upload   Total   Spent    Left  Speed\n\n  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0\n 11  695k   11 81911    0     0   138k      0  0:00:05 --:--:--  0:00:05  137k\n100  695k  100  695k    0     0   612k      0  0:00:01  0:00:01 --:--:--  612k\n\n✓ Script executed successfully"
+      },
       "description": "@code download file: https://raw.githubusercontent.com/ayachensiyuan/vscuse-resources/refs/heads/main/DA-EK/Document.docx\nsave to the path: /home/vscode/AgentsToolkitProjects/${{var:app_name}}",
       "content_refs": [],
       "timeout": 30,
@@ -162,7 +164,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": null,
-      "created_at": "2025-12-31T02:14:47.064340",
+      "created_at": "2025-12-31T02:55:31.976563",
       "plan_id": "plan_13457846"
     },
     {
@@ -184,7 +186,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_68ac811b",
-      "created_at": "2025-12-31T02:14:47.072629",
+      "created_at": "2025-12-31T02:55:31.986715",
       "plan_id": "plan_13457846"
     },
     {
@@ -206,7 +208,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_9122cb15",
-      "created_at": "2025-12-31T02:14:47.081613",
+      "created_at": "2025-12-31T02:55:31.995619",
       "plan_id": "plan_13457846"
     },
     {
@@ -228,7 +230,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_e3de7abb",
-      "created_at": "2025-12-31T02:14:47.091388",
+      "created_at": "2025-12-31T02:55:32.004072",
       "plan_id": "plan_13457846"
     },
     {
@@ -254,7 +256,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_ada70016",
-      "created_at": "2025-12-31T02:14:47.099920",
+      "created_at": "2025-12-31T02:55:32.013626",
       "plan_id": "plan_13457846"
     },
     {
@@ -280,7 +282,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_5d6e25b7",
-      "created_at": "2025-12-31T02:14:47.108456",
+      "created_at": "2025-12-31T02:55:32.022177",
       "plan_id": "plan_13457846"
     },
     {
@@ -306,7 +308,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_67bc3d75",
-      "created_at": "2025-12-31T02:14:47.116820",
+      "created_at": "2025-12-31T02:55:32.030615",
       "plan_id": "plan_13457846"
     },
     {
@@ -332,7 +334,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_84908793",
-      "created_at": "2025-12-31T02:14:47.127139",
+      "created_at": "2025-12-31T02:55:32.039169",
       "plan_id": "plan_13457846"
     },
     {
@@ -358,7 +360,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_f8ca80fe",
-      "created_at": "2025-12-31T02:14:47.135513",
+      "created_at": "2025-12-31T02:55:32.047182",
       "plan_id": "plan_13457846"
     },
     {
@@ -384,7 +386,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_370ef674",
-      "created_at": "2025-12-31T02:14:47.143556",
+      "created_at": "2025-12-31T02:55:32.055163",
       "plan_id": "plan_13457846"
     },
     {
@@ -415,7 +417,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_4983c8ce",
-      "created_at": "2025-12-31T02:14:47.152601",
+      "created_at": "2025-12-31T02:55:32.063974",
       "plan_id": "plan_13457846"
     },
     {
@@ -444,7 +446,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_72ec1606",
-      "created_at": "2025-12-31T02:14:47.160581",
+      "created_at": "2025-12-31T02:55:32.072253",
       "plan_id": "plan_13457846"
     },
     {
@@ -473,7 +475,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_8bbd9a59",
-      "created_at": "2025-12-31T02:14:47.169181",
+      "created_at": "2025-12-31T02:55:32.079779",
       "plan_id": "plan_13457846"
     },
     {
@@ -502,7 +504,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_cf4a4c80",
-      "created_at": "2025-12-31T02:14:47.177829",
+      "created_at": "2025-12-31T02:55:32.087764",
       "plan_id": "plan_13457846"
     },
     {
@@ -531,7 +533,7 @@
         "step_retry_timeout: 60"
       ],
       "screenshot": null,
-      "created_at": "2025-12-31T02:14:47.185954",
+      "created_at": "2025-12-31T02:55:32.096101",
       "plan_id": "plan_13457846"
     },
     {
@@ -553,7 +555,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_cd990de2",
-      "created_at": "2025-12-31T02:14:47.195431",
+      "created_at": "2025-12-31T02:55:32.104137",
       "plan_id": "plan_13457846"
     },
     {
@@ -575,7 +577,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_33f139d1",
-      "created_at": "2025-12-31T02:14:47.205188",
+      "created_at": "2025-12-31T02:55:32.113322",
       "plan_id": "plan_13457846"
     },
     {
@@ -599,7 +601,7 @@
         "delay: 30"
       ],
       "screenshot": "step_1087ee9e",
-      "created_at": "2025-12-31T02:14:47.213661",
+      "created_at": "2025-12-31T02:55:32.120793",
       "plan_id": "plan_13457846"
     },
     {
@@ -621,7 +623,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_92da00ba",
-      "created_at": "2025-12-31T02:14:47.221834",
+      "created_at": "2025-12-31T02:55:32.129758",
       "plan_id": "plan_13457846"
     },
     {
@@ -641,9 +643,11 @@
         "dhash:512:384:0:20:1d9ce159dbf059f4"
       ],
       "postconditions": [],
-      "tags": [],
+      "tags": [
+        "delay:30"
+      ],
       "screenshot": "step_d390acd6",
-      "created_at": "2025-12-31T02:23:58.972725",
+      "created_at": "2025-12-31T02:55:32.137725",
       "plan_id": "plan_13457846"
     },
     {
@@ -665,7 +669,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_816ae66e",
-      "created_at": "2025-12-31T02:23:58.981601",
+      "created_at": "2025-12-31T02:55:32.146057",
       "plan_id": "plan_13457846"
     },
     {
@@ -685,7 +689,7 @@
         "step_retry_timeout: 60"
       ],
       "screenshot": null,
-      "created_at": "2025-12-31T02:14:47.251210",
+      "created_at": "2025-12-31T02:55:32.154953",
       "plan_id": "plan_13457846"
     }
   ],
