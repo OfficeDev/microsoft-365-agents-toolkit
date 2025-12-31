@@ -28,11 +28,21 @@ export enum DotnetVersion {
   v31 = "3.1",
   v50 = "5.0",
   v60 = "6.0",
+  v70 = "7.0",
+  v80 = "8.0",
+  v90 = "9.0",
 }
 type DotnetSDK = { version: string; path: string };
 const DotnetCoreSDKName = ".NET Core SDK";
 const installVersion = isMacOS() && isArm64() ? DotnetVersion.v60 : DotnetVersion.v31;
-const supportedVersions = [DotnetVersion.v31, DotnetVersion.v50, DotnetVersion.v60];
+const supportedVersions = [
+  DotnetVersion.v31,
+  DotnetVersion.v50,
+  DotnetVersion.v60,
+  DotnetVersion.v70,
+  DotnetVersion.v80,
+  DotnetVersion.v90,
+];
 const installedNameWithVersion = `${DotnetCoreSDKName} (v${DotnetVersion.v31})`;
 
 export class DotnetChecker implements DepsChecker {
