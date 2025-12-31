@@ -10,14 +10,14 @@
       "step_retry_timeout": 0.0
     },
     "total_steps": 20,
-    "created_at": "2025-12-26T02:32:43.216907",
-    "name": "DA Typespec Oauth Reference Id",
+    "created_at": "2025-12-31T01:18:16.736526",
+    "name": "DA Typespec Oauth Without Reference Id",
     "description": {
       "other": "",
       "owner": "v-ivanchen@microsoft.com",
-      "workitem": "32237977"
+      "workitem": "32238147"
     },
-    "generated_at": "2025-12-26T02:32:43.216907",
+    "generated_at": "2025-12-31T01:18:16.736526",
     "execution_order": [
       "plan_r_0928_012254",
       "step_7d555a0e",
@@ -47,7 +47,7 @@
       "step_f1879570"
     ],
     "tags": [],
-    "updated_at": "2025-12-26T02:42:22.145528"
+    "updated_at": "2025-12-31T02:01:39.515138"
   },
   "steps": [
     {
@@ -73,7 +73,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_7d555a0e",
-      "created_at": "2025-12-26T02:32:43.227842",
+      "created_at": "2025-12-31T02:01:33.313835",
       "plan_id": "plan_1951448c"
     },
     {
@@ -99,7 +99,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_d01ead17",
-      "created_at": "2025-12-26T02:32:43.236548",
+      "created_at": "2025-12-31T02:01:33.322614",
       "plan_id": "plan_1951448c"
     },
     {
@@ -125,7 +125,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_57b3f8f1",
-      "created_at": "2025-12-26T02:32:43.245417",
+      "created_at": "2025-12-31T02:01:33.331220",
       "plan_id": "plan_1951448c"
     },
     {
@@ -145,7 +145,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": null,
-      "created_at": "2025-12-26T02:32:43.254964",
+      "created_at": "2025-12-31T02:01:33.344797",
       "plan_id": "plan_1951448c"
     },
     {
@@ -171,7 +171,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_d7c966c3",
-      "created_at": "2025-12-26T02:32:43.264463",
+      "created_at": "2025-12-31T02:01:33.354249",
       "plan_id": "plan_1951448c"
     },
     {
@@ -199,7 +199,7 @@
         "precondition_wait_timeout: 120"
       ],
       "screenshot": "step_d2b7bea4",
-      "created_at": "2025-12-26T02:32:43.274190",
+      "created_at": "2025-12-31T02:01:33.374578",
       "plan_id": "plan_1951448c"
     },
     {
@@ -209,7 +209,7 @@
       "parameters": {
         "text": "Iv23li8d6YQEDuBpF9Jj"
       },
-      "description": "Type 'Iv23li8d6YQEDuBpF9Jj' into the input field labeled \"Input client ID for OAuth registration in OpenAPI Description Document\" at the top of the Visual Studio Code interface.",
+      "description": "Type 'fakeid1234' into the input field labeled \"Input client ID for OAuth registration in OpenAPI Description Document\" at the top of the Visual Studio Code interface.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -221,7 +221,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_f730edf4",
-      "created_at": "2025-12-26T02:32:43.285147",
+      "created_at": "2025-12-31T02:01:33.395615",
       "plan_id": "plan_1951448c"
     },
     {
@@ -243,7 +243,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_bea0c64a",
-      "created_at": "2025-12-26T02:32:43.294058",
+      "created_at": "2025-12-31T02:01:33.420347",
       "plan_id": "plan_1951448c"
     },
     {
@@ -253,7 +253,7 @@
       "parameters": {
         "text": "59a5f2729582821c137a3ad229621f432b968353"
       },
-      "description": "Type text '59a5f2729582821c137a3ad229621f432b968353' into the \"Input client secret for OAuth registration in OpenAPI Description Document\" prompt at the top of the Visual Studio Code workspace.",
+      "description": "Type text 'fakevaluefakevaluefakevaluefakevalue1234' into the \"Input client secret for OAuth registration in OpenAPI Description Document\" prompt at the top of the Visual Studio Code workspace.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -265,7 +265,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_c87d473d",
-      "created_at": "2025-12-26T02:32:43.302010",
+      "created_at": "2025-12-31T02:01:33.443088",
       "plan_id": "plan_1951448c"
     },
     {
@@ -287,7 +287,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_1bbbc317",
-      "created_at": "2025-12-26T02:32:43.311028",
+      "created_at": "2025-12-31T02:01:33.457841",
       "plan_id": "plan_1951448c"
     },
     {
@@ -313,7 +313,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_a9f6c01c",
-      "created_at": "2025-12-26T02:32:43.318935",
+      "created_at": "2025-12-31T02:01:33.470571",
       "plan_id": "plan_1951448c"
     },
     {
@@ -335,7 +335,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_c1f18334",
-      "created_at": "2025-12-26T02:32:43.327756",
+      "created_at": "2025-12-31T02:01:33.485123",
       "plan_id": "plan_1951448c"
     },
     {
@@ -357,7 +357,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_1b6b4024",
-      "created_at": "2025-12-26T02:32:43.336392",
+      "created_at": "2025-12-31T02:01:33.496663",
       "plan_id": "plan_1951448c"
     },
     {
@@ -379,7 +379,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_d9bd9fd6",
-      "created_at": "2025-12-26T02:32:43.344707",
+      "created_at": "2025-12-31T02:01:33.512843",
       "plan_id": "plan_1951448c"
     },
     {
@@ -399,7 +399,7 @@
         "step_retry_timeout: 120"
       ],
       "screenshot": null,
-      "created_at": "2025-12-26T02:32:43.353220",
+      "created_at": "2025-12-31T02:01:33.533287",
       "plan_id": "plan_1951448c"
     },
     {
@@ -427,7 +427,7 @@
         "delay: 30"
       ],
       "screenshot": "step_a4433beb",
-      "created_at": "2025-12-26T02:32:43.361704",
+      "created_at": "2025-12-31T02:01:33.560573",
       "plan_id": "plan_1951448c"
     },
     {
@@ -449,7 +449,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_d98d1e1a",
-      "created_at": "2025-12-26T02:32:43.369746",
+      "created_at": "2025-12-31T02:01:33.582111",
       "plan_id": "plan_1951448c"
     },
     {
@@ -471,7 +471,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_c8ecfcec",
-      "created_at": "2025-12-26T02:32:43.377233",
+      "created_at": "2025-12-31T02:01:33.596041",
       "plan_id": "plan_1951448c"
     },
     {
@@ -497,7 +497,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_88e9078e",
-      "created_at": "2025-12-26T02:32:43.385904",
+      "created_at": "2025-12-31T02:01:33.611328",
       "plan_id": "plan_1951448c"
     },
     {
@@ -523,7 +523,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_f1879570",
-      "created_at": "2025-12-26T02:32:43.393692",
+      "created_at": "2025-12-31T02:01:33.623414",
       "plan_id": "plan_1951448c"
     }
   ],
