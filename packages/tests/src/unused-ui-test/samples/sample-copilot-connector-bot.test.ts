@@ -12,7 +12,7 @@ import {
   ValidationContent,
 } from "../../utils/constants";
 import { validateBot } from "../../utils/playwrightOperation";
-import { CaseFactory } from "./sampleCaseFactory";
+import { CaseFactory } from "../../ui-test/samples/sampleCaseFactory";
 
 class CopilotConnectorBotTestCase extends CaseFactory {
   override async onValidate(page: Page): Promise<void> {

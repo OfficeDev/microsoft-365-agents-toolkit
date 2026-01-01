@@ -11,8 +11,8 @@ import {
   LocalDebugTaskLabel,
   ValidationContent,
 } from "../../utils/constants";
-import { CaseFactory } from "./sampleCaseFactory";
-import { SampledebugContext } from "./sampledebugContext";
+import { CaseFactory } from "../../ui-test/samples/sampleCaseFactory";
+import { SampledebugContext } from "../../ui-test/samples/sampledebugContext";
 import { validateWelcomeAndReplyBot } from "../../utils/playwrightOperation";
 import * as path from "path";
 import * as fs from "fs";
