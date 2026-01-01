@@ -7,13 +7,11 @@ const samplesData = fs.readJSONSync(sampleFile).samples;
 
 const windows_22 = [
   "sample-outlook-signature",
-  "sample-chef-bot",
   "sample-food-catalog",
   "sample-hello-world-tab-with-backend",
   "sample-query-org",
   "sample-assistant-dashboard",
-  "sample-bot-sso",
-  "sample-copilot-connector-bot",
+  "sample-bot-sso"
 ];
 const ubuntu_22 = [
   "sample-todo-list-sql",
