@@ -2059,7 +2059,7 @@
     "string-similarity": "^4.0.4",
     "tmp": "^0.2.1",
     "tree-kill": "^1.2.2",
-    "validator": "^13.7.0",
+    "validator": "^13.15.20",
     "vscode-tas-client": "^0.1.75"
   },
   "extensionDependencies": [
