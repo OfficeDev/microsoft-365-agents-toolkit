@@ -67,8 +67,10 @@ describe("Remote debug Tests", function () {
       await createNewProject("daOpenAPI", appName, { apiAuthOption: "OAuth" });
       await clearNotifications();
       await execCommandIfExist(CommandPaletteCommands.ProvisionCommand);
-      await driver.sleep(Timeout.openAPIProvision);
+      await driver.sleep(Timeout.shortTimeWait);
       const input = await InputBox.create();
+      await input.selectQuickPick("dev");
+      await driver.sleep(Timeout.openAPIProvision);
       // input client Id
       await input.setText("fake_client_id");
       await input.confirm();

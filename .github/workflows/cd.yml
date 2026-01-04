@@ -44,6 +44,8 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       markdown-check-result: ${{ steps.markdown-check.outcome }}
+      security-check-vsc-result: ${{ steps.security-check-vsc.outcome }}
+      security-check-vs-result: ${{ steps.security-check-vs.outcome }}
     env:
       CI: true
       PREID: ${{ github.event.inputs.preid }}
@@ -111,6 +113,23 @@ jobs:
           node-version: 22
 
       - uses: pnpm/action-setup@v4
+
+      - name: Check package.json files for security vulnerabilities(VSC)
+        id: security-check-vsc
+        continue-on-error: true  # Allow pipeline to continue, notification will be sent on failure
+        run: |
+          python -u .github/scripts/check_npm_vulnerabilities.py --scan-directory "templates/vsc"
+
+      - name: Setup .NET for NuGet security check
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Check C# project NuGet packages for security vulnerabilities(VS)
+        id: security-check-vs
+        continue-on-error: true  # Allow pipeline to continue, notification will be sent on failure
+        run: |
+          python -u .github/scripts/check_nuget_vulnerabilities.py --scan-directory "templates/vs"
 
       - name: Install wine64
         run: |
@@ -390,20 +409,54 @@ jobs:
             *.vsix
             *.exe
 
-  notify-markdown-check-failure:
+  notify-check-failures:
     needs: cd
-    if: ${{ needs.cd.outputs.markdown-check-result == 'failure' }}
+    if: ${{ needs.cd.outputs.markdown-check-result == 'failure' || needs.cd.outputs.security-check-vsc-result == 'failure' || needs.cd.outputs.security-check-vs-result == 'failure' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout branch
         uses: actions/checkout@v3
 
-      - name: Send email notification on Markdown check failure
+      - name: Build failure message and subject
+        id: build-message
+        run: |
+          BODY=""
+          SUBJECT_PARTS=""
+          
+          if [ "${{ needs.cd.outputs.markdown-check-result }}" == "failure" ]; then
+            BODY="${BODY}<b>Markdown Check Failed</b><br/>Markdown files image/hyperlink availability check failed.<br/><br/>"
+            SUBJECT_PARTS="Markdown Check"
+          fi
+          
+          if [ "${{ needs.cd.outputs.security-check-vsc-result }}" == "failure" ]; then
+            if [ -n "$SUBJECT_PARTS" ]; then
+              SUBJECT_PARTS="${SUBJECT_PARTS}, Security Check (VSC)"
+            else
+              SUBJECT_PARTS="Security Check (VSC)"
+            fi
+            BODY="${BODY}<b>Security Check Failed (VSC Templates)</b><br/>Security vulnerabilities found in package.json files under templates/vsc.<br/><br/>"
+          fi
+          
+          if [ "${{ needs.cd.outputs.security-check-vs-result }}" == "failure" ]; then
+            if [ -n "$SUBJECT_PARTS" ]; then
+              SUBJECT_PARTS="${SUBJECT_PARTS}, Security Check (VS)"
+            else
+              SUBJECT_PARTS="Security Check (VS)"
+            fi
+            BODY="${BODY}<b>Security Check Failed (VS Templates)</b><br/>Vulnerable NuGet packages found in C# projects under templates/vs.<br/><br/>"
+          fi
+          
+          BODY="${BODY}Please check the workflow run for details: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          
+          echo "BODY=${BODY}" >> $GITHUB_OUTPUT
+          echo "SUBJECT=[CD Pipeline] ${SUBJECT_PARTS} Failed - ${{ github.ref_name }}" >> $GITHUB_OUTPUT
+
+      - name: Send email notification on check failures
         uses: ./.github/actions/send-email-report
         env:
           TO: M365AgentsToolkitEngineerTeam@microsoft.com
-          BODY: '"Markdown files image/hyperlink availability check failed in CD pipeline.<br/><br/>Please check the <a href=\"https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\">workflow run</a> for details."'
-          SUBJECT: "[CD Pipeline] Markdown Check Failed - ${{ github.ref_name }}"
+          BODY: '"${{ steps.build-message.outputs.BODY }}"'
+          SUBJECT: "${{ steps.build-message.outputs.SUBJECT }}"
           MAIL_CLIENT_ID: ${{ secrets.TEST_CLEAN_CLIENT_ID }}
           MAIL_CLIENT_SECRET: ${{ secrets.TEST_CLEAN_CLIENT_SECRET }}
           MAIL_TENANT_ID: ${{ secrets.TEST_CLEAN_TENANT_ID }}

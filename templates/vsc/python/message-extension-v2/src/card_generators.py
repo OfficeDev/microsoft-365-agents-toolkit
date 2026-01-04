@@ -1,9 +1,8 @@
 from typing import Dict, List, Any, Sequence, Union
-from microsoft.teams.api import Account, TeamsChannelAccount
-from microsoft.teams.cards import AdaptiveCard
+from microsoft_teams.api import Account, TeamsChannelAccount
+from microsoft_teams.cards import AdaptiveCard
 
 IMAGE_URL = "https://github.com/OfficeDev/microsoft-365-agents-toolkit/raw/release/6.4/templates/vsc/python/message-extension-v2/appPackage/color.png"
-
 
 def create_card(data: Dict[str, str]) -> AdaptiveCard:
     """Create an adaptive card from form data."""

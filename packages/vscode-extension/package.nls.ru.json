@@ -637,6 +637,7 @@
   "teamstoolkit.MCP.ContentInvalid": "Содержимое файла конфигурации MCP недействительно. Проверьте правильность содержимого в .vscode/mcp.json.",
   "teamstoolkit.MCP.ServerNotFound": "В файле MCP не найден сервер MCP.",
   "teamstoolkit.MCP.NameOrServerUrlMissing": "Отсутствует имя MCP или URL-адрес сервера.",
+  "teamstoolkit.MCP.LocalMcpCommandMissing": "Local MCP command is missing.",
   "teamstoolkit.MCP.ToolsNotFound": "Инструменты для сервера MCP не найдены. Сначала запустите сервер.",
   "teamstoolkit.MCP.SelectServerFailed": "Не удалось выбрать сервер MCP."
 }

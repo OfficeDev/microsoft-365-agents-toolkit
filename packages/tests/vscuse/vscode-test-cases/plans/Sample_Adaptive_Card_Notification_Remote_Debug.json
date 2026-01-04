@@ -1,0 +1,148 @@
+{
+  "plan_metadata": {
+    "version": "1.0",
+    "plan_id": "plan_39ab5566",
+    "execution_context": {
+      "delay_between_steps": 0.5,
+      "stop_on_error": true,
+      "precondition_wait_timeout": 60.0,
+      "precondition_retry_interval": 2.0,
+      "step_retry_timeout": 0.0
+    },
+    "total_steps": 5,
+    "created_at": "2025-12-22T05:59:54.051239",
+    "name": "Sample Adaptive Card Notification Remote Debug",
+    "description": {
+      "other": "",
+      "owner": "v-helzha@microsoft.com",
+      "workitem": "24121425"
+    },
+    "generated_at": "2025-12-22T05:59:54.051239",
+    "execution_order": [
+      "plan_r_1107_015711",
+      "step_155987e4",
+      "step_ebfb244b",
+      "plan_r_1111_043711",
+      "plan_r_0928_020230",
+      "plan_r_0929_040401",
+      "plan_r_0928_073729",
+      "plan_r_0928_075846",
+      "step_21203572",
+      "plan_r_0930_063548",
+      "step_09a8cde5",
+      "step_b823b7af"
+    ],
+    "tags": [],
+    "updated_at": "2025-12-22T07:43:11.550114"
+  },
+  "steps": [
+    {
+      "step_id": "step_155987e4",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "text": "Adapative Card Notification"
+      },
+      "description": "Type the text 'Adapative Card Notification' into the search input field located at the top of the \"Samples\" tab within the Microsoft 365 Agents Toolkit interface in Visual Studio Code.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:512:384:0:20:64a0a4b676f46163"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_155987e4",
+      "created_at": "2025-12-22T06:45:50.332136",
+      "plan_id": "plan_39ab5566"
+    },
+    {
+      "step_id": "step_ebfb244b",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 779,
+        "y": 326
+      },
+      "description": "Click the blue \"Create\" button next to the \"Adaptive Card Notification\" sample in the Microsoft 365 Agents Toolkit sample browser within Visual Studio Code. Add ${{var:app_name:adaptive-card-notifi}} in to env.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:779:326:16:5:2c92bb2a2213c422",
+        "dhash:779:326:96:5:689644e8f8c66878",
+        "dhash:779:326:0:10:64a0a4b676766449"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_ebfb244b",
+      "created_at": "2025-12-22T06:45:50.346795",
+      "plan_id": "plan_39ab5566"
+    },
+    {
+      "step_id": "step_21203572",
+      "agent": "code",
+      "tool": "",
+      "parameters": {
+        "sample": "=== Generated Script ===\nLanguage: bash\n\n```bash\nenv_file=\"/home/vscode/AgentsToolkitProjects/adaptive-card-notification/env/.env.dev\"\ncommand_file=\"/home/vscode/AgentsToolkitProjects/adaptive-card-notification/post.sh\"\n\nif [ ! -f \"$env_file\" ]; then\n    echo \"Environment file not found: $env_file\" >&2\n    exit 1\nfi\n\n# Get BOT_FUNCTION_ENDPOINT value\nendpoint=$(grep '^BOT_FUNCTION_ENDPOINT=' \"$env_file\" | cut -d'=' -f2- | tr -d '\"')\nif [ -z \"$endpoint\" ]; then\n    echo \"BOT_FUNCTION_ENDPOINT not found in $env_file\" >&2\n    exit 1\nfi\n\n# Remove trailing slash if any\nendpoint=$(echo \"$endpoint\" | sed 's:/*$::')\n\n# Build full URL\nfull_url=\"$endpoint/api/default-notification\"\n\n# Write POST command to file\ncat << EOF > \"$command_file\"\ncurl -X POST \"$full_url\"\nEOF\n\nchmod +x \"$command_file\"\necho \"POST command saved to $command_file\"\ncat \"$command_file\"\n```\n\n=== Execution Results ===\nExit Code: 0\n\n=== STDOUT ===\nPOST command saved to /home/vscode/AgentsToolkitProjects/adaptive-card-notification/post.sh\ncurl -X POST \"https://notificationc37704.azurewebsites.net/api/default-notification\"\n\n✓ Script executed successfully\n\n=== STDERR ===\n\nSuccess/failure status"
+      },
+      "description": "@code open file `/home/vscode/AgentsToolkitProjects/${{var:app_name}}cation/env/.env.dev`, get the value of key BOT_FUNCTION_ENDPOINT, set the value as base url and add api `api/default-notification` to a full url, then put the command sending a post request to this url into a file and save, command file path is `/home/vscode/AgentsToolkitProjects/${{var:app_name}}cation/post.sh`",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": null,
+      "created_at": "2025-12-22T06:59:41.732742",
+      "plan_id": "plan_39ab5566"
+    },
+    {
+      "step_id": "step_09a8cde5",
+      "agent": "code",
+      "tool": "",
+      "parameters": {},
+      "description": "@code run the command file `/home/vscode/AgentsToolkitProjects/${{var:app_name}}cation/post.sh`",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": null,
+      "created_at": "2025-12-22T07:01:18.030681",
+      "plan_id": "plan_39ab5566"
+    },
+    {
+      "step_id": "step_b823b7af",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion there is text \"New Event Occurred!\" exists.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": null,
+      "created_at": "2025-12-22T06:45:50.384195",
+      "plan_id": "plan_39ab5566"
+    }
+  ],
+  "screenshots": {
+    "step_155987e4": "step_155987e4",
+    "step_ebfb244b": "step_ebfb244b"
+  }
+}

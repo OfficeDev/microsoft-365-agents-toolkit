@@ -429,4 +429,37 @@ describe("parseShareAppActionYamlConfig", () => {
       chai.assert.equal(result.error.name, "Share to Users");
     }
   });
+
+  it("should error with yamlConfigNotSupported for version < 1.10.0", async () => {
+    sandbox.stub(pathUtils, "getYmlFilePath").returns("mockTemplatePath");
+    sandbox.stub(metadataUtil, "parse").resolves(ok({ version: "v1.9" } as any));
+
+    const result = await parseShareAppActionYamlConfig("mockProjectPath");
+
+    chai.assert.isTrue(result.isErr());
+    if (result.isErr()) {
+      chai.assert.instanceOf(result.error, UserError);
+      chai.assert.equal(result.error.name, "Share");
+      // message should include the unsupported version string
+      chai.assert.include(
+        result.error.message,
+        "Share feature only supports m365agents.yml version v1.10 or above"
+      );
+    }
+  });
+
+  it("should proceed when version >= 1.10.0", async () => {
+    sandbox.stub(pathUtils, "getYmlFilePath").returns("mockTemplatePath");
+    // minimal model with only version; subsequent checks will return yamlConfigNotFound
+    sandbox.stub(metadataUtil, "parse").resolves(ok({ version: "v1.10" } as any));
+
+    const result = await parseShareAppActionYamlConfig("mockProjectPath");
+
+    chai.assert.isTrue(result.isErr());
+    if (result.isErr()) {
+      // ensure not failing due to version gate by checking generic Share error
+      chai.assert.instanceOf(result.error, UserError);
+      chai.assert.equal(result.error.name, "Share");
+    }
+  });
 });

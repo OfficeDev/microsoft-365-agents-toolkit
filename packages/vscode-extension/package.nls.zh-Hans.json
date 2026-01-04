@@ -637,6 +637,7 @@
   "teamstoolkit.MCP.ContentInvalid": "MCP 配置文件内容无效。请确保 .vscode/mcp.json 中的内容正确。",
   "teamstoolkit.MCP.ServerNotFound": "在 MCP 文件中未找到 MCP 服务器。",
   "teamstoolkit.MCP.NameOrServerUrlMissing": "缺少 MCP 名称或服务器 URL。",
+  "teamstoolkit.MCP.LocalMcpCommandMissing": "Local MCP command is missing.",
   "teamstoolkit.MCP.ToolsNotFound": "未找到 MCP 服务器的工具。请先运行服务器。",
   "teamstoolkit.MCP.SelectServerFailed": "未能选择 MCP 服务器。"
 }

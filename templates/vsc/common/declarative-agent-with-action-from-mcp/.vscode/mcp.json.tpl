@@ -9,7 +9,7 @@
 {{/IsLocalMCP}}
 {{^IsLocalMCP}}
     "{{ServerName}}": {
-      "type": "remote",
+      "type": "http",
       "url": "{{MCPForDAServerUrl}}"
     }
 {{/IsLocalMCP}}

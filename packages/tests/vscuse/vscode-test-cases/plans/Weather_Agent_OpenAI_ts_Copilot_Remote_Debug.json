@@ -10,14 +10,14 @@
       "step_retry_timeout": 0
     },
     "total_steps": 7,
-    "created_at": "2025-11-25T07:22:29.611307",
+    "created_at": "2025-12-16T07:22:38.283331",
     "name": "Weather Agent OpenAI ts Copilot Remote Debug",
     "description": {
+      "other": "",
       "owner": "v-annefu@microsoft.com",
-      "workitem": "36011407",
-      "other": ""
+      "workitem": "36011407"
     },
-    "generated_at": "2025-11-25T07:22:29.611307",
+    "generated_at": "2025-12-16T07:22:38.283331",
     "execution_order": [
       "plan_r_0928_012254",
       "step_d3c2177a",
@@ -32,11 +32,11 @@
       "plan_r_0929_040401",
       "plan_r_0928_073729",
       "plan_r_0928_075846",
-      "plan_4f9d7ddb",
+      "plan_c795f9af",
       "plan_f7e3ed6b"
     ],
     "tags": [],
-    "updated_at": "2025-11-26T01:42:57.726324"
+    "updated_at": "2025-12-16T08:51:26.422463"
   },
   "steps": [
     {
@@ -62,7 +62,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_d3c2177a",
-      "created_at": "2025-11-26T01:42:19.577919",
+      "created_at": "2025-12-16T08:50:46.718468",
       "plan_id": "plan_73d73a14"
     },
     {
@@ -88,7 +88,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_f3187c72",
-      "created_at": "2025-11-26T01:42:19.597210",
+      "created_at": "2025-12-16T08:50:46.725481",
       "plan_id": "plan_73d73a14"
     },
     {
@@ -114,7 +114,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_3e6afd10",
-      "created_at": "2025-11-26T01:42:19.620336",
+      "created_at": "2025-12-16T08:50:46.732690",
       "plan_id": "plan_73d73a14"
     },
     {
@@ -136,7 +136,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_032f3271",
-      "created_at": "2025-11-26T01:42:19.665998",
+      "created_at": "2025-12-16T08:50:46.739247",
       "plan_id": "plan_73d73a14"
     },
     {
@@ -158,7 +158,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_a6b31df3",
-      "created_at": "2025-11-26T01:42:19.699354",
+      "created_at": "2025-12-16T08:50:46.746563",
       "plan_id": "plan_73d73a14"
     },
     {
@@ -184,7 +184,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_349f473c",
-      "created_at": "2025-11-26T01:42:19.746405",
+      "created_at": "2025-12-16T08:50:46.752453",
       "plan_id": "plan_73d73a14"
     },
     {
@@ -210,7 +210,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_c51f5f19",
-      "created_at": "2025-11-26T01:42:19.780105",
+      "created_at": "2025-12-16T08:50:46.757450",
       "plan_id": "plan_73d73a14"
     }
   ],

@@ -9608,7 +9608,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to clear blob files in Azure Storage Account '%s'. The error responses from Azure are:]A; %s. ]A;If the error message specifies the reason, fix the error and try again.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[無法清除 Azure 儲存體帳戶 '%s' 中的 Blob 檔案。來自 Azure 的錯誤回應為: ]A; %s。]A;如果錯誤訊息指定原因，請修正錯誤，然後再試一次。]]></Val>
+            <Val><![CDATA[無法清除 Azure 儲存體帳戶 '%s' 中的 Blob 檔案。來自 Azure 的錯誤回應為: ]A; %s。 ]A;如果錯誤訊息指定原因，請修正錯誤，然後再試一次。]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9626,7 +9626,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to get Azure Storage container '%s' in Azure Storage Account '%s' due to error: %s. The error responses from Azure are:]A; %s. ]A;If the error message specifies the reason, fix the error and try again.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[無法取得 Azure 儲存體帳戶 '%s' 中的 Azure 儲存體容器 '%s'，因為發生錯誤: %s。來自 Azure 的錯誤回應為: ]A; %s。]A;如果錯誤訊息指定原因，請修正錯誤，然後再試一次。]]></Val>
+            <Val><![CDATA[無法取得 Azure 儲存體帳戶 '%s' 中的 Azure 儲存體容器 '%s'，因為發生錯誤: %s。來自 Azure 的錯誤回應為: ]A; %s。 ]A;如果錯誤訊息指定原因，請修正錯誤，然後再試一次。]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9644,7 +9644,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to get properties of container '%s' in Azure Storage Account '%s' due to error: %s. The error responses from Azure are:]A; %s. ]A;If the error message specifies the reason, fix the error and try again.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[無法取得 Azure 儲存體帳戶 '%s' 中的容器 '%s' 屬性，因為發生錯誤: %s。來自 Azure 的錯誤回應為: ]A; %s。]A;如果錯誤訊息指定原因，請修正錯誤，然後再試一次。]]></Val>
+            <Val><![CDATA[無法取得 Azure 儲存體帳戶 '%s' 中的容器 '%s' 屬性，因為發生錯誤: %s。來自 Azure 的錯誤回應為: ]A; %s。 ]A;如果錯誤訊息指定原因，請修正錯誤，然後再試一次。]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9662,7 +9662,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to set properties of container '%s' in Azure Storage Account '%s' due to error: %s. The error responses from Azure are:]A; %s. ]A;If the error message specifies the reason, fix the error and try again.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[無法在 Azure 儲存體帳戶 '%s' 中設定容器 '%s' 的屬性，因為發生錯誤: %s。來自 Azure 的錯誤回應為:]A; %s。]A;如果錯誤訊息指定了原因，請修正錯誤，然後再試一次。]]></Val>
+            <Val><![CDATA[無法在 Azure 儲存體帳戶 '%s' 中設定容器 '%s' 的屬性，因為發生錯誤: %s。來自 Azure 的錯誤回應為:]A; %s。 ]A;如果錯誤訊息指定了原因，請修正錯誤，然後再試一次。]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9680,7 +9680,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to upload local folder '%s' to Azure Storage Account '%s'. The error responses from Azure are:]A; %s. ]A;If the error message specifies the reason, fix the error and try again.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[無法將本機資料夾 '%s' 上傳到 Azure 儲存體帳戶 '%s'。來自 Azure 的錯誤回應為: ]A; %s。]A;如果錯誤訊息指定原因，請修正錯誤，然後再試一次。]]></Val>
+            <Val><![CDATA[無法將本機資料夾 '%s' 上傳到 Azure 儲存體帳戶 '%s'。來自 Azure 的錯誤回應為: ]A; %s。 ]A;如果錯誤訊息指定原因，請修正錯誤，然後再試一次。]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />

@@ -93,6 +93,7 @@ import {
   KiotaLastCommands,
   SingleSignOnOptionItem,
   ViewAadAppHelpLinkV5,
+  LocalMcpPrefix,
 } from "../component/constants";
 import { coordinator } from "../component/coordinator";
 import { UpdateAadAppArgs } from "../component/driver/aad/interface/updateAadAppArgs";
@@ -216,7 +217,6 @@ import {
 import { addSharedUsers, removeShareAccess, shareWithTenant } from "./share";
 import { CoreTelemetryEvent, CoreTelemetryProperty } from "./telemetry";
 import { CoreHookContext, PreProvisionResForVS, VersionCheckRes } from "./types";
-import { LocalMcpPrefix } from "../component/constants";
 
 export class FxCore {
   constructor(tools: Tools) {
@@ -3084,7 +3084,7 @@ export class FxCore {
         (runtime: any) =>
           (runtime.type === "RemoteMCPServer" &&
             runtime.spec.url === mcpServerUrl &&
-            runtime.spec["enable_dynamic_discovery"] === false) ||
+            !runtime.spec["enable_dynamic_discovery"]) ||
           runtime.type === "LocalPlugin"
       )
       .forEach((runtime: any) => {
@@ -3101,14 +3101,13 @@ export class FxCore {
           return {
             name: tool.name,
             description: tool.description,
-            parameters: {
-              type: tool.inputSchema.type || "object",
-              properties: tool.inputSchema.properties,
-              required: tool.inputSchema.required || [],
-            },
           };
         }),
     ];
+
+    const matchedRuntime = aiPluginContent.runtimes.find(
+      (runtime: any) => runtime.type === "RemoteMCPServer" && runtime.spec.url === mcpServerUrl
+    );
 
     aiPluginContent.runtimes = aiPluginContent.runtimes.filter(
       (runtime: any) =>
@@ -3128,11 +3127,40 @@ export class FxCore {
         run_for_functions: mcpToolsSelected,
       });
     } else {
+      let mcpFile = matchedRuntime?.spec.mcp_tool_description?.file;
+      if (!mcpFile) {
+        mcpFile = "mcp-tools.json";
+        let suffix = 1;
+        while (await fs.pathExists(path.join(path.dirname(aiPluginFilePath), mcpFile))) {
+          mcpFile = `mcp-tools-${suffix}.json`;
+          suffix += 1;
+        }
+      }
+      await fs.writeJSON(
+        path.join(path.dirname(aiPluginFilePath), mcpFile),
+        {
+          tools: [
+            ...mcpToolsDetail
+              .filter((tool: any) => mcpToolsSelected.includes(tool.name))
+              .map((tool: any) => {
+                return {
+                  ...tool,
+                  title: (tool.name as string)
+                    .replace(/_/g, " ")
+                    .replace(/^./, (str) => str.toUpperCase()),
+                };
+              }),
+          ],
+        },
+        { spaces: 4 }
+      );
       (aiPluginContent.runtimes as any[]).push({
         type: "RemoteMCPServer",
         spec: {
           url: mcpServerUrl,
-          enable_dynamic_discovery: false,
+          mcp_tool_description: {
+            file: mcpFile,
+          },
         },
         run_for_functions: mcpToolsSelected,
         auth:

@@ -69,8 +69,10 @@ describe("Remote debug Tests", function () {
       });
       await clearNotifications();
       await execCommandIfExist(CommandPaletteCommands.ProvisionCommand);
-      await driver.sleep(Timeout.openAPIProvision);
+      await driver.sleep(Timeout.shortTimeWait);
       const input = await InputBox.create();
+      await input.selectQuickPick("dev");
+      await driver.sleep(Timeout.openAPIProvision);
       // input api key
       await input.setText("mysecretvalue");
       await input.confirm();

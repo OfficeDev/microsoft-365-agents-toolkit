@@ -100,7 +100,20 @@ jobs:
     defaults:
       run:
         working-directory: packages/tests
+    env:
+      M365_ACCOUNT_PASSWORD: ${{ matrix.m365_user.name == 'M365_USERNAME_With_Copilot' && secrets.TEST_TENANT_M365_ACCOUNT_PASSWORD || secrets.TEST_M365_PASSWORD }}
+      M365_DISPLAY_NAME: "test"
+      CLEAN_CLIENT_ID: ${{ secrets.TEST_CLEAN_CLIENT_ID }}
+      CLEAN_CLIENT_SECRET: ${{ secrets.TEST_CLEAN_CLIENT_SECRET  }}
+      CLEAN_TENANT_ID: ${{ secrets.TEST_CLEAN_TENANT_ID }}
+      AZURE_TENANT_ID: ${{ matrix.m365_user.name == 'M365_USERNAME_With_Copilot' && secrets.TEST_TENANT_TENANT_ID || secrets.TEST_TENANT_ID }}
+      AZURE_SUBSCRIPTION_ID: ${{ secrets.TEST_SUBSCRIPTION_ID }}
+      AZURE_ACCOUNT_NAME: ${{ secrets.TEST_USER_NAME }}
+      AZURE_ACCOUNT_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
+      MAIL_API_KEY: ${{ secrets.MAIL_API_KEY }}
+      TEST_TENANT_M365_ACCOUNT_NAME: ${{ secrets.TEST_TENANT_M365_ACCOUNT_NAME }}
     strategy:
+      fail-fast: false
       matrix:
         m365_user:
           - { name: "M365_USERNAME_1", value: "test001@xxbdw.onmicrosoft.com" }
@@ -124,17 +137,7 @@ jobs:
           - { name: "M365_USERNAME_admin_15", value: "test15@xxbdw.onmicrosoft.com"}
           - { name: "M365_USERNAME_admin_16", value: "test16@xxbdw.onmicrosoft.com"}
           - { name: "M365_USERNAME_admin_17", value: "test17@xxbdw.onmicrosoft.com"}
-    env:
-      M365_ACCOUNT_PASSWORD: ${{ secrets.TEST_M365_PASSWORD }}
-      M365_DISPLAY_NAME: "test"
-      CLEAN_CLIENT_ID: ${{ secrets.TEST_CLEAN_CLIENT_ID }}
-      CLEAN_CLIENT_SECRET: ${{ secrets.TEST_CLEAN_CLIENT_SECRET  }}
-      CLEAN_TENANT_ID: ${{ secrets.TEST_CLEAN_TENANT_ID }}
-      AZURE_TENANT_ID: ${{ secrets.TEST_TENANT_ID }}
-      AZURE_SUBSCRIPTION_ID: ${{ secrets.TEST_SUBSCRIPTION_ID }}
-      AZURE_ACCOUNT_NAME: ${{ secrets.TEST_USER_NAME }}
-      AZURE_ACCOUNT_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
-      MAIL_API_KEY: ${{ secrets.MAIL_API_KEY }}
+          - { name: "M365_USERNAME_With_Copilot", value: "test01@atktesting03.onmicrosoft.com"}
     steps:
       - name: Checkout
         uses: actions/checkout@v4

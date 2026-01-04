@@ -167,13 +167,13 @@
             "isBackground": true,
             "options": {
                 "env": {
-                  "PATH": "${workspaceFolder}/devTools/teamsapptester/node_modules/.bin:${env:PATH}"
+                  "PATH": "${workspaceFolder}/devTools/playground/node_modules/.bin:${env:PATH}"
                 }
             },
             "windows": {
                 "options": {
                     "env": {
-                        "PATH": "${workspaceFolder}/devTools/teamsapptester/node_modules/.bin;${env:PATH}"
+                        "PATH": "${workspaceFolder}/devTools/playground/node_modules/.bin;${env:PATH}"
                     }
                 }
             },

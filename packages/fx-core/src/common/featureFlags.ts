@@ -96,7 +96,7 @@ export class FeatureFlags {
   };
   static readonly EmbeddedKnowledgeEnabled = {
     name: FeatureFlagName.EmbeddedKnowledgeEnabled,
-    defaultValue: "false",
+    defaultValue: "true",
   };
   static readonly SandBoxedTeam = {
     name: FeatureFlagName.SandBoxedTeam,

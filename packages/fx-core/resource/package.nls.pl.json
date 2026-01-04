@@ -246,6 +246,7 @@
   "error.m365.NotExtendedToM365Error": "Nie można rozszerzyć aplikacji na platformę Microsoft 365. Użyj akcji „teamsApp/extendToM365”, aby rozszerzyć aplikację na platformę Microsoft 365.",
   "error.m365.SharedScopeAdvancedDADisabled": "Wdrożenie zablokowane: nie można wdrożyć zaawansowanego agenta deklaratywnego z powodu ustawień uprawnień dzierżawy. Uzyskaj więcej informacji: [Zarządzaj agentami funkcji Microsoft 365 Copilot w centrum administracyjnym platformy Microsoft 365 — administrator platformy Microsoft 365 | Microsoft Learn](%s)",
   "error.share.yamlConfigNotFound": "Nie można odnaleźć konfiguracji „aprowizuj” lub „wdrażaj” w m365agents.yml",
+  "error.share.yamlConfigNotSupported": "Share feature only supports m365agents.yml version v1.10 or above, follow [the guide](https://github.com/OfficeDev/microsoft-365-agents-toolkit/wiki/Share-Declarative-Agents-with-Others#About-YAML-schema) to upgrade and proceed.",
   "error.share.shareActionConfigNotFound": "Nie można odnaleźć konfiguracji akcji „%s” w pliku m365agents.yml",
   "error.share.appPackageConfigNotFound": "Nie można odnaleźć konfiguracji appPackagePath w pliku m365agents.yml",
   "error.share.manifestFileNotFound": "Nie można odnaleźć pliku manifestu w pakiecie aplikacji",

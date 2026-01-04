@@ -5,6 +5,7 @@ import { err, FxError, ok, Result, TeamsAppManifest, UserError } from "@microsof
 import AdmZip from "adm-zip";
 import fs from "fs-extra";
 import path from "path";
+import semver from "semver";
 import { getLocalizedString } from "../../../common/localizeUtils";
 import { DriverDefinition } from "../../configManager/interface";
 import { resolve } from "../../configManager/lifecycle";
@@ -22,6 +23,13 @@ export async function parseShareAppActionYamlConfig(
   const maybeProjectModel = await metadataUtil.parse(templatePath);
   if (maybeProjectModel.isErr()) {
     return err(maybeProjectModel.error);
+  }
+  const version = semver.coerce(maybeProjectModel.value.version);
+  if (version && semver.lt(version, "1.10.0")) {
+    // it's not supported before v1.10.
+    return err(
+      new UserError("FxCore", "Share", getLocalizedString("error.share.yamlConfigNotSupported"))
+    );
   }
   const projectModel = maybeProjectModel.value;
   if (

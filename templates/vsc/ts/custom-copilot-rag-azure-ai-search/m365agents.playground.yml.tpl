@@ -9,7 +9,7 @@ deploy:
     with:
       testTool:
         version: ~0.2.1
-        symlinkDir: ./devTools/teamsapptester
+        symlinkDir: ./devTools/playground
 
   # Run npm command
   - uses: cli/runNpmCommand

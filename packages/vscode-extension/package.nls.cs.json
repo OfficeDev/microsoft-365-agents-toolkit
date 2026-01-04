@@ -637,6 +637,7 @@
   "teamstoolkit.MCP.ContentInvalid": "Obsah konfiguračního souboru MCP je neplatný. Ujistěte se, že obsah ve .vscode/mcp.json je správný.",
   "teamstoolkit.MCP.ServerNotFound": "V souboru MCP nebyl nalezen žádný server MCP.",
   "teamstoolkit.MCP.NameOrServerUrlMissing": "Chybí název MCP nebo adresa URL serveru.",
+  "teamstoolkit.MCP.LocalMcpCommandMissing": "Local MCP command is missing.",
   "teamstoolkit.MCP.ToolsNotFound": "Pro server MCP nebyly nalezeny žádné nástroje. Nejprve spusťte server.",
   "teamstoolkit.MCP.SelectServerFailed": "Nepodařilo se vybrat server MCP."
 }
