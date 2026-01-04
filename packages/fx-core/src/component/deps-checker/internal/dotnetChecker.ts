@@ -31,6 +31,7 @@ export enum DotnetVersion {
   v70 = "7.0",
   v80 = "8.0",
   v90 = "9.0",
+  v10 = "10.0",
 }
 type DotnetSDK = { version: string; path: string };
 const DotnetCoreSDKName = ".NET Core SDK";
@@ -42,6 +43,7 @@ const supportedVersions = [
   DotnetVersion.v70,
   DotnetVersion.v80,
   DotnetVersion.v90,
+  DotnetVersion.v10,
 ];
 const installedNameWithVersion = `${DotnetCoreSDKName} (v${DotnetVersion.v31})`;
 
