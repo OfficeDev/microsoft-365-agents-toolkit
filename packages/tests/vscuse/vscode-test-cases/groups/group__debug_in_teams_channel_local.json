@@ -49,7 +49,7 @@
     "tags": [
       "group"
     ],
-    "updated_at": "2026-01-05T02:45:04.831695"
+    "updated_at": "2026-01-05T03:21:25.697690"
   },
   "steps": [
     {
@@ -371,9 +371,9 @@
       "agent": "interaction",
       "tool": "type_text",
       "parameters": {
-        "text": "${{env:M365_ACCOUNT_NAME}}"
+        "text": "${{env:M365_ACCOUNT_NAME_EnableCopilotAccess}}"
       },
-      "description": "Enter ${{env:M365_ACCOUNT_NAME}} into the email or username input field on the Microsoft Sign in page at login.microsoftonline.com in a Chrome browser.",
+      "description": "Enter ${{env:M365_ACCOUNT_NAME_EnableCopilotAccess}} into the email or username input field on the Microsoft Sign in page at login.microsoftonline.com in a Chrome browser.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -417,9 +417,9 @@
       "agent": "interaction",
       "tool": "type_text",
       "parameters": {
-        "text": "${{secret:M365_ACCOUNT_PASSWORD}}"
+        "text": "${{secret:M365_ACCOUNT_PASSWORD_EnableCopilotAccess}}"
       },
-      "description": "Type ${{secret:M365_ACCOUNT_PASSWORD}} into the 'Password' field on the Microsoft login page for user ${{env:M365_ACCOUNT_NAME}}.",
+      "description": "Type ${{secret:M365_ACCOUNT_PASSWORD_EnableCopilotAccess}} into the 'Password' field on the Microsoft login page for user ${{env:M365_ACCOUNT_NAME}}.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -641,7 +641,7 @@
         "x": 391,
         "y": 244
       },
-      "description": "Click the \"Allow\" button in the Microsoft Teams permission popup to enable local network access, within the Google Chrome browser interface.",
+      "description": "Click the \"Allow\" button in the Microsoft Teams permission popup to enable local network access, within the Google Chrome browser interface. ",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
