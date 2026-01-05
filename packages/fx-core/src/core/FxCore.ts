@@ -91,9 +91,9 @@ import { YamlParser } from "../component/configManager/parser";
 import {
   AadConstants,
   KiotaLastCommands,
+  LocalMcpPrefix,
   SingleSignOnOptionItem,
   ViewAadAppHelpLinkV5,
-  LocalMcpPrefix,
 } from "../component/constants";
 import { coordinator } from "../component/coordinator";
 import { UpdateAadAppArgs } from "../component/driver/aad/interface/updateAadAppArgs";
@@ -1615,7 +1615,7 @@ export class FxCore {
       .toString()
       .split(/\r?\n/)
       .forEach((line) => {
-        const reg = /^([a-zA-Z_][a-zA-Z0-9_]*=)/g;
+        const reg = /^([a-zA-Z_][a-zA-Z0-9_]*=)(.*)/g;
         const match = reg.exec(line);
         if (match) {
           if (match[1].startsWith("TEAMSFX_ENV=")) {
@@ -1623,7 +1623,7 @@ export class FxCore {
           } else if (match[1].startsWith("APP_NAME_SUFFIX=")) {
             writeStream.write(`APP_NAME_SUFFIX=${targetEnvName}${os.EOL}`);
           } else if (match[1].startsWith("AGENT_SCOPE=")) {
-            writeStream.write(`AGENT_SCOPE=shared${os.EOL}`);
+            writeStream.write(`AGENT_SCOPE=${match[2]}${os.EOL}`);
           } else {
             writeStream.write(`${match[1]}${os.EOL}`);
           }

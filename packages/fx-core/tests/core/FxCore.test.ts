@@ -56,7 +56,6 @@ import { TelemetryEvent } from "../../src/common/telemetry";
 import templateConfigModule from "../../src/common/templates-config.json";
 import * as CommonTools from "../../src/common/tools";
 import { MetadataV3, VersionSource, VersionState } from "../../src/common/versionMetadata";
-import { ActionInjector } from "../../src/component/configManager/actionInjector";
 import {
   DriverDefinition,
   DriverInstance,
@@ -68,7 +67,6 @@ import {
   UnresolvedPlaceholders,
 } from "../../src/component/configManager/interface";
 import { YamlParser } from "../../src/component/configManager/parser";
-import { LocalMcpPrefix } from "../../src/component/constants";
 import { coordinator } from "../../src/component/coordinator";
 import { UpdateAadAppDriver } from "../../src/component/driver/aad/update";
 import * as buildAadManifest from "../../src/component/driver/aad/utility/buildAadManifest";
@@ -2089,7 +2087,7 @@ describe("createEnvCopyV3", async () => {
     "# this is a comment",
     "TEAMSFX_ENV=dev",
     "APP_NAME_SUFFIX=dev",
-    "AGENT_SCOPE=shared",
+    "AGENT_SCOPE=personal",
     "",
     "_KEY1=value1",
     "KEY2=value2",
@@ -2137,8 +2135,8 @@ describe("createEnvCopyV3", async () => {
       "APP_NAME_SUFFIX's value should be new env name"
     );
     assert(
-      writeStreamContent[3] === `AGENT_SCOPE=shared${os.EOL}`,
-      "AGENT_SCOPE's value should be shared"
+      writeStreamContent[3] === `AGENT_SCOPE=personal${os.EOL}`,
+      "AGENT_SCOPE's value should be personal"
     );
     assert(writeStreamContent[4] === `${os.EOL}`, "empty line should be coped");
     assert(
