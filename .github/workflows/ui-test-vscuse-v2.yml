@@ -151,7 +151,7 @@ jobs:
       DA_MCP_OAUTH_CLIENTID: ${{ secrets.DA_MCP_OAUTH_CLIENTID }}
 
       # SQL server
-      SQL_USER: ${{ secrets.SQL_USER }}
+      SQL_USER_NAME: ${{ secrets.SQL_USER }}
       SECRET_SQL_PASSWORD: ${{ secrets.SECRET_SQL_PASSWORD }}
       SQL_SERVER: "vscuse-test-sql.database.windows.net"
       SQL_DATABASE: "vscuse-test-db"
