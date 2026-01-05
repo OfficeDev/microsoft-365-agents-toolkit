@@ -9,7 +9,7 @@
       "precondition_retry_interval": 2.0,
       "step_retry_timeout": 0.0
     },
-    "total_steps": 4,
+    "total_steps": 5,
     "created_at": "2026-01-04T05:31:05.492842",
     "name": "Feature Validate Manifest",
     "description": {
@@ -29,10 +29,12 @@
       "plan_r_0928_073729",
       "plan_97ae7a36",
       "plan_r_0929_040401",
-      "plan_fa541eb9"
+      "plan_fa541eb9",
+      "plan_6fc8cbe6",
+      "step_c1a2b277"
     ],
     "tags": [],
-    "updated_at": "2026-01-04T06:41:25.171199"
+    "updated_at": "2026-01-04T12:11:21.413476"
   },
   "steps": [
     {
@@ -58,7 +60,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_2fbba40e",
-      "created_at": "2026-01-04T06:39:40.397150",
+      "created_at": "2026-01-04T12:09:13.677314",
       "plan_id": "plan_19f92a12"
     },
     {
@@ -84,7 +86,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_13cc1955",
-      "created_at": "2026-01-04T06:39:40.422555",
+      "created_at": "2026-01-04T12:09:13.705239",
       "plan_id": "plan_19f92a12"
     },
     {
@@ -110,7 +112,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_17e4cf6a",
-      "created_at": "2026-01-04T06:39:40.441806",
+      "created_at": "2026-01-04T12:09:13.736637",
       "plan_id": "plan_19f92a12"
     },
     {
@@ -136,7 +138,25 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_33fc08d6",
-      "created_at": "2026-01-04T06:39:40.459060",
+      "created_at": "2026-01-04T12:09:13.762696",
+      "plan_id": "plan_19f92a12"
+    },
+    {
+      "step_id": "step_c1a2b277",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion 'Microsoft 365 Agents Toolkit has checked manifest(s) with the corresponding schema: Summary: All passed' is exist",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": null,
+      "created_at": "2026-01-04T12:11:14.726696",
       "plan_id": "plan_19f92a12"
     }
   ],
