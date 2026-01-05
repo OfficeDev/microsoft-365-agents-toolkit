@@ -1,0 +1,119 @@
+{
+  "plan_metadata": {
+    "version": "1.0",
+    "plan_id": "plan_da74d7d2",
+    "execution_context": {
+      "delay_between_steps": 0.5,
+      "stop_on_error": true,
+      "precondition_wait_timeout": 60.0,
+      "precondition_retry_interval": 2.0,
+      "step_retry_timeout": 0.0
+    },
+    "total_steps": 3,
+    "created_at": "2026-01-04T03:16:04.896582",
+    "name": "Sample Todo List With Azure Remote Debug",
+    "description": {
+      "other": "",
+      "owner": "v-ivanchen@microsoft.com",
+      "workitem": "14571882"
+    },
+    "generated_at": "2026-01-04T03:16:04.896582",
+    "execution_order": [
+      "plan_r_1107_015711",
+      "step_e2c4b9b1",
+      "step_918d844c",
+      "step_49ebcfcc",
+      "plan_r_1111_043711",
+      "plan_96b99199",
+      "plan_r_0928_020230",
+      "plan_r_0929_040401",
+      "plan_r_0928_073729",
+      "plan_13a466f7",
+      "plan_0947ccdb",
+      "plan_r_1219_041749"
+    ],
+    "tags": [],
+    "updated_at": "2026-01-04T05:22:48.387159"
+  },
+  "steps": [
+    {
+      "step_id": "step_e2c4b9b1",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 401,
+        "y": 169
+      },
+      "description": "Click the search input box labeled \"Search samples\" in the Microsoft 365 Agents Toolkit \"Samples\" panel within Visual Studio Code.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:401:169:16:5:000132cd69eae945",
+        "dhash:401:169:96:5:2bf205a0a048a100",
+        "dhash:401:169:0:10:64a4b4b464747476"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_e2c4b9b1",
+      "created_at": "2026-01-04T05:22:43.673219",
+      "plan_id": "plan_da74d7d2"
+    },
+    {
+      "step_id": "step_918d844c",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "text": "todo list with backend"
+      },
+      "description": "Type the text \"todo list with backend\" into the search input field located at the top of the \"Samples\" tab within the Microsoft 365 Agents Toolkit extension in Visual Studio Code, to filter the sample project list.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:512:384:0:20:64a4b6b66cc16461"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_918d844c",
+      "created_at": "2026-01-04T05:22:43.682434",
+      "plan_id": "plan_da74d7d2"
+    },
+    {
+      "step_id": "step_49ebcfcc",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 787,
+        "y": 237
+      },
+      "description": "Click the \"Create\" button for the \"Todo List with backend\" sample in the Microsoft 365 Agents Toolkit extension panel within Visual Studio Code. The crosshair indicates the left-click action on the first \"Create\" button in the samples list.\nAdd ${{var:app_name:todo-list-with-Azure-backend}} in to env.\n",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:787:237:16:5:dc24345432cd2200",
+        "dhash:787:237:96:5:4026c8f1f18cd1f1",
+        "dhash:787:237:0:10:64a4b6b66cc16461"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_49ebcfcc",
+      "created_at": "2026-01-04T05:22:43.690748",
+      "plan_id": "plan_da74d7d2"
+    }
+  ],
+  "screenshots": {
+    "step_e2c4b9b1": "step_e2c4b9b1",
+    "step_918d844c": "step_918d844c",
+    "step_49ebcfcc": "step_49ebcfcc"
+  }
+}

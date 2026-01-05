@@ -1,0 +1,68 @@
+{
+  "plan_metadata": {
+    "version": "1.0",
+    "plan_id": "plan_96b99199",
+    "execution_context": {
+      "delay_between_steps": 0.5,
+      "stop_on_error": true,
+      "precondition_wait_timeout": 60.0,
+      "precondition_retry_interval": 2.0,
+      "step_retry_timeout": 0.0
+    },
+    "total_steps": 2,
+    "created_at": "2026-01-04T01:57:12.824615",
+    "name": "group: fillin sql env",
+    "description": "",
+    "generated_at": "2026-01-04T01:57:12.824615",
+    "execution_order": [
+      "step_14b9d008",
+      "step_10fd771e"
+    ],
+    "tags": [
+      "group"
+    ],
+    "updated_at": "2026-01-04T02:00:13.817006"
+  },
+  "steps": [
+    {
+      "step_id": "step_14b9d008",
+      "agent": "code",
+      "tool": "",
+      "parameters": {
+        "sample": ""
+      },
+      "description": "@code in file: \"/home/vscode/AgentsToolkitProjects/${{var:app_name}}/env/.env.local.user\"\nfill in value: \nSQL_ENDPOINT='vscuse-test-sql.database.windows.net'\nSQL_DATABASE_NAME='vscuse-test-db'\nSQL_USER_NAME='${{secret:SQL_USER_NAME}}'\nSQL_PASSWORD='${{secret:SECRET_SQL_PASSWORD}}'",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": null,
+      "created_at": "2026-01-04T01:57:12.834392",
+      "plan_id": "plan_96b99199"
+    },
+    {
+      "step_id": "step_10fd771e",
+      "agent": "code",
+      "tool": "",
+      "parameters": {
+        "sample": ""
+      },
+      "description": "@code in file: \"/home/vscode/AgentsToolkitProjects/${{var:app_name}}/env/.env.dev.user\"\nfill in value: \nSQL_ENDPOINT='vscuse-test-sql.database.windows.net'\nSQL_DATABASE_NAME='vscuse-test-db'\nSQL_USER_NAME='${{secret:SQL_USER_NAME}}'\nSQL_PASSWORD='${{secret:SECRET_SQL_PASSWORD}}'",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": null,
+      "created_at": "2026-01-04T01:57:12.844498",
+      "plan_id": "plan_96b99199"
+    }
+  ]
+}
