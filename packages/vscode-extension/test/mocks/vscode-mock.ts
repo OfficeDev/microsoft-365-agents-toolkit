@@ -28,9 +28,15 @@ class MockClipboard {
 
 export function initialize() {
   generateMock("debug");
-  (mockedVSCode as any).debug.activeDebugConsole = {
-    appendLine: () => {},
-  };
+  const debugConsole = {};
+  Object.defineProperty(debugConsole, "appendLine", {
+    value: function () {},
+    writable: true,
+    configurable: true,
+  });
+  mockedVSCodeNamespaces
+    .debug!.setup((x) => x.activeDebugConsole)
+    .returns(() => debugConsole as any);
   generateMock("scm");
   generateNotebookMocks();
 
@@ -41,6 +47,16 @@ export function initialize() {
     }
     if (request === "@vscode/extension-telemetry") {
       return { default: vscMockTelemetryReporter as any };
+    }
+    // Mock keytar to prevent native module loading issues on Linux
+    if (request === "keytar") {
+      return {
+        getPassword: async () => null,
+        setPassword: async () => {},
+        deletePassword: async () => true,
+        findPassword: async () => null,
+        findCredentials: async () => [],
+      };
     }
     // less files need to be in import statements to be converted to css
     // But we don't want to try to load them in the mock vscode
