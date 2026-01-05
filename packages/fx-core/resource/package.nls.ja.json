@@ -824,7 +824,7 @@
   "driver.spfx.info.tenantAppCatalogCreated": "SharePoint テナント アプリ カタログ %s が作成されます。アクティブになるまで数分お待ちください。",
   "driver.spfx.warn.noTenantAppCatalogFound": "テナント アプリ カタログが見つかりません。もう一度お試しください: %s",
   "driver.spfx.error.failedToGetAppCatalog": "作成後にアプリ カタログ サイトの URL を取得できません。数分待ってから、もう一度お試しください。",
-  "driver.spfx.error.noValidAppCatelog": "テナントに有効なアプリ カタログがありません。Microsoft 365 Agents Toolkit で作成する場合、または自分で作成する場合は、%s 内の 'createAppCatalogIfNotExist' プロパティを true に設定します。",
+  "driver.spfx.error.noValidAppCatelog": "テナントに有効なアプリ カタログがありません。Microsoft 365 エージェント ツールキットで作成する場合、または自分で作成する場合は、%s 内の 'createAppCatalogIfNotExist' プロパティを true に設定します。",
   "driver.spfx.add.description": "SPFx プロジェクトに追加の Web パーツを追加する",
   "driver.spfx.add.successNotice": "Web パーツ %s がプロジェクトに正常に追加されました。",
   "driver.spfx.add.progress.title": "スキャフォールディング Web パーツ",
