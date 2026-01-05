@@ -246,7 +246,7 @@
   "error.m365.NotExtendedToM365Error": "앱을 Microsoft 365로 확장할 수 없습니다. 'teamsApp/extendToM365' 작업을 사용하여 앱을 Microsoft 365로 확장하세요.",
   "error.m365.SharedScopeAdvancedDADisabled": "배포 차단됨: 테넌트 권한 설정으로 인해 고급 선언적 에이전트를 배포할 수 없습니다. 자세한 정보 가져오기: [Microsoft 365 관리 센터 Microsoft 365 Copilot 에이전트 관리 - Microsoft 365 관리자 | Microsoft Learn](%s)",
   "error.share.yamlConfigNotFound": "m365agents.yml에서 \"provision\" 또는 \"deploy\" 구성을 찾을 수 없습니다.",
-  "error.share.yamlConfigNotSupported": "Share feature only supports m365agents.yml version v1.10 or above, follow [the guide](https://github.com/OfficeDev/microsoft-365-agents-toolkit/wiki/Share-Declarative-Agents-with-Others#About-YAML-schema) to upgrade and proceed.",
+  "error.share.yamlConfigNotSupported": "공유 기능은 m365agents.yml 버전 v1.10 이상에서만 지원됩니다. [가이드](https://github.com/OfficeDev/microsoft-365-agents-toolkit/wiki/Share-Declarative-Agents-with-Others#About-YAML-schema)를 참고하여 업그레이드한 후 진행하세요.",
   "error.share.shareActionConfigNotFound": "m365agents.yml에서 \"%s\" 작업 구성을 찾을 수 없습니다.",
   "error.share.appPackageConfigNotFound": "m365agents.yml에서 appPackagePath 구성을 찾을 수 없습니다.",
   "error.share.manifestFileNotFound": "앱 패키지에서 매니페스트 파일을 찾을 수 없습니다.",
