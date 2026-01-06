@@ -34,7 +34,7 @@
       "step_15222345"
     ],
     "tags": [],
-    "updated_at": "2026-01-06T11:09:18.963053"
+    "updated_at": "2026-01-06T12:56:53.300157"
   },
   "steps": [
     {
@@ -60,7 +60,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_4bbd5ffd",
-      "created_at": "2026-01-06T11:07:58.268775",
+      "created_at": "2026-01-06T12:55:00.661390",
       "plan_id": "plan_0e33c42d"
     },
     {
@@ -82,7 +82,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_557dbea4",
-      "created_at": "2026-01-06T11:07:58.292650",
+      "created_at": "2026-01-06T12:55:00.677016",
       "plan_id": "plan_0e33c42d"
     },
     {
@@ -94,7 +94,7 @@
         "x": 768,
         "y": 276
       },
-      "description": "Click the \"Create\" button next to the \"Coffee ...\" sample in the \"Featured samples\" section of the Microsoft 365 Agents Toolkit interface.",
+      "description": "Click the \"Create\" button next to the \"Coffee ...\" sample in the \"Featured samples\" section of the Microsoft 365 Agents Toolkit interface.And input ${{var:app_name:coffee-agent}} into the run time variable.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -108,7 +108,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_486e4937",
-      "created_at": "2026-01-06T11:07:58.313930",
+      "created_at": "2026-01-06T12:55:00.708205",
       "plan_id": "plan_0e33c42d"
     },
     {
@@ -126,7 +126,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": null,
-      "created_at": "2026-01-06T11:07:58.332961",
+      "created_at": "2026-01-06T12:55:00.731972",
       "plan_id": "plan_0e33c42d"
     },
     {
@@ -146,7 +146,7 @@
         "step_retry_time:10"
       ],
       "screenshot": null,
-      "created_at": "2026-01-06T11:09:03.527749",
+      "created_at": "2026-01-06T12:55:00.741996",
       "plan_id": "plan_0e33c42d"
     },
     {
@@ -172,7 +172,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_90f5f4bf",
-      "created_at": "2026-01-06T11:07:58.344355",
+      "created_at": "2026-01-06T12:55:00.756275",
       "plan_id": "plan_0e33c42d"
     },
     {
@@ -194,7 +194,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_86b4e608",
-      "created_at": "2026-01-06T11:07:58.357238",
+      "created_at": "2026-01-06T12:55:00.776210",
       "plan_id": "plan_0e33c42d"
     },
     {
@@ -216,7 +216,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_6532b795",
-      "created_at": "2026-01-06T11:07:58.377386",
+      "created_at": "2026-01-06T12:55:00.807137",
       "plan_id": "plan_0e33c42d"
     },
     {
@@ -236,7 +236,7 @@
         "step_retry_timeout:30"
       ],
       "screenshot": null,
-      "created_at": "2026-01-06T11:07:58.406787",
+      "created_at": "2026-01-06T12:55:00.831702",
       "plan_id": "plan_0e33c42d"
     }
   ],
