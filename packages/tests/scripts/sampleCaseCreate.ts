@@ -11,7 +11,7 @@ const windows_22 = [
   "sample-hello-world-tab-with-backend",
   "sample-query-org",
   "sample-assistant-dashboard",
-  "sample-bot-sso"
+  "sample-bot-sso",
 ];
 const ubuntu_22 = [
   "sample-todo-list-sql",
