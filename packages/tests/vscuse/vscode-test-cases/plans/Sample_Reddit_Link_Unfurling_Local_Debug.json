@@ -5,19 +5,19 @@
     "execution_context": {
       "delay_between_steps": 0.5,
       "stop_on_error": true,
-      "precondition_wait_timeout": 60.0,
-      "precondition_retry_interval": 2.0,
-      "step_retry_timeout": 0.0
+      "precondition_wait_timeout": 60,
+      "precondition_retry_interval": 2,
+      "step_retry_timeout": 0
     },
     "total_steps": 12,
-    "created_at": "2026-01-05T08:23:53.095377",
+    "created_at": "2026-01-06T01:00:52.479718",
     "name": "Sample Reddit Link Unfurling Local Debug",
     "description": {
       "other": "",
       "owner": "v-ivanchen@microsoft.com",
-      "workitem": ""
+      "workitem": "27851434"
     },
-    "generated_at": "2026-01-05T08:23:53.095377",
+    "generated_at": "2026-01-06T01:00:52.479718",
     "execution_order": [
       "plan_r_1107_015711",
       "step_acf1f85e",
@@ -37,7 +37,7 @@
       "step_3ddd1089"
     ],
     "tags": [],
-    "updated_at": "2026-01-05T09:54:46.002450"
+    "updated_at": "2026-01-06T02:04:24.017385"
   },
   "steps": [
     {
@@ -59,7 +59,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_acf1f85e",
-      "created_at": "2026-01-05T09:45:21.296484",
+      "created_at": "2026-01-06T02:03:58.181284",
       "plan_id": "plan_6ccd0db7"
     },
     {
@@ -85,7 +85,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_0ba2e375",
-      "created_at": "2026-01-05T09:45:21.306183",
+      "created_at": "2026-01-06T02:03:58.191541",
       "plan_id": "plan_6ccd0db7"
     },
     {
@@ -103,7 +103,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": null,
-      "created_at": "2026-01-05T09:45:21.315682",
+      "created_at": "2026-01-06T02:03:58.199576",
       "plan_id": "plan_6ccd0db7"
     },
     {
@@ -121,7 +121,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": null,
-      "created_at": "2026-01-05T09:45:21.323487",
+      "created_at": "2026-01-06T02:03:58.209771",
       "plan_id": "plan_6ccd0db7"
     },
     {
@@ -139,7 +139,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": null,
-      "created_at": "2026-01-05T09:45:21.333172",
+      "created_at": "2026-01-06T02:03:58.219937",
       "plan_id": "plan_6ccd0db7"
     },
     {
@@ -157,7 +157,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": null,
-      "created_at": "2026-01-05T09:45:21.341938",
+      "created_at": "2026-01-06T02:03:58.228460",
       "plan_id": "plan_6ccd0db7"
     },
     {
@@ -183,7 +183,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_5554eb74",
-      "created_at": "2026-01-05T09:53:33.013305",
+      "created_at": "2026-01-06T02:03:58.237637",
       "plan_id": "plan_6ccd0db7"
     },
     {
@@ -209,7 +209,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_d0ffa5cd",
-      "created_at": "2026-01-05T09:53:33.023614",
+      "created_at": "2026-01-06T02:03:58.245692",
       "plan_id": "plan_6ccd0db7"
     },
     {
@@ -231,7 +231,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_848ba5bb",
-      "created_at": "2026-01-05T09:53:33.043474",
+      "created_at": "2026-01-06T02:03:58.253218",
       "plan_id": "plan_6ccd0db7"
     },
     {
@@ -253,7 +253,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_48b95923",
-      "created_at": "2026-01-05T09:53:33.054231",
+      "created_at": "2026-01-06T02:03:58.262824",
       "plan_id": "plan_6ccd0db7"
     },
     {
@@ -277,7 +277,7 @@
         "delay: 30"
       ],
       "screenshot": "step_4773c580",
-      "created_at": "2026-01-05T09:53:33.064906",
+      "created_at": "2026-01-06T02:03:58.271744",
       "plan_id": "plan_6ccd0db7"
     },
     {
@@ -295,7 +295,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": null,
-      "created_at": "2026-01-05T09:54:45.989821",
+      "created_at": "2026-01-06T02:03:58.280315",
       "plan_id": "plan_6ccd0db7"
     }
   ],
