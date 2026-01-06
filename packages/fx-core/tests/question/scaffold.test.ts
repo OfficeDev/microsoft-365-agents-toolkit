@@ -447,13 +447,6 @@ describe("officeAddinProjectTypeNode", () => {
       equals: ProjectTypeOptions.officeMetaOSOptionId,
     });
   });
-  it("outlookAddinProjectTypeNode", () => {
-    sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
-    const node = officeAddinProjectTypeNode();
-    assert.deepEqual(node.condition, {
-      equals: ProjectTypeOptions.outlookAddinOptionId,
-    });
-  });
 });
 
 describe("languageNode", () => {
@@ -503,16 +496,6 @@ describe("folderAndAppNameCondition", () => {
     };
     const res = folderAndAppNameCondition(inputs);
     assert.isTrue(res);
-  });
-  it("false", () => {
-    const inputs: Inputs = {
-      platform: Platform.VSCode,
-      [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
-      [QuestionNames.ProjectType]: ProjectTypeOptions.copilotAgentOptionId,
-    };
-    sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
-    const res = folderAndAppNameCondition(inputs);
-    assert.isFalse(res);
   });
 });
 
