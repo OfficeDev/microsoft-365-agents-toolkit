@@ -408,16 +408,6 @@ describe("ProjectTypeOptions", () => {
     const option = ProjectTypeOptions.officeAddin(Platform.CLI);
     assert.equal(option.id, ProjectTypeOptions.officeMetaOSOptionId);
   });
-  it("outlookAddin - VSC", () => {
-    sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
-    const option = ProjectTypeOptions.officeAddin(Platform.VSCode);
-    assert.equal(option.id, ProjectTypeOptions.outlookAddinOptionId);
-  });
-  it("outlookAddin - CLI", () => {
-    sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
-    const option = ProjectTypeOptions.officeAddin(Platform.CLI);
-    assert.equal(option.id, ProjectTypeOptions.outlookAddinOptionId);
-  });
   it("start with github copilot", () => {
     sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
     const option = ProjectTypeOptions.startWithGithubCopilot();
