@@ -15,8 +15,11 @@ import "mocha";
 import mockedEnv, { RestoreFn } from "mocked-env";
 import * as path from "path";
 import * as sinon from "sinon";
-import { MetadataV3, MetadataV3Abandoned, MetadataV4 } from "../../src/common/versionMetadata";
-import { ProjectModel } from "../../src/component/configManager/interface";
+import { globalVars, setTools, TOOLS } from "../../src/common/globalVars";
+import * as projectTypeChecker from "../../src/common/projectTypeChecker";
+import { MetadataV3, MetadataV4 } from "../../src/common/versionMetadata";
+import { parseSetOutputCommand } from "../../src/component/driver/script/scriptDriver";
+import { manifestUtils } from "../../src/component/driver/teamsApp/utils/ManifestUtils";
 import { EnvLoaderMW, EnvWriterMW } from "../../src/component/middleware/envMW";
 import { DotenvOutput, dotenvUtil, envUtil } from "../../src/component/utils/envUtil";
 import { pathUtils } from "../../src/component/utils/pathUtils";
@@ -24,7 +27,6 @@ import { settingsUtil } from "../../src/component/utils/settingsUtil";
 import { LocalCrypto } from "../../src/core/crypto";
 import { environmentManager } from "../../src/core/environment";
 import { FxCore } from "../../src/core/FxCore";
-import { globalVars, setTools, TOOLS } from "../../src/common/globalVars";
 import { ContextInjectorMW } from "../../src/core/middleware/contextInjector";
 import { CoreHookContext } from "../../src/core/types";
 import {
@@ -35,8 +37,6 @@ import {
   UserCancelError,
 } from "../../src/error/common";
 import { MockTools } from "../core/utils";
-import { parseSetOutputCommand } from "../../src/component/driver/script/scriptDriver";
-import * as yaml from "yaml";
 
 describe("envUtils", () => {
   const tools = new MockTools();
@@ -479,6 +479,75 @@ describe("envUtils", () => {
   });
 
   describe("EnvLoaderMW", () => {
+    it("Enables local env when manifest is Declarative Agent", async () => {
+      sandbox
+        .stub(manifestUtils, "readAppManifest")
+        .resolves(ok({ copilotAgents: { declarativeAgents: [{}] } } as any));
+      sandbox.stub(projectTypeChecker, "IsDeclarativeAgentManifest").returns(true);
+      let capturedRemoteOnly: boolean | undefined;
+      sandbox
+        .stub(envUtil, "listEnv")
+        .callsFake(async (projectPath: string, remoteOnly?: boolean) => {
+          capturedRemoteOnly = remoteOnly;
+          return ok([]);
+        });
+      sandbox.stub(TOOLS.ui, "selectOption").callsFake(async (config: any) => {
+        if (typeof config.options === "function") {
+          await config.options();
+        }
+        return ok({ type: "success", result: "dev", options: ["dev"] } as any);
+      });
+      sandbox.stub(envUtil, "readEnv").resolves(ok({}));
+
+      class MyClass {
+        async myMethod(inputs: Inputs): Promise<Result<any, FxError>> {
+          return ok(undefined);
+        }
+      }
+      hooks(MyClass, { myMethod: [EnvLoaderMW(false)] });
+      const my = new MyClass();
+      const inputs = {
+        platform: Platform.VSCode,
+        projectPath: ".",
+      };
+      const res = await my.myMethod(inputs);
+      assert.isTrue(res.isOk());
+      assert.equal(capturedRemoteOnly, false, "should include local env when DA manifest detected");
+    });
+
+    it("Keeps local env disabled when manifest is not Declarative Agent", async () => {
+      sandbox.stub(manifestUtils, "readAppManifest").resolves(ok({} as any));
+      sandbox.stub(projectTypeChecker, "IsDeclarativeAgentManifest").returns(false);
+      let capturedRemoteOnly: boolean | undefined;
+      sandbox
+        .stub(envUtil, "listEnv")
+        .callsFake(async (projectPath: string, remoteOnly?: boolean) => {
+          capturedRemoteOnly = remoteOnly;
+          return ok([]);
+        });
+      sandbox.stub(TOOLS.ui, "selectOption").callsFake(async (config: any) => {
+        if (typeof config.options === "function") {
+          await config.options();
+        }
+        return ok({ type: "success", result: "dev", options: ["dev"] } as any);
+      });
+      sandbox.stub(envUtil, "readEnv").resolves(ok({}));
+
+      class MyClass {
+        async myMethod(inputs: Inputs): Promise<Result<any, FxError>> {
+          return ok(undefined);
+        }
+      }
+      hooks(MyClass, { myMethod: [EnvLoaderMW(false)] });
+      const my = new MyClass();
+      const inputs = {
+        platform: Platform.VSCode,
+        projectPath: ".",
+      };
+      const res = await my.myMethod(inputs);
+      assert.isTrue(res.isOk());
+      assert.equal(capturedRemoteOnly, true, "should exclude local env when non-DA manifest");
+    });
     it("EnvLoaderMW success", async () => {
       sandbox.stub(pathUtils, "getEnvFolderPath").resolves(ok("teamsfx"));
       const encRes = await cryptoProvider.encrypt(decrypted);

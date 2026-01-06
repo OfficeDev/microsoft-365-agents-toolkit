@@ -210,7 +210,7 @@ jobs:
       AZURE_ACCOUNT_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
 
       AZURE_OPENAI_DEPLOYMENT_NAME: "gpt-4.1"
-      AZURE_OPENAI_ENDPOINT: "https://atk-test-open-ai.openai.azure.com/"
+      AZURE_OPENAI_ENDPOINT: ${{ secrets.TEST_TENANT_AZURE_OPENAI_ENDPOINT }}
       AZURE_OPENAI_EMBEDDING_DEPLOYMENT: "text-embedding-ada-002"
 
       AZURE_SEARCH_ENDPOINT: ${{ secrets.AZURE_SEARCH_ENDPOINT }}
@@ -460,17 +460,17 @@ jobs:
         uses: alsosee/envset@v1
         with:
           name: SECRET_AZURE_OPENAI_API_KEY
-          value: ${{ secrets.SECRET_AZURE_OPENAI_API_KEY_NEW }}
+          value: ${{ secrets.TEST_TENANT_SECRET_AZURE_OPENAI_API_KEY }}
 
       - name: Setup OpenAI key(macos)
         if: ${{ matrix.os == 'macos-latest' }}
         run: |
-          echo "SECRET_AZURE_OPENAI_API_KEY=${{ secrets.SECRET_AZURE_OPENAI_API_KEY_NEW }}" >> $GITHUB_ENV
+          echo "SECRET_AZURE_OPENAI_API_KEY=${{ secrets.TEST_TENANT_SECRET_AZURE_OPENAI_API_KEY }}" >> $GITHUB_ENV
 
       - name: Setup OpenAI key(win)
         if: ${{ matrix.os == 'windows-latest' }}
         run: |
-          echo "SECRET_AZURE_OPENAI_API_KEY=${{ secrets.SECRET_AZURE_OPENAI_API_KEY_NEW }}" >> $env:GITHUB_ENV
+          echo "SECRET_AZURE_OPENAI_API_KEY=${{ secrets.TEST_TENANT_SECRET_AZURE_OPENAI_API_KEY }}" >> $env:GITHUB_ENV
 
       - name: Extract Zip files
         if: contains(matrix.test-case, 'localization')

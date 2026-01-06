@@ -3,7 +3,8 @@
 
 "use strict";
 
-import { LogLevel } from "@azure/msal-node";
+import { Configuration, LogLevel } from "@azure/msal-node";
+import { NativeBrokerPlugin } from "@azure/msal-node-extensions";
 import {
   BasicLogin,
   err,
@@ -15,7 +16,12 @@ import {
   signedOut,
   TokenRequest,
 } from "@microsoft/teamsfx-api";
-import { AuthSvcScopes, teamsDevPortalClient } from "@microsoft/teamsfx-core";
+import {
+  AuthSvcScopes,
+  featureFlagManager,
+  FeatureFlags,
+  teamsDevPortalClient,
+} from "@microsoft/teamsfx-core";
 import ui from "../userInteraction";
 import { CryptoCachePlugin, loadTenantId } from "./cacheAccess";
 import { CodeFlowLogin, ConvertTokenToJson, ErrorMessage } from "./codeFlowLogin";
@@ -28,15 +34,21 @@ const SERVER_PORT = 0;
 
 const cachePlugin = new CryptoCachePlugin(m365CacheName);
 
-const config = {
+const config: Configuration = {
   auth: {
     clientId: "7ea7c24c-b1f6-4a20-9d11-9ae12e9e7ac0",
     authority: "https://login.microsoftonline.com/common",
   },
+  broker: {
+    nativeBrokerPlugin:
+      featureFlagManager.getBooleanValue(FeatureFlags.BrokerAuth) && process.platform === "win32"
+        ? new NativeBrokerPlugin()
+        : undefined,
+  },
   system: {
     loggerOptions: {
       loggerCallback(loglevel: any, message: any, containsPii: any) {
-        if (this.logLevel <= LogLevel.Error) {
+        if (this.logLevel && this.logLevel <= LogLevel.Error) {
           CLILogProvider.log(4 - loglevel, message);
         }
       },

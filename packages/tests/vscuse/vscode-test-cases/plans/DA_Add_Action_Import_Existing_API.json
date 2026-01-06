@@ -10,14 +10,14 @@
       "step_retry_timeout": 0.0
     },
     "total_steps": 36,
-    "created_at": "2025-11-07T05:54:44.083850",
+    "created_at": "2025-12-25T03:02:50.155013",
     "name": "DA Add Action Import Existing API",
     "description": {
+      "other": "",
       "owner": "v-ivanchen@microsoft.com",
-      "workitem": "29293050",
-      "other": ""
+      "workitem": "29293050"
     },
-    "generated_at": "2025-11-07T05:54:44.083846",
+    "generated_at": "2025-12-25T03:02:50.155013",
     "execution_order": [
       "plan_r_0928_012254",
       "step_9deedf4f",
@@ -56,13 +56,14 @@
       "step_02b31bcc",
       "plan_r_1021_081410",
       "step_3863b803",
+      "plan_r_1225_005741",
       "step_70feeb9d",
       "step_3440d93c",
       "plan_r_1021_031941",
       "plan_r_1023_054001"
     ],
     "tags": [],
-    "updated_at": "2025-11-11T04:25:38.882242"
+    "updated_at": "2025-12-25T03:03:45.831357"
   },
   "steps": [
     {
@@ -88,7 +89,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_9deedf4f",
-      "created_at": "2025-11-11T04:25:08.833800",
+      "created_at": "2025-12-25T03:02:50.165071",
       "plan_id": "plan_4194b6b9"
     },
     {
@@ -114,7 +115,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_2094acbd",
-      "created_at": "2025-11-11T04:25:08.850131",
+      "created_at": "2025-12-25T03:02:50.176166",
       "plan_id": "plan_4194b6b9"
     },
     {
@@ -140,7 +141,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_332d53e0",
-      "created_at": "2025-11-11T04:25:08.866032",
+      "created_at": "2025-12-25T03:02:50.184630",
       "plan_id": "plan_4194b6b9"
     },
     {
@@ -166,7 +167,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_51a5e816",
-      "created_at": "2025-11-11T04:25:08.884096",
+      "created_at": "2025-12-25T03:02:50.194237",
       "plan_id": "plan_4194b6b9"
     },
     {
@@ -192,7 +193,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_55db7dd4",
-      "created_at": "2025-11-11T04:25:08.898722",
+      "created_at": "2025-12-25T03:02:50.202751",
       "plan_id": "plan_4194b6b9"
     },
     {
@@ -218,7 +219,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_75e63ddd",
-      "created_at": "2025-11-11T04:25:08.913697",
+      "created_at": "2025-12-25T03:02:50.211601",
       "plan_id": "plan_4194b6b9"
     },
     {
@@ -244,7 +245,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_ac3fa557",
-      "created_at": "2025-11-11T04:25:08.927546",
+      "created_at": "2025-12-25T03:02:50.220132",
       "plan_id": "plan_4194b6b9"
     },
     {
@@ -270,7 +271,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_66e1866a",
-      "created_at": "2025-11-11T04:25:08.940893",
+      "created_at": "2025-12-25T03:02:50.228190",
       "plan_id": "plan_4194b6b9"
     },
     {
@@ -296,7 +297,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_ac106ea7",
-      "created_at": "2025-11-11T04:25:08.952139",
+      "created_at": "2025-12-25T03:02:50.235716",
       "plan_id": "plan_4194b6b9"
     },
     {
@@ -322,7 +323,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_b04d09de",
-      "created_at": "2025-11-11T04:25:08.963476",
+      "created_at": "2025-12-25T03:02:50.245301",
       "plan_id": "plan_4194b6b9"
     },
     {
@@ -348,7 +349,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_4f1704a3",
-      "created_at": "2025-11-11T04:25:08.974671",
+      "created_at": "2025-12-25T03:02:50.254421",
       "plan_id": "plan_4194b6b9"
     },
     {
@@ -374,7 +375,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_dcfefdf7",
-      "created_at": "2025-11-11T04:25:08.985074",
+      "created_at": "2025-12-25T03:02:50.262456",
       "plan_id": "plan_4194b6b9"
     },
     {
@@ -396,7 +397,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_a1c7212d",
-      "created_at": "2025-11-11T04:25:08.995627",
+      "created_at": "2025-12-25T03:02:50.271764",
       "plan_id": "plan_4194b6b9"
     },
     {
@@ -418,7 +419,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_b297806c",
-      "created_at": "2025-11-11T04:25:09.006806",
+      "created_at": "2025-12-25T03:02:50.280327",
       "plan_id": "plan_4194b6b9"
     },
     {
@@ -440,7 +441,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_baaf7b28",
-      "created_at": "2025-11-11T04:25:09.017830",
+      "created_at": "2025-12-25T03:02:50.289056",
       "plan_id": "plan_4194b6b9"
     },
     {
@@ -462,7 +463,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_0f140413",
-      "created_at": "2025-11-11T04:25:09.028522",
+      "created_at": "2025-12-25T03:02:50.297832",
       "plan_id": "plan_4194b6b9"
     },
     {
@@ -484,7 +485,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_439b0590",
-      "created_at": "2025-11-11T04:25:09.039502",
+      "created_at": "2025-12-25T03:02:50.306902",
       "plan_id": "plan_4194b6b9"
     },
     {
@@ -510,7 +511,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_538d4659",
-      "created_at": "2025-11-11T04:25:09.050440",
+      "created_at": "2025-12-25T03:02:50.315058",
       "plan_id": "plan_4194b6b9"
     },
     {
@@ -536,7 +537,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_b8da23cf",
-      "created_at": "2025-11-11T04:25:09.061539",
+      "created_at": "2025-12-25T03:02:50.324074",
       "plan_id": "plan_4194b6b9"
     },
     {
@@ -562,7 +563,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_ac91d9ce",
-      "created_at": "2025-11-11T04:25:09.071510",
+      "created_at": "2025-12-25T03:02:50.331843",
       "plan_id": "plan_4194b6b9"
     },
     {
@@ -588,7 +589,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_af54ff7d",
-      "created_at": "2025-11-11T04:25:09.081719",
+      "created_at": "2025-12-25T03:02:50.340313",
       "plan_id": "plan_4194b6b9"
     },
     {
@@ -614,7 +615,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_1b3b4948",
-      "created_at": "2025-11-11T04:25:09.092982",
+      "created_at": "2025-12-25T03:02:50.348454",
       "plan_id": "plan_4194b6b9"
     },
     {
@@ -640,7 +641,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_859da6bd",
-      "created_at": "2025-11-11T04:25:09.103659",
+      "created_at": "2025-12-25T03:02:50.357440",
       "plan_id": "plan_4194b6b9"
     },
     {
@@ -666,7 +667,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_214ae59d",
-      "created_at": "2025-11-11T04:25:09.115440",
+      "created_at": "2025-12-25T03:02:50.365664",
       "plan_id": "plan_4194b6b9"
     },
     {
@@ -692,7 +693,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_dc2d9f33",
-      "created_at": "2025-11-11T04:25:09.126168",
+      "created_at": "2025-12-25T03:02:50.373944",
       "plan_id": "plan_4194b6b9"
     },
     {
@@ -718,7 +719,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_75160c95",
-      "created_at": "2025-11-11T04:25:09.138642",
+      "created_at": "2025-12-25T03:02:50.381763",
       "plan_id": "plan_4194b6b9"
     },
     {
@@ -746,7 +747,7 @@
         "precondition_wait_timeout: 60"
       ],
       "screenshot": "step_4ca41030",
-      "created_at": "2025-11-11T04:25:09.150357",
+      "created_at": "2025-12-25T03:02:50.390346",
       "plan_id": "plan_4194b6b9"
     },
     {
@@ -772,7 +773,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_2805a9de",
-      "created_at": "2025-11-11T04:25:09.163889",
+      "created_at": "2025-12-25T03:02:50.402784",
       "plan_id": "plan_4194b6b9"
     },
     {
@@ -798,7 +799,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_fd1c594e",
-      "created_at": "2025-11-11T04:25:09.174231",
+      "created_at": "2025-12-25T03:02:50.410905",
       "plan_id": "plan_4194b6b9"
     },
     {
@@ -824,7 +825,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_fd6daa06",
-      "created_at": "2025-11-11T04:25:09.184430",
+      "created_at": "2025-12-25T03:02:50.419721",
       "plan_id": "plan_4194b6b9"
     },
     {
@@ -846,7 +847,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_43e34799",
-      "created_at": "2025-11-11T04:25:09.195628",
+      "created_at": "2025-12-25T03:02:50.427710",
       "plan_id": "plan_4194b6b9"
     },
     {
@@ -868,7 +869,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_d8403d3b",
-      "created_at": "2025-11-11T04:25:09.206760",
+      "created_at": "2025-12-25T03:02:50.435251",
       "plan_id": "plan_4194b6b9"
     },
     {
@@ -894,7 +895,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_02b31bcc",
-      "created_at": "2025-11-11T04:25:09.217751",
+      "created_at": "2025-12-25T03:02:50.444378",
       "plan_id": "plan_4194b6b9"
     },
     {
@@ -920,7 +921,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_3863b803",
-      "created_at": "2025-11-11T04:25:09.231140",
+      "created_at": "2025-12-25T03:02:50.451771",
       "plan_id": "plan_4194b6b9"
     },
     {
@@ -946,7 +947,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_70feeb9d",
-      "created_at": "2025-11-11T04:25:09.244084",
+      "created_at": "2025-12-25T03:02:50.459797",
       "plan_id": "plan_4194b6b9"
     },
     {
@@ -966,7 +967,7 @@
         "step_retry_timeout: 60"
       ],
       "screenshot": null,
-      "created_at": "2025-11-11T04:25:09.255965",
+      "created_at": "2025-12-25T03:02:50.467493",
       "plan_id": "plan_4194b6b9"
     }
   ],

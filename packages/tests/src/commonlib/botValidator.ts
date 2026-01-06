@@ -139,8 +139,10 @@ export class BotValidator {
     );
     chai.assert.exists(response);
     if (runtime === Runtime.Node) {
+      // Support both "clientId" (lowercase) and "CLIENT_ID" (uppercase) for different samples
+      const actualBotId = response["clientId"] || response[BaseConfig.clientId];
       chai.assert.equal(
-        response[BaseConfig.clientId],
+        actualBotId,
         this.ctx[EnvConstants.BOT_ID] as string,
         "bot ID should match"
       );

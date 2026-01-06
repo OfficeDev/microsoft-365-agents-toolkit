@@ -20,6 +20,7 @@ import {
   signedOut,
 } from "@microsoft/teamsfx-api";
 import { AccountInfo, LogLevel } from "@azure/msal-node";
+import { NativeBrokerPlugin } from "@azure/msal-node-extensions";
 import { ExtensionErrors, ExtensionSource } from "../error/error";
 import { CodeFlowLogin, ConvertTokenToJson, UserCancelError } from "./codeFlowLogin";
 import VsCodeLogInstance from "./log";
@@ -36,7 +37,7 @@ import {
   TelemetrySuccess,
 } from "../telemetry/extTelemetryEvents";
 import { getDefaultString, localize } from "../utils/localizeUtils";
-import { AppStudioScopes } from "@microsoft/teamsfx-core";
+import { AppStudioScopes, featureFlagManager, FeatureFlags } from "@microsoft/teamsfx-core";
 
 const SERVER_PORT = 0;
 const cachePlugin = new CryptoCachePlugin(m365CacheName);
@@ -45,6 +46,12 @@ const config = {
   auth: {
     clientId: "7ea7c24c-b1f6-4a20-9d11-9ae12e9e7ac0",
     authority: "https://login.microsoftonline.com/common",
+  },
+  broker: {
+    nativeBrokerPlugin:
+      featureFlagManager.getBooleanValue(FeatureFlags.BrokerAuth) && process.platform === "win32"
+        ? new NativeBrokerPlugin()
+        : undefined,
   },
   system: {
     loggerOptions: {

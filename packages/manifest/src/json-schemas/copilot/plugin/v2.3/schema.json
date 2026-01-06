@@ -146,7 +146,6 @@
                             "$ref": "#/$defs/function-state-config",
                             "description": "The state in which the model can generate text that is shown to the user. The model can't invoke functions in the responding state."
                         }
-
                     },
                     "propertyNames": {
                         "enum": [
@@ -267,7 +266,6 @@
                     "oauth_card_path"
                 ]
             }
-
         },
         "conversation-starter": {
             "type": "object",
@@ -413,7 +411,6 @@
             "properties": {
                 "url": {
                     "type": "string",
-                    "format": "uri",
                     "description": "The URL to the OpenAPI specification (ignored if api_description is present)."
                 },
                 "api_description": {
@@ -463,14 +460,17 @@
                     ]
                 },
                 "allowed_host": {
-                    "type": "string",
+                    "type": "array",
                     "description": "An optional JSON array of enumerated strings that can take values as mail, workbook, document or presentation. The value represent the host apps this LocalPlugin can run-in.",
-                    "enum": [
-                        "mail",
-                        "workbook",
-                        "document",
-                        "presentation"
-                    ]
+                    "items": {
+                        "type": "string",
+                        "enum": [
+                            "mail",
+                            "workbook",
+                            "document",
+                            "presentation"
+                        ]
+                    }
                 }
             },
             "additionalProperties": false,

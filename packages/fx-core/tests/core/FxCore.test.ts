@@ -2087,7 +2087,7 @@ describe("createEnvCopyV3", async () => {
     "# this is a comment",
     "TEAMSFX_ENV=dev",
     "APP_NAME_SUFFIX=dev",
-    "AGENT_SCOPE=shared",
+    "AGENT_SCOPE=personal",
     "",
     "_KEY1=value1",
     "KEY2=value2",
@@ -2135,8 +2135,8 @@ describe("createEnvCopyV3", async () => {
       "APP_NAME_SUFFIX's value should be new env name"
     );
     assert(
-      writeStreamContent[3] === `AGENT_SCOPE=shared${os.EOL}`,
-      "AGENT_SCOPE's value should be shared"
+      writeStreamContent[3] === `AGENT_SCOPE=personal${os.EOL}`,
+      "AGENT_SCOPE's value should be personal"
     );
     assert(writeStreamContent[4] === `${os.EOL}`, "empty line should be coped");
     assert(

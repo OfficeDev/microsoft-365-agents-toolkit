@@ -9608,7 +9608,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to clear blob files in Azure Storage Account '%s'. The error responses from Azure are:]A; %s. ]A;If the error message specifies the reason, fix the error and try again.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Nie można wyczyścić plików obiektów blob na koncie usługi Azure Storage „%s”. Odpowiedzi na błędy z platformy Azure to:]A; %s. ]A; Jeśli komunikat o błędzie określa przyczynę, usuń błąd i spróbuj ponownie.]]></Val>
+            <Val><![CDATA[Nie można wyczyścić plików obiektów blob na koncie magazynu platformy Azure „%s”. Odpowiedzi na błędy z platformy Azure to:]A; %s. ]A; Jeśli komunikat o błędzie określa przyczynę, usuń błąd i spróbuj ponownie.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9617,7 +9617,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to clear blob files in Azure Storage Account '%s'. Refer to the [Output panel]5D;(command:fx-extension.showOutputChannel) for more details.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Nie można wyczyścić plików obiektów blob na koncie usługi Microsoft Azure Storage „%s”. Aby uzyskać więcej informacji, zapoznaj się z [panelem danych wyjściowych]5D;(command:fx-extension.showOutputChannel).]]></Val>
+            <Val><![CDATA[Nie można wyczyścić plików obiektów blob na koncie magazynu platformy Azure „%s”. Aby uzyskać więcej informacji, zapoznaj się z [panelem danych wyjściowych]5D;(command:fx-extension.showOutputChannel).]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9626,7 +9626,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to get Azure Storage container '%s' in Azure Storage Account '%s' due to error: %s. The error responses from Azure are:]A; %s. ]A;If the error message specifies the reason, fix the error and try again.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Nie można pobrać kontenera usługi Azure Storage „%s” na koncie usługi Azure Storage „%s” z powodu błędu: %s. Odpowiedzi na błędy z platformy Azure to:]A; %s. ]A; Jeśli komunikat o błędzie określa przyczynę, usuń błąd i spróbuj ponownie.]]></Val>
+            <Val><![CDATA[Nie można pobrać kontenera usługi Azure Storage „%s” na koncie magazynu platformy Azure „%s” z powodu błędu: %s. Odpowiedzi na błędy z platformy Azure to:]A; %s. ]A; Jeśli komunikat o błędzie określa przyczynę, usuń błąd i spróbuj ponownie.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9635,7 +9635,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to get Azure Storage container '%s' in Azure Storage Account '%s' due to error: %s. Refer to the [Output panel]5D;(command:fx-extension.showOutputChannel) for more details.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Nie można uzyskać kontenera usługi Microsoft Azure Storage „%s” na koncie usługi Storage „%s” z powodu błędu: %s. Aby uzyskać więcej informacji, zapoznaj się z [panelem danych wyjściowych]5D;(command:fx-extension.showOutputChannel).]]></Val>
+            <Val><![CDATA[Nie można uzyskać kontenera usługi Azure Storage „%s” na koncie magazynu platformy Azure „%s” z powodu błędu: %s. Aby uzyskać więcej informacji, zapoznaj się z [panelem danych wyjściowych]5D;(command:fx-extension.showOutputChannel).]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9644,7 +9644,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to get properties of container '%s' in Azure Storage Account '%s' due to error: %s. The error responses from Azure are:]A; %s. ]A;If the error message specifies the reason, fix the error and try again.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Nie można pobrać właściwości kontenera „%s” na koncie usługi Azure Storage „%s” z powodu błędu: %s. Odpowiedzi na błędy z platformy Azure to:]A; %s. ]A; Jeśli komunikat o błędzie określa przyczynę, usuń błąd i spróbuj ponownie.]]></Val>
+            <Val><![CDATA[Nie można pobrać właściwości kontenera „%s” na koncie magazynu platformy Azure „%s” z powodu błędu: %s. Odpowiedzi na błędy z platformy Azure to:]A; %s. ]A; Jeśli komunikat o błędzie określa przyczynę, usuń błąd i spróbuj ponownie.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9653,7 +9653,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to get properties of container '%s' in Azure Storage Account '%s' due to error: %s. Refer to the [Output panel]5D;(command:fx-extension.showOutputChannel) for more details.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Nie można uzyskać właściwości kontenera „%s” na koncie usługi Microsoft Azure Storage „%s” z powodu błędu: %s. Aby uzyskać więcej informacji, zapoznaj się z [panelem danych wyjściowych]5D;(command:fx-extension.showOutputChannel).]]></Val>
+            <Val><![CDATA[Nie można uzyskać właściwości kontenera „%s” na koncie magazynu platformy Azure „%s” z powodu błędu: %s. Aby uzyskać więcej informacji, zapoznaj się z [panelem danych wyjściowych]5D;(command:fx-extension.showOutputChannel).]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9662,7 +9662,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to set properties of container '%s' in Azure Storage Account '%s' due to error: %s. The error responses from Azure are:]A; %s. ]A;If the error message specifies the reason, fix the error and try again.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Nie można ustawić właściwości kontenera „%s” na koncie usługi Microsoft Azure Storage „%s” z powodu błędu: %s. Odpowiedzi na błędy z platformy Azure to:]A; %s. ]A;Jeśli komunikat o błędzie określa przyczynę, usuń błąd i spróbuj ponownie.]]></Val>
+            <Val><![CDATA[Nie można ustawić właściwości kontenera „%s” na koncie magazynu platformy Azure „%s” z powodu błędu: %s. Odpowiedzi na błędy z platformy Azure to:]A; %s. ]A;Jeśli komunikat o błędzie określa przyczynę, usuń błąd i spróbuj ponownie.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9671,7 +9671,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to set properties of container '%s' in Azure Storage Account '%s' due to error: %s. Refer to the [Output panel]5D;(command:fx-extension.showOutputChannel) for more details.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Nie można ustawić właściwości kontenera „%s” na koncie usługi Azure Storage „%s” z powodu błędu: %s. Aby uzyskać więcej informacji, zapoznaj się z [panelem danych wyjściowych]5D;(command:fx-extension.showOutputChannel).]]></Val>
+            <Val><![CDATA[Nie można ustawić właściwości kontenera „%s” na koncie magazynu platformy Azure „%s” z powodu błędu: %s. Aby uzyskać więcej informacji, zapoznaj się z [panelem danych wyjściowych]5D;(command:fx-extension.showOutputChannel).]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9680,7 +9680,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to upload local folder '%s' to Azure Storage Account '%s'. The error responses from Azure are:]A; %s. ]A;If the error message specifies the reason, fix the error and try again.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Nie można przekazać folderu lokalnego „%s” do konta usługi Azure Storage „%s”. Odpowiedzi na błędy z platformy Azure to:]A; %s. ]A; Jeśli komunikat o błędzie określa przyczynę, usuń błąd i spróbuj ponownie.]]></Val>
+            <Val><![CDATA[Nie można przekazać folderu lokalnego „%s” do konta magazynu platformy Azure „%s”. Odpowiedzi na błędy z platformy Azure to:]A; %s. ]A; Jeśli komunikat o błędzie określa przyczynę, usuń błąd i spróbuj ponownie.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9689,7 +9689,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to upload local folder '%s' to Azure Storage Account '%s'. Refer to the [Output panel]5D;(command:fx-extension.showOutputChannel) for more details.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Nie można przekazać folderu lokalnego „%s” do konta usługi Microsoft Azure Storage „%s”. Aby uzyskać więcej informacji, zapoznaj się z [panelem danych wyjściowych]5D;(command:fx-extension.showOutputChannel).]]></Val>
+            <Val><![CDATA[Nie można przekazać folderu lokalnego „%s” do konta magazynu platformy Azure „%s”. Aby uzyskać więcej informacji, zapoznaj się z [panelem danych wyjściowych]5D;(command:fx-extension.showOutputChannel).]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -10934,7 +10934,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Check if you have permissions to your Azure Storage Account.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Sprawdź, czy masz uprawnienia do konta usługi Azure Storage.]]></Val>
+            <Val><![CDATA[Sprawdź, czy masz uprawnienia do konta magazynu platformy Azure.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />

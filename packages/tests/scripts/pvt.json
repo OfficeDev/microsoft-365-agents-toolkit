@@ -18,9 +18,11 @@
       "da-action-openapi-none",
       "da-action-openapi-oauth"
     ],
-    "node-22": [  
-      "basic-bot-ts",
-      "msgsa-ts"
+    "node-22": [
+      "basic-bot-ts-localdebug",
+      "basic-bot-ts-remotedebug",
+      "msgsa-ts-localdebug",
+      "msgsa-ts-remotedebug"
       ]
   },
   "ubuntu-latest": {

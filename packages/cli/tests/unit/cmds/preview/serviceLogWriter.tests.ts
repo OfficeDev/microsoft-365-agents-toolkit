@@ -73,7 +73,7 @@ describe("ServiceLogWriter", () => {
       const serviceLogWriter = new ServiceLogWriter();
       await serviceLogWriter.init();
       expect(folders.size).equals(1);
-      expect(folders.entries().next().value[0]).equals(
+      expect(folders.entries().next().value![0]).equals(
         datetime.replace(/:/g, "_").replace(/\./g, "_")
       );
       stub.restore();

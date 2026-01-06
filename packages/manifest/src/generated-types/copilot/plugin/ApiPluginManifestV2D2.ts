@@ -388,12 +388,12 @@ export interface APIPluginManifestV2D {
      * The type of runtime. Must be 'OpenApi' or 'LocalPlugin'.
      */
     type: RuntimeType;
-    auth: Auth;
+    auth: RuntimeAuthenticationObject;
     /**
      * The names of the functions that are available in this runtime. If this property is
-     * omitted, all functions described by the runtime are available. If a wildcard ("*") is
+     * omitted, all functions described by the runtime are available. If a wildcard (\"*\") is
      * specified as the only string, all functions are considered. More than one runtime MUST
-     * NOT declare support for the same function either implicitly or explicitly.
+     * NOT declare support for the same function either implicitly or explicitly
      */
     run_for_functions?: string[];
     /**
@@ -407,9 +407,9 @@ export interface APIPluginManifestV2D {
 }
 
 /**
- * Authentication configuration required to invoke the runtime.
+ * Contains information used by the plugin to authenticate to the runtime.
  */
-export interface Auth {
+export interface RuntimeAuthenticationObject {
     /**
      * Specifies the type of authentication required to invoke a function.
      */
@@ -727,12 +727,12 @@ const typeMap: any = {
     ], "any"),
     "APIPluginManifestV2D": o([
         { json: "type", js: "type", typ: r("RuntimeType") },
-        { json: "auth", js: "auth", typ: r("Auth") },
+        { json: "auth", js: "auth", typ: r("RuntimeAuthenticationObject") },
         { json: "run_for_functions", js: "run_for_functions", typ: u(undefined, a("")) },
         { json: "spec", js: "spec", typ: r("Spec") },
         { json: "output_template", js: "output_template", typ: u(undefined, "") },
     ], false),
-    "Auth": o([
+    "RuntimeAuthenticationObject": o([
         { json: "type", js: "type", typ: r("TypeEnum") },
         { json: "Type", js: "Type", typ: u(undefined, r("TypeEnum")) },
         { json: "reference_id", js: "reference_id", typ: u(undefined, "") },
