@@ -409,7 +409,7 @@ describe("NodeJS Installer", () => {
       nodejsInstaller.extractZip(Buffer.from(""), "/path/to/dest");
     });
     it("extractTar", async () => {
-      sandbox.stub(stream.PassThrough.prototype, "end").returns();
+      sandbox.stub(stream.PassThrough.prototype, "end").returns({} as any);
       sandbox.stub(stream.PassThrough.prototype, "pipe").returns({} as any);
       nodejsInstaller.extractTar(Buffer.from(""), "test.tar.gz", "/path/to/dest");
       nodejsInstaller.extractTar(Buffer.from(""), "test.tar.xz", "/path/to/dest");

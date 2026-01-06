@@ -16,12 +16,14 @@ class ProactiveMessagingTestCase extends CaseFactory {
     testFolder: string,
     sampleName: TemplateProjectFolder
   ): Promise<void> {
+    // The sample has nodejs/ and python/ subdirectories
+    // Use the nodejs subfolder path directly as specified in samples-config downloadUrlInfo.dir
     await Executor.openTemplateProject(
       appName,
       testFolder,
-      sampleName,
+      "nodejs" as TemplateProjectFolder,
       undefined,
-      "samples"
+      `samples/${sampleName}`
     );
   }
 

@@ -1,7 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { AccountInfo, Configuration, PublicClientApplication, TokenCache } from "@azure/msal-node";
+import {
+  AccountInfo,
+  Configuration,
+  PublicClientApplication,
+  SilentFlowRequest,
+} from "@azure/msal-node";
 import {
   AuthenticationWWWAuthenticateRequest,
   FxError,
@@ -14,13 +19,13 @@ import {
 } from "@microsoft/teamsfx-api";
 import { Mutex } from "async-mutex";
 import * as crypto from "crypto";
-import express from "express";
-import * as fs from "fs-extra";
 import * as http from "http";
-import { AddressInfo } from "net";
 import open from "open";
 import os from "os";
 import * as path from "path";
+import express from "express";
+import * as fs from "fs-extra";
+import { AddressInfo } from "net";
 import { TextType, colorize } from "../colorize";
 import CliTelemetry from "../telemetry/cliTelemetry";
 import {
@@ -40,6 +45,8 @@ import {
 import { azureLoginMessage, env, m365LoginMessage, sendFileTimeout } from "./common/constant";
 import CliCodeLogInstance from "./log";
 import { decodeClaimsChallenge } from "./common/utils";
+import { getAccountByHomeId } from "./common/tokenCacheUtils";
+import { featureFlagManager, FeatureFlags } from "@microsoft/teamsfx-core";
 
 export class ErrorMessage {
   static readonly loginFailureTitle = "LoginFail";
@@ -65,10 +72,10 @@ interface Deferred<T> {
   resolve: (result: T | Promise<T>) => void;
   reject: (reason: any) => void;
 }
-
 export class CodeFlowLogin {
   pca: PublicClientApplication;
   account: AccountInfo | undefined;
+  isBrokerAvailable: boolean;
   /**
    * @deprecated will be removed after unify m365 login
    */
@@ -76,7 +83,6 @@ export class CodeFlowLogin {
   config: Configuration;
   port: number;
   mutex: Mutex;
-  msalTokenCache: TokenCache;
   accountName: string;
   socketMap: Map<number, any>;
 
@@ -86,22 +92,22 @@ export class CodeFlowLogin {
     this.port = port;
     this.mutex = new Mutex();
     this.pca = new PublicClientApplication(this.config);
-    this.msalTokenCache = this.pca.getTokenCache();
     this.accountName = accountName;
     this.socketMap = new Map();
+    this.isBrokerAvailable = config.broker?.nativeBrokerPlugin?.isBrokerAvailable || false;
   }
 
   async reloadCache() {
     const accountCache = await loadAccountId(this.accountName);
     if (accountCache) {
-      const dataCache = await this.msalTokenCache.getAccountByHomeId(accountCache);
+      const dataCache = getAccountByHomeId(accountCache, await this.pca.getAllAccounts());
       if (dataCache) {
         this.account = dataCache;
       }
 
       const tenantCache = await loadTenantId(this.accountName);
       if (tenantCache) {
-        const allAccounts = await this.msalTokenCache.getAllAccounts();
+        const allAccounts = await this.pca.getAllAccounts();
         this.account = allAccounts.find((account) => account.tenantId == tenantCache);
       }
     } else {
@@ -110,6 +116,17 @@ export class CodeFlowLogin {
   }
 
   async login(
+    requestScopes: Array<string> | AuthenticationWWWAuthenticateRequest,
+    tenantId?: string
+  ): Promise<string> {
+    if (featureFlagManager.getBooleanValue(FeatureFlags.BrokerAuth)) {
+      return await this.loginWithBroker(requestScopes, tenantId);
+    } else {
+      return await this.loginWithBrowser(requestScopes, tenantId);
+    }
+  }
+
+  async loginWithBrowser(
     requestScopes: Array<string> | AuthenticationWWWAuthenticateRequest,
     tenantId?: string
   ): Promise<string> {
@@ -267,8 +284,97 @@ export class CodeFlowLogin {
     return accessToken;
   }
 
+  async loginWithBroker(
+    requestScopes: Array<string> | AuthenticationWWWAuthenticateRequest,
+    tenantId?: string
+  ): Promise<string> {
+    CliTelemetry.sendTelemetryEvent(TelemetryEvent.AccountLoginStart, {
+      [TelemetryProperty.AccountType]: this.accountName,
+    });
+    let scopes: string[];
+    let claim = undefined;
+    if (typeof requestScopes === "object" && "wwwAuthenticate" in requestScopes) {
+      scopes = requestScopes.scopes ?? [];
+      claim = decodeClaimsChallenge(requestScopes.wwwAuthenticate);
+    } else {
+      scopes = requestScopes;
+    }
+
+    const authority = tenantId ? env.activeDirectoryEndpointUrl + tenantId : undefined;
+    const loopbackTemplatePath = path.join(__dirname, "codeFlowResult", "index.html");
+    let loopbackTemplate = undefined;
+    if (fs.pathExistsSync(loopbackTemplatePath)) {
+      loopbackTemplate = await fs.readFile(loopbackTemplatePath, "utf-8");
+    }
+    const interactiveRequest = {
+      scopes: scopes,
+      authority: authority,
+      prompt: "select_account",
+      claims: claim,
+      openBrowser: async (url: string) => {
+        url += "#";
+        if (this.accountName == "azure") {
+          CliCodeLogInstance.outputInfo(
+            azureLoginMessage + colorize(url, TextType.Hyperlink) + os.EOL
+          );
+        } else {
+          CliCodeLogInstance.outputInfo(
+            m365LoginMessage + colorize(url, TextType.Hyperlink) + os.EOL
+          );
+        }
+        await open(url);
+      },
+      successTemplate: loopbackTemplate,
+      errorTemplate: loopbackTemplate,
+    };
+
+    let accessToken = undefined;
+    try {
+      const response = await this.pca.acquireTokenInteractive(interactiveRequest);
+
+      if (response && response.account) {
+        await this.mutex?.runExclusive(async () => {
+          this.account = response.account!;
+          await saveAccountId(this.accountName, this.account.homeAccountId);
+        });
+        accessToken = response.accessToken;
+      } else {
+        throw new Error("No response or account from interactive login");
+      }
+    } catch (e: any) {
+      CliTelemetry.sendTelemetryEvent(TelemetryEvent.AccountLogin, {
+        [TelemetryProperty.AccountType]: this.accountName,
+        [TelemetryProperty.Success]: TelemetrySuccess.No,
+        [TelemetryProperty.UserId]: "",
+        [TelemetryProperty.Internal]: "",
+        [TelemetryProperty.ErrorType]:
+          e instanceof UserError ? TelemetryErrorType.UserError : TelemetryErrorType.SystemError,
+        [TelemetryProperty.ErrorCode]: `${e.source}.${e.name}`,
+        [TelemetryProperty.ErrorMessage]: `${e.message}`,
+      });
+      throw e;
+    } finally {
+      if (accessToken) {
+        const tokenJson = ConvertTokenToJson(accessToken);
+        CliTelemetry.sendTelemetryEvent(TelemetryEvent.AccountLogin, {
+          [TelemetryProperty.AccountType]: this.accountName,
+          [TelemetryProperty.Success]: TelemetrySuccess.Yes,
+          [TelemetryProperty.UserId]: (tokenJson as any).oid ? (tokenJson as any).oid : "",
+          [TelemetryProperty.Internal]: (tokenJson as any).upn?.endsWith("@microsoft.com")
+            ? "true"
+            : "false",
+        });
+      }
+    }
+
+    return accessToken;
+  }
+
   async logout(): Promise<boolean> {
-    (this.msalTokenCache as any).storage.setCache({});
+    const accounts = await this.pca.getAllAccounts();
+    for (const account of accounts) {
+      await this.pca.signOut({ account: account });
+    }
     await clearCache(this.accountName);
     await saveAccountId(this.accountName, undefined);
     await saveTenantId(this.accountName, undefined);
@@ -311,19 +417,24 @@ export class CodeFlowLogin {
 
       let tenantedAccount: AccountInfo | undefined = undefined;
       if (tenantId) {
-        const allAccounts = await this.msalTokenCache.getAllAccounts();
+        const allAccounts = await this.pca.getAllAccounts();
         tenantedAccount = allAccounts.find((account) => account.tenantId == tenantId);
         this.account = tenantedAccount ?? this.account;
       }
+      let tokenRequest: SilentFlowRequest = {
+        account: this.account,
+        scopes: myScopes,
+        authority: tenantId
+          ? env.activeDirectoryEndpointUrl + tenantId
+          : this.config.auth.authority,
+      };
+      tokenRequest = this.isBrokerAvailable
+        ? // HACK: Broker doesn't support forceRefresh so we need to pass in claims which will force a refresh
+          { ...tokenRequest, claims: '{ "id_token": {}}' }
+        : { ...tokenRequest, forceRefresh: tenantedAccount ? false : true };
+
       try {
-        const res = await this.pca.acquireTokenSilent({
-          account: this.account,
-          scopes: myScopes,
-          forceRefresh: tenantedAccount ? false : true,
-          authority: tenantId
-            ? env.activeDirectoryEndpointUrl + tenantId
-            : this.config.auth.authority,
-        });
+        const res = await this.pca.acquireTokenSilent(tokenRequest);
         if (res) {
           return ok(res.accessToken);
         } else {

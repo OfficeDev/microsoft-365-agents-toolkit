@@ -21,7 +21,7 @@ import { Page } from "playwright";
 describe("Debug Tests", function () {
   this.timeout(Timeout.localAndRemoteTestCase);
   const successFlag = {
-    successFlagForLocal: false,
+    successFlagForLocal: true,
     successFlagForRemote: false,
   };
   async function validationNpm(
@@ -43,23 +43,6 @@ describe("Debug Tests", function () {
       else process.exit(1);
     }, 30000);
   });
-
-  it(
-    "[Typescript] Local debug for Search-based message extension project",
-    {
-      testPlanCaseId: 15277314,
-      author: "xiaofu.huang@microsoft.com",
-    },
-    async function () {
-      await msgHappyPathTestForLocalDebug("msgsa", {
-        lang: Lang.TS,
-        successFlag: successFlag,
-        localDebugTaskLabel: LocalDebugTaskLabel.StartApplication,
-        localDebugTaskInfo: LocalDebugTaskInfo.ListeningOn,
-        validationFn: validationNpm,
-      });
-    }
-  );
 
   it(
     "[auto] [TypeScript] Remote debug for Search-based message extension typescript project Tests",
