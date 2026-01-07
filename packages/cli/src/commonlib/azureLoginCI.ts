@@ -182,7 +182,7 @@ export class AzureAccountManager extends login implements AzureAccountProvider {
         }
         const client = new SubscriptionClient(credential);
         const subscriptions: Subscription[] = [];
-        for await (const page of client.subscriptions.list().byPage({ maxPageSize: 100 })) {
+        for await (const page of client.subscriptions.list().byPage()) {
           for (const subscription of page) {
             subscriptions.push(subscription);
           }
