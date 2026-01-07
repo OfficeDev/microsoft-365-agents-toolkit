@@ -9,7 +9,7 @@
       "precondition_retry_interval": 2,
       "step_retry_timeout": 0.0
     },
-    "total_steps": 35,
+    "total_steps": 36,
     "created_at": "2026-01-07T03:48:29.857563",
     "name": "Feature: Sample UI",
     "description": {
@@ -41,6 +41,7 @@
       "step_cc1b1725",
       "step_4ea5a739",
       "step_2805b54d",
+      "step_e98dc75c",
       "step_bd622d74",
       "step_b27ad829",
       "step_2b8acff7",
@@ -57,7 +58,7 @@
       "step_d5e7d752"
     ],
     "tags": [],
-    "updated_at": "2026-01-07T04:28:03.321812"
+    "updated_at": "2026-01-07T04:33:03.430213"
   },
   "steps": [
     {
@@ -544,6 +545,24 @@
       "tags": [],
       "screenshot": "step_2805b54d",
       "created_at": "2026-01-07T04:22:44.144805",
+      "plan_id": "plan_r_0107_012158"
+    },
+    {
+      "step_id": "step_e98dc75c",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion there's samples shows in gallery",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": null,
+      "created_at": "2026-01-07T04:32:58.218967",
       "plan_id": "plan_r_0107_012158"
     },
     {
