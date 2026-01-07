@@ -11,6 +11,9 @@ dependencies:
   '@types/node-fetch':
     specifier: ^2.6.9
     version: 2.6.9
+  '@types/strip-bom':
+    specifier: ^4.0.1
+    version: 4.0.1
   ajv:
     specifier: ^8.5.0
     version: 8.5.0
@@ -23,6 +26,9 @@ dependencies:
   node-fetch:
     specifier: 2.7.0
     version: 2.7.0
+  strip-bom:
+    specifier: ^5.0.0
+    version: 5.0.0
 
 devDependencies:
   '@istanbuljs/nyc-config-typescript':
@@ -492,6 +498,13 @@ packages:
   /@types/sinonjs__fake-timers@8.1.5:
     resolution: {integrity: sha512-mQkU2jY8jJEF7YHjHvsQO8+3ughTL1mcnn96igfhONmR+fUPSKIkefQYpSe8bsly2Ep7oQbn/6VG5/9/0qcArQ==}
     dev: true
+
+  /@types/strip-bom@4.0.1:
+    resolution: {integrity: sha512-d3RZcMmYRuL5f+jG5YM5ISs9z/HCwI2xjqXxhLon54dlpBWfVLVStOFTalO7UcX7RXaIJ6oylqOTg3Cbu6zU1Q==}
+    deprecated: This is a stub types definition. strip-bom provides its own type definitions, so you do not need this installed.
+    dependencies:
+      strip-bom: 5.0.0
+    dev: false
 
   /@typescript-eslint/eslint-plugin@4.19.0(@typescript-eslint/parser@4.19.0)(eslint@7.29.0)(typescript@5.0.4):
     resolution: {integrity: sha512-CRQNQ0mC2Pa7VLwKFbrGVTArfdVDdefS+gTw0oC98vSI98IX5A8EVH4BzJ2FOB0YlCmm8Im36Elad/Jgtvveaw==}
@@ -3627,6 +3640,11 @@ packages:
     resolution: {integrity: sha512-3xurFv5tEgii33Zi8Jtp55wEIILR9eh34FAW00PZf+JnSsTmV/ioewSgQl97JHvgjoRGwPShsWm+IdrxB35d0w==}
     engines: {node: '>=8'}
     dev: true
+
+  /strip-bom@5.0.0:
+    resolution: {integrity: sha512-p+byADHF7SzEcVnLvc/r3uognM1hUhObuHXxJcgLCfD194XAkaLbjq3Wzb0N5G2tgIjH0dgT708Z51QxMeu60A==}
+    engines: {node: '>=12'}
+    dev: false
 
   /strip-final-newline@2.0.0:
     resolution: {integrity: sha512-BrpvfNAE3dcvq7ll3xVumzjKjZQ5tI1sEUIKr3Uoks0XUl45St3FlatVqef9prk4jRDzhW6WZg+3bk93y6pLjA==}
