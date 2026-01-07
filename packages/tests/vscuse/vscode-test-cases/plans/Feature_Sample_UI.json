@@ -15,7 +15,7 @@
     "description": {
       "other": "Generated from recording r_0107_012158",
       "owner": "v-ivanchen@microsoft.com",
-      "workitem": "16788842,25200601,26161512,26161489"
+      "workitem": "16788842,25200601,26161512,26161489,25200533"
     },
     "generated_at": "2026-01-07T10:04:51.636895",
     "execution_order": [
@@ -53,7 +53,7 @@
       "step_d5e7d752"
     ],
     "tags": [],
-    "updated_at": "2026-01-07T10:11:59.549702"
+    "updated_at": "2026-01-07T10:30:49.247306"
   },
   "steps": [
     {
@@ -71,7 +71,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": null,
-      "created_at": "2026-01-07T10:04:51.647148",
+      "created_at": "2026-01-07T10:30:42.818957",
       "plan_id": "plan_r_0107_012158"
     },
     {
@@ -97,7 +97,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_8755b464",
-      "created_at": "2026-01-07T10:04:51.658429",
+      "created_at": "2026-01-07T10:30:42.830477",
       "plan_id": "plan_r_0107_012158"
     },
     {
@@ -115,7 +115,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": null,
-      "created_at": "2026-01-07T10:04:51.671829",
+      "created_at": "2026-01-07T10:30:42.843928",
       "plan_id": "plan_r_0107_012158"
     },
     {
@@ -141,7 +141,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_7f389741",
-      "created_at": "2026-01-07T10:04:51.683748",
+      "created_at": "2026-01-07T10:30:42.855980",
       "plan_id": "plan_r_0107_012158"
     },
     {
@@ -167,7 +167,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_4c1103ec",
-      "created_at": "2026-01-07T10:04:51.697080",
+      "created_at": "2026-01-07T10:30:42.870540",
       "plan_id": "plan_r_0107_012158"
     },
     {
@@ -193,7 +193,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_fc4c56fb",
-      "created_at": "2026-01-07T10:04:51.709434",
+      "created_at": "2026-01-07T10:30:42.881917",
       "plan_id": "plan_r_0107_012158"
     },
     {
@@ -219,7 +219,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_27c9a0b9",
-      "created_at": "2026-01-07T10:04:51.719485",
+      "created_at": "2026-01-07T10:30:42.894347",
       "plan_id": "plan_r_0107_012158"
     },
     {
@@ -245,7 +245,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_0b274ddf",
-      "created_at": "2026-01-07T10:04:51.729569",
+      "created_at": "2026-01-07T10:30:42.906297",
       "plan_id": "plan_r_0107_012158"
     },
     {
@@ -271,7 +271,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_dc0b7e82",
-      "created_at": "2026-01-07T10:04:51.740196",
+      "created_at": "2026-01-07T10:30:42.915485",
       "plan_id": "plan_r_0107_012158"
     },
     {
@@ -297,7 +297,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_50dd7bf9",
-      "created_at": "2026-01-07T10:04:51.750572",
+      "created_at": "2026-01-07T10:30:42.925002",
       "plan_id": "plan_r_0107_012158"
     },
     {
@@ -315,7 +315,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": null,
-      "created_at": "2026-01-07T10:04:51.760824",
+      "created_at": "2026-01-07T10:30:42.936505",
       "plan_id": "plan_r_0107_012158"
     },
     {
@@ -341,7 +341,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_842cce92",
-      "created_at": "2026-01-07T10:04:51.770168",
+      "created_at": "2026-01-07T10:30:42.948231",
       "plan_id": "plan_r_0107_012158"
     },
     {
@@ -359,7 +359,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": null,
-      "created_at": "2026-01-07T10:04:51.780085",
+      "created_at": "2026-01-07T10:30:42.957854",
       "plan_id": "plan_r_0107_012158"
     },
     {
@@ -385,7 +385,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_e90407ea",
-      "created_at": "2026-01-07T10:04:51.790539",
+      "created_at": "2026-01-07T10:30:42.972728",
       "plan_id": "plan_r_0107_012158"
     },
     {
@@ -407,7 +407,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_4d6ae019",
-      "created_at": "2026-01-07T10:04:51.800173",
+      "created_at": "2026-01-07T10:30:42.982108",
       "plan_id": "plan_r_0107_012158"
     },
     {
@@ -425,7 +425,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": null,
-      "created_at": "2026-01-07T10:04:51.810818",
+      "created_at": "2026-01-07T10:30:42.991667",
       "plan_id": "plan_r_0107_012158"
     },
     {
@@ -451,7 +451,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_347995aa",
-      "created_at": "2026-01-07T10:04:51.821717",
+      "created_at": "2026-01-07T10:30:43.001636",
       "plan_id": "plan_r_0107_012158"
     },
     {
@@ -473,7 +473,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_f05ea00d",
-      "created_at": "2026-01-07T10:04:51.831694",
+      "created_at": "2026-01-07T10:30:43.010563",
       "plan_id": "plan_r_0107_012158"
     },
     {
@@ -495,7 +495,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_cc1b1725",
-      "created_at": "2026-01-07T10:04:51.841259",
+      "created_at": "2026-01-07T10:30:43.019175",
       "plan_id": "plan_r_0107_012158"
     },
     {
@@ -517,7 +517,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_4ea5a739",
-      "created_at": "2026-01-07T10:04:51.852751",
+      "created_at": "2026-01-07T10:30:43.028296",
       "plan_id": "plan_r_0107_012158"
     },
     {
@@ -539,7 +539,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_2805b54d",
-      "created_at": "2026-01-07T10:04:51.862327",
+      "created_at": "2026-01-07T10:30:43.037059",
       "plan_id": "plan_r_0107_012158"
     },
     {
@@ -557,7 +557,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": null,
-      "created_at": "2026-01-07T10:04:51.873815",
+      "created_at": "2026-01-07T10:30:43.046144",
       "plan_id": "plan_r_0107_012158"
     },
     {
@@ -583,7 +583,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_bd622d74",
-      "created_at": "2026-01-07T10:04:51.883983",
+      "created_at": "2026-01-07T10:30:43.054916",
       "plan_id": "plan_r_0107_012158"
     },
     {
@@ -609,7 +609,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_b27ad829",
-      "created_at": "2026-01-07T10:04:51.895420",
+      "created_at": "2026-01-07T10:30:43.065559",
       "plan_id": "plan_r_0107_012158"
     },
     {
@@ -635,7 +635,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_2b8acff7",
-      "created_at": "2026-01-07T10:04:51.907198",
+      "created_at": "2026-01-07T10:30:43.074781",
       "plan_id": "plan_r_0107_012158"
     },
     {
@@ -653,7 +653,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": null,
-      "created_at": "2026-01-07T10:04:51.917205",
+      "created_at": "2026-01-07T10:30:43.084837",
       "plan_id": "plan_r_0107_012158"
     },
     {
@@ -679,7 +679,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_94c6b67c",
-      "created_at": "2026-01-07T10:04:51.981590",
+      "created_at": "2026-01-07T10:30:43.094724",
       "plan_id": "plan_r_0107_012158"
     },
     {
@@ -697,7 +697,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": null,
-      "created_at": "2026-01-07T10:04:51.992780",
+      "created_at": "2026-01-07T10:30:43.104228",
       "plan_id": "plan_r_0107_012158"
     },
     {
@@ -723,7 +723,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_2a0596b3",
-      "created_at": "2026-01-07T10:04:52.003894",
+      "created_at": "2026-01-07T10:30:43.113901",
       "plan_id": "plan_r_0107_012158"
     },
     {
@@ -749,7 +749,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_31cbd32e",
-      "created_at": "2026-01-07T10:04:52.014559",
+      "created_at": "2026-01-07T10:30:43.122967",
       "plan_id": "plan_r_0107_012158"
     },
     {
@@ -775,7 +775,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_d5e7d752",
-      "created_at": "2026-01-07T10:04:52.025665",
+      "created_at": "2026-01-07T10:30:43.132479",
       "plan_id": "plan_r_0107_012158"
     }
   ],
