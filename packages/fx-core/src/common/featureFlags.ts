@@ -122,6 +122,8 @@ export class FeatureFlags {
   };
   static readonly BrokerAuth = {
     name: FeatureFlagName.BrokerAuth,
+    defaultValue: "false",
+  };
   static readonly GenerateConfigFiles = {
     name: FeatureFlagName.GenerateConfigFiles,
     defaultValue: "false",

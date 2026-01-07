@@ -1082,7 +1082,7 @@ export interface ExtensionAutoRunEventsArray {
   requirements?: RequirementsExtensionElement;
   /**
    * Specifies the type of event. For supported types, please see:
-   * https://review.learn.microsoft.com/en-us/office/dev/add-ins/outlook/autolaunch?tabs=xmlmanifest#supported-events.
+   * https://learn.microsoft.com/en-us/office/dev/add-ins/outlook/autolaunch?tabs=xmlmanifest#supported-events.
    */
   events: Event[];
 }
