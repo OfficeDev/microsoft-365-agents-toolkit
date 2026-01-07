@@ -23,7 +23,7 @@ provision:
         echo "::set-teamsfx-env BOT_ENDPOINT=https://localhost:3978";
 {{/hasTab}}
 
-{{#hasBot}}
+{{#hasAzureBot}}
   # Create or reuse an existing Microsoft Entra application for bot.
   - uses: aadApp/create
     with:
@@ -49,7 +49,7 @@ provision:
       description: ""
       channels:
         - name: msteams
-{{/hasBot}}
+{{/hasAzureBot}}
 
   # Validate using manifest schema
   - uses: teamsApp/validateManifest
@@ -116,11 +116,11 @@ deploy:
       target: ./.localConfigs
       envs:
         PORT: 3978
-{{#hasBot}}
+{{#hasAzureBot}}
         CLIENT_ID: $\{{BOT_ID}}
         CLIENT_SECRET: $\{{SECRET_BOT_PASSWORD}}
         TENANT_ID: $\{{TEAMS_APP_TENANT_ID}}
-{{/hasBot}}
+{{/hasAzureBot}}
 {{#hasTab}}
         SSL_CRT_FILE: $\{{SSL_CRT_FILE}}
         SSL_KEY_FILE: $\{{SSL_KEY_FILE}}

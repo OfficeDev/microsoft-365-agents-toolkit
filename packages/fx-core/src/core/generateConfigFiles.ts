@@ -20,7 +20,7 @@ export async function generateConfigFiles(inputs: Inputs): Promise<Result<undefi
   const projectPath = inputs[QuestionNames.ProjectPath] as string;
   const includePlayground = inputs["include-playground"];
   const includeLocalDebug = inputs["include-local"];
-  const includeRemoteDeploy = inputs["include-remote"];
+  // const includeRemoteDeploy = inputs["include-remote"];
   const programmingLanguage = inputs["programming-language"] as string;
 
   const appManifest = await AppManifestUtils.readTeamsManifest(
@@ -68,5 +68,8 @@ function detectAppFeatures(manifest: TeamsManifest): Record<string, boolean> {
     manifestV1D24.copilotAgents !== undefined &&
     manifestV1D24.copilotAgents.customEngineAgents !== undefined &&
     manifestV1D24.copilotAgents.customEngineAgents.length > 0;
+
+  features["hasAzureBot"] = features["hasBot"] || features["hasMessageExtension"];
+  features["supportCopilot"] = features["hasDeclarativeAgent"] || features["hasCustomEngineAgent"];
   return features;
 }

@@ -8,9 +8,9 @@
             "label": "Start App Locally",
             "dependsOn": [
                 "Validate prerequisites",
-{{#hasBot}}
+{{#hasAzureBot}}
                 "Start local tunnel",
-{{/hasBot}}
+{{/hasAzureBot}}
                 "Provision",
                 "Deploy",
                 "Start application"
@@ -35,7 +35,7 @@
                 ]
             }
         },
-{{#hasBot}}
+{{#hasAzureBot}}
         {
             // Start the local tunnel service to forward public URL to local port and inspect traffic.
             // See https://aka.ms/teamsfx-tasks/local-tunnel for the detailed args definitions.
@@ -60,7 +60,7 @@
             "isBackground": true,
             "problemMatcher": "$teamsfx-local-tunnel-watch"
         },
-{{/hasBot}}
+{{/hasAzureBot}}
         {
             // Create the debug resources.
             // See https://aka.ms/teamsfx-tasks/provision to know the details and how to customize the args.

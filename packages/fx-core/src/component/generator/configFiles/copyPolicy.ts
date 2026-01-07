@@ -18,7 +18,7 @@ export const playgroundNode: Record<string, CopyPolicy> = {
 
 export const localNode: Record<string, CopyPolicy> = {
   "package.json": { allowExistingFile: true, policy: "add" },
-  ".vscode/launch.json": { allowExistingFile: true, policy: "add" },
+  ".vscode/launch.json.tpl": { allowExistingFile: true, policy: "add" },
   ".vscode/tasks.json.tpl": { allowExistingFile: true, policy: "add" },
   "env/.env.local": { allowExistingFile: false, policy: "skip" },
   "m365agents.local.yml.tpl": { allowExistingFile: false, policy: "error" },
