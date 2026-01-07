@@ -1,0 +1,93 @@
+{
+  "plan_metadata": {
+    "version": "1.1",
+    "plan_id": "plan_ede8fb96",
+    "execution_context": {
+      "delay_between_steps": 0.5,
+      "stop_on_error": true,
+      "precondition_wait_timeout": 60,
+      "precondition_retry_interval": 2,
+      "step_retry_timeout": 0.0
+    },
+    "total_steps": 3,
+    "created_at": "2025-12-22T09:26:56.535761",
+    "name": "group fill in azure key env",
+    "description": {
+      "other": "Generated from recording r_1222_035838",
+      "owner": "v-liliu2@microsoft.com",
+      "workitem": ""
+    },
+    "generated_at": "2025-12-22T09:26:56.535761",
+    "execution_order": [
+      "step_a362cdce",
+      "step_244867e3",
+      "step_0ff6b39c"
+    ],
+    "tags": [
+      "group"
+    ],
+    "updated_at": "2025-12-22T11:35:24.703008"
+  },
+  "steps": [
+    {
+      "step_id": "step_a362cdce",
+      "agent": "code",
+      "tool": "",
+      "parameters": {
+        "sample": "=== Generated Script ===\nLanguage: bash\n\n```bash\nFILE_PATH=\"/home/vscode/AgentsToolkitProjects/vscuse_app_yWeFk/env/.env.local.user\"\n\n# Verify file exists before proceeding\nif [ ! -f \"$FILE_PATH\" ]; then\n    echo \"Error: File does not exist at $FILE_PATH\"\n    exit 1\nfi\n\n# Fill in the value for SECRET_AZURE_OPENAI_API_KEY\nVALUE=\"SECRET_AZURE_OPENAI_API_KEY=${{secret:AZURE_OPENAI_API_KEY:}}\"\ngrep -qxF \"$VALUE\" \"$FILE_PATH\" || echo \"$VALUE\" >> \"$FILE_PATH\"\n\nif grep -q \"$VALUE\" \"$FILE_PATH\"; then\n    echo \"Successfully updated the file.\"\nelse\n    echo \"Failed to update the file.\"\n    exit 1\nfi\n```\n\n=== Execution Results ===\nExit Code: 0\n\n=== STDOUT ===\nSuccessfully updated the file.\n\n✓ Script executed successfully"
+      },
+      "description": "@code in file:\"/home/vscode/AgentsToolkitProjects/${{var:app_name}}/env/.env.local.user\" fill in value:\nSECRET_AZURE_OPENAI_API_KEY=${{secret:AZURE_OPENAI_API_KEY}}\nAZURE_OPENAI_ENDPOINT=${{env:AZURE_OPENAI_ENDPOINT}}\nAZURE_OPENAI_DEPLOYMENT_NAME=${{env:AZURE_OPENAI_MODEL}}",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": null,
+      "created_at": "2025-12-22T11:28:20.579890",
+      "plan_id": "plan_ede8fb96"
+    },
+    {
+      "step_id": "step_244867e3",
+      "agent": "code",
+      "tool": "",
+      "parameters": {
+        "sample": "=== Generated Script ===\nLanguage: bash\n\n```bash\n#!/bin/bash\n\n# File to modify\nENV_FILE=\"/home/vscode/AgentsToolkitProjects/vscuse_app_yWeFk/env/.env.dev.user\"\n\n# Check if file exists\nif [ -f \"$ENV_FILE\" ]; then\n    cat > \"$ENV_FILE\" <<EOL\nSECRET_AZURE_OPENAI_API_KEY=${{secret:AZURE_OPENAI_API_KEY:}}\nAZURE_OPENAI_ENDPOINT=https://aoai-jasozdr.openai.azure.com/\nAZURE_OPENAI_DEPLOYMENT_NAME=azure/gpt-4.1\nEOL\n    echo \"Environment file updated successfully.\"\nelse\n    echo \"Error: File $ENV_FILE does not exist.\"\n    exit 1\nfi\n```\n\n=== Execution Results ===\nExit Code: 0\n\n=== STDOUT ===\nEnvironment file updated successfully.\n\n✓ Script executed successfully"
+      },
+      "description": "@code in file:\"/home/vscode/AgentsToolkitProjects/${{var:app_name}}/env/.env.dev.user\" fill in value:\nSECRET_AZURE_OPENAI_API_KEY=${{secret:AZURE_OPENAI_API_KEY}}\nAZURE_OPENAI_ENDPOINT=${{env:AZURE_OPENAI_ENDPOINT}}\nAZURE_OPENAI_DEPLOYMENT_NAME=${{env:AZURE_OPENAI_MODEL}}",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": null,
+      "created_at": "2025-12-22T11:32:59.224643",
+      "plan_id": "plan_ede8fb96"
+    },
+    {
+      "step_id": "step_0ff6b39c",
+      "agent": "code",
+      "tool": "",
+      "parameters": {
+        "sample": "=== Generated Script ===\nLanguage: bash\n\n```bash\n#!/bin/bash\n\n# File path\nFILE_PATH=\"/home/vscode/AgentsToolkitProjects/vscuse_app_yWeFk/env/.env.playground.user\"\n\n# Verify that the file exists before proceeding\nif [ -f \"$FILE_PATH\" ]; then\n    echo \"Filling environment file: $FILE_PATH\"\n    cat <<EOL > \"$FILE_PATH\"\nSECRET_AZURE_OPENAI_API_KEY=${{secret:AZURE_OPENAI_API_KEY:}}\nAZURE_OPENAI_ENDPOINT=https://aoai-jasozdr.openai.azure.com/\nAZURE_OPENAI_DEPLOYMENT_NAME=azure/gpt-4.1\nEOL\n    echo \"Environment file successfully updated.\"\nelse\n    echo \"Error: File '$FILE_PATH' does not exist.\"\n    exit 1\nfi\n```\n\n=== Execution Results ===\nExit Code: 0\n\n=== STDOUT ===\nFilling environment file: /home/vscode/AgentsToolkitProjects/vscuse_app_yWeFk/env/.env.playground.user\nEnvironment file successfully updated.\n\n✓ Script executed successfully"
+      },
+      "description": "@code in file:\"/home/vscode/AgentsToolkitProjects/${{var:app_name}}/env/.env.playground.user\" fill in value:\nSECRET_AZURE_OPENAI_API_KEY=${{secret:AZURE_OPENAI_API_KEY}}\nAZURE_OPENAI_ENDPOINT=${{env:AZURE_OPENAI_ENDPOINT}}\nAZURE_OPENAI_DEPLOYMENT_NAME=${{env:AZURE_OPENAI_MODEL}}",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": null,
+      "created_at": "2025-12-22T11:34:23.492862",
+      "plan_id": "plan_ede8fb96"
+    }
+  ]
+}
