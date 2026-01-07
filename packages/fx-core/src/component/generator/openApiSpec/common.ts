@@ -48,7 +48,6 @@ import {
   updateForCustomApi,
 } from "./helper";
 import { telemetryProperties, TemplateState } from "./interface";
-import { getAuthDataFromKiota, isKiotaIntegrated, kiotaPostProcess } from "./kiota";
 
 function normalizePath(path: string): string {
   return "./" + path.replace(/\\/g, "/");
@@ -132,13 +131,11 @@ export async function getTemplateInfosFromApiSpec(
     azureOpenAIDeploymentName: inputs[QuestionNames.AzureOpenAIDeploymentName],
   };
 
-  const openapiSpecPath = isKiotaIntegrated(inputs)
-    ? normalizePath(
-        path.join(AppPackageFolderName, path.basename(inputs[QuestionNames.ApiSpecLocation]))
-      )
-    : normalizePath(path.join(AppPackageFolderName, DefaultApiSpecFolderName, openapiSpecFileName));
+  const openapiSpecPath = normalizePath(
+    path.join(AppPackageFolderName, DefaultApiSpecFolderName, openapiSpecFileName)
+  );
 
-  const authData = (await getAuthDataFromKiota(context, inputs)) ?? inputs.apiAuthData;
+  const authData = inputs.apiAuthData;
   const convertedAuthData = [];
   if (authData && authData.length > 0) {
     for (const auth of authData) {
@@ -193,16 +190,13 @@ export async function generateFilesFromApiSpec(
 ): Promise<Result<GeneratorResult, FxError>> {
   const templateState = inputs.templateState as TemplateState;
   const isDeclarativeAgent = projectType === ProjectType.Copilot;
-  const isKiotaIntegration = isKiotaIntegrated(inputs);
   const manifestPath = path.join(destinationPath, AppPackageFolderName, ManifestTemplateFileName);
   const apiSpecFolderPath = path.join(
     destinationPath,
     AppPackageFolderName,
-    isKiotaIntegration ? "" : DefaultApiSpecFolderName
+    DefaultApiSpecFolderName
   );
-  const openapiSpecFileName = isKiotaIntegration
-    ? path.basename(inputs[QuestionNames.ApiSpecLocation])
-    : templateState.isYaml
+  const openapiSpecFileName = templateState.isYaml
     ? DefaultApiSpecYamlFileName
     : DefaultApiSpecJsonFileName;
 
@@ -219,31 +213,12 @@ export async function generateFilesFromApiSpec(
 
   const pluginManifestPath =
     templateState.type === ProjectType.Copilot
-      ? path.join(
-          destinationPath,
-          AppPackageFolderName,
-          isKiotaIntegration
-            ? path.basename(inputs[QuestionNames.ActionManifestPath])
-            : DefaultPluginManifestFileName
-        )
+      ? path.join(destinationPath, AppPackageFolderName, DefaultPluginManifestFileName)
       : undefined;
   const responseTemplateFolder =
     templateState.type === ProjectType.SME
       ? path.join(destinationPath, AppPackageFolderName, ResponseTemplatesFolderName)
       : undefined;
-
-  if (isKiotaIntegration) {
-    return await kiotaPostProcess(
-      context,
-      inputs,
-      destinationPath,
-      openapiSpecPath,
-      pluginManifestPath || "",
-      manifestPath,
-      templateState.type,
-      isDeclarativeAgent
-    );
-  }
 
   const specParser = new SpecParser(
     templateState.url,

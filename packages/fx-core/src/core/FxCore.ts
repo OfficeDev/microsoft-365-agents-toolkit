@@ -55,7 +55,6 @@ import { teamsDevPortalClient } from "../client/teamsDevPortalClient";
 import { ApiKeyParameters, AuthParameters, OAuthParameters } from "../common/authInterface";
 import { AppStudioScopes, VSCodeExtensionCommand } from "../common/constants";
 import { listAPIInfo, parseAndUpdatePluginManifestForKiota } from "../common/daSpecParser";
-import { FeatureFlags, featureFlagManager } from "../common/featureFlags";
 import {
   ErrorContextMW,
   TOOLS,
@@ -90,7 +89,6 @@ import { ILifecycle, LifecycleName } from "../component/configManager/interface"
 import { YamlParser } from "../component/configManager/parser";
 import {
   AadConstants,
-  KiotaLastCommands,
   LocalMcpPrefix,
   SingleSignOnOptionItem,
   ViewAadAppHelpLinkV5,
@@ -2038,29 +2036,11 @@ export class FxCore {
       throw new Error("projectPath is undefined"); // should never happen
     }
 
-    // Call Kiota to select the OpenAPI spec file
-    if (
-      inputs.platform === Platform.VSCode &&
-      featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration) &&
-      inputs[QuestionNames.ActionType] === ActionStartOptions.apiSpec().id &&
-      !!!inputs[QuestionNames.ActionManifestPath]
-    ) {
-      return ok({
-        projectPath: inputs.projectPath,
-        lastCommand: KiotaLastCommands.addPlugin,
-        manifestPath: inputs[QuestionNames.ManifestPath],
-      });
-    }
-
     const context = createContext();
     const teamsManifestPath = inputs[QuestionNames.ManifestPath];
     const appPackageFolder = path.dirname(teamsManifestPath);
     const isGenerateFromApiSpec =
       inputs[QuestionNames.ActionType] === ActionStartOptions.apiSpec().id;
-    const isKiotaIntegration =
-      inputs.platform === Platform.VSCode &&
-      featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration) &&
-      !!inputs[QuestionNames.ActionManifestPath];
 
     // validate the project is valid for adding plugin
     const manifestRes = await manifestUtils._readAppManifest(teamsManifestPath);
@@ -2107,22 +2087,12 @@ export class FxCore {
     let specParser: SpecParser | undefined = undefined;
     let authNameAndSchemes: { authName: string; authScheme: AuthType }[] = [];
 
-    if (isGenerateFromApiSpec && !isKiotaIntegration) {
+    if (isGenerateFromApiSpec) {
       specParser = new SpecParser(
         inputs[QuestionNames.ApiSpecLocation].trim(),
         getParserOptions(ProjectType.Copilot, true)
       );
       const listResult = await listAPIInfo(inputs[QuestionNames.ApiSpecLocation].trim());
-      if (
-        inputs.platform === Platform.VSCode &&
-        featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration) &&
-        inputs[QuestionNames.ActionType] === ActionStartOptions.apiSpec().id &&
-        !!inputs[QuestionNames.ActionManifestPath]
-      ) {
-        inputs[QuestionNames.ApiOperation] = listResult.APIs.filter((value) => value.isValid).map(
-          (value) => value.api
-        );
-      }
       authNameAndSchemes = this.parseAuthNameAndScheme(listResult, inputs);
 
       if (authNameAndSchemes.length > 0) {
@@ -2170,39 +2140,47 @@ export class FxCore {
     }
 
     let destinationPluginManifestPath: string;
-    if (isKiotaIntegration) {
-      // 1. Copy openapi spec file
-      const openapiSpecFileName = path.basename(inputs[QuestionNames.ApiSpecLocation]);
-      const openapiSpecPath = path.join(appPackageFolder, openapiSpecFileName);
-      await fs.copyFile(inputs[QuestionNames.ApiSpecLocation].trim(), openapiSpecPath);
-
-      // 2. Copy plugin manifest file
-      const pluginManifestPath = path.join(
-        inputs.projectPath,
-        AppPackageFolderName,
-        path.basename(inputs[QuestionNames.ActionManifestPath])
-      );
-      destinationPluginManifestPath = pluginManifestPath;
-      await fs.copyFile(inputs[QuestionNames.ActionManifestPath], pluginManifestPath);
-
-      // 2.1 Need to update the plugin manifest file
-      const authData: any[] = await parseAndUpdatePluginManifestForKiota(pluginManifestPath, true);
-
-      // 3. Update teamsapp.local.yaml and teamsapp.yaml if need to add auth action
-      for (const authInfo of authData) {
-        await injectAuthAction(
-          inputs.projectPath,
-          authInfo.authName,
-          undefined,
-          openapiSpecPath,
-          false,
-          authInfo.authType === "apiKey" ? "ApiKeyPluginVault" : "OAuthPluginVault",
-          false,
-          authInfo.registrationId
+    // generate files
+    if (isGenerateFromApiSpec && specParser) {
+      destinationPluginManifestPath =
+        await copilotGptManifestUtils.getDefaultNextAvailablePluginManifestPath(
+          appPackageFolder,
+          undefined
         );
+      const destinationApiSpecPath = await pluginManifestUtils.getDefaultNextAvailableApiSpecPath(
+        inputs[QuestionNames.ApiSpecLocation].trim(),
+        path.join(appPackageFolder, DefaultApiSpecFolderName)
+      );
+
+      const generateRes = await generateFromApiSpec(
+        specParser,
+        teamsManifestPath,
+        inputs,
+        context,
+        Stage.addPlugin,
+        ProjectType.Copilot,
+        {
+          destinationApiSpecFilePath: destinationApiSpecPath,
+          pluginManifestFilePath: destinationPluginManifestPath,
+        },
+        inputs[QuestionNames.ApiSpecLocation].trim()
+      );
+      if (generateRes.isErr()) {
+        return err(generateRes.error);
       }
 
-      // 4. Add action in plugin manifest
+      const warnings = generateRes.value.warnings;
+      if (warnings && warnings.length > 0) {
+        const warnSummary = await generateScaffoldingSummary(
+          warnings,
+          manifestRes.value,
+          path.relative(inputs.projectPath, destinationApiSpecPath),
+          path.relative(inputs.projectPath, destinationPluginManifestPath),
+          inputs.projectPath
+        );
+        context.logProvider.info(warnSummary + "\n");
+      }
+
       const addActionRes = await copilotGptManifestUtils.addAction(
         declarativeCopilotManifestPath,
         actionId,
@@ -2212,89 +2190,31 @@ export class FxCore {
         return err(addActionRes.error);
       }
 
-      // 5. Update plugin manifest to add ac info (optional)
-      await generateAdaptiveCardInPluginManifestForKiota(
-        pluginManifestPath,
-        openapiSpecPath,
-        context
-      );
-    } else {
-      // generate files
-      if (isGenerateFromApiSpec && specParser) {
-        destinationPluginManifestPath =
-          await copilotGptManifestUtils.getDefaultNextAvailablePluginManifestPath(
-            appPackageFolder,
-            undefined
-          );
-        const destinationApiSpecPath = await pluginManifestUtils.getDefaultNextAvailableApiSpecPath(
-          inputs[QuestionNames.ApiSpecLocation].trim(),
-          path.join(appPackageFolder, DefaultApiSpecFolderName)
+      for (const authNameAndScheme of authNameAndSchemes) {
+        await this.updateAuthActionInYaml(
+          authNameAndScheme.authName,
+          authNameAndScheme.authScheme,
+          inputs.projectPath,
+          destinationApiSpecPath,
+          destinationPluginManifestPath
         );
-
-        const generateRes = await generateFromApiSpec(
-          specParser,
-          teamsManifestPath,
-          inputs,
-          context,
-          Stage.addPlugin,
-          ProjectType.Copilot,
-          {
-            destinationApiSpecFilePath: destinationApiSpecPath,
-            pluginManifestFilePath: destinationPluginManifestPath,
-          },
-          inputs[QuestionNames.ApiSpecLocation].trim()
-        );
-        if (generateRes.isErr()) {
-          return err(generateRes.error);
-        }
-
-        const warnings = generateRes.value.warnings;
-        if (warnings && warnings.length > 0) {
-          const warnSummary = await generateScaffoldingSummary(
-            warnings,
-            manifestRes.value,
-            path.relative(inputs.projectPath, destinationApiSpecPath),
-            path.relative(inputs.projectPath, destinationPluginManifestPath),
-            inputs.projectPath
-          );
-          context.logProvider.info(warnSummary + "\n");
-        }
-
-        const addActionRes = await copilotGptManifestUtils.addAction(
-          declarativeCopilotManifestPath,
-          actionId,
-          normalizePath(path.relative(appPackageFolder, destinationPluginManifestPath), true)
-        );
-        if (addActionRes.isErr()) {
-          return err(addActionRes.error);
-        }
-
-        for (const authNameAndScheme of authNameAndSchemes) {
-          await this.updateAuthActionInYaml(
-            authNameAndScheme.authName,
-            authNameAndScheme.authScheme,
-            inputs.projectPath,
-            destinationApiSpecPath,
-            destinationPluginManifestPath
-          );
-        }
-      } else {
-        const addPluginRes = await addExistingPlugin(
-          declarativeCopilotManifestPath,
-          inputs[QuestionNames.PluginManifestFilePath].trim(),
-          inputs[QuestionNames.PluginOpenApiSpecFilePath].trim(),
-          actionId,
-          context,
-          Stage.addPlugin
-        );
-
-        if (addPluginRes.isErr()) {
-          return err(addPluginRes.error);
-        }
-        destinationPluginManifestPath = addPluginRes.value.destinationPluginManifestPath;
-        const warningMessage = outputScaffoldingWarningMessage(addPluginRes.value.warnings);
-        context.logProvider.info(warningMessage);
       }
+    } else {
+      const addPluginRes = await addExistingPlugin(
+        declarativeCopilotManifestPath,
+        inputs[QuestionNames.PluginManifestFilePath].trim(),
+        inputs[QuestionNames.PluginOpenApiSpecFilePath].trim(),
+        actionId,
+        context,
+        Stage.addPlugin
+      );
+
+      if (addPluginRes.isErr()) {
+        return err(addPluginRes.error);
+      }
+      destinationPluginManifestPath = addPluginRes.value.destinationPluginManifestPath;
+      const warningMessage = outputScaffoldingWarningMessage(addPluginRes.value.warnings);
+      context.logProvider.info(warningMessage);
     }
 
     if (inputs.platform === Platform.VSCode) {

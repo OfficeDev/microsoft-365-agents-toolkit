@@ -12,50 +12,6 @@ import {
 } from "./CapabilityOptions";
 import { ProjectTypeOptions } from "./ProjectTypeOptions";
 
-export function outlookAddinProjectTypeNode(): IQTreeNode {
-  return {
-    condition: {
-      equals: ProjectTypeOptions.outlookAddinOptionId,
-    },
-    data: {
-      name: QuestionNames.Capabilities,
-      title: getLocalizedString("core.createProjectQuestion.projectType.outlookAddin.title"),
-      type: "singleSelect",
-      staticOptions: [
-        OfficeAddinCapabilityOptions.outlookTaskPane(),
-        OfficeAddinCapabilityOptions.outlookAddinImport(),
-      ],
-      placeholder: getLocalizedString("core.createCapabilityQuestion.placeholder"),
-      forgetLastValue: true,
-      onDidSelection: setTemplateName,
-    },
-    children: [
-      {
-        condition: {
-          equals: OfficeAddinCapabilityOptions.outlookAddinImport().id,
-        },
-        data: { type: "group", name: QuestionNames.OfficeAddinImport },
-        children: [
-          {
-            data: {
-              type: "folder",
-              name: QuestionNames.OfficeAddinFolder,
-              title: "Existing add-in project folder",
-            },
-          },
-          {
-            data: {
-              type: "singleFile",
-              name: QuestionNames.OfficeAddinManifest,
-              title: "Select import project manifest file",
-            },
-          },
-        ],
-      },
-    ],
-  };
-}
-
 export function wxpAddinProjectTypeNode(): IQTreeNode {
   return {
     condition: {
@@ -108,11 +64,7 @@ export function wxpAddinProjectTypeNode(): IQTreeNode {
 }
 
 export function officeAddinProjectTypeNode(): IQTreeNode {
-  if (featureFlagManager.getBooleanValue(FeatureFlags.OfficeMetaOS)) {
-    return wxpAddinProjectTypeNode();
-  } else {
-    return outlookAddinProjectTypeNode();
-  }
+  return wxpAddinProjectTypeNode();
 }
 
 function officeDAMetaOSCapabilityNode(): IQTreeNode {
