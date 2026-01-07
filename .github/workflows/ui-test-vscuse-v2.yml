@@ -156,6 +156,10 @@ jobs:
       SQL_SERVER: "vscuse-test-sql.database.windows.net"
       SQL_DATABASE: "vscuse-test-db"
 
+      # reddit
+      REDDIT_ID: "${{secrets.REDDIT_ID}}"
+      SECRET_REDDIT_PASSWORD: ${{secrets.SECRET_REDDIT_PASSWORD}}
+
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
