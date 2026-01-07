@@ -163,7 +163,7 @@ export async function unzip(
 export function renderTemplateFileData(
   fileName: string,
   fileData: Buffer,
-  variables?: { [key: string]: string }
+  variables?: { [key: string]: any }
 ): string | Buffer {
   //only mustache files with name ending with .tpl
   if (path.extname(fileName) === templateFileExt) {
@@ -181,7 +181,7 @@ export function renderTemplateFileData(
 
 function escapeEmptyVariable(
   template: string,
-  view: Record<string, string | undefined>,
+  view: Record<string, any | undefined>,
   tags: [string, string] = placeholderDelimiters
 ): string[][] {
   const parsed = Mustache.parse(template, tags) as string[][];
@@ -227,7 +227,7 @@ function updateTokens(
 export function renderTemplateFileName(
   fileName: string,
   fileData: Buffer,
-  variables?: { [key: string]: string }
+  variables?: { [key: string]: any }
 ): string {
   // Disable HTML escaping to prevent special characters from being encoded
   Mustache.escape = (value) => value;
