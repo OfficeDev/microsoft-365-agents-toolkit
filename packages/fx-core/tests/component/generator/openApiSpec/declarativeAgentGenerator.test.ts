@@ -224,7 +224,9 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
       const generateBasedOnSpec = sandbox
         .stub(SpecParser.prototype, "generateForCopilot")
         .resolves({ allSuccess: true, warnings: [] });
-      sandbox.stub(copilotGptManifestUtils, "updateDeclarativeAgentManifest").resolves(ok(""));
+      sandbox
+        .stub(copilotGptManifestUtils, "updateDeclarativeAgentManifest")
+        .resolves(ok(undefined));
       sandbox.stub(helper, "generateScaffoldingSummary").resolves("");
 
       const generator = new DeclarativeAgentWithExistingApiSpecGenerator();
@@ -272,7 +274,9 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
         .resolves({ status: ValidationStatus.Valid, errors: [], warnings: [] });
       sandbox.stub(fs, "ensureDir").resolves();
       sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(teamsManifest));
-      sandbox.stub(copilotGptManifestUtils, "updateDeclarativeAgentManifest").resolves(ok(""));
+      sandbox
+        .stub(copilotGptManifestUtils, "updateDeclarativeAgentManifest")
+        .resolves(ok(undefined));
       const generateBasedOnSpec = sandbox
         .stub(SpecParser.prototype, "generateForCopilot")
         .resolves({ allSuccess: true, warnings: [] });
@@ -413,7 +417,11 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
       sandbox.stub(fs, "copyFile").resolves();
       sandbox.stub(fs, "readJSON").resolves({});
       sandbox.stub(SpecParser.prototype, "generateAdaptiveCardInPlugin").resolves();
-      sandbox.stub(copilotGptManifestUtils, "addAction").resolves(ok({} as any));
+      sandbox
+        .stub(copilotGptManifestUtils, "updateDeclarativeAgentManifest")
+        .resolves(ok(undefined));
+      sandbox.stub(daSpecParser, "parseAndUpdatePluginManifestForKiota").resolves([]);
+      sandbox.stub(helper, "generateAdaptiveCardInPluginManifestForKiota").resolves();
 
       const copyKiotaFolder = sandbox.stub(fs, "copy").callsFake((src, dest, options) => {
         assert.isTrue(src.endsWith(".kiota"));
@@ -479,7 +487,11 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
       sandbox.stub(fs, "copyFile").resolves();
       sandbox.stub(fs, "readJSON").resolves({});
       sandbox.stub(SpecParser.prototype, "generateAdaptiveCardInPlugin").resolves();
-      sandbox.stub(copilotGptManifestUtils, "addAction").resolves(ok({} as any));
+      sandbox
+        .stub(copilotGptManifestUtils, "updateDeclarativeAgentManifest")
+        .resolves(ok(undefined));
+      sandbox.stub(daSpecParser, "parseAndUpdatePluginManifestForKiota").resolves([]);
+      sandbox.stub(helper, "generateAdaptiveCardInPluginManifestForKiota").resolves();
 
       const copyKiotaFolder = sandbox.stub(fs, "copy").resolves();
       sandbox.stub(helper, "generateScaffoldingSummary").resolves("");
@@ -542,7 +554,11 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
       sandbox.stub(fs, "copyFile").resolves();
       sandbox.stub(fs, "readJSON").resolves({});
       sandbox.stub(SpecParser.prototype, "generateAdaptiveCardInPlugin").resolves();
-      sandbox.stub(copilotGptManifestUtils, "addAction").resolves(ok({} as any));
+      sandbox
+        .stub(copilotGptManifestUtils, "updateDeclarativeAgentManifest")
+        .resolves(ok(undefined));
+      sandbox.stub(daSpecParser, "parseAndUpdatePluginManifestForKiota").resolves([]);
+      sandbox.stub(helper, "generateAdaptiveCardInPluginManifestForKiota").resolves();
 
       const copyKiotaFolder = sandbox.stub(fs, "copy").resolves();
       sandbox.stub(helper, "generateScaffoldingSummary").resolves("");
@@ -607,7 +623,13 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
       sandbox
         .stub(SpecParser.prototype, "generateAdaptiveCardInPlugin")
         .throws(new Error("generate ac failed"));
-      sandbox.stub(copilotGptManifestUtils, "addAction").resolves(ok({} as any));
+      sandbox
+        .stub(copilotGptManifestUtils, "updateDeclarativeAgentManifest")
+        .resolves(ok(undefined));
+      sandbox.stub(daSpecParser, "parseAndUpdatePluginManifestForKiota").resolves([]);
+      // The real generateAdaptiveCardInPluginManifestForKiota catches errors internally,
+      // so it never throws. Stub it to resolve to simulate the real behavior.
+      sandbox.stub(helper, "generateAdaptiveCardInPluginManifestForKiota").resolves();
 
       const copyKiotaFolder = sandbox.stub(fs, "copy").resolves();
       sandbox.stub(helper, "generateScaffoldingSummary").resolves("");
@@ -644,7 +666,9 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
       const generateBasedOnSpec = sandbox
         .stub(SpecParser.prototype, "generateForCopilot")
         .resolves({ allSuccess: true, warnings: [] });
-      sandbox.stub(copilotGptManifestUtils, "updateDeclarativeAgentManifest").resolves(ok(""));
+      sandbox
+        .stub(copilotGptManifestUtils, "updateDeclarativeAgentManifest")
+        .resolves(ok(undefined));
       sandbox.stub(helper, "generateScaffoldingSummary").resolves("");
 
       sandbox.stub(featureFlagManager, "getBooleanValue").callsFake((flag: FeatureFlagName) => {
@@ -682,7 +706,9 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
       const generateBasedOnSpec = sandbox
         .stub(SpecParser.prototype, "generateForCopilot")
         .resolves({ allSuccess: true, warnings: [] });
-      sandbox.stub(copilotGptManifestUtils, "updateDeclarativeAgentManifest").resolves(ok(""));
+      sandbox
+        .stub(copilotGptManifestUtils, "updateDeclarativeAgentManifest")
+        .resolves(ok(undefined));
       sandbox.stub(helper, "generateScaffoldingSummary").resolves("");
       sandbox.stub(featureFlagManager, "getBooleanValue").callsFake((flag: FeatureFlagName) => {
         return flag === FeatureFlagName.EmbeddedKnowledgeEnabled;
@@ -725,7 +751,9 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
       const generateBasedOnSpec = sandbox
         .stub(SpecParser.prototype, "generateForCopilot")
         .resolves({ allSuccess: true, warnings: [] });
-      sandbox.stub(copilotGptManifestUtils, "updateDeclarativeAgentManifest").resolves(ok(""));
+      sandbox
+        .stub(copilotGptManifestUtils, "updateDeclarativeAgentManifest")
+        .resolves(ok(undefined));
       sandbox.stub(helper, "generateScaffoldingSummary").resolves("");
       sandbox.stub(featureFlagManager, "getBooleanValue").callsFake((flag: FeatureFlagName) => {
         return flag === FeatureFlagName.EmbeddedKnowledgeEnabled;

@@ -3,10 +3,11 @@
 
 import { SpecParser } from "@microsoft/m365-spec-parser";
 import {
+  CapabilityName,
   Colors,
   DeclarativeAgentManifestConverter,
-  DeclarativeCopilotCapabilityName,
-  DeclarativeCopilotManifestSchema,
+  DeclarativeAgentManifestWrapper,
+  PluginManifestWrapper,
   err,
   Err,
   FxError,
@@ -33,6 +34,7 @@ import { DeclarativeCopilotManifestValidationResult } from "../../../../src/comp
 import { copilotGptManifestUtils } from "../../../../src/component/driver/teamsApp/utils/CopilotGptManifestUtils";
 import { manifestUtils } from "../../../../src/component/driver/teamsApp/utils/ManifestUtils";
 import { pluginManifestUtils } from "../../../../src/component/driver/teamsApp/utils/PluginManifestUtils";
+import * as utils from "../../../../src/component/driver/teamsApp/utils/utils";
 import { WrapDriverContext } from "../../../../src/component/driver/util/wrapUtil";
 import {
   FileNotFoundError,
@@ -53,27 +55,38 @@ describe("copilotGptManifestUtils", () => {
     }
   });
 
-  const gptManifest: DeclarativeCopilotManifestSchema = {
+  const gptManifest = {
     name: "name${{APP_NAME_SUFFIX}}",
     description: "description",
-  };
+  } as any;
 
   describe("add plugin", async () => {
     it("add plugin without appending conversation starters success", async () => {
+      const manifestData = {
+        name: "name${{APP_NAME_SUFFIX}}",
+        description: "description",
+        conversation_starters: [
+          {
+            text: "List all repairs",
+          },
+        ],
+      };
+      const mockDAWrapper = {
+        data: manifestData,
+        save: sinon.stub().resolves(),
+      };
+      const mockPluginWrapper = {
+        data: {},
+        runtimes: [],
+        functions: [],
+        save: sinon.stub().resolves(),
+      };
       sandbox.stub(fs, "pathExists").resolves(true);
-      sandbox.stub(fs, "readFile").resolves(
-        JSON.stringify({
-          name: "name${{APP_NAME_SUFFIX}}",
-          description: "description",
-          conversation_starters: [
-            {
-              text: "List all repairs",
-            },
-          ],
-        }) as any
-      );
-      sandbox.stub(fs, "writeFile").resolves();
-      sandbox.stub(fs, "readJson").resolves({} as any);
+      sandbox.stub(DeclarativeAgentManifestWrapper, "read").resolves(mockDAWrapper as any);
+      sandbox.stub(DeclarativeAgentManifestWrapper, "fromJSON").returns(mockDAWrapper as any);
+      sandbox.stub(PluginManifestWrapper, "read").resolves(mockPluginWrapper as any);
+      sandbox.stub(path, "dirname").returns("testDir");
+      sandbox.stub(path, "join").returns("testDir/testFile");
 
       const res = await copilotGptManifestUtils.addAction("testPath", "testId", "testFile");
 
@@ -94,18 +107,33 @@ describe("copilotGptManifestUtils", () => {
     });
 
     it("add plugin success - use conversation_starters in action file", async () => {
-      sandbox.stub(fs, "pathExists").resolves(true);
-      sandbox.stub(fs, "readFile").resolves(JSON.stringify(gptManifest) as any);
-      sandbox.stub(fs, "writeFile").resolves();
-      sandbox.stub(fs, "readJson").resolves({
-        capabilities: {
-          conversation_starters: [
-            {
-              text: "List all repairs",
-            },
-          ],
+      const manifestData = {
+        name: "name${{APP_NAME_SUFFIX}}",
+        description: "description",
+      };
+      const mockDAWrapper = {
+        data: manifestData,
+        save: sinon.stub().resolves(),
+      };
+      const mockPluginWrapper = {
+        data: {
+          capabilities: {
+            conversation_starters: [
+              {
+                text: "List all repairs",
+              },
+            ],
+          },
         },
-      } as any);
+        runtimes: [],
+        functions: [],
+      };
+      sandbox.stub(fs, "pathExists").resolves(true);
+      sandbox.stub(DeclarativeAgentManifestWrapper, "read").resolves(mockDAWrapper as any);
+      sandbox.stub(DeclarativeAgentManifestWrapper, "fromJSON").returns(mockDAWrapper as any);
+      sandbox.stub(PluginManifestWrapper, "read").resolves(mockPluginWrapper as any);
+      sandbox.stub(path, "dirname").returns("testDir");
+      sandbox.stub(path, "join").returns("testDir/testFile");
 
       const res = await copilotGptManifestUtils.addAction("testPath", "testId", "testFile");
 
@@ -126,16 +154,49 @@ describe("copilotGptManifestUtils", () => {
     });
 
     it("add plugin success - parse conversation_starters in open api spec file", async () => {
-      sandbox.stub(fs, "pathExists").resolves(true);
-      sandbox
-        .stub(featureFlagManager, "getBooleanValue")
-        .withArgs(FeatureFlags.KiotaNPMIntegration)
-        .returns(false);
-      sandbox.stub(fs, "readFile").resolves(JSON.stringify(gptManifest) as any);
-      sandbox.stub(fs, "writeFile").resolves();
-      sandbox.stub(fs, "readJson").resolves({
-        capabilities: {
-          conversation_starters: [],
+      const manifestData = {
+        name: "name${{APP_NAME_SUFFIX}}",
+        description: "description",
+      };
+      const mockDAWrapper = {
+        data: manifestData,
+        save: sinon.stub().resolves(),
+      };
+      const mockPluginWrapper = {
+        data: {
+          capabilities: {
+            conversation_starters: [],
+          },
+          runtimes: [
+            {
+              type: "OpenApi",
+              auth: {
+                type: "None",
+              },
+              spec: {
+                url: "apiSpecificationFile/openapi.json",
+              },
+              run_for_functions: ["deleteRepairs", "listRepairs", "patchRepairs", "createRepair"],
+            },
+          ],
+          functions: [
+            {
+              name: "listRepairs",
+              description: "List all repairs",
+            },
+            {
+              name: "deleteRepairs",
+              description: "Delete repairs",
+            },
+            {
+              name: "patchRepairs",
+              description: "Patch repairs",
+            },
+            {
+              name: "createRepair",
+              description: "Create repairs",
+            },
+          ],
         },
         runtimes: [
           {
@@ -167,7 +228,18 @@ describe("copilotGptManifestUtils", () => {
             description: "Create repairs",
           },
         ],
-      } as any);
+      };
+      sandbox.stub(fs, "pathExists").resolves(true);
+      sandbox
+        .stub(featureFlagManager, "getBooleanValue")
+        .withArgs(FeatureFlags.KiotaNPMIntegration)
+        .returns(false);
+      sandbox.stub(DeclarativeAgentManifestWrapper, "read").resolves(mockDAWrapper as any);
+      sandbox.stub(DeclarativeAgentManifestWrapper, "fromJSON").returns(mockDAWrapper as any);
+      sandbox.stub(PluginManifestWrapper, "read").resolves(mockPluginWrapper as any);
+      sandbox.stub(path, "dirname").returns("testDir");
+      sandbox.stub(path, "join").returns("testDir/testFile");
+      sandbox.stub(path, "resolve").returns("testDir/testFile");
 
       sandbox.stub(SpecParser.prototype, "list").resolves({
         APIs: [
@@ -240,11 +312,36 @@ describe("copilotGptManifestUtils", () => {
     });
 
     it("add plugin success - parse conversation_starters in open api spec file with undefined existing conversation starter", async () => {
-      sandbox.stub(fs, "pathExists").resolves(true);
-      sandbox.stub(fs, "readFile").resolves(JSON.stringify(gptManifest) as any);
-      sandbox.stub(fs, "writeFile").resolves();
-      sandbox.stub(fs, "readJson").resolves({
-        capabilities: {},
+      const manifestData = {
+        name: "name${{APP_NAME_SUFFIX}}",
+        description: "description",
+      };
+      const mockDAWrapper = {
+        data: manifestData,
+        save: sinon.stub().resolves(),
+      };
+      const mockPluginWrapper = {
+        data: {
+          capabilities: {},
+          runtimes: [
+            {
+              type: "OpenApi",
+              auth: {
+                type: "None",
+              },
+              spec: {
+                url: "apiSpecificationFile/openapi.json",
+              },
+              run_for_functions: ["listRepairs"],
+            },
+          ],
+          functions: [
+            {
+              name: "listRepairs",
+              description: "List all repairs",
+            },
+          ],
+        },
         runtimes: [
           {
             type: "OpenApi",
@@ -263,11 +360,18 @@ describe("copilotGptManifestUtils", () => {
             description: "List all repairs",
           },
         ],
-      } as any);
+      };
+      sandbox.stub(fs, "pathExists").resolves(true);
+      sandbox.stub(DeclarativeAgentManifestWrapper, "read").resolves(mockDAWrapper as any);
+      sandbox.stub(DeclarativeAgentManifestWrapper, "fromJSON").returns(mockDAWrapper as any);
+      sandbox.stub(PluginManifestWrapper, "read").resolves(mockPluginWrapper as any);
       sandbox
         .stub(featureFlagManager, "getBooleanValue")
         .withArgs(FeatureFlags.KiotaNPMIntegration)
         .returns(false);
+      sandbox.stub(path, "dirname").returns("testDir");
+      sandbox.stub(path, "join").returns("testDir/testFile");
+      sandbox.stub(path, "resolve").returns("testDir/testFile");
 
       sandbox.stub(SpecParser.prototype, "list").resolves({
         APIs: [
@@ -304,8 +408,8 @@ describe("copilotGptManifestUtils", () => {
 
     it("add plugin and append conversation starters success - use conversation_starters in action file", async () => {
       sandbox.stub(fs, "pathExists").resolves(true);
-      sandbox.stub(fs, "readFile").resolves(
-        JSON.stringify({
+      const mockDAWrapper = {
+        data: {
           name: "name${{APP_NAME_SUFFIX}}",
           description: "description",
           conversation_starters: [
@@ -319,18 +423,27 @@ describe("copilotGptManifestUtils", () => {
               file: "plugin1.json",
             },
           ],
-        }) as any
-      );
-      sandbox.stub(fs, "writeFile").resolves();
-      sandbox.stub(fs, "readJson").resolves({
-        capabilities: {
-          conversation_starters: [
-            {
-              text: "List all repairs2",
-            },
-          ],
         },
-      } as any);
+        save: sinon.stub().resolves(),
+      };
+      const mockPluginWrapper = {
+        data: {
+          capabilities: {
+            conversation_starters: [
+              {
+                text: "List all repairs2",
+              },
+            ],
+          },
+        },
+        runtimes: [],
+        functions: [],
+      };
+      sandbox.stub(DeclarativeAgentManifestWrapper, "read").resolves(mockDAWrapper as any);
+      sandbox.stub(DeclarativeAgentManifestWrapper, "fromJSON").returns(mockDAWrapper as any);
+      sandbox.stub(PluginManifestWrapper, "read").resolves(mockPluginWrapper as any);
+      sandbox.stub(path, "dirname").returns("testDir");
+      sandbox.stub(path, "join").returns("testDir/testFile");
 
       const res = await copilotGptManifestUtils.addAction("testPath", "testId", "testFile");
 
@@ -359,8 +472,8 @@ describe("copilotGptManifestUtils", () => {
 
     it("conversation starters count should less than 6", async () => {
       sandbox.stub(fs, "pathExists").resolves(true);
-      sandbox.stub(fs, "readFile").resolves(
-        JSON.stringify({
+      const mockDAWrapper = {
+        data: {
           name: "name${{APP_NAME_SUFFIX}}",
           description: "description",
           conversation_starters: [
@@ -374,33 +487,42 @@ describe("copilotGptManifestUtils", () => {
               file: "plugin1.json",
             },
           ],
-        }) as any
-      );
-      sandbox.stub(fs, "writeFile").resolves();
-      sandbox.stub(fs, "readJson").resolves({
-        capabilities: {
-          conversation_starters: [
-            {
-              text: "List all repairs2",
-            },
-            {
-              text: "List all repairs3",
-            },
-            {
-              text: "List all repairs4",
-            },
-            {
-              text: "List all repairs5",
-            },
-            {
-              text: "List all repairs6",
-            },
-            {
-              text: "List all repairs7",
-            },
-          ],
         },
-      } as any);
+        save: sinon.stub().resolves(),
+      };
+      const mockPluginWrapper = {
+        data: {
+          capabilities: {
+            conversation_starters: [
+              {
+                text: "List all repairs2",
+              },
+              {
+                text: "List all repairs3",
+              },
+              {
+                text: "List all repairs4",
+              },
+              {
+                text: "List all repairs5",
+              },
+              {
+                text: "List all repairs6",
+              },
+              {
+                text: "List all repairs7",
+              },
+            ],
+          },
+        },
+        runtimes: [],
+        functions: [],
+      };
+      sandbox.stub(DeclarativeAgentManifestWrapper, "read").resolves(mockDAWrapper as any);
+      sandbox.stub(DeclarativeAgentManifestWrapper, "fromJSON").returns(mockDAWrapper as any);
+      sandbox.stub(PluginManifestWrapper, "read").resolves(mockPluginWrapper as any);
+      sandbox.stub(path, "dirname").returns("testDir");
+      sandbox.stub(path, "join").returns("testDir/testFile");
 
       const res = await copilotGptManifestUtils.addAction("testPath", "testId", "testFile");
 
@@ -441,8 +563,8 @@ describe("copilotGptManifestUtils", () => {
 
     it("conversation starters should unique", async () => {
       sandbox.stub(fs, "pathExists").resolves(true);
-      sandbox.stub(fs, "readFile").resolves(
-        JSON.stringify({
+      const mockDAWrapper = {
+        data: {
           name: "name${{APP_NAME_SUFFIX}}",
           description: "description",
           conversation_starters: [
@@ -456,21 +578,30 @@ describe("copilotGptManifestUtils", () => {
               file: "plugin1.json",
             },
           ],
-        }) as any
-      );
-      sandbox.stub(fs, "writeFile").resolves();
-      sandbox.stub(fs, "readJson").resolves({
-        capabilities: {
-          conversation_starters: [
-            {
-              text: "List all repairs1",
-            },
-            {
-              text: "List all repairs2",
-            },
-          ],
         },
-      } as any);
+        save: sinon.stub().resolves(),
+      };
+      const mockPluginWrapper = {
+        data: {
+          capabilities: {
+            conversation_starters: [
+              {
+                text: "List all repairs1",
+              },
+              {
+                text: "List all repairs2",
+              },
+            ],
+          },
+        },
+        runtimes: [],
+        functions: [],
+      };
+      sandbox.stub(DeclarativeAgentManifestWrapper, "read").resolves(mockDAWrapper as any);
+      sandbox.stub(DeclarativeAgentManifestWrapper, "fromJSON").returns(mockDAWrapper as any);
+      sandbox.stub(PluginManifestWrapper, "read").resolves(mockPluginWrapper as any);
+      sandbox.stub(path, "dirname").returns("testDir");
+      sandbox.stub(path, "join").returns("testDir/testFile");
 
       const res = await copilotGptManifestUtils.addAction("testPath", "testId", "testFile");
 
@@ -507,10 +638,24 @@ describe("copilotGptManifestUtils", () => {
     });
 
     it("add plugin error: write file error", async () => {
+      const mockDAWrapper = {
+        data: gptManifest,
+      };
+      const mockPluginWrapper = {
+        data: {},
+        runtimes: [],
+        functions: [],
+      };
+      const mockSaveWrapper = {
+        data: gptManifest,
+        save: sinon.stub().throws("some error"),
+      };
       sandbox.stub(fs, "pathExists").resolves(true);
-      sandbox.stub(fs, "readFile").resolves(JSON.stringify(gptManifest) as any);
-      sandbox.stub(fs, "writeFile").throws("some error");
-      sandbox.stub(fs, "readJson").resolves({} as any);
+      sandbox.stub(DeclarativeAgentManifestWrapper, "read").resolves(mockDAWrapper as any);
+      sandbox.stub(DeclarativeAgentManifestWrapper, "fromJSON").returns(mockSaveWrapper as any);
+      sandbox.stub(PluginManifestWrapper, "read").resolves(mockPluginWrapper as any);
+      sandbox.stub(path, "dirname").returns("testDir");
+      sandbox.stub(path, "join").returns("testDir/testFile");
       const res = await copilotGptManifestUtils.addAction("testPath", "testId", "testFile");
       chai.assert.isTrue(res.isErr());
       if (res.isErr()) {
@@ -530,8 +675,23 @@ describe("copilotGptManifestUtils", () => {
       mockedEnvRestore = mockedEnv({
         ["APP_NAME_SUFFIX"]: "test",
       });
+      const manifestData = {
+        name: "name${{APP_NAME_SUFFIX}}",
+        description: "description",
+      };
+      const mockDAWrapper = {
+        data: manifestData,
+      };
       sandbox.stub(fs, "pathExists").resolves(true);
-      sandbox.stub(fs, "readFile").resolves(JSON.stringify(gptManifest) as any);
+      sandbox.stub(DeclarativeAgentManifestWrapper, "read").resolves(mockDAWrapper as any);
+      sandbox.stub(utils, "getResolvedManifest").resolves(
+        ok(
+          JSON.stringify({
+            name: "nametest",
+            description: "description",
+          })
+        )
+      );
 
       const res = await copilotGptManifestUtils.getManifest("testPath", mockedContex);
 
@@ -551,8 +711,20 @@ describe("copilotGptManifestUtils", () => {
     });
 
     it("get manifest error: unresolved env error", async () => {
+      const manifestData = {
+        name: "name${{APP_NAME_SUFFIX}}",
+        description: "description",
+      };
+      const mockDAWrapper = {
+        data: manifestData,
+      };
       sandbox.stub(fs, "pathExists").resolves(true);
-      sandbox.stub(fs, "readFile").resolves(JSON.stringify(gptManifest) as any);
+      sandbox.stub(DeclarativeAgentManifestWrapper, "read").resolves(mockDAWrapper as any);
+      sandbox
+        .stub(utils, "getResolvedManifest")
+        .resolves(
+          err(new MissingEnvironmentVariablesError("test", "APP_NAME_SUFFIX", "test", "test"))
+        );
 
       const res = await copilotGptManifestUtils.getManifest("testPath", mockedContex);
 
@@ -571,7 +743,7 @@ describe("copilotGptManifestUtils", () => {
       addTelemetryProperties: () => {},
     };
     it("validate success", async () => {
-      const manifest: DeclarativeCopilotManifestSchema = {
+      const manifest = {
         ...gptManifest,
         actions: [
           {
@@ -583,8 +755,12 @@ describe("copilotGptManifestUtils", () => {
       mockedEnvRestore = mockedEnv({
         ["APP_NAME_SUFFIX"]: "test",
       });
+      const mockDAWrapper = {
+        data: manifest,
+      };
       sandbox.stub(fs, "pathExists").resolves(true);
-      sandbox.stub(fs, "readFile").resolves(JSON.stringify(manifest) as any);
+      sandbox.stub(DeclarativeAgentManifestWrapper, "read").resolves(mockDAWrapper as any);
+      sandbox.stub(utils, "getResolvedManifest").resolves(ok(JSON.stringify(manifest)));
       sandbox.stub(ManifestUtil, "validateManifest").resolves([]);
       sandbox.stub(pluginManifestUtils, "validateAgainstSchema").resolves(
         ok({
@@ -593,6 +769,8 @@ describe("copilotGptManifestUtils", () => {
           validationResult: ["error1"],
         })
       );
+      sandbox.stub(path, "dirname").returns("testDir");
+      sandbox.stub(path, "join").returns("testFile");
 
       const res = await copilotGptManifestUtils.validateAgainstSchema(
         { id: "1", file: "file" },
@@ -617,7 +795,7 @@ describe("copilotGptManifestUtils", () => {
     });
 
     it("validate action error", async () => {
-      const manifest: DeclarativeCopilotManifestSchema = {
+      const manifest = {
         ...gptManifest,
         actions: [
           {
@@ -629,12 +807,18 @@ describe("copilotGptManifestUtils", () => {
       mockedEnvRestore = mockedEnv({
         ["APP_NAME_SUFFIX"]: "test",
       });
+      const mockDAWrapper = {
+        data: manifest,
+      };
       sandbox.stub(fs, "pathExists").resolves(true);
-      sandbox.stub(fs, "readFile").resolves(JSON.stringify(manifest) as any);
+      sandbox.stub(DeclarativeAgentManifestWrapper, "read").resolves(mockDAWrapper as any);
+      sandbox.stub(utils, "getResolvedManifest").resolves(ok(JSON.stringify(manifest)));
       sandbox.stub(ManifestUtil, "validateManifest").resolves([]);
       sandbox
         .stub(pluginManifestUtils, "validateAgainstSchema")
         .resolves(err(new SystemError("error", "error", "error", "error")));
+      sandbox.stub(path, "dirname").returns("testDir");
+      sandbox.stub(path, "join").returns("testFile");
 
       const res = await copilotGptManifestUtils.validateAgainstSchema(
         { id: "1", file: "file" },
@@ -648,7 +832,7 @@ describe("copilotGptManifestUtils", () => {
     });
 
     it("validate schema error", async () => {
-      const manifest: DeclarativeCopilotManifestSchema = {
+      const manifest = {
         ...gptManifest,
         actions: [
           {
@@ -660,8 +844,12 @@ describe("copilotGptManifestUtils", () => {
       mockedEnvRestore = mockedEnv({
         ["APP_NAME_SUFFIX"]: "test",
       });
+      const mockDAWrapper = {
+        data: manifest,
+      };
       sandbox.stub(fs, "pathExists").resolves(true);
-      sandbox.stub(fs, "readFile").resolves(JSON.stringify(gptManifest) as any);
+      sandbox.stub(DeclarativeAgentManifestWrapper, "read").resolves(mockDAWrapper as any);
+      sandbox.stub(utils, "getResolvedManifest").resolves(ok(JSON.stringify(manifest)));
       sandbox.stub(ManifestUtil, "validateManifest").throws("error");
 
       const res = await copilotGptManifestUtils.validateAgainstSchema(
@@ -979,19 +1167,20 @@ describe("copilotGptManifestUtils", () => {
     });
 
     const agentManifestPath = "test/agentManifestPath";
-    let manifestRes: Result<DeclarativeCopilotManifestSchema, FxError>;
+    let manifestRes: Result<any, FxError>;
 
     it("happy path", async () => {
       sandbox
         .stub(copilotGptManifestUtils, "writeCopilotGptManifestFile")
         .resolves(new Ok(undefined));
       const connectionIds = ["connectionId1", "connectionId2"];
-      const manifest: DeclarativeCopilotManifestSchema = {
+      const manifest = {
+        version: "v1.6" as const,
         name: "name${{APP_NAME_SUFFIX}}",
         description: "description",
         capabilities: [
           {
-            name: DeclarativeCopilotCapabilityName.GraphConnectors,
+            name: CapabilityName.GraphConnectors,
             connections: [
               {
                 connection_id: "123",
@@ -1008,11 +1197,12 @@ describe("copilotGptManifestUtils", () => {
       chai.assert.isTrue(res.isOk());
       if (res.isOk()) {
         chai.assert.deepEqual(manifest, {
+          version: "v1.6",
           name: "name${{APP_NAME_SUFFIX}}",
           description: "description",
           capabilities: [
             {
-              name: DeclarativeCopilotCapabilityName.GraphConnectors,
+              name: CapabilityName.GraphConnectors,
               connections: [
                 {
                   connection_id: "123",
@@ -1035,12 +1225,13 @@ describe("copilotGptManifestUtils", () => {
         .stub(copilotGptManifestUtils, "writeCopilotGptManifestFile")
         .resolves(new Ok(undefined));
       const connectionIds = ["123"];
-      const manifest: DeclarativeCopilotManifestSchema = {
+      const manifest = {
+        version: "v1.6" as const,
         name: "name${{APP_NAME_SUFFIX}}",
         description: "description",
         capabilities: [
           {
-            name: DeclarativeCopilotCapabilityName.GraphConnectors,
+            name: CapabilityName.GraphConnectors,
             connections: [
               {
                 connection_id: "123",
@@ -1048,7 +1239,7 @@ describe("copilotGptManifestUtils", () => {
             ],
           },
         ],
-      };
+      } as any;
       const res = await copilotGptManifestUtils.addGCCapability(
         agentManifestPath,
         connectionIds,
@@ -1057,11 +1248,12 @@ describe("copilotGptManifestUtils", () => {
       chai.assert.isTrue(res.isOk());
       if (res.isOk()) {
         chai.assert.deepEqual(manifest, {
+          version: "v1.6",
           name: "name${{APP_NAME_SUFFIX}}",
           description: "description",
           capabilities: [
             {
-              name: DeclarativeCopilotCapabilityName.GraphConnectors,
+              name: CapabilityName.GraphConnectors,
               connections: [
                 {
                   connection_id: "123",
@@ -1078,10 +1270,11 @@ describe("copilotGptManifestUtils", () => {
         .stub(copilotGptManifestUtils, "writeCopilotGptManifestFile")
         .resolves(new Ok(undefined));
       const connectionIds = ["123"];
-      const manifest: DeclarativeCopilotManifestSchema = {
+      const manifest = {
+        version: "v1.6" as const,
         name: "name${{APP_NAME_SUFFIX}}",
         description: "description",
-      };
+      } as any;
       const res = await copilotGptManifestUtils.addGCCapability(
         agentManifestPath,
         connectionIds,
@@ -1090,11 +1283,12 @@ describe("copilotGptManifestUtils", () => {
       chai.assert.isTrue(res.isOk());
       if (res.isOk()) {
         chai.assert.deepEqual(manifest, {
+          version: "v1.6",
           name: "name${{APP_NAME_SUFFIX}}",
           description: "description",
           capabilities: [
             {
-              name: DeclarativeCopilotCapabilityName.GraphConnectors,
+              name: CapabilityName.GraphConnectors,
               connections: [
                 {
                   connection_id: "123",
@@ -1156,7 +1350,7 @@ describe("copilotGptManifestUtils", () => {
 
       chai.assert.isArray(manifest.capabilities);
       const capability = manifest.capabilities.find(
-        (cap: any) => cap.name === DeclarativeCopilotCapabilityName.EmbeddedKnowledge
+        (cap: any) => cap.name === CapabilityName.EmbeddedKnowledge
       );
       chai.assert.exists(capability);
       chai.assert.isArray(capability.files);
@@ -1174,7 +1368,7 @@ describe("copilotGptManifestUtils", () => {
       const manifest: any = {
         capabilities: [
           {
-            name: DeclarativeCopilotCapabilityName.EmbeddedKnowledge,
+            name: CapabilityName.EmbeddedKnowledge,
             files: [{ file: "existing.txt" }],
           },
         ],
@@ -1209,7 +1403,7 @@ describe("copilotGptManifestUtils", () => {
 
       chai.assert.isArray(manifest.capabilities);
       const capability = manifest.capabilities.find(
-        (cap: any) => cap.name === DeclarativeCopilotCapabilityName.EmbeddedKnowledge
+        (cap: any) => cap.name === CapabilityName.EmbeddedKnowledge
       );
       chai.assert.exists(capability);
       chai.assert.isArray(capability.files);
@@ -1263,13 +1457,13 @@ describe("copilotGptManifestUtils", () => {
     });
 
     it("happy path: manifestRes has no capabilities for addOrUpdateCapability ", async () => {
-      const agentManifest: DeclarativeCopilotManifestSchema = {
+      const agentManifest = {
         name: "name${{APP_NAME_SUFFIX}}",
         description: "description",
-      };
+      } as any;
       const res = await copilotGptManifestUtils.addOrUpdateCapability(
         "fake agent manifest path",
-        DeclarativeCopilotCapabilityName.WebSearch,
+        CapabilityName.WebSearch,
         ok(agentManifest),
         {}
       );
@@ -1297,7 +1491,7 @@ describe("copilotGptManifestUtils", () => {
     it("error path: manifestRes error for addOrUpdateCapability ", async () => {
       const res = await copilotGptManifestUtils.addOrUpdateCapability(
         "fake agent manifest path",
-        DeclarativeCopilotCapabilityName.WebSearch,
+        CapabilityName.WebSearch,
         err(new UserError("fake error", "fake error", "fake error", "fake error")),
         {}
       );
@@ -1305,22 +1499,22 @@ describe("copilotGptManifestUtils", () => {
     });
 
     it("error path: updateGptManifestRes error for addOrUpdateCapability ", async () => {
-      const agentManifest: DeclarativeCopilotManifestSchema = {
+      const agentManifest = {
         name: "name${{APP_NAME_SUFFIX}}",
         description: "description",
         capabilities: [
           {
-            name: DeclarativeCopilotCapabilityName.WebSearch,
+            name: CapabilityName.WebSearch,
           },
         ],
-      };
+      } as any;
 
       sandbox
         .stub(copilotGptManifestUtils, "writeCopilotGptManifestFile")
         .resolves(err(new UserError("fake error", "fake error", "fake error", "fake error")));
       const res = await copilotGptManifestUtils.addOrUpdateCapability(
         "fake agent manifest path",
-        DeclarativeCopilotCapabilityName.WebSearch,
+        CapabilityName.WebSearch,
         ok(agentManifest),
         {}
       );
@@ -1334,8 +1528,11 @@ describe("copilotGptManifestUtils", () => {
         name: "name${{APP_NAME_SUFFIX}}",
         description: "description",
       };
+      const mockDAWrapper = {
+        data: manifest,
+      };
       sandbox.stub(fs, "pathExistsSync").returns(true);
-      sandbox.stub(fs, "readFileSync").returns(JSON.stringify(manifest));
+      sandbox.stub(DeclarativeAgentManifestWrapper, "readSync").returns(mockDAWrapper as any);
 
       const res = copilotGptManifestUtils.readCopilotGptManifestFileSync("testPath");
 
@@ -1346,7 +1543,7 @@ describe("copilotGptManifestUtils", () => {
     });
 
     it("should return FileNotFoundError if file does not exist", () => {
-      sandbox.stub(fs, "pathExistsSync").returns(false);
+      sandbox.stub(DeclarativeAgentManifestWrapper, "readSync").throws(new Error("File not found"));
 
       const res = copilotGptManifestUtils.readCopilotGptManifestFileSync("testPath");
 
@@ -1357,8 +1554,9 @@ describe("copilotGptManifestUtils", () => {
     });
 
     it("should return FileNotFoundError if JSON parse fails", () => {
-      sandbox.stub(fs, "pathExistsSync").returns(true);
-      sandbox.stub(fs, "readFileSync").returns("invalid json");
+      sandbox
+        .stub(DeclarativeAgentManifestWrapper, "readSync")
+        .throws(new SyntaxError("Invalid JSON"));
 
       const res = copilotGptManifestUtils.readCopilotGptManifestFileSync("testPath");
 
@@ -1375,9 +1573,11 @@ describe("copilotGptManifestUtils", () => {
         schema: "schema",
         description: "description",
       } as any;
+      const mockDAWrapper = {
+        data: manifest,
+      };
       sandbox.stub(fs, "pathExists").resolves(true);
-      sandbox.stub(fs, "readFile").resolves(JSON.stringify(manifest) as any);
-      sandbox.stub(DeclarativeAgentManifestConverter, "jsonToManifest").returns(manifest as any);
+      sandbox.stub(DeclarativeAgentManifestWrapper, "read").resolves(mockDAWrapper as any);
 
       const res = await copilotGptManifestUtils.readDeclarativeAgentManifestFile("testPath");
 
@@ -1399,8 +1599,9 @@ describe("copilotGptManifestUtils", () => {
     });
 
     it("should return JSONSyntaxError if manifest conversion fails", async () => {
-      sandbox.stub(fs, "pathExists").resolves(true);
-      sandbox.stub(fs, "readFile").resolves("invalid json" as any);
+      sandbox
+        .stub(DeclarativeAgentManifestWrapper, "read")
+        .rejects(new SyntaxError("Invalid JSON"));
 
       const res = await copilotGptManifestUtils.readDeclarativeAgentManifestFile("testPath");
 
@@ -1414,9 +1615,11 @@ describe("copilotGptManifestUtils", () => {
         schema: "schema",
         description: "description",
       } as any;
+      const mockDAWrapper = {
+        data: manifest,
+      };
       sandbox.stub(fs, "pathExistsSync").returns(true);
-      sandbox.stub(fs, "readFileSync").returns(JSON.stringify(manifest));
-      sandbox.stub(DeclarativeAgentManifestConverter, "jsonToManifest").returns(manifest as any);
+      sandbox.stub(DeclarativeAgentManifestWrapper, "readSync").returns(mockDAWrapper as any);
 
       const res = copilotGptManifestUtils.readDeclarativeAgentManifestFileSync("testPath");
 
@@ -1438,8 +1641,9 @@ describe("copilotGptManifestUtils", () => {
     });
 
     it("should return JSONSyntaxError if manifest conversion fails", () => {
-      sandbox.stub(fs, "pathExistsSync").returns(true);
-      sandbox.stub(fs, "readFileSync").returns("invalid json");
+      sandbox
+        .stub(DeclarativeAgentManifestWrapper, "readSync")
+        .throws(new SyntaxError("Invalid JSON"));
 
       const res = copilotGptManifestUtils.readDeclarativeAgentManifestFileSync("testPath");
 
@@ -1453,9 +1657,11 @@ describe("copilotGptManifestUtils", () => {
         schema: "schema",
         description: "description",
       };
-      const convertedJson = '{"schema":"schema","description":"description"}';
-      sandbox.stub(DeclarativeAgentManifestConverter, "manifestToJson").returns(convertedJson);
-      sandbox.stub(fs, "writeFile").resolves();
+      const mockWrapper = {
+        data: manifest,
+        save: sinon.stub().resolves(),
+      };
+      sandbox.stub(DeclarativeAgentManifestWrapper, "fromJSON").returns(mockWrapper as any);
 
       const res = await copilotGptManifestUtils.writeDeclarativeAgentManifestFile(
         manifest as any,
@@ -1470,9 +1676,11 @@ describe("copilotGptManifestUtils", () => {
         schema: "schema",
         description: "description",
       };
-      const convertedJson = '{"schema":"schema","description":"description"}';
-      sandbox.stub(DeclarativeAgentManifestConverter, "manifestToJson").returns(convertedJson);
-      sandbox.stub(fs, "writeFile").throws("some error");
+      const mockWrapper = {
+        data: manifest,
+        save: sinon.stub().throws("some error"),
+      };
+      sandbox.stub(DeclarativeAgentManifestWrapper, "fromJSON").returns(mockWrapper as any);
 
       const res = await copilotGptManifestUtils.writeDeclarativeAgentManifestFile(
         manifest as any,

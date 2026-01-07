@@ -11,7 +11,7 @@ import { TypeSpecCompileArgs } from "../../../../src/component/driver/typeSpec/i
 import { MockedUserInteraction } from "../../../plugins/solution/util";
 import fs from "fs-extra";
 import {
-  DeclarativeCopilotManifestSchema,
+  DeclarativeAgentManifestWrapper,
   err,
   ok,
   Platform,
@@ -89,7 +89,8 @@ describe("typeSpecCompilt", async () => {
       outputDir: "mockedOutputDir",
       typeSpecConfigPath: "mockedTypeSpecConfigPath",
     };
-    const pluginManifest: DeclarativeCopilotManifestSchema = {
+    const pluginManifest = {
+      version: "v1.0",
       id: "mockedId",
       name: "mockedName",
       description: "mockedDescription",
@@ -124,12 +125,10 @@ describe("typeSpecCompilt", async () => {
         "manifest.json",
         "specs",
       ] as any);
-    sandbox
-      .stub(fs, "readJSON")
-      .onFirstCall()
-      .resolves(pluginManifest)
-      .onSecondCall()
-      .resolves(manifest);
+    sandbox.stub(DeclarativeAgentManifestWrapper, "read").resolves({
+      data: pluginManifest,
+    } as any);
+    sandbox.stub(fs, "readJSON").resolves(manifest);
     sandbox.stub(fs, "writeJSON").callsFake((path: string, data: any) => {
       const dataToWrite = JSON.stringify(data);
       expect(dataToWrite.includes("declarativeAgent.json")).to.be.true;
@@ -160,7 +159,8 @@ describe("typeSpecCompilt", async () => {
       outputDir: "mockedOutputDir",
       typeSpecConfigPath: "mockedTypeSpecConfigPath",
     };
-    const pluginManifest: DeclarativeCopilotManifestSchema = {
+    const pluginManifest = {
+      version: "v1.0",
       id: "mockedId",
       name: "mockedName",
       description: "mockedDescription",
@@ -195,12 +195,10 @@ describe("typeSpecCompilt", async () => {
         "manifest.json",
         "specs",
       ] as any);
-    sandbox
-      .stub(fs, "readJSON")
-      .onFirstCall()
-      .resolves(pluginManifest)
-      .onSecondCall()
-      .resolves(manifest);
+    sandbox.stub(DeclarativeAgentManifestWrapper, "read").resolves({
+      data: pluginManifest,
+    } as any);
+    sandbox.stub(fs, "readJSON").resolves(manifest);
     sandbox.stub(fs, "writeJSON").callsFake((path: string, data: any) => {
       const dataToWrite = JSON.stringify(data);
       expect(dataToWrite.includes("declarativeAgent.json")).to.be.true;
@@ -231,7 +229,8 @@ describe("typeSpecCompilt", async () => {
       outputDir: "mockedOutputDir",
       typeSpecConfigPath: "mockedTypeSpecConfigPath",
     };
-    const pluginManifest: DeclarativeCopilotManifestSchema = {
+    const pluginManifest = {
+      version: "v1.0",
       id: "mockedId",
       name: "mockedName",
       description: "mockedDescription",
@@ -266,12 +265,10 @@ describe("typeSpecCompilt", async () => {
         "manifest.json",
         "specs",
       ] as any);
-    sandbox
-      .stub(fs, "readJSON")
-      .onFirstCall()
-      .resolves(pluginManifest)
-      .onSecondCall()
-      .resolves(manifest);
+    sandbox.stub(DeclarativeAgentManifestWrapper, "read").resolves({
+      data: pluginManifest,
+    } as any);
+    sandbox.stub(fs, "readJSON").resolves(manifest);
     sandbox.stub(fs, "writeJSON").callsFake((path: string, data: any) => {
       const dataToWrite = JSON.stringify(data);
       expect(dataToWrite.includes("declarativeAgent.json")).to.be.true;
@@ -308,7 +305,8 @@ describe("typeSpecCompilt", async () => {
       outputDir: "mockedOutputDir",
       typeSpecConfigPath: "mockedTypeSpecConfigPath",
     };
-    const pluginManifest: DeclarativeCopilotManifestSchema = {
+    const pluginManifest = {
+      version: "v1.0",
       id: "mockedId",
       name: "mockedName",
       description: "mockedDescription",
@@ -324,12 +322,10 @@ describe("typeSpecCompilt", async () => {
     sandbox.stub(fs, "rmSync").returns();
     sandbox.stub(mockedDriverContext.ui, "runCommand").resolves(ok("mockedCommandResult"));
     sandbox.stub(fs, "readdirSync").returns(["openapi.yaml"] as any);
-    sandbox
-      .stub(fs, "readJSON")
-      .onFirstCall()
-      .resolves(pluginManifest)
-      .onSecondCall()
-      .resolves(manifest);
+    sandbox.stub(DeclarativeAgentManifestWrapper, "read").resolves({
+      data: pluginManifest,
+    } as any);
+    sandbox.stub(fs, "readJSON").resolves(manifest);
     sandbox.stub(fs, "writeJSON").callsFake((path: string, data: any) => {
       const dataToWrite = JSON.stringify(data);
       expect(dataToWrite.includes("declarativeAgent.json")).to.be.true;
@@ -352,7 +348,8 @@ describe("typeSpecCompilt", async () => {
       outputDir: "mockedOutputDir",
       typeSpecConfigPath: "mockedTypeSpecConfigPath",
     };
-    const pluginManifest: DeclarativeCopilotManifestSchema = {
+    const pluginManifest = {
+      version: "v1.0",
       id: "mockedId",
       name: "mockedName",
       description: "mockedDescription",
@@ -376,12 +373,10 @@ describe("typeSpecCompilt", async () => {
     sandbox
       .stub(fs, "readdirSync")
       .returns(["openapi.mockedAction1.yaml", "openapi.mockedAction2.yaml"] as any);
-    sandbox
-      .stub(fs, "readJSON")
-      .onFirstCall()
-      .resolves(pluginManifest)
-      .onSecondCall()
-      .resolves(manifest);
+    sandbox.stub(DeclarativeAgentManifestWrapper, "read").resolves({
+      data: pluginManifest,
+    } as any);
+    sandbox.stub(fs, "readJSON").resolves(manifest);
     sandbox.stub(fs, "writeJSON").callsFake((path: string, data: any) => {
       const dataToWrite = JSON.stringify(data);
       expect(dataToWrite.includes("declarativeAgent.json")).to.be.true;
@@ -450,7 +445,8 @@ describe("typeSpecCompilt", async () => {
       outputDir: "mockedOutputDir",
       typeSpecConfigPath: "mockedTypeSpecConfigPath",
     };
-    const pluginManifest: DeclarativeCopilotManifestSchema = {
+    const pluginManifest = {
+      version: "v1.0",
       id: "mockedId",
       name: "mockedName",
       description: "mockedDescription",
@@ -468,12 +464,10 @@ describe("typeSpecCompilt", async () => {
       .stub(mockedDriverContext.ui, "runCommand")
       .returns(err(new SystemError("mockedSource", "mockedError", "mockedErrorMessage")));
     sandbox.stub(fs, "readdirSync").returns(["openapi.yaml"] as any);
-    sandbox
-      .stub(fs, "readJSON")
-      .onFirstCall()
-      .resolves(pluginManifest)
-      .onSecondCall()
-      .resolves(manifest);
+    sandbox.stub(DeclarativeAgentManifestWrapper, "read").resolves({
+      data: pluginManifest,
+    } as any);
+    sandbox.stub(fs, "readJSON").resolves(manifest);
     sandbox.stub(fs, "writeJSON").callsFake((path: string, data: any) => {
       const dataToWrite = JSON.stringify(data);
       expect(dataToWrite.includes("declarativeAgent.json")).to.be.true;
@@ -489,7 +483,8 @@ describe("typeSpecCompilt", async () => {
       outputDir: "mockedOutputDir",
       typeSpecConfigPath: "mockedTypeSpecConfigPath",
     };
-    const pluginManifest: DeclarativeCopilotManifestSchema = {
+    const pluginManifest = {
+      version: "v1.0",
       id: "mockedId",
       name: "mockedName",
       description: "mockedDescription",
@@ -505,7 +500,10 @@ describe("typeSpecCompilt", async () => {
     sandbox.stub(fs, "rmSync").returns();
     sandbox.stub(mockedDriverContext.ui, "runCommand").resolves(ok("mockedCommandResult"));
     sandbox.stub(fs, "readdirSync").returns([] as any);
-    sandbox.stub(fs, "readJSON").resolves(pluginManifest);
+    sandbox.stub(DeclarativeAgentManifestWrapper, "read").resolves({
+      data: pluginManifest,
+    } as any);
+    sandbox.stub(fs, "readJSON").resolves(manifest);
     sandbox.stub(fs, "writeJSON").callsFake((path: string, data: any) => {
       const dataToWrite = JSON.stringify(data);
       expect(dataToWrite.includes("declarativeAgent.json")).to.be.true;
@@ -524,7 +522,8 @@ describe("typeSpecCompilt", async () => {
       outputDir: "mockedOutputDir",
       typeSpecConfigPath: "mockedTypeSpecConfigPath",
     };
-    const pluginManifest: DeclarativeCopilotManifestSchema = {
+    const pluginManifest = {
+      version: "v1.0",
       id: "mockedId",
       name: "mockedName",
       description: "mockedDescription",
@@ -536,7 +535,10 @@ describe("typeSpecCompilt", async () => {
       .stub(mockedDriverContext.ui, "runCommand")
       .resolves(ok("mockedCommandResult"));
     sandbox.stub(fs, "readdirSync").returns(["openapi.yaml"] as any);
-    sandbox.stub(fs, "readJSON").resolves(pluginManifest);
+    sandbox.stub(DeclarativeAgentManifestWrapper, "read").resolves({
+      data: pluginManifest,
+    } as any);
+    sandbox.stub(fs, "readJSON").resolves(manifest);
     sandbox.stub(fs, "writeJSON").callsFake((path: string, data: any) => {
       const dataToWrite = JSON.stringify(data);
       expect(dataToWrite.includes("declarativeAgent.json")).to.be.true;
@@ -553,7 +555,8 @@ describe("typeSpecCompilt", async () => {
       outputDir: "mockedOutputDir",
       typeSpecConfigPath: "mockedTypeSpecConfigPath",
     };
-    const pluginManifest: DeclarativeCopilotManifestSchema = {
+    const pluginManifest = {
+      version: "v1.0",
       id: "mockedId",
       name: "mockedName",
       description: "mockedDescription",
@@ -573,7 +576,10 @@ describe("typeSpecCompilt", async () => {
     sandbox.stub(fs, "rmSync").returns();
     sandbox.stub(mockedDriverContext.ui, "runCommand").resolves(ok("mockedCommandResult"));
     sandbox.stub(fs, "readdirSync").returns(["openapi.yaml"] as any);
-    sandbox.stub(fs, "readJSON").resolves(pluginManifest);
+    sandbox.stub(DeclarativeAgentManifestWrapper, "read").resolves({
+      data: pluginManifest,
+    } as any);
+    sandbox.stub(fs, "readJSON").resolves(manifest);
     sandbox.stub(fs, "writeJSON").callsFake((path: string, data: any) => {
       const dataToWrite = JSON.stringify(data);
       expect(dataToWrite.includes("declarativeAgent.json")).to.be.true;
@@ -592,7 +598,8 @@ describe("typeSpecCompilt", async () => {
       outputDir: "mockedOutputDir",
       typeSpecConfigPath: "mockedTypeSpecConfigPath",
     };
-    const pluginManifest: DeclarativeCopilotManifestSchema = {
+    const pluginManifest = {
+      version: "v1.0",
       id: "mockedId",
       name: "mockedName",
       description: "mockedDescription",
@@ -608,12 +615,10 @@ describe("typeSpecCompilt", async () => {
     sandbox.stub(fs, "rmSync").returns();
     sandbox.stub(mockedDriverContext.ui, "runCommand").throws(new Error("mockedError"));
     sandbox.stub(fs, "readdirSync").returns(["openapi.yaml"] as any);
-    sandbox
-      .stub(fs, "readJSON")
-      .onFirstCall()
-      .resolves(pluginManifest)
-      .onSecondCall()
-      .resolves(manifest);
+    sandbox.stub(DeclarativeAgentManifestWrapper, "read").resolves({
+      data: pluginManifest,
+    } as any);
+    sandbox.stub(fs, "readJSON").resolves(manifest);
     sandbox.stub(fs, "writeJSON").callsFake((path: string, data: any) => {
       const dataToWrite = JSON.stringify(data);
       expect(dataToWrite.includes("declarativeAgent.json")).to.be.true;

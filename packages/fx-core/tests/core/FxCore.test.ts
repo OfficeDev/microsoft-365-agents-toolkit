@@ -11,8 +11,8 @@ import {
   WarningType,
 } from "@microsoft/m365-spec-parser";
 import {
-  DeclarativeCopilotCapabilityName,
-  DeclarativeCopilotManifestSchema,
+  CapabilityName,
+  DeclarativeAgentManifest,
   FxError,
   InputResult,
   Inputs,
@@ -5234,9 +5234,7 @@ describe("addPlugin", async () => {
     });
     sandbox.stub(copilotGptManifestUtils, "readCopilotGptManifestFile").resolves(ok({} as any));
     sandbox.stub(copilotGptManifestUtils, "getManifestPath").resolves(ok("dcManifest.json"));
-    sandbox
-      .stub(copilotGptManifestUtils, "addAction")
-      .resolves(ok({} as DeclarativeCopilotManifestSchema));
+    sandbox.stub(copilotGptManifestUtils, "addAction").resolves(ok({} as DeclarativeAgentManifest));
 
     const core = new FxCore(tools);
     sandbox.stub(openApiSpecHelper, "generateFromApiSpec").resolves(ok({ warnings: [] }));
@@ -5333,11 +5331,9 @@ describe("addPlugin", async () => {
     });
     sandbox
       .stub(copilotGptManifestUtils, "readCopilotGptManifestFile")
-      .resolves(ok({} as DeclarativeCopilotManifestSchema));
+      .resolves(ok({} as DeclarativeAgentManifest));
     sandbox.stub(copilotGptManifestUtils, "getManifestPath").resolves(ok("dcManifest.json"));
-    sandbox
-      .stub(copilotGptManifestUtils, "addAction")
-      .resolves(ok({} as DeclarativeCopilotManifestSchema));
+    sandbox.stub(copilotGptManifestUtils, "addAction").resolves(ok({} as DeclarativeAgentManifest));
 
     const core = new FxCore(tools);
     sandbox.stub(openApiSpecHelper, "generateFromApiSpec").resolves(ok({ warnings: [] }));
@@ -5446,11 +5442,9 @@ describe("addPlugin", async () => {
     });
     sandbox
       .stub(copilotGptManifestUtils, "readCopilotGptManifestFile")
-      .resolves(ok({} as DeclarativeCopilotManifestSchema));
+      .resolves(ok({} as DeclarativeAgentManifest));
     sandbox.stub(copilotGptManifestUtils, "getManifestPath").resolves(ok("dcManifest.json"));
-    sandbox
-      .stub(copilotGptManifestUtils, "addAction")
-      .resolves(ok({} as DeclarativeCopilotManifestSchema));
+    sandbox.stub(copilotGptManifestUtils, "addAction").resolves(ok({} as DeclarativeAgentManifest));
 
     const core = new FxCore(tools);
     sandbox.stub(openApiSpecHelper, "generateFromApiSpec").resolves(ok({ warnings: [] }));
@@ -5551,11 +5545,9 @@ describe("addPlugin", async () => {
     });
     sandbox
       .stub(copilotGptManifestUtils, "readCopilotGptManifestFile")
-      .resolves(ok({} as DeclarativeCopilotManifestSchema));
+      .resolves(ok({} as DeclarativeAgentManifest));
     sandbox.stub(copilotGptManifestUtils, "getManifestPath").resolves(ok("dcManifest.json"));
-    sandbox
-      .stub(copilotGptManifestUtils, "addAction")
-      .resolves(ok({} as DeclarativeCopilotManifestSchema));
+    sandbox.stub(copilotGptManifestUtils, "addAction").resolves(ok({} as DeclarativeAgentManifest));
 
     const core = new FxCore(tools);
     sandbox.stub(openApiSpecHelper, "generateFromApiSpec").resolves(ok({ warnings: [] }));
@@ -5619,11 +5611,9 @@ describe("addPlugin", async () => {
     });
     sandbox
       .stub(copilotGptManifestUtils, "readCopilotGptManifestFile")
-      .resolves(ok({} as DeclarativeCopilotManifestSchema));
+      .resolves(ok({} as DeclarativeAgentManifest));
     sandbox.stub(copilotGptManifestUtils, "getManifestPath").resolves(ok("dcManifest.json"));
-    sandbox
-      .stub(copilotGptManifestUtils, "addAction")
-      .resolves(ok({} as DeclarativeCopilotManifestSchema));
+    sandbox.stub(copilotGptManifestUtils, "addAction").resolves(ok({} as DeclarativeAgentManifest));
 
     const core = new FxCore(tools);
     sandbox.stub(openApiSpecHelper, "generateFromApiSpec").resolves(ok({ warnings: [] }));
@@ -5696,11 +5686,9 @@ describe("addPlugin", async () => {
     });
     sandbox
       .stub(copilotGptManifestUtils, "readCopilotGptManifestFile")
-      .resolves(ok({} as DeclarativeCopilotManifestSchema));
+      .resolves(ok({} as DeclarativeAgentManifest));
     sandbox.stub(copilotGptManifestUtils, "getManifestPath").resolves(ok("dcManifest.json"));
-    sandbox
-      .stub(copilotGptManifestUtils, "addAction")
-      .resolves(ok({} as DeclarativeCopilotManifestSchema));
+    sandbox.stub(copilotGptManifestUtils, "addAction").resolves(ok({} as DeclarativeAgentManifest));
 
     const core = new FxCore(tools);
     sandbox.stub(openApiSpecHelper, "generateFromApiSpec").resolves(ok({ warnings: [] }));
@@ -5792,11 +5780,9 @@ describe("addPlugin", async () => {
     });
     sandbox
       .stub(copilotGptManifestUtils, "readCopilotGptManifestFile")
-      .resolves(ok({} as DeclarativeCopilotManifestSchema));
+      .resolves(ok({} as DeclarativeAgentManifest));
     sandbox.stub(copilotGptManifestUtils, "getManifestPath").resolves(ok("dcManifest.json"));
-    sandbox
-      .stub(copilotGptManifestUtils, "addAction")
-      .resolves(ok({} as DeclarativeCopilotManifestSchema));
+    sandbox.stub(copilotGptManifestUtils, "addAction").resolves(ok({} as DeclarativeAgentManifest));
     sandbox.stub(SpecParser.prototype, "list").resolves({
       APIs: [
         {
@@ -5857,7 +5843,7 @@ describe("addPlugin", async () => {
       .returns(false);
     sandbox
       .stub(copilotGptManifestUtils, "readCopilotGptManifestFile")
-      .resolves(ok({} as DeclarativeCopilotManifestSchema));
+      .resolves(ok({} as DeclarativeAgentManifest));
     sandbox.stub(copilotGptManifestUtils, "getManifestPath").resolves(ok("dcManifest.json"));
     sandbox
       .stub(declarativeAgentHelper, "addExistingPlugin")
@@ -5907,7 +5893,7 @@ describe("addPlugin", async () => {
       .returns(false);
     sandbox
       .stub(copilotGptManifestUtils, "readCopilotGptManifestFile")
-      .resolves(ok({} as DeclarativeCopilotManifestSchema));
+      .resolves(ok({} as DeclarativeAgentManifest));
     sandbox.stub(copilotGptManifestUtils, "getManifestPath").resolves(ok("dcManifest.json"));
     sandbox
       .stub(declarativeAgentHelper, "addExistingPlugin")
@@ -5962,7 +5948,7 @@ describe("addPlugin", async () => {
     sandbox.stub(copilotGptManifestUtils, "getManifestPath").resolves(ok("dcManifest.json"));
     sandbox
       .stub(copilotGptManifestUtils, "readCopilotGptManifestFile")
-      .resolves(ok({} as DeclarativeCopilotManifestSchema));
+      .resolves(ok({} as DeclarativeAgentManifest));
     sandbox.stub(tools.ui, "showMessage").resolves(ok("Add"));
     sandbox
       .stub(openApiSpecHelper, "generateFromApiSpec")
@@ -6036,7 +6022,7 @@ describe("addPlugin", async () => {
     });
     sandbox
       .stub(copilotGptManifestUtils, "readCopilotGptManifestFile")
-      .resolves(ok({} as DeclarativeCopilotManifestSchema));
+      .resolves(ok({} as DeclarativeAgentManifest));
     sandbox.stub(copilotGptManifestUtils, "getManifestPath").resolves(ok("dcManifest.json"));
     sandbox
       .stub(copilotGptManifestUtils, "addAction")
@@ -6229,7 +6215,7 @@ describe("addPlugin", async () => {
     sandbox.stub(copilotGptManifestUtils, "getManifestPath").resolves(ok("dcManifest.json"));
     sandbox
       .stub(copilotGptManifestUtils, "readCopilotGptManifestFile")
-      .resolves(ok({} as DeclarativeCopilotManifestSchema));
+      .resolves(ok({} as DeclarativeAgentManifest));
     sandbox.stub(tools.ui, "showMessage").resolves(ok("Cancel"));
     const core = new FxCore(tools);
     const result = await core.addPlugin(inputs);
@@ -6283,7 +6269,7 @@ describe("addPlugin", async () => {
     sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
     sandbox
       .stub(copilotGptManifestUtils, "readCopilotGptManifestFile")
-      .resolves(ok({} as DeclarativeCopilotManifestSchema));
+      .resolves(ok({} as DeclarativeAgentManifest));
     sandbox.stub(copilotGptManifestUtils, "getManifestPath").resolves(ok("dcManifest.json"));
     sandbox
       .stub(tools.ui, "showMessage")
@@ -6397,11 +6383,9 @@ describe("addPlugin", async () => {
     });
     sandbox
       .stub(copilotGptManifestUtils, "readCopilotGptManifestFile")
-      .resolves(ok({} as DeclarativeCopilotManifestSchema));
+      .resolves(ok({} as DeclarativeAgentManifest));
     sandbox.stub(copilotGptManifestUtils, "getManifestPath").resolves(ok("dcManifest.json"));
-    sandbox
-      .stub(copilotGptManifestUtils, "addAction")
-      .resolves(ok({} as DeclarativeCopilotManifestSchema));
+    sandbox.stub(copilotGptManifestUtils, "addAction").resolves(ok({} as DeclarativeAgentManifest));
 
     const core = new FxCore(tools);
     sandbox
@@ -6761,15 +6745,16 @@ describe("regeneratePlugin", async () => {
       }
       return true;
     });
-    sandbox
-      .stub(copilotGptManifestUtils, "readCopilotGptManifestFile")
-      .resolves(
-        ok({ actions: [], name: "test", description: "test" } as DeclarativeCopilotManifestSchema)
-      );
+    sandbox.stub(copilotGptManifestUtils, "readCopilotGptManifestFile").resolves(
+      ok({
+        version: "v1.0",
+        actions: [],
+        name: "test",
+        description: "test",
+      } as DeclarativeAgentManifest)
+    );
     sandbox.stub(copilotGptManifestUtils, "getManifestPath").resolves(ok("dcManifest.json"));
-    sandbox
-      .stub(copilotGptManifestUtils, "addAction")
-      .resolves(ok({} as DeclarativeCopilotManifestSchema));
+    sandbox.stub(copilotGptManifestUtils, "addAction").resolves(ok({} as DeclarativeAgentManifest));
 
     const core = new FxCore(tools);
     sandbox.stub(openApiSpecHelper, "generateFromApiSpec").resolves(ok({ warnings: [] }));
@@ -7144,7 +7129,7 @@ describe("regeneratePlugin", async () => {
       actions: [{ id: "test-plugin-id", file: "test-file.json" }],
       name: "test",
       description: "test",
-    } as DeclarativeCopilotManifestSchema;
+    } as DeclarativeAgentManifest;
 
     sandbox
       .stub(copilotGptManifestUtils, "readCopilotGptManifestFile")
@@ -7216,7 +7201,7 @@ describe("regeneratePlugin", async () => {
       actions: [{ id: "test-plugin-id", file: "test-file.json" }],
       name: "test",
       description: "test",
-    } as DeclarativeCopilotManifestSchema;
+    } as DeclarativeAgentManifest;
 
     sandbox
       .stub(copilotGptManifestUtils, "readCopilotGptManifestFile")
@@ -7326,911 +7311,6 @@ describe("regeneratePlugin", async () => {
   });
 });
 
-describe("kiotaRegenerate", async () => {
-  const sandbox = sinon.createSandbox();
-  let mockedEnvRestore: RestoreFn;
-
-  beforeEach(() => {
-    setTools(tools);
-    mockedEnvRestore = mockedEnv({
-      [FeatureFlagName.KiotaIntegration]: "true",
-    });
-  });
-
-  afterEach(() => {
-    sandbox.restore();
-    mockedEnvRestore();
-  });
-
-  it("happy path: successfully regenerate", async () => {
-    const appName = await mockV3Project();
-    const inputs: Inputs = {
-      platform: Platform.VSCode,
-      [QuestionNames.Folder]: os.tmpdir(),
-      [QuestionNames.TeamsAppManifestFilePath]: "manifest.json",
-      [QuestionNames.ActionManifestPath]: "test-aiplugin.json",
-      [QuestionNames.ApiSpecLocation]: "test-openapi.yaml",
-      projectPath: path.join(os.tmpdir(), appName),
-    };
-    const manifest = new TeamsAppManifest();
-    manifest.copilotExtensions = {
-      declarativeCopilots: [
-        {
-          file: "test1.json",
-          id: "action_1",
-        },
-      ],
-    };
-
-    sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
-    sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
-    sandbox.stub(copilotGptManifestUtils, "getManifestPath").resolves(ok("dcManifest.json"));
-    sandbox.stub(copilotGptManifestUtils, "readCopilotGptManifestFile").resolves(
-      ok({
-        actions: [
-          {
-            id: "action_1",
-            file: "test-aiplugin.json",
-          },
-        ],
-      } as DeclarativeCopilotManifestSchema)
-    );
-    sandbox.stub(fs, "readJson").resolves({
-      capabilities: {
-        conversation_starters: [],
-      },
-      runtimes: [
-        {
-          type: "OpenApi",
-          auth: {
-            type: "None",
-          },
-          spec: {
-            url: "apiSpecificationFile/openapi.json",
-          },
-          run_for_functions: ["listRepairs"],
-        },
-      ],
-      functions: [
-        {
-          name: "listRepairs",
-          description: "List all repairs",
-        },
-      ],
-    } as any);
-
-    sandbox.stub(daSpecParser, "parseAndUpdatePluginManifestForKiota").resolves([
-      {
-        authName: "mockedAuthName",
-        authType: "apiKey",
-        registrationId: "MOCKED_REGISTRATION_ID",
-        specPath: "test.yaml",
-      },
-    ]);
-    sandbox
-      .stub(openApiSpecHelper, "injectAuthAction")
-      .resolves({ defaultRegistrationIdEnvName: "test", registrationIdEnvName: "test" });
-
-    sandbox.stub(SpecParser.prototype, "validate").resolves({
-      status: ValidationStatus.Valid,
-      warnings: [],
-      errors: [],
-    });
-
-    sandbox.stub(SpecParser.prototype, "generateForCopilot").resolves({
-      allSuccess: true,
-      warnings: [],
-    });
-
-    const core = new FxCore(tools);
-    const result = await core.kiotaRegenerate(inputs);
-    assert.isTrue(result.isOk());
-  });
-
-  it("happy path: add new action", async () => {
-    const appName = await mockV3Project();
-    const inputs: Inputs = {
-      platform: Platform.VSCode,
-      [QuestionNames.Folder]: os.tmpdir(),
-      [QuestionNames.TeamsAppManifestFilePath]: "manifest.json",
-      [QuestionNames.ActionManifestPath]: "test-aiplugin.json",
-      [QuestionNames.ApiSpecLocation]: "test-openapi.yaml",
-      projectPath: path.join(os.tmpdir(), appName),
-    };
-    const manifest = new TeamsAppManifest();
-    manifest.copilotExtensions = {
-      declarativeCopilots: [
-        {
-          file: "test1.json",
-          id: "action_1",
-        },
-      ],
-    };
-
-    sandbox.stub(fs, "readJson").resolves({
-      capabilities: {
-        conversation_starters: [],
-      },
-      runtimes: [
-        {
-          type: "OpenApi",
-          auth: {
-            type: "None",
-          },
-          spec: {
-            url: "apiSpecificationFile/openapi.json",
-          },
-          run_for_functions: ["listRepairs"],
-        },
-      ],
-      functions: [
-        {
-          name: "listRepairs",
-          description: "List all repairs",
-        },
-      ],
-    } as any);
-    sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
-    sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
-    sandbox.stub(copilotGptManifestUtils, "getManifestPath").resolves(ok("dcManifest.json"));
-    sandbox.stub(copilotGptManifestUtils, "readCopilotGptManifestFile").resolves(
-      ok({
-        actions: [
-          {
-            id: "action_1",
-            file: "test-aiplugin1.json",
-          },
-        ],
-      } as DeclarativeCopilotManifestSchema)
-    );
-
-    sandbox.stub(daSpecParser, "parseAndUpdatePluginManifestForKiota").resolves([
-      {
-        authName: "mockedAuthName",
-        authType: "apiKey",
-        registrationId: "MOCKED_REGISTRATION_ID",
-        specPath: "test.yaml",
-      },
-    ]);
-    sandbox
-      .stub(openApiSpecHelper, "injectAuthAction")
-      .resolves({ defaultRegistrationIdEnvName: "test", registrationIdEnvName: "test" });
-    sandbox
-      .stub(copilotGptManifestUtils, "addAction")
-      .resolves(ok({} as DeclarativeCopilotManifestSchema));
-    sandbox.stub(openApiSpecHelper, "generateFromApiSpec").resolves(ok({ warnings: [] }));
-
-    const core = new FxCore(tools);
-    const result = await core.kiotaRegenerate(inputs);
-    assert.isTrue(result.isOk());
-  });
-
-  it("should throw error if fail to update plugin manifest", async () => {
-    const appName = await mockV3Project();
-    const inputs: Inputs = {
-      platform: Platform.VSCode,
-      [QuestionNames.Folder]: os.tmpdir(),
-      [QuestionNames.TeamsAppManifestFilePath]: "manifest.json",
-      [QuestionNames.ActionManifestPath]: "test-aiplugin.json",
-      [QuestionNames.ApiSpecLocation]: "test-openapi.yaml",
-      projectPath: path.join(os.tmpdir(), appName),
-    };
-    const manifest = new TeamsAppManifest();
-    manifest.copilotExtensions = {
-      declarativeCopilots: [
-        {
-          file: "test1.json",
-          id: "action_1",
-        },
-      ],
-    };
-
-    sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
-    sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
-    sandbox.stub(copilotGptManifestUtils, "getManifestPath").resolves(ok("dcManifest.json"));
-    sandbox.stub(copilotGptManifestUtils, "readCopilotGptManifestFile").resolves(
-      ok({
-        actions: [
-          {
-            id: "action_1",
-            file: "test-aiplugin.json",
-          },
-        ],
-      } as DeclarativeCopilotManifestSchema)
-    );
-    sandbox.stub(SpecParser.prototype, "list").resolves({
-      APIs: [
-        {
-          api: "GET /user/{userId}",
-          server: "https://example.com",
-          operationId: "getExample",
-          isValid: true,
-          reason: [],
-          auth: {
-            name: "bearerAuth",
-            authScheme: {
-              type: "http",
-              scheme: "bearer",
-            },
-          },
-        },
-      ],
-      allAPICount: 1,
-      validAPICount: 1,
-    });
-    sandbox
-      .stub(openApiSpecHelper, "injectAuthAction")
-      .resolves({ defaultRegistrationIdEnvName: "test", registrationIdEnvName: "test" });
-    sandbox
-      .stub(openApiSpecHelper, "generateFromApiSpec")
-      .resolves(err(new UserError("fake-error-source", "fake-error-name", "fake-error-message")));
-
-    const core = new FxCore(tools);
-    const result = await core.kiotaRegenerate(inputs);
-    assert.isTrue(result.isErr());
-  });
-
-  it("should throw error if no project path", async () => {
-    const appName = await mockV3Project();
-    const inputs: Inputs = {
-      platform: Platform.VSCode,
-      [QuestionNames.Folder]: os.tmpdir(),
-      [QuestionNames.TeamsAppManifestFilePath]: "manifest.json",
-      [QuestionNames.ActionManifestPath]: "test-aiplugin.json",
-      [QuestionNames.ApiSpecLocation]: "test-openapi.yaml",
-    };
-
-    const core = new FxCore(tools);
-    const result = await core.kiotaRegenerate(inputs);
-    assert.isTrue(result.isErr());
-  });
-
-  it("should throw error if failed to read app manifest", async () => {
-    const appName = await mockV3Project();
-    const inputs: Inputs = {
-      platform: Platform.VSCode,
-      [QuestionNames.Folder]: os.tmpdir(),
-      [QuestionNames.TeamsAppManifestFilePath]: "manifest.json",
-      [QuestionNames.ActionManifestPath]: "test-aiplugin.json",
-      [QuestionNames.ApiSpecLocation]: "test-openapi.yaml",
-      projectPath: path.join(os.tmpdir(), appName),
-    };
-
-    sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
-    sandbox
-      .stub(manifestUtils, "_readAppManifest")
-      .resolves(err(new UserError("fakeError", "fakeError", "", "")));
-
-    const core = new FxCore(tools);
-    const result = await core.kiotaRegenerate(inputs);
-    assert.isTrue(result.isErr());
-    if (result.isErr()) {
-      assert.equal(result.error.name, "fakeError");
-    }
-  });
-
-  it("should throw error if no copilotAgents in manifest", async () => {
-    const appName = await mockV3Project();
-    const inputs: Inputs = {
-      platform: Platform.VSCode,
-      [QuestionNames.Folder]: os.tmpdir(),
-      [QuestionNames.TeamsAppManifestFilePath]: "manifest.json",
-      [QuestionNames.ActionManifestPath]: "test-aiplugin.json",
-      [QuestionNames.ApiSpecLocation]: "test-openapi.yaml",
-      projectPath: path.join(os.tmpdir(), appName),
-    };
-    const manifest = new TeamsAppManifest();
-
-    sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
-    sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
-
-    const core = new FxCore(tools);
-    const result = await core.kiotaRegenerate(inputs);
-    assert.isTrue(result.isErr());
-    if (result.isErr()) {
-      assert.equal(result.error.name, "TeamsAppMissingRequiredCapability");
-    }
-  });
-
-  it("should throw error if failed to getManifestPath", async () => {
-    const appName = await mockV3Project();
-    const inputs: Inputs = {
-      platform: Platform.VSCode,
-      [QuestionNames.Folder]: os.tmpdir(),
-      [QuestionNames.TeamsAppManifestFilePath]: "manifest.json",
-      [QuestionNames.ActionManifestPath]: "test-aiplugin.json",
-      [QuestionNames.ApiSpecLocation]: "test-openapi.yaml",
-      projectPath: path.join(os.tmpdir(), appName),
-    };
-    const manifest = new TeamsAppManifest();
-    manifest.copilotExtensions = {
-      declarativeCopilots: [
-        {
-          file: "test1.json",
-          id: "action_1",
-        },
-      ],
-    };
-
-    sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
-    sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
-    sandbox
-      .stub(copilotGptManifestUtils, "getManifestPath")
-      .resolves(err(new UserError("fakeError", "fakeError", "", "")));
-
-    const core = new FxCore(tools);
-    const result = await core.kiotaRegenerate(inputs);
-    assert.isTrue(result.isErr());
-    if (result.isErr()) {
-      assert.equal(result.error.name, "fakeError");
-    }
-  });
-
-  it("should throw error if failed to readCopilotGptManifestFile", async () => {
-    const appName = await mockV3Project();
-    const inputs: Inputs = {
-      platform: Platform.VSCode,
-      [QuestionNames.Folder]: os.tmpdir(),
-      [QuestionNames.TeamsAppManifestFilePath]: "manifest.json",
-      [QuestionNames.ActionManifestPath]: "test-aiplugin.json",
-      [QuestionNames.ApiSpecLocation]: "test-openapi.yaml",
-      projectPath: path.join(os.tmpdir(), appName),
-    };
-    const manifest = new TeamsAppManifest();
-    manifest.copilotExtensions = {
-      declarativeCopilots: [
-        {
-          file: "test1.json",
-          id: "action_1",
-        },
-      ],
-    };
-
-    sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
-    sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
-    sandbox.stub(copilotGptManifestUtils, "getManifestPath").resolves(ok("dcManifest.json"));
-    sandbox
-      .stub(copilotGptManifestUtils, "readCopilotGptManifestFile")
-      .resolves(err(new UserError("fakeError", "fakeError", "", "")));
-
-    const core = new FxCore(tools);
-    const result = await core.kiotaRegenerate(inputs);
-    assert.isTrue(result.isErr());
-    if (result.isErr()) {
-      assert.equal(result.error.name, "fakeError");
-    }
-  });
-
-  it("should throw error if failed to add action", async () => {
-    const appName = await mockV3Project();
-    const inputs: Inputs = {
-      platform: Platform.VSCode,
-      [QuestionNames.Folder]: os.tmpdir(),
-      [QuestionNames.TeamsAppManifestFilePath]: "manifest.json",
-      [QuestionNames.ActionManifestPath]: "test-aiplugin.json",
-      [QuestionNames.ApiSpecLocation]: "test-openapi.yaml",
-      projectPath: path.join(os.tmpdir(), appName),
-    };
-    const manifest = new TeamsAppManifest();
-    manifest.copilotExtensions = {
-      declarativeCopilots: [
-        {
-          file: "test1.json",
-          id: "action_1",
-        },
-      ],
-    };
-
-    sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
-    sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
-    sandbox.stub(copilotGptManifestUtils, "getManifestPath").resolves(ok("dcManifest.json"));
-    sandbox.stub(copilotGptManifestUtils, "readCopilotGptManifestFile").resolves(
-      ok({
-        actions: [
-          {
-            id: "action_1",
-            file: "test-aiplugin1.json",
-          },
-        ],
-      } as DeclarativeCopilotManifestSchema)
-    );
-    sandbox.stub(SpecParser.prototype, "list").resolves({
-      APIs: [
-        {
-          api: "GET /user/{userId}",
-          server: "https://example.com",
-          operationId: "getExample",
-          isValid: true,
-          reason: [],
-          auth: {
-            name: "bearerAuth",
-            authScheme: {
-              type: "http",
-              scheme: "bearer",
-            },
-          },
-        },
-      ],
-      allAPICount: 1,
-      validAPICount: 1,
-    });
-    sandbox
-      .stub(openApiSpecHelper, "injectAuthAction")
-      .resolves({ defaultRegistrationIdEnvName: "test", registrationIdEnvName: "test" });
-    sandbox
-      .stub(copilotGptManifestUtils, "addAction")
-      .resolves(err(new UserError("fakeError", "fakeError", "", "")));
-
-    const core = new FxCore(tools);
-    const result = await core.kiotaRegenerate(inputs);
-    assert.isTrue(result.isErr());
-
-    if (result.isErr()) {
-      assert.equal(result.error.name, "fakeError");
-    }
-  });
-});
-
-describe("addAuthAction", async () => {
-  const sandbox = sinon.createSandbox();
-  afterEach(() => {
-    sandbox.restore();
-  });
-
-  it("happy path: successfully add auth action for api key", async () => {
-    const appName = await mockV3Project();
-    const inputs: Inputs = {
-      platform: Platform.VSCode,
-      [QuestionNames.Folder]: os.tmpdir(),
-      [QuestionNames.PluginManifestFilePath]: "aiplugin.json",
-      [QuestionNames.ApiSpecLocation]: "test-openapi.yaml",
-      [QuestionNames.ApiOperation]: ["operation1"],
-      [QuestionNames.AuthName]: "mockAuthName",
-      [QuestionNames.ApiAuth]: "api-key",
-      [QuestionNames.ApiKeyIn]: "header",
-      [QuestionNames.ApiKeyName]: "mockApiKeyName",
-      projectPath: path.join(os.tmpdir(), appName),
-    };
-    const pluginManifest = {
-      schema_version: "1.0",
-      name_for_human: "test",
-      description_for_human: "test",
-      runtimes: [
-        {
-          type: "OpenApi",
-          auth: {
-            type: "None",
-          },
-          spec: {
-            url: "test-openapi.yaml",
-          },
-          run_for_functions: ["operation1"],
-        },
-      ],
-    };
-    sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
-    sandbox.stub(SpecParser.prototype, "addAuthScheme").resolves();
-    sandbox
-      .stub(copilotGptManifestUtils, "readCopilotGptManifestFile")
-      .resolves(ok({} as DeclarativeCopilotManifestSchema));
-    sandbox.stub(openApiSpecHelper, "injectAuthAction").resolves({
-      defaultRegistrationIdEnvName: "test",
-      registrationIdEnvName: "test",
-    });
-    sandbox.stub(path, "normalize").returns("normalizedPath");
-    sandbox.stub(path, "join").returns("joinedPath");
-    sandbox.stub(fs, "readJson").resolves(pluginManifest);
-    sandbox.stub(fs, "writeJson").callsFake(async (path: string, data: any) => {
-      assert.equal(data.runtimes.length, 1);
-    });
-    const core = new FxCore(tools);
-    const result = await core.addAuthAction(inputs);
-    assert.isTrue(result.isOk());
-  });
-
-  it("happy path: successfully add auth action for oauth without refreshUrl", async () => {
-    const appName = await mockV3Project();
-    const inputs: Inputs = {
-      platform: Platform.VSCode,
-      [QuestionNames.Folder]: os.tmpdir(),
-      [QuestionNames.PluginManifestFilePath]: "aiplugin.json",
-      [QuestionNames.ApiSpecLocation]: "test-openapi.yaml",
-      [QuestionNames.ApiOperation]: ["operation1"],
-      [QuestionNames.AuthName]: "mockAuthName",
-      [QuestionNames.ApiAuth]: "oauth",
-      [QuestionNames.OAuthAuthorizationUrl]: "mockAuthorizationUrl",
-      [QuestionNames.OAuthTokenUrl]: "mockTokenUrl",
-      [QuestionNames.OAuthRefreshUrl]: "",
-      [QuestionNames.OAuthScope]: "api://mockScopes: mockedDescription",
-      [QuestionNames.OauthPKCE]: "false",
-      projectPath: path.join(os.tmpdir(), appName),
-    };
-    const pluginManifest = {
-      schema_version: "1.0",
-      name_for_human: "test",
-      description_for_human: "test",
-      runtimes: [
-        {
-          type: "OpenApi",
-          auth: {
-            type: "None",
-          },
-          spec: {
-            url: "test-openapi.yaml",
-          },
-          run_for_functions: ["operation1"],
-        },
-      ],
-    };
-    sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
-    sandbox.stub(SpecParser.prototype, "addAuthScheme").resolves();
-    sandbox
-      .stub(copilotGptManifestUtils, "readCopilotGptManifestFile")
-      .resolves(ok({} as DeclarativeCopilotManifestSchema));
-    sandbox.stub(openApiSpecHelper, "injectAuthAction").resolves({
-      defaultRegistrationIdEnvName: "test",
-      registrationIdEnvName: "test",
-    });
-    sandbox.stub(path, "normalize").returns("normalizedPath");
-    sandbox.stub(path, "join").returns("joinedPath");
-    sandbox.stub(fs, "readJson").resolves(pluginManifest);
-    sandbox.stub(fs, "writeJson").callsFake(async (path: string, data: any) => {
-      assert.equal(data.runtimes.length, 1);
-    });
-    const core = new FxCore(tools);
-    const result = await core.addAuthAction(inputs);
-    assert.isTrue(result.isOk());
-  });
-
-  it("happy path: successfully add auth action for oauth with refreshUrl", async () => {
-    const appName = await mockV3Project();
-    const inputs: Inputs = {
-      platform: Platform.VSCode,
-      [QuestionNames.Folder]: os.tmpdir(),
-      [QuestionNames.PluginManifestFilePath]: "aiplugin.json",
-      [QuestionNames.ApiSpecLocation]: "test-openapi.yaml",
-      [QuestionNames.ApiOperation]: ["operation1"],
-      [QuestionNames.AuthName]: "mockAuthName",
-      [QuestionNames.ApiAuth]: "oauth",
-      [QuestionNames.OAuthAuthorizationUrl]: "mockAuthorizationUrl",
-      [QuestionNames.OAuthTokenUrl]: "mockTokenUrl",
-      [QuestionNames.OAuthRefreshUrl]: "mockRefreshUrl",
-      [QuestionNames.OAuthScope]: "api://mockScopes: mockedDescription",
-      [QuestionNames.OauthPKCE]: "false",
-      projectPath: path.join(os.tmpdir(), appName),
-    };
-    const pluginManifest = {
-      schema_version: "1.0",
-      name_for_human: "test",
-      description_for_human: "test",
-      runtimes: [
-        {
-          type: "OpenApi",
-          auth: {
-            type: "None",
-          },
-          spec: {
-            url: "test-openapi.yaml",
-          },
-          run_for_functions: ["operation1"],
-        },
-      ],
-    };
-    sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
-    sandbox.stub(SpecParser.prototype, "addAuthScheme").resolves();
-    sandbox
-      .stub(copilotGptManifestUtils, "readCopilotGptManifestFile")
-      .resolves(ok({} as DeclarativeCopilotManifestSchema));
-    sandbox.stub(openApiSpecHelper, "injectAuthAction").resolves({
-      defaultRegistrationIdEnvName: "test",
-      registrationIdEnvName: "test",
-    });
-    sandbox.stub(path, "normalize").returns("normalizedPath");
-    sandbox.stub(path, "join").returns("joinedPath");
-    sandbox.stub(fs, "readJson").resolves(pluginManifest);
-    sandbox.stub(fs, "writeJson").callsFake(async (path: string, data: any) => {
-      assert.equal(data.runtimes.length, 1);
-    });
-    const core = new FxCore(tools);
-    const result = await core.addAuthAction(inputs);
-    assert.isTrue(result.isOk());
-  });
-
-  it("happy path: successfully add auth action for oauth pkce", async () => {
-    const appName = await mockV3Project();
-    const inputs: Inputs = {
-      platform: Platform.VSCode,
-      [QuestionNames.Folder]: os.tmpdir(),
-      [QuestionNames.PluginManifestFilePath]: "aiplugin.json",
-      [QuestionNames.ApiSpecLocation]: "test-openapi.yaml",
-      [QuestionNames.ApiOperation]: ["operation1"],
-      [QuestionNames.AuthName]: "mockAuthName",
-      [QuestionNames.ApiAuth]: "oauth",
-      [QuestionNames.OAuthAuthorizationUrl]: "mockAuthorizationUrl",
-      [QuestionNames.OAuthTokenUrl]: "mockTokenUrl",
-      [QuestionNames.OAuthRefreshUrl]: "mockRefreshUrl",
-      [QuestionNames.OAuthScope]: "api://mockScopes: mockedDescription",
-      [QuestionNames.OauthPKCE]: "true",
-      projectPath: path.join(os.tmpdir(), appName),
-    };
-    const pluginManifest = {
-      schema_version: "1.0",
-      name_for_human: "test",
-      description_for_human: "test",
-      runtimes: [
-        {
-          type: "OpenApi",
-          auth: {
-            type: "None",
-          },
-          spec: {
-            url: "test-openapi.yaml",
-          },
-          run_for_functions: ["operation1"],
-        },
-      ],
-    };
-    sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
-    sandbox.stub(SpecParser.prototype, "addAuthScheme").resolves();
-    sandbox
-      .stub(copilotGptManifestUtils, "readCopilotGptManifestFile")
-      .resolves(ok({} as DeclarativeCopilotManifestSchema));
-    sandbox.stub(openApiSpecHelper, "injectAuthAction").resolves({
-      defaultRegistrationIdEnvName: "test",
-      registrationIdEnvName: "test",
-    });
-    sandbox.stub(path, "normalize").returns("normalizedPath");
-    sandbox.stub(path, "join").returns("joinedPath");
-    sandbox.stub(fs, "readJson").resolves(pluginManifest);
-    sandbox.stub(fs, "writeJson").callsFake(async (path: string, data: any) => {
-      assert.equal(data.runtimes.length, 1);
-    });
-    const core = new FxCore(tools);
-    const result = await core.addAuthAction(inputs);
-    assert.isTrue(result.isOk());
-  });
-
-  it("happy path: successfully add auth action for microsoft entra", async () => {
-    const appName = await mockV3Project();
-    const inputs: Inputs = {
-      platform: Platform.VSCode,
-      [QuestionNames.Folder]: os.tmpdir(),
-      [QuestionNames.PluginManifestFilePath]: "aiplugin.json",
-      [QuestionNames.ApiSpecLocation]: "test-openapi.yaml",
-      [QuestionNames.ApiOperation]: ["operation1"],
-      [QuestionNames.AuthName]: "mockAuthName",
-      [QuestionNames.ApiAuth]: "microsoft-entra",
-      [QuestionNames.OAuthScope]: "api://mockScopes: mockedDescription",
-      projectPath: path.join(os.tmpdir(), appName),
-    };
-    const pluginManifest = {
-      schema_version: "1.0",
-      name_for_human: "test",
-      description_for_human: "test",
-      runtimes: [
-        {
-          type: "OpenApi",
-          auth: {
-            type: "None",
-          },
-          spec: {
-            url: "test-openapi.yaml",
-          },
-          run_for_functions: ["operation1"],
-        },
-      ],
-    };
-    sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
-    sandbox.stub(Utils, "getSafeRegistrationIdEnvName").resolves("safe_app_id");
-    sandbox.stub(SpecParser.prototype, "addAuthScheme").resolves();
-    sandbox
-      .stub(copilotGptManifestUtils, "readCopilotGptManifestFile")
-      .resolves(ok({} as DeclarativeCopilotManifestSchema));
-    sandbox.stub(openApiSpecHelper, "injectAuthAction").resolves({
-      defaultRegistrationIdEnvName: "test",
-      registrationIdEnvName: "test",
-    });
-    sandbox.stub(path, "normalize").returns("normalizedPath");
-    sandbox.stub(path, "join").returns("joinedPath");
-    sandbox.stub(fs, "readJson").resolves(pluginManifest);
-    sandbox.stub(fs, "writeJson").callsFake(async (path: string, data: any) => {
-      assert.equal(data.runtimes.length, 1);
-    });
-    const core = new FxCore(tools);
-    const result = await core.addAuthAction(inputs);
-    assert.isTrue(result.isOk());
-  });
-
-  it("happy path: successfully add auth action for bearer token", async () => {
-    const appName = await mockV3Project();
-    const inputs: Inputs = {
-      platform: Platform.VSCode,
-      [QuestionNames.Folder]: os.tmpdir(),
-      [QuestionNames.PluginManifestFilePath]: "aiplugin.json",
-      [QuestionNames.ApiSpecLocation]: "test-openapi.yaml",
-      [QuestionNames.ApiOperation]: ["operation1"],
-      [QuestionNames.AuthName]: "mockAuthName",
-      [QuestionNames.ApiAuth]: "bearer-token",
-      projectPath: path.join(os.tmpdir(), appName),
-    };
-    const pluginManifest = {
-      schema_version: "1.0",
-      name_for_human: "test",
-      description_for_human: "test",
-      runtimes: [
-        {
-          type: "OpenApi",
-          auth: {
-            type: "None",
-          },
-          spec: {
-            url: "test-openapi.yaml",
-          },
-          run_for_functions: ["operation1"],
-        },
-      ],
-    };
-    sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
-    sandbox.stub(SpecParser.prototype, "addAuthScheme").resolves();
-    sandbox
-      .stub(copilotGptManifestUtils, "readCopilotGptManifestFile")
-      .resolves(ok({} as DeclarativeCopilotManifestSchema));
-    sandbox.stub(openApiSpecHelper, "injectAuthAction").resolves({
-      defaultRegistrationIdEnvName: "test",
-      registrationIdEnvName: "test",
-    });
-    sandbox.stub(path, "normalize").returns("normalizedPath");
-    sandbox.stub(path, "join").returns("joinedPath");
-    sandbox.stub(fs, "readJson").resolves(pluginManifest);
-    sandbox.stub(fs, "writeJson").callsFake(async (path: string, data: any) => {
-      assert.equal(data.runtimes.length, 1);
-    });
-    const core = new FxCore(tools);
-    const result = await core.addAuthAction(inputs);
-    assert.isTrue(result.isOk());
-  });
-
-  it("happy path: should do nothing if auth action not added", async () => {
-    const appName = await mockV3Project();
-    const inputs: Inputs = {
-      platform: Platform.VSCode,
-      [QuestionNames.Folder]: os.tmpdir(),
-      [QuestionNames.PluginManifestFilePath]: "aiplugin.json",
-      [QuestionNames.ApiSpecLocation]: "test-openapi.yaml",
-      [QuestionNames.ApiOperation]: ["operation1"],
-      [QuestionNames.AuthName]: "mockAuthName",
-      [QuestionNames.ApiAuth]: "bearer-token",
-      projectPath: path.join(os.tmpdir(), appName),
-    };
-    const pluginManifest = {
-      schema_version: "1.0",
-      name_for_human: "test",
-      description_for_human: "test",
-      runtimes: [
-        {
-          type: "OpenApi",
-          auth: {
-            type: "None",
-          },
-          spec: {
-            url: "test-openapi.yaml",
-          },
-          run_for_functions: ["operation1"],
-        },
-      ],
-    };
-    sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
-    sandbox.stub(SpecParser.prototype, "addAuthScheme").resolves();
-    sandbox
-      .stub(copilotGptManifestUtils, "readCopilotGptManifestFile")
-      .resolves(ok({} as DeclarativeCopilotManifestSchema));
-    sandbox.stub(openApiSpecHelper, "injectAuthAction").resolves(undefined);
-    sandbox.stub(path, "normalize").returns("normalizedPath");
-    sandbox.stub(path, "join").returns("joinedPath");
-    sandbox.stub(fs, "readJson").resolves(pluginManifest);
-    const writeJsonStub = sandbox.stub(fs, "writeJson").resolves();
-    const core = new FxCore(tools);
-    const result = await core.addAuthAction(inputs);
-    assert.isTrue(result.isOk());
-    assert.isTrue(writeJsonStub.notCalled);
-  });
-
-  it("should throw error when missing project path", async () => {
-    const inputs: Inputs = {
-      platform: Platform.VSCode,
-      [QuestionNames.Folder]: os.tmpdir(),
-      [QuestionNames.PluginManifestFilePath]: "aiplugin.json",
-      [QuestionNames.ApiSpecLocation]: "test-openapi.yaml",
-      [QuestionNames.ApiOperation]: ["operation1"],
-      [QuestionNames.AuthName]: "mockAuthName",
-      [QuestionNames.ApiAuth]: "api-key",
-    };
-    const pluginManifest = {
-      schema_version: "1.0",
-      name_for_human: "test",
-      description_for_human: "test",
-      runtimes: [
-        {
-          type: "OpenApi",
-          auth: {
-            type: "None",
-          },
-          spec: {
-            url: "spec1.yaml",
-          },
-          run_for_functions: ["function1"],
-        },
-      ],
-    };
-    sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
-    sandbox
-      .stub(copilotGptManifestUtils, "readCopilotGptManifestFile")
-      .resolves(ok({} as DeclarativeCopilotManifestSchema));
-    sandbox.stub(openApiSpecHelper, "injectAuthAction").resolves({
-      defaultRegistrationIdEnvName: "test",
-      registrationIdEnvName: "test",
-    });
-    sandbox.stub(path, "normalize").returns("normalizedPath");
-    sandbox.stub(path, "join").returns("joinedPath");
-    sandbox.stub(fs, "readJson").resolves(pluginManifest);
-    sandbox.stub(fs, "writeJson").callsFake(async (path: string, data: any) => {
-      assert.equal(data.runtimes.length, 2);
-    });
-    const core = new FxCore(tools);
-    const result = await core.addAuthAction(inputs);
-    assert.isTrue(result.isErr());
-  });
-
-  it("should throw error with telemetry", async () => {
-    const appName = await mockV3Project();
-    const inputs: Inputs = {
-      platform: Platform.VSCode,
-      [QuestionNames.Folder]: os.tmpdir(),
-      [QuestionNames.PluginManifestFilePath]: "aiplugin.json",
-      [QuestionNames.ApiSpecLocation]: "test-openapi.yaml",
-      [QuestionNames.ApiOperation]: ["operation1"],
-      [QuestionNames.AuthName]: "mockAuthName",
-      [QuestionNames.ApiAuth]: "bearer-token",
-      projectPath: path.join(os.tmpdir(), appName),
-    };
-    const pluginManifest = {
-      schema_version: "1.0",
-      name_for_human: "test",
-      description_for_human: "test",
-      runtimes: [
-        {
-          type: "OpenApi",
-          auth: {
-            type: "None",
-          },
-          spec: {
-            url: "test-openapi.yaml",
-          },
-          run_for_functions: ["operation1"],
-        },
-      ],
-    };
-    sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
-    sandbox.stub(SpecParser.prototype, "addAuthScheme").throws(new Error("test error"));
-    sandbox
-      .stub(copilotGptManifestUtils, "readCopilotGptManifestFile")
-      .resolves(ok({} as DeclarativeCopilotManifestSchema));
-    sandbox.stub(openApiSpecHelper, "injectAuthAction").resolves({
-      defaultRegistrationIdEnvName: "test",
-      registrationIdEnvName: "test",
-    });
-    sandbox.stub(path, "normalize").returns("normalizedPath");
-    sandbox.stub(path, "join").returns("joinedPath");
-    sandbox.stub(fs, "readJson").resolves(pluginManifest);
-    sandbox.stub(fs, "writeJson").callsFake(async (path: string, data: any) => {
-      assert.equal(data.runtimes.length, 1);
-    });
-    const core = new FxCore(tools);
-    const result = await core.addAuthAction(inputs);
-    assert.isTrue(result.isErr());
-  });
-});
-
 describe("addKnowledge", async () => {
   const sandbox = sinon.createSandbox();
   afterEach(async () => {
@@ -8272,7 +7352,7 @@ describe("addKnowledge", async () => {
         actions: [{}],
         capabilities: [
           {
-            name: DeclarativeCopilotCapabilityName.WebSearch,
+            name: CapabilityName.WebSearch,
             sites: [
               {
                 url: "https://fakeUrl.com",
@@ -8280,7 +7360,7 @@ describe("addKnowledge", async () => {
             ],
           },
         ],
-      } as DeclarativeCopilotManifestSchema)
+      } as DeclarativeAgentManifest)
     );
 
     const addWebSearchRes = sandbox.spy(copilotGptManifestUtils, "addWebSearchCapability");
@@ -8291,7 +7371,7 @@ describe("addKnowledge", async () => {
       const capabilities = addWebSearchCapabilityRes.value.capabilities;
       assert.deepEqual(capabilities, [
         {
-          name: DeclarativeCopilotCapabilityName.WebSearch,
+          name: CapabilityName.WebSearch,
         },
       ]);
     } else {
@@ -8331,7 +7411,7 @@ describe("addKnowledge", async () => {
     sandbox.stub(copilotGptManifestUtils, "readCopilotGptManifestFile").resolves(
       ok({
         actions: [{}],
-      } as DeclarativeCopilotManifestSchema)
+      } as DeclarativeAgentManifest)
     );
 
     const addWebSearchRes = sandbox.spy(copilotGptManifestUtils, "addWebSearchCapability");
@@ -8342,7 +7422,7 @@ describe("addKnowledge", async () => {
       const capabilities = addWebSearchCapabilityRes.value.capabilities;
       assert.deepEqual(capabilities, [
         {
-          name: DeclarativeCopilotCapabilityName.WebSearch,
+          name: CapabilityName.WebSearch,
           sites: [
             {
               url: searchUrl,
@@ -8389,10 +7469,10 @@ describe("addKnowledge", async () => {
         actions: [{}],
         capabilities: [
           {
-            name: DeclarativeCopilotCapabilityName.WebSearch,
+            name: CapabilityName.WebSearch,
           },
         ],
-      } as DeclarativeCopilotManifestSchema)
+      } as DeclarativeAgentManifest)
     );
 
     const addWebSearchRes = sandbox.spy(copilotGptManifestUtils, "addWebSearchCapability");
@@ -8403,7 +7483,7 @@ describe("addKnowledge", async () => {
       const capabilities = addWebSearchCapabilityRes.value.capabilities;
       assert.deepEqual(capabilities, [
         {
-          name: DeclarativeCopilotCapabilityName.WebSearch,
+          name: CapabilityName.WebSearch,
           sites: [
             {
               url: searchUrl,
@@ -8444,7 +7524,7 @@ describe("addKnowledge", async () => {
     sandbox.stub(copilotGptManifestUtils, "readCopilotGptManifestFile").resolves(
       ok({
         actions: [{}],
-      } as DeclarativeCopilotManifestSchema)
+      } as DeclarativeAgentManifest)
     );
 
     const addWebSearchRes = sandbox.spy(copilotGptManifestUtils, "addWebSearchCapability");
@@ -8455,7 +7535,7 @@ describe("addKnowledge", async () => {
       const capabilities = addWebSearchCapabilityRes.value.capabilities;
       assert.deepEqual(capabilities, [
         {
-          name: DeclarativeCopilotCapabilityName.WebSearch,
+          name: CapabilityName.WebSearch,
         },
       ]);
     } else {
@@ -8484,7 +7564,7 @@ describe("addKnowledge", async () => {
         const capabilities = addEmbeddedKnowledgeFilesRes.value.capabilities;
         assert.deepEqual(capabilities, [
           {
-            name: DeclarativeCopilotCapabilityName.EmbeddedKnowledge,
+            name: CapabilityName.EmbeddedKnowledge,
           },
         ]);
       }
@@ -8520,7 +7600,7 @@ describe("addKnowledge", async () => {
     sandbox.stub(copilotGptManifestUtils, "readCopilotGptManifestFile").resolves(
       ok({
         actions: [{}],
-      } as DeclarativeCopilotManifestSchema)
+      } as DeclarativeAgentManifest)
     );
 
     const addOneDriveSharepointRes = sandbox.spy(
@@ -8534,7 +7614,7 @@ describe("addKnowledge", async () => {
       const capabilities = addOneDriveSharepointResCapRes.value.capabilities;
       assert.deepEqual(capabilities, [
         {
-          name: DeclarativeCopilotCapabilityName.OneDriveAndSharePoint,
+          name: CapabilityName.OneDriveAndSharePoint,
         },
       ]);
     } else {
@@ -8579,7 +7659,7 @@ describe("addKnowledge", async () => {
     sandbox.stub(copilotGptManifestUtils, "readCopilotGptManifestFile").resolves(
       ok({
         actions: [{}],
-      } as DeclarativeCopilotManifestSchema)
+      } as DeclarativeAgentManifest)
     );
 
     const addOneDriveSharepointRes = sandbox.spy(
@@ -8593,7 +7673,7 @@ describe("addKnowledge", async () => {
       const capabilities = addOneDriveSharepointResCapRes.value.capabilities;
       assert.deepEqual(capabilities, [
         {
-          name: DeclarativeCopilotCapabilityName.OneDriveAndSharePoint,
+          name: CapabilityName.OneDriveAndSharePoint,
           items_by_url: [
             {
               url: searchUrl,
@@ -8650,7 +7730,7 @@ describe("addKnowledge", async () => {
     sandbox.stub(copilotGptManifestUtils, "readCopilotGptManifestFile").resolves(
       ok({
         actions: [{}],
-      } as DeclarativeCopilotManifestSchema)
+      } as DeclarativeAgentManifest)
     );
 
     const addOneDriveSharepointRes = sandbox.spy(
@@ -8664,7 +7744,7 @@ describe("addKnowledge", async () => {
       const capabilities = addOneDriveSharepointResCapRes.value.capabilities;
       assert.deepEqual(capabilities, [
         {
-          name: DeclarativeCopilotCapabilityName.OneDriveAndSharePoint,
+          name: CapabilityName.OneDriveAndSharePoint,
           items_by_sharepoint_ids: [
             {
               site_id: siteId,
@@ -8764,11 +7844,11 @@ describe("addKnowledge", async () => {
       ok({
         capabilities: [
           {
-            name: DeclarativeCopilotCapabilityName.OneDriveAndSharePoint,
+            name: CapabilityName.OneDriveAndSharePoint,
             items_by_sharepoint_ids: [{}],
           },
         ],
-      } as DeclarativeCopilotManifestSchema)
+      } as DeclarativeAgentManifest)
     );
 
     const addOneDriveSharepointRes = sandbox.spy(
@@ -8782,7 +7862,7 @@ describe("addKnowledge", async () => {
       const capabilities = addOneDriveSharepointResCapRes.value.capabilities;
       assert.deepEqual(capabilities, [
         {
-          name: DeclarativeCopilotCapabilityName.OneDriveAndSharePoint,
+          name: CapabilityName.OneDriveAndSharePoint,
           items_by_sharepoint_ids: [
             {},
             {
@@ -8843,7 +7923,7 @@ describe("addKnowledge", async () => {
       ok({
         capabilities: [
           {
-            name: DeclarativeCopilotCapabilityName.OneDriveAndSharePoint,
+            name: CapabilityName.OneDriveAndSharePoint,
             items_by_url: [
               {
                 url: searchUrl,
@@ -8851,7 +7931,7 @@ describe("addKnowledge", async () => {
             ],
           },
         ],
-      } as DeclarativeCopilotManifestSchema)
+      } as DeclarativeAgentManifest)
     );
 
     const addOneDriveSharepointRes = sandbox.spy(
@@ -8865,7 +7945,7 @@ describe("addKnowledge", async () => {
       const capabilities = addOneDriveSharepointResCapRes.value.capabilities;
       assert.deepEqual(capabilities, [
         {
-          name: DeclarativeCopilotCapabilityName.OneDriveAndSharePoint,
+          name: CapabilityName.OneDriveAndSharePoint,
           items_by_url: [
             {
               url: searchUrl,
@@ -8908,7 +7988,7 @@ describe("addKnowledge", async () => {
     sandbox.stub(copilotGptManifestUtils, "readCopilotGptManifestFile").resolves(
       ok({
         actions: [{}],
-      } as DeclarativeCopilotManifestSchema)
+      } as DeclarativeAgentManifest)
     );
 
     sandbox
@@ -8945,7 +8025,7 @@ describe("addKnowledge", async () => {
     sandbox.stub(copilotGptManifestUtils, "readCopilotGptManifestFile").resolves(
       ok({
         actions: [{}],
-      } as DeclarativeCopilotManifestSchema)
+      } as DeclarativeAgentManifest)
     );
 
     sandbox
@@ -9059,7 +8139,7 @@ describe("addKnowledge", async () => {
     sandbox.stub(copilotGptManifestUtils, "readCopilotGptManifestFile").resolves(
       ok({
         actions: [{}],
-      } as DeclarativeCopilotManifestSchema)
+      } as DeclarativeAgentManifest)
     );
 
     const core = new FxCore(tools);
@@ -9094,7 +8174,7 @@ describe("addKnowledge", async () => {
     sandbox.stub(copilotGptManifestUtils, "readCopilotGptManifestFile").resolves(
       ok({
         actions: [{}],
-      } as DeclarativeCopilotManifestSchema)
+      } as DeclarativeAgentManifest)
     );
 
     const core = new FxCore(tools);
@@ -9129,7 +8209,7 @@ describe("addKnowledge", async () => {
     sandbox.stub(copilotGptManifestUtils, "readCopilotGptManifestFile").resolves(
       ok({
         actions: [{}],
-      } as DeclarativeCopilotManifestSchema)
+      } as DeclarativeAgentManifest)
     );
 
     const core = new FxCore(tools);
@@ -9307,7 +8387,7 @@ describe("addKnowledge", async () => {
     sandbox.stub(copilotGptManifestUtils, "readCopilotGptManifestFile").resolves(
       ok({
         actions: [{}],
-      } as DeclarativeCopilotManifestSchema)
+      } as DeclarativeAgentManifest)
     );
 
     sandbox.stub(copilotGptManifestUtils, "addEmbeddedKnowledgeFiles").resolves(ok(undefined));
@@ -9345,11 +8425,12 @@ describe("addKnowledge", async () => {
     sandbox.stub(copilotGptManifestUtils, "readCopilotGptManifestFile").resolves(
       ok({
         actions: [{}],
-      } as DeclarativeCopilotManifestSchema)
+      } as DeclarativeAgentManifest)
     );
 
     sandbox.stub(copilotGptManifestUtils, "addGCCapability").resolves(
       ok({
+        version: "v1.0",
         name: "fakeName",
         description: "fakeDesc",
       })
@@ -9388,11 +8469,12 @@ describe("addKnowledge", async () => {
     sandbox.stub(copilotGptManifestUtils, "readCopilotGptManifestFile").resolves(
       ok({
         actions: [{}],
-      } as DeclarativeCopilotManifestSchema)
+      } as DeclarativeAgentManifest)
     );
 
     sandbox.stub(copilotGptManifestUtils, "addGCCapability").resolves(
       ok({
+        version: "v1.0",
         name: "fakeName",
         description: "fakeDesc",
       })
@@ -9431,7 +8513,7 @@ describe("addKnowledge", async () => {
     sandbox.stub(copilotGptManifestUtils, "readCopilotGptManifestFile").resolves(
       ok({
         actions: [{}],
-      } as DeclarativeCopilotManifestSchema)
+      } as DeclarativeAgentManifest)
     );
 
     sandbox
@@ -9471,7 +8553,7 @@ describe("addKnowledge", async () => {
     sandbox.stub(copilotGptManifestUtils, "readCopilotGptManifestFile").resolves(
       ok({
         actions: [{}],
-      } as DeclarativeCopilotManifestSchema)
+      } as DeclarativeAgentManifest)
     );
 
     const addOneDriveSharepointRes = sandbox.spy(
@@ -9485,7 +8567,7 @@ describe("addKnowledge", async () => {
       const capabilities = addOneDriveSharepointResCapRes.value.capabilities;
       assert.deepEqual(capabilities, [
         {
-          name: DeclarativeCopilotCapabilityName.OneDriveAndSharePoint,
+          name: CapabilityName.OneDriveAndSharePoint,
         },
       ]);
     } else {
@@ -9542,7 +8624,7 @@ describe("addKnowledge", async () => {
         actions: [{}],
         capabilities: [
           {
-            name: DeclarativeCopilotCapabilityName.WebSearch,
+            name: CapabilityName.WebSearch,
             sites: [
               {
                 url: "https://fakeUrl.com",
@@ -9550,7 +8632,7 @@ describe("addKnowledge", async () => {
             ],
           },
         ],
-      } as DeclarativeCopilotManifestSchema)
+      } as DeclarativeAgentManifest)
     );
 
     const core = new FxCore(tools);
@@ -9589,7 +8671,7 @@ describe("addKnowledge", async () => {
         actions: [{}],
         capabilities: [
           {
-            name: DeclarativeCopilotCapabilityName.WebSearch,
+            name: CapabilityName.WebSearch,
             sites: [
               {
                 url: "https://fakeUrl.com",
@@ -9597,7 +8679,7 @@ describe("addKnowledge", async () => {
             ],
           },
         ],
-      } as DeclarativeCopilotManifestSchema)
+      } as DeclarativeAgentManifest)
     );
 
     const core = new FxCore(tools);

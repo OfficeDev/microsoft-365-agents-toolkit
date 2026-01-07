@@ -17,7 +17,7 @@ import {
 import {
   IComposeExtension,
   Platform,
-  PluginManifestSchema,
+  APIPluginManifest,
   SystemError,
   TeamsAppManifest,
   err,
@@ -2105,7 +2105,7 @@ describe("parseAndUpdatePluginManifestForKiota", async () => {
           run_for_functions: ["mockedOperationId2"],
         },
       ],
-    } as PluginManifestSchema);
+    } as unknown as APIPluginManifest);
     sandbox.stub(fs, "writeJSON").callsFake((path, data) => {
       const dataJson = JSON.parse(data);
       assert.isTrue(dataJson.runtimes.length === 2);
@@ -2160,7 +2160,7 @@ describe("parseAndUpdatePluginManifestForKiota", async () => {
           run_for_functions: ["mockedOperationId2"],
         },
       ],
-    } as PluginManifestSchema);
+    } as unknown as APIPluginManifest);
     const writeJsonStub = sandbox.stub(fs, "writeJSON").resolves();
 
     const result = await daSpecParser.parseAndUpdatePluginManifestForKiota(
@@ -2195,7 +2195,7 @@ describe("parseAndUpdatePluginManifestForKiota", async () => {
           run_for_functions: ["mockedOperationId2"],
         },
       ],
-    } as PluginManifestSchema);
+    } as unknown as APIPluginManifest);
     const writeJsonStub = sandbox.stub(fs, "writeJSON").resolves();
 
     const result = await daSpecParser.parseAndUpdatePluginManifestForKiota(
@@ -2217,7 +2217,7 @@ describe("parseAndUpdatePluginManifestForKiota", async () => {
           run_for_functions: ["mockedOperationId"],
         },
       ],
-    } as PluginManifestSchema);
+    } as unknown as APIPluginManifest);
     const writeJsonStub = sandbox.stub(fs, "writeJSON").resolves();
 
     const result = await daSpecParser.parseAndUpdatePluginManifestForKiota(
@@ -2266,7 +2266,7 @@ describe("parseAndUpdatePluginManifestForKiota", async () => {
           run_for_functions: ["mockedOperationId2"],
         },
       ],
-    } as PluginManifestSchema);
+    } as unknown as APIPluginManifest);
     sandbox.stub(fs, "writeJSON").callsFake((path, data) => {
       const dataJson = JSON.parse(data);
       assert.isTrue(dataJson.runtimes.length === 2);

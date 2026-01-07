@@ -7,7 +7,7 @@ import { MetadataV3 } from "../../common/versionMetadata";
 import { ProjectModel } from "../configManager/interface";
 import { ProjectTypeProps } from "../../common/telemetry";
 import { manifestUtils } from "../driver/teamsApp/utils/ManifestUtils";
-import { DeclarativeCopilotManifestSchema, PluginManifestSchema } from "@microsoft/teamsfx-api";
+import { DeclarativeAgentManifestWrapper, PluginManifestWrapper } from "@microsoft/teamsfx-api";
 
 class MetadataDAPropertiesUtil {
   async parseManifest(
@@ -37,38 +37,42 @@ class MetadataDAPropertiesUtil {
       if (declarativeAgentRelativePath) {
         const manifestFolder = path.dirname(manifestPath);
         const declarativeAgentJsonPath = path.join(manifestFolder, declarativeAgentRelativePath);
-        const declarativeAgentJson = (await fs.readJSON(
+        const declarativeAgentWrapper = await DeclarativeAgentManifestWrapper.read(
           declarativeAgentJsonPath
-        )) as DeclarativeCopilotManifestSchema;
+        );
 
-        const capabilitiesCount = declarativeAgentJson.capabilities?.length ?? 0;
+        // Use wrapper's typed getters for capabilities and actions
+        const capabilities = declarativeAgentWrapper.capabilities;
+        const actions = declarativeAgentWrapper.actions;
+
+        const capabilitiesCount = capabilities.length;
         props[ProjectTypeProps.DeclarativeAgentCapabilitiesCount] = capabilitiesCount.toString();
 
-        if (declarativeAgentJson.capabilities) {
-          props[ProjectTypeProps.DeclarativeAgentCapabilities] = declarativeAgentJson.capabilities
-            .map((capability: any) => capability.name)
+        if (capabilitiesCount > 0) {
+          props[ProjectTypeProps.DeclarativeAgentCapabilities] = capabilities
+            .map((capability) => capability.name)
             .join(",");
         } else {
           props[ProjectTypeProps.DeclarativeAgentCapabilities] = "";
         }
 
-        const actionsCount = declarativeAgentJson.actions?.length ?? 0;
+        const actionsCount = actions.length;
         props[ProjectTypeProps.DeclarativeAgentActionsCount] = actionsCount.toString();
 
-        if (declarativeAgentJson.actions) {
-          const pluginPaths = declarativeAgentJson.actions.map((action: any) => action.file);
+        if (actionsCount > 0) {
+          const pluginPaths = actions.map((action) => action.file);
 
           const declarativeAgentFolder = path.dirname(declarativeAgentJsonPath);
           const authInfo = [];
-          for (const pluginPath of pluginPaths ?? []) {
+          for (const pluginPath of pluginPaths) {
             const pluginJsonPath = path.join(declarativeAgentFolder, pluginPath);
             if (await fs.pathExists(pluginJsonPath)) {
-              const pluginJson = (await fs.readJSON(pluginJsonPath)) as PluginManifestSchema;
-              const runtimes = pluginJson.runtimes;
-              if (runtimes) {
+              const pluginWrapper = await PluginManifestWrapper.read(pluginJsonPath);
+              const runtimes = pluginWrapper.runtimes;
+              if (runtimes.length > 0) {
                 const authStr = runtimes
                   .filter((runtime) => runtime.type === "OpenApi")
-                  .map((runtime: any) => runtime.auth?.type)
+                  .map((runtime) => runtime.auth?.type)
                   .filter((type) => type !== undefined)
                   .join(",");
                 authInfo.push(authStr);

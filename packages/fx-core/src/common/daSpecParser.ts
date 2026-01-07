@@ -20,12 +20,7 @@ import {
   WarningResult,
   AuthType,
 } from "@microsoft/m365-spec-parser";
-import {
-  Platform,
-  PluginManifestSchema,
-  RuntimeObjectOpenapi,
-  TeamsAppManifest,
-} from "@microsoft/teamsfx-api";
+import { Platform, PluginManifestWrapper, TeamsAppManifest } from "@microsoft/teamsfx-api";
 import { featureFlagManager, FeatureFlags } from "./featureFlags";
 import { kiotageneratePlugin, listAPITreeInfo } from "./kiotaClient";
 import {
@@ -162,7 +157,7 @@ export async function generatePlugin(
 
     const relativePath = path.relative(path.dirname(outputAIPluginPath), outputAPISpecPath);
     const normalizedPath = relativePath.replace(/\\/g, "/");
-    const generatedPluginManifest = (await fs.readJSON(pluginPath)) as PluginManifestSchema;
+    const generatedPluginManifest = await PluginManifestWrapper.read(pluginPath);
 
     if (!updateExistingPlugin) {
       const originalSpecFolder = path.join(tmpWorkingDir.name, `.kiota/documents/${namespace}/`);
@@ -172,40 +167,38 @@ export async function generatePlugin(
 
       const outputOriginalSpecPath = outputAPISpecPath + ".original";
       await fs.copy(originalSpecFile, outputOriginalSpecPath);
-      generatedPluginManifest.runtimes?.forEach((runtime) => {
-        (runtime as RuntimeObjectOpenapi).spec.url = normalizedPath;
-      });
-      await fs.writeJson(outputAIPluginPath, generatedPluginManifest, { spaces: 4 });
+      // Update spec URLs in all runtimes
+      for (const runtime of generatedPluginManifest.runtimes) {
+        runtime.spec.url = normalizedPath;
+      }
+      await generatedPluginManifest.save(outputAIPluginPath);
     } else {
-      const existingPluginManifest = (await fs.readJSON(
-        outputAIPluginPath
-      )) as PluginManifestSchema;
+      const existingPluginManifest = await PluginManifestWrapper.read(outputAIPluginPath);
 
+      // Collect function names to remove from runtimes matching this spec
       const functionNamesToRemove = new Set<string>();
-      existingPluginManifest.runtimes?.forEach((runtime) => {
-        const runtimeObj = runtime as RuntimeObjectOpenapi;
-        if (runtimeObj.spec.url === normalizedPath && runtimeObj.run_for_functions) {
-          runtimeObj.run_for_functions.forEach((name) => functionNamesToRemove.add(name));
+      for (const runtime of existingPluginManifest.runtimes) {
+        if (runtime.spec.url === normalizedPath && runtime.run_for_functions) {
+          runtime.run_for_functions.forEach((name) => functionNamesToRemove.add(name));
         }
-      });
-
-      if (existingPluginManifest.functions) {
-        existingPluginManifest.functions = existingPluginManifest.functions
-          .filter((f) => !functionNamesToRemove.has(f.name))
-          .concat(generatedPluginManifest.functions ?? []);
-      } else {
-        existingPluginManifest.functions = generatedPluginManifest.functions ?? [];
       }
 
-      const runtimes = existingPluginManifest.runtimes;
-      existingPluginManifest.runtimes = runtimes?.filter((r) => r.spec.url !== normalizedPath);
-
-      for (const runtime of generatedPluginManifest.runtimes!) {
-        (runtime as RuntimeObjectOpenapi).spec.url = normalizedPath;
-        existingPluginManifest.runtimes?.push(runtime);
+      // Remove functions that will be replaced, then add new ones
+      for (const name of functionNamesToRemove) {
+        existingPluginManifest.removeFunction(name);
+      }
+      for (const func of generatedPluginManifest.functions) {
+        existingPluginManifest.addFunction(func.name, func.description);
       }
 
-      await fs.writeJson(outputAIPluginPath, existingPluginManifest, { spaces: 4 });
+      // Remove old runtime for this spec path, then add the new ones
+      existingPluginManifest.removeRuntimeBySpecUrl(normalizedPath);
+      for (const runtime of generatedPluginManifest.runtimes) {
+        runtime.spec.url = normalizedPath;
+        existingPluginManifest.addRuntime(runtime);
+      }
+
+      await existingPluginManifest.save(outputAIPluginPath);
     }
 
     await parseAndUpdatePluginManifestForKiota(outputAIPluginPath, true);
@@ -248,10 +241,10 @@ export async function parseAndUpdatePluginManifestForKiota(
     registrationId: string;
     specPath: string;
   }[] = [];
-  const pluginManifest = (await fs.readJSON(pluginManifestPath)) as PluginManifestSchema;
-  pluginManifest.runtimes?.forEach((runtime) => {
-    if ((runtime as RuntimeObjectOpenapi).auth) {
-      const auth = (runtime as RuntimeObjectOpenapi).auth!;
+  const pluginManifest = await PluginManifestWrapper.read(pluginManifestPath);
+  for (const runtime of pluginManifest.runtimes) {
+    const auth = runtime.auth;
+    if (auth) {
       if (
         auth.reference_id &&
         auth.reference_id.match(/^{\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*}/g) &&
@@ -260,7 +253,7 @@ export async function parseAndUpdatePluginManifestForKiota(
         const registrationId = auth.reference_id.replace(/[{}]/g, "");
         const parts = registrationId.split("_");
         const authName = parts.slice(0, -2).join("_");
-        const newReferenceId = authName.toUpperCase() + "_" + ConstantString.RegistrationIdPostfix;
+        const newReferenceId = `${authName.toUpperCase()}_${ConstantString.RegistrationIdPostfix}`;
         authData.push({
           authName: authName,
           authType: auth.type === "ApiKeyPluginVault" ? "apiKey" : "oauth2",
@@ -272,10 +265,10 @@ export async function parseAndUpdatePluginManifestForKiota(
         }
       }
     }
-  });
+  }
 
   if (updatePlaceholder && authData.length > 0) {
-    await fs.writeJson(pluginManifestPath, pluginManifest, { spaces: 4 });
+    await pluginManifest.save();
   }
   return authData;
 }
@@ -479,7 +472,7 @@ function traverseTreeNodeForOperations(
     const apiInfo: ListAPIInfo = {
       api: `${node.segment} ${resourcePath}`,
       server: server[0],
-      operationId: node.operationId!,
+      operationId: node.operationId ?? "",
       isValid: true,
       reason: [],
       auth: auth,

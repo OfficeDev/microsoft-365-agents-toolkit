@@ -332,7 +332,7 @@ describe("SPFx Deploy Driver", async () => {
 });
 
 export function mockM365TokenProvider(): M365TokenProvider {
-  const provider = <M365TokenProvider>{};
+  const provider = {} as M365TokenProvider;
   const mockTokenObject = {
     tid: faker.datatype.uuid(),
   };

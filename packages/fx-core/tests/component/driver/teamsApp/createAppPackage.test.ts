@@ -2,10 +2,12 @@
 // Licensed under the MIT license.
 
 import {
-  DeclarativeCopilotManifestSchema,
+  DeclarativeAgentManifest,
+  DeclarativeAgentManifestWrapper,
   err,
   ok,
   Platform,
+  PluginManifestWrapper,
   TeamsManifest,
   TeamsManifestV1D19,
   TeamsManifestVDevPreview,
@@ -1087,7 +1089,7 @@ describe("teamsApp/createAppPackage", async () => {
           file: "ai-plugin.json",
         },
       ],
-    } as DeclarativeCopilotManifestSchema;
+    } as DeclarativeAgentManifest;
 
     const mcpPluginContent = {
       schema_version: "v2",
@@ -1110,7 +1112,19 @@ describe("teamsApp/createAppPackage", async () => {
     sinon.stub(manifestUtils, "getManifestV3").resolves(ok(manifest));
     sinon.stub(fs, "chmod").callsFake(async () => {});
     sinon.stub(fs, "writeFile").callsFake(async () => {});
+    sinon.stub(fs, "pathExists").callsFake(async (filePath: string) => {
+      if (filePath.toString().includes("mcp-tool-description.json")) {
+        return false;
+      }
+      return true;
+    });
     sinon.stub(copilotGptManifestUtils, "getManifest").resolves(ok(declarativeAgentManifest));
+    const mockPluginWrapper = {
+      data: mcpPluginContent,
+      runtimes: mcpPluginContent.runtimes,
+      functions: [],
+    };
+    sinon.stub(PluginManifestWrapper, "read").resolves(mockPluginWrapper as any);
     sinon.stub(fs, "readJSON").callsFake(async () => {
       return mcpPluginContent;
     });
@@ -1124,12 +1138,6 @@ describe("teamsApp/createAppPackage", async () => {
       }
       return Buffer.from(content);
     }) as any);
-    sinon.stub(fs, "pathExists").callsFake(async (filePath: string) => {
-      if (filePath.toString().includes("mcp-tool-description.json")) {
-        return false;
-      }
-      return true;
-    });
 
     const result = (await teamsAppDriver.execute(args, mockedDriverContext)).result;
 
@@ -1176,7 +1184,7 @@ describe("teamsApp/createAppPackage", async () => {
           file: "ai-plugin.json",
         },
       ],
-    } as DeclarativeCopilotManifestSchema;
+    } as DeclarativeAgentManifest;
 
     const mcpPluginContent = {
       schema_version: "v2",
@@ -1208,7 +1216,14 @@ describe("teamsApp/createAppPackage", async () => {
     sinon.stub(manifestUtils, "getManifestV3").resolves(ok(manifest));
     sinon.stub(fs, "chmod").callsFake(async () => {});
     sinon.stub(fs, "writeFile").callsFake(async () => {});
+    sinon.stub(fs, "pathExists").resolves(true);
     sinon.stub(copilotGptManifestUtils, "getManifest").resolves(ok(declarativeAgentManifest));
+    const mockPluginWrapper = {
+      data: mcpPluginContent,
+      runtimes: mcpPluginContent.runtimes,
+      functions: [],
+    };
+    sinon.stub(PluginManifestWrapper, "read").resolves(mockPluginWrapper as any);
     sinon.stub(fs, "readJSON").callsFake(async (filePath: string) => {
       if (filePath.toString().includes("ai-plugin")) {
         return mcpPluginContent;
@@ -1234,7 +1249,6 @@ describe("teamsApp/createAppPackage", async () => {
       }
       return Buffer.from(content);
     }) as any);
-    sinon.stub(fs, "pathExists").resolves(true);
 
     // Create a new driver instance and stub addFileInZip to track calls and prevent actual file read
     const testDriver = new CreateAppPackageDriver();
@@ -1617,6 +1631,8 @@ describe("teamsApp/createAppPackage", async () => {
       sinon.stub(manifestUtils, "getManifestV3").resolves(ok(manifest));
       sinon.stub(fs, "chmod").callsFake(async () => {});
       sinon.stub(fs, "writeFile").callsFake(async () => {});
+      sinon.stub(fs, "pathExists").resolves(true);
+      sinon.stub(DeclarativeAgentManifestWrapper, "read").rejects(new Error("Parse error"));
       sinon.stub(fs, "readFile").callsFake(async (file: fs.PathLike | number) => {
         if (file.toString().includes("gpt.json")) {
           return "" as any;
@@ -1978,6 +1994,7 @@ describe("teamsApp/createAppPackage", async () => {
 
       // Updated gpt manifest stub with required properties.
       const declarativeAgentManifest = {
+        version: "v1.6" as const,
         name: "TestDeclarativeCopilot",
         description: "Test declarative copilot manifest",
         actions: [],
@@ -1987,7 +2004,7 @@ describe("teamsApp/createAppPackage", async () => {
             files: [{ file: "EmbeddedKnowledge/knowledge.docx" }],
           },
         ],
-      } as DeclarativeCopilotManifestSchema;
+      } as DeclarativeAgentManifest;
 
       sinon.stub(manifestUtils, "getManifestV3").resolves(ok(manifest));
       sinon.stub(fs, "chmod").callsFake(async () => {});
@@ -2055,16 +2072,17 @@ describe("teamsApp/createAppPackage", async () => {
 
       // Updated gpt manifest stub with required properties.
       const declarativeAgentManifest = {
+        version: "v1.6" as const,
         name: "TestDeclarativeCopilot",
         description: "Test declarative copilot manifest",
         actions: [],
         capabilities: [
           {
-            name: "EmbeddedKnowledge",
+            name: "EmbeddedKnowledge" as const,
             files: [{ file: "EmbeddedKnowledge/knowledge.docx" }],
           },
         ],
-      } as DeclarativeCopilotManifestSchema;
+      } as DeclarativeAgentManifest;
 
       sinon.stub(manifestUtils, "getManifestV3").resolves(ok(manifest));
       sinon.stub(fs, "chmod").callsFake(async () => {});
@@ -2132,6 +2150,7 @@ describe("teamsApp/createAppPackage", async () => {
 
       // Updated gpt manifest stub with required properties.
       const declarativeAgentManifest = {
+        version: "v1.6" as const,
         name: "TestDeclarativeCopilot",
         description: "Test declarative copilot manifest",
         actions: [],
@@ -2140,7 +2159,7 @@ describe("teamsApp/createAppPackage", async () => {
             name: "WebSearch",
           },
         ],
-      } as DeclarativeCopilotManifestSchema;
+      } as DeclarativeAgentManifest;
 
       sinon.stub(manifestUtils, "getManifestV3").resolves(ok(manifest));
       sinon.stub(fs, "chmod").callsFake(async () => {});
@@ -2203,16 +2222,17 @@ describe("teamsApp/createAppPackage", async () => {
 
       // Updated gpt manifest stub with required properties.
       const declarativeAgentManifest = {
+        version: "v1.6" as const,
         name: "TestDeclarativeCopilot",
         description: "Test declarative copilot manifest",
         actions: [],
         capabilities: [
           {
-            name: "EmbeddedKnowledge",
-            files: [{}],
+            name: "EmbeddedKnowledge" as const,
+            files: [],
           },
         ],
-      } as DeclarativeCopilotManifestSchema;
+      } as DeclarativeAgentManifest;
 
       sinon.stub(manifestUtils, "getManifestV3").resolves(ok(manifest));
       sinon.stub(fs, "chmod").callsFake(async () => {});
@@ -2274,16 +2294,17 @@ describe("teamsApp/createAppPackage", async () => {
 
       // Prepare a minimal declarative agent manifest with an embedded knowledge file.
       const declarativeAgentManifest = {
+        version: "v1.6" as const,
         name: "TestDeclarativeCopilot",
         description: "Missing knowledge file test",
         actions: [],
         capabilities: [
           {
-            name: "EmbeddedKnowledge",
+            name: "EmbeddedKnowledge" as const,
             files: [{ file: "EmbeddedKnowledge/knowledgeMissing.docx" }],
           },
         ],
-      } as DeclarativeCopilotManifestSchema;
+      } as DeclarativeAgentManifest;
 
       sinon.stub(manifestUtils, "getManifestV3").resolves(ok(manifest));
       sinon.stub(fs, "chmod").callsFake(async () => {});

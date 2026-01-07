@@ -5,31 +5,31 @@ import {
   ConsumerOperation,
   GeneratePluginResult,
   KiotaSearchResultItem,
-  searchDescription,
-  setKiotaConfig,
-  getKiotaTree,
-  generatePlugin,
   KiotaTreeResult,
   PluginAuthType,
 } from "@microsoft/kiota";
+import { kiota } from "./kiotaWrapper";
 import { KiotaGeneratePluginError } from "../error";
 import { getLocalizedString } from "./localizeUtils";
 import { Utils } from "@microsoft/m365-spec-parser";
 import path from "path";
 import * as os from "os";
 
+// Export for testing purposes
+export { kiota as kiotaModule } from "./kiotaWrapper";
+
 const ERROR_LOG_LEVEL = 4;
 
 function setKiotaBinaryPath() {
   if (process.env.KIOTA_BINARY_PATH) {
-    setKiotaConfig({ binaryLocation: process.env.KIOTA_BINARY_PATH });
+    kiota.setKiotaConfig({ binaryLocation: process.env.KIOTA_BINARY_PATH });
   } else {
     // If running inside pkg package used by VS, set the binary location to a specific directory to avoid issues.
     const isInsidePkg = typeof (process as any).pkg !== "undefined";
 
     if (isInsidePkg) {
       const kiotaBinDir = path.join(os.homedir(), "kiota-bin");
-      setKiotaConfig({ binaryLocation: kiotaBinDir });
+      kiota.setKiotaConfig({ binaryLocation: kiotaBinDir });
     }
   }
 }
@@ -37,10 +37,11 @@ function setKiotaBinaryPath() {
 export async function searchOpenAPISpec(query: string): Promise<SearchOpenAPISpecResult[]> {
   setKiotaBinaryPath();
 
-  const searchResult: Record<string, KiotaSearchResultItem> | undefined = await searchDescription({
-    searchTerm: query,
-    clearCache: false,
-  });
+  const searchResult: Record<string, KiotaSearchResultItem> | undefined =
+    await kiota.searchDescription({
+      searchTerm: query,
+      clearCache: false,
+    });
 
   const result: SearchOpenAPISpecResult[] = [];
 
@@ -66,7 +67,7 @@ export async function listAPITreeInfo(
   excludeFilters?: string[]
 ): Promise<KiotaTreeResult> {
   setKiotaBinaryPath();
-  const treeInfo = await getKiotaTree({
+  const treeInfo = await kiota.getKiotaTree({
     includeFilters: includeFilters,
     descriptionPath: specPath,
     excludeFilters: excludeFilters,
@@ -121,7 +122,7 @@ export async function kiotageneratePlugin(
   };
 
   try {
-    const result: GeneratePluginResult | undefined = await generatePlugin(config);
+    const result: GeneratePluginResult | undefined = await kiota.generatePlugin(config);
     if (!result) {
       throw new Error("Get empty result from kiota");
     }

@@ -1,4 +1,11 @@
-import { FxError, LogProvider, ok, Result } from "@microsoft/teamsfx-api";
+import {
+  DeclarativeAgentManifestWrapper,
+  FxError,
+  LogProvider,
+  ok,
+  PluginManifestWrapper,
+  Result,
+} from "@microsoft/teamsfx-api";
 import { assert } from "chai";
 import "mocha";
 import sinon from "sinon";
@@ -88,58 +95,34 @@ describe("metadata rsc permission util", () => {
     sandbox.stub(fs, "pathExists").resolves(true);
     sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(readAppManifestRes as any));
 
-    sandbox.stub(fs, "readJSON").callsFake(async (path: string) => {
-      if (path.endsWith("declarativeAgent.json")) {
-        return {
-          capabilities: [
-            {
-              name: "capability1",
-            },
-            {
-              name: "capability2",
-            },
-          ],
-          actions: [
-            {
-              file: "action1.json",
-            },
-            {
-              file: "action2.json",
-            },
-          ],
-        };
-      } else if (path.endsWith("action1.json")) {
-        return {
-          runtimes: [
-            {
-              type: "OpenApi",
-              auth: {
-                type: "None",
-              },
-              spec: {
-                url: "apiSpecificationFile/openapi.yaml",
-              },
-              run_for_functions: ["deletePet"],
-            },
-          ],
-        };
-      } else if (path.endsWith("action2.json")) {
-        return {
-          runtimes: [
-            {
-              type: "OpenApi",
-              auth: {
-                type: "ApiKeyPluginVault",
-              },
-              spec: {
-                url: "apiSpecificationFile/openapi.yaml",
-              },
-              run_for_functions: ["deletePet"],
-            },
-          ],
-        };
-      }
-    });
+    // Mock DeclarativeAgentManifestWrapper.read()
+    sandbox.stub(DeclarativeAgentManifestWrapper, "read").resolves({
+      capabilities: [{ name: "capability1" }, { name: "capability2" }],
+      actions: [{ file: "action1.json" }, { file: "action2.json" }],
+    } as any);
+
+    // Mock PluginManifestWrapper.read() for each action file
+    const pluginReadStub = sandbox.stub(PluginManifestWrapper, "read");
+    pluginReadStub.onFirstCall().resolves({
+      runtimes: [
+        {
+          type: "OpenApi",
+          auth: { type: "None" },
+          spec: { url: "apiSpecificationFile/openapi.yaml" },
+          run_for_functions: ["deletePet"],
+        },
+      ],
+    } as any);
+    pluginReadStub.onSecondCall().resolves({
+      runtimes: [
+        {
+          type: "OpenApi",
+          auth: { type: "ApiKeyPluginVault" },
+          spec: { url: "apiSpecificationFile/openapi.yaml" },
+          run_for_functions: ["deletePet"],
+        },
+      ],
+    } as any);
 
     const props: any = {};
     await metadataDAPropertiesUtil.parseManifest(ymlPath, mockProjectModel, props);
@@ -191,11 +174,11 @@ describe("metadata rsc permission util", () => {
     sandbox.stub(fs, "pathExists").resolves(true);
     sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(readAppManifestRes as any));
 
-    sandbox.stub(fs, "readJSON").callsFake(async (path: string) => {
-      if (path.endsWith("declarativeAgent.json")) {
-        return {};
-      }
-    });
+    // Mock DeclarativeAgentManifestWrapper.read() with empty capabilities and actions
+    sandbox.stub(DeclarativeAgentManifestWrapper, "read").resolves({
+      capabilities: [],
+      actions: [],
+    } as any);
 
     const props: any = {};
     await metadataDAPropertiesUtil.parseManifest(ymlPath, mockProjectModel, props);

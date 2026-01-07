@@ -3,7 +3,7 @@
 
 import { hooks } from "@feathersjs/hooks";
 import {
-  DeclarativeCopilotManifestSchema,
+  DeclarativeAgentManifestWrapper,
   err,
   ok,
   Platform,
@@ -87,10 +87,8 @@ export class TypeSpecCompileDriver implements StepDriver {
           throw new NoSpecError(actionName);
         }
 
-        const daManifest = (await fs.readJSON(
-          daManifestFilePath
-        )) as DeclarativeCopilotManifestSchema;
-        const actions = daManifest.actions;
+        const daManifestWrapper = await DeclarativeAgentManifestWrapper.read(daManifestFilePath);
+        const actions = daManifestWrapper.data.actions;
         if (actions && actions.length > 0) {
           if (openapiSpecs.length === 1) {
             // only one openapi spec, the spac name should = openapi.yaml

@@ -8,7 +8,10 @@ import * as fs from "fs-extra";
 import * as path from "path";
 import * as sinon from "sinon";
 import proxyquire from "proxyquire";
+import { fileURLToPath } from "url";
 chai.use(chaiAsPromised);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 describe("portChecker", () => {
   const projectPath = path.resolve(__dirname, "data");
 

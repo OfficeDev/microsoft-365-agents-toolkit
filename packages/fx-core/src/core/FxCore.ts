@@ -28,12 +28,12 @@ import {
   Inputs,
   InputsWithProjectPath,
   Platform,
-  PluginManifestSchema,
+  PluginManifestWrapper,
   ResponseTemplatesFolderName,
   Result,
-  SharePointIDs,
-  Site,
   Stage,
+  DeclarativeAgentManifestLatest,
+  APIPluginManifestLatest,
   SystemError,
   TeamsAppInputs,
   TeamsAppManifest,
@@ -42,6 +42,13 @@ import {
   err,
   ok,
 } from "@microsoft/teamsfx-api";
+
+// Local type aliases derived from latest manifest types
+type DeclarativeCapability = NonNullable<DeclarativeAgentManifestLatest["capabilities"]>[number];
+type SharePointIDs = NonNullable<DeclarativeCapability["items_by_sharepoint_ids"]>[number];
+type Site = NonNullable<DeclarativeCapability["items_by_url"]>[number];
+type PluginRuntime = NonNullable<APIPluginManifestLatest["runtimes"]>[number];
+
 import axios from "axios";
 import { DotenvParseOutput } from "dotenv";
 import fs from "fs-extra";
@@ -2838,8 +2845,9 @@ export class FxCore {
       );
 
       if (addAuthActionRes?.registrationIdEnvName) {
-        const pluginManifest = (await fs.readJson(pluginManifestPath)) as PluginManifestSchema;
-        pluginManifest.runtimes?.forEach((runtime) => {
+        const pluginManifestWrapper = await PluginManifestWrapper.read(pluginManifestPath);
+        const mutableRuntimes = pluginManifestWrapper.mutableData.runtimes;
+        mutableRuntimes?.forEach((runtime) => {
           if (
             runtime.type === "OpenApi" &&
             runtime.auth?.type === "None" &&
@@ -2850,10 +2858,12 @@ export class FxCore {
             );
           }
         });
-        pluginManifest.runtimes = pluginManifest.runtimes?.filter((runtime) => {
+        pluginManifestWrapper.mutableData.runtimes = (
+          mutableRuntimes as PluginRuntime[] | undefined
+        )?.filter((runtime) => {
           return !!runtime.run_for_functions && runtime.run_for_functions?.length > 0;
         });
-        pluginManifest.runtimes?.push({
+        pluginManifestWrapper.mutableData.runtimes?.push({
           type: "OpenApi",
           auth: {
             type:
@@ -2868,7 +2878,7 @@ export class FxCore {
           },
           run_for_functions: apiOperation,
         });
-        await fs.writeJson(pluginManifestPath, pluginManifest, { spaces: 4 });
+        await pluginManifestWrapper.save(pluginManifestPath);
       }
 
       if (authType === AddAuthActionAuthTypeOptions.microsoftEntra().id) {

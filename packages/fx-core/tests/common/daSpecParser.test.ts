@@ -8,7 +8,7 @@ import * as kiotaClient from "../../src/common/kiotaClient";
 import * as daSpecParser from "../../src/common/daSpecParser";
 import * as utils from "../../src/common/utils";
 import { featureFlagManager, FeatureFlags } from "../../src/common/featureFlags";
-import { Platform } from "@microsoft/teamsfx-api";
+import { Platform, PluginManifestWrapper } from "@microsoft/teamsfx-api";
 import { KiotaOpenApiNode, KiotaTreeResult, OpenApiSpecVersion } from "@microsoft/kiota";
 import {
   AdaptiveCardUpdateStrategy,
@@ -921,11 +921,13 @@ describe("daSpecParser", () => {
     let kiotaGeneratePluginStub: sinon.SinonStub;
     let tmpDirSyncStub: sinon.SinonStub;
     let pathRelativeStub: sinon.SinonStub;
+    let pluginManifestWrapperReadStub: sinon.SinonStub;
 
     beforeEach(() => {
       kiotaGeneratePluginStub = sinon.stub(kiotaClient, "kiotageneratePlugin");
       tmpDirSyncStub = sinon.stub(require("tmp"), "dirSync");
       pathRelativeStub = sinon.stub(require("path"), "relative");
+      pluginManifestWrapperReadStub = sinon.stub(PluginManifestWrapper, "read");
 
       featureFlagStub.withArgs(FeatureFlags.KiotaNPMIntegration).returns(true);
 
@@ -940,6 +942,21 @@ describe("daSpecParser", () => {
         logs: [],
       });
       pathRelativeStub.returns("../openapi.yaml");
+
+      // Default stub for PluginManifestWrapper.read
+      pluginManifestWrapperReadStub.callsFake(async (path: string) => {
+        const mockManifest = {
+          runtimes: [{ spec: { url: "old-path.yaml" } }],
+          functions: [],
+          mutableData: {},
+          save: sinon.stub().resolves(),
+          addFunction: sinon.stub(),
+          removeFunction: sinon.stub(),
+          addRuntime: sinon.stub(),
+          removeRuntimeBySpecUrl: sinon.stub(),
+        };
+        return mockManifest;
+      });
     });
 
     const pathMatcher = (expectedPath: string) =>
@@ -965,6 +982,22 @@ describe("daSpecParser", () => {
       const fsWriteJsonStub = sinon.stub(require("fs-extra"), "writeJson").resolves();
       const fsCopyStub = sinon.stub(require("fs-extra"), "copy").resolves();
 
+      // Track the mock manifest to verify save was called
+      let savedPath: string | undefined;
+      const mockManifest = {
+        runtimes: [{ spec: { url: "old-path.yaml" } }],
+        functions: [],
+        mutableData: {},
+        save: sinon.stub().callsFake(async (path: string) => {
+          savedPath = path;
+        }),
+        addFunction: sinon.stub(),
+        removeFunction: sinon.stub(),
+        addRuntime: sinon.stub(),
+        removeRuntimeBySpecUrl: sinon.stub(),
+      };
+      pluginManifestWrapperReadStub.resolves(mockManifest);
+
       const result = await daSpecParser.generatePlugin(
         specPath,
         teamsManifestPath,
@@ -975,7 +1008,7 @@ describe("daSpecParser", () => {
       );
 
       assert.isTrue(tmpDirSyncStub.calledOnce);
-      assert.isTrue(fsReadJSONStub.calledThrice);
+      assert.isTrue(fsReadJSONStub.calledOnce); // Only called once for teamsManifest
       assert.isTrue(kiotaGeneratePluginStub.calledOnce);
       assert.deepEqual(kiotaGeneratePluginStub.firstCall.args[0], specPath);
       assert.deepEqual(
@@ -1012,6 +1045,10 @@ describe("daSpecParser", () => {
           pathMatcher("path/to/output/openapi.yaml.original")
         )
       );
+
+      // Verify save was called with correct path
+      assert.isTrue(mockManifest.save.calledOnce);
+      assert.equal(savedPath?.replace(/\\/g, "/"), "path/to/output/ai-plugin.json");
 
       assert.deepEqual(result, {
         allSuccess: true,
@@ -1161,6 +1198,20 @@ describe("daSpecParser", () => {
       const fsCopyFileStub = sinon.stub(require("fs-extra"), "copy").resolves();
       const fsWriteJsonStub = sinon.stub(require("fs-extra"), "writeJson").resolves();
 
+      // Create a mock manifest that tracks URL updates
+      const mockRuntimes = [{ spec: { url: "old-path.yaml" } }];
+      const mockManifest = {
+        runtimes: mockRuntimes,
+        functions: [],
+        mutableData: {},
+        save: sinon.stub().resolves(),
+        addFunction: sinon.stub(),
+        removeFunction: sinon.stub(),
+        addRuntime: sinon.stub(),
+        removeRuntimeBySpecUrl: sinon.stub(),
+      };
+      pluginManifestWrapperReadStub.resolves(mockManifest);
+
       await daSpecParser.generatePlugin(
         "path/to/spec.yaml",
         "path/to/manifest.json",
@@ -1170,15 +1221,9 @@ describe("daSpecParser", () => {
         AdaptiveCardUpdateStrategy.KeepExisting
       );
 
-      assert.isTrue(
-        fsWriteJsonStub.calledWith(
-          pathMatcher("path/to/output/ai-plugin.json"),
-          sinon.match((value) => {
-            return value.runtimes[0].spec.url === "../../openapi.yaml";
-          }),
-          { spaces: 4 }
-        )
-      );
+      // Check that the runtime URL was updated with normalized path
+      assert.equal(mockRuntimes[0].spec.url, "../../openapi.yaml");
+      assert.isTrue(mockManifest.save.calledOnce);
     });
 
     it("should handle Windows paths and convert backslashes to forward slashes", async () => {
@@ -1199,6 +1244,20 @@ describe("daSpecParser", () => {
       const fsCopyFileStub = sinon.stub(require("fs-extra"), "copy").resolves();
       const fsWriteJsonStub = sinon.stub(require("fs-extra"), "writeJson").resolves();
 
+      // Create a mock manifest that tracks URL updates
+      const mockRuntimes = [{ spec: { url: "old-path.yaml" } }];
+      const mockManifest = {
+        runtimes: mockRuntimes,
+        functions: [],
+        mutableData: {},
+        save: sinon.stub().resolves(),
+        addFunction: sinon.stub(),
+        removeFunction: sinon.stub(),
+        addRuntime: sinon.stub(),
+        removeRuntimeBySpecUrl: sinon.stub(),
+      };
+      pluginManifestWrapperReadStub.resolves(mockManifest);
+
       await daSpecParser.generatePlugin(
         "path/to/spec.yaml",
         "path/to/manifest.json",
@@ -1208,22 +1267,9 @@ describe("daSpecParser", () => {
         AdaptiveCardUpdateStrategy.KeepExisting
       );
 
-      // Check that writeJson was called with the correct normalized path
-      assert.isTrue(
-        fsWriteJsonStub.calledWith(
-          pathMatcher("path/to/output/ai-plugin.json"),
-          sinon.match((value) => {
-            return (
-              value &&
-              value.runtimes &&
-              value.runtimes[0] &&
-              value.runtimes[0].spec &&
-              value.runtimes[0].spec.url === "../nested/folder/openapi.yaml"
-            );
-          }),
-          { spaces: 4 }
-        )
-      );
+      // Check that the runtime URL was updated with normalized forward slashes
+      assert.equal(mockRuntimes[0].spec.url, "../nested/folder/openapi.yaml");
+      assert.isTrue(mockManifest.save.calledOnce);
     });
 
     it("should create correct include patterns from operations", async () => {
@@ -1413,45 +1459,82 @@ describe("daSpecParser", () => {
       fsReadJSONStub.callsFake(async (path: any) => {
         if (path.includes("manifest.json")) {
           return { name: { short: "test-app" } };
-        } else if (path.includes("ai-plugin.json") && path.includes("tmp")) {
-          return {
-            name: "test-app",
-            runtimes: [
-              {
-                spec: { url: "path-to-be-replaced" },
-                run_for_functions: ["newFunction1", "newFunction2"],
-              },
-            ],
-            functions: [
-              { name: "newFunction1", description: "New function 1" },
-              { name: "newFunction2", description: "New function 2" },
-            ],
-          };
-        } else {
-          return {
-            name: "test-app",
-            runtimes: [
-              {
-                spec: { url: "../openapi.yaml" },
-                run_for_functions: ["oldFunction1", "oldFunction2"],
-              },
-              {
-                spec: { url: "other-spec.yaml" },
-                run_for_functions: ["keepFunction1"],
-              },
-            ],
-            functions: [
-              { name: "oldFunction1", description: "Old function 1" },
-              { name: "oldFunction2", description: "Old function 2" },
-              { name: "keepFunction1", description: "Keep function 1" },
-            ],
-          };
         }
+        return {};
       });
 
       const fsWriteJsonStub = sinon.stub(require("fs-extra"), "writeJson").resolves();
 
       pathRelativeStub.returns("../openapi.yaml");
+
+      // Track functions and runtimes for the existing manifest mock
+      const existingFunctions = [
+        { name: "oldFunction1", description: "Old function 1" },
+        { name: "oldFunction2", description: "Old function 2" },
+        { name: "keepFunction1", description: "Keep function 1" },
+      ];
+      const existingRuntimes = [
+        {
+          spec: { url: "../openapi.yaml" },
+          run_for_functions: ["oldFunction1", "oldFunction2"],
+        },
+        {
+          spec: { url: "other-spec.yaml" },
+          run_for_functions: ["keepFunction1"],
+        },
+      ];
+
+      // Mock for generated manifest (from temp path)
+      const generatedManifest = {
+        runtimes: [
+          {
+            spec: { url: "path-to-be-replaced" },
+            run_for_functions: ["newFunction1", "newFunction2"],
+          },
+        ],
+        functions: [
+          { name: "newFunction1", description: "New function 1" },
+          { name: "newFunction2", description: "New function 2" },
+        ],
+        mutableData: {},
+        save: sinon.stub().resolves(),
+        addFunction: sinon.stub(),
+        removeFunction: sinon.stub(),
+        addRuntime: sinon.stub(),
+        removeRuntimeBySpecUrl: sinon.stub(),
+      };
+
+      // Mock for existing manifest (from output path)
+      const existingManifest = {
+        runtimes: existingRuntimes,
+        functions: existingFunctions,
+        mutableData: {},
+        save: sinon.stub().resolves(),
+        addFunction: sinon.stub().callsFake((name: string, description: string) => {
+          existingFunctions.push({ name, description });
+        }),
+        removeFunction: sinon.stub().callsFake((name: string) => {
+          const index = existingFunctions.findIndex((f) => f.name === name);
+          if (index !== -1) existingFunctions.splice(index, 1);
+        }),
+        addRuntime: sinon.stub().callsFake((runtime: any) => {
+          existingRuntimes.push(runtime);
+        }),
+        removeRuntimeBySpecUrl: sinon.stub().callsFake((url: string) => {
+          const index = existingRuntimes.findIndex((r) => r.spec.url === url);
+          if (index !== -1) existingRuntimes.splice(index, 1);
+        }),
+      };
+
+      // First call is for generated manifest, second call is for existing manifest
+      let callCount = 0;
+      pluginManifestWrapperReadStub.callsFake(async (path: string) => {
+        callCount++;
+        if (path.includes("tmp") || path.includes("working-dir")) {
+          return generatedManifest;
+        }
+        return existingManifest;
+      });
 
       const specPath = "path/to/spec.yaml";
       const teamsManifestPath = "path/to/manifest.json";
@@ -1470,48 +1553,20 @@ describe("daSpecParser", () => {
         true
       );
 
-      assert.isTrue(
-        fsWriteJsonStub.calledWith(
-          pathMatcher("path/to/output/ai-plugin.json"),
-          sinon.match((value) => {
-            const hasNoOldFunctions = value.functions.every(
-              (f: any) => f.name !== "oldFunction1" && f.name !== "oldFunction2"
-            );
+      // Verify the existing manifest was modified correctly
+      assert.isTrue(existingManifest.save.calledOnce);
 
-            const hasNewFunctions =
-              value.functions.some((f: any) => f.name === "newFunction1") &&
-              value.functions.some((f: any) => f.name === "newFunction2");
+      // Verify old functions were removed
+      assert.isTrue(existingManifest.removeFunction.calledWith("oldFunction1"));
+      assert.isTrue(existingManifest.removeFunction.calledWith("oldFunction2"));
 
-            const preservedOtherFunctions = value.functions.some(
-              (f: any) => f.name === "keepFunction1"
-            );
+      // Verify new functions were added
+      assert.isTrue(existingManifest.addFunction.calledWith("newFunction1", "New function 1"));
+      assert.isTrue(existingManifest.addFunction.calledWith("newFunction2", "New function 2"));
 
-            const correctFunctionCount = value.functions.length === 3;
-
-            const preservedOtherRuntime = value.runtimes.some(
-              (r: any) =>
-                r.spec.url === "other-spec.yaml" && r.run_for_functions.includes("keepFunction1")
-            );
-
-            const addedNewRuntime = value.runtimes.some(
-              (r: any) =>
-                r.spec.url === "../openapi.yaml" &&
-                r.run_for_functions.includes("newFunction1") &&
-                r.run_for_functions.includes("newFunction2")
-            );
-
-            return (
-              hasNoOldFunctions &&
-              hasNewFunctions &&
-              preservedOtherFunctions &&
-              correctFunctionCount &&
-              preservedOtherRuntime &&
-              addedNewRuntime
-            );
-          }),
-          { spaces: 4 }
-        )
-      );
+      // Verify old runtime was removed and new one added
+      assert.isTrue(existingManifest.removeRuntimeBySpecUrl.calledWith("../openapi.yaml"));
+      assert.isTrue(existingManifest.addRuntime.calledOnce);
 
       assert.equal(fsCopyStub.callCount, 2);
       const copyCallArgs = fsCopyStub.secondCall.args;

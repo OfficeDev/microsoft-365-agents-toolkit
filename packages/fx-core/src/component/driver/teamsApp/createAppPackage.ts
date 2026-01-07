@@ -3,20 +3,27 @@
 
 import { hooks } from "@feathersjs/hooks/lib";
 import {
+  CapabilityName,
   Colors,
-  DeclarativeCopilotCapabilityName,
-  EmbeddedKnowledgeCapability,
+  DeclarativeAgentManifestLatest,
   err,
-  FunctionObject,
   FxError,
   ok,
-  PluginManifestSchema,
+  APIPluginManifestLatest,
+  PluginManifestWrapper,
   Result,
   TeamsManifestV1D17,
   TeamsManifestV1D19,
   TeamsManifestV1D21,
   TeamsManifestV1D5,
 } from "@microsoft/teamsfx-api";
+
+// Type alias for plugin function derived from the latest manifest type
+type PluginFunction = NonNullable<APIPluginManifestLatest["functions"]>[number];
+
+// Type aliases for declarative agent manifest types
+type DeclarativeCapability = NonNullable<DeclarativeAgentManifestLatest["capabilities"]>[number];
+type DeclarativeAction = NonNullable<DeclarativeAgentManifestLatest["actions"]>[number];
 import AdmZip from "adm-zip";
 import fs from "fs-extra";
 import * as path from "path";
@@ -317,7 +324,9 @@ export class CreateAppPackageDriver implements StepDriver {
       if (getCopilotGptRes.isOk()) {
         // Add action files
         if (getCopilotGptRes.value.actions) {
-          const pluginFiles = getCopilotGptRes.value.actions.map((action) => action.file);
+          const pluginFiles = getCopilotGptRes.value.actions.map(
+            (action: DeclarativeAction) => action.file
+          );
 
           for (const pluginFile of pluginFiles) {
             const pluginFileAbsolutePath = path.resolve(
@@ -348,15 +357,17 @@ export class CreateAppPackageDriver implements StepDriver {
         // Add embedded knowledge files
         if (featureFlagManager.getBooleanValue(FeatureFlags.EmbeddedKnowledgeEnabled)) {
           if (getCopilotGptRes.value.capabilities) {
-            const embeddedKnowledgeCapabilities = getCopilotGptRes.value.capabilities.filter(
-              (capability) => capability.name === DeclarativeCopilotCapabilityName.EmbeddedKnowledge
+            const embeddedKnowledgeCapabilities = (
+              getCopilotGptRes.value.capabilities as DeclarativeCapability[]
+            ).filter(
+              (capability: DeclarativeCapability) =>
+                capability.name === CapabilityName.EmbeddedKnowledge
             );
             if (embeddedKnowledgeCapabilities.length > 0) {
               const fileSet = new Set<string>();
               for (const capability of embeddedKnowledgeCapabilities) {
-                const embeddedCapability = capability as EmbeddedKnowledgeCapability;
-                if (embeddedCapability.files) {
-                  for (const file of embeddedCapability.files) {
+                if (capability.files) {
+                  for (const file of capability.files) {
                     if (file.file) {
                       fileSet.add(file.file);
                     }
@@ -411,7 +422,7 @@ export class CreateAppPackageDriver implements StepDriver {
     return getResolvedManifest(content, filePath, manifestType, ctx);
   }
 
-  private validateArgs(args: CreateAppPackageArgs): Result<any, FxError> {
+  private validateArgs(args: CreateAppPackageArgs): Result<undefined, FxError> {
     const invalidParams: string[] = [];
     if (!args || !args.manifestPath) {
       invalidParams.push("manifestPath");
@@ -480,43 +491,42 @@ export class CreateAppPackageDriver implements StepDriver {
       return err(checkExistenceRes.error);
     }
 
-    let pluginFileContent;
+    let pluginWrapper: PluginManifestWrapper;
     try {
-      pluginFileContent = (await fs.readJSON(pluginFile)) as PluginManifestSchema;
+      pluginWrapper = await PluginManifestWrapper.read(pluginFile);
     } catch (e) {
       return err(new JSONSyntaxError(pluginFile, e, actionName));
     }
 
     let containExternalAdaptiveCard = false;
-    if (pluginFileContent.functions) {
-      for (const func of pluginFileContent.functions) {
-        if (func.capabilities?.response_semantics?.static_template?.file) {
-          const staticTemplateFile = await this.getAdaptiveCardTemplateFile(
-            context,
-            pluginFile,
-            func,
-            appDirectory,
-            defaultAppDirectry
-          );
-          if (!staticTemplateFile) {
-            continue;
-          }
-
-          if (Object.keys(func.capabilities.response_semantics.static_template).length > 1) {
-            context.logProvider.warning(
-              getLocalizedString(
-                "plugins.appstudio.createPackage.aiPlugin.overrideWarning",
-                pluginFile,
-                func.name
-              )
-            );
-          }
-
-          const staticTemplateFileContent = await fs.readJSON(staticTemplateFile);
-          func.capabilities.response_semantics.static_template = staticTemplateFileContent;
-
-          containExternalAdaptiveCard = true;
+    for (const func of pluginWrapper.functions) {
+      if (func.capabilities?.response_semantics?.static_template?.file) {
+        const staticTemplateFile = await this.getAdaptiveCardTemplateFile(
+          context,
+          pluginFile,
+          func,
+          appDirectory,
+          defaultAppDirectry
+        );
+        if (!staticTemplateFile) {
+          continue;
         }
+
+        if (Object.keys(func.capabilities.response_semantics.static_template).length > 1) {
+          context.logProvider.warning(
+            getLocalizedString(
+              "plugins.appstudio.createPackage.aiPlugin.overrideWarning",
+              pluginFile,
+              func.name
+            )
+          );
+        }
+
+        const staticTemplateFileContent = await fs.readJSON(staticTemplateFile);
+        // Mutate the function's static_template - need to cast to mutable
+        func.capabilities.response_semantics.static_template = staticTemplateFileContent;
+
+        containExternalAdaptiveCard = true;
       }
     }
 
@@ -524,8 +534,8 @@ export class CreateAppPackageDriver implements StepDriver {
     let tempFolder: string | undefined;
 
     let namespaceContainsUnderscore = false;
-    if (pluginFileContent.namespace?.includes("_")) {
-      pluginFileContent.namespace = pluginFileContent.namespace.replace(/_/g, "");
+    if (pluginWrapper.namespace?.includes("_")) {
+      pluginWrapper.setNamespace(pluginWrapper.namespace.replace(/_/g, ""));
       namespaceContainsUnderscore = true;
       context.logProvider.warning(
         getLocalizedString(
@@ -544,7 +554,7 @@ export class CreateAppPackageDriver implements StepDriver {
       await fs.ensureDir(tempFolder);
       tmpPluginFile = path.join(tempFolder, `tmp-ai-plugin-${uuid.v4().slice(0, 6)}.json`);
       const processedFunctionRes = await expandVariableWithFunction(
-        JSON.stringify(pluginFileContent),
+        pluginWrapper.toJSON(),
         context,
         undefined,
         true,
@@ -554,8 +564,8 @@ export class CreateAppPackageDriver implements StepDriver {
       if (processedFunctionRes.isErr()) {
         return err(processedFunctionRes.error);
       }
-      pluginFileContent = JSON.parse(processedFunctionRes.value);
-      await fs.writeJSON(tmpPluginFile, pluginFileContent, { spaces: 4 });
+      const processedWrapper = PluginManifestWrapper.fromJSON(processedFunctionRes.value);
+      await processedWrapper.save(tmpPluginFile);
     }
 
     const addFileWithVariableRes = await this.addFileWithVariable(
@@ -605,9 +615,9 @@ export class CreateAppPackageDriver implements StepDriver {
     context: WrapDriverContext
   ): Promise<Result<undefined, FxError>> {
     const pluginFilePath = path.join(appDirectory, pluginFile);
-    const pluginContent = (await fs.readJSON(pluginFilePath)) as PluginManifestSchema;
-    const runtimes = pluginContent.runtimes;
-    if (runtimes && runtimes.length > 0) {
+    const pluginWrapper = await PluginManifestWrapper.read(pluginFilePath);
+    const runtimes = pluginWrapper.runtimes;
+    if (runtimes.length > 0) {
       for (const runtime of runtimes) {
         if (runtime.type === "OpenApi" && runtime.spec?.url) {
           const specFile = path.resolve(path.dirname(pluginFilePath), runtime.spec.url);
@@ -630,13 +640,10 @@ export class CreateAppPackageDriver implements StepDriver {
           if (addFileWithVariableRes.isErr()) {
             return err(addFileWithVariableRes.error);
           }
-        } else if (
-          (runtime as any).type === "RemoteMCPServer" &&
-          (runtime as any).spec?.mcp_tool_description?.file
-        ) {
+        } else if (runtime.type === "RemoteMCPServer" && runtime.spec.mcp_tool_description?.file) {
           const mcpFile = path.resolve(
             path.dirname(pluginFilePath),
-            (runtime as any).spec.mcp_tool_description.file
+            runtime.spec.mcp_tool_description.file
           );
           // add mcp tool description file
           const checkExistenceRes = await this.validateReferencedFile(mcpFile, appDirectory);
@@ -700,13 +707,22 @@ export class CreateAppPackageDriver implements StepDriver {
   private async getAdaptiveCardTemplateFile(
     context: WrapDriverContext,
     pluginFile: string,
-    func: FunctionObject,
+    func: PluginFunction,
     appDirectory: string,
     defaultAppDirectry?: string
   ): Promise<string | undefined> {
+    const staticTemplate = func.capabilities?.response_semantics?.static_template;
+    if (!staticTemplate) {
+      return undefined;
+    }
+    const staticTemplateFilePath = staticTemplate.file;
+    if (!staticTemplateFilePath) {
+      return undefined;
+    }
+
     let staticTemplateFile = path.resolve(
       defaultAppDirectry ?? path.dirname(pluginFile),
-      func.capabilities!.response_semantics!.static_template!.file as string
+      staticTemplateFilePath
     );
     let checkExistenceRes = await this.validateReferencedFile(
       staticTemplateFile,
@@ -718,15 +734,12 @@ export class CreateAppPackageDriver implements StepDriver {
 
     if (defaultAppDirectry) {
       // Try generated folder
-      staticTemplateFile = path.resolve(
-        appDirectory,
-        func.capabilities!.response_semantics!.static_template!.file as string
-      );
+      staticTemplateFile = path.resolve(appDirectory, staticTemplateFilePath);
       checkExistenceRes = await this.validateReferencedFile(staticTemplateFile, appDirectory);
     }
 
     if (checkExistenceRes.isErr()) {
-      delete func.capabilities!.response_semantics!.static_template!.file;
+      delete staticTemplate.file;
       context.logProvider.warning(
         getLocalizedString(
           "plugins.appstudio.createPackage.aiPlugin.invalidFilePropertyWarning",

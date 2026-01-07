@@ -4,11 +4,10 @@
 import { assert } from "chai";
 import "mocha";
 import sinon from "sinon";
-import { kiotageneratePlugin, searchOpenAPISpec } from "../../src/common/kiotaClient";
-import proxyquire from "proxyquire";
 import { RestoreFn } from "mocked-env";
 import * as kiota from "@microsoft/kiota";
 import mockedEnv from "mocked-env";
+import * as kiotaClient from "../../src/common/kiotaClient";
 
 describe("kiotaClient", () => {
   const sandbox = sinon.createSandbox();
@@ -36,18 +35,12 @@ describe("kiotaClient", () => {
       process.env.KIOTA_BINARY_PATH = "/custom/path/to/kiota";
       delete (process as any).pkg;
 
-      const setKiotaConfigStub = sinon.stub().resolves();
-      const searchDescriptionStub = sinon.stub().resolves({});
+      const setKiotaConfigStub = sandbox.stub(kiotaClient.kiotaModule, "setKiotaConfig");
+      const searchDescriptionStub = sandbox
+        .stub(kiotaClient.kiotaModule, "searchDescription")
+        .resolves({});
 
-      const { searchOpenAPISpec } = proxyquire("../../src/common/kiotaClient", {
-        "@microsoft/kiota": {
-          setKiotaConfig: setKiotaConfigStub,
-          searchDescription: searchDescriptionStub,
-          "@noCallThru": true,
-        },
-      });
-
-      await searchOpenAPISpec("test-query");
+      await kiotaClient.searchOpenAPISpec("test-query");
 
       assert(setKiotaConfigStub.calledOnce);
       assert(setKiotaConfigStub.calledWith({ binaryLocation: "/custom/path/to/kiota" }));
@@ -57,47 +50,29 @@ describe("kiotaClient", () => {
       delete process.env.KIOTA_BINARY_PATH;
       (process as any).pkg = {};
 
-      const setKiotaConfigStub = sinon.stub().resolves();
-      const searchDescriptionStub = sinon.stub().resolves({});
+      const setKiotaConfigStub = sandbox.stub(kiotaClient.kiotaModule, "setKiotaConfig");
+      const searchDescriptionStub = sandbox
+        .stub(kiotaClient.kiotaModule, "searchDescription")
+        .resolves({});
 
-      const { searchOpenAPISpec } = proxyquire("../../src/common/kiotaClient", {
-        "@microsoft/kiota": {
-          setKiotaConfig: setKiotaConfigStub,
-          searchDescription: searchDescriptionStub,
-          "@noCallThru": true,
-        },
-        path: {
-          join: sinon.stub().returns("/home/user/kiota-bin"),
-          "@noCallThru": true,
-        },
-        os: {
-          homedir: sinon.stub().returns("/home/user"),
-          "@noCallThru": true,
-        },
-      });
-
-      await searchOpenAPISpec("test-query");
+      await kiotaClient.searchOpenAPISpec("test-query");
 
       assert(setKiotaConfigStub.calledOnce);
-      assert(setKiotaConfigStub.calledWith({ binaryLocation: "/home/user/kiota-bin" }));
+      // The path will include 'kiota-bin' at the end
+      const callArg = setKiotaConfigStub.firstCall.args[0] as { binaryLocation: string };
+      assert(callArg?.binaryLocation?.endsWith("kiota-bin"));
     });
 
     it("should not call setKiotaConfig when not in pkg and no env var set", async () => {
       delete process.env.KIOTA_BINARY_PATH;
       delete (process as any).pkg;
 
-      const setKiotaConfigStub = sinon.stub().resolves();
-      const searchDescriptionStub = sinon.stub().resolves({});
+      const setKiotaConfigStub = sandbox.stub(kiotaClient.kiotaModule, "setKiotaConfig");
+      const searchDescriptionStub = sandbox
+        .stub(kiotaClient.kiotaModule, "searchDescription")
+        .resolves({});
 
-      const { searchOpenAPISpec } = proxyquire("../../src/common/kiotaClient", {
-        "@microsoft/kiota": {
-          setKiotaConfig: setKiotaConfigStub,
-          searchDescription: searchDescriptionStub,
-          "@noCallThru": true,
-        },
-      });
-
-      await searchOpenAPISpec("test-query");
+      await kiotaClient.searchOpenAPISpec("test-query");
 
       assert(setKiotaConfigStub.notCalled);
     });
@@ -106,18 +81,12 @@ describe("kiotaClient", () => {
       process.env.KIOTA_BINARY_PATH = "/env/path/to/kiota";
       (process as any).pkg = {};
 
-      const setKiotaConfigStub = sinon.stub().resolves();
-      const searchDescriptionStub = sinon.stub().resolves({});
+      const setKiotaConfigStub = sandbox.stub(kiotaClient.kiotaModule, "setKiotaConfig");
+      const searchDescriptionStub = sandbox
+        .stub(kiotaClient.kiotaModule, "searchDescription")
+        .resolves({});
 
-      const { searchOpenAPISpec } = proxyquire("../../src/common/kiotaClient", {
-        "@microsoft/kiota": {
-          setKiotaConfig: setKiotaConfigStub,
-          searchDescription: searchDescriptionStub,
-          "@noCallThru": true,
-        },
-      });
-
-      await searchOpenAPISpec("test-query");
+      await kiotaClient.searchOpenAPISpec("test-query");
 
       assert(setKiotaConfigStub.calledOnce);
       assert(setKiotaConfigStub.calledWith({ binaryLocation: "/env/path/to/kiota" }));
@@ -135,18 +104,12 @@ describe("kiotaClient", () => {
 
     process.env.KIOTA_BINARY_PATH = "mock/path/to/kiota";
 
-    const setKiotaConfigStub = sinon.stub().resolves();
-    const searchDescriptionStub = sinon.stub().resolves(mockSearchResult);
+    const setKiotaConfigStub = sandbox.stub(kiotaClient.kiotaModule, "setKiotaConfig");
+    const searchDescriptionStub = sandbox
+      .stub(kiotaClient.kiotaModule, "searchDescription")
+      .resolves(mockSearchResult);
 
-    const { searchOpenAPISpec } = proxyquire("../../src/common/kiotaClient", {
-      "@microsoft/kiota": {
-        setKiotaConfig: setKiotaConfigStub,
-        searchDescription: searchDescriptionStub,
-        "@noCallThru": true,
-      },
-    });
-
-    const result = await searchOpenAPISpec("test-query");
+    const result = await kiotaClient.searchOpenAPISpec("test-query");
 
     assert(setKiotaConfigStub.calledOnce);
     assert(setKiotaConfigStub.calledWith({ binaryLocation: "mock/path/to/kiota" }));
@@ -174,18 +137,12 @@ describe("kiotaClient", () => {
       delete process.env.KIOTA_BINARY_PATH;
     }
 
-    const setKiotaConfigStub = sinon.stub().resolves();
-    const searchDescriptionStub = sinon.stub().resolves(mockSearchResult);
+    const setKiotaConfigStub = sandbox.stub(kiotaClient.kiotaModule, "setKiotaConfig");
+    const searchDescriptionStub = sandbox
+      .stub(kiotaClient.kiotaModule, "searchDescription")
+      .resolves(mockSearchResult as any);
 
-    const { searchOpenAPISpec } = proxyquire("../../src/common/kiotaClient", {
-      "@microsoft/kiota": {
-        setKiotaConfig: setKiotaConfigStub,
-        searchDescription: searchDescriptionStub,
-        "@noCallThru": true,
-      },
-    });
-
-    const result = await searchOpenAPISpec("test-query");
+    const result = await kiotaClient.searchOpenAPISpec("test-query");
     assert(setKiotaConfigStub.notCalled);
     assert.equal(result.length, 0);
   });
@@ -195,24 +152,17 @@ describe("kiotaClient", () => {
       delete process.env.KIOTA_BINARY_PATH;
     }
 
-    const setKiotaConfigStub = sinon.stub().resolves();
-    const searchDescriptionStub = sinon.stub().resolves(undefined);
+    const setKiotaConfigStub = sandbox.stub(kiotaClient.kiotaModule, "setKiotaConfig");
+    const searchDescriptionStub = sandbox
+      .stub(kiotaClient.kiotaModule, "searchDescription")
+      .resolves(undefined);
 
-    const { searchOpenAPISpec } = proxyquire("../../src/common/kiotaClient", {
-      "@microsoft/kiota": {
-        setKiotaConfig: setKiotaConfigStub,
-        searchDescription: searchDescriptionStub,
-        "@noCallThru": true,
-      },
-    });
-
-    const result = await searchOpenAPISpec("test-query");
+    const result = await kiotaClient.searchOpenAPISpec("test-query");
     assert(setKiotaConfigStub.notCalled);
     assert.equal(result.length, 0);
   });
 
   describe("listAPITreeInfo", () => {
-    const sandbox = sinon.createSandbox();
     afterEach(async () => {
       sandbox.restore();
     });
@@ -230,22 +180,17 @@ describe("kiotaClient", () => {
         security: [],
         securitySchemes: {},
         logs: [],
+        specVersion: kiota.OpenApiSpecVersion.V3_0,
       };
 
       process.env.KIOTA_BINARY_PATH = "mock/path/to/kiota";
 
-      const setKiotaConfigStub = sinon.stub().resolves();
-      const getKiotaTreeStub = sinon.stub().resolves(mockTreeResult);
+      const setKiotaConfigStub = sandbox.stub(kiotaClient.kiotaModule, "setKiotaConfig");
+      const getKiotaTreeStub = sandbox
+        .stub(kiotaClient.kiotaModule, "getKiotaTree")
+        .resolves(mockTreeResult);
 
-      const { listAPITreeInfo } = proxyquire("../../src/common/kiotaClient", {
-        "@microsoft/kiota": {
-          getKiotaTree: getKiotaTreeStub,
-          setKiotaConfig: setKiotaConfigStub,
-          "@noCallThru": true,
-        },
-      });
-
-      const result = await listAPITreeInfo("path/to/spec");
+      const result = await kiotaClient.listAPITreeInfo("path/to/spec");
 
       assert(getKiotaTreeStub.calledOnce);
       assert(
@@ -258,7 +203,7 @@ describe("kiotaClient", () => {
         })
       );
 
-      assert.deepEqual(result, mockTreeResult);
+      assert.deepEqual(result, mockTreeResult as any);
     });
 
     it("happy path: listAPITreeInfo with include and exclude filters", async () => {
@@ -281,6 +226,7 @@ describe("kiotaClient", () => {
         security: [],
         securitySchemes: {},
         logs: [],
+        specVersion: kiota.OpenApiSpecVersion.V3_0,
       };
 
       if (process.env.KIOTA_BINARY_PATH) {
@@ -290,18 +236,16 @@ describe("kiotaClient", () => {
       const includeFilters = ["GET /users"];
       const excludeFilters = ["DELETE /users"];
 
-      const getKiotaTreeStub = sinon.stub().resolves(mockTreeResult);
-      const setKiotaConfigStub = sinon.stub().resolves();
+      const getKiotaTreeStub = sandbox
+        .stub(kiotaClient.kiotaModule, "getKiotaTree")
+        .resolves(mockTreeResult);
+      const setKiotaConfigStub = sandbox.stub(kiotaClient.kiotaModule, "setKiotaConfig");
 
-      const { listAPITreeInfo } = proxyquire("../../src/common/kiotaClient", {
-        "@microsoft/kiota": {
-          getKiotaTree: getKiotaTreeStub,
-          setKiotaConfig: setKiotaConfigStub,
-          "@noCallThru": true,
-        },
-      });
-
-      const result = await listAPITreeInfo("path/to/spec", includeFilters, excludeFilters);
+      const result = await kiotaClient.listAPITreeInfo(
+        "path/to/spec",
+        includeFilters,
+        excludeFilters
+      );
 
       assert(getKiotaTreeStub.calledOnce);
       assert(
@@ -314,7 +258,7 @@ describe("kiotaClient", () => {
         })
       );
 
-      assert.deepEqual(result, mockTreeResult);
+      assert.deepEqual(result, mockTreeResult as any);
     });
 
     it("listAPITreeInfo should throw error if contains logs level >= 4", async () => {
@@ -343,23 +287,18 @@ describe("kiotaClient", () => {
             message: "Fatal error",
           },
         ],
+        specVersion: kiota.OpenApiSpecVersion.V3_0,
       };
 
       process.env.KIOTA_BINARY_PATH = "mock/path/to/kiota";
 
-      const setKiotaConfigStub = sinon.stub().resolves();
-      const getKiotaTreeStub = sinon.stub().resolves(mockTreeResult);
-
-      const { listAPITreeInfo } = proxyquire("../../src/common/kiotaClient", {
-        "@microsoft/kiota": {
-          getKiotaTree: getKiotaTreeStub,
-          setKiotaConfig: setKiotaConfigStub,
-          "@noCallThru": true,
-        },
-      });
+      const setKiotaConfigStub = sandbox.stub(kiotaClient.kiotaModule, "setKiotaConfig");
+      const getKiotaTreeStub = sandbox
+        .stub(kiotaClient.kiotaModule, "getKiotaTree")
+        .resolves(mockTreeResult);
 
       try {
-        const result = await listAPITreeInfo("path/to/spec");
+        await kiotaClient.listAPITreeInfo("path/to/spec");
         assert.fail("Should have thrown an error");
       } catch (error) {
         assert.equal((error as Error).message, "Error parsing OpenAPI spec\nFatal error");
@@ -379,26 +318,21 @@ describe("kiotaClient", () => {
         security: [],
         securitySchemes: {},
         logs: [],
+        specVersion: kiota.OpenApiSpecVersion.V3_0,
       };
 
       process.env.KIOTA_BINARY_PATH = "mock/path/to/kiota";
       process.env.TestEnv = "test-env";
       process.env.operationId = "test-operation-id";
 
-      const setKiotaConfigStub = sinon.stub().resolves();
-      const getKiotaTreeStub = sinon.stub().resolves(mockTreeResult);
+      const setKiotaConfigStub = sandbox.stub(kiotaClient.kiotaModule, "setKiotaConfig");
+      const getKiotaTreeStub = sandbox
+        .stub(kiotaClient.kiotaModule, "getKiotaTree")
+        .resolves(mockTreeResult);
 
-      const { listAPITreeInfo } = proxyquire("../../src/common/kiotaClient", {
-        "@microsoft/kiota": {
-          getKiotaTree: getKiotaTreeStub,
-          setKiotaConfig: setKiotaConfigStub,
-          "@noCallThru": true,
-        },
-      });
-
-      const result = await listAPITreeInfo("path/to/spec");
-      assert(result.servers[0] === "https://api.example.com/test-env/");
-      assert(result.rootNode.operationId === "test-operation-id");
+      const result = await kiotaClient.listAPITreeInfo("path/to/spec");
+      assert(result.servers![0] === "https://api.example.com/test-env/");
+      assert(result.rootNode!.operationId === "test-operation-id");
       assert(getKiotaTreeStub.calledOnce);
       assert(
         getKiotaTreeStub.calledWith({
@@ -412,20 +346,13 @@ describe("kiotaClient", () => {
     });
 
     it("edge case: listAPITreeInfo returns undefined", async () => {
-      const getKiotaTreeStub = sinon.stub().resolves(undefined);
-
-      const setKiotaConfigStub = sinon.stub().resolves();
-
-      const { listAPITreeInfo } = proxyquire("../../src/common/kiotaClient", {
-        "@microsoft/kiota": {
-          getKiotaTree: getKiotaTreeStub,
-          setKiotaConfig: setKiotaConfigStub,
-          "@noCallThru": true,
-        },
-      });
+      const getKiotaTreeStub = sandbox
+        .stub(kiotaClient.kiotaModule, "getKiotaTree")
+        .resolves(undefined);
+      const setKiotaConfigStub = sandbox.stub(kiotaClient.kiotaModule, "setKiotaConfig");
 
       try {
-        const result = await listAPITreeInfo("path/to/spec");
+        await kiotaClient.listAPITreeInfo("path/to/spec");
         assert.fail("Should have thrown an error");
       } catch (error) {
         assert.equal(
@@ -439,20 +366,13 @@ describe("kiotaClient", () => {
 
     it("error path: listAPITreeInfo throws exception", async () => {
       const errorMessage = "Failed to parse OpenAPI spec";
-      const getKiotaTreeStub = sinon.stub().rejects(new Error(errorMessage));
-
-      const setKiotaConfigStub = sinon.stub().resolves();
-
-      const { listAPITreeInfo } = proxyquire("../../src/common/kiotaClient", {
-        "@microsoft/kiota": {
-          getKiotaTree: getKiotaTreeStub,
-          setKiotaConfig: setKiotaConfigStub,
-          "@noCallThru": true,
-        },
-      });
+      const getKiotaTreeStub = sandbox
+        .stub(kiotaClient.kiotaModule, "getKiotaTree")
+        .rejects(new Error(errorMessage));
+      const setKiotaConfigStub = sandbox.stub(kiotaClient.kiotaModule, "setKiotaConfig");
 
       try {
-        await listAPITreeInfo("path/to/spec");
+        await kiotaClient.listAPITreeInfo("path/to/spec");
         assert.fail("Should have thrown an error");
       } catch (error) {
         assert.equal((error as Error).message, errorMessage);
@@ -472,26 +392,15 @@ describe("generatePlugin", async () => {
   });
 
   it("happy path: generatePlugin", async () => {
-    const setKiotaConfigStub = sandbox.stub().resolves();
-    const generatePluginStub = sandbox.stub(kiota, "generatePlugin").resolves({
+    const setKiotaConfigStub = sandbox.stub(kiotaClient.kiotaModule, "setKiotaConfig");
+    const generatePluginStub = sandbox.stub(kiotaClient.kiotaModule, "generatePlugin").resolves({
       aiPlugin: "mocked-ai-plugin",
       openAPISpec: "mocked-openapi-spec",
       isSuccess: true,
       logs: [],
     });
 
-    const { kiotageneratePlugin } = proxyquire("../../src/common/kiotaClient", {
-      "@microsoft/kiota": {
-        setKiotaConfig: setKiotaConfigStub,
-        generatePlugin: generatePluginStub,
-        "@noCallThru": true,
-        ConsumerOperation: {
-          Edit: "edit",
-        },
-      },
-    });
-
-    const res = await kiotageneratePlugin(
+    const res = await kiotaClient.kiotageneratePlugin(
       "specPath",
       "outputPath",
       "pluginName",
@@ -515,26 +424,15 @@ describe("generatePlugin", async () => {
     envRestore = mockedEnv({
       KIOTA_BINARY_PATH: "true",
     });
-    const setKiotaConfigStub = sandbox.stub().resolves();
-    const generatePluginStub = sandbox.stub(kiota, "generatePlugin").resolves({
+    const setKiotaConfigStub = sandbox.stub(kiotaClient.kiotaModule, "setKiotaConfig");
+    const generatePluginStub = sandbox.stub(kiotaClient.kiotaModule, "generatePlugin").resolves({
       aiPlugin: "mocked-ai-plugin",
       openAPISpec: "mocked-openapi-spec",
       isSuccess: true,
       logs: [],
     });
 
-    const { kiotageneratePlugin } = proxyquire("../../src/common/kiotaClient", {
-      "@microsoft/kiota": {
-        setKiotaConfig: setKiotaConfigStub,
-        generatePlugin: generatePluginStub,
-        "@noCallThru": true,
-        ConsumerOperation: {
-          Edit: "edit",
-        },
-      },
-    });
-
-    const res = await kiotageneratePlugin(
+    const res = await kiotaClient.kiotageneratePlugin(
       "specPath",
       "outputPath",
       "pluginName",
@@ -550,28 +448,19 @@ describe("generatePlugin", async () => {
   });
 
   it("should throw error if kiota return unedfined", async () => {
-    const setKiotaConfigStub = sandbox.stub().resolves();
-    const generatePluginStub = sandbox.stub(kiota, "generatePlugin").resolves(undefined);
-
-    const { kiotageneratePlugin } = proxyquire("../../src/common/kiotaClient", {
-      "@microsoft/kiota": {
-        setKiotaConfig: setKiotaConfigStub,
-        generatePlugin: generatePluginStub,
-        "@noCallThru": true,
-        ConsumerOperation: {
-          Edit: "edit",
-        },
-      },
-    });
+    const setKiotaConfigStub = sandbox.stub(kiotaClient.kiotaModule, "setKiotaConfig");
+    const generatePluginStub = sandbox
+      .stub(kiotaClient.kiotaModule, "generatePlugin")
+      .resolves(undefined);
 
     try {
-      const res = await kiotageneratePlugin(
+      await kiotaClient.kiotageneratePlugin(
         "specPath",
         "outputPath",
         "pluginName",
         "workingDirectory"
       );
-    } catch (error) {
+    } catch (error: any) {
       assert.equal(
         error.message,
         "Unable to generate plugin manifest file using Kiota. Error: Get empty result from kiota"
@@ -583,8 +472,8 @@ describe("generatePlugin", async () => {
   });
 
   it("should throw error if kiota throw error", async () => {
-    const setKiotaConfigStub = sandbox.stub().resolves();
-    const generatePluginStub = sandbox.stub(kiota, "generatePlugin").resolves({
+    const setKiotaConfigStub = sandbox.stub(kiotaClient.kiotaModule, "setKiotaConfig");
+    const generatePluginStub = sandbox.stub(kiotaClient.kiotaModule, "generatePlugin").resolves({
       aiPlugin: "mocked-ai-plugin",
       openAPISpec: "mocked-openapi-spec",
       isSuccess: false,
@@ -596,25 +485,14 @@ describe("generatePlugin", async () => {
       ],
     });
 
-    const { kiotageneratePlugin } = proxyquire("../../src/common/kiotaClient", {
-      "@microsoft/kiota": {
-        setKiotaConfig: setKiotaConfigStub,
-        generatePlugin: generatePluginStub,
-        "@noCallThru": true,
-        ConsumerOperation: {
-          Edit: "edit",
-        },
-      },
-    });
-
     try {
-      const res = await kiotageneratePlugin(
+      await kiotaClient.kiotageneratePlugin(
         "specPath",
         "outputPath",
         "pluginName",
         "workingDirectory"
       );
-    } catch (error) {
+    } catch (error: any) {
       assert.equal(
         error.message,
         "Unable to generate plugin manifest file using Kiota. Error: Error parsing OpenAPI spec"
@@ -626,34 +504,23 @@ describe("generatePlugin", async () => {
   });
 
   it("should throw error if kiota throw error", async () => {
-    const setKiotaConfigStub = sandbox.stub().resolves();
+    const setKiotaConfigStub = sandbox.stub(kiotaClient.kiotaModule, "setKiotaConfig");
     const generatePluginStub = sandbox
-      .stub(kiota, "generatePlugin")
+      .stub(kiotaClient.kiotaModule, "generatePlugin")
       .throws(new Error("mocked error"));
 
-    const { kiotageneratePlugin } = proxyquire("../../src/common/kiotaClient", {
-      "@microsoft/kiota": {
-        setKiotaConfig: setKiotaConfigStub,
-        generatePlugin: generatePluginStub,
-        "@noCallThru": true,
-        ConsumerOperation: {
-          Edit: "edit",
-        },
-      },
-    });
-
     try {
-      const res = await kiotageneratePlugin(
+      await kiotaClient.kiotageneratePlugin(
         "specPath",
         "outputPath",
         "pluginName",
         "workingDirectory",
-        "OAuthPluginVault",
+        kiota.PluginAuthType.oAuthPluginVault,
         "mockedRefId",
         ["includePattern"],
         ["excludePattern"]
       );
-    } catch (error) {
+    } catch (error: any) {
       assert.equal(
         error.message,
         "Unable to generate plugin manifest file using Kiota. Error: mocked error"

@@ -5,7 +5,6 @@ import { LogLevel, LogProvider, UserError } from "@microsoft/teamsfx-api";
 import { expect } from "chai";
 import fs from "fs-extra";
 import "mocha";
-import rewire from "rewire";
 import { assert, restore, spy, stub } from "sinon";
 import { createContext, setTools } from "../../../../../src/common/globalVars";
 import { cpUtils } from "../../../../../src/component/deps-checker/util/cpUtils";
@@ -13,8 +12,6 @@ import { YoChecker } from "../../../../../src/component/generator/spfx/depsCheck
 import { telemetryHelper } from "../../../../../src/component/generator/spfx/utils/telemetry-helper";
 import { Utils } from "../../../../../src/component/generator/spfx/utils/utils";
 import { MockTools } from "../../../../core/utils";
-
-const ryc = rewire("../../../../../src/component/generator/spfx/depsChecker/yoChecker");
 
 class StubLogger implements LogProvider {
   msg = "";
@@ -62,7 +59,7 @@ describe("Yo checker", () => {
 
   it("install", async () => {
     const yc = new YoChecker(new StubLogger());
-    const cleanStub = stub(YoChecker.prototype, <any>"cleanup").callsFake(async () => {
+    const cleanStub = stub(YoChecker.prototype, "cleanup" as any).callsFake(async () => {
       console.log("stub cleanup");
       return;
     });
@@ -80,7 +77,7 @@ describe("Yo checker", () => {
 
   it("install throw error", async () => {
     const yc = new YoChecker(new StubLogger());
-    const cleanStub = stub(YoChecker.prototype, <any>"cleanup").callsFake(async () => {
+    const cleanStub = stub(YoChecker.prototype, "cleanup" as any).callsFake(async () => {
       console.log("stub cleanup");
       return;
     });
@@ -161,12 +158,12 @@ describe("Yo checker", () => {
         return true;
       });
 
-      stub(YoChecker.prototype, <any>"queryVersion").callsFake(async () => {
+      stub(YoChecker.prototype, "queryVersion" as any).callsFake(async () => {
         console.log("stub queryversion");
         return "latest";
       });
 
-      stub(YoChecker.prototype, <any>"findLatestVersion").callsFake(async () => {
+      stub(YoChecker.prototype, "findLatestVersion" as any).callsFake(async () => {
         console.log("stub findLatestVersion");
         return "latest";
       });
@@ -182,12 +179,12 @@ describe("Yo checker", () => {
         return true;
       });
 
-      stub(YoChecker.prototype, <any>"queryVersion").callsFake(async () => {
+      stub(YoChecker.prototype, "queryVersion" as any).callsFake(async () => {
         console.log("stub queryversion");
         return "lowerVersion";
       });
 
-      stub(YoChecker.prototype, <any>"findLatestVersion").callsFake(async () => {
+      stub(YoChecker.prototype, "findLatestVersion" as any).callsFake(async () => {
         console.log("stub findLatestVersion");
         return "latest version";
       });
@@ -203,12 +200,12 @@ describe("Yo checker", () => {
         return false;
       });
 
-      stub(YoChecker.prototype, <any>"queryVersion").callsFake(async () => {
+      stub(YoChecker.prototype, "queryVersion" as any).callsFake(async () => {
         console.log("stub queryversion");
         return "lowerVersion";
       });
 
-      stub(YoChecker.prototype, <any>"findLatestVersion").callsFake(async () => {
+      stub(YoChecker.prototype, "findLatestVersion" as any).callsFake(async () => {
         console.log("stub findLatestVersion");
         return "latest version";
       });
@@ -224,7 +221,7 @@ describe("Yo checker", () => {
         return true;
       });
 
-      stub(YoChecker.prototype, <any>"queryVersion").throws("error");
+      stub(YoChecker.prototype, "queryVersion" as any).throws("error");
       stub(Utils, "findLatestVersion").throws("error");
 
       const result = await yc.isLatestInstalled();
@@ -237,7 +234,7 @@ describe("Yo checker", () => {
     it("install successfully", async () => {
       const yc = new YoChecker(new StubLogger());
 
-      stub(YoChecker.prototype, <any>"install").callsFake(async () => {
+      stub(YoChecker.prototype, "install" as any).callsFake(async () => {
         console.log("installing");
       });
 
@@ -249,7 +246,7 @@ describe("Yo checker", () => {
 
     it("install error", async () => {
       const yc = new YoChecker(new StubLogger());
-      stub(YoChecker.prototype, <any>"install").callsFake(async () => {
+      stub(YoChecker.prototype, "install" as any).callsFake(async () => {
         throw new UserError("source", "name", "msg", "msg");
       });
 

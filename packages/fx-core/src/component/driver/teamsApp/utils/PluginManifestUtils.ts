@@ -9,9 +9,9 @@ import {
   IPlugin,
   ManifestUtil,
   Platform,
-  PluginManifestSchema,
-  FunctionObject,
-  RuntimeObjectLocalplugin,
+  APIPluginManifest,
+  APIPluginManifestLatest,
+  PluginManifestWrapper,
   Result,
   TeamsAppManifest,
   err,
@@ -19,7 +19,11 @@ import {
 } from "@microsoft/teamsfx-api";
 import fs from "fs-extra";
 import { FileNotFoundError, JSONSyntaxError } from "../../../../error/common";
-import stripBom from "strip-bom";
+
+// Type aliases derived from the latest manifest type for internal use
+type PluginRuntime = NonNullable<APIPluginManifestLatest["runtimes"]>[number];
+type PluginFunction = NonNullable<APIPluginManifestLatest["functions"]>[number];
+type LocalPluginRuntime = PluginRuntime & { type: "LocalPlugin"; spec: { local_endpoint: string } };
 import path from "path";
 import { manifestUtils } from "./ManifestUtils";
 import { getResolvedManifest } from "./utils";
@@ -37,20 +41,14 @@ import { ODRProvider, ODRServer, ODRTool } from "../../../utils/odrProvider";
 import { LocalMcpPrefix } from "../../../constants";
 
 export class PluginManifestUtils {
-  public async readPluginManifestFile(
-    path: string
-  ): Promise<Result<PluginManifestSchema, FxError>> {
+  public async readPluginManifestFile(path: string): Promise<Result<APIPluginManifest, FxError>> {
     if (!(await fs.pathExists(path))) {
       return err(new FileNotFoundError("PluginManifestUtils", path));
     }
-    // Be compatible with UTF8-BOM encoding
-    // Avoid Unexpected token error at JSON.parse()
-    let content = await fs.readFile(path, { encoding: "utf-8" });
-    content = stripBom(content);
 
     try {
-      const manifest = JSON.parse(content) as PluginManifestSchema;
-      return ok(manifest);
+      const wrapper = await PluginManifestWrapper.read(path);
+      return ok(wrapper.data);
     } catch (e) {
       return err(new JSONSyntaxError(path, e, "PluginManifestUtils"));
     }
@@ -64,7 +62,7 @@ export class PluginManifestUtils {
   public async getManifest(
     path: string,
     context: DriverContext
-  ): Promise<Result<PluginManifestSchema, FxError>> {
+  ): Promise<Result<APIPluginManifest, FxError>> {
     const manifestRes = await this.readPluginManifestFile(path);
     if (manifestRes.isErr()) {
       return err(manifestRes.error);
@@ -81,7 +79,7 @@ export class PluginManifestUtils {
       return err(resolvedManifestRes.error);
     }
     const resolvedManifestString = resolvedManifestRes.value;
-    return ok(JSON.parse(resolvedManifestString));
+    return ok(JSON.parse(resolvedManifestString) as APIPluginManifest);
   }
 
   public async validateAgainstSchema(
@@ -241,7 +239,7 @@ export class PluginManifestUtils {
   }
 
   async getApiSpecFilePathFromPlugin(
-    plugin: PluginManifestSchema,
+    plugin: APIPluginManifest,
     pluginPath: string
   ): Promise<string[]> {
     const runtimes = plugin.runtimes;
@@ -272,16 +270,19 @@ export class PluginManifestUtils {
    * @param _context Driver context for logging
    * @returns Array of validation error strings
    */
-  public async validateLocalMCPPluginRuntimes(manifest: PluginManifestSchema): Promise<string[]> {
+  public async validateLocalMCPPluginRuntimes(manifest: APIPluginManifest): Promise<string[]> {
     const errors: string[] = [];
 
     if (!manifest.runtimes) {
       return errors;
     }
 
-    const localPluginRuntimes = manifest.runtimes.filter(
-      (rt): rt is RuntimeObjectLocalplugin => rt.type === "LocalPlugin"
-    );
+    const localPluginRuntimes: Array<{ runtime: LocalPluginRuntime; index: number }> = [];
+    manifest.runtimes.forEach((rt, idx) => {
+      if (rt.type === "LocalPlugin") {
+        localPluginRuntimes.push({ runtime: rt as LocalPluginRuntime, index: idx });
+      }
+    });
 
     if (localPluginRuntimes.length === 0) {
       return errors;
@@ -298,8 +299,7 @@ export class PluginManifestUtils {
 
     const mcpServerMap = new Map(mcpServers.map((s) => [s.identifier, s]));
 
-    for (const runtime of localPluginRuntimes) {
-      const runtimeIdx = manifest.runtimes.indexOf(runtime);
+    for (const { runtime, index: runtimeIdx } of localPluginRuntimes) {
       const localEndpoint = runtime.spec.local_endpoint;
 
       // 1. Only check the ones with endpoint starting with mcp://
@@ -366,7 +366,7 @@ export class PluginManifestUtils {
    * @returns Array of validation error strings
    */
   private validateFunctionParameters(
-    manifestFunc: FunctionObject,
+    manifestFunc: PluginFunction,
     mcpTool: ODRTool,
     funcName: string
   ): string[] {

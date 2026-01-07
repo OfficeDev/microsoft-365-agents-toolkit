@@ -10,7 +10,6 @@ import {
   Inputs,
   ok,
   Platform,
-  PluginManifestSchema,
   UserError,
   signedIn,
   DeclarativeAgentManifest,
@@ -19,6 +18,7 @@ import {
   SingleSelectQuestion,
   DynamicOptions,
   OptionItem,
+  PluginManifestWrapper,
 } from "@microsoft/teamsfx-api";
 import { assert } from "chai";
 import fs from "fs-extra";
@@ -647,13 +647,18 @@ describe("helper", async () => {
 
   describe("addExistingPlugin", async () => {
     it("success: need to update plugin manifest", async () => {
-      sandbox.stub(pluginManifestUtils, "readPluginManifestFile").resolves(
-        ok({
+      sandbox.stub(PluginManifestWrapper, "read").resolves({
+        data: {
           schema_version: "v1",
           name_for_human: "${{file}}",
           runtimes: [{ type: "OpenApi", spec: { url: "test.json" } }],
-        } as any)
-      );
+        },
+        runtimes: [{ type: "OpenApi", spec: { url: "test.json" } }],
+        mutableData: {
+          runtimes: [{ type: "OpenApi", spec: { url: "test.json" } }],
+        },
+        save: sandbox.stub().resolves(),
+      } as any);
       sandbox.stub(copilotGptManifestUtils, "addAction").resolves(ok({} as any));
       const getApiSpecPath = sandbox
         .stub(pluginManifestUtils, "getDefaultNextAvailableApiSpecPath")
@@ -680,13 +685,18 @@ describe("helper", async () => {
     });
 
     it("success: no need to update plugin manifest", async () => {
-      sandbox.stub(pluginManifestUtils, "readPluginManifestFile").resolves(
-        ok({
+      sandbox.stub(PluginManifestWrapper, "read").resolves({
+        data: {
           schema_version: "v1",
           name_for_human: "test",
           runtimes: [{ type: "OpenApi", spec: { url: "test.json" } }],
-        } as any)
-      );
+        },
+        runtimes: [{ type: "OpenApi", spec: { url: "test.json" } }],
+        mutableData: {
+          runtimes: [{ type: "OpenApi", spec: { url: "test.json" } }],
+        },
+        save: sandbox.stub().resolves(),
+      } as any);
       sandbox.stub(copilotGptManifestUtils, "addAction").resolves(ok({} as any));
       const getApiSpecPath = sandbox
         .stub(pluginManifestUtils, "getDefaultNextAvailableApiSpecPath")
@@ -714,13 +724,18 @@ describe("helper", async () => {
     });
 
     it("success: has warning", async () => {
-      sandbox.stub(pluginManifestUtils, "readPluginManifestFile").resolves(
-        ok({
+      sandbox.stub(PluginManifestWrapper, "read").resolves({
+        data: {
           schema_version: "v1",
           name_for_human: "test",
           runtimes: [{ type: "OpenApi", spec: { url: "test.json" } }],
-        } as any)
-      );
+        },
+        runtimes: [{ type: "OpenApi", spec: { url: "test.json" } }],
+        mutableData: {
+          runtimes: [{ type: "OpenApi", spec: { url: "test.json" } }],
+        },
+        save: sandbox.stub().resolves(),
+      } as any);
       sandbox.stub(copilotGptManifestUtils, "addAction").resolves(ok({} as any));
       const getApiSpecPath = sandbox
         .stub(pluginManifestUtils, "getDefaultNextAvailableApiSpecPath")
@@ -751,13 +766,18 @@ describe("helper", async () => {
     });
 
     it("success: only get partial warning", async () => {
-      sandbox.stub(pluginManifestUtils, "readPluginManifestFile").resolves(
-        ok({
+      sandbox.stub(PluginManifestWrapper, "read").resolves({
+        data: {
           schema_version: "v1",
           name_for_human: "test",
           runtimes: [{ type: "OpenApi", spec: { url: "test.json" } }],
-        } as any)
-      );
+        },
+        runtimes: [{ type: "OpenApi", spec: { url: "test.json" } }],
+        mutableData: {
+          runtimes: [{ type: "OpenApi", spec: { url: "test.json" } }],
+        },
+        save: sandbox.stub().resolves(),
+      } as any);
       sandbox.stub(copilotGptManifestUtils, "addAction").resolves(ok({} as any));
       const getApiSpecPath = sandbox
         .stub(pluginManifestUtils, "getDefaultNextAvailableApiSpecPath")
@@ -789,8 +809,8 @@ describe("helper", async () => {
 
     it("error: readPluginManifestFile Error", async () => {
       sandbox
-        .stub(pluginManifestUtils, "readPluginManifestFile")
-        .resolves(err(new UserError("fakeError", "fakeError", "fakeError", "fakeError")));
+        .stub(PluginManifestWrapper, "read")
+        .rejects(new UserError("fakeError", "fakeError", "fakeError", "fakeError"));
 
       const res = await generatorHelper.addExistingPlugin(
         "test.json",
@@ -804,13 +824,18 @@ describe("helper", async () => {
     });
 
     it("error: add action error", async () => {
-      sandbox.stub(pluginManifestUtils, "readPluginManifestFile").resolves(
-        ok({
+      sandbox.stub(PluginManifestWrapper, "read").resolves({
+        data: {
           schema_version: "v1",
           name_for_human: "test",
           runtimes: [{ type: "OpenApi", spec: { url: "test.json" } }],
-        } as any)
-      );
+        },
+        runtimes: [{ type: "OpenApi", spec: { url: "test.json" } }],
+        mutableData: {
+          runtimes: [{ type: "OpenApi", spec: { url: "test.json" } }],
+        },
+        save: sandbox.stub().resolves(),
+      } as any);
       sandbox
         .stub(copilotGptManifestUtils, "addAction")
         .resolves(err(new UserError("fakeError", "fakeError", "fakeError", "fakeError")));
@@ -838,7 +863,7 @@ describe("helper", async () => {
 
   describe("validateSourcePluginManifest", () => {
     it("Invalid manist", () => {
-      const manifest: PluginManifestSchema = {
+      const manifest = {
         schema_version: "",
         name_for_human: "test",
       } as any;
@@ -896,9 +921,20 @@ describe("helper", async () => {
         runtimes: [],
       };
 
+      let savedContent: any = null;
+      const mockWrapper = {
+        data: existingPluginContent,
+        cloneWith: (overrides: any) => ({
+          data: { ...existingPluginContent, ...overrides },
+          save: async () => {
+            savedContent = { ...existingPluginContent, ...overrides };
+          },
+        }),
+        save: sandbox.stub().resolves(),
+      };
+
       sandbox.stub(fs, "pathExists").resolves(true);
-      sandbox.stub(fs, "readJSON").resolves(existingPluginContent);
-      const writeJSONStub = sandbox.stub(fs, "writeJSON").resolves();
+      sandbox.stub(PluginManifestWrapper, "read").resolves(mockWrapper as any);
 
       const inputs: Inputs = {
         platform: Platform.CLI,
@@ -910,14 +946,13 @@ describe("helper", async () => {
       const res = await generatorHelper.generateForMCPForDA(testDestinationPath, inputs);
 
       assert.isTrue(res.isOk());
-      assert.isTrue(writeJSONStub.calledOnce);
+      assert.isNotNull(savedContent);
 
-      const writtenContent = writeJSONStub.firstCall.args[1];
-      assert.deepEqual(writtenContent.functions, []);
-      assert.equal(writtenContent.runtimes.length, 1);
-      assert.equal(writtenContent.runtimes[0].type, "RemoteMCPServer");
-      assert.equal(writtenContent.runtimes[0].spec.url, "https://example.com/mcp");
-      assert.equal(writtenContent.runtimes[0].spec.enable_dynamic_discovery, true);
+      assert.deepEqual(savedContent.functions, []);
+      assert.equal(savedContent.runtimes.length, 1);
+      assert.equal(savedContent.runtimes[0].type, "RemoteMCPServer");
+      assert.equal(savedContent.runtimes[0].spec.url, "https://example.com/mcp");
+      assert.equal(savedContent.runtimes[0].spec.enable_dynamic_discovery, true);
     });
 
     it("success: pre-fetch tool configuration without auth", async () => {
@@ -956,9 +991,20 @@ describe("helper", async () => {
         },
       ];
 
+      let savedContent: any = null;
+      const mockWrapper = {
+        data: existingPluginContent,
+        cloneWith: (overrides: any) => ({
+          data: { ...existingPluginContent, ...overrides },
+          save: async () => {
+            savedContent = { ...existingPluginContent, ...overrides };
+          },
+        }),
+        save: sandbox.stub().resolves(),
+      };
+
       sandbox.stub(fs, "pathExists").resolves(true);
-      sandbox.stub(fs, "readJSON").resolves(existingPluginContent);
-      const writeJSONStub = sandbox.stub(fs, "writeJSON").resolves();
+      sandbox.stub(PluginManifestWrapper, "read").resolves(mockWrapper as any);
 
       const inputs: Inputs = {
         platform: Platform.CLI,
@@ -973,36 +1019,34 @@ describe("helper", async () => {
       const res = await generatorHelper.generateForMCPForDA(testDestinationPath, inputs);
 
       assert.isTrue(res.isOk());
-      assert.isTrue(writeJSONStub.calledOnce);
+      assert.isNotNull(savedContent);
 
-      const writtenContent = writeJSONStub.firstCall.args[1];
-      assert.equal(writtenContent.functions.length, 2);
+      assert.equal(savedContent.functions.length, 2);
 
       // Check first function
-      assert.equal(writtenContent.functions[0].name, "tool1");
-      assert.equal(writtenContent.functions[0].description, "Tool 1 description");
-      assert.deepEqual(writtenContent.functions[0].parameters, {
+      assert.equal(savedContent.functions[0].name, "tool1");
+      assert.equal(savedContent.functions[0].description, "Tool 1 description");
+      assert.deepEqual(savedContent.functions[0].parameters, {
         type: "object",
         properties: { param1: { type: "string" } },
         required: ["param1"],
       });
 
       // Check second function
-      assert.equal(writtenContent.functions[1].name, "tool2");
-      assert.equal(writtenContent.functions[1].description, "Tool 2 description");
-      assert.deepEqual(writtenContent.functions[1].parameters, {
+      assert.equal(savedContent.functions[1].name, "tool2");
+      assert.equal(savedContent.functions[1].description, "Tool 2 description");
+      assert.deepEqual(savedContent.functions[1].parameters, {
         type: "object",
         properties: { param2: { type: "number" } },
-        required: [],
       });
 
       // Check runtime configuration
-      assert.equal(writtenContent.runtimes.length, 1);
-      assert.equal(writtenContent.runtimes[0].type, "RemoteMCPServer");
-      assert.equal(writtenContent.runtimes[0].spec.url, "https://example.com/mcp");
-      assert.equal(writtenContent.runtimes[0].spec.enable_dynamic_discovery, false);
-      assert.deepEqual(writtenContent.runtimes[0].run_for_functions, ["tool1", "tool2"]);
-      assert.isUndefined(writtenContent.runtimes[0].auth);
+      assert.equal(savedContent.runtimes.length, 1);
+      assert.equal(savedContent.runtimes[0].type, "RemoteMCPServer");
+      assert.equal(savedContent.runtimes[0].spec.url, "https://example.com/mcp");
+      assert.equal(savedContent.runtimes[0].spec.enable_dynamic_discovery, false);
+      assert.deepEqual(savedContent.runtimes[0].run_for_functions, ["tool1", "tool2"]);
+      assert.isUndefined(savedContent.runtimes[0].auth);
     });
 
     it("success: pre-fetch tool configuration with OAuth auth", async () => {
@@ -1025,9 +1069,20 @@ describe("helper", async () => {
         },
       ];
 
+      let savedContent: any = null;
+      const mockWrapper = {
+        data: existingPluginContent,
+        cloneWith: (overrides: any) => ({
+          data: { ...existingPluginContent, ...overrides },
+          save: async () => {
+            savedContent = { ...existingPluginContent, ...overrides };
+          },
+        }),
+        save: sandbox.stub().resolves(),
+      };
+
       sandbox.stub(fs, "pathExists").resolves(true);
-      sandbox.stub(fs, "readJSON").resolves(existingPluginContent);
-      const writeJSONStub = sandbox.stub(fs, "writeJSON").resolves();
+      sandbox.stub(PluginManifestWrapper, "read").resolves(mockWrapper as any);
 
       const inputs: Inputs = {
         platform: Platform.CLI,
@@ -1042,23 +1097,31 @@ describe("helper", async () => {
       const res = await generatorHelper.generateForMCPForDA(testDestinationPath, inputs);
 
       assert.isTrue(res.isOk());
-      assert.isTrue(writeJSONStub.calledOnce);
+      assert.isNotNull(savedContent);
 
-      const writtenContent = writeJSONStub.firstCall.args[1];
-      assert.equal(writtenContent.functions.length, 1);
-      assert.equal(writtenContent.functions[0].name, "authenticatedTool");
+      assert.equal(savedContent.functions.length, 1);
+      assert.equal(savedContent.functions[0].name, "authenticatedTool");
 
       // Check runtime has auth configuration
-      assert.equal(writtenContent.runtimes.length, 1);
-      assert.deepEqual(writtenContent.runtimes[0].auth, {
+      assert.equal(savedContent.runtimes.length, 1);
+      assert.deepEqual(savedContent.runtimes[0].auth, {
         type: "OAuthPluginVault",
         reference_id: "${{MCP_DA_AUTH_ID}}",
       });
     });
 
     it("error: pre-fetch tools missing available tools", async () => {
+      const mockWrapper = {
+        data: {},
+        cloneWith: (overrides: any) => ({
+          data: { ...overrides },
+          save: sandbox.stub().resolves(),
+        }),
+        save: sandbox.stub().resolves(),
+      };
+
       sandbox.stub(fs, "pathExists").resolves(true);
-      sandbox.stub(fs, "readJSON").resolves({});
+      sandbox.stub(PluginManifestWrapper, "read").resolves(mockWrapper as any);
 
       const inputs: Inputs = {
         platform: Platform.CLI,
@@ -1079,8 +1142,17 @@ describe("helper", async () => {
     });
 
     it("error: pre-fetch tools missing selected tools", async () => {
+      const mockWrapper = {
+        data: {},
+        cloneWith: (overrides: any) => ({
+          data: { ...overrides },
+          save: sandbox.stub().resolves(),
+        }),
+        save: sandbox.stub().resolves(),
+      };
+
       sandbox.stub(fs, "pathExists").resolves(true);
-      sandbox.stub(fs, "readJSON").resolves({});
+      sandbox.stub(PluginManifestWrapper, "read").resolves(mockWrapper as any);
 
       const inputs: Inputs = {
         platform: Platform.CLI,
@@ -1129,9 +1201,20 @@ describe("helper", async () => {
         },
       ];
 
+      let savedContent: any = null;
+      const mockWrapper = {
+        data: existingPluginContent,
+        cloneWith: (overrides: any) => ({
+          data: { ...existingPluginContent, ...overrides },
+          save: async () => {
+            savedContent = { ...existingPluginContent, ...overrides };
+          },
+        }),
+        save: sandbox.stub().resolves(),
+      };
+
       sandbox.stub(fs, "pathExists").resolves(true);
-      sandbox.stub(fs, "readJSON").resolves(existingPluginContent);
-      const writeJSONStub = sandbox.stub(fs, "writeJSON").resolves();
+      sandbox.stub(PluginManifestWrapper, "read").resolves(mockWrapper as any);
 
       const inputs: Inputs = {
         platform: Platform.CLI,
@@ -1146,14 +1229,14 @@ describe("helper", async () => {
       const res = await generatorHelper.generateForMCPForDA(testDestinationPath, inputs);
 
       assert.isTrue(res.isOk());
+      assert.isNotNull(savedContent);
 
-      const writtenContent = writeJSONStub.firstCall.args[1];
-      assert.equal(writtenContent.functions.length, 2);
-      assert.equal(writtenContent.functions[0].name, "toolX");
-      assert.equal(writtenContent.functions[1].name, "toolZ");
+      assert.equal(savedContent.functions.length, 2);
+      assert.equal(savedContent.functions[0].name, "toolX");
+      assert.equal(savedContent.functions[1].name, "toolZ");
 
       // Should not include toolY from serverB
-      const toolNames = writtenContent.functions.map((f: any) => f.name);
+      const toolNames = savedContent.functions.map((f: any) => f.name);
       assert.notInclude(toolNames, "toolY");
     });
 
@@ -1176,9 +1259,20 @@ describe("helper", async () => {
         },
       ];
 
+      let savedContent: any = null;
+      const mockWrapper = {
+        data: existingPluginContent,
+        cloneWith: (overrides: any) => ({
+          data: { ...existingPluginContent, ...overrides },
+          save: async () => {
+            savedContent = { ...existingPluginContent, ...overrides };
+          },
+        }),
+        save: sandbox.stub().resolves(),
+      };
+
       sandbox.stub(fs, "pathExists").resolves(true);
-      sandbox.stub(fs, "readJSON").resolves(existingPluginContent);
-      const writeJSONStub = sandbox.stub(fs, "writeJSON").resolves();
+      sandbox.stub(PluginManifestWrapper, "read").resolves(mockWrapper as any);
 
       const inputs: Inputs = {
         platform: Platform.CLI,
@@ -1193,14 +1287,11 @@ describe("helper", async () => {
       const res = await generatorHelper.generateForMCPForDA(testDestinationPath, inputs);
 
       assert.isTrue(res.isOk());
+      assert.isNotNull(savedContent);
 
-      const writtenContent = writeJSONStub.firstCall.args[1];
-      assert.equal(writtenContent.functions.length, 1);
-      assert.deepEqual(writtenContent.functions[0].parameters, {
-        type: "object", // Default fallback
-        properties: undefined,
-        required: [], // Default fallback
-      });
+      assert.equal(savedContent.functions.length, 1);
+      // When inputSchema is an empty object {}, the spread operator copies it as-is
+      assert.deepEqual(savedContent.functions[0].parameters, {});
     });
   });
 

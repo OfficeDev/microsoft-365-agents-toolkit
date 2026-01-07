@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 import {
+  APIPluginManifest,
+  APIPluginManifestLatest,
   AppPackageFolderName,
   Context,
   DefaultApiSpecFolderName,
@@ -10,7 +12,7 @@ import {
   GeneratorResult,
   Inputs,
   ok,
-  PluginManifestSchema,
+  PluginManifestWrapper,
   Result,
   SystemError,
   UserError,
@@ -59,13 +61,13 @@ export async function addExistingPlugin(
   context: Context,
   source: string
 ): Promise<Result<AddExistingPluginResult, FxError>> {
-  const pluginManifestRes = await pluginManifestUtils.readPluginManifestFile(
-    fromPluginManifestPath
-  );
-  if (pluginManifestRes.isErr()) {
-    return err(pluginManifestRes.error);
+  let pluginManifestWrapper: PluginManifestWrapper;
+  try {
+    pluginManifestWrapper = await PluginManifestWrapper.read(fromPluginManifestPath);
+  } catch (e) {
+    return err(e as FxError);
   }
-  const pluginManifest = pluginManifestRes.value;
+  const pluginManifest = pluginManifestWrapper.data;
 
   // prerequiste check
   const checkRes = validateSourcePluginManifest(pluginManifest, source);
@@ -73,9 +75,10 @@ export async function addExistingPlugin(
     return err(checkRes.error);
   }
 
-  const runtimes = pluginManifest.runtimes!; // have validated that the value exists.
-  const destinationApiSpecRelativePath = runtimes.find((runtime) => runtime.type === "OpenApi")!
-    .spec.url as string; // have validated that the value exists.
+  // Use wrapper's runtimes getter which returns properly typed array
+  const runtimes = pluginManifestWrapper.runtimes;
+  const openApiRuntime = runtimes.find((runtime) => runtime.type === "OpenApi");
+  const destinationApiSpecRelativePath = openApiRuntime?.spec?.url as string; // validated exists
 
   const outputFolder = path.dirname(declarativeCopilotManifestPath);
 
@@ -101,9 +104,13 @@ export async function addExistingPlugin(
   // Save plugin manifest
   if (needUpdatePluginManifest) {
     const runtimeSpecUrl = normalizePath(path.relative(outputFolder, destinationApiSpecPath), true);
-    for (const runtime of runtimes) {
-      if (runtime.type === "OpenApi" && runtime.spec?.url) {
-        runtime.spec.url = runtimeSpecUrl;
+    // Use mutableData to modify runtimes
+    const mutableRuntimes = pluginManifestWrapper.mutableData.runtimes;
+    if (mutableRuntimes) {
+      for (const runtime of mutableRuntimes) {
+        if (runtime.type === "OpenApi" && runtime.spec?.url) {
+          runtime.spec.url = runtimeSpecUrl;
+        }
       }
     }
   }
@@ -111,8 +118,7 @@ export async function addExistingPlugin(
   const destinationPluginManifestPath =
     await copilotGptManifestUtils.getDefaultNextAvailablePluginManifestPath(outputFolder);
   await fs.ensureFile(destinationPluginManifestPath);
-  const pluginManifestContent = JSON.stringify(pluginManifest, undefined, 4);
-  await fs.writeFile(destinationPluginManifestPath, pluginManifestContent);
+  await pluginManifestWrapper.save(destinationPluginManifestPath);
 
   // Update declarative copilot plugin manifest
   const addActionRes = await copilotGptManifestUtils.addAction(
@@ -159,7 +165,7 @@ export async function addExistingPlugin(
 }
 
 export function validateSourcePluginManifest(
-  manifest: PluginManifestSchema,
+  manifest: APIPluginManifest,
   source: string
 ): Result<undefined, UserError> {
   if (!manifest.schema_version) {
@@ -379,20 +385,23 @@ export async function generateForMCPForDA(
   const mcpTool = inputs[QuestionNames.MCPForDATool];
 
   // 2. Read ai-plugin.json
-  const aiPluginContent = await fs.readJSON(aiPluginFilePath);
+  const aiPluginWrapper = await PluginManifestWrapper.read(aiPluginFilePath);
+  let draftAiPluginWrapper: PluginManifestWrapper = aiPluginWrapper;
 
   // For dynamic fetch tools, keep the functions empty and add runtime info
   if (mcpTool === "dynamic-fetch") {
-    aiPluginContent.functions = [];
-    aiPluginContent.runtimes = [
-      {
-        type: "RemoteMCPServer",
-        spec: {
-          url: mcpServerUrl,
-          enable_dynamic_discovery: true,
+    draftAiPluginWrapper = aiPluginWrapper.cloneWith({
+      functions: [],
+      runtimes: [
+        {
+          type: "RemoteMCPServer",
+          spec: {
+            url: mcpServerUrl,
+            enable_dynamic_discovery: true,
+          },
         },
-      },
-    ];
+      ] as unknown as APIPluginManifestLatest["runtimes"],
+    });
   } else {
     // For pre-fetch tools, add the tool info to ai-plugin.json
     const mcpToolsDetail = inputs[QuestionNames.MCPForDAAvailableTools];
@@ -407,13 +416,17 @@ export async function generateForMCPForDA(
       );
       return err(error);
     }
-    aiPluginContent.functions = mcpToolsDetail
-      .filter((tool: any) => tool.name.includes(serverName))
-      .map((tool: any) => {
+    interface MCPTool {
+      name: string;
+      description: string;
+      inputSchema: Record<string, unknown> | undefined;
+      tags?: string[];
+    }
+    const functions = (mcpToolsDetail as MCPTool[])
+      .filter((tool) => tool.name.includes(serverName))
+      .map((tool) => {
         const index = tool.name.indexOf(serverName);
-        const newName = (tool.name as string).substring(
-          (index as number) + (serverName.length as number) + 1
-        );
+        const newName = tool.name.substring(index + (serverName as string).length + 1);
         return {
           name: newName,
           description: tool.description,
@@ -421,38 +434,45 @@ export async function generateForMCPForDA(
           tags: tool.tags,
         };
       })
-      .filter((tool: any) => mcpToolsSelected.includes(tool.name))
-      .map((tool: any) => {
+      .filter((tool) => mcpToolsSelected.includes(tool.name))
+      .map((tool) => {
         return {
           name: tool.name,
           description: tool.description,
           parameters: {
-            type: tool.inputSchema.type || "object",
-            properties: tool.inputSchema.properties,
-            required: tool.inputSchema.required || [],
+            ...(tool.inputSchema ?? { type: "object", properties: {}, required: [] }),
           },
         };
       });
-    aiPluginContent.runtimes = [
+
+    // MCP-specific runtime configuration (extends base schema)
+    const runtimes = [
       {
-        type: "RemoteMCPServer",
+        type: "RemoteMCPServer" as const,
         spec: {
-          url: mcpServerUrl,
+          url: mcpServerUrl as string,
           enable_dynamic_discovery: false,
         },
-        run_for_functions: aiPluginContent.functions.map((func: any) => func.name),
+        run_for_functions: functions.map((func) => func.name),
+        auth: undefined as { type: string; reference_id: string } | undefined,
       },
     ];
+
     if (mcpAuth === "OAuthPluginVault") {
-      aiPluginContent.runtimes[0].auth = {
+      runtimes[0].auth = {
         type: "OAuthPluginVault",
         reference_id: "${{MCP_DA_AUTH_ID}}",
       };
     }
+
+    draftAiPluginWrapper = aiPluginWrapper.cloneWith({
+      functions: functions as unknown as APIPluginManifestLatest["functions"],
+      runtimes: runtimes as unknown as APIPluginManifestLatest["runtimes"],
+    });
   }
 
   // 3. Write ai-plugin.json
-  await fs.writeJSON(aiPluginFilePath, aiPluginContent, { spaces: 4 });
+  await draftAiPluginWrapper.save(aiPluginFilePath);
 
   return ok([] as GeneratorResult); // Return empty warnings
 }

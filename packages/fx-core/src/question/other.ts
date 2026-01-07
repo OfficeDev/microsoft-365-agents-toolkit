@@ -13,7 +13,7 @@ import {
   MultiFileQuestion,
   MultiSelectQuestion,
   Platform,
-  PluginManifestSchema,
+  PluginManifestWrapper,
   SingleFileQuestion,
   SingleSelectQuestion,
   TextInputQuestion,
@@ -830,18 +830,16 @@ export function addAuthActionQuestion(): IQTreeNode {
         data: apiSpecFromPluginManifestQuestion(),
         condition: async (inputs: Inputs) => {
           const pluginManifestPath = inputs[QuestionNames.PluginManifestFilePath];
-          if (!!!pluginManifestPath) {
+          if (!pluginManifestPath) {
             return false;
           }
-          const pluginManifest = (await fs.readJson(
-            pluginManifestPath as string
-          )) as PluginManifestSchema;
-          const specs = pluginManifest
-            .runtimes!.filter((runtime) => runtime.type === "OpenApi")
+          const pluginManifest = await PluginManifestWrapper.read(pluginManifestPath as string);
+          const specs = pluginManifest.runtimes
+            .filter((runtime) => runtime.type === "OpenApi")
             .map((runtime) => runtime.spec.url);
-          const spesDedup = [...new Set(specs)];
-          if (spesDedup.length === 1) {
-            inputs[QuestionNames.ApiSpecLocation] = spesDedup[0];
+          const specsDedup = [...new Set(specs)];
+          if (specsDedup.length === 1) {
+            inputs[QuestionNames.ApiSpecLocation] = specsDedup[0];
             return false;
           }
           return true;
@@ -852,19 +850,15 @@ export function addAuthActionQuestion(): IQTreeNode {
         condition: async (inputs: Inputs) => {
           const pluginManifestPath = inputs[QuestionNames.PluginManifestFilePath];
           const apiSpecPath = inputs[QuestionNames.ApiSpecLocation];
-          if (!!!pluginManifestPath || !!!apiSpecPath) {
+          if (!pluginManifestPath || !apiSpecPath) {
             return false;
           }
-          const pluginManifest = (await fs.readJson(
-            pluginManifestPath as string
-          )) as PluginManifestSchema;
+          const pluginManifest = await PluginManifestWrapper.read(pluginManifestPath as string);
           const apis: string[] = [];
-          pluginManifest
-            .runtimes!.filter(
-              (runtime) => runtime.type === "OpenApi" && runtime.spec.url === apiSpecPath
-            )
+          pluginManifest.runtimes
+            .filter((runtime) => runtime.type === "OpenApi" && runtime.spec.url === apiSpecPath)
             .forEach((runtime) => {
-              apis.push(...(runtime.run_for_functions as string[]));
+              apis.push(...(runtime.run_for_functions ?? []));
             });
           const apisDedup = [...new Set(apis)];
           if (apisDedup.length === 1) {
@@ -1073,9 +1067,9 @@ export function apiSpecFromPluginManifestQuestion(): SingleSelectQuestion {
     cliDescription: "OpenAPI specification to add Auth configuration.",
     dynamicOptions: async (inputs: Inputs) => {
       const pluginManifestPath = inputs[QuestionNames.PluginManifestFilePath];
-      const pluginManifest = (await fs.readJson(pluginManifestPath)) as PluginManifestSchema;
-      const specs = pluginManifest
-        .runtimes!.filter((runtime) => runtime.type === "OpenApi")
+      const pluginManifest = await PluginManifestWrapper.read(pluginManifestPath);
+      const specs = pluginManifest.runtimes
+        .filter((runtime) => runtime.type === "OpenApi")
         .map((runtime) => runtime.spec.url as string);
       return [...new Set(specs)];
     },
@@ -1093,14 +1087,12 @@ export function apiFromPluginManifestQuestion(): MultiSelectQuestion {
     dynamicOptions: async (inputs: Inputs) => {
       const pluginManifestPath = inputs[QuestionNames.PluginManifestFilePath];
       const apiSpecPath = inputs[QuestionNames.ApiSpecLocation];
-      const pluginManifest = (await fs.readJson(pluginManifestPath)) as PluginManifestSchema;
+      const pluginManifest = await PluginManifestWrapper.read(pluginManifestPath);
       const apis: string[] = [];
-      pluginManifest
-        .runtimes!.filter(
-          (runtime) => runtime.type === "OpenApi" && runtime.spec.url === apiSpecPath
-        )
+      pluginManifest.runtimes
+        .filter((runtime) => runtime.type === "OpenApi" && runtime.spec.url === apiSpecPath)
         .forEach((runtime) => {
-          apis.push(...(runtime.run_for_functions as string[]));
+          apis.push(...(runtime.run_for_functions ?? []));
         });
       return [...new Set(apis)];
     },

@@ -7,10 +7,11 @@ import chai from "chai";
 import fs from "fs-extra";
 import { pluginManifestUtils } from "../../../../src/component/driver/teamsApp/utils/PluginManifestUtils";
 import {
+  APIPluginManifest,
   Colors,
   ManifestUtil,
   Platform,
-  PluginManifestSchema,
+  PluginManifestWrapper,
   SystemError,
   TeamsAppManifest,
   err,
@@ -31,6 +32,7 @@ import * as commonUtils from "../../../../src/common/utils";
 import { ODRProvider } from "../../../../src/component/utils/odrProvider";
 import { WrapDriverContext } from "../../../../src/component/driver/util/wrapUtil";
 import { MockTools } from "../../../core/utils";
+import * as utils from "../../../../src/component/driver/teamsApp/utils/utils";
 
 describe("pluginManifestUtils", () => {
   const sandbox = sinon.createSandbox();
@@ -43,8 +45,8 @@ describe("pluginManifestUtils", () => {
     }
   });
 
-  const pluginManifest: PluginManifestSchema = {
-    schema_version: "2.0",
+  const pluginManifest: any = {
+    schema_version: "v2.1",
     name_for_human: "test",
     description_for_human: "test",
     runtimes: [
@@ -109,7 +111,8 @@ describe("pluginManifestUtils", () => {
 
   it("readPluginManifestFile success", async () => {
     sandbox.stub(fs, "pathExists").resolves(true);
-    sandbox.stub(fs, "readFile").resolves(JSON.stringify(pluginManifest) as any);
+    const mockWrapper = { data: pluginManifest };
+    sandbox.stub(PluginManifestWrapper, "read").resolves(mockWrapper as any);
 
     const result = await pluginManifestUtils.readPluginManifestFile("path");
     chai.assert.isTrue(result.isOk());
@@ -141,7 +144,8 @@ describe("pluginManifestUtils", () => {
 
   it("getApiSpecFilePathFromTeamsManifest sucess", async () => {
     sandbox.stub(fs, "pathExists").resolves(true);
-    sandbox.stub(fs, "readFile").resolves(JSON.stringify(pluginManifest) as any);
+    const mockWrapper = { data: pluginManifest };
+    sandbox.stub(PluginManifestWrapper, "read").resolves(mockWrapper as any);
     const res = await pluginManifestUtils.getApiSpecFilePathFromTeamsManifest(
       teamsManifest,
       "/test/path"
@@ -233,7 +237,8 @@ describe("pluginManifestUtils", () => {
         return true;
       }
     });
-    sandbox.stub(fs, "readFile").resolves(JSON.stringify(pluginManifest) as any);
+    const mockWrapper = { data: pluginManifest };
+    sandbox.stub(PluginManifestWrapper, "read").resolves(mockWrapper as any);
     const res = await pluginManifestUtils.getApiSpecFilePathFromTeamsManifest(
       teamsManifest,
       "/test/path"
@@ -259,7 +264,8 @@ describe("pluginManifestUtils", () => {
       ],
     };
     sandbox.stub(fs, "pathExists").resolves(true);
-    sandbox.stub(fs, "readFile").resolves(JSON.stringify(testPluginManifest) as any);
+    const mockWrapper = { data: testPluginManifest };
+    sandbox.stub(PluginManifestWrapper, "read").resolves(mockWrapper as any);
     const res = await pluginManifestUtils.getApiSpecFilePathFromTeamsManifest(
       teamsManifest,
       "/test/path"
@@ -347,7 +353,10 @@ describe("pluginManifestUtils", () => {
         ["APP_NAME_SUFFIX"]: "test",
       });
       sandbox.stub(fs, "pathExists").resolves(true);
-      sandbox.stub(fs, "readFile").resolves(JSON.stringify(testPluginManifest) as any);
+      const mockWrapper = { data: testPluginManifest };
+      sandbox.stub(PluginManifestWrapper, "read").resolves(mockWrapper as any);
+      const resolvedManifest = { ...testPluginManifest, name_for_human: "nametest" };
+      sandbox.stub(utils, "getResolvedManifest").resolves(ok(JSON.stringify(resolvedManifest)));
 
       const res = await pluginManifestUtils.getManifest("testPath", mockedContex);
 
@@ -368,7 +377,11 @@ describe("pluginManifestUtils", () => {
 
     it("get manifest error: unresolved env error", async () => {
       sandbox.stub(fs, "pathExists").resolves(true);
-      sandbox.stub(fs, "readFile").resolves(JSON.stringify(testPluginManifest) as any);
+      const mockWrapper = { data: testPluginManifest };
+      sandbox.stub(PluginManifestWrapper, "read").resolves(mockWrapper as any);
+      sandbox
+        .stub(utils, "getResolvedManifest")
+        .resolves(err(new MissingEnvironmentVariablesError("test", "APP_NAME_SUFFIX", "testPath")));
 
       const res = await pluginManifestUtils.getManifest("testPath", mockedContex);
 
@@ -388,7 +401,9 @@ describe("pluginManifestUtils", () => {
     };
     it("validate success", async () => {
       sandbox.stub(fs, "pathExists").resolves(true);
-      sandbox.stub(fs, "readFile").resolves(JSON.stringify(pluginManifest) as any);
+      const mockWrapper = { data: pluginManifest };
+      sandbox.stub(PluginManifestWrapper, "read").resolves(mockWrapper as any);
+      sandbox.stub(utils, "getResolvedManifest").resolves(ok(JSON.stringify(pluginManifest)));
       sandbox.stub(ManifestUtil, "validateManifest").resolves([]);
       sandbox.stub(pluginManifestUtils, "validateLocalMCPPluginRuntimes").resolves([]);
 
@@ -428,7 +443,9 @@ describe("pluginManifestUtils", () => {
 
     it("validate schema error", async () => {
       sandbox.stub(fs, "pathExists").resolves(true);
-      sandbox.stub(fs, "readFile").resolves(JSON.stringify(pluginManifest) as any);
+      const mockWrapper = { data: pluginManifest };
+      sandbox.stub(PluginManifestWrapper, "read").resolves(mockWrapper as any);
+      sandbox.stub(utils, "getResolvedManifest").resolves(ok(JSON.stringify(pluginManifest)));
       sandbox.stub(ManifestUtil, "validateManifest").throws("error");
 
       const res = await pluginManifestUtils.validateAgainstSchema(
@@ -537,7 +554,7 @@ describe("pluginManifestUtils", () => {
 
     describe("local_endpoint format", () => {
       it("should pass when local_endpoint starts with 'mcp://' and server exists", async () => {
-        const manifest: PluginManifestSchema = {
+        const manifest: any = {
           schema_version: "v2.1",
           name_for_human: "Test Plugin",
           description_for_human: "Test",
@@ -577,7 +594,7 @@ describe("pluginManifestUtils", () => {
       });
 
       it("should allow non-MCP local_endpoint formats", async () => {
-        const manifest: PluginManifestSchema = {
+        const manifest: any = {
           schema_version: "v2.1",
           name_for_human: "Test Plugin",
           description_for_human: "Test",
@@ -598,7 +615,7 @@ describe("pluginManifestUtils", () => {
       });
 
       it("should handle empty local_endpoint as non-MCP", async () => {
-        const manifest: PluginManifestSchema = {
+        const manifest: any = {
           schema_version: "v2.1",
           name_for_human: "Test Plugin",
           description_for_human: "Test",
@@ -619,7 +636,7 @@ describe("pluginManifestUtils", () => {
       });
 
       it("should fail when mcp:// prefix used but server not found", async () => {
-        const manifest: PluginManifestSchema = {
+        const manifest: any = {
           schema_version: "v2.1",
           name_for_human: "Test Plugin",
           description_for_human: "Test",
@@ -650,7 +667,7 @@ describe("pluginManifestUtils", () => {
 
     describe("Functions referenced by runtimes", () => {
       it("should pass when all functions are referenced", async () => {
-        const manifest: PluginManifestSchema = {
+        const manifest: any = {
           schema_version: "v2.1",
           name_for_human: "Test Plugin",
           description_for_human: "Test",
@@ -705,7 +722,7 @@ describe("pluginManifestUtils", () => {
           },
         ]);
 
-        const manifest: PluginManifestSchema = {
+        const manifest: any = {
           schema_version: "v2.1",
           name_for_human: "Test Plugin",
           description_for_human: "Test",
@@ -727,7 +744,7 @@ describe("pluginManifestUtils", () => {
       });
 
       it("should pass when functions are referenced across multiple runtimes", async () => {
-        const manifest: PluginManifestSchema = {
+        const manifest: any = {
           schema_version: "v2.1",
           name_for_human: "Test Plugin",
           description_for_human: "Test",
@@ -741,6 +758,7 @@ describe("pluginManifestUtils", () => {
             {
               type: "OpenApi",
               spec: { url: "openapi.json" },
+              auth: { type: "None" },
               run_for_functions: ["func2"],
             },
           ],
@@ -768,7 +786,7 @@ describe("pluginManifestUtils", () => {
       });
 
       it("should pass when no functions are defined", async () => {
-        const manifest: PluginManifestSchema = {
+        const manifest: any = {
           schema_version: "v2.1",
           name_for_human: "Test Plugin",
           description_for_human: "Test",
@@ -804,7 +822,7 @@ describe("pluginManifestUtils", () => {
       it("should return early when no LocalPlugin runtimes exist", async () => {
         const odrStub = sandbox.stub(ODRProvider, "listServers");
 
-        const manifest: PluginManifestSchema = {
+        const manifest: any = {
           schema_version: "v2.1",
           name_for_human: "Test Plugin",
           description_for_human: "Test",
@@ -829,7 +847,7 @@ describe("pluginManifestUtils", () => {
       it("should return early when runtimes property is missing", async () => {
         const odrStub = sandbox.stub(ODRProvider, "listServers");
 
-        const manifest: PluginManifestSchema = {
+        const manifest: any = {
           schema_version: "v2.1",
           name_for_human: "Test Plugin",
           description_for_human: "Test",
@@ -887,7 +905,7 @@ describe("pluginManifestUtils", () => {
         sandbox.restore();
         sandbox.stub(process, "platform").value("darwin");
 
-        const manifest: PluginManifestSchema = {
+        const manifest: any = {
           schema_version: "v2.1",
           name_for_human: "Test Plugin",
           description_for_human: "Test",
@@ -908,7 +926,7 @@ describe("pluginManifestUtils", () => {
       it("should allow non-MCP LocalPlugins when no MCP servers found", async () => {
         sandbox.stub(ODRProvider, "listServers").resolves([]);
 
-        const manifest: PluginManifestSchema = {
+        const manifest: any = {
           schema_version: "v2.1",
           name_for_human: "Test Plugin",
           description_for_human: "Test",
@@ -929,7 +947,7 @@ describe("pluginManifestUtils", () => {
       it("should fail when MCP server identifier not found", async () => {
         sandbox.stub(ODRProvider, "listServers").resolves(mockODRServers);
 
-        const manifest: PluginManifestSchema = {
+        const manifest: any = {
           schema_version: "v2.1",
           name_for_human: "Test Plugin",
           description_for_human: "Test",
@@ -953,7 +971,7 @@ describe("pluginManifestUtils", () => {
       it("should fail when tool in run_for_functions not found in MCP server", async () => {
         sandbox.stub(ODRProvider, "listServers").resolves(mockODRServers);
 
-        const manifest: PluginManifestSchema = {
+        const manifest: any = {
           schema_version: "v2.1",
           name_for_human: "Test Plugin",
           description_for_human: "Test",
@@ -977,7 +995,7 @@ describe("pluginManifestUtils", () => {
       it("should pass when parameters match MCP tool definition", async () => {
         sandbox.stub(ODRProvider, "listServers").resolves(mockODRServers);
 
-        const manifest: PluginManifestSchema = {
+        const manifest: any = {
           schema_version: "v2.1",
           name_for_human: "Test Plugin",
           description_for_human: "Test",
@@ -1010,7 +1028,7 @@ describe("pluginManifestUtils", () => {
       it("should fail when manifest has extra parameters", async () => {
         sandbox.stub(ODRProvider, "listServers").resolves(mockODRServers);
 
-        const manifest: PluginManifestSchema = {
+        const manifest: any = {
           schema_version: "v2.1",
           name_for_human: "Test Plugin",
           description_for_human: "Test",
@@ -1046,7 +1064,7 @@ describe("pluginManifestUtils", () => {
       it("should fail when manifest is missing required parameters", async () => {
         sandbox.stub(ODRProvider, "listServers").resolves(mockODRServers);
 
-        const manifest: PluginManifestSchema = {
+        const manifest: any = {
           schema_version: "v2.1",
           name_for_human: "Test Plugin",
           description_for_human: "Test",
@@ -1080,7 +1098,7 @@ describe("pluginManifestUtils", () => {
       it("should fail when parameter types mismatch", async () => {
         sandbox.stub(ODRProvider, "listServers").resolves(mockODRServers);
 
-        const manifest: PluginManifestSchema = {
+        const manifest: any = {
           schema_version: "v2.1",
           name_for_human: "Test Plugin",
           description_for_human: "Test",
@@ -1115,7 +1133,7 @@ describe("pluginManifestUtils", () => {
       it("should fail when enum values mismatch", async () => {
         sandbox.stub(ODRProvider, "listServers").resolves(mockODRServers);
 
-        const manifest: PluginManifestSchema = {
+        const manifest: any = {
           schema_version: "v2.1",
           name_for_human: "Test Plugin",
           description_for_human: "Test",
@@ -1149,7 +1167,7 @@ describe("pluginManifestUtils", () => {
       it("should fail when required array differs", async () => {
         sandbox.stub(ODRProvider, "listServers").resolves(mockODRServers);
 
-        const manifest: PluginManifestSchema = {
+        const manifest: any = {
           schema_version: "v2.1",
           name_for_human: "Test Plugin",
           description_for_human: "Test",
@@ -1184,7 +1202,7 @@ describe("pluginManifestUtils", () => {
       it("should handle ODR failures gracefully", async () => {
         sandbox.stub(ODRProvider, "listServers").rejects(new Error("ODR command failed"));
 
-        const manifest: PluginManifestSchema = {
+        const manifest: any = {
           schema_version: "v2.1",
           name_for_human: "Test Plugin",
           description_for_human: "Test",
@@ -1206,7 +1224,7 @@ describe("pluginManifestUtils", () => {
 
     describe("Edge cases", () => {
       it("should return empty errors for manifest without runtimes", async () => {
-        const manifest: PluginManifestSchema = {
+        const manifest: any = {
           schema_version: "v2.1",
           name_for_human: "Test Plugin",
           description_for_human: "Test",
@@ -1218,7 +1236,7 @@ describe("pluginManifestUtils", () => {
       });
 
       it("should only validate LocalPlugin runtimes, ignore others", async () => {
-        const manifest: PluginManifestSchema = {
+        const manifest: any = {
           schema_version: "v2.1",
           name_for_human: "Test Plugin",
           description_for_human: "Test",
@@ -1290,7 +1308,7 @@ describe("pluginManifestUtils", () => {
 
         sandbox.stub(ODRProvider, "listServers").resolves(mockServers);
 
-        const manifest: PluginManifestSchema = {
+        const manifest: any = {
           schema_version: "v2.1",
           name_for_human: "Test Plugin",
           description_for_human: "Test",
@@ -1339,7 +1357,7 @@ describe("pluginManifestUtils", () => {
 
         sandbox.stub(ODRProvider, "listServers").resolves(mockServers);
 
-        const manifest: PluginManifestSchema = {
+        const manifest: any = {
           schema_version: "v2.1",
           name_for_human: "Test Plugin",
           description_for_human: "Test",

@@ -137,9 +137,8 @@ describe("teamsApp/validateWithTestCases", async () => {
         skipped: null,
       },
     };
-    const invalidValidationResultResponse: AsyncAppValidationResultsResponse = <
-      AsyncAppValidationResultsResponse
-    >invalidValidationResultResponseJson;
+    const invalidValidationResultResponse: AsyncAppValidationResultsResponse =
+      invalidValidationResultResponseJson as AsyncAppValidationResultsResponse;
     sinon
       .stub(teamsDevPortalClient, "getAppValidationById")
       .resolves(invalidValidationResultResponse);
@@ -176,9 +175,8 @@ describe("teamsApp/validateWithTestCases", async () => {
       updatedAt: "2024-03-27T12:00:00.000Z",
       validationResults: null,
     };
-    const invalidValidationResultResponse: AsyncAppValidationResultsResponse = <
-      AsyncAppValidationResultsResponse
-    >invalidValidationResultResponseJson;
+    const invalidValidationResultResponse: AsyncAppValidationResultsResponse =
+      invalidValidationResultResponseJson as AsyncAppValidationResultsResponse;
     sinon
       .stub(teamsDevPortalClient, "getAppValidationById")
       .resolves(invalidValidationResultResponse);
