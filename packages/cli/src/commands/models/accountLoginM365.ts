@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 import { CLICommand, ok } from "@microsoft/teamsfx-api";
-import M365TokenProvider from "../../commonlib/m365Login";
+import M365TokenProvider from "../../commonlib/M365TokenProviderWrapper";
 import { commands } from "../../resource";
 import { TelemetryEvent } from "../../telemetry/cliTelemetryEvents";
 import { accountUtils } from "./accountShow";

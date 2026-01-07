@@ -16,7 +16,7 @@ import * as util from "util";
 import { getFxCore } from "../../../activate";
 import { DoneText, TextType, WarningText, colorize } from "../../../colorize";
 import { logger } from "../../../commonlib/logger";
-import M365TokenInstance from "../../../commonlib/m365Login";
+import M365TokenInstance from "../../../commonlib/M365TokenProviderWrapper";
 import { cliSource } from "../../../constants";
 import { commands, strings } from "../../../resource";
 import { TelemetryEvent } from "../../../telemetry/cliTelemetryEvents";

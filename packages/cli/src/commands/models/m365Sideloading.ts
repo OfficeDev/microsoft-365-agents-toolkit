@@ -3,7 +3,7 @@
 import { CLICommand, err, ok } from "@microsoft/teamsfx-api";
 import { PackageService, MosServiceEndpoint, MosServiceScope } from "@microsoft/teamsfx-core";
 import { logger } from "../../commonlib/logger";
-import M365TokenProvider from "../../commonlib/m365Login";
+import M365TokenProvider from "../../commonlib/M365TokenProviderWrapper";
 import { ArgumentConflictError, MissingRequiredOptionError } from "../../error";
 import { commands } from "../../resource";
 import { TelemetryEvent } from "../../telemetry/cliTelemetryEvents";

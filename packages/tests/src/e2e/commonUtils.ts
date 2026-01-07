@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 
 import MockAzureAccountProvider from "@microsoft/m365agentstoolkit-cli/src/commonlib/azureLoginUserPassword";
-import m365Login from "@microsoft/m365agentstoolkit-cli/src/commonlib/m365Login";
+import m365Login from "@microsoft/m365agentstoolkit-cli/src/commonlib/M365TokenProviderWrapper";
 import {
   AppPackageFolderName,
   ConfigFolderName,
