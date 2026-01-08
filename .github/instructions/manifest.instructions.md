@@ -11,11 +11,13 @@ This package provides **TypeScript type definitions, converters, and OOP wrapper
 
 ## Three Manifest Types
 
-| Manifest Type | Purpose | Version Field | Latest Type |
-|---------------|---------|---------------|-------------|
-| **Teams Manifest** | Core app manifest for M365 apps (bots, tabs, extensions) | `manifestVersion` | `TeamsManifestLatest` (v1.21) |
-| **Declarative Agent Manifest** | AI agent instructions, knowledge sources, actions | `version` | `DeclarativeAgentManifestLatest` (v1.6) |
-| **API Plugin Manifest** | Plugin capabilities, REST API operations | `schema_version` | `APIPluginManifestLatest` (v2.4) |
+| Manifest Type | Purpose | Version Field | Latest Type Alias |
+|---------------|---------|---------------|-------------------|
+| **Teams Manifest** | Core app manifest for M365 apps (bots, tabs, extensions) | `manifestVersion` | `TeamsManifestLatest` |
+| **Declarative Agent Manifest** | AI agent instructions, knowledge sources, actions | `version` | `DeclarativeAgentManifestLatest` |
+| **API Plugin Manifest** | Plugin capabilities, REST API operations | `schema_version` | `APIPluginManifestLatest` |
+
+> **Note**: Check `src/json-schemas/` for available versions. The `*Latest` type aliases always point to the most recent stable version.
 
 ## How It Works
 
@@ -55,9 +57,10 @@ src/
 
 ### Union Types (from `generated-types/index.ts`)
 ```typescript
+// Union of all supported versions for each manifest type
 type TeamsManifest = TeamsManifestV1D0 | TeamsManifestV1D1 | ... | TeamsManifestVDevPreview;
-type DeclarativeAgentManifest = DeclarativeAgentManifestV1D0 | ... | DeclarativeAgentManifestV1D6;
-type APIPluginManifest = APIPluginManifestV2D1 | ... | APIPluginManifestV2D4;
+type DeclarativeAgentManifest = DeclarativeAgentManifestV1D0 | ...;
+type APIPluginManifest = APIPluginManifestV2D1 | ...;
 type AppManifest = TeamsManifest | DeclarativeAgentManifest | APIPluginManifest;
 ```
 

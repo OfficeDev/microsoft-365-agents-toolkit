@@ -2,7 +2,7 @@
 
 When generating or editing code in this repository:
 
-- **Line Endings**: Use LF (Unix-style) line endings only. Do not use CRLF (Windows-style). Remove any carriage return (`CR`) characters.
+- **Line Endings**: Use LF (Unix-style) line endings for all source code files. Exception: Use CRLF for localization files under `**/package.nls.*.json` only.
 - **Indentation**: Use 2 spaces for TypeScript/JavaScript files
 - **Quotes**: Use double quotes for strings in TypeScript/JavaScript
 
