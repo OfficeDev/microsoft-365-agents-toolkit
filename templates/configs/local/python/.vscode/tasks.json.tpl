@@ -12,8 +12,7 @@
                 "Start local tunnel",
 {{/hasAzureBot}}
                 "Provision",
-                "Deploy",
-                "Start application"
+                "Deploy"
             ],
             "dependsOrder": "sequence"
         },
@@ -25,13 +24,11 @@
             "command": "debug-check-prerequisites",
             "args": {
                 "prerequisites": [
-                    "nodejs", // Validate if Node.js is installed.
                     "m365Account", // Sign-in prompt for Microsoft 365 account, then validate if the account enables the sideloading permission.
                     "portOccupancy" // Validate available ports to ensure those debug ones are not occupied.
                 ],
                 "portOccupancy": [
-                    3978, // tab service port,
-                    9239 // app inspector port for Node.js debugger
+                    3978, // tab service port
                 ]
             }
         },
@@ -82,28 +79,6 @@
             }
         },
         {
-            "label": "Start application",
-            "type": "shell",
-            "command": "npm run dev:teamsfx",
-            "isBackground": true,
-            "options": {
-                "cwd": "${workspaceFolder}"
-            },
-            "problemMatcher": {
-                "pattern": {
-                    "regexp": "^.*$",
-                    "file": 0,
-                    "location": 1,
-                    "message": 2
-                },
-                "background": {
-                    "activeOnStart": true,
-                    "beginsPattern": ".*",
-                    "endsPattern": "listening on port 3978|[nodemon] app crashed"
-                }
-            }
-        },
-        {
             "label": "Start App in Desktop Client",
             "dependsOn": [
                 "Validate prerequisites",
@@ -112,7 +87,6 @@
 {{/hasAzureBot}}
                 "Provision",
                 "Deploy",
-                "Start application",
                 "Start desktop client"
             ],
             "dependsOrder": "sequence"
