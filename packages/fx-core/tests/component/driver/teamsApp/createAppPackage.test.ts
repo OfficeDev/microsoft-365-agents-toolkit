@@ -1402,11 +1402,6 @@ describe("teamsApp/createAppPackage", async () => {
 
   describe("copilotGpt", async () => {
     it("version <= 1.6: happy path ", async () => {
-      // Enable builder API flag.
-      sinon
-        .stub(featureFlagManager, "getBooleanValue")
-        .withArgs(FeatureFlags.BuilderAPIEnabled)
-        .returns(true);
       const args: CreateAppPackageArgs = {
         manifestPath:
           "./tests/plugins/resource/appstudio/resources-multi-env/templates/appPackage/v3.manifest.template.json",

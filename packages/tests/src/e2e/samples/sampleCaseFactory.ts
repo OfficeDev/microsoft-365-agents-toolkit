@@ -27,7 +27,7 @@ import {
   ContainerAppValidator,
   StaticSiteValidator,
 } from "../../commonlib";
-import m365Login from "@microsoft/m365agentstoolkit-cli/src/commonlib/m365Login";
+import { M365ProviderUserPassword } from "@microsoft/m365agentstoolkit-cli/src/commonlib/m365LoginUserPassword";
 
 export abstract class CaseFactory {
   public sampleName: TemplateProjectFolder;
@@ -166,7 +166,11 @@ export abstract class CaseFactory {
           }
           if (validate.includes("aad")) {
             // Validate Aad App
-            const aad = AadValidator.init(context, false, m365Login);
+            const aad = AadValidator.init(
+              context,
+              false,
+              M365ProviderUserPassword.getInstance()
+            );
             await AadValidator.validate(aad);
           }
           if (validate.includes("tab & bot")) {

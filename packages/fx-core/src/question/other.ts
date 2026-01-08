@@ -677,7 +677,6 @@ export function addPluginQuestionNode(): IQTreeNode {
         condition: (inputs: Inputs) => {
           return (
             !featureFlagManager.getBooleanValue(FeatureFlags.KiotaNPMIntegration) &&
-            !featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration) &&
             inputs[QuestionNames.ActionType] === ActionStartOptions.apiSpec().id
           );
         },
@@ -687,7 +686,6 @@ export function addPluginQuestionNode(): IQTreeNode {
         condition: (inputs: Inputs) => {
           return (
             !featureFlagManager.getBooleanValue(FeatureFlags.KiotaNPMIntegration) &&
-            !featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration) &&
             inputs[QuestionNames.ActionType] === ActionStartOptions.apiSpec().id
           );
         },

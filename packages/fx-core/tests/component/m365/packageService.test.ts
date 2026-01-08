@@ -10,11 +10,11 @@ import "mocha";
 import { createSandbox } from "sinon";
 import { setTools } from "../../../src/common/globalVars";
 import { AppUser } from "../../../src/component/driver/teamsApp/interfaces/appdefinitions/appUser";
+import { advancedDASettingUrl } from "../../../src/component/m365/constants";
 import { NotExtendedToM365Error } from "../../../src/component/m365/errors";
 import { AppScope, PackageService } from "../../../src/component/m365/packageService";
 import { UnhandledError } from "../../../src/error/common";
 import { MockLogProvider } from "../../core/utils";
-import { advancedDASettingUrl } from "../../../src/component/m365/constants";
 
 chai.use(chaiAsPromised);
 
@@ -858,62 +858,6 @@ describe("Package Service", () => {
     chai.assert.isTrue(actualError instanceof UserError);
   });
 
-  it("sideLoading Builder API Feature Flag turned off", async () => {
-    process.env["TEAMSFX_BUILDER_API"] = "0";
-    axiosGetResponses["/config/v1/environment"] = {
-      data: {
-        titlesServiceUrl: "https://test-url",
-      },
-    };
-    axiosPostResponses["/dev/v1/users/packages"] = {
-      data: {
-        operationId: "test-operation-id",
-        titlePreview: {
-          titleId: "test-title-id-preview",
-        },
-      },
-    };
-    axiosPostResponses["/dev/v1/users/packages/acquisitions"] = {
-      data: {
-        statusId: "test-status-id",
-      },
-    };
-    axiosGetResponses["/dev/v1/users/packages/status/test-status-id"] = {
-      status: 200,
-      data: {
-        titleId: "test-title-id",
-        appId: "test-app-id",
-      },
-    };
-    axiosGetResponses["/marketplace/v1/users/titles/test-title-id-builder-api/sharingInfo"] = {
-      data: {
-        unifiedStoreLink: "https://test-share-link",
-      },
-    };
-
-    let actualError: Error | undefined;
-    const packageService = new PackageService("https://test-endpoint", logger);
-    sandbox.stub(packageService, "getManifestFromZip" as keyof PackageService).returns({
-      copilotAgents: {
-        declarativeAgents: [
-          {
-            id: "declarativeAgent",
-            file: "declarativeAgent.json",
-          },
-        ],
-      },
-    } as any);
-    try {
-      const result = await packageService.sideLoading("test-token", "test-path", AppScope.Shared);
-      chai.assert.equal(result[0], "test-title-id");
-      chai.assert.equal(result[1], "test-app-id");
-      chai.assert.equal(result[2], "");
-    } catch (error: any) {
-      actualError = error;
-    }
-    chai.assert.isUndefined(actualError);
-  });
-
   it("retrieveTitleId happy path", async () => {
     axiosGetResponses["/config/v1/environment"] = {
       data: {
@@ -1089,36 +1033,6 @@ describe("Package Service", () => {
     };
     axiosDeleteResponses["/catalog/v1/users/acquisitions/test-title-id"] = {};
     axiosDeleteResponses["/builder/v1/users/titles/test-title-id"] = {};
-
-    let packageService = new PackageService("https://test-endpoint");
-    let actualError: Error | undefined;
-    try {
-      await packageService.unacquire("test-token", "test-title-id");
-    } catch (error: any) {
-      actualError = error;
-    }
-
-    chai.assert.isUndefined(actualError);
-
-    packageService = new PackageService("https://test-endpoint", logger);
-    actualError = undefined;
-    try {
-      await packageService.unacquire("test-token", "test-title-id");
-    } catch (error: any) {
-      actualError = error;
-    }
-
-    chai.assert.isUndefined(actualError);
-  });
-
-  it("unacquire happy path - Builder API OFF", async () => {
-    process.env["TEAMSFX_BUILDER_API"] = "0";
-    axiosGetResponses["/config/v1/environment"] = {
-      data: {
-        titlesServiceUrl: "https://test-url",
-      },
-    };
-    axiosDeleteResponses["/catalog/v1/users/acquisitions/test-title-id"] = {};
 
     let packageService = new PackageService("https://test-endpoint");
     let actualError: Error | undefined;

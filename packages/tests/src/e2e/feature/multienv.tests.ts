@@ -6,7 +6,7 @@
  */
 
 import { it } from "@microsoft/extra-shot-mocha";
-import M365Login from "@microsoft/m365agentstoolkit-cli/src/commonlib/m365Login";
+import { M365ProviderUserPassword } from "@microsoft/m365agentstoolkit-cli/src/commonlib/m365LoginUserPassword";
 import { AppPackageFolderName, BuildFolderName } from "@microsoft/teamsfx-api";
 import * as chai from "chai";
 import { expect } from "chai";
@@ -155,7 +155,7 @@ describe("Multi Env Happy Path for Azure", function () {
           const context = await readContextMultiEnvV3(projectPath, env);
           teamsAppId = context[EnvConstants.TEAMS_APP_ID];
           chai.assert.isNotNull(teamsAppId);
-          AppStudioValidator.provider = M365Login;
+          AppStudioValidator.provider = M365ProviderUserPassword.getInstance();
           await AppStudioValidator.validatePublish(teamsAppId!);
         }
       } catch (e: any) {

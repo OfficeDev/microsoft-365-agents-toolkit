@@ -330,9 +330,6 @@
   "core.createProjectQuestion.projectType.bot.title": "App Features Using a Bot",
   "core.createProjectQuestion.projectType.messageExtension.copilotEnabled.detail": "Search and take actions from the text input box in Teams and Outlook",
   "core.createProjectQuestion.projectType.messageExtension.title": "App Features Using a Message Extension",
-  "core.createProjectQuestion.projectType.outlookAddin.detail": "Customize the ribbon and Task Pane with your web content for seamless user experiences",
-  "core.createProjectQuestion.projectType.outlookAddin.label": "Outlook Add-in",
-  "core.createProjectQuestion.projectType.outlookAddin.title": "App Features Using an Outlook Add-in",
   "core.createProjectQuestion.projectType.officeAddin.detail": "Extend Office applications to interact with content in Office documents and Outlook items",
   "core.createProjectQuestion.projectType.officeAddin.label": "Office Add-in",
   "core.createProjectQuestion.projectType.tab.detail": "Embed your own web content in Teams, Outlook, and the Microsoft 365 application",
@@ -1146,6 +1143,7 @@
   "core.createProjectQuestion.mcpServerType.remote.detail": "Connect to an MCP server hosted remotely via HTTP",
   "core.createProjectQuestion.mcpLocalServer.title": "Local MCP Server",
   "core.createProjectQuestion.mcpLocalServer.placeholder": "Select a local MCP server",
+  "core.createProjectQuestion.mcpLocalServer.validationHelp": "At least one MCP server must be selected",
 
   "core.MCPForDA.updatePluginManifest": "The operations selected from your MCP server are successfully added for Copilot to interact with. You can go to the '%s' to check on details. Now you are able to provision your declarative agent to continue.",
   "core.MCPForDA.mcpAuthMetadataMissingError": "Unable to find the authentication metadata in the MCP server. Please make sure your MCP server is configured correctly and try again. Details: %s",

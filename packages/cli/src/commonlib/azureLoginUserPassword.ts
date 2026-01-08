@@ -113,7 +113,7 @@ export class AzureAccountProviderUserPassword implements AzureAccountProvider {
     if (credential) {
       const client = new SubscriptionClient(credential);
       const tenants: TenantIdDescription[] = [];
-      for await (const page of client.tenants.list().byPage({ maxPageSize: 100 })) {
+      for await (const page of client.tenants.list().byPage()) {
         for (const tenant of page) {
           tenants.push(tenant);
         }
@@ -129,7 +129,7 @@ export class AzureAccountProviderUserPassword implements AzureAccountProvider {
           );
           const client = new SubscriptionClient(cred);
           const subscriptions: Subscription[] = [];
-          for await (const page of client.subscriptions.list().byPage({ maxPageSize: 100 })) {
+          for await (const page of client.subscriptions.list().byPage()) {
             for (const subscription of page) {
               subscriptions.push(subscription);
             }

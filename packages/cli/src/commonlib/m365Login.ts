@@ -4,7 +4,6 @@
 "use strict";
 
 import { Configuration, LogLevel } from "@azure/msal-node";
-import { NativeBrokerPlugin } from "@azure/msal-node-extensions";
 import {
   BasicLogin,
   err,
@@ -22,44 +21,53 @@ import {
   FeatureFlags,
   teamsDevPortalClient,
 } from "@microsoft/teamsfx-core";
-import ui from "../userInteraction";
 import { CryptoCachePlugin, loadTenantId } from "./cacheAccess";
 import { CodeFlowLogin, ConvertTokenToJson, ErrorMessage } from "./codeFlowLogin";
 import { m365CacheName } from "./common/constant";
 import { LoginStatus } from "./common/login";
 import CLILogProvider from "./log";
-import M365TokenProviderUserPassword from "./m365LoginUserPassword";
 
 const SERVER_PORT = 0;
 
 const cachePlugin = new CryptoCachePlugin(m365CacheName);
 
-const config: Configuration = {
-  auth: {
-    clientId: "7ea7c24c-b1f6-4a20-9d11-9ae12e9e7ac0",
-    authority: "https://login.microsoftonline.com/common",
-  },
-  broker: {
-    nativeBrokerPlugin:
-      featureFlagManager.getBooleanValue(FeatureFlags.BrokerAuth) && process.platform === "win32"
-        ? new NativeBrokerPlugin()
-        : undefined,
-  },
-  system: {
-    loggerOptions: {
-      loggerCallback(loglevel: any, message: any, containsPii: any) {
-        if (this.logLevel && this.logLevel <= LogLevel.Error) {
-          CLILogProvider.log(4 - loglevel, message);
-        }
-      },
-      piiLoggingEnabled: false,
-      logLevel: LogLevel.Error,
+function getConfig(): Configuration {
+  const config: Configuration = {
+    auth: {
+      clientId: "7ea7c24c-b1f6-4a20-9d11-9ae12e9e7ac0",
+      authority: "https://login.microsoftonline.com/common",
     },
-  },
-  cache: {
-    cachePlugin,
-  },
-};
+    system: {
+      loggerOptions: {
+        loggerCallback(loglevel: any, message: any, containsPii: any) {
+          if (this.logLevel && this.logLevel <= LogLevel.Error) {
+            CLILogProvider.log(4 - loglevel, message);
+          }
+        },
+        piiLoggingEnabled: false,
+        logLevel: LogLevel.Error,
+      },
+    },
+    cache: {
+      cachePlugin,
+    },
+  };
+
+  if (featureFlagManager.getBooleanValue(FeatureFlags.BrokerAuth) && process.platform === "win32") {
+    try {
+      // Dynamically require to avoid loading @azure/msal-node-extensions on Linux
+      // where keytar (a dependency) requires libsecret to be installed
+      const { NativeBrokerPlugin } = require("@azure/msal-node-extensions");
+      config.broker = {
+        nativeBrokerPlugin: new NativeBrokerPlugin(),
+      };
+    } catch {
+      // NativeBrokerPlugin not available, ignore
+    }
+  }
+
+  return config;
+}
 
 export class M365Login extends BasicLogin implements M365TokenProvider {
   private static instance: M365Login;
@@ -67,7 +75,7 @@ export class M365Login extends BasicLogin implements M365TokenProvider {
 
   private constructor() {
     super();
-    M365Login.codeFlowInstance = new CodeFlowLogin([], config, SERVER_PORT, m365CacheName);
+    M365Login.codeFlowInstance = new CodeFlowLogin([], getConfig(), SERVER_PORT, m365CacheName);
   }
 
   /**
@@ -176,55 +184,3 @@ export class M365Login extends BasicLogin implements M365TokenProvider {
     }
   }
 }
-
-/**
- * this class is a wrapper for M365TokenProvider that will use M365Login if interactive is true, otherwise use M365TokenProviderUserPassword
- */
-class MM365TokenProviderWrapper implements M365TokenProvider {
-  getProvider(): M365TokenProvider {
-    // if interactive is false and system environment variables (M365_ACCOUNT_NAME, M365_ACCOUNT_PASSWORD) are set, then use M365TokenProviderUserPassword
-    const m365Login =
-      !ui.interactive && process.env.M365_ACCOUNT_NAME && process.env.M365_ACCOUNT_PASSWORD
-        ? M365TokenProviderUserPassword
-        : M365Login.getInstance();
-    return m365Login;
-  }
-  getAccessToken(tokenRequest: TokenRequest): Promise<Result<string, FxError>> {
-    return this.getProvider().getAccessToken(tokenRequest);
-  }
-  getJsonObject(
-    tokenRequest: TokenRequest,
-    tenantId?: string
-  ): Promise<Result<Record<string, unknown>, FxError>> {
-    return this.getProvider().getJsonObject(tokenRequest, tenantId);
-  }
-  getStatus(tokenRequest: TokenRequest): Promise<Result<LoginStatus, FxError>> {
-    return this.getProvider().getStatus(tokenRequest);
-  }
-  setStatusChangeMap(
-    name: string,
-    tokenRequest: TokenRequest,
-    statusChange: (
-      status: string,
-      token?: string,
-      accountInfo?: Record<string, unknown>
-    ) => Promise<void>,
-    immediateCall?: boolean
-  ): Promise<Result<boolean, FxError>> {
-    return this.getProvider().setStatusChangeMap(name, tokenRequest, statusChange, immediateCall);
-  }
-  removeStatusChangeMap(name: string): Promise<Result<boolean, FxError>> {
-    return this.getProvider().removeStatusChangeMap(name);
-  }
-  async signout(): Promise<boolean> {
-    return await (this.getProvider() as any).signout();
-  }
-  async switchTenant(tenantId: string): Promise<Result<string, FxError>> {
-    return await this.getProvider().switchTenant(tenantId);
-  }
-  async getTenant(): Promise<string | undefined> {
-    return await (this.getProvider() as any).getTenant();
-  }
-}
-
-export default new MM365TokenProviderWrapper();

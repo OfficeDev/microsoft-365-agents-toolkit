@@ -99,8 +99,7 @@ export function daProjectTypeNode(
                 ? apiSpecWithSearchNode()
                 : apiSpecNode(
                     (inputs: Inputs) =>
-                      inputs[QuestionNames.ActionType] === ActionStartOptions.apiSpec().id &&
-                      !featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration)
+                      inputs[QuestionNames.ActionType] === ActionStartOptions.apiSpec().id
                   ),
               MCPServerTypeNode(),
             ],

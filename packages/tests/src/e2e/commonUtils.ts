@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 
 import MockAzureAccountProvider from "@microsoft/m365agentstoolkit-cli/src/commonlib/azureLoginUserPassword";
-import m365Login from "@microsoft/m365agentstoolkit-cli/src/commonlib/m365Login";
+import { M365ProviderUserPassword } from "@microsoft/m365agentstoolkit-cli/src/commonlib/m365LoginUserPassword";
 import {
   AppPackageFolderName,
   ConfigFolderName,
@@ -600,7 +600,11 @@ export async function validateTabAndBotProjectProvision(
 ) {
   const context = await readContextMultiEnvV3(projectPath, env);
   // Validate Aad App
-  const aad = AadValidator.init(context, false, m365Login);
+  const aad = AadValidator.init(
+    context,
+    false,
+    M365ProviderUserPassword.getInstance()
+  );
   await AadValidator.validate(aad);
 
   // Validate Tab Frontend

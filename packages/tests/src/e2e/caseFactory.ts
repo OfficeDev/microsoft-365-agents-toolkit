@@ -6,7 +6,7 @@
  */
 
 import { it } from "@microsoft/extra-shot-mocha";
-import m365Login from "@microsoft/m365agentstoolkit-cli/src/commonlib/m365Login";
+import { M365ProviderUserPassword } from "@microsoft/m365agentstoolkit-cli/src/commonlib/m365LoginUserPassword";
 import {
   environmentNameManager,
   ProgrammingLanguage,
@@ -200,7 +200,11 @@ export abstract class CaseFactory {
             }
             if (validate.includes("aad")) {
               // Validate Aad App
-              const aad = AadValidator.init(context, false, m365Login);
+              const aad = AadValidator.init(
+                context,
+                false,
+                M365ProviderUserPassword.getInstance()
+              );
               await AadValidator.validate(aad);
             }
             if (validate.includes("tab & bot")) {

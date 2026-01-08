@@ -12,7 +12,7 @@ import AzureTokenProvider, { getAzureProvider } from "../../commonlib/azureLogin
 import AzureTokenCIProvider from "../../commonlib/azureLoginCI";
 import { checkIsOnline } from "../../commonlib/codeFlowLogin";
 import { logger } from "../../commonlib/logger";
-import M365TokenProvider from "../../commonlib/m365Login";
+import M365TokenProvider from "../../commonlib/M365TokenProviderWrapper";
 import { commands, strings } from "../../resource";
 import { TelemetryEvent } from "../../telemetry/cliTelemetryEvents";
 import { listAllTenants } from "@microsoft/teamsfx-core/build/common/tools";

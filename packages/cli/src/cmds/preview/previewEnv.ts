@@ -22,7 +22,7 @@ import * as path from "path";
 import * as util from "util";
 import activate from "../../activate";
 import cliLogger from "../../commonlib/log";
-import M365TokenInstance from "../../commonlib/m365Login";
+import M365TokenInstance from "../../commonlib/M365TokenProviderWrapper";
 import { cliSource } from "../../constants";
 import cliTelemetry from "../../telemetry/cliTelemetry";
 import { TelemetryEvent, TelemetryProperty } from "../../telemetry/cliTelemetryEvents";

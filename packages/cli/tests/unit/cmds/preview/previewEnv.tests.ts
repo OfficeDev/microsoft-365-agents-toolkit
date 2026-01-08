@@ -25,7 +25,7 @@ import PreviewEnv from "../../../../src/cmds/preview/previewEnv";
 import { ServiceLogWriter } from "../../../../src/cmds/preview/serviceLogWriter";
 import { Task } from "../../../../src/cmds/preview/task";
 import cliLogger from "../../../../src/commonlib/log";
-import M365TokenInstance from "../../../../src/commonlib/m365Login";
+import M365TokenInstance from "../../../../src/commonlib/M365TokenProviderWrapper";
 import cliTelemetry from "../../../../src/telemetry/cliTelemetry";
 import CLIUIInstance from "../../../../src/userInteraction";
 import * as Utils from "../../../../src/utils";

@@ -25,7 +25,6 @@ import * as path from "path";
 import * as uuid from "uuid";
 import * as xml2js from "xml2js";
 import { AppStudioScopes, getResourceGroupInPortal } from "../../common/constants";
-import { FeatureFlags, featureFlagManager } from "../../common/featureFlags";
 import { ErrorContextMW, globalVars } from "../../common/globalVars";
 import { getLocalizedString } from "../../common/localizeUtils";
 import { convertToAlphanumericOnly } from "../../common/stringUtils";
@@ -40,13 +39,7 @@ import {
   assembleError,
 } from "../../error/common";
 import { LifeCycleUndefinedError } from "../../error/yml";
-import {
-  ActionStartOptions,
-  AppNamePattern,
-  QuestionNames,
-  ScratchOptions,
-} from "../../question/constants";
-import { DACapabilityOptions } from "../../question/scaffold/vsc/CapabilityOptions";
+import { AppNamePattern, QuestionNames, ScratchOptions } from "../../question/constants";
 import { ProjectTypeOptions } from "../../question/scaffold/vsc/ProjectTypeOptions";
 import { TeamsProjectTypeOptions } from "../../question/scaffold/vsc/teamsProjectTypeNode";
 import {
@@ -56,7 +49,7 @@ import {
   ProjectModel,
 } from "../configManager/interface";
 import { Lifecycle } from "../configManager/lifecycle";
-import { CoordinatorSource, KiotaLastCommands } from "../constants";
+import { CoordinatorSource } from "../constants";
 import { deployUtils } from "../deployUtils";
 import { DriverContext } from "../driver/interface/commonArgs";
 import { updateTeamsAppV3ForPublish } from "../driver/teamsApp/appStudio";
@@ -100,18 +93,6 @@ class Coordinator {
     inputs: Inputs,
     actionContext?: ActionContext
   ): Promise<Result<CreateProjectResult, FxError>> {
-    // Handle command redirect to Kiota. Only happens in vscode.
-    if (
-      inputs.platform === Platform.VSCode &&
-      featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration) &&
-      inputs[QuestionNames.ActionType] === ActionStartOptions.apiSpec().id &&
-      !inputs[QuestionNames.ActionManifestPath] &&
-      inputs[QuestionNames.Capabilities] === DACapabilityOptions.declarativeAgent().id
-    ) {
-      const lastCommand = KiotaLastCommands.createDeclarativeCopilotWithManifest;
-      return ok({ projectPath: "", lastCommand: lastCommand });
-    }
-
     let folder = inputs["folder"] as string;
     if (!folder) {
       return err(new MissingRequiredInputError("folder"));

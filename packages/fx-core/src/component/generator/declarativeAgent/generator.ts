@@ -8,25 +8,30 @@
 import {
   AppPackageFolderName,
   Context,
-  DefaultPluginManifestFileName,
   err,
   FxError,
   GeneratorResult,
   Inputs,
   ManifestTemplateFileName,
   ok,
+  OptionItem,
   Platform,
   Result,
-  signedIn,
+  SystemError,
+  UserError,
 } from "@microsoft/teamsfx-api";
+import fs from "fs-extra";
 import { merge } from "lodash";
 import path from "path";
+import { featureFlagManager, FeatureFlags } from "../../../common/featureFlags";
+import { convertToAlphanumericOnly } from "../../../common/stringUtils";
 import {
   ActionStartOptions,
   ApiAuthOptions,
   ProgrammingLanguage,
   QuestionNames,
 } from "../../../question";
+import { EmbeddedKnowledgeLocalDirectoryName } from "../../driver/teamsApp/constants";
 import { copilotGptManifestUtils } from "../../driver/teamsApp/utils/CopilotGptManifestUtils";
 import { ActionContext } from "../../middleware/actionExecutionMW";
 import { outputScaffoldingWarningMessage } from "../../utils/common";
@@ -34,15 +39,8 @@ import { DefaultTemplateGenerator } from "../defaultGenerator";
 import { Generator } from "../generator";
 import { TemplateInfo } from "../templates/templateInfo";
 import { TemplateNames } from "../templates/templateNames";
-import { addExistingPlugin } from "./helper";
-import { getDefaultString } from "../../../common/localizeUtils";
-import { EmbeddedKnowledgeLocalDirectoryName } from "../../driver/teamsApp/constants";
-import fs from "fs-extra";
-import { featureFlagManager, FeatureFlags } from "../../../common/featureFlags";
-import { convertToAlphanumericOnly } from "../../../common/stringUtils";
 import { setGeneralSensitivityLabel } from "../utils";
-import { GraphClient } from "../../../client/graphClient";
-import { ListSensitivityLabelScope } from "../../../common/constants";
+import { addExistingPlugin } from "./helper";
 
 const enum telemetryProperties {
   templateName = "template-name",
@@ -87,55 +85,54 @@ export class DeclarativeAgentGenerator extends DefaultTemplateGenerator {
     const MCPServerType = inputs[QuestionNames.MCPServerType];
     const isLocalMCP = MCPServerType === "local";
     const MCPForDAServerUrl = inputs[QuestionNames.MCPForDAServerUrl];
-    const replaceMap = {
-      ...Generator.getDefaultVariables(
-        inputs[QuestionNames.TemplateName] === TemplateNames.DeclarativeAgentWithTypeSpec
-          ? convertToAlphanumericOnly(appName)
-          : appName,
-        safeProjectNameFromVS,
-        solutionNameFromVS,
-        inputs.targetFramework,
-        inputs.placeProjectFileInSolutionDir === "true"
-      ),
-      DeclarativeCopilot: "true",
-      MicrosoftEntra: auth === ApiAuthOptions.microsoftEntra().id ? "true" : "",
-      IsLocalMCP: isLocalMCP ? "true" : "",
-      ...(isLocalMCP
-        ? {
-            MCPLocalServerName: inputs[QuestionNames.MCPLocalServerName],
-            MCPLocalServerIdentifier: inputs[QuestionNames.MCPLocalServerIdentifier],
-            MCPCommand: inputs[QuestionNames.MCPLocalServerCommand],
-            MCPArgs: inputs[QuestionNames.MCPLocalServerArgs],
-            ServerName: inputs[QuestionNames.MCPLocalServerName],
-          }
-        : MCPForDAServerUrl
-        ? {
-            MCPForDAServerUrl,
-            ServerName: new URL(MCPForDAServerUrl).host
-              .replace(/[^a-zA-Z0-9]/g, "")
-              .substring(0, 10),
-          }
-        : {}),
-    };
-    const templateName = inputs[QuestionNames.TemplateName];
 
-    merge(actionContext?.telemetryProps, {
-      [telemetryProperties.templateName]: templateName,
-      [telemetryProperties.isMicrosoftEntra]:
-        auth === ApiAuthOptions.microsoftEntra().id ? "true" : "",
-      [telemetryProperties.needAddPluginFromExisting]:
-        inputs[QuestionNames.ActionType] === ActionStartOptions.existingPlugin().id.toString(),
-    });
+    try {
+      const replaceMap = {
+        ...Generator.getDefaultVariables(
+          inputs[QuestionNames.TemplateName] === TemplateNames.DeclarativeAgentWithTypeSpec
+            ? convertToAlphanumericOnly(appName)
+            : appName,
+          safeProjectNameFromVS,
+          solutionNameFromVS,
+          inputs.targetFramework,
+          inputs.placeProjectFileInSolutionDir === "true"
+        ),
+        DeclarativeCopilot: "true",
+        MicrosoftEntra: auth === ApiAuthOptions.microsoftEntra().id ? "true" : "",
+        IsLocalMCP: isLocalMCP ? "true" : "",
+        ...(isLocalMCP
+          ? this.processMCPLocalServers(inputs)
+          : MCPForDAServerUrl
+          ? {
+              MCPForDAServerUrl,
+              ServerName: new URL(MCPForDAServerUrl).host
+                .replace(/[^a-zA-Z0-9]/g, "")
+                .substring(0, 10),
+            }
+          : {}),
+      };
+      const templateName = inputs[QuestionNames.TemplateName];
 
-    return Promise.resolve(
-      ok([
-        {
-          templateName,
-          language: language,
-          replaceMap,
-        },
-      ])
-    );
+      merge(actionContext?.telemetryProps, {
+        [telemetryProperties.templateName]: templateName,
+        [telemetryProperties.isMicrosoftEntra]:
+          auth === ApiAuthOptions.microsoftEntra().id ? "true" : "",
+        [telemetryProperties.needAddPluginFromExisting]:
+          inputs[QuestionNames.ActionType] === ActionStartOptions.existingPlugin().id.toString(),
+      });
+
+      return Promise.resolve(
+        ok([
+          {
+            templateName,
+            language: language,
+            replaceMap,
+          },
+        ])
+      );
+    } catch (error) {
+      return err(error);
+    }
   }
 
   public override async post(
@@ -209,5 +206,79 @@ export class DeclarativeAgentGenerator extends DefaultTemplateGenerator {
     } else {
       return ok({});
     }
+  }
+
+  /**
+   * Process selected MCP local servers from inputs and format for template
+   * Handles both single and multiple server selection for backward compatibility
+   */
+  private processMCPLocalServers(inputs: Inputs): {
+    MCPLocalServers: Array<{
+      name: string;
+      identifier: string;
+      command: string;
+      args: string;
+      notLast: boolean;
+    }>;
+  } {
+    const selectedOptions = inputs[QuestionNames.MCPLocalServer] as OptionItem[] | undefined;
+
+    if (selectedOptions && !Array.isArray(selectedOptions)) {
+      throw new SystemError(
+        this.componentName,
+        "processMCPLocalServers",
+        "Expected MCPLocalServer input to be an array"
+      );
+    }
+
+    // Handle empty/invalid selection
+    if (!selectedOptions || selectedOptions.length === 0) {
+      return {
+        MCPLocalServers: [],
+      };
+    }
+
+    // Map selected options to server configs
+    const servers = selectedOptions.map((option, index) => {
+      // Validate option structure
+      if (!option.data || typeof option.data !== "string") {
+        throw new SystemError(
+          this.componentName,
+          "processMCPLocalServers",
+          "Invalid option data structure"
+        );
+      }
+
+      const serverData = JSON.parse(option.data);
+
+      // Validate parsed data
+      if (!serverData.identifier || !Array.isArray(serverData.args)) {
+        throw new SystemError(
+          this.componentName,
+          "processMCPLocalServers",
+          "Invalid server data format"
+        );
+      }
+
+      if (!serverData.command || typeof serverData.command !== "string") {
+        throw new UserError(
+          this.componentName,
+          "processMCPLocalServers",
+          "Invalid or missing command in server data"
+        );
+      }
+
+      return {
+        name: option.id,
+        identifier: serverData.identifier,
+        command: serverData.command,
+        args: serverData.args.map((arg: string) => `"${arg}"`).join(", "),
+        notLast: index < selectedOptions.length - 1,
+      };
+    });
+
+    return {
+      MCPLocalServers: servers,
+    };
   }
 }

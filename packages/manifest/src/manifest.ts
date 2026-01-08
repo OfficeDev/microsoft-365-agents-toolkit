@@ -2,6 +2,14 @@
 // Licensed under the MIT license.
 "use strict";
 
+/**
+ * @deprecated Use auto-generated types from `./generated-types` instead.
+ * Import `TeamsManifest` or version-specific types like `TeamsManifestV1D21` from the generated-types module.
+ */
+
+/**
+ * @deprecated Use auto-generated types from `./generated-types` instead.
+ */
 export interface IDeveloper {
   /**
    * The display name for the developer.
@@ -25,6 +33,9 @@ export interface IDeveloper {
   termsOfUseUrl: string;
 }
 
+/**
+ * @deprecated Use auto-generated types from `./generated-types` instead.
+ */
 export interface IName {
   short: string;
   /**
@@ -33,11 +44,17 @@ export interface IName {
   full?: string;
 }
 
+/**
+ * @deprecated Use auto-generated types from `./generated-types` instead.
+ */
 export interface IIcons {
   color: string;
   outline: string;
 }
 
+/**
+ * @deprecated Use auto-generated types from `./generated-types` instead.
+ */
 export interface IConfigurableTab {
   objectId?: string;
 
@@ -80,6 +97,9 @@ export interface IConfigurableTab {
   supportedSharePointHosts?: ("sharePointFullPage" | "sharePointWebPart")[];
 }
 
+/**
+ * @deprecated Use auto-generated types from `./generated-types` instead.
+ */
 export interface IStaticTab {
   objectId?: string;
   /**
@@ -112,16 +132,25 @@ export interface IStaticTab {
   context?: ("personalTab" | "channelTab")[];
 }
 
+/**
+ * @deprecated Use auto-generated types from `./generated-types` instead.
+ */
 export interface ICommand {
   title: string;
   description: string;
 }
 
+/**
+ * @deprecated Use auto-generated types from `./generated-types` instead.
+ */
 export interface ICommandList {
   scopes: BotOrMeScopes;
   commands: ICommand[];
 }
 
+/**
+ * @deprecated Use auto-generated types from `./generated-types` instead.
+ */
 export interface IBot {
   /**
    * The Microsoft App ID specified for the bot in the Bot Framework portal (https://dev.botframework.com/bots)
@@ -157,6 +186,9 @@ export interface IBot {
   commandLists?: ICommandList[];
 }
 
+/**
+ * @deprecated Use auto-generated types from `./generated-types` instead.
+ */
 export interface IConnector {
   /**
    * A unique identifier for the connector which matches its ID in the Connectors Developer Portal.
@@ -172,6 +204,9 @@ export interface IConnector {
   scopes: "team"[];
 }
 
+/**
+ * @deprecated Use auto-generated types from `./generated-types` instead.
+ */
 export interface IWebApplicationInfo {
   /**
    * AAD application id of the app. This id must be a GUID.
@@ -184,8 +219,14 @@ export interface IWebApplicationInfo {
   applicationPermissions?: string[];
 }
 
+/**
+ * @deprecated Use auto-generated types from `./generated-types` instead.
+ */
 export type BotOrMeScopes = ("team" | "personal" | "groupchat" | "groupChat" | "copilot")[];
 
+/**
+ * @deprecated Use auto-generated types from `./generated-types` instead.
+ */
 export interface IComposeExtension {
   objectId?: string;
 
@@ -222,6 +263,9 @@ export interface IComposeExtension {
   authorization?: IAuthorization;
 }
 
+/**
+ * @deprecated Use auto-generated types from `./generated-types` instead.
+ */
 export interface IComposeExtensionMessageHandler {
   /**
    * Type of the message handler
@@ -237,6 +281,9 @@ export interface IComposeExtensionMessageHandler {
   };
 }
 
+/**
+ * @deprecated Use auto-generated types from `./generated-types` instead.
+ */
 export interface IMessagingExtensionCommand {
   /**
    * Id of the command.
@@ -276,6 +323,9 @@ export interface IMessagingExtensionCommand {
   apiResponseRenderingTemplateFile?: string;
 }
 
+/**
+ * @deprecated Use auto-generated types from `./generated-types` instead.
+ */
 export interface IAuthorization {
   /**
    * The type of authorization to use.
@@ -287,6 +337,9 @@ export interface IAuthorization {
   microsoftEntraConfiguration?: IMicrosoftEntraConfiguration;
 }
 
+/**
+ * @deprecated Use auto-generated types from `./generated-types` instead.
+ */
 export interface IMicrosoftEntraConfiguration {
   /**
    * Boolean indicating whether single sign on is configured for the app.
@@ -294,6 +347,9 @@ export interface IMicrosoftEntraConfiguration {
   supportsSingleSignOn?: boolean;
 }
 
+/**
+ * @deprecated Use auto-generated types from `./generated-types` instead.
+ */
 export interface IParameter {
   /**
    * Name of the parameter.
@@ -334,6 +390,9 @@ export interface IParameter {
   }[];
 }
 
+/**
+ * @deprecated Use auto-generated types from `./generated-types` instead.
+ */
 export interface ITaskInfo {
   /**
    * Initial dialog title
@@ -353,12 +412,18 @@ export interface ITaskInfo {
   url?: string;
 }
 
+/**
+ * @deprecated Use auto-generated types from `./generated-types` instead.
+ */
 export interface IActivityType {
   type: string;
   description: string;
   templateText: string;
 }
 
+/**
+ * @deprecated Use auto-generated types from `./generated-types` instead.
+ */
 export interface ILocalizationInfo {
   /**
    * The language tag of the strings in this top level manifest file.
@@ -374,11 +439,17 @@ export interface ILocalizationInfo {
   }[];
 }
 
+/**
+ * @deprecated Use auto-generated types from `./generated-types` instead.
+ */
 export interface IAppPermission {
   name: string;
   type: "Application" | "Delegated";
 }
 
+/**
+ * @deprecated Use auto-generated types from `./generated-types` instead.
+ */
 export interface ITogetherModeScene {
   id: string;
   name: string;
@@ -388,11 +459,17 @@ export interface ITogetherModeScene {
   seatsReservedForOrganizersOrPresenters: number;
 }
 
+/**
+ * @deprecated Use auto-generated types from `./generated-types` instead.
+ */
 export interface IPlugin {
   file: string;
   id: string;
 }
 
+/**
+ * @deprecated Use auto-generated types from `./generated-types` instead.
+ */
 export interface IDeclarativeCopilot {
   file: string;
   id: string;
@@ -401,8 +478,8 @@ export interface IDeclarativeCopilot {
 // export type AppManifest = Record<string, any>;
 
 /**
- * @deprecated
- * manifest definition according to : https://developer.microsoft.com/en-us/json-schemas/teams/v1.13/MicrosoftTeams.schema.json
+ * @deprecated Use `TeamsManifest` or version-specific types like `TeamsManifestV1D21` from `./generated-types` instead.
+ * This class-based manifest definition is outdated. The generated types provide accurate schemas for each manifest version.
  */
 export class TeamsAppManifest {
   $schema?: string =
