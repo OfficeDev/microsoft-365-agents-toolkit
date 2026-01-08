@@ -72,7 +72,7 @@ import AzureTokenProvider from "../../src/commonlib/azureLogin";
 import AzureTokenCIProvider from "../../src/commonlib/azureLoginCI";
 import { AzureSpCrypto } from "../../src/commonlib/cacheAccess";
 import { logger } from "../../src/commonlib/logger";
-import M365TokenProvider from "../../src/commonlib/m365Login";
+import M365TokenProvider from "../../src/commonlib/M365TokenProviderWrapper";
 import { MissingRequiredOptionError } from "../../src/error";
 import * as utils from "../../src/utils";
 
