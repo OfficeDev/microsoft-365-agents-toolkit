@@ -486,7 +486,6 @@ describe("updateActionWithMCP", () => {
           type: "RemoteMCPServer",
           spec: {
             url: mcpServerUrl,
-            enable_dynamic_discovery: false,
           },
           run_for_functions: ["oldTool"],
         },
@@ -494,7 +493,6 @@ describe("updateActionWithMCP", () => {
           type: "RemoteMCPServer",
           spec: {
             url: "https://other.com/mcp",
-            enable_dynamic_discovery: false,
           },
           run_for_functions: ["otherTool"],
         },
@@ -859,7 +857,6 @@ describe("updateActionWithMCP - Local MCP Support", () => {
           type: "RemoteMCPServer",
           spec: {
             url: "https://remote.example.com/mcp",
-            enable_dynamic_discovery: false,
           },
           run_for_functions: ["remoteTool"],
         },
