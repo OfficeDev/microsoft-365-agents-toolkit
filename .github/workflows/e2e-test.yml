@@ -224,11 +224,6 @@ jobs:
 
       - uses: pnpm/action-setup@v4
 
-      - name: Install libsecret
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libsecret-1-dev
-
       - name: Setup project
         run: |
           npm run setup:e2e
