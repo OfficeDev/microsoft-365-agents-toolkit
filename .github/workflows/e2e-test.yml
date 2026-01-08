@@ -81,11 +81,6 @@ jobs:
         with:
           range: "e2e"
 
-      - name: Install libsecret to enable keytar
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libsecret-1-dev
-
       - name: List cases for schedule or pull request
         id: schedule-cases
         if: ${{  github.event_name == 'schedule' }}

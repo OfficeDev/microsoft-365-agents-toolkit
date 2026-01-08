@@ -6,7 +6,6 @@
 import { SubscriptionClient } from "@azure/arm-subscriptions";
 import { AccessToken, GetTokenOptions, TokenCredential } from "@azure/core-auth";
 import { LogLevel, Configuration } from "@azure/msal-node";
-import { NativeBrokerPlugin } from "@azure/msal-node-extensions";
 import {
   AuthenticationWWWAuthenticateRequest,
   AzureAccountProvider,
@@ -89,9 +88,16 @@ function getConfig(tenantId?: string): Configuration {
   };
 
   if (featureFlagManager.getBooleanValue(FeatureFlags.BrokerAuth) && process.platform === "win32") {
-    config.broker = {
-      nativeBrokerPlugin: new NativeBrokerPlugin(),
-    };
+    try {
+      // Dynamically require to avoid loading @azure/msal-node-extensions on Linux
+      // where keytar (a dependency) requires libsecret to be installed
+      const { NativeBrokerPlugin } = require("@azure/msal-node-extensions");
+      config.broker = {
+        nativeBrokerPlugin: new NativeBrokerPlugin(),
+      };
+    } catch {
+      // NativeBrokerPlugin not available, ignore
+    }
   }
   return config;
 }
