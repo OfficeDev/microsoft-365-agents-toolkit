@@ -7,6 +7,7 @@ import Ajv2020 from "ajv/dist/2020";
 import fs from "fs-extra";
 import fetch from "node-fetch";
 import path from "path";
+import stripBom from "strip-bom";
 import * as DeclarativeAgentManifestV1D0 from "./copilot/declarative-agent/DeclarativeAgentManifestV1D0";
 import * as DeclarativeAgentManifestV1D2 from "./copilot/declarative-agent/DeclarativeAgentManifestV1D2";
 import * as DeclarativeAgentManifestV1D3 from "./copilot/declarative-agent/DeclarativeAgentManifestV1D3";
@@ -419,7 +420,9 @@ export class AppManifestUtils {
    */
   static async readTeamsManifest(filePath: string): Promise<TeamsManifest> {
     const jsonString = await fs.readFile(filePath, "utf8");
-    const manifest = TeamsManifestConverter.jsonToManifest(jsonString);
+    // Strip BOM to handle UTF-8 BOM encoded files
+    const cleanContent = stripBom(jsonString);
+    const manifest = TeamsManifestConverter.jsonToManifest(cleanContent);
     return manifest;
   }
 
@@ -447,7 +450,9 @@ export class AppManifestUtils {
    */
   static async readDeclarativeAgentManifest(filePath: string): Promise<DeclarativeAgentManifest> {
     const jsonString = await fs.readFile(filePath, "utf8");
-    const manifest = DeclarativeAgentManifestConverter.jsonToManifest(jsonString);
+    // Strip BOM to handle UTF-8 BOM encoded files
+    const cleanContent = stripBom(jsonString);
+    const manifest = DeclarativeAgentManifestConverter.jsonToManifest(cleanContent);
     return manifest;
   }
 
@@ -477,7 +482,9 @@ export class AppManifestUtils {
    */
   static async readApiPluginManifest(filePath: string): Promise<APIPluginManifest> {
     const jsonString = await fs.readFile(filePath, "utf8");
-    const manifest = ApiPluginManifestConverter.jsonToManifest(jsonString);
+    // Strip BOM to handle UTF-8 BOM encoded files
+    const cleanContent = stripBom(jsonString);
+    const manifest = ApiPluginManifestConverter.jsonToManifest(cleanContent);
     return manifest;
   }
 

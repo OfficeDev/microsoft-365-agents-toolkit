@@ -1,6 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
+/**
+ * @deprecated This interface is used internally for manifest property extraction.
+ * Consider using the auto-generated types from `./generated-types` for manifest definitions.
+ */
 export interface ManifestCommonProperties {
   /**
    * Capabilities, e.g. "staticTab" | "configurableTab" | "MessageExtension" | "WebApplicationInfo" | "plugin" | "copilotGpt"
