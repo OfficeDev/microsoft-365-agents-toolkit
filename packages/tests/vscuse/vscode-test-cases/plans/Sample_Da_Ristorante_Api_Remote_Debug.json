@@ -9,7 +9,7 @@
       "precondition_retry_interval": 2.0,
       "step_retry_timeout": 0.0
     },
-    "total_steps": 16,
+    "total_steps": 17,
     "created_at": "2026-01-08T01:44:05.966849",
     "name": "Sample Da Ristorante Api Remote Debug",
     "description": {
@@ -44,7 +44,7 @@
       "step_b86b1b11"
     ],
     "tags": [],
-    "updated_at": "2026-01-09T01:29:09.139181"
+    "updated_at": "2026-01-09T01:38:30.067944"
   },
   "steps": [
     {
@@ -66,7 +66,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_906d5a69",
-      "created_at": "2026-01-09T01:27:23.567452",
+      "created_at": "2026-01-09T01:38:00.614980",
       "plan_id": "plan_cbfdb837"
     },
     {
@@ -92,7 +92,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_fbde0084",
-      "created_at": "2026-01-09T01:27:23.576845",
+      "created_at": "2026-01-09T01:38:00.624695",
       "plan_id": "plan_cbfdb837"
     },
     {
@@ -112,7 +112,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": null,
-      "created_at": "2026-01-09T01:27:23.586249",
+      "created_at": "2026-01-09T01:38:00.637793",
       "plan_id": "plan_cbfdb837"
     },
     {
@@ -134,7 +134,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_172f7a9a",
-      "created_at": "2026-01-09T01:27:23.596768",
+      "created_at": "2026-01-09T01:38:00.648469",
       "plan_id": "plan_cbfdb837"
     },
     {
@@ -156,7 +156,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_476d4399",
-      "created_at": "2026-01-09T01:27:23.607733",
+      "created_at": "2026-01-09T01:38:00.665763",
       "plan_id": "plan_cbfdb837"
     },
     {
@@ -178,7 +178,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_59b6029b",
-      "created_at": "2026-01-09T01:27:23.617691",
+      "created_at": "2026-01-09T01:38:00.677529",
       "plan_id": "plan_cbfdb837"
     },
     {
@@ -200,7 +200,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_123d6f64",
-      "created_at": "2026-01-09T01:27:23.633512",
+      "created_at": "2026-01-09T01:38:00.689141",
       "plan_id": "plan_cbfdb837"
     },
     {
@@ -222,7 +222,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_36c8d306",
-      "created_at": "2026-01-09T01:27:23.642669",
+      "created_at": "2026-01-09T01:38:00.699329",
       "plan_id": "plan_cbfdb837"
     },
     {
@@ -248,7 +248,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_9d01e727",
-      "created_at": "2026-01-09T01:27:23.661132",
+      "created_at": "2026-01-09T01:38:00.709742",
       "plan_id": "plan_cbfdb837"
     },
     {
@@ -274,7 +274,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_e135b1dd",
-      "created_at": "2026-01-09T01:27:23.676646",
+      "created_at": "2026-01-09T01:38:00.718055",
       "plan_id": "plan_cbfdb837"
     },
     {
@@ -296,7 +296,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_14ed8d85",
-      "created_at": "2026-01-09T01:27:23.689809",
+      "created_at": "2026-01-09T01:38:00.727685",
       "plan_id": "plan_cbfdb837"
     },
     {
@@ -324,7 +324,7 @@
         "delay: 30"
       ],
       "screenshot": "step_8af6f541",
-      "created_at": "2026-01-09T01:27:23.701184",
+      "created_at": "2026-01-09T01:38:00.735212",
       "plan_id": "plan_cbfdb837"
     },
     {
@@ -346,7 +346,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_74a001d3",
-      "created_at": "2026-01-09T01:27:23.714622",
+      "created_at": "2026-01-09T01:38:00.743411",
       "plan_id": "plan_cbfdb837"
     },
     {
@@ -368,7 +368,36 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_88524055",
-      "created_at": "2026-01-09T01:27:23.727483",
+      "created_at": "2026-01-09T01:38:00.752090",
+      "plan_id": "plan_cbfdb837"
+    },
+    {
+      "step_id": "step_b8504d66",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 341,
+        "y": 375
+      },
+      "description": "Click the \"Allow\" button in the permission prompt for connecting to the Il Ristorante agent within the Chat | M365 Copilot web interface.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:341:375:16:5:2a91a54a2eb6b664",
+        "dhash:341:375:96:5:4a66214454190040",
+        "dhash:341:375:0:10:11b4a19b98e0f8f6"
+      ],
+      "postconditions": [],
+      "tags": [
+        "force_run",
+        "delay: 30"
+      ],
+      "screenshot": "step_b8504d66",
+      "created_at": "2026-01-09T01:38:00.770916",
       "plan_id": "plan_cbfdb837"
     },
     {
@@ -396,35 +425,7 @@
         "force_run"
       ],
       "screenshot": "step_b8504d65",
-      "created_at": "2026-01-09T01:27:23.737179",
-      "plan_id": "plan_cbfdb837"
-    },
-    {
-      "step_id": "step_b8504d66",
-      "agent": "interaction",
-      "tool": "click",
-      "parameters": {
-        "button": "left",
-        "x": 341,
-        "y": 375
-      },
-      "description": "Click the \"Allow\" button in the permission prompt for connecting to the Il Ristorante agent within the Chat | M365 Copilot web interface.",
-      "content_refs": [],
-      "timeout": 30,
-      "retry_count": 0,
-      "continue_on_error": "false",
-      "depends_on": [],
-      "preconditions": [
-        "dhash:341:375:16:5:2a91a54a2eb6b664",
-        "dhash:341:375:96:5:4a66214454190040",
-        "dhash:341:375:0:10:11b4a19b98e0f8f6"
-      ],
-      "postconditions": [],
-      "tags": [
-        "force_run"
-      ],
-      "screenshot": "step_b8504d66",
-      "created_at": "2026-01-09T01:27:23.737179",
+      "created_at": "2026-01-09T01:38:00.761223",
       "plan_id": "plan_cbfdb837"
     },
     {
@@ -444,7 +445,7 @@
         "delay: 30"
       ],
       "screenshot": null,
-      "created_at": "2026-01-09T01:27:23.747828",
+      "created_at": "2026-01-09T01:38:00.782046",
       "plan_id": "plan_cbfdb837"
     }
   ],
