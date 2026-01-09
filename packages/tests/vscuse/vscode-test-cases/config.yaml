@@ -30,6 +30,9 @@ docker:
     AZURE_OPENAI_EMBEDDING_DEPLOYMENT_NAME: "${AZURE_OPENAI_EMBEDDING_DEPLOYMENT_NAME}"
     REDDIT_ID: "${REDDIT_ID}"
     SECRET_REDDIT_PASSWORD: ${SECRET_REDDIT_PASSWORD}
+    # Foundry related parameters
+    AZURE_AI_FOUNDRY_PROJECT_ENDPOINT: "${AZURE_AI_FOUNDRY_PROJECT_ENDPOINT}"
+    AGENT_ID: "${AGENT_ID}"
 
 execution:
   delay_between_steps: 0.5         # Default: 0.5 (seconds between steps)
