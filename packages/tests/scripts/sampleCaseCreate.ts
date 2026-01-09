@@ -15,7 +15,6 @@ const windows_22 = [
 ];
 const ubuntu_22 = [
   "sample-todo-list-sql",
-  "sample-large-scale-notification",
   "sample-bot-sso-docker",
   "sample-hello-world-tab-docker",
   "sample-todo-list-with-m365",
@@ -24,7 +23,6 @@ const ubuntu_22 = [
   "sample-todo-list-with-spfx",
   "sample-spfx-productivity-dashboard",
   "sample-react-retail-dashboard",
-  "sample-reddit-link",
   "sample-proactive-message",
   // "sample-share-now", //share now sql resource will casue security issue temporarily disabled
 ];
