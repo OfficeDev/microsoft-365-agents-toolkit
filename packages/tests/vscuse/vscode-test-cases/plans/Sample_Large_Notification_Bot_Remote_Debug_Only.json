@@ -36,7 +36,7 @@
       "step_45b495f7"
     ],
     "tags": [],
-    "updated_at": "2026-01-09T07:18:40.527316"
+    "updated_at": "2026-01-09T07:55:49.399104"
   },
   "steps": [
     {
@@ -58,7 +58,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_29f48ee0",
-      "created_at": "2026-01-09T07:07:25.100165",
+      "created_at": "2026-01-09T07:39:43.186520",
       "plan_id": "plan_e30a572c"
     },
     {
@@ -84,7 +84,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_5a7363fb",
-      "created_at": "2026-01-09T07:07:25.113724",
+      "created_at": "2026-01-09T07:39:43.202040",
       "plan_id": "plan_e30a572c"
     },
     {
@@ -110,7 +110,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_951f50d1",
-      "created_at": "2026-01-09T07:18:40.465107",
+      "created_at": "2026-01-09T07:39:43.216704",
       "plan_id": "plan_e30a572c"
     },
     {
@@ -136,7 +136,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_14e2e15d",
-      "created_at": "2026-01-09T07:18:40.482155",
+      "created_at": "2026-01-09T07:39:43.228780",
       "plan_id": "plan_e30a572c"
     },
     {
@@ -162,7 +162,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_c0706f3e",
-      "created_at": "2026-01-09T07:18:40.495532",
+      "created_at": "2026-01-09T07:39:43.237750",
       "plan_id": "plan_e30a572c"
     },
     {
@@ -188,7 +188,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_17643f1e",
-      "created_at": "2026-01-09T07:18:40.510935",
+      "created_at": "2026-01-09T07:39:43.248517",
       "plan_id": "plan_e30a572c"
     },
     {
@@ -196,7 +196,7 @@
       "agent": "code",
       "tool": "",
       "parameters": {},
-      "description": "@code send request to \"https://notification6a3def.azurewebsites.net/api/notification\"",
+      "description": "@code get the BOT_FUNCTION_ENDPOINT value in file: \"/home/vscode/AgentsToolkitProjects/${{var:app_name}}/env/.env.dev\".\n send request to \"BOT_FUNCTION_ENDPOINT/api/notification\"",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -206,7 +206,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": null,
-      "created_at": "2026-01-09T07:07:25.127349",
+      "created_at": "2026-01-09T07:39:43.259616",
       "plan_id": "plan_e30a572c"
     },
     {
@@ -224,7 +224,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": null,
-      "created_at": "2026-01-09T07:07:25.139097",
+      "created_at": "2026-01-09T07:39:43.269861",
       "plan_id": "plan_e30a572c"
     }
   ],
