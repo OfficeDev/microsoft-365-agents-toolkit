@@ -96,7 +96,7 @@
             "type": "teamsfx",
             "command": "launch-desktop-client",
             "args": {
-                "url": "teams.microsoft.com/l/app/${{local:TEAMS_APP_ID}}?installAppPackage=true"
+                "url": "teams.microsoft.com/l/app/$\{{local:TEAMS_APP_ID}}?installAppPackage=true"
             }
         }
     ]
