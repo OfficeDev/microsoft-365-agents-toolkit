@@ -37,5 +37,5 @@ export const programmingLanguageOption: CLICommandOption = {
   type: "string",
   required: true,
   default: "typescript",
-  choices: ["typescript"],
+  choices: ["typescript", "python"],
 };

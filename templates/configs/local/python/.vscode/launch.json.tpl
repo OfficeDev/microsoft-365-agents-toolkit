@@ -5,7 +5,7 @@
             "name": "Launch App in Teams (Edge)",
             "type": "msedge",
             "request": "launch",
-            "url": "https://teams.microsoft.com/l/app/$\{{local:TEAMS_APP_ID\}}?installAppPackage=true&webjoin=true&$\{{account-hint\}}",
+            "url": "https://teams.microsoft.com/l/app/$\{{local:TEAMS_APP_ID}}?installAppPackage=true&webjoin=true&${account-hint}",
             "presentation": {
                 "group": "all",
                 "hidden": true
@@ -16,7 +16,7 @@
             "name": "Launch App in Teams (Chrome)",
             "type": "chrome",
             "request": "launch",
-            "url": "https://teams.microsoft.com/l/app/$\{{local:TEAMS_APP_ID\}}?installAppPackage=true&webjoin=true&$\{{account-hint\}}",
+            "url": "https://teams.microsoft.com/l/app/$\{{local:TEAMS_APP_ID}}?installAppPackage=true&webjoin=true&${account-hint}",
             "presentation": {
                 "group": "all",
                 "hidden": true

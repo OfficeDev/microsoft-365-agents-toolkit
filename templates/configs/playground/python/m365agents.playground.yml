@@ -12,9 +12,3 @@ deploy:
         symlinkDir: ./devTools/playground
       nodejs:
         symlinkDir: ./devTools/nodejs
-
-  - uses: file/createOrUpdateEnvironmentFile
-    with:
-      target: ./.localConfigs.playground
-      envs:
-        PORT: 3978

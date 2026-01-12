@@ -14,6 +14,7 @@ provision:
     writeToEnvironmentFile:
       teamsAppId: TEAMS_APP_ID
 
+{{^hasAzureBot}}
 {{#hasTab}}
   # Set BOT_DOMAIN and BOT_ENDPOINT for local launch
   - uses: script
@@ -22,6 +23,7 @@ provision:
         echo "::set-teamsfx-env BOT_DOMAIN=localhost";
         echo "::set-teamsfx-env BOT_ENDPOINT=https://localhost:3978";
 {{/hasTab}}
+{{/hasAzureBot}}
 
 {{#hasAzureBot}}
   # Create or reuse an existing Microsoft Entra application for bot.

@@ -75,7 +75,29 @@ export class ConfigGenerator {
         component.name,
         component.programmingLanguage
       );
-      await this.generateConfigFilesByPolicy(sourcePath, destinationPath, policy, features);
+      await context.userInteraction.showMessage(
+        "info",
+        `Processing ${component.name} (${component.programmingLanguage})...`,
+        false
+      );
+      const changes = await this.generateConfigFilesByPolicy(
+        sourcePath,
+        destinationPath,
+        policy,
+        features
+      );
+
+      // Show what files were changed
+      for (const change of changes) {
+        const action =
+          change.action === "added"
+            ? "Added"
+            : change.action === "modified"
+            ? "Modified"
+            : "Skipped";
+        await context.userInteraction.showMessage("info", `  ${action}: ${change.file}`, false);
+      }
+
       successComponents.push(policyKey);
     }
 
@@ -142,7 +164,9 @@ export class ConfigGenerator {
     destinationPath: string,
     policy: Record<string, CopyPolicy>,
     features: Record<string, unknown>
-  ): Promise<void> {
+  ): Promise<Array<{ file: string; action: "added" | "modified" | "skipped" }>> {
+    const changes: Array<{ file: string; action: "added" | "modified" | "skipped" }> = [];
+
     for (const [filePath, copyPolicy] of Object.entries(policy)) {
       const isTemplate = filePath.endsWith(".tpl");
       let srcFilePath = path.join(sourcePath, filePath);
@@ -164,14 +188,20 @@ export class ConfigGenerator {
       try {
         // Handle existing files
         const fileExists = await fs.pathExists(destFilePath);
+        const relativeFilePath = path.relative(destinationPath, destFilePath);
+
         if (fileExists) {
           if (copyPolicy.policy === "add" && fileExtension === ".json") {
             await mergeJsonFile(srcFilePath, destFilePath);
+            changes.push({ file: relativeFilePath, action: "modified" });
+          } else {
+            // For "skip" or non-JSON files, do nothing
+            changes.push({ file: relativeFilePath, action: "skipped" });
           }
-          // For "skip" or non-JSON files, do nothing
         } else {
           // If the file does not exist, just copy it.
           await fs.copy(srcFilePath, destFilePath);
+          changes.push({ file: relativeFilePath, action: "added" });
         }
       } finally {
         // Clean up rendered temp file
@@ -180,6 +210,8 @@ export class ConfigGenerator {
         }
       }
     }
+
+    return changes;
   }
 }
 

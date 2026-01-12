@@ -107,7 +107,7 @@ deploy:
   # Generate runtime environment variables
   - uses: file/createOrUpdateEnvironmentFile
     with:
-      target: ./.localConfigs
+      target: ./.env
       envs:
         PORT: 3978
 {{#hasAzureBot}}

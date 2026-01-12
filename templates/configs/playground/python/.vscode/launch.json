@@ -18,7 +18,7 @@
                 "start"
             ],
             "env": {
-            "PATH": "${workspaceFolder}/devTools/nodejs{{pathDelimiter}}${env:PATH}"
+            "PATH": "${workspaceFolder}/devTools/nodejs;${env:PATH}"
             },
             "cwd": "${workspaceFolder}",
             "console": "integratedTerminal",
