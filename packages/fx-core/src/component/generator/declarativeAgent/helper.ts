@@ -438,7 +438,6 @@ export async function generateForMCPForDA(
         type: "RemoteMCPServer",
         spec: {
           url: mcpServerUrl,
-          enable_dynamic_discovery: false,
         },
         run_for_functions: aiPluginContent.functions.map((func: any) => func.name),
       },

@@ -1003,7 +1003,6 @@ describe("helper", async () => {
       assert.equal(writtenContent.runtimes.length, 1);
       assert.equal(writtenContent.runtimes[0].type, "RemoteMCPServer");
       assert.equal(writtenContent.runtimes[0].spec.url, "https://example.com/mcp");
-      assert.equal(writtenContent.runtimes[0].spec.enable_dynamic_discovery, false);
       assert.deepEqual(writtenContent.runtimes[0].run_for_functions, ["tool1", "tool2"]);
       assert.isUndefined(writtenContent.runtimes[0].auth);
     });
