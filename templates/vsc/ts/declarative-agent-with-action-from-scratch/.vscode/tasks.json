@@ -22,7 +22,7 @@
             "args": {
                 "prerequisites": [
                     "nodejs",
-                    "m365Account",
+                    "copilotAccess",
                     "portOccupancy"
                 ],
                 "portOccupancy": [
