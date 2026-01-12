@@ -53,7 +53,7 @@ describe("ConfigGenerator", () => {
     await fs.ensureDir(path.join(localTs, ".vscode"));
     await fs.ensureDir(path.join(localTs, "env"));
     await fs.writeFile(path.join(localTs, "package.json"), '{"fromTemplate":true,"arr":[1,2]}');
-    await fs.writeFile(path.join(localTs, ".vscode", "launch.json"), '{"version":"0.2.0"}');
+    await fs.writeFile(path.join(localTs, ".vscode", "launch.json.tpl"), '{"version":"0.2.0"}');
     await fs.writeFile(
       path.join(localTs, ".vscode", "tasks.json.tpl"),
       '{"tasks":[{"label":"build"}]}'
@@ -123,7 +123,7 @@ describe("ConfigGenerator", () => {
     const localTs = path.join(templatesRoot, "configs", "local", "typescript");
     await fs.ensureDir(path.join(localTs, ".vscode"));
     await fs.writeFile(path.join(localTs, "package.json"), '{"fromTemplate":true}');
-    await fs.writeFile(path.join(localTs, ".vscode", "launch.json"), "{}");
+    await fs.writeFile(path.join(localTs, ".vscode", "launch.json.tpl"), "{}");
     await fs.writeFile(path.join(localTs, ".vscode", "tasks.json.tpl"), "{}");
     await fs.writeFile(path.join(localTs, "m365agents.local.yml.tpl"), "version: 1.0.0\n");
 

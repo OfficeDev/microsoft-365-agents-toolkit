@@ -181,7 +181,7 @@ export class ConfigGenerator {
       if (isTemplate) {
         renderedFilePath = destFilePath + ".rendered";
         const renderedContent = renderTemplate(srcFilePath, features);
-        await fs.writeFile(renderedFilePath, renderedContent, "utf-8");
+        await fs.outputFile(renderedFilePath, renderedContent, "utf-8");
         srcFilePath = renderedFilePath;
       }
 
