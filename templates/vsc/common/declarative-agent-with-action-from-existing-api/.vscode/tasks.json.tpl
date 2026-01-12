@@ -18,7 +18,7 @@
             "command": "debug-check-prerequisites",
             "args": {
                 "prerequisites": [
-                    "m365Account"
+                    "copilotAccess"
                 ]
             }
         },
