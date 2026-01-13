@@ -39,11 +39,11 @@ import {
 
 export const TEN_MEGA_BYTE = 1024 * 1024 * 10;
 export {
+  editDotEnvFile,
   execAsync,
   execAsyncWithRetry,
-  editDotEnvFile,
-  getProvisionParameterValueByKey,
   getActivePluginsFromProjectSetting,
+  getProvisionParameterValueByKey,
 } from "../commonlib";
 
 const testFolder = path.resolve(os.homedir(), "test-folder");
@@ -730,7 +730,7 @@ export function removeTeamsAppExtendToM365(filePath: string) {
       if (
         action.commentBefore &&
         action.commentBefore?.includes(
-          "Extend your Teams app to Outlook and the Microsoft 365 app"
+          "Extend your app to Outlook and the Microsoft 365 app"
         )
       ) {
         provisionStage.delete(i);
