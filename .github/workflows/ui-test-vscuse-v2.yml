@@ -12,11 +12,11 @@ on:
         type: boolean
         default: false
       image_tag:
-        description: "Docker image tag to use"
+        description: "Docker image tag to use (e.g., 'latest', 'CY251212stable')"
         required: true
         default: "latest"
       vscuse_version:
-        description: "vscuse Python package version to use (e.g., 'latest', 'v0.2.47')"
+        description: "VSCUSE Python package version to use (e.g., 'latest', 'v0.2.47')"
         required: false
         type: string
         default: "latest"
