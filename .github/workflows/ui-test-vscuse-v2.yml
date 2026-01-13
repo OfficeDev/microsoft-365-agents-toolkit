@@ -15,6 +15,11 @@ on:
         description: "Docker image tag to use"
         required: true
         default: "latest"
+      vscuse_version:
+        description: "vscuse Python package version to use (e.g., 'latest', 'v0.2.47')"
+        required: false
+        type: string
+        default: "latest"
       email-receiver:
         description: "email notification receiver"
         required: false
@@ -186,7 +191,7 @@ jobs:
 
 
       - name: Run download script
-        run: node download-vscuse-python.js "latest" "${{ github.workspace }}/packages/tests/vscuse/vscode-test-cases"
+        run: node download-vscuse-python.js "${{ github.event.inputs.vscuse_version || 'latest' }}" "${{ github.workspace }}/packages/tests/vscuse/vscode-test-cases"
         shell: bash
         working-directory: .github/actions/setup-vscuse-environment
 
