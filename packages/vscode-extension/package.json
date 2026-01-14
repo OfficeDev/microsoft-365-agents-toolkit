@@ -1862,6 +1862,16 @@
     "configuration": {
       "title": "Microsoft 365 Agents Toolkit",
       "properties": {
+        "M365AgentsToolkit.sovereignCloudEnvironment": {
+          "type": "string",
+          "enum": [
+            "GCC M",
+            "GCC High",
+            "DOD"
+          ],
+          "default": "",
+          "markdownDescription": "Set the sovereign cloud environment for Microsoft 365 Agents Toolkit. This along with setting `#microsoft-sovereign-cloud.environment#` to `USGovernment` is required to use this feature. The default value is ``. The available values are `GCC M`, `GCC High`, and `DOD`."
+        },
         "M365AgentsToolkit.logLevel": {
           "type": "string",
           "enum": [

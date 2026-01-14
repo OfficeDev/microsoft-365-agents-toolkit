@@ -31,6 +31,9 @@ export class FeatureFlagName {
   static readonly BrokerAuth = "TEAMSFX_BROKER_AUTH";
   // Add config files to existing project to make it toolkit compatible
   static readonly GenerateConfigFiles = "TEAMSFX_GENERATE_CONFIG_FILES";
+
+  // Permanent feature flag for sovereign cloud environment setting
+  static readonly SovereignCloudEnvironment = "TEAMSFX_SOVEREIGN_CLOUD_ENVIRONMENT";
 }
 
 export interface FeatureFlag {
@@ -107,6 +110,10 @@ export class FeatureFlags {
   static readonly GenerateConfigFiles = {
     name: FeatureFlagName.GenerateConfigFiles,
     defaultValue: "false",
+  };
+  static readonly SovereignCloudEnvironment = {
+    name: FeatureFlagName.SovereignCloudEnvironment,
+    defaultValue: "",
   };
 }
 
