@@ -56,7 +56,7 @@
       "step_568e9dff"
     ],
     "tags": [],
-    "updated_at": "2026-01-14T04:01:42.910178"
+    "updated_at": "2026-01-14T06:45:23.634165"
   },
   "steps": [
     {
@@ -187,7 +187,9 @@
       "step_id": "step_e42e6e6c",
       "agent": "code",
       "tool": "",
-      "parameters": {},
+      "parameters": {
+        "sample": "=== Generated Script ===\nLanguage: python\n\n```python\nimport json\nimport os\n\nmanifest_path = '/home/vscode/AgentsToolkitProjects/vscuse_app_ve3aC/appPackage/manifest.json'\nnew_version = '2.0.0'\n\nif not os.path.exists(manifest_path):\n    print(f\"ERROR: File {manifest_path} does not exist.\")\n    exit(1)\n\nwith open(manifest_path, 'r', encoding='utf-8') as file:\n    data = json.load(file)\n\ndata['version'] = new_version\n\nwith open(manifest_path, 'w', encoding='utf-8') as file:\n    json.dump(data, file, indent=4)\n\nprint(f\"Set 'version' to '{new_version}' in the manifest.json file.\")\n```\n\n=== Execution Results ===\nExit Code: 0\n\n=== STDOUT ===\nSet 'version' to '2.0.0' in the manifest.json file.\n\n✓ Script executed successfully"
+      },
       "description": "@code open file #text:/home/vscode/AgentsToolkitProjects/${{var:app_name}}/appPackage/manifest.json, set value for \\\"version\\\" to a new value \\\"2.0.0\\\"",
       "content_refs": [],
       "timeout": 30,
