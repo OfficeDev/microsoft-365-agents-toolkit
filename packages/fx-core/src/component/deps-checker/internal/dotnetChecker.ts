@@ -309,11 +309,9 @@ export class DotnetChecker implements DepsChecker {
         )} ${Messages.dotnetInstallErrorCode()}, ` +
         `command = '${command.join(" ")}', options = '${JSON.stringify(
           options
-          // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-        )}', error = '${error}', stdout = '${error.stdout}', stderr = '${
-          // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+        )}', error = '${String(error)}', stdout = '${String(error.stdout)}', stderr = '${String(
           error.stderr
-        }', timecost = '${timecost}s'`;
+        )}', timecost = '${timecost}s'`;
 
       this._telemetry.sendSystemErrorEvent(
         DepsCheckerEvent.dotnetInstallScriptError,
