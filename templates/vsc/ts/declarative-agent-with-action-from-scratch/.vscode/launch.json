@@ -86,7 +86,7 @@
         {
             "name": "Debug in Copilot (Edge)",
             "configurations": [
-                "Launch Agent in Teams (Edge)",
+                "Launch Agent in Copilot (Edge)",
                 "Attach to Backend"
             ],
             "preLaunchTask": "Start Agent Locally",
@@ -99,7 +99,7 @@
         {
             "name": "Debug in Copilot (Chrome)",
             "configurations": [
-                "Launch Agent in Teams (Chrome)",
+                "Launch Agent in Copilot (Chrome)",
                 "Attach to Backend"
             ],
             "preLaunchTask": "Start Agent Locally",
