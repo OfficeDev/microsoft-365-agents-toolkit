@@ -2,8 +2,6 @@
 // Licensed under the MIT license.
 /* eslint-disable @typescript-eslint/no-empty-function */
 
-/* eslint-disable @typescript-eslint/no-empty-function */
-
 "use strict";
 
 import type { TokenCredential } from "@azure/core-auth";
@@ -36,13 +34,7 @@ import {
   TelemetryErrorType,
 } from "../telemetry/extTelemetryEvents";
 import { VS_CODE_UI } from "../qm/vsc_ui";
-import {
-  AzureScopes,
-  featureFlagManager,
-  FeatureFlags,
-  globalStateGet,
-  globalStateUpdate,
-} from "@microsoft/teamsfx-core";
+import { AzureScopes, globalStateGet, globalStateUpdate } from "@microsoft/teamsfx-core";
 import { getDefaultString, localize } from "../utils/localizeUtils";
 import {
   Microsoft,

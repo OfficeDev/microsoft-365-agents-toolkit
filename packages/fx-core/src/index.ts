@@ -32,6 +32,11 @@ export {
   FeatureFlags,
   isFeatureFlagEnabled,
 } from "./common/featureFlags";
+export {
+  getEntraEndpoint,
+  getDefaultAuthorityUrl,
+  getTenantedAuthorityUrl,
+} from "./common/accountUtils";
 export { globalStateGet, globalStateUpdate } from "./common/globalState";
 export { AadSet } from "./common/globalVars";
 export { getDefaultString, getLocalizedString } from "./common/localizeUtils";

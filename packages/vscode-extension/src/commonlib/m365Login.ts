@@ -37,7 +37,12 @@ import {
   TelemetrySuccess,
 } from "../telemetry/extTelemetryEvents";
 import { getDefaultString, localize } from "../utils/localizeUtils";
-import { AppStudioScopes, featureFlagManager, FeatureFlags } from "@microsoft/teamsfx-core";
+import {
+  AppStudioScopes,
+  featureFlagManager,
+  FeatureFlags,
+  getDefaultAuthorityUrl,
+} from "@microsoft/teamsfx-core";
 
 const SERVER_PORT = 0;
 const cachePlugin = new CryptoCachePlugin(m365CacheName);
@@ -45,7 +50,8 @@ const cachePlugin = new CryptoCachePlugin(m365CacheName);
 const config = {
   auth: {
     clientId: "7ea7c24c-b1f6-4a20-9d11-9ae12e9e7ac0",
-    authority: "https://login.microsoftonline.com/common",
+    authority: getDefaultAuthorityUrl(),
+    redirectUri: "http://localhost",
   },
   broker: {
     nativeBrokerPlugin:
