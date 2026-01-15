@@ -200,6 +200,7 @@ export class ConfigGenerator {
           }
         } else {
           // If the file does not exist, just copy it.
+          await fs.ensureDir(path.dirname(destFilePath));
           await fs.copy(srcFilePath, destFilePath);
           changes.push({ file: relativeFilePath, action: "added" });
         }

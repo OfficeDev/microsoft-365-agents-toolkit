@@ -30,7 +30,7 @@
                     "portOccupancy" // Validate available ports to ensure those debug ones are not occupied.
                 ],
                 "portOccupancy": [
-                    3978, // tab service port,
+                    3978, // app port,
                     9239 // app inspector port for Node.js debugger
                 ]
             }
