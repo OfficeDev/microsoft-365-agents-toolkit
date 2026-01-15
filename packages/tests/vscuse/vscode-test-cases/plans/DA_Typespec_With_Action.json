@@ -421,7 +421,7 @@
       "tool": "click",
       "parameters": {
         "button": "left",
-        "x": 366,
+        "x": 329,
         "y": 358
       },
       "description": "Click the \"Always\" permission button below the GitHub connection prompt in the M365 Copilot chat interface to allow ongoing access.",

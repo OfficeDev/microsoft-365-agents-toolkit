@@ -10,14 +10,14 @@
       "step_retry_count": 0
     },
     "total_steps": 12,
-    "created_at": "2026-01-07T05:45:39.628040",
+    "created_at": "2026-01-14T23:52:29.782030",
     "name": "Basic Tab Local Debug",
     "description": {
       "other": "",
       "owner": "v-ivanchen@microsoft.com",
       "workitem": "15276946,15455338,12615302"
     },
-    "generated_at": "2026-01-07T05:45:39.628040",
+    "generated_at": "2026-01-14T23:52:29.782030",
     "execution_order": [
       "plan_r_0928_012254",
       "step_2f7da668",
@@ -38,7 +38,7 @@
       "plan_4e62cb35"
     ],
     "tags": [],
-    "updated_at": "2026-01-07T05:58:16.912386"
+    "updated_at": "2026-01-14T23:55:32.454050"
   },
   "steps": [
     {
@@ -64,7 +64,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_2f7da668",
-      "created_at": "2026-01-07T05:51:10.813855",
+      "created_at": "2026-01-14T23:52:29.798506",
       "plan_id": "plan_17f090b5"
     },
     {
@@ -90,7 +90,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_22fed58e",
-      "created_at": "2026-01-07T05:51:10.826107",
+      "created_at": "2026-01-14T23:52:29.815894",
       "plan_id": "plan_17f090b5"
     },
     {
@@ -116,7 +116,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_5e22e913",
-      "created_at": "2026-01-07T05:51:10.839729",
+      "created_at": "2026-01-14T23:52:29.830884",
       "plan_id": "plan_17f090b5"
     },
     {
@@ -142,7 +142,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_09a396bb",
-      "created_at": "2026-01-07T05:51:10.852312",
+      "created_at": "2026-01-14T23:52:29.843886",
       "plan_id": "plan_17f090b5"
     },
     {
@@ -164,7 +164,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_a4dcba4a",
-      "created_at": "2026-01-07T05:54:48.126000",
+      "created_at": "2026-01-14T23:52:29.859172",
       "plan_id": "plan_17f090b5"
     },
     {
@@ -172,7 +172,7 @@
       "agent": "assertion",
       "tool": "",
       "parameters": {},
-      "description": "@assertion there's message tell the app name is not available.",
+      "description": "@assertion there's message \"App name needs to begin with letters, include minimum two letters or digits, and exclude certain special chararcters.\"",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -182,7 +182,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": null,
-      "created_at": "2026-01-07T05:55:40.378516",
+      "created_at": "2026-01-14T23:52:29.874022",
       "plan_id": "plan_17f090b5"
     },
     {
@@ -208,7 +208,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_0309849c",
-      "created_at": "2026-01-07T05:57:13.101481",
+      "created_at": "2026-01-14T23:52:29.888623",
       "plan_id": "plan_17f090b5"
     },
     {
@@ -234,7 +234,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_d47c34a8",
-      "created_at": "2026-01-07T05:57:13.113029",
+      "created_at": "2026-01-14T23:52:29.903043",
       "plan_id": "plan_17f090b5"
     },
     {
@@ -256,7 +256,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_c33fa69e",
-      "created_at": "2026-01-07T05:57:13.125097",
+      "created_at": "2026-01-14T23:52:29.918445",
       "plan_id": "plan_17f090b5"
     },
     {
@@ -274,7 +274,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": null,
-      "created_at": "2026-01-07T05:57:46.750707",
+      "created_at": "2026-01-14T23:52:29.932855",
       "plan_id": "plan_17f090b5"
     },
     {
@@ -300,7 +300,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_522c5d3e",
-      "created_at": "2026-01-07T05:58:16.882634",
+      "created_at": "2026-01-14T23:52:29.947184",
       "plan_id": "plan_17f090b5"
     },
     {
@@ -326,7 +326,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_a54b5be4",
-      "created_at": "2026-01-07T05:58:16.898621",
+      "created_at": "2026-01-14T23:52:29.960178",
       "plan_id": "plan_17f090b5"
     }
   ],
