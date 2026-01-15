@@ -12,7 +12,7 @@
     "rootDir": "src",
     "resolveJsonModule": true,
     "skipLibCheck": true,
-    "strict": true /* enable all strict type-checking options */,
+    "strict": true,
     "jsx": "react",
     "noEmitOnError": true,
     "useUnknownInCatchVariables": false,

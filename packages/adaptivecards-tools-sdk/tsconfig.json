@@ -24,8 +24,8 @@
     "importHelpers": true,
     "strict": true,
     "alwaysStrict": true,
-    "noUnusedLocals": false, // TODO: temporarily disabled
-    "noUnusedParameters": false, // TODO: temporarily disabled
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "forceConsistentCasingInFileNames": true,

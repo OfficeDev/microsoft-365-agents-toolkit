@@ -9,7 +9,7 @@
     "sourceMap": true,
     "skipLibCheck": true,
     "rootDir": "src",
-    "strict": true, /* enable all strict type-checking options */
+    "strict": true,
     "resolveJsonModule": true
   },
   "include": ["src"],
