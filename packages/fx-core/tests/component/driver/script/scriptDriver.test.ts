@@ -6,7 +6,6 @@ import { assert } from "chai";
 import child_process from "child_process";
 import fs from "fs-extra";
 import "mocha";
-import mockedEnv, { RestoreFn } from "mocked-env";
 import os from "os";
 import * as sinon from "sinon";
 import * as tools from "../../../../src/common/utils";
@@ -20,14 +19,14 @@ import {
 } from "../../../../src/component/driver/script/scriptDriver";
 import * as charsetUtils from "../../../../src/component/utils/charsetUtils";
 import { DefaultEncoding, getSystemEncoding } from "../../../../src/component/utils/charsetUtils";
+import { UserCancelError } from "../../../../src/error";
 import { ScriptExecutionError, ScriptTimeoutError } from "../../../../src/error/script";
 import {
+  MockedAzureAccountProvider,
   MockLogProvider,
   MockUserInteraction,
-  MockedAzureAccountProvider,
 } from "../../../core/utils";
 import { TestLogProvider } from "../../util/logProviderMock";
-import { UserCancelError } from "../../../../src/error";
 
 describe("Script Driver test", () => {
   const sandbox = sinon.createSandbox();
@@ -125,7 +124,7 @@ describe("Script Driver test", () => {
       } as IProgressHandler,
       projectPath: "./",
     } as any;
-    sandbox.stub(ui, "runCommand").resolves(ok(""));
+    sandbox.stub(ui, "runCommand").resolves(ok("::set-output MY_KEY=MY_VALUE"));
     const res = await scriptDriver.execute(args, context);
     assert.isTrue(res.result.isOk());
     if (res.result.isOk()) {
@@ -222,7 +221,7 @@ describe("executeCommand", () => {
     assert.isTrue(res.isErr());
   });
   it("call ui.runCommand with output", async () => {
-    sandbox.stub(ui, "runCommand").resolves(ok(""));
+    sandbox.stub(ui, "runCommand").resolves(ok("::set-teamsfx-env MY_KEY=MY_VALUE"));
     sandbox.stub(child_process, "exec").returns({} as any);
     const res = await executeCommand(
       "echo '::set-teamsfx-env MY_KEY=MY_VALUE'",
