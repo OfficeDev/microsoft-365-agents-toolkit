@@ -9,14 +9,14 @@
       "precondition_retry_interval": 2
     },
     "total_steps": 5,
-    "created_at": "2026-01-13T03:13:12.809207",
+    "created_at": "2026-01-15T00:58:18.224312",
     "name": "group  validation DA repair need login",
     "description": {
       "other": "Generated from recording r_0928_091745",
       "owner": "v-helzha@microsoft.com",
       "workitem": ""
     },
-    "generated_at": "2026-01-13T03:13:12.809207",
+    "generated_at": "2026-01-15T00:58:18.224312",
     "execution_order": [
       "step_de02f0f3",
       "step_f0f9c695",
@@ -27,7 +27,7 @@
     "tags": [
       "group"
     ],
-    "updated_at": "2026-01-13T03:20:12.730289"
+    "updated_at": "2026-01-15T01:24:07.076523"
   },
   "steps": [
     {
@@ -53,7 +53,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_de02f0f3",
-      "created_at": "2026-01-13T03:13:12.824831",
+      "created_at": "2026-01-15T00:58:18.228399",
       "plan_id": "plan_eb0fdfa4"
     },
     {
@@ -75,7 +75,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_f0f9c695",
-      "created_at": "2026-01-13T03:13:12.833811",
+      "created_at": "2026-01-15T00:58:18.232840",
       "plan_id": "plan_eb0fdfa4"
     },
     {
@@ -97,7 +97,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_26ebc1b3",
-      "created_at": "2026-01-13T03:13:12.847346",
+      "created_at": "2026-01-15T00:58:18.236398",
       "plan_id": "plan_eb0fdfa4"
     },
     {
@@ -105,7 +105,7 @@
       "agent": "assertion",
       "tool": "",
       "parameters": {},
-      "description": "@assertion \"Always allow\" blue button exist.",
+      "description": "@assertion \"Allow\" blue button exist.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -117,7 +117,7 @@
         "step_retry_timeout: 30"
       ],
       "screenshot": "step_5d0f2575",
-      "created_at": "2026-01-13T03:13:12.856624",
+      "created_at": "2026-01-15T00:58:18.236398",
       "plan_id": "plan_eb0fdfa4"
     },
     {
@@ -126,10 +126,10 @@
       "tool": "click",
       "parameters": {
         "button": "left",
-        "x": 366,
-        "y": 372
+        "x": 321,
+        "y": 347
       },
-      "description": "Click the \"Always allow\" button in the permission prompt within the M365 Copilot web chat interface.",
+      "description": "Click the \"Allow\" button in the permission prompt within the M365 Copilot web chat interface.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -143,7 +143,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_8514ef39",
-      "created_at": "2026-01-13T03:13:12.868054",
+      "created_at": "2026-01-15T00:58:18.236398",
       "plan_id": "plan_eb0fdfa4"
     }
   ],
