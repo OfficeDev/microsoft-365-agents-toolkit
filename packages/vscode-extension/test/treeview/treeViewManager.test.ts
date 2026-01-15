@@ -1,6 +1,5 @@
 import { TeamsAppManifest, ok } from "@microsoft/teamsfx-api";
 import { featureFlagManager, manifestUtils } from "@microsoft/teamsfx-core";
-import * as featureFlags from "@microsoft/teamsfx-core/build/common/featureFlags";
 import * as chai from "chai";
 import * as sinon from "sinon";
 import * as vscode from "vscode";
@@ -41,7 +40,7 @@ describe("TreeViewManager", () => {
     chai.assert.equal((developmentTreeview as any).commands.length, 4);
   });
 
-  it("Development Treeview when ChatParticipant is enabled", () => {
+  it("Development Treeview when HideGitHubCopilotPreviewTag is enabled", () => {
     sandbox.stub(globalVariables, "context").value({ extensionPath: "" });
     sandbox.stub(globalVariables, "isSPFxProject").value(false);
     sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
@@ -126,7 +125,7 @@ describe("TreeViewManager", () => {
     chai.assert.equal(utilityCommands.length, 3);
   });
 
-  it("updateTreeViewsByContent if remove project related commands when ChatParticipant is enabled", async () => {
+  it("updateTreeViewsByContent if remove project related commands when HideGitHubCopilotPreviewTag is enabled", async () => {
     sandbox.stub(globalVariables, "workspaceUri").value("");
     sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
     sandbox.stub(manifestUtils, "readAppManifest").resolves(ok({} as TeamsAppManifest));

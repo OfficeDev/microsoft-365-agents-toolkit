@@ -5,7 +5,7 @@ import { FxError, Result, Tools, err, ok } from "@microsoft/teamsfx-api";
 import { FxCore, UnhandledError } from "@microsoft/teamsfx-core";
 import AzureAccountManager from "./commonlib/azureLogin";
 import { logger } from "./commonlib/logger";
-import M365Login from "./commonlib/m365Login";
+import M365Login from "./commonlib/M365TokenProviderWrapper";
 import { cliSource } from "./constants";
 import CliTelemetry from "./telemetry/cliTelemetry";
 import CLIUserInteraction from "./userInteraction";

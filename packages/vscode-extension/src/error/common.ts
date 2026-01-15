@@ -7,8 +7,8 @@ import {
   FeatureFlags as CoreFeatureFlags,
   featureFlagManager,
   isSandboxedEnabled,
-  isUserCancelError,
   isTestToolEnabledProject,
+  isUserCancelError,
 } from "@microsoft/teamsfx-core";
 import { sleep } from "@microsoft/vscode-ui";
 import * as util from "util";
@@ -137,11 +137,16 @@ export async function showError(e: UserError | SystemError) {
   } else if (e instanceof SystemError) {
     const sysError = e;
     const path = "https://github.com/OfficeDev/TeamsFx/issues/new?";
-    const param = `title=bug+report: ${errorCode}&body=${anonymizeFilePaths(
-      e.message
-    )}\n\nstack:\n${anonymizeFilePaths(e.stack)}\n\n${
-      sysError.userData ? anonymizeFilePaths(sysError.userData) : ""
-    }`;
+    const bodyContent = `${anonymizeFilePaths(e.message)}\n\nstack:\n${anonymizeFilePaths(
+      e.stack
+    )}\n\n${sysError.userData ? anonymizeFilePaths(sysError.userData) : ""}`;
+    // Limit body length to prevent exceeding max URL length
+    const maxBodyLength = 2000;
+    const truncatedBody =
+      bodyContent.length > maxBodyLength
+        ? bodyContent.substring(0, maxBodyLength) + "..."
+        : bodyContent;
+    const param = `title=bug+report: ${errorCode}&body=${truncatedBody}`;
     const issueLink = Uri.parse(`${path}${param}`);
     const issue = {
       title: localize("teamstoolkit.handlers.reportIssue"),

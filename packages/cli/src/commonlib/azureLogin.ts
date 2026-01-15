@@ -5,7 +5,7 @@
 
 import { SubscriptionClient } from "@azure/arm-subscriptions";
 import { AccessToken, GetTokenOptions, TokenCredential } from "@azure/core-auth";
-import { LogLevel } from "@azure/msal-node";
+import { LogLevel, Configuration } from "@azure/msal-node";
 import {
   AuthenticationWWWAuthenticateRequest,
   AzureAccountProvider,
@@ -27,6 +27,8 @@ import {
   isValidProjectV3,
   InvalidAzureSubscriptionError,
   MFARequiredError,
+  featureFlagManager,
+  FeatureFlags,
 } from "@microsoft/teamsfx-core";
 import * as fs from "fs-extra";
 import * as path from "path";
@@ -56,14 +58,14 @@ const SERVER_PORT = 0;
 
 const cachePlugin = new CryptoCachePlugin(accountName);
 
-function getConfig(tenantId?: string) {
+function getConfig(tenantId?: string): Configuration {
   let authority;
   if (tenantId && tenantId.length > 0) {
     authority = "https://login.microsoftonline.com/" + tenantId;
   } else {
     authority = "https://login.microsoftonline.com/organizations";
   }
-  const config = {
+  const config: Configuration = {
     auth: {
       clientId: "7ea7c24c-b1f6-4a20-9d11-9ae12e9e7ac0",
       authority: authority,
@@ -72,7 +74,7 @@ function getConfig(tenantId?: string) {
     system: {
       loggerOptions: {
         loggerCallback(loglevel: any, message: any, containsPii: any) {
-          if (this.logLevel <= LogLevel.Error) {
+          if (this.logLevel && this.logLevel <= LogLevel.Error) {
             void CLILogProvider.log(4 - loglevel, message);
           }
         },
@@ -84,6 +86,19 @@ function getConfig(tenantId?: string) {
       cachePlugin,
     },
   };
+
+  if (featureFlagManager.getBooleanValue(FeatureFlags.BrokerAuth) && process.platform === "win32") {
+    try {
+      // Dynamically require to avoid loading @azure/msal-node-extensions on Linux
+      // where keytar (a dependency) requires libsecret to be installed
+      const { NativeBrokerPlugin } = require("@azure/msal-node-extensions");
+      config.broker = {
+        nativeBrokerPlugin: new NativeBrokerPlugin(),
+      };
+    } catch {
+      // NativeBrokerPlugin not available, ignore
+    }
+  }
   return config;
 }
 
@@ -341,7 +356,7 @@ export class AzureAccountManager extends login implements AzureAccountProvider {
           AzureAccountManager.codeFlowInstance
         );
         const cachedTenantId = await loadTenantId(accountName);
-        for await (const page of tenantClient.tenants.list().byPage({ maxPageSize: 100 })) {
+        for await (const page of tenantClient.tenants.list().byPage()) {
           for (const tenant of page) {
             if (
               cachedTenantId
@@ -351,9 +366,7 @@ export class AzureAccountManager extends login implements AzureAccountProvider {
               try {
                 tenantTokenCredential.setTenantId(tenant.tenantId as string);
                 const subscriptionClient = new SubscriptionClient(tenantTokenCredential);
-                for await (const subPage of subscriptionClient.subscriptions
-                  .list()
-                  .byPage({ maxPageSize: 100 })) {
+                for await (const subPage of subscriptionClient.subscriptions.list().byPage()) {
                   for (const item of subPage) {
                     arr.push({
                       subscriptionId: item.subscriptionId!,
@@ -379,9 +392,7 @@ export class AzureAccountManager extends login implements AzureAccountProvider {
         const subscriptionClient = new SubscriptionClient(
           AzureAccountManager.teamsFxTokenCredential
         );
-        for await (const page of subscriptionClient.subscriptions
-          .list()
-          .byPage({ maxPageSize: 100 })) {
+        for await (const page of subscriptionClient.subscriptions.list().byPage()) {
           for (const item of page) {
             arr.push({
               subscriptionId: item.subscriptionId!,

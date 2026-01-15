@@ -54,7 +54,7 @@ describe("Collaboration", function () {
       const result = await createResourceGroup(resourceGroupName, "westus");
 
       // provision
-      await execAsyncWithRetry(`atk provision`, {
+      await execAsyncWithRetry(`atk provision --env dev`, {
         cwd: projectPath,
         env: {
           ...process.env,

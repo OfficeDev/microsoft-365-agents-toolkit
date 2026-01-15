@@ -246,6 +246,7 @@
   "error.m365.NotExtendedToM365Error": "Aplikaci není možné rozšířit do Microsoftu 365. Pro rozšíření aplikace do Microsoftu 365 použijte akci teamsApp/extendToM365.",
   "error.m365.SharedScopeAdvancedDADisabled": "Nasazení je zablokované: Rozšířeného deklarativního agenta nelze nasadit kvůli nastavení oprávnění tenanta. Další informace: [Správa agentů pro Microsoft 365 Copilot v Centru pro správu Microsoftu 365 – Správa Microsoftu 365 | Microsoft Learn](%s)",
   "error.share.yamlConfigNotFound": "V m365agents.yml se nepodařilo najít konfiguraci „provision“ nebo „deploy“",
+  "error.share.yamlConfigNotSupported": "Share feature only supports m365agents.yml version v1.10 or above, follow [the guide](https://github.com/OfficeDev/microsoft-365-agents-toolkit/wiki/Share-Declarative-Agents-with-Others#About-YAML-schema) to upgrade and proceed.",
   "error.share.shareActionConfigNotFound": "V m365agents.yml se nepovedlo najít konfiguraci akce %s",
   "error.share.appPackageConfigNotFound": "V m365agents.yml se nepovedlo najít konfiguraci appPackagePath",
   "error.share.manifestFileNotFound": "V balíčku aplikace se nepovedlo najít soubor manifestu",

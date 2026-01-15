@@ -1,11 +1,13 @@
 {
   "servers": {
 {{#IsLocalMCP}}
-    "{{MCPLocalServerName}}": {
+{{#MCPLocalServers}}
+    "{{name}}": {
       "type": "stdio",
-      "command": "{{MCPCommand}}",
-      "args": [{{MCPArgs}}]
-    }
+      "command": "{{command}}",
+      "args": [{{args}}]
+    }{{#notLast}},{{/notLast}}
+{{/MCPLocalServers}}
 {{/IsLocalMCP}}
 {{^IsLocalMCP}}
     "{{ServerName}}": {

@@ -15,3 +15,5 @@ packages:
   -  "packages/spec-parser"
   -  "packages/mcp-server"
   -  "templates"
+onlyBuiltDependencies:
+  - keytar

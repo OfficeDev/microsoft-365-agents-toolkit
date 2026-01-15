@@ -150,7 +150,7 @@ import {
 import { AadValidator, BotValidator } from "../../commonlib";
 import { TemplateProject } from "../../commonlib/constants";
 import { CliHelper } from "../../commonlib/cliHelper";
-import m365Login from "@microsoft/m365agentstoolkit-cli/src/commonlib/m365Login";
+import { M365ProviderUserPassword } from "@microsoft/m365agentstoolkit-cli/src/commonlib/m365LoginUserPassword";
 import { environmentNameManager } from "@microsoft/teamsfx-core";
 
 describe("teamsfx new sample", function () {
@@ -192,7 +192,7 @@ describe("teamsfx new sample", function () {
       const context = await fs.readJSON(`${projectPath}/.fx/states/state.dev.json`);
 
       // Validate Aad App
-      const aad = AadValidator.init(context, false, m365Login);
+      const aad = AadValidator.init(context, false, M365ProviderUserPassword.getInstance());
       await AadValidator.validate(aad);
 
       // Validate Bot Deploy

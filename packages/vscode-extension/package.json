@@ -10,7 +10,8 @@
   "main": "./out/src/extension.js",
   "enabledApiProposals": [
     "authenticationChallenges",
-    "authLearnMore"
+    "authLearnMore",
+    "nativeWindowHandle"
   ],
   "repository": {
     "type": "git",
@@ -61,7 +62,7 @@
     "onCommand:workbench.action.debug.start",
     "workspaceContains:/.fx/**/*",
     "workspaceContains:teamsapp.yml",
-    "workspaceContains:m365agents.yml",
+    "workspaceContains:m365agents*.yml",
     "onView:teamsfx-empty-project-with-chat",
     "onUri",
     "workspaceContains:/**/manifest.json",
@@ -1958,7 +1959,7 @@
     "@types/lodash": "^4.14.181",
     "@types/mocha": "^8.0.4",
     "@types/mock-fs": "^4.13.1",
-    "@types/node": "^14.14.21",
+    "@types/node": "^18.15.3",
     "@types/react": "^17.0.3",
     "@types/react-copy-to-clipboard": "^5.0.4",
     "@types/react-dom": "^17.0.2",
@@ -2020,6 +2021,8 @@
     "@azure/identity": "^4.1.0",
     "@azure/ms-rest-azure-env": "^2.0.0",
     "@azure/msal-node": "^2.6.6",
+    "@azure/msal-node-extensions": "^1.5.25",
+    "keytar": "file:./packageMocks/keytar",
     "@microsoft/dev-tunnels-connections": "1.1.45",
     "@microsoft/dev-tunnels-contracts": "1.1.45",
     "@microsoft/dev-tunnels-management": "1.1.45",

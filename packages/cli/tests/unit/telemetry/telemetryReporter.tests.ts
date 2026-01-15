@@ -1,7 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
+import { featureFlagManager, FeatureFlags } from "@microsoft/teamsfx-core";
 import { TelemetryClient } from "applicationinsights";
+import * as log4js from "log4js";
+import * as os from "os";
 import sinon from "sinon";
 
 import Logger from "../../../src/commonlib/log";
@@ -150,5 +153,64 @@ describe("Telemetry Reporter", function () {
     const reporter = new Reporter("real", "real", "real", "real");
     reporter["appInsightsClient"] = new TelemetryClient("123");
     await reporter.flush();
+  });
+
+  describe("log4js integration (debug on)", () => {
+    let getBooleanStub: sinon.SinonStub;
+    let configureStub: sinon.SinonStub;
+    let getLoggerStub: sinon.SinonStub;
+    let homedirStub: sinon.SinonStub;
+    const fakeLogger = {
+      info: sandbox.stub(),
+      error: sandbox.stub(),
+    } as unknown as log4js.Logger;
+
+    beforeEach(() => {
+      getBooleanStub = sandbox
+        .stub(featureFlagManager, "getBooleanValue")
+        .callsFake((flag: FeatureFlags) => (flag === FeatureFlags.TelemetryTest ? true : false));
+      configureStub = sandbox.stub(log4js, "configure");
+      getLoggerStub = sandbox.stub(log4js, "getLogger").returns(fakeLogger);
+      homedirStub = sandbox.stub(os, "homedir").returns("C:/home");
+      sandbox.stub(TelemetryClient.prototype, "trackEvent");
+      sandbox.stub(TelemetryClient.prototype, "trackException");
+    });
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it("sendTelemetryEvent logs to log4js", () => {
+      const reporter = new Reporter("atk", "1.0.0", "ikey", undefined);
+      (reporter as any)["debug"] = true;
+      (reporter as any)["log4jsLogger"] = fakeLogger;
+      reporter["appInsightsClient"] = new TelemetryClient("123");
+      reporter.sendTelemetryEvent("unit-test-event", { a: "b" }, { m: 1 });
+      expect((fakeLogger.info as sinon.SinonStub).called).to.be.true;
+      const msg = (fakeLogger.info as sinon.SinonStub).lastCall.args[0] as string;
+      expect(msg).to.contain("Event: atk/unit-test-event");
+    });
+
+    it("sendTelemetryErrorEvent logs to log4js", () => {
+      const reporter = new Reporter("atk", "1.0.0", "ikey", undefined);
+      (reporter as any)["debug"] = true;
+      (reporter as any)["log4jsLogger"] = fakeLogger;
+      reporter["appInsightsClient"] = new TelemetryClient("123");
+      reporter.sendTelemetryErrorEvent("unit-test-error", { x: "y" });
+      expect((fakeLogger.info as sinon.SinonStub).called).to.be.true;
+      const msg = (fakeLogger.info as sinon.SinonStub).lastCall.args[0] as string;
+      expect(msg).to.contain("ErrorEvent: atk/unit-test-error");
+    });
+
+    it("sendTelemetryException logs to log4js", () => {
+      const reporter = new Reporter("atk", "1.0.0", "ikey", undefined);
+      (reporter as any)["debug"] = true;
+      (reporter as any)["log4jsLogger"] = fakeLogger;
+      reporter["appInsightsClient"] = new TelemetryClient("123");
+      reporter.sendTelemetryException(new Error("boom"), { z: "w" });
+      expect((fakeLogger.error as sinon.SinonStub).called).to.be.true;
+      const msg = (fakeLogger.error as sinon.SinonStub).lastCall.args[0] as string;
+      expect(msg).to.contain("Exception: atk/Error boom");
+    });
   });
 });

@@ -12,9 +12,7 @@ export function isFeatureFlagEnabled(featureFlagName: string, defaultValue = fal
 }
 export class FeatureFlagName {
   static readonly CLIDotNet = "TEAMSFX_CLI_DOTNET";
-  static readonly OfficeMetaOS = "TEAMSFX_OFFICE_METAOS";
   static readonly SampleConfigBranch = "TEAMSFX_SAMPLE_CONFIG_BRANCH";
-  static readonly ChatParticipant = "TEAMSFX_CHAT_PARTICIPANT";
   static readonly ChatParticipantUIEntries = "TEAMSFX_CHAT_PARTICIPANT_ENTRIES";
   static readonly HideGitHubCopilotPreviewTag = "TEAMSFX_HIDE_GITHUB_COPILOT_PREVIEW_TAG";
   static readonly SMEOAuth = "SME_OAUTH";
@@ -22,16 +20,17 @@ export class FeatureFlagName {
   static readonly TelemetryTest = "TEAMSFX_TELEMETRY_TEST";
   static readonly DevTunnelTest = "TEAMSFX_DEV_TUNNEL_TEST";
   static readonly SyncManifest = "TEAMSFX_SYNC_MANIFEST";
-  static readonly KiotaIntegration = "TEAMSFX_KIOTA_INTEGRATION";
   static readonly KiotaNPMIntegration = "TEAMSFX_KIOTA_NPM_INTEGRATION";
   static readonly CEAEnabled = "TEAMSFX_CEA_ENABLED";
-  static readonly BuilderAPIEnabled = "TEAMSFX_BUILDER_API";
   static readonly EmbeddedKnowledgeEnabled = "TEAMSFX_EMBEDDED_KNOWLEDGE";
   static readonly SandBoxedTeam = "TEAMSFX_SANDBOXED_TEAM";
   static readonly SensitivityLabelEnabled = "TEAMSFX_SENSITIVITY_LABEL";
   static readonly DAMetaOS = "TEAMSFX_DA_METAOS";
   static readonly CFShortcutMetaOS = "TEAMSFX_CF_SHORTCUT_METAOS";
   static readonly MCPForDA = "TEAMSFX_MCP_FOR_DA";
+  static readonly BrokerAuth = "TEAMSFX_BROKER_AUTH";
+  // Add config files to existing project to make it toolkit compatible
+  static readonly GenerateConfigFiles = "TEAMSFX_GENERATE_CONFIG_FILES";
 }
 
 export interface FeatureFlag {
@@ -43,14 +42,6 @@ export interface FeatureFlag {
 export class FeatureFlags {
   // Testing feature flags - not for production use
   static readonly CLIDotNet = { name: FeatureFlagName.CLIDotNet, defaultValue: "false" };
-  static readonly OfficeMetaOS = {
-    name: FeatureFlagName.OfficeMetaOS,
-    defaultValue: "true",
-  };
-  static readonly ChatParticipant = {
-    name: FeatureFlagName.ChatParticipant,
-    defaultValue: "false",
-  };
   static readonly ChatParticipantUIEntries = {
     name: FeatureFlagName.ChatParticipantUIEntries,
     defaultValue: "false",
@@ -76,10 +67,6 @@ export class FeatureFlags {
     name: FeatureFlagName.SyncManifest,
     defaultValue: "false",
   };
-  static readonly KiotaIntegration = {
-    name: FeatureFlagName.KiotaIntegration,
-    defaultValue: "false",
-  };
 
   static readonly KiotaNPMIntegration = {
     name: FeatureFlagName.KiotaNPMIntegration,
@@ -88,10 +75,6 @@ export class FeatureFlags {
   static readonly CEAEnabled = {
     name: FeatureFlagName.CEAEnabled,
     defaultValue: "false",
-  };
-  static readonly BuilderAPIEnabled = {
-    name: FeatureFlagName.BuilderAPIEnabled,
-    defaultValue: "true",
   };
   static readonly EmbeddedKnowledgeEnabled = {
     name: FeatureFlagName.EmbeddedKnowledgeEnabled,
@@ -116,6 +99,14 @@ export class FeatureFlags {
   static readonly MCPForDA = {
     name: FeatureFlagName.MCPForDA,
     defaultValue: "true",
+  };
+  static readonly BrokerAuth = {
+    name: FeatureFlagName.BrokerAuth,
+    defaultValue: "false",
+  };
+  static readonly GenerateConfigFiles = {
+    name: FeatureFlagName.GenerateConfigFiles,
+    defaultValue: "false",
   };
 }
 

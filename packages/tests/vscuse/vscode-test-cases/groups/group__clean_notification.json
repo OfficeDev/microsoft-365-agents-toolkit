@@ -9,14 +9,14 @@
       "precondition_retry_interval": 2
     },
     "total_steps": 3,
-    "created_at": "2025-11-17T17:18:42.795541",
+    "created_at": "2025-12-11T03:06:20.733153",
     "name": "group: clean_notification",
     "description": {
+      "other": "clean_notification",
       "owner": "v-ivanchen@microsoft.com",
-      "workitem": "",
-      "other": "clean_notification"
+      "workitem": ""
     },
-    "generated_at": "2025-11-17T17:18:42.795541",
+    "generated_at": "2025-12-11T03:06:20.733153",
     "execution_order": [
       "step_a686eab5",
       "step_21f18976",
@@ -25,7 +25,7 @@
     "tags": [
       "group"
     ],
-    "updated_at": "2025-11-20T03:24:25.343734"
+    "updated_at": "2026-01-07T05:49:52.830198"
   },
   "steps": [
     {
@@ -47,7 +47,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_a686eab5",
-      "created_at": "2025-11-19T05:49:14.801024",
+      "created_at": "2026-01-07T03:39:08.009825",
       "plan_id": "plan_r_0929_040401"
     },
     {
@@ -57,7 +57,7 @@
       "parameters": {
         "text": "Notifications: Clear All Notificatiions"
       },
-      "description": "Type the text 'Notifications: Clear All Notificatiions' into the Command Palette input box at the top of the Visual Studio Code interface.",
+      "description": "Type the text 'Notifications: Clear All Notifications' into the Command Palette input box at the top of the Visual Studio Code interface.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -69,7 +69,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_21f18976",
-      "created_at": "2025-11-19T05:49:14.823587",
+      "created_at": "2026-01-07T03:39:08.016140",
       "plan_id": "plan_r_0929_040401"
     },
     {
@@ -91,7 +91,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_5e61d416",
-      "created_at": "2025-11-19T05:49:14.840221",
+      "created_at": "2026-01-07T03:39:08.022543",
       "plan_id": "plan_r_0929_040401"
     }
   ],

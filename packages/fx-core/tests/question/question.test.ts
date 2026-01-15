@@ -1663,7 +1663,6 @@ describe("updateActionWithMCP", async () => {
           type: "RemoteMCPServer",
           spec: {
             url: "http://test-server.com",
-            enable_dynamic_discovery: false,
           },
           run_for_functions: ["function1", "function2"],
         },
@@ -1671,7 +1670,6 @@ describe("updateActionWithMCP", async () => {
           type: "RemoteMCPServer",
           spec: {
             url: "http://other-server.com", // Different URL
-            enable_dynamic_discovery: false,
           },
           run_for_functions: ["function3"],
         },

@@ -22,6 +22,7 @@ export * from "./declarativeCopilotManifest";
 export * from "./generated-types";
 export * from "./manifest";
 export * from "./pluginManifest";
+export * from "./wrappers";
 
 export type TeamsAppManifestJSONSchema = JSONSchemaType<TeamsAppManifest>;
 export type DevPreviewManifestJSONSchema = JSONSchemaType<DevPreviewSchema>;

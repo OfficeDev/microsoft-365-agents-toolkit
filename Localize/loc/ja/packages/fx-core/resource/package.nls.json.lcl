@@ -7910,7 +7910,7 @@
         <Str Cat="Text">
           <Val><![CDATA[There is no valid app catalog in your tenant. You can update the property 'createAppCatalogIfNotExist' in %s to true if you want Microsoft 365 Agents Toolkit to create it for you or you can create it by yourself.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[テナントに有効なアプリ カタログがありません。Microsoft 365 Agents Toolkit で作成する場合、または自分で作成する場合は、%s 内の 'createAppCatalogIfNotExist' プロパティを true に設定します。]]></Val>
+            <Val><![CDATA[テナントに有効なアプリ カタログがありません。Microsoft 365 エージェント ツールキットで作成する場合、または自分で作成する場合は、%s 内の 'createAppCatalogIfNotExist' プロパティを true に設定します。]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[There is no valid app catalog in your tenant. You can update the property 'createAppCatalogIfNotExist' in %s to true if you want Teams Toolkit to create it for you or you can create it by yourself.]]></Val>
@@ -10150,6 +10150,15 @@
           <Prev Cat="Text">
             <Val><![CDATA[Unable to find the "share" config in the m365agents.yml]]></Val>
           </Prev>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.share.yamlConfigNotSupported" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Share feature only supports m365agents.yml version v1.10 or above, follow [the guide]5D;(https://github.com/OfficeDev/microsoft-365-agents-toolkit/wiki/Share-Declarative-Agents-with-Others#About-YAML-schema) to upgrade and proceed.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[共有機能は、m365agents.yml バージョン v1.10 以上のみをサポートしています。アップグレードして続行するには、[ガイド]5D;(https://github.com/OfficeDev/microsoft-365-agents-toolkit/wiki/Share-Declarative-Agents-with-Others#About-YAML-schema) に従ってください。]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>

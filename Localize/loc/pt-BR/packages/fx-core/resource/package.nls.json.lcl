@@ -3880,6 +3880,15 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";core.createProjectQuestion.mcpLocalServer.validationHelp" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[At least one MCP server must be selected]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Pelo menos um servidor MCP deve ser selecionado]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";core.createProjectQuestion.mcpServerType.local.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Connect to an MCP server running on your local Windows system]]></Val>
@@ -4188,36 +4197,6 @@
           <Val><![CDATA[Office Add-in]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Suplemento do Office]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.projectType.outlookAddin.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Customize the ribbon and Task Pane with your web content for seamless user experiences]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Personalize a faixa de opções e o Painel de Tarefas com seu conteúdo da web para experiências de usuário contínuas]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Customize the ribbon and Task Pane with your web content for seamless user experience]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.projectType.outlookAddin.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Outlook Add-in]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Suplemento do Outlook]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.projectType.outlookAddin.title" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[App Features Using an Outlook Add-in]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Recursos do Aplicativo Usando um Suplemento do Outlook]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9369,12 +9348,12 @@
       </Item>
       <Item ItemId=";error.common.MissingEnvironmentVariablesError" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Missing environment variables '%s' for file: %s. Please edit the .env file '%s' or '%s', or adjust system environment variables. For new Microsoft 365 Agents Toolkit projects, make sure you've run provision or debug to set these variables correctly.]]></Val>
+          <Val><![CDATA[Missing environment variables '%s' for file: %s. Please edit the .env file '%s' or '%s', or adjust system environment variables. For new projects, run local debugging or provision a remote environment to set these variables.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Variáveis de ambiente "%s" ausentes para o arquivo: %s. Edite o arquivo .env "%s" ou "%s" ou ajuste as variáveis de ambiente do sistema. Para novos projetos do Microsoft 365 Agents Toolkit, verifique se você executou o provisionamento ou a depuração para definir essas variáveis corretamente.]]></Val>
+            <Val><![CDATA[Variáveis de ambiente "%s" ausentes para o arquivo: %s. Edite o arquivo .env "%s" ou "%s" ou ajuste as variáveis de ambiente do sistema. Para novos projetos, execute a depuração local ou configure um ambiente remoto para definir essas variáveis.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Missing environment variables '%s' for file: %s. Please edit the .env file '%s' or '%s', or adjust system environment variables. For new Teams Toolkit projects, make sure you've run provision or debug to set these variables correctly.]]></Val>
+            <Val><![CDATA[Missing environment variables '%s' for file: %s. Please edit the .env file '%s' or '%s', or adjust system environment variables. For new Microsoft 365 Agents Toolkit projects, make sure you've run provision or debug to set these variables correctly.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -10150,6 +10129,15 @@
           <Prev Cat="Text">
             <Val><![CDATA[Unable to find the "share" config in the m365agents.yml]]></Val>
           </Prev>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.share.yamlConfigNotSupported" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Share feature only supports m365agents.yml version v1.10 or above, follow [the guide]5D;(https://github.com/OfficeDev/microsoft-365-agents-toolkit/wiki/Share-Declarative-Agents-with-Others#About-YAML-schema) to upgrade and proceed.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[O recurso de compartilhamento dá suporte apenas à versão v1.10 ou superior do m365agents.yml. Siga [o guia]5D;(https://github.com/OfficeDev/microsoft-365-agents-toolkit/wiki/Share-Declarative-Agents-with-Others#About-YAML-schema) para atualizar e continuar.]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>

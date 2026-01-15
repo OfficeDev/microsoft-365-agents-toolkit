@@ -464,13 +464,9 @@ export interface Spec {
      * An optional JSON array of enumerated strings that can take values as mail, workbook,
      * document or presentation. The value represent the host apps this LocalPlugin can run-in.
      */
-    allowed_host?: AllowedHost;
+    allowed_host?: AllowedHost[];
 }
 
-/**
- * An optional JSON array of enumerated strings that can take values as mail, workbook,
- * document or presentation. The value represent the host apps this LocalPlugin can run-in.
- */
 export type AllowedHost = "mail" | "workbook" | "document" | "presentation";
 
 /**
@@ -750,7 +746,7 @@ const typeMap: any = {
         { json: "api_description", js: "api_description", typ: u(undefined, "") },
         { json: "progress_style", js: "progress_style", typ: u(undefined, r("ProgressStyle")) },
         { json: "local_endpoint", js: "local_endpoint", typ: u(undefined, r("LocalEndpoint")) },
-        { json: "allowed_host", js: "allowed_host", typ: u(undefined, r("AllowedHost")) },
+        { json: "allowed_host", js: "allowed_host", typ: u(undefined, a(r("AllowedHost"))) },
     ], false),
     "ConfirmationType": [
         "AdaptiveCard",

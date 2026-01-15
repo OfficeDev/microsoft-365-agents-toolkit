@@ -1,0 +1,8 @@
+{
+    "devDependencies": {
+        "env-cmd": "^11.0.0"
+    },
+    "scripts": {
+        "dev:teamsfx": "env-cmd --silent -f .localConfigs npm run dev"
+    }
+}

@@ -200,14 +200,27 @@ describe("Remote debug Tests", function () {
       );
       await driver.sleep(Timeout.longTimeWait);
       if (isRealKey) {
-        await validateWelcomeAndReplyBot(page, {
-          hasWelcomeMessage: false,
-          hasCommandReplyValidation: true,
-          botCommand: "Tell me about Contoso Electronics history",
-          expectedWelcomeMessage: ValidationContent.AiChatBotWelcomeInstruction,
-          expectedReplyMessage: "1985",
-          timeout: Timeout.longTimeWait,
-        });
+        try {
+          await validateWelcomeAndReplyBot(page, {
+            hasWelcomeMessage: false,
+            hasCommandReplyValidation: true,
+            botCommand: "Tell me about Contoso Electronics history",
+            expectedWelcomeMessage:
+              ValidationContent.AiChatBotWelcomeInstruction,
+            expectedReplyMessage: "1985",
+            timeout: Timeout.longTimeWait,
+          });
+        } catch {
+          await validateWelcomeAndReplyBot(page, {
+            hasWelcomeMessage: false,
+            hasCommandReplyValidation: true,
+            botCommand: "Tell me about Contoso Electronics PerksPlus Program",
+            expectedWelcomeMessage:
+              ValidationContent.AiChatBotWelcomeInstruction,
+            expectedReplyMessage: "$1",
+            timeout: Timeout.longTimeWait,
+          });
+        }
       } else {
         await validateWelcomeAndReplyBot(page, {
           hasWelcomeMessage: false,

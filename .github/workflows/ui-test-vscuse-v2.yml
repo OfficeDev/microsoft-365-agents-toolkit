@@ -12,8 +12,13 @@ on:
         type: boolean
         default: false
       image_tag:
-        description: "Docker image tag to use"
+        description: "Docker image tag to use (e.g., 'latest', 'CY251212stable')"
         required: true
+        default: "latest"
+      vscuse_version:
+        description: "VSCUSE Python package version to use (e.g., 'latest', 'v0.2.47')"
+        required: false
+        type: string
         default: "latest"
       email-receiver:
         description: "email notification receiver"
@@ -91,7 +96,7 @@ jobs:
       matrix:
         test_plan: ${{ fromJson(needs.discover-test-plans.outputs.test-plans) }}
       fail-fast: false
-      max-parallel: 50
+      max-parallel: 100
     permissions:
       contents: read
       packages: write
@@ -102,8 +107,8 @@ jobs:
     env:
       GH_APP_ID: ${{ secrets.GH_APP_ID }}
       GH_APP_PRIVATE_KEY: ${{ secrets.GH_APP_PRIVATE_KEY }}
-      AZURE_OPENAI_ENDPOINT: ${{ secrets.AZURE_OPENAI_ENDPOINT_NEW }}
-      AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_KEY_NEW }}
+      AZURE_OPENAI_ENDPOINT: ${{ secrets.TEST_TENANT_AZURE_OPENAI_ENDPOINT }}
+      AZURE_OPENAI_API_KEY: ${{ secrets.TEST_TENANT_AZURE_OPENAI_KEY }}
       AZURE_OPENAI_MODEL: "gpt-4.1"
       # AZURE AI search
       AZURE_OPENAI_EMBEDDING_DEPLOYMENT_NAME: "text-embedding-ada-002"
@@ -112,9 +117,9 @@ jobs:
       # Azure Service Principal for M365 Toolkit authentication
       #AZURE_CLIENT_ID: ${{ secrets.AZURE_SERVICE_PRINCIPAL_ID }}
       #AZURE_CLIENT_SECRET: ${{ secrets.AZURE_SERVICE_PRINCIPAL_SECRET }}
-      AZURE_TENANT_ID: ${{ secrets.TEST_TENANT_ID_NEW  }}
-      AZURE_SUBSCRIPTION_ID: ${{ secrets.TEST_SUBSCRIPTION_ID_NEW }}
-      AZURE_AUTH_ENABLED: ${{ secrets.AZURE_SERVICE_PRINCIPAL_ID != '' && secrets.AZURE_SERVICE_PRINCIPAL_SECRET != '' && secrets.TEST_TENANT_ID_NEW != '' }}
+      AZURE_TENANT_ID: ${{ secrets.TEST_TENANT_TENANT_ID  }}
+      AZURE_SUBSCRIPTION_ID: ${{ secrets.TEST_TENANT_SUBSCRIPTION_ID }}
+      AZURE_AUTH_ENABLED: ${{ secrets.AZURE_SERVICE_PRINCIPAL_ID != '' && secrets.AZURE_SERVICE_PRINCIPAL_SECRET != '' && secrets.TEST_TENANT_TENANT_ID != '' }}
       # M365 account for testing
       M365_USERNAME_1: "test001@xxbdw.onmicrosoft.com"
       M365_USERNAME_2: "test002@xxbdw.onmicrosoft.com"
@@ -135,11 +140,11 @@ jobs:
       M365_USERNAME_17: "test017@xxbdw.onmicrosoft.com"
       M365_ACCOUNT_PASSWORD: ${{ secrets.TEST_M365_PASSWORD }}
       # The test account for Copilot features
-      M365_ACCOUNT_NAME_EnableCopilotAccess: "test01@atktesting.onmicrosoft.com"
-      M365_ACCOUNT_PASSWORD_EnableCopilotAccess: ${{ secrets.TEST_M365_PASSWORD_NEW }}
+      M365_ACCOUNT_NAME_EnableCopilotAccess: ${{ secrets.TEST_TENANT_M365_ACCOUNT_NAME }}
+      M365_ACCOUNT_PASSWORD_EnableCopilotAccess: ${{ secrets.TEST_TENANT_M365_ACCOUNT_PASSWORD }}
       
-      AZURE_ACCOUNT_NAME: ${{ secrets.TEST_USER_NAME_NEW }}
-      AZURE_ACCOUNT_PASSWORD: ${{ secrets.TEST_USER_PASSWORD_NEW }}
+      AZURE_ACCOUNT_NAME: ${{ secrets.TEST_TENANT_AZURE_ACCOUNT_NAME }}
+      AZURE_ACCOUNT_PASSWORD: ${{ secrets.TEST_TENANT_AZURE_ACCOUNT_PASSWORD }}
       M365_TENANT_ID: ${{ secrets.TEST_CLEAN_TENANT_ID }}
       # GITHUB test account
       GITHUB_ACCOUNT_NAME: ${{ secrets.GH_ACCOUNT_NAME }}
@@ -155,6 +160,14 @@ jobs:
       SECRET_SQL_PASSWORD: ${{ secrets.SECRET_SQL_PASSWORD }}
       SQL_SERVER: "vscuse-test-sql.database.windows.net"
       SQL_DATABASE: "vscuse-test-db"
+
+      # reddit
+      REDDIT_ID: "${{secrets.REDDIT_ID}}"
+      SECRET_REDDIT_PASSWORD: ${{secrets.SECRET_REDDIT_PASSWORD}}
+
+      # Foundry related parameters
+      AZURE_AI_FOUNDRY_PROJECT_ENDPOINT: ${{ vars.AZURE_AI_FOUNDRY_PROJECT_ENDPOINT }}
+      AGENT_ID: ${{ secrets.AGENT_ID }}
 
     steps:
       - name: Checkout repo
@@ -178,7 +191,7 @@ jobs:
 
 
       - name: Run download script
-        run: node download-vscuse-python.js "latest" "${{ github.workspace }}/packages/tests/vscuse/vscode-test-cases"
+        run: node download-vscuse-python.js "${{ github.event.inputs.vscuse_version || 'latest' }}" "${{ github.workspace }}/packages/tests/vscuse/vscode-test-cases"
         shell: bash
         working-directory: .github/actions/setup-vscuse-environment
 
@@ -310,8 +323,8 @@ jobs:
           $guid = [guid]::NewGuid().ToString()
           $account = $env:AZURE_STORAGE_ACCOUNT
           $sourcePath = "packages/tests/vscuse/vscode-test-cases/test_report/"
-          $destination = "`$web/$guid"
-          $storageUrl = "https://vscusedownload.z13.web.core.windows.net/$guid/index.html"
+          $destination = "`content/$guid"
+          $storageUrl = "https://storproxy-app-voazuxhhvtgiq.azurewebsites.net/$guid/index.html"
       
           Write-Host "🌐Here is the report: $storageUrl"
 
@@ -324,7 +337,7 @@ jobs:
             --source "$sourcePath" `
             --overwrite
         env:
-          AZURE_STORAGE_ACCOUNT: vscusedownload
+          AZURE_STORAGE_ACCOUNT: storproxystvoazuxhhvtgiq 
 
       - name: Upload storage URL artifact
         if: always()
@@ -523,7 +536,7 @@ jobs:
             url="https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/attempts/${{ github.run_attempt }}/jobs?per_page=80&page=$page"
             echo "Fetching URL: $url"
       
-            resp=$(curl -s -H "Accept: application/vnd.github.v3+json" -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" "$url")
+            resp=$(curl -sf -H "Accept: application/vnd.github.v3+json" -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" "$url")
             echo "Response from GitHub API: $resp"
 
             new_jobs=$(echo "$resp" | jq -cr '.jobs')
@@ -532,7 +545,7 @@ jobs:
             jobs=$(jq -cr --slurp 'add' <(echo "$jobs") <(echo "$new_jobs"))
             echo "Updated jobs list: $jobs"
 
-            has_next=$(curl -I -H "Accept: application/vnd.github.v3+json" -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" "$url" | grep -Fi "link:" | grep "rel=\"next\"" || true)
+            has_next=$(curl -sfI -H "Accept: application/vnd.github.v3+json" -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" "$url" | grep -Fi "link:" | grep "rel=\"next\"" || true)
             echo "Has next page: $has_next"
 
             if [ -z "$has_next" ]; then

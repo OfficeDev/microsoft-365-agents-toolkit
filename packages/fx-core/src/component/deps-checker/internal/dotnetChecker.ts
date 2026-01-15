@@ -28,11 +28,23 @@ export enum DotnetVersion {
   v31 = "3.1",
   v50 = "5.0",
   v60 = "6.0",
+  v70 = "7.0",
+  v80 = "8.0",
+  v90 = "9.0",
+  v10 = "10.0",
 }
 type DotnetSDK = { version: string; path: string };
 const DotnetCoreSDKName = ".NET Core SDK";
 const installVersion = isMacOS() && isArm64() ? DotnetVersion.v60 : DotnetVersion.v31;
-const supportedVersions = [DotnetVersion.v31, DotnetVersion.v50, DotnetVersion.v60];
+const supportedVersions = [
+  DotnetVersion.v31,
+  DotnetVersion.v50,
+  DotnetVersion.v60,
+  DotnetVersion.v70,
+  DotnetVersion.v80,
+  DotnetVersion.v90,
+  DotnetVersion.v10,
+];
 const installedNameWithVersion = `${DotnetCoreSDKName} (v${DotnetVersion.v31})`;
 
 export class DotnetChecker implements DepsChecker {
@@ -268,7 +280,9 @@ export class DotnetChecker implements DepsChecker {
       this._logger.debug(
         `Finished running dotnet-install script, command = '${command.join(
           " "
-        )}', options = '${JSON.stringify(options)}', stdout = '${stdout}', stderr = '${stderr}'`
+        )}', options = '${JSON.stringify(options)}', stdout = '${String(
+          stdout
+        )}', stderr = '${String(stderr)}'`
       );
 
       const timecost = Number(((performance.now() - start) / 1000).toFixed(2));
@@ -277,7 +291,9 @@ export class DotnetChecker implements DepsChecker {
         const errorMessage = `${getLocalizedString(
           "error.common.InstallSoftwareError",
           installedNameWithVersion
-        )} ${Messages.dotnetInstallStderr()} stdout = '${stdout}', stderr = '${stderr}', timecost = '${timecost}s'`;
+        )} ${Messages.dotnetInstallStderr()} stdout = '${String(stdout)}', stderr = '${String(
+          stderr
+        )}', timecost = '${timecost}s'`;
 
         this._telemetry.sendSystemErrorEvent(
           DepsCheckerEvent.dotnetInstallScriptError,
@@ -297,11 +313,9 @@ export class DotnetChecker implements DepsChecker {
         )} ${Messages.dotnetInstallErrorCode()}, ` +
         `command = '${command.join(" ")}', options = '${JSON.stringify(
           options
-          // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-        )}', error = '${error}', stdout = '${error.stdout}', stderr = '${
-          // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+        )}', error = '${String(error)}', stdout = '${String(error.stdout)}', stderr = '${String(
           error.stderr
-        }', timecost = '${timecost}s'`;
+        )}', timecost = '${timecost}s'`;
 
       this._telemetry.sendSystemErrorEvent(
         DepsCheckerEvent.dotnetInstallScriptError,

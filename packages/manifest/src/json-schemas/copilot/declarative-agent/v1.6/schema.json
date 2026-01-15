@@ -61,8 +61,8 @@
         },
         "conversation_starters": {
             "type": "array",
-            "description": "Optional. A list of examples of questions that the declarative agent can answer. There MUST NOT be more than six objects in the array.",
-            "maxItems": 6,
+            "description": "Optional. A list of examples of questions that the declarative agent can answer. There MUST NOT be more than twelve objects in the array.",
+            "maxItems": 12,
             "minItems": 1,
             "items": {
                 "$ref": "#/$defs/conversation-starter"
@@ -77,6 +77,30 @@
                 "oneOf": [
                     {
                         "$ref": "#/$defs/action-object"
+                    }
+                ]
+            }
+        },
+        "worker_agents": {
+            "type": "array",
+            "description": "Optional. A list of objects that identify declarative agents to act as worker agents.",
+            "minItems": 1,
+            "items": {
+                "oneOf": [
+                    {
+                        "$ref": "#/$defs/worker-agent-object"
+                    }
+                ]
+            }
+        },
+        "user_overrides": {
+            "type": "array",
+            "description": "Optional. A list of objects that allow the DA author to specify capabilities that can be modified by users and the allowed actions.",
+            "minItems": 1,
+            "items": {
+                "oneOf": [
+                    {
+                        "$ref": "#/$defs/user-override-object"
                     }
                 ]
             }
@@ -100,6 +124,8 @@
             "behavior_overrides",
             "conversation_starters",
             "actions",
+            "worker_agents",
+            "user_overrides",
             "$schema"
         ]
     },
@@ -226,16 +252,11 @@
             },
             "embedded-knowledge": {
                 "type": "object",
-                "description": "A JSON object whose presence indicates that the DA will be able to use files locally in the app package as knowledge. The object MUST contain either a files member or a embedded_resource_snapshot_id member, but not both.",
+                "description": "A JSON object whose presence indicates that the DA will be able to use files locally in the app package as knowledge.",
                 "properties": {
                     "name": {
                         "const": "EmbeddedKnowledge",
                         "description": "Required. Must be set to EmbeddedKnowledge."
-                    },
-                    "embedded_resource_snapshot_id": {
-                        "type": "string",
-                        "description": "A JSON string identifier provisioned by a an external file container storage service that can be used to locate the embedded knowledge files.",
-                        "pattern": "^(?!\\[\\[)(.*?)(?<!\\\\]\\\\])$"
                     },
                     "files": {
                         "type": "array",
@@ -245,35 +266,13 @@
                         }
                     }
                 },
-                "oneOf": [
-                    {
-                        "required": [
-                            "embedded_resource_snapshot_id"
-                        ],
-                        "not": {
-                            "required": [
-                                "files"
-                            ]
-                        }
-                    },
-                    {
-                        "required": [
-                            "files"
-                        ],
-                        "not": {
-                            "required": [
-                                "embedded_resource_snapshot_id"
-                            ]
-                        }
-                    }
-                ],
                 "required": [
-                    "name"
+                    "name",
+                    "files"
                 ],
                 "propertyNames": {
                     "enum": [
                         "name",
-                        "embedded_resource_snapshot_id",
                         "files"
                     ]
                 }
@@ -286,7 +285,7 @@
                         "type": "string",
                         "description": "A JSON string that contains the file relative path for the embedded file. It is a required member.",
                         "minLength": 1,
-                        "pattern": "^(?!\\[\\[)(.*?)(?<!\\\\]\\\\])$"
+                        "pattern": "^(?!\\[\\[)(.*?)(?<!\\]\\])$"
                     }
                 },
                 "required": [
@@ -305,11 +304,16 @@
                     "name": {
                         "const": "People",
                         "description": "Required. Must be set to People."
+                    },
+                    "include_related_content": {
+                        "type": "boolean",
+                        "description": "Boolean. If true, include related documents, emails, and Teams messages worked on by people in your organization when searching People data. If false or omitted, only basic org info (org charts, names, email addresses, skills). Default false."
                     }
                 },
                 "propertyNames": {
                     "enum": [
-                        "name"
+                        "name",
+                        "include_related_content"
                     ]
                 }
             },
@@ -376,13 +380,22 @@
                     "shared_mailbox": {
                         "type": "string",
                         "description": "A JSON string that contains SMTP address of the shared mailbox. The presence of this field indicates that the DA constrain its search for relevant emails only to that mailbox. Emails from user's primary mailbox is not searched when this field is present."
+                    },
+                    "group_mailboxes": {
+                        "type": "array",
+                        "description": "A JSON array of strings containing SMTP addresses of group mailboxes. The presence of this field indicates that the DA can search for relevant emails in the specified group mailboxes. A maximum of 25 mailboxes are supported.",
+                        "maxItems": 25,
+                        "items": {
+                            "type": "string"
+                        }
                     }
                 },
                 "propertyNames": {
                     "enum": [
                         "name",
                         "folders",
-                        "shared_mailbox"
+                        "shared_mailbox",
+                        "group_mailboxes"
                     ]
                 },
                 "required": [
@@ -647,11 +660,44 @@
                     "name": {
                         "const": "Meetings",
                         "description": "Required. Must be set to Meetings."
+                    },
+                    "items_by_id": {
+                        "type": "array",
+                        "description": "A JSON array of objects that identify meetings. This array constrains the DA content access to only the meetings specified by the members of each Meeting Identifier Object.",
+                        "items": {
+                            "$ref": "#/$defs/capabilities/meeting-identifier"
+                        }
                     }
                 },
                 "propertyNames": {
                     "enum": [
-                        "name"
+                        "name",
+                        "items_by_id"
+                    ]
+                }
+            },
+            "meeting-identifier": {
+                "type": "object",
+                "description": "A JSON object that identifies a meeting by its ICalUID.",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "description": "A JSON string that contains the ICalUID of a specific meeting. This member is required.",
+                        "minLength": 1
+                    },
+                    "is_series": {
+                        "type": "boolean",
+                        "description": "A JSON boolean that indicates whether the meeting is a series. This member is required."
+                    }
+                },
+                "required": [
+                    "id",
+                    "is_series"
+                ],
+                "propertyNames": {
+                    "enum": [
+                        "id",
+                        "is_series"
                     ]
                 }
             }
@@ -772,6 +818,57 @@
                 "enum": [
                     "id",
                     "file"
+                ]
+            }
+        },
+        "worker-agent-object": {
+            "type": "object",
+            "description": "A JSON object used to identify a declarative agent to act as a worker agent. Declarative agents can be referenced via their id (Agent Id).",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "description": "Required. Not localizable. A unique identifier for a declarative agent.",
+                    "pattern": "^(?!\\[\\[)(.*?)(?<!\\]\\])$"
+                }
+            },
+            "required": [
+                "id"
+            ],
+            "propertyNames": {
+                "enum": [
+                    "id"
+                ]
+            }
+        },
+        "user-override-object": {
+            "type": "object",
+            "description": "A JSON object that allows the DA author to specify the path of a capability that can be modified and a set of allowed actions for those capabilities.",
+            "properties": {
+                "path": {
+                    "type": "string",
+                    "description": "Required. A JSON string that contains a JSONPath expression identifying the capability or configuration element that users can modify. The JSONPath expression allows targeting specific capabilities by name only.",
+                    "pattern": "^(?!\\[\\[)(.*?)(?<!\\]\\])$"
+                },
+                "allowed_actions": {
+                    "type": "array",
+                    "description": "Required. A JSON array of strings that specifies what actions can be taken for the specified path. The only supported action is 'remove'.",
+                    "minItems": 1,
+                    "items": {
+                        "type": "string",
+                        "enum": [
+                            "remove"
+                        ]
+                    }
+                }
+            },
+            "required": [
+                "path",
+                "allowed_actions"
+            ],
+            "propertyNames": {
+                "enum": [
+                    "path",
+                    "allowed_actions"
                 ]
             }
         },

@@ -30,6 +30,7 @@
     "src/ui-test/treeview/office-xml-addin",
     "src/ui-test/treeview/word-xml-addin",
     "src/commonlib",
-    "src/e2e"
+    "src/e2e",
+    "src/unused-ui-test"
   ]
 }

@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 
 import MockAzureAccountProvider from "@microsoft/m365agentstoolkit-cli/src/commonlib/azureLoginUserPassword";
-import m365Login from "@microsoft/m365agentstoolkit-cli/src/commonlib/m365Login";
+import { M365ProviderUserPassword } from "@microsoft/m365agentstoolkit-cli/src/commonlib/m365LoginUserPassword";
 import {
   AppPackageFolderName,
   ConfigFolderName,
@@ -39,11 +39,11 @@ import {
 
 export const TEN_MEGA_BYTE = 1024 * 1024 * 10;
 export {
+  editDotEnvFile,
   execAsync,
   execAsyncWithRetry,
-  editDotEnvFile,
-  getProvisionParameterValueByKey,
   getActivePluginsFromProjectSetting,
+  getProvisionParameterValueByKey,
 } from "../commonlib";
 
 const testFolder = path.resolve(os.homedir(), "test-folder");
@@ -600,7 +600,11 @@ export async function validateTabAndBotProjectProvision(
 ) {
   const context = await readContextMultiEnvV3(projectPath, env);
   // Validate Aad App
-  const aad = AadValidator.init(context, false, m365Login);
+  const aad = AadValidator.init(
+    context,
+    false,
+    M365ProviderUserPassword.getInstance()
+  );
   await AadValidator.validate(aad);
 
   // Validate Tab Frontend
@@ -726,7 +730,7 @@ export function removeTeamsAppExtendToM365(filePath: string) {
       if (
         action.commentBefore &&
         action.commentBefore?.includes(
-          "Extend your Teams app to Outlook and the Microsoft 365 app"
+          "Extend your app to Outlook and the Microsoft 365 app"
         )
       ) {
         provisionStage.delete(i);

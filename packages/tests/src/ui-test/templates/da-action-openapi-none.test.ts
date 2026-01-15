@@ -5,7 +5,7 @@
  * @author Anne Fu <v-annefu@microsoft.com>
  */
 import * as path from "path";
-import { VSBrowser } from "vscode-extension-tester";
+import { VSBrowser, InputBox } from "vscode-extension-tester";
 import {
   CommandPaletteCommands,
   Timeout,
@@ -67,6 +67,9 @@ describe("Remote debug Tests", function () {
       await createNewProject("daOpenAPI", appName, { apiAuthOption: "None" });
       await clearNotifications();
       await execCommandIfExist(CommandPaletteCommands.ProvisionCommand);
+      await driver.sleep(Timeout.shortTimeWait);
+      const input = await InputBox.create();
+      await input.selectQuickPick("dev");
       await driver.sleep(Timeout.longTimeWait);
       await getNotification(
         Notification.ProvisionSucceeded,

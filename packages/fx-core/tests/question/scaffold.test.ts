@@ -408,16 +408,6 @@ describe("ProjectTypeOptions", () => {
     const option = ProjectTypeOptions.officeAddin(Platform.CLI);
     assert.equal(option.id, ProjectTypeOptions.officeMetaOSOptionId);
   });
-  it("outlookAddin - VSC", () => {
-    sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
-    const option = ProjectTypeOptions.officeAddin(Platform.VSCode);
-    assert.equal(option.id, ProjectTypeOptions.outlookAddinOptionId);
-  });
-  it("outlookAddin - CLI", () => {
-    sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
-    const option = ProjectTypeOptions.officeAddin(Platform.CLI);
-    assert.equal(option.id, ProjectTypeOptions.outlookAddinOptionId);
-  });
   it("start with github copilot", () => {
     sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
     const option = ProjectTypeOptions.startWithGithubCopilot();
@@ -455,13 +445,6 @@ describe("officeAddinProjectTypeNode", () => {
     const node = officeAddinProjectTypeNode();
     assert.deepEqual(node.condition, {
       equals: ProjectTypeOptions.officeMetaOSOptionId,
-    });
-  });
-  it("outlookAddinProjectTypeNode", () => {
-    sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
-    const node = officeAddinProjectTypeNode();
-    assert.deepEqual(node.condition, {
-      equals: ProjectTypeOptions.outlookAddinOptionId,
     });
   });
 });
@@ -513,16 +496,6 @@ describe("folderAndAppNameCondition", () => {
     };
     const res = folderAndAppNameCondition(inputs);
     assert.isTrue(res);
-  });
-  it("false", () => {
-    const inputs: Inputs = {
-      platform: Platform.VSCode,
-      [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
-      [QuestionNames.ProjectType]: ProjectTypeOptions.copilotAgentOptionId,
-    };
-    sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
-    const res = folderAndAppNameCondition(inputs);
-    assert.isFalse(res);
   });
 });
 
