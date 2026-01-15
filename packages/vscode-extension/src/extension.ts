@@ -334,10 +334,10 @@ function activateTeamsFxRegistration(context: vscode.ExtensionContext) {
   // Set region for M365 account every
   void M365TokenInstance.setStatusChangeMap(
     "set-region",
-    { scopes: AuthSvcScopes },
+    { scopes: AuthSvcScopes() },
     async (status, token, accountInfo) => {
       if (status === "SignedIn") {
-        const tokenRes = await M365TokenInstance.getAccessToken({ scopes: AuthSvcScopes });
+        const tokenRes = await M365TokenInstance.getAccessToken({ scopes: AuthSvcScopes() });
         if (tokenRes.isOk()) {
           await teamsDevPortalClient.setRegionEndpointByToken(tokenRes.value);
         }

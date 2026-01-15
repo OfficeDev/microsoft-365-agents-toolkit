@@ -637,7 +637,7 @@ export function ConvertTokenToJson(token: string): object {
 
 export async function checkIsOnline(): Promise<boolean> {
   const options = {
-    hostname: getEntraEndpoint(),
+    hostname: "login.microsoftonline.com",
     path: "/",
     method: "head",
   };

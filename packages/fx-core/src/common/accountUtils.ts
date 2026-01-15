@@ -3,7 +3,8 @@
 
 import { featureFlagManager, FeatureFlags } from "./featureFlags";
 
-enum SovereignCloudEnvironment {
+export enum SovereignCloudEnvironment {
+  Public = "Public",
   GCCM = "GCC M",
   GCCH = "GCC High",
   DOD = "DOD",
@@ -28,4 +29,19 @@ export function getDefaultAuthorityUrl(): string {
 
 export function getTenantedAuthorityUrl(tenantId: string): string {
   return `${getEntraEndpoint()}/${tenantId}`;
+}
+
+export function getSovereignCloudEnvironment(): SovereignCloudEnvironment {
+  const sovereignCloudEnvironment = featureFlagManager.getStringValue(
+    FeatureFlags.SovereignCloudEnvironment
+  );
+  if (
+    sovereignCloudEnvironment &&
+    Object.values(SovereignCloudEnvironment).includes(
+      sovereignCloudEnvironment as SovereignCloudEnvironment
+    )
+  ) {
+    return sovereignCloudEnvironment as SovereignCloudEnvironment;
+  }
+  return SovereignCloudEnvironment.Public;
 }

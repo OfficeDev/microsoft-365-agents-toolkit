@@ -18,7 +18,11 @@ import { EOL } from "os";
 import * as path from "path";
 import { Service } from "typedi";
 import { teamsDevPortalClient } from "../../../client/teamsDevPortalClient";
-import { AppStudioScopes, getAppStudioEndpoint } from "../../../common/constants";
+import {
+  AppStudioScopes,
+  getResourceServiceEndpoint,
+  ResourceServiceType,
+} from "../../../common/constants";
 import { getLocalizedString } from "../../../common/localizeUtils";
 import { waitSeconds } from "../../../common/utils";
 import { FileNotFoundError, InvalidActionInputError } from "../../../error/common";
@@ -90,7 +94,7 @@ export class ValidateWithTestCasesDriver implements StepDriver {
       merge(context.telemetryProperties, manifestTelemetries);
 
       const appStudioTokenRes = await context.m365TokenProvider.getAccessToken({
-        scopes: AppStudioScopes,
+        scopes: AppStudioScopes(),
       });
       if (appStudioTokenRes.isErr()) {
         return err(appStudioTokenRes.error);
@@ -114,9 +118,9 @@ export class ValidateWithTestCasesDriver implements StepDriver {
                   color: Colors.BRIGHT_YELLOW,
                 },
                 {
-                  content: `${getAppStudioEndpoint()}/apps/${manifest.id}/app-validation/${
-                    validation.id
-                  }`,
+                  content: `${getResourceServiceEndpoint(ResourceServiceType.TDP)}/apps/${
+                    manifest.id
+                  }/app-validation/${validation.id}`,
                   color: Colors.BRIGHT_CYAN,
                 },
               ];
@@ -124,7 +128,9 @@ export class ValidateWithTestCasesDriver implements StepDriver {
             } else {
               const message = getLocalizedString(
                 "driver.teamsApp.progressBar.validateWithTestCases.conflict",
-                `${getAppStudioEndpoint()}/apps/${manifest.id}/app-validation/${validation.id}`
+                `${getResourceServiceEndpoint(ResourceServiceType.TDP)}/apps/${
+                  manifest.id
+                }/app-validation/${validation.id}`
               );
               context.logProvider.warning(message);
             }
@@ -142,9 +148,9 @@ export class ValidateWithTestCasesDriver implements StepDriver {
             color: Colors.BRIGHT_WHITE,
           },
           {
-            content: `${getAppStudioEndpoint()}/apps/${manifest.id}/app-validation/${
-              response.appValidationId
-            }`,
+            content: `${getResourceServiceEndpoint(ResourceServiceType.TDP)}/apps/${
+              manifest.id
+            }/app-validation/${response.appValidationId}`,
             color: Colors.BRIGHT_CYAN,
           },
         ];
@@ -153,7 +159,9 @@ export class ValidateWithTestCasesDriver implements StepDriver {
         const message = getLocalizedString(
           "driver.teamsApp.progressBar.validateWithTestCases.step",
           response.status,
-          `${getAppStudioEndpoint()}/apps/${manifest.id}/app-validation`
+          `${getResourceServiceEndpoint(ResourceServiceType.TDP)}/apps/${
+            manifest.id
+          }/app-validation`
         );
         context.logProvider.info(message);
 
@@ -181,7 +189,9 @@ export class ValidateWithTestCasesDriver implements StepDriver {
     response: AsyncAppValidationResponse,
     teamsAppId: string
   ): Promise<void> {
-    const validationRequestListUrl = `${getAppStudioEndpoint()}/apps/${teamsAppId}/app-validation`;
+    const validationRequestListUrl = `${getResourceServiceEndpoint(
+      ResourceServiceType.TDP
+    )}/apps/${teamsAppId}/app-validation`;
 
     try {
       if (args.showProgressBar && context.ui) {
@@ -233,9 +243,9 @@ export class ValidateWithTestCasesDriver implements StepDriver {
     resultResp: AsyncAppValidationResultsResponse,
     teamsAppId: string
   ): void {
-    const validationStatusUrl = `${getAppStudioEndpoint()}/apps/${teamsAppId}/app-validation/${
-      resultResp.appValidationId
-    }`;
+    const validationStatusUrl = `${getResourceServiceEndpoint(
+      ResourceServiceType.TDP
+    )}/apps/${teamsAppId}/app-validation/${resultResp.appValidationId}`;
     const failed = resultResp.validationResults?.failures?.length ?? 0;
     const warns = resultResp.validationResults?.warnings?.length ?? 0;
     const skipped = resultResp.validationResults?.skipped?.length ?? 0;

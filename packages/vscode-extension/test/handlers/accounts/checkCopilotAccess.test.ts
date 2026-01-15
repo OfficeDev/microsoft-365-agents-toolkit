@@ -22,7 +22,7 @@ describe("check copilot access", () => {
     const copilotCheckServiceScope = process.env.SIDELOADING_SERVICE_SCOPE ?? MosServiceScope;
     const m365GetStatusStub = sandbox
       .stub(M365TokenInstance, "getStatus")
-      .withArgs({ scopes: AppStudioScopes })
+      .withArgs({ scopes: AppStudioScopes() })
       .resolves(err({ error: "unknown" } as any));
     const m365GetAccessTokenStub = sandbox
       .stub(M365TokenInstance, "getAccessToken")
@@ -51,7 +51,7 @@ describe("check copilot access", () => {
     const copilotCheckServiceScope = process.env.SIDELOADING_SERVICE_SCOPE ?? MosServiceScope;
     const m365GetStatusStub = sandbox
       .stub(M365TokenInstance, "getStatus")
-      .withArgs({ scopes: AppStudioScopes })
+      .withArgs({ scopes: AppStudioScopes() })
       .resolves(err({ error: "unknown" } as any));
     const m365GetAccessTokenStub = sandbox
       .stub(M365TokenInstance, "getAccessToken")
@@ -84,7 +84,7 @@ describe("check copilot access", () => {
     const copilotCheckServiceScope = process.env.SIDELOADING_SERVICE_SCOPE ?? MosServiceScope;
     const m365GetStatusStub = sandbox
       .stub(M365TokenInstance, "getStatus")
-      .withArgs({ scopes: AppStudioScopes })
+      .withArgs({ scopes: AppStudioScopes() })
       .resolves(err({ error: "unknown" } as any));
     sandbox
       .stub(M365TokenInstance, "getAccessToken")
@@ -111,7 +111,7 @@ describe("check copilot access", () => {
     const copilotCheckServiceScope = process.env.SIDELOADING_SERVICE_SCOPE ?? MosServiceScope;
     const m365GetStatusStub = sandbox
       .stub(M365TokenInstance, "getStatus")
-      .withArgs({ scopes: AppStudioScopes })
+      .withArgs({ scopes: AppStudioScopes() })
       .resolves(ok({ status: "SignedIn", accountInfo: { upn: "test.email.com" } }));
     const m365GetAccessTokenStub = sandbox
       .stub(M365TokenInstance, "getAccessToken")
@@ -144,7 +144,7 @@ describe("check copilot access", () => {
     const copilotCheckServiceScope = process.env.SIDELOADING_SERVICE_SCOPE ?? MosServiceScope;
     const m365GetStatusStub = sandbox
       .stub(M365TokenInstance, "getStatus")
-      .withArgs({ scopes: AppStudioScopes })
+      .withArgs({ scopes: AppStudioScopes() })
       .resolves(ok({ status: "SignedIn", accountInfo: { upn: "test.email.com" } }));
     const m365GetAccessTokenStub = sandbox
       .stub(M365TokenInstance, "getAccessToken")
@@ -177,7 +177,7 @@ describe("check copilot access", () => {
     const copilotCheckServiceScope = process.env.SIDELOADING_SERVICE_SCOPE ?? MosServiceScope;
     const m365GetStatusStub = sandbox
       .stub(M365TokenInstance, "getStatus")
-      .withArgs({ scopes: AppStudioScopes })
+      .withArgs({ scopes: AppStudioScopes() })
       .resolves(ok({ status: "SignedIn", accountInfo: { upn: "test.email.com" } }));
     const m365GetAccessTokenStub = sandbox
       .stub(M365TokenInstance, "getAccessToken")

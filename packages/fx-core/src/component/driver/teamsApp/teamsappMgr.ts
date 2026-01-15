@@ -272,7 +272,7 @@ class TeamsAppMgr {
     // 4. show result
     let loginHint = "";
     const accountRes = await driverContext.m365TokenProvider.getJsonObject({
-      scopes: AppStudioScopes,
+      scopes: AppStudioScopes(),
     });
     if (accountRes.isOk()) {
       loginHint = accountRes.value.unique_name as string;

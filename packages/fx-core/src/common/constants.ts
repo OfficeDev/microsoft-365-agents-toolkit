@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
+import { getSovereignCloudEnvironment, SovereignCloudEnvironment } from "./accountUtils";
 import { getLocalizedString } from "./localizeUtils";
 
 export class ConstantString {
@@ -63,23 +64,81 @@ export function getResourceGroupInPortal(
     return undefined;
   }
 }
-export function getAppStudioEndpoint(): string {
-  if (process.env.APP_STUDIO_ENV && process.env.APP_STUDIO_ENV === "int") {
-    return "https://dev-int.teams.microsoft.com";
-  } else {
-    return "https://dev.teams.microsoft.com";
-  }
+
+export enum ResourceServiceType {
+  AuthSvc = "AuthSvc",
+  TDP = "TDP",
+  MOS3 = "MOS3",
+  Graph = "Graph",
+  Azure = "Azure",
 }
 
-export const AuthSvcScopes = ["https://api.spaces.skype.com/Region.ReadWrite"];
+export const serviceEndpoints: Record<
+  SovereignCloudEnvironment,
+  Record<ResourceServiceType, string>
+> = {
+  [SovereignCloudEnvironment.Public]: {
+    [ResourceServiceType.AuthSvc]: "https://api.spaces.skype.com",
+    [ResourceServiceType.TDP]: "https://dev.teams.microsoft.com",
+    [ResourceServiceType.MOS3]: "https://titles.prod.mos.microsoft.com",
+    [ResourceServiceType.Graph]: "https://graph.microsoft.com",
+    [ResourceServiceType.Azure]: "https://management.core.windows.net",
+  },
+  [SovereignCloudEnvironment.GCCM]: {
+    [ResourceServiceType.AuthSvc]: "https://api.spaces.skype.com",
+    [ResourceServiceType.TDP]: "https://dev.teams.microsoft.com",
+    [ResourceServiceType.MOS3]: "https://titles.gccm.mos.microsoft.com",
+    [ResourceServiceType.Graph]: "https://graph.microsoft.com",
+    [ResourceServiceType.Azure]: "https://management.core.windows.net",
+  },
+  [SovereignCloudEnvironment.GCCH]: {
+    [ResourceServiceType.AuthSvc]: "https://api.spaces.skype.com",
+    [ResourceServiceType.TDP]: "https://dev.gov.teams.microsoft.us",
+    [ResourceServiceType.MOS3]: "https://titles.gcch.mos.svc.usgovcloud.microsoft",
+    [ResourceServiceType.Graph]: "https://graph.microsoft.us",
+    [ResourceServiceType.Azure]: "https://management.usgovcloudapi.net",
+  },
+  [SovereignCloudEnvironment.DOD]: {
+    [ResourceServiceType.AuthSvc]: "https://api.spaces.skype.com",
+    [ResourceServiceType.TDP]: "https://dev.dod.teams.microsoft.us",
+    [ResourceServiceType.MOS3]: "https://titles.dod.mos.svc.usgovcloud.microsoft",
+    [ResourceServiceType.Graph]: "https://dod-graph.microsoft.us",
+    [ResourceServiceType.Azure]: "https://management.usgovcloudapi.net",
+  },
+};
+
+export function getResourceServiceEndpoint(resourceServiceType: ResourceServiceType): string {
+  if (
+    resourceServiceType === ResourceServiceType.TDP &&
+    process.env.APP_STUDIO_ENV &&
+    process.env.APP_STUDIO_ENV === "int"
+  ) {
+    return "https://dev-int.teams.microsoft.com";
+  }
+  const sovereignCloudEnvironment = getSovereignCloudEnvironment();
+  return serviceEndpoints[sovereignCloudEnvironment][resourceServiceType];
+}
+
+// AuthSvc
+export const AuthSvcScopes = () => {
+  return [`${getResourceServiceEndpoint(ResourceServiceType.AuthSvc)}/Region.ReadWrite`];
+};
+
+// TDP
+export const AppStudioScopes = () => {
+  return [`${getResourceServiceEndpoint(ResourceServiceType.TDP)}/AppDefinitions.ReadWrite`];
+};
+
+// MOS3
+export const MosServiceScope = () => {
+  return [`${getResourceServiceEndpoint(ResourceServiceType.MOS3)}/.default`];
+};
+
+// Graph
 export const GraphScopes = ["Application.ReadWrite.All", "TeamsAppInstallation.ReadForUser"];
 export const GroupSearchScopes = ["GroupMember.Read.All"];
 export const GCScopes = ["ExternalConnection.Read.All"];
 export const GraphReadUserScopes = ["https://graph.microsoft.com/User.ReadBasic.All"];
-export const SPFxScopes = (tenant: string) => [`${tenant}/Sites.FullControl.All`];
-export const AzureScopes = ["https://management.core.windows.net/user_impersonation"];
-export const AppStudioScopes = [`${getAppStudioEndpoint()}/AppDefinitions.ReadWrite`];
-export const SpecParserSource = "SpecParser";
 export const GraphTeamsAppSettingsReadScopes = ["TeamworkAppSettings.Read.All"];
 export const GraphTeamsTeamCreateScopes = ["Team.Create"];
 export const GraphTeamsChannelCreateScopes = ["Channel.Create"];
@@ -87,3 +146,11 @@ export const GraphTeamsTeamReadScopes = ["Team.ReadBasic.All"];
 export const GraphTeamsChannelReadScopes = ["Channel.ReadBasic.All"];
 export const GraphTeamsInstallAppScopes = ["TeamsAppInstallation.ReadWriteAndConsentForTeam"];
 export const ListSensitivityLabelScope = "InformationProtectionPolicy.Read";
+
+// SPFx
+export const SPFxScopes = (tenant: string) => [`${tenant}/Sites.FullControl.All`];
+
+// Azure
+export const AzureScopes = ["https://management.core.windows.net/user_impersonation"];
+
+export const SpecParserSource = "SpecParser";

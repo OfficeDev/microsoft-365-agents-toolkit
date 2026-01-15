@@ -33,7 +33,7 @@ class AccountTreeViewProvider implements vscode.TreeDataProvider<DynamicNode> {
   public subscribeToStatusChanges(tokenProvider: TokenProvider) {
     void tokenProvider.m365TokenProvider?.setStatusChangeMap(
       "tree-view",
-      { scopes: AppStudioScopes },
+      { scopes: AppStudioScopes() },
       (status, token, accountInfo) =>
         m365AccountStatusChangeHandler("appStudio", status, token, accountInfo)
     );

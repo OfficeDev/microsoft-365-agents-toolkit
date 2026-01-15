@@ -29,7 +29,7 @@ export async function signinM365Callback(...args: unknown[]): Promise<Result<nul
   });
 
   const tokenRes = await tools.tokenProvider.m365TokenProvider.getJsonObject({
-    scopes: AppStudioScopes,
+    scopes: AppStudioScopes(),
     showDialog: true,
   });
   const token = tokenRes.isOk() ? tokenRes.value : undefined;

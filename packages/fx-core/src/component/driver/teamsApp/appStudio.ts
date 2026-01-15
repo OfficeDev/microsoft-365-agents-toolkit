@@ -53,7 +53,7 @@ export async function checkIfAppInDifferentAcountSameTenant(
   logger: LogProvider
 ): Promise<Result<boolean, FxError>> {
   const appStudioTokenRes = await tokenProvider.getAccessToken({
-    scopes: AppStudioScopes,
+    scopes: AppStudioScopes(),
   });
   if (appStudioTokenRes.isErr()) {
     return err(appStudioTokenRes.error);
@@ -146,7 +146,7 @@ export async function updateManifestV3(
   }
 
   const appStudioTokenRes = await ctx.tokenProvider!.m365TokenProvider.getAccessToken({
-    scopes: AppStudioScopes,
+    scopes: AppStudioScopes(),
   });
   if (appStudioTokenRes.isErr()) {
     return err(appStudioTokenRes.error);
@@ -180,7 +180,7 @@ export async function updateManifestV3(
 
     let loginHint = "";
     const accountRes = await ctx.tokenProvider!.m365TokenProvider.getJsonObject({
-      scopes: AppStudioScopes,
+      scopes: AppStudioScopes(),
     });
     if (accountRes.isOk()) {
       loginHint = accountRes.value.unique_name as string;
@@ -306,7 +306,7 @@ export async function getAppPackage(
   logProvider?: LogProvider
 ): Promise<Result<AppPackage, FxError>> {
   const appStudioTokenRes = await m365TokenProvider.getAccessToken({
-    scopes: AppStudioScopes,
+    scopes: AppStudioScopes(),
   });
   if (appStudioTokenRes.isErr()) {
     return err(appStudioTokenRes.error);

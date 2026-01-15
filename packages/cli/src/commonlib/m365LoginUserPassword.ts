@@ -74,9 +74,9 @@ export class M365ProviderUserPassword extends BasicLogin implements M365TokenPro
       const m365Token = M365ProviderUserPassword.accessToken;
 
       // Set region for App Studio API
-      if (tokenRequest.scopes === AppStudioScopes) {
+      if (tokenRequest.scopes === AppStudioScopes()) {
         const authSvcRequest = {
-          scopes: AuthSvcScopes,
+          scopes: AuthSvcScopes(),
           username: user!,
           password: password!,
         };

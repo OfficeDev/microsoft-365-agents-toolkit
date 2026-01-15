@@ -121,7 +121,7 @@ export async function openAzureAccountHandler() {
 
 export async function openAppManagement(...args: unknown[]): Promise<Result<boolean, FxError>> {
   ExtTelemetry.sendTelemetryEvent(TelemetryEvent.ManageTeamsApp, getTriggerFromProperty(args));
-  const accountRes = await M365TokenInstance.getStatus({ scopes: AppStudioScopes });
+  const accountRes = await M365TokenInstance.getStatus({ scopes: AppStudioScopes() });
 
   if (accountRes.isOk() && accountRes.value.status === signedIn) {
     const loginHint = accountRes.value.accountInfo?.upn as string;

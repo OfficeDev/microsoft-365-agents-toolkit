@@ -10,7 +10,11 @@ import { FxError, Result, SystemError, UserError } from "@microsoft/teamsfx-api"
 import { getLocalizedString } from "../../../common/localizeUtils";
 import { FileNotFoundError, InvalidActionInputError, assembleError } from "../../../error/common";
 import { AppScope, PackageService } from "../../m365/packageService";
-import { MosServiceEndpoint, MosServiceScope } from "../../m365/serviceConstant";
+import {
+  getResourceServiceEndpoint,
+  MosServiceScope,
+  ResourceServiceType,
+} from "../../../common/constants";
 import { getAbsolutePath, wrapRun } from "../../utils/common";
 import { logMessageKeys } from "../aad/utility/constants";
 import { DriverContext } from "../interface/commonArgs";
@@ -82,13 +86,11 @@ export class M365TitleAcquireDriver implements StepDriver {
       }
 
       // get sideloading service settings
-      const sideloadingServiceEndpoint =
-        process.env.SIDELOADING_SERVICE_ENDPOINT ?? MosServiceEndpoint;
-      const sideloadingServiceScope = process.env.SIDELOADING_SERVICE_SCOPE ?? MosServiceScope;
+      const sideloadingServiceEndpoint = getResourceServiceEndpoint(ResourceServiceType.MOS3);
 
       const packageService = new PackageService(sideloadingServiceEndpoint, context.logProvider);
       const sideloadingTokenRes = await context.m365TokenProvider.getAccessToken({
-        scopes: [sideloadingServiceScope],
+        scopes: MosServiceScope(),
       });
       if (sideloadingTokenRes.isErr()) {
         throw sideloadingTokenRes.error;

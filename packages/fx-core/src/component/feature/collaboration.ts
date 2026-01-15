@@ -24,7 +24,7 @@ import {
   TeamsAppAdmin,
 } from "../../common/permissionInterface";
 import { AgentPermission, PackageService } from "../../component/m365/packageService";
-import { MosServiceScope } from "../../component/m365/serviceConstant";
+import { MosServiceScope } from "../../common/constants";
 import { HttpClientError, HttpServerError, assembleError } from "../../error/common";
 import { AppIdNotExist } from "../../error/teamsApp";
 import { AadAppClient } from "../../client/aadAppClient";
@@ -153,7 +153,7 @@ export class TeamsCollaboration {
   ): Promise<Result<ResourcePermission[], FxError>> {
     try {
       const appStudioTokenRes = await this.tokenProvider.getAccessToken({
-        scopes: AppStudioScopes,
+        scopes: AppStudioScopes(),
       });
       const appStudioToken = appStudioTokenRes.isOk() ? appStudioTokenRes.value : undefined;
 
@@ -181,7 +181,7 @@ export class TeamsCollaboration {
   ): Promise<Result<TeamsAppAdmin[], FxError>> {
     try {
       const appStudioTokenRes = await this.tokenProvider.getAccessToken({
-        scopes: AppStudioScopes,
+        scopes: AppStudioScopes(),
       });
       const appStudioToken = appStudioTokenRes.isOk() ? appStudioTokenRes.value : undefined;
 
@@ -222,7 +222,7 @@ export class TeamsCollaboration {
   ): Promise<Result<ResourcePermission[], FxError>> {
     try {
       const appStudioTokenRes = await this.tokenProvider.getAccessToken({
-        scopes: AppStudioScopes,
+        scopes: AppStudioScopes(),
       });
       const appStudioToken = appStudioTokenRes.isOk() ? appStudioTokenRes.value : undefined;
 
@@ -286,7 +286,7 @@ export class AgentCollaboration {
     userInfo: AppUser
   ): Promise<Result<ResourcePermission[], FxError>> {
     const mosTokenRes = await this.tokenProvider.getAccessToken({
-      scopes: [MosServiceScope],
+      scopes: MosServiceScope(),
     });
     if (mosTokenRes.isErr()) {
       return err(mosTokenRes.error);
@@ -317,7 +317,7 @@ export class AgentCollaboration {
     titleId: string
   ): Promise<Result<AgentOwner[], FxError>> {
     const mosTokenRes = await this.tokenProvider.getAccessToken({
-      scopes: [MosServiceScope],
+      scopes: MosServiceScope(),
     });
     if (mosTokenRes.isErr()) {
       return err(mosTokenRes.error);

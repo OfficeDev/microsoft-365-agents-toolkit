@@ -119,7 +119,7 @@ export class CreateAadAppDriver implements StepDriver {
         let aadApp;
         if (args.generateServicePrincipal) {
           const tokenRes = await context.m365TokenProvider.getAccessToken({
-            scopes: AppStudioScopes,
+            scopes: AppStudioScopes(),
           });
           if (tokenRes.isErr()) {
             throw tokenRes.error;

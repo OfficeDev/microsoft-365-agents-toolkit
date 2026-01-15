@@ -34,7 +34,7 @@ import { AppUser } from "../driver/teamsApp/interfaces/appdefinitions/appUser";
 import { advancedDASettingUrl, M365HelpLink } from "./constants";
 import { NotExtendedToM365Error } from "./errors";
 import { M365AppDefinition, M365AppEntity } from "./interface";
-import { MosServiceEndpoint } from "./serviceConstant";
+import { getResourceServiceEndpoint, ResourceServiceType } from "../../common/constants";
 
 const M365ErrorSource = "M365";
 const M365ErrorComponent = "PackageService";
@@ -62,7 +62,7 @@ export class PackageService {
   public static GetSharedInstance(): PackageService {
     if (!PackageService.sharedInstance) {
       PackageService.sharedInstance = new PackageService(
-        process.env.SIDELOADING_SERVICE_ENDPOINT ?? MosServiceEndpoint,
+        getResourceServiceEndpoint(ResourceServiceType.MOS3),
         TOOLS.logProvider
       );
     }

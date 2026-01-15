@@ -216,21 +216,21 @@ export class M365Login extends BasicLogin implements M365TokenProvider {
       throw UserCancelError(getDefaultString("teamstoolkit.commands.signOut.title"));
     }
     await M365Login.codeFlowInstance.logout();
-    await this.notifyStatus({ scopes: AppStudioScopes });
+    await this.notifyStatus({ scopes: AppStudioScopes() });
     return true;
   }
 
   async switchTenant(tenantId: string): Promise<Result<string, FxError>> {
     try {
       const res = await M365Login.codeFlowInstance.getTokenByScopes(
-        AppStudioScopes,
+        AppStudioScopes(),
         true,
         undefined,
         tenantId
       );
       if (res.isOk()) {
         await M365Login.codeFlowInstance.switchTenant(tenantId);
-        await this.notifyStatus({ scopes: AppStudioScopes });
+        await this.notifyStatus({ scopes: AppStudioScopes() });
       }
       return res;
     } catch (e) {
@@ -305,7 +305,7 @@ export class M365Login extends BasicLogin implements M365TokenProvider {
         // if token is empty, try to get token by app studio scope, normally this should only affect UX
         if (Object.keys(tokenJson).length === 0) {
           const appStudioRes = await M365Login.codeFlowInstance.getTokenByScopes(
-            AppStudioScopes,
+            AppStudioScopes(),
             false
           );
           if (appStudioRes.isOk()) {

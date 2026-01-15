@@ -21,7 +21,7 @@ export async function createOrUpdateBotRegistration(
   //      3.1 Merge bot registration (remote + passed-in, respect passed-in).
   //      3.2 Update bot registration.
   const appStudioTokenRes = await m365TokenProvider.getAccessToken({
-    scopes: AppStudioScopes,
+    scopes: AppStudioScopes(),
   });
   if (appStudioTokenRes.isErr()) {
     return err(appStudioTokenRes.error);

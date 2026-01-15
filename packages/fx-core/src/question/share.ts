@@ -146,7 +146,7 @@ export function selectUsersToRemoveSharedAccess(): MultiSelectQuestion {
         throw new Error("Project path is not defined");
       }
       const tokenRes = await TOOLS.tokenProvider.m365TokenProvider.getAccessToken({
-        scopes: AppStudioScopes,
+        scopes: AppStudioScopes(),
       });
       if (tokenRes.isErr()) {
         throw tokenRes.error;

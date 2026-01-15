@@ -32,7 +32,7 @@ class AccountUtils {
   async outputM365Info(commandType: "login" | "show", tid?: string): Promise<boolean> {
     const appStudioTokenJsonRes = await M365TokenProvider.getJsonObject(
       {
-        scopes: AppStudioScopes,
+        scopes: AppStudioScopes(),
       },
       tid
     );
@@ -143,7 +143,7 @@ export const accountShowCommand: CLICommand = {
     event: TelemetryEvent.AccountShow,
   },
   handler: async (ctx) => {
-    const m365StatusRes = await M365TokenProvider.getStatus({ scopes: AppStudioScopes });
+    const m365StatusRes = await M365TokenProvider.getStatus({ scopes: AppStudioScopes() });
     if (m365StatusRes.isErr()) {
       return err(m365StatusRes.error);
     }
