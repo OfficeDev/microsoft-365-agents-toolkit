@@ -33,6 +33,8 @@ docker:
     # Foundry related parameters
     AZURE_AI_FOUNDRY_PROJECT_ENDPOINT: "${AZURE_AI_FOUNDRY_PROJECT_ENDPOINT}"
     AGENT_ID: "${AGENT_ID}"
+    # Azure SQL
+    SECRET_SQL_PASSWORD: "${SECRET_SQL_PASSWORD}"
 
 execution:
   delay_between_steps: 0.5         # Default: 0.5 (seconds between steps)
