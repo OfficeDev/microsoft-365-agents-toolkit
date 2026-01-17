@@ -1,11 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { FxError, Settings, Result, ok, err } from "@microsoft/teamsfx-api";
+import { err, FxError, ok, Result, Settings } from "@microsoft/teamsfx-api";
 import * as fs from "fs-extra";
 import * as uuid from "uuid";
-import { globalVars } from "../../common/globalVars";
 import { parseDocument } from "yaml";
+import { featureFlagManager, FeatureFlags } from "../../common/featureFlags";
+import { globalVars } from "../../common/globalVars";
 import {
   Component,
   sendTelemetryEvent,
@@ -20,9 +21,15 @@ class SettingsUtils {
     projectPath: string,
     ensureTrackingId = true
   ): Promise<Result<Settings, FxError>> {
-    const projectYamlPath = pathUtils.getYmlFilePath(projectPath, "dev") as string;
-    if (!(await fs.pathExists(projectYamlPath))) {
-      return err(new FileNotFoundError("SettingsUtils", projectYamlPath));
+    let projectYamlPath: string | undefined;
+    if (featureFlagManager.getBooleanValue(FeatureFlags.GenerateConfigFiles)) {
+      projectYamlPath = pathUtils.getAvailableYmlFilePath(projectPath);
+    } else {
+      projectYamlPath = pathUtils.getYmlFilePath(projectPath, "dev");
+    }
+
+    if (!projectYamlPath || !(await fs.pathExists(projectYamlPath))) {
+      return err(new FileNotFoundError("SettingsUtils", projectYamlPath || "m365agents.*.yml"));
     }
     const yamlFileContent: string = await fs.readFile(projectYamlPath, "utf8");
     const appYaml = parseDocument(yamlFileContent);
@@ -44,9 +51,15 @@ class SettingsUtils {
     return ok(projectSettings);
   }
   async writeSettings(projectPath: string, settings: Settings): Promise<Result<string, FxError>> {
-    const projectYamlPath = pathUtils.getYmlFilePath(projectPath, "dev") as string;
-    if (!(await fs.pathExists(projectYamlPath))) {
-      return err(new FileNotFoundError("SettingsUtils", projectYamlPath));
+    let projectYamlPath: string | undefined;
+    if (featureFlagManager.getBooleanValue(FeatureFlags.GenerateConfigFiles)) {
+      projectYamlPath = pathUtils.getAvailableYmlFilePath(projectPath);
+    } else {
+      projectYamlPath = pathUtils.getYmlFilePath(projectPath, "dev");
+    }
+
+    if (!projectYamlPath || !(await fs.pathExists(projectYamlPath))) {
+      return err(new FileNotFoundError("SettingsUtils", projectYamlPath || "m365agents.*.yml"));
     }
     const yamlFileContent: string = await fs.readFile(projectYamlPath, "utf8");
     const appYaml = parseDocument(yamlFileContent);

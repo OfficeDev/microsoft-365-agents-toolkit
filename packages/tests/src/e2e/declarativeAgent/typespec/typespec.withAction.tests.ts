@@ -25,7 +25,10 @@ class DeclarativeAgentWithTypeSpec extends CaseFactory {
         "// This will be shown to the user when the agent is first created.",
         ""
       )
-      .replace("  // Uncomment this part to add actions to the agent.", "")
+      .replace(
+        "  // Uncomment this part to include custom actions in the agent",
+        ""
+      )
       .replace(/\/\/ /g, "");
     await fs.writeFile(mainFilePath, updateContent, "utf-8");
     return Promise.resolve();

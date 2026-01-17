@@ -29,6 +29,8 @@ export class FeatureFlagName {
   static readonly CFShortcutMetaOS = "TEAMSFX_CF_SHORTCUT_METAOS";
   static readonly MCPForDA = "TEAMSFX_MCP_FOR_DA";
   static readonly BrokerAuth = "TEAMSFX_BROKER_AUTH";
+  // Add config files to existing project to make it toolkit compatible
+  static readonly GenerateConfigFiles = "TEAMSFX_GENERATE_CONFIG_FILES";
 }
 
 export interface FeatureFlag {
@@ -100,6 +102,10 @@ export class FeatureFlags {
   };
   static readonly BrokerAuth = {
     name: FeatureFlagName.BrokerAuth,
+    defaultValue: "false",
+  };
+  static readonly GenerateConfigFiles = {
+    name: FeatureFlagName.GenerateConfigFiles,
     defaultValue: "false",
   };
 }

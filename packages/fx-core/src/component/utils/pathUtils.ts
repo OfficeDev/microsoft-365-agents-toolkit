@@ -5,11 +5,21 @@ import { err, FxError, ok, Result } from "@microsoft/teamsfx-api";
 import fs from "fs-extra";
 import * as path from "path";
 import yaml from "yaml";
+import { featureFlagManager, FeatureFlags } from "../../common/featureFlags";
 import { MetadataV3, MetadataV4 } from "../../common/versionMetadata";
 import { environmentNameManager } from "../../core/environmentName";
 import { MissingRequiredFileError } from "../../error/common";
 
 class PathUtils {
+  getAvailableYmlFilePath(projectPath: string): string | undefined {
+    const possibleEnvs = ["", ".playground", ".local"];
+    for (const env of possibleEnvs) {
+      const ymlPath = path.join(projectPath, `m365agents${env}.yml`);
+      if (fs.pathExistsSync(ymlPath)) return ymlPath;
+    }
+    return undefined;
+  }
+
   getYmlFilePath(projectPath: string, env?: string, silent = false): string | undefined {
     if (process.env.TEAMSFX_CONFIG_FILE_PATH) return process.env.TEAMSFX_CONFIG_FILE_PATH;
     const envName = env || process.env.TEAMSFX_ENV || "dev";
@@ -39,6 +49,12 @@ class PathUtils {
     if (fs.pathExistsSync(ymlPathV3)) {
       return ymlPathV3;
     }
+    if (featureFlagManager.getBooleanValue(FeatureFlags.GenerateConfigFiles)) {
+      const availableYmlFilePath = this.getAvailableYmlFilePath(projectPath) || "";
+      if (fs.pathExistsSync(availableYmlFilePath)) {
+        return availableYmlFilePath;
+      }
+    }
     if (silent) return undefined;
     if (environmentNameManager.isRemoteEnvironment(envName)) {
       throw new MissingRequiredFileError("core", "", ymlPathV4);
@@ -46,8 +62,11 @@ class PathUtils {
       throw new MissingRequiredFileError("core", "Debug ", ymlPathV4);
     }
   }
-  async getEnvFolderPath(projectPath: string): Promise<Result<string | undefined, FxError>> {
-    const ymlFilePath = this.getYmlFilePath(projectPath, "dev") as string;
+  async getEnvFolderPath(
+    projectPath: string,
+    env = "dev"
+  ): Promise<Result<string | undefined, FxError>> {
+    const ymlFilePath = this.getYmlFilePath(projectPath, env) as string;
     const ymlContent = await fs.readFile(ymlFilePath, "utf-8");
     const yamlObj = yaml.parse(ymlContent);
     const folderPath = yamlObj.environmentFolderPath?.toString() || "./env";
@@ -61,7 +80,7 @@ class PathUtils {
     projectPath: string,
     env: string
   ): Promise<Result<string | undefined, FxError>> {
-    const envFolderPathRes = await this.getEnvFolderPath(projectPath);
+    const envFolderPathRes = await this.getEnvFolderPath(projectPath, env);
     if (envFolderPathRes.isErr()) return err(envFolderPathRes.error);
     const folderPath = envFolderPathRes.value;
     if (!folderPath) return ok(undefined);

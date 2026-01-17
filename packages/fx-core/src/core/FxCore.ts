@@ -195,6 +195,7 @@ import {
 } from "./collaborator";
 import { LocalCrypto } from "./crypto";
 import { environmentNameManager } from "./environmentName";
+import { generateConfigFiles } from "./generateConfigFiles";
 import { ConcurrentLockerMW } from "./middleware/concurrentLocker";
 import { ContextInjectorMW } from "./middleware/contextInjector";
 import { ErrorHandlerMW } from "./middleware/errorHandler";
@@ -2963,6 +2964,14 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
       );
       return err(systemErr);
     }
+  }
+
+  /**
+   * dynamic template metadata download
+   */
+  @hooks([ErrorContextMW({ component: "FxCore", stage: "generateConfigFiles" }), ErrorHandlerMW])
+  async generateConfigFiles(inputs: Inputs): Promise<Result<undefined, FxError>> {
+    return await generateConfigFiles(inputs);
   }
 
   private async updateAuthActionInYaml(

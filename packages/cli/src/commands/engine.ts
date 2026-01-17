@@ -21,14 +21,13 @@ import {
   IncompatibleProjectError,
   VersionState,
   assembleError,
-  telemetryUtils,
   getHashedEnv,
   isUserCancelError,
   maskSecret,
+  telemetryUtils,
 } from "@microsoft/teamsfx-core";
 import { cloneDeep, pick } from "lodash";
 import path from "path";
-import * as uuid from "uuid";
 import { getFxCore } from "../activate";
 import { TextType, colorize } from "../colorize";
 import { tryDetectCICDPlatform } from "../commonlib/common/cicdPlatformDetector";

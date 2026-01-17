@@ -9,14 +9,14 @@
       "precondition_retry_interval": 2
     },
     "total_steps": 7,
-    "created_at": "2025-11-17T17:18:42.884225",
+    "created_at": "2026-01-14T08:50:14.128691",
     "name": "group: create_app_name",
     "description": {
+      "other": "Generated from recording r_0928_014459",
       "owner": "v-ivanchen@microsoft.com",
-      "workitem": "",
-      "other": "Generated from recording r_0928_014459"
+      "workitem": ""
     },
-    "generated_at": "2025-11-17T17:18:42.884225",
+    "generated_at": "2026-01-14T08:50:14.128691",
     "execution_order": [
       "step_7a47c22a",
       "step_69fab4c1",
@@ -29,7 +29,7 @@
     "tags": [
       "group"
     ],
-    "updated_at": "2025-11-27T01:08:42.935663"
+    "updated_at": "2026-01-15T00:42:09.605042"
   },
   "steps": [
     {
@@ -58,7 +58,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_7a47c22a",
-      "created_at": "2025-11-26T08:30:00.758388",
+      "created_at": "2026-01-14T08:50:14.135953",
       "plan_id": "plan_r_0928_014459"
     },
     {
@@ -87,7 +87,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_69fab4c1",
-      "created_at": "2025-11-26T08:30:00.770424",
+      "created_at": "2026-01-14T08:50:14.149058",
       "plan_id": "plan_r_0928_014459"
     },
     {
@@ -113,7 +113,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_b19844ac",
-      "created_at": "2025-11-26T08:30:00.784891",
+      "created_at": "2026-01-14T08:50:14.161952",
       "plan_id": "plan_r_0928_014459"
     },
     {
@@ -139,7 +139,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_bf270ab5",
-      "created_at": "2025-11-26T08:30:00.797370",
+      "created_at": "2026-01-14T08:50:14.174933",
       "plan_id": "plan_r_0928_014459"
     },
     {
@@ -161,7 +161,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_f459eb2a",
-      "created_at": "2025-11-26T08:30:00.811083",
+      "created_at": "2026-01-14T08:50:14.186845",
       "plan_id": "plan_r_0928_014459"
     },
     {
@@ -183,7 +183,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_3aa7f1c8",
-      "created_at": "2025-11-26T08:30:00.824272",
+      "created_at": "2026-01-14T08:50:14.198841",
       "plan_id": "plan_r_0928_014459"
     },
     {
@@ -205,7 +205,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_07e37f08",
-      "created_at": "2025-11-26T08:30:00.837060",
+      "created_at": "2026-01-14T08:50:14.212041",
       "plan_id": "plan_r_0928_014459"
     }
   ],
