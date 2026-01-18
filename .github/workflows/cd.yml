@@ -46,6 +46,8 @@ jobs:
       markdown-check-result: ${{ steps.markdown-check.outcome }}
       security-check-vsc-result: ${{ steps.security-check-vsc.outcome }}
       security-check-vs-result: ${{ steps.security-check-vs.outcome }}
+      markdown-check-samples-result: ${{ steps.markdown-check-samples.outcome }}
+      security-check-samples-result: ${{ steps.security-check-samples.outcome }}
     env:
       CI: true
       PREID: ${{ github.event.inputs.preid }}
@@ -108,6 +110,20 @@ jobs:
         run: |
           python -u .github/scripts/analyze_markdown.py --scan-directory "templates/vsc" "templates/vs"  --file-patterns "**/README.md" "**/README.md.tpl" --extra-files "packages/vscode-extension/CHANGELOG.md"
 
+      - name: Checkout samples repo
+        uses: actions/checkout@v3
+        with:
+          repository: OfficeDev/microsoft-365-agents-toolkit-samples
+          path: samples-repo
+          token: ${{ steps.generate-token.outputs.token }}
+
+      - name: Check Markdown files in samples repo
+        id: markdown-check-samples
+        if: ${{ github.event.inputs.skipmarkdowncheck == 'false' || github.event.inputs.skipmarkdowncheck == '' }}
+        continue-on-error: true
+        run: |
+          python -u .github/scripts/analyze_markdown.py --scan-directory "samples-repo" --file-patterns "**/README.md" "**/README.md.tpl"
+
       - uses: actions/setup-node@v3
         with:
           node-version: 22
@@ -130,6 +146,12 @@ jobs:
         continue-on-error: true  # Allow pipeline to continue, notification will be sent on failure
         run: |
           python -u .github/scripts/check_nuget_vulnerabilities.py --scan-directory "templates/vs"
+
+      - name: Check package.json files for security vulnerabilities(Samples)
+        id: security-check-samples
+        continue-on-error: true  # Allow pipeline to continue, notification will be sent on failure
+        run: |
+          python -u .github/scripts/check_npm_vulnerabilities.py --scan-directory "samples-repo"
 
       - name: Install wine64
         run: |
@@ -411,7 +433,7 @@ jobs:
 
   notify-check-failures:
     needs: cd
-    if: ${{ needs.cd.outputs.markdown-check-result == 'failure' || needs.cd.outputs.security-check-vsc-result == 'failure' || needs.cd.outputs.security-check-vs-result == 'failure' }}
+    if: ${{ needs.cd.outputs.markdown-check-result == 'failure' || needs.cd.outputs.security-check-vsc-result == 'failure' || needs.cd.outputs.security-check-vs-result == 'failure' || needs.cd.outputs.markdown-check-samples-result == 'failure' || needs.cd.outputs.security-check-samples-result == 'failure' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout branch
@@ -426,6 +448,15 @@ jobs:
           if [ "${{ needs.cd.outputs.markdown-check-result }}" == "failure" ]; then
             BODY="${BODY}<b>Markdown Check Failed</b><br/>Markdown files image/hyperlink availability check failed.<br/><br/>"
             SUBJECT_PARTS="Markdown Check"
+          fi
+          
+          if [ "${{ needs.cd.outputs.markdown-check-samples-result }}" == "failure" ]; then
+            if [ -n "$SUBJECT_PARTS" ]; then
+              SUBJECT_PARTS="${SUBJECT_PARTS}, Markdown Check (Samples)"
+            else
+              SUBJECT_PARTS="Markdown Check (Samples)"
+            fi
+            BODY="${BODY}<b>Markdown Check Failed (Samples Repo)</b><br/>Markdown files image/hyperlink availability check failed in microsoft-365-agents-toolkit-samples repo.<br/><br/>"
           fi
           
           if [ "${{ needs.cd.outputs.security-check-vsc-result }}" == "failure" ]; then
@@ -444,6 +475,15 @@ jobs:
               SUBJECT_PARTS="Security Check (VS)"
             fi
             BODY="${BODY}<b>Security Check Failed (VS Templates)</b><br/>Vulnerable NuGet packages found in C# projects under templates/vs.<br/><br/>"
+          fi
+          
+          if [ "${{ needs.cd.outputs.security-check-samples-result }}" == "failure" ]; then
+            if [ -n "$SUBJECT_PARTS" ]; then
+              SUBJECT_PARTS="${SUBJECT_PARTS}, Security Check (Samples)"
+            else
+              SUBJECT_PARTS="Security Check (Samples)"
+            fi
+            BODY="${BODY}<b>Security Check Failed (Samples Repo)</b><br/>Security vulnerabilities found in package.json files in microsoft-365-agents-toolkit-samples repo.<br/><br/>"
           fi
           
           BODY="${BODY}Please check the workflow run for details: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
