@@ -1,0 +1,33 @@
+# .dockerignore - Exclude unnecessary files from Docker build context
+
+# Git files
+.git
+.gitignore
+
+# Documentation
+README.md
+
+# Build artifacts
+*.log
+*.tmp
+
+# IDE files
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Python cache files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+.pytest_cache/
+
+# Docker files (don't need to copy these into the image)
+docker-compose.yml
+docker-compose.override.yml

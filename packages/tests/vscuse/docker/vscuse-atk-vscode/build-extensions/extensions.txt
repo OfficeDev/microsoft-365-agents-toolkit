@@ -1,0 +1,2 @@
+ms-python.python
+ms-dotnettools.csdevkit

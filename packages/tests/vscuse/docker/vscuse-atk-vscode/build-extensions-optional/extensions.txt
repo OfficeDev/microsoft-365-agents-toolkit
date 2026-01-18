@@ -1,0 +1,4 @@
+# Optional Extensions (by Extension ID)
+# One extension ID per line. Lines starting with # are comments.
+# Format: publisher.extension-name
+# Example: esbenp.prettier-vscode

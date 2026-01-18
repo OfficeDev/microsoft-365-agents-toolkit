@@ -1,0 +1,70 @@
+# ============================================================================
+# VscUse VS Code Docker Compose
+# ============================================================================
+# NOTE: This image depends on vscuse-base:latest
+# Build the base image first:
+#   cd ../vscuse-base && docker build -t vscuse-base:latest .
+# ============================================================================
+
+version: '3.8'
+
+services:
+  vscuse-atk-vscode:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        # Allow custom user/group IDs for better host compatibility
+        USER_ID: ${USER_ID:-1000}
+        GROUP_ID: ${GROUP_ID:-1000}
+    image: ghcr.io/microsoft/vscuse-atk-vscode:latest
+    container_name: vscuse-atk-vscode-container
+    restart: unless-stopped
+    environment:
+      - DISPLAY=:99
+      - SERVICE_PORT=6081
+      - DONT_PROMPT_WSL_INSTALL=1
+      - CI_ENABLED=${CI_ENABLED:-true}
+      - VSCODE_INSIDERS=${VSCODE_INSIDERS:-false}
+      # Azure Service Principal for automatic authentication
+      - AZURE_CLIENT_ID=${AZURE_CLIENT_ID:-}
+      - AZURE_CLIENT_SECRET=${AZURE_CLIENT_SECRET:-}
+      - AZURE_TENANT_ID=${AZURE_TENANT_ID:-}
+      - AZURE_SUBSCRIPTION_ID=${AZURE_SUBSCRIPTION_ID:-}
+      - AZURE_AUTH_ENABLED=${AZURE_AUTH_ENABLED:-false}
+      # M365 Account credentials
+      - M365_ACCOUNT_NAME=${M365_ACCOUNT_NAME:-}
+      - M365_ACCOUNT_PASSWORD=${M365_ACCOUNT_PASSWORD:-}
+      - M365_TENANT_ID=${M365_TENANT_ID:-}
+      - M365_AUTH_ENABLED=${M365_AUTH_ENABLED:-false}
+    ports:
+      - "6080:6080"    # noVNC web interface
+      - "6081:6081"    # Screenshot service API
+    volumes:
+      # Mount workspace directory
+      - "${WORKSPACE_PATH:-~/.vscuse/workspace}:/workspace"
+      # Mount app data directory for recordings and other persistent data
+      - "~/.vscuse/app/data:/app/data"
+      # Mount extensions directory for runtime installation
+      - "${EXTENSIONS_PATH:-~/.vscuse/extensions}:/tmp/extensions:ro"
+    networks:
+      - vscode-network
+    cap_add:
+       # Add SYS_ADMIN capability for Chrome sandbox
+      - SYS_ADMIN
+
+    # Health check for the screenshot service
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6081/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  vscode-data:
+    driver: local
+
+networks:
+  vscode-network:
+    driver: bridge
