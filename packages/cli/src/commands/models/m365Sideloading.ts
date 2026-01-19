@@ -1,21 +1,23 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 import { CLICommand, err, ok } from "@microsoft/teamsfx-api";
-import { PackageService, MosServiceEndpoint, MosServiceScope } from "@microsoft/teamsfx-core";
+import { PackageService, MosServiceScope } from "@microsoft/teamsfx-core";
 import { logger } from "../../commonlib/logger";
 import M365TokenProvider from "../../commonlib/M365TokenProviderWrapper";
 import { ArgumentConflictError, MissingRequiredOptionError } from "../../error";
 import { commands } from "../../resource";
 import { TelemetryEvent } from "../../telemetry/cliTelemetryEvents";
 import { AppScope } from "@microsoft/teamsfx-core/build/component/m365/packageService";
+import {
+  getResourceServiceEndpoint,
+  ResourceServiceType,
+} from "@microsoft/teamsfx-core/build/common/constants";
 
-export const sideloadingServiceEndpoint =
-  process.env.SIDELOADING_SERVICE_ENDPOINT ?? MosServiceEndpoint;
 export const sideloadingServiceScope = process.env.SIDELOADING_SERVICE_SCOPE ?? MosServiceScope;
 
 class M365Utils {
   async getTokenAndUpn(): Promise<[string, string]> {
-    const tokenRes = await M365TokenProvider.getAccessToken({ scopes: [sideloadingServiceScope] });
+    const tokenRes = await M365TokenProvider.getAccessToken({ scopes: MosServiceScope() });
     if (tokenRes.isErr()) {
       logger.error(
         `Cannot get token. Use '${process.env.TEAMSFX_CLI_BIN_NAME} account login m365' to log in the correct account.`
@@ -104,7 +106,10 @@ export const m365SideloadingCommand: CLICommand = {
       return err(new ArgumentConflictError(ctx.command.fullName, `--file-path`, `--xml-path`));
     }
 
-    const packageService = new PackageService(sideloadingServiceEndpoint, logger);
+    const packageService = new PackageService(
+      getResourceServiceEndpoint(ResourceServiceType.MOS3),
+      logger
+    );
     const manifestPath = zipAppPackagePath ?? xmlPath;
     const tokenAndUpn = await m365utils.getTokenAndUpn();
     if (ctx.optionValues["file-path"] !== undefined) {
