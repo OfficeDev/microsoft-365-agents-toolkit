@@ -2,6 +2,14 @@
 
 > Note: This changelog only includes the changes for the stable versions of Microsoft 365 Agents Toolkit (evolved from Teams Toolkit). For the changelog of pre-released versions, please refer to the [Microsoft 365 Agents Toolkit Pre-release Changelog](https://github.com/OfficeDev/TeamsFx/blob/dev/packages/vscode-extension/PRERELEASE.md).
 
+## 6.4.3 - Jan 16, 2026
+
+Hotfix version.
+
+### Enhancement
+- Refined the telemetry collection algorithm to deliver more accurate and reliable data insights, ensuring better decision-making and performance tracking.
+- Improved the pop-up notification logic to minimize false reminders for non-ATK projects, providing a more focused and streamlined user experience.
+
 ## 6.4.2 - Dec 15, 2025
 
 Hotfix version.
