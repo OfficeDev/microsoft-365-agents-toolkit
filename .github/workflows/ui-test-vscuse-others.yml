@@ -2,7 +2,7 @@ name: uitest-vscuse-others
 #
 # Triggers:
 # 1. Manual trigger (workflow_dispatch)
-# 2. On completion of uitest-vscuse-template pipeline when triggered by schedule (workflow_run)
+# 2. On successful completion of uitest-vscuse-template pipeline when triggered by workflow_run (from CD schedule) (workflow_run)
 on:
   workflow_dispatch:
     inputs:
@@ -35,7 +35,7 @@ permissions:
   actions: read
 jobs:
   discover-test-plans:
-    if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'workflow_run' && github.event.workflow_run.event == 'schedule' && github.event.workflow_run.conclusion == 'success') }}
+    if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'workflow_run' && github.event.workflow_run.event == 'workflow_run' && github.event.workflow_run.conclusion == 'success') }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
