@@ -8,7 +8,6 @@ Required columns per release row:
 - Branch
 - preid
 - series
-- pkgs
 - vsrelease
 """
 
@@ -39,9 +38,17 @@ def parse_markdown_table(content: str) -> List[Dict[str, str]]:
     lines = content.split('\n')
     in_table = False
     headers = []
+    in_code_block = False
     
     for line in lines:
         line = line.strip()
+
+        if line.startswith("```"):
+            in_code_block = not in_code_block
+            continue
+
+        if in_code_block:
+            continue
         
         if '|' in line and line.startswith('|'):
             cells = [cell.strip() for cell in line.split('|')[1:-1]]
@@ -50,8 +57,15 @@ def parse_markdown_table(content: str) -> List[Dict[str, str]]:
                 continue
             
             if any(h.lower() in cell.lower() for cell in cells for h in ['Product', 'Release Type', 'Version', 'Cut Bits']):
-                headers = cells
-                in_table = True
+                # Only parse the tables intended for automation (schedule-driven schema).
+                # Historical tables without automation columns are ignored.
+                has_branch = any(cell.strip().lower() == 'branch' for cell in cells)
+                if has_branch:
+                    headers = cells
+                    in_table = True
+                else:
+                    in_table = False
+                    headers = []
                 continue
             
             if all(set(cell.replace('-', '').strip()) <= {':'} for cell in cells if cell):
@@ -101,9 +115,6 @@ def generate_release_config(markdown_content: str) -> List[Dict]:
             branch = _get_required_value(release, 'branch', context)
             preid = _get_required_value(release, 'preid', context)
             series = _get_required_value(release, 'series', context)
-            # pkgs can be empty string, but column must exist to make intent explicit
-            _ = _get_required_value(release, 'pkgs', context)
-            pkgs = _get_value(release, 'pkgs')
             vsrelease = _get_required_value(release, 'vsrelease', context)
         except ValueError as e:
             print(f"✗ Invalid schedule row: {e}", file=sys.stderr)
@@ -119,7 +130,6 @@ def generate_release_config(markdown_content: str) -> List[Dict]:
             'cd_params': {
                 'preid': preid,
                 'series': series,
-                'pkgs': pkgs,
                 'vsrelease': vsrelease,
             }
         }

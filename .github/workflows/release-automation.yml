@@ -92,7 +92,7 @@ jobs:
           echo "The following releases are ready for processing:" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           
-          cat releases.json | jq -r 'to_entries[] | "## Release \(.key + 1): \(.value.product) \(.value.version)\n\n**Release Type:** \(.value.release_type)\n**Branch:** `\(.value.branch)`\n**Cut Date:** \(.value.cut_date)\n**Release Date:** \(.value.release_date)\n\n### CD Pipeline Parameters:\n- **preid:** `\(.value.cd_params.preid)`\n- **series:** `\(.value.cd_params.series)`\n- **pkgs:** `\(.value.cd_params.pkgs)`\n- **vsrelease:** `\(.value.cd_params.vsrelease)`\n\n---\n"' >> $GITHUB_STEP_SUMMARY
+          cat releases.json | jq -r 'to_entries[] | "## Release \(.key + 1): \(.value.product) \(.value.version)\n\n**Release Type:** \(.value.release_type)\n**Branch:** `\(.value.branch)`\n**Cut Date:** \(.value.cut_date)\n**Release Date:** \(.value.release_date)\n\n### CD Pipeline Parameters:\n- **preid:** `\(.value.cd_params.preid)`\n- **series:** `\(.value.cd_params.series)`\n- **vsrelease:** `\(.value.cd_params.vsrelease)`\n\n---\n"' >> $GITHUB_STEP_SUMMARY
 
       - name: Create issue for manual review
         if: ${{ github.event_name == 'schedule' }}
@@ -114,7 +114,6 @@ jobs:
               body += `\n**CD Parameters:**\n`;
               body += `- preid: \`${release.cd_params.preid}\`\n`;
               body += `- series: \`${release.cd_params.series}\`\n`;
-              body += `- pkgs: \`${release.cd_params.pkgs}\`\n`;
               body += `- vsrelease: \`${release.cd_params.vsrelease}\`\n\n`;
               body += `---\n\n`;
             });
@@ -145,7 +144,6 @@ jobs:
       version: ${{ steps.config.outputs.version }}
       preid: ${{ steps.config.outputs.preid }}
       series: ${{ steps.config.outputs.series }}
-      pkgs: ${{ steps.config.outputs.pkgs }}
       vsrelease: ${{ steps.config.outputs.vsrelease }}
       pr_needed: ${{ steps.sync_pr.outputs.pr_needed }}
       pr_url: ${{ steps.sync_pr.outputs.pr_url }}
@@ -196,7 +194,6 @@ jobs:
           VERSION=$(echo "$RELEASE" | jq -r '.version')
           PREID=$(echo "$RELEASE" | jq -r '.cd_params.preid')
           SERIES=$(echo "$RELEASE" | jq -r '.cd_params.series')
-          PKGS=$(echo "$RELEASE" | jq -r '.cd_params.pkgs')
           VSRELEASE=$(echo "$RELEASE" | jq -r '.cd_params.vsrelease')
 
           IS_VSC_PRERELEASE=false
@@ -224,7 +221,6 @@ jobs:
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "preid=$PREID" >> $GITHUB_OUTPUT
           echo "series=$SERIES" >> $GITHUB_OUTPUT
-          echo "pkgs=$PKGS" >> $GITHUB_OUTPUT
           echo "vsrelease=$VSRELEASE" >> $GITHUB_OUTPUT
           echo "is_vsc_prerelease=$IS_VSC_PRERELEASE" >> $GITHUB_OUTPUT
           
@@ -240,7 +236,6 @@ jobs:
           echo "## CD Pipeline Parameters" >> $GITHUB_STEP_SUMMARY
           echo "- **preid:** \`$PREID\`" >> $GITHUB_STEP_SUMMARY
           echo "- **series:** \`$SERIES\`" >> $GITHUB_STEP_SUMMARY
-          echo "- **pkgs:** \`$PKGS\`" >> $GITHUB_STEP_SUMMARY
           echo "- **vsrelease:** \`$VSRELEASE\`" >> $GITHUB_STEP_SUMMARY
 
       - name: Setup git
@@ -379,7 +374,6 @@ jobs:
           echo "- 🚀 Trigger CD workflow with (after approval):" >> $GITHUB_STEP_SUMMARY
           echo "  - preid: \`${{ steps.config.outputs.preid }}\`" >> $GITHUB_STEP_SUMMARY
           echo "  - series: \`${{ steps.config.outputs.series }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "  - pkgs: \`${{ steps.config.outputs.pkgs }}\`" >> $GITHUB_STEP_SUMMARY
           echo "  - vsrelease: \`${{ steps.config.outputs.vsrelease }}\`" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "To execute for real, set **dry_run** to **false**" >> $GITHUB_STEP_SUMMARY
@@ -440,14 +434,12 @@ jobs:
             const branch = '${{ needs.prepare-release.outputs.branch }}';
             const preid = '${{ needs.prepare-release.outputs.preid }}';
             const series = '${{ needs.prepare-release.outputs.series }}';
-            const pkgs = '${{ needs.prepare-release.outputs.pkgs }}';
             const vsrelease = '${{ needs.prepare-release.outputs.vsrelease }}' === 'true';
 
             console.log('Triggering CD workflow with parameters:');
             console.log(`  Branch: ${branch}`);
             console.log(`  preid: ${preid}`);
             console.log(`  series: ${series}`);
-            console.log(`  pkgs: ${pkgs}`);
             console.log(`  vsrelease: ${vsrelease}`);
 
             await github.rest.actions.createWorkflowDispatch({
@@ -458,7 +450,6 @@ jobs:
               inputs: {
                 preid: preid,
                 series: series,
-                pkgs: pkgs,
                 vsrelease: vsrelease.toString(),
                 vstemplate: 'false',
                 goproduct: 'false',

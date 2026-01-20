@@ -2,6 +2,12 @@
 
 This document defines the release schedule for Teams Toolkit products.
 
+## CY26 Q1
+
+| Products | Release Type | Version | Cut Bits Date | Release Date | Release Manager | Status | Release Checklist | Branch | preid | series | vsrelease |
+|----------|--------------|---------|---------------|--------------|-----------------|--------|------------------|--------|-------|--------|----------|
+| VS Code  | Prerelease   | 6.5.2026012001 | Jan 20 | Jan 21 | - |  | N/A | release/6.5 | preview | CY260120 | false |
+
 ## CY25 Q1
 
 |Release Type | Version | Products| Cut Bits Date | Release Date| Release Manager | Status | Release Checklist |
@@ -63,14 +69,14 @@ So far didn't see VS 17.15 release schedule and VS 18.0 will start from July and
 To enable automated release branch creation and deployment, define the CD parameters directly in the schedule.
 These values are authoritative (the automation does not infer them).
 
-```markdown
-| Products | Release Type | Version | Cut Bits Date | Release Date | Status | Branch | preid | series | pkgs | vsrelease |
-|----------|--------------|---------|--------------|--------------|--------|--------|-------|--------|------|----------|
-| VS Code  | Prerelease   | 6.5.2026012001 | Jan 20 | Jan 21 |        | release/6.5 | preview | CY260120 |      | false |
-```
+For rows that should be automated, include these columns in the table:
+- `Branch`
+- `preid`
+- `series`
+- `vsrelease`
 
 The automation workflow will:
 - Parse this schedule
 - Create release branches based on the `Branch` column
-- Trigger CD pipeline with the provided parameters (`preid`, `series`, `pkgs`, `vsrelease`)
+- Trigger CD pipeline with the provided parameters (`preid`, `series`, `vsrelease`)
 - Require manual approval before execution
