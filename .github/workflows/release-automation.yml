@@ -11,7 +11,7 @@ on:
       release_index:
         description: "Index of release to process (0-based, leave empty to list all)"
         required: false
-        default: ""
+        default: "0"
       dry_run:
         description: "Dry run mode (will not create branches or trigger CD)"
         type: boolean
@@ -27,7 +27,6 @@ on:
 permissions:
   contents: write
   actions: write
-  issues: write
 
 jobs:
   parse-schedule:
@@ -87,51 +86,52 @@ jobs:
 
       - name: Display releases for review
         run: |
-          echo "# 📦 Release Automation Plan" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "The following releases are ready for processing:" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          
-          cat releases.json | jq -r 'to_entries[] | "## Release \(.key + 1): \(.value.product) \(.value.version)\n\n**Release Type:** \(.value.release_type)\n**Branch:** `\(.value.branch)`\n**Cut Date:** \(.value.cut_date)\n**Release Date:** \(.value.release_date)\n\n### CD Pipeline Parameters:\n- **preid:** `\(.value.cd_params.preid)`\n- **series:** `\(.value.cd_params.series)`\n- **vsrelease:** `\(.value.cd_params.vsrelease)`\n\n---\n"' >> $GITHUB_STEP_SUMMARY
+          {
+            echo "# 📦 Release Automation Plan"
+            echo ""
+            echo "The following releases are ready for processing:"
+            echo ""
+            jq -r 'to_entries[] | "## Release \(.key + 1): \(.value.product) \(.value.version)\n\n**Release Type:** \(.value.release_type)\n**Branch:** `\(.value.branch)`\n**Cut Date:** \(.value.cut_date)\n**Release Date:** \(.value.release_date)\n\n### CD Pipeline Parameters:\n- **preid:** `\(.value.cd_params.preid)`\n- **series:** `\(.value.cd_params.series)`\n- **vsrelease:** `\(.value.cd_params.vsrelease)`\n\n---\n"' releases.json
+          } | tee -a "$GITHUB_STEP_SUMMARY"
 
-      - name: Create issue for manual review
+      - name: Build scheduled review email payload
+        id: review_email
         if: ${{ github.event_name == 'schedule' }}
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const fs = require('fs');
-            const releases = JSON.parse(fs.readFileSync('releases.json', 'utf8'));
-            
-            let body = '## 📦 Scheduled Release Automation Review\n\n';
-            body += `Found ${releases.length} pending release(s) that need processing:\n\n`;
-            
-            releases.forEach((release, index) => {
-              body += `### ${index + 1}. ${release.product} ${release.version}\n\n`;
-              body += `- **Release Type:** ${release.release_type}\n`;
-              body += `- **Branch:** \`${release.branch}\`\n`;
-              body += `- **Cut Date:** ${release.cut_date}\n`;
-              body += `- **Release Date:** ${release.release_date}\n`;
-              body += `\n**CD Parameters:**\n`;
-              body += `- preid: \`${release.cd_params.preid}\`\n`;
-              body += `- series: \`${release.cd_params.series}\`\n`;
-              body += `- vsrelease: \`${release.cd_params.vsrelease}\`\n\n`;
-              body += `---\n\n`;
-            });
-            
-            body += '\n### 🚀 Next Steps\n\n';
-            body += 'To process a release:\n';
-            body += '1. Go to [Actions > Release Automation](../../actions/workflows/release-automation.yml)\n';
-            body += '2. Click "Run workflow"\n';
-            body += '3. Enter the release index (0-based) from the list above\n';
-            body += '4. Review and approve the execution\n';
-            
-            await github.rest.issues.create({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              title: `🤖 Release Automation Review - ${new Date().toISOString().split('T')[0]}`,
-              body: body,
-              labels: ['release', 'automation']
-            });
+        run: |
+          DATE=$(date -u +%Y-%m-%d)
+          COUNT=$(jq 'length' releases.json)
+          WORKFLOW_URL="${{ github.server_url }}/${{ github.repository }}/actions/workflows/release-automation.yml"
+          RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          RELEASES_JSON=$(cat releases.json)
+
+          SUBJECT="🤖 Release Automation Review - ${DATE} (${COUNT} pending)"
+          BODY=$(jq -c -n \
+            --arg workflow_url "$WORKFLOW_URL" \
+            --arg run_url "$RUN_URL" \
+            --arg date "$DATE" \
+            --argjson releases "$RELEASES_JSON" \
+            '{
+              date: $date,
+              pending_count: ($releases | length),
+              releases: $releases,
+              workflow_url: $workflow_url,
+              run_url: $run_url,
+              message: "Scheduled Release Automation detected pending releases. Go to the Release Automation workflow, run it manually, and set release_index (0-based)."
+            }')
+
+          echo "subject=$SUBJECT" >> $GITHUB_OUTPUT
+          echo "body=$BODY" >> $GITHUB_OUTPUT
+
+      - name: Send email notification
+        if: ${{ github.event_name == 'schedule' }}
+        env:
+          MAIL_CLIENT_ID: ${{ secrets.MAIL_CLIENT_ID }}
+          MAIL_CLIENT_SECRET: ${{ secrets.MAIL_CLIENT_SECRET }}
+          MAIL_TENANT_ID: ${{ secrets.MAIL_TENANT_ID }}
+          TO: ${{ vars.RELEASE_NOTIFICATION_EMAIL || 'your-team-email@example.com' }}
+          SUBJECT: ${{ steps.review_email.outputs.subject }}
+          BODY: ${{ steps.review_email.outputs.body }}
+        uses: ./.github/actions/send-email-report
 
   prepare-release:
     needs: parse-schedule
