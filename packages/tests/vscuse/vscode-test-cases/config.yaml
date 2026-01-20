@@ -36,6 +36,10 @@ docker:
     # Azure SQL
     SECRET_SQL_PASSWORD: "${SECRET_SQL_PASSWORD}"
 
+    # Admin account for Global admin role
+    M365_ACCOUNT_ADMIN_ACCOUNT: "${M365_ACCOUNT_ADMIN_ACCOUNT}"
+    M365_ACCOUNT_ADMIN_PASSWORD: "${M365_ACCOUNT_ADMIN_PASSWORD}"
+
 execution:
   delay_between_steps: 0.5         # Default: 0.5 (seconds between steps)
   stop_on_error: true              # Default: true (stop execution on first error)
