@@ -1,0 +1,778 @@
+name: uitest-vscuse-template
+#
+# Triggers:
+# 1. Manual trigger (workflow_dispatch)
+# 2. Scheduled daily run (schedule)
+# 3. On successful completion of CD workflow when triggered by schedule (workflow_run)
+on:
+  workflow_dispatch:
+    inputs:
+      test_plan:
+        description: "Comma-separated list of test plan to run (e.g. DA_Regenrate_Action, Message_Extension_py_Local_Debug)"
+        required: false
+      image_tag:
+        description: "Docker image tag to use (e.g., 'latest', 'CY251212stable')"
+        required: true
+        default: "latest"
+      vscuse_version:
+        description: "VSCUSE Python package version to use (e.g., 'latest', 'v0.2.47')"
+        required: false
+        type: string
+        default: "latest"
+      email-receiver:
+        description: "email notification receiver"
+        required: false
+        type: string
+      max_retries:
+        description: "Maximum number of retry attempts (1-20, default: 7)"
+        required: false
+        type: number
+        default: 7
+  workflow_run:
+    workflows: ["CD"]
+    types:
+      - completed
+permissions:
+  actions: read
+jobs:
+  discover-test-plans:
+    if: ${{ github.event_name != 'workflow_run' || (github.event.workflow_run.event == 'schedule' && github.event.workflow_run.conclusion == 'success') }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      test-plans: ${{ steps.get-plans.outputs.plans }}
+      email-receiver: ${{ steps.set-email.outputs.email-receiver }}
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set email receiver
+        id: set-email
+        run: |
+          # Set email receiver based on trigger type
+          if [ "${{ github.event_name }}" == "schedule" ]; then
+            echo "email-receiver=zhenjiao@microsoft.com;M365AgentsToolkitEngineerTeam@microsoft.com;teamsfxqa@microsoft.com" >> $GITHUB_OUTPUT
+            echo "Schedule trigger: Using default email receivers"
+          elif [ -n "${{ github.event.inputs.email-receiver }}" ]; then
+            echo "email-receiver=${{ github.event.inputs.email-receiver }}" >> $GITHUB_OUTPUT
+            echo "Using user-provided email receiver: ${{ github.event.inputs.email-receiver }}"
+          else
+            echo "email-receiver=" >> $GITHUB_OUTPUT
+            echo "No email receiver specified"
+          fi
+          
+      - name: Get test plans
+        id: get-plans
+        run: |
+          if [ -z "${{ github.event.inputs.test_plan }}" ]; then
+            # Get only top-level JSON files from plans directory (strip the .json extension)
+            plans=$(find packages/tests/vscuse/vscode-test-cases/plans/ -maxdepth 1 -type f -name "*.json" ! -name "Feature_*" ! -name "Sample_*" -exec basename {} .json \; | jq -R -s -c 'split("\n")[:-1]')
+            echo "plans=$plans" >> $GITHUB_OUTPUT
+            echo "Found test plans: $plans"
+          else
+            # Use the input test_plan file name(s)
+            # Support comma-separated list, trim spaces
+            input_plans=$(echo "${{ github.event.inputs.test_plan }}" | tr ',' '\n' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//' | jq -R -s -c 'split("\n")[:-1]')
+            echo "plans=$input_plans" >> $GITHUB_OUTPUT
+            echo "Using input test plans: $input_plans"
+          fi
+
+  main:
+    name: Case-${{ matrix.test_plan }}
+    needs: discover-test-plans
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+
+    strategy:
+      matrix:
+        test_plan: ${{ fromJson(needs.discover-test-plans.outputs.test-plans) }}
+      fail-fast: false
+      max-parallel: 100
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+      security-events: write
+    environment: engineering
+
+    env:
+      GH_APP_ID: ${{ secrets.GH_APP_ID }}
+      GH_APP_PRIVATE_KEY: ${{ secrets.GH_APP_PRIVATE_KEY }}
+      AZURE_OPENAI_ENDPOINT: ${{ secrets.TEST_TENANT_AZURE_OPENAI_ENDPOINT }}
+      AZURE_OPENAI_API_KEY: ${{ secrets.TEST_TENANT_AZURE_OPENAI_KEY }}
+      AZURE_OPENAI_MODEL: "gpt-4.1"
+      # AZURE AI search
+      AZURE_OPENAI_EMBEDDING_DEPLOYMENT_NAME: "text-embedding-ada-002"
+      AZURE_SEARCH_ENDPOINT: ${{ secrets.AZURE_SEARCH_ENDPOINT }}
+      AZURE_SEARCH_KEY: ${{ secrets.AZURE_SEARCH_KEY }}
+      # Azure Service Principal for M365 Toolkit authentication
+      #AZURE_CLIENT_ID: ${{ secrets.AZURE_SERVICE_PRINCIPAL_ID }}
+      #AZURE_CLIENT_SECRET: ${{ secrets.AZURE_SERVICE_PRINCIPAL_SECRET }}
+      AZURE_TENANT_ID: ${{ secrets.TEST_TENANT_TENANT_ID  }}
+      AZURE_SUBSCRIPTION_ID: ${{ secrets.TEST_TENANT_SUBSCRIPTION_ID }}
+      AZURE_AUTH_ENABLED: ${{ secrets.AZURE_SERVICE_PRINCIPAL_ID != '' && secrets.AZURE_SERVICE_PRINCIPAL_SECRET != '' && secrets.TEST_TENANT_TENANT_ID != '' }}
+      # M365 account for testing
+      M365_USERNAME_1: "test001@xxbdw.onmicrosoft.com"
+      M365_USERNAME_2: "test002@xxbdw.onmicrosoft.com"
+      M365_USERNAME_3: "test003@xxbdw.onmicrosoft.com"
+      M365_USERNAME_4: "test004@xxbdw.onmicrosoft.com"
+      M365_USERNAME_5: "test005@xxbdw.onmicrosoft.com"
+      M365_USERNAME_6: "test006@xxbdw.onmicrosoft.com"
+      M365_USERNAME_7: "test007@xxbdw.onmicrosoft.com"
+      M365_USERNAME_8: "test008@xxbdw.onmicrosoft.com"
+      M365_USERNAME_9: "test009@xxbdw.onmicrosoft.com"
+      M365_USERNAME_10: "test010@xxbdw.onmicrosoft.com"
+      M365_USERNAME_11: "test011@xxbdw.onmicrosoft.com"
+      M365_USERNAME_12: "test012@xxbdw.onmicrosoft.com"
+      M365_USERNAME_13: "test013@xxbdw.onmicrosoft.com"
+      M365_USERNAME_14: "test014@xxbdw.onmicrosoft.com"
+      M365_USERNAME_15: "test015@xxbdw.onmicrosoft.com"
+      M365_USERNAME_16: "test016@xxbdw.onmicrosoft.com"
+      M365_USERNAME_17: "test017@xxbdw.onmicrosoft.com"
+      M365_ACCOUNT_PASSWORD: ${{ secrets.TEST_M365_PASSWORD }}
+      # The test account for Copilot features
+      M365_ACCOUNT_NAME_EnableCopilotAccess: ${{ secrets.TEST_TENANT_M365_ACCOUNT_NAME }}
+      M365_ACCOUNT_PASSWORD_EnableCopilotAccess: ${{ secrets.TEST_TENANT_M365_ACCOUNT_PASSWORD }}
+            
+      AZURE_ACCOUNT_NAME: ${{ secrets.TEST_TENANT_AZURE_ACCOUNT_NAME }}
+      AZURE_ACCOUNT_PASSWORD: ${{ secrets.TEST_TENANT_AZURE_ACCOUNT_PASSWORD }}
+      M365_TENANT_ID: ${{ secrets.TEST_CLEAN_TENANT_ID }}
+      # GITHUB test account
+      GITHUB_ACCOUNT_NAME: ${{ secrets.GH_ACCOUNT_NAME }}
+      GITHUB_ACCOUNT_PASSWORD: ${{ secrets.GH_ACCOUNT_PASSWORD }}
+      GITHUB_MFA_SECRET: ${{ secrets.GH_MFA_SECRET }}
+      #Additional value:
+      DA_MCP_ENTRA_SSO_CLIENTID: ${{ secrets.DA_MCP_ENTRA_SSO_CLIENTID }}
+      DA_MCP_OAUTH_CLIENT_SECERT: ${{ secrets.DA_MCP_OAUTH_CLIENT_SECERT }}
+      DA_MCP_OAUTH_CLIENTID: ${{ secrets.DA_MCP_OAUTH_CLIENTID }}
+
+      # SQL server
+      SQL_USER: ${{ secrets.SQL_USER }}
+      SECRET_SQL_PASSWORD: ${{ secrets.SECRET_SQL_PASSWORD }}
+      SQL_SERVER: "vscuse-test-sql.database.windows.net"
+      SQL_DATABASE: "vscuse-test-db"
+
+      # reddit
+      REDDIT_ID: "${{secrets.REDDIT_ID}}"
+      SECRET_REDDIT_PASSWORD: ${{secrets.SECRET_REDDIT_PASSWORD}}
+
+      # Foundry related parameters
+      AZURE_AI_FOUNDRY_PROJECT_ENDPOINT: ${{ vars.AZURE_AI_FOUNDRY_PROJECT_ENDPOINT }}
+      AGENT_ID: ${{ secrets.AGENT_ID }}
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 22
+
+      - name: Install dependencies for download actions
+        run: npm install @octokit/auth-app @octokit/request @octokit/core node-fetch 
+        shell: bash
+
+
+      - name: Run download script
+        run: node download-vscuse-python.js "${{ github.event.inputs.vscuse_version || 'latest' }}" "${{ github.workspace }}/packages/tests/vscuse/vscode-test-cases"
+        shell: bash
+        working-directory: .github/actions/setup-vscuse-environment
+
+      - name: Set up Python virtual environment and install wheel
+        run: |
+          cd packages/tests/vscuse/vscode-test-cases
+          python -m venv .venv
+          source .venv/bin/activate
+          WHEEL_FILE=$(ls *.whl | head -n 1)
+          pip install "./$WHEEL_FILE"
+        shell: bash
+
+      - name: Verify Azure Configuration
+        run: |
+          echo "Verifying Azure configuration..."
+
+          # Check Azure OpenAI (required)
+          if [ -z "$AZURE_OPENAI_ENDPOINT" ] || [ -z "$AZURE_OPENAI_API_KEY" ]; then
+            echo "❌ Azure OpenAI configuration missing"
+            exit 1
+          else
+            echo "✅ Azure OpenAI configured"
+          fi
+
+          # Check Azure Service Principal (optional)
+          if [ -n "$AZURE_CLIENT_ID" ] && [ -n "$AZURE_CLIENT_SECRET" ] && [ -n "$AZURE_TENANT_ID" ]; then
+            echo "✅ Azure Service Principal configured - M365 Toolkit authentication enabled"
+          else
+            echo "⚠️  Azure Service Principal not configured - M365 Toolkit authentication disabled"
+          fi
+
+      - name: Set m365 account randomly
+        run: |
+          users=("${{ env.M365_USERNAME_1 }}" "${{ env.M365_USERNAME_2 }}" "${{ env.M365_USERNAME_3 }}" "${{ env.M365_USERNAME_4 }}" "${{ env.M365_USERNAME_5 }}" "${{ env.M365_USERNAME_6 }}" "${{ env.M365_USERNAME_7 }}" "${{ env.M365_USERNAME_8 }}" "${{ env.M365_USERNAME_9 }}" "${{ env.M365_USERNAME_10 }}" "${{ env.M365_USERNAME_11 }}" "${{ env.M365_USERNAME_12 }}" "${{ env.M365_USERNAME_13 }}" "${{ env.M365_USERNAME_14 }}" "${{ env.M365_USERNAME_15 }}" "${{ env.M365_USERNAME_16 }}" "${{ env.M365_USERNAME_17 }}")
+          count=${#users[@]}
+          index=$((RANDOM%$count))
+          echo "account index: $index"
+          echo "M365_ACCOUNT_NAME=${users[index]}" >> $GITHUB_ENV
+
+      - name: Log in to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Pull pre-built Docker image
+        run: |
+          IMAGE_TAG="${{ github.event.inputs.image_tag }}"
+          if [ -z "$IMAGE_TAG" ]; then
+            IMAGE_TAG="latest"
+          fi
+          VSCUSE_VSCODE_IMAGE="ghcr.io/microsoft/vscuse-vscode:$IMAGE_TAG"
+          echo "VSCUSE_VSCODE_IMAGE=$VSCUSE_VSCODE_IMAGE" >> $GITHUB_ENV
+          echo "Pulling pre-built Docker image: $VSCUSE_VSCODE_IMAGE"
+          docker pull $VSCUSE_VSCODE_IMAGE
+          echo "✅ Image pulled successfully!"
+          echo "Image details:"
+          docker images $VSCUSE_VSCODE_IMAGE
+          
+      - name: Run test
+        run: |
+          echo "🚀 Running test plan: ${{ matrix.test_plan }}"
+          echo "Using image tag: ${{ github.event.inputs.image_tag || 'latest' }}"
+          echo "Test execution started at: $(date)"
+
+          cd packages/tests/vscuse/vscode-test-cases
+          python -m venv .venv
+          source .venv/bin/activate
+          vscuse execute --config-file ./config.yaml --groups-dir groups ./plans/${{ matrix.test_plan }}.json
+
+      - name: Rename test_report.html to index.html
+        if: always()
+        run: |
+          REPORT_DIR="packages/tests/vscuse/vscode-test-cases/test_report"
+          if [ -f "$REPORT_DIR/test_report.html" ]; then
+            mv "$REPORT_DIR/test_report.html" "$REPORT_DIR/index.html"
+            echo "Renamed test_report.html to index.html"
+          else
+            echo "No test_report.html found to rename"
+          fi
+      - name: Encrypt and zip test report
+        if: always()
+        run: |
+          REPORT_DIR="packages/tests/vscuse/vscode-test-cases/test_report"
+          ZIP_FILE="test-report-${{ matrix.test_plan }}-${{ github.run_number }}.zip"
+
+          if [ -z "${{ secrets.ARTIFACT_ZIP_PASSWORD }}" ]; then
+            echo "❌ Error: ARTIFACT_ZIP_PASSWORD secret is not set"
+            echo "Please configure the ARTIFACT_ZIP_PASSWORD secret in repository settings"
+            exit 1
+          fi
+          
+          # Install zip if not available
+          sudo apt-get update && sudo apt-get install -y zip
+          
+          # Create encrypted zip file in the report directory
+          cd "$REPORT_DIR"
+          zip -e -P "${{ secrets.ARTIFACT_ZIP_PASSWORD }}" "$ZIP_FILE" index.html
+          cd -
+          
+          echo "✅ Created encrypted zip: $REPORT_DIR/$ZIP_FILE"
+          echo "ZIP_FILE=$ZIP_FILE" >> $GITHUB_ENV
+        shell: bash
+
+      - name: Upload encrypted test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-report-${{ matrix.test_plan }}-${{ github.run_number }}
+          path: packages/tests/vscuse/vscode-test-cases/test_report/${{ env.ZIP_FILE }}
+          retention-days: 7
+          if-no-files-found: ignore
+
+      # Upload files to Azure Blob Storage
+      - name : Login to Azure
+        if: always()
+        uses: azure/login@v2
+        with:
+          client-id: ${{secrets.DEVOPS_CLIENT_ID}}
+          tenant-id: ${{secrets.DEVOPS_TENANT_ID}}
+          subscription-id: ${{secrets.DEVOPS_SUB_ID}}
+          enable-AzPSSession: true
+
+      - name: 🌐Upload files to Azure Blob Storage
+        if: always()
+        shell: pwsh
+        run: |
+          $guid = [guid]::NewGuid().ToString()
+          $account = $env:AZURE_STORAGE_ACCOUNT
+          $sourcePath = "packages/tests/vscuse/vscode-test-cases/test_report/"
+          $destination = "`content/$guid"
+          $storageUrl = "https://storproxy-app-voazuxhhvtgiq.azurewebsites.net/$guid/index.html"
+      
+          Write-Host "🌐Here is the report: $storageUrl"
+
+          echo "$storageUrl" > storage_url.txt
+      
+          az storage blob upload-batch `
+            --account-name $account `
+            --auth-mode login `
+            --destination $destination `
+            --source "$sourcePath" `
+            --overwrite
+        env:
+          AZURE_STORAGE_ACCOUNT: storproxystvoazuxhhvtgiq 
+
+      - name: Upload storage URL artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: storage-url-${{ matrix.test_plan }}-${{ github.run_id }}
+          path: storage_url.txt
+          retention-days: 7
+          if-no-files-found: ignore
+
+      - name: Cleanup
+        if: always()
+        run: |
+          echo "🧹 Cleaning up resources..."
+
+          # Stop and remove any containers using our image
+          echo "Cleaning up VSCode containers..."
+          docker stop $(docker ps -q --filter "ancestor=ghcr.io/microsoft/vscuse-vscode:${{ github.event.inputs.image_tag || 'latest' }}") 2>/dev/null || echo "No containers to stop"
+          docker rm $(docker ps -aq --filter "ancestor=ghcr.io/microsoft/vscuse-vscode:${{ github.event.inputs.image_tag || 'latest' }}") 2>/dev/null || echo "No containers to remove"
+
+  rerun:
+    permissions:
+      actions: write
+    needs: main
+    if: ${{ (github.event_name == 'workflow_dispatch' || github.event_name == 'schedule') && failure() && github.run_attempt < (github.event.inputs.max_retries || 7) }}
+    runs-on: ubuntu-latest
+    env:
+      MAX_RETRIES: ${{ github.event.inputs.max_retries || 7 }}
+      M365_ACCOUNT_PASSWORD: ${{ secrets.TEST_M365_PASSWORD }}
+      M365_ACCOUNT_NAME: "test14@xxbdw.onmicrosoft.com"
+      CLEAN_CLIENT_ID: ${{ secrets.TEST_CLEAN_CLIENT_ID }}
+      CLEAN_CLIENT_SECRET: ${{ secrets.TEST_CLEAN_CLIENT_SECRET }}
+      CLEAN_TENANT_ID: ${{ secrets.TEST_CLEAN_TENANT_ID }}
+      AZURE_TENANT_ID: ${{ secrets.TEST_TENANT_ID }}
+      AZURE_SUBSCRIPTION_ID: ${{ secrets.TEST_SUBSCRIPTION_ID }}
+      AZURE_ACCOUNT_NAME: ${{ secrets.TEST_USER_NAME }}
+      AZURE_ACCOUNT_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
+    steps:
+      - name: Checkout
+        if: ${{ github.event_name == 'schedule' }}
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+
+      - name: Setup node
+        if: ${{ github.event_name == 'schedule' }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: 22
+
+      - uses: pnpm/action-setup@v4
+        if: ${{ github.event_name == 'schedule' }}
+
+      - name: Setup project
+        if: ${{ github.event_name == 'schedule' }}
+        working-directory: ./
+        run: |
+          npm run setup:e2e
+
+      - name: Clean resources
+        if: ${{ github.event_name == 'schedule' }}
+        working-directory: packages/tests
+        run: |
+          npx ts-node src/scripts/clean.ts
+
+      - name: Calculate max retries
+        id: calc-retries
+        run: |
+          # Get max retries from input, default to 7, cap at 20
+          max_retries=${{ github.event.inputs.max_retries || 7 }}
+          if [ "$max_retries" -gt 20 ]; then
+            max_retries=20
+          fi
+          if [ "$max_retries" -lt 1 ]; then
+            max_retries=1
+          fi
+          echo "max_retries=$max_retries" >> $GITHUB_OUTPUT
+          echo "Using max retries: $max_retries"
+      - name: trigger rerun workflow
+        run: |
+          curl \
+            -X POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}"\
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            https://api.github.com/repos/${{ github.repository }}/actions/workflows/rerun.yml/dispatches \
+            -d '{"ref":"${{ github.ref_name }}","inputs":{"run_id":"${{ github.run_id }}", "max_attempts":"${{ steps.calc-retries.outputs.max_retries }}"}}'
+
+  report:
+    # Only send email on the last attempt or when all tests pass
+    # Send email if: (1) triggered by schedule, OR (2) triggered manually with email-receiver input provided
+    if: ${{ always() && (github.event_name == 'schedule' || needs.discover-test-plans.outputs.email-receiver != '') && (success() || github.run_attempt >= (github.event.inputs.max_retries || 7)) }}
+    needs: [discover-test-plans, main]
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: packages/tests/vscuse
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+
+      - name: Download storage URLs
+        uses: actions/download-artifact@v4
+        with:
+          pattern: storage-url-*
+          path: /tmp/storage-urls
+
+      - name: Process storage URLs
+        shell: bash
+        run: |
+          if [ -d "/tmp/storage-urls" ]; then
+            echo "Found storage URLs folder. Processing contents..."
+            
+            # Find and extract all zip files to /tmp/storage-urls directory
+            find /tmp/storage-urls -name "*.zip" -exec unzip -o {} -d /tmp/storage-urls \;
+            
+            # Create a JSON object from all storage_url.txt files
+            echo "{" > /tmp/url_mapping.json
+            first_entry=true
+            
+            # Find all storage_url.txt files and process them
+            find /tmp/storage-urls -type f -name "storage_url.txt" | while read file; do
+              # Extract the test_plan and run_id from the parent directory name (storage-url-TESTPLAN-RUNID)
+              dir_name=$(basename $(dirname "$file"))
+              # Format: storage-url-{test_plan}-{run_id}
+              # Extract test_plan (everything between 'storage-url-' and the last '-{run_id}')
+              run_id=$(echo "$dir_name" | rev | cut -d'-' -f1 | rev)
+              test_plan=$(echo "$dir_name" | sed "s/^storage-url-//" | sed "s/-${run_id}$//")
+              case_run_id="${test_plan}-${run_id}"
+              
+              echo "Processing: dir_name=$dir_name, test_plan=$test_plan, run_id=$run_id, case_run_id=$case_run_id"
+              
+              # Read the content of the file
+              content=$(cat "$file" | tr -d '\n' | tr -d '\r')
+              
+              # Add comma for all entries except the first one
+              if [ "$first_entry" = true ]; then
+                first_entry=false
+              else
+                echo "," >> /tmp/url_mapping.json
+              fi
+              
+              # Add the entry to JSON (properly escaped)
+              echo "  \"$case_run_id\": \"$content\"" >> /tmp/url_mapping.json
+            done
+            
+            echo "}" >> /tmp/url_mapping.json
+            
+            echo "Generated JSON mapping:"
+            cat /tmp/url_mapping.json
+            
+            # Count total files processed
+            total_urls=$(find /tmp/storage-urls -type f -name "storage_url.txt" | wc -l)
+            echo "Total storage URL files processed: $total_urls"
+          else
+            echo "No storage URL artifacts found"
+            echo "{}" > /tmp/url_mapping.json
+          fi
+      - name: Install Dateutils
+        run: |
+          sudo apt install dateutils
+      - name: list jobs
+        id: list-jobs
+        working-directory: packages/tests/vscuse
+        env:
+          AZURE_DEVOPS_PAT: ${{ secrets.AZURE_DEVOPS_PAT }}
+          AZURE_DEVOPS_ORG: "msazure"
+          AZURE_DEVOPS_PROJECT: "Microsoft%20Teams%20Extensibility"
+        run: |
+          page=1
+          jobs="[]"
+          echo "Initial jobs: $jobs"
+          
+          report_map_json_file_path="/tmp/url_mapping.json"
+          
+          # Function to query Azure DevOps for bugs with specific tag
+          query_bugs_by_tag() {
+            local tag="$1"
+            local encoded_tag=$(echo "$tag" | sed 's/ /%20/g')
+            
+            # WIQL query to find active bugs with the specific tag
+            local wiql_query="{\"query\": \"SELECT [System.Id], [System.Title], [System.State] FROM WorkItems WHERE [System.WorkItemType] = 'Bug' AND [System.State] IN ('Active','New','Committed') AND [System.Tags] CONTAINS '${tag}'\"}"
+            
+            local response=$(curl -s -u ":${AZURE_DEVOPS_PAT}" \
+              -H "Content-Type: application/json" \
+              -X POST \
+              "https://dev.azure.com/${AZURE_DEVOPS_ORG}/${AZURE_DEVOPS_PROJECT}/_apis/wit/wiql?api-version=7.0" \
+              -d "$wiql_query")
+            
+            echo "$response"
+          }
+          
+          while :
+          do
+            url="https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/attempts/${{ github.run_attempt }}/jobs?per_page=80&page=$page"
+            echo "Fetching URL: $url"
+      
+            resp=$(curl -sf -H "Accept: application/vnd.github.v3+json" -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" "$url")
+            echo "Response from GitHub API: $resp"
+
+            new_jobs=$(echo "$resp" | jq -cr '.jobs')
+            echo "New jobs extracted: $new_jobs"
+
+            jobs=$(jq -cr --slurp 'add' <(echo "$jobs") <(echo "$new_jobs"))
+            echo "Updated jobs list: $jobs"
+
+            has_next=$(curl -sfI -H "Accept: application/vnd.github.v3+json" -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" "$url" | grep -Fi "link:" | grep "rel=\"next\"" || true)
+            echo "Has next page: $has_next"
+
+            if [ -z "$has_next" ]; then
+              break
+            fi
+
+            page=$((page+1))
+          done
+
+          echo "Final job list: $jobs"
+
+          cases=$(echo "$jobs" | jq -r '.[] | select(.name | contains("Case-")) | .name')
+          echo "Extracted case names: $cases"
+
+          passed=0
+          failed=0
+          failedlimit=100
+          passedlimit=100
+          failedlist=""
+          passedlist=""
+          lists=""
+
+            emails="${{ needs.discover-test-plans.outputs.email-receiver }}"
+          echo "Initial email list: $emails"
+
+          while IFS= read -r case;
+          do
+            if [ -z "$case" ]; then
+              continue
+            fi
+
+            echo "Processing case: $case"
+            name=$(echo "$case" | awk -F '|' '{print $1}')
+            case_id=$(echo "$name" | awk -F '-' '{print $2}')
+            os=$(echo "$case" | awk -F '|' '{print $2}')
+            node=$(echo "$case" | awk -F '|' '{print $3}')
+            branch=$(echo "$case" | awk -F '|' '{print $4}')
+
+            title="Unknown Test Case Title"
+            author="N/A"
+            work_item_url="N/A"
+            owner="N/A"
+
+            # Extract the title from the plan JSON file
+            plan_file="./vscode-test-cases/plans/${case_id}.json"
+            echo "Looking for plan file: $plan_file"
+            if [ -f "$plan_file" ]; then
+              echo "Found plan file: $plan_file"
+              # Get title from plan_metadata.name
+              title=$(jq -r '.plan_metadata.name // "Unknown Test Case Title"' "$plan_file")
+              echo "Extracted title: $title"
+              
+              # Get owner from plan_metadata.description.owner
+              owner=$(jq -r '.plan_metadata.description.owner // "N/A"' "$plan_file")
+              echo "Extracted owner: $owner"
+              
+              # Get work item IDs from plan_metadata.description.workitem
+              # Workitem may contain multiple work item IDs separated by comma, space, or semicolon
+              workitem=$(jq -r '.plan_metadata.description.workitem // ""' "$plan_file")
+              if [ -n "$workitem" ] && [ "$workitem" != "null" ]; then
+                # Split by comma, space, or semicolon and process each work item ID
+                work_item_links=""
+                # Replace commas and semicolons with spaces, then iterate
+                for item_id in $(echo "$workitem" | tr ',;' ' '); do
+                  # Trim whitespace
+                  item_id=$(echo "$item_id" | xargs)
+                  if [ -n "$item_id" ]; then
+                    # If it looks like a work item ID (numeric), create a link
+                    if [[ "$item_id" =~ ^[0-9]+$ ]]; then
+                      if [ -n "$work_item_links" ]; then
+                        work_item_links="$work_item_links, "
+                      fi
+                      work_item_links="$work_item_links<a href=\\\"https://msazure.visualstudio.com/Microsoft%20Teams%20Extensibility/_workitems/edit/$item_id\\\">$item_id</a>"
+                    fi
+                  fi
+                done
+                if [ -n "$work_item_links" ]; then
+                  work_item_url="$work_item_links"
+                else
+                  work_item_url="$workitem"
+                fi
+              fi
+              echo "Extracted work items: $work_item_url"
+            else
+              echo "Plan file not found: $plan_file"
+              # Fallback: use case_id as title with underscores replaced by spaces
+              title=$(echo "$case_id" | tr '_' ' ')
+            fi
+
+            echo "Extracted info - Name: $name, OS: $os, Node: $node, Branch: $branch, Case ID: $case_id, Title: $title, Author: $author, Work Item URL: $work_item_url"
+
+            # file=$(find src -name "$name.test.ts" 2>/dev/null)
+            # echo "Test file found: $file"
+
+            status=$(echo "$jobs" | jq --arg case "$case" -r '.[] | select(.name == $case ) | .conclusion')
+            echo "Job status: $status"
+
+            run_id=$(echo "$jobs" | jq --arg case "$case" -r '.[] | select(.name == $case ) | .run_id')
+            echo "Run Id: $run_id"
+
+            # Combine the case name and run_id to create a lookup key
+            lookup_key="${case_id}-${run_id}"
+
+            echo "Lookup Key: $lookup_key"
+
+            # Get the report URL from the JSON file using the lookup_key
+            report_url=$(jq -r --arg key "$lookup_key" '.[$key]' "$report_map_json_file_path")
+            if [ -z "$report_url" ] || [ "$report_url" = "null" ]; then
+              report_url="N/A"
+            else
+              report_url="<a href=\\\"$report_url\\\">Report</a>"
+            fi
+            echo "Report URL: $report_url"
+
+            if [[ -n "$email" && ! "$emails" == *"$email"* && "$status" == "failure" ]]; then
+              emails="$emails;$email;"
+            fi
+            echo "Updated email list: $emails"
+
+            started_at=$(echo "$jobs" | jq --arg case "$case" -r '.[] | select(.name == $case ) | .started_at')
+            completed_at=$(echo "$jobs" | jq --arg case "$case" -r '.[] | select(.name == $case ) | .completed_at')
+            echo "Start time: $started_at, Completed time: $completed_at"
+
+            duration=$(dateutils.ddiff "$started_at" "$completed_at" -f "%Mm %Ss" 2>/dev/null)
+            echo "Calculated duration: $duration"
+
+
+
+            label=""
+            if [ "$status" == "success" ]; then
+              passed=$((passed+1))
+              label="<span style=\\\"background-color:#2aa198;color:white;font-weight:bold;\\\">PASSED</span>"
+            else
+              failed=$((failed+1))
+              label="<span style=\\\"background-color: #dc322f;color:white;font-weight:bold;\\\">FAILED</span>"
+            fi
+            echo "Job result label: $label"
+
+            url=$(echo "$jobs" | jq --arg case "$case" -r '.[] | select(.name == $case ) | .html_url')
+            display_name=$(echo "$name" | sed 's/^Case-//')
+            url="<a href=\\\"$url\\\">$display_name</a>"
+            echo "Job URL: $url"
+
+            linked_bugs=""
+            
+            # Query Azure DevOps for linked bugs if the case failed
+            if [ "$status" != "success" ]; then
+              echo "Case failed, querying Azure DevOps for bugs with tag: $display_name"
+              
+              # Try to query Azure DevOps, with error handling
+              bug_response=""
+              query_error=""
+              
+              if [ -z "$AZURE_DEVOPS_PAT" ]; then
+                query_error="⚠️No ADO PAT configured"
+                echo "Azure DevOps PAT not configured, skipping bug query"
+              else
+                bug_response=$(query_bugs_by_tag "$display_name" 2>&1) || query_error="⚠️Network issue"
+                echo "Bug query response: $bug_response"
+                
+                # Check if the response is valid JSON and contains workItems
+                if [ -z "$query_error" ]; then
+                  # Check for API errors in response
+                  api_error=$(echo "$bug_response" | jq -r '.message // empty' 2>/dev/null)
+                  if [ -n "$api_error" ]; then
+                    query_error="⚠️ADO API error"
+                    echo "Azure DevOps API error: $api_error"
+                  fi
+                fi
+              fi
+              
+              if [ -n "$query_error" ]; then
+                linked_bugs="$query_error"
+                echo "Bug query failed: $query_error"
+              else
+                # Extract work item IDs from the response
+                bug_ids=$(echo "$bug_response" | jq -r '.workItems[]?.id // empty' 2>/dev/null)
+                
+                if [ -n "$bug_ids" ]; then
+                  bug_links=""
+                  for bug_id in $bug_ids; do
+                    if [ -n "$bug_links" ]; then
+                      bug_links="$bug_links, "
+                    fi
+                    bug_links="$bug_links<a href=\\\"https://dev.azure.com/${AZURE_DEVOPS_ORG}/${AZURE_DEVOPS_PROJECT}/_workitems/edit/$bug_id\\\">🐞$bug_id</a>"
+                  done
+                  linked_bugs="$bug_links"
+                  echo "Found linked bugs: $linked_bugs"
+                else
+                  linked_bugs="❌Failed but no bug yet"
+                  echo "No linked bugs found for failed case"
+                fi
+              fi
+            fi
+            
+            row="<tr> <td style=\\\"text-align: left;\\\">$url</td> <td style=\\\"text-align: left;\\\">$title</td> <td style=\\\"text-align: center;\\\">$label</td> <td style=\\\"text-align: center;\\\">$owner</td> <td style=\\\"text-align: center;\\\">$work_item_url</td> <td style=\\\"text-align: center;\\\">$linked_bugs</td> <td style=\\\"text-align: center;\\\">$duration</td>  <td style=\\\"text-align: center;\\\">$report_url</td> </tr>"
+            echo "Generated row: $row"
+
+            if [[ "$status" == "success" && $passed -lt $passedlimit ]]; then
+              passedlist="$passedlist $row"
+            elif [[ "$status" != "success" && $failed -lt $failedlimit ]]; then
+              failedlist="$failedlist $row"
+            fi
+
+          done <<< "$cases"
+
+          lists="$failedlist $passedlist"
+          echo "Final failed list: $failedlist"
+          echo "Final passed list: $passedlist"
+
+          body="<a href=\\\"https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\\\">Test report link.</a>  <br/> <table class=\\\"w3-table w3-striped w3-bordered\\\"> <tr> <th>CASE</th> <th>TITLE</th> <th>STATUS</th> <th>OWNER</th> <th>WORK ITEM</th> <th>LINKED BUG(S)</th> <th>DURATION</th> <th>REPORT</th> </tr> $lists </table> <br />"
+          echo "Generated email body: $body"
+
+          total=$((passed+failed))
+          echo "Total jobs: $total, Passed: $passed, Failed: $failed"
+
+          subject="Vsc Use UI Test Report ($passed/$total Passed)"
+          if [ $failed -gt 0 ]; then
+            subject="[FAILED] $subject"
+          else
+            subject="[PASSED] $subject"
+          fi
+          echo "Final subject: $subject"
+
+          echo "body=$body" >> $GITHUB_OUTPUT
+          echo "to=$emails" >> $GITHUB_OUTPUT
+          echo "subject=$subject" >> $GITHUB_OUTPUT
+
+
+      - name: Send E-mail
+        uses: ./.github/actions/send-email-report
+        env:
+          TO: ${{ steps.list-jobs.outputs.to }}
+          BODY: '"${{ steps.list-jobs.outputs.body }}"'
+          SUBJECT: ${{ steps.list-jobs.outputs.subject }}
+          MAIL_CLIENT_ID: ${{ secrets.TEST_CLEAN_CLIENT_ID }}
+          MAIL_CLIENT_SECRET: ${{ secrets.TEST_CLEAN_CLIENT_SECRET }}
+          MAIL_TENANT_ID: ${{ secrets.TEST_CLEAN_TENANT_ID }}
