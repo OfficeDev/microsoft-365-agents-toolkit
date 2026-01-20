@@ -51,20 +51,14 @@ on:
           description: "For example: CY230919. Sync test result to this test plan."
           required: false
           type: string
-
-  workflow_run:
-    workflows: ["uitest-vscuse-others"]
-    types:
-      - completed
-
+  schedule:
+    - cron: "0 18 * * *"   # UTC+8 02:00
 permissions:
   actions: read
 
 jobs:
   setup:
     runs-on: ubuntu-latest
-    # Only run if uitest-vscuse-others was triggered by schedule or workflow_run
-    if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'workflow_run' && github.event.workflow_run.event == 'schedule') }}
     permissions:
       contents: read
     env:
