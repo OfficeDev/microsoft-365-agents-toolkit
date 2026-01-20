@@ -60,16 +60,17 @@ So far didn't see VS 17.15 release schedule and VS 18.0 will start from July and
 
 ## Automation Configuration
 
-To enable automated release branch creation and deployment, you can add metadata to release entries:
+To enable automated release branch creation and deployment, define the CD parameters directly in the schedule.
+These values are authoritative (the automation does not infer them).
 
 ```markdown
-| Products | Release Type | Version | Branch | Cut Bits Date | Release Date | ... |
-|----------|--------------|---------|--------|---------------|--------------|-----|
-| VS Code  | Stable       | 6.6.0   | release/6.6 | Jan 15 | Jan 20 | ... |
+| Products | Release Type | Version | Cut Bits Date | Release Date | Status | Branch | preid | series | pkgs | vsrelease |
+|----------|--------------|---------|--------------|--------------|--------|--------|-------|--------|------|----------|
+| VS Code  | Prerelease   | 6.5.2026012001 | Jan 20 | Jan 21 |        | release/6.5 | preview | CY260120 |      | false |
 ```
 
 The automation workflow will:
 - Parse this schedule
-- Create release branches based on the `Branch` column (or auto-generate from version)
-- Trigger CD pipeline with appropriate parameters
+- Create release branches based on the `Branch` column
+- Trigger CD pipeline with the provided parameters (`preid`, `series`, `pkgs`, `vsrelease`)
 - Require manual approval before execution

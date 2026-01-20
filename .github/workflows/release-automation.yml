@@ -48,11 +48,9 @@ jobs:
 
       - name: Parse release schedule
         id: parse
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # Use AI-powered parser for robust parsing
-          python .github/scripts/parse_release_schedule_ai.py "${{ github.event.inputs.schedule_file || 'docs/release-schedule.md' }}" > releases.json
+          # Parse schedule-driven release parameters
+          python .github/scripts/parse_release_schedule.py "${{ github.event.inputs.schedule_file || 'docs/release-schedule.md' }}" > releases.json
 
           # Only process VS Code prerelease entries
           cat releases.json | jq '[.[] | select((.product | ascii_downcase | contains("vs code")) and (.release_type | ascii_downcase | contains("prerelease")))]' > releases.filtered.json
@@ -333,7 +331,7 @@ jobs:
               `- Head (source): \`${head}\``,
               `- Commits ahead: ${aheadBy}`,
               '',
-              'After merging, re-run Release Automation to trigger CD.'
+              'After merging, approve the Release Automation run to trigger CD.'
             ].join('\n');
 
             const created = await github.rest.pulls.create({ owner, repo, title, head, base, body });

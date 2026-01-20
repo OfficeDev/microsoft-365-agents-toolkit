@@ -47,13 +47,10 @@ No additional configuration needed - this is provided by GitHub Actions.
 
 ## Features
 
-### 🤖 AI-Powered Parsing
+### 📄 Schedule-Driven Parsing
 
-The system uses **GitHub Models API** (GPT-4o) to intelligently parse release schedules:
-
-- **Robust parsing**: Handles variations in version formats, dates, and product names
-- **Automatic fallback**: Falls back to rule-based parsing if AI is unavailable
-- **Smart parameter generation**: Determines branch names, preid, series, etc.
+The system reads release parameters directly from the release schedule markdown table.
+No AI-based inference is used.
 
 ### 🔒 Safety Features
 
@@ -103,51 +100,22 @@ The workflow automatically runs **every Monday at 8 AM UTC** to:
 - Create a GitHub issue with review information
 - Team reviews and manually triggers for specific releases
 
-## Parameter Rules
+## Parameter Source
 
-The AI model follows these rules (with fallback to hard-coded logic):
+Release parameters are taken from the schedule table columns.
 
-### Branch Names
-
-- **VS Code**: `release/X.Y` (major.minor)
-  - Example: `release/6.5` for versions 6.5.0, 6.5.20251203
-  
-- **Visual Studio**: `release/VSXXYTZ`
-  - XX = major version
-  - Y = minor version  
-  - T = type (P=Preview, I=Insider)
-  - Z = number
-  - Example: `release/VS180I4` for "18.0 Insider 4"
-
-### Preid
-
-- **VS Code**:
-  - `preview` if minor version is odd (6.3, 6.5) OR release type is "Prerelease"
-  - `rc` if minor version is even (6.0, 6.2, 6.4) AND release type is "Stable"
-  
-- **Visual Studio**: Always `preview`
-
-### Series
-
-- **VS Code**: `CYYMMDD` format from cut date
-  - Example: `CY260106` for January 6, 2026
-  
-- **Visual Studio**: Same as branch name without `release/` prefix
-  - Example: `VS180I4`
-
-### Packages & VS Release
-
-- **VS Code**: `pkgs=""`, `vsrelease="false"`
-- **Visual Studio**: `pkgs="server"`, `vsrelease="true"`
+Required columns:
+- `Branch`
+- `preid`
+- `series`
+- `pkgs`
+- `vsrelease`
 
 ## Troubleshooting
 
-### AI Parsing Not Working
+### Parsing Issues
 
-If GitHub Models API is unavailable:
-- System automatically falls back to rule-based parsing
-- Check GitHub Actions logs for warnings
-- Ensure `GITHUB_TOKEN` has proper permissions
+If a release entry is missing required columns, it will be skipped and the job log will include an error.
 
 ### Email Not Sending
 
@@ -164,14 +132,7 @@ If GitHub Models API is unavailable:
 
 ## Customization
 
-### Change AI Model
-
-Edit `.github/scripts/parse_release_schedule_ai.py`:
-
-```python
-def call_github_model(prompt: str, model: str = "gpt-4o-mini") -> str:
-    # Change model parameter default value
-```
+To change parameters, update the corresponding values in the schedule markdown file.
 
 ### Modify Email Template
 
