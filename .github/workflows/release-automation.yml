@@ -99,6 +99,12 @@ jobs:
     needs: parse-schedule
     runs-on: ubuntu-latest
     if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.release_index != '' }}
+    env:
+      APP_GITHUB_APP_ID: ${{ vars.APP_GITHUB_APP_ID }}
+      APP_GITHUB_APP_PRIVATE_KEY: ${{ secrets.APP_GITHUB_APP_PRIVATE_KEY }}
+      MAIL_CLIENT_ID: ${{ secrets.MAIL_CLIENT_ID }}
+      MAIL_CLIENT_SECRET: ${{ secrets.MAIL_CLIENT_SECRET }}
+      MAIL_TENANT_ID: ${{ secrets.MAIL_TENANT_ID }}
     outputs:
       branch: ${{ steps.config.outputs.branch }}
       product: ${{ steps.config.outputs.product }}
@@ -112,11 +118,11 @@ jobs:
       pr_number: ${{ steps.sync_pr.outputs.pr_number }}
     steps:
       - id: generate-token
-        if: ${{ vars.APP_GITHUB_APP_ID != '' && secrets.APP_GITHUB_APP_PRIVATE_KEY != '' }}
+        if: ${{ env.APP_GITHUB_APP_ID != '' && env.APP_GITHUB_APP_PRIVATE_KEY != '' }}
         uses: actions/create-github-app-token@v2
         with:
-          app-id: ${{ vars.APP_GITHUB_APP_ID }}
-          private-key: ${{ secrets.APP_GITHUB_APP_PRIVATE_KEY }}
+          app-id: ${{ env.APP_GITHUB_APP_ID }}
+          private-key: ${{ env.APP_GITHUB_APP_PRIVATE_KEY }}
 
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -397,11 +403,11 @@ jobs:
           echo "body=$BODY" >> $GITHUB_OUTPUT
 
       - name: Send email notification
-        if: ${{ github.event.inputs.dry_run == 'false' && secrets.MAIL_CLIENT_ID != '' && secrets.MAIL_CLIENT_SECRET != '' && secrets.MAIL_TENANT_ID != '' }}
+        if: ${{ github.event.inputs.dry_run == 'false' && env.MAIL_CLIENT_ID != '' && env.MAIL_CLIENT_SECRET != '' && env.MAIL_TENANT_ID != '' }}
         env:
-          MAIL_CLIENT_ID: ${{ secrets.MAIL_CLIENT_ID }}
-          MAIL_CLIENT_SECRET: ${{ secrets.MAIL_CLIENT_SECRET }}
-          MAIL_TENANT_ID: ${{ secrets.MAIL_TENANT_ID }}
+          MAIL_CLIENT_ID: ${{ env.MAIL_CLIENT_ID }}
+          MAIL_CLIENT_SECRET: ${{ env.MAIL_CLIENT_SECRET }}
+          MAIL_TENANT_ID: ${{ env.MAIL_TENANT_ID }}
           TO: ${{ vars.RELEASE_NOTIFICATION_EMAIL || 'your-team-email@example.com' }}
           SUBJECT: ${{ steps.notify.outputs.subject }}
           BODY: ${{ steps.notify.outputs.body }}
@@ -412,13 +418,19 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.release_index != '' && github.event.inputs.dry_run == 'false' }}
     environment: release-approval
+    env:
+      APP_GITHUB_APP_ID: ${{ vars.APP_GITHUB_APP_ID }}
+      APP_GITHUB_APP_PRIVATE_KEY: ${{ secrets.APP_GITHUB_APP_PRIVATE_KEY }}
+      MAIL_CLIENT_ID: ${{ secrets.MAIL_CLIENT_ID }}
+      MAIL_CLIENT_SECRET: ${{ secrets.MAIL_CLIENT_SECRET }}
+      MAIL_TENANT_ID: ${{ secrets.MAIL_TENANT_ID }}
     steps:
       - id: generate-token
-        if: ${{ vars.APP_GITHUB_APP_ID != '' && secrets.APP_GITHUB_APP_PRIVATE_KEY != '' }}
+        if: ${{ env.APP_GITHUB_APP_ID != '' && env.APP_GITHUB_APP_PRIVATE_KEY != '' }}
         uses: actions/create-github-app-token@v2
         with:
-          app-id: ${{ vars.APP_GITHUB_APP_ID }}
-          private-key: ${{ secrets.APP_GITHUB_APP_PRIVATE_KEY }}
+          app-id: ${{ env.APP_GITHUB_APP_ID }}
+          private-key: ${{ env.APP_GITHUB_APP_PRIVATE_KEY }}
 
       - name: Verify sync PR merged (if required)
         if: ${{ needs.prepare-release.outputs.pr_needed == 'true' }}
@@ -495,11 +507,11 @@ jobs:
               .write();
 
       - name: Send email notification
-        if: ${{ success() && secrets.MAIL_CLIENT_ID != '' && secrets.MAIL_CLIENT_SECRET != '' && secrets.MAIL_TENANT_ID != '' }}
+        if: ${{ success() && env.MAIL_CLIENT_ID != '' && env.MAIL_CLIENT_SECRET != '' && env.MAIL_TENANT_ID != '' }}
         env:
-          MAIL_CLIENT_ID: ${{ secrets.MAIL_CLIENT_ID }}
-          MAIL_CLIENT_SECRET: ${{ secrets.MAIL_CLIENT_SECRET }}
-          MAIL_TENANT_ID: ${{ secrets.MAIL_TENANT_ID }}
+          MAIL_CLIENT_ID: ${{ env.MAIL_CLIENT_ID }}
+          MAIL_CLIENT_SECRET: ${{ env.MAIL_CLIENT_SECRET }}
+          MAIL_TENANT_ID: ${{ env.MAIL_TENANT_ID }}
           TO: ${{ vars.RELEASE_NOTIFICATION_EMAIL || 'your-team-email@example.com' }}
           SUBJECT: "🚀 Release Automation: ${{ needs.prepare-release.outputs.product }} ${{ needs.prepare-release.outputs.version }} CD Triggered"
           BODY: |
