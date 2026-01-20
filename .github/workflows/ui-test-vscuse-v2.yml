@@ -1,4 +1,4 @@
-name: uitest-vscuse-template
+name: uitest-vscuse-v2
 
 on:
   workflow_dispatch:
@@ -6,6 +6,11 @@ on:
       test_plan:
         description: "Comma-separated list of test plan to run (e.g. DA_Regenrate_Action, Message_Extension_py_Local_Debug)"
         required: false
+      pre_release_testing:
+        description: "Run pre-release testing (overrides test_plan)"
+        required: false
+        type: boolean
+        default: false
       image_tag:
         description: "Docker image tag to use (e.g., 'latest', 'CY251212stable')"
         required: true
@@ -25,18 +30,13 @@ on:
         type: number
         default: 7
 
-  workflow_run:
-    workflows: ["CD"]
-    types:
-      - completed
-
+  schedule:
+    - cron: "30 12 * * *"   # UTC+8 20:30 daily
 permissions:
   actions: read
 jobs:
   discover-test-plans:
     runs-on: ubuntu-latest
-    # Only run if CD workflow was triggered by schedule
-    if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'workflow_run' && github.event.workflow_run.event == 'schedule') }}
     permissions:
       contents: write
     outputs:
@@ -64,9 +64,18 @@ jobs:
       - name: Get test plans
         id: get-plans
         run: |
-          if [ -z "${{ github.event.inputs.test_plan }}" ]; then
+          if [ "${{ github.event.inputs.pre_release_testing }}" == "true" ]; then
+            if [ -f "packages/tests/vscuse/vscode-test-cases/pre-release-test-cases.json" ]; then
+              plans=$(cat packages/tests/vscuse/vscode-test-cases/pre-release-test-cases.json | jq -c '.')
+              echo "plans=$plans" >> $GITHUB_OUTPUT
+              echo "Using pre-release test plans: $plans"
+            else
+              echo "Error: pre-release-test-cases.json not found"
+              exit 1
+            fi
+          elif [ -z "${{ github.event.inputs.test_plan }}" ]; then
             # Get only top-level JSON files from plans directory (strip the .json extension)
-            plans=$(find packages/tests/vscuse/vscode-test-cases/plans/ -maxdepth 1 -type f -name "*.json" ! -name "Feature_*" ! -name "Sample_*" -exec basename {} .json \; | jq -R -s -c 'split("\n")[:-1]')
+            plans=$(find packages/tests/vscuse/vscode-test-cases/plans/ -maxdepth 1 -type f -name "*.json" -exec basename {} .json \; | jq -R -s -c 'split("\n")[:-1]')
             echo "plans=$plans" >> $GITHUB_OUTPUT
             echo "Found test plans: $plans"
           else
@@ -753,7 +762,7 @@ jobs:
           total=$((passed+failed))
           echo "Total jobs: $total, Passed: $passed, Failed: $failed"
 
-          subject="Vsc Use UI Test Report [Templates] ($passed/$total Passed)"
+          subject="Vsc Use UI Test Report ($passed/$total Passed)"
           if [ $failed -gt 0 ]; then
             subject="[FAILED] $subject"
           else
