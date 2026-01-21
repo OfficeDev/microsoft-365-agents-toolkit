@@ -12,12 +12,11 @@ import {
 } from "@microsoft/teamsfx-api";
 import { SelectSubscriptionError, UnhandledError } from "@microsoft/teamsfx-core";
 import { assert } from "chai";
+import child_process from "child_process";
 import "mocha";
 import * as sinon from "sinon";
-import UI from "../../src/userInteraction";
-import child_process from "child_process";
-import { on } from "events";
 import { logger } from "../../src/commonlib/logger";
+import UI from "../../src/userInteraction";
 
 describe("UserInteraction(CLI) 2", () => {
   const sandbox = sinon.createSandbox();
@@ -346,5 +345,181 @@ describe("runCommand", () => {
     assert.isTrue(res.isErr());
     assert.isTrue(spawnStub.calledOnce);
     assert.equal(spawnStub.firstCall.args[0], "/bin/bash");
+  });
+  it("captures stdout data", async () => {
+    const stdoutData = "Output from stdout";
+    const mockChildProcess = {
+      stdout: {
+        on: sandbox.stub().callsFake((event, callback) => {
+          if (event === "data") {
+            callback(Buffer.from(stdoutData));
+          }
+        }),
+      },
+      stderr: {
+        on: sandbox.stub(),
+      },
+      on: sandbox.stub().callsFake((event, callback) => {
+        if (event === "close") {
+          callback(0);
+        }
+      }),
+    };
+    sandbox.stub(process, "platform").value("win32");
+    sandbox.stub(logger, "info").returns();
+    sandbox.stub(child_process, "spawn").returns(mockChildProcess as any);
+    const res = await UI.runCommand({ cmd: 'echo "test"' });
+    assert.isTrue(res.isOk());
+    if (res.isOk()) {
+      assert.equal(res.value, stdoutData);
+    }
+  });
+  it("captures stderr data", async () => {
+    const stderrData = "Error from stderr";
+    const mockChildProcess = {
+      stdout: {
+        on: sandbox.stub(),
+      },
+      stderr: {
+        on: sandbox.stub().callsFake((event, callback) => {
+          if (event === "data") {
+            callback(Buffer.from(stderrData));
+          }
+        }),
+      },
+      on: sandbox.stub().callsFake((event, callback) => {
+        if (event === "close") {
+          callback(0);
+        }
+      }),
+    };
+    sandbox.stub(process, "platform").value("linux");
+    sandbox.stub(logger, "info").returns();
+    sandbox.stub(child_process, "spawn").returns(mockChildProcess as any);
+    const res = await UI.runCommand({ cmd: 'echo "test"' });
+    assert.isTrue(res.isOk());
+    if (res.isOk()) {
+      assert.equal(res.value, stderrData);
+    }
+  });
+  it("captures both stdout and stderr data", async () => {
+    const stdoutData = "Output from stdout\n";
+    const stderrData = "Error from stderr\n";
+    const mockChildProcess = {
+      stdout: {
+        on: sandbox.stub().callsFake((event, callback) => {
+          if (event === "data") {
+            callback(Buffer.from(stdoutData));
+          }
+        }),
+      },
+      stderr: {
+        on: sandbox.stub().callsFake((event, callback) => {
+          if (event === "data") {
+            callback(Buffer.from(stderrData));
+          }
+        }),
+      },
+      on: sandbox.stub().callsFake((event, callback) => {
+        if (event === "close") {
+          callback(0);
+        }
+      }),
+    };
+    sandbox.stub(process, "platform").value("linux");
+    sandbox.stub(logger, "info").returns();
+    sandbox.stub(child_process, "spawn").returns(mockChildProcess as any);
+    const res = await UI.runCommand({ cmd: 'echo "test"' });
+    assert.isTrue(res.isOk());
+    if (res.isOk()) {
+      assert.equal(res.value, stdoutData + stderrData);
+    }
+  });
+  it("passes workingDirectory to spawn", async () => {
+    const workingDir = "/path/to/working/dir";
+    const mockChildProcess = {
+      stdout: { on: sandbox.stub() },
+      stderr: { on: sandbox.stub() },
+      on: sandbox.stub().callsFake((event, callback) => {
+        if (event === "close") {
+          callback(0);
+        }
+      }),
+    };
+    sandbox.stub(process, "platform").value("linux");
+    sandbox.stub(logger, "info").returns();
+    const spawnStub = sandbox.stub(child_process, "spawn").returns(mockChildProcess as any);
+    const res = await UI.runCommand({ cmd: "pwd", workingDirectory: workingDir });
+    assert.isTrue(res.isOk());
+    assert.isTrue(spawnStub.calledOnce);
+    const spawnOptions = spawnStub.firstCall.args[2];
+    assert.equal(spawnOptions.cwd, workingDir);
+  });
+  it("passes timeout to spawn", async () => {
+    const timeout = 5000;
+    const mockChildProcess = {
+      stdout: { on: sandbox.stub() },
+      stderr: { on: sandbox.stub() },
+      on: sandbox.stub().callsFake((event, callback) => {
+        if (event === "close") {
+          callback(0);
+        }
+      }),
+    };
+    sandbox.stub(process, "platform").value("linux");
+    sandbox.stub(logger, "info").returns();
+    const spawnStub = sandbox.stub(child_process, "spawn").returns(mockChildProcess as any);
+    const res = await UI.runCommand({ cmd: "sleep 1", timeout: timeout });
+    assert.isTrue(res.isOk());
+    assert.isTrue(spawnStub.calledOnce);
+    const spawnOptions = spawnStub.firstCall.args[2];
+    assert.equal(spawnOptions.timeout, timeout);
+  });
+  it("passes env variables to spawn", async () => {
+    const envVars = { TEST_VAR: "test_value", ANOTHER_VAR: "another_value" };
+    const mockChildProcess = {
+      stdout: { on: sandbox.stub() },
+      stderr: { on: sandbox.stub() },
+      on: sandbox.stub().callsFake((event, callback) => {
+        if (event === "close") {
+          callback(0);
+        }
+      }),
+    };
+    sandbox.stub(process, "platform").value("win32");
+    sandbox.stub(logger, "info").returns();
+    const spawnStub = sandbox.stub(child_process, "spawn").returns(mockChildProcess as any);
+    const res = await UI.runCommand({ cmd: "echo %TEST_VAR%", env: envVars });
+    assert.isTrue(res.isOk());
+    assert.isTrue(spawnStub.calledOnce);
+    const spawnOptions = spawnStub.firstCall.args[2];
+    assert.deepEqual(spawnOptions.env, envVars);
+  });
+  it("handles non-zero exit code with output", async () => {
+    const errorOutput = "Command failed with error";
+    const mockChildProcess = {
+      stdout: {
+        on: sandbox.stub().callsFake((event, callback) => {
+          if (event === "data") {
+            callback(Buffer.from(errorOutput));
+          }
+        }),
+      },
+      stderr: { on: sandbox.stub() },
+      on: sandbox.stub().callsFake((event, callback) => {
+        if (event === "close") {
+          callback(2); // Non-zero exit code
+        }
+      }),
+    };
+    sandbox.stub(process, "platform").value("linux");
+    sandbox.stub(logger, "info").returns();
+    sandbox.stub(logger, "error").returns();
+    sandbox.stub(child_process, "spawn").returns(mockChildProcess as any);
+    const res = await UI.runCommand({ cmd: "invalid-command" });
+    assert.isTrue(res.isErr());
+    if (res.isErr()) {
+      assert.include(res.error.message, "Execute task failed with exit code:2");
+    }
   });
 });
