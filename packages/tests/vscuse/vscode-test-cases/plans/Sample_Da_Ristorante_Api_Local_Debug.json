@@ -9,15 +9,15 @@
       "precondition_retry_interval": 2.0,
       "step_retry_timeout": 0.0
     },
-    "total_steps": 18,
-    "created_at": "2026-01-15T01:36:29.819100",
+    "total_steps": 19,
+    "created_at": "2026-01-21T02:21:47.832538",
     "name": "Sample Da Ristorante Api Local Debug",
     "description": {
       "other": "",
       "owner": "v-helzha@microsoft.com",
       "workitem": "30793006"
     },
-    "generated_at": "2026-01-15T01:36:29.819100",
+    "generated_at": "2026-01-21T02:21:47.830971",
     "execution_order": [
       "plan_r_1107_015711",
       "step_ae6a5397",
@@ -39,11 +39,12 @@
       "step_7b7da1fc",
       "step_84e8ba69",
       "step_450b02f8",
+      "step_cc9eb4be",
       "step_38066496",
       "step_a550ede1"
     ],
     "tags": [],
-    "updated_at": "2026-01-15T01:37:10.800003"
+    "updated_at": "2026-01-21T02:22:55.085750"
   },
   "steps": [
     {
@@ -65,7 +66,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_ae6a5397",
-      "created_at": "2026-01-15T01:36:29.836462",
+      "created_at": "2026-01-21T02:21:47.853080",
       "plan_id": "plan_b0d5be76"
     },
     {
@@ -91,7 +92,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_fca536c0",
-      "created_at": "2026-01-15T01:36:29.853792",
+      "created_at": "2026-01-21T02:21:47.877314",
       "plan_id": "plan_b0d5be76"
     },
     {
@@ -111,7 +112,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": null,
-      "created_at": "2026-01-15T01:36:29.870519",
+      "created_at": "2026-01-21T02:21:47.905388",
       "plan_id": "plan_b0d5be76"
     },
     {
@@ -131,7 +132,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": null,
-      "created_at": "2026-01-15T01:36:29.884834",
+      "created_at": "2026-01-21T02:21:47.927603",
       "plan_id": "plan_b0d5be76"
     },
     {
@@ -157,7 +158,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_732b425d",
-      "created_at": "2026-01-15T01:36:29.904062",
+      "created_at": "2026-01-21T02:21:47.945376",
       "plan_id": "plan_b0d5be76"
     },
     {
@@ -179,7 +180,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_03192207",
-      "created_at": "2026-01-15T01:36:29.921647",
+      "created_at": "2026-01-21T02:21:47.972977",
       "plan_id": "plan_b0d5be76"
     },
     {
@@ -201,7 +202,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_ccb04a8c",
-      "created_at": "2026-01-15T01:36:29.937214",
+      "created_at": "2026-01-21T02:21:47.997217",
       "plan_id": "plan_b0d5be76"
     },
     {
@@ -223,7 +224,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_b070dbe8",
-      "created_at": "2026-01-15T01:36:29.950450",
+      "created_at": "2026-01-21T02:21:48.021571",
       "plan_id": "plan_b0d5be76"
     },
     {
@@ -245,7 +246,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_683ec751",
-      "created_at": "2026-01-15T01:36:29.962889",
+      "created_at": "2026-01-21T02:21:48.046624",
       "plan_id": "plan_b0d5be76"
     },
     {
@@ -267,7 +268,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_812aac11",
-      "created_at": "2026-01-15T01:36:29.978845",
+      "created_at": "2026-01-21T02:21:48.068504",
       "plan_id": "plan_b0d5be76"
     },
     {
@@ -295,7 +296,7 @@
         "precondition_wait_timeout: 180"
       ],
       "screenshot": "step_6b0beb7b",
-      "created_at": "2026-01-15T01:36:29.989923",
+      "created_at": "2026-01-21T02:21:48.093734",
       "plan_id": "plan_b0d5be76"
     },
     {
@@ -321,7 +322,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_373fa827",
-      "created_at": "2026-01-15T01:36:29.999891",
+      "created_at": "2026-01-21T02:21:48.113096",
       "plan_id": "plan_b0d5be76"
     },
     {
@@ -343,7 +344,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_5aca54bb",
-      "created_at": "2026-01-15T01:36:30.011418",
+      "created_at": "2026-01-21T02:21:48.137813",
       "plan_id": "plan_b0d5be76"
     },
     {
@@ -371,7 +372,7 @@
         "delay: 30"
       ],
       "screenshot": "step_7b7da1fc",
-      "created_at": "2026-01-15T01:36:30.018980",
+      "created_at": "2026-01-21T02:21:48.173048",
       "plan_id": "plan_b0d5be76"
     },
     {
@@ -393,7 +394,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_84e8ba69",
-      "created_at": "2026-01-15T01:36:30.027990",
+      "created_at": "2026-01-21T02:21:48.198005",
       "plan_id": "plan_b0d5be76"
     },
     {
@@ -415,7 +416,25 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_450b02f8",
-      "created_at": "2026-01-15T01:36:30.035416",
+      "created_at": "2026-01-21T02:21:48.219362",
+      "plan_id": "plan_b0d5be76"
+    },
+    {
+      "step_id": "step_cc9eb4be",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion a button exists to allow action.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": null,
+      "created_at": "2026-01-21T02:22:16.711936",
       "plan_id": "plan_b0d5be76"
     },
     {
@@ -424,10 +443,10 @@
       "tool": "click",
       "parameters": {
         "button": "left",
-        "x": 321,
-        "y": 347
+        "x": 345,
+        "y": 375
       },
-      "description": "Click the \"Allow\" button in the permission prompt for connecting to the Il Ristorante agent within the Chat | M365 Copilot web interface.",
+      "description": "Click the first button to allow the permission prompt for connecting to the Il Ristorante agent within the Chat | M365 Copilot web interface.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -439,9 +458,11 @@
         "dhash:341:375:0:10:19b8a19b98e0f8f6"
       ],
       "postconditions": [],
-      "tags": [],
+      "tags": [
+        "force_run:true"
+      ],
       "screenshot": "step_38066496",
-      "created_at": "2026-01-15T01:36:30.044436",
+      "created_at": "2026-01-21T02:21:48.239400",
       "plan_id": "plan_b0d5be76"
     },
     {
@@ -457,9 +478,11 @@
       "depends_on": [],
       "preconditions": [],
       "postconditions": [],
-      "tags": [],
+      "tags": [
+        "delay: 20"
+      ],
       "screenshot": null,
-      "created_at": "2026-01-15T01:36:30.053123",
+      "created_at": "2026-01-21T02:21:48.266675",
       "plan_id": "plan_b0d5be76"
     }
   ],
