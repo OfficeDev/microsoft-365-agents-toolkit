@@ -28,7 +28,6 @@ export const playgroundPython: Record<string, CopyPolicy> = {
   ".vscode/tasks.json": { allowExistingFile: true, policy: "add" },
   "env/.env.playground": { allowExistingFile: false, policy: "skip" },
   "env/.env.playground.user": { allowExistingFile: false, policy: "skip" },
-  ".localConfigs.playground": { allowExistingFile: true, policy: "skip" },
   "m365agents.playground.yml": { allowExistingFile: false, policy: "error" },
 };
 
