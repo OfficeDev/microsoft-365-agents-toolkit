@@ -1,16 +1,14 @@
-name: uitest-vscuse-v2
-
+name: uitest-vscuse-others
+#
+# Triggers:
+# 1. Manual trigger (workflow_dispatch)
+# 2. On successful completion of uitest-vscuse-template pipeline when triggered by workflow_run (from CD schedule) (workflow_run)
 on:
   workflow_dispatch:
     inputs:
       test_plan:
         description: "Comma-separated list of test plan to run (e.g. DA_Regenrate_Action, Message_Extension_py_Local_Debug)"
         required: false
-      pre_release_testing:
-        description: "Run pre-release testing (overrides test_plan)"
-        required: false
-        type: boolean
-        default: false
       image_tag:
         description: "Docker image tag to use (e.g., 'latest', 'CY251212stable')"
         required: true
@@ -29,13 +27,15 @@ on:
         required: false
         type: number
         default: 7
-
-  schedule:
-    - cron: "30 12 * * *"   # UTC+8 20:30 daily
+  workflow_run:
+    workflows: ["uitest-vscuse-template"]
+    types:
+      - completed
 permissions:
   actions: read
 jobs:
   discover-test-plans:
+    if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'workflow_run' && github.event.workflow_run.event == 'workflow_run' && github.event.workflow_run.conclusion == 'success') }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -64,18 +64,9 @@ jobs:
       - name: Get test plans
         id: get-plans
         run: |
-          if [ "${{ github.event.inputs.pre_release_testing }}" == "true" ]; then
-            if [ -f "packages/tests/vscuse/vscode-test-cases/pre-release-test-cases.json" ]; then
-              plans=$(cat packages/tests/vscuse/vscode-test-cases/pre-release-test-cases.json | jq -c '.')
-              echo "plans=$plans" >> $GITHUB_OUTPUT
-              echo "Using pre-release test plans: $plans"
-            else
-              echo "Error: pre-release-test-cases.json not found"
-              exit 1
-            fi
-          elif [ -z "${{ github.event.inputs.test_plan }}" ]; then
+          if [ -z "${{ github.event.inputs.test_plan }}" ]; then
             # Get only top-level JSON files from plans directory (strip the .json extension)
-            plans=$(find packages/tests/vscuse/vscode-test-cases/plans/ -maxdepth 1 -type f -name "*.json" -exec basename {} .json \; | jq -R -s -c 'split("\n")[:-1]')
+            plans=$(find packages/tests/vscuse/vscode-test-cases/plans/ -maxdepth 1 -type f \( -name "Feature_*.json" -o -name "Sample_*.json" \) -exec basename {} .json \; | jq -R -s -c 'split("\n")[:-1]')
             echo "plans=$plans" >> $GITHUB_OUTPUT
             echo "Found test plans: $plans"
           else
@@ -90,7 +81,7 @@ jobs:
     name: Case-${{ matrix.test_plan }}
     needs: discover-test-plans
     runs-on: ubuntu-latest
-    timeout-minutes: 80
+    timeout-minutes: 50
 
     strategy:
       matrix:
@@ -142,12 +133,7 @@ jobs:
       # The test account for Copilot features
       M365_ACCOUNT_NAME_EnableCopilotAccess: ${{ secrets.TEST_TENANT_M365_ACCOUNT_NAME }}
       M365_ACCOUNT_PASSWORD_EnableCopilotAccess: ${{ secrets.TEST_TENANT_M365_ACCOUNT_PASSWORD }}
-      
-      # M365 admin account with Global admin role
-      M365_ACCOUNT_ADMIN_ACCOUNT: ${{ vars.TEST_TENANT_M365_ACCOUNT_ADMIN_ACCOUNT }}
-      M365_ACCOUNT_ADMIN_PASSWORD: ${{ secrets.TEST_TENANT_M365_ACCOUNT_ADMIN_PASSWORD }}
-
-
+            
       AZURE_ACCOUNT_NAME: ${{ secrets.TEST_TENANT_AZURE_ACCOUNT_NAME }}
       AZURE_ACCOUNT_PASSWORD: ${{ secrets.TEST_TENANT_AZURE_ACCOUNT_PASSWORD }}
       M365_TENANT_ID: ${{ secrets.TEST_CLEAN_TENANT_ID }}
