@@ -15,21 +15,19 @@ import { expect } from "chai";
 import "mocha";
 import * as sinon from "sinon";
 import { stubInterface } from "ts-sinon";
-import "./mocks/vscode-mock";
 import {
   commands,
   Disposable,
   QuickInputButton,
   QuickPick,
-  Task,
   tasks,
-  Terminal,
   TextDocument,
   window,
   workspace,
 } from "vscode";
 import { UserCancelError } from "../src/error";
 import { FxQuickPickItem, sleep, VSCodeUI } from "../src/ui";
+import "./mocks/vscode-mock";
 
 describe("UI Unit Tests", async () => {
   const ui = new VSCodeUI("Test", (e) => {
@@ -387,14 +385,32 @@ describe("UI Unit Tests", async () => {
     });
     it("runs command timeout", async function (this: Mocha.Context) {
       const timer = sandbox.useFakeTimers();
-      const runCmd = ui.runCommand({ cmd: "test", timeout: 200 });
+      // Mock fs and temp file
+      const fakeTempFile = "fake-temp-file.txt";
+      const fakeOutput = "output";
+      const pathStub = sandbox.stub(require("path"), "join").returns(fakeTempFile);
+      const fsStub = sandbox.stub(require("fs"));
+      fsStub.readFileSync.returns(fakeOutput);
+      fsStub.unlinkSync.returns();
       sandbox.stub(tasks, "executeTask").resolves();
+      // Run command
+      const runCmd = ui.runCommand({ cmd: "test", timeout: 200 });
       await timer.tickAsync(2000);
       const result = await runCmd;
       expect(result.isErr()).is.true;
       timer.restore();
+      pathStub.restore();
+      fsStub.readFileSync.restore();
+      fsStub.unlinkSync.restore();
     });
     it("runs command successfully", async function (this: Mocha.Context) {
+      // Mock fs and temp file
+      const fakeTempFile = "fake-temp-file.txt";
+      const fakeOutput = "output";
+      const pathStub = sandbox.stub(require("path"), "join").returns(fakeTempFile);
+      const fsStub = sandbox.stub(require("fs"));
+      fsStub.readFileSync.returns(fakeOutput);
+      fsStub.unlinkSync.returns();
       sandbox.stub(tasks, "executeTask").resolves();
       const disposable = { dispose: () => {} };
       const stub = sandbox.stub(tasks, "onDidEndTaskProcess").returns(disposable);
@@ -405,6 +421,9 @@ describe("UI Unit Tests", async () => {
       const runCmd = ui.runCommand({ cmd: "test" });
       const result = await runCmd;
       expect(result.isOk()).is.true;
+      pathStub.restore();
+      fsStub.readFileSync.restore();
+      fsStub.unlinkSync.restore();
     });
   });
 
