@@ -35,6 +35,7 @@ import {
   UserCancelError,
   assembleError,
 } from "@microsoft/teamsfx-core";
+import { spawn } from "child_process";
 import fs from "fs-extra";
 import open from "open";
 import path from "path";
@@ -46,7 +47,6 @@ import { cliSource } from "./constants";
 import { CheckboxChoice, SelectChoice, checkbox, select } from "./prompts";
 import { errors } from "./resource";
 import { getColorizedString } from "./utils";
-import { spawn } from "child_process";
 
 export const inquirerPrompts = {
   confirm,
@@ -641,15 +641,22 @@ class CLIUserInteraction implements UserInteraction {
       const command = isWindows ? "cmd.exe" : "/bin/bash";
       const commandArgs = isWindows ? ["/c", args.cmd] : ["-c", args.cmd];
       logger.info(`Executing task: ${args.cmd}`);
+      let output = "";
       const childProcess = spawn(command, commandArgs, {
-        stdio: "inherit",
+        stdio: ["inherit", "pipe", "pipe"],
         cwd: args.workingDirectory,
         timeout: args.timeout,
         env: args.env,
       });
+      childProcess.stdout?.on("data", (data) => {
+        output += data.toString();
+      });
+      childProcess.stderr?.on("data", (data) => {
+        output += data.toString();
+      });
       childProcess.on("close", (code: number) => {
         if (code === 0) {
-          resolve(ok(""));
+          resolve(ok(output));
         } else {
           logger.error("Execute task failed with code:" + code);
           resolve(
