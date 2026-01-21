@@ -91,6 +91,7 @@ import "../../src/component/feature/sso";
 import * as declarativeAgentHelper from "../../src/component/generator/declarativeAgent/helper";
 import * as oneDriveSharePointHandler from "../../src/component/generator/declarativeAgent/oneDriveSharePointHandler";
 import * as openApiSpecHelper from "../../src/component/generator/openApiSpec/helper";
+import * as templateHelper from "../../src/component/generator/templateHelper";
 import { TemplateNames } from "../../src/component/generator/templates/templateNames";
 import * as generatorUtils from "../../src/component/generator/utils";
 import { LaunchHelper } from "../../src/component/m365/launchHelper";
@@ -9026,7 +9027,7 @@ describe("fetchOnlineTemplateMetadata", () => {
   });
 
   it("should skip download when using local template", async () => {
-    sandbox.stub(templateConfigModule, "useLocalTemplate").value(true);
+    sandbox.stub(templateHelper, "useLocalTemplate").returns(true);
 
     const result = await core.fetchOnlineTemplateMetadata();
 
@@ -9037,7 +9038,7 @@ describe("fetchOnlineTemplateMetadata", () => {
   });
 
   it("should download metadata for rc version when coreVersion contains 'rc'", async () => {
-    sandbox.stub(templateConfigModule, "useLocalTemplate").value(false);
+    sandbox.stub(templateHelper, "useLocalTemplate").returns(false);
     sandbox.stub(templateConfigModule, "tagPrefix").value("templates@");
     sandbox
       .stub(templateConfigModule, "templateDownloadBaseURL")
@@ -9066,7 +9067,7 @@ describe("fetchOnlineTemplateMetadata", () => {
   });
 
   it("should download metadata for stable version", async () => {
-    sandbox.stub(templateConfigModule, "useLocalTemplate").value(false);
+    sandbox.stub(templateHelper, "useLocalTemplate").returns(false);
     sandbox.stub(templateConfigModule, "tagPrefix").value("templates@");
     sandbox
       .stub(templateConfigModule, "templateDownloadBaseURL")
@@ -9097,7 +9098,7 @@ describe("fetchOnlineTemplateMetadata", () => {
   });
 
   it("should skip download when cached version matches latest version", async () => {
-    sandbox.stub(templateConfigModule, "useLocalTemplate").value(false);
+    sandbox.stub(templateHelper, "useLocalTemplate").returns(false);
     sandbox.stub(packageJson, "version").value("1.0.0");
 
     sandbox.stub(generatorUtils, "getTemplateLatestVersion").resolves("2.0.0");
@@ -9117,7 +9118,7 @@ describe("fetchOnlineTemplateMetadata", () => {
   });
 
   it("should download when cached version file does not exist", async () => {
-    sandbox.stub(templateConfigModule, "useLocalTemplate").value(false);
+    sandbox.stub(templateHelper, "useLocalTemplate").returns(false);
     sandbox.stub(templateConfigModule, "tagPrefix").value("templates@");
     sandbox
       .stub(templateConfigModule, "templateDownloadBaseURL")
@@ -9141,7 +9142,7 @@ describe("fetchOnlineTemplateMetadata", () => {
   });
 
   it("should download when cached version differs from latest version", async () => {
-    sandbox.stub(templateConfigModule, "useLocalTemplate").value(false);
+    sandbox.stub(templateHelper, "useLocalTemplate").returns(false);
     sandbox.stub(templateConfigModule, "tagPrefix").value("templates@");
     sandbox
       .stub(templateConfigModule, "templateDownloadBaseURL")
@@ -9166,7 +9167,7 @@ describe("fetchOnlineTemplateMetadata", () => {
   });
 
   it("should re-download when cached version file is corrupted", async () => {
-    sandbox.stub(templateConfigModule, "useLocalTemplate").value(false);
+    sandbox.stub(templateHelper, "useLocalTemplate").returns(false);
     sandbox.stub(templateConfigModule, "tagPrefix").value("templates@");
     sandbox
       .stub(templateConfigModule, "templateDownloadBaseURL")
@@ -9191,7 +9192,7 @@ describe("fetchOnlineTemplateMetadata", () => {
   });
 
   it("should handle alpha version correctly", async () => {
-    sandbox.stub(templateConfigModule, "useLocalTemplate").value(false);
+    sandbox.stub(templateHelper, "useLocalTemplate").returns(false);
     sandbox.stub(templateConfigModule, "tagPrefix").value("templates@");
     sandbox
       .stub(templateConfigModule, "templateDownloadBaseURL")
@@ -9217,7 +9218,7 @@ describe("fetchOnlineTemplateMetadata", () => {
   });
 
   it("should handle beta version correctly", async () => {
-    sandbox.stub(templateConfigModule, "useLocalTemplate").value(false);
+    sandbox.stub(templateHelper, "useLocalTemplate").returns(false);
     sandbox.stub(templateConfigModule, "tagPrefix").value("templates@");
     sandbox
       .stub(templateConfigModule, "templateDownloadBaseURL")
@@ -9243,7 +9244,7 @@ describe("fetchOnlineTemplateMetadata", () => {
   });
 
   it("should return error when fetchZipFromUrl fails", async () => {
-    sandbox.stub(templateConfigModule, "useLocalTemplate").value(false);
+    sandbox.stub(templateHelper, "useLocalTemplate").returns(false);
     sandbox.stub(templateConfigModule, "tagPrefix").value("templates@");
     sandbox
       .stub(templateConfigModule, "templateDownloadBaseURL")
@@ -9269,7 +9270,7 @@ describe("fetchOnlineTemplateMetadata", () => {
   });
 
   it("should return error when unzip fails", async () => {
-    sandbox.stub(templateConfigModule, "useLocalTemplate").value(false);
+    sandbox.stub(templateHelper, "useLocalTemplate").returns(false);
     sandbox.stub(templateConfigModule, "tagPrefix").value("templates@");
     sandbox
       .stub(templateConfigModule, "templateDownloadBaseURL")
@@ -9295,7 +9296,7 @@ describe("fetchOnlineTemplateMetadata", () => {
   });
 
   it("should return error when fs.writeFile fails", async () => {
-    sandbox.stub(templateConfigModule, "useLocalTemplate").value(false);
+    sandbox.stub(templateHelper, "useLocalTemplate").returns(false);
     sandbox.stub(templateConfigModule, "tagPrefix").value("templates@");
     sandbox
       .stub(templateConfigModule, "templateDownloadBaseURL")
@@ -9322,7 +9323,7 @@ describe("fetchOnlineTemplateMetadata", () => {
   });
 
   it("should use correct metadata directory path", async () => {
-    sandbox.stub(templateConfigModule, "useLocalTemplate").value(false);
+    sandbox.stub(templateHelper, "useLocalTemplate").returns(false);
     sandbox.stub(templateConfigModule, "tagPrefix").value("templates@");
     sandbox
       .stub(templateConfigModule, "templateDownloadBaseURL")

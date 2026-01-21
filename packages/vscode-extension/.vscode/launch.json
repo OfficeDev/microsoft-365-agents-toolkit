@@ -13,6 +13,7 @@
       "env": {
         "NODE_ENV": "development",
         "TEAMSFX_SAMPLE_CONFIG_BRANCH": "dev",
+        "TEMPLATE_VERSION": "local",
         "TEAMSFX_MCP_FOR_DA": "true"
       },
       "preLaunchTask": "watch"
