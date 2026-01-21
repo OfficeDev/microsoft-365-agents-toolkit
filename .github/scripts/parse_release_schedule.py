@@ -8,7 +8,10 @@ Required columns per release row:
 - Branch
 - preid
 - series
-- vsrelease
+
+vsrelease is derived from Products:
+- Products == VS  -> vsrelease=true
+- Products == VSC -> vsrelease=false
 """
 
 import re
@@ -106,7 +109,14 @@ def generate_release_config(markdown_content: str) -> List[Dict]:
         if not product or not version or version == '-':
             continue
         
-        if 'skip' in status.lower() or 'released' in status.lower() or 'canceled' in status.lower():
+        status_l = status.lower()
+        if (
+            'skip' in status_l
+            or 'released' in status_l
+            or 'cancel' in status_l
+            or 'canceled' in status_l
+            or 'cancelled' in status_l
+        ):
             continue
 
         # Schedule-driven: all parameters must be explicitly provided
@@ -115,10 +125,18 @@ def generate_release_config(markdown_content: str) -> List[Dict]:
             branch = _get_required_value(release, 'branch', context)
             preid = _get_required_value(release, 'preid', context)
             series = _get_required_value(release, 'series', context)
-            vsrelease = _get_required_value(release, 'vsrelease', context)
         except ValueError as e:
             print(f"✗ Invalid schedule row: {e}", file=sys.stderr)
             continue
+
+        product_norm = re.sub(r"\s+", " ", str(product).strip()).lower()
+        if product_norm == "vs":
+            vsrelease = "true"
+        elif product_norm == "vsc":
+            vsrelease = "false"
+        else:
+            # Default to false to avoid accidentally enabling VS-only behavior.
+            vsrelease = "false"
         
         config = {
             'product': product,

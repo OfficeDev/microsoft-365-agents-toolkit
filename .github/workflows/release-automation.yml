@@ -1,6 +1,12 @@
 name: Release Automation
 run-name: Release-Automation-${{ github.run_id }}
 
+env:
+  SCHEDULE_FILE: ${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.schedule_file) || 'docs/release-schedule.md' }}
+  RELEASE_VERSION: ${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.release_version) || '' }}
+  DRY_RUN: ${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run) || 'false' }}
+  CREATE_BRANCH: ${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.create_branch) || 'true' }}
+
 on:
   workflow_dispatch:
     inputs:
@@ -8,10 +14,10 @@ on:
         description: "Path to release schedule markdown file"
         required: false
         default: "docs/release-schedule.md"
-      release_index:
-        description: "Index of release to process (0-based, leave empty to list all)"
+      release_version:
+        description: "Optional: target release Version to process (e.g., 6.5.2026012001). If empty, selects by Cut Bits Date (UTC+8 today)."
         required: false
-        default: "0"
+        default: ""
       dry_run:
         description: "Dry run mode (will not create branches or trigger CD)"
         type: boolean
@@ -21,8 +27,8 @@ on:
         type: boolean
         default: true
   schedule:
-    # Run weekly on Monday at 8:00 AM UTC to check for upcoming releases
-    - cron: "0 8 * * 1"
+    # Run daily at 05:00 (UTC+8) => 21:00 UTC
+    - cron: "0 21 * * *"
 
 permissions:
   contents: write
@@ -50,10 +56,10 @@ jobs:
         id: parse
         run: |
           # Parse schedule-driven release parameters
-          python .github/scripts/parse_release_schedule.py "${{ github.event.inputs.schedule_file || 'docs/release-schedule.md' }}" > releases.json
+          python .github/scripts/parse_release_schedule.py "${{ env.SCHEDULE_FILE }}" > releases.json
 
           # Only process VS Code prerelease entries
-          cat releases.json | jq '[.[] | select((.product | ascii_downcase | contains("vs code")) and (.release_type | ascii_downcase | contains("prerelease")))]' > releases.filtered.json
+          cat releases.json | jq '[.[] | select((((.product | ascii_downcase) == "vsc") or (.product | ascii_downcase | contains("vs code"))) and (.release_type | ascii_downcase | contains("prerelease")))]' > releases.filtered.json
           mv releases.filtered.json releases.json
           
           echo "📋 Parsed Release Schedule:"
@@ -75,6 +81,90 @@ jobs:
           name: releases-config
           path: releases.json
 
+  select-release:
+    needs: parse-schedule
+    runs-on: ubuntu-latest
+    outputs:
+      found: ${{ steps.select.outputs.found }}
+      reason: ${{ steps.select.outputs.reason }}
+      product: ${{ steps.select.outputs.product }}
+      release_type: ${{ steps.select.outputs.release_type }}
+      version: ${{ steps.select.outputs.version }}
+      cut_date: ${{ steps.select.outputs.cut_date }}
+      branch: ${{ steps.select.outputs.branch }}
+      preid: ${{ steps.select.outputs.preid }}
+      series: ${{ steps.select.outputs.series }}
+      vsrelease: ${{ steps.select.outputs.vsrelease }}
+    steps:
+      - name: Download releases configuration
+        uses: actions/download-artifact@v4
+        with:
+          name: releases-config
+
+      - name: Select release (by version or Cut Bits Date)
+        id: select
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          VERSION_INPUT="${{ env.RELEASE_VERSION }}"
+          TODAY_UTC8=$(date -u -d '+8 hours' +%Y-%m-%d)
+
+          if [ -n "$VERSION_INPUT" ]; then
+            REASON="version=$VERSION_INPUT"
+            RELEASE=$(jq -c --arg v "$VERSION_INPUT" '[.[] | select(.version == $v)] | .[0]' releases.json)
+          else
+            REASON="cut_date=$TODAY_UTC8 (UTC+8)"
+            RELEASE=$(jq -c --arg d "$TODAY_UTC8" '[.[] | select(.cut_date == $d)] | .[0]' releases.json)
+          fi
+
+          if [ "$RELEASE" = "null" ] || [ -z "$RELEASE" ]; then
+            {
+              echo "## ℹ️ No release selected"
+              echo ""
+              echo "No matching release was found for ${REASON}."
+              echo ""
+              echo "Notes:"
+              echo "- Cut Bits Date must be in ISO format (YYYY-MM-DD)."
+              echo "- Status values like Cancel/Cancelled/Canceled are ignored by the parser."
+            } >> "$GITHUB_STEP_SUMMARY"
+
+            echo "found=false" >> "$GITHUB_OUTPUT"
+            echo "reason=$REASON" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          PRODUCT=$(echo "$RELEASE" | jq -r '.product')
+          RELEASE_TYPE=$(echo "$RELEASE" | jq -r '.release_type')
+          VERSION=$(echo "$RELEASE" | jq -r '.version')
+          CUT_DATE=$(echo "$RELEASE" | jq -r '.cut_date')
+          BRANCH=$(echo "$RELEASE" | jq -r '.branch')
+          PREID=$(echo "$RELEASE" | jq -r '.cd_params.preid')
+          SERIES=$(echo "$RELEASE" | jq -r '.cd_params.series')
+          VSRELEASE=$(echo "$RELEASE" | jq -r '.cd_params.vsrelease')
+
+          {
+            echo "## ✅ Selected release"
+            echo ""
+            echo "- Reason: ${REASON}"
+            echo "- Product: ${PRODUCT}"
+            echo "- Release Type: ${RELEASE_TYPE}"
+            echo "- Version: ${VERSION}"
+            echo "- Cut Bits Date: ${CUT_DATE}"
+            echo "- Branch: ${BRANCH}"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          echo "found=true" >> "$GITHUB_OUTPUT"
+          echo "reason=$REASON" >> "$GITHUB_OUTPUT"
+          echo "product=$PRODUCT" >> "$GITHUB_OUTPUT"
+          echo "release_type=$RELEASE_TYPE" >> "$GITHUB_OUTPUT"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "cut_date=$CUT_DATE" >> "$GITHUB_OUTPUT"
+          echo "branch=$BRANCH" >> "$GITHUB_OUTPUT"
+          echo "preid=$PREID" >> "$GITHUB_OUTPUT"
+          echo "series=$SERIES" >> "$GITHUB_OUTPUT"
+          echo "vsrelease=$VSRELEASE" >> "$GITHUB_OUTPUT"
+
   review-releases:
     needs: parse-schedule
     runs-on: ubuntu-latest
@@ -92,13 +182,15 @@ jobs:
             echo ""
             echo "The following releases are ready for processing:"
             echo ""
-            jq -r 'to_entries[] | "## Release \(.key + 1): \(.value.product) \(.value.version)\n\n**Release Type:** \(.value.release_type)\n**Branch:** `\(.value.branch)`\n**Cut Date:** \(.value.cut_date)\n**Release Date:** \(.value.release_date)\n\n### CD Pipeline Parameters:\n- **preid:** `\(.value.cd_params.preid)`\n- **series:** `\(.value.cd_params.series)`\n- **vsrelease:** `\(.value.cd_params.vsrelease)`\n\n---\n"' releases.json
+            jq -r 'to_entries[] | "## Release \(.key + 1): \(.value.product) \(.value.version)\n\n**Release Type:** \(.value.release_type)\n**Branch:** `\(.value.branch)`\n**Cut Date:** \(.value.cut_date)\n\n### CD Pipeline Parameters:\n- **preid:** `\(.value.cd_params.preid)`\n- **series:** `\(.value.cd_params.series)`\n- **vsrelease:** `\(.value.cd_params.vsrelease)`\n\n---\n"' releases.json
           } | tee -a "$GITHUB_STEP_SUMMARY"
 
   prepare-release:
-    needs: parse-schedule
+    needs:
+      - parse-schedule
+      - select-release
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.release_index != '' }}
+    if: ${{ needs.select-release.outputs.found == 'true' }}
     env:
       APP_GITHUB_APP_ID: ${{ vars.APP_GITHUB_APP_ID }}
       APP_GITHUB_APP_PRIVATE_KEY: ${{ secrets.APP_GITHUB_APP_PRIVATE_KEY }}
@@ -135,63 +227,42 @@ jobs:
         with:
           name: releases-config
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.x'
-
-      - name: Extract release configuration
+      - name: Set selected release outputs
         id: config
+        shell: bash
         run: |
-          RELEASE_INDEX=${{ github.event.inputs.release_index }}
-          
-          # Extract the specific release
-          RELEASE=$(cat releases.json | jq ".[$RELEASE_INDEX]")
-          
-          if [ "$RELEASE" == "null" ]; then
-            echo "❌ Error: Invalid release index $RELEASE_INDEX"
-            exit 1
-          fi
-          
+          PRODUCT='${{ needs.select-release.outputs.product }}'
+          RELEASE_TYPE='${{ needs.select-release.outputs.release_type }}'
+          VERSION='${{ needs.select-release.outputs.version }}'
+          BRANCH='${{ needs.select-release.outputs.branch }}'
+          PREID='${{ needs.select-release.outputs.preid }}'
+          SERIES='${{ needs.select-release.outputs.series }}'
+          VSRELEASE='${{ needs.select-release.outputs.vsrelease }}'
+
           echo "Selected release:"
-          echo "$RELEASE" | jq '.'
-          
-          # Extract fields
-          BRANCH=$(echo "$RELEASE" | jq -r '.branch')
-          PRODUCT=$(echo "$RELEASE" | jq -r '.product')
-          RELEASE_TYPE=$(echo "$RELEASE" | jq -r '.release_type')
-          VERSION=$(echo "$RELEASE" | jq -r '.version')
-          PREID=$(echo "$RELEASE" | jq -r '.cd_params.preid')
-          SERIES=$(echo "$RELEASE" | jq -r '.cd_params.series')
-          VSRELEASE=$(echo "$RELEASE" | jq -r '.cd_params.vsrelease')
+          echo "  Product: $PRODUCT"
+          echo "  Release Type: $RELEASE_TYPE"
+          echo "  Version: $VERSION"
+          echo "  Branch: $BRANCH"
 
           IS_VSC_PRERELEASE=false
-          if echo "$PRODUCT" | grep -qi "vs code" && echo "$RELEASE_TYPE" | grep -qi "prerelease"; then
+          if echo "$PRODUCT" | grep -qi "^vsc$" && echo "$RELEASE_TYPE" | grep -qi "prerelease"; then
             IS_VSC_PRERELEASE=true
           fi
 
           if [ "$IS_VSC_PRERELEASE" != "true" ]; then
-            echo "❌ This workflow only supports VS Code Prerelease releases." >&2
-            echo "Selected: product='$PRODUCT', release_type='$RELEASE_TYPE', version='$VERSION'" >&2
-            echo "## ❌ Unsupported Release" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "This workflow only processes **VS Code Prerelease** entries." >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "- Product: $PRODUCT" >> $GITHUB_STEP_SUMMARY
-            echo "- Release Type: $RELEASE_TYPE" >> $GITHUB_STEP_SUMMARY
-            echo "- Version: $VERSION" >> $GITHUB_STEP_SUMMARY
+            echo "❌ This workflow only supports VSC Prerelease releases." >&2
             exit 1
           fi
-          
-          # Set outputs
-          echo "branch=$BRANCH" >> $GITHUB_OUTPUT
-          echo "product=$PRODUCT" >> $GITHUB_OUTPUT
-          echo "release_type=$RELEASE_TYPE" >> $GITHUB_OUTPUT
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "preid=$PREID" >> $GITHUB_OUTPUT
-          echo "series=$SERIES" >> $GITHUB_OUTPUT
-          echo "vsrelease=$VSRELEASE" >> $GITHUB_OUTPUT
-          echo "is_vsc_prerelease=$IS_VSC_PRERELEASE" >> $GITHUB_OUTPUT
+
+          echo "branch=$BRANCH" >> "$GITHUB_OUTPUT"
+          echo "product=$PRODUCT" >> "$GITHUB_OUTPUT"
+          echo "release_type=$RELEASE_TYPE" >> "$GITHUB_OUTPUT"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "preid=$PREID" >> "$GITHUB_OUTPUT"
+          echo "series=$SERIES" >> "$GITHUB_OUTPUT"
+          echo "vsrelease=$VSRELEASE" >> "$GITHUB_OUTPUT"
+          echo "is_vsc_prerelease=$IS_VSC_PRERELEASE" >> "$GITHUB_OUTPUT"
 
       - name: Setup git
         run: |
@@ -217,7 +288,7 @@ jobs:
 
       - name: Create PR to merge dev into existing release branch
         id: sync_pr
-        if: ${{ steps.check_branch.outputs.exists == 'true' && github.event.inputs.dry_run == 'false' }}
+        if: ${{ steps.check_branch.outputs.exists == 'true' && env.DRY_RUN == 'false' }}
         uses: actions/github-script@v7
         with:
           github-token: ${{ steps.generate-token.outputs.token || github.token }}
@@ -282,7 +353,7 @@ jobs:
 
       - name: Create release branch
         id: create_branch
-        if: ${{ steps.check_branch.outputs.exists == 'false' && github.event.inputs.create_branch == 'true' && github.event.inputs.dry_run == 'false' }}
+        if: ${{ steps.check_branch.outputs.exists == 'false' && env.CREATE_BRANCH == 'true' && env.DRY_RUN == 'false' }}
         run: |
           BRANCH="${{ steps.config.outputs.branch }}"
           
@@ -298,7 +369,7 @@ jobs:
       - name: Compose notification (shown + email payload)
         id: notify
         run: |
-          DATE=$(date -u +%Y-%m-%d)
+          DATE=$(date -u -d '+8 hours' +%Y-%m-%d)
           PRODUCT="${{ steps.config.outputs.product }}"
           VERSION="${{ steps.config.outputs.version }}"
           RELEASE_TYPE="${{ steps.config.outputs.release_type }}"
@@ -307,7 +378,7 @@ jobs:
           SERIES="${{ steps.config.outputs.series }}"
           VSRELEASE="${{ steps.config.outputs.vsrelease }}"
 
-          DRY_RUN="${{ github.event.inputs.dry_run }}"
+          DRY_RUN="${{ env.DRY_RUN }}"
           BRANCH_EXISTS="${{ steps.check_branch.outputs.exists }}"
           BRANCH_CREATED="${{ steps.create_branch.outputs.created }}"
           PR_NEEDED_RAW="${{ steps.sync_pr.outputs.pr_needed }}"
@@ -340,12 +411,12 @@ jobs:
             echo "- **Product:** ${PRODUCT}"
             echo "- **Release Type:** ${RELEASE_TYPE}"
             echo "- **Version:** ${VERSION}"
-            echo "- **Branch:** \\`${BRANCH}\\`"
+            echo "- **Branch:** ${BRANCH}"
             echo ""
             echo "## CD Parameters"
-            echo "- **preid:** \\`${PREID}\\`"
-            echo "- **series:** \\`${SERIES}\\`"
-            echo "- **vsrelease:** \\`${VSRELEASE}\\`"
+            echo "- **preid:** ${PREID}"
+            echo "- **series:** ${SERIES}"
+            echo "- **vsrelease:** ${VSRELEASE}"
             echo ""
             echo "## Branch / PR"
             if [ "$DRY_RUN" = "true" ]; then
@@ -354,7 +425,7 @@ jobs:
               if [ "$BRANCH_CREATED" = "true" ]; then
                 echo "- ✅ Created branch from dev."
               else
-                echo "- Branch exists: \\`${BRANCH_EXISTS}\\`"
+                echo "- Branch exists: ${BRANCH_EXISTS}"
               fi
               if [ "$PR_NEEDED" = "true" ]; then
                 echo "- 🔁 Sync PR required: ${PR_URL}"
@@ -403,7 +474,7 @@ jobs:
           echo "body=$BODY" >> $GITHUB_OUTPUT
 
       - name: Send email notification
-        if: ${{ github.event.inputs.dry_run == 'false' && env.MAIL_CLIENT_ID != '' && env.MAIL_CLIENT_SECRET != '' && env.MAIL_TENANT_ID != '' }}
+        if: ${{ env.DRY_RUN == 'false' && env.MAIL_CLIENT_ID != '' && env.MAIL_CLIENT_SECRET != '' && env.MAIL_TENANT_ID != '' }}
         env:
           MAIL_CLIENT_ID: ${{ env.MAIL_CLIENT_ID }}
           MAIL_CLIENT_SECRET: ${{ env.MAIL_CLIENT_SECRET }}
@@ -416,7 +487,7 @@ jobs:
   trigger-cd:
     needs: prepare-release
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.release_index != '' && github.event.inputs.dry_run == 'false' }}
+    if: ${{ needs.prepare-release.result == 'success' && env.DRY_RUN == 'false' }}
     environment: release-approval
     env:
       APP_GITHUB_APP_ID: ${{ vars.APP_GITHUB_APP_ID }}
