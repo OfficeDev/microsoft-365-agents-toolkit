@@ -420,9 +420,9 @@ jobs:
 
           SUBJECT="ATK Release Automation Notification: ${PRODUCT} ${VERSION} (${BRANCH})"
 
-          ACTION_REQUIRED="Approve the environment gate (release-approval) to trigger CD."
+          ACTION_REQUIRED="Approve the environment gate (auto-release) to trigger CD."
           if [ "$PR_NEEDED" = "true" ]; then
-            ACTION_REQUIRED="ACTION REQUIRED: approve & merge the sync PR, then approve the environment gate (release-approval) to trigger CD."
+            ACTION_REQUIRED="ACTION REQUIRED: approve & merge the sync PR, then approve the environment gate (auto-release) to trigger CD."
           fi
           if [ "$DRY_RUN" = "true" ]; then
             ACTION_REQUIRED="DRY RUN: no changes were made. Re-run with dry_run=false to create branch/PR and proceed."
@@ -514,7 +514,7 @@ jobs:
     needs: prepare-release
     runs-on: ubuntu-latest
     if: ${{ needs.prepare-release.result == 'success' && (github.event_name != 'workflow_dispatch' || github.event.inputs.dry_run == 'false') }}
-    environment: release-approval
+    environment: auto-release
     env:
       APP_GITHUB_APP_ID: ${{ vars.APP_GITHUB_APP_ID }}
       APP_GITHUB_APP_PRIVATE_KEY: ${{ secrets.APP_GITHUB_APP_PRIVATE_KEY }}
