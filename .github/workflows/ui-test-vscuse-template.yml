@@ -354,7 +354,7 @@ jobs:
     permissions:
       actions: write
     needs: main
-    if: ${{ (github.event_name == 'workflow_dispatch' || github.event_name == 'schedule') && failure() && github.run_attempt < (github.event.inputs.max_retries || 7) }}
+    if: ${{ (github.event_name == 'workflow_dispatch' || github.event_name == 'schedule' || github.event_name == 'workflow_run') && failure() && github.run_attempt < (github.event.inputs.max_retries || 7) }}
     runs-on: ubuntu-latest
     env:
       MAX_RETRIES: ${{ github.event.inputs.max_retries || 7 }}
