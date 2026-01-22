@@ -17,11 +17,11 @@ on:
         required: false
         default: "release-schedule.md"
       local_schedule_file:
-        description: "Optional: Path to a local schedule file in this repo (for testing). Overrides schedule_file from private repo."
+        description: "Optional: Path to a local schedule file in this repo (for testing)."
         required: false
         default: ""
       release_version:
-        description: "Optional: target release Version to process (e.g., 6.5.2026012001). If empty, selects by Cut Bits Date (UTC+8 today)."
+        description: "Optional: target release Version to process (e.g., 6.5.6). If empty, selects by Cut Bits Date (UTC+8 today)."
         required: false
         default: ""
       dry_run:
