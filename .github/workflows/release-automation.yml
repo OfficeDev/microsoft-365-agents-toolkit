@@ -2,7 +2,9 @@ name: Release Automation
 run-name: Release-Automation-${{ github.run_id }}
 
 env:
-  SCHEDULE_FILE: ${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.schedule_file) || 'docs/release-schedule.md' }}
+  SCHEDULE_FILE: ${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.schedule_file) || 'release-schedule.md' }}
+  LOCAL_SCHEDULE_FILE: ${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.local_schedule_file) || '' }}
+  SCHEDULE_REPO: microsoft/Microsoft-365-Agents-Toolkit-Release-Schedule
   RELEASE_VERSION: ${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.release_version) || '' }}
   DRY_RUN: ${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run) || 'false' }}
   CREATE_BRANCH: ${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.create_branch) || 'true' }}
@@ -11,9 +13,13 @@ on:
   workflow_dispatch:
     inputs:
       schedule_file:
-        description: "Path to release schedule markdown file"
+        description: "Path to release schedule file (relative to schedule repo root)"
         required: false
-        default: "docs/release-schedule.md"
+        default: "release-schedule.md"
+      local_schedule_file:
+        description: "Optional: Path to a local schedule file in this repo (for testing). Overrides schedule_file from private repo."
+        required: false
+        default: ""
       release_version:
         description: "Optional: target release Version to process (e.g., 6.5.2026012001). If empty, selects by Cut Bits Date (UTC+8 today)."
         required: false
@@ -47,6 +53,17 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Checkout release schedule repo
+        if: ${{ env.LOCAL_SCHEDULE_FILE == '' }}
+        uses: actions/checkout@v3
+        with:
+          repository: ${{ env.SCHEDULE_REPO }}
+          token: ${{ secrets.RELEASE_SCHEDULE_REPO_TOKEN }}
+          path: schedule-repo
+          sparse-checkout: |
+            ${{ env.SCHEDULE_FILE }}
+          sparse-checkout-cone-mode: false
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
@@ -55,8 +72,17 @@ jobs:
       - name: Parse release schedule
         id: parse
         run: |
+          # Determine which schedule file to use
+          if [ -n "${{ env.LOCAL_SCHEDULE_FILE }}" ]; then
+            SCHEDULE_PATH="${{ env.LOCAL_SCHEDULE_FILE }}"
+            echo "📁 Using local schedule file: $SCHEDULE_PATH"
+          else
+            SCHEDULE_PATH="schedule-repo/${{ env.SCHEDULE_FILE }}"
+            echo "📁 Using schedule file from private repo: $SCHEDULE_PATH"
+          fi
+
           # Parse schedule-driven release parameters
-          python .github/scripts/parse_release_schedule.py "${{ env.SCHEDULE_FILE }}" > releases.json
+          python .github/scripts/parse_release_schedule.py "$SCHEDULE_PATH" > releases.json
 
           # Only process VS Code prerelease entries
           cat releases.json | jq '[.[] | select((((.product | ascii_downcase) == "vsc") or (.product | ascii_downcase | contains("vs code"))) and (.release_type | ascii_downcase | contains("prerelease")))]' > releases.filtered.json
@@ -392,7 +418,7 @@ jobs:
           WORKFLOW_URL="${{ github.server_url }}/${{ github.repository }}/actions/workflows/release-automation.yml"
           RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
 
-          SUBJECT="🚀 Release Automation Ready: ${PRODUCT} ${VERSION} (${BRANCH})"
+          SUBJECT="ATK Release Automation Notification: ${PRODUCT} ${VERSION} (${BRANCH})"
 
           ACTION_REQUIRED="Approve the environment gate (release-approval) to trigger CD."
           if [ "$PR_NEEDED" = "true" ]; then
@@ -479,7 +505,7 @@ jobs:
           MAIL_CLIENT_ID: ${{ env.MAIL_CLIENT_ID }}
           MAIL_CLIENT_SECRET: ${{ env.MAIL_CLIENT_SECRET }}
           MAIL_TENANT_ID: ${{ env.MAIL_TENANT_ID }}
-          TO: ${{ vars.RELEASE_NOTIFICATION_EMAIL || 'your-team-email@example.com' }}
+          TO: ${{ vars.RELEASE_NOTIFICATION_EMAIL || 'M365AgentsToolkitEngineerTeam@microsoft.com' }}
           SUBJECT: ${{ steps.notify.outputs.subject }}
           BODY: ${{ steps.notify.outputs.body }}
         uses: ./.github/actions/send-email-report
@@ -487,7 +513,7 @@ jobs:
   trigger-cd:
     needs: prepare-release
     runs-on: ubuntu-latest
-    if: ${{ needs.prepare-release.result == 'success' && github.event.inputs.dry_run == 'false' }}
+    if: ${{ needs.prepare-release.result == 'success' && (github.event_name != 'workflow_dispatch' || github.event.inputs.dry_run == 'false') }}
     environment: release-approval
     env:
       APP_GITHUB_APP_ID: ${{ vars.APP_GITHUB_APP_ID }}
@@ -583,8 +609,8 @@ jobs:
           MAIL_CLIENT_ID: ${{ env.MAIL_CLIENT_ID }}
           MAIL_CLIENT_SECRET: ${{ env.MAIL_CLIENT_SECRET }}
           MAIL_TENANT_ID: ${{ env.MAIL_TENANT_ID }}
-          TO: ${{ vars.RELEASE_NOTIFICATION_EMAIL || 'your-team-email@example.com' }}
-          SUBJECT: "🚀 Release Automation: ${{ needs.prepare-release.outputs.product }} ${{ needs.prepare-release.outputs.version }} CD Triggered"
+          TO: ${{ vars.RELEASE_NOTIFICATION_EMAIL || 'M365AgentsToolkitEngineerTeam@microsoft.com' }}
+          SUBJECT: "ATK Release Automation Notification: ${{ needs.prepare-release.outputs.product }} ${{ needs.prepare-release.outputs.version }} CD Triggered"
           BODY: |
             {
               "product": "${{ needs.prepare-release.outputs.product }}",
