@@ -52,10 +52,22 @@ export const localPython: Record<string, CopyPolicy> = {
   "m365agents.local.yml.tpl": { allowExistingFile: false, policy: "error" },
 };
 
+export const remotePython: Record<string, CopyPolicy> = {
+  ".vscode/launch.json.tpl": { allowExistingFile: true, policy: "add" },
+  "env/.env.dev": { allowExistingFile: false, policy: "skip" },
+  "infra/azure.bicep.tpl": { allowExistingFile: false, policy: "skip" },
+  "infra/azure.parameters.json.tpl": { allowExistingFile: false, policy: "skip" },
+  "infra/botRegistration/azureBot.bicep": { allowExistingFile: false, policy: "skip" },
+  "infra/botRegistration/readme.md": { allowExistingFile: false, policy: "skip" },
+  "m365agents.yml.tpl": { allowExistingFile: false, policy: "error" },
+  ".webappignore": { allowExistingFile: true, policy: "skip" },
+};
+
 export const policys: Record<string, Record<string, CopyPolicy>> = {
   "playground-typescript": playgroundNode,
   "local-typescript": localNode,
   "remote-typescript": remoteNode,
   "playground-python": playgroundPython,
   "local-python": localPython,
+  "remote-python": remotePython,
 };
