@@ -5,6 +5,7 @@ import * as fs from "fs";
 import { remove } from "lodash";
 import * as os from "os";
 import * as path from "path";
+import * as tmp from "tmp";
 import {
   commands,
   Disposable,
@@ -1123,12 +1124,12 @@ export class VSCodeUI implements UserInteraction {
     const env = args.env;
 
     // Create temporary files for output and script
-    const tempFile = path.join(os.tmpdir(), `task-output-${Date.now()}.txt`);
+    const tempFile = tmp.fileSync({ prefix: "task-output-", postfix: ".txt" }).name;
 
     // Detect the platform and use appropriate script format
     const isWindows = process.platform === "win32";
     const scriptExt = isWindows ? ".ps1" : ".sh";
-    const scriptFile = path.join(os.tmpdir(), `task-script-${Date.now()}${scriptExt}`);
+    const scriptFile = tmp.fileSync({ prefix: "task-script-", postfix: scriptExt }).name;
 
     // Create platform-specific script content
     let scriptContent: string;
