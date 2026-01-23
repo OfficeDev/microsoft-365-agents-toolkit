@@ -280,7 +280,9 @@ export class DotnetChecker implements DepsChecker {
       this._logger.debug(
         `Finished running dotnet-install script, command = '${command.join(
           " "
-        )}', options = '${JSON.stringify(options)}', stdout = '${stdout}', stderr = '${stderr}'`
+        )}', options = '${JSON.stringify(options)}', stdout = '${String(
+          stdout
+        )}', stderr = '${String(stderr)}'`
       );
 
       const timecost = Number(((performance.now() - start) / 1000).toFixed(2));
@@ -289,7 +291,9 @@ export class DotnetChecker implements DepsChecker {
         const errorMessage = `${getLocalizedString(
           "error.common.InstallSoftwareError",
           installedNameWithVersion
-        )} ${Messages.dotnetInstallStderr()} stdout = '${stdout}', stderr = '${stderr}', timecost = '${timecost}s'`;
+        )} ${Messages.dotnetInstallStderr()} stdout = '${String(stdout)}', stderr = '${String(
+          stderr
+        )}', timecost = '${timecost}s'`;
 
         this._telemetry.sendSystemErrorEvent(
           DepsCheckerEvent.dotnetInstallScriptError,
@@ -309,11 +313,9 @@ export class DotnetChecker implements DepsChecker {
         )} ${Messages.dotnetInstallErrorCode()}, ` +
         `command = '${command.join(" ")}', options = '${JSON.stringify(
           options
-          // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-        )}', error = '${error}', stdout = '${error.stdout}', stderr = '${
-          // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+        )}', error = '${String(error)}', stdout = '${String(error.stdout)}', stderr = '${String(
           error.stderr
-        }', timecost = '${timecost}s'`;
+        )}', timecost = '${timecost}s'`;
 
       this._telemetry.sendSystemErrorEvent(
         DepsCheckerEvent.dotnetInstallScriptError,

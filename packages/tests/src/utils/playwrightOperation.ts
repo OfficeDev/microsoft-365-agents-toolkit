@@ -1783,7 +1783,7 @@ export async function validatePrompt(
     await page.waitForTimeout(Timeout.shortTimeLoading);
     try {
       const allowButton = await page?.waitForSelector(
-        `button:has-text("Always allow")`
+        `button:has-text("Allow")`
       );
       await allowButton?.click();
       await page.waitForTimeout(Timeout.shortTimeLoading);

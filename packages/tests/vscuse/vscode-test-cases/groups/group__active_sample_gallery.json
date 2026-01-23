@@ -10,14 +10,14 @@
       "step_retry_timeout": 0.0
     },
     "total_steps": 6,
-    "created_at": "2025-11-07T01:57:57.157071",
+    "created_at": "2026-01-14T05:25:54.402925",
     "name": "group active sample gallery",
     "description": {
+      "other": "Generated from recording r_1107_015711",
       "owner": "v-ivanchen@microsoft.com",
-      "workitem": "",
-      "other": "Generated from recording r_1107_015711"
+      "workitem": ""
     },
-    "generated_at": "2025-11-07T01:57:57.157067",
+    "generated_at": "2026-01-14T05:25:54.402925",
     "execution_order": [
       "step_92d4a98e",
       "step_fdc0511c",
@@ -29,7 +29,7 @@
     "tags": [
       "group"
     ],
-    "updated_at": "2025-11-17T10:00:10.876598"
+    "updated_at": "2026-01-14T05:44:26.728434"
   },
   "steps": [
     {
@@ -55,7 +55,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_92d4a98e",
-      "created_at": "2025-11-17T08:31:57.377588",
+      "created_at": "2026-01-14T05:25:54.413609",
       "plan_id": "plan_r_1107_015711"
     },
     {
@@ -79,9 +79,11 @@
         "dhash:539:50:0:10:23b09090b27c6d69"
       ],
       "postconditions": [],
-      "tags": [],
+      "tags": [
+        "force_run:true"
+      ],
       "screenshot": "step_fdc0511c",
-      "created_at": "2025-11-17T08:31:57.390353",
+      "created_at": "2026-01-14T05:25:54.427111",
       "plan_id": "plan_r_1107_015711"
     },
     {
@@ -107,7 +109,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_5549bc1f",
-      "created_at": "2025-11-17T08:31:57.402436",
+      "created_at": "2026-01-14T05:25:54.434695",
       "plan_id": "plan_r_1107_015711"
     },
     {
@@ -129,7 +131,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_adb66ef6",
-      "created_at": "2025-11-17T08:31:57.417149",
+      "created_at": "2026-01-14T05:25:54.445171",
       "plan_id": "plan_r_1107_015711"
     },
     {
@@ -155,7 +157,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_f0142062",
-      "created_at": "2025-11-17T08:31:57.427673",
+      "created_at": "2026-01-14T05:25:54.460263",
       "plan_id": "plan_r_1107_015711"
     },
     {
@@ -181,7 +183,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_ead5e203",
-      "created_at": "2025-11-17T08:31:57.439067",
+      "created_at": "2026-01-14T05:25:54.473815",
       "plan_id": "plan_r_1107_015711"
     }
   ],

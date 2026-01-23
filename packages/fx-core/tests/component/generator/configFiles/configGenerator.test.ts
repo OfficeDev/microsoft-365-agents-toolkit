@@ -135,7 +135,6 @@ describe("ConfigGenerator", () => {
     await fs.writeFile(path.join(pgTs, ".vscode", "launch.json"), "{}");
     await fs.writeFile(path.join(pgTs, ".vscode", "tasks.json"), "{}");
     await fs.writeFile(path.join(pgTs, "m365agents.playground.yml"), "version: 1.0.0\n");
-    await fs.writeFile(path.join(pgTs, ".localConfigs.playground"), "{}");
     await fs.writeFile(path.join(pgTs, "env", ".env.playground"), "# playground env\n");
     await fs.writeFile(path.join(pgTs, "env", ".env.playground.user"), "# playground user env\n");
 

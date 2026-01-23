@@ -1,7 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
+import * as fs from "fs";
 import { remove } from "lodash";
+import * as os from "os";
 import * as path from "path";
 import {
   commands,
@@ -1119,8 +1121,13 @@ export class VSCodeUI implements UserInteraction {
     const workingDirectory = args.workingDirectory;
     const timeout = args.timeout;
     const env = args.env;
+
+    // Create temporary file for output
+    const tempFile = path.join(os.tmpdir(), `task-output-${Date.now()}.txt`);
+    const wrappedCmd = `${cmd} > "${tempFile}" 2>&1`;
+
     const timeoutPromise = timeout
-      ? new Promise((resolve, reject) => {
+      ? new Promise<never>((_, reject) => {
           setTimeout(() => {
             reject(
               new ScriptTimeoutError(
@@ -1131,45 +1138,58 @@ export class VSCodeUI implements UserInteraction {
           }, timeout ?? 1000 * 60 * 30);
         })
       : undefined;
-    const taskPromise = new Promise((resolve, reject) => {
+
+    const taskPromise = new Promise<string>((resolve, reject) => {
       const task = new Task(
         { type: "shell", task: "Execute script action" },
         TaskScope.Workspace,
         "Execute script action",
         "ms-teams-vscode-extension",
-        new ShellExecution(cmd, {
+        new ShellExecution(wrappedCmd, {
           cwd: workingDirectory,
           env: env,
         })
       );
       task.isBackground = true;
       void tasks.executeTask(task);
+
       tasks.onDidEndTaskProcess((e: TaskProcessEndEvent) => {
         if (
           e.execution.task.name === "Execute script action" &&
           e.execution.task.source === "ms-teams-vscode-extension"
         ) {
-          if (e.exitCode === 0) {
-            resolve(undefined);
-          } else {
-            void window.showErrorMessage(`Execute task failed with exit code ${e.exitCode || ""}`);
-            reject(
-              new ScriptExecutionError(
-                this.localizer.commandExecutionErrorMessage(cmd),
-                this.localizer.commandExecutionErrorDisplayMessage(cmd)
-              )
-            );
+          try {
+            const output = fs.readFileSync(tempFile, "utf-8");
+            fs.unlinkSync(tempFile); // Clean up temporary file
+
+            if (e.exitCode === 0) {
+              resolve(output);
+            } else {
+              void window.showErrorMessage(
+                `Execute task failed with exit code ${e.exitCode || ""}`
+              );
+              reject(
+                new ScriptExecutionError(
+                  this.localizer.commandExecutionErrorMessage(cmd),
+                  this.localizer.commandExecutionErrorDisplayMessage(cmd)
+                )
+              );
+            }
+          } catch (err) {
+            reject(err);
           }
         }
       });
     });
+
     try {
+      let output = "";
       if (timeout) {
-        await Promise.race([taskPromise, timeoutPromise]);
+        output = (await Promise.race([taskPromise, timeoutPromise])) || "";
       } else {
-        await taskPromise;
+        output = await taskPromise;
       }
-      return ok("");
+      return ok(output);
     } catch (error) {
       return err(this.assembleError(error));
     }

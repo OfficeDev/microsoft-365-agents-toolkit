@@ -1,0 +1,638 @@
+name: Release Automation
+run-name: Release-Automation-${{ github.run_id }}
+
+env:
+  SCHEDULE_FILE: ${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.schedule_file) || 'release-schedule.md' }}
+  LOCAL_SCHEDULE_FILE: ${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.local_schedule_file) || '' }}
+  SCHEDULE_REPO: microsoft/Microsoft-365-Agents-Toolkit-Release-Schedule
+  RELEASE_VERSION: ${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.release_version) || '' }}
+  DRY_RUN: ${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run) || 'false' }}
+  CREATE_BRANCH: ${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.create_branch) || 'true' }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      schedule_file:
+        description: "Path to release schedule file (relative to schedule repo root)"
+        required: false
+        default: "release-schedule.md"
+      local_schedule_file:
+        description: "Optional: Path to a local schedule file in this repo (for testing)."
+        required: false
+        default: ""
+      release_version:
+        description: "Optional: target release Version to process (e.g., 6.5.6). If empty, selects by Cut Bits Date (UTC+8 today)."
+        required: false
+        default: ""
+      dry_run:
+        description: "Dry run mode (will not create branches or trigger CD)"
+        type: boolean
+        default: false
+      create_branch:
+        description: "Create release branch if it doesn't exist"
+        type: boolean
+        default: true
+  schedule:
+    # Run daily at 05:00 (UTC+8) => 21:00 UTC
+    - cron: "0 21 * * *"
+
+permissions:
+  contents: write
+  actions: write
+  pull-requests: write
+
+jobs:
+  parse-schedule:
+    runs-on: ubuntu-latest
+    outputs:
+      releases: ${{ steps.parse.outputs.releases }}
+      releases_count: ${{ steps.parse.outputs.releases_count }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Checkout release schedule repo
+        if: ${{ env.LOCAL_SCHEDULE_FILE == '' }}
+        uses: actions/checkout@v3
+        with:
+          repository: ${{ env.SCHEDULE_REPO }}
+          token: ${{ secrets.RELEASE_SCHEDULE_REPO_TOKEN }}
+          path: schedule-repo
+          sparse-checkout: |
+            ${{ env.SCHEDULE_FILE }}
+          sparse-checkout-cone-mode: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Parse release schedule
+        id: parse
+        run: |
+          # Determine which schedule file to use
+          if [ -n "${{ env.LOCAL_SCHEDULE_FILE }}" ]; then
+            SCHEDULE_PATH="${{ env.LOCAL_SCHEDULE_FILE }}"
+            echo "📁 Using local schedule file: $SCHEDULE_PATH"
+          else
+            SCHEDULE_PATH="schedule-repo/${{ env.SCHEDULE_FILE }}"
+            echo "📁 Using schedule file from private repo: $SCHEDULE_PATH"
+          fi
+
+          # Parse schedule-driven release parameters
+          python .github/scripts/parse_release_schedule.py "$SCHEDULE_PATH" > releases.json
+
+          # Only process VS Code prerelease entries
+          cat releases.json | jq '[.[] | select((((.product | ascii_downcase) == "vsc") or (.product | ascii_downcase | contains("vs code"))) and (.release_type | ascii_downcase | contains("prerelease")))]' > releases.filtered.json
+          mv releases.filtered.json releases.json
+          
+          echo "📋 Parsed Release Schedule:"
+          cat releases.json | python -m json.tool
+          
+          # Set outputs
+          RELEASES=$(cat releases.json | jq -c '.')
+          RELEASES_COUNT=$(cat releases.json | jq 'length')
+          
+          echo "releases=$RELEASES" >> $GITHUB_OUTPUT
+          echo "releases_count=$RELEASES_COUNT" >> $GITHUB_OUTPUT
+          
+          echo ""
+          echo "Found $RELEASES_COUNT pending release(s)"
+
+      - name: Upload releases configuration
+        uses: actions/upload-artifact@v4
+        with:
+          name: releases-config
+          path: releases.json
+
+  select-release:
+    needs: parse-schedule
+    runs-on: ubuntu-latest
+    outputs:
+      found: ${{ steps.select.outputs.found }}
+      reason: ${{ steps.select.outputs.reason }}
+      product: ${{ steps.select.outputs.product }}
+      release_type: ${{ steps.select.outputs.release_type }}
+      version: ${{ steps.select.outputs.version }}
+      cut_date: ${{ steps.select.outputs.cut_date }}
+      branch: ${{ steps.select.outputs.branch }}
+      preid: ${{ steps.select.outputs.preid }}
+      series: ${{ steps.select.outputs.series }}
+      vsrelease: ${{ steps.select.outputs.vsrelease }}
+    steps:
+      - name: Download releases configuration
+        uses: actions/download-artifact@v4
+        with:
+          name: releases-config
+
+      - name: Select release (by version or Cut Bits Date)
+        id: select
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          VERSION_INPUT="${{ env.RELEASE_VERSION }}"
+          TODAY_UTC8=$(date -u -d '+8 hours' +%Y-%m-%d)
+
+          if [ -n "$VERSION_INPUT" ]; then
+            REASON="version=$VERSION_INPUT"
+            RELEASE=$(jq -c --arg v "$VERSION_INPUT" '[.[] | select(.version == $v)] | .[0]' releases.json)
+          else
+            REASON="cut_date=$TODAY_UTC8 (UTC+8)"
+            RELEASE=$(jq -c --arg d "$TODAY_UTC8" '[.[] | select(.cut_date == $d)] | .[0]' releases.json)
+          fi
+
+          if [ "$RELEASE" = "null" ] || [ -z "$RELEASE" ]; then
+            {
+              echo "## ℹ️ No release selected"
+              echo ""
+              echo "No matching release was found for ${REASON}."
+              echo ""
+              echo "Notes:"
+              echo "- Cut Bits Date must be in ISO format (YYYY-MM-DD)."
+              echo "- Status values like Cancel/Cancelled/Canceled are ignored by the parser."
+            } >> "$GITHUB_STEP_SUMMARY"
+
+            echo "found=false" >> "$GITHUB_OUTPUT"
+            echo "reason=$REASON" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          PRODUCT=$(echo "$RELEASE" | jq -r '.product')
+          RELEASE_TYPE=$(echo "$RELEASE" | jq -r '.release_type')
+          VERSION=$(echo "$RELEASE" | jq -r '.version')
+          CUT_DATE=$(echo "$RELEASE" | jq -r '.cut_date')
+          BRANCH=$(echo "$RELEASE" | jq -r '.branch')
+          PREID=$(echo "$RELEASE" | jq -r '.cd_params.preid')
+          SERIES=$(echo "$RELEASE" | jq -r '.cd_params.series')
+          VSRELEASE=$(echo "$RELEASE" | jq -r '.cd_params.vsrelease')
+
+          {
+            echo "## ✅ Selected release"
+            echo ""
+            echo "- Reason: ${REASON}"
+            echo "- Product: ${PRODUCT}"
+            echo "- Release Type: ${RELEASE_TYPE}"
+            echo "- Version: ${VERSION}"
+            echo "- Cut Bits Date: ${CUT_DATE}"
+            echo "- Branch: ${BRANCH}"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          echo "found=true" >> "$GITHUB_OUTPUT"
+          echo "reason=$REASON" >> "$GITHUB_OUTPUT"
+          echo "product=$PRODUCT" >> "$GITHUB_OUTPUT"
+          echo "release_type=$RELEASE_TYPE" >> "$GITHUB_OUTPUT"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "cut_date=$CUT_DATE" >> "$GITHUB_OUTPUT"
+          echo "branch=$BRANCH" >> "$GITHUB_OUTPUT"
+          echo "preid=$PREID" >> "$GITHUB_OUTPUT"
+          echo "series=$SERIES" >> "$GITHUB_OUTPUT"
+          echo "vsrelease=$VSRELEASE" >> "$GITHUB_OUTPUT"
+
+  review-releases:
+    needs: parse-schedule
+    runs-on: ubuntu-latest
+    if: ${{ needs.parse-schedule.outputs.releases_count > 0 }}
+    steps:
+      - name: Download releases configuration
+        uses: actions/download-artifact@v4
+        with:
+          name: releases-config
+
+      - name: Display releases for review
+        run: |
+          {
+            echo "# 📦 Release Automation Plan"
+            echo ""
+            echo "The following releases are ready for processing:"
+            echo ""
+            jq -r 'to_entries[] | "## Release \(.key + 1): \(.value.product) \(.value.version)\n\n**Release Type:** \(.value.release_type)\n**Branch:** `\(.value.branch)`\n**Cut Date:** \(.value.cut_date)\n\n### CD Pipeline Parameters:\n- **preid:** `\(.value.cd_params.preid)`\n- **series:** `\(.value.cd_params.series)`\n- **vsrelease:** `\(.value.cd_params.vsrelease)`\n\n---\n"' releases.json
+          } | tee -a "$GITHUB_STEP_SUMMARY"
+
+  prepare-release:
+    needs:
+      - parse-schedule
+      - select-release
+    runs-on: ubuntu-latest
+    if: ${{ needs.select-release.outputs.found == 'true' }}
+    env:
+      APP_GITHUB_APP_ID: ${{ vars.APP_GITHUB_APP_ID }}
+      APP_GITHUB_APP_PRIVATE_KEY: ${{ secrets.APP_GITHUB_APP_PRIVATE_KEY }}
+      MAIL_CLIENT_ID: ${{ secrets.MAIL_CLIENT_ID }}
+      MAIL_CLIENT_SECRET: ${{ secrets.MAIL_CLIENT_SECRET }}
+      MAIL_TENANT_ID: ${{ secrets.MAIL_TENANT_ID }}
+    outputs:
+      branch: ${{ steps.config.outputs.branch }}
+      product: ${{ steps.config.outputs.product }}
+      release_type: ${{ steps.config.outputs.release_type }}
+      version: ${{ steps.config.outputs.version }}
+      preid: ${{ steps.config.outputs.preid }}
+      series: ${{ steps.config.outputs.series }}
+      vsrelease: ${{ steps.config.outputs.vsrelease }}
+      pr_needed: ${{ steps.sync_pr.outputs.pr_needed }}
+      pr_url: ${{ steps.sync_pr.outputs.pr_url }}
+      pr_number: ${{ steps.sync_pr.outputs.pr_number }}
+    steps:
+      - id: generate-token
+        if: ${{ env.APP_GITHUB_APP_ID != '' && env.APP_GITHUB_APP_PRIVATE_KEY != '' }}
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ env.APP_GITHUB_APP_ID }}
+          private-key: ${{ env.APP_GITHUB_APP_PRIVATE_KEY }}
+
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          token: ${{ steps.generate-token.outputs.token || github.token }}
+
+      - name: Download releases configuration
+        uses: actions/download-artifact@v4
+        with:
+          name: releases-config
+
+      - name: Set selected release outputs
+        id: config
+        shell: bash
+        run: |
+          PRODUCT='${{ needs.select-release.outputs.product }}'
+          RELEASE_TYPE='${{ needs.select-release.outputs.release_type }}'
+          VERSION='${{ needs.select-release.outputs.version }}'
+          BRANCH='${{ needs.select-release.outputs.branch }}'
+          PREID='${{ needs.select-release.outputs.preid }}'
+          SERIES='${{ needs.select-release.outputs.series }}'
+          VSRELEASE='${{ needs.select-release.outputs.vsrelease }}'
+
+          echo "Selected release:"
+          echo "  Product: $PRODUCT"
+          echo "  Release Type: $RELEASE_TYPE"
+          echo "  Version: $VERSION"
+          echo "  Branch: $BRANCH"
+
+          IS_VSC_PRERELEASE=false
+          if echo "$PRODUCT" | grep -qi "^vsc$" && echo "$RELEASE_TYPE" | grep -qi "prerelease"; then
+            IS_VSC_PRERELEASE=true
+          fi
+
+          if [ "$IS_VSC_PRERELEASE" != "true" ]; then
+            echo "❌ This workflow only supports VSC Prerelease releases." >&2
+            exit 1
+          fi
+
+          echo "branch=$BRANCH" >> "$GITHUB_OUTPUT"
+          echo "product=$PRODUCT" >> "$GITHUB_OUTPUT"
+          echo "release_type=$RELEASE_TYPE" >> "$GITHUB_OUTPUT"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "preid=$PREID" >> "$GITHUB_OUTPUT"
+          echo "series=$SERIES" >> "$GITHUB_OUTPUT"
+          echo "vsrelease=$VSRELEASE" >> "$GITHUB_OUTPUT"
+          echo "is_vsc_prerelease=$IS_VSC_PRERELEASE" >> "$GITHUB_OUTPUT"
+
+      - name: Setup git
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+
+      - name: Check if branch exists
+        id: check_branch
+        run: |
+          BRANCH="${{ steps.config.outputs.branch }}"
+          
+          if git show-ref --verify --quiet "refs/heads/$BRANCH"; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+            echo "✅ Branch $BRANCH already exists locally"
+          elif git ls-remote --heads origin "$BRANCH" | grep -q "$BRANCH"; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+            echo "✅ Branch $BRANCH exists on remote"
+            git fetch origin "$BRANCH:$BRANCH"
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+            echo "ℹ️ Branch $BRANCH does not exist"
+          fi
+
+      - name: Create PR to merge dev into existing release branch
+        id: sync_pr
+        if: ${{ steps.check_branch.outputs.exists == 'true' && env.DRY_RUN == 'false' }}
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ steps.generate-token.outputs.token || github.token }}
+          script: |
+            const product = '${{ steps.config.outputs.product }}';
+            const version = '${{ steps.config.outputs.version }}';
+            const base = '${{ steps.config.outputs.branch }}';
+            const head = 'dev';
+
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+
+            // Check if dev has new commits not in the release branch
+            const compare = await github.rest.repos.compareCommits({ owner, repo, base, head });
+            const aheadBy = compare.data.ahead_by ?? 0;
+
+            if (aheadBy === 0) {
+              core.notice(`No sync PR needed: '${head}' is not ahead of '${base}'.`);
+              core.setOutput('pr_needed', 'false');
+              core.setOutput('pr_url', '');
+              core.setOutput('pr_number', '');
+              return;
+            }
+
+            // Avoid creating duplicate PRs
+            const existing = await github.rest.pulls.list({
+              owner,
+              repo,
+              state: 'open',
+              base,
+              head: `${owner}:${head}`,
+              per_page: 10,
+            });
+
+            if (existing.data.length > 0) {
+              const pr = existing.data[0];
+              core.notice(`Sync PR already exists: ${pr.html_url}`);
+              core.setOutput('pr_needed', 'true');
+              core.setOutput('pr_url', pr.html_url);
+              core.setOutput('pr_number', String(pr.number));
+              return;
+            }
+
+            const title = `chore: merge dev into ${base} (${product} ${version})`;
+            const body = [
+              'This PR is created by Release Automation to sync latest changes from `dev` into the release branch.',
+              '',
+              `- Product: ${product}`,
+              `- Version: ${version}`,
+              `- Base (target): \`${base}\``,
+              `- Head (source): \`${head}\``,
+              `- Commits ahead: ${aheadBy}`,
+              '',
+              'After merging, approve the Release Automation run to trigger CD.'
+            ].join('\n');
+
+            const created = await github.rest.pulls.create({ owner, repo, title, head, base, body });
+            core.notice(`Created sync PR: ${created.data.html_url}`);
+            core.setOutput('pr_needed', 'true');
+            core.setOutput('pr_url', created.data.html_url);
+            core.setOutput('pr_number', String(created.data.number));
+
+      - name: Create release branch
+        id: create_branch
+        if: ${{ steps.check_branch.outputs.exists == 'false' && env.CREATE_BRANCH == 'true' && env.DRY_RUN == 'false' }}
+        run: |
+          BRANCH="${{ steps.config.outputs.branch }}"
+          
+          echo "Creating branch $BRANCH from dev..."
+          git checkout dev
+          git pull origin dev
+          git checkout -b "$BRANCH"
+          git push origin "$BRANCH"
+          
+          echo "✅ Branch $BRANCH created successfully"
+          echo "created=true" >> $GITHUB_OUTPUT
+
+      - name: Compose notification (shown + email payload)
+        id: notify
+        run: |
+          DATE=$(date -u -d '+8 hours' +%Y-%m-%d)
+          PRODUCT="${{ steps.config.outputs.product }}"
+          VERSION="${{ steps.config.outputs.version }}"
+          RELEASE_TYPE="${{ steps.config.outputs.release_type }}"
+          BRANCH="${{ steps.config.outputs.branch }}"
+          PREID="${{ steps.config.outputs.preid }}"
+          SERIES="${{ steps.config.outputs.series }}"
+          VSRELEASE="${{ steps.config.outputs.vsrelease }}"
+
+          DRY_RUN="${{ env.DRY_RUN }}"
+          BRANCH_EXISTS="${{ steps.check_branch.outputs.exists }}"
+          BRANCH_CREATED="${{ steps.create_branch.outputs.created }}"
+          PR_NEEDED_RAW="${{ steps.sync_pr.outputs.pr_needed }}"
+          PR_URL="${{ steps.sync_pr.outputs.pr_url }}"
+
+          # Normalize values
+          PR_NEEDED="${PR_NEEDED_RAW:-false}"
+          if [ -z "$BRANCH_EXISTS" ]; then BRANCH_EXISTS="unknown"; fi
+          if [ -z "$BRANCH_CREATED" ]; then BRANCH_CREATED="false"; fi
+
+          WORKFLOW_URL="${{ github.server_url }}/${{ github.repository }}/actions/workflows/release-automation.yml"
+          RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+
+          SUBJECT="ATK Release Automation Notification: ${PRODUCT} ${VERSION} (${BRANCH})"
+
+          ACTION_REQUIRED="Approve the environment gate (auto-release) to trigger CD."
+          if [ "$PR_NEEDED" = "true" ]; then
+            ACTION_REQUIRED="ACTION REQUIRED: approve & merge the sync PR, then approve the environment gate (auto-release) to trigger CD."
+          fi
+          if [ "$DRY_RUN" = "true" ]; then
+            ACTION_REQUIRED="DRY RUN: no changes were made. Re-run with dry_run=false to create branch/PR and proceed."
+          fi
+
+          {
+            echo "# 📧 Release Automation Notification"
+            echo ""
+            echo "**Subject:** ${SUBJECT}"
+            echo ""
+            echo "## Release"
+            echo "- **Product:** ${PRODUCT}"
+            echo "- **Release Type:** ${RELEASE_TYPE}"
+            echo "- **Version:** ${VERSION}"
+            echo "- **Branch:** ${BRANCH}"
+            echo ""
+            echo "## CD Parameters"
+            echo "- **preid:** ${PREID}"
+            echo "- **series:** ${SERIES}"
+            echo "- **vsrelease:** ${VSRELEASE}"
+            echo ""
+            echo "## Branch / PR"
+            if [ "$DRY_RUN" = "true" ]; then
+              echo "- Dry run only (no branch/PR created)."
+            else
+              if [ "$BRANCH_CREATED" = "true" ]; then
+                echo "- ✅ Created branch from dev."
+              else
+                echo "- Branch exists: ${BRANCH_EXISTS}"
+              fi
+              if [ "$PR_NEEDED" = "true" ]; then
+                echo "- 🔁 Sync PR required: ${PR_URL}"
+              else
+                echo "- Sync PR required: false"
+              fi
+            fi
+            echo ""
+            echo "## Next steps"
+            echo "- ${ACTION_REQUIRED}"
+            echo "- Workflow: ${WORKFLOW_URL}"
+            echo "- Run: ${RUN_URL}"
+          } | tee -a "$GITHUB_STEP_SUMMARY"
+
+          BODY=$(jq -c -n \
+            --arg date "$DATE" \
+            --arg product "$PRODUCT" \
+            --arg version "$VERSION" \
+            --arg release_type "$RELEASE_TYPE" \
+            --arg branch "$BRANCH" \
+            --arg preid "$PREID" \
+            --arg series "$SERIES" \
+            --arg vsrelease "$VSRELEASE" \
+            --arg dry_run "$DRY_RUN" \
+            --arg pr_needed "$PR_NEEDED" \
+            --arg pr_url "$PR_URL" \
+            --arg workflow_url "$WORKFLOW_URL" \
+            --arg run_url "$RUN_URL" \
+            --arg action_required "$ACTION_REQUIRED" \
+            '{
+              date: $date,
+              product: $product,
+              version: $version,
+              release_type: $release_type,
+              branch: $branch,
+              cd_params: { preid: $preid, series: $series, vsrelease: $vsrelease },
+              dry_run: $dry_run,
+              pr_needed: $pr_needed,
+              pr_url: $pr_url,
+              action_required: $action_required,
+              workflow_url: $workflow_url,
+              run_url: $run_url
+            }')
+
+          echo "subject=$SUBJECT" >> $GITHUB_OUTPUT
+          echo "body=$BODY" >> $GITHUB_OUTPUT
+
+      - name: Send email notification
+        if: ${{ env.DRY_RUN == 'false' && env.MAIL_CLIENT_ID != '' && env.MAIL_CLIENT_SECRET != '' && env.MAIL_TENANT_ID != '' }}
+        env:
+          MAIL_CLIENT_ID: ${{ env.MAIL_CLIENT_ID }}
+          MAIL_CLIENT_SECRET: ${{ env.MAIL_CLIENT_SECRET }}
+          MAIL_TENANT_ID: ${{ env.MAIL_TENANT_ID }}
+          TO: ${{ vars.RELEASE_NOTIFICATION_EMAIL || 'M365AgentsToolkitEngineerTeam@microsoft.com' }}
+          SUBJECT: ${{ steps.notify.outputs.subject }}
+          BODY: ${{ steps.notify.outputs.body }}
+        uses: ./.github/actions/send-email-report
+
+  trigger-cd:
+    needs: prepare-release
+    runs-on: ubuntu-latest
+    if: ${{ needs.prepare-release.result == 'success' && (github.event_name != 'workflow_dispatch' || github.event.inputs.dry_run == 'false') }}
+    environment: auto-release
+    env:
+      APP_GITHUB_APP_ID: ${{ vars.APP_GITHUB_APP_ID }}
+      APP_GITHUB_APP_PRIVATE_KEY: ${{ secrets.APP_GITHUB_APP_PRIVATE_KEY }}
+      MAIL_CLIENT_ID: ${{ secrets.MAIL_CLIENT_ID }}
+      MAIL_CLIENT_SECRET: ${{ secrets.MAIL_CLIENT_SECRET }}
+      MAIL_TENANT_ID: ${{ secrets.MAIL_TENANT_ID }}
+    steps:
+      - id: generate-token
+        if: ${{ env.APP_GITHUB_APP_ID != '' && env.APP_GITHUB_APP_PRIVATE_KEY != '' }}
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ env.APP_GITHUB_APP_ID }}
+          private-key: ${{ env.APP_GITHUB_APP_PRIVATE_KEY }}
+
+      - name: Verify sync PR merged (if required)
+        if: ${{ needs.prepare-release.outputs.pr_needed == 'true' }}
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ steps.generate-token.outputs.token || github.token }}
+          script: |
+            const prNumberRaw = '${{ needs.prepare-release.outputs.pr_number }}';
+            if (!prNumberRaw) {
+              core.setFailed('Sync PR was required but PR number is missing.');
+              return;
+            }
+
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const prNumber = Number(prNumberRaw);
+            const prUrl = '${{ needs.prepare-release.outputs.pr_url }}';
+
+            const pr = await github.rest.pulls.get({ owner, repo, pull_number: prNumber });
+            const merged = Boolean(pr.data.merged_at);
+
+            if (!merged) {
+              core.summary
+                .addHeading('⏸️ Waiting for PR Merge', 2)
+                .addRaw(`\nA sync PR must be merged before triggering CD.\n`)
+                .addRaw(`\nPR: ${prUrl || pr.data.html_url}\n`)
+                .addRaw(`\nMerge the PR first, then approve the environment gate to continue.\n`)
+                .write();
+              core.setFailed('Sync PR is not merged yet.');
+              return;
+            }
+
+            core.summary
+              .addHeading('✅ Sync PR Merged', 2)
+              .addRaw(`\nPR merged: ${prUrl || pr.data.html_url}\n`)
+              .write();
+
+      - name: Trigger CD workflow
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ steps.generate-token.outputs.token || github.token }}
+          script: |
+            const branch = '${{ needs.prepare-release.outputs.branch }}';
+            const preid = '${{ needs.prepare-release.outputs.preid }}';
+            const series = '${{ needs.prepare-release.outputs.series }}';
+            const vsrelease = '${{ needs.prepare-release.outputs.vsrelease }}' === 'true';
+
+            console.log('Triggering CD workflow with parameters:');
+            console.log(`  Branch: ${branch}`);
+            console.log(`  preid: ${preid}`);
+            console.log(`  series: ${series}`);
+            console.log(`  vsrelease: ${vsrelease}`);
+
+            await github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'cd.yml',
+              ref: branch,
+              inputs: {
+                preid: preid,
+                series: series,
+                vsrelease: vsrelease.toString(),
+                vstemplate: 'false',
+                goproduct: 'false',
+                skipmarkdowncheck: 'false'
+              }
+            });
+
+            core.summary
+              .addHeading('🚀 CD Workflow Triggered', 2)
+              .addRaw('\n')
+              .addRaw(`Branch: \`${branch}\`\n`)
+              .addRaw(`View workflow runs: [Actions](../../actions/workflows/cd.yml)\n`)
+              .write();
+
+      - name: Send email notification
+        if: ${{ success() && env.MAIL_CLIENT_ID != '' && env.MAIL_CLIENT_SECRET != '' && env.MAIL_TENANT_ID != '' }}
+        env:
+          MAIL_CLIENT_ID: ${{ env.MAIL_CLIENT_ID }}
+          MAIL_CLIENT_SECRET: ${{ env.MAIL_CLIENT_SECRET }}
+          MAIL_TENANT_ID: ${{ env.MAIL_TENANT_ID }}
+          TO: ${{ vars.RELEASE_NOTIFICATION_EMAIL || 'M365AgentsToolkitEngineerTeam@microsoft.com' }}
+          SUBJECT: "ATK Release Automation Notification: ${{ needs.prepare-release.outputs.product }} ${{ needs.prepare-release.outputs.version }} CD Triggered"
+          BODY: |
+            {
+              "product": "${{ needs.prepare-release.outputs.product }}",
+              "version": "${{ needs.prepare-release.outputs.version }}",
+              "branch": "${{ needs.prepare-release.outputs.branch }}",
+              "release_type": "${{ needs.prepare-release.outputs.release_type }}",
+              "preid": "${{ needs.prepare-release.outputs.preid }}",
+              "series": "${{ needs.prepare-release.outputs.series }}",
+              "workflow_url": "${{ github.server_url }}/${{ github.repository }}/actions/workflows/cd.yml",
+              "run_url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}",
+              "message": "The CD pipeline has been automatically triggered for release ${{ needs.prepare-release.outputs.product }} ${{ needs.prepare-release.outputs.version }} on branch ${{ needs.prepare-release.outputs.branch }}. Please monitor the workflow progress."
+            }
+        uses: ./.github/actions/send-email-report
+
+      - name: Post completion comment
+        if: ${{ success() }}
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const product = '${{ needs.prepare-release.outputs.product }}';
+            const version = '${{ needs.prepare-release.outputs.version }}';
+            const branch = '${{ needs.prepare-release.outputs.branch }}';
+
+            core.notice(`✅ Release automation completed for ${product} ${version} on branch ${branch}`);
+            core.notice(`ℹ️ Email notification is best-effort (may be skipped if mail secrets are missing).`);
