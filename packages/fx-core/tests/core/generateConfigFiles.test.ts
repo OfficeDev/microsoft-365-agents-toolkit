@@ -235,9 +235,6 @@ describe("generateConfigFiles", () => {
       { name: "playground", programmingLanguage },
       { name: "local", programmingLanguage },
     ]);
-    assert.notIncludeMembers(
-      components.map((c) => c.name),
-      ["remote"]
-    );
+    assert.isFalse(components.map((c: any) => c.name).includes("remote"));
   });
 });
