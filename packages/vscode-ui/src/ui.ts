@@ -1122,9 +1122,34 @@ export class VSCodeUI implements UserInteraction {
     const timeout = args.timeout;
     const env = args.env;
 
-    // Create temporary file for output
+    // Create temporary files for output and script
     const tempFile = path.join(os.tmpdir(), `task-output-${Date.now()}.txt`);
-    const wrappedCmd = `${cmd} > "${tempFile}" 2>&1`;
+
+    // Detect the platform and use appropriate script format
+    const isWindows = process.platform === "win32";
+    const scriptExt = isWindows ? ".ps1" : ".sh";
+    const scriptFile = path.join(os.tmpdir(), `task-script-${Date.now()}${scriptExt}`);
+
+    // Create platform-specific script content
+    let scriptContent: string;
+    let wrappedCmd: string;
+
+    if (isWindows) {
+      // PowerShell script for Windows
+      scriptContent = `$ErrorActionPreference = 'Continue'\n${cmd}\n`;
+      wrappedCmd = `powershell -NoProfile -ExecutionPolicy Bypass -File "${scriptFile}" > "${tempFile}" 2>&1`;
+    } else {
+      // Bash script for Unix-like systems
+      scriptContent = `#!/bin/bash\nset +e\n${cmd}\n`;
+      wrappedCmd = `bash "${scriptFile}" > "${tempFile}" 2>&1`;
+    }
+
+    fs.writeFileSync(scriptFile, scriptContent, "utf-8");
+
+    // Make script executable on Unix-like systems
+    if (!isWindows) {
+      fs.chmodSync(scriptFile, 0o755);
+    }
 
     const timeoutPromise = timeout
       ? new Promise<never>((_, reject) => {
@@ -1160,7 +1185,8 @@ export class VSCodeUI implements UserInteraction {
         ) {
           try {
             const output = fs.readFileSync(tempFile, "utf-8");
-            fs.unlinkSync(tempFile); // Clean up temporary file
+            fs.unlinkSync(tempFile); // Clean up temporary output file
+            fs.unlinkSync(scriptFile); // Clean up temporary script file
 
             if (e.exitCode === 0) {
               resolve(output);
