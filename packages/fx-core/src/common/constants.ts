@@ -82,14 +82,14 @@ export const serviceEndpoints: Record<
     [ResourceServiceType.TDP]: "https://dev.teams.microsoft.com",
     [ResourceServiceType.MOS3]: "https://titles.prod.mos.microsoft.com",
     [ResourceServiceType.Graph]: "https://graph.microsoft.com",
-    [ResourceServiceType.Azure]: "https://management.core.windows.net",
+    [ResourceServiceType.Azure]: "https://management.azure.com",
   },
   [SovereignCloudEnvironment.GCCM]: {
     [ResourceServiceType.AuthSvc]: "https://api.spaces.skype.com",
     [ResourceServiceType.TDP]: "https://dev.teams.microsoft.com",
     [ResourceServiceType.MOS3]: "https://titles.gccm.mos.microsoft.com",
     [ResourceServiceType.Graph]: "https://graph.microsoft.com",
-    [ResourceServiceType.Azure]: "https://management.core.windows.net",
+    [ResourceServiceType.Azure]: "https://management.azure.com",
   },
   [SovereignCloudEnvironment.GCCH]: {
     [ResourceServiceType.AuthSvc]: "https://api.spaces.skype.com",
@@ -138,7 +138,7 @@ export const MosServiceScope = () => {
 export const GraphScopes = ["Application.ReadWrite.All", "TeamsAppInstallation.ReadForUser"];
 export const GroupSearchScopes = ["GroupMember.Read.All"];
 export const GCScopes = ["ExternalConnection.Read.All"];
-export const GraphReadUserScopes = ["https://graph.microsoft.com/User.ReadBasic.All"];
+export const GraphReadUserScopes = ["User.ReadBasic.All"];
 export const GraphTeamsAppSettingsReadScopes = ["TeamworkAppSettings.Read.All"];
 export const GraphTeamsTeamCreateScopes = ["Team.Create"];
 export const GraphTeamsChannelCreateScopes = ["Channel.Create"];
