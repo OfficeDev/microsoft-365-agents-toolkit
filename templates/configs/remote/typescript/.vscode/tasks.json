@@ -1,0 +1,13 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Start App in Desktop Client (Remote)",
+            "type": "teamsfx",
+            "command": "launch-desktop-client",
+            "args": {
+                "url": "teams.microsoft.com/l/app/${{TEAMS_APP_ID}}?installAppPackage=true"
+            }
+        }
+    ]
+}
