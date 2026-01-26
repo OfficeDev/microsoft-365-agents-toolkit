@@ -1,20 +1,20 @@
 // To parse this data:
 //
-//   import { Convert, TeamsManifestV1D23 } from "./file";
+//   import { Convert, TeamsManifestV1D25 } from "./file";
 //
-//   const teamsManifestV1D23 = Convert.toTeamsManifestV1D23(json);
+//   const teamsManifestV1D25 = Convert.toTeamsManifestV1D25(json);
 //
 // These functions will throw an error if the JSON doesn't
 // match the expected interface, even if the JSON is valid.
 
-export interface TeamsManifestV1D23 {
+export interface TeamsManifestV1D25 {
     $schema?: string;
     /**
      * The version of the schema this manifest is using. This schema version supports extending
      * Teams apps to other parts of the Microsoft 365 ecosystem. More info at
      * https://aka.ms/extendteamsapps.
      */
-    manifestVersion: "1.23";
+    manifestVersion: "1.25";
     /**
      * The version of the app. Changes to your manifest should cause a version change. This
      * version string must follow the semver standard (http://semver.org).
@@ -108,6 +108,11 @@ export interface TeamsManifestV1D23 {
      */
     supportedChannelTypes?: SupportedChannelType[];
     /**
+     * A property in the app manifest that declares support for all channel features,
+     * categorized by tiers.
+     */
+    supportsChannelFeatures?: "tier1";
+    /**
      * A value indicating whether an app is blocked by default until admin allows it
      */
     defaultBlockUntilAdminAction?: boolean;
@@ -132,7 +137,7 @@ export interface TeamsManifestV1D23 {
     /**
      * Specify and consolidates authorization related information for the App.
      */
-    authorization?: TeamsManifestV1D23Authorization;
+    authorization?: TeamsManifestV1D25Authorization;
     extensions?:    ElementExtension[];
     /**
      * Defines the list of cards which could be pinned to dashboards that can provide summarized
@@ -143,7 +148,11 @@ export interface TeamsManifestV1D23 {
     /**
      * The Intune-related properties for the app.
      */
-    intuneInfo?:             IntuneInfo;
+    intuneInfo?: IntuneInfo;
+    /**
+     * An array of agentic user templates references.
+     */
+    agenticUserTemplates?:   AgenticUserTemplateRef[];
     elementRelationshipSet?: ElementRelationshipSet;
     /**
      * Optional property containing background loading configuration. By opting in to this
@@ -185,10 +194,22 @@ export interface ActivityType {
     allowedIconIds?: string[];
 }
 
+export interface AgenticUserTemplateRef {
+    /**
+     * Unique identifier for the agentic user template. Must contain only alphanumeric
+     * characters, dots, underscores, and hyphens.
+     */
+    id: string;
+    /**
+     * Relative file path to this agentic user template element file in the application package.
+     */
+    file: string;
+}
+
 /**
  * Specify and consolidates authorization related information for the App.
  */
-export interface TeamsManifestV1D23Authorization {
+export interface TeamsManifestV1D25Authorization {
     /**
      * List of permissions that the app needs to function.
      */
@@ -605,14 +626,14 @@ export interface MessageHandler {
      * Type of the message handler
      */
     type:  "link";
-    value: Value;
+    value: MessageHandlerValue;
 }
 
 /**
  * Type of the message handler
  */
 
-export interface Value {
+export interface MessageHandlerValue {
     /**
      * A list of domains that the link message handler can register for, and when they are
      * matched the app will be invoked
@@ -980,6 +1001,10 @@ export interface ExtensionCommonIcon {
 export interface Hide {
     storeOfficeAddin?:  StoreOfficeAddin;
     customOfficeAddin?: CustomOfficeAddin;
+    /**
+     * Configures how to hide windows native extensions
+     */
+    windowsExtensions?: WindowsExtensions;
     [property: string]: any;
 }
 
@@ -1001,13 +1026,72 @@ export interface StoreOfficeAddin {
     assetId: string;
 }
 
+/**
+ * Configures how to hide windows native extensions
+ */
+export interface WindowsExtensions {
+    /**
+     * Specifies the effect to take while installing the web add-in if the equivalent add-in is
+     * installed.
+     */
+    effect: Effect;
+    /**
+     * Specifies the equivalent COM add-ins
+     */
+    comAddin?: WindowsExtensionsCOMAddin;
+    /**
+     * Specifies the equivalent automation add-ins
+     */
+    automationAddin?: AutomationAddin;
+    /**
+     * Specifies the XLL-based add-ins custom function
+     */
+    xllCustomFunctions?: XllCustomFunctions;
+}
+
+/**
+ * Specifies the equivalent automation add-ins
+ */
+export interface AutomationAddin {
+    /**
+     * Specifies the program Ids of the equivalent automation add-ins
+     */
+    progIds: string[];
+}
+
+/**
+ * Specifies the equivalent COM add-ins
+ */
+export interface WindowsExtensionsCOMAddin {
+    /**
+     * Specifies the program Ids of the equivalent COM add-ins
+     */
+    progIds: string[];
+}
+
+/**
+ * Specifies the effect to take while installing the web add-in if the equivalent add-in is
+ * installed.
+ */
+export type Effect = "userOptionToDisable" | "disableWithNotification";
+
+/**
+ * Specifies the XLL-based add-ins custom function
+ */
+export interface XllCustomFunctions {
+    /**
+     * Specifies the file names of the XLL-based add-ins custom function
+     */
+    fileNames: string[];
+}
+
 export interface Prefer {
-    comAddin?:           COMAddin;
+    comAddin?:           PreferCOMAddin;
     xllCustomFunctions?: ExtensionXllCustomFunctions;
     [property: string]: any;
 }
 
-export interface COMAddin {
+export interface PreferCOMAddin {
     /**
      * Program ID of the alternate com extension. Maximum length is 64 characters.
      */
@@ -1015,6 +1099,9 @@ export interface COMAddin {
 }
 
 export interface ExtensionXllCustomFunctions {
+    /**
+     * File name for the XLL extension. Maximum length is 254 characters.
+     */
     fileName?: string;
     [property: string]: any;
 }
@@ -1362,8 +1449,31 @@ export interface ExtensionKeyboardShortcut {
     /**
      * Array of mappings from actions to the key combinations that invoke the actions.
      */
-    shortcuts: ExtensionShortcut[];
+    shortcuts?: ExtensionShortcut[];
+    /**
+     * Specifies the full URLs for shortcuts mapping and localization resource files that don't
+     * directly support the unified manifest.
+     */
+    keyMappingFiles?: KeyboardShortcutsMappingFiles;
     [property: string]: any;
+}
+
+/**
+ * Specifies the full URLs for shortcuts mapping and localization resource files that don't
+ * directly support the unified manifest.
+ */
+export interface KeyboardShortcutsMappingFiles {
+    /**
+     * The full URL of the JSON file that will contain the keyboard combination configuration on
+     * Office application and platform combinations that don't directly support the unified
+     * manifest.
+     */
+    shortcutsUrl: string;
+    /**
+     * The full URL of a file that provides supplemental resource, such as localized strings,
+     * for the file specified in the shortcutsUrl attribute.
+     */
+    localizationResourceUrl?: string;
 }
 
 export interface ExtensionShortcut {
@@ -1663,8 +1773,8 @@ export interface ExtensionRuntimesActionsItem {
      */
     id: string;
     /**
-     * executeFunction: Run a script function without waiting for it to finish. openPate: Open a
-     * page in a view.
+     * executeFunction: Run a script function without waiting for it to finish. openPage: Open a
+     * page in a view. executeDataFunction: invoke command and retrieve data.
      */
     type: ActionType;
     /**
@@ -1692,10 +1802,10 @@ export interface ExtensionRuntimesActionsItem {
 }
 
 /**
- * executeFunction: Run a script function without waiting for it to finish. openPate: Open a
- * page in a view.
+ * executeFunction: Run a script function without waiting for it to finish. openPage: Open a
+ * page in a view. executeDataFunction: invoke command and retrieve data.
  */
-export type ActionType = "executeFunction" | "openPage";
+export type ActionType = "executeFunction" | "openPage" | "executeDataFunction";
 
 /**
  * Custom function enable developers to add new functions to Excel by defining those
@@ -1706,13 +1816,59 @@ export interface ExtensionCustomFunctions {
     /**
      * Array of function object which defines function metadata.
      */
-    functions: ExtensionFunction[];
-    namespace: ExtensionCustomFunctionsNamespace;
+    functions?: ExtensionFunction[];
+    namespace?: ExtensionCustomFunctionsNamespace;
     /**
      * Allows a custom function to accept Excel data types as parameters and return values.
      */
     allowCustomDataForDataTypeAny?: boolean;
-    [property: string]: any;
+    /**
+     * The full URL of a metadata json file with default locale.
+     */
+    metadataUrl?: string;
+    /**
+     * Array of custom defined enum objects.
+     */
+    enums?: Enum[];
+}
+
+export interface Enum {
+    /**
+     * A unique ID for the enum.
+     */
+    id: string;
+    /**
+     * The type of the values in this enum.
+     */
+    type: EnumType;
+    /**
+     * Array that defines the constants for the enum.
+     */
+    values: ValueElement[];
+}
+
+/**
+ * The type of the values in this enum.
+ */
+export type EnumType = "number" | "string";
+
+export interface ValueElement {
+    /**
+     * A brief description of the constant.
+     */
+    name: string;
+    /**
+     * When enum type is number, the actual number value of the constant.
+     */
+    numberValue?: number | null;
+    /**
+     * When enum type is string, the actual string value of the constant.
+     */
+    stringValue?: string;
+    /**
+     * Additional information about the constant, intended to provide more context or details.
+     */
+    tooltip?: string;
 }
 
 export interface ExtensionFunction {
@@ -1774,6 +1930,32 @@ export interface ExtensionFunction {
      * the result object, and dimensionality must be set to matrix.
      */
     requiresParameterAddress?: boolean;
+    /**
+     * If `true`, the function can access the address of the cell calling the streaming
+     * function. The `address` property of the invocation parameter contains the address of the
+     * cell that invoked your streaming function.
+     */
+    requiresStreamAddress?: boolean;
+    /**
+     * If `true`, the function can access the parameter addresses of the cell calling the
+     * streaming function. The `parameterAddresses` property of the invocation parameter
+     * contains the parameter addresses for your streaming function.
+     */
+    requiresStreamParameterAddresses?: boolean;
+    /**
+     * If `true`, the data type being referenced by the custom function is passed as the first
+     * argument to the custom function.
+     */
+    capturesCallingObject?: boolean;
+    /**
+     * If `true`, the custom function will not appear in the formula AutoComplete menu in Excel.
+     */
+    excludeFromAutoComplete?: boolean;
+    /**
+     * If `true`, it designates that the function is a linked entity load service that returns
+     * linked entity cell values for linked entity IDs requested by Excel.
+     */
+    linkedEntityLoadService?: boolean;
     [property: string]: any;
 }
 
@@ -1794,9 +1976,9 @@ export interface ExtensionFunctionParameter {
     type?: string;
     /**
      * A subfield of the type property. Specifies the Excel data types accepted by the custom
-     * function. Accepts the values 'cellvalue', 'booleancellvalue', 'doublecellvalue',
-     * 'entitycellvalue', 'errorcellvalue', 'formattednumbercellvalue', 'linkedentitycellvalue',
-     * 'localimagecellvalue', 'stringcellvalue', 'webimagecellvalue'
+     * function. Accepts the values cellvalue, booleancellvalue, doublecellvalue,
+     * entitycellvalue, errorcellvalue, linkedentitycellvalue, localimagecellvalue,
+     * stringcellvalue, webimagecellvalue
      */
     cellValueType?: CellValueType;
     /**
@@ -1812,16 +1994,21 @@ export interface ExtensionFunctionParameter {
      * parameters are considered optional parameters by definition.
      */
     repeating?: boolean;
+    /**
+     * |The `id` of the enum in the `enums` array. This associates the custom enum with the
+     * function and enables Excel to display the enum members in the formula AutoComplete menu.
+     */
+    customEnumId?: string;
     [property: string]: any;
 }
 
 /**
  * A subfield of the type property. Specifies the Excel data types accepted by the custom
- * function. Accepts the values 'cellvalue', 'booleancellvalue', 'doublecellvalue',
- * 'entitycellvalue', 'errorcellvalue', 'formattednumbercellvalue', 'linkedentitycellvalue',
- * 'localimagecellvalue', 'stringcellvalue', 'webimagecellvalue'
+ * function. Accepts the values cellvalue, booleancellvalue, doublecellvalue,
+ * entitycellvalue, errorcellvalue, linkedentitycellvalue, localimagecellvalue,
+ * stringcellvalue, webimagecellvalue
  */
-export type CellValueType = "cellvalue" | "booleancellvalue" | "doublecellvalue" | "entitycellvalue" | "errorcellvalue" | "formattednumbercellvalue" | "linkedentitycellvalue" | "localimagecellvalue" | "stringcellvalue" | "webimagecellvalue";
+export type CellValueType = "cellvalue" | "booleancellvalue" | "doublecellvalue" | "entitycellvalue" | "errorcellvalue" | "linkedentitycellvalue" | "localimagecellvalue" | "stringcellvalue" | "webimagecellvalue";
 
 /**
  * Must be either scalar (a non-array value) or matrix (a 2-dimensional array).
@@ -2048,6 +2235,11 @@ export interface SubscriptionOffer {
 export type SupportedChannelType = "sharedChannels" | "privateChannels";
 
 /**
+ * A property in the app manifest that declares support for all channel features,
+ * categorized by tiers.
+ */
+
+/**
  * Specify your AAD App ID and Graph information to help users seamlessly sign into your AAD
  * app.
  */
@@ -2090,12 +2282,12 @@ export interface NestedAppAuthInfo {
 // Converts JSON strings to/from your types
 // and asserts the results of JSON.parse at runtime
 export class Convert {
-    public static toTeamsManifestV1D23(json: string): TeamsManifestV1D23 {
-        return cast(JSON.parse(json), r("TeamsManifestV1D23"));
+    public static toTeamsManifestV1D25(json: string): TeamsManifestV1D25 {
+        return cast(JSON.parse(json), r("TeamsManifestV1D25"));
     }
 
-    public static teamsManifestV1D23ToJson(value: TeamsManifestV1D23): string {
-        return JSON.stringify(uncast(value, r("TeamsManifestV1D23")), null, 4);
+    public static teamsManifestV1D25ToJson(value: TeamsManifestV1D25): string {
+        return JSON.stringify(uncast(value, r("TeamsManifestV1D25")), null, 4);
     }
 }
 
@@ -2252,7 +2444,7 @@ function r(name: string) {
 }
 
 const typeMap: any = {
-    "TeamsManifestV1D23": o([
+    "TeamsManifestV1D25": o([
         { json: "$schema", js: "$schema", typ: u(undefined, "") },
         { json: "manifestVersion", js: "manifestVersion", typ: r("ManifestVersion") },
         { json: "version", js: "version", typ: "" },
@@ -2279,16 +2471,18 @@ const typeMap: any = {
         { json: "activities", js: "activities", typ: u(undefined, r("Activities")) },
         { json: "configurableProperties", js: "configurableProperties", typ: u(undefined, a(r("ConfigurableProperty"))) },
         { json: "supportedChannelTypes", js: "supportedChannelTypes", typ: u(undefined, a(r("SupportedChannelType"))) },
+        { json: "supportsChannelFeatures", js: "supportsChannelFeatures", typ: u(undefined, r("SupportsChannelFeatures")) },
         { json: "defaultBlockUntilAdminAction", js: "defaultBlockUntilAdminAction", typ: u(undefined, true) },
         { json: "publisherDocsUrl", js: "publisherDocsUrl", typ: u(undefined, "") },
         { json: "defaultInstallScope", js: "defaultInstallScope", typ: u(undefined, r("DefaultInstallScope")) },
         { json: "defaultGroupCapability", js: "defaultGroupCapability", typ: u(undefined, r("DefaultGroupCapability")) },
         { json: "meetingExtensionDefinition", js: "meetingExtensionDefinition", typ: u(undefined, r("MeetingExtensionDefinition")) },
-        { json: "authorization", js: "authorization", typ: u(undefined, r("TeamsManifestV1D23Authorization")) },
+        { json: "authorization", js: "authorization", typ: u(undefined, r("TeamsManifestV1D25Authorization")) },
         { json: "extensions", js: "extensions", typ: u(undefined, a(r("ElementExtension"))) },
         { json: "dashboardCards", js: "dashboardCards", typ: u(undefined, a(r("DashboardCard"))) },
         { json: "copilotAgents", js: "copilotAgents", typ: u(undefined, r("CopilotAgents")) },
         { json: "intuneInfo", js: "intuneInfo", typ: u(undefined, r("IntuneInfo")) },
+        { json: "agenticUserTemplates", js: "agenticUserTemplates", typ: u(undefined, a(r("AgenticUserTemplateRef"))) },
         { json: "elementRelationshipSet", js: "elementRelationshipSet", typ: u(undefined, r("ElementRelationshipSet")) },
         { json: "backgroundLoadConfiguration", js: "backgroundLoadConfiguration", typ: u(undefined, r("BackgroundLoadConfiguration")) },
     ], false),
@@ -2306,7 +2500,11 @@ const typeMap: any = {
         { json: "templateText", js: "templateText", typ: "" },
         { json: "allowedIconIds", js: "allowedIconIds", typ: u(undefined, a("")) },
     ], false),
-    "TeamsManifestV1D23Authorization": o([
+    "AgenticUserTemplateRef": o([
+        { json: "id", js: "id", typ: "" },
+        { json: "file", js: "file", typ: "" },
+    ], false),
+    "TeamsManifestV1D25Authorization": o([
         { json: "permissions", js: "permissions", typ: u(undefined, r("Permissions")) },
     ], false),
     "Permissions": o([
@@ -2424,9 +2622,9 @@ const typeMap: any = {
     ], false),
     "MessageHandler": o([
         { json: "type", js: "type", typ: r("MessageHandlerType") },
-        { json: "value", js: "value", typ: r("Value") },
+        { json: "value", js: "value", typ: r("MessageHandlerValue") },
     ], false),
-    "Value": o([
+    "MessageHandlerValue": o([
         { json: "domains", js: "domains", typ: u(undefined, a("")) },
         { json: "supportsAnonymizedPayloads", js: "supportsAnonymizedPayloads", typ: u(undefined, true) },
     ], false),
@@ -2539,6 +2737,7 @@ const typeMap: any = {
     "Hide": o([
         { json: "storeOfficeAddin", js: "storeOfficeAddin", typ: u(undefined, r("StoreOfficeAddin")) },
         { json: "customOfficeAddin", js: "customOfficeAddin", typ: u(undefined, r("CustomOfficeAddin")) },
+        { json: "windowsExtensions", js: "windowsExtensions", typ: u(undefined, r("WindowsExtensions")) },
     ], "any"),
     "CustomOfficeAddin": o([
         { json: "officeAddinId", js: "officeAddinId", typ: "" },
@@ -2547,11 +2746,26 @@ const typeMap: any = {
         { json: "officeAddinId", js: "officeAddinId", typ: "" },
         { json: "assetId", js: "assetId", typ: "" },
     ], false),
+    "WindowsExtensions": o([
+        { json: "effect", js: "effect", typ: r("Effect") },
+        { json: "comAddin", js: "comAddin", typ: u(undefined, r("WindowsExtensionsCOMAddin")) },
+        { json: "automationAddin", js: "automationAddin", typ: u(undefined, r("AutomationAddin")) },
+        { json: "xllCustomFunctions", js: "xllCustomFunctions", typ: u(undefined, r("XllCustomFunctions")) },
+    ], false),
+    "AutomationAddin": o([
+        { json: "progIds", js: "progIds", typ: a("") },
+    ], false),
+    "WindowsExtensionsCOMAddin": o([
+        { json: "progIds", js: "progIds", typ: a("") },
+    ], false),
+    "XllCustomFunctions": o([
+        { json: "fileNames", js: "fileNames", typ: a("") },
+    ], false),
     "Prefer": o([
-        { json: "comAddin", js: "comAddin", typ: u(undefined, r("COMAddin")) },
+        { json: "comAddin", js: "comAddin", typ: u(undefined, r("PreferCOMAddin")) },
         { json: "xllCustomFunctions", js: "xllCustomFunctions", typ: u(undefined, r("ExtensionXllCustomFunctions")) },
     ], "any"),
-    "COMAddin": o([
+    "PreferCOMAddin": o([
         { json: "progId", js: "progId", typ: "" },
     ], false),
     "ExtensionXllCustomFunctions": o([
@@ -2648,8 +2862,13 @@ const typeMap: any = {
     ], false),
     "ExtensionKeyboardShortcut": o([
         { json: "requirements", js: "requirements", typ: u(undefined, r("RequirementsExtensionElement")) },
-        { json: "shortcuts", js: "shortcuts", typ: a(r("ExtensionShortcut")) },
+        { json: "shortcuts", js: "shortcuts", typ: u(undefined, a(r("ExtensionShortcut"))) },
+        { json: "keyMappingFiles", js: "keyMappingFiles", typ: u(undefined, r("KeyboardShortcutsMappingFiles")) },
     ], "any"),
+    "KeyboardShortcutsMappingFiles": o([
+        { json: "shortcutsUrl", js: "shortcutsUrl", typ: "" },
+        { json: "localizationResourceUrl", js: "localizationResourceUrl", typ: u(undefined, "") },
+    ], false),
     "ExtensionShortcut": o([
         { json: "key", js: "key", typ: r("Key") },
         { json: "actionId", js: "actionId", typ: "" },
@@ -2749,10 +2968,23 @@ const typeMap: any = {
         { json: "supportsNoItemContext", js: "supportsNoItemContext", typ: u(undefined, true) },
     ], false),
     "ExtensionCustomFunctions": o([
-        { json: "functions", js: "functions", typ: a(r("ExtensionFunction")) },
-        { json: "namespace", js: "namespace", typ: r("ExtensionCustomFunctionsNamespace") },
+        { json: "functions", js: "functions", typ: u(undefined, a(r("ExtensionFunction"))) },
+        { json: "namespace", js: "namespace", typ: u(undefined, r("ExtensionCustomFunctionsNamespace")) },
         { json: "allowCustomDataForDataTypeAny", js: "allowCustomDataForDataTypeAny", typ: u(undefined, true) },
-    ], "any"),
+        { json: "metadataUrl", js: "metadataUrl", typ: u(undefined, "") },
+        { json: "enums", js: "enums", typ: u(undefined, a(r("Enum"))) },
+    ], false),
+    "Enum": o([
+        { json: "id", js: "id", typ: "" },
+        { json: "type", js: "type", typ: r("EnumType") },
+        { json: "values", js: "values", typ: a(r("ValueElement")) },
+    ], false),
+    "ValueElement": o([
+        { json: "name", js: "name", typ: "" },
+        { json: "numberValue", js: "numberValue", typ: u(undefined, u(3.14, null)) },
+        { json: "stringValue", js: "stringValue", typ: u(undefined, "") },
+        { json: "tooltip", js: "tooltip", typ: u(undefined, "") },
+    ], false),
     "ExtensionFunction": o([
         { json: "id", js: "id", typ: "" },
         { json: "name", js: "name", typ: "" },
@@ -2765,6 +2997,11 @@ const typeMap: any = {
         { json: "cancelable", js: "cancelable", typ: u(undefined, true) },
         { json: "requiresAddress", js: "requiresAddress", typ: u(undefined, true) },
         { json: "requiresParameterAddress", js: "requiresParameterAddress", typ: u(undefined, true) },
+        { json: "requiresStreamAddress", js: "requiresStreamAddress", typ: u(undefined, true) },
+        { json: "requiresStreamParameterAddresses", js: "requiresStreamParameterAddresses", typ: u(undefined, true) },
+        { json: "capturesCallingObject", js: "capturesCallingObject", typ: u(undefined, true) },
+        { json: "excludeFromAutoComplete", js: "excludeFromAutoComplete", typ: u(undefined, true) },
+        { json: "linkedEntityLoadService", js: "linkedEntityLoadService", typ: u(undefined, true) },
     ], "any"),
     "ExtensionFunctionParameter": o([
         { json: "name", js: "name", typ: "" },
@@ -2774,6 +3011,7 @@ const typeMap: any = {
         { json: "dimensionality", js: "dimensionality", typ: u(undefined, r("Dimensionality")) },
         { json: "optional", js: "optional", typ: u(undefined, u(true, null)) },
         { json: "repeating", js: "repeating", typ: u(undefined, true) },
+        { json: "customEnumId", js: "customEnumId", typ: u(undefined, "") },
     ], "any"),
     "ExtensionResult": o([
         { json: "dimensionality", js: "dimensionality", typ: u(undefined, r("Dimensionality")) },
@@ -2962,6 +3200,10 @@ const typeMap: any = {
         "configurableTabs",
         "staticTabs",
     ],
+    "Effect": [
+        "disableWithNotification",
+        "userOptionToDisable",
+    ],
     "FormFactor": [
         "desktop",
         "mobile",
@@ -3013,8 +3255,13 @@ const typeMap: any = {
         "before",
     ],
     "ActionType": [
+        "executeDataFunction",
         "executeFunction",
         "openPage",
+    ],
+    "EnumType": [
+        "number",
+        "string",
     ],
     "CellValueType": [
         "booleancellvalue",
@@ -3022,7 +3269,6 @@ const typeMap: any = {
         "doublecellvalue",
         "entitycellvalue",
         "errorcellvalue",
-        "formattednumbercellvalue",
         "linkedentitycellvalue",
         "localimagecellvalue",
         "stringcellvalue",
@@ -3040,7 +3286,7 @@ const typeMap: any = {
         "general",
     ],
     "ManifestVersion": [
-        "1.23",
+        "1.25",
     ],
     "Permission": [
         "identity",
@@ -3064,5 +3310,8 @@ const typeMap: any = {
     "SupportedChannelType": [
         "privateChannels",
         "sharedChannels",
+    ],
+    "SupportsChannelFeatures": [
+        "tier1",
     ],
 };
