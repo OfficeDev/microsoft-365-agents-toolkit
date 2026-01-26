@@ -20,7 +20,6 @@ resource identity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' 
 }
 {{/hasAzureBot}}
 
-
 resource serverfarm 'Microsoft.Web/serverfarms@2021-02-01' = {
   kind: 'app'
   location: location
