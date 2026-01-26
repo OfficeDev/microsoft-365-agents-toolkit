@@ -3,6 +3,8 @@
 # Visit https://aka.ms/teamsfx-actions for details on actions
 version: v1.11
 
+environmentFolderPath: ./env
+
 deploy:
   # Install development tool(s)
   - uses: devTool/install
@@ -16,9 +18,8 @@ deploy:
     with:
       args: install
 
-  # Generate runtime environment variables
   - uses: file/createOrUpdateEnvironmentFile
     with:
       target: ./.localConfigs.playground
       envs:
-        TEAMSFX_ENV: playground
+        PORT: 3978
