@@ -39,6 +39,7 @@ docker:
     # Admin account for Global admin role
     M365_ACCOUNT_ADMIN_ACCOUNT: "${M365_ACCOUNT_ADMIN_ACCOUNT}"
     M365_ACCOUNT_ADMIN_PASSWORD: "${M365_ACCOUNT_ADMIN_PASSWORD}"
+    AZURE_SUBSCRIPTION_ID: "${AZURE_SUBSCRIPTION_ID}"
 
 execution:
   delay_between_steps: 0.5         # Default: 0.5 (seconds between steps)
