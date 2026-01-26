@@ -3,6 +3,8 @@
 # Visit https://aka.ms/teamsfx-actions for details on actions
 version: v1.11
 
+environmentFolderPath: ./env
+
 provision:
   # Creates an app
   - uses: teamsApp/create
