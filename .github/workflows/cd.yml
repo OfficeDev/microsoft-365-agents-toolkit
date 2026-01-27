@@ -38,6 +38,7 @@ on:
 permissions:
   actions: write
   contents: write
+  packages: write
 
 jobs:
   cd:
