@@ -1,0 +1,162 @@
+name: Build VscUse ATK Docker Image
+
+on:
+  schedule:
+    # Run daily build every day
+     - cron: "00 12 * * *"  # UTC+8 20:00, the actually running time maybe 20:00 due to runner queue
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag for the Docker image'
+        required: false
+        default: 'latest'
+      no_cache:
+        description: 'Build without cache'
+        type: boolean
+        default: false
+      run_id:
+        description: 'Specific ATK workflow run ID to download VSIX from'
+        required: false
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: microsoft/vscuse-atk-vscode
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Free disk space
+        run: |
+          echo "Disk space before cleanup:"
+          df -h
+          echo "Cleaning up disk space..."
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /opt/hostedtoolcache/CodeQL
+          sudo docker system prune -af --volumes
+          echo "Disk space after cleanup:"
+          df -h
+
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Download latest M365 Agent Toolkit
+        id: m365_download
+        run: |
+          echo "Downloading M365 Agent Toolkit..."
+          gh auth login --with-token <<< "${{ secrets.GITHUB_TOKEN }}"
+
+          # Use specified run_id if provided, otherwise find the latest successful run
+          if [ -n "${{ github.event.inputs.run_id }}" ]; then
+            run_id="${{ github.event.inputs.run_id }}"
+            echo "Using specified workflow run ID: $run_id"
+          else
+            echo "Searching for latest successful workflow run..."
+            # Get the latest successful workflow run ID from TeamsFx repository
+            run_id=$(gh run list --workflow cd --repo OfficeDev/TeamsFx --branch dev --json event --json databaseId --json conclusion --jq '[.[] | select(.event=="schedule") | select(.conclusion=="success")][0].databaseId')
+
+            if [ -z "$run_id" ]; then
+              echo "No successful scheduled workflow run found, trying latest successful run..."
+              run_id=$(gh run list --workflow cd --repo OfficeDev/TeamsFx --branch dev --json databaseId --json conclusion --jq '[.[] | select(.conclusion=="success")][0].databaseId')
+            fi
+
+            if [ -z "$run_id" ]; then
+              echo "No successful workflow run found, skipping download"
+              exit 0
+            fi
+          fi
+
+          echo "Found workflow run ID: $run_id"
+          echo "teamsfx_run_id=$run_id" >> $GITHUB_OUTPUT
+
+          # Create temporary directory for download
+          mkdir -p temp-release
+
+          # Download the release artifacts
+          if gh run download $run_id --repo OfficeDev/TeamsFx --name release --dir temp-release; then
+            # Find and copy the VSIX file to build-extensions
+            vsix_file=$(find temp-release -name "*.vsix" | head -1)
+
+            if [ -n "$vsix_file" ]; then
+              cp "$vsix_file" packages/tests/vscuse/docker/vscuse-atk/build-extensions/
+              filename=$(basename "$vsix_file")
+              echo "Downloaded and copied: $filename"
+            else
+              echo "No VSIX file found in release artifacts"
+            fi
+          else
+            echo "Failed to download artifacts, continuing with existing files"
+          fi
+
+          # Clean up
+          rm -rf temp-release
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=sha,prefix={{branch}}-
+            type=raw,value=${{ github.event.inputs.tag || 'latest' }}
+            type=raw,value=teamsfx-${{ steps.m365_download.outputs.teamsfx_run_id }},enable=${{ steps.m365_download.outputs.teamsfx_run_id != '' }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./packages/tests/vscuse/docker/vscuse-atk
+          # platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: ${{ github.event.inputs.no_cache != 'true' && 'type=gha' || '' }}
+          cache-to: ${{ github.event.inputs.no_cache != 'true' && 'type=gha,mode=max' || '' }}
+          no-cache: ${{ github.event.inputs.no_cache == 'true' }}
+
+      - name: Image summary
+        if: success()
+        run: |
+          echo "## Docker Image Built Successfully! 🎉" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Image:** \`${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Build Options:** No Cache = ${{ github.event.inputs.no_cache }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Tags:**" >> $GITHUB_STEP_SUMMARY
+          echo '${{ steps.meta.outputs.tags }}' | sed 's/^/- `/' | sed 's/$/`/' >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Pull Command:**" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
+          echo "docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.event.inputs.tag || 'latest' }}" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+
+      - name: Build failure summary
+        if: failure()
+        run: |
+          echo "## Docker Build Failed ❌" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "The Docker image build process encountered an error." >> $GITHUB_STEP_SUMMARY
+          echo "Please check the build logs above for details." >> $GITHUB_STEP_SUMMARY
+
+      - name: Cleanup
+        if: always()
+        run: |
+          echo "🧹 Cleaning up resources..."
+          rm -rf vsc-use temp-release
