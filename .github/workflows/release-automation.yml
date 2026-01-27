@@ -33,12 +33,10 @@ on:
         type: boolean
         default: true
   schedule:
-    # Run daily at 05:00 (UTC+8) => 21:00 UTC
-    - cron: "0 21 * * *"
+    - cron: "0 4 * * *" # Run daily at 05:00 (UTC+8) => 21:00 UTC
 
 permissions:
-  contents: write
-  actions: write
+  contents: read
 
 jobs:
   parse-schedule:
