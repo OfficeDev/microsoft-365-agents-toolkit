@@ -20,7 +20,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: microsoft/vscuse-atk-vscode
+  IMAGE_NAME: OfficeDev/vscuse-atk-vscode
 
 jobs:
   build-and-push:
