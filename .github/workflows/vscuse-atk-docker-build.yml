@@ -17,6 +17,10 @@ on:
       run_id:
         description: 'Specific ATK workflow run ID to download VSIX from'
         required: false
+      schedule_trigger:
+        description: 'Whether the build is triggered by schedule'
+        type: boolean
+        default: false
 
 env:
   REGISTRY: ghcr.io
