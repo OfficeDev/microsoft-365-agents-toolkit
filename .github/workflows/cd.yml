@@ -566,3 +566,12 @@ jobs:
           MAIL_CLIENT_ID: ${{ secrets.TEST_CLEAN_CLIENT_ID }}
           MAIL_CLIENT_SECRET: ${{ secrets.TEST_CLEAN_CLIENT_SECRET }}
           MAIL_TENANT_ID: ${{ secrets.TEST_CLEAN_TENANT_ID }}
+
+  trigger-docker-build:
+    needs: cd
+    if: ${{ success() }}
+    uses: ./.github/workflows/vscuse-atk-docker-build.yml
+    with:
+      run_id: ${{ github.run_id }}
+      tag: ${{ inputs.series == '' && 'latest' || inputs.series }}
+    secrets: inherit

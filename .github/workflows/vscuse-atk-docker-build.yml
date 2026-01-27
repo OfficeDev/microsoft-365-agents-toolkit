@@ -4,6 +4,21 @@ on:
   schedule:
     # Run daily build every day
      - cron: "00 12 * * *"  # UTC+8 20:00, the actually running time maybe 20:00 due to runner queue
+  workflow_call:
+    inputs:
+      tag:
+        description: 'Tag for the Docker image'
+        required: false
+        type: string
+        default: 'latest'
+      no_cache:
+        description: 'Build without cache'
+        type: boolean
+        default: false
+      run_id:
+        description: 'Specific ATK workflow run ID to download VSIX from'
+        required: false
+        type: string
   workflow_dispatch:
     inputs:
       tag:
