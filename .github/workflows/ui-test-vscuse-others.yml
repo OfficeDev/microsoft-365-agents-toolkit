@@ -2,7 +2,6 @@ name: uitest-vscuse-others
 #
 # Triggers:
 # 1. Manual trigger (workflow_dispatch)
-# 2. On successful completion of uitest-vscuse-template pipeline when triggered by workflow_run (from CD schedule) (workflow_run)
 on:
   workflow_dispatch:
     inputs:
@@ -27,15 +26,14 @@ on:
         required: false
         type: number
         default: 7
-  workflow_run:
-    workflows: ["uitest-vscuse-template"]
-    types:
-      - completed
+      schedule_trigger:
+        description: "Whether the build is triggered by schedule"
+        type: boolean
+        default: false
 permissions:
   actions: read
 jobs:
   discover-test-plans:
-    if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'workflow_run' && github.event.workflow_run.event == 'workflow_run' && github.event.workflow_run.conclusion == 'success') }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -50,7 +48,7 @@ jobs:
         id: set-email
         run: |
           # Set email receiver based on trigger type
-          if [ "${{ github.event_name }}" == "schedule" ]; then
+          if [ "${{ github.event_name }}" == "schedule" ] || [ "${{ github.event.inputs.schedule_trigger }}" == "true" ]; then
             echo "email-receiver=zhenjiao@microsoft.com;M365AgentsToolkitEngineerTeam@microsoft.com;teamsfxqa@microsoft.com" >> $GITHUB_OUTPUT
             echo "Schedule trigger: Using default email receivers"
           elif [ -n "${{ github.event.inputs.email-receiver }}" ]; then
@@ -353,7 +351,7 @@ jobs:
     permissions:
       actions: write
     needs: main
-    if: ${{ (github.event_name == 'workflow_dispatch' || github.event_name == 'schedule' || github.event_name == 'workflow_run') && failure() && github.run_attempt < (github.event.inputs.max_retries || 7) }}
+    if: ${{ (github.event_name == 'workflow_dispatch' || github.event_name == 'schedule' || github.event.inputs.schedule_trigger == 'true') && failure() && github.run_attempt < (github.event.inputs.max_retries || 7) }}
     runs-on: ubuntu-latest
     env:
       MAX_RETRIES: ${{ github.event.inputs.max_retries || 7 }}
@@ -368,28 +366,28 @@ jobs:
       AZURE_ACCOUNT_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
     steps:
       - name: Checkout
-        if: ${{ github.event_name == 'schedule' }}
+        if: ${{ github.event_name == 'schedule' || github.event.inputs.schedule_trigger == 'true' }}
         uses: actions/checkout@v4
         with:
           ref: ${{ github.ref_name }}
 
       - name: Setup node
-        if: ${{ github.event_name == 'schedule' }}
+        if: ${{ github.event_name == 'schedule' || github.event.inputs.schedule_trigger == 'true' }}
         uses: actions/setup-node@v3
         with:
           node-version: 22
 
       - uses: pnpm/action-setup@v4
-        if: ${{ github.event_name == 'schedule' }}
+        if: ${{ github.event_name == 'schedule' || github.event.inputs.schedule_trigger == 'true' }}
 
       - name: Setup project
-        if: ${{ github.event_name == 'schedule' }}
+        if: ${{ github.event_name == 'schedule' || github.event.inputs.schedule_trigger == 'true' }}
         working-directory: ./
         run: |
           npm run setup:e2e
 
       - name: Clean resources
-        if: ${{ github.event_name == 'schedule' }}
+        if: ${{ github.event_name == 'schedule' || github.event.inputs.schedule_trigger == 'true' }}
         working-directory: packages/tests
         run: |
           npx ts-node src/scripts/clean.ts
@@ -419,8 +417,8 @@ jobs:
 
   report:
     # Only send email on the last attempt or when all tests pass
-    # Send email if: (1) triggered by schedule, OR (2) triggered manually with email-receiver input provided
-    if: ${{ always() && (github.event_name == 'schedule' || needs.discover-test-plans.outputs.email-receiver != '') && (success() || github.run_attempt >= (github.event.inputs.max_retries || 7)) }}
+    # Send email if: (1) triggered by schedule or schedule_trigger is true, OR (2) triggered manually with email-receiver input provided
+    if: ${{ always() && (github.event_name == 'schedule' || github.event.inputs.schedule_trigger == 'true' || needs.discover-test-plans.outputs.email-receiver != '') && (success() || github.run_attempt >= (github.event.inputs.max_retries || 7)) }}
     needs: [discover-test-plans, main]
     runs-on: ubuntu-latest
     defaults:

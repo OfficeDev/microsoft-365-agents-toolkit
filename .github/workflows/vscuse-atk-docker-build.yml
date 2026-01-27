@@ -1,9 +1,7 @@
 name: Build VscUse ATK Docker Image
 
 on:
-  schedule:
-    # Run daily build every day
-     - cron: "00 12 * * *"  # UTC+8 20:00, the actually running time maybe 20:00 due to runner queue
+
   workflow_dispatch:
     inputs:
       tag:
@@ -164,3 +162,18 @@ jobs:
         run: |
           echo "🧹 Cleaning up resources..."
           rm -rf vsc-use temp-release
+
+  trigger-ui-test:
+    needs: build-and-push
+    if: ${{ success() }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger UI Test Workflow
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh workflow run ui-test-vscuse-template.yml \
+            --repo ${{ github.repository }} \
+            --ref ${{ github.ref }} \
+            -f image_tag=${{ github.event.inputs.tag || 'latest' }} \
+            -f schedule_trigger=${{ github.event.inputs.schedule_trigger || 'false' }}
