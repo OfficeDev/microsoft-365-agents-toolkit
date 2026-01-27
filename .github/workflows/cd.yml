@@ -38,7 +38,6 @@ on:
 permissions:
   actions: write
   contents: write
-  packages: write
 
 jobs:
   cd:
@@ -576,8 +575,14 @@ jobs:
   trigger-docker-build:
     needs: cd
     if: ${{ success() }}
-    uses: ./.github/workflows/vscuse-atk-docker-build.yml
-    with:
-      run_id: ${{ github.run_id }}
-      tag: ${{ inputs.series == '' && 'latest' || inputs.series }}
-    secrets: inherit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Docker Build Workflow
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh workflow run vscuse-atk-docker-build.yml \
+            --repo ${{ github.repository }} \
+            --ref ${{ github.ref }} \
+            -f run_id=${{ github.run_id }} \
+            -f tag=${{ inputs.series == '' && 'latest' || inputs.series }}
