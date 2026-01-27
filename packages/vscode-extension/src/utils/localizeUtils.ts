@@ -88,8 +88,9 @@ export function loadLocalizedStrings(): void {
   if (fs.pathExistsSync(nlsFile)) {
     loadedCollection = fs.readJsonSync(nlsFile) as Record<string, string> | undefined;
   } else {
-    if (loadedLocale !== "en" && loadedLocale !== "en-us") {
-      VsCodeLogInstance.error(
+    // English variants (en-gb, en-au, en-ca, etc.) safely fallback to default English strings
+    if (!loadedLocale.startsWith("en")) {
+      VsCodeLogInstance.info(
         `No localized strings file found for locale: ${loadedLocale}, will fallback to default one.`
       );
     }
