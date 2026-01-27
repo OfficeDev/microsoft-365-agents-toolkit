@@ -585,5 +585,5 @@ jobs:
             --repo ${{ github.repository }} \
             --ref ${{ github.ref }} \
             -f run_id=${{ github.run_id }} \
-            -f tag=${{ inputs.series == '' && 'latest' || inputs.series }}
+            -f tag=${{ inputs.series == '' && 'latest' || inputs.series }} \
             -f schedule_trigger=${{ github.event_name == 'schedule' }}
