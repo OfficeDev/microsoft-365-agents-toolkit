@@ -249,7 +249,7 @@ jobs:
           if [ -z "$IMAGE_TAG" ]; then
             IMAGE_TAG="latest"
           fi
-          VSCUSE_VSCODE_IMAGE="ghcr.io/microsoft/vscuse-atk-vscode:$IMAGE_TAG"
+          VSCUSE_VSCODE_IMAGE="ghcr.io/officedev/vscuse-atk-vscode:$IMAGE_TAG"
           echo "VSCUSE_VSCODE_IMAGE=$VSCUSE_VSCODE_IMAGE" >> $GITHUB_ENV
           echo "Pulling pre-built Docker image: $VSCUSE_VSCODE_IMAGE"
           docker pull $VSCUSE_VSCODE_IMAGE
@@ -360,8 +360,8 @@ jobs:
 
           # Stop and remove any containers using our image
           echo "Cleaning up VSCode containers..."
-          docker stop $(docker ps -q --filter "ancestor=ghcr.io/microsoft/vscuse-atk-vscode:${{ github.event.inputs.image_tag || 'latest' }}") 2>/dev/null || echo "No containers to stop"
-          docker rm $(docker ps -aq --filter "ancestor=ghcr.io/microsoft/vscuse-atk-vscode:${{ github.event.inputs.image_tag || 'latest' }}") 2>/dev/null || echo "No containers to remove"
+          docker stop $(docker ps -q --filter "ancestor=ghcr.io/officedev/vscuse-atk-vscode:${{ github.event.inputs.image_tag || 'latest' }}") 2>/dev/null || echo "No containers to stop"
+          docker rm $(docker ps -aq --filter "ancestor=ghcr.io/officedev/vscuse-atk-vscode:${{ github.event.inputs.image_tag || 'latest' }}") 2>/dev/null || echo "No containers to remove"
 
   rerun:
     permissions:
