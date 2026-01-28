@@ -15,11 +15,11 @@ on:
       run_id:
         description: 'Specific ATK workflow run ID to download VSIX from'
         required: false
-      schedule_trigger:
-        description: 'Whether the build is triggered by schedule'
+
+      run_test_cases:
+        description: 'Whether to trigger UI test after build'
         type: boolean
         default: false
-
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: officedev/vscuse-atk-vscode
@@ -90,10 +90,14 @@ jobs:
               filename=$(basename "$vsix_file")
               echo "Downloaded and copied: $filename"
             else
-              echo "No VSIX file found in release artifacts"
+              echo "❌ No VSIX file found in release artifacts"
+              rm -rf temp-release
+              exit 1
             fi
           else
-            echo "Failed to download artifacts, continuing with existing files"
+            echo "❌ Failed to download artifacts from workflow run $run_id"
+            rm -rf temp-release
+            exit 1
           fi
 
           # Clean up
@@ -165,8 +169,10 @@ jobs:
 
   trigger-ui-test:
     needs: build-and-push
-    if: ${{ success() }}
+    if: ${{ success() && github.event.inputs.run_test_cases == 'true' }}
     runs-on: ubuntu-latest
+    permissions:
+      actions: write
     steps:
       - name: Trigger UI Test Workflow
         env:
@@ -176,4 +182,4 @@ jobs:
             --repo ${{ github.repository }} \
             --ref ${{ github.ref }} \
             -f image_tag=${{ github.event.inputs.tag || 'latest' }} \
-            -f schedule_trigger=${{ github.event.inputs.schedule_trigger || 'false' }}
+            -f schedule_trigger=${{ github.event.inputs.run_test_cases || 'false' }}
