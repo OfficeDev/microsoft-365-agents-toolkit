@@ -32,6 +32,10 @@ on:
         type: boolean
         default: false
         description: "Whether to skip Markdown files and vulnerability check"
+      run_test_cases:
+        type: boolean
+        default: false
+        description: "Whether to run test cases after CD"
   schedule:
     - cron: "15 11 * * *"  # UTC+8 19:15 make sure the daily build generated before the daily test pipeline trigger
 
@@ -586,4 +590,4 @@ jobs:
             --ref ${{ github.ref }} \
             -f run_id=${{ github.run_id }} \
             -f tag=${{ inputs.series == '' && 'latest' || inputs.series }} \
-            -f schedule_trigger=${{ github.event_name == 'schedule' }}
+            -f run_test_cases=${{ github.event_name == 'schedule' || inputs.run_test_cases }}
