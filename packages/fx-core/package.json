@@ -147,7 +147,7 @@
     "shell-quote": "^1.8.1",
     "strip-bom": "^4.0.0",
     "swagger2openapi": "^7.0.8",
-    "tar": "^7.4.3",
+    "tar": "^7.5.7",
     "typedi": "^0.10.0",
     "uuid": "^8.3.2",
     "validator": "^13.7.0",
