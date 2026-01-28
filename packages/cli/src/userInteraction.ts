@@ -649,10 +649,14 @@ class CLIUserInteraction implements UserInteraction {
         env: args.env,
       });
       childProcess.stdout?.on("data", (data) => {
-        output += data.toString();
+        const str = data.toString();
+        process.stdout.write(str); // Real-time output to terminal
+        output += str;
       });
       childProcess.stderr?.on("data", (data) => {
-        output += data.toString();
+        const str = data.toString();
+        process.stderr.write(str); // Real-time output to terminal
+        output += str;
       });
       childProcess.on("close", (code: number) => {
         if (code === 0) {

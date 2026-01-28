@@ -367,6 +367,8 @@ describe("runCommand", () => {
     };
     sandbox.stub(process, "platform").value("win32");
     sandbox.stub(logger, "info").returns();
+    sandbox.stub(process.stdout, "write").returns(true);
+    sandbox.stub(process.stderr, "write").returns(true);
     sandbox.stub(child_process, "spawn").returns(mockChildProcess as any);
     const res = await UI.runCommand({ cmd: 'echo "test"' });
     assert.isTrue(res.isOk());
@@ -395,6 +397,8 @@ describe("runCommand", () => {
     };
     sandbox.stub(process, "platform").value("linux");
     sandbox.stub(logger, "info").returns();
+    sandbox.stub(process.stdout, "write").returns(true);
+    sandbox.stub(process.stderr, "write").returns(true);
     sandbox.stub(child_process, "spawn").returns(mockChildProcess as any);
     const res = await UI.runCommand({ cmd: 'echo "test"' });
     assert.isTrue(res.isOk());
@@ -428,6 +432,8 @@ describe("runCommand", () => {
     };
     sandbox.stub(process, "platform").value("linux");
     sandbox.stub(logger, "info").returns();
+    sandbox.stub(process.stdout, "write").returns(true);
+    sandbox.stub(process.stderr, "write").returns(true);
     sandbox.stub(child_process, "spawn").returns(mockChildProcess as any);
     const res = await UI.runCommand({ cmd: 'echo "test"' });
     assert.isTrue(res.isOk());
@@ -448,6 +454,8 @@ describe("runCommand", () => {
     };
     sandbox.stub(process, "platform").value("linux");
     sandbox.stub(logger, "info").returns();
+    sandbox.stub(process.stdout, "write").returns(true);
+    sandbox.stub(process.stderr, "write").returns(true);
     const spawnStub = sandbox.stub(child_process, "spawn").returns(mockChildProcess as any);
     const res = await UI.runCommand({ cmd: "pwd", workingDirectory: workingDir });
     assert.isTrue(res.isOk());
@@ -468,6 +476,8 @@ describe("runCommand", () => {
     };
     sandbox.stub(process, "platform").value("linux");
     sandbox.stub(logger, "info").returns();
+    sandbox.stub(process.stdout, "write").returns(true);
+    sandbox.stub(process.stderr, "write").returns(true);
     const spawnStub = sandbox.stub(child_process, "spawn").returns(mockChildProcess as any);
     const res = await UI.runCommand({ cmd: "sleep 1", timeout: timeout });
     assert.isTrue(res.isOk());
@@ -488,6 +498,8 @@ describe("runCommand", () => {
     };
     sandbox.stub(process, "platform").value("win32");
     sandbox.stub(logger, "info").returns();
+    sandbox.stub(process.stdout, "write").returns(true);
+    sandbox.stub(process.stderr, "write").returns(true);
     const spawnStub = sandbox.stub(child_process, "spawn").returns(mockChildProcess as any);
     const res = await UI.runCommand({ cmd: "echo %TEST_VAR%", env: envVars });
     assert.isTrue(res.isOk());
@@ -515,6 +527,8 @@ describe("runCommand", () => {
     sandbox.stub(process, "platform").value("linux");
     sandbox.stub(logger, "info").returns();
     sandbox.stub(logger, "error").returns();
+    sandbox.stub(process.stdout, "write").returns(true);
+    sandbox.stub(process.stderr, "write").returns(true);
     sandbox.stub(child_process, "spawn").returns(mockChildProcess as any);
     const res = await UI.runCommand({ cmd: "invalid-command" });
     assert.isTrue(res.isErr());
