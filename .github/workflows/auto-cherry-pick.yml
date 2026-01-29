@@ -1,4 +1,4 @@
-name: "Auto Cherry-pick"
+name: Auto Cherry-pick
 
 on:
   issues:
