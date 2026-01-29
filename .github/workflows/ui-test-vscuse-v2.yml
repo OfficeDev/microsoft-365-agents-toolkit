@@ -782,10 +782,10 @@ jobs:
 
       - name: Send E-mail
         uses: ./.github/actions/send-email-report-vscuse
-        env:
-          TO: ${{ steps.list-jobs.outputs.to }}
-          BODY: '"${{ steps.list-jobs.outputs.body }}"'
-          SUBJECT: ${{ steps.list-jobs.outputs.subject }}
-          MAIL_CLIENT_ID: ${{ secrets.TEST_CLEAN_CLIENT_ID }}
-          MAIL_CLIENT_SECRET: ${{ secrets.TEST_CLEAN_CLIENT_SECRET }}
-          MAIL_TENANT_ID: ${{ secrets.TEST_CLEAN_TENANT_ID }}
+        with:
+          to: ${{ steps.list-jobs.outputs.to }}
+          body: ${{ steps.list-jobs.outputs.body }}
+          subject: ${{ steps.list-jobs.outputs.subject }}
+          mail_client_id: ${{ secrets.TEST_CLEAN_CLIENT_ID }}
+          mail_client_secret: ${{ secrets.TEST_CLEAN_CLIENT_SECRET }}
+          mail_tenant_id: ${{ secrets.TEST_CLEAN_TENANT_ID }}
