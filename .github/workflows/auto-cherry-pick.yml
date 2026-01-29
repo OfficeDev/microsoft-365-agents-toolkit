@@ -1,0 +1,377 @@
+name: "Auto Cherry-pick"
+
+on:
+  issues:
+    types:
+      - opened
+      - labeled
+
+  # Manual trigger for testing
+  workflow_dispatch:
+    inputs:
+      issue_number:
+        description: "Issue number to process"
+        required: true
+        type: string
+      dry_run:
+        description: "Dry run mode (no actual push)"
+        required: false
+        type: boolean
+        default: true
+
+# Ensure only one workflow runs per issue to prevent duplicate cherry-picks
+concurrency:
+  group: cherry-pick-issue-${{ github.event.issue.number || github.event.inputs.issue_number }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  auto-cherry-pick:
+    if: ${{ (github.event_name == 'issues' && contains(github.event.issue.labels.*.name, 'cherry-pick-hotfix') && startsWith(github.event.issue.title, '[Cherry-pick]')) || github.event_name == 'workflow_dispatch' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Parse issue and perform cherry-picks
+        id: cherry-pick
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            // Get issue number from event or input
+            const issueNumber = context.eventName === 'workflow_dispatch' 
+              ? parseInt('${{ github.event.inputs.issue_number }}')
+              : context.payload.issue.number;
+            
+            // Fetch issue details
+            const { data: issue } = await github.rest.issues.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issueNumber
+            });
+            
+            const issueBody = issue.body;
+            console.log(`Processing issue #${issueNumber}: ${issue.title}`);
+            
+            // Validate issue format for workflow_dispatch
+            if (context.eventName === 'workflow_dispatch') {
+              const hasLabel = issue.labels.some(l => l.name === 'cherry-pick-hotfix');
+              if (!hasLabel || !issue.title.startsWith('[Cherry-pick]')) {
+                core.setFailed('Issue does not have cherry-pick-hotfix label or correct title format');
+                return;
+              }
+            }
+            
+            // Extract PR number from issue body
+            const prMatch = issueBody.match(/PR #(\d+)/);
+            if (!prMatch) {
+              core.setFailed('Could not find PR number in issue body');
+              return;
+            }
+            const prNumber = parseInt(prMatch[1]);
+            console.log(`Found PR number: ${prNumber}`);
+            
+            // Extract target branches from checkboxes
+            const branchRegex = /- \[ \] cherry-pick #\d+ to ([^\s\n]+)/g;
+            const targetBranches = [];
+            let match;
+            while ((match = branchRegex.exec(issueBody)) !== null) {
+              targetBranches.push(match[1]);
+            }
+            
+            if (targetBranches.length === 0) {
+              console.log('No unchecked target branches found');
+              return;
+            }
+            console.log(`Target branches: ${targetBranches.join(', ')}`);
+            
+            // Get the PR to find the merge commit
+            const { data: pr } = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: prNumber
+            });
+            
+            if (!pr.merged) {
+              core.setFailed(`PR #${prNumber} is not merged yet`);
+              return;
+            }
+            
+            const mergeCommitSha = pr.merge_commit_sha;
+            console.log(`Merge commit SHA: ${mergeCommitSha}`);
+            
+            // Output for next steps
+            core.setOutput('pr_number', prNumber);
+            core.setOutput('merge_commit_sha', mergeCommitSha);
+            core.setOutput('target_branches', targetBranches.join(','));
+            core.setOutput('issue_number', issueNumber);
+
+      - name: Setup Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Perform cherry-picks
+        id: perform-cherry-pick
+        env:
+          TARGET_BRANCHES: ${{ steps.cherry-pick.outputs.target_branches }}
+          MERGE_COMMIT_SHA: ${{ steps.cherry-pick.outputs.merge_commit_sha }}
+          PR_NUMBER: ${{ steps.cherry-pick.outputs.pr_number }}
+          DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [ -z "$TARGET_BRANCHES" ]; then
+            echo "No target branches to process"
+            exit 0
+          fi
+          
+          if [ "$DRY_RUN" == "true" ]; then
+            echo "🧪 DRY RUN MODE - No actual PRs will be created"
+          fi
+          
+          IFS=',' read -ra BRANCHES <<< "$TARGET_BRANCHES"
+          SUCCESS_BRANCHES=""
+          FAILED_BRANCHES=""
+          EMPTY_BRANCHES=""
+          CREATED_PRS=""
+          
+          for branch in "${BRANCHES[@]}"; do
+            echo "========================================"
+            echo "Processing branch: $branch"
+            echo "========================================"
+            
+            # Create a unique branch name for the cherry-pick PR
+            CHERRY_PICK_BRANCH="cherry-pick/pr-${PR_NUMBER}-to-${branch//\//-}"
+            echo "Cherry-pick branch: $CHERRY_PICK_BRANCH"
+            
+            # Fetch the target branch
+            git fetch origin "$branch" || {
+              echo "Failed to fetch branch $branch"
+              FAILED_BRANCHES="$FAILED_BRANCHES$branch (fetch failed),"
+              continue
+            }
+            
+            # Create new branch from target branch
+            git checkout -B "$CHERRY_PICK_BRANCH" "origin/$branch" || {
+              echo "Failed to create branch $CHERRY_PICK_BRANCH"
+              FAILED_BRANCHES="$FAILED_BRANCHES$branch (branch creation failed),"
+              continue
+            }
+            
+            # Cherry-pick the commit
+            CHERRY_PICK_OUTPUT=$(git cherry-pick "$MERGE_COMMIT_SHA" 2>&1) || {
+              # Check if it's an empty cherry-pick (no changes)
+              if echo "$CHERRY_PICK_OUTPUT" | grep -q "empty"; then
+                echo "Cherry-pick resulted in empty commit for $branch (changes already exist)"
+                git cherry-pick --skip 2>/dev/null || true
+                EMPTY_BRANCHES="$EMPTY_BRANCHES$branch,"
+                continue
+              else
+                echo "Cherry-pick failed for $branch: $CHERRY_PICK_OUTPUT"
+                FAILED_BRANCHES="$FAILED_BRANCHES$branch (cherry-pick conflict),"
+                git cherry-pick --abort 2>/dev/null || true
+                continue
+              fi
+            }
+            
+            # Check if there are actual changes
+            if git diff --quiet "origin/$branch" HEAD 2>/dev/null; then
+              echo "No file changes after cherry-pick for $branch"
+              EMPTY_BRANCHES="$EMPTY_BRANCHES$branch,"
+              continue
+            fi
+            
+            echo "Cherry-pick successful for $branch"
+            
+            # Push and create PR (skip in dry run mode)
+            if [ "$DRY_RUN" == "true" ]; then
+              echo "🧪 DRY RUN: Would create PR to $branch"
+              SUCCESS_BRANCHES="$SUCCESS_BRANCHES$branch,"
+            else
+              # Push the cherry-pick branch
+              if git push origin "$CHERRY_PICK_BRANCH" --force; then
+                echo "Push successful for $CHERRY_PICK_BRANCH"
+                
+                # Create PR using GitHub CLI
+                PR_TITLE="Cherry-pick PR #${PR_NUMBER} to ${branch}"
+                PR_BODY="This PR cherry-picks changes from PR #${PR_NUMBER} to the \`${branch}\` branch.
+
+Auto-generated by the cherry-pick workflow."
+                
+                PR_URL=$(gh pr create \
+                  --base "$branch" \
+                  --head "$CHERRY_PICK_BRANCH" \
+                  --title "$PR_TITLE" \
+                  --body "$PR_BODY" \
+                  --label "cherry-pick-hotfix" \
+                  2>&1) || {
+                  echo "Failed to create PR for $branch: $PR_URL"
+                  FAILED_BRANCHES="$FAILED_BRANCHES$branch (PR creation failed),"
+                  continue
+                }
+                
+                echo "Created PR: $PR_URL"
+                SUCCESS_BRANCHES="$SUCCESS_BRANCHES$branch,"
+                CREATED_PRS="$CREATED_PRS$PR_URL,"
+              else
+                echo "Push failed for $CHERRY_PICK_BRANCH"
+                FAILED_BRANCHES="$FAILED_BRANCHES$branch (push failed),"
+              fi
+            fi
+          done
+          
+          # Remove trailing commas
+          SUCCESS_BRANCHES="${SUCCESS_BRANCHES%,}"
+          FAILED_BRANCHES="${FAILED_BRANCHES%,}"
+          EMPTY_BRANCHES="${EMPTY_BRANCHES%,}"
+          CREATED_PRS="${CREATED_PRS%,}"
+          
+          echo "success_branches=$SUCCESS_BRANCHES" >> $GITHUB_OUTPUT
+          echo "failed_branches=$FAILED_BRANCHES" >> $GITHUB_OUTPUT
+          echo "empty_branches=$EMPTY_BRANCHES" >> $GITHUB_OUTPUT
+          echo "created_prs=$CREATED_PRS" >> $GITHUB_OUTPUT
+
+      - name: Update issue
+        uses: actions/github-script@v6
+        env:
+          SUCCESS_BRANCHES: ${{ steps.perform-cherry-pick.outputs.success_branches }}
+          FAILED_BRANCHES: ${{ steps.perform-cherry-pick.outputs.failed_branches }}
+          EMPTY_BRANCHES: ${{ steps.perform-cherry-pick.outputs.empty_branches }}
+          CREATED_PRS: ${{ steps.perform-cherry-pick.outputs.created_prs }}
+          PR_NUMBER: ${{ steps.cherry-pick.outputs.pr_number }}
+          ISSUE_NUMBER: ${{ steps.cherry-pick.outputs.issue_number }}
+          DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const issueNumber = parseInt(process.env.ISSUE_NUMBER);
+            const dryRun = process.env.DRY_RUN === 'true';
+            
+            // Fetch current issue body
+            const { data: issue } = await github.rest.issues.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issueNumber
+            });
+            let issueBody = issue.body;
+            const prNumber = process.env.PR_NUMBER;
+            
+            const successBranches = process.env.SUCCESS_BRANCHES ? process.env.SUCCESS_BRANCHES.split(',').filter(b => b) : [];
+            const failedBranches = process.env.FAILED_BRANCHES ? process.env.FAILED_BRANCHES.split(',').filter(b => b) : [];
+            const emptyBranches = process.env.EMPTY_BRANCHES ? process.env.EMPTY_BRANCHES.split(',').filter(b => b) : [];
+            const createdPrs = process.env.CREATED_PRS ? process.env.CREATED_PRS.split(',').filter(p => p) : [];
+            const emptyBranches = process.env.EMPTY_BRANCHES ? process.env.EMPTY_BRANCHES.split(',').filter(b => b) : [];
+            
+            console.log(`Success branches: ${successBranches.join(', ')}`);
+            console.log(`Failed branches: ${failedBranches.join(', ')}`);
+            console.log(`Empty branches (no changes): ${emptyBranches.join(', ')}`);
+            
+            // Update checkboxes for successful branches
+            for (const branch of successBranches) {
+              const pattern = new RegExp(`- \\[ \\] cherry-pick #${prNumber} to ${branch.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`, 'g');
+              issueBody = issueBody.replace(pattern, `- [x] cherry-pick #${prNumber} to ${branch}`);
+            }
+            
+            // Update checkboxes for empty branches (no file changes - already exists)
+            for (const branch of emptyBranches) {
+              const pattern = new RegExp(`- \\[ \\] cherry-pick #${prNumber} to ${branch.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`, 'g');
+              issueBody = issueBody.replace(pattern, `- [x] cherry-pick #${prNumber} to ${branch}`);
+            }
+            
+            // Add comment about the results
+            let comment = dryRun ? '### 🧪 Auto Cherry-pick Results (DRY RUN)\n\n' : '### 🤖 Auto Cherry-pick Results\n\n';
+            
+            if (dryRun) {
+              comment += '> ⚠️ This was a dry run. No actual changes were pushed.\n\n';
+            }
+            
+            if (successBranches.length > 0) {
+              comment += dryRun ? '#### ✅ Would create PRs for:\n' : '#### ✅ Created cherry-pick PRs for:\n';
+              for (let i = 0; i < successBranches.length; i++) {
+                const branch = successBranches[i];
+                const prUrl = createdPrs[i];
+                if (prUrl && !dryRun) {
+                  comment += `- \`${branch}\` → ${prUrl}\n`;
+                } else {
+                  comment += `- \`${branch}\`\n`;
+                }
+              }
+              comment += '\n';
+            }
+            
+            if (emptyBranches.length > 0) {
+              comment += '#### ⏭️ Skipped (no file changes, changes already exist):\n';
+              for (const branch of emptyBranches) {
+                comment += `- \`${branch}\`\n`;
+              }
+              comment += '\n';
+            }
+            
+            if (failedBranches.length > 0) {
+              comment += '#### ❌ Failed to cherry-pick to:\n';
+              for (const branch of failedBranches) {
+                comment += `- \`${branch}\`\n`;
+              }
+              comment += '\nPlease manually cherry-pick to these branches.\n';
+            }
+            
+            if (successBranches.length === 0 && failedBranches.length === 0 && emptyBranches.length === 0) {
+              comment += 'No branches to process or all branches were already checked.\n';
+            }
+            
+            // In dry run mode, only add comment, don't update issue body or close
+            if (dryRun) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNumber,
+                body: comment
+              });
+              console.log('Dry run completed. Issue not modified.');
+              return;
+            }
+            
+            // Update the issue body
+            await github.rest.issues.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issueNumber,
+              body: issueBody
+            });
+            
+            // Add a comment
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issueNumber,
+              body: comment
+            });
+            
+            // Check if all tasks are completed
+            const uncheckedPattern = /- \[ \] cherry-pick/g;
+            const hasUnchecked = uncheckedPattern.test(issueBody);
+            
+            if (!hasUnchecked && failedBranches.length === 0) {
+              // Close the issue if all cherry-picks are done
+              await github.rest.issues.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNumber,
+                state: 'closed'
+              });
+              
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNumber,
+                body: '🎉 All cherry-picks completed successfully! Closing this issue.'
+              });
+            }
