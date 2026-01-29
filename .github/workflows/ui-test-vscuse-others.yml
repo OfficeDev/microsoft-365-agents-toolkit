@@ -751,7 +751,7 @@ jobs:
           total=$((passed+failed))
           echo "Total jobs: $total, Passed: $passed, Failed: $failed"
 
-          subject="Vsc Use UI Test Report ($passed/$total Passed)"
+          subject="Vsc Use UI Test Report [Samples + Features] ($passed/$total Passed)"
           if [ $failed -gt 0 ]; then
             subject="[FAILED] $subject"
           else
