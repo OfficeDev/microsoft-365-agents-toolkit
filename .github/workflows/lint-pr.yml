@@ -289,70 +289,75 @@ jobs:
           echo "latest_vsc_release=$LATEST_NUM_RELEASE" >> $GITHUB_OUTPUT
           echo "latest_vs_release=$LATEST_VS_RELEASE" >> $GITHUB_OUTPUT
 
-      - name: Create Issue
-        uses: actions/github-script@v6
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }} # Use a PAT with the required permissions
-          script: |
-            const currentTarget = context.payload.pull_request.base.ref;
-            const latestVSCRelease = '${{ steps.get-latest-release.outputs.latest_vsc_release }}'.trim();
-            const latestVSRelease = '${{ steps.get-latest-release.outputs.latest_vs_release }}'.trim();
-            const prNumber = context.payload.pull_request.number;
-            const prTitle = context.payload.pull_request.title;
-            const prAuthor = context.payload.pull_request.user.login;
-            
-            let targetBranches = ['dev'];
-            if (latestVSCRelease && currentTarget !== latestVSCRelease) {
-              targetBranches.push(latestVSCRelease);
-            }
-            if (latestVSRelease && currentTarget !== latestVSRelease) {
-              targetBranches.push(latestVSRelease);
-            }
-            
-            // Create a separate issue for each target branch (copilot can only generate one PR per issue)
-            for (const targetBranch of targetBranches) {
-              const issueBody = `
-            ### Cherry-pick Reminder
-            
-            @${prAuthor} Hello!
-            
-            This is an automatically created reminder. Your PR #${prNumber} (\`${prTitle}\`) has been merged into the \`${currentTarget}\` branch.
-            
-            Please cherry-pick these changes to the \`${targetBranch}\` branch.
-            
-            #### Steps to Follow:
-            1. Execute the following commands locally:
-               \`\`\`bash
-               git fetch origin
-               git checkout ${targetBranch}
-               git cherry-pick <commit_hash>
-               git push origin ${targetBranch}
-               \`\`\`
-            2. Or create a new PR to merge these changes into the \`${targetBranch}\` branch.
-            
-            #### Important Notes:
-            - **If the cherry-pick PR has no changes** (e.g., the changes already exist in the target branch), please close this issue directly without creating a PR.
-            - This issue is assigned to Copilot for automated cherry-pick assistance.
-            
-            > Note: This is an automatically created issue. You can close this issue after completing the operation.
-            `;
-              
-              try {
-                const issue = await github.rest.issues.create({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  title: `[Cherry-pick] PR #${prNumber} to ${targetBranch} branch`,
-                  body: issueBody,
-                  labels: ['cherry-pick-hotfix'],
-                  assignees: [prAuthor, 'copilot-swe-agent[bot]'] // Add PR author and Copilot as assignees
-                });
+      - name: Create Cherry-pick Issues
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          CURRENT_TARGET="${{ github.event.pull_request.base.ref }}"
+          LATEST_VSC_RELEASE="${{ steps.get-latest-release.outputs.latest_vsc_release }}"
+          LATEST_VS_RELEASE="${{ steps.get-latest-release.outputs.latest_vs_release }}"
+          PR_NUMBER="${{ github.event.pull_request.number }}"
+          PR_TITLE="${{ github.event.pull_request.title }}"
+          PR_AUTHOR="${{ github.event.pull_request.user.login }}"
+          REPO="${{ github.repository }}"
+          
+          # Build target branches array
+          TARGET_BRANCHES=("dev")
+          if [ -n "$LATEST_VSC_RELEASE" ] && [ "$CURRENT_TARGET" != "$LATEST_VSC_RELEASE" ]; then
+            TARGET_BRANCHES+=("$LATEST_VSC_RELEASE")
+          fi
+          if [ -n "$LATEST_VS_RELEASE" ] && [ "$CURRENT_TARGET" != "$LATEST_VS_RELEASE" ]; then
+            TARGET_BRANCHES+=("$LATEST_VS_RELEASE")
+          fi
+          
+          # Create an issue for each target branch
+          for TARGET_BRANCH in "${TARGET_BRANCHES[@]}"; do
+            ISSUE_BODY="### Cherry-pick Reminder
 
-                console.log(`Created issue #${issue.data.number} for branch ${targetBranch}`);
-              } catch (error) {
-                console.log(`Error creating issue for branch ${targetBranch}:`, error);
-                core.setFailed(error.message);
-              }
-            }
+          @${PR_AUTHOR} Hello!
+
+          This is an automatically created reminder. Your PR #${PR_NUMBER} (\`${PR_TITLE}\`) has been merged into the \`${CURRENT_TARGET}\` branch.
+
+          Please cherry-pick these changes to the \`${TARGET_BRANCH}\` branch.
+
+          #### Steps to Follow:
+          1. Execute the following commands locally:
+             \`\`\`bash
+             git fetch origin
+             git checkout ${TARGET_BRANCH}
+             git cherry-pick <commit_hash>
+             git push origin ${TARGET_BRANCH}
+             \`\`\`
+          2. Or create a new PR to merge these changes into the \`${TARGET_BRANCH}\` branch.
+
+          #### Important Notes:
+          - **If the cherry-pick PR has no changes** (e.g., the changes already exist in the target branch), please close this issue directly without creating a PR.
+          - This issue is assigned to Copilot for automated cherry-pick assistance.
+
+          > Note: This is an automatically created issue. You can close this issue after completing the operation."
+
+            ISSUE_TITLE="[Cherry-pick] PR #${PR_NUMBER} to ${TARGET_BRANCH} branch"
+            
+            echo "Creating issue for branch: $TARGET_BRANCH"
+            
+            gh api \
+              --method POST \
+              -H "Accept: application/vnd.github+json" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              /repos/${REPO}/issues \
+              -f title="$ISSUE_TITLE" \
+              -f body="$ISSUE_BODY" \
+              -f "labels[]=cherry-pick-hotfix" \
+              -f "assignees[]=$PR_AUTHOR" \
+              -f "assignees[]=copilot-swe-agent[bot]" \
+              -f "agent_assignment[target_repo]=$REPO" \
+              -f "agent_assignment[base_branch]=$TARGET_BRANCH" \
+              -f "agent_assignment[custom_instructions]=Cherry-pick the changes from PR #${PR_NUMBER} to the ${TARGET_BRANCH} branch. If there are no changes needed, close this issue." \
+              -f "agent_assignment[custom_agent]=" \
+              -f "agent_assignment[model]="
+            
+            echo "Created issue for branch $TARGET_BRANCH"
+          done
 
   generate-changelog:
     runs-on: ubuntu-latest
