@@ -439,29 +439,12 @@ jobs:
                   }
                 } catch (error) {
                   console.log(`Error creating issue with GraphQL for branch ${targetBranch}:`, error);
-                  // Fallback to REST API without Copilot assignment
-                  const issue = await github.rest.issues.create({
-                    owner: repoOwner,
-                    repo: repoName,
-                    title: issueTitle,
-                    body: issueBody,
-                    labels: ['cherry-pick-hotfix'],
-                    assignees: [prAuthor]
-                  });
-                  console.log(`Fallback: Created issue #${issue.data.number} for branch ${targetBranch} (without Copilot)`);
+                  core.setFailed(`Failed to create issue with Copilot for branch ${targetBranch}`);
                 }
               } else {
-                // Fallback to REST API without Copilot assignment
-                console.log('Copilot agent not available, creating issue without Copilot assignment');
-                const issue = await github.rest.issues.create({
-                  owner: repoOwner,
-                  repo: repoName,
-                  title: issueTitle,
-                  body: issueBody,
-                  labels: ['cherry-pick-hotfix'],
-                  assignees: [prAuthor]
-                });
-                console.log(`Created issue #${issue.data.number} for branch ${targetBranch} (without Copilot)`);
+                // Skip issue creation if Copilot is not available
+                console.log('Copilot agent not available, skipping issue creation');
+                core.setFailed('Copilot agent not available. Please check if Copilot coding agent is enabled for this repository.');
               }
             }
 
