@@ -302,8 +302,6 @@ jobs:
             const prNumber = context.payload.pull_request.number;
             const prTitle = context.payload.pull_request.title;
             const prAuthor = context.payload.pull_request.user.login;
-            const repoOwner = context.repo.owner;
-            const repoName = context.repo.repo;
             
             let targetBranches = ['dev'];
             if (latestVSCRelease && currentTarget !== latestVSCRelease) {
@@ -313,58 +311,17 @@ jobs:
               targetBranches.push(latestVSRelease);
             }
             
-            // Query repo ID and copilot-swe-agent actor ID using GraphQL
-            const repoInfoQuery = `
-              query($owner: String!, $name: String!) {
-                repository(owner: $owner, name: $name) {
-                  id
-                  suggestedActors(capabilities: [CAN_BE_ASSIGNED], first: 100) {
-                    nodes {
-                      login
-                      __typename
-                      ... on Bot {
-                        id
-                      }
-                      ... on User {
-                        id
-                      }
-                    }
-                  }
-                }
-              }
-            `;
-            
-            let repoId = null;
-            let copilotActorId = null;
-            
-            try {
-              const repoInfo = await github.graphql(repoInfoQuery, {
-                owner: repoOwner,
-                name: repoName,
-              });
-              
-              repoId = repoInfo?.repository?.id;
-              const copilotBot = repoInfo?.repository?.suggestedActors?.nodes?.find(
-                node => node.login === 'copilot-swe-agent'
-              );
-              copilotActorId = copilotBot?.id;
-              
-              console.log(`Repository ID: ${repoId}`);
-              console.log(`Copilot Actor ID: ${copilotActorId}`);
-            } catch (error) {
-              console.log('Error querying repo info:', error);
-            }
-            
-            // Create an issue for each target branch
+            // Create a separate issue for each target branch (copilot can only generate one PR per issue)
             for (const targetBranch of targetBranches) {
-              const issueBody = `### Cherry-pick Reminder
-
+              const issueBody = `
+            ### Cherry-pick Reminder
+            
             @${prAuthor} Hello!
-
+            
             This is an automatically created reminder. Your PR #${prNumber} (\`${prTitle}\`) has been merged into the \`${currentTarget}\` branch.
-
+            
             Please cherry-pick these changes to the \`${targetBranch}\` branch.
-
+            
             #### Steps to Follow:
             1. Execute the following commands locally:
                \`\`\`bash
@@ -374,77 +331,28 @@ jobs:
                git push origin ${targetBranch}
                \`\`\`
             2. Or create a new PR to merge these changes into the \`${targetBranch}\` branch.
-
+            
             #### Important Notes:
             - **If the cherry-pick PR has no changes** (e.g., the changes already exist in the target branch), please close this issue directly without creating a PR.
             - This issue is assigned to Copilot for automated cherry-pick assistance.
+            
+            > Note: This is an automatically created issue. You can close this issue after completing the operation.
+            `;
+              
+              try {
+                const issue = await github.rest.issues.create({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  title: `[Cherry-pick] PR #${prNumber} to ${targetBranch} branch`,
+                  body: issueBody,
+                  labels: ['cherry-pick-hotfix'],
+                  assignees: [prAuthor, 'copilot-swe-agent'] // Add PR author and Copilot as assignees
+                });
 
-            > Note: This is an automatically created issue. You can close this issue after completing the operation.`;
-              
-              const issueTitle = `[Cherry-pick] PR #${prNumber} to ${targetBranch} branch`;
-              
-              console.log(`Creating issue for branch: ${targetBranch}`);
-              
-              if (repoId && copilotActorId) {
-                // Use GraphQL to create issue with Copilot assignment
-                const createIssueMutation = `
-                  mutation($repoId: ID!, $title: String!, $body: String!, $assigneeIds: [ID!]) {
-                    createIssue(input: { repositoryId: $repoId, title: $title, body: $body, assigneeIds: $assigneeIds }) {
-                      issue {
-                        number
-                        title
-                        url
-                        assignees(first: 10) { nodes { login } }
-                      }
-                    }
-                  }
-                `;
-                
-                try {
-                  // Get PR author's user ID
-                  const userQuery = `
-                    query($login: String!) {
-                      user(login: $login) {
-                        id
-                      }
-                    }
-                  `;
-                  const userInfo = await github.graphql(userQuery, { login: prAuthor });
-                  const prAuthorId = userInfo?.user?.id;
-                  
-                  const assigneeIds = [copilotActorId];
-                  if (prAuthorId) {
-                    assigneeIds.push(prAuthorId);
-                  }
-                  
-                  const response = await github.graphql(createIssueMutation, {
-                    repoId,
-                    title: issueTitle,
-                    body: issueBody,
-                    assigneeIds: assigneeIds,
-                  });
-                  
-                  const issue = response?.createIssue?.issue;
-                  if (issue) {
-                    console.log(`Created issue #${issue.number} for branch ${targetBranch}: ${issue.url}`);
-                    console.log(`Assignees: ${issue.assignees.nodes.map(n => n.login).join(', ')}`);
-                    
-                    // Add label using REST API (GraphQL createIssue doesn't support labels directly)
-                    await github.rest.issues.addLabels({
-                      owner: repoOwner,
-                      repo: repoName,
-                      issue_number: issue.number,
-                      labels: ['cherry-pick-hotfix']
-                    });
-                  }
-                } catch (error) {
-                  console.log(`Error creating issue with GraphQL for branch ${targetBranch}:`, error);
-                  core.setFailed(`Failed to create issue with Copilot for branch ${targetBranch}`);
-                }
-              } else {
-                // Skip issue creation if Copilot is not available
-                console.log('Copilot agent not available, skipping issue creation');
-                core.setFailed('Copilot agent not available. Please check if Copilot coding agent is enabled for this repository.');
+                console.log(`Created issue #${issue.data.number} for branch ${targetBranch}`);
+              } catch (error) {
+                console.log(`Error creating issue for branch ${targetBranch}:`, error);
+                core.setFailed(error.message);
               }
             }
 
