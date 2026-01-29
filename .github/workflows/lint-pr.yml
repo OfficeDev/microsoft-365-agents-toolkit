@@ -321,7 +321,13 @@ jobs:
                   suggestedActors(capabilities: [CAN_BE_ASSIGNED], first: 100) {
                     nodes {
                       login
-                      id
+                      __typename
+                      ... on Bot {
+                        id
+                      }
+                      ... on User {
+                        id
+                      }
                     }
                   }
                 }
