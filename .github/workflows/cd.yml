@@ -236,7 +236,9 @@ jobs:
           sudo wget -NP /etc/apt/sources.list.d/ https://dl.winehq.org/wine-builds/ubuntu/dists/jammy/winehq-jammy.sources
           sudo apt update
           sudo apt install --install-recommends winehq-stable -y
+          sudo ln -s /usr/bin/wine /usr/bin/wine64
           wine --version
+          wine64 --version
 
       - name: Setup npm registry
         run: |
