@@ -344,7 +344,7 @@ jobs:
                   title: `[Cherry-pick] PR #${prNumber} to ${targetBranch} branch`,
                   body: issueBody,
                   labels: ['cherry-pick-hotfix'],
-                  assignees: [prAuthor, 'copilot'] // Add PR author and Copilot as assignees
+                  assignees: [prAuthor, 'copilot-swe-agent[bot]'] // Add PR author and Copilot as assignees
                 });
 
                 console.log(`Created issue #${issue.data.number} for branch ${targetBranch}`);
