@@ -121,7 +121,7 @@ describe("Generator utils", () => {
 
   it("return rc if set env rc", async () => {
     mockedEnvRestore = mockedEnv({
-      TEAMSFX_TEMPLATE_PRERELEASE: "rc",
+      TEMPLATE_VERSION: "0.0.0-rc",
     });
     const tagList = "1.0.0\n 2.0.0\n 2.1.0\n 3.0.0\n 0.0.0-rc";
     sandbox.stub(templateHelper, "useLocalTemplate").returns(false);

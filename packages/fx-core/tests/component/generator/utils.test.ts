@@ -1,19 +1,19 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
+import { DeclarativeAgentManifest, Platform, err, ok, signedIn } from "@microsoft/teamsfx-api";
 import { assert } from "chai";
-import * as sinon from "sinon";
 import "mocha";
-import {
-  getTemplateZipUrlByVersion,
-  getTemplateUrl,
-  setGeneralSensitivityLabel,
-} from "../../../src/component/generator/utils";
-import { Platform, ok, signedIn, DeclarativeAgentManifest, err } from "@microsoft/teamsfx-api";
 import mockedEnv from "mocked-env";
 import proxyquire from "proxyquire";
+import * as sinon from "sinon";
+import { GraphClient } from "../../../src/client/graphClient";
 import { createContext, setTools } from "../../../src/common/globalVars";
 import { copilotGptManifestUtils } from "../../../src/component/driver/teamsApp/utils/CopilotGptManifestUtils";
-import { GraphClient } from "../../../src/client/graphClient";
+import {
+  getTemplateUrl,
+  getTemplateZipUrlByVersion,
+  setGeneralSensitivityLabel,
+} from "../../../src/component/generator/utils";
 import { MockTools } from "../../core/utils";
 
 describe("utils unit test cases", () => {
@@ -99,7 +99,7 @@ describe("utils unit test cases", () => {
 
   it("should return the correct URL for getTemplateVSCUrl", async () => {
     const restore = mockedEnv({
-      TEAMSFX_TEMPLATE_PRERELEASE: "rc",
+      TEMPLATE_VERSION: "0.0.0-rc",
     });
     const getLatestVersion = () => Promise.resolve("0.0.0-rc");
     const result = await getTemplateUrl("ts", getLatestVersion, Platform.VSCode);
@@ -111,7 +111,7 @@ describe("utils unit test cases", () => {
 
   it("should return undefined for use local template for getTemplateVSCUrl", async () => {
     const restore = mockedEnv({
-      TEAMSFX_TEMPLATE_PRERELEASE: "",
+      TEMPLATE_VERSION: "local",
     });
     const getLatestVersion = () => Promise.resolve("0.0.0-rc");
     const result = await getTemplateUrl("ts", getLatestVersion, Platform.VSCode);

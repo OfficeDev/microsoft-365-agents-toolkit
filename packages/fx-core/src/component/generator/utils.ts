@@ -55,6 +55,7 @@ async function getTemplateVSCUrl(
       templateConfig.tagPrefix
     );
   }
+
   const version: string = packageJson.version;
   if (version.includes("alpha")) {
     // daily build version
