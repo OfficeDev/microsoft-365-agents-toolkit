@@ -6,7 +6,7 @@ import * as chai from "chai";
 import "mocha";
 import * as sinon from "sinon";
 import { v4 as uuid } from "uuid";
-import { getAppStudioEndpoint } from "../../src/common/constants";
+import { getResourceServiceEndpoint, ResourceServiceType } from "../../src/common/constants";
 import { setTools } from "../../src/common/globalVars";
 import { WrappedAxiosClient } from "../../src/common/wrappedAxiosClient";
 import { APP_STUDIO_API_NAMES } from "../../src/component/driver/teamsApp/constants";
@@ -43,7 +43,7 @@ describe("Wrapped Axios Client Test", () => {
 
     const mockedRequest = {
       method: "POST",
-      baseURL: getAppStudioEndpoint(),
+      baseURL: getResourceServiceEndpoint(ResourceServiceType.TDP),
       url: "/amer/api/appdefinitions/v2/import",
       params: {
         overwriteIfAppAlreadyExists: true,
@@ -56,7 +56,7 @@ describe("Wrapped Axios Client Test", () => {
     const mockedResponse = {
       request: {
         method: "GET",
-        host: getAppStudioEndpoint(),
+        host: getResourceServiceEndpoint(ResourceServiceType.TDP),
         path: "/api/appdefinitions/manifest",
       },
       config: {
@@ -70,7 +70,7 @@ describe("Wrapped Axios Client Test", () => {
     const mockedError = {
       request: {
         method: "GET",
-        host: getAppStudioEndpoint(),
+        host: getResourceServiceEndpoint(ResourceServiceType.TDP),
         path: "/api/appdefinitions/fakeId",
       },
       config: {
@@ -91,7 +91,7 @@ describe("Wrapped Axios Client Test", () => {
 
     const mockedRequest = {
       method: "POST",
-      baseURL: getAppStudioEndpoint(),
+      baseURL: getResourceServiceEndpoint(ResourceServiceType.TDP),
       url: "/amer/api/appdefinitions/v2/import",
       params: {
         overwriteIfAppAlreadyExists: true,
@@ -104,7 +104,7 @@ describe("Wrapped Axios Client Test", () => {
     const mockedResponse = {
       request: {
         method: "GET",
-        host: getAppStudioEndpoint(),
+        host: getResourceServiceEndpoint(ResourceServiceType.TDP),
         path: "/api/appdefinitions/manifest",
       },
       config: {
@@ -118,7 +118,7 @@ describe("Wrapped Axios Client Test", () => {
     const mockedError = {
       request: {
         method: "GET",
-        host: getAppStudioEndpoint(),
+        host: getResourceServiceEndpoint(ResourceServiceType.TDP),
         path: "/api/appdefinitions/fakeId",
       },
       config: {},
@@ -135,7 +135,7 @@ describe("Wrapped Axios Client Test", () => {
   it("TDP API start telemetry", async () => {
     const mockedRequest = {
       method: "POST",
-      baseURL: getAppStudioEndpoint(),
+      baseURL: getResourceServiceEndpoint(ResourceServiceType.TDP),
       url: "/amer/api/appdefinitions/v2/import",
       params: {
         overwriteIfAppAlreadyExists: true,
@@ -168,7 +168,7 @@ describe("Wrapped Axios Client Test", () => {
     const mockedResponse = {
       request: {
         method: "GET",
-        host: getAppStudioEndpoint(),
+        host: getResourceServiceEndpoint(ResourceServiceType.TDP),
         path: "/api/appdefinitions/manifest",
       },
       config: {
@@ -206,7 +206,7 @@ describe("Wrapped Axios Client Test", () => {
     const mockedError = {
       request: {
         method: "GET",
-        host: getAppStudioEndpoint(),
+        host: getResourceServiceEndpoint(ResourceServiceType.TDP),
         path: "/api/appdefinitions/fakeId",
       },
       config: {},
@@ -288,7 +288,7 @@ describe("Wrapped Axios Client Test", () => {
   it("Create bot API start telemetry", async () => {
     const mockedRequest = {
       method: "POST",
-      baseURL: getAppStudioEndpoint(),
+      baseURL: getResourceServiceEndpoint(ResourceServiceType.TDP),
       url: "/api/botframework",
       params: {},
       status: 200,
@@ -305,7 +305,7 @@ describe("Wrapped Axios Client Test", () => {
   it("Update bot API start telemetry", async () => {
     const mockedRequest = {
       method: "POST",
-      baseURL: getAppStudioEndpoint(),
+      baseURL: getResourceServiceEndpoint(ResourceServiceType.TDP),
       url: `/api/botframework/${uuid()}`,
       params: {},
       status: 200,
@@ -321,158 +321,174 @@ describe("Wrapped Axios Client Test", () => {
     const fakeId = uuid();
 
     let apiName = WrappedAxiosClient.convertUrlToApiName(
-      getAppStudioEndpoint() + "/api/appdefinitions/partnerCenterAppPackageValidation",
+      getResourceServiceEndpoint(ResourceServiceType.TDP) +
+        "/api/appdefinitions/partnerCenterAppPackageValidation",
       "POST"
     );
     chai.assert.equal(apiName, APP_STUDIO_API_NAMES.VALIDATE_APP_PACKAGE);
 
     apiName = WrappedAxiosClient.convertUrlToApiName(
-      getAppStudioEndpoint() + `/api/appdefinitions/${fakeId}/manifest`,
+      getResourceServiceEndpoint(ResourceServiceType.TDP) +
+        `/api/appdefinitions/${fakeId}/manifest`,
       "GET"
     );
     chai.assert.equal(apiName, APP_STUDIO_API_NAMES.GET_APP_PACKAGE);
 
     apiName = WrappedAxiosClient.convertUrlToApiName(
-      getAppStudioEndpoint() + `/api/appdefinitions/${fakeId}/owner`,
+      getResourceServiceEndpoint(ResourceServiceType.TDP) + `/api/appdefinitions/${fakeId}/owner`,
       "POST"
     );
     chai.assert.equal(apiName, APP_STUDIO_API_NAMES.UPDATE_OWNER);
 
     apiName = WrappedAxiosClient.convertUrlToApiName(
-      getAppStudioEndpoint() + `/api/appdefinitions/${fakeId}`,
+      getResourceServiceEndpoint(ResourceServiceType.TDP) + `/api/appdefinitions/${fakeId}`,
       "GET"
     );
     chai.assert.equal(apiName, APP_STUDIO_API_NAMES.GET_APP);
 
     apiName = WrappedAxiosClient.convertUrlToApiName(
-      getAppStudioEndpoint() + `/api/appdefinitions/${fakeId}`,
+      getResourceServiceEndpoint(ResourceServiceType.TDP) + `/api/appdefinitions/${fakeId}`,
       "DELETE"
     );
     chai.assert.equal(apiName, APP_STUDIO_API_NAMES.DELETE_APP);
 
     apiName = WrappedAxiosClient.convertUrlToApiName(
-      getAppStudioEndpoint() + `/api/publishing/${fakeId}`,
+      getResourceServiceEndpoint(ResourceServiceType.TDP) + `/api/publishing/${fakeId}`,
       "GET"
     );
     chai.assert.equal(apiName, APP_STUDIO_API_NAMES.GET_PUBLISHED_APP);
 
     apiName = WrappedAxiosClient.convertUrlToApiName(
-      getAppStudioEndpoint() + `/api/publishing`,
+      getResourceServiceEndpoint(ResourceServiceType.TDP) + `/api/publishing`,
       "POST"
     );
     chai.assert.equal(apiName, APP_STUDIO_API_NAMES.PUBLISH_APP);
 
     apiName = WrappedAxiosClient.convertUrlToApiName(
-      getAppStudioEndpoint() + `/api/publishing/${fakeId}/appdefinitions`,
+      getResourceServiceEndpoint(ResourceServiceType.TDP) +
+        `/api/publishing/${fakeId}/appdefinitions`,
       "POST"
     );
     chai.assert.equal(apiName, APP_STUDIO_API_NAMES.UPDATE_PUBLISHED_APP);
 
     apiName = WrappedAxiosClient.convertUrlToApiName(
-      getAppStudioEndpoint() + `/api/usersettings/mtUserAppPolicy`,
+      getResourceServiceEndpoint(ResourceServiceType.TDP) + `/api/usersettings/mtUserAppPolicy`,
       "GET"
     );
     chai.assert.equal(apiName, APP_STUDIO_API_NAMES.CHECK_SIDELOADING_STATUS);
 
     apiName = WrappedAxiosClient.convertUrlToApiName(
-      getAppStudioEndpoint() + `/api/v1.0/apiSecretRegistrations/${fakeId}`,
+      getResourceServiceEndpoint(ResourceServiceType.TDP) +
+        `/api/v1.0/apiSecretRegistrations/${fakeId}`,
       "GET"
     );
     chai.assert.equal(apiName, APP_STUDIO_API_NAMES.GET_API_KEY);
 
     apiName = WrappedAxiosClient.convertUrlToApiName(
-      getAppStudioEndpoint() + `/api/v1.0/apiSecretRegistrations/${fakeId}`,
+      getResourceServiceEndpoint(ResourceServiceType.TDP) +
+        `/api/v1.0/apiSecretRegistrations/${fakeId}`,
       "PATCH"
     );
     chai.assert.equal(apiName, APP_STUDIO_API_NAMES.UPDATE_API_KEY);
 
     apiName = WrappedAxiosClient.convertUrlToApiName(
-      getAppStudioEndpoint() + `/api/v1.0/apiSecretRegistrations`,
+      getResourceServiceEndpoint(ResourceServiceType.TDP) + `/api/v1.0/apiSecretRegistrations`,
       "POST"
     );
     chai.assert.equal(apiName, APP_STUDIO_API_NAMES.CREATE_API_KEY);
 
     apiName = WrappedAxiosClient.convertUrlToApiName(
-      getAppStudioEndpoint() + `/api/botframework/${fakeId}`,
+      getResourceServiceEndpoint(ResourceServiceType.TDP) + `/api/botframework/${fakeId}`,
       "GET"
     );
     chai.assert.equal(apiName, APP_STUDIO_API_NAMES.GET_BOT);
 
     apiName = WrappedAxiosClient.convertUrlToApiName(
-      getAppStudioEndpoint() + `/api/botframework/${fakeId}`,
+      getResourceServiceEndpoint(ResourceServiceType.TDP) + `/api/botframework/${fakeId}`,
       "POST"
     );
     chai.assert.equal(apiName, APP_STUDIO_API_NAMES.UPDATE_BOT);
 
     apiName = WrappedAxiosClient.convertUrlToApiName(
-      getAppStudioEndpoint() + `/api/botframework/${fakeId}`,
+      getResourceServiceEndpoint(ResourceServiceType.TDP) + `/api/botframework/${fakeId}`,
       "DELETE"
     );
     chai.assert.equal(apiName, APP_STUDIO_API_NAMES.DELETE_BOT);
 
     apiName = WrappedAxiosClient.convertUrlToApiName(
-      getAppStudioEndpoint() + `/api/botframework`,
+      getResourceServiceEndpoint(ResourceServiceType.TDP) + `/api/botframework`,
       "GET"
     );
     chai.assert.equal(apiName, APP_STUDIO_API_NAMES.LIST_BOT);
 
     apiName = WrappedAxiosClient.convertUrlToApiName(
-      getAppStudioEndpoint() + `/api/aadapp/v2`,
+      getResourceServiceEndpoint(ResourceServiceType.TDP) + `/api/aadapp/v2`,
       "POST"
     );
     chai.assert.equal(apiName, APP_STUDIO_API_NAMES.CREATE_AAD_APP);
 
     apiName = WrappedAxiosClient.convertUrlToApiName(
-      getAppStudioEndpoint() + `/api/botframework`,
+      getResourceServiceEndpoint(ResourceServiceType.TDP) + `/api/botframework`,
       "POST"
     );
     chai.assert.equal(apiName, APP_STUDIO_API_NAMES.CREATE_BOT);
 
     apiName = WrappedAxiosClient.convertUrlToApiName(
-      getAppStudioEndpoint() + `/api/v1.0/appvalidations/appdefinition/validate`,
+      getResourceServiceEndpoint(ResourceServiceType.TDP) +
+        `/api/v1.0/appvalidations/appdefinition/validate`,
       "POST"
     );
     chai.assert.equal(apiName, APP_STUDIO_API_NAMES.SUBMIT_APP_VALIDATION);
 
     apiName = WrappedAxiosClient.convertUrlToApiName(
-      getAppStudioEndpoint() +
+      getResourceServiceEndpoint(ResourceServiceType.TDP) +
         `/api/v1.0/appvalidations/appdefinitions/efe81961-44bc-49ae-99f8-1476caef994c`,
       "GET"
     );
     chai.assert.equal(apiName, APP_STUDIO_API_NAMES.GET_APP_VALIDATION_REQUESTS);
 
     apiName = WrappedAxiosClient.convertUrlToApiName(
-      getAppStudioEndpoint() + `/api/v1.0/appvalidations/2512d616-8aac-461f-8af0-23e9b09ec650`,
+      getResourceServiceEndpoint(ResourceServiceType.TDP) +
+        `/api/v1.0/appvalidations/2512d616-8aac-461f-8af0-23e9b09ec650`,
       "GET"
     );
     chai.assert.equal(apiName, APP_STUDIO_API_NAMES.GET_APP_VALIDATION_RESULT);
 
     apiName = WrappedAxiosClient.convertUrlToApiName(
-      getAppStudioEndpoint() + `/api/v1.0/oAuthConfigurations`,
+      getResourceServiceEndpoint(ResourceServiceType.TDP) + `/api/v1.0/oAuthConfigurations`,
       "POST"
     );
     chai.assert.equal(apiName, APP_STUDIO_API_NAMES.CREATE_OAUTH);
 
     apiName = WrappedAxiosClient.convertUrlToApiName(
-      getAppStudioEndpoint() + `/api/v1.0/oAuthConfigurations/${fakeId}`,
+      getResourceServiceEndpoint(ResourceServiceType.TDP) +
+        `/api/v1.0/oAuthConfigurations/${fakeId}`,
       "GET"
     );
     chai.assert.equal(apiName, APP_STUDIO_API_NAMES.GET_OAUTH);
 
     apiName = WrappedAxiosClient.convertUrlToApiName(
-      getAppStudioEndpoint() + `/api/v1.0/oAuthConfigurations/${fakeId}`,
+      getResourceServiceEndpoint(ResourceServiceType.TDP) +
+        `/api/v1.0/oAuthConfigurations/${fakeId}`,
       "PATCH"
     );
     chai.assert.equal(apiName, APP_STUDIO_API_NAMES.UPDATE_OAUTH);
 
     apiName = WrappedAxiosClient.convertUrlToApiName(
-      getAppStudioEndpoint() + `/api/v1.0/oAuthConfigurations/${fakeId}`,
+      getResourceServiceEndpoint(ResourceServiceType.TDP) +
+        `/api/v1.0/oAuthConfigurations/${fakeId}`,
       ""
     );
     chai.assert.notEqual(apiName, APP_STUDIO_API_NAMES.UPDATE_OAUTH);
 
-    apiName = WrappedAxiosClient.convertUrlToApiName(getAppStudioEndpoint() + `unknown`, "GET");
-    chai.assert.equal(apiName, (getAppStudioEndpoint() + `unknown`).replace(/\//g, `-`));
+    apiName = WrappedAxiosClient.convertUrlToApiName(
+      getResourceServiceEndpoint(ResourceServiceType.TDP) + `unknown`,
+      "GET"
+    );
+    chai.assert.equal(
+      apiName,
+      (getResourceServiceEndpoint(ResourceServiceType.TDP) + `unknown`).replace(/\//g, `-`)
+    );
 
     apiName = WrappedAxiosClient.convertUrlToApiName(
       "https://authsvc.teams.microsoft.com/v1.0/users/region",
