@@ -99,7 +99,7 @@ export class TeamsDevPortalClient {
       return;
     }
     const requester = WrappedAxiosClient.create({
-      baseURL: "https://teams.microsoft.com/api/authsvc",
+      baseURL: getResourceServiceEndpoint(ResourceServiceType.AuthSvc),
     });
     requester.defaults.headers.common["Authorization"] = `Bearer ${authSvcToken}`;
     requester.defaults.headers.common["Client-Source"] = "teamstoolkit";

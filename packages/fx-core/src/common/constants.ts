@@ -67,6 +67,7 @@ export function getResourceGroupInPortal(
 
 export enum ResourceServiceType {
   AuthSvc = "AuthSvc",
+  AuthSvcAud = "AuthSvcAud",
   TDP = "TDP",
   MOS3 = "MOS3",
   Graph = "Graph",
@@ -78,29 +79,33 @@ export const serviceEndpoints: Record<
   Record<ResourceServiceType, string>
 > = {
   [SovereignCloudEnvironment.Public]: {
-    [ResourceServiceType.AuthSvc]: "https://api.spaces.skype.com",
+    [ResourceServiceType.AuthSvc]: "https://teams.microsoft.com/api/authsvc",
+    [ResourceServiceType.AuthSvcAud]: "https://api.spaces.skype.com",
     [ResourceServiceType.TDP]: "https://dev.teams.microsoft.com",
     [ResourceServiceType.MOS3]: "https://titles.prod.mos.microsoft.com",
     [ResourceServiceType.Graph]: "https://graph.microsoft.com",
     [ResourceServiceType.Azure]: "https://management.azure.com",
   },
   [SovereignCloudEnvironment.GCCM]: {
-    [ResourceServiceType.AuthSvc]: "https://api.spaces.skype.com",
+    [ResourceServiceType.AuthSvc]: "https://teams.microsoft.com/api/authsvc",
+    [ResourceServiceType.AuthSvcAud]: "https://api.spaces.skype.com",
     [ResourceServiceType.TDP]: "https://dev.teams.microsoft.com",
     [ResourceServiceType.MOS3]: "https://titles.gccm.mos.microsoft.com",
     [ResourceServiceType.Graph]: "https://graph.microsoft.com",
     [ResourceServiceType.Azure]: "https://management.azure.com",
   },
   [SovereignCloudEnvironment.GCCH]: {
-    [ResourceServiceType.AuthSvc]: "https://api.spaces.skype.com",
-    [ResourceServiceType.TDP]: "https://dev.gov.teams.microsoft.us",
+    [ResourceServiceType.AuthSvc]: "https://gov.teams.microsoft.us/api/authsvc",
+    [ResourceServiceType.AuthSvcAud]: "https://api.spaces.skype.com",
+    [ResourceServiceType.TDP]: "https://gov.dev.teams.microsoft.us",
     [ResourceServiceType.MOS3]: "https://titles.gcch.mos.svc.usgovcloud.microsoft",
     [ResourceServiceType.Graph]: "https://graph.microsoft.us",
     [ResourceServiceType.Azure]: "https://management.usgovcloudapi.net",
   },
   [SovereignCloudEnvironment.DOD]: {
-    [ResourceServiceType.AuthSvc]: "https://api.spaces.skype.com",
-    [ResourceServiceType.TDP]: "https://dev.dod.teams.microsoft.us",
+    [ResourceServiceType.AuthSvc]: "https://dod.teams.microsoft.us/api/authsvc",
+    [ResourceServiceType.AuthSvcAud]: "https://api.spaces.skype.com",
+    [ResourceServiceType.TDP]: "https://dod.dev.teams.microsoft.us",
     [ResourceServiceType.MOS3]: "https://titles.dod.mos.svc.usgovcloud.microsoft",
     [ResourceServiceType.Graph]: "https://dod-graph.microsoft.us",
     [ResourceServiceType.Azure]: "https://management.usgovcloudapi.net",
@@ -121,7 +126,7 @@ export function getResourceServiceEndpoint(resourceServiceType: ResourceServiceT
 
 // AuthSvc
 export const AuthSvcScopes = () => {
-  return [`${getResourceServiceEndpoint(ResourceServiceType.AuthSvc)}/Region.ReadWrite`];
+  return [`${getResourceServiceEndpoint(ResourceServiceType.AuthSvcAud)}/Region.ReadWrite`];
 };
 
 // TDP
