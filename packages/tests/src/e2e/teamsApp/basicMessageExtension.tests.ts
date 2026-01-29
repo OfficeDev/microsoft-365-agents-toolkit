@@ -171,8 +171,8 @@ describe("Basic Message Extension", function () {
       assert.exists(response, "Web app settings should exist");
       assert.equal(
         response["WEBSITE_NODE_DEFAULT_VERSION"],
-        "~20",
-        "Node version should be 20"
+        "~22",
+        "Node version should be 22"
       );
       assert.equal(
         response["WEBSITE_RUN_FROM_PACKAGE"],

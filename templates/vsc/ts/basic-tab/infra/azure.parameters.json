@@ -6,7 +6,7 @@
         "value": "tab${{RESOURCE_SUFFIX}}"
       },
       "webAppSku": {
-        "value": "F1"
+        "value": "B1"
       }
     }
   }

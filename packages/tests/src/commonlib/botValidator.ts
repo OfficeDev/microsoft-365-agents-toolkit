@@ -96,10 +96,10 @@ export class BotValidator {
       ctx[EnvConstants.AZURE_APP_SERVICE_RESOURCE_ID];
     const botResourceId = ctx[EnvConstants.BOT_ID];
     const resourceId =
+      azureAppServiceResourceId ||
       botWebAppResourceId ||
       botFunctionAppResourceId ||
-      botResourceId ||
-      azureAppServiceResourceId;
+      botResourceId;
     return resourceId;
   }
 
