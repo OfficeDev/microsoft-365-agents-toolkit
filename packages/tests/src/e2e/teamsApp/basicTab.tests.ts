@@ -133,17 +133,8 @@ describe("Basic Tab", function () {
       context = await readContextMultiEnvV3(projectPath, envName);
       assert.exists(context, "env file should exist");
 
-      // validate m365
-      assert.isDefined(
-        context.M365_TITLE_ID,
-        "m365 title id should be defined"
-      );
-      assert.isNotEmpty(context.M365_TITLE_ID);
-      assert.isDefined(context.M365_APP_ID, "m365 app id should be defined");
-      assert.isNotEmpty(context.M365_APP_ID);
-
       const appServiceResourceId =
-        context[EnvConstants.TAB_AZURE_APP_SERVICE_RESOURCE_ID];
+        context[EnvConstants.AZURE_APP_SERVICE_RESOURCE_ID];
       assert.exists(
         appServiceResourceId,
         "Azure App Service resource ID should exist"
