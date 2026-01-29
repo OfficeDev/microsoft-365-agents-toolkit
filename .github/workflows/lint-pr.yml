@@ -265,7 +265,7 @@ jobs:
             }
 
   create-cherry-pick-issue:
-    if: ${{ github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true && startsWith(github.event.pull_request.base.ref, 'release') && !contains(github.event.pull_request.labels.*.name, 'cherry-pick-hotfix') }}
+    if: ${{ github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true && startsWith(github.event.pull_request.base.ref, 'quketest') && !contains(github.event.pull_request.labels.*.name, 'cherry-pick-hotfix') }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
