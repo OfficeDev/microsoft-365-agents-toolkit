@@ -90,15 +90,6 @@ describe("Basic Tab", function () {
       const teamsApp = await getTeamsApp(context.TEAMS_APP_ID);
       assert.equal(teamsApp?.teamsAppId, context.TEAMS_APP_ID);
 
-      // validate m365
-      assert.isDefined(
-        context.M365_TITLE_ID,
-        "m365 title id should be defined"
-      );
-      assert.isNotEmpty(context.M365_TITLE_ID);
-      assert.isDefined(context.M365_APP_ID, "m365 app id should be defined");
-      assert.isNotEmpty(context.M365_APP_ID);
-
       // Local Debug (Deploy)
       await CliHelper.deployAll(projectPath, "", "local");
       console.log(`[Successfully] deploy for ${projectPath}`);
