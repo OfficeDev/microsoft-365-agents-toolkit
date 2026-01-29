@@ -751,7 +751,7 @@ jobs:
           total=$((passed+failed))
           echo "Total jobs: $total, Passed: $passed, Failed: $failed"
 
-          subject="Vsc Use UI Test Report ($passed/$total Passed)"
+          subject="Vsc Use UI Test Report [Samples + Features] ($passed/$total Passed)"
           if [ $failed -gt 0 ]; then
             subject="[FAILED] $subject"
           else
@@ -765,7 +765,7 @@ jobs:
 
 
       - name: Send E-mail
-        uses: ./.github/actions/send-email-report
+        uses: ./.github/actions/send-email-report-vscuse
         env:
           TO: ${{ steps.list-jobs.outputs.to }}
           BODY: '"${{ steps.list-jobs.outputs.body }}"'

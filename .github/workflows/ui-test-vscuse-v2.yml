@@ -781,7 +781,7 @@ jobs:
 
 
       - name: Send E-mail
-        uses: ./.github/actions/send-email-report
+        uses: ./.github/actions/send-email-report-vscuse
         env:
           TO: ${{ steps.list-jobs.outputs.to }}
           BODY: '"${{ steps.list-jobs.outputs.body }}"'
