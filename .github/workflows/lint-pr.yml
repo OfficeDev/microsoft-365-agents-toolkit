@@ -309,48 +309,49 @@ jobs:
               targetBranches.push(latestVSRelease);
             }
             
-            const branchList = targetBranches.map(branch => `- [ ] cherry-pick #${prNumber} to ${branch}`).join('\n');
-            
-            const issueBody = `
+            // Create a separate issue for each target branch (copilot can only generate one PR per issue)
+            for (const targetBranch of targetBranches) {
+              const issueBody = `
             ### Cherry-pick Reminder
             
             @${prAuthor} Hello!
             
-            This is an automatically created reminder. Your PR #${prNumber} (\`${prTitle}\`) is being merged into the \`${currentTarget}\` branch.
+            This is an automatically created reminder. Your PR #${prNumber} (\`${prTitle}\`) has been merged into the \`${currentTarget}\` branch.
             
-            Please ensure to cherry-pick these changes to the following branches:
-            ${branchList}
+            Please cherry-pick these changes to the \`${targetBranch}\` branch.
             
             #### Steps to Follow:
-            1. Wait for the current PR to be merged.
-            2. Execute the following commands locally:
+            1. Execute the following commands locally:
                \`\`\`bash
                git fetch origin
-               git checkout <target_branch>
+               git checkout ${targetBranch}
                git cherry-pick <commit_hash>
-               git push origin <target_branch>
+               git push origin ${targetBranch}
                \`\`\`
-            3. Or create a new PR to merge these changes into the above branches.
+            2. Or create a new PR to merge these changes into the \`${targetBranch}\` branch.
             
-            After completion, please check the items above ✓
+            #### Important Notes:
+            - **If the cherry-pick PR has no changes** (e.g., the changes already exist in the target branch), please close this issue directly without creating a PR.
+            - This issue is assigned to Copilot for automated cherry-pick assistance.
             
-            > Note: This is an automatically created issue. You can close this issue after completing all the operations.
+            > Note: This is an automatically created issue. You can close this issue after completing the operation.
             `;
-            
-            try {
-              const issue = await github.rest.issues.create({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                title: `[Cherry-pick] PR #${prNumber} needs to be synchronized to other branches`,
-                body: issueBody,
-                labels: ['cherry-pick-hotfix'],
-                assignees: [prAuthor] // Add PR author as assignee
-              });
+              
+              try {
+                const issue = await github.rest.issues.create({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  title: `[Cherry-pick] PR #${prNumber} to ${targetBranch} branch`,
+                  body: issueBody,
+                  labels: ['cherry-pick-hotfix'],
+                  assignees: [prAuthor, 'copilot'] // Add PR author and Copilot as assignees
+                });
 
-              console.log(`Created issue #${issue.data.number}`);
-            } catch (error) {
-              console.log('Error creating issue:', error);
-              core.setFailed(error.message);
+                console.log(`Created issue #${issue.data.number} for branch ${targetBranch}`);
+              } catch (error) {
+                console.log(`Error creating issue for branch ${targetBranch}:`, error);
+                core.setFailed(error.message);
+              }
             }
 
   generate-changelog:
