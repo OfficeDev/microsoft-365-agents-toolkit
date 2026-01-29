@@ -330,7 +330,9 @@ export class GraphClient {
     const requester = this.createRequesterWithToken(tokenResponse.value);
 
     const teamData = {
-      "template@odata.bind": "https://graph.microsoft.com/beta/teamsTemplates('standard')",
+      "template@odata.bind": `${getResourceServiceEndpoint(
+        ResourceServiceType.Graph
+      )}/beta/teamsTemplates('standard')`,
       displayName: teamName,
       description: description,
       firstChannelName: defaultChannelName,

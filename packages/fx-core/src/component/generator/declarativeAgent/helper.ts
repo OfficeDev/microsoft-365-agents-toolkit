@@ -26,7 +26,11 @@ import { getEnvironmentVariables } from "../../utils/common";
 import { sendTelemetryErrorEvent } from "../../../common/telemetry";
 import { assembleError } from "../../../error";
 import axios, { isAxiosError } from "axios";
-import { GCScopes } from "../../../common/constants";
+import {
+  GCScopes,
+  getResourceServiceEndpoint,
+  ResourceServiceType,
+} from "../../../common/constants";
 import {
   createGraphClientWithToken,
   encodeSharePointUrl,
@@ -324,7 +328,7 @@ export async function getGraphConnectors(): Promise<GCItem[]> {
   const graphToken = graphTokenRes.value;
 
   const instance = axios.create({
-    baseURL: "https://graph.microsoft.com/v1.0",
+    baseURL: `${getResourceServiceEndpoint(ResourceServiceType.Graph)}/v1.0`,
     headers: { Authorization: `Bearer ${graphToken}` },
   });
 

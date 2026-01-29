@@ -19,7 +19,12 @@ import axios from "axios";
 import * as dotenv from "dotenv";
 import fs from "fs-extra";
 import { validate as uuidValidate } from "uuid";
-import { GraphScopes, VSCodeExtensionCommand } from "../common/constants";
+import {
+  getResourceServiceEndpoint,
+  GraphScopes,
+  ResourceServiceType,
+  VSCodeExtensionCommand,
+} from "../common/constants";
 import { getDefaultString, getLocalizedString } from "../common/localizeUtils";
 import {
   AadOwner,
@@ -101,7 +106,7 @@ export class CollaborationUtil {
       const graphTokenRes = await m365TokenProvider?.getAccessToken({ scopes: GraphScopes });
       const graphToken = graphTokenRes?.isOk() ? graphTokenRes.value : undefined;
       const instance = axios.create({
-        baseURL: "https://graph.microsoft.com/v1.0",
+        baseURL: `${getResourceServiceEndpoint(ResourceServiceType.Graph)}/v1.0`,
       });
       instance.defaults.headers.common["Authorization"] = `Bearer ${graphToken as string}`;
       const res = await instance.get(
