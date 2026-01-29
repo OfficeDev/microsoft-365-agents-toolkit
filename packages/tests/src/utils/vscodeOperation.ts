@@ -1098,7 +1098,7 @@ export async function createNewProject(
     case "daOpenAPI": {
       if (apiAuthOption.toLowerCase() === "none") {
         const openAPIPath =
-          "https://raw.githubusercontent.com/SLdragon/example-openapi-spec/main/real-no-auth.yaml";
+          "https://raw.githubusercontent.com/Alive-Fish/example-openapi-spec/main/real-no-auth.yaml";
         await createDaByopenapi(openAPIPath, driver, input);
       } else if (apiAuthOption.toLowerCase() === "bearer token") {
         const openAPIPath =

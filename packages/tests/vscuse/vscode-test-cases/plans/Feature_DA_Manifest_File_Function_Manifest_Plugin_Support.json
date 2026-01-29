@@ -234,9 +234,9 @@
       "agent": "interaction",
       "tool": "type_text",
       "parameters": {
-        "text": "https://raw.githubusercontent.com/SLdragon/example-openapi-spec/main/real-no-auth.yaml"
+        "text": "https://raw.githubusercontent.com/Alive-Fish/example-openapi-spec/main/real-no-auth.yaml"
       },
-      "description": "Type the URL 'https://raw.githubusercontent.com/SLdragon/example-openapi-spec/main/real-no-auth.yaml' into the \"Enter OpenAPI Description Document URL\" input box in the Microsoft 365 Agents Toolkit extension window in Visual Studio Code.",
+      "description": "Type the URL 'https://raw.githubusercontent.com/Alive-Fish/example-openapi-spec/main/real-no-auth.yaml' into the \"Enter OpenAPI Description Document URL\" input box in the Microsoft 365 Agents Toolkit extension window in Visual Studio Code.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
