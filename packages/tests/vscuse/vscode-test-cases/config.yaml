@@ -40,6 +40,10 @@ docker:
     M365_ACCOUNT_ADMIN_ACCOUNT: "${M365_ACCOUNT_ADMIN_ACCOUNT}"
     M365_ACCOUNT_ADMIN_PASSWORD: "${M365_ACCOUNT_ADMIN_PASSWORD}"
     AZURE_SUBSCRIPTION_ID: "${AZURE_SUBSCRIPTION_ID}"
+    
+    # ms tenant account
+    MS_AZURE_ACCOUNT_NAME: "${MS_AZURE_ACCOUNT_NAME}"
+    MS_AZURE_ACCOUNT_PASSWORD: "${MS_AZURE_ACCOUNT_PASSWORD}"
 
 execution:
   delay_between_steps: 0.5         # Default: 0.5 (seconds between steps)
