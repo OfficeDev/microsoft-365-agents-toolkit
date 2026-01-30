@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
-import path from "path";
 import * as fs from "fs-extra";
+import path from "path";
 import { updateContent } from "./commonUtils";
 
 const jsonFileName = "azure.json";
@@ -23,7 +23,7 @@ export async function addJsonFileAndParamtersFile(
 }
 
 export async function updateYml(projectPath: string): Promise<void> {
-  const key = "deploymentName: Create-resources-for-tab";
+  const key = "deploymentName: Create-resources";
   const replace = `
         - path: ./infra/azure.json 
           parameters: ./infra/azure.parameters.test.json

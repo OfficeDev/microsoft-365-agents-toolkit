@@ -22,20 +22,6 @@
         "full": "full description of {{appName}}"
     },
     "accentColor": "#FFFFFF",
-    "staticTabs": [
-        {
-            "entityId": "conversations",
-            "scopes": [
-                "personal"
-            ]
-        },
-        {
-            "entityId": "about",
-            "scopes": [
-                "personal"
-            ]
-        }
-    ],
     "bots": [
         {
             "botId": "${{BOT_ID}}",

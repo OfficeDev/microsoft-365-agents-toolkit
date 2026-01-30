@@ -3,6 +3,8 @@
 # Visit https://aka.ms/teamsfx-actions for details on actions
 version: v1.11
 
+environmentFolderPath: ./env
+
 provision:
   # Creates an app
   - uses: teamsApp/create
@@ -13,9 +15,9 @@ provision:
     # the specified environment variable(s).
     writeToEnvironmentFile:
       teamsAppId: TEAMS_APP_ID
-
 {{^hasAzureBot}}
 {{#hasTab}}
+
   # Set BOT_DOMAIN and BOT_ENDPOINT for local launch
   - uses: script
     with:
@@ -24,8 +26,8 @@ provision:
         echo "::set-teamsfx-env BOT_ENDPOINT=https://localhost:3978";
 {{/hasTab}}
 {{/hasAzureBot}}
-
 {{#hasAzureBot}}
+
   # Create or reuse an existing Microsoft Entra application for bot.
   - uses: aadApp/create
     with:
@@ -79,8 +81,8 @@ provision:
     with:
       # Relative path to this file. This is the path for built zip file.
       appPackagePath: ./appPackage/build/appPackage.$\{{TEAMSFX_ENV}}.zip
-  
 {{#hasCopilot}}
+
   - uses: teamsApp/extendToM365
     with:
       # Relative path to the build app package.

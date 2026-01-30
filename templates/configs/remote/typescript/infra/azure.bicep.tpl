@@ -20,7 +20,6 @@ resource identity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' 
 }
 {{/hasAzureBot}}
 
-
 resource serverfarm 'Microsoft.Web/serverfarms@2021-02-01' = {
   kind: 'app'
   location: location
@@ -54,15 +53,15 @@ resource webApp 'Microsoft.Web/sites@2021-02-01' = {
         }
 {{#hasAzureBot}}
         {
-          name: 'clientId'
+          name: 'CLIENT_ID'
           value: identity.properties.clientId
         }
         {
-          name: 'tenantId'
+          name: 'TENANT_ID'
           value: identity.properties.tenantId
         }
         {
-          name: 'botType'
+          name: 'BOT_TYPE'
           value: 'UserAssignedMsi'
         }
 {{/hasAzureBot}}

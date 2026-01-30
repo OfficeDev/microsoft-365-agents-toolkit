@@ -19,13 +19,14 @@ provision:
     with:
       run:
         echo "::set-teamsfx-env TAB_DOMAIN=localhost";
-        echo "::set-teamsfx-env TAB_ENDPOINT=https://localhost:53000";
+        echo "::set-teamsfx-env TAB_ENDPOINT=https://localhost:3978";
 
   # Validate using manifest schema
   - uses: teamsApp/validateManifest
     with:
       # Path to manifest template
       manifestPath: ./appPackage/manifest.json
+
   # Build app package with latest env value
   - uses: teamsApp/zipAppPackage
     with:
@@ -33,28 +34,20 @@ provision:
       manifestPath: ./appPackage/manifest.json
       outputZipPath: ./appPackage/build/appPackage.${{TEAMSFX_ENV}}.zip
       outputFolder: ./appPackage/build
+
   # Validate app package using validation rules
   - uses: teamsApp/validateAppPackage
     with:
       # Relative path to this file. This is the path for built zip file.
       appPackagePath: ./appPackage/build/appPackage.${{TEAMSFX_ENV}}.zip
-  # Apply the app manifest to an existing app in
-  # Developer Portal.
+
+  # Apply the app manifest to an existing app in Developer Portal.
   # Will use the app id in manifest file to determine which app to update.
   - uses: teamsApp/update
     with:
       # Relative path to this file. This is the path for built zip file.
       appPackagePath: ./appPackage/build/appPackage.${{TEAMSFX_ENV}}.zip
-  # Extend your app to Outlook and the Microsoft 365 app
-  - uses: teamsApp/extendToM365
-    with:
-      # Relative path to the build app package.
-      appPackagePath: ./appPackage/build/appPackage.${{TEAMSFX_ENV}}.zip
-    # Write the information of created resources into environment file for
-    # the specified environment variable(s).
-    writeToEnvironmentFile:
-      titleId: M365_TITLE_ID
-      appId: M365_APP_ID
+  
 
 deploy:
   # Install development tool(s)
@@ -70,6 +63,7 @@ deploy:
 
   # Run npm command
   - uses: cli/runNpmCommand
+    name: install dependencies
     with:
       args: install
 
@@ -78,6 +72,6 @@ deploy:
     with:
       target: ./.localConfigs
       envs:
-        PORT: 53000
+        PORT: 3978
         SSL_CRT_FILE: ${{SSL_CRT_FILE}}
         SSL_KEY_FILE: ${{SSL_KEY_FILE}}

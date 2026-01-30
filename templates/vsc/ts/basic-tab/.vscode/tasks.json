@@ -27,7 +27,7 @@
                     "portOccupancy" // Validate available ports to ensure those debug ones are not occupied.
                 ],
                 "portOccupancy": [
-                    53000, // tab service port,
+                    3978, // app port,
                     9239 // app inspector port for Node.js debugger
                 ]
             }
@@ -70,8 +70,27 @@
                 "background": {
                     "activeOnStart": true,
                     "beginsPattern": ".*",
-                    "endsPattern": "Compiled|Failed|compiled|failed|listening"
+                    "endsPattern": "listening on port 3978|[nodemon] app crashed"
                 }
+            }
+        },
+        {
+            "label": "Start App in Desktop Client",
+            "dependsOn": [
+                "Validate prerequisites",
+                "Provision",
+                "Deploy",
+                "Start application",
+                "Start desktop client"
+            ],
+            "dependsOrder": "sequence"
+        },
+        {
+            "label": "Start desktop client",
+            "type": "teamsfx",
+            "command": "launch-desktop-client",
+            "args": {
+                "url": "teams.microsoft.com/l/app/${{local:TEAMS_APP_ID}}?installAppPackage=true"
             }
         }
     ]
