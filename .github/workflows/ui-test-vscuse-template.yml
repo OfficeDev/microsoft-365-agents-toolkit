@@ -158,6 +158,10 @@ jobs:
       AZURE_AI_FOUNDRY_PROJECT_ENDPOINT: ${{ vars.AZURE_AI_FOUNDRY_PROJECT_ENDPOINT }}
       AGENT_ID: ${{ secrets.AGENT_ID }}
 
+      # ms account
+      MS_AZURE_ACCOUNT_NAME: ${{vars.MS_AZURE_ACCOUNT_NAME}}
+      MS_AZURE_ACCOUNT_PASSWORD: ${{secrets.MS_AZURE_ACCOUNT_PASSWORD}}
+
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
