@@ -48,7 +48,7 @@ class AccountUtils {
 
       const cachedTenantId = await M365TokenProvider.getTenant();
       if (cachedTenantId) {
-        const listTenantToken = await M365TokenProvider.getAccessToken({ scopes: AzureScopes });
+        const listTenantToken = await M365TokenProvider.getAccessToken({ scopes: AzureScopes() });
         if (listTenantToken.isOk()) {
           const tenants = await listAllTenants(listTenantToken.value);
           const curTenant = tenants.find((tenant) => tenant.tenantId === cachedTenantId);
@@ -99,7 +99,7 @@ class AccountUtils {
         const identityCredential = await azureProvider.getIdentityCredentialAsync(false);
         const listTenantToken = identityCredential
           ? await identityCredential.getToken(
-              AzureSpCrypto.checkAzureSPFile() ? env.managementEndpointDefaultScope : AzureScopes
+              AzureSpCrypto.checkAzureSPFile() ? env.managementEndpointDefaultScope : AzureScopes()
             )
           : undefined;
         if (listTenantToken && listTenantToken.token) {

@@ -117,7 +117,7 @@ export class FunctionValidator {
 
     const tokenProvider = MockAzureAccountProvider;
     const tokenCredential = await tokenProvider.getIdentityCredentialAsync();
-    const token = (await tokenCredential?.getToken(AzureScopes))?.token;
+    const token = (await tokenCredential?.getToken(AzureScopes()))?.token;
 
     // Validating app settings
     console.log("validating app settings.");
@@ -143,7 +143,7 @@ export class FunctionValidator {
     // Disable validate deployment since we have too many requests and the test is not stable.
     const tokenCredential =
       await MockAzureAccountProvider.getIdentityCredentialAsync();
-    const token = (await tokenCredential?.getToken(AzureScopes))?.token;
+    const token = (await tokenCredential?.getToken(AzureScopes()))?.token;
 
     const deployments = await this.getDeployments(
       this.subscriptionId,

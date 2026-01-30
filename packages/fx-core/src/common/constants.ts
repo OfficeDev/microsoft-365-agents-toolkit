@@ -156,6 +156,8 @@ export const ListSensitivityLabelScope = "InformationProtectionPolicy.Read";
 export const SPFxScopes = (tenant: string) => [`${tenant}/Sites.FullControl.All`];
 
 // Azure
-export const AzureScopes = ["https://management.core.windows.net/user_impersonation"];
+export const AzureScopes = () => {
+  return [`${getResourceServiceEndpoint(ResourceServiceType.Azure)}/.default`];
+};
 
 export const SpecParserSource = "SpecParser";

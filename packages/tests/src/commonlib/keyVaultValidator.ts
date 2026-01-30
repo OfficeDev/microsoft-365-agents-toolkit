@@ -84,7 +84,7 @@ export class KeyVaultValidator {
 
     const tokenProvider = MockAzureAccountProvider;
     const tokenCredential = await tokenProvider.getIdentityCredentialAsync();
-    const token = (await tokenCredential?.getToken(AzureScopes))?.token;
+    const token = (await tokenCredential?.getToken(AzureScopes()))?.token;
 
     console.log("Validating key vault instance.");
     const keyVaultResponse = await this.getKeyVault(

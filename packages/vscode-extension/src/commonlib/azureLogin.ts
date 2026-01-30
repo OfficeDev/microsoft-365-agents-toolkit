@@ -95,7 +95,7 @@ export class AzureAccountManager extends login implements AzureAccountProvider {
     if (!tenantId) {
       tenantId = await loadTenantId(azureCacheName);
     }
-    const session = await getSessionFromVSCode(AzureScopes, tenantId, {
+    const session = await getSessionFromVSCode(AzureScopes(), tenantId, {
       createIfNone: false,
       silent: true,
     });
@@ -122,7 +122,7 @@ export class AzureAccountManager extends login implements AzureAccountProvider {
     try {
       AzureAccountManager.currentStatus = loggingIn;
       void this.notifyStatus();
-      const session = await getSessionFromVSCode(AzureScopes, tenantId, { createIfNone: true });
+      const session = await getSessionFromVSCode(AzureScopes(), tenantId, { createIfNone: true });
       if (session === undefined) {
         throw new UserError(
           getDefaultString("teamstoolkit.codeFlowLogin.loginComponent"),
@@ -197,7 +197,7 @@ export class AzureAccountManager extends login implements AzureAccountProvider {
         }
         return subs[0].credential;
       } else {
-        const session = await getSessionFromVSCode(AzureScopes, undefined, {
+        const session = await getSessionFromVSCode(AzureScopes(), undefined, {
           createIfNone: false,
           silent: true,
         });
@@ -221,7 +221,7 @@ export class AzureAccountManager extends login implements AzureAccountProvider {
     authenticationSessionRequest?: vscode.AuthenticationWwwAuthenticateRequest
   ): Promise<Result<TokenCredential, FxError>> {
     const session = await getSessionFromVSCode(
-      authenticationSessionRequest ?? AzureScopes,
+      authenticationSessionRequest ?? AzureScopes(),
       tenantId,
       authenticationSessionRequest
         ? { createIfNone: true, silent: false }
@@ -284,7 +284,7 @@ export class AzureAccountManager extends login implements AzureAccountProvider {
 
   async getJsonObject(showDialog = true): Promise<Record<string, unknown> | undefined> {
     const credential = await this.getIdentityCredentialAsync(showDialog);
-    const token = await credential?.getToken("https://management.core.windows.net/.default");
+    const token = await credential?.getToken(AzureScopes());
     if (token) {
       const array = token.token.split(".");
       const buff = Buffer.from(array[1], "base64");
@@ -436,7 +436,7 @@ export class AzureAccountManager extends login implements AzureAccountProvider {
       }
       if (AzureAccountManager.currentStatus === loggedIn || (await this.isUserLogin())) {
         const credential = await this.doGetIdentityCredentialAsync();
-        const token = await credential?.getToken(AzureScopes);
+        const token = await credential?.getToken(AzureScopes());
         const accountJson = await this.getJsonObject();
         return Promise.resolve({
           status: signedIn,

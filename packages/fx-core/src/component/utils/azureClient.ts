@@ -6,7 +6,6 @@ import { ResourceManagementClient } from "@azure/arm-resources";
 import { InvalidAzureCredentialError } from "../../error";
 import { Pipeline, PipelinePolicy } from "@azure/core-rest-pipeline";
 import { BearerChallengePolicy } from "./pipelinePolicy";
-import { AzureScopes } from "../../common/constants";
 
 class AzureClientHelper {
   async createRmClient(azureAccountProvider: AzureAccountProvider, subscriptionId: string) {

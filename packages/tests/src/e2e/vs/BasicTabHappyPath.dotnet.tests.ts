@@ -79,7 +79,7 @@ describe("Blazor App", function () {
 
       const tokenProvider = MockAzureAccountProvider;
       const tokenCredential = await tokenProvider.getIdentityCredentialAsync();
-      const token = (await tokenCredential?.getToken(AzureScopes))?.token;
+      const token = (await tokenCredential?.getToken(AzureScopes()))?.token;
       chai.assert.exists(token);
 
       const context = await readContextMultiEnvV3(projectPath, envName);

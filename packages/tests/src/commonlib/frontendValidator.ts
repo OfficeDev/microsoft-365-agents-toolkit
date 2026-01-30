@@ -136,7 +136,7 @@ export class FrontendValidator {
 
     const tokenProvider = MockAzureAccountProvider;
     const tokenCredential = await tokenProvider.getIdentityCredentialAsync();
-    const token = (await tokenCredential?.getToken(AzureScopes))?.token;
+    const token = (await tokenCredential?.getToken(AzureScopes()))?.token;
     chai.assert.exists(token);
 
     console.log("Validating Storage Container.");
@@ -158,7 +158,7 @@ export class FrontendValidator {
 
     const tokenProvider = MockAzureAccountProvider;
     const tokenCredential = await tokenProvider.getIdentityCredentialAsync();
-    const token = (await tokenCredential?.getToken(AzureScopes))?.token;
+    const token = (await tokenCredential?.getToken(AzureScopes()))?.token;
     chai.assert.exists(token);
 
     const sasToken = await this.getSasToken(

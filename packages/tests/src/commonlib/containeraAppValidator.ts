@@ -52,7 +52,7 @@ export class ContainerAppValidator {
 
     const tokenProvider = MockAzureAccountProvider;
     const tokenCredential = await tokenProvider.getIdentityCredentialAsync();
-    const token = (await tokenCredential?.getToken(AzureScopes))?.token;
+    const token = (await tokenCredential?.getToken(AzureScopes()))?.token;
 
     for (const containerAppName of this.containerAppNames) {
       const response = await getContainerAppProperties(
