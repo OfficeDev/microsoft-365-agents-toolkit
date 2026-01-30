@@ -8,8 +8,8 @@
 // this test case diposed due to cancel local debug
 import { Page } from "playwright";
 import { TemplateProject, LocalDebugTaskLabel } from "../../utils/constants";
-import { CaseFactory } from "./sampleCaseFactory";
-import { SampledebugContext } from "./sampledebugContext";
+import { CaseFactory } from "../../ui-test/samples/sampleCaseFactory";
+import { SampledebugContext } from "../../ui-test/samples/sampledebugContext";
 import { validateLargeNotificationBot } from "../../utils/playwrightOperation";
 import { getBotSiteEndpoint } from "../../utils/commonUtils";
 

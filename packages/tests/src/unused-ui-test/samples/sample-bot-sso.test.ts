@@ -8,7 +8,7 @@
 import { Page } from "playwright";
 import { TemplateProject, LocalDebugTaskLabel } from "../../utils/constants";
 import { validateBot } from "../../utils/playwrightOperation";
-import { CaseFactory } from "./sampleCaseFactory";
+import { CaseFactory } from "../../ui-test/samples/sampleCaseFactory";
 import { Env } from "../../utils/env";
 
 class BotSSOTestCase extends CaseFactory {

@@ -12,7 +12,7 @@ import {
   setSkuNameToB1,
   provisionProject,
   deployProject,
-} from "./remotedebugContext";
+} from "../../ui-test/remotedebug/remotedebugContext";
 import {
   execCommandIfExist,
   createNewProject,

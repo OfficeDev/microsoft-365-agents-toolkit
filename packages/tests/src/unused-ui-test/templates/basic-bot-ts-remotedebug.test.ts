@@ -7,7 +7,7 @@
 import * as path from "path";
 import { startDebugging, waitForTerminal } from "../../utils/vscodeOperation";
 import { initPage, validateEchoBot } from "../../utils/playwrightOperation";
-import { LocalDebugTestContext } from "../localdebug/localdebugContext";
+import { LocalDebugTestContext } from "../../ui-test/localdebug/localdebugContext";
 import {
   Timeout,
   LocalDebugTaskLabel,
@@ -28,7 +28,7 @@ import {
   RemoteDebugTestContext,
   provisionProject,
   deployProject,
-} from "../remotedebug/remotedebugContext";
+} from "../../ui-test/remotedebug/remotedebugContext";
 import {
   execCommandIfExist,
   createNewProject,
