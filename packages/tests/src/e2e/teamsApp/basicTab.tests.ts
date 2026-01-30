@@ -18,6 +18,7 @@ import {
   getSiteNameFromResourceId,
   getWebappSettings,
 } from "../../commonlib/utilities";
+import { sleep } from "../../utils/commonUtils";
 import { Capability } from "../../utils/constants";
 import {
   cleanUpLocalProject,
@@ -169,6 +170,7 @@ describe("Basic Tab", function () {
       const endpoint = context[EnvConstants.TAB_ENDPOINT];
       assert.exists(endpoint, "Tab endpoint should exist");
 
+      await sleep(30000); // wait for 30s to make sure the app is up and running
       const axiosInstance = axios.create();
       try {
         const response = await axiosInstance.get(endpoint);
