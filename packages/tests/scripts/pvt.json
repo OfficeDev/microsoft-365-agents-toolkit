@@ -4,20 +4,17 @@
       "localdebug-bot-twice",
       "localdebug-tab-regen-appid",
       "treeview-newproject-outlook-add-in",
-      "treeview-newproject-tab",
+      "da-action-openapi-none",
+      "da-action-openapi-oauth"
+    ],
+    "node-22": [
       "treeview-collaboration-win-only",
       "remotedebug-tab-publish",
       "remotedebug-bot-reprovision-win-only",
       "remotedebug-tab-reprovision-win-only",
       "remotedebug-tab-regen-appid-win-only",
       "da-action-none-ts",
-      "da-action-openapi-apikey",
-      "da-action-openapi-none",
-      "da-action-openapi-oauth"
-    ],
-    "node-22": [
-      "msgsa-ts-localdebug",
-      "msgsa-ts-remotedebug"
+      "da-action-openapi-apikey"
       ]
   },
   "ubuntu-latest": {

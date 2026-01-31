@@ -15,14 +15,14 @@ import { it } from "../../utils/it";
 import {
   msgHappyPathTestForLocalDebug,
   msgHappyPathTestForRemoteDebug,
-} from "./MsgHappyPath";
+} from "../../ui-test/templates/MsgHappyPath";
 import { Page } from "playwright";
 
 describe("Debug Tests", function () {
   this.timeout(Timeout.localAndRemoteTestCase);
   const successFlag = {
-    successFlagForLocal: false,
-    successFlagForRemote: true,
+    successFlagForLocal: true,
+    successFlagForRemote: false,
   };
   async function validationNpm(
     page: Page,
@@ -45,17 +45,15 @@ describe("Debug Tests", function () {
   });
 
   it(
-    "[Typescript] Local debug for Search-based message extension project",
+    "[auto] [TypeScript] Remote debug for Search-based message extension typescript project Tests",
     {
-      testPlanCaseId: 15277314,
-      author: "xiaofu.huang@microsoft.com",
+      testPlanCaseId: 14907800,
+      author: "v-helzha@microsoft.com",
     },
     async function () {
-      await msgHappyPathTestForLocalDebug("msgsa", {
+      await msgHappyPathTestForRemoteDebug("msgsa", {
         lang: Lang.TS,
         successFlag: successFlag,
-        localDebugTaskLabel: LocalDebugTaskLabel.StartApplication,
-        localDebugTaskInfo: LocalDebugTaskInfo.ListeningOn,
         validationFn: validationNpm,
       });
     }

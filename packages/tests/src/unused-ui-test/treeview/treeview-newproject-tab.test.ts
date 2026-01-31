@@ -8,7 +8,7 @@ import * as path from "path";
 import * as fs from "fs-extra";
 import { expect } from "chai";
 import { Timeout, Lang } from "../../utils/constants";
-import { TreeViewTestContext } from "./treeviewContext";
+import { TreeViewTestContext } from "../../ui-test/treeview/treeviewContext";
 import { createNewProject } from "../../utils/vscodeOperation";
 import { it } from "../../utils/it";
 
