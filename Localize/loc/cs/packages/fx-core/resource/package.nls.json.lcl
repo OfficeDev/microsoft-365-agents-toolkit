@@ -4082,7 +4082,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Chat with GitHub Copilot and get step-by-step instructions to develop your app or Microsoft 365 Copilot agent.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Chatujte s GitHub Copilotem a získejte podrobné pokyny k vývoji aplikace nebo agenta Microsoft 365 Copilotu.]]></Val>
+            <Val><![CDATA[Chatujte s GitHub Copilotem a získejte podrobné pokyny k vývoji aplikace nebo agenta Microsoft 365 Copilota.]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Chat with GitHub Copilot and get step-by-step instructions to develop your Microsoft 365 app or Microsoft 365 Copilot agent.]]></Val>
@@ -4094,7 +4094,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Don't know how to start? Use GitHub Copilot Chat]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Nevíte, jak začít? Použít GitHub Copilot chat]]></Val>
+            <Val><![CDATA[Nevíte, jak začít? Použijte Copilot Chat na GitHubu]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
