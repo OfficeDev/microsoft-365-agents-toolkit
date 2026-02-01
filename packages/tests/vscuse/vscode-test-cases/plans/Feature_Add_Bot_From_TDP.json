@@ -43,7 +43,7 @@
       "plan_r_1023_094053"
     ],
     "tags": [],
-    "updated_at": "2026-01-30T09:41:24.448271"
+    "updated_at": "2026-01-30T14:43:55.972240"
   },
   "steps": [
     {
@@ -69,7 +69,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_ef5280d8",
-      "created_at": "2026-01-30T09:40:19.324577",
+      "created_at": "2026-01-30T14:43:34.039180",
       "plan_id": "plan_00430f25"
     },
     {
@@ -95,7 +95,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_865ba5ed",
-      "created_at": "2026-01-30T09:40:19.347541",
+      "created_at": "2026-01-30T14:43:34.083732",
       "plan_id": "plan_00430f25"
     },
     {
@@ -121,7 +121,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_109637cb",
-      "created_at": "2026-01-30T09:40:19.373411",
+      "created_at": "2026-01-30T14:43:34.105609",
       "plan_id": "plan_00430f25"
     },
     {
@@ -147,7 +147,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_9c98b411",
-      "created_at": "2026-01-30T09:40:19.389029",
+      "created_at": "2026-01-30T14:43:34.127915",
       "plan_id": "plan_00430f25"
     },
     {
@@ -173,7 +173,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_a2a7d68e",
-      "created_at": "2026-01-30T09:40:19.398239",
+      "created_at": "2026-01-30T14:43:34.159471",
       "plan_id": "plan_00430f25"
     },
     {
@@ -195,7 +195,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_2e335f2c",
-      "created_at": "2026-01-30T09:40:19.412565",
+      "created_at": "2026-01-30T14:43:34.197375",
       "plan_id": "plan_00430f25"
     },
     {
@@ -221,7 +221,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_a7466bbf",
-      "created_at": "2026-01-30T09:40:19.430913",
+      "created_at": "2026-01-30T14:43:34.225411",
       "plan_id": "plan_00430f25"
     },
     {
@@ -247,7 +247,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_9be353e1",
-      "created_at": "2026-01-30T09:40:19.450872",
+      "created_at": "2026-01-30T14:43:34.245600",
       "plan_id": "plan_00430f25"
     },
     {
@@ -271,7 +271,7 @@
         "step_retry_timeout:20"
       ],
       "screenshot": "step_dd74960b",
-      "created_at": "2026-01-30T09:40:19.478224",
+      "created_at": "2026-01-30T14:43:34.275142",
       "plan_id": "plan_00430f25"
     },
     {
@@ -293,7 +293,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_c8424bed",
-      "created_at": "2026-01-30T09:40:19.503291",
+      "created_at": "2026-01-30T14:43:34.298971",
       "plan_id": "plan_00430f25"
     },
     {
@@ -313,7 +313,7 @@
         "step_retry_timeout:120"
       ],
       "screenshot": null,
-      "created_at": "2026-01-30T09:40:19.521122",
+      "created_at": "2026-01-30T14:43:34.332538",
       "plan_id": "plan_00430f25"
     },
     {
@@ -339,7 +339,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_64ebaf4c",
-      "created_at": "2026-01-30T09:40:19.537745",
+      "created_at": "2026-01-30T14:43:34.355165",
       "plan_id": "plan_00430f25"
     },
     {
@@ -365,7 +365,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_9bf26d31",
-      "created_at": "2026-01-30T09:40:19.555949",
+      "created_at": "2026-01-30T14:43:34.384450",
       "plan_id": "plan_00430f25"
     },
     {
@@ -391,7 +391,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_ec44aff4",
-      "created_at": "2026-01-30T09:40:19.575057",
+      "created_at": "2026-01-30T14:43:34.410425",
       "plan_id": "plan_00430f25"
     },
     {
@@ -413,7 +413,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_bc3af2ee",
-      "created_at": "2026-01-30T09:40:19.595314",
+      "created_at": "2026-01-30T14:43:34.436128",
       "plan_id": "plan_00430f25"
     },
     {
@@ -421,7 +421,7 @@
       "agent": "assertion",
       "tool": "",
       "parameters": {},
-      "description": "@assertion '${{var:app_name}}' is exist",
+      "description": "@assertion '${{var:app_name:tdp_app_####}}' is exist",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -433,15 +433,15 @@
         "step_retry_timeout:60"
       ],
       "screenshot": null,
-      "created_at": "2026-01-30T09:40:19.616415",
+      "created_at": "2026-01-30T14:43:34.463575",
       "plan_id": "plan_00430f25"
     },
     {
       "step_id": "step_addb1a7f",
-      "agent": "code",
+      "agent": "assertion",
       "tool": "",
       "parameters": {},
-      "description": "@code  '${{var:app_name}}' is exist",
+      "description": "@assertion   '${{var:app_name}}' is exist",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -451,7 +451,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": null,
-      "created_at": "2026-01-30T09:40:19.635787",
+      "created_at": "2026-01-30T14:43:34.493329",
       "plan_id": "plan_00430f25"
     }
   ],
