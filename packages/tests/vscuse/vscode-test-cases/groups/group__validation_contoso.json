@@ -10,14 +10,14 @@
       "step_retry_timeout": 0
     },
     "total_steps": 3,
-    "created_at": "2025-10-23T01:31:44.147355",
+    "created_at": "2026-02-02T04:52:31.817070",
     "name": "group: validation_contoso",
     "description": {
+      "other": "Generated from recording r_1023_013114",
       "owner": "v-ivanchen@microsoft.com",
-      "workitem": "",
-      "other": "Generated from recording r_1023_013114"
+      "workitem": ""
     },
-    "generated_at": "2025-10-23T01:31:44.147351",
+    "generated_at": "2026-02-02T04:52:31.817070",
     "execution_order": [
       "step_4dd7a1fb",
       "step_d00ce375",
@@ -26,76 +26,76 @@
     "tags": [
       "group"
     ],
-    "updated_at": "2025-10-23T04:14:23.686838"
+    "updated_at": "2026-02-02T05:06:40.936975"
   },
   "steps": [
     {
-      "agent": "interaction",
-      "description": "Click the \"Compare Contoso Electronics plan\" card in the vscuse_app_HBlkdev interface on Microsoft Teams.",
       "step_id": "step_4dd7a1fb",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
-      "postconditions": [],
-      "screenshot": "step_4dd7a1fb",
+      "agent": "interaction",
       "tool": "click",
-      "plan_id": "plan_r_1023_013114",
       "parameters": {
+        "button": "left",
         "x": 587,
-        "y": 513,
-        "button": "left"
+        "y": 513
       },
+      "description": "Click the \"Compare Contoso Electronics plan\" card in the vscuse_app_HBlkdev interface on Microsoft Teams.",
+      "content_refs": [],
       "timeout": 30,
+      "retry_count": 0,
       "continue_on_error": "false",
+      "depends_on": [],
       "preconditions": [
         "dhash:587:513:16:5:0000000000000000",
         "dhash:587:513:96:5:49349499631d04f3",
         "dhash:587:513:0:10:30b0b08c8d4d88b1"
       ],
+      "postconditions": [],
       "tags": [],
-      "created_at": "2025-10-23T04:14:23.706035"
+      "screenshot": "step_4dd7a1fb",
+      "created_at": "2026-02-02T04:52:31.826024",
+      "plan_id": "plan_r_1023_013114"
     },
     {
-      "agent": "interaction",
-      "description": "Press the \"Enter\" key to submit the text input \"Compare Contoso Electronics plan\" in the message entry field within the Microsoft Teams app interface.",
       "step_id": "step_d00ce375",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
-      "postconditions": [],
-      "screenshot": "step_d00ce375",
+      "agent": "interaction",
       "tool": "key_press",
-      "plan_id": "plan_r_1023_013114",
       "parameters": {
         "key": "enter"
       },
+      "description": "Press the \"Enter\" key to submit the text input \"Compare Contoso Electronics plan\" in the message entry field within the Microsoft Teams app interface.",
+      "content_refs": [],
       "timeout": 30,
+      "retry_count": 0,
       "continue_on_error": "false",
+      "depends_on": [],
       "preconditions": [
         "dhash:512:384:0:20:30b0b08cad6988b1"
       ],
+      "postconditions": [],
       "tags": [],
-      "created_at": "2025-10-23T04:14:23.718374"
+      "screenshot": "step_d00ce375",
+      "created_at": "2026-02-02T04:52:31.836578",
+      "plan_id": "plan_r_1023_013114"
     },
     {
-      "agent": "assertion",
-      "description": "@assertion \"Northwind Health Plus\" exist.",
       "step_id": "step_38267890",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
-      "postconditions": [],
-      "screenshot": null,
+      "agent": "assertion",
       "tool": "",
-      "plan_id": "plan_r_1023_013114",
       "parameters": {},
+      "description": "@assertion there's contoso electronics plan intro exist.",
+      "content_refs": [],
       "timeout": 30,
+      "retry_count": 0,
       "continue_on_error": "false",
+      "depends_on": [],
       "preconditions": [],
+      "postconditions": [],
       "tags": [
         "step_retry_timeout: 30"
       ],
-      "created_at": "2025-10-23T04:14:23.732855"
+      "screenshot": null,
+      "created_at": "2026-02-02T04:52:31.836578",
+      "plan_id": "plan_r_1023_013114"
     }
   ],
   "screenshots": {
