@@ -66,9 +66,9 @@
       "agent": "interaction",
       "tool": "type_text",
       "parameters": {
-        "text": "https://localhost:53000/tabs/home"
+        "text": "https://localhost:3978/tabs/home"
       },
-      "description": "Type the URL 'https://localhost:53000/tabs/home' into the Chrome browser's address bar on a new tab.",
+      "description": "Type the URL #text:'https://localhost:3978/tabs/home' into the Chrome browser's address bar on a new tab.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -90,7 +90,7 @@
       "parameters": {
         "key": "enter"
       },
-      "description": "Press the \"Enter\" key to navigate to the highlighted URL (\"https://localhost:53000/tabs/home\") in Chrome's address bar.",
+      "description": "Press the \"Enter\" key to navigate to the highlighted URL (\"https://localhost:3978/tabs/home\") in Chrome's address bar.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
