@@ -10,14 +10,14 @@
       "step_retry_timeout": 0
     },
     "total_steps": 5,
-    "created_at": "2025-11-14T06:50:04.426413",
+    "created_at": "2026-02-02T09:05:52.171427",
     "name": "Simple Bot ts Remote Debug",
     "description": {
+      "other": "",
       "owner": "v-ivanchen@microsoft.com",
-      "workitem": "14134645",
-      "other": ""
+      "workitem": "14134645"
     },
-    "generated_at": "2025-11-14T06:50:04.426402",
+    "generated_at": "2026-02-02T09:05:52.171427",
     "execution_order": [
       "plan_r_0928_012254",
       "step_c62fac3a",
@@ -30,11 +30,11 @@
       "plan_r_0929_040401",
       "plan_r_0928_073729",
       "plan_r_0928_075846",
-      "plan_r_0930_063548",
+      "plan_98b88aac",
       "plan_r_1023_094053"
     ],
     "tags": [],
-    "updated_at": "2025-11-14T06:53:15.706030"
+    "updated_at": "2026-02-02T09:06:15.493415"
   },
   "steps": [
     {
@@ -60,7 +60,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_c62fac3a",
-      "created_at": "2025-11-14T06:50:04.441195",
+      "created_at": "2026-02-02T09:05:52.190951",
       "plan_id": "plan_4c75349e"
     },
     {
@@ -86,7 +86,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_ae2d3734",
-      "created_at": "2025-11-14T06:50:04.460110",
+      "created_at": "2026-02-02T09:05:52.199148",
       "plan_id": "plan_4c75349e"
     },
     {
@@ -112,7 +112,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_f6096762",
-      "created_at": "2025-11-14T06:50:04.484092",
+      "created_at": "2026-02-02T09:05:52.209264",
       "plan_id": "plan_4c75349e"
     },
     {
@@ -138,7 +138,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_71d0a3ad",
-      "created_at": "2025-11-14T06:50:04.507050",
+      "created_at": "2026-02-02T09:05:52.219481",
       "plan_id": "plan_4c75349e"
     },
     {
@@ -164,7 +164,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_02bfb398",
-      "created_at": "2025-11-14T06:50:04.534624",
+      "created_at": "2026-02-02T09:05:52.230186",
       "plan_id": "plan_4c75349e"
     }
   ],
