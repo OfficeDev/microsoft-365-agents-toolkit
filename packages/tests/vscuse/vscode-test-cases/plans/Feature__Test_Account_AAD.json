@@ -10,14 +10,14 @@
       "step_retry_timeout": 0.0
     },
     "total_steps": 16,
-    "created_at": "2026-01-30T03:43:48.778697",
+    "created_at": "2026-02-02T03:20:15.667970",
     "name": "Feature  Test Account AAD",
     "description": {
       "other": "",
       "owner": "v-ivanchen@microsoft.com",
       "workitem": "29307523"
     },
-    "generated_at": "2026-01-30T03:43:48.778697",
+    "generated_at": "2026-02-02T03:20:15.667970",
     "execution_order": [
       "plan_r_1107_015711",
       "step_9212ff8c",
@@ -39,7 +39,7 @@
       "step_5ad1fd6a"
     ],
     "tags": [],
-    "updated_at": "2026-01-30T03:44:21.575962"
+    "updated_at": "2026-02-02T03:20:39.674118"
   },
   "steps": [
     {
@@ -61,7 +61,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_9212ff8c",
-      "created_at": "2026-01-30T03:43:48.793100",
+      "created_at": "2026-02-02T03:20:15.690585",
       "plan_id": "plan_ea6ea5a2"
     },
     {
@@ -87,7 +87,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_b5ff402a",
-      "created_at": "2026-01-30T03:43:48.817453",
+      "created_at": "2026-02-02T03:20:15.704316",
       "plan_id": "plan_ea6ea5a2"
     },
     {
@@ -113,7 +113,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_fee5b24e",
-      "created_at": "2026-01-30T03:43:48.837835",
+      "created_at": "2026-02-02T03:20:15.721454",
       "plan_id": "plan_ea6ea5a2"
     },
     {
@@ -135,7 +135,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_0fa246d3",
-      "created_at": "2026-01-30T03:43:48.855851",
+      "created_at": "2026-02-02T03:20:15.734342",
       "plan_id": "plan_ea6ea5a2"
     },
     {
@@ -157,7 +157,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_19cab222",
-      "created_at": "2026-01-30T03:43:48.870722",
+      "created_at": "2026-02-02T03:20:15.749158",
       "plan_id": "plan_ea6ea5a2"
     },
     {
@@ -179,7 +179,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_97e90665",
-      "created_at": "2026-01-30T03:43:48.882623",
+      "created_at": "2026-02-02T03:20:15.763227",
       "plan_id": "plan_ea6ea5a2"
     },
     {
@@ -205,7 +205,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_72220a1d",
-      "created_at": "2026-01-30T03:43:48.892604",
+      "created_at": "2026-02-02T03:20:15.773755",
       "plan_id": "plan_ea6ea5a2"
     },
     {
@@ -231,7 +231,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_51a57598",
-      "created_at": "2026-01-30T03:43:48.901148",
+      "created_at": "2026-02-02T03:20:15.784247",
       "plan_id": "plan_ea6ea5a2"
     },
     {
@@ -239,9 +239,9 @@
       "agent": "interaction",
       "tool": "type_text",
       "parameters": {
-        "text": "${{var:MS_AZURE_ACCOUNT_NAME}}"
+        "text": "${{env:MS_AZURE_ACCOUNT_NAME}}"
       },
-      "description": "Type '${{var:MS_AZURE_ACCOUNT_NAME}}' into the email or username input field on the Microsoft account sign-in page displayed in a Chrome browser.",
+      "description": "Type '${{env:MS_AZURE_ACCOUNT_NAME}}' into the email or username input field on the Microsoft account sign-in page displayed in a Chrome browser.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -255,7 +255,7 @@
         "delay: 3"
       ],
       "screenshot": "step_5ac4e497",
-      "created_at": "2026-01-30T03:43:48.910033",
+      "created_at": "2026-02-02T03:20:15.802075",
       "plan_id": "plan_ea6ea5a2"
     },
     {
@@ -283,7 +283,7 @@
         "delay: 3"
       ],
       "screenshot": "step_cd57f652",
-      "created_at": "2026-01-30T03:43:48.919957",
+      "created_at": "2026-02-02T03:20:15.818010",
       "plan_id": "plan_ea6ea5a2"
     },
     {
@@ -307,7 +307,7 @@
         "delay: 3"
       ],
       "screenshot": "step_45ead640",
-      "created_at": "2026-01-30T03:43:48.928278",
+      "created_at": "2026-02-02T03:20:15.830059",
       "plan_id": "plan_ea6ea5a2"
     },
     {
@@ -335,7 +335,7 @@
         "delay: 3"
       ],
       "screenshot": "step_8bfb2e0c",
-      "created_at": "2026-01-30T03:43:48.937065",
+      "created_at": "2026-02-02T03:20:15.848389",
       "plan_id": "plan_ea6ea5a2"
     },
     {
@@ -361,7 +361,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_b1136339",
-      "created_at": "2026-01-30T03:43:48.945164",
+      "created_at": "2026-02-02T03:20:15.859916",
       "plan_id": "plan_ea6ea5a2"
     },
     {
@@ -387,7 +387,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_7b3c83c9",
-      "created_at": "2026-01-30T03:43:48.955913",
+      "created_at": "2026-02-02T03:20:15.871653",
       "plan_id": "plan_ea6ea5a2"
     },
     {
@@ -409,7 +409,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_355e7d9b",
-      "created_at": "2026-01-30T03:43:48.965100",
+      "created_at": "2026-02-02T03:20:15.889160",
       "plan_id": "plan_ea6ea5a2"
     },
     {
@@ -429,7 +429,7 @@
         "step_retry_timeout: 60"
       ],
       "screenshot": null,
-      "created_at": "2026-01-30T03:43:48.975292",
+      "created_at": "2026-02-02T03:20:15.903107",
       "plan_id": "plan_ea6ea5a2"
     }
   ],
