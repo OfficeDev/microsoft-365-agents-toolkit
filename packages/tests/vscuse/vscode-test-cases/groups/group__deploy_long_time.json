@@ -8,15 +8,15 @@
       "precondition_wait_timeout": 60,
       "precondition_retry_interval": 2
     },
-    "total_steps": 10,
-    "created_at": "2026-01-15T00:58:14.365048",
+    "total_steps": 11,
+    "created_at": "2026-02-03T03:44:45.175611",
     "name": "group  deploy long time",
     "description": {
       "other": "Generated from recording r_0928_075846",
       "owner": "v-helzha@microsoft.com",
       "workitem": ""
     },
-    "generated_at": "2026-01-15T00:58:14.365048",
+    "generated_at": "2026-02-03T03:44:45.175611",
     "execution_order": [
       "step_c9a82278",
       "step_f55de5c3",
@@ -27,12 +27,13 @@
       "step_a0d30029",
       "step_760e0956",
       "step_641585bf",
+      "step_b186b894",
       "step_497ce710"
     ],
     "tags": [
       "group"
     ],
-    "updated_at": "2026-01-15T01:02:47.809619"
+    "updated_at": "2026-02-03T03:48:01.318517"
   },
   "steps": [
     {
@@ -54,7 +55,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_c9a82278",
-      "created_at": "2026-01-15T00:58:14.376358",
+      "created_at": "2026-02-03T03:44:45.178037",
       "plan_id": "plan_6aba0466"
     },
     {
@@ -80,7 +81,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_f55de5c3",
-      "created_at": "2026-01-15T00:58:14.389182",
+      "created_at": "2026-02-03T03:44:45.186555",
       "plan_id": "plan_6aba0466"
     },
     {
@@ -102,7 +103,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_e00491df",
-      "created_at": "2026-01-15T00:58:14.408786",
+      "created_at": "2026-02-03T03:44:45.187880",
       "plan_id": "plan_6aba0466"
     },
     {
@@ -124,7 +125,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_36526c5c",
-      "created_at": "2026-01-15T00:58:14.427224",
+      "created_at": "2026-02-03T03:44:45.195789",
       "plan_id": "plan_6aba0466"
     },
     {
@@ -146,7 +147,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_751994fd",
-      "created_at": "2026-01-15T00:58:14.442549",
+      "created_at": "2026-02-03T03:44:45.196795",
       "plan_id": "plan_6aba0466"
     },
     {
@@ -168,7 +169,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_168f8b93",
-      "created_at": "2026-01-15T00:58:14.585075",
+      "created_at": "2026-02-03T03:44:45.207297",
       "plan_id": "plan_6aba0466"
     },
     {
@@ -190,7 +191,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_a0d30029",
-      "created_at": "2026-01-15T00:58:14.662681",
+      "created_at": "2026-02-03T03:44:45.210216",
       "plan_id": "plan_6aba0466"
     },
     {
@@ -212,7 +213,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_760e0956",
-      "created_at": "2026-01-15T00:58:14.687424",
+      "created_at": "2026-02-03T03:44:45.217506",
       "plan_id": "plan_6aba0466"
     },
     {
@@ -220,7 +221,7 @@
       "agent": "code",
       "tool": "",
       "parameters": {},
-      "description": "@code echo wait for deploy completed.",
+      "description": "@code echo \"wait for deploy completed\"",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -232,7 +233,27 @@
         "delay:300"
       ],
       "screenshot": null,
-      "created_at": "2026-01-15T01:02:27.489577",
+      "created_at": "2026-02-03T03:44:45.225414",
+      "plan_id": "plan_6aba0466"
+    },
+    {
+      "step_id": "step_b186b894",
+      "agent": "code",
+      "tool": "",
+      "parameters": {},
+      "description": "@code echo \"wait for deploy completed\"",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "delay:180"
+      ],
+      "screenshot": null,
+      "created_at": "2026-02-03T03:46:39.368850",
       "plan_id": "plan_6aba0466"
     },
     {
@@ -249,10 +270,10 @@
       "preconditions": [],
       "postconditions": [],
       "tags": [
-        "step_retry_timeout: 240"
+        "step_retry_timeout:300"
       ],
       "screenshot": null,
-      "created_at": "2026-01-15T00:58:14.706030",
+      "created_at": "2026-02-03T03:44:45.228042",
       "plan_id": "plan_6aba0466"
     }
   ],

@@ -207,10 +207,10 @@
       "tool": "click",
       "parameters": {
         "button": "left",
-        "x": 206,
+        "x": 255,
         "y": 618
       },
-      "description": "Click the \"A+\" badge inside the AzureAgentToM365ATKdev app card in the Microsoft Teams web interface to interact with the agent setup or information panel.",
+      "description": "Click the \"View permissions\" link in the message input area of the Microsoft Teams web interface, triggering prompt suggestions from AzureAgentToM365ATKdev.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -222,7 +222,10 @@
         "dhash:206:618:0:10:283cb481b3b3b3e1"
       ],
       "postconditions": [],
-      "tags": [],
+      "tags": [        
+        "delay: 30",
+        "force_run:true"
+      ],
       "screenshot": "step_a2c444e5",
       "created_at": "2026-01-22T01:46:17.807535",
       "plan_id": "plan_993b7f9e"
