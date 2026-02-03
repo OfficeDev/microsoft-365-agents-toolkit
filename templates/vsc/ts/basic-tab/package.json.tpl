@@ -9,7 +9,7 @@
         "README.md"
     ],
     "dependencies": {
-        "@microsoft/teams-js": "^2.31.1",
+        "@microsoft/teams-js": "^2.0.0",
         "@microsoft/teams.api": "^2.0.0",
         "@microsoft/teams.apps": "^2.0.0",
         "@microsoft/teams.cards": "^2.0.0",
