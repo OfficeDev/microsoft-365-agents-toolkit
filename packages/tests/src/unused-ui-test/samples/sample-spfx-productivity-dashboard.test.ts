@@ -8,8 +8,8 @@
 import { Page } from "playwright";
 import { TemplateProject, LocalDebugTaskLabel } from "../../utils/constants";
 import { initTeamsPage } from "../../utils/playwrightOperation";
-import { CaseFactory } from "./sampleCaseFactory";
-import { SampledebugContext } from "./sampledebugContext";
+import { CaseFactory } from "../../ui-test/samples/sampleCaseFactory";
+import { SampledebugContext } from "../../ui-test/samples/sampledebugContext";
 import { Env } from "../../utils/env";
 
 class SpfxProductivityTestCase extends CaseFactory {

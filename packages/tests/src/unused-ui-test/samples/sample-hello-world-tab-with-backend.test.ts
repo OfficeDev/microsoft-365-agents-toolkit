@@ -10,9 +10,9 @@ import path from "path";
 import { Page } from "playwright";
 import { TemplateProject, LocalDebugTaskLabel } from "../../utils/constants";
 import { validateTab, reopenPage } from "../../utils/playwrightOperation";
-import { CaseFactory } from "./sampleCaseFactory";
+import { CaseFactory } from "../../ui-test/samples/sampleCaseFactory";
 import { Env } from "../../utils/env";
-import { SampledebugContext } from "./sampledebugContext";
+import { SampledebugContext } from "../../ui-test/samples/sampledebugContext";
 
 class HelloWorldTabBackEndTestCase extends CaseFactory {
   override async onValidate(

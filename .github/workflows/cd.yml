@@ -300,7 +300,13 @@ jobs:
           token: ${{ steps.generate-token.outputs.token }}
           prerelease: true
           tag: "templates@0.0.0-rc"
-          artifacts: ${{ github.workspace }}/templates/build/fallback/*.zip,${{ github.workspace }}/templates/build/metadata.zip
+          artifacts: |
+            ${{ github.workspace }}/templates/build/fallback/common.zip
+            ${{ github.workspace }}/templates/build/fallback/js.zip
+            ${{ github.workspace }}/templates/build/fallback/ts.zip
+            ${{ github.workspace }}/templates/build/fallback/python.zip
+            ${{ github.workspace }}/templates/build/fallback/csharp.zip
+            ${{ github.workspace }}/templates/build/metadata.zip
           allowUpdates: true
           removeArtifacts: true
 
@@ -308,7 +314,13 @@ jobs:
         if: ${{ contains(steps.version-change.outputs.CHANGED, 'templates@') && github.event_name == 'workflow_dispatch' && github.event.inputs.preid == 'stable' }}
         uses: ncipollo/release-action@v1.10.0
         with:
-          artifacts: ${{ github.workspace }}/templates/build/fallback/*.zip,${{ github.workspace }}/templates/build/metadata.zip
+          artifacts: |
+            ${{ github.workspace }}/templates/build/fallback/common.zip
+            ${{ github.workspace }}/templates/build/fallback/js.zip
+            ${{ github.workspace }}/templates/build/fallback/ts.zip
+            ${{ github.workspace }}/templates/build/fallback/python.zip
+            ${{ github.workspace }}/templates/build/fallback/csharp.zip
+            ${{ github.workspace }}/templates/build/metadata.zip
           name: "Release for ${{ steps.version-change.outputs.TEMPLATE_VERSION }}"
           token: ${{ steps.generate-token.outputs.token }}
           tag: ${{ steps.version-change.outputs.TEMPLATE_VERSION }}
@@ -341,7 +353,7 @@ jobs:
           prerelease: true
           clear_attachments: true
           files: |
-            ${{ github.workspace }}/templates/build/csharp.zip
+            ${{ github.workspace }}/templates/build/fallback/csharp.zip
       
       - name: Get VS Templates version
         if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.vsrelease == 'true' && github.event.inputs.vstemplate == 'true' }}
@@ -361,7 +373,7 @@ jobs:
           target_commit: ${{ github.sha }}
           clear_attachments: true
           files: |
-            ${{ github.workspace }}/templates/build/csharp.zip
+            ${{ github.workspace }}/templates/build/fallback/csharp.zip
 
       - name: enable prerelease only features
         if: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && (github.event.inputs.preid == 'alpha' || github.event.inputs.preid == 'preview')) }}

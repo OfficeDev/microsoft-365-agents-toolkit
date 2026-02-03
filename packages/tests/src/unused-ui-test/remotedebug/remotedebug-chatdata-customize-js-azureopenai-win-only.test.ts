@@ -2,21 +2,24 @@
 // Licensed under the MIT license.
 
 /**
- * @author Anne Fu <v-annefu@microsoft.com>
+ * @author Helly Zhang <v-helzha@microsoft.com>
  */
 import * as path from "path";
 import { VSBrowser } from "vscode-extension-tester";
-import { Lang, Timeout, ValidationContent } from "../../utils/constants";
+import { Timeout, ValidationContent } from "../../utils/constants";
 import {
   RemoteDebugTestContext,
   provisionProject,
   deployProject,
-} from "./remotedebugContext";
+} from "../../ui-test/remotedebug/remotedebugContext";
 import {
   execCommandIfExist,
   createNewProject,
 } from "../../utils/vscodeOperation";
-import { initPage, validateCustomapi } from "../../utils/playwrightOperation";
+import {
+  initPage,
+  validateWelcomeAndReplyBot,
+} from "../../utils/playwrightOperation";
 import { Env, OpenAiKey } from "../../utils/env";
 import { it } from "../../utils/it";
 import { editDotEnvFile, validateFileExist } from "../../utils/commonUtils";
@@ -33,7 +36,7 @@ describe("Remote debug Tests", function () {
   beforeEach(async function () {
     // ensure workbench is ready
     this.timeout(Timeout.prepareTestCase);
-    remoteDebugTestContext = new RemoteDebugTestContext("cdcustomapi");
+    remoteDebugTestContext = new RemoteDebugTestContext("chatdata");
     testRootFolder = remoteDebugTestContext.testRootFolder;
     appName = remoteDebugTestContext.appName;
     newAppFolderName = appName + appNameCopySuffix;
@@ -58,19 +61,18 @@ describe("Remote debug Tests", function () {
   });
 
   it(
-    "[auto][TS][Azure OpenAI] Remote debug for Custom Copilot Rag Custom Api",
+    "[auto][JS][Azure OpenAI] Remote debug for basic rag bot using customize data",
     {
-      testPlanCaseId: 28891618,
-      author: "v-annefu@microsoft.com",
+      testPlanCaseId: 27569147,
+      author: "v-helzha@microsoft.com",
     },
     async function () {
       const driver = VSBrowser.instance.driver;
-      await createNewProject("cdcustomapi", appName, {
+      await createNewProject("chatdata", appName, {
         aiType: "Azure OpenAI",
-        lang: Lang.TS,
-        dataOption: "Custom API",
+        dataOption: "Customize",
       });
-      validateFileExist(projectPath, "src/index.ts");
+      validateFileExist(projectPath, "src/index.js");
       const envPath = path.resolve(projectPath, "env", ".env.dev.user");
       const isRealKey = OpenAiKey.azureOpenAiKey ? true : false;
       const azureOpenAiKey = OpenAiKey.azureOpenAiKey
@@ -87,7 +89,7 @@ describe("Remote debug Tests", function () {
       editDotEnvFile(envPath, "AZURE_OPENAI_ENDPOINT", azureOpenAiEndpoint);
       editDotEnvFile(
         envPath,
-        "AZURE_OPENAI_MODEL_DEPLOYMENT_NAME",
+        "AZURE_OPENAI_DEPLOYMENT_NAME",
         azureOpenAiModelDeploymentName
       );
       await provisionProject(appName, projectPath);
@@ -109,16 +111,16 @@ describe("Remote debug Tests", function () {
       );
       await driver.sleep(Timeout.longTimeWait);
       if (isRealKey) {
-        await validateCustomapi(page, {
+        await validateWelcomeAndReplyBot(page, {
           hasWelcomeMessage: false,
           hasCommandReplyValidation: true,
-          botCommand: "Get repairs for Karin",
+          botCommand: "Tell me about Contoso Electronics history",
           expectedWelcomeMessage: ValidationContent.AiChatBotWelcomeInstruction,
-          expectedReplyMessage: "assignedTo: Karin",
+          expectedReplyMessage: "1985",
           timeout: Timeout.longTimeWait,
         });
       } else {
-        await validateCustomapi(page, {
+        await validateWelcomeAndReplyBot(page, {
           hasWelcomeMessage: false,
           hasCommandReplyValidation: true,
           botCommand: "helloWorld",

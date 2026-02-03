@@ -816,10 +816,11 @@ describe("UI Unit Tests", async () => {
       fsUnlinkSyncStub = sinon.stub(fs, "unlinkSync");
       tasksExecuteTaskStub = sinon.stub(tasks, "executeTask").callsFake((task: any) => {
         // Capture the temp file path from the shell execution command
-        // The commandLine looks like: cmd > "path/to/file" 2>&1
+        // The commandLine uses tee/Tee-Object: cmd 2>&1 | tee "path/to/file" or cmd 2>&1 | Tee-Object -FilePath "path/to/file"
         const execution = task.execution;
         if (execution && execution.commandLine) {
-          const match = execution.commandLine.match(/>\s*"([^"]+)"/);
+          // Match both tee "path" and Tee-Object -FilePath "path" patterns
+          const match = execution.commandLine.match(/(?:tee|Tee-Object -FilePath)\s+"([^"]+)"/);
           if (match) {
             const tempFilePath = match[1];
             tempFiles.push(tempFilePath);

@@ -139,6 +139,7 @@ import {
   injectAuthAction,
   listOperations,
 } from "../component/generator/openApiSpec/helper";
+import { useLocalTemplate } from "../component/generator/templateHelper";
 import { TemplateNames } from "../component/generator/templates/templateNames";
 import { fetchZipFromUrl, getTemplateLatestVersion, unzip } from "../component/generator/utils";
 import { LaunchHelper } from "../component/m365/launchHelper";
@@ -195,6 +196,7 @@ import {
 } from "./collaborator";
 import { LocalCrypto } from "./crypto";
 import { environmentNameManager } from "./environmentName";
+import { FxCoreDeclarativeAgentPart } from "./FxCore.declarativeAgent";
 import { generateConfigFiles } from "./generateConfigFiles";
 import { ConcurrentLockerMW } from "./middleware/concurrentLocker";
 import { ContextInjectorMW } from "./middleware/contextInjector";
@@ -210,7 +212,6 @@ import {
 import { addSharedUsers, removeShareAccess, shareWithTenant } from "./share";
 import { CoreTelemetryEvent, CoreTelemetryProperty } from "./telemetry";
 import { CoreHookContext, PreProvisionResForVS, VersionCheckRes } from "./types";
-import { FxCoreDeclarativeAgentPart } from "./FxCore.declarativeAgent";
 
 export class FxCore extends FxCoreDeclarativeAgentPart {
   constructor(tools: Tools) {
@@ -2905,7 +2906,7 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
     ErrorHandlerMW,
   ])
   async fetchOnlineTemplateMetadata(): Promise<Result<undefined, FxError>> {
-    if (templateConfig.useLocalTemplate) {
+    if (useLocalTemplate()) {
       return ok(undefined); // Skip if using local templates
     }
     // Downloads the latest online template metadata (metadata.zip) into user's home .fx folder.
@@ -2967,7 +2968,7 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
   }
 
   /**
-   * dynamic template metadata download
+   * generate config files
    */
   @hooks([ErrorContextMW({ component: "FxCore", stage: "generateConfigFiles" }), ErrorHandlerMW])
   async generateConfigFiles(inputs: Inputs): Promise<Result<undefined, FxError>> {

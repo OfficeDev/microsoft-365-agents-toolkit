@@ -5,7 +5,7 @@ import { ConfigFolderName, IQTreeNode } from "@microsoft/teamsfx-api";
 import fs from "fs-extra";
 import os from "os";
 import path from "path";
-import templateConfig from "../../../common/templates-config.json";
+import { useLocalTemplate } from "../../../component/generator/templateHelper";
 import { getTemplatesFolder } from "../../../folder";
 import { constructNode } from "../constructNode";
 
@@ -20,7 +20,7 @@ export function getCustomEngineAgentNode(): IQTreeNode {
   );
 
   // Check if cached JSON exists, otherwise fallback to bundledtemplates folder
-  if (!templateConfig.useLocalTemplate && fs.pathExistsSync(cachedJsonPath)) {
+  if (!useLocalTemplate() && fs.pathExistsSync(cachedJsonPath)) {
     jsonPath = cachedJsonPath;
   } else {
     jsonPath = path.join(getTemplatesFolder(), "ui", "ceaNode.json");

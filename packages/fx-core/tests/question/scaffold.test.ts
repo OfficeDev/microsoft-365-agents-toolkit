@@ -11,6 +11,7 @@ import {
 } from "@microsoft/teamsfx-api";
 import { assert } from "chai";
 import "mocha";
+import proxyquire from "proxyquire";
 import sinon from "sinon";
 import { featureFlagManager, FeatureFlags } from "../../src/common/featureFlags";
 import { getLocalizedString } from "../../src/common/localizeUtils";
@@ -345,6 +346,206 @@ describe("customEngineAgentProjectTypeNode", () => {
 
     const basicCustomeEngineAgent = node.children?.[0];
     assert.isDefined(basicCustomeEngineAgent);
+  });
+
+  it("should use cached JSON path when not using local template and cached file exists", () => {
+    const mockFs = {
+      pathExistsSync: sandbox.stub().returns(true),
+      readFileSync: sandbox.stub().returns('{"data": "test"}'),
+    };
+    const mockTemplateHelper = {
+      useLocalTemplate: sandbox.stub().returns(false),
+    };
+    const mockFolder = {
+      getTemplatesFolder: sandbox.stub().returns("/templates"),
+    };
+    const mockConstructNode = sandbox.stub().returns({ test: "node" });
+
+    const customEngineAgentModule = proxyquire(
+      "../../src/question/scaffold/vsc/customEngineAgentNode",
+      {
+        "fs-extra": mockFs,
+        "../../../component/generator/templateHelper": mockTemplateHelper,
+        "../../../folder": mockFolder,
+        "../constructNode": { constructNode: mockConstructNode },
+      }
+    );
+
+    const node = customEngineAgentModule.getCustomEngineAgentNode();
+
+    assert.isTrue(mockTemplateHelper.useLocalTemplate.calledOnce);
+    assert.isTrue(mockFs.pathExistsSync.calledOnce);
+    assert.isTrue(mockFs.readFileSync.calledOnce);
+    assert.isFalse(mockFolder.getTemplatesFolder.called);
+    assert.isDefined(node);
+  });
+
+  it("should use templates folder when using local template", () => {
+    const mockFs = {
+      pathExistsSync: sandbox.stub().returns(true),
+      readFileSync: sandbox.stub().returns('{"data": "test"}'),
+    };
+    const mockTemplateHelper = {
+      useLocalTemplate: sandbox.stub().returns(true),
+    };
+    const mockFolder = {
+      getTemplatesFolder: sandbox.stub().returns("/templates"),
+    };
+    const mockConstructNode = sandbox.stub().returns({ test: "node" });
+
+    const customEngineAgentModule = proxyquire(
+      "../../src/question/scaffold/vsc/customEngineAgentNode",
+      {
+        "fs-extra": mockFs,
+        "../../../component/generator/templateHelper": mockTemplateHelper,
+        "../../../folder": mockFolder,
+        "../constructNode": { constructNode: mockConstructNode },
+      }
+    );
+
+    const node = customEngineAgentModule.getCustomEngineAgentNode();
+
+    assert.isTrue(mockTemplateHelper.useLocalTemplate.calledOnce);
+    assert.isFalse(mockFs.pathExistsSync.called);
+    assert.isTrue(mockFolder.getTemplatesFolder.calledOnce);
+    assert.isTrue(mockFs.readFileSync.calledOnce);
+    assert.isDefined(node);
+  });
+
+  it("should use templates folder when cached file does not exist", () => {
+    const mockFs = {
+      pathExistsSync: sandbox.stub().returns(false),
+      readFileSync: sandbox.stub().returns('{"data": "test"}'),
+    };
+    const mockTemplateHelper = {
+      useLocalTemplate: sandbox.stub().returns(false),
+    };
+    const mockFolder = {
+      getTemplatesFolder: sandbox.stub().returns("/templates"),
+    };
+    const mockConstructNode = sandbox.stub().returns({ test: "node" });
+
+    const customEngineAgentModule = proxyquire(
+      "../../src/question/scaffold/vsc/customEngineAgentNode",
+      {
+        "fs-extra": mockFs,
+        "../../../component/generator/templateHelper": mockTemplateHelper,
+        "../../../folder": mockFolder,
+        "../constructNode": { constructNode: mockConstructNode },
+      }
+    );
+
+    const node = customEngineAgentModule.getCustomEngineAgentNode();
+
+    assert.isTrue(mockTemplateHelper.useLocalTemplate.calledOnce);
+    assert.isTrue(mockFs.pathExistsSync.calledOnce);
+    assert.isTrue(mockFolder.getTemplatesFolder.calledOnce);
+    assert.isTrue(mockFs.readFileSync.calledOnce);
+    assert.isDefined(node);
+  });
+});
+
+describe("teamsProjectTypeNode", () => {
+  const sandbox = sinon.createSandbox();
+
+  afterEach(() => {
+    sandbox.restore();
+  });
+
+  it("should use cached JSON path when not using local template and cached file exists", () => {
+    const mockFs = {
+      pathExistsSync: sandbox.stub().returns(true),
+      readFileSync: sandbox.stub().returns('{"data": "test"}'),
+    };
+    const mockTemplateHelper = {
+      useLocalTemplate: sandbox.stub().returns(false),
+    };
+    const mockFolder = {
+      getTemplatesFolder: sandbox.stub().returns("/templates"),
+    };
+    const mockConstructNode = sandbox.stub().returns({ test: "node" });
+
+    const teamsProjectTypeModule = proxyquire(
+      "../../src/question/scaffold/vsc/teamsProjectTypeNode",
+      {
+        "fs-extra": mockFs,
+        "../../../component/generator/templateHelper": mockTemplateHelper,
+        "../../../folder": mockFolder,
+        "../constructNode": { constructNode: mockConstructNode },
+      }
+    );
+
+    const node = teamsProjectTypeModule.getTeamsProjectNode();
+
+    assert.isTrue(mockTemplateHelper.useLocalTemplate.calledOnce);
+    assert.isTrue(mockFs.pathExistsSync.calledOnce);
+    assert.isFalse(mockFolder.getTemplatesFolder.called);
+    assert.isTrue(mockFs.readFileSync.calledOnce);
+    assert.isDefined(node);
+  });
+
+  it("should use templates folder when using local template", () => {
+    const mockFs = {
+      pathExistsSync: sandbox.stub().returns(true),
+      readFileSync: sandbox.stub().returns('{"data": "test"}'),
+    };
+    const mockTemplateHelper = {
+      useLocalTemplate: sandbox.stub().returns(true),
+    };
+    const mockFolder = {
+      getTemplatesFolder: sandbox.stub().returns("/templates"),
+    };
+    const mockConstructNode = sandbox.stub().returns({ test: "node" });
+
+    const teamsProjectTypeModule = proxyquire(
+      "../../src/question/scaffold/vsc/teamsProjectTypeNode",
+      {
+        "fs-extra": mockFs,
+        "../../../component/generator/templateHelper": mockTemplateHelper,
+        "../../../folder": mockFolder,
+        "../constructNode": { constructNode: mockConstructNode },
+      }
+    );
+
+    const node = teamsProjectTypeModule.getTeamsProjectNode();
+
+    assert.isTrue(mockTemplateHelper.useLocalTemplate.calledOnce);
+    assert.isFalse(mockFs.pathExistsSync.called);
+    assert.isTrue(mockFolder.getTemplatesFolder.calledOnce);
+    assert.isTrue(mockFs.readFileSync.calledOnce);
+    assert.isDefined(node);
+  });
+
+  it("should use templates folder when cached file does not exist", () => {
+    const mockFs = {
+      pathExistsSync: sandbox.stub().returns(false),
+      readFileSync: sandbox.stub().returns('{"data": "test"}'),
+    };
+    const mockTemplateHelper = {
+      useLocalTemplate: sandbox.stub().returns(false),
+    };
+    const mockFolder = {
+      getTemplatesFolder: sandbox.stub().returns("/templates"),
+    };
+    const mockConstructNode = sandbox.stub().returns({ test: "node" });
+
+    const teamsProjectTypeModule = proxyquire(
+      "../../src/question/scaffold/vsc/teamsProjectTypeNode",
+      {
+        "fs-extra": mockFs,
+        "../../../component/generator/templateHelper": mockTemplateHelper,
+        "../../../folder": mockFolder,
+        "../constructNode": { constructNode: mockConstructNode },
+      }
+    );
+
+    const node = teamsProjectTypeModule.getTeamsProjectNode();
+
+    assert.isTrue(mockTemplateHelper.useLocalTemplate.calledOnce);
+    assert.isTrue(mockFs.pathExistsSync.calledOnce);
+    assert.isTrue(mockFolder.getTemplatesFolder.calledOnce);
+    assert.isTrue(mockFs.readFileSync.calledOnce);
+    assert.isDefined(node);
   });
 });
 

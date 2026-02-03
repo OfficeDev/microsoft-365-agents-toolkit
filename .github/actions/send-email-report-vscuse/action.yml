@@ -13,25 +13,35 @@ runs:
 
           access_token=$(echo "$response" | jq -r '. | select(.access_token) | .access_token')
 
-          # Write body to temporary file to avoid "Argument list too long" error
-          body_file=$(mktemp)
-          echo "${{ env.BODY }}" > "$body_file"
+          # Determine source for email body content
+          temp_body_file=""
+          if [ -n "${{ env.BODY_FILE }}" ] && [ -f "${{ env.BODY_FILE }}" ]; then
+            body_file="${{ env.BODY_FILE }}"
+          else
+            body_file=$(mktemp)
+            temp_body_file="$body_file"
+            printf '%s' "${{ env.BODY }}" > "$body_file"
+          fi
 
           # Build JSON payload using jq to properly escape and handle large content
-          payload=$(jq -n \
+          payload_file=$(mktemp)
+          jq -n \
             --arg to "${{ env.TO }}" \
             --arg subject "${{ env.SUBJECT }}" \
             --rawfile body "$body_file" \
-            '{to: $to, body: $body, subject: $subject}')
+            '{to: $to, body: $body, subject: $subject}' > "$payload_file"
 
-          # Send email
+          # Send email using file input to avoid "Argument list too long" error
           curl \
             --request POST \
             --header "Content-Type: application/json" \
             --header "Authorization: Bearer $access_token" \
-            --data "$payload" \
+            --data @"$payload_file" \
             'https://prod-18.northcentralus.logic.azure.com:443/workflows/b33d7861bfc64832a6f62cc8f2213988/triggers/manual/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0'
 
           # Clean up
-          rm -f "$body_file"
+          if [ -n "$temp_body_file" ] && [ -f "$temp_body_file" ]; then
+            rm -f "$temp_body_file"
+          fi
+          rm -f "$payload_file"
       shell: bash

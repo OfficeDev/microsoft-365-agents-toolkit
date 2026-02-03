@@ -6,10 +6,10 @@
  */
 
 import { TemplateProject, LocalDebugTaskLabel } from "../../utils/constants";
-import { CaseFactory } from "./sampleCaseFactory";
+import { CaseFactory } from "../../ui-test/samples/sampleCaseFactory";
 import { AzSqlHelper } from "../../utils/azureCliHelper";
 import { validateIntelligentDataChart } from "../../utils/playwrightOperation";
-import { SampledebugContext } from "./sampledebugContext";
+import { SampledebugContext } from "../../ui-test/samples/sampledebugContext";
 import { expect } from "chai";
 import * as path from "path";
 import { editDotEnvFile } from "../../utils/commonUtils";

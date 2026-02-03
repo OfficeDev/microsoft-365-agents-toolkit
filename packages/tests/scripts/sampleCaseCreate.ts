@@ -8,13 +8,11 @@ const samplesData = fs.readJSONSync(sampleFile).samples;
 const windows_22 = [
   "sample-outlook-signature",
   "sample-food-catalog",
-  "sample-hello-world-tab-with-backend",
   "sample-query-org",
   "sample-assistant-dashboard",
 ];
 const ubuntu_22 = [
   "sample-todo-list-sql",
-  "sample-bot-sso-docker",
   "sample-hello-world-tab-docker",
   "sample-todo-list-with-m365",
   "sample-intelligent-data-chart",

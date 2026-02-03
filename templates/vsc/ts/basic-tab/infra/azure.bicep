@@ -9,7 +9,6 @@ param serverfarmsName string = resourceBaseName
 param webAppName string = resourceBaseName
 param location string = resourceGroup().location
 
-// Compute resources for your Web App
 resource serverfarm 'Microsoft.Web/serverfarms@2021-02-01' = {
   kind: 'app'
   location: location
@@ -19,7 +18,6 @@ resource serverfarm 'Microsoft.Web/serverfarms@2021-02-01' = {
   }
 }
 
-// Azure Web App that hosts your website
 resource webApp 'Microsoft.Web/sites@2021-02-01' = {
   kind: 'app'
   location: location
@@ -28,6 +26,7 @@ resource webApp 'Microsoft.Web/sites@2021-02-01' = {
     serverFarmId: serverfarm.id
     httpsOnly: true
     siteConfig: {
+      alwaysOn: true
       appSettings: [
         {
           name: 'WEBSITE_RUN_FROM_PACKAGE'
@@ -48,6 +47,6 @@ resource webApp 'Microsoft.Web/sites@2021-02-01' = {
 }
 
 // The output will be persisted in .env.{envName}. Visit https://aka.ms/teamsfx-actions/arm-deploy for more details.
-output TAB_AZURE_APP_SERVICE_RESOURCE_ID string = webApp.id // used in deploy stage
+output AZURE_APP_SERVICE_RESOURCE_ID string = webApp.id // used in deploy stage
 output TAB_DOMAIN string = webApp.properties.defaultHostName
 output TAB_ENDPOINT string = 'https://${webApp.properties.defaultHostName}'

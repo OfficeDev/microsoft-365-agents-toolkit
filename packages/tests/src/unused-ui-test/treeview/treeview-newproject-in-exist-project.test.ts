@@ -14,7 +14,7 @@ import {
   CreateProjectQuestion,
   Lang,
 } from "../../utils/constants";
-import { TreeViewTestContext } from "./treeviewContext";
+import { TreeViewTestContext } from "../../ui-test/treeview/treeviewContext";
 import {
   createNewProject,
   execCommandIfExistFromTreeView,

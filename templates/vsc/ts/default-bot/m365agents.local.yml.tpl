@@ -3,6 +3,8 @@
 # Visit https://aka.ms/teamsfx-actions for details on actions
 version: v1.11
 
+environmentFolderPath: ./env
+
 provision:
   # Creates an app
   - uses: teamsApp/create
@@ -53,14 +55,14 @@ provision:
       manifestPath: ./appPackage/manifest.json
       outputZipPath: ./appPackage/build/appPackage.${{TEAMSFX_ENV}}.zip
       outputFolder: ./appPackage/build
+
   # Validate app package using validation rules
   - uses: teamsApp/validateAppPackage
     with:
       # Relative path to this file. This is the path for built zip file.
       appPackagePath: ./appPackage/build/appPackage.${{TEAMSFX_ENV}}.zip
 
-  # Apply the app manifest to an existing app in
-  # Developer Portal.
+  # Apply the app manifest to an existing app in Developer Portal.
   # Will use the app id in manifest file to determine which app to update.
   - uses: teamsApp/update
     with:
@@ -79,6 +81,7 @@ deploy:
     with:
       target: ./.localConfigs
       envs:
+        PORT: 3978
         CLIENT_ID: ${{BOT_ID}}
         CLIENT_SECRET: ${{SECRET_BOT_PASSWORD}}
         TENANT_ID: ${{TEAMS_APP_TENANT_ID}}

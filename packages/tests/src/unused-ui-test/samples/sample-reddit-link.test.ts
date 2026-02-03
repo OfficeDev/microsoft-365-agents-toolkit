@@ -7,8 +7,8 @@
 
 import path from "path";
 import { LocalDebugTaskLabel, TemplateProject } from "../../utils/constants";
-import { CaseFactory } from "./sampleCaseFactory";
-import { SampledebugContext } from "./sampledebugContext";
+import { CaseFactory } from "../../ui-test/samples/sampleCaseFactory";
+import { SampledebugContext } from "../../ui-test/samples/sampledebugContext";
 import { editDotEnvFile } from "../../utils/commonUtils";
 
 class RedditLinkTestCase extends CaseFactory {

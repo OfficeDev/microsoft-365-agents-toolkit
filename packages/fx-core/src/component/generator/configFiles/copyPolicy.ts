@@ -25,6 +25,7 @@ export const localNode: Record<string, CopyPolicy> = {
 
 export const remoteNode: Record<string, CopyPolicy> = {
   ".vscode/launch.json.tpl": { allowExistingFile: true, policy: "add" },
+  ".vscode/tasks.json": { allowExistingFile: true, policy: "add" },
   "env/.env.dev": { allowExistingFile: false, policy: "skip" },
   "infra/azure.bicep.tpl": { allowExistingFile: false, policy: "skip" },
   "infra/azure.parameters.json.tpl": { allowExistingFile: false, policy: "skip" },
