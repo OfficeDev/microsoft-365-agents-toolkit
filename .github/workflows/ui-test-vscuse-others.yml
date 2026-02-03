@@ -772,11 +772,16 @@ jobs:
           echo "subject=$subject" >> $GITHUB_OUTPUT
 
 
+      - name: Prepare email body file
+        if: always()
+        run: |
+          printf '%s' "${{ steps.list-jobs.outputs.body }}" > email-body.html
+          echo "BODY_FILE=$(pwd)/email-body.html" >> $GITHUB_ENV
+
       - name: Send E-mail
         uses: ./.github/actions/send-email-report-vscuse
         env:
           TO: ${{ steps.list-jobs.outputs.to }}
-          BODY: '"${{ steps.list-jobs.outputs.body }}"'
           SUBJECT: ${{ steps.list-jobs.outputs.subject }}
           MAIL_CLIENT_ID: ${{ secrets.TEST_CLEAN_CLIENT_ID }}
           MAIL_CLIENT_SECRET: ${{ secrets.TEST_CLEAN_CLIENT_SECRET }}
