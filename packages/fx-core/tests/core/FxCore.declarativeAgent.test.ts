@@ -60,10 +60,7 @@ describe("updateActionWithMCP", () => {
       runtimes: [],
     };
 
-    sandbox.stub(fs, "pathExists").callsFake(async (filePath: string) => {
-      // Return false for mcp-tools.json to avoid infinite loop, true for ai-plugin.json
-      return !filePath.includes("mcp-tools");
-    });
+    sandbox.stub(fs, "pathExists").resolves(true);
     sandbox.stub(fs, "readJSON").resolves(existingPlugin);
     const writeJSONStub = sandbox.stub(fs, "writeJSON").resolves();
     sandbox.stub(pathUtils, "getYmlFilePath").returns("/test/project/teamsapp.yml");
@@ -74,12 +71,12 @@ describe("updateActionWithMCP", () => {
     const result = await core.updateActionWithMCP(inputs);
 
     assert.isTrue(result.isOk());
-    assert.isTrue(writeJSONStub.calledTwice); // mcp-tools.json and ai-plugin.json
+    assert.isTrue(writeJSONStub.calledOnce); // Only ai-plugin.json is written (tools are now embedded)
     assert.isTrue(showMessageStub.calledOnce);
     assert.isTrue(openFileStub.calledOnce);
   });
 
-  it("should create default mcp-tools.json when mcpFile is undefined (no matched runtime)", async () => {
+  it("should embed tools in mcp_tool_description when no matched runtime exists", async () => {
     const core = new FxCore(tools);
     const inputs: Inputs = {
       projectPath,
@@ -103,31 +100,18 @@ describe("updateActionWithMCP", () => {
       ignoreLockByUT: true,
     };
 
-    // No existing runtime with mcp_tool_description.file, so mcpFile will be undefined
+    // No existing runtime, so a new one will be created
     const existingPlugin = {
       functions: [],
       runtimes: [],
     };
 
-    let writtenMcpToolsPath = "";
-    let writtenMcpToolsData: any;
     let writtenPluginData: any;
 
-    sandbox.stub(fs, "pathExists").callsFake(async (filePath: string) => {
-      // Return false for mcp-tools.json so it uses the default name
-      if (filePath.includes("mcp-tools")) {
-        return false;
-      }
-      return true; // ai-plugin.json exists
-    });
+    sandbox.stub(fs, "pathExists").resolves(true);
     sandbox.stub(fs, "readJSON").resolves(existingPlugin);
     sandbox.stub(fs, "writeJSON").callsFake((filePath: string, data) => {
-      if (filePath.includes("mcp-tools")) {
-        writtenMcpToolsPath = filePath;
-        writtenMcpToolsData = data;
-      } else {
-        writtenPluginData = data;
-      }
+      writtenPluginData = data;
       return Promise.resolve();
     });
     sandbox.stub(pathUtils, "getYmlFilePath").returns("/test/project/teamsapp.yml");
@@ -139,26 +123,18 @@ describe("updateActionWithMCP", () => {
 
     assert.isTrue(result.isOk());
 
-    // Verify mcp-tools.json was created with default name (not incremented)
-    assert.isTrue(writtenMcpToolsPath.includes("mcp-tools.json"));
-    assert.isFalse(writtenMcpToolsPath.includes("mcp-tools-"));
-
-    // Verify mcp-tools.json contains the tool with full details
-    assert.isDefined(writtenMcpToolsData);
-    assert.equal(writtenMcpToolsData.tools.length, 1);
-    assert.equal(writtenMcpToolsData.tools[0].name, "testTool");
-    assert.isDefined(writtenMcpToolsData.tools[0].inputSchema);
-    assert.isDefined(writtenMcpToolsData.tools[0].title);
-
-    // Verify the runtime was added with mcp_tool_description.file reference
+    // Verify the runtime was added with embedded tools in mcp_tool_description.tools
     const mcpRuntime = writtenPluginData.runtimes.find(
       (r: any) => r.type === "RemoteMCPServer" && r.spec.url === mcpServerUrl
     );
     assert.isDefined(mcpRuntime);
-    assert.equal(mcpRuntime.spec.mcp_tool_description.file, "mcp-tools.json");
+    assert.isDefined(mcpRuntime.spec.mcp_tool_description.tools);
+    assert.equal(mcpRuntime.spec.mcp_tool_description.tools.length, 1);
+    assert.equal(mcpRuntime.spec.mcp_tool_description.tools[0].name, "testTool");
+    assert.isDefined(mcpRuntime.spec.mcp_tool_description.tools[0].title);
   });
 
-  it("should reuse existing mcp_tool_description.file when matched runtime exists", async () => {
+  it("should replace existing runtime with new tools when matched runtime exists", async () => {
     const core = new FxCore(tools);
     const inputs: Inputs = {
       projectPath,
@@ -204,17 +180,12 @@ describe("updateActionWithMCP", () => {
       ],
     };
 
-    let writtenMcpToolsPath = "";
     let writtenPluginData: any;
 
     sandbox.stub(fs, "pathExists").resolves(true);
     sandbox.stub(fs, "readJSON").resolves(existingPlugin);
     sandbox.stub(fs, "writeJSON").callsFake((filePath: string, data) => {
-      if (filePath.includes("mcp-tools") || filePath.includes("existing-mcp-tools")) {
-        writtenMcpToolsPath = filePath;
-      } else {
-        writtenPluginData = data;
-      }
+      writtenPluginData = data;
       return Promise.resolve();
     });
     sandbox.stub(pathUtils, "getYmlFilePath").returns("/test/project/teamsapp.yml");
@@ -226,15 +197,14 @@ describe("updateActionWithMCP", () => {
 
     assert.isTrue(result.isOk());
 
-    // Verify the existing mcp_tool_description.file is reused
-    assert.isTrue(writtenMcpToolsPath.includes("existing-mcp-tools.json"));
-
-    // Verify the runtime uses the same file reference
+    // Verify the runtime now has embedded tools instead of file reference
     const mcpRuntime = writtenPluginData.runtimes.find(
       (r: any) => r.type === "RemoteMCPServer" && r.spec.url === mcpServerUrl
     );
     assert.isDefined(mcpRuntime);
-    assert.equal(mcpRuntime.spec.mcp_tool_description.file, "existing-mcp-tools.json");
+    assert.isDefined(mcpRuntime.spec.mcp_tool_description.tools);
+    assert.equal(mcpRuntime.spec.mcp_tool_description.tools.length, 1);
+    assert.equal(mcpRuntime.spec.mcp_tool_description.tools[0].name, "newTool");
   });
 
   it("should successfully update action with OAuth authentication", async () => {
@@ -275,10 +245,7 @@ describe("updateActionWithMCP", () => {
       refresh_endpoint: "https://example.com/oauth/refresh",
     };
 
-    sandbox.stub(fs, "pathExists").callsFake(async (filePath: string) => {
-      // Return false for mcp-tools.json to avoid infinite loop, true for ai-plugin.json
-      return !filePath.includes("mcp-tools");
-    });
+    sandbox.stub(fs, "pathExists").resolves(true);
     sandbox.stub(fs, "readJSON").resolves(existingPlugin);
     const writeJSONStub = sandbox.stub(fs, "writeJSON").resolves();
     sandbox.stub(pathUtils, "getYmlFilePath").returns("/test/project/teamsapp.yml");
@@ -294,7 +261,7 @@ describe("updateActionWithMCP", () => {
 
     assert.isTrue(result.isOk());
     assert.isTrue(injectOAuthStub.calledOnce);
-    assert.isTrue(writeJSONStub.calledTwice); // mcp-tools.json and ai-plugin.json
+    assert.isTrue(writeJSONStub.calledOnce); // Only ai-plugin.json is written (tools are now embedded)
     assert.isTrue(showMessageStub.calledOnce);
     assert.isTrue(openFileStub.calledOnce);
   });
@@ -340,10 +307,7 @@ describe("updateActionWithMCP", () => {
       refresh_endpoint: "https://example.com/oauth/refresh",
     };
 
-    sandbox.stub(fs, "pathExists").callsFake(async (filePath: string) => {
-      // Return false for mcp-tools.json to avoid infinite loop, true for ai-plugin.json
-      return !filePath.includes("mcp-tools");
-    });
+    sandbox.stub(fs, "pathExists").resolves(true);
     sandbox.stub(fs, "readJSON").resolves(existingPlugin);
     const writeJSONStub = sandbox.stub(fs, "writeJSON").resolves();
     sandbox.stub(pathUtils, "getYmlFilePath").returns("/test/project/teamsapp.yml");
@@ -364,7 +328,7 @@ describe("updateActionWithMCP", () => {
 
     assert.isTrue(result.isOk());
     assert.isTrue(injectOAuthStub.calledOnce);
-    assert.isTrue(writeJSONStub.calledTwice); // mcp-tools.json and ai-plugin.json
+    assert.isTrue(writeJSONStub.calledOnce); // Only ai-plugin.json is written (tools are now embedded)
     assert.isTrue(showMessageStub.calledOnce);
     assert.isTrue(openFileStub.calledOnce);
   });
@@ -500,18 +464,10 @@ describe("updateActionWithMCP", () => {
     };
 
     let writtenPlugin: any;
-    let writtenMcpTools: any;
-    sandbox.stub(fs, "pathExists").callsFake(async (filePath: string) => {
-      // Return false for mcp-tools.json to avoid infinite loop, true for ai-plugin.json
-      return !filePath.includes("mcp-tools");
-    });
+    sandbox.stub(fs, "pathExists").resolves(true);
     sandbox.stub(fs, "readJSON").resolves(existingPlugin);
     sandbox.stub(fs, "writeJSON").callsFake((filePath: string, data) => {
-      if (filePath.includes("mcp-tools")) {
-        writtenMcpTools = data;
-      } else {
-        writtenPlugin = data;
-      }
+      writtenPlugin = data;
       return Promise.resolve();
     });
     sandbox.stub(pathUtils, "getYmlFilePath").returns("/test/project/teamsapp.yml");
@@ -523,14 +479,8 @@ describe("updateActionWithMCP", () => {
 
     assert.isTrue(result.isOk());
 
-    // Verify mcp-tools.json contains tools with full details including title and inputSchema
-    assert.isDefined(writtenMcpTools);
-    assert.equal(writtenMcpTools.tools.length, 1);
-    assert.equal(writtenMcpTools.tools[0].name, "newTool");
-    assert.isDefined(writtenMcpTools.tools[0].inputSchema);
-    assert.isDefined(writtenMcpTools.tools[0].title);
-
     // Verify that old tool functions were removed and new ones added (only name and description)
+    assert.isDefined(writtenPlugin);
     assert.equal(writtenPlugin.functions.length, 1);
     assert.equal(writtenPlugin.functions[0].name, "newTool");
     assert.isDefined(writtenPlugin.functions[0].description);
@@ -543,6 +493,12 @@ describe("updateActionWithMCP", () => {
     );
     assert.equal(mcpRuntimes.length, 1);
     assert.deepEqual(mcpRuntimes[0].run_for_functions, ["newTool"]);
+
+    // Verify tools are now embedded in the runtime spec
+    assert.isDefined(mcpRuntimes[0].spec.mcp_tool_description.tools);
+    assert.equal(mcpRuntimes[0].spec.mcp_tool_description.tools.length, 1);
+    assert.equal(mcpRuntimes[0].spec.mcp_tool_description.tools[0].name, "newTool");
+    assert.isDefined(mcpRuntimes[0].spec.mcp_tool_description.tools[0].title);
 
     // Verify that other runtimes are preserved
     const otherRuntimes = writtenPlugin.runtimes.filter(
@@ -580,10 +536,7 @@ describe("updateActionWithMCP", () => {
       runtimes: [],
     };
 
-    sandbox.stub(fs, "pathExists").callsFake(async (filePath: string) => {
-      // Return false for mcp-tools.json to avoid infinite loop, true for ai-plugin.json
-      return !filePath.includes("mcp-tools");
-    });
+    sandbox.stub(fs, "pathExists").resolves(true);
     sandbox.stub(fs, "readJSON").resolves(existingPlugin);
     const writeJSONStub = sandbox.stub(fs, "writeJSON").resolves();
     sandbox.stub(pathUtils, "getYmlFilePath").returns("/test/project/teamsapp.yml");
@@ -598,14 +551,14 @@ describe("updateActionWithMCP", () => {
     assert.isTrue(result.isOk());
     assert.isTrue(showMessageStub.calledOnce);
     assert.isTrue(openFileStub.calledOnce);
-    assert.isTrue(writeJSONStub.calledTwice); // mcp-tools.json and ai-plugin.json
+    assert.isTrue(writeJSONStub.calledOnce); // Only ai-plugin.json is written (tools are now embedded)
 
     // Wait a bit for the async provision call
     await new Promise((resolve) => setTimeout(resolve, 10));
     assert.isTrue(provisionStub.calledOnce);
   });
 
-  it("should generate unique mcp-tools filename when default already exists", async () => {
+  it("should embed tools directly in runtime spec instead of creating separate file", async () => {
     const core = new FxCore(tools);
     const inputs: Inputs = {
       projectPath,
@@ -634,25 +587,11 @@ describe("updateActionWithMCP", () => {
       runtimes: [],
     };
 
-    // Simulate mcp-tools.json and mcp-tools-1.json already exist
-    sandbox.stub(fs, "pathExists").callsFake(async (filePath: string) => {
-      if (filePath.includes("mcp-tools.json") && !filePath.includes("mcp-tools-")) {
-        return true; // mcp-tools.json exists
-      }
-      if (filePath.includes("mcp-tools-1.json")) {
-        return true; // mcp-tools-1.json exists
-      }
-      if (filePath.includes("mcp-tools-2.json")) {
-        return false; // mcp-tools-2.json does not exist
-      }
-      return true; // ai-plugin.json exists
-    });
+    sandbox.stub(fs, "pathExists").resolves(true);
     sandbox.stub(fs, "readJSON").resolves(existingPlugin);
-    let writtenMcpToolsPath = "";
+    let writtenPluginData: any;
     sandbox.stub(fs, "writeJSON").callsFake((filePath: string, data) => {
-      if (filePath.includes("mcp-tools")) {
-        writtenMcpToolsPath = filePath;
-      }
+      writtenPluginData = data;
       return Promise.resolve();
     });
     sandbox.stub(pathUtils, "getYmlFilePath").returns("/test/project/teamsapp.yml");
@@ -663,8 +602,16 @@ describe("updateActionWithMCP", () => {
     const result = await core.updateActionWithMCP(inputs);
 
     assert.isTrue(result.isOk());
-    // Verify the filename was incremented to mcp-tools-2.json since mcp-tools.json and mcp-tools-1.json exist
-    assert.isTrue(writtenMcpToolsPath.includes("mcp-tools-2.json"));
+
+    // Verify tools are embedded in the runtime spec directly
+    const mcpRuntime = writtenPluginData.runtimes.find(
+      (r: any) => r.type === "RemoteMCPServer" && r.spec.url === mcpServerUrl
+    );
+    assert.isDefined(mcpRuntime);
+    assert.isDefined(mcpRuntime.spec.mcp_tool_description.tools);
+    assert.equal(mcpRuntime.spec.mcp_tool_description.tools.length, 1);
+    assert.equal(mcpRuntime.spec.mcp_tool_description.tools[0].name, "testTool");
+    assert.isDefined(mcpRuntime.spec.mcp_tool_description.tools[0].title);
   });
 
   it("should show error when mcpAuthMetadataUrl is not provided for OAuth without well-known URL", async () => {
