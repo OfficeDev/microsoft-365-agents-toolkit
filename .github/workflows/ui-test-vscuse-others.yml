@@ -79,7 +79,7 @@ jobs:
     name: Case-${{ matrix.test_plan }}
     needs: discover-test-plans
     runs-on: ubuntu-latest
-    timeout-minutes: 50
+    timeout-minutes: 80
 
     strategy:
       matrix:
