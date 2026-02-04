@@ -153,6 +153,8 @@ export class EnvConstants {
   // FrontEnd
   static readonly TAB_AZURE_STORAGE_RESOURCE_ID =
     "TAB_AZURE_STORAGE_RESOURCE_ID";
+  static readonly AZURE_APP_SERVICE_RESOURCE_ID =
+    "AZURE_APP_SERVICE_RESOURCE_ID";
   static readonly TAB_AZURE_APP_SERVICE_RESOURCE_ID =
     "TAB_AZURE_APP_SERVICE_RESOURCE_ID";
   static readonly TAB_ENDPOINT = "TAB_ENDPOINT";

@@ -23,7 +23,7 @@
         <Str Cat="Text">
           <Val><![CDATA[With the GitHub Copilot Chat extension in Visual Studio Code, you can have AI-powered chat conversations to generate code, increase your code understanding, and even configure your editor.]A;[Install GitHub Copilot Chat]5D;(command:fx-extension.installCopilotChat?%5B%22TeamsAgentWalkthrough%22%5D)]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[借Visual Studio Code中GitHub Copilot聊天扩展，你可以让 AI 支持的聊天对话生成代码、提高代码理解度，甚至配置编辑器。]A;[Install GitHub Copilot Chat]5D;(command：fx-extension.installCopilotChat？%5B%22TeamsAgentWalkthrough%22%5D)]]></Val>
+            <Val><![CDATA[借助 Visual Studio Code 中的 GitHub Copilot 对话助手扩展，你可以让 AI 支持的聊天对话生成代码、提高代码理解度，甚至配置编辑器。]A;[安装 GitHub Copilot 对话助手]5D;(command:fx-extension.installCopilotChat?%5B%22TeamsAgentWalkthrough%22%5D)]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -32,7 +32,7 @@
         <Str Cat="Text">
           <Val><![CDATA[⚠️Install GitHub Copilot Chat for Visual Studio Code]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[⚠️安装GitHub Copilot聊天Visual Studio Code]]></Val>
+            <Val><![CDATA[⚠️安装适用于 Visual Studio Code 的 GitHub Copilot 对话助手]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Install GitHub Copilot Chat for Visual Studio Code]]></Val>
@@ -53,7 +53,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Get access to GitHub Copilot]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[获取对GitHub Copilot的访问权限]]></Val>
+            <Val><![CDATA[获取对 GitHub Copilot 的访问权限]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -62,7 +62,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Complete the mandatory steps (with ⚠️) to set up the GitHub Copilot extension for Microsoft 365 Agents Toolkit.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[完成设置适用于 Microsoft 365 代理工具包的 GitHub Copilot 扩展的必需步骤(通过 ⚠️)。]]></Val>
+            <Val><![CDATA[完成设置适用于 Microsoft 365 智能体工具包的 GitHub Copilot 扩展的必需步骤(通过 ⚠️)。]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Complete the mandatory steps (with ⚠️) to set up the GitHub Copilot extension for Teams Toolkit.]]></Val>
@@ -143,7 +143,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Sign in to your GitHub account and get started. Learn more about how to [set up GitHub Copilot]5D;(https://aka.ms/teams-agent-github-copilot-setup).]A;[Open GitHub Copilot Chat]5D;(command:fx-extension.openGitHubCopilotChat?%5B%22TeamsAgentWalkthrough%22%5D)]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[登录到 GitHub 帐户并开始使用。详细了解如何 [set up GitHub Copilot]5D;(https://aka.ms/teams-agent-github-copilot-setup).]A;[Open GitHub Copilot Chat]5D;(command：fx-extension.openGitHubCopilotChat？%5B%22TeamsAgentWalkthrough%22%5D)]]></Val>
+            <Val><![CDATA[登录到 GitHub 帐户并开始使用。详细了解如何[设置 GitHub Copilot]5D;(https://aka.ms/teams-agent-github-copilot-setup)。]A;[打开 GitHub Copilot 对话助手]5D;(command:fx-extension.openGitHubCopilotChat?%5B%22TeamsAgentWalkthrough%22%5D)]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Sign in to your GitHub account and get started. Learn more about how to [set up GitHub Copilot]5D;(https://aka.ms/teams-agent-github-copilot-setup).]A;[Open GitHub Copilot Chat]5D;(command:fx-extension.openGitHubCopilotChat?%5B%22TeamsAgentWalkthrough%22%5D)]A;[Mark login completed]5D;(command:fx-extension.markGitHubCopilotLoginDone)]]></Val>
@@ -155,7 +155,7 @@
         <Str Cat="Text">
           <Val><![CDATA[⚠️Set up GitHub Copilot in Visual Studio Code]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[⚠️在Visual Studio Code中设置GitHub Copilot]]></Val>
+            <Val><![CDATA[⚠️在 Visual Studio Code 中设置 GitHub Copilot]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Set up GitHub Copilot in Visual Studio Code]]></Val>
@@ -167,7 +167,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Getting Started with the GitHub Copilot Extension for Microsoft 365 Agents Toolkit]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[开始使用适用于 Microsoft 365 代理工具包的 GitHub Copilot 扩展]]></Val>
+            <Val><![CDATA[开始使用适用于 Microsoft 365 智能体工具包的 GitHub Copilot 扩展]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Getting Started with the GitHub Copilot Extension for Teams Toolkit]]></Val>
@@ -2345,7 +2345,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Get Help from GitHub Copilot]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[从GitHub Copilot获取帮助]]></Val>
+            <Val><![CDATA[从 GitHub Copilot 获取帮助]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -2354,7 +2354,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Get Help from GitHub Copilot (Preview)]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[从 GitHub Copilot (预览版)获取帮助]]></Val>
+            <Val><![CDATA[从 GitHub Copilot (预览)获取帮助]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -2687,7 +2687,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Open Office Prompt Library for GitHub Copilot]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[打开 Office 提示库以获取GitHub Copilot]]></Val>
+            <Val><![CDATA[打开 Office 提示库以获取 GitHub Copilot]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -2696,7 +2696,7 @@
         <Str Cat="Text">
           <Val><![CDATA[View Prompts for GitHub Copilot]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[查看GitHub Copilot的提示]]></Val>
+            <Val><![CDATA[查看 GitHub Copilot 的提示]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3899,7 +3899,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to automatically focus GitHub Copilot Chat. Open GitHub Copilot Chat and start with "%s"]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[无法自动将焦点GitHub Copilot聊天。打开GitHub Copilot聊天并以 "%s" 开头]]></Val>
+            <Val><![CDATA[无法自动将焦点放在 GitHub Copilot 对话助手上。打开 GitHub Copilot 对话助手并以 "%s" 开头]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4109,7 +4109,7 @@
         <Str Cat="Text">
           <Val><![CDATA[GitHub Copilot Chat extension is already installed.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[已安装GitHub Copilot聊天扩展。]]></Val>
+            <Val><![CDATA[已安装 GitHub Copilot 对话助手扩展。]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4118,7 +4118,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to install GitHub Copilot Chat. Install it following %s and try again.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[无法安装GitHub Copilot聊天。请按照 %s 进行安装，然后重试。]]></Val>
+            <Val><![CDATA[无法安装 GitHub Copilot 对话助手。请按照 %s 进行安装，然后重试。]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4583,7 +4583,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to verify GitHub Copilot Chat. Install it manually following %s and try again.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[无法验证GitHub Copilot聊天。按照 %s 手动安装它，然后重试。]]></Val>
+            <Val><![CDATA[无法验证 GitHub Copilot 对话助手。按照 %s 手动安装它，然后重试。]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -6449,7 +6449,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Need more help? [Chat with GitHub Copilot]5D;(command:fx-extension.invokeChat?%5B%22WalkThrough%22%5D) to explore app or Microsoft 365 Copilot agent development.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[需要更多帮助?[与 GitHub Copilot 聊天]5D;(command:fx-extension.invokeChat?%5B%22WalkThrough%22%5D)，以探索应用或智能 Microsoft 365 Copilot 副驾驶® 智能体开发。]]></Val>
+            <Val><![CDATA[需要更多帮助? [与 GitHub Copilot 聊天]5D;(command:fx-extension.invokeChat?%5B%22WalkThrough%22%5D)，以探索应用或智能 Microsoft 365 Copilot 副驾驶® 智能体开发。]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Need more help? [Chat with GitHub Copilot]5D;(command:fx-extension.invokeChat?%5B%22WalkThrough%22%5D) to explore Microsoft 365 app or Microsoft 365 Copilot agent development.]]></Val>
@@ -6473,7 +6473,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Chat with GitHub Copilot (Preview)]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[与 GitHub Copilot (预览版)聊天]]></Val>
+            <Val><![CDATA[与 GitHub Copilot (预览)聊天]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -6482,7 +6482,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Chat with GitHub Copilot]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[与GitHub Copilot聊天]]></Val>
+            <Val><![CDATA[与 GitHub Copilot 聊天]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />

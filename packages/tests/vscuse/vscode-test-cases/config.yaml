@@ -21,7 +21,7 @@ m365:
 
 docker:
   container_name: "vscuse-container"        # Default: "vscuse-container"
-  image_name: "${VSCUSE_VSCODE_IMAGE:ghcr.io/microsoft/vscuse-vscode:latest}" # Default: "ghcr.io/microsoft/vscuse-vscode:latest"
+  image_name: "${VSCUSE_VSCODE_IMAGE:ghcr.io/officedev/vscuse-atk-vscode:latest}" # Default: "ghcr.io/officedev/vscuse-atk-vscode:latest"
   vscode_insiders: false   
   environment:
     TEAMSFX_TELEMETRY_TEST: "true"                 # Default: false (set to true to use VS Code Insider)
@@ -39,6 +39,11 @@ docker:
     # Admin account for Global admin role
     M365_ACCOUNT_ADMIN_ACCOUNT: "${M365_ACCOUNT_ADMIN_ACCOUNT}"
     M365_ACCOUNT_ADMIN_PASSWORD: "${M365_ACCOUNT_ADMIN_PASSWORD}"
+    AZURE_SUBSCRIPTION_ID: "${AZURE_SUBSCRIPTION_ID}"
+    
+    # ms tenant account
+    MS_AZURE_ACCOUNT_NAME: "${MS_AZURE_ACCOUNT_NAME}"
+    MS_AZURE_ACCOUNT_PASSWORD: "${MS_AZURE_ACCOUNT_PASSWORD}"
 
 execution:
   delay_between_steps: 0.5         # Default: 0.5 (seconds between steps)

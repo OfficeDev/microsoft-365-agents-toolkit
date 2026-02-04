@@ -2,8 +2,6 @@ name: uitest-vscuse-template
 #
 # Triggers:
 # 1. Manual trigger (workflow_dispatch)
-# 2. Scheduled daily run (schedule)
-# 3. On successful completion of CD workflow when triggered by schedule (workflow_run)
 on:
   workflow_dispatch:
     inputs:
@@ -28,15 +26,14 @@ on:
         required: false
         type: number
         default: 7
-  workflow_run:
-    workflows: ["CD"]
-    types:
-      - completed
+      schedule_trigger:
+        description: 'Whether the build is triggered by schedule'
+        type: boolean
+        default: false
 permissions:
   actions: read
 jobs:
   discover-test-plans:
-    if: ${{ github.event_name != 'workflow_run' || (github.event.workflow_run.event == 'schedule' && github.event.workflow_run.conclusion == 'success') }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -51,7 +48,7 @@ jobs:
         id: set-email
         run: |
           # Set email receiver based on trigger type
-          if [ "${{ github.event_name }}" == "schedule" ]; then
+          if [ "${{ github.event.inputs.schedule_trigger }}" == "true" ] || [ "${{ github.event_name }}" == "schedule" ]; then
             echo "email-receiver=zhenjiao@microsoft.com;M365AgentsToolkitEngineerTeam@microsoft.com;teamsfxqa@microsoft.com" >> $GITHUB_OUTPUT
             echo "Schedule trigger: Using default email receivers"
           elif [ -n "${{ github.event.inputs.email-receiver }}" ]; then
@@ -134,6 +131,10 @@ jobs:
       # The test account for Copilot features
       M365_ACCOUNT_NAME_EnableCopilotAccess: ${{ secrets.TEST_TENANT_M365_ACCOUNT_NAME }}
       M365_ACCOUNT_PASSWORD_EnableCopilotAccess: ${{ secrets.TEST_TENANT_M365_ACCOUNT_PASSWORD }}
+
+      # M365 admin account with Global admin role
+      M365_ACCOUNT_ADMIN_ACCOUNT: ${{ vars.TEST_TENANT_M365_ACCOUNT_ADMIN_ACCOUNT }}
+      M365_ACCOUNT_ADMIN_PASSWORD: ${{ secrets.TEST_TENANT_M365_ACCOUNT_ADMIN_PASSWORD }}
             
       AZURE_ACCOUNT_NAME: ${{ secrets.TEST_TENANT_AZURE_ACCOUNT_NAME }}
       AZURE_ACCOUNT_PASSWORD: ${{ secrets.TEST_TENANT_AZURE_ACCOUNT_PASSWORD }}
@@ -160,6 +161,10 @@ jobs:
       # Foundry related parameters
       AZURE_AI_FOUNDRY_PROJECT_ENDPOINT: ${{ vars.AZURE_AI_FOUNDRY_PROJECT_ENDPOINT }}
       AGENT_ID: ${{ secrets.AGENT_ID }}
+
+      # ms account
+      MS_AZURE_ACCOUNT_NAME: ${{vars.MS_AZURE_ACCOUNT_NAME}}
+      MS_AZURE_ACCOUNT_PASSWORD: ${{secrets.MS_AZURE_ACCOUNT_PASSWORD}}
 
     steps:
       - name: Checkout repo
@@ -236,7 +241,7 @@ jobs:
           if [ -z "$IMAGE_TAG" ]; then
             IMAGE_TAG="latest"
           fi
-          VSCUSE_VSCODE_IMAGE="ghcr.io/microsoft/vscuse-vscode:$IMAGE_TAG"
+          VSCUSE_VSCODE_IMAGE="ghcr.io/officedev/vscuse-atk-vscode:$IMAGE_TAG"
           echo "VSCUSE_VSCODE_IMAGE=$VSCUSE_VSCODE_IMAGE" >> $GITHUB_ENV
           echo "Pulling pre-built Docker image: $VSCUSE_VSCODE_IMAGE"
           docker pull $VSCUSE_VSCODE_IMAGE
@@ -347,14 +352,14 @@ jobs:
 
           # Stop and remove any containers using our image
           echo "Cleaning up VSCode containers..."
-          docker stop $(docker ps -q --filter "ancestor=ghcr.io/microsoft/vscuse-vscode:${{ github.event.inputs.image_tag || 'latest' }}") 2>/dev/null || echo "No containers to stop"
-          docker rm $(docker ps -aq --filter "ancestor=ghcr.io/microsoft/vscuse-vscode:${{ github.event.inputs.image_tag || 'latest' }}") 2>/dev/null || echo "No containers to remove"
+          docker stop $(docker ps -q --filter "ancestor=ghcr.io/officedev/vscuse-atk-vscode:${{ github.event.inputs.image_tag || 'latest' }}") 2>/dev/null || echo "No containers to stop"
+          docker rm $(docker ps -aq --filter "ancestor=ghcr.io/officedev/vscuse-atk-vscode:${{ github.event.inputs.image_tag || 'latest' }}") 2>/dev/null || echo "No containers to remove"
 
   rerun:
     permissions:
       actions: write
     needs: main
-    if: ${{ (github.event_name == 'workflow_dispatch' || github.event_name == 'schedule') && failure() && github.run_attempt < (github.event.inputs.max_retries || 7) }}
+    if: ${{ (github.event_name == 'workflow_dispatch' || github.event_name == 'schedule' || github.event.inputs.schedule_trigger == 'true') && failure() && github.run_attempt < (github.event.inputs.max_retries || 7) }}
     runs-on: ubuntu-latest
     env:
       MAX_RETRIES: ${{ github.event.inputs.max_retries || 7 }}
@@ -369,28 +374,28 @@ jobs:
       AZURE_ACCOUNT_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
     steps:
       - name: Checkout
-        if: ${{ github.event_name == 'schedule' }}
+        if: ${{ github.event_name == 'schedule' || github.event.inputs.schedule_trigger == 'true' }}
         uses: actions/checkout@v4
         with:
           ref: ${{ github.ref_name }}
 
       - name: Setup node
-        if: ${{ github.event_name == 'schedule' }}
+        if: ${{ github.event_name == 'schedule' || github.event.inputs.schedule_trigger == 'true' }}
         uses: actions/setup-node@v3
         with:
           node-version: 22
 
       - uses: pnpm/action-setup@v4
-        if: ${{ github.event_name == 'schedule' }}
+        if: ${{ github.event_name == 'schedule' || github.event.inputs.schedule_trigger == 'true' }}
 
       - name: Setup project
-        if: ${{ github.event_name == 'schedule' }}
+        if: ${{ github.event_name == 'schedule' || github.event.inputs.schedule_trigger == 'true' }}
         working-directory: ./
         run: |
           npm run setup:e2e
 
       - name: Clean resources
-        if: ${{ github.event_name == 'schedule' }}
+        if: ${{ github.event_name == 'schedule' || github.event.inputs.schedule_trigger == 'true' }}
         working-directory: packages/tests
         run: |
           npx ts-node src/scripts/clean.ts
@@ -420,8 +425,8 @@ jobs:
 
   report:
     # Only send email on the last attempt or when all tests pass
-    # Send email if: (1) triggered by schedule, OR (2) triggered manually with email-receiver input provided
-    if: ${{ always() && (github.event_name == 'schedule' || needs.discover-test-plans.outputs.email-receiver != '') && (success() || github.run_attempt >= (github.event.inputs.max_retries || 7)) }}
+    # Send email if: (1) triggered by schedule or schedule_trigger is true, OR (2) triggered manually with email-receiver input provided
+    if: ${{ always() && (github.event_name == 'schedule' || github.event.inputs.schedule_trigger == 'true' || needs.discover-test-plans.outputs.email-receiver != '') && (success() || github.run_attempt >= (github.event.inputs.max_retries || 7)) }}
     needs: [discover-test-plans, main]
     runs-on: ubuntu-latest
     defaults:
@@ -754,7 +759,7 @@ jobs:
           total=$((passed+failed))
           echo "Total jobs: $total, Passed: $passed, Failed: $failed"
 
-          subject="Vsc Use UI Test Report ($passed/$total Passed)"
+          subject="Vsc Use UI Test Report[Templates] ($passed/$total Passed)"
           if [ $failed -gt 0 ]; then
             subject="[FAILED] $subject"
           else
@@ -767,12 +772,35 @@ jobs:
           echo "subject=$subject" >> $GITHUB_OUTPUT
 
 
+      - name: Prepare email body file
+        if: always()
+        run: |
+          printf '%s' "${{ steps.list-jobs.outputs.body }}" > email-body.html
+          echo "BODY_FILE=$(pwd)/email-body.html" >> $GITHUB_ENV
+
       - name: Send E-mail
-        uses: ./.github/actions/send-email-report
+        uses: ./.github/actions/send-email-report-vscuse
         env:
           TO: ${{ steps.list-jobs.outputs.to }}
-          BODY: '"${{ steps.list-jobs.outputs.body }}"'
           SUBJECT: ${{ steps.list-jobs.outputs.subject }}
           MAIL_CLIENT_ID: ${{ secrets.TEST_CLEAN_CLIENT_ID }}
           MAIL_CLIENT_SECRET: ${{ secrets.TEST_CLEAN_CLIENT_SECRET }}
           MAIL_TENANT_ID: ${{ secrets.TEST_CLEAN_TENANT_ID }}
+
+  trigger-ui-test-others:
+    needs: report
+    if: ${{ always() && needs.report.result != 'skipped' && github.event.inputs.schedule_trigger == 'true'}}
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+      - name: Trigger UI Test Others Workflow
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh workflow run ui-test-vscuse-others.yml \
+            --repo ${{ github.repository }} \
+            --ref ${{ github.ref }} \
+            -f image_tag=${{ github.event.inputs.image_tag || 'latest' }} \
+            -f vscuse_version=${{ github.event.inputs.vscuse_version || 'latest' }} \
+            -f schedule_trigger=${{ github.event.inputs.schedule_trigger || 'false' }}

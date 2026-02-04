@@ -45,7 +45,8 @@
   "preferGlobal": true,
   "bin": {
     "teamsapp": "./cliold.js",
-    "atk": "./cli.js"
+    "atk": "./cli.js",
+    "m365agentstoolkit-cli": "./cli.js"
   },
   "aiKey": "1c56be97-bb74-42cf-b04b-8f1aabf04592",
   "devDependencies": {

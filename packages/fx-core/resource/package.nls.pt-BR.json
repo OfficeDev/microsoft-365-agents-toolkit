@@ -237,7 +237,7 @@
   "error.generator.SampleNotFoundError": "Não foi possível localizar a amostra: %s.",
   "error.generator.UnzipError": "Não é possível extrair modelos e salvá-los em disco.",
   "error.generator.MissKeyError": "Não foi possível encontrar a chave %s",
-  "error.generator.FileConflictError": "File conflict at %s",
+  "error.generator.FileConflictError": "Conflito de arquivo em %s",
   "error.generator.FetchSampleInfoError": "Não é possível buscar informações de exemplo",
   "error.generator.DownloadSampleApiLimitError": "Não é possível baixar a amostra devido à limitação de taxa. Tente novamente em uma hora após a redefinição do limite de taxa ou você pode clonar manualmente o repositório de %s.",
   "error.generator.DownloadSampleNetworkError": "Não é possível baixar a amostra devido a um erro de rede. Verifique sua conexão de rede e tente novamente ou você pode clonar manualmente o repositório de %s",

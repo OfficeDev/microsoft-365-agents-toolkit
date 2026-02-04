@@ -5,8 +5,8 @@ import { ConfigFolderName, Platform } from "@microsoft/teamsfx-api";
 import fs from "fs-extra";
 import os from "os";
 import path from "path";
-import templateConfig from "../../../../common/templates-config.json";
 import { getTemplatesFolder } from "../../../../folder";
+import { useLocalTemplate } from "../../templateHelper";
 import { Template } from "./interface";
 
 function getTemplateMetadataConfig(configName: string): Template[] {
@@ -20,7 +20,7 @@ function getTemplateMetadataConfig(configName: string): Template[] {
   );
 
   // Check if cached JSON exists, otherwise fallback to bundled templates folder
-  if (!templateConfig.useLocalTemplate && cachedJsonPath && fs.pathExistsSync(cachedJsonPath)) {
+  if (!useLocalTemplate() && cachedJsonPath && fs.pathExistsSync(cachedJsonPath)) {
     jsonPath = cachedJsonPath;
   } else {
     jsonPath = path.join(getTemplatesFolder(), "metadata", configName);

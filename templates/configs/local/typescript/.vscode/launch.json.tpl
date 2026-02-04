@@ -13,7 +13,8 @@
                 "group": "all",
                 "hidden": true
             },
-            "internalConsoleOptions": "neverOpen"
+            "internalConsoleOptions": "neverOpen",
+            "perScriptSourcemaps": "yes"
         },
         {
             "name": "Launch App in Teams (Chrome)",
@@ -27,7 +28,8 @@
                 "group": "all",
                 "hidden": true
             },
-            "internalConsoleOptions": "neverOpen"
+            "internalConsoleOptions": "neverOpen",
+            "perScriptSourcemaps": "yes"
         },
 {{#supportCopilot}}
         {
@@ -86,7 +88,7 @@
             "preLaunchTask": "Start App Locally",
             "presentation": {
                 "group": "2-local",
-                "order": 1
+                "order": 4
             },
             "stopAll": true
         },
@@ -99,7 +101,7 @@
             "preLaunchTask": "Start App Locally",
             "presentation": {
                 "group": "2-local",
-                "order": 2
+                "order": 5
             },
             "stopAll": true
         },
@@ -111,7 +113,7 @@
             "preLaunchTask": "Start App in Desktop Client",
             "presentation": {
                 "group": "2-local",
-                "order": 3
+                "order": 6
             },
             "stopAll": true
         },
@@ -124,7 +126,7 @@
             ],
             "preLaunchTask": "Start App Locally",
             "presentation": {
-                "group": "3-copilot",
+                "group": "2-local",
                 "order": 1
             },
             "stopAll": true
@@ -137,7 +139,7 @@
             ],
             "preLaunchTask": "Start App Locally",
             "presentation": {
-                "group": "3-copilot",
+                "group": "2-local",
                 "order": 2
             },
             "stopAll": true

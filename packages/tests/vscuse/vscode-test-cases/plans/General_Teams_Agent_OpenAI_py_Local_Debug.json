@@ -10,14 +10,14 @@
       "step_retry_count": 0
     },
     "total_steps": 8,
-    "created_at": "2025-11-25T06:27:11.444102",
+    "created_at": "2026-01-26T07:46:39.113800",
     "name": "General Teams Agent OpenAI py Local Debug",
     "description": {
+      "other": "",
       "owner": "v-ivanchen@microsoft.com",
-      "workitem": "27178027",
-      "other": ""
+      "workitem": "27178071"
     },
-    "generated_at": "2025-11-25T06:27:11.444102",
+    "generated_at": "2026-01-26T07:46:39.113800",
     "execution_order": [
       "plan_r_0928_012254",
       "step_529ef231",
@@ -37,7 +37,7 @@
       "step_7e107a24"
     ],
     "tags": [],
-    "updated_at": "2025-11-26T03:52:19.787776"
+    "updated_at": "2026-01-26T07:46:53.827925"
   },
   "steps": [
     {
@@ -63,7 +63,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_529ef231",
-      "created_at": "2025-11-26T03:49:38.209365",
+      "created_at": "2026-01-26T07:46:39.128293",
       "plan_id": "plan_8434a481"
     },
     {
@@ -89,7 +89,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_a0473a1f",
-      "created_at": "2025-11-26T03:49:38.226708",
+      "created_at": "2026-01-26T07:46:39.143954",
       "plan_id": "plan_8434a481"
     },
     {
@@ -115,7 +115,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_a51576df",
-      "created_at": "2025-11-26T03:49:38.245433",
+      "created_at": "2026-01-26T07:46:39.158705",
       "plan_id": "plan_8434a481"
     },
     {
@@ -141,7 +141,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_b984f461",
-      "created_at": "2025-11-26T03:49:38.264183",
+      "created_at": "2026-01-26T07:46:39.172867",
       "plan_id": "plan_8434a481"
     },
     {
@@ -169,7 +169,7 @@
         "delay: 10"
       ],
       "screenshot": "step_3e09b806",
-      "created_at": "2025-11-26T03:49:38.280910",
+      "created_at": "2026-01-26T07:46:39.186848",
       "plan_id": "plan_8434a481"
     },
     {
@@ -191,7 +191,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_8fb70c91",
-      "created_at": "2025-11-26T03:49:38.298373",
+      "created_at": "2026-01-26T07:46:39.202385",
       "plan_id": "plan_8434a481"
     },
     {
@@ -213,7 +213,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_6fcfe6bd",
-      "created_at": "2025-11-26T03:49:38.315312",
+      "created_at": "2026-01-26T07:46:39.218879",
       "plan_id": "plan_8434a481"
     },
     {
@@ -231,7 +231,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": null,
-      "created_at": "2025-11-26T03:49:38.351823",
+      "created_at": "2026-01-26T07:46:39.236704",
       "plan_id": "plan_8434a481"
     }
   ],

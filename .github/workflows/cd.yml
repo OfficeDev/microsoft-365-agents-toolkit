@@ -28,10 +28,14 @@ on:
         type: boolean
         default: false
         description: "Whether to release TTK as publish product"
-      skipmarkdowncheck:
+      skipmarkdownandvulnerabilitycheck:
         type: boolean
         default: false
-        description: "Whether to skip Markdown files check"
+        description: "Whether to skip Markdown files and vulnerability check"
+      run_test_cases:
+        type: boolean
+        default: false
+        description: "Whether to run test cases after CD"
   schedule:
     - cron: "15 11 * * *"  # UTC+8 19:15 make sure the daily build generated before the daily test pipeline trigger
 
@@ -97,7 +101,7 @@ jobs:
           python-version: '3.x'
 
       - name: Install Python dependencies for image or hyperlink analysis
-        if: ${{ github.event.inputs.skipmarkdowncheck == 'false' || github.event.inputs.skipmarkdowncheck == ''}}
+        if: ${{ github.event.inputs.skipmarkdownandvulnerabilitycheck == 'false' || github.event.inputs.skipmarkdownandvulnerabilitycheck == ''}}
         run: |
           python -m pip install --upgrade pip
           python -m pip install python-dateutil
@@ -105,12 +109,13 @@ jobs:
 
       - name: 🔍Check Markdown files image/hyperlink availability
         id: markdown-check
-        if: ${{ github.event.inputs.skipmarkdowncheck == 'false' || github.event.inputs.skipmarkdowncheck == '' }}
+        if: ${{ github.event.inputs.skipmarkdownandvulnerabilitycheck == 'false' || github.event.inputs.skipmarkdownandvulnerabilitycheck == ''}}
         continue-on-error: true  # Temporary allow failure
         run: |
           python -u .github/scripts/analyze_markdown.py --scan-directory "templates/vsc" "templates/vs"  --file-patterns "**/README.md" "**/README.md.tpl" --extra-files "packages/vscode-extension/CHANGELOG.md"
 
       - name: Checkout samples repo
+        if: ${{ github.event.inputs.skipmarkdownandvulnerabilitycheck == 'false' || github.event.inputs.skipmarkdownandvulnerabilitycheck == ''}}
         uses: actions/checkout@v3
         with:
           repository: OfficeDev/microsoft-365-agents-toolkit-samples
@@ -119,7 +124,7 @@ jobs:
 
       - name: 🔍Check Markdown files in samples repo
         id: markdown-check-samples
-        if: ${{ github.event.inputs.skipmarkdowncheck == 'false' || github.event.inputs.skipmarkdowncheck == '' }}
+        if: ${{ github.event.inputs.skipmarkdownandvulnerabilitycheck == 'false' || github.event.inputs.skipmarkdownandvulnerabilitycheck == ''}}
         continue-on-error: true
         run: |
           python -u .github/scripts/analyze_markdown.py --scan-directory "samples-repo" --file-patterns "**/README.md" "**/README.md.tpl"
@@ -131,30 +136,34 @@ jobs:
       - uses: pnpm/action-setup@v4
 
       - name: 🔍Check package.json files for security vulnerabilities(VSC)
+        if: ${{ github.event.inputs.skipmarkdownandvulnerabilitycheck == 'false' || github.event.inputs.skipmarkdownandvulnerabilitycheck == ''}}
         id: security-check-vsc
         continue-on-error: true  # Allow pipeline to continue, notification will be sent on failure
         run: |
           python -u .github/scripts/check_npm_vulnerabilities.py --scan-directory "templates/vsc"
 
       - name: Setup .NET for NuGet security check
+        if: ${{ github.event.inputs.skipmarkdownandvulnerabilitycheck == 'false' || github.event.inputs.skipmarkdownandvulnerabilitycheck == ''}}
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0.x'
 
       - name: 🔍Check C# project NuGet packages for security vulnerabilities(VS)
+        if: ${{ github.event.inputs.skipmarkdownandvulnerabilitycheck == 'false' || github.event.inputs.skipmarkdownandvulnerabilitycheck == ''}}
         id: security-check-vs
         continue-on-error: true  # Allow pipeline to continue, notification will be sent on failure
         run: |
           python -u .github/scripts/check_nuget_vulnerabilities.py --scan-directory "templates/vs"
 
       - name: 🔍Check package.json files for security vulnerabilities(Samples)
+        if: ${{ github.event.inputs.skipmarkdownandvulnerabilitycheck == 'false' || github.event.inputs.skipmarkdownandvulnerabilitycheck == ''}}
         id: security-check-samples
         continue-on-error: true  # Allow pipeline to continue, notification will be sent on failure
         run: |
           python -u .github/scripts/check_npm_vulnerabilities.py --scan-directory "samples-repo"
 
       - name: 📋 Check Results Summary
-        if: always()
+        if: ${{ always() && (github.event.inputs.skipmarkdownandvulnerabilitycheck == 'false' || github.event.inputs.skipmarkdownandvulnerabilitycheck == '') }}
         run: |
           echo "## 🔍 Quality Check Results" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
@@ -227,7 +236,9 @@ jobs:
           sudo wget -NP /etc/apt/sources.list.d/ https://dl.winehq.org/wine-builds/ubuntu/dists/jammy/winehq-jammy.sources
           sudo apt update
           sudo apt install --install-recommends winehq-stable -y
+          sudo ln -s /usr/bin/wine /usr/bin/wine64
           wine --version
+          wine64 --version
 
       - name: Setup npm registry
         run: |
@@ -289,7 +300,13 @@ jobs:
           token: ${{ steps.generate-token.outputs.token }}
           prerelease: true
           tag: "templates@0.0.0-rc"
-          artifacts: ${{ github.workspace }}/templates/build/fallback/*.zip,${{ github.workspace }}/templates/build/metadata.zip
+          artifacts: |
+            ${{ github.workspace }}/templates/build/fallback/common.zip
+            ${{ github.workspace }}/templates/build/fallback/js.zip
+            ${{ github.workspace }}/templates/build/fallback/ts.zip
+            ${{ github.workspace }}/templates/build/fallback/python.zip
+            ${{ github.workspace }}/templates/build/fallback/csharp.zip
+            ${{ github.workspace }}/templates/build/metadata.zip
           allowUpdates: true
           removeArtifacts: true
 
@@ -297,7 +314,13 @@ jobs:
         if: ${{ contains(steps.version-change.outputs.CHANGED, 'templates@') && github.event_name == 'workflow_dispatch' && github.event.inputs.preid == 'stable' }}
         uses: ncipollo/release-action@v1.10.0
         with:
-          artifacts: ${{ github.workspace }}/templates/build/fallback/*.zip,${{ github.workspace }}/templates/build/metadata.zip
+          artifacts: |
+            ${{ github.workspace }}/templates/build/fallback/common.zip
+            ${{ github.workspace }}/templates/build/fallback/js.zip
+            ${{ github.workspace }}/templates/build/fallback/ts.zip
+            ${{ github.workspace }}/templates/build/fallback/python.zip
+            ${{ github.workspace }}/templates/build/fallback/csharp.zip
+            ${{ github.workspace }}/templates/build/metadata.zip
           name: "Release for ${{ steps.version-change.outputs.TEMPLATE_VERSION }}"
           token: ${{ steps.generate-token.outputs.token }}
           tag: ${{ steps.version-change.outputs.TEMPLATE_VERSION }}
@@ -330,7 +353,7 @@ jobs:
           prerelease: true
           clear_attachments: true
           files: |
-            ${{ github.workspace }}/templates/build/csharp.zip
+            ${{ github.workspace }}/templates/build/fallback/csharp.zip
       
       - name: Get VS Templates version
         if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.vsrelease == 'true' && github.event.inputs.vstemplate == 'true' }}
@@ -350,7 +373,7 @@ jobs:
           target_commit: ${{ github.sha }}
           clear_attachments: true
           files: |
-            ${{ github.workspace }}/templates/build/csharp.zip
+            ${{ github.workspace }}/templates/build/fallback/csharp.zip
 
       - name: enable prerelease only features
         if: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && (github.event.inputs.preid == 'alpha' || github.event.inputs.preid == 'preview')) }}
@@ -566,3 +589,19 @@ jobs:
           MAIL_CLIENT_ID: ${{ secrets.TEST_CLEAN_CLIENT_ID }}
           MAIL_CLIENT_SECRET: ${{ secrets.TEST_CLEAN_CLIENT_SECRET }}
           MAIL_TENANT_ID: ${{ secrets.TEST_CLEAN_TENANT_ID }}
+
+  trigger-docker-build:
+    needs: cd
+    if: ${{ success() }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Docker Build Workflow
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh workflow run vscuse-atk-docker-build.yml \
+            --repo ${{ github.repository }} \
+            --ref ${{ github.ref }} \
+            -f run_id=${{ github.run_id }} \
+            -f tag=${{ inputs.series == '' && 'latest' || inputs.series }} \
+            -f run_test_cases=${{ github.event_name == 'schedule' || inputs.run_test_cases }}

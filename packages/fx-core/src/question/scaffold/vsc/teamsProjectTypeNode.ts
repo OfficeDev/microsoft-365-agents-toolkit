@@ -14,7 +14,7 @@ import * as fs from "fs-extra";
 import os from "os";
 import path from "path";
 import { getLocalizedString } from "../../../common/localizeUtils";
-import templateConfig from "../../../common/templates-config.json";
+import { useLocalTemplate } from "../../../component/generator/templateHelper";
 import { ODRProvider, ODRServer } from "../../../component/utils/odrProvider";
 import { getTemplatesFolder } from "../../../folder";
 import {
@@ -51,7 +51,7 @@ export function getTeamsProjectNode(): IQTreeNode {
   );
 
   // Check if cached JSON exists, otherwise fallback to bundled templates folder
-  if (!templateConfig.useLocalTemplate && fs.pathExistsSync(cachedJsonPath)) {
+  if (!useLocalTemplate() && fs.pathExistsSync(cachedJsonPath)) {
     jsonPath = cachedJsonPath;
   } else {
     jsonPath = path.join(getTemplatesFolder(), "ui", "teamsNode.json");

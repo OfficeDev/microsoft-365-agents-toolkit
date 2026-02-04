@@ -20,7 +20,7 @@ export async function generateConfigFiles(inputs: Inputs): Promise<Result<undefi
   const projectPath = inputs[QuestionNames.ProjectPath] as string;
   const includePlayground = inputs["include-playground"];
   const includeLocalDebug = inputs["include-local"];
-  // const includeRemoteDeploy = inputs["include-remote"];
+  const includeRemoteDeploy = inputs["include-remote"];
   const programmingLanguage = inputs["programming-language"] as string;
 
   const appManifest = await AppManifestUtils.readTeamsManifest(
@@ -44,6 +44,10 @@ export async function generateConfigFiles(inputs: Inputs): Promise<Result<undefi
 
   if (includeLocalDebug) {
     configComponents.push({ name: "local", programmingLanguage });
+  }
+
+  if (includeRemoteDeploy) {
+    configComponents.push({ name: "remote", programmingLanguage });
   }
 
   const context = createContext();

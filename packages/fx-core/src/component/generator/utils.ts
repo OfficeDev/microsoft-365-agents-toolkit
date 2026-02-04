@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
+import { Context as FxContext, Platform, signedIn } from "@microsoft/teamsfx-api";
 import AdmZip from "adm-zip";
 import axios, { AxiosError, AxiosResponse } from "axios";
 import * as fs from "fs-extra";
@@ -8,11 +9,15 @@ import { cloneDeep } from "lodash";
 import Mustache, { Context, Writer } from "mustache";
 import path from "path";
 import semver from "semver";
+import { GraphClient } from "../../client/graphClient";
+import { ListSensitivityLabelScope } from "../../common/constants";
+import { getDefaultString } from "../../common/localizeUtils";
 import { sendRequestWithRetry, sendRequestWithTimeout } from "../../common/requestUtils";
 import { SampleConfig, SampleUrlInfo, sampleProvider } from "../../common/samples";
 import templateConfig from "../../common/templates-config.json";
 import { InputValidationError } from "../../error";
 import { ProgrammingLanguage } from "../../question/constants";
+import { copilotGptManifestUtils } from "../driver/teamsApp/utils/CopilotGptManifestUtils";
 import {
   defaultTimeoutInMs,
   defaultTryLimits,
@@ -22,39 +27,52 @@ import {
   sampleDefaultRetryLimits,
   templateFileExt,
 } from "./constant";
-import { Context as FxContext, signedIn, Platform } from "@microsoft/teamsfx-api";
-import { getDefaultString } from "../../common/localizeUtils";
-import { copilotGptManifestUtils } from "../driver/teamsApp/utils/CopilotGptManifestUtils";
-import { ListSensitivityLabelScope } from "../../common/constants";
-import { GraphClient } from "../../client/graphClient";
+
+const packageJson = require("../../../package.json");
 
 export async function getTemplateUrl(
-  name: string,
+  programmingLanguage: string,
   getLatestVersion: () => Promise<string>,
   platform?: Platform
 ): Promise<string | undefined> {
   return platform === Platform.VS
-    ? getTemplateVSUrl(name)
-    : await getTemplateVSCUrl(name, getLatestVersion);
+    ? getTemplateVSUrl(programmingLanguage)
+    : await getTemplateVSCUrl(programmingLanguage, getLatestVersion);
 }
 
+// Return undefined to use local templates.
 async function getTemplateVSCUrl(
-  name: string,
+  programmingLanguage: string,
   getLatestVersion: () => Promise<string>
 ): Promise<string | undefined> {
-  if (process.env.TEAMSFX_TEMPLATE_PRERELEASE) {
+  const templateVersionEnv = process.env["TEMPLATE_VERSION"];
+  if (templateVersionEnv === "local") {
+    return;
+  } else if (templateVersionEnv) {
     return getTemplateZipUrlByVersion(
-      name,
-      `0.0.0-${process.env.TEAMSFX_TEMPLATE_PRERELEASE}`,
+      programmingLanguage,
+      templateVersionEnv,
       templateConfig.tagPrefix
     );
   }
-  if (!templateConfig.useLocalTemplate) {
-    const latestVersion = await getLatestVersion();
-    if (semver.gt(latestVersion, templateConfig.localVersion)) {
-      // Upstream latest version is higher than the local version, return upstream templates url for downloading.
-      return getTemplateZipUrlByVersion(name, latestVersion, templateConfig.tagPrefix);
-    }
+
+  const version: string = packageJson.version;
+  if (version.includes("alpha")) {
+    // daily build version
+    return;
+  } else if (version.includes("beta")) {
+    // prerelease build version
+  } else if (version.includes("rc")) {
+    // rc version before stable / prerelease release
+    return getTemplateZipUrlByVersion(programmingLanguage, "0.0.0-rc", templateConfig.tagPrefix);
+  } else {
+    // stable version
+  }
+
+  const latestVersion = await getLatestVersion();
+  if (semver.gt(latestVersion, templateConfig.localVersion)) {
+    // Upstream latest version is higher than the local version, return upstream templates url for downloading.
+    return getTemplateZipUrlByVersion(programmingLanguage, latestVersion, templateConfig.tagPrefix);
   }
 }
 

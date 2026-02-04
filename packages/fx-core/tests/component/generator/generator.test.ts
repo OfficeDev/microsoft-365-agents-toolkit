@@ -37,6 +37,7 @@ import {
   TemplateActionSeq,
   fetchSampleInfoAction,
 } from "../../../src/component/generator/generatorAction";
+import * as templateHelper from "../../../src/component/generator/templateHelper";
 import * as templateMetadata from "../../../src/component/generator/templates/metadata";
 import { TemplateNames } from "../../../src/component/generator/templates/templateNames";
 import { getTemplateReplaceMap } from "../../../src/component/generator/templates/templateReplaceMap";
@@ -120,10 +121,10 @@ describe("Generator utils", () => {
 
   it("return rc if set env rc", async () => {
     mockedEnvRestore = mockedEnv({
-      TEAMSFX_TEMPLATE_PRERELEASE: "rc",
+      TEMPLATE_VERSION: "0.0.0-rc",
     });
     const tagList = "1.0.0\n 2.0.0\n 2.1.0\n 3.0.0\n 0.0.0-rc";
-    sandbox.replace(templateConfig, "useLocalTemplate", false);
+    sandbox.stub(templateHelper, "useLocalTemplate").returns(false);
     sandbox.stub(axios, "get").resolves({ data: tagList, status: 200 } as AxiosResponse);
     const url = await generatorUtils.getTemplateUrl(
       "templateName",
@@ -138,7 +139,7 @@ describe("Generator utils", () => {
     });
     const tagList = "1.0.0\n 2.0.0\n 2.1.0\n 3.0.0";
     const tag = "2.1.0";
-    sandbox.replace(templateConfig, "useLocalTemplate", false);
+    sandbox.stub(templateHelper, "useLocalTemplate").returns(false);
     sandbox.stub(axios, "get").resolves({ data: tagList, status: 200 } as AxiosResponse);
     sandbox.stub(templateConfig, "version").value("^2.0.0");
     sandbox.replace(templateConfig, "tagPrefix", "templates@");
@@ -1045,7 +1046,7 @@ describe("render template", () => {
       };
       await buildFakeTemplateZip(templateName, mockFileName);
 
-      sandbox.replace(templateConfig, "useLocalTemplate", true);
+      sandbox.stub(templateHelper, "useLocalTemplate").returns(true);
       sandbox.stub(folderUtils, "getTemplatesFolder").returns(tmpDir);
       sandbox.stub(ScaffoldRemoteTemplateAction, "run").throws(new Error("test"));
 
@@ -1071,7 +1072,7 @@ describe("render template", () => {
       };
       await buildFakeTemplateZip(templateName, mockFileName);
 
-      sandbox.replace(templateConfig, "useLocalTemplate", true);
+      sandbox.stub(templateHelper, "useLocalTemplate").returns(true);
       sandbox.stub(folderUtils, "getTemplatesFolder").returns(tmpDir);
 
       const result = newGeneratorFlag
@@ -1096,7 +1097,7 @@ describe("render template", () => {
       };
       await buildFakeTemplateZip(templateName, mockFileName);
 
-      sandbox.replace(templateConfig, "useLocalTemplate", false);
+      sandbox.stub(templateHelper, "useLocalTemplate").returns(false);
       sandbox.replace(templateConfig, "localVersion", "9.9.9");
       sandbox.replace(templateConfig, "version", "~3.0.0");
       const tagList = "1.0.0\n 2.0.0\n 2.1.0\n 3.0.0";
@@ -1128,7 +1129,7 @@ describe("render template", () => {
         telemetryProps: {},
       };
 
-      sandbox.replace(templateConfig, "useLocalTemplate", false);
+      sandbox.stub(templateHelper, "useLocalTemplate").returns(false);
       sandbox.replace(templateConfig, "localVersion", "0.1.0");
       sandbox.stub(folderUtils, "getTemplatesFolder").returns(tmpDir);
       sandbox.stub(generatorUtils, "getTemplateLatestVersion").resolves("0.1.1");
@@ -1159,7 +1160,7 @@ describe("render template", () => {
       mockedEnvRestore = mockedEnv({
         TEAMSFX_TEMPLATE_PRERELEASE: "rc",
       });
-      sandbox.replace(templateConfig, "useLocalTemplate", false);
+      sandbox.stub(templateHelper, "useLocalTemplate").returns(false);
       sandbox.replace(templateConfig, "localVersion", "0.1.0");
       sandbox.stub(folderUtils, "getTemplatesFolder").returns(tmpDir);
       sandbox.stub(generatorUtils, "getTemplateLatestVersion").resolves("0.1.1");

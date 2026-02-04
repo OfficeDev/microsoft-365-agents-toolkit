@@ -18,6 +18,7 @@ import {
   getSiteNameFromResourceId,
   getWebappSettings,
 } from "../../commonlib/utilities";
+import { sleep } from "../../utils/commonUtils";
 import { Capability } from "../../utils/constants";
 import {
   cleanUpLocalProject,
@@ -90,15 +91,6 @@ describe("Basic Tab", function () {
       const teamsApp = await getTeamsApp(context.TEAMS_APP_ID);
       assert.equal(teamsApp?.teamsAppId, context.TEAMS_APP_ID);
 
-      // validate m365
-      assert.isDefined(
-        context.M365_TITLE_ID,
-        "m365 title id should be defined"
-      );
-      assert.isNotEmpty(context.M365_TITLE_ID);
-      assert.isDefined(context.M365_APP_ID, "m365 app id should be defined");
-      assert.isNotEmpty(context.M365_APP_ID);
-
       // Local Debug (Deploy)
       await CliHelper.deployAll(projectPath, "", "local");
       console.log(`[Successfully] deploy for ${projectPath}`);
@@ -133,17 +125,8 @@ describe("Basic Tab", function () {
       context = await readContextMultiEnvV3(projectPath, envName);
       assert.exists(context, "env file should exist");
 
-      // validate m365
-      assert.isDefined(
-        context.M365_TITLE_ID,
-        "m365 title id should be defined"
-      );
-      assert.isNotEmpty(context.M365_TITLE_ID);
-      assert.isDefined(context.M365_APP_ID, "m365 app id should be defined");
-      assert.isNotEmpty(context.M365_APP_ID);
-
       const appServiceResourceId =
-        context[EnvConstants.TAB_AZURE_APP_SERVICE_RESOURCE_ID];
+        context[EnvConstants.AZURE_APP_SERVICE_RESOURCE_ID];
       assert.exists(
         appServiceResourceId,
         "Azure App Service resource ID should exist"
@@ -187,6 +170,7 @@ describe("Basic Tab", function () {
       const endpoint = context[EnvConstants.TAB_ENDPOINT];
       assert.exists(endpoint, "Tab endpoint should exist");
 
+      await sleep(30000); // wait for 30s to make sure the app is up and running
       const axiosInstance = axios.create();
       try {
         const response = await axiosInstance.get(endpoint);

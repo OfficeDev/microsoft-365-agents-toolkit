@@ -6,7 +6,7 @@ import fs from "fs-extra";
 import os from "os";
 import * as path from "path";
 import * as util from "util";
-import templateConfig from "../common/templates-config.json";
+import { useLocalTemplate } from "../component/generator/templateHelper";
 import { getResourceFolder } from "../folder";
 import { Locale } from "./globalVars";
 
@@ -47,7 +47,7 @@ function getLocaleJson(locale?: string): any {
 
   // Check if cached resource folder exists, otherwise fallback to bundled templates resource folder
   if (
-    !templateConfig.useLocalTemplate &&
+    !useLocalTemplate() &&
     cachedResourcePath &&
     fs.pathExistsSync(path.join(cachedResourcePath, "package.nls.json"))
   ) {

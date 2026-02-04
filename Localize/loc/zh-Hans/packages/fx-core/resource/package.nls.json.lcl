@@ -4073,7 +4073,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Use GitHub Copilot]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[使用GitHub Copilot]]></Val>
+            <Val><![CDATA[使用 GitHub Copilot]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4094,7 +4094,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Don't know how to start? Use GitHub Copilot Chat]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[不知道如何开始？使用GitHub Copilot聊天]]></Val>
+            <Val><![CDATA[不知道如何开始？使用 GitHub Copilot 对话助手]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9819,6 +9819,15 @@
           <Val><![CDATA[Unable to fetch sample info]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[无法提取示例信息]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.generator.FileConflictError" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[File conflict at %s]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[%s 处发生文件冲突]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
