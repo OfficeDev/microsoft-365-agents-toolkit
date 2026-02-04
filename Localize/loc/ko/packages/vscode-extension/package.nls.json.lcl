@@ -23,7 +23,7 @@
         <Str Cat="Text">
           <Val><![CDATA[With the GitHub Copilot Chat extension in Visual Studio Code, you can have AI-powered chat conversations to generate code, increase your code understanding, and even configure your editor.]A;[Install GitHub Copilot Chat]5D;(command:fx-extension.installCopilotChat?%5B%22TeamsAgentWalkthrough%22%5D)]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Visual Studio Code GitHub Copilot 채팅 확장을 사용하면 AI 기반 채팅 대화를 통해 코드를 생성하고 코드 이해도를 높이며 편집기를 구성할 수도 있습니다.]A;[Install GitHub Copilot Chat]5D;(command:fx-extension.installCopilotChat?%5B%22TeamsAgentRoughthrough%22%5D)]]></Val>
+            <Val><![CDATA[Visual Studio Code용 GitHub Copilot Chat 확장을 사용하면 AI 기반 채팅 대화를 통해 코드를 생성하고 코드 이해도를 높이며 편집기를 구성할 수도 있습니다.]A;[GitHub Copilot Chat 설치]5D;(command:fx-extension.installCopilotChat?%5B%22TeamsAgentRoughthrough%22%5D)]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -32,7 +32,7 @@
         <Str Cat="Text">
           <Val><![CDATA[⚠️Install GitHub Copilot Chat for Visual Studio Code]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[⚠️Visual Studio Code GitHub Copilot 채팅 설치]]></Val>
+            <Val><![CDATA[⚠️Visual Studio Code용 GitHub Copilot Chat 설치]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Install GitHub Copilot Chat for Visual Studio Code]]></Val>
@@ -3899,7 +3899,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to automatically focus GitHub Copilot Chat. Open GitHub Copilot Chat and start with "%s"]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[GitHub Copilot 채팅에 자동으로 집중할 수 없습니다. GitHub Copilot 채팅을 열고 "%s" 시작]]></Val>
+            <Val><![CDATA[GitHub Copilot Chat에 자동으로 포커스를 이동할 수 없습니다. GitHub Copilot Chat을 열고 "%s"(으)로 시작하세요.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4109,7 +4109,7 @@
         <Str Cat="Text">
           <Val><![CDATA[GitHub Copilot Chat extension is already installed.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[GitHub Copilot 채팅 확장이 이미 설치되어 있습니다.]]></Val>
+            <Val><![CDATA[GitHub Copilot Chat 확장이 이미 설치되어 있습니다.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4118,7 +4118,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to install GitHub Copilot Chat. Install it following %s and try again.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[GitHub Copilot 채팅을 설치할 수 없습니다. %s 설치한 후 다시 시도하세요.]]></Val>
+            <Val><![CDATA[GitHub Copilot Chat을 설치할 수 없습니다. %s에 따라 설치를 진행한 후 다시 시도하세요.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4583,7 +4583,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to verify GitHub Copilot Chat. Install it manually following %s and try again.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[GitHub Copilot 채팅을 확인할 수 없습니다. %s 따라 수동으로 설치하고 다시 시도하세요.]]></Val>
+            <Val><![CDATA[GitHub Copilot Chat을 확인할 수 없습니다. %s에 따라 수동으로 설치를 진행한 후 다시 시도하세요.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
