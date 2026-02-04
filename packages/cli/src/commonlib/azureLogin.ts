@@ -109,14 +109,20 @@ const memoryDictionary: { [tenantId: string]: MemoryCache } = {};
 class TeamsFxTokenCredential implements ITeamsFxTokenCredential {
   private codeFlowInstance: CodeFlowLogin;
   private tenantId: string;
+  private silent: boolean;
 
-  constructor(codeFlowInstance: CodeFlowLogin) {
+  constructor(codeFlowInstance: CodeFlowLogin, silent = false) {
     this.codeFlowInstance = codeFlowInstance;
     this.tenantId = "";
+    this.silent = silent;
   }
 
   public setTenantId(tenantId: string) {
     this.tenantId = tenantId;
+  }
+
+  public setSilent(silent: boolean) {
+    this.silent = silent;
   }
 
   async getToken(
@@ -125,7 +131,7 @@ class TeamsFxTokenCredential implements ITeamsFxTokenCredential {
   ): Promise<AccessToken | null> {
     const tokenRes: Result<string, FxError> = await this.codeFlowInstance.getTokenByScopes(
       scopes,
-      true,
+      !this.silent, // When silent is true, don't refresh (trigger login) on failure
       this.tenantId
     );
 
@@ -353,7 +359,8 @@ export class AzureAccountManager extends login implements AzureAccountProvider {
       if (!AzureAccountManager.tenantId) {
         const tenantClient = new SubscriptionClient(AzureAccountManager.teamsFxTokenCredential);
         const tenantTokenCredential: TeamsFxTokenCredential = new TeamsFxTokenCredential(
-          AzureAccountManager.codeFlowInstance
+          AzureAccountManager.codeFlowInstance,
+          true // silent mode - don't trigger login on failure
         );
         const cachedTenantId = await loadTenantId(accountName);
         for await (const page of tenantClient.tenants.list().byPage()) {
