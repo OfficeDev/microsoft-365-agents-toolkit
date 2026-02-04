@@ -588,8 +588,7 @@ jobs:
                 series: series,
                 vsrelease: vsrelease.toString(),
                 vstemplate: 'false',
-                goproduct: 'false',
-                skipmarkdowncheck: 'false'
+                goproduct: 'false'
               }
             });
 
