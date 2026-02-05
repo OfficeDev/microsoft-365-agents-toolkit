@@ -166,6 +166,8 @@ jobs:
       MS_AZURE_ACCOUNT_NAME: ${{vars.MS_AZURE_ACCOUNT_NAME}}
       MS_AZURE_ACCOUNT_PASSWORD: ${{secrets.MS_AZURE_ACCOUNT_PASSWORD}}
 
+      TEAMSFX_SAMPLE_CONFIG_BRANCH: "dev"
+
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
