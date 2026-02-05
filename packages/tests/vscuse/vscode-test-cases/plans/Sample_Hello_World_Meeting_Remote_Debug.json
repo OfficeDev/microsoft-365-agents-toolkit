@@ -10,21 +10,21 @@
       "step_retry_timeout": 0.0
     },
     "total_steps": 10,
-    "created_at": "2025-12-12T05:08:13.022778",
+    "created_at": "2026-02-05T09:43:36.059585",
     "name": "Sample Hello World Meeting Remote Debug",
     "description": {
       "other": "",
       "owner": "v-ivanchen@microsoft.com",
       "workitem": "14571880"
     },
-    "generated_at": "2025-12-12T05:08:13.022778",
+    "generated_at": "2026-02-05T09:43:36.059585",
     "execution_order": [
       "plan_r_1107_015711",
       "step_796770a4",
       "step_9db8f4ba",
       "step_bca8732c",
       "plan_r_1111_043711",
-      "plan_r_0928_020230",
+      "plan_b36c23b3",
       "plan_r_0929_040401",
       "plan_r_0928_073729",
       "step_cce553f1",
@@ -37,7 +37,7 @@
       "step_88592dc3"
     ],
     "tags": [],
-    "updated_at": "2025-12-12T05:08:31.234214"
+    "updated_at": "2026-02-05T10:40:33.870028"
   },
   "steps": [
     {
@@ -63,7 +63,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_796770a4",
-      "created_at": "2025-12-12T05:08:13.035424",
+      "created_at": "2026-02-05T09:43:36.069778",
       "plan_id": "plan_1bb03817"
     },
     {
@@ -85,7 +85,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_9db8f4ba",
-      "created_at": "2025-12-12T05:08:13.052658",
+      "created_at": "2026-02-05T09:43:36.078295",
       "plan_id": "plan_1bb03817"
     },
     {
@@ -111,7 +111,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_bca8732c",
-      "created_at": "2025-12-12T05:08:13.069931",
+      "created_at": "2026-02-05T09:43:36.086030",
       "plan_id": "plan_1bb03817"
     },
     {
@@ -137,7 +137,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_cce553f1",
-      "created_at": "2025-12-12T05:08:13.083925",
+      "created_at": "2026-02-05T09:43:36.092684",
       "plan_id": "plan_1bb03817"
     },
     {
@@ -163,7 +163,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_37e95712",
-      "created_at": "2025-12-12T05:08:13.105018",
+      "created_at": "2026-02-05T09:43:36.100711",
       "plan_id": "plan_1bb03817"
     },
     {
@@ -183,7 +183,7 @@
         "step_retry_timeout: 180"
       ],
       "screenshot": null,
-      "created_at": "2025-12-12T05:08:13.118391",
+      "created_at": "2026-02-05T09:43:36.106338",
       "plan_id": "plan_1bb03817"
     },
     {
@@ -209,7 +209,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_51079306",
-      "created_at": "2025-12-12T05:08:13.135605",
+      "created_at": "2026-02-05T09:43:36.109841",
       "plan_id": "plan_1bb03817"
     },
     {
@@ -231,7 +231,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_314ab489",
-      "created_at": "2025-12-12T05:08:13.155217",
+      "created_at": "2026-02-05T09:43:36.115847",
       "plan_id": "plan_1bb03817"
     },
     {
@@ -251,7 +251,7 @@
         "step_retry_timeout: 180"
       ],
       "screenshot": null,
-      "created_at": "2025-12-12T05:08:13.167624",
+      "created_at": "2026-02-05T09:43:36.120351",
       "plan_id": "plan_1bb03817"
     },
     {
@@ -259,7 +259,7 @@
       "agent": "assertion",
       "tool": "",
       "parameters": {},
-      "description": "@assertion there's ${{env:M365_ACCOUNT_NAME}} exist.",
+      "description": "@assertion there's ${{env:M365_ACCOUNT_NAME_EnableCopilotAccess}} exist.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -271,7 +271,7 @@
         "step_retry_timeout: 60"
       ],
       "screenshot": null,
-      "created_at": "2025-12-12T05:08:13.186056",
+      "created_at": "2026-02-05T09:43:36.124043",
       "plan_id": "plan_1bb03817"
     }
   ],
