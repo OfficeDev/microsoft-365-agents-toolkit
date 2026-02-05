@@ -23,7 +23,7 @@
         <Str Cat="Text">
           <Val><![CDATA[With the GitHub Copilot Chat extension in Visual Studio Code, you can have AI-powered chat conversations to generate code, increase your code understanding, and even configure your editor.]A;[Install GitHub Copilot Chat]5D;(command:fx-extension.installCopilotChat?%5B%22TeamsAgentWalkthrough%22%5D)]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Avec l’extension de conversation GitHub Copilot dans Visual Studio Code, vous pouvez avoir des conversations de conversation basées sur l’IA pour générer du code, améliorer votre compréhension du code et même configurer votre éditeur.]A;[Install GitHub Copilot Chat]5D;(command :fx-extension.installCopilotChat ?%5B%22TeamsAgentThrough%22%5D)]]></Val>
+            <Val><![CDATA[Avec l’extension Copilot Chat GitHub Copilot dans Visual Studio Code, vous pouvez avoir des conversations de conversation basées sur l’IA pour générer du code, améliorer votre compréhension du code et même configurer votre éditeur.]A;[Install GitHub Copilot Chat]5D;(command :fx-extension.installCopilotChat ?%5B%22TeamsAgentThrough%22%5D)]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -32,7 +32,7 @@
         <Str Cat="Text">
           <Val><![CDATA[⚠️Install GitHub Copilot Chat for Visual Studio Code]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[⚠️Installer GitHub Copilot conversation pour Visual Studio Code]]></Val>
+            <Val><![CDATA[⚠️Installer Copilot Chat GitHub pour Visual Studio Code]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Install GitHub Copilot Chat for Visual Studio Code]]></Val>
@@ -3899,7 +3899,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to automatically focus GitHub Copilot Chat. Open GitHub Copilot Chat and start with "%s"]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Impossible de mettre automatiquement le focus GitHub Copilot conversation. Ouvrir GitHub Copilot conversation et commencer par "%s"]]></Val>
+            <Val><![CDATA[Impossible de mettre automatiquement le focus GitHub Copilot conversation. Ouvrir Copilot Chat GitHub conversation et commencer par "%s"]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4109,7 +4109,7 @@
         <Str Cat="Text">
           <Val><![CDATA[GitHub Copilot Chat extension is already installed.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[GitHub Copilot extension conversation est déjà installée.]]></Val>
+            <Val><![CDATA[L’extension Copilot Chat GitHub est déjà installée.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4118,7 +4118,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to install GitHub Copilot Chat. Install it following %s and try again.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Impossible d’installer GitHub Copilot Conversation. Installez-le après %s et réessayez.]]></Val>
+            <Val><![CDATA[Impossible d’installer Copilot Chat GitHub. Installez-le après %s et réessayez.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4583,7 +4583,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to verify GitHub Copilot Chat. Install it manually following %s and try again.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Impossible de vérifier GitHub Copilot conversation. Installez-le manuellement après %s et réessayez.]]></Val>
+            <Val><![CDATA[Impossible de vérifier Copilot Chat GitHub. Installez-le manuellement après %s et réessayez.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
