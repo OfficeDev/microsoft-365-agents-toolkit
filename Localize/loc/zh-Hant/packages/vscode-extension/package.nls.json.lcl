@@ -23,7 +23,7 @@
         <Str Cat="Text">
           <Val><![CDATA[With the GitHub Copilot Chat extension in Visual Studio Code, you can have AI-powered chat conversations to generate code, increase your code understanding, and even configure your editor.]A;[Install GitHub Copilot Chat]5D;(command:fx-extension.installCopilotChat?%5B%22TeamsAgentWalkthrough%22%5D)]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[透過 Visual Studio Code 中的 GitHub Copilot 聊天擴充功能，您可以使用 AI 支援的聊天交談來產生程式代碼、提高程式碼理解度，甚至設定您的編輯器。]A;[Install GitHub Copilot Chat]5D;(command：fx-extension.installCopilotChat？%5B%22TeamsAgentWalkthrough%22%5D)]]></Val>
+            <Val><![CDATA[透過 Visual Studio Code 中的 GitHub Copilot Chat 擴充功能，您可以使用 AI 支援的聊天交談來產生程式代碼、提高程式碼理解度，甚至設定您的編輯器。]A;[Install GitHub Copilot Chat]5D;(command：fx-extension.installCopilotChat？%5B%22TeamsAgentWalkthrough%22%5D)]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -32,7 +32,7 @@
         <Str Cat="Text">
           <Val><![CDATA[⚠️Install GitHub Copilot Chat for Visual Studio Code]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[⚠️ 安裝 GitHub Copilot 聊天 Visual Studio Code]]></Val>
+            <Val><![CDATA[⚠️ 安裝 GitHub Copilot Chat Visual Studio Code]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Install GitHub Copilot Chat for Visual Studio Code]]></Val>
@@ -3899,7 +3899,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to automatically focus GitHub Copilot Chat. Open GitHub Copilot Chat and start with "%s"]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[無法自動將焦點 GitHub Copilot 聊天。開啟 GitHub Copilot 聊天並從 "%s" 開始]]></Val>
+            <Val><![CDATA[無法自動將焦點 GitHub Copilot Chat。開啟 GitHub Copilot Chat 並從 "%s" 開始]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4109,7 +4109,7 @@
         <Str Cat="Text">
           <Val><![CDATA[GitHub Copilot Chat extension is already installed.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[GitHub Copilot 已安裝聊天擴充功能。]]></Val>
+            <Val><![CDATA[GitHub Copilot Chat 擴充功能早已安裝。]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4118,7 +4118,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to install GitHub Copilot Chat. Install it following %s and try again.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[無法安裝 GitHub Copilot 聊天。請遵循 %s 安裝，然後再試一次。]]></Val>
+            <Val><![CDATA[無法安裝 GitHub Copilot Chat。請遵循 %s 安裝，然後再試一次。]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4583,7 +4583,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to verify GitHub Copilot Chat. Install it manually following %s and try again.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[無法驗證 GitHub Copilot聊天。請在 %s 後手動安裝，然後再試一次。]]></Val>
+            <Val><![CDATA[無法驗證 GitHub Copilot Chat。請在 %s 後以手動方式，再嘗試安裝一次。]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
