@@ -1125,6 +1125,9 @@ export class VSCodeUI implements UserInteraction {
     // Create temporary files for output and script
     const tempFile = tmp.tmpNameSync({ prefix: "task-output-", postfix: ".txt" });
 
+    // Ensure temp file exists before execution
+    fs.writeFileSync(tempFile, "", "utf-8");
+
     // Detect the platform and use appropriate script format
     const isWindows = process.platform === "win32";
     const scriptExt = isWindows ? ".ps1" : ".sh";
