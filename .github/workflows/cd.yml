@@ -102,16 +102,8 @@ jobs:
         run: |
           npm run setup
 
-      - name: update template rc tag
-        uses: richardsimko/update-tag@v1.0.7
-        if: ${{ (contains(steps.version-change.outputs.CHANGED, 'templates@') || contains(steps.version-change.outputs.CHANGED, '@microsoft/teamsfx')) && github.event_name == 'workflow_dispatch' && github.event.inputs.preid == 'rc' }}
-        with:
-          tag_name: "templates@0.0.0-rc"
-        env:
-          GITHUB_TOKEN: ${{ steps.generate-token.outputs.token }}
-
       - name: release templates' RC version to github
-        if: ${{ (contains(steps.version-change.outputs.CHANGED, 'templates@') || contains(steps.version-change.outputs.CHANGED, '@microsoft/teamsfx')) && github.event_name == 'workflow_dispatch' && github.event.inputs.preid == 'rc' }}
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.preid == 'rc' }}
         uses: ncipollo/release-action@v1.10.0
         with:
           token: ${{ steps.generate-token.outputs.token }}
