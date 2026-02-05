@@ -58,17 +58,17 @@ async function getTemplateVSCUrl(
 
   const version: string = packageJson.version;
   if (version.includes("alpha")) {
-    // daily build version
+    // daily build version use local
     return;
   } else if (version.includes("beta")) {
-    // prerelease build version
+    // prerelease version use local
+    return;
   } else if (version.includes("rc")) {
     // rc version before stable / prerelease release
     return getTemplateZipUrlByVersion(programmingLanguage, "0.0.0-rc", templateConfig.tagPrefix);
-  } else {
-    // stable version
   }
 
+  // stable version use latest stable online templates
   const latestVersion = await getLatestVersion();
   if (semver.gt(latestVersion, templateConfig.localVersion)) {
     // Upstream latest version is higher than the local version, return upstream templates url for downloading.
