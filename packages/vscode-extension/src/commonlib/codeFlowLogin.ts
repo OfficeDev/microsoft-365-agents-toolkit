@@ -55,7 +55,6 @@ import {
   ErrorCategory,
   featureFlagManager,
   FeatureFlags,
-  getEntraEndpoint,
   getTenantedAuthorityUrl,
 } from "@microsoft/teamsfx-core";
 import { getAccountByHomeId } from "./common/tokenCacheUtils";
