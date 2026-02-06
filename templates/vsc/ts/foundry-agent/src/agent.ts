@@ -12,7 +12,7 @@ import { AgentApplication, MemoryStorage, TurnContext } from "@microsoft/agents-
 import config from "./config";
 
 // Initialize credential based on environment
-const environment = process.env.NODE_ENV || "production";
+const environment = process.env.RUNNING_ON_AZURE === "1" ? "production" : "development";
 const managedIdentityClientId = process.env.MI_CLIENT_ID;
 let credential: TokenCredential;
 
@@ -20,7 +20,18 @@ console.log(`[INIT] Environment: ${environment}`);
 console.log(`[INIT] NODE_ENV: ${process.env.NODE_ENV}`);
 console.log(`[INIT] FOUNDRY_PROJECT_ENDPOINT: ${process.env.FOUNDRY_PROJECT_ENDPOINT}`);
 
-if (environment === "development") {
+if (environment === "production") {
+  // Production: prefer managed identity; allow explicit clientId when a user-assigned identity is configured
+  if (managedIdentityClientId) {
+    console.log(`[INIT] Using ManagedIdentityCredential with clientId=${managedIdentityClientId}`);
+    credential = new ManagedIdentityCredential({
+      clientId: managedIdentityClientId,
+    });
+  } else {
+    console.log("[INIT] Using DefaultAzureCredential (ManagedIdentity -> AzureCli -> ...)");
+    credential = new DefaultAzureCredential();
+  }
+} else {
   // Local development: Use ChainedTokenCredential for explicit, predictable behavior
   // This avoids the "fail fast" mode issues with DefaultAzureCredential
   console.log(
@@ -31,15 +42,6 @@ if (environment === "development") {
     new AzureCliCredential(),
     new AzureDeveloperCliCredential()
   );
-} else {
-  // Production: prefer managed identity; allow explicit clientId when a user-assigned identity is configured
-  if (managedIdentityClientId) {
-    console.log(`[INIT] Using ManagedIdentityCredential with clientId=${managedIdentityClientId}`);
-    credential = new ManagedIdentityCredential({ clientId: managedIdentityClientId });
-  } else {
-    console.log("[INIT] Using DefaultAzureCredential (ManagedIdentity -> AzureCli -> ...)");
-    credential = new DefaultAzureCredential();
-  }
 }
 
 // Initialize Microsoft Foundry (Azure AI Projects) client
@@ -212,8 +214,187 @@ export const agentApp = new AgentApplication({
   storage,
 });
 
+// Helper function to handle approval card submissions
+async function handleApprovalResponse(context: TurnContext, value: any): Promise<boolean> {
+  if (!value || !value.action || !value.requestId) {
+    return false;
+  }
+
+  console.log(
+    `[APPROVAL HANDLER] User ${value.action === "approve" ? "approved" : "denied"} request: ${
+      value.requestId
+    }`
+  );
+
+  const actionLabel = value.action === "approve" ? "✓ Approved" : "✗ Denied";
+  await context.sendActivity(`${actionLabel} - Processing your request...`);
+
+  const openAIClient = await projectClient.getOpenAIClient();
+  const approved = value.action === "approve";
+  const conversationId = value.conversationId as string;
+  const requestId = value.requestId as string;
+
+  console.log(`[APPROVAL HANDLER] Conversation ID: ${conversationId}`);
+
+  try {
+    console.log(`[APPROVAL HANDLER] Processing approval/denial for request ${requestId}`);
+
+    const approvalResponse = await retryWithBackoff(
+      () =>
+        openAIClient.responses.create(
+          {
+            conversation: conversationId,
+            input: [
+              {
+                type: "mcp_approval_response",
+                approve: approved,
+                approval_request_id: requestId,
+              },
+            ],
+          },
+          {
+            body: {
+              agent: {
+                name: config.foundryAgentName,
+                type: "agent_reference",
+              },
+            },
+          }
+        ),
+      3,
+      1000
+    );
+
+    const resultMessage = approved
+      ? `${(approvalResponse as any).output_text || "Processing your request..."}`
+      : `✗ Action denied.`;
+
+    console.log(`[APPROVAL HANDLER] Approval processed successfully`);
+    console.log(
+      `[APPROVAL HANDLER] Response:`,
+      (approvalResponse as any).output_text?.substring(0, 100)
+    );
+    await context.sendActivity(resultMessage);
+  } catch (approvalError) {
+    console.error(
+      "[APPROVAL HANDLER] Error message:",
+      (approvalError as any).error?.message || (approvalError as any).message
+    );
+    console.error("[APPROVAL HANDLER] Full error:", {
+      message: (approvalError as any).message,
+      code: (approvalError as any).code,
+      status: (approvalError as any).status,
+    });
+
+    const fallbackMessage = approved ? `✓ Action approved!` : `✗ Action denied.`;
+
+    console.log(`[APPROVAL HANDLER] Falling back to simple acknowledgment`);
+    await context.sendActivity(fallbackMessage);
+  }
+
+  return true;
+}
+
+// Helper function to handle OAuth consent requests in response
+async function handleOAuthConsentRequest(
+  context: TurnContext,
+  response: any,
+  conversationId: string,
+  originalMessage: string
+): Promise<boolean> {
+  const oauthRequest = response.output?.find((item: any) => item.type === "oauth_consent_request");
+
+  if (!oauthRequest) {
+    return false;
+  }
+
+  console.log(`[OAUTH HANDLER] Found OAuth consent request in response output`);
+  console.log(`[OAUTH HANDLER] OAuth request details:`, JSON.stringify(oauthRequest, null, 2));
+
+  const consentLink = (oauthRequest as any).consent_link || "";
+  const serviceName = (oauthRequest as any).service_name || "Service";
+
+  if (!consentLink) {
+    console.error(`[OAUTH HANDLER] OAuth consent request missing consent_link`);
+    await context.sendActivity(
+      "⚠️ Authorization is required, but the authorization link is missing. " +
+        "Please authorize the connections manually in Azure AI Foundry Studio."
+    );
+    return true;
+  }
+
+  const oauthCard = createOAuthConsentCard(consentLink, serviceName);
+
+  // Store this conversation in pending OAuth map for retry
+  const conversationKey = `${context.activity.channelId}:${context.activity.from.id}`;
+  pendingOAuthConversations.set(conversationKey, {
+    conversationId,
+    originalMessage,
+    timestamp: Date.now(),
+  });
+  console.log(`[OAUTH HANDLER] Stored pending OAuth conversation for key: ${conversationKey}`);
+
+  await context.sendActivity({
+    type: ActivityTypes.Message,
+    attachments: [
+      {
+        contentType: "application/vnd.microsoft.card.adaptive",
+        content: oauthCard,
+      },
+    ],
+  } as any);
+
+  console.log(`[OAUTH HANDLER] Sent OAuth consent card, waiting for user authorization`);
+  return true;
+}
+
+// Helper function to handle approval requests in response
+async function handleApprovalRequest(
+  context: TurnContext,
+  response: any,
+  conversationId: string
+): Promise<boolean> {
+  const approvalRequest = response.output?.find(
+    (item: any) => item.type === "mcp_approval_request"
+  );
+
+  if (!approvalRequest) {
+    return false;
+  }
+
+  console.log(`[APPROVAL REQUEST] Found approval request: ${(approvalRequest as any).id}`);
+
+  const requestName = (approvalRequest as any).name || "Unknown Action";
+  const requestArgs = (approvalRequest as any).arguments || {};
+  const requestId = (approvalRequest as any).id || "";
+
+  console.log(`[APPROVAL REQUEST] Details:`, JSON.stringify(approvalRequest, null, 2));
+
+  const approvalCard = createApprovalCard(requestName, requestArgs, requestId, conversationId);
+
+  await context.sendActivity({
+    type: ActivityTypes.Message,
+    attachments: [
+      {
+        contentType: "application/vnd.microsoft.card.adaptive",
+        content: approvalCard,
+      },
+    ],
+  } as any);
+
+  console.log(`[APPROVAL REQUEST] Sent approval card, waiting for user response`);
+  return true;
+}
+
+// Helper function to send regular text response
+async function sendTextResponse(context: TurnContext, response: any): Promise<void> {
+  const answer = response.output_text || "I'm sorry, I couldn't generate a response.";
+  console.log(`[RESPONSE] Sending text response: ${answer.substring(0, 100)}...`);
+  await context.sendActivity(answer);
+}
+
 agentApp.onConversationUpdate("membersAdded", async (context: TurnContext) => {
-  await context.sendActivity(`Hi there! I'm an AI agent that can help you with your mail.`);
+  await context.sendActivity(`Hi there! I'm an agent to chat with you.`);
 });
 
 // Listen for ANY message to be received. MUST BE AFTER ANY OTHER MESSAGE HANDLERS
@@ -222,84 +403,8 @@ agentApp.onActivity(ActivityTypes.Message, async (context: TurnContext) => {
   try {
     // Check if this is an adaptive card submission (approval response)
     const value = context.activity.value as any;
-    if (value && value.action && value.requestId) {
-      // Handle approval response
-      console.log(
-        `[APPROVAL HANDLER] User ${value.action === "approve" ? "approved" : "denied"} request: ${
-          value.requestId
-        }`
-      );
-
-      // Send immediate acknowledgment to user
-      const actionLabel = value.action === "approve" ? "✓ Approved" : "✗ Denied";
-      await context.sendActivity(`${actionLabel} - Processing your request...`);
-
-      const openAIClient = await projectClient.getOpenAIClient();
-      const approved = value.action === "approve";
-      const conversationId = value.conversationId as string;
-      const requestId = value.requestId as string;
-
-      console.log(`[APPROVAL HANDLER] Conversation ID: ${conversationId}`);
-
-      try {
-        console.log(`[APPROVAL HANDLER] Processing approval/denial for request ${requestId}`);
-
-        // Send approval response with agent reference and tools
-        // The API needs to know which agent and tools are being used for the approval
-        const approvalResponse = await retryWithBackoff(
-          () =>
-            openAIClient.responses.create(
-              {
-                conversation: conversationId,
-                input: [
-                  {
-                    type: "mcp_approval_response",
-                    approve: approved,
-                    approval_request_id: requestId,
-                  },
-                ],
-              },
-              {
-                body: {
-                  agent: {
-                    name: config.foundryAgentName || "mail-assistant",
-                    type: "agent_reference",
-                  },
-                },
-              }
-            ),
-          3,
-          1000
-        );
-
-        // Send the result back to user
-        const resultMessage = approved
-          ? `${(approvalResponse as any).output_text || "Processing your request..."}`
-          : `✗ Action denied.`;
-
-        console.log(`[APPROVAL HANDLER] Approval processed successfully`);
-        console.log(
-          `[APPROVAL HANDLER] Response:`,
-          (approvalResponse as any).output_text?.substring(0, 100)
-        );
-        await context.sendActivity(resultMessage);
-      } catch (approvalError) {
-        console.error(
-          "[APPROVAL HANDLER] Error message:",
-          (approvalError as any).error?.message || (approvalError as any).message
-        );
-        console.error("[APPROVAL HANDLER] Full error:", {
-          message: (approvalError as any).message,
-          code: (approvalError as any).code,
-          status: (approvalError as any).status,
-        });
-
-        // Fallback: acknowledge approval
-        const fallbackMessage = approved ? `✓ Action approved!` : `✗ Action denied.`;
-
-        console.log(`[APPROVAL HANDLER] Falling back to simple acknowledgment`);
-        await context.sendActivity(fallbackMessage);
-      }
+    const isApprovalResponse = await handleApprovalResponse(context, value);
+    if (isApprovalResponse) {
       return; // Exit after handling approval
     }
 
@@ -334,7 +439,7 @@ agentApp.onActivity(ActivityTypes.Message, async (context: TurnContext) => {
               {
                 body: {
                   agent: {
-                    name: config.foundryAgentName || "mail-assistant",
+                    name: config.foundryAgentName,
                     type: "agent_reference",
                   },
                 },
@@ -362,7 +467,7 @@ agentApp.onActivity(ActivityTypes.Message, async (context: TurnContext) => {
     }
 
     console.log(`[MESSAGE HANDLER] Processing message: ${context.activity.text}`);
-    console.log(`[MESSAGE HANDLER] Using Agent: ${config.foundryAgentName || "mail-assistant"}`);
+    console.log(`[MESSAGE HANDLER] Using Agent: ${config.foundryAgentName}`);
 
     // Print User Context and Scope
     console.log("========== USER CONTEXT START ==========");
@@ -410,7 +515,7 @@ agentApp.onActivity(ActivityTypes.Message, async (context: TurnContext) => {
 
     console.log(`[MESSAGE HANDLER] Created conversation: ${conversation.id}`);
 
-    // Generate response using the mail-assistant agent reference
+    // Generate response using the foundry agent reference
     console.log(`[MESSAGE HANDLER] Generating response with agent...`);
     let response: any;
     try {
@@ -423,7 +528,7 @@ agentApp.onActivity(ActivityTypes.Message, async (context: TurnContext) => {
             {
               body: {
                 agent: {
-                  name: config.foundryAgentName || "mail-assistant",
+                  name: config.foundryAgentName,
                   type: "agent_reference",
                 },
               },
@@ -454,7 +559,7 @@ agentApp.onActivity(ActivityTypes.Message, async (context: TurnContext) => {
         // Send a helpful message to the user explaining the issue
         await context.sendActivity(
           "⚠️ **Authorization Required**\n\n" +
-            "The agent needs authorization to access Microsoft SharePoint and OneDrive to help you with mail-related tasks.\n\n" +
+            "The agent needs authorization to access data to help you with your tasks.\n\n" +
             "**How to fix this:**\n" +
             "1. Go to [Azure AI Foundry Studio](https://ai.azure.com)\n" +
             "2. Navigate to your project: `agent-dev-project`\n" +
@@ -472,7 +577,7 @@ agentApp.onActivity(ActivityTypes.Message, async (context: TurnContext) => {
 
     console.log(`[MESSAGE HANDLER] Got response with ${response.output?.length || 0} output items`);
 
-    // Check if response contains approval requests or OAuth consent requests
+    // Check if response contains special requests (OAuth, approval, etc.)
     console.log(`[MESSAGE HANDLER] Checking response output for special requests...`);
     if (response.output && Array.isArray(response.output)) {
       console.log(
@@ -481,105 +586,27 @@ agentApp.onActivity(ActivityTypes.Message, async (context: TurnContext) => {
       );
 
       // Check for OAuth consent requests first
-      const oauthRequest = response.output.find(
-        (item: any) => item.type === "oauth_consent_request"
+      const hasOAuthRequest = await handleOAuthConsentRequest(
+        context,
+        response,
+        conversation.id,
+        context.activity.text || ""
       );
-
-      if (oauthRequest) {
-        console.log(`[MESSAGE HANDLER] Found OAuth consent request in response output`);
-        console.log(
-          `[MESSAGE HANDLER] OAuth request details:`,
-          JSON.stringify(oauthRequest, null, 2)
-        );
-
-        const consentLink = (oauthRequest as any).consent_link || "";
-        const serviceName = (oauthRequest as any).service_name || "Service";
-
-        if (!consentLink) {
-          console.error(`[MESSAGE HANDLER] OAuth consent request missing consent_link`);
-          await context.sendActivity(
-            "⚠️ Authorization is required, but the authorization link is missing. " +
-              "Please authorize the connections manually in Azure AI Foundry Studio."
-          );
-          return;
-        }
-
-        const oauthCard = createOAuthConsentCard(consentLink, serviceName);
-
-        // Store this conversation in pending OAuth map so we can retry after authorization
-        const conversationKey = `${context.activity.channelId}:${context.activity.from.id}`;
-        pendingOAuthConversations.set(conversationKey, {
-          conversationId: conversation.id,
-          originalMessage: context.activity.text || "",
-          timestamp: Date.now(),
-        });
-        console.log(
-          `[MESSAGE HANDLER] Storing pending OAuth conversation for key: ${conversationKey}`
-        );
-
-        await context.sendActivity({
-          type: ActivityTypes.Message,
-          attachments: [
-            {
-              contentType: "application/vnd.microsoft.card.adaptive",
-              content: oauthCard,
-            },
-          ],
-        } as any);
-
-        console.log(`[MESSAGE HANDLER] Sent OAuth consent card, waiting for user authorization`);
+      if (hasOAuthRequest) {
         return; // Wait for user to authorize
-      } else {
-        console.log(`[MESSAGE HANDLER] No OAuth consent request found in response output`);
       }
 
       // Check for approval requests
-      const approvalRequest = response.output.find(
-        (item: any) => item.type === "mcp_approval_request"
-      );
-
-      if (approvalRequest) {
-        console.log(`[MESSAGE HANDLER] Found approval request: ${(approvalRequest as any).id}`);
-
-        // Extract approval details
-        const requestName = (approvalRequest as any).name || "Unknown Action";
-        const requestArgs = (approvalRequest as any).arguments || {};
-        console.log(
-          `[MESSAGE HANDLER] Approval Request Details:`,
-          JSON.stringify(approvalRequest, null, 2)
-        );
-        const requestId = (approvalRequest as any).id || "";
-
-        // Create adaptive card for approval
-        const approvalCard = createApprovalCard(
-          requestName,
-          requestArgs,
-          requestId,
-          conversation.id
-        );
-
-        // Send approval card to user
-        await context.sendActivity({
-          type: ActivityTypes.Message,
-          attachments: [
-            {
-              contentType: "application/vnd.microsoft.card.adaptive",
-              content: approvalCard,
-            },
-          ],
-        } as any);
-
-        console.log(`[MESSAGE HANDLER] Sent approval card, waiting for user response`);
+      const hasApprovalRequest = await handleApprovalRequest(context, response, conversation.id);
+      if (hasApprovalRequest) {
         return; // Wait for user approval
       }
     }
 
     // Send the text response back to the user
-    const answer = response.output_text || "I'm sorry, I couldn't generate a response.";
-    console.log(`[MESSAGE HANDLER] Sending response: ${answer.substring(0, 100)}...`);
-    await context.sendActivity(answer);
+    await sendTextResponse(context, response);
   } catch (error) {
-    console.error("[MESSAGE HANDLER] Error calling mail-assistant agent:", {
+    console.error("[MESSAGE HANDLER] Error calling foundry agent:", {
       error: error,
       message: (error as any).message,
       stack: (error as any).stack,
