@@ -229,5 +229,12 @@
     "language": "typescript",
     "displayName": "Copilot Connector",
     "description": "Embed your organization data to make it searchable in Microsoft 365 Copilot"
+  },
+  {
+    "id": "foundry-agent-ts",
+    "name": "foundry-agent",
+    "language": "typescript",
+    "displayName": "Foundry Agent",
+    "description": "An Microsoft 365 Agent that connects to Microsoft AI Foundry Agent."
   }
 ]

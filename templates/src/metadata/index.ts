@@ -5,7 +5,7 @@ import { customEngineAgentTemplates } from "./customEngineAgent";
 import { declarativeAgentTemplates } from "./declarativeAgent";
 import { graphConnectorTemplates } from "./graphConnector";
 import { Template } from "./interface";
-import { specialTemplates } from "./special";
+import { foundryAgentTemplate, specialTemplates } from "./special";
 import {
   chatWithYourDataTemplates,
   collaboratorAgentTemplates,
@@ -24,6 +24,7 @@ export const allTemplates: Template[] = [
   ...wxpTemplates,
   ...specialTemplates,
   ...vsOnlyTemplates,
+  foundryAgentTemplate,
 ];
 
 export const defaultGeneratorTemplates: Template[] = [
@@ -34,4 +35,5 @@ export const defaultGeneratorTemplates: Template[] = [
   ...teamsOtherTemplates,
   ...vsOnlyTemplates,
   ...graphConnectorTemplates,
+  foundryAgentTemplate,
 ];

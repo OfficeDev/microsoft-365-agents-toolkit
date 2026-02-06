@@ -35,3 +35,11 @@ export const specialTemplates: Template[] = [
   //   description: "Message extension built from an existing API specification",
   // },
 ];
+
+export const foundryAgentTemplate: Template = {
+  id: "foundry-agent-ts",
+  name: TemplateNames.FoundryAgent,
+  language: "typescript",
+  displayName: "Foundry Agent",
+  description: "An Microsoft 365 Agent that connects to Microsoft AI Foundry Agent.",
+};

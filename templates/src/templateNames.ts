@@ -73,4 +73,6 @@ export enum TemplateNames {
   // VS only
   Empty = "empty",
   MessageExtensionSearch = "message-extension-search",
+
+  FoundryAgent = "foundry-agent",
 }
