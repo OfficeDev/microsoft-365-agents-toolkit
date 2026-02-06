@@ -22,6 +22,7 @@
         "outline": "outline.png"
     },
     "accentColor": "#004578",
+    "supportsChannelFeatures": "tier1",
     "staticTabs": [
         {
             "entityId": "{{componentId}}",

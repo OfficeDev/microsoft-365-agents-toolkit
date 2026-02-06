@@ -22,6 +22,7 @@
         "full": "full description for {{appName}}"
     },
     "accentColor": "#FFFFFF",
+    "supportsChannelFeatures": "tier1",
     {{#CEAEnabled}}
     "copilotAgents": {
         "customEngineAgents": [

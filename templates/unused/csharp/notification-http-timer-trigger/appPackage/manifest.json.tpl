@@ -22,6 +22,7 @@
         "full": "Full description of {{appName}}"
     },
     "accentColor": "#FFFFFF",
+    "supportsChannelFeatures": "tier1",
     "bots": [
         {
             "botId": "${{BOT_ID}}",

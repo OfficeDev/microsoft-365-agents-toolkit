@@ -22,6 +22,7 @@
         "full": "Full description for {{appName}}"
     },
     "accentColor": "#FFFFFF",
+    "supportsChannelFeatures": "tier1",
     "composeExtensions": [],
     "copilotAgents": {
         "declarativeAgents": [            

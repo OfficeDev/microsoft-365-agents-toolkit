@@ -22,6 +22,7 @@
         "full": "full description of {{appName}}"
     },
     "accentColor": "#FFFFFF",
+    "supportsChannelFeatures": "tier1",
     "staticTabs": [
         {
             "entityId": "conversations",
