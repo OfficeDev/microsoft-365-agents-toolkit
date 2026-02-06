@@ -44,7 +44,7 @@
         <Str Cat="Text">
           <Val><![CDATA[**GitHub Copilot Free** is available to individual GitHub customers by default, with limited access to select features. You could also use Copilot through other organization or enterprise plan. Learn more about [GitHub Copilot plans]5D;(https://aka.ms/teams-agent-github-copilot-plan) and [GitHub Copilot free plan]5D;(https://aka.ms/teams-agent-github-copilot-free).]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[**GitHub Copilot 무료**는 기본적으로 개별 GitHub 고객이 사용할 수 있으며, 일부 기능에 대한 액세스가 제한됩니다. 다른 organization 또는 엔터프라이즈 계획을 통해 Copilot를 사용할 수도 있습니다. [GitHub Copilot plans]5D;(https://aka.ms/teams-agent-github-copilot-plan) 및 [GitHub Copilot free plan]5D;(https://aka.ms/teams-agent-github-copilot-free). 대한 자세한 정보]]></Val>
+            <Val><![CDATA[**GitHub Copilot Free (무료)**는 기본적으로 개인 GitHub 고객에게 제공되며, 일부 기능에 한해 제한적으로 액세스할 수 있습니다. 또한 다른 조직 또는 엔터프라이즈 플랜을 통해 Copilot을 사용할 수도 있습니다. [GitHub Copilot 플랜]5D;(https://aka.ms/teams-agent-github-copilot-plan) 및 [GitHub Copilot 무료 플랜]5D;(https://aka.ms/teams-agent-github-copilot-free)에 대해 자세히 알아보세요.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -53,7 +53,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Get access to GitHub Copilot]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[GitHub Copilot 액세스 권한 얻기]]></Val>
+            <Val><![CDATA[GitHub Copilot에 대한 액세스 권한 얻기]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -62,7 +62,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Complete the mandatory steps (with ⚠️) to set up the GitHub Copilot extension for Microsoft 365 Agents Toolkit.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[필수 단계(⚠️ 포함)를 완료하여 Microsoft 365 Agents Toolkit용 GitHub Copilot 확장을 설정하세요.]]></Val>
+            <Val><![CDATA[필수 단계(⚠️ 포함)를 완료하여 Microsoft 365 에이전트 도구 키트용 GitHub Copilot 확장을 설정하세요.]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Complete the mandatory steps (with ⚠️) to set up the GitHub Copilot extension for Teams Toolkit.]]></Val>
@@ -74,7 +74,7 @@
         <Str Cat="Text">
           <Val><![CDATA[The [GitHub Copilot extension for Microsoft 365 Agents Toolkit]5D;(https://aka.ms/install-m365agents) (@m365agents) simplifies app development and enables customization of Microsoft 365 Copilot with chat features.]A;[Install GitHub Copilot extension for Microsoft 365 Agents Toolkit]5D;(command:fx-extension.openInstallTeamsAgent?%5B%22TeamsAgentWalkthrough%22%5D)]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[[Microsoft 365 Agents Toolkit용 GitHub Copilot 확장]5D;(https://aka.ms/install-m365agents)(@m365agents)은 앱 개발을 간소화하고 채팅 기능을 사용하여 Microsoft 365 Copilot을 사용자 지정할 수 있도록 합니다.]A;[Microsoft 365 Agents Toolkit용 GitHub Copilot 확장 설치]5D;(command:fx-extension.openInstallTeamsAgent?%5B%22TeamsAgentWalkthrough%22%5D)]]></Val>
+            <Val><![CDATA[[Microsoft 365 에이전트 도구 키트용 GitHub Copilot 확장]5D;(https://aka.ms/install-m365agents)(@m365agents)은 앱 개발을 간소화하고 채팅 기능을 사용하여 Microsoft 365 Copilot을 사용자 지정할 수 있도록 합니다.]A;[Microsoft 365 에이전트 도구 키트용 GitHub Copilot 확장 설치]5D;(command:fx-extension.openInstallTeamsAgent?%5B%22TeamsAgentWalkthrough%22%5D)]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[The [GitHub Copilot extension for Microsoft 365 Agents Toolkit]5D;(https://aka.ms/install-teamsapp) (@m365agents) simplifies Teams app development and enables customization of Microsoft 365 Copilot with chat features.]A;[Install GitHub Copilot extension for Microsoft 365 Agents Toolkit]5D;(command:fx-extension.openInstallTeamsAgent?%5B%22TeamsAgentWalkthrough%22%5D)]]></Val>
@@ -86,7 +86,7 @@
         <Str Cat="Text">
           <Val><![CDATA[⚠️Install GitHub Copilot extension for Microsoft 365 Agents Toolkit]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[⚠️Microsoft 365 Agents Toolkit용 GitHub Copilot 확장 설치]]></Val>
+            <Val><![CDATA[⚠️Microsoft 365 에이전트 도구 키트용 GitHub Copilot 확장 설치]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[⚠️Install GitHub Copilot extension for Teams Toolkit]]></Val>
@@ -98,7 +98,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Please mark the installation as completed after [GitHub Copilot extension for Microsoft 365 Agents Toolkit]5D;(https://aka.ms/install-m365agents) is installed.]A;[Mark installation completed]5D;(command:fx-extension.markInstallTeamsAgentDone)]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[[Microsoft 365 Agents Toolkit용 GitHub Copilot 확장]5D;(https://aka.ms/install-m365agents)이 설치된 후 설치가 완료된 것으로 표시하세요.]A;[설치 완료 표시]5D;(command:fx-extension.markInstallTeamsAgentDone)]]></Val>
+            <Val><![CDATA[[Microsoft 365 에이전트 도구 키트용 GitHub Copilot 확장]5D;(https://aka.ms/install-m365agents)이 설치된 후 설치가 완료된 것으로 표시하세요.]A;[설치 완료 표시]5D;(command:fx-extension.markInstallTeamsAgentDone)]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Please mark the installation as completed after [GitHub Copilot extension for Microsoft 365 Agents Toolkit]5D;(https://aka.ms/install-teamsapp) is installed.]A;[Mark installation completed]5D;(command:fx-extension.markInstallTeamsAgentDone)]]></Val>
@@ -122,7 +122,7 @@
         <Str Cat="Text">
           <Val><![CDATA[The GitHub Copilot extension for Microsoft 365 Agents Toolkit (@m365agents) simplifies app development and enables customization of Microsoft 365 Copilot with chat features. Learn more about the [GitHub Copilot extension for Microsoft 365 Agents Toolkit]5D;(https://aka.ms/install-m365agents).]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Microsoft 365 Agents Toolkit(@m365agents)용 GitHub Copilot 확장은 앱 개발을 간소화하고 채팅 기능을 사용하여 Microsoft 365 Copilot를 사용자 지정할 수 있도록 합니다. [Microsoft 365 Agents Toolkit용 GitHub Copilot 확장]5D;(https://aka.ms/install-m365agents)에 대해 자세히 알아보세요.]]></Val>
+            <Val><![CDATA[Microsoft 365 에이전트 도구 키트(@m365agents)용 GitHub Copilot 확장은 앱 개발을 간소화하고 채팅 기능을 사용하여 Microsoft 365 Copilot을 사용자 지정할 수 있도록 합니다. [Microsoft 365 에이전트 도구 키트용 GitHub Copilot 확장]5D;(https://aka.ms/install-m365agents)에 대해 자세히 알아보세요.]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[The GitHub Copilot extension for Microsoft 365 Agents Toolkit (@m365agents) simplifies Teams app development and enables customization of Microsoft 365 Copilot with chat features. Learn more about the [GitHub Copilot extension for Microsoft 365 Agents Toolkit]5D;(https://aka.ms/install-teamsapp).]]></Val>
@@ -155,7 +155,7 @@
         <Str Cat="Text">
           <Val><![CDATA[⚠️Set up GitHub Copilot in Visual Studio Code]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[⚠️Visual Studio Code GitHub Copilot 설정]]></Val>
+            <Val><![CDATA[⚠️Visual Studio Code의 GitHub Copilot 설정]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Set up GitHub Copilot in Visual Studio Code]]></Val>
@@ -167,7 +167,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Getting Started with the GitHub Copilot Extension for Microsoft 365 Agents Toolkit]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Microsoft 365 Agents Toolkit용 GitHub Copilot 확장으로 시작]]></Val>
+            <Val><![CDATA[Microsoft 365 에이전트 도구 키트용 GitHub Copilot 확장으로 시작]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Getting Started with the GitHub Copilot Extension for Teams Toolkit]]></Val>
@@ -179,7 +179,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Chat with GitHub Copilot extension for Microsoft 365 Agents Toolkit (@m365agents) to build apps or customize and extend Microsoft 365 Copilot.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Microsoft 365 Agents Toolkit용 GitHub Copilot 확장(@m365agents)과 채팅하여 앱을 빌드하거나 Microsoft 365 Copilot을 사용자 지정할 수 있습니다.]]></Val>
+            <Val><![CDATA[Microsoft 365 에이전트 도구 키트(@m365agents)용 GitHub Copilot 확장과 채팅하여 앱을 빌드하거나 Microsoft 365 Copilot을 사용자 지정할 수 있습니다.]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Chat with GitHub Copilot extension for Microsoft 365 Agents Toolkit (@m365agents) to build Microsoft 365 apps or customize and extend Microsoft 365 Copilot.]]></Val>
@@ -2687,7 +2687,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Open Office Prompt Library for GitHub Copilot]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[office 프롬프트 라이브러리에서 GitHub Copilot 열기]]></Val>
+            <Val><![CDATA[GitHub Copilot용 Office 프롬프트 라이브러리 열기]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -2696,7 +2696,7 @@
         <Str Cat="Text">
           <Val><![CDATA[View Prompts for GitHub Copilot]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[GitHub Copilot 대한 프롬프트 보기]]></Val>
+            <Val><![CDATA[GitHub Copilot용 프롬프트 보기]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3812,7 +3812,7 @@
         <Str Cat="Text">
           <Val><![CDATA[To use GitHub Copilot Extension for Microsoft 365 Agents Toolkit when developing apps or customizing Microsoft 365 Copilot, you need to install GitHub Copilot first.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[앱을 개발하거나 Microsoft 365 Copilot을 사용자 지정할 때 Microsoft 365 Agents Toolkit용 GitHub Copilot 확장을 사용하려면 먼저 GitHub Copilot을 설치해야 합니다.]]></Val>
+            <Val><![CDATA[앱을 개발하거나 Microsoft 365 Copilot을 사용자 지정할 때 Microsoft 365 에이전트 도구 키트용 GitHub Copilot 확장을 사용하려면 먼저 GitHub Copilot을 설치해야 합니다.]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[To use GitHub Copilot Extension for Microsoft 365 Agents Toolkit when developing Teams apps or customizing Microsoft 365 Copilot, you need to install GitHub Copilot first.]]></Val>
@@ -3842,7 +3842,7 @@
         <Str Cat="Text">
           <Val><![CDATA[To use GitHub Copilot Extension for Microsoft 365 Agents Toolkit when developing apps or customizing Microsoft 365 Copilot, please install it first. If you've already installed it, confirm below.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[앱을 개발하거나 Microsoft 365 Copilot을 사용자 지정할 때 Microsoft 365 Agents Toolkit용 GitHub Copilot 확장을 사용하려면 먼저 설치하세요. 이미 설치한 경우 아래에서 확인하세요.]]></Val>
+            <Val><![CDATA[앱을 개발하거나 Microsoft 365 Copilot을 사용자 지정할 때 Microsoft 365 에이전트 도구 키트용 GitHub Copilot 확장을 사용하려면 먼저 설치하세요. 이미 설치한 경우 아래에서 확인하세요.]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[To use GitHub Copilot Extension for Microsoft 365 Agents Toolkit when developing Teams apps or customizing Microsoft 365 Copilot, please install it first. If you've already installed it, confirm below.]]></Val>
@@ -4085,7 +4085,7 @@
         <Str Cat="Text">
           <Val><![CDATA[To use GitHub Copilot Extension for Microsoft 365 Agents Toolkit when developing apps or customizing Microsoft 365 Copilot, install GitHub Copilot Extension for Microsoft 365 Agents Toolkit from "%s".]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[앱을 개발하거나 Microsoft 365 Copilot을 사용자 지정할 때 Microsoft 365 Agents Toolkit용 GitHub Copilot 확장을 사용하려면 "%s"의 Microsoft 365 Agents Toolkit용 GitHub Copilot 확장을 설치합니다.]]></Val>
+            <Val><![CDATA[앱을 개발하거나 Microsoft 365 Copilot을 사용자 지정할 때 Microsoft 365 에이전트 도구 키트용 GitHub Copilot 확장을 사용하려면 "%s"의 Microsoft 365 에이전트 도구 키트용 GitHub Copilot 확장을 설치하세요.]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[To use GitHub Copilot Extension for Microsoft 365 Agents Toolkit when developing Teams apps or customizing Microsoft 365 Copilot, install GitHub Copilot Extension for Microsoft 365 Agents Toolkit from "%s".]]></Val>
@@ -4097,7 +4097,7 @@
         <Str Cat="Text">
           <Val><![CDATA[To use the GitHub Copilot Extension for Microsoft 365 Agents Toolkit when developing apps or customizing Microsoft 365 Copilot, install GitHub Copilot from "%s" and GitHub Copilot Extension for Microsoft 365 Agents Toolkit from "%s".]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[앱을 개발하거나 Microsoft 365 Copilot을 사용자 지정할 때 Microsoft 365 Agents Toolkit용 GitHub Copilot 확장을 사용하려면 "%s"의 GitHub Copilot 및 "%s"의 Microsoft 365 Agents Toolkit용 GitHub Copilot 확장을 설치합니다.]]></Val>
+            <Val><![CDATA[앱을 개발하거나 Microsoft 365 Copilot을 사용자 지정할 때 Microsoft 365 에이전트 도구 키트용 GitHub Copilot 확장을 사용하려면 "%s"의 GitHub Copilot 및 "%s"의 Microsoft 365 에이전트 도구 키트용 GitHub Copilot 확장을 설치하세요.]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[To use the GitHub Copilot Extension for Microsoft 365 Agents Toolkit when developing Teams apps or customizing Microsoft 365 Copilot, install GitHub Copilot from "%s" and GitHub Copilot Extension for Microsoft 365 Agents Toolkit from "%s".]]></Val>
@@ -6482,7 +6482,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Chat with GitHub Copilot]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[GitHub Copilot 채팅]]></Val>
+            <Val><![CDATA[GitHub Copilot과 채팅]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />

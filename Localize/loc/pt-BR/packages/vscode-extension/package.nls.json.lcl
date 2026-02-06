@@ -4109,7 +4109,7 @@
         <Str Cat="Text">
           <Val><![CDATA[GitHub Copilot Chat extension is already installed.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[GitHub Copilot extensão de Chat já está instalada.]]></Val>
+            <Val><![CDATA[A extensão do GitHub Copilot Chat já está instalada.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -6482,7 +6482,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Chat with GitHub Copilot]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Conversar com GitHub Copilot]]></Val>
+            <Val><![CDATA[Chat com o GitHub Copilot]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
