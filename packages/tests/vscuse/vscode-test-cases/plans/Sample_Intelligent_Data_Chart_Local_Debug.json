@@ -10,28 +10,28 @@
       "step_retry_timeout": 0
     },
     "total_steps": 29,
-    "created_at": "2026-02-05T05:43:18.306783",
+    "created_at": "2026-01-27T09:04:01.279690",
     "name": "Sample Intelligent Data Chart Local Debug",
     "description": {
       "other": "",
       "owner": "v-ivanchen@microsoft.com",
       "workitem": "26461509"
     },
-    "generated_at": "2026-02-05T05:43:18.306783",
+    "generated_at": "2026-01-27T09:04:01.279690",
     "execution_order": [
       "plan_r_1107_015711",
       "step_7d67cad1",
       "step_6646cc89",
       "plan_r_1111_043711",
       "step_4a6f15f5",
-      "plan_b36c23b3",
+      "plan_r_1021_081410",
       "step_afcec9b5",
       "step_1b4a0164",
       "step_fca23ac9",
       "step_266e8244",
       "step_bc4f7315",
       "step_cb0064e5",
-      "plan_5c454947",
+      "plan_4f33ade7",
       "step_b7bc59c1",
       "step_0035e22e",
       "step_7ad997a2",
@@ -54,7 +54,7 @@
       "step_23bc6422"
     ],
     "tags": [],
-    "updated_at": "2026-02-05T07:27:52.683121"
+    "updated_at": "2026-01-27T09:59:16.396370"
   },
   "steps": [
     {
@@ -76,7 +76,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_7d67cad1",
-      "created_at": "2026-02-05T05:43:18.314381",
+      "created_at": "2026-01-27T09:04:01.299108",
       "plan_id": "plan_ed58e28b"
     },
     {
@@ -102,7 +102,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_6646cc89",
-      "created_at": "2026-02-05T05:43:18.321403",
+      "created_at": "2026-01-27T09:04:01.328240",
       "plan_id": "plan_ed58e28b"
     },
     {
@@ -122,7 +122,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": null,
-      "created_at": "2026-02-05T05:43:18.328282",
+      "created_at": "2026-01-27T09:04:01.348127",
       "plan_id": "plan_ed58e28b"
     },
     {
@@ -148,7 +148,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_afcec9b5",
-      "created_at": "2026-02-05T05:43:18.334626",
+      "created_at": "2026-01-27T09:04:01.362612",
       "plan_id": "plan_ed58e28b"
     },
     {
@@ -170,7 +170,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_1b4a0164",
-      "created_at": "2026-02-05T05:43:18.340004",
+      "created_at": "2026-01-27T09:04:01.377765",
       "plan_id": "plan_ed58e28b"
     },
     {
@@ -192,7 +192,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_fca23ac9",
-      "created_at": "2026-02-05T05:43:18.347544",
+      "created_at": "2026-01-27T09:04:01.385104",
       "plan_id": "plan_ed58e28b"
     },
     {
@@ -214,7 +214,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_266e8244",
-      "created_at": "2026-02-05T05:43:18.353532",
+      "created_at": "2026-01-27T09:04:01.405489",
       "plan_id": "plan_ed58e28b"
     },
     {
@@ -236,7 +236,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_bc4f7315",
-      "created_at": "2026-02-05T05:43:18.361153",
+      "created_at": "2026-01-27T09:04:01.418182",
       "plan_id": "plan_ed58e28b"
     },
     {
@@ -258,7 +258,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_cb0064e5",
-      "created_at": "2026-02-05T05:43:18.366646",
+      "created_at": "2026-01-27T09:04:01.432076",
       "plan_id": "plan_ed58e28b"
     },
     {
@@ -284,7 +284,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_b7bc59c1",
-      "created_at": "2026-02-05T05:43:18.372697",
+      "created_at": "2026-01-27T09:04:01.444591",
       "plan_id": "plan_ed58e28b"
     },
     {
@@ -306,7 +306,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_0035e22e",
-      "created_at": "2026-02-05T05:43:18.379410",
+      "created_at": "2026-01-27T09:04:01.462433",
       "plan_id": "plan_ed58e28b"
     },
     {
@@ -328,7 +328,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_7ad997a2",
-      "created_at": "2026-02-05T05:43:18.385864",
+      "created_at": "2026-01-27T09:04:01.481428",
       "plan_id": "plan_ed58e28b"
     },
     {
@@ -354,7 +354,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_cce96618",
-      "created_at": "2026-02-05T05:43:18.391970",
+      "created_at": "2026-01-27T09:04:01.495631",
       "plan_id": "plan_ed58e28b"
     },
     {
@@ -380,7 +380,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_a51ee5be",
-      "created_at": "2026-02-05T05:43:18.397166",
+      "created_at": "2026-01-27T09:04:01.512508",
       "plan_id": "plan_ed58e28b"
     },
     {
@@ -406,7 +406,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_3d3f5d61",
-      "created_at": "2026-02-05T05:43:18.402167",
+      "created_at": "2026-01-27T09:04:01.534380",
       "plan_id": "plan_ed58e28b"
     },
     {
@@ -432,7 +432,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_a0cd3541",
-      "created_at": "2026-02-05T05:43:18.406670",
+      "created_at": "2026-01-27T09:04:01.548641",
       "plan_id": "plan_ed58e28b"
     },
     {
@@ -458,7 +458,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_c187f6e1",
-      "created_at": "2026-02-05T05:43:18.412214",
+      "created_at": "2026-01-27T09:04:01.562813",
       "plan_id": "plan_ed58e28b"
     },
     {
@@ -484,7 +484,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_460a0ad6",
-      "created_at": "2026-02-05T05:43:18.417178",
+      "created_at": "2026-01-27T09:04:01.585292",
       "plan_id": "plan_ed58e28b"
     },
     {
@@ -510,7 +510,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_05d15e61",
-      "created_at": "2026-02-05T05:43:18.421681",
+      "created_at": "2026-01-27T09:04:01.598349",
       "plan_id": "plan_ed58e28b"
     },
     {
@@ -532,7 +532,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_5d1952d9",
-      "created_at": "2026-02-05T05:43:18.425680",
+      "created_at": "2026-01-27T09:04:01.617656",
       "plan_id": "plan_ed58e28b"
     },
     {
@@ -552,7 +552,7 @@
         "step_retry_timeout: 30"
       ],
       "screenshot": null,
-      "created_at": "2026-02-05T05:43:18.431193",
+      "created_at": "2026-01-27T09:04:01.639307",
       "plan_id": "plan_ed58e28b"
     },
     {
@@ -578,7 +578,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_7a501563",
-      "created_at": "2026-02-05T05:43:18.434599",
+      "created_at": "2026-01-27T09:04:01.652846",
       "plan_id": "plan_ed58e28b"
     },
     {
@@ -604,7 +604,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_ee39eeb9",
-      "created_at": "2026-02-05T05:43:18.438766",
+      "created_at": "2026-01-27T09:04:01.661603",
       "plan_id": "plan_ed58e28b"
     },
     {
@@ -626,7 +626,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_e5579fac",
-      "created_at": "2026-02-05T05:43:18.445279",
+      "created_at": "2026-01-27T09:04:01.682118",
       "plan_id": "plan_ed58e28b"
     },
     {
@@ -646,7 +646,7 @@
         "step_retry_timeout: 30"
       ],
       "screenshot": null,
-      "created_at": "2026-02-05T05:43:18.450789",
+      "created_at": "2026-01-27T09:04:01.695175",
       "plan_id": "plan_ed58e28b"
     },
     {
@@ -672,7 +672,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_2df18cf4",
-      "created_at": "2026-02-05T05:43:18.454903",
+      "created_at": "2026-01-27T09:04:01.711410",
       "plan_id": "plan_ed58e28b"
     },
     {
@@ -698,7 +698,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_d1856448",
-      "created_at": "2026-02-05T05:43:18.459176",
+      "created_at": "2026-01-27T09:04:01.729349",
       "plan_id": "plan_ed58e28b"
     },
     {
@@ -720,7 +720,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_1fbedf7f",
-      "created_at": "2026-02-05T05:43:18.464176",
+      "created_at": "2026-01-27T09:04:01.746103",
       "plan_id": "plan_ed58e28b"
     },
     {
@@ -740,7 +740,7 @@
         "step_retry_timeout: 30"
       ],
       "screenshot": null,
-      "created_at": "2026-02-05T05:43:18.469224",
+      "created_at": "2026-01-27T09:04:01.762941",
       "plan_id": "plan_ed58e28b"
     }
   ],
