@@ -309,7 +309,6 @@ async function handleOAuthConsentRequest(
   }
 
   console.log(`[OAUTH HANDLER] Found OAuth consent request in response output`);
-  console.log(`[OAUTH HANDLER] OAuth request details:`, JSON.stringify(oauthRequest, null, 2));
 
   const consentLink = (oauthRequest as any).consent_link || "";
   const serviceName = (oauthRequest as any).service_name || "Service";
