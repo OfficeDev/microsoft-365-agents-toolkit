@@ -9,6 +9,7 @@ env:
   DRY_RUN: ${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run) || 'false' }}
   CREATE_BRANCH: ${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.create_branch) || 'true' }}
   RERUN_CD_ONLY: ${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.rerun_cd_only) || 'false' }}
+  GO_PRODUCT: ${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.go_product) || 'false' }}
 
 on:
   workflow_dispatch:
@@ -27,6 +28,10 @@ on:
         default: ""
       rerun_cd_only:
         description: "Rerun CD only: select latest pending release (not canceled), skip PR creation/merge checks, and trigger CD directly (useful for regenerating artifacts after fixes on release branch)."
+        type: boolean
+        default: false
+      go_product:
+        description: "When triggering CD, set goproduct=true (publish TTK as product)."
         type: boolean
         default: false
       dry_run:
@@ -649,12 +654,14 @@ jobs:
             const preid = '${{ needs.prepare-release.outputs.preid }}';
             const series = '${{ needs.prepare-release.outputs.series }}';
             const vsrelease = '${{ needs.prepare-release.outputs.vsrelease }}' === 'true';
+            const goproduct = '${{ env.GO_PRODUCT }}' === 'true';
 
             console.log('Triggering CD workflow with parameters:');
             console.log(`  Branch: ${branch}`);
             console.log(`  preid: ${preid}`);
             console.log(`  series: ${series}`);
             console.log(`  vsrelease: ${vsrelease}`);
+            console.log(`  goproduct: ${goproduct}`);
 
             await github.rest.actions.createWorkflowDispatch({
               owner: context.repo.owner,
@@ -666,7 +673,7 @@ jobs:
                 series: series,
                 vsrelease: vsrelease.toString(),
                 vstemplate: 'false',
-                goproduct: 'false'
+                goproduct: goproduct.toString()
               }
             });
 
