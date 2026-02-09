@@ -1364,24 +1364,10 @@ export async function validateBasicTab(
   hubState = ValidationContent.Teams,
   env?: string
 ) {
-  try {
-    const frameElementHandle = await page.waitForSelector(
-      `iframe[name="embedded-page-container"]`
-    );
-    const frame = await frameElementHandle?.contentFrame();
-    console.log(`Check if ${content} showed`);
-    await frame?.waitForSelector(`h1:has-text("${content}")`);
-    console.log(`Check if ${hubState} showed`);
-    await frame?.waitForSelector(`div:has-text("${hubState}")`);
-    console.log(`${hubState} showed`);
-  } catch (error) {
-    await page.screenshot({
-      path: getPlaywrightScreenshotPath("error"),
-      fullPage: true,
-    });
-    if (env === "local") {
+  if (env === "local") {
+    try {
       await Promise.all([
-        page.goto("https://localhost:53000/tabs/home/"),
+        page.goto("https://localhost:3978/tabs/home/"),
         page.waitForNavigation(),
       ]);
       await page?.waitForSelector(`h1:has-text("${content}")`);
@@ -1390,8 +1376,28 @@ export async function validateBasicTab(
         path: getPlaywrightScreenshotPath("local"),
         fullPage: true,
       });
-    } else {
-      throw error;
+    } catch (error) {
+      await page.screenshot({
+        path: getPlaywrightScreenshotPath("error"),
+        fullPage: true,
+      });
+    }
+  } else {
+    try {
+      const frameElementHandle = await page.waitForSelector(
+        `iframe[name="embedded-page-container"]`
+      );
+      const frame = await frameElementHandle?.contentFrame();
+      console.log(`Check if ${content} showed`);
+      await frame?.waitForSelector(`h1:has-text("${content}")`);
+      console.log(`Check if ${hubState} showed`);
+      await frame?.waitForSelector(`div:has-text("${hubState}")`);
+      console.log(`${hubState} showed`);
+    } catch (error) {
+      await page.screenshot({
+        path: getPlaywrightScreenshotPath("error"),
+        fullPage: true,
+      });
     }
   }
 }
