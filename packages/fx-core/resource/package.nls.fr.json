@@ -332,7 +332,7 @@
   "core.createProjectQuestion.projectType.copilotExtension.placeholder": "Sélectionnez une option",
   "core.createProjectQuestion.projectType.customCopilot.detail": "Créer un assistant intelligent où vous gérez l’orchestration et fournissez votre propre LLM",
   "core.createProjectQuestion.projectType.customCopilot.label": "Agent du moteur personnalisé",
-  "core.createProjectQuestion.projectType.copilotHelp.label": "Vous ne savez pas comment démarrer ? Utiliser GitHub Copilot conversation",
+  "core.createProjectQuestion.projectType.copilotHelp.label": "Vous ne savez pas comment démarrer ? Utiliser Copilot Chat GitHub",
   "core.createProjectQuestion.projectType.copilotHelp.detail": "Conversez avec GitHub Copilot et obtenez des instructions étape par étape pour développer votre application ou votre assistant Microsoft 365 Copilot.",
   "core.createProjectQuestion.projectType.copilotGroup.title": "Utiliser GitHub Copilot",
   "core.createProjectQuestion.projectType.createGroup.aiAgent": "Assistants pour Microsoft 365 Copilot",
