@@ -332,7 +332,7 @@
   "core.createProjectQuestion.projectType.copilotExtension.placeholder": "オプションを選択します",
   "core.createProjectQuestion.projectType.customCopilot.detail": "オーケストレーションを管理し、独自の LLM を提供するインテリジェント エージェントを構築します",
   "core.createProjectQuestion.projectType.customCopilot.label": "カスタム エンジン エージェント",
-  "core.createProjectQuestion.projectType.copilotHelp.label": "開始方法がわからない場合GitHub Copilotチャットを使用する",
+  "core.createProjectQuestion.projectType.copilotHelp.label": "開始方法がわからない場合GitHub Copilot Chat を使用する",
   "core.createProjectQuestion.projectType.copilotHelp.detail": "GitHub Copilot とチャットして、アプリまたは Microsoft 365 Copilot エージェントを開発するための段階的な手順を取得します。",
   "core.createProjectQuestion.projectType.copilotGroup.title": "GitHub Copilotを使用する",
   "core.createProjectQuestion.projectType.createGroup.aiAgent": "Microsoft 365 Copilot のエージェント",
