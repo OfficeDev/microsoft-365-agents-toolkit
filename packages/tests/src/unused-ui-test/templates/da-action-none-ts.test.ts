@@ -11,7 +11,7 @@ import { Page } from "playwright";
 import {
   daActionHappPathTestForLocalDebug,
   daActionHappPathTestForRemoteDebug,
-} from "./DaActionHappPath";
+} from "../../ui-test/templates/DaActionHappPath";
 
 describe("Debug Tests", function () {
   this.timeout(Timeout.localAndRemoteTestCase);

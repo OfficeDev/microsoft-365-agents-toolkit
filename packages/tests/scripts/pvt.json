@@ -13,7 +13,6 @@
       "remotedebug-bot-reprovision-win-only",
       "remotedebug-tab-reprovision-win-only",
       "remotedebug-tab-regen-appid-win-only",
-      "da-action-none-ts",
       "da-action-openapi-apikey"
       ]
   },
