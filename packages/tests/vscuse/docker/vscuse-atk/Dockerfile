@@ -7,10 +7,6 @@
 ARG BASE_IMAGE=ghcr.io/microsoft/vscuse-base:latest
 FROM ${BASE_IMAGE}
 
-# Create vscode user (base image only has appuser)
-RUN groupadd -g 1001 vscode && \
-    useradd -m -u 1001 -g 1001 -s /bin/bash vscode
-
 # Install .NET 8.0 SDK
 RUN curl -fsSL https://packages.microsoft.com/config/ubuntu/22.04/packages-microsoft-prod.deb -o packages-microsoft-prod.deb \
     && dpkg -i packages-microsoft-prod.deb \
@@ -20,13 +16,6 @@ RUN curl -fsSL https://packages.microsoft.com/config/ubuntu/22.04/packages-micro
     && rm -rf /var/lib/apt/lists/* \
     && dotnet --version \
     && dotnet --list-sdks
-
-# Install Node.js 20.x LTS (not included in base image)
-RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
-    && apt-get install -y nodejs \
-    && rm -rf /var/lib/apt/lists/* \
-    && node --version \
-    && npm --version
 
 # Install Azure CLI
 RUN curl -sL https://aka.ms/InstallAzureCLIDeb | bash \
