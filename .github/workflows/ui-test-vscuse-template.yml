@@ -519,11 +519,29 @@ jobs:
             # WIQL query to find active bugs with the specific tag
             local wiql_query="{\"query\": \"SELECT [System.Id], [System.Title], [System.State] FROM WorkItems WHERE [System.WorkItemType] = 'Bug' AND [System.State] IN ('Active','New','Committed') AND [System.Tags] CONTAINS '${tag}'\"}"
             
-            local response=$(curl -s -u ":${AZURE_DEVOPS_PAT}" \
+            local http_code
+            local response
+            response=$(curl -s -w "\n%{http_code}" -u ":${AZURE_DEVOPS_PAT}" \
               -H "Content-Type: application/json" \
               -X POST \
               "https://dev.azure.com/${AZURE_DEVOPS_ORG}/${AZURE_DEVOPS_PROJECT}/_apis/wit/wiql?api-version=7.0" \
               -d "$wiql_query")
+            
+            # Extract HTTP status code from the last line
+            http_code=$(echo "$response" | tail -n1)
+            # Remove the last line (status code) to get the body
+            response=$(echo "$response" | sed '$d')
+            
+            if [ "$http_code" != "200" ]; then
+              echo "HTTP_ERROR:$http_code"
+              return 1
+            fi
+            
+            # Validate that response is JSON
+            if ! echo "$response" | jq empty 2>/dev/null; then
+              echo "HTTP_ERROR:INVALID_JSON"
+              return 1
+            fi
             
             echo "$response"
           }
@@ -700,12 +718,22 @@ jobs:
                 query_error="⚠️No ADO PAT configured"
                 echo "Azure DevOps PAT not configured, skipping bug query"
               else
-                bug_response=$(query_bugs_by_tag "$display_name" 2>&1) || query_error="⚠️Network issue"
-                echo "Bug query response: $bug_response"
+                bug_response=$(query_bugs_by_tag "$display_name" 2>/dev/null)
+                query_exit_code=$?
                 
-                # Check if the response is valid JSON and contains workItems
-                if [ -z "$query_error" ]; then
-                  # Check for API errors in response
+                if [ $query_exit_code -ne 0 ]; then
+                  # Extract HTTP error code if available
+                  if echo "$bug_response" | grep -q "^HTTP_ERROR:"; then
+                    error_detail=$(echo "$bug_response" | sed 's/^HTTP_ERROR://')
+                    query_error="⚠️ADO API error (HTTP $error_detail)"
+                    echo "Azure DevOps API error: HTTP $error_detail"
+                  else
+                    query_error="⚠️Network issue"
+                    echo "Azure DevOps query failed with exit code $query_exit_code"
+                  fi
+                else
+                  echo "Bug query returned valid JSON response"
+                  # Check for API-level errors in JSON response
                   api_error=$(echo "$bug_response" | jq -r '.message // empty' 2>/dev/null)
                   if [ -n "$api_error" ]; then
                     query_error="⚠️ADO API error"
