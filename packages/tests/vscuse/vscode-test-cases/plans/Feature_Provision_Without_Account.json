@@ -365,7 +365,7 @@
       "agent": "assertion",
       "tool": "",
       "parameters": {},
-      "description": "@assertion notification \\\"sign in Azure account\" exist.",
+      "description": "@assertion there is a popup shows sign in Azure account.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
