@@ -78,18 +78,21 @@ describe("Foundry Proxy Agent for csharp version", function () {
         // Scaffold
         const env = Object.assign({}, process.env);
         env["TEAMSFX_CLI_DOTNET"] = "true";
+        const options = `--foundry-endpoint https://test.ai.azure.com --foundry-agent-id test-agent-id`;
         await CliHelper.createDotNetProject(
           appName,
           testFolder,
           Capability.FoundryProxyAgent,
-          env
+          env,
+          options
         );
 
         // Validate Scaffold - Program.cs
         const programFile = path.join(testFolder, appName, "Program.cs");
-        fs.access(programFile, fs.constants.F_OK, (err) => {
-          assert.notExists(err, "Program.cs should exist");
-        });
+        assert.isTrue(
+          await fs.pathExists(programFile),
+          "Program.cs should exist"
+        );
 
         // Validate Scaffold - FoundryAgent.cs
         const agentFile = path.join(
@@ -98,9 +101,10 @@ describe("Foundry Proxy Agent for csharp version", function () {
           "Agents",
           "FoundryAgent.cs"
         );
-        fs.access(agentFile, fs.constants.F_OK, (err) => {
-          assert.notExists(err, "Agents/FoundryAgent.cs should exist");
-        });
+        assert.isTrue(
+          await fs.pathExists(agentFile),
+          "Agents/FoundryAgent.cs should exist"
+        );
 
         // Validate Scaffold - manifest.json
         const manifestFile = path.join(
