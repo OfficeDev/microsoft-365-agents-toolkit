@@ -88,6 +88,19 @@ export class VSCapabilityOptions {
       data: TemplateNames.TravelAgent,
     };
   }
+
+  static foundryProxyAgent(): OptionItem {
+    return {
+      id: "foundry-proxy-agent",
+      label: getLocalizedString(
+        "core.createProjectQuestion.capability.foundryProxyAgentOption.label"
+      ),
+      detail: getLocalizedString(
+        "core.createProjectQuestion.capability.foundryProxyAgentOption.detail"
+      ),
+      data: TemplateNames.FoundryProxyAgent,
+    };
+  }
 }
 
 /**
@@ -111,6 +124,7 @@ export function scaffoldQuestionForVS(): IQTreeNode {
             TeamsAgentCapabilityOptions.customCopilotRag(),
             VSCapabilityOptions.weatherAgentBot(),
             VSCapabilityOptions.travelAgentBot(),
+            VSCapabilityOptions.foundryProxyAgent(),
             BotCapabilityOptions.basicBot(),
             VSCapabilityOptions.nonSsoTab(),
             MeCapabilityOptions.basicMe(),

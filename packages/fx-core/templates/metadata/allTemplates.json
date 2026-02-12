@@ -175,6 +175,13 @@
     "description": "A travel planning agent, which is built with Microsoft 365 Agents SDK, Microsoft 365 Retrieval API and Agent Framework"
   },
   {
+    "id": "foundry-proxy-agent-csharp",
+    "name": "foundry-proxy-agent",
+    "language": "csharp",
+    "displayName": "Microsoft Foundry Proxy Agent",
+    "description": "An agent that proxies requests to Microsoft Azure AI Foundry agents, enabling Teams and M365 Copilot integration"
+  },
+  {
     "id": "graph-connector-ts",
     "name": "graph-connector",
     "language": "typescript",
