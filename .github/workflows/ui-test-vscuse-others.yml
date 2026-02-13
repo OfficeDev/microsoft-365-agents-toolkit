@@ -111,7 +111,7 @@ jobs:
       AZURE_AUTH_ENABLED: ${{ secrets.AZURE_SERVICE_PRINCIPAL_ID != '' && secrets.AZURE_SERVICE_PRINCIPAL_SECRET != '' && secrets.TEST_TENANT_TENANT_ID != '' }}
       # M365 account for testing (comma-separated list from GitHub variable)
       M365_USERNAMES: ${{ vars.M365_USERNAMES }}
-      M365_ACCOUNT_PASSWORD: ${{ secrets.TEST_M365_PASSWORD }}
+      M365_ACCOUNT_PASSWORD: ${{ secrets.TEST_TENANT_M365_ACCOUNT_PASSWORD }}
       # The test account for Copilot features
       M365_ACCOUNT_NAME_EnableCopilotAccess: ${{ secrets.TEST_TENANT_M365_ACCOUNT_NAME }}
       M365_ACCOUNT_PASSWORD_EnableCopilotAccess: ${{ secrets.TEST_TENANT_M365_ACCOUNT_PASSWORD }}
