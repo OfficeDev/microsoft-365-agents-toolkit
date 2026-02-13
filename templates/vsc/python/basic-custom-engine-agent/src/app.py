@@ -9,33 +9,20 @@ from aiohttp.web import Request, Response, Application, run_app
 
 from agent import agent_app, connection_manager
 
+async def entry_point(req: Request) -> Response:
+    agent: AgentApplication = req.app["agent_app"]
+    adapter: CloudAdapter = req.app["adapter"]
+    return await start_agent_process(
+        req,
+        agent,
+        adapter,
+    )
 
-def start_server(
-    agent_application: AgentApplication, auth_configuration: AgentAuthConfiguration
-):
-    async def entry_point(req: Request) -> Response:
-        agent: AgentApplication = req.app["agent_app"]
-        adapter: CloudAdapter = req.app["adapter"]
-        return await start_agent_process(
-            req,
-            agent,
-            adapter,
-        )
-
-    app = Application(middlewares=[jwt_authorization_middleware])
-    app.router.add_post("/api/messages", entry_point)
-    app["agent_configuration"] = auth_configuration
-    app["agent_app"] = agent_application
-    app["adapter"] = agent_application.adapter
-
-    try:
-        run_app(app, host="localhost", port=os.environ.get("PORT", 3978))
-    except Exception as error:
-        raise error
-
+app = Application(middlewares=[jwt_authorization_middleware])
+app.router.add_post("/api/messages", entry_point)
+app["agent_configuration"] = connection_manager.get_default_connection_configuration()
+app["agent_app"] = agent_app
+app["adapter"] = agent_app.adapter
 
 if __name__ == "__main__":
-    start_server(
-        agent_application=agent_app,
-        auth_configuration=connection_manager.get_default_connection_configuration(),
-    )
+    run_app(app, host="localhost", port=os.environ.get("PORT", 3978))
