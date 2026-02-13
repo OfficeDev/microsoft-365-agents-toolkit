@@ -52,11 +52,19 @@ param enableAppInsights bool = true
 @description('Additional app settings for the Web App')
 param additionalAppSettings array = []
 
+@description('SSO App ID (from aadApp/create)')
+param ssoAppId string
+
+@description('SSO App Object ID (from aadApp/create)')
+param ssoAppObjectId string
+
+@description('SSO App Name')
+param ssoAppName string
+
 // Generate resource names
 var identityName = '${resourceBaseName}-identity'
 var webAppName = '${resourceBaseName}-app'
 var botServiceName = '${resourceBaseName}-bot'
-var aadAppName = '${resourceBaseName}-UserAuth'
 
 // Setp 0: GUID ENCODING: Encode Tenant ID 
 module guidEncoder 'modules/guid-encoder.bicep' =  {
@@ -126,14 +134,16 @@ module azureBot 'modules/azurebot.bicep' = {
   }
 }
 
-// Step 4: Create App Registration with all required parameters
+// Step 4: Create Federated Credential + Service Principal for SSO App
 module appRegistration 'modules/app-registration.bicep' = {
   name: 'deploy-app-registration'
   params: {
-    aadAppName: aadAppName
+    ssoAppObjectId: ssoAppObjectId
+    ssoAppId: ssoAppId
     botId: botIdentity.outputs.identityClientId
     tenantId: tenantId
     encodedTenantId: guidEncoder.outputs.encodedGuid
+    ssoAppName: ssoAppName
   }
   dependsOn: [
     azureBot
@@ -168,19 +178,6 @@ module botOAuthConnectionAIFoundry 'modules/bot-oauth-connection.bicep' = {
     scopes: 'https://ai.azure.com/user_impersonation'
     tenantId: tenantId
     location: 'global'
-  }
-}
-
-
-// ========================================
-// STEP 7: Create Service Principal for SSO App (First-time only)
-// ========================================
-// The SSO App is created by M365 Agents Toolkit with a client secret
-// We create its service principal after SSO app registration to avoid replication timing issues
-module SSOServicePrincipal 'modules/service-principal.bicep' = {
-  name: 'deploy-sso-service-principal-local'
-  params: {
-    appId: appRegistration.outputs.aadAppId
   }
 }
 

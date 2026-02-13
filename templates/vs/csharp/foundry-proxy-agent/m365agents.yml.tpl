@@ -21,6 +21,25 @@ provision:
     writeToEnvironmentFile:
       teamsAppId: TEAMS_APP_ID
 
+  # Create or reuse an existing Microsoft Entra application for SSO.
+  - uses: aadApp/create
+    with:
+      name: {{appName}}-${{RESOURCE_SUFFIX}}-${{APP_NAME_SUFFIX}}-UserAuth
+      generateClientSecret: false
+      signInAudience: AzureADMyOrg
+    writeToEnvironmentFile:
+      clientId: SSO_APP_ID
+      objectId: SSO_APP_OBJECT_ID
+      tenantId: SSO_APP_TENANT_ID
+      authorityHost: SSO_APP_OAUTH_AUTHORITY_HOST
+      authority: SSO_APP_OAUTH_AUTHORITY
+
+  # Apply the AAD manifest to configure SSO app with scopes, permissions, etc.
+  - uses: aadApp/update
+    with:
+      manifestPath: ./aad.manifest.json
+      outputFilePath: ./build/aad.manifest.${{TEAMSFX_ENV}}.json
+
   # Deploy Azure infrastructure using azure.bicep
   # This deploys all 5 steps: Managed Identity, App Service, Bot Service, App Registration, OAuth Connection
   - uses: arm/deploy

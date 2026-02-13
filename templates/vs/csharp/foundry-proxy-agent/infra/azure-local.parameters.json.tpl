@@ -14,8 +14,17 @@
     "tenantId": {
       "value": "${{TEAMS_APP_TENANT_ID}}"
     },
+    "botServiceNameState": {
+      "value": "${{BOT_SERVICE_NAME}}"
+    },
     "ssoAppId": {
       "value": "${{SSO_APP_ID}}"
+    },
+    "ssoAppObjectId": {
+      "value": "${{SSO_APP_OBJECT_ID}}"
+    },
+    "ssoAppName": {
+      "value": "{{appName}}-${{RESOURCE_SUFFIX}}-${{APP_NAME_SUFFIX}}-UserAuth"
     }
   }
 }
