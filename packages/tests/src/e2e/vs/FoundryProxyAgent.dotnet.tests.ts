@@ -45,6 +45,7 @@ describe("Foundry Proxy Agent for csharp version", function () {
   const subscription = getSubscriptionId();
   const appName = getUniqueAppName();
   const resourceGroupName = `${appName}-rg`;
+  const localResourceGroupName = `${appName}-local-rg`;
   const projectPath = path.resolve(testFolder, appName);
   const envName = environmentNameManager.getDefaultEnvName();
 
@@ -63,6 +64,7 @@ describe("Foundry Proxy Agent for csharp version", function () {
     if (context?.TEAMS_APP_ID) {
       await deleteTeamsApp(context.TEAMS_APP_ID);
     }
+    await deleteResourceGroupByName(localResourceGroupName);
     await deleteResourceGroupByName(resourceGroupName);
     await cleanUpLocalProject(projectPath);
   });
@@ -215,11 +217,23 @@ describe("Foundry Proxy Agent for csharp version", function () {
         author: "quke@microsoft.com",
       },
       async function () {
+        // Create resource group for local provision (needed for Bot Service + OAuth)
+        const localResourceGroupName = `${appName}-local-rg`;
+        const localRgResult = await createResourceGroup(
+          localResourceGroupName,
+          "westus"
+        );
+        assert.isTrue(
+          localRgResult,
+          `failed to create local resource group: ${localResourceGroupName}`
+        );
+
         // Local Debug (Provision)
         await CliHelper.provisionProject(projectPath, "", "local", {
           ...process.env,
           BOT_DOMAIN: "test.ngrok.io",
           BOT_ENDPOINT: "https://test.ngrok.io",
+          AZURE_RESOURCE_GROUP_NAME: localResourceGroupName,
         });
         console.log(`[Successfully] local provision for ${projectPath}`);
 
