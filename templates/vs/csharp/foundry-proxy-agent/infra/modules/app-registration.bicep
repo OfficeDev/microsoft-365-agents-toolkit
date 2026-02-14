@@ -25,7 +25,7 @@ param ssoAppName string
 
 // Reference the existing SSO app created by aadApp/create + aadApp/update
 resource existingSsoApp 'Microsoft.Graph/applications@v1.0' existing = {
-  uniqueName: ssoAppObjectId
+  appId: ssoAppId
 }
 
 // Construct federated credential subject using pre-encoded tenant ID
@@ -34,7 +34,7 @@ var myfciSubject = '/eid1/c/pub/t/${encodedTenantId}/a/9ExAW52n_ky4ZiS_jhpJIQ/${
 
 // Federated Identity Credential for Bot Service token exchange
 resource federatedCredential 'Microsoft.Graph/applications/federatedIdentityCredentials@v1.0' = {
-  name: '${existingSsoApp.uniqueName}/${guid(ssoAppName, 'BotServiceOauthConnection')}'
+  name: '${existingSsoApp.id}/${guid(ssoAppName, 'BotServiceOauthConnection')}'
   audiences: [
     'api://AzureADTokenExchange'
   ]
