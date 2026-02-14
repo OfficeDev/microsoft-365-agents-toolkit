@@ -23,18 +23,13 @@ param encodedTenantId string
 @description('SSO App display name for service principal')
 param ssoAppName string
 
-// Reference the existing SSO app created by aadApp/create + aadApp/update
-resource existingSsoApp 'Microsoft.Graph/applications@v1.0' existing = {
-  appId: ssoAppId
-}
-
 // Construct federated credential subject using pre-encoded tenant ID
 // appId encode value is the Bot Service one. it is hardcoded on purpose.
 var myfciSubject = '/eid1/c/pub/t/${encodedTenantId}/a/9ExAW52n_ky4ZiS_jhpJIQ/${guid(ssoAppName, 'BotServiceOauthConnection')}'
 
 // Federated Identity Credential for Bot Service token exchange
 resource federatedCredential 'Microsoft.Graph/applications/federatedIdentityCredentials@v1.0' = {
-  name: '${existingSsoApp.id}/${guid(ssoAppName, 'BotServiceOauthConnection')}'
+  name: '${ssoAppObjectId}/${guid(ssoAppName, 'BotServiceOauthConnection')}'
   audiences: [
     'api://AzureADTokenExchange'
   ]
@@ -56,7 +51,7 @@ resource ssoServicePrincipal 'Microsoft.Graph/servicePrincipals@v1.0' = {
 
 // Outputs for other modules
 output aadAppId string = ssoAppId
-output aadAppObjectId string = existingSsoApp.id
+output aadAppObjectId string = ssoAppObjectId
 output aadAppIdUri string = 'api://botid-${botId}'
 output servicePrincipalId string = ssoServicePrincipal.id
 output servicePrincipalObjectId string = ssoServicePrincipal.id
