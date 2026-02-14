@@ -138,8 +138,6 @@ module azureBot 'modules/azurebot.bicep' = {
 module appRegistration 'modules/app-registration.bicep' = {
   name: 'deploy-app-registration'
   params: {
-    ssoAppObjectId: ssoAppObjectId
-    ssoAppId: ssoAppId
     botId: botIdentity.outputs.identityClientId
     tenantId: tenantId
     encodedTenantId: guidEncoder.outputs.encodedGuid

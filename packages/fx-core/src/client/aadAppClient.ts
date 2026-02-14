@@ -241,6 +241,24 @@ export class AadAppClient {
     });
   }
 
+  @hooks([ErrorContextMW({ source: "Graph", component: "AadAppClient" })])
+  public async setUniqueName(objectId: string, uniqueName: string): Promise<void> {
+    const requestBody = {
+      uniqueName: uniqueName,
+    };
+
+    await this.axios.patch(`applications/${objectId}`, requestBody, {
+      "axios-retry": {
+        retries: this.retryNumber,
+        retryDelay: axiosRetry.exponentialDelay,
+        retryCondition: (error) =>
+          axiosRetry.isNetworkError(error) ||
+          axiosRetry.isRetryableError(error) ||
+          this.is404Error(error), // also retry 404 error since Microsoft Entra need sometime to sync created Microsoft Entra app data
+      },
+    });
+  }
+
   // only use it to retry 404 errors for create client secret / update Microsoft Entra app requests right after Microsoft Entra app creation
   private is404Error(error: AxiosError<any>): boolean {
     return error.code !== "ECONNABORTED" && (!error.response || error.response.status === 404);

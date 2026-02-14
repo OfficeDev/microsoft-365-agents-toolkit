@@ -58,8 +58,6 @@ module guidEncoder 'modules/guid-encoder.bicep' = if (isFirstTimeDeployment) {
 module ssoAppRegistration 'modules/app-registration.bicep' = if (isFirstTimeDeployment) {
   name: 'deploy-sso-app-registration-local'
   params: {
-    ssoAppObjectId: ssoAppObjectId
-    ssoAppId: ssoAppId
     botId: botId
     tenantId: tenantId
     encodedTenantId: guidEncoder!.outputs.encodedGuid

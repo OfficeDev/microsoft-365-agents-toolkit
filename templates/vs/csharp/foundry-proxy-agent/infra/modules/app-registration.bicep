@@ -5,12 +5,6 @@
 
 extension microsoftGraphV1
 
-@description('The Object ID of the SSO app created by aadApp/create')
-param ssoAppObjectId string
-
-@description('The App ID (Client ID) of the SSO app')
-param ssoAppId string
-
 @description('BotID this should match the Microsoft App ID in the Azure Bot Service Configuration')
 param botId string
 
@@ -24,7 +18,7 @@ param encodedTenantId string
 param ssoAppName string
 
 // Reference the existing SSO app created by aadApp/create + aadApp/update
-// Use uniqueName (Display Name) to reference the existing application
+// The aadApp/create action now sets uniqueName to enable Bicep reference
 resource existingSsoApp 'Microsoft.Graph/applications@v1.0' existing = {
   uniqueName: ssoAppName
 }
@@ -47,7 +41,7 @@ resource federatedCredential 'Microsoft.Graph/applications/federatedIdentityCred
 
 // Service Principal for the SSO application
 resource ssoServicePrincipal 'Microsoft.Graph/servicePrincipals@v1.0' = {
-  appId: ssoAppId
+  appId: existingSsoApp.appId
   accountEnabled: true
   displayName: ssoAppName
   servicePrincipalType: 'Application'
@@ -57,7 +51,7 @@ resource ssoServicePrincipal 'Microsoft.Graph/servicePrincipals@v1.0' = {
 }
 
 // Outputs for other modules
-output aadAppId string = ssoAppId
+output aadAppId string = existingSsoApp.appId
 output aadAppObjectId string = existingSsoApp.id
 output aadAppIdUri string = 'api://botid-${botId}'
 output servicePrincipalId string = ssoServicePrincipal.id
