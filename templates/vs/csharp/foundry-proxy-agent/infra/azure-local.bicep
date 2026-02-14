@@ -53,17 +53,16 @@ module guidEncoder 'modules/guid-encoder.bicep' = if (isFirstTimeDeployment) {
 // ========================================
 // STEP 1: Create SSO App Registration (First-time only)
 // ========================================
-// This is a separate app for user authentication using federated credentials
-// No client secret - uses federated credentials instead
-module ssoAppRegistration 'modules/app-registration.bicep' = if (isFirstTimeDeployment) {
-  name: 'deploy-sso-app-registration-local'
-  params: {
-    botId: botId
-    tenantId: tenantId
-    encodedTenantId: guidEncoder!.outputs.encodedGuid
-    ssoAppName: ssoAppName
-  }
-}
+// COMMENTED OUT FOR TESTING - Using aadApp/create with generateServicePrincipal instead
+// module ssoAppRegistration 'modules/app-registration.bicep' = if (isFirstTimeDeployment) {
+//   name: 'deploy-sso-app-registration-local'
+//   params: {
+//     botId: botId
+//     tenantId: tenantId
+//     encodedTenantId: guidEncoder!.outputs.encodedGuid
+//     ssoAppName: ssoAppName
+//   }
+// }
 
 // ========================================
 // STEP 2: Create Azure Bot Service (First-time only)

@@ -135,18 +135,19 @@ module azureBot 'modules/azurebot.bicep' = {
 }
 
 // Step 4: Create Federated Credential + Service Principal for SSO App
-module appRegistration 'modules/app-registration.bicep' = {
-  name: 'deploy-app-registration'
-  params: {
-    botId: botIdentity.outputs.identityClientId
-    tenantId: tenantId
-    encodedTenantId: guidEncoder.outputs.encodedGuid
-    ssoAppName: ssoAppName
-  }
-  dependsOn: [
-    azureBot
-  ]
-}
+// COMMENTED OUT FOR TESTING - Using aadApp/create with generateServicePrincipal instead
+// module appRegistration 'modules/app-registration.bicep' = {
+//   name: 'deploy-app-registration'
+//   params: {
+//     botId: botIdentity.outputs.identityClientId
+//     tenantId: tenantId
+//     encodedTenantId: guidEncoder.outputs.encodedGuid
+//     ssoAppName: ssoAppName
+//   }
+//   dependsOn: [
+//     azureBot
+//   ]
+// }
 
 // Step 5: Configure OAuth Connection with Azure AD v2 and Federated Credentials
 module botOAuthConnection 'modules/bot-oauth-connection.bicep' = {
@@ -154,10 +155,10 @@ module botOAuthConnection 'modules/bot-oauth-connection.bicep' = {
   params: {
     botServiceName: botServiceName
     connectionName: 'SsoConnection'
-    aadAppId: appRegistration.outputs.aadAppId
-    aadAppIdUri: appRegistration.outputs.aadAppIdUri
-    federatedCredentialName: appRegistration.outputs.fciName
-    scopes: '${appRegistration.outputs.aadAppIdUri}/access_as_user'
+    aadAppId: ssoAppId
+    aadAppIdUri: 'api://botid-${botIdentity.outputs.identityClientId}'
+    federatedCredentialName: '' // Will be created by aadApp/create with generateServicePrincipal
+    scopes: 'api://botid-${botIdentity.outputs.identityClientId}/access_as_user'
     tenantId: tenantId
     location: 'global'
   }
@@ -170,9 +171,9 @@ module botOAuthConnectionAIFoundry 'modules/bot-oauth-connection.bicep' = {
   params: {
     botServiceName: botServiceName
     connectionName: 'aifoundryaccess'
-    aadAppId: appRegistration.outputs.aadAppId
-    aadAppIdUri: appRegistration.outputs.aadAppIdUri
-    federatedCredentialName: appRegistration.outputs.fciName
+    aadAppId: ssoAppId
+    aadAppIdUri: 'api://botid-${botIdentity.outputs.identityClientId}'
+    federatedCredentialName: '' // Will be created by aadApp/create with generateServicePrincipal
     scopes: 'https://ai.azure.com/user_impersonation'
     tenantId: tenantId
     location: 'global'

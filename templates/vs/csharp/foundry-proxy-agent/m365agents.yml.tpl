@@ -26,6 +26,7 @@ provision:
     with:
       name: {{appName}}-${{RESOURCE_SUFFIX}}-${{APP_NAME_SUFFIX}}-UserAuth
       generateClientSecret: false
+      generateServicePrincipal: true
       signInAudience: AzureADMyOrg
     writeToEnvironmentFile:
       clientId: SSO_APP_ID
