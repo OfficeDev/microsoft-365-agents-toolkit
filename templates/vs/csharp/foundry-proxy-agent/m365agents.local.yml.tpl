@@ -42,12 +42,6 @@ provision:
       authorityHost: SSO_APP_OAUTH_AUTHORITY_HOST
       authority: SSO_APP_OAUTH_AUTHORITY
 
-  # Generate deterministic GUID for access_as_user permission scope
-  - uses: script
-    with:
-      run:
-        echo "::set-teamsfx-env SSO_APP_ACCESS_AS_USER_PERMISSION_ID={{guid "{{appName}}" "access_as_user"}}";
-
   # Apply the AAD manifest to configure SSO app with scopes, permissions, etc.
   - uses: aadApp/update
     with:
