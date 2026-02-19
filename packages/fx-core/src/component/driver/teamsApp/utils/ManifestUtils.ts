@@ -37,7 +37,7 @@ import {
 import { BotScenario } from "../../../constants";
 import { convertManifestTemplateToV2, convertManifestTemplateToV3 } from "../../../migrate";
 import { expandEnvironmentVariable, getEnvironmentVariables } from "../../../utils/common";
-import { ManifestType } from "../../../utils/envFunctionUtils";
+import { expandVariableWithFunction, ManifestType } from "../../../utils/envFunctionUtils";
 import { DriverContext } from "../../interface/commonArgs";
 import {
   COMPOSE_EXTENSIONS_TPL_EXISTING_APP,
@@ -480,13 +480,33 @@ export class ManifestUtils {
     return ok(undefined);
   }
 
-  async resolveLocFile(locFilePath: string): Promise<Result<string, FxError>> {
+  async resolveLocFile(
+    locFilePath: string,
+    context?: DriverContext
+  ): Promise<Result<string, FxError>> {
     if (!(await fs.pathExists(locFilePath))) {
       return err(new FileNotFoundError("teamsApp", locFilePath));
     }
 
     const locFileString = await fs.readFile(locFilePath, "utf8");
-    const resolvedLocFileString = expandEnvironmentVariable(locFileString);
+    let resolvedLocFileString = locFileString;
+
+    if (context) {
+      const processedFunctionRes = await expandVariableWithFunction(
+        locFileString,
+        context,
+        undefined,
+        true,
+        ManifestType.TeamsManifest,
+        locFilePath
+      );
+      if (processedFunctionRes.isErr()) {
+        return err(processedFunctionRes.error);
+      }
+      resolvedLocFileString = processedFunctionRes.value;
+    }
+
+    resolvedLocFileString = expandEnvironmentVariable(resolvedLocFileString);
     const unresolvedEnvVariables = getEnvironmentVariables(resolvedLocFileString);
     if (unresolvedEnvVariables && unresolvedEnvVariables.length > 0) {
       return err(

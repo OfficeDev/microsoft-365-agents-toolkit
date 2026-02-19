@@ -578,6 +578,39 @@ describe("resolveLocFile", () => {
       );
     }
   });
+
+  it("resolves $[file(...)] when context is provided", async () => {
+    sandbox.stub(fs, "pathExists").callsFake(async (filePath) => {
+      return filePath === "loc_file_path" || filePath === "instruction.txt";
+    });
+    sandbox.stub(fs, "readFile").callsFake(async (filePath) => {
+      if (filePath === "loc_file_path") {
+        return JSON.stringify({
+          name: {
+            short: "$[file('instruction.txt')]",
+          },
+        });
+      }
+      return "localized short name";
+    });
+
+    const context: any = {
+      platform: Platform.VSCode,
+      logProvider: {
+        error: () => {},
+      },
+      telemetryReporter: {
+        sendTelemetryEvent: () => {},
+      },
+    };
+
+    const locFile = await manifestUtils.resolveLocFile("loc_file_path", context);
+
+    assert.isTrue(locFile.isOk());
+    if (locFile.isOk()) {
+      assert.equal((JSON.parse(locFile.value) as TeamsAppManifest).name.short, "localized short name");
+    }
+  });
 });
 
 describe("parseCommonTelemetryProperties", () => {
