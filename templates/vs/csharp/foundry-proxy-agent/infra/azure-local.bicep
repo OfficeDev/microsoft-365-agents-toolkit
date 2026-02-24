@@ -29,11 +29,8 @@ param botServiceNameState string = 'none'
 @description('SSO App ID (from aadApp/create)')
 param ssoAppId string
 
-@description('SSO App Object ID (from aadApp/create)')
-param ssoAppObjectId string
-
-@description('SSO App Name')
-param ssoAppName string
+@description('SSO App uniqueName used as Bicep resource identifier')
+param ssoUniqueName string
 
 // Variables
 var isFirstTimeDeployment = botServiceNameState == 'none'
@@ -60,7 +57,7 @@ module ssoAppRegistration 'modules/app-registration.bicep' = if (isFirstTimeDepl
     botId: botId
     tenantId: tenantId
     encodedTenantId: guidEncoder!.outputs.encodedGuid
-    ssoAppName: ssoAppName
+    ssoUniqueName: ssoUniqueName
   }
 }
 

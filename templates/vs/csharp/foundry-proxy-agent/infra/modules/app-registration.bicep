@@ -14,23 +14,23 @@ param tenantId string
 @description('Pre-encoded tenant ID in Base64URL format (from guid-encoder module)')
 param encodedTenantId string
 
-@description('SSO App display name for service principal')
-param ssoAppName string
+@description('SSO App uniqueName used as Bicep resource identifier')
+param ssoUniqueName string
 
 // Reference the existing SSO app created by aadApp/create + aadApp/update
 // The aadApp/create action now sets uniqueName to enable Bicep reference
 resource existingSsoApp 'Microsoft.Graph/applications@v1.0' existing = {
-  uniqueName: ssoAppName
+  uniqueName: ssoUniqueName
 }
 
 // Construct federated credential subject using pre-encoded tenant ID
 // appId encode value is the Bot Service one. it is hardcoded on purpose.
-var myfciSubject = '/eid1/c/pub/t/${encodedTenantId}/a/9ExAW52n_ky4ZiS_jhpJIQ/${guid(ssoAppName, 'BotServiceOauthConnection')}'
+var myfciSubject = '/eid1/c/pub/t/${encodedTenantId}/a/9ExAW52n_ky4ZiS_jhpJIQ/${guid(ssoUniqueName, 'BotServiceOauthConnection')}'
 
 // Federated Identity Credential for Bot Service token exchange
 // The name must be in format: <parent-resource-symbolic-name>/<child-resource-name>
 resource federatedCredential 'Microsoft.Graph/applications/federatedIdentityCredentials@v1.0' = {
-  name: '${existingSsoApp.uniqueName}/${guid(ssoAppName, 'BotServiceOauthConnection')}'
+  name: '${existingSsoApp.uniqueName}/${guid(ssoUniqueName, 'BotServiceOauthConnection')}'
   audiences: [
     'api://AzureADTokenExchange'
   ]
@@ -43,7 +43,7 @@ resource federatedCredential 'Microsoft.Graph/applications/federatedIdentityCred
 resource ssoServicePrincipal 'Microsoft.Graph/servicePrincipals@v1.0' = {
   appId: existingSsoApp.appId
   accountEnabled: true
-  displayName: ssoAppName
+  displayName: ssoUniqueName
   servicePrincipalType: 'Application'
   tags: [
     'WindowsAzureActiveDirectoryIntegratedApp'

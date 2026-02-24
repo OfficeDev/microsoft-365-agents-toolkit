@@ -26,10 +26,7 @@
       "ssoAppId": {
         "value": "${{SSO_APP_ID}}"
       },
-      "ssoAppObjectId": {
-        "value": "${{SSO_APP_OBJECT_ID}}"
-      },
-      "ssoAppName": {
+      "ssoUniqueName": {
         "value": "{{appName}}-${{RESOURCE_SUFFIX}}-${{APP_NAME_SUFFIX}}-UserAuth"
       }
     }

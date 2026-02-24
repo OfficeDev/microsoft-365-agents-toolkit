@@ -55,11 +55,8 @@ param additionalAppSettings array = []
 @description('SSO App ID (from aadApp/create)')
 param ssoAppId string
 
-@description('SSO App Object ID (from aadApp/create)')
-param ssoAppObjectId string
-
-@description('SSO App Name')
-param ssoAppName string
+@description('SSO App uniqueName used as Bicep resource identifier')
+param ssoUniqueName string
 
 // Generate resource names
 var identityName = '${resourceBaseName}-identity'
@@ -141,7 +138,7 @@ module appRegistration 'modules/app-registration.bicep' = {
     botId: botIdentity.outputs.identityClientId
     tenantId: tenantId
     encodedTenantId: guidEncoder.outputs.encodedGuid
-    ssoAppName: ssoAppName
+    ssoUniqueName: ssoUniqueName
   }
   dependsOn: [
     azureBot
