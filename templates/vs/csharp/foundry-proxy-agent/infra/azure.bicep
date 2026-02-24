@@ -134,20 +134,19 @@ module azureBot 'modules/azurebot.bicep' = {
   }
 }
 
-// Step 4: Create Federated Credential + Service Principal for SSO App
-// COMMENTED OUT FOR TESTING - Using aadApp/create with generateServicePrincipal instead
-// module appRegistration 'modules/app-registration.bicep' = {
-//   name: 'deploy-app-registration'
-//   params: {
-//     botId: botIdentity.outputs.identityClientId
-//     tenantId: tenantId
-//     encodedTenantId: guidEncoder.outputs.encodedGuid
-//     ssoAppName: ssoAppName
-//   }
-//   dependsOn: [
-//     azureBot
-//   ]
-// }
+// Step 4: Create Federated Credential for existing SSO App
+module appRegistration 'modules/app-registration.bicep' = {
+  name: 'deploy-app-registration'
+  params: {
+    botId: botIdentity.outputs.identityClientId
+    tenantId: tenantId
+    encodedTenantId: guidEncoder.outputs.encodedGuid
+    ssoAppName: ssoAppName
+  }
+  dependsOn: [
+    azureBot
+  ]
+}
 
 // Step 5: Configure OAuth Connection with Azure AD v2 and Federated Credentials
 module botOAuthConnection 'modules/bot-oauth-connection.bicep' = {

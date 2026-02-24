@@ -11,4 +11,5 @@ export interface CreateAadAppArgs {
   clientSecretExpireDays?: number; // The number of days the client secret is valid
   clientSecretDescription?: string; // The description of the client secret
   serviceManagementReference?: string; // Used as service tree id
+  uniqueName?: string; // The unique name for Bicep Microsoft Graph extension compatibility
 }

@@ -257,6 +257,7 @@ export class AadAppClient {
           this.is404Error(error), // also retry 404 error since Microsoft Entra need sometime to sync created Microsoft Entra app data
       },
     });
+    this.logProvider?.info(`Successfully set uniqueName for application ${objectId}`);
   }
 
   // only use it to retry 404 errors for create client secret / update Microsoft Entra app requests right after Microsoft Entra app creation

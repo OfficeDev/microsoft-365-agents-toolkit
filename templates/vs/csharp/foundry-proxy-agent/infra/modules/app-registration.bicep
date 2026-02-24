@@ -30,7 +30,7 @@ var myfciSubject = '/eid1/c/pub/t/${encodedTenantId}/a/9ExAW52n_ky4ZiS_jhpJIQ/${
 // Federated Identity Credential for Bot Service token exchange
 // The name must be in format: <parent-resource-symbolic-name>/<child-resource-name>
 resource federatedCredential 'Microsoft.Graph/applications/federatedIdentityCredentials@v1.0' = {
-  name: '${existingSsoApp.id}/${guid(ssoAppName, 'BotServiceOauthConnection')}'
+  name: '${existingSsoApp.uniqueName}/${guid(ssoAppName, 'BotServiceOauthConnection')}'
   audiences: [
     'api://AzureADTokenExchange'
   ]

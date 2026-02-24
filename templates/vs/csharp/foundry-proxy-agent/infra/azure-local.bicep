@@ -54,15 +54,15 @@ module guidEncoder 'modules/guid-encoder.bicep' = if (isFirstTimeDeployment) {
 // STEP 1: Create SSO App Registration (First-time only)
 // ========================================
 // COMMENTED OUT FOR TESTING - Using aadApp/create with generateServicePrincipal instead
-// module ssoAppRegistration 'modules/app-registration.bicep' = if (isFirstTimeDeployment) {
-//   name: 'deploy-sso-app-registration-local'
-//   params: {
-//     botId: botId
-//     tenantId: tenantId
-//     encodedTenantId: guidEncoder!.outputs.encodedGuid
-//     ssoAppName: ssoAppName
-//   }
-// }
+module ssoAppRegistration 'modules/app-registration.bicep' = if (isFirstTimeDeployment) {
+  name: 'deploy-sso-app-registration-local'
+  params: {
+    botId: botId
+    tenantId: tenantId
+    encodedTenantId: guidEncoder!.outputs.encodedGuid
+    ssoAppName: ssoAppName
+  }
+}
 
 // ========================================
 // STEP 2: Create Azure Bot Service (First-time only)
@@ -135,20 +135,6 @@ module botOAuthConnectionAIFoundry 'modules/bot-oauth-connection.bicep' = if (is
   ]
 }
 
-// ========================================
-// STEP 5: Create Service Principal for Bot App (First-time only)
-// ========================================
-// The Bot App is created by M365 Agents Toolkit with a client secret
-// We create its service principal after SSO app registration to avoid replication timing issues
-module botServicePrincipal 'modules/service-principal.bicep' = if (isFirstTimeDeployment) {
-  name: 'deploy-bot-service-principal-local'
-  params: {
-    appId: botId
-  }
-  dependsOn: [
-    ssoAppRegistration
-  ]
-}
 
 // ========================================
 // OUTPUTS

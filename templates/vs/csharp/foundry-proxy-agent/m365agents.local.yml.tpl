@@ -20,6 +20,7 @@ provision:
       # The Microsoft Entra application's display name
       name: {{appName}}-${{RESOURCE_SUFFIX}}-${{APP_NAME_SUFFIX}}-Bot
       generateClientSecret: true
+      generateServicePrincipal: true
       signInAudience: AzureADMyOrg
     writeToEnvironmentFile:
       # The Microsoft Entra application's client id created for bot.
@@ -36,6 +37,7 @@ provision:
       generateClientSecret: false
       generateServicePrincipal: true
       signInAudience: AzureADMyOrg
+      uniqueName: {{appName}}-${{RESOURCE_SUFFIX}}-local-UserAuth
     writeToEnvironmentFile:
       clientId: SSO_APP_ID
       objectId: SSO_APP_OBJECT_ID
