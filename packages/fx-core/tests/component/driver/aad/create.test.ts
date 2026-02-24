@@ -264,6 +264,50 @@ describe("aadAppCreate", async () => {
     expect(result.result.isOk()).to.be.true;
   });
 
+  it("should call setUniqueName when uniqueName is provided", async () => {
+    sinon.stub(AadAppClient.prototype, "createAadApp").resolves({
+      id: expectedObjectId,
+      displayName: expectedDisplayName,
+      appId: expectedClientId,
+    } as AADApplication);
+
+    sinon.stub(AadAppClient.prototype, "generateClientSecret").resolves(expectedSecretText);
+
+    const setUniqueNameStub = sinon.stub(AadAppClient.prototype, "setUniqueName").resolves();
+
+    const args: any = {
+      name: "test",
+      generateClientSecret: true,
+      uniqueName: "test-unique-name",
+    };
+
+    const result = await createAadAppDriver.execute(args, mockedDriverContext, outputEnvVarNames);
+    expect(result.result.isOk()).to.be.true;
+    expect(setUniqueNameStub.calledOnce).to.be.true;
+    expect(setUniqueNameStub.calledWith(expectedObjectId, "test-unique-name")).to.be.true;
+  });
+
+  it("should not call setUniqueName when uniqueName is not provided", async () => {
+    sinon.stub(AadAppClient.prototype, "createAadApp").resolves({
+      id: expectedObjectId,
+      displayName: expectedDisplayName,
+      appId: expectedClientId,
+    } as AADApplication);
+
+    sinon.stub(AadAppClient.prototype, "generateClientSecret").resolves(expectedSecretText);
+
+    const setUniqueNameStub = sinon.stub(AadAppClient.prototype, "setUniqueName").resolves();
+
+    const args: any = {
+      name: "test",
+      generateClientSecret: true,
+    };
+
+    const result = await createAadAppDriver.execute(args, mockedDriverContext, outputEnvVarNames);
+    expect(result.result.isOk()).to.be.true;
+    expect(setUniqueNameStub.notCalled).to.be.true;
+  });
+
   it("should output to specific environment variable based on writeToEnvironmentFile declaration", async () => {
     sinon.stub(AadAppClient.prototype, "createAadApp").resolves({
       id: expectedObjectId,

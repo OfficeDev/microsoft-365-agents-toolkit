@@ -21,7 +21,12 @@ import { MessagingExtension } from "../../src/component/driver/teamsApp/interfac
 import { StaticTab } from "../../src/component/driver/teamsApp/interfaces/appdefinitions/staticTab";
 import { TemplateNames } from "../../src/component/generator/templates/templateNames";
 import { ProgrammingLanguage, QuestionNames } from "../../src/question/constants";
-import { apiSpecNode, apiSpecWithSearchNode } from "../../src/question/scaffold/commonNodes";
+import {
+  apiSpecNode,
+  apiSpecWithSearchNode,
+  foundryNode,
+} from "../../src/question/scaffold/commonNodes";
+import { constructNode } from "../../src/question/scaffold/constructNode";
 import { scaffoldQuestionForVS } from "../../src/question/scaffold/vs/createRootNode";
 import { ActionStartOptions } from "../../src/question/scaffold/vsc/CapabilityOptions";
 import { ProjectTypeOptions } from "../../src/question/scaffold/vsc/ProjectTypeOptions";
@@ -711,5 +716,61 @@ describe("ActionStartOptions", () => {
       getLocalizedString("core.createProjectQuestion.mcpForDa.detail")
     );
     assert.equal(mcpOption.data, TemplateNames.DeclarativeAgentWithActionFromMCP);
+  });
+});
+
+describe("foundryNode", () => {
+  it("should return a valid tree node with foundryEndpoint question", () => {
+    const node = foundryNode();
+    assert.isDefined(node);
+    assert.isDefined(node.data);
+    assert.equal((node.data as any).name, QuestionNames.FoundryEndpoint);
+    assert.isDefined(node.children);
+    assert.equal(node.children!.length, 1);
+  });
+
+  it("should have child node with foundryAgentId question", () => {
+    const node = foundryNode();
+    const child = node.children![0];
+    assert.isDefined(child.data);
+    assert.equal((child.data as any).name, QuestionNames.FoundryAgentId);
+  });
+
+  it("should have child condition that checks FoundryEndpoint length", () => {
+    const node = foundryNode();
+    const child = node.children![0];
+    const conditionFn = child.condition as (inputs: Inputs) => boolean;
+
+    // Should return true when endpoint is non-empty
+    assert.isTrue(
+      conditionFn({ [QuestionNames.FoundryEndpoint]: "https://example.com" } as unknown as Inputs)
+    );
+    // Should return false when endpoint is empty
+    assert.isFalse(conditionFn({ [QuestionNames.FoundryEndpoint]: "" } as unknown as Inputs));
+    // Should return false when endpoint is undefined
+    assert.isFalse(conditionFn({} as unknown as Inputs));
+  });
+
+  it("should accept a condition parameter", () => {
+    const condition = { equals: "test" };
+    const node = foundryNode(condition);
+    assert.deepEqual(node.condition, condition);
+  });
+});
+
+describe("constructNode", () => {
+  it("should return foundryNode when node type is foundryNode", () => {
+    const jsonContent = JSON.stringify({ node: "foundryNode" });
+    const node = constructNode(jsonContent);
+    assert.isDefined(node);
+    assert.isDefined(node.data);
+    assert.equal((node.data as any).name, QuestionNames.FoundryEndpoint);
+  });
+
+  it("should return foundryNode with condition when provided", () => {
+    const jsonContent = JSON.stringify({ node: "foundryNode", condition: { equals: "test" } });
+    const node = constructNode(jsonContent);
+    assert.isDefined(node);
+    assert.deepEqual(node.condition, { equals: "test" });
   });
 });

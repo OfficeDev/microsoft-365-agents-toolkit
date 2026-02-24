@@ -897,6 +897,61 @@ describe("AadAppClient", async () => {
     //     .rejected;
     // });
   });
+
+  describe("setUniqueName", async () => {
+    let aadAppClient: AadAppClient;
+    let axiosInstance: AxiosInstance;
+
+    beforeEach(() => {
+      axiosInstance = mockAxiosCreate();
+      doNotWaitBetweenEachRetry();
+      aadAppClient = new AadAppClient(new MockedM365Provider(), new MockedLogProvider());
+    });
+
+    afterEach(() => {
+      sinon.restore();
+    });
+
+    it("should set uniqueName when request succeeds", async () => {
+      const mock = new MockAdapter(axiosInstance);
+      mock.onPatch(`https://graph.microsoft.com/v1.0/applications/${expectedObjectId}`).reply(200);
+
+      await expect(aadAppClient.setUniqueName(expectedObjectId, "test-unique-name")).to.eventually
+        .be.not.rejected;
+    });
+
+    it("should throw error when request fails", async () => {
+      sinon.stub(axiosInstance, "patch").rejects({
+        message: "Request failed with status code 400",
+        response: {
+          status: 400,
+          data: {
+            error: {
+              code: "Request_BadRequest",
+              message: "Invalid uniqueName.",
+            },
+          },
+        },
+      });
+
+      await expect(
+        aadAppClient.setUniqueName(expectedObjectId, "test-unique-name")
+      ).to.eventually.be.rejectedWith("Request failed with status code 400");
+    });
+
+    it("should log success message", async () => {
+      const mock = new MockAdapter(axiosInstance);
+      mock.onPatch(`https://graph.microsoft.com/v1.0/applications/${expectedObjectId}`).reply(200);
+      const infoLogs: string[] = [];
+
+      sinon.stub(MockedLogProvider.prototype, "info").callsFake((log: string | Array<any>) => {
+        infoLogs.push(typeof log === "string" ? log : log.join(""));
+      });
+
+      await aadAppClient.setUniqueName(expectedObjectId, "test-unique-name");
+      expect(infoLogs.some((log) => log.includes("Successfully set uniqueName"))).to.be.true;
+    });
+  });
 });
 
 function mockAxiosCreate() {
