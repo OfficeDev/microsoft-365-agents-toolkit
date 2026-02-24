@@ -1,0 +1,412 @@
+{
+  "plan_metadata": {
+    "version": "1.1",
+    "plan_id": "plan_f8a7a316",
+    "execution_context": {
+      "delay_between_steps": 0.5,
+      "stop_on_error": true,
+      "precondition_wait_timeout": 60,
+      "precondition_retry_interval": 2
+    },
+    "total_steps": 12,
+    "created_at": "2026-02-12T06:13:47.934749",
+    "name": "group  provision save rg",
+    "description": {
+      "other": "Generated from recording r_0928_073729",
+      "owner": "v-annefu@microsoft.com",
+      "workitem": ""
+    },
+    "generated_at": "2026-02-12T06:13:47.934749",
+    "execution_order": [
+      "step_85508ffc",
+      "step_f50ad739",
+      "step_5778c1c2",
+      "step_89a25b21",
+      "step_a9d6775d",
+      "step_f5624e09",
+      "step_b81fb4e8",
+      "step_4aa17f6b",
+      "step_03f6f26f",
+      "step_8174404b",
+      "step_50ca2edd",
+      "step_50e1e4a8"
+    ],
+    "tags": [
+      "group"
+    ],
+    "updated_at": "2026-02-12T06:34:51.380494"
+  },
+  "steps": [
+    {
+      "step_id": "step_85508ffc",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "button": null,
+        "dx": null,
+        "dy": null,
+        "key": "f1",
+        "keys": null,
+        "text": null,
+        "x": null,
+        "y": null
+      },
+      "description": "Press the F1 key in Visual Studio Code to open the command palette.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "0",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:512:384:0:20:32846a2323232421"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_85508ffc",
+      "created_at": "2026-02-12T06:32:28.545985",
+      "plan_id": "plan_f8a7a316"
+    },
+    {
+      "step_id": "step_f50ad739",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "button": null,
+        "dx": null,
+        "dy": null,
+        "key": null,
+        "keys": null,
+        "text": "provision",
+        "x": null,
+        "y": null
+      },
+      "description": "Type 'provision' into the VS Code command palette input field at the top of the screen.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "0",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:512:384:0:20:e4e4406523232421"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_f50ad739",
+      "created_at": "2026-02-12T06:32:28.576426",
+      "plan_id": "plan_f8a7a316"
+    },
+    {
+      "step_id": "step_5778c1c2",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "button": null,
+        "dx": null,
+        "dy": null,
+        "key": "enter",
+        "keys": null,
+        "text": null,
+        "x": null,
+        "y": null
+      },
+      "description": "Press Enter to select the \"Microsoft 365 Agents: Provision\" command in the VS Code command palette.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "0",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:512:384:0:20:c4942a2323232421"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_5778c1c2",
+      "created_at": "2026-02-12T06:32:28.610273",
+      "plan_id": "plan_f8a7a316"
+    },
+    {
+      "step_id": "step_89a25b21",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "dx": null,
+        "dy": null,
+        "key": null,
+        "keys": null,
+        "text": null,
+        "x": 404,
+        "y": 76
+      },
+      "description": "Click the \"+ New resource group\" option in the \"Select a resource group\" dropdown within Visual Studio Code.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "0",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:404:76:16:5:0042000000000000",
+        "dhash:404:76:96:5:00004000a6695928",
+        "dhash:404:76:0:10:c0c8484523632421"
+      ],
+      "postconditions": [],
+      "tags": [
+        "precondition_wait_timeout: 30"
+      ],
+      "screenshot": "step_89a25b21",
+      "created_at": "2026-02-12T06:32:28.643615",
+      "plan_id": "plan_f8a7a316"
+    },
+    {
+      "step_id": "step_a9d6775d",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "button": null,
+        "dx": null,
+        "dy": null,
+        "key": null,
+        "keys": null,
+        "text": "${{var:rg_name:vscuse_app_#####_rg}}",
+        "x": null,
+        "y": null
+      },
+      "description": "Type ${{var:rg_name:vscuse_app_#####_rg}}   into the \"New resource group name\" input field in the Visual Studio Code \"Provision\" workflow dialog.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "0",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:512:384:0:20:c0802a2323232421"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_a9d6775d",
+      "created_at": "2026-02-12T06:32:28.669796",
+      "plan_id": "plan_f8a7a316"
+    },
+    {
+      "step_id": "step_f5624e09",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "button": null,
+        "dx": null,
+        "dy": null,
+        "key": "enter",
+        "keys": null,
+        "text": null,
+        "x": null,
+        "y": null
+      },
+      "description": "Press 'Enter' to confirm the resource group name in the \"New resource group name\" input field at the top of the Visual Studio Code window.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "0",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:512:384:0:20:d0802a2323232421"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_f5624e09",
+      "created_at": "2026-02-12T06:32:28.700250",
+      "plan_id": "plan_f8a7a316"
+    },
+    {
+      "step_id": "step_b81fb4e8",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "dx": null,
+        "dy": null,
+        "key": null,
+        "keys": null,
+        "text": null,
+        "x": 403,
+        "y": 75
+      },
+      "description": "Select \"Central US\" from the \"Location for the new resource group\" dropdown in the Microsoft Visual Studio Code extension interface.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "0",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:403:75:16:5:4242000000000000",
+        "dhash:403:75:96:5:0000000000000000",
+        "dhash:403:75:0:10:d4c4484523232421"
+      ],
+      "postconditions": [],
+      "tags": [
+        "delay: 5"
+      ],
+      "screenshot": "step_b81fb4e8",
+      "created_at": "2026-02-12T06:32:28.731367",
+      "plan_id": "plan_f8a7a316"
+    },
+    {
+      "step_id": "step_4aa17f6b",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "dx": null,
+        "dy": null,
+        "key": null,
+        "keys": null,
+        "text": null,
+        "x": 449,
+        "y": 144
+      },
+      "description": "Click the \"Provision\" button in the confirmation dialog to approve provisioning resources in the dev environment using the listed Azure and Microsoft 365 accounts within Visual Studio Code.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "0",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:449:144:16:5:091004090b0b092b",
+        "dhash:449:144:96:5:00001a2404180000",
+        "dhash:449:144:0:10:32122e23a3232421"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_4aa17f6b",
+      "created_at": "2026-02-12T06:32:28.763290",
+      "plan_id": "plan_f8a7a316"
+    },
+    {
+      "step_id": "step_03f6f26f",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "button": null,
+        "dx": null,
+        "dy": null,
+        "key": "f1",
+        "keys": null,
+        "text": null,
+        "x": null,
+        "y": null
+      },
+      "description": "Press the F1 key to open the Command Palette in Visual Studio Code.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "0",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:512:384:0:20:32942a2323232421"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_03f6f26f",
+      "created_at": "2026-02-12T06:32:28.797179",
+      "plan_id": "plan_f8a7a316"
+    },
+    {
+      "step_id": "step_8174404b",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "button": null,
+        "dx": null,
+        "dy": null,
+        "key": null,
+        "keys": null,
+        "text": "Notifications: Show Notifications",
+        "x": null,
+        "y": null
+      },
+      "description": "Type #text:'Notifications: Show Notifications' into the Visual Studio Code command palette input box at the top center of the window.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "0",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:512:384:0:20:c4e4406523232421"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_8174404b",
+      "created_at": "2026-02-12T06:32:28.831556",
+      "plan_id": "plan_f8a7a316"
+    },
+    {
+      "step_id": "step_50ca2edd",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "button": null,
+        "dx": null,
+        "dy": null,
+        "key": "enter",
+        "keys": null,
+        "text": null,
+        "x": null,
+        "y": null
+      },
+      "description": "Press Enter to select \"Notifications: Show Notifications\" from the VS Code command palette.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "0",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:512:384:0:20:cc84222323232421"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_50ca2edd",
+      "created_at": "2026-02-12T06:32:28.853423",
+      "plan_id": "plan_f8a7a316"
+    },
+    {
+      "step_id": "step_50e1e4a8",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {
+        "button": null,
+        "dx": null,
+        "dy": null,
+        "key": null,
+        "keys": null,
+        "text": null,
+        "x": null,
+        "y": null
+      },
+      "description": "@assertion notification \"provision stage executed successfully\" exist.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "0",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "step_retry_timeout: 180"
+      ],
+      "screenshot": null,
+      "created_at": "2026-02-12T06:32:28.878738",
+      "plan_id": "plan_f8a7a316"
+    }
+  ],
+  "screenshots": {
+    "step_85508ffc": "step_85508ffc",
+    "step_f50ad739": "step_f50ad739",
+    "step_5778c1c2": "step_5778c1c2",
+    "step_89a25b21": "step_89a25b21",
+    "step_a9d6775d": "step_a9d6775d",
+    "step_f5624e09": "step_f5624e09",
+    "step_b81fb4e8": "step_b81fb4e8",
+    "step_4aa17f6b": "step_4aa17f6b",
+    "step_03f6f26f": "step_03f6f26f",
+    "step_8174404b": "step_8174404b",
+    "step_50ca2edd": "step_50ca2edd"
+  }
+}
