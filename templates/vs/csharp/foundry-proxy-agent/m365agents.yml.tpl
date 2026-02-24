@@ -1,11 +1,11 @@
-# yaml-language-server: $schema=https://aka.ms/m365-agents-toolkits/v1.11/yaml.schema.json
+# yaml-language-server: $schema=https://aka.ms/m365-agents-toolkits/v1.12/yaml.schema.json
 # Visit https://aka.ms/teamsfx-v5.0-guide for details on this file
 # Visit https://aka.ms/teamsfx-actions for details on actions
 #
 # PRODUCTION DEPLOYMENT - Uses Managed Identity + Azure App Service
 # Deploys: Managed Identity -> App Service -> Azure Bot -> App Registration -> OAuth Connection
 
-version: v1.11
+version: v1.12
 
 environmentFolderPath: ./env
 

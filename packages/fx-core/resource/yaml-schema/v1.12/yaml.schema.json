@@ -14,7 +14,7 @@
     "version": {
       "type": "string",
       "description": "The version of the yaml file schema",
-      "const": "v1.11"
+      "const": "v1.12"
     },
     "additionalMetadata": {
       "type": "object",
@@ -156,6 +156,10 @@
             "clientSecretDescription": {
               "type": "string",
               "description": "The description of the client secret."
+            },
+            "uniqueName": {
+              "type": "string",
+              "description": "The unique name for Bicep Microsoft Graph extension compatibility. Used to reference existing Microsoft.Graph/applications resources."
             }
           }
         },
@@ -230,6 +234,10 @@
             "serviceManagementReference": {
               "type": "string",
               "description": "References application or service contact information from a Service or Asset Management database."
+            },
+            "uniqueName": {
+              "type": "string",
+              "description": "The unique name for Bicep Microsoft Graph extension compatibility. Used to reference existing Microsoft.Graph/applications resources."
             }
           }
         },
