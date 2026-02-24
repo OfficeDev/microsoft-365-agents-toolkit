@@ -859,6 +859,8 @@
   "error.deploy.ZipFileTargetInUse": "无法清除 %s 中的分发 zip 文件，因为它当前可能正在使用中。请关闭使用该文件的任何应用，然后重试。",
   "error.deploy.GetPublishingCredentialsError.Notification": "无法获取资源组 \"%s\" 中应用 \"%s\" 的发布凭据。有关更多详细信息，请参阅 [输出面板](command:fx-extension.showOutputChannel)。",
   "error.deploy.GetPublishingCredentialsError": "无法获取应用“%s”的发布凭据(在资源组“%s”中)，原因是:\n %s。\n 建议:\n 1. 确保应用名称和资源组名称拼写正确且有效。\n2. 确保 Azure 帐户具有访问 API 所需的权限。可能需要提升角色或向管理员请求其他权限。\n3. 如果错误消息显示了特定原因(例如身份验证失败或网络问题)，请专门调查该问题以解决该错误，然后重试。\n4. 可在此页中测试 API:“%s”",
+  "error.deploy.GetZipDeployEndpointError.Notification": "无法获取应用 \"%s\" (在资源组 \"%s\" 中)的 zip 部署终结点。有关更多详细信息，请参阅 [输出面板](command:fx-extension.showOutputChannel)。",
+  "error.deploy.GetZipDeployEndpointError": "无法获取应用“%s”的 zip 部署终结点(在资源组“%s”中)，错误为: %s。",
   "error.deploy.DeployZipPackageError.Notification": "无法将 zip 包部署到终结点: \"%s\"。有关更多详细信息，请参阅 [输出面板](command:fx-extension.showOutputChannel)，然后重试。",
   "error.deploy.DeployZipPackageError": "无法将 zip 包部署到 Azure 中的终结点“%s”，因为出现错误: %s。\n建议:\n 1. 确保 Azure 帐户具有访问 API 所需的权限。\n2. 确保在 Azure 中正确配置了终结点，并且已预配所需的资源。\n3. 确保 zip 包有效且没有错误。\n4. 如果错误消息指定了身份验证失败或网络问题等原因，请修复错误并重试。\n5. 如果错误仍然存在，请按照以下链接中的准则手动部署包:“%s”",
   "error.deploy.CheckDeploymentStatusError": "无法检查位置“%s”的部署状态，因为出现错误 %s。如果问题仍然存在，请查看 Azure 门户中的部署日志(部署 -> 部署中心 -> 日志)，以确定可能出现的任何问题。",

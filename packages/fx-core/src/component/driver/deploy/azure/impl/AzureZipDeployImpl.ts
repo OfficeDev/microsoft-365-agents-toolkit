@@ -22,7 +22,7 @@ import { HttpStatusCode } from "../../../../constant/commonConstant";
 import { getLocalizedString } from "../../../../../common/localizeUtils";
 import path from "path";
 import { zipFolderAsync } from "../../../../utils/fileOperation";
-import { DeployZipPackageError } from "../../../../../error/deploy";
+import { DeployZipPackageError, GetZipDeployEndpointError } from "../../../../../error/deploy";
 import { ErrorContextMW } from "../../../../../common/globalVars";
 import { hooks } from "@feathersjs/hooks";
 import { ReadStream } from "fs-extra";
@@ -247,23 +247,145 @@ export class AzureZipDeployImpl extends AzureDeployImpl {
     azureResource: AzureResourceInfo,
     config: AzureUploadConfig
   ): Promise<string> {
-    const response = await fetch(
-      `${getResourceServiceEndpoint(ResourceServiceType.Azure)}/subscriptions/${
-        azureResource.subscriptionId
-      }/resourceGroups/${azureResource.resourceGroupName}/providers/Microsoft.Web/sites/${
-        azureResource.instanceId
-      }?api-version=2024-04-01`,
-      {
+    const resourceUrl = `${getResourceServiceEndpoint(ResourceServiceType.Azure)}/subscriptions/${
+      azureResource.subscriptionId
+    }/resourceGroups/${azureResource.resourceGroupName}/providers/Microsoft.Web/sites/${
+      azureResource.instanceId
+    }?api-version=2024-04-01`;
+    let response: Response;
+    try {
+      response = await fetch(resourceUrl, {
         headers: config.headers,
-      }
-    );
-    const responseData = await response.json();
-    const hostNames: string[] = responseData.properties.enabledHostNames;
+      });
+    } catch (e) {
+      throw new GetZipDeployEndpointError(
+        azureResource.instanceId,
+        azureResource.resourceGroupName,
+        AzureZipDeployImpl.normalizeError(e)
+      );
+    }
+
+    let responseText = "";
+    try {
+      responseText = await response.text();
+    } catch {
+      throw new GetZipDeployEndpointError(
+        azureResource.instanceId,
+        azureResource.resourceGroupName,
+        new Error(
+          `Failed to read response body. Status code: ${response.status}, status text: ${
+            response.statusText || "NA"
+          }.`
+        )
+      );
+    }
+
+    if (!response.ok) {
+      const responsePreview = AzureZipDeployImpl.previewResponseText(responseText);
+      throw new GetZipDeployEndpointError(
+        azureResource.instanceId,
+        azureResource.resourceGroupName,
+        new Error(
+          `Failed to get Azure App Service details. Status code: ${response.status}, status text: ${
+            response.statusText || "NA"
+          }, response body: ${responsePreview}`
+        )
+      );
+    }
+
+    let responseData: unknown;
+    try {
+      responseData = responseText ? JSON.parse(responseText) : {};
+    } catch {
+      throw new GetZipDeployEndpointError(
+        azureResource.instanceId,
+        azureResource.resourceGroupName,
+        new Error(
+          `Failed to parse Azure App Service details response as JSON. Response body: ${AzureZipDeployImpl.previewResponseText(
+            responseText
+          )}`
+        )
+      );
+    }
+
+    const responseError = AzureZipDeployImpl.getResponseErrorMessage(responseData);
+    if (responseError) {
+      throw new GetZipDeployEndpointError(
+        azureResource.instanceId,
+        azureResource.resourceGroupName,
+        new Error(`Azure App Service API returned error payload: ${responseError}`)
+      );
+    }
+
+    let hostNames: string[];
+    try {
+      hostNames = AzureZipDeployImpl.getEnabledHostNames(responseData);
+    } catch (e) {
+      throw new GetZipDeployEndpointError(
+        azureResource.instanceId,
+        azureResource.resourceGroupName,
+        AzureZipDeployImpl.normalizeError(e)
+      );
+    }
     const scmHostName = hostNames.find((host) => host.includes("scm"));
     if (!scmHostName) {
-      throw new Error(`Cannot find SCM host name. Available host names: ${hostNames.join(", ")}`);
+      throw new GetZipDeployEndpointError(
+        azureResource.instanceId,
+        azureResource.resourceGroupName,
+        new Error(`Cannot find SCM host name. Available host names: ${hostNames.join(", ")}`)
+      );
     }
     return `https://${scmHostName}/api/zipdeploy?isAsync=true`;
+  }
+
+  private static getEnabledHostNames(responseData: unknown): string[] {
+    if (
+      !AzureZipDeployImpl.isRecord(responseData) ||
+      !AzureZipDeployImpl.isRecord(responseData.properties)
+    ) {
+      throw new Error("Invalid Azure App Service details response. Missing 'properties' object.");
+    }
+    const hostNames = responseData.properties.enabledHostNames;
+    if (!Array.isArray(hostNames) || hostNames.some((host) => typeof host !== "string")) {
+      throw new Error(
+        "Invalid Azure App Service details response. 'properties.enabledHostNames' must be a string array."
+      );
+    }
+    return hostNames;
+  }
+
+  private static getResponseErrorMessage(responseData: unknown): string | undefined {
+    if (
+      !AzureZipDeployImpl.isRecord(responseData) ||
+      !AzureZipDeployImpl.isRecord(responseData.error)
+    ) {
+      return undefined;
+    }
+    const code = typeof responseData.error.code === "string" ? responseData.error.code : "NA";
+    const message =
+      typeof responseData.error.message === "string" ? responseData.error.message : "NA";
+    return `code: ${code}, message: ${message}`;
+  }
+
+  private static isRecord(value: unknown): value is Record<string, unknown> {
+    return typeof value === "object" && value !== null;
+  }
+
+  private static normalizeError(error: unknown): Error {
+    if (error instanceof Error) {
+      return error;
+    }
+    return new Error(String(error));
+  }
+
+  private static previewResponseText(responseText: string): string {
+    const maxPreviewLength = 200;
+    if (!responseText) {
+      return "NA";
+    }
+    return responseText.length > maxPreviewLength
+      ? `${responseText.slice(0, maxPreviewLength)}...`
+      : responseText;
   }
 
   updateProgressbar(): void {

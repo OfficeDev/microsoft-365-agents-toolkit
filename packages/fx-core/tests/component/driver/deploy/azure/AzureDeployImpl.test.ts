@@ -24,6 +24,7 @@ import {
   CheckDeploymentStatusError,
   CheckDeploymentStatusTimeoutError,
   DeployZipPackageError,
+  GetZipDeployEndpointError,
   GetPublishingCredentialsError,
 } from "../../../../../src/error/deploy";
 import * as chai from "chai";
@@ -157,13 +158,109 @@ describe("AzureDeployImpl zip deploy acceleration", () => {
         { status: 200 }
       )
     );
-    chai.expect(AzureZipDeployImpl.getZipDeployEndpoint(ar, config)).to.be.rejectedWith(Error);
+    chai
+      .expect(AzureZipDeployImpl.getZipDeployEndpoint(ar, config))
+      .to.be.rejectedWith(GetZipDeployEndpointError);
     chai.expect(fetchStub.calledOnce).to.be.true;
     chai
       .expect(fetchStub.firstCall.args[0])
       .to.be.equal(
         "https://management.azure.com/subscriptions/aaa/resourceGroups/bbb/providers/Microsoft.Web/sites/ccc?api-version=2024-04-01"
       );
+  });
+
+  it("Get zip deploy endpoint with non-success status", async () => {
+    const ar = {
+      subscriptionId: "aaa",
+      resourceGroupName: "bbb",
+      instanceId: "ccc",
+    } as AzureResourceInfo;
+    const config = {
+      headers: {
+        "Content-Type": "AAA",
+        "Cache-Control": "bbb",
+        Authorization: "ccc",
+      },
+      maxContentLength: 1,
+      maxBodyLength: 2,
+      timeout: 3,
+    } as AzureUploadConfig;
+    const fetchStub = sandbox.stub(global, "fetch");
+    fetchStub.resolves(new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 }));
+    await chai
+      .expect(AzureZipDeployImpl.getZipDeployEndpoint(ar, config))
+      .to.be.rejectedWith(
+        GetZipDeployEndpointError,
+        "Failed to get Azure App Service details. Status code: 401"
+      );
+    chai.expect(fetchStub.calledOnce).to.be.true;
+  });
+
+  it("Get zip deploy endpoint with Azure error payload in success response", async () => {
+    const ar = {
+      subscriptionId: "aaa",
+      resourceGroupName: "bbb",
+      instanceId: "ccc",
+    } as AzureResourceInfo;
+    const config = {
+      headers: {
+        "Content-Type": "AAA",
+        "Cache-Control": "bbb",
+        Authorization: "ccc",
+      },
+      maxContentLength: 1,
+      maxBodyLength: 2,
+      timeout: 3,
+    } as AzureUploadConfig;
+    const fetchStub = sandbox.stub(global, "fetch");
+    fetchStub.resolves(
+      new Response(
+        JSON.stringify({
+          error: {
+            code: "AuthorizationFailed",
+            message: "The client does not have authorization to perform action.",
+          },
+        }),
+        { status: 200 }
+      )
+    );
+    await chai
+      .expect(AzureZipDeployImpl.getZipDeployEndpoint(ar, config))
+      .to.be.rejectedWith(GetZipDeployEndpointError, "AuthorizationFailed");
+    chai.expect(fetchStub.calledOnce).to.be.true;
+  });
+
+  it("Get zip deploy endpoint with malformed host names response", async () => {
+    const ar = {
+      subscriptionId: "aaa",
+      resourceGroupName: "bbb",
+      instanceId: "ccc",
+    } as AzureResourceInfo;
+    const config = {
+      headers: {
+        "Content-Type": "AAA",
+        "Cache-Control": "bbb",
+        Authorization: "ccc",
+      },
+      maxContentLength: 1,
+      maxBodyLength: 2,
+      timeout: 3,
+    } as AzureUploadConfig;
+    const fetchStub = sandbox.stub(global, "fetch");
+    fetchStub.resolves(
+      new Response(
+        JSON.stringify({
+          properties: {
+            enabledHostNames: "not-array",
+          },
+        }),
+        { status: 200 }
+      )
+    );
+    await chai
+      .expect(AzureZipDeployImpl.getZipDeployEndpoint(ar, config))
+      .to.be.rejectedWith(GetZipDeployEndpointError, "enabledHostNames");
+    chai.expect(fetchStub.calledOnce).to.be.true;
   });
 
   it("checkDeployStatus empty response", async () => {
