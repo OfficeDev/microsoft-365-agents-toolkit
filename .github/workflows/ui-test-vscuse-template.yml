@@ -109,25 +109,9 @@ jobs:
       AZURE_TENANT_ID: ${{ secrets.TEST_TENANT_TENANT_ID  }}
       AZURE_SUBSCRIPTION_ID: ${{ secrets.TEST_TENANT_SUBSCRIPTION_ID }}
       AZURE_AUTH_ENABLED: ${{ secrets.AZURE_SERVICE_PRINCIPAL_ID != '' && secrets.AZURE_SERVICE_PRINCIPAL_SECRET != '' && secrets.TEST_TENANT_TENANT_ID != '' }}
-      # M365 account for testing
-      M365_USERNAME_1: "test001@xxbdw.onmicrosoft.com"
-      M365_USERNAME_2: "test002@xxbdw.onmicrosoft.com"
-      M365_USERNAME_3: "test003@xxbdw.onmicrosoft.com"
-      M365_USERNAME_4: "test004@xxbdw.onmicrosoft.com"
-      M365_USERNAME_5: "test005@xxbdw.onmicrosoft.com"
-      M365_USERNAME_6: "test006@xxbdw.onmicrosoft.com"
-      M365_USERNAME_7: "test007@xxbdw.onmicrosoft.com"
-      M365_USERNAME_8: "test008@xxbdw.onmicrosoft.com"
-      M365_USERNAME_9: "test009@xxbdw.onmicrosoft.com"
-      M365_USERNAME_10: "test010@xxbdw.onmicrosoft.com"
-      M365_USERNAME_11: "test011@xxbdw.onmicrosoft.com"
-      M365_USERNAME_12: "test012@xxbdw.onmicrosoft.com"
-      M365_USERNAME_13: "test013@xxbdw.onmicrosoft.com"
-      M365_USERNAME_14: "test014@xxbdw.onmicrosoft.com"
-      M365_USERNAME_15: "test015@xxbdw.onmicrosoft.com"
-      M365_USERNAME_16: "test016@xxbdw.onmicrosoft.com"
-      M365_USERNAME_17: "test017@xxbdw.onmicrosoft.com"
-      M365_ACCOUNT_PASSWORD: ${{ secrets.TEST_M365_PASSWORD }}
+      # M365 account for testing (comma-separated list from GitHub variable)
+      M365_USERNAMES: ${{ vars.M365_USERNAMES }}
+      M365_ACCOUNT_PASSWORD: ${{ secrets.TEST_TENANT_M365_ACCOUNT_PASSWORD }}
       # The test account for Copilot features
       M365_ACCOUNT_NAME_EnableCopilotAccess: ${{ secrets.TEST_TENANT_M365_ACCOUNT_NAME }}
       M365_ACCOUNT_PASSWORD_EnableCopilotAccess: ${{ secrets.TEST_TENANT_M365_ACCOUNT_PASSWORD }}
@@ -222,10 +206,15 @@ jobs:
 
       - name: Set m365 account randomly
         run: |
-          users=("${{ env.M365_USERNAME_1 }}" "${{ env.M365_USERNAME_2 }}" "${{ env.M365_USERNAME_3 }}" "${{ env.M365_USERNAME_4 }}" "${{ env.M365_USERNAME_5 }}" "${{ env.M365_USERNAME_6 }}" "${{ env.M365_USERNAME_7 }}" "${{ env.M365_USERNAME_8 }}" "${{ env.M365_USERNAME_9 }}" "${{ env.M365_USERNAME_10 }}" "${{ env.M365_USERNAME_11 }}" "${{ env.M365_USERNAME_12 }}" "${{ env.M365_USERNAME_13 }}" "${{ env.M365_USERNAME_14 }}" "${{ env.M365_USERNAME_15 }}" "${{ env.M365_USERNAME_16 }}" "${{ env.M365_USERNAME_17 }}")
+          # Split comma-separated M365_USERNAMES into an array
+          IFS=',' read -ra users <<< "$M365_USERNAMES"
+          # Trim whitespace from each entry
+          for i in "${!users[@]}"; do
+            users[$i]=$(echo "${users[$i]}" | xargs)
+          done
           count=${#users[@]}
           index=$((RANDOM%$count))
-          echo "account index: $index"
+          echo "account index: $index, total accounts: $count"
           echo "M365_ACCOUNT_NAME=${users[index]}" >> $GITHUB_ENV
 
       - name: Log in to Container Registry
@@ -363,15 +352,15 @@ jobs:
     runs-on: ubuntu-latest
     env:
       MAX_RETRIES: ${{ github.event.inputs.max_retries || 7 }}
-      M365_ACCOUNT_PASSWORD: ${{ secrets.TEST_M365_PASSWORD }}
-      M365_ACCOUNT_NAME: "test14@xxbdw.onmicrosoft.com"
-      CLEAN_CLIENT_ID: ${{ secrets.TEST_CLEAN_CLIENT_ID }}
-      CLEAN_CLIENT_SECRET: ${{ secrets.TEST_CLEAN_CLIENT_SECRET }}
-      CLEAN_TENANT_ID: ${{ secrets.TEST_CLEAN_TENANT_ID }}
-      AZURE_TENANT_ID: ${{ secrets.TEST_TENANT_ID }}
-      AZURE_SUBSCRIPTION_ID: ${{ secrets.TEST_SUBSCRIPTION_ID }}
-      AZURE_ACCOUNT_NAME: ${{ secrets.TEST_USER_NAME }}
-      AZURE_ACCOUNT_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
+      M365_ACCOUNT_PASSWORD: ${{ secrets.TEST_TENANT_M365_ACCOUNT_ADMIN_PASSWORD }}
+      M365_ACCOUNT_NAME: ${{ vars.TEST_TENANT_M365_ACCOUNT_ADMIN_ACCOUNT }}
+      CLEAN_CLIENT_ID: ${{ vars.TEST_TENANT_CLEAN_CLIENT_ID }}
+      CLEAN_CLIENT_SECRET: ${{ secrets.TEST_TENANT_CLEAN_CLIENT_SECRET }}
+      CLEAN_TENANT_ID: ${{ secrets.TEST_TENANT_CLEAN_TENANT_ID }}
+      AZURE_TENANT_ID: ${{ secrets.TEST_TENANT_TENANT_ID }}
+      AZURE_SUBSCRIPTION_ID: ${{ secrets.TEST_TENANT_SUBSCRIPTION_ID }}
+      AZURE_ACCOUNT_NAME: ${{ secrets.TEST_TENANT_AZURE_ACCOUNT_NAME }}
+      AZURE_ACCOUNT_PASSWORD: ${{ secrets.TEST_TENANT_AZURE_ACCOUNT_PASSWORD }}
     steps:
       - name: Checkout
         if: ${{ github.event_name == 'schedule' || github.event.inputs.schedule_trigger == 'true' }}
@@ -548,20 +537,20 @@ jobs:
           
           while :
           do
-            url="https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/attempts/${{ github.run_attempt }}/jobs?per_page=80&page=$page"
+            url="https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/attempts/${{ github.run_attempt }}/jobs?per_page=100&page=$page"
             echo "Fetching URL: $url"
       
-            resp=$(curl -sf -H "Accept: application/vnd.github.v3+json" -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" "$url")
-            echo "Response from GitHub API: $resp"
+            resp=$(curl -sf -D /tmp/gh_headers_$page -H "Accept: application/vnd.github.v3+json" -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" "$url")
 
             new_jobs=$(echo "$resp" | jq -cr '.jobs')
-            echo "New jobs extracted: $new_jobs"
+            new_jobs_count=$(echo "$resp" | jq -r '.jobs | length')
+            echo "Page $page: fetched $new_jobs_count jobs"
 
             jobs=$(jq -cr --slurp 'add' <(echo "$jobs") <(echo "$new_jobs"))
-            echo "Updated jobs list: $jobs"
 
-            has_next=$(curl -sfI -H "Accept: application/vnd.github.v3+json" -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" "$url" | grep -Fi "link:" | grep "rel=\"next\"" || true)
-            echo "Has next page: $has_next"
+            # Check Link header from the same GET response for next page
+            has_next=$(grep -Fi "link:" /tmp/gh_headers_$page 2>/dev/null | grep "rel=\"next\"" || true)
+            rm -f /tmp/gh_headers_$page
 
             if [ -z "$has_next" ]; then
               break
@@ -569,6 +558,9 @@ jobs:
 
             page=$((page+1))
           done
+
+          total_jobs=$(echo "$jobs" | jq 'length')
+          echo "Total jobs fetched across all pages: $total_jobs"
 
           echo "Final job list: $jobs"
 
