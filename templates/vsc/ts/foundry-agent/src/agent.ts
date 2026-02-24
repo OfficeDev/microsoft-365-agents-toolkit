@@ -3,7 +3,6 @@ import {
   AzureCliCredential,
   AzureDeveloperCliCredential,
   ChainedTokenCredential,
-  DefaultAzureCredential,
   ManagedIdentityCredential,
   TokenCredential,
 } from "@azure/identity";
@@ -21,16 +20,10 @@ console.log(`[INIT] NODE_ENV: ${process.env.NODE_ENV}`);
 console.log(`[INIT] FOUNDRY_PROJECT_ENDPOINT: ${process.env.FOUNDRY_PROJECT_ENDPOINT}`);
 
 if (environment === "production") {
-  // Production: prefer managed identity; allow explicit clientId when a user-assigned identity is configured
-  if (managedIdentityClientId) {
-    console.log(`[INIT] Using ManagedIdentityCredential with clientId=${managedIdentityClientId}`);
-    credential = new ManagedIdentityCredential({
-      clientId: managedIdentityClientId,
-    });
-  } else {
-    console.log("[INIT] Using DefaultAzureCredential (ManagedIdentity -> AzureCli -> ...)");
-    credential = new DefaultAzureCredential();
-  }
+  console.log(`[INIT] Using ManagedIdentityCredential with clientId=${managedIdentityClientId}`);
+  credential = new ManagedIdentityCredential({
+    clientId: managedIdentityClientId,
+  });
 } else {
   // Local development: Use ChainedTokenCredential for explicit, predictable behavior
   // This avoids the "fail fast" mode issues with DefaultAzureCredential
