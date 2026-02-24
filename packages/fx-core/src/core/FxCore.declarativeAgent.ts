@@ -182,50 +182,39 @@ export class FxCoreDeclarativeAgentPart {
         run_for_functions: mcpToolsSelected,
       });
     } else {
-      // let mcpFile = matchedRuntime?.spec.mcp_tool_description?.file;
-      // if (!mcpFile) {
-      //   mcpFile = "mcp-tools.json";
-      //   let suffix = 1;
-      //   while (await fs.pathExists(path.join(path.dirname(aiPluginFilePath), mcpFile))) {
-      //     mcpFile = `mcp-tools-${suffix}.json`;
-      //     suffix += 1;
-      //   }
-      // }
-      // await fs.writeJSON(
-      //   path.join(path.dirname(aiPluginFilePath), mcpFile),
-      //   {
-      //     tools: [
-      //       ...mcpToolsDetail
-      //         .filter((tool: any) => mcpToolsSelected.includes(tool.name))
-      //         .map((tool: any) => {
-      //           return {
-      //             ...tool,
-      //             title: (tool.name as string)
-      //               .replace(/_/g, " ")
-      //               .replace(/^./, (str) => str.toUpperCase()),
-      //           };
-      //         }),
-      //     ],
-      //   },
-      //   { spaces: 4 }
-      // );
+      let mcpFile = matchedRuntime?.spec.mcp_tool_description?.file;
+      if (!mcpFile) {
+        mcpFile = "mcp-tools.json";
+        let suffix = 1;
+        while (await fs.pathExists(path.join(path.dirname(aiPluginFilePath), mcpFile))) {
+          mcpFile = `mcp-tools-${suffix}.json`;
+          suffix += 1;
+        }
+      }
+      await fs.writeJSON(
+        path.join(path.dirname(aiPluginFilePath), mcpFile),
+        {
+          tools: [
+            ...mcpToolsDetail
+              .filter((tool: any) => mcpToolsSelected.includes(tool.name))
+              .map((tool: any) => {
+                return {
+                  ...tool,
+                  title: (tool.name as string)
+                    .replace(/_/g, " ")
+                    .replace(/^./, (str) => str.toUpperCase()),
+                };
+              }),
+          ],
+        },
+        { spaces: 4 }
+      );
       (aiPluginContent.runtimes as any[]).push({
         type: "RemoteMCPServer",
         spec: {
           url: mcpServerUrl,
           mcp_tool_description: {
-            tools: [
-              ...mcpToolsDetail
-                .filter((tool: any) => mcpToolsSelected.includes(tool.name))
-                .map((tool: any) => {
-                  return {
-                    ...tool,
-                    title: (tool.name as string)
-                      .replace(/_/g, " ")
-                      .replace(/^./, (str) => str.toUpperCase()),
-                  };
-                }),
-            ],
+            file: mcpFile,
           },
         },
         run_for_functions: mcpToolsSelected,
