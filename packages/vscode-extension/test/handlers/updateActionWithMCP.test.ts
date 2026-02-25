@@ -1267,7 +1267,11 @@ describe("updateActionWithMCP", () => {
       sandbox.stub(Client.prototype, "connect").resolves();
       sandbox.stub(Client.prototype, "listTools").resolves({
         tools: [
-          { name: "unknownTool", description: "Not matched", inputSchema: { type: "object" as const } },
+          {
+            name: "unknownTool",
+            description: "Not matched",
+            inputSchema: { type: "object" as const },
+          },
         ],
       });
       sandbox.stub(Client.prototype, "close").resolves();
