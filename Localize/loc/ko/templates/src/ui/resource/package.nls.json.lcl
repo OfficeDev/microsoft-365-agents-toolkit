@@ -221,7 +221,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Load your data from Azure AI Search service]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Azure AI Search Service에서 데이터를 로드합니다.]]></Val>
+            <Val><![CDATA[Azure AI Search 서비스에서 데이터를 로드합니다.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -230,7 +230,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Azure AI Search]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Azure AI 검색]]></Val>
+            <Val><![CDATA[Azure AI Search]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />

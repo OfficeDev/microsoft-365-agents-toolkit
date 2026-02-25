@@ -230,7 +230,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Azure AI Search]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Azure AI 検索]]></Val>
+            <Val><![CDATA[Azure AI Search]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />

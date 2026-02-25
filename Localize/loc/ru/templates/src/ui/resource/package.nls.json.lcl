@@ -221,7 +221,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Load your data from Azure AI Search service]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Загрузить данные из службы "Поиск с использованием ИИ Azure"]]></Val>
+            <Val><![CDATA[Загрузить данные из службы "ИИ-поиск Azure"]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -230,7 +230,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Azure AI Search]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Поиск с использованием ИИ Azure]]></Val>
+            <Val><![CDATA[ИИ-поиск Azure]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
