@@ -59,10 +59,10 @@ module ssoAppRegistration 'modules/app-registration.bicep' = if (isFirstTimeDepl
 }
 
 // ========================================
-// STEP 2: Create Azure Bot Service (First-time only)
+// STEP 2: Create/update Azure Bot Service 
 // ========================================
 // Uses Bot App (with client secret) for authentication
-resource botService 'Microsoft.BotService/botServices@2021-03-01' = if (isFirstTimeDeployment) {
+resource botService 'Microsoft.BotService/botServices@2021-03-01' = {
   kind: 'azurebot'
   location: 'global'
   name: botName
