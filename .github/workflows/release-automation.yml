@@ -8,6 +8,8 @@ env:
   RELEASE_VERSION: ${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.release_version) || '' }}
   DRY_RUN: ${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run) || 'false' }}
   CREATE_BRANCH: ${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.create_branch) || 'true' }}
+  RERUN_CD_ONLY: ${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.rerun_cd_only) || 'false' }}
+  GO_PRODUCT: ${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.go_product) || 'false' }}
 
 on:
   workflow_dispatch:
@@ -24,6 +26,14 @@ on:
         description: "Optional: target release Version to process (e.g., 6.5.6). If empty, selects by Cut Bits Date (UTC+8 today)."
         required: false
         default: ""
+      rerun_cd_only:
+        description: "Rerun CD only: select latest pending release (not canceled), skip PR creation/merge checks, and trigger CD directly (useful for regenerating artifacts after fixes on release branch)."
+        type: boolean
+        default: false
+      go_product:
+        description: "When triggering CD, set goproduct=true (publish TTK as product)."
+        type: boolean
+        default: false
       dry_run:
         description: "Dry run mode (will not create branches or trigger CD)"
         type: boolean
@@ -131,11 +141,15 @@ jobs:
           set -euo pipefail
 
           VERSION_INPUT="${{ env.RELEASE_VERSION }}"
+          RERUN_CD_ONLY="${{ env.RERUN_CD_ONLY }}"
           TODAY_UTC8=$(date -u -d '+8 hours' +%Y-%m-%d)
 
           if [ -n "$VERSION_INPUT" ]; then
             REASON="version=$VERSION_INPUT"
             RELEASE=$(jq -c --arg v "$VERSION_INPUT" '[.[] | select(.version == $v)] | .[0]' releases.json)
+          elif [ "$RERUN_CD_ONLY" = "true" ]; then
+            REASON="latest_pending_release"
+            RELEASE=$(jq -c 'sort_by(.cut_date // "") | .[-1]' releases.json)
           else
             REASON="cut_date=$TODAY_UTC8 (UTC+8)"
             RELEASE=$(jq -c --arg d "$TODAY_UTC8" '[.[] | select(.cut_date == $d)] | .[0]' releases.json)
@@ -170,6 +184,7 @@ jobs:
             echo "## ✅ Selected release"
             echo ""
             echo "- Reason: ${REASON}"
+            echo "- Rerun CD only: ${RERUN_CD_ONLY}"
             echo "- Product: ${PRODUCT}"
             echo "- Release Type: ${RELEASE_TYPE}"
             echo "- Version: ${VERSION}"
@@ -311,7 +326,7 @@ jobs:
 
       - name: Create PR to merge dev into existing release branch
         id: sync_pr
-        if: ${{ steps.check_branch.outputs.exists == 'true' && env.DRY_RUN == 'false' }}
+        if: ${{ steps.check_branch.outputs.exists == 'true' && env.DRY_RUN == 'false' && env.RERUN_CD_ONLY == 'false' }}
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.RELEASE_AUTOMATION_TOKEN || github.token }}
@@ -374,9 +389,66 @@ jobs:
             core.setOutput('pr_url', created.data.html_url);
             core.setOutput('pr_number', String(created.data.number));
 
+      - name: Create PR in samples repo (merge dev into main)
+        if: ${{ env.DRY_RUN == 'false' && env.RERUN_CD_ONLY == 'false' }}
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.RELEASE_AUTOMATION_TOKEN || github.token }}
+          script: |
+            const owner = 'OfficeDev';
+            const repo = 'microsoft-365-agents-toolkit-samples';
+            const base = 'main';
+            const head = 'dev';
+
+            const product = '${{ steps.config.outputs.product }}';
+            const version = '${{ steps.config.outputs.version }}';
+            const branch = '${{ steps.config.outputs.branch }}';
+
+            // Check if dev has new commits not in main
+            const compare = await github.rest.repos.compareCommits({ owner, repo, base, head });
+            const aheadBy = compare.data.ahead_by ?? 0;
+
+            if (aheadBy === 0) {
+              core.notice(`No samples sync PR needed: '${head}' is not ahead of '${base}'.`);
+              return;
+            }
+
+            // Avoid creating duplicate PRs
+            const existing = await github.rest.pulls.list({
+              owner,
+              repo,
+              state: 'open',
+              base,
+              head: `${owner}:${head}`,
+              per_page: 10,
+            });
+
+            if (existing.data.length > 0) {
+              const pr = existing.data[0];
+              core.notice(`Samples sync PR already exists: ${pr.html_url}`);
+              return;
+            }
+
+            const title = `chore: merge dev into ${base} (samples)`;
+            const body = [
+              'This PR is created by Release Automation to sync latest changes from `dev` into `main` in the samples repo.',
+              '',
+              `Triggered by release: ${product} ${version} (branch: \`${branch}\`)`,
+              `- Base (target): \`${base}\``,
+              `- Head (source): \`${head}\``,
+              `- Commits ahead: ${aheadBy}`,
+            ].join('\n');
+
+            const created = await github.rest.pulls.create({ owner, repo, title, head, base, body });
+            core.notice(`Created samples sync PR: ${created.data.html_url}`);
+            core.summary
+              .addHeading('📌 Samples Repo Sync PR', 2)
+              .addRaw(`\nCreated: ${created.data.html_url}\n`)
+              .write();
+
       - name: Create release branch
         id: create_branch
-        if: ${{ steps.check_branch.outputs.exists == 'false' && env.CREATE_BRANCH == 'true' && env.DRY_RUN == 'false' }}
+        if: ${{ steps.check_branch.outputs.exists == 'false' && env.CREATE_BRANCH == 'true' && env.DRY_RUN == 'false' && env.RERUN_CD_ONLY == 'false' }}
         run: |
           BRANCH="${{ steps.config.outputs.branch }}"
           
@@ -388,6 +460,13 @@ jobs:
           
           echo "✅ Branch $BRANCH created successfully"
           echo "created=true" >> $GITHUB_OUTPUT
+
+      - name: Validate branch exists for rerun mode
+        if: ${{ env.RERUN_CD_ONLY == 'true' && steps.check_branch.outputs.exists != 'true' }}
+        run: |
+          echo "❌ Rerun CD only mode is enabled, but branch '${{ steps.config.outputs.branch }}' does not exist." >&2
+          echo "   Fix the schedule branch value or create the branch, then rerun." >&2
+          exit 1
 
       - name: Compose notification (shown + email payload)
         id: notify
@@ -402,6 +481,7 @@ jobs:
           VSRELEASE="${{ steps.config.outputs.vsrelease }}"
 
           DRY_RUN="${{ env.DRY_RUN }}"
+          RERUN_CD_ONLY="${{ env.RERUN_CD_ONLY }}"
           BRANCH_EXISTS="${{ steps.check_branch.outputs.exists }}"
           BRANCH_CREATED="${{ steps.create_branch.outputs.created }}"
           PR_NEEDED_RAW="${{ steps.sync_pr.outputs.pr_needed }}"
@@ -420,6 +500,9 @@ jobs:
           ACTION_REQUIRED="Approve the environment gate (auto-release) to trigger CD."
           if [ "$PR_NEEDED" = "true" ]; then
             ACTION_REQUIRED="ACTION REQUIRED: approve & merge the sync PR, then approve the environment gate (auto-release) to trigger CD."
+          fi
+          if [ "$RERUN_CD_ONLY" = "true" ]; then
+            ACTION_REQUIRED="RERUN CD ONLY: skip PR/branch actions; approve the environment gate (auto-release) to trigger CD."
           fi
           if [ "$DRY_RUN" = "true" ]; then
             ACTION_REQUIRED="DRY RUN: no changes were made. Re-run with dry_run=false to create branch/PR and proceed."
@@ -527,7 +610,7 @@ jobs:
           private-key: ${{ env.APP_GITHUB_APP_PRIVATE_KEY }}
 
       - name: Verify sync PR merged (if required)
-        if: ${{ needs.prepare-release.outputs.pr_needed == 'true' }}
+        if: ${{ needs.prepare-release.outputs.pr_needed == 'true' && env.RERUN_CD_ONLY == 'false' }}
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.RELEASE_AUTOMATION_TOKEN || github.token }}
@@ -571,12 +654,14 @@ jobs:
             const preid = '${{ needs.prepare-release.outputs.preid }}';
             const series = '${{ needs.prepare-release.outputs.series }}';
             const vsrelease = '${{ needs.prepare-release.outputs.vsrelease }}' === 'true';
+            const goproduct = '${{ env.GO_PRODUCT }}' === 'true';
 
             console.log('Triggering CD workflow with parameters:');
             console.log(`  Branch: ${branch}`);
             console.log(`  preid: ${preid}`);
             console.log(`  series: ${series}`);
             console.log(`  vsrelease: ${vsrelease}`);
+            console.log(`  goproduct: ${goproduct}`);
 
             await github.rest.actions.createWorkflowDispatch({
               owner: context.repo.owner,
@@ -588,7 +673,7 @@ jobs:
                 series: series,
                 vsrelease: vsrelease.toString(),
                 vstemplate: 'false',
-                goproduct: 'false'
+                goproduct: goproduct.toString()
               }
             });
 

@@ -332,7 +332,7 @@
   "core.createProjectQuestion.projectType.copilotExtension.placeholder": "옵션 선택",
   "core.createProjectQuestion.projectType.customCopilot.detail": "오케스트레이션을 관리하고 고유의 LLM을 제공하는 지능형 에이전트 구축",
   "core.createProjectQuestion.projectType.customCopilot.label": "사용자 지정 엔진 에이전트",
-  "core.createProjectQuestion.projectType.copilotHelp.label": "시작하는 방법을 모르시겠습니까? GitHub Copilot 채팅 사용",
+  "core.createProjectQuestion.projectType.copilotHelp.label": "어떻게 시작해야 할지 모르겠다면 GitHub Copilot Chat을 사용해 보세요.",
   "core.createProjectQuestion.projectType.copilotHelp.detail": "GitHub Copilot과 채팅하고 앱 또는 Microsoft 365 Copilot 에이전트를 개발하기 위한 단계별 지침을 확인하세요.",
   "core.createProjectQuestion.projectType.copilotGroup.title": "GitHub Copilot 사용",
   "core.createProjectQuestion.projectType.createGroup.aiAgent": "Microsoft 365 Copilot용 에이전트",

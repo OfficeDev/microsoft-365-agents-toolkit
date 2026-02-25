@@ -170,7 +170,7 @@
       "agent": "assertion",
       "tool": "",
       "parameters": {},
-      "description": "@assertion text \"1995\" exist.",
+      "description": "@assertion text \"1985\" exist.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,

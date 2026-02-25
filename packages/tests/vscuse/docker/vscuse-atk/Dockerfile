@@ -17,6 +17,11 @@ RUN curl -fsSL https://packages.microsoft.com/config/ubuntu/22.04/packages-micro
     && dotnet --version \
     && dotnet --list-sdks
 
+# Install Azure CLI
+RUN curl -sL https://aka.ms/InstallAzureCLIDeb | bash \
+    && rm -rf /var/lib/apt/lists/* \
+    && az --version
+
 # Install Azure Functions Core Tools v4.4.0
 RUN npm install -g azure-functions-core-tools@4.4.0 --unsafe-perm true
 
@@ -47,18 +52,16 @@ RUN mkdir -p /opt/m365-template/devTools/func \
     && chmod +x /opt/m365-template/devTools/func/* 2>/dev/null || true \
     && chown -R vscode:vscode /opt/m365-template
 
-# Install Microsoft Edge (AMD64 only)
-RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,target=/var/lib/apt,sharing=locked \
-    ARCH=$(dpkg --print-architecture) && \
+# Install Microsoft Edge (AMD64 only, non-fatal if network issues)
+RUN ARCH=$(dpkg --print-architecture) && \
     if [ "$ARCH" = "amd64" ]; then \
         echo "Installing Microsoft Edge for AMD64..." && \
-        curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor -o /usr/share/keyrings/microsoft-edge-keyring.gpg && \
+        curl -fsSL --retry 3 --retry-delay 5 --retry-connrefused https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor -o /usr/share/keyrings/microsoft-edge-keyring.gpg && \
         echo "deb [arch=amd64 signed-by=/usr/share/keyrings/microsoft-edge-keyring.gpg] https://packages.microsoft.com/repos/edge stable main" > /etc/apt/sources.list.d/microsoft-edge.list && \
         apt-get update && \
         apt-get install -y microsoft-edge-stable && \
         rm -rf /var/lib/apt/lists/* && \
-        microsoft-edge-stable --version; \
+        microsoft-edge-stable --version || echo "WARNING: Microsoft Edge installation failed, continuing without it"; \
     else \
         echo "Microsoft Edge is not officially supported on ARM64, skipping..."; \
     fi
@@ -141,13 +144,21 @@ RUN mkdir -p /etc/opt/microsoft/edge/policies/managed && \
     }' > /etc/opt/microsoft/edge/policies/managed/disable_features.json && \
     chmod 644 /etc/opt/microsoft/edge/policies/managed/disable_features.json
 
+# Copy additional files for easy access
+COPY addtional-files/ /home/vscode/addtional-files/
+RUN chown -R vscode:vscode /home/vscode/addtional-files
+
 # Install ATK-specific VS Code extensions
 RUN mkdir -p /app/build-extensions
 COPY build-extensions/ /app/build-extensions/
-RUN /usr/local/bin/install-build-extensions.sh && \
-    mkdir -p /home/vscode/.vscode/extensions /home/vscode/.vscode-insiders/extensions && \
-    cp -r /root/.vscode/extensions/* /home/vscode/.vscode/extensions/ 2>/dev/null || true && \
-    cp -r /root/.vscode-insiders/extensions/* /home/vscode/.vscode-insiders/extensions/ 2>/dev/null || true && \
+RUN mkdir -p /home/vscode/.vscode/extensions /home/vscode/.vscode-insiders/extensions && \
+    if [ -x /usr/local/bin/install-build-extensions.sh ]; then \
+        /usr/local/bin/install-build-extensions.sh && \
+        cp -r /root/.vscode/extensions/* /home/vscode/.vscode/extensions/ 2>/dev/null || true && \
+        cp -r /root/.vscode-insiders/extensions/* /home/vscode/.vscode-insiders/extensions/ 2>/dev/null || true; \
+    else \
+        echo "install-build-extensions.sh not found, skipping extension pre-install"; \
+    fi && \
     chown -R vscode:vscode /home/vscode/.vscode /home/vscode/.vscode-insiders
 
 LABEL org.opencontainers.image.description="VscUse ATK Profile - Microsoft 365 Agent Toolkit"

@@ -10,14 +10,14 @@
       "step_retry_timeout": 0
     },
     "total_steps": 3,
-    "created_at": "2026-02-02T04:52:31.817070",
+    "created_at": "2026-02-12T01:49:27.152239",
     "name": "group: validation_contoso",
     "description": {
       "other": "Generated from recording r_1023_013114",
       "owner": "v-ivanchen@microsoft.com",
       "workitem": ""
     },
-    "generated_at": "2026-02-02T04:52:31.817070",
+    "generated_at": "2026-02-12T01:49:27.152239",
     "execution_order": [
       "step_4dd7a1fb",
       "step_d00ce375",
@@ -26,7 +26,7 @@
     "tags": [
       "group"
     ],
-    "updated_at": "2026-02-02T05:06:40.936975"
+    "updated_at": "2026-02-12T07:08:33.216366"
   },
   "steps": [
     {
@@ -52,7 +52,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_4dd7a1fb",
-      "created_at": "2026-02-02T04:52:31.826024",
+      "created_at": "2026-02-12T01:49:27.157319",
       "plan_id": "plan_r_1023_013114"
     },
     {
@@ -74,7 +74,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_d00ce375",
-      "created_at": "2026-02-02T04:52:31.836578",
+      "created_at": "2026-02-12T01:49:27.157319",
       "plan_id": "plan_r_1023_013114"
     },
     {
@@ -82,7 +82,7 @@
       "agent": "assertion",
       "tool": "",
       "parameters": {},
-      "description": "@assertion there's contoso electronics plan intro exist.",
+      "description": "@assertion there's \"Northwind Health Plus\" exist.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -91,10 +91,10 @@
       "preconditions": [],
       "postconditions": [],
       "tags": [
-        "step_retry_timeout: 30"
+        "step_retry_timeout: 60"
       ],
       "screenshot": null,
-      "created_at": "2026-02-02T04:52:31.836578",
+      "created_at": "2026-02-12T01:49:27.157319",
       "plan_id": "plan_r_1023_013114"
     }
   ],

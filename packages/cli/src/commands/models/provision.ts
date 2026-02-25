@@ -1,11 +1,26 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
-import { CLICommand, CLIContext, InputsWithProjectPath } from "@microsoft/teamsfx-api";
+import {
+  CLICommand,
+  CLICommandOption,
+  CLIContext,
+  InputsWithProjectPath,
+} from "@microsoft/teamsfx-api";
 import { QuestionNames, newResourceGroupOption } from "@microsoft/teamsfx-core";
 import { getFxCore } from "../../activate";
 import { commands } from "../../resource";
 import { TelemetryEvent } from "../../telemetry/cliTelemetryEvents";
 import { EnvOption, IgnoreLoadEnvOption, ProjectFolderOption } from "../common";
+
+const subscriptionOption: CLICommandOption = {
+  name: "subscriptionId",
+  questionName: "targetSubscriptionId",
+  shortName: "sub",
+  description: "Azure Subscription ID.",
+  type: "string",
+  required: false,
+  default: "",
+};
 
 export const provisionCommand: CLICommand = {
   name: "provision",

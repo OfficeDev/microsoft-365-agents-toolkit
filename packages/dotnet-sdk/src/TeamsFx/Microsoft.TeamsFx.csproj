@@ -31,11 +31,8 @@
     <PackageReference Include="Microsoft.Agents.Extensions.Teams" Version="1.*" />
     <PackageReference Include="Microsoft.Agents.Hosting.AspNetCore" Version="1.*" />
     <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="8.0.14" />
-    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="10.0.2" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.2" />
-    <PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" Version="10.0.2" />
+    <PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" Version="9.0.1" />
     <PackageReference Include="Microsoft.Graph" Version="5.74.0" />
-    <PackageReference Include="Microsoft.Identity.Client" Version="4.78.0" />
     <PackageReference Include="Microsoft.VisualStudioEng.MicroBuild.Core" Version="1.0.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

@@ -638,7 +638,7 @@ class CLIUserInteraction implements UserInteraction {
   }): Promise<Result<string, FxError>> {
     return new Promise<Result<string, FxError>>((resolve) => {
       const isWindows = process.platform === "win32";
-      const command = isWindows ? "cmd.exe" : "/bin/bash";
+      const command = args.shell ? args.shell : isWindows ? "cmd.exe" : "/bin/bash";
       const commandArgs = isWindows ? ["/c", args.cmd] : ["-c", args.cmd];
       logger.info(`Executing task: ${args.cmd}`);
       let output = "";

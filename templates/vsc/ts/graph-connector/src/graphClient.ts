@@ -10,7 +10,9 @@ const delayInterval = 60_000; // 60 seconds
  * @returns A new instance of the Microsoft Graph client.
  */
 export function getClient(): Client {
-  const credential = new DefaultAzureCredential();
+  const credential = new DefaultAzureCredential({
+    requiredEnvVars: ["AZURE_TOKEN_CREDENTIALS"],
+  });
 
   const authProvider = new TokenCredentialAuthenticationProvider(credential, {
     scopes: ["https://graph.microsoft.com/.default"],

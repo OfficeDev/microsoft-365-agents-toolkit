@@ -332,7 +332,7 @@
   "core.createProjectQuestion.projectType.copilotExtension.placeholder": "Wybierz opcję",
   "core.createProjectQuestion.projectType.customCopilot.detail": "Utwórz inteligentnego agenta, w którym zarządzasz orkiestracją i dostarczasz własny duży model językowy",
   "core.createProjectQuestion.projectType.customCopilot.label": "Agent aparatu niestandardowego",
-  "core.createProjectQuestion.projectType.copilotHelp.label": "Nie wiesz, jak rozpocząć? Użyj czatu GitHub Copilot",
+  "core.createProjectQuestion.projectType.copilotHelp.label": "Nie wiesz, jak rozpocząć? Użyj funkcji GitHub Copilot Chat",
   "core.createProjectQuestion.projectType.copilotHelp.detail": "Czatuj z narzędziem GitHub Copilot i uzyskaj szczegółowe instrukcje dotyczące tworzenia aplikacji lub agenta funkcji Microsoft 365 Copilot.",
   "core.createProjectQuestion.projectType.copilotGroup.title": "Użyj GitHub Copilot",
   "core.createProjectQuestion.projectType.createGroup.aiAgent": "Agenci dla funkcji Microsoft 365 Copilot",

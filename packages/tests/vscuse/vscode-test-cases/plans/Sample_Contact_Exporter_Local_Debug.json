@@ -10,14 +10,14 @@
       "step_retry_timeout": 0.0
     },
     "total_steps": 18,
-    "created_at": "2025-12-15T08:55:58.647340",
+    "created_at": "2026-02-14T10:53:33.138383",
     "name": "Sample Contact Exporter Local Debug",
     "description": {
       "other": "",
       "owner": "v-annefu@microsoft.com",
       "workitem": "12599484"
     },
-    "generated_at": "2025-12-15T08:55:58.647340",
+    "generated_at": "2026-02-14T10:53:33.138383",
     "execution_order": [
       "plan_r_1107_015711",
       "step_5509ffed",
@@ -44,7 +44,7 @@
       "step_b2866d02"
     ],
     "tags": [],
-    "updated_at": "2025-12-16T06:24:51.270484"
+    "updated_at": "2026-02-14T10:53:57.626591"
   },
   "steps": [
     {
@@ -66,7 +66,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_5509ffed",
-      "created_at": "2025-12-16T06:24:38.452351",
+      "created_at": "2026-02-14T10:53:33.143898",
       "plan_id": "plan_0082ff36"
     },
     {
@@ -92,7 +92,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_a338c002",
-      "created_at": "2025-12-16T06:24:38.469918",
+      "created_at": "2026-02-14T10:53:33.150493",
       "plan_id": "plan_0082ff36"
     },
     {
@@ -118,7 +118,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_d0107683",
-      "created_at": "2025-12-16T06:24:38.481008",
+      "created_at": "2026-02-14T10:53:33.156565",
       "plan_id": "plan_0082ff36"
     },
     {
@@ -140,7 +140,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_d6cbf6ce",
-      "created_at": "2025-12-16T06:24:38.495770",
+      "created_at": "2026-02-14T10:53:33.161566",
       "plan_id": "plan_0082ff36"
     },
     {
@@ -162,7 +162,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_c45aff22",
-      "created_at": "2025-12-16T06:24:38.507999",
+      "created_at": "2026-02-14T10:53:33.164565",
       "plan_id": "plan_0082ff36"
     },
     {
@@ -188,7 +188,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_343655e6",
-      "created_at": "2025-12-16T06:24:38.520864",
+      "created_at": "2026-02-14T10:53:33.172381",
       "plan_id": "plan_0082ff36"
     },
     {
@@ -214,7 +214,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_7da276bb",
-      "created_at": "2025-12-16T06:24:38.537357",
+      "created_at": "2026-02-14T10:53:33.176439",
       "plan_id": "plan_0082ff36"
     },
     {
@@ -240,7 +240,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_579172e5",
-      "created_at": "2025-12-16T06:24:38.552765",
+      "created_at": "2026-02-14T10:53:33.180497",
       "plan_id": "plan_0082ff36"
     },
     {
@@ -266,7 +266,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_21ec7a6b",
-      "created_at": "2025-12-16T06:24:38.565915",
+      "created_at": "2026-02-14T10:53:33.184495",
       "plan_id": "plan_0082ff36"
     },
     {
@@ -292,7 +292,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_80b6b30d",
-      "created_at": "2025-12-16T06:24:38.582367",
+      "created_at": "2026-02-14T10:53:33.188024",
       "plan_id": "plan_0082ff36"
     },
     {
@@ -318,7 +318,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_816b8eb2",
-      "created_at": "2025-12-16T06:24:38.595618",
+      "created_at": "2026-02-14T10:53:33.192537",
       "plan_id": "plan_0082ff36"
     },
     {
@@ -344,7 +344,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_684b82b4",
-      "created_at": "2025-12-16T06:24:38.608890",
+      "created_at": "2026-02-14T10:53:33.196522",
       "plan_id": "plan_0082ff36"
     },
     {
@@ -370,7 +370,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_e42f726d",
-      "created_at": "2025-12-16T06:24:38.622694",
+      "created_at": "2026-02-14T10:53:33.200769",
       "plan_id": "plan_0082ff36"
     },
     {
@@ -396,7 +396,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_f016206c",
-      "created_at": "2025-12-16T06:24:38.636840",
+      "created_at": "2026-02-14T10:53:33.206771",
       "plan_id": "plan_0082ff36"
     },
     {
@@ -418,7 +418,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_a0dbbf12",
-      "created_at": "2025-12-16T06:24:38.647398",
+      "created_at": "2026-02-14T10:53:33.210948",
       "plan_id": "plan_0082ff36"
     },
     {
@@ -440,7 +440,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_307674b7",
-      "created_at": "2025-12-16T06:24:38.659100",
+      "created_at": "2026-02-14T10:53:33.215948",
       "plan_id": "plan_0082ff36"
     },
     {
@@ -466,7 +466,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_832d7854",
-      "created_at": "2025-12-16T06:24:38.673781",
+      "created_at": "2026-02-14T10:53:33.220993",
       "plan_id": "plan_0082ff36"
     },
     {
@@ -474,7 +474,7 @@
       "agent": "assertion",
       "tool": "",
       "parameters": {},
-      "description": "@assertion  There's \"Long Hao\"  exist.",
+      "description": "@assertion  There's \"testAdmin\"  exist.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -484,7 +484,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": null,
-      "created_at": "2025-12-16T06:24:38.688290",
+      "created_at": "2026-02-14T10:53:33.224992",
       "plan_id": "plan_0082ff36"
     }
   ],

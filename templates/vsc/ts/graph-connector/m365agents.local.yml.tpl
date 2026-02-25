@@ -35,6 +35,7 @@ provision:
           AzureWebJobsStorage: UseDevelopmentStorage=true
           AzureWebJobsFeatureFlags: EnableWorkerIndexing
           TEAMSFX_ENV: ${{TEAMSFX_ENV}}
+          AZURE_TOKEN_CREDENTIALS: ${{AZURE_TOKEN_CREDENTIALS}}
           AZURE_CLIENT_ID: ${{AAD_APP_CLIENT_ID}}
           AZURE_CLIENT_SECRET: ${{SECRET_AAD_APP_CLIENT_SECRET}}
           AZURE_TENANT_ID: ${{AAD_APP_TENANT_ID}}
