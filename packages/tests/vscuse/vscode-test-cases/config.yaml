@@ -44,7 +44,9 @@ docker:
     # ms tenant account
     MS_AZURE_ACCOUNT_NAME: "${MS_AZURE_ACCOUNT_NAME}"
     MS_AZURE_ACCOUNT_PASSWORD: "${MS_AZURE_ACCOUNT_PASSWORD}"
-
+    # Test AAD App info
+    TEST_AAD_APP_ID: "${TEST_AAD_APP_ID}"
+    TEST_AAD_APP_PASSWORD: "${TEST_AAD_APP_PASSWORD}"
 execution:
   delay_between_steps: 0.5         # Default: 0.5 (seconds between steps)
   stop_on_error: true              # Default: true (stop execution on first error)
