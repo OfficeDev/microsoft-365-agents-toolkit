@@ -22,6 +22,7 @@ const adminMicrosoftEntraAppName = [
   "delete-client",
   "ATK Test SP",
   "TravelAgent-AADlocal",
+  "Test SP",
 ];
 const excludePrefix: string = getAppNamePrefix();
 
