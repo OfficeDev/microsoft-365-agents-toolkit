@@ -24,4 +24,5 @@ TEAMSFX_M365_USER_NAME=
 
 BOT_ENDPOINT=
 BOT_DOMAIN=
-SSO_APP_ID=
+# Placeholder, will be replaced to real ID after first provision
+SSO_APP_ID=00000000-0000-0000-0000-000000000000
