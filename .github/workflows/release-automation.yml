@@ -44,6 +44,10 @@ on:
         default: true
   schedule:
     - cron: "0 21 * * *" # Run daily at 05:00 (UTC+8) => 21:00 UTC
+  pull_request:
+    types: [closed]
+    branches:
+      - "release/**"
 
 permissions:
   contents: read
@@ -51,6 +55,7 @@ permissions:
 jobs:
   parse-schedule:
     runs-on: ubuntu-latest
+    if: ${{ github.event_name != 'pull_request' }}
     outputs:
       releases: ${{ steps.parse.outputs.releases }}
       releases_count: ${{ steps.parse.outputs.releases_count }}
@@ -117,6 +122,7 @@ jobs:
   select-release:
     needs: parse-schedule
     runs-on: ubuntu-latest
+    if: ${{ github.event_name != 'pull_request' }}
     outputs:
       found: ${{ steps.select.outputs.found }}
       reason: ${{ steps.select.outputs.reason }}
@@ -206,7 +212,7 @@ jobs:
   review-releases:
     needs: parse-schedule
     runs-on: ubuntu-latest
-    if: ${{ needs.parse-schedule.outputs.releases_count > 0 }}
+    if: ${{ github.event_name != 'pull_request' && needs.parse-schedule.outputs.releases_count > 0 }}
     steps:
       - name: Download releases configuration
         uses: actions/download-artifact@v4
@@ -228,7 +234,7 @@ jobs:
       - parse-schedule
       - select-release
     runs-on: ubuntu-latest
-    if: ${{ needs.select-release.outputs.found == 'true' }}
+    if: ${{ github.event_name != 'pull_request' && needs.select-release.outputs.found == 'true' }}
     env:
       APP_GITHUB_APP_ID: ${{ vars.APP_GITHUB_APP_ID }}
       APP_GITHUB_APP_PRIVATE_KEY: ${{ secrets.APP_GITHUB_APP_PRIVATE_KEY }}
@@ -246,6 +252,8 @@ jobs:
       pr_needed: ${{ steps.sync_pr.outputs.pr_needed }}
       pr_url: ${{ steps.sync_pr.outputs.pr_url }}
       pr_number: ${{ steps.sync_pr.outputs.pr_number }}
+      branch_created: ${{ steps.create_branch.outputs.created }}
+      auto_cd: ${{ steps.decide_auto_cd.outputs.auto_cd }}
     steps:
       - id: generate-token
         if: ${{ env.APP_GITHUB_APP_ID != '' && env.APP_GITHUB_APP_PRIVATE_KEY != '' }}
@@ -333,11 +341,21 @@ jobs:
           script: |
             const product = '${{ steps.config.outputs.product }}';
             const version = '${{ steps.config.outputs.version }}';
+            const releaseType = '${{ steps.config.outputs.release_type }}';
             const base = '${{ steps.config.outputs.branch }}';
             const head = 'dev';
+            const preid = '${{ steps.config.outputs.preid }}';
+            const series = '${{ steps.config.outputs.series }}';
+            const vsrelease = '${{ steps.config.outputs.vsrelease }}' === 'true';
+            const goproduct = '${{ env.GO_PRODUCT }}' === 'true';
+
+            const workflowRunUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            const markerPayload = { product, version, releaseType, branch: base, preid, series, vsrelease, goproduct };
+            const marker = `<!-- release-automation-cd-params: ${JSON.stringify(markerPayload)} -->`;
 
             const owner = context.repo.owner;
             const repo = context.repo.repo;
+            const label = 'release-automation-sync';
 
             // Check if dev has new commits not in the release branch
             const compare = await github.rest.repos.compareCommits({ owner, repo, base, head });
@@ -364,6 +382,33 @@ jobs:
             if (existing.data.length > 0) {
               const pr = existing.data[0];
               core.notice(`Sync PR already exists: ${pr.html_url}`);
+
+              // Ensure marker + label exist for merge-trigger workflow
+              const currentBody = pr.body || '';
+              const markerRegex = /<!--\s*release-automation-cd-params:[\s\S]*?-->/;
+              let updatedBody = currentBody;
+
+              if (markerRegex.test(currentBody)) {
+                updatedBody = currentBody.replace(markerRegex, marker);
+              } else {
+                updatedBody = [
+                  currentBody,
+                  '',
+                  `Release Automation Run: ${workflowRunUrl}`,
+                  marker,
+                ].join('\n');
+              }
+
+              if (updatedBody !== currentBody) {
+                await github.rest.pulls.update({ owner, repo, pull_number: pr.number, body: updatedBody });
+              }
+
+              try {
+                await github.rest.issues.addLabels({ owner, repo, issue_number: pr.number, labels: [label] });
+              } catch (e) {
+                core.notice(`Unable to add label '${label}' (may already exist): ${e.message}`);
+              }
+
               core.setOutput('pr_needed', 'true');
               core.setOutput('pr_url', pr.html_url);
               core.setOutput('pr_number', String(pr.number));
@@ -375,16 +420,27 @@ jobs:
               'This PR is created by Release Automation to sync latest changes from `dev` into the release branch.',
               '',
               `- Product: ${product}`,
+              `- Release Type: ${releaseType}`,
               `- Version: ${version}`,
               `- Base (target): \`${base}\``,
               `- Head (source): \`${head}\``,
               `- Commits ahead: ${aheadBy}`,
+              '',
+              `Release Automation Run: ${workflowRunUrl}`,
+              marker,
               '',
               'After merging, approve the Release Automation run to trigger CD.'
             ].join('\n');
 
             const created = await github.rest.pulls.create({ owner, repo, title, head, base, body });
             core.notice(`Created sync PR: ${created.data.html_url}`);
+
+            try {
+              await github.rest.issues.addLabels({ owner, repo, issue_number: created.data.number, labels: [label] });
+            } catch (e) {
+              core.notice(`Unable to add label '${label}': ${e.message}`);
+            }
+
             core.setOutput('pr_needed', 'true');
             core.setOutput('pr_url', created.data.html_url);
             core.setOutput('pr_number', String(created.data.number));
@@ -460,6 +516,32 @@ jobs:
           
           echo "✅ Branch $BRANCH created successfully"
           echo "created=true" >> $GITHUB_OUTPUT
+
+      - name: Decide auto-CD for first prerelease branch
+        id: decide_auto_cd
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          BRANCH="${{ steps.config.outputs.branch }}"
+          VERSION="${{ steps.config.outputs.version }}"
+          BRANCH_CREATED="${{ steps.create_branch.outputs.created }}"
+
+          AUTO_CD=false
+
+          # Only auto-trigger CD when we just created a brand-new prerelease release branch
+          # and the branch is release/6.<odd> (e.g., release/6.3, release/6.5).
+          if [ "$BRANCH_CREATED" = "true" ]; then
+            if [[ "$BRANCH" =~ ^release/6\.([0-9]+)$ ]]; then
+              MINOR="${BASH_REMATCH[1]}"
+              if (( MINOR % 2 == 1 )); then
+                AUTO_CD=true
+              fi
+            fi
+          fi
+
+          echo "auto_cd=$AUTO_CD" >> "$GITHUB_OUTPUT"
+          echo "Auto CD decision: branch=$BRANCH, version=$VERSION, branch_created=$BRANCH_CREATED, auto_cd=$AUTO_CD" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Validate branch exists for rerun mode
         if: ${{ env.RERUN_CD_ONLY == 'true' && steps.check_branch.outputs.exists != 'true' }}
@@ -593,14 +675,19 @@ jobs:
   trigger-cd:
     needs: prepare-release
     runs-on: ubuntu-latest
-    if: ${{ needs.prepare-release.result == 'success' && (github.event_name != 'workflow_dispatch' || github.event.inputs.dry_run == 'false') }}
-    environment: auto-release
+    if: ${{ github.event_name != 'pull_request' && needs.prepare-release.result == 'success' && env.DRY_RUN == 'false' && ((github.event_name == 'workflow_dispatch' && env.RERUN_CD_ONLY == 'true') || (github.event_name == 'schedule' && needs.prepare-release.outputs.auto_cd == 'true')) }}
+    outputs:
+      product: ${{ needs.prepare-release.outputs.product }}
+      release_type: ${{ needs.prepare-release.outputs.release_type }}
+      version: ${{ needs.prepare-release.outputs.version }}
+      branch: ${{ needs.prepare-release.outputs.branch }}
+      preid: ${{ needs.prepare-release.outputs.preid }}
+      series: ${{ needs.prepare-release.outputs.series }}
+      vsrelease: ${{ needs.prepare-release.outputs.vsrelease }}
+      goproduct: ${{ env.GO_PRODUCT }}
     env:
       APP_GITHUB_APP_ID: ${{ vars.APP_GITHUB_APP_ID }}
       APP_GITHUB_APP_PRIVATE_KEY: ${{ secrets.APP_GITHUB_APP_PRIVATE_KEY }}
-      MAIL_CLIENT_ID: ${{ secrets.MAIL_CLIENT_ID }}
-      MAIL_CLIENT_SECRET: ${{ secrets.MAIL_CLIENT_SECRET }}
-      MAIL_TENANT_ID: ${{ secrets.MAIL_TENANT_ID }}
     steps:
       - id: generate-token
         if: ${{ env.APP_GITHUB_APP_ID != '' && env.APP_GITHUB_APP_PRIVATE_KEY != '' }}
@@ -608,42 +695,6 @@ jobs:
         with:
           app-id: ${{ env.APP_GITHUB_APP_ID }}
           private-key: ${{ env.APP_GITHUB_APP_PRIVATE_KEY }}
-
-      - name: Verify sync PR merged (if required)
-        if: ${{ needs.prepare-release.outputs.pr_needed == 'true' && env.RERUN_CD_ONLY == 'false' }}
-        uses: actions/github-script@v7
-        with:
-          github-token: ${{ secrets.RELEASE_AUTOMATION_TOKEN || github.token }}
-          script: |
-            const prNumberRaw = '${{ needs.prepare-release.outputs.pr_number }}';
-            if (!prNumberRaw) {
-              core.setFailed('Sync PR was required but PR number is missing.');
-              return;
-            }
-
-            const owner = context.repo.owner;
-            const repo = context.repo.repo;
-            const prNumber = Number(prNumberRaw);
-            const prUrl = '${{ needs.prepare-release.outputs.pr_url }}';
-
-            const pr = await github.rest.pulls.get({ owner, repo, pull_number: prNumber });
-            const merged = Boolean(pr.data.merged_at);
-
-            if (!merged) {
-              core.summary
-                .addHeading('⏸️ Waiting for PR Merge', 2)
-                .addRaw(`\nA sync PR must be merged before triggering CD.\n`)
-                .addRaw(`\nPR: ${prUrl || pr.data.html_url}\n`)
-                .addRaw(`\nMerge the PR first, then approve the environment gate to continue.\n`)
-                .write();
-              core.setFailed('Sync PR is not merged yet.');
-              return;
-            }
-
-            core.summary
-              .addHeading('✅ Sync PR Merged', 2)
-              .addRaw(`\nPR merged: ${prUrl || pr.data.html_url}\n`)
-              .write();
 
       - name: Trigger CD workflow
         uses: actions/github-script@v7
@@ -684,36 +735,198 @@ jobs:
               .addRaw(`View workflow runs: [Actions](../../actions/workflows/cd.yml)\n`)
               .write();
 
+  trigger-cd-on-pr-merge:
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true && github.event.pull_request.head.ref == 'dev' && startsWith(github.event.pull_request.base.ref, 'release/') && contains(github.event.pull_request.labels.*.name, 'release-automation-sync') }}
+    outputs:
+      product: ${{ steps.trigger.outputs.product }}
+      release_type: ${{ steps.trigger.outputs.release_type }}
+      version: ${{ steps.trigger.outputs.version }}
+      branch: ${{ steps.trigger.outputs.branch }}
+      preid: ${{ steps.trigger.outputs.preid }}
+      series: ${{ steps.trigger.outputs.series }}
+      vsrelease: ${{ steps.trigger.outputs.vsrelease }}
+      goproduct: ${{ steps.trigger.outputs.goproduct }}
+    steps:
+      - id: generate-token
+        if: ${{ vars.APP_GITHUB_APP_ID != '' && secrets.APP_GITHUB_APP_PRIVATE_KEY != '' }}
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ vars.APP_GITHUB_APP_ID }}
+          private-key: ${{ secrets.APP_GITHUB_APP_PRIVATE_KEY }}
+
+      - name: Trigger CD on automation sync PR merge
+        id: trigger
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ steps.generate-token.outputs.token || secrets.RELEASE_AUTOMATION_TOKEN || github.token }}
+          script: |
+            const pr = context.payload.pull_request;
+            const base = pr.base?.ref;
+            const head = pr.head?.ref;
+            const labels = (pr.labels || []).map(l => l.name);
+            const body = pr.body || '';
+
+            if (head !== 'dev') {
+              core.notice(`Skip: head branch is '${head}', expected 'dev'.`);
+              return;
+            }
+
+            if (!base || !base.startsWith('release/')) {
+              core.notice(`Skip: base branch '${base}' is not a release/* branch.`);
+              return;
+            }
+
+            const hasLabel = labels.includes('release-automation-sync');
+            const markerMatch = body.match(/<!--\s*release-automation-cd-params:\s*(\{[\s\S]*?\})\s*-->/);
+
+            if (!hasLabel && !markerMatch) {
+              core.notice('Skip: PR is not identified as Release Automation sync PR (missing label/marker).');
+              return;
+            }
+
+            if (!markerMatch) {
+              core.setFailed('Release Automation marker is missing; cannot determine CD parameters.');
+              return;
+            }
+
+            let params;
+            try {
+              params = JSON.parse(markerMatch[1]);
+            } catch (e) {
+              core.setFailed(`Failed to parse CD params marker JSON: ${e.message}`);
+              return;
+            }
+
+            const product = String(params.product || '');
+            const version = String(params.version || '');
+            const releaseType = String(params.releaseType || params.release_type || '');
+            const preid = String(params.preid || '');
+            const series = String(params.series || '');
+            const vsrelease = Boolean(params.vsrelease);
+            const goproduct = Boolean(params.goproduct);
+
+            if (!preid) {
+              core.setFailed('CD param preid is missing in marker.');
+              return;
+            }
+
+            core.summary
+              .addHeading('🚀 Trigger CD on PR merge', 2)
+              .addRaw(`\nPR: ${pr.html_url}\n`)
+              .addRaw(`\nBranch: \`${base}\`\n`)
+              .addRaw(`\nProduct: \`${product}\`\n`)
+              .addRaw(`\nRelease Type: \`${releaseType}\`\n`)
+              .addRaw(`\nVersion: \`${version}\`\n`)
+              .addRaw(`\npreid: \`${preid}\`\n`)
+              .addRaw(`\nseries: \`${series}\`\n`)
+              .addRaw(`\nvsrelease: \`${vsrelease}\`\n`)
+              .addRaw(`\ngoproduct: \`${goproduct}\`\n`)
+              .write();
+
+            await github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'cd.yml',
+              ref: base,
+              inputs: {
+                preid,
+                series,
+                vsrelease: vsrelease.toString(),
+                vstemplate: 'false',
+                goproduct: goproduct.toString(),
+              },
+            });
+
+            core.setOutput('product', product);
+            core.setOutput('release_type', releaseType);
+            core.setOutput('version', version);
+            core.setOutput('branch', base);
+            core.setOutput('preid', preid);
+            core.setOutput('series', series);
+            core.setOutput('vsrelease', vsrelease.toString());
+            core.setOutput('goproduct', goproduct.toString());
+
+  notify-cd-and-completion:
+    runs-on: ubuntu-latest
+    needs:
+      - trigger-cd
+      - trigger-cd-on-pr-merge
+    if: ${{ always() && (needs.trigger-cd.result == 'success' || needs.trigger-cd-on-pr-merge.result == 'success') }}
+    env:
+      MAIL_CLIENT_ID: ${{ secrets.MAIL_CLIENT_ID }}
+      MAIL_CLIENT_SECRET: ${{ secrets.MAIL_CLIENT_SECRET }}
+      MAIL_TENANT_ID: ${{ secrets.MAIL_TENANT_ID }}
+    steps:
+      - name: Compose notification payload
+        id: payload
+        shell: bash
+        env:
+          PRODUCT: ${{ (needs.trigger-cd.result == 'success' && needs.trigger-cd.outputs.product) || needs.trigger-cd-on-pr-merge.outputs.product }}
+          RELEASE_TYPE: ${{ (needs.trigger-cd.result == 'success' && needs.trigger-cd.outputs.release_type) || needs.trigger-cd-on-pr-merge.outputs.release_type }}
+          VERSION: ${{ (needs.trigger-cd.result == 'success' && needs.trigger-cd.outputs.version) || needs.trigger-cd-on-pr-merge.outputs.version }}
+          BRANCH: ${{ (needs.trigger-cd.result == 'success' && needs.trigger-cd.outputs.branch) || needs.trigger-cd-on-pr-merge.outputs.branch }}
+          PREID: ${{ (needs.trigger-cd.result == 'success' && needs.trigger-cd.outputs.preid) || needs.trigger-cd-on-pr-merge.outputs.preid }}
+          SERIES: ${{ (needs.trigger-cd.result == 'success' && needs.trigger-cd.outputs.series) || needs.trigger-cd-on-pr-merge.outputs.series }}
+          VSRELEASE: ${{ (needs.trigger-cd.result == 'success' && needs.trigger-cd.outputs.vsrelease) || needs.trigger-cd-on-pr-merge.outputs.vsrelease }}
+          GOPRODUCT: ${{ (needs.trigger-cd.result == 'success' && needs.trigger-cd.outputs.goproduct) || needs.trigger-cd-on-pr-merge.outputs.goproduct }}
+        run: |
+          set -euo pipefail
+
+          WORKFLOW_URL="${{ github.server_url }}/${{ github.repository }}/actions/workflows/cd.yml"
+          RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+
+          SUBJECT="ATK Release Automation Notification: ${PRODUCT} ${VERSION} CD Triggered"
+          BODY=$(jq -c -n \
+            --arg product "$PRODUCT" \
+            --arg version "$VERSION" \
+            --arg branch "$BRANCH" \
+            --arg release_type "$RELEASE_TYPE" \
+            --arg preid "$PREID" \
+            --arg series "$SERIES" \
+            --arg vsrelease "$VSRELEASE" \
+            --arg goproduct "$GOPRODUCT" \
+            --arg workflow_url "$WORKFLOW_URL" \
+            --arg run_url "$RUN_URL" \
+            ' {
+              product: $product,
+              version: $version,
+              branch: $branch,
+              release_type: $release_type,
+              preid: $preid,
+              series: $series,
+              vsrelease: $vsrelease,
+              goproduct: $goproduct,
+              workflow_url: $workflow_url,
+              run_url: $run_url,
+              message: "The CD pipeline has been triggered. Please monitor the workflow progress."
+            } ')
+
+          echo "subject=$SUBJECT" >> "$GITHUB_OUTPUT"
+          echo "body=$BODY" >> "$GITHUB_OUTPUT"
+
       - name: Send email notification
-        if: ${{ success() && env.MAIL_CLIENT_ID != '' && env.MAIL_CLIENT_SECRET != '' && env.MAIL_TENANT_ID != '' }}
+        if: ${{ env.MAIL_CLIENT_ID != '' && env.MAIL_CLIENT_SECRET != '' && env.MAIL_TENANT_ID != '' }}
         env:
           MAIL_CLIENT_ID: ${{ env.MAIL_CLIENT_ID }}
           MAIL_CLIENT_SECRET: ${{ env.MAIL_CLIENT_SECRET }}
           MAIL_TENANT_ID: ${{ env.MAIL_TENANT_ID }}
           TO: ${{ vars.RELEASE_NOTIFICATION_EMAIL || 'M365AgentsToolkitEngineerTeam@microsoft.com' }}
-          SUBJECT: "ATK Release Automation Notification: ${{ needs.prepare-release.outputs.product }} ${{ needs.prepare-release.outputs.version }} CD Triggered"
-          BODY: |
-            {
-              "product": "${{ needs.prepare-release.outputs.product }}",
-              "version": "${{ needs.prepare-release.outputs.version }}",
-              "branch": "${{ needs.prepare-release.outputs.branch }}",
-              "release_type": "${{ needs.prepare-release.outputs.release_type }}",
-              "preid": "${{ needs.prepare-release.outputs.preid }}",
-              "series": "${{ needs.prepare-release.outputs.series }}",
-              "workflow_url": "${{ github.server_url }}/${{ github.repository }}/actions/workflows/cd.yml",
-              "run_url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}",
-              "message": "The CD pipeline has been automatically triggered for release ${{ needs.prepare-release.outputs.product }} ${{ needs.prepare-release.outputs.version }} on branch ${{ needs.prepare-release.outputs.branch }}. Please monitor the workflow progress."
-            }
+          SUBJECT: ${{ steps.payload.outputs.subject }}
+          BODY: ${{ steps.payload.outputs.body }}
         uses: ./.github/actions/send-email-report
 
       - name: Post completion comment
-        if: ${{ success() }}
         uses: actions/github-script@v7
+        env:
+          PRODUCT: ${{ (needs.trigger-cd.result == 'success' && needs.trigger-cd.outputs.product) || needs.trigger-cd-on-pr-merge.outputs.product }}
+          VERSION: ${{ (needs.trigger-cd.result == 'success' && needs.trigger-cd.outputs.version) || needs.trigger-cd-on-pr-merge.outputs.version }}
+          BRANCH: ${{ (needs.trigger-cd.result == 'success' && needs.trigger-cd.outputs.branch) || needs.trigger-cd-on-pr-merge.outputs.branch }}
         with:
           script: |
-            const product = '${{ needs.prepare-release.outputs.product }}';
-            const version = '${{ needs.prepare-release.outputs.version }}';
-            const branch = '${{ needs.prepare-release.outputs.branch }}';
+            const product = process.env.PRODUCT || '';
+            const version = process.env.VERSION || '';
+            const branch = process.env.BRANCH || '';
 
             core.notice(`✅ Release automation completed for ${product} ${version} on branch ${branch}`);
-            core.notice(`ℹ️ Email notification is best-effort (may be skipped if mail secrets are missing).`);
+            core.notice('ℹ️ Email notification is best-effort (may be skipped if mail secrets are missing).');
