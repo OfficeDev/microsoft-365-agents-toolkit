@@ -238,14 +238,8 @@ jobs:
         run: |
           npm install -g @microsoft/m365agentstoolkit-cli@alpha
       
-      - name: build cli for workflow_dispatch
-        if: ${{  github.event_name == 'workflow_dispatch' && github.event.ref != 'refs/heads/dev' && github.event.inputs.cli-version == '' }}
-        run: |
-          pnpm --filter @microsoft/m365agentstoolkit-cli... build
-
       - name: link cli for workflow_dispatch
         if: ${{  github.event_name == 'workflow_dispatch' && github.event.ref != 'refs/heads/dev' && github.event.inputs.cli-version == '' }}
-        working-directory: packages/cli
         run: |
           pnpm link --global
 
