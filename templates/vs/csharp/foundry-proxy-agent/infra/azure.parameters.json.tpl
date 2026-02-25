@@ -22,15 +22,6 @@
       },
       "azureAIFoundryProjectEndpoint": {
         "value": "${{AZURE_AI_FOUNDRY_PROJECT_ENDPOINT}}"
-      },
-      "ssoAppId": {
-        "value": "${{SSO_APP_ID}}"
-      },
-      "ssoAppObjectId": {
-        "value": "${{SSO_APP_OBJECT_ID}}"
-      },
-      "ssoAppName": {
-        "value": "{{appName}}-${{RESOURCE_SUFFIX}}-${{APP_NAME_SUFFIX}}-UserAuth"
       }
     }
   }

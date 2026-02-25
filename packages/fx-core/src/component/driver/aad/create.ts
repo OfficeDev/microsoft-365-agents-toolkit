@@ -144,11 +144,6 @@ export class CreateAadAppDriver implements StepDriver {
         aadAppState.clientId = aadApp.appId!;
         aadAppState.objectId = aadApp.id!;
         AadSet.add(aadApp.appId!);
-
-        // Set uniqueName for Bicep Microsoft Graph extension compatibility
-        // uniqueName is required by Bicep to reference existing Microsoft.Graph/applications resources
-        await aadAppClient.setUniqueName(aadApp.id!, args.name);
-
         await this.setAadEndpointInfo(context.m365TokenProvider, aadAppState);
         outputs = mapStateToEnv(aadAppState, outputEnvVarNames, [OutputKeys.clientSecret]);
 

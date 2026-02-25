@@ -23,20 +23,13 @@ param location string = resourceGroup().location
 @description('Bot Service SKU')
 param botServiceSku string = 'F0'
 
-@description('Bot Service Name state ("none" = first time deployment)')
-param botServiceNameState string = 'none'
-
-@description('SSO App ID (from aadApp/create)')
-param ssoAppId string
-
-@description('SSO App Object ID (from aadApp/create)')
-param ssoAppObjectId string
-
-@description('SSO App Name')
-param ssoAppName string
+@description('SSO App ID')
+param ssoAppId string = '00000000-0000-0000-0000-000000000000'
 
 // Variables
-var isFirstTimeDeployment = botServiceNameState == 'none'
+var ssoAppName = '${botName}-UserAuth'  // Different name to avoid duplicate
+var nullGuid = '00000000-0000-0000-0000-000000000000'
+var isFirstTimeDeployment = ssoAppId == nullGuid
 
 // ========================================
 // GUID ENCODING: Encode Tenant ID Once (First-time only)
@@ -58,10 +51,10 @@ module guidEncoder 'modules/guid-encoder.bicep' = if (isFirstTimeDeployment) {
 module ssoAppRegistration 'modules/app-registration.bicep' = if (isFirstTimeDeployment) {
   name: 'deploy-sso-app-registration-local'
   params: {
+    aadAppName: ssoAppName
     botId: botId
     tenantId: tenantId
     encodedTenantId: guidEncoder!.outputs.encodedGuid
-    ssoAppName: ssoAppName
   }
 }
 
@@ -152,13 +145,30 @@ module botServicePrincipal 'modules/service-principal.bicep' = if (isFirstTimeDe
 }
 
 // ========================================
+// STEP 6: Create Service Principal for SSO App (First-time only)
+// ========================================
+// The SSO App is created by M365 Agents Toolkit with a client secret
+// We create its service principal after SSO app registration to avoid replication timing issues
+module SSOServicePrincipal 'modules/service-principal.bicep' = if (isFirstTimeDeployment) {
+  name: 'deploy-sso-service-principal-local'
+  params: {
+    appId: ssoAppRegistration.outputs.aadAppId
+  }
+
+}
+
+// ========================================
 // OUTPUTS
 // ========================================
-output BOT_SERVICE_NAME string = isFirstTimeDeployment ? botService.name : botServiceNameState
+output botServiceName string = isFirstTimeDeployment ? botService.name : botName
 output botEndpoint string = botEndpoint
 output botId string = botId
 output tenantId string = tenantId
 output SSO_APP_ID_URI string = 'api://botid-${botId}'
+
+// SSO App outputs
+output sso_App_Id string = isFirstTimeDeployment ? ssoAppRegistration!.outputs.aadAppId : ssoAppId
+
 
 // OAuth Connection names
 output oauthConnectionName string = 'SsoConnection'
