@@ -345,6 +345,7 @@ jobs:
           docker rm $(docker ps -aq --filter "ancestor=ghcr.io/officedev/vscuse-atk-vscode:${{ github.event.inputs.image_tag || 'latest' }}") 2>/dev/null || echo "No containers to remove"
 
   rerun:
+    continue-on-error: true
     permissions:
       actions: write
     needs: main
