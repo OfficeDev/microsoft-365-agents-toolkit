@@ -252,6 +252,8 @@ jobs:
       pr_needed: ${{ steps.sync_pr.outputs.pr_needed }}
       pr_url: ${{ steps.sync_pr.outputs.pr_url }}
       pr_number: ${{ steps.sync_pr.outputs.pr_number }}
+      branch_created: ${{ steps.create_branch.outputs.created }}
+      auto_cd: ${{ steps.decide_auto_cd.outputs.auto_cd }}
     steps:
       - id: generate-token
         if: ${{ env.APP_GITHUB_APP_ID != '' && env.APP_GITHUB_APP_PRIVATE_KEY != '' }}
@@ -515,6 +517,32 @@ jobs:
           echo "✅ Branch $BRANCH created successfully"
           echo "created=true" >> $GITHUB_OUTPUT
 
+      - name: Decide auto-CD for first prerelease branch
+        id: decide_auto_cd
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          BRANCH="${{ steps.config.outputs.branch }}"
+          VERSION="${{ steps.config.outputs.version }}"
+          BRANCH_CREATED="${{ steps.create_branch.outputs.created }}"
+
+          AUTO_CD=false
+
+          # Only auto-trigger CD when we just created a brand-new prerelease release branch
+          # and the branch is release/6.<odd> (e.g., release/6.3, release/6.5).
+          if [ "$BRANCH_CREATED" = "true" ]; then
+            if [[ "$BRANCH" =~ ^release/6\.([0-9]+)$ ]]; then
+              MINOR="${BASH_REMATCH[1]}"
+              if (( MINOR % 2 == 1 )); then
+                AUTO_CD=true
+              fi
+            fi
+          fi
+
+          echo "auto_cd=$AUTO_CD" >> "$GITHUB_OUTPUT"
+          echo "Auto CD decision: branch=$BRANCH, version=$VERSION, branch_created=$BRANCH_CREATED, auto_cd=$AUTO_CD" >> "$GITHUB_STEP_SUMMARY"
+
       - name: Validate branch exists for rerun mode
         if: ${{ env.RERUN_CD_ONLY == 'true' && steps.check_branch.outputs.exists != 'true' }}
         run: |
@@ -647,7 +675,7 @@ jobs:
   trigger-cd:
     needs: prepare-release
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'workflow_dispatch' && needs.prepare-release.result == 'success' && github.event.inputs.dry_run == 'false' && env.RERUN_CD_ONLY == 'true' }}
+    if: ${{ github.event_name != 'pull_request' && needs.prepare-release.result == 'success' && env.DRY_RUN == 'false' && ((github.event_name == 'workflow_dispatch' && env.RERUN_CD_ONLY == 'true') || (github.event_name == 'schedule' && needs.prepare-release.outputs.auto_cd == 'true')) }}
     outputs:
       product: ${{ needs.prepare-release.outputs.product }}
       release_type: ${{ needs.prepare-release.outputs.release_type }}
