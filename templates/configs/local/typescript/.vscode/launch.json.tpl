@@ -36,7 +36,7 @@
             "name": "Launch in Copilot (Edge)",
             "type": "msedge",
             "request": "launch",
-            "url": "https://m365.cloud.microsoft/chat/entity1-d870f6cd-4aa5-4d42-9626-ab690c041429/$\{{local:agent-hint}}?auth=2&${account-hint}&developerMode=Basic",
+            "url": "https://m365.cloud.microsoft/chat/entity1-d870f6cd-4aa5-4d42-9626-ab690c041429/$\{local:agent-hint}?auth=2&${account-hint}&developerMode=Basic",
             "cascadeTerminateToConfigurations": ["Attach to Local Service"],
             "presentation": {
                 "group": "all",
@@ -52,7 +52,7 @@
             "name": "Launch in Copilot (Chrome)",
             "type": "chrome",
             "request": "launch",
-            "url": "https://m365.cloud.microsoft/chat/entity1-d870f6cd-4aa5-4d42-9626-ab690c041429/$\{{local:agent-hint}}?auth=2&${account-hint}&developerMode=Basic",
+            "url": "https://m365.cloud.microsoft/chat/entity1-d870f6cd-4aa5-4d42-9626-ab690c041429/$\{local:agent-hint}?auth=2&${account-hint}&developerMode=Basic",
             "cascadeTerminateToConfigurations": ["Attach to Local Service"],
             "presentation": {
                 "group": "all",

@@ -70,6 +70,18 @@ resource webApp 'Microsoft.Web/sites@2021-02-01' = {
           name: 'BOT_ID'
           value: identity.properties.clientId
         }
+        {
+          name: 'CONNECTIONS__SERVICE_CONNECTION__SETTINGS__CLIENTID'
+          value: identity.properties.clientId
+        }
+        {
+          name: 'CONNECTIONS__SERVICE_CONNECTION__SETTINGS__AUTHTYPE'
+          value: 'UserManagedIdentity'
+        }
+        {
+          name: 'CONNECTIONS__SERVICE_CONNECTION__SETTINGS__TENANTID'
+          value: identity.properties.tenantId
+        }
         {{#useAzureOpenAI}}
         {
           name: 'AZURE_OPENAI_API_KEY'
@@ -128,3 +140,6 @@ output BOT_AZURE_APP_SERVICE_RESOURCE_ID string = webApp.id
 output BOT_DOMAIN string = webApp.properties.defaultHostName
 output BOT_ID string = identity.properties.clientId
 output BOT_TENANT_ID string = identity.properties.tenantId
+output CONNECTIONS__SERVICE_CONNECTION__SETTINGS__CLIENTID string = identity.properties.clientId
+output CONNECTIONS__SERVICE_CONNECTION__SETTINGS__AUTHTYPE string = 'UserManagedIdentity'
+output CONNECTIONS__SERVICE_CONNECTION__SETTINGS__TENANTID string = identity.properties.tenantId

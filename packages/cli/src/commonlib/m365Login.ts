@@ -101,7 +101,7 @@ export class M365Login extends BasicLogin implements M365TokenProvider {
     if (!M365Login.codeFlowInstance.account) {
       await M365Login.codeFlowInstance.reloadCache();
       if (M365Login.codeFlowInstance.account) {
-        const regionTokenRes = await M365Login.codeFlowInstance.getTokenByScopes(AuthSvcScopes);
+        const regionTokenRes = await M365Login.codeFlowInstance.getTokenByScopes(AuthSvcScopes());
         if (regionTokenRes.isOk()) {
           await teamsDevPortalClient.setRegionEndpointByToken(regionTokenRes.value);
         }
@@ -115,7 +115,7 @@ export class M365Login extends BasicLogin implements M365TokenProvider {
       tenantId
     );
     if (needLogin == true && M365Login.codeFlowInstance.account) {
-      const regionTokenRes = await M365Login.codeFlowInstance.getTokenByScopes(AuthSvcScopes);
+      const regionTokenRes = await M365Login.codeFlowInstance.getTokenByScopes(AuthSvcScopes());
       if (regionTokenRes.isOk()) {
         await teamsDevPortalClient.setRegionEndpointByToken(regionTokenRes.value);
       }

@@ -31,7 +31,7 @@ export class AppStudioValidator {
 
   public static async validatePublish(appId: string): Promise<void> {
     const appStudioTokenRes = await this.provider.getAccessToken({
-      scopes: AppStudioScopes,
+      scopes: AppStudioScopes(),
     });
     const appStudioToken = appStudioTokenRes.isOk()
       ? appStudioTokenRes.value
@@ -56,7 +56,7 @@ export class AppStudioValidator {
 
   public static async deleteApp(teamsAppId: string): Promise<void> {
     const appStudioTokenRes = await this.provider.getAccessToken({
-      scopes: AppStudioScopes,
+      scopes: AppStudioScopes(),
     });
     const appStudioToken = appStudioTokenRes.isOk()
       ? appStudioTokenRes.value
@@ -89,7 +89,7 @@ export class AppStudioValidator {
       return;
     }
     const appStudioTokenRes = await this.provider.getAccessToken({
-      scopes: AppStudioScopes,
+      scopes: AppStudioScopes(),
     });
     const appStudioToken = appStudioTokenRes.isOk()
       ? appStudioTokenRes.value
@@ -144,7 +144,7 @@ export class AppStudioValidator {
     teamsAppId: string
   ): Promise<boolean> {
     const appStudioTokenRes = await this.provider.getAccessToken({
-      scopes: AppStudioScopes,
+      scopes: AppStudioScopes(),
     });
     const appStudioToken = appStudioTokenRes.isOk()
       ? appStudioTokenRes.value
@@ -165,7 +165,7 @@ export class AppStudioValidator {
 
   public static async getApp(teamsAppId: string): Promise<JSON> {
     const appStudioTokenRes = await this.provider.getAccessToken({
-      scopes: AppStudioScopes,
+      scopes: AppStudioScopes(),
     });
     const appStudioToken = appStudioTokenRes.isOk()
       ? appStudioTokenRes.value

@@ -425,5 +425,12 @@
     "language": "csharp",
     "displayName": "Message Extension",
     "description": "Receive user input, process it, and send customized results"
+  },
+  {
+    "id": "foundry-agent-ts",
+    "name": "foundry-agent",
+    "language": "typescript",
+    "displayName": "Foundry Agent",
+    "description": "An Microsoft 365 Agent that connects to Microsoft AI Foundry Agent."
   }
 ]

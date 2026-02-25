@@ -104,7 +104,7 @@ export async function cmpAccountsHandler(args: any[]) {
   const quickPick = window.createQuickPick();
   const quickItemOptionArray: VscQuickPickItem[] = [];
 
-  const m365AccountRes = await M365TokenInstance.getStatus({ scopes: AppStudioScopes });
+  const m365AccountRes = await M365TokenInstance.getStatus({ scopes: AppStudioScopes() });
   const m365Account = m365AccountRes.isOk() ? m365AccountRes.value : undefined;
   if (m365Account && m365Account.status === "SignedIn") {
     const accountInfo = m365Account.accountInfo;

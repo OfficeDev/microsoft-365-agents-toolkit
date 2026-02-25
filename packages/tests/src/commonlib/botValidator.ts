@@ -133,7 +133,7 @@ export class BotValidator {
 
     const tokenProvider = MockAzureAccountProvider;
     const tokenCredential = await tokenProvider.getIdentityCredentialAsync();
-    const token = (await tokenCredential?.getToken(AzureScopes))?.token;
+    const token = (await tokenCredential?.getToken(AzureScopes()))?.token;
 
     console.log("Validating env variables");
     const response = await getWebappSettings(
@@ -187,7 +187,7 @@ export class BotValidator {
 
     const tokenProvider = MockAzureAccountProvider;
     const tokenCredential = await tokenProvider.getIdentityCredentialAsync();
-    const token = (await tokenCredential?.getToken(AzureScopes))?.token;
+    const token = (await tokenCredential?.getToken(AzureScopes()))?.token;
 
     const activeResourcePlugins = await getActivePluginsFromProjectSetting(
       this.projectPath

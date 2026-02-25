@@ -84,7 +84,7 @@ export function activate(): Result<Void, FxError> {
 
     void M365TokenInstance.setStatusChangeMap(
       "successfully-sign-in-m365",
-      { scopes: AppStudioScopes },
+      { scopes: AppStudioScopes() },
       m365NotificationCallback,
       false
     );

@@ -45,6 +45,10 @@ export class ConfigManager {
       ConfigurationKey.EnableCFShortcutMetaOS,
       false
     ).toString();
+    process.env[FeatureFlags.SovereignCloudEnvironment.name] = this.getConfiguration(
+      ConfigurationKey.SovereignCloudEnvironment,
+      ""
+    ).toString();
   }
   loadLogLevel() {
     const logLevel = this.getConfiguration(ConfigurationKey.LogLevel, "Info") as string;

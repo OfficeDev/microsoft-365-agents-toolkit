@@ -70,7 +70,7 @@ export class SimpleAuthValidator {
 
     const tokenProvider = MockAzureAccountProvider;
     const tokenCredential = await tokenProvider.getIdentityCredentialAsync();
-    const token = (await tokenCredential?.getToken(AzureScopes))?.token;
+    const token = (await tokenCredential?.getToken(AzureScopes()))?.token;
 
     console.log("Validating app settings.");
     const activeResourcePlugins = await getActivePluginsFromProjectSetting(

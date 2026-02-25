@@ -27,6 +27,7 @@ import {
   FindProcessError,
   HttpClientError,
   LocalEnvManager,
+  MosServiceScope,
   PackageService,
   PortsConflictError,
   SideloadingDisabledError,
@@ -68,7 +69,6 @@ import {
   DepsDisplayName,
   ProgressMessage,
   ResultStatus,
-  copilotCheckServiceScope,
 } from "./prerequisitesCheckerConstants";
 import { vscodeLogger } from "./vscodeLogger";
 import { vscodeTelemetry } from "./vscodeTelemetry";
@@ -356,7 +356,7 @@ function ensureM365Account(
       ctx: TelemetryContext
     ): Promise<Result<{ token: string; tenantId?: string; loginHint?: string }, FxError>> => {
       const m365Login: M365TokenProvider = M365TokenInstance;
-      let loginStatusRes = await m365Login.getStatus({ scopes: AppStudioScopes });
+      let loginStatusRes = await m365Login.getStatus({ scopes: AppStudioScopes() });
       if (loginStatusRes.isErr()) {
         ctx.properties[TelemetryProperty.DebugM365AccountStatus] = "error";
         return err(loginStatusRes.error);
@@ -368,13 +368,13 @@ function ensureM365Account(
       let tid = loginStatusRes.value.accountInfo?.tid;
       if (loginStatusRes.value.status === signedOut && showLoginPage) {
         const tokenRes = await tools.tokenProvider.m365TokenProvider.getAccessToken({
-          scopes: AppStudioScopes,
+          scopes: AppStudioScopes(),
           showDialog: true,
         });
         if (tokenRes.isErr()) {
           return err(tokenRes.error);
         }
-        loginStatusRes = await m365Login.getStatus({ scopes: AppStudioScopes });
+        loginStatusRes = await m365Login.getStatus({ scopes: AppStudioScopes() });
         if (loginStatusRes.isErr()) {
           return err(loginStatusRes.error);
         }
@@ -413,7 +413,7 @@ async function ensureCopilotAccess(
     async (ctx: TelemetryContext) => {
       const m365Login: M365TokenProvider = M365TokenInstance;
       const copilotTokenRes = await m365Login.getAccessToken({
-        scopes: [copilotCheckServiceScope],
+        scopes: MosServiceScope(),
         showDialog: false,
       });
       let hasCopilotAccess: boolean | undefined = undefined;

@@ -2,11 +2,8 @@
 // Licensed under the MIT license.
 import { CLICommand, err, ok } from "@microsoft/teamsfx-api";
 import { UninstallInputs, QuestionNames } from "@microsoft/teamsfx-core";
-import { logger } from "../../commonlib/logger";
-import { MissingRequiredOptionError } from "../../error";
 import { commands } from "../../resource";
 import { TelemetryEvent } from "../../telemetry/cliTelemetryEvents";
-import { m365utils, sideloadingServiceEndpoint } from "./m365Sideloading";
 import { getFxCore } from "../../activate";
 
 export const m365UnacquireCommand: CLICommand = {

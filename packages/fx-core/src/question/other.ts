@@ -456,7 +456,7 @@ export function selectTargetEnvQuestion(
 async function getDefaultUserEmail() {
   if (!TOOLS?.tokenProvider.m365TokenProvider) return undefined;
   const jsonObjectRes = await TOOLS.tokenProvider.m365TokenProvider.getJsonObject({
-    scopes: AppStudioScopes,
+    scopes: AppStudioScopes(),
   });
   if (jsonObjectRes.isErr()) {
     throw jsonObjectRes.error;

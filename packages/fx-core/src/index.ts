@@ -24,6 +24,7 @@ export {
   GraphScopes,
   ListSensitivityLabelScope,
   SPFxScopes,
+  MosServiceScope,
 } from "./common/constants";
 export { Correlator } from "./common/correlator";
 export {
@@ -32,6 +33,11 @@ export {
   FeatureFlags,
   isFeatureFlagEnabled,
 } from "./common/featureFlags";
+export {
+  getEntraEndpoint,
+  getDefaultAuthorityUrl,
+  getTenantedAuthorityUrl,
+} from "./common/accountUtils";
 export { globalStateGet, globalStateUpdate } from "./common/globalState";
 export { AadSet } from "./common/globalVars";
 export { getDefaultString, getLocalizedString } from "./common/localizeUtils";
@@ -98,7 +104,6 @@ export { LocalTelemetryReporter, TelemetryContext } from "./component/local/loca
 export { loadTeamsFxDevScript } from "./component/local/packageJsonHelper";
 export { Hub } from "./component/m365/constants";
 export { PackageService } from "./component/m365/packageService";
-export { MosServiceEndpoint, MosServiceScope } from "./component/m365/serviceConstant";
 export * from "./component/middleware/actionExecutionMW";
 export { outputScaffoldingWarningMessage } from "./component/utils/common";
 export { DotenvOutput, envUtil } from "./component/utils/envUtil";

@@ -52,7 +52,7 @@ export class UpdateOauthDriver implements StepDriver {
       const authInfo = await getAuthInfo(args, context, actionName);
 
       const appStudioTokenRes = await context.m365TokenProvider.getAccessToken({
-        scopes: AppStudioScopes,
+        scopes: AppStudioScopes(),
       });
       if (appStudioTokenRes.isErr()) {
         throw appStudioTokenRes.error;

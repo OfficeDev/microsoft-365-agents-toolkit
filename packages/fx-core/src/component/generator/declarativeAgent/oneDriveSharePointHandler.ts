@@ -2,7 +2,11 @@
 // Licensed under the MIT license.
 
 import { Context, FxError, Result, SystemError, UserError, err, ok } from "@microsoft/teamsfx-api";
-import { GraphScopes } from "../../../common/constants";
+import {
+  getResourceServiceEndpoint,
+  GraphScopes,
+  ResourceServiceType,
+} from "../../../common/constants";
 import axios, { AxiosInstance } from "axios";
 import { OneDriveSharePointItemType } from "../constant";
 
@@ -39,7 +43,7 @@ export async function createGraphClientWithToken(
     );
   }
   const client = axios.create({
-    baseURL: "https://graph.microsoft.com/v1.0",
+    baseURL: `${getResourceServiceEndpoint(ResourceServiceType.Graph)}/v1.0`,
     headers: { Authorization: `Bearer ${graphTokenRes.value}` },
   });
   return ok(client);

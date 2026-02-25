@@ -224,7 +224,7 @@ export class AzureAccountManager extends login implements AzureAccountProvider {
       AzureAccountManager.codeFlowInstance.account;
     if (AzureAccountManager.statusChange !== undefined && checkCodeFlow) {
       const credential = await this.getIdentityCredentialAsync();
-      const accessToken = await credential?.getToken(AzureScopes);
+      const accessToken = await credential?.getToken(AzureScopes());
       const accountJson = await this.getJsonObject();
       await AzureAccountManager.statusChange("SignedIn", accessToken?.token, accountJson);
     }
@@ -232,7 +232,7 @@ export class AzureAccountManager extends login implements AzureAccountProvider {
   }
 
   private async login(showDialog: boolean, tenantId?: string): Promise<void> {
-    const accessToken = await AzureAccountManager.codeFlowInstance.getTokenByScopes(AzureScopes);
+    const accessToken = await AzureAccountManager.codeFlowInstance.getTokenByScopes(AzureScopes());
     const tokenJson = await this.getJsonObject(false, tenantId);
     if (accessToken.isOk() && accessToken.value) {
       this.setMemoryCache(accessToken.value, tokenJson);
@@ -280,7 +280,7 @@ export class AzureAccountManager extends login implements AzureAccountProvider {
     claimsChallenge?: string
   ): Promise<Record<string, unknown> | undefined> {
     const token = await AzureAccountManager.codeFlowInstance.getTokenByScopes(
-      claimsChallenge ? { scopes: AzureScopes, wwwAuthenticate: claimsChallenge } : AzureScopes,
+      claimsChallenge ? { scopes: AzureScopes(), wwwAuthenticate: claimsChallenge } : AzureScopes(),
       true,
       tenantId
     );
@@ -326,7 +326,7 @@ export class AzureAccountManager extends login implements AzureAccountProvider {
         }
       }
       const credential = await this.getIdentityCredentialAsync();
-      const token = await credential?.getToken(AzureScopes);
+      const token = await credential?.getToken(AzureScopes());
       const accountJson = await this.getJsonObject();
       return Promise.resolve({
         status: signedIn,

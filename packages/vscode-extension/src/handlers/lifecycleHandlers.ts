@@ -199,7 +199,7 @@ export async function scaffoldFromDeveloperPortalHandler(
   let token = undefined;
   try {
     const tokenRes = await M365TokenInstance.signInWhenInitiatedFromTdp(
-      { scopes: AppStudioScopes },
+      { scopes: AppStudioScopes() },
       loginHint
     );
     if (tokenRes.isErr()) {
@@ -221,7 +221,7 @@ export async function scaffoldFromDeveloperPortalHandler(
     token = tokenRes.value;
 
     // set region
-    const AuthSvcTokenRes = await M365TokenInstance.getAccessToken({ scopes: AuthSvcScopes });
+    const AuthSvcTokenRes = await M365TokenInstance.getAccessToken({ scopes: AuthSvcScopes() });
     if (AuthSvcTokenRes.isOk()) {
       await teamsDevPortalClient.setRegionEndpointByToken(AuthSvcTokenRes.value);
     }

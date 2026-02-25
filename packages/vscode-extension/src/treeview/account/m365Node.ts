@@ -37,7 +37,7 @@ export class M365AccountNode extends DynamicNode {
 
     this.label = displayName;
     const tokenRes = await tools.tokenProvider.m365TokenProvider.getAccessToken({
-      scopes: AzureScopes,
+      scopes: AzureScopes(),
     });
     if (tokenRes.isOk() && tokenRes.value) {
       const tenants = await listAllTenants(tokenRes.value);

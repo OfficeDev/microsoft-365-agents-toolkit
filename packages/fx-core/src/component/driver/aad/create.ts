@@ -44,6 +44,7 @@ import {
   telemetryKeys,
 } from "./utility/constants";
 import { TeamsDevPortalClient } from "../../../client/teamsDevPortalClient";
+import { getEntraEndpoint, getTenantedAuthorityUrl } from "../../../common/accountUtils";
 
 const actionName = "aadApp/create"; // DO NOT MODIFY the name
 const helpLink = "https://aka.ms/teamsfx-actions/aadapp-create";
@@ -118,7 +119,7 @@ export class CreateAadAppDriver implements StepDriver {
         let aadApp;
         if (args.generateServicePrincipal) {
           const tokenRes = await context.m365TokenProvider.getAccessToken({
-            scopes: AppStudioScopes,
+            scopes: AppStudioScopes(),
           });
           if (tokenRes.isErr()) {
             throw tokenRes.error;
@@ -391,7 +392,7 @@ export class CreateAadAppDriver implements StepDriver {
 
     const tenantId = tokenObjectResponse.value.tid as string; // The tid claim is AAD tenant id
     state.tenantId = tenantId;
-    state.authorityHost = constants.oauthAuthorityPrefix;
-    state.authority = `${constants.oauthAuthorityPrefix}/${tenantId}`;
+    state.authorityHost = getEntraEndpoint();
+    state.authority = getTenantedAuthorityUrl(tenantId);
   }
 }

@@ -32,7 +32,7 @@ export class BearerChallengePolicy implements PipelinePolicy {
 
         const token = await this.getTokenForChallenge({
           wwwAuthenticate: header,
-          scopes: AzureScopes,
+          scopes: AzureScopes(),
         });
         if (token) {
           request.headers.set("Authorization", `Bearer ${token}`);

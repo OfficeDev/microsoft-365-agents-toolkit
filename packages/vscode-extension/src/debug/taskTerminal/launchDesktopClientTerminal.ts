@@ -62,12 +62,12 @@ export class LaunchDesktopClientTerminal extends BaseTaskTerminal {
     }
     const config = dotenvUtil.deserialize(fs.readFileSync(configPath, "utf-8"));
     const loginInfo = await tools.tokenProvider.m365TokenProvider.getStatus({
-      scopes: AppStudioScopes,
+      scopes: AppStudioScopes(),
     });
     const readMore = `${localize("teamstoolkit.common.readMore")}`;
     if (loginInfo.isOk() && loginInfo.value.status === "SignedIn") {
       const accountInfo = await tools.tokenProvider.m365TokenProvider.getJsonObject({
-        scopes: AppStudioScopes,
+        scopes: AppStudioScopes(),
       });
       let username = "";
       if (accountInfo.isOk() && accountInfo.value["unique_name"]) {

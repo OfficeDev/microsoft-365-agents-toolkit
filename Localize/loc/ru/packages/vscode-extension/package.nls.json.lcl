@@ -23,7 +23,7 @@
         <Str Cat="Text">
           <Val><![CDATA[With the GitHub Copilot Chat extension in Visual Studio Code, you can have AI-powered chat conversations to generate code, increase your code understanding, and even configure your editor.]A;[Install GitHub Copilot Chat]5D;(command:fx-extension.installCopilotChat?%5B%22TeamsAgentWalkthrough%22%5D)]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[С помощью GitHub Copilot чата в Visual Studio Code вы можете общаться в чате на основе ИИ, чтобы создавать код, повышать понимание кода и даже настраивать редактор.]A;[Install GitHub Copilot Chat]5D;(command:fx-extension.installCopilotChat?%5B%22TeamsAgentWalkthrough%22%5D)]]></Val>
+            <Val><![CDATA[С помощью GitHub Copilot Chat в Visual Studio Code вы можете общаться в чате на основе ИИ, чтобы создавать код, повышать понимание кода и даже настраивать редактор.]A;[Установить GitHub Copilot Chat]5D;(command:fx-extension.installCopilotChat?%5B%22TeamsAgentWalkthrough%22%5D)]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -32,7 +32,7 @@
         <Str Cat="Text">
           <Val><![CDATA[⚠️Install GitHub Copilot Chat for Visual Studio Code]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[⚠️Установить GitHub Copilot чат для Visual Studio Code]]></Val>
+            <Val><![CDATA[⚠️Установить GitHub Copilot Chat для Visual Studio Code]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Install GitHub Copilot Chat for Visual Studio Code]]></Val>
@@ -143,7 +143,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Sign in to your GitHub account and get started. Learn more about how to [set up GitHub Copilot]5D;(https://aka.ms/teams-agent-github-copilot-setup).]A;[Open GitHub Copilot Chat]5D;(command:fx-extension.openGitHubCopilotChat?%5B%22TeamsAgentWalkthrough%22%5D)]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Войдите в свою учетную запись GitHub и начните работу. Дополнительные сведения о том, как [set up GitHub Copilot]5D;(https://aka.ms/teams-agent-github-copilot-setup).]A;[Open GitHub Copilot Chat]5D;(command:fx-extension.openGitHubCopilotChat?%5B%22TeamsAgentWalkthrough%22%5D)]]></Val>
+            <Val><![CDATA[Войдите в свою учетную запись GitHub и начните работу. Дополнительные сведения о том, как [настроить GitHub Copilot]5D;(https://aka.ms/teams-agent-github-copilot-setup).]A;[Открыть GitHub Copilot Chat]5D;(command:fx-extension.openGitHubCopilotChat?%5B%22TeamsAgentWalkthrough%22%5D)]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Sign in to your GitHub account and get started. Learn more about how to [set up GitHub Copilot]5D;(https://aka.ms/teams-agent-github-copilot-setup).]A;[Open GitHub Copilot Chat]5D;(command:fx-extension.openGitHubCopilotChat?%5B%22TeamsAgentWalkthrough%22%5D)]A;[Mark login completed]5D;(command:fx-extension.markGitHubCopilotLoginDone)]]></Val>
@@ -3899,7 +3899,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to automatically focus GitHub Copilot Chat. Open GitHub Copilot Chat and start with "%s"]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Не удалось автоматически сосредоточиться на GitHub Copilot чате. Откройте GitHub Copilot чате и начните с "%s"]]></Val>
+            <Val><![CDATA[Не удалось автоматически сосредоточиться на GitHub Copilot Chat. Откройте GitHub Copilot Chat и начните с "%s"]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4109,7 +4109,7 @@
         <Str Cat="Text">
           <Val><![CDATA[GitHub Copilot Chat extension is already installed.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[GitHub Copilot чата уже установлено.]]></Val>
+            <Val><![CDATA[GitHub Copilot Chat уже установлен.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4118,7 +4118,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to install GitHub Copilot Chat. Install it following %s and try again.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Не удалось установить GitHub Copilot Чат. Установите его после %s и повторите попытку.]]></Val>
+            <Val><![CDATA[Не удалось установить GitHub Copilot Chat. Установите его после %s и повторите попытку.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4583,7 +4583,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to verify GitHub Copilot Chat. Install it manually following %s and try again.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Не удалось проверить GitHub Copilot чате. Установите его вручную после %s и повторите попытку.]]></Val>
+            <Val><![CDATA[Не удалось проверить GitHub Copilot Chat. Установите его вручную после %s и повторите попытку.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />

@@ -17,7 +17,7 @@ import { signInM365 } from "../../utils/accountUtils";
 
 export async function checkCopilotAccessHandler(): Promise<Result<null, FxError>> {
   // check m365 login status, if not logged in, pop up a message
-  const status = await M365TokenInstance.getStatus({ scopes: AppStudioScopes });
+  const status = await M365TokenInstance.getStatus({ scopes: AppStudioScopes() });
   if (!(status.isOk() && status.value.status === signedIn)) {
     const message = localize("teamstoolkit.m365.needSignIn.message");
     const signin = localize("teamstoolkit.common.signin");
@@ -38,9 +38,8 @@ export async function checkCopilotAccessHandler(): Promise<Result<null, FxError>
   }
 
   // if logged in, check copilot access with a different scopes
-  const copilotCheckServiceScope = process.env.SIDELOADING_SERVICE_SCOPE ?? MosServiceScope;
   const copilotTokenRes = await M365TokenInstance.getAccessToken({
-    scopes: [copilotCheckServiceScope],
+    scopes: MosServiceScope(),
   });
   if (copilotTokenRes.isOk()) {
     const hasCopilotAccess = await PackageService.GetSharedInstance().getCopilotStatus(

@@ -100,7 +100,7 @@ export class AzureAccountProviderUserPassword implements AzureAccountProvider {
   }
   async getJsonObject(showDialog?: boolean): Promise<Record<string, unknown> | undefined> {
     const identity = await this.getIdentityCredentialAsync();
-    const token = await identity?.getToken(AzureScopes);
+    const token = await identity?.getToken(AzureScopes());
     if (token?.token) {
       return ConvertTokenToJson(token?.token);
     } else {

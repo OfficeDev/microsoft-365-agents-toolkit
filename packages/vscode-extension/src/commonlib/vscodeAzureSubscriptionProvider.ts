@@ -5,7 +5,7 @@ import { SubscriptionClient, TenantIdDescription } from "@azure/arm-resources-su
 import { TokenCredential } from "@azure/core-auth";
 import * as vscode from "vscode";
 import * as azureEnv from "@azure/ms-rest-azure-env";
-import { AzureScopes, featureFlagManager, FeatureFlags } from "@microsoft/teamsfx-core";
+import { AzureScopes } from "@microsoft/teamsfx-core";
 import { LoginFailureError } from "./codeFlowLogin";
 import { Environment } from "@azure/ms-rest-azure-env";
 
@@ -58,7 +58,7 @@ export class VSCodeAzureSubscriptionProvider {
    * @returns A list of tenants.
    */
   public async getTenants(): Promise<TenantIdDescription[]> {
-    const { client } = await this.getSubscriptionClient(undefined, AzureScopes);
+    const { client } = await this.getSubscriptionClient(undefined, AzureScopes());
 
     const results: TenantIdDescription[] = [];
 
@@ -105,7 +105,7 @@ export class VSCodeAzureSubscriptionProvider {
   private async getSubscriptionsForTenant(tenantId: string): Promise<AzureSubscription[]> {
     const { client, credential, authentication } = await this.getSubscriptionClient(
       tenantId,
-      AzureScopes
+      AzureScopes()
     );
     const environment = getConfiguredAzureEnv();
 

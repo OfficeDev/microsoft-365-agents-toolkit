@@ -62,7 +62,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Complete the mandatory steps (with ⚠️) to set up the GitHub Copilot extension for Microsoft 365 Agents Toolkit.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Wykonaj obowiązkowe kroki (z ⚠️) w celu skonfigurowania rozszerzenia narzędzia GitHub Copilot dla zestawu narzędzi agentów platformy Microsoft 365.]]></Val>
+            <Val><![CDATA[Wykonaj obowiązkowe kroki (z ⚠️) w celu skonfigurowania rozszerzenia narzędzia GitHub Copilot dla Zestawu narzędzi agentów Microsoft 365.]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Complete the mandatory steps (with ⚠️) to set up the GitHub Copilot extension for Teams Toolkit.]]></Val>
@@ -74,7 +74,7 @@
         <Str Cat="Text">
           <Val><![CDATA[The [GitHub Copilot extension for Microsoft 365 Agents Toolkit]5D;(https://aka.ms/install-m365agents) (@m365agents) simplifies app development and enables customization of Microsoft 365 Copilot with chat features.]A;[Install GitHub Copilot extension for Microsoft 365 Agents Toolkit]5D;(command:fx-extension.openInstallTeamsAgent?%5B%22TeamsAgentWalkthrough%22%5D)]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[[Rozszerzenie narzędzia GitHub Copilot dla zestawu narzędzi agentów platformy Microsoft 365]5D;(https://aka.ms/install-teamsapp) (@m365agents) upraszcza tworzenie aplikacji i umożliwia dostosowywanie rozwiązania Microsoft 365 Copilot za pomocą funkcji czatu.]A;[Zainstaluj rozszerzenie narzędzia GitHub Copilot dla zestawu narzędzi agentów platformy Microsoft 365]5D;(command:fx-extension.openInstallTeamsAgent?%5B%22TeamsAgentWalkthrough%22%5D)]]></Val>
+            <Val><![CDATA[[Rozszerzenie narzędzia GitHub Copilot dla Zestawu narzędzi agentów Microsoft 365]5D;(https://aka.ms/install-m365agents) (@m365agents) upraszcza tworzenie aplikacji i umożliwia dostosowywanie rozwiązania Microsoft 365 Copilot za pomocą funkcji czatu.]A;[Zainstaluj rozszerzenie narzędzia GitHub Copilot dla Zestawu narzędzi agentów Microsoft 365]5D;(command:fx-extension.openInstallTeamsAgent?%5B%22TeamsAgentWalkthrough%22%5D)]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[The [GitHub Copilot extension for Microsoft 365 Agents Toolkit]5D;(https://aka.ms/install-teamsapp) (@m365agents) simplifies Teams app development and enables customization of Microsoft 365 Copilot with chat features.]A;[Install GitHub Copilot extension for Microsoft 365 Agents Toolkit]5D;(command:fx-extension.openInstallTeamsAgent?%5B%22TeamsAgentWalkthrough%22%5D)]]></Val>
@@ -86,7 +86,7 @@
         <Str Cat="Text">
           <Val><![CDATA[⚠️Install GitHub Copilot extension for Microsoft 365 Agents Toolkit]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[⚠️Instalowanie rozszerzenia narzędzia GitHub Copilot dla zestawu narzędzi agentów platformy Microsoft 365]]></Val>
+            <Val><![CDATA[⚠️Instalowanie rozszerzenia narzędzia GitHub Copilot dla Zestawu narzędzi agentów Microsoft 365]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[⚠️Install GitHub Copilot extension for Teams Toolkit]]></Val>
@@ -98,7 +98,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Please mark the installation as completed after [GitHub Copilot extension for Microsoft 365 Agents Toolkit]5D;(https://aka.ms/install-m365agents) is installed.]A;[Mark installation completed]5D;(command:fx-extension.markInstallTeamsAgentDone)]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Oznacz instalację jako ukończoną po zainstalowaniu [rozszerzenia narzędzia GitHub Copilot dla zestawu narzędzi agentów platformy Microsoft 365]5D;(https://aka.ms/install-m365agents).]A;[Oznacz instalację jako ukończoną]5D;(command:fx-extension.markInstallTeamsAgentDone)]]></Val>
+            <Val><![CDATA[Oznacz instalację jako ukończoną po zainstalowaniu [rozszerzenia narzędzia GitHub Copilot dla Zestawu narzędzi agentów Microsoft 365]5D;(https://aka.ms/install-m365agents).]A;[Oznacz instalację jako ukończoną]5D;(command:fx-extension.markInstallTeamsAgentDone)]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Please mark the installation as completed after [GitHub Copilot extension for Microsoft 365 Agents Toolkit]5D;(https://aka.ms/install-teamsapp) is installed.]A;[Mark installation completed]5D;(command:fx-extension.markInstallTeamsAgentDone)]]></Val>
@@ -122,7 +122,7 @@
         <Str Cat="Text">
           <Val><![CDATA[The GitHub Copilot extension for Microsoft 365 Agents Toolkit (@m365agents) simplifies app development and enables customization of Microsoft 365 Copilot with chat features. Learn more about the [GitHub Copilot extension for Microsoft 365 Agents Toolkit]5D;(https://aka.ms/install-m365agents).]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Rozszerzenie narzędzia GitHub Copilot dla zestawu narzędzi agentów platformy Microsoft 365 (@m365agents) upraszcza tworzenie aplikacji i umożliwia dostosowywanie rozwiązania Microsoft 365 Copilot za pomocą funkcji czatu. Dowiedz się więcej o [rozszerzeniu narzędzia GitHub Copilot dla zestawu narzędzi agentów platformy Microsoft 365]5D;(https://aka.ms/install-m365agents).]]></Val>
+            <Val><![CDATA[Rozszerzenie narzędzia GitHub Copilot dla Zestawu narzędzi agentów Microsoft 365 (@m365agents) upraszcza tworzenie aplikacji i umożliwia dostosowywanie rozwiązania Microsoft 365 Copilot za pomocą funkcji czatu. Dowiedz się więcej o [rozszerzeniu narzędzia GitHub Copilot dla Zestawu narzędzi agentów Microsoft 365]5D;(https://aka.ms/install-m365agents).]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[The GitHub Copilot extension for Microsoft 365 Agents Toolkit (@m365agents) simplifies Teams app development and enables customization of Microsoft 365 Copilot with chat features. Learn more about the [GitHub Copilot extension for Microsoft 365 Agents Toolkit]5D;(https://aka.ms/install-teamsapp).]]></Val>
@@ -167,7 +167,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Getting Started with the GitHub Copilot Extension for Microsoft 365 Agents Toolkit]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Wprowadzenie do rozszerzenia narzędzia GitHub Copilot dla zestawu narzędzi agentów platformy Microsoft 365]]></Val>
+            <Val><![CDATA[Wprowadzenie do rozszerzenia narzędzia GitHub Copilot dla Zestawu narzędzi agentów Microsoft 365]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Getting Started with the GitHub Copilot Extension for Teams Toolkit]]></Val>
@@ -179,7 +179,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Chat with GitHub Copilot extension for Microsoft 365 Agents Toolkit (@m365agents) to build apps or customize and extend Microsoft 365 Copilot.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Czatuj za pomocą rozszerzenia narzędzia GitHub Copilot dla zestawu narzędzi agentów platformy Microsoft 365 (@m365agents), aby tworzyć aplikacje lub dostosowywać i rozszerzać rozwiązanie Microsoft 365 Copilot.]]></Val>
+            <Val><![CDATA[Czatuj za pomocą rozszerzenia narzędzia GitHub Copilot dla Zestawu narzędzi agentów Microsoft 365 (@m365agents), aby tworzyć aplikacje lub dostosowywać i rozszerzać rozwiązanie Microsoft 365 Copilot.]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Chat with GitHub Copilot extension for Microsoft 365 Agents Toolkit (@m365agents) to build Microsoft 365 apps or customize and extend Microsoft 365 Copilot.]]></Val>
@@ -3812,7 +3812,7 @@
         <Str Cat="Text">
           <Val><![CDATA[To use GitHub Copilot Extension for Microsoft 365 Agents Toolkit when developing apps or customizing Microsoft 365 Copilot, you need to install GitHub Copilot first.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Aby używać rozszerzenia narzędzia GitHub Copilot dla zestawu narzędzi agentów platformy Microsoft 365 podczas opracowywania aplikacji lub dostosowywania rozwiązania Microsoft 365 Copilot, musisz najpierw zainstalować narzędzie GitHub Copilot.]]></Val>
+            <Val><![CDATA[Aby używać rozszerzenia narzędzia GitHub Copilot dla Zestawu narzędzi agentów Microsoft 365 podczas opracowywania aplikacji lub dostosowywania rozwiązania Microsoft 365 Copilot, musisz najpierw zainstalować narzędzie GitHub Copilot.]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[To use GitHub Copilot Extension for Microsoft 365 Agents Toolkit when developing Teams apps or customizing Microsoft 365 Copilot, you need to install GitHub Copilot first.]]></Val>
@@ -3842,7 +3842,7 @@
         <Str Cat="Text">
           <Val><![CDATA[To use GitHub Copilot Extension for Microsoft 365 Agents Toolkit when developing apps or customizing Microsoft 365 Copilot, please install it first. If you've already installed it, confirm below.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Aby używać rozszerzenia narzędzia GitHub Copilot dla zestawu narzędzi agentów platformy Microsoft 365 podczas tworzenia aplikacji lub dostosowywania rozwiązania Microsoft 365 Copilot, zainstaluj je najpierw. Jeśli już je zainstalowano, potwierdź to poniżej.]]></Val>
+            <Val><![CDATA[Aby używać rozszerzenia narzędzia GitHub Copilot dla Zestawu narzędzi agentów Microsoft 365 podczas tworzenia aplikacji lub dostosowywania rozwiązania Microsoft 365 Copilot, zainstaluj je najpierw. Jeśli już je zainstalowano, potwierdź to poniżej.]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[To use GitHub Copilot Extension for Microsoft 365 Agents Toolkit when developing Teams apps or customizing Microsoft 365 Copilot, please install it first. If you've already installed it, confirm below.]]></Val>
@@ -3899,7 +3899,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to automatically focus GitHub Copilot Chat. Open GitHub Copilot Chat and start with "%s"]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Nie można automatycznie skupić GitHub Copilot Chat. Otwórz GitHub Copilot Chat i zacznij od "%s"]]></Val>
+            <Val><![CDATA[Nie można automatycznie skupić się na GitHub Copilot Chat. Otwórz GitHub Copilot Chat i zacznij od „%s”]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4085,7 +4085,7 @@
         <Str Cat="Text">
           <Val><![CDATA[To use GitHub Copilot Extension for Microsoft 365 Agents Toolkit when developing apps or customizing Microsoft 365 Copilot, install GitHub Copilot Extension for Microsoft 365 Agents Toolkit from "%s".]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Aby używać rozszerzenia narzędzia GitHub Copilot dla zestawu narzędzi agentów platformy Microsoft 365 podczas opracowywania aplikacji lub dostosowywania funkcji Microsoft 365 Copilot, zainstaluj rozszerzenie narzędzia GitHub Copilot dla zestawu narzędzi agentów platformy Microsoft 365 z „%s”.]]></Val>
+            <Val><![CDATA[Aby używać rozszerzenia narzędzia GitHub Copilot dla Zestawu narzędzi agentów Microsoft 365 podczas opracowywania aplikacji lub dostosowywania funkcji Microsoft 365 Copilot, zainstaluj rozszerzenie narzędzia GitHub Copilot dla Zestawu narzędzi agentów Microsoft 365 z „%s”.]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[To use GitHub Copilot Extension for Microsoft 365 Agents Toolkit when developing Teams apps or customizing Microsoft 365 Copilot, install GitHub Copilot Extension for Microsoft 365 Agents Toolkit from "%s".]]></Val>
@@ -4097,7 +4097,7 @@
         <Str Cat="Text">
           <Val><![CDATA[To use the GitHub Copilot Extension for Microsoft 365 Agents Toolkit when developing apps or customizing Microsoft 365 Copilot, install GitHub Copilot from "%s" and GitHub Copilot Extension for Microsoft 365 Agents Toolkit from "%s".]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Aby użyć rozszerzenia narzędzia GitHub Copilot dla zestawu narzędzi agentów platformy Microsoft 365 podczas opracowywania aplikacji lub dostosowywania rozwiązania Microsoft 365 Copilot, zainstaluj narzędzie GitHub Copilot z „%s” i rozszerzenie narzędzia GitHub Copilot dla zestawu narzędzi agentów platformy Microsoft 365 z „%s”.]]></Val>
+            <Val><![CDATA[Aby użyć rozszerzenia narzędzia GitHub Copilot dla Zestawu narzędzi agentów Microsoft 365 podczas opracowywania aplikacji lub dostosowywania rozwiązania Microsoft 365 Copilot, zainstaluj narzędzie GitHub Copilot z „%s” i rozszerzenie narzędzia GitHub Copilot dla Zestawu narzędzi agentów Microsoft 365 z „%s”.]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[To use the GitHub Copilot Extension for Microsoft 365 Agents Toolkit when developing Teams apps or customizing Microsoft 365 Copilot, install GitHub Copilot from "%s" and GitHub Copilot Extension for Microsoft 365 Agents Toolkit from "%s".]]></Val>
@@ -4109,7 +4109,7 @@
         <Str Cat="Text">
           <Val><![CDATA[GitHub Copilot Chat extension is already installed.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[rozszerzenie GitHub Copilot Chat jest już zainstalowane.]]></Val>
+            <Val><![CDATA[Rozszerzenie GitHub Copilot Chat jest już zainstalowane.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4583,7 +4583,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to verify GitHub Copilot Chat. Install it manually following %s and try again.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Nie można zweryfikować GitHub Copilot Chat. Zainstaluj ręcznie po %s i spróbuj ponownie.]]></Val>
+            <Val><![CDATA[Nie można zweryfikować funkcji GitHub Copilot Chat. Zainstaluj ją ręcznie według %s i spróbuj ponownie.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -6482,7 +6482,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Chat with GitHub Copilot]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Czat z GitHub Copilot]]></Val>
+            <Val><![CDATA[Czat z funkcją GitHub Copilot]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />

@@ -332,7 +332,7 @@
   "core.createProjectQuestion.projectType.copilotExtension.placeholder": "Выберите вариант",
   "core.createProjectQuestion.projectType.customCopilot.detail": "Создайте интеллектуальный агент для помощи в управлении оркестрацией и предоставьте собственную LLM",
   "core.createProjectQuestion.projectType.customCopilot.label": "Агент настраиваемого обработчика",
-  "core.createProjectQuestion.projectType.copilotHelp.label": "Не знаете, как начать? Использовать GitHub Copilot чате",
+  "core.createProjectQuestion.projectType.copilotHelp.label": "Не знаете, как начать? Используйте GitHub Copilot Chat",
   "core.createProjectQuestion.projectType.copilotHelp.detail": "Пообщайтесь в чате с GitHub Copilot и получите пошаговые инструкции по разработке приложения или агента Microsoft 365 Copilot.",
   "core.createProjectQuestion.projectType.copilotGroup.title": "Использовать GitHub Copilot",
   "core.createProjectQuestion.projectType.createGroup.aiAgent": "Агенты для Microsoft 365 Copilot",

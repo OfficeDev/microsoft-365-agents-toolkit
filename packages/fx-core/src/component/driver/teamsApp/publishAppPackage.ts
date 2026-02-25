@@ -128,7 +128,7 @@ export class PublishAppPackageDriver implements StepDriver {
 
     // manifest.id === externalID
     const appStudioTokenRes = await context.m365TokenProvider.getAccessToken({
-      scopes: AppStudioScopes,
+      scopes: AppStudioScopes(),
     });
     if (appStudioTokenRes.isErr()) {
       return err(appStudioTokenRes.error);

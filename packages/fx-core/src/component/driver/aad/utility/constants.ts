@@ -50,7 +50,6 @@ export const aadErrorCode = {
 
 export const constants = {
   aadAppPasswordDisplayName: "default",
-  oauthAuthorityPrefix: "https://login.microsoftonline.com",
   defaultHelpLink: "https://aka.ms/teamsfx-actions/aadapp-create",
   sniHelpLink: "https://aka.ms/teams-toolkit-sni-guide",
   insufficientPermissionErrorMessage: "Insufficient privileges to complete the operation.",

@@ -51,10 +51,13 @@ import { ExtensionErrors } from "../error/error";
 import { randomBytes } from "crypto";
 import { getExchangeCode } from "./exchangeCode";
 import * as os from "os";
-import { ErrorCategory, featureFlagManager, FeatureFlags } from "@microsoft/teamsfx-core";
+import {
+  ErrorCategory,
+  featureFlagManager,
+  FeatureFlags,
+  getTenantedAuthorityUrl,
+} from "@microsoft/teamsfx-core";
 import { getAccountByHomeId } from "./common/tokenCacheUtils";
-
-const BASE_AUTHORITY = "https://login.microsoftonline.com/";
 
 interface Deferred<T> {
   resolve: (result: T | Promise<T>) => void;
@@ -139,7 +142,7 @@ export class CodeFlowLogin {
     const app = express();
     const server = app.listen(serverPort);
     serverPort = (server.address() as AddressInfo).port;
-    const authority = tenantId ? BASE_AUTHORITY + tenantId : undefined;
+    const authority = tenantId ? getTenantedAuthorityUrl(tenantId) : undefined;
 
     const authCodeUrlParameters: AuthorizationUrlRequest = {
       scopes: scopes,
@@ -279,7 +282,7 @@ export class CodeFlowLogin {
     });
 
     this.status = loggingIn;
-    const authority = tenantId ? BASE_AUTHORITY + tenantId : undefined;
+    const authority = tenantId ? getTenantedAuthorityUrl(tenantId) : undefined;
 
     const loopbackTemplatePath = path.join(__dirname, "codeFlowResult", "index.html");
     let loopbackTemplate = undefined;
@@ -365,7 +368,7 @@ export class CodeFlowLogin {
     const codeChallenge = CodeFlowLogin.toBase64UrlEncoding(
       await CodeFlowLogin.sha256(codeVerifier)
     );
-    const authority = tenantId ? BASE_AUTHORITY + tenantId : undefined;
+    const authority = tenantId ? getTenantedAuthorityUrl(tenantId) : undefined;
     const authCodeUrlParameters: AuthorizationUrlRequest = {
       scopes: scopes,
       codeChallenge: codeChallenge,
@@ -465,7 +468,7 @@ export class CodeFlowLogin {
       let tokenRequest: SilentFlowRequest = {
         account: this.account,
         scopes: scopes,
-        authority: tenantId ? BASE_AUTHORITY + tenantId : this.config.auth.authority,
+        authority: tenantId ? getTenantedAuthorityUrl(tenantId) : this.config.auth.authority,
       };
       tokenRequest = this.isBrokerAvailable
         ? // HACK: Broker doesn't support forceRefresh so we need to pass in claims which will force a refresh

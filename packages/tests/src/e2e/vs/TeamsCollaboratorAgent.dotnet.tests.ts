@@ -161,7 +161,7 @@ describe("Teams Collaborator Agent for csharp version", function () {
 
       const tokenProvider = MockAzureAccountProvider;
       const tokenCredential = await tokenProvider.getIdentityCredentialAsync();
-      const token = (await tokenCredential?.getToken(AzureScopes))?.token;
+      const token = (await tokenCredential?.getToken(AzureScopes()))?.token;
       assert.exists(token);
 
       const response = await getWebappSettings(

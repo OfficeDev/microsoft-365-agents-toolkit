@@ -4,7 +4,7 @@
 import { hooks } from "@feathersjs/hooks";
 import { SystemError } from "@microsoft/teamsfx-api";
 import axios, { AxiosInstance, AxiosResponse } from "axios";
-import { HelpLinks } from "../common/constants";
+import { getResourceServiceEndpoint, HelpLinks, ResourceServiceType } from "../common/constants";
 import { ErrorContextMW, TOOLS } from "../common/globalVars";
 import { getDefaultString, getLocalizedString } from "../common/localizeUtils";
 import {
@@ -87,25 +87,19 @@ export class RetryHandler {
 export class TeamsDevPortalClient {
   regionEndpoint?: string;
 
-  getGlobalEndpoint(): string {
-    if (process.env.APP_STUDIO_ENV && process.env.APP_STUDIO_ENV === "int") {
-      return "https://dev-int.teams.microsoft.com";
-    } else {
-      return "https://dev.teams.microsoft.com";
-    }
-  }
-
   setRegionEndpoint(regionEndpoint: string): void {
     this.regionEndpoint = regionEndpoint;
   }
 
   async setRegionEndpointByToken(authSvcToken: string): Promise<void> {
-    if (this.getGlobalEndpoint() === "https://dev-int.teams.microsoft.com") {
+    if (
+      getResourceServiceEndpoint(ResourceServiceType.TDP) === "https://dev-int.teams.microsoft.com"
+    ) {
       // Do not set region for INT env
       return;
     }
     const requester = WrappedAxiosClient.create({
-      baseURL: "https://teams.microsoft.com/api/authsvc",
+      baseURL: getResourceServiceEndpoint(ResourceServiceType.AuthSvc),
     });
     requester.defaults.headers.common["Authorization"] = `Bearer ${authSvcToken}`;
     requester.defaults.headers.common["Client-Source"] = "teamstoolkit";
@@ -114,7 +108,7 @@ export class TeamsDevPortalClient {
   }
 
   getEndpoint(): string {
-    return this.regionEndpoint || this.getGlobalEndpoint();
+    return this.regionEndpoint || getResourceServiceEndpoint(ResourceServiceType.TDP);
   }
 
   /**

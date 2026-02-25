@@ -26,6 +26,7 @@ import { DeployZipPackageError } from "../../../../../error/deploy";
 import { ErrorContextMW } from "../../../../../common/globalVars";
 import { hooks } from "@feathersjs/hooks";
 import { ReadStream } from "fs-extra";
+import { getResourceServiceEndpoint, ResourceServiceType } from "../../../../../common/constants";
 
 export class AzureZipDeployImpl extends AzureDeployImpl {
   pattern =
@@ -247,7 +248,11 @@ export class AzureZipDeployImpl extends AzureDeployImpl {
     config: AzureUploadConfig
   ): Promise<string> {
     const response = await fetch(
-      `https://management.azure.com/subscriptions/${azureResource.subscriptionId}/resourceGroups/${azureResource.resourceGroupName}/providers/Microsoft.Web/sites/${azureResource.instanceId}?api-version=2024-04-01`,
+      `${getResourceServiceEndpoint(ResourceServiceType.Azure)}/subscriptions/${
+        azureResource.subscriptionId
+      }/resourceGroups/${azureResource.resourceGroupName}/providers/Microsoft.Web/sites/${
+        azureResource.instanceId
+      }?api-version=2024-04-01`,
       {
         headers: config.headers,
       }

@@ -12,14 +12,18 @@ import {
 } from "@microsoft/teamsfx-api";
 
 import { hooks } from "@feathersjs/hooks";
-import { AppStudioScopes } from "../../common/constants";
+import {
+  AppStudioScopes,
+  getResourceServiceEndpoint,
+  ResourceServiceType,
+} from "../../common/constants";
 import { ErrorContextMW } from "../../common/globalVars";
 import { CoreSource } from "../../error";
 import { assembleError } from "../../error/common";
 import { HubTypes } from "../../question/constants";
 import { NotExtendedToM365Error } from "./errors";
 import { PackageService } from "./packageService";
-import { MosServiceEndpoint, MosServiceScope } from "./serviceConstant";
+import { MosServiceScope } from "../../common/constants";
 import { officeBaseUrl, outlookBaseUrl, outlookCopilotAppId } from "./constants";
 import { featureFlagManager, FeatureFlags } from "../../common/featureFlags";
 
@@ -105,13 +109,11 @@ export class LaunchHelper {
   }
 
   public async getM365AppId(teamsAppId: string): Promise<Result<string, FxError>> {
-    const sideloadingServiceEndpoint =
-      process.env.SIDELOADING_SERVICE_ENDPOINT ?? MosServiceEndpoint;
-    const sideloadingServiceScope = process.env.SIDELOADING_SERVICE_SCOPE ?? MosServiceScope;
+    const sideloadingServiceEndpoint = getResourceServiceEndpoint(ResourceServiceType.MOS3);
     const packageService = new PackageService(sideloadingServiceEndpoint, this.logger);
 
     const sideloadingTokenRes = await this.m365TokenProvider.getAccessToken({
-      scopes: [sideloadingServiceScope],
+      scopes: MosServiceScope(),
     });
     if (sideloadingTokenRes.isErr()) {
       return err(sideloadingTokenRes.error);
@@ -131,7 +133,7 @@ export class LaunchHelper {
 
   private async getTidFromToken(): Promise<string | undefined> {
     try {
-      const statusRes = await this.m365TokenProvider.getStatus({ scopes: AppStudioScopes });
+      const statusRes = await this.m365TokenProvider.getStatus({ scopes: AppStudioScopes() });
       const tokenObject = statusRes.isOk() ? statusRes.value.accountInfo : undefined;
       return tokenObject?.tid as string;
     } catch {
@@ -141,7 +143,7 @@ export class LaunchHelper {
 
   private async getUpnFromToken(): Promise<string | undefined> {
     try {
-      const statusRes = await this.m365TokenProvider.getStatus({ scopes: AppStudioScopes });
+      const statusRes = await this.m365TokenProvider.getStatus({ scopes: AppStudioScopes() });
       const tokenObject = statusRes.isOk() ? statusRes.value.accountInfo : undefined;
       return tokenObject?.upn as string;
     } catch {

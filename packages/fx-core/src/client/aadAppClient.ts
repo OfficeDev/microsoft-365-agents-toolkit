@@ -5,7 +5,7 @@ import { hooks } from "@feathersjs/hooks/lib";
 import { LogProvider, M365TokenProvider } from "@microsoft/teamsfx-api";
 import axios, { AxiosError, AxiosInstance, AxiosRequestHeaders } from "axios";
 import axiosRetry, { IAxiosRetryConfig } from "axios-retry";
-import { GraphScopes } from "../common/constants";
+import { getResourceServiceEndpoint, GraphScopes, ResourceServiceType } from "../common/constants";
 import { getLocalizedString } from "../common/localizeUtils";
 import { AadOwner } from "../common/permissionInterface";
 import { ErrorContextMW } from "../common/globalVars";
@@ -37,7 +37,9 @@ export class AadAppClient {
   private readonly tokenProvider: M365TokenProvider;
   private readonly logProvider: LogProvider | undefined;
   private readonly axios: AxiosInstance;
-  private readonly baseUrl: string = "https://graph.microsoft.com/v1.0";
+  private readonly baseUrl: string = `${getResourceServiceEndpoint(
+    ResourceServiceType.Graph
+  )}/v1.0`;
 
   constructor(m365TokenProvider: M365TokenProvider, logProvider?: LogProvider) {
     this.tokenProvider = m365TokenProvider;

@@ -52,7 +52,12 @@ import { Container } from "typedi";
 import { pathToFileURL } from "url";
 import { teamsDevPortalClient } from "../client/teamsDevPortalClient";
 import { ApiKeyParameters, AuthParameters, OAuthParameters } from "../common/authInterface";
-import { AppStudioScopes, VSCodeExtensionCommand } from "../common/constants";
+import {
+  AppStudioScopes,
+  getResourceServiceEndpoint,
+  ResourceServiceType,
+  VSCodeExtensionCommand,
+} from "../common/constants";
 import { listAPIInfo, parseAndUpdatePluginManifestForKiota } from "../common/daSpecParser";
 import {
   ErrorContextMW,
@@ -144,7 +149,7 @@ import { TemplateNames } from "../component/generator/templates/templateNames";
 import { fetchZipFromUrl, getTemplateLatestVersion, unzip } from "../component/generator/utils";
 import { LaunchHelper } from "../component/m365/launchHelper";
 import { PackageService } from "../component/m365/packageService";
-import { MosServiceEndpoint, MosServiceScope } from "../component/m365/serviceConstant";
+import { MosServiceScope } from "../common/constants";
 import { EnvLoaderMW, EnvWriterMW } from "../component/middleware/envMW";
 import { QuestionMW } from "../component/middleware/questionMW";
 import {
@@ -561,11 +566,9 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
     if (titleId === undefined && manifestId === undefined) {
       return err(new MissingRequiredInputError("title id or manifest id", "FxCore"));
     }
-    const sideloadingServiceEndpoint =
-      process.env.SIDELOADING_SERVICE_ENDPOINT ?? MosServiceEndpoint;
-    const sideloadingServiceScope = process.env.SIDELOADING_SERVICE_SCOPE ?? MosServiceScope;
+    const sideloadingServiceEndpoint = getResourceServiceEndpoint(ResourceServiceType.MOS3);
     const sideloadingTokenRes = await TOOLS.tokenProvider.m365TokenProvider.getAccessToken({
-      scopes: [sideloadingServiceScope],
+      scopes: MosServiceScope(),
     });
     if (sideloadingTokenRes.isErr()) {
       return err(sideloadingTokenRes.error);
@@ -620,7 +623,7 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
   ])
   async uninstallAppRegistration(manifestId: string): Promise<Result<undefined, FxError>> {
     const appStudioTokenRes = await TOOLS.tokenProvider.m365TokenProvider.getAccessToken({
-      scopes: AppStudioScopes,
+      scopes: AppStudioScopes(),
     });
     if (appStudioTokenRes.isErr()) {
       return err(appStudioTokenRes.error);
@@ -664,7 +667,7 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
       return err(new MissingRequiredInputError("bot id or manifest id", "FxCore"));
     }
     const appStudioTokenRes = await TOOLS.tokenProvider.m365TokenProvider.getAccessToken({
-      scopes: AppStudioScopes,
+      scopes: AppStudioScopes(),
     });
     if (appStudioTokenRes.isErr()) {
       return err(appStudioTokenRes.error);
@@ -876,14 +879,14 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
 
     const tokenProvider = TOOLS.tokenProvider.m365TokenProvider;
     const appStudioTokenRes = await tokenProvider.getAccessToken({
-      scopes: AppStudioScopes,
+      scopes: AppStudioScopes(),
     });
     if (appStudioTokenRes.isErr()) {
       return err(appStudioTokenRes.error);
     }
     const appStudioToken = appStudioTokenRes.value;
     const mosTokenRes = await tokenProvider.getAccessToken({
-      scopes: [MosServiceScope],
+      scopes: MosServiceScope(),
     });
     if (mosTokenRes.isErr()) {
       return err(mosTokenRes.error);
@@ -965,7 +968,7 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
     const sharedTitleId = parseRes.value.titleId;
     const tokenProvider = TOOLS.tokenProvider.m365TokenProvider;
     const mosTokenRes = await tokenProvider.getAccessToken({
-      scopes: [MosServiceScope],
+      scopes: MosServiceScope(),
     });
     if (mosTokenRes.isErr()) {
       return err(mosTokenRes.error);

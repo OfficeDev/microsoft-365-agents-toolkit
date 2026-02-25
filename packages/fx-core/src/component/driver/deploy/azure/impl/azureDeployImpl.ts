@@ -35,6 +35,7 @@ import {
 } from "../../../interface/buildAndDeployArgs";
 import { AzureResourceInfo } from "../../../interface/commonArgs";
 import { BaseDeployImpl } from "./baseDeployImpl";
+import { getResourceServiceEndpoint, ResourceServiceType } from "../../../../../common/constants";
 
 export abstract class AzureDeployImpl extends BaseDeployImpl {
   protected managementClient: appService.WebSiteManagementClient | undefined;
@@ -213,7 +214,7 @@ export abstract class AzureDeployImpl extends BaseDeployImpl {
       azureResource.subscriptionId
     );
     try {
-      const defaultScope = "https://management.azure.com/.default";
+      const defaultScope = `${getResourceServiceEndpoint(ResourceServiceType.Azure)}/.default`;
       const token = await azureCredential.getToken(defaultScope);
       if (token) {
         this.logger.info(

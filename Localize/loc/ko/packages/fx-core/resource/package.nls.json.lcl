@@ -4094,7 +4094,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Don't know how to start? Use GitHub Copilot Chat]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[시작하는 방법을 모르시겠습니까? GitHub Copilot 채팅 사용]]></Val>
+            <Val><![CDATA[어떻게 시작해야 할지 모르겠다면 GitHub Copilot Chat을 사용해 보세요.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />

@@ -138,6 +138,10 @@ resource functionApp 'Microsoft.Web/sites@2021-02-01' = {
           name: 'TEAMSFX_ENV'
           value: teamsfxEnv
         }
+        {
+          name: 'AZURE_TOKEN_CREDENTIALS'
+          value: 'prod'
+        }
       ]
       ftpsState: 'FtpsOnly'
       cors: {

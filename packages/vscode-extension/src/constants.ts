@@ -8,6 +8,7 @@ export enum ConfigurationKey {
   EnableCEA = "enableLaunchAgentForTeamsInCopilot",
   EnableDAMetaOS = "enableDeclarativeAgentInOfficeAddIn",
   EnableCFShortcutMetaOS = "enableCustomFunctionShortcutInOfficeAddIn",
+  SovereignCloudEnvironment = "sovereignCloudEnvironment",
 }
 
 export const AzurePortalUrl = "https://portal.azure.com";

@@ -10,7 +10,7 @@ export async function checkCredential(): Promise<{
   m365LoggedIn: boolean;
   azureLoggedIn: boolean;
 }> {
-  const m365Status = await M365Login.getInstance().getStatus({ scopes: core.AppStudioScopes });
+  const m365Status = await M365Login.getInstance().getStatus({ scopes: core.AppStudioScopes() });
   const azureStatus = await AzureAccountManager.getInstance().getStatus();
   return {
     m365LoggedIn: m365Status.isOk() && m365Status.value.status === signedIn,

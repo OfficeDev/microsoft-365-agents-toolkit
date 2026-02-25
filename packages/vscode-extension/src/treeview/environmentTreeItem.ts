@@ -92,7 +92,7 @@ export class EnvironmentNode extends DynamicNode {
     const warnings: string[] = [];
 
     // Check M365 account status
-    const loginStatusRes = await M365Login.getInstance().getStatus({ scopes: AppStudioScopes });
+    const loginStatusRes = await M365Login.getInstance().getStatus({ scopes: AppStudioScopes() });
     const loginStatus = loginStatusRes.isOk() ? loginStatusRes.value : undefined;
     if (loginStatus && loginStatus.status == signedIn) {
       // Signed account doesn't match

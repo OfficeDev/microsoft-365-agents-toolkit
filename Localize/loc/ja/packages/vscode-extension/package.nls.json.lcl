@@ -32,7 +32,7 @@
         <Str Cat="Text">
           <Val><![CDATA[⚠️Install GitHub Copilot Chat for Visual Studio Code]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[⚠️Visual Studio Code用のチャットGitHub Copilotインストール]]></Val>
+            <Val><![CDATA[⚠️Visual Studio Code用の GitHub Copilot Chat のインストール]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Install GitHub Copilot Chat for Visual Studio Code]]></Val>
@@ -3899,7 +3899,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to automatically focus GitHub Copilot Chat. Open GitHub Copilot Chat and start with "%s"]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[チャットGitHub Copilot自動的にフォーカスできません。チャットGitHub Copilot開いて、"%s" で開始]]></Val>
+            <Val><![CDATA[GitHub Copilot Chat 自動的にフォーカスできません。GitHub Copilot Chat を開いて、"%s" で開始]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4109,7 +4109,7 @@
         <Str Cat="Text">
           <Val><![CDATA[GitHub Copilot Chat extension is already installed.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[GitHub Copilotチャット拡張機能は既にインストールされています。]]></Val>
+            <Val><![CDATA[GitHub Copilot Chat 拡張機能は既にインストールされています。]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4118,7 +4118,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to install GitHub Copilot Chat. Install it following %s and try again.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[チャットGitHub Copilotインストールできません。%s に従ってインストールしてから、もう一度お試しください。]]></Val>
+            <Val><![CDATA[GitHub Copilot Chat インストールできません。%s に従ってインストールしてから、もう一度お試しください。]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4583,7 +4583,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to verify GitHub Copilot Chat. Install it manually following %s and try again.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[チャットGitHub Copilot確認できません。%s に従って手動でインストールしてから、もう一度お試しください。]]></Val>
+            <Val><![CDATA[GitHub Copilot Chat を確認できません。%s に従って手動でインストールしてから、もう一度お試しください。]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />

@@ -55,7 +55,7 @@ export class CreateOauthDriver implements StepDriver {
 
       const state = loadStateFromEnv(outputEnvVarNames) as CreateOauthOutputs;
       const appStudioTokenRes = await context.m365TokenProvider.getAccessToken({
-        scopes: AppStudioScopes,
+        scopes: AppStudioScopes(),
       });
       if (appStudioTokenRes.isErr()) {
         throw appStudioTokenRes.error;

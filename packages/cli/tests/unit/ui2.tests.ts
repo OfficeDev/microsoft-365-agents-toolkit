@@ -329,6 +329,22 @@ describe("runCommand", () => {
     assert.isTrue(spawnStub.calledOnce);
     assert.equal(spawnStub.firstCall.args[0], "cmd.exe");
   });
+  it("uses custom shell", async () => {
+    const mockChildProcess = {
+      on: sandbox.stub().callsFake((event, callback) => {
+        if (event === "close") {
+          callback(0);
+        }
+      }),
+    };
+    sandbox.stub(process, "platform").value("win32");
+    sandbox.stub(logger, "info").returns();
+    const spawnStub = sandbox.stub(child_process, "spawn").returns(mockChildProcess as any);
+    const res = await UI.runCommand({ cmd: "echo hello", shell: "powershell.exe" });
+    assert.isTrue(res.isOk());
+    assert.isTrue(spawnStub.calledOnce);
+    assert.equal(spawnStub.firstCall.args[0], "powershell.exe");
+  });
   it("error linux", async () => {
     const mockChildProcess = {
       on: sandbox.stub().callsFake((event, callback) => {

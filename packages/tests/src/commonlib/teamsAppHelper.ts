@@ -32,7 +32,7 @@ export class TeamsAppHelper {
   ): Promise<TeamsAppHelper> {
     if (!TeamsAppHelper.instance) {
       const res = await provider.getAccessToken({
-        scopes: AppStudioScopes,
+        scopes: AppStudioScopes(),
       });
       if (res.isErr()) {
         throw res.error;

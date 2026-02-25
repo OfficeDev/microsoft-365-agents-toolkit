@@ -899,7 +899,7 @@ class Coordinator {
     }
     let loginHint = "";
     const accountRes = await ctx.tokenProvider.m365TokenProvider.getJsonObject({
-      scopes: AppStudioScopes,
+      scopes: AppStudioScopes(),
     });
     if (accountRes.isOk()) {
       loginHint = accountRes.value.unique_name as string;

@@ -221,7 +221,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Load your data from Azure AI Search service]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Caricare i dati da servizio di Azure Al Search]]></Val>
+            <Val><![CDATA[Carica i dati dal servizio Azure Al Search]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />

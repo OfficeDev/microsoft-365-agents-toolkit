@@ -15,6 +15,7 @@ import {
 } from "@microsoft/teamsfx-api";
 import { AxiosInstance } from "axios";
 import {
+  getResourceServiceEndpoint,
   GraphScopes,
   GraphTeamsAppSettingsReadScopes,
   GraphTeamsChannelCreateScopes,
@@ -24,6 +25,7 @@ import {
   GraphTeamsTeamReadScopes,
   GroupSearchScopes,
   ListSensitivityLabelScope,
+  ResourceServiceType,
 } from "../common/constants";
 import { globalStateGet, globalStateUpdate } from "../common/globalState";
 import { ErrorContextMW } from "../common/globalVars";
@@ -67,7 +69,7 @@ export class RetryHandler {
 
 export class GraphClient {
   private readonly baseUrl: string =
-    process.env.GRAPH_ENDPOINT ?? "https://graph.microsoft.com/beta";
+    process.env.GRAPH_ENDPOINT ?? `${getResourceServiceEndpoint(ResourceServiceType.Graph)}/beta`;
   private readonly tokenProvider: M365TokenProvider;
   private readonly logProvider: LogProvider | undefined;
 
@@ -328,7 +330,9 @@ export class GraphClient {
     const requester = this.createRequesterWithToken(tokenResponse.value);
 
     const teamData = {
-      "template@odata.bind": "https://graph.microsoft.com/beta/teamsTemplates('standard')",
+      "template@odata.bind": `${getResourceServiceEndpoint(
+        ResourceServiceType.Graph
+      )}/beta/teamsTemplates('standard')`,
       displayName: teamName,
       description: description,
       firstChannelName: defaultChannelName,
