@@ -1661,7 +1661,7 @@
                         "additionalProperties": false,
                         "properties": {
                         "mcpServerUrl": {
-                            "$ref": "#/definitions/httpsUrl",
+                            "$ref": "#/definitions/secureHttpUrl",
                             "description": "The URL of the remote MCP Server."
                         },
                         "mcpToolDescription": {

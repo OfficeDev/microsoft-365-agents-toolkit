@@ -41,11 +41,11 @@
       "type": "string",
       "maxLength": 128
     },
-    "^bots\\[0\\]\\.commandLists\\[[0-2]\\]\\.commands\\[[0-9]\\]\\.title$": {
+    "^bots\\[0\\]\\.commandLists\\[[0-2]\\]\\.commands\\[([0-9]|1[0-1])\\]\\.title$": {
       "type": "string",
       "maxLength": 128
     },
-    "^bots\\[0\\]\\.commandLists\\[[0-2]\\]\\.commands\\[[0-9]\\]\\.description$": {
+    "^bots\\[0\\]\\.commandLists\\[[0-2]\\]\\.commands\\[([0-9]|1[0-1])\\]\\.description$": {
       "type": "string",
       "maxLength": 4000
     },
@@ -201,6 +201,10 @@
       "type": "string",
       "maxLength": 2048
     },
+     "^extensions\\[[0]\\]\\.runtimes\\[[1]?[0-9]\\]\\.customFunctions\\.metadataUrl$": {
+      "type": "string",
+      "maxLength": 2048
+    },
     "^extensions\\[[0]\\]\\.runtimes\\[[1]?[0-9]\\]\\.customFunctions\\.functions\\[[0-9]\\]\\.name$": {
       "type": "string",
       "maxLength": 64
@@ -220,6 +224,14 @@
     "^extensions\\[[0]\\]\\.runtimes\\[[1]?[0-9]\\]\\.customFunctions\\.namespace\\.name$": {
       "type": "string",
       "maxLength": 32
+    },
+    "^extensions\\[[0]\\]\\.runtimes\\[[1]?[0-9]\\]\\.customFunctions\\.enums\\[[0-9]\\]\\.values\\[[0-9]\\]\\.name$": {
+      "type": "string",
+      "maxLength": 256
+    },
+    "^extensions\\[[0]\\]\\.runtimes\\[[1]?[0-9]\\]\\.customFunctions\\.enums\\[[0-9]\\]\\.values\\[[0-9]\\]\\.tooltip$": {
+      "type": "string",
+      "maxLength": 256
     },
     "^extensions\\[[0]\\]\\.keyboardShortcuts\\[[0-9]\\]\\.shortcuts\\[[0-9]\\]\\.key\\.default$": {
       "type": "string",
