@@ -150,10 +150,10 @@ jobs:
       MS_AZURE_ACCOUNT_NAME: ${{vars.MS_AZURE_ACCOUNT_NAME}}
       MS_AZURE_ACCOUNT_PASSWORD: ${{secrets.MS_AZURE_ACCOUNT_PASSWORD}}
 
-      # Test AAD App info
+      # Test AAD App info 
       TEST_AAD_APP_ID: ${{vars.TEST_AAD_APP_ID}}
       TEST_AAD_APP_PASSWORD: ${{secrets.TEST_AAD_APP_PASSWORD}}
-      
+
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
