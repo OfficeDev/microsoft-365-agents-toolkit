@@ -4,6 +4,7 @@ import { CombinedProjectGenerator } from "./combinedProject/generator";
 import { DeclarativeAgentGenerator } from "./declarativeAgent/generator";
 import { DefaultTemplateGenerator } from "./defaultGenerator";
 import { OfficeAddinGeneratorNew } from "./officeAddin/generator";
+import { Agent365Generator } from "./openApiSpec/agent365Generator";
 import { CustomEngineAgentWithExistingApiSpecGenerator } from "./openApiSpec/customEngineAgentGenerator";
 import { DeclarativeAgentWithExistingApiSpecGenerator } from "./openApiSpec/declarativeAgentGenerator";
 import { MessageExtensionWithExistingApiSpecGenerator } from "./openApiSpec/messageExtensionGenerator";
@@ -17,6 +18,7 @@ export const Generators = [
   new TdpGenerator(),
   // Generators below does not have overlapping templates.
   new DefaultTemplateGenerator(),
+  new Agent365Generator(),
   new OfficeAddinGeneratorNew(),
   new SPFxGeneratorNew(),
   new SPFxGeneratorImport(),

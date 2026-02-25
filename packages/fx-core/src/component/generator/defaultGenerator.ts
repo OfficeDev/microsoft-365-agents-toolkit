@@ -126,6 +126,9 @@ export class DefaultTemplateGenerator implements IGenerator {
       [TelemetryProperty.TemplateName]: templateName,
     });
 
+    console.log("inputs.platform", inputs.platform);
+    console.log("templateInfo", JSON.stringify(templateInfo, null, 2));
+
     const templateMetadata = getAllTemplatesOnPlatform(inputs.platform).find(
       (t) => t.name === name && t.language === templateInfo.language
     );
@@ -133,6 +136,9 @@ export class DefaultTemplateGenerator implements IGenerator {
       templateMetadata?.language === "common" || templateMetadata?.language === "none"
         ? templateMetadata.id
         : templateMetadata?.id.substring(0, templateMetadata.id.lastIndexOf("-")) ?? "";
+
+    console.log("folderName:", folderName);
+    console.log("templateMetadata", JSON.stringify(templateMetadata, null, 2));
 
     const generatorContext: GeneratorContext = {
       name: folderName,

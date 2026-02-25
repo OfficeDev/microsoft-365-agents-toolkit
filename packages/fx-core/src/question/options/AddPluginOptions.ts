@@ -16,7 +16,7 @@ export const AddPluginOptions: CLICommandOption[] = [
     type: "string",
     description: "Action type.",
     required: true,
-    default: "new-api",
+    default: "api-spec",
     choices: ["api-spec"],
   },
   {

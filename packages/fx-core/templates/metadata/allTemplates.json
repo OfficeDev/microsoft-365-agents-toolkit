@@ -1,5 +1,12 @@
 [
   {
+    "id": "agent365-ts",
+    "name": "agent365",
+    "language": "typescript",
+    "displayName": "Basic Custom Engine Agent",
+    "description": "Intelligent agent that is built with Microsoft 365 Agents SDK and connects to your LLM"
+  },
+  {
     "id": "declarative-agent-basic",
     "name": "copilot-gpt-basic",
     "language": "common",

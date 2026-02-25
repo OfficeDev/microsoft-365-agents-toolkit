@@ -4,6 +4,8 @@
 // Sorted templates that maps to question tree
 // @author Ning Tang
 export enum TemplateNames {
+  Agent365 = "agent365",
+
   // declarative agent
   DeclarativeAgentBasic = "copilot-gpt-basic", // handled by DeclarativeAgentGenerator
   DeclarativeAgentWithActionFromScratch = "api-plugin-from-scratch", // handled by DeclarativeAgentGenerator

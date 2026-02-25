@@ -20,6 +20,7 @@ import { daProjectTypeNode } from "./daProjectTypeNode";
 import { graphConnectorProjectTypeNode } from "./graphConnectorProjectTypeNode";
 import { officeAddinProjectTypeNode } from "./officeAddinProjectTypeNode";
 import { getTeamsProjectNode } from "./teamsProjectTypeNode";
+import { getAgent365TypeNode } from "./agent365Node";
 
 export const LanguageOptionMap = new Map<string, OptionItem>([
   [ProgrammingLanguage.JS, { id: ProgrammingLanguage.JS, label: "JavaScript" }],
@@ -108,6 +109,7 @@ export function scaffoldQuestionForVSCode(platform: Platform = Platform.VSCode):
           title: getLocalizedString("core.createProjectQuestion.title"),
           type: "singleSelect",
           staticOptions: [
+            ProjectTypeOptions.agent365(platform),
             ProjectTypeOptions.declarativeAgent(platform),
             ProjectTypeOptions.customEngineAgent(platform),
             ProjectTypeOptions.graphConnector(platform),
@@ -119,6 +121,7 @@ export function scaffoldQuestionForVSCode(platform: Platform = Platform.VSCode):
           ],
         },
         children: [
+          getAgent365TypeNode(),
           daProjectTypeNode(),
           getCustomEngineAgentNode(),
           getTeamsProjectNode(),

@@ -12,6 +12,7 @@ export enum ProjectTypeGroup {
 
 export class ProjectTypeOptions {
   static copilotAgentOptionId = "copilot-agent-type";
+  static agent365OptionId = "agent-365-type";
   static customEngineAgentOptionId = "custom-engine-agent-type";
   static teamsOptionId = "teams-agent-and-app-type";
   static outlookAddinOptionId = "outlook-addin-type";
@@ -54,6 +55,17 @@ export class ProjectTypeOptions {
 
   static officeAddin(platform: Platform = Platform.VSCode): OptionItem {
     return this.officeMetaOS(platform);
+  }
+
+  static agent365(platform: Platform = Platform.VSCode): OptionItem {
+    return {
+      id: ProjectTypeOptions.agent365OptionId,
+      label: `${
+        platform === Platform.VSCode ? "$(teamsfx-custom-copilot) " : ""
+      }${"Label of Agent 365 project type"}`,
+      detail: "Detail of Agent 365 project type",
+      groupName: ProjectTypeOptions.groupName(ProjectTypeGroup.AIAgent),
+    };
   }
 
   static declarativeAgent(platform: Platform = Platform.VSCode): OptionItem {

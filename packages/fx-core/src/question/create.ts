@@ -1062,7 +1062,7 @@ export function apiPluginStartQuestion(doesProjectExists?: boolean): SingleSelec
     dynamicOptions: (inputs: Inputs) => {
       return ActionStartOptions.all(inputs, doesProjectExists);
     },
-    default: ActionStartOptions.newApi().id,
+    default: doesProjectExists ? ActionStartOptions.apiSpec().id : ActionStartOptions.newApi().id,
   };
 }
 

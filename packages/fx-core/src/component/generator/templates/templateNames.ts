@@ -73,4 +73,7 @@ export enum TemplateNames {
   // VS only
   Empty = "empty",
   MessageExtensionSearch = "message-extension-search",
+
+  // Agent 365 Agents
+  Agent365Agents = "agent365",
 }

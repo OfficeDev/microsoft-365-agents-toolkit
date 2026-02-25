@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
+import { agent365Templates } from "./agent365";
 import { customEngineAgentTemplates } from "./customEngineAgent";
 import { declarativeAgentTemplates } from "./declarativeAgent";
 import { graphConnectorTemplates } from "./graphConnector";
@@ -17,6 +18,7 @@ import { vsOnlyTemplates } from "./vs";
 import { wxpTemplates } from "./wxp";
 
 export const allTemplates: Template[] = [
+  ...agent365Templates,
   ...declarativeAgentTemplates,
   ...customEngineAgentTemplates,
   ...graphConnectorTemplates,

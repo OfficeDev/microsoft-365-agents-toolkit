@@ -8,6 +8,17 @@ import { TemplateNames } from "../../../component/generator/templates/templateNa
 import { HostType, HostTypeTriggerOptionItem, NotificationTriggers } from "../../constants";
 import { QuestionNames } from "../../questionNames";
 
+export class Agent365Options {
+  static basic(): OptionItem {
+    return {
+      id: "agent365",
+      label: "Label of basic Agent 365 template",
+      detail: "Detail of basic Agent 365 template",
+      data: TemplateNames.Agent365Agents,
+    };
+  }
+}
+
 export class CustomEngineAgentOptions {
   static basicCustomEngineAgent(): OptionItem {
     return {

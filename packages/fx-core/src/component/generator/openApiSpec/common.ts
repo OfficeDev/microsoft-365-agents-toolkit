@@ -119,7 +119,7 @@ export async function getTemplateInfosFromApiSpec(
     language === ProgrammingLanguage.CSharp ? inputs[QuestionNames.SafeProjectName] : undefined;
   const solutionNameFromVS =
     language === ProgrammingLanguage.CSharp ? inputs[QuestionNames.SolutionName] : undefined;
-  const url = inputs[QuestionNames.ApiSpecLocation].trim();
+  const url = (inputs[QuestionNames.ApiSpecLocation] ?? "").trim();
   const isYaml = !(await isJsonSpecFile(url));
   const openapiSpecFileName = isYaml ? DefaultApiSpecYamlFileName : DefaultApiSpecJsonFileName;
 

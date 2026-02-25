@@ -1,0 +1,36 @@
+# yaml-language-server: $schema=https://aka.ms/m365-agents-toolkits/v1.11/yaml.schema.json
+# Visit https://aka.ms/teamsfx-v5.0-guide for details on this file
+# Visit https://aka.ms/teamsfx-actions for details on actions
+version: v1.11
+
+deploy:
+  # Install development tool(s)
+  - uses: devTool/install
+    with:
+      testTool:
+        version: ~0.2.7
+        symlinkDir: ./devTools/playground
+
+  # Run npm command
+  - uses: cli/runNpmCommand
+    with:
+      args: install
+
+  # Generate runtime environment variables
+  - uses: file/createOrUpdateEnvironmentFile
+    with:
+      target: ./.localConfigs.playground
+      envs:
+        AZURE_OPENAI_API_KEY: ${{SECRET_AZURE_OPENAI_API_KEY}}
+        AZURE_OPENAI_ENDPOINT: ${{AZURE_OPENAI_ENDPOINT}}
+        AZURE_OPENAI_DEPLOYMENT_NAME: ${{AZURE_OPENAI_DEPLOYMENT_NAME}}
+        USE_AGENTIC_AUTH: "false"
+        BEARER_TOKEN: ${{SECRET_BEARER_TOKEN}}
+        connectionsMap__0__serviceUrl: "*"
+        connectionsMap__0__connection: service_connection
+        agentic_type: agentic
+        agentic_altBlueprintConnectionName: service_connection
+        agentic_scopes: ea9ffc3e-8a23-4a7d-836d-234d7c7565c1/.default
+        connections__service_connection__settings__clientId: ""
+        connections__service_connection__settings__clientSecret: ""
+        connections__service_connection__settings__tenantId: ""
