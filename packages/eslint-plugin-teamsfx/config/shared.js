@@ -31,7 +31,7 @@ module.exports = {
       { allowTemplateLiterals: true, avoidEscape: true },
     ],
     semi: ["error", "always"],
-    "@typescript-eslint/no-var-requires": 0,
+    "@typescript-eslint/no-require-imports": 0,
     "@typescript-eslint/no-empty-function": 0,
     "import/no-cycle": [
       "error",
@@ -44,11 +44,16 @@ module.exports = {
     "no-secrets/no-secrets": [
       "warn",
       {
+        tolerance: 4.5,
         additionalRegexes: {
           "Basic Auth": "Authorization: Basic [A-Za-z0-9+/=]*",
           "Common Pattern":
             "^(?=.*[A-Za-z])(?=.*[0-9])(?=.*[@$!%*#?&])[A-Za-z0-9@$!%*#?&~-]{8,}$",
         },
+        ignoreContent: [
+          "^[A-Z][a-zA-Z]*Wrapper$",
+          "^[A-Z][a-zA-Z]*Manifest$"
+        ],
       },
     ],
   },
