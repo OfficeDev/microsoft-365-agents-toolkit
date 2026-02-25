@@ -21,7 +21,13 @@ import { MessagingExtension } from "../../src/component/driver/teamsApp/interfac
 import { StaticTab } from "../../src/component/driver/teamsApp/interfaces/appdefinitions/staticTab";
 import { TemplateNames } from "../../src/component/generator/templates/templateNames";
 import { ProgrammingLanguage, QuestionNames } from "../../src/question/constants";
-import { apiSpecNode, apiSpecWithSearchNode } from "../../src/question/scaffold/commonNodes";
+import { foundryAgentIdQuestion, foundryEndpointQuestion } from "../../src/question/create";
+import {
+  apiSpecNode,
+  apiSpecWithSearchNode,
+  foundryNode,
+} from "../../src/question/scaffold/commonNodes";
+import { constructNode } from "../../src/question/scaffold/constructNode";
 import { scaffoldQuestionForVS } from "../../src/question/scaffold/vs/createRootNode";
 import { ActionStartOptions } from "../../src/question/scaffold/vsc/CapabilityOptions";
 import { ProjectTypeOptions } from "../../src/question/scaffold/vsc/ProjectTypeOptions";
@@ -711,5 +717,177 @@ describe("ActionStartOptions", () => {
       getLocalizedString("core.createProjectQuestion.mcpForDa.detail")
     );
     assert.equal(mcpOption.data, TemplateNames.DeclarativeAgentWithActionFromMCP);
+  });
+});
+
+describe("constructNode", () => {
+  it("should return foundryNode when node is foundryNode", () => {
+    const json = JSON.stringify({
+      node: "foundryNode",
+      condition: { enum: ["foundry-proxy-agent"] },
+    });
+    const node = constructNode(json);
+    assert.isDefined(node);
+    assert.isDefined(node.data);
+    assert.deepEqual(node.condition, { enum: ["foundry-proxy-agent"] });
+  });
+
+  it("should return llmServiceNode when node is llmServiceNode", () => {
+    const json = JSON.stringify({
+      node: "llmServiceNode",
+      condition: { enum: ["some-cap"] },
+    });
+    const node = constructNode(json);
+    assert.isDefined(node);
+  });
+
+  it("should return apiSpecNode when node is apiSpecNode", () => {
+    const json = JSON.stringify({
+      node: "apiSpecNode",
+      condition: { equals: "api-spec" },
+    });
+    const node = constructNode(json);
+    assert.isDefined(node);
+  });
+
+  it("should return azureOpenAINode when node is azureOpenAINode", () => {
+    const json = JSON.stringify({
+      node: "azureOpenAINode",
+      condition: { equals: "llm-service-azure-openai" },
+    });
+    const node = constructNode(json);
+    assert.isDefined(node);
+  });
+
+  it("should build a generic node with options, children, and condition", () => {
+    const json = JSON.stringify({
+      data: {
+        type: "singleSelect",
+        name: "test-question",
+        title: "core.createProjectQuestion.llmService.title",
+        placeholder: "core.createProjectQuestion.llmService.placeholder",
+        options: [
+          {
+            id: "opt1",
+            label: "core.createProjectQuestion.llmServiceAzureOpenAIOption.label",
+            detail: "core.createProjectQuestion.llmServiceAzureOpenAIOption.detail",
+            data: "SomeTemplate",
+          },
+        ],
+      },
+      children: [],
+      condition: { enum: ["parent-id"] },
+    });
+    const node = constructNode(json);
+    assert.isDefined(node);
+    assert.deepEqual(node.condition, { enum: ["parent-id"] });
+    assert.equal((node.data as any).name, "test-question");
+  });
+
+  it("should build a generic node without condition", () => {
+    const json = JSON.stringify({
+      data: {
+        type: "singleSelect",
+        name: "no-condition-question",
+        title: "core.createProjectQuestion.llmService.title",
+        placeholder: "core.createProjectQuestion.llmService.placeholder",
+        options: [],
+      },
+      children: [],
+    });
+    const node = constructNode(json);
+    assert.isDefined(node);
+    assert.isUndefined(node.condition);
+  });
+
+  it("should recursively build child nodes", () => {
+    const json = JSON.stringify({
+      data: {
+        type: "singleSelect",
+        name: "parent-question",
+        title: "core.createProjectQuestion.llmService.title",
+        placeholder: "core.createProjectQuestion.llmService.placeholder",
+        options: [],
+      },
+      children: [
+        {
+          node: "foundryNode",
+          condition: { enum: ["foundry-proxy-agent"] },
+        },
+      ],
+    });
+    const node = constructNode(json);
+    assert.isDefined(node.children);
+    assert.lengthOf(node.children!, 1);
+  });
+});
+
+describe("foundryNode", () => {
+  it("should return a node with foundryEndpointQuestion as data", () => {
+    const node = foundryNode();
+    assert.isDefined(node);
+    assert.isDefined(node.data);
+    assert.equal((node.data as any).name, QuestionNames.FoundryEndpoint);
+    assert.isUndefined(node.condition);
+  });
+
+  it("should accept a condition and apply it to the node", () => {
+    const condition = { enum: ["foundry-proxy-agent"] };
+    const node = foundryNode(condition);
+    assert.deepEqual(node.condition, condition);
+  });
+
+  it("child condition should be true when FoundryEndpoint has a value", () => {
+    const node = foundryNode();
+    const childCondition = node.children?.[0].condition as ConditionFunc;
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      [QuestionNames.FoundryEndpoint]: "https://my-foundry.azure.com",
+    };
+    assert.isTrue(childCondition(inputs));
+  });
+
+  it("child condition should be false when FoundryEndpoint is empty string", () => {
+    const node = foundryNode();
+    const childCondition = node.children?.[0].condition as ConditionFunc;
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      [QuestionNames.FoundryEndpoint]: "",
+    };
+    assert.isFalse(childCondition(inputs));
+  });
+
+  it("child condition should be false when FoundryEndpoint is undefined", () => {
+    const node = foundryNode();
+    const childCondition = node.children?.[0].condition as ConditionFunc;
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+    };
+    assert.isFalse(childCondition(inputs));
+  });
+
+  it("child node should have foundryAgentIdQuestion as data", () => {
+    const node = foundryNode();
+    const childData = node.children?.[0].data;
+    assert.isDefined(childData);
+    assert.equal((childData as any).name, QuestionNames.FoundryAgentId);
+  });
+});
+
+describe("foundryEndpointQuestion and foundryAgentIdQuestion", () => {
+  it("foundryEndpointQuestion should have correct name", () => {
+    const question = foundryEndpointQuestion();
+    assert.equal(question.name, QuestionNames.FoundryEndpoint);
+    assert.equal(question.type, "text");
+    assert.isDefined(question.title);
+    assert.isDefined(question.placeholder);
+  });
+
+  it("foundryAgentIdQuestion should have correct name", () => {
+    const question = foundryAgentIdQuestion();
+    assert.equal(question.name, QuestionNames.FoundryAgentId);
+    assert.equal(question.type, "text");
+    assert.isDefined(question.title);
+    assert.isDefined(question.placeholder);
   });
 });
