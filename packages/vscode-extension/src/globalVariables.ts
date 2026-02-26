@@ -111,17 +111,35 @@ export function checkIsMetaOSAddinProject(directory: string): boolean {
 }
 
 export function checkIsSPFx(directory: string): boolean {
-  const files = fs.readdirSync(directory);
+  let files: string[] = [];
+  try {
+    files = fs.readdirSync(directory);
+  } catch {
+    return false;
+  }
+
   for (const file of files) {
+    const fullPath = path.join(directory, file);
     if (file === ".yo-rc.json") {
-      const content = fs.readJsonSync(path.join(directory, file)) as Record<string, unknown>;
-      if (content["@microsoft/generator-sharepoint"]) {
-        return true;
+      try {
+        const content = fs.readJsonSync(fullPath) as Record<string, unknown>;
+        if (content["@microsoft/generator-sharepoint"]) {
+          return true;
+        }
+      } catch {
+        continue;
       }
-    } else if (fs.lstatSync(path.join(directory, file)).isDirectory()) {
-      if (checkIsSPFx(path.join(directory, file))) return true;
+    } else {
+      try {
+        if (fs.lstatSync(fullPath).isDirectory() && checkIsSPFx(fullPath)) {
+          return true;
+        }
+      } catch {
+        continue;
+      }
     }
   }
+
   return false;
 }
 
