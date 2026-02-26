@@ -110,6 +110,32 @@ describe("Global Variables", () => {
       const res = globalVariables.checkIsSPFx("/test");
       chai.expect(res).equals(false);
     });
+
+    it("return false when .yo-rc.json exists without generator-sharepoint", () => {
+      sandbox.stub(fs, "readdirSync").returns([".yo-rc.json"] as any);
+      sandbox.stub(fs, "readJsonSync").returns({ someOtherKey: "value" });
+
+      const res = globalVariables.checkIsSPFx("/test");
+      chai.expect(res).equals(false);
+    });
+
+    it("return false when subdirectory exists but has no SPFx", () => {
+      const readdirStub = sandbox.stub(fs, "readdirSync");
+      readdirStub.onFirstCall().returns(["subdir"] as any);
+      readdirStub.onSecondCall().returns([] as any);
+      sandbox.stub(fs, "lstatSync").returns({ isDirectory: () => true } as any);
+
+      const res = globalVariables.checkIsSPFx("/test");
+      chai.expect(res).equals(false);
+    });
+
+    it("return false when file is not directory", () => {
+      sandbox.stub(fs, "readdirSync").returns(["somefile.txt"] as any);
+      sandbox.stub(fs, "lstatSync").returns({ isDirectory: () => false } as any);
+
+      const res = globalVariables.checkIsSPFx("/test");
+      chai.expect(res).equals(false);
+    });
   });
 
   describe("isDeclarativeCopilotApp", () => {
