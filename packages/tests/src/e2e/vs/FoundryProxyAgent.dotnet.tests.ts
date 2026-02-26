@@ -17,6 +17,7 @@ import fs from "fs-extra";
 import { CliHelper } from "../../commonlib/cliHelper";
 import { EnvConstants } from "../../commonlib/constants";
 import {
+  getBotServiceProperties,
   getResourceGroupNameFromResourceId,
   getSiteNameFromResourceId,
   getWebappSettings,
@@ -36,7 +37,6 @@ import {
   deleteBot,
   deleteTeamsApp,
   getAadAppByClientId,
-  getBot,
   getTeamsApp,
 } from "../debug/utility";
 
@@ -254,10 +254,27 @@ describe("Foundry Proxy Agent for csharp version", function () {
         const aadApp = await getAadAppByClientId(context.BOT_ID);
         assert.isDefined(aadApp);
         assert.equal(aadApp?.appId, context.BOT_ID);
-        const bot = await getBot(context.BOT_ID);
-        assert.equal(bot?.botId, context.BOT_ID);
+
+        // Validate bot service via ARM (same-tenant account required)
+        const localTokenProvider = MockAzureAccountProvider;
+        const localCredential =
+          await localTokenProvider.getIdentityCredentialAsync();
+        const localToken = (await localCredential?.getToken(AzureScopes()))
+          ?.token;
+        assert.exists(
+          localToken,
+          "ARM token should be available for bot service validation"
+        );
+        const botService = await getBotServiceProperties(
+          subscription,
+          localResourceGroupName,
+          localToken as string,
+          context.BOT_ID
+        );
+        assert.isDefined(botService, "Bot service should exist in ARM");
+        assert.equal(botService?.msaAppId, context.BOT_ID);
         assert.equal(
-          bot?.messagingEndpoint,
+          botService?.endpoint,
           "https://test.ngrok.io/api/messages"
         );
 
