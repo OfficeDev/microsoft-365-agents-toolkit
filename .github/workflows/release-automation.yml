@@ -675,7 +675,7 @@ jobs:
   trigger-cd:
     needs: prepare-release
     runs-on: ubuntu-latest
-    if: ${{ github.event_name != 'pull_request' && needs.prepare-release.result == 'success' && env.DRY_RUN == 'false' && ((github.event_name == 'workflow_dispatch' && env.RERUN_CD_ONLY == 'true') || (github.event_name == 'schedule' && needs.prepare-release.outputs.auto_cd == 'true')) }}
+    if: ${{ github.event_name != 'pull_request' && needs.prepare-release.result == 'success' && ((github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run == 'false' && github.event.inputs.rerun_cd_only == 'true') || (github.event_name == 'schedule' && needs.prepare-release.outputs.auto_cd == 'true')) }}
     outputs:
       product: ${{ needs.prepare-release.outputs.product }}
       release_type: ${{ needs.prepare-release.outputs.release_type }}
@@ -684,7 +684,7 @@ jobs:
       preid: ${{ needs.prepare-release.outputs.preid }}
       series: ${{ needs.prepare-release.outputs.series }}
       vsrelease: ${{ needs.prepare-release.outputs.vsrelease }}
-      goproduct: ${{ env.GO_PRODUCT }}
+      goproduct: ${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.go_product) || 'false' }}
     env:
       APP_GITHUB_APP_ID: ${{ vars.APP_GITHUB_APP_ID }}
       APP_GITHUB_APP_PRIVATE_KEY: ${{ secrets.APP_GITHUB_APP_PRIVATE_KEY }}
@@ -705,7 +705,7 @@ jobs:
             const preid = '${{ needs.prepare-release.outputs.preid }}';
             const series = '${{ needs.prepare-release.outputs.series }}';
             const vsrelease = '${{ needs.prepare-release.outputs.vsrelease }}' === 'true';
-            const goproduct = '${{ env.GO_PRODUCT }}' === 'true';
+            const goproduct = '${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.go_product) || 'false' }}' === 'true';
 
             console.log('Triggering CD workflow with parameters:');
             console.log(`  Branch: ${branch}`);
@@ -748,18 +748,11 @@ jobs:
       vsrelease: ${{ steps.trigger.outputs.vsrelease }}
       goproduct: ${{ steps.trigger.outputs.goproduct }}
     steps:
-      - id: generate-token
-        if: ${{ vars.APP_GITHUB_APP_ID != '' && secrets.APP_GITHUB_APP_PRIVATE_KEY != '' }}
-        uses: actions/create-github-app-token@v2
-        with:
-          app-id: ${{ vars.APP_GITHUB_APP_ID }}
-          private-key: ${{ secrets.APP_GITHUB_APP_PRIVATE_KEY }}
-
       - name: Trigger CD on automation sync PR merge
         id: trigger
         uses: actions/github-script@v7
         with:
-          github-token: ${{ steps.generate-token.outputs.token || secrets.RELEASE_AUTOMATION_TOKEN || github.token }}
+          github-token: ${{ secrets.RELEASE_AUTOMATION_TOKEN || github.token }}
           script: |
             const pr = context.payload.pull_request;
             const base = pr.base?.ref;
