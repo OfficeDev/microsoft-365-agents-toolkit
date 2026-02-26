@@ -154,8 +154,32 @@ jobs:
             REASON="version=$VERSION_INPUT"
             RELEASE=$(jq -c --arg v "$VERSION_INPUT" '[.[] | select(.version == $v)] | .[0]' releases.json)
           elif [ "$RERUN_CD_ONLY" = "true" ]; then
-            REASON="latest_pending_release"
-            RELEASE=$(jq -c 'sort_by(.cut_date // "") | .[-1]' releases.json)
+            REASON="cut_date_window=$TODAY_UTC8 (UTC+8)"
+            RELEASE=$(jq -c --arg d "$TODAY_UTC8" '
+              [ .[] | select((.cut_date // "") != "") ]
+              | sort_by(.cut_date) as $s
+              | if ($s|length) == 0 then null
+                else
+                  (
+                    [ range(0; ($s|length)) as $i
+                      | select(
+                          ($s[$i].cut_date <= $d)
+                          and (
+                            ($i + 1) >= ($s|length)
+                            or ($s[$i+1].cut_date > $d)
+                          )
+                        )
+                      | $s[$i]
+                    ]
+                    | .[0]
+                  )
+                  // (
+                    [ $s[] | select(.cut_date > $d) ]
+                    | .[0]
+                  )
+                  // $s[-1]
+                end
+            ' releases.json)
           else
             REASON="cut_date=$TODAY_UTC8 (UTC+8)"
             RELEASE=$(jq -c --arg d "$TODAY_UTC8" '[.[] | select(.cut_date == $d)] | .[0]' releases.json)
