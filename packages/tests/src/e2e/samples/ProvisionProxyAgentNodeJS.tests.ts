@@ -12,7 +12,8 @@ import { CaseFactory } from "./sampleCaseFactory";
 
 class ProxyAgentNodeJSTestCase extends CaseFactory {
   override async onBeforeProvision(projectPath: string): Promise<void> {
-    const envFilePath = path.resolve(projectPath, "env", ".env.dev.user");
+    // This sample is different so set the env in .env.dev other than .env.dev.user.
+    const envFilePath = path.resolve(projectPath, "env", ".env.dev");
     editDotEnvFile(
       envFilePath,
       "AZURE_AI_FOUNDRY_PROJECT_ENDPOINT",
