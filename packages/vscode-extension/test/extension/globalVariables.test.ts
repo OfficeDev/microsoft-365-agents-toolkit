@@ -86,6 +86,30 @@ describe("Global Variables", () => {
 
       chai.expect(globalVariables.isTeamsFxProject).equals(false);
     });
+
+    it("return false when readdirSync throws", () => {
+      sandbox.stub(fs, "readdirSync").throws(new Error("EACCES: permission denied"));
+
+      const res = globalVariables.checkIsSPFx("/test");
+      chai.expect(res).equals(false);
+    });
+
+    it("continue when readJsonSync throws", () => {
+      sandbox.stub(fs, "readdirSync").returns([".yo-rc.json", "other.json"] as any);
+      sandbox.stub(fs, "readJsonSync").throws(new Error("Failed to read JSON"));
+      sandbox.stub(fs, "lstatSync").returns({ isDirectory: () => false } as any);
+
+      const res = globalVariables.checkIsSPFx("/test");
+      chai.expect(res).equals(false);
+    });
+
+    it("continue when lstatSync throws", () => {
+      sandbox.stub(fs, "readdirSync").returns(["subdir"] as any);
+      sandbox.stub(fs, "lstatSync").throws(new Error("EACCES: permission denied"));
+
+      const res = globalVariables.checkIsSPFx("/test");
+      chai.expect(res).equals(false);
+    });
   });
 
   describe("isDeclarativeCopilotApp", () => {
