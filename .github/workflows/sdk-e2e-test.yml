@@ -1,23 +1,116 @@
-name: SDK E2E test
+name: E2E Test - Same Tenant
+
+# This workflow runs the Foundry Proxy Agent e2e test separately from the main e2e suite
+# because it requires the Azure account and M365 account to be in the same tenant.
+# Credentials are provided via TEST_E2E_ACCOUNT_NAME (var) and TEST_E2E_ACCOUNT_PASSWORD (secret).
 
 on:
   workflow_dispatch:
+    inputs:
+      target-testplan-id:
+        description: "target testplan id. If not set, will not archive ado testplan"
+        required: false
+        type: string
+
   schedule:
-    - cron: "0 5 * * *"
-  push:
-    branches:
-      - renovate/**
+    - cron: "0 23 * * *"
+
+  pull_request:
+    branches: [dev, release/**]
+   
+permissions:
+  actions: read
 
 jobs:
-  setup:
+  execute-case:
     runs-on: ubuntu-latest
+    environment: engineering
     permissions:
-      actions: read
+      id-token: write
+      contents: read
     env:
-      SDK_INTEGRATION_TEST_SQL: ${{ secrets.SDK_INTEGRATION_TEST_SQL }}
-      SDK_INTEGRATION_TEST_ACCOUNT: ${{ secrets.SDK_INTEGRATION_TEST_ACCOUNT }}
-      SDK_INTEGRATION_TEST_AAD: ${{ secrets.SDK_INTEGRATION_TEST_AAD }}
-      SDK_INTEGRATION_TEST_API_CERTPROVIDER: ${{ secrets.SDK_INTEGRATION_TEST_API_CERTPROVIDER }}
+      AZURE_ACCOUNT_NAME: ${{ vars.TEST_E2E_ACCOUNT_NAME }}
+      AZURE_ACCOUNT_PASSWORD: ${{ secrets.TEST_E2E_ACCOUNT_PASSWORD }}
+      AZURE_SUBSCRIPTION_ID: ${{ vars.TEST_E2E_SUBSCRIPTION_ID }}
+      AZURE_TENANT_ID: ${{ vars.TEST_TENANT_CLEAN_TENANT_ID }}
+      M365_ACCOUNT_NAME: ${{ vars.TEST_E2E_ACCOUNT_NAME }}
+      M365_ACCOUNT_PASSWORD: ${{ secrets.TEST_E2E_ACCOUNT_PASSWORD }}
+      M365_TENANT_ID: ${{ vars.TEST_TENANT_CLEAN_TENANT_ID }}
+      AUTO_TEST_PLAN_ID: ${{ github.event.inputs.target-testplan-id }}
+      CI_ENABLED: "true"
+      TEAMSFX_DEBUG_TEMPLATE: "true"
+      NODE_ENV: "development"
+      TEAMSFX_AAD_DEPLOY_ONLY: "true"
+      SIDELOADING_SERVICE_ENDPOINT: ${{ secrets.SIDELOADING_SERVICE_ENDPOINT }}
+      SIDELOADING_SERVICE_SCOPE: ${{ secrets.SIDELOADING_SERVICE_SCOPE }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.DEVOPS_CLIENT_ID }}
+          tenant-id: ${{ secrets.DEVOPS_TENANT_ID }}
+          subscription-id: ${{ secrets.DEVOPS_SUB_ID }}
+
+      - name: Setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 22
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: |
+            8.0.x
+
+      - uses: pnpm/action-setup@v4
+
+      - name: Setup project
+        run: |
+          npm run setup:e2e
+
+      - name: install cli for schedule
+        if: ${{ github.event_name == 'schedule' }}
+        run: |
+          npm install -g @microsoft/m365agentstoolkit-cli@alpha
+
+      - name: link cli for workflow_dispatch
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        run: |
+          pnpm link --global
+
+      - name: print system info
+        run: |
+          lscpu
+
+      - name: run test
+        working-directory: packages/tests/src/e2e
+        run: |
+          npx mocha --reporter mochawesome --timeout 1200000 ./vs/FoundryProxyAgent.dotnet.tests.ts
+
+      - name: Upload test report
+        uses: actions/upload-artifact@v4
+        if: ${{ always() }}
+        with:
+          name: test-result-vs_FoundryProxyAgent_dotnet
+          path: |
+            ./packages/tests/src/e2e/mochawesome-report/mochawesome.json
+
+  tear-down:
+    needs: execute-case
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    env:
+      AZURE_ACCOUNT_NAME: ${{ vars.TEST_E2E_ACCOUNT_NAME }}
+      AZURE_ACCOUNT_PASSWORD: ${{ secrets.TEST_E2E_ACCOUNT_PASSWORD }}
+      AZURE_SUBSCRIPTION_ID: ${{ vars.TEST_E2E_SUBSCRIPTION_ID }}
+      AZURE_TENANT_ID: ${{ vars.TEST_TENANT_CLEAN_TENANT_ID }}
+      M365_ACCOUNT_NAME: ${{ vars.TEST_E2E_ACCOUNT_NAME }}
+      M365_ACCOUNT_PASSWORD: ${{ secrets.TEST_E2E_ACCOUNT_PASSWORD }}
+      M365_TENANT_ID: ${{ vars.TEST_TENANT_CLEAN_TENANT_ID }}
+      CI_ENABLED: "true"
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -25,126 +118,7 @@ jobs:
       - name: setup project
         uses: ./.github/actions/setup-project
 
-      - name: setup python
-        uses: actions/setup-python@v3
-
-      - name: install xq
+      - name: E2E Test clean
+        working-directory: packages/tests
         run: |
-          pip install yq
-
-      - name: run test - node
-        if: ${{ always() }}
-        working-directory: packages/sdk
-        run: |
-          npm run test:e2e:node
-
-      - name: run test - browser
-        if: ${{ always() }}
-        working-directory: packages/sdk
-        run: |
-          npm run test:e2e:browser
-
-      - name: get job id
-        id: get-job-id
-        if: ${{ always() }}
-        uses: ayachensiyuan/get-action-job-id@v1.5
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          job-name: "setup"
-
-      - name: List jobs
-        if: ${{ always() }}
-        id: list-jobs
-        working-directory: packages/sdk
-        run: |
-          lists=""
-
-          total_node=`cat test-results.node.xml | xq '.testsuite| ."@tests"' | sed -e 's/"//g'`
-          total_browser=`cat test-results.browser.xml | xq '.testsuite| ."@tests"' | sed -e 's/"//g'`
-          total=$((total_node+total_browser))
-
-          error_node=`cat test-results.node.xml | xq '.testsuite| ."@errors"' | sed -e 's/"//g'`
-          error_browser=`cat test-results.browser.xml | xq '.testsuite| ."@errors"' | sed -e 's/"//g'`
-          failed=$((error_node+error_browser))
-
-          passed=$((total-failed))
-
-          emails="vsciotadt@microsoft.com"
-
-          case_node=`cat test-results.node.xml | xq '.testsuite | .testcase'`
-          case_browser=`cat test-results.browser.xml | xq '.testsuite | .testcase'`
-
-          for case in $(jq --slurp 'add' <(echo "$case_node ") <(echo "$case_browser") | jq -r '.[] | @base64'); do
-            _jq() {
-                echo "${case}" | base64 --decode | jq -r "${1}"
-            }
-
-            if [ -z "$case" ]; then
-              continue
-            fi
-
-            suite=$(_jq '."@classname"' | sed -e 's/"/\\"/g')
-            name=$(_jq '."@name"' | sed -e 's/"/\\"/g')
-            duration=$(_jq '."@time"'| sed -e 's/"/\\"/g')
-            failure=$(_jq '.failure'| sed -e 's/"/\\"/g')
-            email="ning.tang@microsoft.com"
-
-            author="<a href=\\\"mailto:$email\\\"><span>$email</span></a>"
-
-            label=""
-            if [ "$failure" == "null" ]; then
-              label="<span style=\\\"background-color:#2aa198;color:white;font-weight:bold;\\\">PASSED</span>"
-            else
-              label="<span style=\\\"background-color:#dc322f;color:white;font-weight:bold;\\\">FAILED</span>"
-            fi
-
-            if [[ ! -z "$email" && ! "$emails" == *"$email"* && "$failure" ]]; then
-              emails="$emails;$email"
-            fi
-
-            row="<tr> <td style=\\\"text-align: left;\\\">$suite</td> <td style=\\\"text-align: left;\\\">$name</td> <td style=\\\"text-align: center;\\\">$label</td> <td style=\\\"text-align: center;\\\">$author</td> <td>$duration sec</td> </tr>"
-
-            if [[ -z "$failure" ]]; then
-              lists="$lists $row"
-            else
-              lists="$row $lists"
-            fi
-
-          done
-
-
-          body="<table class=\\\"w3-table w3-striped w3-bordered\\\"> <tr>  <th>Suite</th> <th>Case</th> <th>Status</th> <th>Author</th> <th>Duration</th> </tr> $lists </table> <br /> The detail can be found here: <a> https://github.com/OfficeDev/TeamsFx/actions/runs/${{ github.run_id }}</a>"
-
-          subject="SDK E2E Test Report ($passed/$total Passed)"
-          if [ $failed -gt 0 ]; then
-            subject="[FAILED] $subject"
-          else
-            subject="[PASSED] $subject"
-          fi
-
-          echo "body=$body" >> $GITHUB_OUTPUT
-          echo "to=$emails" >> $GITHUB_OUTPUT
-          echo "subject=$subject" >> $GITHUB_OUTPUT
-
-      - name: Rerun
-        if: ${{ github.event_name == 'schedule' && failure() && github.run_attempt < 5 }}
-        run: |
-          curl \
-           -X POST \
-           -H "Accept: application/vnd.github+json" \
-           -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}"\
-           -H "X-GitHub-Api-Version: 2022-11-28" \
-           https://api.github.com/repos/${{ github.repository }}/actions/workflows/rerun.yml/dispatches \
-           -d '{"ref":"${{ github.ref_name }}","inputs":{"run_id":"${{ github.run_id }}", "max_attempts":"5"}}'
-
-      - name: Report result
-        if: ${{ github.event_name == 'schedule' && (success() || (failure() && github.run_attempt >= 5)) }}
-        uses: ./.github/actions/send-email-report
-        env:
-          TO: ${{ steps.list-jobs.outputs.to }}
-          BODY: '"${{ steps.list-jobs.outputs.body }}"'
-          SUBJECT: ${{ steps.list-jobs.outputs.subject }}
-          MAIL_CLIENT_ID: ${{ secrets.TEST_CLEAN_CLIENT_ID }}
-          MAIL_CLIENT_SECRET: ${{ secrets.TEST_CLEAN_CLIENT_SECRET }}
-          MAIL_TENANT_ID: ${{ secrets.TEST_CLEAN_TENANT_ID }}
+          npm run test:e2e:clean
