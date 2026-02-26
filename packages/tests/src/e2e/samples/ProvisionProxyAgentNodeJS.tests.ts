@@ -5,20 +5,26 @@
  * @author quke@microsoft.com
  */
 
-// ProxyAgent-NodeJS requires a live Azure AI Foundry Project endpoint, a
-// deployed Agent ID, and OAuth App Registration credentials. Provision is
-// skipped in automated tests; project creation and manifest validation are
-// exercised instead.
-
+import * as path from "path";
+import { editDotEnvFile } from "../commonUtils";
 import { TemplateProjectFolder } from "../../utils/constants";
 import { CaseFactory } from "./sampleCaseFactory";
 
-class ProxyAgentNodeJSTestCase extends CaseFactory {}
+class ProxyAgentNodeJSTestCase extends CaseFactory {
+  override async onBeforeProvision(projectPath: string): Promise<void> {
+    const envFilePath = path.resolve(projectPath, "env", ".env.dev.user");
+    editDotEnvFile(
+      envFilePath,
+      "AZURE_AI_FOUNDRY_PROJECT_ENDPOINT",
+      "https://fake.services.ai.azure.com/api/projects/fake"
+    );
+    editDotEnvFile(envFilePath, "AGENT_ID", "fake-agent-id");
+  }
+}
 
 new ProxyAgentNodeJSTestCase(
   TemplateProjectFolder.ProxyAgentNodeJS,
   0,
   "quke@microsoft.com",
-  ["bot"],
-  { skipProvision: true }
+  ["bot"]
 ).test();

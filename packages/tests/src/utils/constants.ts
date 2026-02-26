@@ -103,11 +103,8 @@ export enum TemplateProjectFolder {
   RedditLink = "nodejs",
   IntelligentDataChart = "intelligent-data-chart-generator",
   // new samples
-  ApimGenaiGateway = "apim-genai-gateway",
   CoffeeAgent = "coffee-agent",
   DataAnalystAgentV2 = "data-analyst-agent-v2",
-  TravelAgent = "travel-agent",
-  ProxyAgentCSharp = "ProxyAgent-CSharp",
   ProxyAgentNodeJS = "ProxyAgent-NodeJS",
   HelloWorldOfficeAddin = "hello-world-office-addin",
   // v2 only
