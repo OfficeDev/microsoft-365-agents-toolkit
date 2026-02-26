@@ -221,7 +221,7 @@ describe("Foundry Proxy Agent for csharp version", function () {
         const localResourceGroupName = `${appName}-local-rg`;
         const localRgResult = await createResourceGroup(
           localResourceGroupName,
-          "westus"
+          "austriacentral"
         );
         assert.isTrue(
           localRgResult,
@@ -285,7 +285,10 @@ describe("Foundry Proxy Agent for csharp version", function () {
         );
 
         // Remote Provision
-        const result = await createResourceGroup(resourceGroupName, "westus");
+        const result = await createResourceGroup(
+          resourceGroupName,
+          "australiacentral"
+        );
         assert.isTrue(
           result,
           `failed to create resource group: ${resourceGroupName}`
