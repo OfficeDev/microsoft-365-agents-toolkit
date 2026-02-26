@@ -15,7 +15,7 @@
         "value": "F0"
       },
       "enableAppInsights": {
-        "value": true
+        "value": false
       },
       "agentId": {
         "value": "${{AGENT_ID}}"

@@ -70,7 +70,7 @@
     },
     "enableAppInsights": {
       "type": "bool",
-      "defaultValue": false,
+      "defaultValue": true,
       "metadata": {
         "description": "Enable Application Insights"
       }
