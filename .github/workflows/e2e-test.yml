@@ -86,7 +86,7 @@ jobs:
         if: ${{  github.event_name == 'schedule' }}
         working-directory: packages/tests/src/e2e
         run: |
-          cases=`find . -wholename "*.tests.ts" | jq -Rsc '[split("\n") | .[]| select(.!="")]'`
+          cases=`find . -wholename "*.tests.ts" | grep -v "FoundryProxyAgent" | jq -Rsc '[split("\n") | .[]| select(.!="")]'`
           echo "cases=$cases" >> $GITHUB_OUTPUT
 
       - name: List cases for pull request
@@ -94,7 +94,7 @@ jobs:
         if: ${{  github.event_name == 'pull_request' }}
         working-directory: packages/tests/src/e2e
         run: |
-          cases=`find . -wholename "*.tests.ts" | grep -v "/samples/" | jq -Rsc '[split("\n") | .[]| select(.!="")]'`
+          cases=`find . -wholename "*.tests.ts" | grep -v "/samples/" | grep -v "FoundryProxyAgent" | jq -Rsc '[split("\n") | .[]| select(.!="")]'`
           echo "cases=$cases" >> $GITHUB_OUTPUT
 
       - name: List cases for dispatch
@@ -104,7 +104,7 @@ jobs:
         run: |
           inputCases='${{ github.event.inputs.cases }}'
           if [ -z "$inputCases" ]; then
-            allCases=`find . -wholename "*.tests.ts" | jq -Rsc '[split("\n") | .[]| select(.!="")]'`
+            allCases=`find . -wholename "*.tests.ts" | grep -v "FoundryProxyAgent" | jq -Rsc '[split("\n") | .[]| select(.!="")]'`
             echo "cases=$allCases" >> $GITHUB_OUTPUT
           else
             echo "cases=$inputCases" >> $GITHUB_OUTPUT

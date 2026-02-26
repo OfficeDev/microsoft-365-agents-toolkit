@@ -1,0 +1,121 @@
+name: E2E Test - Same Tenant
+
+# This workflow runs the Foundry Proxy Agent e2e test separately from the main e2e suite
+# because it requires the Azure account and M365 account to be in the same tenant.
+# Credentials are provided via TEST_E2E_ACCOUNT_NAME (var) and TEST_E2E_ACCOUNT_PASSWORD (secret).
+
+on:
+  workflow_dispatch:
+    inputs:
+      target-testplan-id:
+        description: "target testplan id. If not set, will not archive ado testplan"
+        required: false
+        type: string
+
+  schedule:
+    - cron: "0 23 * * *"
+
+permissions:
+  actions: read
+
+jobs:
+  execute-case:
+    runs-on: ubuntu-latest
+    environment: engineering
+    permissions:
+      id-token: write
+      contents: read
+    env:
+      AZURE_ACCOUNT_NAME: ${{ vars.TEST_E2E_ACCOUNT_NAME }}
+      AZURE_ACCOUNT_PASSWORD: ${{ secrets.TEST_E2E_ACCOUNT_PASSWORD }}
+      AZURE_SUBSCRIPTION_ID: ${{ vars.TEST_E2E_SUBSCRIPTION_ID }}
+      AZURE_TENANT_ID: ${{ vars.TEST_TENANT_CLEAN_TENANT_ID }}
+      M365_ACCOUNT_NAME: ${{ vars.TEST_E2E_ACCOUNT_NAME }}
+      M365_ACCOUNT_PASSWORD: ${{ secrets.TEST_E2E_ACCOUNT_PASSWORD }}
+      M365_TENANT_ID: ${{ vars.TEST_TENANT_CLEAN_TENANT_ID }}
+      AUTO_TEST_PLAN_ID: ${{ github.event.inputs.target-testplan-id }}
+      CI_ENABLED: "true"
+      TEAMSFX_DEBUG_TEMPLATE: "true"
+      NODE_ENV: "development"
+      TEAMSFX_AAD_DEPLOY_ONLY: "true"
+      SIDELOADING_SERVICE_ENDPOINT: ${{ secrets.SIDELOADING_SERVICE_ENDPOINT }}
+      SIDELOADING_SERVICE_SCOPE: ${{ secrets.SIDELOADING_SERVICE_SCOPE }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.DEVOPS_CLIENT_ID }}
+          tenant-id: ${{ secrets.DEVOPS_TENANT_ID }}
+          subscription-id: ${{ secrets.DEVOPS_SUB_ID }}
+
+      - name: Setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 22
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: |
+            8.0.x
+
+      - uses: pnpm/action-setup@v4
+
+      - name: Setup project
+        run: |
+          npm run setup:e2e
+
+      - name: install cli for schedule
+        if: ${{ github.event_name == 'schedule' }}
+        run: |
+          npm install -g @microsoft/m365agentstoolkit-cli@alpha
+
+      - name: link cli for workflow_dispatch
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        run: |
+          pnpm link --global
+
+      - name: print system info
+        run: |
+          lscpu
+
+      - name: run test
+        working-directory: packages/tests/src/e2e
+        run: |
+          npx mocha --reporter mochawesome --timeout 1200000 ./vs/FoundryProxyAgent.dotnet.tests.ts
+
+      - name: Upload test report
+        uses: actions/upload-artifact@v4
+        if: ${{ always() }}
+        with:
+          name: test-result-vs_FoundryProxyAgent_dotnet
+          path: |
+            ./packages/tests/src/e2e/mochawesome-report/mochawesome.json
+
+  tear-down:
+    needs: execute-case
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    env:
+      AZURE_ACCOUNT_NAME: ${{ vars.TEST_E2E_ACCOUNT_NAME }}
+      AZURE_ACCOUNT_PASSWORD: ${{ secrets.TEST_E2E_ACCOUNT_PASSWORD }}
+      AZURE_SUBSCRIPTION_ID: ${{ vars.TEST_E2E_SUBSCRIPTION_ID }}
+      AZURE_TENANT_ID: ${{ vars.TEST_TENANT_CLEAN_TENANT_ID }}
+      M365_ACCOUNT_NAME: ${{ vars.TEST_E2E_ACCOUNT_NAME }}
+      M365_ACCOUNT_PASSWORD: ${{ secrets.TEST_E2E_ACCOUNT_PASSWORD }}
+      M365_TENANT_ID: ${{ vars.TEST_TENANT_CLEAN_TENANT_ID }}
+      CI_ENABLED: "true"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: setup project
+        uses: ./.github/actions/setup-project
+
+      - name: E2E Test clean
+        working-directory: packages/tests
+        run: |
+          npm run test:e2e:clean
