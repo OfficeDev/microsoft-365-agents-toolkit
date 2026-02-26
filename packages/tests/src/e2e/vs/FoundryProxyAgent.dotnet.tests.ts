@@ -221,7 +221,7 @@ describe("Foundry Proxy Agent for csharp version", function () {
         const localResourceGroupName = `${appName}-local-rg`;
         const localRgResult = await createResourceGroup(
           localResourceGroupName,
-          "austriacentral"
+          "australiacentral"
         );
         assert.isTrue(
           localRgResult,
