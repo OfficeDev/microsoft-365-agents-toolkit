@@ -196,7 +196,7 @@ output identityPrincipalId string = botIdentity.outputs.identityPrincipalId
 
 // App Service outputs
 output webAppName string = appService.outputs.webAppName
-output webAppId string = appService.outputs.webAppId
+output BOT_AZURE_APP_SERVICE_RESOURCE_ID string = appService.outputs.webAppId
 output BOT_DOMAIN string = appService.outputs.webAppHostName
 output webAppUrl string = 'https://${appService.outputs.webAppHostName}'
 output appServicePlanId string = appService.outputs.appServicePlanId

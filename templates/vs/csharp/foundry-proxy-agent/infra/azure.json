@@ -1184,7 +1184,7 @@
       "type": "string",
       "value": "[reference(resourceId('Microsoft.Resources/deployments', 'deploy-app-service'), '2025-04-01').outputs.webAppName.value]"
     },
-    "webAppId": {
+    "BOT_AZURE_APP_SERVICE_RESOURCE_ID": {
       "type": "string",
       "value": "[reference(resourceId('Microsoft.Resources/deployments', 'deploy-app-service'), '2025-04-01').outputs.webAppId.value]"
     },
