@@ -22,7 +22,6 @@
         "color": "assets/color.png"
     },
     "accentColor": "#230201",
-    "supportsChannelFeatures": "tier1",
     "localizationInfo": {
         "defaultLanguageTag": "en-us",
         "additionalLanguages": []
