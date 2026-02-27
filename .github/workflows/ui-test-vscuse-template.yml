@@ -358,43 +358,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       MAX_RETRIES: ${{ github.event.inputs.max_retries || 7 }}
-      M365_ACCOUNT_PASSWORD: ${{ secrets.TEST_TENANT_M365_ACCOUNT_ADMIN_PASSWORD }}
-      M365_ACCOUNT_NAME: ${{ vars.TEST_TENANT_M365_ACCOUNT_ADMIN_ACCOUNT }}
-      CLEAN_CLIENT_ID: ${{ vars.TEST_TENANT_CLEAN_CLIENT_ID }}
-      CLEAN_CLIENT_SECRET: ${{ secrets.TEST_TENANT_CLEAN_CLIENT_SECRET }}
-      CLEAN_TENANT_ID: ${{ secrets.TEST_TENANT_CLEAN_TENANT_ID }}
-      AZURE_TENANT_ID: ${{ secrets.TEST_TENANT_TENANT_ID }}
-      AZURE_SUBSCRIPTION_ID: ${{ secrets.TEST_TENANT_SUBSCRIPTION_ID }}
-      AZURE_ACCOUNT_NAME: ${{ secrets.TEST_TENANT_AZURE_ACCOUNT_NAME }}
-      AZURE_ACCOUNT_PASSWORD: ${{ secrets.TEST_TENANT_AZURE_ACCOUNT_PASSWORD }}
     steps:
-      - name: Checkout
-        if: ${{ github.event_name == 'schedule' || github.event.inputs.schedule_trigger == 'true' }}
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.ref_name }}
-
-      - name: Setup node
-        if: ${{ github.event_name == 'schedule' || github.event.inputs.schedule_trigger == 'true' }}
-        uses: actions/setup-node@v3
-        with:
-          node-version: 22
-
-      - uses: pnpm/action-setup@v4
-        if: ${{ github.event_name == 'schedule' || github.event.inputs.schedule_trigger == 'true' }}
-
-      - name: Setup project
-        if: ${{ github.event_name == 'schedule' || github.event.inputs.schedule_trigger == 'true' }}
-        working-directory: ./
-        run: |
-          npm run setup:e2e
-
-      - name: Clean resources
-        if: ${{ github.event_name == 'schedule' || github.event.inputs.schedule_trigger == 'true' }}
-        working-directory: packages/tests
-        run: |
-          npx ts-node src/scripts/clean.ts
-
       - name: Calculate max retries
         id: calc-retries
         run: |
