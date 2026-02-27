@@ -1,6 +1,6 @@
 {
- "$schema": "https://developer.microsoft.com/json-schemas/teams/v1.24/MicrosoftTeams.schema.json",
-  "manifestVersion": "1.24",
+ "$schema": "https://developer.microsoft.com/json-schemas/teams/v1.25/MicrosoftTeams.schema.json",
+  "manifestVersion": "1.25",
   "version": "1.0.0",
   "id": "${{TEAMS_APP_ID}}",
   "developer": {
@@ -22,6 +22,7 @@
     "full": "Custom engine agent that integrates Azure AI Foundry services with Microsoft Teams and M365 Copilot for enhanced productivity"
   },
   "accentColor": "#FFFFFF",
+  "supportsChannelFeatures": "tier1",
   "copilotAgents": {
     "customEngineAgents": [
       {
