@@ -1998,7 +1998,7 @@
     "eslint-plugin-prettier": "^4.0.0",
     "fs-extra": "^9.0.1",
     "lint-staged": "^11.2.6",
-    "lodash": "^4.17.21",
+    "lodash": "^4.17.23",
     "mermaid": "^10.9.0",
     "mocha": "^10.0.0",
     "mocha-multi-reporters": "^1.5.1",
