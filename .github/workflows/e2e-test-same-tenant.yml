@@ -1,12 +1,25 @@
 name: E2E Test - Same Tenant
 
-# This workflow runs the Foundry Proxy Agent e2e test separately from the main e2e suite
-# because it requires the Azure account and M365 account to be in the same tenant.
+# This workflow runs e2e tests that require the Azure account and M365 account to be in the same tenant.
 # Credentials are provided via TEST_E2E_ACCOUNT_NAME (var) and TEST_E2E_ACCOUNT_PASSWORD (secret).
+#
+# To add a new same-tenant test, extend the grep -E pattern in the setup job's case-listing steps:
+#   grep -E "FoundryProxyAgent|YourNewFeature"
 
 on:
   workflow_dispatch:
     inputs:
+      cases:
+        description: 'Specific cases to execute. Example: ["./vs/FoundryProxyAgent.dotnet.tests.ts"]. Leave empty to run all same-tenant defaults.'
+        required: false
+        type: string
+
+      cli-version:
+        description: "cli version. Leave empty to use local or alpha build."
+        required: false
+        type: string
+        default: ""
+
       target-testplan-id:
         description: "target testplan id. If not set, will not archive ado testplan"
         required: false
@@ -17,17 +30,84 @@ on:
 
   pull_request:
     branches: [dev, release/**]
-   
+
 permissions:
   actions: read
 
 jobs:
-  execute-case:
+  setup:
+    if: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == 'OfficeDev/microsoft-365-agents-toolkit') }}
     runs-on: ubuntu-latest
     environment: engineering
     permissions:
       id-token: write
       contents: read
+    outputs:
+      cases: ${{ steps.schedule-cases.outputs.cases || steps.pr-cases.outputs.cases || steps.dispatch-cases.outputs.cases }}
+    env:
+      AZURE_ACCOUNT_NAME: ${{ vars.TEST_E2E_ACCOUNT_NAME }}
+      AZURE_ACCOUNT_PASSWORD: ${{ secrets.TEST_E2E_ACCOUNT_PASSWORD }}
+      AZURE_SUBSCRIPTION_ID: ${{ vars.TEST_E2E_SUBSCRIPTION_ID }}
+      AZURE_TENANT_ID: ${{ vars.TEST_TENANT_CLEAN_TENANT_ID }}
+      M365_ACCOUNT_NAME: ${{ vars.TEST_E2E_ACCOUNT_NAME }}
+      M365_ACCOUNT_PASSWORD: ${{ secrets.TEST_E2E_ACCOUNT_PASSWORD }}
+      M365_TENANT_ID: ${{ vars.TEST_TENANT_CLEAN_TENANT_ID }}
+      AUTO_TEST_PLAN_ID: ${{ github.event.inputs.target-testplan-id }}
+      CI_ENABLED: "true"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.DEVOPS_CLIENT_ID }}
+          tenant-id: ${{ secrets.DEVOPS_TENANT_ID }}
+          subscription-id: ${{ secrets.DEVOPS_SUB_ID }}
+
+      - name: setup project
+        uses: ./.github/actions/setup-project
+        with:
+          range: "e2e"
+
+      # To add more same-tenant cases, extend the grep -E pattern, e.g.:
+      #   grep -E "FoundryProxyAgent|YourNewFeature"
+      - name: List cases for schedule
+        id: schedule-cases
+        if: ${{ github.event_name == 'schedule' }}
+        working-directory: packages/tests/src/e2e
+        run: |
+          cases=`find . -wholename "*.tests.ts" | grep -E "FoundryProxyAgent" | jq -Rsc '[split("\n") | .[]| select(.!="")]'`
+          echo "cases=$cases" >> $GITHUB_OUTPUT
+
+      - name: List cases for pull request
+        id: pr-cases
+        if: ${{ github.event_name == 'pull_request' }}
+        working-directory: packages/tests/src/e2e
+        run: |
+          cases=`find . -wholename "*.tests.ts" | grep -E "FoundryProxyAgent" | jq -Rsc '[split("\n") | .[]| select(.!="")]'`
+          echo "cases=$cases" >> $GITHUB_OUTPUT
+
+      - name: List cases for dispatch
+        id: dispatch-cases
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        working-directory: packages/tests/src/e2e
+        run: |
+          inputCases='${{ github.event.inputs.cases }}'
+          if [ -z "$inputCases" ]; then
+            allCases=`find . -wholename "*.tests.ts" | grep -E "FoundryProxyAgent" | jq -Rsc '[split("\n") | .[]| select(.!="")]'`
+            echo "cases=$allCases" >> $GITHUB_OUTPUT
+          else
+            echo "cases=$inputCases" >> $GITHUB_OUTPUT
+          fi
+
+      - name: E2E Test clean
+        working-directory: packages/tests
+        run: |
+          npm run test:e2e:clean
+
+  execute-case:
+    if: ${{ needs.setup.outputs.cases }}
     env:
       AZURE_ACCOUNT_NAME: ${{ vars.TEST_E2E_ACCOUNT_NAME }}
       AZURE_ACCOUNT_PASSWORD: ${{ secrets.TEST_E2E_ACCOUNT_PASSWORD }}
@@ -43,6 +123,19 @@ jobs:
       TEAMSFX_AAD_DEPLOY_ONLY: "true"
       SIDELOADING_SERVICE_ENDPOINT: ${{ secrets.SIDELOADING_SERVICE_ENDPOINT }}
       SIDELOADING_SERVICE_SCOPE: ${{ secrets.SIDELOADING_SERVICE_SCOPE }}
+    needs: setup
+    runs-on: ubuntu-latest
+    environment: engineering
+    permissions:
+      id-token: write
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        cases: ${{ fromJson(needs.setup.outputs.cases) }}
+    name: ${{ matrix.cases }}
+    outputs:
+      cases: ${{ matrix.cases }}
 
     steps:
       - name: Checkout
@@ -60,6 +153,7 @@ jobs:
           node-version: 22
 
       - name: Setup .NET
+        if: contains(matrix.cases, '.dotnet.')
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: |
@@ -71,13 +165,18 @@ jobs:
         run: |
           npm run setup:e2e
 
+      - name: install cli with specific version
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.cli-version != '' }}
+        run: |
+          npm install -g @microsoft/m365agentstoolkit-cli@${{ github.event.inputs.cli-version }}
+
       - name: install cli for schedule
-        if: ${{ github.event_name == 'schedule' }}
+        if: ${{ github.event_name == 'schedule' || github.event_name == 'pull_request' || (github.event.ref == 'refs/heads/dev' && github.event_name == 'workflow_dispatch' && github.event.inputs.cli-version == '') }}
         run: |
           npm install -g @microsoft/m365agentstoolkit-cli@alpha
 
       - name: link cli for workflow_dispatch
-        if: ${{ github.event_name == 'workflow_dispatch' }}
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.ref != 'refs/heads/dev' && github.event.inputs.cli-version == '' }}
         run: |
           pnpm link --global
 
@@ -88,19 +187,35 @@ jobs:
       - name: run test
         working-directory: packages/tests/src/e2e
         run: |
-          npx mocha --reporter mochawesome --timeout 1200000 ./vs/FoundryProxyAgent.dotnet.tests.ts
+          file=`find . -wholename "${{ matrix.cases }}"`
+          if [ -z "$file" ]; then
+            echo "can't find target case in $file"
+            exit 1
+          else
+            npx mocha --reporter mochawesome --timeout 1200000 $file
+          fi
+
+      - name: get report name
+        id: get-report-name
+        if: ${{ always() }}
+        run: |
+          name="${{ matrix.cases }}"
+          name="${name//'.tests.ts'/}"
+          name="${name//.\//}"
+          name="${name//\//_}"
+          echo "name=$name" >> $GITHUB_OUTPUT
 
       - name: Upload test report
         uses: actions/upload-artifact@v4
         if: ${{ always() }}
         with:
-          name: test-result-vs_FoundryProxyAgent_dotnet
+          name: test-result-${{ steps.get-report-name.outputs.name }}
           path: |
             ./packages/tests/src/e2e/mochawesome-report/mochawesome.json
 
   tear-down:
     needs: execute-case
-    if: ${{ always() }}
+    if: ${{ always() && toJSON(needs.execute-case.outputs.cases) != 'null' }}
     runs-on: ubuntu-latest
     env:
       AZURE_ACCOUNT_NAME: ${{ vars.TEST_E2E_ACCOUNT_NAME }}

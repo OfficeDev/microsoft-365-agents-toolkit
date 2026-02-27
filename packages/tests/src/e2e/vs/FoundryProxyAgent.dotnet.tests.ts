@@ -333,9 +333,9 @@ describe("Foundry Proxy Agent for csharp version", function () {
           "Run from package should be 1"
         );
         assert.equal(
-          response["RUNNING_ON_AZURE"],
-          "1",
-          "Running on azure should be 1"
+          response["ASPNETCORE_ENVIRONMENT"],
+          "Production",
+          "ASPNETCORE_ENVIRONMENT should be Production"
         );
 
         // Remote Deploy

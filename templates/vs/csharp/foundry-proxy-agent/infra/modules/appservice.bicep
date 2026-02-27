@@ -200,25 +200,6 @@ resource webApp 'Microsoft.Web/sites@2023-12-01' = {
   }
 }
 
-// Enable SCM Basic Auth for zip deploy fallback (required when AAD auth to SCM fails)
-// This allows Teams Toolkit to fall back to basic auth if AAD token doesn't work with SCM endpoint
-resource scmBasicAuth 'Microsoft.Web/sites/basicPublishingCredentialsPolicies@2023-12-01' = {
-  parent: webApp
-  name: 'scm'
-  properties: {
-    allow: true
-  }
-}
-
-// Enable FTP Basic Auth (for consistency)
-resource ftpBasicAuth 'Microsoft.Web/sites/basicPublishingCredentialsPolicies@2023-12-01' = {
-  parent: webApp
-  name: 'ftp'
-  properties: {
-    allow: true
-  }
-}
-
 // Outputs for use in other modules
 output webAppName string = webApp.name
 output webAppId string = webApp.id
