@@ -28,7 +28,6 @@
     "fs-extra": "^11.2.0"
   },
   "devDependencies": {
-    "@azure/identity": "^3.3.0",
     "@microsoft/microsoft-graph-client": "^3.0.6",
     "@microsoft/microsoft-graph-types": "^2.40.0",
     "@types/node": "^18.0.0",
