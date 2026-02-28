@@ -151,6 +151,7 @@ RUN chown -R vscode:vscode /home/vscode/addtional-files
 # Install ATK-specific VS Code extensions
 RUN mkdir -p /app/build-extensions
 COPY build-extensions/ /app/build-extensions/
+COPY vscode-setting/ /app/vscode-setting/
 RUN mkdir -p /home/vscode/.vscode/extensions /home/vscode/.vscode-insiders/extensions && \
     if [ -x /usr/local/bin/install-build-extensions.sh ]; then \
         /usr/local/bin/install-build-extensions.sh && \
@@ -160,6 +161,9 @@ RUN mkdir -p /home/vscode/.vscode/extensions /home/vscode/.vscode-insiders/exten
         echo "install-build-extensions.sh not found, skipping extension pre-install"; \
     fi && \
     chown -R vscode:vscode /home/vscode/.vscode /home/vscode/.vscode-insiders
+
+# Merge ATK-specific editor settings into base image settings.json/setting.json
+RUN node -e "const fs=require('fs');const path=require('path');const userSettingsPath='/app/vscode-setting/setting.json';let updates={};if(fs.existsSync(userSettingsPath)&&fs.statSync(userSettingsPath).isFile()){try{const raw=fs.readFileSync(userSettingsPath,'utf8').trim();updates=raw?JSON.parse(raw):{};}catch(error){console.warn('Invalid JSON in '+userSettingsPath+', skip merge.');process.exit(0);}}else{console.log('No /app/vscode-setting/setting.json found, skip merge.');process.exit(0);}const candidates=['/home/vscode/.config/Code/User/settings.json','/tmp/vscode-settings/settings.json','/settings/setting.json','/settings/settings.json','/home/vscode/settings/setting.json','/home/vscode/settings/settings.json'];if(fs.existsSync('/settings')&&fs.statSync('/settings').isDirectory()){for(const name of fs.readdirSync('/settings')){if(/^settings?\\.json$/i.test(name)){candidates.push(path.join('/settings',name));}}}const files=[...new Set(candidates)].filter((file)=>fs.existsSync(file)&&fs.statSync(file).isFile());for(const file of files){let current={};try{const raw=fs.readFileSync(file,'utf8').trim();current=raw?JSON.parse(raw):{};}catch(error){console.warn('Skip non-JSON settings file: '+file);continue;}const merged={...current,...updates};fs.writeFileSync(file,JSON.stringify(merged,null,2)+'\\n','utf8');console.log('Updated '+file);}if(files.length===0){console.log('No target settings.json or setting.json found in base image.');}"
 
 LABEL org.opencontainers.image.description="VscUse ATK Profile - Microsoft 365 Agent Toolkit"
 LABEL org.opencontainers.image.profile="atk"
