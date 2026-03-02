@@ -205,6 +205,12 @@ async function updateManifest(
     manifest.permissions = existingManifestTemplate.permissions;
     manifest.validDomains = existingManifestTemplate.validDomains;
     manifest.webApplicationInfo = existingManifestTemplate.webApplicationInfo;
+    if (
+      existingManifestTemplate.supportsChannelFeatures &&
+      "supportsChannelFeatures" in appDefinition
+    ) {
+      manifest.supportsChannelFeatures = existingManifestTemplate.supportsChannelFeatures;
+    }
   }
 
   // manifest: developer
