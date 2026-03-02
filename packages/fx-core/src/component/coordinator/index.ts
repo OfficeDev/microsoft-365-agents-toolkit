@@ -977,15 +977,17 @@ function downloadSampleHook(sampleId: string, sampleAppPath: string): void {
   if (sampleId === "todo-list-SPFx") {
     const originalId = "c314487b-f51c-474d-823e-a2c3ec82b1ff";
     const componentId = uuid.v4();
-    glob.glob(`${sampleAppPath}/**/*.json`, { nodir: true, dot: true }, (err, files) => {
-      void Promise.all(
-        files.map(async (file) => {
-          let content = (await fs.readFile(file)).toString();
-          const reg = new RegExp(originalId, "g");
-          content = content.replace(reg, componentId);
-          await fs.writeFile(file, content);
-        })
-      );
-    });
+    void glob(`${sampleAppPath}/**/*.json`, { nodir: true, dot: true }).then(
+      async (files: string[]) => {
+        await Promise.all(
+          files.map(async (file: string) => {
+            let content = (await fs.readFile(file)).toString();
+            const reg = new RegExp(originalId, "g");
+            content = content.replace(reg, componentId);
+            await fs.writeFile(file, content);
+          })
+        );
+      }
+    );
   }
 }

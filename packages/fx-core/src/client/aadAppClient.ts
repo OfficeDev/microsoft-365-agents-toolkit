@@ -4,7 +4,7 @@
 import { hooks } from "@feathersjs/hooks/lib";
 import { LogProvider, M365TokenProvider } from "@microsoft/teamsfx-api";
 import axios, { AxiosError, AxiosInstance, AxiosRequestHeaders } from "axios";
-import axiosRetry, { IAxiosRetryConfig } from "axios-retry";
+import axiosRetry from "axios-retry";
 import { getResourceServiceEndpoint, GraphScopes, ResourceServiceType } from "../common/constants";
 import { getLocalizedString } from "../common/localizeUtils";
 import { AadOwner } from "../common/permissionInterface";
@@ -24,13 +24,6 @@ import { AadManifestHelper } from "../component/driver/aad/utility/aadManifestHe
 import { aadErrorCode } from "../component/driver/aad/utility/constants";
 // Another implementation of src\component\resource\aadApp\graph.ts to reduce call stacks
 // It's our internal utility so make sure pass valid parameters to it instead of relying on it to handle parameter errors
-
-// Missing this part will cause build failure when adding 'axios-retry' in AxiosRequestConfig
-declare module "axios" {
-  export interface AxiosRequestConfig {
-    "axios-retry"?: IAxiosRetryConfig;
-  }
-}
 
 export class AadAppClient {
   private readonly retryNumber: number = 5;

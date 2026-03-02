@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import * as deepDiff from "deep-diff";
+import { diffJson } from "diff";
 import { Service } from "typedi";
 import { ExecutionResult, StepDriver } from "../interface/stepDriver";
 import { DriverContext } from "../interface/commonArgs";
@@ -92,50 +92,25 @@ export class SyncManifestDriver implements StepDriver {
       return err(currentManifestRes.error);
     }
     const currentManifest = currentManifestRes.value as any;
-    const differences = deepDiff.diff(currentManifest, newManifest);
-    // If there are add or delete differences, log warnings and return.
-    // If there are edit differences, check if the different values are variable placeholders, like: ${{Teams_APP_ID}}.
-    const diffVariablesMap = new Map<string, string>();
-    for (const diff of differences ?? []) {
-      if (diff.kind === "N") {
-        context.logProvider.warning(
-          getLocalizedString("core.syncManifest.addWarning", diff.path, diff.rhs)
-        );
-        return ok(new Map<string, string>());
-      }
-      if (diff.kind === "D") {
-        context.logProvider.warning(
-          getLocalizedString("core.syncManifest.deleteWarning", diff.path, diff.lhs)
-        );
-        return ok(new Map<string, string>());
-      }
-      if (diff.kind === "E") {
-        const leftValue = diff.lhs;
-        const rightValue = diff.rhs;
-        const res = this.matchPlaceholders(leftValue, rightValue);
-        if (res.isErr()) {
-          context.logProvider.warning(res.error.message);
-          return ok(new Map<string, string>());
-        }
-        for (const [key, value] of res.value) {
-          if (diffVariablesMap.has(key)) {
-            if (diffVariablesMap.get(key) !== value) {
-              context.logProvider.warning(
-                getLocalizedString(
-                  "core.syncManifest.editKeyConflict",
-                  key,
-                  diffVariablesMap.get(key),
-                  value
-                )
-              );
-              return ok(new Map<string, string>());
-            }
-          } else {
-            diffVariablesMap.set(key, value);
-          }
-        }
-      }
+    // Convert objects to JSON strings for comparison
+    const currentJson = JSON.stringify(currentManifest, null, 2);
+    const newJson = JSON.stringify(newManifest, null, 2);
+    const differences = diffJson(currentJson, newJson);
+    
+    // Check for meaningful differences (ignoring whitespace-only changes)
+    const hasSignificantChanges = differences.some(part => part.added || part.removed);
+    
+    if (!hasSignificantChanges) {
+      context.logProvider.info(getLocalizedString("core.syncManifest.noDiff"));
+      return ok(new Map<string, string>());
     }
+    
+    // For now, we'll handle this as a simple comparison
+    // If there are differences, we need to analyze them manually
+    const diffVariablesMap = new Map<string, string>();
+    
+    // Simple key-by-key comparison for variable extraction
+    this.extractVariablesFromObjects(currentManifest, newManifest, [], diffVariablesMap, context);
     if (diffVariablesMap.size === 0) {
       context.logProvider.info(getLocalizedString("core.syncManifest.noDiff"));
       return ok(new Map<string, string>());
@@ -282,5 +257,109 @@ export class SyncManifestDriver implements StepDriver {
       }
     }
     return ok(result);
+  }
+
+  private extractVariablesFromObjects(
+    currentObj: any,
+    newObj: any,
+    path: string[],
+    diffVariablesMap: Map<string, string>,
+    context: DriverContext
+  ): void {
+    if (typeof currentObj !== typeof newObj) {
+      context.logProvider.warning(
+        getLocalizedString("core.syncManifest.editWarning", path.join("."), currentObj, newObj)
+      );
+      return;
+    }
+
+    if (typeof currentObj !== "object" || currentObj === null) {
+      if (currentObj !== newObj) {
+        const res = this.matchPlaceholders(currentObj, newObj);
+        if (res.isOk()) {
+          for (const [key, value] of res.value) {
+            if (diffVariablesMap.has(key)) {
+              if (diffVariablesMap.get(key) !== value) {
+                context.logProvider.warning(
+                  getLocalizedString(
+                    "core.syncManifest.editKeyConflict",
+                    key,
+                    diffVariablesMap.get(key),
+                    value
+                  )
+                );
+                return;
+              }
+            } else {
+              diffVariablesMap.set(key, value);
+            }
+          }
+        } else {
+          context.logProvider.warning(res.error.message);
+          return;
+        }
+      }
+      return;
+    }
+
+    if (Array.isArray(currentObj) !== Array.isArray(newObj)) {
+      context.logProvider.warning(
+        getLocalizedString("core.syncManifest.editWarning", path.join("."), currentObj, newObj)
+      );
+      return;
+    }
+
+    if (Array.isArray(currentObj)) {
+      if (currentObj.length !== newObj.length) {
+        context.logProvider.warning(
+          getLocalizedString("core.syncManifest.editWarning", path.join("."), currentObj, newObj)
+        );
+        return;
+      }
+      for (let i = 0; i < currentObj.length; i++) {
+        this.extractVariablesFromObjects(
+          currentObj[i],
+          newObj[i],
+          [...path, i.toString()],
+          diffVariablesMap,
+          context
+        );
+      }
+      return;
+    }
+
+    // Handle objects
+    const currentKeys = Object.keys(currentObj);
+    const newKeys = Object.keys(newObj);
+    
+    for (const key of newKeys) {
+      if (!currentKeys.includes(key)) {
+        context.logProvider.warning(
+          getLocalizedString("core.syncManifest.addWarning", [...path, key].join("."), newObj[key])
+        );
+        return;
+      }
+    }
+    
+    for (const key of currentKeys) {
+      if (!newKeys.includes(key)) {
+        context.logProvider.warning(
+          getLocalizedString("core.syncManifest.deleteWarning", [...path, key].join("."), currentObj[key])
+        );
+        return;
+      }
+    }
+
+    for (const key of currentKeys) {
+      if (newKeys.includes(key)) {
+        this.extractVariablesFromObjects(
+          currentObj[key],
+          newObj[key],
+          [...path, key],
+          diffVariablesMap,
+          context
+        );
+      }
+    }
   }
 }
