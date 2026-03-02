@@ -1,0 +1,2058 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "projectId": {
+      "type": "string",
+      "description": "The projectId used for telemetry."
+    },
+    "environmentFolderPath": {
+      "type": "string",
+      "description": "The folder path of .env files used for variables and different environments."
+      },
+    "version": {
+      "type": "string",
+      "description": "The version of the yaml file schema",
+      "const": "v1.10"
+    },
+    "additionalMetadata": {
+      "type": "object",
+      "description": "Metadata property, used by Microsoft 365 Agents Toolkit only.",
+      "additionalProperties": true,
+      "properties": {
+        "sampleTag": {
+          "type": ["number","string","boolean","object","array", "null", "integer"],
+          "description": "A tag for the sample app used to track telemetry events sent by Microsoft 365 Agents Toolkit associated with that sample. Pattern: <sample-repo>:<sample-name>"
+        }
+      }
+    },
+    "provision": {
+      "$ref": "#/definitions/lifeCycleArray",
+      "description": "Called by `teamsfx provision`"
+    },
+    "deploy": {
+      "$ref": "#/definitions/lifeCycleArray",
+      "description": "Called by `teamsfx deploy`"
+    },
+    "publish": {
+      "$ref": "#/definitions/lifeCycleArray",
+      "description": "Called by `teamsfx publish`"
+    },
+    "share": {
+      "$ref": "#/definitions/lifeCycleArray",
+      "description": "Called by `teamsfx share`"
+    }
+  },
+  "required": ["version"],
+  "definitions": {
+    "lifeCycleArray": {
+      "type": "array",
+      "items": {
+        "anyOf": [
+          { "$ref": "#/definitions/aadAppCreate" },
+          { "$ref": "#/definitions/aadAppUpdate" },
+          { "$ref": "#/definitions/armDeploy" },
+          { "$ref": "#/definitions/azureStorageEnableStaticWebsite" },
+          { "$ref": "#/definitions/cliRunNpmCommand" },
+          { "$ref": "#/definitions/cliRunDotnetCommand" },
+          { "$ref": "#/definitions/cliRunNpxCommand" },
+          { "$ref": "#/definitions/azureStorageDeploy" },
+          { "$ref": "#/definitions/azureAppServiceZipDeploy" },
+          { "$ref": "#/definitions/azureFunctionsZipDeploy" },
+          { "$ref": "#/definitions/teamsAppCreate" },
+          { "$ref": "#/definitions/teamsAppValidateManifest" },
+          { "$ref": "#/definitions/teamsAppValidateAppPackage" },
+          { "$ref": "#/definitions/teamsAppValidateWithTestCases" },
+          { "$ref": "#/definitions/teamsAppZipAppPackage" },
+          { "$ref": "#/definitions/teamsAppUpdate" },
+          { "$ref": "#/definitions/teamsAppPublishAppPackage" },
+          { "$ref": "#/definitions/botAadAppCreate" },
+          { "$ref": "#/definitions/botframeworkCreate" },
+          { "$ref": "#/definitions/fileCreateOrUpdateEnvironmentFile" },
+          { "$ref": "#/definitions/fileCreateOrUpdateJsonFile" },
+          { "$ref": "#/definitions/devToolInstall" },
+          { "$ref": "#/definitions/teamsAppExtendToM365" },
+          { "$ref": "#/definitions/spfxDeploy" },
+          { "$ref": "#/definitions/teamsAppCopyAppPackageToSPFx" },
+          { "$ref": "#/definitions/script" },
+          { "$ref": "#/definitions/apiKeyRegister"},
+          { "$ref": "#/definitions/azureStaticWebAppGetDeploymentKey"},
+          { "$ref": "#/definitions/apiKeyUpdate"},
+          { "$ref": "#/definitions/oauthRegister"},
+          { "$ref": "#/definitions/oauthUpdate"},
+          { "$ref": "#/definitions/devChannelCreate"},
+          { "$ref": "#/definitions/devChannelInstallApp"},
+          { "$ref": "#/definitions/typeSpecCompile"}
+        ]
+      }
+    },
+    "aadAppCreateBase": {
+      "type": "object",
+      "description": "Create Microsoft Entra application and client secret (optional). Refer to https://aka.ms/teamsfx-actions/aadapp-create for more details.",
+      "required": ["uses", "writeToEnvironmentFile"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "An optional name of this action."
+        },
+        "env": {
+          "type": "object",
+          "description": "Define environment variables for this action.",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "uses": {
+          "type": "string",
+          "description": "Create Microsoft Entra application when the environment variable that stores clientId is empty. Also create client secret for the application when generateClientSecret parameter is true and the environment variable that stores clientSecret is empty. When creating new Microsoft Entra application, this action generates clientId, objectId, tenantId, authority and authorityHost. When creating new client secret, this action generates clientSecret. Refer to https://aka.ms/teamsfx-actions/aadapp-create for more details.",
+          "const": "aadApp/create"
+        }
+      }
+    },
+    "aadAppCreateWithSecret": {
+      "type": "object",
+      "additionalProperties": false,
+      "allOf": [ { "$ref": "#/definitions/aadAppCreateBase" } ],
+      "required": ["with", "writeToEnvironmentFile"],
+      "properties": {
+        "name": {},
+        "uses": {},
+        "env": {},
+        "with": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Parameters for this action",
+          "required": ["name", "generateClientSecret", "signInAudience"],
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "The name of Microsoft Entra application. Note: when you run aadApp/update, the Microsoft Entra application name will be updated based on the definition in manifest. If you don't want to change the name, ensure the name in Microsoft Entra application manifest is the same with the name defined here."
+            },
+            "generateClientSecret": {
+              "type": "boolean",
+              "description": "Whether to generate client secret for the Microsoft Entra application. When the value is true, you need to specify the name of environment variable that stores the value of client secret in writeToEnvironmentVariable. For example: `clientSecret: SECRET_MY_AAD_APP_CLIENT_SECRET`.",
+              "const": true
+            },
+            "signInAudience": {
+              "type": "string",
+              "description": "Specifies what Microsoft accounts are supported for the current application.",
+              "enum": ["AzureADMyOrg", "AzureADMultipleOrgs", "AzureADandPersonalMicrosoftAccount", "PersonalMicrosoftAccount"]
+            },
+            "serviceManagementReference": {
+              "type": "string",
+              "description": "References application or service contact information from a Service or Asset Management database."
+            },
+            "clientSecretExpireDays": {
+              "type": "integer",
+              "description": "The number of days the client secret is valid.",
+              "minimum": 1
+            },
+            "clientSecretDescription": {
+              "type": "string",
+              "description": "The description of the client secret."
+            }
+          }
+        },
+        "writeToEnvironmentFile": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Write environment variables to environment file",
+          "required": ["clientId", "objectId", "clientSecret"],
+          "properties": {
+            "clientId": {
+              "description": "Required. The client (application) id of created Microsoft Entra application.",
+              "$ref": "#/definitions/envVarName"
+            },
+            "objectId": {
+              "description": "Required. The object id of created Microsoft Entra application.",
+              "$ref": "#/definitions/envVarName"
+            },
+            "clientSecret": {
+              "description": "Required when generateClientSecret is true. The generated client secret of the Microsoft Entra application.",
+              "$ref": "#/definitions/secretEnvVarName"
+            },
+            "tenantId": {
+              "description": "The tenant id of created Microsoft Entra application.",
+              "$ref": "#/definitions/envVarName"
+            },
+            "authority": {
+              "description": "The authority of created Microsoft Entra application.",
+              "$ref": "#/definitions/envVarName"
+            },
+            "authorityHost": {
+              "description": "The authority host name of created Microsoft Entra application.",
+              "$ref": "#/definitions/envVarName"
+            }
+          }
+        }
+      }
+    },
+    "aadAppCreateWithoutSecret": {
+      "type": "object",
+      "allOf": [ { "$ref": "#/definitions/aadAppCreateBase" } ],
+      "required": ["with", "writeToEnvironmentFile"],
+      "additionalProperties": false,
+      "properties": {
+        "name": {},
+        "uses": {},
+        "env": {},
+        "with": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Parameters for this action",
+          "required": ["name", "generateClientSecret", "signInAudience"],
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "The name of Microsoft Entra application. Note: when you run aadApp/update, the Microsoft Entra application name will be updated based on the definition in manifest. If you don't want to change the name, ensure the name in Microsoft Entra application manifest is the same with the name defined here."
+            },
+            "generateClientSecret": {
+              "type": "boolean",
+              "description": "Whether to generate client secret for the Microsoft Entra application. When the value is true, you need to specify the name of environment variable that stores the value of client secret in writeToEnvironmentVariable. For example: `clientSecret: SECRET_MY_AAD_APP_CLIENT_SECRET`.",
+              "const": false
+            },
+            "signInAudience": {
+              "type": "string",
+              "description": "Specifies what Microsoft accounts are supported for the current application.",
+              "enum": ["AzureADMyOrg", "AzureADMultipleOrgs", "AzureADandPersonalMicrosoftAccount", "PersonalMicrosoftAccount"]
+            },
+            "serviceManagementReference": {
+              "type": "string",
+              "description": "References application or service contact information from a Service or Asset Management database."
+            }
+          }
+        },
+        "writeToEnvironmentFile": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Write environment variables to environment file",
+          "required": ["clientId", "objectId"],
+          "properties": {
+            "clientId": {
+              "description": "Required. The client (application) id of created Microsoft Entra application.",
+              "$ref": "#/definitions/envVarName"
+            },
+            "objectId": {
+              "description": "Required. The object id of created Microsoft Entra application.",
+              "$ref": "#/definitions/envVarName"
+            },
+            "tenantId": {
+              "description": "The tenant id of created Microsoft Entra application.",
+              "$ref": "#/definitions/envVarName"
+            },
+            "authority": {
+              "description": "The authority of created Microsoft Entra application.",
+              "$ref": "#/definitions/envVarName"
+            },
+            "authorityHost": {
+              "description": "The authority host name of created Microsoft Entra application.",
+              "$ref": "#/definitions/envVarName"
+            }
+          }
+        }
+      }
+    },
+    "aadAppCreate": {
+      "type": "object",
+      "oneOf": [
+        { "$ref": "#/definitions/aadAppCreateWithoutSecret" },
+        { "$ref": "#/definitions/aadAppCreateWithSecret" }
+      ]
+    },
+    "aadAppUpdate": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Update Microsoft Entra application. Refer to https://aka.ms/teamsfx-actions/aadapp-update for more details.",
+      "required": ["uses", "with"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "An optional name of this action."
+        },
+        "env": {
+          "type": "object",
+          "description": "Define environment variables for this action.",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "uses": {
+          "type": "string",
+          "description": "Update Microsoft Entra application based on the given Microsoft Entra application manifest. If the manifest uses AAD_APP_ACCESS_AS_USER_PERMISSION_ID and the environment variable is empty, this action will generate a random id and output it. Refer to https://aka.ms/teamsfx-actions/aadapp-update for more details.",
+          "const": "aadApp/update"
+        },
+        "with": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Parameters for this action",
+          "required": ["manifestPath", "outputFilePath"],
+          "properties": {
+            "manifestPath": {
+              "type": "string",
+              "description": "Path of Microsoft Entra application manifest. Environment variables in the manifest will be replaced before applying the manifest to Microsoft Entra application."
+            },
+            "outputFilePath": {
+              "type": "string",
+              "description": "Generate the final Microsoft Entra application manifest used to update Microsoft Entra application to this path."
+            }
+          }
+        }
+      }
+    },
+    "armDeploy": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Create Azure resources using the referenced Bicep/JSON files. For more details on the naming convention, please refer https://aka.ms/teamsfx-actions/arm-deploy.",
+      "required": ["uses", "with"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "An optional name of this action."
+        },
+        "env": {
+          "type": "object",
+          "description": "Define environment variables for this action.",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "uses": {
+          "type": "string",
+          "description": "Create Azure resources using the referenced Bicep/JSON files. Outputs will be saved in the current Microsoft 365 Agents Toolkit environment using a specific naming convention. For more details, please refer https://aka.ms/teamsfx-actions/arm-deploy.",
+          "const": "arm/deploy"
+        },
+        "with": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "parameters for this action",
+          "required": ["subscriptionId", "resourceGroupName", "templates"],
+          "properties": {
+            "subscriptionId": {
+              "type": "string",
+              "description": "The subscription id to deploy to"
+            },
+            "resourceGroupName": {
+              "type": "string",
+              "description": "The resource group name to deploy to"
+            },
+            "bicepCliVersion": {
+              "type": "string",
+              "description": "The Bicep CLI version. Bicep CLI will be downloaded to {Home}/.fx/bin/bicep.\n Microsoft 365 Agents Toolkit defaults to Bicep in PATH if version is not defined."
+            },
+            "templates": {
+              "type": "array",
+              "description": "The list of templates to deploy",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["deploymentName", "path"],
+                "properties": {
+                  "deploymentName": {
+                    "type": "string",
+                    "description": "The name of ARM deployment"
+                  },
+                  "path": {
+                    "type": "string",
+                    "description": "Relative path to ARM template. Both Bicep and JSON format are supported."
+                  },
+                  "parameters": {
+                    "type": "string",
+                    "description": "Relative path to ARM parameters file. Microsoft 365 Agents Toolkit will expand the environment variable in the parameters file"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "azureStorageEnableStaticWebsite": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Enable static website config for Azure Storage. Refer to https://aka.ms/teamsfx-actions/azure-storage-enable-static-website for more details.",
+      "required": ["uses", "with"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "An optional name of this action."
+        },
+        "env": {
+          "type": "object",
+          "description": "Define environment variables for this action.",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "uses": {
+          "type": "string",
+          "description": "Enable static website config for Azure Storage. This action has no output. Refer to https://aka.ms/teamsfx-actions/azure-storage-enable-static-website for more details.",
+          "const": "azureStorage/enableStaticWebsite"
+        },
+        "with": {
+          "type": "object",
+          "description": "parameters for this action",
+          "additionalProperties": false,
+          "required": ["storageResourceId"],
+          "properties": {
+            "storageResourceId": {
+              "type": "string",
+              "description": "The resource id of the storage account"
+            },
+            "indexPage": {
+              "type": "string",
+              "description": "The index page of the static website, default to 'index.html'"
+            },
+            "errorPage": {
+              "type": "string",
+              "description": "The error page of the static website, default to 'index.html'"
+            }
+          }
+        }
+      }
+    },
+    "cliRunNpmCommand": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Execute npm command with arguments. Refer to https://aka.ms/teamsfx-actions/cli-run-npm-command for more details.",
+      "required": ["uses", "with"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "An optional name of this action."
+        },
+        "env": {
+          "type": "object",
+          "description": "Define environment variables for this action.",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "uses": {
+          "type": "string",
+          "description": "Execute npm command with arguments. Refer to https://aka.ms/teamsfx-actions/cli-run-npm-command for more details.",
+          "const": "cli/runNpmCommand"
+        },
+        "with": {
+          "type": "object",
+          "description": "parameters for this action",
+          "additionalProperties": false,
+          "required": ["args"],
+          "properties": {
+            "args": {
+              "type": "string",
+              "description": "The arguments passed to the npm command"
+            },
+            "workingDirectory": {
+              "type": "string",
+              "description": "The working directory, default to './'"
+            }
+          }
+        }
+      }
+    },
+    "cliRunDotnetCommand": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Execute dotnet command with arguments. Refer to https://aka.ms/teamsfx-actions/cli-run-dotnet-command for more details.",
+      "required": ["uses", "with"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "An optional name of this action."
+        },
+        "env": {
+          "type": "object",
+          "description": "Define environment variables for this action.",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "uses": {
+          "type": "string",
+          "description": "Execute dotnet command with arguments. Refer to https://aka.ms/teamsfx-actions/cli-run-dotnet-command for more details.",
+          "const": "cli/runDotnetCommand"
+        },
+        "with": {
+          "type": "object",
+          "description": "parameters for this action",
+          "additionalProperties": false,
+          "required": ["args"],
+          "properties": {
+            "args": {
+              "type": "string",
+              "description": "The arguments passed to the dotnet command"
+            },
+            "workingDirectory": {
+              "type": "string",
+              "description": "The working directory, default to './'"
+            },
+            "execPath": {
+              "type": "string",
+              "description": "The path to the dotnet executable, default to system path."
+            }
+          }
+        }
+      }
+    },
+    "cliRunNpxCommand": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Execute npx command with arguments. Refer to https://aka.ms/teamsfx-actions/cli-run-npx-command for more details.",
+      "required": ["uses", "with"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "An optional name of this action."
+        },
+        "env": {
+          "type": "object",
+          "description": "Define environment variables for this action.",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "uses": {
+          "type": "string",
+          "description": "Execute npx command with arguments. Refer to https://aka.ms/teamsfx-actions/cli-run-npx-command for more details.",
+          "const": "cli/runNpxCommand"
+        },
+        "with": {
+          "type": "object",
+          "description": "parameters for this action",
+          "additionalProperties": false,
+          "required": ["args"],
+          "properties": {
+            "args": {
+              "type": "string",
+              "description": "The arguments passed to the npm command"
+            },
+            "workingDirectory": {
+              "type": "string",
+              "description": "The working directory, default to './'"
+            }
+          }
+        }
+      }
+    },
+    "azureStorageDeploy": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Upload and deploy the project to Azure Storage Service. Refer to https://aka.ms/teamsfx-actions/azure-storage-deploy for more details.",
+      "required": ["uses", "with"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "An optional name of this action."
+        },
+        "env": {
+          "type": "object",
+          "description": "Define environment variables for this action.",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "uses": {
+          "type": "string",
+          "description": "This action will upload and deploy the project to Azure Storage Service. This action has no output. Refer to https://aka.ms/teamsfx-actions/azure-storage-deploy for more details.",
+          "const": "azureStorage/deploy"
+        },
+        "with": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "parameters for this action",
+          "required": ["artifactFolder", "resourceId"],
+          "properties": {
+            "artifactFolder": {
+              "type": "string",
+              "description": "Path to the distribution folder that contains the files to deploy."
+            },
+            "resourceId": {
+              "type": "string",
+              "description": "The resource id of the storage account."
+            },
+            "workingDirectory": {
+              "type": "string",
+              "description": "The working directory, deploy program will find ignore file and create upload package file based on this directory, default to './'"
+            },
+            "ignoreFile": {
+              "type": "string",
+              "description": "The path to the ignore file. Any files listed in this file will be ignored during upload. default ignores nothing."
+            }
+          }
+        }
+      }
+    },
+    "azureAppServiceZipDeploy": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Upload and deploy the project to Azure App Service. Refer to https://aka.ms/teamsfx-actions/azure-app-service-deploy for more details.",
+      "required": ["uses", "with"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "An optional name of this action."
+        },
+        "env": {
+          "type": "object",
+          "description": "Define environment variables for this action.",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "uses": {
+          "type": "string",
+          "description": "This action will upload and deploy the project to Azure App Service. This action has no output. Refer to https://aka.ms/teamsfx-actions/azure-app-service-deploy for more details.",
+          "const": "azureAppService/zipDeploy"
+        },
+        "with": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "parameters for this action",
+          "required": ["artifactFolder", "resourceId"],
+          "properties": {
+            "artifactFolder": {
+              "type": "string",
+              "description": "Path to the distribution folder that contains the files to deploy."
+            },
+            "resourceId": {
+              "type": "string",
+              "description": "The resource id of the Azure App Service."
+            },
+            "workingDirectory": {
+              "type": "string",
+              "description": "The working directory, deploy program will find ignore file and create upload package file based on this directory, default to './'"
+            },
+            "ignoreFile": {
+              "type": "string",
+              "description": "The path to the ignore file. Any files listed in this file will be ignored during upload. default ignores nothing."
+            },
+            "dryRun": {
+              "type": "boolean",
+              "description": "If true, the action will only package the files to be deployed without actually deploying them. Default to false."
+            },
+            "outputZipFile": {
+              "type": "string",
+              "description": "The path to the packaged zip file. If not specified, the zip file will be saved to the workingDirectory/.deployment/deployment.zip."
+            }
+          }
+        }
+      }
+    },
+    "azureFunctionsZipDeploy": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Upload and deploy the project to Azure Functions. Refer to https://aka.ms/teamsfx-actions/azure-functions-deploy for more details.",
+      "required": ["uses", "with"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "An optional name of this action."
+        },
+        "env": {
+          "type": "object",
+          "description": "Define environment variables for this action.",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "uses": {
+          "type": "string",
+          "description": "This action will upload and deploy the project to Azure Functions. This action has no output. Refer to https://aka.ms/teamsfx-actions/azure-functions-deploy for more details.",
+          "const": "azureFunctions/zipDeploy"
+        },
+        "with": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "parameters for this action",
+          "required": ["artifactFolder", "resourceId"],
+          "properties": {
+            "artifactFolder": {
+              "type": "string",
+              "description": "Path to the distribution folder that contains the files to deploy."
+            },
+            "resourceId": {
+              "type": "string",
+              "description": "The resource id of the Azure Functions."
+            },
+            "workingDirectory": {
+              "type": "string",
+              "description": "The working directory, deploy program will find ignore file based on this directory, default to './'"
+            },
+            "ignoreFile": {
+              "type": "string",
+              "description": "The path to the ignore file. Any files listed in this file will be ignored during upload. default ignores nothing."
+            },
+            "dryRun": {
+              "type": "boolean",
+              "description": "If true, the action will only package the files to be deployed without actually deploying them. Default to false."
+            },
+            "outputZipFile": {
+              "type": "string",
+              "description": "The path to the packaged zip file. If not specified, the zip file will be saved to the workingDirectory/.deployment/deployment.zip."
+            }
+          }
+        }
+      }
+    },
+    "teamsAppCreate": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Create an app in Developer Portal. Refer to https://aka.ms/teamsfx-actions/teamsapp-create for more details.",
+      "required": ["uses", "with", "writeToEnvironmentFile"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "An optional name of this action."
+        },
+        "env": {
+          "type": "object",
+          "description": "Define environment variables for this action.",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "uses": {
+          "type": "string",
+          "description": "This action will create a new app for you if TEAMS_APP_ID environment variable is empty or the app with TEAMS_APP_ID is not found from Developer Portal. Refer to https://aka.ms/teamsfx-actions/teamsapp-create for more details",
+          "const": "teamsApp/create"
+        },
+        "with": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Parameters for this action",
+          "required": ["name"],
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "Name of the app"
+            }
+          }
+        },
+        "writeToEnvironmentFile": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Write environment variables to environment file",
+          "required": ["teamsAppId"],
+          "properties": {
+            "teamsAppId": {
+              "$ref": "#/definitions/envVarName"
+            }
+          }
+        }
+      }
+    },
+    "teamsAppValidateManifest": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Validate app manifest. Refer to https://aka.ms/teamsfx-actions/teamsapp-validate for more details.",
+      "required": ["uses", "with"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "An optional name of this action."
+        },
+        "env": {
+          "type": "object",
+          "description": "Define environment variables for this action.",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "uses": {
+          "type": "string",
+          "description": "This action will validate app manifest with manifest schema. Refer to https://aka.ms/teamsfx-actions/teamsapp-validate for more details.",
+          "const": "teamsApp/validateManifest"
+        },
+        "with": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Parameters for this action",
+          "required": ["manifestPath"],
+          "properties": {
+            "manifestPath": {
+              "type": "string",
+              "description": "Path to app manifest file."
+            }
+          }
+        }
+      }
+    },
+    "teamsAppValidateAppPackage": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Validate app manifest. Refer to https://aka.ms/teamsfx-actions/teamsapp-validate for more details.",
+      "required": ["uses", "with"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "An optional name of this action."
+        },
+        "env": {
+          "type": "object",
+          "description": "Define environment variables for this action.",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "uses": {
+          "type": "string",
+          "description": "This action will validate app package file using validation rules. Refer to https://aka.ms/teamsfx-actions/teamsapp-validate for more details.",
+          "const": "teamsApp/validateAppPackage"
+        },
+        "with": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Parameters for this action",
+          "required": ["appPackagePath"],
+          "properties": {
+            "appPackagePath": {
+              "type": "string",
+              "description": "Path to zipped app package file."
+            }
+          }
+        }
+      }
+    },
+    "teamsAppValidateWithTestCases": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Async Valiation Tests. Refer to https://aka.ms/teamsfx-actions/teamsapp-validate for more details.",
+      "required": ["uses", "with"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "An optional name of this action."
+        },
+        "env": {
+          "type": "object",
+          "description": "Define environment variables for this action.",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "uses": {
+          "type": "string",
+          "description": "This action will trigger async validations for the app package file. Refer to https://aka.ms/teamsfx-actions/teamsapp-validate for more details.",
+          "const": "teamsApp/validateWithTestCases"
+        },
+        "with": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Parameters for this action",
+          "required": ["appPackagePath"],
+          "properties": {
+            "appPackagePath": {
+              "type": "string",
+              "description": "Path to zipped app package file."
+            },
+            "showMessage": {
+              "type": "boolean",
+              "description": "Show message or not."
+            },
+            "showProgressBar": {
+              "type": "boolean",
+              "description": "Show progress bar or not."
+            }
+          }
+        }
+      }
+    },
+    "teamsAppZipAppPackage": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Zip app package with manifest file and icons. Refer to https://aka.ms/teamsfx-actions/teamsapp-zipAppPackage for more details.",
+      "required": ["uses", "with"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "An optional name of this action."
+        },
+        "env": {
+          "type": "object",
+          "description": "Define environment variables for this action.",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "uses": {
+          "type": "string",
+          "description": "This action will render app manifest template with environment variables, and zip manifest file with two icons. Refer to https://aka.ms/teamsfx-actions/teamsapp-zipAppPackage for more details.",
+          "const": "teamsApp/zipAppPackage"
+        },
+        "with": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "parameters for this action",
+          "required": ["manifestPath", "outputZipPath", "outputFolder"],
+          "properties": {
+            "manifestPath": {
+              "type": "string",
+              "description": "Path to app manifest file"
+            },
+            "outputZipPath": {
+              "type": "string",
+              "description": "Path to the output zip package"
+            },
+            "outputFolder": {
+              "type": "string",
+              "description": "Path to the output folder containing manifests"
+            }
+          }
+        }
+      }
+    },
+    "teamsAppUpdate": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Update app in Developer Portal. Refer to https://aka.ms/teamsfx-actions/teamsapp-update for more details.",
+      "required": ["uses", "with"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "An optional name of this action."
+        },
+        "env": {
+          "type": "object",
+          "description": "Define environment variables for this action.",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "uses": {
+          "type": "string",
+          "description": "Apply the app manifest to an existing app in Developer Portal. Will use the app id in manifest.json file to determine which app to update. Refer to https://aka.ms/teamsfx-actions/teamsapp-update for more details.",
+          "const": "teamsApp/update"
+        },
+        "with": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "parameters for this action",
+          "required": ["appPackagePath"],
+          "properties": {
+            "appPackagePath": {
+              "type": "string",
+              "description": "Path to app package"
+            }
+          }
+        }
+      }
+    },
+    "teamsAppPublishAppPackage": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Publish app package to Teams Admin center. Refer to https://aka.ms/teamsfx-actions/teamsapp-publish for more details.",
+      "required": ["uses", "with", "writeToEnvironmentFile"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "An optional name of this action."
+        },
+        "env": {
+          "type": "object",
+          "description": "Define environment variables for this action.",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "uses": {
+          "type": "string",
+          "description": "Publish app package to Teams Admin center. Refer to https://aka.ms/teamsfx-actions/teamsapp-publish for more details.",
+          "const": "teamsApp/publishAppPackage"
+        },
+        "with": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "parameters for this action",
+          "required": ["appPackagePath"],
+          "properties": {
+            "appPackagePath": {
+              "type": "string",
+              "description": "Path to app package to be published."
+            }
+          }
+        },
+        "writeToEnvironmentFile": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Write environment variables to environment file",
+          "required": ["publishedAppId"],
+          "properties": {
+            "publishedAppId": {
+              "$ref": "#/definitions/envVarName"
+            }
+          }
+        }
+      }
+    },
+    "botAadAppCreate": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Create a new or reuse an existing Microsoft Entra application for bot. Refer to https://aka.ms/teamsfx-actions/botaadapp-create for more details.",
+      "required": ["uses", "with", "writeToEnvironmentFile"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "An optional name of this action."
+        },
+        "env": {
+          "type": "object",
+          "description": "Define environment variables for this action.",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "uses": {
+          "type": "string",
+          "description": "Create a new or reuse an existing Microsoft Entra application for bot. Refer to https://aka.ms/teamsfx-actions/botaadapp-create for more details.",
+          "const": "botAadApp/create"
+        },
+        "with": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Parameters for this action",
+          "required": ["name"],
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "The user-facing display name for this Microsoft Entra application"
+            }
+          }
+        },
+        "writeToEnvironmentFile": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Write environment variables to environment file",
+          "required": ["botId", "botPassword"],
+          "properties": {
+            "botId": {
+              "description": "Required. Client (application) id of the Microsoft Entra application created for bot.",
+              "$ref": "#/definitions/envVarName"
+            },
+            "botPassword": {
+              "description": "Required. Client secret of the Microsoft Entra application created for bot.",
+              "$ref": "#/definitions/secretEnvVarName"
+            }
+          }
+        }        
+      }
+    },
+    "botframeworkCreate": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Create or update the bot registration on dev.botframework.com. Refer to https://aka.ms/teamsfx-actions/botframework-create for more details.",
+      "required": ["uses", "with"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "An optional name of this action."
+        },
+        "env": {
+          "type": "object",
+          "description": "Define environment variables for this action.",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "uses": {
+          "type": "string",
+          "description": "Create or update the bot registration on dev.botframework.com. Refer to https://aka.ms/teamsfx-actions/botframework-create for more details.",
+          "const": "botFramework/create"
+        },
+        "with": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "parameters for this action",
+          "required": ["botId", "name", "messagingEndpoint"],
+          "properties": {
+            "botId": {
+              "type": "string",
+              "description": "the Microsoft Entra app client id of the bot"
+            },
+            "name": {
+              "type": "string",
+              "description": "the name of the bot"
+            },
+            "messagingEndpoint": {
+              "type": "string",
+              "description": "the messaging endpoint of the bot"
+            },
+            "description": {
+              "type": "string",
+              "description": "the long description of the bot"
+            },
+            "iconUrl": {
+              "type": "string",
+              "description": "the icon of the bot, pointed to an existing URL"
+            },
+            "channels": {
+              "type": "array",
+              "description": "the channel(s) to be enabled of the bot",
+              "items": {
+                "oneOf": [{ "$ref": "#/definitions/MsTeamsChannel" }, { "$ref": "#/definitions/M365ExtensionsChannel" }]
+              }
+            }
+          }
+        }
+      }
+    },
+    "MsTeamsChannel": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Microsoft Teams channel",
+      "required": ["name"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Microsoft Teams channel",
+          "enum": ["msteams"]
+        },
+        "callingWebhook": {
+          "type": "string",
+          "description": "Webhook for Microsoft Teams channel calls"
+        }
+      }
+    },
+    "M365ExtensionsChannel": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Microsoft 365 Extensions channel",
+      "required": ["name"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Microsoft 365 Extensions channel",
+          "enum": ["m365extensions"]
+        }
+      }
+    },
+    "fileCreateOrUpdateEnvironmentFile": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Create or update variables to environment file. Refer to https://aka.ms/teamsfx-actions/file-createorupdateenvironmentfile for more details.",
+      "required": ["uses", "with"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "An optional name of this action."
+        },
+        "env": {
+          "type": "object",
+          "description": "Define environment variables for this action.",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "uses": {
+          "type": "string",
+          "description": "Create or update variables to environment file. Refer to https://aka.ms/teamsfx-actions/file-createorupdateenvironmentfile for more details.",
+          "const": "file/createOrUpdateEnvironmentFile"
+        },
+        "with": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "parameters for this action",
+          "required": ["envs", "target"],
+          "properties": {
+            "envs": {
+              "type": "object",
+              "description": "the environment variable(s) to be generated",
+              "additionalProperties": {
+                "oneOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "boolean"
+                  },
+                  {
+                    "type": "number"
+                  }
+                ]
+              }
+            },
+            "target": {
+              "type": "string",
+              "description": "The target environment file to be created or updated"
+            }
+          }
+        }
+      }
+    },
+    "fileCreateOrUpdateJsonFile": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Create or update JSON file. Refer to https://aka.ms/teamsfx-actions/file-createorupdatejsonfile for more details.",
+      "required": ["uses", "with"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "An optional name of this action."
+        },
+        "env": {
+          "type": "object",
+          "description": "Define environment variables for this action.",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "uses": {
+          "type": "string",
+          "description": "Create or update JSON file. Refer to https://aka.ms/teamsfx-actions/file-createorupdatejsonfile for more details.",
+          "const": "file/createOrUpdateJsonFile"
+        },
+        "with": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "parameters for this action",
+          "required": ["target"],
+          "properties": {
+            "appsettings": {
+              "type": "object",
+              "description": "the app settings to be generated"
+            },
+            "target": {
+              "type": "string",
+              "description": "the target file"
+            },
+            "content": {
+              "type": "object",
+              "description": "the json content to be created or updated, will be merged with existing content"
+            }
+          }
+        }
+      }
+    },
+    "devToolInstall": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Install development tool(s). Refer to https://aka.ms/teamsfx-actions/devtool-install for more details.",
+      "required": ["uses", "with"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "An optional name of this action."
+        },
+        "env": {
+          "type": "object",
+          "description": "Define environment variables for this action.",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "uses": {
+          "type": "string",
+          "description": "Install development tool(s). Refer to https://aka.ms/teamsfx-actions/devtool-install for more details.",
+          "const": "devTool/install"
+        },
+        "with": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "parameters for this action",
+          "properties": {
+            "devCert": {
+              "type": "object",
+              "description": "Generate an SSL certificate and install it to the system certificate management center. This will output environment variables specified by `sslCertFile` and `sslKeyFile` to current environment's .env file.",
+              "additionalProperties": false,
+              "required": ["trust"],
+              "properties": {
+                "trust": {
+                  "type": "boolean",
+                  "description": "whether to trust the SSL certificate or not"
+                }
+              }
+            },
+            "func": {
+              "type": "object",
+              "description": "Install Azure Functions Core Tools. This will output environment variable specified by `funcPath` to current environment's .env file.",
+              "additionalProperties": false,
+              "required": [
+                "version"
+              ],
+              "properties": {
+                "version": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "integer"
+                    }
+                  ],
+                  "description": "The version number of Azure Functions Core Tools that follow the Semantic Versioning scheme."
+                },
+                "symlinkDir": {
+                  "type": "string",
+                  "description": "The path of the symlink target for the folder containing Azure Functions Core Tools binaries."
+                }
+              }
+            },
+            "dotnet": {
+              "type": "boolean",
+              "description": "Install .NET SDK. This will output environment variables specified by `dotnetPath` to current environment's .env file."
+            },
+            "testTool": {
+              "type": "object",
+              "description": "Install Microsoft 365 Agents Playground. This will output environment variables specified by `testToolPath` to current environment's .env file.",
+              "additionalProperties": false,
+              "required": ["version", "symlinkDir"],
+              "properties": {
+                "version": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "integer"
+                    }
+                  ],
+                  "description": "The version number of Microsoft 365 Agents Playground npm package that follow the Semantic Versioning scheme."
+                },
+                "symlinkDir": {
+                  "type": "string",
+                  "description": "The path of the symlink target for the folder containing Microsoft 365 Agents Playground binaries."
+                }
+              }
+            },
+            "nodejs": {
+              "type": "object",
+              "description": "Install standalone Node.js.",
+              "additionalProperties": false,
+              "required": ["symlinkDir"],
+              "properties": {
+                "symlinkDir": {
+                  "type": "string",
+                  "description": "The path of the symlink target for the folder containing Node.js binaries."
+                }
+              }
+            }
+          }
+        },
+        "writeToEnvironmentFile": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Write environment variables to environment file",
+          "properties": {
+            "sslCertFile": {
+              "description": "The path of the certificate file of the SSL certificate. This parameter takes effect only when `devCert` is specified.",
+              "$ref": "#/definitions/envVarName"
+            },
+            "sslKeyFile": {
+              "description": "The path of the key file of the SSL certificate. This parameter takes effect only when `devCert` is specified.",
+              "$ref": "#/definitions/envVarName"
+            },
+            "funcPath": {
+              "description": "The path of the Azure Functions Core Tools binary. This parameter takes effect only when `func` is `true`.",
+              "$ref": "#/definitions/envVarName"
+            },
+            "dotnetPath": {
+              "description": "The path of the .NET binary. This parameter takes effect only when `dotnet` is `true`.",
+              "$ref": "#/definitions/envVarName"
+            }
+          }
+        }
+      }
+    },
+    "teamsAppExtendToM365": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Extend app across Microsoft 365. Refer to https://aka.ms/teamsfx-actions/teamsapp-extendToM365 for more details.",
+      "required": ["uses", "with"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "An optional name of this action."
+        },
+        "env": {
+          "type": "object",
+          "description": "Define environment variables for this action.",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "uses": {
+          "type": "string",
+          "description": "Extend app across Microsoft 365. Refer to https://aka.ms/teamsfx-actions/teamsapp-extendToM365 for more details.",
+          "const": "teamsApp/extendToM365"
+        },
+        "with": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "parameters for this action",
+          "required": ["appPackagePath"],
+          "properties": {
+            "appPackagePath": {
+              "type": "string",
+              "description": "path to app package"
+            },
+            "scope": {
+              "type": "string",
+              "description": "The scope of the app (only works for declarative agent). personal is only visible to the owners. shared can be visible to other users in the tenant. Default is personal"
+            }
+          }
+        },
+        "writeToEnvironmentFile": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Write environment variables to environment file",
+          "required": ["titleId", "appId"],
+          "properties": {
+            "titleId": {
+              "description": "Required. The ID of M365 title.",
+              "$ref": "#/definitions/envVarName"
+            },
+            "appId": {
+              "description": "Required. The app ID of M365 title.",
+              "$ref": "#/definitions/envVarName"
+            },
+            "shareLink": {
+              "description": "Optional. The share link of the app.",
+              "$ref": "#/definitions/envVarName"
+            }
+          }
+        }
+      }
+    },
+    "spfxDeploy": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Deploy the SPFx package to SharePoint app catalog. Refer to https://aka.ms/teamsfx-actions/spfx-deploy for more details.",
+      "required": ["uses", "with"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "An optional name of this action."
+        },
+        "env": {
+          "type": "object",
+          "description": "Define environment variables for this action.",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "uses": {
+          "type": "string",
+          "description": "Deploy the SPFx package to SharePoint app catalog. Refer to https://aka.ms/teamsfx-actions/spfx-deploy for more details.",
+          "const": "spfx/deploy"
+        },
+        "with": {
+          "type": "object",
+          "description": "parameters for this action",
+          "additionalProperties": false,
+          "required": ["packageSolutionPath"],
+          "properties": {
+            "createAppCatalogIfNotExist": {
+              "type": "boolean",
+              "description": "Whether to create tenant app catalog first if not exist, default value is `false`"
+            },
+            "packageSolutionPath": {
+              "type": "string",
+              "description": "The path to package-solution.json in SPFx project"
+            }
+          }
+        }
+      }
+    },
+    "teamsAppCopyAppPackageToSPFx": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Copy the generated app package to SPFx solution. Refer to https://aka.ms/teamsfx-actions/teams-app-copy-app-package-to-spfx for more details.",
+      "required": ["uses", "with"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "An optional name of this action."
+        },
+        "env": {
+          "type": "object",
+          "description": "Define environment variables for this action.",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "uses": {
+          "type": "string",
+          "description": "Copy the generated app package to SPFx solution. Refer to https://aka.ms/teamsfx-actions/teams-app-copy-app-package-to-spfx for more details.",
+          "const": "teamsApp/copyAppPackageToSPFx"
+        },
+        "with": {
+          "type": "object",
+          "description": "parameters for this action",
+          "additionalProperties": false,
+          "required": ["appPackagePath", "spfxFolder"],
+          "properties": {
+            "spfxFolder": {
+              "type": "string",
+              "description": "The source folder to the SPFx project"
+            },
+            "appPackagePath": {
+              "type": "string",
+              "description": "The path to the zipped app package"
+            }
+          }
+        }
+      }
+    },
+    "script": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Execute a user defined script. Refer to https://aka.ms/teamsfx-actions/script for more details.",
+      "required": ["uses", "with"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "An optional name of this action."
+        },
+        "env": {
+          "type": "object",
+          "description": "Define environment variables for this action.",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "uses": {
+          "type": "string",
+          "description": "Execute a user defined script. Refer to https://aka.ms/teamsfx-actions/script for more details.",
+          "const": "script"
+        },
+        "with": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Parameters for this action",
+          "required": ["run"],
+          "properties": {
+            "run": {
+              "type": "string",
+              "description": "The command for this action to run or path to the script. Succeeds if exit code is 0."
+            },
+            "workingDirectory": {
+              "type": "string",
+              "description": "Current working directory. Defaults to the directory of this file."
+            },
+            "shell": {
+              "type": "string",
+              "description": "Shell command. If not specified, use default shell for current platform. The rule is: 1) use the value of the 'SHELL' environment variable if it is set. Otherwise the shell depends on operation system: 2) on macOS, use '/bin/zsh' if it exists, otherwise use '/bin/bash'; 3) On Windows, use the value of the 'ComSpec' environment variable if it exists, otherwise use 'cmd.exe'; 4) On Linux or other OS, use '/bin/sh' if it extis."
+            },
+            "timeout": {
+              "type": "number",
+              "description": "timeout in ms"
+            },
+            "redirectTo": {
+              "type": "string",
+              "description": "redirect stdout and stderr to a file"
+            }
+          }
+        }        
+      }
+    },
+    "relativePath": {
+      "type": "string",
+      "maxLength": 2048
+    },
+    "httpsUrl": {
+      "type": "string",
+      "maxLength": 2048,
+      "pattern": "^[Hh][Tt][Tt][Pp][Ss]?://"
+    },
+    "semver": {
+      "type": "string",
+      "maxLength": 256,
+      "pattern": "^([0-9]|[1-9]+[0-9]*)\\.([0-9]|[1-9]+[0-9]*)\\.([0-9]|[1-9]+[0-9]*)$"
+    },
+    "hexColor": {
+      "type": "string",
+      "pattern": "^#[0-9a-fA-F]{6}$"
+    },
+    "guid": {
+      "type": "string",
+      "pattern": "^[0-9a-fA-F]{8}-([0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12}$"
+    },
+    "languageTag": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9]{1,8}(-[A-Za-z0-9]{1,8}){0,2}$"
+    },
+    "taskInfoDimension": {
+      "type": "string",
+      "pattern": "^((([0-9]*\\.)?[0-9]+)|[lL][aA][rR][gG][eE]|[mM][eE][dD][iI][uU][mM]|[sS][mM][aA][lL][lL])$",
+      "maxLength": 16
+    },
+    "secretEnvVarName": {
+      "type": "string",
+      "pattern": "^SECRET_[A-Z0-9_]+$",
+      "maxLength": 256
+    },
+    "envVarName": {
+      "type": "string",
+      "pattern": "^[A-Z][A-Z0-9_]*$",
+      "maxLength": 256
+    },
+    "apiKeyRegister": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Create an API key.",
+      "required": ["uses", "with", "writeToEnvironmentFile"],
+      "properties": {
+        "uses": {
+          "type": "string",
+          "description": "Register API key. Refer to https://aka.ms/teamsfx-actions/apiKey-register for more details.",
+          "const": "apiKey/register"
+        },
+        "with": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Parameters for this action",
+          "required": ["name", "appId"],
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "The name of API key."
+            },
+            "appId": {
+              "type": "string",
+              "description": "The app ID."
+            },
+            "primaryClientSecret": {
+              "type": "string",
+              "description": "Primary client secret of API key. Length of client secret >= 10 and <= 128"
+            },
+            "secondaryClientSecret": {
+              "type": "string",
+              "description": "Secondary callingWebhook secret of API key. Length of client secret >= 10 and <= 128"
+            },
+            "apiSpecPath": {
+              "type": "string",
+              "description": "The path of API specification file. Will be used to extract missing properties if they're not explicitly provided."
+            },
+            "baseUrl": {
+              "type": "string",
+              "description": "The base URL for the API."
+            },
+            "applicableToApps": {
+              "type": "string",
+              "description": "Which app can access the API key? Values can be \"SpecificApp\" or \"AnyApp\". Default is \"AnyApp\".",
+              "enum": ["SpecificApp", "AnyApp"]
+            },
+            "targetAudience": {
+              "type": "string",
+              "description": "Which tenant can access the API key? Values can be \"HomeTenant\" or \"AnyTenant\". Default is \"AnyTenant\".",
+              "enum": ["HomeTenant", "AnyTenant"]
+            }
+          }
+        },
+        "writeToEnvironmentFile": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Write environment variables to environment file",
+          "required": ["registrationId"],
+          "properties": {
+            "registrationId": {
+              "description": "Required. The registration id of created API key.",
+              "$ref": "#/definitions/envVarName"
+            }
+          }
+        }
+      }
+    },
+    "azureStaticWebAppGetDeploymentKey": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Get deployment key from Azure Static Web App.",
+      "required": ["uses", "with"],
+      "properties": {
+        "uses": {
+          "type": "string",
+          "description": "Get deployment key. Refer to https://aka.ms/teamsfx-actions/swa-get-deployment-key for more details.",
+          "const": "azureStaticWebApps/getDeploymentToken"
+        },
+        "with": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Parameters for this action",
+          "required": ["resourceId"],
+          "properties": {
+            "resourceId": {
+              "type": "string",
+              "description": "The resource ID of Azure Static Web App."
+            }
+          }
+        },
+        "writeToEnvironmentFile": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Write environment variables to environment file",
+          "required": ["deploymentToken"],
+          "properties": {
+            "deploymentToken": {
+              "description": "Required. The deployment token of Azure Static Web App.",
+              "$ref": "#/definitions/envVarName"
+            }
+          }
+        }
+      }
+    },
+    "apiKeyUpdate": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Update an API key.",
+      "required": ["uses", "with"],
+      "properties": {
+        "uses": {
+          "type": "string",
+          "description": "Update API key. Refer to https://aka.ms/teamsfx-actions/apiKey-update for more details.",
+          "const": "apiKey/update"
+        },
+        "with": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Parameters for this action",
+          "required": ["name", "appId", "registrationId"],
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "The name of API key."
+            },
+            "appId": {
+              "type": "string",
+              "description": "The app ID of app."
+            },
+            "apiSpecPath": {
+              "type": "string",
+              "description": "The path of API specification file. Will be used to extract missing properties if they're not explicitly provided."
+            },
+            "baseUrl": {
+              "type": "string",
+              "description": "The base URL for the API."
+            },
+            "registrationId": {
+              "type": "string",
+              "description": "The registration id of API key."
+            },
+            "applicableToApps": {
+              "type": "string",
+              "description": "Which app can access the API key? Values can be \"SpecificApp\" or \"AnyApp\". Default is \"AnyApp\".",
+              "enum": ["SpecificApp", "AnyApp"]
+            },
+            "targetAudience": {
+              "type": "string",
+              "description": "Which tenant can access the API key? Values can be \"HomeTenant\" or \"AnyTenant\". Default is \"AnyTenant\".",
+              "enum": ["HomeTenant", "AnyTenant"]
+            }
+          }
+        }
+      }
+    },
+    "oauthRegister": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Create an OAuth registration.",
+      "required": ["uses", "with", "writeToEnvironmentFile"],
+      "properties": {
+        "uses": {
+          "type": "string",
+          "description": "Register OAuth registration. Refer to https://aka.ms/teamsfx-actions/oauth-register for more details.",
+          "const": "oauth/register"
+        },
+        "with": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Parameters for this action",
+          "required": ["name", "flow"],
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "The name of OAuth registration."
+            },
+            "appId": {
+              "type": "string",
+              "description": "The app ID of the App. Only take effect when applicableToApps is SpecificApp."
+            },
+            "apiSpecPath": {
+              "type": "string",
+              "description": "The path of API specification file. Will be used to extract missing properties if they're not explicitly provided."
+            },
+            "baseUrl": {
+              "type": "string",
+              "description": "The base URL for the API."
+            },
+            "authorizationUrl": {
+              "type": "string",
+              "description": "The authorization URL for the OAuth flow."
+            },
+            "tokenUrl": {
+              "type": "string",
+              "description": "The token URL for the OAuth flow."
+            },
+            "scope": {
+              "type": "string",
+              "description": "The scope(s) for the OAuth flow."
+            },
+            "applicableToApps": {
+              "type": "string",
+              "description": "Which app can access the OAuth registration? Values can be \"SpecificApp\" or \"AnyApp\". Default is \"AnyApp\".",
+              "enum": ["SpecificApp", "AnyApp"]
+            },
+            "targetAudience": {
+              "type": "string",
+              "description": "Which tenant can access the OAuth registration? Values can be \"HomeTenant\" or \"AnyTenant\". Default is \"AnyTenant\".",
+              "enum": ["HomeTenant", "AnyTenant"]
+            },
+            "flow": {
+              "type": "string",
+              "description": "The flow of OAuth registration. Values can be \"authorizationCode\" .",
+              "enum": ["authorizationCode"]
+            },
+            "clientId": {
+              "type": "string",
+              "description": "The client id of OAuth registration."
+            },
+            "clientSecret": {
+              "type": "string",
+              "description": "The client secret of OAuth registration."
+            },
+            "refreshUrl": {
+              "type": "string",
+              "description": "The refresh url of OAuth registration."
+            },
+            "isPKCEEnabled": {
+              "type": "boolean",
+              "description": "Whether PKCE is enabled for OAuth registration. Default is false."
+            },
+            "identityProvider": {
+              "type": "string",
+              "description": "The identity provider of OAuth registration.",
+              "enum": ["MicrosoftEntra", "Custom"]
+            },
+            "tokenExchangeMethodType": {
+              "type": "string",
+              "description": "Token exchange method type, can be BasicAuthorizationHeader or PostRequestBody. BasicAuthorizationHeader: token exchange via HTTP headers, PostRequestBody: token exchange via request body. Default is BasicAuthorizationHeader.",
+              "enum": ["BasicAuthorizationHeader", "PostRequestBody"]
+            }
+          }
+        },
+        "writeToEnvironmentFile": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Write environment variables to environment file",
+          "required": ["configurationId"],
+          "properties": {
+            "configurationId": {
+              "description": "Required. The configuration id of created OAuth registration.",
+              "$ref": "#/definitions/envVarName"
+            },
+            "applicationIdUri": {
+              "description": "The Application ID URI of created OAuth registration.",
+              "$ref": "#/definitions/envVarName"
+            }
+          }
+        }
+      }
+    },
+    "oauthUpdate": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Update an OAuth registration.",
+      "required": ["uses", "with"],
+      "properties": {
+        "uses": {
+          "type": "string",
+          "description": "Update OAuth registration. Refer to https://aka.ms/teamsfx-actions/oauth-update for more details.",
+          "const": "oauth/update"
+        },
+        "with": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Parameters for this action",
+          "required": ["name", "configurationId"],
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "The name of OAuth registration."
+            },
+            "appId": {
+              "type": "string",
+              "description": "The app ID of the App. Only take effect when applicableToApps is SpecificApp."
+            },
+            "apiSpecPath": {
+              "type": "string",
+              "description": "The path of API specification file. Will be used to extract missing properties if they're not explicitly provided."
+            },
+            "baseUrl": {
+              "type": "string",
+              "description": "The base URL for the API."
+            },
+            "authorizationUrl": {
+              "type": "string",
+              "description": "The authorization URL for the OAuth flow."
+            },
+            "tokenUrl": {
+              "type": "string",
+              "description": "The token URL for the OAuth flow."
+            },
+            "scope": {
+              "type": "string",
+              "description": "The scope(s) for the OAuth flow."
+            },
+            "refreshUrl": {
+              "type": "string",
+              "description": "The refresh url of OAuth registration."
+            },
+            "configurationId": {
+              "type": "string",
+              "description": "The configuration id of OAuth registration."
+            },
+            "applicableToApps": {
+              "type": "string",
+              "description": "Which app can access the OAuth registration? Values can be \"SpecificApp\" or \"AnyApp\". Default is \"AnyApp\".",
+              "enum": ["SpecificApp", "AnyApp"]
+            },
+            "targetAudience": {
+              "type": "string",
+              "description": "Which tenant can access the OAuth registration? Values can be \"HomeTenant\" or \"AnyTenant\". Default is \"AnyTenant\".",
+              "enum": ["HomeTenant", "AnyTenant"]
+            },
+            "isPKCEEnabled": {
+              "type": "boolean",
+              "description": "Whether PKCE is enabled for OAuth registration. Default is false."
+            },
+            "clientId": {
+              "type": "string",
+              "description": "The client id of OAuth registration."
+            },
+            "clientSecret": {
+              "type": "string",
+              "description": "The client secret of OAuth registration."
+            },
+            "tokenExchangeMethodType": {
+              "type": "string",
+              "description": "Token exchange method type, can be BasicAuthorizationHeader or PostRequestBody. BasicAuthorizationHeader: token exchange via HTTP headers, PostRequestBody: token exchange via request body. Default is BasicAuthorizationHeader.",
+              "enum": ["BasicAuthorizationHeader", "PostRequestBody"]
+            }
+          }
+        }
+      }
+    },
+    "devChannelCreate": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Create a Teams sandboxed team and channel.",
+      "required": ["uses", "with", "writeToEnvironmentFile"],
+      "properties": {
+        "uses": {
+          "type": "string",
+          "description": "Create a Teams sandboxed team and channel.",
+          "const": "devChannel/create"
+        },
+        "with": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Parameters for this action",
+          "required": ["teamName", "channelName"],
+          "properties": {
+            "teamName": {
+              "type": "string",
+              "description": "The name of sandboxed team."
+            },
+            "channelName": {
+              "type": "string",
+              "description": "The default name for the channel."
+            },
+            "description": {
+              "type": "string",
+              "description": "Team description."
+            }
+          }
+        },
+        "writeToEnvironmentFile": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Write environment variables to environment file",
+          "required": ["channelId", "teamId", "channelWebUrl"],
+          "properties": {
+            "channelId": {
+              "description": "The ID of the created channel.",
+              "$ref": "#/definitions/envVarName"
+            },
+            "teamId": {
+              "description": "The ID of the team in which the channel is created.",
+              "$ref": "#/definitions/envVarName"
+            },
+            "channelWebUrl": {
+              "type": "string",
+              "description": "A hyperlink that will go to the channel in Microsoft Teams."
+            }
+          }
+        }
+      }
+    },
+    "devChannelInstallApp": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Install app to a sandboxed team and channel.",
+      "required": ["uses", "with"],
+      "properties": {
+        "uses": {
+          "type": "string",
+          "description": "Install app to a sandboxed team and channel.",
+          "const": "devChannel/installApp"
+        },
+        "with": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Parameters for this action",
+          "required": ["appPackagePath", "teamId", "channelId"],
+          "properties": {
+            "appPackagePath": {
+              "type": "string",
+              "description": "Path to zipped app package file."
+            },
+            "teamId": {
+              "type": "string",
+              "description": "App will be installed in which team."
+            },
+            "channelId": {
+              "type": "string",
+              "description": "App will be installed in which channel."
+            }
+          }
+        }
+      }
+    },
+    "typeSpecCompile": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Compile TypeSpec project.",
+      "required": ["uses", "with"],
+      "properties": {
+        "uses": {
+          "type": "string",
+          "description": "Compile TypeSpec project and generate files. Refer to https://aka.ms/teamsfx-actions/typeSpec-compile for more details.",
+          "const": "typeSpec/compile"
+        },
+        "with": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Parameters for this action",
+          "required": ["path", "manifestPath", "outputDir", "typeSpecConfigPath"],
+          "properties": {
+            "path": {
+              "type": "string",
+              "description": "Path to main file of TypeSpec project."
+            },
+            "manifestPath": {
+              "type": "string",
+              "description": "Path to app manifest file."
+            },
+            "outputDir": {
+              "type": "string",
+              "description": "Path to output directory."
+            },
+            "typeSpecConfigPath": {
+              "type": "string",
+              "description": "Path to TypeSpec config file."
+            }
+          }
+        }
+      }
+    }
+  }
+}

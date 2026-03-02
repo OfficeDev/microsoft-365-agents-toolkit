@@ -12,17 +12,16 @@ from azure.search.documents.indexes.models import (
     SearchableField,
     SearchField,
     SearchFieldDataType,
-    ComplexField,
     CorsOptions,
     VectorSearch,
     VectorSearchProfile,
     HnswAlgorithmConfiguration
 )
 {{#useAzureOpenAI}}
-from teams.ai.embeddings import AzureOpenAIEmbeddings, AzureOpenAIEmbeddingsOptions
+from openai import AzureOpenAI
 {{/useAzureOpenAI}}
 {{#useOpenAI}}
-from teams.ai.embeddings import OpenAIEmbeddings, OpenAIEmbeddingsOptions
+from openai import OpenAI
 {{/useOpenAI}}
 
 from get_data import get_doc_data
@@ -86,19 +85,18 @@ async def setup(search_api_key, search_api_endpoint, args):
     search_client = SearchClient(search_api_endpoint, index, credentials)
 
     {{#useAzureOpenAI}}
-    embeddings = AzureOpenAIEmbeddings(AzureOpenAIEmbeddingsOptions(
-        azure_api_key=args.api_key,
+    embeddings = AzureOpenAI(
+        api_key=args.api_key,
         azure_endpoint=os.getenv('AZURE_OPENAI_ENDPOINT'),
-        azure_deployment=os.getenv('AZURE_OPENAI_EMBEDDING_DEPLOYMENT')
-    ))
+        api_version="2024-02-01"
+    )
+    embedding_model = os.getenv('AZURE_OPENAI_EMBEDDING_DEPLOYMENT')
     {{/useAzureOpenAI}}
     {{#useOpenAI}}
-    embeddings=OpenAIEmbeddings(OpenAIEmbeddingsOptions(
-        api_key=args.api_key,
-        model='text-embedding-ada-002'
-    ))
+    embedding_model='text-embedding-ada-002'
+    embeddings=OpenAI(api_key=args.api_key, model='text-embedding-ada-002')
     {{/useOpenAI}}
-    data = await get_doc_data(embeddings=embeddings)
+    data = await get_doc_data(embeddings=embeddings, model=embedding_model)
     await upsert_documents(search_client, data)
 
     print("Upload new documents succeeded. If they do not exist, wait for several seconds...")

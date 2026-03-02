@@ -35,6 +35,7 @@ import {
   UserCancelError,
   assembleError,
 } from "@microsoft/teamsfx-core";
+import { spawn } from "child_process";
 import fs from "fs-extra";
 import open from "open";
 import path from "path";
@@ -46,7 +47,6 @@ import { cliSource } from "./constants";
 import { CheckboxChoice, SelectChoice, checkbox, select } from "./prompts";
 import { errors } from "./resource";
 import { getColorizedString } from "./utils";
-import { spawn } from "child_process";
 
 export const inquirerPrompts = {
   confirm,
@@ -638,18 +638,29 @@ class CLIUserInteraction implements UserInteraction {
   }): Promise<Result<string, FxError>> {
     return new Promise<Result<string, FxError>>((resolve) => {
       const isWindows = process.platform === "win32";
-      const command = isWindows ? "cmd.exe" : "/bin/bash";
+      const command = args.shell ? args.shell : isWindows ? "cmd.exe" : "/bin/bash";
       const commandArgs = isWindows ? ["/c", args.cmd] : ["-c", args.cmd];
       logger.info(`Executing task: ${args.cmd}`);
+      let output = "";
       const childProcess = spawn(command, commandArgs, {
-        stdio: "inherit",
+        stdio: ["inherit", "pipe", "pipe"],
         cwd: args.workingDirectory,
         timeout: args.timeout,
         env: args.env,
       });
+      childProcess.stdout?.on("data", (data) => {
+        const str = data.toString();
+        process.stdout.write(str); // Real-time output to terminal
+        output += str;
+      });
+      childProcess.stderr?.on("data", (data) => {
+        const str = data.toString();
+        process.stderr.write(str); // Real-time output to terminal
+        output += str;
+      });
       childProcess.on("close", (code: number) => {
         if (code === 0) {
-          resolve(ok(""));
+          resolve(ok(output));
         } else {
           logger.error("Execute task failed with code:" + code);
           resolve(

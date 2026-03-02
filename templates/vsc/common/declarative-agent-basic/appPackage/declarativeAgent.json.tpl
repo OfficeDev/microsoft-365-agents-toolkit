@@ -1,17 +1,18 @@
 {
     {{^EmbeddedKnowledgeEnabled}}
-    "$schema": "https://developer.microsoft.com/json-schemas/copilot/declarative-agent/v1.4/schema.json",
-    "version": "v1.4",
+    "$schema": "https://developer.microsoft.com/json-schemas/copilot/declarative-agent/v1.5/schema.json",
+    "version": "v1.5",
     {{/EmbeddedKnowledgeEnabled}}
     {{#EmbeddedKnowledgeEnabled}}
-    "version": "v1.5",
+    "$schema": "https://developer.microsoft.com/json-schemas/copilot/declarative-agent/v1.6/schema.json",
+    "version": "v1.6",
     {{/EmbeddedKnowledgeEnabled}}
     {{#SensitivityLabelEnabled}}
     "sensitivity_label": {
         "id": ""
     },
     {{/SensitivityLabelEnabled}}
-    "name": "{{appName}}",
+    "name": "{{appName}}${{APP_NAME_SUFFIX}}",
     "description": "Declarative agent created with Microsoft 365 Agents Toolkit",
     {{^CopilotConnector}}
     "instructions": "$[file('instruction.txt')]"

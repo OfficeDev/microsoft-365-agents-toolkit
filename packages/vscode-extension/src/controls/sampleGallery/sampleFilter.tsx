@@ -30,7 +30,7 @@ export default class SampleFilter extends React.Component<SampleFilterProps, unk
     const typeOptions: IDropdownOption[] = sampleTypes.map((type) => {
       const selected = this.props.filterTags.indexOf(type) >= 0;
       const count = this.props.samples.filter((sample) => {
-        return sample.tags && sample.tags.indexOf(type) >= 0;
+        return sample.types && sample.types.indexOf(type) >= 0;
       }).length;
       return { key: type, text: `${type} (${count})`, selected };
     });

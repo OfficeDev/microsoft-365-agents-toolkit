@@ -8,14 +8,15 @@ export interface M365AppDefinition {
   titleId: string;
   version: string;
   scope: string;
-  owners: M365AppOwners[];
+  owners: M365AppEntity[];
 }
 
-export interface M365AppOwners {
+export interface M365AppEntity {
   entityId: string;
-  entityType: M365OwnerType;
+  entityType: M365EntityType;
 }
 
-export enum M365OwnerType {
-  User = "user",
+export enum M365EntityType {
+  User = "User",
+  Group = "Group",
 }

@@ -1,62 +1,71 @@
 import os
 from dataclasses import dataclass
-
-from teams.ai.tokenizers import Tokenizer
-from teams.ai.data_sources import DataSource
-from teams.state.state import TurnContext
-from teams.state.memory import Memory
-
 @dataclass
 class Result:
     output: str
-    length: int
-    too_long: bool
 
-class MyDataSource(DataSource):
+class MyDataSource():
     """
     A data source that searches through a local directory of files for a given query.
     """
 
-    def __init__(self, name):
+    def __init__(self,):
         """
         Creates a new instance of the LocalDataSource instance.
         Initializes the data source.
-        """
-        self.name = name
-        
+        """        
         filePath = os.path.join(os.path.dirname(__file__), 'data')
         files = os.listdir(filePath)
-        self._data = [open(os.path.join(filePath, file), 'r').read() for file in files]
+        self._data = []
+        for file in files:
+            with open(os.path.join(filePath, file), 'r') as f:
+                content = f.read()
+                self._data.append({
+                    'filename': file,
+                    'content': content
+                })
         
-    def name(self):
-        return self.name
 
-    async def render_data(self, context: TurnContext, memory: Memory, tokenizer: Tokenizer, maxTokens: int):
+    def render_data(self, query):
         """
         Renders the data source as a string of text.
         The returned output should be a string of text that will be injected into the prompt at render time.
         """
-        query = memory.get('temp.input')
         if not query:
             return Result('', 0, False)
         
-        result=''
+        matched_files = []
+        
         # Text search
-        for data in self._data:
-            if query in data:
-                result += data
+        for data_item in self._data:
+            if query in data_item['content']:
+                matched_files.append(data_item)
+        
         # Key word search
         if 'history' in query.lower() or 'company' in query.lower():
-            result += self._data[0]
+            for item in self._data:
+                if 'Overview' in item['filename']:
+                    matched_files.append(item)
+                    break
         if 'perksplus' in query.lower() or 'program' in query.lower():
-            result += self._data[1]
+            for item in self._data:
+                if 'PerksPlus' in item['filename']:
+                    matched_files.append(item)
+                    break
         if 'northwind' in query.lower() or 'health' in query.lower() or 'plan' in query.lower():
-            result += self._data[2]
+            for item in self._data:
+                if 'Plan' in item['filename']:
+                    matched_files.append(item)
+                    break
        
-        return Result(self.formatDocument(result), len(result), False) if result!='' else Result('', 0, False)
+        return Result(self.formatDocuments(matched_files)) if matched_files else Result('')
 
-    def formatDocument(self, result):
+    def formatDocuments(self, matched_files):
         """
-        Formats the result string 
+        Formats the matched files as individual context tags
         """
-        return f"<context>{result}</context>"
+        context_list = []
+        for file_data in matched_files:
+            context_tag = f'<context source="{file_data["filename"]}">{file_data["content"]}</context>'
+            context_list.append(context_tag)
+        return '\n'.join(context_list)

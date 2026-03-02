@@ -7,12 +7,7 @@
             "request": "launch",
             "url": "https://teams.microsoft.com/l/app/${{TEAMS_APP_ID}}?installAppPackage=true&webjoin=true&${account-hint}",
             "presentation": {
-{{#enableTestToolByDefault}}
                 "group": "2-Teams",
-{{/enableTestToolByDefault}}
-{{^enableTestToolByDefault}}
-                "group": "1-Teams",
-{{/enableTestToolByDefault}}
                 "order": 4
             },
             "internalConsoleOptions": "neverOpen"
@@ -23,12 +18,7 @@
             "request": "launch",
             "url": "https://teams.microsoft.com/l/app/${{TEAMS_APP_ID}}?installAppPackage=true&webjoin=true&${account-hint}",
             "presentation": {
-{{#enableTestToolByDefault}}
                 "group": "2-Teams",
-{{/enableTestToolByDefault}}
-{{^enableTestToolByDefault}}
-                "group": "1-Teams",
-{{/enableTestToolByDefault}}
                 "order": 5
             },
             "internalConsoleOptions": "neverOpen"
@@ -81,12 +71,7 @@
             "request": "launch",
             "preLaunchTask": "Start App in Desktop Client (Remote)",
             "presentation": {
-{{#enableTestToolByDefault}}
                 "group": "2-Teams",
-{{/enableTestToolByDefault}}
-{{^enableTestToolByDefault}}
-                "group": "1-Teams",
-{{/enableTestToolByDefault}}
                 "order": 6
             },
             "internalConsoleOptions": "neverOpen",
@@ -154,9 +139,10 @@
                 "--remote-debugging-port=9223",
                 "--no-first-run"
             ]
+
+        }
 {{#SandBoxedTeam}}
-        },
-        {
+        ,{
             "name": "Launch App to channel (Edge)",
             "type": "msedge",
             "request": "launch",
@@ -170,8 +156,8 @@
             },
             "internalConsoleOptions": "neverOpen",
             "perScriptSourcemaps": "yes"
-{{/SandBoxedTeam}}
         }
+{{/SandBoxedTeam}}
     ],
     "compounds": [
         {
@@ -182,19 +168,14 @@
             ],
             "preLaunchTask": "Start App Locally",
             "presentation": {
-{{#enableTestToolByDefault}}
                 "group": "2-Teams",
-{{/enableTestToolByDefault}}
-{{^enableTestToolByDefault}}
-                "group": "1-Teams",
-{{/enableTestToolByDefault}}
                 "order": 1
             },
             "stopAll": true
         },
 {{#SandBoxedTeam}}
         {
-            "name": "Debug in Teams Sandbox (Edge)",
+            "name": "Debug in sandbox in Teams (Edge)",
             "configurations": [
                 "Launch App to channel (Edge)",
                 "Attach to Local Service"
@@ -215,12 +196,7 @@
             ],
             "preLaunchTask": "Start App Locally",
             "presentation": {
-{{#enableTestToolByDefault}}
                 "group": "2-Teams",
-{{/enableTestToolByDefault}}
-{{^enableTestToolByDefault}}
-                "group": "1-Teams",
-{{/enableTestToolByDefault}}
                 "order": 2
             },
             "stopAll": true
@@ -232,12 +208,7 @@
             ],
             "preLaunchTask": "Start App in Desktop Client",
             "presentation": {
-{{#enableTestToolByDefault}}
                 "group": "2-Teams",
-{{/enableTestToolByDefault}}
-{{^enableTestToolByDefault}}
-                "group": "1-Teams",
-{{/enableTestToolByDefault}}
                 "order": 3
             },
             "stopAll": true
@@ -249,12 +220,7 @@
             ],
             "preLaunchTask": "Start App in Microsoft 365 Agents Playground",
             "presentation": {
-{{#enableTestToolByDefault}}
                 "group": "1-local",
-{{/enableTestToolByDefault}}
-{{^enableTestToolByDefault}}
-                "group": "2-local",
-{{/enableTestToolByDefault}}
                 "order": 1
             },
             "stopAll": true

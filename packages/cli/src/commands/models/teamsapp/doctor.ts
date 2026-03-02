@@ -16,7 +16,7 @@ import * as util from "util";
 import { getFxCore } from "../../../activate";
 import { DoneText, TextType, WarningText, colorize } from "../../../colorize";
 import { logger } from "../../../commonlib/logger";
-import M365TokenInstance from "../../../commonlib/m365Login";
+import M365TokenInstance from "../../../commonlib/M365TokenProviderWrapper";
 import { cliSource } from "../../../constants";
 import { commands, strings } from "../../../resource";
 import { TelemetryEvent } from "../../../telemetry/cliTelemetryEvents";
@@ -108,15 +108,15 @@ export class DoctorChecker {
     let error = undefined;
     let loginHint: string | undefined = undefined;
     try {
-      let loginStatusRes = await M365TokenInstance.getStatus({ scopes: AppStudioScopes });
+      let loginStatusRes = await M365TokenInstance.getStatus({ scopes: AppStudioScopes() });
       let token = loginStatusRes.isOk() ? loginStatusRes.value.token : undefined;
       if (loginStatusRes.isOk() && loginStatusRes.value.status === signedOut) {
         const tokenRes = await M365TokenInstance.getAccessToken({
-          scopes: AppStudioScopes,
+          scopes: AppStudioScopes(),
           showDialog: true,
         });
         token = tokenRes.isOk() ? tokenRes.value : undefined;
-        loginStatusRes = await M365TokenInstance.getStatus({ scopes: AppStudioScopes });
+        loginStatusRes = await M365TokenInstance.getStatus({ scopes: AppStudioScopes() });
       }
       if (token === undefined) {
         result = false;

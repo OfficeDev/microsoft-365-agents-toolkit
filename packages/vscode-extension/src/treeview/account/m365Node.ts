@@ -37,7 +37,7 @@ export class M365AccountNode extends DynamicNode {
 
     this.label = displayName;
     const tokenRes = await tools.tokenProvider.m365TokenProvider.getAccessToken({
-      scopes: AzureScopes,
+      scopes: AzureScopes(),
     });
     if (tokenRes.isOk() && tokenRes.value) {
       const tenants = await listAllTenants(tokenRes.value);
@@ -143,6 +143,12 @@ export class M365AccountNode extends DynamicNode {
     } else {
       this.iconPath = m365Icon;
     }
+    this.accessibilityInformation = {
+      label:
+        (this.label ? (typeof this.label === "string" ? this.label : this.label.label) : "") +
+        ". " +
+        localize("teamstoolkit.accountTree.m365AccountTooltip"),
+    };
     return this;
   }
 }

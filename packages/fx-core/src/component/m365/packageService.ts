@@ -15,25 +15,26 @@ import {
 import AdmZip from "adm-zip";
 import FormData from "form-data";
 import fs from "fs-extra";
+import stripBom from "strip-bom";
 import { ErrorContextMW, TOOLS } from "../../common/globalVars";
-import { assembleError } from "../../error/common";
-import { ErrorCategory } from "../../error/types";
+import { getDefaultString, getLocalizedString } from "../../common/localizeUtils";
+import { IsDeclarativeAgentManifest } from "../../common/projectTypeChecker";
 import {
   Component,
-  TelemetryEvent,
-  TelemetryProperty,
   sendTelemetryErrorEvent,
   sendTelemetryEvent,
+  TelemetryEvent,
+  TelemetryProperty,
 } from "../../common/telemetry";
 import { waitSeconds } from "../../common/utils";
 import { WrappedAxiosClient } from "../../common/wrappedAxiosClient";
-import { NotExtendedToM365Error } from "./errors";
-import { MosServiceEndpoint } from "./serviceConstant";
-import { IsDeclarativeAgentManifest } from "../../common/projectTypeChecker";
-import stripBom from "strip-bom";
-import { featureFlagManager, FeatureFlags } from "../../common/featureFlags";
+import { assembleError } from "../../error/common";
+import { ErrorCategory } from "../../error/types";
 import { AppUser } from "../driver/teamsApp/interfaces/appdefinitions/appUser";
-import { M365AppDefinition, M365AppOwners } from "./interface";
+import { advancedDASettingUrl, M365HelpLink } from "./constants";
+import { NotExtendedToM365Error } from "./errors";
+import { M365AppDefinition, M365AppEntity } from "./interface";
+import { getResourceServiceEndpoint, ResourceServiceType } from "../../common/constants";
 
 const M365ErrorSource = "M365";
 const M365ErrorComponent = "PackageService";
@@ -41,7 +42,14 @@ const M365ErrorComponent = "PackageService";
 export enum AppScope {
   Personal = "Personal",
   Shared = "Shared",
+  Tenant = "Tenant",
 }
+
+export const AgentPermission = {
+  name: "Agent",
+  owner: "Owner",
+  type: "M365",
+};
 
 // Call m365 service for package CRUD
 export class PackageService {
@@ -54,7 +62,7 @@ export class PackageService {
   public static GetSharedInstance(): PackageService {
     if (!PackageService.sharedInstance) {
       PackageService.sharedInstance = new PackageService(
-        process.env.SIDELOADING_SERVICE_ENDPOINT ?? MosServiceEndpoint,
+        getResourceServiceEndpoint(ResourceServiceType.MOS3),
         TOOLS.logProvider
       );
     }
@@ -68,6 +76,7 @@ export class PackageService {
     this.initEndpoint = endpoint;
     this.logger = logger;
   }
+
   @hooks([ErrorContextMW({ source: M365ErrorSource, component: M365ErrorComponent })])
   public async getTitleServiceUrl(token: string): Promise<string> {
     try {
@@ -168,13 +177,10 @@ export class PackageService {
       throw new Error("Invalid app package zip. manifest.json is missing");
     }
     const isDelcarativeAgentApp = IsDeclarativeAgentManifest(manifest);
-    if (
-      isDelcarativeAgentApp &&
-      featureFlagManager.getBooleanValue(FeatureFlags.BuilderAPIEnabled)
-    ) {
+    if (isDelcarativeAgentApp) {
       const res = await this.sideLoadingV2(token, packagePath, appScope);
       let shareLink = "";
-      if (appScope == AppScope.Shared) {
+      if (appScope.toLowerCase() === AppScope.Shared.toLowerCase()) {
         shareLink = await this.getShareLink(token, res[0]);
       }
       sendTelemetryEvent(Component.core, TelemetryEvent.MosSideloadEnd, {
@@ -193,6 +199,7 @@ export class PackageService {
       return [res[0], res[1], ""];
     }
   }
+
   // Side loading using Builder API
   @hooks([ErrorContextMW({ source: M365ErrorSource, component: M365ErrorComponent })])
   public async sideLoadingV2(
@@ -239,16 +246,21 @@ export class PackageService {
           this.logger?.verbose("Sideloading done.");
           return [titleId, appId];
         } else {
-          await waitSeconds(2);
+          await waitSeconds(7);
         }
       } while (true);
     } catch (error: any) {
       if (error.response) {
         error = this.traceError(error);
       }
-      throw assembleError(error, M365ErrorSource);
+      const err = assembleError(error, M365ErrorSource);
+      if (err instanceof UserError) {
+        err.helpLink = M365HelpLink;
+      }
+      throw err;
     }
   }
+
   @hooks([ErrorContextMW({ source: M365ErrorSource, component: M365ErrorComponent })])
   public async sideLoadingV1(token: string, manifestPath: string): Promise<[string, string]> {
     try {
@@ -307,7 +319,7 @@ export class PackageService {
           this.logger?.verbose("Sideloading done.");
           return [titleId, appId];
         } else {
-          await waitSeconds(2);
+          await waitSeconds(7);
         }
       } while (true);
     } catch (error: any) {
@@ -321,6 +333,7 @@ export class PackageService {
       throw assembleError(error, M365ErrorSource);
     }
   }
+
   @hooks([ErrorContextMW({ source: M365ErrorSource, component: M365ErrorComponent })])
   public async getShareLink(token: string, titleId: string): Promise<string> {
     const serviceUrl = await this.getTitleServiceUrl(token);
@@ -342,6 +355,7 @@ export class PackageService {
       throw assembleError(error, M365ErrorSource);
     }
   }
+
   @hooks([ErrorContextMW({ source: M365ErrorSource, component: M365ErrorComponent })])
   public async getLaunchInfoByManifestId(token: string, manifestId: string): Promise<any> {
     try {
@@ -396,6 +410,7 @@ export class PackageService {
       throw assembleError(error, M365ErrorSource);
     }
   }
+
   @hooks([ErrorContextMW({ source: M365ErrorSource, component: M365ErrorComponent })])
   public async retrieveTitleId(token: string, manifestId: string): Promise<string> {
     const launchInfo = await this.getLaunchInfoByManifestId(token, manifestId);
@@ -412,6 +427,7 @@ export class PackageService {
     this.logger?.debug(`AppId: ${appId as string}`);
     return appId;
   }
+
   @hooks([ErrorContextMW({ source: M365ErrorSource, component: M365ErrorComponent })])
   public async unacquire(token: string, titleId: string): Promise<void> {
     try {
@@ -423,6 +439,21 @@ export class PackageService {
           Authorization: `Bearer ${token}`,
         },
       });
+
+      try {
+        await this.axiosInstance.delete(`/builder/v1/users/titles/${titleId}`, {
+          baseURL: serviceUrl,
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+      } catch (error: any) {
+        if (error.response && error.response.status === 404) {
+          this.logger?.debug(`TitleId ${titleId} not found, skip deleting.`);
+        } else {
+          throw error;
+        }
+      }
       this.logger?.verbose("Unacquiring done.");
     } catch (error: any) {
       if (error.response) {
@@ -431,6 +462,7 @@ export class PackageService {
       throw assembleError(error, M365ErrorSource);
     }
   }
+
   @hooks([ErrorContextMW({ source: M365ErrorSource, component: M365ErrorComponent })])
   public async getLaunchInfoByTitleId(token: string, titleId: string): Promise<unknown> {
     try {
@@ -525,7 +557,7 @@ export class PackageService {
       await this.axiosInstance.put(
         `/builder/v1/users/titles/${titleId}/owners?idType=TitleId`,
         {
-          Identities: newOwners,
+          Owners: newOwners,
         },
         {
           baseURL: serviceUrl,
@@ -545,7 +577,7 @@ export class PackageService {
   }
 
   @hooks([ErrorContextMW({ source: M365ErrorSource, component: M365ErrorComponent })])
-  public async grantPermission(
+  public async addOwner(
     token: string,
     titleId: string,
     user: AppUser
@@ -575,8 +607,133 @@ export class PackageService {
       await this.axiosInstance.put(
         `/builder/v1/users/titles/${titleId}/owners?idType=TitleId`,
         {
-          Identities: newOwners,
+          Owners: newOwners,
         },
+        {
+          baseURL: serviceUrl,
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      return ok(undefined);
+    } catch (error: any) {
+      if (error.response) {
+        error = this.traceError(error);
+      }
+      return err(assembleError(error, M365ErrorSource));
+    }
+  }
+
+  @hooks([ErrorContextMW({ source: M365ErrorSource, component: M365ErrorComponent })])
+  public async shareWithTenant(
+    token: string,
+    titleId: string
+  ): Promise<Result<undefined, FxError>> {
+    try {
+      this.logger?.verbose(`Change shared scope of agent to tenant with titleId: ${titleId} ...`);
+      const serviceUrl = await this.getTitleServiceUrl(token);
+      await this.axiosInstance.post(
+        `/builder/v1/users/titles/${titleId}/allowed?idType=TitleId`,
+        {
+          EntityCollection: {
+            ForAllUsers: true,
+            Entities: [],
+          },
+        },
+        {
+          baseURL: serviceUrl,
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      return ok(undefined);
+    } catch (error: any) {
+      if (error.response) {
+        error = this.traceError(error);
+      }
+      return err(assembleError(error, M365ErrorSource));
+    }
+  }
+
+  @hooks([ErrorContextMW({ source: M365ErrorSource, component: M365ErrorComponent })])
+  public async getSharedUsers(
+    token: string,
+    titleId: string
+  ): Promise<Result<M365AppEntity[], FxError>> {
+    try {
+      this.logger?.verbose(`Getting shared users with titleId: ${titleId} ...`);
+      const serviceUrl = await this.getTitleServiceUrl(token);
+      const response = await this.axiosInstance.get(
+        `/builder/v1/users/titles/${titleId}/allowed?idType=TitleId`,
+        {
+          baseURL: serviceUrl,
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      const entityCollection = response.data.entityCollection;
+      if (entityCollection.entities === undefined) {
+        return ok([]);
+      }
+      return ok(entityCollection.entities as M365AppEntity[]);
+    } catch (error: any) {
+      if (error.response) {
+        error = this.traceError(error);
+      }
+      return err(assembleError(error, M365ErrorSource));
+    }
+  }
+
+  // This will overwrite existing entity list
+  @hooks([ErrorContextMW({ source: M365ErrorSource, component: M365ErrorComponent })])
+  public async shareWithUsers(
+    token: string,
+    entities: M365AppEntity[],
+    titleId: string,
+    appId?: string
+  ): Promise<Result<undefined, FxError>> {
+    try {
+      this.logger?.verbose(`Adding shared users to app with titleId: ${titleId} ...`);
+      const serviceUrl = await this.getTitleServiceUrl(token);
+      await this.axiosInstance.post(
+        `/builder/v1/users/titles/${appId ?? titleId}/allowed?idType=${
+          appId ? "AppId" : "TitleId"
+        }`,
+        {
+          EntityCollection: {
+            ForAllUsers: false,
+            Entities: entities,
+          },
+        },
+        {
+          baseURL: serviceUrl,
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      return ok(undefined);
+    } catch (error: any) {
+      if (error.response) {
+        error = this.traceError(error);
+      }
+      return err(assembleError(error, M365ErrorSource));
+    }
+  }
+
+  @hooks([ErrorContextMW({ source: M365ErrorSource, component: M365ErrorComponent })])
+  public async unshare(token: string, titleId: string): Promise<Result<undefined, FxError>> {
+    try {
+      this.logger?.verbose(`Removing shared users from app with titleId: ${titleId} ...`);
+      const serviceUrl = await this.getTitleServiceUrl(token);
+      await this.axiosInstance.delete(
+        `/builder/v1/users/titles/${titleId}/allowed?idType=TitleId`,
         {
           baseURL: serviceUrl,
           headers: {
@@ -654,7 +811,7 @@ export class PackageService {
     }
   }
 
-  private isExistingUser(owners: M365AppOwners[], user: AppUser): boolean {
+  private isExistingUser(owners: M365AppEntity[], user: AppUser): boolean {
     if (owners.length === 0) {
       return false;
     }
@@ -671,10 +828,11 @@ export class PackageService {
     // add error details and trace to message
     const tracingId = (error.response.headers?.traceresponse ?? "") as string;
     const originalMessage = error.message as string;
-    const innerError = error.response.data?.error || { code: "", message: "" };
+    const innerError = error.response.data?.error ||
+      error.response.data.Error || { code: "", message: "" };
     const finalMessage = `${originalMessage} (tracingId: ${tracingId}) ${
-      innerError.code as string
-    }: ${innerError.message as string} `;
+      innerError.Code as string
+    }: ${innerError.Message as string} `;
 
     error.message = finalMessage;
 
@@ -685,6 +843,21 @@ export class PackageService {
         error,
         source: M365ErrorSource,
         message: finalMessage,
+      });
+    } else if (
+      error.response.status === 403 &&
+      error.response.data.Error.Message ==
+        "User does not have access to upload advanced Copilot apps."
+    ) {
+      error = new UserError({
+        name: "PackageServiceError",
+        error,
+        source: M365ErrorSource,
+        message: getDefaultString("error.m365.SharedScopeAdvancedDADisabled", advancedDASettingUrl),
+        displayMessage: getLocalizedString(
+          "error.m365.SharedScopeAdvancedDADisabled",
+          advancedDASettingUrl
+        ),
       });
     }
 

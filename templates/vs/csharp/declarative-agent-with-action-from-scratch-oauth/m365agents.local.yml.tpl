@@ -115,17 +115,12 @@ provision:
   # Generate runtime appsettings to JSON file
   - uses: file/createOrUpdateJsonFile
     with:
-{{#isNewProjectTypeEnabled}}
 {{#PlaceProjectFileInSolutionDir}}
       target: ../appsettings.Development.json
 {{/PlaceProjectFileInSolutionDir}}
 {{^PlaceProjectFileInSolutionDir}}
       target: ../{{appName}}/appsettings.Development.json
 {{/PlaceProjectFileInSolutionDir}}
-{{/isNewProjectTypeEnabled}}
-{{^isNewProjectTypeEnabled}}
-      target: ./appsettings.Development.json
-{{/isNewProjectTypeEnabled}}
       content:
         CLIENT_ID: ${{AAD_APP_CLIENT_ID}}
         TENANT_ID: ${{AAD_APP_TENANT_ID}}
@@ -162,16 +157,3 @@ provision:
     writeToEnvironmentFile:
       titleId: M365_TITLE_ID
       appId: M365_APP_ID
-{{^isNewProjectTypeEnabled}}
-
-  # Create or update debug profile in lauchsettings file
-  - uses: file/createOrUpdateJsonFile
-    with:
-      target: ./Properties/launchSettings.json
-      content:
-        profiles:
-          "Copilot (browser)": {
-            "commandName": "Project",
-            "launchUrl": "https://m365.cloud.microsoft/chat/entity1-d870f6cd-4aa5-4d42-9626-ab690c041429/${{AGENT_HINT}}?auth=2"
-          }
-{{/isNewProjectTypeEnabled}}

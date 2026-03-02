@@ -4,12 +4,14 @@ import {
   ConditionFunc,
   Inputs,
   LocalFunc,
+  OptionItem,
   Platform,
   SingleSelectQuestion,
   StringValidation,
 } from "@microsoft/teamsfx-api";
 import { assert } from "chai";
 import "mocha";
+import proxyquire from "proxyquire";
 import sinon from "sinon";
 import { featureFlagManager, FeatureFlags } from "../../src/common/featureFlags";
 import { getLocalizedString } from "../../src/common/localizeUtils";
@@ -19,39 +21,29 @@ import { MessagingExtension } from "../../src/component/driver/teamsApp/interfac
 import { StaticTab } from "../../src/component/driver/teamsApp/interfaces/appdefinitions/staticTab";
 import { TemplateNames } from "../../src/component/generator/templates/templateNames";
 import { ProgrammingLanguage, QuestionNames } from "../../src/question/constants";
-import { scaffoldQuestionForVS } from "../../src/question/scaffold/vs/createRootNode";
+import { foundryAgentIdQuestion, foundryEndpointQuestion } from "../../src/question/create";
 import {
-  ActionStartOptions,
-  BotCapabilityOptions,
-  CustomCopilotCapabilityOptions,
-  CustomEngineAgentOptions,
-  DACapabilityOptions,
-  MeCapabilityOptions,
-  OfficeAddinCapabilityOptions,
-  TabCapabilityOptions,
-  TdpCapabilityOptions,
-} from "../../src/question/scaffold/vsc/CapabilityOptions";
+  apiSpecNode,
+  apiSpecWithSearchNode,
+  foundryNode,
+} from "../../src/question/scaffold/commonNodes";
+import { constructNode } from "../../src/question/scaffold/constructNode";
+import { scaffoldQuestionForVS } from "../../src/question/scaffold/vs/createRootNode";
+import { ActionStartOptions } from "../../src/question/scaffold/vsc/CapabilityOptions";
 import { ProjectTypeOptions } from "../../src/question/scaffold/vsc/ProjectTypeOptions";
 import {
   createFromTdpNode,
   getTemplateName,
-  isTdpTemplate,
 } from "../../src/question/scaffold/vsc/createFromTdpNode";
 import {
   folderAndAppNameCondition,
-  getProjectTypeByCapability,
-  getTeamsProjectTypeByCapability,
   languageNode,
   scaffoldQuestionForVSCode,
 } from "../../src/question/scaffold/vsc/createRootNode";
-import { customEngineAgentNode } from "../../src/question/scaffold/vsc/customEngineAgentNode";
+import { getCustomEngineAgentNode } from "../../src/question/scaffold/vsc/customEngineAgentNode";
 import { daProjectTypeNode } from "../../src/question/scaffold/vsc/daProjectTypeNode";
 import { officeAddinProjectTypeNode } from "../../src/question/scaffold/vsc/officeAddinProjectTypeNode";
-import {
-  apiSpecNode,
-  apiSpecWithSearchNode,
-  TeamsProjectTypeOptions,
-} from "../../src/question/scaffold/vsc/teamsProjectTypeNode";
+import { TeamsProjectTypeOptions } from "../../src/question/scaffold/vsc/teamsProjectTypeNode";
 
 describe("vsc", () => {
   const sandbox = sinon.createSandbox();
@@ -117,22 +109,6 @@ describe("getTemplateName", () => {
     messageHandlers: [],
   };
 
-  it("return TabNonSsoAndDefaultBot", () => {
-    const appDefinition: AppDefinition = {
-      teamsAppId: "id",
-      staticTabs: [validStaticTab],
-      messagingExtensions: [validMessagingExtension],
-    };
-
-    const inputs: Inputs = {
-      platform: Platform.VSCode,
-      teamsAppFromTdp: appDefinition,
-    };
-
-    const res = getTemplateName(inputs);
-    assert.equal(res, TemplateNames.TabAndDefaultBot);
-  });
-
   it("return TabNonSso", () => {
     const appDefinition: AppDefinition = {
       teamsAppId: "id",
@@ -161,7 +137,7 @@ describe("getTemplateName", () => {
     };
 
     const res = getTemplateName(inputs);
-    assert.equal(res, TemplateNames.BotAndMessageExtension);
+    assert.equal(res, TemplateNames.DefaultBot);
   });
 
   it("return MessageExtension", () => {
@@ -176,7 +152,7 @@ describe("getTemplateName", () => {
     };
 
     const res = getTemplateName(inputs);
-    assert.equal(res, TemplateNames.MessageExtension);
+    assert.equal(res, TemplateNames.DefaultMessageExtension);
   });
 
   it("return bot", () => {
@@ -206,28 +182,6 @@ describe("getTemplateName", () => {
 
     const res = getTemplateName(inputs);
     assert.isUndefined(res);
-  });
-
-  it("tdp cli test", () => {
-    sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
-    const inputs: Inputs = {
-      platform: Platform.CLI,
-      nonInteractive: true,
-      [QuestionNames.Capabilities]: TdpCapabilityOptions.me().id,
-    };
-    const res = getTemplateName(inputs);
-    assert.equal(res, TemplateNames.MessageExtension);
-  });
-
-  it("isTdpTemplate", () => {
-    sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
-    const inputs: Inputs = {
-      platform: Platform.CLI,
-      nonInteractive: true,
-      [QuestionNames.Capabilities]: TdpCapabilityOptions.me().id,
-    };
-    const res = isTdpTemplate(inputs);
-    assert.isTrue(res);
   });
 });
 
@@ -302,6 +256,84 @@ describe("daProjectTypeNode", () => {
     const conditionFunc = apiSpecChildNode?.condition as ConditionFunc;
     assert.isTrue(conditionFunc(testInputs));
   });
+
+  it("should include MCP option when MCPForDA feature flag is enabled", () => {
+    sandbox.stub(featureFlagManager, "getBooleanValue").callsFake((flag) => {
+      if (flag === FeatureFlags.MCPForDA) {
+        return true;
+      }
+      return false;
+    });
+
+    const node = daProjectTypeNode();
+    const withPluginNode = node.children?.[0];
+    assert.isDefined(withPluginNode);
+
+    const actionTypeNode = withPluginNode?.children?.[0];
+    assert.isDefined(actionTypeNode);
+
+    const actionTypeData = actionTypeNode?.data as SingleSelectQuestion;
+    assert.isDefined(actionTypeData);
+    assert.isDefined(actionTypeData.staticOptions);
+
+    // Check that MCP option is included in staticOptions
+    const staticOptions = actionTypeData.staticOptions;
+    let mcpOption: string | OptionItem | undefined;
+
+    if (Array.isArray(staticOptions) && staticOptions.length > 0) {
+      if (typeof staticOptions[0] === "string") {
+        mcpOption = (staticOptions as string[]).find(
+          (option) => option === ActionStartOptions.mcp().id
+        );
+      } else {
+        mcpOption = (staticOptions as OptionItem[]).find(
+          (option) => option.id === ActionStartOptions.mcp().id
+        );
+      }
+    }
+
+    assert.isDefined(mcpOption);
+    const mcpOptionId = typeof mcpOption === "string" ? mcpOption : mcpOption?.id;
+    assert.equal(mcpOptionId, "mcp");
+  });
+
+  it("should not include MCP option when MCPForDA feature flag is disabled", () => {
+    sandbox.stub(featureFlagManager, "getBooleanValue").callsFake((flag) => {
+      if (flag === FeatureFlags.MCPForDA) {
+        return false;
+      }
+      return false;
+    });
+
+    const node = daProjectTypeNode();
+    const withPluginNode = node.children?.[0];
+    assert.isDefined(withPluginNode);
+
+    const actionTypeNode = withPluginNode?.children?.[0];
+    assert.isDefined(actionTypeNode);
+
+    const actionTypeData = actionTypeNode?.data as SingleSelectQuestion;
+    assert.isDefined(actionTypeData);
+    assert.isDefined(actionTypeData.staticOptions);
+
+    // Check that MCP option is not included in staticOptions
+    const staticOptions = actionTypeData.staticOptions;
+    let mcpOption: string | OptionItem | undefined;
+
+    if (Array.isArray(staticOptions) && staticOptions.length > 0) {
+      if (typeof staticOptions[0] === "string") {
+        mcpOption = (staticOptions as string[]).find(
+          (option) => option === ActionStartOptions.mcp().id
+        );
+      } else {
+        mcpOption = (staticOptions as OptionItem[]).find(
+          (option) => option.id === ActionStartOptions.mcp().id
+        );
+      }
+    }
+
+    assert.isUndefined(mcpOption);
+  });
 });
 
 describe("customEngineAgentProjectTypeNode", () => {
@@ -312,7 +344,7 @@ describe("customEngineAgentProjectTypeNode", () => {
   });
 
   it("customEngineAgentProjectTypeNode basic structure", () => {
-    const node = customEngineAgentNode();
+    const node = getCustomEngineAgentNode();
     const conditionFunc = node?.condition as StringValidation;
 
     assert.equal(conditionFunc.equals, ProjectTypeOptions.customEngineAgentOptionId);
@@ -320,6 +352,206 @@ describe("customEngineAgentProjectTypeNode", () => {
 
     const basicCustomeEngineAgent = node.children?.[0];
     assert.isDefined(basicCustomeEngineAgent);
+  });
+
+  it("should use cached JSON path when not using local template and cached file exists", () => {
+    const mockFs = {
+      pathExistsSync: sandbox.stub().returns(true),
+      readFileSync: sandbox.stub().returns('{"data": "test"}'),
+    };
+    const mockTemplateHelper = {
+      useLocalTemplate: sandbox.stub().returns(false),
+    };
+    const mockFolder = {
+      getTemplatesFolder: sandbox.stub().returns("/templates"),
+    };
+    const mockConstructNode = sandbox.stub().returns({ test: "node" });
+
+    const customEngineAgentModule = proxyquire(
+      "../../src/question/scaffold/vsc/customEngineAgentNode",
+      {
+        "fs-extra": mockFs,
+        "../../../component/generator/templateHelper": mockTemplateHelper,
+        "../../../folder": mockFolder,
+        "../constructNode": { constructNode: mockConstructNode },
+      }
+    );
+
+    const node = customEngineAgentModule.getCustomEngineAgentNode();
+
+    assert.isTrue(mockTemplateHelper.useLocalTemplate.calledOnce);
+    assert.isTrue(mockFs.pathExistsSync.calledOnce);
+    assert.isTrue(mockFs.readFileSync.calledOnce);
+    assert.isFalse(mockFolder.getTemplatesFolder.called);
+    assert.isDefined(node);
+  });
+
+  it("should use templates folder when using local template", () => {
+    const mockFs = {
+      pathExistsSync: sandbox.stub().returns(true),
+      readFileSync: sandbox.stub().returns('{"data": "test"}'),
+    };
+    const mockTemplateHelper = {
+      useLocalTemplate: sandbox.stub().returns(true),
+    };
+    const mockFolder = {
+      getTemplatesFolder: sandbox.stub().returns("/templates"),
+    };
+    const mockConstructNode = sandbox.stub().returns({ test: "node" });
+
+    const customEngineAgentModule = proxyquire(
+      "../../src/question/scaffold/vsc/customEngineAgentNode",
+      {
+        "fs-extra": mockFs,
+        "../../../component/generator/templateHelper": mockTemplateHelper,
+        "../../../folder": mockFolder,
+        "../constructNode": { constructNode: mockConstructNode },
+      }
+    );
+
+    const node = customEngineAgentModule.getCustomEngineAgentNode();
+
+    assert.isTrue(mockTemplateHelper.useLocalTemplate.calledOnce);
+    assert.isFalse(mockFs.pathExistsSync.called);
+    assert.isTrue(mockFolder.getTemplatesFolder.calledOnce);
+    assert.isTrue(mockFs.readFileSync.calledOnce);
+    assert.isDefined(node);
+  });
+
+  it("should use templates folder when cached file does not exist", () => {
+    const mockFs = {
+      pathExistsSync: sandbox.stub().returns(false),
+      readFileSync: sandbox.stub().returns('{"data": "test"}'),
+    };
+    const mockTemplateHelper = {
+      useLocalTemplate: sandbox.stub().returns(false),
+    };
+    const mockFolder = {
+      getTemplatesFolder: sandbox.stub().returns("/templates"),
+    };
+    const mockConstructNode = sandbox.stub().returns({ test: "node" });
+
+    const customEngineAgentModule = proxyquire(
+      "../../src/question/scaffold/vsc/customEngineAgentNode",
+      {
+        "fs-extra": mockFs,
+        "../../../component/generator/templateHelper": mockTemplateHelper,
+        "../../../folder": mockFolder,
+        "../constructNode": { constructNode: mockConstructNode },
+      }
+    );
+
+    const node = customEngineAgentModule.getCustomEngineAgentNode();
+
+    assert.isTrue(mockTemplateHelper.useLocalTemplate.calledOnce);
+    assert.isTrue(mockFs.pathExistsSync.calledOnce);
+    assert.isTrue(mockFolder.getTemplatesFolder.calledOnce);
+    assert.isTrue(mockFs.readFileSync.calledOnce);
+    assert.isDefined(node);
+  });
+});
+
+describe("teamsProjectTypeNode", () => {
+  const sandbox = sinon.createSandbox();
+
+  afterEach(() => {
+    sandbox.restore();
+  });
+
+  it("should use cached JSON path when not using local template and cached file exists", () => {
+    const mockFs = {
+      pathExistsSync: sandbox.stub().returns(true),
+      readFileSync: sandbox.stub().returns('{"data": "test"}'),
+    };
+    const mockTemplateHelper = {
+      useLocalTemplate: sandbox.stub().returns(false),
+    };
+    const mockFolder = {
+      getTemplatesFolder: sandbox.stub().returns("/templates"),
+    };
+    const mockConstructNode = sandbox.stub().returns({ test: "node" });
+
+    const teamsProjectTypeModule = proxyquire(
+      "../../src/question/scaffold/vsc/teamsProjectTypeNode",
+      {
+        "fs-extra": mockFs,
+        "../../../component/generator/templateHelper": mockTemplateHelper,
+        "../../../folder": mockFolder,
+        "../constructNode": { constructNode: mockConstructNode },
+      }
+    );
+
+    const node = teamsProjectTypeModule.getTeamsProjectNode();
+
+    assert.isTrue(mockTemplateHelper.useLocalTemplate.calledOnce);
+    assert.isTrue(mockFs.pathExistsSync.calledOnce);
+    assert.isFalse(mockFolder.getTemplatesFolder.called);
+    assert.isTrue(mockFs.readFileSync.calledOnce);
+    assert.isDefined(node);
+  });
+
+  it("should use templates folder when using local template", () => {
+    const mockFs = {
+      pathExistsSync: sandbox.stub().returns(true),
+      readFileSync: sandbox.stub().returns('{"data": "test"}'),
+    };
+    const mockTemplateHelper = {
+      useLocalTemplate: sandbox.stub().returns(true),
+    };
+    const mockFolder = {
+      getTemplatesFolder: sandbox.stub().returns("/templates"),
+    };
+    const mockConstructNode = sandbox.stub().returns({ test: "node" });
+
+    const teamsProjectTypeModule = proxyquire(
+      "../../src/question/scaffold/vsc/teamsProjectTypeNode",
+      {
+        "fs-extra": mockFs,
+        "../../../component/generator/templateHelper": mockTemplateHelper,
+        "../../../folder": mockFolder,
+        "../constructNode": { constructNode: mockConstructNode },
+      }
+    );
+
+    const node = teamsProjectTypeModule.getTeamsProjectNode();
+
+    assert.isTrue(mockTemplateHelper.useLocalTemplate.calledOnce);
+    assert.isFalse(mockFs.pathExistsSync.called);
+    assert.isTrue(mockFolder.getTemplatesFolder.calledOnce);
+    assert.isTrue(mockFs.readFileSync.calledOnce);
+    assert.isDefined(node);
+  });
+
+  it("should use templates folder when cached file does not exist", () => {
+    const mockFs = {
+      pathExistsSync: sandbox.stub().returns(false),
+      readFileSync: sandbox.stub().returns('{"data": "test"}'),
+    };
+    const mockTemplateHelper = {
+      useLocalTemplate: sandbox.stub().returns(false),
+    };
+    const mockFolder = {
+      getTemplatesFolder: sandbox.stub().returns("/templates"),
+    };
+    const mockConstructNode = sandbox.stub().returns({ test: "node" });
+
+    const teamsProjectTypeModule = proxyquire(
+      "../../src/question/scaffold/vsc/teamsProjectTypeNode",
+      {
+        "fs-extra": mockFs,
+        "../../../component/generator/templateHelper": mockTemplateHelper,
+        "../../../folder": mockFolder,
+        "../constructNode": { constructNode: mockConstructNode },
+      }
+    );
+
+    const node = teamsProjectTypeModule.getTeamsProjectNode();
+
+    assert.isTrue(mockTemplateHelper.useLocalTemplate.calledOnce);
+    assert.isTrue(mockFs.pathExistsSync.calledOnce);
+    assert.isTrue(mockFolder.getTemplatesFolder.calledOnce);
+    assert.isTrue(mockFs.readFileSync.calledOnce);
+    assert.isDefined(node);
   });
 });
 
@@ -383,16 +615,6 @@ describe("ProjectTypeOptions", () => {
     const option = ProjectTypeOptions.officeAddin(Platform.CLI);
     assert.equal(option.id, ProjectTypeOptions.officeMetaOSOptionId);
   });
-  it("outlookAddin - VSC", () => {
-    sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
-    const option = ProjectTypeOptions.officeAddin(Platform.VSCode);
-    assert.equal(option.id, ProjectTypeOptions.outlookAddinOptionId);
-  });
-  it("outlookAddin - CLI", () => {
-    sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
-    const option = ProjectTypeOptions.officeAddin(Platform.CLI);
-    assert.equal(option.id, ProjectTypeOptions.outlookAddinOptionId);
-  });
   it("start with github copilot", () => {
     sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
     const option = ProjectTypeOptions.startWithGithubCopilot();
@@ -430,13 +652,6 @@ describe("officeAddinProjectTypeNode", () => {
     const node = officeAddinProjectTypeNode();
     assert.deepEqual(node.condition, {
       equals: ProjectTypeOptions.officeMetaOSOptionId,
-    });
-  });
-  it("outlookAddinProjectTypeNode", () => {
-    sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
-    const node = officeAddinProjectTypeNode();
-    assert.deepEqual(node.condition, {
-      equals: ProjectTypeOptions.outlookAddinOptionId,
     });
   });
 });
@@ -489,64 +704,190 @@ describe("folderAndAppNameCondition", () => {
     const res = folderAndAppNameCondition(inputs);
     assert.isTrue(res);
   });
-  it("false", () => {
+});
+
+describe("ActionStartOptions", () => {
+  it("mcp() should return correct OptionItem", () => {
+    const mcpOption = ActionStartOptions.mcp();
+
+    assert.equal(mcpOption.id, "mcp");
+    assert.equal(mcpOption.label, getLocalizedString("core.createProjectQuestion.mcpForDa.label"));
+    assert.equal(
+      mcpOption.detail,
+      getLocalizedString("core.createProjectQuestion.mcpForDa.detail")
+    );
+    assert.equal(mcpOption.data, TemplateNames.DeclarativeAgentWithActionFromMCP);
+  });
+});
+
+describe("constructNode", () => {
+  it("should return foundryNode when node is foundryNode", () => {
+    const json = JSON.stringify({
+      node: "foundryNode",
+      condition: { enum: ["foundry-proxy-agent"] },
+    });
+    const node = constructNode(json);
+    assert.isDefined(node);
+    assert.isDefined(node.data);
+    assert.deepEqual(node.condition, { enum: ["foundry-proxy-agent"] });
+  });
+
+  it("should return llmServiceNode when node is llmServiceNode", () => {
+    const json = JSON.stringify({
+      node: "llmServiceNode",
+      condition: { enum: ["some-cap"] },
+    });
+    const node = constructNode(json);
+    assert.isDefined(node);
+  });
+
+  it("should return apiSpecNode when node is apiSpecNode", () => {
+    const json = JSON.stringify({
+      node: "apiSpecNode",
+      condition: { equals: "api-spec" },
+    });
+    const node = constructNode(json);
+    assert.isDefined(node);
+  });
+
+  it("should return azureOpenAINode when node is azureOpenAINode", () => {
+    const json = JSON.stringify({
+      node: "azureOpenAINode",
+      condition: { equals: "llm-service-azure-openai" },
+    });
+    const node = constructNode(json);
+    assert.isDefined(node);
+  });
+
+  it("should build a generic node with options, children, and condition", () => {
+    const json = JSON.stringify({
+      data: {
+        type: "singleSelect",
+        name: "test-question",
+        title: "core.createProjectQuestion.llmService.title",
+        placeholder: "core.createProjectQuestion.llmService.placeholder",
+        options: [
+          {
+            id: "opt1",
+            label: "core.createProjectQuestion.llmServiceAzureOpenAIOption.label",
+            detail: "core.createProjectQuestion.llmServiceAzureOpenAIOption.detail",
+            data: "SomeTemplate",
+          },
+        ],
+      },
+      children: [],
+      condition: { enum: ["parent-id"] },
+    });
+    const node = constructNode(json);
+    assert.isDefined(node);
+    assert.deepEqual(node.condition, { enum: ["parent-id"] });
+    assert.equal((node.data as any).name, "test-question");
+  });
+
+  it("should build a generic node without condition", () => {
+    const json = JSON.stringify({
+      data: {
+        type: "singleSelect",
+        name: "no-condition-question",
+        title: "core.createProjectQuestion.llmService.title",
+        placeholder: "core.createProjectQuestion.llmService.placeholder",
+        options: [],
+      },
+      children: [],
+    });
+    const node = constructNode(json);
+    assert.isDefined(node);
+    assert.isUndefined(node.condition);
+  });
+
+  it("should recursively build child nodes", () => {
+    const json = JSON.stringify({
+      data: {
+        type: "singleSelect",
+        name: "parent-question",
+        title: "core.createProjectQuestion.llmService.title",
+        placeholder: "core.createProjectQuestion.llmService.placeholder",
+        options: [],
+      },
+      children: [
+        {
+          node: "foundryNode",
+          condition: { enum: ["foundry-proxy-agent"] },
+        },
+      ],
+    });
+    const node = constructNode(json);
+    assert.isDefined(node.children);
+    assert.lengthOf(node.children!, 1);
+  });
+});
+
+describe("foundryNode", () => {
+  it("should return a node with foundryEndpointQuestion as data", () => {
+    const node = foundryNode();
+    assert.isDefined(node);
+    assert.isDefined(node.data);
+    assert.equal((node.data as any).name, QuestionNames.FoundryEndpoint);
+    assert.isUndefined(node.condition);
+  });
+
+  it("should accept a condition and apply it to the node", () => {
+    const condition = { enum: ["foundry-proxy-agent"] };
+    const node = foundryNode(condition);
+    assert.deepEqual(node.condition, condition);
+  });
+
+  it("child condition should be true when FoundryEndpoint has a value", () => {
+    const node = foundryNode();
+    const childCondition = node.children?.[0].condition as ConditionFunc;
     const inputs: Inputs = {
       platform: Platform.VSCode,
-      [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
-      [QuestionNames.ProjectType]: ProjectTypeOptions.copilotAgentOptionId,
+      [QuestionNames.FoundryEndpoint]: "https://my-foundry.azure.com",
     };
-    sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
-    const res = folderAndAppNameCondition(inputs);
-    assert.isFalse(res);
+    assert.isTrue(childCondition(inputs));
+  });
+
+  it("child condition should be false when FoundryEndpoint is empty string", () => {
+    const node = foundryNode();
+    const childCondition = node.children?.[0].condition as ConditionFunc;
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      [QuestionNames.FoundryEndpoint]: "",
+    };
+    assert.isFalse(childCondition(inputs));
+  });
+
+  it("child condition should be false when FoundryEndpoint is undefined", () => {
+    const node = foundryNode();
+    const childCondition = node.children?.[0].condition as ConditionFunc;
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+    };
+    assert.isFalse(childCondition(inputs));
+  });
+
+  it("child node should have foundryAgentIdQuestion as data", () => {
+    const node = foundryNode();
+    const childData = node.children?.[0].data;
+    assert.isDefined(childData);
+    assert.equal((childData as any).name, QuestionNames.FoundryAgentId);
   });
 });
 
-describe("getProjectTypeByCapability", () => {
-  it("DA", () => {
-    const type = getProjectTypeByCapability(DACapabilityOptions.declarativeAgent().id);
-    assert.equal(type, ProjectTypeOptions.copilotAgentOptionId);
+describe("foundryEndpointQuestion and foundryAgentIdQuestion", () => {
+  it("foundryEndpointQuestion should have correct name", () => {
+    const question = foundryEndpointQuestion();
+    assert.equal(question.name, QuestionNames.FoundryEndpoint);
+    assert.equal(question.type, "text");
+    assert.isDefined(question.title);
+    assert.isDefined(question.placeholder);
   });
-  it("Custom Engine Agent", () => {
-    const type = getProjectTypeByCapability(CustomEngineAgentOptions.basicCustomEngineAgent().id);
-    assert.equal(type, ProjectTypeOptions.customEngineAgentOptionId);
-  });
-  it("Agent for Teams", () => {
-    const type = getProjectTypeByCapability(CustomCopilotCapabilityOptions.customCopilotRag().id);
-    assert.equal(type, ProjectTypeOptions.agentForTeamsOptionId);
-  });
-  it("Bot", () => {
-    const type = getProjectTypeByCapability(BotCapabilityOptions.basicBot().id);
-    assert.equal(type, ProjectTypeOptions.teamsAppOptionId);
-  });
-  it("Tab", () => {
-    const type = getProjectTypeByCapability(TabCapabilityOptions.nonSsoTab().id);
-    assert.equal(type, ProjectTypeOptions.teamsAppOptionId);
-  });
-  it("ME", () => {
-    const type = getProjectTypeByCapability(MeCapabilityOptions.m365SearchMe().id);
-    assert.equal(type, ProjectTypeOptions.teamsAppOptionId);
-  });
-  it("WXP", () => {
-    const type = getProjectTypeByCapability(OfficeAddinCapabilityOptions.wxpTaskPane().id);
-    assert.equal(type, ProjectTypeOptions.officeMetaOSOptionId);
-  });
-  it("Outlook", () => {
-    const type = getProjectTypeByCapability(OfficeAddinCapabilityOptions.outlookTaskPane().id);
-    assert.equal(type, ProjectTypeOptions.outlookAddinOptionId);
-  });
-});
 
-describe("getTeamsProjectTypeByCapability", () => {
-  it("Tab", () => {
-    const type = getTeamsProjectTypeByCapability(TabCapabilityOptions.nonSsoTab().id);
-    assert.equal(type, TeamsProjectTypeOptions.tabOptionId);
-  });
-  it("Bot", () => {
-    const type = getTeamsProjectTypeByCapability(BotCapabilityOptions.basicBot().id);
-    assert.equal(type, TeamsProjectTypeOptions.botOptionId);
-  });
-  it("Message Extension", () => {
-    const type = getTeamsProjectTypeByCapability(MeCapabilityOptions.m365SearchMe().id);
-    assert.equal(type, TeamsProjectTypeOptions.meOptionId);
+  it("foundryAgentIdQuestion should have correct name", () => {
+    const question = foundryAgentIdQuestion();
+    assert.equal(question.name, QuestionNames.FoundryAgentId);
+    assert.equal(question.type, "text");
+    assert.isDefined(question.title);
+    assert.isDefined(question.placeholder);
   });
 });

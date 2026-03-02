@@ -5,7 +5,7 @@ import { SubscriptionClient, TenantIdDescription } from "@azure/arm-resources-su
 import { TokenCredential } from "@azure/core-auth";
 import * as vscode from "vscode";
 import * as azureEnv from "@azure/ms-rest-azure-env";
-import { AzureScopes, featureFlagManager, FeatureFlags } from "@microsoft/teamsfx-core";
+import { AzureScopes } from "@microsoft/teamsfx-core";
 import { LoginFailureError } from "./codeFlowLogin";
 import { Environment } from "@azure/ms-rest-azure-env";
 
@@ -58,7 +58,7 @@ export class VSCodeAzureSubscriptionProvider {
    * @returns A list of tenants.
    */
   public async getTenants(): Promise<TenantIdDescription[]> {
-    const { client } = await this.getSubscriptionClient(undefined, AzureScopes);
+    const { client } = await this.getSubscriptionClient(undefined, AzureScopes());
 
     const results: TenantIdDescription[] = [];
 
@@ -105,7 +105,7 @@ export class VSCodeAzureSubscriptionProvider {
   private async getSubscriptionsForTenant(tenantId: string): Promise<AzureSubscription[]> {
     const { client, credential, authentication } = await this.getSubscriptionClient(
       tenantId,
-      AzureScopes
+      AzureScopes()
     );
     const environment = getConfiguredAzureEnv();
 
@@ -130,11 +130,15 @@ export class VSCodeAzureSubscriptionProvider {
 }
 
 export async function getSessionFromVSCode(
-  scopes?: string | string[],
+  scopes?: string | string[] | vscode.AuthenticationWwwAuthenticateRequest,
   tenantId?: string,
   options?: vscode.AuthenticationGetSessionOptions
 ): Promise<vscode.AuthenticationSession | undefined> {
-  return await vscode.authentication.getSession(Microsoft, getScopes(scopes, tenantId), options);
+  return await vscode.authentication.getSession(
+    Microsoft,
+    formScopesArg(scopes, tenantId),
+    options
+  );
 }
 
 function ensureEndingSlash(value: string): string {
@@ -160,6 +164,28 @@ function getScopes(scopes: string | string[] | undefined, tenantId?: string): st
     scopeArr = addTenantIdScope(scopeArr, tenantId);
   }
   return scopeArr;
+}
+
+export function isAuthenticationSessionRequest(
+  scopes?: string | string[] | vscode.AuthenticationWwwAuthenticateRequest
+): scopes is vscode.AuthenticationWwwAuthenticateRequest {
+  return !!(scopes && typeof scopes === "object" && "wwwAuthenticate" in scopes);
+}
+
+function formScopesArg(
+  scopes?: string | string[] | vscode.AuthenticationWwwAuthenticateRequest,
+  tenantId?: string
+): string[] | vscode.AuthenticationWwwAuthenticateRequest {
+  const initialScopeList: string[] | undefined =
+    typeof scopes === "string"
+      ? [scopes]
+      : Array.isArray(scopes)
+      ? scopes
+      : Array.from(scopes?.scopes ?? []);
+  const scopeList = getScopes(initialScopeList, tenantId);
+  return isAuthenticationSessionRequest(scopes)
+    ? { fallbackScopes: scopeList, scopes: scopeList, wwwAuthenticate: scopes.wwwAuthenticate }
+    : scopeList;
 }
 
 /**

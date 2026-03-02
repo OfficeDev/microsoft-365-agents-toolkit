@@ -7,29 +7,12 @@ const samplesData = fs.readJSONSync(sampleFile).samples;
 
 const windows_22 = [
   "sample-outlook-signature",
-  "sample-chef-bot",
   "sample-food-catalog",
-  "sample-dashboard",
-  "sample-contact-exporter",
-  "sample-hello-world-tab-with-backend",
-  "sample-npm-search",
-  "sample-hello-world-meeting",
-  "sample-one-productivity-hub",
-  "sample-stock-update",
   "sample-query-org",
   "sample-assistant-dashboard",
-  "sample-hello-world-tab-outlook",
-  "sample-bot-sso",
-  "sample-sso-tab-via-apim-proxy",
-  "sample-copilot-connector-bot",
-  "sample-incoming-webhook",
 ];
 const ubuntu_22 = [
-  "sample-adaptive-card",
-  "sample-copilot-connector",
   "sample-todo-list-sql",
-  "sample-large-scale-notification",
-  "sample-bot-sso-docker",
   "sample-hello-world-tab-docker",
   "sample-todo-list-with-m365",
   "sample-intelligent-data-chart",
@@ -37,7 +20,6 @@ const ubuntu_22 = [
   "sample-todo-list-with-spfx",
   "sample-spfx-productivity-dashboard",
   "sample-react-retail-dashboard",
-  "sample-reddit-link",
   "sample-proactive-message",
   // "sample-share-now", //share now sql resource will casue security issue temporarily disabled
 ];

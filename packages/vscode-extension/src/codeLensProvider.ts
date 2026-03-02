@@ -5,35 +5,33 @@ import {
   AppPackageFolderName,
   ManifestTemplateFileName,
   SensitivityLabel,
-  signedIn,
   TeamsAppManifest,
   TemplateFolderName,
+  signedIn,
 } from "@microsoft/teamsfx-api";
 import {
-  FeatureFlags,
+  GraphClient,
+  ListSensitivityLabelScope,
   MetadataV3,
+  copilotGptManifestUtils,
   envUtil,
   environmentNameManager,
-  featureFlagManager,
   getAllowedAppMaps,
   getPermissionMap,
-  ListSensitivityLabelScope,
-  GraphClient,
-  copilotGptManifestUtils,
   manifestUtils,
 } from "@microsoft/teamsfx-core";
 import fs from "fs-extra";
 import * as parser from "jsonc-parser";
+import * as _ from "lodash";
+import path from "path";
+import * as util from "util";
 import isUUID from "validator/lib/isUUID";
 import * as vscode from "vscode";
 import { environmentVariableRegex } from "./constants";
 import { commandIsRunning, core, tools } from "./globalVariables";
-import { getSystemInputs } from "./utils/systemEnvUtils";
 import { TelemetryTriggerFrom } from "./telemetry/extTelemetryEvents";
 import { localize } from "./utils/localizeUtils";
-import * as _ from "lodash";
-import path from "path";
-import * as util from "util";
+import { getSystemInputs } from "./utils/systemEnvUtils";
 
 async function resolveEnvironmentVariablesCodeLens(lens: vscode.CodeLens, from: string) {
   // Get environment variables
@@ -864,10 +862,6 @@ export class OneDriveSharePointCodeLensProvider implements vscode.CodeLensProvid
   public provideCodeLenses(
     document: vscode.TextDocument
   ): vscode.CodeLens[] | Thenable<vscode.CodeLens[]> {
-    if (!featureFlagManager.getBooleanValue(FeatureFlags.AddODSPKnowledge)) {
-      return [];
-    }
-
     const inputs = getSystemInputs();
 
     if (inputs.projectPath) {
@@ -949,6 +943,50 @@ export class OneDriveSharePointCodeLensProvider implements vscode.CodeLensProvid
       const range = new vscode.Range(position, new vscode.Position(line.lineNumber, indexOf + 1));
       if (range) {
         codeLenses.push(new SharePointIdCodeLens(match, range, undefined));
+      }
+    }
+    return codeLenses;
+  }
+}
+
+export class WorkspaceMCPConfigCodeLensProvider implements vscode.CodeLensProvider {
+  public provideCodeLenses(
+    document: vscode.TextDocument
+  ): vscode.ProviderResult<vscode.CodeLens[]> {
+    const codeLenses: vscode.CodeLens[] = [];
+    const text = document.getText();
+    let json: any;
+    try {
+      // Use jsonc-parser to handle JSON with comments
+      const jsonNode = parser.parseTree(text);
+      if (!jsonNode) {
+        return codeLenses;
+      }
+      json = parser.getNodeValue(jsonNode);
+    } catch (e) {
+      console.error("Error parsing JSON in CodeLensProvider (MCP Fetcher):", e);
+      return codeLenses;
+    }
+    if (!json.servers || typeof json.servers !== "object") {
+      return codeLenses;
+    }
+    // For each server, add a codelens at the line where the server key appears
+    for (const [serverName, serverConfig] of Object.entries(json.servers)) {
+      const start = text.indexOf(`"${serverName}"`);
+      if (start !== -1) {
+        const pos = document.positionAt(start);
+        const range = new vscode.Range(
+          pos.line,
+          pos.character,
+          pos.line,
+          pos.character + serverName.length + 2
+        );
+        const command: vscode.Command = {
+          title: `⚡ ATK: Fetch action from MCP`,
+          command: "fx-extension.updateActionWithMCP",
+          arguments: [{ serverName, serverConfig }, TelemetryTriggerFrom.CodeLens],
+        };
+        codeLenses.push(new vscode.CodeLens(range, command));
       }
     }
     return codeLenses;

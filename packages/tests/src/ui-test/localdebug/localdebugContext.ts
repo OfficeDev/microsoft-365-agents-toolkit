@@ -41,7 +41,9 @@ export type LocalDebugTestName =
   | "cdcustomapi"
   | "msgnewapi"
   | "msgapikey"
-  | "msgmicroentra";
+  | "msgmicroentra"
+  | "daaction"
+  | "weather";
 
 export class LocalDebugTestContext extends TestContext {
   public testName: LocalDebugTestName;
@@ -52,6 +54,7 @@ export class LocalDebugTestContext extends TestContext {
   public customCopilotRagType: string;
   public customCeopilotAgent: string;
   public llmServiceType: string;
+  public apiAuth: string;
 
   constructor(
     testName: LocalDebugTestName,
@@ -62,13 +65,14 @@ export class LocalDebugTestContext extends TestContext {
       existingSpfxFolder?: string;
       customCopilotRagType?:
         | "custom-copilot-rag-customize"
-        | "custom-copilot-rag-azureAISearch"
-        | "custom-copilot-rag-customApi"
+        | "custom-copilot-rag-azure-ai-search"
+        | "custom-copilot-rag-custom-api"
         | "custom-copilot-rag-microsoft365";
       customCeopilotAgent?:
         | "custom-copilot-agent-new"
         | "custom-copilot-agent-assistants-api";
       llmServiceType?: "llm-service-azure-openai" | "llm-service-openai";
+      apiAuth?: "none" | "api-key" | "microsoft-entra" | "oauth";
     }
   ) {
     super(testName);
@@ -94,6 +98,7 @@ export class LocalDebugTestContext extends TestContext {
     this.llmServiceType = option?.llmServiceType
       ? option.llmServiceType
       : "llm-service-azure-openai";
+    this.apiAuth = option?.apiAuth ? option.apiAuth : "none";
   }
 
   public async before() {
@@ -102,8 +107,6 @@ export class LocalDebugTestContext extends TestContext {
     await VSBrowser.instance.driver.sleep(30000);
     // await this.disableDebugConsole();
     const testFolder = path.resolve(this.testRootFolder, this.appName);
-    console.log("Update yaml file for m365 agents");
-    await extendM365Yaml(testFolder, "local");
     await openExistingProject(testFolder);
   }
 
@@ -173,7 +176,7 @@ export class LocalDebugTestContext extends TestContext {
       case "tabnsso":
         await execCommand(
           this.testRootFolder,
-          `atk new --app-name ${this.appName} --interactive false --capability tab-non-sso --programming-language ${this.lang} --telemetry false`
+          `atk new --app-name ${this.appName} --interactive false --capability non-sso-tab --programming-language ${this.lang} --telemetry false`
         );
         break;
       case "funcNoti":
@@ -207,19 +210,19 @@ export class LocalDebugTestContext extends TestContext {
       case "bot":
         await execCommand(
           this.testRootFolder,
-          `atk new --app-name ${this.appName} --interactive false --capability bot --programming-language ${this.lang} --telemetry false`
+          `atk new --app-name ${this.appName} --interactive false --capability default-bot --programming-language ${this.lang} --telemetry false`
         );
         break;
       case "msg":
         await execCommand(
           this.testRootFolder,
-          `atk new --app-name ${this.appName} --interactive false --capability collect-form-message-extension --programming-language ${this.lang} --telemetry false`
+          `atk new --app-name ${this.appName} --interactive false --capability default-message-extension --programming-language ${this.lang} --telemetry false`
         );
         break;
       case "msgsa":
         await execCommand(
           this.testRootFolder,
-          `atk new --app-name ${this.appName} --interactive false --capability search-app --me-architecture bot --programming-language ${this.lang} --telemetry false`
+          `atk new --app-name ${this.appName} --interactive false --capability default-message-extension --programming-language ${this.lang} --telemetry false`
         );
         break;
       case "tabbot":
@@ -296,7 +299,7 @@ export class LocalDebugTestContext extends TestContext {
       case "linkunfurl":
         await execCommand(
           this.testRootFolder,
-          `atk new --app-name ${this.appName} --interactive false --capability link-unfurling  --programming-language ${this.lang} --telemetry false`
+          `atk new --app-name ${this.appName} --interactive false --capability basic-message-extension  --programming-language ${this.lang} --telemetry false`
         );
         break;
       case "aichat":
@@ -314,7 +317,7 @@ export class LocalDebugTestContext extends TestContext {
       case "chatdata":
         await execCommand(
           this.testRootFolder,
-          `atk new --app-name ${this.appName} --interactive false --capability custom-copilot-rag --custom-copilot-rag ${this.customCopilotRagType} --llm-service ${this.llmServiceType} --programming-language ${this.lang} --telemetry false`
+          `atk new --app-name ${this.appName} --interactive false --capability ${this.customCopilotRagType} --llm-service ${this.llmServiceType} --programming-language ${this.lang} --telemetry false`
         );
         break;
       case "msgnewapi":
@@ -340,7 +343,41 @@ export class LocalDebugTestContext extends TestContext {
           "https://raw.githubusercontent.com/SLdragon/example-openapi-spec/main/real-no-auth.yaml";
         await execCommand(
           this.testRootFolder,
-          `atk new --app-name ${this.appName} --interactive false --capability custom-copilot-rag --custom-copilot-rag ${this.customCopilotRagType} --llm-service ${this.llmServiceType} --programming-language ${this.lang}  --openapi-spec-location ${apiSpecPath} --api-operation "GET /repairs" --telemetry false`
+          `atk new --app-name ${this.appName} --interactive false --capability ${this.customCopilotRagType} --llm-service ${this.llmServiceType} --programming-language ${this.lang}  --openapi-spec-location ${apiSpecPath} --api-operation "GET /repairs" --telemetry false`
+        );
+        break;
+      case "daaction":
+        switch (this.apiAuth) {
+          case "none":
+            await execCommand(
+              this.testRootFolder,
+              `atk new --app-name ${this.appName} --interactive false --capability api-plugin-from-scratch --programming-language ${this.lang} --telemetry false`
+            );
+            break;
+          case "api-key":
+            await execCommand(
+              this.testRootFolder,
+              `atk new --app-name ${this.appName} --interactive false --capability api-plugin-from-scratch-bearer --programming-language ${this.lang} --telemetry false`
+            );
+            break;
+          case "oauth":
+            await execCommand(
+              this.testRootFolder,
+              `atk new --app-name ${this.appName} --interactive false --capability api-plugin-from-scratch-oauth --programming-language ${this.lang} --telemetry false`
+            );
+            break;
+          case "microsoft-entra":
+            await execCommand(
+              this.testRootFolder,
+              `atk new --app-name ${this.appName} --interactive false --capability api-plugin-from-scratch-oauth --api-auth ${this.apiAuth} --programming-language ${this.lang} --telemetry false`
+            );
+            break;
+        }
+        break;
+      case "weather":
+        await execCommand(
+          this.testRootFolder,
+          `atk new --app-name ${this.appName} --interactive false --capability weather-agent --programming-language ${this.lang} --llm-service ${this.llmServiceType} --telemetry false`
         );
         break;
     }

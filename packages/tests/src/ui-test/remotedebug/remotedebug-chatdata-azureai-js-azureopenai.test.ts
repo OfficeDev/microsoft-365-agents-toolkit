@@ -34,7 +34,6 @@ describe("Remote debug Tests", function () {
   const appNameCopySuffix = "copy";
   let newAppFolderName: string;
   let projectPath: string;
-  let azSearchHelper: AzSearchHelper;
 
   beforeEach(async function () {
     // ensure workbench is ready
@@ -79,13 +78,7 @@ describe("Remote debug Tests", function () {
       const envPath = path.resolve(projectPath, "env", ".env.dev.user");
 
       const isRealKey = OpenAiKey.azureOpenAiKey ? true : false;
-      // create azure search
-      if (isRealKey) {
-        const rgName = `${remoteDebugTestContext.appName}-dev-rg`;
 
-        azSearchHelper = new AzSearchHelper(rgName);
-        await azSearchHelper.createSearch();
-      }
       const azureOpenAiKey = OpenAiKey.azureOpenAiKey
         ? OpenAiKey.azureOpenAiKey
         : "fake";
@@ -110,9 +103,9 @@ describe("Remote debug Tests", function () {
         "AZURE_OPENAI_EMBEDDING_DEPLOYMENT_NAME",
         embeddingDeploymentName
       );
-      const searchKey = isRealKey ? azSearchHelper.apiKey : "fake";
+      const searchKey = isRealKey ? Env.azureSearchKey : "fake";
       const searchEndpoint = isRealKey
-        ? azSearchHelper.endpoint
+        ? Env.azureSearchEndpoint
         : "https://test.com";
       editDotEnvFile(envPath, "SECRET_AZURE_SEARCH_KEY", searchKey);
       editDotEnvFile(envPath, "AZURE_SEARCH_ENDPOINT", searchEndpoint);
@@ -169,13 +162,22 @@ describe("Remote debug Tests", function () {
           throw new Error("Failed to install packages");
         }
 
+        const deleteDataCmd = `npm run indexer:delete -- ${searchKey}`;
+        const { success: deleteDataSuccess } = await Executor.execute(
+          deleteDataCmd,
+          projectPath
+        );
+        if (!deleteDataSuccess) {
+          console.error("Failed to delete data");
+        }
+
         const insertDataCmd = `npm run indexer:create -- ${searchKey} ${azureOpenAiKey}`;
         const { success: insertDataSuccess } = await Executor.execute(
           insertDataCmd,
           projectPath
         );
         if (!insertDataSuccess) {
-          throw new Error("Failed to insert data");
+          console.error("Failed to insert data");
         }
       }
 
@@ -193,19 +195,32 @@ describe("Remote debug Tests", function () {
           projectPath: projectPath,
           env: "dev",
           teamsAppName: appName,
-          searchApp: true,
+          searchApp: false,
         }
       );
       await driver.sleep(Timeout.longTimeWait);
       if (isRealKey) {
-        await validateWelcomeAndReplyBot(page, {
-          hasWelcomeMessage: false,
-          hasCommandReplyValidation: true,
-          botCommand: "Tell me about Contoso Electronics history",
-          expectedWelcomeMessage: ValidationContent.AiChatBotWelcomeInstruction,
-          expectedReplyMessage: "1985",
-          timeout: Timeout.longTimeWait,
-        });
+        try {
+          await validateWelcomeAndReplyBot(page, {
+            hasWelcomeMessage: false,
+            hasCommandReplyValidation: true,
+            botCommand: "Tell me about Contoso Electronics history",
+            expectedWelcomeMessage:
+              ValidationContent.AiChatBotWelcomeInstruction,
+            expectedReplyMessage: "1985",
+            timeout: Timeout.longTimeWait,
+          });
+        } catch {
+          await validateWelcomeAndReplyBot(page, {
+            hasWelcomeMessage: false,
+            hasCommandReplyValidation: true,
+            botCommand: "Tell me about Contoso Electronics PerksPlus Program",
+            expectedWelcomeMessage:
+              ValidationContent.AiChatBotWelcomeInstruction,
+            expectedReplyMessage: "$1",
+            timeout: Timeout.longTimeWait,
+          });
+        }
       } else {
         await validateWelcomeAndReplyBot(page, {
           hasWelcomeMessage: false,

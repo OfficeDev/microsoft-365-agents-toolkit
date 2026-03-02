@@ -14,6 +14,7 @@ import {
   ApiOperation,
   AppPackageFolderName,
   BuildFolderName,
+  ConfigFolderName,
   Context,
   CoreCallbackEvent,
   CreateProjectInputs,
@@ -33,7 +34,9 @@ import {
   SharePointIDs,
   Site,
   Stage,
+  SystemError,
   TeamsAppInputs,
+  TeamsAppManifest,
   Tools,
   UserError,
   err,
@@ -49,9 +52,13 @@ import { Container } from "typedi";
 import { pathToFileURL } from "url";
 import { teamsDevPortalClient } from "../client/teamsDevPortalClient";
 import { ApiKeyParameters, AuthParameters, OAuthParameters } from "../common/authInterface";
-import { AppStudioScopes, VSCodeExtensionCommand } from "../common/constants";
+import {
+  AppStudioScopes,
+  getResourceServiceEndpoint,
+  ResourceServiceType,
+  VSCodeExtensionCommand,
+} from "../common/constants";
 import { listAPIInfo, parseAndUpdatePluginManifestForKiota } from "../common/daSpecParser";
-import { FeatureFlags, featureFlagManager } from "../common/featureFlags";
 import {
   ErrorContextMW,
   TOOLS,
@@ -72,8 +79,11 @@ import {
   projectTypeChecker,
 } from "../common/projectTypeChecker";
 import { TelemetryEvent, TelemetryProperty, telemetryUtils } from "../common/telemetry";
+import templateConfig from "../common/templates-config.json";
+import { runForTypeSpecProject } from "../common/tools";
 import { generateDriverContext } from "../common/utils";
 import { MetadataV3, MetadataV4, VersionSource, VersionState } from "../common/versionMetadata";
+
 import {
   APIKeyAuthType,
   MicrosoftEntraAuthType,
@@ -81,12 +91,7 @@ import {
 } from "../component/configManager/constant";
 import { ILifecycle, LifecycleName } from "../component/configManager/interface";
 import { YamlParser } from "../component/configManager/parser";
-import {
-  AadConstants,
-  KiotaLastCommands,
-  SingleSignOnOptionItem,
-  ViewAadAppHelpLinkV5,
-} from "../component/constants";
+import { AadConstants, SingleSignOnOptionItem, ViewAadAppHelpLinkV5 } from "../component/constants";
 import { coordinator } from "../component/coordinator";
 import { UpdateAadAppArgs } from "../component/driver/aad/interface/updateAadAppArgs";
 import { UpdateAadAppDriver } from "../component/driver/aad/update";
@@ -94,6 +99,8 @@ import { AadManifestHelper } from "../component/driver/aad/utility/aadManifestHe
 import { buildAadManifest } from "../component/driver/aad/utility/buildAadManifest";
 import { AddWebPartDriver } from "../component/driver/add/addWebPart";
 import { AddWebPartArgs } from "../component/driver/add/interface/AddWebPartArgs";
+import { InstallAppToChannelDriver } from "../component/driver/devChannel/installApp";
+import { InstallAppArgs } from "../component/driver/devChannel/interfaces/InstallAppArgs";
 import "../component/driver/index";
 import { DriverContext } from "../component/driver/interface/commonArgs";
 import "../component/driver/script/scriptDriver";
@@ -121,7 +128,6 @@ import { ValidateManifestDriver } from "../component/driver/teamsApp/validate";
 import { ValidateAppPackageDriver } from "../component/driver/teamsApp/validateAppPackage";
 import { ValidateWithTestCasesDriver } from "../component/driver/teamsApp/validateTestCases";
 import { createDriverContext } from "../component/driver/util/utils";
-import { InstallAppToChannelDriver } from "../component/driver/devChannel/installApp";
 import "../component/feature/sso";
 import { SSO } from "../component/feature/sso";
 import { addExistingPlugin } from "../component/generator/declarativeAgent/helper";
@@ -138,9 +144,12 @@ import {
   injectAuthAction,
   listOperations,
 } from "../component/generator/openApiSpec/helper";
+import { useLocalTemplate } from "../component/generator/templateHelper";
+import { TemplateNames } from "../component/generator/templates/templateNames";
+import { fetchZipFromUrl, getTemplateLatestVersion, unzip } from "../component/generator/utils";
 import { LaunchHelper } from "../component/m365/launchHelper";
 import { PackageService } from "../component/m365/packageService";
-import { MosServiceEndpoint, MosServiceScope } from "../component/m365/serviceConstant";
+import { MosServiceScope } from "../common/constants";
 import { EnvLoaderMW, EnvWriterMW } from "../component/middleware/envMW";
 import { QuestionMW } from "../component/middleware/questionMW";
 import {
@@ -173,6 +182,7 @@ import {
   HubTypes,
   KnowledgeSearchTypeOptions,
   KnowledgeSourceOptions,
+  MAX_EMAIL_NUMBER,
   QuestionNames,
   SPFxVersionOptionIds,
   ScratchOptions,
@@ -181,6 +191,7 @@ import {
 import { ValidateTeamsAppInputs } from "../question/inputs/ValidateTeamsAppInputs";
 import { isAadMainifestContainsPlaceholder } from "../question/other";
 import { ProjectTypeOptions } from "../question/scaffold/vsc/ProjectTypeOptions";
+import { ShareOperationOption, ShareScopeOption } from "../question/share";
 import { CallbackRegistry, CoreCallbackFunc } from "./callback";
 import {
   CollaborationUtil,
@@ -190,6 +201,8 @@ import {
 } from "./collaborator";
 import { LocalCrypto } from "./crypto";
 import { environmentNameManager } from "./environmentName";
+import { FxCoreDeclarativeAgentPart } from "./FxCore.declarativeAgent";
+import { generateConfigFiles } from "./generateConfigFiles";
 import { ConcurrentLockerMW } from "./middleware/concurrentLocker";
 import { ContextInjectorMW } from "./middleware/contextInjector";
 import { ErrorHandlerMW } from "./middleware/errorHandler";
@@ -201,20 +214,18 @@ import {
   getTrackingIdFromPath,
   getVersionState,
 } from "./middleware/utils/v3MigrationUtils";
+import { addSharedUsers, removeShareAccess, shareWithTenant } from "./share";
 import { CoreTelemetryEvent, CoreTelemetryProperty } from "./telemetry";
 import { CoreHookContext, PreProvisionResForVS, VersionCheckRes } from "./types";
-import { InstallAppArgs } from "../component/driver/devChannel/interfaces/InstallAppArgs";
-import { TemplateNames } from "../component/generator/templates/templateNames";
-import { runForTypeSpecProject } from "../common/tools";
 
-export class FxCore {
+export class FxCore extends FxCoreDeclarativeAgentPart {
   constructor(tools: Tools) {
+    super();
     setTools(tools);
   }
 
   /**
    * @todo this's a really primitive implement. Maybe could use Subscription Model to
-// Copyright (c) Microsoft Corporation.
    * refactor later.
    */
   public on(event: CoreCallbackEvent, callback: CoreCallbackFunc): void {
@@ -555,11 +566,9 @@ export class FxCore {
     if (titleId === undefined && manifestId === undefined) {
       return err(new MissingRequiredInputError("title id or manifest id", "FxCore"));
     }
-    const sideloadingServiceEndpoint =
-      process.env.SIDELOADING_SERVICE_ENDPOINT ?? MosServiceEndpoint;
-    const sideloadingServiceScope = process.env.SIDELOADING_SERVICE_SCOPE ?? MosServiceScope;
+    const sideloadingServiceEndpoint = getResourceServiceEndpoint(ResourceServiceType.MOS3);
     const sideloadingTokenRes = await TOOLS.tokenProvider.m365TokenProvider.getAccessToken({
-      scopes: [sideloadingServiceScope],
+      scopes: MosServiceScope(),
     });
     if (sideloadingTokenRes.isErr()) {
       return err(sideloadingTokenRes.error);
@@ -614,7 +623,7 @@ export class FxCore {
   ])
   async uninstallAppRegistration(manifestId: string): Promise<Result<undefined, FxError>> {
     const appStudioTokenRes = await TOOLS.tokenProvider.m365TokenProvider.getAccessToken({
-      scopes: AppStudioScopes,
+      scopes: AppStudioScopes(),
     });
     if (appStudioTokenRes.isErr()) {
       return err(appStudioTokenRes.error);
@@ -658,7 +667,7 @@ export class FxCore {
       return err(new MissingRequiredInputError("bot id or manifest id", "FxCore"));
     }
     const appStudioTokenRes = await TOOLS.tokenProvider.m365TokenProvider.getAccessToken({
-      scopes: AppStudioScopes,
+      scopes: AppStudioScopes(),
     });
     if (appStudioTokenRes.isErr()) {
       return err(appStudioTokenRes.error);
@@ -844,9 +853,6 @@ export class FxCore {
     }
   }
 
-  /**
-   * lifecycle command: share
-   */
   @hooks([
     ErrorContextMW({ component: "FxCore", stage: "share", reset: true }),
     ErrorHandlerMW,
@@ -868,19 +874,19 @@ export class FxCore {
     if (parseRes.isErr()) {
       return err(parseRes.error);
     }
-    const teamsAppId = parseRes.value[0];
-    const sharedTitleId = parseRes.value[1];
+    const teamsAppId = parseRes.value.teamsappId;
+    const sharedTitleId = parseRes.value.titleId;
 
     const tokenProvider = TOOLS.tokenProvider.m365TokenProvider;
     const appStudioTokenRes = await tokenProvider.getAccessToken({
-      scopes: AppStudioScopes,
+      scopes: AppStudioScopes(),
     });
     if (appStudioTokenRes.isErr()) {
       return err(appStudioTokenRes.error);
     }
     const appStudioToken = appStudioTokenRes.value;
     const mosTokenRes = await tokenProvider.getAccessToken({
-      scopes: [MosServiceScope],
+      scopes: MosServiceScope(),
     });
     if (mosTokenRes.isErr()) {
       return err(mosTokenRes.error);
@@ -920,7 +926,7 @@ export class FxCore {
         return err(res.error);
       }
     }
-    const msg = getLocalizedString("core.common.removeShareAccess.success", emails);
+    const msg = getLocalizedString("core.common.removeOwnership.success", emails);
     TOOLS.ui?.showMessage("info", msg, false);
     return ok(undefined);
   }
@@ -942,68 +948,39 @@ export class FxCore {
     inputs: Inputs,
     ctx?: CoreHookContext
   ): Promise<Result<undefined, FxError>> {
-    const options = inputs[QuestionNames.ShareOption];
-    if (options === QuestionNames.ShareOptionShareApp) {
-      inputs.stage = Stage.share;
-      const context = createDriverContext(inputs);
-      const res = await coordinator.share(context, inputs as InputsWithProjectPath);
-      if (res.isOk()) {
-        ctx!.envVars = res.value;
-        return ok(undefined);
-      } else {
-        // for partial success scenario, output is set in inputs object
-        ctx!.envVars = inputs.envVars;
-        return err(res.error);
-      }
-    } else if (options === QuestionNames.ShareOptionShareToUser) {
-      const emails = (inputs[QuestionNames.ShareToUsers] as string).split(",").map((e) => e.trim());
-      if (!emails || emails.length === 0) {
-        return err(new MissingRequiredInputError("emails", "FxCore"));
-      }
-      const parseRes = await parseShareAppActionYamlConfig(inputs.projectPath!);
-      if (parseRes.isErr()) {
-        return err(parseRes.error);
-      }
-      const teamsAppId = parseRes.value[0];
-      const sharedTitleId = parseRes.value[1];
+    const operation = inputs[QuestionNames.ShareOperation];
+    const scope = inputs[QuestionNames.ShareScope];
+    let emails: string[] = [];
 
-      const tokenProvider = TOOLS.tokenProvider.m365TokenProvider;
-      const appStudioTokenRes = await tokenProvider.getAccessToken({
-        scopes: AppStudioScopes,
-      });
-      if (appStudioTokenRes.isErr()) {
-        return err(appStudioTokenRes.error);
+    if (
+      scope === ShareScopeOption.ShareAppWithSpecificUsers ||
+      operation === ShareOperationOption.RemoveShareAccessFromUsers
+    ) {
+      emails = (inputs[QuestionNames.UserEmail] as string).split(",").map((e) => e.trim());
+      if (emails.length > MAX_EMAIL_NUMBER) {
+        return err(new InputValidationError("emails", "Too many emails"));
       }
-      const appStudioToken = appStudioTokenRes.value;
-      const mosTokenRes = await tokenProvider.getAccessToken({
-        scopes: [MosServiceScope],
-      });
-      if (mosTokenRes.isErr()) {
-        return err(mosTokenRes.error);
-      }
-      const mosToken = mosTokenRes.value;
-      for (const email of emails) {
-        const userInfo = await CollaborationUtil.getUserInfo(tokenProvider, email);
-        if (!userInfo) {
-          return err(new InputValidationError("shareToUser", `Invalid user: ${email}`));
-        }
+    }
+    const parseRes = await parseShareAppActionYamlConfig(inputs.projectPath!);
+    if (parseRes.isErr()) {
+      return err(parseRes.error);
+    }
+    const sharedTitleId = parseRes.value.titleId;
+    const tokenProvider = TOOLS.tokenProvider.m365TokenProvider;
+    const mosTokenRes = await tokenProvider.getAccessToken({
+      scopes: MosServiceScope(),
+    });
+    if (mosTokenRes.isErr()) {
+      return err(mosTokenRes.error);
+    }
+    const mosToken = mosTokenRes.value;
 
-        // 1. grant TDP permission
-        await teamsDevPortalClient.grantPermission(appStudioToken, teamsAppId, userInfo);
-
-        // 2. grant mos permission
-        const res = await PackageService.GetSharedInstance().grantPermission(
-          mosToken,
-          sharedTitleId,
-          userInfo
-        );
-        if (res.isErr()) {
-          return err(res.error);
-        }
-      }
-      const msg = getLocalizedString("core.common.shareToUser.success", emails);
-      TOOLS.ui?.showMessage("info", msg, false);
-      return ok(undefined);
+    if (operation === ShareOperationOption.RemoveShareAccessFromUsers) {
+      return removeShareAccess(mosToken, sharedTitleId, emails);
+    } else if (scope === ShareScopeOption.ShareAppWithTenantUsers) {
+      return shareWithTenant(mosToken, sharedTitleId);
+    } else if (scope === ShareScopeOption.ShareAppWithSpecificUsers) {
+      return addSharedUsers(mosToken, sharedTitleId, emails);
     } else {
       return err(new InputValidationError("shareOption", "Invalid share option"));
     }
@@ -1332,7 +1309,7 @@ export class FxCore {
     }
 
     const teamsAppId = manifestRes.value.id;
-    const properties = manifestUtils.parseCommonProperties(manifestRes.value);
+    const properties = manifestUtils.parseCommonProperties(manifestRes.value as TeamsAppManifest);
 
     const launchHelper = new LaunchHelper(TOOLS.tokenProvider.m365TokenProvider, TOOLS.logProvider);
     const result = await launchHelper.getLaunchUrl(hub, teamsAppId, properties, true);
@@ -1637,13 +1614,15 @@ export class FxCore {
       .toString()
       .split(/\r?\n/)
       .forEach((line) => {
-        const reg = /^([a-zA-Z_][a-zA-Z0-9_]*=)/g;
+        const reg = /^([a-zA-Z_][a-zA-Z0-9_]*=)(.*)/g;
         const match = reg.exec(line);
         if (match) {
           if (match[1].startsWith("TEAMSFX_ENV=")) {
             writeStream.write(`TEAMSFX_ENV=${targetEnvName}${os.EOL}`);
           } else if (match[1].startsWith("APP_NAME_SUFFIX=")) {
             writeStream.write(`APP_NAME_SUFFIX=${targetEnvName}${os.EOL}`);
+          } else if (match[1].startsWith("AGENT_SCOPE=")) {
+            writeStream.write(`AGENT_SCOPE=${match[2]}${os.EOL}`);
           } else {
             writeStream.write(`${match[1]}${os.EOL}`);
           }
@@ -2058,29 +2037,11 @@ export class FxCore {
       throw new Error("projectPath is undefined"); // should never happen
     }
 
-    // Call Kiota to select the OpenAPI spec file
-    if (
-      inputs.platform === Platform.VSCode &&
-      featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration) &&
-      inputs[QuestionNames.ActionType] === ActionStartOptions.apiSpec().id &&
-      !!!inputs[QuestionNames.ActionManifestPath]
-    ) {
-      return ok({
-        projectPath: inputs.projectPath,
-        lastCommand: KiotaLastCommands.addPlugin,
-        manifestPath: inputs[QuestionNames.ManifestPath],
-      });
-    }
-
     const context = createContext();
     const teamsManifestPath = inputs[QuestionNames.ManifestPath];
     const appPackageFolder = path.dirname(teamsManifestPath);
     const isGenerateFromApiSpec =
       inputs[QuestionNames.ActionType] === ActionStartOptions.apiSpec().id;
-    const isKiotaIntegration =
-      inputs.platform === Platform.VSCode &&
-      featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration) &&
-      !!inputs[QuestionNames.ActionManifestPath];
 
     // validate the project is valid for adding plugin
     const manifestRes = await manifestUtils._readAppManifest(teamsManifestPath);
@@ -2127,22 +2088,12 @@ export class FxCore {
     let specParser: SpecParser | undefined = undefined;
     let authNameAndSchemes: { authName: string; authScheme: AuthType }[] = [];
 
-    if (isGenerateFromApiSpec && !isKiotaIntegration) {
+    if (isGenerateFromApiSpec) {
       specParser = new SpecParser(
         inputs[QuestionNames.ApiSpecLocation].trim(),
         getParserOptions(ProjectType.Copilot, true)
       );
       const listResult = await listAPIInfo(inputs[QuestionNames.ApiSpecLocation].trim());
-      if (
-        inputs.platform === Platform.VSCode &&
-        featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration) &&
-        inputs[QuestionNames.ActionType] === ActionStartOptions.apiSpec().id &&
-        !!inputs[QuestionNames.ActionManifestPath]
-      ) {
-        inputs[QuestionNames.ApiOperation] = listResult.APIs.filter((value) => value.isValid).map(
-          (value) => value.api
-        );
-      }
       authNameAndSchemes = this.parseAuthNameAndScheme(listResult, inputs);
 
       if (authNameAndSchemes.length > 0) {
@@ -2190,39 +2141,47 @@ export class FxCore {
     }
 
     let destinationPluginManifestPath: string;
-    if (isKiotaIntegration) {
-      // 1. Copy openapi spec file
-      const openapiSpecFileName = path.basename(inputs[QuestionNames.ApiSpecLocation]);
-      const openapiSpecPath = path.join(appPackageFolder, openapiSpecFileName);
-      await fs.copyFile(inputs[QuestionNames.ApiSpecLocation].trim(), openapiSpecPath);
-
-      // 2. Copy plugin manifest file
-      const pluginManifestPath = path.join(
-        inputs.projectPath,
-        AppPackageFolderName,
-        path.basename(inputs[QuestionNames.ActionManifestPath])
-      );
-      destinationPluginManifestPath = pluginManifestPath;
-      await fs.copyFile(inputs[QuestionNames.ActionManifestPath], pluginManifestPath);
-
-      // 2.1 Need to update the plugin manifest file
-      const authData: any[] = await parseAndUpdatePluginManifestForKiota(pluginManifestPath, true);
-
-      // 3. Update teamsapp.local.yaml and teamsapp.yaml if need to add auth action
-      for (const authInfo of authData) {
-        await injectAuthAction(
-          inputs.projectPath,
-          authInfo.authName,
-          undefined,
-          openapiSpecPath,
-          false,
-          authInfo.authType === "apiKey" ? "ApiKeyPluginVault" : "OAuthPluginVault",
-          false,
-          authInfo.registrationId
+    // generate files
+    if (isGenerateFromApiSpec && specParser) {
+      destinationPluginManifestPath =
+        await copilotGptManifestUtils.getDefaultNextAvailablePluginManifestPath(
+          appPackageFolder,
+          undefined
         );
+      const destinationApiSpecPath = await pluginManifestUtils.getDefaultNextAvailableApiSpecPath(
+        inputs[QuestionNames.ApiSpecLocation].trim(),
+        path.join(appPackageFolder, DefaultApiSpecFolderName)
+      );
+
+      const generateRes = await generateFromApiSpec(
+        specParser,
+        teamsManifestPath,
+        inputs,
+        context,
+        Stage.addPlugin,
+        ProjectType.Copilot,
+        {
+          destinationApiSpecFilePath: destinationApiSpecPath,
+          pluginManifestFilePath: destinationPluginManifestPath,
+        },
+        inputs[QuestionNames.ApiSpecLocation].trim()
+      );
+      if (generateRes.isErr()) {
+        return err(generateRes.error);
       }
 
-      // 4. Add action in plugin manifest
+      const warnings = generateRes.value.warnings;
+      if (warnings && warnings.length > 0) {
+        const warnSummary = await generateScaffoldingSummary(
+          warnings,
+          manifestRes.value,
+          path.relative(inputs.projectPath, destinationApiSpecPath),
+          path.relative(inputs.projectPath, destinationPluginManifestPath),
+          inputs.projectPath
+        );
+        context.logProvider.info(warnSummary + "\n");
+      }
+
       const addActionRes = await copilotGptManifestUtils.addAction(
         declarativeCopilotManifestPath,
         actionId,
@@ -2232,90 +2191,31 @@ export class FxCore {
         return err(addActionRes.error);
       }
 
-      // 5. Update plugin manifest to add ac info (optional)
-      await generateAdaptiveCardInPluginManifestForKiota(
-        pluginManifestPath,
-        openapiSpecPath,
-        context
-      );
-    } else {
-      // generate files
-      if (isGenerateFromApiSpec && specParser) {
-        destinationPluginManifestPath =
-          await copilotGptManifestUtils.getDefaultNextAvailablePluginManifestPath(
-            appPackageFolder,
-            undefined
-          );
-        const destinationApiSpecPath = await pluginManifestUtils.getDefaultNextAvailableApiSpecPath(
-          inputs[QuestionNames.ApiSpecLocation].trim(),
-          path.join(appPackageFolder, DefaultApiSpecFolderName),
-          undefined
+      for (const authNameAndScheme of authNameAndSchemes) {
+        await this.updateAuthActionInYaml(
+          authNameAndScheme.authName,
+          authNameAndScheme.authScheme,
+          inputs.projectPath,
+          destinationApiSpecPath,
+          destinationPluginManifestPath
         );
-
-        const generateRes = await generateFromApiSpec(
-          specParser,
-          teamsManifestPath,
-          inputs,
-          context,
-          Stage.addPlugin,
-          ProjectType.Copilot,
-          {
-            destinationApiSpecFilePath: destinationApiSpecPath,
-            pluginManifestFilePath: destinationPluginManifestPath,
-          },
-          inputs[QuestionNames.ApiSpecLocation].trim()
-        );
-        if (generateRes.isErr()) {
-          return err(generateRes.error);
-        }
-
-        const warnings = generateRes.value.warnings;
-        if (warnings && warnings.length > 0) {
-          const warnSummary = await generateScaffoldingSummary(
-            warnings,
-            manifestRes.value,
-            path.relative(inputs.projectPath, destinationApiSpecPath),
-            path.relative(inputs.projectPath, destinationPluginManifestPath),
-            inputs.projectPath
-          );
-          context.logProvider.info(warnSummary + "\n");
-        }
-
-        const addActionRes = await copilotGptManifestUtils.addAction(
-          declarativeCopilotManifestPath,
-          actionId,
-          normalizePath(path.relative(appPackageFolder, destinationPluginManifestPath), true)
-        );
-        if (addActionRes.isErr()) {
-          return err(addActionRes.error);
-        }
-
-        for (const authNameAndScheme of authNameAndSchemes) {
-          await this.updateAuthActionInYaml(
-            authNameAndScheme.authName,
-            authNameAndScheme.authScheme,
-            inputs.projectPath,
-            destinationApiSpecPath,
-            destinationPluginManifestPath
-          );
-        }
-      } else {
-        const addPluginRes = await addExistingPlugin(
-          declarativeCopilotManifestPath,
-          inputs[QuestionNames.PluginManifestFilePath].trim(),
-          inputs[QuestionNames.PluginOpenApiSpecFilePath].trim(),
-          actionId,
-          context,
-          Stage.addPlugin
-        );
-
-        if (addPluginRes.isErr()) {
-          return err(addPluginRes.error);
-        }
-        destinationPluginManifestPath = addPluginRes.value.destinationPluginManifestPath;
-        const warningMessage = outputScaffoldingWarningMessage(addPluginRes.value.warnings);
-        context.logProvider.info(warningMessage);
       }
+    } else {
+      const addPluginRes = await addExistingPlugin(
+        declarativeCopilotManifestPath,
+        inputs[QuestionNames.PluginManifestFilePath].trim(),
+        inputs[QuestionNames.PluginOpenApiSpecFilePath].trim(),
+        actionId,
+        context,
+        Stage.addPlugin
+      );
+
+      if (addPluginRes.isErr()) {
+        return err(addPluginRes.error);
+      }
+      destinationPluginManifestPath = addPluginRes.value.destinationPluginManifestPath;
+      const warningMessage = outputScaffoldingWarningMessage(addPluginRes.value.warnings);
+      context.logProvider.info(warningMessage);
     }
 
     if (inputs.platform === Platform.VSCode) {
@@ -2999,6 +2899,83 @@ export class FxCore {
       return err(res.result.error);
     }
     return ok(undefined);
+  }
+
+  /**
+   * dynamic template metadata download
+   */
+  @hooks([
+    ErrorContextMW({ component: "FxCore", stage: "fetchOnlineTemplateMetadata" }),
+    ErrorHandlerMW,
+  ])
+  async fetchOnlineTemplateMetadata(): Promise<Result<undefined, FxError>> {
+    if (useLocalTemplate()) {
+      return ok(undefined); // Skip if using local templates
+    }
+    // Downloads the latest online template metadata (metadata.zip) into user's home .fx folder.
+    // Caches the template version so subsequent calls avoid redundant downloads if unchanged.
+    try {
+      // Determine latest template version (respect prerelease env variable similar to getTemplateVSCUrl)
+      const coreVersion = require("../../package.json").version as string;
+
+      let latestVersion = "0.0.0-rc";
+      if (
+        coreVersion.includes("alpha") ||
+        coreVersion.includes("beta") ||
+        coreVersion.includes("rc")
+      ) {
+        // daily build, prerelease or rc
+        latestVersion = "0.0.0-rc";
+      } else {
+        // stable version
+        latestVersion = await getTemplateLatestVersion();
+      }
+
+      const homedir = os.homedir();
+      const metadataDir = path.join(homedir, `.${String(ConfigFolderName)}`);
+      await fs.ensureDir(metadataDir);
+
+      const versionFile = path.join(metadataDir, "template-version.txt");
+      const needDownload = async (): Promise<boolean> => {
+        if (!(await fs.pathExists(versionFile))) return true;
+        try {
+          const cachedVersion = (await fs.readFile(versionFile, "utf-8")).trim();
+          return cachedVersion !== latestVersion;
+        } catch {
+          return true; // re-download if any issue reading cached version
+        }
+      };
+
+      if (!(await needDownload())) {
+        return ok(undefined); // Already up-to-date
+      }
+
+      // Construct metadata.zip download URL based on tag prefix and version
+      const tag = `${templateConfig.tagPrefix}${latestVersion}`;
+      const metadataZipUrl = `${templateConfig.templateDownloadBaseURL}/${tag}/metadata.zip`;
+
+      const zip = await fetchZipFromUrl(metadataZipUrl);
+      await unzip(zip, metadataDir);
+      await fs.writeFile(versionFile, latestVersion, { encoding: "utf-8" });
+      return ok(undefined);
+    } catch (error: any) {
+      const message = error?.message || "Unknown error while fetching template metadata";
+      const systemErr = new SystemError(
+        "FetchOnlineTemplateMetadata",
+        "DownloadFailed",
+        message,
+        message
+      );
+      return err(systemErr);
+    }
+  }
+
+  /**
+   * generate config files
+   */
+  @hooks([ErrorContextMW({ component: "FxCore", stage: "generateConfigFiles" }), ErrorHandlerMW])
+  async generateConfigFiles(inputs: Inputs): Promise<Result<undefined, FxError>> {
+    return await generateConfigFiles(inputs);
   }
 
   private async updateAuthActionInYaml(

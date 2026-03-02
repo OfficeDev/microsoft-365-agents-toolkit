@@ -8,7 +8,7 @@ import * as fs from "fs";
 import * as path from "path";
 
 import MockAzureAccountProvider from "@microsoft/m365agentstoolkit-cli/src/commonlib/azureLoginUserPassword";
-import { EnvConstants, PluginId, StateConfigKey } from "./constants";
+import { EnvConstants, PluginId, Runtime, StateConfigKey } from "./constants";
 
 import {
   getExpectedBotClientSecret,
@@ -47,7 +47,7 @@ enum BaseConfig {
   M365_CLIENT_SECRET = "M365_CLIENT_SECRET",
   IDENTITY_ID = "IDENTITY_ID",
   M365_TENANT_ID = "M365_TENANT_ID",
-  clientId = "clientId",
+  clientId = "CLIENT_ID",
   tenantId = "tenantId",
 }
 
@@ -92,9 +92,14 @@ export class BotValidator {
       ctx[EnvConstants.BOT_AZURE_APP_SERVICE_RESOURCE_ID];
     const botFunctionAppResourceId =
       ctx[EnvConstants.BOT_AZURE_FUNCTION_RESOURCE_ID];
+    const azureAppServiceResourceId =
+      ctx[EnvConstants.AZURE_APP_SERVICE_RESOURCE_ID];
     const botResourceId = ctx[EnvConstants.BOT_ID];
     const resourceId =
-      botWebAppResourceId || botFunctionAppResourceId || botResourceId;
+      azureAppServiceResourceId ||
+      botWebAppResourceId ||
+      botFunctionAppResourceId ||
+      botResourceId;
     return resourceId;
   }
 
@@ -120,12 +125,15 @@ export class BotValidator {
     });
   }
 
-  public async validateProvisionV3(includeAAD = true): Promise<void> {
+  public async validateProvisionV3(
+    includeAAD = true,
+    runtime = Runtime.Node
+  ): Promise<void> {
     console.log("Start to validate Bot Provision.");
 
     const tokenProvider = MockAzureAccountProvider;
     const tokenCredential = await tokenProvider.getIdentityCredentialAsync();
-    const token = (await tokenCredential?.getToken(AzureScopes))?.token;
+    const token = (await tokenCredential?.getToken(AzureScopes()))?.token;
 
     console.log("Validating env variables");
     const response = await getWebappSettings(
@@ -135,17 +143,19 @@ export class BotValidator {
       token as string
     );
     chai.assert.exists(response);
-    if (response[BaseConfig.clientId]) {
+    if (runtime === Runtime.Node) {
+      // Support both "clientId" (lowercase) and "CLIENT_ID" (uppercase) for different samples
+      const actualBotId = response["clientId"] || response[BaseConfig.clientId];
       chai.assert.equal(
-        response[BaseConfig.clientId] ||
-          response["Connections__BotServiceConnection__Settings__ClientId"],
-        this.ctx[EnvConstants.BOT_ID] as string
+        actualBotId,
+        this.ctx[EnvConstants.BOT_ID] as string,
+        "bot ID should match"
       );
-    } else {
+    } else if (runtime === Runtime.Dotnet) {
       chai.assert.equal(
-        response[BaseConfig.BOT_ID] ||
-          response["Connections__BotServiceConnection__Settings__ClientId"],
-        this.ctx[EnvConstants.BOT_ID] as string
+        response["Teams__ClientId"],
+        this.ctx[EnvConstants.BOT_ID] as string,
+        "bot ID should match"
       );
     }
 
@@ -177,7 +187,7 @@ export class BotValidator {
 
     const tokenProvider = MockAzureAccountProvider;
     const tokenCredential = await tokenProvider.getIdentityCredentialAsync();
-    const token = (await tokenCredential?.getToken(AzureScopes))?.token;
+    const token = (await tokenCredential?.getToken(AzureScopes()))?.token;
 
     const activeResourcePlugins = await getActivePluginsFromProjectSetting(
       this.projectPath

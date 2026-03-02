@@ -1,0 +1,39 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.4.451.19169",
+      "templateHash": "17930380337974135218"
+    }
+  },
+  "parameters": {
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]"
+    },
+    "resourceBaseName": {
+      "type": "string"
+    }
+  },
+  "functions": [],
+  "resources": [
+    {
+      "type": "Microsoft.Sql/servers",
+      "apiVersion": "2021-02-01-preview",
+      "name": "[parameters('resourceBaseName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "administratorLogin": "testAccount",
+        "administratorLoginPassword": "Mods2021"
+      }
+    }
+  ],
+  "outputs": {
+    "sqlResourceId": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.Sql/servers', parameters('resourceBaseName'))]"
+    }
+  }
+}

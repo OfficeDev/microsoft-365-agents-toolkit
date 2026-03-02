@@ -10,6 +10,7 @@ export enum QuestionNames {
   ProjectType = "project-type",
   Capabilities = "capabilities",
   TeamsAppType = "teams-app-type",
+  TeamsCapability = "teams-capability",
   BotTrigger = "bot-host-type-trigger",
   Runtime = "runtime",
   SPFxSolution = "spfx-solution",
@@ -29,6 +30,7 @@ export enum QuestionNames {
   ReplaceWebsiteUrl = "replaceWebsiteUrl",
   ReplaceBotIds = "replaceBotIds",
   SafeProjectName = "safeProjectName",
+  SolutionName = "solutionName",
   RepalceTabUrl = "tdp-tab-url",
   ValidateMethod = "validate-method",
   AppPackagePath = "appPackagePath",
@@ -60,6 +62,9 @@ export enum QuestionNames {
   AzureOpenAIAssistantId = "azure-openai-assistant-id",
   AzureAISearchApiKey = "azure-ai-search-api-key",
   AzureAISearchEndpoint = "azure-ai-search-endpoint",
+
+  FoundryEndpoint = "foundry-endpoint",
+  FoundryAgentId = "foundry-agent-id",
 
   Features = "features",
   Env = "env",
@@ -132,10 +137,8 @@ export enum QuestionNames {
   DeclarativeAgentManifestPath = "declarative-agent-manifest-path",
   SensitivityLabel = "sensitivity-label",
 
-  ShareOption = "option",
-  ShareOptionShareApp = "share-app",
-  ShareOptionShareToUser = "share-with-users",
-  ShareToUsers = "users",
+  ShareOperation = "share-operation",
+  ShareScope = "scope",
   RemoveUsers = "users",
 
   SelectPluginManifest = "select-plugin-manifest",
@@ -143,4 +146,16 @@ export enum QuestionNames {
   SelectPluginId = "select-plugin-id",
 
   DAMetaOSCapability = "da-meta-os-capability",
+  MCPServerType = "mcp-server-type",
+  MCPLocalServer = "mcp-local-server",
+  MCPLocalServerIdentifier = "mcp-local-server-identifier",
+  MCPForDAServerUrl = "mcp-da-server-url",
+  MCPForDAServerName = "mcp-da-server-name",
+  MCPForDATool = "mcp-da-tool",
+  MCPForDAAvailableTools = "mcp-da-available-tools",
+  MCPForDAPreFetchTools = "mcp-da-pre-fetch-tools",
+  MCPForDAAuth = "mcp-da-auth",
+  MCPForDAAuthMetadataUrl = "mcp-da-auth-metadata-url",
+  MCPForDAAuthWellKnownUrl = "mcp-da-auth-well-known-url",
+  MCPForDAAuthType = "mcp-da-auth-type",
 }

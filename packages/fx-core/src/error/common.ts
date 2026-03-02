@@ -491,6 +491,17 @@ export class NotImplementedError extends SystemError {
     });
   }
 }
+
+export class MFARequiredError extends UserError {
+  constructor(source: string) {
+    super({
+      source: source,
+      message: getLocalizedString("error.MFARequired"),
+      displayMessage: getDefaultString("error.MFARequired"),
+    });
+  }
+}
+
 export class ConcurrentError extends UserError {
   constructor(source: string) {
     super({

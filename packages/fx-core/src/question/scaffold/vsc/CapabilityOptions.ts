@@ -38,9 +38,9 @@ export class TabCapabilityOptions {
       id: "tab-non-sso",
       label: `${getLocalizedString("core.TabNonSso.label")}`,
       detail: getLocalizedString("core.TabNonSso.detail"),
-      description: getLocalizedString(
-        "core.createProjectQuestion.option.description.worksInOutlookM365"
-      ),
+      // description: getLocalizedString(
+      //   "core.createProjectQuestion.option.description.worksInOutlookM365"
+      // ),
       data: TemplateNames.Tab,
     };
   }
@@ -88,8 +88,7 @@ export class TabCapabilityOptions {
   }
 }
 
-export class CustomCopilotCapabilityOptions {
-  // custom copilot
+export class TeamsAgentCapabilityOptions {
   static basicChatbot(): OptionItem {
     const description = featureFlagManager.getBooleanValue(FeatureFlags.CEAEnabled)
       ? getLocalizedString("core.createProjectQuestion.capability.customEngineAgent.description")
@@ -123,21 +122,46 @@ export class CustomCopilotCapabilityOptions {
     };
   }
 
-  static aiAgent(): OptionItem {
+  static collaboratorAgent(): OptionItem {
+    return {
+      id: "teams-collaborator-agent",
+      label: getLocalizedString(
+        "core.createProjectQuestion.capability.teamsAgent.collaborator.label"
+      ),
+      detail: getLocalizedString(
+        "core.createProjectQuestion.capability.teamsAgent.collaborator.detail"
+      ),
+      data: TemplateNames.TeamsCollaboratorAgent,
+    };
+  }
+
+  static others(): OptionItem {
     const description = featureFlagManager.getBooleanValue(FeatureFlags.CEAEnabled)
       ? getLocalizedString("core.createProjectQuestion.capability.customEngineAgent.description")
       : undefined;
     return {
-      id: "custom-copilot-agent",
-      label: getLocalizedString(
-        "core.createProjectQuestion.capability.customCopilotAssistantOption.label"
-      ),
-      detail: getLocalizedString(
-        "core.createProjectQuestion.capability.customCopilotAssistantOption.detail"
-      ),
+      id: "others",
+      label: getLocalizedString("core.createProjectQuestion.capability.teamsAgent.others.label"),
+      detail: getLocalizedString("core.createProjectQuestion.capability.teamsAgent.others.detail"),
       description: description,
     };
   }
+
+  // static aiAgent(): OptionItem {
+  //   const description = featureFlagManager.getBooleanValue(FeatureFlags.CEAEnabled)
+  //     ? getLocalizedString("core.createProjectQuestion.capability.customEngineAgent.description")
+  //     : undefined;
+  //   return {
+  //     id: "custom-copilot-agent",
+  //     label: getLocalizedString(
+  //       "core.createProjectQuestion.capability.customCopilotAssistantOption.label"
+  //     ),
+  //     detail: getLocalizedString(
+  //       "core.createProjectQuestion.capability.customCopilotAssistantOption.detail"
+  //     ),
+  //     description: description,
+  //   };
+  // }
 }
 
 export class CustomCopilotRagOptions {
@@ -225,6 +249,15 @@ export class CustomCopilotAssistantOptions {
 }
 
 export class MeCapabilityOptions {
+  static basicMe(): OptionItem {
+    return {
+      id: "basic-message-extension",
+      label: getLocalizedString("core.MessageExtensionOption.label"),
+      detail: getLocalizedString("core.MessageExtensionOption.detail"),
+      data: TemplateNames.DefaultMessageExtension,
+    };
+  }
+
   // need further sub-options to decide template name
   static m365SearchMe(): OptionItem {
     return {
@@ -338,6 +371,14 @@ export class OfficeAddinCapabilityOptions {
       label: getLocalizedString("core.newTaskpaneAddin.label"),
       detail: getLocalizedString("core.newTaskpaneAddin.detail"),
       data: TemplateNames.WXPTaskpane,
+    };
+  }
+  static excelCFShortcut(): OptionItem {
+    return {
+      id: "wxp-json-cf-shortcut",
+      label: getLocalizedString("core.newCFShortcut.label"),
+      detail: getLocalizedString("core.newCFShortcut.detail"),
+      data: TemplateNames.ExcelCFShortcut,
     };
   }
   static DAMetaOS(): OptionItem {
@@ -499,7 +540,6 @@ export class DACapabilityOptions {
       id: "type-spec",
       label: getLocalizedString("core.createProjectQuestion.apiPlugin.typeSpec.label"),
       detail: getLocalizedString("core.createProjectQuestion.apiPlugin.typeSpec.detail"),
-      description: getLocalizedString("core.createProjectQuestion.option.description.preview"),
       data: TemplateNames.DeclarativeAgentWithTypeSpec,
     };
   }
@@ -578,6 +618,16 @@ export class ActionStartOptions {
       data: TemplateNames.DeclarativeAgentWithExistingAction,
     };
   }
+
+  static mcp(): OptionItem {
+    return {
+      id: "mcp",
+      label: getLocalizedString("core.createProjectQuestion.mcpForDa.label"),
+      detail: getLocalizedString("core.createProjectQuestion.mcpForDa.detail"),
+      description: getLocalizedString("core.createProjectQuestion.option.description.preview"),
+      data: TemplateNames.DeclarativeAgentWithActionFromMCP,
+    };
+  }
 }
 
 export class DAMetaOSCapabilityOptions {
@@ -652,42 +702,5 @@ export class ApiAuthOptions {
 export function setTemplateName(selected: string | OptionItem, inputs: Inputs): void {
   if ((selected as OptionItem).data) {
     inputs[QuestionNames.TemplateName] = (selected as OptionItem).data as string;
-  }
-}
-
-export class TdpCapabilityOptions {
-  static me(): OptionItem {
-    return {
-      id: "message-extension",
-      label: getLocalizedString("core.MessageExtensionOption.label"),
-      description: getLocalizedString("core.MessageExtensionOption.description"),
-      detail: getLocalizedString("core.MessageExtensionOption.detail"),
-      data: TemplateNames.MessageExtension,
-    };
-  }
-  static botAndMe(): OptionItem {
-    return {
-      id: "BotAndMessageExtension",
-      label: "", // No need to set display name as this option won't be shown in UI
-      data: TemplateNames.BotAndMessageExtension,
-    };
-  }
-  static nonSsoTabAndBot(): OptionItem {
-    return {
-      id: "TabNonSsoAndBot",
-      label: "", // No need to set display name as this option won't be shown in UI
-      data: TemplateNames.TabAndDefaultBot,
-    };
-  }
-  static nonSsoTab(): OptionItem {
-    return {
-      id: "tab-non-sso",
-      label: `${getLocalizedString("core.TabNonSso.label")}`,
-      detail: getLocalizedString("core.TabNonSso.detail"),
-      description: getLocalizedString(
-        "core.createProjectQuestion.option.description.worksInOutlookM365"
-      ),
-      data: TemplateNames.Tab,
-    };
   }
 }

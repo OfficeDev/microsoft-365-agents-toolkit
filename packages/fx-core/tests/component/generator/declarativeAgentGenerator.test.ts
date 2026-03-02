@@ -6,15 +6,20 @@
  */
 
 import {
+  DeclarativeAgentManifest,
+  DynamicOptions,
   err,
   Inputs,
+  MultiSelectQuestion,
   ok,
+  OptionItem,
   Platform,
   PluginManifestSchema,
-  UserError,
   signedIn,
-  DeclarativeAgentManifest,
   signedOut,
+  SingleSelectQuestion,
+  SystemError,
+  UserError,
 } from "@microsoft/teamsfx-api";
 import { assert } from "chai";
 import fs from "fs-extra";
@@ -22,19 +27,27 @@ import "mocha";
 import { RestoreFn } from "mocked-env";
 import path from "path";
 import sinon from "sinon";
+import { GraphClient } from "../../../src/client/graphClient";
+import { featureFlagManager } from "../../../src/common/featureFlags";
 import { createContext, setTools } from "../../../src/common/globalVars";
 import { copilotGptManifestUtils } from "../../../src/component/driver/teamsApp/utils/CopilotGptManifestUtils";
 import { pluginManifestUtils } from "../../../src/component/driver/teamsApp/utils/PluginManifestUtils";
 import { DeclarativeAgentGenerator } from "../../../src/component/generator/declarativeAgent/generator";
 import * as generatorHelper from "../../../src/component/generator/declarativeAgent/helper";
 import { TemplateNames } from "../../../src/component/generator/templates/templateNames";
-import * as commons from "../../../src/component/utils/common";
-import { ActionStartOptions, ApiAuthOptions, QuestionNames } from "../../../src/question";
-import { MockLogProvider, MockTools } from "../../core/utils";
-import { GraphClient } from "../../../src/client/graphClient";
-import { featureFlagManager } from "../../../src/common/featureFlags";
 import * as utils from "../../../src/component/generator/utils";
-import { DACapabilityOptions } from "../../../src/question/scaffold/vsc/CapabilityOptions";
+import * as commons from "../../../src/component/utils/common";
+import { ODRProvider } from "../../../src/component/utils/odrProvider";
+import { ActionStartOptions, ApiAuthOptions, QuestionNames } from "../../../src/question";
+import {
+  ActionStartOptions as CapabilityActionStartOptions,
+  DACapabilityOptions,
+} from "../../../src/question/scaffold/vsc/CapabilityOptions";
+import {
+  MCPLocalServerSelectionNode,
+  MCPServerTypeNode,
+} from "../../../src/question/scaffold/vsc/teamsProjectTypeNode";
+import { MockLogProvider, MockTools } from "../../core/utils";
 
 describe("copilotExtension", async () => {
   setTools(new MockTools());
@@ -91,6 +104,114 @@ describe("copilotExtension", async () => {
       info = await generator.getTemplateInfos(context, inputs, ".");
       assert.isTrue(res);
       assert.equal(info.isOk() && info.value[0].templateName, "declarative-agent-typespec");
+
+      inputs[QuestionNames.TemplateName] = TemplateNames.DeclarativeAgentWithActionFromScratch;
+      inputs.platform = Platform.VS;
+      inputs[QuestionNames.ProgrammingLanguage] = "csharp";
+      res = await generator.activate(context, inputs);
+      info = await generator.getTemplateInfos(context, inputs, ".");
+      assert.isTrue(res);
+      assert.equal(info.isOk() && info.value[0].templateName, "api-plugin-from-scratch");
+    });
+
+    it("MCP server URL processing", async () => {
+      const generator = new DeclarativeAgentGenerator();
+      const context = createContext();
+      const inputs: Inputs = {
+        platform: Platform.CLI,
+        projectPath: "./",
+        [QuestionNames.Capabilities]: "api-plugin",
+        [QuestionNames.ActionType]: ActionStartOptions.newApi().id,
+        [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentWithActionFromMCP,
+        [QuestionNames.ApiAuth]: ApiAuthOptions.none().id,
+        [QuestionNames.AppName]: "TestApp",
+        [QuestionNames.MCPForDAServerUrl]: "https://example-mcp-server.com:8080/api",
+      };
+
+      const res = await generator.activate(context, inputs);
+      const info = await generator.getTemplateInfos(context, inputs, ".");
+
+      assert.isTrue(res);
+      assert.isTrue(info.isOk());
+
+      if (info.isOk() && info.value[0].replaceMap) {
+        const replaceMap = info.value[0].replaceMap;
+
+        // Verify MCPForDAServerUrl is included in replace map
+        assert.equal(replaceMap.MCPForDAServerUrl, "https://example-mcp-server.com:8080/api");
+
+        // Verify ServerName is correctly generated (host with alphanumeric only, max 10 chars)
+        assert.equal(replaceMap.ServerName, "examplemcp");
+
+        // Verify template name
+        assert.equal(info.value[0].templateName, "declarative-agent-with-action-from-mcp");
+      }
+    });
+
+    it("MCP server URL processing with special characters", async () => {
+      const generator = new DeclarativeAgentGenerator();
+      const context = createContext();
+      const inputs: Inputs = {
+        platform: Platform.CLI,
+        projectPath: "./",
+        [QuestionNames.Capabilities]: "api-plugin",
+        [QuestionNames.ActionType]: ActionStartOptions.newApi().id,
+        [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentWithActionFromMCP,
+        [QuestionNames.ApiAuth]: ApiAuthOptions.none().id,
+        [QuestionNames.AppName]: "TestApp",
+        [QuestionNames.MCPForDAServerUrl]: "https://my-server-123.example.com/mcp",
+      };
+
+      const res = await generator.activate(context, inputs);
+      const info = await generator.getTemplateInfos(context, inputs, ".");
+
+      assert.isTrue(res);
+      assert.isTrue(info.isOk());
+
+      if (info.isOk() && info.value[0].replaceMap) {
+        const replaceMap = info.value[0].replaceMap;
+
+        // Verify MCPForDAServerUrl is included in replace map
+        assert.equal(replaceMap.MCPForDAServerUrl, "https://my-server-123.example.com/mcp");
+
+        // Verify ServerName removes special characters and limits to 10 chars
+        assert.equal(replaceMap.ServerName, "myserver12");
+
+        // Verify template name
+        assert.equal(info.value[0].templateName, "declarative-agent-with-action-from-mcp");
+      }
+    });
+
+    it("MCP server URL processing - no URL provided", async () => {
+      const generator = new DeclarativeAgentGenerator();
+      const context = createContext();
+      const inputs: Inputs = {
+        platform: Platform.CLI,
+        projectPath: "./",
+        [QuestionNames.Capabilities]: "api-plugin",
+        [QuestionNames.ActionType]: ActionStartOptions.newApi().id,
+        [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentWithActionFromMCP,
+        [QuestionNames.ApiAuth]: ApiAuthOptions.none().id,
+        [QuestionNames.AppName]: "TestApp",
+        // No MCPForDAServerUrl provided
+      };
+
+      const res = await generator.activate(context, inputs);
+      const info = await generator.getTemplateInfos(context, inputs, ".");
+
+      assert.isTrue(res);
+      assert.isTrue(info.isOk());
+
+      if (info.isOk() && info.value[0].replaceMap) {
+        const replaceMap = info.value[0].replaceMap;
+
+        // Verify MCPForDAServerUrl and ServerName are not included when URL is not provided
+        assert.isUndefined(replaceMap.MCPForDAServerUrl);
+        assert.isUndefined(replaceMap.ServerName);
+
+        // Verify template name
+        assert.equal(info.value[0].templateName, "declarative-agent-with-action-from-mcp");
+      }
     });
 
     it("declarative Copilot: Env func enabled", async () => {
@@ -745,6 +866,1149 @@ describe("helper", async () => {
       manifest.runtimes = [{ type: "OpenApi" } as any];
       res = generatorHelper.validateSourcePluginManifest(manifest as any, "source");
       assert.isTrue(res.isErr() && res.error.name === "MissingApiSpec");
+    });
+  });
+
+  describe("generateForMCPForDA", () => {
+    const testDestinationPath = "/test/destination";
+    const testAiPluginPath = path.join(testDestinationPath, "appPackage", "ai-plugin.json");
+
+    it("error: ai-plugin.json file not found", async () => {
+      sandbox.stub(fs, "pathExists").resolves(false);
+
+      const inputs: Inputs = {
+        platform: Platform.CLI,
+        [QuestionNames.MCPForDAServerUrl]: "https://example.com",
+        [QuestionNames.MCPForDAServerName]: "testServer",
+        [QuestionNames.MCPForDATool]: "dynamic-fetch",
+      };
+
+      const res = await generatorHelper.generateForMCPForDA(testDestinationPath, inputs);
+
+      assert.isTrue(res.isErr());
+      if (res.isErr()) {
+        assert.equal(res.error.name, "PluginManifestNotFound");
+      }
+    });
+
+    it("success: dynamic fetch tool configuration", async () => {
+      const existingPluginContent = {
+        schema_version: "v1",
+        name_for_human: "Test Plugin",
+        functions: [{ name: "old-function" }],
+        runtimes: [],
+      };
+
+      sandbox.stub(fs, "pathExists").resolves(true);
+      sandbox.stub(fs, "readJSON").resolves(existingPluginContent);
+      const writeJSONStub = sandbox.stub(fs, "writeJSON").resolves();
+
+      const inputs: Inputs = {
+        platform: Platform.CLI,
+        [QuestionNames.MCPForDAServerUrl]: "https://example.com/mcp",
+        [QuestionNames.MCPForDAServerName]: "testServer",
+        [QuestionNames.MCPForDATool]: "dynamic-fetch",
+      };
+
+      const res = await generatorHelper.generateForMCPForDA(testDestinationPath, inputs);
+
+      assert.isTrue(res.isOk());
+      assert.isTrue(writeJSONStub.calledOnce);
+
+      const writtenContent = writeJSONStub.firstCall.args[1];
+      assert.deepEqual(writtenContent.functions, []);
+      assert.equal(writtenContent.runtimes.length, 1);
+      assert.equal(writtenContent.runtimes[0].type, "RemoteMCPServer");
+      assert.equal(writtenContent.runtimes[0].spec.url, "https://example.com/mcp");
+      assert.equal(writtenContent.runtimes[0].spec.enable_dynamic_discovery, true);
+    });
+
+    it("success: pre-fetch tool configuration without auth", async () => {
+      const existingPluginContent = {
+        schema_version: "v1",
+        name_for_human: "Test Plugin",
+        functions: [],
+        runtimes: [],
+      };
+
+      const mockToolsDetail = [
+        {
+          name: "testServer_tool1",
+          description: "Tool 1 description",
+          inputSchema: {
+            type: "object",
+            properties: { param1: { type: "string" } },
+            required: ["param1"],
+          },
+          tags: ["tag1"],
+        },
+        {
+          name: "testServer_tool2",
+          description: "Tool 2 description",
+          inputSchema: {
+            type: "object",
+            properties: { param2: { type: "number" } },
+          },
+          tags: ["tag2"],
+        },
+        {
+          name: "otherServer_tool3",
+          description: "Tool 3 from other server",
+          inputSchema: { type: "object" },
+          tags: [],
+        },
+      ];
+
+      sandbox.stub(fs, "pathExists").resolves(true);
+      sandbox.stub(fs, "readJSON").resolves(existingPluginContent);
+      const writeJSONStub = sandbox.stub(fs, "writeJSON").resolves();
+
+      const inputs: Inputs = {
+        platform: Platform.CLI,
+        [QuestionNames.MCPForDAServerUrl]: "https://example.com/mcp",
+        [QuestionNames.MCPForDAServerName]: "testServer",
+        [QuestionNames.MCPForDATool]: "pre-fetch",
+        [QuestionNames.MCPForDAAvailableTools]: mockToolsDetail,
+        [QuestionNames.MCPForDAPreFetchTools]: ["tool1", "tool2"],
+        [QuestionNames.MCPForDAAuth]: "NoneAuth",
+      };
+
+      const res = await generatorHelper.generateForMCPForDA(testDestinationPath, inputs);
+
+      assert.isTrue(res.isOk());
+      assert.isTrue(writeJSONStub.calledOnce);
+
+      const writtenContent = writeJSONStub.firstCall.args[1];
+      assert.equal(writtenContent.functions.length, 2);
+
+      // Check first function
+      assert.equal(writtenContent.functions[0].name, "tool1");
+      assert.equal(writtenContent.functions[0].description, "Tool 1 description");
+      assert.deepEqual(writtenContent.functions[0].parameters, {
+        type: "object",
+        properties: { param1: { type: "string" } },
+        required: ["param1"],
+      });
+
+      // Check second function
+      assert.equal(writtenContent.functions[1].name, "tool2");
+      assert.equal(writtenContent.functions[1].description, "Tool 2 description");
+      assert.deepEqual(writtenContent.functions[1].parameters, {
+        type: "object",
+        properties: { param2: { type: "number" } },
+        required: [],
+      });
+
+      // Check runtime configuration
+      assert.equal(writtenContent.runtimes.length, 1);
+      assert.equal(writtenContent.runtimes[0].type, "RemoteMCPServer");
+      assert.equal(writtenContent.runtimes[0].spec.url, "https://example.com/mcp");
+      assert.deepEqual(writtenContent.runtimes[0].run_for_functions, ["tool1", "tool2"]);
+      assert.isUndefined(writtenContent.runtimes[0].auth);
+    });
+
+    it("success: pre-fetch tool configuration with OAuth auth", async () => {
+      const existingPluginContent = {
+        schema_version: "v1",
+        name_for_human: "Test Plugin",
+        functions: [],
+        runtimes: [],
+      };
+
+      const mockToolsDetail = [
+        {
+          name: "testServer_authenticatedTool",
+          description: "Authenticated tool",
+          inputSchema: {
+            type: "object",
+            properties: { data: { type: "string" } },
+          },
+          tags: [],
+        },
+      ];
+
+      sandbox.stub(fs, "pathExists").resolves(true);
+      sandbox.stub(fs, "readJSON").resolves(existingPluginContent);
+      const writeJSONStub = sandbox.stub(fs, "writeJSON").resolves();
+
+      const inputs: Inputs = {
+        platform: Platform.CLI,
+        [QuestionNames.MCPForDAServerUrl]: "https://secure.example.com/mcp",
+        [QuestionNames.MCPForDAServerName]: "testServer",
+        [QuestionNames.MCPForDATool]: "pre-fetch",
+        [QuestionNames.MCPForDAAvailableTools]: mockToolsDetail,
+        [QuestionNames.MCPForDAPreFetchTools]: ["authenticatedTool"],
+        [QuestionNames.MCPForDAAuth]: "OAuthPluginVault",
+      };
+
+      const res = await generatorHelper.generateForMCPForDA(testDestinationPath, inputs);
+
+      assert.isTrue(res.isOk());
+      assert.isTrue(writeJSONStub.calledOnce);
+
+      const writtenContent = writeJSONStub.firstCall.args[1];
+      assert.equal(writtenContent.functions.length, 1);
+      assert.equal(writtenContent.functions[0].name, "authenticatedTool");
+
+      // Check runtime has auth configuration
+      assert.equal(writtenContent.runtimes.length, 1);
+      assert.deepEqual(writtenContent.runtimes[0].auth, {
+        type: "OAuthPluginVault",
+        reference_id: "${{MCP_DA_AUTH_ID}}",
+      });
+    });
+
+    it("error: pre-fetch tools missing available tools", async () => {
+      sandbox.stub(fs, "pathExists").resolves(true);
+      sandbox.stub(fs, "readJSON").resolves({});
+
+      const inputs: Inputs = {
+        platform: Platform.CLI,
+        [QuestionNames.MCPForDAServerUrl]: "https://example.com/mcp",
+        [QuestionNames.MCPForDAServerName]: "testServer",
+        [QuestionNames.MCPForDATool]: "pre-fetch",
+        // Missing MCPForDAAvailableTools
+        [QuestionNames.MCPForDAPreFetchTools]: ["tool1"],
+        [QuestionNames.MCPForDAAuth]: "NoneAuth",
+      };
+
+      const res = await generatorHelper.generateForMCPForDA(testDestinationPath, inputs);
+
+      assert.isTrue(res.isErr());
+      if (res.isErr()) {
+        assert.equal(res.error.name, "PreFetchToolsNotFound");
+      }
+    });
+
+    it("error: pre-fetch tools missing selected tools", async () => {
+      sandbox.stub(fs, "pathExists").resolves(true);
+      sandbox.stub(fs, "readJSON").resolves({});
+
+      const inputs: Inputs = {
+        platform: Platform.CLI,
+        [QuestionNames.MCPForDAServerUrl]: "https://example.com/mcp",
+        [QuestionNames.MCPForDAServerName]: "testServer",
+        [QuestionNames.MCPForDATool]: "pre-fetch",
+        [QuestionNames.MCPForDAAvailableTools]: [{ name: "tool1" }],
+        // Missing MCPForDAPreFetchTools
+        [QuestionNames.MCPForDAAuth]: "NoneAuth",
+      };
+
+      const res = await generatorHelper.generateForMCPForDA(testDestinationPath, inputs);
+
+      assert.isTrue(res.isErr());
+      if (res.isErr()) {
+        assert.equal(res.error.name, "PreFetchToolsNotFound");
+      }
+    });
+
+    it("success: filters tools by server name correctly", async () => {
+      const existingPluginContent = {
+        schema_version: "v1",
+        name_for_human: "Test Plugin",
+        functions: [],
+        runtimes: [],
+      };
+
+      const mockToolsDetail = [
+        {
+          name: "serverA_toolX",
+          description: "Tool X from server A",
+          inputSchema: { type: "object" },
+          tags: [],
+        },
+        {
+          name: "serverB_toolY",
+          description: "Tool Y from server B",
+          inputSchema: { type: "object" },
+          tags: [],
+        },
+        {
+          name: "serverA_toolZ",
+          description: "Tool Z from server A",
+          inputSchema: { type: "object" },
+          tags: [],
+        },
+      ];
+
+      sandbox.stub(fs, "pathExists").resolves(true);
+      sandbox.stub(fs, "readJSON").resolves(existingPluginContent);
+      const writeJSONStub = sandbox.stub(fs, "writeJSON").resolves();
+
+      const inputs: Inputs = {
+        platform: Platform.CLI,
+        [QuestionNames.MCPForDAServerUrl]: "https://example.com/mcp",
+        [QuestionNames.MCPForDAServerName]: "serverA",
+        [QuestionNames.MCPForDATool]: "pre-fetch",
+        [QuestionNames.MCPForDAAvailableTools]: mockToolsDetail,
+        [QuestionNames.MCPForDAPreFetchTools]: ["toolX", "toolZ"],
+        [QuestionNames.MCPForDAAuth]: "NoneAuth",
+      };
+
+      const res = await generatorHelper.generateForMCPForDA(testDestinationPath, inputs);
+
+      assert.isTrue(res.isOk());
+
+      const writtenContent = writeJSONStub.firstCall.args[1];
+      assert.equal(writtenContent.functions.length, 2);
+      assert.equal(writtenContent.functions[0].name, "toolX");
+      assert.equal(writtenContent.functions[1].name, "toolZ");
+
+      // Should not include toolY from serverB
+      const toolNames = writtenContent.functions.map((f: any) => f.name);
+      assert.notInclude(toolNames, "toolY");
+    });
+
+    it("success: handles missing inputSchema properties gracefully", async () => {
+      const existingPluginContent = {
+        schema_version: "v1",
+        name_for_human: "Test Plugin",
+        functions: [],
+        runtimes: [],
+      };
+
+      const mockToolsDetail = [
+        {
+          name: "testServer_minimalTool",
+          description: "Tool with minimal schema",
+          inputSchema: {
+            // Missing type, properties, required
+          },
+          tags: [],
+        },
+      ];
+
+      sandbox.stub(fs, "pathExists").resolves(true);
+      sandbox.stub(fs, "readJSON").resolves(existingPluginContent);
+      const writeJSONStub = sandbox.stub(fs, "writeJSON").resolves();
+
+      const inputs: Inputs = {
+        platform: Platform.CLI,
+        [QuestionNames.MCPForDAServerUrl]: "https://example.com/mcp",
+        [QuestionNames.MCPForDAServerName]: "testServer",
+        [QuestionNames.MCPForDATool]: "pre-fetch",
+        [QuestionNames.MCPForDAAvailableTools]: mockToolsDetail,
+        [QuestionNames.MCPForDAPreFetchTools]: ["minimalTool"],
+        [QuestionNames.MCPForDAAuth]: "NoneAuth",
+      };
+
+      const res = await generatorHelper.generateForMCPForDA(testDestinationPath, inputs);
+
+      assert.isTrue(res.isOk());
+
+      const writtenContent = writeJSONStub.firstCall.args[1];
+      assert.equal(writtenContent.functions.length, 1);
+      assert.deepEqual(writtenContent.functions[0].parameters, {
+        type: "object", // Default fallback
+        properties: undefined,
+        required: [], // Default fallback
+      });
+    });
+  });
+
+  describe("MCPServerTypeNode and Local MCP Server Support", async () => {
+    it("MCPServerTypeNode should return correct structure", async () => {
+      const mockServers = [
+        {
+          name: "test-server",
+          display_name: "Test Server",
+          description: "Test server",
+          version: "1.0.0",
+          identifier: "test.server",
+          packageFamily: "packagefamily",
+          command: "odr.exe",
+          args: ["mcp", "--proxy", "test.server"],
+          tools: [{ name: "tool1", description: "Tool 1", inputSchema: {} }],
+        },
+      ];
+
+      const listServersStub = sandbox.stub(ODRProvider, "listServers").resolves(mockServers);
+
+      const node = MCPServerTypeNode();
+
+      // Test basic structure
+      assert.isDefined(node);
+      assert.isDefined(node.condition);
+      assert.isDefined(node.data);
+      assert.isDefined(node.children);
+
+      // Test condition
+      assert.deepEqual(node.condition, { equals: CapabilityActionStartOptions.mcp().id });
+
+      const questionData = (await node.data) as SingleSelectQuestion;
+
+      // Test data properties
+      assert.equal(questionData.name, QuestionNames.MCPServerType);
+      assert.equal(questionData.type, "singleSelect");
+      assert.equal(questionData.default, "remote");
+      assert.equal(questionData.staticOptions.length, 0);
+
+      const inputs: Inputs = { platform: Platform.CLI };
+      const options = (await (questionData.dynamicOptions as DynamicOptions)(
+        inputs
+      )) as OptionItem[];
+      assert.equal(options.length, 2);
+      assert.equal(options[0].id, "remote");
+      assert.equal(options[1].id, "local");
+      assert.isTrue(listServersStub.calledOnce);
+
+      // Test children structure
+      assert.equal(node.children?.length, 2);
+    });
+
+    it("MCPServerTypeNode should only show remote option when no servers available", async () => {
+      const listServersStub = sandbox.stub(ODRProvider, "listServers").resolves([]);
+
+      const node = MCPServerTypeNode();
+      const questionData = (await node.data) as SingleSelectQuestion;
+
+      const inputs: Inputs = { platform: Platform.CLI };
+      const options = (await (questionData.dynamicOptions as DynamicOptions)(
+        inputs
+      )) as OptionItem[];
+
+      assert.equal(options.length, 1);
+      assert.equal(options[0].id, "remote");
+      assert.isTrue(listServersStub.calledOnce);
+
+      assert.deepEqual(inputs["_McpOdrOutput"], []);
+    });
+
+    it("MCPLocalServerSelectionNode should have correct structure for multiselect", async () => {
+      const node = MCPLocalServerSelectionNode();
+      const questionData = (await node.data) as MultiSelectQuestion;
+
+      // Verify multiselect configuration
+      assert.equal(questionData.type, "multiSelect");
+      assert.equal(questionData.returnObject, true);
+      assert.deepEqual(questionData.validation, { minItems: 1 });
+      assert.equal(questionData.name, QuestionNames.MCPLocalServer);
+    });
+
+    it("MCPLocalServerSelectionNode dynamicOptions should work correctly", async () => {
+      const mockServers = [
+        {
+          name: "test-server-1",
+          display_name: "Test Server 1",
+          description: "First test server",
+          version: "1.0.0",
+          identifier: "test.server.1",
+          packageFamily: "packagefamily",
+          command: "odr.exe",
+          args: ["mcp", "--proxy", "test.server.1"],
+          tools: [
+            { name: "tool1", description: "Tool 1", inputSchema: {} },
+            { name: "tool2", description: "Tool 2", inputSchema: {} },
+          ],
+        },
+        {
+          name: "test-server-2",
+          display_name: "Test Server 2",
+          description: "Second test server",
+          version: "2.0.0",
+          identifier: "test.server.2",
+          packageFamily: "packagefamily",
+          command: "odr.exe",
+          args: ["mcp", "--proxy", "test.server.2"],
+          tools: [{ name: "tool3", description: "Tool 3", inputSchema: {} }],
+        },
+      ];
+
+      const node = MCPLocalServerSelectionNode();
+      const questionData = (await node.data) as MultiSelectQuestion;
+
+      // Set up the inputs with the mock servers as if MCPServerTypeNode had set them
+      const inputs: Inputs = {
+        platform: Platform.CLI,
+        _McpOdrOutput: mockServers,
+      };
+
+      const options = (await (questionData.dynamicOptions as DynamicOptions)(
+        inputs
+      )) as OptionItem[];
+
+      assert.isArray(options);
+      assert.isDefined(options);
+      assert.equal(options?.length, 2);
+
+      // Test first option
+      assert.equal(options[0].id, "test-server-1");
+      assert.equal(options[0].label, "Test Server 1");
+      assert.equal(options[0].detail, "First test server (2 tools available)");
+      const data1 = JSON.parse(options[0].data as string);
+      assert.equal(data1.identifier, "test.server.1");
+      assert.equal(data1.command, "odr.exe");
+      assert.deepEqual(data1.args, ["mcp", "--proxy", "test.server.1"]);
+
+      // Test second option
+      assert.equal(options[1].id, "test-server-2");
+      assert.equal(options[1].label, "Test Server 2");
+      assert.equal(options[1].detail, "Second test server (1 tools available)");
+      const data2 = JSON.parse(options[1].data as string);
+      assert.equal(data2.identifier, "test.server.2");
+      assert.equal(data2.command, "odr.exe");
+      assert.deepEqual(data2.args, ["mcp", "--proxy", "test.server.2"]);
+    });
+
+    it("processMCPLocalServers should handle single server selection", async () => {
+      const generator = new DeclarativeAgentGenerator();
+      const context = createContext();
+      const inputs: Inputs = {
+        platform: Platform.CLI,
+        projectPath: "./",
+        [QuestionNames.Capabilities]: "api-plugin",
+        [QuestionNames.ActionType]: CapabilityActionStartOptions.mcp().id,
+        [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentWithActionFromMCP,
+        [QuestionNames.ApiAuth]: ApiAuthOptions.none().id,
+        [QuestionNames.AppName]: "TestApp",
+        [QuestionNames.MCPServerType]: "local",
+        [QuestionNames.MCPLocalServer]: [
+          {
+            id: "test-server",
+            label: "Test Server",
+            data: JSON.stringify({
+              identifier: "test.server",
+              command: "odr.exe",
+              args: ["mcp", "--proxy", "test.server"],
+            }),
+          },
+        ],
+      };
+
+      const res = await generator.activate(context, inputs);
+      const info = await generator.getTemplateInfos(context, inputs, ".");
+
+      assert.isTrue(res);
+      assert.isTrue(info.isOk());
+
+      if (info.isOk() && info.value[0].replaceMap) {
+        const replaceMap = info.value[0].replaceMap;
+
+        // Verify MCPLocalServers array is present
+        assert.isDefined(replaceMap.MCPLocalServers);
+        assert.isArray(replaceMap.MCPLocalServers);
+        assert.equal(replaceMap.MCPLocalServers.length, 1);
+
+        // Verify server details
+        assert.equal(replaceMap.MCPLocalServers[0].name, "test-server");
+        assert.equal(replaceMap.MCPLocalServers[0].identifier, "test.server");
+        assert.equal(replaceMap.MCPLocalServers[0].command, "odr.exe");
+        assert.equal(replaceMap.MCPLocalServers[0].args, '"mcp", "--proxy", "test.server"');
+        assert.equal(replaceMap.MCPLocalServers[0].notLast, false);
+      }
+    });
+
+    it("processMCPLocalServers should handle multiple server selection", async () => {
+      const generator = new DeclarativeAgentGenerator();
+      const context = createContext();
+      const inputs: Inputs = {
+        platform: Platform.CLI,
+        projectPath: "./",
+        [QuestionNames.Capabilities]: "api-plugin",
+        [QuestionNames.ActionType]: CapabilityActionStartOptions.mcp().id,
+        [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentWithActionFromMCP,
+        [QuestionNames.ApiAuth]: ApiAuthOptions.none().id,
+        [QuestionNames.AppName]: "TestApp",
+        [QuestionNames.MCPServerType]: "local",
+        [QuestionNames.MCPLocalServer]: [
+          {
+            id: "server-1",
+            label: "Server 1",
+            data: JSON.stringify({
+              identifier: "server.1",
+              command: "odr.exe",
+              args: ["mcp", "--proxy", "server.1"],
+            }),
+          },
+          {
+            id: "server-2",
+            label: "Server 2",
+            data: JSON.stringify({
+              identifier: "server.2",
+              command: "odr.exe",
+              args: ["mcp", "--proxy", "server.2"],
+            }),
+          },
+        ],
+      };
+
+      const res = await generator.activate(context, inputs);
+      const info = await generator.getTemplateInfos(context, inputs, ".");
+
+      assert.isTrue(res);
+      assert.isTrue(info.isOk());
+
+      if (info.isOk() && info.value[0].replaceMap) {
+        const replaceMap = info.value[0].replaceMap;
+
+        // Verify MCPLocalServers array has both servers
+        assert.isDefined(replaceMap.MCPLocalServers);
+        assert.isArray(replaceMap.MCPLocalServers);
+        assert.equal(replaceMap.MCPLocalServers.length, 2);
+
+        // Verify first server
+        assert.equal(replaceMap.MCPLocalServers[0].name, "server-1");
+        assert.equal(replaceMap.MCPLocalServers[0].notLast, true);
+
+        // Verify second server
+        assert.equal(replaceMap.MCPLocalServers[1].name, "server-2");
+        assert.equal(replaceMap.MCPLocalServers[1].notLast, false);
+      }
+    });
+
+    it("processMCPLocalServers should handle empty selection", async () => {
+      const generator = new DeclarativeAgentGenerator();
+      const context = createContext();
+      const inputs: Inputs = {
+        platform: Platform.CLI,
+        projectPath: "./",
+        [QuestionNames.Capabilities]: "api-plugin",
+        [QuestionNames.ActionType]: CapabilityActionStartOptions.mcp().id,
+        [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentWithActionFromMCP,
+        [QuestionNames.ApiAuth]: ApiAuthOptions.none().id,
+        [QuestionNames.AppName]: "TestApp",
+        [QuestionNames.MCPServerType]: "local",
+        [QuestionNames.MCPLocalServer]: [],
+      };
+
+      const res = await generator.activate(context, inputs);
+      const info = await generator.getTemplateInfos(context, inputs, ".");
+
+      assert.isTrue(res);
+      assert.isTrue(info.isOk());
+
+      if (info.isOk() && info.value[0].replaceMap) {
+        const replaceMap = info.value[0].replaceMap;
+
+        // Verify empty array is returned
+        assert.isDefined(replaceMap.MCPLocalServers);
+        assert.isArray(replaceMap.MCPLocalServers);
+        assert.equal(replaceMap.MCPLocalServers.length, 0);
+      }
+    });
+
+    it("processMCPLocalServers throws when option data malformed", async () => {
+      const generator = new DeclarativeAgentGenerator();
+      const context = createContext();
+      const inputs: Inputs = {
+        platform: Platform.CLI,
+        projectPath: "./",
+        [QuestionNames.Capabilities]: "api-plugin",
+        [QuestionNames.ActionType]: CapabilityActionStartOptions.mcp().id,
+        [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentWithActionFromMCP,
+        [QuestionNames.ApiAuth]: ApiAuthOptions.none().id,
+        [QuestionNames.AppName]: "TestApp",
+        [QuestionNames.MCPServerType]: "local",
+        [QuestionNames.MCPLocalServer]: [
+          {
+            id: "server-1",
+            label: "Server 1",
+            data: {
+              identifier: "server.1",
+              command: "odr.exe",
+              args: ["mcp", "--proxy", "server.1"],
+            },
+          },
+          {
+            id: "server-2",
+            label: "Server 2",
+            data: JSON.stringify({
+              identifier: "server.2",
+              command: "odr.exe",
+              args: ["mcp", "--proxy", "server.2"],
+            }),
+          },
+        ],
+      };
+
+      const res = await generator.activate(context, inputs);
+      const info = await generator.getTemplateInfos(context, inputs, ".");
+
+      assert.isTrue(res);
+      assert.isTrue(
+        info.isErr() &&
+          info.error.name === "processMCPLocalServers" &&
+          info.error instanceof SystemError
+      );
+    });
+
+    it("processMCPLocalServers throws UserError when option data missing command", async () => {
+      const generator = new DeclarativeAgentGenerator();
+      const context = createContext();
+      const inputs: Inputs = {
+        platform: Platform.CLI,
+        projectPath: "./",
+        [QuestionNames.Capabilities]: "api-plugin",
+        [QuestionNames.ActionType]: CapabilityActionStartOptions.mcp().id,
+        [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentWithActionFromMCP,
+        [QuestionNames.ApiAuth]: ApiAuthOptions.none().id,
+        [QuestionNames.AppName]: "TestApp",
+        [QuestionNames.MCPServerType]: "local",
+        [QuestionNames.MCPLocalServer]: [
+          {
+            id: "server-1",
+            label: "Server 1",
+            data: JSON.stringify({
+              identifier: "server.1",
+              args: ["mcp", "--proxy", "server.1"],
+            }),
+          },
+          {
+            id: "server-2",
+            label: "Server 2",
+            data: JSON.stringify({
+              identifier: "server.2",
+              command: "odr.exe",
+              args: ["mcp", "--proxy", "server.2"],
+            }),
+          },
+        ],
+      };
+
+      const res = await generator.activate(context, inputs);
+      const info = await generator.getTemplateInfos(context, inputs, ".");
+
+      assert.isTrue(res);
+      assert.isTrue(
+        info.isErr() &&
+          info.error.name === "processMCPLocalServers" &&
+          info.error instanceof UserError
+      );
+    });
+
+    it("processMCPLocalServers throws when MCPLocalServer malformed", async () => {
+      const generator = new DeclarativeAgentGenerator();
+      const context = createContext();
+      const inputs: Inputs = {
+        platform: Platform.CLI,
+        projectPath: "./",
+        [QuestionNames.Capabilities]: "api-plugin",
+        [QuestionNames.ActionType]: CapabilityActionStartOptions.mcp().id,
+        [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentWithActionFromMCP,
+        [QuestionNames.ApiAuth]: ApiAuthOptions.none().id,
+        [QuestionNames.AppName]: "TestApp",
+        [QuestionNames.MCPServerType]: "local",
+        [QuestionNames.MCPLocalServer]: {
+          id: "server-1",
+          label: "Server 1",
+          data: {
+            identifier: "server.1",
+            command: "odr.exe",
+            args: ["mcp", "--proxy", "server.1"],
+          },
+        },
+      };
+
+      const res = await generator.activate(context, inputs);
+      const info = await generator.getTemplateInfos(context, inputs, ".");
+
+      assert.isTrue(res);
+      assert.isTrue(
+        info.isErr() &&
+          info.error.name === "processMCPLocalServers" &&
+          info.error instanceof SystemError
+      );
+    });
+
+    it("processMCPLocalServers throws UserError when command malformed", async () => {
+      const generator = new DeclarativeAgentGenerator();
+      const context = createContext();
+      const inputs: Inputs = {
+        platform: Platform.CLI,
+        projectPath: "./",
+        [QuestionNames.Capabilities]: "api-plugin",
+        [QuestionNames.ActionType]: CapabilityActionStartOptions.mcp().id,
+        [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentWithActionFromMCP,
+        [QuestionNames.ApiAuth]: ApiAuthOptions.none().id,
+        [QuestionNames.AppName]: "TestApp",
+        [QuestionNames.MCPServerType]: "local",
+        [QuestionNames.MCPLocalServer]: [
+          {
+            id: "server-1",
+            label: "Server 1",
+            data: JSON.stringify({
+              identifier: "server.1",
+              command: 12345, // Malformed command
+              args: ["mcp", "--proxy", "server.1"],
+            }),
+          },
+        ],
+      };
+
+      const res = await generator.activate(context, inputs);
+      const info = await generator.getTemplateInfos(context, inputs, ".");
+
+      assert.isTrue(res);
+      assert.isTrue(
+        info.isErr() &&
+          info.error.name === "processMCPLocalServers" &&
+          info.error instanceof UserError
+      );
+    });
+
+    it("ODRProvider listServers should handle empty output", async () => {
+      sandbox.stub(process, "platform").value("win32");
+      const execStub = sandbox
+        .stub(require("child_process"), "exec")
+        .callsArgWith(1, null, JSON.stringify({ servers: [] }), "");
+
+      const servers = await ODRProvider.listServers();
+
+      assert.isArray(servers);
+      assert.equal(servers.length, 0);
+      assert.isTrue(execStub.calledOnce);
+    });
+
+    it("ODRProvider listServers should return empty array on non-Windows platform", async () => {
+      sandbox.stub(process, "platform").value("darwin"); // macOS
+      const execStub = sandbox.stub(require("child_process"), "exec");
+
+      const servers = await ODRProvider.listServers();
+
+      assert.isArray(servers);
+      assert.equal(servers.length, 0);
+      assert.isFalse(execStub.called); // Should not even attempt to call exec
+    });
+
+    it("ODRProvider listServers should return empty array when stdout is empty", async () => {
+      sandbox.stub(process, "platform").value("win32");
+      const execStub = sandbox.stub(require("child_process"), "exec").callsArgWith(1, null, "", "");
+
+      const servers = await ODRProvider.listServers();
+
+      assert.isArray(servers);
+      assert.equal(servers.length, 0);
+      assert.isTrue(execStub.calledOnce);
+    });
+
+    it("ODRProvider listServers should handle malformed JSON", async () => {
+      sandbox.stub(process, "platform").value("win32");
+      const execStub = sandbox
+        .stub(require("child_process"), "exec")
+        .callsArgWith(1, null, "invalid json", "");
+
+      const servers = await ODRProvider.listServers();
+
+      assert.isArray(servers);
+      assert.equal(servers.length, 0);
+      assert.isTrue(execStub.calledOnce);
+    });
+
+    it("ODRProvider listServers should handle exec errors", async () => {
+      sandbox.stub(process, "platform").value("win32");
+      const execStub = sandbox
+        .stub(require("child_process"), "exec")
+        .callsArgWith(1, new Error("Command failed"), "", "error output");
+
+      const servers = await ODRProvider.listServers();
+
+      assert.isArray(servers);
+      assert.equal(servers.length, 0);
+      assert.isTrue(execStub.calledOnce);
+    });
+
+    it("ODRProvider listServers should handle command not found (ODR not installed)", async () => {
+      sandbox.stub(process, "platform").value("win32");
+      const execStub = sandbox
+        .stub(require("child_process"), "exec")
+        .callsArgWith(
+          1,
+          new Error("'odr' is not recognized as an internal or external command"),
+          "",
+          ""
+        );
+
+      const servers = await ODRProvider.listServers();
+
+      assert.isArray(servers);
+      assert.equal(servers.length, 0);
+      assert.isTrue(execStub.calledOnce);
+    });
+
+    it("ODRProvider parseODRListOutput should parse valid server data", async () => {
+      const mockInput = {
+        servers: [
+          {
+            name: "test-server",
+            description: "Test server description",
+            version: "1.0.0",
+            packages: [{ identifier: "com.test.server" }],
+            _meta: {
+              "io.modelcontextprotocol.registry/publisher-provided": {
+                "com.microsoft.windows": {
+                  manifest: {
+                    display_name: "Test MCP Server",
+                    server: {
+                      mcp_config: {
+                        command: "odr.exe",
+                        args: ["mcp", "--proxy", "com.test.server"],
+                      },
+                    },
+                    _meta: {
+                      "com.microsoft.windows": {
+                        package_family_name: "TestPackageFamily",
+                        static_responses: {
+                          "tools/list": {
+                            tools: [
+                              {
+                                name: "test-tool",
+                                description: "Test tool description",
+                                inputSchema: { type: "object", properties: {} },
+                              },
+                            ],
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        ],
+      };
+
+      const servers = ODRProvider.parseODRListOutput(mockInput);
+
+      assert.isArray(servers);
+      assert.equal(servers.length, 1);
+
+      const server = servers[0];
+      assert.equal(server.name, "test-server");
+      assert.equal(server.display_name, "Test MCP Server");
+      assert.equal(server.description, "Test server description");
+      assert.equal(server.version, "1.0.0");
+      assert.equal(server.identifier, "com.test.server");
+      assert.equal(server.command, "odr.exe");
+      assert.deepEqual(server.args, ["mcp", "--proxy", "com.test.server"]);
+      assert.equal(server.tools.length, 1);
+      assert.equal(server.tools[0].name, "test-tool");
+    });
+
+    it("ODRProvider parseODRListOutput should filter servers without package family", async () => {
+      const mockInput = {
+        servers: [
+          {
+            name: "valid-server",
+            _meta: {
+              "io.modelcontextprotocol.registry/publisher-provided": {
+                "com.microsoft.windows": {
+                  manifest: {
+                    server: {
+                      mcp_config: {
+                        command: "odr.exe",
+                        args: ["mcp", "--proxy", "valid.server"],
+                      },
+                    },
+                    _meta: {
+                      "com.microsoft.windows": {
+                        package_family_name: "ValidPackage",
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          {
+            name: "invalid-server",
+            _meta: {
+              "io.modelcontextprotocol.registry/publisher-provided": {
+                "com.microsoft.windows": {
+                  manifest: {
+                    server: {
+                      mcp_config: {
+                        command: "odr.exe",
+                        args: ["mcp", "--proxy", "invalid.server"],
+                      },
+                    },
+                    _meta: {
+                      "com.microsoft.windows": {
+                        // Missing package_family_name
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        ],
+      };
+
+      const servers = ODRProvider.parseODRListOutput(mockInput);
+
+      assert.isArray(servers);
+      assert.equal(servers.length, 1);
+      assert.equal(servers[0].name, "valid-server");
+    });
+
+    it("ODRProvider parseODRListOutput should return empty array when servers is not an array", async () => {
+      const mockInput = {
+        servers: "not-an-array",
+      };
+
+      const servers = ODRProvider.parseODRListOutput(mockInput);
+
+      assert.isArray(servers);
+      assert.equal(servers.length, 0);
+    });
+
+    it("ODRProvider parseODRListOutput should return empty array when servers property is missing", async () => {
+      const mockInput = {
+        notServers: [],
+      };
+
+      const servers = ODRProvider.parseODRListOutput(mockInput);
+
+      assert.isArray(servers);
+      assert.equal(servers.length, 0);
+    });
+
+    it("ODRProvider parseODRListOutput should handle servers with empty tools list", async () => {
+      const mockInput = {
+        servers: [
+          {
+            name: "server-no-tools",
+            packages: [{ identifier: "com.test.server" }],
+            _meta: {
+              "io.modelcontextprotocol.registry/publisher-provided": {
+                "com.microsoft.windows": {
+                  manifest: {
+                    display_name: "Test Server",
+                    server: {
+                      mcp_config: {
+                        command: "test-command",
+                        args: ["test-arg"],
+                      },
+                    },
+                    _meta: {
+                      "com.microsoft.windows": {
+                        package_family_name: "TestPackage",
+                        static_responses: {
+                          "tools/list": {
+                            tools: [],
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        ],
+      };
+
+      const servers = ODRProvider.parseODRListOutput(mockInput);
+
+      assert.isArray(servers);
+      assert.equal(servers.length, 1);
+      assert.equal(servers[0].tools.length, 0);
+    });
+
+    it("processMCPLocalServers should throw when option data malformed JSON", async () => {
+      const generator = new DeclarativeAgentGenerator();
+      const context = createContext();
+      const inputs: Inputs = {
+        platform: Platform.CLI,
+        projectPath: "./",
+        [QuestionNames.Capabilities]: "api-plugin",
+        [QuestionNames.ActionType]: CapabilityActionStartOptions.mcp().id,
+        [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentWithActionFromMCP,
+        [QuestionNames.ApiAuth]: ApiAuthOptions.none().id,
+        [QuestionNames.AppName]: "TestApp",
+        [QuestionNames.MCPServerType]: "local",
+        [QuestionNames.MCPLocalServer]: [
+          {
+            id: "valid-server",
+            label: "Valid Server",
+            data: JSON.stringify({
+              identifier: "valid.server",
+              command: "odr.exe",
+              args: ["mcp", "--proxy", "valid.server"],
+            }),
+          },
+          {
+            id: "invalid-server",
+            label: "Invalid Server",
+            data: "not-valid-json",
+          },
+        ],
+      };
+
+      const res = await generator.activate(context, inputs);
+      const info = await generator.getTemplateInfos(context, inputs, ".");
+
+      assert.isTrue(res);
+      assert.isTrue(info.isErr());
+    });
+
+    it("declarative agent generator should handle both remote and local MCP server configurations", async () => {
+      const generator = new DeclarativeAgentGenerator();
+      const context = createContext();
+
+      // Test remote configuration
+      const remoteInputs: Inputs = {
+        platform: Platform.CLI,
+        projectPath: "./",
+        [QuestionNames.Capabilities]: "api-plugin",
+        [QuestionNames.ActionType]: CapabilityActionStartOptions.mcp().id,
+        [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentWithActionFromMCP,
+        [QuestionNames.ApiAuth]: ApiAuthOptions.none().id,
+        [QuestionNames.AppName]: "TestApp",
+        [QuestionNames.MCPServerType]: "remote",
+        [QuestionNames.MCPForDAServerUrl]: "https://remote-mcp.example.com",
+      };
+
+      let res = await generator.activate(context, remoteInputs);
+      let info = await generator.getTemplateInfos(context, remoteInputs, ".");
+
+      assert.isTrue(res);
+      assert.isTrue(info.isOk());
+
+      if (info.isOk() && info.value[0].replaceMap) {
+        const replaceMap = info.value[0].replaceMap;
+        assert.equal(replaceMap.MCPForDAServerUrl, "https://remote-mcp.example.com");
+        assert.equal(replaceMap.ServerName, "remotemcpe");
+      }
+
+      // Test local configuration with multiselect
+      const localInputs: Inputs = {
+        platform: Platform.CLI,
+        projectPath: "./",
+        [QuestionNames.Capabilities]: "api-plugin",
+        [QuestionNames.ActionType]: CapabilityActionStartOptions.mcp().id,
+        [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentWithActionFromMCP,
+        [QuestionNames.ApiAuth]: ApiAuthOptions.none().id,
+        [QuestionNames.AppName]: "TestApp",
+        [QuestionNames.MCPServerType]: "local",
+        [QuestionNames.MCPLocalServer]: [
+          {
+            id: "local-server",
+            label: "Local Server",
+            data: JSON.stringify({
+              identifier: "local.server.id",
+              command: "odr.exe",
+              args: ["mcp", "--proxy", "local.server.id"],
+            }),
+          },
+        ],
+      };
+
+      res = await generator.activate(context, localInputs);
+      info = await generator.getTemplateInfos(context, localInputs, ".");
+
+      assert.isTrue(res);
+      assert.isTrue(info.isOk());
+
+      if (info.isOk() && info.value[0].replaceMap) {
+        const replaceMap = info.value[0].replaceMap;
+        // Verify MCPLocalServers array for local configuration
+        assert.isDefined(replaceMap.MCPLocalServers);
+        assert.isArray(replaceMap.MCPLocalServers);
+        assert.equal(replaceMap.MCPLocalServers.length, 1);
+        assert.equal(replaceMap.MCPLocalServers[0].name, "local-server");
+      }
     });
   });
 });

@@ -136,7 +136,7 @@ export class FrontendValidator {
 
     const tokenProvider = MockAzureAccountProvider;
     const tokenCredential = await tokenProvider.getIdentityCredentialAsync();
-    const token = (await tokenCredential?.getToken(AzureScopes))?.token;
+    const token = (await tokenCredential?.getToken(AzureScopes()))?.token;
     chai.assert.exists(token);
 
     console.log("Validating Storage Container.");
@@ -158,7 +158,7 @@ export class FrontendValidator {
 
     const tokenProvider = MockAzureAccountProvider;
     const tokenCredential = await tokenProvider.getIdentityCredentialAsync();
-    const token = (await tokenCredential?.getToken(AzureScopes))?.token;
+    const token = (await tokenCredential?.getToken(AzureScopes()))?.token;
     chai.assert.exists(token);
 
     const sasToken = await this.getSasToken(
@@ -245,6 +245,7 @@ export class FrontendValidator {
   private static getResourceIdFromCtx(ctx: any): string {
     return (
       ctx[EnvConstants.TAB_AZURE_STORAGE_RESOURCE_ID] ??
+      ctx[EnvConstants.AZURE_APP_SERVICE_RESOURCE_ID] ??
       ctx[EnvConstants.TAB_AZURE_APP_SERVICE_RESOURCE_ID]
     );
   }

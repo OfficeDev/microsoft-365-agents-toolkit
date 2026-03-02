@@ -6,7 +6,6 @@ namespace Microsoft.TeamsFx.Conversation
     using Microsoft.Agents.Core.Models;
     using System.Text.Json;
 
-    [Obsolete]
     internal sealed class LocalFileStorage : INotificationTargetStorage
     {
         private readonly string _filePath;

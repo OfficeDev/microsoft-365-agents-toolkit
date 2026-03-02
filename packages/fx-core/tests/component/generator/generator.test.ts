@@ -37,6 +37,7 @@ import {
   TemplateActionSeq,
   fetchSampleInfoAction,
 } from "../../../src/component/generator/generatorAction";
+import * as templateHelper from "../../../src/component/generator/templateHelper";
 import * as templateMetadata from "../../../src/component/generator/templates/metadata";
 import { TemplateNames } from "../../../src/component/generator/templates/templateNames";
 import { getTemplateReplaceMap } from "../../../src/component/generator/templates/templateReplaceMap";
@@ -54,7 +55,7 @@ import { ActionContext } from "../../../src/component/middleware/actionExecution
 import { ProgrammingLanguage, QuestionNames } from "../../../src/question";
 import {
   BotCapabilityOptions,
-  CustomCopilotCapabilityOptions,
+  TeamsAgentCapabilityOptions,
 } from "../../../src/question/scaffold/vsc/CapabilityOptions";
 import sampleConfigV3 from "../../common/samples-config-v3.json";
 import { MockTools, randomAppName } from "../../core/utils";
@@ -120,10 +121,10 @@ describe("Generator utils", () => {
 
   it("return rc if set env rc", async () => {
     mockedEnvRestore = mockedEnv({
-      TEAMSFX_TEMPLATE_PRERELEASE: "rc",
+      TEMPLATE_VERSION: "0.0.0-rc",
     });
     const tagList = "1.0.0\n 2.0.0\n 2.1.0\n 3.0.0\n 0.0.0-rc";
-    sandbox.replace(templateConfig, "useLocalTemplate", false);
+    sandbox.stub(templateHelper, "useLocalTemplate").returns(false);
     sandbox.stub(axios, "get").resolves({ data: tagList, status: 200 } as AxiosResponse);
     const url = await generatorUtils.getTemplateUrl(
       "templateName",
@@ -138,7 +139,7 @@ describe("Generator utils", () => {
     });
     const tagList = "1.0.0\n 2.0.0\n 2.1.0\n 3.0.0";
     const tag = "2.1.0";
-    sandbox.replace(templateConfig, "useLocalTemplate", false);
+    sandbox.stub(templateHelper, "useLocalTemplate").returns(false);
     sandbox.stub(axios, "get").resolves({ data: tagList, status: 200 } as AxiosResponse);
     sandbox.stub(templateConfig, "version").value("^2.0.0");
     sandbox.replace(templateConfig, "tagPrefix", "templates@");
@@ -525,6 +526,22 @@ describe("Generator error", async () => {
   const sandbox = createSandbox();
   const tmpDir = path.join(__dirname, "tmp");
 
+  beforeEach(() => {
+    sandbox.stub(fs, "readFileSync").returns(`[{
+          "id": "default-bot-ts",
+          "name": "default-bot",
+          "language": "typescript",
+          "description": ""},
+          {"id": "declarative-agent-basic",
+          "name": "copilot-gpt-basic",
+          "language": "common",
+          "description": ""},
+          {"id": "message-extension-with-existing-api",
+          "name": "copilot-plugin-existing-api",
+          "language": "common",
+          "description": ""}]`);
+  });
+
   afterEach(async () => {
     if (await fs.pathExists(tmpDir)) {
       await fs.remove(tmpDir);
@@ -536,7 +553,7 @@ describe("Generator error", async () => {
     it("template fallback error", async () => {
       sandbox.stub(process, "env").value({ TEAMSFX_NEW_GENERATOR: `${newGeneratorFlag}` });
       sandbox.stub(ScaffoldRemoteTemplateAction, "run").resolves();
-      sandbox.stub(folderUtils, "getTemplatesFolder").resolves("foobar");
+      sandbox.stub(folderUtils, "getTemplatesFolder").returns("foobar");
       const result = newGeneratorFlag
         ? await new DefaultTemplateGenerator().run(ctx, inputs, tmpDir)
         : await Generator.generateTemplate(ctx, tmpDir, "bot", "ts");
@@ -819,6 +836,19 @@ describe("render template", () => {
         [QuestionNames.TemplateName]: TemplateNames.DefaultBot,
       } as Inputs;
       sandbox.stub(process, "env").value({ TEAMSFX_NEW_GENERATOR: "true" });
+      sandbox.stub(fs, "readFileSync").returns(`[{
+          "id": "default-bot-ts",
+          "name": "default-bot",
+          "language": "typescript",
+          "description": ""},
+          {"id": "declarative-agent-basic",
+          "name": "copilot-gpt-basic",
+          "language": "common",
+          "description": ""},
+          {"id": "message-extension-with-existing-api",
+          "name": "copilot-plugin-existing-api",
+          "language": "common",
+          "description": ""}]`);
     });
 
     afterEach(async () => {
@@ -874,63 +904,11 @@ describe("render template", () => {
       assert.isTrue(result.isOk());
     });
 
-    it("template variables when test tool enabled", async () => {
-      sandbox.stub(process, "env").value({ TEAMSFX_TEST_TOOL: "true" });
-      const vars = newGeneratorFlag
-        ? getTemplateReplaceMap(inputs)
-        : Generator.getDefaultVariables("test");
-      assert.equal(vars.enableTestToolByDefault, "true");
-    });
-
-    it("template variables when test tool disabled", async () => {
-      sandbox.stub(process, "env").value({ TEAMSFX_TEST_TOOL: "false" });
-      const vars = newGeneratorFlag
-        ? getTemplateReplaceMap(inputs)
-        : Generator.getDefaultVariables("test");
-      assert.equal(vars.enableTestToolByDefault, "");
-    });
-
-    it("template variables when ME test tool enabled", async () => {
-      sandbox.stub(process, "env").value({ TEAMSFX_ME_TEST_TOOL: "true" });
-      const vars = newGeneratorFlag
-        ? getTemplateReplaceMap(inputs)
-        : Generator.getDefaultVariables("test");
-      assert.equal(vars.enableMETestToolByDefault, "true");
-    });
-
-    it("template variables when ME test tool disabled", async () => {
-      sandbox.stub(process, "env").value({ TEAMSFX_ME_TEST_TOOL: "false" });
-      const vars = newGeneratorFlag
-        ? getTemplateReplaceMap(inputs)
-        : Generator.getDefaultVariables("test");
-      assert.equal(vars.enableMETestToolByDefault, "");
-    });
-
-    it("template variables when new project enabled", async () => {
-      sandbox.stub(process, "env").value({
-        TEAMSFX_NEW_PROJECT_TYPE: "true",
-        TEAMSFX_NEW_PROJECT_TYPE_NAME: "M365",
-        TEAMSFX_NEW_PROJECT_TYPE_EXTENSION: "maproj",
-      });
-      const vars = newGeneratorFlag
-        ? getTemplateReplaceMap(inputs)
-        : Generator.getDefaultVariables("test");
-      assert.equal(vars.isNewProjectTypeEnabled, "true");
-    });
-
-    it("template variables when test tool disabled", async () => {
-      sandbox.stub(process, "env").value({ TEAMSFX_NEW_PROJECT_TYPE: "false" });
-      const vars = newGeneratorFlag
-        ? getTemplateReplaceMap(inputs)
-        : Generator.getDefaultVariables("test");
-      assert.equal(vars.isNewProjectTypeEnabled, "");
-    });
-
     it("template variables when set placeProjectFileInSolutionDir to true", async () => {
       inputs.placeProjectFileInSolutionDir = "true";
       const vars = newGeneratorFlag
         ? getTemplateReplaceMap(inputs)
-        : Generator.getDefaultVariables("test", undefined, undefined, true);
+        : Generator.getDefaultVariables("test", undefined, undefined, undefined, true);
       assert.equal(vars.PlaceProjectFileInSolutionDir, "true");
     });
 
@@ -940,7 +918,7 @@ describe("render template", () => {
       inputs[QuestionNames.OpenAIKey] = "test-key";
       const vars = newGeneratorFlag
         ? getTemplateReplaceMap(inputs)
-        : Generator.getDefaultVariables("test", "test", undefined, false, undefined, {
+        : Generator.getDefaultVariables("test", "test", undefined, undefined, false, undefined, {
             llmService: "llm-service-openai",
             openAIKey: "test-key",
           });
@@ -963,7 +941,7 @@ describe("render template", () => {
       inputs[QuestionNames.AzureOpenAIDeploymentName] = "test-deployment";
       const vars = newGeneratorFlag
         ? getTemplateReplaceMap(inputs)
-        : Generator.getDefaultVariables("test", "test", undefined, false, undefined, {
+        : Generator.getDefaultVariables("test", "test", undefined, undefined, false, undefined, {
             llmService: "llm-service-azure-openai",
             azureOpenAIKey: "test-key",
             azureOpenAIEndpoint: "test-endpoint",
@@ -997,7 +975,7 @@ describe("render template", () => {
 
     it("template variables when contains auth", async () => {
       sandbox.stub(process, "env").value({ TEAMSFX_TEST_TOOL: "false" });
-      const vars = Generator.getDefaultVariables("Test", "Test", "net6", false, [
+      const vars = Generator.getDefaultVariables("Test", "Test", "Test", "net6", false, [
         {
           authName: "authName",
           openapiSpecPath: "path/to/spec.yaml",
@@ -1005,7 +983,6 @@ describe("render template", () => {
           authType: "apiKey",
         },
       ]);
-      assert.equal(vars.enableTestToolByDefault, "");
       assert.equal(vars.appName, "Test");
       assert.equal(vars.ApiKey[0].ApiSpecAuthName, "authName");
       assert.equal(vars.ApiKey[0].ApiSpecPath, "path/to/spec.yaml");
@@ -1016,7 +993,7 @@ describe("render template", () => {
 
     it("template variables when contains auth with special characters", async () => {
       sandbox.stub(process, "env").value({ TEAMSFX_TEST_TOOL: "false" });
-      const vars = Generator.getDefaultVariables("Test", "Test", "net6", false, [
+      const vars = Generator.getDefaultVariables("Test", "Test", "Test", "net6", false, [
         {
           authName: "authName",
           openapiSpecPath: "path/to/spec.yaml",
@@ -1030,7 +1007,6 @@ describe("render template", () => {
           authType: "apiKey",
         },
       ]);
-      assert.equal(vars.enableTestToolByDefault, "");
       assert.equal(vars.appName, "Test");
       assert.equal(vars.OAuth[0].ApiSpecAuthName, "authName");
       assert.equal(vars.OAuth[0].ApiSpecPath, "path/to/spec.yaml");
@@ -1044,7 +1020,7 @@ describe("render template", () => {
 
     it("template variables when contains auth with name not start with [A-Z]", async () => {
       sandbox.stub(process, "env").value({ TEAMSFX_TEST_TOOL: "false" });
-      const vars = Generator.getDefaultVariables("Test", "Test", undefined, false, [
+      const vars = Generator.getDefaultVariables("Test", "Test", "Test", undefined, false, [
         {
           authName: "authName",
           openapiSpecPath: "path/to/spec.yaml",
@@ -1052,7 +1028,6 @@ describe("render template", () => {
           authType: "apiKey",
         },
       ]);
-      assert.equal(vars.enableTestToolByDefault, "");
       assert.equal(vars.appName, "Test");
       assert.equal(vars.ApiKey[0].ApiSpecAuthName, "authName");
       assert.equal(vars.ApiKey[0].ApiSpecPath, "path/to/spec.yaml");
@@ -1071,7 +1046,7 @@ describe("render template", () => {
       };
       await buildFakeTemplateZip(templateName, mockFileName);
 
-      sandbox.replace(templateConfig, "useLocalTemplate", true);
+      sandbox.stub(templateHelper, "useLocalTemplate").returns(true);
       sandbox.stub(folderUtils, "getTemplatesFolder").returns(tmpDir);
       sandbox.stub(ScaffoldRemoteTemplateAction, "run").throws(new Error("test"));
 
@@ -1097,7 +1072,7 @@ describe("render template", () => {
       };
       await buildFakeTemplateZip(templateName, mockFileName);
 
-      sandbox.replace(templateConfig, "useLocalTemplate", true);
+      sandbox.stub(templateHelper, "useLocalTemplate").returns(true);
       sandbox.stub(folderUtils, "getTemplatesFolder").returns(tmpDir);
 
       const result = newGeneratorFlag
@@ -1122,7 +1097,7 @@ describe("render template", () => {
       };
       await buildFakeTemplateZip(templateName, mockFileName);
 
-      sandbox.replace(templateConfig, "useLocalTemplate", false);
+      sandbox.stub(templateHelper, "useLocalTemplate").returns(false);
       sandbox.replace(templateConfig, "localVersion", "9.9.9");
       sandbox.replace(templateConfig, "version", "~3.0.0");
       const tagList = "1.0.0\n 2.0.0\n 2.1.0\n 3.0.0";
@@ -1154,7 +1129,7 @@ describe("render template", () => {
         telemetryProps: {},
       };
 
-      sandbox.replace(templateConfig, "useLocalTemplate", false);
+      sandbox.stub(templateHelper, "useLocalTemplate").returns(false);
       sandbox.replace(templateConfig, "localVersion", "0.1.0");
       sandbox.stub(folderUtils, "getTemplatesFolder").returns(tmpDir);
       sandbox.stub(generatorUtils, "getTemplateLatestVersion").resolves("0.1.1");
@@ -1185,7 +1160,7 @@ describe("render template", () => {
       mockedEnvRestore = mockedEnv({
         TEAMSFX_TEMPLATE_PRERELEASE: "rc",
       });
-      sandbox.replace(templateConfig, "useLocalTemplate", false);
+      sandbox.stub(templateHelper, "useLocalTemplate").returns(false);
       sandbox.replace(templateConfig, "localVersion", "0.1.0");
       sandbox.stub(folderUtils, "getTemplatesFolder").returns(tmpDir);
       sandbox.stub(generatorUtils, "getTemplateLatestVersion").resolves("0.1.1");
@@ -1257,19 +1232,16 @@ describe("render template", () => {
       const descriptionAnswer = getLocalizedString(
         "core.createProjectQuestion.capability.customEngineAgent.description"
       );
-      assert.equal(CustomCopilotCapabilityOptions.basicChatbot().description, descriptionAnswer);
-      assert.equal(
-        CustomCopilotCapabilityOptions.customCopilotRag().description,
-        descriptionAnswer
-      );
-      assert.equal(CustomCopilotCapabilityOptions.aiAgent().description, descriptionAnswer);
+      assert.equal(TeamsAgentCapabilityOptions.basicChatbot().description, descriptionAnswer);
+      assert.equal(TeamsAgentCapabilityOptions.customCopilotRag().description, descriptionAnswer);
+      // assert.equal(CustomCopilotCapabilityOptions.aiAgent().description, descriptionAnswer);
     });
 
     it("CEA works in M365 tag doesn't show when CEA disabled", async () => {
       sandbox.stub(process, "env").value({ TEAMSFX_CEA_ENABLED: "false" });
-      assert.equal(CustomCopilotCapabilityOptions.basicChatbot().description, undefined);
-      assert.equal(CustomCopilotCapabilityOptions.customCopilotRag().description, undefined);
-      assert.equal(CustomCopilotCapabilityOptions.aiAgent().description, undefined);
+      assert.equal(TeamsAgentCapabilityOptions.basicChatbot().description, undefined);
+      assert.equal(TeamsAgentCapabilityOptions.customCopilotRag().description, undefined);
+      // assert.equal(CustomCopilotCapabilityOptions.aiAgent().description, undefined);
     });
 
     it("template name with language 'common' or 'none' uses full id as folderName", async () => {
@@ -1282,6 +1254,7 @@ describe("render template", () => {
       const daTemplateInput = {
         ...inputs,
         [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentBasic,
+        [QuestionNames.ProgrammingLanguage]: commonTemplateName,
       } as Inputs;
 
       const result = await new DefaultTemplateGenerator().run(context, daTemplateInput, tmpDir);
@@ -1328,22 +1301,6 @@ describe("render template", () => {
         ? getTemplateReplaceMap(inputs)
         : Generator.getDefaultVariables("test");
       assert.equal(vars.EmbeddedKnowledgeEnabled, "");
-    });
-
-    it("template variables when share enabled", async () => {
-      sandbox.stub(process, "env").value({ TEAMSFX_SHARE: "true" });
-      const vars = newGeneratorFlag
-        ? getTemplateReplaceMap(inputs)
-        : Generator.getDefaultVariables("test");
-      assert.equal(vars.ShareEnabled, "true");
-    });
-
-    it("template variables when share disabled", async () => {
-      sandbox.stub(process, "env").value({ TEAMSFX_SHARE: "false" });
-      const vars = newGeneratorFlag
-        ? getTemplateReplaceMap(inputs)
-        : Generator.getDefaultVariables("test");
-      assert.equal(vars.ShareEnabled, "");
     });
 
     it("template variables with Copilot connector scaffold", async () => {
@@ -1478,5 +1435,22 @@ describe("getTemplateReplaceMap", () => {
     sandbox.stub(os, "platform").returns("linux");
     const map = getTemplateReplaceMap(inputs);
     assert.equal(map.pathDelimiter, ":");
+  });
+
+  it("should include FoundryEndpoint and FoundryAgentId when provided", () => {
+    const foundryInputs = {
+      ...inputs,
+      [QuestionNames.FoundryEndpoint]: "https://my-foundry.azure.com/api/projects/proj",
+      [QuestionNames.FoundryAgentId]: "asst_abc123",
+    } as Inputs;
+    const map = getTemplateReplaceMap(foundryInputs);
+    assert.equal(map.FoundryEndpoint, "https://my-foundry.azure.com/api/projects/proj");
+    assert.equal(map.FoundryAgentId, "asst_abc123");
+  });
+
+  it("should default FoundryEndpoint and FoundryAgentId to empty string when not provided", () => {
+    const map = getTemplateReplaceMap(inputs);
+    assert.equal(map.FoundryEndpoint, "");
+    assert.equal(map.FoundryAgentId, "");
   });
 });

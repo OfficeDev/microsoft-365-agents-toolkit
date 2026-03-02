@@ -107,15 +107,22 @@ export class MetaOSHelper {
       manifestPath
     )) as TeamsManifestVDevPreview.TeamsManifestVDevPreview;
 
-    // use dotenvUtil rather than envUtil to avoid touch to the process.env
-    const envVars = dotenvUtil.deserialize(await fse.readFile(envFilePath, { encoding: "utf8" }));
-
     const newUUID = getUuid();
     manifest.id = newUUID;
-    envVars.obj.TEAMS_APP_ID = newUUID;
+
+    // Check if env file exists before trying to read it
+    if (await fse.pathExists(envFilePath)) {
+      const envVars = dotenvUtil.deserialize(await fse.readFile(envFilePath, { encoding: "utf8" }));
+      envVars.obj.TEAMS_APP_ID = newUUID;
+      await fse.writeFile(envFilePath, dotenvUtil.serialize(envVars), { encoding: "utf8" });
+    } else {
+      // If env file doesn't exist, create it with the new UUID
+      await fse.ensureDir(path.join(projectFolder, ENV_FOLDER));
+      const envContent = `TEAMS_APP_ID=${newUUID}\n`;
+      await fse.writeFile(envFilePath, envContent, { encoding: "utf8" });
+    }
 
     await AppManifestUtils.writeTeamsManifest(manifestPath, manifest);
-    await fse.writeFile(envFilePath, dotenvUtil.serialize(envVars), { encoding: "utf8" });
   }
 
   static async extendToDA(projectFolder: string, appName: string): Promise<void> {
@@ -488,7 +495,7 @@ Office.onReady((info) => {
     const pkgJsonPath = path.join(projectFolder, PKG_JSON_FILE_NAME);
     if (fse.existsSync(pkgJsonPath)) {
       const pkgJson = await fse.readJSON(pkgJsonPath);
-      pkgJson["devDependencies"]["office-addin-debugging"] = "^6.0.4";
+      pkgJson["devDependencies"]["office-addin-debugging"] = "6.0.6";
       await fse.writeJSON(pkgJsonPath, pkgJson, { spaces: 2 });
     } else {
       throw new Error(`package.json file doesn't exist!`);

@@ -1,14 +1,14 @@
 {
   "compilerOptions": {
     "declaration": true,
-    "target": "es2017",
-    "module": "commonjs",
-    "outDir": "./lib",
+    "module": "NodeNext",
+    "target": "ESNext",
+    "moduleResolution": "NodeNext",
+    "outDir": "./dist",
     "rootDir": "./",
-    "moduleResolution": "nodenext",
     "sourceMap": true,
     "incremental": true,
-    "tsBuildInfoFile": "./lib/.tsbuildinfo",
+    "tsBuildInfoFile": "./dist/.tsbuildinfo",
     "resolveJsonModule": true,
     "esModuleInterop": true,
   }

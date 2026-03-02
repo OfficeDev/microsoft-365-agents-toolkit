@@ -3,8 +3,8 @@
 
 import { hooks } from "@feathersjs/hooks";
 import { SystemError } from "@microsoft/teamsfx-api";
-import { AxiosInstance, AxiosResponse } from "axios";
-import { HelpLinks } from "../common/constants";
+import axios, { AxiosInstance, AxiosResponse } from "axios";
+import { getResourceServiceEndpoint, HelpLinks, ResourceServiceType } from "../common/constants";
 import { ErrorContextMW, TOOLS } from "../common/globalVars";
 import { getDefaultString, getLocalizedString } from "../common/localizeUtils";
 import {
@@ -34,7 +34,6 @@ import { IPublishingAppDenition } from "../component/driver/teamsApp/interfaces/
 import { IValidationResult } from "../component/driver/teamsApp/interfaces/appdefinitions/IValidationResult";
 import { AppDefinition } from "../component/driver/teamsApp/interfaces/appdefinitions/appDefinition";
 import { AppUser } from "../component/driver/teamsApp/interfaces/appdefinitions/appUser";
-import { AppStudioResultFactory } from "../component/driver/teamsApp/results";
 import { manifestUtils } from "../component/driver/teamsApp/utils/ManifestUtils";
 import {
   BotChannelType,
@@ -57,6 +56,11 @@ import {
   DeveloperPortalAPIFailedSystemError,
   DeveloperPortalAPIFailedUserError,
 } from "../error/teamsApp";
+import { SignInAudience } from "../component/driver/aad/interface/signInAudience";
+import { IAADDefinition } from "./interfaces/aad/IAADDefinition";
+import { AADApplication } from "../component/driver/aad/interface/AADApplication";
+import { aadErrorCode } from "../component/driver/aad/utility/constants";
+import { SignInAudienceNotAllowedError } from "../component/driver/aad/error/signInAudienceNotAllowedError";
 
 export class RetryHandler {
   public static RETRIES = 6;
@@ -83,25 +87,19 @@ export class RetryHandler {
 export class TeamsDevPortalClient {
   regionEndpoint?: string;
 
-  getGlobalEndpoint(): string {
-    if (process.env.APP_STUDIO_ENV && process.env.APP_STUDIO_ENV === "int") {
-      return "https://dev-int.teams.microsoft.com";
-    } else {
-      return "https://dev.teams.microsoft.com";
-    }
-  }
-
   setRegionEndpoint(regionEndpoint: string): void {
     this.regionEndpoint = regionEndpoint;
   }
 
   async setRegionEndpointByToken(authSvcToken: string): Promise<void> {
-    if (this.getGlobalEndpoint() === "https://dev-int.teams.microsoft.com") {
+    if (
+      getResourceServiceEndpoint(ResourceServiceType.TDP) === "https://dev-int.teams.microsoft.com"
+    ) {
       // Do not set region for INT env
       return;
     }
     const requester = WrappedAxiosClient.create({
-      baseURL: "https://teams.microsoft.com/api/authsvc",
+      baseURL: getResourceServiceEndpoint(ResourceServiceType.AuthSvc),
     });
     requester.defaults.headers.common["Authorization"] = `Bearer ${authSvcToken}`;
     requester.defaults.headers.common["Client-Source"] = "teamstoolkit";
@@ -110,7 +108,7 @@ export class TeamsDevPortalClient {
   }
 
   getEndpoint(): string {
-    return this.regionEndpoint || this.getGlobalEndpoint();
+    return this.regionEndpoint || getResourceServiceEndpoint(ResourceServiceType.TDP);
   }
 
   /**
@@ -986,6 +984,49 @@ export class TeamsDevPortalClient {
     } catch (e) {
       this.handleBotFrameworkError(e, APP_STUDIO_API_NAMES.UPDATE_BOT);
     }
+  }
+
+  @hooks([ErrorContextMW({ source: "Teams", component: "TeamsDevPortalClient" })])
+  async createAADApp(
+    token: string,
+    displayName: string,
+    signInAudience: SignInAudience = SignInAudience.AzureADMyOrg,
+    serviceManagementReference?: string,
+    isMicrosoftUser = false
+  ): Promise<AADApplication> {
+    const requester = this.createRequesterWithToken(token);
+    const requestBody: IAADDefinition = {
+      displayName: displayName,
+      signInAudience: signInAudience,
+      serviceManagementReference: serviceManagementReference,
+    }; // Create a Microsoft Entra app and optionally set service tree id
+
+    try {
+      const response = await RetryHandler.Retry(() =>
+        requester.post(`/api/aadapp/v2`, requestBody)
+      );
+
+      if (response && response.data) {
+        return <AADApplication>response.data;
+      }
+    } catch (err) {
+      if (axios.isAxiosError(err) && err.response) {
+        if (
+          err.response.data?.error?.code === aadErrorCode.signInAudienceNotAllowedAsPerAppPolicy
+        ) {
+          throw new SignInAudienceNotAllowedError(
+            "TeamsDevPortalClient",
+            err.response.data.error?.message,
+            isMicrosoftUser
+          );
+        }
+      }
+      throw this.wrapException(err, APP_STUDIO_API_NAMES.CREATE_AAD_APP);
+    }
+    throw this.wrapException(
+      new Error(`Failed to create AAD app: ${displayName}`),
+      APP_STUDIO_API_NAMES.CREATE_AAD_APP
+    );
   }
 
   handleBotFrameworkError(e: any, apiName: string): void | undefined {

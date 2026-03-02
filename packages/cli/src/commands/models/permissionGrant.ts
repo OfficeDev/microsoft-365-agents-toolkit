@@ -1,7 +1,18 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
-import { CLICommand, InputsWithProjectPath, err, ok } from "@microsoft/teamsfx-api";
-import { PermissionGrantInputs, PermissionGrantOptions } from "@microsoft/teamsfx-core";
+import {
+  CLICommand,
+  CLICommandOption,
+  err,
+  InputsWithProjectPath,
+  ok,
+} from "@microsoft/teamsfx-api";
+import {
+  CollaborationConstants,
+  PermissionGrantInputs,
+  PermissionGrantOptions,
+  QuestionNames,
+} from "@microsoft/teamsfx-core";
 import { getFxCore } from "../../activate";
 import { logger } from "../../commonlib/logger";
 import { MissingRequiredOptionError } from "../../error";
@@ -20,10 +31,17 @@ export const spfxMessage =
   "Manage site admins using SharePoint admin center: " +
   "https://docs.microsoft.com/en-us/sharepoint/manage-site-collection-administrators";
 
+export const agentOwnerOption: CLICommandOption = {
+  name: "agent",
+  type: "boolean",
+  default: false,
+  description: "Whether share the ownership of agent.",
+};
+
 export const permissionGrantCommand: CLICommand = {
   name: "grant",
   description: commands["collaborator.grant"].description,
-  options: [...PermissionGrantOptions, ProjectFolderOption],
+  options: [...PermissionGrantOptions, ProjectFolderOption, agentOwnerOption],
   telemetry: {
     event: TelemetryEvent.GrantPermission,
   },
@@ -32,18 +50,29 @@ export const permissionGrantCommand: CLICommand = {
       command: `${process.env.TEAMSFX_CLI_BIN_NAME} collaborator grant -i false --manifest-file ./appPackage/manifest.json --env dev --email other@email.com`,
       description: "Grant permission for another Microsoft 365 account to collaborate on the app.",
     },
+    {
+      command: `${process.env.TEAMSFX_CLI_BIN_NAME} collaborator grant -i false --agent true --env dev --email other@email.com`,
+      description: "Grant permission for another Microsoft 365 account as owner of the agent.",
+    },
   ],
   handler: async (ctx) => {
     const inputs = ctx.optionValues as PermissionGrantInputs & InputsWithProjectPath;
     // print necessary messages
     logger.info(azureMessage);
     logger.info(spfxMessage);
+    if (ctx.optionValues["agent"]) {
+      inputs[QuestionNames.collaborationAppType] = [CollaborationConstants.AgentOptionId];
+    }
     if (!ctx.globalOptionValues.interactive) {
-      if (!inputs["manifest-file-path"] && !inputs["manifest-path"]) {
+      if (
+        !ctx.optionValues["agent"] &&
+        !inputs["entra-app-manifest-file"] &&
+        !inputs["manifest-path"]
+      ) {
         return err(
           new MissingRequiredOptionError(
             ctx.command.fullName,
-            "--manifest-file-path or --manifest-path"
+            "--entra-app-manifest-file or --manifest-path"
           )
         );
       }

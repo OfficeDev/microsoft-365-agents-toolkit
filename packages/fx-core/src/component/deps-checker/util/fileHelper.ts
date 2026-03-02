@@ -9,11 +9,16 @@ import { v3DefaultHelpLink } from "../constant/helpLink";
 import { Messages } from "../constant/message";
 import { DepsCheckerError } from "../../../error/depCheck";
 
-export async function unlinkSymlink(linkFilePath: string): Promise<void> {
+export async function unlinkSymlink(linkFilePath: string, forceUpdate = false): Promise<void> {
   try {
     const stat = await fs.lstat(linkFilePath);
     if (stat.isSymbolicLink()) {
       await fs.unlink(linkFilePath);
+    } else {
+      if (forceUpdate) {
+        // For regular file or directory, remove it
+        await fs.remove(linkFilePath);
+      }
     }
   } catch (error: unknown) {
     const statError = error as { code?: string };
@@ -23,8 +28,12 @@ export async function unlinkSymlink(linkFilePath: string): Promise<void> {
   }
 }
 
-export async function createSymlink(target: string, linkFilePath: string): Promise<void> {
-  await unlinkSymlink(linkFilePath);
+export async function createSymlink(
+  target: string,
+  linkFilePath: string,
+  forceUpdate = false
+): Promise<void> {
+  await unlinkSymlink(linkFilePath, forceUpdate);
   // check if destination already exists
   if (await fs.pathExists(linkFilePath)) {
     throw new DepsCheckerError(Messages.symlinkDirAlreadyExist(linkFilePath), v3DefaultHelpLink);

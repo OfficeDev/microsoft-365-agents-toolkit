@@ -1,8 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
+import * as fs from "fs";
 import { remove } from "lodash";
 import * as path from "path";
+import * as tmp from "tmp";
 import {
   commands,
   Disposable,
@@ -1119,8 +1121,45 @@ export class VSCodeUI implements UserInteraction {
     const workingDirectory = args.workingDirectory;
     const timeout = args.timeout;
     const env = args.env;
+
+    // Create temporary files for output and script
+    const tempFile = tmp.tmpNameSync({ prefix: "task-output-", postfix: ".txt" });
+
+    // Ensure temp file exists before execution
+    fs.writeFileSync(tempFile, "", "utf-8");
+
+    // Detect the platform and use appropriate script format
+    const isWindows = process.platform === "win32";
+    const scriptExt = isWindows ? ".ps1" : ".sh";
+    const scriptFile = tmp.tmpNameSync({ prefix: "task-script-", postfix: scriptExt });
+
+    // Create platform-specific script content
+    let scriptContent: string;
+    let wrappedCmd: string;
+
+    if (isWindows) {
+      // PowerShell script for Windows
+      // Capture output to file within the script itself for compatibility
+      scriptContent = `$ErrorActionPreference = 'Continue'\n& {\n${cmd}\n} 2>&1 | ForEach-Object { $_ | Out-File -FilePath "${tempFile}" -Encoding utf8 -Append; $_ }\n`;
+      // Use the shell parameter if provided, otherwise default to powershell for broader compatibility
+      const shellCmd = args.shell || "powershell";
+      wrappedCmd = `${shellCmd} -NoProfile -ExecutionPolicy Bypass -File "${scriptFile}"`;
+    } else {
+      // Bash script for Unix-like systems
+      // Use tee to display output in terminal while also capturing to file
+      scriptContent = `#!/bin/bash\nset +e\n${cmd}\n`;
+      wrappedCmd = `bash "${scriptFile}" 2>&1 | tee "${tempFile}"`;
+    }
+
+    fs.writeFileSync(scriptFile, scriptContent, "utf-8");
+
+    // Make script executable on Unix-like systems
+    if (!isWindows) {
+      fs.chmodSync(scriptFile, 0o755);
+    }
+
     const timeoutPromise = timeout
-      ? new Promise((resolve, reject) => {
+      ? new Promise<never>((_, reject) => {
           setTimeout(() => {
             reject(
               new ScriptTimeoutError(
@@ -1131,45 +1170,59 @@ export class VSCodeUI implements UserInteraction {
           }, timeout ?? 1000 * 60 * 30);
         })
       : undefined;
-    const taskPromise = new Promise((resolve, reject) => {
+
+    const taskPromise = new Promise<string>((resolve, reject) => {
       const task = new Task(
         { type: "shell", task: "Execute script action" },
         TaskScope.Workspace,
         "Execute script action",
         "ms-teams-vscode-extension",
-        new ShellExecution(cmd, {
+        new ShellExecution(wrappedCmd, {
           cwd: workingDirectory,
           env: env,
         })
       );
       task.isBackground = true;
       void tasks.executeTask(task);
+
       tasks.onDidEndTaskProcess((e: TaskProcessEndEvent) => {
         if (
           e.execution.task.name === "Execute script action" &&
           e.execution.task.source === "ms-teams-vscode-extension"
         ) {
-          if (e.exitCode === 0) {
-            resolve(undefined);
-          } else {
-            void window.showErrorMessage(`Execute task failed with exit code ${e.exitCode || ""}`);
-            reject(
-              new ScriptExecutionError(
-                this.localizer.commandExecutionErrorMessage(cmd),
-                this.localizer.commandExecutionErrorDisplayMessage(cmd)
-              )
-            );
+          try {
+            const output = fs.readFileSync(tempFile, "utf-8");
+            fs.unlinkSync(tempFile); // Clean up temporary output file
+            fs.unlinkSync(scriptFile); // Clean up temporary script file
+
+            if (e.exitCode === 0) {
+              resolve(output);
+            } else {
+              void window.showErrorMessage(
+                `Execute task failed with exit code ${e.exitCode || ""}`
+              );
+              reject(
+                new ScriptExecutionError(
+                  this.localizer.commandExecutionErrorMessage(cmd),
+                  this.localizer.commandExecutionErrorDisplayMessage(cmd)
+                )
+              );
+            }
+          } catch (err) {
+            reject(err);
           }
         }
       });
     });
+
     try {
+      let output = "";
       if (timeout) {
-        await Promise.race([taskPromise, timeoutPromise]);
+        output = (await Promise.race([taskPromise, timeoutPromise])) || "";
       } else {
-        await taskPromise;
+        output = await taskPromise;
       }
-      return ok("");
+      return ok(output);
     } catch (error) {
       return err(this.assembleError(error));
     }

@@ -1,16 +1,17 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 import { Inputs } from "@microsoft/teamsfx-api";
+import os from "os";
 import { featureFlagManager, FeatureFlags } from "../../../common/featureFlags";
 import { convertToAlphanumericOnly } from "../../../common/stringUtils";
-import { QuestionNames } from "../../../question/constants";
 import { LocalCrypto } from "../../../core/crypto";
-import os from "os";
+import { QuestionNames } from "../../../question/constants";
 
 export function getTemplateReplaceMap(inputs: Inputs): { [key: string]: string } {
   const appName = inputs[QuestionNames.AppName] as string;
   const safeProjectName =
     inputs[QuestionNames.SafeProjectName] ?? convertToAlphanumericOnly(appName);
+  const solutionName = inputs[QuestionNames.SolutionName] ?? appName;
   const targetFramework = inputs.targetFramework;
   const placeProjectFileInSolutionDir = inputs.placeProjectFileInSolutionDir === "true";
   const llmService: string | undefined = inputs[QuestionNames.LLMService];
@@ -26,6 +27,8 @@ export function getTemplateReplaceMap(inputs: Inputs): { [key: string]: string }
     inputs[QuestionNames.AzureOpenAIEmbeddingDeploymentName];
   const gcName: string | undefined = inputs[QuestionNames.GCName];
   const gcConnectionId: string | undefined = inputs[QuestionNames.GCConnectionId];
+  const foundryEndpoint: string | undefined = inputs[QuestionNames.FoundryEndpoint];
+  const foundryAgentId: string | undefined = inputs[QuestionNames.FoundryAgentId];
 
   if (inputs.projectId !== undefined && (openAIKey || azureOpenAIKey)) {
     const cryptoProvider = new LocalCrypto(inputs.projectId);
@@ -46,16 +49,11 @@ export function getTemplateReplaceMap(inputs: Inputs): { [key: string]: string }
   return {
     appName: appName,
     ProjectName: appName,
+    SolutionName: solutionName,
     TargetFramework: targetFramework ?? "net8.0",
     PlaceProjectFileInSolutionDir: placeProjectFileInSolutionDir ? "true" : "",
     SafeProjectName: safeProjectName,
     SafeProjectNameLowerCase: safeProjectName.toLocaleLowerCase(),
-    enableTestToolByDefault: featureFlagManager.getBooleanValue(FeatureFlags.TestTool)
-      ? "true"
-      : "",
-    enableMETestToolByDefault: featureFlagManager.getBooleanValue(FeatureFlags.METestTool)
-      ? "true"
-      : "",
     useOpenAI: llmService === "llm-service-openai" ? "true" : "",
     useAzureOpenAI: llmService === "llm-service-azure-openai" ? "true" : "",
     openAIKey: openAIKey ?? "",
@@ -70,10 +68,9 @@ export function getTemplateReplaceMap(inputs: Inputs): { [key: string]: string }
     azureAISearchEndpoint: azureAISearchEndpoint ?? "",
     gcName: gcName ?? "",
     gcConnectionId: gcConnectionId ?? "",
+    FoundryEndpoint: foundryEndpoint ?? "",
+    FoundryAgentId: foundryAgentId ?? "",
     openAIEmbeddingModel: openAIEmbeddingModel ?? "",
-    isNewProjectTypeEnabled: featureFlagManager.getBooleanValue(FeatureFlags.NewProjectType)
-      ? "true"
-      : "",
     NewProjectTypeName: process.env.TEAMSFX_NEW_PROJECT_TYPE_NAME ?? "M365Agent",
     NewProjectTypeExt: process.env.TEAMSFX_NEW_PROJECT_TYPE_EXTENSION ?? "atkproj",
     CEAEnabled: featureFlagManager.getBooleanValue(FeatureFlags.CEAEnabled) ? "true" : "",
@@ -82,7 +79,6 @@ export function getTemplateReplaceMap(inputs: Inputs): { [key: string]: string }
     )
       ? "true"
       : "",
-    ShareEnabled: featureFlagManager.getBooleanValue(FeatureFlags.ShareEnabled) ? "true" : "",
     SensitivityLabelEnabled: featureFlagManager.getBooleanValue(
       FeatureFlags.SensitivityLabelEnabled
     )

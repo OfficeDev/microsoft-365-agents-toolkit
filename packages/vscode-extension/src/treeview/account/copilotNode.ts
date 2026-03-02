@@ -14,8 +14,6 @@ enum ContextValues {
   ShowInfo = "checkCopilot-info",
 }
 
-const copilotCheckServiceScope = process.env.SIDELOADING_SERVICE_SCOPE ?? MosServiceScope;
-
 export class CopilotNode extends DynamicNode {
   constructor(
     private eventEmitter: vscode.EventEmitter<DynamicNode | undefined | void>,
@@ -28,7 +26,7 @@ export class CopilotNode extends DynamicNode {
   private async checkCopilot(): Promise<boolean | undefined> {
     try {
       const m365TokenStatus = await M365TokenInstance.getAccessToken({
-        scopes: [copilotCheckServiceScope],
+        scopes: MosServiceScope(),
         showDialog: false,
       });
       if (m365TokenStatus.isOk()) {

@@ -106,12 +106,12 @@ namespace Microsoft.TeamsFx.Test
             }
         }
 
-        public Task<TokenResponse> GetUserTokenAsync(string userId, string connectionName, string channelId, string magicCode, CancellationToken cancellationToken)
+        public Task<TokenResponse> GetUserTokenAsync(string userId, string connectionName, ChannelId channelId, string magicCode, CancellationToken cancellationToken)
         {
             var key = new UserTokenKey()
             {
                 ConnectionName = connectionName,
-                ChannelId = channelId, //turnContext.Activity.ChannelId,
+                ChannelId = channelId?.ToString() ?? string.Empty, //turnContext.Activity.ChannelId,
                 UserId = userId //turnContext.Activity.From.Id,
             };
 
@@ -155,12 +155,13 @@ namespace Microsoft.TeamsFx.Test
             });
         }
 
-        public Task SignOutUserAsync(string userId, string connectionName, string channelId, CancellationToken cancellationToken)
+        public Task SignOutUserAsync(string userId, string connectionName, ChannelId channelId, CancellationToken cancellationToken)
         {
+            var channelIdString = channelId?.ToString() ?? string.Empty;
             var records = _userTokens.ToArray();
             foreach (var t in records)
             {
-                if (t.Key.ChannelId == channelId &&
+                if (t.Key.ChannelId == channelIdString &&
                     t.Key.UserId == userId &&
                     (connectionName == null || connectionName == t.Key.ConnectionName))
                 {
@@ -171,12 +172,13 @@ namespace Microsoft.TeamsFx.Test
             return Task.CompletedTask;
         }
 
-        public Task<TokenStatus[]> GetTokenStatusAsync(string userId, string channelId, string includeFilter, CancellationToken cancellationToken)
+        public Task<TokenStatus[]> GetTokenStatusAsync(string userId, ChannelId channelId, string includeFilter, CancellationToken cancellationToken)
         {
+            var channelIdString = channelId?.ToString() ?? string.Empty;
             var filter = includeFilter == null ? null : includeFilter.Split(',');
             var records = _userTokens.
                 Where(x =>
-                    x.Key.ChannelId == channelId &&
+                    x.Key.ChannelId == channelIdString &&
                     x.Key.UserId == userId &&
                     (includeFilter == null || filter.Contains(x.Key.ConnectionName))).
                 Select(r => new TokenStatus() { ConnectionName = r.Key.ConnectionName, HasToken = true, ServiceProviderDisplayName = r.Key.ConnectionName }).ToArray();
@@ -189,12 +191,12 @@ namespace Microsoft.TeamsFx.Test
             return Task.FromResult<TokenStatus[]>(null);
         }
 
-        public Task<Dictionary<string, TokenResponse>> GetAadTokensAsync(string userId, string connectionName, string[] resourceUrls, string channelId, CancellationToken cancellationToken)
+        public Task<Dictionary<string, TokenResponse>> GetAadTokensAsync(string userId, string connectionName, string[] resourceUrls, ChannelId channelId, CancellationToken cancellationToken)
         {
             return Task.FromResult(new Dictionary<string, TokenResponse>());
         }
 
-        public Task<TokenResponse> ExchangeTokenAsync(string userId, string connectionName, string channelId, TokenExchangeRequest exchangeRequest, CancellationToken cancellationToken)
+        public Task<TokenResponse> ExchangeTokenAsync(string userId, string connectionName, ChannelId channelId, TokenExchangeRequest exchangeRequest, CancellationToken cancellationToken)
         {
             var exchangableValue = !string.IsNullOrEmpty(exchangeRequest?.Token) ?
                 exchangeRequest?.Token :
@@ -202,7 +204,7 @@ namespace Microsoft.TeamsFx.Test
 
             var key = new ExchangableTokenKey()
             {
-                ChannelId = channelId,
+                ChannelId = channelId?.ToString() ?? string.Empty,
                 ConnectionName = connectionName,
                 ExchangableItem = exchangableValue,
                 UserId = userId,
@@ -230,7 +232,7 @@ namespace Microsoft.TeamsFx.Test
 
         public Task<TokenOrSignInResourceResponse> GetTokenOrSignInResourceAsync(string connectionName, IActivity activity, string code, string finalRedirect, string fwdUrl, CancellationToken cancellationToken)
         {
-            var tokenResponse = GetUserTokenAsync(activity.From.Id, connectionName, activity.ChannelId, code, cancellationToken).Result;
+            var tokenResponse = GetUserTokenAsync(activity.From.Id, connectionName, new ChannelId(activity.ChannelId), code, cancellationToken).Result;
             if (tokenResponse is not null)
             {
                 return Task.FromResult(new TokenOrSignInResourceResponse { TokenResponse = tokenResponse });

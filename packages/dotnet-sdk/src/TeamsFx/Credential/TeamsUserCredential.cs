@@ -20,6 +20,7 @@ namespace Microsoft.TeamsFx;
 /// <remarks>
 /// Can only be used within Blazor server for security reason.
 /// </remarks>
+[Obsolete("This package will be deprecated by 2026-09. Please use Microsoft 365 Agents SDK (https://github.com/microsoft/Agents-for-net) instead.")]
 public class TeamsUserCredential : TokenCredential, IAsyncDisposable
 {
     internal bool _initialized;
@@ -45,6 +46,7 @@ public class TeamsUserCredential : TokenCredential, IAsyncDisposable
     /// <param name="logger">Logger of TeamsUserCredential Class.</param>
     /// <param name="identityClientAdapter">Global instance of adaptor to call MSAL.NET library</param>
     /// <exception cref="ExceptionCode.InvalidConfiguration">When client id, client secret, initiate login endpoint or OAuth authority is missing or invalid in config.</exception>
+    [Obsolete("This package will be deprecated by 2026-09. Please use Microsoft 365 Agents SDK (https://github.com/microsoft/Agents-for-net) instead.")]
     public TeamsUserCredential(
         IOptions<AuthenticationOptions> authenticationOptions,
         IJSRuntime jsRuntime,
@@ -80,6 +82,7 @@ public class TeamsUserCredential : TokenCredential, IAsyncDisposable
     /// <returns>Basic user info with user displayName, objectId and preferredUserName.</returns>
     /// <exception cref="ExceptionCode.InternalError">When SSO token from Teams client is not valid.</exception>
     /// <exception cref="ExceptionCode.InvalidParameter">When SSO token from Teams client is empty.</exception>
+    [Obsolete("This package will be deprecated by 2026-09. Please use Microsoft 365 Agents SDK (https://github.com/microsoft/Agents-for-net) instead.")]
     public async ValueTask<UserInfo> GetUserInfoAsync()
     {
         _logger.LogInformation("Get basic user info from SSO token");
@@ -118,6 +121,7 @@ public class TeamsUserCredential : TokenCredential, IAsyncDisposable
     ///
     /// <exception cref="ExceptionCode.InternalError">When failed to login with unknown error.</exception>
     /// <exception cref="ExceptionCode.ConsentFailed">When user canceled or failed to consent.</exception>
+    [Obsolete("This package will be deprecated by 2026-09. Please use Microsoft 365 Agents SDK (https://github.com/microsoft/Agents-for-net) instead.")]
     public async Task LoginAsync(string scopes)
     {
         _logger.LogInformation($"Popup consent page to get user's access token with scopes: {scopes}");
@@ -163,6 +167,7 @@ public class TeamsUserCredential : TokenCredential, IAsyncDisposable
     ///
     /// <exception cref="ExceptionCode.InternalError">When failed to login with unknown error.</exception>
     /// <exception cref="ExceptionCode.ConsentFailed">When user canceled or failed to consent.</exception>
+    [Obsolete("This package will be deprecated by 2026-09. Please use Microsoft 365 Agents SDK (https://github.com/microsoft/Agents-for-net) instead.")]
     public async Task LoginAsync(string[] scopes)
     {
         var scopeString = string.Join(' ', scopes);
@@ -192,6 +197,7 @@ public class TeamsUserCredential : TokenCredential, IAsyncDisposable
     /// <remarks>
     /// Can only be used within Teams.
     /// </remarks>
+    [Obsolete("This package will be deprecated by 2026-09. Please use Microsoft 365 Agents SDK (https://github.com/microsoft/Agents-for-net) instead.")]
     public async override ValueTask<global::Azure.Core.AccessToken> GetTokenAsync(TokenRequestContext requestContext, CancellationToken cancellationToken)
     {
         await EnsureTeamsSdkInitialized().ConfigureAwait(false);
@@ -213,6 +219,7 @@ public class TeamsUserCredential : TokenCredential, IAsyncDisposable
     /// <summary>
     /// Sync version is not supported now. Please use GetTokenAsync instead.
     /// </summary>
+    [Obsolete("This package will be deprecated by 2026-09. Please use Microsoft 365 Agents SDK (https://github.com/microsoft/Agents-for-net) instead.")]
     public override global::Azure.Core.AccessToken GetToken(TokenRequestContext requestContext, CancellationToken cancellationToken)
     {
         throw new NotImplementedException();
@@ -222,6 +229,7 @@ public class TeamsUserCredential : TokenCredential, IAsyncDisposable
     /// Dispose.
     /// </summary>
     /// <returns></returns>
+    [Obsolete("This package will be deprecated by 2026-09. Please use Microsoft 365 Agents SDK (https://github.com/microsoft/Agents-for-net) instead.")]
     public async ValueTask DisposeAsync()
     {
         if (_teamsSdkTask.IsValueCreated)

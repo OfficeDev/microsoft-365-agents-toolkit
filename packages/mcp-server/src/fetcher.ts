@@ -27,7 +27,7 @@ interface SchemaRepository {
 const schemaRepositories: Record<SchemaType, SchemaRepository> = {
   app_manifest: {
     baseUrl: `https://developer.microsoft.com/json-schemas/teams/{{version}}/MicrosoftTeams.schema.json`,
-    latestVersion: "v1.22",
+    latestVersion: "v1.23",
   },
   declarative_agent_manifest: {
     baseUrl: `https://developer.microsoft.com/json-schemas/copilot/declarative-agent/{{version}}/schema.json`,
@@ -38,8 +38,8 @@ const schemaRepositories: Record<SchemaType, SchemaRepository> = {
     latestVersion: "v2.3",
   },
   m365_agents_yaml: {
-    baseUrl: `https://aka.ms/teams-toolkit/{{version}}/yaml.schema.json`,
-    latestVersion: "v1.8",
+    baseUrl: `https://developer.microsoft.com/json-schemas/teams-toolkit/teamsapp-yaml/{{version}}/yaml.schema.json`,
+    latestVersion: "v1.9",
   },
 };
 

@@ -12,6 +12,7 @@
                 "Provision (Sandbox)",
                 "Deploy (Sandbox)",
                 "Start application",
+                "Sideload App to channel"
             ],
             "dependsOrder": "sequence"
         },
@@ -56,7 +57,7 @@
         {
             "label": "Start application (Microsoft 365 Agents Playground)",
             "type": "shell",
-            "command": "npm run dev:teamsfx:testtool",
+            "command": "npm run dev:teamsfx:playground",
             "isBackground": true,
             "options": {
                 "cwd": "${workspaceFolder}",
@@ -80,17 +81,17 @@
         {
             "label": "Start Microsoft 365 Agents Playground",
             "type": "shell",
-            "command": "npm run dev:teamsfx:launch-testtool",
+            "command": "npm run dev:teamsfx:launch-playground",
             "isBackground": true,
             "options": {
                 "env": {
-                  "PATH": "${workspaceFolder}/devTools/teamsapptester/node_modules/.bin:${env:PATH}"
+                  "PATH": "${workspaceFolder}/devTools/playground/node_modules/.bin:${env:PATH}"
                 }
             },
             "windows": {
                 "options": {
                     "env": {
-                        "PATH": "${workspaceFolder}/devTools/teamsapptester/node_modules/.bin;${env:PATH}"
+                        "PATH": "${workspaceFolder}/devTools/playground/node_modules/.bin;${env:PATH}"
                     }
                 }
             },
@@ -297,6 +298,15 @@
             "command": "launch-desktop-client",
             "args": {
                 "url": "teams.microsoft.com/l/app/${{TEAMS_APP_ID}}?installAppPackage=true"
+            }
+        },
+        {
+            "label": "Sideload App to channel",
+            "type": "teamsfx",
+            "command": "install-app",
+            "args": {
+                "env": "sandbox",
+                "appPackagePath": "${workspaceFolder}/appPackage/build/appPackage.sandbox.zip"
             }
         }
     ]

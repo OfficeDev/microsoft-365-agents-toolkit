@@ -55,19 +55,19 @@ resource webApp 'Microsoft.Web/sites@2021-02-01' = {
     serverFarmId: serverfarm.id
     siteConfig: {
       alwaysOn: true
-      appCommandLine: 'gunicorn --bind 0.0.0.0 --worker-class aiohttp.worker.GunicornWebWorker --timeout 600 app:app'
+      appCommandLine: 'python app.py'
       linuxFxVersion: pythonVersion
       appSettings: [
         {
           name: 'WEBSITES_CONTAINER_START_TIME_LIMIT'
-          value: '600'
+          value: '900'
         }
         {
           name: 'SCM_DO_BUILD_DURING_DEPLOYMENT'
           value: 'true'
         }
         {
-          name: 'BOT_ID'
+          name: 'CLIENT_ID'
           value: identity.properties.clientId
         }
         {{#useAzureOpenAI}}
@@ -76,7 +76,7 @@ resource webApp 'Microsoft.Web/sites@2021-02-01' = {
           value: azureOpenaiKey
         }
         {
-          name: 'AZURE_OPENAI_MODEL_DEPLOYMENT_NAME'
+          name: 'AZURE_OPENAI_DEPLOYMENT_NAME'
           value: azureOpenaiModelDeploymentName
         }
         {
@@ -91,7 +91,7 @@ resource webApp 'Microsoft.Web/sites@2021-02-01' = {
         }
         {{/useOpenAI}}
         {
-          name: 'BOT_TENANT_ID'
+          name: 'TENANT_ID'
           value: identity.properties.tenantId
         }
         { 

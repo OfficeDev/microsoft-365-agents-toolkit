@@ -4,8 +4,11 @@ export const CONFIGURATION_PREFIX = "M365AgentsToolkit";
 export enum ConfigurationKey {
   BicepEnvCheckerEnable = "prerequisiteCheck.bicep",
   LogLevel = "logLevel",
+  EnableMCPforDA = "enableDeclarativeAgentMCPSupport",
   EnableCEA = "enableLaunchAgentForTeamsInCopilot",
   EnableDAMetaOS = "enableDeclarativeAgentInOfficeAddIn",
+  EnableCFShortcutMetaOS = "enableCustomFunctionShortcutInOfficeAddIn",
+  SovereignCloudEnvironment = "sovereignCloudEnvironment",
 }
 
 export const AzurePortalUrl = "https://portal.azure.com";

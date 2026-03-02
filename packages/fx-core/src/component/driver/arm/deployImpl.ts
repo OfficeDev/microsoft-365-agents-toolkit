@@ -27,6 +27,7 @@ import { convertOutputs, getFileExtension, hasBicepTemplate } from "./util/util"
 import { validateArgs } from "./validator";
 import { ErrorContextMW } from "../../../common/globalVars";
 import { hooks } from "@feathersjs/hooks";
+import { azureClientHelper } from "../../utils/azureClient";
 
 const helpLink = "https://aka.ms/teamsfx-actions/arm-deploy";
 
@@ -43,7 +44,10 @@ export class ArmDeployImpl {
 
   public async run(): Promise<Map<string, string>> {
     await this.validateArgs();
-    await this.createClient();
+    this.client = await azureClientHelper.createRmClient(
+      this.context.azureAccountProvider,
+      this.args.subscriptionId
+    );
     const needBicepCli = hasBicepTemplate(this.args.templates);
 
     if (needBicepCli && this.args.bicepCliVersion) {
@@ -73,19 +77,6 @@ export class ArmDeployImpl {
 
   public async ensureBicepCli(): Promise<string> {
     return await ensureBicepForDriver(this.context, this.args.bicepCliVersion!);
-  }
-
-  private async createClient(): Promise<void> {
-    this.context.logProvider.debug(
-      `Get token from AzureAccountProvider to create ResourceManagementClient of @azure/arm-resources`
-    );
-    const azureToken = await this.context.azureAccountProvider.getIdentityCredentialAsync();
-    if (!azureToken) {
-      throw new InvalidAzureCredentialError();
-    }
-    this.client = new ResourceManagementClient(azureToken, this.args.subscriptionId, {
-      userAgentOptions: { userAgentPrefix: "TeamsToolkit" },
-    });
   }
 
   async deployTemplates(): Promise<Result<deploymentOutput[], FxError>> {

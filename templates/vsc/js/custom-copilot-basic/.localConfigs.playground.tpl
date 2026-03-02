@@ -1,6 +1,6 @@
 # A gitignored place holder file for local runtime configurations
-BOT_ID=
-BOT_PASSWORD=
+CLIENT_ID=
+CLIENT_SECRET=
 {{#useOpenAI}}
 OPENAI_API_KEY=
 {{/useOpenAI}}
@@ -9,4 +9,3 @@ AZURE_OPENAI_API_KEY=
 AZURE_OPENAI_ENDPOINT=
 AZURE_OPENAI_DEPLOYMENT_NAME=
 {{/useAzureOpenAI}}
-TEAMSFX_NOTIFICATION_STORE_FILENAME=.notification.playgroundstore.json

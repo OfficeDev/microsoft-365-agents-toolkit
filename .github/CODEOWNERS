@@ -9,237 +9,73 @@
 # In each subsection folders are ordered first by depth, then alphabetically.
 # This should make it easy to add new rules without breaking existing ones.
 
-./lerna.json @wenytang-ms @qinezh @Siglud @tecton
-./pnpm-workspace.yaml @wenytang-ms @qinezh @Siglud @tecton
-/.github/CODEOWNERS @adashen @eriolchan @kimizhu @wh-alice @zhenjiao-ms
-/.github/actions @xzf0587 @wenytang-ms @blackchoey
-/.github/workflows/cd.yml @tecton @Siglud @qinezh @wenytang-ms
-/.github/workflows/templates-ci.yml @hund030 @eriolchan @huimiu
+/packages/tests/src/e2e @wh-alice @qinzhouxu @llhmm01 @tecton @sherylueen @Alive-Fish @HuihuiWu-Microsoft @yuqizhou77 @qinqingxu
 
-/Localize @HuihuiWu-Microsoft @tecton @chagong @wh-alice
+/templates/ @wh-alice @qinzhouxu @llhmm01 @tecton @sherylueen @Alive-Fish @HuihuiWu-Microsoft @yuqizhou77 @qinqingxu
+
+./lerna.json @wh-alice @qinzhouxu @llhmm01 @tecton
+./pnpm-workspace.yaml @wh-alice @qinzhouxu @llhmm01 @tecton
+/.github/CODEOWNERS @wh-alice @zhenjiao-ms
+/.github/actions @wh-alice @qinzhouxu @llhmm01
+/.github/workflows/cd.yml @wh-alice @qinzhouxu @llhmm01 @tecton
+/.github/workflows/templates-ci.yml @wh-alice @qinzhouxu @llhmm01 @tecton
+
+/Localize @HuihuiWu-Microsoft @tecton @wh-alice
 
 /packages/api @tecton @llhmm01 @wh-alice
-
 /packages/cli @sherylueen @Alive-Fish @wh-alice
-/packages/cli/src/cmds/preview @swatDong @kuojianlu @qinezh @a1exwang
-/packages/cli/src/commands @jayzhang @Alive-Fish
-/packages/cli/src/commands/models/account.ts @HuihuiWu-Microsoft @sherylueen @jayzhang
-/packages/cli/src/commands/models/accountLogin.ts @HuihuiWu-Microsoft @sherylueen @jayzhang
-/packages/cli/src/commands/models/accountLoginAzure.ts @HuihuiWu-Microsoft @sherylueen @jayzhang
-/packages/cli/src/commands/models/accountLoginM365.ts @HuihuiWu-Microsoft @sherylueen @jayzhang
-/packages/cli/src/commands/models/accountLogout.ts @HuihuiWu-Microsoft @sherylueen @jayzhang
-/packages/cli/src/commands/models/accountShow.ts @HuihuiWu-Microsoft @sherylueen @jayzhang
-/packages/cli/src/commands/models/add.ts @HuihuiWu-Microsoft @jayzhang
-/packages/cli/src/commands/models/addSPFxWebpart.ts @HuihuiWu-Microsoft @yuqizhou77 @jayzhang
-/packages/cli/src/commands/models/doctor.ts @swatDong @jayzhang
-/packages/cli/src/commands/models/m365LaunchInfo.ts @HuihuiWu-Microsoft @jayzhang
-/packages/cli/src/commands/models/m365Sideloading.ts @HuihuiWu-Microsoft @jayzhang
-/packages/cli/src/commands/models/m365Unacquire.ts @HuihuiWu-Microsoft @jayzhang
-/packages/cli/src/commands/models/package.ts @HuihuiWu-Microsoft @jayzhang
-/packages/cli/src/commands/models/permission.ts @KennethBWSong @SLdragon
-/packages/cli/src/commands/models/permissionGrant.ts @KennethBWSong @SLdragon
-/packages/cli/src/commands/models/permissionStatus.ts @KennethBWSong @SLdragon
-/packages/cli/src/commands/models/preview.ts @swatDong @kuojianlu @kimizhu
-/packages/cli/src/commands/models/publish.ts @HuihuiWu-Microsoft @jayzhang
-/packages/cli/src/commands/models/entraAppUpdate.ts @KennethBWSong @xzf0587 @blackchoey
-/packages/cli/src/commands/models/teamsapp @HuihuiWu-Microsoft @jayzhang @wh-alice
-/packages/cli/src/commands/models/upgrade.ts @xzf0587 @blackchoey
-/packages/cli/src/commands/models/validate.ts @HuihuiWu-Microsoft @jayzhang
-/packages/cli/src/commonlib @HuihuiWu-Microsoft @sherylueen @jayzhang @wh-alice
-/packages/cli/src/resource/commands.json @timngmsft @sffamily @therealjohn @supkasar
-/packages/cli/src/resource/errors.json @timngmsft @sffamily @therealjohn @supkasar
-/packages/cli/src/resource/strings.json @timngmsft @sffamily @therealjohn @supkasar
-/packages/cli/tests/unit/cmds/preview @swatDong @kuojianlu @qinezh @a1exwang
-/packages/cli/tests/unit/commonlib @HuihuiWu-Microsoft @sherylueen @jayzhang
+/packages/dotnet-sdk @tecton @wh-alice @HuihuiWu-Microsoft
+/packages/function-extension @wh-alice
 
-/packages/dotnet-sdk @tecton @JerryYangKai @HuihuiWu-Microsoft
-/packages/dotnet-sdk/src/TeamsFx.Test/Conversation @swatDong @dooriya @kimizhu
-/packages/dotnet-sdk/src/TeamsFx/Conversation @swatDong @dooriya @kimizhu
+/packages/fx-core @tecton @llhmm01 @HuihuiWu-Microsoft @wh-alice
+/packages/fx-core/resource/package.nls.json @summzhan @sffamily @supkasar
+/packages/fx-core/resource/yaml-schema @tecton @wh-alice
 
-/packages/function-extension @adashen @blackchoey
-
-/packages/fx-core @tecton @llhmm01 @wh-alice
-/packages/fx-core/.eslint* @tecton @wenytang-ms
-/packages/fx-core/.gitignore @tecton @wenytang-ms
-/packages/fx-core/.mocharc.js @tecton @wenytang-ms
-/packages/fx-core/.nycrc @tecton @wenytang-ms
-/packages/fx-core/.prettier* @tecton @wenytang-ms
-/packages/fx-core/.vscode/launch.json @tecton @wenytang-ms
-/packages/fx-core/CONTRIBUTING.md @tecton @wenytang-ms
-/packages/fx-core/LICENSE.txt @tecton @wenytang-ms
-/packages/fx-core/NOTICE.txt @tecton @wenytang-ms
-/packages/fx-core/package-lock.json @tecton @wenytang-ms
-/packages/fx-core/package.json @tecton @wenytang-ms
-/packages/fx-core/README.md @tecton @wenytang-ms
-/packages/fx-core/resource/package.nls.json @timngmsft @sffamily @therealjohn @supkasar
-/packages/fx-core/resource/package.nls.*.json @HuihuiWu-Microsoft @tecton @wh-alice
-/packages/fx-core/resource/yaml-schema @tecton @wenytang-ms @wh-alice
-/packages/fx-core/src/client/teamsDevPortalClient.ts @HuihuiWu-Microsoft @jayzhang @wh-alice
-/packages/fx-core/src/common/localizeUtils.ts @HuihuiWu-Microsoft @tecton @wh-alice
-/packages/fx-core/src/common/permissionInterface.ts @SLdragon @KennethBWSong
-/packages/fx-core/src/common/samples.ts @tecton @wenytang-ms @wh-alice
-/packages/fx-core/src/common/versionMetadata.ts @xzf0587 @blackchoey
-/packages/fx-core/src/component/m365 @HuihuiWu-Microsoft @jayzhang @wh-alice
 /packages/fx-core/src/component/debugHandler @qinzhouxu @tecton @llhmm01 @wh-alice
 /packages/fx-core/src/component/deps-checker @qinzhouxu @tecton @llhmm01 @wh-alice
-/packages/fx-core/src/component/developerPortalScaffoldUtils.ts @HuihuiWu-Microsoft @yuqizhou77 @tecton @wh-alice
-/packages/fx-core/src/component/driver/aad @blackchoey @wenytang-ms @KennethBWSong
-/packages/fx-core/tests/component/driver/add @HuihuiWu-Microsoft @yuqizhou77 @wh-alice
-/packages/fx-core/src/component/driver/apiKey @KennethBWSong @SLdragon
-/packages/fx-core/src/component/driver/oauth @KennethBWSong @SLdragon
-/packages/fx-core/src/component/driver/typeSpec @KennethBWSong @SLdragon @adashen
-/packages/fx-core/src/component/driver/arm @xzf0587 @blackchoey
-/packages/fx-core/src/component/driver/botAadApp @blackchoey @wenytang-ms @KennethBWSong
-/packages/fx-core/src/component/driver/deploy/azure @Siglud @Yukun-dong @JerryYangKai @eriolchan
+
+/packages/fx-core/src/component/driver/aad  @Alive-Fish @yuqizhou77 @wh-alice
+/packages/fx-core/src/component/driver/apiKey @Alive-Fish @yuqizhou77 @wh-alice
+/packages/fx-core/src/component/driver/oauth @Alive-Fish @yuqizhou77 @wh-alice
+/packages/fx-core/src/component/driver/typeSpec @Alive-Fish @yuqizhou77 @wh-alice
 /packages/fx-core/src/component/driver/deploy/spfx @HuihuiWu-Microsoft @yuqizhou77 @wh-alice
-/packages/fx-core/src/component/driver/oauth @KennethBWSong @SLdragon
-/packages/fx-core/src/component/driver/script/ @Siglud @Yukun-dong @JerryYangKai @eriolchan
-/packages/fx-core/src/component/driver/typeSpec @KennethBWSong @SLdragon @adashen
-/packages/fx-core/src/component/driver/util/utils.ts @blackchoey @xzf0587
-/packages/fx-core/src/component/driver/teamsApp @HuihuiWu-Microsoft @jayzhang @wh-alice
-/packages/fx-core/src/component/feature/collaboration.ts @KennethBWSong @SLdragon
-/packages/fx-core/src/component/feature/createAuthFiles.ts @KennethBWSong @xzf0587
-/packages/fx-core/src/component/feature/sso.ts @KennethBWSong @xzf0587
-/packages/fx-core/src/component/generator @Yukun-dong @hund030 @JerryYangKai @eriolchan
-/packages/fx-core/src/component/generator/copilotExtension @yuqizhou77 @huimiu @jayzhang @anchenyi
-/packages/fx-core/src/component/generator/declarativeAgent @HuihuiWu-Microsoft @yuqizhou77 @tecton
+/packages/fx-core/src/component/driver/oauth @Alive-Fish @yuqizhou77 @wh-alice
+/packages/fx-core/src/component/driver/typeSpec @yuqizhou77 @Alive-Fish @wh-alice
+
+/packages/fx-core/src/component/generator/declarativeAgent @yuqizhou77 @Alive-Fish @wh-alice
 /packages/fx-core/src/component/generator/officeAddin @llhmm01 @tecton @wh-alice
-/packages/fx-core/src/component/generator/openApiSpec @yuqizhou77 @nliu-ms @Alive-Fish @HuihuiWu-Microsoft @jayzhang @SLdragon @KennethBWSong
-/packages/fx-core/src/component/generator/other/ssrTabGenerator.ts @Yimin-Jin @hund030 @jayzhang
-/packages/fx-core/src/component/generator/other/tdpGenerator.ts @HuihuiWu-Microsoft @tecton @wh-alice
-/packages/fx-core/src/component/generator/spfx @HuihuiWu-Microsoft @yuqizhou77 @wh-alice
-/packages/fx-core/src/component/generator/templateNames.ts @tecton @jayzhang 
-/packages/fx-core/src/component/generator/templates @tecton @jayzhang
-/packages/fx-core/src/component/resource/aadApp @KennethBWSong @SLdragon
-/packages/fx-core/src/core/middleware/projectMigrationV3 @xzf0587 @frankqianms @blackchoey
+/packages/fx-core/src/component/generator/openApiSpec @yuqizhou77 @Alive-Fish @wh-alice
+
+/packages/fx-core/src/core/middleware/projectMigrationV3 @tecton @wh-alice #To be deleted
 /packages/fx-core/src/core/middleware/utils/debug @qinzhouxu @llhmm01 @wh-alice
-/packages/fx-core/templates/core/v3Migration @xzf0587 @frankqianms @blackchoey
-/packages/fx-core/templates/plugins/resource/aad/ @KennethBWSong @xzf0587
-/packages/fx-core/templates/plugins/resource/appstudio @HuihuiWu-Microsoft @nliu-ms @anchenyi @wh-alice
-/packages/fx-core/tests/common/samples.test.ts @tecton @wenytang-ms @wh-alice
-/packages/fx-core/tests/component/developerPortalScaffoldUtils.test.ts @HuihuiWu-Microsoft @yuqizhou77 @tecton @wh-alice
-/packages/fx-core/tests/component/driver/aad @blackchoey @wenytang-ms @KennethBWSong
-/packages/fx-core/tests/component/driver/apiKey @KennethBWSong @SLdragon
-/packages/fx-core/tests/component/driver/oauth @KennethBWSong @SLdragon
-/packages/fx-core/tests/component/driver/arm @xzf0587 @blackchoey
-/packages/fx-core/tests/component/driver/botAadApp @blackchoey @wenytang-ms @KennethBWSong
-/packages/fx-core/tests/component/driver/deploy/azure/ @Siglud @Yukun-dong @JerryYangKai @eriolchan
-/packages/fx-core/tests/component/driver/deploy/spfx @HuihuiWu-Microsoft @yuqizhou77 @wh-alice
-/packages/fx-core/tests/component/driver/oauth @KennethBWSong @SLdragon
-/packages/fx-core/tests/component/driver/script @Siglud @Yukun-dong @JerryYangKai @eriolchan
-/packages/fx-core/tests/component/driver/util/utils.test.ts @blackchoey @xzf0587
-/packages/fx-core/tests/component/feature @KennethBWSong @xzf0587
-/packages/fx-core/tests/component/generator/declarativeAgentGenerator.test.ts @HuihuiWu-Microsoft @yuqizhou77 @huimiu @jayzhang
-/packages/fx-core/tests/component/generator/generator.test.ts @Yukun-dong @hund030 @JerryYangKai @eriolchan
-/packages/fx-core/tests/component/generator/officeAddinGenerator.test.ts @llhmm01 @tecton @wh-alice
-/packages/fx-core/tests/component/generator/openApiSpec @yuqizhou77 @nliu-ms @Alive-Fish @jayzhang @HuihuiWu-Microsoft
-/packages/fx-core/tests/component/generator/spfxGenerator.test.ts @HuihuiWu-Microsoft @yuqizhou77 @wh-alice
-/packages/fx-core/tests/component/util/azureAccountMock.ts @HuihuiWu-Microsoft @sherylueen @wh-alice
-/packages/fx-core/tests/core/collaborator.test.ts @KennethBWSong @SLdragon
-/packages/fx-core/tests/core/middleware/debug @qinzhouxu @llhmm01 @wh-alice
-/packages/fx-core/tests/core/middleware/migration @xzf0587 @frankqianms @blackchoey
-/packages/fx-core/tests/core/middleware/projectVersionChecker.test.ts @xzf0587 @frankqianms @blackchoey
-/packages/fx-core/tests/core/middleware/testAssets @xzf0587 @frankqianms @blackchoey
-/packages/fx-core/tests/plugins/resource/appstudio @HuihuiWu-Microsoft @yuqizhou77 @wh-alice
-/packages/fx-core/tests/plugins/resource/spfx @HuihuiWu-Microsoft @yuqizhou77 @wh-alice
-/packages/fx-core/tests/samples/sampleV3 @xzf0587 @wenytang-ms @frankqianms @blackchoey
 
-/packages/manifest/ @tecton @llhmm01 @wh-alice
+/packages/fx-core/templates/core/v3Migration @tecton @wh-alice #To be deleted
+/packages/fx-core/templates/plugins/resource/aad/ @Alive-Fish @yuqizhou77 @wh-alice
 
-/packages/sdk @tecton @blackchoey @SLdragon @wenytang-ms @HuihuiWu-Microsoft
+/packages/manifest/ @tecton @HuihuiWu-Microsoft @wh-alice
 
-/packages/sdk-react @tecton @HuihuiWu-Microsoft
-/packages/sdk/src/conversation @kimizhu @swatDong @a1exwang @XiaofuHuang @dooriya @SLdragon
-/packages/sdk/test/unit/node/conversation @kimizhu @swatDong @a1exwang @XiaofuHuang @dooriya
+/packages/sdk @tecton @HuihuiWu-Microsoft @wh-alice #Deprecation: need to follow on 2026.9
+
+/packages/sdk-react @tecton @HuihuiWu-Microsoft @wh-alice #Deprecation: need to follow on 2026.9
 
 /packages/server @HuihuiWu-Microsoft @Alive-Fish @wh-alice
 
-/packages/simpleauth @blackchoey @wenytang-ms
+/packages/simpleauth @wh-alice #To be deleted
 
-/packages/spec-parser/ @KennethBWSong @SLdragon @adashen
+/packages/spec-parser/ @Alive-Fish @yuqizhou77 @wh-alice
 
-/packages/mcp-server/ @chagong @Alive-Fish @yuqizhou77
-
-/packages/tests/src/e2e/bot @JerryYangKai @eriolchan @Siglud @Yukun-dong
-/packages/tests/src/e2e/bot/tdpIntegrationTemplates @yuqizhou77 @nliu-ms
-/packages/tests/src/e2e/collaboration @KennethBWSong @SLdragon
-/packages/tests/src/e2e/debug @kimizhu @swatDong @kuojianlu
-/packages/tests/src/e2e/frontend @hund030 @eriolchan @huimiu
-/packages/tests/src/e2e/m365 @kimizhu @swatDong @kuojianlu
-/packages/tests/src/e2e/m365/DebugLinkUnfurling.tests.ts @JerryYangKai @eriolchan @Siglud @Yukun-dong
-/packages/tests/src/e2e/m365/DeployLinkUnfurling.tests.ts @JerryYangKai @eriolchan @Siglud @Yukun-dong
-/packages/tests/src/e2e/m365/ProvisionApiSpecMessageExtension.tests.ts @yuqizhou77 @Alive-Fish
-/packages/tests/src/e2e/multienv @a1exwang @dooriya @qinezh @xiaolang124 @kimizhu
-/packages/tests/src/e2e/samples @tecton @ayachensiyuan
-/packages/tests/src/e2e/scaffold @hund030 @eriolchan @huimiu
-/packages/tests/src/e2e/scaffold/CopilotPluginFromScratch.tests.ts @yuqizhou77 @huimiu @SLdragon
-/packages/tests/src/e2e/scaffold/CopilotPluginFromExistingApi.tests.ts @yuqizhou77 @huimiu @SLdragon
+/packages/mcp-server/ @Alive-Fish @yuqizhou77 @wh-alice
 
 /packages/vscode-extension @tecton @HuihuiWu-Microsoft @wh-alice
-/packages/vscode-extension/CHANGELOG.md @therealjohn @sffamily
-/packages/vscode-extension/package.nls.json @timngmsft @sffamily @therealjohn @supkasar
-/packages/vscode-extension/PRERELEASE.md @therealjohn @sffamily
-/packages/vscode-extension/README.md @therealjohn @sffamily
-/packages/vscode-extension/src/commonlib @HuihuiWu-Microsoft @sherylueen @wh-alice
+/packages/vscode-extension/CHANGELOG.md @summzhan @sffamily
+/packages/vscode-extension/package.nls.json @summzhan @sffamily @supkasar
+/packages/vscode-extension/PRERELEASE.md @summzhan @sffamily
+/packages/vscode-extension/README.md @summzhan @sffamily
+
+/packages/vscode-extension/src/commonlib @HuihuiWu-Microsoft @tecton @wh-alice
 /packages/vscode-extension/src/debug @qinzhouxu @llhmm01 @wh-alice
-/packages/vscode-extension/src/handlers/aadManifestHandlers.ts @blackchoey @wenytang-ms @KennethBWSong
-/packages/vscode-extension/src/handlers/accounts @HuihuiWu-Microsoft @sherylueen @wh-alice
-/packages/vscode-extension/src/handlers/collaboratorHandlers.ts @KennethBWSong @SLdragon
+/packages/vscode-extension/src/handlers/accounts @HuihuiWu-Microsoft @tecton @wh-alice
 /packages/vscode-extension/src/officeChat @llhmm01 @tecton @wh-alice
 /packages/vscode-extension/src/pluginDebugger @qinzhouxu @llhmm01 @wh-alice
-/packages/vscode-extension/test/localdebug @qinzhouxu @llhmm01 @wh-alice
-/packages/vscode-extension/test/pluginDebugger @qinzhouxu @llhmm01 @wh-alice
 
-/templates/* @hund030 @eriolchan @huimiu @adashen
-/templates/**/basic-custom-engine-agent @adashen @frankqianms
-/templates/**/command-and-response @adashen  @nliu-ms
-/templates/**/copilot-gpt-existing-api @eriolchan @huimiu @Yimin-Jin @adashen
-/templates/**/copilot-gpt-from-scratch-plugin @eriolchan @huimiu @Yimin-Jin @adashen
-/templates/**/copilot-plugin-existing-api-api-key @yuqizhou77 @Alive-Fish @jayzhang @adashen
-/templates/**/custom-copilot-assistant-assistants-api @adashen @nliu-ms
-/templates/**/custom-copilot-assistant-new @adashen @nliu-ms
-/templates/**/custom-copilot-basic @adashen @nliu-ms
-/templates/**/custom-copilot-rag-azure-ai-search @adashen @nliu-ms
-/templates/**/custom-copilot-rag-customize-api @adashen @nliu-ms
-/templates/**/custom-copilot-rag-customize @adashen @nliu-ms
-/templates/**/custom-copilot-rag-microsoft365 @adashen @nliu-ms
-/templates/**/dashboard-tab @eriolchan @huimiu @Yimin-Jin @adashen
-/templates/**/declarative-agent-basic @eriolchan @huimiu @Yimin-Jin @adashen
-/templates/**/declarative-agent-with-action-from-existing-api @yuqizhou77 @Alive-Fish @jayzhang @anchenyi @adashen
-/templates/**/declarative-agent-with-action-from-scratch @eriolchan @huimiu @Yimin-Jin @adashen
-/templates/**/declarative-agent-with-action-from-scratch-bearer @eriolchan @huimiu @Yimin-Jin @adashen
-/templates/**/declarative-agent-with-action-from-scratch-oauth @eriolchan @huimiu @Yimin-Jin @adashen
-/templates/**/default-bot @JerryYangKai @eriolchan @Siglud @Yukun-dong @adashen
-/templates/**/default-bot-message-extension @yuqizhou77 @Yukun-dong @adashen
-/templates/**/empty @Alive-Fish @HuihuiWu-Microsoft @chagong @adashen
-/templates/**/link-unfurling @JerryYangKai @eriolchan @Siglud @Yukun-dong @adashen
-/templates/**/m365-message-extension @adashen @nliu-ms
-/templates/**/message-extension @yuqizhou77 @Yukun-dong @adashen
-/templates/**/message-extension-action @JerryYangKai @eriolchan @Siglud @Yukun-dong @adashen
-/templates/**/message-extension-copilot @eriolchan @huimiu @Yimin-Jin @adashen
-/templates/**/message-extension-search @JerryYangKai @eriolchan @Siglud @Yukun-dong @adashen
-/templates/**/message-extension-with-api-from-scratch @eriolchan @huimiu @Yimin-Jin @adashen
-/templates/**/message-extension-with-api-from-scratch-api-key @eriolchan @huimiu @Yimin-Jin @adashen
-/templates/**/message-extension-with-existing-api @yuqizhou77 @Alive-Fish @jayzhang @adashen
-/templates/**/non-sso-tab @hund030 @eriolchan @Yimin-Jin @adashen
-/templates/**/non-sso-tab-default-bot @hund030 @yuqizhou77 @adashen
-/templates/**/non-sso-tab-ssr @Yimin-Jin @eriolchan @hund030 @adashen
-/templates/**/notification-express @adashen @nliu-ms
-/templates/**/notification-http-timer-trigger @adashen @nliu-ms
-/templates/**/notification-http-trigger @adashen @nliu-ms
-/templates/**/notification-timer-trigger @adashen @nliu-ms
-/templates/**/notification-webapi @kimizhu @dooriya @swatDong @adashen
-/templates/**/office-* @llhmm01 @tecton @wh-alice
-/templates/**/spfx-* @HuihuiWu-Microsoft @yuqizhou77 @wh-alice
-/templates/**/sso-tab @hund030 @eriolchan @Yimin-Jin @adashen
-/templates/**/sso-tab-ssr @Yimin-Jin @eriolchan @hund030 @adashen
-/templates/**/weather-agent @adashen @frankqianms
-/templates/**/workflow @adashen @nliu-ms
-/templates/constraints/yml/actions @hund030 @eriolchan @huimiu @adashen
-/templates/scripts @hund030 @eriolchan @huimiu @adashen
-/templates/vs/* @adashen @wenytang-ms
-/templates/vs/csharp/custom-copilot-* @adashen @blackchoey @frankqianms @xzf0587 
-/templates/vsc/* @adashen @wenytang-ms
-/templates/vsc/common/declarative-agent-typespec @KennethBWSong @SLdragon @adashen
-/templates/vsc/python @adashen @blackchoey @frankqianms
-/templates/vsc/**/sso-tab-naa @KennethBWSong @SLdragon @adashen
+/packages/adaptivecards-tools-sdk @llhmm01

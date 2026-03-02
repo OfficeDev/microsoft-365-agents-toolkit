@@ -7,6 +7,8 @@ export const logMessageKeys = {
   failExecuteDriver: "driver.aadApp.log.failExecuteDriver",
   startCreateAadApp: "driver.aadApp.log.startCreateAadApp",
   successCreateAadApp: "driver.aadApp.log.successCreateAadApp",
+  successCreateAadAppandServicePrincipal:
+    "driver.aadApp.log.successCreateAadAppandServicePrincipal",
   skipCreateAadApp: "driver.aadApp.log.skipCreateAadApp",
   startGenerateClientSecret: "driver.aadApp.log.startGenerateClientSecret",
   successGenerateClientSecret: "driver.aadApp.log.successGenerateClientSecret",
@@ -48,7 +50,6 @@ export const aadErrorCode = {
 
 export const constants = {
   aadAppPasswordDisplayName: "default",
-  oauthAuthorityPrefix: "https://login.microsoftonline.com",
   defaultHelpLink: "https://aka.ms/teamsfx-actions/aadapp-create",
   sniHelpLink: "https://aka.ms/teams-toolkit-sni-guide",
   insufficientPermissionErrorMessage: "Insufficient privileges to complete the operation.",

@@ -2,15 +2,17 @@
 // Licensed under the MIT license.
 import { hooks } from "@feathersjs/hooks";
 import {
+  AppManifestUtils,
+  err,
   FxError,
   IComposeExtension,
   IMessagingExtensionCommand,
   InputsWithProjectPath,
   ManifestCapability,
+  ok,
   Result,
   TeamsAppManifest,
-  err,
-  ok,
+  TeamsManifest,
 } from "@microsoft/teamsfx-api";
 import AdmZip from "adm-zip";
 import fs from "fs-extra";
@@ -28,6 +30,10 @@ import {
   MissingEnvironmentVariablesError,
   ReadFileError,
 } from "../../../../error/common";
+import {
+  BotCapabilityOptions,
+  TabCapabilityOptions,
+} from "../../../../question/scaffold/vsc/CapabilityOptions";
 import { BotScenario } from "../../../constants";
 import { convertManifestTemplateToV2, convertManifestTemplateToV3 } from "../../../migrate";
 import { expandEnvironmentVariable, getEnvironmentVariables } from "../../../utils/common";
@@ -38,24 +44,20 @@ import {
   COMPOSE_EXTENSIONS_TPL_M365_V3,
   COMPOSE_EXTENSIONS_TPL_V3,
   Constants,
-  STATIC_TABS_MAX_ITEMS,
-  STATIC_TABS_TPL_EXISTING_APP,
-  STATIC_TABS_TPL_V3,
-  WEB_APPLICATION_INFO_V3,
   getBotsTplBasedOnVersion,
   getBotsTplExistingAppBasedOnVersion,
   getBotsTplForCommandAndResponseBasedOnVersion,
   getBotsTplForNotificationBasedOnVersion,
   getConfigurableTabsTplBasedOnVersion,
   getConfigurableTabsTplExistingAppBasedOnVersion,
+  STATIC_TABS_MAX_ITEMS,
+  STATIC_TABS_TPL_EXISTING_APP,
+  STATIC_TABS_TPL_V3,
+  WEB_APPLICATION_INFO_V3,
 } from "../constants";
 import { AppStudioError } from "../errors";
 import { AppStudioResultFactory } from "../results";
 import { getResolvedManifest } from "./utils";
-import {
-  BotCapabilityOptions,
-  TabCapabilityOptions,
-} from "../../../../question/scaffold/vsc/CapabilityOptions";
 
 export const SharePointAppId = "00000003-0000-0ff1-ce00-000000000000";
 
@@ -390,12 +392,16 @@ export class ManifestUtils {
     manifestTemplatePath: string,
     context: DriverContext,
     generateIdIfNotResolved = true
-  ): Promise<Result<TeamsAppManifest, FxError>> {
-    const manifestRes = await manifestUtils._readAppManifest(manifestTemplatePath);
-    if (manifestRes.isErr()) {
-      return err(manifestRes.error);
+  ): Promise<Result<TeamsManifest, FxError>> {
+    let manifest: TeamsManifest;
+    try {
+      if (!(await fs.pathExists(manifestTemplatePath))) {
+        return err(new FileNotFoundError("ManifestUtils", manifestTemplatePath));
+      }
+      manifest = await AppManifestUtils.readTeamsManifest(manifestTemplatePath);
+    } catch (error) {
+      return err(new JSONSyntaxError(manifestTemplatePath, error, "ManifestUtils"));
     }
-    let manifest: TeamsAppManifest = manifestRes.value;
 
     let teamsAppId = "";
     if (generateIdIfNotResolved) {
@@ -457,16 +463,16 @@ export class ManifestUtils {
     if (fs.pathExistsSync(manifestPath)) {
       const manifest = (await fs.readJson(manifestPath)) as TeamsAppManifest;
       const shortName = manifest.name.short;
-      let hasSuffix = false;
-      let trimmedName = shortName;
-      if (shortName.includes("${{APP_NAME_SUFFIX}}")) {
-        hasSuffix = true;
-        trimmedName = shortName.replace("${{APP_NAME_SUFFIX}}", "");
-      }
+      // Extract placeholder strings like ${{xxx}}
+      const placeholderRegex = /\$\{\{[^}]+\}\}/g;
+      const placeholders = shortName.match(placeholderRegex) || [];
+      const trimmedName = shortName.replace(placeholderRegex, "");
+
       if (trimmedName.length <= maxLength) return ok(undefined);
       let newShortName = trimmedName.replace(/\s/g, "").slice(0, maxLength);
-      if (hasSuffix) {
-        newShortName += "${{APP_NAME_SUFFIX}}";
+      // Restore all placeholders at the end
+      if (placeholders.length > 0) {
+        newShortName += placeholders.join("");
       }
       manifest.name.short = newShortName;
       await fs.writeFile(manifestPath, JSON.stringify(manifest, null, 2));

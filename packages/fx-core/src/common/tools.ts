@@ -9,7 +9,12 @@ import { FxError, M365TokenProvider, Result, SystemError, err, ok } from "@micro
 import axios from "axios";
 import { teamsDevPortalClient } from "../client/teamsDevPortalClient";
 import { GraphClient } from "../client/graphClient";
-import { GraphReadUserScopes, SPFxScopes } from "./constants";
+import {
+  getResourceServiceEndpoint,
+  GraphReadUserScopes,
+  ResourceServiceType,
+  SPFxScopes,
+} from "./constants";
 import fs from "fs-extra";
 import path from "path";
 import { MetadataV3, MetadataV4 } from "./versionMetadata";
@@ -37,7 +42,9 @@ export async function isSandboxedEnabled(tokenProvider: M365TokenProvider): Prom
 }
 
 export async function listAllTenants(token: string): Promise<Record<string, any>[]> {
-  const RM_ENDPOINT = "https://management.azure.com/tenants?api-version=2022-06-01";
+  const RM_ENDPOINT = `${getResourceServiceEndpoint(
+    ResourceServiceType.Azure
+  )}/tenants?api-version=2022-06-01`;
   if (token.length > 0) {
     try {
       const response = await axios.get(RM_ENDPOINT, {

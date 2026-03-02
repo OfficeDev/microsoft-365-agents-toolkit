@@ -7,6 +7,7 @@ import * as uuid from "uuid";
 import os from "os";
 import { expect } from "chai";
 import { Env } from "../utils/env";
+import { globalResourceGroupLocation } from "../commonlib/constants";
 
 export class AzSqlHelper {
   public resourceGroupName: string;
@@ -201,7 +202,7 @@ export class AzServiceBusHelper {
   constructor(resourceGroupName: string, location?: string) {
     this.resourceGroupName = resourceGroupName;
     this.namespaceName = "MyNameSpace" + uuid.v4().substring(0, 4);
-    this.location = location || "westus";
+    this.location = location || globalResourceGroupLocation;
     this.connectString = "";
     this.queueName = "notification-messages";
   }
@@ -273,7 +274,7 @@ export class AzServiceBusHelper {
   }
 
   private async createNamespace() {
-    const command = `az servicebus namespace create --resource-group ${this.resourceGroupName} --name ${this.namespaceName} --location westus`;
+    const command = `az servicebus namespace create --resource-group ${this.resourceGroupName} --name ${this.namespaceName} --location ${globalResourceGroupLocation}`;
     return await Executor.execute(command, process.cwd());
   }
 }
@@ -289,7 +290,7 @@ export class AzSearchHelper {
     this.resourceGroupName = resourceGroupName;
     this.searchName = `mysearch-${Math.floor(Math.random() * 100000)}`;
     this.endpoint = "https://" + this.searchName + ".search.windows.net";
-    this.location = location || "westus";
+    this.location = location || globalResourceGroupLocation;
     this.apiKey = "";
   }
 
@@ -303,7 +304,7 @@ export class AzSearchHelper {
     expect(resourceGroupSuccess).to.be.true;
 
     // create azure ai search
-    const command = `az search service create --name ${this.searchName} --resource-group ${this.resourceGroupName} --location ${this.location} --sku Standard`;
+    const command = `az search service create --name ${this.searchName} --resource-group ${this.resourceGroupName} --location ${this.location} --sku Basic`;
 
     await Executor.execute(command, process.cwd());
 

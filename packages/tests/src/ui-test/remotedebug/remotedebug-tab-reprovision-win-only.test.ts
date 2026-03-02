@@ -6,7 +6,7 @@
  */
 import * as path from "path";
 import { VSBrowser } from "vscode-extension-tester";
-import { Timeout, ValidationContent } from "../../utils/constants";
+import { Lang, Timeout, ValidationContent } from "../../utils/constants";
 import {
   RemoteDebugTestContext,
   setSkuNameToB1,
@@ -25,6 +25,7 @@ import {
   cleanUpResourceGroup,
   createResourceGroup,
 } from "../../utils/cleanHelper";
+import { globalResourceGroupLocation } from "../../commonlib/constants";
 
 describe("Remote debug Tests", function () {
   this.timeout(Timeout.testAzureCase);
@@ -71,7 +72,7 @@ describe("Remote debug Tests", function () {
     async function () {
       //create tab project
       const driver = VSBrowser.instance.driver;
-      await createNewProject("tabnsso", appName);
+      await createNewProject("tabnsso", appName, { lang: Lang.TS });
       await setSkuNameToB1(projectPath);
       await driver.sleep(Timeout.shortTimeWait);
       await provisionProject(appName, projectPath);
@@ -79,7 +80,7 @@ describe("Remote debug Tests", function () {
       await cleanUpResourceGroup(appName, "dev");
       // wait for resource group to be deleted
       await driver.sleep(180 * 1000);
-      await createResourceGroup(appName, "dev", "westus");
+      await createResourceGroup(appName, "dev", globalResourceGroupLocation);
       // rerun provision
       await provisionProject(appName, projectPath, false);
       await deployProject(projectPath);
@@ -95,7 +96,7 @@ describe("Remote debug Tests", function () {
           projectPath: projectPath,
           env: "dev",
           teamsAppName: appName,
-          searchApp: true,
+          searchApp: false,
         }
       );
       await validateBasicTab(page, ValidationContent.Tab);

@@ -1,6 +1,6 @@
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/teams/v1.21/MicrosoftTeams.schema.json",
-  "manifestVersion": "1.21",
+  "$schema": "https://developer.microsoft.com/en-us/json-schemas/teams/v1.25/MicrosoftTeams.schema.json",
+  "manifestVersion": "1.25",
   "id": "${{TEAMS_APP_ID}}",
   "version": "1.0.0",
   "developer": {
@@ -22,6 +22,7 @@
     "full": "The ultimate solution for hassle-free car maintenance management makes tracking and monitoring your car repair records a breeze."
   },
   "accentColor": "#FFFFFF",
+    "supportsChannelFeatures": "tier1",
   "copilotAgents": {
     "declarativeAgents": [
       {

@@ -1,0 +1,21 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "botDisplayName": {
+      "value": "foundry_agent_teams_app"
+    },
+    "resourceBaseName": {
+      "value": "app${{RESOURCE_SUFFIX}}"
+    },
+    "foundryProjectEndpoint": {
+      "value": "${{FOUNDRY_PROJECT_ENDPOINT}}"
+    },
+    "foundryAgentName": {
+      "value": "${{FOUNDRY_AGENT_NAME}}"
+    },
+    "webAppSku": {
+      "value": "B1"
+    }
+  }
+}

@@ -19,6 +19,7 @@ export class Utils {
       messagingEndpoint: local.messagingEndpoint || remote.messagingEndpoint,
       callingEndpoint: local.callingEndpoint || remote.callingEndpoint,
       configuredChannels: local.configuredChannels || remote.configuredChannels,
+      isSingleTenant: local.isSingleTenant || remote.isSingleTenant,
     };
   }
 }

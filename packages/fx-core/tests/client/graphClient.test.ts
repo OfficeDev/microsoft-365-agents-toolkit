@@ -1,16 +1,15 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { expect } from "chai";
-import { createSandbox } from "sinon";
-import { RetryHandler } from "../../src/client/graphClient";
-import { GraphClient } from "../../src/client/graphClient";
-import { ok, err, SystemError, SensitivityLabel, signedIn } from "@microsoft/teamsfx-api";
+import { err, ok, SensitivityLabel, signedIn, SystemError } from "@microsoft/teamsfx-api";
 import axios from "axios";
+import { expect } from "chai";
 import "mocha";
-import { MockedM365Provider, MockTools } from "../core/utils";
+import { createSandbox } from "sinon";
+import { GraphClient, RetryHandler } from "../../src/client/graphClient";
 import * as globalState from "../../src/common/globalState";
-import { setTools, TOOLS } from "../../src/common/globalVars";
+import { setTools } from "../../src/common/globalVars";
+import { MockedM365Provider, MockTools } from "../core/utils";
 
 describe("GraphAPIClient Test", () => {
   const sandbox = createSandbox();
@@ -466,6 +465,170 @@ describe("GraphAPIClient Test", () => {
       expect(result.isErr()).to.be.true;
       if (result.isErr()) {
         expect(result.error).to.equal(fakeError);
+      }
+    });
+  });
+
+  describe("getUserInfoFromId", () => {
+    const tokenProvider = new MockedM365Provider();
+    const graphClient = new GraphClient(tokenProvider);
+    const sandbox = createSandbox();
+    const fakeAxiosInstance = axios.create();
+
+    beforeEach(() => {
+      sandbox.stub(axios, "create").returns(fakeAxiosInstance);
+    });
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it("should return user info when successful", async () => {
+      const userId = "test-user-id";
+      const mockUser = {
+        id: userId,
+        displayName: "Test User",
+        userPrincipalName: "testuser@example.com",
+      };
+      const mockResponse = { data: mockUser };
+
+      sandbox.stub(tokenProvider, "getAccessToken").resolves(ok("fake-token"));
+      sandbox.stub(fakeAxiosInstance, "get").resolves(mockResponse);
+
+      const result = await graphClient.getUserInfoFromId(userId);
+
+      expect(result).to.deep.equal(mockUser);
+    });
+
+    it("should return undefined when response is empty", async () => {
+      const userId = "test-user-id";
+      sandbox.stub(tokenProvider, "getAccessToken").resolves(ok("fake-token"));
+      sandbox.stub(fakeAxiosInstance, "get").resolves({});
+
+      const result = await graphClient.getUserInfoFromId(userId);
+
+      expect(result).to.be.undefined;
+    });
+
+    it("should throw error when token acquisition fails", async () => {
+      const userId = "test-user-id";
+      const error = new SystemError({
+        name: "TokenError",
+        message: "Token acquisition failed",
+        source: "GraphClient",
+      });
+      sandbox.stub(tokenProvider, "getAccessToken").resolves(err(error));
+
+      try {
+        await graphClient.getUserInfoFromId(userId);
+        expect.fail("Should have thrown error");
+      } catch (e) {
+        expect(e).to.equal(error);
+      }
+    });
+  });
+
+  describe("getGroupInfo", () => {
+    const tokenProvider = new MockedM365Provider();
+    const graphClient = new GraphClient(tokenProvider);
+    const sandbox = createSandbox();
+    const fakeAxiosInstance = axios.create();
+
+    beforeEach(() => {
+      sandbox.stub(axios, "create").returns(fakeAxiosInstance);
+    });
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it("should return group info when successful", async () => {
+      const email = "testgroup@example.com";
+      const mockGroup = {
+        id: "test-group-id",
+        displayName: "Test Group",
+        mail: email,
+      };
+      const mockResponse = {
+        data: {
+          value: [mockGroup],
+        },
+      };
+
+      sandbox.stub(tokenProvider, "getAccessToken").resolves(ok("fake-token"));
+      sandbox.stub(fakeAxiosInstance, "get").resolves(mockResponse);
+
+      const result = await graphClient.getGroupInfo(email);
+
+      expect(result).to.deep.equal(mockGroup);
+    });
+
+    it("should return group info with case-insensitive email matching", async () => {
+      const email = "TestGroup@Example.com";
+      const mockGroup = {
+        id: "test-group-id",
+        displayName: "Test Group",
+        mail: "testgroup@example.com",
+      };
+      const mockResponse = {
+        data: {
+          value: [mockGroup],
+        },
+      };
+
+      sandbox.stub(tokenProvider, "getAccessToken").resolves(ok("fake-token"));
+      sandbox.stub(fakeAxiosInstance, "get").resolves(mockResponse);
+
+      const result = await graphClient.getGroupInfo(email);
+
+      expect(result).to.deep.equal(mockGroup);
+    });
+
+    it("should return undefined when no matching group found", async () => {
+      const email = "testgroup@example.com";
+      const mockResponse = {
+        data: {
+          value: [
+            {
+              id: "other-group",
+              mail: "other@example.com",
+            },
+          ],
+        },
+      };
+
+      sandbox.stub(tokenProvider, "getAccessToken").resolves(ok("fake-token"));
+      sandbox.stub(fakeAxiosInstance, "get").resolves(mockResponse);
+
+      const result = await graphClient.getGroupInfo(email);
+
+      expect(result).to.be.undefined;
+    });
+
+    it("should return undefined when response is empty", async () => {
+      const email = "testgroup@example.com";
+      sandbox.stub(tokenProvider, "getAccessToken").resolves(ok("fake-token"));
+      sandbox.stub(fakeAxiosInstance, "get").resolves({});
+
+      const result = await graphClient.getGroupInfo(email);
+
+      expect(result).to.be.undefined;
+    });
+
+    it("should throw error when token acquisition fails", async () => {
+      const email = "testgroup@example.com";
+      const error = new SystemError({
+        name: "TokenError",
+        message: "Token acquisition failed",
+        source: "GraphClient",
+      });
+      sandbox.stub(tokenProvider, "getAccessToken").resolves(err(error));
+
+      try {
+        await graphClient.getGroupInfo(email);
+        expect.fail("Should have thrown error");
+      } catch (e) {
+        expect(e).to.equal(error);
       }
     });
   });

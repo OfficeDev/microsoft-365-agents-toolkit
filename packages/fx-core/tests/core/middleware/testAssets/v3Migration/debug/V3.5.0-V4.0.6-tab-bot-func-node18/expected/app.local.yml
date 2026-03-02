@@ -35,7 +35,7 @@ deploy:
       devCert:
         trust: true
       func:
-        version: ~4.0.5174
+        version: ^4.0.5174
         symlinkDir: ./devTools/func
       dotnet: true
     # Write the information of installed development tool(s) into environment

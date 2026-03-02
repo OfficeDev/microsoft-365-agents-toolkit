@@ -3,6 +3,8 @@
 
 /**
  * Error code to trace the error types.
+ *
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
  */
 export enum ErrorCode {
   /**
@@ -102,6 +104,7 @@ export enum ErrorCode {
 }
 
 /**
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
  * @internal
  */
 export class ErrorMessage {
@@ -161,6 +164,8 @@ export class ErrorMessage {
 
 /**
  * Error class with code and message thrown by the SDK.
+ *
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
  */
 export class ErrorWithCode extends Error {
   /**
@@ -173,6 +178,7 @@ export class ErrorWithCode extends Error {
   /**
    * Constructor of ErrorWithCode.
    *
+   * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
    * @param {string} message - error message.
    * @param {ErrorCode} code - error code.
    */

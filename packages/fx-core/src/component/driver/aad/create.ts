@@ -5,16 +5,18 @@ import { hooks } from "@feathersjs/hooks/lib";
 import {
   FxError,
   M365TokenProvider,
+  Result,
   SystemError,
   UserError,
   err,
   ok,
-  Result,
 } from "@microsoft/teamsfx-api";
 import axios from "axios";
 import { Service } from "typedi";
-import { GraphScopes } from "../../../common/constants";
+import { AppStudioScopes, GraphScopes } from "../../../common/constants";
+import { AadSet } from "../../../common/globalVars";
 import { getLocalizedString } from "../../../common/localizeUtils";
+import { environmentNameManager } from "../../../core/environmentName";
 import {
   HttpClientError,
   HttpServerError,
@@ -33,7 +35,7 @@ import { MissingEnvUserError } from "./error/missingEnvError";
 import { CreateAadAppArgs } from "./interface/createAadAppArgs";
 import { CreateAadAppOutput, OutputKeys } from "./interface/createAadAppOutput";
 import { SignInAudience } from "./interface/signInAudience";
-import { AadAppClient } from "./utility/aadAppClient";
+import { AadAppClient } from "../../../client/aadAppClient";
 import {
   constants,
   descriptionMessageKeys,
@@ -41,9 +43,8 @@ import {
   questionKeys,
   telemetryKeys,
 } from "./utility/constants";
-import { AadSet } from "../../../common/globalVars";
-import { isTestToolEnabledProject } from "../../../common/tools";
-import { environmentNameManager } from "../../../core/environmentName";
+import { TeamsDevPortalClient } from "../../../client/teamsDevPortalClient";
+import { getEntraEndpoint, getTenantedAuthorityUrl } from "../../../common/accountUtils";
 
 const actionName = "aadApp/create"; // DO NOT MODIFY the name
 const helpLink = "https://aka.ms/teamsfx-actions/aadapp-create";
@@ -115,19 +116,43 @@ export class CreateAadAppDriver implements StepDriver {
         const serviceManagementReference =
           args.serviceManagementReference || process.env.TTK_DEFAULT_SERVICE_MANAGEMENT_REFERENCE;
 
-        const aadApp = await aadAppClient.createAadApp(
-          args.name,
-          signInAudience,
-          serviceManagementReference,
-          isMsftAccount
-        );
+        let aadApp;
+        if (args.generateServicePrincipal) {
+          const tokenRes = await context.m365TokenProvider.getAccessToken({
+            scopes: AppStudioScopes(),
+          });
+          if (tokenRes.isErr()) {
+            throw tokenRes.error;
+          }
+          const tdpClient = new TeamsDevPortalClient();
+          aadApp = await tdpClient.createAADApp(
+            tokenRes.value,
+            args.name,
+            signInAudience,
+            serviceManagementReference,
+            isMsftAccount
+          );
+        } else {
+          aadApp = await aadAppClient.createAadApp(
+            args.name,
+            signInAudience,
+            serviceManagementReference,
+            isMsftAccount
+          );
+        }
+
         aadAppState.clientId = aadApp.appId!;
         aadAppState.objectId = aadApp.id!;
         AadSet.add(aadApp.appId!);
         await this.setAadEndpointInfo(context.m365TokenProvider, aadAppState);
         outputs = mapStateToEnv(aadAppState, outputEnvVarNames, [OutputKeys.clientSecret]);
 
-        let summary = getLocalizedString(logMessageKeys.successCreateAadApp, aadApp.id);
+        let summary = getLocalizedString(
+          args.generateServicePrincipal
+            ? logMessageKeys.successCreateAadAppandServicePrincipal
+            : logMessageKeys.successCreateAadApp,
+          aadApp.id
+        );
         if (isMsftAccount) {
           summary += getLocalizedString(logMessageKeys.deleteAadAfterDebugging);
         }
@@ -212,11 +237,10 @@ export class CreateAadAppDriver implements StepDriver {
           getLocalizedString(logMessageKeys.failExecuteDriver, actionName, message)
         );
         if (error.response!.status >= 400 && error.response!.status < 500) {
-          // When user don't have permission to create AAD app, and cannot use Test Tool, we will ask for AAD app id and secret
+          // When user don't have permission to create AAD app, we will ask for AAD app id and secret
           if (
             error.response!.status === 403 &&
             message.includes(constants.insufficientPermissionErrorMessage) &&
-            !isTestToolEnabledProject(context.projectPath) &&
             process.env.TEAMSFX_ENV == environmentNameManager.getLocalEnvName()
           ) {
             context.addTelemetryProperties({
@@ -368,7 +392,7 @@ export class CreateAadAppDriver implements StepDriver {
 
     const tenantId = tokenObjectResponse.value.tid as string; // The tid claim is AAD tenant id
     state.tenantId = tenantId;
-    state.authorityHost = constants.oauthAuthorityPrefix;
-    state.authority = `${constants.oauthAuthorityPrefix}/${tenantId}`;
+    state.authorityHost = getEntraEndpoint();
+    state.authority = getTenantedAuthorityUrl(tenantId);
   }
 }

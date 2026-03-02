@@ -123,6 +123,7 @@ export class OfficeAddinGeneratorNew extends DefaultTemplateGenerator {
     return [
       TemplateNames.OutlookTaskpane,
       TemplateNames.WXPTaskpane,
+      TemplateNames.ExcelCFShortcut,
       TemplateNames.OfficeAddinCommon,
       TemplateNames.DeclarativeAgentMetaOSNewProject,
       TemplateNames.DeclarativeAgentMetaOSUpgradeProject,
@@ -138,12 +139,13 @@ export class OfficeAddinGeneratorNew extends DefaultTemplateGenerator {
     const templateName = inputs[QuestionNames.TemplateName];
 
     // Handle the Declarative Agent MetaOS project
-    if (
-      [
-        TemplateNames.DeclarativeAgentMetaOSNewProject,
-        TemplateNames.DeclarativeAgentMetaOSUpgradeProject,
-      ].includes(templateName)
-    ) {
+    // Handle upgrade - NO scaffolding needed
+    if (templateName === TemplateNames.DeclarativeAgentMetaOSUpgradeProject) {
+      return Promise.resolve(ok([]));
+    }
+
+    // Handle new project - needs scaffolding
+    if (templateName === TemplateNames.DeclarativeAgentMetaOSNewProject) {
       return Promise.resolve(
         ok([
           {

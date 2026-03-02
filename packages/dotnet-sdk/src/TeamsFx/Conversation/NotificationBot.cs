@@ -12,6 +12,7 @@ namespace Microsoft.TeamsFx.Conversation
     /// <summary>
     /// Provide utilities to send notification to varies targets (e.g., member, group, channel).
     /// </summary>
+    [Obsolete("This package will be deprecated by 2026-09. Please use Microsoft 365 Agents SDK (https://github.com/microsoft/Agents-for-net) instead.")]
     public class NotificationBot
     {
         private readonly CloudAdapter _adapter;

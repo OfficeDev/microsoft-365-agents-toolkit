@@ -2,20 +2,22 @@
 // Licensed under the MIT license.
 
 import {
-  ConditionFunc,
+  AppPackageFolderName,
+  ConfigFolderName,
+  DefaultPluginManifestFileName,
   Inputs,
   IQTreeNode,
   OptionItem,
   Platform,
-  StringValidation,
 } from "@microsoft/teamsfx-api";
+import * as fs from "fs-extra";
+import os from "os";
+import path from "path";
 import { getLocalizedString } from "../../../common/localizeUtils";
+import { useLocalTemplate } from "../../../component/generator/templateHelper";
+import { ODRProvider, ODRServer } from "../../../component/utils/odrProvider";
+import { getTemplatesFolder } from "../../../folder";
 import {
-  apiOperationQuestion,
-  apiSpecLocationQuestion,
-  apiSpecTypeSelectQuestion,
-  searchOpenAPISpecQueryQuestion,
-  selectOpenApiSpecQuestion,
   SPFxFrameworkQuestion,
   SPFxImportFolderQuestion,
   SPFxPackageSelectQuestion,
@@ -23,38 +25,40 @@ import {
   SPFxWebpartNameQuestion,
 } from "../../create";
 import { QuestionNames } from "../../questionNames";
+import { apiSpecNode } from "../commonNodes";
+import { constructNode } from "../constructNode";
 import {
   ActionStartOptions,
   ApiAuthOptions,
   BotCapabilityOptions,
+  CustomCopilotRagOptions,
   MeArchitectureOptions,
   MeCapabilityOptions,
   NotificationBotOptions,
   setTemplateName,
   TabCapabilityOptions,
+  TeamsAgentCapabilityOptions,
 } from "./CapabilityOptions";
-import { ProjectTypeOptions } from "./ProjectTypeOptions";
-import { featureFlagManager, FeatureFlags } from "../../../common/featureFlags";
 
-export function teamsAppProjectNode(platform: Platform): IQTreeNode {
-  return {
-    // project-type = Teams App
-    condition: { equals: ProjectTypeOptions.teamsAppOptionId },
-    data: {
-      name: QuestionNames.TeamsAppType,
-      title: getLocalizedString("core.createProjectQuestion.projectType.teamsApp.title"),
-      type: "singleSelect",
-      staticOptions: [
-        TeamsProjectTypeOptions.bot(platform),
-        TeamsProjectTypeOptions.tab(platform),
-        TeamsProjectTypeOptions.me(platform),
-      ],
-      placeholder: getLocalizedString(
-        "core.createProjectQuestion.projectType.customCopilot.placeholder"
-      ),
-    },
-    children: [botProjectTypeNode(), tabProjectTypeNode(), meProjectTypeNode()],
-  };
+export function getTeamsProjectNode(): IQTreeNode {
+  let jsonPath: string;
+
+  const cachedJsonPath = path.join(
+    os.homedir(),
+    `.${String(ConfigFolderName)}`,
+    "ui",
+    "teamsNode.json"
+  );
+
+  // Check if cached JSON exists, otherwise fallback to bundled templates folder
+  if (!useLocalTemplate() && fs.pathExistsSync(cachedJsonPath)) {
+    jsonPath = cachedJsonPath;
+  } else {
+    jsonPath = path.join(getTemplatesFolder(), "ui", "teamsNode.json");
+  }
+
+  const content = fs.readFileSync(jsonPath, "utf-8");
+  return constructNode(content);
 }
 
 export class TeamsProjectTypeOptions {
@@ -95,69 +99,52 @@ export class TeamsProjectTypeOptions {
   }
 }
 
-export function apiSpecNode(condition: StringValidation | ConditionFunc): IQTreeNode {
+export function customCopilotRagNode(): IQTreeNode {
   return {
-    condition: condition,
-    data: { type: "group", name: QuestionNames.FromExistingApi },
-    children: [
-      {
-        data: apiSpecLocationQuestion(),
-      },
-      {
-        condition: (inputs: Inputs) => {
-          return !inputs[QuestionNames.ActionManifestPath];
-        },
-        data: apiOperationQuestion(),
-      },
-    ],
-  };
-}
-
-export function apiSpecWithSearchNode(): IQTreeNode {
-  return {
-    data: { type: "group", name: QuestionNames.FromExistingApi },
-    condition: { equals: "api-spec" },
-    children: [inputOrSearchAPISpecNode()],
-  };
-}
-
-export function inputOrSearchAPISpecNode(): IQTreeNode {
-  return {
-    data: apiSpecTypeSelectQuestion(),
-    condition: (inputs: Inputs) => {
-      return featureFlagManager.getBooleanValue(FeatureFlags.KiotaNPMIntegration);
+    condition: { equals: TeamsAgentCapabilityOptions.customCopilotRag().id },
+    data: {
+      type: "singleSelect",
+      name: QuestionNames.CustomCopilotRag,
+      title: getLocalizedString(
+        "core.createProjectQuestion.capability.customCopilotRagOption.label"
+      ),
+      placeholder: getLocalizedString(
+        "core.createProjectQuestion.capability.customCopilotRag.placeholder"
+      ),
+      staticOptions: [
+        CustomCopilotRagOptions.customize(),
+        CustomCopilotRagOptions.azureAISearch(),
+        CustomCopilotRagOptions.customApi(),
+        // CustomCopilotRagOptions.microsoft365(),
+      ],
+      default: CustomCopilotRagOptions.customize().id,
+      onDidSelection: setTemplateName,
     },
-    children: [
-      {
-        condition: { equals: "enter-url-or-open-local-file" },
-        data: apiSpecLocationQuestion(),
-        children: [
-          {
-            condition: (inputs: Inputs) => {
-              return !inputs[QuestionNames.ActionManifestPath];
-            },
-            data: apiOperationQuestion(true, true),
-          },
-        ],
-      },
-      {
-        condition: { equals: "search-api" },
-        data: searchOpenAPISpecQueryQuestion(),
-        children: [
-          {
-            data: selectOpenApiSpecQuestion(),
-          },
-          {
-            condition: (inputs: Inputs) => {
-              return !!inputs[QuestionNames.SelectOpenApiSpec];
-            },
-            data: apiOperationQuestion(true, true),
-          },
-        ],
-      },
-    ],
+    children: [apiSpecNode({ equals: CustomCopilotRagOptions.customApi().id })],
   };
 }
+
+// export function aiAgentNode(): IQTreeNode {
+//   return {
+//     condition: { equals: CustomCopilotCapabilityOptions.aiAgent().id },
+//     data: {
+//       type: "singleSelect",
+//       name: QuestionNames.CustomCopilotAssistant,
+//       title: getLocalizedString(
+//         "core.createProjectQuestion.capability.customCopilotAssistant.title"
+//       ),
+//       placeholder: getLocalizedString(
+//         "core.createProjectQuestion.capability.customCopilotAssistant.placeholder"
+//       ),
+//       staticOptions: [
+//         CustomCopilotAssistantOptions.new(),
+//         CustomCopilotAssistantOptions.assistantsApi(),
+//       ],
+//       default: CustomCopilotAssistantOptions.new().id,
+//       onDidSelection: setTemplateName,
+//     },
+//   };
+// }
 
 export function notificationBotTriggerNode(platform: Platform = Platform.VSCode): IQTreeNode {
   return {
@@ -310,6 +297,176 @@ export function m365SearchMeSubNode(): IQTreeNode {
         },
       },
       apiSpecNode({ equals: MeArchitectureOptions.openApiSpec().id }),
+    ],
+  };
+}
+
+export function MCPServerTypeNode(): IQTreeNode {
+  return {
+    condition: { equals: ActionStartOptions.mcp().id },
+    data: {
+      name: QuestionNames.MCPServerType,
+      title: getLocalizedString("core.createProjectQuestion.mcpServerType.title"),
+      type: "singleSelect",
+      staticOptions: [],
+      dynamicOptions: async (inputs: Inputs) => {
+        const servers = await ODRProvider.listServers();
+        inputs["_McpOdrOutput"] = servers;
+
+        const options = [
+          {
+            id: "remote",
+            label: getLocalizedString("core.createProjectQuestion.mcpServerType.remote.label"),
+            detail: getLocalizedString("core.createProjectQuestion.mcpServerType.remote.detail"),
+          },
+        ];
+
+        if (servers.length > 0) {
+          options.push({
+            id: "local",
+            label: getLocalizedString("core.createProjectQuestion.mcpServerType.local.label"),
+            detail: getLocalizedString("core.createProjectQuestion.mcpServerType.local.detail"),
+          });
+        }
+
+        return options;
+      },
+      default: "remote",
+      placeholder: getLocalizedString("core.createProjectQuestion.mcpServerType.placeholder"),
+      skipSingleOption: true,
+    },
+    children: [
+      {
+        condition: { equals: "remote" },
+        data: MCPForDAServerUrlNode().data,
+      },
+      MCPLocalServerSelectionNode(),
+    ],
+  };
+}
+
+export function MCPLocalServerSelectionNode(): IQTreeNode {
+  return {
+    condition: { equals: "local" },
+    data: {
+      name: QuestionNames.MCPLocalServer,
+      title: getLocalizedString("core.createProjectQuestion.mcpLocalServer.title"),
+      type: "multiSelect",
+      returnObject: true,
+      staticOptions: [],
+      placeholder: getLocalizedString("core.createProjectQuestion.mcpLocalServer.placeholder"),
+      dynamicOptions: (inputs: Inputs) => {
+        const servers = inputs["_McpOdrOutput"] as ODRServer[];
+
+        return servers.map((server) => ({
+          id: server.name,
+          label: server.display_name,
+          detail: `${server.description} (${server.tools.length} tools available)`,
+          data: JSON.stringify({
+            identifier: server.identifier,
+            command: server.command,
+            args: server.args,
+          }),
+        }));
+      },
+      validation: { minItems: 1 },
+      validationHelp: getLocalizedString(
+        "core.createProjectQuestion.mcpLocalServer.validationHelp"
+      ),
+    },
+    children: [],
+  };
+}
+
+export function MCPForDAServerUrlNode(): IQTreeNode {
+  return {
+    condition: { equals: ActionStartOptions.mcp().id },
+    data: {
+      name: QuestionNames.MCPForDAServerUrl,
+      title: getLocalizedString("core.createProjectQuestion.mcpForDa.ServerUrl.title"),
+      type: "text",
+      placeholder: getLocalizedString("core.createProjectQuestion.mcpForDa.ServerUrl.placeholder"),
+    },
+  };
+}
+
+export function updateActionWithMCP(): IQTreeNode {
+  return {
+    data: {
+      type: "singleFile",
+      name: QuestionNames.PluginManifestFilePath,
+      title: getLocalizedString("core.createProjectQuestion.mcpForDa.File.title"),
+      defaultFolder: (inputs: Inputs) => path.normalize(inputs.projectPath as string),
+      default: (inputs: Inputs) =>
+        path.normalize(
+          path.join(
+            inputs.projectPath as string,
+            AppPackageFolderName,
+            DefaultPluginManifestFileName
+          )
+        ),
+    },
+    children: [
+      {
+        data: {
+          type: "multiSelect",
+          name: QuestionNames.MCPForDAPreFetchTools,
+          title: getLocalizedString("core.createProjectQuestion.mcpForDa.PreFetchTools.title"),
+          staticOptions: [],
+          dynamicOptions: (inputs: Inputs): OptionItem[] => {
+            const availableTools: any[] = inputs[QuestionNames.MCPForDAAvailableTools];
+            const tools = availableTools.map((tool: any) => {
+              return {
+                id: tool.name,
+                label: tool.name,
+                detail: tool.description || "",
+              };
+            });
+            return tools;
+          },
+          default: async (inputs: Inputs) => {
+            const pluginManifestFilePath = inputs[QuestionNames.PluginManifestFilePath];
+            if (!pluginManifestFilePath) {
+              return [];
+            }
+            const pluginManifest = await fs.readJSON(pluginManifestFilePath);
+            const serverUrl = inputs[QuestionNames.MCPForDAServerUrl];
+            const result: string[] = [];
+            (pluginManifest.runtimes as any[])
+              .filter(
+                (runtime: any) =>
+                  runtime.type === "RemoteMCPServer" &&
+                  runtime.spec.url === serverUrl &&
+                  !runtime.spec["enable_dynamic_discovery"]
+              )
+              .forEach((runtime: any) => {
+                result.push(...runtime["run_for_functions"]);
+              });
+            return result;
+          },
+        },
+      },
+      {
+        condition: (inputs: Inputs) => {
+          return inputs[QuestionNames.MCPForDAAuth] !== "NoneAuth";
+        },
+        data: {
+          type: "singleSelect",
+          name: QuestionNames.MCPForDAAuthType,
+          title: getLocalizedString("core.createProjectQuestion.mcpForDa.AuthType.title"),
+          staticOptions: [
+            {
+              id: "oauth",
+              label: getLocalizedString("core.createProjectQuestion.mcpForDa.Auth.OAuth"),
+            },
+            {
+              id: "entraSSO",
+              label: getLocalizedString("core.createProjectQuestion.mcpForDa.Auth.EntraSSO"),
+            },
+          ],
+          default: "oauth",
+        },
+      },
     ],
   };
 }

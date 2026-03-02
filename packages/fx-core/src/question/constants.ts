@@ -4,7 +4,6 @@
 import { Inputs, OptionItem } from "@microsoft/teamsfx-api";
 import { FeatureFlags, featureFlagManager } from "../common/featureFlags";
 import { getLocalizedString } from "../common/localizeUtils";
-import { QuestionNames } from "./questionNames";
 export { QuestionNames } from "./questionNames";
 
 export const AppNamePattern =
@@ -13,6 +12,8 @@ export const AppNamePattern =
 export enum CliQuestionName {
   Capability = "capability",
 }
+
+export const MAX_EMAIL_NUMBER = 20;
 
 export enum ProgrammingLanguage {
   JS = "javascript",
@@ -501,25 +502,15 @@ export class ActionStartOptions {
 
   static staticAll(doesProjectExists?: boolean): OptionItem[] {
     return doesProjectExists
-      ? [ActionStartOptions.apiSpec(), ActionStartOptions.existingPlugin()]
-      : [
-          ActionStartOptions.newApi(),
-          ActionStartOptions.apiSpec(),
-          ActionStartOptions.existingPlugin(),
-        ];
+      ? [ActionStartOptions.apiSpec()]
+      : [ActionStartOptions.newApi(), ActionStartOptions.apiSpec()];
   }
 
   static all(inputs: Inputs, doesProjectExists?: boolean): OptionItem[] {
     if (doesProjectExists) {
-      return [ActionStartOptions.apiSpec(), ActionStartOptions.existingPlugin()];
-    } else if (inputs[QuestionNames.Capabilities] === "declarative-agent") {
-      // use constant string to avoid cycle dependency
-      return [
-        ActionStartOptions.newApi(),
-        ActionStartOptions.apiSpec(),
-        ActionStartOptions.existingPlugin(),
-      ];
+      return [ActionStartOptions.apiSpec()];
     } else {
+      // use constant string to avoid cycle dependency
       return [ActionStartOptions.newApi(), ActionStartOptions.apiSpec()];
     }
   }
@@ -608,9 +599,7 @@ export class KnowledgeSourceOptions {
   static allWithFeatureFlags(): OptionItem[] {
     const items: OptionItem[] = [
       KnowledgeSourceOptions.webSearch(),
-      ...(featureFlagManager.getBooleanValue(FeatureFlags.AddODSPKnowledge)
-        ? [KnowledgeSourceOptions.oneDriveSharePoint()]
-        : []),
+      KnowledgeSourceOptions.oneDriveSharePoint(),
       KnowledgeSourceOptions.graphConnector(),
     ];
     if (featureFlagManager.getBooleanValue(FeatureFlags.EmbeddedKnowledgeEnabled)) {

@@ -5,6 +5,18 @@
     "version": "2.0.0",
     "tasks": [
         {
+            "label": "Start Agent (Sandbox)",
+            "dependsOn": [
+                "Validate prerequisites (Sandbox)",
+                "Start local tunnel (Sandbox)",
+                "Provision (Sandbox)",
+                "Deploy (Sandbox)",
+                "Start application",
+                "Sideload App to channel"
+            ],
+            "dependsOrder": "sequence"
+        },
+        {
             "label": "Start Agent in Microsoft 365 Agents Playground",
             "dependsOn": [
                 "Validate prerequisites (Microsoft 365 Agents Playground)",
@@ -45,7 +57,7 @@
         {
             "label": "Start application (Microsoft 365 Agents Playground)",
             "type": "shell",
-            "command": "npm run dev:teamsfx:testtool",
+            "command": "npm run dev:teamsfx:playground",
             "isBackground": true,
             "options": {
                 "cwd": "${workspaceFolder}",
@@ -69,17 +81,17 @@
         {
             "label": "Start Microsoft 365 Agents Playground",
             "type": "shell",
-            "command": "npm run dev:teamsfx:launch-testtool",
+            "command": "npm run dev:teamsfx:launch-playground",
             "isBackground": true,
             "options": {
                 "env": {
-                  "PATH": "${workspaceFolder}/devTools/teamsapptester/node_modules/.bin:${env:PATH}"
+                  "PATH": "${workspaceFolder}/devTools/playground/node_modules/.bin:${env:PATH}"
                 }
             },
             "windows": {
                 "options": {
                     "env": {
-                        "PATH": "${workspaceFolder}/devTools/teamsapptester/node_modules/.bin;${env:PATH}"
+                        "PATH": "${workspaceFolder}/devTools/playground/node_modules/.bin;${env:PATH}"
                     }
                 }
             },
@@ -226,6 +238,69 @@
             "command": "launch-desktop-client",
             "args": {
                 "url": "teams.microsoft.com/l/app/${{TEAMS_APP_ID}}?installAppPackage=true"
+            }
+        },
+        {
+            "label": "Validate prerequisites (Sandbox)",
+            "type": "teamsfx",
+            "command": "debug-check-prerequisites",
+            "args": {
+                "prerequisites": [
+                    "portOccupancy",
+                    "m365Account",
+                    "nodejs"
+                ],
+                "portOccupancy": [
+                    3978,
+                    9239
+                ]
+            }
+        },
+        {
+            "label": "Start local tunnel (Sandbox)",
+            "type": "teamsfx",
+            "command": "debug-start-local-tunnel",
+            "args": {
+                "type": "dev-tunnel",
+                "ports": [
+                    {
+                        "portNumber": 3978,
+                        "protocol": "http",
+                        "access": "public",
+                        "writeToEnvironmentFile": {
+                            "endpoint": "BOT_ENDPOINT",
+                            "domain": "BOT_DOMAIN"
+                        }
+                    }
+                ],
+                "env": "sandbox"
+            },
+            "isBackground": true,
+            "problemMatcher": "$teamsfx-local-tunnel-watch"
+        },
+        {
+            "label": "Provision (Sandbox)",
+            "type": "teamsfx",
+            "command": "provision",
+            "args": {
+                "env": "sandbox"
+            }
+        },
+        {
+            "label": "Deploy (Sandbox)",
+            "type": "teamsfx",
+            "command": "deploy",
+            "args": {
+                "env": "sandbox"
+            }
+        },
+        {
+            "label": "Sideload App to channel",
+            "type": "teamsfx",
+            "command": "install-app",
+            "args": {
+                "env": "sandbox",
+                "appPackagePath": "${workspaceFolder}/appPackage/build/appPackage.sandbox.zip"
             }
         }
     ]

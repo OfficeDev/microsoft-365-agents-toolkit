@@ -1,55 +1,105 @@
-import { MemoryStorage, MessageFactory, TurnContext } from "botbuilder";
-import * as path from "path";
+import { App } from "@microsoft/teams.apps";
+import { ChatPrompt } from "@microsoft/teams.ai";
+import { LocalStorage } from "@microsoft/teams.common";
+import { OpenAIChatModel } from "@microsoft/teams.openai";
+import { MessageActivity, TokenCredentials } from '@microsoft/teams.api';
+import { ManagedIdentityCredential } from '@azure/identity';
+import * as fs from 'fs';
+import * as path from 'path';
 import config from "../config";
 
-// See https://aka.ms/teams-ai-library to learn more about the Teams AI library.
-import { Application, ActionPlanner, OpenAIModel, PromptManager } from "@microsoft/teams-ai";
+// Create storage for conversation history
+const storage = new LocalStorage();
 
-// Create AI components
-const model = new OpenAIModel({
-  {{#useOpenAI}}
-  apiKey: config.openAIKey,
-  defaultModel: config.openAIModelName,
-  {{/useOpenAI}}
-  {{#useAzureOpenAI}}
-  azureApiKey: config.azureOpenAIKey,
-  azureDefaultDeployment: config.azureOpenAIDeploymentName,
-  azureEndpoint: config.azureOpenAIEndpoint,
-  {{/useAzureOpenAI}}
+// Load instructions from file on initialization
+function loadInstructions(): string {
+  const instructionsFilePath = path.join(__dirname, "instructions.txt");
+  return fs.readFileSync(instructionsFilePath, 'utf-8').trim();
+}
 
-  useSystemMessages: true,
-  logRequests: true,
-  {{#CEAEnabled}} 
-  // The agent is currently not working in any Teams group chats or Teams channels
-  // when the stream response is enabled.
-  stream: true,
-  {{/CEAEnabled}}
-});
-const prompts = new PromptManager({
-  promptsFolder: path.join(__dirname, "../prompts"),
-});
-const planner = new ActionPlanner({
-  model,
-  prompts,
-  defaultPrompt: "chat",
-  {{#CEAEnabled}} 
-  startStreamingMessage: 'Loading stream results...',
-  {{/CEAEnabled}}
-});
+// Load instructions once at startup
+const instructions = loadInstructions();
 
-// Define storage and application
-const storage = new MemoryStorage();
-const app = new Application({
-  storage,
-  ai: {
-    planner,
-    enable_feedback_loop: true,
-  },
+const createTokenFactory = () => {
+  return async (scope: string | string[], tenantId?: string): Promise<string> => {
+    const managedIdentityCredential = new ManagedIdentityCredential({
+        clientId: process.env.CLIENT_ID
+      });
+    const scopes = Array.isArray(scope) ? scope : [scope];
+    const tokenResponse = await managedIdentityCredential.getToken(scopes, {
+      tenantId: tenantId
+    });
+   
+    return tokenResponse.token;
+  };
+};
+
+// Configure authentication using TokenCredentials
+const tokenCredentials: TokenCredentials = {
+  clientId: process.env.CLIENT_ID || '',
+  token: createTokenFactory()
+};
+
+const credentialOptions = config.MicrosoftAppType === "UserAssignedMsi" ? { ...tokenCredentials } : undefined;
+
+// Create the app with storage
+const app = new App({
+  ...credentialOptions,
+  storage
 });
 
-app.feedbackLoop(async (context, state, feedbackLoopData) => {
+// Handle incoming messages
+app.on('message', async ({ send, stream, activity }) => {
+  //Get conversation history
+  const conversationKey = `${activity.conversation.id}/${activity.from.id}`;
+  const messages = storage.get(conversationKey) || [];
+
+  try {
+    const prompt = new ChatPrompt({
+      messages,
+      instructions,
+      {{#useOpenAI}}
+      model: new OpenAIChatModel({
+        model: config.openAIModelName,
+        apiKey: config.openAIKey
+      })
+      {{/useOpenAI}}
+      {{#useAzureOpenAI}}
+      model: new OpenAIChatModel({
+        model: config.azureOpenAIDeploymentName,
+        apiKey: config.azureOpenAIKey,
+        endpoint: config.azureOpenAIEndpoint,
+        apiVersion: "2024-10-21"
+      })
+      {{/useAzureOpenAI}}
+    })
+
+    if (activity.conversation.isGroup) {
+      // If the conversation is a group chat, we need to send the final response
+      // back to the group chat
+      const response = await prompt.send(activity.text);
+      const responseActivity = new MessageActivity(response.content).addAiGenerated().addFeedback();
+      await send(responseActivity);
+    } else {
+        await prompt.send(activity.text, {
+          onChunk: (chunk) => {
+            stream.emit(chunk);
+          },
+        });
+      // We wrap the final response with an AI Generated indicator
+      stream.emit(new MessageActivity().addAiGenerated().addFeedback());
+    }
+    storage.set(conversationKey, messages);
+  } catch (error) {
+    console.error(error);
+    await send("The agent encountered an error or bug.");
+    await send("To continue to run this agent, please fix the agent source code.");
+  }
+});
+
+app.on('message.submit.feedback', async ({ activity }) => {
   //add custom feedback process logic here
-  console.log("Your feedback is " + JSON.stringify(context.activity.value));
-});
+  console.log("Your feedback is " + JSON.stringify(activity.value));
+})
 
 export default app;

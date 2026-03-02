@@ -1,7 +1,7 @@
-# yaml-language-server: $schema=https://aka.ms/m365-agents-toolkits/v1.9/yaml.schema.json
+# yaml-language-server: $schema=https://aka.ms/m365-agents-toolkits/v1.11/yaml.schema.json
 # Visit https://aka.ms/teamsfx-v5.0-guide for details on this file
 # Visit https://aka.ms/teamsfx-actions for details on actions
-version: v1.9
+version: v1.11
 
 provision:
   # Creates an app
@@ -61,7 +61,7 @@ deploy:
   - uses: devTool/install
     with:
       func:
-        version: ~4.0.5530
+        version: ^4.0.5530
         symlinkDir: ./devTools/func
     # Write the information of installed development tool(s) into environment
     # file for the specified environment variable(s).
@@ -72,4 +72,4 @@ deploy:
   - uses: cli/runNpmCommand
     name: install dependencies
     with:
-      args: install --no-audit
+      args: install

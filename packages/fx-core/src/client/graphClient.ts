@@ -3,39 +3,44 @@
 
 import { hooks } from "@feathersjs/hooks";
 import {
-  M365TokenProvider,
-  LogProvider,
-  ok,
   err,
   FxError,
+  LogProvider,
+  M365TokenProvider,
+  ok,
   Result,
-  SystemError,
   SensitivityLabel,
   signedIn,
+  SystemError,
 } from "@microsoft/teamsfx-api";
 import { AxiosInstance } from "axios";
-import { ErrorContextMW } from "../common/globalVars";
-import { GetTeamsAppSettingsResponse } from "./interfaces/GetTeamsAppSettingsResponse";
 import {
+  getResourceServiceEndpoint,
+  GraphScopes,
   GraphTeamsAppSettingsReadScopes,
   GraphTeamsChannelCreateScopes,
   GraphTeamsChannelReadScopes,
   GraphTeamsInstallAppScopes,
   GraphTeamsTeamCreateScopes,
   GraphTeamsTeamReadScopes,
+  GroupSearchScopes,
   ListSensitivityLabelScope,
+  ResourceServiceType,
 } from "../common/constants";
-import { GetJoinedTeamsResponse } from "./interfaces/GetJoinedTeamsResponse";
-import { GetChannelResponse } from "./interfaces/GetChannelResponse";
+import { globalStateGet, globalStateUpdate } from "../common/globalState";
+import { ErrorContextMW } from "../common/globalVars";
+import { getDefaultString, getLocalizedString } from "../common/localizeUtils";
+import { waitSeconds } from "../common/utils";
 import { WrappedAxiosClient } from "../common/wrappedAxiosClient";
 import { CreateChannelResponse } from "./interfaces/CreateChannelResponse";
 import { CreateTeamAndChannelResponse } from "./interfaces/CreateTeamAndChannelResponse";
-import { ListSensitivityCacheValue } from "./interfaces/ListSensitivityCacheValue";
-import { waitSeconds } from "../common/utils";
-import { getLocalizedString } from "../common/localizeUtils";
 import { GetAppInstallationResponse } from "./interfaces/GetAppInstallationResponse";
-import { globalStateGet, globalStateUpdate } from "../common/globalState";
-import { getDefaultString } from "../common/localizeUtils";
+import { GetChannelResponse } from "./interfaces/GetChannelResponse";
+import { Group } from "./interfaces/GetGroupResponse";
+import { GetJoinedTeamsResponse } from "./interfaces/GetJoinedTeamsResponse";
+import { GetTeamsAppSettingsResponse } from "./interfaces/GetTeamsAppSettingsResponse";
+import { User } from "./interfaces/GetUserResponse";
+import { ListSensitivityCacheValue } from "./interfaces/ListSensitivityCacheValue";
 
 const listSensitivityLabelAPIPath = "/me/informationProtection/sensitivityLabels";
 const errorSourceName = "GraphAPI";
@@ -64,7 +69,7 @@ export class RetryHandler {
 
 export class GraphClient {
   private readonly baseUrl: string =
-    process.env.GRAPH_ENDPOINT ?? "https://graph.microsoft.com/beta";
+    process.env.GRAPH_ENDPOINT ?? `${getResourceServiceEndpoint(ResourceServiceType.Graph)}/beta`;
   private readonly tokenProvider: M365TokenProvider;
   private readonly logProvider: LogProvider | undefined;
 
@@ -325,7 +330,9 @@ export class GraphClient {
     const requester = this.createRequesterWithToken(tokenResponse.value);
 
     const teamData = {
-      "template@odata.bind": "https://graph.microsoft.com/beta/teamsTemplates('standard')",
+      "template@odata.bind": `${getResourceServiceEndpoint(
+        ResourceServiceType.Graph
+      )}/beta/teamsTemplates('standard')`,
       displayName: teamName,
       description: description,
       firstChannelName: defaultChannelName,
@@ -439,5 +446,41 @@ export class GraphClient {
       tenantId = accountInfo?.["tid"];
     }
     return [accountUniqueName, tenantId];
+  }
+
+  public async getUserInfoFromId(id: string): Promise<User | undefined> {
+    const tokenResponse = await this.tokenProvider.getAccessToken({ scopes: GraphScopes });
+    if (tokenResponse.isErr()) {
+      throw tokenResponse.error;
+    }
+    const requester = this.createRequesterWithToken(tokenResponse.value);
+    const response = await requester.get(`/users/${id}`);
+    if (!response || !response.data) {
+      return undefined;
+    }
+
+    return <User>response.data;
+  }
+
+  public async getGroupInfo(email: string): Promise<Group | undefined> {
+    const tokenResponse = await this.tokenProvider.getAccessToken({ scopes: GroupSearchScopes });
+    if (tokenResponse.isErr()) {
+      throw tokenResponse.error;
+    }
+    const requester = this.createRequesterWithToken(tokenResponse.value);
+    const res = await requester.get(`/groups?$filter=startsWith(mail,'${email}')`);
+    if (!res || !res.data || !res.data.value) {
+      return undefined;
+    }
+
+    const group = res.data.value.find(
+      (group: any) => group.mail?.toLowerCase() === email.toLowerCase()
+    );
+
+    if (!group) {
+      return undefined;
+    }
+
+    return <Group>group;
   }
 }

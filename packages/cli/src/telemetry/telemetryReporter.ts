@@ -3,9 +3,12 @@
 
 "use strict";
 
-import * as os from "os";
+import { featureFlagManager, FeatureFlags } from "@microsoft/teamsfx-core";
 import * as appInsights from "applicationinsights";
+import * as log4js from "log4js";
 import { machineIdSync } from "node-machine-id";
+import * as os from "os";
+import * as path from "path";
 import logger from "../commonlib/log";
 
 export default class TelemetryReporter {
@@ -14,7 +17,9 @@ export default class TelemetryReporter {
   private cliVersion: string;
   private machineId: string;
   private logging = true;
+  private debug = false;
   private appRoot: string | undefined;
+  private log4jsLogger: log4js.Logger | undefined;
 
   constructor(cliName: string, cliVersion: string, key: string, appRoot: string | undefined) {
     this.cliName = cliName;
@@ -22,6 +27,43 @@ export default class TelemetryReporter {
     this.machineId = machineIdSync();
     this.appRoot = appRoot;
     this.createAppInsightsClient(key);
+    this.debug = featureFlagManager.getBooleanValue(FeatureFlags.TelemetryTest);
+    this.initializeLog4js();
+  }
+
+  private initializeLog4js(): void {
+    if (this.debug) {
+      try {
+        const logsDir = path.join(os.homedir(), ".fx", "logs");
+        log4js.configure({
+          appenders: {
+            telemetry: {
+              type: "file",
+              filename: path.join(logsDir, "cli-telemetry.log"),
+              maxLogSize: 10485760, // 10MB
+              backups: 5,
+              compress: true,
+              layout: {
+                type: "pattern",
+                pattern: "%d{ISO8601} [%p] %m",
+              },
+            },
+          },
+          categories: {
+            default: {
+              appenders: ["telemetry"],
+              level: "info",
+            },
+          },
+        });
+        this.log4jsLogger = log4js.getLogger("telemetry");
+      } catch (error) {
+        // Silently fail if log4js initialization fails
+        void logger.debug(
+          `Failed to initialize log4js: ${error instanceof Error ? error.message : String(error)}`
+        );
+      }
+    }
   }
 
   private createAppInsightsClient(key: string) {
@@ -189,6 +231,16 @@ export default class TelemetryReporter {
           })}\n`
         );
       }
+
+      // Log to local file when debug is true
+      if (this.debug && this.log4jsLogger) {
+        this.log4jsLogger.info(
+          `Event: ${this.cliName}/${eventName} | ${JSON.stringify({
+            properties,
+            measurements,
+          })}`
+        );
+      }
     }
   }
 
@@ -218,6 +270,16 @@ export default class TelemetryReporter {
           })}\n`
         );
       }
+
+      // Log to local file when debug is true
+      if (this.debug && this.log4jsLogger) {
+        this.log4jsLogger.info(
+          `ErrorEvent: ${this.cliName}/${eventName} | ${JSON.stringify({
+            properties,
+            measurements,
+          })}`
+        );
+      }
     }
   }
 
@@ -243,6 +305,17 @@ export default class TelemetryReporter {
             properties,
             measurements,
           })}\n`
+        );
+      }
+
+      // Log to local file when debug is true
+      if (this.debug && this.log4jsLogger) {
+        this.log4jsLogger.error(
+          `Exception: ${this.cliName}/${error.name} ${error.message} | ${JSON.stringify({
+            properties,
+            measurements,
+            stack: error.stack,
+          })}`
         );
       }
     }

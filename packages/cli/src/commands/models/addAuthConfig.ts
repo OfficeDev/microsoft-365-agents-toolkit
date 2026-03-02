@@ -1,12 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 import { CLICommand } from "@microsoft/teamsfx-api";
+import { AddAuthActionInputs, AddAuthActionOptions } from "@microsoft/teamsfx-core";
+import { getFxCore } from "../../activate";
+import { logger } from "../../commonlib/logger";
 import { commands, strings } from "../../resource";
 import { TelemetryEvent } from "../../telemetry/cliTelemetryEvents";
 import { ProjectFolderOption } from "../common";
-import { getFxCore } from "../../activate";
-import { AddAuthActionInputs, AddAuthActionOptions } from "@microsoft/teamsfx-core";
-import { logger } from "../../commonlib/logger";
 
 export const addAuthConfigCommand: CLICommand = {
   name: "auth-config",

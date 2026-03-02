@@ -213,7 +213,7 @@ public class TeamsBotSsoPromptTest
             var expectedSsoExpiration = DateTimeOffset.FromUnixTimeSeconds(long.Parse("1893456000"));
             Assert.AreEqual(expectedSsoExpiration.ToString(), response.SsoTokenExpiration);
             Assert.AreEqual(fakeAccessToken, response.Token);
-            Assert.AreEqual(mockAuthenticationResult.ExpiresOn.ToString(), response.Expiration);
+            Assert.AreEqual(mockAuthenticationResult.ExpiresOn, response.Expiration);
         })
         .StartTestAsync();
     }
@@ -287,7 +287,7 @@ public class TeamsBotSsoPromptTest
             var expectedSsoExpiration = DateTimeOffset.FromUnixTimeSeconds(long.Parse("1893456000"));
             Assert.AreEqual(expectedSsoExpiration.ToString(), response.SsoTokenExpiration);
             Assert.AreEqual(fakeSsoToken, response.Token);
-            Assert.AreEqual(expectedSsoExpiration.ToString(), response.Expiration);
+            Assert.AreEqual(expectedSsoExpiration, response.Expiration);
         })
         .StartTestAsync();
     }

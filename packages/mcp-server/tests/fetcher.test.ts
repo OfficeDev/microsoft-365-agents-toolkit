@@ -41,25 +41,25 @@ describe("fetcher", () => {
 
     it("should support different schema types", async () => {
       // Test declarative_agent_manifest
-      await fetchSchema("declarative_agent_manifest", "v1.0");
+      await fetchSchema("declarative_agent_manifest", "v1.4");
       expect(global.fetch).toHaveBeenCalledWith(
-        "https://developer.microsoft.com/json-schemas/copilot/declarative-agent/v1.0/schema.json"
+        "https://developer.microsoft.com/json-schemas/copilot/declarative-agent/v1.4/schema.json"
       );
 
       jest.clearAllMocks();
 
       // Test api_plugin_manifest
-      await fetchSchema("api_plugin_manifest", "v1.0");
+      await fetchSchema("api_plugin_manifest", "v2.3");
       expect(global.fetch).toHaveBeenCalledWith(
-        "https://developer.microsoft.com/json-schemas/copilot/plugin/v1.0/schema.json"
+        "https://developer.microsoft.com/json-schemas/copilot/plugin/v2.3/schema.json"
       );
 
       jest.clearAllMocks();
 
       // Test m365_agents_yaml
-      await fetchSchema("m365_agents_yaml", "v1.0");
+      await fetchSchema("m365_agents_yaml", "v1.9");
       expect(global.fetch).toHaveBeenCalledWith(
-        "https://aka.ms/teams-toolkit/v1.0/yaml.schema.json"
+        "https://developer.microsoft.com/json-schemas/teams-toolkit/teamsapp-yaml/v1.9/yaml.schema.json"
       );
     });
 
@@ -67,7 +67,7 @@ describe("fetcher", () => {
       // Test app_manifest with 'latest' version
       await fetchSchema("app_manifest", "latest");
       expect(global.fetch).toHaveBeenCalledWith(
-        "https://developer.microsoft.com/json-schemas/teams/v1.22/MicrosoftTeams.schema.json"
+        "https://developer.microsoft.com/json-schemas/teams/v1.23/MicrosoftTeams.schema.json"
       );
 
       jest.clearAllMocks();
@@ -91,7 +91,7 @@ describe("fetcher", () => {
       // Test m365_agents_yaml with 'latest' version
       await fetchSchema("m365_agents_yaml", "latest");
       expect(global.fetch).toHaveBeenCalledWith(
-        "https://aka.ms/teams-toolkit/v1.8/yaml.schema.json"
+        "https://developer.microsoft.com/json-schemas/teams-toolkit/teamsapp-yaml/v1.9/yaml.schema.json"
       );
     });
 
@@ -143,11 +143,13 @@ describe("fetcher", () => {
       const parsedResult = JSON.parse(result);
 
       expect(global.fetch).toHaveBeenCalledWith(
-        "https://aka.ms/teams-toolkit/v1.5/yaml.schema.json"
+        "https://developer.microsoft.com/json-schemas/teams-toolkit/teamsapp-yaml/v1.5/yaml.schema.json"
       );
       expect(parsedResult).toHaveProperty("schema_url");
       expect(parsedResult).toHaveProperty("content");
-      expect(parsedResult.schema_url).toBe("https://aka.ms/teams-toolkit/v1.5/yaml.schema.json");
+      expect(parsedResult.schema_url).toBe(
+        "https://developer.microsoft.com/json-schemas/teams-toolkit/teamsapp-yaml/v1.5/yaml.schema.json"
+      );
       expect(parsedResult.content).toEqual({ test: "schema content" });
     });
   });

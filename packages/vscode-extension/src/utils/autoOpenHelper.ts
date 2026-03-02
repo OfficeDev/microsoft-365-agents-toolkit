@@ -51,7 +51,7 @@ export async function showLocalDebugMessage() {
 
   const hasLocalEnv =
     (await fs.pathExists(path.join(workspaceUri!.fsPath, "teamsapp.local.yml"))) ||
-    (await fs.pathExists(path.join(workspaceUri!.fsPath, "m365agents.local.json")));
+    (await fs.pathExists(path.join(workspaceUri!.fsPath, "m365agents.local.yml")));
   const hasKeyGenJsFile = await fs.pathExists(path.join(workspaceUri!.fsPath, "/src/keyGen.js"));
   const hasKeyGenTsFile = await fs.pathExists(path.join(workspaceUri!.fsPath, "/src/keyGen.ts"));
 
@@ -94,22 +94,29 @@ export async function showLocalDebugMessage() {
       }
     });
   } else if (hasLocalEnv) {
+    let title = localize("teamstoolkit.handlers.localDebugTitle");
+    ExtTelemetry.sendTelemetryEvent(TelemetryEvent.ShowLocalDebugNotification);
+
+    let messageTemplate = getLocalDebugMessageTemplate(isWindows);
+    if (isDeclarativeCopilotApp) {
+      messageTemplate = isWindows
+        ? localize("teamstoolkit.handlers.localPreviewDescription")
+        : localize("teamstoolkit.handlers.localPreviewDescription.fallback");
+      title = localize("teamstoolkit.handlers.localPreviewTitle");
+    }
     const localDebug = {
-      title: localize("teamstoolkit.handlers.localDebugTitle"),
+      title: title,
       run: async (): Promise<void> => {
         await selectAndDebug();
       },
     };
-    ExtTelemetry.sendTelemetryEvent(TelemetryEvent.ShowLocalDebugNotification);
-
-    const messageTemplate = await getLocalDebugMessageTemplate(isWindows);
 
     let message = util.format(messageTemplate, appName, workspaceUri?.fsPath);
     if (isWindows) {
       message = util.format(messageTemplate, appName, openFolderCommand);
     }
     void vscode.window.showInformationMessage(message, localDebug).then((selection) => {
-      if (selection?.title === localize("teamstoolkit.handlers.localDebugTitle")) {
+      if (selection?.title === title) {
         ExtTelemetry.sendTelemetryEvent(TelemetryEvent.ClickLocalDebug);
         void selection.run();
       }

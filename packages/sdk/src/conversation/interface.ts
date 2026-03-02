@@ -9,12 +9,12 @@ import {
   Storage,
 } from "@microsoft/agents-hosting";
 import { Activity, ConversationReference } from "@microsoft/agents-activity";
-import { SigninStateVerificationQuery } from "@microsoft/agents-hosting-teams";
 import { TeamsBotSsoPromptTokenResponse } from "../bot/teamsBotSsoPromptTokenResponse";
 import { OnBehalfOfCredentialAuthConfig } from "../models/configuration";
 
 /**
  * The response of a message action, e.g., `sendMessage`, `sendAdaptiveCard`.
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
  */
 export interface MessageResponse {
   /**
@@ -30,6 +30,7 @@ export interface MessageResponse {
  * - "Channel" means to a team channel. (By default, notification to a team will be sent to its "General" channel.)
  * - "Group" means to a group chat.
  * - "Person" means to a personal chat.
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
  */
 export enum NotificationTargetType {
   /**
@@ -49,6 +50,7 @@ export enum NotificationTargetType {
 
 /**
  * Represent a notification target.
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
  */
 export interface NotificationTarget {
   /**
@@ -87,6 +89,7 @@ export interface NotificationTarget {
 
 /**
  * A store to persist notification target references.
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
  */
 export interface ConversationReferenceStore {
   /**
@@ -130,6 +133,7 @@ export interface ConversationReferenceStore {
 
 /**
  * Options to add a conversation reference to the store.
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
  */
 export interface ConversationReferenceStoreAddOptions {
   /**
@@ -140,6 +144,7 @@ export interface ConversationReferenceStoreAddOptions {
 
 /**
  * Represents a page of data.
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
  */
 export interface PagedData<T> {
   /**
@@ -158,11 +163,13 @@ export interface PagedData<T> {
 
 /**
  * The trigger pattern used to trigger a {@link TeamsFxBotCommandHandler} instance.
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
  */
 export type TriggerPatterns = string | RegExp | (string | RegExp)[];
 
 /**
  * Interface for a command message that can handled in a command handler.
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
  */
 export interface CommandMessage {
   /**
@@ -178,6 +185,7 @@ export interface CommandMessage {
 
 /**
  * Interface for a command handler that can process command to a TeamsFx bot and return a response.
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
  */
 export interface TeamsFxBotCommandHandler {
   /**
@@ -201,6 +209,7 @@ export interface TeamsFxBotCommandHandler {
 
 /**
  * Interface for a command handler that can process sso command to a TeamsFx bot and return a response.
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
  */
 export interface TeamsFxBotSsoCommandHandler {
   /**
@@ -226,6 +235,7 @@ export interface TeamsFxBotSsoCommandHandler {
 
 /**
  * Options to initialize {@link CommandBot}.
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
  */
 export interface CommandOptions {
   /**
@@ -241,6 +251,7 @@ export interface CommandOptions {
 
 /**
  * Options to initialize {@link CardActionBot}.
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
  */
 export interface CardActionOptions {
   /**
@@ -251,6 +262,7 @@ export interface CardActionOptions {
 
 /**
  * Options used to control how the response card will be sent to users.
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
  */
 export enum AdaptiveCardResponse {
   /**
@@ -271,6 +283,7 @@ export enum AdaptiveCardResponse {
 
 /**
  * Status code for an `application/vnd.microsoft.error` invoke response.
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
  */
 export enum InvokeResponseErrorCode {
   /**
@@ -286,6 +299,7 @@ export enum InvokeResponseErrorCode {
 
 /**
  * Interface for adaptive card action handler that can process card action invoke and return a response.
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
  */
 export interface TeamsFxAdaptiveCardActionHandler {
   /**
@@ -329,6 +343,7 @@ export interface TeamsFxAdaptiveCardActionHandler {
 
 /**
  * Interface for SSO configuration for Bot SSO
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
  */
 export interface BotSsoConfig {
   /**
@@ -407,6 +422,7 @@ export interface BotSsoConfig {
  * });
  * ```
  * For details information about how to implement a BotSsoExecutionActivityHandler, please refer DefaultBotSsoExecutionActivityHandler class source code: https://aka.ms/teamsfx-default-sso-execution-activity-handler
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
  */
 export interface BotSsoExecutionActivityHandler {
   // eslint-disable-next-line no-secrets/no-secrets
@@ -435,10 +451,7 @@ export interface BotSsoExecutionActivityHandler {
    * @remarks
    * It should trigger {@link BotSsoExecutionDialog} instance to handle signin process
    */
-  handleTeamsSigninVerifyState(
-    context: TurnContext,
-    query: SigninStateVerificationQuery
-  ): Promise<void>;
+  handleTeamsSigninVerifyState(context: TurnContext, query: { state?: string }): Promise<void>;
 
   /**
    * Receives invoke activities with Activity name of 'signin/tokenExchange'
@@ -449,14 +462,24 @@ export interface BotSsoExecutionActivityHandler {
    * @remarks
    * It should trigger {@link BotSsoExecutionDialog} instance to handle signin process
    */
-  handleTeamsSigninTokenExchange(
-    context: TurnContext,
-    query: SigninStateVerificationQuery
-  ): Promise<void>;
+  handleTeamsSigninTokenExchange(context: TurnContext, query: { state?: string }): Promise<void>;
 }
 
+/**
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
+ */
 export type BotSsoExecutionDialogHandler = (
   context: TurnContext,
   tokenResponse: TeamsBotSsoPromptTokenResponse,
   message: CommandMessage
 ) => Promise<void>;
+
+/**
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
+ */
+export const tokenExchangeOperationName = "signin/tokenExchange";
+
+/**
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
+ */
+export const verifyStateOperationName = "signin/verifyState";

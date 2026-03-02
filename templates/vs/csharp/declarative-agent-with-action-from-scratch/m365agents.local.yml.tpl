@@ -52,16 +52,3 @@ provision:
     writeToEnvironmentFile:
       titleId: M365_TITLE_ID
       appId: M365_APP_ID
-{{^isNewProjectTypeEnabled}}
-
-  # Create or update debug profile in lauchsettings file
-  - uses: file/createOrUpdateJsonFile
-    with:
-      target: ./Properties/launchSettings.json
-      content:
-        profiles:
-          "Copilot (browser)": {
-            "commandName": "Project",
-            "launchUrl": "https://m365.cloud.microsoft/chat/entity1-d870f6cd-4aa5-4d42-9626-ab690c041429/${{AGENT_HINT}}?auth=2"
-          }
-{{/isNewProjectTypeEnabled}}

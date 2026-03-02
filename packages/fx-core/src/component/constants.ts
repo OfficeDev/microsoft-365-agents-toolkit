@@ -19,6 +19,8 @@ export enum SolutionError {
   FailedToLoadManifestFile = "FailedToLoadManifestFile",
 }
 
+export const LocalMcpPrefix = "mcp://";
+
 export const ViewAadAppHelpLinkV5 = "https://aka.ms/teamsfx-view-aad-app-v5";
 
 // This is the max length specified in
@@ -128,4 +130,11 @@ export const OpenAIEnvironmentVariables = {
   OPENAI_ASSISTANT_ID: "OPENAI_ASSISTANT_ID",
   AZURE_OPENAI_ASSISTANT_ID: "AZURE_OPENAI_ASSISTANT_ID",
   AZURE_OPENAI_EMBEDDING_DEPLOYMENT: "AZURE_OPENAI_EMBEDDING_DEPLOYMENT",
+  AZURE_OPENAI_EMBEDDING_DEPLOYMENT_NAME: "AZURE_OPENAI_EMBEDDING_DEPLOYMENT_NAME",
+};
+
+export const AzureEnvironmentVariables = {
+  AZURE_SEARCH_KEY: "AZURE_SEARCH_KEY",
+  SECRET_AZURE_SEARCH_KEY: "SECRET_AZURE_SEARCH_KEY",
+  AZURE_SEARCH_ENDPOINT: "AZURE_SEARCH_ENDPOINT",
 };

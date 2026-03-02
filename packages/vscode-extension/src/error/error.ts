@@ -57,4 +57,10 @@ export enum ExtensionErrors {
   DefaultAppPackageNotExistsError = "DefaultAppPackageNotExistsError",
   DevTunnelStartError = "DevTunnelStartError",
   LaunchTeamsDesktopClientError = "LaunchTeamsDesktopClientError",
+  MCPFileNotFound = "MCPFileNotFound",
+  MCPContentInvalid = "MCPContentInvalid",
+  MCPServerNotFound = "MCPServerNotFound",
+  MCPNameOrServerUrlMissing = "MCPNameOrServerUrlMissing",
+  MCPLocalMcpCommandMissing = "MCPLocalMcpCommandMissing",
+  MCPToolsNotFound = "MCPToolsNotFound",
 }

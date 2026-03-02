@@ -797,7 +797,7 @@ export async function validateServicePlan(
 
   const tokenProvider = MockAzureAccountProvider;
   const tokenCredential = await tokenProvider.getIdentityCredentialAsync();
-  const token = (await tokenCredential?.getToken(AzureScopes))?.token;
+  const token = (await tokenCredential?.getToken(AzureScopes()))?.token;
 
   const serivcePlanResponse = await getWebappServicePlan(
     subscription,

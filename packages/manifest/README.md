@@ -9,7 +9,7 @@
 A collection of TypeScript definitions and converters for Microsoft 365 App manifests.
 
 - **Strongly‑typed interfaces** for three manifest types with all versions generated from Microsoft’s official [JSON schemas](https://developer.microsoft.com/json-schemas/), guaranteeing compile‑time type correctness:  
-  - Teams Manifest: 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 1.10, 1.11, 1.12, 1.13, 1.14, 1.15, 1.16, 1.17, 1.19, 1.20, 1.21, devPreview  
+  - Teams Manifest: 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 1.10, 1.11, 1.12, 1.13, 1.14, 1.15, 1.16, 1.17, 1.19, 1.20, 1.21, 1.22, devPreview  
   - Declarative Agent Manifest: v1.0, v1.2, v1.3, v1.4  
   - API Plugin Manifest: v2.1, v2.2
 

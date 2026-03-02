@@ -25,7 +25,6 @@ import * as path from "path";
 import * as uuid from "uuid";
 import * as xml2js from "xml2js";
 import { AppStudioScopes, getResourceGroupInPortal } from "../../common/constants";
-import { FeatureFlags, featureFlagManager } from "../../common/featureFlags";
 import { ErrorContextMW, globalVars } from "../../common/globalVars";
 import { getLocalizedString } from "../../common/localizeUtils";
 import { convertToAlphanumericOnly } from "../../common/stringUtils";
@@ -36,15 +35,12 @@ import {
   InputValidationError,
   MissingEnvironmentVariablesError,
   MissingRequiredInputError,
+  UserCancelError,
   assembleError,
 } from "../../error/common";
 import { LifeCycleUndefinedError } from "../../error/yml";
-import {
-  ActionStartOptions,
-  AppNamePattern,
-  QuestionNames,
-  ScratchOptions,
-} from "../../question/constants";
+import { AppNamePattern, QuestionNames, ScratchOptions } from "../../question/constants";
+import { ProjectTypeOptions } from "../../question/scaffold/vsc/ProjectTypeOptions";
 import { TeamsProjectTypeOptions } from "../../question/scaffold/vsc/teamsProjectTypeNode";
 import {
   ExecutionError,
@@ -53,7 +49,7 @@ import {
   ProjectModel,
 } from "../configManager/interface";
 import { Lifecycle } from "../configManager/lifecycle";
-import { CoordinatorSource, KiotaLastCommands } from "../constants";
+import { CoordinatorSource } from "../constants";
 import { deployUtils } from "../deployUtils";
 import { DriverContext } from "../driver/interface/commonArgs";
 import { updateTeamsAppV3ForPublish } from "../driver/teamsApp/appStudio";
@@ -69,8 +65,6 @@ import { metadataUtil } from "../utils/metadataUtil";
 import { pathUtils } from "../utils/pathUtils";
 import { settingsUtil } from "../utils/settingsUtil";
 import { SummaryReporter } from "./summary";
-import { ProjectTypeOptions } from "../../question/scaffold/vsc/ProjectTypeOptions";
-import { DACapabilityOptions } from "../../question/scaffold/vsc/CapabilityOptions";
 
 const M365Actions = [
   "botAadApp/create",
@@ -80,7 +74,6 @@ const M365Actions = [
   "aadApp/update",
   "botFramework/create",
   "teamsApp/extendToM365",
-  "teamsApp/shareToOthers",
 ];
 const AzureActions = ["arm/deploy"];
 const needTenantCheckActions = ["botAadApp/create", "aadApp/create", "botFramework/create"];
@@ -100,18 +93,6 @@ class Coordinator {
     inputs: Inputs,
     actionContext?: ActionContext
   ): Promise<Result<CreateProjectResult, FxError>> {
-    // Handle command redirect to Kiota. Only happens in vscode.
-    if (
-      inputs.platform === Platform.VSCode &&
-      featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration) &&
-      inputs[QuestionNames.ActionType] === ActionStartOptions.apiSpec().id &&
-      !inputs[QuestionNames.ActionManifestPath] &&
-      inputs[QuestionNames.Capabilities] === DACapabilityOptions.declarativeAgent().id
-    ) {
-      const lastCommand = KiotaLastCommands.createDeclarativeCopilotWithManifest;
-      return ok({ projectPath: "", lastCommand: lastCommand });
-    }
-
     let folder = inputs["folder"] as string;
     if (!folder) {
       return err(new MissingRequiredInputError("folder"));
@@ -439,10 +420,32 @@ class Coordinator {
 
       const checkM365TenatRes = provisionUtils.ensureM365TenantMatchesV3(
         tenantSwitchCheckActions,
-        m365tenantInfo?.tenantIdInToken
+        m365tenantInfo.tenantIdInToken
       );
       if (checkM365TenatRes.isErr()) {
-        return err(checkM365TenatRes.error);
+        const msg = getLocalizedString("core.provision.switchAccount");
+        const continueItem = getLocalizedString("core.provision.switchAccount.continue");
+        const userCofirmRes = await ctx.ui?.showMessage("warn", msg, true, continueItem);
+        if (userCofirmRes?.isOk() && userCofirmRes.value === continueItem) {
+          await ctx.m365TokenProvider.signout();
+
+          const tenantInfoInTokenRes1 = await provisionUtils.getM365TenantId(ctx.m365TokenProvider);
+          if (tenantInfoInTokenRes1.isErr()) {
+            return err(tenantInfoInTokenRes1.error);
+          }
+          m365tenantInfo = tenantInfoInTokenRes1.value;
+
+          const checkM365TenatRes1 = provisionUtils.ensureM365TenantMatchesV3(
+            tenantSwitchCheckActions,
+            m365tenantInfo.tenantIdInToken
+          );
+
+          if (checkM365TenatRes1.isErr()) {
+            return err(checkM365TenatRes1.error);
+          }
+        } else {
+          return err(new UserCancelError("coordinator"));
+        }
       }
     }
 
@@ -825,57 +828,57 @@ class Coordinator {
     return ok(output);
   }
 
-  @hooks([ErrorContextMW({ component: "Coordinator" })])
-  async share(
-    ctx: DriverContext,
-    inputs: InputsWithProjectPath
-  ): Promise<Result<DotenvParseOutput, FxError>> {
-    const output: DotenvParseOutput = {};
-    const templatePath = pathUtils.getYmlFilePath(ctx.projectPath, inputs.env) as string;
-    const maybeProjectModel = await metadataUtil.parse(templatePath);
-    if (maybeProjectModel.isErr()) {
-      return err(maybeProjectModel.error);
-    }
-    const projectModel = maybeProjectModel.value;
-    let hasError = false;
-    if (projectModel.share) {
-      const summaryReporter = new SummaryReporter([projectModel.share], ctx.logProvider);
-      try {
-        const steps = projectModel.share.driverDefs.length;
-        ctx.progressBar = ctx.ui?.createProgressBar(
-          getLocalizedString("core.progress.share"),
-          steps
-        );
-        await ctx.progressBar?.start();
-        const maybeDescription = summaryReporter.getLifecycleDescriptions();
-        if (maybeDescription.isErr()) {
-          hasError = true;
-          return err(maybeDescription.error);
-        }
-        ctx.logProvider.info(`Executing share ${EOL}${EOL}${maybeDescription.value}${EOL}`);
+  // @hooks([ErrorContextMW({ component: "Coordinator" })])
+  // async share(
+  //   ctx: DriverContext,
+  //   inputs: InputsWithProjectPath
+  // ): Promise<Result<DotenvParseOutput, FxError>> {
+  //   const output: DotenvParseOutput = {};
+  //   const templatePath = pathUtils.getYmlFilePath(ctx.projectPath, inputs.env) as string;
+  //   const maybeProjectModel = await metadataUtil.parse(templatePath);
+  //   if (maybeProjectModel.isErr()) {
+  //     return err(maybeProjectModel.error);
+  //   }
+  //   const projectModel = maybeProjectModel.value;
+  //   let hasError = false;
+  //   if (projectModel.share) {
+  //     const summaryReporter = new SummaryReporter([projectModel.share], ctx.logProvider);
+  //     try {
+  //       const steps = projectModel.share.driverDefs.length;
+  //       ctx.progressBar = ctx.ui?.createProgressBar(
+  //         getLocalizedString("core.progress.share"),
+  //         steps
+  //       );
+  //       await ctx.progressBar?.start();
+  //       const maybeDescription = summaryReporter.getLifecycleDescriptions();
+  //       if (maybeDescription.isErr()) {
+  //         hasError = true;
+  //         return err(maybeDescription.error);
+  //       }
+  //       ctx.logProvider.info(`Executing share ${EOL}${EOL}${maybeDescription.value}${EOL}`);
 
-        const execRes = await projectModel.share.execute(ctx);
-        const result = this.convertExecuteResult(execRes.result, templatePath);
-        merge(output, result[0]);
-        summaryReporter.updateLifecycleState(0, execRes);
-        if (result[1]) {
-          hasError = true;
-          inputs.envVars = output;
-          return err(result[1]);
-        } else {
-          const msg = getLocalizedString("core.common.LifecycleComplete.share", steps, steps);
-          ctx.ui?.showMessage("info", msg, false);
-        }
-      } finally {
-        const summary = summaryReporter.getLifecycleSummary();
-        ctx.logProvider.info(`Execution summary:${EOL}${EOL}${summary}${EOL}`);
-        await ctx.progressBar?.end(!hasError);
-      }
-    } else {
-      return err(new LifeCycleUndefinedError("share"));
-    }
-    return ok(output);
-  }
+  //       const execRes = await projectModel.share.execute(ctx);
+  //       const result = this.convertExecuteResult(execRes.result, templatePath);
+  //       merge(output, result[0]);
+  //       summaryReporter.updateLifecycleState(0, execRes);
+  //       if (result[1]) {
+  //         hasError = true;
+  //         inputs.envVars = output;
+  //         return err(result[1]);
+  //       } else {
+  //         const msg = getLocalizedString("core.common.LifecycleComplete.share", steps, steps);
+  //         ctx.ui?.showMessage("info", msg, false);
+  //       }
+  //     } finally {
+  //       const summary = summaryReporter.getLifecycleSummary();
+  //       ctx.logProvider.info(`Execution summary:${EOL}${EOL}${summary}${EOL}`);
+  //       await ctx.progressBar?.end(!hasError);
+  //     }
+  //   } else {
+  //     return err(new LifeCycleUndefinedError("share"));
+  //   }
+  //   return ok(output);
+  // }
 
   @hooks([ErrorContextMW({ component: "Coordinator" })])
   async publishInDeveloperPortal(
@@ -896,15 +899,17 @@ class Coordinator {
     }
     let loginHint = "";
     const accountRes = await ctx.tokenProvider.m365TokenProvider.getJsonObject({
-      scopes: AppStudioScopes,
+      scopes: AppStudioScopes(),
     });
     if (accountRes.isOk()) {
       loginHint = accountRes.value.unique_name as string;
     }
     await ctx.userInteraction.openUrl(
-      `https://dev.teams.microsoft.com/apps/${
+      `https://dev.teams.cloud.microsoft/apps/${
         updateRes.value as string
-      }/distributions/app-catalog?login_hint=${loginHint}&referrer=teamstoolkit_${inputs.platform}`
+      }/distributions/app-catalog?login_hint=${loginHint}&referrer=teamstoolkit_${
+        inputs.platform
+      }&client-preference=classic`
     );
     return ok(undefined);
   }

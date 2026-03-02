@@ -13,5 +13,5 @@ class DashboardTestCase extends CaseFactory {}
 new DashboardTestCase(
   TemplateProjectFolder.Dashboard,
   24132131,
-  "huimiao@microsoft.com"
+  "Ning.Tang@microsoft.com"
 ).test();

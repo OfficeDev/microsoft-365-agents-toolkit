@@ -17,4 +17,5 @@ export interface IBotRegistration {
   messagingEndpoint: string;
   callingEndpoint: string;
   configuredChannels?: BotChannelType[];
+  isSingleTenant?: boolean;
 }

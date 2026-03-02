@@ -28,7 +28,8 @@
       "tenant": "Authenticate with a specific Microsoft Entra tenant.",
       "service-principal": "Authenticate Azure with a credential representing a service principal",
       "username": "Client ID for service principal",
-      "password": "Provide client secret or a pem file with key and public certificate."
+      "password": "Provide client secret or a pem file with key and public certificate.",
+      "claims-challenge": "Base64-encoded claims challenge requested by a resource API in the WWW-Authenticate header."
     }
   },
   "auth.login.m365": {
@@ -114,6 +115,9 @@
   },
   "env.reset": {
     "description": "Reset environment file."
+  },
+  "init": {
+    "description": "Initialize an existing project to Microsoft 365 Agents Toolkit project."
   },
   "list": {
     "description": "List available app templates and samples."

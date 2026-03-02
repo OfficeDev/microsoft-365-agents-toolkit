@@ -12,11 +12,7 @@ import { Inputs } from "@microsoft/teamsfx-api";
 
 export interface AddPluginInputs extends Inputs {
   /** @description Add an Action */
-  "api-plugin-type"?: "api-spec" | "existing-plugin";
-  /** @description Import Manifest File */
-  "plugin-manifest-path"?: string;
-  /** @description Import OpenAPI Description Document */
-  "plugin-opeanapi-spec-path"?: string;
+  "api-plugin-type"?: "api-spec";
   /** @description OpenAPI Spec Document */
   "openapi-spec-type"?: "enter-url-or-open-local-file" | "search-api";
   /** @description OpenAPI Description Document */

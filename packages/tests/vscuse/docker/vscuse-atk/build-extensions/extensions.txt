@@ -1,0 +1,3 @@
+# ATK Profile Extensions
+ms-python.python
+ms-dotnettools.csdevkit

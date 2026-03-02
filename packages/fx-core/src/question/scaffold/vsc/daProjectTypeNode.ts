@@ -5,8 +5,8 @@ import { Inputs, IQTreeNode, OptionItem } from "@microsoft/teamsfx-api";
 import { featureFlagManager, FeatureFlags } from "../../../common/featureFlags";
 import { getLocalizedString } from "../../../common/localizeUtils";
 import { ProgrammingLanguage } from "../../constants";
-import { pluginApiSpecQuestion, pluginManifestQuestion } from "../../create";
 import { QuestionNames } from "../../questionNames";
+import { apiSpecNode, apiSpecWithSearchNode } from "../commonNodes";
 import {
   ActionStartOptions,
   ApiAuthOptions,
@@ -14,7 +14,7 @@ import {
   setTemplateName,
 } from "./CapabilityOptions";
 import { ProjectTypeOptions } from "./ProjectTypeOptions";
-import { apiSpecNode, apiSpecWithSearchNode } from "./teamsProjectTypeNode";
+import { MCPServerTypeNode } from "./teamsProjectTypeNode";
 
 export function daProjectTypeNode(
   parentValue = ProjectTypeOptions.copilotAgentOptionId
@@ -65,7 +65,9 @@ export function daProjectTypeNode(
                 ...(featureFlagManager.getBooleanValue(FeatureFlags.DAMetaOS)
                   ? [ActionStartOptions.DAMetaOS()]
                   : []),
-                ActionStartOptions.existingPlugin(),
+                ...(featureFlagManager.getBooleanValue(FeatureFlags.MCPForDA)
+                  ? [ActionStartOptions.mcp()]
+                  : []),
               ],
               default: ActionStartOptions.newApi().id,
               onDidSelection: setTemplateName,
@@ -97,21 +99,9 @@ export function daProjectTypeNode(
                 ? apiSpecWithSearchNode()
                 : apiSpecNode(
                     (inputs: Inputs) =>
-                      inputs[QuestionNames.ActionType] === ActionStartOptions.apiSpec().id &&
-                      !featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration)
+                      inputs[QuestionNames.ActionType] === ActionStartOptions.apiSpec().id
                   ),
-              {
-                condition: { equals: ActionStartOptions.existingPlugin().id },
-                data: { type: "group", name: QuestionNames.ImportPlugin },
-                children: [
-                  {
-                    data: pluginManifestQuestion(),
-                  },
-                  {
-                    data: pluginApiSpecQuestion(),
-                  },
-                ],
-              },
+              MCPServerTypeNode(),
             ],
           },
         ],

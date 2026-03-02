@@ -2,7 +2,10 @@
 // Licensed under the MIT license.
 
 import { ResourceGroup, ResourceManagementClient } from "@azure/arm-resources";
-import { UsernamePasswordCredential } from "@azure/identity";
+import {
+  UsernamePasswordCredential,
+  ClientSecretCredential,
+} from "@azure/identity";
 import * as azureConfig from "@microsoft/m365agentstoolkit-cli/src/commonlib/common/userPasswordConfig";
 import { strings } from "../utils/constants";
 
@@ -10,6 +13,8 @@ const tenantId = azureConfig.AZURE_TENANT_ID || "";
 const clientId = azureConfig.client_id;
 const username = azureConfig.AZURE_ACCOUNT_NAME || "";
 const password = azureConfig.AZURE_ACCOUNT_PASSWORD || "";
+const servicePrincipalId = azureConfig.AZURE_SERVICE_PRINCIPAL_ID || "";
+const servicePrincipalSecret = azureConfig.AZURE_SERVICE_PRINCIPAL_SECRET || "";
 const subscriptionId = azureConfig.AZURE_SUBSCRIPTION_ID || "";
 
 function delay(ms: number) {
@@ -23,12 +28,21 @@ export class AzureHelper {
   private client: ResourceManagementClient;
 
   private constructor() {
-    const credential = new UsernamePasswordCredential(
-      tenantId,
-      clientId,
-      username,
-      password
-    );
+    let credential;
+    if (servicePrincipalId && servicePrincipalSecret) {
+      credential = new ClientSecretCredential(
+        tenantId,
+        servicePrincipalId,
+        servicePrincipalSecret
+      );
+    } else {
+      credential = new UsernamePasswordCredential(
+        tenantId,
+        clientId,
+        username,
+        password
+      );
+    }
     this.client = new ResourceManagementClient(credential, subscriptionId);
   }
 

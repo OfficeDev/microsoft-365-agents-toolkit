@@ -9,6 +9,7 @@ namespace Microsoft.TeamsFx.Conversation
     /// <summary>
     /// Represents an adaptive card action handler to respond to an adaptiveCard/action invoke activity.
     /// </summary>
+    [Obsolete("This package will be deprecated by 2026-09. Please use Microsoft 365 Agents SDK (https://github.com/microsoft/Agents-for-net) instead.")]
     public interface IAdaptiveCardActionHandler
     {
         /// <summary>

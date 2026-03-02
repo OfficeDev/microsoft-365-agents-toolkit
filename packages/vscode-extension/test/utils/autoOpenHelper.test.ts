@@ -92,6 +92,76 @@ describe("autoOpenHelper", () => {
     chai.assert.isFalse(runLocalDebug.called);
   });
 
+  it("showLocalDebugMessage() - has local env for DA project", async () => {
+    sandbox.stub(vscode.workspace, "workspaceFolders").value([{ uri: vscode.Uri.file("test") }]);
+    sandbox.stub(vscode.workspace, "openTextDocument");
+    sandbox.stub(process, "platform").value("win32");
+    sandbox.stub(fs, "pathExists").onFirstCall().resolves(true);
+    const runLocalDebug = sandbox.stub(runIconHandlers, "selectAndDebug").resolves(ok(null));
+
+    sandbox.stub(globalState, "globalStateGet").callsFake(async (key: string) => {
+      if (key === "ShowLocalDebugMessage") {
+        return true;
+      } else {
+        return false;
+      }
+    });
+    sandbox.stub(globalState, "globalStateUpdate");
+    sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
+    sandbox.stub(globalVariables, "workspaceUri").value(vscode.Uri.file("test"));
+    sandbox.stub(globalVariables, "isDeclarativeCopilotApp").value(true);
+    const showMessageStub = sandbox
+      .stub(vscode.window, "showInformationMessage")
+      .callsFake(
+        (title: string, options: vscode.MessageOptions, ...items: vscode.MessageItem[]) => {
+          return Promise.resolve({
+            title: "Local Preview",
+            run: (options as any).run,
+          } as vscode.MessageItem);
+        }
+      );
+
+    await showLocalDebugMessage();
+
+    chai.assert.isTrue(showMessageStub.calledOnce);
+    chai.assert.isTrue(runLocalDebug.called);
+  });
+
+  it("showLocalDebugMessage() - has local env for DA project on Linux", async () => {
+    sandbox.stub(vscode.workspace, "workspaceFolders").value([{ uri: vscode.Uri.file("test") }]);
+    sandbox.stub(vscode.workspace, "openTextDocument");
+    sandbox.stub(process, "platform").value("linux");
+    sandbox.stub(fs, "pathExists").onFirstCall().resolves(true);
+    const runLocalDebug = sandbox.stub(runIconHandlers, "selectAndDebug").resolves(ok(null));
+
+    sandbox.stub(globalState, "globalStateGet").callsFake(async (key: string) => {
+      if (key === "ShowLocalDebugMessage") {
+        return true;
+      } else {
+        return false;
+      }
+    });
+    sandbox.stub(globalState, "globalStateUpdate");
+    sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
+    sandbox.stub(globalVariables, "workspaceUri").value(vscode.Uri.file("test"));
+    sandbox.stub(globalVariables, "isDeclarativeCopilotApp").value(true);
+    const showMessageStub = sandbox
+      .stub(vscode.window, "showInformationMessage")
+      .callsFake(
+        (title: string, options: vscode.MessageOptions, ...items: vscode.MessageItem[]) => {
+          return Promise.resolve({
+            title: "Not Preview",
+            run: (options as any).run,
+          } as vscode.MessageItem);
+        }
+      );
+
+    await showLocalDebugMessage();
+
+    chai.assert.isTrue(showMessageStub.calledOnce);
+    chai.assert.isFalse(runLocalDebug.called);
+  });
+
   it("showLocalDebugMessage() - has local env and not click debug", async () => {
     sandbox.stub(vscode.workspace, "workspaceFolders").value([{ uri: vscode.Uri.file("test") }]);
     sandbox.stub(vscode.workspace, "openTextDocument");

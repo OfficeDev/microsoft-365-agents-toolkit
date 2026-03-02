@@ -40,20 +40,21 @@ on:
     - cron: "0 22 * * *"
 
   pull_request:
+    branches: [dev, release/**]
 
 permissions:
   actions: read
 
 jobs:
   setup:
-    if: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.get-coverage == 'false' ) || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == 'teamsfx-bot/TeamsFx') }}
+    if: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.get-coverage == 'false' ) || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == 'OfficeDev/microsoft-365-agents-toolkit') }}
     runs-on: ubuntu-latest
     environment: engineering
     permissions:
       id-token: write
       contents: read
     outputs:
-      cases: ${{ steps.schedule-cases.outputs.cases || steps.dispatch-cases.outputs.cases || steps.pr-cases.outputs.cases }}
+      cases: ${{ steps.schedule-cases.outputs.cases || steps.pr-cases.outputs.cases || steps.dispatch-cases.outputs.cases }}
     env:
       AZURE_ACCOUNT_NAME: ${{ secrets.TEST_USER_NAME }}
       AZURE_ACCOUNT_OBJECT_ID: ${{ secrets.TEST_USER_OBJECT_ID }}
@@ -77,13 +78,23 @@ jobs:
 
       - name: setup project
         uses: ./.github/actions/setup-project
+        with:
+          range: "e2e"
 
-      - name: List cases for schedule
+      - name: List cases for schedule or pull request
         id: schedule-cases
         if: ${{  github.event_name == 'schedule' }}
         working-directory: packages/tests/src/e2e
         run: |
-          cases=`find . -wholename "*.tests.ts" | jq -Rsc '[split("\n") | .[]| select(.!="")]'`
+          cases=`find . -wholename "*.tests.ts" | grep -v "FoundryProxyAgent" | jq -Rsc '[split("\n") | .[]| select(.!="")]'`
+          echo "cases=$cases" >> $GITHUB_OUTPUT
+
+      - name: List cases for pull request
+        id: pr-cases
+        if: ${{  github.event_name == 'pull_request' }}
+        working-directory: packages/tests/src/e2e
+        run: |
+          cases=`find . -wholename "*.tests.ts" | grep -v "/samples/" | grep -v "FoundryProxyAgent" | jq -Rsc '[split("\n") | .[]| select(.!="")]'`
           echo "cases=$cases" >> $GITHUB_OUTPUT
 
       - name: List cases for dispatch
@@ -93,21 +104,11 @@ jobs:
         run: |
           inputCases='${{ github.event.inputs.cases }}'
           if [ -z "$inputCases" ]; then
-            allCases=`find . -wholename "*.tests.ts" | jq -Rsc '[split("\n") | .[]| select(.!="")]'`
+            allCases=`find . -wholename "*.tests.ts" | grep -v "FoundryProxyAgent" | jq -Rsc '[split("\n") | .[]| select(.!="")]'`
             echo "cases=$allCases" >> $GITHUB_OUTPUT
           else
             echo "cases=$inputCases" >> $GITHUB_OUTPUT
           fi
-
-      - name: List cases for pull request
-        id: pr-cases
-        if: ${{  github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == 'teamsfx-bot/TeamsFx'  }}
-        working-directory: packages/tests/src/e2e
-        run: |
-          cases=`find ./bot ./frontend -path "*.tests.ts" -and \
-            -not '(' -path '*/*.dotnet.tests.ts' -or -path '*/Blazor*' ')' \
-            | jq -Rsc '[split("\n") | .[]| select(.!="")]'`
-          echo "cases=$cases" >> $GITHUB_OUTPUT
 
       - name: E2E Test clean
         working-directory: packages/tests
@@ -189,13 +190,15 @@ jobs:
         with:
           node-version: 22
 
-      - name: Setup node for SPFx project
-        if: contains(matrix.cases, 'SPFx')
+      - name: Setup node for Retail project
+        if: contains(matrix.cases, 'Retail')
         uses: actions/setup-node@v3
         with:
-          node-version: 22
+          node-version: 18
 
+      # Azure Function is not used in templates now
       - name: Setup Azure Functions Core Tools For Linux
+        if: contains(matrix.cases, 'samples')
         run: |
           curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg
           sudo mv microsoft.gpg /etc/apt/trusted.gpg.d/microsoft.gpg
@@ -210,10 +213,11 @@ jobs:
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: |
-            6.0.x
             8.0.x
 
+      # Python is not used in templates now
       - name: Setup Python
+        if: contains(matrix.cases, 'samples')
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
@@ -222,7 +226,7 @@ jobs:
 
       - name: Setup project
         run: |
-          npm run setup
+          npm run setup:e2e
 
       - name: install cli with specific version
         if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.cli-version != '' }}
@@ -230,7 +234,7 @@ jobs:
           npm install -g @microsoft/m365agentstoolkit-cli@${{ github.event.inputs.cli-version }}
 
       - name: install cli for schedule
-        if: ${{  github.event_name == 'schedule' || ( github.event.ref == 'refs/heads/dev' && github.event_name == 'workflow_dispatch' && github.event.inputs.cli-version == '' ) }}
+        if: ${{  github.event_name == 'schedule' || github.event_name == 'pull_request' || ( github.event.ref == 'refs/heads/dev' && github.event_name == 'workflow_dispatch' && github.event.inputs.cli-version == '' ) }}
         run: |
           npm install -g @microsoft/m365agentstoolkit-cli@alpha
       
@@ -239,18 +243,12 @@ jobs:
         run: |
           pnpm link --global
 
-      - name: Update CLI and legacy-peer-deps for PR cases
-        if: ${{  github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == 'teamsfx-bot/TeamsFx'  }}
-        run: |
-          npm install -g @microsoft/m365agentstoolkit-cli@alpha
-          npm config set legacy-peer-deps false
-
       - name: print system info
         run: |
           lscpu
 
       - name: Download samples(daily)
-        if: github.event_name == 'schedule' && startsWith(matrix.cases, './samples/') && contains(matrix.cases, 'ProactiveMessage') == false
+        if: (github.event_name == 'schedule'  || github.event_name == 'pull_request') && startsWith(matrix.cases, './samples/') && contains(matrix.cases, 'ProactiveMessage') == false
         uses: actions/checkout@v3
         with:
           repository: OfficeDev/TeamsFx-Samples
@@ -362,7 +360,7 @@ jobs:
     permissions:
       actions: write
     needs: tear-down
-    if: ${{ (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.cases == '') || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == 'teamsfx-bot/TeamsFx')) && failure() && github.run_attempt < 5 }}
+    if: ${{ (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.cases == '') || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == 'OfficeDev/microsoft-365-agents-toolkit')) && failure() && github.run_attempt < 5 }}
     runs-on: ubuntu-latest
     steps:
       - name: rerun
@@ -427,7 +425,7 @@ jobs:
           has_mos_api_failure=false
           mos_api_failed_lists=""
 
-          emails="teamsfxqa@microsoft.com;"
+          emails="teamsfxqa@microsoft.com;M365AgentsToolkitEngineerTeam@microsoft.com"
           while IFS= read -r case;
           do
             if [ -z "$case" ]; then
@@ -450,7 +448,7 @@ jobs:
 
             email=""
             if grep -q "@author" $file; then
-              email=`grep '@author' $file | grep -i -o '[A-Z0-9._%+-]\+@[A-Z0-9.-]\+\.[A-Z]\{2,4\}'`
+              email=`grep '@author' $file | grep -i -o '[A-Z0-9._%+-]\+@[A-Z0-9.-]\+\.[A-Z]\{2,4\}' || true`
             fi
 
             author=""
@@ -488,7 +486,7 @@ jobs:
                   failed=$((failed+1))
                   label="<span style=\\\"background-color: #dc322f;color:white;font-weight:bold;\\\">FAILED</span>"
                   if [[ ! -z "$email" && ! "$emails" == *"$email"* ]]; then
-                    emails="$emails;$email;zhendr@microsoft.com;ccdevexperiencefc@microsoft.com"
+                    emails="$emails;$email;zhenjiao@microsoft.com"
                   fi
                 elif [[ ! -z `echo $test | jq 'select(.skipped==true)'` || ! -z `echo $test | jq 'select(.pending==true)'` ]]; then
                   skipped=$((skipped+1))
@@ -553,7 +551,7 @@ jobs:
         if: ${{ steps.list-jobs.outputs.has_mos_api_failure == 'true' }}
         uses: ./.github/actions/send-email-report
         env:
-          TO: "huajiezhang@microsoft.com;nliu@microsoft.com;huihuiwu@microsoft.com;zhaofengxu@microsoft.com;anchenyi@microsoft.com"
+          TO: "Wang.Hui@microsoft.com;huihuiwu@microsoft.com;liji1@microsoft.com;lisongqu@microsoft.com;Ning.Tang@microsoft.com;qinqiangxu@microsoft.com;qinzhouxu@microsoft.com;yanwenliu@microsoft.com;Yuqi.Zhou@microsoft.com;Zhiyu.You@microsoft.com"
           BODY: '"${{ steps.list-jobs.outputs.mos_body }}"'
           SUBJECT: ${{ steps.list-jobs.outputs.mos_subject }}
           MAIL_CLIENT_ID: ${{ secrets.TEST_CLEAN_CLIENT_ID }}

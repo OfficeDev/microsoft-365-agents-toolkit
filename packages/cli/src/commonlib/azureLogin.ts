@@ -5,11 +5,13 @@
 
 import { SubscriptionClient } from "@azure/arm-subscriptions";
 import { AccessToken, GetTokenOptions, TokenCredential } from "@azure/core-auth";
-import { LogLevel } from "@azure/msal-node";
+import { LogLevel, Configuration } from "@azure/msal-node";
 import {
+  AuthenticationWWWAuthenticateRequest,
   AzureAccountProvider,
   ConfigFolderName,
   FxError,
+  ITeamsFxTokenCredential,
   LogLevel as LLevel,
   ok,
   OptionItem,
@@ -24,6 +26,7 @@ import {
   AzureScopes,
   isValidProjectV3,
   InvalidAzureSubscriptionError,
+  MFARequiredError,
   featureFlagManager,
   FeatureFlags,
 } from "@microsoft/teamsfx-core";
@@ -55,22 +58,23 @@ const SERVER_PORT = 0;
 
 const cachePlugin = new CryptoCachePlugin(accountName);
 
-function getConfig(tenantId?: string) {
+function getConfig(tenantId?: string): Configuration {
   let authority;
   if (tenantId && tenantId.length > 0) {
     authority = "https://login.microsoftonline.com/" + tenantId;
   } else {
     authority = "https://login.microsoftonline.com/organizations";
   }
-  const config = {
+  const config: Configuration = {
     auth: {
       clientId: "7ea7c24c-b1f6-4a20-9d11-9ae12e9e7ac0",
       authority: authority,
+      clientCapabilities: ["CP1"],
     },
     system: {
       loggerOptions: {
         loggerCallback(loglevel: any, message: any, containsPii: any) {
-          if (this.logLevel <= LogLevel.Error) {
+          if (this.logLevel && this.logLevel <= LogLevel.Error) {
             void CLILogProvider.log(4 - loglevel, message);
           }
         },
@@ -82,6 +86,19 @@ function getConfig(tenantId?: string) {
       cachePlugin,
     },
   };
+
+  if (featureFlagManager.getBooleanValue(FeatureFlags.BrokerAuth) && process.platform === "win32") {
+    try {
+      // Dynamically require to avoid loading @azure/msal-node-extensions on Linux
+      // where keytar (a dependency) requires libsecret to be installed
+      const { NativeBrokerPlugin } = require("@azure/msal-node-extensions");
+      config.broker = {
+        nativeBrokerPlugin: new NativeBrokerPlugin(),
+      };
+    } catch {
+      // NativeBrokerPlugin not available, ignore
+    }
+  }
   return config;
 }
 
@@ -89,32 +106,32 @@ function getConfig(tenantId?: string) {
 // @ts-ignore
 const memoryDictionary: { [tenantId: string]: MemoryCache } = {};
 
-class TeamsFxTokenCredential implements TokenCredential {
+class TeamsFxTokenCredential implements ITeamsFxTokenCredential {
   private codeFlowInstance: CodeFlowLogin;
   private tenantId: string;
+  private silent: boolean;
 
-  constructor(codeFlowInstance: CodeFlowLogin) {
+  constructor(codeFlowInstance: CodeFlowLogin, silent = false) {
     this.codeFlowInstance = codeFlowInstance;
     this.tenantId = "";
+    this.silent = silent;
   }
 
   public setTenantId(tenantId: string) {
     this.tenantId = tenantId;
   }
 
+  public setSilent(silent: boolean) {
+    this.silent = silent;
+  }
+
   async getToken(
-    scopes: string | string[],
-    options?: GetTokenOptions | undefined
+    scopes: string | string[] | AuthenticationWWWAuthenticateRequest,
+    options?: any
   ): Promise<AccessToken | null> {
-    let myScopes: string[] = [];
-    if (typeof scopes === "string") {
-      myScopes = [scopes];
-    } else {
-      myScopes = scopes;
-    }
     const tokenRes: Result<string, FxError> = await this.codeFlowInstance.getTokenByScopes(
-      myScopes,
-      true,
+      scopes,
+      !this.silent, // When silent is true, don't refresh (trigger login) on failure
       this.tenantId
     );
 
@@ -177,11 +194,22 @@ export class AzureAccountManager extends login implements AzureAccountProvider {
   /**
    * Async get identity [crendential](https://github.com/Azure/azure-sdk-for-js/blob/master/sdk/core/core-auth/src/tokenCredential.ts)
    */
-  getIdentityCredentialAsync(showDialog = true): Promise<TokenCredential | undefined> {
+  getIdentityCredentialAsync(
+    showDialog = true,
+    authenticationSessionRequest?: AuthenticationWWWAuthenticateRequest
+  ): Promise<TeamsFxTokenCredential | undefined> {
+    if (authenticationSessionRequest && authenticationSessionRequest.wwwAuthenticate) {
+      const claimsChallenge = parseChallenges(authenticationSessionRequest.wwwAuthenticate).claims;
+      CLILogProvider.necessaryLog(
+        LLevel.Warning,
+        `Run the command below to authenticate interactively; additional arguments may be added as needed:\n atk auth login --claims-challenge ${claimsChallenge}`
+      );
+      throw new MFARequiredError(cliSource);
+    }
     return Promise.resolve(AzureAccountManager.teamsFxTokenCredential);
   }
 
-  async switchTenant(tenantId: string): Promise<Result<TokenCredential, FxError>> {
+  async switchTenant(tenantId: string): Promise<Result<TeamsFxTokenCredential, FxError>> {
     await saveTenantId(accountName, tenantId);
     return Promise.resolve(ok(AzureAccountManager.teamsFxTokenCredential));
   }
@@ -196,7 +224,7 @@ export class AzureAccountManager extends login implements AzureAccountProvider {
       AzureAccountManager.codeFlowInstance.account;
     if (AzureAccountManager.statusChange !== undefined && checkCodeFlow) {
       const credential = await this.getIdentityCredentialAsync();
-      const accessToken = await credential?.getToken(AzureScopes);
+      const accessToken = await credential?.getToken(AzureScopes());
       const accountJson = await this.getJsonObject();
       await AzureAccountManager.statusChange("SignedIn", accessToken?.token, accountJson);
     }
@@ -204,7 +232,7 @@ export class AzureAccountManager extends login implements AzureAccountProvider {
   }
 
   private async login(showDialog: boolean, tenantId?: string): Promise<void> {
-    const accessToken = await AzureAccountManager.codeFlowInstance.getTokenByScopes(AzureScopes);
+    const accessToken = await AzureAccountManager.codeFlowInstance.getTokenByScopes(AzureScopes());
     const tokenJson = await this.getJsonObject(false, tenantId);
     if (accessToken.isOk() && accessToken.value) {
       this.setMemoryCache(accessToken.value, tokenJson);
@@ -248,10 +276,11 @@ export class AzureAccountManager extends login implements AzureAccountProvider {
 
   async getJsonObject(
     showDialog = true,
-    tenantId?: string
+    tenantId?: string,
+    claimsChallenge?: string
   ): Promise<Record<string, unknown> | undefined> {
     const token = await AzureAccountManager.codeFlowInstance.getTokenByScopes(
-      AzureScopes,
+      claimsChallenge ? { scopes: AzureScopes(), wwwAuthenticate: claimsChallenge } : AzureScopes(),
       true,
       tenantId
     );
@@ -297,7 +326,7 @@ export class AzureAccountManager extends login implements AzureAccountProvider {
         }
       }
       const credential = await this.getIdentityCredentialAsync();
-      const token = await credential?.getToken(AzureScopes);
+      const token = await credential?.getToken(AzureScopes());
       const accountJson = await this.getJsonObject();
       return Promise.resolve({
         status: signedIn,
@@ -330,10 +359,11 @@ export class AzureAccountManager extends login implements AzureAccountProvider {
       if (!AzureAccountManager.tenantId) {
         const tenantClient = new SubscriptionClient(AzureAccountManager.teamsFxTokenCredential);
         const tenantTokenCredential: TeamsFxTokenCredential = new TeamsFxTokenCredential(
-          AzureAccountManager.codeFlowInstance
+          AzureAccountManager.codeFlowInstance,
+          true // silent mode - don't trigger login on failure
         );
         const cachedTenantId = await loadTenantId(accountName);
-        for await (const page of tenantClient.tenants.list().byPage({ maxPageSize: 100 })) {
+        for await (const page of tenantClient.tenants.list().byPage()) {
           for (const tenant of page) {
             if (
               cachedTenantId
@@ -343,9 +373,7 @@ export class AzureAccountManager extends login implements AzureAccountProvider {
               try {
                 tenantTokenCredential.setTenantId(tenant.tenantId as string);
                 const subscriptionClient = new SubscriptionClient(tenantTokenCredential);
-                for await (const subPage of subscriptionClient.subscriptions
-                  .list()
-                  .byPage({ maxPageSize: 100 })) {
+                for await (const subPage of subscriptionClient.subscriptions.list().byPage()) {
                   for (const item of subPage) {
                     arr.push({
                       subscriptionId: item.subscriptionId!,
@@ -371,9 +399,7 @@ export class AzureAccountManager extends login implements AzureAccountProvider {
         const subscriptionClient = new SubscriptionClient(
           AzureAccountManager.teamsFxTokenCredential
         );
-        for await (const page of subscriptionClient.subscriptions
-          .list()
-          .byPage({ maxPageSize: 100 })) {
+        for await (const page of subscriptionClient.subscriptions.list().byPage()) {
           for (const item of page) {
             arr.push({
               subscriptionId: item.subscriptionId!,
@@ -557,6 +583,8 @@ async function listAll<T>(
 
 import AzureLoginCI from "./azureLoginCI";
 import AzureAccountProviderUserPassword from "./azureLoginUserPassword";
+import { cliSource } from "../constants";
+import { parseChallenges } from "./common/utils";
 
 // todo delete ciEnabled
 const azureLogin = !ui.interactive

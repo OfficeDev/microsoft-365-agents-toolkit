@@ -3,7 +3,7 @@
 
 import { assert, expect } from "chai";
 import { CloudAdapter, TurnContext } from "@microsoft/agents-hosting";
-import { ConversationReference } from "@microsoft/agents-activity";
+import { ConversationReference, Activity, ActivityTypes } from "@microsoft/agents-activity";
 import * as sinon from "sinon";
 import { CommandBot } from "../../../../src/conversationWithCloudAdapter/command";
 import { CommandResponseMiddleware } from "../../../../src/conversation/middlewares/commandMiddleware";
@@ -35,6 +35,11 @@ describe("CommandBot Tests - Node", () => {
   beforeEach(() => {
     middlewares = [];
     const stubContext = sandbox.createStubInstance(TurnContext);
+    Object.defineProperty(stubContext, "activity", {
+      value: Activity.fromObject({ type: ActivityTypes.Message, text: "" }),
+      writable: true,
+      configurable: true,
+    });
     const stubAdapter = sandbox.createStubInstance(CloudAdapter);
     stubAdapter.use.callsFake((args) => {
       middlewares.push(args);

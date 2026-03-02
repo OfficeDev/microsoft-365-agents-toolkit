@@ -12,6 +12,8 @@ import { createConfidentialClientApplication } from "../util/utils.node";
 /**
  * Represent Microsoft 365 tenant identity, and it is usually used when user is not involved like time-triggered automation job.
  *
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
+ *
  * @example
  * ```typescript
  * loadConfiguration(); // load configuration from environment variables
@@ -26,6 +28,8 @@ export class AppCredential implements TokenCredential {
 
   /**
    * Constructor of AppCredential.
+   *
+   * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
    *
    * @remarks
    * Only works in in server side.
@@ -45,6 +49,8 @@ export class AppCredential implements TokenCredential {
 
   /**
    * Get access token for credential.
+   *
+   * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
    *
    * @example
    * ```typescript

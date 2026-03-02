@@ -6,7 +6,11 @@ import { logger } from "../../commonlib/logger";
 import { MissingRequiredOptionError } from "../../error";
 import { commands } from "../../resource";
 import { TelemetryEvent } from "../../telemetry/cliTelemetryEvents";
-import { m365utils, sideloadingServiceEndpoint } from "./m365Sideloading";
+import { m365utils } from "./m365Sideloading";
+import {
+  getResourceServiceEndpoint,
+  ResourceServiceType,
+} from "@microsoft/teamsfx-core/build/common/constants";
 
 export const m365LaunchInfoCommand: CLICommand = {
   name: "launchinfo",
@@ -38,7 +42,10 @@ export const m365LaunchInfoCommand: CLICommand = {
   },
   defaultInteractiveOption: false,
   handler: async (ctx) => {
-    const packageService = new PackageService(sideloadingServiceEndpoint, logger);
+    const packageService = new PackageService(
+      getResourceServiceEndpoint(ResourceServiceType.MOS3),
+      logger
+    );
     let titleId = ctx.optionValues["title-id"] as string;
     const manifestId = ctx.optionValues["manifest-id"] as string;
     if (titleId === undefined && manifestId === undefined) {

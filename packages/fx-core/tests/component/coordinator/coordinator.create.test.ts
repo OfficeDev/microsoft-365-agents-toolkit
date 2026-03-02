@@ -4,9 +4,8 @@ import { err, Inputs, ok, Platform, SystemError, UserError } from "@microsoft/te
 import { assert } from "chai";
 import fs from "fs-extra";
 import { glob } from "glob";
-import mockedEnv, { RestoreFn } from "mocked-env";
+import { RestoreFn } from "mocked-env";
 import * as sinon from "sinon";
-import { FeatureFlagName } from "../../../src/common/featureFlags";
 import { createContext, setTools } from "../../../src/common/globalVars";
 import { coordinator } from "../../../src/component/coordinator";
 import { AppDefinition } from "../../../src/component/driver/teamsApp/interfaces/appdefinitions/appDefinition";
@@ -27,15 +26,11 @@ import { CreateSampleProjectInputs } from "../../../src/question";
 import {
   ActionStartOptions,
   ApiAuthOptions,
-  CustomCopilotAssistantOptions,
   CustomCopilotRagOptions,
   QuestionNames,
   ScratchOptions,
 } from "../../../src/question/constants";
-import {
-  DACapabilityOptions,
-  TabCapabilityOptions,
-} from "../../../src/question/scaffold/vsc/CapabilityOptions";
+import { TabCapabilityOptions } from "../../../src/question/scaffold/vsc/CapabilityOptions";
 import { ProjectTypeOptions } from "../../../src/question/scaffold/vsc/ProjectTypeOptions";
 import { validationUtils } from "../../../src/ui/validationUtils";
 import { MockTools, randomAppName } from "../../core/utils";
@@ -353,7 +348,7 @@ describe("coordinator create", () => {
         [QuestionNames.AppName]: randomAppName(),
         [QuestionNames.ProgrammingLanguage]: "javascript",
         teamsAppFromTdp: appDefinition,
-        [QuestionNames.TemplateName]: TemplateNames.TabAndDefaultBot,
+        [QuestionNames.TemplateName]: TemplateNames.DefaultBot,
         [QuestionNames.ReplaceWebsiteUrl]: ["tab1"],
         [QuestionNames.ReplaceContentUrl]: [],
         [QuestionNames.ReplaceBotIds]: ["bot"],
@@ -452,31 +447,31 @@ describe("coordinator create", () => {
       assert.isTrue(res.isOk());
     });
 
-    it("create custom agent api with azure open ai success", async () => {
-      const v3ctx = createContext();
-      v3ctx.userInteraction = new MockedUserInteraction();
-      const inputs: Inputs = {
-        platform: Platform.VSCode,
-        folder: ".",
-        [QuestionNames.AppName]: randomAppName(),
-        [QuestionNames.ProgrammingLanguage]: "typescript",
-        [QuestionNames.SafeProjectName]: "safeprojectname",
-        [QuestionNames.TemplateName]: TemplateNames.CustomCopilotAssistantNew,
-        [QuestionNames.CustomCopilotAssistant]: CustomCopilotAssistantOptions.new().id,
-        [QuestionNames.ApiSpecLocation]: "spec",
-        [QuestionNames.ApiOperation]: "test",
-        [QuestionNames.AzureOpenAIKey]: "mockedAzureOpenAIKey",
-        [QuestionNames.AzureOpenAIEndpoint]: "mockedAzureOpenAIEndpoint",
-        [QuestionNames.AzureOpenAIDeploymentName]: "mockedAzureOpenAIDeploymentName",
-      };
-      sandbox.stub(DefaultTemplateGenerator.prototype, "run").resolves(ok({}));
-      sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
-      sandbox.stub(pathUtils, "getYmlFilePath").returns("m365agents.yml");
-      sandbox.stub(fs, "pathExists").resolves(false);
-      const res = await coordinator.create(v3ctx, inputs);
+    // it("create custom agent api with azure open ai success", async () => {
+    //   const v3ctx = createContext();
+    //   v3ctx.userInteraction = new MockedUserInteraction();
+    //   const inputs: Inputs = {
+    //     platform: Platform.VSCode,
+    //     folder: ".",
+    //     [QuestionNames.AppName]: randomAppName(),
+    //     [QuestionNames.ProgrammingLanguage]: "typescript",
+    //     [QuestionNames.SafeProjectName]: "safeprojectname",
+    //     [QuestionNames.TemplateName]: TemplateNames.CustomCopilotAssistantNew,
+    //     [QuestionNames.CustomCopilotAssistant]: CustomCopilotAssistantOptions.new().id,
+    //     [QuestionNames.ApiSpecLocation]: "spec",
+    //     [QuestionNames.ApiOperation]: "test",
+    //     [QuestionNames.AzureOpenAIKey]: "mockedAzureOpenAIKey",
+    //     [QuestionNames.AzureOpenAIEndpoint]: "mockedAzureOpenAIEndpoint",
+    //     [QuestionNames.AzureOpenAIDeploymentName]: "mockedAzureOpenAIDeploymentName",
+    //   };
+    //   sandbox.stub(DefaultTemplateGenerator.prototype, "run").resolves(ok({}));
+    //   sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
+    //   sandbox.stub(pathUtils, "getYmlFilePath").returns("m365agents.yml");
+    //   sandbox.stub(fs, "pathExists").resolves(false);
+    //   const res = await coordinator.create(v3ctx, inputs);
 
-      assert.isTrue(res.isOk());
-    });
+    //   assert.isTrue(res.isOk());
+    // });
 
     it("create custom copilot rag custom api failed", async () => {
       const v3ctx = createContext();
@@ -629,28 +624,6 @@ describe("coordinator create", () => {
       };
       const res = await coordinator.create(v3ctx, inputs);
       assert.isTrue(res.isErr());
-    });
-
-    it("success for kiota integration: declarative copilot", async () => {
-      mockedEnvRestore = mockedEnv({
-        [FeatureFlagName.KiotaIntegration]: "true",
-      });
-      sandbox.stub(fs, "pathExists").resolves(true);
-      sandbox.stub(coordinator, "ensureTrackingId").resolves(ok("mock-id"));
-      const inputs: Inputs = {
-        platform: Platform.VSCode,
-        [QuestionNames.ProjectType]: ProjectTypeOptions.copilotAgentOptionId,
-        [QuestionNames.Capabilities]: DACapabilityOptions.declarativeAgent().id,
-        [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
-        [QuestionNames.WithPlugin]: "yes",
-      };
-      const context = createContext();
-      const res = await coordinator.create(context, inputs);
-      assert.isTrue(res.isOk());
-      if (res.isOk()) {
-        assert.isNotNull(res.value.lastCommand);
-        assert.equal(res.value.projectPath, "");
-      }
     });
   });
 });

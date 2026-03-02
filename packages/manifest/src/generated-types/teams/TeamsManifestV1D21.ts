@@ -258,8 +258,8 @@ export interface Bot {
     supportsVideo?: boolean;
     /**
      * Specifies whether the bot offers an experience in the context of a channel in a team, in
-     * a 1:1 or group chat, or in an experience scoped to an individual user alone. These
-     * options are non-exclusive.
+     * a group chat (groupChat), an experience scoped to an individual user alone (personal) OR
+     * within Copilot surfaces. These options are non-exclusive.
      */
     scopes: CommandListScope[];
     /**
@@ -975,7 +975,7 @@ export interface ExtensionAutoRunEventsArray {
     requirements?: RequirementsExtensionElement;
     /**
      * Specifies the type of event. For supported types, please see:
-     * https://review.learn.microsoft.com/en-us/office/dev/add-ins/outlook/autolaunch?tabs=xmlmanifest#supported-events.
+     * https://learn.microsoft.com/en-us/office/dev/add-ins/outlook/autolaunch?tabs=xmlmanifest#supported-events.
      */
     events: Event[];
 }

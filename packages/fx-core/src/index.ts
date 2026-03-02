@@ -24,6 +24,7 @@ export {
   GraphScopes,
   ListSensitivityLabelScope,
   SPFxScopes,
+  MosServiceScope,
 } from "./common/constants";
 export { Correlator } from "./common/correlator";
 export {
@@ -32,6 +33,11 @@ export {
   FeatureFlags,
   isFeatureFlagEnabled,
 } from "./common/featureFlags";
+export {
+  getEntraEndpoint,
+  getDefaultAuthorityUrl,
+  getTenantedAuthorityUrl,
+} from "./common/accountUtils";
 export { globalStateGet, globalStateUpdate } from "./common/globalState";
 export { AadSet } from "./common/globalVars";
 export { getDefaultString, getLocalizedString } from "./common/localizeUtils";
@@ -88,6 +94,7 @@ export { pluginManifestUtils } from "./component/driver/teamsApp/utils/PluginMan
 export { DefaultTemplateGenerator } from "./component/generator/defaultGenerator";
 export { HelperMethods } from "./component/generator/officeAddin/helperMethods";
 export { generateScaffoldingSummary } from "./component/generator/openApiSpec/helper";
+export { getAllTemplatesOnPlatform } from "./component/generator/templates/metadata";
 export { TemplateInfo } from "./component/generator/templates/templateInfo";
 export { getSampleFileInfo, runWithLimitedConcurrency } from "./component/generator/utils";
 export * from "./component/local/constants";
@@ -97,11 +104,11 @@ export { LocalTelemetryReporter, TelemetryContext } from "./component/local/loca
 export { loadTeamsFxDevScript } from "./component/local/packageJsonHelper";
 export { Hub } from "./component/m365/constants";
 export { PackageService } from "./component/m365/packageService";
-export { MosServiceEndpoint, MosServiceScope } from "./component/m365/serviceConstant";
 export * from "./component/middleware/actionExecutionMW";
 export { outputScaffoldingWarningMessage } from "./component/utils/common";
 export { DotenvOutput, envUtil } from "./component/utils/envUtil";
 export { metadataUtil } from "./component/utils/metadataUtil";
+export { ODRTool, ODRServer, ODRProvider } from "./component/utils/odrProvider";
 export { pathUtils } from "./component/utils/pathUtils";
 export { newResourceGroupOption, resourceGroupHelper } from "./component/utils/ResourceGroupHelper";
 export { CoreCallbackFunc } from "./core/callback";
@@ -117,17 +124,13 @@ export * from "./question/options";
 export { VSCapabilityOptions } from "./question/scaffold/vs/createRootNode";
 export {
   BotCapabilityOptions,
-  CustomCopilotCapabilityOptions,
   CustomEngineAgentOptions,
   DACapabilityOptions,
   MeCapabilityOptions,
   OfficeAddinCapabilityOptions,
   TabCapabilityOptions,
-  TdpCapabilityOptions,
+  TeamsAgentCapabilityOptions,
 } from "./question/scaffold/vsc/CapabilityOptions";
 export { isTdpTemplate } from "./question/scaffold/vsc/createFromTdpNode";
-export {
-  getProjectTypeByCapability,
-  getTeamsProjectTypeByCapability,
-} from "./question/scaffold/vsc/createRootNode";
 export { ProjectTypeOptions } from "./question/scaffold/vsc/ProjectTypeOptions";
+export { ShareOperationOption } from "./question/share";

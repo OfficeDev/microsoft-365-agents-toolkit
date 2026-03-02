@@ -1,5 +1,7 @@
 # TeamsFx SDK for React
 
+> This package will be deprecated by 2026-07. You can copy hooks to your Teams app source code.
+
 TeamsFx SDK provides [React hooks](https://reactjs.org/docs/hooks-intro.html) to reduce the developer tasks of integrating TeamsFx with React and leverage Teams SSO.
 
 Use the library to:

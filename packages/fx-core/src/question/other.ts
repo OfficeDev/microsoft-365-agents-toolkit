@@ -12,7 +12,6 @@ import {
   Inputs,
   MultiFileQuestion,
   MultiSelectQuestion,
-  OptionItem,
   Platform,
   PluginManifestSchema,
   SingleFileQuestion,
@@ -23,16 +22,13 @@ import fs from "fs-extra";
 import * as os from "os";
 import * as path from "path";
 import { GraphClient } from "../client/graphClient";
-import { teamsDevPortalClient } from "../client/teamsDevPortalClient";
 import { AppStudioScopes, ConstantString, ListSensitivityLabelScope } from "../common/constants";
 import { FeatureFlags, featureFlagManager } from "../common/featureFlags";
 import { TOOLS } from "../common/globalVars";
 import { getLocalizedString } from "../common/localizeUtils";
 import { Constants } from "../component/driver/add/utility/constants";
-import { parseShareAppActionYamlConfig } from "../component/driver/share/utils";
 import { manifestUtils } from "../component/driver/teamsApp/utils/ManifestUtils";
 import { envUtil } from "../component/utils/envUtil";
-import { CollaborationConstants, CollaborationUtil } from "../core/collaborator";
 import { environmentNameManager } from "../core/environmentName";
 import {
   ActionStartOptions,
@@ -59,7 +55,6 @@ import {
   folderQuestion,
   oneDriveSharePointItemConfirmQuestion,
   oneDriveSharePointItemQuestion,
-  pluginApiSpecQuestion,
   pluginManifestQuestion,
   searchTypeQuestion,
   selectApiOperationForRegenerateQuestion,
@@ -68,67 +63,7 @@ import {
   webContentQuestion,
 } from "./create";
 import { UninstallInputs } from "./inputs";
-import { inputOrSearchAPISpecNode } from "./scaffold/vsc/teamsProjectTypeNode";
-
-export function listCollaboratorQuestionNode(): IQTreeNode {
-  const selectTeamsAppNode = selectTeamsAppManifestQuestionNode();
-  selectTeamsAppNode.condition = { contains: CollaborationConstants.TeamsAppQuestionId };
-  selectTeamsAppNode.children!.push({
-    condition: envQuestionCondition,
-    data: selectTargetEnvQuestion(QuestionNames.Env, false, false, ""),
-  });
-  const selectAadAppNode = selectAadAppManifestQuestionNode();
-  selectAadAppNode.condition = { contains: CollaborationConstants.AadAppQuestionId };
-  selectAadAppNode.children!.push({
-    condition: envQuestionCondition,
-    data: selectTargetEnvQuestion(QuestionNames.Env, false, false, ""),
-  });
-  return {
-    data: { type: "group" },
-    children: [
-      {
-        condition: (inputs: Inputs) => DynamicPlatforms.includes(inputs.platform),
-        data: selectAppTypeQuestion(),
-        cliOptionDisabled: "self",
-        inputsDisabled: "self",
-        children: [selectTeamsAppNode, selectAadAppNode],
-      },
-    ],
-  };
-}
-
-export function grantPermissionQuestionNode(): IQTreeNode {
-  const selectTeamsAppNode = selectTeamsAppManifestQuestionNode();
-  selectTeamsAppNode.condition = { contains: CollaborationConstants.TeamsAppQuestionId };
-  selectTeamsAppNode.children!.push({
-    condition: envQuestionCondition,
-    data: selectTargetEnvQuestion(QuestionNames.Env, false, false, ""),
-  });
-  const selectAadAppNode = selectAadAppManifestQuestionNode();
-  selectAadAppNode.condition = { contains: CollaborationConstants.AadAppQuestionId };
-  selectAadAppNode.children!.push({
-    condition: envQuestionCondition,
-    data: selectTargetEnvQuestion(QuestionNames.Env, false, false, ""),
-  });
-  return {
-    data: { type: "group" },
-    children: [
-      {
-        condition: (inputs: Inputs) => DynamicPlatforms.includes(inputs.platform),
-        data: selectAppTypeQuestion(),
-        cliOptionDisabled: "self",
-        inputsDisabled: "self",
-        children: [
-          selectTeamsAppNode,
-          selectAadAppNode,
-          {
-            data: inputUserEmailQuestion(),
-          },
-        ],
-      },
-    ],
-  };
-}
+import { inputOrSearchAPISpecNode } from "./scaffold/commonNodes";
 
 export function convertAadToNewSchemaQuestionNode(): IQTreeNode {
   return {
@@ -213,25 +148,6 @@ export function selectTeamsAppManifestQuestionNode(): IQTreeNode {
       {
         condition: (inputs: Inputs) => confirmCondition(inputs, false),
         data: confirmManifestQuestion(true, false),
-        cliOptionDisabled: "self",
-        inputsDisabled: "self",
-      },
-    ],
-  };
-}
-
-export function selectAadAppManifestQuestionNode(): IQTreeNode {
-  return {
-    data: selectAadManifestQuestion(),
-    children: [
-      {
-        condition: (inputs: Inputs) =>
-          inputs.platform === Platform.VSCode && // confirm question only works for VSC
-          inputs.projectPath &&
-          inputs[QuestionNames.AadAppManifestFilePath] &&
-          path.resolve(inputs[QuestionNames.AadAppManifestFilePath]) !==
-            path.join(inputs.projectPath, "aad.manifest.json"),
-        data: confirmManifestQuestion(false, false),
         cliOptionDisabled: "self",
         inputsDisabled: "self",
       },
@@ -373,7 +289,7 @@ export function selectLocalTeamsAppManifestQuestion(): SingleFileQuestion {
   };
 }
 
-function confirmManifestQuestion(isTeamsApp = true, isLocal = false): SingleSelectQuestion {
+export function confirmManifestQuestion(isTeamsApp = true, isLocal = false): SingleSelectQuestion {
   const map: Record<string, string> = {
     true_true: QuestionNames.ConfirmLocalManifest,
     true_false: QuestionNames.ConfirmManifest,
@@ -423,11 +339,11 @@ function confirmManifestQuestion(isTeamsApp = true, isLocal = false): SingleSele
 }
 
 function selectTeamsAppValidationMethodQuestion(): SingleSelectQuestion {
-  const options = [TeamsAppValidationOptions.schema(), TeamsAppValidationOptions.package()];
-
-  if (featureFlagManager.getBooleanValue(FeatureFlags.AsyncAppValidation)) {
-    options.push(TeamsAppValidationOptions.testCases());
-  }
+  const options = [
+    TeamsAppValidationOptions.schema(),
+    TeamsAppValidationOptions.package(),
+    TeamsAppValidationOptions.testCases(),
+  ];
 
   return {
     name: QuestionNames.ValidateMethod,
@@ -540,7 +456,7 @@ export function selectTargetEnvQuestion(
 async function getDefaultUserEmail() {
   if (!TOOLS?.tokenProvider.m365TokenProvider) return undefined;
   const jsonObjectRes = await TOOLS.tokenProvider.m365TokenProvider.getJsonObject({
-    scopes: AppStudioScopes,
+    scopes: AppStudioScopes(),
   });
   if (jsonObjectRes.isErr()) {
     throw jsonObjectRes.error;
@@ -554,13 +470,17 @@ async function getDefaultUserEmail() {
   return defaultUserEmail;
 }
 
-export function inputUserEmailQuestion(): TextInputQuestion {
+export function inputUserEmailQuestion(
+  title: string,
+  cliDescription: string,
+  useDefaultUser: boolean
+): TextInputQuestion {
   return {
     name: QuestionNames.UserEmail,
     type: "text",
-    title: getLocalizedString("core.getUserEmailQuestion.title"),
-    cliDescription: "Email address of the collaborator.",
-    default: getDefaultUserEmail,
+    title: title,
+    cliDescription: cliDescription,
+    default: useDefaultUser ? getDefaultUserEmail : undefined,
     validation: {
       validFunc: async (input: string, previousInputs?: Inputs) => {
         if (!input || input.trim() === "") {
@@ -568,9 +488,11 @@ export function inputUserEmailQuestion(): TextInputQuestion {
         }
 
         input = input.trim();
-        const defaultUserEmail = await getDefaultUserEmail();
-        if (input === defaultUserEmail) {
-          return getLocalizedString("core.getUserEmailQuestion.validation2");
+        if (useDefaultUser) {
+          const defaultUserEmail = await getDefaultUserEmail();
+          if (input === defaultUserEmail) {
+            return getLocalizedString("core.getUserEmailQuestion.validation2");
+          }
         }
 
         const re = /\S+@\S+\.\S+/;
@@ -626,68 +548,6 @@ export function selectAadManifestQuestion(): SingleFileQuestion {
   };
 }
 
-function selectAppTypeQuestion(): MultiSelectQuestion {
-  return {
-    name: QuestionNames.collaborationAppType,
-    title: getLocalizedString("core.selectCollaborationAppTypeQuestion.title"),
-    type: "multiSelect",
-    staticOptions: [
-      {
-        id: CollaborationConstants.AadAppQuestionId,
-        label: getLocalizedString("core.aadAppQuestion.label"),
-        description: getLocalizedString("core.aadAppQuestion.description"),
-      },
-      {
-        id: CollaborationConstants.TeamsAppQuestionId,
-        label: getLocalizedString("core.teamsAppQuestion.label"),
-        description: getLocalizedString("core.teamsAppQuestion.description"),
-      },
-    ],
-    validation: { minItems: 1 },
-    validationHelp: "Please select at least one app type.",
-  };
-}
-
-export async function envQuestionCondition(inputs: Inputs): Promise<boolean> {
-  const appType = inputs[CollaborationConstants.AppType] as string[];
-  const requireAad = appType?.includes(CollaborationConstants.AadAppQuestionId);
-  const requireTeams = appType?.includes(CollaborationConstants.TeamsAppQuestionId);
-  const aadManifestPath = inputs[QuestionNames.AadAppManifestFilePath];
-  const teamsManifestPath = inputs[QuestionNames.TeamsAppManifestFilePath];
-
-  // When both is selected, only show the question once at the end
-  if ((requireAad && !aadManifestPath) || (requireTeams && !teamsManifestPath)) {
-    return false;
-  }
-
-  // Only show env question when manifest id is referencing value from .env file
-  let requireEnv = false;
-  if (requireTeams && teamsManifestPath) {
-    const teamsAppIdRes = await CollaborationUtil.loadManifestId(teamsManifestPath);
-    if (teamsAppIdRes.isOk()) {
-      requireEnv = CollaborationUtil.requireEnvQuestion(teamsAppIdRes.value);
-      if (requireEnv) {
-        return true;
-      }
-    } else {
-      return false;
-    }
-  }
-
-  if (requireAad && aadManifestPath) {
-    const aadAppIdRes = await CollaborationUtil.loadManifestId(aadManifestPath);
-    if (aadAppIdRes.isOk()) {
-      requireEnv = CollaborationUtil.requireEnvQuestion(aadAppIdRes.value);
-      if (requireEnv) {
-        return true;
-      }
-    } else {
-      return false;
-    }
-  }
-
-  return false;
-}
 export async function newEnvNameValidation(
   input: string,
   inputs?: Inputs
@@ -811,25 +671,12 @@ export function addPluginQuestionNode(): IQTreeNode {
   return {
     data: apiPluginStartQuestion(true),
     children: [
-      {
-        data: pluginManifestQuestion(),
-        condition: {
-          equals: ActionStartOptions.existingPlugin().id,
-        },
-      },
-      {
-        data: pluginApiSpecQuestion(),
-        condition: {
-          equals: ActionStartOptions.existingPlugin().id,
-        },
-      },
       ...[inputOrSearchAPISpecNode()],
       {
         data: apiSpecLocationQuestion(),
         condition: (inputs: Inputs) => {
           return (
             !featureFlagManager.getBooleanValue(FeatureFlags.KiotaNPMIntegration) &&
-            !featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration) &&
             inputs[QuestionNames.ActionType] === ActionStartOptions.apiSpec().id
           );
         },
@@ -839,7 +686,6 @@ export function addPluginQuestionNode(): IQTreeNode {
         condition: (inputs: Inputs) => {
           return (
             !featureFlagManager.getBooleanValue(FeatureFlags.KiotaNPMIntegration) &&
-            !featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration) &&
             inputs[QuestionNames.ActionType] === ActionStartOptions.apiSpec().id
           );
         },
@@ -1353,7 +1199,13 @@ export function oauthQuestion(): IQTreeNode {
       {
         data: oauthClientIdQuestion(),
         condition: (inputs: Inputs) => {
-          return !inputs.clientId;
+          return !inputs.clientId && inputs.identityProvider !== "MicrosoftEntra";
+        },
+      },
+      {
+        data: entraClientIdQuestion(),
+        condition: (inputs: Inputs) => {
+          return !inputs.clientId && inputs.identityProvider === "MicrosoftEntra";
         },
       },
       {
@@ -1364,6 +1216,12 @@ export function oauthQuestion(): IQTreeNode {
             !inputs.clientSecret &&
             (!inputs.identityProvider || inputs.identityProvider === "Custom")
           );
+        },
+      },
+      {
+        data: oauthScopeCustomQuestion(),
+        condition: (inputs: Inputs) => {
+          return inputs.identityProvider === "Custom";
         },
       },
       {
@@ -1503,12 +1361,35 @@ function uninstallProjectPathQuestion(): FolderQuestion {
   };
 }
 
+function entraClientIdQuestion(): TextInputQuestion {
+  return {
+    type: "text",
+    name: QuestionNames.OauthClientId,
+    cliShortName: "i",
+    title: getLocalizedString("core.createProjectQuestion.EntraSSOClientId"),
+    placeholder: getLocalizedString("core.createProjectQuestion.EntraSSOClientId.placeholder"),
+    cliDescription: "Microsoft Entra SSO client id for OpenAPI spec.",
+    forgetLastValue: true,
+    additionalValidationOnAccept: {
+      validFunc: (input: string, inputs?: Inputs): string | undefined => {
+        if (!inputs) {
+          throw new Error("inputs is undefined"); // should never happen
+        }
+
+        process.env[QuestionNames.OauthClientId] = input;
+        return;
+      },
+    },
+  };
+}
+
 function oauthClientIdQuestion(): TextInputQuestion {
   return {
     type: "text",
     name: QuestionNames.OauthClientId,
     cliShortName: "i",
     title: getLocalizedString("core.createProjectQuestion.OauthClientId"),
+    placeholder: getLocalizedString("core.createProjectQuestion.OauthClientId.placeholder"),
     cliDescription: "Oauth client id for OpenAPI spec.",
     forgetLastValue: true,
     additionalValidationOnAccept: {
@@ -1540,6 +1421,7 @@ function oauthClientSecretQuestion(): TextInputQuestion {
     cliShortName: "c",
     password: true,
     title: getLocalizedString("core.createProjectQuestion.OauthClientSecret"),
+    placeholder: getLocalizedString("core.createProjectQuestion.OauthClientSecret.placeholder"),
     cliDescription: "Oauth client secret for OpenAPI spec.",
     forgetLastValue: true,
     validation: {
@@ -1558,6 +1440,36 @@ function oauthClientSecretQuestion(): TextInputQuestion {
         }
 
         process.env[QuestionNames.OauthClientSecret] = input;
+        return;
+      },
+    },
+  };
+}
+
+export function oauthScopeCustomQuestion(): TextInputQuestion {
+  return {
+    name: QuestionNames.OAuthScope,
+    title: getLocalizedString("core.createProjectQuestion.OauthScope"),
+    placeholder: getLocalizedString("core.createProjectQuestion.OauthScope.placeholder"),
+    type: "text",
+    cliDescription: "Scope for oauth.",
+    validation: {
+      validFunc: (input: string): string | undefined => {
+        const regExp =
+          /^$|^[a-zA-Z0-9._/-]+(:[a-zA-Z0-9._/-]+)?(\s*,\s*[a-zA-Z0-9._/-]+(:[a-zA-Z0-9._/-]+)?)*$/g;
+        if (!regExp.test(input)) {
+          return getLocalizedString("core.createProjectQuestion.OauthScope.validation");
+        }
+        return undefined;
+      },
+    },
+    additionalValidationOnAccept: {
+      validFunc: (input: string, inputs?: Inputs): string | undefined => {
+        if (!inputs) {
+          throw new Error("inputs is undefined"); // should never happen
+        }
+
+        process.env[QuestionNames.OAuthScope] = input;
         return;
       },
     },
@@ -1690,128 +1602,6 @@ export function SelectSensitivityLabelQuestion(): SingleSelectQuestion {
           id: label.id ?? "",
           label: label.displayName ?? "",
           description: label.description ?? "",
-        });
-      }
-      return options;
-    },
-    skipValidation: true,
-  };
-}
-
-export function shareNode(): IQTreeNode {
-  return {
-    data: {
-      type: "group",
-    },
-    children: [
-      {
-        data: shareOptionQuestion(),
-        children: [
-          {
-            condition: (inputs: Inputs) => {
-              return inputs[QuestionNames.ShareOption] === QuestionNames.ShareOptionShareToUser;
-            },
-            data: ShareToUserQuestion(),
-          },
-        ],
-      },
-    ],
-  };
-}
-
-function shareOptionQuestion(): SingleSelectQuestion {
-  return {
-    name: QuestionNames.ShareOption,
-    title: getLocalizedString("core.shareOptionQuestion.title"),
-    type: "singleSelect",
-    placeholder: getLocalizedString("core.shareOptionQuestion.placeholder"),
-    staticOptions: [
-      {
-        id: QuestionNames.ShareOptionShareApp,
-        label: getLocalizedString("core.shareOptionQuestion.share"),
-      },
-      {
-        id: QuestionNames.ShareOptionShareToUser,
-        label: getLocalizedString("core.shareOptionQuestion.shareToUser"),
-      },
-    ],
-  };
-}
-
-function ShareToUserQuestion(): TextInputQuestion {
-  return {
-    name: QuestionNames.ShareToUsers,
-    title: getLocalizedString("core.shareToUser.title"),
-    type: "text",
-    cliDescription: getLocalizedString("core.shareToUser.title"),
-    validation: {
-      validFunc: (input) => {
-        if (!input || input.trim() === "") {
-          return getLocalizedString("core.addUserQuestion.validation");
-        }
-      },
-    },
-  };
-}
-
-export function removeSharedAccessNode(): IQTreeNode {
-  return {
-    data: {
-      type: "group",
-    },
-    children: [
-      {
-        data: selectUsersToRemoveSharedAccess(),
-      },
-    ],
-  };
-}
-
-export function selectUsersToRemoveSharedAccess(): MultiSelectQuestion {
-  return {
-    name: QuestionNames.RemoveUsers,
-    title: getLocalizedString("core.selectUsersToRemoveShareAccess.title"),
-    type: "multiSelect",
-    cliDescription: getLocalizedString("core.selectUsersToRemoveShareAccess.title"),
-    staticOptions: [],
-    dynamicOptions: async (inputs: Inputs) => {
-      if (!inputs.projectPath) {
-        throw new Error("Project path is not defined");
-      }
-      const tokenRes = await TOOLS.tokenProvider.m365TokenProvider.getAccessToken({
-        scopes: AppStudioScopes,
-      });
-      if (tokenRes.isErr()) {
-        throw tokenRes.error;
-      }
-      const token = tokenRes.value;
-      const configRes = await parseShareAppActionYamlConfig(inputs.projectPath);
-      if (configRes.isErr()) {
-        throw configRes.error;
-      }
-      const teamsAppId = configRes.value[0];
-      const app = await teamsDevPortalClient.getApp(token, teamsAppId);
-      if (!app.userList || app.userList.length === 0) {
-        throw new Error("No owner found in the app");
-      }
-
-      const currentUserInfoRes = await CollaborationUtil.getCurrentUserInfo(
-        TOOLS.tokenProvider.m365TokenProvider
-      );
-      if (currentUserInfoRes.isErr()) {
-        throw currentUserInfoRes.error;
-      }
-      const operatorId = currentUserInfoRes.value.aadId;
-
-      const options: OptionItem[] = [];
-      for (const user of app.userList) {
-        if (user.aadId === operatorId) {
-          continue;
-        }
-        options.push({
-          id: user.userPrincipalName,
-          label: user.displayName,
-          description: user.userPrincipalName,
         });
       }
       return options;

@@ -66,7 +66,7 @@ export class CreateApiKeyDriver implements StepDriver {
 
       const state = loadStateFromEnv(outputEnvVarNames) as CreateApiKeyOutputs;
       const appStudioTokenRes = await context.m365TokenProvider.getAccessToken({
-        scopes: AppStudioScopes,
+        scopes: AppStudioScopes(),
       });
       if (appStudioTokenRes.isErr()) {
         throw appStudioTokenRes.error;

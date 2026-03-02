@@ -55,7 +55,7 @@ export class CreateOauthDriver implements StepDriver {
 
       const state = loadStateFromEnv(outputEnvVarNames) as CreateOauthOutputs;
       const appStudioTokenRes = await context.m365TokenProvider.getAccessToken({
-        scopes: AppStudioScopes,
+        scopes: AppStudioScopes(),
       });
       if (appStudioTokenRes.isErr()) {
         throw appStudioTokenRes.error;
@@ -86,6 +86,10 @@ export class CreateOauthDriver implements StepDriver {
         const clientId = process.env[QuestionNames.OauthClientId];
         if (clientId) {
           args.clientId = clientId;
+        }
+        const scope = process.env[QuestionNames.OAuthScope];
+        if (scope) {
+          args.scope = scope;
         }
 
         const clientSecret = process.env[QuestionNames.OauthClientSecret];
@@ -341,7 +345,7 @@ export class CreateOauthDriver implements StepDriver {
       authorizationEndpoint: authInfo.authorizationEndpoint,
       tokenExchangeEndpoint: authInfo.tokenExchangeEndpoint,
       tokenRefreshEndpoint: args.refreshUrl ?? authInfo.tokenRefreshEndpoint,
-      scopes: authInfo.scopes,
+      scopes: authInfo.scopes || [],
       identityProvider: "Custom",
       tokenExchangeMethodType: tokenExchangeMethodType,
       // TODO: add this part back after TDP update

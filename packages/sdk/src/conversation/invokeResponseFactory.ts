@@ -6,6 +6,7 @@ import { InvokeResponseErrorCode } from "./interface";
 /**
  * Available response type for an adaptive card invoke response.
  * @internal
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
  */
 export enum InvokeResponseType {
   AdaptiveCard = "application/vnd.microsoft.card.adaptive",
@@ -41,6 +42,7 @@ export enum InvokeResponseType {
  *    value: invokeResponse,
  *  });
  * ```
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
  */
 export class InvokeResponseFactory {
   /**
@@ -51,6 +53,7 @@ export class InvokeResponseFactory {
    * @param message - A text message included in a invoke response.
    *
    * @returns An `InvokeResponse` object.
+   * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
    */
   public static textMessage(message: string): InvokeResponse {
     if (!message) {
@@ -77,6 +80,7 @@ export class InvokeResponseFactory {
    * @param card - The adaptive card JSON payload.
    *
    * @returns An `InvokeResponse` object.
+   * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
    */
   public static adaptiveCard(card: unknown): InvokeResponse {
     if (!card) {
@@ -105,6 +109,7 @@ export class InvokeResponseFactory {
    * @param errorMessage - The error message.
    *
    * @returns An `InvokeResponse` object.
+   * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
    */
   public static errorResponse(
     errorCode: InvokeResponseErrorCode,
@@ -129,6 +134,7 @@ export class InvokeResponseFactory {
    * @param body - The value of the response body.
    *
    * @returns An `InvokeResponse` object.
+   * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
    */
   public static createInvokeResponse(statusCode: StatusCodes, body?: unknown): InvokeResponse {
     return {

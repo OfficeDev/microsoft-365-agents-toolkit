@@ -12,7 +12,7 @@ import AzureTokenProvider, { getAzureProvider } from "../../commonlib/azureLogin
 import AzureTokenCIProvider from "../../commonlib/azureLoginCI";
 import { checkIsOnline } from "../../commonlib/codeFlowLogin";
 import { logger } from "../../commonlib/logger";
-import M365TokenProvider from "../../commonlib/m365Login";
+import M365TokenProvider from "../../commonlib/M365TokenProviderWrapper";
 import { commands, strings } from "../../resource";
 import { TelemetryEvent } from "../../telemetry/cliTelemetryEvents";
 import { listAllTenants } from "@microsoft/teamsfx-core/build/common/tools";
@@ -32,7 +32,7 @@ class AccountUtils {
   async outputM365Info(commandType: "login" | "show", tid?: string): Promise<boolean> {
     const appStudioTokenJsonRes = await M365TokenProvider.getJsonObject(
       {
-        scopes: AppStudioScopes,
+        scopes: AppStudioScopes(),
       },
       tid
     );
@@ -48,7 +48,7 @@ class AccountUtils {
 
       const cachedTenantId = await M365TokenProvider.getTenant();
       if (cachedTenantId) {
-        const listTenantToken = await M365TokenProvider.getAccessToken({ scopes: AzureScopes });
+        const listTenantToken = await M365TokenProvider.getAccessToken({ scopes: AzureScopes() });
         if (listTenantToken.isOk()) {
           const tenants = await listAllTenants(listTenantToken.value);
           const curTenant = tenants.find((tenant) => tenant.tenantId === cachedTenantId);
@@ -75,14 +75,15 @@ class AccountUtils {
     tenantId = "",
     isServicePrincipal = false,
     userName = "",
-    password = ""
+    password = "",
+    claimsChallenge = ""
   ): Promise<boolean> {
     let azureProvider = getAzureProvider();
     if (isServicePrincipal === true || (await AzureTokenCIProvider.load())) {
       await AzureTokenCIProvider.init(userName, password, tenantId);
       azureProvider = AzureTokenCIProvider;
     }
-    const result = await azureProvider.getJsonObject(true, tenantId);
+    const result = await azureProvider.getJsonObject(true, tenantId, claimsChallenge);
     if (result) {
       if (tenantId) {
         await azureProvider.switchTenant(tenantId);
@@ -98,7 +99,7 @@ class AccountUtils {
         const identityCredential = await azureProvider.getIdentityCredentialAsync(false);
         const listTenantToken = identityCredential
           ? await identityCredential.getToken(
-              AzureSpCrypto.checkAzureSPFile() ? env.managementEndpointDefaultScope : AzureScopes
+              AzureSpCrypto.checkAzureSPFile() ? env.managementEndpointDefaultScope : AzureScopes()
             )
           : undefined;
         if (listTenantToken && listTenantToken.token) {
@@ -142,7 +143,7 @@ export const accountShowCommand: CLICommand = {
     event: TelemetryEvent.AccountShow,
   },
   handler: async (ctx) => {
-    const m365StatusRes = await M365TokenProvider.getStatus({ scopes: AppStudioScopes });
+    const m365StatusRes = await M365TokenProvider.getStatus({ scopes: AppStudioScopes() });
     if (m365StatusRes.isErr()) {
       return err(m365StatusRes.error);
     }

@@ -7,13 +7,17 @@ import Ajv2020 from "ajv/dist/2020";
 import fs from "fs-extra";
 import fetch from "node-fetch";
 import path from "path";
+import stripBom from "strip-bom";
 import * as DeclarativeAgentManifestV1D0 from "./copilot/declarative-agent/DeclarativeAgentManifestV1D0";
 import * as DeclarativeAgentManifestV1D2 from "./copilot/declarative-agent/DeclarativeAgentManifestV1D2";
 import * as DeclarativeAgentManifestV1D3 from "./copilot/declarative-agent/DeclarativeAgentManifestV1D3";
 import * as DeclarativeAgentManifestV1D4 from "./copilot/declarative-agent/DeclarativeAgentManifestV1D4";
+import * as DeclarativeAgentManifestV1D5 from "./copilot/declarative-agent/DeclarativeAgentManifestV1D5";
+import * as DeclarativeAgentManifestV1D6 from "./copilot/declarative-agent/DeclarativeAgentManifestV1D6";
 import * as APIPluginManifestV2D1 from "./copilot/plugin/ApiPluginManifestV2D1";
 import * as APIPluginManifestV2D2 from "./copilot/plugin/ApiPluginManifestV2D2";
 import * as APIPluginManifestV2D3 from "./copilot/plugin/ApiPluginManifestV2D3";
+import * as APIPluginManifestV2D4 from "./copilot/plugin/ApiPluginManifestV2D4";
 import * as TeamsManifestV1D0 from "./teams/TeamsManifestV1D0";
 import * as TeamsManifestV1D1 from "./teams/TeamsManifestV1D1";
 import * as TeamsManifestV1D10 from "./teams/TeamsManifestV1D10";
@@ -28,6 +32,10 @@ import * as TeamsManifestV1D19 from "./teams/TeamsManifestV1D19";
 import * as TeamsManifestV1D2 from "./teams/TeamsManifestV1D2";
 import * as TeamsManifestV1D20 from "./teams/TeamsManifestV1D20";
 import * as TeamsManifestV1D21 from "./teams/TeamsManifestV1D21";
+import * as TeamsManifestV1D22 from "./teams/TeamsManifestV1D22";
+import * as TeamsManifestV1D23 from "./teams/TeamsManifestV1D23";
+import * as TeamsManifestV1D24 from "./teams/TeamsManifestV1D24";
+import * as TeamsManifestV1D25 from "./teams/TeamsManifestV1D25";
 import * as TeamsManifestV1D3 from "./teams/TeamsManifestV1D3";
 import * as TeamsManifestV1D4 from "./teams/TeamsManifestV1D4";
 import * as TeamsManifestV1D5 from "./teams/TeamsManifestV1D5";
@@ -36,39 +44,46 @@ import * as TeamsManifestV1D7 from "./teams/TeamsManifestV1D7";
 import * as TeamsManifestV1D8 from "./teams/TeamsManifestV1D8";
 import * as TeamsManifestV1D9 from "./teams/TeamsManifestV1D9";
 import * as TeamsManifestVDevPreview from "./teams/TeamsManifestVDevPreview";
-export { DeclarativeAgentManifestV1D0 };
-export { DeclarativeAgentManifestV1D2 };
-export { DeclarativeAgentManifestV1D3 };
-export { DeclarativeAgentManifestV1D4 };
-export { APIPluginManifestV2D1 };
-export { APIPluginManifestV2D2 };
-export { APIPluginManifestV2D3 };
-export { TeamsManifestV1D0 };
-export { TeamsManifestV1D1 };
-export { TeamsManifestV1D10 };
-export { TeamsManifestV1D11 };
-export { TeamsManifestV1D12 };
-export { TeamsManifestV1D13 };
-export { TeamsManifestV1D14 };
-export { TeamsManifestV1D15 };
-export { TeamsManifestV1D16 };
-export { TeamsManifestV1D17 };
-export { TeamsManifestV1D19 };
-export { TeamsManifestV1D2 };
-export { TeamsManifestV1D20 };
-export { TeamsManifestV1D21 };
-export { TeamsManifestV1D3 };
-export { TeamsManifestV1D4 };
-export { TeamsManifestV1D5 };
-export { TeamsManifestV1D6 };
-export { TeamsManifestV1D7 };
-export { TeamsManifestV1D8 };
-export { TeamsManifestV1D9 };
-export { TeamsManifestVDevPreview };
+export {
+  APIPluginManifestV2D1,
+  APIPluginManifestV2D2,
+  APIPluginManifestV2D3,
+  APIPluginManifestV2D4,
+  DeclarativeAgentManifestV1D0,
+  DeclarativeAgentManifestV1D2,
+  DeclarativeAgentManifestV1D3,
+  DeclarativeAgentManifestV1D4,
+  DeclarativeAgentManifestV1D5,
+  DeclarativeAgentManifestV1D6,
+  TeamsManifestV1D0,
+  TeamsManifestV1D1,
+  TeamsManifestV1D10,
+  TeamsManifestV1D11,
+  TeamsManifestV1D12,
+  TeamsManifestV1D13,
+  TeamsManifestV1D14,
+  TeamsManifestV1D15,
+  TeamsManifestV1D16,
+  TeamsManifestV1D17,
+  TeamsManifestV1D19,
+  TeamsManifestV1D2,
+  TeamsManifestV1D20,
+  TeamsManifestV1D21,
+  TeamsManifestV1D22,
+  TeamsManifestV1D23,
+  TeamsManifestV1D24,
+  TeamsManifestV1D25,
+  TeamsManifestV1D3,
+  TeamsManifestV1D4,
+  TeamsManifestV1D5,
+  TeamsManifestV1D6,
+  TeamsManifestV1D7,
+  TeamsManifestV1D8,
+  TeamsManifestV1D9,
+  TeamsManifestVDevPreview,
+};
 
-  export {
-    TeamsManifestVDevPreview as DevPreviewSchema
-  } from "./teams/TeamsManifestVDevPreview";
+export { TeamsManifestVDevPreview as DevPreviewSchema } from "./teams/TeamsManifestVDevPreview";
 export type TeamsManifest =
   | (TeamsManifestV1D0.TeamsManifestV1D0 & { manifestVersion: "1.0"; $schema?: string })
   | (TeamsManifestV1D1.TeamsManifestV1D1 & { manifestVersion: "1.1" })
@@ -91,24 +106,33 @@ export type TeamsManifest =
   | TeamsManifestV1D19.TeamsManifestV1D19
   | TeamsManifestV1D20.TeamsManifestV1D20
   | TeamsManifestV1D21.TeamsManifestV1D21
+  | TeamsManifestV1D22.TeamsManifestV1D22
+  | TeamsManifestV1D23.TeamsManifestV1D23
+  | TeamsManifestV1D24.TeamsManifestV1D24
+  | TeamsManifestV1D25.TeamsManifestV1D25
   | TeamsManifestVDevPreview.TeamsManifestVDevPreview;
 
-export type TeamsManifestLatest = TeamsManifestV1D21.TeamsManifestV1D21;
+export type TeamsManifestLatest = TeamsManifestV1D25.TeamsManifestV1D25;
 
-export {
-  SensitivityLabel
-} from "./copilot/declarative-agent/DeclarativeAgentManifestV1D4";
+export { SensitivityLabel } from "./copilot/declarative-agent/DeclarativeAgentManifestV1D6";
 
 export type DeclarativeAgentManifest =
   | DeclarativeAgentManifestV1D0.DeclarativeAgentManifestV1D0
   | DeclarativeAgentManifestV1D2.DeclarativeAgentManifestV1D2
   | DeclarativeAgentManifestV1D3.DeclarativeAgentManifestV1D3
-  | DeclarativeAgentManifestV1D4.DeclarativeAgentManifestV1D4;
+  | DeclarativeAgentManifestV1D4.DeclarativeAgentManifestV1D4
+  | DeclarativeAgentManifestV1D5.DeclarativeAgentManifestV1D5
+  | DeclarativeAgentManifestV1D6.DeclarativeAgentManifestV1D6;
 
-export type DeclarativeAgentManifestLatest = DeclarativeAgentManifestV1D4.DeclarativeAgentManifestV1D4;
+export type DeclarativeAgentManifestLatest =
+  DeclarativeAgentManifestV1D6.DeclarativeAgentManifestV1D6;
 
-export type APIPluginManifest = APIPluginManifestV2D1.APIPluginManifestV2D1 | APIPluginManifestV2D2.APIPluginManifestV2D2 | APIPluginManifestV2D3.APIPluginManifestV2D3;
-export type APIPluginManifestLatest = APIPluginManifestV2D3.APIPluginManifestV2D3;
+export type APIPluginManifest =
+  | APIPluginManifestV2D1.APIPluginManifestV2D1
+  | APIPluginManifestV2D2.APIPluginManifestV2D2
+  | APIPluginManifestV2D3.APIPluginManifestV2D3
+  | APIPluginManifestV2D4.APIPluginManifestV2D4;
+export type APIPluginManifestLatest = APIPluginManifestV2D4.APIPluginManifestV2D4;
 
 export type AppManifest = TeamsManifest | DeclarativeAgentManifest | APIPluginManifest;
 
@@ -196,6 +220,22 @@ const TeamsManifestConverterMap: Converters = {
     TeamsManifestV1D21.Convert.toTeamsManifestV1D21,
     TeamsManifestV1D21.Convert.teamsManifestV1D21ToJson,
   ],
+  "1.22": [
+    TeamsManifestV1D22.Convert.toTeamsManifestV1D22,
+    TeamsManifestV1D22.Convert.teamsManifestV1D22ToJson,
+  ],
+  "1.23": [
+    TeamsManifestV1D23.Convert.toTeamsManifestV1D23,
+    TeamsManifestV1D23.Convert.teamsManifestV1D23ToJson,
+  ],
+  "1.24": [
+    TeamsManifestV1D24.Convert.toTeamsManifestV1D24,
+    TeamsManifestV1D24.Convert.teamsManifestV1D24ToJson,
+  ],
+  "1.25": [
+    TeamsManifestV1D25.Convert.toTeamsManifestV1D25,
+    TeamsManifestV1D25.Convert.teamsManifestV1D25ToJson,
+  ],
   devPreview: [
     TeamsManifestVDevPreview.Convert.toTeamsManifestVDevPreview,
     TeamsManifestVDevPreview.Convert.teamsManifestVDevPreviewToJson,
@@ -231,6 +271,10 @@ const ApiPluginConverterMap: Converters = {
   "v2.3": [
     APIPluginManifestV2D3.Convert.toAPIPluginManifestV2D3,
     APIPluginManifestV2D3.Convert.aPIPluginManifestV2D3ToJson,
+  ],
+  "v2.4": [
+    APIPluginManifestV2D4.Convert.toAPIPluginManifestV2D4,
+    APIPluginManifestV2D4.Convert.aPIPluginManifestV2D4ToJson,
   ],
 };
 
@@ -270,7 +314,7 @@ export class DeclarativeAgentManifestConverter {
     const version = manifest.version as string;
     const converters = daConverterMap[version as keyof typeof daConverterMap];
     if (!converters) {
-      return JSON.stringify(manifest);
+      return JSON.stringify(manifest, undefined, 4);
     }
     return converters[1](manifest);
   }
@@ -320,7 +364,9 @@ export class AppManifestUtils {
     let result: JSONSchemaType<AppManifest>;
     try {
       const res = await fetch(schemaUrl);
-      result = (await res.json()) as JSONSchemaType<AppManifest>;
+      const text = await res.text();
+      const cleanedText = text.replace(/\\a/g, "\\u0007").replace(/\\v/g, "\\u000b");
+      result = JSON.parse(cleanedText) as JSONSchemaType<AppManifest>;
     } catch (e: unknown) {
       if (e instanceof Error) {
         throw new Error(`Failed to get manifest at url ${schemaUrl} due to: ${e.message}`);
@@ -381,7 +427,9 @@ export class AppManifestUtils {
    */
   static async readTeamsManifest(filePath: string): Promise<TeamsManifest> {
     const jsonString = await fs.readFile(filePath, "utf8");
-    const manifest = TeamsManifestConverter.jsonToManifest(jsonString);
+    // Strip BOM to handle UTF-8 BOM encoded files
+    const cleanContent = stripBom(jsonString);
+    const manifest = TeamsManifestConverter.jsonToManifest(cleanContent);
     return manifest;
   }
 
@@ -409,7 +457,9 @@ export class AppManifestUtils {
    */
   static async readDeclarativeAgentManifest(filePath: string): Promise<DeclarativeAgentManifest> {
     const jsonString = await fs.readFile(filePath, "utf8");
-    const manifest = DeclarativeAgentManifestConverter.jsonToManifest(jsonString);
+    // Strip BOM to handle UTF-8 BOM encoded files
+    const cleanContent = stripBom(jsonString);
+    const manifest = DeclarativeAgentManifestConverter.jsonToManifest(cleanContent);
     return manifest;
   }
 
@@ -439,7 +489,9 @@ export class AppManifestUtils {
    */
   static async readApiPluginManifest(filePath: string): Promise<APIPluginManifest> {
     const jsonString = await fs.readFile(filePath, "utf8");
-    const manifest = ApiPluginManifestConverter.jsonToManifest(jsonString);
+    // Strip BOM to handle UTF-8 BOM encoded files
+    const cleanContent = stripBom(jsonString);
+    const manifest = ApiPluginManifestConverter.jsonToManifest(cleanContent);
     return manifest;
   }
 

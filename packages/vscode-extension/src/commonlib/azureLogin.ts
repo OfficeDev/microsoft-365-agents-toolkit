@@ -2,8 +2,6 @@
 // Licensed under the MIT license.
 /* eslint-disable @typescript-eslint/no-empty-function */
 
-/* eslint-disable @typescript-eslint/no-empty-function */
-
 "use strict";
 
 import type { TokenCredential } from "@azure/core-auth";
@@ -36,13 +34,7 @@ import {
   TelemetryErrorType,
 } from "../telemetry/extTelemetryEvents";
 import { VS_CODE_UI } from "../qm/vsc_ui";
-import {
-  AzureScopes,
-  featureFlagManager,
-  FeatureFlags,
-  globalStateGet,
-  globalStateUpdate,
-} from "@microsoft/teamsfx-core";
+import { AzureScopes, globalStateGet, globalStateUpdate } from "@microsoft/teamsfx-core";
 import { getDefaultString, localize } from "../utils/localizeUtils";
 import {
   Microsoft,
@@ -82,10 +74,13 @@ export class AzureAccountManager extends login implements AzureAccountProvider {
   /**
    * Async get identity [crendential](https://github.com/Azure/azure-sdk-for-js/blob/master/sdk/core/core-auth/src/tokenCredential.ts)
    */
-  async getIdentityCredentialAsync(showDialog = true): Promise<TokenCredential | undefined> {
+  async getIdentityCredentialAsync(
+    showDialog = true,
+    authenticationSessionRequest?: vscode.AuthenticationWwwAuthenticateRequest
+  ): Promise<TokenCredential | undefined> {
     const tenantId = await loadTenantId(azureCacheName);
     if (await this.isUserLogin(tenantId)) {
-      const res = await this.getIdentityCredentialSilently(tenantId);
+      const res = await this.getIdentityCredentialSilently(tenantId, authenticationSessionRequest);
       if (res.isOk()) {
         return res.value;
       } else {
@@ -100,7 +95,7 @@ export class AzureAccountManager extends login implements AzureAccountProvider {
     if (!tenantId) {
       tenantId = await loadTenantId(azureCacheName);
     }
-    const session = await getSessionFromVSCode(AzureScopes, tenantId, {
+    const session = await getSessionFromVSCode(AzureScopes(), tenantId, {
       createIfNone: false,
       silent: true,
     });
@@ -127,7 +122,7 @@ export class AzureAccountManager extends login implements AzureAccountProvider {
     try {
       AzureAccountManager.currentStatus = loggingIn;
       void this.notifyStatus();
-      const session = await getSessionFromVSCode(AzureScopes, tenantId, { createIfNone: true });
+      const session = await getSessionFromVSCode(AzureScopes(), tenantId, { createIfNone: true });
       if (session === undefined) {
         throw new UserError(
           getDefaultString("teamstoolkit.codeFlowLogin.loginComponent"),
@@ -177,7 +172,9 @@ export class AzureAccountManager extends login implements AzureAccountProvider {
     }
   }
 
-  private async doGetIdentityCredentialAsync(): Promise<TokenCredential | undefined> {
+  private async doGetIdentityCredentialAsync(
+    showDialog?: boolean
+  ): Promise<TokenCredential | undefined> {
     const tokenCredential = await this.doGetAccountCredentialAsync();
     if (tokenCredential) {
       return tokenCredential;
@@ -200,7 +197,7 @@ export class AzureAccountManager extends login implements AzureAccountProvider {
         }
         return subs[0].credential;
       } else {
-        const session = await getSessionFromVSCode(AzureScopes, undefined, {
+        const session = await getSessionFromVSCode(AzureScopes(), undefined, {
           createIfNone: false,
           silent: true,
         });
@@ -220,12 +217,19 @@ export class AzureAccountManager extends login implements AzureAccountProvider {
   }
 
   private async getIdentityCredentialSilently(
-    tenantId?: string
+    tenantId?: string,
+    authenticationSessionRequest?: vscode.AuthenticationWwwAuthenticateRequest
   ): Promise<Result<TokenCredential, FxError>> {
-    const session = await getSessionFromVSCode(AzureScopes, tenantId, {
-      createIfNone: false,
-      silent: true,
-    });
+    const session = await getSessionFromVSCode(
+      authenticationSessionRequest ?? AzureScopes(),
+      tenantId,
+      authenticationSessionRequest
+        ? { createIfNone: true, silent: false }
+        : {
+            createIfNone: false,
+            silent: true,
+          }
+    );
     if (!session) {
       return err(LoginFailureError());
     }
@@ -280,7 +284,7 @@ export class AzureAccountManager extends login implements AzureAccountProvider {
 
   async getJsonObject(showDialog = true): Promise<Record<string, unknown> | undefined> {
     const credential = await this.getIdentityCredentialAsync(showDialog);
-    const token = await credential?.getToken("https://management.core.windows.net/.default");
+    const token = await credential?.getToken(AzureScopes());
     if (token) {
       const array = token.token.split(".");
       const buff = Buffer.from(array[1], "base64");
@@ -432,7 +436,7 @@ export class AzureAccountManager extends login implements AzureAccountProvider {
       }
       if (AzureAccountManager.currentStatus === loggedIn || (await this.isUserLogin())) {
         const credential = await this.doGetIdentityCredentialAsync();
-        const token = await credential?.getToken(AzureScopes);
+        const token = await credential?.getToken(AzureScopes());
         const accountJson = await this.getJsonObject();
         return Promise.resolve({
           status: signedIn,

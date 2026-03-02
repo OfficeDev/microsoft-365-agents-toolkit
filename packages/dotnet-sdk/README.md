@@ -1,5 +1,7 @@
 # TeamsFx .NET SDK
 
+This package will be deprecated by 2026-09.
+
 A NuGet package for Blazor projects which aims to reduce the developer tasks of implementing identity and access to cloud resources.
 
 [TeamsFx SDK for JavaScript/TypeScript](https://github.com/OfficeDev/TeamsFx/tree/main/packages/sdk) |

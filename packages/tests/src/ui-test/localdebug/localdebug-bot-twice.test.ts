@@ -58,7 +58,7 @@ describe("Local Debug Tests", function () {
       try {
         await waitForTerminal(
           LocalDebugTaskLabel.StartBotApp,
-          LocalDebugTaskInfo.StartBotInfo
+          LocalDebugTaskInfo.AppListening
         );
         await stopDebugging();
         await driver.sleep(Timeout.stopdebugging);
@@ -72,14 +72,14 @@ describe("Local Debug Tests", function () {
         await waitForTerminal(LocalDebugTaskLabel.StartLocalTunnel);
         await waitForTerminal(
           LocalDebugTaskLabel.StartBotApp,
-          LocalDebugTaskInfo.StartBotInfo
+          LocalDebugTaskInfo.AppListening
         );
 
         // check if there is error "Could not attach to main target"
         await driver.sleep(Timeout.startdebugging);
         await waitForTerminal(
           LocalDebugTaskLabel.StartBotApp,
-          LocalDebugTaskInfo.StartBotInfo
+          LocalDebugTaskInfo.AppListening
         );
       } catch {
         const dialog = new ModalDialog();
@@ -101,14 +101,14 @@ describe("Local Debug Tests", function () {
         try {
           await waitForTerminal(
             LocalDebugTaskLabel.StartBotApp,
-            LocalDebugTaskInfo.StartBotInfo
+            LocalDebugTaskInfo.AppListening
           );
 
           // check if there is error "Debug Anyway"
           await driver.sleep(Timeout.startdebugging);
           await waitForTerminal(
             LocalDebugTaskLabel.StartBotApp,
-            LocalDebugTaskInfo.StartBotInfo
+            LocalDebugTaskInfo.AppListening
           );
         } catch {
           const dialog = new ModalDialog();
@@ -118,7 +118,7 @@ describe("Local Debug Tests", function () {
           await driver.sleep(Timeout.shortTimeLoading);
           await waitForTerminal(
             LocalDebugTaskLabel.StartBotApp,
-            LocalDebugTaskInfo.StartBotInfo
+            LocalDebugTaskInfo.AppListening
           );
         }
       }
@@ -133,7 +133,7 @@ describe("Local Debug Tests", function () {
           projectPath: projectPath,
           teamsAppName: localDebugTestContext.appName,
           env: "local",
-          searchApp: true,
+          searchApp: false,
         }
       );
       await localDebugTestContext.validateLocalStateForBot();

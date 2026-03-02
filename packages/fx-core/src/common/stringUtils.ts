@@ -30,7 +30,8 @@ export function maskSecretFromEnv(stdout: string, replace = SECRET_REPLACE): str
     if (key.startsWith("SECRET_")) {
       const value = process.env[key];
       if (value) {
-        stdout = stdout.replace(new RegExp(value, "g"), replace);
+        const escapedValue = value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        stdout = stdout.replace(new RegExp(escapedValue, "g"), replace);
       }
     }
   }

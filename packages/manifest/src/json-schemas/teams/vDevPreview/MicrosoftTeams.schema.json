@@ -84,15 +84,15 @@
                     "maxLength": 10
                 },
                 "websiteUrl": {
-                    "$ref": "#/definitions/httpsUrl",
+                    "$ref": "#/definitions/anyHttpUrl",
                     "description": "The url to the page that provides support information for the app."
                 },
                 "privacyUrl": {
-                    "$ref": "#/definitions/httpsUrl",
+                    "$ref": "#/definitions/anyHttpUrl",
                     "description": "The url to the page that provides privacy information for the app."
                 },
                 "termsOfUseUrl": {
-                    "$ref": "#/definitions/httpsUrl",
+                    "$ref": "#/definitions/anyHttpUrl",
                     "description": "The url to the page that provides the terms of use for the app."
                 },
                 "contactInfo": {
@@ -180,6 +180,32 @@
                     "type": "string",
                     "description": "The full description of the app. Maximum length is 4000 characters.",
                     "maxLength": 4000
+                },
+                "features": {
+                    "type": "array",
+                    "description": "Array of features sections describing what the app can do.",
+                    "minItems": 1,
+                    "maxItems": 3,
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "title": {
+                                "type": "string",
+                                "maxLength": 45,
+                                "description": "Title of the feature the app provides."
+                            },
+                            "description": {
+                                "type": "string",
+                                "maxLength": 120,
+                                "description": "Detailed description of the specific feature."
+                            }
+                        },
+                        "required": [
+                        "title",
+                        "description"
+                        ]
+                    }
                 }
             },
             "required": [
@@ -227,7 +253,7 @@
                         "maxLength": 64
                     },
                     "configurationUrl": {
-                        "$ref": "#/definitions/httpsUrl",
+                        "$ref": "#/definitions/anyHttpUrl",
                         "description": "The url to use when configuring the tab."
                     },
                     "canUpdateConfiguration": {
@@ -329,7 +355,7 @@
                         "maxLength": 128
                     },
                     "contentUrl": {
-                        "$ref": "#/definitions/httpsUrl",
+                        "$ref": "#/definitions/anyHttpUrl",
                         "description": "The url which points to the entity UI to be displayed in the Teams canvas."
                     },
                     "contentBotId": {
@@ -337,11 +363,11 @@
                         "description": "The Microsoft App ID specified for the bot in the Bot Framework portal (https://dev.botframework.com/bots)"
                     },
                     "websiteUrl": {
-                        "$ref": "#/definitions/httpsUrl",
+                        "$ref": "#/definitions/anyHttpUrl",
                         "description": "The url to point at if a user opts to view in a browser."
                     },
                     "searchUrl": {
-                        "$ref": "#/definitions/httpsUrl",
+                        "$ref": "#/definitions/anyHttpUrl",
                         "description": "The url to direct a user's search queries."
                     },
                     "scopes": {
@@ -474,6 +500,11 @@
                         "description": "A value indicating whether the bot supports video calling.",
                         "default": false
                     },
+                    "supportsSessions": {
+                        "type": "boolean",
+                        "description": "A property set by developers to opt-in to sessions.",
+                        "default": false
+                    },
                     "scopes": {
                         "type": "array",
                         "description": "Specifies whether the bot offers an experience in the context of a channel in a team, in a group chat (groupChat), an experience scoped to an individual user alone (personal) OR within Copilot surfaces. These options are non-exclusive.",
@@ -497,7 +528,7 @@
                             "properties": {
                                 "scopes": {
                                     "type": "array",
-                                    "description": "Specifies whether the bot offers an experience in the context of a channel in a team, in a group chat (groupChat), an experience scoped to an individual user alone (personal) OR within Copilot surfaces. These options are non-exclusive.",
+                                    "description": "Specifies the scopes for which the command list is valid",
                                     "maxItems": 4,
                                     "items": {
                                       "enum": [
@@ -510,7 +541,7 @@
                                 },
                                 "commands": {
                                     "type": "array",
-                                    "maxItems": 10,
+                                    "maxItems": 12,
                                     "items": {
                                         "type": "object",
                                         "additionalProperties": false,
@@ -542,6 +573,34 @@
                     "requirementSet": {
                         "$ref": "#/definitions/elementRequirementSet",
                         "description": "The set of requirements for the bot."
+                    },
+                    "registrationInfo": {
+                        "description": "System‑generated metadata. This information is maintained by Microsoft services and must not be modified manually.",
+                        "type": "object",
+                        "properties": {
+                        "source": {
+                            "type": "string",
+                            "enum": [ "standard", "microsoftCopilotStudio", "onedriveSharepoint" ],
+                            "description": "The partner source through which the bot is registered. System‑generated metadata. This information is maintained by Microsoft services and must not be modified manually."
+                        },
+                        "environment": {
+                            "type": "string",
+                            "description": "A Power Platform environment that serves as a container for building apps under a Microsoft 365 tenant and can only be accessed by users within that tenant. System‑generated metadata. This information is maintained by Microsoft services and must not be modified manually.",
+                            "maxLength": 128
+                        },
+                        "schemaName": {
+                            "type": "string",
+                            "description": "The Copilot Studio copilot schema name. System‑generated metadata. This information is maintained by Microsoft services and must not be modified manually.",
+                            "maxLength": 128
+                        },
+                        "clusterCategory": {
+                            "type": "string",
+                            "description": "The core services cluster category for Copilot Studio copilots. System‑generated metadata. This information is maintained by Microsoft services and must not be modified manually.",
+                            "maxLength": 128
+                        }
+                        },
+                        "required": [ "source" ],
+                        "additionalProperties": false
                     }
                 },
                 "required": [
@@ -564,7 +623,7 @@
                         "maxLength": 64
                     },
                     "configurationUrl": {
-                        "$ref": "#/definitions/httpsUrl",
+                        "$ref": "#/definitions/anyHttpUrl",
                         "description": "The url to use for configuring the connector using the inline configuration experience."
                     },
                     "scopes": {
@@ -1051,7 +1110,7 @@
             "description": "Specify the app's Graph connector configuration. If this is present then webApplicationInfo.id must also be specified.",
             "properties": {
                 "notificationUrl": {
-                    "$ref": "#/definitions/httpsUrl",
+                    "$ref": "#/definitions/anyHttpUrl",
                     "description": "The url where Graph-connector notifications for the application should be sent."
                 }
             },
@@ -1148,6 +1207,15 @@
                 ]
             }
         },
+        "supportsChannelFeatures": {
+          "type": "string",
+          "enum": [
+            "tier1",
+            "tier2",
+            null
+          ],
+          "description": "A property in the app manifest that declares support for all channel features, categorized by tiers."
+        },
         "configurableProperties": {
             "type": "array",
             "description": "A list of tenant configured properties for an app",
@@ -1172,7 +1240,7 @@
             "default": false
         },
         "publisherDocsUrl": {
-            "$ref": "#/definitions/httpsUrl",
+            "$ref": "#/definitions/anyHttpUrl",
             "description": "The url to the page that provides additional app information for the admins"
         },
         "defaultInstallScope": {
@@ -1421,6 +1489,33 @@
                             "bot"
                           ],
                           "description": "The type of the Custom Engine Agent. Currently only type bot is supported."
+                        },
+                        "disclaimer": {
+                          "type": "object",
+                          "properties": {
+                            "text": {
+                              "type": "string",
+                              "description": "The message shown to users before they interact with this application. ",
+                              "maxLength": 500
+                            }
+                          },
+                          "required": [
+                            "text"
+                          ]
+                        },
+                        "functionsAs": {
+                            "type": "string",
+                            "enum": [
+                            "agentOnly",
+                            "agenticUserOnly",
+                            "agentOrAgenticUser"
+                            ],
+                            "default": "agentOnly",
+                            "description": "Possible values: 'agenticUserOnly', 'agentOnly', or 'agentOrAgenticUser'. 'agenticUserOnly' means the customEngineAgent must be hired and cannot be installed as a regular agent. 'agentOrAgenticUser' means the customEngineAgent supports both being installed as a regular agent and being hired. 'agentOnly' means it supports being installed as a regular agent only (default)."
+                        },
+                        "agenticUserTemplateId": {
+                            "type": "string",
+                            "description": "Unique identifier for the agentic user template. This id must match the id specified in an agentic user template in the agenticUserTemplates node"
                         }
                       },
                       "required": [
@@ -1446,6 +1541,15 @@
                   ]
                 }
             ]
+        },
+        "agenticUserTemplates": {
+            "type": "array",
+            "description": "An array of agentic user templates references.",
+            "items": {
+                "$ref": "#/definitions/agenticUserTemplateRef"
+            },
+            "minimum": 1,
+            "maxItems": 1
         },
         "elementRelationshipSet": {
             "type": "object",
@@ -1490,7 +1594,7 @@
               "description": "Optional property within backgroundLoadConfiguration containing tab settings for background loading. Setting tabConfiguration indicates that the app supports background loading of tabs.",
               "properties": {
                 "contentUrl": {
-                  "$ref": "#/definitions/httpsUrl",
+                  "$ref": "#/definitions/anyHttpUrl",
                   "description": "Required URL for background loading. This can be the same contentUrl from the staticTabs section or an alternative endpoint used for background loading."
                 }
               },
@@ -1499,6 +1603,175 @@
             }
           },
           "additionalProperties": false
+        },
+        "agentConnectors": {
+            "type": "array",
+            "description": "A list of agent connector objects to included in the Unified App Manifest.",
+            "maxItems": 10,
+            "items": {
+                "type": "object",
+                "description": "An agent connector represents a mechanism to enable agents to access information from systems outside of Microsoft 365, often via an MCP Server. Other mechanisms include using OpenAPI descriptions for calling external HTTP APIs. The role of the agent connector is to provide the necessary configuration information to agents or other M365 applications to connect to these external systems. An agent connector can be provided for use by other elements described within the same Unified App Manifest, or as a standalone resource that can be referenced in the Unified App Manifest of other M365 applications.",
+                "properties": {
+                "id": {
+                    "type": "string",
+                    "description": "Unique identifier for the agent connector",
+                    "maxLength": 64
+                },
+                "reusable": {
+                    "type": "boolean",
+                    "description": "Indicates whether this connector can be reused by other applications.",
+                    "default": false
+                },
+                "displayName": {
+                    "type": "string",
+                    "description": "A user-friendly name for the connector, which can be displayed in UIs.",
+                    "maxLength": 128
+                },
+                "description": {
+                    "type": "string",
+                    "description": "A brief description of the connector's purpose and functionality.",
+                    "maxLength": 4000
+                },
+                "toolSource": {
+                    "type": "object",
+                    "description": "Configuration details for connectors that provide tools for agents, either via a plugin, a remote MCP server or a local MCP server. One and only one of the above properties MUST be defined within a tool source object.",
+                    "properties": {
+                    "plugin": {
+                        "type": "object",
+                        "description": "Configuration details for connectors that leverage a Plugin Manifest. Either both id and file properties must be provided (for external plugin reference), or only the description property must be provided (for inline plugin manifest).",
+                        "properties": {
+                        "id": {
+                            "type": "string",
+                            "description": "The unique identifier of the plugin that provides the tools.",
+                            "maxLength": 64
+                        },
+                        "file": {
+                            "$ref": "#/definitions/relativePath",
+                            "description": "The relative path to the plugin manifest file within the app package."
+                        },
+                        "description": {
+                            "type": "object",
+                            "description": "An inlined Plugin Manifest object for simple plugins that do not require a separate file. It should conform to the Plugin Manifest schema https://learn.microsoft.com/microsoft-365-copilot/extensibility/api-plugin-manifest-2.3."
+                        }
+                        },
+                        "additionalProperties": false
+                    },
+                    "remoteMcpServer": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                        "mcpServerUrl": {
+                            "$ref": "#/definitions/secureHttpUrl",
+                            "description": "The URL of the remote MCP Server."
+                        },
+                        "mcpToolDescription": {
+                            "type": "object",
+                            "description": "Configuration for MCP tool descriptions, either by file reference or inline content (but not both). When this property is present it indicates that dynamic discovery will not be used.",
+                            "properties": {
+                            "file": {
+                                "$ref": "#/definitions/relativePath",
+                                "description": "The relative path to the MCP tool description file within the app package."
+                            },
+                            "description": {
+                                "type": "object",
+                                "description": "An inline JSON object containing the tool descriptions directly. The contents match the results of calling the 'tools/list' method on the MCP Server."
+                            }
+                            },
+                            "additionalProperties": false
+                        },
+                        "authorization": {
+                            "type": "object",
+                            "description": "Authorization configuration for connecting to the local MCP server. The design mirrors that of Plugin Manifests https://learn.microsoft.com/microsoft-365-copilot/extensibility/api-plugin-manifest-2.3",
+                            "additionalProperties": false,
+                            "properties": {
+                            "type": {
+                                "type": "string",
+                                "enum": [ "None", "OAuthPluginVault", "ApiKeyPluginVault", "DynamicClientRegistration" ],
+                                "description": "The type of authorization required to invoke the MCP server. Supported values are: 'None' (anonymous access), 'OAuthPluginVault' (OAuth flow with referenceId), 'ApiKeyPluginVault' (API Key with referenceId), 'DynamicClientRegistration' (dynamic client registration with referenceId)."
+                            },
+                            "referenceId": {
+                                "type": "string",
+                                "maxLength": 128,
+                                "description": "A reference identifier used when type is OAuthPluginVault, ApiKeyPluginVault, or DynamicClientRegistration. The referenceId value is acquired independently when providing the necessary authorization configuration values. This mechanism exists to prevent the need for storing secret values in the plugin manifest."
+                            }
+                            },
+                            "required": [ "type" ],
+                            "if": {
+                            "properties": {
+                                "type": {
+                                "enum": [ "OAuthPluginVault", "ApiKeyPluginVault", "DynamicClientRegistration" ]
+                                }
+                            }
+                            },
+                            "then": {
+                            "required": [ "referenceId" ]
+                            }
+                        }
+                        },
+                        "required": [ "mcpServerUrl" ]
+                    },
+                    "localMcpServer": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                        "mcpServerIdentifier": {
+                            "type": "string",
+                            "maxLength": 128,
+                            "description": "The unique identifier of the local MCP Server deployed via some secure mechanism to the user's desktop."
+                        },
+                        "mcpToolDescription": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "description": "Configuration for MCP tool descriptions, either by file reference or inline content (but not both). When this property is present it indicates that dynamic discovery will not be used.",
+                            "properties": {
+                            "file": {
+                                "$ref": "#/definitions/relativePath",
+                                "description": "The relative path to the MCP tool description file within the app package."
+                            },
+                            "description": {
+                                "type": "object",
+                                "description": "An inline JSON object containing the tool descriptions directly. The contents match the results of calling the 'tools/list' method on the MCP Server."
+                            }
+                            }
+                        },
+                        "authorization": {
+                            "type": "object",
+                            "description": "Authorization configuration for connecting to the local MCP server. The design mirrors that of Plugin Manifests https://learn.microsoft.com/microsoft-365-copilot/extensibility/api-plugin-manifest-2.3",
+                            "properties": {
+                            "type": {
+                                "type": "string",
+                                "enum": [ "None", "OAuthPluginVault", "ApiKeyPluginVault", "DynamicClientRegistration" ],
+                                "description": "The type of authorization required to invoke the MCP server. Supported values are: 'None' (anonymous access), 'OAuthPluginVault' (OAuth flow with referenceId), 'ApiKeyPluginVault' (API Key with referenceId), 'DynamicClientRegistration' (dynamic client registration with referenceId)."
+                            },
+                            "referenceId": {
+                                "type": "string",
+                                "maxLength": 128,
+                                "description": " (maxLength: 128)\tA reference identifier used when type is OAuthPluginVault, ApiKeyPluginVault, or DynamicClientRegistration. The referenceId value is acquired independently when providing the necessary authorization configuration values. This mechanism exists to prevent the need for storing secret values in the plugin manifest."
+                            }
+                            },
+                            "additionalProperties": false,
+                            "required": [ "type" ],
+                            "if": {
+                            "properties": {
+                                "type": {
+                                "enum": [ "OAuthPluginVault", "ApiKeyPluginVault", "DynamicClientRegistration" ]
+                                }
+                            }
+                            },
+                            "then": {
+                            "required": [ "referenceId" ]
+                            }
+                        }
+                        },
+                        "required": [ "mcpServerIdentifier" ]
+                    }
+                    },
+                    "additionalProperties": false
+                }
+                },
+                "required": [ "id", "displayName" ],
+                "additionalProperties": false
+            }
         }
     },
     "required": [
@@ -1516,10 +1789,15 @@
             "type": "string",
             "maxLength": 2048
         },
-        "httpsUrl": {
+        "anyHttpUrl": {
             "type": "string",
             "maxLength": 2048,
             "pattern": "^[Hh][Tt][Tt][Pp][Ss]?://"
+        },
+        "secureHttpUrl": {
+            "type": "string",
+            "maxLength": 2048,
+            "pattern": "^[Hh][Tt][Tt][Pp][Ss]://"
         },
         "semver": {
             "type": "string",
@@ -1556,7 +1834,7 @@
                     "description": "Dialog height - either a number in pixels or default layout such as 'large', 'medium', or 'small'."
                 },
                 "url": {
-                    "$ref": "#/definitions/httpsUrl",
+                    "$ref": "#/definitions/anyHttpUrl",
                     "description": "Initial webview URL."
                 }
             }
@@ -1591,7 +1869,7 @@
                         "$ref": "#/definitions/extensionAlternateVersionsArray"
                     },
                     "audienceClaimUrl": {
-                        "$ref": "#/definitions/httpsUrl",
+                        "$ref": "#/definitions/anyHttpUrl",
                         "description": "The url for your extension, used to validate Exchange user identity tokens."
                     },
                     "appDeeplinks": {
@@ -1737,7 +2015,7 @@
             "type": "array",
             "description": "Specifies the set of actions supported by this runtime. An action is either running a JavaScript function or opening a view such as a task pane.",
             "minItems": 1,
-            "maxItems": 20,
+            "maxItems": 150,
             "items": {
                 "$ref": "#/definitions/extensionRuntimesActionsItem"
             },
@@ -1815,7 +2093,9 @@
                         "type": "array",
                         "items": {
                           "$ref": "#/definitions/extensionRibbonsArrayFixedControlItem"
-                        }
+                        },
+                        "minItems": 1,
+                        "maxItems": 1
                     },
                     "spamPreProcessingDialog": {
                         "$ref": "#/definitions/extensionRibbonsSpamPreProcessingDialog"
@@ -1847,12 +2127,73 @@
                 "type": "boolean",
                 "description": "Allows a custom function to accept Excel data types as parameters and return values.",
                 "default": false
+              },
+              "metadataUrl": {
+                "$ref": "#/definitions/secureHttpUrl",
+                "description": "The full URL of a metadata json file with default locale."
+              },
+              "enums": {
+                "type": "array",
+                "description": "Array of custom defined enum objects.",
+                "items": {
+                    "$ref": "#/definitions/enum"
+                },
+                "maxItems": 20000
               }
             },
+            "additionalProperties": false
+        },
+        "enum": {
+            "type": "object",
+            "properties": {
+                "id": {
+                "type": "string",
+                "description": "A unique ID for the enum.",
+                "maxLength": 64,
+                "minLength": 3,
+                "pattern": "^[A-Za-z][A-Za-z0-9._]*$"
+                },
+                "type": {
+                "type": "string",
+                "description": "The type of the values in this enum.",
+                "enum": [ "number", "string" ]
+                },
+                "values": {
+                "type": "array",
+                "description": "Array that defines the constants for the enum.",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                    "name": {
+                        "type": "string",
+                        "description": "A brief description of the constant.",
+                        "maxLength": 256
+                    },
+                    "numberValue": {
+                        "type": ["number", "null"],
+                        "description": "When enum type is number, the actual number value of the constant."
+                    },
+                    "stringValue": {
+                        "type": "string",
+                        "description": "When enum type is string, the actual string value of the constant."
+                    },
+                    "tooltip": {
+                        "type": "string",
+                        "description": "Additional information about the constant, intended to provide more context or details.",
+                        "maxLength": 256
+                    }
+                    },
+                    "additionalProperties": false,
+                    "required": [ "name" ]
+                }
+                }
+            },
             "required": [
-              "functions",
-              "namespace"
-            ]
+                "id",
+                "type",
+                "values"
+            ],
+            "additionalProperties": false
         },
         "extensionCustomFunctionsNamespace": {
             "type": "object",
@@ -1902,11 +2243,8 @@
                 "maxLength": 128
               },
               "helpUrl": {
-                "type": "string",
-                "format": "uri",
                 "description": "URL that provides information about the function. (It is displayed in a task pane.)",
-                "minLength": 1,
-                "maxLength": 2048
+                "$ref": "#/definitions/secureHttpUrl"
               },
               "parameters": {
                 "type": "array",
@@ -1943,6 +2281,31 @@
               "requiresParameterAddress": {
                 "type": "boolean",
                 "description": "If true, your custom function can access the addresses of the function's input parameters. This property must be used in combination with the dimensionality property of the result object, and dimensionality must be set to matrix.",
+                "default": false
+              },
+              "requiresStreamAddress": {
+                "type": "boolean",
+                "default": false,
+                "description": "If `true`, the function can access the address of the cell calling the streaming function. The `address` property of the invocation parameter contains the address of the cell that invoked your streaming function. "
+              },
+              "requiresStreamParameterAddresses": {
+                "type": "boolean",
+                "description": "If `true`, the function can access the parameter addresses of the cell calling the streaming function. The `parameterAddresses` property of the invocation parameter contains the parameter addresses for your streaming function.",
+                "default": false
+              },
+              "capturesCallingObject": {
+                "type": "boolean",
+                "description": "If `true`, the data type being referenced by the custom function is passed as the first argument to the custom function.",
+                "default": false
+              },
+              "excludeFromAutoComplete": {
+                "type": "boolean",
+                "description": "If `true`, the custom function will not appear in the formula AutoComplete menu in Excel.",
+                "default": false
+              },
+              "linkedEntityLoadService": {
+                "type": "boolean",
+                "description": "If `true`, it designates that the function is a linked entity load service that returns linked entity cell values for linked entity IDs requested by Excel.",
                 "default": false
               }
             },
@@ -1983,14 +2346,13 @@
                   "doublecellvalue",
                   "entitycellvalue",
                   "errorcellvalue",
-                  "formattednumbercellvalue",
                   "linkedentitycellvalue",
                   "localimagecellvalue",
                   "stringcellvalue",
                   "webimagecellvalue",
                   null
                 ],
-                "description": "A subfield of the type property. Specifies the Excel data types accepted by the custom function. Accepts the values cellvalue, booleancellvalue, doublecellvalue, entitycellvalue, errorcellvalue, formattednumbercellvalue, linkedentitycellvalue, localimagecellvalue, stringcellvalue, webimagecellvalue"
+                "description": "A subfield of the type property. Specifies the Excel data types accepted by the custom function. Accepts the values cellvalue, booleancellvalue, doublecellvalue, entitycellvalue, errorcellvalue, linkedentitycellvalue, localimagecellvalue, stringcellvalue, webimagecellvalue"
               },
               "dimensionality": {
                 "type": "string",
@@ -2002,7 +2364,7 @@
                 "description": "Must be either scalar (a non-array value) or matrix (a 2-dimensional array)."
               },
               "optional": {
-                "type": "boolean",
+                "type": ["boolean", "null"],
                 "default": false,
                 "description": "If true, the parameter is optional."
               },
@@ -2010,6 +2372,11 @@
                 "type": "boolean",
                 "default": false,
                 "description": "If true, parameters populate from a specified array. Note that functions all repeating parameters are considered optional parameters by definition."
+              },
+              "customEnumId": {
+                "type": "string",
+                "description": "|The `id` of the enum in the `enums` array. This associates the custom enum with the function and enables Excel to display the enum members in the formula AutoComplete menu.",
+                "maxLength": 64
               }
             },
             "required": [ "name" ]
@@ -2063,9 +2430,28 @@
                 },
                 "minItems": 1,
                 "maxItems": 20000
+              },
+              "keyMappingFiles": {
+                "description": "Specifies the full URLs for shortcuts mapping and localization resource files that don't directly support the unified manifest.",
+                "$ref": "#/definitions/keyboardShortcutsMappingFiles"
               }
             },
             "required": [ "shortcuts" ]
+        },
+        "keyboardShortcutsMappingFiles": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "shortcutsUrl": {
+                    "$ref": "#/definitions/secureHttpUrl",
+                    "description": "The full URL of the JSON file that will contain the keyboard combination configuration on Office application and platform combinations that don't directly support the unified manifest."
+                },
+                "localizationResourceUrl": {
+                    "$ref": "#/definitions/secureHttpUrl",
+                    "description": "The full URL of a file that provides supplemental resource, such as localized strings, for the file specified in the shortcutsUrl attribute."
+                }
+            },
+            "required": [ "shortcutsUrl" ]
         },
         "extensionShortcut": {
             "type": "object",
@@ -2180,6 +2566,13 @@
                     "items": {
                         "$ref": "#/definitions/extensionRibbonsCustomMobileGroupItem"
                     }
+                },
+                "keytip": {
+                    "type": "string",
+                    "description": "KeyTip shortcut for keyboard navigation (1-3 uppercase alphanumeric characters)",
+                    "minLength": 1,
+                    "maxLength": 3,
+                    "pattern": "^[A-Z0-9]+$"
                 }
             },
             "dependencies": {
@@ -2357,10 +2750,17 @@
                     "type": "array",
                     "description": "Configures the items for a menu control.",
                     "minItems": 1,
-                    "maxItems": 20,
+                    "maxItems": 30,
                     "items": {
                         "$ref": "#/definitions/extensionCommonCustomControlMenuItem"
                     }
+                },
+                "keytip": {
+                    "type": "string",
+                    "description": "KeyTip shortcut for keyboard navigation (1-3 uppercase alphanumeric characters)",
+                    "minLength": 1,
+                    "maxLength": 3,
+                    "pattern": "^[A-Z0-9]+$"
                 }
             },
             "required": [
@@ -2443,6 +2843,13 @@
                 "overriddenByRibbonApi": {
                     "type": "boolean",
                     "default": "false"
+                },
+                "keytip": {
+                    "type": "string",
+                    "description": "KeyTip shortcut for keyboard navigation (1-3 uppercase alphanumeric characters)",
+                    "minLength": 1,
+                    "maxLength": 3,
+                    "pattern": "^[A-Z0-9]+$"
                 }
             },
             "additionalProperties": false,
@@ -2508,7 +2915,7 @@
                     ]
                 },
                 "url": {
-                    "$ref": "#/definitions/httpsUrl",
+                    "$ref": "#/definitions/anyHttpUrl",
                     "description": "Url to the icon."
                 },
                 "scale": {
@@ -2566,7 +2973,7 @@
                     ]
                 },
                 "url": {
-                    "$ref": "#/definitions/httpsUrl",
+                    "$ref": "#/definitions/anyHttpUrl",
                     "description": "Absolute Url to the icon."
                 }
             },
@@ -2661,6 +3068,9 @@
                                 "required": [
                                     "progId"
                                 ]
+                            },
+                            "xllCustomFunctions": {
+                                "$ref": "#/definitions/extensionXllCustomFunctions"
                             }
                         },
                         "minProperties": 1
@@ -2701,6 +3111,104 @@
                                 "required": [
                                     "officeAddinId"
                                 ]
+                            },
+                            "windowsExtensions": {
+                                "type": "object",
+                                "description": "Configures how to hide windows native extensions",
+                                "properties": {
+                                "effect": {
+                                    "type": "string",
+                                    "description": "Specifies the effect to take while installing the web add-in if the equivalent add-in is installed.",
+                                    "enum": [
+                                    "userOptionToDisable",
+                                    "disableWithNotification"
+                                    ]
+                                },
+                                "comAddin": {
+                                    "type": "object",
+                                    "description": "Specifies the equivalent COM or VSTO add-ins",
+                                    "properties": {
+                                    "progIds": {
+                                        "type": "array",
+                                        "description": "Specifies the program Ids of the equivalent COM add-ins and the names of equivalent VSTO add-ins",
+                                        "minItems": 1,
+                                        "maxItems": 5,
+                                        "items": {
+                                        "type": "string",
+                                        "minLength": 1,
+                                        "maxLength": 64
+                                        }
+                                    }
+                                    },
+                                    "additionalProperties": false,
+                                    "required": [
+                                    "progIds"
+                                    ]
+                                },
+                                "automationAddin": {
+                                    "type": "object",
+                                    "description": "Specifies the equivalent automation add-ins",
+                                    "properties": {
+                                    "progIds": {
+                                        "type": "array",
+                                        "description": "Specifies the program Ids of the equivalent automation add-ins",
+                                        "minItems": 1,
+                                        "maxItems": 5,
+                                        "items": {
+                                        "type": "string",
+                                        "minLength": 1,
+                                        "maxLength": 64
+                                        }
+                                    }
+                                    },
+                                    "additionalProperties": false,
+                                    "required": [
+                                    "progIds"
+                                    ]
+                                },
+                                "xllCustomFunctions": {
+                                    "type": "object",
+                                    "description": "Specifies the XLL-based add-ins custom function",
+                                    "properties": {
+                                    "fileNames": {
+                                        "type": "array",
+                                        "description": "Specifies the file names of the XLL-based add-ins custom function",
+                                        "minItems": 1,
+                                        "maxItems": 5,
+                                        "items": {
+                                        "type": "string",
+                                        "minLength": 1,
+                                        "maxLength": 64
+                                        }
+                                    }
+                                    },
+                                    "additionalProperties": false,
+                                    "required": [
+                                    "fileNames"
+                                    ]
+                                }
+                                },
+                                "additionalProperties": false,
+                                "anyOf": [
+                                {
+                                    "required": [
+                                    "effect",
+                                    "comAddin"
+                                    ]
+                                },
+                                {
+                                    "required": [
+                                    "effect",
+                                    "automationAddin"
+                                    ]
+                                },
+                                {
+                                    "required": [
+                                    "effect",
+                                    "xllCustomFunctions"
+                                    ]
+                                }
+                                ]
                             }
                         },
                         "minProperties": 1
@@ -2720,9 +3228,6 @@
                             "icon",
                             "highResolutionIcon"
                         ]
-                    },
-                    "xllCustomFunctions": {
-                        "$ref": "#/definitions/extensionXllCustomFunctions"
                     }
                 },
                 "minProperties": 1,
@@ -2738,8 +3243,8 @@
               "fileName": {
                 "type": "string",
                 "pattern": "^(?!.*[\\r\\n\\f\\b\\v\\u0007\\t])[\\S]*\\.xll$",
-                "minLength": 1,
-                "maxLength": 64
+                "minLength": 4,
+                "maxLength": 254
               }
             }
         },
@@ -2850,7 +3355,7 @@
                   "maxLength": 250
                 },
                 "learnMoreUrl": {
-                  "$ref": "#/definitions/httpsUrl",
+                  "$ref": "#/definitions/anyHttpUrl",
                   "description": "A URL to a page that explains the add-in in detail."
                 }
               },
@@ -2866,11 +3371,11 @@
             "type": "object",
             "properties": {
               "page": {
-                "$ref": "#/definitions/httpsUrl",
+                "$ref": "#/definitions/anyHttpUrl",
                 "description": "URL of the .html page to be loaded in browser-based runtimes."
               },
               "script": {
-                "$ref": "#/definitions/httpsUrl",
+                "$ref": "#/definitions/anyHttpUrl",
                 "description": "URL of the .js script file to be loaded in UI-less runtimes."
               }
             },
@@ -2997,9 +3502,14 @@
                 "description": "Specifies the custom text that appears in the preprocessing dialog.",
                 "maxLength": 250
               },
+              "spamNeverShowAgainOption": {
+                "type": "boolean",
+                "description": "Indicating if the developer will allow the user to permanently bypass the PreProcessing Dialog for this add-in. \"false\" is the default value if not specified.",
+                "default": "false"
+              },
               "spamReportingOptions": {
                 "type": "object",
-                "description": "Specifies whether the bot offers an experience in the context of a channel in a team, in a 1:1 or group chat, or in an experience scoped to an individual user alone. These options are non-exclusive.",
+                "description": "Specifies up to five options that a user can select from the preprocessing dialog to provide a reason for reporting a message.",
                 "properties": {
                   "title": {
                     "type": "string",
@@ -3014,6 +3524,12 @@
                       "minItems": 1,
                       "maxItems": 5
                     }
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": [ "radio", "checkbox" ],
+                    "description": "Can be set to \"radio\" or \"checkbox\". This determines if Radio Buttons or checkboxes are used for the options. \"checkbox\" is the default if this value is not specified.",
+                    "default": "checkbox"
                   }
                 },
                 "required": [
@@ -3106,7 +3622,7 @@
                                     "description": "Icon size in pixels."
                                 },
                                 "url": {
-                                    "$ref": "#/definitions/httpsUrl",
+                                    "$ref": "#/definitions/anyHttpUrl",
                                     "description": "URL for the icon."
                                 }
                             },
@@ -3381,6 +3897,27 @@
             "required": [
               "id",
               "file"
+            ],
+            "additionalProperties": false
+        },
+        "agenticUserTemplateRef": {
+            "type": "object",
+            "properties": {
+                "id": {
+                "type": "string",
+                "description": "Unique identifier for the agentic user template. Must contain only alphanumeric characters, dots, underscores, and hyphens.",
+                "pattern": "^[a-zA-Z0-9._-]+$",
+                "minLength": 1,
+                "maxLength": 64
+                },
+                "file": {
+                "$ref": "#/definitions/relativePath",
+                "description": "Relative file path to this agentic user template element file in the application package."
+                }
+            },
+            "required": [
+                "id",
+                "file"
             ],
             "additionalProperties": false
         },

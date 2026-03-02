@@ -106,6 +106,11 @@ export interface TeamsManifestVDevPreview {
      */
     supportedChannelTypes?: SupportedChannelType[];
     /**
+     * A property in the app manifest that declares support for all channel features,
+     * categorized by tiers.
+     */
+    supportsChannelFeatures?: SupportsChannelFeatures;
+    /**
      * A list of tenant configured properties for an app
      */
     configurableProperties?: ConfigurableProperty[];
@@ -145,8 +150,12 @@ export interface TeamsManifestVDevPreview {
     /**
      * The Intune-related properties for the app.
      */
-    intuneInfo?:             IntuneInfo;
-    copilotAgents?:          CopilotAgents;
+    intuneInfo?:    IntuneInfo;
+    copilotAgents?: CopilotAgents;
+    /**
+     * An array of agentic user templates references.
+     */
+    agenticUserTemplates?:   AgenticUserTemplateRef[];
     elementRelationshipSet?: ElementRelationshipSet;
     /**
      * Optional property containing background loading configuration. By opting into this
@@ -157,6 +166,10 @@ export interface TeamsManifestVDevPreview {
      * background will be dynamically determined based on usage and other criteria.
      */
     backgroundLoadConfiguration?: BackgroundLoadConfiguration;
+    /**
+     * A list of agent connector objects to included in the Unified App Manifest.
+     */
+    agentConnectors?: AgentConnector[];
 }
 
 /**
@@ -360,6 +373,215 @@ export interface ActivityType {
 }
 
 /**
+ * An agent connector represents a mechanism to enable agents to access information from
+ * systems outside of Microsoft 365, often via an MCP Server. Other mechanisms include using
+ * OpenAPI descriptions for calling external HTTP APIs. The role of the agent connector is
+ * to provide the necessary configuration information to agents or other M365 applications
+ * to connect to these external systems. An agent connector can be provided for use by other
+ * elements described within the same Unified App Manifest, or as a standalone resource that
+ * can be referenced in the Unified App Manifest of other M365 applications.
+ */
+export interface AgentConnector {
+    /**
+     * Unique identifier for the agent connector
+     */
+    id: string;
+    /**
+     * Indicates whether this connector can be reused by other applications.
+     */
+    reusable?: boolean;
+    /**
+     * A user-friendly name for the connector, which can be displayed in UIs.
+     */
+    displayName: string;
+    /**
+     * A brief description of the connector's purpose and functionality.
+     */
+    description?: string;
+    /**
+     * Configuration details for connectors that provide tools for agents, either via a plugin,
+     * a remote MCP server or a local MCP server. One and only one of the above properties MUST
+     * be defined within a tool source object.
+     */
+    toolSource?: ToolSource;
+}
+
+/**
+ * Configuration details for connectors that provide tools for agents, either via a plugin,
+ * a remote MCP server or a local MCP server. One and only one of the above properties MUST
+ * be defined within a tool source object.
+ */
+export interface ToolSource {
+    /**
+     * Configuration details for connectors that leverage a Plugin Manifest. Either both id and
+     * file properties must be provided (for external plugin reference), or only the description
+     * property must be provided (for inline plugin manifest).
+     */
+    plugin?:          Plugin;
+    remoteMcpServer?: RemoteMCPServer;
+    localMcpServer?:  LocalMCPServer;
+}
+
+export interface LocalMCPServer {
+    /**
+     * The unique identifier of the local MCP Server deployed via some secure mechanism to the
+     * user's desktop.
+     */
+    mcpServerIdentifier: string;
+    /**
+     * Configuration for MCP tool descriptions, either by file reference or inline content (but
+     * not both). When this property is present it indicates that dynamic discovery will not be
+     * used.
+     */
+    mcpToolDescription?: LocalMCPServerMCPToolDescription;
+    /**
+     * Authorization configuration for connecting to the local MCP server. The design mirrors
+     * that of Plugin Manifests
+     * https://learn.microsoft.com/microsoft-365-copilot/extensibility/api-plugin-manifest-2.3
+     */
+    authorization?: LocalMCPServerAuthorization;
+}
+
+/**
+ * Authorization configuration for connecting to the local MCP server. The design mirrors
+ * that of Plugin Manifests
+ * https://learn.microsoft.com/microsoft-365-copilot/extensibility/api-plugin-manifest-2.3
+ */
+export interface LocalMCPServerAuthorization {
+    /**
+     * The type of authorization required to invoke the MCP server. Supported values are: 'None'
+     * (anonymous access), 'OAuthPluginVault' (OAuth flow with referenceId), 'ApiKeyPluginVault'
+     * (API Key with referenceId), 'DynamicClientRegistration' (dynamic client registration with
+     * referenceId).
+     */
+    type: AuthorizationType;
+    /**
+     * (maxLength: 128)    A reference identifier used when type is OAuthPluginVault,
+     * ApiKeyPluginVault, or DynamicClientRegistration. The referenceId value is acquired
+     * independently when providing the necessary authorization configuration values. This
+     * mechanism exists to prevent the need for storing secret values in the plugin manifest.
+     */
+    referenceId?: string;
+}
+
+/**
+ * The type of authorization required to invoke the MCP server. Supported values are: 'None'
+ * (anonymous access), 'OAuthPluginVault' (OAuth flow with referenceId), 'ApiKeyPluginVault'
+ * (API Key with referenceId), 'DynamicClientRegistration' (dynamic client registration with
+ * referenceId).
+ */
+export type AuthorizationType = "None" | "OAuthPluginVault" | "ApiKeyPluginVault" | "DynamicClientRegistration";
+
+/**
+ * Configuration for MCP tool descriptions, either by file reference or inline content (but
+ * not both). When this property is present it indicates that dynamic discovery will not be
+ * used.
+ */
+export interface LocalMCPServerMCPToolDescription {
+    /**
+     * The relative path to the MCP tool description file within the app package.
+     */
+    file?: string;
+    /**
+     * An inline JSON object containing the tool descriptions directly. The contents match the
+     * results of calling the 'tools/list' method on the MCP Server.
+     */
+    description?: { [key: string]: any };
+}
+
+/**
+ * Configuration details for connectors that leverage a Plugin Manifest. Either both id and
+ * file properties must be provided (for external plugin reference), or only the description
+ * property must be provided (for inline plugin manifest).
+ */
+export interface Plugin {
+    /**
+     * The unique identifier of the plugin that provides the tools.
+     */
+    id?: string;
+    /**
+     * The relative path to the plugin manifest file within the app package.
+     */
+    file?: string;
+    /**
+     * An inlined Plugin Manifest object for simple plugins that do not require a separate file.
+     * It should conform to the Plugin Manifest schema
+     * https://learn.microsoft.com/microsoft-365-copilot/extensibility/api-plugin-manifest-2.3.
+     */
+    description?: { [key: string]: any };
+}
+
+export interface RemoteMCPServer {
+    /**
+     * The URL of the remote MCP Server.
+     */
+    mcpServerUrl: string;
+    /**
+     * Configuration for MCP tool descriptions, either by file reference or inline content (but
+     * not both). When this property is present it indicates that dynamic discovery will not be
+     * used.
+     */
+    mcpToolDescription?: RemoteMCPServerMCPToolDescription;
+    /**
+     * Authorization configuration for connecting to the local MCP server. The design mirrors
+     * that of Plugin Manifests
+     * https://learn.microsoft.com/microsoft-365-copilot/extensibility/api-plugin-manifest-2.3
+     */
+    authorization?: RemoteMCPServerAuthorization;
+}
+
+/**
+ * Authorization configuration for connecting to the local MCP server. The design mirrors
+ * that of Plugin Manifests
+ * https://learn.microsoft.com/microsoft-365-copilot/extensibility/api-plugin-manifest-2.3
+ */
+export interface RemoteMCPServerAuthorization {
+    /**
+     * The type of authorization required to invoke the MCP server. Supported values are: 'None'
+     * (anonymous access), 'OAuthPluginVault' (OAuth flow with referenceId), 'ApiKeyPluginVault'
+     * (API Key with referenceId), 'DynamicClientRegistration' (dynamic client registration with
+     * referenceId).
+     */
+    type: AuthorizationType;
+    /**
+     * A reference identifier used when type is OAuthPluginVault, ApiKeyPluginVault, or
+     * DynamicClientRegistration. The referenceId value is acquired independently when providing
+     * the necessary authorization configuration values. This mechanism exists to prevent the
+     * need for storing secret values in the plugin manifest.
+     */
+    referenceId?: string;
+}
+
+/**
+ * Configuration for MCP tool descriptions, either by file reference or inline content (but
+ * not both). When this property is present it indicates that dynamic discovery will not be
+ * used.
+ */
+export interface RemoteMCPServerMCPToolDescription {
+    /**
+     * The relative path to the MCP tool description file within the app package.
+     */
+    file?: string;
+    /**
+     * An inline JSON object containing the tool descriptions directly. The contents match the
+     * results of calling the 'tools/list' method on the MCP Server.
+     */
+    description?: { [key: string]: any };
+}
+
+export interface AgenticUserTemplateRef {
+    /**
+     * Unique identifier for the agentic user template. Must contain only alphanumeric
+     * characters, dots, underscores, and hyphens.
+     */
+    id: string;
+    /**
+     * Relative file path to this agentic user template element file in the application package.
+     */
+    file: string;
+}
+
+/**
  * Specify and consolidates authorization related information for the App.
  */
 export interface TeamsManifestVDevPreviewAuthorization {
@@ -459,6 +681,10 @@ export interface Bot {
      */
     supportsVideo?: boolean;
     /**
+     * A property set by developers to opt-in to sessions.
+     */
+    supportsSessions?: boolean;
+    /**
      * Specifies whether the bot offers an experience in the context of a channel in a team, in
      * a group chat (groupChat), an experience scoped to an individual user alone (personal) OR
      * within Copilot surfaces. These options are non-exclusive.
@@ -474,13 +700,16 @@ export interface Bot {
      * The set of requirements for the bot.
      */
     requirementSet?: ElementRequirementSet;
+    /**
+     * System‑generated metadata. This information is maintained by Microsoft services and must
+     * not be modified manually.
+     */
+    registrationInfo?: RegistrationInfo;
 }
 
 export interface CommandList {
     /**
-     * Specifies whether the bot offers an experience in the context of a channel in a team, in
-     * a group chat (groupChat), an experience scoped to an individual user alone (personal) OR
-     * within Copilot surfaces. These options are non-exclusive.
+     * Specifies the scopes for which the command list is valid
      */
     scopes:   CommandListScope[];
     commands: CommandListCommand[];
@@ -549,6 +778,42 @@ export interface ConfigurationTeam {
      */
     taskInfo?: TaskInfo;
 }
+
+/**
+ * System‑generated metadata. This information is maintained by Microsoft services and must
+ * not be modified manually.
+ */
+export interface RegistrationInfo {
+    /**
+     * The partner source through which the bot is registered. System‑generated metadata. This
+     * information is maintained by Microsoft services and must not be modified manually.
+     */
+    source: Source;
+    /**
+     * A Power Platform environment that serves as a container for building apps under a
+     * Microsoft 365 tenant and can only be accessed by users within that tenant.
+     * System‑generated metadata. This information is maintained by Microsoft services and must
+     * not be modified manually.
+     */
+    environment?: string;
+    /**
+     * The Copilot Studio copilot schema name. System‑generated metadata. This information is
+     * maintained by Microsoft services and must not be modified manually.
+     */
+    schemaName?: string;
+    /**
+     * The core services cluster category for Copilot Studio copilots. System‑generated
+     * metadata. This information is maintained by Microsoft services and must not be modified
+     * manually.
+     */
+    clusterCategory?: string;
+}
+
+/**
+ * The partner source through which the bot is registered. System‑generated metadata. This
+ * information is maintained by Microsoft services and must not be modified manually.
+ */
+export type Source = "standard" | "microsoftCopilotStudio" | "onedriveSharepoint";
 
 /**
  * The set of requirements for the tab.
@@ -805,14 +1070,14 @@ export interface MessageHandler {
      * Type of the message handler
      */
     type:  "link";
-    value: Value;
+    value: ValueObject;
 }
 
 /**
  * Type of the message handler
  */
 
-export interface Value {
+export interface ValueObject {
     /**
      * A list of domains that the link message handler can register for, and when they are
      * matched the app will be invoked
@@ -928,8 +1193,39 @@ export interface CustomEngineAgent {
     /**
      * The type of the Custom Engine Agent. Currently only type bot is supported.
      */
-    type: "bot";
+    type:        "bot";
+    disclaimer?: Disclaimer;
+    /**
+     * Possible values: 'agenticUserOnly', 'agentOnly', or 'agentOrAgenticUser'.
+     * 'agenticUserOnly' means the customEngineAgent must be hired and cannot be installed as a
+     * regular agent. 'agentOrAgenticUser' means the customEngineAgent supports both being
+     * installed as a regular agent and being hired. 'agentOnly' means it supports being
+     * installed as a regular agent only (default).
+     */
+    functionsAs?: FunctionsAs;
+    /**
+     * Unique identifier for the agentic user template. This id must match the id specified in
+     * an agentic user template in the agenticUserTemplates node
+     */
+    agenticUserTemplateId?: string;
 }
+
+export interface Disclaimer {
+    /**
+     * The message shown to users before they interact with this application.
+     */
+    text: string;
+    [property: string]: any;
+}
+
+/**
+ * Possible values: 'agenticUserOnly', 'agentOnly', or 'agentOrAgenticUser'.
+ * 'agenticUserOnly' means the customEngineAgent must be hired and cannot be installed as a
+ * regular agent. 'agentOrAgenticUser' means the customEngineAgent supports both being
+ * installed as a regular agent and being hired. 'agentOnly' means it supports being
+ * installed as a regular agent only (default).
+ */
+export type FunctionsAs = "agentOnly" | "agenticUserOnly" | "agentOrAgenticUser";
 
 /**
  * The type of the Custom Engine Agent. Currently only type bot is supported.
@@ -1075,6 +1371,21 @@ export interface Description {
      * The full description of the app. Maximum length is 4000 characters.
      */
     full: string;
+    /**
+     * Array of features sections describing what the app can do.
+     */
+    features?: Feature[];
+}
+
+export interface Feature {
+    /**
+     * Title of the feature the app provides.
+     */
+    title: string;
+    /**
+     * Detailed description of the specific feature.
+     */
+    description: string;
 }
 
 export interface Developer {
@@ -1203,11 +1514,10 @@ export interface ElementExtension {
 }
 
 export interface ExtensionAlternateVersionsArray {
-    requirements?:       RequirementsExtensionElement;
-    prefer?:             Prefer;
-    hide?:               Hide;
-    alternateIcons:      AlternateIcons;
-    xllCustomFunctions?: ExtensionXllCustomFunctions;
+    requirements?:  RequirementsExtensionElement;
+    prefer?:        Prefer;
+    hide?:          Hide;
+    alternateIcons: AlternateIcons;
 }
 
 export interface AlternateIcons {
@@ -1229,6 +1539,10 @@ export interface ExtensionCommonIcon {
 export interface Hide {
     storeOfficeAddin?:  StoreOfficeAddin;
     customOfficeAddin?: CustomOfficeAddin;
+    /**
+     * Configures how to hide windows native extensions
+     */
+    windowsExtensions?: WindowsExtensions;
     [property: string]: any;
 }
 
@@ -1250,16 +1564,82 @@ export interface StoreOfficeAddin {
     assetId: string;
 }
 
+/**
+ * Configures how to hide windows native extensions
+ */
+export interface WindowsExtensions {
+    /**
+     * Specifies the effect to take while installing the web add-in if the equivalent add-in is
+     * installed.
+     */
+    effect: Effect;
+    /**
+     * Specifies the equivalent COM or VSTO add-ins
+     */
+    comAddin?: WindowsExtensionsCOMAddin;
+    /**
+     * Specifies the equivalent automation add-ins
+     */
+    automationAddin?: AutomationAddin;
+    /**
+     * Specifies the XLL-based add-ins custom function
+     */
+    xllCustomFunctions?: XllCustomFunctions;
+}
+
+/**
+ * Specifies the equivalent automation add-ins
+ */
+export interface AutomationAddin {
+    /**
+     * Specifies the program Ids of the equivalent automation add-ins
+     */
+    progIds: string[];
+}
+
+/**
+ * Specifies the equivalent COM or VSTO add-ins
+ */
+export interface WindowsExtensionsCOMAddin {
+    /**
+     * Specifies the program Ids of the equivalent COM add-ins and the names of equivalent VSTO
+     * add-ins
+     */
+    progIds: string[];
+}
+
+/**
+ * Specifies the effect to take while installing the web add-in if the equivalent add-in is
+ * installed.
+ */
+export type Effect = "userOptionToDisable" | "disableWithNotification";
+
+/**
+ * Specifies the XLL-based add-ins custom function
+ */
+export interface XllCustomFunctions {
+    /**
+     * Specifies the file names of the XLL-based add-ins custom function
+     */
+    fileNames: string[];
+}
+
 export interface Prefer {
-    comAddin?: COMAddin;
+    comAddin?:           PreferCOMAddin;
+    xllCustomFunctions?: ExtensionXllCustomFunctions;
     [property: string]: any;
 }
 
-export interface COMAddin {
+export interface PreferCOMAddin {
     /**
      * Program ID of the alternate com extension. Maximum length is 64 characters.
      */
     progId: string;
+}
+
+export interface ExtensionXllCustomFunctions {
+    fileName?: string;
+    [property: string]: any;
 }
 
 /**
@@ -1299,11 +1679,6 @@ export interface Capability {
 export type FormFactor = "desktop" | "mobile";
 
 export type RequirementsScope = "mail" | "workbook" | "document" | "presentation";
-
-export interface ExtensionXllCustomFunctions {
-    fileName?: string;
-    [property: string]: any;
-}
 
 /**
  * Represents the copilot extension point
@@ -1510,6 +1885,10 @@ export interface ExtensionCommonCustomGroupControlsItem {
      * Configures the items for a menu control.
      */
     items?: ExtensionCommonCustomControlMenuItem[];
+    /**
+     * KeyTip shortcut for keyboard navigation (1-3 uppercase alphanumeric characters)
+     */
+    keytip?: string;
 }
 
 export interface ExtensionCommonCustomControlMenuItem {
@@ -1536,6 +1915,10 @@ export interface ExtensionCommonCustomControlMenuItem {
      */
     enabled?:               boolean;
     overriddenByRibbonApi?: boolean;
+    /**
+     * KeyTip shortcut for keyboard navigation (1-3 uppercase alphanumeric characters)
+     */
+    keytip?: string;
 }
 
 export interface ExtensionCommonSuperToolTip {
@@ -1632,7 +2015,30 @@ export interface ExtensionKeyboardShortcut {
      * Array of mappings from actions to the key combinations that invoke the actions.
      */
     shortcuts: ExtensionShortcut[];
+    /**
+     * Specifies the full URLs for shortcuts mapping and localization resource files that don't
+     * directly support the unified manifest.
+     */
+    keyMappingFiles?: KeyboardShortcutsMappingFiles;
     [property: string]: any;
+}
+
+/**
+ * Specifies the full URLs for shortcuts mapping and localization resource files that don't
+ * directly support the unified manifest.
+ */
+export interface KeyboardShortcutsMappingFiles {
+    /**
+     * The full URL of the JSON file that will contain the keyboard combination configuration on
+     * Office application and platform combinations that don't directly support the unified
+     * manifest.
+     */
+    shortcutsUrl: string;
+    /**
+     * The full URL of a file that provides supplemental resource, such as localized strings,
+     * for the file specified in the shortcutsUrl attribute.
+     */
+    localizationResourceUrl?: string;
 }
 
 export interface ExtensionShortcut {
@@ -1715,9 +2121,13 @@ export interface ExtensionRibbonsSpamPreProcessingDialog {
      */
     description: string;
     /**
-     * Specifies whether the bot offers an experience in the context of a channel in a team, in
-     * a 1:1 or group chat, or in an experience scoped to an individual user alone. These
-     * options are non-exclusive.
+     * Indicating if the developer will allow the user to permanently bypass the PreProcessing
+     * Dialog for this add-in. "false" is the default value if not specified.
+     */
+    spamNeverShowAgainOption?: boolean;
+    /**
+     * Specifies up to five options that a user can select from the preprocessing dialog to
+     * provide a reason for reporting a message.
      */
     spamReportingOptions?: SpamReportingOptions;
     /**
@@ -1749,9 +2159,8 @@ export interface SpamMoreInfo {
 }
 
 /**
- * Specifies whether the bot offers an experience in the context of a channel in a team, in
- * a 1:1 or group chat, or in an experience scoped to an individual user alone. These
- * options are non-exclusive.
+ * Specifies up to five options that a user can select from the preprocessing dialog to
+ * provide a reason for reporting a message.
  */
 export interface SpamReportingOptions {
     /**
@@ -1763,8 +2172,19 @@ export interface SpamReportingOptions {
      * provide a reason for reporting a message.
      */
     options: string[];
+    /**
+     * Can be set to "radio" or "checkbox". This determines if Radio Buttons or checkboxes are
+     * used for the options. "checkbox" is the default if this value is not specified.
+     */
+    type?: SpamReportingOptionsType;
     [property: string]: any;
 }
+
+/**
+ * Can be set to "radio" or "checkbox". This determines if Radio Buttons or checkboxes are
+ * used for the options. "checkbox" is the default if this value is not specified.
+ */
+export type SpamReportingOptionsType = "radio" | "checkbox";
 
 export interface ExtensionRibbonsArrayTabsItem {
     /**
@@ -1788,6 +2208,10 @@ export interface ExtensionRibbonsArrayTabsItem {
      * Defines mobile group item.
      */
     customMobileRibbonGroups?: ExtensionRibbonsCustomMobileGroupItem[];
+    /**
+     * KeyTip shortcut for keyboard navigation (1-3 uppercase alphanumeric characters)
+     */
+    keytip?: string;
 }
 
 export interface ExtensionRibbonsCustomMobileGroupItem {
@@ -1956,13 +2380,59 @@ export interface ExtensionCustomFunctions {
     /**
      * Array of function object which defines function metadata.
      */
-    functions: ExtensionFunction[];
-    namespace: ExtensionCustomFunctionsNamespace;
+    functions?: ExtensionFunction[];
+    namespace?: ExtensionCustomFunctionsNamespace;
     /**
      * Allows a custom function to accept Excel data types as parameters and return values.
      */
     allowCustomDataForDataTypeAny?: boolean;
-    [property: string]: any;
+    /**
+     * The full URL of a metadata json file with default locale.
+     */
+    metadataUrl?: string;
+    /**
+     * Array of custom defined enum objects.
+     */
+    enums?: Enum[];
+}
+
+export interface Enum {
+    /**
+     * A unique ID for the enum.
+     */
+    id: string;
+    /**
+     * The type of the values in this enum.
+     */
+    type: EnumType;
+    /**
+     * Array that defines the constants for the enum.
+     */
+    values: ValueElement[];
+}
+
+/**
+ * The type of the values in this enum.
+ */
+export type EnumType = "number" | "string";
+
+export interface ValueElement {
+    /**
+     * A brief description of the constant.
+     */
+    name: string;
+    /**
+     * When enum type is number, the actual number value of the constant.
+     */
+    numberValue?: number | null;
+    /**
+     * When enum type is string, the actual string value of the constant.
+     */
+    stringValue?: string;
+    /**
+     * Additional information about the constant, intended to provide more context or details.
+     */
+    tooltip?: string;
 }
 
 export interface ExtensionFunction {
@@ -2024,6 +2494,32 @@ export interface ExtensionFunction {
      * the result object, and dimensionality must be set to matrix.
      */
     requiresParameterAddress?: boolean;
+    /**
+     * If `true`, the function can access the address of the cell calling the streaming
+     * function. The `address` property of the invocation parameter contains the address of the
+     * cell that invoked your streaming function.
+     */
+    requiresStreamAddress?: boolean;
+    /**
+     * If `true`, the function can access the parameter addresses of the cell calling the
+     * streaming function. The `parameterAddresses` property of the invocation parameter
+     * contains the parameter addresses for your streaming function.
+     */
+    requiresStreamParameterAddresses?: boolean;
+    /**
+     * If `true`, the data type being referenced by the custom function is passed as the first
+     * argument to the custom function.
+     */
+    capturesCallingObject?: boolean;
+    /**
+     * If `true`, the custom function will not appear in the formula AutoComplete menu in Excel.
+     */
+    excludeFromAutoComplete?: boolean;
+    /**
+     * If `true`, it designates that the function is a linked entity load service that returns
+     * linked entity cell values for linked entity IDs requested by Excel.
+     */
+    linkedEntityLoadService?: boolean;
     [property: string]: any;
 }
 
@@ -2045,8 +2541,8 @@ export interface ExtensionFunctionParameter {
     /**
      * A subfield of the type property. Specifies the Excel data types accepted by the custom
      * function. Accepts the values cellvalue, booleancellvalue, doublecellvalue,
-     * entitycellvalue, errorcellvalue, formattednumbercellvalue, linkedentitycellvalue,
-     * localimagecellvalue, stringcellvalue, webimagecellvalue
+     * entitycellvalue, errorcellvalue, linkedentitycellvalue, localimagecellvalue,
+     * stringcellvalue, webimagecellvalue
      */
     cellValueType?: CellValueType;
     /**
@@ -2056,22 +2552,27 @@ export interface ExtensionFunctionParameter {
     /**
      * If true, the parameter is optional.
      */
-    optional?: boolean;
+    optional?: boolean | null;
     /**
      * If true, parameters populate from a specified array. Note that functions all repeating
      * parameters are considered optional parameters by definition.
      */
     repeating?: boolean;
+    /**
+     * |The `id` of the enum in the `enums` array. This associates the custom enum with the
+     * function and enables Excel to display the enum members in the formula AutoComplete menu.
+     */
+    customEnumId?: string;
     [property: string]: any;
 }
 
 /**
  * A subfield of the type property. Specifies the Excel data types accepted by the custom
  * function. Accepts the values cellvalue, booleancellvalue, doublecellvalue,
- * entitycellvalue, errorcellvalue, formattednumbercellvalue, linkedentitycellvalue,
- * localimagecellvalue, stringcellvalue, webimagecellvalue
+ * entitycellvalue, errorcellvalue, linkedentitycellvalue, localimagecellvalue,
+ * stringcellvalue, webimagecellvalue
  */
-export type CellValueType = "cellvalue" | "booleancellvalue" | "doublecellvalue" | "entitycellvalue" | "errorcellvalue" | "formattednumbercellvalue" | "linkedentitycellvalue" | "localimagecellvalue" | "stringcellvalue" | "webimagecellvalue";
+export type CellValueType = "cellvalue" | "booleancellvalue" | "doublecellvalue" | "entitycellvalue" | "errorcellvalue" | "linkedentitycellvalue" | "localimagecellvalue" | "stringcellvalue" | "webimagecellvalue";
 
 /**
  * Must be either scalar (a non-array value) or matrix (a 2-dimensional array).
@@ -2362,6 +2863,12 @@ export interface SubscriptionOffer {
 export type SupportedChannelType = "sharedChannels" | "privateChannels";
 
 /**
+ * A property in the app manifest that declares support for all channel features,
+ * categorized by tiers.
+ */
+export type SupportsChannelFeatures = "tier1" | "tier2";
+
+/**
  * Specify your AAD App ID and Graph information to help users seamlessly sign into your AAD
  * app.
  */
@@ -2594,6 +3101,7 @@ const typeMap: any = {
         { json: "isFullScreen", js: "isFullScreen", typ: u(undefined, true) },
         { json: "activities", js: "activities", typ: u(undefined, r("Activities")) },
         { json: "supportedChannelTypes", js: "supportedChannelTypes", typ: u(undefined, a(r("SupportedChannelType"))) },
+        { json: "supportsChannelFeatures", js: "supportsChannelFeatures", typ: u(undefined, r("SupportsChannelFeatures")) },
         { json: "configurableProperties", js: "configurableProperties", typ: u(undefined, a(r("ConfigurableProperty"))) },
         { json: "defaultBlockUntilAdminAction", js: "defaultBlockUntilAdminAction", typ: u(undefined, true) },
         { json: "publisherDocsUrl", js: "publisherDocsUrl", typ: u(undefined, "") },
@@ -2606,8 +3114,10 @@ const typeMap: any = {
         { json: "dashboardCards", js: "dashboardCards", typ: u(undefined, a(r("DashboardCard"))) },
         { json: "intuneInfo", js: "intuneInfo", typ: u(undefined, r("IntuneInfo")) },
         { json: "copilotAgents", js: "copilotAgents", typ: u(undefined, r("CopilotAgents")) },
+        { json: "agenticUserTemplates", js: "agenticUserTemplates", typ: u(undefined, a(r("AgenticUserTemplateRef"))) },
         { json: "elementRelationshipSet", js: "elementRelationshipSet", typ: u(undefined, r("ElementRelationshipSet")) },
         { json: "backgroundLoadConfiguration", js: "backgroundLoadConfiguration", typ: u(undefined, r("BackgroundLoadConfiguration")) },
+        { json: "agentConnectors", js: "agentConnectors", typ: u(undefined, a(r("AgentConnector"))) },
     ], false),
     "ElementAction": o([
         { json: "id", js: "id", typ: "" },
@@ -2673,6 +3183,53 @@ const typeMap: any = {
         { json: "templateText", js: "templateText", typ: "" },
         { json: "allowedIconIds", js: "allowedIconIds", typ: u(undefined, a("")) },
     ], false),
+    "AgentConnector": o([
+        { json: "id", js: "id", typ: "" },
+        { json: "reusable", js: "reusable", typ: u(undefined, true) },
+        { json: "displayName", js: "displayName", typ: "" },
+        { json: "description", js: "description", typ: u(undefined, "") },
+        { json: "toolSource", js: "toolSource", typ: u(undefined, r("ToolSource")) },
+    ], false),
+    "ToolSource": o([
+        { json: "plugin", js: "plugin", typ: u(undefined, r("Plugin")) },
+        { json: "remoteMcpServer", js: "remoteMcpServer", typ: u(undefined, r("RemoteMCPServer")) },
+        { json: "localMcpServer", js: "localMcpServer", typ: u(undefined, r("LocalMCPServer")) },
+    ], false),
+    "LocalMCPServer": o([
+        { json: "mcpServerIdentifier", js: "mcpServerIdentifier", typ: "" },
+        { json: "mcpToolDescription", js: "mcpToolDescription", typ: u(undefined, r("LocalMCPServerMCPToolDescription")) },
+        { json: "authorization", js: "authorization", typ: u(undefined, r("LocalMCPServerAuthorization")) },
+    ], false),
+    "LocalMCPServerAuthorization": o([
+        { json: "type", js: "type", typ: r("AuthorizationType") },
+        { json: "referenceId", js: "referenceId", typ: u(undefined, "") },
+    ], false),
+    "LocalMCPServerMCPToolDescription": o([
+        { json: "file", js: "file", typ: u(undefined, "") },
+        { json: "description", js: "description", typ: u(undefined, m("any")) },
+    ], false),
+    "Plugin": o([
+        { json: "id", js: "id", typ: u(undefined, "") },
+        { json: "file", js: "file", typ: u(undefined, "") },
+        { json: "description", js: "description", typ: u(undefined, m("any")) },
+    ], false),
+    "RemoteMCPServer": o([
+        { json: "mcpServerUrl", js: "mcpServerUrl", typ: "" },
+        { json: "mcpToolDescription", js: "mcpToolDescription", typ: u(undefined, r("RemoteMCPServerMCPToolDescription")) },
+        { json: "authorization", js: "authorization", typ: u(undefined, r("RemoteMCPServerAuthorization")) },
+    ], false),
+    "RemoteMCPServerAuthorization": o([
+        { json: "type", js: "type", typ: r("AuthorizationType") },
+        { json: "referenceId", js: "referenceId", typ: u(undefined, "") },
+    ], false),
+    "RemoteMCPServerMCPToolDescription": o([
+        { json: "file", js: "file", typ: u(undefined, "") },
+        { json: "description", js: "description", typ: u(undefined, m("any")) },
+    ], false),
+    "AgenticUserTemplateRef": o([
+        { json: "id", js: "id", typ: "" },
+        { json: "file", js: "file", typ: "" },
+    ], false),
     "TeamsManifestVDevPreviewAuthorization": o([
         { json: "permissions", js: "permissions", typ: u(undefined, r("Permissions")) },
     ], false),
@@ -2698,9 +3255,11 @@ const typeMap: any = {
         { json: "supportsFiles", js: "supportsFiles", typ: u(undefined, true) },
         { json: "supportsCalling", js: "supportsCalling", typ: u(undefined, true) },
         { json: "supportsVideo", js: "supportsVideo", typ: u(undefined, true) },
+        { json: "supportsSessions", js: "supportsSessions", typ: u(undefined, true) },
         { json: "scopes", js: "scopes", typ: a(r("CommandListScope")) },
         { json: "commandLists", js: "commandLists", typ: u(undefined, a(r("CommandList"))) },
         { json: "requirementSet", js: "requirementSet", typ: u(undefined, r("ElementRequirementSet")) },
+        { json: "registrationInfo", js: "registrationInfo", typ: u(undefined, r("RegistrationInfo")) },
     ], false),
     "CommandList": o([
         { json: "scopes", js: "scopes", typ: a(r("CommandListScope")) },
@@ -2727,6 +3286,12 @@ const typeMap: any = {
     "ConfigurationTeam": o([
         { json: "fetchTask", js: "fetchTask", typ: u(undefined, true) },
         { json: "taskInfo", js: "taskInfo", typ: u(undefined, r("TaskInfo")) },
+    ], false),
+    "RegistrationInfo": o([
+        { json: "source", js: "source", typ: r("Source") },
+        { json: "environment", js: "environment", typ: u(undefined, "") },
+        { json: "schemaName", js: "schemaName", typ: u(undefined, "") },
+        { json: "clusterCategory", js: "clusterCategory", typ: u(undefined, "") },
     ], false),
     "ElementRequirementSet": o([
         { json: "hostMustSupportFunctionalities", js: "hostMustSupportFunctionalities", typ: a(r("HostFunctionality")) },
@@ -2793,9 +3358,9 @@ const typeMap: any = {
     ], false),
     "MessageHandler": o([
         { json: "type", js: "type", typ: r("MessageHandlerType") },
-        { json: "value", js: "value", typ: r("Value") },
+        { json: "value", js: "value", typ: r("ValueObject") },
     ], false),
-    "Value": o([
+    "ValueObject": o([
         { json: "domains", js: "domains", typ: u(undefined, a("")) },
         { json: "supportsAnonymousAccess", js: "supportsAnonymousAccess", typ: u(undefined, true) },
         { json: "supportsAnonymizedPayloads", js: "supportsAnonymizedPayloads", typ: u(undefined, true) },
@@ -2823,7 +3388,13 @@ const typeMap: any = {
     "CustomEngineAgent": o([
         { json: "id", js: "id", typ: "" },
         { json: "type", js: "type", typ: r("SourceTypeEnum") },
+        { json: "disclaimer", js: "disclaimer", typ: u(undefined, r("Disclaimer")) },
+        { json: "functionsAs", js: "functionsAs", typ: u(undefined, r("FunctionsAs")) },
+        { json: "agenticUserTemplateId", js: "agenticUserTemplateId", typ: u(undefined, "") },
     ], false),
+    "Disclaimer": o([
+        { json: "text", js: "text", typ: "" },
+    ], "any"),
     "DeclarativeAgentRef": o([
         { json: "id", js: "id", typ: "" },
         { json: "file", js: "file", typ: "" },
@@ -2856,6 +3427,11 @@ const typeMap: any = {
     "Description": o([
         { json: "short", js: "short", typ: "" },
         { json: "full", js: "full", typ: "" },
+        { json: "features", js: "features", typ: u(undefined, a(r("Feature"))) },
+    ], false),
+    "Feature": o([
+        { json: "title", js: "title", typ: "" },
+        { json: "description", js: "description", typ: "" },
     ], false),
     "Developer": o([
         { json: "name", js: "name", typ: "" },
@@ -2903,7 +3479,6 @@ const typeMap: any = {
         { json: "prefer", js: "prefer", typ: u(undefined, r("Prefer")) },
         { json: "hide", js: "hide", typ: u(undefined, r("Hide")) },
         { json: "alternateIcons", js: "alternateIcons", typ: r("AlternateIcons") },
-        { json: "xllCustomFunctions", js: "xllCustomFunctions", typ: u(undefined, r("ExtensionXllCustomFunctions")) },
     ], false),
     "AlternateIcons": o([
         { json: "icon", js: "icon", typ: r("ExtensionCommonIcon") },
@@ -2916,6 +3491,7 @@ const typeMap: any = {
     "Hide": o([
         { json: "storeOfficeAddin", js: "storeOfficeAddin", typ: u(undefined, r("StoreOfficeAddin")) },
         { json: "customOfficeAddin", js: "customOfficeAddin", typ: u(undefined, r("CustomOfficeAddin")) },
+        { json: "windowsExtensions", js: "windowsExtensions", typ: u(undefined, r("WindowsExtensions")) },
     ], "any"),
     "CustomOfficeAddin": o([
         { json: "officeAddinId", js: "officeAddinId", typ: "" },
@@ -2924,12 +3500,31 @@ const typeMap: any = {
         { json: "officeAddinId", js: "officeAddinId", typ: "" },
         { json: "assetId", js: "assetId", typ: "" },
     ], false),
+    "WindowsExtensions": o([
+        { json: "effect", js: "effect", typ: r("Effect") },
+        { json: "comAddin", js: "comAddin", typ: u(undefined, r("WindowsExtensionsCOMAddin")) },
+        { json: "automationAddin", js: "automationAddin", typ: u(undefined, r("AutomationAddin")) },
+        { json: "xllCustomFunctions", js: "xllCustomFunctions", typ: u(undefined, r("XllCustomFunctions")) },
+    ], false),
+    "AutomationAddin": o([
+        { json: "progIds", js: "progIds", typ: a("") },
+    ], false),
+    "WindowsExtensionsCOMAddin": o([
+        { json: "progIds", js: "progIds", typ: a("") },
+    ], false),
+    "XllCustomFunctions": o([
+        { json: "fileNames", js: "fileNames", typ: a("") },
+    ], false),
     "Prefer": o([
-        { json: "comAddin", js: "comAddin", typ: u(undefined, r("COMAddin")) },
+        { json: "comAddin", js: "comAddin", typ: u(undefined, r("PreferCOMAddin")) },
+        { json: "xllCustomFunctions", js: "xllCustomFunctions", typ: u(undefined, r("ExtensionXllCustomFunctions")) },
     ], "any"),
-    "COMAddin": o([
+    "PreferCOMAddin": o([
         { json: "progId", js: "progId", typ: "" },
     ], false),
+    "ExtensionXllCustomFunctions": o([
+        { json: "fileName", js: "fileName", typ: u(undefined, "") },
+    ], "any"),
     "RequirementsExtensionElement": o([
         { json: "capabilities", js: "capabilities", typ: u(undefined, a(r("Capability"))) },
         { json: "scopes", js: "scopes", typ: u(undefined, a(r("RequirementsScope"))) },
@@ -2940,9 +3535,6 @@ const typeMap: any = {
         { json: "minVersion", js: "minVersion", typ: u(undefined, "") },
         { json: "maxVersion", js: "maxVersion", typ: u(undefined, "") },
     ], false),
-    "ExtensionXllCustomFunctions": o([
-        { json: "fileName", js: "fileName", typ: u(undefined, "") },
-    ], "any"),
     "ExtensionAppDeeplinksArray": o([
         { json: "requirements", js: "requirements", typ: u(undefined, r("AppDeeplinkRequirements")) },
         { json: "contexts", js: "contexts", typ: a(r("ExtensionContext")) },
@@ -3003,6 +3595,7 @@ const typeMap: any = {
         { json: "overriddenByRibbonApi", js: "overriddenByRibbonApi", typ: u(undefined, true) },
         { json: "enabled", js: "enabled", typ: u(undefined, true) },
         { json: "items", js: "items", typ: u(undefined, a(r("ExtensionCommonCustomControlMenuItem"))) },
+        { json: "keytip", js: "keytip", typ: u(undefined, "") },
     ], false),
     "ExtensionCommonCustomControlMenuItem": o([
         { json: "id", js: "id", typ: "" },
@@ -3013,6 +3606,7 @@ const typeMap: any = {
         { json: "actionId", js: "actionId", typ: "" },
         { json: "enabled", js: "enabled", typ: u(undefined, true) },
         { json: "overriddenByRibbonApi", js: "overriddenByRibbonApi", typ: u(undefined, true) },
+        { json: "keytip", js: "keytip", typ: u(undefined, "") },
     ], false),
     "ExtensionCommonSuperToolTip": o([
         { json: "title", js: "title", typ: "" },
@@ -3037,7 +3631,12 @@ const typeMap: any = {
     "ExtensionKeyboardShortcut": o([
         { json: "requirements", js: "requirements", typ: u(undefined, r("RequirementsExtensionElement")) },
         { json: "shortcuts", js: "shortcuts", typ: a(r("ExtensionShortcut")) },
+        { json: "keyMappingFiles", js: "keyMappingFiles", typ: u(undefined, r("KeyboardShortcutsMappingFiles")) },
     ], "any"),
+    "KeyboardShortcutsMappingFiles": o([
+        { json: "shortcutsUrl", js: "shortcutsUrl", typ: "" },
+        { json: "localizationResourceUrl", js: "localizationResourceUrl", typ: u(undefined, "") },
+    ], false),
     "ExtensionShortcut": o([
         { json: "key", js: "key", typ: r("Key") },
         { json: "actionId", js: "actionId", typ: "" },
@@ -3067,6 +3666,7 @@ const typeMap: any = {
     "ExtensionRibbonsSpamPreProcessingDialog": o([
         { json: "title", js: "title", typ: "" },
         { json: "description", js: "description", typ: "" },
+        { json: "spamNeverShowAgainOption", js: "spamNeverShowAgainOption", typ: u(undefined, true) },
         { json: "spamReportingOptions", js: "spamReportingOptions", typ: u(undefined, r("SpamReportingOptions")) },
         { json: "spamFreeTextSectionTitle", js: "spamFreeTextSectionTitle", typ: u(undefined, "") },
         { json: "spamMoreInfo", js: "spamMoreInfo", typ: u(undefined, r("SpamMoreInfo")) },
@@ -3078,6 +3678,7 @@ const typeMap: any = {
     "SpamReportingOptions": o([
         { json: "title", js: "title", typ: "" },
         { json: "options", js: "options", typ: a("") },
+        { json: "type", js: "type", typ: u(undefined, r("SpamReportingOptionsType")) },
     ], "any"),
     "ExtensionRibbonsArrayTabsItem": o([
         { json: "id", js: "id", typ: u(undefined, "") },
@@ -3086,6 +3687,7 @@ const typeMap: any = {
         { json: "builtInTabId", js: "builtInTabId", typ: u(undefined, "") },
         { json: "groups", js: "groups", typ: u(undefined, a(r("ExtensionRibbonsCustomTabGroupsItem"))) },
         { json: "customMobileRibbonGroups", js: "customMobileRibbonGroups", typ: u(undefined, a(r("ExtensionRibbonsCustomMobileGroupItem"))) },
+        { json: "keytip", js: "keytip", typ: u(undefined, "") },
     ], false),
     "ExtensionRibbonsCustomMobileGroupItem": o([
         { json: "id", js: "id", typ: "" },
@@ -3135,10 +3737,23 @@ const typeMap: any = {
         { json: "supportsNoItemContext", js: "supportsNoItemContext", typ: u(undefined, true) },
     ], false),
     "ExtensionCustomFunctions": o([
-        { json: "functions", js: "functions", typ: a(r("ExtensionFunction")) },
-        { json: "namespace", js: "namespace", typ: r("ExtensionCustomFunctionsNamespace") },
+        { json: "functions", js: "functions", typ: u(undefined, a(r("ExtensionFunction"))) },
+        { json: "namespace", js: "namespace", typ: u(undefined, r("ExtensionCustomFunctionsNamespace")) },
         { json: "allowCustomDataForDataTypeAny", js: "allowCustomDataForDataTypeAny", typ: u(undefined, true) },
-    ], "any"),
+        { json: "metadataUrl", js: "metadataUrl", typ: u(undefined, "") },
+        { json: "enums", js: "enums", typ: u(undefined, a(r("Enum"))) },
+    ], false),
+    "Enum": o([
+        { json: "id", js: "id", typ: "" },
+        { json: "type", js: "type", typ: r("EnumType") },
+        { json: "values", js: "values", typ: a(r("ValueElement")) },
+    ], false),
+    "ValueElement": o([
+        { json: "name", js: "name", typ: "" },
+        { json: "numberValue", js: "numberValue", typ: u(undefined, u(3.14, null)) },
+        { json: "stringValue", js: "stringValue", typ: u(undefined, "") },
+        { json: "tooltip", js: "tooltip", typ: u(undefined, "") },
+    ], false),
     "ExtensionFunction": o([
         { json: "id", js: "id", typ: "" },
         { json: "name", js: "name", typ: "" },
@@ -3151,6 +3766,11 @@ const typeMap: any = {
         { json: "cancelable", js: "cancelable", typ: u(undefined, true) },
         { json: "requiresAddress", js: "requiresAddress", typ: u(undefined, true) },
         { json: "requiresParameterAddress", js: "requiresParameterAddress", typ: u(undefined, true) },
+        { json: "requiresStreamAddress", js: "requiresStreamAddress", typ: u(undefined, true) },
+        { json: "requiresStreamParameterAddresses", js: "requiresStreamParameterAddresses", typ: u(undefined, true) },
+        { json: "capturesCallingObject", js: "capturesCallingObject", typ: u(undefined, true) },
+        { json: "excludeFromAutoComplete", js: "excludeFromAutoComplete", typ: u(undefined, true) },
+        { json: "linkedEntityLoadService", js: "linkedEntityLoadService", typ: u(undefined, true) },
     ], "any"),
     "ExtensionFunctionParameter": o([
         { json: "name", js: "name", typ: "" },
@@ -3158,8 +3778,9 @@ const typeMap: any = {
         { json: "type", js: "type", typ: u(undefined, "") },
         { json: "cellValueType", js: "cellValueType", typ: u(undefined, r("CellValueType")) },
         { json: "dimensionality", js: "dimensionality", typ: u(undefined, r("Dimensionality")) },
-        { json: "optional", js: "optional", typ: u(undefined, true) },
+        { json: "optional", js: "optional", typ: u(undefined, u(true, null)) },
         { json: "repeating", js: "repeating", typ: u(undefined, true) },
+        { json: "customEnumId", js: "customEnumId", typ: u(undefined, "") },
     ], "any"),
     "ExtensionResult": o([
         { json: "dimensionality", js: "dimensionality", typ: u(undefined, r("Dimensionality")) },
@@ -3270,6 +3891,12 @@ const typeMap: any = {
         "share",
         "sign",
     ],
+    "AuthorizationType": [
+        "ApiKeyPluginVault",
+        "DynamicClientRegistration",
+        "None",
+        "OAuthPluginVault",
+    ],
     "ResourceSpecificType": [
         "Application",
         "Delegated",
@@ -3279,6 +3906,11 @@ const typeMap: any = {
         "groupChat",
         "personal",
         "team",
+    ],
+    "Source": [
+        "microsoftCopilotStudio",
+        "onedriveSharepoint",
+        "standard",
     ],
     "HostMustSupportFunctionalityName": [
         "dialogAdaptiveCard",
@@ -3358,6 +3990,11 @@ const typeMap: any = {
     "ConnectorScope": [
         "team",
     ],
+    "FunctionsAs": [
+        "agentOnly",
+        "agentOrAgenticUser",
+        "agenticUserOnly",
+    ],
     "SourceTypeEnum": [
         "bot",
     ],
@@ -3389,6 +4026,10 @@ const typeMap: any = {
         "composeExtensions",
         "configurableTabs",
         "staticTabs",
+    ],
+    "Effect": [
+        "disableWithNotification",
+        "userOptionToDisable",
     ],
     "FormFactor": [
         "desktop",
@@ -3429,6 +4070,10 @@ const typeMap: any = {
     "FixedControlType": [
         "button",
     ],
+    "SpamReportingOptionsType": [
+        "checkbox",
+        "radio",
+    ],
     "FluffyType": [
         "mobileButton",
     ],
@@ -3441,13 +4086,16 @@ const typeMap: any = {
         "executeFunction",
         "openPage",
     ],
+    "EnumType": [
+        "number",
+        "string",
+    ],
     "CellValueType": [
         "booleancellvalue",
         "cellvalue",
         "doublecellvalue",
         "entitycellvalue",
         "errorcellvalue",
-        "formattednumbercellvalue",
         "linkedentitycellvalue",
         "localimagecellvalue",
         "stringcellvalue",
@@ -3490,5 +4138,9 @@ const typeMap: any = {
     "SupportedChannelType": [
         "privateChannels",
         "sharedChannels",
+    ],
+    "SupportsChannelFeatures": [
+        "tier1",
+        "tier2",
     ],
 };

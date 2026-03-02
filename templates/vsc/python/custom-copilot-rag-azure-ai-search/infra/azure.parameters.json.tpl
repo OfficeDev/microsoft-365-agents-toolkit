@@ -10,7 +10,7 @@
       "value": "${{SECRET_AZURE_OPENAI_API_KEY}}"
     },
     "azureOpenaiModelDeploymentName" : {
-      "value": "${{AZURE_OPENAI_MODEL_DEPLOYMENT_NAME}}"
+      "value": "${{AZURE_OPENAI_DEPLOYMENT_NAME}}"
     },
     "azureOpenaiEndpoint" : {
       "value": "${{AZURE_OPENAI_ENDPOINT}}"
@@ -31,13 +31,13 @@
       "value": "${{AZURE_SEARCH_ENDPOINT}}"
     },
     "webAppSKU": {
-      "value": "B1"
+      "value": "B3"
     },
     "botDisplayName": {
       "value": "{{appName}}"
     },
     "linuxFxVersion": {
-      "value": "PYTHON|3.11"
+      "value": "PYTHON|3.12"
     }
   }
 }

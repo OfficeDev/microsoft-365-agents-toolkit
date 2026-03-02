@@ -7,7 +7,7 @@ import axios, { AxiosInstance } from "axios";
 
 async function createRequester(): Promise<AxiosInstance> {
   const appStudioTokenRes = await m365Provider.getAccessToken({
-    scopes: AppStudioScopes,
+    scopes: AppStudioScopes(),
   });
   const appStudioToken = appStudioTokenRes.isOk()
     ? appStudioTokenRes.value

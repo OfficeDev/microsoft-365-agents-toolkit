@@ -3,7 +3,7 @@
 import { CLICommand, ok } from "@microsoft/teamsfx-api";
 import AzureTokenProvider from "../../commonlib/azureLogin";
 import { logger } from "../../commonlib/logger";
-import M365TokenProvider from "../../commonlib/m365Login";
+import M365TokenProvider from "../../commonlib/M365TokenProviderWrapper";
 import { commands, strings } from "../../resource";
 import { TelemetryEvent } from "../../telemetry/cliTelemetryEvents";
 

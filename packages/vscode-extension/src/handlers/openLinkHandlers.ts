@@ -33,7 +33,6 @@ import { getTriggerFromProperty } from "../utils/telemetryUtils";
 import { ExtensionSource, ExtensionErrors } from "../error/error";
 import { getSubscriptionInfoFromEnv, getResourceGroupNameFromEnv } from "../utils/envTreeUtils";
 import { localize } from "../utils/localizeUtils";
-import { getWalkThroughId } from "../utils/projectStatusUtils";
 import { commands, Uri } from "vscode";
 
 export async function openEnvLinkHandler(args: any[]): Promise<Result<unknown, FxError>> {
@@ -80,11 +79,9 @@ export async function openDocumentLinkHandler(args?: any[]): Promise<Result<bool
   });
   switch (node.contextValue) {
     case "signinM365": {
-      await vscode.commands.executeCommand("workbench.action.openWalkthrough", {
-        category: getWalkThroughId(),
-        step: `${getWalkThroughId()}#teamsToolkitCreateFreeAccount`,
-      });
-      return Promise.resolve(ok(true));
+      return VS_CODE_UI.openUrl(
+        "https://learn.microsoft.com/en-us/microsoftteams/platform/toolkit/tools-prerequisites?from=teamstoolkit#microsoft-365-developer-program"
+      );
     }
     case "signinAzure": {
       return VS_CODE_UI.openUrl("https://portal.azure.com/");
@@ -124,7 +121,7 @@ export async function openAzureAccountHandler() {
 
 export async function openAppManagement(...args: unknown[]): Promise<Result<boolean, FxError>> {
   ExtTelemetry.sendTelemetryEvent(TelemetryEvent.ManageTeamsApp, getTriggerFromProperty(args));
-  const accountRes = await M365TokenInstance.getStatus({ scopes: AppStudioScopes });
+  const accountRes = await M365TokenInstance.getStatus({ scopes: AppStudioScopes() });
 
   if (accountRes.isOk() && accountRes.value.status === signedIn) {
     const loginHint = accountRes.value.accountInfo?.upn as string;

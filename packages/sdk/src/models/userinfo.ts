@@ -3,6 +3,8 @@
 
 /**
  * UserInfo with user displayName, objectId and preferredUserName.
+ *
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
  */
 export interface UserInfo {
   /**
@@ -34,6 +36,9 @@ export interface UserInfo {
   preferredUserName: string;
 }
 
+/**
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
+ */
 export interface UserTenantIdAndLoginHint {
   /**
    * User Login Hint.

@@ -2,9 +2,12 @@
 // Licensed under the MIT license.
 
 import { hooks } from "@feathersjs/hooks/lib";
-import { Context, FxError, Result, ok } from "@microsoft/teamsfx-api";
+import { Utils } from "@microsoft/m365-spec-parser";
+import { Context, FxError, ok, Result } from "@microsoft/teamsfx-api";
 import fs from "fs-extra";
 import { merge } from "lodash";
+import { featureFlagManager, FeatureFlags } from "../../common/featureFlags";
+import { convertToAlphanumericOnly } from "../../common/stringUtils";
 import { TelemetryEvent, TelemetryProperty } from "../../common/telemetry";
 import { BaseComponentInnerError } from "../error/componentError";
 import { LogMessages, ProgressMessages, ProgressTitles } from "../messages";
@@ -22,10 +25,10 @@ import {
   ScaffoldLocalTemplateError,
 } from "./error";
 import {
-  SampleActionSeq,
   GeneratorAction,
   GeneratorActionName,
   GeneratorContext,
+  SampleActionSeq,
   TemplateActionSeq,
 } from "./generatorAction";
 import {
@@ -34,14 +37,12 @@ import {
   renderTemplateFileData,
   renderTemplateFileName,
 } from "./utils";
-import { featureFlagManager, FeatureFlags } from "../../common/featureFlags";
-import { Utils } from "@microsoft/m365-spec-parser";
-import { convertToAlphanumericOnly } from "../../common/stringUtils";
 
 export class Generator {
   public static getDefaultVariables(
     appName: string,
     safeProjectNameFromVS?: string,
+    solutionNameFromVS?: string,
     targetFramework?: string,
     placeProjectFileInSolutionDir?: boolean,
     authData?: {
@@ -86,23 +87,15 @@ export class Generator {
       PlaceProjectFileInSolutionDir: placeProjectFileInSolutionDir ? "true" : "",
       SafeProjectName: safeProjectName,
       SafeProjectNameLowerCase: safeProjectName.toLocaleLowerCase(),
+      SolutionName: solutionNameFromVS ?? appName,
       ApiKey: apiKeyActionData,
       OAuth: oauthActionData,
-      enableTestToolByDefault: featureFlagManager.getBooleanValue(FeatureFlags.TestTool)
-        ? "true"
-        : "",
-      enableMETestToolByDefault: featureFlagManager.getBooleanValue(FeatureFlags.METestTool)
-        ? "true"
-        : "",
       useOpenAI: llmServiceData?.llmService === "llm-service-openai" ? "true" : "",
       useAzureOpenAI: llmServiceData?.llmService === "llm-service-azure-openai" ? "true" : "",
       openAIKey: llmServiceData?.openAIKey ?? "",
       azureOpenAIKey: llmServiceData?.azureOpenAIKey ?? "",
       azureOpenAIEndpoint: llmServiceData?.azureOpenAIEndpoint ?? "",
       azureOpenAIDeploymentName: llmServiceData?.azureOpenAIDeploymentName ?? "",
-      isNewProjectTypeEnabled: featureFlagManager.getBooleanValue(FeatureFlags.NewProjectType)
-        ? "true"
-        : "",
       NewProjectTypeName: process.env.TEAMSFX_NEW_PROJECT_TYPE_NAME ?? "M365Agent",
       NewProjectTypeExt: process.env.TEAMSFX_NEW_PROJECT_TYPE_EXTENSION ?? "atkproj",
       CEAEnabled: featureFlagManager.getBooleanValue(FeatureFlags.CEAEnabled) ? "true" : "",
@@ -111,7 +104,6 @@ export class Generator {
       )
         ? "true"
         : "",
-      ShareEnabled: featureFlagManager.getBooleanValue(FeatureFlags.ShareEnabled) ? "true" : "",
       SensitivityLabelEnabled: featureFlagManager.getBooleanValue(
         FeatureFlags.SensitivityLabelEnabled
       )

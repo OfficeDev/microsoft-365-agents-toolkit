@@ -13,24 +13,13 @@ import {
   GCNameQuestion,
 } from "../../create";
 import { QuestionNames } from "../../questionNames";
-
-import {
-  ActionStartOptions,
-  BotCapabilityOptions,
-  CustomCopilotCapabilityOptions,
-  CustomEngineAgentOptions,
-  DACapabilityOptions,
-  MeCapabilityOptions,
-  OfficeAddinCapabilityOptions,
-  TabCapabilityOptions,
-} from "./CapabilityOptions";
+import { DACapabilityOptions } from "./CapabilityOptions";
 import { ProjectTypeOptions } from "./ProjectTypeOptions";
-import { agentForTeamsProjectTypeNode } from "./agentForTeamsNode";
-import { customEngineAgentNode } from "./customEngineAgentNode";
+import { getCustomEngineAgentNode } from "./customEngineAgentNode";
 import { daProjectTypeNode } from "./daProjectTypeNode";
 import { graphConnectorProjectTypeNode } from "./graphConnectorProjectTypeNode";
 import { officeAddinProjectTypeNode } from "./officeAddinProjectTypeNode";
-import { teamsAppProjectNode, TeamsProjectTypeOptions } from "./teamsProjectTypeNode";
+import { getTeamsProjectNode } from "./teamsProjectTypeNode";
 
 export const LanguageOptionMap = new Map<string, OptionItem>([
   [ProgrammingLanguage.JS, { id: ProgrammingLanguage.JS, label: "JavaScript" }],
@@ -54,6 +43,17 @@ export function getLanguageOptions(inputs: Inputs): OptionItem[] {
         label: "None",
       }
   );
+  if (inputs[QuestionNames.ProjectType] === ProjectTypeOptions.teamsAgentsAndApps().id) {
+    const pythonOptionIndex = languageOptions.findIndex(
+      (option) => option.id === ProgrammingLanguage.PY
+    );
+    if (pythonOptionIndex !== -1) {
+      languageOptions[pythonOptionIndex] = {
+        ...languageOptions[pythonOptionIndex],
+        description: getLocalizedString("core.createProjectQuestion.option.description.preview"),
+      };
+    }
+  }
   return languageOptions;
 }
 
@@ -92,15 +92,7 @@ export function languageNode(): IQTreeNode {
 export function folderAndAppNameCondition(inputs: Inputs): boolean {
   // skip this project when need to redirect to Kiota: 1. Feature flag enabled 2. Creating plugin/declarative copilot from existing spec 3. No plugin manifest path
   // or start with github copilot
-  return (
-    !(
-      featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration) &&
-      inputs[QuestionNames.ActionType] === ActionStartOptions.apiSpec().id &&
-      (inputs[QuestionNames.ProjectType] === ProjectTypeOptions.copilotAgentOptionId ||
-        inputs[QuestionNames.Capabilities] === DACapabilityOptions.declarativeAgent().id) &&
-      !inputs[QuestionNames.ActionManifestPath]
-    ) && inputs[QuestionNames.ProjectType] !== ProjectTypeOptions.startWithGithubCopilotOptionId
-  );
+  return true;
 }
 
 /**
@@ -119,8 +111,7 @@ export function scaffoldQuestionForVSCode(platform: Platform = Platform.VSCode):
             ProjectTypeOptions.declarativeAgent(platform),
             ProjectTypeOptions.customEngineAgent(platform),
             ProjectTypeOptions.graphConnector(platform),
-            ProjectTypeOptions.agentForTeams(platform),
-            ProjectTypeOptions.teamsApp(platform),
+            ProjectTypeOptions.teamsAgentsAndApps(platform),
             ProjectTypeOptions.officeAddin(platform),
             ...(featureFlagManager.getBooleanValue(FeatureFlags.ChatParticipantUIEntries)
               ? [ProjectTypeOptions.startWithGithubCopilot()]
@@ -129,9 +120,8 @@ export function scaffoldQuestionForVSCode(platform: Platform = Platform.VSCode):
         },
         children: [
           daProjectTypeNode(),
-          customEngineAgentNode(),
-          agentForTeamsProjectTypeNode(),
-          teamsAppProjectNode(platform),
+          getCustomEngineAgentNode(),
+          getTeamsProjectNode(),
           graphConnectorProjectTypeNode(),
           officeAddinProjectTypeNode(),
         ],
@@ -170,98 +160,4 @@ export function scaffoldQuestionForVSCode(platform: Platform = Platform.VSCode):
     ],
   };
   return node;
-}
-
-/**
- * CLI non-interactive mode has no "project-type" input, to make it compatible to the question model,
- * we need to convert capability to project type
- */
-export function getProjectTypeByCapability(capability: string): string {
-  if ([DACapabilityOptions.declarativeAgent().id].includes(capability)) {
-    return ProjectTypeOptions.copilotAgentOptionId;
-  }
-  if (
-    [
-      CustomEngineAgentOptions.basicCustomEngineAgent().id,
-      CustomEngineAgentOptions.weatherAgent().id,
-    ].includes(capability)
-  ) {
-    return ProjectTypeOptions.customEngineAgentOptionId;
-  }
-  if (
-    [
-      CustomCopilotCapabilityOptions.basicChatbot().id,
-      CustomCopilotCapabilityOptions.customCopilotRag().id,
-      CustomCopilotCapabilityOptions.aiAgent().id,
-    ].includes(capability)
-  ) {
-    return ProjectTypeOptions.agentForTeamsOptionId;
-  }
-  if (
-    [
-      BotCapabilityOptions.basicBot().id,
-      BotCapabilityOptions.notificationBot().id,
-      BotCapabilityOptions.commandBot().id,
-      BotCapabilityOptions.workflowBot().id,
-      TabCapabilityOptions.nonSsoTab().id,
-      TabCapabilityOptions.m365SsoLaunchPage().id,
-      TabCapabilityOptions.dashboardTab().id,
-      TabCapabilityOptions.SPFxTab().id,
-      MeCapabilityOptions.m365SearchMe().id,
-      MeCapabilityOptions.collectFormMe().id,
-      MeCapabilityOptions.linkUnfurling().id,
-    ].includes(capability)
-  ) {
-    return ProjectTypeOptions.teamsAppOptionId;
-  }
-  if (
-    [
-      OfficeAddinCapabilityOptions.wxpTaskPane().id,
-      OfficeAddinCapabilityOptions.officeAddinImport().id,
-    ].includes(capability)
-  ) {
-    return ProjectTypeOptions.officeMetaOSOptionId;
-  }
-
-  if (
-    [
-      OfficeAddinCapabilityOptions.outlookTaskPane().id,
-      OfficeAddinCapabilityOptions.outlookAddinImport().id,
-    ].includes(capability)
-  ) {
-    return ProjectTypeOptions.outlookAddinOptionId;
-  }
-
-  return "";
-}
-
-export function getTeamsProjectTypeByCapability(capability: string): string {
-  if (
-    [
-      BotCapabilityOptions.basicBot().id,
-      BotCapabilityOptions.notificationBot().id,
-      BotCapabilityOptions.commandBot().id,
-      BotCapabilityOptions.workflowBot().id,
-    ].includes(capability)
-  ) {
-    return TeamsProjectTypeOptions.botOptionId;
-  } else if (
-    [
-      TabCapabilityOptions.nonSsoTab().id,
-      TabCapabilityOptions.m365SsoLaunchPage().id,
-      TabCapabilityOptions.dashboardTab().id,
-      TabCapabilityOptions.SPFxTab().id,
-    ].includes(capability)
-  ) {
-    return TeamsProjectTypeOptions.tabOptionId;
-  } else if (
-    [
-      MeCapabilityOptions.m365SearchMe().id,
-      MeCapabilityOptions.collectFormMe().id,
-      MeCapabilityOptions.linkUnfurling().id,
-    ].includes(capability)
-  ) {
-    return TeamsProjectTypeOptions.meOptionId;
-  }
-  return "";
 }

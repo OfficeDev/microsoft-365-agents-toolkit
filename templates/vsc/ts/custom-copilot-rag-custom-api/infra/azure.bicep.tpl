@@ -60,18 +60,18 @@ resource webApp 'Microsoft.Web/sites@2021-02-01' = {
         }
         {
           name: 'WEBSITE_NODE_DEFAULT_VERSION'
-          value: '~18' // Set NodeJS version to 18.x for your site
+          value: '~20' // Set NodeJS version to 20.x for your site
         }
         {
           name: 'RUNNING_ON_AZURE'
           value: '1'
         }
         {
-          name: 'BOT_ID'
+          name: 'CLIENT_ID'
           value: identity.properties.clientId
         }
         {
-          name: 'BOT_TENANT_ID'
+          name: 'TENANT_ID'
           value: identity.properties.tenantId
         }
         { 
@@ -94,7 +94,7 @@ resource webApp 'Microsoft.Web/sites@2021-02-01' = {
           value: azureOpenAIEndpoint
         }
         {
-          name: 'AZURE_OPENAI_DEPLOYMENT'
+          name: 'AZURE_OPENAI_DEPLOYMENT_NAME'
           value: azureOpenAIDeployment
         }
         {{/useAzureOpenAI}}

@@ -1,22 +1,21 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { IQTreeNode, OptionItem, Platform } from "@microsoft/teamsfx-api";
+import { IQTreeNode, OptionItem } from "@microsoft/teamsfx-api";
 import { getLocalizedString } from "../../../common/localizeUtils";
 import { TemplateNames } from "../../../component/generator/templates/templateNames";
 import { appNameQuestion, folderQuestion } from "../../create";
 import { QuestionNames } from "../../questionNames";
-import { aiAgentNode, customCopilotRagNode, llmServiceNode } from "../vsc/agentForTeamsNode";
+import { foundryNode, llmServiceNode } from "../commonNodes";
 import {
   BotCapabilityOptions,
-  CustomCopilotCapabilityOptions,
   MeCapabilityOptions,
   setTemplateName,
-  TdpCapabilityOptions,
+  TeamsAgentCapabilityOptions,
 } from "../vsc/CapabilityOptions";
 import { folderAndAppNameCondition, languageNode } from "../vsc/createRootNode";
 import { daProjectTypeNode } from "../vsc/daProjectTypeNode";
-import { m365SearchMeSubNode, notificationBotTriggerNode } from "../vsc/teamsProjectTypeNode";
+import { customCopilotRagNode } from "../vsc/teamsProjectTypeNode";
 
 export class VSCapabilityOptions {
   // empty
@@ -42,9 +41,10 @@ export class VSCapabilityOptions {
       description: getLocalizedString(
         "core.createProjectQuestion.option.description.worksInOutlookM365"
       ),
-      data: TemplateNames.TabSSR,
+      data: TemplateNames.Tab,
     };
   }
+
   static tab(): OptionItem {
     return {
       id: "tab",
@@ -62,7 +62,7 @@ export class VSCapabilityOptions {
       data: TemplateNames.MessageExtensionSearch,
     };
   }
-  // Currently only for dotnet
+
   static weatherAgentBot(): OptionItem {
     return {
       id: "custom-copilot-weather-agent",
@@ -73,6 +73,32 @@ export class VSCapabilityOptions {
         "core.createProjectQuestion.capability.customCopilotWeatherOption.detail"
       ),
       data: TemplateNames.WeatherAgent,
+    };
+  }
+
+  static travelAgentBot(): OptionItem {
+    return {
+      id: "custom-copilot-travel-agent",
+      label: getLocalizedString(
+        "core.createProjectQuestion.capability.customCopilotTravelOption.label"
+      ),
+      detail: getLocalizedString(
+        "core.createProjectQuestion.capability.customCopilotTravelOption.detail"
+      ),
+      data: TemplateNames.TravelAgent,
+    };
+  }
+
+  static foundryProxyAgent(): OptionItem {
+    return {
+      id: "foundry-proxy-agent",
+      label: getLocalizedString(
+        "core.createProjectQuestion.capability.foundryProxyAgentOption.label"
+      ),
+      detail: getLocalizedString(
+        "core.createProjectQuestion.capability.foundryProxyAgentOption.detail"
+      ),
+      data: TemplateNames.FoundryProxyAgent,
     };
   }
 }
@@ -93,38 +119,33 @@ export function scaffoldQuestionForVS(): IQTreeNode {
           staticOptions: [
             VSCapabilityOptions.empty(),
             VSCapabilityOptions.declarativeAgent(),
-            CustomCopilotCapabilityOptions.basicChatbot(),
-            CustomCopilotCapabilityOptions.customCopilotRag(),
-            CustomCopilotCapabilityOptions.aiAgent(),
+            TeamsAgentCapabilityOptions.basicChatbot(),
+            TeamsAgentCapabilityOptions.collaboratorAgent(),
+            TeamsAgentCapabilityOptions.customCopilotRag(),
             VSCapabilityOptions.weatherAgentBot(),
+            VSCapabilityOptions.travelAgentBot(),
+            VSCapabilityOptions.foundryProxyAgent(),
             BotCapabilityOptions.basicBot(),
-            BotCapabilityOptions.notificationBot(),
-            BotCapabilityOptions.commandBot(),
-            BotCapabilityOptions.workflowBot(),
             VSCapabilityOptions.nonSsoTab(),
-            VSCapabilityOptions.tab(),
-            MeCapabilityOptions.m365SearchMe(),
-            MeCapabilityOptions.collectFormMe(),
-            VSCapabilityOptions.SearchMeVS(),
-            MeCapabilityOptions.linkUnfurling(),
-            TdpCapabilityOptions.me(),
+            MeCapabilityOptions.basicMe(),
           ],
           onDidSelection: setTemplateName,
         },
         children: [
           daProjectTypeNode(VSCapabilityOptions.declarativeAgent().id),
           customCopilotRagNode(),
-          aiAgentNode(),
-          m365SearchMeSubNode(),
           llmServiceNode({
             enum: [
-              CustomCopilotCapabilityOptions.basicChatbot().id,
-              CustomCopilotCapabilityOptions.customCopilotRag().id,
-              CustomCopilotCapabilityOptions.aiAgent().id,
+              TeamsAgentCapabilityOptions.basicChatbot().id,
+              TeamsAgentCapabilityOptions.collaboratorAgent().id,
+              TeamsAgentCapabilityOptions.customCopilotRag().id,
               VSCapabilityOptions.weatherAgentBot().id,
+              VSCapabilityOptions.travelAgentBot().id,
             ],
           }),
-          notificationBotTriggerNode(Platform.VS),
+          foundryNode({
+            enum: [VSCapabilityOptions.foundryProxyAgent().id],
+          }),
         ],
       },
       languageNode(),

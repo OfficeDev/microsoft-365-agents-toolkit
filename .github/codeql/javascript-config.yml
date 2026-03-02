@@ -16,3 +16,4 @@ paths-ignore:
   - "**/*.test.ts"
   - "**/*.tests.ts"
   - ".github/scripts"
+  - "templates/vsc/ts/graph-connector/src/graphClient.ts"

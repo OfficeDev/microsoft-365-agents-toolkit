@@ -12,7 +12,7 @@ import semver from "semver";
 import * as uuid from "uuid";
 import { getDefaultString, getLocalizedString } from "../../../common/localizeUtils";
 import { DepsCheckerError, InstallSoftwareError, NodejsNotFoundError } from "../../../error";
-import { v3DefaultHelpLink } from "../constant/helpLink";
+import { functionToolInstallationLink, v3DefaultHelpLink } from "../constant/helpLink";
 import { Messages } from "../constant/message";
 import { TelemetryProperties } from "../constant/telemetry";
 import { DependencyStatus, DepsChecker, DepsType, FuncInstallOptions } from "../depsChecker";
@@ -296,10 +296,10 @@ export class FuncToolChecker implements DepsChecker {
     symlinkDir: string | undefined
   ): Promise<DependencyStatus> {
     if (isLinux()) {
-      throw new InstallSoftwareError(funcToolName, v3DefaultHelpLink);
+      throw new InstallSoftwareError(funcToolName, functionToolInstallationLink);
     }
     if (!(await this.hasNPM())) {
-      throw new DepsCheckerError(Messages.needInstallNpm(), v3DefaultHelpLink);
+      throw new DepsCheckerError(Messages.needInstallNpm(), functionToolInstallationLink);
     }
 
     const tmpVersion = `tmp-${uuid.v4().slice(0, 6)}`;
@@ -315,7 +315,7 @@ export class FuncToolChecker implements DepsChecker {
       this.telemetryProperties[TelemetryProperties.InstallFuncError] = funcVersionRes.error.message;
       throw new DepsCheckerError(
         Messages.failToValidateFuncCoreTool(funcVersionRes.error.message),
-        v3DefaultHelpLink
+        functionToolInstallationLink
       );
     }
     this.telemetryProperties[TelemetryProperties.InstalledFuncVersion] =
@@ -398,7 +398,7 @@ export class FuncToolChecker implements DepsChecker {
         this.getExecCommand("npm"),
         "install",
         // not use -f, to avoid npm@6 bug: exit code = 0, even if install fail
-        `${funcPackageName}@${expectedFuncVersion}`,
+        `"${funcPackageName}@${expectedFuncVersion}"`,
         "--prefix",
         `"${tmpFolder}"`,
         "--no-audit"
@@ -416,7 +416,7 @@ export class FuncToolChecker implements DepsChecker {
           default: getDefaultString("error.common.InstallSoftwareError", funcToolName),
           localized: getLocalizedString("error.common.InstallSoftwareError", funcToolName),
         },
-        v3DefaultHelpLink
+        functionToolInstallationLink
       );
     }
   }

@@ -15,17 +15,17 @@ dependencies:
     specifier: ^2.14.0
     version: 2.14.0
   '@microsoft/agents-activity':
-    specifier: 0.2.14
-    version: 0.2.14
+    specifier: ^0.6.18
+    version: 0.6.18(supports-color@9.4.0)
   '@microsoft/agents-hosting':
-    specifier: 0.2.14
-    version: 0.2.14(supports-color@9.4.0)
+    specifier: ^0.6.18
+    version: 0.6.18(supports-color@9.4.0)
   '@microsoft/agents-hosting-dialogs':
-    specifier: 0.2.14
-    version: 0.2.14(supports-color@9.4.0)
-  '@microsoft/agents-hosting-teams':
-    specifier: 0.2.14
-    version: 0.2.14(supports-color@9.4.0)
+    specifier: ^0.6.18
+    version: 0.6.18(supports-color@9.4.0)
+  '@microsoft/agents-hosting-extensions-teams':
+    specifier: ^0.6.18
+    version: 0.6.18(supports-color@9.4.0)
   '@microsoft/teams-js':
     specifier: ^2.31.1
     version: 2.31.1(supports-color@9.4.0)
@@ -37,7 +37,7 @@ dependencies:
     version: 2.3.1(adaptive-expressions@4.23.1)
   axios:
     specifier: ^1.8.3
-    version: 1.8.3(debug@4.4.0)
+    version: 1.8.3
   jwt-decode:
     specifier: ^4.0.0
     version: 4.0.0
@@ -286,7 +286,7 @@ packages:
     resolution: {integrity: sha512-TrRLIoSQVzfAJX9H1JeFjzAoDGcoK1IYX1UImfceTZpsyYfWr09Ss1aHW1y5TrrR3iq6RZLBwJ3E24uwPhwahw==}
     engines: {node: '>=12.0.0'}
     dependencies:
-      tslib: 2.3.1
+      tslib: 2.8.1
     dev: false
 
   /@azure/abort-controller@2.1.2:
@@ -294,6 +294,15 @@ packages:
     engines: {node: '>=18.0.0'}
     dependencies:
       tslib: 2.8.1
+
+  /@azure/core-auth@1.10.0:
+    resolution: {integrity: sha512-88Djs5vBvGbHQHf5ZZcaoNHo6Y8BKZkt3cw2iuJIQzLEgH4Ox6Tm4hjFhbqOxyYsgIG/eJbFEHpxRIfEEWv5Ow==}
+    engines: {node: '>=20.0.0'}
+    dependencies:
+      '@azure/abort-controller': 2.1.2
+      '@azure/core-util': 1.11.0
+      tslib: 2.8.1
+    dev: false
 
   /@azure/core-auth@1.8.0:
     resolution: {integrity: sha512-YvFMowkXzLbXNM11yZtVLhUCmuG0ex7JKOH366ipjmHBhL3vpDcPAeWF+jf0X+jVXwFqo3UhsWUq4kH0ZPdu/g==}
@@ -308,7 +317,7 @@ packages:
     engines: {node: '>=18.0.0'}
     dependencies:
       '@azure/abort-controller': 2.1.2
-      '@azure/core-auth': 1.8.0
+      '@azure/core-auth': 1.10.0
       '@azure/core-rest-pipeline': 1.19.1(supports-color@9.4.0)
       '@azure/core-tracing': 1.2.0
       '@azure/core-util': 1.11.0
@@ -323,7 +332,7 @@ packages:
     engines: {node: '>=18.0.0'}
     dependencies:
       '@azure/abort-controller': 2.1.2
-      '@azure/core-auth': 1.8.0
+      '@azure/core-auth': 1.10.0
       '@azure/core-tracing': 1.2.0
       '@azure/core-util': 1.11.0
       '@azure/logger': 1.1.4
@@ -388,8 +397,8 @@ packages:
     resolution: {integrity: sha512-ImAQHxmpMneJ/4S8BRFhjt1MZ3bppmpRPYYNyzeQPeFN288YKbb8TmmISQEbtfkQ1BPASvYZU5doIZOPBAqENQ==}
     engines: {node: '>=0.8.0'}
 
-  /@azure/msal-common@15.5.1:
-    resolution: {integrity: sha512-oxK0khbc4Bg1bKQnqDr7ikULhVL2OHgSrIq0Vlh4b6+hm4r0lr6zPMQE8ZvmacJuh+ZZGKBM5iIObhF1q1QimQ==}
+  /@azure/msal-common@15.8.1:
+    resolution: {integrity: sha512-ltIlFK5VxeJ5BurE25OsJIfcx1Q3H/IZg2LjV9d4vmH+5t4c1UCyRQ/HgKLgXuCZShs7qfc/TC95GYZfsUsJUQ==}
     engines: {node: '>=0.8.0'}
     dev: false
 
@@ -402,11 +411,11 @@ packages:
       uuid: 8.3.2
     dev: false
 
-  /@azure/msal-node@3.5.1:
-    resolution: {integrity: sha512-dkgMYM5B6tI88r/oqf5bYd93WkenQpaWwiszJDk7avVjso8cmuKRTW97dA1RMi6RhihZFLtY1VtWxU9+sW2T5g==}
+  /@azure/msal-node@3.6.3:
+    resolution: {integrity: sha512-95wjsKGyUcAd5tFmQBo5Ug/kOj+hFh/8FsXuxluEvdfbgg6xCimhSP9qnyq6+xIg78/jREkBD1/BSqd7NIDDYQ==}
     engines: {node: '>=16'}
     dependencies:
-      '@azure/msal-common': 15.5.1
+      '@azure/msal-common': 15.8.1
       jsonwebtoken: 9.0.2
       uuid: 8.3.2
     dev: false
@@ -683,19 +692,22 @@ packages:
       '@jridgewell/sourcemap-codec': 1.5.0
     dev: true
 
-  /@microsoft/agents-activity@0.2.14:
-    resolution: {integrity: sha512-Qhvt0E3D2u8ElFrysqdGRn1YZsTtYfQiw66PehJv92LBTwaJWMCEQBbdXPr2ND6UzzK56cUx4jwZeFhWaCAJ9w==}
-    engines: {node: '>=18.0.0'}
+  /@microsoft/agents-activity@0.6.18(supports-color@9.4.0):
+    resolution: {integrity: sha512-QqatJ4Cz27OYF1ohioQMZXRgnjxO0oIOnMQds0mdv0bcVT5a2neCYu3ye+6ATSH0CpqU/x9bd0zmRnLwxiP6Cw==}
+    engines: {node: '>=20.0.0'}
     dependencies:
+      debug: 4.4.0(supports-color@9.4.0)
       uuid: 11.1.0
-      zod: 3.24.3
+      zod: 3.25.75
+    transitivePeerDependencies:
+      - supports-color
     dev: false
 
-  /@microsoft/agents-hosting-dialogs@0.2.14(supports-color@9.4.0):
-    resolution: {integrity: sha512-IGuF18zmpQ9LkS55NkQR9j9WDp4xyiDRJxpYYdtpZPnxwNu1GHbzgva+bJDkScA3t9cYWEMocEKW0V/Dwe9k4g==}
-    engines: {node: '>=18.0.0'}
+  /@microsoft/agents-hosting-dialogs@0.6.18(supports-color@9.4.0):
+    resolution: {integrity: sha512-TRclm1Fix6ppCq2b70iAnFZBOJIoEpVYKqS1HO8g+z+mcMxFWcu9KsLKGFuk6wcEwq9mkM5U2gDKgRGeLGl4HA==}
+    engines: {node: '>=20.0.0'}
     dependencies:
-      '@microsoft/agents-hosting': 0.2.14(supports-color@9.4.0)
+      '@microsoft/agents-hosting': 0.6.18(supports-color@9.4.0)
       '@microsoft/recognizers-text-choice': 1.3.1
       '@microsoft/recognizers-text-date-time': 1.3.2
       '@microsoft/recognizers-text-number': 1.3.1
@@ -704,28 +716,32 @@ packages:
       dependency-graph: 1.0.0
       globalize: 1.7.0
     transitivePeerDependencies:
+      - debug
       - supports-color
     dev: false
 
-  /@microsoft/agents-hosting-teams@0.2.14(supports-color@9.4.0):
-    resolution: {integrity: sha512-fA2M/u5qtpm+jFi5rLDivzs+knkWxYbRThy/LvYknptELQy3ke/P7eXksKMppahM/Or6aG3QVa1OCR7np9NlVw==}
+  /@microsoft/agents-hosting-extensions-teams@0.6.18(supports-color@9.4.0):
+    resolution: {integrity: sha512-CwcZL+3qKrQ8aOJwzO4wgxuk3TKG1PCkSm2vRvFxEimVKLb5Of/XFElRXSxOWtYUFq74Z1ELjCeHsHGxaUBpyQ==}
+    engines: {node: '>=20.0.0'}
     dependencies:
-      '@microsoft/agents-hosting': 0.2.14(supports-color@9.4.0)
+      '@microsoft/agents-hosting': 0.6.18(supports-color@9.4.0)
     transitivePeerDependencies:
+      - debug
       - supports-color
     dev: false
 
-  /@microsoft/agents-hosting@0.2.14(supports-color@9.4.0):
-    resolution: {integrity: sha512-/Z0j55YCHNzSmxEHGewJu9KcxoVO+G0oSiDa8Xnbm6pU7VaK6FWrIbWYQPpoFkiR/UvTS2IPGuTVswQN0yOWbQ==}
-    engines: {node: '>=18.0.0'}
+  /@microsoft/agents-hosting@0.6.18(supports-color@9.4.0):
+    resolution: {integrity: sha512-bzY4UYpNbFDjfqZuXbpFiDzNjx+YGWiZSzYTARCHI4L3lTRiwvQYfemBhyopAf/BgPdlP9BsYHIXnBqPrcbTBw==}
+    engines: {node: '>=20.0.0'}
     dependencies:
-      '@azure/msal-node': 3.5.1
-      '@microsoft/agents-activity': 0.2.14
-      axios: 1.8.3(debug@4.4.0)
-      debug: 4.4.0(supports-color@9.4.0)
+      '@azure/core-auth': 1.10.0
+      '@azure/msal-node': 3.6.3
+      '@microsoft/agents-activity': 0.6.18(supports-color@9.4.0)
+      axios: 1.10.0
       jsonwebtoken: 9.0.2
       jwks-rsa: 3.2.0(supports-color@9.4.0)
     transitivePeerDependencies:
+      - debug
       - supports-color
     dev: false
 
@@ -2083,7 +2099,7 @@ packages:
     resolution: {integrity: sha512-x1FCFnFifvYDDzTaLII71vG5uvDwgtmDTEVWAxrgeiR8VjMONcCXJx7E+USjDtHlwFmt9MysbqgF9b9Vjr6w+w==}
     engines: {node: '>=4'}
     dependencies:
-      tslib: 2.3.1
+      tslib: 2.8.1
     dev: true
 
   /astral-regex@2.0.0:
@@ -2115,16 +2131,26 @@ packages:
     peerDependencies:
       axios: '>= 0.9.0'
     dependencies:
-      axios: 1.8.3(debug@4.4.0)
+      axios: 1.8.3
       fast-deep-equal: 3.1.3
       is-blob: 2.1.0
       is-buffer: 2.0.5
     dev: true
 
-  /axios@1.8.3(debug@4.4.0):
+  /axios@1.10.0:
+    resolution: {integrity: sha512-/1xYAC4MP/HEG+3duIhFr4ZQXR4sQXOIe+o6sdqzeykGLx6Upp/1p8MHqhINOvGeP7xyNHe7tsiJByc4SSVUxw==}
+    dependencies:
+      follow-redirects: 1.15.9
+      form-data: 4.0.2
+      proxy-from-env: 1.1.0
+    transitivePeerDependencies:
+      - debug
+    dev: false
+
+  /axios@1.8.3:
     resolution: {integrity: sha512-iP4DebzoNlP/YN2dpwCgb8zoCmhtkajzS48JvwmkSkXvPI3DHc7m+XYL5tGnSlJtR6nImXZmdCuN5aP8dh1d8A==}
     dependencies:
-      follow-redirects: 1.15.9(debug@4.4.0)
+      follow-redirects: 1.15.9
       form-data: 4.0.2
       proxy-from-env: 1.1.0
     transitivePeerDependencies:
@@ -3568,7 +3594,7 @@ packages:
     resolution: {integrity: sha512-GX+ysw4PBCz0PzosHDepZGANEuFCMLrnRTiEy9McGjmkCQYwRq4A/X786G/fjM/+OjsWSU1ZrY5qyARZmO/uwg==}
     dev: true
 
-  /follow-redirects@1.15.9(debug@4.4.0):
+  /follow-redirects@1.15.9:
     resolution: {integrity: sha512-gew4GsXizNgdoRyqmyfMHyAmXsZDk6mHkSxZFCzW9gwlbtOW44CDtYavM+y+72qD/Vq2l550kMF52DT8fOLJqQ==}
     engines: {node: '>=4.0'}
     peerDependencies:
@@ -3576,8 +3602,6 @@ packages:
     peerDependenciesMeta:
       debug:
         optional: true
-    dependencies:
-      debug: 4.4.0(supports-color@9.4.0)
 
   /for-each@0.3.5:
     resolution: {integrity: sha512-dKx12eRCVIzqCxFGplyFKJMPvLEWgmNtUrpTiJIR5u97zEhRG8ySrtboPHZXx7daLxQVrl643cTzbab2tkQjxg==}
@@ -3980,7 +4004,7 @@ packages:
     engines: {node: '>=8.0.0'}
     dependencies:
       eventemitter3: 4.0.7
-      follow-redirects: 1.15.9(debug@4.4.0)
+      follow-redirects: 1.15.9
       requires-port: 1.0.0
     transitivePeerDependencies:
       - debug
@@ -5915,7 +5939,7 @@ packages:
   /rxjs@7.8.2:
     resolution: {integrity: sha512-dhKf903U/PQZY6boNNtAGdWbG85WAbjT/1xYoZIC7FAY0yWapOBQVsVrDl58W86//e1VpMNBtRV4MaXfdMySFA==}
     dependencies:
-      tslib: 2.3.1
+      tslib: 2.8.1
     dev: true
 
   /safe-array-concat@1.1.3:
@@ -7182,6 +7206,6 @@ packages:
     resolution: {integrity: sha512-XBx9AXhXktjUqnepgTiE5flcKIYWi/rme0Eaj+5Y0lftuGBq+jyRu/md4WnuxqgP1ubdpNCsYEYPxrzVHD8d6g==}
     dev: true
 
-  /zod@3.24.3:
-    resolution: {integrity: sha512-HhY1oqzWCQWuUqvBFnsyrtZRhyPeR7SUGv+C4+MsisMuVfSPx8HpwWqH8tRahSlt6M3PiFAcoeFhZAqIXTxoSg==}
+  /zod@3.25.75:
+    resolution: {integrity: sha512-OhpzAmVzabPOL6C3A3gpAifqr9MqihV/Msx3gor2b2kviCgcb+HM9SEOpMWwwNp9MRunWnhtAKUoo0AHhjyPPg==}
     dev: false

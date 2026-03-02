@@ -10,6 +10,7 @@ import {
   TemplateProjectFolder,
   TestFilePath,
 } from "../../utils/constants";
+import { globalResourceGroupLocation } from "../../commonlib/constants";
 import { dotenvUtil } from "../../utils/envUtil";
 import { InputBox, VSBrowser } from "vscode-extension-tester";
 import { getSampleAppName } from "../../utils/nameUtil";
@@ -509,7 +510,11 @@ export class SampledebugContext extends TestContext {
   ): Promise<void> {
     if (options.createRg) {
       console.log("create resource group");
-      await createResourceGroup(appName, options.env, "westus");
+      await createResourceGroup(
+        appName,
+        options.env,
+        globalResourceGroupLocation
+      );
     }
     const resourceGroupName = `${appName}-${options.env}-rg`;
     process.env["AZURE_RESOURCE_GROUP_NAME"] = resourceGroupName;
@@ -539,6 +544,8 @@ export class SampledebugContext extends TestContext {
     console.log(`stdout: ${stdout}`);
     if (!success) {
       if (stderr.includes("npm warn")) {
+        console.log("[Skip warning]: ", stderr);
+      } else if (stderr.includes("npx update-browserslist-db")) {
         console.log("[Skip warning]: ", stderr);
       } else {
         console.log(`stderr: ${stderr}`);

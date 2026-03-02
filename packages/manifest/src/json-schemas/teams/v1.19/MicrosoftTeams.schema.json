@@ -1913,7 +1913,7 @@
           "events": {
             "type": "array",
             "maxItems": 20,
-            "description": "Specifies the type of event. For supported types, please see: https://review.learn.microsoft.com/en-us/office/dev/add-ins/outlook/autolaunch?tabs=xmlmanifest#supported-events.",
+            "description": "Specifies the type of event. For supported types, please see: https://learn.microsoft.com/en-us/office/dev/add-ins/outlook/autolaunch?tabs=xmlmanifest#supported-events.",
             "items": {
               "type": "object",
               "properties": {

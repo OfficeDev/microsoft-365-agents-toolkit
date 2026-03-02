@@ -31,19 +31,21 @@ export class PluginId {
   static readonly AppStudio = "fx-resource-appstudio";
 }
 
+export const globalResourceGroupLocation = "westus";
+
 export const fileEncoding = "UTF8";
 
 export type CliCapabilities =
-  | "notification"
-  | "command-bot"
   | "tab"
   | "bot"
-  | "link-unfurling"
-  | "search-message-extension"
-  | "collect-form-message-extension"
-  | "message-extension"
+  | "basic-message-extension"
   | "BotAndMessageExtension"
-  | "TabNonSsoAndBot";
+  | "TabNonSsoAndBot"
+  // VS only
+  | "search-message-extension"
+  | "link-unfurling"
+  | "collect-form-message-extension"
+  | "notification";
 export type CliTriggerType =
   | "http-express"
   | "http-functions"
@@ -151,6 +153,8 @@ export class EnvConstants {
   // FrontEnd
   static readonly TAB_AZURE_STORAGE_RESOURCE_ID =
     "TAB_AZURE_STORAGE_RESOURCE_ID";
+  static readonly AZURE_APP_SERVICE_RESOURCE_ID =
+    "AZURE_APP_SERVICE_RESOURCE_ID";
   static readonly TAB_AZURE_APP_SERVICE_RESOURCE_ID =
     "TAB_AZURE_APP_SERVICE_RESOURCE_ID";
   static readonly TAB_ENDPOINT = "TAB_ENDPOINT";

@@ -18,11 +18,11 @@
       "value": "${{AZURE_OPENAI_ENDPOINT}}"
     },
     "azureOpenAIDeployment": {
-      "value": "${{AZURE_OPENAI_MODEL_DEPLOYMENT_NAME}}"
+      "value": "${{AZURE_OPENAI_DEPLOYMENT_NAME}}"
     },
     {{/useAzureOpenAI}}
     "webAppSKU": {
-      "value": "B1"
+      "value": "B3"
     },
     "botDisplayName": {
       "value": "{{appName}}"

@@ -1,5 +1,6 @@
 import { CLIContext, SystemError, err, ok, signedIn, signedOut } from "@microsoft/teamsfx-api";
 import {
+  CollaborationConstants,
   CollaborationStateResult,
   FuncToolChecker,
   FxCore,
@@ -7,7 +8,10 @@ import {
   LocalCertificateManager,
   LtsNodeChecker,
   PackageService,
+  PermissionGrantInputs,
+  PermissionListInputs,
   PermissionsResult,
+  QuestionNames,
   UserCancelError,
   envUtil,
   featureFlagManager,
@@ -68,7 +72,7 @@ import AzureTokenProvider from "../../src/commonlib/azureLogin";
 import AzureTokenCIProvider from "../../src/commonlib/azureLoginCI";
 import { AzureSpCrypto } from "../../src/commonlib/cacheAccess";
 import { logger } from "../../src/commonlib/logger";
-import M365TokenProvider from "../../src/commonlib/m365Login";
+import M365TokenProvider from "../../src/commonlib/M365TokenProviderWrapper";
 import { MissingRequiredOptionError } from "../../src/error";
 import * as utils from "../../src/utils";
 
@@ -482,13 +486,77 @@ describe("CLI commands", () => {
     });
   });
   describe("permissionGrantCommand", async () => {
-    it("success interactive = false", async () => {
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it("success with agent option", async () => {
+      sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
       sandbox
         .stub(FxCore.prototype, "grantPermission")
         .resolves(ok({ state: "OK" } as PermissionsResult));
       const ctx: CLIContext = {
         command: { ...permissionGrantCommand, fullName: "teamsfx" },
-        optionValues: { "manifest-file-path": "abc" },
+        optionValues: { agent: true, email: "email", env: "dev" },
+        globalOptionValues: { interactive: false },
+        argumentValues: [],
+        telemetryProperties: {},
+      };
+      const res = await permissionGrantCommand.handler!(ctx);
+      assert.isTrue(res.isOk());
+      const inputs = ctx.optionValues as PermissionGrantInputs;
+      assert.deepEqual(inputs[QuestionNames.collaborationAppType], [
+        CollaborationConstants.AgentOptionId,
+      ]);
+    });
+
+    it("success with agent option in interactive mode", async () => {
+      sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
+      sandbox
+        .stub(FxCore.prototype, "grantPermission")
+        .resolves(ok({ state: "OK" } as PermissionsResult));
+      const ctx: CLIContext = {
+        command: { ...permissionGrantCommand, fullName: "teamsfx" },
+        optionValues: { agent: true },
+        globalOptionValues: { interactive: true },
+        argumentValues: [],
+        telemetryProperties: {},
+      };
+      const res = await permissionGrantCommand.handler!(ctx);
+      assert.isTrue(res.isOk());
+      const inputs = ctx.optionValues as PermissionGrantInputs;
+      assert.deepEqual(inputs[QuestionNames.collaborationAppType], [
+        CollaborationConstants.AgentOptionId,
+      ]);
+    });
+
+    it("missing manifest options with agent = false", async () => {
+      sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
+      sandbox
+        .stub(FxCore.prototype, "grantPermission")
+        .resolves(ok({ state: "OK" } as PermissionsResult));
+      const ctx: CLIContext = {
+        command: { ...permissionGrantCommand, fullName: "teamsfx" },
+        optionValues: { env: "dev", email: "email", agent: false },
+        globalOptionValues: { interactive: false },
+        argumentValues: [],
+        telemetryProperties: {},
+      };
+      const res = await permissionGrantCommand.handler!(ctx);
+      assert.isTrue(res.isErr());
+      if (res.isErr()) {
+        assert.isTrue(res.error instanceof MissingRequiredOptionError);
+      }
+    });
+
+    it("success interactive = false", async () => {
+      sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
+      sandbox
+        .stub(FxCore.prototype, "grantPermission")
+        .resolves(ok({ state: "OK" } as PermissionsResult));
+      const ctx: CLIContext = {
+        command: { ...permissionGrantCommand, fullName: "teamsfx" },
+        optionValues: { "manifest-path": "abc" },
         globalOptionValues: { interactive: false },
         argumentValues: [],
         telemetryProperties: {},
@@ -496,6 +564,7 @@ describe("CLI commands", () => {
       const res = await permissionGrantCommand.handler!(ctx);
       assert.isTrue(res.isOk());
     });
+
     it("success interactive = true", async () => {
       sandbox
         .stub(FxCore.prototype, "grantPermission")
@@ -526,7 +595,52 @@ describe("CLI commands", () => {
     });
   });
   describe("permissionStatusCommand", async () => {
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it("listCollaborator with agent option", async () => {
+      sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
+      sandbox
+        .stub(FxCore.prototype, "listCollaborator")
+        .resolves(ok({ state: "OK" } as ListCollaboratorResult));
+      const ctx: CLIContext = {
+        command: { ...permissionStatusCommand, fullName: "teamsfx" },
+        optionValues: { all: true, agent: true },
+        globalOptionValues: {},
+        argumentValues: [],
+        telemetryProperties: {},
+      };
+      const res = await permissionStatusCommand.handler!(ctx);
+      assert.isTrue(res.isOk());
+      const inputs = ctx.optionValues as PermissionListInputs;
+      assert.deepEqual(inputs[QuestionNames.collaborationAppType], [
+        CollaborationConstants.AgentOptionId,
+      ]);
+    });
+
+    it("checkPermission with agent option", async () => {
+      sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
+      sandbox
+        .stub(FxCore.prototype, "checkPermission")
+        .resolves(ok({ state: "OK" } as CollaborationStateResult));
+      const ctx: CLIContext = {
+        command: { ...permissionStatusCommand, fullName: "teamsfx" },
+        optionValues: { all: false, agent: true },
+        globalOptionValues: {},
+        argumentValues: [],
+        telemetryProperties: {},
+      };
+      const res = await permissionStatusCommand.handler!(ctx);
+      assert.isTrue(res.isOk());
+      const inputs = ctx.optionValues as PermissionListInputs;
+      assert.deepEqual(inputs[QuestionNames.collaborationAppType], [
+        CollaborationConstants.AgentOptionId,
+      ]);
+    });
+
     it("listCollaborator", async () => {
+      sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
       sandbox
         .stub(FxCore.prototype, "listCollaborator")
         .resolves(ok({ state: "OK" } as ListCollaboratorResult));
@@ -540,6 +654,7 @@ describe("CLI commands", () => {
       const res = await permissionStatusCommand.handler!(ctx);
       assert.isTrue(res.isOk());
     });
+
     it("checkPermission", async () => {
       sandbox
         .stub(FxCore.prototype, "checkPermission")
@@ -584,11 +699,23 @@ describe("CLI commands", () => {
     });
   });
   describe("shareRemoveCommand", async () => {
-    it("success", async () => {
+    it("share with owners", async () => {
       sandbox.stub(FxCore.prototype, "removeSharedAccess").resolves(ok(undefined));
       const ctx: CLIContext = {
         command: { ...shareRemoveCommand, fullName: "teamsfx" },
         optionValues: { env: "dev" },
+        globalOptionValues: {},
+        argumentValues: [],
+        telemetryProperties: {},
+      };
+      const res = await shareRemoveCommand.handler!(ctx);
+      assert.isTrue(res.isOk());
+    });
+    it("share with users", async () => {
+      sandbox.stub(FxCore.prototype, "shareApplication").resolves(ok(undefined));
+      const ctx: CLIContext = {
+        command: { ...shareRemoveCommand, fullName: "teamsfx" },
+        optionValues: { env: "dev", users: "test@example.com" },
         globalOptionValues: {},
         argumentValues: [],
         telemetryProperties: {},
@@ -1462,20 +1589,6 @@ describe("CLI read-only commands", () => {
       };
       const res = await listTemplatesCommand.handler!(ctx);
       assert.isTrue(res.isOk());
-    });
-    it("should contain TDP templates in E2E test environment", async () => {
-      const mockedEnvRestore = mockedEnv({ TEAMSFX_TDP_TEMPLATE_CLI_TEST: "true" });
-      const ctx: CLIContext = {
-        command: { ...listTemplatesCommand, fullName: "..." },
-        optionValues: { format: "table", description: false },
-        globalOptionValues: {},
-        argumentValues: ["key", "value"],
-        telemetryProperties: {},
-      };
-      const res = await listTemplatesCommand.handler!(ctx);
-      assert.isTrue(res.isOk());
-      assert.isTrue(messages.some((msg) => msg.includes("BotAndMessageExtension")));
-      mockedEnvRestore();
     });
   });
   describe("listSamplesCommand", async () => {

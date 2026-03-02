@@ -29,5 +29,3 @@ export const ProgressMessage = Object.freeze({
   [DepsType.LtsNode]: `Checking ${DepsDisplayName[DepsType.LtsNode]}`,
   [DepsType.ProjectNode]: `Checking ${DepsDisplayName[DepsType.ProjectNode]}`,
 });
-
-export const copilotCheckServiceScope = process.env.SIDELOADING_SERVICE_SCOPE ?? MosServiceScope;

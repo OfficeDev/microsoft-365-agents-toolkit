@@ -1,3 +1,6 @@
+# 3.1.0
+- Deprecation notice: This package will be deprecated by 2026-09. Users can follow the migration guide to migrate their apps.
+
 # 3.0.0
 - Breaking: Migrate dependencies from Bot Framework SDK to Microsoft Agents SDK.
 - Breaking: Upgrade target framework to .NET 8.0.

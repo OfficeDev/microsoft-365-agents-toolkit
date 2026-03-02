@@ -12,16 +12,23 @@ import {
 
 /**
  * @internal
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
  */
 export class DefaultConversationReferenceStore implements ConversationReferenceStore {
   private readonly localFileName =
     process.env.TEAMSFX_NOTIFICATION_STORE_FILENAME ?? ".notification.localstore.json";
   private readonly filePath: string;
 
+  /**
+   * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
+   */
   constructor(fileDir: string) {
     this.filePath = path.resolve(fileDir, this.localFileName);
   }
 
+  /**
+   * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
+   */
   public async add(
     key: string,
     reference: Partial<ConversationReference>,
@@ -40,6 +47,9 @@ export class DefaultConversationReferenceStore implements ConversationReferenceS
     return false;
   }
 
+  /**
+   * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
+   */
   public async remove(key: string, reference: Partial<ConversationReference>): Promise<boolean> {
     if (!(await this.storeFileExists())) {
       return false;
@@ -55,6 +65,9 @@ export class DefaultConversationReferenceStore implements ConversationReferenceS
     return true;
   }
 
+  /**
+   * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
+   */
   public async list(
     pageSize?: number,
     continuationToken?: string

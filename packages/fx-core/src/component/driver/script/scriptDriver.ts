@@ -112,10 +112,10 @@ export async function executeCommand(
       env: { ...process.env, ...env } as { [k: string]: string },
     });
     if (res.isErr()) {
-      return err(res.error);
+      return err(convertScriptErrorToFxError(res.error, command));
     }
     const outputString = res.value;
-    const outputObject = parseSetOutputCommand(command);
+    const outputObject = parseSetOutputCommand(outputString);
     if (Object.keys(outputObject).length > 0)
       logProvider.verbose(
         `script output env variables: ${maskSecret(JSON.stringify(outputObject), {

@@ -1,16 +1,18 @@
 {
   "name": "@microsoft/app-manifest",
-  "version": "1.0.1",
+  "version": "1.0.3",
   "main": "build/index.js",
   "types": "build/index.d.ts",
   "license": "MIT",
   "dependencies": {
     "@types/fs-extra": "^11.0.1",
     "@types/node-fetch": "^2.6.9",
+    "@types/strip-bom": "^4.0.1",
     "ajv": "^8.5.0",
     "ajv-draft-04": "^1.0.0",
     "ajv-formats": "^3.0.1",
-    "node-fetch": "2.7.0"
+    "node-fetch": "2.7.0",
+    "strip-bom": "^5.0.0"
   },
   "devDependencies": {
     "@istanbuljs/nyc-config-typescript": "^1.0.1",

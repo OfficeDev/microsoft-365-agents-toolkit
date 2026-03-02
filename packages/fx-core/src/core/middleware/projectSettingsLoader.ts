@@ -7,6 +7,8 @@ import * as uuid from "uuid";
 
 import { FxError, Inputs, Result, Stage, StaticPlatforms, ok } from "@microsoft/teamsfx-api";
 
+import { FeatureFlags, featureFlagManager } from "../../common/featureFlags";
+import { globalVars } from "../../common/globalVars";
 import { isVSProject } from "../../common/projectSettingsHelper";
 import {
   Component,
@@ -14,11 +16,10 @@ import {
   TelemetryProperty,
   sendTelemetryEvent,
 } from "../../common/telemetry";
-import { MetadataV2, MetadataV3 } from "../../common/versionMetadata";
+import { MetadataV2 } from "../../common/versionMetadata";
 import { convertProjectSettingsV2ToV3 } from "../../component/migrate";
-import { globalVars } from "../../common/globalVars";
-import { CoreHookContext } from "../types";
 import { pathUtils } from "../../component/utils/pathUtils";
+import { CoreHookContext } from "../types";
 
 // export this for V2 -> V3 migration purpose
 export async function loadProjectSettingsByProjectPathV2(
@@ -50,7 +51,11 @@ export function shouldIgnored(ctx: CoreHookContext): boolean {
 }
 
 export function getProjectSettingsPath(projectPath: string): string {
-  return pathUtils.getYmlFilePath(projectPath, "dev", true) || "";
+  if (featureFlagManager.getBooleanValue(FeatureFlags.GenerateConfigFiles)) {
+    return pathUtils.getAvailableYmlFilePath(projectPath) || "";
+  } else {
+    return pathUtils.getYmlFilePath(projectPath, "dev", true) || "";
+  }
 }
 
 export function getProjectSettingPathV2(projectPath: string): string {

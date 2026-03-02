@@ -3,7 +3,10 @@
 
 "use strict";
 
-import { UsernamePasswordCredential } from "@azure/identity";
+import {
+  UsernamePasswordCredential,
+  ClientSecretCredential,
+} from "@azure/identity";
 import { ResourceManagementClient } from "@azure/arm-resources";
 
 import * as azureConfig from "@microsoft/m365agentstoolkit-cli/src/commonlib/common/userPasswordConfig";
@@ -12,6 +15,8 @@ const tenantId = azureConfig.AZURE_TENANT_ID || "";
 const clientId = azureConfig.client_id;
 const username = azureConfig.AZURE_ACCOUNT_NAME || "";
 const password = azureConfig.AZURE_ACCOUNT_PASSWORD || "";
+const servicePrincipalId = azureConfig.AZURE_SERVICE_PRINCIPAL_ID || "";
+const servicePrincipalSecret = azureConfig.AZURE_SERVICE_PRINCIPAL_SECRET || "";
 const subscriptionId = azureConfig.AZURE_SUBSCRIPTION_ID || "";
 
 function delay(ms: number) {
@@ -27,12 +32,23 @@ export class ResourceGroupManager {
 
   private static async init() {
     if (!ResourceGroupManager.client) {
-      const credential = new UsernamePasswordCredential(
-        tenantId,
-        clientId,
-        username,
-        password
-      );
+      let credential;
+      if (servicePrincipalId && servicePrincipalSecret) {
+        // Login as service principal using ClientSecretCredential
+        credential = new ClientSecretCredential(
+          tenantId,
+          servicePrincipalId,
+          servicePrincipalSecret
+        );
+      } else {
+        // Login using username and password
+        credential = new UsernamePasswordCredential(
+          tenantId,
+          clientId,
+          username,
+          password
+        );
+      }
       ResourceGroupManager.client = new ResourceManagementClient(
         credential,
         subscriptionId
