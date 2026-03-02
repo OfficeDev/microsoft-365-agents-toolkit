@@ -53,7 +53,7 @@
       "step_84004606"
     ],
     "tags": [],
-    "updated_at": "2026-03-02T08:59:50.839095"
+    "updated_at": "2026-03-02T09:08:24.426556"
   },
   "steps": [
     {
@@ -252,7 +252,7 @@
       ],
       "postconditions": [],
       "tags": [
-        "precondition_wait_timeout:15"
+        "delay:30"
       ],
       "screenshot": "step_f61600cd",
       "created_at": "2026-03-02T08:42:35.312187",
