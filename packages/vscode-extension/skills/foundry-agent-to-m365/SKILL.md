@@ -45,8 +45,7 @@ Open the folder if it's in VS Code.
 
 ### 2. Configure Environment
 
-- Update generated env files (`env/.env.dev`, optionally `env/.env.local`) with existing Foundry settings.
-- Keep tenant, subscription, resource group, and endpoint aligned with the deployed Foundry agent.
+- Update generated env files (`env/.env.local`, optionally `env/.env.env`) with existing Foundry settings (endpoint and agent name).
 - Do not continue until required values are present.
 
 ### 3. Local Debug
@@ -63,7 +62,7 @@ npm run dev:teamsfx:playground
 agentsplayground -e http://localhost:3978/api/messages -c msteams
 ```
 
-Confirm bot service starts successfully before launching playground.
+Confirm bot service starts successfully before launching playground by checking the output of string: `listening to port` or similar. If there are errors, address them before proceeding.
 
 #### Option 2: Run on Teams
 Use this when Teams sideload validation is required.
