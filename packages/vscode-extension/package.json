@@ -1922,6 +1922,11 @@
           }
         ]
       }
+    ],
+    "chatSkills": [
+      {
+        "path": "skills/foundry-agent-to-m365/SKILL.md"
+      }
     ]
   },
   "scripts": {
