@@ -150,6 +150,16 @@ export const CreateProjectOptions: CLICommandOption[] = [
     description: "OpenAI Key",
   },
   {
+    name: "foundry-endpoint",
+    type: "string",
+    description: "Azure AI Foundry Project Endpoint",
+  },
+  {
+    name: "foundry-agent-id",
+    type: "string",
+    description: "Azure AI Foundry Agent ID",
+  },
+  {
     name: "folder",
     type: "string",
     shortName: "f",

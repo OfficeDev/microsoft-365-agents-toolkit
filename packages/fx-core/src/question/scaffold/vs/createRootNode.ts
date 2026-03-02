@@ -6,7 +6,7 @@ import { getLocalizedString } from "../../../common/localizeUtils";
 import { TemplateNames } from "../../../component/generator/templates/templateNames";
 import { appNameQuestion, folderQuestion } from "../../create";
 import { QuestionNames } from "../../questionNames";
-import { llmServiceNode } from "../commonNodes";
+import { foundryNode, llmServiceNode } from "../commonNodes";
 import {
   BotCapabilityOptions,
   MeCapabilityOptions,
@@ -88,6 +88,19 @@ export class VSCapabilityOptions {
       data: TemplateNames.TravelAgent,
     };
   }
+
+  static foundryProxyAgent(): OptionItem {
+    return {
+      id: "foundry-proxy-agent",
+      label: getLocalizedString(
+        "core.createProjectQuestion.capability.foundryProxyAgentOption.label"
+      ),
+      detail: getLocalizedString(
+        "core.createProjectQuestion.capability.foundryProxyAgentOption.detail"
+      ),
+      data: TemplateNames.FoundryProxyAgent,
+    };
+  }
 }
 
 /**
@@ -111,6 +124,7 @@ export function scaffoldQuestionForVS(): IQTreeNode {
             TeamsAgentCapabilityOptions.customCopilotRag(),
             VSCapabilityOptions.weatherAgentBot(),
             VSCapabilityOptions.travelAgentBot(),
+            VSCapabilityOptions.foundryProxyAgent(),
             BotCapabilityOptions.basicBot(),
             VSCapabilityOptions.nonSsoTab(),
             MeCapabilityOptions.basicMe(),
@@ -128,6 +142,9 @@ export function scaffoldQuestionForVS(): IQTreeNode {
               VSCapabilityOptions.weatherAgentBot().id,
               VSCapabilityOptions.travelAgentBot().id,
             ],
+          }),
+          foundryNode({
+            enum: [VSCapabilityOptions.foundryProxyAgent().id],
           }),
         ],
       },

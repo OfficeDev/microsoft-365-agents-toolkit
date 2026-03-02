@@ -75,4 +75,5 @@ export enum TemplateNames {
   MessageExtensionSearch = "message-extension-search",
 
   FoundryAgent = "foundry-agent",
+  FoundryProxyAgent = "foundry-proxy-agent",
 }
