@@ -191,6 +191,7 @@ export enum Capability {
   DeclarativeAgentWithActionFromScratch = "api-plugin-from-scratch",
   DeclarativeAgentWithTypeSpec = "declarative-agent-typespec",
   TeamsCollaboratorAgent = "teams-collaborator-agent",
+  FoundryProxyAgent = "foundry-proxy-agent",
 }
 
 export enum Trigger {

@@ -22,6 +22,7 @@ export enum TemplateNames {
   BasicCustomEngineAgent = "basic-custom-engine-agent",
   WeatherAgent = "weather-agent",
   TravelAgent = "travel-agent",
+  FoundryProxyAgent = "foundry-proxy-agent",
 
   // agent for Teams
   CustomCopilotBasic = "custom-copilot-basic",
