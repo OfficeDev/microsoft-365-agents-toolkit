@@ -46,7 +46,7 @@ export function getCreateCommand(): CLICommand {
     options: [...adjustOptions(CreateProjectOptions)],
     examples: [
       {
-        command: `${process.env.TEAMSFX_CLI_BIN_NAME} new -c copilot-gpt-basic -n myagent -i false`,
+        command: `${process.env.TEAMSFX_CLI_BIN_NAME} new -c declarative-agent -n myagent -i false`,
         description: "Create a new declarative agent",
       },
       {
