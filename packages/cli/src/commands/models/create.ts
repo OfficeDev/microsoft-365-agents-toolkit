@@ -31,7 +31,7 @@ function adjustOptions(options: CLICommandOption[]) {
   for (const option of options) {
     if (option.type === "string" && option.name === CliQuestionName.Capability) {
       // use dynamic options for capability question
-      option.choices = listAllTemplates().map((o) => o.alias || o.name);
+      option.choices = listAllTemplates().flatMap((o) => (o.alias ? [o.alias, o.name] : [o.name]));
       break;
     }
   }
