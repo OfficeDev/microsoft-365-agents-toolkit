@@ -6,6 +6,7 @@ import {
   FeatureFlags,
   getAllTemplatesOnPlatform,
 } from "@microsoft/teamsfx-core";
+import { Template } from "@microsoft/teamsfx-core/build/component/generator/templates/metadata/interface";
 import chalk from "chalk";
 import Table from "cli-table3";
 import { logger } from "../../commonlib/logger";
@@ -15,6 +16,7 @@ import { ListFormatOption } from "../common";
 
 interface TemplateGroup {
   name: string;
+  alias?: string;
   displayName: string;
   description: string;
   language: string;
@@ -31,10 +33,11 @@ export function listAllTemplates(): TemplateGroup[] {
 
   templates.forEach((template) => {
     if (!groupedTemplates.has(template.name)) {
-      const templateWithDisplay = template as typeof template & { displayName?: string };
+      const templateWithDisplay = template as Template;
       groupedTemplates.set(template.name, {
         name: template.name,
-        displayName: templateWithDisplay.displayName || template.name,
+        alias: template.alias,
+        displayName: templateWithDisplay.displayName || template.alias || template.name,
         description: template.description,
         language: template.language,
       });
@@ -71,8 +74,9 @@ function jsonToTable(templates: TemplateGroup[]): string {
   let maxNameLength = 0;
   let maxDescriptionLength = 0;
   templates.forEach((template) => {
-    if (template.name.length > maxIdLength) {
-      maxIdLength = template.name.length;
+    const id = template.alias || template.name;
+    if (id.length > maxIdLength) {
+      maxIdLength = id.length;
     }
     if (template.displayName.length > maxNameLength) {
       maxNameLength = template.displayName.length;
@@ -105,7 +109,8 @@ function jsonToTable(templates: TemplateGroup[]): string {
   });
 
   templates.forEach((template) => {
-    table.push([template.name, template.displayName, template.description]);
+    const id = template.alias || template.name;
+    table.push([id, template.displayName, template.description]);
   });
 
   return table.toString();
