@@ -313,7 +313,7 @@ describe("teamsApp/syncManifest", async () => {
     sinon.stub(fs, "mkdir").resolves();
     sinon.stub(fs, "writeFile").resolves();
     sinon.stub(envUtil, "readEnv").resolves(ok({ TEAMS_APP_ID: "11" } as DotenvOutput));
-    sinon.stub(envUtil, "writeEnv").resolves(ok());
+    sinon.stub(envUtil, "writeEnv").resolves(ok(undefined));
     sinon.stub(manifestUtils, "_readAppManifest").resolves(
       ok({
         id: "${{TEAMS_APP_ID}}",
