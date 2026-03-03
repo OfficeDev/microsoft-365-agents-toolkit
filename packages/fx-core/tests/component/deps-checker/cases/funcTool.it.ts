@@ -18,8 +18,8 @@ import { isLinux } from "../../../../src/component/deps-checker/util/system";
 import * as funcUtils from "../utils/funcTool";
 
 chai.use(spies);
-const expect = chai.expect;
-const assert = chai.assert;
+const expect: typeof chai.expect = chai.expect;
+const assert: typeof chai.assert = chai.assert;
 
 describe("FuncToolChecker E2E Test", async () => {
   const sandbox = sinon.createSandbox();

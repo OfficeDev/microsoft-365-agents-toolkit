@@ -12,7 +12,7 @@ import sinon from "sinon";
 import { YamlParser } from "../../../src/component/configManager/parser";
 import fs from "fs-extra";
 
-const assert = chai.assert;
+const assert: typeof chai.assert = chai.assert;
 
 describe("v3 yaml parser", () => {
   describe("when parsing an invalid path", () => {
