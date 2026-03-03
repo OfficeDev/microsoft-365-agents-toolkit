@@ -125,7 +125,7 @@ export class AddWebPartDriver implements StepDriver {
     if (remoteRes.isErr()) throw remoteRes.error;
     context.logProvider.verbose(`Succeeded to update remote manifest file.`);
 
-    context.ui?.showMessage(
+    void context.ui?.showMessage(
       "info",
       getLocalizedString("driver.spfx.add.successNotice", webpartName),
       false

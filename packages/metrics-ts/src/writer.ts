@@ -1,3 +1,5 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
 import { join } from "path";
 import { tracePoint } from "./rawData";
 import { appendFile, ensureDir, ensureDirSync, ensureFile, ensureFileSync } from "fs-extra";

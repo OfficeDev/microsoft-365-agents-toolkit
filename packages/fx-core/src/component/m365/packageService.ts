@@ -474,7 +474,7 @@ export class PackageService {
           baseURL: serviceUrl,
           params: {
             SupportedElementTypes:
-              // eslint-disable-next-line no-secrets/no-secrets
+               
               "Extensions,OfficeAddIns,ExchangeAddIns,FirstPartyPages,Dynamics,AAD,LineOfBusiness,StaticTabs,ComposeExtensions,Bots,GraphConnector,ConfigurableTabs,Activities,MeetingExtensionDefinition,OpenAIPlugins,Gpts,DeclarativeCopilots,Plugins",
           },
           headers: {
@@ -800,7 +800,7 @@ export class PackageService {
         }),
         {
           [TelemetryProperty.CheckCopilotTracingId]: `${
-            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+             
             error.response?.headers?.traceresponse ??
             error.innerError?.response?.headers?.traceresponse ??
             ""

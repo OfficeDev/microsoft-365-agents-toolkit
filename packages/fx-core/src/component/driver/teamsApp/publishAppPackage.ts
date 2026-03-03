@@ -217,7 +217,7 @@ export class PublishAppPackageDriver implements StepDriver {
         Constants.TEAMS_ADMIN_PORTAL,
         Constants.TEAMS_MANAGE_APP_DOC
       );
-      context.ui?.showMessage("info", msg, false);
+      void context.ui?.showMessage("info", msg, false);
     }
     return ok(result);
   }

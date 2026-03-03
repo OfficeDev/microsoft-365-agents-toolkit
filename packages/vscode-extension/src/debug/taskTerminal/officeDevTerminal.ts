@@ -5,7 +5,7 @@ import * as cp from "child_process";
 import * as vscode from "vscode";
 import * as globalVariables from "../../globalVariables";
 import { FxError, Result, Void, ok } from "@microsoft/teamsfx-api";
-// eslint-disable-next-line import/no-cycle
+ 
 import { BaseTaskTerminal, ControlCodes } from "./baseTaskTerminal";
 import { OfficeManifestType, fetchManifestList } from "@microsoft/teamsfx-core";
 import { localize } from "../../utils/localizeUtils";

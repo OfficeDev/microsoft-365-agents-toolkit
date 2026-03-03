@@ -119,7 +119,7 @@ export async function showError(e: UserError | SystemError) {
       },
     };
     VsCodeLogInstance.error(`code:${errorCode}, message: ${e.message}\n Help link: ${e.helpLink}`);
-    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+     
     VsCodeLogInstance.debug(`Call stack: ${e.stack || e.innerError?.stack || ""}`);
     const buttons = recommendSandbox
       ? [runSandbox]
@@ -185,7 +185,7 @@ export async function showError(e: UserError | SystemError) {
       buttons.push(similarIssues);
     }
     VsCodeLogInstance.error(`code:${errorCode}, message: ${e.message}`);
-    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+     
     VsCodeLogInstance.debug(`Call stack: ${e.stack || e.innerError?.stack || ""}`);
 
     void window
@@ -195,7 +195,7 @@ export async function showError(e: UserError | SystemError) {
       });
   } else {
     if (!(e instanceof ConcurrentError)) {
-      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+       
       VsCodeLogInstance.debug(`Call stack: ${e.stack || e.innerError?.stack || ""}`);
       const buttons: {
         title: string;

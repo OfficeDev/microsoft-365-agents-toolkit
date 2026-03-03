@@ -9,7 +9,7 @@ import { ok } from "@microsoft/teamsfx-api";
 import * as fileSystemUtils from "../../src/utils/fileSystemUtils";
 
 describe("EnvTreeUtils", () => {
-  // eslint-disable-next-line no-secrets/no-secrets
+   
   describe("getSubscriptionInfoFromEnv", () => {
     const sandbox = sinon.createSandbox();
     const subscriptionInfo = {

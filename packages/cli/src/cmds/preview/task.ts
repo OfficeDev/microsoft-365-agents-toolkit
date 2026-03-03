@@ -73,21 +73,23 @@ export class Task {
         // TODO: log
         stderr.push(data.toString());
       });
-      this.task?.on("exit", async () => {
-        const result: TaskResult = {
-          command: this.command,
-          options: this.options,
-          success: this.task?.exitCode === 0,
-          stdout: stdout,
-          stderr: stderr,
-          exitCode: this.task?.exitCode === undefined ? null : this.task?.exitCode,
-        };
-        const error = await stopCallback(this.taskTitle, this.background, result);
-        if (error) {
-          resolve(err(error));
-        } else {
-          resolve(ok(result));
-        }
+      this.task?.on("exit", () => {
+        void (async () => {
+          const result: TaskResult = {
+            command: this.command,
+            options: this.options,
+            success: this.task?.exitCode === 0,
+            stdout: stdout,
+            stderr: stderr,
+            exitCode: this.task?.exitCode === undefined ? null : this.task?.exitCode,
+          };
+          const error = await stopCallback(this.taskTitle, this.background, result);
+          if (error) {
+            resolve(err(error));
+          } else {
+            resolve(ok(result));
+          }
+        })();
       });
     });
   }
@@ -121,16 +123,81 @@ export class Task {
     const stderr: string[] = [];
     return new Promise((resolve) => {
       if (timeout !== undefined) {
-        setTimeout(async () => {
+        setTimeout(() => {
+          void (async () => {
+            if (!this.resolved) {
+              this.resolved = true;
+              const result: TaskResult = {
+                command: this.command,
+                options: this.options,
+                success: true,
+                stdout: stdout,
+                stderr: stderr,
+                exitCode: null,
+              };
+              const error = await stopCallback(this.taskTitle, this.background, result);
+              if (error) {
+                resolve(err(error));
+              } else {
+                resolve(ok(result));
+              }
+            }
+          })();
+        }, timeout);
+      }
+
+      this.task?.stdout?.on("data", (data) => {
+        void (async () => {
+          const dataStr = data.toString();
+          await serviceLogWriter?.write(this.taskTitle, dataStr);
+          if (logProvider) {
+            logProvider.necessaryLog(LogLevel.Info, dataStr.trim(), true);
+          }
+          stdout.push(dataStr);
+          if (!this.resolved) {
+            const match = pattern.test(dataStr);
+            if (match) {
+              this.resolved = true;
+              const result: TaskResult = {
+                command: this.command,
+                options: this.options,
+                success: true,
+                stdout: stdout,
+                stderr: stderr,
+                exitCode: null,
+              };
+              const error = await stopCallback(this.taskTitle, this.background, result);
+              if (error) {
+                resolve(err(error));
+              } else {
+                resolve(ok(result));
+              }
+            }
+          }
+        })();
+      });
+      this.task?.stderr?.on("data", (data) => {
+        void (async () => {
+          const dataStr = data.toString();
+          await serviceLogWriter?.write(this.taskTitle, dataStr);
+          if (logProvider) {
+            logProvider.necessaryLog(LogLevel.Info, dataStr.trim(), true);
+          }
+          stderr.push(dataStr);
+        })();
+      });
+
+      this.task?.on("exit", () => {
+        void (async () => {
           if (!this.resolved) {
             this.resolved = true;
             const result: TaskResult = {
               command: this.command,
               options: this.options,
-              success: true,
+              success: false,
               stdout: stdout,
               stderr: stderr,
-              exitCode: null,
+              exitCode: this.task?.exitCode === undefined ? null : this.task?.exitCode,
             };
             const error = await stopCallback(this.taskTitle, this.background, result);
             if (error) {
@@ -139,64 +206,7 @@ export class Task {
               resolve(ok(result));
             }
           }
-        }, timeout);
-      }
-
-      this.task?.stdout?.on("data", async (data) => {
-        const dataStr = data.toString();
-        await serviceLogWriter?.write(this.taskTitle, dataStr);
-        if (logProvider) {
-          logProvider.necessaryLog(LogLevel.Info, dataStr.trim(), true);
-        }
-        stdout.push(dataStr);
-        if (!this.resolved) {
-          const match = pattern.test(dataStr);
-          if (match) {
-            this.resolved = true;
-            const result: TaskResult = {
-              command: this.command,
-              options: this.options,
-              success: true,
-              stdout: stdout,
-              stderr: stderr,
-              exitCode: null,
-            };
-            const error = await stopCallback(this.taskTitle, this.background, result);
-            if (error) {
-              resolve(err(error));
-            } else {
-              resolve(ok(result));
-            }
-          }
-        }
-      });
-      this.task?.stderr?.on("data", async (data) => {
-        const dataStr = data.toString();
-        await serviceLogWriter?.write(this.taskTitle, dataStr);
-        if (logProvider) {
-          logProvider.necessaryLog(LogLevel.Info, dataStr.trim(), true);
-        }
-        stderr.push(dataStr);
-      });
-
-      this.task?.on("exit", async () => {
-        if (!this.resolved) {
-          this.resolved = true;
-          const result: TaskResult = {
-            command: this.command,
-            options: this.options,
-            success: false,
-            stdout: stdout,
-            stderr: stderr,
-            exitCode: this.task?.exitCode === undefined ? null : this.task?.exitCode,
-          };
-          const error = await stopCallback(this.taskTitle, this.background, result);
-          if (error) {
-            resolve(err(error));
-          } else {
-            resolve(ok(result));
-          }
-        }
+        })();
       });
     });
   }

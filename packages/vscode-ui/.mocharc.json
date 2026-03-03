@@ -1,10 +1,8 @@
 {
-    "spec": "./tests/**/**.test.ts",
-    "require": [
-        "build/tests/setup.js",
-        "ts-node/register"
-    ],
-    "reporter": "mocha-multi-reporters",
-    "recursive": true,
-    "colors": true
+  "node-option": ["no-experimental-strip-types"],
+  "spec": "./tests/**/**.test.ts",
+  "require": ["build/tests/setup.js", "ts-node/register"],
+  "reporter": "mocha-multi-reporters",
+  "recursive": true,
+  "colors": true
 }

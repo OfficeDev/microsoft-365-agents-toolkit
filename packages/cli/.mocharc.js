@@ -4,6 +4,7 @@ module.exports = {
   color: true,
   delay: false,
   diff: true,
+  "node-option": ["no-experimental-strip-types"],
   parallel: false,
   recursive: false,
   reporter: "spec",

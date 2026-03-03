@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
+ 
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 

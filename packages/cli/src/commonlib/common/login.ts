@@ -9,13 +9,13 @@ export abstract class login {
     async setStatusChangeMap(name: string, statusChange: (status: string, token?: string, accountInfo?: Record<string, unknown>) => Promise<void>): Promise<boolean> {
         this.statusChangeMap.set(name, statusChange);
         const loginStatus: LoginStatus = await this.getStatus();
-        statusChange(loginStatus.status, loginStatus.token, loginStatus.accountInfo);
+        void statusChange(loginStatus.status, loginStatus.token, loginStatus.accountInfo);
         return true;
     }
 
-    async removeStatusChangeMap(name: string): Promise<boolean> {
+    removeStatusChangeMap(name: string): Promise<boolean> {
         this.statusChangeMap.delete(name);
-        return true;
+        return Promise.resolve(true);
     }
 
     abstract getStatus(): Promise<LoginStatus>;

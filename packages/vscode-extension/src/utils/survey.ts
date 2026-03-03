@@ -66,14 +66,16 @@ export class ExtensionSurvey {
 
   public activate(): void {
     if (this.needToShow && !this.checkSurveyInterval) {
-      this.checkSurveyInterval = setInterval(async () => {
-        if (!(await this.shouldShowBanner())) {
-          return;
-        }
+      this.checkSurveyInterval = setInterval(() => {
+        void (async () => {
+          if (!(await this.shouldShowBanner())) {
+            return;
+          }
 
-        if (!this.showSurveyTimeout && isValidProject(globalVariables.workspaceUri?.fsPath)) {
-          this.showSurveyTimeout = setTimeout(() => this.showSurvey(), this.timeToShowSurvey);
-        }
+          if (!this.showSurveyTimeout && isValidProject(globalVariables.workspaceUri?.fsPath)) {
+            this.showSurveyTimeout = setTimeout(() => void this.showSurvey(), this.timeToShowSurvey);
+          }
+        })();
       }, 2000);
     }
   }

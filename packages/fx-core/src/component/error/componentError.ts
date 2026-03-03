@@ -175,7 +175,7 @@ export class ExternalApiCallError extends BaseComponentInnerError {
       [DeployConstant.AZURE_STORAGE_CONTAINER_NAME],
       [
         "plugins.frontend.checkSystemTimeTip",
-        // eslint-disable-next-line no-secrets/no-secrets
+         
         "plugins.frontend.checkStoragePermissionsTip",
         "plugins.frontend.checkNetworkTip",
       ],
@@ -193,7 +193,7 @@ export class ExternalApiCallError extends BaseComponentInnerError {
       [
         "driver.common.suggestion.retryLater",
         "plugins.frontend.checkSystemTimeTip",
-        // eslint-disable-next-line no-secrets/no-secrets
+         
         "plugins.frontend.checkStoragePermissionsTip",
         "plugins.frontend.checkNetworkTip",
       ],

@@ -6,6 +6,7 @@
  */
 
 const config = {
+  "node-option": ["no-experimental-strip-types"],
   require: "ts-node/register",
   timeout: 5000,
   retries: 2,

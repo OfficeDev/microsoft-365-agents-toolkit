@@ -15,7 +15,7 @@ AC.onProcessMarkdown = function (text, result) {
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace AdaptiveCards {
   export type Schema = IAdaptiveCard;
-  // eslint-disable-next-line @typescript-eslint/no-namespace
+   
   export type Payload = IAdaptiveCard;
 
   /**

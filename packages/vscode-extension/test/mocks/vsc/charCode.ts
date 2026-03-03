@@ -1,4 +1,4 @@
-/* eslint-disable camelcase */
+ 
 /*---------------------------------------------------------------------------------------------
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
@@ -346,8 +346,10 @@ export const enum CharCode {
   LINE_SEPARATOR_2028 = 8232,
 
   // http://www.fileformat.info/info/unicode/category/Sk/list.htm
-  U_CIRCUMFLEX = 0x005e, // U+005E	CIRCUMFLEX
-  U_GRAVE_ACCENT = 0x0060, // U+0060	GRAVE ACCENT
+  // eslint-disable-next-line @typescript-eslint/no-duplicate-enum-values
+  U_CIRCUMFLEX = 0x005e, // U+005E	CIRCUMFLEX (same as Caret)
+  // eslint-disable-next-line @typescript-eslint/no-duplicate-enum-values
+  U_GRAVE_ACCENT = 0x0060, // U+0060	GRAVE ACCENT (same as BackTick)
   U_DIAERESIS = 0x00a8, // U+00A8	DIAERESIS
   U_MACRON = 0x00af, // U+00AF	MACRON
   U_ACUTE_ACCENT = 0x00b4, // U+00B4	ACUTE ACCENT

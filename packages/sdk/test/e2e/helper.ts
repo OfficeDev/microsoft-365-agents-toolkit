@@ -72,7 +72,7 @@ export async function getAccessToken(
   return response!.accessToken;
 }
 
-// eslint-disable-next-line no-secrets/no-secrets
+ 
 /**
  * process.env.SDK_INTEGRATION_TEST_M365_AAD_CLIENT_ID is the Test AAD app mocking Teams first party app.
  * This function mocks the sso token get from Teams

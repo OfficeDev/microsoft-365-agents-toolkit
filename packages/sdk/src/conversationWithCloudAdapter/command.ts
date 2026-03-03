@@ -25,7 +25,7 @@ export class CommandBot {
   private readonly middleware: CommandResponseMiddleware;
   private readonly ssoConfig: BotSsoConfig | undefined;
 
-  // eslint-disable-next-line no-secrets/no-secrets
+   
   /**
    * Create a new instance of the `CommandBot`.
    *

@@ -74,7 +74,7 @@ export namespace cpUtils {
             );
             reject(
               new Error(
-                // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+                 
                 `Exec command: "${command} ${formattedArgs}" timeout, ${options.timeout} ms`
               )
             );

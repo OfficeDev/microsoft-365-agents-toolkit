@@ -354,7 +354,7 @@ export class CreateAppPackageDriver implements StepDriver {
             if (embeddedKnowledgeCapabilities.length > 0) {
               const fileSet = new Set<string>();
               for (const capability of embeddedKnowledgeCapabilities) {
-                const embeddedCapability = capability as EmbeddedKnowledgeCapability;
+                const embeddedCapability = capability;
                 if (embeddedCapability.files) {
                   for (const file of embeddedCapability.files) {
                     if (file.file) {

@@ -11,12 +11,14 @@ import { ExecutionResult } from "../interface/stepDriver";
 
 type ActionResult = ExecutionResult | ExecutionResult["result"];
 
+// eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
 export interface WrapDriverContext extends DriverContext {
   createProgressBar(title: string, steps: number): Promise<IProgressHandler | undefined>;
   addTelemetryProperties(properties: Record<string, string>): void;
   addSummary(...summaries: string[]): void;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
 export class WrapDriverContext {
   progressBars: IProgressHandler[] = [];
   summaries: string[] = [];

@@ -157,7 +157,7 @@ describe("TelemetryUtils", () => {
     });
   });
 
-  // eslint-disable-next-line no-secrets/no-secrets
+   
   describe("getTeamsAppTelemetryInfoByEnv", async () => {
     const sandbox = sinon.createSandbox();
     const core = new MockCore();

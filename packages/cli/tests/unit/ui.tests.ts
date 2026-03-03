@@ -1,4 +1,4 @@
-/* eslint-disable import/no-duplicates */
+ 
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 

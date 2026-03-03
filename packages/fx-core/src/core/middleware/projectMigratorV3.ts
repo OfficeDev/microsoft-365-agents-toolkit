@@ -559,7 +559,7 @@ async function askUserConfirm(
   do {
     answer = await popupMessageModal(versionForMigration);
     if (answer === moreInfoButton()) {
-      TOOLS?.ui.openUrl(learnMoreLink);
+      void TOOLS?.ui.openUrl(learnMoreLink);
       sendTelemetryEventForUpgrade(Component.core, TelemetryEvent.ProjectMigratorNotification, {
         [TelemetryPropertyKey.button]: TelemetryPropertyValue.learnMore,
         [TelemetryPropertyKey.mode]: TelemetryPropertyValue.modal,
@@ -589,7 +589,7 @@ async function showNonmodalNotification(
   sendTelemetryEventForUpgrade(Component.core, TelemetryEvent.ProjectMigratorNotificationStart);
   const answer = await popupMessageNonmodal(versionForMigration);
   if (answer === moreInfoButton()) {
-    TOOLS?.ui.openUrl(learnMoreLink);
+    void TOOLS?.ui.openUrl(learnMoreLink);
     sendTelemetryEventForUpgrade(Component.core, TelemetryEvent.ProjectMigratorNotification, {
       [TelemetryPropertyKey.button]: TelemetryPropertyValue.learnMore,
       [TelemetryPropertyKey.mode]: TelemetryPropertyValue.nonmodal,

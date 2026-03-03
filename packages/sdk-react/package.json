@@ -24,7 +24,7 @@
     "test:unit": "jest --ci --reporters=jest-junit --reporters=default --coverage --coverageDirectory='coverage' --collectCoverageFrom='src/*.{ts,tsx,js}'",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\" \"*.{js,json}\"",
     "format-check": "prettier --list-different \"src/**/*.ts\" \"test/**/*.ts\" \"*.{js,json}\"",
-    "check-sensitive": "npx eslint --plugin 'no-secrets' --cache --ignore-pattern 'package.json' --ignore-pattern 'package-lock.json'",
+    "check-sensitive": "npx eslint --cache --ignore-pattern 'package.json' --ignore-pattern 'package-lock.json'",
     "precommit": "npm run check-sensitive && lint-staged"
   },
   "devDependencies": {
@@ -42,13 +42,12 @@
     "@typescript-eslint/eslint-plugin": "^8.7.0",
     "@typescript-eslint/parser": "^8.7.0",
     "babel-jest": "^29.7.0",
-    "eslint": "^8.6.0",
+    "eslint": "^9.0.0",
     "eslint-plugin-header": "^3.1.1",
     "eslint-plugin-import": "^2.30.0",
     "eslint-plugin-jest": "^28.8.3",
     "eslint-plugin-n": "^17.10.3",
     "eslint-plugin-no-secrets": "^1.0.2",
-    "eslint-plugin-prettier": "^5.2.1",
     "eslint-plugin-promise": "^7.1.0",
     "eslint-plugin-react": "^7.37.0",
     "eslint-plugin-react-hooks": "^4.6.2",

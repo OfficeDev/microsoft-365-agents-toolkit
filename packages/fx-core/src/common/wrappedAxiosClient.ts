@@ -28,7 +28,6 @@ export class WrappedAxiosClient {
 
     instance.interceptors.request.use((request) => this.onRequest(request));
 
-    // eslint-disable-next-line prettier/prettier
     instance.interceptors.response.use((response) => this.onResponse(response), (error) => this.onRejected(error));
 
     return instance;
@@ -115,7 +114,7 @@ export class WrappedAxiosClient {
     const eventName = this.getEventName(fullPath);
     if (eventName === TelemetryEvent.AppStudioApi) {
       const correlationId = error.response?.headers[Constants.CORRELATION_ID] ?? "undefined";
-      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+       
       const extraData = getDefaultString(
         "error.appstudio.apiFailed.reason.common",
         error.response?.data ? `data: ${JSON.stringify(error.response.data)}` : ""

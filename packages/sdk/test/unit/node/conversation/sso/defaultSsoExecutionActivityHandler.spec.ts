@@ -14,7 +14,7 @@ import { DefaultBotSsoExecutionActivityHandler } from "../../../../../src/conver
 import { BotSsoExecutionDialog } from "../../../../../src/conversation/sso/botSsoExecutionDialog";
 import { BotSsoConfig } from "../../../../../src/conversation/interface";
 
-// eslint-disable-next-line no-secrets/no-secrets
+ 
 describe("DefaultBotSsoExecutionActivityHandler Tests - Node", () => {
   const sandbox = sinon.createSandbox();
 

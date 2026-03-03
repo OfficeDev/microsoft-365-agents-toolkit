@@ -274,19 +274,19 @@ export class NodejsInstaller {
       getLocalizedString("action.devTool.nodeInstaller.Progress.title"),
       5
     );
-    progressBar?.start();
+    void progressBar?.start();
 
     // Checking NodeJS in system environment
     let progressText = getLocalizedString("action.devTool.nodeInstaller.Progress1");
     context.logProvider?.info(progressText);
-    progressBar?.next(progressText);
+    void progressBar?.next(progressText);
     if (checkSystemInstalled) {
       const nodeVersion = await NodeChecker.getInstalledNodeVersion();
       if (nodeVersion !== null) {
         context.logProvider?.info(
           getLocalizedString("action.devTool.nodeInstaller.InstalledSystem", nodeVersion.version)
         );
-        progressBar?.end(true);
+        void progressBar?.end(true);
         return ok({ status: "ignore" });
       } else {
         context.logProvider?.info(
@@ -298,7 +298,7 @@ export class NodejsInstaller {
     // Checking NodeJS in user folder
     progressText = getLocalizedString("action.devTool.nodeInstaller.Progress2");
     context.logProvider?.info(progressText);
-    progressBar?.next(progressText);
+    void progressBar?.next(progressText);
     const { name, ext } = this.getNameAndExt();
     const downloadDir = path.join(os.homedir(), `.${ConfigFolderName}`, "bin", "nodejs");
     await fs.ensureDir(downloadDir);
@@ -312,7 +312,7 @@ export class NodejsInstaller {
             path.join(downloadDir, foundFolder)
           )
         );
-        progressBar?.end(true);
+        void progressBar?.end(true);
         return ok({ status: "ignore", installPath: path.join(downloadDir, foundFolder) });
       } else {
         context.logProvider?.info(
@@ -324,10 +324,10 @@ export class NodejsInstaller {
     // Testing speed of download mirrors
     progressText = getLocalizedString("action.devTool.nodeInstaller.Progress3");
     context.logProvider?.info(progressText);
-    progressBar?.next(progressText);
+    void progressBar?.next(progressText);
     const bestMirror = await nodejsInstaller.getBestMirror(name, ext, context.logProvider);
     if (!bestMirror?.packageUrl || !bestMirror?.version) {
-      progressBar?.end(true);
+      void progressBar?.end(true);
       return err(
         new InstallNodeJSError(getLocalizedString("action.devTool.nodeInstaller.NoMirrorUsable"))
       );
@@ -348,7 +348,7 @@ export class NodejsInstaller {
     });
 
     if (confirmRes?.isErr()) {
-      progressBar?.end(true);
+      void progressBar?.end(true);
       return err(confirmRes.error);
     }
 
@@ -358,7 +358,7 @@ export class NodejsInstaller {
       bestMirror.packageUrl
     );
     context.logProvider?.info(progressText);
-    progressBar?.next(progressText);
+    void progressBar?.next(progressText);
     const t1 = Date.now();
     const downloadRes = await nodejsInstaller.fetchBinary(
       bestMirror.packageUrl,
@@ -367,7 +367,7 @@ export class NodejsInstaller {
     );
     const t2 = Date.now();
     if (downloadRes.isErr()) {
-      progressBar?.end(true);
+      void progressBar?.end(true);
       return err(downloadRes.error);
     }
     const binary = downloadRes.value;
@@ -383,14 +383,14 @@ export class NodejsInstaller {
     // Extracting package
     progressText = getLocalizedString("action.devTool.nodeInstaller.Progress5");
     context.logProvider?.info(progressText);
-    progressBar?.next(progressText);
+    void progressBar?.next(progressText);
     nodejsInstaller.extractPackage(binary, bestMirror.packageUrl, downloadDir);
     const t3 = Date.now();
     const targetNodeJSPath = path.join(downloadDir, `node-${bestMirror.version}-${name}`);
     context.logProvider?.info(
       getLocalizedString("action.devTool.nodeInstaller.SuccessExtract", targetNodeJSPath, t3 - t2)
     );
-    progressBar?.end(true);
+    void progressBar?.end(true);
     const totalTime = t3 - startTime;
     return ok({ status: "installed", installPath: targetNodeJSPath, totalTime: totalTime });
   }

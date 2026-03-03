@@ -1,6 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
-/* eslint-disable @typescript-eslint/no-empty-function */
+ 
 
 "use strict";
 
@@ -452,7 +452,7 @@ export class AzureAccountManager extends login implements AzureAccountProvider {
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/require-await
+   
   async addStatusChangeEvent() {
     if (await this.isUserLogin()) {
       AzureAccountManager.currentStatus = loggedIn;

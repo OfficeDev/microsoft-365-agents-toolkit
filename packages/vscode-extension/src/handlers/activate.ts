@@ -76,7 +76,7 @@ export function activate(): Result<Void, FxError> {
       if (status === signedIn) {
         void window.showInformationMessage(localize("teamstoolkit.handlers.m365SignIn"));
       } else if (status === signedOut) {
-        // eslint-disable-next-line no-secrets/no-secrets
+         
         void window.showInformationMessage(localize("teamstoolkit.handlers.m365SignOut"));
       }
       return Promise.resolve();

@@ -200,7 +200,7 @@ export class ValidateAppPackageDriver implements StepDriver {
             });
           }
         });
-        context.ui?.showMessage("info", outputMessage, false);
+        void context.ui?.showMessage("info", outputMessage, false);
         if (validationResult.errors.length > 0) {
           const message = `Microsoft 365 Agents Toolkit has completed checking your app package against validation rules. ${validationResult.errors.length} failed.`;
           return err(
@@ -320,9 +320,9 @@ export class ValidateAppPackageDriver implements StepDriver {
               ])
             );
           } else if (validationResult.warnings.length > 0) {
-            context.ui?.showMessage("warn", displayMessage, false);
+            void context.ui?.showMessage("warn", displayMessage, false);
           } else {
-            context.ui?.showMessage("info", displayMessage, false);
+            void context.ui?.showMessage("info", displayMessage, false);
           }
         } else {
           // For lifecycle like provision, stop-on-error
@@ -340,7 +340,7 @@ export class ValidateAppPackageDriver implements StepDriver {
       context.logProvider?.warning(
         getLocalizedString("error.teamsApp.validate.apiFailed", e.message)
       );
-      context.ui?.showMessage(
+      void context.ui?.showMessage(
         "warn",
         getLocalizedString("error.teamsApp.validate.apiFailed.display"),
         false

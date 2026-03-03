@@ -22,9 +22,9 @@ export async function buildFileTree(
   };
   const downloadCallback = async (samplePath: string) => {
     const file = (await sendRequestWithRetry(async () => {
-      return await axios.get(fileUrlPrefix + samplePath, {
+      return (await axios.get(fileUrlPrefix + samplePath, {
         responseType: "arraybuffer",
-      });
+      })) as any;
     }, retryLimits)) as unknown as any;
     const relativePath = path.relative(`${relativeFolderName}/`, samplePath);
     const filePath = path.join(dstPath, samplePath);

@@ -96,19 +96,23 @@ async function getandValidateOauthInfoFromSpec(
   const flow = "flow" in args ? args.flow : "authorizationCode";
   const authInfoArray = operations
     .map((value) => {
+      const flows = (value.auth?.authScheme as OpenAPIV3.OAuth2SecurityScheme).flows;
       let authInfo;
       switch (flow) {
         case "authorizationCode":
         default:
-          authInfo = (value.auth?.authScheme as OpenAPIV3.OAuth2SecurityScheme).flows
-            .authorizationCode;
+          authInfo = flows.authorizationCode;
+      }
+
+      if (!authInfo) {
+        throw new OauthAuthInfoInvalid(actionName);
       }
 
       return {
-        authorizationUrl: authInfo!.authorizationUrl,
-        tokenUrl: authInfo!.tokenUrl,
-        refreshUrl: authInfo!.refreshUrl,
-        scopes: Object.keys(authInfo!.scopes),
+        authorizationUrl: authInfo.authorizationUrl,
+        tokenUrl: authInfo.tokenUrl,
+        refreshUrl: authInfo.refreshUrl,
+        scopes: Object.keys(authInfo.scopes),
       };
     })
     .reduce((accumulator: AuthInfo[], currentValue) => {

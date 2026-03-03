@@ -86,11 +86,11 @@ describe("Preview --env", () => {
   it("Preview Command Running - Default", async () => {
     sandbox.stub(settingHelper, "isValidProjectV3").returns(true);
     sandbox.stub(envUtil, "readEnv").resolves(ok({}));
-    sandbox.stub(PreviewEnv.prototype, <any>"checkM365Account").resolves(ok({}));
-    sandbox.stub(PreviewEnv.prototype, <any>"previewWithManifest").resolves(ok("test-url"));
-    sandbox.stub(PreviewEnv.prototype, <any>"detectRunCommand").resolves(ok({}));
-    sandbox.stub(PreviewEnv.prototype, <any>"runCommandAsTask").resolves(ok(null));
-    sandbox.stub(PreviewEnv.prototype, <any>"launchBrowser").resolves(ok(null));
+    sandbox.stub(PreviewEnv.prototype, "checkM365Account" as any).resolves(ok({}));
+    sandbox.stub(PreviewEnv.prototype, "previewWithManifest" as any).resolves(ok("test-url"));
+    sandbox.stub(PreviewEnv.prototype, "detectRunCommand" as any).resolves(ok({}));
+    sandbox.stub(PreviewEnv.prototype, "runCommandAsTask" as any).resolves(ok(null));
+    sandbox.stub(PreviewEnv.prototype, "launchBrowser" as any).resolves(ok(null));
     const cmd = new PreviewEnv();
     await cmd.runCommand(defaultOptions);
     expect(logs.length >= 1).to.be.true;
@@ -100,11 +100,11 @@ describe("Preview --env", () => {
   it("Preview Command Running - outlook", async () => {
     sandbox.stub(settingHelper, "isValidProjectV3").returns(true);
     sandbox.stub(envUtil, "readEnv").resolves(ok({}));
-    sandbox.stub(PreviewEnv.prototype, <any>"checkM365Account").resolves(ok({}));
-    sandbox.stub(PreviewEnv.prototype, <any>"previewWithManifest").resolves(ok("test-url"));
-    sandbox.stub(PreviewEnv.prototype, <any>"detectRunCommand").resolves(ok({}));
-    sandbox.stub(PreviewEnv.prototype, <any>"runCommandAsTask").resolves(ok(null));
-    sandbox.stub(PreviewEnv.prototype, <any>"launchBrowser").resolves(ok(null));
+    sandbox.stub(PreviewEnv.prototype, "checkM365Account" as any).resolves(ok({}));
+    sandbox.stub(PreviewEnv.prototype, "previewWithManifest" as any).resolves(ok("test-url"));
+    sandbox.stub(PreviewEnv.prototype, "detectRunCommand" as any).resolves(ok({}));
+    sandbox.stub(PreviewEnv.prototype, "runCommandAsTask" as any).resolves(ok(null));
+    sandbox.stub(PreviewEnv.prototype, "launchBrowser" as any).resolves(ok(null));
     const cmd = new PreviewEnv();
     await cmd.runCommand({
       ...defaultOptions,
@@ -118,11 +118,11 @@ describe("Preview --env", () => {
   it("Preview Command Running - office", async () => {
     sandbox.stub(settingHelper, "isValidProjectV3").returns(true);
     sandbox.stub(envUtil, "readEnv").resolves(ok({}));
-    sandbox.stub(PreviewEnv.prototype, <any>"checkM365Account").resolves(ok({}));
-    sandbox.stub(PreviewEnv.prototype, <any>"previewWithManifest").resolves(ok("test-url"));
-    sandbox.stub(PreviewEnv.prototype, <any>"detectRunCommand").resolves(ok({}));
-    sandbox.stub(PreviewEnv.prototype, <any>"runCommandAsTask").resolves(ok(null));
-    sandbox.stub(PreviewEnv.prototype, <any>"launchBrowser").resolves(ok(null));
+    sandbox.stub(PreviewEnv.prototype, "checkM365Account" as any).resolves(ok({}));
+    sandbox.stub(PreviewEnv.prototype, "previewWithManifest" as any).resolves(ok("test-url"));
+    sandbox.stub(PreviewEnv.prototype, "detectRunCommand" as any).resolves(ok({}));
+    sandbox.stub(PreviewEnv.prototype, "runCommandAsTask" as any).resolves(ok(null));
+    sandbox.stub(PreviewEnv.prototype, "launchBrowser" as any).resolves(ok(null));
 
     const cmd = new PreviewEnv();
     await cmd.runCommand({
@@ -160,7 +160,7 @@ describe("Preview --env", () => {
     sandbox.stub(settingHelper, "isValidProjectV3").returns(true);
     sandbox.stub(envUtil, "readEnv").resolves(ok({}));
     sandbox
-      .stub(PreviewEnv.prototype, <any>"checkM365Account")
+      .stub(PreviewEnv.prototype, "checkM365Account" as any)
       .resolves(err({ foo: "bar" } as any));
 
     const cmd = new PreviewEnv();
@@ -173,9 +173,9 @@ describe("Preview --env", () => {
   it("Preview Command Running - previewWithManifest error", async () => {
     sandbox.stub(settingHelper, "isValidProjectV3").returns(true);
     sandbox.stub(envUtil, "readEnv").resolves(ok({}));
-    sandbox.stub(PreviewEnv.prototype, <any>"checkM365Account").resolves(ok({}));
+    sandbox.stub(PreviewEnv.prototype, "checkM365Account" as any).resolves(ok({}));
     sandbox
-      .stub(PreviewEnv.prototype, <any>"previewWithManifest")
+      .stub(PreviewEnv.prototype, "previewWithManifest" as any)
       .resolves(err({ foo: "bar" } as any));
 
     const cmd = new PreviewEnv();
@@ -188,10 +188,10 @@ describe("Preview --env", () => {
   it("Preview Command Running - detect run command error", async () => {
     sandbox.stub(settingHelper, "isValidProjectV3").returns(true);
     sandbox.stub(envUtil, "readEnv").resolves(ok({}));
-    sandbox.stub(PreviewEnv.prototype, <any>"checkM365Account").resolves(ok({}));
-    sandbox.stub(PreviewEnv.prototype, <any>"previewWithManifest").resolves(ok("test-url"));
+    sandbox.stub(PreviewEnv.prototype, "checkM365Account" as any).resolves(ok({}));
+    sandbox.stub(PreviewEnv.prototype, "previewWithManifest" as any).resolves(ok("test-url"));
     sandbox
-      .stub(PreviewEnv.prototype, <any>"detectRunCommand")
+      .stub(PreviewEnv.prototype, "detectRunCommand" as any)
       .resolves(err({ foo: "bar" } as any));
 
     const cmd = new PreviewEnv();
@@ -204,13 +204,13 @@ describe("Preview --env", () => {
   it("Preview Command Running - run task error", async () => {
     sandbox.stub(settingHelper, "isValidProjectV3").returns(true);
     sandbox.stub(envUtil, "readEnv").resolves(ok({}));
-    sandbox.stub(PreviewEnv.prototype, <any>"checkM365Account").resolves(ok({}));
-    sandbox.stub(PreviewEnv.prototype, <any>"previewWithManifest").resolves(ok("test-url"));
+    sandbox.stub(PreviewEnv.prototype, "checkM365Account" as any).resolves(ok({}));
+    sandbox.stub(PreviewEnv.prototype, "previewWithManifest" as any).resolves(ok("test-url"));
     sandbox
-      .stub(PreviewEnv.prototype, <any>"detectRunCommand")
+      .stub(PreviewEnv.prototype, "detectRunCommand" as any)
       .resolves(ok({ runCommand: "npm start" }));
     sandbox
-      .stub(PreviewEnv.prototype, <any>"runCommandAsTask")
+      .stub(PreviewEnv.prototype, "runCommandAsTask" as any)
       .resolves(err({ foo: "bar" } as any));
 
     const cmd = new PreviewEnv();
@@ -222,11 +222,11 @@ describe("Preview --env", () => {
   it("Preview Command Running - launch browser error", async () => {
     sandbox.stub(settingHelper, "isValidProjectV3").returns(true);
     sandbox.stub(envUtil, "readEnv").resolves(ok({}));
-    sandbox.stub(PreviewEnv.prototype, <any>"checkM365Account").resolves(ok({}));
-    sandbox.stub(PreviewEnv.prototype, <any>"previewWithManifest").resolves(ok("test-url"));
-    sandbox.stub(PreviewEnv.prototype, <any>"detectRunCommand").resolves(ok({}));
-    sandbox.stub(PreviewEnv.prototype, <any>"runCommandAsTask").resolves(ok(null));
-    sandbox.stub(PreviewEnv.prototype, <any>"launchBrowser").resolves(err({ foo: "bar" } as any));
+    sandbox.stub(PreviewEnv.prototype, "checkM365Account" as any).resolves(ok({}));
+    sandbox.stub(PreviewEnv.prototype, "previewWithManifest" as any).resolves(ok("test-url"));
+    sandbox.stub(PreviewEnv.prototype, "detectRunCommand" as any).resolves(ok({}));
+    sandbox.stub(PreviewEnv.prototype, "runCommandAsTask" as any).resolves(ok(null));
+    sandbox.stub(PreviewEnv.prototype, "launchBrowser" as any).resolves(err({ foo: "bar" } as any));
     const cmd = new PreviewEnv();
     const result = await cmd.runCommand(defaultOptions);
     expect(result.isErr()).to.be.true;
@@ -409,7 +409,7 @@ describe("PreviewEnv Steps", () => {
     const accountRes = await previewEnv.checkM365Account(undefined);
     expect(accountRes.isErr()).to.be.true;
     const error = (accountRes as any).error;
-    // eslint-disable-next-line no-secrets/no-secrets
+     
     expect(error.name).equals("PrerequisitesValidationM365AccountError");
     expect(error.message).satisfy((m: string) => m.includes("custom app upload permission"));
   });
@@ -417,7 +417,7 @@ describe("PreviewEnv Steps", () => {
   it("detectRunCommand - node", async () => {
     sandbox.stub(fs, "pathExists").resolves(true);
     sandbox.stub(fs, "readdir").resolves([]);
-    // eslint-disable-next-line no-secrets/no-secrets
+     
     sandbox.stub(packageJson, "loadTeamsFxDevScript").resolves("test");
 
     const previewEnv = new PreviewEnvTest();
@@ -457,7 +457,7 @@ describe("PreviewEnv Steps", () => {
     sandbox.stub(fs, "readdir").resolves(["test.csproj"]);
     sandbox.stub(fs, "readFile").resolves(
       Buffer.from(
-        // eslint-disable-next-line no-secrets/no-secrets
+         
         `
   <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>

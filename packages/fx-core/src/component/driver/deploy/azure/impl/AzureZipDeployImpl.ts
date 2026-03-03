@@ -267,6 +267,6 @@ export class AzureZipDeployImpl extends AzureDeployImpl {
   }
 
   updateProgressbar(): void {
-    this.progressBar?.next(ProgressMessages.deployToAzure(this.workingDirectory, this.serviceName));
+    void this.progressBar?.next(ProgressMessages.deployToAzure(this.workingDirectory, this.serviceName));
   }
 }

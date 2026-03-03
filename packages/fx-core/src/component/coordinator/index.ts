@@ -286,7 +286,7 @@ class Coordinator {
       projectModel.registerApp,
       projectModel.provision,
       projectModel.configureApp,
-    ].filter((c) => c !== undefined) as ILifecycle[];
+    ].filter((c) => c !== undefined);
 
     // 2. check each cycle
     for (const cycle of cycles) {
@@ -332,7 +332,7 @@ class Coordinator {
     const projectModel = maybeProjectModel.value;
     const cycles: ILifecycle[] = [projectModel.provision].filter(
       (c) => c !== undefined
-    ) as ILifecycle[];
+    );
 
     let unresolvedPlaceholders: string[] = [];
     // 2. check each cycle
@@ -620,16 +620,16 @@ class Coordinator {
       );
       if (url && ctx.platform !== Platform.CLI) {
         const title = getLocalizedString("core.provision.viewResources");
-        ctx.ui?.showMessage("info", msg, false, title).then((result: any) => {
+        void ctx.ui?.showMessage("info", msg, false, title).then((result: any) => {
           const userSelected = result.isOk() ? result.value : undefined;
           if (userSelected === title) {
-            ctx.ui?.openUrl(url);
+            void ctx.ui?.openUrl(url);
           }
         });
         showAadResourceLink(ctx, containsUpdateAad, projectModel, process.env.AAD_APP_CLIENT_ID);
       } else {
         if (url && ctx.platform === Platform.CLI) {
-          ctx.ui?.showMessage(
+          void ctx.ui?.showMessage(
             "info",
             [
               {
@@ -644,7 +644,7 @@ class Coordinator {
             false
           );
         } else {
-          ctx.ui?.showMessage("info", msg, false);
+          void ctx.ui?.showMessage("info", msg, false);
         }
       }
     } else {
@@ -752,7 +752,7 @@ class Coordinator {
           getLocalizedString("core.common.LifecycleComplete.deploy", steps, steps) +
           botTroubleShootMsg.textForLogging;
         if (ctx.platform !== Platform.VS) {
-          ctx.ui?.showMessage("info", msg, false);
+          void ctx.ui?.showMessage("info", msg, false);
         }
       } finally {
         const summary = summaryReporter.getLifecycleSummary();
@@ -808,13 +808,13 @@ class Coordinator {
           const msg = getLocalizedString("core.common.LifecycleComplete.publish", steps, steps);
           const adminPortal = getLocalizedString("plugins.appstudio.adminPortal");
           if (ctx.platform !== Platform.CLI) {
-            ctx.ui?.showMessage("info", msg, false, adminPortal).then((value) => {
+            void ctx.ui?.showMessage("info", msg, false, adminPortal).then((value) => {
               if (value.isOk() && value.value === adminPortal) {
                 void ctx.ui!.openUrl(Constants.TEAMS_ADMIN_PORTAL);
               }
             });
           } else {
-            ctx.ui?.showMessage("info", msg, false);
+            void ctx.ui?.showMessage("info", msg, false);
           }
         }
       } finally {
@@ -933,7 +933,7 @@ export function showAadResourceLink(
     const aadMsg =
       "You need to grant tenant-wide admin consent to the application in Entra ID. Click the button to provide consent.";
     const aadTitle = "View provisioned Entra ID";
-    ctx.ui?.showMessage("info", aadMsg, false, aadTitle).then((result: any) => {
+    void ctx.ui?.showMessage("info", aadMsg, false, aadTitle).then((result: any) => {
       const userSelected = result.isOk() ? result.value : undefined;
       if (userSelected === aadTitle) {
         openUrl(ctx, aadUrl);
@@ -947,7 +947,7 @@ export function showAadResourceLink(
 }
 
 export function openUrl(ctx: DriverContext, url: string): void {
-  ctx.ui?.openUrl(url);
+  void ctx.ui?.openUrl(url);
 }
 
 interface BotTroubleShootMessage {

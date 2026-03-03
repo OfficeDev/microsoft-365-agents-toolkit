@@ -245,7 +245,7 @@ export class ValidateManifestDriver implements StepDriver {
           }
         }
 
-        context.ui?.showMessage("info", outputMessage, false);
+        void context.ui?.showMessage("info", outputMessage, false);
       } else {
         // logs in output window
         const teamsManifestErrors = manifestValidationResult
@@ -335,7 +335,7 @@ export class ValidateManifestDriver implements StepDriver {
           ];
           context.logProvider.info(outputMessage);
         } else {
-          context.ui?.showMessage("info", validationSuccess, false);
+          void context.ui?.showMessage("info", validationSuccess, false);
         }
       }
       return ok(new Map());

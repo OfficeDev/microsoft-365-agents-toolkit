@@ -37,7 +37,7 @@ export class TeamsUserCredential implements TokenCredential {
   private tid?: string;
   private loginHint?: string;
 
-  // eslint-disable-next-line no-secrets/no-secrets
+   
   /**
    * Constructor of TeamsUserCredential.
    *

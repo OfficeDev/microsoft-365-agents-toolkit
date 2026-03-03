@@ -9,6 +9,7 @@ export enum SummaryConstant {
   Succeeded = "(√) Done:",
   Failed = "(×) Error:",
   NotExecuted = "(!) Warning:",
+  // eslint-disable-next-line @typescript-eslint/no-duplicate-enum-values
   Warning = "(!) Warning:",
   Info = "(i) Info:",
 }

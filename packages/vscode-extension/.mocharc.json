@@ -1,4 +1,5 @@
 {
+  "node-option": ["no-experimental-strip-types"],
   "require": ["build/test/setup.js", "ts-node/register"],
   "reporter": "mocha-multi-reporters",
   "recursive": true,

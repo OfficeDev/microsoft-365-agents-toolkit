@@ -23,7 +23,7 @@ export async function shareWithTenant(
     return err(res.error);
   }
   const msg = getLocalizedString("core.common.shareWithTenant.success");
-  TOOLS.ui?.showMessage("info", msg, false);
+  void TOOLS.ui?.showMessage("info", msg, false);
   return ok(undefined);
 }
 
@@ -79,7 +79,7 @@ export async function addSharedUsers(
     return err(res.error);
   }
   const msg = getLocalizedString("core.common.shareWithUser.success", emails);
-  TOOLS.ui?.showMessage("info", msg, false);
+  void TOOLS.ui?.showMessage("info", msg, false);
   return ok(undefined);
 }
 
@@ -135,6 +135,6 @@ export async function removeShareAccess(
   }
 
   const msg = getLocalizedString("core.common.removeShareAccess.success", emails);
-  TOOLS.ui?.showMessage("info", msg, false);
+  void TOOLS.ui?.showMessage("info", msg, false);
   return ok(undefined);
 }

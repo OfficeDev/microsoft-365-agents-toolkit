@@ -357,7 +357,7 @@ export interface BotSsoConfig {
   } & OnBehalfOfCredentialAuthConfig & { initiateLoginEndpoint: string };
 
   dialog?: {
-    // eslint-disable-next-line no-secrets/no-secrets
+     
     /**
      * Custom sso execution activity handler class which should implement the interface {@link BotSsoExecutionActivityHandler}. If not provided, it will use {@link DefaultBotSsoExecutionActivityHandler} by default
      */
@@ -401,7 +401,7 @@ export interface BotSsoConfig {
   };
 }
 
-// eslint-disable-next-line no-secrets/no-secrets
+ 
 /**
  * Interface for user to customize SSO execution activity handler
  *
@@ -425,7 +425,7 @@ export interface BotSsoConfig {
  * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
  */
 export interface BotSsoExecutionActivityHandler {
-  // eslint-disable-next-line no-secrets/no-secrets
+   
   /**
    * Add {@link TeamsFxBotSsoCommandHandler} instance to {@link BotSsoExecutionDialog}
    * @param handler {@link BotSsoExecutionDialogHandler} callback function

@@ -84,6 +84,7 @@ export enum QuestionNames {
   OutputFolderParamName = "output-folder",
   M365Host = "m365-host",
 
+  // eslint-disable-next-line @typescript-eslint/no-duplicate-enum-values
   ManifestPath = "manifest-path",
   ManifestId = "manifest-id",
   TeamsAppId = "teams-app-id",
@@ -91,8 +92,11 @@ export enum QuestionNames {
   UserEmail = "email",
 
   UninstallMode = "mode",
+  // eslint-disable-next-line @typescript-eslint/no-duplicate-enum-values
   UninstallModeManifestId = "manifest-id",
+  // eslint-disable-next-line @typescript-eslint/no-duplicate-enum-values
   UninstallModeEnv = "env",
+  // eslint-disable-next-line @typescript-eslint/no-duplicate-enum-values
   UninstallModeTitleId = "title-id",
   UninstallOptions = "options",
   UninstallOptionM365 = "m365-app",

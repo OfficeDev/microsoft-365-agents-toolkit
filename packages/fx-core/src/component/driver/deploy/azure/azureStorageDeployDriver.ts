@@ -177,7 +177,7 @@ export class AzureStorageDeployDriverImpl extends AzureDeployImpl {
   }
 
   updateProgressbar() {
-    this.progressBar?.next(
+    void this.progressBar?.next(
       ProgressMessages.deployToAzure(this.workingDirectory, "Azure Storage Service")
     );
   }

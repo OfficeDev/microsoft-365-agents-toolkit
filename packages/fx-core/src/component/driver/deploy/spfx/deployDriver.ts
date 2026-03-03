@@ -182,9 +182,9 @@ export class SPFxDeployDriver implements StepDriver {
       appCatalogSite
     );
     if (context.platform === Platform.CLI) {
-      context.ui?.showMessage("info", guidance, false);
+      void context.ui?.showMessage("info", guidance, false);
     } else {
-      context.ui?.showMessage("info", guidance, false, "OK");
+      void context.ui?.showMessage("info", guidance, false, "OK");
     }
     return this.EmptyMap;
   }

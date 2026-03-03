@@ -508,7 +508,7 @@ export class Utils {
     const operationObject = pathObj[method] as OpenAPIV3.OperationObject;
 
     const rootServer = spec.servers && spec.servers[0];
-    const methodServer = spec.paths[path]!.servers && spec.paths[path]!.servers![0];
+    const methodServer = spec.paths[path]!.servers && spec.paths[path]!.servers[0];
     const operationServer = operationObject.servers && operationObject.servers[0];
 
     const serverUrl = operationServer || methodServer || rootServer;

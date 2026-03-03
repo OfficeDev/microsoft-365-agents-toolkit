@@ -1,4 +1,4 @@
-/* eslint-disable no-secrets/no-secrets */
+ 
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 import { AccessToken } from "@azure/identity";

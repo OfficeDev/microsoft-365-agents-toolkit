@@ -1,10 +1,10 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-empty-function */
-/* eslint-disable @typescript-eslint/no-var-requires */
+ 
+ 
+ 
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-// eslint-disable-next-line import/default
+ 
 import TelemetryReporter from "@vscode/extension-telemetry";
 import * as sinon from "sinon";
 import { VSCodeTelemetryReporter } from "../../src/telemetry/vscodeTelemetryReporter";

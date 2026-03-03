@@ -13,7 +13,7 @@ import { formatString } from "../../util/utils";
  * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
  */
 export class DefaultBotSsoExecutionActivityHandler {
-  // eslint-disable-next-line no-secrets/no-secrets
+   
   /**
    * Creates a new instance of the DefaultBotSsoExecutionActivityHandler.
    * @param ssoConfig configuration for sso command bot
@@ -29,7 +29,7 @@ export class DefaultBotSsoExecutionActivityHandler {
     );
   }
 
-  // eslint-disable-next-line no-secrets/no-secrets
+   
   /**
    * Add TeamsFxBotSsoCommandHandler instance to sso execution dialog
    * @param handler {@link BotSsoExecutionDialogHandler} callback function

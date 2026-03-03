@@ -34,7 +34,7 @@ const ACTION_NAME = "azureStorage/enableStaticWebsite";
 @Service(ACTION_NAME)
 export class AzureStorageStaticWebsiteConfigDriver implements StepDriver {
   readonly description: string = getLocalizedString(
-    // eslint-disable-next-line no-secrets/no-secrets
+     
     "driver.deploy.enableStaticWebsiteInAzureStorageDescription"
   );
   protected static readonly HELP_LINK =
@@ -50,7 +50,7 @@ export class AzureStorageStaticWebsiteConfigDriver implements StepDriver {
 
   @hooks([addStartAndEndTelemetry(ACTION_NAME, TelemetryConstant.PROVISION_COMPONENT_NAME)])
   async run(args: unknown, context: DriverContext): Promise<Result<Map<string, string>, FxError>> {
-    context.progressBar?.next(ProgressMessages.configureAzureStorageEnableStaticWebsite);
+    void context.progressBar?.next(ProgressMessages.configureAzureStorageEnableStaticWebsite);
     return wrapRun(() => this.config(args, context), ACTION_NAME, undefined, context.logProvider);
   }
 

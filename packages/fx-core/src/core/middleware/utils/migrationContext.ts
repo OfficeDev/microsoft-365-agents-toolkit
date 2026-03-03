@@ -8,6 +8,7 @@ import { CoreHookContext } from "../../types";
 import { Inputs } from "@microsoft/teamsfx-api";
 
 export const backupFolder = ".backup";
+// eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
 export interface MigrationContext extends CoreHookContext {
   backup(path: string): Promise<boolean>;
   fsEnsureDir(path: string, options?: EnsureOptions | number): Promise<void>;
@@ -23,6 +24,7 @@ export interface MigrationContext extends CoreHookContext {
   currentStep?: string;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
 export class MigrationContext {
   private modifiedPaths: string[] = [];
   private reports: string[] = [];

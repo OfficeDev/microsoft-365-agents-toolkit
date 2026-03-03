@@ -18,7 +18,7 @@ import {
   TriggerPatterns,
 } from "../interface";
 import { BotSsoExecutionDialog } from "./botSsoExecutionDialog";
-import { OnBehalfOfCredentialAuthConfig } from "../..";
+import { OnBehalfOfCredentialAuthConfig } from "../../models/configuration";
 
 /**
  * Default SSO execution activity handler

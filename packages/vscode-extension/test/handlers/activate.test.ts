@@ -205,7 +205,7 @@ describe("Activate", function () {
     });
   });
 
-  // eslint-disable-next-line no-secrets/no-secrets
+   
   describe("refreshEnvTreeOnProjectSettingFileChanged", function () {
     const sandbox = sinon.createSandbox();
 

@@ -77,7 +77,7 @@ export function initializeGlobalVariables(ctx: vscode.ExtensionContext): void {
     isOfficeManifestOnlyProject = isManifestOnlyOfficeAddinProject(workspaceUri?.fsPath);
   }
   // Default Extension log path
-  // eslint-disable-next-line no-secrets/no-secrets
+   
   // e.g. C:/Users/xx/AppData/Roaming/Code/logs/20230221T095340/window7/exthost/TeamsDevApp.ms-teams-vscode-extension
   defaultExtensionLogPath = ctx.logUri.fsPath;
   if (!fs.pathExistsSync(defaultExtensionLogPath)) {

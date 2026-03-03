@@ -39,7 +39,7 @@ export class BotSsoExecutionDialog {
     );
   }
 
-  // eslint-disable-next-line no-secrets/no-secrets
+   
   /**
    * Add TeamsFxBotSsoCommandHandler instance
    * @param handler {@link BotSsoExecutionDialogHandler} callback function

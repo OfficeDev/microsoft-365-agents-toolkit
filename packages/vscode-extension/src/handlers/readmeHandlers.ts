@@ -45,8 +45,8 @@ export async function openReadMeHandler(...args: unknown[]) {
         createProject,
         openFolder
       )
-      .then((selection) => {
-        selection?.run();
+      .then(async (selection) => {
+        await selection?.run();
       });
   } else if (vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders.length > 0) {
     const workspaceFolder = vscode.workspace.workspaceFolders[0];

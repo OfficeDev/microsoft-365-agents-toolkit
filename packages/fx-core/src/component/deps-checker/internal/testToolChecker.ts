@@ -45,7 +45,7 @@ const QueryVersionTimeout = 5 * 1000;
 export class TestToolChecker implements DepsChecker {
   private telemetryProperties: { [key: string]: string };
   private readonly name = "Microsoft 365 Agents Playground";
-  // eslint-disable-next-line no-secrets/no-secrets
+   
   private readonly npmPackageName = "@microsoft/m365agentsplayground";
   private readonly legacyNpmPackageName = "@microsoft/teams-app-test-tool"; // for backward compatibility
   private readonly checkUpdateTimeout = 10 * 1000;

@@ -244,7 +244,7 @@ export default class TelemetryReporter {
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+   
   public sendTelemetryErrorEvent(
     eventName: string,
     properties?: { [key: string]: string },

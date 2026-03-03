@@ -76,7 +76,7 @@ export class InstallAppToChannelDriver implements StepDriver {
 
       // Get installed apps, delete it if externalId already exists.
       const apps = await graphClient.GetAppInstallationForTeam(args.teamId);
-      apps.map(async (app) => {
+      void Promise.all(apps.map(async (app) => {
         if (app.teamsApp.externalId == teamsAppId) {
           context.addTelemetryProperties({ [TelemetryProperty.DeleteInstalledApp]: "true" });
           const message = getLocalizedString(
@@ -88,7 +88,7 @@ export class InstallAppToChannelDriver implements StepDriver {
           context.addSummary(message);
           await graphClient.DeleteInstalledApp(args.teamId, app.id);
         }
-      });
+      }));
 
       await graphClient.InstallAppToChannelAsync(args.teamId, args.channelId, archivedFile);
       const message = getLocalizedString(

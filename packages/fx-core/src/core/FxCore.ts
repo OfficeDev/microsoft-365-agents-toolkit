@@ -927,7 +927,7 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
       }
     }
     const msg = getLocalizedString("core.common.removeOwnership.success", emails);
-    TOOLS.ui?.showMessage("info", msg, false);
+    void TOOLS.ui?.showMessage("info", msg, false);
     return ok(undefined);
   }
 
@@ -1029,7 +1029,7 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
     const manifestOutputPath: string = path.join(
       inputs.projectPath!,
       "build",
-      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+       
       `aad.${inputs.env}.json`
     );
     const Context: DriverContext = createDriverContext(inputs);
@@ -1247,12 +1247,12 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
       manifestPath: teamsAppManifestFilePath,
       outputZipPath:
         inputs[QuestionNames.OutputZipPathParamName] ??
-        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+         
         `${inputs.projectPath}/${AppPackageFolderName}/${BuildFolderName}/appPackage.${process.env
           .TEAMSFX_ENV!}.zip`,
       outputFolder:
         inputs[QuestionNames.OutputManifestParamName] ??
-        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+         
         `${inputs.projectPath}/${AppPackageFolderName}/${BuildFolderName}`,
     };
     const result = (await driver.execute(args, context)).result;
@@ -1274,7 +1274,7 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
           }?%5B%22${folderLink.toString()}%22%5D`;
           builtSuccess = getLocalizedString("plugins.appstudio.buildSucceedNotice", appPackageLink);
         }
-        context.ui?.showMessage("info", builtSuccess, false);
+        void context.ui?.showMessage("info", builtSuccess, false);
       }
     }
     return result;
@@ -1587,8 +1587,8 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
   ])
   async createEnv(inputs: Inputs): Promise<Result<undefined, FxError>> {
     return this.createEnvCopyV3(
-      inputs[QuestionNames.NewTargetEnvName]!,
-      inputs[QuestionNames.SourceEnvName]!,
+      inputs[QuestionNames.NewTargetEnvName],
+      inputs[QuestionNames.SourceEnvName],
       inputs.projectPath!
     );
   }

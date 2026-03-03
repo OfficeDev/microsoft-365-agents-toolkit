@@ -1112,7 +1112,7 @@ function formatValidationErrorContent(error: ApiSpecErrorResult, inputs: Inputs)
         const messages = [];
         const invalidAPIInfo = error.data as InvalidAPIInfo[];
         for (const info of invalidAPIInfo) {
-          // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+           
           const mes = `${info.api}: ${info.reason.map(mapInvalidReasonToMessage).join(", ")}`;
           messages.push(mes);
         }

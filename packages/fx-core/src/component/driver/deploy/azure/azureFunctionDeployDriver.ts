@@ -21,7 +21,7 @@ export class AzureFunctionDeployDriver implements StepDriver {
     "driver.deploy.deployToAzureFunctionsDescription"
   );
   private static readonly SERVICE_NAME = "Azure Function App";
-  // eslint-disable-next-line no-secrets/no-secrets
+   
   private static readonly SUMMARY = ["driver.deploy.azureFunctionsDeployDetailSummary"];
   private static readonly SUMMARY_PREPARE = ["driver.deploy.notice.deployDryRunComplete"];
 

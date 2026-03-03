@@ -643,7 +643,7 @@ describe("teamsApp/publishAppPackage", async () => {
     });
   });
 
-  // eslint-disable-next-line no-secrets/no-secrets
+   
   describe("verifyPackageFamilyCertIsValid", () => {
     const teamsAppDriver = new PublishAppPackageDriver();
     let execStub: sinon.SinonStub;

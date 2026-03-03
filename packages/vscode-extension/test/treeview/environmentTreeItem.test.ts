@@ -56,7 +56,7 @@ describe("EnvironmentNode", () => {
     );
     sandbox.stub(envTreeUtils, "getM365TenantFromEnv").returns(Promise.resolve("m365TenantId"));
     sandbox.stub(globalVariables, "isSPFxProject").value(true);
-    // eslint-disable-next-line no-secrets/no-secrets
+     
     sandbox.stub(envTreeUtils, "getSubscriptionInfoFromEnv").returns(
       Promise.resolve<SubscriptionInfo | undefined>({
         subscriptionName: "subscriptionName",
@@ -65,7 +65,7 @@ describe("EnvironmentNode", () => {
       })
     );
     sandbox.stub(localizeUtils, "localize").callsFake((key: string, _defValue?: string) => {
-      // eslint-disable-next-line no-secrets/no-secrets
+       
       if (key === "teamstoolkit.commandsTreeViewProvider.m365AccountNotMatch") {
         return "test string";
       }
@@ -96,7 +96,7 @@ describe("EnvironmentNode", () => {
     );
     sandbox.stub(envTreeUtils, "getM365TenantFromEnv").returns(Promise.resolve("test"));
     sandbox.stub(globalVariables, "isSPFxProject").value(true);
-    // eslint-disable-next-line no-secrets/no-secrets
+     
     sandbox.stub(envTreeUtils, "getSubscriptionInfoFromEnv").returns(
       Promise.resolve<SubscriptionInfo | undefined>({
         subscriptionName: "subscriptionName",

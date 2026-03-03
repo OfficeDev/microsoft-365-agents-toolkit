@@ -124,7 +124,7 @@ export class ValidateWithTestCasesDriver implements StepDriver {
                   color: Colors.BRIGHT_CYAN,
                 },
               ];
-              context.ui?.showMessage("warn", message, false);
+              void context.ui?.showMessage("warn", message, false);
             } else {
               const message = getLocalizedString(
                 "driver.teamsApp.progressBar.validateWithTestCases.conflict",
@@ -154,7 +154,7 @@ export class ValidateWithTestCasesDriver implements StepDriver {
             color: Colors.BRIGHT_CYAN,
           },
         ];
-        context.ui?.showMessage("info", message, false);
+        void context.ui?.showMessage("info", message, false);
       } else {
         const message = getLocalizedString(
           "driver.teamsApp.progressBar.validateWithTestCases.step",

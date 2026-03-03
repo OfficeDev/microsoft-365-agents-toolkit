@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 /**
  *
  * This is wrapper of mocha.it which help to inject meta data
