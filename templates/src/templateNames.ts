@@ -74,7 +74,7 @@ export enum TemplateNames {
   Empty = "empty",
   MessageExtensionSearch = "message-extension-search",
 
-  FoundryAgent = "foundry-agent",
+  FoundryAgent = "foundry-agent-to-m365",
 }
 
 export enum TemplateAlias {
