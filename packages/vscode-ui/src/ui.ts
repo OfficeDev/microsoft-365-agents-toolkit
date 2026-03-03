@@ -1050,24 +1050,24 @@ export class VSCodeUI implements UserInteraction {
     modal: boolean,
     ...items: string[]
   ): Promise<Result<string | undefined, FxError>> {
-    if (message instanceof Array) {
-      message = message.map((x) => x.content).join("");
-    }
+    const msg: string = message instanceof Array
+      ? message.map((x) => x.content).join("")
+      : message;
     return new Promise((resolve) => {
       const option = { modal: modal };
       try {
         let promise: Thenable<string | undefined>;
         switch (level) {
           case "info": {
-            promise = window.showInformationMessage(message, option, ...items);
+            promise = window.showInformationMessage(msg, option, ...items);
             break;
           }
           case "warn": {
-            promise = window.showWarningMessage(message, option, ...items);
+            promise = window.showWarningMessage(msg, option, ...items);
             break;
           }
           case "error":
-            promise = window.showErrorMessage(message, option, ...items);
+            promise = window.showErrorMessage(msg, option, ...items);
         }
         promise.then(
           (v) => {
