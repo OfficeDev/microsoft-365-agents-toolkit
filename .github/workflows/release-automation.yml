@@ -737,6 +737,7 @@ jobs:
             console.log(`  series: ${series}`);
             console.log(`  vsrelease: ${vsrelease}`);
             console.log(`  goproduct: ${goproduct}`);
+            console.log(`  run_test_cases: true`);
 
             await github.rest.actions.createWorkflowDispatch({
               owner: context.repo.owner,
@@ -748,7 +749,8 @@ jobs:
                 series: series,
                 vsrelease: vsrelease.toString(),
                 vstemplate: 'false',
-                goproduct: goproduct.toString()
+                goproduct: goproduct.toString(),
+                run_test_cases: 'true'
               }
             });
 
@@ -852,6 +854,7 @@ jobs:
                 vsrelease: vsrelease.toString(),
                 vstemplate: 'false',
                 goproduct: goproduct.toString(),
+                run_test_cases: 'true'
               },
             });
 
@@ -863,6 +866,7 @@ jobs:
             core.setOutput('series', series);
             core.setOutput('vsrelease', vsrelease.toString());
             core.setOutput('goproduct', goproduct.toString());
+            core.setOutput('run_test_cases', 'true');
 
   notify-cd-and-completion:
     runs-on: ubuntu-latest
