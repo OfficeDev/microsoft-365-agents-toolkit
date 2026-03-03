@@ -292,7 +292,7 @@ describe("resouce group helper test", () => {
     );
     assert.isTrue(res.isOk());
     if (res.isOk()) {
-      assert.isTrue(res.value.length === 1);
+      assert.equal(res.value.length, 1);
     }
   });
 

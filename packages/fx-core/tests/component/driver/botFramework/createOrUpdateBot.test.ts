@@ -173,7 +173,7 @@ describe("CreateOrUpdateM365BotDriver", () => {
       if (result.isErr()) {
         chai.assert(result.error instanceof UnhandledError);
         const message = "Unhandled error happened in botFramework/create action: exception.";
-        chai.assert(result.error.message, message);
+        chai.assert.equal(result.error.message, message);
       }
     });
 
