@@ -1,5 +1,6 @@
 import { CLIContext, SystemError, err, ok, signedIn, signedOut } from "@microsoft/teamsfx-api";
 import {
+  CliQuestionName,
   CollaborationConstants,
   CollaborationStateResult,
   FuncToolChecker,
@@ -58,6 +59,7 @@ import { addCapabilityCommand } from "../../src/commands/models/addCapability";
 import { addPluginCommand } from "../../src/commands/models/addPlugin";
 import { entraAppUpdateCommand } from "../../src/commands/models/entraAppUpdate";
 import { envResetCommand } from "../../src/commands/models/envReset";
+import * as listTemplatesModule from "../../src/commands/models/listTemplates";
 import { regeneratePluginCommand } from "../../src/commands/models/regeneratePlugin";
 import { setCommand } from "../../src/commands/models/set";
 import { setSensitivityLabelCommand } from "../../src/commands/models/setSensitivityLabel";
@@ -141,6 +143,90 @@ describe("CLI commands", () => {
       };
       const res = await getCreateCommand().handler!(ctx);
       assert.isTrue(res.isErr());
+    });
+
+    it("uses template alias and preset language in non-interactive mode", async () => {
+      sandbox.stub(activate, "getFxCore").returns(new FxCore({} as any));
+      const createProjectStub = sandbox
+        .stub(FxCore.prototype, "createProject")
+        .resolves(ok({ projectPath: "..." }));
+      sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
+      sandbox.stub(listTemplatesModule, "listAllTemplates").returns([
+        {
+          name: "api-plugin",
+          alias: "api-plugin-from-scratch",
+          displayName: "API Plugin",
+          description: "desc",
+          language: "typescript",
+        },
+      ] as any);
+
+      const ctx: CLIContext = {
+        command: { ...getCreateCommand(), fullName: "new" },
+        optionValues: {
+          capabilities: "api-plugin-from-scratch",
+          nonInteractive: true,
+        },
+        globalOptionValues: {},
+        argumentValues: [],
+        telemetryProperties: {},
+      };
+
+      const res = await getCreateCommand().handler!(ctx);
+
+      assert.isTrue(res.isOk());
+      assert.isTrue(createProjectStub.calledOnce);
+      const inputs = createProjectStub.firstCall.args[0] as any;
+      assert.equal(inputs["template-name"], "api-plugin");
+      assert.equal(inputs["programming-language"], "typescript");
+    });
+
+    it("keeps capability as template-name when template is not found", async () => {
+      sandbox.stub(activate, "getFxCore").returns(new FxCore({} as any));
+      const createProjectStub = sandbox
+        .stub(FxCore.prototype, "createProject")
+        .resolves(ok({ projectPath: "..." }));
+      sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
+      sandbox.stub(listTemplatesModule, "listAllTemplates").returns([] as any);
+
+      const ctx: CLIContext = {
+        command: { ...getCreateCommand(), fullName: "new" },
+        optionValues: {
+          capabilities: "unknown-template",
+          nonInteractive: true,
+          "programming-language": "javascript",
+        },
+        globalOptionValues: {},
+        argumentValues: [],
+        telemetryProperties: {},
+      };
+
+      const res = await getCreateCommand().handler!(ctx);
+
+      assert.isTrue(res.isOk());
+      const inputs = createProjectStub.firstCall.args[0] as any;
+      assert.equal(inputs["template-name"], "unknown-template");
+      assert.equal(inputs["programming-language"], "javascript");
+    });
+
+    it("includes alias and name in capability choices", async () => {
+      sandbox.stub(listTemplatesModule, "listAllTemplates").returns([
+        {
+          name: "api-plugin",
+          alias: "api-plugin-from-scratch",
+          displayName: "API Plugin",
+          description: "desc",
+          language: "typescript",
+        },
+      ] as any);
+
+      const command = getCreateCommand();
+      const capabilityOption = command.options?.find((o) => o.name === CliQuestionName.Capability);
+
+      assert.deepEqual((capabilityOption as any)?.choices, [
+        "api-plugin-from-scratch",
+        "api-plugin",
+      ]);
     });
   });
 
@@ -1589,6 +1675,32 @@ describe("CLI read-only commands", () => {
       };
       const res = await listTemplatesCommand.handler!(ctx);
       assert.isTrue(res.isOk());
+    });
+
+    it("groupTemplatesByName groups by name and falls back display name", async () => {
+      const templates = listTemplatesModule.groupTemplatesByName([
+        {
+          name: "dup-template",
+          alias: "dup-alias",
+          description: "desc 1",
+          language: "typescript",
+        },
+        {
+          name: "dup-template",
+          alias: "dup-alias-2",
+          description: "desc 2",
+          language: "javascript",
+        },
+        {
+          name: "no-alias-template",
+          description: "desc 3",
+          language: "typescript",
+        },
+      ] as any);
+
+      assert.equal(templates.length, 2);
+      assert.equal(templates[0].displayName, "dup-alias");
+      assert.equal(templates[1].displayName, "no-alias-template");
     });
   });
   describe("listSamplesCommand", async () => {

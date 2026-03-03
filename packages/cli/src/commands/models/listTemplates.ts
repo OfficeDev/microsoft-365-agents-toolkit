@@ -1,11 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 import { CLICommand, ok, Platform } from "@microsoft/teamsfx-api";
-import {
-  featureFlagManager,
-  FeatureFlags,
-  getAllTemplatesOnPlatform,
-} from "@microsoft/teamsfx-core";
+import * as teamsfxCore from "@microsoft/teamsfx-core";
 import { Template } from "@microsoft/teamsfx-core/build/component/generator/templates/metadata/interface";
 import chalk from "chalk";
 import Table from "cli-table3";
@@ -23,11 +19,15 @@ interface TemplateGroup {
 }
 
 export function listAllTemplates(): TemplateGroup[] {
-  let templates = getAllTemplatesOnPlatform(Platform.VSCode);
-  if (featureFlagManager.getBooleanValue(FeatureFlags.CLIDotNet)) {
-    templates = getAllTemplatesOnPlatform(Platform.VS);
+  let templates = teamsfxCore.getAllTemplatesOnPlatform(Platform.VSCode);
+  if (teamsfxCore.featureFlagManager.getBooleanValue(teamsfxCore.FeatureFlags.CLIDotNet)) {
+    templates = teamsfxCore.getAllTemplatesOnPlatform(Platform.VS);
   }
 
+  return groupTemplatesByName(templates as Template[]);
+}
+
+export function groupTemplatesByName(templates: Template[]): TemplateGroup[] {
   // Group by template name, ignoring programming language
   const groupedTemplates = new Map<string, TemplateGroup>();
 
