@@ -1,9 +1,9 @@
 ---
 name: microsoft-365-agents-toolkit
-description: Builds, tests, and deploys Microsoft Teams apps, Microsoft 365 agents, Copilot extensions, and custom engine agents using the M365 Agents Toolkit CLI (atk). Use when working with Teams apps, bots, tabs, message extensions, declarative agents, API plugins, custom engine agents, Agents Playground, atk commands, local testing, provisioning, deployment, sideloading, environment configuration, or any M365/Teams development workflow.
+description: Builds, tests, and deploys Microsoft 365 apps or agents working on Teams and Copilot. Used when working with Teams agent, bot, tab, message extension, Declarative Agents, Custom Engine Agents using Microsoft 365 Agents Toolkit. It helps to do local testing, Azure resource provision, remote deployment, or any Microsoft 365 application development workflow.
 ---
 
-# M365 Agents Toolkit Skill
+# Microsoft 365 Agents Toolkit Skill
 
 Build Microsoft 365 agents and Teams apps using the ATK CLI.
 
