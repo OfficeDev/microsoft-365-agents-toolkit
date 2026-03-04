@@ -114,9 +114,6 @@ export const debugInitMap: Record<TemplateProject, () => Promise<void>> = {
   [TemplateProject.RedditLink]: async () => {
     await startDebugging("Debug in Teams (Chrome)");
   },
-  [TemplateProject.IntelligentDataChart]: async () => {
-    await startDebugging("Debug (Chrome)");
-  },
 };
 
 export async function initPage(
@@ -3459,49 +3456,6 @@ export async function validateMeeting(page: Page, name: string) {
 
     // clean up
     // await cleanupInstalledApp(page, "Home");
-  } catch (error) {
-    await page.screenshot({
-      path: getPlaywrightScreenshotPath("error"),
-      fullPage: true,
-    });
-    throw error;
-  }
-}
-
-export async function validateIntelligentDataChart(
-  page: Page,
-  isRealKey: boolean
-) {
-  try {
-    console.log("start to verify Intelligent Data Chart");
-    const frameElementHandle = await page.waitForSelector(
-      `iframe[name="embedded-page-container"]`
-    );
-    const frame = await frameElementHandle?.contentFrame();
-    await frame?.waitForSelector(
-      "span:has-text('Intelligent Data Chart Generator')"
-    );
-    if (isRealKey) {
-      console.log("fill in: Top 20 selling products");
-      const textarea = await frame?.waitForSelector(
-        ".prompt-textarea textarea"
-      );
-      await RetryHandler.retry(async () => {
-        await textarea?.selectText();
-        await page.waitForTimeout(Timeout.shortTimeWait);
-        await textarea?.press("Backspace");
-        await page.waitForTimeout(Timeout.shortTimeWait);
-        await textarea?.fill("Top 20 selling products");
-        await page.waitForTimeout(Timeout.shortTimeWait);
-        const searchbtn = await frame?.waitForSelector(
-          ".prompt-textarea button"
-        );
-        await searchbtn?.click();
-        await page.waitForTimeout(Timeout.shortTimeLoading);
-        // TODO: verify the chart
-      }, 5);
-    }
-    console.log("Intelligent Data Chart loaded successfully");
   } catch (error) {
     await page.screenshot({
       path: getPlaywrightScreenshotPath("error"),
