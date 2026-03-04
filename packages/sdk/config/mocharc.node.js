@@ -5,8 +5,14 @@
  *   karma runner supports.
  */
 
+const nodeOptions = [];
+const [major] = process.versions.node.split(".").map(Number);
+if (major >= 22) {
+  nodeOptions.push("no-experimental-strip-types");
+}
+
 const config = {
-  "node-option": ["no-experimental-strip-types"],
+  "node-option": nodeOptions,
   require: "ts-node/register",
   timeout: 5000,
   retries: 2,

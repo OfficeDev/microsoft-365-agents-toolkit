@@ -1,10 +1,16 @@
 "use strict";
 
+const nodeOptions = [];
+const [major] = process.versions.node.split(".").map(Number);
+if (major >= 22) {
+  nodeOptions.push("no-experimental-strip-types");
+}
+
 module.exports = {
   color: true,
   delay: false,
   diff: true,
-  "node-option": ["no-experimental-strip-types"],
+  "node-option": nodeOptions,
   parallel: false,
   recursive: false,
   reporter: "spec",

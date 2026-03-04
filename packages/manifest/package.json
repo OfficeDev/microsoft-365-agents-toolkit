@@ -49,7 +49,7 @@
     "prebuild": "npm run copy-json-schema",
     "copy-json-schema": "copyfiles -u 1 src/json-schema/**/* build/",
     "test": "npm run test:unit",
-    "test:unit": "npx nyc mocha --node-option no-experimental-strip-types --no-timeouts --require ts-node/register test/**/*.test.ts",
+    "test:unit": "npx nyc mocha --no-timeouts --require ts-node/register test/**/*.test.ts",
     "lint": "eslint \"**/*.ts\"",
     "precommit": "lint-staged",
     "lint:staged": "lint-staged",

@@ -8,7 +8,7 @@ import { shared, header, promise, typeChecking } from "../eslint-plugin-teamsfx/
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 export default [
-  { ignores: ["build/**"] },
+  { ignores: ["build/**", "src/schemas/envConfig.ts"] },
   ...shared(__dirname),
   header(),
   promise(__dirname),
