@@ -10,14 +10,14 @@
       "step_retry_timeout": 0.0
     },
     "total_steps": 36,
-    "created_at": "2026-02-09T02:16:37.262849",
+    "created_at": "2026-03-04T07:04:10.397951",
     "name": "Feature DA No Action Add Microsoft Entra Auth Configurations",
     "description": {
       "other": "",
       "owner": "v-helzha@microsoft.com",
       "workitem": "31538607"
     },
-    "generated_at": "2026-02-09T02:16:37.262849",
+    "generated_at": "2026-03-04T07:04:10.397951",
     "execution_order": [
       "plan_r_0928_012254",
       "step_df738f72",
@@ -62,10 +62,11 @@
       "plan_r_0929_040401",
       "plan_r_1021_031941",
       "plan_eb0fdfa4",
+      "plan_651f019e",
       "step_0b1fffab"
     ],
     "tags": [],
-    "updated_at": "2026-02-09T02:35:01.832047"
+    "updated_at": "2026-03-04T07:04:48.066981"
   },
   "steps": [
     {
@@ -91,7 +92,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_df738f72",
-      "created_at": "2026-02-09T02:16:37.285116",
+      "created_at": "2026-03-04T07:04:10.408493",
       "plan_id": "plan_4cc87bed"
     },
     {
@@ -117,7 +118,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_bc6a77a4",
-      "created_at": "2026-02-09T02:16:37.303576",
+      "created_at": "2026-03-04T07:04:10.416629",
       "plan_id": "plan_4cc87bed"
     },
     {
@@ -143,7 +144,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_a9710ab4",
-      "created_at": "2026-02-09T02:16:37.329775",
+      "created_at": "2026-03-04T07:04:10.428787",
       "plan_id": "plan_4cc87bed"
     },
     {
@@ -169,7 +170,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_537b348a",
-      "created_at": "2026-02-09T02:16:37.353333",
+      "created_at": "2026-03-04T07:04:10.442198",
       "plan_id": "plan_4cc87bed"
     },
     {
@@ -195,7 +196,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_f8bd4811",
-      "created_at": "2026-02-09T02:16:37.372226",
+      "created_at": "2026-03-04T07:04:10.461847",
       "plan_id": "plan_4cc87bed"
     },
     {
@@ -221,7 +222,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_cc88a694",
-      "created_at": "2026-02-09T02:16:37.396962",
+      "created_at": "2026-03-04T07:04:10.486429",
       "plan_id": "plan_4cc87bed"
     },
     {
@@ -243,7 +244,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_96ce272e",
-      "created_at": "2026-02-09T02:16:37.416651",
+      "created_at": "2026-03-04T07:04:10.508353",
       "plan_id": "plan_4cc87bed"
     },
     {
@@ -265,7 +266,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_8b7b5d60",
-      "created_at": "2026-02-09T02:16:37.435355",
+      "created_at": "2026-03-04T07:04:10.527119",
       "plan_id": "plan_4cc87bed"
     },
     {
@@ -293,7 +294,7 @@
         "precondition_wait_timeout: 60"
       ],
       "screenshot": "step_3d71b8fd",
-      "created_at": "2026-02-09T02:16:37.453529",
+      "created_at": "2026-03-04T07:04:10.540777",
       "plan_id": "plan_4cc87bed"
     },
     {
@@ -319,7 +320,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_439c5d5c",
-      "created_at": "2026-02-09T02:16:37.476664",
+      "created_at": "2026-03-04T07:04:10.556286",
       "plan_id": "plan_4cc87bed"
     },
     {
@@ -345,7 +346,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_9df46dd6",
-      "created_at": "2026-02-09T02:16:37.493258",
+      "created_at": "2026-03-04T07:04:10.574536",
       "plan_id": "plan_4cc87bed"
     },
     {
@@ -367,7 +368,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_cb307ac6",
-      "created_at": "2026-02-09T02:16:37.514049",
+      "created_at": "2026-03-04T07:04:10.587264",
       "plan_id": "plan_4cc87bed"
     },
     {
@@ -389,7 +390,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_01c087ca",
-      "created_at": "2026-02-09T02:16:37.537183",
+      "created_at": "2026-03-04T07:04:10.607174",
       "plan_id": "plan_4cc87bed"
     },
     {
@@ -411,7 +412,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_c053ca70",
-      "created_at": "2026-02-09T02:16:37.555694",
+      "created_at": "2026-03-04T07:04:10.629397",
       "plan_id": "plan_4cc87bed"
     },
     {
@@ -433,7 +434,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_62373d69",
-      "created_at": "2026-02-09T02:16:37.575441",
+      "created_at": "2026-03-04T07:04:10.647762",
       "plan_id": "plan_4cc87bed"
     },
     {
@@ -455,7 +456,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_1360c064",
-      "created_at": "2026-02-09T02:16:37.599416",
+      "created_at": "2026-03-04T07:04:10.659867",
       "plan_id": "plan_4cc87bed"
     },
     {
@@ -477,7 +478,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_1a0d7dc4",
-      "created_at": "2026-02-09T02:16:37.621117",
+      "created_at": "2026-03-04T07:04:10.673155",
       "plan_id": "plan_4cc87bed"
     },
     {
@@ -503,7 +504,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_8d434d98",
-      "created_at": "2026-02-09T02:16:37.650287",
+      "created_at": "2026-03-04T07:04:10.688991",
       "plan_id": "plan_4cc87bed"
     },
     {
@@ -525,7 +526,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_87252560",
-      "created_at": "2026-02-09T02:16:37.686202",
+      "created_at": "2026-03-04T07:04:10.704444",
       "plan_id": "plan_4cc87bed"
     },
     {
@@ -547,7 +548,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_9cfa141f",
-      "created_at": "2026-02-09T02:16:37.711707",
+      "created_at": "2026-03-04T07:04:10.716098",
       "plan_id": "plan_4cc87bed"
     },
     {
@@ -573,7 +574,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_a04b5b4c",
-      "created_at": "2026-02-09T02:16:37.734389",
+      "created_at": "2026-03-04T07:04:10.731829",
       "plan_id": "plan_4cc87bed"
     },
     {
@@ -591,7 +592,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": null,
-      "created_at": "2026-02-09T02:16:37.756595",
+      "created_at": "2026-03-04T07:04:10.744895",
       "plan_id": "plan_4cc87bed"
     },
     {
@@ -619,7 +620,7 @@
         "force_run:true"
       ],
       "screenshot": "step_4306e257",
-      "created_at": "2026-02-09T02:16:37.777378",
+      "created_at": "2026-03-04T07:04:10.755716",
       "plan_id": "plan_4cc87bed"
     },
     {
@@ -648,7 +649,7 @@
         "force_run:true"
       ],
       "screenshot": "step_4269136b",
-      "created_at": "2026-02-09T02:16:37.797185",
+      "created_at": "2026-03-04T07:04:10.768969",
       "plan_id": "plan_4cc87bed"
     },
     {
@@ -666,7 +667,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": null,
-      "created_at": "2026-02-09T02:16:37.811220",
+      "created_at": "2026-03-04T07:04:10.781952",
       "plan_id": "plan_4cc87bed"
     },
     {
@@ -694,7 +695,7 @@
         "force_run:true"
       ],
       "screenshot": "step_8f55fc3c",
-      "created_at": "2026-02-09T02:16:37.822813",
+      "created_at": "2026-03-04T07:04:10.796031",
       "plan_id": "plan_4cc87bed"
     },
     {
@@ -723,7 +724,7 @@
         "force_run:true"
       ],
       "screenshot": "step_7f9b08a3",
-      "created_at": "2026-02-09T02:16:37.839199",
+      "created_at": "2026-03-04T07:04:10.811238",
       "plan_id": "plan_4cc87bed"
     },
     {
@@ -749,7 +750,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_d0469932",
-      "created_at": "2026-02-09T02:16:37.853279",
+      "created_at": "2026-03-04T07:04:10.821742",
       "plan_id": "plan_4cc87bed"
     },
     {
@@ -767,7 +768,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": null,
-      "created_at": "2026-02-09T02:16:37.871426",
+      "created_at": "2026-03-04T07:04:10.833525",
       "plan_id": "plan_4cc87bed"
     },
     {
@@ -793,7 +794,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_63e7d760",
-      "created_at": "2026-02-09T02:16:37.886045",
+      "created_at": "2026-03-04T07:04:10.845765",
       "plan_id": "plan_4cc87bed"
     },
     {
@@ -819,7 +820,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_43f3fe94",
-      "created_at": "2026-02-09T02:16:37.898122",
+      "created_at": "2026-03-04T07:04:10.859848",
       "plan_id": "plan_4cc87bed"
     },
     {
@@ -843,7 +844,7 @@
         "delay:30"
       ],
       "screenshot": "step_4d9d4e17",
-      "created_at": "2026-02-09T02:16:37.910159",
+      "created_at": "2026-03-04T07:04:10.870258",
       "plan_id": "plan_4cc87bed"
     },
     {
@@ -865,7 +866,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_fd10842b",
-      "created_at": "2026-02-09T02:16:37.925268",
+      "created_at": "2026-03-04T07:04:10.883660",
       "plan_id": "plan_4cc87bed"
     },
     {
@@ -894,7 +895,7 @@
         "force_run:true"
       ],
       "screenshot": "step_e8f5eac9",
-      "created_at": "2026-02-09T02:16:37.942071",
+      "created_at": "2026-03-04T07:04:10.899154",
       "plan_id": "plan_4cc87bed"
     },
     {
@@ -914,7 +915,7 @@
         "step_retry_timeout: 60"
       ],
       "screenshot": null,
-      "created_at": "2026-02-09T02:16:37.958895",
+      "created_at": "2026-03-04T07:04:10.907628",
       "plan_id": "plan_4cc87bed"
     },
     {
@@ -922,7 +923,7 @@
       "agent": "assertion",
       "tool": "",
       "parameters": {},
-      "description": "@assertion there is a button to sign in",
+      "description": "@assertion there is a button containing \"Sign in\"",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -932,7 +933,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": null,
-      "created_at": "2026-02-09T02:16:37.975520",
+      "created_at": "2026-03-04T07:04:10.925331",
       "plan_id": "plan_4cc87bed"
     }
   ],

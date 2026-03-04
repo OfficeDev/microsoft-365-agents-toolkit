@@ -1,0 +1,107 @@
+{
+  "plan_metadata": {
+    "version": "1.1",
+    "plan_id": "plan_eb0fdfa4",
+    "execution_context": {
+      "delay_between_steps": 0.5,
+      "stop_on_error": true,
+      "precondition_wait_timeout": 60,
+      "precondition_retry_interval": 2
+    },
+    "total_steps": 3,
+    "created_at": "2026-03-04T03:25:16.778823",
+    "name": "group  validation DA repair input command",
+    "description": {
+      "other": "Generated from recording r_0928_091745",
+      "owner": "v-helzha@microsoft.com",
+      "workitem": ""
+    },
+    "generated_at": "2026-03-04T03:25:16.778823",
+    "execution_order": [
+      "step_de02f0f3",
+      "step_f0f9c695",
+      "step_26ebc1b3"
+    ],
+    "tags": [
+      "group"
+    ],
+    "updated_at": "2026-03-04T05:20:03.226453"
+  },
+  "steps": [
+    {
+      "step_id": "step_de02f0f3",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 433,
+        "y": 394
+      },
+      "description": "Click inside the \"Message Copilot\" text input box in the M365 Copilot web app to focus the chat entry field.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:433:394:16:5:0000000000000000",
+        "dhash:433:394:96:5:00008000c0c00080",
+        "dhash:433:394:0:10:11dce3e6f8e0e0e0"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_de02f0f3",
+      "created_at": "2026-03-04T03:25:16.800570",
+      "plan_id": "plan_eb0fdfa4"
+    },
+    {
+      "step_id": "step_f0f9c695",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "text": "show repair records assigned to karin blair"
+      },
+      "description": "Type \"show repair records assigned to karin blair\" into the main chat input box at the bottom of the agent interface in the M365 Copilot web application.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:512:384:0:20:11dc6346f8e6e4e8"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_f0f9c695",
+      "created_at": "2026-03-04T03:25:16.814776",
+      "plan_id": "plan_eb0fdfa4"
+    },
+    {
+      "step_id": "step_26ebc1b3",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "enter"
+      },
+      "description": "Press Enter in the message input box of the \"M365 Copilot\" web chat to submit the query \"show repair records assigned to karin blair\".",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [
+        "dhash:512:384:0:20:11dce3e7f8e0e0e0"
+      ],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "step_26ebc1b3",
+      "created_at": "2026-03-04T03:25:16.823986",
+      "plan_id": "plan_eb0fdfa4"
+    }
+  ],
+  "screenshots": {
+    "step_de02f0f3": "step_de02f0f3",
+    "step_f0f9c695": "step_f0f9c695",
+    "step_26ebc1b3": "step_26ebc1b3"
+  }
+}
