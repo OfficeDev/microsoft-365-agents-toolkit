@@ -96,7 +96,6 @@
   "teamstoolkit.commands.debugInTestTool.title": "Debug in Microsoft 365 Agents Playground",
   "teamstoolkit.commands.m365AccountSettings.title": "Microsoft 365 Portal",
   "teamstoolkit.commands.migrateApp.title": "Upgrade Teams JS SDK and Code References",
-  "teamstoolkit.commands.migrateManifest.title": "Upgrade App Manifest",
   "teamstoolkit.commands.openDocumentLink.title": "Get More Info",
   "teamstoolkit.commands.openInPortal.title": "Open in Portal",
   "teamstoolkit.commands.openManifestSchema.title": "Open Manifest Schema",
