@@ -1,13 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { TemplateNames } from "../templateNames";
+import { TemplateAlias, TemplateNames } from "../templateNames";
 import { Template } from "./interface";
 
 export const declarativeAgentTemplates: Template[] = [
   {
     id: "declarative-agent-basic",
     name: TemplateNames.DeclarativeAgentBasic,
+    alias: TemplateAlias.DeclarativeAgentBasic,
     language: "common",
     displayName: "Declarative Agent",
     description: "Basic Declarative Agent without action",
@@ -15,6 +16,7 @@ export const declarativeAgentTemplates: Template[] = [
   {
     id: "declarative-agent-basic-csharp",
     name: TemplateNames.DeclarativeAgentBasic,
+    alias: TemplateAlias.DeclarativeAgentBasic,
     language: "csharp",
     displayName: "Declarative Agent",
     description: "Basic Declarative Agent without action",
@@ -22,6 +24,7 @@ export const declarativeAgentTemplates: Template[] = [
   {
     id: "declarative-agent-with-action-from-scratch-ts",
     name: TemplateNames.DeclarativeAgentWithActionFromScratch,
+    alias: TemplateAlias.DeclarativeAgentWithActionFromScratch,
     language: "typescript",
     displayName: "Declarative Agent with Action from Scratch",
     description: "Declarative Agent with a new action built from scratch",
@@ -29,6 +32,7 @@ export const declarativeAgentTemplates: Template[] = [
   {
     id: "declarative-agent-with-action-from-scratch-js",
     name: TemplateNames.DeclarativeAgentWithActionFromScratch,
+    alias: TemplateAlias.DeclarativeAgentWithActionFromScratch,
     language: "javascript",
     displayName: "Declarative Agent with Action from Scratch",
     description: "Declarative Agent with a new action built from scratch",
@@ -36,6 +40,7 @@ export const declarativeAgentTemplates: Template[] = [
   {
     id: "declarative-agent-with-action-from-scratch-csharp",
     name: TemplateNames.DeclarativeAgentWithActionFromScratch,
+    alias: TemplateAlias.DeclarativeAgentWithActionFromScratch,
     language: "csharp",
     displayName: "Declarative Agent with Action from Scratch",
     description: "Declarative Agent with a new action built from scratch",
@@ -43,6 +48,7 @@ export const declarativeAgentTemplates: Template[] = [
   {
     id: "declarative-agent-with-action-from-scratch-bearer-ts",
     name: TemplateNames.DeclarativeAgentWithActionFromScratchBearer,
+    alias: TemplateAlias.DeclarativeAgentWithActionFromScratchBearer,
     language: "typescript",
     displayName: "Declarative Agent with Action from Scratch (Bearer Token)",
     description:
@@ -51,6 +57,7 @@ export const declarativeAgentTemplates: Template[] = [
   {
     id: "declarative-agent-with-action-from-scratch-bearer-js",
     name: TemplateNames.DeclarativeAgentWithActionFromScratchBearer,
+    alias: TemplateAlias.DeclarativeAgentWithActionFromScratchBearer,
     language: "javascript",
     displayName: "Declarative Agent with Action from Scratch (Bearer Token)",
     description:
@@ -59,6 +66,7 @@ export const declarativeAgentTemplates: Template[] = [
   {
     id: "declarative-agent-with-action-from-scratch-bearer-csharp",
     name: TemplateNames.DeclarativeAgentWithActionFromScratchBearer,
+    alias: TemplateAlias.DeclarativeAgentWithActionFromScratchBearer,
     language: "csharp",
     displayName: "Declarative Agent with Action from Scratch (Bearer Token)",
     description:
@@ -67,6 +75,7 @@ export const declarativeAgentTemplates: Template[] = [
   {
     id: "declarative-agent-with-action-from-scratch-oauth-ts",
     name: TemplateNames.DeclarativeAgentWithActionFromScratchOAuth,
+    alias: TemplateAlias.DeclarativeAgentWithActionFromScratchOAuth,
     language: "typescript",
     displayName: "Declarative Agent with Action from Scratch (OAuth)",
     description:
@@ -75,6 +84,7 @@ export const declarativeAgentTemplates: Template[] = [
   {
     id: "declarative-agent-with-action-from-scratch-oauth-js",
     name: TemplateNames.DeclarativeAgentWithActionFromScratchOAuth,
+    alias: TemplateAlias.DeclarativeAgentWithActionFromScratchOAuth,
     language: "javascript",
     displayName: "Declarative Agent with Action from Scratch (OAuth)",
     description:
@@ -83,6 +93,7 @@ export const declarativeAgentTemplates: Template[] = [
   {
     id: "declarative-agent-with-action-from-scratch-oauth-csharp",
     name: TemplateNames.DeclarativeAgentWithActionFromScratchOAuth,
+    alias: TemplateAlias.DeclarativeAgentWithActionFromScratchOAuth,
     language: "csharp",
     displayName: "Declarative Agent with Action from Scratch (OAuth)",
     description:
@@ -105,6 +116,7 @@ export const declarativeAgentTemplates: Template[] = [
   {
     id: "declarative-agent-with-action-from-existing-api",
     name: TemplateNames.DeclarativeAgentWithActionFromExistingApiSpec,
+    alias: TemplateAlias.DeclarativeAgentWithActionFromExistingApiSpec,
     language: "none",
     displayName: "Declarative Agent with Action from Existing API",
     description: "Declarative Agent with action from an existing API specification",
@@ -112,6 +124,7 @@ export const declarativeAgentTemplates: Template[] = [
   {
     id: "declarative-agent-with-action-from-existing-api-csharp",
     name: TemplateNames.DeclarativeAgentWithActionFromExistingApiSpec,
+    alias: TemplateAlias.DeclarativeAgentWithActionFromExistingApiSpec,
     language: "csharp",
     displayName: "Declarative Agent with Action from Existing API",
     description: "Declarative Agent with action from an existing API specification",

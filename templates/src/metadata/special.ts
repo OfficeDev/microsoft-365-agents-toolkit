@@ -37,7 +37,7 @@ export const specialTemplates: Template[] = [
 ];
 
 export const foundryAgentTemplate: Template = {
-  id: "foundry-agent-ts",
+  id: "foundry-agent-to-m365-ts",
   name: TemplateNames.FoundryAgent,
   language: "typescript",
   displayName: "Foundry Agent",
