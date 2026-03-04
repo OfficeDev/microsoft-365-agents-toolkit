@@ -12,6 +12,7 @@ import {
   ok,
   PluginManifestSchema,
   Result,
+  RuntimeObjectOpenapi,
   SystemError,
   UserError,
   Warning,
@@ -78,8 +79,10 @@ export async function addExistingPlugin(
   }
 
   const runtimes = pluginManifest.runtimes!; // have validated that the value exists.
-  const destinationApiSpecRelativePath = runtimes.find((runtime) => runtime.type === "OpenApi")!
-    .spec.url; // have validated that the value exists.
+  const openApiRuntime = runtimes.find(
+    (runtime): runtime is RuntimeObjectOpenapi => runtime.type === "OpenApi"
+  )!;
+  const destinationApiSpecRelativePath = openApiRuntime.spec.url; // have validated that the value exists.
 
   const outputFolder = path.dirname(declarativeCopilotManifestPath);
 

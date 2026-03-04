@@ -14,6 +14,7 @@ import {
   MultiSelectQuestion,
   Platform,
   PluginManifestSchema,
+  RuntimeObjectOpenapi,
   SingleFileQuestion,
   SingleSelectQuestion,
   TextInputQuestion,
@@ -1073,7 +1074,7 @@ export function apiSpecFromPluginManifestQuestion(): SingleSelectQuestion {
       const pluginManifestPath = inputs[QuestionNames.PluginManifestFilePath];
       const pluginManifest = (await fs.readJson(pluginManifestPath)) as PluginManifestSchema;
       const specs = pluginManifest
-        .runtimes!.filter((runtime) => runtime.type === "OpenApi")
+        .runtimes!.filter((runtime): runtime is RuntimeObjectOpenapi => runtime.type === "OpenApi")
         .map((runtime) => runtime.spec.url);
       return [...new Set(specs)];
     },
