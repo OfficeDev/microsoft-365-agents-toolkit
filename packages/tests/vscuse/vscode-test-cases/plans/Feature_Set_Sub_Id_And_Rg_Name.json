@@ -31,13 +31,13 @@
       "step_29e2ef37",
       "step_b67a134f",
       "step_724ea657",
-      "step_f688d536",
+      "step_3cd6977b",
       "step_a59d32d5",
       "plan_a6628e50",
       "plan_r_0928_073729"
     ],
     "tags": [],
-    "updated_at": "2026-03-04T05:54:43.955348"
+    "updated_at": "2026-03-04T06:07:26.387186"
   },
   "steps": [
     {
@@ -261,11 +261,11 @@
       "plan_id": "plan_6aeb7198"
     },
     {
-      "step_id": "step_f688d536",
+      "step_id": "step_3cd6977b",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
-      "description": "@assertion notification \\\"ResourceGroupNotExistError\\\" exist.",
+      "description": "@assertion there is notification \"ResourceGroupNotExistError\".",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -273,11 +273,9 @@
       "depends_on": [],
       "preconditions": [],
       "postconditions": [],
-      "tags": [
-        "step_retry_timeout:70"
-      ],
+      "tags": [],
       "screenshot": null,
-      "created_at": "2026-03-04T05:47:13.816430",
+      "created_at": "2026-03-04T06:07:03.439899",
       "plan_id": "plan_6aeb7198"
     },
     {
