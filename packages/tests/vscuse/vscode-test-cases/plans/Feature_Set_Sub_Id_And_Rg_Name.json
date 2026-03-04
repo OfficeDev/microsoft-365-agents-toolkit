@@ -37,7 +37,7 @@
       "plan_r_0928_073729"
     ],
     "tags": [],
-    "updated_at": "2026-03-04T06:07:26.387186"
+    "updated_at": "2026-03-04T06:09:43.765814"
   },
   "steps": [
     {
@@ -273,7 +273,9 @@
       "depends_on": [],
       "preconditions": [],
       "postconditions": [],
-      "tags": [],
+      "tags": [
+        "step_retry_timeout:70"
+      ],
       "screenshot": null,
       "created_at": "2026-03-04T06:07:03.439899",
       "plan_id": "plan_6aeb7198"
