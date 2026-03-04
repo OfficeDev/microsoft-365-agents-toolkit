@@ -10,7 +10,34 @@
       "name": "Launch new command (non-interactive)",
       "skipFiles": ["<node_internals>/**"],
       "program": "${workspaceFolder}/cli.js",
-      "args": ["new", "-i", "false"],
+      "args": ["new", "-c", "declarative-agent", "-n", "da","-i", "false"],
+      "env": {
+        "TEAMSFX_GENERATE_CONFIG_FILES": "true",
+        "TEMPLATE_VERSION": "local"
+      },
+      "outFiles": [
+        "${workspaceFolder}/lib/**/*.js",
+        "${workspaceFolder}/../fx-core/build/**/*.js",
+        "${workspaceFolder}/../api/build/**/*.js"
+      ],
+      "resolveSourceMapLocations": [
+        "${workspaceFolder}/lib/**/*.js",
+        "${workspaceFolder}/../fx-core/build/**/*.js",
+        "${workspaceFolder}/../api/build/**/*.js"
+      ],
+      "console": "integratedTerminal"
+    },
+    {
+      "type": "pwa-node",
+      "request": "launch",
+      "name": "Launch init command (non-interactive)",
+      "skipFiles": ["<node_internals>/**"],
+      "program": "${workspaceFolder}/cli.js",
+      "args": ["init"],
+      "env": {
+        "TEAMSFX_GENERATE_CONFIG_FILES": "true",
+        "TEMPLATE_VERSION": "local"
+      },
       "outFiles": [
         "${workspaceFolder}/lib/**/*.js",
         "${workspaceFolder}/../fx-core/build/**/*.js",
