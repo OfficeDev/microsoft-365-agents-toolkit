@@ -286,7 +286,7 @@ class Coordinator {
       projectModel.registerApp,
       projectModel.provision,
       projectModel.configureApp,
-    ].filter((c) => c !== undefined);
+    ].filter((c): c is ILifecycle => c !== undefined);
 
     // 2. check each cycle
     for (const cycle of cycles) {
@@ -331,7 +331,7 @@ class Coordinator {
     }
     const projectModel = maybeProjectModel.value;
     const cycles: ILifecycle[] = [projectModel.provision].filter(
-      (c) => c !== undefined
+      (c): c is ILifecycle => c !== undefined
     );
 
     let unresolvedPlaceholders: string[] = [];

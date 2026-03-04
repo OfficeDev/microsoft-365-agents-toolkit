@@ -357,7 +357,7 @@ export function tokenize(input: string): Token[] {
 
 export function extractFeatures(text: string): Token[] {
   const allTokens = tokenize(text);
-  const featureTokens = allTokens.filter((t) => t.type === "feature");
+  const featureTokens = allTokens.filter((t): t is FeatureToken => t.type === "feature");
   for (let i = 0; i < featureTokens.length; i++) {
     const tokenObj = featureTokens[i];
     let token = tokenObj.token;

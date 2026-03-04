@@ -561,7 +561,7 @@ export class CopilotGptManifestUtils {
     };
 
     const capability = agentManifest.capabilities.find(
-      (cap) => cap.name === DeclarativeCopilotCapabilityName.OneDriveAndSharePoint
+      (cap): cap is OneDriveAndSharePointCapability => cap.name === DeclarativeCopilotCapabilityName.OneDriveAndSharePoint
     );
 
     if (items_by_url) {
@@ -602,7 +602,7 @@ export class CopilotGptManifestUtils {
       name: DeclarativeCopilotCapabilityName.WebSearch,
     };
     const capability = agentManifest.capabilities.find(
-      (cap) => cap.name === DeclarativeCopilotCapabilityName.WebSearch
+      (cap): cap is WebSearchCapability => cap.name === DeclarativeCopilotCapabilityName.WebSearch
     );
 
     // del capability warning

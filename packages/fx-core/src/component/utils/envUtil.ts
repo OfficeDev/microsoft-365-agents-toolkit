@@ -238,7 +238,7 @@ class EnvUtil {
     const list = await fs.readdir(envFolderPath);
     let envs = list
       .map((fileName) => this.extractEnvNameFromFileName(fileName))
-      .filter((env) => env !== undefined);
+      .filter((env): env is string => env !== undefined);
     if (remoteOnly) {
       envs = envs.filter((env) => environmentNameManager.isRemoteEnvironment(env));
     }

@@ -937,12 +937,13 @@ export function migrateGetFuncPathCommand(context: DebugMigrationContext): Promi
 
     const platforms = ["windows", "linux", "osx"];
     platforms.forEach((platform) => {
+      const platformTask = task[platform];
       if (
-        isCommentObject(task[platform]) &&
-        isCommentObject((task[platform])["options"]) &&
-        isCommentObject(((task[platform])["options"])["env"])
+        isCommentObject(platformTask) &&
+        isCommentObject(platformTask["options"]) &&
+        isCommentObject((platformTask["options"])["env"])
       ) {
-        const envObj = ((task[platform])["options"])[
+        const envObj = (platformTask["options"])[
           "env"
         ];
 
