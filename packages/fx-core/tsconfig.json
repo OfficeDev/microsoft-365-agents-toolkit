@@ -4,7 +4,7 @@
     "emitDecoratorMetadata": true,
     "types": ["reflect-metadata", "node"],
     "module": "commonjs",
-    "target": "es2017",
+    "target": "es2018",
     "outDir": "build",
     "rootDir": "src",
     "lib": ["es6", "dom.iterable", "dom"],
