@@ -392,6 +392,10 @@ jobs:
     if: ${{ always() && (github.event_name == 'schedule' || github.event.inputs.schedule_trigger == 'true' || needs.discover-test-plans.outputs.email-receiver != '') && (success() || github.run_attempt >= (github.event.inputs.max_retries || 7)) }}
     needs: [discover-test-plans, main]
     runs-on: ubuntu-latest
+    environment: engineering
+    permissions:
+      id-token: write
+      contents: read
     defaults:
       run:
         working-directory: packages/tests/vscuse
@@ -399,6 +403,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
+      - uses: azure/login@v2
+        with:
+          client-id: ${{secrets.DEVOPS_CLIENT_ID}}
+          tenant-id: ${{secrets.DEVOPS_TENANT_ID}}
+          subscription-id: ${{secrets.DEVOPS_SUB_ID}}
+          enable-AzPSSession: true
 
       - name: Download storage URLs
         uses: actions/download-artifact@v4
@@ -464,10 +474,10 @@ jobs:
         id: list-jobs
         working-directory: packages/tests/vscuse
         env:
-          AZURE_DEVOPS_PAT: ${{ secrets.AZURE_DEVOPS_PAT }}
           AZURE_DEVOPS_ORG: "msazure"
           AZURE_DEVOPS_PROJECT: "Microsoft%20Teams%20Extensibility"
         run: |
+          AZURE_DEVOPS_PAT=$(az account get-access-token --resource https://app.vssps.visualstudio.com --query accessToken -o tsv)
           page=1
           jobs="[]"
           echo "Initial jobs: $jobs"
