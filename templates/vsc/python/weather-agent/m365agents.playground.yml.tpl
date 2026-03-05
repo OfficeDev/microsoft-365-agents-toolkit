@@ -8,8 +8,8 @@ deploy:
   - uses: devTool/install
     with:
       testTool:
-        version: ~0.2.1
-        symlinkDir: ./devTools/teamsapptester
+        version: ~0.2.7
+        symlinkDir: ./devTools/playground
       nodejs:
         symlinkDir: ./devTools/nodejs
 
