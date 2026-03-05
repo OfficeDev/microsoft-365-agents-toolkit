@@ -1241,7 +1241,7 @@ describe("teamsApp/createAppPackage", async () => {
     const addedFiles: string[] = [];
     sinon
       .stub(testDriver as any, "addFileInZip")
-      .callsFake((zip: any, zipPath: string, filePath: string) => {
+      .callsFake((_zip: any, _zipPath: any, filePath: any) => {
         addedFiles.push(filePath);
       });
 
