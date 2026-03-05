@@ -6,6 +6,10 @@ azure_openai:
   timeout: 60                               # Default: 60 (seconds)
   use_azure_credential: false               # Default: false
 
+azure_vision:
+  endpoint: "${AZURE_VISION_ENDPOINT}"      # Required: Set via environment variable
+  api_key: "${AZURE_VISION_KEY}"            # Required: Set via environment variable
+
 azure_service_principal:
   client_id: "${AZURE_CLIENT_ID}"           # Required: Set via environment variable
   client_secret: "${AZURE_CLIENT_SECRET}"   # Required: Set via environment variable
@@ -28,6 +32,7 @@ docker:
     AZURE_SEARCH_KEY: "${AZURE_SEARCH_KEY}"
     AZURE_SEARCH_ENDPOINT: "${AZURE_SEARCH_ENDPOINT}"
     AZURE_OPENAI_EMBEDDING_DEPLOYMENT_NAME: "${AZURE_OPENAI_EMBEDDING_DEPLOYMENT_NAME}"
+
     REDDIT_ID: "${REDDIT_ID}"
     SECRET_REDDIT_PASSWORD: ${SECRET_REDDIT_PASSWORD}
     # Foundry related parameters
