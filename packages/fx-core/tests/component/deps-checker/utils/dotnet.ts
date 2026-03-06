@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
+import * as child_process from "child_process";
 import * as fs from "fs-extra";
 import * as os from "os";
 import * as path from "path";
@@ -15,8 +16,6 @@ import { cpUtils } from "../../../../src/component/deps-checker/util/cpUtils";
 import { isArm64, isMacOS, isWindows } from "../../../../src/component/deps-checker/util/system";
 import { logger } from "../adapters/testLogger";
 import { createTmpDir } from "./common";
-
-const find = require("find-process");
 
 tmp.setGracefulCleanup();
 
@@ -80,10 +79,39 @@ export async function hasAnyDotnetVersions(
 export async function cleanup() {
   // fs-extra.remove() does nothing if the file does not exist.
   await fs.remove(dotnetConfigPath);
-  const processes = await find("name", "dotnet", true);
-  processes.forEach((p: { pid: number }, index: number, array: any) =>
-    process.kill(p.pid, "SIGKILL")
-  );
+  try {
+    if (isWindows()) {
+      // Use tasklist instead of WMIC (removed in newer Windows versions)
+      const output = child_process.execSync(
+        'tasklist /FI "IMAGENAME eq dotnet.exe" /FO CSV /NH',
+        { encoding: "utf-8" }
+      );
+      for (const line of output.split(/\r?\n/)) {
+        const match = line.match(/^"[^"]*","(\d+)"/);
+        if (match) {
+          try {
+            process.kill(Number(match[1]), "SIGKILL");
+          } catch {
+            // process may have already exited
+          }
+        }
+      }
+    } else {
+      const output = child_process.execSync("pgrep -x dotnet || true", { encoding: "utf-8" });
+      for (const line of output.trim().split(/\r?\n/)) {
+        const pid = Number(line.trim());
+        if (pid) {
+          try {
+            process.kill(pid, "SIGKILL");
+          } catch {
+            // process may have already exited
+          }
+        }
+      }
+    }
+  } catch {
+    // ignore errors from process listing
+  }
   await fs.remove(dotnetPrivateInstallPath);
 }
 
