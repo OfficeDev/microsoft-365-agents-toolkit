@@ -7,7 +7,7 @@
 This is a stable release brings streamlined MCP integration to declarative agent development, sovereign cloud support and expanded AI capabilities. Below you’ll find a comprehensive list of new features and enhancements included in this release:
 
 ### New Features
-- **ATK Supports Goverment Cloud GCC-M Now**
+- **ATK Supports Government Cloud GCC-M Now**
 
 Agents Toolkit is actively expanding support for building apps in Government Community Cloud (GCC), GCC High, Department of Defense (DoD), and Teams operated by 21Vianet environments.
 
