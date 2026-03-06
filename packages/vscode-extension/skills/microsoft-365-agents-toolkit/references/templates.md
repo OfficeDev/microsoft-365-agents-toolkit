@@ -15,11 +15,11 @@ Use `atk new -c <capability>` to create projects. Available capabilities:
 
 | Capability | Description |
 |------------|-------------|
-| `copilot-gpt-basic` | Declarative Agent |
-| `api-plugin-from-scratch` | Declarative Agent with new API (creates backend service) |
-| `api-plugin-from-scratch-bearer` | Declarative Agent with new API (Bearer Token auth) |
-| `api-plugin-from-scratch-oauth` | Declarative Agent with new API (OAuth auth) |
-| `api-plugin-from-existing-api` | Declarative Agent with existing OpenAPI spec |
+| `declarative-agent` | Declarative Agent |
+| `declarative-agent-action` | Declarative Agent with Action from Scratch |
+| `declarative-agent-action-bearer` | Declarative Agent with Action from Scratch (Bearer Token) |
+| `declarative-agent-action-oauth` | Declarative Agent with Action from Scratch (OAuth) |
+| `declarative-agent-action-from-existing-api` | Declarative Agent with Action from Existing API |
 | `declarative-agent-with-action-from-mcp` | Declarative Agent with Action from MCP Server |
 | `declarative-agent-with-graph-connector` | Declarative Agent with Copilot Connector |
 | `declarative-agent-meta-os-new-project` | Declarative Agent for MetaOS (New Project) |
@@ -27,16 +27,16 @@ Use `atk new -c <capability>` to create projects. Available capabilities:
 | `declarative-agent-typespec` | Declarative Agent from TypeSpec |
 | `basic-custom-engine-agent` | Basic Custom Engine Agent |
 | `weather-agent` | Weather Agent |
-| `foundry-agent` | Foundry Agent |
-| `graph-connector` | Copilot Connector |
-| `custom-copilot-basic` | General Teams Agent |
-| `custom-copilot-rag-customize` | Teams Agent with Data from Customized Source |
-| `custom-copilot-rag-azure-ai-search` | Teams Agent with Data from Azure AI Search |
-| `custom-copilot-rag-custom-api` | Teams Agent with Data from Custom API using OpenAPI Spec |
+| `foundry-agent-to-m365` | Foundry Agent to M365 |
+| `copilot-connector` | Copilot Connector |
+| `teams-agent` | General Teams Agent |
+| `teams-agent-rag-customize` | Teams Agent with Data from Customized Source |
+| `teams-agent-rag-azure-ai-search` | Teams Agent with Data from Azure AI Search |
+| `teams-agent-rag-custom-api` | Teams Agent with Data from Custom API using OpenAPI Spec |
 | `teams-collaborator-agent` | Teams Collaborator Agent |
-| `non-sso-tab` | Tab |
-| `default-bot` | Simple Bot |
-| `default-message-extension` | Message Extension |
+| `tab` | Tab |
+| `bot` | Simple Bot |
+| `message-extension` | Message Extension |
 | `office-addin-outlook-taskpane` | Outlook Task Pane Add-in |
 | `office-addin-wxpo-taskpane` | Office Task Pane Add-in |
 | `office-addin-excel-cfshortcut` | Excel Custom Functions |
@@ -48,23 +48,23 @@ Use `atk new -c <capability>` to create projects. Available capabilities:
 
 ```bash
 # Basic declarative agent (no backend service needed)
-atk new -c copilot-gpt-basic -n myagent -i false
+atk new -c declarative-agent -n myagent -i false
 
 # Declarative agent with new API plugin (creates backend)
-atk new -c api-plugin-from-scratch -l typescript -n myagent -i false
+atk new -c declarative-agent-action -l typescript -n myagent -i false
 
 # Declarative agent with existing OpenAPI spec (requires -a and -o with operation IDs)
 # First inspect the OpenAPI spec to find operation IDs, then pass them:
-atk new -c api-plugin-from-existing-api -n myagent -a <openapi-spec-url-or-path> -o "GET /repairs" -o "POST /repairs" -i false
+atk new -c declarative-agent-action-from-existing-api -n myagent -a <openapi-spec-url-or-path> -o "GET /repairs" -o "POST /repairs" -i false
 
 # Declarative agent with MCP Server
 atk new -c declarative-agent-with-action-from-mcp -n myagent -i false
 ```
 
 **Important Notes:**
-- Basic declarative agents (`copilot-gpt-basic`) do NOT require a programming language
-- `api-plugin-from-scratch`: Use `-l typescript/javascript/csharp` (creates new backend API)
-- `api-plugin-from-existing-api`: Requires `-a` (OpenAPI spec) and `-o` (operation IDs from the spec, e.g., `"GET /repairs"`)
+- Basic declarative agents (`declarative-agent`) do NOT require a programming language
+- `declarative-agent-action`: Use `-l typescript/javascript/csharp` (creates new backend API)
+- `declarative-agent-action-from-existing-api`: Requires `-a` (OpenAPI spec) and `-o` (operation IDs from the spec, e.g., `"GET /repairs"`)
 
 ### Declarative Agent Options
 
@@ -97,42 +97,42 @@ atk new -c weather-agent -l typescript -n myagent -i false
 
 ```bash
 # Basic Teams chatbot
-atk new -c custom-copilot-basic -l typescript -n mybot -i false
+atk new -c teams-agent -l typescript -n mybot -i false
 
 # Teams Agent with RAG (custom data source)
-atk new -c custom-copilot-rag-customize -l typescript -n mybot -i false
+atk new -c teams-agent-rag-customize -l typescript -n mybot -i false
 
 # Teams Agent with Azure AI Search
-atk new -c custom-copilot-rag-azure-ai-search -l typescript -n mybot -i false
+atk new -c teams-agent-rag-azure-ai-search -l typescript -n mybot -i false
 ```
 
 | Capability | Languages | Description |
 |------------|-----------|-------------|
-| `custom-copilot-basic` | typescript, javascript, csharp, python | General Teams Agent |
-| `custom-copilot-rag-customize` | typescript, javascript, csharp, python | Teams Agent with Customized Data Source |
-| `custom-copilot-rag-azure-ai-search` | typescript, javascript, csharp, python | Teams Agent with Azure AI Search |
-| `custom-copilot-rag-custom-api` | typescript, javascript, csharp, python | Teams Agent with Custom API |
+| `teams-agent` | typescript, javascript, csharp, python | General Teams Agent |
+| `teams-agent-rag-customize` | typescript, javascript, csharp, python | Teams Agent with Customized Data Source |
+| `teams-agent-rag-azure-ai-search` | typescript, javascript, csharp, python | Teams Agent with Azure AI Search |
+| `teams-agent-rag-custom-api` | typescript, javascript, csharp, python | Teams Agent with Custom API |
 | `teams-collaborator-agent` | typescript, csharp | Teams Collaborator Agent |
 
 ## Other Templates
 
 ```bash
 # Simple Bot
-atk new -c default-bot -l typescript -n mybot -i false
+atk new -c bot -l typescript -n mybot -i false
 
 # Tab
-atk new -c non-sso-tab -l typescript -n mytab -i false
+atk new -c tab -l typescript -n mytab -i false
 
 # Message Extension
-atk new -c default-message-extension -l typescript -n myme -i false
+atk new -c message-extension -l typescript -n myme -i false
 ```
 
 | Capability | Languages | Description |
 |------------|-----------|-------------|
-| `default-bot` | typescript, javascript, python, csharp | Simple Bot |
-| `non-sso-tab` | typescript, csharp | Tab |
-| `default-message-extension` | typescript, python, csharp | Message Extension |
-| `graph-connector` | typescript, csharp | Copilot Connector |
+| `bot` | typescript, javascript, python, csharp | Simple Bot |
+| `tab` | typescript, csharp | Tab |
+| `message-extension` | typescript, python, csharp | Message Extension |
+| `copilot-connector` | typescript, csharp | Copilot Connector |
 
 ## Best Practices
 
@@ -141,8 +141,8 @@ atk new -c default-message-extension -l typescript -n myme -i false
 1. **Use non-interactive mode** - Always use `-i false` for scripted creation
 
 2. **Match language to capability**:
-   - Basic declarative agents (`copilot-gpt-basic`): NO language flag needed
-   - API plugin agents (`api-plugin-from-scratch`): `-l typescript/javascript/csharp`
+   - Basic declarative agents (`declarative-agent`): NO language flag needed
+   - API plugin agents (`declarative-agent-action`): `-l typescript/javascript/csharp`
    - Custom Engine agents: `-l typescript/javascript/python`
    - Teams agents: `-l typescript/javascript/csharp/python`
 

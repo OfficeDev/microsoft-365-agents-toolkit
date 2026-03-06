@@ -49,17 +49,17 @@ ALWAYS scaffold from a template when building new Teams/M365 apps.
 
 | User Wants | Capability |
 |------------|------------|
-| Extend M365 Copilot with custom instructions | `copilot-gpt-basic` |
-| Declarative Agent with new API | `api-plugin-from-scratch` |
-| Declarative Agent with existing OpenAPI spec | `api-plugin-from-existing-api` |
+| Extend M365 Copilot with custom instructions | `declarative-agent` |
+| Declarative Agent with new API | `declarative-agent-action` |
+| Declarative Agent with existing OpenAPI spec | `declarative-agent-action-from-existing-api` |
 | Connect MCP Server to Copilot | `declarative-agent-with-action-from-mcp` |
 | Agent with custom LLM (Azure OpenAI, etc.) | `basic-custom-engine-agent` |
-| Agent using Azure AI Foundry | `foundry-agent` |
-| Teams chatbot with AI | `custom-copilot-basic` |
-| Teams bot with RAG/knowledge base | `custom-copilot-rag-customize` |
-| Simple Teams echo bot | `default-bot` |
-| Teams tab app | `non-sso-tab` |
-| Teams message extension | `default-message-extension` |
+| Agent using Azure AI Foundry | `foundry-agent-to-m365` |
+| Teams chatbot with AI | `teams-agent` |
+| Teams bot with RAG/knowledge base | `teams-agent-rag-customize` |
+| Simple Teams echo bot | `bot` |
+| Teams tab app | `tab` |
+| Teams message extension | `message-extension` |
 
 See [templates.md](references/templates.md) for complete list with language support.
 
@@ -67,24 +67,24 @@ See [templates.md](references/templates.md) for complete list with language supp
 
 ```bash
 # Declarative Agent (no backend, no -l flag needed)
-atk new -c copilot-gpt-basic -n my-agent -f ~/AgentsToolkitProjects -i false
+atk new -c declarative-agent -n my-agent -f ~/AgentsToolkitProjects -i false
 
 # Declarative Agent with new API
-atk new -c api-plugin-from-scratch -l typescript -n my-api-agent -f ~/AgentsToolkitProjects -i false
+atk new -c declarative-agent-action -l typescript -n my-api-agent -f ~/AgentsToolkitProjects -i false
 
 # Declarative Agent with existing OpenAPI spec (requires -a and -o with operation IDs)
-atk new -c api-plugin-from-existing-api -n my-agent -a <openapi-spec-url-or-path> -o "GET /repairs" -o "POST /repairs" -f ~/AgentsToolkitProjects -i false
+atk new -c declarative-agent-action-from-existing-api -n my-agent -a <openapi-spec-url-or-path> -o "GET /repairs" -o "POST /repairs" -f ~/AgentsToolkitProjects -i false
 
 # Custom Engine Agent
 atk new -c basic-custom-engine-agent -l typescript -n my-cea -f ~/AgentsToolkitProjects -i false
 
 # Teams Agent with RAG
-atk new -c custom-copilot-rag-customize -l typescript -n my-rag-agent -f ~/AgentsToolkitProjects -i false
+atk new -c teams-agent-rag-customize -l typescript -n my-rag-agent -f ~/AgentsToolkitProjects -i false
 ```
 
 **Notes:**
-- `copilot-gpt-basic` does NOT require `-l` language flag
-- `api-plugin-from-existing-api` requires `-a` (OpenAPI spec) and `-o` (operation IDs like `"GET /path"`)
+- `declarative-agent` does NOT require `-l` language flag
+- `declarative-agent-action-from-existing-api` requires `-a` (OpenAPI spec) and `-o` (operation IDs like `"GET /path"`)
 - Always use `-i false` for non-interactive scripted creation
 
 ## Quick Reference
