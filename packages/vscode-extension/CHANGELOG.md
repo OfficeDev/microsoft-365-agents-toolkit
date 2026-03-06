@@ -37,7 +37,7 @@ A new Microsoft Foundry agent template is now available in the ATK CLI, enabling
 
 - **Integrate MCP Tools to Declarative Agents**
 
-This was a preview feature from last stable version. The feature was designed to support for integrating Model Context Protocol (MCP) tools into Declarative Agents through actions or plugins. Now this capability becomes generally available and we made enahncement after incorporating early feedback. Compared to the initial version, we improved how MCP tool definitions are managed and referenced in agent configuration. This experience fetches more detailed tool definitions and stores them in a separate, dedicated file. Instead of embedding full tool definitions directly in the plugin configuration. This change improves clarity, structure, and maintainability when working with MCP‑backed tools.
+This was a preview feature from last stable version. The feature was designed to support for integrating Model Context Protocol (MCP) tools into Declarative Agents through actions or plugins. Now this capability becomes generally available and we made enhancement after incorporating early feedback. Compared to the initial version, we improved how MCP tool definitions are managed and referenced in agent configuration. This experience fetches more detailed tool definitions and stores them in a separate, dedicated file. Instead of embedding full tool definitions directly in the plugin configuration. This change improves clarity, structure, and maintainability when working with MCP‑backed tools.
 
 
 ### Enhancement 
