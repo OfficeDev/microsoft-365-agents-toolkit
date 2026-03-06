@@ -46,9 +46,6 @@ This was a preview feature from last stable version. The feature was designed to
 
 Share declarative agents to others is a feature introduced in last stable version, in this release we have refined the share flow to be streamlined, offered clearer environments differentiation during provision, improved the error handling to clearly explain the limitation and related guidance doc to reduce confusion when debugging or provisioning the agents. For more details please see [Share Declarative Agents with Others](https://github.com/OfficeDev/microsoft-365-agents-toolkit/wiki/Share-Declarative-Agents-with-Other).
 
-- **Broker Authentication Support for VS Code and CLI**
-
-VS Code and CLI now use broker‑based authentication to handle sign‑in and token acquisition more reliably, particularly in enterprise environments with restrictive or complex authentication policies. Developers experience fewer repeated login prompts during common workflows. Authentication tokens are acquired and refreshed more reliably across sessions. This enhancement is especially beneficial in constrained enterprise environments where standard auth flows may be blocked or unstable.
 
 - **Modernize Template Configurations and Schema Updates Handling**
 
