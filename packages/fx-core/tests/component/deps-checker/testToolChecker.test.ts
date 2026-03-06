@@ -946,7 +946,7 @@ describe("Test Tool Checker Test (binary version)", () => {
   }
   const sandbox = sinon.createSandbox();
   const projectPath = "projectPath";
-  const homePortablesDir = path.join(os.homedir(), ".fx", "bin", "testToolBinary");
+  const homePortablesDir = path.join(os.homedir(), ".fx", "bin", "agentsPlaygroundBinary");
   const releaseType = TestToolReleaseType.Binary;
 
   beforeEach(() => {});

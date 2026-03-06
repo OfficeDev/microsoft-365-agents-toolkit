@@ -5968,6 +5968,10 @@ describe("addPlugin", async () => {
     sandbox
       .stub(openApiSpecHelper, "generateFromApiSpec")
       .resolves(err(new SystemError("", "", "", "")));
+    sandbox
+      .stub(featureFlagManager, "getBooleanValue")
+      .withArgs(FeatureFlags.KiotaNPMIntegration)
+      .returns(false);
     sandbox.stub(SpecParser.prototype, "list").resolves({
       APIs: [
         {

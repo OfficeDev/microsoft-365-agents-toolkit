@@ -1136,6 +1136,10 @@ describe("UpdateOauthDriver", () => {
   });
 
   it("should throw error when unhandled error", async () => {
+    sinon
+      .stub(featureFlagManager, "getBooleanValue")
+      .withArgs(FeatureFlags.KiotaNPMIntegration)
+      .returns(false);
     sinon.stub(MockedM365Provider.prototype, "getAccessToken").throws(new Error("unhandled error"));
     sinon.stub(SpecParser.prototype, "list").resolves({
       APIs: [

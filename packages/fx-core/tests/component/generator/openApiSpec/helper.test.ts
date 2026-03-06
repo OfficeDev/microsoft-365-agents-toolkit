@@ -2347,6 +2347,10 @@ describe("generateAdaptiveCardInPluginManifestForKiota", async () => {
         },
       ],
     });
+    sandbox
+      .stub(featureFlagManager, "getBooleanValue")
+      .withArgs(FeatureFlags.KiotaNPMIntegration)
+      .returns(false);
     sandbox.stub(SpecParser.prototype, "generateAdaptiveCardInPlugin").throws(new Error("test"));
     const warningStub = sandbox.stub(tools.logProvider, "warning").resolves();
     await generateAdaptiveCardInPluginManifestForKiota("pluginManifestPath", "specPath", context);
