@@ -4,7 +4,7 @@
 
 ## 6.6.0 - Mar 9, 2025
 
-This is a stable release brings streamlined MCP integration to declarative agent development, sovereign cloud support and expanded AI capabilities. Below you’ll find a comprehensive list of new features and enhancements included in this release:
+This is a stable release that brings streamlined MCP integration to declarative agent development, sovereign cloud support and expanded AI capabilities. Below you’ll find a comprehensive list of new features and enhancements included in this release:
 
 ### New Features
 - **ATK Supports Government Cloud GCC-M Now**
