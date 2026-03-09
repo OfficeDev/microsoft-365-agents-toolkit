@@ -1923,6 +1923,11 @@
           }
         ]
       }
+    ],
+    "chatSkills": [
+      {
+        "path": "skills/microsoft-365-agents-toolkit"
+      }
     ]
   },
   "scripts": {
