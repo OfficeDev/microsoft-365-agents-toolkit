@@ -1,6 +1,6 @@
 {
   "name": "@microsoft/m365agentstoolkit-mcp",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "bin": {
     "m365agentstoolkit-mcp": "./dist/index.js"
   },
@@ -34,6 +34,7 @@
   },
   "author": "Microsoft Corporation",
   "license": "MIT",
+  "deprecated": "This package is deprecated.",
   "description": "MCP server for Microsoft 365 Agents Toolkit",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.12.1",

@@ -21,7 +21,7 @@ describe("MCP Server", () => {
     // Mock the retrieveResource function to avoid actual API calls
     retrieveResourceSpy = jest
       .spyOn(retrieverModule, "retrieveResource")
-      .mockResolvedValue("Mocked resource content");
+      .mockReturnValue("Mocked resource content");
   });
 
   afterEach(() => {
@@ -224,7 +224,7 @@ describe("MCP Server", () => {
 
     it("should return resource content in the response", async () => {
       const mockedContent = "Here is the information you requested about Microsoft 365 development";
-      retrieveResourceSpy.mockResolvedValue(mockedContent);
+      retrieveResourceSpy.mockReturnValue(mockedContent);
 
       const server = createServer();
       const serverAny = server as any;
@@ -242,7 +242,7 @@ describe("MCP Server", () => {
 
     it("should propagate errors from retrieveResource", async () => {
       const errorMessage = "Failed to retrieve resource";
-      retrieveResourceSpy.mockResolvedValue(errorMessage);
+      retrieveResourceSpy.mockReturnValue(errorMessage);
 
       const server = createServer();
       const serverAny = server as any;

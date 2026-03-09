@@ -37,12 +37,12 @@ export function createServer(): McpServer {
 
   server.tool(
     "get_knowledge",
-    "Access comprehensive knowledge about Microsoft 365 and Microsoft 365 Copilot development. Use this tool everytime for questions related to Microsoft 365 and Microsoft 365 Copilot.",
+    "Get documentation and guidance for Microsoft 365 agents and apps development, including Copilot extensibility, Teams platform, Agents Toolkit, and Agents SDK. Use this tool for any questions related to Microsoft 365 and Microsoft 365 Copilot development.",
     {
       question: z.string().describe("Question to use for knowledge retrieval"),
     },
-    async ({ question }) => {
-      const result = await retrieveResource("documents", question);
+    ({ question }) => {
+      const result = retrieveResource("documents", question);
 
       return {
         content: [
@@ -57,7 +57,7 @@ export function createServer(): McpServer {
 
   server.tool(
     "get_code_snippets",
-    "Access templates and code snippets for Microsoft 365 and Microsoft 365 Copilot development, focusing on SDKs such as **@microsoft/teams-ai**, **@microsoft/teams-js**, and **botbuilder**. Use this tool when looking for implementation examples, starter templates, or SDK usage patterns.",
+    "Get code snippets, templates, and sample repositories for Microsoft 365 agents and apps development. Covers SDKs including **@microsoft/teams-ai**, **@microsoft/teams-js**, **botbuilder**, **@microsoft/agents-hosting**, **@microsoft/agents-activity**, and **@microsoft/teamsfx**. Use this tool when looking for implementation examples, starter templates, or SDK usage patterns.",
     {
       question: z
         .string()
@@ -65,8 +65,8 @@ export function createServer(): McpServer {
           "Query to find relevant code snippets related to Microsoft 365 app or agent SDKs"
         ),
     },
-    async ({ question }) => {
-      const result = await retrieveResource("code", question);
+    ({ question }) => {
+      const result = retrieveResource("code", question);
 
       return {
         content: [
@@ -81,12 +81,12 @@ export function createServer(): McpServer {
 
   server.tool(
     "troubleshoot",
-    "Access troubleshooting solutions for common Microsoft 365 and Microsoft 365 Copilot development issues. Use this tool when encountering errors, unexpected behaviors, or implementation challenges.",
+    "Find troubleshooting solutions and related issues for Microsoft 365 agents and apps development. Searches across Agents Toolkit, Teams SDK, Teams Samples, and documentation repositories. Use this tool when encountering errors, unexpected behaviors, or implementation challenges.",
     {
       question: z.string().describe("Description of the issue or error you're experiencing"),
     },
-    async ({ question }) => {
-      const result = await retrieveResource("issues", question);
+    ({ question }) => {
+      const result = retrieveResource("issues", question);
 
       return {
         content: [
