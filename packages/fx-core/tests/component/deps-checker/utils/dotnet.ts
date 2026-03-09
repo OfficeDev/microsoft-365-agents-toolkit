@@ -63,8 +63,8 @@ export async function hasAnyDotnetVersions(
     const output = await cpUtils.executeCommand(
       undefined,
       logger,
-      undefined,
-      `"${dotnetExecPath}"`,
+      { shell: false },
+      dotnetExecPath,
       "--list-sdks"
     );
     return output.split(/\r?\n/).some((line: string) => {
