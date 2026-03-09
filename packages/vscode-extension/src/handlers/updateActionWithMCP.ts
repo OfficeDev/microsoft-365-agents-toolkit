@@ -17,6 +17,9 @@ import * as fs from "fs-extra";
 import { QuestionNames, ODRProvider, ODRTool } from "@microsoft/teamsfx-core";
 import * as vscode from "vscode";
 import axios from "axios";
+import { Client } from "@modelcontextprotocol/sdk/client/index.js";
+import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
+import type { Tool } from "@modelcontextprotocol/sdk/types.js";
 import { runCommand } from "./sharedOpts";
 import { VS_CODE_UI } from "../qm/vsc_ui";
 import * as parser from "jsonc-parser";
@@ -219,12 +222,7 @@ export async function updateActionWithMCP(args?: any[]): Promise<Result<any, FxE
     inputs[QuestionNames.MCPLocalServerIdentifier] = localServerIdentifier;
   }
 
-  let tools: Array<{
-    name: string;
-    description: string;
-    inputSchema: any;
-    tags?: readonly string[];
-  }>;
+  let tools: Tool[];
   if (ODRProvider.isODRServer(serverConfig)) {
     const odrTools = await ODRProvider.getToolsForODRServer(
       serverConfig.command,
@@ -236,8 +234,7 @@ export async function updateActionWithMCP(args?: any[]): Promise<Result<any, FxE
       inputSchema: tool.inputSchema,
     }));
   } else {
-    const allMcpTools = vscode.lm.tools;
-    tools = allMcpTools
+    const selectedTools = vscode.lm.tools
       .filter((tool: vscode.LanguageModelToolInformation) =>
         tool.name.includes(`mcp_${mcpName as string}`)
       )
@@ -247,9 +244,41 @@ export async function updateActionWithMCP(args?: any[]): Promise<Result<any, FxE
         return {
           name: newName,
           description: tool.description,
-          inputSchema: tool.inputSchema,
+          inputSchema: tool.inputSchema as any,
         };
       });
+    // Build a lookup key set using name+description to handle tools with duplicate names
+    const selectedToolKeys = new Set(selectedTools.map((t) => `${t.name}\n${t.description}`));
+    try {
+      // startMcpGateway is a proposed API (VS Code Insiders only)
+      const mcpGateway = await vscode.lm.startMcpGateway();
+      if (mcpGateway) {
+        const transport = new StreamableHTTPClientTransport(new URL(mcpGateway.address.toString()));
+        const client = new Client({ name: "atk", version: "1.0.0" });
+        try {
+          await client.connect(transport);
+          const result = await client.listTools();
+          const matched = new Set<string>();
+          tools = result.tools.filter((tool) => {
+            const key = `${tool.name}\n${tool.description ?? ""}`;
+            if (selectedToolKeys.has(key) && !matched.has(key)) {
+              matched.add(key);
+              return true;
+            }
+            return false;
+          });
+        } catch {
+          tools = selectedTools;
+        } finally {
+          await client.close();
+          mcpGateway.dispose();
+        }
+      } else {
+        tools = selectedTools;
+      }
+    } catch {
+      tools = selectedTools;
+    }
   }
 
   if (tools.length === 0) {
