@@ -64,7 +64,7 @@
 
 /packages/spec-parser/ @Alive-Fish @yuqizhou77 @wh-alice
 
-/packages/mcp-server/ @Alive-Fish @yuqizhou77 @wh-alice
+/packages/mcp-server/ @Alive-Fish @tecton @llhmm01 @HuihuiWu-Microsoft @wh-alice
 
 /packages/vscode-extension @tecton @HuihuiWu-Microsoft @wh-alice
 /packages/vscode-extension/CHANGELOG.md @summzhan @sffamily
