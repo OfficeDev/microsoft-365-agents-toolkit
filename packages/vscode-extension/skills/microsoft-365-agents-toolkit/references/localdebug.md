@@ -39,8 +39,9 @@ winget install agentsplayground
 
 **Linux:**
 ```bash
-curl -LO https://github.com/OfficeDev/microsoft-365-agents-toolkit/releases/latest/download/agentsplayground-linux-x64.tar.gz
-tar -xzf agentsplayground-linux-x64.tar.gz
+curl -LO https://github.com/OfficeDev/microsoft-365-agents-toolkit/releases/download/microsoft-365-agents-playground%400.2.23/agentsplayground-linux-x64.zip
+unzip agentsplayground-linux-x64.zip agentsplayground
+chmod +x agentsplayground
 sudo mv agentsplayground /usr/local/bin/
 ```
 
