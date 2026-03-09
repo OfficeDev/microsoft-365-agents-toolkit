@@ -717,12 +717,6 @@
         "category": "Microsoft 365 Agents"
       },
       {
-        "command": "fx-extension.migrateTeamsManifest",
-        "title": "%teamstoolkit.commands.migrateManifest.title%",
-        "enablement": "isWorkspaceTrusted",
-        "category": "Microsoft 365 Agents"
-      },
-      {
         "command": "fx-extension.migrateTeamsTabApp",
         "title": "%teamstoolkit.commands.migrateApp.title%",
         "enablement": "isWorkspaceTrusted",
