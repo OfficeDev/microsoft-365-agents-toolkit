@@ -1,0 +1,59 @@
+{
+  "plan_metadata": {
+    "version": "1.1",
+    "plan_id": "plan_a85ba056",
+    "execution_context": {
+      "delay_between_steps": 0.5,
+      "stop_on_error": true,
+      "precondition_wait_timeout": 60,
+      "precondition_retry_interval": 2
+    },
+    "total_steps": 1,
+    "created_at": "2026-03-09T05:32:03.361965",
+    "name": "group  verify provision succeeded",
+    "description": {
+      "other": "Generated from recording r_0928_073729",
+      "owner": "v-helzha@microsoft.com",
+      "workitem": ""
+    },
+    "generated_at": "2026-03-09T05:32:03.360953",
+    "execution_order": [
+      "step_79a980b8"
+    ],
+    "tags": [
+      "group"
+    ],
+    "updated_at": "2026-03-09T05:32:34.608798"
+  },
+  "steps": [
+    {
+      "step_id": "step_79a980b8",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {
+        "button": null,
+        "dx": null,
+        "dy": null,
+        "key": null,
+        "keys": null,
+        "text": null,
+        "x": null,
+        "y": null
+      },
+      "description": "@assertion notification \"provision stage executed successfully\" exist.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "0",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "step_retry_timeout: 180"
+      ],
+      "screenshot": null,
+      "created_at": "2026-03-09T05:32:03.603151",
+      "plan_id": "plan_a85ba056"
+    }
+  ]
+}
