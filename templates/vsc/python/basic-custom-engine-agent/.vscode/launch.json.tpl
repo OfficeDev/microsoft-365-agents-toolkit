@@ -62,6 +62,14 @@
       "request": "launch",
       "program": "${workspaceFolder}/src/app.py",
       "cwd": "${workspaceFolder}/src",
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Start Python (Playground)",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/src/app.py",
+      "cwd": "${workspaceFolder}/src",
       "console": "integratedTerminal",
       "serverReadyAction": {
         "pattern": "(started|listening|Running|Serving) (at|on) (https?://\\S+)",
@@ -182,7 +190,7 @@
     },
     {
         "name": "Debug in Microsoft 365 Agents Playground",
-      "configurations": ["Start Python"],
+        "configurations": ["Start Python (Playground)"],
         "preLaunchTask": "Deploy (Microsoft 365 Agents Playground)",
         "presentation": {
             "group": "0-TestTool",
