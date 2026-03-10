@@ -56,13 +56,12 @@ provision:
       outputZipPath: ./appPackage/build/appPackage.${{TEAMSFX_ENV}}.zip
       outputFolder: ./appPackage/build
 
-{{^EmbeddedKnowledgeEnabled}}
   # Validate app package using validation rules
   - uses: teamsApp/validateAppPackage
     with:
       # Relative path to this file. This is the path for built zip file.
       appPackagePath: ./appPackage/build/appPackage.${{TEAMSFX_ENV}}.zip
-{{/EmbeddedKnowledgeEnabled}}
+
 
   # Apply the app manifest to an existing app in
   # Developer Portal.

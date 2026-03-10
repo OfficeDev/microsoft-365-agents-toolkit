@@ -1946,11 +1946,6 @@ describe("teamsApp/createAppPackage", async () => {
     });
 
     it("should add embedded knowledge files for Declarative Agent", async () => {
-      sinon
-        .stub(featureFlagManager, "getBooleanValue")
-        .withArgs(FeatureFlags.EmbeddedKnowledgeEnabled)
-        .returns(true);
-
       const args: CreateAppPackageArgs = {
         manifestPath:
           "./tests/plugins/resource/appstudio/resources-multi-env/templates/appPackage/v3.manifest.template.json",
@@ -2023,11 +2018,6 @@ describe("teamsApp/createAppPackage", async () => {
     });
 
     it("should add embedded knowledge files for Declarative Agent of MetaOS", async () => {
-      sinon
-        .stub(featureFlagManager, "getBooleanValue")
-        .withArgs(FeatureFlags.EmbeddedKnowledgeEnabled)
-        .returns(true);
-
       const args: CreateAppPackageArgs = {
         manifestPath:
           "./tests/plugins/resource/appstudio/resources-multi-env/templates/appPackage/v3.manifest.template.json",
@@ -2100,11 +2090,6 @@ describe("teamsApp/createAppPackage", async () => {
     });
 
     it("should skip if there is no embedded knowledge capability for Declarative Agent", async () => {
-      sinon
-        .stub(featureFlagManager, "getBooleanValue")
-        .withArgs(FeatureFlags.EmbeddedKnowledgeEnabled)
-        .returns(true);
-
       const args: CreateAppPackageArgs = {
         manifestPath:
           "./tests/plugins/resource/appstudio/resources-multi-env/templates/appPackage/v3.manifest.template.json",
@@ -2171,11 +2156,6 @@ describe("teamsApp/createAppPackage", async () => {
     });
 
     it("should handle undefined embedded knowledge files for Declarative Agent", async () => {
-      sinon
-        .stub(featureFlagManager, "getBooleanValue")
-        .withArgs(FeatureFlags.EmbeddedKnowledgeEnabled)
-        .returns(true);
-
       const args: CreateAppPackageArgs = {
         manifestPath:
           "./tests/plugins/resource/appstudio/resources-multi-env/templates/appPackage/v3.manifest.template.json",
@@ -2243,10 +2223,6 @@ describe("teamsApp/createAppPackage", async () => {
     });
 
     it("should throw error if embedded knowledge file does not exist for Declarative Agent", async () => {
-      sinon
-        .stub(featureFlagManager, "getBooleanValue")
-        .withArgs(FeatureFlags.EmbeddedKnowledgeEnabled)
-        .returns(true);
       const args: CreateAppPackageArgs = {
         manifestPath:
           "./tests/plugins/resource/appstudio/resources-multi-env/templates/appPackage/v3.manifest.template.json",

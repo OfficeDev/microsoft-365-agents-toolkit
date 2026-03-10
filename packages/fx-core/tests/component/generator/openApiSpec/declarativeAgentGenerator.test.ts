@@ -319,6 +319,7 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
         },
       };
       const context = createContext();
+      sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
       sandbox
         .stub(SpecParser.prototype, "validate")
         .resolves({ status: ValidationStatus.Valid, errors: [], warnings: [] });
@@ -329,10 +330,6 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
         .resolves({ allSuccess: true, warnings: [] });
       sandbox.stub(copilotGptManifestUtils, "updateDeclarativeAgentManifest").resolves(ok(""));
       sandbox.stub(helper, "generateScaffoldingSummary").resolves("");
-
-      sandbox.stub(featureFlagManager, "getBooleanValue").callsFake((flag: FeatureFlagName) => {
-        return flag === FeatureFlagName.EmbeddedKnowledgeEnabled;
-      });
       const generator = new DeclarativeAgentWithExistingApiSpecGenerator();
       const result = await generator.post(context, inputs, "projectPath");
 
@@ -357,6 +354,7 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
         },
       };
       const context = createContext();
+      sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
       sandbox
         .stub(SpecParser.prototype, "validate")
         .resolves({ status: ValidationStatus.Valid, errors: [], warnings: [] });
@@ -367,10 +365,6 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
         .resolves({ allSuccess: true, warnings: [] });
       sandbox.stub(copilotGptManifestUtils, "updateDeclarativeAgentManifest").resolves(ok(""));
       sandbox.stub(helper, "generateScaffoldingSummary").resolves("");
-      sandbox.stub(featureFlagManager, "getBooleanValue").callsFake((flag: FeatureFlagName) => {
-        return flag === FeatureFlagName.EmbeddedKnowledgeEnabled;
-      });
-
       const generator = new DeclarativeAgentWithExistingApiSpecGenerator();
       const result = await generator.post(context, inputs, "projectPath");
 
@@ -395,6 +389,7 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
         },
       };
       const context = createContext();
+      sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
       sandbox
         .stub(SpecParser.prototype, "validate")
         .resolves({ status: ValidationStatus.Valid, errors: [], warnings: [] });
@@ -410,10 +405,6 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
         .resolves({ allSuccess: true, warnings: [] });
       sandbox.stub(copilotGptManifestUtils, "updateDeclarativeAgentManifest").resolves(ok(""));
       sandbox.stub(helper, "generateScaffoldingSummary").resolves("");
-      sandbox.stub(featureFlagManager, "getBooleanValue").callsFake((flag: FeatureFlagName) => {
-        return flag === FeatureFlagName.EmbeddedKnowledgeEnabled;
-      });
-
       const generator = new DeclarativeAgentWithExistingApiSpecGenerator();
       const result = await generator.post(context, inputs, "projectPath");
 
