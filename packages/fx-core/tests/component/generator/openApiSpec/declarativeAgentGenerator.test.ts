@@ -319,6 +319,7 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
         },
       };
       const context = createContext();
+      sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
       sandbox
         .stub(SpecParser.prototype, "validate")
         .resolves({ status: ValidationStatus.Valid, errors: [], warnings: [] });
@@ -353,6 +354,7 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
         },
       };
       const context = createContext();
+      sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
       sandbox
         .stub(SpecParser.prototype, "validate")
         .resolves({ status: ValidationStatus.Valid, errors: [], warnings: [] });
@@ -387,6 +389,7 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
         },
       };
       const context = createContext();
+      sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
       sandbox
         .stub(SpecParser.prototype, "validate")
         .resolves({ status: ValidationStatus.Valid, errors: [], warnings: [] });
