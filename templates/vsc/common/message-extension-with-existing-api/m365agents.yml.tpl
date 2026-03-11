@@ -49,11 +49,6 @@ provision:
       configurationId: {{ApiSpecAuthRegistrationIdEnvName}}
 {{/OAuth}}
 
-  # Validate using manifest schema
-  - uses: teamsApp/validateManifest
-    with:
-      # Path to manifest template
-      manifestPath: ./appPackage/manifest.json
   # Build app package with latest env value
   - uses: teamsApp/zipAppPackage
     with:
@@ -86,11 +81,6 @@ provision:
 
 # Triggered when 'teamsapp publish' is executed
 publish:
-  # Validate using manifest schema
-  - uses: teamsApp/validateManifest
-    with:
-      # Path to manifest template
-      manifestPath: ./appPackage/manifest.json
   # Build app package with latest env value
   - uses: teamsApp/zipAppPackage
     with:
