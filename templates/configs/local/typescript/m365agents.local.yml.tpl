@@ -55,11 +55,6 @@ provision:
         - name: msteams
 {{/hasAzureBot}}
 
-  # Validate using manifest schema
-  - uses: teamsApp/validateManifest
-    with:
-      # Path to manifest template
-      manifestPath: ./appPackage/manifest.json
 
   # Build app package with latest env value
   - uses: teamsApp/zipAppPackage

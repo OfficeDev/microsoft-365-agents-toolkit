@@ -327,6 +327,7 @@ function activateTeamsFxRegistration(context: vscode.ExtensionContext) {
     azureAccountProvider: azureAccountManager,
     m365TokenProvider: M365TokenInstance,
   });
+
   // Set region for M365 account every
   void M365TokenInstance.setStatusChangeMap(
     "set-region",
