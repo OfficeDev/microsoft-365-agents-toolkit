@@ -78,6 +78,9 @@ async function main() {
         }
       }
     }
+  } catch (e: any) {
+    console.log(`Failed to clean AAD`);
+  }
 
   try {
     console.log(`clean app in app studio`);
