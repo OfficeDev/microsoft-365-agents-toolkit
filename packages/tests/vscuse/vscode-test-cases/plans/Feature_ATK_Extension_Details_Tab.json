@@ -14,8 +14,8 @@
     "name": "Feature ATK Extension Details Tab",
     "description": {
       "other": "",
-      "owner": "",
-      "workitem": ""
+      "owner": "v-cheye@microsoft.com",
+      "workitem": "9496562"
     },
     "generated_at": "2026-03-12T09:38:03.553420",
     "execution_order": [
@@ -29,7 +29,7 @@
       "step_abce1f9f"
     ],
     "tags": [],
-    "updated_at": "2026-03-12T09:38:16.840758"
+    "updated_at": "2026-03-12T09:41:51.664198"
   },
   "steps": [
     {
