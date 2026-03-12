@@ -35,9 +35,9 @@ async function buildMetadataZip(releaseDir) {
   addIfExists(zip, buildUiDir, "ui");
   // Prefer top-level src/resource if it exists, else fall back to src/ui/resource
   if (fs.existsSync(srcTopResourceDir)) {
-    addIfExists(zip, srcTopResourceDir, "resource");
+    addIfExists(zip, srcTopResourceDir, "ui/resource");
   } else {
-    addIfExists(zip, srcUiResourceDir, "resource");
+    addIfExists(zip, srcUiResourceDir, "ui/resource");
   }
 
   const outPath = path.join(releaseDir, "metadata.zip");
