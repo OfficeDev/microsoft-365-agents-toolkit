@@ -29,7 +29,7 @@
       "step_abce1f9f"
     ],
     "tags": [],
-    "updated_at": "2026-03-12T06:30:59.358475"
+    "updated_at": "2026-03-12T06:42:24.122666"
   },
   "steps": [
     {
@@ -155,7 +155,7 @@
       "agent": "assertion",
       "tool": "",
       "parameters": {},
-      "description": "@assertion the images inside the Details tab displays normally",
+      "description": "@assertion the image inside the Details tab displays normally",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
