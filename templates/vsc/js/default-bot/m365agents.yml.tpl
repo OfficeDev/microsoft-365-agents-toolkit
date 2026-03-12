@@ -41,12 +41,6 @@ provision:
       # Microsoft 365 Agents Toolkit will download this bicep CLI version from github for you,
       # will use bicep CLI in PATH if you remove this config.
       bicepCliVersion: v0.9.1
-
-  # Validate using manifest schema
-  - uses: teamsApp/validateManifest
-    with:
-      # Path to manifest template
-      manifestPath: ./appPackage/manifest.json
   # Build app package with latest env value
   - uses: teamsApp/zipAppPackage
     with:
@@ -90,11 +84,6 @@ deploy:
 
 # Triggered when 'teamsapp publish' is executed
 publish:
-  # Validate using manifest schema
-  - uses: teamsApp/validateManifest
-    with:
-      # Path to manifest template
-      manifestPath: ./appPackage/manifest.json
   # Build app package with latest env value
   - uses: teamsApp/zipAppPackage
     with:

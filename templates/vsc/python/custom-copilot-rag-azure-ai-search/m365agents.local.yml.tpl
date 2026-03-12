@@ -41,11 +41,6 @@ provision:
         - name: msteams
 
   {{^CEAEnabled}}
-  # Validate using manifest schema
-  - uses: teamsApp/validateManifest
-    with:
-      # Path to manifest template
-      manifestPath: ./appPackage/manifest.json
   {{/CEAEnabled}}
 
   # Build app package with latest env value
