@@ -30,7 +30,7 @@ npm run dev
 agentsplayground -e http://localhost:3978/api/messages -c msteams
 ```
 
-**Note:** The bot service start command keeps running and will not return to the prompt. This is expected — the server must stay running. Always start the service in a background terminal, then verify it started successfully by checking the output for messages like "app listening to" or "server started". If errors appear, read the logs, fix the issue, and restart. Use a **new terminal** for Agents Playground.
+**Note:** The bot service start command keeps running and will not return to the prompt. This is expected — the server must stay running. Always start the service in a background terminal, then verify it started successfully by checking the output for messages like "listening on port" or "server started". If errors appear, read the logs, fix the issue, and restart. Use a **new terminal** for Agents Playground.
 
 # CLI Options
 

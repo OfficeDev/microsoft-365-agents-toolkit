@@ -12,17 +12,17 @@ Use this skill to run end-to-end Microsoft 365 app and agent workflows with the 
 ATK CLI is required:
 
 ```bash
-npm i -g @microsoft/m365agentstoolkit-cli@alpha
-atk --version  # Requires > 1.1.5-alpha
+npm i -g @microsoft/m365agentstoolkit-cli@latest
+atk --version  # Requires >= 1.1.5
 ```
 
 # CLI Global Options
 
-| Option | Meaning          | Recommendation                                                                                                                                                                   |
-| ------ | ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `-i`   | Interactive mode | Always use `-i false` in automation to avoid hanging                                                                                                                             |
-| `-f`   | Project folder   | Default to be current directory, used when specifying a custom folder. When scaffolding a new project, this is the parent folder where the project folder will be created under. |
-| `-h`   | Command help     | Use `atk <command> -h` for quick syntax checks                                                                                                                                   |
+| Option | Meaning | Recommendation |
+| --- | --- | --- |
+| `-i` | Interactive mode | Always use `-i false` in automation to avoid hanging |
+| `-f` | Project folder | Default to be current directory, used when specifying a custom folder. When scaffolding a new project, this is the parent folder where the project folder will be created under. |
+| `-h` | Command help | Use `atk <command> -h` for quick syntax checks |
 
 # Agent/App Development Lifecycle
 
@@ -82,11 +82,11 @@ Use `atk list templates` if a template ID fails. Refer to [Templates](./referenc
 
 ### Template Selection Guide
 
-| Family              | Use When                                                                     |
-| ------------------- | ---------------------------------------------------------------------------- |
-| Declarative Agent   | Copilot extension with low/no custom runtime                                 |
+| Family | Use When |
+| --- | --- |
+| Declarative Agent | Copilot extension with low/no custom runtime |
 | Custom Engine Agent | Cross-platform logic, custom LLM orchestration, advanced multi-turn behavior |
-| Teams Agent         | Teams-first experiences, RAG in Teams, Teams-specific capabilities           |
+| Teams Agent | Teams-first experiences, RAG in Teams, Teams-specific capabilities |
 
 ### Samples
 
@@ -112,10 +112,10 @@ List all samples with `atk list samples`.
 
 Use one of two local debug paths.
 
-| Path              | Best For                                  | Account Needed |
-| ----------------- | ----------------------------------------- | -------------- |
-| Agents Playground | Fast bot/message-extension inner loop     | No             |
-| Teams sideloading | Full-fidelity Teams behavior and auth/SSO | Yes            |
+| Path | Best For | Account Needed |
+| --- | --- | --- |
+| Agents Playground | Fast bot/message-extension inner loop | No |
+| Teams sideloading | Full-fidelity Teams behavior and auth/SSO | Yes |
 
 ### Common bot startup check (Bash)
 
@@ -200,7 +200,7 @@ devtunnel host -p 3978 --allow-anonymous
 # Set BOT_ENDPOINT in env/.env.local with the tunnel URL
 ```
 
-Provision and deploy local environment in non-interactive mode:
+Provision and deploy local environment:
 
 ```bash
 atk provision --env local -i false
@@ -222,7 +222,7 @@ Open Teams sideloading URL:
 https://teams.microsoft.com/l/app/${{TEAMS_APP_ID}}?installAppPackage=true&webjoin=true
 ```
 
-For declarative agents, provision, deploy(if there's backend service for API plugin) and open M365 Copilot URL directly.
+For declarative agents (no backend service), provision and open M365 Copilot URL directly.
 
 #### Opening Declarative Agents in M365 Copilot
 
@@ -240,7 +240,7 @@ https://m365.cloud.microsoft/chat/entity1-d870f6cd-4aa5-4d42-9626-ab690c041429/$
 {
   "id": "${M365_APP_ID}",
   "scenario": "launchcopilotextension",
-  "properties": { "clickTimestamp": "${new Date().toLocaleString()}" },
+  "properties": { "clickTimestamp": "${CURRENT_TIMESTAMP}" },
   "version": 1
 }
 ```
@@ -249,15 +249,15 @@ See [teams-debug.md](./references/teams-debug.md) for complete steps.
 
 ### Comparison
 
-| Feature                | Agents Playground                             | Teams/Copilot Direct Launch   |
-| ---------------------- | --------------------------------------------- | ----------------------------- |
-| Scenario               | Only Bot(using bot service)/message-extension | Full Teams/Copilot experience |
-| Setup complexity       | Simple                                        | Requires provisioning         |
-| M365 account needed    | No                                            | Yes                           |
-| HTTPS required         | No                                            | Yes (for bots)                |
-| Real Teams environment | No (simulated)                                | Yes                           |
-| SSO testing            | No                                            | Yes                           |
-| Speed                  | Fast                                          | Slower (tunnel setup)         |
+| Feature                | Agents Playground           | Teams Direct Launch                       |
+| ---------------------- | --------------------------- | ----------------------------------------- |
+| Setup complexity       | Simple                      | Requires provisioning                     |
+| M365 account needed    | No                          | Yes                                       |
+| HTTPS required         | No                          | Yes (for bots)                            |
+| Real Teams environment | No (simulated)              | Yes                                       |
+| SSO testing            | No                          | Yes                                       |
+| Speed                  | Fast                        | Slower (tunnel setup)                     |
+| Recommended for        | Testing first (recommended) | When user explicitly asks to run on Teams |
 
 ## Remote
 
@@ -268,23 +268,22 @@ Deploy to Azure after local validation.
 `atk provision` and `atk deploy` execute actions defined in `m365agentstoolkit*.yml` files:
 
 0. Check required environment variables referenced in `m365agentstoolkit*.yml`.
-   Copy needed values from local env files into `env/.env.dev`.
+Copy needed values from local env files into `env/.env.dev`.
 
 1. Configure Azure subscription in `env/.env.dev`:
-   `AZURE_SUBSCRIPTION_ID=your-subscription-id`
+`AZURE_SUBSCRIPTION_ID=your-subscription-id`
 
 2. Create resource group if needed:
-   `az group create --name <rg> --location <region>`
-   IMPORTANT: Verify az account matches atk account: `az account show` vs `atk auth list`
+`az group create --name <rg> --location <region>`
+IMPORTANT: Verify az account matches atk account: `az account show` vs `atk auth list`
 
 3. Provision Azure and M365 resources:
-   `atk provision --env dev --resource-group <rg> --region <region> -i false`
+`atk provision --env dev --resource-group <rg> --region <region> -i false`
 
 4. Deploy code to Azure:
-   `atk deploy --env dev -i false`
+`atk deploy --env dev -i false`
 
 **Environment variables are stored in:**
-
 - `env/.env.dev` - Non-secret configuration
 - `env/.env.dev.user` - Secrets (prefixed with `SECRET_`)
 
@@ -317,5 +316,4 @@ AZURE_OPENAI_DEPLOYMENT_NAME
 If required values are missing, ask the user for only the missing ones.
 
 ## ATK project config files
-
 Refer to [config-files](./references/config-files.md) for full config-file details.
