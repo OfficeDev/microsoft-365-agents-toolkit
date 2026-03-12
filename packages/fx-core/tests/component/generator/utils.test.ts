@@ -49,7 +49,7 @@ describe("utils unit test cases", () => {
       localVersion: "6.0.0",
       tagPrefix: "templates@",
       vstagPrefix: "templates-vs@",
-      vsversion: "18.3.0",
+      vsversion: "18.4.2",
       tagListURL:
         "https://github.com/OfficeDev/microsoft-365-agents-toolkit/releases/download/template-tag-list/template-tags.txt",
       templateDownloadBaseURL:
