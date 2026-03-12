@@ -243,7 +243,12 @@ jobs:
       - name: Setup npm registry
         run: |
           echo "${{ secrets.NPMRC }}" > ~/.npmrc
-      
+
+      - name: Verify npm registry auth
+        run: |
+          npm whoami
+          echo "npm auth verified successfully"
+
       - name: Setup git
         run: |
           git config --global user.name 'wh-alice'
