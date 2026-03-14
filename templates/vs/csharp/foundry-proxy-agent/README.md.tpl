@@ -215,6 +215,27 @@ Create a Dev Tunnel via **Debug > Dev Tunnels > Create A Tunnel** with Public ac
 ### "Authentication failed"
 Ensure you're signed into Microsoft 365 Agents Toolkit with a work/school account that has access to your Azure subscription.
 
+### "AADSTS650052: Azure Machine Learning Services lacks a service principal"
+
+**Symptom:** The SSO token exchange fails at runtime with:
+```
+AuthenticationFailed / invalid_client
+AADSTS650052: The app is trying to access a service '18a66f5f-dbdf-4c17-9dd7-1634712a9cbe'
+(Azure Machine Learning Services) that your organization lacks a service principal for.
+```
+
+**Root cause:** This proxy agent exchanges the signed-in user's token for an `Azure Machine Learning | user_impersonation` token to call Azure AI Foundry. If your tenant has never provisioned any Azure ML or AI Foundry resources, the **Azure Machine Learning Services** enterprise application doesn't exist in your Entra ID tenant, and the token exchange fails.
+
+**Solution (requires Tenant Admin — one-time):**
+```powershell
+# Option 1 – Azure CLI
+az ad sp create --id 18a66f5f-dbdf-4c17-9dd7-1634712a9cbe
+
+# Option 2 – Azure PowerShell
+New-AzADServicePrincipal -ApplicationId 18a66f5f-dbdf-4c17-9dd7-1634712a9cbe
+```
+After the command completes, retry the agent — no restart is required.
+
 ## Learn More
 
 - [Microsoft 365 Agents Toolkit Documentation](https://aka.ms/teams-toolkit-vs-docs)
