@@ -32,6 +32,10 @@ on:
         default: false
 permissions:
   actions: read
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   discover-test-plans:
     runs-on: ubuntu-latest
@@ -176,7 +180,7 @@ jobs:
           python-version: "3.12"
 
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 22
 
@@ -406,7 +410,7 @@ jobs:
         working-directory: packages/tests/vscuse
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - uses: azure/login@v2
         with:
