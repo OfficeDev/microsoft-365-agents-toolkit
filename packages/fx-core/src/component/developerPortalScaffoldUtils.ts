@@ -180,6 +180,7 @@ async function updateManifest(
         manifest.bots = getBotsTplBasedOnVersion(manifest.manifestVersion);
         manifest.bots[0].botId = "${{BOT_ID}}";
       }
+      manifest.supportsChannelFeatures = existingManifestTemplate.supportsChannelFeatures;
     }
 
     if (inputs[QuestionNames.ReplaceBotIds].includes(answerToReplaceMessageExtensionBotId)) {
@@ -205,12 +206,13 @@ async function updateManifest(
     manifest.permissions = existingManifestTemplate.permissions;
     manifest.validDomains = existingManifestTemplate.validDomains;
     manifest.webApplicationInfo = existingManifestTemplate.webApplicationInfo;
-    if (
-      existingManifestTemplate.supportsChannelFeatures &&
-      "supportsChannelFeatures" in appDefinition
-    ) {
-      manifest.supportsChannelFeatures = existingManifestTemplate.supportsChannelFeatures;
-    }
+  }
+
+  if (
+    existingManifestTemplate.supportsChannelFeatures &&
+    "supportsChannelFeatures" in appDefinition
+  ) {
+    manifest.supportsChannelFeatures = existingManifestTemplate.supportsChannelFeatures;
   }
 
   // manifest: developer
