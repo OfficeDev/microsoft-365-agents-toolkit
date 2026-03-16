@@ -53,7 +53,7 @@ This proxy pattern allows you to:
 ## Prerequisites
 
 Before you begin, ensure you have:
-- An **Azure AI Foundry** project with a deployed agent
+- An **Azure AI Foundry** project with a deployed agent, ensure the AI Foundry is in the same tenant with your m365 and your azure account. SSO is only available in single tenant.
 - Your **Foundry Project Endpoint** (e.g., `https://your-project.services.ai.azure.com/api/projects/your-project`)
 - Your **Agent ID** (e.g., `asst_xxxxxxxxxxxxx`)
 
@@ -99,6 +99,8 @@ If you need to update these values, edit `env/.env.local.user` directly.
 3. Sign in with a **Microsoft 365 work or school account**
 4. Set **Startup Item** to `Microsoft Teams (browser)` or `Microsoft M365 Copilot (browser)`
 5. Press **F5** to start debugging
+
+> **Having issues?** If you encounter any errors during or after debugging, see the [Troubleshooting](#troubleshooting) section below.
 
 ## What Happens During Local Debug (F5)
 
@@ -234,7 +236,10 @@ az ad sp create --id 18a66f5f-dbdf-4c17-9dd7-1634712a9cbe
 # Option 2 – Azure PowerShell
 New-AzADServicePrincipal -ApplicationId 18a66f5f-dbdf-4c17-9dd7-1634712a9cbe
 ```
-After the command completes, retry the agent — no restart is required.
+
+> **Note:** If the command fails with _"The service principal cannot be created because the service principal name `https://containeragents.ai.azure.com` is already in use"_, this means the **Azure Machine Learning Services** enterprise application is already present in your tenant. You can ignore the error and retry the agent directly — no further action is needed.
+
+After the command completes (or if the SP already exists), retry the agent — no restart is required.
 
 ## Learn More
 
