@@ -114,6 +114,12 @@ provision:
 
         az role assignment create --assignee $spObjectId --role "Azure AI User" --scope $scope
 
+  # Validate using manifest schema
+  - uses: teamsApp/validateManifest
+    with:
+      # Path to manifest template
+      manifestPath: ./appPackage/manifest.json
+
   # Build app package with latest env value
   - uses: teamsApp/zipAppPackage
     with:
@@ -172,6 +178,11 @@ deploy:
       resourceId: ${{AZURE_APP_SERVICE_RESOURCE_ID}}
 
 publish:
+  # Validate using manifest schema
+  - uses: teamsApp/validateManifest
+    with:
+      # Path to manifest template
+      manifestPath: ./appPackage/manifest.json
 
   # Build app package with latest env value
   - uses: teamsApp/zipAppPackage

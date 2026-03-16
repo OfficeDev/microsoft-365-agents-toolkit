@@ -22,7 +22,7 @@
   "template.teams.others.tab.label": "TAB",
   "template.teams.rag.detail": "Agente che usa il contenuto e le conoscenze per rispondere in modo accurato a domande specifiche del dominio",
   "template.teams.rag.label": "Agente di Teams con dati",
-  "template.teams.rag.source.azureAISearch.detail": "Carica i dati dal servizio Azure Al Search",
+  "template.teams.rag.source.azureAISearch.detail": "Caricare i dati da servizio di Azure Al Search",
   "template.teams.rag.source.azureAISearch.label": "Azure AI Search",
   "template.teams.rag.source.customApi.detail": "Caricare i dati dalle API personalizzate in base al documento di descrizione OpenAPI",
   "template.teams.rag.source.customApi.label": "API personalizzata",

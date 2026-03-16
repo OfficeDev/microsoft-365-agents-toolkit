@@ -494,15 +494,15 @@ describe("TeamsManifestWrapper", () => {
     });
   });
 
-  // describe("validate", () => {
-  //   it("should return empty array for valid manifest", async () => {
-  //     const manifest = await TeamsManifestWrapper.read(testManifestPath);
-  //     const errors = await manifest.validate();
+  describe("validate", () => {
+    it("should return empty array for valid manifest", async () => {
+      const manifest = await TeamsManifestWrapper.read(testManifestPath);
+      const errors = await manifest.validate();
 
-  //     assert.isArray(errors);
-  //     assert.isEmpty(errors);
-  //   });
-  // });
+      assert.isArray(errors);
+      assert.isEmpty(errors);
+    });
+  });
 
   describe("save", () => {
     it("should throw if no file path", async () => {
