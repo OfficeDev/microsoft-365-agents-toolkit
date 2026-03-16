@@ -136,7 +136,7 @@
     "mustache": "^4.1.0",
     "neverthrow": "^3.2.0",
     "node-fetch": "2.7.0",
-    "node-forge": "^1.3.1",
+    "node-forge": "^1.3.2",
     "office-addin-manifest": "^1.13.5",
     "office-addin-project": "^1.0.0",
     "openapi-types": "^7.2.3",

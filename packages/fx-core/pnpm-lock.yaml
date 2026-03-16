@@ -129,8 +129,8 @@ dependencies:
     specifier: 2.7.0
     version: 2.7.0
   node-forge:
-    specifier: ^1.3.1
-    version: 1.3.1
+    specifier: ^1.3.2
+    version: 1.3.2
   office-addin-manifest:
     specifier: ^1.13.5
     version: 1.13.5
@@ -4930,8 +4930,8 @@ packages:
       whatwg-url: 5.0.0
     dev: false
 
-  /node-forge@1.3.1:
-    resolution: {integrity: sha512-dPEtOeMvF9VMcYV/1Wb8CPoVAXtp6MKMlcbAt4ddqmGqUJ6fQZFXkNZNkNlfevtNkGtaSoXf/vNNNSvgrdXwtA==}
+  /node-forge@1.3.2:
+    resolution: {integrity: sha512-6xKiQ+cph9KImrRh0VsjH2d8/GXA4FIMlgU4B757iI1ApvcyA9VlouP0yZJha01V+huImO+kKMU7ih+2+E14fw==}
     engines: {node: '>= 6.13.0'}
     dev: false
 
