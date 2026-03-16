@@ -100,7 +100,7 @@
     "@microsoft/teamsfx-core": "workspace:*",
     "fs-extra": "^9.1.0",
     "underscore": "^1.12.1",
-    "validator": "^13.7.0",
+    "validator": "^13.15.22",
     "vscode-jsonrpc": "^6.0.0",
     "ws": "^8.17.1"
   },
