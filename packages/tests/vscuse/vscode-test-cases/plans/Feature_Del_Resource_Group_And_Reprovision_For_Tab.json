@@ -9,15 +9,15 @@
       "precondition_retry_interval": 2,
       "step_retry_count": 0
     },
-    "total_steps": 11,
-    "created_at": "2026-03-16T07:24:22.330292",
+    "total_steps": 12,
+    "created_at": "2026-03-16T08:20:40.499725",
     "name": "Feature Del Resource Group And Reprovision For tab",
     "description": {
       "other": "",
       "owner": "v-annefu@microsoft.com",
       "workitem": "10744678"
     },
-    "generated_at": "2026-03-16T07:24:22.330284",
+    "generated_at": "2026-03-16T08:20:40.499718",
     "execution_order": [
       "plan_r_0928_012254",
       "step_1570f129",
@@ -28,6 +28,7 @@
       "plan_r_0928_020230",
       "plan_f8a7a316",
       "step_3cad1ce8",
+      "step_41af4971",
       "step_4da5bffa",
       "plan_a6628e50",
       "step_af0ac079",
@@ -37,7 +38,7 @@
       "step_3a11eb90"
     ],
     "tags": [],
-    "updated_at": "2026-03-16T07:43:36.831842"
+    "updated_at": "2026-03-16T08:22:42.990293"
   },
   "steps": [
     {
@@ -63,7 +64,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_1570f129",
-      "created_at": "2026-03-16T07:24:22.357524",
+      "created_at": "2026-03-16T08:20:40.549702",
       "plan_id": "plan_82a790fb"
     },
     {
@@ -89,7 +90,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_0f3abd6d",
-      "created_at": "2026-03-16T07:24:22.367867",
+      "created_at": "2026-03-16T08:20:40.570974",
       "plan_id": "plan_82a790fb"
     },
     {
@@ -115,7 +116,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_2c440fea",
-      "created_at": "2026-03-16T07:24:22.376349",
+      "created_at": "2026-03-16T08:20:40.592990",
       "plan_id": "plan_82a790fb"
     },
     {
@@ -141,7 +142,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_f27138f4",
-      "created_at": "2026-03-16T07:24:22.385369",
+      "created_at": "2026-03-16T08:20:40.614321",
       "plan_id": "plan_82a790fb"
     },
     {
@@ -159,7 +160,25 @@
       "postconditions": [],
       "tags": [],
       "screenshot": null,
-      "created_at": "2026-03-16T07:24:22.395709",
+      "created_at": "2026-03-16T08:20:40.624540",
+      "plan_id": "plan_82a790fb"
+    },
+    {
+      "step_id": "step_41af4971",
+      "agent": "code",
+      "tool": "",
+      "parameters": {},
+      "description": "@code az account set --subscription ${{env:AZURE_SUBSCRIPTION_ID}}",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": null,
+      "created_at": "2026-03-16T08:22:42.958535",
       "plan_id": "plan_82a790fb"
     },
     {
@@ -175,9 +194,11 @@
       "depends_on": [],
       "preconditions": [],
       "postconditions": [],
-      "tags": [],
+      "tags": [
+        "delay:30"
+      ],
       "screenshot": null,
-      "created_at": "2026-03-16T07:24:22.403106",
+      "created_at": "2026-03-16T08:20:40.632620",
       "plan_id": "plan_82a790fb"
     },
     {
@@ -199,7 +220,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_af0ac079",
-      "created_at": "2026-03-16T07:24:22.411077",
+      "created_at": "2026-03-16T08:20:40.649173",
       "plan_id": "plan_82a790fb"
     },
     {
@@ -221,7 +242,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_b10cbe6b",
-      "created_at": "2026-03-16T07:24:22.419759",
+      "created_at": "2026-03-16T08:20:40.669877",
       "plan_id": "plan_82a790fb"
     },
     {
@@ -247,7 +268,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_732f134f",
-      "created_at": "2026-03-16T07:24:22.428788",
+      "created_at": "2026-03-16T08:20:40.689863",
       "plan_id": "plan_82a790fb"
     },
     {
@@ -273,7 +294,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_fdeb4cd7",
-      "created_at": "2026-03-16T07:24:22.437570",
+      "created_at": "2026-03-16T08:20:40.704988",
       "plan_id": "plan_82a790fb"
     },
     {
@@ -291,7 +312,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": null,
-      "created_at": "2026-03-16T07:24:22.489945",
+      "created_at": "2026-03-16T08:20:40.714469",
       "plan_id": "plan_82a790fb"
     }
   ],
