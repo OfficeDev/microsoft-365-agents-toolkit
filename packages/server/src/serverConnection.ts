@@ -104,6 +104,7 @@ export default class ServerConnection implements IServerConnection {
   }
   public listen() {
     this.connection.listen();
+    void this.core.fetchOnlineTemplateMetadata();
   }
 
   public getQuestionsRequest(
