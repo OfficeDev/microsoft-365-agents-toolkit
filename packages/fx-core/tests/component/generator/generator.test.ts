@@ -1072,6 +1072,9 @@ describe("render template", () => {
       };
       await buildFakeTemplateZip(templateName, mockFileName);
 
+      mockedEnvRestore = mockedEnv({
+        TEMPLATE_VERSION: "local",
+      });
       sandbox.stub(templateHelper, "useLocalTemplate").returns(true);
       sandbox.stub(folderUtils, "getTemplatesFolder").returns(tmpDir);
 
