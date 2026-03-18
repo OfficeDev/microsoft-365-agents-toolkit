@@ -209,10 +209,11 @@ jobs:
       AZURE_ACCOUNT_NAME: ${{ secrets.TEST_USER_NAME }}
       AZURE_ACCOUNT_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
 
-      AZURE_OPENAI_DEPLOYMENT_NAME: "gpt-4.1"
-      AZURE_OPENAI_ENDPOINT: ${{ secrets.TEST_TENANT_AZURE_OPENAI_ENDPOINT }}
+      AZURE_OPENAI_DEPLOYMENT_NAME: ${{ vars.TEST_TENANT_AZURE_OPENAI_MODEL }}
+      AZURE_OPENAI_ENDPOINT: ${{ vars.TEST_TENANT_AZURE_OPENAI_ENDPOINT }}
       AZURE_OPENAI_EMBEDDING_DEPLOYMENT: "text-embedding-ada-002"
-
+      SECRET_AZURE_OPENAI_API_KEY: ${{ secrets.TEST_TENANT_AZURE_OPENAI_KEY }}
+   
       AZURE_SEARCH_ENDPOINT: ${{ secrets.AZURE_SEARCH_ENDPOINT }}
       SECRET_AZURE_SEARCH_KEY: ${{ secrets.AZURE_SEARCH_KEY }}
 
@@ -454,23 +455,6 @@ jobs:
         run: |
           $vsix = (Get-ChildItem *.vsix | Select-Object -ExpandProperty Name)
           npx extest install-vsix --storage .test-resources --extensions_dir .test-resources --type stable --vsix_file $vsix
-
-      - name: Setup OpenAI key(unix)
-        if: ${{ matrix.os == 'ubuntu-latest' }}
-        uses: alsosee/envset@v1
-        with:
-          name: SECRET_AZURE_OPENAI_API_KEY
-          value: ${{ secrets.TEST_TENANT_AZURE_OPENAI_KEY }}
-
-      - name: Setup OpenAI key(macos)
-        if: ${{ matrix.os == 'macos-latest' }}
-        run: |
-          echo "SECRET_AZURE_OPENAI_API_KEY=${{ secrets.TEST_TENANT_AZURE_OPENAI_KEY }}" >> $GITHUB_ENV
-
-      - name: Setup OpenAI key(win)
-        if: ${{ matrix.os == 'windows-latest' }}
-        run: |
-          echo "SECRET_AZURE_OPENAI_API_KEY=${{ secrets.TEST_TENANT_AZURE_OPENAI_KEY }}" >> $env:GITHUB_ENV
 
       - name: Extract Zip files
         if: contains(matrix.test-case, 'localization')

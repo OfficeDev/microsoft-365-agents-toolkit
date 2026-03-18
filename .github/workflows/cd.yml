@@ -20,6 +20,11 @@ on:
         type: boolean
         default: false
         description: "Whether to release vs product"
+      vsChannelName:
+        type: string
+        default: "IntPreview"
+        description: "VS channel to target (IntPreview=main/Canary, IntRelease=rel/insiders, Release=rel/stable)"
+        required: false
       vstemplate:
         type: boolean
         default: false
@@ -507,6 +512,7 @@ jobs:
           echo ${{steps.version-change.outputs.CHANGED}} > changed.txt
           npx lerna ls -all --json > versions.json
           echo ${{ inputs.series }} > series.txt
+          echo ${{ inputs.vsChannelName || 'IntPreview' }} > vschannel.txt
           find ./packages/vscode-extension -type f -name '*.vsix' -exec mv {} . \;
 
       - name: upload release info to artifact
@@ -516,6 +522,7 @@ jobs:
           path: |
             changed.txt
             series.txt
+            vschannel.txt
             versions.json
             *.vsix
             *.exe

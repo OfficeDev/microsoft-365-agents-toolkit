@@ -2,7 +2,7 @@
   "name": "ms-teams-vscode-extension",
   "displayName": "Microsoft 365 Agents Toolkit",
   "description": "Create, debug, and deploy agents with Microsoft 365 Agents Toolkit",
-  "version": "6.4.3",
+  "version": "6.6.0",
   "publisher": "TeamsDevApp",
   "author": "Microsoft Corporation",
   "private": true,
@@ -714,12 +714,6 @@
         "command": "fx-extension.updateAadAppManifest",
         "title": "%teamstoolkit.commands.updateAadAppManifest.title%",
         "enablement": "fx-extension.isTeamsFx && fx-extension.isAadManifestEnabled && isWorkspaceTrusted && !fx-extension.isSPFx",
-        "category": "Microsoft 365 Agents"
-      },
-      {
-        "command": "fx-extension.migrateTeamsManifest",
-        "title": "%teamstoolkit.commands.migrateManifest.title%",
-        "enablement": "isWorkspaceTrusted",
         "category": "Microsoft 365 Agents"
       },
       {

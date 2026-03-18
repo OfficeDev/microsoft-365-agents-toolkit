@@ -6,7 +6,6 @@
 - Missing Environment Variables at Runtime
 - Azure OpenAI Configuration
 - YAML File Structure (m365agents.yml)
-- Cloud Deployment Workflow
 - Key Environment Variables
 
 ## Environment YAML Files (Lifecycle Configuration)
@@ -19,15 +18,6 @@
 | `m365agents.local.yml` | `--env local` | Local development setup |
 | `m365agents.playground.yml` | Agents Playground testing | Test with Agents Playground |
 | `teamsapp.yml` | Legacy projects | Older Teams Toolkit format |
-
-```bash
-# Runs actions in m365agents.yml (Azure + M365 resources)
-atk provision --env dev --resource-group <rg> --region <region> -i false
-atk deploy --env dev -i false
-
-# Runs actions in m365agents.local.yml
-atk provision --env local -i false
-```
 
 ## .localConfigs vs env/.env.local
 
@@ -60,7 +50,7 @@ If your app is missing environment variables:
 
 ## Azure OpenAI Configuration
 
-For custom engine agents using Azure OpenAI, add these env vars to the YAML's `file/createOrUpdateEnvironmentFile` action:
+For agents using Azure OpenAI, add these env vars to the YAML's `file/createOrUpdateEnvironmentFile` action:
 
 ```yaml
 # Add to m365agents.local.yml or m365agents.playground.yml
@@ -104,39 +94,6 @@ deploy:
   - uses: cli/runNpmCommand      # Build the project
   - uses: azureAppService/zipDeploy  # Deploy to Azure App Service
 ```
-
-## Cloud Deployment Workflow
-
-```bash
-# Step 0: Check required environment variables before provisioning
-# Look at m365agents.yml for ${{VAR_NAME}} references
-# Copy relevant values from env/.env.local or env/.env.playground to env/.env.dev
-
-# Step 1: Configure Azure subscription in env/.env.dev
-# AZURE_SUBSCRIPTION_ID=your-subscription-id
-
-# Step 2: Create resource group if needed
-# az group create --name <rg> --location <region>
-# IMPORTANT: Verify az account matches atk account: `az account show` vs `atk auth list`
-
-# Step 3: Provision Azure + M365 resources
-atk provision --env dev --resource-group <rg> --region <region> -i false
-
-# Step 4: Deploy code to Azure
-atk deploy --env dev -i false
-
-# Step 5: Open app in Teams/M365
-# https://teams.microsoft.com/l/app/${{TEAMS_APP_ID}}?installAppPackage=true&webjoin=true&appTenantId=${{TENANT_ID}}&login_hint=${{USER_EMAIL}}
-```
-
-**Environment variables are stored in:**
-- `env/.env.dev` - Non-secret configuration
-- `env/.env.dev.user` - Secrets (prefixed with `SECRET_`)
-
-**Customizing environments:**
-- Edit the YAML to add/remove/modify lifecycle actions
-- Each action (`uses:`) corresponds to a built-in ATK task
-- Environment variables from `env/.env.<envname>` are available during execution
 
 ## Key Environment Variables
 
