@@ -17,7 +17,7 @@ node_modules/
 .DS_Store
 
 # build
-lib/
+dist/
 
 # Dev tool directories
 /devTools/

@@ -7,14 +7,14 @@
     "description": "Weather Agent with Microsoft 365 Agents SDK and LangChain",
     "author": "Microsoft",
     "license": "MIT",
-    "main": "./lib/src/index.js",
+    "main": "./dist/src/index.js",
     "scripts": {
         "dev:teamsfx": "env-cmd --silent -f .localConfigs npm run dev",
         "dev:teamsfx:playground": "env-cmd --silent -f .localConfigs.playground npm run dev",
         "dev:teamsfx:launch-playground": "env-cmd --silent -f env/.env.playground agentsplayground start",
         "dev": "nodemon --exec node --inspect=9239 --signal SIGINT -r ts-node/register ./src/index.ts",
         "build": "tsc --build",
-        "start": "node ./lib/src/index.js",
+        "start": "node ./dist/src/index.js",
         "test": "echo \"Error: no test specified\" && exit 1",
         "watch": "nodemon --exec \"npm run start\""
     },
