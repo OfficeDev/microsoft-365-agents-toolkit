@@ -27,7 +27,7 @@ interface SchemaRepository {
 const schemaRepositories: Record<SchemaType, SchemaRepository> = {
   app_manifest: {
     baseUrl: `https://developer.microsoft.com/json-schemas/teams/{{version}}/MicrosoftTeams.schema.json`,
-    latestVersion: "v1.25",
+    latestVersion: "v1.26",
   },
   declarative_agent_manifest: {
     baseUrl: `https://developer.microsoft.com/json-schemas/copilot/declarative-agent/{{version}}/schema.json`,
