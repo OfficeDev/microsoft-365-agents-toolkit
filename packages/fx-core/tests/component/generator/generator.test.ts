@@ -1439,4 +1439,21 @@ describe("getTemplateReplaceMap", () => {
     const map = getTemplateReplaceMap(inputs);
     assert.equal(map.pathDelimiter, ":");
   });
+
+  it("should include FoundryEndpoint and FoundryAgentId when provided", () => {
+    const foundryInputs = {
+      ...inputs,
+      [QuestionNames.FoundryEndpoint]: "https://my-foundry.azure.com/api/projects/proj",
+      [QuestionNames.FoundryAgentId]: "asst_abc123",
+    } as Inputs;
+    const map = getTemplateReplaceMap(foundryInputs);
+    assert.equal(map.FoundryEndpoint, "https://my-foundry.azure.com/api/projects/proj");
+    assert.equal(map.FoundryAgentId, "asst_abc123");
+  });
+
+  it("should default FoundryEndpoint and FoundryAgentId to empty string when not provided", () => {
+    const map = getTemplateReplaceMap(inputs);
+    assert.equal(map.FoundryEndpoint, "");
+    assert.equal(map.FoundryAgentId, "");
+  });
 });

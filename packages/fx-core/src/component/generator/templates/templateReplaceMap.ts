@@ -27,6 +27,8 @@ export function getTemplateReplaceMap(inputs: Inputs): { [key: string]: string }
     inputs[QuestionNames.AzureOpenAIEmbeddingDeploymentName];
   const gcName: string | undefined = inputs[QuestionNames.GCName];
   const gcConnectionId: string | undefined = inputs[QuestionNames.GCConnectionId];
+  const foundryEndpoint: string | undefined = inputs[QuestionNames.FoundryEndpoint];
+  const foundryAgentId: string | undefined = inputs[QuestionNames.FoundryAgentId];
 
   if (inputs.projectId !== undefined && (openAIKey || azureOpenAIKey)) {
     const cryptoProvider = new LocalCrypto(inputs.projectId);
@@ -66,6 +68,8 @@ export function getTemplateReplaceMap(inputs: Inputs): { [key: string]: string }
     azureAISearchEndpoint: azureAISearchEndpoint ?? "",
     gcName: gcName ?? "",
     gcConnectionId: gcConnectionId ?? "",
+    FoundryEndpoint: foundryEndpoint ?? "",
+    FoundryAgentId: foundryAgentId ?? "",
     openAIEmbeddingModel: openAIEmbeddingModel ?? "",
     NewProjectTypeName: process.env.TEAMSFX_NEW_PROJECT_TYPE_NAME ?? "M365Agent",
     NewProjectTypeExt: process.env.TEAMSFX_NEW_PROJECT_TYPE_EXTENSION ?? "atkproj",

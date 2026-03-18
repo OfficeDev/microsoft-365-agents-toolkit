@@ -83,4 +83,12 @@ export const vsOnlyTemplates: Template[] = [
     displayName: "Message Extension",
     description: "Receive user input, process it, and send customized results",
   },
+  {
+    id: "foundry-proxy-agent-csharp",
+    name: TemplateNames.FoundryProxyAgent,
+    language: "csharp",
+    displayName: "Microsoft Foundry Proxy Agent",
+    description:
+      "An agent that proxies requests to Microsoft Azure AI Foundry agents, enabling Teams and M365 Copilot integration",
+  },
 ];

@@ -75,6 +75,7 @@ export enum TemplateNames {
   MessageExtensionSearch = "message-extension-search",
 
   FoundryAgent = "foundry-agent-to-m365",
+  FoundryProxyAgent = "foundry-proxy-agent",
 }
 
 export enum TemplateAlias {
@@ -105,4 +106,7 @@ export enum TemplateAlias {
 
   // messaging extension
   DefaultMessageExtension = "message-extension",
+
+  FoundryAgent = "foundry-agent",
+  FoundryProxyAgent = "foundry-proxy-agent",
 }
