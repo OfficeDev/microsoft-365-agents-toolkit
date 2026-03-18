@@ -2579,7 +2579,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Build a new Declarative Agent with Office add-in actions]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[使用 Office 加载项操作生成新的声明性代理]]></Val>
+            <Val><![CDATA[使用 Office 加载项操作构建新的声明式智能体]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3341,7 +3341,7 @@
         <Str Cat="Text">
           <Val><![CDATA[A weather forecast agent, which is built with Microsoft 365 Agents SDK and Semantic Kernel]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[一个天气预报智能体，它是使用 Microsoft 365 智能体 SDK 和语义内核生成的]]></Val>
+            <Val><![CDATA[一个天气预报智能体，它是使用 Microsoft 365 智能体 SDK 和语义内核构建的]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />

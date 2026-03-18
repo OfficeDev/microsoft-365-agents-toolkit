@@ -14,7 +14,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Intelligent agent that is built with Microsoft 365 Agents SDK and connects to your LLM]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[使用 Microsoft 365 智能体 SDK 构建并连接到 LLM 的智能代理]]></Val>
+            <Val><![CDATA[使用 Microsoft 365 智能体 SDK 构建并连接到 LLM 的智能体]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
