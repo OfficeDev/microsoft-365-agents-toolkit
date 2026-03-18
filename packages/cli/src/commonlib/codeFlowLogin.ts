@@ -119,11 +119,7 @@ export class CodeFlowLogin {
     requestScopes: Array<string> | AuthenticationWWWAuthenticateRequest,
     tenantId?: string
   ): Promise<string> {
-    if (featureFlagManager.getBooleanValue(FeatureFlags.BrokerAuth)) {
-      return await this.loginWithBroker(requestScopes, tenantId);
-    } else {
-      return await this.loginWithBrowser(requestScopes, tenantId);
-    }
+    return await this.loginWithBroker(requestScopes, tenantId);
   }
 
   async loginWithBrowser(
