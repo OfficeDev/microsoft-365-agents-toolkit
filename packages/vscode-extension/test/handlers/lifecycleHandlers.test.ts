@@ -460,7 +460,11 @@ describe("Lifecycle handlers", () => {
       const runCommandStub = sandbox.stub(shared, "runCommand");
       runCommandStub.onFirstCall().resolves(ok(undefined));
       runCommandStub.onSecondCall().resolves(ok(undefined));
-      sandbox.stub(vscode.window, "showInformationMessage").resolves("Provision");
+      sandbox
+        .stub(vscode.window, "showInformationMessage")
+        .callsFake((title: string, ...items: any[]) => {
+          return Promise.resolve(items[0]);
+        });
 
       const result = await addAuthActionHandler();
       await Promise.resolve();
