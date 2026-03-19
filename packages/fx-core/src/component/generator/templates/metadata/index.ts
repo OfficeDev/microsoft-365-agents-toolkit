@@ -9,13 +9,14 @@ import { getTemplatesFolder } from "../../../../folder";
 import { useLocalTemplate } from "../../templateHelper";
 import { Template } from "./interface";
 
-function getTemplateMetadataConfig(configName: string): Template[] {
+function getTemplateMetadataConfig(configName: string, platform?: Platform): Template[] {
   let jsonPath: string;
 
+  const cacheSubDir = platform === Platform.VS ? "vs-metadata" : "metadata";
   const cachedJsonPath = path.join(
     os.homedir(),
     `.${String(ConfigFolderName)}`,
-    "metadata",
+    cacheSubDir,
     configName
   );
 
@@ -32,7 +33,7 @@ function getTemplateMetadataConfig(configName: string): Template[] {
 
 // used by programming language question options filter
 export function getAllTemplatesOnPlatform(platform: Platform): Template[] {
-  const allTemplates = getTemplateMetadataConfig("allTemplates.json");
+  const allTemplates = getTemplateMetadataConfig("allTemplates.json", platform);
   switch (platform) {
     case Platform.VSCode:
       return allTemplates.filter((t) => t.language !== "csharp");
@@ -47,7 +48,10 @@ export function getAllTemplatesOnPlatform(platform: Platform): Template[] {
 
 // used by default generator
 export function getDefaultTemplatesOnPlatform(platform: Platform): Template[] {
-  const defaultGeneratorTemplates = getTemplateMetadataConfig("defaultGeneratorTemplates.json");
+  const defaultGeneratorTemplates = getTemplateMetadataConfig(
+    "defaultGeneratorTemplates.json",
+    platform
+  );
   switch (platform) {
     case Platform.VSCode:
       return defaultGeneratorTemplates.filter((t) => t.language !== "csharp");

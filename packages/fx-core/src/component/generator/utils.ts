@@ -36,7 +36,7 @@ export async function getTemplateUrl(
   platform?: Platform
 ): Promise<string | undefined> {
   return platform === Platform.VS
-    ? getTemplateVSUrl(programmingLanguage)
+    ? await getTemplateVSUrl(programmingLanguage)
     : await getTemplateVSCUrl(programmingLanguage, getLatestVersion);
 }
 
@@ -76,7 +76,7 @@ async function getTemplateVSCUrl(
   }
 }
 
-function getTemplateVSUrl(name: string): string | undefined {
+async function getTemplateVSUrl(name: string): Promise<string | undefined> {
   // If the template is a daily version, return undefined to use local template.
   if (templateConfig.useLocalTemplate) {
     return;
@@ -85,17 +85,17 @@ function getTemplateVSUrl(name: string): string | undefined {
   if (process.env.TEAMSFX_TEMPLATE_PRERELEASE === Platform.VS) {
     return getTemplateZipUrlByVersion(name, "0.0.0-rc", templateConfig.vstagPrefix);
   }
-  // If the template is stable version, use the latest stable version.
-  return getTemplateZipUrlByVersion(name, templateConfig.vsversion, templateConfig.vstagPrefix);
+  // If the template is stable version, look up the latest version dynamically.
+  const latestVsVersion = await getTemplateVSLatestVersion();
+  return getTemplateZipUrlByVersion(name, latestVsVersion, templateConfig.vstagPrefix);
 }
 
 async function selectTemplateVersion(
-  getTags: () => Promise<string[]>
+  getTags: () => Promise<string[]>,
+  tagPrefix: string = templateConfig.tagPrefix,
+  versionPattern: string = templateConfig.version
 ): Promise<string | undefined> {
-  const templateTagPrefix = templateConfig.tagPrefix;
-  const versionPattern = templateConfig.version;
-
-  const versionList = (await getTags()).map((tag: string) => tag.replace(templateTagPrefix, ""));
+  const versionList = (await getTags()).map((tag: string) => tag.replace(tagPrefix, ""));
   const selectedVersion = semver.maxSatisfying(versionList, versionPattern);
   return selectedVersion ?? undefined;
 }
@@ -123,6 +123,24 @@ export async function getTemplateLatestVersion(
   );
   if (!selectedVersion) {
     throw new Error(`Failed to find valid template`);
+  }
+  return selectedVersion;
+}
+
+export async function getTemplateVSLatestVersion(
+  tryLimits = defaultTryLimits,
+  timeoutInMs = defaultTimeoutInMs
+): Promise<string> {
+  const selectedVersion = await selectTemplateVersion(
+    async () =>
+      (await fetchTagList(templateConfig.vsTagListURL, tryLimits, timeoutInMs))
+        .replace(/\r/g, "")
+        .split("\n"),
+    templateConfig.vstagPrefix,
+    templateConfig.vsVersionPattern
+  );
+  if (!selectedVersion) {
+    throw new Error("Failed to find valid VS template version");
   }
   return selectedVersion;
 }
