@@ -1,4 +1,4 @@
-import { err, ok, SystemError, UserError } from "@microsoft/teamsfx-api";
+import { err, ok, Stage, SystemError, UserError } from "@microsoft/teamsfx-api";
 import {
   AppDefinition,
   teamsDevPortalClient,
@@ -454,6 +454,25 @@ describe("Lifecycle handlers", () => {
 
       assert.isTrue(result.isErr());
       sandbox.assert.notCalled(showMessageStub);
+    });
+
+    it("user selects provision", async () => {
+      const runCommandStub = sandbox.stub(shared, "runCommand");
+      runCommandStub.onFirstCall().resolves(ok(undefined));
+      runCommandStub.onSecondCall().resolves(ok(undefined));
+      sandbox.stub(vscode.window, "showInformationMessage").resolves("Provision");
+
+      const result = await addAuthActionHandler();
+      await Promise.resolve();
+
+      assert.isTrue(result.isOk());
+      sandbox.assert.calledTwice(runCommandStub);
+      sandbox.assert.calledWithExactly(
+        runCommandStub.firstCall,
+        Stage.addAuthAction,
+        sinon.match.any
+      );
+      sandbox.assert.calledWithExactly(runCommandStub.secondCall, Stage.provision);
     });
   });
 
