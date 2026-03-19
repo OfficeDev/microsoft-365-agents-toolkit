@@ -10,14 +10,14 @@
       "step_retry_timeout": 0.0
     },
     "total_steps": 8,
-    "created_at": "2026-03-12T09:38:03.553433",
+    "created_at": "2026-03-19T07:45:35.845279",
     "name": "Feature ATK Extension Details Tab",
     "description": {
       "other": "",
       "owner": "v-cheye@microsoft.com",
-      "workitem": "9496562"
+      "workitem": "32967193"
     },
-    "generated_at": "2026-03-12T09:38:03.553420",
+    "generated_at": "2026-03-19T07:45:35.845266",
     "execution_order": [
       "step_188e2454",
       "step_d55e12c8",
@@ -29,7 +29,7 @@
       "step_abce1f9f"
     ],
     "tags": [],
-    "updated_at": "2026-03-12T09:41:51.664198"
+    "updated_at": "2026-03-19T07:45:47.185265"
   },
   "steps": [
     {
@@ -55,7 +55,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_188e2454",
-      "created_at": "2026-03-12T09:38:03.566821",
+      "created_at": "2026-03-19T07:45:35.889975",
       "plan_id": "plan_r_0312_060819"
     },
     {
@@ -77,7 +77,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_d55e12c8",
-      "created_at": "2026-03-12T09:38:03.577341",
+      "created_at": "2026-03-19T07:45:35.903641",
       "plan_id": "plan_r_0312_060819"
     },
     {
@@ -103,7 +103,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_3147112a",
-      "created_at": "2026-03-12T09:38:03.590624",
+      "created_at": "2026-03-19T07:45:35.916215",
       "plan_id": "plan_r_0312_060819"
     },
     {
@@ -129,7 +129,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_a842208f",
-      "created_at": "2026-03-12T09:38:03.601141",
+      "created_at": "2026-03-19T07:45:35.927108",
       "plan_id": "plan_r_0312_060819"
     },
     {
@@ -147,7 +147,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": null,
-      "created_at": "2026-03-12T09:38:03.612640",
+      "created_at": "2026-03-19T07:45:35.939504",
       "plan_id": "plan_r_0312_060819"
     },
     {
@@ -165,7 +165,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": null,
-      "created_at": "2026-03-12T09:38:03.621138",
+      "created_at": "2026-03-19T07:45:35.950517",
       "plan_id": "plan_r_0312_060819"
     },
     {
@@ -191,7 +191,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_a7d2fdce",
-      "created_at": "2026-03-12T09:38:03.628666",
+      "created_at": "2026-03-19T07:45:35.959941",
       "plan_id": "plan_r_0312_060819"
     },
     {
@@ -209,7 +209,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": null,
-      "created_at": "2026-03-12T09:38:03.640415",
+      "created_at": "2026-03-19T07:45:35.970492",
       "plan_id": "plan_r_0312_060819"
     }
   ],
