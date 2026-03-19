@@ -457,17 +457,15 @@ describe("Lifecycle handlers", () => {
     });
 
     it("user selects provision", async () => {
-      const runCommandStub = sandbox.stub(shared, "runCommand");
-      runCommandStub.onFirstCall().resolves(ok(undefined));
-      runCommandStub.onSecondCall().resolves(ok(undefined));
+      sandbox.stub(globalVariables, "core").value(new MockCore());
+      const runCommandStub = sandbox.stub(shared, "runCommand").resolves(ok(undefined));
       sandbox
         .stub(vscode.window, "showInformationMessage")
         .callsFake((title: string, ...items: any[]) => {
-          return Promise.resolve(items[0]);
+          return Promise.resolve("Provision" as any);
         });
 
       const result = await addAuthActionHandler();
-      await Promise.resolve();
 
       assert.isTrue(result.isOk());
       sandbox.assert.calledTwice(runCommandStub);
