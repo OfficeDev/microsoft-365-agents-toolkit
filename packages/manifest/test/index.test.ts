@@ -182,7 +182,8 @@ describe("ManifestUtil", () => {
   });
 
   describe("fetchSchema", () => {
-    const mockFetch = require("node-fetch");
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const mockFetch = require("../src/fetchHelper");
 
     afterEach(() => {
       sandbox.restore();
@@ -193,7 +194,7 @@ describe("ManifestUtil", () => {
         text: sandbox.stub().resolves('{"type":"object","properties":{},"regex":"\\\\a"}'),
       };
 
-      sandbox.stub(mockFetch, "default").resolves(mockResponse);
+      sandbox.stub(mockFetch, "default").resolves(mockResponse as any);
 
       const manifest = { $schema: "https://example.com/schema.json" } as TeamsAppManifest;
       const result = await ManifestUtil.fetchSchema(manifest);
@@ -209,7 +210,7 @@ describe("ManifestUtil", () => {
         text: sandbox.stub().resolves(mockResponseText),
       };
 
-      sandbox.stub(mockFetch, "default").resolves(mockResponse);
+      sandbox.stub(mockFetch, "default").resolves(mockResponse as any);
       const jsonParseStub = sandbox.stub(JSON, "parse").callsFake((text) => {
         return { pattern: "\\x07 test pattern" };
       });
@@ -244,7 +245,7 @@ describe("ManifestUtil", () => {
         text: sandbox.stub().rejects(textError),
       };
 
-      sandbox.stub(mockFetch, "default").resolves(mockResponse);
+      sandbox.stub(mockFetch, "default").resolves(mockResponse as any);
 
       const manifest = { $schema: "https://example.com/schema.json" } as TeamsAppManifest;
 
@@ -265,7 +266,7 @@ describe("ManifestUtil", () => {
         text: sandbox.stub().resolves("invalid json content"),
       };
 
-      sandbox.stub(mockFetch, "default").resolves(mockResponse);
+      sandbox.stub(mockFetch, "default").resolves(mockResponse as any);
 
       const manifest = { $schema: "https://example.com/schema.json" } as TeamsAppManifest;
 
@@ -300,7 +301,7 @@ describe("ManifestUtil", () => {
         text: sandbox.stub().resolves('{"type":"object"}'),
       };
 
-      sandbox.stub(mockFetch, "default").resolves(mockResponse);
+      sandbox.stub(mockFetch, "default").resolves(mockResponse as any);
 
       const manifest = { schema: "https://example.com/schema.json" } as unknown as TeamsAppManifest;
       const result = await ManifestUtil.fetchSchema(manifest);

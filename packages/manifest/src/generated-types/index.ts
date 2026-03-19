@@ -5,7 +5,7 @@ import Ajv04 from "ajv-draft-04";
 import addFormats from "ajv-formats";
 import Ajv2020 from "ajv/dist/2020";
 import fs from "fs-extra";
-import fetch from "node-fetch";
+import fetch from "../fetchHelper";
 import path from "path";
 import stripBom from "strip-bom";
 import * as DeclarativeAgentManifestV1D0 from "./copilot/declarative-agent/DeclarativeAgentManifestV1D0";
