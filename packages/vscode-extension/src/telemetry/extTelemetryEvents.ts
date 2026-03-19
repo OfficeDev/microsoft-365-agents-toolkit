@@ -377,6 +377,7 @@ export enum TelemetryProperty {
   TenantId = "tenant-id",
   UserId = "hashed-userid",
   AccountType = "account-type",
+  SovereignCloudType = "sovereign-cloud-type",
   TriggerFrom = "trigger-from",
   Success = "success",
   ErrorType = "error-type",

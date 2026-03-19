@@ -129,6 +129,9 @@ export class CodeFlowLogin {
     }
     ExtTelemetry.sendTelemetryEvent(TelemetryEvent.LoginStart, {
       [TelemetryProperty.AccountType]: this.accountName,
+      [TelemetryProperty.SovereignCloudType]: featureFlagManager.getStringValue(
+        FeatureFlags.SovereignCloudEnvironment
+      ),
     });
     const codeVerifier = CodeFlowLogin.toBase64UrlEncoding(
       crypto.randomBytes(32).toString("base64")
@@ -240,6 +243,9 @@ export class CodeFlowLogin {
     } catch (e) {
       ExtTelemetry.sendTelemetryErrorEvent(TelemetryEvent.Login, e, {
         [TelemetryProperty.AccountType]: this.accountName,
+        [TelemetryProperty.SovereignCloudType]: featureFlagManager.getStringValue(
+          FeatureFlags.SovereignCloudEnvironment
+        ),
         [TelemetryProperty.Success]: TelemetrySuccess.No,
         [TelemetryProperty.UserId]: "",
         [TelemetryProperty.Internal]: "false",
@@ -254,6 +260,9 @@ export class CodeFlowLogin {
         const tokenJson = ConvertTokenToJson(accessToken);
         ExtTelemetry.sendTelemetryEvent(TelemetryEvent.Login, {
           [TelemetryProperty.AccountType]: this.accountName,
+          [TelemetryProperty.SovereignCloudType]: featureFlagManager.getStringValue(
+            FeatureFlags.SovereignCloudEnvironment
+          ),
           [TelemetryProperty.Success]: TelemetrySuccess.Yes,
           [TelemetryProperty.UserId]: (tokenJson as any).oid ? (tokenJson as any).oid : "",
           [TelemetryProperty.Internal]: (
