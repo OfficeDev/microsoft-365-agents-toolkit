@@ -14,7 +14,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Intelligent agent that is built with Microsoft 365 Agents SDK and connects to your LLM]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Agente inteligente compilado con el SDK de agentes de Microsoft 365 que se conecta al LLM]]></Val>
+            <Val><![CDATA[Agente inteligente creado con el SDK de agentes de Microsoft 365 que se conecta al LLM]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -68,7 +68,7 @@
         <Str Cat="Text">
           <Val><![CDATA[A weather forecast agent that is built with Microsoft 365 Agents SDK and LangChain]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Un agente de previsión meteorológica, que se compila con el SDK de agentes de Microsoft 365 y LangChain]]></Val>
+            <Val><![CDATA[Un agente de previsión meteorológica, que se crea  con el SDK de agentes de Microsoft 365 y LangChain]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -104,7 +104,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Agent that chats with users in Teams built with Teams AI Library and connects to LLMs]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Agente que chatea con usuarios en Microsoft Teams, compilado con la biblioteca de IA de Teams y que se conecta a LLM]]></Val>
+            <Val><![CDATA[Agente que chatea con usuarios en Microsoft Teams, creado con la biblioteca de IA de Teams y que se conecta a LLM]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />

@@ -3341,7 +3341,7 @@
         <Str Cat="Text">
           <Val><![CDATA[A weather forecast agent, which is built with Microsoft 365 Agents SDK and Semantic Kernel]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Microsoft 365 Aracı SDK'sı ve Anlamsal Çekirdek ile oluşturulan bir hava durumu tahmin aracı]]></Val>
+            <Val><![CDATA[Microsoft 365 Aracları SDK'sı ve Anlamsal Çekirdek ile oluşturulan bir hava durumu tahmin aracı]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />

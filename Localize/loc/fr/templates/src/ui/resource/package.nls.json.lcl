@@ -14,7 +14,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Intelligent agent that is built with Microsoft 365 Agents SDK and connects to your LLM]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Agent intelligent conçu avec Microsoft 365 Agents SDK et qui se connecte à votre LLM]]></Val>
+            <Val><![CDATA[Agent intelligent créé avec Microsoft 365 Agents SDK et qui se connecte à votre LLM]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -50,7 +50,7 @@
         <Str Cat="Text">
           <Val><![CDATA[A travel planning agent, which is built with Microsoft 365 Agents SDK, Microsoft 365 Retrieval API and Agent Framework]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Un agent de planification de voyage, construit avec le Microsoft 365 Agents SDK, l’API de récupération Microsoft 365 et l’Agent Framework]]></Val>
+            <Val><![CDATA[Un agent de planification de voyage, créé avec le Microsoft 365 Agents SDK, l’API de récupération Microsoft 365 et l’Agent Framework]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -68,7 +68,7 @@
         <Str Cat="Text">
           <Val><![CDATA[A weather forecast agent that is built with Microsoft 365 Agents SDK and LangChain]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Agent de prévisions météo, conçu avec Microsoft 365 Agents SDK et LangChain]]></Val>
+            <Val><![CDATA[Agent de prévisions météo, créé avec Microsoft 365 Agents SDK et LangChain]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -104,7 +104,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Agent that chats with users in Teams built with Teams AI Library and connects to LLMs]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Assistant qui discute avec des utilisateurs dans Teams, construit avec la bibliothèque d’IA Teams et se connecte aux LLM]]></Val>
+            <Val><![CDATA[Assistant qui discute avec des utilisateurs dans Teams, créé avec la bibliothèque d’IA Teams et se connecte aux LLM]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />

@@ -2579,7 +2579,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Build a new Declarative Agent with Office add-in actions]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Générer un nouvel agent déclaratif avec les actions de complément Office]]></Val>
+            <Val><![CDATA[Créez un nouvel agent déclaratif avec les actions de complément Office]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3323,7 +3323,7 @@
         <Str Cat="Text">
           <Val><![CDATA[A travel planning agent, which is built with Microsoft 365 Agents SDK, Microsoft 365 Retrieval API and Agent Framework]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Un agent de planification de voyage, construit avec le Microsoft 365 Agents SDK, l’API de récupération Microsoft 365 et l’Agent Framework]]></Val>
+            <Val><![CDATA[Un agent de planification de voyage, créé avec le Microsoft 365 Agents SDK, l’API de récupération Microsoft 365 et l’Agent Framework]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3341,7 +3341,7 @@
         <Str Cat="Text">
           <Val><![CDATA[A weather forecast agent, which is built with Microsoft 365 Agents SDK and Semantic Kernel]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Agent de prévisions météo, conçu avec le SDK des agents Microsoft 365 et le noyau sémantique]]></Val>
+            <Val><![CDATA[Agent de prévisions météo, créé avec le SDK des agents Microsoft 365 et le noyau sémantique]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
