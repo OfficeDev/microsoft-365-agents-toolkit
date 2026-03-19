@@ -3,7 +3,7 @@
 
 import { ConfigFolderName, err, ok, Result, UserError } from "@microsoft/teamsfx-api";
 import * as fs from "fs-extra";
-import fetch from "node-fetch";
+import fetch from "../../../common/fetchHelper";
 import * as os from "os";
 import * as path from "path";
 import semver from "semver";
@@ -781,39 +781,45 @@ export class GitHubHelpers {
   private static readonly artifactNamePrefix = "agentsplayground";
   public static async listGitHubReleases(): Promise<GitHubRelease[]> {
     // GitHub API without auth
-    const response = await fetch(
-      "https://api.github.com/repos/OfficeDev/microsoft-365-agents-toolkit/releases",
-      {
-        headers: {
-          Accept: "application/vnd.github+json",
-          "X-Github-Api-Version": "2022-11-28",
-        },
-        timeout: InstallTimeout,
-      }
-    );
-    const releases: {
-      tag_name: string;
-      assets: { name: string; url: string }[];
-    }[] = await response.json();
-
-    const result: GitHubRelease[] = [];
-    for (const release of releases) {
-      const parts = release.tag_name.split("@");
-      const platformAssets = release.assets.filter((asset) =>
-        asset.name.includes(`${this.artifactNamePrefix}-${os.platform()}-${os.arch()}`)
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), InstallTimeout);
+    try {
+      const response = await fetch(
+        "https://api.github.com/repos/OfficeDev/microsoft-365-agents-toolkit/releases",
+        {
+          headers: {
+            Accept: "application/vnd.github+json",
+            "X-Github-Api-Version": "2022-11-28",
+          },
+          signal: controller.signal as any,
+        }
       );
-      if (parts.length === 2) {
-        const pkgName = parts[0];
-        const version = parts[1];
-        if (pkgName == this.releasePackageName && platformAssets.length > 0) {
-          result.push({
-            version,
-            url: platformAssets[0].url,
-          });
+      const releases = (await response.json()) as {
+        tag_name: string;
+        assets: { name: string; url: string }[];
+      }[];
+
+      const result: GitHubRelease[] = [];
+      for (const release of releases) {
+        const parts = release.tag_name.split("@");
+        const platformAssets = release.assets.filter((asset) =>
+          asset.name.includes(`${this.artifactNamePrefix}-${os.platform()}-${os.arch()}`)
+        );
+        if (parts.length === 2) {
+          const pkgName = parts[0];
+          const version = parts[1];
+          if (pkgName == this.releasePackageName && platformAssets.length > 0) {
+            result.push({
+              version,
+              url: platformAssets[0].url,
+            });
+          }
         }
       }
-    }
 
-    return result;
+      return result;
+    } finally {
+      clearTimeout(timeoutId);
+    }
   }
 }

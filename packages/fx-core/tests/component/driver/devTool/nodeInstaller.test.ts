@@ -4,8 +4,7 @@
 import { ConfigFolderName, err, ok } from "@microsoft/teamsfx-api";
 import { assert } from "chai";
 import "mocha";
-import * as nodeFetch from "node-fetch";
-import { Response } from "node-fetch";
+import * as fetchHelper from "../../../../src/common/fetchHelper";
 import os from "os";
 import * as sinon from "sinon";
 import stream, { Readable } from "stream";
@@ -25,6 +24,13 @@ import { UserCancelError } from "../../../../src/error";
 
 describe("NodeJS Installer", () => {
   const sandbox = sinon.createSandbox();
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  let Response: typeof import("node-fetch").Response;
+
+  before(async () => {
+    const nodeFetch = await import("node-fetch");
+    Response = nodeFetch.Response;
+  });
 
   describe("HttpClient", () => {
     afterEach(() => {
@@ -33,7 +39,7 @@ describe("NodeJS Installer", () => {
 
     describe("get", () => {
       it("fetch return 500", async () => {
-        sandbox.stub(nodeFetch, "default").resolves({ ok: false, status: 500 } as any);
+        sandbox.stub(fetchHelper, "default").resolves({ ok: false, status: 500 } as any);
         try {
           await httpClient.get("https://test.com");
         } catch (e: any) {
@@ -47,7 +53,7 @@ describe("NodeJS Installer", () => {
           status: 200,
           headers: { "content-type": "application/json" },
         });
-        sandbox.stub(nodeFetch, "default").resolves(fakeResponse);
+        sandbox.stub(fetchHelper, "default").resolves(fakeResponse);
         const result = await httpClient.get("https://test.com", { progress: () => {} });
         assert.equal(result.toString(), "chunk1");
       });
@@ -61,7 +67,7 @@ describe("NodeJS Installer", () => {
 
     describe("headTime", () => {
       it("fetch return 500", async () => {
-        sandbox.stub(nodeFetch, "default").resolves({ ok: false, status: 500 } as any);
+        sandbox.stub(fetchHelper, "default").resolves({ ok: false, status: 500 } as any);
         try {
           await httpClient.headTime("https://test.com");
         } catch (e: any) {
@@ -74,7 +80,7 @@ describe("NodeJS Installer", () => {
           status: 200,
           headers: { "content-type": "application/json" },
         });
-        sandbox.stub(nodeFetch, "default").resolves(fakeResponse);
+        sandbox.stub(fetchHelper, "default").resolves(fakeResponse);
         const result = await httpClient.headTime("https://test.com");
         assert.isDefined(result);
       });
@@ -227,7 +233,7 @@ describe("NodeJS Installer", () => {
         status: 200,
         headers: { "content-type": "application/json", "content-length": `${buffer.length}` },
       });
-      sandbox.stub(nodeFetch, "default").resolves(fakeResponse);
+      sandbox.stub(fetchHelper, "default").resolves(fakeResponse);
       const binRes = await nodejsInstaller.fetchBinary("test url", 1000, (process: string) => {});
       assert.isTrue(binRes.isOk());
       if (binRes.isOk()) {
