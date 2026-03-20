@@ -74,12 +74,17 @@ describe("utils unit test cases", () => {
   });
 
   it("should return the stable URL for getTemplateVSUrl", async () => {
+    // Stub HTTP so getTemplateVSLatestVersion() can resolve without network
+    sandbox
+      .stub(requestUtils, "sendRequestWithTimeout")
+      .resolves({ data: "templates-vs@18.0.0\ntemplates@6.0.0\n" } as any);
     const mockSettings = {
       version: "~6.0",
       localVersion: "6.0.0",
       tagPrefix: "templates@",
       vstagPrefix: "templates-vs@",
       vsversion: "18.0.0",
+      vsVersionPattern: "~18.0",
       tagListURL:
         "https://github.com/OfficeDev/microsoft-365-agents-toolkit/releases/download/template-tag-list/template-tags.txt",
       templateDownloadBaseURL:
@@ -92,6 +97,7 @@ describe("utils unit test cases", () => {
     };
     const dUtils = proxyquire("../../../src/component/generator/utils", {
       "../../common/templates-config.json": mockSettings,
+      "../../../package.json": { version: "3.0.0" }, // stable, not beta
     });
     const getLatestVersion = () => Promise.resolve("18.0.0");
     const result = await dUtils.getTemplateUrl("csharp", getLatestVersion, Platform.VS);
