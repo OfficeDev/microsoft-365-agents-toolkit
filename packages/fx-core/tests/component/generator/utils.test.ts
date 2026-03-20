@@ -8,10 +8,12 @@ import proxyquire from "proxyquire";
 import * as sinon from "sinon";
 import { GraphClient } from "../../../src/client/graphClient";
 import { createContext, setTools } from "../../../src/common/globalVars";
+import * as requestUtils from "../../../src/common/requestUtils";
 import { copilotGptManifestUtils } from "../../../src/component/driver/teamsApp/utils/CopilotGptManifestUtils";
 import { useLocalTemplate } from "../../../src/component/generator/templateHelper";
 import {
   getTemplateUrl,
+  getTemplateVSLatestVersion,
   getTemplateZipUrlByVersion,
   setGeneralSensitivityLabel,
 } from "../../../src/component/generator/utils";
@@ -371,5 +373,54 @@ describe("templateHelper unit test cases", () => {
     const result = templateHelper.useLocalTemplate();
     assert.isFalse(result);
     restore();
+  });
+});
+
+describe("getTemplateVSLatestVersion", () => {
+  const sandbox = sinon.createSandbox();
+
+  afterEach(() => {
+    sandbox.restore();
+  });
+
+  it("should return the max satisfying version matching vsVersionPattern", async () => {
+    const tagList =
+      "templates-vs@18.4.0\ntemplates-vs@18.4.1\ntemplates-vs@18.3.0\ntemplates-vs@18.5.0\n";
+    sandbox.stub(requestUtils, "sendRequestWithTimeout").resolves({ data: tagList } as any);
+
+    const result = await getTemplateVSLatestVersion();
+    // ~18.4 matches 18.4.x only, not 18.5.x
+    assert.strictEqual(result, "18.4.1");
+  });
+
+  it("should handle CRLF line endings in tag list", async () => {
+    const tagList = "templates-vs@18.4.0\r\ntemplates-vs@18.4.1\r\n";
+    sandbox.stub(requestUtils, "sendRequestWithTimeout").resolves({ data: tagList } as any);
+
+    const result = await getTemplateVSLatestVersion();
+    assert.strictEqual(result, "18.4.1");
+  });
+
+  it("should throw when no version satisfies vsVersionPattern", async () => {
+    const tagList = "templates-vs@17.0.0\ntemplates-vs@17.1.0\n";
+    sandbox.stub(requestUtils, "sendRequestWithTimeout").resolves({ data: tagList } as any);
+
+    try {
+      await getTemplateVSLatestVersion();
+      assert.fail("Expected error to be thrown");
+    } catch (e: any) {
+      assert.include(e.message, "Failed to find valid VS template version");
+    }
+  });
+
+  it("should propagate network errors from fetchTagList", async () => {
+    sandbox.stub(requestUtils, "sendRequestWithTimeout").rejects(new Error("Network timeout"));
+
+    try {
+      await getTemplateVSLatestVersion();
+      assert.fail("Expected error to be thrown");
+    } catch (e: any) {
+      assert.include(e.message, "Network timeout");
+    }
   });
 });

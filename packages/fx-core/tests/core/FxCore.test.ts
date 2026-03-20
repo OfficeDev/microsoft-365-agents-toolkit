@@ -9353,3 +9353,198 @@ describe("fetchOnlineTemplateMetadata", () => {
     );
   });
 });
+
+describe("fetchOnlineTemplateMetadataForVS", () => {
+  const sandbox = sinon.createSandbox();
+  let core: FxCore;
+  let mockedEnvRestore: RestoreFn | undefined;
+
+  beforeEach(() => {
+    setTools(tools);
+    core = new FxCore(tools);
+  });
+
+  afterEach(() => {
+    sandbox.restore();
+    if (mockedEnvRestore) {
+      mockedEnvRestore();
+      mockedEnvRestore = undefined;
+    }
+  });
+
+  it("should skip download when using local template", async () => {
+    sandbox.stub(templateHelper, "useLocalTemplate").returns(true);
+
+    const result = await core.fetchOnlineTemplateMetadataForVS();
+
+    assert.isTrue(result.isOk());
+    if (result.isOk()) {
+      assert.isUndefined(result.value);
+    }
+  });
+
+  it("should download metadata when version file does not exist", async () => {
+    sandbox.stub(templateHelper, "useLocalTemplate").returns(false);
+    sandbox.stub(templateConfigModule, "vstagPrefix").value("templates-vs@");
+    sandbox
+      .stub(templateConfigModule, "templateDownloadBaseURL")
+      .value("https://example.com/releases/download");
+    sandbox.stub(generatorUtils, "getTemplateVSLatestVersion").resolves("18.4.1");
+    const mockZip = new AdmZip();
+    const fetchZipStub = sandbox.stub(generatorUtils, "fetchZipFromUrl").resolves(mockZip);
+    const unzipStub = sandbox.stub(generatorUtils, "unzip").resolves();
+
+    sandbox.stub(fs, "pathExists").resolves(false);
+    sandbox.stub(fs, "ensureDir").resolves();
+    const writeFileStub = sandbox.stub(fs, "writeFile").resolves();
+
+    const result = await core.fetchOnlineTemplateMetadataForVS();
+
+    assert.isTrue(result.isOk());
+    assert.isTrue(fetchZipStub.calledOnce);
+    assert.isTrue(
+      fetchZipStub.calledWith(
+        "https://example.com/releases/download/templates-vs@18.4.1/metadata.zip"
+      )
+    );
+    assert.isTrue(unzipStub.calledOnce);
+    assert.isTrue(writeFileStub.calledWith(sinon.match.string, "18.4.1", { encoding: "utf-8" }));
+  });
+
+  it("should skip download when cached version matches latest", async () => {
+    sandbox.stub(templateHelper, "useLocalTemplate").returns(false);
+    sandbox.stub(generatorUtils, "getTemplateVSLatestVersion").resolves("18.4.1");
+    const fetchZipStub = sandbox.stub(generatorUtils, "fetchZipFromUrl");
+    const unzipStub = sandbox.stub(generatorUtils, "unzip");
+
+    sandbox.stub(fs, "pathExists").resolves(true);
+    sandbox.stub(fs, "ensureDir").resolves();
+    sandbox.stub(fs, "readFile").resolves("18.4.1" as any);
+    sandbox.stub(fs, "writeFile").resolves();
+
+    const result = await core.fetchOnlineTemplateMetadataForVS();
+
+    assert.isTrue(result.isOk());
+    assert.isFalse(fetchZipStub.called);
+    assert.isFalse(unzipStub.called);
+  });
+
+  it("should download when cached version differs from latest", async () => {
+    sandbox.stub(templateHelper, "useLocalTemplate").returns(false);
+    sandbox.stub(templateConfigModule, "vstagPrefix").value("templates-vs@");
+    sandbox
+      .stub(templateConfigModule, "templateDownloadBaseURL")
+      .value("https://example.com/releases/download");
+    sandbox.stub(generatorUtils, "getTemplateVSLatestVersion").resolves("18.4.1");
+    const mockZip = new AdmZip();
+    const fetchZipStub = sandbox.stub(generatorUtils, "fetchZipFromUrl").resolves(mockZip);
+    const unzipStub = sandbox.stub(generatorUtils, "unzip").resolves();
+
+    sandbox.stub(fs, "pathExists").resolves(true);
+    sandbox.stub(fs, "ensureDir").resolves();
+    sandbox.stub(fs, "readFile").resolves("18.4.0" as any);
+    sandbox.stub(fs, "writeFile").resolves();
+
+    const result = await core.fetchOnlineTemplateMetadataForVS();
+
+    assert.isTrue(result.isOk());
+    assert.isTrue(fetchZipStub.calledOnce);
+    assert.isTrue(unzipStub.calledOnce);
+  });
+
+  it("should re-download when version file read throws", async () => {
+    sandbox.stub(templateHelper, "useLocalTemplate").returns(false);
+    sandbox.stub(templateConfigModule, "vstagPrefix").value("templates-vs@");
+    sandbox
+      .stub(templateConfigModule, "templateDownloadBaseURL")
+      .value("https://example.com/releases/download");
+    sandbox.stub(generatorUtils, "getTemplateVSLatestVersion").resolves("18.4.1");
+    const mockZip = new AdmZip();
+    const fetchZipStub = sandbox.stub(generatorUtils, "fetchZipFromUrl").resolves(mockZip);
+    const unzipStub = sandbox.stub(generatorUtils, "unzip").resolves();
+
+    sandbox.stub(fs, "pathExists").resolves(true);
+    sandbox.stub(fs, "ensureDir").resolves();
+    sandbox.stub(fs, "readFile").rejects(new Error("File read error"));
+    sandbox.stub(fs, "writeFile").resolves();
+
+    const result = await core.fetchOnlineTemplateMetadataForVS();
+
+    assert.isTrue(result.isOk());
+    assert.isTrue(fetchZipStub.calledOnce);
+    assert.isTrue(unzipStub.calledOnce);
+  });
+
+  it("should return error when getTemplateVSLatestVersion fails", async () => {
+    sandbox.stub(templateHelper, "useLocalTemplate").returns(false);
+    sandbox
+      .stub(generatorUtils, "getTemplateVSLatestVersion")
+      .rejects(new Error("Failed to find valid VS template version"));
+
+    sandbox.stub(fs, "ensureDir").resolves();
+
+    const result = await core.fetchOnlineTemplateMetadataForVS();
+
+    assert.isTrue(result.isErr());
+    if (result.isErr()) {
+      assert.equal(result.error.source, "FetchOnlineTemplateMetadataForVS");
+      assert.equal(result.error.name, "DownloadFailed");
+      assert.include(result.error.message, "Failed to find valid VS template version");
+    }
+  });
+
+  it("should return error when fetchZipFromUrl fails", async () => {
+    sandbox.stub(templateHelper, "useLocalTemplate").returns(false);
+    sandbox.stub(templateConfigModule, "vstagPrefix").value("templates-vs@");
+    sandbox
+      .stub(templateConfigModule, "templateDownloadBaseURL")
+      .value("https://example.com/releases/download");
+    sandbox.stub(generatorUtils, "getTemplateVSLatestVersion").resolves("18.4.1");
+    sandbox
+      .stub(generatorUtils, "fetchZipFromUrl")
+      .rejects(new Error("Download failed: 404 Not Found"));
+
+    sandbox.stub(fs, "pathExists").resolves(false);
+    sandbox.stub(fs, "ensureDir").resolves();
+
+    const result = await core.fetchOnlineTemplateMetadataForVS();
+
+    assert.isTrue(result.isErr());
+    if (result.isErr()) {
+      assert.equal(result.error.source, "FetchOnlineTemplateMetadataForVS");
+      assert.equal(result.error.name, "DownloadFailed");
+      assert.include(result.error.message, "Download failed: 404 Not Found");
+    }
+  });
+
+  it("should use vs-metadata directory with correct version file path", async () => {
+    sandbox.stub(templateHelper, "useLocalTemplate").returns(false);
+    sandbox.stub(templateConfigModule, "vstagPrefix").value("templates-vs@");
+    sandbox
+      .stub(templateConfigModule, "templateDownloadBaseURL")
+      .value("https://example.com/releases/download");
+    sandbox.stub(generatorUtils, "getTemplateVSLatestVersion").resolves("18.4.1");
+    const mockZip = new AdmZip();
+    sandbox.stub(generatorUtils, "fetchZipFromUrl").resolves(mockZip);
+    const unzipStub = sandbox.stub(generatorUtils, "unzip").resolves();
+
+    sandbox.stub(fs, "pathExists").resolves(false);
+    const ensureDirStub = sandbox.stub(fs, "ensureDir").resolves();
+    const writeFileStub = sandbox.stub(fs, "writeFile").resolves();
+
+    const expectedMetadataDir = path.join(os.homedir(), ".fx", "vs-metadata");
+
+    const result = await core.fetchOnlineTemplateMetadataForVS();
+
+    assert.isTrue(result.isOk());
+    assert.isTrue(ensureDirStub.calledWith(expectedMetadataDir));
+    assert.isTrue(unzipStub.calledWith(mockZip, expectedMetadataDir));
+    assert.isTrue(
+      writeFileStub.calledWith(
+        path.join(expectedMetadataDir, "template-vs-version.txt"),
+        "18.4.1",
+        { encoding: "utf-8" }
+      )
+    );
+  });
+});
