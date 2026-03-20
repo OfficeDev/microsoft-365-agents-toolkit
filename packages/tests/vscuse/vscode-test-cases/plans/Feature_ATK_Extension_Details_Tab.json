@@ -15,7 +15,7 @@
     "description": {
       "other": "",
       "owner": "v-cheye@microsoft.com",
-      "workitem": "9496562"
+      "workitem": "32967193"
     },
     "generated_at": "2026-03-20T03:44:15.925732",
     "execution_order": [
@@ -107,15 +107,15 @@
       "plan_id": "plan_r_0312_060819"
     },
     {
-      "step_id": "step_a842208f",
+      "step_id": "step_da88b97f",
       "agent": "interaction",
       "tool": "click",
       "parameters": {
         "button": "left",
-        "x": 389,
-        "y": 269
+        "x": 364,
+        "y": 248
       },
-      "description": "Click the \"DETAILS\" tab in the Microsoft 365 Agents Toolkit extension page within the Visual Studio Code Extensions Marketplace panel. The red crosshair highlights the tab, making this step precise for navigating to the extension's detailed information section.",
+      "description": "Click the \"DETAILS\" tab in the Microsoft 365 Agents Toolkit extension view within the Visual Studio Code Extensions Marketplace panel.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -201,7 +201,7 @@
       "agent": "assertion",
       "tool": "",
       "parameters": {},
-      "description": "@assertion \"Microsoft 365 Agents Toolkit is a suite of tools\" exists.",
+      "description": "@assertion The content in the DETAILS tab can be displayed normally.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
