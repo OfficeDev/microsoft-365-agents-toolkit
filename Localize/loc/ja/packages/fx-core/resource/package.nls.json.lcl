@@ -2579,7 +2579,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Build a new Declarative Agent with Office add-in actions]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Office アドイン アクションを含む新しい宣言型エージェントをビルドする]]></Val>
+            <Val><![CDATA[Office アドイン アクションを含む新しい宣言型エージェントを構築する]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3341,7 +3341,7 @@
         <Str Cat="Text">
           <Val><![CDATA[A weather forecast agent, which is built with Microsoft 365 Agents SDK and Semantic Kernel]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Microsoft 365 Agents SDK と Semantic Kernel を使用してビルドされた天気予報エージェント]]></Val>
+            <Val><![CDATA[Microsoft 365 Agents SDK と Semantic Kernel を使用して構築された天気予報エージェント]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
