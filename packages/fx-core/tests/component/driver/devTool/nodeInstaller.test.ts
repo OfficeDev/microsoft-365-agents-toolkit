@@ -60,6 +60,36 @@ describe("NodeJS Installer", () => {
         const result = await httpClient.get("https://test.com", { progress: () => {} });
         assert.equal(result.toString(), "chunk1");
       });
+
+      it("should pass AbortSignal to fetch", async () => {
+        const buffer = Buffer.from("data");
+        const fakeResponse = new Response(Readable.from(buffer), { status: 200 });
+        const stub = sandbox.stub(fetchHelper, "default").resolves(fakeResponse);
+        await httpClient.get("https://test.com", { timeout: 5000 });
+        assert.isTrue(stub.calledOnce);
+        const init = stub.firstCall.args[1] as any;
+        assert.isDefined(init.signal, "signal should be passed to fetch");
+        assert.instanceOf(init.signal, AbortSignal);
+      });
+
+      it("should abort on timeout", async () => {
+        const stub = sandbox.stub(fetchHelper, "default").callsFake(async (_url, init) => {
+          // Wait longer than the timeout
+          await new Promise((resolve, reject) => {
+            (init as any).signal.addEventListener("abort", () =>
+              reject(new Error("The operation was aborted"))
+            );
+            setTimeout(resolve, 5000);
+          });
+          return new Response(undefined, { status: 200 });
+        });
+        try {
+          await httpClient.get("https://test.com", { timeout: 50 });
+          assert.fail("Expected abort error");
+        } catch (e: any) {
+          assert.include(e.message, "aborted");
+        }
+      });
     });
 
     it("getText", async () => {
@@ -86,6 +116,17 @@ describe("NodeJS Installer", () => {
         sandbox.stub(fetchHelper, "default").resolves(fakeResponse);
         const result = await httpClient.headTime("https://test.com");
         assert.isDefined(result);
+      });
+
+      it("should pass AbortSignal to fetch for HEAD requests", async () => {
+        const fakeResponse = new Response(undefined, { status: 200 });
+        const stub = sandbox.stub(fetchHelper, "default").resolves(fakeResponse);
+        await httpClient.headTime("https://test.com", { timeout: 5000 });
+        assert.isTrue(stub.calledOnce);
+        const init = stub.firstCall.args[1] as any;
+        assert.isDefined(init.signal, "signal should be passed to fetch");
+        assert.instanceOf(init.signal, AbortSignal);
+        assert.equal(init.method, "HEAD");
       });
     });
   });
