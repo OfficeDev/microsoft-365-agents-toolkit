@@ -9,14 +9,14 @@
       "precondition_retry_interval": 2
     },
     "total_steps": 8,
-    "created_at": "2026-03-18T09:20:45.194322",
+    "created_at": "2026-03-20T01:42:56.132518",
     "name": "group: create_app_name",
     "description": {
       "other": "Generated from recording r_0928_014459",
       "owner": "v-ivanchen@microsoft.com",
       "workitem": ""
     },
-    "generated_at": "2026-03-18T09:20:45.194322",
+    "generated_at": "2026-03-20T01:42:56.132518",
     "execution_order": [
       "step_7a47c22a",
       "step_69fab4c1",
@@ -30,7 +30,7 @@
     "tags": [
       "group"
     ],
-    "updated_at": "2026-03-18T10:55:57.858634"
+    "updated_at": "2026-03-20T06:56:27.513639"
   },
   "steps": [
     {
@@ -59,7 +59,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_7a47c22a",
-      "created_at": "2026-03-18T09:20:45.194322",
+      "created_at": "2026-03-20T01:42:56.135749",
       "plan_id": "plan_r_0928_014459"
     },
     {
@@ -88,7 +88,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_69fab4c1",
-      "created_at": "2026-03-18T09:20:45.194322",
+      "created_at": "2026-03-20T01:42:56.135749",
       "plan_id": "plan_r_0928_014459"
     },
     {
@@ -96,7 +96,7 @@
       "agent": "assertion",
       "tool": "",
       "parameters": {},
-      "description": "@assertion there's readme file opened",
+      "description": "@assertion there's \"Preview README.md\" tab header in the Visual Studio Code.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -108,7 +108,7 @@
         "step_retry_timeout: 60"
       ],
       "screenshot": null,
-      "created_at": "2026-03-18T10:55:25.361415",
+      "created_at": "2026-03-20T01:42:56.135749",
       "plan_id": "plan_r_0928_014459"
     },
     {
@@ -136,7 +136,7 @@
         "force_run:true"
       ],
       "screenshot": "step_b19844ac",
-      "created_at": "2026-03-18T09:20:45.194322",
+      "created_at": "2026-03-20T01:42:56.151709",
       "plan_id": "plan_r_0928_014459"
     },
     {
@@ -164,7 +164,7 @@
         "force_run:true"
       ],
       "screenshot": "step_bf270ab5",
-      "created_at": "2026-03-18T09:20:45.214946",
+      "created_at": "2026-03-20T01:42:56.151709",
       "plan_id": "plan_r_0928_014459"
     },
     {
@@ -186,7 +186,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_f459eb2a",
-      "created_at": "2026-03-18T09:20:45.214946",
+      "created_at": "2026-03-20T01:42:56.151709",
       "plan_id": "plan_r_0928_014459"
     },
     {
@@ -208,7 +208,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_3aa7f1c8",
-      "created_at": "2026-03-18T09:20:45.214946",
+      "created_at": "2026-03-20T01:42:56.166711",
       "plan_id": "plan_r_0928_014459"
     },
     {
@@ -230,7 +230,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_07e37f08",
-      "created_at": "2026-03-18T09:20:45.228007",
+      "created_at": "2026-03-20T01:42:56.166711",
       "plan_id": "plan_r_0928_014459"
     }
   ],
