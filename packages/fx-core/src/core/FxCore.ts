@@ -2937,6 +2937,9 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
 
       const versionFile = path.join(metadataDir, "template-version.txt");
       const needDownload = async (): Promise<boolean> => {
+        // Always re-download for mutable pre-release tags (content changes but tag stays the same)
+        if (latestVersion === "0.0.0-rc") return true;
+
         if (!(await fs.pathExists(versionFile))) return true;
         try {
           const cachedVersion = (await fs.readFile(versionFile, "utf-8")).trim();
