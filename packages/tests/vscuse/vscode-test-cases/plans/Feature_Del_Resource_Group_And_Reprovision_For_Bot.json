@@ -9,15 +9,15 @@
       "precondition_retry_interval": 2,
       "step_retry_count": 0
     },
-    "total_steps": 15,
-    "created_at": "2026-03-05T05:50:11.144541",
+    "total_steps": 16,
+    "created_at": "2026-03-20T06:57:41.934302",
     "name": "Feature Del Resource Group And Reprovision For Bot",
     "description": {
       "other": "",
       "owner": "v-annefu@microsoft.com",
       "workitem": "10744682"
     },
-    "generated_at": "2026-03-05T05:50:11.144535",
+    "generated_at": "2026-03-20T06:57:41.934294",
     "execution_order": [
       "plan_r_0928_012254",
       "step_103d786f",
@@ -29,6 +29,7 @@
       "plan_r_0928_020230",
       "plan_f8a7a316",
       "step_1331f4a6",
+      "step_3333417c",
       "step_62eceb88",
       "plan_a6628e50",
       "step_8f713c9f",
@@ -41,7 +42,7 @@
       "step_93581af7"
     ],
     "tags": [],
-    "updated_at": "2026-03-05T06:10:48.184851"
+    "updated_at": "2026-03-20T07:00:05.055509"
   },
   "steps": [
     {
@@ -67,7 +68,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_103d786f",
-      "created_at": "2026-03-05T05:50:11.189124",
+      "created_at": "2026-03-20T06:57:41.943203",
       "plan_id": "plan_0fbdd53e"
     },
     {
@@ -93,7 +94,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_57c72fa8",
-      "created_at": "2026-03-05T05:50:11.203011",
+      "created_at": "2026-03-20T06:57:41.952997",
       "plan_id": "plan_0fbdd53e"
     },
     {
@@ -119,7 +120,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_852d9d17",
-      "created_at": "2026-03-05T05:50:11.213386",
+      "created_at": "2026-03-20T06:57:41.962320",
       "plan_id": "plan_0fbdd53e"
     },
     {
@@ -145,7 +146,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_14d9943c",
-      "created_at": "2026-03-05T05:50:11.222429",
+      "created_at": "2026-03-20T06:57:41.971242",
       "plan_id": "plan_0fbdd53e"
     },
     {
@@ -171,7 +172,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_aa9ed3de",
-      "created_at": "2026-03-05T05:50:11.234489",
+      "created_at": "2026-03-20T06:57:41.980063",
       "plan_id": "plan_0fbdd53e"
     },
     {
@@ -189,7 +190,25 @@
       "postconditions": [],
       "tags": [],
       "screenshot": null,
-      "created_at": "2026-03-05T05:50:11.242705",
+      "created_at": "2026-03-20T06:57:41.994722",
+      "plan_id": "plan_0fbdd53e"
+    },
+    {
+      "step_id": "step_3333417c",
+      "agent": "code",
+      "tool": "",
+      "parameters": {},
+      "description": "@code az account set --subscription ${{env:AZURE_SUBSCRIPTION_ID}}",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": null,
+      "created_at": "2026-03-20T07:00:05.030793",
       "plan_id": "plan_0fbdd53e"
     },
     {
@@ -207,7 +226,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": null,
-      "created_at": "2026-03-05T05:50:11.253338",
+      "created_at": "2026-03-20T06:57:42.002741",
       "plan_id": "plan_0fbdd53e"
     },
     {
@@ -229,7 +248,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_8f713c9f",
-      "created_at": "2026-03-05T05:50:11.263532",
+      "created_at": "2026-03-20T06:57:42.010897",
       "plan_id": "plan_0fbdd53e"
     },
     {
@@ -251,7 +270,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_681148ae",
-      "created_at": "2026-03-05T05:50:11.277971",
+      "created_at": "2026-03-20T06:57:42.018724",
       "plan_id": "plan_0fbdd53e"
     },
     {
@@ -277,7 +296,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_bb40b465",
-      "created_at": "2026-03-05T05:50:11.287760",
+      "created_at": "2026-03-20T06:57:42.027619",
       "plan_id": "plan_0fbdd53e"
     },
     {
@@ -303,7 +322,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_c2d6d803",
-      "created_at": "2026-03-05T05:50:11.297853",
+      "created_at": "2026-03-20T06:57:42.039158",
       "plan_id": "plan_0fbdd53e"
     },
     {
@@ -325,7 +344,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_61de3bbe",
-      "created_at": "2026-03-05T05:50:11.307613",
+      "created_at": "2026-03-20T06:57:42.049708",
       "plan_id": "plan_0fbdd53e"
     },
     {
@@ -347,7 +366,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_c587de67",
-      "created_at": "2026-03-05T05:50:11.317590",
+      "created_at": "2026-03-20T06:57:42.059041",
       "plan_id": "plan_0fbdd53e"
     },
     {
@@ -373,7 +392,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_e31a4ab3",
-      "created_at": "2026-03-05T05:50:11.327598",
+      "created_at": "2026-03-20T06:57:42.068432",
       "plan_id": "plan_0fbdd53e"
     },
     {
@@ -391,7 +410,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": null,
-      "created_at": "2026-03-05T05:50:11.336824",
+      "created_at": "2026-03-20T06:57:42.077965",
       "plan_id": "plan_0fbdd53e"
     }
   ],
