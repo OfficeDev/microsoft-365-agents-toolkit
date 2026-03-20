@@ -100,6 +100,35 @@ describe("utils unit test cases", () => {
     assert.strictEqual(result, expectedUrl);
   });
 
+  it("should return rc URL for beta fx-core version (VS pre-release test build)", async () => {
+    const mockPackageJson = { version: "3.0.0-beta.1" };
+    const mockSettings = {
+      version: "~6.0",
+      localVersion: "6.0.0",
+      tagPrefix: "templates@",
+      vstagPrefix: "templates-vs@",
+      vsversion: "18.4.2",
+      tagListURL:
+        "https://github.com/OfficeDev/microsoft-365-agents-toolkit/releases/download/template-tag-list/template-tags.txt",
+      templateDownloadBaseURL:
+        "https://github.com/OfficeDev/microsoft-365-agents-toolkit/releases/download",
+      templateReleaseURL:
+        "https://github.com/OfficeDev/microsoft-365-agents-toolkit/releases/expanded_assets",
+      templateDownloadBasePath: "/OfficeDev/microsoft-365-agents-toolkit/releases/download",
+      templateExt: ".zip",
+      useLocalTemplate: false,
+    };
+    const dUtils = proxyquire("../../../src/component/generator/utils", {
+      "../../common/templates-config.json": mockSettings,
+      "../../../package.json": mockPackageJson,
+    });
+    const getLatestVersion = () => Promise.resolve("18.4.1");
+    const result = await dUtils.getTemplateUrl("csharp", getLatestVersion, Platform.VS);
+    const expectedUrl =
+      "https://github.com/OfficeDev/microsoft-365-agents-toolkit/releases/download/templates-vs@0.0.0-rc/csharp.zip";
+    assert.strictEqual(result, expectedUrl);
+  });
+
   it("should return the correct URL for getTemplateVSCUrl", async () => {
     const restore = mockedEnv({
       TEMPLATE_VERSION: "0.0.0-rc",

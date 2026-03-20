@@ -81,11 +81,17 @@ async function getTemplateVSUrl(name: string): Promise<string | undefined> {
   if (templateConfig.useLocalTemplate) {
     return;
   }
-  // If the template is a prerelease version, use the "0.0.0-rc" version.
+  // Env override: explicit prerelease flag → use RC version.
   if (process.env.TEAMSFX_TEMPLATE_PRERELEASE === Platform.VS) {
     return getTemplateZipUrlByVersion(name, "0.0.0-rc", templateConfig.vstagPrefix);
   }
-  // If the template is stable version, look up the latest version dynamically.
+  // VS stable release ships with a beta fx-core (unlike VSC which ships stable).
+  // A beta fx-core therefore indicates a pre-release test build → use RC templates.
+  const version: string = packageJson.version;
+  if (version.includes("beta")) {
+    return getTemplateZipUrlByVersion(name, "0.0.0-rc", templateConfig.vstagPrefix);
+  }
+  // Stable fx-core means an actual VS stable release → look up the latest stable VS templates.
   const latestVsVersion = await getTemplateVSLatestVersion();
   return getTemplateZipUrlByVersion(name, latestVsVersion, templateConfig.vstagPrefix);
 }
