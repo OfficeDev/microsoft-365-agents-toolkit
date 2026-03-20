@@ -384,17 +384,18 @@ describe("getTemplateVSLatestVersion", () => {
   });
 
   it("should return the max satisfying version matching vsVersionPattern", async () => {
+    // shared tag list contains both VSC and VS tags
     const tagList =
-      "templates-vs@18.4.0\ntemplates-vs@18.4.1\ntemplates-vs@18.3.0\ntemplates-vs@18.5.0\n";
+      "templates@6.6.0\ntemplates@6.6.1\ntemplates-vs@18.4.0\ntemplates-vs@18.4.1\ntemplates-vs@18.3.0\ntemplates-vs@18.5.0\n";
     sandbox.stub(requestUtils, "sendRequestWithTimeout").resolves({ data: tagList } as any);
 
     const result = await getTemplateVSLatestVersion();
-    // ~18.4 matches 18.4.x only, not 18.5.x
+    // ~18.4 matches 18.4.x only, not 18.5.x; VSC tags are ignored
     assert.strictEqual(result, "18.4.1");
   });
 
   it("should handle CRLF line endings in tag list", async () => {
-    const tagList = "templates-vs@18.4.0\r\ntemplates-vs@18.4.1\r\n";
+    const tagList = "templates@6.6.1\r\ntemplates-vs@18.4.0\r\ntemplates-vs@18.4.1\r\n";
     sandbox.stub(requestUtils, "sendRequestWithTimeout").resolves({ data: tagList } as any);
 
     const result = await getTemplateVSLatestVersion();
@@ -402,7 +403,8 @@ describe("getTemplateVSLatestVersion", () => {
   });
 
   it("should throw when no version satisfies vsVersionPattern", async () => {
-    const tagList = "templates-vs@17.0.0\ntemplates-vs@17.1.0\n";
+    // only non-VS tags and old VS tags — none match ~18.4
+    const tagList = "templates@6.6.1\ntemplates-vs@17.0.0\ntemplates-vs@17.1.0\n";
     sandbox.stub(requestUtils, "sendRequestWithTimeout").resolves({ data: tagList } as any);
 
     try {

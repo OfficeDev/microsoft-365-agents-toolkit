@@ -133,7 +133,7 @@ export async function getTemplateVSLatestVersion(
 ): Promise<string> {
   const selectedVersion = await selectTemplateVersion(
     async () =>
-      (await fetchTagList(templateConfig.vsTagListURL, tryLimits, timeoutInMs))
+      (await fetchTagList(templateConfig.tagListURL, tryLimits, timeoutInMs))
         .replace(/\r/g, "")
         .split("\n"),
     templateConfig.vstagPrefix,

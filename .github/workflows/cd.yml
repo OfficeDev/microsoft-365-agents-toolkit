@@ -382,19 +382,19 @@ jobs:
             ${{ github.workspace }}/templates/build/fallback/csharp.zip
             ${{ github.workspace }}/templates/build/metadata.zip
 
-      - name: Generate VS Tag List
+      - name: Generate Tag List (VS stable release)
         if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.vsrelease == 'true' && github.event.inputs.vstemplate == 'true' }}
-        run: git tag | grep "^templates-vs@" > ${{ runner.temp }}/template-vs-tags.txt
+        run: git tag | grep templates > ${{ runner.temp }}/template-tags.txt
 
-      - name: Update VS Template Tag list Release
+      - name: Update Template Tag list Release (VS stable release)
         if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.vsrelease == 'true' && github.event.inputs.vstemplate == 'true' }}
         uses: ncipollo/release-action@v1.10.0
         with:
-          artifacts: ${{ runner.temp }}/template-vs-tags.txt
-          name: "VS Template Tag List"
-          body: "Release to maintain VS template tag list."
+          artifacts: ${{ runner.temp }}/template-tags.txt
+          name: "Template Tag List"
+          body: "Release to maintain template tag list."
           token: ${{ steps.generate-token.outputs.token }}
-          tag: "template-vs-tag-list"
+          tag: "template-tag-list"
           allowUpdates: true
 
       - name: enable prerelease only features
