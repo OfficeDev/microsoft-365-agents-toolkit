@@ -8,18 +8,19 @@
       "precondition_wait_timeout": 60,
       "precondition_retry_interval": 2
     },
-    "total_steps": 7,
-    "created_at": "2026-03-02T00:56:52.057525",
+    "total_steps": 8,
+    "created_at": "2026-03-18T09:20:45.194322",
     "name": "group: create_app_name",
     "description": {
       "other": "Generated from recording r_0928_014459",
       "owner": "v-ivanchen@microsoft.com",
       "workitem": ""
     },
-    "generated_at": "2026-03-02T00:56:52.057525",
+    "generated_at": "2026-03-18T09:20:45.194322",
     "execution_order": [
       "step_7a47c22a",
       "step_69fab4c1",
+      "step_edea19ff",
       "step_b19844ac",
       "step_bf270ab5",
       "step_f459eb2a",
@@ -29,7 +30,7 @@
     "tags": [
       "group"
     ],
-    "updated_at": "2026-03-02T01:03:53.526930"
+    "updated_at": "2026-03-18T10:55:57.858634"
   },
   "steps": [
     {
@@ -58,7 +59,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_7a47c22a",
-      "created_at": "2026-03-02T00:56:52.065771",
+      "created_at": "2026-03-18T09:20:45.194322",
       "plan_id": "plan_r_0928_014459"
     },
     {
@@ -87,7 +88,27 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_69fab4c1",
-      "created_at": "2026-03-02T00:56:52.072948",
+      "created_at": "2026-03-18T09:20:45.194322",
+      "plan_id": "plan_r_0928_014459"
+    },
+    {
+      "step_id": "step_edea19ff",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion there's readme file opened",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "step_retry_timeout: 60"
+      ],
+      "screenshot": null,
+      "created_at": "2026-03-18T10:55:25.361415",
       "plan_id": "plan_r_0928_014459"
     },
     {
@@ -111,9 +132,11 @@
         "dhash:329:50:0:10:203830b032707632"
       ],
       "postconditions": [],
-      "tags": [],
+      "tags": [
+        "force_run:true"
+      ],
       "screenshot": "step_b19844ac",
-      "created_at": "2026-03-02T00:56:52.080691",
+      "created_at": "2026-03-18T09:20:45.194322",
       "plan_id": "plan_r_0928_014459"
     },
     {
@@ -137,9 +160,11 @@
         "dhash:377:70:0:10:222c2c6070707276"
       ],
       "postconditions": [],
-      "tags": [],
+      "tags": [
+        "force_run:true"
+      ],
       "screenshot": "step_bf270ab5",
-      "created_at": "2026-03-02T00:56:52.089258",
+      "created_at": "2026-03-18T09:20:45.214946",
       "plan_id": "plan_r_0928_014459"
     },
     {
@@ -161,7 +186,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_f459eb2a",
-      "created_at": "2026-03-02T00:56:52.096999",
+      "created_at": "2026-03-18T09:20:45.214946",
       "plan_id": "plan_r_0928_014459"
     },
     {
@@ -183,7 +208,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_3aa7f1c8",
-      "created_at": "2026-03-02T00:56:52.104566",
+      "created_at": "2026-03-18T09:20:45.214946",
       "plan_id": "plan_r_0928_014459"
     },
     {
@@ -205,7 +230,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_07e37f08",
-      "created_at": "2026-03-02T00:56:52.111240",
+      "created_at": "2026-03-18T09:20:45.228007",
       "plan_id": "plan_r_0928_014459"
     }
   ],

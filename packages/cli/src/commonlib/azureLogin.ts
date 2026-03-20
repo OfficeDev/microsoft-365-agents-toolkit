@@ -87,7 +87,7 @@ function getConfig(tenantId?: string): Configuration {
     },
   };
 
-  if (featureFlagManager.getBooleanValue(FeatureFlags.BrokerAuth) && process.platform === "win32") {
+  if (process.platform === "win32") {
     try {
       // Dynamically require to avoid loading @azure/msal-node-extensions on Linux
       // where keytar (a dependency) requires libsecret to be installed

@@ -10,14 +10,14 @@
       "step_retry_timeout": 0
     },
     "total_steps": 12,
-    "created_at": "2025-11-17T17:18:42.964195",
+    "created_at": "2026-03-18T03:52:55.565302",
     "name": "group: create enironment",
     "description": {
+      "other": "This is a new test plan. You can:\n\n1. Record interactions using the VNC viewer (click 'Show VNC' and start recording)\n2. Manually add steps one by one\n3. Edit this description to describe your test workflow\n\nStart by clicking 'Add Cell' below or begin recording your interactions!",
       "owner": "v-helzha@microsoft.com",
-      "workitem": "",
-      "other": "This is a new test plan. You can:\n\n1. Record interactions using the VNC viewer (click 'Show VNC' and start recording)\n2. Manually add steps one by one\n3. Edit this description to describe your test workflow\n\nStart by clicking 'Add Cell' below or begin recording your interactions!"
+      "workitem": ""
     },
-    "generated_at": "2025-11-17T17:18:42.964195",
+    "generated_at": "2026-03-18T03:52:55.565302",
     "execution_order": [
       "step_460fe5c1",
       "step_d3c86bc6",
@@ -35,7 +35,7 @@
     "tags": [
       "group"
     ],
-    "updated_at": "2025-11-26T01:07:18.600332"
+    "updated_at": "2026-03-18T04:06:29.777729"
   },
   "steps": [
     {
@@ -57,7 +57,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_460fe5c1",
-      "created_at": "2025-11-25T04:59:43.796256",
+      "created_at": "2026-03-18T03:52:55.581399",
       "plan_id": "plan_cfbed8f1"
     },
     {
@@ -79,7 +79,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_d3c86bc6",
-      "created_at": "2025-11-25T04:59:43.817447",
+      "created_at": "2026-03-18T03:52:55.586330",
       "plan_id": "plan_cfbed8f1"
     },
     {
@@ -101,7 +101,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_c804fb0c",
-      "created_at": "2025-11-25T04:59:43.827695",
+      "created_at": "2026-03-18T03:52:55.597483",
       "plan_id": "plan_cfbed8f1"
     },
     {
@@ -125,9 +125,11 @@
         "dhash:264:58:0:10:c020a22363636421"
       ],
       "postconditions": [],
-      "tags": [],
+      "tags": [
+        "ocr:true"
+      ],
       "screenshot": "step_eaf058f7",
-      "created_at": "2025-11-25T04:59:43.846186",
+      "created_at": "2026-03-18T03:52:55.597483",
       "plan_id": "plan_cfbed8f1"
     },
     {
@@ -135,9 +137,9 @@
       "agent": "interaction",
       "tool": "type_text",
       "parameters": {
-        "text": "Python 3.12.12"
+        "text": "Python 3.12.13"
       },
-      "description": "Type 'Python 3.12.12' into the Python interpreter selection input field at the top of the Visual Studio Code interface.",
+      "description": "Type #text:'Python 3.12.13' into the Python interpreter selection input field at the top of the Visual Studio Code interface.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -149,7 +151,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_e65a56ca",
-      "created_at": "2025-11-25T04:59:43.859559",
+      "created_at": "2026-03-18T03:52:55.605888",
       "plan_id": "plan_cfbed8f1"
     },
     {
@@ -159,7 +161,7 @@
       "parameters": {
         "key": "enter"
       },
-      "description": "Press Enter to select \"Python 3.12.12 64-bit\" from the interpreter dropdown in the \"Select a Python installation to create the virtual environment\" prompt within Visual Studio Code.",
+      "description": "Press Enter to select \"Python 3.12.13 64-bit\" from the interpreter dropdown in the \"Select a Python installation to create the virtual environment\" prompt within Visual Studio Code.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -171,7 +173,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_891370af",
-      "created_at": "2025-11-25T04:59:43.875384",
+      "created_at": "2026-03-18T03:52:55.613533",
       "plan_id": "plan_cfbed8f1"
     },
     {
@@ -197,7 +199,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_8b17b24c",
-      "created_at": "2025-11-25T04:59:43.892818",
+      "created_at": "2026-03-18T03:52:55.613533",
       "plan_id": "plan_cfbed8f1"
     },
     {
@@ -223,7 +225,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_d928b73f",
-      "created_at": "2025-11-25T04:59:43.906933",
+      "created_at": "2026-03-18T03:52:55.613533",
       "plan_id": "plan_cfbed8f1"
     },
     {
@@ -245,7 +247,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_1bc730e4",
-      "created_at": "2025-11-25T04:59:43.945551",
+      "created_at": "2026-03-18T03:52:55.629202",
       "plan_id": "plan_cfbed8f1"
     },
     {
@@ -267,7 +269,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_b0ab6d13",
-      "created_at": "2025-11-25T04:59:43.956920",
+      "created_at": "2026-03-18T03:52:55.631212",
       "plan_id": "plan_cfbed8f1"
     },
     {
@@ -289,7 +291,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_03c5de8f",
-      "created_at": "2025-11-25T04:59:43.977885",
+      "created_at": "2026-03-18T03:52:55.636591",
       "plan_id": "plan_cfbed8f1"
     },
     {
@@ -309,7 +311,7 @@
         "step_retry_timeout: 120"
       ],
       "screenshot": null,
-      "created_at": "2025-11-25T04:59:43.991358",
+      "created_at": "2026-03-18T03:52:55.636591",
       "plan_id": "plan_cfbed8f1"
     }
   ],
