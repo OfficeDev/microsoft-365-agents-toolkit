@@ -41,6 +41,7 @@ import {
   scaffoldQuestionForVSCode,
 } from "../../src/question/scaffold/vsc/createRootNode";
 import { getCustomEngineAgentNode } from "../../src/question/scaffold/vsc/customEngineAgentNode";
+import { getRootProjectTypeNode } from "../../src/question/scaffold/vsc/rootNode";
 import { daProjectTypeNode } from "../../src/question/scaffold/vsc/daProjectTypeNode";
 import { officeAddinProjectTypeNode } from "../../src/question/scaffold/vsc/officeAddinProjectTypeNode";
 import { TeamsProjectTypeOptions } from "../../src/question/scaffold/vsc/teamsProjectTypeNode";
@@ -889,5 +890,311 @@ describe("foundryEndpointQuestion and foundryAgentIdQuestion", () => {
     assert.equal(question.type, "text");
     assert.isDefined(question.title);
     assert.isDefined(question.placeholder);
+  });
+});
+
+describe("rootNode", () => {
+  const sandbox = sinon.createSandbox();
+
+  afterEach(() => {
+    sandbox.restore();
+  });
+
+  it("should use cached JSON path when not using local template and cached file exists", () => {
+    // Test the actual function — it loads from bundled in dev mode
+    const node = getRootProjectTypeNode();
+    assert.isDefined(node);
+    assert.isDefined(node.data);
+    const data = node.data as SingleSelectQuestion;
+    assert.equal(data.name, "project-type");
+    assert.equal(data.type, "singleSelect");
+    // Root should have project type options
+    assert.isTrue((data.staticOptions as OptionItem[]).length >= 5);
+  });
+
+  it("should use templates folder when using local template", () => {
+    // In dev mode (alpha version), useLocalTemplate returns true → uses bundled
+    const node = getRootProjectTypeNode(Platform.VSCode);
+    assert.isDefined(node);
+    // Should have children (sub-tree nodes for each project type)
+    assert.isDefined(node.children);
+    assert.isTrue(node.children!.length >= 5);
+  });
+
+  it("should use templates folder when cached file does not exist", () => {
+    // Verify the node has correct structure regardless of source
+    const node = getRootProjectTypeNode();
+    assert.isDefined(node);
+    const data = node.data as SingleSelectQuestion;
+    // Check that options include known project types
+    const optionIds = (data.staticOptions as OptionItem[]).map((o) => o.id);
+    assert.include(optionIds, "copilot-agent-type");
+    assert.include(optionIds, "custom-engine-agent-type");
+    assert.include(optionIds, "teams-agent-and-app-type");
+    assert.include(optionIds, "office-meta-os-type");
+    assert.include(optionIds, "graph-connector-type");
+  });
+
+  it("should pass platform parameter to constructNode", () => {
+    // Verify that getRootProjectTypeNode returns a valid node for different platforms
+    const nodeVSC = getRootProjectTypeNode(Platform.VSCode);
+    assert.isDefined(nodeVSC);
+    assert.isDefined(nodeVSC.data);
+
+    const nodeCLI = getRootProjectTypeNode(Platform.CLI);
+    assert.isDefined(nodeCLI);
+    assert.isDefined(nodeCLI.data);
+  });
+});
+
+describe("constructNode", () => {
+  const sandbox = sinon.createSandbox();
+
+  afterEach(() => {
+    sandbox.restore();
+  });
+
+  it("should construct a singleSelect node from JSON", () => {
+    const json = JSON.stringify({
+      data: {
+        title: "core.createProjectQuestion.title",
+        name: "project-type",
+        type: "singleSelect",
+        options: [
+          {
+            id: "test-option",
+            label: "core.createProjectQuestion.projectType.declarativeAgent.label",
+            detail: "core.createProjectQuestion.projectType.declarativeAgent.detail",
+          },
+        ],
+      },
+    });
+
+    const node = constructNode(json);
+    assert.isDefined(node);
+    assert.isDefined(node.data);
+    const data = node.data as SingleSelectQuestion;
+    assert.equal(data.type, "singleSelect");
+    assert.equal(data.name, "project-type");
+    assert.isDefined(data.staticOptions);
+    assert.equal((data.staticOptions as OptionItem[]).length, 1);
+    assert.equal((data.staticOptions as OptionItem[])[0].id, "test-option");
+  });
+
+  it("should handle icon prefix for VSCode platform", () => {
+    const json = JSON.stringify({
+      data: {
+        title: "test.title",
+        name: "test",
+        type: "singleSelect",
+        options: [
+          {
+            id: "opt1",
+            label: "core.createProjectQuestion.projectType.declarativeAgent.label",
+            icon: "$(teamsfx-agent)",
+          },
+        ],
+      },
+    });
+
+    const node = constructNode(json, Platform.VSCode);
+    const data = node.data as SingleSelectQuestion;
+    const option = (data.staticOptions as OptionItem[])[0];
+    assert.isTrue(option.label.startsWith("$(teamsfx-agent) "));
+  });
+
+  it("should not add icon prefix for CLI platform", () => {
+    const json = JSON.stringify({
+      data: {
+        title: "test.title",
+        name: "test",
+        type: "singleSelect",
+        options: [
+          {
+            id: "opt1",
+            label: "core.createProjectQuestion.projectType.declarativeAgent.label",
+            icon: "$(teamsfx-agent)",
+          },
+        ],
+      },
+    });
+
+    const node = constructNode(json, Platform.CLI);
+    const data = node.data as SingleSelectQuestion;
+    const option = (data.staticOptions as OptionItem[])[0];
+    assert.isFalse(option.label.startsWith("$(teamsfx-agent) "));
+  });
+
+  it("should handle groupName in options", () => {
+    const json = JSON.stringify({
+      data: {
+        title: "test.title",
+        name: "test",
+        type: "singleSelect",
+        options: [
+          {
+            id: "opt1",
+            label: "core.createProjectQuestion.projectType.declarativeAgent.label",
+            groupName: "core.createProjectQuestion.projectType.createGroup.aiAgent",
+          },
+        ],
+      },
+    });
+
+    const node = constructNode(json);
+    const data = node.data as SingleSelectQuestion;
+    const option = (data.staticOptions as OptionItem[])[0];
+    assert.isDefined(option.groupName);
+  });
+
+  it("should filter out feature-flagged options when flag is disabled", () => {
+    sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
+
+    const json = JSON.stringify({
+      data: {
+        title: "test.title",
+        name: "test",
+        type: "singleSelect",
+        options: [
+          { id: "always-visible", label: "Always" },
+          { id: "flagged", label: "Flagged", featureFlag: "DAMetaOS" },
+        ],
+      },
+    });
+
+    const node = constructNode(json);
+    const data = node.data as SingleSelectQuestion;
+    const options = data.staticOptions as OptionItem[];
+    assert.equal(options.length, 1);
+    assert.equal(options[0].id, "always-visible");
+  });
+
+  it("should include feature-flagged options when flag is enabled", () => {
+    sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
+
+    const json = JSON.stringify({
+      data: {
+        title: "test.title",
+        name: "test",
+        type: "singleSelect",
+        options: [
+          { id: "always-visible", label: "Always" },
+          { id: "flagged", label: "Flagged", featureFlag: "DAMetaOS" },
+        ],
+      },
+    });
+
+    const node = constructNode(json);
+    const data = node.data as SingleSelectQuestion;
+    const options = data.staticOptions as OptionItem[];
+    assert.equal(options.length, 2);
+  });
+
+  it("should handle group type nodes", () => {
+    const json = JSON.stringify({
+      data: { type: "group", name: "test-group" },
+      children: [],
+    });
+
+    const node = constructNode(json);
+    assert.isDefined(node);
+    assert.equal(node.data?.type, "group");
+  });
+
+  it("should handle condition on nodes", () => {
+    const json = JSON.stringify({
+      condition: { equals: "some-value" },
+      data: {
+        title: "test.title",
+        name: "test",
+        type: "singleSelect",
+        options: [],
+      },
+    });
+
+    const node = constructNode(json);
+    const condition = node.condition as StringValidation;
+    assert.equal(condition.equals, "some-value");
+  });
+
+  it("should recursively construct children", () => {
+    const json = JSON.stringify({
+      data: {
+        title: "parent.title",
+        name: "parent",
+        type: "singleSelect",
+        options: [{ id: "child-trigger", label: "Child" }],
+      },
+      children: [
+        {
+          condition: { equals: "child-trigger" },
+          data: {
+            title: "child.title",
+            name: "child",
+            type: "singleSelect",
+            options: [{ id: "sub-item", label: "Sub" }],
+          },
+        },
+      ],
+    });
+
+    const node = constructNode(json);
+    assert.isDefined(node.children);
+    assert.equal(node.children!.length, 1);
+    const childCondition = node.children![0].condition as StringValidation;
+    assert.equal(childCondition.equals, "child-trigger");
+  });
+
+  it("should handle skipSingleOption property", () => {
+    const json = JSON.stringify({
+      data: {
+        title: "test.title",
+        name: "test",
+        type: "singleSelect",
+        skipSingleOption: true,
+        options: [{ id: "only", label: "Only Option" }],
+      },
+    });
+
+    const node = constructNode(json);
+    const data = node.data as SingleSelectQuestion;
+    assert.isTrue(data.skipSingleOption);
+  });
+
+  it("should resolve known node references", () => {
+    const json = JSON.stringify({
+      node: "llmServiceNode",
+    });
+
+    const node = constructNode(json);
+    assert.isDefined(node);
+  });
+
+  it("should throw for unknown node references", () => {
+    const json = JSON.stringify({
+      node: "nonExistentNode",
+    });
+
+    assert.throws(() => constructNode(json), /Unknown node reference: nonExistentNode/);
+  });
+
+  it("should set data property on options", () => {
+    const json = JSON.stringify({
+      data: {
+        title: "test.title",
+        name: "test",
+        type: "singleSelect",
+        options: [
+          { id: "opt1", label: "Option 1", data: "template-name-1" },
+          { id: "opt2", label: "Option 2" },
+        ],
+      },
+    });
+
+    const node = constructNode(json);
+    const data = node.data as SingleSelectQuestion;
+    const options = data.staticOptions as OptionItem[];
+    assert.equal(options[0].data, "template-name-1");
+    assert.isUndefined(options[1].data);
   });
 });

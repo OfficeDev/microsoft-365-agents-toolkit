@@ -1,0 +1,61 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
+/**
+ * Root node for the "Create New Agent/App" wizard.
+ * Defines the project type options shown on the first page.
+ *
+ * This data is serialized to rootNode.json at build time
+ * and loaded at runtime by fx-core to build the question tree.
+ */
+export const rootNode = {
+  data: {
+    title: "core.createProjectQuestion.title",
+    name: "project-type",
+    type: "singleSelect",
+    options: [
+      {
+        id: "copilot-agent-type",
+        label: "core.createProjectQuestion.projectType.declarativeAgent.label",
+        detail: "core.createProjectQuestion.projectType.declarativeAgent.detail",
+        groupName: "core.createProjectQuestion.projectType.createGroup.aiAgent",
+        icon: "$(teamsfx-agent)",
+      },
+      {
+        id: "custom-engine-agent-type",
+        label: "core.createProjectQuestion.projectType.customCopilot.label",
+        detail: "core.createProjectQuestion.projectType.customCopilot.detail",
+        groupName: "core.createProjectQuestion.projectType.createGroup.aiAgent",
+        icon: "$(teamsfx-custom-copilot)",
+      },
+      {
+        id: "graph-connector-type",
+        label: "core.createProjectQuestion.createGraphConnector.label",
+        detail: "core.createProjectQuestion.createGraphConnector.detail",
+        groupName: "core.createProjectQuestion.projectType.createGroup.aiAgent",
+        icon: "$(teamsfx-graph-connector)",
+      },
+      {
+        id: "teams-agent-and-app-type",
+        label: "core.createProjectQuestion.projectType.teamsAgentsAndApps.label",
+        detail: "core.createProjectQuestion.projectType.teamsAgentsAndApps.detail",
+        groupName: "core.createProjectQuestion.projectType.createGroup.m365Apps",
+        icon: "$(microsoft365-agents-toolkit-teams)",
+      },
+      {
+        id: "office-meta-os-type",
+        label: "core.createProjectQuestion.projectType.officeAddin.label",
+        detail: "core.createProjectQuestion.projectType.officeAddin.detail",
+        groupName: "core.createProjectQuestion.projectType.createGroup.m365Apps",
+        icon: "$(microsoft365-agents-office)",
+      },
+    ],
+  },
+  children: [
+    { node: "daNode", condition: { equals: "copilot-agent-type" } },
+    { node: "ceaNode", condition: { equals: "custom-engine-agent-type" } },
+    { node: "graphConnectorNode", condition: { equals: "graph-connector-type" } },
+    { node: "teamsNode", condition: { equals: "teams-agent-and-app-type" } },
+    { node: "officeAddinNode", condition: { equals: "office-meta-os-type" } },
+  ],
+};

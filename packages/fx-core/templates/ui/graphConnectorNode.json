@@ -1,0 +1,13 @@
+{
+  "data": {
+    "type": "group"
+  },
+  "children": [
+    {
+      "node": "gcNameNode"
+    },
+    {
+      "node": "gcConnectionIdNode"
+    }
+  ]
+}

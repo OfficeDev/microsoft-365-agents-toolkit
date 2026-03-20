@@ -9,23 +9,28 @@ import { useLocalTemplate } from "../../../component/generator/templateHelper";
 import { getTemplatesFolder } from "../../../folder";
 import { constructNode } from "../constructNode";
 
-export function getCustomEngineAgentNode(): IQTreeNode {
+/**
+ * Load the root question node from rootNode.json.
+ * This defines the project type options (DA, CEA, Teams, etc.)
+ * on the first page of the "Create New Agent/App" wizard.
+ */
+export function getRootProjectTypeNode(platform: Platform = Platform.VSCode): IQTreeNode {
   let jsonPath: string;
 
   const cachedJsonPath = path.join(
     os.homedir(),
     `.${String(ConfigFolderName)}`,
     "ui",
-    "ceaNode.json"
+    "rootNode.json"
   );
 
-  // Check if cached JSON exists, otherwise fallback to bundledtemplates folder
+  // Check if cached JSON exists, otherwise fallback to bundled templates folder
   if (!useLocalTemplate() && fs.pathExistsSync(cachedJsonPath)) {
     jsonPath = cachedJsonPath;
   } else {
-    jsonPath = path.join(getTemplatesFolder(), "ui", "ceaNode.json");
+    jsonPath = path.join(getTemplatesFolder(), "ui", "rootNode.json");
   }
 
   const content = fs.readFileSync(jsonPath, "utf-8");
-  return constructNode(content, Platform.VSCode);
+  return constructNode(content, platform);
 }
