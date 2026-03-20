@@ -9383,8 +9383,9 @@ describe("fetchOnlineTemplateMetadataForVS", () => {
     }
   });
 
-  it("should download metadata when version file does not exist", async () => {
+  it("should download metadata when version file does not exist (stable fx-core)", async () => {
     sandbox.stub(templateHelper, "useLocalTemplate").returns(false);
+    sandbox.stub(packageJson, "version").value("1.0.0"); // stable
     sandbox.stub(templateConfigModule, "vstagPrefix").value("templates-vs@");
     sandbox
       .stub(templateConfigModule, "templateDownloadBaseURL")
@@ -9409,6 +9410,34 @@ describe("fetchOnlineTemplateMetadataForVS", () => {
     );
     assert.isTrue(unzipStub.calledOnce);
     assert.isTrue(writeFileStub.calledWith(sinon.match.string, "18.4.1", { encoding: "utf-8" }));
+  });
+
+  it("should use rc templates for beta fx-core (VS pre-release test build)", async () => {
+    sandbox.stub(templateHelper, "useLocalTemplate").returns(false);
+    sandbox.stub(packageJson, "version").value("1.0.0-beta.1"); // beta = pre-stable test
+    sandbox.stub(templateConfigModule, "vstagPrefix").value("templates-vs@");
+    sandbox
+      .stub(templateConfigModule, "templateDownloadBaseURL")
+      .value("https://example.com/releases/download");
+    const getVSLatestStub = sandbox.stub(generatorUtils, "getTemplateVSLatestVersion");
+    const mockZip = new AdmZip();
+    const fetchZipStub = sandbox.stub(generatorUtils, "fetchZipFromUrl").resolves(mockZip);
+    sandbox.stub(generatorUtils, "unzip").resolves();
+
+    sandbox.stub(fs, "pathExists").resolves(false);
+    sandbox.stub(fs, "ensureDir").resolves();
+    sandbox.stub(fs, "writeFile").resolves();
+
+    const result = await core.fetchOnlineTemplateMetadataForVS();
+
+    assert.isTrue(result.isOk());
+    // beta should NOT call getTemplateVSLatestVersion
+    assert.isFalse(getVSLatestStub.called);
+    assert.isTrue(
+      fetchZipStub.calledWith(
+        "https://example.com/releases/download/templates-vs@0.0.0-rc/metadata.zip"
+      )
+    );
   });
 
   it("should skip download when cached version matches latest", async () => {

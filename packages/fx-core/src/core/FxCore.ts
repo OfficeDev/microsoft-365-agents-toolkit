@@ -2987,10 +2987,12 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
       return ok(undefined); // Skip if using local templates
     }
     try {
-      // VS stable release always ships with a beta fx-core, so coreVersion
-      // cannot be used to distinguish stable vs prerelease (unlike VSC).
-      // Always do dynamic version lookup via vsTagListURL + vsVersionPattern.
-      const latestVersion = await getTemplateVSLatestVersion();
+      // VS ships stable templates with a stable fx-core and test/pre-release
+      // templates with a beta fx-core. So beta = pre-stable test build → RC.
+      const coreVersion = require("../../package.json").version as string;
+      const latestVersion = coreVersion.includes("beta")
+        ? "0.0.0-rc"
+        : await getTemplateVSLatestVersion();
 
       const homedir = os.homedir();
       const metadataDir = path.join(homedir, `.${String(ConfigFolderName)}`, "vs-metadata");
