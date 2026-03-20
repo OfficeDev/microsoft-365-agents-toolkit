@@ -22,13 +22,16 @@ import fs from "fs-extra";
 import path from "path";
 import { UserCancelError } from "../../../../src/error";
 
+// eslint-disable-next-line @typescript-eslint/no-implied-eval,no-new-func
+const _importDynamic = new Function("modulePath", "return import(modulePath)");
+
 describe("NodeJS Installer", () => {
   const sandbox = sinon.createSandbox();
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   let Response: typeof import("node-fetch").Response;
 
   before(async () => {
-    const nodeFetch = await import("node-fetch");
+    const nodeFetch = await _importDynamic("node-fetch");
     Response = nodeFetch.Response;
   });
 
