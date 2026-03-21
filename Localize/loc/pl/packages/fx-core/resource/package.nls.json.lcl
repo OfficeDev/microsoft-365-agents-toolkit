@@ -3230,7 +3230,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Build an AI agent with OpenAI Assistants API and Microsoft Teams SDK]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Tworzenie agenta sztucznej inteligencji za pomocą interfejsu API funkcji OpenAI Assistants i zestawu SDK usługi Microsoft Teams]]></Val>
+            <Val><![CDATA[Tworzenie agenta sztucznej inteligencji za pomocą interfejsu API funkcji OpenAI Assistants i Zestawu SDK aplikacji Microsoft Teams]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Build an AI agent with OpenAI Assistants API and Teams AI Library]]></Val>
@@ -3251,7 +3251,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Build your own AI Agent from scratch using Microsoft Teams SDK]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Utwórz własnego agenta sztucznej inteligencji od podstaw przy użyciu zestawu SDK usługi Microsoft Teams]]></Val>
+            <Val><![CDATA[Utwórz własnego agenta sztucznej inteligencji od podstaw przy użyciu Zestawu SDK aplikacji Microsoft Teams]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Build your own AI Agent from scratch using Teams AI Library]]></Val>
@@ -3323,7 +3323,7 @@
         <Str Cat="Text">
           <Val><![CDATA[A travel planning agent, which is built with Microsoft 365 Agents SDK, Microsoft 365 Retrieval API and Agent Framework]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Agent planowania podróży, zbudowany przy użyciu Zestawu SDK agentów usługi Microsoft 365, interfejsu API pobierania Microsoft 365 oraz Agent Framework]]></Val>
+            <Val><![CDATA[Agent planowania podróży, utworzony przy użyciu Zestawu SDK agentów usługi Microsoft 365, interfejsu API pobierania Microsoft 365 oraz Agent Framework]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3341,7 +3341,7 @@
         <Str Cat="Text">
           <Val><![CDATA[A weather forecast agent, which is built with Microsoft 365 Agents SDK and Semantic Kernel]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Agent prognozy pogody utworzony przy użyciu zestawu SDK agentów platformy Microsoft 365 i jądra semantycznego]]></Val>
+            <Val><![CDATA[Agent prognozy pogody utworzony przy użyciu Zestawu SDK agentów usługi Microsoft 365 i jądra semantycznego]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
