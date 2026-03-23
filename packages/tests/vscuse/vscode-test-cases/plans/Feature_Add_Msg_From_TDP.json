@@ -10,14 +10,14 @@
       "step_retry_timeout": 0.0
     },
     "total_steps": 14,
-    "created_at": "2026-03-05T07:15:29.025315",
+    "created_at": "2026-03-23T05:39:55.587071",
     "name": "Feature Add Msg From TDP",
     "description": {
       "other": "",
       "owner": "v-liliu2@microsoft.com",
       "workitem": "16672797"
     },
-    "generated_at": "2026-03-05T07:15:29.025315",
+    "generated_at": "2026-03-23T05:39:55.587071",
     "execution_order": [
       "plan_r_0113_093650",
       "plan_r_0129_051110",
@@ -40,7 +40,7 @@
       "plan_7a23bf2d"
     ],
     "tags": [],
-    "updated_at": "2026-03-05T08:23:20.278962"
+    "updated_at": "2026-03-23T06:32:23.350064"
   },
   "steps": [
     {
@@ -66,7 +66,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_be7e8d33",
-      "created_at": "2026-03-05T07:15:29.037372",
+      "created_at": "2026-03-23T06:31:56.169858",
       "plan_id": "plan_c1d70c10"
     },
     {
@@ -92,7 +92,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_c36d3edf",
-      "created_at": "2026-03-05T07:15:29.051651",
+      "created_at": "2026-03-23T06:31:56.192887",
       "plan_id": "plan_c1d70c10"
     },
     {
@@ -118,7 +118,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_9fc15af3",
-      "created_at": "2026-03-05T07:15:29.064638",
+      "created_at": "2026-03-23T06:31:56.216562",
       "plan_id": "plan_c1d70c10"
     },
     {
@@ -144,7 +144,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_0f32b61e",
-      "created_at": "2026-03-05T07:15:29.075601",
+      "created_at": "2026-03-23T06:31:56.236774",
       "plan_id": "plan_c1d70c10"
     },
     {
@@ -166,7 +166,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_22641f35",
-      "created_at": "2026-03-05T07:15:29.088213",
+      "created_at": "2026-03-23T06:31:56.260683",
       "plan_id": "plan_c1d70c10"
     },
     {
@@ -192,7 +192,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_3cd433c2",
-      "created_at": "2026-03-05T07:15:29.108210",
+      "created_at": "2026-03-23T06:31:56.283071",
       "plan_id": "plan_c1d70c10"
     },
     {
@@ -218,7 +218,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_62a9d33e",
-      "created_at": "2026-03-05T07:15:29.121445",
+      "created_at": "2026-03-23T06:31:56.304498",
       "plan_id": "plan_c1d70c10"
     },
     {
@@ -240,7 +240,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_ee2903e9",
-      "created_at": "2026-03-05T07:15:29.146791",
+      "created_at": "2026-03-23T06:31:56.326784",
       "plan_id": "plan_c1d70c10"
     },
     {
@@ -260,7 +260,7 @@
         "step_retry_timeout:120"
       ],
       "screenshot": "step_9f81ed47",
-      "created_at": "2026-03-05T07:15:29.171292",
+      "created_at": "2026-03-23T06:31:56.350036",
       "plan_id": "plan_c1d70c10"
     },
     {
@@ -286,7 +286,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_686f0eb2",
-      "created_at": "2026-03-05T07:15:29.188146",
+      "created_at": "2026-03-23T06:31:56.371082",
       "plan_id": "plan_c1d70c10"
     },
     {
@@ -312,7 +312,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_7f9cba35",
-      "created_at": "2026-03-05T07:15:29.202937",
+      "created_at": "2026-03-23T06:31:56.392280",
       "plan_id": "plan_c1d70c10"
     },
     {
@@ -338,7 +338,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_c106c9e5",
-      "created_at": "2026-03-05T07:15:29.213377",
+      "created_at": "2026-03-23T06:31:56.413919",
       "plan_id": "plan_c1d70c10"
     },
     {
@@ -360,7 +360,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_d31f56a1",
-      "created_at": "2026-03-05T07:15:29.223935",
+      "created_at": "2026-03-23T06:31:56.436163",
       "plan_id": "plan_c1d70c10"
     },
     {
@@ -368,7 +368,7 @@
       "agent": "assertion",
       "tool": "",
       "parameters": {},
-      "description": "@assertion '${{var:app_name}}' is exist",
+      "description": "@assertion 'TDP' is exist",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -380,7 +380,7 @@
         "step_retry_timeout:60"
       ],
       "screenshot": "step_3b570601",
-      "created_at": "2026-03-05T07:15:29.232494",
+      "created_at": "2026-03-23T06:31:56.451617",
       "plan_id": "plan_c1d70c10"
     }
   ],
