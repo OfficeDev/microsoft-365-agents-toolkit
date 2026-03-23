@@ -23,13 +23,13 @@ export const officeAddinNode = {
         label: "core.newCFShortcut.label",
         detail: "core.newCFShortcut.detail",
         data: "office-addin-excel-cfshortcut",
-        featureFlag: "CFShortcutMetaOS",
+        featureFlag: "TEAMSFX_CF_SHORTCUT_METAOS",
       },
       {
         id: "office-da-meta-os",
         label: "core.createProjectQuestion.DAMetaOS.label",
         detail: "core.createProjectQuestion.DAMetaOS.detail",
-        featureFlag: "DAMetaOS",
+        featureFlag: "TEAMSFX_DA_METAOS",
       },
       {
         id: "office-addin-import",

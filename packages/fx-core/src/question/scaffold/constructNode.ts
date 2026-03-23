@@ -11,7 +11,7 @@ import {
 import fs from "fs-extra";
 import os from "os";
 import path from "path";
-import { featureFlagManager, FeatureFlags, FeatureFlag } from "../../common/featureFlags";
+import { featureFlagManager } from "../../common/featureFlags";
 import { getLocalizedString } from "../../common/localizeUtils";
 import { TOOLS } from "../../common/globalVars";
 import { useLocalTemplate } from "../../component/generator/templateHelper";
@@ -23,7 +23,7 @@ import {
   foundryNode,
   llmServiceNode,
 } from "./commonNodes";
-import { setTemplateName } from "./vsc/CapabilityOptions";
+import { setTemplateName, setTemplateNameAndGC } from "./vsc/CapabilityOptions";
 import { GCConnectionIdQuestion, GCNameQuestion } from "../create";
 import { QuestionNames } from "../questionNames";
 
@@ -44,17 +44,8 @@ function loadJsonNode(fileName: string, platform: Platform): IQTreeNode {
   return constructNode(content, platform);
 }
 
-/** Map of feature flag names (as stored in JSON) to FeatureFlags enum values */
-const featureFlagMap: Record<string, FeatureFlag> = {
-  DAMetaOS: FeatureFlags.DAMetaOS,
-  MCPForDA: FeatureFlags.MCPForDA,
-  CFShortcutMetaOS: FeatureFlags.CFShortcutMetaOS,
-  KiotaNPMIntegration: FeatureFlags.KiotaNPMIntegration,
-};
-
 function isFeatureEnabled(flagName: string): boolean {
-  const flag = featureFlagMap[flagName];
-  return flag ? featureFlagManager.getBooleanValue(flag) : true;
+  return featureFlagManager.getBooleanValue({ name: flagName, defaultValue: "false" });
 }
 
 export function constructNode(
@@ -63,7 +54,7 @@ export function constructNode(
 ): IQTreeNode {
   const jsonObject = JSON.parse(jsonContent);
 
-  // Handle named node references
+  // Handle named node references (TypeScript-defined sub-trees)
   if (jsonObject.node) {
     return resolveNodeReference(jsonObject, platform);
   }
@@ -93,20 +84,12 @@ export function constructNode(
     skipSingleOption: jsonObject.data.skipSingleOption,
     forgetLastValue: jsonObject.data.forgetLastValue,
     staticOptions: [],
+    onDidSelection:
+      jsonObject.data.name === QuestionNames.WithPlugin ? setTemplateNameAndGC : setTemplateName,
   };
-
-  // Set appropriate onDidSelection callback
-  if (jsonObject.data.name === QuestionNames.WithPlugin) {
-    // Lazy import to avoid circular dependency
-    const { setTemplateNameAndGC } = require("./vsc/daProjectTypeNode");
-    data.onDidSelection = setTemplateNameAndGC;
-  } else {
-    data.onDidSelection = setTemplateName;
-  }
 
   if (jsonObject.data.options) {
     for (const option of jsonObject.data.options) {
-      // Skip feature-flagged options that are disabled
       if (option.featureFlag && !isFeatureEnabled(option.featureFlag)) {
         continue;
       }
@@ -146,7 +129,7 @@ function resolveNodeReference(
   let node: IQTreeNode;
 
   switch (jsonObject.node) {
-    // Common shared nodes (from commonNodes.ts — no circular dependency)
+    // Common shared nodes (from commonNodes.ts)
     case "llmServiceNode":
       return llmServiceNode(jsonObject.condition as any);
     case "apiSpecNode":
@@ -161,29 +144,17 @@ function resolveNodeReference(
     case "foundryNode":
       return foundryNode(jsonObject.condition as any);
 
-    // Sub-tree nodes loaded from JSON (lazy imports to avoid circular dependency)
-    case "ceaNode": {
-      const { getCustomEngineAgentNode } = require("./vsc/customEngineAgentNode");
-      node = getCustomEngineAgentNode();
+    // Sub-tree nodes loaded from separate JSON files
+    case "ceaNode":
+      node = loadJsonNode("ceaNode.json", platform);
       break;
-    }
-    case "teamsNode": {
-      const { getTeamsProjectNode } = require("./vsc/teamsProjectTypeNode");
-      node = getTeamsProjectNode();
-      break;
-    }
-    case "daNode":
-      node = loadJsonNode("daNode.json", platform);
-      break;
-    case "graphConnectorNode":
-      node = loadJsonNode("graphConnectorNode.json", platform);
-      break;
-    case "officeAddinNode":
-      node = loadJsonNode("officeAddinNode.json", platform);
+    case "teamsNode":
+      node = loadJsonNode("teamsNode.json", platform);
       break;
 
-    // Sub-tree nodes still in TypeScript (lazy import)
+    // TypeScript-defined complex nodes (lazy import to avoid circular dependency)
     case "mcpServerTypeNode": {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
       const { MCPServerTypeNode } = require("./vsc/teamsProjectTypeNode");
       node = MCPServerTypeNode();
       break;

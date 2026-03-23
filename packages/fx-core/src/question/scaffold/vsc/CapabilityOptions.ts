@@ -5,7 +5,12 @@ import { Inputs, OptionItem } from "@microsoft/teamsfx-api";
 import { featureFlagManager, FeatureFlags } from "../../../common/featureFlags";
 import { getLocalizedString } from "../../../common/localizeUtils";
 import { TemplateNames } from "../../../component/generator/templates/templateNames";
-import { HostType, HostTypeTriggerOptionItem, NotificationTriggers } from "../../constants";
+import {
+  HostType,
+  HostTypeTriggerOptionItem,
+  NotificationTriggers,
+  ProgrammingLanguage,
+} from "../../constants";
 import { QuestionNames } from "../../questionNames";
 
 export class CustomEngineAgentOptions {
@@ -702,5 +707,12 @@ export class ApiAuthOptions {
 export function setTemplateName(selected: string | OptionItem, inputs: Inputs): void {
   if ((selected as OptionItem).data) {
     inputs[QuestionNames.TemplateName] = (selected as OptionItem).data as string;
+  }
+}
+
+export function setTemplateNameAndGC(selected: string | OptionItem, inputs: Inputs): void {
+  setTemplateName(selected, inputs);
+  if ((selected as OptionItem).id === DACapabilityOptions.withGC().id) {
+    inputs[QuestionNames.ProgrammingLanguage] = ProgrammingLanguage.TS;
   }
 }

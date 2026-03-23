@@ -12,6 +12,7 @@ import {
   ApiAuthOptions,
   DACapabilityOptions,
   setTemplateName,
+  setTemplateNameAndGC,
 } from "./CapabilityOptions";
 import { ProjectTypeOptions } from "./ProjectTypeOptions";
 import { MCPServerTypeNode } from "./teamsProjectTypeNode";
@@ -108,11 +109,4 @@ export function daProjectTypeNode(
       },
     ],
   };
-}
-
-export function setTemplateNameAndGC(selected: string | OptionItem, inputs: Inputs): void {
-  setTemplateName(selected, inputs);
-  if ((selected as OptionItem).id === DACapabilityOptions.withGC().id) {
-    inputs[QuestionNames.ProgrammingLanguage] = ProgrammingLanguage.TS;
-  }
 }
