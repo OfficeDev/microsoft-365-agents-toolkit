@@ -37,7 +37,7 @@
     "tags": [
       "group"
     ],
-    "updated_at": "2026-03-23T07:12:27.027759"
+    "updated_at": "2026-03-23T09:27:17.835690"
   },
   "steps": [
     {
@@ -59,7 +59,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_31e9f685",
-      "created_at": "2026-03-23T07:04:22.586039",
+      "created_at": "2026-03-23T09:26:55.522789",
       "plan_id": "plan_f839825b"
     },
     {
@@ -81,7 +81,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_a297f5f8",
-      "created_at": "2026-03-23T07:04:22.608079",
+      "created_at": "2026-03-23T09:26:55.542490",
       "plan_id": "plan_f839825b"
     },
     {
@@ -103,7 +103,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_03f4c979",
-      "created_at": "2026-03-23T07:04:22.621113",
+      "created_at": "2026-03-23T09:26:55.560049",
       "plan_id": "plan_f839825b"
     },
     {
@@ -125,7 +125,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_21c5b5f8",
-      "created_at": "2026-03-23T07:04:22.645302",
+      "created_at": "2026-03-23T09:26:55.571979",
       "plan_id": "plan_f839825b"
     },
     {
@@ -147,7 +147,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_e0078f6d",
-      "created_at": "2026-03-23T07:04:22.677354",
+      "created_at": "2026-03-23T09:26:55.585921",
       "plan_id": "plan_f839825b"
     },
     {
@@ -175,7 +175,7 @@
         "precondition_wait_timeout: 240"
       ],
       "screenshot": "step_d807ce08",
-      "created_at": "2026-03-23T07:04:22.711356",
+      "created_at": "2026-03-23T09:26:55.598519",
       "plan_id": "plan_f839825b"
     },
     {
@@ -197,7 +197,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_1af5956f",
-      "created_at": "2026-03-23T07:04:22.744520",
+      "created_at": "2026-03-23T09:26:55.609029",
       "plan_id": "plan_f839825b"
     },
     {
@@ -221,7 +221,7 @@
         "delay: 3"
       ],
       "screenshot": "step_a554a232",
-      "created_at": "2026-03-23T07:04:22.792875",
+      "created_at": "2026-03-23T09:26:55.617955",
       "plan_id": "plan_f839825b"
     },
     {
@@ -243,7 +243,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_107216f3",
-      "created_at": "2026-03-23T07:04:22.833016",
+      "created_at": "2026-03-23T09:26:55.629008",
       "plan_id": "plan_f839825b"
     },
     {
@@ -267,7 +267,7 @@
         "delay: 3"
       ],
       "screenshot": "step_bb847ffb",
-      "created_at": "2026-03-23T07:04:22.895271",
+      "created_at": "2026-03-23T09:26:55.638204",
       "plan_id": "plan_f839825b"
     },
     {
@@ -293,7 +293,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_5486c0aa",
-      "created_at": "2026-03-23T07:04:22.937532",
+      "created_at": "2026-03-23T09:26:55.647782",
       "plan_id": "plan_f839825b"
     },
     {
@@ -313,7 +313,7 @@
         "step_retry_timeout:360"
       ],
       "screenshot": "step_d0f7af86",
-      "created_at": "2026-03-23T07:04:22.963496",
+      "created_at": "2026-03-23T09:26:55.658374",
       "plan_id": "plan_f839825b"
     },
     {
@@ -342,7 +342,7 @@
         "force_run:true"
       ],
       "screenshot": "step_f23558d1",
-      "created_at": "2026-03-23T07:04:22.983349",
+      "created_at": "2026-03-23T09:26:55.669109",
       "plan_id": "plan_f839825b"
     },
     {
@@ -362,7 +362,7 @@
         "step_retry_timeout: 180"
       ],
       "screenshot": "step_2a91c48f",
-      "created_at": "2026-03-23T07:04:23.020120",
+      "created_at": "2026-03-23T09:26:55.683858",
       "plan_id": "plan_f839825b"
     },
     {
@@ -386,9 +386,11 @@
         "dhash:509:510:0:10:1669696969697979"
       ],
       "postconditions": [],
-      "tags": [],
+      "tags": [
+        "ocr:true"
+      ],
       "screenshot": "step_17ae0981",
-      "created_at": "2026-03-23T07:12:19.119287",
+      "created_at": "2026-03-23T09:26:55.699854",
       "plan_id": "plan_f839825b"
     }
   ],
