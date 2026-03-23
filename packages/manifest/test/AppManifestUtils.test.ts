@@ -3,7 +3,7 @@ import "mocha";
 import fs from "fs-extra";
 import sinon from "sinon";
 import { AppManifestUtils } from "../src";
-import * as nodeFetch from "node-fetch";
+import * as fetchHelper from "../src/fetchHelper";
 
 describe("AppManifestUtils", async () => {
   const sandbox = sinon.createSandbox();
@@ -15,7 +15,7 @@ describe("AppManifestUtils", async () => {
   describe("fetchSchema", async () => {
     it("should return local schema", async () => {
       const readJson = sandbox.stub(fs, "readJson").resolves({});
-      const fetchStub = sandbox.stub(nodeFetch, "default").resolves({
+      const fetchStub = sandbox.stub(fetchHelper, "default").resolves({
         ok: true,
         json: async () => ({}),
       } as any);
@@ -29,7 +29,7 @@ describe("AppManifestUtils", async () => {
     it("should fetch remote schema", async () => {
       const readJson = sandbox.stub(fs, "readJson").resolves({});
       const pathExists = sandbox.stub(fs, "pathExists").resolves(false);
-      const fetchStub = sandbox.stub(nodeFetch, "default").resolves({
+      const fetchStub = sandbox.stub(fetchHelper, "default").resolves({
         ok: true,
         text: async () => JSON.stringify({}),
       } as any);
@@ -43,7 +43,7 @@ describe("AppManifestUtils", async () => {
       const mockResponse = {
         text: sandbox.stub().resolves(mockResponseText),
       };
-      const fetchStub = sandbox.stub(nodeFetch, "default").resolves(mockResponse as any);
+      const fetchStub = sandbox.stub(fetchHelper, "default").resolves(mockResponse as any);
       const readJson = sandbox.stub(fs, "readJson").rejects(new Error("File not found"));
       const pathExists = sandbox.stub(fs, "pathExists").resolves(false);
       const schema = await AppManifestUtils.fetchSchema(
