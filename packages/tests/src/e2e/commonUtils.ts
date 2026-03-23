@@ -95,12 +95,12 @@ export function getConfigFileName(appName: string, envName = "dev"): string {
 export async function setProvisionParameterValueV3(
   projectPath: string,
   envName: string,
-  paramerters: { key: string; value: string }
+  paramerters: { key: string; value: string },
 ): Promise<void> {
   const parametersFilePath = path.resolve(
     projectPath,
     "infra",
-    `azure.parameters.json`
+    `azure.parameters.json`,
   );
   const parameters = await fs.readJson(parametersFilePath);
   parameters["parameters"][paramerters.key] = { value: paramerters.value };
@@ -110,12 +110,12 @@ export async function setProvisionParameterValueV3(
 export async function setProvisionParameterValue(
   projectPath: string,
   envName: string,
-  paramerters: { key: string; value: string }
+  paramerters: { key: string; value: string },
 ): Promise<void> {
   const parametersFilePath = path.resolve(
     projectPath,
     TestFilePath.configFolder,
-    `azure.parameters.${envName}.json`
+    `azure.parameters.${envName}.json`,
   );
   const parameters = await fs.readJSON(parametersFilePath);
   parameters["parameters"]["provisionParameters"]["value"][paramerters.key] =
@@ -125,14 +125,14 @@ export async function setProvisionParameterValue(
 
 export async function setBotSkuNameToB1Bicep(
   projectPath: string,
-  filePath = ""
+  filePath = "",
 ) {
   const azureParametersFilePathSuffix = filePath
     ? path.join(filePath)
     : path.join("infra", "azure.parameters.json");
   const azureParametersFilePath = path.resolve(
     projectPath,
-    azureParametersFilePathSuffix
+    azureParametersFilePathSuffix,
   );
   const ProvisionParameters = await fs.readJSON(azureParametersFilePath);
   ProvisionParameters["parameters"]["provisionParameters"]["value"][
@@ -152,7 +152,7 @@ export async function setSimpleAuthSkuNameToB1(projectPath: string) {
 
 export async function setSimpleAuthSkuNameToB1Bicep(
   projectPath: string,
-  envName: string
+  envName: string,
 ): Promise<void> {
   const parameters = { key: "simpleAuthSku", value: "B1" };
   return setProvisionParameterValueV3(projectPath, envName, parameters);
@@ -160,7 +160,7 @@ export async function setSimpleAuthSkuNameToB1Bicep(
 
 export async function setStaticWebAppSkuNameToStandardBicep(
   projectPath: string,
-  envName: string
+  envName: string,
 ): Promise<void> {
   const paramerters = { key: "staticWebAppSku", value: "Standard" };
   return setProvisionParameterValueV3(projectPath, envName, paramerters);
@@ -182,12 +182,12 @@ export async function setSkipAddingSqlUser(projectPath: string) {
 
 export async function setSkipAddingSqlUserToConfig(
   projectPath: string,
-  envName: string
+  envName: string,
 ) {
   const configFile = path.join(
     `.${ConfigFolderName}`,
     "configs",
-    `config.${envName}.json`
+    `config.${envName}.json`,
   );
   const configFilePath = path.resolve(projectPath, configFile);
   const config = await fs.readJSON(configFilePath);
@@ -197,12 +197,12 @@ export async function setSkipAddingSqlUserToConfig(
 
 export async function setFrontendDomainToConfig(
   projectPath: string,
-  envName: string
+  envName: string,
 ) {
   const configFile = path.join(
     `.${ConfigFolderName}`,
     "configs",
-    `config.${envName}.json`
+    `config.${envName}.json`,
   );
   const configFilePath = path.resolve(projectPath, configFile);
   const config = await fs.readJSON(configFilePath);
@@ -213,7 +213,7 @@ export async function setFrontendDomainToConfig(
 
 export async function setAadManifestIdentifierUrisV3(
   projectPath: string,
-  identifierUri: string
+  identifierUri: string,
 ) {
   const aadManifestPath = path.join(projectPath, "aad.manifest.json");
   const aadTemplate = await fs.readJson(aadManifestPath);
@@ -223,11 +223,11 @@ export async function setAadManifestIdentifierUrisV3(
 
 export async function setAadManifestIdentifierUris(
   projectPath: string,
-  identifierUri: string
+  identifierUri: string,
 ) {
   const aadManifestPath = path.join(
     projectPath,
-    `${TemplateFolderName}/${AppPackageFolderName}/aad.template.json`
+    `${TemplateFolderName}/${AppPackageFolderName}/aad.template.json`,
   );
 
   const aadTemplate = await fs.readJSON(aadManifestPath);
@@ -243,12 +243,12 @@ export async function cleanupSharePointPackage(appId: string) {
       console.log(`[Successfully] clean up sharepoint package ${appId}`);
     } catch (error: any) {
       console.log(
-        `[Failed] clean up sharepoint package ${appId}, Error: ${error.message}`
+        `[Failed] clean up sharepoint package ${appId}, Error: ${error.message}`,
       );
     }
   } else {
     console.log(
-      `[Failed] sharepoint appId is undefined, will not clean up this resource.`
+      `[Failed] sharepoint appId is undefined, will not clean up this resource.`,
     );
   }
 }
@@ -258,7 +258,7 @@ export async function cleanUpAadApp(
   hasAadPlugin?: boolean,
   hasBotPlugin?: boolean,
   hasApimPlugin?: boolean,
-  envName = "dev"
+  envName = "dev",
 ) {
   const envFilePath = path.resolve(projectPath, getEnvFilePathSuffix(envName));
   if (!(await fs.pathExists(envFilePath))) {
@@ -274,7 +274,7 @@ export async function cleanUpAadApp(
         const result = await manager.deleteAadAppById(objectId);
         if (result) {
           console.log(
-            `[Successfully] clean up the Aad app with id: ${objectId}.`
+            `[Successfully] clean up the Aad app with id: ${objectId}.`,
           );
         } else {
           console.error(`[Failed] clean up the Aad app with id: ${objectId}.`);
@@ -305,7 +305,7 @@ export async function cleanUpAadApp(
 
 export async function cleanUpResourceGroup(
   appName: string,
-  envName?: string
+  envName?: string,
 ): Promise<boolean> {
   if (!appName) {
     return false;
@@ -315,7 +315,7 @@ export async function cleanUpResourceGroup(
 }
 
 export async function deleteResourceGroupByName(
-  name: string
+  name: string,
 ): Promise<boolean> {
   if (!name) {
     return true;
@@ -324,11 +324,11 @@ export async function deleteResourceGroupByName(
     const result = await ResourceGroupManager.deleteResourceGroup(name);
     if (result) {
       console.log(
-        `[Successfully] clean up the Azure resource group with name: ${name}.`
+        `[Successfully] clean up the Azure resource group with name: ${name}.`,
       );
     } else {
       console.error(
-        `[Failed] clean up the Azure resource group with name: ${name}.`
+        `[Failed] clean up the Azure resource group with name: ${name}.`,
       );
     }
     return result;
@@ -338,7 +338,7 @@ export async function deleteResourceGroupByName(
 
 export async function cleanUpLocalProject(
   projectPath: string,
-  necessary?: Promise<any>
+  necessary?: Promise<any>,
 ) {
   return new Promise<boolean>(async (resolve) => {
     try {
@@ -348,7 +348,7 @@ export async function cleanUpLocalProject(
       return resolve(true);
     } catch (e) {
       console.log(
-        `[Failed] clean up the local folder: ${projectPath}. error = '${e}'`
+        `[Failed] clean up the local folder: ${projectPath}. error = '${e}'`,
       );
       return resolve(false);
     }
@@ -362,14 +362,14 @@ export async function cleanUp(
   hasBotPlugin = false,
   hasApimPlugin = false,
   envName = "dev",
-  teamsAppId?: string
+  teamsAppId?: string,
 ) {
   const cleanUpAadAppPromise = cleanUpAadApp(
     projectPath,
     hasAadPlugin,
     hasBotPlugin,
     hasApimPlugin,
-    envName
+    envName,
   );
   return Promise.all([
     // delete aad app
@@ -386,7 +386,7 @@ export async function cleanUp(
 export async function createResourceGroup(name: string, location: string) {
   const result = await ResourceGroupManager.createOrUpdateResourceGroup(
     name,
-    location
+    location,
   );
   if (result) {
     console.log(`[Successfully] create resource group ${name}.`);
@@ -405,7 +405,7 @@ export async function readContext(projectPath: string): Promise<any> {
 
   let userData: Record<string, string> = {};
   if (await fs.pathExists(userDataFilePath)) {
-    const dictContent = await fs.readFile(userDataFilePath, "UTF-8");
+    const dictContent = await fs.readFile(userDataFilePath, "utf-8");
     userData = dotenv.parse(dictContent);
   }
 
@@ -428,18 +428,18 @@ export async function readContext(projectPath: string): Promise<any> {
 
 export async function readContextMultiEnvV3(
   projectPath: string,
-  envName: string
+  envName: string,
 ): Promise<any> {
   const envFilePath = path.join(projectPath, "env", `.env.${envName}`);
   const parseResult = dotenvUtil.deserialize(
-    await fs.readFile(envFilePath, { encoding: "utf8" })
+    await fs.readFile(envFilePath, { encoding: "utf8" }),
   );
   return parseResult.obj;
 }
 
 export async function readContextMultiEnv(
   projectPath: string,
-  envName: string
+  envName: string,
 ): Promise<any> {
   const contextFilePath = `${projectPath}/.fx/states/state.${envName}.json`;
   const userDataFilePath = `${projectPath}/.fx/states/${envName}.userdata`;
@@ -449,7 +449,7 @@ export async function readContextMultiEnv(
 
   let userData: Record<string, string> = {};
   if (await fs.pathExists(userDataFilePath)) {
-    const dictContent = await fs.readFile(userDataFilePath, "UTF-8");
+    const dictContent = await fs.readFile(userDataFilePath, "utf-8");
     userData = dotenv.parse(dictContent);
   }
 
@@ -469,14 +469,14 @@ export async function readContextMultiEnv(
 }
 
 export async function getCapabilitiesFromProjectSetting(
-  projectPath: string
+  projectPath: string,
 ): Promise<any> {
   const projectSettings = await fs.readJSON(
     path.join(
       projectPath,
       TestFilePath.configFolder,
-      TestFilePath.projectSettingsFileName
-    )
+      TestFilePath.projectSettingsFileName,
+    ),
   );
   return projectSettings[ProjectSettingKey.solutionSettings][
     ProjectSettingKey.capabilities
@@ -498,21 +498,21 @@ function isSecretPattern(value: string) {
 // Load envProfile with userdata (not decrypted)
 export async function loadContext(
   projectPath: string,
-  env: string
+  env: string,
 ): Promise<Result<any, FxError>> {
   const context = await fs.readJson(
     path.join(
       projectPath,
       `.${ConfigFolderName}`,
       "states",
-      `state.${env}.json`
-    )
+      `state.${env}.json`,
+    ),
   );
   const userDataFile = path.join(
     projectPath,
     `.${ConfigFolderName}`,
     "states",
-    `${env}.userdata`
+    `${env}.userdata`,
   );
   if (await fs.pathExists(userDataFile)) {
     const userdataContent = await fs.readFile(userDataFile, "utf8");
@@ -538,12 +538,12 @@ export async function customizeBicepFilesToCustomizedRg(
   customizedRgName: string,
   projectPath: string,
   provisionInsertionSearchStrings: string[] | string,
-  configInsertionSearchStrings?: string[] | string
+  configInsertionSearchStrings?: string[] | string,
 ): Promise<void> {
   const provisionFilePath = path.join(
     projectPath,
     TestFilePath.armTemplateBaseFolder,
-    TestFilePath.provisionFileName
+    TestFilePath.provisionFileName,
   );
   const paramToAdd = `param customizedRg string = '${customizedRgName}'\r\n`;
   const scopeToAdd = `scope: resourceGroup(customizedRg)\r\n`;
@@ -564,14 +564,14 @@ export async function customizeBicepFilesToCustomizedRg(
 
   await fs.writeFile(provisionFilePath, content);
   console.log(
-    `[Successfully] customize ${provisionFilePath} content to deploy cloud resources to ${customizedRgName}.`
+    `[Successfully] customize ${provisionFilePath} content to deploy cloud resources to ${customizedRgName}.`,
   );
 
   if (configInsertionSearchStrings) {
     const configFilePath = path.join(
       projectPath,
       TestFilePath.armTemplateBaseFolder,
-      TestFilePath.configFileName
+      TestFilePath.configFileName,
     );
     let content = await fs.readFile(configFilePath, fileEncoding);
     content = paramToAdd + content;
@@ -589,21 +589,21 @@ export async function customizeBicepFilesToCustomizedRg(
 
     await fs.writeFile(configFilePath, content);
     console.log(
-      `[Successfully] customize ${configFilePath} content to deploy cloud resources to ${customizedRgName}.`
+      `[Successfully] customize ${configFilePath} content to deploy cloud resources to ${customizedRgName}.`,
     );
   }
 }
 
 export async function validateTabAndBotProjectProvision(
   projectPath: string,
-  env: string
+  env: string,
 ) {
   const context = await readContextMultiEnvV3(projectPath, env);
   // Validate Aad App
   const aad = AadValidator.init(
     context,
     false,
-    M365ProviderUserPassword.getInstance()
+    M365ProviderUserPassword.getInstance(),
   );
   await AadValidator.validate(aad);
 
@@ -618,7 +618,7 @@ export async function validateTabAndBotProjectProvision(
 
 export async function getRGAfterProvision(
   projectPath: string,
-  env: string
+  env: string,
 ): Promise<string | undefined> {
   const context = await readContextMultiEnv(projectPath, env);
   if (
@@ -631,12 +631,12 @@ export async function getRGAfterProvision(
 }
 
 export async function customizeBicepFile(
-  projectPath: string
+  projectPath: string,
 ): Promise<string[]> {
   const newServerFarms: string[] = [];
   const bicepFileFolder = path.join(
     projectPath,
-    TestFilePath.armTemplateBaseFolder
+    TestFilePath.armTemplateBaseFolder,
   );
 
   const pattern = "SERVER_FARM_NAME";
@@ -656,33 +656,36 @@ properties: {}
     path.join(
       bicepFileFolder,
       TestFilePath.provisionFolder,
-      "azureStorageTab.bicep"
+      "azureStorageTab.bicep",
     ),
     customizedServerFarmsBicepTemplate.replace(
       pattern,
-      frontendHostingTestServerFarm
-    )
+      frontendHostingTestServerFarm,
+    ),
   );
   newServerFarms.push(frontendHostingTestServerFarm);
 
   const provisionTestServerFarm = "provision_testResource";
   await fs.appendFile(
     path.join(bicepFileFolder, TestFilePath.provisionFileName),
-    customizedServerFarmsBicepTemplate.replace(pattern, provisionTestServerFarm)
+    customizedServerFarmsBicepTemplate.replace(
+      pattern,
+      provisionTestServerFarm,
+    ),
   );
   newServerFarms.push(provisionTestServerFarm);
 
   const configTestServerFarm = "config_testResource";
   await fs.appendFile(
     path.join(bicepFileFolder, TestFilePath.configFileName),
-    customizedServerFarmsBicepTemplate.replace(pattern, configTestServerFarm)
+    customizedServerFarmsBicepTemplate.replace(pattern, configTestServerFarm),
   );
   newServerFarms.push(configTestServerFarm);
 
   const mainTestServerFarm = "main_testResource";
   await fs.appendFile(
     path.join(bicepFileFolder, TestFilePath.mainFileName),
-    customizedServerFarmsBicepTemplate.replace(pattern, mainTestServerFarm)
+    customizedServerFarmsBicepTemplate.replace(pattern, mainTestServerFarm),
   );
   newServerFarms.push(mainTestServerFarm);
 
@@ -692,7 +695,7 @@ properties: {}
 export async function validateServicePlan(
   servicePlanName: string,
   resourceGroup: string,
-  subscription: string
+  subscription: string,
 ) {
   console.log(`Start to validate server farm ${servicePlanName}.`);
 
@@ -704,14 +707,14 @@ export async function validateServicePlan(
     subscription,
     resourceGroup,
     servicePlanName,
-    token as string
+    token as string,
   );
   chai.assert(serivcePlanResponse, "B1");
 }
 
 export function getKeyVaultSecretReference(
   vaultName: string,
-  secretName: string
+  secretName: string,
 ): string {
   return `@Microsoft.KeyVault(VaultName=${vaultName};SecretName=${secretName})`;
 }
@@ -730,7 +733,7 @@ export function removeTeamsAppExtendToM365(filePath: string) {
       if (
         action.commentBefore &&
         action.commentBefore?.includes(
-          "Extend your app to Outlook and the Microsoft 365 app"
+          "Extend your app to Outlook and the Microsoft 365 app",
         )
       ) {
         provisionStage.delete(i);
@@ -740,7 +743,7 @@ export function removeTeamsAppExtendToM365(filePath: string) {
     fs.writeFileSync(filePath, appYaml.toString());
   } catch (error: any) {
     console.log(
-      `Failed to remove teamsApp/extendToM365 action due to: ${error.message}`
+      `Failed to remove teamsApp/extendToM365 action due to: ${error.message}`,
     );
   }
 }
