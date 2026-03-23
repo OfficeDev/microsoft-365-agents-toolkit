@@ -25,7 +25,7 @@ import { promisify } from "util";
 import { LocalMcpPrefix } from "../../constants";
 import { AppStudioError } from "./errors";
 import { AppStudioResultFactory } from "./results";
-import { FeatureFlagName } from "../../../common/featureFlags";
+import { FeatureFlagName } from "../../..";
 import { SovereignCloudEnvironment } from "../../../common/accountUtils";
 
 export const actionName = "teamsApp/publishAppPackage";
