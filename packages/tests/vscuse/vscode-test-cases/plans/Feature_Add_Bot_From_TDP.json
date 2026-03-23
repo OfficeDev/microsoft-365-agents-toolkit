@@ -10,14 +10,14 @@
       "step_retry_timeout": 0.0
     },
     "total_steps": 16,
-    "created_at": "2026-03-04T02:38:35.303716",
+    "created_at": "2026-03-20T08:54:35.883703",
     "name": "Feature Add Bot From TDP",
     "description": {
       "other": "",
       "owner": "v-liliu2@microsoft.com",
       "workitem": "16672797"
     },
-    "generated_at": "2026-03-04T02:38:35.303716",
+    "generated_at": "2026-03-20T08:54:35.883703",
     "execution_order": [
       "plan_r_0113_093650",
       "plan_r_0129_051110",
@@ -42,7 +42,7 @@
       "plan_r_1023_094053"
     ],
     "tags": [],
-    "updated_at": "2026-03-04T03:57:13.076379"
+    "updated_at": "2026-03-20T09:10:47.580693"
   },
   "steps": [
     {
@@ -68,7 +68,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_ef5280d8",
-      "created_at": "2026-03-04T02:38:35.315799",
+      "created_at": "2026-03-20T08:54:35.904705",
       "plan_id": "plan_00430f25"
     },
     {
@@ -94,7 +94,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_865ba5ed",
-      "created_at": "2026-03-04T02:38:35.331511",
+      "created_at": "2026-03-20T08:54:35.928466",
       "plan_id": "plan_00430f25"
     },
     {
@@ -120,7 +120,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_109637cb",
-      "created_at": "2026-03-04T02:38:35.345866",
+      "created_at": "2026-03-20T08:54:35.959734",
       "plan_id": "plan_00430f25"
     },
     {
@@ -146,7 +146,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_9c98b411",
-      "created_at": "2026-03-04T02:38:35.359464",
+      "created_at": "2026-03-20T08:54:35.985104",
       "plan_id": "plan_00430f25"
     },
     {
@@ -172,7 +172,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_a2a7d68e",
-      "created_at": "2026-03-04T02:38:35.370853",
+      "created_at": "2026-03-20T08:54:36.000975",
       "plan_id": "plan_00430f25"
     },
     {
@@ -194,7 +194,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_2e335f2c",
-      "created_at": "2026-03-04T02:38:35.381024",
+      "created_at": "2026-03-20T08:54:36.015357",
       "plan_id": "plan_00430f25"
     },
     {
@@ -220,7 +220,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_a7466bbf",
-      "created_at": "2026-03-04T02:38:35.391299",
+      "created_at": "2026-03-20T08:54:36.034238",
       "plan_id": "plan_00430f25"
     },
     {
@@ -246,7 +246,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_9be353e1",
-      "created_at": "2026-03-04T02:38:35.406263",
+      "created_at": "2026-03-20T08:54:36.054324",
       "plan_id": "plan_00430f25"
     },
     {
@@ -268,7 +268,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_c8424bed",
-      "created_at": "2026-03-04T02:38:35.414821",
+      "created_at": "2026-03-20T08:54:36.070001",
       "plan_id": "plan_00430f25"
     },
     {
@@ -288,7 +288,7 @@
         "step_retry_timeout:120"
       ],
       "screenshot": null,
-      "created_at": "2026-03-04T02:38:35.424684",
+      "created_at": "2026-03-20T08:54:36.090791",
       "plan_id": "plan_00430f25"
     },
     {
@@ -314,7 +314,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_64ebaf4c",
-      "created_at": "2026-03-04T02:38:35.435233",
+      "created_at": "2026-03-20T08:54:36.108308",
       "plan_id": "plan_00430f25"
     },
     {
@@ -340,7 +340,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_9bf26d31",
-      "created_at": "2026-03-04T02:38:35.449308",
+      "created_at": "2026-03-20T08:54:36.130380",
       "plan_id": "plan_00430f25"
     },
     {
@@ -366,7 +366,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_ec44aff4",
-      "created_at": "2026-03-04T02:38:35.467780",
+      "created_at": "2026-03-20T08:54:36.152079",
       "plan_id": "plan_00430f25"
     },
     {
@@ -388,7 +388,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_bc3af2ee",
-      "created_at": "2026-03-04T02:38:35.491852",
+      "created_at": "2026-03-20T08:54:36.174976",
       "plan_id": "plan_00430f25"
     },
     {
@@ -396,7 +396,7 @@
       "agent": "assertion",
       "tool": "",
       "parameters": {},
-      "description": "@assertion '${{var:app_name:tdp_app_####}}' is exist",
+      "description": "@assertion 'TDP' is exist",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -408,7 +408,7 @@
         "step_retry_timeout:60"
       ],
       "screenshot": null,
-      "created_at": "2026-03-04T02:38:35.520384",
+      "created_at": "2026-03-20T08:54:36.202607",
       "plan_id": "plan_00430f25"
     },
     {
@@ -426,7 +426,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": null,
-      "created_at": "2026-03-04T02:38:35.541518",
+      "created_at": "2026-03-20T08:54:36.221453",
       "plan_id": "plan_00430f25"
     }
   ],
