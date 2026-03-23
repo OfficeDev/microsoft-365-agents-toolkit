@@ -6,9 +6,12 @@ import AdmZip from "adm-zip";
 import chai from "chai";
 import fs from "fs-extra";
 import "mocha";
+import mockedEnv from "mocked-env";
 import * as sinon from "sinon";
 import { v4 as uuid } from "uuid";
 import { teamsDevPortalClient } from "../../../../src/client/teamsDevPortalClient";
+import { SovereignCloudEnvironment } from "../../../../src/common/accountUtils";
+import { FeatureFlagName } from "../../../../src/common/featureFlags";
 import { ExecutionResult } from "../../../../src/component/driver/interface/stepDriver";
 import { CreateTeamsAppDriver } from "../../../../src/component/driver/teamsApp/create";
 import { CreateAppPackageDriver } from "../../../../src/component/driver/teamsApp/createAppPackage";
@@ -20,6 +23,7 @@ import { MockedM365Provider } from "../../../core/utils";
 
 describe("teamsApp/create", async () => {
   const teamsAppDriver = new CreateTeamsAppDriver();
+  let restoreEnv: (() => void) | undefined;
   const mockedDriverContext: any = {
     m365TokenProvider: new MockedM365Provider(),
     logProvider: new MockedLogProvider(),
@@ -36,6 +40,42 @@ describe("teamsApp/create", async () => {
 
   afterEach(() => {
     sinon.restore();
+    restoreEnv?.();
+    restoreEnv = undefined;
+  });
+
+  it("skip create in GCCH", async () => {
+    restoreEnv = mockedEnv({
+      [FeatureFlagName.SovereignCloudEnvironment]: SovereignCloudEnvironment.GCCH,
+    });
+    const importAppSpy = sinon.spy(teamsDevPortalClient, "importApp");
+    const readFileStub = sinon.stub(fs, "readFile");
+
+    const args: CreateTeamsAppArgs = {
+      name: appDef.appName!,
+    };
+
+    const result = (await teamsAppDriver.execute(args, mockedDriverContext)).result;
+    chai.assert(result.isOk());
+    sinon.assert.notCalled(importAppSpy);
+    sinon.assert.notCalled(readFileStub);
+  });
+
+  it("skip create in DoD", async () => {
+    restoreEnv = mockedEnv({
+      [FeatureFlagName.SovereignCloudEnvironment]: SovereignCloudEnvironment.DOD,
+    });
+    const importAppSpy = sinon.spy(teamsDevPortalClient, "importApp");
+    const readFileStub = sinon.stub(fs, "readFile");
+
+    const args: CreateTeamsAppArgs = {
+      name: appDef.appName!,
+    };
+
+    const result = (await teamsAppDriver.execute(args, mockedDriverContext)).result;
+    chai.assert(result.isOk());
+    sinon.assert.notCalled(importAppSpy);
+    sinon.assert.notCalled(readFileStub);
   });
 
   it("invalid param error", async () => {
@@ -89,14 +129,12 @@ describe("teamsApp/create", async () => {
       name: appDef.appName!,
     };
 
-    process.env.TEAMS_APP_ID = uuid();
+    restoreEnv = mockedEnv({ TEAMS_APP_ID: uuid() });
     sinon.stub(teamsDevPortalClient, "getApp").resolves(appDef);
 
     const result = (await teamsAppDriver.execute(args, mockedDriverContext)).result;
     console.log(JSON.stringify(result));
     chai.assert.isTrue(result.isOk());
-
-    process.env.TEAMS_APP_ID = undefined;
   });
 
   it("API failure", async () => {
