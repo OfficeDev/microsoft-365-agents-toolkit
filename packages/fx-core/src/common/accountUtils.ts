@@ -6,8 +6,8 @@ import { featureFlagManager, FeatureFlags } from "./featureFlags";
 export enum SovereignCloudEnvironment {
   Public = "Public",
   GCCM = "GCC M",
-  GCCH = "GCC High",
-  DOD = "DOD",
+  GCCH = "GCC H",
+  DOD = "DoD",
 }
 
 export function getEntraEndpoint(): string {
