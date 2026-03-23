@@ -61,9 +61,7 @@ export class ConfigureTeamsAppDriver implements StepDriver {
       process.env[FeatureFlagName.SovereignCloudEnvironment] === SovereignCloudEnvironment.DOD
     ) {
       context.logProvider.warning(
-        `Skipping ${actionName} as the target environment ${
-          process.env[FeatureFlagName.SovereignCloudEnvironment] ?? ""
-        } is not supported.`
+        `Skipping ${actionName} as the required Developer Portal API is not yet available in GCC H and DoD.`
       );
       return ok(new Map<string, string>());
     }
