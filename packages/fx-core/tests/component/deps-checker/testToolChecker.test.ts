@@ -7,7 +7,7 @@ import { expect } from "chai";
 import cp from "child_process";
 import fs from "fs-extra";
 import mockfs from "mock-fs";
-import * as fetchModule from "node-fetch";
+import * as fetchHelper from "../../../src/common/fetchHelper";
 import * as os from "os";
 import * as path from "path";
 import * as sinon from "sinon";
@@ -1166,7 +1166,7 @@ describe("GitHubHelpers", () => {
   });
 
   it("list github releases happy path", async () => {
-    sandbox.stub(fetchModule, "default").callsFake(async () => {
+    sandbox.stub(fetchHelper, "default").callsFake(async () => {
       const releases = [
         {
           tag_name: "microsoft-365-agents-playground@1.0.0",
@@ -1181,7 +1181,7 @@ describe("GitHubHelpers", () => {
           ],
         },
       ];
-      return new fetchModule.Response(JSON.stringify(releases), { status: 200 });
+      return { json: async () => releases, status: 200 } as any;
     });
     const releases = await GitHubHelpers.listGitHubReleases();
     expect(releases).to.deep.eq([
@@ -1191,7 +1191,7 @@ describe("GitHubHelpers", () => {
   });
 
   it("ignores github releases not related to test tool", async () => {
-    sandbox.stub(fetchModule, "default").callsFake(async () => {
+    sandbox.stub(fetchHelper, "default").callsFake(async () => {
       const releases = [
         {
           tag_name: "templates@1.0.0",
@@ -1206,20 +1206,20 @@ describe("GitHubHelpers", () => {
           ],
         },
       ];
-      return new fetchModule.Response(JSON.stringify(releases), { status: 200 });
+      return { json: async () => releases, status: 200 } as any;
     });
     const releases = await GitHubHelpers.listGitHubReleases();
     expect(releases).to.deep.eq([]);
   });
   it("ignores releases that doesn't have assets", async () => {
-    sandbox.stub(fetchModule, "default").callsFake(async () => {
+    sandbox.stub(fetchHelper, "default").callsFake(async () => {
       const releases = [
         {
           tag_name: "microsoft-365-agents-playground@1.0.0",
           assets: [],
         },
       ];
-      return new fetchModule.Response(JSON.stringify(releases), { status: 200 });
+      return { json: async () => releases, status: 200 } as any;
     });
     const releases = await GitHubHelpers.listGitHubReleases();
     expect(releases).to.deep.eq([]);

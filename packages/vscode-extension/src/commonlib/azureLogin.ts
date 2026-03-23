@@ -33,7 +33,13 @@ import {
   TelemetryErrorType,
 } from "../telemetry/extTelemetryEvents";
 import { VS_CODE_UI } from "../qm/vsc_ui";
-import { AzureScopes, globalStateGet, globalStateUpdate } from "@microsoft/teamsfx-core";
+import {
+  AzureScopes,
+  featureFlagManager,
+  FeatureFlags,
+  globalStateGet,
+  globalStateUpdate,
+} from "@microsoft/teamsfx-core";
 import { getDefaultString, localize } from "../utils/localizeUtils";
 import {
   Microsoft,
@@ -117,6 +123,9 @@ export class AzureAccountManager extends login implements AzureAccountProvider {
 
     ExtTelemetry.sendTelemetryEvent(TelemetryEvent.LoginStart, {
       [TelemetryProperty.AccountType]: AccountType.Azure,
+      [TelemetryProperty.SovereignCloudType]: featureFlagManager.getStringValue(
+        FeatureFlags.SovereignCloudEnvironment
+      ),
     });
     try {
       AzureAccountManager.currentStatus = loggingIn;
@@ -144,6 +153,14 @@ export class AzureAccountManager extends login implements AzureAccountProvider {
       }
       await saveTenantId(azureCacheName, (ConvertTokenToJson(session.accessToken) as any).tid);
 
+      ExtTelemetry.sendTelemetryEvent(TelemetryEvent.Login, {
+        [TelemetryProperty.AccountType]: AccountType.Azure,
+        [TelemetryProperty.SovereignCloudType]: featureFlagManager.getStringValue(
+          FeatureFlags.SovereignCloudEnvironment
+        ),
+        [TelemetryProperty.Success]: TelemetrySuccess.Yes,
+      });
+
       const credential: TokenCredential = {
         // eslint-disable-next-line @typescript-eslint/require-await
         getToken: async () => {
@@ -155,6 +172,17 @@ export class AzureAccountManager extends login implements AzureAccountProvider {
       };
       return credential;
     } catch (e) {
+      ExtTelemetry.sendTelemetryErrorEvent(TelemetryEvent.Login, e, {
+        [TelemetryProperty.AccountType]: AccountType.Azure,
+        [TelemetryProperty.SovereignCloudType]: featureFlagManager.getStringValue(
+          FeatureFlags.SovereignCloudEnvironment
+        ),
+        [TelemetryProperty.Success]: TelemetrySuccess.No,
+        [TelemetryProperty.ErrorType]:
+          e instanceof UserError ? TelemetryErrorType.UserError : TelemetryErrorType.SystemError,
+        [TelemetryProperty.ErrorCode]: `${e.source as string}.${e.name as string}`,
+        [TelemetryProperty.ErrorMessage]: `${e.message as string}`,
+      });
       AzureAccountManager.currentStatus = loggedOut;
       void this.notifyStatus();
       if (e?.message.includes("User did not consent ")) {

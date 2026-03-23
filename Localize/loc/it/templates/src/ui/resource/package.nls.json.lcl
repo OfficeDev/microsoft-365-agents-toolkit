@@ -14,7 +14,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Intelligent agent that is built with Microsoft 365 Agents SDK and connects to your LLM]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Agente intelligente creato con l'SDK per agenti Microsoft 365 e che si connette a un LLM]]></Val>
+            <Val><![CDATA[Agente intelligente creato con SDK per agenti Microsoft 365 e che si connette a un LLM]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -50,7 +50,7 @@
         <Str Cat="Text">
           <Val><![CDATA[A travel planning agent, which is built with Microsoft 365 Agents SDK, Microsoft 365 Retrieval API and Agent Framework]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Un agente per la pianificazione dei viaggi, realizzato con SDK per agenti Microsoft 365, API di recupero Microsoft 365 e Agent Framework]]></Val>
+            <Val><![CDATA[Un agente per la pianificazione dei viaggi, creato con SDK per agenti Microsoft 365, API di recupero Microsoft 365 e Agent Framework]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -104,7 +104,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Agent that chats with users in Teams built with Teams AI Library and connects to LLMs]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Agente che chatta con gli utenti in Teams, creato con la libreria di IA di Teams e che si connette a LLM]]></Val>
+            <Val><![CDATA[Agente che chatta con gli utenti in Teams, creato con la libreria IA di Teams e che si connette a LLM]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />

@@ -845,7 +845,7 @@
         <Str Cat="Text">
           <Val><![CDATA[This is a procedural question, @teams can only answer questions regarding descriptions or concepts for now. You could try these commands or get more info from [Microsoft 365 Agents Toolkit documentation]5D;(https://learn.microsoft.com/microsoftteams/platform/toolkit/teams-toolkit-fundamentals).]A;]A; • /create: Use this command to find relevant templates or samples to build your app as per your description. E.g. @teams /create create an AI assistant bot that can complete common tasks.]A;]A; • /nextstep: Use this command to move to the next step at any stage of your app development.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[これは手続き型の質問で、@teams は現時点では説明や概念に関する質問にのみ回答できます。これらのコマンドを試すか、[Microsoft 365 Agents Toolkit のドキュメント]5D;(https://learn.microsoft.com/microsoftteams/platform/toolkit/teams-toolkit-fundamentals) から詳細情報を取得できます。]A;]A; • /create: このコマンドを使用して、説明に従ってアプリをビルドするための、関連するテンプレートまたはサンプルを検索します。例: @teams /create は、一般的なタスクを完了できる AI アシスタント ボットを作成します。]A;]A; • /nextstep: このコマンドを使用して、アプリ開発の任意の段階で次の手順に進みます。]]></Val>
+            <Val><![CDATA[これは手続き型の質問で、@teams は現時点では説明や概念に関する質問にのみ回答できます。これらのコマンドを試すか、[Microsoft 365 Agents Toolkit のドキュメント]5D;(https://learn.microsoft.com/microsoftteams/platform/toolkit/teams-toolkit-fundamentals) から詳細情報を取得できます。]A;]A; • /create: このコマンドを使用して、説明に従ってアプリを構築するための、関連するテンプレートまたはサンプルを検索します。例: @teams /create は、一般的なタスクを完了できる AI アシスタント ボットを作成します。]A;]A; • /nextstep: このコマンドを使用して、アプリ開発の任意の段階で次の手順に進みます。]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[This is a procedural question, @teams can only answer questions regarding descriptions or concepts for now. You could try these commands or get more info from [Microsoft 365 Agents Toolkit documentation]5D;(https://learn.microsoft.com/microsoftteams/platform/toolkit/teams-toolkit-fundamentals).]A;]A; • /create: Use this command to find relevant templates or samples to build your Teams app as per your description. E.g. @teams /create create an AI assistant bot that can complete common tasks.]A;]A; • /nextstep: Use this command to move to the next step at any stage of your Teams app development.]]></Val>
@@ -6296,7 +6296,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Follow these steps to build your declarative agent using Microsoft 365 Agents Toolkit.]A;[Build Declarative Agent]5D;(command:fx-extension.create?%5B%22SideBar%22%5D)]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Microsoft 365 Agents Toolkit を使用して宣言型エージェントをビルドするには、次の手順に従います。]A;[宣言型エージェントのビルド]5D;(コマンド:fx-extension.create?%5B%22SideBar%22%5D)]]></Val>
+            <Val><![CDATA[Microsoft 365 Agents Toolkit を使用して宣言型エージェントを構築するには、次の手順に従います。]A;[宣言型エージェントの構築]5D;(コマンド:fx-extension.create?%5B%22SideBar%22%5D)]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Follow these steps to build your declarative agent using Teams Toolkit.]A;[Build Declarative Agent]5D;(command:fx-extension.create?%5B%22SideBar%22%5D)]]></Val>
@@ -6308,7 +6308,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Build a declarative agent]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[宣言型エージェントのビルド]]></Val>
+            <Val><![CDATA[宣言型エージェントの構築]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -6317,7 +6317,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Set up your environment to build a declarative agent for Microsoft 365 Copilot. Ensure you have Node.js, NPM, and a valid Microsoft 365 Copilot license. [Learn how to get a developer environment.]5D;(https://learn.microsoft.com/en-us/microsoft-365-copilot/extensibility/prerequisites#prerequisites)]A;[Check Copilot License]5D;(command:fx-extension.checkCopilotAccess?%5B%22WalkThrough%22%5D)]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[環境を設定して、Microsoft 365 Copilotの宣言型エージェントをビルドします。Node.js、NPM、有効なMicrosoft 365 Copilotライセンスがあることを確認してください。[Learn how to get a developer environment.]5D;(https://learn.microsoft.com/en-us/microsoft-365-copilot/extensibility/prerequisites#prerequisites)]A;[Check Copilot License]5D;(command:fx-extension.checkCopilotAccess?%5B%22WalkThrough%22%5D)]]></Val>
+            <Val><![CDATA[環境を設定して、Microsoft 365 Copilotの宣言型エージェントを構築します。Node.js、NPM、有効なMicrosoft 365 Copilotライセンスがあることを確認してください。[Learn how to get a developer environment.]5D;(https://learn.microsoft.com/en-us/microsoft-365-copilot/extensibility/prerequisites#prerequisites)]A;[Check Copilot License]5D;(command:fx-extension.checkCopilotAccess?%5B%22WalkThrough%22%5D)]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -6353,7 +6353,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Build a declarative agent to customize Microsoft 365 Copilot with specific instructions, actions, and knowledge. Follow this guide to get started.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[宣言型エージェントをビルドして、特定の命令、アクション、知識を使用してMicrosoft 365 Copilotをカスタマイズします。このガイドに従って開始します。]]></Val>
+            <Val><![CDATA[宣言型エージェントを構築して、特定の命令、アクション、知識を使用してMicrosoft 365 Copilotをカスタマイズします。このガイドに従って開始します。]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -6389,7 +6389,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Build a Declarative Agent]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[宣言型エージェントのビルド]]></Val>
+            <Val><![CDATA[宣言型エージェントの構築]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />

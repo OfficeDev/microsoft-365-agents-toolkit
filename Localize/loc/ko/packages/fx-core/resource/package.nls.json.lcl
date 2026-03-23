@@ -2579,7 +2579,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Build a new Declarative Agent with Office add-in actions]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Office 추가 기능 작업을 사용하여 새 선언적 에이전트 빌드]]></Val>
+            <Val><![CDATA[Office 추가 기능 작업을 사용하여 새 선언적 에이전트 구성]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3230,7 +3230,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Build an AI agent with OpenAI Assistants API and Microsoft Teams SDK]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[OpenAI Assistants API와 Microsoft Teams SDK를 사용해 AI 에이전트를 빌드하세요.]]></Val>
+            <Val><![CDATA[OpenAI Assistants API와 Microsoft Teams SDK를 사용하여 AI 에이전트를 구성하세요.]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Build an AI agent with OpenAI Assistants API and Teams AI Library]]></Val>
@@ -3251,7 +3251,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Build your own AI Agent from scratch using Microsoft Teams SDK]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Microsoft Teams SDK로 나만의 AI 에이전트를 처음부터 만들어 보세요.]]></Val>
+            <Val><![CDATA[Microsoft Teams SDK로 처음부터 나만의 AI 에이전트를 구성해 보세요.]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Build your own AI Agent from scratch using Teams AI Library]]></Val>
@@ -3341,7 +3341,7 @@
         <Str Cat="Text">
           <Val><![CDATA[A weather forecast agent, which is built with Microsoft 365 Agents SDK and Semantic Kernel]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Microsoft 365 Agents SDK 및 의미 체계 커널을 사용하여 빌드된 일기 예보 에이전트]]></Val>
+            <Val><![CDATA[Microsoft 365 에이전트 SDK 및 의미 체계 커널을 사용하여 구성된 일기 예보 에이전트]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />

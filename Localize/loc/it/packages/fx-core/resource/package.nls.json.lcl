@@ -3230,7 +3230,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Build an AI agent with OpenAI Assistants API and Microsoft Teams SDK]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Crea un agente IA con l'API Assistenti OpenAI e l'SDK Microsoft Teams]]></Val>
+            <Val><![CDATA[Crea un agente IA con l'API Assistenti OpenAI e Microsoft Teams SDK]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Build an AI agent with OpenAI Assistants API and Teams AI Library]]></Val>
@@ -3251,7 +3251,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Build your own AI Agent from scratch using Microsoft Teams SDK]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Crea un agente IA personalizzato da zero con l'SDK Microsoft Teams]]></Val>
+            <Val><![CDATA[Crea un agente IA personalizzato da zero con Microsoft Teams SDK]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Build your own AI Agent from scratch using Teams AI Library]]></Val>
@@ -3323,7 +3323,7 @@
         <Str Cat="Text">
           <Val><![CDATA[A travel planning agent, which is built with Microsoft 365 Agents SDK, Microsoft 365 Retrieval API and Agent Framework]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Un agente per la pianificazione dei viaggi, realizzato con SDK per agenti Microsoft 365, API di recupero Microsoft 365 e Agent Framework]]></Val>
+            <Val><![CDATA[Un agente per la pianificazione dei viaggi, creato con SDK per agenti Microsoft 365, API di recupero Microsoft 365 e Agent Framework]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3341,7 +3341,7 @@
         <Str Cat="Text">
           <Val><![CDATA[A weather forecast agent, which is built with Microsoft 365 Agents SDK and Semantic Kernel]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Un agente di previsioni meteo, creato con Microsoft 365 Agents SDK e Semantic Kernel]]></Val>
+            <Val><![CDATA[Un agente di previsioni meteo, creato con SDK per agenti Microsoft 365 e Semantic Kernel]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
