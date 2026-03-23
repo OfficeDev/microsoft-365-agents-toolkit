@@ -5958,6 +5958,10 @@ describe("addPlugin", async () => {
       }
       return true;
     });
+    sandbox
+      .stub(featureFlagManager, "getBooleanValue")
+      .withArgs(FeatureFlags.KiotaNPMIntegration)
+      .returns(false);
     sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
     sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
     sandbox.stub(copilotGptManifestUtils, "getManifestPath").resolves(ok("dcManifest.json"));
@@ -7219,8 +7223,6 @@ describe("addAuthAction", async () => {
       defaultRegistrationIdEnvName: "test",
       registrationIdEnvName: "test",
     });
-    sandbox.stub(path, "normalize").returns("normalizedPath");
-    sandbox.stub(path, "join").returns("joinedPath");
     sandbox.stub(fs, "readJson").resolves(pluginManifest);
     sandbox.stub(fs, "writeJson").callsFake(async (path: string, data: any) => {
       assert.equal(data.runtimes.length, 1);
@@ -7273,8 +7275,6 @@ describe("addAuthAction", async () => {
       defaultRegistrationIdEnvName: "test",
       registrationIdEnvName: "test",
     });
-    sandbox.stub(path, "normalize").returns("normalizedPath");
-    sandbox.stub(path, "join").returns("joinedPath");
     sandbox.stub(fs, "readJson").resolves(pluginManifest);
     sandbox.stub(fs, "writeJson").callsFake(async (path: string, data: any) => {
       assert.equal(data.runtimes.length, 1);
@@ -7327,8 +7327,6 @@ describe("addAuthAction", async () => {
       defaultRegistrationIdEnvName: "test",
       registrationIdEnvName: "test",
     });
-    sandbox.stub(path, "normalize").returns("normalizedPath");
-    sandbox.stub(path, "join").returns("joinedPath");
     sandbox.stub(fs, "readJson").resolves(pluginManifest);
     sandbox.stub(fs, "writeJson").callsFake(async (path: string, data: any) => {
       assert.equal(data.runtimes.length, 1);
@@ -7381,8 +7379,6 @@ describe("addAuthAction", async () => {
       defaultRegistrationIdEnvName: "test",
       registrationIdEnvName: "test",
     });
-    sandbox.stub(path, "normalize").returns("normalizedPath");
-    sandbox.stub(path, "join").returns("joinedPath");
     sandbox.stub(fs, "readJson").resolves(pluginManifest);
     sandbox.stub(fs, "writeJson").callsFake(async (path: string, data: any) => {
       assert.equal(data.runtimes.length, 1);
@@ -7432,8 +7428,6 @@ describe("addAuthAction", async () => {
       defaultRegistrationIdEnvName: "test",
       registrationIdEnvName: "test",
     });
-    sandbox.stub(path, "normalize").returns("normalizedPath");
-    sandbox.stub(path, "join").returns("joinedPath");
     sandbox.stub(fs, "readJson").resolves(pluginManifest);
     sandbox.stub(fs, "writeJson").callsFake(async (path: string, data: any) => {
       assert.equal(data.runtimes.length, 1);
@@ -7481,8 +7475,6 @@ describe("addAuthAction", async () => {
       defaultRegistrationIdEnvName: "test",
       registrationIdEnvName: "test",
     });
-    sandbox.stub(path, "normalize").returns("normalizedPath");
-    sandbox.stub(path, "join").returns("joinedPath");
     sandbox.stub(fs, "readJson").resolves(pluginManifest);
     sandbox.stub(fs, "writeJson").callsFake(async (path: string, data: any) => {
       assert.equal(data.runtimes.length, 1);
@@ -7527,8 +7519,6 @@ describe("addAuthAction", async () => {
       .stub(copilotGptManifestUtils, "readCopilotGptManifestFile")
       .resolves(ok({} as DeclarativeCopilotManifestSchema));
     sandbox.stub(openApiSpecHelper, "injectAuthAction").resolves(undefined);
-    sandbox.stub(path, "normalize").returns("normalizedPath");
-    sandbox.stub(path, "join").returns("joinedPath");
     sandbox.stub(fs, "readJson").resolves(pluginManifest);
     const writeJsonStub = sandbox.stub(fs, "writeJson").resolves();
     const core = new FxCore(tools);
@@ -7572,8 +7562,6 @@ describe("addAuthAction", async () => {
       defaultRegistrationIdEnvName: "test",
       registrationIdEnvName: "test",
     });
-    sandbox.stub(path, "normalize").returns("normalizedPath");
-    sandbox.stub(path, "join").returns("joinedPath");
     sandbox.stub(fs, "readJson").resolves(pluginManifest);
     sandbox.stub(fs, "writeJson").callsFake(async (path: string, data: any) => {
       assert.equal(data.runtimes.length, 2);
@@ -7621,8 +7609,6 @@ describe("addAuthAction", async () => {
       defaultRegistrationIdEnvName: "test",
       registrationIdEnvName: "test",
     });
-    sandbox.stub(path, "normalize").returns("normalizedPath");
-    sandbox.stub(path, "join").returns("joinedPath");
     sandbox.stub(fs, "readJson").resolves(pluginManifest);
     sandbox.stub(fs, "writeJson").callsFake(async (path: string, data: any) => {
       assert.equal(data.runtimes.length, 1);

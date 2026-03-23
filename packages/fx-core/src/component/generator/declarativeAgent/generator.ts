@@ -103,13 +103,13 @@ export class DeclarativeAgentGenerator extends DefaultTemplateGenerator {
         ...(isLocalMCP
           ? this.processMCPLocalServers(inputs)
           : MCPForDAServerUrl
-          ? {
-              MCPForDAServerUrl,
-              ServerName: new URL(MCPForDAServerUrl).host
-                .replace(/[^a-zA-Z0-9]/g, "")
-                .substring(0, 10),
-            }
-          : {}),
+            ? {
+                MCPForDAServerUrl,
+                ServerName: new URL(MCPForDAServerUrl).host
+                  .replace(/[^a-zA-Z0-9]/g, "")
+                  .substring(0, 10),
+              }
+            : {}),
       };
       const templateName = inputs[QuestionNames.TemplateName];
 
@@ -146,9 +146,8 @@ export class DeclarativeAgentGenerator extends DefaultTemplateGenerator {
       AppPackageFolderName,
       ManifestTemplateFileName
     );
-    const declarativeCopilotManifestPathRes = await copilotGptManifestUtils.getManifestPath(
-      teamsManifestPath
-    );
+    const declarativeCopilotManifestPathRes =
+      await copilotGptManifestUtils.getManifestPath(teamsManifestPath);
     if (declarativeCopilotManifestPathRes.isErr()) {
       // only return error in da existing action case
       if (TemplateNames.DeclarativeAgentWithExistingAction === inputs[QuestionNames.TemplateName]) {

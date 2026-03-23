@@ -39,7 +39,7 @@ export function useTeams(options?: {
   },
   {
     setTheme: (theme: string | undefined) => void;
-  }
+  },
 ] {
   const [loading, setLoading] = useState<boolean | undefined>(undefined);
   const [inTeams, setInTeams] = useState<boolean | undefined>(undefined);

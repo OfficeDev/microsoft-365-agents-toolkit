@@ -146,7 +146,6 @@ export class WebviewPanel {
             });
             break;
           case Commands.DisplayCommands:
-            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
             await vscode.commands.executeCommand("workbench.action.quickOpen", `>${msg.data}`);
             break;
           case Commands.CreateNewProject:

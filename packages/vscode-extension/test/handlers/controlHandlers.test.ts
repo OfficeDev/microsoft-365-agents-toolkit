@@ -3,6 +3,7 @@ import { featureFlagManager, manifestUtils } from "@microsoft/teamsfx-core";
 import * as projectSettingsHelper from "@microsoft/teamsfx-core/build/common/projectSettingsHelper";
 import * as chai from "chai";
 import fs from "fs-extra";
+import * as path from "path";
 import * as sinon from "sinon";
 import * as vscode from "vscode";
 import { PanelType } from "../../src/controls/PanelType";
@@ -149,8 +150,9 @@ describe("Control Handlers", () => {
 
       const result = await openFolderHandler("file://path/to/folder");
 
+      const expectedPath = "/path/to/folder".split("/").join(path.sep);
       chai.assert.isTrue(sendTelemetryStub.called);
-      chai.assert.isTrue(openFolderInExplorerStub.calledOnceWith("/path/to/folder"));
+      chai.assert.isTrue(openFolderInExplorerStub.calledOnceWith(expectedPath));
       chai.assert.isTrue(result.isOk());
     });
   });
@@ -216,10 +218,12 @@ describe("Control Handlers", () => {
     });
 
     it("focus out save reason", () => {
+      const dirname = "/dirname";
+      const parentDir = path.join(dirname, "..");
       const isValidProjectStub = sandbox
         .stub(projectSettingsHelper, "isValidProject")
-        .callsFake((path: string | undefined) => {
-          return path !== "/dirname";
+        .callsFake((p: string | undefined) => {
+          return p !== dirname;
         });
       const sendTelemetryEventStub = sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
       sandbox.stub(globalVariables, "workspaceUri").value({ fsPath: "/path/to/workspace" });
@@ -231,8 +235,8 @@ describe("Control Handlers", () => {
 
       chai.assert.isTrue(isValidProjectStub.calledThrice);
       chai.assert.equal(isValidProjectStub.getCall(0).args[0], "/path/to/workspace");
-      chai.assert.equal(isValidProjectStub.getCall(1).args[0], "/dirname");
-      chai.assert.equal(isValidProjectStub.getCall(2).args[0], "/");
+      chai.assert.equal(isValidProjectStub.getCall(1).args[0], dirname);
+      chai.assert.equal(isValidProjectStub.getCall(2).args[0], parentDir);
       chai.assert.equal(sendTelemetryEventStub.getCall(0).args[0], TelemetryEvent.UpdateTeamsApp);
       chai.assert.deepEqual(sendTelemetryEventStub.getCall(0).args[1], {
         [TelemetryProperty.UpdateTeamsAppReason]: TelemetryUpdateAppReason.FocusOut,

@@ -65,7 +65,7 @@ export function buildTargetReplacement<T extends Replacement>(
   replacements: T[]
 ): [
   directlyImport2TargetReplacements: Map<string, ImportInfoInReplacement & T>,
-  namespaceImport2TargetReplacements: Map<string, ImportInfoInReplacement & T>
+  namespaceImport2TargetReplacements: Map<string, ImportInfoInReplacement & T>,
 ] {
   const directlyImport2TargetReplacements: Map<string, ImportInfoInReplacement & T> = new Map();
   const namespaceImport2TargetReplacements: Map<string, ImportInfoInReplacement & T> = new Map();

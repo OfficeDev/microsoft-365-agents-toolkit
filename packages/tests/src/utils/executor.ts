@@ -25,7 +25,7 @@ export class Executor {
     cwd: string,
     processEnv?: NodeJS.ProcessEnv,
     timeout?: number,
-    skipErrorMessage?: string | undefined
+    skipErrorMessage?: string | undefined,
   ) {
     let retryCount = 0;
     const maxRetries = 2;
@@ -56,7 +56,7 @@ export class Executor {
           }
           // the command exit with 0
           console.log(
-            `[Pending] "${command}" in ${cwd} with some stderr: ${result.stderr}`
+            `[Pending] "${command}" in ${cwd} with some stderr: ${result.stderr}`,
           );
           return { success: false, ...result };
         } else {
@@ -68,7 +68,7 @@ export class Executor {
           console.error(`[Failed] "${command}" in ${cwd}. Timeout and killed.`);
         } else {
           console.error(
-            `[Failed] "${command}" in ${cwd} with error: ${e.message}`
+            `[Failed] "${command}" in ${cwd} with error: ${e.message}`,
           );
         }
         retryCount++;
@@ -77,7 +77,7 @@ export class Executor {
         }
 
         console.log(
-          `Retrying "${command}" in ${cwd}. Attempt ${retryCount} of ${maxRetries}.`
+          `Retrying "${command}" in ${cwd}. Attempt ${retryCount} of ${maxRetries}.`,
         );
       }
     }
@@ -97,7 +97,7 @@ export class Executor {
 
   static concatProcessEnv(
     processEnv: NodeJS.ProcessEnv,
-    env: Record<string, string>
+    env: Record<string, string>,
   ) {
     return Object.assign({}, processEnv, env);
   }
@@ -107,7 +107,7 @@ export class Executor {
     appName: string,
     capability: Capability,
     language: ProgrammingLanguage,
-    customized: Record<string, string> = {}
+    customized: Record<string, string> = {},
   ) {
     let languageParam = "";
     if (language === ProgrammingLanguage.CSharp) {
@@ -137,7 +137,7 @@ export class Executor {
     spfxFolder: string,
     webpartName: string,
     manifestPath: string,
-    localManifestPath: string
+    localManifestPath: string,
   ) {
     const command =
       `atk add spfx-web-part --spfx-webpart-name ${webpartName}` +
@@ -159,7 +159,7 @@ export class Executor {
     processEnv?: NodeJS.ProcessEnv,
     npx = false,
     isV3 = true,
-    skipErrorMessage?: string
+    skipErrorMessage?: string,
   ) {
     const npxCommand = npx ? "npx " : "";
     const cliPrefix = isV3 ? "atk" : "teamsapp";
@@ -169,7 +169,7 @@ export class Executor {
       workspace,
       processEnv,
       undefined,
-      skipErrorMessage
+      skipErrorMessage,
     );
   }
 
@@ -177,7 +177,7 @@ export class Executor {
     workspace: string,
     env = "dev",
     isV3 = true,
-    skipErrorMessage?: string
+    skipErrorMessage?: string,
   ) {
     return this.executeCmd(
       workspace,
@@ -186,7 +186,7 @@ export class Executor {
       undefined,
       false,
       isV3,
-      skipErrorMessage
+      skipErrorMessage,
     );
   }
 
@@ -195,7 +195,7 @@ export class Executor {
     processEnv: NodeJS.ProcessEnv,
     env = "dev",
     npx = false,
-    isV3 = true
+    isV3 = true,
   ) {
     return this.executeCmd(workspace, "provision", env, processEnv, npx, isV3);
   }
@@ -203,12 +203,12 @@ export class Executor {
   static async validate(
     workspace: string,
     env = "dev",
-    manifestFolderName = "appPackage"
+    manifestFolderName = "appPackage",
   ) {
     return this.executeCmd(
       workspace,
       `validate --manifest-file ./${manifestFolderName}/manifest.json`,
-      env
+      env,
     );
   }
 
@@ -217,7 +217,7 @@ export class Executor {
     processEnv: NodeJS.ProcessEnv,
     env = "dev",
     npx = false,
-    isV3 = true
+    isV3 = true,
   ) {
     return this.executeCmd(workspace, "deploy", env, processEnv, npx, isV3);
   }
@@ -230,7 +230,7 @@ export class Executor {
       undefined,
       undefined,
       undefined,
-      LocalDebugError.WarningCapError
+      LocalDebugError.WarningCapError,
     );
   }
 
@@ -239,7 +239,7 @@ export class Executor {
     processEnv: NodeJS.ProcessEnv,
     env = "dev",
     npx = false,
-    isV3 = true
+    isV3 = true,
   ) {
     return this.executeCmd(workspace, "deploy", env, processEnv, npx, isV3);
   }
@@ -251,7 +251,7 @@ export class Executor {
   static async listAppOwners(workspace: string, env = "dev") {
     return this.executeCmd(
       workspace,
-      "collaborator status --interactive false"
+      "collaborator status --interactive false",
     );
   }
 
@@ -259,11 +259,11 @@ export class Executor {
     workspace: string,
     email: string,
     teamsManifestFilePath: string,
-    env = "dev"
+    env = "dev",
   ) {
     return this.executeCmd(
       workspace,
-      `collaborator grant --email ${email} -t ${teamsManifestFilePath}  --interactive false`
+      `collaborator grant --email ${email} -t ${teamsManifestFilePath}  --interactive false`,
     );
   }
 
@@ -272,7 +272,7 @@ export class Executor {
     processEnv: NodeJS.ProcessEnv,
     env = "dev",
     npx = false,
-    isV3 = true
+    isV3 = true,
   ) {
     return this.executeCmd(workspace, "publish", env, processEnv, npx, isV3);
   }
@@ -287,7 +287,7 @@ export class Executor {
       undefined,
       undefined,
       undefined,
-      skipErrorMessage
+      skipErrorMessage,
     );
   }
 
@@ -298,7 +298,7 @@ export class Executor {
     processEnv: NodeJS.ProcessEnv = process.env,
     onData?: (data: string) => void,
     onError?: (data: string) => void,
-    openOnly?: boolean
+    openOnly?: boolean,
   ) {
     let childProcess: ChildProcess | null = null;
     console.log(`[start] ${env} debug ... `);
@@ -307,7 +307,7 @@ export class Executor {
       v3 ? "atk" : "teamsapp",
       ["preview", v3 ? "--env" : "", v3 ? env : `--${env}`],
       onData,
-      onError
+      onError,
     );
     return childProcess;
   }
@@ -317,7 +317,7 @@ export class Executor {
     processEnv: NodeJS.ProcessEnv,
     env = "dev",
     npx = false,
-    isV3 = true
+    isV3 = true,
   ) {
     return this.executeCmd(workspace, "preview", env, processEnv, npx, isV3);
   }
@@ -339,7 +339,7 @@ export class Executor {
     appName: string,
     testFolder: string,
     template: TemplateProjectFolder,
-    processEnv?: NodeJS.ProcessEnv
+    processEnv?: NodeJS.ProcessEnv,
   ) {
     const command = `atk new sample ${template} --interactive false `;
     const timeout = 100000;
@@ -351,32 +351,32 @@ export class Executor {
         `mv ./${template} ./${appName}`,
         testFolder,
         processEnv ? processEnv : process.env,
-        timeout
+        timeout,
       );
 
       const localEnvPath = path.resolve(
         testFolder,
         appName,
         "env",
-        ".env.local"
+        ".env.local",
       );
       const remoteEnvPath = path.resolve(
         testFolder,
         appName,
         "env",
-        ".env.dev"
+        ".env.dev",
       );
       editDotEnvFile(localEnvPath, "TEAMS_APP_NAME", appName);
       editDotEnvFile(remoteEnvPath, "TEAMS_APP_NAME", appName);
 
       const message = `scaffold project to ${path.resolve(
         testFolder,
-        appName
+        appName,
       )} with template ${template}`;
       console.log(message);
     } catch (e: any) {
       console.log(
-        `Run \`${command}\` failed with error msg: ${JSON.stringify(e)}.`
+        `Run \`${command}\` failed with error msg: ${JSON.stringify(e)}.`,
       );
       if (e.killed && e.signal == "SIGTERM") {
         console.log(`Command ${command} killed due to timeout ${timeout}`);
@@ -389,7 +389,7 @@ export class Executor {
     testFolder: string,
     template: TemplateProjectFolder,
     processEnv?: NodeJS.ProcessEnv,
-    subFolder?: string
+    subFolder?: string,
   ) {
     const timeout = 100000;
     let oldPath = "";
@@ -399,7 +399,7 @@ export class Executor {
         "..",
         "e2e/resource",
         subFolder,
-        template
+        template,
       );
     } else {
       oldPath = path.resolve(__dirname, "..", "e2e/resource", template);
@@ -410,7 +410,7 @@ export class Executor {
         `mv ${oldPath} ${newPath}`,
         testFolder,
         processEnv,
-        timeout
+        timeout,
       );
     } catch (error) {
       console.log(error);
@@ -422,7 +422,7 @@ export class Executor {
       testFolder,
       appName,
       "infra",
-      "azure.parameters.json"
+      "azure.parameters.json",
     );
     editDotEnvFile(localEnvPath, "TEAMS_APP_NAME", appName);
     editDotEnvFile(remoteEnvPath, "TEAMS_APP_NAME", appName);
@@ -433,18 +433,18 @@ export class Executor {
   static async package(
     workspace: string,
     env = "dev",
-    manifestFolderName = "appPackage"
+    manifestFolderName = "appPackage",
   ) {
     return this.executeCmd(
       workspace,
       `package --manifest-file ./${manifestFolderName}/manifest.json`,
-      env
+      env,
     );
   }
 
   static startDevtunnel(
     onData?: (data: string) => void,
-    onError?: (data: string) => void
+    onError?: (data: string) => void,
   ) {
     const child = spawn(
       os.type() === "Windows_NT"
@@ -453,7 +453,7 @@ export class Executor {
       ["host", "-p", "3978", "--allow-anonymous"],
       {
         env: process.env,
-      }
+      },
     );
     child.stdout.on("data", (data) => {
       const dataString = data.toString();
@@ -473,7 +473,7 @@ export class Executor {
   static deleteTunnel(
     tunnelName: string,
     onData?: (data: string) => void,
-    onError?: (data: string) => void
+    onError?: (data: string) => void,
   ) {
     const child = spawn(
       os.type() === "Windows_NT"
@@ -482,7 +482,7 @@ export class Executor {
       ["delete", tunnelName, "-f"],
       {
         env: process.env,
-      }
+      },
     );
     console.log("delete tunnel: ", tunnelName);
     child.stdout.on("data", (data) => {
@@ -502,7 +502,7 @@ export class Executor {
 
   static deleteAllTunnel(
     onData?: (data: string) => void,
-    onError?: (data: string) => void
+    onError?: (data: string) => void,
   ) {
     const child = spawn(
       os.type() === "Windows_NT"
@@ -511,7 +511,7 @@ export class Executor {
       ["delete-all", "-f"],
       {
         env: process.env,
-      }
+      },
     );
     child.stdout.on("data", (data) => {
       const dataString = data.toString();
@@ -532,7 +532,7 @@ export class Executor {
     command: string,
     args: string[],
     onData?: (data: string) => void,
-    onError?: (data: string) => void
+    onError?: (data: string) => void,
   ): ChildProcessWithoutNullStreams {
     const isWindows = os.type() === "Windows_NT";
 
@@ -606,7 +606,7 @@ export class Executor {
       },
       (error) => {
         console.log(error);
-      }
+      },
     );
     return { devtunnelProcess, tunnelName };
   }
@@ -653,7 +653,7 @@ export class Executor {
         } else {
           expect.fail(errorMsg);
         }
-      }
+      },
     );
     await new Promise((resolve) => setTimeout(resolve, 3 * 60 * 1000));
     return {
@@ -664,7 +664,7 @@ export class Executor {
   }
 
   static async killPort(
-    port: number
+    port: number,
   ): Promise<{ stdout: string; stderr: string }> {
     // windows
     if (process.platform === "win32") {
@@ -684,7 +684,7 @@ export class Executor {
     if (childProcess) {
       try {
         if (os.type() === "Windows_NT") {
-          process.kill(-childProcess.pid);
+          process.kill(-childProcess.pid!);
         } else {
           console.log("kill process", childProcess.spawnargs.join(" "));
           childProcess.kill("SIGKILL");

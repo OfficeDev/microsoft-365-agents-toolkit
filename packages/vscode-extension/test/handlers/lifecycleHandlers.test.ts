@@ -66,12 +66,10 @@ describe("Lifecycle handlers", () => {
 
   describe("createNewProjectHandler", function () {
     const sandbox = sinon.createSandbox();
-    let mockedEnvRestore: RestoreFn;
+    const mockedEnvRestore: RestoreFn = () => {};
 
     afterEach(() => {
-      if (mockedEnvRestore) {
-        mockedEnvRestore();
-      }
+      mockedEnvRestore();
       sandbox.restore();
     });
 

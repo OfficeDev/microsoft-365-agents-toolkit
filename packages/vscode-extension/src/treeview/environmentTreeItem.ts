@@ -161,7 +161,10 @@ export class EnvironmentNode extends DynamicNode {
 }
 
 class WarningNode extends DynamicNode {
-  constructor(public identifier: string, accountStatus: accountStatus) {
+  constructor(
+    public identifier: string,
+    accountStatus: accountStatus
+  ) {
     super(identifier, vscode.TreeItemCollapsibleState.None);
     if (accountStatus.isAzureAccountLogin === false && !accountStatus.isM365AccountLogin) {
       this.label = localize("teamstoolkit.envTree.missingAzureAndM365Account");
@@ -198,7 +201,10 @@ class WarningNode extends DynamicNode {
 
 class SubscriptionNode extends DynamicNode {
   private resourceGroupNode?: ResourceGroupNode;
-  constructor(public identifier: string, private subscriptionInfo: SubscriptionInfo) {
+  constructor(
+    public identifier: string,
+    private subscriptionInfo: SubscriptionInfo
+  ) {
     super(identifier, vscode.TreeItemCollapsibleState.None);
     this.contextValue = "openSubscriptionInPortal";
     this.iconPath = subscriptionIcon;
@@ -241,7 +247,10 @@ class SubscriptionNode extends DynamicNode {
 }
 
 class ResourceGroupNode extends DynamicNode {
-  constructor(public identifier: string, private resourceGroup: string) {
+  constructor(
+    public identifier: string,
+    private resourceGroup: string
+  ) {
     super(resourceGroup, vscode.TreeItemCollapsibleState.None);
     this.contextValue = "openResourceGroupInPortal";
     this.iconPath = resourceGroupIcon;

@@ -1,5 +1,4 @@
-import { getContext, shareDeepLink, uninitializeCommunication } from "@microsoft/teams-js";
-import { initialize as init } from "@microsoft/teams-js";
+import { getContext, shareDeepLink, uninitializeCommunication, initialize as init  } from "@microsoft/teams-js";
 
 getContext();
 

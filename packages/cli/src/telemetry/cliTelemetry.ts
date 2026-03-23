@@ -17,7 +17,6 @@ export function makeEnvRelatedProperty(
   return properties;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-namespace
 class CliTelemetry {
   reporter: CliTelemetryReporter | undefined;
   rootFolder: string | undefined;

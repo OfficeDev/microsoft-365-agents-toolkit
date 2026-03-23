@@ -217,15 +217,18 @@ export class CodeFlowLogin {
         });
     });
 
-    const codeTimer = setTimeout(() => {
-      deferredRedirect.reject(
-        new UserError(
-          ErrorMessage.loginComponent,
-          ErrorMessage.loginTimeoutTitle,
-          ErrorMessage.loginTimeoutDescription
-        )
-      );
-    }, 5 * 60 * 1000);
+    const codeTimer = setTimeout(
+      () => {
+        deferredRedirect.reject(
+          new UserError(
+            ErrorMessage.loginComponent,
+            ErrorMessage.loginTimeoutTitle,
+            ErrorMessage.loginTimeoutDescription
+          )
+        );
+      },
+      5 * 60 * 1000
+    );
 
     function cancelCodeTimer() {
       clearTimeout(codeTimer);

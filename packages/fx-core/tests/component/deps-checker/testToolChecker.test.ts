@@ -576,8 +576,7 @@ describe("Test Tool Checker Test (npm version)", () => {
     });
 
     it("Install timeout", async () => {
-      const clock = sinon.useFakeTimers();
-      after(() => clock.restore());
+      const clock = sandbox.useFakeTimers();
       const checker = new TestToolChecker();
 
       const symlinkDir = "symlinkDir";
@@ -946,7 +945,7 @@ describe("Test Tool Checker Test (binary version)", () => {
   }
   const sandbox = sinon.createSandbox();
   const projectPath = "projectPath";
-  const homePortablesDir = path.join(os.homedir(), ".fx", "bin", "testToolBinary");
+  const homePortablesDir = path.join(os.homedir(), ".fx", "bin", "agentsPlaygroundBinary");
   const releaseType = TestToolReleaseType.Binary;
 
   beforeEach(() => {});

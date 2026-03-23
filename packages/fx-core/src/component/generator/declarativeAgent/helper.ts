@@ -63,9 +63,8 @@ export async function addExistingPlugin(
   context: Context,
   source: string
 ): Promise<Result<AddExistingPluginResult, FxError>> {
-  const pluginManifestRes = await pluginManifestUtils.readPluginManifestFile(
-    fromPluginManifestPath
-  );
+  const pluginManifestRes =
+    await pluginManifestUtils.readPluginManifestFile(fromPluginManifestPath);
   if (pluginManifestRes.isErr()) {
     return err(pluginManifestRes.error);
   }

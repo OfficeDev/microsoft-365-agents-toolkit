@@ -106,8 +106,8 @@ export default class Progress implements IProgressHandler {
       this.status === "done"
         ? this.doneMessage
         : this.status === "error"
-        ? this.errorMessage
-        : this.message;
+          ? this.errorMessage
+          : this.message;
     return colorize(
       `${this.barStatus}  ${Math.round(this.currentPercentage)}% ${this.runningChar} ${message}`,
       TextType.Info

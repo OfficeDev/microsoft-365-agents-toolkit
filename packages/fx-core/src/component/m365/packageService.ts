@@ -800,7 +800,6 @@ export class PackageService {
         }),
         {
           [TelemetryProperty.CheckCopilotTracingId]: `${
-            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
             error.response?.headers?.traceresponse ??
             error.innerError?.response?.headers?.traceresponse ??
             ""

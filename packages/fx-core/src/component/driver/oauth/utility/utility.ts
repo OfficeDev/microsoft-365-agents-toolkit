@@ -105,10 +105,10 @@ async function getandValidateOauthInfoFromSpec(
       }
 
       return {
-        authorizationUrl: authInfo!.authorizationUrl,
-        tokenUrl: authInfo!.tokenUrl,
-        refreshUrl: authInfo!.refreshUrl,
-        scopes: Object.keys(authInfo!.scopes),
+        authorizationUrl: authInfo.authorizationUrl,
+        tokenUrl: authInfo.tokenUrl,
+        refreshUrl: authInfo.refreshUrl,
+        scopes: Object.keys(authInfo.scopes),
       };
     })
     .reduce((accumulator: AuthInfo[], currentValue) => {

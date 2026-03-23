@@ -66,7 +66,7 @@ export type LifecycleNames = [
   "provision",
   "deploy",
   "publish",
-  "share"
+  "share",
 ];
 export const LifecycleNames: LifecycleNames = [
   "registerApp",

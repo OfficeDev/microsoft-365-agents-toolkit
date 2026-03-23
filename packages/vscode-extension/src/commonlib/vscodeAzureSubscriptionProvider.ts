@@ -81,7 +81,7 @@ export class VSCodeAzureSubscriptionProvider {
       for (const tenant of await this.getTenants()) {
         try {
           // Get the list of tenants
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+
           const tenantId = tenant.tenantId!;
 
           // For each tenant, get the list of subscriptions
@@ -117,10 +117,10 @@ export class VSCodeAzureSubscriptionProvider {
         environment: environment,
         credential: credential,
         isCustomCloud: environment.isCustomCloud,
-        /* eslint-disable @typescript-eslint/no-non-null-assertion */
+
         name: subscription.displayName!,
         subscriptionId: subscription.subscriptionId!,
-        /* eslint-enable @typescript-eslint/no-non-null-assertion */
+
         tenantId: tenantId,
       });
     }
@@ -180,8 +180,8 @@ function formScopesArg(
     typeof scopes === "string"
       ? [scopes]
       : Array.isArray(scopes)
-      ? scopes
-      : Array.from(scopes?.scopes ?? []);
+        ? scopes
+        : Array.from(scopes?.scopes ?? []);
   const scopeList = getScopes(initialScopeList, tenantId);
   return isAuthenticationSessionRequest(scopes)
     ? { fallbackScopes: scopeList, scopes: scopeList, wwwAuthenticate: scopes.wwwAuthenticate }

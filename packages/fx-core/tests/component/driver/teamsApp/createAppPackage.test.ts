@@ -1241,8 +1241,8 @@ describe("teamsApp/createAppPackage", async () => {
     const addedFiles: string[] = [];
     sinon
       .stub(testDriver as any, "addFileInZip")
-      .callsFake((zip: any, zipPath: string, filePath: string) => {
-        addedFiles.push(filePath);
+      .callsFake((_zip: unknown, _zipPath: unknown, filePath: unknown) => {
+        addedFiles.push(filePath as string);
       });
 
     const result = (await testDriver.execute(args, mockedDriverContext)).result;

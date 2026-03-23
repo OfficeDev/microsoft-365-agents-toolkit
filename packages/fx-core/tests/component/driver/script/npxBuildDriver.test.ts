@@ -4,11 +4,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { assert } from "chai";
+import chai, { assert } from "chai";
 import "mocha";
 import * as sinon from "sinon";
 import { err, ok, UserError } from "@microsoft/teamsfx-api";
-import chai from "chai";
 import * as tools from "../../../../src/common/utils";
 import { NpxBuildDriver } from "../../../../src/component/driver/script/npxBuildDriver";
 import * as utils from "../../../../src/component/driver/script/scriptDriver";

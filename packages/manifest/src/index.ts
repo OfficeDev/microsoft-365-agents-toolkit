@@ -93,7 +93,7 @@ export class ManifestUtil {
       | Manifest
       | DeclarativeCopilotManifestSchema
       | PluginManifestSchema
-      | TeamsManifest = TeamsAppManifest
+      | TeamsManifest = TeamsAppManifest,
   >(manifest: T, schema: JSONSchemaType<T>): Promise<string[]> {
     let validate;
     if (schema.$schema?.includes("2020-12")) {
@@ -138,7 +138,7 @@ export class ManifestUtil {
       | Manifest
       | DeclarativeCopilotManifestSchema
       | PluginManifestSchema
-      | TeamsManifest = TeamsAppManifest
+      | TeamsManifest = TeamsAppManifest,
   >(manifest: T): Promise<JSONSchemaType<T>> {
     const schemaUrl = ((manifest as any).$schema || (manifest as any).schema) as string;
     if (!schemaUrl) {
@@ -176,7 +176,7 @@ export class ManifestUtil {
       | Manifest
       | DeclarativeCopilotManifestSchema
       | PluginManifestSchema
-      | TeamsManifest = TeamsAppManifest
+      | TeamsManifest = TeamsAppManifest,
   >(manifest: T): Promise<string[]> {
     const schema = await this.fetchSchema(manifest);
     return ManifestUtil.validateManifestAgainstSchema(manifest, schema);

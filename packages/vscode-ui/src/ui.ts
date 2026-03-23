@@ -581,9 +581,8 @@ export class VSCodeUI implements UserInteraction {
               inputBox.placeholder = "Validating...";
               inputBox.value = "";
               try {
-                const additionalValidationOnAcceptRes = await config.additionalValidationOnAccept(
-                  oldValue
-                );
+                const additionalValidationOnAcceptRes =
+                  await config.additionalValidationOnAccept(oldValue);
 
                 if (!additionalValidationOnAcceptRes) {
                   resolve(ok({ type: "success", result: oldValue }));
@@ -857,14 +856,14 @@ export class VSCodeUI implements UserInteraction {
           ...(config.possibleFiles
             ? config.possibleFiles
             : defaultValue
-            ? [
-                {
-                  id: "default",
-                  label: `$(file) ${path.basename(defaultValue)}`,
-                  description: path.dirname(defaultValue),
-                },
-              ]
-            : []),
+              ? [
+                  {
+                    id: "default",
+                    label: `$(file) ${path.basename(defaultValue)}`,
+                    description: path.dirname(defaultValue),
+                  },
+                ]
+              : []),
           {
             id: "browse",
             label: `$(file) ${this.localizer.browse()}`,
@@ -884,8 +883,8 @@ export class VSCodeUI implements UserInteraction {
                 defaultUri: config.defaultFolder
                   ? Uri.file(config.defaultFolder)
                   : config.default
-                  ? Uri.file(config.default as string)
-                  : undefined,
+                    ? Uri.file(config.default as string)
+                    : undefined,
                 canSelectFiles: true,
                 canSelectFolders: false,
                 canSelectMany: type === "files",
@@ -1160,14 +1159,17 @@ export class VSCodeUI implements UserInteraction {
 
     const timeoutPromise = timeout
       ? new Promise<never>((_, reject) => {
-          setTimeout(() => {
-            reject(
-              new ScriptTimeoutError(
-                this.localizer.commandTimeoutErrorMessage(cmd),
-                this.localizer.commandTimeoutErrorDisplayMessage(cmd)
-              )
-            );
-          }, timeout ?? 1000 * 60 * 30);
+          setTimeout(
+            () => {
+              reject(
+                new ScriptTimeoutError(
+                  this.localizer.commandTimeoutErrorMessage(cmd),
+                  this.localizer.commandTimeoutErrorDisplayMessage(cmd)
+                )
+              );
+            },
+            timeout ?? 1000 * 60 * 30
+          );
         })
       : undefined;
 

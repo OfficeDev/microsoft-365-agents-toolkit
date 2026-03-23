@@ -451,7 +451,7 @@ export class TeamsDevPortalClient {
           )[1]
         );
       }
-      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+
       const requestPath = `${response?.request?.method} ${response?.request?.path}`;
       if (response && response.data) {
         if (response.data.error || response.data.errorMessage) {
@@ -732,7 +732,7 @@ export class TeamsDevPortalClient {
           new SystemError(
             "M365Account",
             "UnknownValue",
-            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+
             `AppStudio response code: ${response.status}, body: ${response.data}`
           ),
           {
@@ -758,7 +758,6 @@ export class TeamsDevPortalClient {
           )
         ),
         {
-          // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
           [TelemetryProperty.CheckSideloadingStatusCode]: `${error?.response?.status}`,
           [TelemetryProperty.CheckSideloadingMethod]: "get",
           [TelemetryProperty.CheckSideloadingUrl]: apiName,
@@ -884,7 +883,6 @@ export class TeamsDevPortalClient {
     try {
       const response = await RetryHandler.Retry(() => requester.get(`/api/botframework/${botId}`));
       if (isHappyResponse(response)) {
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         return <IBotRegistration>response!.data; // response cannot be undefined as it's checked in isHappyResponse.
       } else {
         // Defensive code and it should never reach here.
@@ -1062,7 +1060,7 @@ export class TeamsDevPortalClient {
   ): Error {
     e.name = name;
     const correlationId = e.response?.headers?.[Constants.CORRELATION_ID];
-    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+
     let extraData = `${potentialReason} ${
       e.response?.data ? `data: ${JSON.stringify(e.response.data)}` : ""
     }`;

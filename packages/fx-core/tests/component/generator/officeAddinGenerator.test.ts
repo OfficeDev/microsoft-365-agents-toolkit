@@ -887,7 +887,6 @@ describe("MetaOSHelper", () => {
   });
 
   it("upgradeOfficeAddInDebugging: success", async () => {
-    sandbox.stub(path, "join").returns("test");
     sandbox.stub(fse, "existsSync").resolves(true);
     const readJsonStub = sandbox
       .stub(fse, "readJSON")

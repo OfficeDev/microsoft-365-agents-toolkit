@@ -15,9 +15,12 @@ import {
   UserError,
 } from "@microsoft/teamsfx-api";
 import { expect } from "chai";
-import * as fs from "fs";
+import fs from "fs";
 import "mocha";
-import * as sinon from "sinon";
+import * as path from "path";
+import * as os from "os";
+import sinon from "sinon";
+import tmp from "tmp";
 import { stubInterface } from "ts-sinon";
 import {
   commands,
@@ -805,27 +808,31 @@ describe("UI Unit Tests", async () => {
   });
 
   describe("runCommand", () => {
-    let fsReadFileSyncStub: sinon.SinonStub;
     let fsUnlinkSyncStub: sinon.SinonStub;
     let tasksExecuteTaskStub: sinon.SinonStub;
     let tasksOnDidEndTaskProcessStub: sinon.SinonStub;
     let onDidEndTaskProcessListeners: any[] = [];
-    let tempFiles: string[] = [];
+    let knownTempFile: string;
+    let knownScriptFile: string;
+    let tmpNameSyncStub: sinon.SinonStub;
+    let callCount: number;
 
     beforeEach(() => {
+      // Use predictable temp file paths so tests can write expected content
+      const tmpDir = os.tmpdir();
+      knownTempFile = path.join(tmpDir, "test-task-output.txt");
+      knownScriptFile = path.join(
+        tmpDir,
+        "test-task-script" + (process.platform === "win32" ? ".ps1" : ".sh")
+      );
+      callCount = 0;
+      tmpNameSyncStub = sinon.stub(tmp, "tmpNameSync").callsFake(() => {
+        callCount++;
+        // First call is for the output temp file, second is for the script file
+        return callCount === 1 ? knownTempFile : knownScriptFile;
+      });
       fsUnlinkSyncStub = sinon.stub(fs, "unlinkSync");
-      tasksExecuteTaskStub = sinon.stub(tasks, "executeTask").callsFake((task: any) => {
-        // Capture the temp file path from the shell execution command
-        // The commandLine uses tee/Tee-Object: cmd 2>&1 | tee "path/to/file" or cmd 2>&1 | Tee-Object -FilePath "path/to/file"
-        const execution = task.execution;
-        if (execution && execution.commandLine) {
-          // Match both tee "path" and Tee-Object -FilePath "path" patterns
-          const match = execution.commandLine.match(/(?:tee|Tee-Object -FilePath)\s+"([^"]+)"/);
-          if (match) {
-            const tempFilePath = match[1];
-            tempFiles.push(tempFilePath);
-          }
-        }
+      tasksExecuteTaskStub = sinon.stub(tasks, "executeTask").callsFake(() => {
         return Promise.resolve(undefined as any);
       });
       onDidEndTaskProcessListeners = [];
@@ -842,17 +849,16 @@ describe("UI Unit Tests", async () => {
     afterEach(() => {
       sinon.restore();
       onDidEndTaskProcessListeners = [];
-      // Clean up any temporary files we created
-      for (const tempFile of tempFiles) {
+      // Clean up any temp files created during tests
+      for (const f of [knownTempFile, knownScriptFile]) {
         try {
-          if (fs.existsSync(tempFile)) {
-            fs.unlinkSync(tempFile);
+          if (f && fs.existsSync(f)) {
+            fs.unlinkSync(f);
           }
         } catch (e) {
-          // Ignore errors during cleanup
+          // Ignore
         }
       }
-      tempFiles = [];
     });
 
     it("should execute command successfully and return output", async () => {
@@ -860,14 +866,11 @@ describe("UI Unit Tests", async () => {
 
       const resultPromise = ui.runCommand({ cmd: "echo test" });
 
-      // Wait a bit for the callback to be registered and temp file path to be captured
+      // Wait a bit for the callback to be registered
       await sleep(50);
 
-      // Create the temporary file that runCommand expects
-      if (tempFiles.length > 0) {
-        const tempFile = tempFiles[tempFiles.length - 1];
-        fs.writeFileSync(tempFile, expectedOutput, "utf-8");
-      }
+      // Write expected content to the known temp file
+      fs.writeFileSync(knownTempFile, expectedOutput, "utf-8");
 
       // Now invoke the registered callback
       if (onDidEndTaskProcessListeners.length > 0) {
@@ -898,11 +901,8 @@ describe("UI Unit Tests", async () => {
 
       await sleep(50);
 
-      // Create the temporary file with error output
-      if (tempFiles.length > 0) {
-        const tempFile = tempFiles[tempFiles.length - 1];
-        fs.writeFileSync(tempFile, errorOutput, "utf-8");
-      }
+      // Write error content to the known temp file
+      fs.writeFileSync(knownTempFile, errorOutput, "utf-8");
 
       if (onDidEndTaskProcessListeners.length > 0) {
         onDidEndTaskProcessListeners[onDidEndTaskProcessListeners.length - 1]({
@@ -945,11 +945,8 @@ describe("UI Unit Tests", async () => {
 
       await sleep(50);
 
-      // Create the temporary file
-      if (tempFiles.length > 0) {
-        const tempFile = tempFiles[tempFiles.length - 1];
-        fs.writeFileSync(tempFile, expectedOutput, "utf-8");
-      }
+      // Write content to the known temp file
+      fs.writeFileSync(knownTempFile, expectedOutput, "utf-8");
 
       if (onDidEndTaskProcessListeners.length > 0) {
         onDidEndTaskProcessListeners[onDidEndTaskProcessListeners.length - 1]({
@@ -979,11 +976,8 @@ describe("UI Unit Tests", async () => {
 
       await sleep(50);
 
-      // Create the temporary file
-      if (tempFiles.length > 0) {
-        const tempFile = tempFiles[tempFiles.length - 1];
-        fs.writeFileSync(tempFile, expectedOutput, "utf-8");
-      }
+      // Write content to the known temp file
+      fs.writeFileSync(knownTempFile, expectedOutput, "utf-8");
 
       if (onDidEndTaskProcessListeners.length > 0) {
         onDidEndTaskProcessListeners[onDidEndTaskProcessListeners.length - 1]({
@@ -1009,13 +1003,8 @@ describe("UI Unit Tests", async () => {
 
       await sleep(50);
 
-      let createdTempFile = "";
-      // Create the temporary file
-      if (tempFiles.length > 0) {
-        const tempFile = tempFiles[tempFiles.length - 1];
-        createdTempFile = tempFile;
-        fs.writeFileSync(tempFile, expectedOutput, "utf-8");
-      }
+      // Write content to the known temp file
+      fs.writeFileSync(knownTempFile, expectedOutput, "utf-8");
 
       if (onDidEndTaskProcessListeners.length > 0) {
         onDidEndTaskProcessListeners[onDidEndTaskProcessListeners.length - 1]({
@@ -1032,8 +1021,8 @@ describe("UI Unit Tests", async () => {
       const result = await resultPromise;
 
       expect(result.isOk()).is.true;
-      // Verify that the temporary file was cleaned up
-      expect(fs.existsSync(createdTempFile)).is.false;
+      // Verify that unlinkSync was called (temporary file was cleaned up)
+      expect(fsUnlinkSyncStub.called).is.true;
     });
 
     it("should ignore non-matching task end events", async () => {
@@ -1058,11 +1047,8 @@ describe("UI Unit Tests", async () => {
 
       await sleep(30);
 
-      // Create the temporary file for the correct task
-      if (tempFiles.length > 0) {
-        const tempFile = tempFiles[tempFiles.length - 1];
-        fs.writeFileSync(tempFile, expectedOutput, "utf-8");
-      }
+      // Write content to the known temp file for the correct task
+      fs.writeFileSync(knownTempFile, expectedOutput, "utf-8");
 
       // Trigger the correct task end event
       if (onDidEndTaskProcessListeners.length > 0) {

@@ -1,9 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-/* eslint-disable @typescript-eslint/ban-types */
-/* eslint-disable @typescript-eslint/no-var-requires */
-
 import * as vscode from "vscode";
 import {
   PublicClientApplication,
@@ -208,21 +205,24 @@ export class CodeFlowLogin {
         });
     });
 
-    const codeTimer = setTimeout(() => {
-      if (this.account) {
-        this.status = loggedIn;
-      } else {
-        this.status = loggedOut;
-      }
-      const err = new UserError(
-        getDefaultString("teamstoolkit.codeFlowLogin.loginComponent"),
-        getDefaultString("teamstoolkit.codeFlowLogin.loginTimeoutTitle"),
-        getDefaultString("teamstoolkit.codeFlowLogin.loginTimeoutDescription"),
-        localize("teamstoolkit.codeFlowLogin.loginTimeoutDescription")
-      );
-      err.categories = [ErrorCategory.Internal];
-      deferredRedirect.reject(err);
-    }, 5 * 60 * 1000); // keep the same as azure login
+    const codeTimer = setTimeout(
+      () => {
+        if (this.account) {
+          this.status = loggedIn;
+        } else {
+          this.status = loggedOut;
+        }
+        const err = new UserError(
+          getDefaultString("teamstoolkit.codeFlowLogin.loginComponent"),
+          getDefaultString("teamstoolkit.codeFlowLogin.loginTimeoutTitle"),
+          getDefaultString("teamstoolkit.codeFlowLogin.loginTimeoutDescription"),
+          localize("teamstoolkit.codeFlowLogin.loginTimeoutDescription")
+        );
+        err.categories = [ErrorCategory.Internal];
+        deferredRedirect.reject(err);
+      },
+      5 * 60 * 1000
+    ); // keep the same as azure login
 
     function cancelCodeTimer() {
       clearTimeout(codeTimer);
@@ -383,10 +383,13 @@ export class CodeFlowLogin {
     void vscode.env.openExternal(uri);
 
     const timeoutPromise = new Promise((_resolve: (value: string) => void, reject) => {
-      const wait = setTimeout(() => {
-        clearTimeout(wait);
-        reject("Login timed out.");
-      }, 1000 * 60 * 5);
+      const wait = setTimeout(
+        () => {
+          clearTimeout(wait);
+          reject("Login timed out.");
+        },
+        1000 * 60 * 5
+      );
     });
 
     const accessCode = await Promise.race([getExchangeCode(), timeoutPromise]);

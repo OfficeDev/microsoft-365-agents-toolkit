@@ -1424,6 +1424,10 @@ describe("CreateOauthDriver", () => {
   });
 
   it("should throw unhandled error if error is not SystemError or UserError", async () => {
+    sinon
+      .stub(featureFlagManager, "getBooleanValue")
+      .withArgs(FeatureFlags.KiotaNPMIntegration)
+      .returns(false);
     sinon.stub(teamsDevPortalClient, "createOauthRegistration").throws(new Error("error"));
     sinon.stub(SpecParser.prototype, "list").resolves({
       APIs: [

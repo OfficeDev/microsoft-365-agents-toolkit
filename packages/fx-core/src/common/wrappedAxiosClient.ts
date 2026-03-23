@@ -115,7 +115,7 @@ export class WrappedAxiosClient {
     const eventName = this.getEventName(fullPath);
     if (eventName === TelemetryEvent.AppStudioApi) {
       const correlationId = error.response?.headers[Constants.CORRELATION_ID] ?? "undefined";
-      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+
       const extraData = getDefaultString(
         "error.appstudio.apiFailed.reason.common",
         error.response?.data ? `data: ${JSON.stringify(error.response.data)}` : ""
@@ -126,9 +126,8 @@ export class WrappedAxiosClient {
         apiName,
         extraData
       );
-      properties[
-        TelemetryProperty.ErrorCode
-      ] = `${TDPApiFailedError.source}.${TDPApiFailedError.name}`;
+      properties[TelemetryProperty.ErrorCode] =
+        `${TDPApiFailedError.source}.${TDPApiFailedError.name}`;
       properties[TelemetryProperty.ErrorMessage] = TDPApiFailedError.message;
       properties[TelemetryProperty.TDPTraceId] = correlationId;
     } else if (eventName === TelemetryEvent.MOSApi) {

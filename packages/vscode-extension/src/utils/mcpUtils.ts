@@ -43,8 +43,8 @@ export async function setupMCPServer(): Promise<void> {
     filesToModify.length === 1
       ? filesToModify[0]
       : filesToModify.length === 2
-      ? `${filesToModify[0]} and ${filesToModify[1]}`
-      : filesToModify.join(", ");
+        ? `${filesToModify[0]} and ${filesToModify[1]}`
+        : filesToModify.join(", ");
 
   const message = util.format(localize("teamstoolkit.mcpUtils.setupMcpServer.message"), fileList);
 

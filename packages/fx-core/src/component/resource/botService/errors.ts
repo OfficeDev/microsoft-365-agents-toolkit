@@ -13,7 +13,7 @@ const ErrorType = {
   SYSTEM: "System",
 } as const;
 
-type ErrorType = typeof ErrorType[keyof typeof ErrorType];
+type ErrorType = (typeof ErrorType)[keyof typeof ErrorType];
 
 type InnerError = HttpError | Error | ErrorWithMessage | ErrorWithCode | unknown;
 

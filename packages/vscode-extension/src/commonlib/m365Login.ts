@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-/* eslint-disable @typescript-eslint/ban-types */
+
 "use strict";
 
 import {

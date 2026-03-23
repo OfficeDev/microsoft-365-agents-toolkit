@@ -1,5 +1,4 @@
-import { settings } from "@microsoft/teams-js";
-import { settings as settingsAlias } from "@microsoft/teams-js";
+import { settings, settings as settingsAlias  } from "@microsoft/teams-js";
 
 interface ITestContext extends settings.SaveEvent {
   x: number;

@@ -28,10 +28,10 @@ class PathUtils {
       envName === environmentNameManager.getLocalEnvName()
         ? MetadataV4.localConfigFile
         : envName === environmentNameManager.getPlaygroundEnvName()
-        ? MetadataV4.testToolConfigFile
-        : envName === environmentNameManager.getSandboxEnvName()
-        ? MetadataV4.sandboxConfigFile
-        : MetadataV4.configFile
+          ? MetadataV4.testToolConfigFile
+          : envName === environmentNameManager.getSandboxEnvName()
+            ? MetadataV4.sandboxConfigFile
+            : MetadataV4.configFile
     );
     if (fs.pathExistsSync(ymlPathV4)) {
       return ymlPathV4;
@@ -41,10 +41,10 @@ class PathUtils {
       envName === environmentNameManager.getLocalEnvName()
         ? MetadataV3.localConfigFile
         : envName === environmentNameManager.getTestToolEnvName()
-        ? MetadataV3.testToolConfigFile
-        : envName === environmentNameManager.getSandboxEnvName()
-        ? MetadataV3.sandboxConfigFile
-        : MetadataV3.configFile
+          ? MetadataV3.testToolConfigFile
+          : envName === environmentNameManager.getSandboxEnvName()
+            ? MetadataV3.sandboxConfigFile
+            : MetadataV3.configFile
     );
     if (fs.pathExistsSync(ymlPathV3)) {
       return ymlPathV3;

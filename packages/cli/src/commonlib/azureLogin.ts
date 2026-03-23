@@ -592,8 +592,8 @@ const azureLogin = !ui.interactive
     ? AzureLoginCI
     : AzureAccountProviderUserPassword
   : AzureSpCrypto.checkAzureSPFile()
-  ? AzureLoginCI
-  : AzureAccountManager.getInstance();
+    ? AzureLoginCI
+    : AzureAccountManager.getInstance();
 
 export default azureLogin;
 

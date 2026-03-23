@@ -123,7 +123,6 @@ export async function _checkAndInstall(
         localEnvManager,
         step,
         additionalTelemetryProperties
-        // eslint-disable-next-line @typescript-eslint/no-misused-promises
       ).finally(async () => await progressHelper?.end(orderedCheckerInfo.checker));
       checkResults.push(checkResult);
       if (orderedChecker.fastFail) {

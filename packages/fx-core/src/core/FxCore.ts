@@ -57,6 +57,7 @@ import {
   getResourceServiceEndpoint,
   ResourceServiceType,
   VSCodeExtensionCommand,
+  MosServiceScope,
 } from "../common/constants";
 import { listAPIInfo, parseAndUpdatePluginManifestForKiota } from "../common/daSpecParser";
 import {
@@ -128,7 +129,6 @@ import { ValidateManifestDriver } from "../component/driver/teamsApp/validate";
 import { ValidateAppPackageDriver } from "../component/driver/teamsApp/validateAppPackage";
 import { ValidateWithTestCasesDriver } from "../component/driver/teamsApp/validateTestCases";
 import { createDriverContext } from "../component/driver/util/utils";
-import "../component/feature/sso";
 import { SSO } from "../component/feature/sso";
 import { addExistingPlugin } from "../component/generator/declarativeAgent/helper";
 import {
@@ -149,7 +149,6 @@ import { TemplateNames } from "../component/generator/templates/templateNames";
 import { fetchZipFromUrl, getTemplateLatestVersion, unzip } from "../component/generator/utils";
 import { LaunchHelper } from "../component/m365/launchHelper";
 import { PackageService } from "../component/m365/packageService";
-import { MosServiceScope } from "../common/constants";
 import { EnvLoaderMW, EnvWriterMW } from "../component/middleware/envMW";
 import { QuestionMW } from "../component/middleware/questionMW";
 import {
@@ -1029,7 +1028,7 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
     const manifestOutputPath: string = path.join(
       inputs.projectPath!,
       "build",
-      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+
       `aad.${inputs.env}.json`
     );
     const Context: DriverContext = createDriverContext(inputs);
@@ -1247,12 +1246,10 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
       manifestPath: teamsAppManifestFilePath,
       outputZipPath:
         inputs[QuestionNames.OutputZipPathParamName] ??
-        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
         `${inputs.projectPath}/${AppPackageFolderName}/${BuildFolderName}/appPackage.${process.env
           .TEAMSFX_ENV!}.zip`,
       outputFolder:
         inputs[QuestionNames.OutputManifestParamName] ??
-        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
         `${inputs.projectPath}/${AppPackageFolderName}/${BuildFolderName}`,
     };
     const result = (await driver.execute(args, context)).result;
@@ -1587,8 +1584,8 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
   ])
   async createEnv(inputs: Inputs): Promise<Result<undefined, FxError>> {
     return this.createEnvCopyV3(
-      inputs[QuestionNames.NewTargetEnvName]!,
-      inputs[QuestionNames.SourceEnvName]!,
+      inputs[QuestionNames.NewTargetEnvName],
+      inputs[QuestionNames.SourceEnvName],
       inputs.projectPath!
     );
   }
