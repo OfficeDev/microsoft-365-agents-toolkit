@@ -903,9 +903,9 @@ export function addAuthActionAuthTypeQuestion(): SingleSelectQuestion {
   return {
     type: "singleSelect",
     name: QuestionNames.ApiAuth,
-    title: getLocalizedString("core.createProjectQuestion.apiMessageExtensionAuth.title"),
+    title: getLocalizedString("template.createProjectQuestion.apiMessageExtensionAuth.title"),
     placeholder: getLocalizedString(
-      "core.createProjectQuestion.apiMessageExtensionAuth.placeholder"
+      "template.createProjectQuestion.apiMessageExtensionAuth.placeholder"
     ),
     cliDescription: "The authentication type for the API.",
     staticOptions: AddAuthActionAuthTypeOptions.all(),

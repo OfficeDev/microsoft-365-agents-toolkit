@@ -173,7 +173,7 @@ export function botProjectTypeNode(): IQTreeNode {
         BotCapabilityOptions.commandBot(),
         BotCapabilityOptions.workflowBot(),
       ],
-      placeholder: getLocalizedString("core.createCapabilityQuestion.placeholder"),
+      placeholder: getLocalizedString("template.createCapabilityQuestion.placeholder"),
       onDidSelection: setTemplateName,
     },
     children: [notificationBotTriggerNode()],
@@ -194,7 +194,7 @@ export function tabProjectTypeNode(platform: Platform = Platform.VSCode): IQTree
         TabCapabilityOptions.dashboardTab(),
         TabCapabilityOptions.SPFxTab(),
       ],
-      placeholder: getLocalizedString("core.createCapabilityQuestion.placeholder"),
+      placeholder: getLocalizedString("template.createCapabilityQuestion.placeholder"),
       onDidSelection: setTemplateName,
     },
     children: [
@@ -235,7 +235,7 @@ export function meProjectTypeNode(): IQTreeNode {
         MeCapabilityOptions.collectFormMe(),
         MeCapabilityOptions.linkUnfurling(),
       ],
-      placeholder: getLocalizedString("core.createCapabilityQuestion.placeholder"),
+      placeholder: getLocalizedString("template.createCapabilityQuestion.placeholder"),
       onDidSelection: setTemplateName,
     },
     children: [m365SearchMeSubNode()],
@@ -258,7 +258,7 @@ export function m365SearchMeSubNode(): IQTreeNode {
       ],
       default: MeArchitectureOptions.newApi().id,
       placeholder: getLocalizedString(
-        "core.createProjectQuestion.projectType.copilotExtension.placeholder"
+        "template.createProjectQuestion.projectType.copilotExtension.placeholder"
       ),
       forgetLastValue: true,
       skipSingleOption: true,
@@ -270,9 +270,9 @@ export function m365SearchMeSubNode(): IQTreeNode {
         data: {
           type: "singleSelect",
           name: QuestionNames.ApiAuth,
-          title: getLocalizedString("core.createProjectQuestion.apiMessageExtensionAuth.title"),
+          title: getLocalizedString("template.createProjectQuestion.apiMessageExtensionAuth.title"),
           placeholder: getLocalizedString(
-            "core.createProjectQuestion.apiMessageExtensionAuth.placeholder"
+            "template.createProjectQuestion.apiMessageExtensionAuth.placeholder"
           ),
           staticOptions: [
             ApiAuthOptions.none(true),

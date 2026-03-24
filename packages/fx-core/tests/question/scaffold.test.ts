@@ -537,10 +537,13 @@ describe("ActionStartOptions", () => {
     const mcpOption = ActionStartOptions.mcp();
 
     assert.equal(mcpOption.id, "mcp");
-    assert.equal(mcpOption.label, getLocalizedString("core.createProjectQuestion.mcpForDa.label"));
+    assert.equal(
+      mcpOption.label,
+      getLocalizedString("template.createProjectQuestion.mcpForDa.label")
+    );
     assert.equal(
       mcpOption.detail,
-      getLocalizedString("core.createProjectQuestion.mcpForDa.detail")
+      getLocalizedString("template.createProjectQuestion.mcpForDa.detail")
     );
     assert.equal(mcpOption.data, TemplateNames.DeclarativeAgentWithActionFromMCP);
   });

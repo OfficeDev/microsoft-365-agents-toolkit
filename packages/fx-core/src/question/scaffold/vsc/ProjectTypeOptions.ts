@@ -22,9 +22,11 @@ export class ProjectTypeOptions {
   static groupName(group: ProjectTypeGroup): string | undefined {
     switch (group) {
       case ProjectTypeGroup.AIAgent:
-        return getLocalizedString("core.createProjectQuestion.projectType.createGroup.aiAgent");
+        return getLocalizedString("template.createProjectQuestion.projectType.createGroup.aiAgent");
       case ProjectTypeGroup.M365Apps:
-        return getLocalizedString("core.createProjectQuestion.projectType.createGroup.m365Apps");
+        return getLocalizedString(
+          "template.createProjectQuestion.projectType.createGroup.m365Apps"
+        );
     }
   }
 
@@ -33,9 +35,11 @@ export class ProjectTypeOptions {
       id: ProjectTypeOptions.teamsOptionId,
       label: `${
         platform === Platform.VSCode ? "$(microsoft365-agents-toolkit-teams) " : ""
-      }${getLocalizedString("core.createProjectQuestion.projectType.teamsAgentsAndApps.label")}`,
+      }${getLocalizedString(
+        "template.createProjectQuestion.projectType.teamsAgentsAndApps.label"
+      )}`,
       detail: getLocalizedString(
-        "core.createProjectQuestion.projectType.teamsAgentsAndApps.detail"
+        "template.createProjectQuestion.projectType.teamsAgentsAndApps.detail"
       ),
       groupName: ProjectTypeOptions.groupName(ProjectTypeGroup.M365Apps),
     };
@@ -46,8 +50,8 @@ export class ProjectTypeOptions {
       id: ProjectTypeOptions.officeMetaOSOptionId,
       label: `${
         platform === Platform.VSCode ? "$(microsoft365-agents-office) " : ""
-      }${getLocalizedString("core.createProjectQuestion.projectType.officeAddin.label")}`,
-      detail: getLocalizedString("core.createProjectQuestion.projectType.officeAddin.detail"),
+      }${getLocalizedString("template.createProjectQuestion.projectType.officeAddin.label")}`,
+      detail: getLocalizedString("template.createProjectQuestion.projectType.officeAddin.detail"),
       groupName: ProjectTypeOptions.groupName(ProjectTypeGroup.M365Apps),
     };
   }
@@ -60,9 +64,11 @@ export class ProjectTypeOptions {
     return {
       id: ProjectTypeOptions.copilotAgentOptionId,
       label: `${platform === Platform.VSCode ? "$(teamsfx-agent) " : ""}${getLocalizedString(
-        "core.createProjectQuestion.projectType.declarativeAgent.label"
+        "template.createProjectQuestion.projectType.declarativeAgent.label"
       )}`,
-      detail: getLocalizedString("core.createProjectQuestion.projectType.declarativeAgent.detail"),
+      detail: getLocalizedString(
+        "template.createProjectQuestion.projectType.declarativeAgent.detail"
+      ),
       groupName: ProjectTypeOptions.groupName(ProjectTypeGroup.AIAgent),
     };
   }
@@ -72,8 +78,8 @@ export class ProjectTypeOptions {
       id: ProjectTypeOptions.customEngineAgentOptionId,
       label: `${
         platform === Platform.VSCode ? "$(teamsfx-custom-copilot) " : ""
-      }${getLocalizedString("core.createProjectQuestion.projectType.customCopilot.label")}`,
-      detail: getLocalizedString("core.createProjectQuestion.projectType.customCopilot.detail"),
+      }${getLocalizedString("template.createProjectQuestion.projectType.customCopilot.label")}`,
+      detail: getLocalizedString("template.createProjectQuestion.projectType.customCopilot.detail"),
       groupName: ProjectTypeOptions.groupName(ProjectTypeGroup.AIAgent),
     };
   }
@@ -83,8 +89,8 @@ export class ProjectTypeOptions {
       id: ProjectTypeOptions.graphConnectorOptionId,
       label: `${
         platform === Platform.VSCode ? "$(teamsfx-graph-connector) " : ""
-      }${getLocalizedString("core.createProjectQuestion.createGraphConnector.label")}`,
-      detail: getLocalizedString("core.createProjectQuestion.createGraphConnector.detail"),
+      }${getLocalizedString("template.createProjectQuestion.createGraphConnector.label")}`,
+      detail: getLocalizedString("template.createProjectQuestion.createGraphConnector.detail"),
       groupName: ProjectTypeOptions.groupName(ProjectTypeGroup.AIAgent),
     };
   }
@@ -96,10 +102,12 @@ export class ProjectTypeOptions {
     return {
       id: ProjectTypeOptions.startWithGithubCopilotOptionId,
       label: `$(question) ${getLocalizedString(
-        "core.createProjectQuestion.projectType.copilotHelp.label"
+        "template.createProjectQuestion.projectType.copilotHelp.label"
       )}`,
-      detail: getLocalizedString("core.createProjectQuestion.projectType.copilotHelp.detail"),
-      groupName: getLocalizedString("core.createProjectQuestion.projectType.copilotGroup.title"),
+      detail: getLocalizedString("template.createProjectQuestion.projectType.copilotHelp.detail"),
+      groupName: getLocalizedString(
+        "template.createProjectQuestion.projectType.copilotGroup.title"
+      ),
       description,
     };
   }

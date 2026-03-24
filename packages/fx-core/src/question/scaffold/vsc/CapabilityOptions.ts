@@ -313,7 +313,7 @@ export class MeArchitectureOptions {
     return {
       id: "new-api",
       label: getLocalizedString(
-        "core.createProjectQuestion.capability.copilotPluginNewApiOption.label"
+        "template.createProjectQuestion.capability.copilotPluginNewApiOption.label"
       ),
       detail: getLocalizedString(
         "core.createProjectQuestion.capability.messageExtensionNewApiOption.detail"
@@ -325,7 +325,7 @@ export class MeArchitectureOptions {
     return {
       id: "api-spec",
       label: getLocalizedString(
-        "core.createProjectQuestion.capability.copilotPluginApiSpecOption.label"
+        "template.createProjectQuestion.capability.copilotPluginApiSpecOption.label"
       ),
       detail: getLocalizedString(
         "core.createProjectQuestion.capability.messageExtensionApiSpecOption.detail"
@@ -340,7 +340,7 @@ export class OfficeAddinCapabilityOptions {
     return {
       id: "outlook-addin-import",
       label: getLocalizedString("core.importAddin.label"),
-      detail: getLocalizedString("core.importAddin.detail"),
+      detail: getLocalizedString("template.importAddin.detail"),
       data: TemplateNames.OfficeAddinCommon,
     };
   }
@@ -354,8 +354,8 @@ export class OfficeAddinCapabilityOptions {
   static officeAddinImport(): OptionItem {
     return {
       id: "office-addin-import",
-      label: getLocalizedString("core.importOfficeAddin.label"),
-      detail: getLocalizedString("core.importAddin.detail"),
+      label: getLocalizedString("template.importOfficeAddin.label"),
+      detail: getLocalizedString("template.importAddin.detail"),
       description: getLocalizedString(
         "core.createProjectQuestion.option.description.previewOnWindow"
       ),
@@ -365,32 +365,32 @@ export class OfficeAddinCapabilityOptions {
   static outlookTaskPane(): OptionItem {
     return {
       id: "outlook-json-taskpane",
-      label: getLocalizedString("core.newTaskpaneAddin.label"),
-      detail: getLocalizedString("core.newTaskpaneAddin.detail"),
+      label: getLocalizedString("template.newTaskpaneAddin.label"),
+      detail: getLocalizedString("template.newTaskpaneAddin.detail"),
       data: TemplateNames.OutlookTaskpane,
     };
   }
   static wxpTaskPane(): OptionItem {
     return {
       id: "wxp-json-taskpane",
-      label: getLocalizedString("core.newTaskpaneAddin.label"),
-      detail: getLocalizedString("core.newTaskpaneAddin.detail"),
+      label: getLocalizedString("template.newTaskpaneAddin.label"),
+      detail: getLocalizedString("template.newTaskpaneAddin.detail"),
       data: TemplateNames.WXPTaskpane,
     };
   }
   static excelCFShortcut(): OptionItem {
     return {
       id: "wxp-json-cf-shortcut",
-      label: getLocalizedString("core.newCFShortcut.label"),
-      detail: getLocalizedString("core.newCFShortcut.detail"),
+      label: getLocalizedString("template.newCFShortcut.label"),
+      detail: getLocalizedString("template.newCFShortcut.detail"),
       data: TemplateNames.ExcelCFShortcut,
     };
   }
   static DAMetaOS(): OptionItem {
     return {
       id: "office-da-meta-os",
-      label: getLocalizedString("core.createProjectQuestion.DAMetaOS.label"),
-      detail: getLocalizedString("core.createProjectQuestion.DAMetaOS.detail"),
+      label: getLocalizedString("template.createProjectQuestion.DAMetaOS.label"),
+      detail: getLocalizedString("template.createProjectQuestion.DAMetaOS.detail"),
     };
   }
 }
@@ -521,38 +521,42 @@ export class DACapabilityOptions {
   static declarativeAgent(): OptionItem {
     return {
       id: "declarative-agent",
-      label: getLocalizedString("core.createProjectQuestion.projectType.declarativeAgent.label"),
-      detail: getLocalizedString("core.createProjectQuestion.projectType.declarativeAgent.detail"),
+      label: getLocalizedString(
+        "template.createProjectQuestion.projectType.declarativeAgent.label"
+      ),
+      detail: getLocalizedString(
+        "template.createProjectQuestion.projectType.declarativeAgent.detail"
+      ),
     };
   }
   static noPlugin(): OptionItem {
     return {
       id: "no",
-      label: getLocalizedString("core.createProjectQuestion.noPlugin.label"),
-      detail: getLocalizedString("core.createProjectQuestion.noPlugin.detail"),
+      label: getLocalizedString("template.createProjectQuestion.noPlugin.label"),
+      detail: getLocalizedString("template.createProjectQuestion.noPlugin.detail"),
       data: TemplateNames.DeclarativeAgentBasic,
     };
   }
   static withPlugin(): OptionItem {
     return {
       id: "yes",
-      label: getLocalizedString("core.createProjectQuestion.addPlugin.label"),
-      detail: getLocalizedString("core.createProjectQuestion.addPlugin.detail"),
+      label: getLocalizedString("template.createProjectQuestion.addPlugin.label"),
+      detail: getLocalizedString("template.createProjectQuestion.addPlugin.detail"),
     };
   }
   static typeSpec(): OptionItem {
     return {
       id: "type-spec",
-      label: getLocalizedString("core.createProjectQuestion.apiPlugin.typeSpec.label"),
-      detail: getLocalizedString("core.createProjectQuestion.apiPlugin.typeSpec.detail"),
+      label: getLocalizedString("template.createProjectQuestion.apiPlugin.typeSpec.label"),
+      detail: getLocalizedString("template.createProjectQuestion.apiPlugin.typeSpec.detail"),
       data: TemplateNames.DeclarativeAgentWithTypeSpec,
     };
   }
   static withGC(): OptionItem {
     return {
       id: "gc",
-      label: getLocalizedString("core.createProjectQuestion.addGC.label"),
-      detail: getLocalizedString("core.createProjectQuestion.addGC.detail"),
+      label: getLocalizedString("template.createProjectQuestion.addGC.label"),
+      detail: getLocalizedString("template.createProjectQuestion.addGC.detail"),
       data: TemplateNames.DeclarativeAgentWithGraphConnector,
     };
   }
@@ -572,10 +576,10 @@ export class ActionStartOptions {
     return {
       id: "new-api",
       label: getLocalizedString(
-        "core.createProjectQuestion.capability.copilotPluginNewApiOption.label"
+        "template.createProjectQuestion.capability.copilotPluginNewApiOption.label"
       ),
       detail: getLocalizedString(
-        "core.createProjectQuestion.capability.copilotPluginNewApiOption.detail"
+        "template.createProjectQuestion.capability.copilotPluginNewApiOption.detail"
       ),
     };
   }
@@ -584,10 +588,10 @@ export class ActionStartOptions {
     return {
       id: "api-spec",
       label: getLocalizedString(
-        "core.createProjectQuestion.capability.copilotPluginApiSpecOption.label"
+        "template.createProjectQuestion.capability.copilotPluginApiSpecOption.label"
       ),
       detail: getLocalizedString(
-        "core.createProjectQuestion.capability.copilotPluginApiSpecOption.detail"
+        "template.createProjectQuestion.capability.copilotPluginApiSpecOption.detail"
       ),
       data: TemplateNames.DeclarativeAgentWithActionFromExistingApiSpec,
     };
@@ -597,10 +601,10 @@ export class ActionStartOptions {
     return {
       id: "api-spec",
       label: getLocalizedString(
-        "core.createProjectQuestion.capability.copilotPluginApiSpecOption.label"
+        "template.createProjectQuestion.capability.copilotPluginApiSpecOption.label"
       ),
       detail: getLocalizedString(
-        "core.createProjectQuestion.capability.copilotPluginApiSpecOption.detail"
+        "template.createProjectQuestion.capability.copilotPluginApiSpecOption.detail"
       ),
       data: TemplateNames.DeclarativeAgentWithActionFromExistingApiSpec,
     };
@@ -609,8 +613,8 @@ export class ActionStartOptions {
   static DAMetaOS(): OptionItem {
     return {
       id: "da-meta-os",
-      label: getLocalizedString("core.createProjectQuestion.capability.DAMetaOS.label"),
-      detail: getLocalizedString("core.createProjectQuestion.capability.DAMetaOS.detail"),
+      label: getLocalizedString("template.createProjectQuestion.capability.DAMetaOS.label"),
+      detail: getLocalizedString("template.createProjectQuestion.capability.DAMetaOS.detail"),
       data: TemplateNames.DeclarativeAgentMetaOSNewProject,
     };
   }
@@ -627,8 +631,8 @@ export class ActionStartOptions {
   static mcp(): OptionItem {
     return {
       id: "mcp",
-      label: getLocalizedString("core.createProjectQuestion.mcpForDa.label"),
-      detail: getLocalizedString("core.createProjectQuestion.mcpForDa.detail"),
+      label: getLocalizedString("template.createProjectQuestion.mcpForDa.label"),
+      detail: getLocalizedString("template.createProjectQuestion.mcpForDa.detail"),
       // description: getLocalizedString("core.createProjectQuestion.option.description.preview"),
       data: TemplateNames.DeclarativeAgentWithActionFromMCP,
     };
@@ -639,9 +643,11 @@ export class DAMetaOSCapabilityOptions {
   static newDAMetaOSProject(): OptionItem {
     return {
       id: "da-meta-os-new-project",
-      label: getLocalizedString("core.createProjectQuestion.DAMetaOS.capability.newProject.label"),
+      label: getLocalizedString(
+        "template.createProjectQuestion.DAMetaOS.capability.newProject.label"
+      ),
       detail: getLocalizedString(
-        "core.createProjectQuestion.DAMetaOS.capability.newProject.detail"
+        "template.createProjectQuestion.DAMetaOS.capability.newProject.detail"
       ),
       data: TemplateNames.DeclarativeAgentMetaOSNewProject,
     };
@@ -650,10 +656,10 @@ export class DAMetaOSCapabilityOptions {
     return {
       id: "da-meta-os-upgrade-existing-project",
       label: getLocalizedString(
-        "core.createProjectQuestion.DAMetaOS.capability.upgradeProject.label"
+        "template.createProjectQuestion.DAMetaOS.capability.upgradeProject.label"
       ),
       detail: getLocalizedString(
-        "core.createProjectQuestion.DAMetaOS.capability.upgradeProject.detail"
+        "template.createProjectQuestion.DAMetaOS.capability.upgradeProject.detail"
       ),
       data: TemplateNames.DeclarativeAgentMetaOSUpgradeProject,
     };

@@ -743,9 +743,9 @@ export function apiAuthQuestion(excludeNone = false): SingleSelectQuestion {
   return {
     type: "singleSelect",
     name: QuestionNames.ApiAuth,
-    title: getLocalizedString("core.createProjectQuestion.apiMessageExtensionAuth.title"),
+    title: getLocalizedString("template.createProjectQuestion.apiMessageExtensionAuth.title"),
     placeholder: getLocalizedString(
-      "core.createProjectQuestion.apiMessageExtensionAuth.placeholder"
+      "template.createProjectQuestion.apiMessageExtensionAuth.placeholder"
     ),
     cliDescription: "The authentication type for the API.",
     staticOptions: ApiAuthOptions.all(),
@@ -1067,13 +1067,15 @@ export function apiPluginStartQuestion(doesProjectExists?: boolean): SingleSelec
       return inputs[QuestionNames.Capabilities] === DACapabilityOptions.declarativeAgent().id ||
         doesProjectExists
         ? getLocalizedString("core.createProjectQuestion.addApiPlugin.title")
-        : getLocalizedString("core.createProjectQuestion.createApiPlugin.title");
+        : getLocalizedString("template.createProjectQuestion.createApiPlugin.title");
     },
     placeholder: (inputs: Inputs) => {
       return inputs[QuestionNames.Capabilities] === DACapabilityOptions.declarativeAgent().id ||
         doesProjectExists
-        ? getLocalizedString("core.createProjectQuestion.addApiPlugin.placeholder")
-        : getLocalizedString("core.createProjectQuestion.projectType.copilotExtension.placeholder");
+        ? getLocalizedString("template.createProjectQuestion.addApiPlugin.placeholder")
+        : getLocalizedString(
+            "template.createProjectQuestion.projectType.copilotExtension.placeholder"
+          );
     },
     cliDescription: "Action type.",
     staticOptions: ActionStartOptions.staticAll(doesProjectExists),

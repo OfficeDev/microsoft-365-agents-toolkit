@@ -19,7 +19,7 @@ export function wxpAddinProjectTypeNode(): IQTreeNode {
     },
     data: {
       name: QuestionNames.Capabilities,
-      title: getLocalizedString("core.createProjectQuestion.projectType.officeAddin.title"),
+      title: getLocalizedString("template.createProjectQuestion.projectType.officeAddin.title"),
       type: "singleSelect",
       staticOptions: [
         OfficeAddinCapabilityOptions.wxpTaskPane(),
@@ -31,7 +31,7 @@ export function wxpAddinProjectTypeNode(): IQTreeNode {
           : []),
         OfficeAddinCapabilityOptions.officeAddinImport(),
       ],
-      placeholder: getLocalizedString("core.createCapabilityQuestion.placeholder"),
+      placeholder: getLocalizedString("template.createCapabilityQuestion.placeholder"),
       forgetLastValue: true,
       onDidSelection: setTemplateName,
     },
@@ -73,8 +73,8 @@ function officeDAMetaOSCapabilityNode(): IQTreeNode {
     data: {
       name: QuestionNames.DAMetaOSCapability,
       type: "singleSelect",
-      title: getLocalizedString("core.createProjectQuestion.DAMetaOS.capability.title"),
-      placeholder: getLocalizedString("core.createCapabilityQuestion.placeholder"),
+      title: getLocalizedString("template.createProjectQuestion.DAMetaOS.capability.title"),
+      placeholder: getLocalizedString("template.createCapabilityQuestion.placeholder"),
       staticOptions: [
         DAMetaOSCapabilityOptions.newDAMetaOSProject(),
         DAMetaOSCapabilityOptions.upgradeExistingProject(),
