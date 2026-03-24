@@ -2579,7 +2579,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Build a new Declarative Agent with Office add-in actions]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Générer un nouvel agent déclaratif avec les actions de complément Office]]></Val>
+            <Val><![CDATA[Créez un nouvel agent déclaratif avec les actions de complément Office]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3323,7 +3323,7 @@
         <Str Cat="Text">
           <Val><![CDATA[A travel planning agent, which is built with Microsoft 365 Agents SDK, Microsoft 365 Retrieval API and Agent Framework]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Un agent de planification de voyage, construit avec le Microsoft 365 Agents SDK, l’API de récupération Microsoft 365 et l’Agent Framework]]></Val>
+            <Val><![CDATA[Un agent de planification de voyage, créé avec le Microsoft 365 Agents SDK, l’API de récupération Microsoft 365 et l’Agent Framework]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3341,7 +3341,7 @@
         <Str Cat="Text">
           <Val><![CDATA[A weather forecast agent, which is built with Microsoft 365 Agents SDK and Semantic Kernel]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Agent de prévisions météo, conçu avec le SDK des agents Microsoft 365 et le noyau sémantique]]></Val>
+            <Val><![CDATA[Agent de prévisions météo, créé avec le SDK des agents Microsoft 365 et le noyau sémantique]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -10050,10 +10050,13 @@
       </Item>
       <Item ItemId=";error.m365.SharedScopeAdvancedDADisabled" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Deployment blocked: Advanced declarative agent can't be deployed due to tenant permission settings. Get more info: [Manage agents for Microsoft 365 Copilot in the Microsoft 365 admin center - Microsoft 365 admin | Microsoft Learn]5D;(%s)]]></Val>
+          <Val><![CDATA[Deployment blocked: Advanced declarative agent can't be deployed as 'shared' scope due to tenant permission settings. Get more info: [Known limitation of Advanced Declarative Agent]5D;(%s)]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Déploiement bloqué : l’agent déclaratif avancé ne peut pas être déployé en raison des paramètres d’autorisation du locataire. Obtenez plus d’informations : [Gérer les agents pour Microsoft 365 Copilot dans le Centre d’administration Microsoft 365 - Centre d’administration Microsoft 365 | Microsoft Learn]5D;(%s)]]></Val>
+            <Val><![CDATA[Déploiement bloqué : l’agent déclaratif avancé ne peut pas être déployé comme « partagé » en raison des paramètres d’autorisation du locataire. Obtenez plus d’informations : [Limite connue de l’Agent déclaratif avancé]5D;(%s)]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Deployment blocked: Advanced declarative agent can't be deployed due to tenant permission settings. Get more info: [Manage agents for Microsoft 365 Copilot in the Microsoft 365 admin center - Microsoft 365 admin | Microsoft Learn]5D;(%s)]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>

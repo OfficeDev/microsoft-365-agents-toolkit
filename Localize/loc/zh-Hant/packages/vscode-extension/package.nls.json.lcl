@@ -1738,18 +1738,6 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";teamstoolkit.commands.migrateManifest.title" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Upgrade App Manifest]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[升級應用程式資訊清單]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Upgrade Teams Manifest]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
       <Item ItemId=";teamstoolkit.commands.openDocumentLink.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Get More Info]]></Val>
@@ -6188,7 +6176,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Build an AI agent bot for common tasks or an intelligent chatbot to answer specific questions]A;[Build a Basic AI Chatbot]5D;(command:fx-extension.createFromWalkthrough?%5B%22WalkThrough%22%2C%20%7B%22capabilities%22%3A%20%22custom-copilot-basic%22%2C%20%22project-type%22%3A%20%22custom-copilot-type%22%7D%5D)]A;[Build an AI Agent]5D;(command:fx-extension.createFromWalkthrough?%5B%22WalkThrough%22%2C%20%7B%22capabilities%22%3A%20%22custom-copilot-agent%22%2C%20%22project-type%22%3A%20%22custom-copilot-type%22%7D%5D)]A;[Build a Bot to Chat with Your Data]5D;(command:fx-extension.createFromWalkthrough?%5B%22WalkThrough%22%2C%20%7B%22capabilities%22%3A%20%22custom-copilot-rag%22%2C%20%22project-type%22%3A%20%22custom-copilot-type%22%7D%5D)]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[為常見工作或智慧型手機聊天機器人建置 AI 代理程式 Bot 以回答特定問題]A;[Build a Basic AI Chatbot]5D;(command：fx-extension.createFromWalkthrough？%5B%22WalkThrough%22%2C%20%7B%22capabilities%22%3A%20%22custom-co 基本%22%2C%20%22 專案類型%22%3A%22capabilities%22%0 22 自定義 copilot 類型%22capabilities%22%1 7D%22capabilities%22%2 D)]A;[Build an AI Agent]5D;(command：fx-extension.createFromWalkthrough？%5B%22WalkThrough%22capabilities%22%5 2C%22capabilities%22%6 7B%22capabilities%22%3A%22capabilities%22%9 22custom-co 代理程式%22%2C%20%22project 類型%22%3A%20%22custom-copilot 類型%22%7D%5D)]A;[Build a Bot to Chat with Your Data]5D;(command：fx-extension.createFromWalkthrough？%5B%22WalkThrough%22%2C%20%7B%22capabilities%22%3A%20%22custom-22 copilot-rag%22%2C%20%22project 類型%22%3A%20%22custom-copilot-type%22%7D%5D)]]></Val>
+            <Val><![CDATA[為常見工作或智慧型手機聊天機器人建置 AI Agent Bot 以回答特定問題]A;[建置一個基本的 AI 聊天機器人]5D;(command:fx-extension.createFromWalkthrough?%5B%22WalkThrough%22%2C%20%7B%22capabilities%22%3A%20%22custom-copilot-basic%22%2C%20%22project-type%22%3A%20%22custom-copilot-type%22%7D%5D)]A;[建置一個 AI Agent]5D;(command:fx-extension.createFromWalkthrough?%5B%22WalkThrough%22%2C%20%7B%22capabilities%22%3A%20%22custom-copilot-agent%22%2C%20%22project-type%22%3A%20%22custom-copilot-type%22%7D%5D)]A;[建置一個可與您的資料聊天的 Bot]5D;(command:fx-extension.createFromWalkthrough?%5B%22WalkThrough%22%2C%20%7B%22capabilities%22%3A%20%22custom-copilot-rag%22%2C%20%22project-type%22%3A%20%22custom-copilot-type%22%7D%5D)]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -6242,7 +6230,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Build your intelligent, natural language-driven experiences in Teams, leveraging its vast user base for collaboration. ]A;Microsoft 365 Agents Toolkit integrates with Azure OpenAI and Microsoft Teams SDK to streamline copilot development and offer unique Teams-based capabilities. ]A;Explore [Microsoft Teams SDK]5D;(https://aka.ms/teams-ai-library-v2) and [Azure OpenAI Service]5D;(https://learn.microsoft.com/en-us/azure/ai-services/openai/overview)]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[在 Teams 中建置智慧、自然語言導向體驗，利用其龐大的使用者基礎進行共同作業。]A;Microsoft 365 Agents 工具組與 Azure OpenAI 和 Microsoft Teams SDK 整合，以簡化 Copilot 開發並提供獨特的 Teams 功能。]A;探索 [Microsoft Teams SDK]5D;(https://aka.ms/teams-ai-library-v2) 和 [Azure OpenAI 服務]5D;(https://learn.microsoft.com/en-us/azure/ai-services/openai/overview)]]></Val>
+            <Val><![CDATA[在 Teams 中建置智慧、自然語言導向體驗，利用其龐大的使用者基礎進行共同作業。 ]A;Microsoft 365 Agents 工具組與 Azure OpenAI 和 Microsoft Teams SDK 整合，以簡化 Copilot 開發並提供獨特的 Teams 功能。 ]A;探索 [Microsoft Teams SDK]5D;(https://aka.ms/teams-ai-library-v2) 和 [Azure OpenAI 服務]5D;(https://learn.microsoft.com/en-us/azure/ai-services/openai/overview)]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Build your intelligent, natural language-driven experiences in Teams, leveraging its vast user base for collaboration. ]A;Microsoft 365 Agents Toolkit integrates with Azure OpenAI and Teams AI Library to streamline copilot development and offer unique Teams-based capabilities. ]A;Explore [Teams AI Library]5D;(https://learn.microsoft.com/en-us/microsoftteams/platform/bots/how-to/teams%20conversational%20ai/teams-conversation-ai-overview) and [Azure OpenAI Service]5D;(https://learn.microsoft.com/en-us/azure/ai-services/openai/overview)]]></Val>
@@ -6263,7 +6251,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Build a declarative agent with Microsoft 365 Agents Toolkit to simplify workflows and automate tasks.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[使用 Microsoft 365 Agents 工具組建置宣告式代理程式，以簡化工作流程並自動化工作。]]></Val>
+            <Val><![CDATA[使用 Microsoft 365 Agents 工具組建置宣告式 Agent，以簡化工作流程並自動化工作。]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Build a declarative agent with Teams Toolkit to simplify workflows and automate tasks.]]></Val>
@@ -6296,7 +6284,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Follow these steps to build your declarative agent using Microsoft 365 Agents Toolkit.]A;[Build Declarative Agent]5D;(command:fx-extension.create?%5B%22SideBar%22%5D)]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[遵循下列步驟，使用 Microsoft 365 Agents 工具組來建置您的宣告式代理程式。]A;[建置宣告式代理程式]5D;(command:fx-extension.create?%5B%22SideBar%22%5D)]]></Val>
+            <Val><![CDATA[遵循下列步驟，使用 Microsoft 365 Agents 工具組來建置您的宣告式 Agent。]A;[建置宣告式 Agent]5D;(command:fx-extension.create?%5B%22SideBar%22%5D)]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Follow these steps to build your declarative agent using Teams Toolkit.]A;[Build Declarative Agent]5D;(command:fx-extension.create?%5B%22SideBar%22%5D)]]></Val>
@@ -6308,7 +6296,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Build a declarative agent]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[建立宣告式代理程式]]></Val>
+            <Val><![CDATA[建置宣告式 Agent]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -6317,7 +6305,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Set up your environment to build a declarative agent for Microsoft 365 Copilot. Ensure you have Node.js, NPM, and a valid Microsoft 365 Copilot license. [Learn how to get a developer environment.]5D;(https://learn.microsoft.com/en-us/microsoft-365-copilot/extensibility/prerequisites#prerequisites)]A;[Check Copilot License]5D;(command:fx-extension.checkCopilotAccess?%5B%22WalkThrough%22%5D)]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[設定您的環境以建立 Microsoft 365 Copilot 的宣告式代理程式。請確認您有 Node.js、NPM 和有效的 Microsoft 365 Copilot 授權。[Learn how to get a developer environment.]5D;(https://learn.microsoft.com/en-us/microsoft-365-copilot/extensibility/prerequisites#prerequisites)]A;[Check Copilot License]5D;(command：fx-extension.checkCopilotAccess？%5B%22WalkThrough%22%5D)]]></Val>
+            <Val><![CDATA[設定您的環境以建置 Microsoft 365 Copilot 的宣告式 Agent。請確認您有 Node.js、NPM 和有效的 Microsoft 365 Copilot 授權。[Learn how to get a developer environment.]5D;(https://learn.microsoft.com/en-us/microsoft-365-copilot/extensibility/prerequisites#prerequisites)]A;[Check Copilot License]5D;(command：fx-extension.checkCopilotAccess？%5B%22WalkThrough%22%5D)]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -6353,7 +6341,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Build a declarative agent to customize Microsoft 365 Copilot with specific instructions, actions, and knowledge. Follow this guide to get started.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[建立宣告式代理程式，以使用特定指示、動作和知識來自定義 Microsoft 365 Copilot。請遵循此指南開始使用。]]></Val>
+            <Val><![CDATA[建置宣告式 Agent，以使用特定指示、動作和知識來自定義 Microsoft 365 Copilot。請遵循此指南開始使用。]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -6389,7 +6377,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Build a Declarative Agent]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[建立宣告式代理程式]]></Val>
+            <Val><![CDATA[建置宣告式 Agent]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />

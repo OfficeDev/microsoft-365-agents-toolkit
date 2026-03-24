@@ -2579,7 +2579,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Build a new Declarative Agent with Office add-in actions]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[使用 Office 增益集動作建置新的宣告式代理程式]]></Val>
+            <Val><![CDATA[使用 Office 增益集動作建置新的宣告式 Agent]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3230,7 +3230,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Build an AI agent with OpenAI Assistants API and Microsoft Teams SDK]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[使用 OpenAI 助理 API 和 Microsoft Teams SDK 建置 AI 代理程式]]></Val>
+            <Val><![CDATA[使用 OpenAI 助理 API 和 Microsoft Teams SDK 建置 AI Agent]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Build an AI agent with OpenAI Assistants API and Teams AI Library]]></Val>
@@ -3251,7 +3251,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Build your own AI Agent from scratch using Microsoft Teams SDK]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[使用 Microsoft Teams SDK 從頭開始建置自己的 AI 代理程式]]></Val>
+            <Val><![CDATA[使用 Microsoft Teams SDK 從頭開始建置自己的 AI Agent]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Build your own AI Agent from scratch using Teams AI Library]]></Val>
@@ -3323,7 +3323,7 @@
         <Str Cat="Text">
           <Val><![CDATA[A travel planning agent, which is built with Microsoft 365 Agents SDK, Microsoft 365 Retrieval API and Agent Framework]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[旅遊規劃代理程式，其使用 Microsoft 365 Agents SDK、Microsoft 365 Retrieval API 和 Agent Framework 所建置]]></Val>
+            <Val><![CDATA[旅遊規劃 Agent，其使用 Microsoft 365 Agents SDK、Microsoft 365 Retrieval API 和 Agent Framework 所建置]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3341,7 +3341,7 @@
         <Str Cat="Text">
           <Val><![CDATA[A weather forecast agent, which is built with Microsoft 365 Agents SDK and Semantic Kernel]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[天氣預測代理程式，由 Microsoft 365 代理程式 SDK 和語意核心所建置]]></Val>
+            <Val><![CDATA[天氣預測 Agent，由 Microsoft 365 Agent SDK 和語意核心所建置]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -10050,10 +10050,13 @@
       </Item>
       <Item ItemId=";error.m365.SharedScopeAdvancedDADisabled" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Deployment blocked: Advanced declarative agent can't be deployed due to tenant permission settings. Get more info: [Manage agents for Microsoft 365 Copilot in the Microsoft 365 admin center - Microsoft 365 admin | Microsoft Learn]5D;(%s)]]></Val>
+          <Val><![CDATA[Deployment blocked: Advanced declarative agent can't be deployed as 'shared' scope due to tenant permission settings. Get more info: [Known limitation of Advanced Declarative Agent]5D;(%s)]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[已封鎖部署：因為租用戶權限設定而無法部署進階宣告式代理程式。取得詳細資訊：[在 Microsoft 365 系統管理中心管理 Microsoft 365 Copilot 的代理程式 - Microsoft 365 系統管理員 | Microsoft Learn]5D;(%s)]]></Val>
+            <Val><![CDATA[已封鎖部署：因為租用戶權限設定而無法部署進階宣告式代理程式作爲「共用」範圍。更多資訊請參閱：[進階宣告式代理程式的已知限制]5D;(%s)]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Deployment blocked: Advanced declarative agent can't be deployed due to tenant permission settings. Get more info: [Manage agents for Microsoft 365 Copilot in the Microsoft 365 admin center - Microsoft 365 admin | Microsoft Learn]5D;(%s)]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>

@@ -10050,10 +10050,13 @@
       </Item>
       <Item ItemId=";error.m365.SharedScopeAdvancedDADisabled" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Deployment blocked: Advanced declarative agent can't be deployed due to tenant permission settings. Get more info: [Manage agents for Microsoft 365 Copilot in the Microsoft 365 admin center - Microsoft 365 admin | Microsoft Learn]5D;(%s)]]></Val>
+          <Val><![CDATA[Deployment blocked: Advanced declarative agent can't be deployed as 'shared' scope due to tenant permission settings. Get more info: [Known limitation of Advanced Declarative Agent]5D;(%s)]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[배포 차단됨: 테넌트 권한 설정으로 인해 고급 선언적 에이전트를 배포할 수 없습니다. 자세한 정보 가져오기: [Microsoft 365 관리 센터 Microsoft 365 Copilot 에이전트 관리 - Microsoft 365 관리자 | Microsoft Learn]5D;(%s)]]></Val>
+            <Val><![CDATA[배포 차단됨: 테넌트 권한 설정으로 인해 고급 선언적 에이전트를 ‘공유됨’ 범위로 배포할 수 없습니다. 자세히 알아보기: [고급 선언적 에이전트의 알려진 제한 사항]5D;(%s)]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Deployment blocked: Advanced declarative agent can't be deployed due to tenant permission settings. Get more info: [Manage agents for Microsoft 365 Copilot in the Microsoft 365 admin center - Microsoft 365 admin | Microsoft Learn]5D;(%s)]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>

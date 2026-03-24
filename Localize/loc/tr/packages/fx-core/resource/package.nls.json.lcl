@@ -3341,7 +3341,7 @@
         <Str Cat="Text">
           <Val><![CDATA[A weather forecast agent, which is built with Microsoft 365 Agents SDK and Semantic Kernel]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Microsoft 365 Aracı SDK'sı ve Anlamsal Çekirdek ile oluşturulan bir hava durumu tahmin aracı]]></Val>
+            <Val><![CDATA[Microsoft 365 Aracları SDK'sı ve Anlamsal Çekirdek ile oluşturulan bir hava durumu tahmin aracı]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -10050,10 +10050,13 @@
       </Item>
       <Item ItemId=";error.m365.SharedScopeAdvancedDADisabled" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Deployment blocked: Advanced declarative agent can't be deployed due to tenant permission settings. Get more info: [Manage agents for Microsoft 365 Copilot in the Microsoft 365 admin center - Microsoft 365 admin | Microsoft Learn]5D;(%s)]]></Val>
+          <Val><![CDATA[Deployment blocked: Advanced declarative agent can't be deployed as 'shared' scope due to tenant permission settings. Get more info: [Known limitation of Advanced Declarative Agent]5D;(%s)]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Dağıtım engellendi: Kiracı izin ayarları nedeniyle gelişmiş bildirimsel aracı dağıtılamıyor. Daha fazla bilgi edinin: [Microsoft 365 yönetim merkezinde Microsoft 365 Copilot için aracıları yönetin - Microsoft 365 yöneticisi | Microsoft Learn]5D;(%s)]]></Val>
+            <Val><![CDATA[Dağıtım engellendi: Kiracı izin ayarları nedeniyle gelişmiş bildirim temelli aracı 'paylaşılan' kapsam olarak dağıtılamıyor. Daha fazla bilgi edinin: [Gelişmiş Bildirim aracısının bilinen sınırlaması]5D;(%s)]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Deployment blocked: Advanced declarative agent can't be deployed due to tenant permission settings. Get more info: [Manage agents for Microsoft 365 Copilot in the Microsoft 365 admin center - Microsoft 365 admin | Microsoft Learn]5D;(%s)]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>

@@ -3341,7 +3341,7 @@
         <Str Cat="Text">
           <Val><![CDATA[A weather forecast agent, which is built with Microsoft 365 Agents SDK and Semantic Kernel]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Un agente de previsión meteorológica, que se compila con el SDK y Kernel Semántico de Microsoft 365 Agents]]></Val>
+            <Val><![CDATA[Un agente de previsión meteorológica, que se crea con el SDK y Kernel Semántico de Microsoft 365 Agents]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -10050,10 +10050,13 @@
       </Item>
       <Item ItemId=";error.m365.SharedScopeAdvancedDADisabled" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Deployment blocked: Advanced declarative agent can't be deployed due to tenant permission settings. Get more info: [Manage agents for Microsoft 365 Copilot in the Microsoft 365 admin center - Microsoft 365 admin | Microsoft Learn]5D;(%s)]]></Val>
+          <Val><![CDATA[Deployment blocked: Advanced declarative agent can't be deployed as 'shared' scope due to tenant permission settings. Get more info: [Known limitation of Advanced Declarative Agent]5D;(%s)]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Implementación bloqueada: el agente declarativo avanzado no se puede implementar debido a la configuración de permisos del inquilino. Más información: [Administrar agentes para Microsoft 365 Copilot en el Centro de administración de Microsoft 365 - Administración de Microsoft 365 | Microsoft Learn]5D;(%s)]]></Val>
+            <Val><![CDATA[Implementación bloqueada: el agente declarativo avanzado no se puede implementar como ámbito "compartido" debido a la configuración de permisos del inquilino. Obtener más información: [Limitación conocida del agente declarativo avanzado]5D;(%s)]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Deployment blocked: Advanced declarative agent can't be deployed due to tenant permission settings. Get more info: [Manage agents for Microsoft 365 Copilot in the Microsoft 365 admin center - Microsoft 365 admin | Microsoft Learn]5D;(%s)]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>

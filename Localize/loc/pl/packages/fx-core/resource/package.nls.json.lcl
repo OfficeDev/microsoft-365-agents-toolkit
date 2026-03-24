@@ -10050,10 +10050,13 @@
       </Item>
       <Item ItemId=";error.m365.SharedScopeAdvancedDADisabled" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Deployment blocked: Advanced declarative agent can't be deployed due to tenant permission settings. Get more info: [Manage agents for Microsoft 365 Copilot in the Microsoft 365 admin center - Microsoft 365 admin | Microsoft Learn]5D;(%s)]]></Val>
+          <Val><![CDATA[Deployment blocked: Advanced declarative agent can't be deployed as 'shared' scope due to tenant permission settings. Get more info: [Known limitation of Advanced Declarative Agent]5D;(%s)]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Wdrożenie zablokowane: nie można wdrożyć zaawansowanego agenta deklaratywnego z powodu ustawień uprawnień dzierżawy. Uzyskaj więcej informacji: [Zarządzaj agentami funkcji Microsoft 365 Copilot w centrum administracyjnym platformy Microsoft 365 — administrator platformy Microsoft 365 | Microsoft Learn]5D;(%s)]]></Val>
+            <Val><![CDATA[Wdrożenie zablokowane: Nie można wdrożyć zaawansowanego agenta deklaratywnego w zakresie „współdzielonym” z powodu ustawień uprawnień dzierżawy. Uzyskaj więcej informacji: [Znane ograniczenie zaawansowanego agenta deklaratywnego]5D;(%s)]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Deployment blocked: Advanced declarative agent can't be deployed due to tenant permission settings. Get more info: [Manage agents for Microsoft 365 Copilot in the Microsoft 365 admin center - Microsoft 365 admin | Microsoft Learn]5D;(%s)]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>

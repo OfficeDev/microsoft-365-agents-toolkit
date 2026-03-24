@@ -14,7 +14,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Intelligent agent that is built with Microsoft 365 Agents SDK and connects to your LLM]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[使用 Microsoft 365 Agents SDK 建立的智慧型代理程式，可連線至您的 LLM]]></Val>
+            <Val><![CDATA[使用 Microsoft 365 Agents SDK 建置的智慧型 Agent，可連線至您的 LLM]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -50,7 +50,7 @@
         <Str Cat="Text">
           <Val><![CDATA[A travel planning agent, which is built with Microsoft 365 Agents SDK, Microsoft 365 Retrieval API and Agent Framework]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[旅遊規劃代理程式，其使用 Microsoft 365 Agents SDK、Microsoft 365 Retrieval API 和 Agent Framework 所建置]]></Val>
+            <Val><![CDATA[旅遊規劃 Agent，其使用 Microsoft 365 Agents SDK、Microsoft 365 Retrieval API 和 Agent Framework 所建置]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -68,7 +68,7 @@
         <Str Cat="Text">
           <Val><![CDATA[A weather forecast agent that is built with Microsoft 365 Agents SDK and LangChain]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[由 Microsoft 365 Agents SDK 和 LangChain 所建置的天氣預測代理程式]]></Val>
+            <Val><![CDATA[由 Microsoft 365 Agents SDK 和 LangChain 所建置的天氣預測 Agent]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -104,7 +104,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Agent that chats with users in Teams built with Teams AI Library and connects to LLMs]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[建置於 Teams 上、採用 Teams AI 程式庫並連線至 LLM 的聊天代理程式]]></Val>
+            <Val><![CDATA[建置於 Teams 上、採用 Teams AI 程式庫並連線至 LLM 的聊天 Agent]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
