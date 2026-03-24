@@ -40,7 +40,10 @@ import {
   languageNode,
   scaffoldQuestionForVSCode,
 } from "../../src/question/scaffold/vsc/createRootNode";
-import { getRootProjectTypeNode } from "../../src/question/scaffold/vsc/rootNode";
+import {
+  getRootProjectTypeNode,
+  getTdpProjectTypeNode,
+} from "../../src/question/scaffold/vsc/rootNode";
 import { daProjectTypeNode } from "../../src/question/scaffold/vsc/daProjectTypeNode";
 import { officeAddinProjectTypeNode } from "../../src/question/scaffold/vsc/officeAddinProjectTypeNode";
 import {
@@ -1140,5 +1143,54 @@ describe("wizard sub-tree extraction", () => {
     const node = getTeamsProjectNode();
     assert.isDefined(node.children);
     assert.isTrue(node.children!.length > 0);
+  });
+});
+
+describe("getTdpProjectTypeNode", () => {
+  it("should load tdpNode.json and return valid tree", () => {
+    const node = getTdpProjectTypeNode(Platform.VSCode);
+    assert.isDefined(node);
+    assert.isDefined(node.data);
+    const data = node.data as SingleSelectQuestion;
+    assert.equal(data.name, "project-type");
+  });
+
+  it("should contain only TDP-supported project types (DA, CEA, Teams)", () => {
+    const node = getTdpProjectTypeNode(Platform.VSCode);
+    const data = node.data as SingleSelectQuestion;
+    const optionIds = (data.staticOptions as OptionItem[]).map((o) => o.id);
+    assert.equal(optionIds.length, 3);
+    assert.include(optionIds, "copilot-agent-type");
+    assert.include(optionIds, "custom-engine-agent-type");
+    assert.include(optionIds, "teams-agent-and-app-type");
+  });
+
+  it("should NOT contain Graph Connector or Office Add-in", () => {
+    const node = getTdpProjectTypeNode(Platform.VSCode);
+    const data = node.data as SingleSelectQuestion;
+    const optionIds = (data.staticOptions as OptionItem[]).map((o) => o.id);
+    assert.notInclude(optionIds, "graph-connector-type");
+    assert.notInclude(optionIds, "office-meta-os-type");
+  });
+
+  it("should have inlined children for each project type", () => {
+    const node = getTdpProjectTypeNode(Platform.VSCode);
+    assert.isDefined(node.children);
+    assert.equal(node.children!.length, 3);
+    const childConditions = node.children!.map((c) => (c.condition as StringValidation)?.equals);
+    assert.include(childConditions, "copilot-agent-type");
+    assert.include(childConditions, "custom-engine-agent-type");
+    assert.include(childConditions, "teams-agent-and-app-type");
+  });
+
+  it("should work for CLI platform", () => {
+    const node = getTdpProjectTypeNode(Platform.CLI);
+    assert.isDefined(node);
+    const data = node.data as SingleSelectQuestion;
+    const options = data.staticOptions as OptionItem[];
+    assert.equal(options.length, 3);
+    for (const opt of options) {
+      assert.isFalse(opt.label.startsWith("$("), "CLI should not have icons");
+    }
   });
 });
