@@ -4,6 +4,7 @@
     "tagPrefix": "templates@",
     "vstagPrefix": "templates-vs@",
     "vsversion": "18.4.2",
+    "vsVersionPattern": "~18.4",
     "tagListURL": "https://github.com/OfficeDev/microsoft-365-agents-toolkit/releases/download/template-tag-list/template-tags.txt",
     "templateDownloadBaseURL": "https://github.com/OfficeDev/microsoft-365-agents-toolkit/releases/download",
     "templateReleaseURL": "https://github.com/OfficeDev/microsoft-365-agents-toolkit/releases/expanded_assets",

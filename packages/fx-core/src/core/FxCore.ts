@@ -146,7 +146,12 @@ import {
 } from "../component/generator/openApiSpec/helper";
 import { useLocalTemplate } from "../component/generator/templateHelper";
 import { TemplateNames } from "../component/generator/templates/templateNames";
-import { fetchZipFromUrl, getTemplateLatestVersion, unzip } from "../component/generator/utils";
+import {
+  fetchZipFromUrl,
+  getTemplateLatestVersion,
+  getTemplateVSLatestVersion,
+  unzip,
+} from "../component/generator/utils";
 import { LaunchHelper } from "../component/m365/launchHelper";
 import { PackageService } from "../component/m365/packageService";
 import { MosServiceScope } from "../common/constants";
@@ -2962,6 +2967,63 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
       const message = error?.message || "Unknown error while fetching template metadata";
       const systemErr = new SystemError(
         "FetchOnlineTemplateMetadata",
+        "DownloadFailed",
+        message,
+        message
+      );
+      return err(systemErr);
+    }
+  }
+
+  /**
+   * dynamic VS template metadata download
+   */
+  @hooks([
+    ErrorContextMW({ component: "FxCore", stage: "fetchOnlineTemplateMetadataForVS" }),
+    ErrorHandlerMW,
+  ])
+  async fetchOnlineTemplateMetadataForVS(): Promise<Result<undefined, FxError>> {
+    if (useLocalTemplate()) {
+      return ok(undefined); // Skip if using local templates
+    }
+    try {
+      // VS ships stable templates with a stable fx-core and test/pre-release
+      // templates with a beta fx-core. So beta = pre-stable test build → RC.
+      const coreVersion = require("../../package.json").version as string;
+      const latestVersion = coreVersion.includes("beta")
+        ? "0.0.0-rc"
+        : await getTemplateVSLatestVersion();
+
+      const homedir = os.homedir();
+      const metadataDir = path.join(homedir, `.${String(ConfigFolderName)}`, "vs-metadata");
+      await fs.ensureDir(metadataDir);
+
+      const versionFile = path.join(metadataDir, "template-vs-version.txt");
+      const needDownload = async (): Promise<boolean> => {
+        if (!(await fs.pathExists(versionFile))) return true;
+        try {
+          const cachedVersion = (await fs.readFile(versionFile, "utf-8")).trim();
+          return cachedVersion !== latestVersion;
+        } catch {
+          return true;
+        }
+      };
+
+      if (!(await needDownload())) {
+        return ok(undefined); // Already up-to-date
+      }
+
+      const tag = `${templateConfig.vstagPrefix}${latestVersion}`;
+      const metadataZipUrl = `${templateConfig.templateDownloadBaseURL}/${tag}/metadata.zip`;
+
+      const zip = await fetchZipFromUrl(metadataZipUrl);
+      await unzip(zip, metadataDir);
+      await fs.writeFile(versionFile, latestVersion, { encoding: "utf-8" });
+      return ok(undefined);
+    } catch (error: any) {
+      const message = error?.message || "Unknown error while fetching VS template metadata";
+      const systemErr = new SystemError(
+        "FetchOnlineTemplateMetadataForVS",
         "DownloadFailed",
         message,
         message
