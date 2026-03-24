@@ -354,6 +354,7 @@ jobs:
           clear_attachments: true
           files: |
             ${{ github.workspace }}/templates/build/fallback/csharp.zip
+            ${{ github.workspace }}/templates/build/metadata.zip
       
       - name: Get VS Templates version
         if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.vsrelease == 'true' && github.event.inputs.vstemplate == 'true' }}
@@ -374,6 +375,22 @@ jobs:
           clear_attachments: true
           files: |
             ${{ github.workspace }}/templates/build/fallback/csharp.zip
+            ${{ github.workspace }}/templates/build/metadata.zip
+
+      - name: Generate Tag List (VS stable release)
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.vsrelease == 'true' && github.event.inputs.vstemplate == 'true' }}
+        run: git tag | grep templates > ${{ runner.temp }}/template-tags.txt
+
+      - name: Update Template Tag list Release (VS stable release)
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.vsrelease == 'true' && github.event.inputs.vstemplate == 'true' }}
+        uses: ncipollo/release-action@v1.10.0
+        with:
+          artifacts: ${{ runner.temp }}/template-tags.txt
+          name: "Template Tag List"
+          body: "Release to maintain template tag list."
+          token: ${{ steps.generate-token.outputs.token }}
+          tag: "template-tag-list"
+          allowUpdates: true
 
       - name: enable prerelease only features
         if: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && (github.event.inputs.preid == 'alpha' || github.event.inputs.preid == 'preview')) }}

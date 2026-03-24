@@ -68,6 +68,9 @@ class CLIEngine {
   async start(rootCmd: CLICommand): Promise<void> {
     Correlator.setId();
 
+    // Fire-and-forget: fetch latest metadata in background, same as VSC extension activation
+    void getFxCore().fetchOnlineTemplateMetadata();
+
     this.debugLogs = [];
 
     const root = cloneDeep(rootCmd);
