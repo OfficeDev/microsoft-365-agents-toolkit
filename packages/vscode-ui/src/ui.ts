@@ -1140,7 +1140,7 @@ export class VSCodeUI implements UserInteraction {
     if (isWindows) {
       // PowerShell script for Windows
       // Capture output to file within the script itself for compatibility
-      scriptContent = `$ErrorActionPreference = 'Continue'\n& {\n${cmd}\n} 2>&1 | ForEach-Object { $_ | Out-File -FilePath "${tempFile}" -Encoding utf8 -Append; $_ }\n`;
+      scriptContent = `[Console]::OutputEncoding = [System.Text.Encoding]::UTF8; $OutputEncoding = [System.Text.Encoding]::UTF8; $ErrorActionPreference = 'Continue'\n& {\n${cmd}\n} 2>&1 | ForEach-Object { $_ | Out-File -FilePath "${tempFile}" -Encoding utf8 -Append; $_ }\n`;
       // Use the shell parameter if provided, otherwise default to powershell for broader compatibility
       const shellCmd = args.shell || "powershell";
       wrappedCmd = `${shellCmd} -NoProfile -ExecutionPolicy Bypass -File "${scriptFile}"`;
