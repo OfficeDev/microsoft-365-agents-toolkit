@@ -34,7 +34,7 @@
       "step_58d1c3f8"
     ],
     "tags": [],
-    "updated_at": "2026-03-24T05:18:42.846942"
+    "updated_at": "2026-03-24T05:22:41.335477"
   },
   "steps": [
     {
@@ -124,7 +124,7 @@
         "x": 25,
         "y": 299
       },
-      "description": "Click the Microsoft 365 Agents Toolkit item in the VS Code Explorer panel within the vscuse_app_qEnet workspace, highlighting the toolkit extension icon and tooltip.",
+      "description": "Click the Microsoft 365 Agents Toolkit item in the VS Code Explorer panel within the workspace, highlighting the toolkit extension icon and tooltip.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
