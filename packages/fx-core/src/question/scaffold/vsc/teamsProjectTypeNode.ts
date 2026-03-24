@@ -3,7 +3,6 @@
 
 import {
   AppPackageFolderName,
-  ConfigFolderName,
   DefaultPluginManifestFileName,
   Inputs,
   IQTreeNode,
@@ -11,12 +10,9 @@ import {
   Platform,
 } from "@microsoft/teamsfx-api";
 import * as fs from "fs-extra";
-import os from "os";
 import path from "path";
 import { getLocalizedString } from "../../../common/localizeUtils";
-import { useLocalTemplate } from "../../../component/generator/templateHelper";
 import { ODRProvider, ODRServer } from "../../../component/utils/odrProvider";
-import { getTemplatesFolder } from "../../../folder";
 import {
   SPFxFrameworkQuestion,
   SPFxImportFolderQuestion,
@@ -26,7 +22,6 @@ import {
 } from "../../create";
 import { QuestionNames } from "../../questionNames";
 import { apiSpecNode } from "../commonNodes";
-import { constructNode } from "../constructNode";
 import {
   ActionStartOptions,
   ApiAuthOptions,
@@ -39,26 +34,18 @@ import {
   TabCapabilityOptions,
   TeamsAgentCapabilityOptions,
 } from "./CapabilityOptions";
+import { getRootProjectTypeNode } from "./rootNode";
 
+/**
+ * Extract the Teams Agents and Apps sub-tree from the combined wizardNode.json.
+ * Used by TDP (Teams Developer Portal) flow.
+ */
 export function getTeamsProjectNode(): IQTreeNode {
-  let jsonPath: string;
-
-  const cachedJsonPath = path.join(
-    os.homedir(),
-    `.${String(ConfigFolderName)}`,
-    "ui",
-    "teamsNode.json"
+  const root = getRootProjectTypeNode(Platform.VSCode);
+  const teamsNode = root.children?.find(
+    (c) => (c.condition as any)?.equals === "teams-agent-and-app-type"
   );
-
-  // Check if cached JSON exists, otherwise fallback to bundled templates folder
-  if (!useLocalTemplate() && fs.pathExistsSync(cachedJsonPath)) {
-    jsonPath = cachedJsonPath;
-  } else {
-    jsonPath = path.join(getTemplatesFolder(), "ui", "teamsNode.json");
-  }
-
-  const content = fs.readFileSync(jsonPath, "utf-8");
-  return constructNode(content);
+  return teamsNode ?? { data: { type: "group" } };
 }
 
 export class TeamsProjectTypeOptions {

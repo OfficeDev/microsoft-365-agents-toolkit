@@ -1,31 +1,17 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { ConfigFolderName, IQTreeNode, Platform } from "@microsoft/teamsfx-api";
-import fs from "fs-extra";
-import os from "os";
-import path from "path";
-import { useLocalTemplate } from "../../../component/generator/templateHelper";
-import { getTemplatesFolder } from "../../../folder";
-import { constructNode } from "../constructNode";
+import { IQTreeNode, Platform } from "@microsoft/teamsfx-api";
+import { getRootProjectTypeNode } from "./rootNode";
 
+/**
+ * Extract the Custom Engine Agent sub-tree from the combined wizardNode.json.
+ * Used by TDP (Teams Developer Portal) flow.
+ */
 export function getCustomEngineAgentNode(): IQTreeNode {
-  let jsonPath: string;
-
-  const cachedJsonPath = path.join(
-    os.homedir(),
-    `.${String(ConfigFolderName)}`,
-    "ui",
-    "ceaNode.json"
+  const root = getRootProjectTypeNode(Platform.VSCode);
+  const ceaNode = root.children?.find(
+    (c) => (c.condition as any)?.equals === "custom-engine-agent-type"
   );
-
-  // Check if cached JSON exists, otherwise fallback to bundledtemplates folder
-  if (!useLocalTemplate() && fs.pathExistsSync(cachedJsonPath)) {
-    jsonPath = cachedJsonPath;
-  } else {
-    jsonPath = path.join(getTemplatesFolder(), "ui", "ceaNode.json");
-  }
-
-  const content = fs.readFileSync(jsonPath, "utf-8");
-  return constructNode(content, Platform.VSCode);
+  return ceaNode ?? { data: { type: "group" } };
 }

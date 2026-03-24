@@ -44,7 +44,10 @@ import { getCustomEngineAgentNode } from "../../src/question/scaffold/vsc/custom
 import { getRootProjectTypeNode } from "../../src/question/scaffold/vsc/rootNode";
 import { daProjectTypeNode } from "../../src/question/scaffold/vsc/daProjectTypeNode";
 import { officeAddinProjectTypeNode } from "../../src/question/scaffold/vsc/officeAddinProjectTypeNode";
-import { TeamsProjectTypeOptions } from "../../src/question/scaffold/vsc/teamsProjectTypeNode";
+import {
+  getTeamsProjectNode,
+  TeamsProjectTypeOptions,
+} from "../../src/question/scaffold/vsc/teamsProjectTypeNode";
 
 describe("vsc", () => {
   const sandbox = sinon.createSandbox();
@@ -355,204 +358,25 @@ describe("customEngineAgentProjectTypeNode", () => {
     assert.isDefined(basicCustomeEngineAgent);
   });
 
-  it("should use cached JSON path when not using local template and cached file exists", () => {
-    const mockFs = {
-      pathExistsSync: sandbox.stub().returns(true),
-      readFileSync: sandbox.stub().returns('{"data": "test"}'),
-    };
-    const mockTemplateHelper = {
-      useLocalTemplate: sandbox.stub().returns(false),
-    };
-    const mockFolder = {
-      getTemplatesFolder: sandbox.stub().returns("/templates"),
-    };
-    const mockConstructNode = sandbox.stub().returns({ test: "node" });
-
-    const customEngineAgentModule = proxyquire(
-      "../../src/question/scaffold/vsc/customEngineAgentNode",
-      {
-        "fs-extra": mockFs,
-        "../../../component/generator/templateHelper": mockTemplateHelper,
-        "../../../folder": mockFolder,
-        "../constructNode": { constructNode: mockConstructNode },
-      }
-    );
-
-    const node = customEngineAgentModule.getCustomEngineAgentNode();
-
-    assert.isTrue(mockTemplateHelper.useLocalTemplate.calledOnce);
-    assert.isTrue(mockFs.pathExistsSync.calledOnce);
-    assert.isTrue(mockFs.readFileSync.calledOnce);
-    assert.isFalse(mockFolder.getTemplatesFolder.called);
+  it("should extract CEA sub-tree from wizardNode", () => {
+    const node = getCustomEngineAgentNode();
     assert.isDefined(node);
-  });
-
-  it("should use templates folder when using local template", () => {
-    const mockFs = {
-      pathExistsSync: sandbox.stub().returns(true),
-      readFileSync: sandbox.stub().returns('{"data": "test"}'),
-    };
-    const mockTemplateHelper = {
-      useLocalTemplate: sandbox.stub().returns(true),
-    };
-    const mockFolder = {
-      getTemplatesFolder: sandbox.stub().returns("/templates"),
-    };
-    const mockConstructNode = sandbox.stub().returns({ test: "node" });
-
-    const customEngineAgentModule = proxyquire(
-      "../../src/question/scaffold/vsc/customEngineAgentNode",
-      {
-        "fs-extra": mockFs,
-        "../../../component/generator/templateHelper": mockTemplateHelper,
-        "../../../folder": mockFolder,
-        "../constructNode": { constructNode: mockConstructNode },
-      }
-    );
-
-    const node = customEngineAgentModule.getCustomEngineAgentNode();
-
-    assert.isTrue(mockTemplateHelper.useLocalTemplate.calledOnce);
-    assert.isFalse(mockFs.pathExistsSync.called);
-    assert.isTrue(mockFolder.getTemplatesFolder.calledOnce);
-    assert.isTrue(mockFs.readFileSync.calledOnce);
-    assert.isDefined(node);
-  });
-
-  it("should use templates folder when cached file does not exist", () => {
-    const mockFs = {
-      pathExistsSync: sandbox.stub().returns(false),
-      readFileSync: sandbox.stub().returns('{"data": "test"}'),
-    };
-    const mockTemplateHelper = {
-      useLocalTemplate: sandbox.stub().returns(false),
-    };
-    const mockFolder = {
-      getTemplatesFolder: sandbox.stub().returns("/templates"),
-    };
-    const mockConstructNode = sandbox.stub().returns({ test: "node" });
-
-    const customEngineAgentModule = proxyquire(
-      "../../src/question/scaffold/vsc/customEngineAgentNode",
-      {
-        "fs-extra": mockFs,
-        "../../../component/generator/templateHelper": mockTemplateHelper,
-        "../../../folder": mockFolder,
-        "../constructNode": { constructNode: mockConstructNode },
-      }
-    );
-
-    const node = customEngineAgentModule.getCustomEngineAgentNode();
-
-    assert.isTrue(mockTemplateHelper.useLocalTemplate.calledOnce);
-    assert.isTrue(mockFs.pathExistsSync.calledOnce);
-    assert.isTrue(mockFolder.getTemplatesFolder.calledOnce);
-    assert.isTrue(mockFs.readFileSync.calledOnce);
-    assert.isDefined(node);
+    assert.isDefined(node.data);
+    const data = node.data as SingleSelectQuestion;
+    assert.isDefined(data.staticOptions);
+    const options = data.staticOptions as OptionItem[];
+    const optionIds = options.map((o) => o.id);
+    assert.include(optionIds, "basic-custom-engine-agent");
+    assert.include(optionIds, "weather-agent");
   });
 });
 
 describe("teamsProjectTypeNode", () => {
-  const sandbox = sinon.createSandbox();
-
-  afterEach(() => {
-    sandbox.restore();
-  });
-
-  it("should use cached JSON path when not using local template and cached file exists", () => {
-    const mockFs = {
-      pathExistsSync: sandbox.stub().returns(true),
-      readFileSync: sandbox.stub().returns('{"data": "test"}'),
-    };
-    const mockTemplateHelper = {
-      useLocalTemplate: sandbox.stub().returns(false),
-    };
-    const mockFolder = {
-      getTemplatesFolder: sandbox.stub().returns("/templates"),
-    };
-    const mockConstructNode = sandbox.stub().returns({ test: "node" });
-
-    const teamsProjectTypeModule = proxyquire(
-      "../../src/question/scaffold/vsc/teamsProjectTypeNode",
-      {
-        "fs-extra": mockFs,
-        "../../../component/generator/templateHelper": mockTemplateHelper,
-        "../../../folder": mockFolder,
-        "../constructNode": { constructNode: mockConstructNode },
-      }
-    );
-
-    const node = teamsProjectTypeModule.getTeamsProjectNode();
-
-    assert.isTrue(mockTemplateHelper.useLocalTemplate.calledOnce);
-    assert.isTrue(mockFs.pathExistsSync.calledOnce);
-    assert.isFalse(mockFolder.getTemplatesFolder.called);
-    assert.isTrue(mockFs.readFileSync.calledOnce);
+  it("should extract Teams sub-tree from wizardNode", () => {
+    const node = getTeamsProjectNode();
     assert.isDefined(node);
-  });
-
-  it("should use templates folder when using local template", () => {
-    const mockFs = {
-      pathExistsSync: sandbox.stub().returns(true),
-      readFileSync: sandbox.stub().returns('{"data": "test"}'),
-    };
-    const mockTemplateHelper = {
-      useLocalTemplate: sandbox.stub().returns(true),
-    };
-    const mockFolder = {
-      getTemplatesFolder: sandbox.stub().returns("/templates"),
-    };
-    const mockConstructNode = sandbox.stub().returns({ test: "node" });
-
-    const teamsProjectTypeModule = proxyquire(
-      "../../src/question/scaffold/vsc/teamsProjectTypeNode",
-      {
-        "fs-extra": mockFs,
-        "../../../component/generator/templateHelper": mockTemplateHelper,
-        "../../../folder": mockFolder,
-        "../constructNode": { constructNode: mockConstructNode },
-      }
-    );
-
-    const node = teamsProjectTypeModule.getTeamsProjectNode();
-
-    assert.isTrue(mockTemplateHelper.useLocalTemplate.calledOnce);
-    assert.isFalse(mockFs.pathExistsSync.called);
-    assert.isTrue(mockFolder.getTemplatesFolder.calledOnce);
-    assert.isTrue(mockFs.readFileSync.calledOnce);
-    assert.isDefined(node);
-  });
-
-  it("should use templates folder when cached file does not exist", () => {
-    const mockFs = {
-      pathExistsSync: sandbox.stub().returns(false),
-      readFileSync: sandbox.stub().returns('{"data": "test"}'),
-    };
-    const mockTemplateHelper = {
-      useLocalTemplate: sandbox.stub().returns(false),
-    };
-    const mockFolder = {
-      getTemplatesFolder: sandbox.stub().returns("/templates"),
-    };
-    const mockConstructNode = sandbox.stub().returns({ test: "node" });
-
-    const teamsProjectTypeModule = proxyquire(
-      "../../src/question/scaffold/vsc/teamsProjectTypeNode",
-      {
-        "fs-extra": mockFs,
-        "../../../component/generator/templateHelper": mockTemplateHelper,
-        "../../../folder": mockFolder,
-        "../constructNode": { constructNode: mockConstructNode },
-      }
-    );
-
-    const node = teamsProjectTypeModule.getTeamsProjectNode();
-
-    assert.isTrue(mockTemplateHelper.useLocalTemplate.calledOnce);
-    assert.isTrue(mockFs.pathExistsSync.calledOnce);
-    assert.isTrue(mockFolder.getTemplatesFolder.calledOnce);
-    assert.isTrue(mockFs.readFileSync.calledOnce);
-    assert.isDefined(node);
+    const condition = node.condition as StringValidation;
+    assert.equal(condition.equals, "teams-agent-and-app-type");
   });
 });
 
@@ -1196,5 +1020,121 @@ describe("constructNode", () => {
     const options = data.staticOptions as OptionItem[];
     assert.equal(options[0].data, "template-name-1");
     assert.isUndefined(options[1].data);
+  });
+});
+
+describe("constructNode - additional coverage", () => {
+  it("should resolve apiSpecWithSearchNode reference", () => {
+    const json = JSON.stringify({ node: "apiSpecWithSearchNode" });
+    const node = constructNode(json);
+    assert.isDefined(node);
+  });
+
+  it("should resolve apiSpecWithSearchNode with condition", () => {
+    const json = JSON.stringify({
+      node: "apiSpecWithSearchNode",
+      condition: { equals: "some-value" },
+    });
+    const node = constructNode(json);
+    assert.isDefined(node);
+    const condition = node.condition as StringValidation;
+    assert.equal(condition.equals, "some-value");
+  });
+
+  it("should resolve foundryNode reference", () => {
+    const json = JSON.stringify({ node: "foundryNode" });
+    const node = constructNode(json);
+    assert.isDefined(node);
+  });
+
+  it("should resolve gcNameNode reference", () => {
+    const json = JSON.stringify({ node: "gcNameNode" });
+    const node = constructNode(json);
+    assert.isDefined(node);
+    assert.isDefined(node.data);
+  });
+
+  it("should resolve gcConnectionIdNode reference", () => {
+    const json = JSON.stringify({ node: "gcConnectionIdNode" });
+    const node = constructNode(json);
+    assert.isDefined(node);
+    assert.isDefined(node.data);
+  });
+
+  it("should resolve officeAddinFolderNode reference", () => {
+    const json = JSON.stringify({ node: "officeAddinFolderNode" });
+    const node = constructNode(json);
+    assert.isDefined(node);
+    assert.equal(node.data?.type, "folder");
+  });
+
+  it("should resolve officeAddinImportNode reference", () => {
+    const json = JSON.stringify({ node: "officeAddinImportNode" });
+    const node = constructNode(json);
+    assert.isDefined(node);
+    assert.equal(node.data?.type, "group");
+    assert.isDefined(node.children);
+    assert.equal(node.children!.length, 2);
+  });
+});
+
+describe("rootNode - cache vs bundled", () => {
+  it("should load and return valid tree with all project types", () => {
+    const node = getRootProjectTypeNode(Platform.VSCode);
+    assert.isDefined(node);
+    assert.isDefined(node.data);
+    const data = node.data as SingleSelectQuestion;
+    const optionIds = (data.staticOptions as OptionItem[]).map((o) => o.id);
+    assert.include(optionIds, "copilot-agent-type");
+    assert.include(optionIds, "custom-engine-agent-type");
+    assert.include(optionIds, "graph-connector-type");
+    assert.include(optionIds, "teams-agent-and-app-type");
+    assert.include(optionIds, "office-meta-os-type");
+    assert.isDefined(node.children);
+    assert.isTrue(node.children!.length >= 5);
+  });
+
+  it("should work for CLI platform without icons", () => {
+    const node = getRootProjectTypeNode(Platform.CLI);
+    assert.isDefined(node);
+    const data = node.data as SingleSelectQuestion;
+    const options = data.staticOptions as OptionItem[];
+    for (const opt of options) {
+      assert.isFalse(
+        opt.label.startsWith("$("),
+        "Option " + opt.id + " should not have icon on CLI"
+      );
+    }
+  });
+});
+
+describe("getCustomEngineAgentNode / getTeamsProjectNode extraction", () => {
+  it("getCustomEngineAgentNode should have correct options", () => {
+    const node = getCustomEngineAgentNode();
+    assert.isDefined(node);
+    const data = node.data as SingleSelectQuestion;
+    const optionIds = (data.staticOptions as OptionItem[]).map((o) => o.id);
+    assert.include(optionIds, "basic-custom-engine-agent");
+    assert.include(optionIds, "weather-agent");
+  });
+
+  it("getTeamsProjectNode should have correct condition", () => {
+    const node = getTeamsProjectNode();
+    assert.isDefined(node);
+    const condition = node.condition as StringValidation;
+    assert.equal(condition.equals, "teams-agent-and-app-type");
+    assert.isDefined(node.data);
+  });
+
+  it("getCustomEngineAgentNode should have children with llmServiceNode", () => {
+    const node = getCustomEngineAgentNode();
+    assert.isDefined(node.children);
+    assert.isTrue(node.children!.length > 0);
+  });
+
+  it("getTeamsProjectNode should have children", () => {
+    const node = getTeamsProjectNode();
+    assert.isDefined(node.children);
+    assert.isTrue(node.children!.length > 0);
   });
 });

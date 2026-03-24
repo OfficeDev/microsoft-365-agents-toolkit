@@ -1,21 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import {
-  ConfigFolderName,
-  IQTreeNode,
-  OptionItem,
-  Platform,
-  SingleSelectQuestion,
-} from "@microsoft/teamsfx-api";
-import fs from "fs-extra";
-import os from "os";
-import path from "path";
+import { IQTreeNode, OptionItem, Platform, SingleSelectQuestion } from "@microsoft/teamsfx-api";
 import { featureFlagManager } from "../../common/featureFlags";
 import { getLocalizedString } from "../../common/localizeUtils";
-import { TOOLS } from "../../common/globalVars";
-import { useLocalTemplate } from "../../component/generator/templateHelper";
-import { getTemplatesFolder } from "../../folder";
 import {
   apiSpecNode,
   apiSpecWithSearchNode,
@@ -26,23 +14,6 @@ import {
 import { setTemplateName, setTemplateNameAndGC } from "./vsc/CapabilityOptions";
 import { GCConnectionIdQuestion, GCNameQuestion } from "../create";
 import { QuestionNames } from "../questionNames";
-
-/** Load a JSON node file from cache or templates folder */
-function loadJsonNode(fileName: string, platform: Platform): IQTreeNode {
-  const cachedJsonPath = path.join(os.homedir(), `.${String(ConfigFolderName)}`, "ui", fileName);
-  let jsonPath: string;
-  let source: string;
-  if (!useLocalTemplate() && fs.pathExistsSync(cachedJsonPath)) {
-    jsonPath = cachedJsonPath;
-    source = "cache";
-  } else {
-    jsonPath = path.join(getTemplatesFolder(), "ui", fileName);
-    source = "bundled";
-  }
-  const content = fs.readFileSync(jsonPath, "utf-8");
-  TOOLS?.logProvider?.info(`[Dynamic Template] Loaded ${fileName} from ${source}: ${jsonPath}`);
-  return constructNode(content, platform);
-}
 
 function isFeatureEnabled(flagName: string): boolean {
   return featureFlagManager.getBooleanValue({ name: flagName, defaultValue: "false" });
@@ -143,14 +114,6 @@ function resolveNodeReference(
       return azureOpenAINode(jsonObject.condition as any);
     case "foundryNode":
       return foundryNode(jsonObject.condition as any);
-
-    // Sub-tree nodes loaded from separate JSON files
-    case "ceaNode":
-      node = loadJsonNode("ceaNode.json", platform);
-      break;
-    case "teamsNode":
-      node = loadJsonNode("teamsNode.json", platform);
-      break;
 
     // TypeScript-defined complex nodes (lazy import to avoid circular dependency)
     case "mcpServerTypeNode": {

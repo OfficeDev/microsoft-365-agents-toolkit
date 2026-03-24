@@ -66,7 +66,7 @@ import {
   setErrorContext,
   setTools,
 } from "../common/globalVars";
-import { getLocalizedString } from "../common/localizeUtils";
+import { clearLocaleCache, getLocalizedString } from "../common/localizeUtils";
 import { ListCollaboratorResult, PermissionsResult } from "../common/permissionInterface";
 import {
   getProjectMetadata,
@@ -2960,6 +2960,10 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
       const zip = await fetchZipFromUrl(metadataZipUrl);
       await unzip(zip, metadataDir);
       await fs.writeFile(versionFile, latestVersion, { encoding: "utf-8" });
+
+      // Clear locale cache so freshly downloaded NLS files are picked up
+      clearLocaleCache();
+
       return ok(undefined);
     } catch (error: any) {
       const message = error?.message || "Unknown error while fetching template metadata";

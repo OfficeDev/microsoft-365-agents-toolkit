@@ -16,7 +16,7 @@ import { CombinedProjectGenerator } from "../../../src/component/generator/combi
 import { TemplateNames } from "../../../src/component/generator/templates/templateNames";
 import { ApiAuthOptions, ProgrammingLanguage, QuestionNames } from "../../../src/question";
 import { DACapabilityOptions } from "../../../src/question/scaffold/vsc/CapabilityOptions";
-import { setTemplateNameAndGC } from "../../../src/question/scaffold/vsc/daProjectTypeNode";
+import { setTemplateNameAndGC } from "../../../src/question/scaffold/vsc/CapabilityOptions";
 import { MockTools } from "../../core/utils";
 
 describe("combined generator", async () => {

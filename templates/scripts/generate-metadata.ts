@@ -1,30 +1,16 @@
 import fs from "fs";
 import path from "path";
 import { allTemplates, defaultGeneratorTemplates } from "../src/metadata/index";
-import { ceaNode } from "../src/ui/cea";
-import { teamsNode } from "../src/ui/teams";
 import { wizardNode } from "../src/ui/wizard";
 
-// CLI argument parsing and execution
 function main() {
   fs.mkdirSync(path.resolve(__dirname, "../build/metadata"), { recursive: true });
   fs.mkdirSync(path.resolve(__dirname, "../build/ui"), { recursive: true });
 
-  // Combined wizard tree (root + DA + graphConnector + officeAddin inlined)
+  // Single combined wizard tree (all sub-trees inlined)
   fs.writeFileSync(
     path.resolve(__dirname, "../build/ui/wizardNode.json"),
     JSON.stringify(wizardNode, null, 2),
-    "utf-8"
-  );
-  // CEA and Teams nodes are still loaded separately (pre-existing pattern)
-  fs.writeFileSync(
-    path.resolve(__dirname, "../build/ui/ceaNode.json"),
-    JSON.stringify(ceaNode, null, 2),
-    "utf-8"
-  );
-  fs.writeFileSync(
-    path.resolve(__dirname, "../build/ui/teamsNode.json"),
-    JSON.stringify(teamsNode, null, 2),
     "utf-8"
   );
   fs.writeFileSync(

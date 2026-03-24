@@ -49,6 +49,14 @@ export const rootNode = {
         groupName: "core.createProjectQuestion.projectType.createGroup.m365Apps",
         icon: "$(microsoft365-agents-office)",
       },
+      {
+        id: "start-with-github-copilot",
+        label: "core.createProjectQuestion.projectType.copilotHelp.label",
+        detail: "core.createProjectQuestion.projectType.copilotHelp.detail",
+        groupName: "core.createProjectQuestion.projectType.copilotGroup.title",
+        icon: "$(question)",
+        featureFlag: "TEAMSFX_CHAT_PARTICIPANT_ENTRIES",
+      },
     ],
   },
   children: [
