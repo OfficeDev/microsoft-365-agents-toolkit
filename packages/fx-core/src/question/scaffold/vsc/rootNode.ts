@@ -12,12 +12,21 @@ import { constructNode } from "../constructNode";
 
 /**
  * Load the wizard question tree from wizardNode.json.
- * This is a combined JSON containing root project type options and all inlined sub-trees
- * (DA, graphConnector, officeAddin). CEA and Teams nodes are still referenced via node names
- * and loaded from their own JSON files.
+ * Combined JSON with all sub-trees inlined.
  */
 export function getRootProjectTypeNode(platform: Platform = Platform.VSCode): IQTreeNode {
-  const fileName = "wizardNode.json";
+  return loadUiNode("wizardNode.json", platform);
+}
+
+/**
+ * Load the TDP wizard question tree from tdpNode.json.
+ * Subset of wizard options for Teams Developer Portal import flow.
+ */
+export function getTdpProjectTypeNode(platform: Platform = Platform.VSCode): IQTreeNode {
+  return loadUiNode("tdpNode.json", platform);
+}
+
+function loadUiNode(fileName: string, platform: Platform): IQTreeNode {
   const cachedJsonPath = path.join(os.homedir(), `.${String(ConfigFolderName)}`, "ui", fileName);
 
   let jsonPath: string;

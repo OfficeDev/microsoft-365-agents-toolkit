@@ -40,7 +40,6 @@ import {
   languageNode,
   scaffoldQuestionForVSCode,
 } from "../../src/question/scaffold/vsc/createRootNode";
-import { getCustomEngineAgentNode } from "../../src/question/scaffold/vsc/customEngineAgentNode";
 import { getRootProjectTypeNode } from "../../src/question/scaffold/vsc/rootNode";
 import { daProjectTypeNode } from "../../src/question/scaffold/vsc/daProjectTypeNode";
 import { officeAddinProjectTypeNode } from "../../src/question/scaffold/vsc/officeAddinProjectTypeNode";
@@ -341,28 +340,27 @@ describe("daProjectTypeNode", () => {
 });
 
 describe("customEngineAgentProjectTypeNode", () => {
-  const sandbox = sinon.createSandbox();
-
-  afterEach(() => {
-    sandbox.restore();
-  });
-
   it("customEngineAgentProjectTypeNode basic structure", () => {
-    const node = getCustomEngineAgentNode();
+    const root = getRootProjectTypeNode(Platform.VSCode);
+    const node = root.children?.find(
+      (c) =>
+        (c.condition as StringValidation)?.equals === ProjectTypeOptions.customEngineAgentOptionId
+    );
+    assert.isDefined(node);
     const conditionFunc = node?.condition as StringValidation;
-
     assert.equal(conditionFunc.equals, ProjectTypeOptions.customEngineAgentOptionId);
-    assert.isDefined(node.children);
-
-    const basicCustomeEngineAgent = node.children?.[0];
-    assert.isDefined(basicCustomeEngineAgent);
+    assert.isDefined(node!.children);
   });
 
-  it("should extract CEA sub-tree from wizardNode", () => {
-    const node = getCustomEngineAgentNode();
+  it("should extract CEA sub-tree from wizardNode with correct options", () => {
+    const root = getRootProjectTypeNode(Platform.VSCode);
+    const node = root.children?.find(
+      (c) =>
+        (c.condition as StringValidation)?.equals === ProjectTypeOptions.customEngineAgentOptionId
+    );
     assert.isDefined(node);
-    assert.isDefined(node.data);
-    const data = node.data as SingleSelectQuestion;
+    assert.isDefined(node!.data);
+    const data = node!.data as SingleSelectQuestion;
     assert.isDefined(data.staticOptions);
     const options = data.staticOptions as OptionItem[];
     const optionIds = options.map((o) => o.id);
@@ -1108,17 +1106,20 @@ describe("rootNode - cache vs bundled", () => {
   });
 });
 
-describe("getCustomEngineAgentNode / getTeamsProjectNode extraction", () => {
-  it("getCustomEngineAgentNode should have correct options", () => {
-    const node = getCustomEngineAgentNode();
+describe("wizard sub-tree extraction", () => {
+  it("CEA sub-tree should have correct options", () => {
+    const root = getRootProjectTypeNode(Platform.VSCode);
+    const node = root.children?.find(
+      (c) => (c.condition as StringValidation)?.equals === "custom-engine-agent-type"
+    );
     assert.isDefined(node);
-    const data = node.data as SingleSelectQuestion;
+    const data = node!.data as SingleSelectQuestion;
     const optionIds = (data.staticOptions as OptionItem[]).map((o) => o.id);
     assert.include(optionIds, "basic-custom-engine-agent");
     assert.include(optionIds, "weather-agent");
   });
 
-  it("getTeamsProjectNode should have correct condition", () => {
+  it("Teams sub-tree should have correct condition", () => {
     const node = getTeamsProjectNode();
     assert.isDefined(node);
     const condition = node.condition as StringValidation;
@@ -1126,13 +1127,16 @@ describe("getCustomEngineAgentNode / getTeamsProjectNode extraction", () => {
     assert.isDefined(node.data);
   });
 
-  it("getCustomEngineAgentNode should have children with llmServiceNode", () => {
-    const node = getCustomEngineAgentNode();
-    assert.isDefined(node.children);
-    assert.isTrue(node.children!.length > 0);
+  it("CEA sub-tree should have children", () => {
+    const root = getRootProjectTypeNode(Platform.VSCode);
+    const node = root.children?.find(
+      (c) => (c.condition as StringValidation)?.equals === "custom-engine-agent-type"
+    );
+    assert.isDefined(node!.children);
+    assert.isTrue(node!.children!.length > 0);
   });
 
-  it("getTeamsProjectNode should have children", () => {
+  it("Teams sub-tree should have children", () => {
     const node = getTeamsProjectNode();
     assert.isDefined(node.children);
     assert.isTrue(node.children!.length > 0);

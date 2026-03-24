@@ -14,35 +14,33 @@ import { daNode } from "./da";
 import { graphConnectorNode } from "./graphConnector";
 import { officeAddinNode } from "./officeAddin";
 import { rootNode } from "./root";
+import { tdpNode } from "./tdp";
 import { teamsNode } from "./teams";
 
-// Deep clone and inline all sub-tree references into the root node
-function buildWizardNode() {
-  const wizard = JSON.parse(JSON.stringify(rootNode));
+// Map node references to their actual sub-tree definitions
+const nodeMap: Record<string, Record<string, unknown>> = {
+  daNode: daNode,
+  ceaNode: ceaNode,
+  graphConnectorNode: graphConnectorNode,
+  teamsNode: teamsNode,
+  officeAddinNode: officeAddinNode,
+};
 
-  // Map node references to their actual sub-tree definitions
-  const nodeMap: Record<string, Record<string, unknown>> = {
-    daNode: daNode,
-    ceaNode: ceaNode,
-    graphConnectorNode: graphConnectorNode,
-    teamsNode: teamsNode,
-    officeAddinNode: officeAddinNode,
-  };
-
-  // Replace node references with inlined sub-trees
-  wizard.children = wizard.children.map((child: any) => {
-    if (child.node && nodeMap[child.node]) {
-      const inlined = JSON.parse(JSON.stringify(nodeMap[child.node]));
-      // Merge condition from the reference into the inlined node
-      if (child.condition) {
-        inlined.condition = child.condition;
+// Deep clone a node and inline all sub-tree references
+function inlineNodeRefs(source: Record<string, unknown>): Record<string, unknown> {
+  const node = JSON.parse(JSON.stringify(source));
+  if (node.children) {
+    node.children = (node.children as any[]).map((child: any) => {
+      if (child.node && nodeMap[child.node]) {
+        const inlined = JSON.parse(JSON.stringify(nodeMap[child.node]));
+        if (child.condition) inlined.condition = child.condition;
+        return inlined;
       }
-      return inlined;
-    }
-    return child;
-  });
-
-  return wizard;
+      return child;
+    });
+  }
+  return node;
 }
 
-export const wizardNode = buildWizardNode();
+export const wizardNode = inlineNodeRefs(rootNode);
+export const tdpWizardNode = inlineNodeRefs(tdpNode);
