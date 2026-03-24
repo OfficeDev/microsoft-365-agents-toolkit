@@ -1,4 +1,10 @@
-# Installation
+# Test with Agents Playground
+
+Test your agent locally using the Microsoft 365 Agents Playground — a web-based sandbox that requires no M365 account, Azure tunnel, or app registration.
+
+**Recommend Agents Playground first for testing**, unless user explicitly asks to run on Teams.
+
+## Installation
 
 **Windows:**
 ```powershell
@@ -18,21 +24,25 @@ sudo mv agentsplayground /usr/local/bin/
 npm install -g @microsoft/m365agentsplayground
 ```
 
-# Quick Start
+## Quick Start
 
 ```bash
-# 1. Start your bot service (this will HANG the terminal — expected!)
+# 1. For ATK projects, deploy playground config first
+atk deploy --env playground -i false
+
+# 2. Start your bot service (this will HANG the terminal — expected!)
 # Run as a background process since the server keeps running
 cd my-bot
-npm run dev
+npm run dev:teamsfx:playground  # For ATK projects
+# npm run dev                   # For customized projects
 
-# 2. Use a NEW/separate terminal to start Agents Playground
+# 3. Use a NEW/separate terminal to start Agents Playground
 agentsplayground -e http://localhost:3978/api/messages -c msteams
 ```
 
 **Note:** The bot service start command keeps running and will not return to the prompt. This is expected — the server must stay running. Always start the service in a background terminal, then verify it started successfully by checking the output for messages like "listening on port" or "server started". If errors appear, read the logs, fix the issue, and restart. Use a **new terminal** for Agents Playground.
 
-# CLI Options
+## CLI Options
 
 | Option | Short | Required | Description |
 |--------|-------|----------|-------------|
@@ -44,7 +54,7 @@ agentsplayground -e http://localhost:3978/api/messages -c msteams
 | `--tenant-id` | `--tid` | Optional | Azure tenant ID (for authenticated agents) |
 | `--enable-events-recording` | `--er` | Optional | Enable events recording (default: false) |
 
-# Examples
+## Examples
 
 ```bash
 # Basic start with Teams channel
@@ -61,7 +71,22 @@ agentsplayground -e http://localhost:3978/api/messages -c webchat
 agentsplayground -e http://localhost:3978/api/messages -c emulator
 ```
 
-# Configuration File
+## Features
+
+- **No Setup Required**: Works with HTTP localhost endpoints
+- **Adaptive Card Preview**: See how cards render in Teams
+- **Chat Interface**: Simulate user messages and bot responses
+- **Context Mocking**: Mock Teams APIs (team members, channels, etc.)
+- **Message Inspection**: View request/response payloads in real-time
+
+## Limitations
+
+- Application manifest not processed (command menus unavailable)
+- Some Adaptive Card features unsupported (people picker, user mentions, stage view)
+- SSO not supported
+- Only Adaptive Cards supported (not Hero/Thumbnail cards)
+
+## Configuration File
 
 Create `.m365agentsplayground.yml` in project root to mock Teams context:
 
@@ -91,9 +116,9 @@ team:
       name: Announcements
 ```
 
-# Environment Variables
+## Environment Variables
 
-For Agents Playground, you can use environment variables instead of CLI options:
+You can use environment variables instead of CLI options:
 
 | Variable | Description |
 |----------|-------------|
@@ -103,14 +128,8 @@ For Agents Playground, you can use environment variables instead of CLI options:
 | `AUTH_CLIENT_SECRET` | Azure app client secret for authentication |
 | `AUTH_TENANT_ID` | Azure tenant ID for authentication |
 
-# Troubleshooting
+## References
 
-## Playground won't start
-
-Check if port is in use:
-```powershell
-# Windows
-netstat -ano | findstr :56150
-
-# The playground will automatically find an available port if 56150 is in use
-```
+- For project file details → see [../references/manifest-and-yaml.md](../references/manifest-and-yaml.md)
+- If something goes wrong → see [../troubleshoot/troubleshoot.md](../troubleshoot/troubleshoot.md)
+- To test on real Teams instead → see [../test-teams/test-teams.md](../test-teams/test-teams.md)
