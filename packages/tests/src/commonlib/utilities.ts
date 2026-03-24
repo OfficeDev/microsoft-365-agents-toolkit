@@ -229,6 +229,28 @@ export async function getWebappConfigs(
   return undefined;
 }
 
+export async function getBotServiceProperties(
+  subscriptionId: string,
+  rg: string,
+  token: string,
+  botClientId: string
+): Promise<any> {
+  const url = `https://management.azure.com/subscriptions/${subscriptionId}/resourceGroups/${rg}/providers/Microsoft.BotService/botServices?api-version=2022-09-15`;
+  try {
+    axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+    const response = await runWithRetry(() => axios.get(url));
+    if (response?.data?.value) {
+      const bot = (response.data.value as any[]).find(
+        (b: any) => b.properties?.msaAppId === botClientId
+      );
+      return bot?.properties;
+    }
+  } catch (error) {
+    console.log(error);
+  }
+  return undefined;
+}
+
 export async function getWebappServicePlan(
   subscriptionId: string,
   rg: string,

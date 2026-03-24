@@ -3230,7 +3230,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Build an AI agent with OpenAI Assistants API and Microsoft Teams SDK]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Tworzenie agenta sztucznej inteligencji za pomocą interfejsu API funkcji OpenAI Assistants i zestawu SDK usługi Microsoft Teams]]></Val>
+            <Val><![CDATA[Tworzenie agenta sztucznej inteligencji za pomocą interfejsu API funkcji OpenAI Assistants i Zestawu SDK aplikacji Microsoft Teams]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Build an AI agent with OpenAI Assistants API and Teams AI Library]]></Val>
@@ -3251,7 +3251,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Build your own AI Agent from scratch using Microsoft Teams SDK]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Utwórz własnego agenta sztucznej inteligencji od podstaw przy użyciu zestawu SDK usługi Microsoft Teams]]></Val>
+            <Val><![CDATA[Utwórz własnego agenta sztucznej inteligencji od podstaw przy użyciu Zestawu SDK aplikacji Microsoft Teams]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Build your own AI Agent from scratch using Teams AI Library]]></Val>
@@ -3323,7 +3323,7 @@
         <Str Cat="Text">
           <Val><![CDATA[A travel planning agent, which is built with Microsoft 365 Agents SDK, Microsoft 365 Retrieval API and Agent Framework]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Agent planowania podróży, zbudowany przy użyciu Zestawu SDK agentów usługi Microsoft 365, interfejsu API pobierania Microsoft 365 oraz Agent Framework]]></Val>
+            <Val><![CDATA[Agent planowania podróży, utworzony przy użyciu Zestawu SDK agentów usługi Microsoft 365, interfejsu API pobierania Microsoft 365 oraz Agent Framework]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3341,7 +3341,7 @@
         <Str Cat="Text">
           <Val><![CDATA[A weather forecast agent, which is built with Microsoft 365 Agents SDK and Semantic Kernel]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Agent prognozy pogody utworzony przy użyciu zestawu SDK agentów platformy Microsoft 365 i jądra semantycznego]]></Val>
+            <Val><![CDATA[Agent prognozy pogody utworzony przy użyciu Zestawu SDK agentów usługi Microsoft 365 i jądra semantycznego]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3360,6 +3360,24 @@
           <Val><![CDATA[Works in Teams and Microsoft 365 Copilot]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Działa w usłudze Teams i rozwiązaniu Microsoft 365 Copilot]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.capability.foundryProxyAgentOption.detail" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[An agent that proxies requests to Microsoft Azure AI Foundry agents, enabling Teams and M365 Copilot integration]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Agent, który pośredniczy w żądaniach do agentów platformy Microsoft Azure AI Foundry, umożliwiając integrację usług Teams i M365 Copilot]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.capability.foundryProxyAgentOption.label" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Microsoft Foundry Proxy Agent]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Microsoft Foundry Proxy Agent]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3558,6 +3576,42 @@
           <Val><![CDATA[Create Declarative Agent]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Utwórz agenta deklaratywnego]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.foundry.agentId.placeholder" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Input Azure AI Foundry agent ID now or set it later in the project]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Wprowadź teraz identyfikator agenta platformy Azure AI Foundry lub ustaw go później w projekcie]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.foundry.agentId.title" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Azure AI Foundry Agent ID]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Identyfikator agenta platformy Azure AI Foundry]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.foundry.endpoint.placeholder" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Input Azure AI Foundry project endpoint now or set it later in the project]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Wprowadź punkt końcowy projektu platformy Azure AI Foundry teraz lub ustaw go później w projekcie]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.foundry.endpoint.title" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Azure AI Foundry Project Endpoint]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Punkt końcowy projektu platformy Azure AI Foundry]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />

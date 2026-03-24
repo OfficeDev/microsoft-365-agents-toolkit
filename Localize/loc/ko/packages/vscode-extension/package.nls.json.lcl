@@ -845,7 +845,7 @@
         <Str Cat="Text">
           <Val><![CDATA[This is a procedural question, @teams can only answer questions regarding descriptions or concepts for now. You could try these commands or get more info from [Microsoft 365 Agents Toolkit documentation]5D;(https://learn.microsoft.com/microsoftteams/platform/toolkit/teams-toolkit-fundamentals).]A;]A; • /create: Use this command to find relevant templates or samples to build your app as per your description. E.g. @teams /create create an AI assistant bot that can complete common tasks.]A;]A; • /nextstep: Use this command to move to the next step at any stage of your app development.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[다음은 절차적 질문이며, @teams 는 현재 설명 또는 개념에 대한 질문에만 대답할 수 있습니다. 이러한 명령을 시도하거나 [Microsoft 365 Agents Toolkit 설명서]5D;(https://learn.microsoft.com/microsoftteams/platform/toolkit/teams-toolkit-fundamentals)에서 자세한 정보를 얻을 수 있습니다.]A;]A; • /create: 이 명령을 사용하면 설명에 따라 앱을 빌드하기 위한 관련 템플릿이나 샘플을 찾을 수 있습니다. 예: @teams /create 일반 작업을 완료할 수 있는 AI 도우미 봇을 만듭니다.]A;]A; • /nextstep: 이 명령을 사용하면 앱 개발의 어느 단계에서든 다음 단계로 이동할 수 있습니다.]]></Val>
+            <Val><![CDATA[다음은 절차적 질문이며, @teams는 현재 설명 또는 개념에 대한 질문에만 대답할 수 있습니다. 이러한 명령을 시도하거나 [Microsoft 365 에이전트 도구 키트 설명서]5D;(https://learn.microsoft.com/microsoftteams/platform/toolkit/teams-toolkit-fundamentals)에서 자세한 정보를 얻을 수 있습니다.]A;]A; • /create: 이 명령을 사용하면 설명에 따라 앱을 구성하기 위한 관련 템플릿이나 샘플을 찾을 수 있습니다. 예: @teams /create 일반 작업을 완료할 수 있는 AI 도우미 봇을 만듭니다.]A;]A; • /nextstep: 이 명령을 사용하면 앱 개발의 어느 단계에서든 다음 단계로 이동할 수 있습니다.]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[This is a procedural question, @teams can only answer questions regarding descriptions or concepts for now. You could try these commands or get more info from [Microsoft 365 Agents Toolkit documentation]5D;(https://learn.microsoft.com/microsoftteams/platform/toolkit/teams-toolkit-fundamentals).]A;]A; • /create: Use this command to find relevant templates or samples to build your Teams app as per your description. E.g. @teams /create create an AI assistant bot that can complete common tasks.]A;]A; • /nextstep: Use this command to move to the next step at any stage of your Teams app development.]]></Val>
@@ -6188,7 +6188,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Build an AI agent bot for common tasks or an intelligent chatbot to answer specific questions]A;[Build a Basic AI Chatbot]5D;(command:fx-extension.createFromWalkthrough?%5B%22WalkThrough%22%2C%20%7B%22capabilities%22%3A%20%22custom-copilot-basic%22%2C%20%22project-type%22%3A%20%22custom-copilot-type%22%7D%5D)]A;[Build an AI Agent]5D;(command:fx-extension.createFromWalkthrough?%5B%22WalkThrough%22%2C%20%7B%22capabilities%22%3A%20%22custom-copilot-agent%22%2C%20%22project-type%22%3A%20%22custom-copilot-type%22%7D%5D)]A;[Build a Bot to Chat with Your Data]5D;(command:fx-extension.createFromWalkthrough?%5B%22WalkThrough%22%2C%20%7B%22capabilities%22%3A%20%22custom-copilot-rag%22%2C%20%22project-type%22%3A%20%22custom-copilot-type%22%7D%5D)]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[일반적인 작업을 위한 AI 에이전트 봇 또는 지능형 챗봇을 빌드하여 특정 질문에 답변하세요.]A;[Build a Basic AI Chatbot]5D;(command:fx-extension.createFromPagethrough?%5B%22RoughThrough%22%2C%20%7B%22capabilities%22%3A%20%22custom-copilot-basic%22%2C%20%22project-type%22%3A%22capabilities%22%0 22custom-copilot-type%22capabilities%22%1 7D%22capabilities%22%2 D)]A;[Build an AI Agent]5D;(command:fx-extension.createFromPagethrough?%5B%22RoughThrough%22capabilities%22%5 2C%22capabilities%22%6 7B%22capabilities%22%3A%22capabilities%22%9 22custom-copilot-agent%22%2C%20%22project-type%22%3A%20%22custom-copilot-type%22%7D%5D)]A;[Build a Bot to Chat with Your Data]5D;(command:fx-extension.createFromPagethrough?%5B%22RoughThrough%22%2C%20%7B%22capabilities%22%3A%20%22custom-copilot-rag%22%2C%20%22project-type%22%3A%20%22custom-copilot-type%22%7D%5D)]]></Val>
+            <Val><![CDATA[일반적인 작업을 처리하는 AI 에이전트 봇이나 특정 질문에 답변하는 지능형 챗봇을 구성하세요.]A;[기본 AI 챗봇 구성]5D;(command:fx-extension.createFromWalkthrough?%5B%22WalkThrough%22%2C%20%7B%22capabilities%22%3A%20%22custom-copilot-basic%22%2C%20%22project-type%22%3A%20%22custom-copilot-type%22%7D%5D)]A;[AI 에이전트 구성]5D;(command:fx-extension.createFromWalkthrough?%5B%22WalkThrough%22%2C%20%7B%22capabilities%22%3A%20%22custom-copilot-agent%22%2C%20%22project-type%22%3A%20%22custom-copilot-type%22%7D%5D)]A;[데이터와 채팅할 수 있는 봇 구성]5D;(command:fx-extension.createFromWalkthrough?%5B%22WalkThrough%22%2C%20%7B%22capabilities%22%3A%20%22custom-copilot-rag%22%2C%20%22project-type%22%3A%20%22custom-copilot-type%22%7D%5D)]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -6242,7 +6242,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Build your intelligent, natural language-driven experiences in Teams, leveraging its vast user base for collaboration. ]A;Microsoft 365 Agents Toolkit integrates with Azure OpenAI and Microsoft Teams SDK to streamline copilot development and offer unique Teams-based capabilities. ]A;Explore [Microsoft Teams SDK]5D;(https://aka.ms/teams-ai-library-v2) and [Azure OpenAI Service]5D;(https://learn.microsoft.com/en-us/azure/ai-services/openai/overview)]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams에서 자연어 기반의 지능형 환경을 구축하여 협업을 위한 다양한 사용자층을 활용하세요. ]A;Microsoft 365 에이전트 도구 키트는 Azure OpenAI 및 Microsoft Teams SDK와 통합되어 코파일럿 개발을 간소화하고 Teams 기반의 고유한 기능을 제공합니다. ]A;[Microsoft Teams SDK]5D;(https://aka.ms/teams-ai-library-v2)와 [Azure OpenAI Service]5D;(https://learn.microsoft.com/en-us/azure/ai-services/openai/overview)를 탐색해 보세요.]]></Val>
+            <Val><![CDATA[Teams의 방대한 사용자 기반을 활용하여 자연어 기반의 지능형 협업 환경을 구성하세요. ]A;Microsoft 365 에이전트 도구 키트는 Azure OpenAI 및 Microsoft Teams SDK와 통합되어 Copilot 개발을 간소화하고 Teams 기반의 고유한 기능을 제공합니다. ]A;[Microsoft Teams SDK]5D;(https://aka.ms/teams-ai-library-v2)와 [Azure OpenAI Service]5D;(https://learn.microsoft.com/en-us/azure/ai-services/openai/overview)를 탐색해 보세요.]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Build your intelligent, natural language-driven experiences in Teams, leveraging its vast user base for collaboration. ]A;Microsoft 365 Agents Toolkit integrates with Azure OpenAI and Teams AI Library to streamline copilot development and offer unique Teams-based capabilities. ]A;Explore [Teams AI Library]5D;(https://learn.microsoft.com/en-us/microsoftteams/platform/bots/how-to/teams%20conversational%20ai/teams-conversation-ai-overview) and [Azure OpenAI Service]5D;(https://learn.microsoft.com/en-us/azure/ai-services/openai/overview)]]></Val>
@@ -6263,7 +6263,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Build a declarative agent with Microsoft 365 Agents Toolkit to simplify workflows and automate tasks.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Microsoft 365 Agents Toolkit를 사용하여 선언적 에이전트를 빌드하여 워크플로를 간소화하고 작업을 자동화하세요.]]></Val>
+            <Val><![CDATA[Microsoft 365 에이전트 도구 키트로 선언적 에이전트를 구성하여 워크플로를 간소화하고 작업을 자동화하세요.]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Build a declarative agent with Teams Toolkit to simplify workflows and automate tasks.]]></Val>
@@ -6296,7 +6296,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Follow these steps to build your declarative agent using Microsoft 365 Agents Toolkit.]A;[Build Declarative Agent]5D;(command:fx-extension.create?%5B%22SideBar%22%5D)]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[다음 단계에 따라 Microsoft 365 Agents Toolkit를 사용하여 선언적 에이전트를 빌드하세요.]A;[선언적 에이전트 빌드]5D;(command:fx-extension.create?%5B%22SideBar%22%5D)]]></Val>
+            <Val><![CDATA[다음 단계에 따라 Microsoft 365 에이전트 도구 키트를 사용하여 선언적 에이전트를 구성하세요.]A;[선언적 에이전트 구성]5D;(command:fx-extension.create?%5B%22SideBar%22%5D)]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Follow these steps to build your declarative agent using Teams Toolkit.]A;[Build Declarative Agent]5D;(command:fx-extension.create?%5B%22SideBar%22%5D)]]></Val>
@@ -6308,7 +6308,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Build a declarative agent]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[선언적 에이전트 빌드]]></Val>
+            <Val><![CDATA[선언적 에이전트 구성]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -6317,7 +6317,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Set up your environment to build a declarative agent for Microsoft 365 Copilot. Ensure you have Node.js, NPM, and a valid Microsoft 365 Copilot license. [Learn how to get a developer environment.]5D;(https://learn.microsoft.com/en-us/microsoft-365-copilot/extensibility/prerequisites#prerequisites)]A;[Check Copilot License]5D;(command:fx-extension.checkCopilotAccess?%5B%22WalkThrough%22%5D)]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Microsoft 365 Copilot 선언적 에이전트를 빌드하도록 환경을 설정합니다. Node.js, NPM 및 유효한 Microsoft 365 Copilot 라이선스가 있는지 확인하세요. [Learn how to get a developer environment.]5D;(https://learn.microsoft.com/en-us/microsoft-365-copilot/extensibility/prerequisites#prerequisites)]A;[Check Copilot License]5D;(command:fx-extension.checkCopilotAccess?%5B%22%22%5D)]]></Val>
+            <Val><![CDATA[Microsoft 365 Copilot 선언적 에이전트를 구성하도록 환경을 설정하세요. Node.js, NPM 및 유효한 Microsoft 365 Copilot 라이선스가 있는지 확인하세요. [Learn how to get a developer environment.]5D;(https://learn.microsoft.com/en-us/microsoft-365-copilot/extensibility/prerequisites#prerequisites)]A;[Check Copilot License]5D;(command:fx-extension.checkCopilotAccess?%5B%22%22%5D)]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -6353,7 +6353,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Build a declarative agent to customize Microsoft 365 Copilot with specific instructions, actions, and knowledge. Follow this guide to get started.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[선언적 에이전트를 빌드하여 특정 지침, 작업 및 지식으로 Microsoft 365 Copilot 사용자 지정합니다. 시작하려면 이 가이드에 따라 진행하세요.]]></Val>
+            <Val><![CDATA[선언적 에이전트를 구성하여 특정 지침, 작업 및 지식으로 Microsoft 365 Copilot을 사용자 지정합니다. 시작하려면 이 가이드에 따라 진행하세요.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -6389,7 +6389,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Build a Declarative Agent]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[선언적 에이전트 작성]]></Val>
+            <Val><![CDATA[선언적 에이전트 구성]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -6419,7 +6419,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Build a custom notification bot for Microsoft Teams using Microsoft 365 Agents Toolkit.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Microsoft 365 Agents Toolkit를 사용하여 Microsoft Teams용 사용자 지정 알림 봇을 빌드하세요.]]></Val>
+            <Val><![CDATA[Microsoft 365 에이전트 도구 키트를 사용하여 Microsoft Teams용 사용자 지정 알림 봇을 구성하세요.]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Build a custom notification bot for Microsoft Teams using Teams Toolkit.]]></Val>
@@ -6587,7 +6587,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Build a notification bot using Microsoft 365 Agents Toolkit to send interactive messages in Teams.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Microsoft 365 Agents Toolkit를 사용하여 알림 봇을 빌드하여 Teams에서 대화형 메시지를 보내세요.]]></Val>
+            <Val><![CDATA[Microsoft 365 에이전트 도구 키트를 사용하여 알림 봇을 구성하여 Teams에서 대화형 메시지를 보내세요.]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Build a notification bot using Teams Toolkit to send interactive messages in Teams.]]></Val>
@@ -6683,7 +6683,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Build a custom notification bot for Microsoft Teams using Microsoft 365 Agents Toolkit.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Microsoft 365 Agents Toolkit를 사용하여 Microsoft Teams용 사용자 지정 알림 봇을 빌드하세요.]]></Val>
+            <Val><![CDATA[Microsoft 365 에이전트 도구 키트를 사용하여 Microsoft Teams용 사용자 지정 알림 봇을 구성하세요.]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Build a custom notification bot for Microsoft Teams using Teams Toolkit.]]></Val>

@@ -22,6 +22,7 @@ const adminMicrosoftEntraAppName = [
   "delete-client",
   "ATK Test SP",
   "TravelAgent-AADlocal",
+  "Test SP",
 ];
 const excludePrefix: string = getAppNamePrefix();
 
@@ -72,50 +73,6 @@ async function main() {
           } catch (e: any) {
             console.log(
               `Failed to delete AAD ${aad.displayName} with error: ${e.message}`
-            );
-          }
-        }
-      }
-    }
-
-    console.log(`clean Enterprise Application (exclude ${excludePrefix})`);
-    const spList = await cleanService.listEnterpriseApplications();
-    if (spList) {
-      for (const sp of spList) {
-        if (
-          !adminMicrosoftEntraAppName.some((name) =>
-            sp.displayName?.startsWith(name)
-          ) &&
-          !sp.displayName?.startsWith(excludePrefix)
-        ) {
-          console.log(sp.displayName);
-          try {
-            await cleanService.deleteEnterpriseApplication(sp.id!);
-          } catch (e: any) {
-            console.log(
-              `Failed to delete Enterprise Application ${sp.displayName} with error: ${e.message}`
-            );
-          }
-        }
-      }
-    }
-
-    console.log(`Clean up Enterprise Application in recycle bin`);
-    const deletedServicePrincialList =
-      await cleanService.listDeletedEnterpriseApplications();
-    if (deletedServicePrincialList) {
-      for (const sp of deletedServicePrincialList) {
-        if (
-          !adminMicrosoftEntraAppName.some((name) =>
-            sp.displayName?.startsWith(name)
-          )
-        ) {
-          console.log(sp.displayName);
-          try {
-            await cleanService.deleteDeletedItem(sp.id!);
-          } catch (e: any) {
-            console.log(
-              `Failed to delete Enterprise Application ${sp.displayName} with error: ${e.message}`
             );
           }
         }

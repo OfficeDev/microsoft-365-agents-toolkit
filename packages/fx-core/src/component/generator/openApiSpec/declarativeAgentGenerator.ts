@@ -57,19 +57,6 @@ export class DeclarativeAgentWithExistingApiSpecGenerator extends DefaultTemplat
     actionContext?: ActionContext
   ): Promise<Result<GeneratorResult, FxError>> {
     try {
-      if (
-        featureFlagManager.getBooleanValue(FeatureFlags.EmbeddedKnowledgeEnabled) &&
-        (inputs.platform === Platform.CLI || inputs.platform === Platform.VSCode)
-      ) {
-        // ensure EmbeddedKnwoledge folder exists
-        const embeddedKnowledgeFolderPath = path.join(
-          destinationPath,
-          AppPackageFolderName,
-          EmbeddedKnowledgeLocalDirectoryName
-        );
-        await fs.ensureDir(embeddedKnowledgeFolderPath);
-      }
-
       if (featureFlagManager.getBooleanValue(FeatureFlags.SensitivityLabelEnabled)) {
         const teamsManifestPath = path.join(
           destinationPath,

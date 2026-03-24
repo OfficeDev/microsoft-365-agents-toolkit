@@ -16,6 +16,7 @@ import * as sharedOpts from "../../src/handlers/sharedOpts";
 import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
 import * as vscUI from "../../src/qm/vsc_ui";
 import { QuestionNames, ODRProvider } from "@microsoft/teamsfx-core";
+import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { MockCore } from "../mocks/mockCore";
 import * as globalVariables from "../../src/globalVariables";
 
@@ -1088,6 +1089,283 @@ describe("updateActionWithMCP", () => {
 
       const server2Option = capturedOptions.find((opt: any) => opt.id === "test-server2");
       chai.assert.equal(server2Option.detail, "node");
+    });
+  });
+
+  describe("MCP gateway integration", () => {
+    it("should fall back to selectedTools when startMcpGateway returns undefined", async () => {
+      const args = [{ serverName: "testServer", serverConfig: { url: "http://test.com" } }];
+      const mockTools = [
+        { name: "mcp_testserver_tool1", description: "Test tool", inputSchema: {}, tags: [] },
+      ];
+
+      sandbox.stub(vscode.lm, "tools").value(mockTools);
+      Object.defineProperty(vscode.lm, "startMcpGateway", {
+        value: sandbox.stub().resolves(undefined),
+        configurable: true,
+      });
+      sandbox.stub(axios, "get").resolves({ status: 200 });
+      const runCommandStub = sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+
+      const result = await updateActionWithMCP(args);
+
+      chai.assert.isTrue(result.isOk());
+      const calledInputs = runCommandStub.getCall(0).args[1] as Inputs;
+      const tools = calledInputs[QuestionNames.MCPForDAAvailableTools];
+      chai.assert.equal(tools.length, 1);
+      chai.assert.equal(tools[0].name, "tool1");
+    });
+
+    it("should fall back to selectedTools when startMcpGateway throws", async () => {
+      const args = [{ serverName: "testServer", serverConfig: { url: "http://test.com" } }];
+      const mockTools = [
+        { name: "mcp_testserver_tool1", description: "Test tool", inputSchema: {}, tags: [] },
+      ];
+
+      sandbox.stub(vscode.lm, "tools").value(mockTools);
+      Object.defineProperty(vscode.lm, "startMcpGateway", {
+        value: sandbox.stub().rejects(new Error("Not supported")),
+        configurable: true,
+      });
+      sandbox.stub(axios, "get").resolves({ status: 200 });
+      const runCommandStub = sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+
+      const result = await updateActionWithMCP(args);
+
+      chai.assert.isTrue(result.isOk());
+      const calledInputs = runCommandStub.getCall(0).args[1] as Inputs;
+      const tools = calledInputs[QuestionNames.MCPForDAAvailableTools];
+      chai.assert.equal(tools.length, 1);
+      chai.assert.equal(tools[0].name, "tool1");
+    });
+
+    it("should use gateway tools when gateway succeeds and tools match", async () => {
+      const args = [{ serverName: "testServer", serverConfig: { url: "http://test.com" } }];
+      const mockTools = [
+        { name: "mcp_testserver_tool1", description: "Test tool 1", inputSchema: {}, tags: [] },
+        { name: "mcp_testserver_tool2", description: "Test tool 2", inputSchema: {}, tags: [] },
+      ];
+
+      sandbox.stub(vscode.lm, "tools").value(mockTools);
+      const mockGateway = {
+        address: { toString: () => "http://localhost:12345" },
+        dispose: sandbox.stub(),
+      };
+      Object.defineProperty(vscode.lm, "startMcpGateway", {
+        value: sandbox.stub().resolves(mockGateway),
+        configurable: true,
+      });
+      const connectStub = sandbox.stub(Client.prototype, "connect").resolves();
+      const listToolsStub = sandbox.stub(Client.prototype, "listTools").resolves({
+        tools: [
+          { name: "tool1", description: "Test tool 1", inputSchema: { type: "object" as const } },
+          { name: "tool2", description: "Test tool 2", inputSchema: { type: "object" as const } },
+          { name: "tool3", description: "Other tool", inputSchema: { type: "object" as const } },
+        ],
+      });
+      const closeStub = sandbox.stub(Client.prototype, "close").resolves();
+      sandbox.stub(axios, "get").resolves({ status: 200 });
+      const runCommandStub = sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+
+      const result = await updateActionWithMCP(args);
+
+      chai.assert.isTrue(result.isOk());
+      sinon.assert.calledOnce(connectStub);
+      sinon.assert.calledOnce(listToolsStub);
+      sinon.assert.calledOnce(closeStub);
+      sinon.assert.calledOnce(mockGateway.dispose as sinon.SinonStub);
+      const calledInputs = runCommandStub.getCall(0).args[1] as Inputs;
+      const tools = calledInputs[QuestionNames.MCPForDAAvailableTools];
+      // tool3 should be excluded because it's not in selectedToolKeys
+      chai.assert.equal(tools.length, 2);
+      chai.assert.equal(tools[0].name, "tool1");
+      chai.assert.equal(tools[1].name, "tool2");
+    });
+
+    it("should fall back to selectedTools when client.connect throws", async () => {
+      const args = [{ serverName: "testServer", serverConfig: { url: "http://test.com" } }];
+      const mockTools = [
+        { name: "mcp_testserver_tool1", description: "Test tool", inputSchema: {}, tags: [] },
+      ];
+
+      sandbox.stub(vscode.lm, "tools").value(mockTools);
+      const mockGateway = {
+        address: { toString: () => "http://localhost:12345" },
+        dispose: sandbox.stub(),
+      };
+      Object.defineProperty(vscode.lm, "startMcpGateway", {
+        value: sandbox.stub().resolves(mockGateway),
+        configurable: true,
+      });
+      sandbox.stub(Client.prototype, "connect").rejects(new Error("Connection failed"));
+      const closeStub = sandbox.stub(Client.prototype, "close").resolves();
+      sandbox.stub(axios, "get").resolves({ status: 200 });
+      const runCommandStub = sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+
+      const result = await updateActionWithMCP(args);
+
+      chai.assert.isTrue(result.isOk());
+      // finally block should still call close and dispose
+      sinon.assert.calledOnce(closeStub);
+      sinon.assert.calledOnce(mockGateway.dispose as sinon.SinonStub);
+      const calledInputs = runCommandStub.getCall(0).args[1] as Inputs;
+      const tools = calledInputs[QuestionNames.MCPForDAAvailableTools];
+      chai.assert.equal(tools.length, 1);
+      chai.assert.equal(tools[0].name, "tool1");
+    });
+
+    it("should deduplicate gateway tools with same name and description", async () => {
+      const args = [{ serverName: "testServer", serverConfig: { url: "http://test.com" } }];
+      const mockTools = [
+        { name: "mcp_testserver_tool1", description: "Dup tool", inputSchema: {}, tags: [] },
+      ];
+
+      sandbox.stub(vscode.lm, "tools").value(mockTools);
+      const mockGateway = {
+        address: { toString: () => "http://localhost:12345" },
+        dispose: sandbox.stub(),
+      };
+      Object.defineProperty(vscode.lm, "startMcpGateway", {
+        value: sandbox.stub().resolves(mockGateway),
+        configurable: true,
+      });
+      sandbox.stub(Client.prototype, "connect").resolves();
+      sandbox.stub(Client.prototype, "listTools").resolves({
+        tools: [
+          { name: "tool1", description: "Dup tool", inputSchema: { type: "object" as const } },
+          { name: "tool1", description: "Dup tool", inputSchema: { type: "object" as const } },
+        ],
+      });
+      sandbox.stub(Client.prototype, "close").resolves();
+      sandbox.stub(axios, "get").resolves({ status: 200 });
+      const runCommandStub = sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+
+      const result = await updateActionWithMCP(args);
+
+      chai.assert.isTrue(result.isOk());
+      const calledInputs = runCommandStub.getCall(0).args[1] as Inputs;
+      const tools = calledInputs[QuestionNames.MCPForDAAvailableTools];
+      // Only first match should be kept due to dedup
+      chai.assert.equal(tools.length, 1);
+    });
+
+    it("should exclude gateway tools not in selectedToolKeys", async () => {
+      const args = [{ serverName: "testServer", serverConfig: { url: "http://test.com" } }];
+      const mockTools = [
+        { name: "mcp_testserver_tool1", description: "Tool A", inputSchema: {}, tags: [] },
+      ];
+
+      sandbox.stub(vscode.lm, "tools").value(mockTools);
+      const mockGateway = {
+        address: { toString: () => "http://localhost:12345" },
+        dispose: sandbox.stub(),
+      };
+      Object.defineProperty(vscode.lm, "startMcpGateway", {
+        value: sandbox.stub().resolves(mockGateway),
+        configurable: true,
+      });
+      sandbox.stub(Client.prototype, "connect").resolves();
+      sandbox.stub(Client.prototype, "listTools").resolves({
+        tools: [
+          {
+            name: "unknownTool",
+            description: "Not matched",
+            inputSchema: { type: "object" as const },
+          },
+        ],
+      });
+      sandbox.stub(Client.prototype, "close").resolves();
+      sandbox.stub(axios, "get").resolves({ status: 200 });
+
+      const result = await updateActionWithMCP(args);
+
+      // No tools match, so should return error
+      chai.assert.isTrue(result.isErr());
+    });
+  });
+
+  describe("extractLocalServerIdentifier edge cases", () => {
+    it("should return original name when ODR listServers throws", async () => {
+      const args = [
+        {
+          serverName: "odrServer",
+          serverConfig: { type: "stdio", command: "odr", args: ["run", "my-server"] },
+        },
+      ];
+      const mockODRTools = [{ name: "tool1", description: "Test", inputSchema: {} }];
+
+      const isODRStub = sandbox.stub(ODRProvider, "isODRServer");
+      isODRStub.onFirstCall().returns(true); // extractLocalServerIdentifier
+      isODRStub.onSecondCall().returns(true); // main function ODR check
+      sandbox.stub(ODRProvider, "listServers").rejects(new Error("ODR unavailable"));
+      sandbox.stub(ODRProvider, "getToolsForODRServer").resolves(mockODRTools);
+      const runCommandStub = sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+
+      const result = await updateActionWithMCP(args);
+
+      chai.assert.isTrue(result.isOk());
+      const calledInputs = runCommandStub.getCall(0).args[1] as Inputs;
+      // Should fall back to original serverName
+      chai.assert.equal(calledInputs[QuestionNames.MCPLocalServerIdentifier], "odrServer");
+    });
+
+    it("should return original name when no ODR server matches by command and args", async () => {
+      const args = [
+        {
+          serverName: "odrServer",
+          serverConfig: { type: "stdio", command: "odr", args: ["run", "other-server"] },
+        },
+      ];
+      const mockODRTools = [{ name: "tool1", description: "Test", inputSchema: {} }];
+      const mockODRServers = [
+        {
+          name: "my-server",
+          display_name: "My Server",
+          description: "Test Server",
+          version: "1.0.0",
+          identifier: "my-server-identifier",
+          tools: mockODRTools,
+          packageFamily: "test.package",
+          command: "odr",
+          args: ["run", "my-server"], // Different args than the config
+        },
+      ];
+
+      const isODRStub = sandbox.stub(ODRProvider, "isODRServer");
+      isODRStub.onFirstCall().returns(true); // extractLocalServerIdentifier
+      isODRStub.onSecondCall().returns(true); // main function ODR check
+      sandbox.stub(ODRProvider, "listServers").resolves(mockODRServers);
+      sandbox.stub(ODRProvider, "getToolsForODRServer").resolves(mockODRTools);
+      const runCommandStub = sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+
+      const result = await updateActionWithMCP(args);
+
+      chai.assert.isTrue(result.isOk());
+      const calledInputs = runCommandStub.getCall(0).args[1] as Inputs;
+      // Should fall back to original serverName since args don't match
+      chai.assert.equal(calledInputs[QuestionNames.MCPLocalServerIdentifier], "odrServer");
+    });
+
+    it("should return original name for non-ODR local server in extractLocalServerIdentifier", async () => {
+      const args = [
+        {
+          serverName: "myLocalServer",
+          serverConfig: { type: "stdio", command: "node", args: ["server.js"] },
+        },
+      ];
+      const mockTools = [
+        { name: "mcp_mylocalserver_tool1", description: "Test", inputSchema: {}, tags: [] },
+      ];
+
+      sandbox.stub(ODRProvider, "isODRServer").returns(false);
+      sandbox.stub(vscode.lm, "tools").value(mockTools);
+      const runCommandStub = sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+
+      const result = await updateActionWithMCP(args);
+
+      chai.assert.isTrue(result.isOk());
+      const calledInputs = runCommandStub.getCall(0).args[1] as Inputs;
+      chai.assert.equal(calledInputs[QuestionNames.MCPLocalServerIdentifier], "myLocalServer");
     });
   });
 });

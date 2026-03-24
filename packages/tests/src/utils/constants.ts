@@ -64,7 +64,6 @@ export enum TemplateProject {
   HelloWorldTabDocker = "Containerized Hello World Tab with Backend",
   FoodCatalog = "Ingest Custom API Data into Microsoft 365 with a Microsoft Copilot Connector",
   RedditLink = "Format Reddit Link into Adaptive Card",
-  IntelligentDataChart = "Intelligent Data Chart Generator",
 }
 
 export enum TemplateProjectFolder {
@@ -150,8 +149,6 @@ export const sampleProjectMap: Record<TemplateProject, TemplateProjectFolder> =
       TemplateProjectFolder.HelloWorldTabDocker,
     [TemplateProject.FoodCatalog]: TemplateProjectFolder.FoodCatalog,
     [TemplateProject.RedditLink]: TemplateProjectFolder.RedditLink,
-    [TemplateProject.IntelligentDataChart]:
-      TemplateProjectFolder.IntelligentDataChart,
   };
 
 export enum Resource {
@@ -196,6 +193,7 @@ export enum Capability {
   DeclarativeAgentWithActionFromScratch = "api-plugin-from-scratch",
   DeclarativeAgentWithTypeSpec = "declarative-agent-typespec",
   TeamsCollaboratorAgent = "teams-collaborator-agent",
+  FoundryProxyAgent = "foundry-proxy-agent",
 }
 
 export enum Trigger {

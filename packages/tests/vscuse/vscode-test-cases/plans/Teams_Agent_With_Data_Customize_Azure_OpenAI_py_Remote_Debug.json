@@ -10,14 +10,14 @@
       "step_retry_timeout": 0
     },
     "total_steps": 9,
-    "created_at": "2026-02-24T08:48:18.053034",
+    "created_at": "2026-03-17T01:47:12.432592",
     "name": "Teams Agent With Data Customize Azure OpenAI py Remote Debug",
     "description": {
       "other": "",
       "owner": "v-ivanchen@microsoft.com",
       "workitem": "27178092"
     },
-    "generated_at": "2026-02-24T08:48:18.053034",
+    "generated_at": "2026-03-17T01:47:12.432592",
     "execution_order": [
       "plan_r_0928_012254",
       "step_cc96c389",
@@ -38,7 +38,7 @@
       "step_15421515"
     ],
     "tags": [],
-    "updated_at": "2026-02-24T08:55:14.257522"
+    "updated_at": "2026-03-17T01:47:37.500371"
   },
   "steps": [
     {
@@ -64,7 +64,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_cc96c389",
-      "created_at": "2026-02-24T08:48:18.060313",
+      "created_at": "2026-03-17T01:47:12.441614",
       "plan_id": "plan_c24b1c2e"
     },
     {
@@ -90,7 +90,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_f1d69566",
-      "created_at": "2026-02-24T08:48:18.067885",
+      "created_at": "2026-03-17T01:47:12.447650",
       "plan_id": "plan_c24b1c2e"
     },
     {
@@ -116,7 +116,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_4be69f12",
-      "created_at": "2026-02-24T08:48:18.076733",
+      "created_at": "2026-03-17T01:47:12.455171",
       "plan_id": "plan_c24b1c2e"
     },
     {
@@ -142,7 +142,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_cd0e731a",
-      "created_at": "2026-02-24T08:48:18.083105",
+      "created_at": "2026-03-17T01:47:12.461700",
       "plan_id": "plan_c24b1c2e"
     },
     {
@@ -168,7 +168,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_e696442d",
-      "created_at": "2026-02-24T08:48:18.090178",
+      "created_at": "2026-03-17T01:47:12.470250",
       "plan_id": "plan_c24b1c2e"
     },
     {
@@ -194,7 +194,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_0aecaf6f",
-      "created_at": "2026-02-24T08:48:18.098499",
+      "created_at": "2026-03-17T01:47:12.476770",
       "plan_id": "plan_c24b1c2e"
     },
     {
@@ -216,7 +216,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_fa9ce821",
-      "created_at": "2026-02-24T08:48:18.105489",
+      "created_at": "2026-03-17T01:47:12.483591",
       "plan_id": "plan_c24b1c2e"
     },
     {
@@ -242,7 +242,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_26b901e3",
-      "created_at": "2026-02-24T08:48:18.112532",
+      "created_at": "2026-03-17T01:47:12.491590",
       "plan_id": "plan_c24b1c2e"
     },
     {
@@ -258,9 +258,11 @@
       "depends_on": [],
       "preconditions": [],
       "postconditions": [],
-      "tags": [],
+      "tags": [
+        "step_retry_timeout: 60"
+      ],
       "screenshot": null,
-      "created_at": "2026-02-24T08:48:18.120338",
+      "created_at": "2026-03-17T01:47:12.497952",
       "plan_id": "plan_c24b1c2e"
     }
   ],

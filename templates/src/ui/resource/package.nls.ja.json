@@ -23,7 +23,7 @@
   "template.teams.rag.detail": "あなたのコンテンツと知識を活用してドメイン固有の質問に正確に答えるエージェント",
   "template.teams.rag.label": "データを含む Teams エージェント",
   "template.teams.rag.source.azureAISearch.detail": "Azure AI Search Service からデータを読み込みます",
-  "template.teams.rag.source.azureAISearch.label": "Azure AI 検索",
+  "template.teams.rag.source.azureAISearch.label": "Azure AI Search",
   "template.teams.rag.source.customApi.detail": "OpenAPI 記述ドキュメントに基づいて、カスタム API からデータを読み込みます",
   "template.teams.rag.source.customApi.label": "カスタム API",
   "template.teams.rag.source.customize.detail": "データの読み込み方法を決定します",

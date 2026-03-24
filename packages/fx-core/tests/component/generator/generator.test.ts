@@ -1072,6 +1072,9 @@ describe("render template", () => {
       };
       await buildFakeTemplateZip(templateName, mockFileName);
 
+      mockedEnvRestore = mockedEnv({
+        TEMPLATE_VERSION: "local",
+      });
       sandbox.stub(templateHelper, "useLocalTemplate").returns(true);
       sandbox.stub(folderUtils, "getTemplatesFolder").returns(tmpDir);
 
@@ -1287,22 +1290,6 @@ describe("render template", () => {
       assert.isTrue(result.isOk());
       assert.equal(folderName, "");
     });
-    it("template variables when embedded knowledge enabled", async () => {
-      sandbox.stub(process, "env").value({ TEAMSFX_EMBEDDED_KNOWLEDGE: "true" });
-      const vars = newGeneratorFlag
-        ? getTemplateReplaceMap(inputs)
-        : Generator.getDefaultVariables("test");
-      assert.equal(vars.EmbeddedKnowledgeEnabled, "true");
-    });
-
-    it("template variables when embedded knowledge disabled", async () => {
-      sandbox.stub(process, "env").value({ TEAMSFX_EMBEDDED_KNOWLEDGE: "false" });
-      const vars = newGeneratorFlag
-        ? getTemplateReplaceMap(inputs)
-        : Generator.getDefaultVariables("test");
-      assert.equal(vars.EmbeddedKnowledgeEnabled, "");
-    });
-
     it("template variables with Copilot connector scaffold", async () => {
       inputs.projectId = "test-id";
       inputs[QuestionNames.GCName] = "test-name";
@@ -1435,5 +1422,22 @@ describe("getTemplateReplaceMap", () => {
     sandbox.stub(os, "platform").returns("linux");
     const map = getTemplateReplaceMap(inputs);
     assert.equal(map.pathDelimiter, ":");
+  });
+
+  it("should include FoundryEndpoint and FoundryAgentId when provided", () => {
+    const foundryInputs = {
+      ...inputs,
+      [QuestionNames.FoundryEndpoint]: "https://my-foundry.azure.com/api/projects/proj",
+      [QuestionNames.FoundryAgentId]: "asst_abc123",
+    } as Inputs;
+    const map = getTemplateReplaceMap(foundryInputs);
+    assert.equal(map.FoundryEndpoint, "https://my-foundry.azure.com/api/projects/proj");
+    assert.equal(map.FoundryAgentId, "asst_abc123");
+  });
+
+  it("should default FoundryEndpoint and FoundryAgentId to empty string when not provided", () => {
+    const map = getTemplateReplaceMap(inputs);
+    assert.equal(map.FoundryEndpoint, "");
+    assert.equal(map.FoundryAgentId, "");
   });
 });

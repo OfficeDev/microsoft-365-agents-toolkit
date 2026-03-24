@@ -38,6 +38,9 @@
         "ts-node": "^10.4.0",
         "typescript": "~5.8.3",
         "nodemon": "^3.1.7",
-        "shx": "^0.3.3"
+        "shx": "^0.4.0"
+    },
+    "overrides": {
+        "formdata-node": "6.0.3"
     }
 }

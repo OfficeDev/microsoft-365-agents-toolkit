@@ -21,7 +21,7 @@ describe("MCP Server", () => {
     // Mock the retrieveResource function to avoid actual API calls
     retrieveResourceSpy = jest
       .spyOn(retrieverModule, "retrieveResource")
-      .mockResolvedValue("Mocked resource content");
+      .mockReturnValue("Mocked resource content");
   });
 
   afterEach(() => {
@@ -77,10 +77,10 @@ describe("MCP Server", () => {
       const server = createServer();
       const serverAny = server as any;
 
-      // Access the tool callback directly from _registeredTools
-      const toolCallback = serverAny._registeredTools["get_schema"].callback;
+      // Access the tool handler directly from _registeredTools
+      const toolCallback = serverAny._registeredTools["get_schema"].handler;
 
-      // Call the tool callback directly
+      // Call the tool handler directly
       await toolCallback(mockRequest.params, { request: mockRequest });
 
       // Verify fetchSchema was called with the correct parameters
@@ -101,10 +101,10 @@ describe("MCP Server", () => {
       const server = createServer();
       const serverAny = server as any;
 
-      // Access the tool callback directly
-      const toolCallback = serverAny._registeredTools["get_schema"].callback;
+      // Access the tool handler directly
+      const toolCallback = serverAny._registeredTools["get_schema"].handler;
 
-      // Call the tool callback
+      // Call the tool handler
       const response = await toolCallback(
         {
           schema_name: "api_plugin_manifest" as SchemaType,
@@ -125,8 +125,8 @@ describe("MCP Server", () => {
       const server = createServer();
       const serverAny = server as any;
 
-      // Access the tool callback directly
-      const toolCallback = serverAny._registeredTools["get_schema"].callback;
+      // Access the tool handler directly
+      const toolCallback = serverAny._registeredTools["get_schema"].handler;
 
       // Test with declarative_agent_manifest
       await toolCallback(
@@ -162,10 +162,10 @@ describe("MCP Server", () => {
       const server = createServer();
       const serverAny = server as any;
 
-      // Access the tool callback directly
-      const toolCallback = serverAny._registeredTools["get_schema"].callback;
+      // Access the tool handler directly
+      const toolCallback = serverAny._registeredTools["get_schema"].handler;
 
-      // Call the tool callback
+      // Call the tool handler
       const response = await toolCallback(
         {
           schema_name: "app_manifest" as SchemaType,
@@ -186,9 +186,9 @@ describe("MCP Server", () => {
     it("get_knowledge tool should call retrieveResource with correct parameters", async () => {
       const server = createServer();
       const serverAny = server as any;
-      const toolCallback = serverAny._registeredTools["get_knowledge"].callback;
+      const toolCallback = serverAny._registeredTools["get_knowledge"].handler;
 
-      // Call the tool callback with a question
+      // Call the tool handler with a question
       await toolCallback({ question: "How do I create a Teams app?" }, {});
 
       // Verify retrieveResource was called with the correct parameters
@@ -199,9 +199,9 @@ describe("MCP Server", () => {
     it("get_code_snippets tool should call retrieveResource with correct parameters", async () => {
       const server = createServer();
       const serverAny = server as any;
-      const toolCallback = serverAny._registeredTools["get_code_snippets"].callback;
+      const toolCallback = serverAny._registeredTools["get_code_snippets"].handler;
 
-      // Call the tool callback with a query
+      // Call the tool handler with a query
       await toolCallback({ question: "Teams message extension sample" }, {});
 
       // Verify retrieveResource was called with the correct parameters
@@ -212,9 +212,9 @@ describe("MCP Server", () => {
     it("troubleshoot tool should call retrieveResource with correct parameters", async () => {
       const server = createServer();
       const serverAny = server as any;
-      const toolCallback = serverAny._registeredTools["troubleshoot"].callback;
+      const toolCallback = serverAny._registeredTools["troubleshoot"].handler;
 
-      // Call the tool callback with an issue description
+      // Call the tool handler with an issue description
       await toolCallback({ question: "App manifest validation error" }, {});
 
       // Verify retrieveResource was called with the correct parameters
@@ -224,13 +224,13 @@ describe("MCP Server", () => {
 
     it("should return resource content in the response", async () => {
       const mockedContent = "Here is the information you requested about Microsoft 365 development";
-      retrieveResourceSpy.mockResolvedValue(mockedContent);
+      retrieveResourceSpy.mockReturnValue(mockedContent);
 
       const server = createServer();
       const serverAny = server as any;
-      const toolCallback = serverAny._registeredTools["get_knowledge"].callback;
+      const toolCallback = serverAny._registeredTools["get_knowledge"].handler;
 
-      // Call the tool callback
+      // Call the tool handler
       const response = await toolCallback({ question: "How do I use Microsoft Graph?" }, {});
 
       // Verify the response contains the expected content
@@ -242,13 +242,13 @@ describe("MCP Server", () => {
 
     it("should propagate errors from retrieveResource", async () => {
       const errorMessage = "Failed to retrieve resource";
-      retrieveResourceSpy.mockResolvedValue(errorMessage);
+      retrieveResourceSpy.mockReturnValue(errorMessage);
 
       const server = createServer();
       const serverAny = server as any;
-      const toolCallback = serverAny._registeredTools["get_code_snippets"].callback;
+      const toolCallback = serverAny._registeredTools["get_code_snippets"].handler;
 
-      // Call the tool callback
+      // Call the tool handler
       const response = await toolCallback({ question: "Invalid query" }, {});
 
       // Verify the response contains the error message

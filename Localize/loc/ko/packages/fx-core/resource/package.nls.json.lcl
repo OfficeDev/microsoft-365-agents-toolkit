@@ -2579,7 +2579,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Build a new Declarative Agent with Office add-in actions]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Office 추가 기능 작업을 사용하여 새 선언적 에이전트 빌드]]></Val>
+            <Val><![CDATA[Office 추가 기능 작업을 사용하여 새 선언적 에이전트 구성]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3230,7 +3230,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Build an AI agent with OpenAI Assistants API and Microsoft Teams SDK]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[OpenAI Assistants API와 Microsoft Teams SDK를 사용해 AI 에이전트를 빌드하세요.]]></Val>
+            <Val><![CDATA[OpenAI Assistants API와 Microsoft Teams SDK를 사용하여 AI 에이전트를 구성하세요.]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Build an AI agent with OpenAI Assistants API and Teams AI Library]]></Val>
@@ -3251,7 +3251,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Build your own AI Agent from scratch using Microsoft Teams SDK]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Microsoft Teams SDK로 나만의 AI 에이전트를 처음부터 만들어 보세요.]]></Val>
+            <Val><![CDATA[Microsoft Teams SDK로 처음부터 나만의 AI 에이전트를 구성해 보세요.]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Build your own AI Agent from scratch using Teams AI Library]]></Val>
@@ -3341,7 +3341,7 @@
         <Str Cat="Text">
           <Val><![CDATA[A weather forecast agent, which is built with Microsoft 365 Agents SDK and Semantic Kernel]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Microsoft 365 Agents SDK 및 의미 체계 커널을 사용하여 빌드된 일기 예보 에이전트]]></Val>
+            <Val><![CDATA[Microsoft 365 에이전트 SDK 및 의미 체계 커널을 사용하여 구성된 일기 예보 에이전트]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3360,6 +3360,24 @@
           <Val><![CDATA[Works in Teams and Microsoft 365 Copilot]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Teams 및 Microsoft 365 Copilot에서 작업]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.capability.foundryProxyAgentOption.detail" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[An agent that proxies requests to Microsoft Azure AI Foundry agents, enabling Teams and M365 Copilot integration]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Microsoft Azure AI Foundry 에이전트에 요청을 프록시하는 에이전트로, Teams와 M365 Copilot 통합을 지원합니다.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.capability.foundryProxyAgentOption.label" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Microsoft Foundry Proxy Agent]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Microsoft Foundry 프록시 에이전트]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3558,6 +3576,42 @@
           <Val><![CDATA[Create Declarative Agent]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[선언적 에이전트 만들기]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.foundry.agentId.placeholder" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Input Azure AI Foundry agent ID now or set it later in the project]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[지금 Azure AI Foundry 에이전트 ID를 입력하거나 나중에 프로젝트에서 설정하세요.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.foundry.agentId.title" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Azure AI Foundry Agent ID]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Azure AI Foundry 에이전트 ID]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.foundry.endpoint.placeholder" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Input Azure AI Foundry project endpoint now or set it later in the project]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[지금 Azure AI Foundry 프로젝트 엔드포인트를 입력하거나 나중에 프로젝트에서 설정하세요.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.foundry.endpoint.title" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Azure AI Foundry Project Endpoint]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Azure AI Foundry 프로젝트 엔드포인트]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />

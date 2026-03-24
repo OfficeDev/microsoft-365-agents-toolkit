@@ -4,11 +4,11 @@
     "target": "es2019",
     "module": "commonjs",
     "moduleResolution": "node",
-    "outDir": "./lib",
+    "outDir": "./dist",
     "rootDir": "./",
     "sourceMap": true,
     "incremental": true,
-    "tsBuildInfoFile": "./lib/.tsbuildinfo",
+    "tsBuildInfoFile": "./dist/.tsbuildinfo",
     "esModuleInterop": true
   }
 }

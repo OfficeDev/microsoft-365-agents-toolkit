@@ -845,7 +845,7 @@
         <Str Cat="Text">
           <Val><![CDATA[This is a procedural question, @teams can only answer questions regarding descriptions or concepts for now. You could try these commands or get more info from [Microsoft 365 Agents Toolkit documentation]5D;(https://learn.microsoft.com/microsoftteams/platform/toolkit/teams-toolkit-fundamentals).]A;]A; • /create: Use this command to find relevant templates or samples to build your app as per your description. E.g. @teams /create create an AI assistant bot that can complete common tasks.]A;]A; • /nextstep: Use this command to move to the next step at any stage of your app development.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[这是一个过程性问题，@teams 目前只能回答有关说明或概念的问题。可以尝试这些命令或从 [Microsoft 365 智能体工具包文档]5D;(https://learn.microsoft.com/microsoftteams/platform/toolkit/teams-toolkit-fundamentals)获取详细信息。]A;]A; • /create: 使用此命令查找相关模板或示例，以根据说明生成应用。例如，@teams /create 创建可完成常见任务的 AI 助手机器人。]A;]A; • /nextstep: 使用此命令在应用开发的任何阶段移动到下一步。]]></Val>
+            <Val><![CDATA[这是一个过程性问题，@teams 目前只能回答有关说明或概念的问题。可以尝试这些命令或从 [Microsoft 365 智能体工具包文档]5D;(https://learn.microsoft.com/microsoftteams/platform/toolkit/teams-toolkit-fundamentals)获取详细信息。]A;]A; • /create: 使用此命令查找相关模板或示例，以根据说明构建应用。例如，@teams /create 创建可完成常见任务的 AI 助手机器人。]A;]A; • /nextstep: 使用此命令在应用开发的任何阶段移动到下一步。]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[This is a procedural question, @teams can only answer questions regarding descriptions or concepts for now. You could try these commands or get more info from [Microsoft 365 Agents Toolkit documentation]5D;(https://learn.microsoft.com/microsoftteams/platform/toolkit/teams-toolkit-fundamentals).]A;]A; • /create: Use this command to find relevant templates or samples to build your Teams app as per your description. E.g. @teams /create create an AI assistant bot that can complete common tasks.]A;]A; • /nextstep: Use this command to move to the next step at any stage of your Teams app development.]]></Val>
@@ -6188,7 +6188,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Build an AI agent bot for common tasks or an intelligent chatbot to answer specific questions]A;[Build a Basic AI Chatbot]5D;(command:fx-extension.createFromWalkthrough?%5B%22WalkThrough%22%2C%20%7B%22capabilities%22%3A%20%22custom-copilot-basic%22%2C%20%22project-type%22%3A%20%22custom-copilot-type%22%7D%5D)]A;[Build an AI Agent]5D;(command:fx-extension.createFromWalkthrough?%5B%22WalkThrough%22%2C%20%7B%22capabilities%22%3A%20%22custom-copilot-agent%22%2C%20%22project-type%22%3A%20%22custom-copilot-type%22%7D%5D)]A;[Build a Bot to Chat with Your Data]5D;(command:fx-extension.createFromWalkthrough?%5B%22WalkThrough%22%2C%20%7B%22capabilities%22%3A%20%22custom-copilot-rag%22%2C%20%22project-type%22%3A%20%22custom-copilot-type%22%7D%5D)]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[为常见任务或智能聊天机器人生成 AI 代理机器人以回答特定问题]A;[Build a Basic AI Chatbot]5D;(command：fx-extension.createFromWalkthrough？%5B%22WalkThrough%22%2C%20%7B%22capabilities%22%3A%20%22custom-co 3A%22%3A%22%2C%20%22project-type%22capabilities%22%0 22 自定义-copilot 类型%22capabilities%22%1 7D%22capabilities%22%2 D)]A;[Build an AI Agent]5D;(command：fx-extension.createFromWalkthrough？%5B%22WalkThrough%22capabilities%22%5 2C%22capabilities%22%6 7B%22capabilities%22%3A%22capabilities%22%9 22custom-co%22%2C%20%22 项目类型%22%3A%20%22 自定义-copilot 类型%22%7D%5D) 的 2C 代理]A;[Build a Bot to Chat with Your Data]5D;(command：fx-extension.createFromWalkthrough？%5B%22WalkThrough%22%2C%20%7B%22capabilities%22%3A%20%22custom-copilot-rag%22%2C%20%22 项目类型%22%3A%20%22 自定义-copilot 类型%22%7D%5D)]]></Val>
+            <Val><![CDATA[为常见任务或智能聊天机器人构建 AI 智能体机器人以回答特定问题]A;[Build a Basic AI Chatbot]5D;(command：fx-extension.createFromWalkthrough？%5B%22WalkThrough%22%2C%20%7B%22capabilities%22%3A%20%22custom-co 3A%22%3A%22%2C%20%22project-type%22capabilities%22%0 22 自定义-copilot 类型%22capabilities%22%1 7D%22capabilities%22%2 D)]A;[Build an AI Agent]5D;(command：fx-extension.createFromWalkthrough？%5B%22WalkThrough%22capabilities%22%5 2C%22capabilities%22%6 7B%22capabilities%22%3A%22capabilities%22%9 22custom-co%22%2C%20%22 项目类型%22%3A%20%22 自定义-copilot 类型%22%7D%5D) 的 2C 代理]A;[Build a Bot to Chat with Your Data]5D;(command：fx-extension.createFromWalkthrough？%5B%22WalkThrough%22%2C%20%7B%22capabilities%22%3A%20%22custom-copilot-rag%22%2C%20%22 项目类型%22%3A%20%22 自定义-copilot 类型%22%7D%5D)]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -6263,7 +6263,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Build a declarative agent with Microsoft 365 Agents Toolkit to simplify workflows and automate tasks.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[使用 Microsoft 365 代理工具包生成声明性代理，以简化工作流并自动执行任务。]]></Val>
+            <Val><![CDATA[使用 Microsoft 365 智能体工具包生成声明式智能体，以简化工作流并自动执行任务。]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Build a declarative agent with Teams Toolkit to simplify workflows and automate tasks.]]></Val>
@@ -6296,7 +6296,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Follow these steps to build your declarative agent using Microsoft 365 Agents Toolkit.]A;[Build Declarative Agent]5D;(command:fx-extension.create?%5B%22SideBar%22%5D)]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[按照以下步骤使用 Microsoft 365 代理工具包生成声明性代理。]A;[生成声明性代理]5D;(command:fx-extension.create?%5B%22SideBar%22%5D)]]></Val>
+            <Val><![CDATA[按照以下步骤使用 Microsoft 365 智能体工具包生成声明式智能体。]A;[构建声明式智能体]5D;(command:fx-extension.create?%5B%22SideBar%22%5D)]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Follow these steps to build your declarative agent using Teams Toolkit.]A;[Build Declarative Agent]5D;(command:fx-extension.create?%5B%22SideBar%22%5D)]]></Val>
@@ -6308,7 +6308,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Build a declarative agent]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[生成声明性代理]]></Val>
+            <Val><![CDATA[构建声明式智能体]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -6317,7 +6317,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Set up your environment to build a declarative agent for Microsoft 365 Copilot. Ensure you have Node.js, NPM, and a valid Microsoft 365 Copilot license. [Learn how to get a developer environment.]5D;(https://learn.microsoft.com/en-us/microsoft-365-copilot/extensibility/prerequisites#prerequisites)]A;[Check Copilot License]5D;(command:fx-extension.checkCopilotAccess?%5B%22WalkThrough%22%5D)]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[设置环境以生成智能 Microsoft 365 Copilot 副驾驶®的声明性代理。请确保你有 Node.js、NPM 和有效的智能 Microsoft 365 Copilot 副驾驶®许可证。[Learn how to get a developer environment.]5D;(https://learn.microsoft.com/en-us/microsoft-365-copilot/extensibility/prerequisites#prerequisites)]A;[Check Copilot License]5D;(command：fx-extension.checkCopilotAccess？%5B%22WalkThrough%22%5D)]]></Val>
+            <Val><![CDATA[设置环境以构建智能 Microsoft 365 Copilot 副驾驶®的声明式智能体。请确保你有 Node.js、NPM 和有效的智能 Microsoft 365 Copilot 副驾驶®许可证。[Learn how to get a developer environment.]5D;(https://learn.microsoft.com/en-us/microsoft-365-copilot/extensibility/prerequisites#prerequisites)]A;[Check Copilot License]5D;(command：fx-extension.checkCopilotAccess？%5B%22WalkThrough%22%5D)]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -6353,7 +6353,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Build a declarative agent to customize Microsoft 365 Copilot with specific instructions, actions, and knowledge. Follow this guide to get started.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[生成声明性代理，以使用特定说明、操作和知识自定义智能 Microsoft 365 Copilot 副驾驶®。按照本指南开始使用。]]></Val>
+            <Val><![CDATA[构建声明式智能体，以使用特定说明、操作和知识自定义智能 Microsoft 365 Copilot 副驾驶®。按照本指南开始使用。]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -6389,7 +6389,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Build a Declarative Agent]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[生成声明性代理]]></Val>
+            <Val><![CDATA[构建声明式智能体]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -6419,7 +6419,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Build a custom notification bot for Microsoft Teams using Microsoft 365 Agents Toolkit.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[使用 Microsoft 365 代理工具包为 Microsoft Teams 生成自定义通知机器人。]]></Val>
+            <Val><![CDATA[使用 Microsoft 365 智能体工具包为 Microsoft Teams 构建自定义通知机器人。]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Build a custom notification bot for Microsoft Teams using Teams Toolkit.]]></Val>
@@ -6587,7 +6587,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Build a notification bot using Microsoft 365 Agents Toolkit to send interactive messages in Teams.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[使用 Microsoft 365 代理工具包生成通知机器人，以便在 Teams 中发送交互式消息。]]></Val>
+            <Val><![CDATA[使用 Microsoft 365 智能体工具包构建通知机器人，以便在 Teams 中发送交互式消息。]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Build a notification bot using Teams Toolkit to send interactive messages in Teams.]]></Val>
@@ -6683,7 +6683,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Build a custom notification bot for Microsoft Teams using Microsoft 365 Agents Toolkit.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[使用 Microsoft 365 代理工具包为 Microsoft Teams 生成自定义通知机器人。]]></Val>
+            <Val><![CDATA[使用 Microsoft 365 智能体工具包为 Microsoft Teams 构建自定义通知机器人。]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Build a custom notification bot for Microsoft Teams using Teams Toolkit.]]></Val>

@@ -6,4 +6,12 @@ module.exports = {
   collectCoverage: true,
   coverageDirectory: "coverage",
   coverageReporters: ["text", "lcov", "clover"],
+  transform: {
+    "^.+\\.ts$": [
+      "ts-jest",
+      {
+        diagnostics: false,
+      },
+    ],
+  },
 };

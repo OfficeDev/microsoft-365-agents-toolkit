@@ -1346,6 +1346,310 @@ describe("developPortalScaffoldUtils", () => {
 
       chai.assert.isTrue(res.isErr());
     });
+
+    it("should copy supportsChannelFeatures when both conditions are met", async () => {
+      const ctx = createContext();
+      ctx.tokenProvider = {
+        m365TokenProvider: new MockedM365Provider(),
+        azureAccountProvider: new MockedAzureAccountProvider(),
+      };
+      ctx.projectPath = "project-path";
+      const appDefinition: AppDefinition = {
+        appId: "mock-app-id",
+        teamsAppId: "mock-app-id",
+        supportsChannelFeatures: "tier1", // Property exists in appDefinition
+      };
+      const inputs: Inputs = {
+        platform: Platform.VSCode,
+        projectPath: "project-path",
+      };
+      const manifest: TeamsAppManifest = {
+        manifestVersion: "version",
+        id: "mock-app-id",
+        name: { short: "short-name" },
+        description: { short: "", full: "" },
+        version: "version",
+        icons: { outline: "outline.png", color: "color.png" },
+        accentColor: "#ffffff",
+        developer: {
+          privacyUrl: "",
+          websiteUrl: "",
+          termsOfUseUrl: "",
+          name: "",
+        },
+      };
+
+      const manifestTemplate: TeamsAppManifest = {
+        manifestVersion: "version",
+        id: "mock-app-id",
+        name: { short: "short-name" },
+        description: { short: "", full: "" },
+        version: "version",
+        icons: { outline: "outline.png", color: "color.png" },
+        accentColor: "#ffffff",
+        developer: {
+          privacyUrl: "",
+          websiteUrl: "",
+          termsOfUseUrl: "",
+          name: "",
+        },
+        supportsChannelFeatures: "tier1" as any, // Exists in existing manifest template
+      };
+
+      let updatedManifestData = "";
+
+      sandbox.stub(pathUtils, "getEnvFilePath").resolves(ok("fake env path"));
+      sandbox.stub(fs, "pathExists").resolves(true);
+      sandbox.stub(appStudio, "getAppPackage").resolves(
+        ok({
+          manifest: Buffer.from(JSON.stringify(manifest)),
+          icons: { color: Buffer.from(""), outline: Buffer.from("") },
+          languages: {},
+        })
+      );
+      sandbox.stub(fs, "writeFile").callsFake((file: number | fs.PathLike, data: any) => {
+        if (file === path.join(ctx.projectPath!, "appPackage", "manifest.json")) {
+          updatedManifestData = data;
+        }
+      });
+
+      sandbox.stub(envUtil, "writeEnv").resolves(ok(undefined));
+      sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifestTemplate));
+
+      const res = await developerPortalScaffoldUtils.updateFilesForTdp(ctx, appDefinition, inputs);
+
+      chai.assert.isTrue(res.isOk());
+      const updatedManifest = JSON.parse(updatedManifestData) as TeamsAppManifest;
+      chai.assert.equal(updatedManifest.supportsChannelFeatures, "tier1");
+    });
+
+    it("should not copy supportsChannelFeatures when property missing from appDefinition", async () => {
+      const ctx = createContext();
+      ctx.tokenProvider = {
+        m365TokenProvider: new MockedM365Provider(),
+        azureAccountProvider: new MockedAzureAccountProvider(),
+      };
+      ctx.projectPath = "project-path";
+      const appDefinition: AppDefinition = {
+        appId: "mock-app-id",
+        teamsAppId: "mock-app-id",
+        // No supportsChannelFeatures property in appDefinition
+      };
+      const inputs: Inputs = {
+        platform: Platform.VSCode,
+        projectPath: "project-path",
+      };
+      const manifest: TeamsAppManifest = {
+        manifestVersion: "version",
+        id: "mock-app-id",
+        name: { short: "short-name" },
+        description: { short: "", full: "" },
+        version: "version",
+        icons: { outline: "outline.png", color: "color.png" },
+        accentColor: "#ffffff",
+        developer: {
+          privacyUrl: "",
+          websiteUrl: "",
+          termsOfUseUrl: "",
+          name: "",
+        },
+      };
+
+      const manifestTemplate: TeamsAppManifest = {
+        manifestVersion: "version",
+        id: "mock-app-id",
+        name: { short: "short-name" },
+        description: { short: "", full: "" },
+        version: "version",
+        icons: { outline: "outline.png", color: "color.png" },
+        accentColor: "#ffffff",
+        developer: {
+          privacyUrl: "",
+          websiteUrl: "",
+          termsOfUseUrl: "",
+          name: "",
+        },
+        supportsChannelFeatures: "tier1" as any, // Exists in existing manifest template
+      };
+
+      let updatedManifestData = "";
+
+      sandbox.stub(pathUtils, "getEnvFilePath").resolves(ok("fake env path"));
+      sandbox.stub(fs, "pathExists").resolves(true);
+      sandbox.stub(appStudio, "getAppPackage").resolves(
+        ok({
+          manifest: Buffer.from(JSON.stringify(manifest)),
+          icons: { color: Buffer.from(""), outline: Buffer.from("") },
+          languages: {},
+        })
+      );
+      sandbox.stub(fs, "writeFile").callsFake((file: number | fs.PathLike, data: any) => {
+        if (file === path.join(ctx.projectPath!, "appPackage", "manifest.json")) {
+          updatedManifestData = data;
+        }
+      });
+
+      sandbox.stub(envUtil, "writeEnv").resolves(ok(undefined));
+      sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifestTemplate));
+
+      const res = await developerPortalScaffoldUtils.updateFilesForTdp(ctx, appDefinition, inputs);
+
+      chai.assert.isTrue(res.isOk());
+      const updatedManifest = JSON.parse(updatedManifestData) as TeamsAppManifest;
+      chai.assert.isUndefined(updatedManifest.supportsChannelFeatures);
+    });
+
+    it("should not copy supportsChannelFeatures when property missing from manifestTemplate", async () => {
+      const ctx = createContext();
+      ctx.tokenProvider = {
+        m365TokenProvider: new MockedM365Provider(),
+        azureAccountProvider: new MockedAzureAccountProvider(),
+      };
+      ctx.projectPath = "project-path";
+      const appDefinition: AppDefinition = {
+        appId: "mock-app-id",
+        teamsAppId: "mock-app-id",
+        supportsChannelFeatures: "tier1", // Property exists in appDefinition
+      };
+      const inputs: Inputs = {
+        platform: Platform.VSCode,
+        projectPath: "project-path",
+      };
+      const manifest: TeamsAppManifest = {
+        manifestVersion: "version",
+        id: "mock-app-id",
+        name: { short: "short-name" },
+        description: { short: "", full: "" },
+        version: "version",
+        icons: { outline: "outline.png", color: "color.png" },
+        accentColor: "#ffffff",
+        developer: {
+          privacyUrl: "",
+          websiteUrl: "",
+          termsOfUseUrl: "",
+          name: "",
+        },
+      };
+
+      const manifestTemplate: TeamsAppManifest = {
+        manifestVersion: "version",
+        id: "mock-app-id",
+        name: { short: "short-name" },
+        description: { short: "", full: "" },
+        version: "version",
+        icons: { outline: "outline.png", color: "color.png" },
+        accentColor: "#ffffff",
+        developer: {
+          privacyUrl: "",
+          websiteUrl: "",
+          termsOfUseUrl: "",
+          name: "",
+        },
+        // No supportsChannelFeatures in manifestTemplate
+      };
+
+      let updatedManifestData = "";
+
+      sandbox.stub(pathUtils, "getEnvFilePath").resolves(ok("fake env path"));
+      sandbox.stub(fs, "pathExists").resolves(true);
+      sandbox.stub(appStudio, "getAppPackage").resolves(
+        ok({
+          manifest: Buffer.from(JSON.stringify(manifest)),
+          icons: { color: Buffer.from(""), outline: Buffer.from("") },
+          languages: {},
+        })
+      );
+      sandbox.stub(fs, "writeFile").callsFake((file: number | fs.PathLike, data: any) => {
+        if (file === path.join(ctx.projectPath!, "appPackage", "manifest.json")) {
+          updatedManifestData = data;
+        }
+      });
+
+      sandbox.stub(envUtil, "writeEnv").resolves(ok(undefined));
+      sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifestTemplate));
+
+      const res = await developerPortalScaffoldUtils.updateFilesForTdp(ctx, appDefinition, inputs);
+
+      chai.assert.isTrue(res.isOk());
+      const updatedManifest = JSON.parse(updatedManifestData) as TeamsAppManifest;
+      chai.assert.isUndefined(updatedManifest.supportsChannelFeatures);
+    });
+
+    it("should not copy supportsChannelFeatures when neither condition is met", async () => {
+      const ctx = createContext();
+      ctx.tokenProvider = {
+        m365TokenProvider: new MockedM365Provider(),
+        azureAccountProvider: new MockedAzureAccountProvider(),
+      };
+      ctx.projectPath = "project-path";
+      const appDefinition: AppDefinition = {
+        appId: "mock-app-id",
+        teamsAppId: "mock-app-id",
+        // No supportsChannelFeatures property in appDefinition
+      };
+      const inputs: Inputs = {
+        platform: Platform.VSCode,
+        projectPath: "project-path",
+      };
+      const manifest: TeamsAppManifest = {
+        manifestVersion: "version",
+        id: "mock-app-id",
+        name: { short: "short-name" },
+        description: { short: "", full: "" },
+        version: "version",
+        icons: { outline: "outline.png", color: "color.png" },
+        accentColor: "#ffffff",
+        developer: {
+          privacyUrl: "",
+          websiteUrl: "",
+          termsOfUseUrl: "",
+          name: "",
+        },
+      };
+
+      const manifestTemplate: TeamsAppManifest = {
+        manifestVersion: "version",
+        id: "mock-app-id",
+        name: { short: "short-name" },
+        description: { short: "", full: "" },
+        version: "version",
+        icons: { outline: "outline.png", color: "color.png" },
+        accentColor: "#ffffff",
+        developer: {
+          privacyUrl: "",
+          websiteUrl: "",
+          termsOfUseUrl: "",
+          name: "",
+        },
+        // No supportsChannelFeatures in manifestTemplate either
+      };
+
+      let updatedManifestData = "";
+
+      sandbox.stub(pathUtils, "getEnvFilePath").resolves(ok("fake env path"));
+      sandbox.stub(fs, "pathExists").resolves(true);
+      sandbox.stub(appStudio, "getAppPackage").resolves(
+        ok({
+          manifest: Buffer.from(JSON.stringify(manifest)),
+          icons: { color: Buffer.from(""), outline: Buffer.from("") },
+          languages: {},
+        })
+      );
+      sandbox.stub(fs, "writeFile").callsFake((file: number | fs.PathLike, data: any) => {
+        if (file === path.join(ctx.projectPath!, "appPackage", "manifest.json")) {
+          updatedManifestData = data;
+        }
+      });
+
+      sandbox.stub(envUtil, "writeEnv").resolves(ok(undefined));
+      sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifestTemplate));
+
+      const res = await developerPortalScaffoldUtils.updateFilesForTdp(ctx, appDefinition, inputs);
+
+      chai.assert.isTrue(res.isOk());
+      const updatedManifest = JSON.parse(updatedManifestData) as TeamsAppManifest;
+      chai.assert.isUndefined(updatedManifest.supportsChannelFeatures);
+    });
   });
 
   describe("getProjectTypeAndCapability", () => {

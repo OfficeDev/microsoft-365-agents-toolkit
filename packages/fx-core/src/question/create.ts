@@ -1041,6 +1041,24 @@ export function azureOpenAIEmbeddingDeploymentNameQuestion(): TextInputQuestion 
   };
 }
 
+export function foundryEndpointQuestion(): TextInputQuestion {
+  return {
+    type: "text",
+    name: QuestionNames.FoundryEndpoint,
+    title: getLocalizedString("core.createProjectQuestion.foundry.endpoint.title"),
+    placeholder: getLocalizedString("core.createProjectQuestion.foundry.endpoint.placeholder"),
+  };
+}
+
+export function foundryAgentIdQuestion(): TextInputQuestion {
+  return {
+    type: "text",
+    name: QuestionNames.FoundryAgentId,
+    title: getLocalizedString("core.createProjectQuestion.foundry.agentId.title"),
+    placeholder: getLocalizedString("core.createProjectQuestion.foundry.agentId.placeholder"),
+  };
+}
+
 export function apiPluginStartQuestion(doesProjectExists?: boolean): SingleSelectQuestion {
   return {
     type: "singleSelect",

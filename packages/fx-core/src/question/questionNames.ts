@@ -63,6 +63,9 @@ export enum QuestionNames {
   AzureAISearchApiKey = "azure-ai-search-api-key",
   AzureAISearchEndpoint = "azure-ai-search-endpoint",
 
+  FoundryEndpoint = "foundry-endpoint",
+  FoundryAgentId = "foundry-agent-id",
+
   Features = "features",
   Env = "env",
   SourceEnvName = "sourceEnvName",

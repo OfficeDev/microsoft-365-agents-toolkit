@@ -14,6 +14,8 @@ import {
   apiOperationQuestion,
   apiSpecLocationQuestion,
   apiSpecTypeSelectQuestion,
+  foundryAgentIdQuestion,
+  foundryEndpointQuestion,
   searchOpenAPISpecQueryQuestion,
   selectOpenApiSpecQuestion,
 } from "../create";
@@ -175,6 +177,24 @@ export function inputOrSearchAPISpecNode(): IQTreeNode {
           },
         ],
       },
+    ],
+  };
+}
+
+export function foundryNode(
+  condition?: StringValidation | StringArrayValidation | ConditionFunc
+): IQTreeNode {
+  return {
+    condition: condition,
+    data: foundryEndpointQuestion(),
+    children: [
+      {
+        condition: (inputs: Inputs) => {
+          return inputs[QuestionNames.FoundryEndpoint]?.length > 0;
+        },
+        data: foundryAgentIdQuestion(),
+      },
+      // Future: add foundryAgentNameQuestion() here as an alternative to agentId
     ],
   };
 }

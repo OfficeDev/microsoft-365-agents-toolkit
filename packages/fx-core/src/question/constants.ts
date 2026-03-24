@@ -601,10 +601,8 @@ export class KnowledgeSourceOptions {
       KnowledgeSourceOptions.webSearch(),
       KnowledgeSourceOptions.oneDriveSharePoint(),
       KnowledgeSourceOptions.graphConnector(),
+      KnowledgeSourceOptions.embeddedKnowledge(),
     ];
-    if (featureFlagManager.getBooleanValue(FeatureFlags.EmbeddedKnowledgeEnabled)) {
-      items.push(KnowledgeSourceOptions.embeddedKnowledge());
-    }
     return items;
   }
 }

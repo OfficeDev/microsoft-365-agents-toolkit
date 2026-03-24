@@ -14,7 +14,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Intelligent agent that is built with Microsoft 365 Agents SDK and connects to your LLM]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Inteligentny agent utworzony przy użyciu zestawu Microsoft 365 Agents SDK i łączący się z Twoim dużym modelem językowym]]></Val>
+            <Val><![CDATA[Inteligentny agent utworzony przy użyciu Zestawu SDK agentów usługi Microsoft 365 i łączący się z Twoim dużym modelem językowym]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -50,7 +50,7 @@
         <Str Cat="Text">
           <Val><![CDATA[A travel planning agent, which is built with Microsoft 365 Agents SDK, Microsoft 365 Retrieval API and Agent Framework]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Agent planowania podróży, zbudowany przy użyciu Zestawu SDK agentów usługi Microsoft 365, interfejsu API pobierania Microsoft 365 oraz Agent Framework]]></Val>
+            <Val><![CDATA[Agent planowania podróży, utworzony przy użyciu Zestawu SDK agentów usługi Microsoft 365, interfejsu API pobierania Microsoft 365 oraz Agent Framework]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -68,7 +68,7 @@
         <Str Cat="Text">
           <Val><![CDATA[A weather forecast agent that is built with Microsoft 365 Agents SDK and LangChain]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Agent prognozy pogody utworzony przy użyciu zestawu Microsoft 365 Agents SDK i języka LangChain]]></Val>
+            <Val><![CDATA[Agent prognozy pogody utworzony przy użyciu Zestawu SDK agentów usługi Microsoft 365 i języka LangChain]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />

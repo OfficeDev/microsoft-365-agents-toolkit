@@ -100,6 +100,11 @@ jobs:
       AZURE_OPENAI_API_KEY: ${{ secrets.TEST_TENANT_AZURE_OPENAI_KEY }}
       AZURE_OPENAI_MODEL: ${{ vars.TEST_TENANT_AZURE_OPENAI_MODEL }}
       AZURE_OPENAI_API_VERSION: ${{ vars.TEST_TENANT_AZURE_OPENAI_API_VERSION }}
+      
+      # Vision service
+      AZURE_VISION_ENDPOINT: ${{ vars.AZURE_VISION_ENDPOINT }}
+      AZURE_VISION_KEY: ${{ secrets.AZURE_VISION_KEY }}
+
       # AZURE AI search
       AZURE_OPENAI_EMBEDDING_DEPLOYMENT_NAME: "text-embedding-ada-002"
       AZURE_SEARCH_ENDPOINT: ${{ secrets.AZURE_SEARCH_ENDPOINT }}
@@ -121,6 +126,10 @@ jobs:
       M365_ACCOUNT_ADMIN_ACCOUNT: ${{ vars.TEST_TENANT_M365_ACCOUNT_ADMIN_ACCOUNT }}
       M365_ACCOUNT_ADMIN_PASSWORD: ${{ secrets.TEST_TENANT_M365_ACCOUNT_ADMIN_PASSWORD }}
             
+      # M365 account without copilot license
+      M365_ACCOUNT_NO_COPILOT_NAME: ${{ vars.TEST_TENANT_M365_ACCOUNT_NO_COPILOT_NAME }}
+      M365_ACCOUNT_NO_COPILOT_PASSWORD: ${{ secrets.TEST_TENANT_M365_ACCOUNT_NO_COPILOT_PASSWORD }}
+
       AZURE_ACCOUNT_NAME: ${{ secrets.TEST_TENANT_AZURE_ACCOUNT_NAME }}
       AZURE_ACCOUNT_PASSWORD: ${{ secrets.TEST_TENANT_AZURE_ACCOUNT_PASSWORD }}
       M365_TENANT_ID: ${{ secrets.TEST_CLEAN_TENANT_ID }}
@@ -151,6 +160,10 @@ jobs:
       MS_AZURE_ACCOUNT_NAME: ${{vars.MS_AZURE_ACCOUNT_NAME}}
       MS_AZURE_ACCOUNT_PASSWORD: ${{secrets.MS_AZURE_ACCOUNT_PASSWORD}}
 
+      # Test AAD App info
+      TEST_AAD_APP_ID: ${{vars.TEST_AAD_APP_ID}}
+      TEST_AAD_APP_PASSWORD: ${{secrets.TEST_AAD_APP_PASSWORD}}
+      
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -354,43 +367,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       MAX_RETRIES: ${{ github.event.inputs.max_retries || 7 }}
-      M365_ACCOUNT_PASSWORD: ${{ secrets.TEST_TENANT_M365_ACCOUNT_ADMIN_PASSWORD }}
-      M365_ACCOUNT_NAME: ${{ vars.TEST_TENANT_M365_ACCOUNT_ADMIN_ACCOUNT }}
-      CLEAN_CLIENT_ID: ${{ vars.TEST_TENANT_CLEAN_CLIENT_ID }}
-      CLEAN_CLIENT_SECRET: ${{ secrets.TEST_TENANT_CLEAN_CLIENT_SECRET }}
-      CLEAN_TENANT_ID: ${{ secrets.TEST_TENANT_CLEAN_TENANT_ID }}
-      AZURE_TENANT_ID: ${{ secrets.TEST_TENANT_TENANT_ID }}
-      AZURE_SUBSCRIPTION_ID: ${{ secrets.TEST_TENANT_SUBSCRIPTION_ID }}
-      AZURE_ACCOUNT_NAME: ${{ secrets.TEST_TENANT_AZURE_ACCOUNT_NAME }}
-      AZURE_ACCOUNT_PASSWORD: ${{ secrets.TEST_TENANT_AZURE_ACCOUNT_PASSWORD }}
     steps:
-      - name: Checkout
-        if: ${{ github.event_name == 'schedule' || github.event.inputs.schedule_trigger == 'true' }}
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.ref_name }}
-
-      - name: Setup node
-        if: ${{ github.event_name == 'schedule' || github.event.inputs.schedule_trigger == 'true' }}
-        uses: actions/setup-node@v3
-        with:
-          node-version: 22
-
-      - uses: pnpm/action-setup@v4
-        if: ${{ github.event_name == 'schedule' || github.event.inputs.schedule_trigger == 'true' }}
-
-      - name: Setup project
-        if: ${{ github.event_name == 'schedule' || github.event.inputs.schedule_trigger == 'true' }}
-        working-directory: ./
-        run: |
-          npm run setup:e2e
-
-      - name: Clean resources
-        if: ${{ github.event_name == 'schedule' || github.event.inputs.schedule_trigger == 'true' }}
-        working-directory: packages/tests
-        run: |
-          npx ts-node src/scripts/clean.ts
-
       - name: Calculate max retries
         id: calc-retries
         run: |
@@ -419,6 +396,10 @@ jobs:
     # Send email if: (1) triggered by schedule or schedule_trigger is true, OR (2) triggered manually with email-receiver input provided
     if: ${{ always() && (github.event_name == 'schedule' || github.event.inputs.schedule_trigger == 'true' || needs.discover-test-plans.outputs.email-receiver != '') && (success() || github.run_attempt >= (github.event.inputs.max_retries || 7)) }}
     needs: [discover-test-plans, main]
+    environment: engineering
+    permissions:
+      id-token: write
+      contents: read
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -427,6 +408,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
+      - uses: azure/login@v2
+        with:
+          client-id: ${{secrets.DEVOPS_CLIENT_ID}}
+          tenant-id: ${{secrets.DEVOPS_TENANT_ID}}
+          subscription-id: ${{secrets.DEVOPS_SUB_ID}}
+          enable-AzPSSession: true
 
       - name: Download storage URLs
         uses: actions/download-artifact@v4
@@ -492,10 +479,10 @@ jobs:
         id: list-jobs
         working-directory: packages/tests/vscuse
         env:
-          AZURE_DEVOPS_PAT: ${{ secrets.AZURE_DEVOPS_PAT }}
           AZURE_DEVOPS_ORG: "msazure"
           AZURE_DEVOPS_PROJECT: "Microsoft%20Teams%20Extensibility"
         run: |
+          AZURE_DEVOPS_PAT=$(az account get-access-token --resource https://app.vssps.visualstudio.com --query accessToken -o tsv)
           page=1
           jobs="[]"
           echo "Initial jobs: $jobs"

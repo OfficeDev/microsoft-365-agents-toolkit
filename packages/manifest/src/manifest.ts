@@ -582,6 +582,11 @@ export class TeamsAppManifest {
    */
   showLoadingIndicator?: boolean;
   /**
+   * A property in the app manifest that declares support for all channel features,
+   * categorized by tiers.
+   */
+  supportsChannelFeatures?: "tier1";
+  /**
    * A value indicating whether a personal app is rendered without a tab header-bar
    */
   isFullScreen?: boolean;

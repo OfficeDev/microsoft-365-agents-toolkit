@@ -3,7 +3,7 @@
 
 import { IQTreeNode, OptionItem, Question } from "@microsoft/teamsfx-api";
 import { getLocalizedString } from "../../common/localizeUtils";
-import { apiSpecNode, azureOpenAINode, llmServiceNode } from "./commonNodes";
+import { apiSpecNode, azureOpenAINode, foundryNode, llmServiceNode } from "./commonNodes";
 import { setTemplateName } from "./vsc/CapabilityOptions";
 
 export function constructNode(jsonContent: string): IQTreeNode {
@@ -14,6 +14,8 @@ export function constructNode(jsonContent: string): IQTreeNode {
     return apiSpecNode(jsonObject.condition);
   } else if (jsonObject.node === "azureOpenAINode") {
     return azureOpenAINode(jsonObject.condition);
+  } else if (jsonObject.node === "foundryNode") {
+    return foundryNode(jsonObject.condition);
   }
   const data: Question = {
     type: jsonObject.data.type,

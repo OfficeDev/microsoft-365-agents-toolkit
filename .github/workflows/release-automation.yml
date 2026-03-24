@@ -154,8 +154,32 @@ jobs:
             REASON="version=$VERSION_INPUT"
             RELEASE=$(jq -c --arg v "$VERSION_INPUT" '[.[] | select(.version == $v)] | .[0]' releases.json)
           elif [ "$RERUN_CD_ONLY" = "true" ]; then
-            REASON="latest_pending_release"
-            RELEASE=$(jq -c 'sort_by(.cut_date // "") | .[-1]' releases.json)
+            REASON="cut_date_window=$TODAY_UTC8 (UTC+8)"
+            RELEASE=$(jq -c --arg d "$TODAY_UTC8" '
+              [ .[] | select((.cut_date // "") != "") ]
+              | sort_by(.cut_date) as $s
+              | if ($s|length) == 0 then null
+                else
+                  (
+                    [ range(0; ($s|length)) as $i
+                      | select(
+                          ($s[$i].cut_date <= $d)
+                          and (
+                            ($i + 1) >= ($s|length)
+                            or ($s[$i+1].cut_date > $d)
+                          )
+                        )
+                      | $s[$i]
+                    ]
+                    | .[0]
+                  )
+                  // (
+                    [ $s[] | select(.cut_date > $d) ]
+                    | .[0]
+                  )
+                  // $s[-1]
+                end
+            ' releases.json)
           else
             REASON="cut_date=$TODAY_UTC8 (UTC+8)"
             RELEASE=$(jq -c --arg d "$TODAY_UTC8" '[.[] | select(.cut_date == $d)] | .[0]' releases.json)
@@ -675,7 +699,7 @@ jobs:
   trigger-cd:
     needs: prepare-release
     runs-on: ubuntu-latest
-    if: ${{ github.event_name != 'pull_request' && needs.prepare-release.result == 'success' && env.DRY_RUN == 'false' && ((github.event_name == 'workflow_dispatch' && env.RERUN_CD_ONLY == 'true') || (github.event_name == 'schedule' && needs.prepare-release.outputs.auto_cd == 'true')) }}
+    if: ${{ github.event_name != 'pull_request' && needs.prepare-release.result == 'success' && ((github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run == 'false' && github.event.inputs.rerun_cd_only == 'true') || (github.event_name == 'schedule' && needs.prepare-release.outputs.auto_cd == 'true')) }}
     outputs:
       product: ${{ needs.prepare-release.outputs.product }}
       release_type: ${{ needs.prepare-release.outputs.release_type }}
@@ -684,7 +708,7 @@ jobs:
       preid: ${{ needs.prepare-release.outputs.preid }}
       series: ${{ needs.prepare-release.outputs.series }}
       vsrelease: ${{ needs.prepare-release.outputs.vsrelease }}
-      goproduct: ${{ env.GO_PRODUCT }}
+      goproduct: ${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.go_product) || 'false' }}
     env:
       APP_GITHUB_APP_ID: ${{ vars.APP_GITHUB_APP_ID }}
       APP_GITHUB_APP_PRIVATE_KEY: ${{ secrets.APP_GITHUB_APP_PRIVATE_KEY }}
@@ -705,7 +729,7 @@ jobs:
             const preid = '${{ needs.prepare-release.outputs.preid }}';
             const series = '${{ needs.prepare-release.outputs.series }}';
             const vsrelease = '${{ needs.prepare-release.outputs.vsrelease }}' === 'true';
-            const goproduct = '${{ env.GO_PRODUCT }}' === 'true';
+            const goproduct = '${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.go_product) || 'false' }}' === 'true';
 
             console.log('Triggering CD workflow with parameters:');
             console.log(`  Branch: ${branch}`);
@@ -713,6 +737,7 @@ jobs:
             console.log(`  series: ${series}`);
             console.log(`  vsrelease: ${vsrelease}`);
             console.log(`  goproduct: ${goproduct}`);
+            console.log(`  run_test_cases: true`);
 
             await github.rest.actions.createWorkflowDispatch({
               owner: context.repo.owner,
@@ -724,7 +749,8 @@ jobs:
                 series: series,
                 vsrelease: vsrelease.toString(),
                 vstemplate: 'false',
-                goproduct: goproduct.toString()
+                goproduct: goproduct.toString(),
+                run_test_cases: 'true'
               }
             });
 
@@ -748,18 +774,11 @@ jobs:
       vsrelease: ${{ steps.trigger.outputs.vsrelease }}
       goproduct: ${{ steps.trigger.outputs.goproduct }}
     steps:
-      - id: generate-token
-        if: ${{ vars.APP_GITHUB_APP_ID != '' && secrets.APP_GITHUB_APP_PRIVATE_KEY != '' }}
-        uses: actions/create-github-app-token@v2
-        with:
-          app-id: ${{ vars.APP_GITHUB_APP_ID }}
-          private-key: ${{ secrets.APP_GITHUB_APP_PRIVATE_KEY }}
-
       - name: Trigger CD on automation sync PR merge
         id: trigger
         uses: actions/github-script@v7
         with:
-          github-token: ${{ steps.generate-token.outputs.token || secrets.RELEASE_AUTOMATION_TOKEN || github.token }}
+          github-token: ${{ secrets.RELEASE_AUTOMATION_TOKEN || github.token }}
           script: |
             const pr = context.payload.pull_request;
             const base = pr.base?.ref;
@@ -835,6 +854,7 @@ jobs:
                 vsrelease: vsrelease.toString(),
                 vstemplate: 'false',
                 goproduct: goproduct.toString(),
+                run_test_cases: 'true'
               },
             });
 
@@ -846,6 +866,7 @@ jobs:
             core.setOutput('series', series);
             core.setOutput('vsrelease', vsrelease.toString());
             core.setOutput('goproduct', goproduct.toString());
+            core.setOutput('run_test_cases', 'true');
 
   notify-cd-and-completion:
     runs-on: ubuntu-latest
