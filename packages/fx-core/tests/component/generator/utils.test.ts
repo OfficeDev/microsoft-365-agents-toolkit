@@ -18,6 +18,7 @@ import {
   setGeneralSensitivityLabel,
 } from "../../../src/component/generator/utils";
 import { MockTools } from "../../core/utils";
+import templateConfig from "../../../src/common/templates-config.json";
 
 describe("utils unit test cases", () => {
   const sandbox = sinon.createSandbox();
@@ -51,7 +52,7 @@ describe("utils unit test cases", () => {
       localVersion: "6.0.0",
       tagPrefix: "templates@",
       vstagPrefix: "templates-vs@",
-      vsversion: "18.6.0",
+      vsversion: templateConfig.vsversion,
       tagListURL:
         "https://github.com/OfficeDev/microsoft-365-agents-toolkit/releases/download/template-tag-list/template-tags.txt",
       templateDownloadBaseURL:
@@ -113,7 +114,7 @@ describe("utils unit test cases", () => {
       localVersion: "6.0.0",
       tagPrefix: "templates@",
       vstagPrefix: "templates-vs@",
-      vsversion: "18.6.0",
+      vsversion: templateConfig.vsversion,
       tagListURL:
         "https://github.com/OfficeDev/microsoft-365-agents-toolkit/releases/download/template-tag-list/template-tags.txt",
       templateDownloadBaseURL:
@@ -128,7 +129,7 @@ describe("utils unit test cases", () => {
       "../../common/templates-config.json": mockSettings,
       "../../../package.json": mockPackageJson,
     });
-    const getLatestVersion = () => Promise.resolve("18.6.0");
+    const getLatestVersion = () => Promise.resolve(templateConfig.vsversion);
     const result = await dUtils.getTemplateUrl("csharp", getLatestVersion, Platform.VS);
     const expectedUrl =
       "https://github.com/OfficeDev/microsoft-365-agents-toolkit/releases/download/templates-vs@0.0.0-rc/csharp.zip";
@@ -419,22 +420,26 @@ describe("getTemplateVSLatestVersion", () => {
   });
 
   it("should return the max satisfying version matching vsVersionPattern", async () => {
+    // Build tag list from the actual vsVersionPattern so the test stays valid after version bumps
+    const base = templateConfig.vsVersionPattern.replace("~", ""); // e.g. "18.6"
+    const [major, minor] = base.split(".");
+    const nextMinor = `${major}.${parseInt(minor) + 1}`;
     // shared tag list contains both VSC and VS tags
-    const tagList =
-      "templates@6.6.0\ntemplates@6.6.1\ntemplates-vs@18.6.0\ntemplates-vs@18.6.1\ntemplates-vs@18.5.0\ntemplates-vs@18.7.0\n";
+    const tagList = `templates@6.6.0\ntemplates@6.6.1\ntemplates-vs@${base}.0\ntemplates-vs@${base}.1\ntemplates-vs@${nextMinor}.0\n`;
     sandbox.stub(requestUtils, "sendRequestWithTimeout").resolves({ data: tagList } as any);
 
     const result = await getTemplateVSLatestVersion();
-    // ~18.6 matches 18.6.x only, not 18.7.x; VSC tags are ignored
-    assert.strictEqual(result, "18.6.1");
+    // ~base matches base.x only, not nextMinor.x; VSC tags are ignored
+    assert.strictEqual(result, `${base}.1`);
   });
 
   it("should handle CRLF line endings in tag list", async () => {
-    const tagList = "templates@6.6.1\r\ntemplates-vs@18.6.0\r\ntemplates-vs@18.6.1\r\n";
+    const base = templateConfig.vsVersionPattern.replace("~", "");
+    const tagList = `templates@6.6.1\r\ntemplates-vs@${base}.0\r\ntemplates-vs@${base}.1\r\n`;
     sandbox.stub(requestUtils, "sendRequestWithTimeout").resolves({ data: tagList } as any);
 
     const result = await getTemplateVSLatestVersion();
-    assert.strictEqual(result, "18.6.1");
+    assert.strictEqual(result, `${base}.1`);
   });
 
   it("should throw when no version satisfies vsVersionPattern", async () => {
