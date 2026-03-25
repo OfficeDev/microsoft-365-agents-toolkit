@@ -526,7 +526,7 @@ jobs:
           
           while :
           do
-            url="https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/attempts/${{ github.run_attempt }}/jobs?per_page=100&page=$page"
+            url="https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/attempts/${{ github.run_attempt }}/jobs?per_page=50&page=$page"
             echo "Fetching URL: $url"
       
             resp=$(curl -sf -D /tmp/gh_headers_$page -H "Accept: application/vnd.github.v3+json" -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" "$url")
