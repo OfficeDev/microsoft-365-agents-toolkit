@@ -348,16 +348,17 @@ jobs:
 
       - name: Release RC VS templates to GitHub
         if: ${{ contains(steps.version-change.outputs.CHANGED, 'templates@') && github.event_name == 'workflow_dispatch' && github.event.inputs.vsrelease == 'true' }}
-        uses: mini-bomba/create-github-release@v1.2.0
+        uses: ncipollo/release-action@v1.10.0
         with:
           token: ${{ steps.generate-token.outputs.token }}
           tag: "templates-vs@0.0.0-rc"
           name: "templates-vs@0.0.0-rc"
           body: "VS Templates RC release for templates-vs@0.0.0-rc"
-          target_commit: ${{ github.sha }}
+          commit: ${{ github.sha }}
           prerelease: true
-          clear_attachments: true
-          files: |
+          allowUpdates: true
+          removeArtifacts: true
+          artifacts: |
             ${{ github.workspace }}/templates/build/fallback/csharp.zip
             ${{ github.workspace }}/templates/build/metadata.zip
       
@@ -369,16 +370,17 @@ jobs:
           echo "VSTAG=templates-vs@$VS_VERSION" >> $GITHUB_OUTPUT
 
       - name: Release stable VS Templates to GitHub
-        uses: mini-bomba/create-github-release@v1.2.0
+        uses: ncipollo/release-action@v1.10.0
         if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.vsrelease == 'true' && github.event.inputs.vstemplate == 'true' }}
         with:
           token: ${{ steps.generate-token.outputs.token }}
           tag: ${{ steps.vs-template-tag.outputs.VSTAG }}
           name: ${{ steps.vs-template-tag.outputs.VSTAG }}
           body: "VS Templates release for ${{ steps.vs-template-tag.outputs.VSTAG }}"
-          target_commit: ${{ github.sha }}
-          clear_attachments: true
-          files: |
+          commit: ${{ github.sha }}
+          allowUpdates: true
+          removeArtifacts: true
+          artifacts: |
             ${{ github.workspace }}/templates/build/fallback/csharp.zip
             ${{ github.workspace }}/templates/build/metadata.zip
 
