@@ -3,7 +3,7 @@
   "version": "6.6.2",
   "private": "true",
   "license": "MIT",
-  "vsversion": "18.4.2",
+  "vsversion": "18.6.0",
   "scripts": {
     "check-sensitive": "npx eslint --cache --ignore-pattern 'package.json' --ignore-pattern 'package-lock.json'",
     "precommit": "npm run check-sensitive && lint-staged",
