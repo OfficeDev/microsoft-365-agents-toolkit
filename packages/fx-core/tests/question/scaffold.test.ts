@@ -45,7 +45,7 @@ import {
   getTdpProjectTypeNode,
 } from "../../src/question/scaffold/vsc/rootNode";
 import { daProjectTypeNode } from "../../src/question/scaffold/vsc/daProjectTypeNode";
-import { officeAddinProjectTypeNode } from "../../src/question/scaffold/vsc/officeAddinProjectTypeNode";
+
 import {
   getTeamsProjectNode,
   TeamsProjectTypeOptions,
@@ -465,20 +465,6 @@ describe("TeamsProjectTypeOptions", () => {
     assert.equal(bot.label, getLocalizedString("core.createProjectQuestion.projectType.bot.label"));
     const me = TeamsProjectTypeOptions.me(Platform.CLI);
     assert.equal(me.label, getLocalizedString("core.MessageExtensionOption.label"));
-  });
-});
-
-describe("officeAddinProjectTypeNode", () => {
-  const sandbox = sinon.createSandbox();
-  afterEach(() => {
-    sandbox.restore();
-  });
-  it("wxpAddinProjectTypeNode", () => {
-    sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
-    const node = officeAddinProjectTypeNode();
-    assert.deepEqual(node.condition, {
-      equals: ProjectTypeOptions.officeMetaOSOptionId,
-    });
   });
 });
 
