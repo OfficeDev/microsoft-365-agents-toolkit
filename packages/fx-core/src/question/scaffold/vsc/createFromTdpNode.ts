@@ -22,10 +22,7 @@ import {
 } from "../../create";
 import { QuestionNames } from "../../questionNames";
 import { languageNode } from "./createRootNode";
-import { getCustomEngineAgentNode } from "./customEngineAgentNode";
-import { daProjectTypeNode } from "./daProjectTypeNode";
-import { ProjectTypeOptions } from "./ProjectTypeOptions";
-import { getTeamsProjectNode } from "./teamsProjectTypeNode";
+import { getTdpProjectTypeNode } from "./rootNode";
 
 export function getTemplateName(inputs: Inputs): string | undefined {
   if (inputs.teamsAppFromTdp) {
@@ -84,17 +81,7 @@ export function createFromTdpNode(platform: Platform = Platform.VSCode): IQTreeN
       {
         // templateName can not decided by teamsAppFromTdp itself, need user input
         condition: (inputs: Inputs) => getTemplateName(inputs) === undefined,
-        data: {
-          name: QuestionNames.ProjectType,
-          title: getLocalizedString("core.createProjectQuestion.title"),
-          type: "singleSelect",
-          staticOptions: [
-            ProjectTypeOptions.declarativeAgent(platform),
-            ProjectTypeOptions.customEngineAgent(platform),
-            ProjectTypeOptions.teamsAgentsAndApps(platform),
-          ],
-        },
-        children: [daProjectTypeNode(), getCustomEngineAgentNode(), getTeamsProjectNode()],
+        ...getTdpProjectTypeNode(platform),
       },
       {
         condition: (inputs: Inputs) =>

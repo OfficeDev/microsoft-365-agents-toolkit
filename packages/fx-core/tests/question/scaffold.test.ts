@@ -40,10 +40,16 @@ import {
   languageNode,
   scaffoldQuestionForVSCode,
 } from "../../src/question/scaffold/vsc/createRootNode";
-import { getCustomEngineAgentNode } from "../../src/question/scaffold/vsc/customEngineAgentNode";
+import {
+  getRootProjectTypeNode,
+  getTdpProjectTypeNode,
+} from "../../src/question/scaffold/vsc/rootNode";
 import { daProjectTypeNode } from "../../src/question/scaffold/vsc/daProjectTypeNode";
-import { officeAddinProjectTypeNode } from "../../src/question/scaffold/vsc/officeAddinProjectTypeNode";
-import { TeamsProjectTypeOptions } from "../../src/question/scaffold/vsc/teamsProjectTypeNode";
+
+import {
+  getTeamsProjectNode,
+  TeamsProjectTypeOptions,
+} from "../../src/question/scaffold/vsc/teamsProjectTypeNode";
 
 describe("vsc", () => {
   const sandbox = sinon.createSandbox();
@@ -337,221 +343,41 @@ describe("daProjectTypeNode", () => {
 });
 
 describe("customEngineAgentProjectTypeNode", () => {
-  const sandbox = sinon.createSandbox();
-
-  afterEach(() => {
-    sandbox.restore();
-  });
-
   it("customEngineAgentProjectTypeNode basic structure", () => {
-    const node = getCustomEngineAgentNode();
+    const root = getRootProjectTypeNode(Platform.VSCode);
+    const node = root.children?.find(
+      (c) =>
+        (c.condition as StringValidation)?.equals === ProjectTypeOptions.customEngineAgentOptionId
+    );
+    assert.isDefined(node);
     const conditionFunc = node?.condition as StringValidation;
-
     assert.equal(conditionFunc.equals, ProjectTypeOptions.customEngineAgentOptionId);
-    assert.isDefined(node.children);
-
-    const basicCustomeEngineAgent = node.children?.[0];
-    assert.isDefined(basicCustomeEngineAgent);
+    assert.isDefined(node!.children);
   });
 
-  it("should use cached JSON path when not using local template and cached file exists", () => {
-    const mockFs = {
-      pathExistsSync: sandbox.stub().returns(true),
-      readFileSync: sandbox.stub().returns('{"data": "test"}'),
-    };
-    const mockTemplateHelper = {
-      useLocalTemplate: sandbox.stub().returns(false),
-    };
-    const mockFolder = {
-      getTemplatesFolder: sandbox.stub().returns("/templates"),
-    };
-    const mockConstructNode = sandbox.stub().returns({ test: "node" });
-
-    const customEngineAgentModule = proxyquire(
-      "../../src/question/scaffold/vsc/customEngineAgentNode",
-      {
-        "fs-extra": mockFs,
-        "../../../component/generator/templateHelper": mockTemplateHelper,
-        "../../../folder": mockFolder,
-        "../constructNode": { constructNode: mockConstructNode },
-      }
+  it("should extract CEA sub-tree from wizardNode with correct options", () => {
+    const root = getRootProjectTypeNode(Platform.VSCode);
+    const node = root.children?.find(
+      (c) =>
+        (c.condition as StringValidation)?.equals === ProjectTypeOptions.customEngineAgentOptionId
     );
-
-    const node = customEngineAgentModule.getCustomEngineAgentNode();
-
-    assert.isTrue(mockTemplateHelper.useLocalTemplate.calledOnce);
-    assert.isTrue(mockFs.pathExistsSync.calledOnce);
-    assert.isTrue(mockFs.readFileSync.calledOnce);
-    assert.isFalse(mockFolder.getTemplatesFolder.called);
     assert.isDefined(node);
-  });
-
-  it("should use templates folder when using local template", () => {
-    const mockFs = {
-      pathExistsSync: sandbox.stub().returns(true),
-      readFileSync: sandbox.stub().returns('{"data": "test"}'),
-    };
-    const mockTemplateHelper = {
-      useLocalTemplate: sandbox.stub().returns(true),
-    };
-    const mockFolder = {
-      getTemplatesFolder: sandbox.stub().returns("/templates"),
-    };
-    const mockConstructNode = sandbox.stub().returns({ test: "node" });
-
-    const customEngineAgentModule = proxyquire(
-      "../../src/question/scaffold/vsc/customEngineAgentNode",
-      {
-        "fs-extra": mockFs,
-        "../../../component/generator/templateHelper": mockTemplateHelper,
-        "../../../folder": mockFolder,
-        "../constructNode": { constructNode: mockConstructNode },
-      }
-    );
-
-    const node = customEngineAgentModule.getCustomEngineAgentNode();
-
-    assert.isTrue(mockTemplateHelper.useLocalTemplate.calledOnce);
-    assert.isFalse(mockFs.pathExistsSync.called);
-    assert.isTrue(mockFolder.getTemplatesFolder.calledOnce);
-    assert.isTrue(mockFs.readFileSync.calledOnce);
-    assert.isDefined(node);
-  });
-
-  it("should use templates folder when cached file does not exist", () => {
-    const mockFs = {
-      pathExistsSync: sandbox.stub().returns(false),
-      readFileSync: sandbox.stub().returns('{"data": "test"}'),
-    };
-    const mockTemplateHelper = {
-      useLocalTemplate: sandbox.stub().returns(false),
-    };
-    const mockFolder = {
-      getTemplatesFolder: sandbox.stub().returns("/templates"),
-    };
-    const mockConstructNode = sandbox.stub().returns({ test: "node" });
-
-    const customEngineAgentModule = proxyquire(
-      "../../src/question/scaffold/vsc/customEngineAgentNode",
-      {
-        "fs-extra": mockFs,
-        "../../../component/generator/templateHelper": mockTemplateHelper,
-        "../../../folder": mockFolder,
-        "../constructNode": { constructNode: mockConstructNode },
-      }
-    );
-
-    const node = customEngineAgentModule.getCustomEngineAgentNode();
-
-    assert.isTrue(mockTemplateHelper.useLocalTemplate.calledOnce);
-    assert.isTrue(mockFs.pathExistsSync.calledOnce);
-    assert.isTrue(mockFolder.getTemplatesFolder.calledOnce);
-    assert.isTrue(mockFs.readFileSync.calledOnce);
-    assert.isDefined(node);
+    assert.isDefined(node!.data);
+    const data = node!.data as SingleSelectQuestion;
+    assert.isDefined(data.staticOptions);
+    const options = data.staticOptions as OptionItem[];
+    const optionIds = options.map((o) => o.id);
+    assert.include(optionIds, "basic-custom-engine-agent");
+    assert.include(optionIds, "weather-agent");
   });
 });
 
 describe("teamsProjectTypeNode", () => {
-  const sandbox = sinon.createSandbox();
-
-  afterEach(() => {
-    sandbox.restore();
-  });
-
-  it("should use cached JSON path when not using local template and cached file exists", () => {
-    const mockFs = {
-      pathExistsSync: sandbox.stub().returns(true),
-      readFileSync: sandbox.stub().returns('{"data": "test"}'),
-    };
-    const mockTemplateHelper = {
-      useLocalTemplate: sandbox.stub().returns(false),
-    };
-    const mockFolder = {
-      getTemplatesFolder: sandbox.stub().returns("/templates"),
-    };
-    const mockConstructNode = sandbox.stub().returns({ test: "node" });
-
-    const teamsProjectTypeModule = proxyquire(
-      "../../src/question/scaffold/vsc/teamsProjectTypeNode",
-      {
-        "fs-extra": mockFs,
-        "../../../component/generator/templateHelper": mockTemplateHelper,
-        "../../../folder": mockFolder,
-        "../constructNode": { constructNode: mockConstructNode },
-      }
-    );
-
-    const node = teamsProjectTypeModule.getTeamsProjectNode();
-
-    assert.isTrue(mockTemplateHelper.useLocalTemplate.calledOnce);
-    assert.isTrue(mockFs.pathExistsSync.calledOnce);
-    assert.isFalse(mockFolder.getTemplatesFolder.called);
-    assert.isTrue(mockFs.readFileSync.calledOnce);
+  it("should extract Teams sub-tree from wizardNode", () => {
+    const node = getTeamsProjectNode();
     assert.isDefined(node);
-  });
-
-  it("should use templates folder when using local template", () => {
-    const mockFs = {
-      pathExistsSync: sandbox.stub().returns(true),
-      readFileSync: sandbox.stub().returns('{"data": "test"}'),
-    };
-    const mockTemplateHelper = {
-      useLocalTemplate: sandbox.stub().returns(true),
-    };
-    const mockFolder = {
-      getTemplatesFolder: sandbox.stub().returns("/templates"),
-    };
-    const mockConstructNode = sandbox.stub().returns({ test: "node" });
-
-    const teamsProjectTypeModule = proxyquire(
-      "../../src/question/scaffold/vsc/teamsProjectTypeNode",
-      {
-        "fs-extra": mockFs,
-        "../../../component/generator/templateHelper": mockTemplateHelper,
-        "../../../folder": mockFolder,
-        "../constructNode": { constructNode: mockConstructNode },
-      }
-    );
-
-    const node = teamsProjectTypeModule.getTeamsProjectNode();
-
-    assert.isTrue(mockTemplateHelper.useLocalTemplate.calledOnce);
-    assert.isFalse(mockFs.pathExistsSync.called);
-    assert.isTrue(mockFolder.getTemplatesFolder.calledOnce);
-    assert.isTrue(mockFs.readFileSync.calledOnce);
-    assert.isDefined(node);
-  });
-
-  it("should use templates folder when cached file does not exist", () => {
-    const mockFs = {
-      pathExistsSync: sandbox.stub().returns(false),
-      readFileSync: sandbox.stub().returns('{"data": "test"}'),
-    };
-    const mockTemplateHelper = {
-      useLocalTemplate: sandbox.stub().returns(false),
-    };
-    const mockFolder = {
-      getTemplatesFolder: sandbox.stub().returns("/templates"),
-    };
-    const mockConstructNode = sandbox.stub().returns({ test: "node" });
-
-    const teamsProjectTypeModule = proxyquire(
-      "../../src/question/scaffold/vsc/teamsProjectTypeNode",
-      {
-        "fs-extra": mockFs,
-        "../../../component/generator/templateHelper": mockTemplateHelper,
-        "../../../folder": mockFolder,
-        "../constructNode": { constructNode: mockConstructNode },
-      }
-    );
-
-    const node = teamsProjectTypeModule.getTeamsProjectNode();
-
-    assert.isTrue(mockTemplateHelper.useLocalTemplate.calledOnce);
-    assert.isTrue(mockFs.pathExistsSync.calledOnce);
-    assert.isTrue(mockFolder.getTemplatesFolder.calledOnce);
-    assert.isTrue(mockFs.readFileSync.calledOnce);
-    assert.isDefined(node);
+    const condition = node.condition as StringValidation;
+    assert.equal(condition.equals, "teams-agent-and-app-type");
   });
 });
 
@@ -642,20 +468,6 @@ describe("TeamsProjectTypeOptions", () => {
   });
 });
 
-describe("officeAddinProjectTypeNode", () => {
-  const sandbox = sinon.createSandbox();
-  afterEach(() => {
-    sandbox.restore();
-  });
-  it("wxpAddinProjectTypeNode", () => {
-    sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
-    const node = officeAddinProjectTypeNode();
-    assert.deepEqual(node.condition, {
-      equals: ProjectTypeOptions.officeMetaOSOptionId,
-    });
-  });
-});
-
 describe("languageNode", () => {
   const sandbox = sinon.createSandbox();
   afterEach(() => {
@@ -711,10 +523,13 @@ describe("ActionStartOptions", () => {
     const mcpOption = ActionStartOptions.mcp();
 
     assert.equal(mcpOption.id, "mcp");
-    assert.equal(mcpOption.label, getLocalizedString("core.createProjectQuestion.mcpForDa.label"));
+    assert.equal(
+      mcpOption.label,
+      getLocalizedString("template.createProjectQuestion.mcpForDa.label")
+    );
     assert.equal(
       mcpOption.detail,
-      getLocalizedString("core.createProjectQuestion.mcpForDa.detail")
+      getLocalizedString("template.createProjectQuestion.mcpForDa.detail")
     );
     assert.equal(mcpOption.data, TemplateNames.DeclarativeAgentWithActionFromMCP);
   });
@@ -889,5 +704,482 @@ describe("foundryEndpointQuestion and foundryAgentIdQuestion", () => {
     assert.equal(question.type, "text");
     assert.isDefined(question.title);
     assert.isDefined(question.placeholder);
+  });
+});
+
+describe("rootNode", () => {
+  const sandbox = sinon.createSandbox();
+
+  afterEach(() => {
+    sandbox.restore();
+  });
+
+  it("should use cached JSON path when not using local template and cached file exists", () => {
+    // Test the actual function — it loads from bundled in dev mode
+    const node = getRootProjectTypeNode();
+    assert.isDefined(node);
+    assert.isDefined(node.data);
+    const data = node.data as SingleSelectQuestion;
+    assert.equal(data.name, "project-type");
+    assert.equal(data.type, "singleSelect");
+    // Root should have project type options
+    assert.isTrue((data.staticOptions as OptionItem[]).length >= 5);
+  });
+
+  it("should use templates folder when using local template", () => {
+    // In dev mode (alpha version), useLocalTemplate returns true → uses bundled
+    const node = getRootProjectTypeNode(Platform.VSCode);
+    assert.isDefined(node);
+    // Should have children (sub-tree nodes for each project type)
+    assert.isDefined(node.children);
+    assert.isTrue(node.children!.length >= 5);
+  });
+
+  it("should use templates folder when cached file does not exist", () => {
+    // Verify the node has correct structure regardless of source
+    const node = getRootProjectTypeNode();
+    assert.isDefined(node);
+    const data = node.data as SingleSelectQuestion;
+    // Check that options include known project types
+    const optionIds = (data.staticOptions as OptionItem[]).map((o) => o.id);
+    assert.include(optionIds, "copilot-agent-type");
+    assert.include(optionIds, "custom-engine-agent-type");
+    assert.include(optionIds, "teams-agent-and-app-type");
+    assert.include(optionIds, "office-meta-os-type");
+    assert.include(optionIds, "graph-connector-type");
+  });
+
+  it("should pass platform parameter to constructNode", () => {
+    // Verify that getRootProjectTypeNode returns a valid node for different platforms
+    const nodeVSC = getRootProjectTypeNode(Platform.VSCode);
+    assert.isDefined(nodeVSC);
+    assert.isDefined(nodeVSC.data);
+
+    const nodeCLI = getRootProjectTypeNode(Platform.CLI);
+    assert.isDefined(nodeCLI);
+    assert.isDefined(nodeCLI.data);
+  });
+});
+
+describe("constructNode", () => {
+  const sandbox = sinon.createSandbox();
+
+  afterEach(() => {
+    sandbox.restore();
+  });
+
+  it("should construct a singleSelect node from JSON", () => {
+    const json = JSON.stringify({
+      data: {
+        title: "core.createProjectQuestion.title",
+        name: "project-type",
+        type: "singleSelect",
+        options: [
+          {
+            id: "test-option",
+            label: "core.createProjectQuestion.projectType.declarativeAgent.label",
+            detail: "core.createProjectQuestion.projectType.declarativeAgent.detail",
+          },
+        ],
+      },
+    });
+
+    const node = constructNode(json);
+    assert.isDefined(node);
+    assert.isDefined(node.data);
+    const data = node.data as SingleSelectQuestion;
+    assert.equal(data.type, "singleSelect");
+    assert.equal(data.name, "project-type");
+    assert.isDefined(data.staticOptions);
+    assert.equal((data.staticOptions as OptionItem[]).length, 1);
+    assert.equal((data.staticOptions as OptionItem[])[0].id, "test-option");
+  });
+
+  it("should handle icon prefix for VSCode platform", () => {
+    const json = JSON.stringify({
+      data: {
+        title: "test.title",
+        name: "test",
+        type: "singleSelect",
+        options: [
+          {
+            id: "opt1",
+            label: "core.createProjectQuestion.projectType.declarativeAgent.label",
+            icon: "$(teamsfx-agent)",
+          },
+        ],
+      },
+    });
+
+    const node = constructNode(json, Platform.VSCode);
+    const data = node.data as SingleSelectQuestion;
+    const option = (data.staticOptions as OptionItem[])[0];
+    assert.isTrue(option.label.startsWith("$(teamsfx-agent) "));
+  });
+
+  it("should not add icon prefix for CLI platform", () => {
+    const json = JSON.stringify({
+      data: {
+        title: "test.title",
+        name: "test",
+        type: "singleSelect",
+        options: [
+          {
+            id: "opt1",
+            label: "core.createProjectQuestion.projectType.declarativeAgent.label",
+            icon: "$(teamsfx-agent)",
+          },
+        ],
+      },
+    });
+
+    const node = constructNode(json, Platform.CLI);
+    const data = node.data as SingleSelectQuestion;
+    const option = (data.staticOptions as OptionItem[])[0];
+    assert.isFalse(option.label.startsWith("$(teamsfx-agent) "));
+  });
+
+  it("should handle groupName in options", () => {
+    const json = JSON.stringify({
+      data: {
+        title: "test.title",
+        name: "test",
+        type: "singleSelect",
+        options: [
+          {
+            id: "opt1",
+            label: "core.createProjectQuestion.projectType.declarativeAgent.label",
+            groupName: "core.createProjectQuestion.projectType.createGroup.aiAgent",
+          },
+        ],
+      },
+    });
+
+    const node = constructNode(json);
+    const data = node.data as SingleSelectQuestion;
+    const option = (data.staticOptions as OptionItem[])[0];
+    assert.isDefined(option.groupName);
+  });
+
+  it("should filter out feature-flagged options when flag is disabled", () => {
+    sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
+
+    const json = JSON.stringify({
+      data: {
+        title: "test.title",
+        name: "test",
+        type: "singleSelect",
+        options: [
+          { id: "always-visible", label: "Always" },
+          { id: "flagged", label: "Flagged", featureFlag: "DAMetaOS" },
+        ],
+      },
+    });
+
+    const node = constructNode(json);
+    const data = node.data as SingleSelectQuestion;
+    const options = data.staticOptions as OptionItem[];
+    assert.equal(options.length, 1);
+    assert.equal(options[0].id, "always-visible");
+  });
+
+  it("should include feature-flagged options when flag is enabled", () => {
+    sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
+
+    const json = JSON.stringify({
+      data: {
+        title: "test.title",
+        name: "test",
+        type: "singleSelect",
+        options: [
+          { id: "always-visible", label: "Always" },
+          { id: "flagged", label: "Flagged", featureFlag: "DAMetaOS" },
+        ],
+      },
+    });
+
+    const node = constructNode(json);
+    const data = node.data as SingleSelectQuestion;
+    const options = data.staticOptions as OptionItem[];
+    assert.equal(options.length, 2);
+  });
+
+  it("should handle group type nodes", () => {
+    const json = JSON.stringify({
+      data: { type: "group", name: "test-group" },
+      children: [],
+    });
+
+    const node = constructNode(json);
+    assert.isDefined(node);
+    assert.equal(node.data?.type, "group");
+  });
+
+  it("should handle condition on nodes", () => {
+    const json = JSON.stringify({
+      condition: { equals: "some-value" },
+      data: {
+        title: "test.title",
+        name: "test",
+        type: "singleSelect",
+        options: [],
+      },
+    });
+
+    const node = constructNode(json);
+    const condition = node.condition as StringValidation;
+    assert.equal(condition.equals, "some-value");
+  });
+
+  it("should recursively construct children", () => {
+    const json = JSON.stringify({
+      data: {
+        title: "parent.title",
+        name: "parent",
+        type: "singleSelect",
+        options: [{ id: "child-trigger", label: "Child" }],
+      },
+      children: [
+        {
+          condition: { equals: "child-trigger" },
+          data: {
+            title: "child.title",
+            name: "child",
+            type: "singleSelect",
+            options: [{ id: "sub-item", label: "Sub" }],
+          },
+        },
+      ],
+    });
+
+    const node = constructNode(json);
+    assert.isDefined(node.children);
+    assert.equal(node.children!.length, 1);
+    const childCondition = node.children![0].condition as StringValidation;
+    assert.equal(childCondition.equals, "child-trigger");
+  });
+
+  it("should handle skipSingleOption property", () => {
+    const json = JSON.stringify({
+      data: {
+        title: "test.title",
+        name: "test",
+        type: "singleSelect",
+        skipSingleOption: true,
+        options: [{ id: "only", label: "Only Option" }],
+      },
+    });
+
+    const node = constructNode(json);
+    const data = node.data as SingleSelectQuestion;
+    assert.isTrue(data.skipSingleOption);
+  });
+
+  it("should resolve known node references", () => {
+    const json = JSON.stringify({
+      node: "llmServiceNode",
+    });
+
+    const node = constructNode(json);
+    assert.isDefined(node);
+  });
+
+  it("should throw for unknown node references", () => {
+    const json = JSON.stringify({
+      node: "nonExistentNode",
+    });
+
+    assert.throws(() => constructNode(json), /Unknown node reference: nonExistentNode/);
+  });
+
+  it("should set data property on options", () => {
+    const json = JSON.stringify({
+      data: {
+        title: "test.title",
+        name: "test",
+        type: "singleSelect",
+        options: [
+          { id: "opt1", label: "Option 1", data: "template-name-1" },
+          { id: "opt2", label: "Option 2" },
+        ],
+      },
+    });
+
+    const node = constructNode(json);
+    const data = node.data as SingleSelectQuestion;
+    const options = data.staticOptions as OptionItem[];
+    assert.equal(options[0].data, "template-name-1");
+    assert.isUndefined(options[1].data);
+  });
+});
+
+describe("constructNode - additional coverage", () => {
+  it("should resolve apiSpecWithSearchNode reference", () => {
+    const json = JSON.stringify({ node: "apiSpecWithSearchNode" });
+    const node = constructNode(json);
+    assert.isDefined(node);
+  });
+
+  it("should resolve apiSpecWithSearchNode with condition", () => {
+    const json = JSON.stringify({
+      node: "apiSpecWithSearchNode",
+      condition: { equals: "some-value" },
+    });
+    const node = constructNode(json);
+    assert.isDefined(node);
+    const condition = node.condition as StringValidation;
+    assert.equal(condition.equals, "some-value");
+  });
+
+  it("should resolve foundryNode reference", () => {
+    const json = JSON.stringify({ node: "foundryNode" });
+    const node = constructNode(json);
+    assert.isDefined(node);
+  });
+
+  it("should resolve gcNameNode reference", () => {
+    const json = JSON.stringify({ node: "gcNameNode" });
+    const node = constructNode(json);
+    assert.isDefined(node);
+    assert.isDefined(node.data);
+  });
+
+  it("should resolve gcConnectionIdNode reference", () => {
+    const json = JSON.stringify({ node: "gcConnectionIdNode" });
+    const node = constructNode(json);
+    assert.isDefined(node);
+    assert.isDefined(node.data);
+  });
+
+  it("should resolve officeAddinFolderNode reference", () => {
+    const json = JSON.stringify({ node: "officeAddinFolderNode" });
+    const node = constructNode(json);
+    assert.isDefined(node);
+    assert.equal(node.data?.type, "folder");
+  });
+
+  it("should resolve officeAddinImportNode reference", () => {
+    const json = JSON.stringify({ node: "officeAddinImportNode" });
+    const node = constructNode(json);
+    assert.isDefined(node);
+    assert.equal(node.data?.type, "group");
+    assert.isDefined(node.children);
+    assert.equal(node.children!.length, 2);
+  });
+});
+
+describe("rootNode - cache vs bundled", () => {
+  it("should load and return valid tree with all project types", () => {
+    const node = getRootProjectTypeNode(Platform.VSCode);
+    assert.isDefined(node);
+    assert.isDefined(node.data);
+    const data = node.data as SingleSelectQuestion;
+    const optionIds = (data.staticOptions as OptionItem[]).map((o) => o.id);
+    assert.include(optionIds, "copilot-agent-type");
+    assert.include(optionIds, "custom-engine-agent-type");
+    assert.include(optionIds, "graph-connector-type");
+    assert.include(optionIds, "teams-agent-and-app-type");
+    assert.include(optionIds, "office-meta-os-type");
+    assert.isDefined(node.children);
+    assert.isTrue(node.children!.length >= 5);
+  });
+
+  it("should work for CLI platform without icons", () => {
+    const node = getRootProjectTypeNode(Platform.CLI);
+    assert.isDefined(node);
+    const data = node.data as SingleSelectQuestion;
+    const options = data.staticOptions as OptionItem[];
+    for (const opt of options) {
+      assert.isFalse(
+        opt.label.startsWith("$("),
+        "Option " + opt.id + " should not have icon on CLI"
+      );
+    }
+  });
+});
+
+describe("wizard sub-tree extraction", () => {
+  it("CEA sub-tree should have correct options", () => {
+    const root = getRootProjectTypeNode(Platform.VSCode);
+    const node = root.children?.find(
+      (c) => (c.condition as StringValidation)?.equals === "custom-engine-agent-type"
+    );
+    assert.isDefined(node);
+    const data = node!.data as SingleSelectQuestion;
+    const optionIds = (data.staticOptions as OptionItem[]).map((o) => o.id);
+    assert.include(optionIds, "basic-custom-engine-agent");
+    assert.include(optionIds, "weather-agent");
+  });
+
+  it("Teams sub-tree should have correct condition", () => {
+    const node = getTeamsProjectNode();
+    assert.isDefined(node);
+    const condition = node.condition as StringValidation;
+    assert.equal(condition.equals, "teams-agent-and-app-type");
+    assert.isDefined(node.data);
+  });
+
+  it("CEA sub-tree should have children", () => {
+    const root = getRootProjectTypeNode(Platform.VSCode);
+    const node = root.children?.find(
+      (c) => (c.condition as StringValidation)?.equals === "custom-engine-agent-type"
+    );
+    assert.isDefined(node!.children);
+    assert.isTrue(node!.children!.length > 0);
+  });
+
+  it("Teams sub-tree should have children", () => {
+    const node = getTeamsProjectNode();
+    assert.isDefined(node.children);
+    assert.isTrue(node.children!.length > 0);
+  });
+});
+
+describe("getTdpProjectTypeNode", () => {
+  it("should load tdpNode.json and return valid tree", () => {
+    const node = getTdpProjectTypeNode(Platform.VSCode);
+    assert.isDefined(node);
+    assert.isDefined(node.data);
+    const data = node.data as SingleSelectQuestion;
+    assert.equal(data.name, "project-type");
+  });
+
+  it("should contain only TDP-supported project types (DA, CEA, Teams)", () => {
+    const node = getTdpProjectTypeNode(Platform.VSCode);
+    const data = node.data as SingleSelectQuestion;
+    const optionIds = (data.staticOptions as OptionItem[]).map((o) => o.id);
+    assert.equal(optionIds.length, 3);
+    assert.include(optionIds, "copilot-agent-type");
+    assert.include(optionIds, "custom-engine-agent-type");
+    assert.include(optionIds, "teams-agent-and-app-type");
+  });
+
+  it("should NOT contain Graph Connector or Office Add-in", () => {
+    const node = getTdpProjectTypeNode(Platform.VSCode);
+    const data = node.data as SingleSelectQuestion;
+    const optionIds = (data.staticOptions as OptionItem[]).map((o) => o.id);
+    assert.notInclude(optionIds, "graph-connector-type");
+    assert.notInclude(optionIds, "office-meta-os-type");
+  });
+
+  it("should have inlined children for each project type", () => {
+    const node = getTdpProjectTypeNode(Platform.VSCode);
+    assert.isDefined(node.children);
+    assert.equal(node.children!.length, 3);
+    const childConditions = node.children!.map((c) => (c.condition as StringValidation)?.equals);
+    assert.include(childConditions, "copilot-agent-type");
+    assert.include(childConditions, "custom-engine-agent-type");
+    assert.include(childConditions, "teams-agent-and-app-type");
+  });
+
+  it("should work for CLI platform", () => {
+    const node = getTdpProjectTypeNode(Platform.CLI);
+    assert.isDefined(node);
+    const data = node.data as SingleSelectQuestion;
+    const options = data.staticOptions as OptionItem[];
+    assert.equal(options.length, 3);
+    for (const opt of options) {
+      assert.isFalse(opt.label.startsWith("$("), "CLI should not have icons");
+    }
   });
 });

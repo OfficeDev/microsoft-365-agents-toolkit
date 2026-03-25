@@ -67,7 +67,7 @@ import {
   setErrorContext,
   setTools,
 } from "../common/globalVars";
-import { getLocalizedString } from "../common/localizeUtils";
+import { clearLocaleCache, getLocalizedString } from "../common/localizeUtils";
 import { ListCollaboratorResult, PermissionsResult } from "../common/permissionInterface";
 import {
   getProjectMetadata,
@@ -2939,6 +2939,9 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
 
       const versionFile = path.join(metadataDir, "template-version.txt");
       const needDownload = async (): Promise<boolean> => {
+        // Always re-download for mutable pre-release tags (content changes but tag stays the same)
+        if (latestVersion === "0.0.0-rc") return true;
+
         if (!(await fs.pathExists(versionFile))) return true;
         try {
           const cachedVersion = (await fs.readFile(versionFile, "utf-8")).trim();
@@ -2959,6 +2962,10 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
       const zip = await fetchZipFromUrl(metadataZipUrl);
       await unzip(zip, metadataDir);
       await fs.writeFile(versionFile, latestVersion, { encoding: "utf-8" });
+
+      // Clear locale cache so freshly downloaded NLS files are picked up
+      clearLocaleCache();
+
       return ok(undefined);
     } catch (error: any) {
       const message = error?.message || "Unknown error while fetching template metadata";
