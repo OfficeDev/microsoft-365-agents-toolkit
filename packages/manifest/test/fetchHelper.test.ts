@@ -39,7 +39,7 @@ describe("fetchHelper", () => {
     assert.deepStrictEqual(stub.firstCall.args[1], init);
   });
 
-  it("should call real node-fetch when not stubbed", async () => {
+  it("should call real fetch when not stubbed", async () => {
     // Verify the real function returns a promise (doesn't throw synchronously)
     const promise = fetchHelper.default("https://localhost:0");
     assert.instanceOf(promise, Promise);
@@ -50,6 +50,78 @@ describe("fetchHelper", () => {
     } catch (err: any) {
       // Expected: connection refused or fetch error
       assert.isOk(err);
+    }
+  });
+
+  it("should use globalThis.fetch when available", async () => {
+    const originalFetch = globalThis.fetch;
+    try {
+      const fakeResponse = { ok: true, status: 200 };
+      globalThis.fetch = sandbox.stub().resolves(fakeResponse) as any;
+      const result = await fetchHelper.default("https://example.com");
+      assert.strictEqual(result.ok, true);
+      assert.strictEqual(result.status, 200);
+      assert.isTrue((globalThis.fetch as sinon.SinonStub).calledOnce);
+      assert.strictEqual(
+        (globalThis.fetch as sinon.SinonStub).firstCall.args[0],
+        "https://example.com"
+      );
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+  });
+
+  it("should fall back to node-fetch when globalThis.fetch is unavailable", async () => {
+    const originalFetch = globalThis.fetch;
+    try {
+      // Remove globalThis.fetch to simulate environments where it is not available
+      (globalThis as any).fetch = undefined;
+      // The call should still succeed via node-fetch fallback
+      const promise = fetchHelper.default("https://localhost:0");
+      assert.instanceOf(promise, Promise);
+      try {
+        await promise;
+      } catch (err: any) {
+        // Expected: connection refused or fetch error from node-fetch
+        assert.isOk(err);
+        assert.notInclude(err.message, "fetch only supports HTTP/HTTPS URLs");
+      }
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+  });
+
+  it("should reject non-HTTP(S) URLs", async () => {
+    for (const badUrl of [
+      "file:///etc/passwd",
+      "ftp://example.com",
+      "/local/path",
+      "data:text/html,<h1>hi</h1>",
+    ]) {
+      try {
+        await fetchHelper.default(badUrl);
+        assert.fail(`Expected fetch to throw for URL: ${badUrl}`);
+      } catch (err: any) {
+        assert.include(err.message, "fetch only supports HTTP/HTTPS URLs");
+      }
+    }
+  });
+
+  it("should accept a URL object", async () => {
+    const originalFetch = globalThis.fetch;
+    try {
+      const fakeResponse = { ok: true, status: 200 };
+      globalThis.fetch = sandbox.stub().resolves(fakeResponse) as any;
+      const urlObj = new URL("https://example.com/path");
+      const result = await fetchHelper.default(urlObj);
+      assert.strictEqual(result.ok, true);
+      assert.isTrue((globalThis.fetch as sinon.SinonStub).calledOnce);
+      assert.strictEqual(
+        (globalThis.fetch as sinon.SinonStub).firstCall.args[0],
+        "https://example.com/path"
+      );
+    } finally {
+      globalThis.fetch = originalFetch;
     }
   });
 });
