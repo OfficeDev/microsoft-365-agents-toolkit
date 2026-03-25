@@ -707,7 +707,7 @@ describe("scaffold question", () => {
           : question.placeholder;
       assert.equal(
         placeholder,
-        getLocalizedString("core.createProjectQuestion.addApiPlugin.placeholder")
+        getLocalizedString("template.createProjectQuestion.addApiPlugin.placeholder")
       );
     });
     it("doesProjectExists = true", async () => {
@@ -720,7 +720,10 @@ describe("scaffold question", () => {
       const question = apiPluginStartQuestion(false);
       const title =
         typeof question.title === "function" ? question.title({} as any) : question.title;
-      assert.equal(title, getLocalizedString("core.createProjectQuestion.createApiPlugin.title"));
+      assert.equal(
+        title,
+        getLocalizedString("template.createProjectQuestion.createApiPlugin.title")
+      );
     });
   });
 
