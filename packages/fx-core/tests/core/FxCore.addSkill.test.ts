@@ -75,9 +75,7 @@ describe("addSkill", () => {
         ok(path.resolve("test-project", "appPackage", "declarativeAgent.json"))
       );
 
-    const uxStub = sandbox.stub(MockUserInteraction.prototype, "showMessage");
-    uxStub.onCall(0).resolves(ok("Add"));
-    uxStub.onCall(1).resolves(ok("OK"));
+    sandbox.stub(MockUserInteraction.prototype, "showMessage").resolves(ok("OK"));
 
     const ensureDirStub = sandbox.stub(fs, "ensureDir").resolves();
     const writeFileStub = sandbox.stub(fs, "writeFile").resolves();
@@ -115,10 +113,7 @@ describe("addSkill", () => {
       .stub(copilotGptManifestUtils, "getManifestPath")
       .resolves(ok(path.resolve(appPackageFolder, "declarativeAgent.json")));
 
-    const uxStub = sandbox.stub(MockUserInteraction.prototype, "showMessage");
-    uxStub.onCall(0).resolves(ok("Add"));
-    uxStub.onCall(1).resolves(ok("OK"));
-
+    sandbox.stub(MockUserInteraction.prototype, "showMessage").resolves(ok("OK"));
     sandbox.stub(fs, "pathExists").resolves(true);
 
     const addSkillStub = sandbox.stub(copilotGptManifestUtils, "addSkill").resolves(
@@ -146,10 +141,7 @@ describe("addSkill", () => {
         ok(path.resolve("test-project", "appPackage", "declarativeAgent.json"))
       );
 
-    const uxStub = sandbox.stub(MockUserInteraction.prototype, "showMessage");
-    uxStub.onCall(0).resolves(ok("Add"));
-    uxStub.onCall(1).resolves(ok("OK"));
-
+    sandbox.stub(MockUserInteraction.prototype, "showMessage").resolves(ok("OK"));
     sandbox.stub(fs, "ensureDir").resolves();
     sandbox.stub(fs, "writeFile").resolves();
 
@@ -183,31 +175,6 @@ describe("addSkill", () => {
     assert.isTrue(result.isErr());
   });
 
-  it("errors when user cancels confirmation", async () => {
-    const inputs = createBaseInputs();
-    const manifest = createManifestWithDA();
-
-    sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
-    sandbox
-      .stub(copilotGptManifestUtils, "getManifestPath")
-      .resolves(
-        ok(path.resolve("test-project", "appPackage", "declarativeAgent.json"))
-      );
-
-    // User clicks cancel (returns a value that doesn't match "Add")
-    sandbox
-      .stub(MockUserInteraction.prototype, "showMessage")
-      .resolves(ok("Cancel"));
-
-    const core = new FxCore(tools);
-    const result = await core.addSkill(inputs);
-
-    assert.isTrue(result.isErr());
-    if (result.isErr()) {
-      assert.isTrue(result.error instanceof UserCancelError);
-    }
-  });
-
   it("existing skill: errors when SKILL.md doesn't exist", async () => {
     const appPackageFolder = path.resolve("test-project", "appPackage");
     const inputs = createBaseInputs({
@@ -219,9 +186,6 @@ describe("addSkill", () => {
     sandbox
       .stub(copilotGptManifestUtils, "getManifestPath")
       .resolves(ok(path.resolve(appPackageFolder, "declarativeAgent.json")));
-
-    const uxStub = sandbox.stub(MockUserInteraction.prototype, "showMessage");
-    uxStub.onCall(0).resolves(ok("Add"));
 
     // SKILL.md does not exist
     sandbox.stub(fs, "pathExists").resolves(false);
@@ -274,9 +238,6 @@ describe("addSkill", () => {
         ok(path.resolve("test-project", "appPackage", "declarativeAgent.json"))
       );
 
-    const uxStub = sandbox.stub(MockUserInteraction.prototype, "showMessage");
-    uxStub.onCall(0).resolves(ok("Add"));
-
     sandbox.stub(fs, "ensureDir").resolves();
     sandbox.stub(fs, "writeFile").resolves();
 
@@ -301,10 +262,7 @@ describe("addSkill", () => {
         ok(path.resolve("test-project", "appPackage", "declarativeAgent.json"))
       );
 
-    const uxStub = sandbox.stub(MockUserInteraction.prototype, "showMessage");
-    uxStub.onCall(0).resolves(ok("Add"));
-    uxStub.onCall(1).resolves(ok("OK"));
-
+    sandbox.stub(MockUserInteraction.prototype, "showMessage").resolves(ok("OK"));
     sandbox.stub(fs, "ensureDir").resolves();
     sandbox.stub(fs, "writeFile").resolves();
 
@@ -334,10 +292,7 @@ describe("addSkill", () => {
         ok(path.resolve("test-project", "appPackage", "declarativeAgent.json"))
       );
 
-    const uxStub = sandbox.stub(MockUserInteraction.prototype, "showMessage");
-    uxStub.onCall(0).resolves(ok("Add"));
-    uxStub.onCall(1).resolves(ok("OK"));
-
+    sandbox.stub(MockUserInteraction.prototype, "showMessage").resolves(ok("OK"));
     sandbox.stub(fs, "ensureDir").resolves();
     sandbox.stub(fs, "writeFile").resolves();
 
