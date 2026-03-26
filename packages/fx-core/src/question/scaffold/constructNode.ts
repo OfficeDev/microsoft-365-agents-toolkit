@@ -48,9 +48,11 @@ export function constructNode(
   const data: SingleSelectQuestion = {
     type: "singleSelect",
     name: jsonObject.data.name,
-    title: jsonObject.data.title ? getLocalizedString(jsonObject.data.title) : "",
+    title: jsonObject.data.title
+      ? getLocalizedString(jsonObject.data.title) || jsonObject.data.title
+      : "",
     placeholder: jsonObject.data.placeholder
-      ? getLocalizedString(jsonObject.data.placeholder)
+      ? getLocalizedString(jsonObject.data.placeholder) || jsonObject.data.placeholder
       : undefined,
     skipSingleOption: jsonObject.data.skipSingleOption,
     forgetLastValue: jsonObject.data.forgetLastValue,
@@ -64,17 +66,21 @@ export function constructNode(
       if (option.featureFlag && !isFeatureEnabled(option.featureFlag)) {
         continue;
       }
+      const resolvedLabel = getLocalizedString(option.label as string) || (option.label as string);
+      const resolvedDetail = option.detail
+        ? getLocalizedString(option.detail as string) || (option.detail as string)
+        : undefined;
       const optionItem: OptionItem = {
         id: option.id as string,
         label:
           option.icon && platform === Platform.VSCode
-            ? `${String(option.icon)} ${getLocalizedString(option.label as string)}`
-            : getLocalizedString(option.label as string),
-        detail: option.detail ? getLocalizedString(option.detail as string) : undefined,
+            ? `${String(option.icon)} ${resolvedLabel}`
+            : resolvedLabel,
+        detail: resolvedDetail,
         data: option.data as string,
       };
       if (option.groupName) {
-        optionItem.groupName = getLocalizedString(option.groupName);
+        optionItem.groupName = getLocalizedString(option.groupName) || option.groupName;
       }
       (data.staticOptions as OptionItem[]).push(optionItem);
     }
