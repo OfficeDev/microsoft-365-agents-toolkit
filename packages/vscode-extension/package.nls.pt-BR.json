@@ -116,7 +116,7 @@
   "teamstoolkit.commands.switchTenant.progressbar.title": "Alternar o locatário",
   "teamstoolkit.commands.switchTenant.progressbar.detail": "O Kit de ferramentas do Microsoft 365 Agents agora está mudando para o locatário recém-selecionado.",
   "teamstoolkit.commands.signOut.title": "Sair",
-  "teamstoolkit.commands.checkCopilotAccess.title": "Verificar o Acesso do Copilot",
+  "teamstoolkit.commands.checkCopilotAccess": "Verificar o Acesso do Copilot",
   "teamstoolkit.commands.updateManifest.title": "Atualizar Aplicativo",
   "teamstoolkit.commands.deployManifest.ctxMenu.title": "Atualizar Aplicativo",
   "teamstoolkit.commands.upgradeProject.title": "Atualizar Projeto",

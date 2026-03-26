@@ -116,7 +116,7 @@
   "teamstoolkit.commands.switchTenant.progressbar.title": "테넌트 전환",
   "teamstoolkit.commands.switchTenant.progressbar.detail": "Microsoft 365 Agents Toolkit가 이제 새로 선택한 테넌트로 전환됩니다.",
   "teamstoolkit.commands.signOut.title": "로그아웃",
-  "teamstoolkit.commands.checkCopilotAccess.title": "Copilot 액세스 확인",
+  "teamstoolkit.commands.checkCopilotAccess": "Copilot 액세스 확인",
   "teamstoolkit.commands.updateManifest.title": "앱 업데이트",
   "teamstoolkit.commands.deployManifest.ctxMenu.title": "앱 업데이트",
   "teamstoolkit.commands.upgradeProject.title": "프로젝트 업그레이드",

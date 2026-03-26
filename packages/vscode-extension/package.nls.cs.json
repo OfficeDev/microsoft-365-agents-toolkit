@@ -116,7 +116,7 @@
   "teamstoolkit.commands.switchTenant.progressbar.title": "Přepnout tenanta",
   "teamstoolkit.commands.switchTenant.progressbar.detail": "Microsoft 365 Agents Toolkit se teď přepíná na nově vybraného tenanta.",
   "teamstoolkit.commands.signOut.title": "Odhlásit",
-  "teamstoolkit.commands.checkCopilotAccess.title": "Zkontrolovat přístup ke službě Copilot",
+  "teamstoolkit.commands.checkCopilotAccess": "Zkontrolovat přístup ke službě Copilot",
   "teamstoolkit.commands.updateManifest.title": "Aktualizovat aplikaci",
   "teamstoolkit.commands.deployManifest.ctxMenu.title": "Aktualizovat aplikaci",
   "teamstoolkit.commands.upgradeProject.title": "Upgrade projektu",

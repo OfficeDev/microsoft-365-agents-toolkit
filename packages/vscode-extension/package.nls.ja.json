@@ -116,7 +116,7 @@
   "teamstoolkit.commands.switchTenant.progressbar.title": "テナントの切り替え",
   "teamstoolkit.commands.switchTenant.progressbar.detail": "Microsoft 365 Agents Toolkit は、新しく選択されたテナントに切り替わっています。",
   "teamstoolkit.commands.signOut.title": "サインアウト",
-  "teamstoolkit.commands.checkCopilotAccess.title": "Copilot アクセスの確認",
+  "teamstoolkit.commands.checkCopilotAccess": "Copilot アクセスの確認",
   "teamstoolkit.commands.updateManifest.title": "アプリを更新",
   "teamstoolkit.commands.deployManifest.ctxMenu.title": "アプリを更新",
   "teamstoolkit.commands.upgradeProject.title": "プロジェクトのアップグレード",

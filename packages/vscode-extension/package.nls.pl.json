@@ -116,7 +116,7 @@
   "teamstoolkit.commands.switchTenant.progressbar.title": "Przełącz dzierżawę",
   "teamstoolkit.commands.switchTenant.progressbar.detail": "Zestaw narzędzi agentów platformy Microsoft 365 przełącza się teraz na nowo wybraną dzierżawę.",
   "teamstoolkit.commands.signOut.title": "Wyloguj",
-  "teamstoolkit.commands.checkCopilotAccess.title": "Sprawdź dostęp do copilot",
+  "teamstoolkit.commands.checkCopilotAccess": "Sprawdź dostęp do copilot",
   "teamstoolkit.commands.updateManifest.title": "Aktualizacja aplikacji",
   "teamstoolkit.commands.deployManifest.ctxMenu.title": "Aktualizacja aplikacji",
   "teamstoolkit.commands.upgradeProject.title": "Uaktualnianie projektu",

@@ -116,7 +116,7 @@
   "teamstoolkit.commands.switchTenant.progressbar.title": "Переключить клиента",
   "teamstoolkit.commands.switchTenant.progressbar.detail": "Набор средств агентов Microsoft 365 переключается на новый выбранный клиент.",
   "teamstoolkit.commands.signOut.title": "Выйти",
-  "teamstoolkit.commands.checkCopilotAccess.title": "Проверка доступа к Copilot",
+  "teamstoolkit.commands.checkCopilotAccess": "Проверка доступа к Copilot",
   "teamstoolkit.commands.updateManifest.title": "Обновить приложение",
   "teamstoolkit.commands.deployManifest.ctxMenu.title": "Обновить приложение",
   "teamstoolkit.commands.upgradeProject.title": "Обновить проект",

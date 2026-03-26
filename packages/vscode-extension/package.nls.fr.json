@@ -116,7 +116,7 @@
   "teamstoolkit.commands.switchTenant.progressbar.title": "Changer de client",
   "teamstoolkit.commands.switchTenant.progressbar.detail": "Microsoft 365 Agents Toolkit bascule maintenant vers le locataire nouvellement sélectionné.",
   "teamstoolkit.commands.signOut.title": "Se déconnecter",
-  "teamstoolkit.commands.checkCopilotAccess.title": "Vérifier l’accès Copilot",
+  "teamstoolkit.commands.checkCopilotAccess": "Vérifier l’accès Copilot",
   "teamstoolkit.commands.updateManifest.title": "Mettez à jour l’application",
   "teamstoolkit.commands.deployManifest.ctxMenu.title": "Mettez à jour l’application",
   "teamstoolkit.commands.upgradeProject.title": "Mettre à niveau le projet",

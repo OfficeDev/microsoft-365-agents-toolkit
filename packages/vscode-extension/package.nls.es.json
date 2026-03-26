@@ -116,7 +116,7 @@
   "teamstoolkit.commands.switchTenant.progressbar.title": "Cambiar de inquilino",
   "teamstoolkit.commands.switchTenant.progressbar.detail": "El kit de herramientas de agentes de Microsoft 365 está cambiando en este momento al inquilino recién seleccionado.",
   "teamstoolkit.commands.signOut.title": "Cerrar sesión",
-  "teamstoolkit.commands.checkCopilotAccess.title": "Comprobar el acceso de Copilot",
+  "teamstoolkit.commands.checkCopilotAccess": "Comprobar el acceso de Copilot",
   "teamstoolkit.commands.updateManifest.title": "Actualizar aplicación",
   "teamstoolkit.commands.deployManifest.ctxMenu.title": "Actualizar aplicación",
   "teamstoolkit.commands.upgradeProject.title": "Actualizar proyecto",

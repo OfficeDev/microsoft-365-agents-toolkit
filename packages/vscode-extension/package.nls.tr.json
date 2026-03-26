@@ -116,7 +116,7 @@
   "teamstoolkit.commands.switchTenant.progressbar.title": "Kiracıyı değiştir",
   "teamstoolkit.commands.switchTenant.progressbar.detail": "Microsoft 365 Aracılar Araç Seti şimdi yeni seçilen kiracıya geçiş yapıyor.",
   "teamstoolkit.commands.signOut.title": "Oturumu Kapat",
-  "teamstoolkit.commands.checkCopilotAccess.title": "Copilot Erişimini Kontrol Edin",
+  "teamstoolkit.commands.checkCopilotAccess": "Copilot Erişimini Kontrol Edin",
   "teamstoolkit.commands.updateManifest.title": "Uygulamayı Güncelleştir",
   "teamstoolkit.commands.deployManifest.ctxMenu.title": "Uygulamayı Güncelleştir",
   "teamstoolkit.commands.upgradeProject.title": "Projeyi Yükselt",

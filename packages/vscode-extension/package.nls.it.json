@@ -116,7 +116,7 @@
   "teamstoolkit.commands.switchTenant.progressbar.title": "Cambia tenant",
   "teamstoolkit.commands.switchTenant.progressbar.detail": "Microsoft 365 Agents Toolkit sta passando al tenant appena selezionato.",
   "teamstoolkit.commands.signOut.title": "Esci",
-  "teamstoolkit.commands.checkCopilotAccess.title": "Controlla l'accesso a Copilot",
+  "teamstoolkit.commands.checkCopilotAccess": "Controlla l'accesso a Copilot",
   "teamstoolkit.commands.updateManifest.title": "Aggiorna app",
   "teamstoolkit.commands.deployManifest.ctxMenu.title": "Aggiorna app",
   "teamstoolkit.commands.upgradeProject.title": "Aggiorna progetto",

@@ -106,7 +106,7 @@
   "teamstoolkit.commands.switchTenant.progressbar.title": "切换租户",
   "teamstoolkit.commands.switchTenant.progressbar.detail": "Teams 工具包现在正在切换到新选择的租户。",
   "teamstoolkit.commands.signOut.title": "注销",
-  "teamstoolkit.commands.checkCopilotAccess.title": "检查 Copilot 访问",
+  "teamstoolkit.commands.checkCopilotAccess": "检查 Copilot 访问",
   "teamstoolkit.commands.updateManifest.title": "更新 Teams 应用",
   "teamstoolkit.commands.deployManifest.ctxMenu.title": "更新 Teams 应用",
   "teamstoolkit.commands.upgradeProject.title": "升级项目",
