@@ -30,7 +30,7 @@ jobs:
 
       - name: Install templates dependencies
         working-directory: templates
-        run: npm install
+        run: pnpm install
 
       - name: Run NLS key validation
         working-directory: templates
