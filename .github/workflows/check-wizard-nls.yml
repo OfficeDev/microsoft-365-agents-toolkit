@@ -1,0 +1,37 @@
+name: Check Wizard NLS Keys
+
+on:
+  pull_request:
+    branches:
+      - dev
+      - release/**
+    paths:
+      - "templates/src/ui/**"
+      - "packages/fx-core/templates/ui/wizardNode.json"
+      - "packages/fx-core/templates/ui/tdpNode.json"
+
+jobs:
+  check-wizard-nls:
+    name: Validate wizard node NLS keys
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head_ref }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 22.17
+
+      - uses: pnpm/action-setup@v4
+
+      - name: Install templates dependencies
+        working-directory: templates
+        run: npm install
+
+      - name: Run NLS key validation
+        working-directory: templates
+        run: npx tsx ./scripts/generate-metadata.ts
