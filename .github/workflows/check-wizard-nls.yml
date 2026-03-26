@@ -35,3 +35,19 @@ jobs:
       - name: Run NLS key validation
         working-directory: templates
         run: npx tsx ./scripts/generate-metadata.ts
+
+      - name: Check bundled JSON files are up-to-date
+        run: |
+          diff_wizard=$(diff templates/build/ui/wizardNode.json packages/fx-core/templates/ui/wizardNode.json || true)
+          diff_tdp=$(diff templates/build/ui/tdpNode.json packages/fx-core/templates/ui/tdpNode.json || true)
+          if [ -n "$diff_wizard" ] || [ -n "$diff_tdp" ]; then
+            echo "::error::Bundled wizard JSON files are out of sync with templates/src/ui/."
+            echo ""
+            echo "The following files need to be regenerated and committed:"
+            [ -n "$diff_wizard" ] && echo "  - packages/fx-core/templates/ui/wizardNode.json"
+            [ -n "$diff_tdp" ]    && echo "  - packages/fx-core/templates/ui/tdpNode.json"
+            echo ""
+            echo "Run the following command locally and commit the updated files:"
+            echo "  cd templates && npm run build:vsc"
+            exit 1
+          fi
