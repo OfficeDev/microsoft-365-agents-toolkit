@@ -2591,7 +2591,7 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
 
     const skillName = inputs[QuestionNames.SkillName] as string;
     const skillDescription = inputs[QuestionNames.SkillDescription] as string;
-    const exposeSkillToCopilot = inputs[QuestionNames.SkillExposeTocopilot] === true;
+    const exposeSkillToCopilot = inputs[QuestionNames.SkillExposeTocopilot] === "yes";
     const skillFrom = inputs[QuestionNames.SkillFrom] as string | undefined;
 
     let skillFolder: string;

@@ -58,7 +58,7 @@ describe("addSkill", () => {
       [QuestionNames.ManifestPath]: path.resolve("test-project", "appPackage", "manifest.json"),
       [QuestionNames.SkillName]: "mySkill",
       [QuestionNames.SkillDescription]: "A test skill",
-      [QuestionNames.SkillExposeTocopilot]: false,
+      [QuestionNames.SkillExposeTocopilot]: "no",
       ignoreLockByUT: true,
       ...overrides,
     };
@@ -321,9 +321,9 @@ describe("addSkill", () => {
     assert.isTrue(result.isOk());
   });
 
-  it("passes exposeSkillToCopilot=true to addSkill", async () => {
+  it("passes exposeSkillToCopilot=true when user selects yes", async () => {
     const inputs = createBaseInputs({
-      [QuestionNames.SkillExposeTocopilot]: true,
+      [QuestionNames.SkillExposeTocopilot]: "yes",
     });
     const manifest = createManifestWithDA();
 

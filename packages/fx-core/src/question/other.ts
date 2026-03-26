@@ -1619,14 +1619,25 @@ function skillDescriptionQuestion(): TextInputQuestion {
   };
 }
 
-function skillExposeTocopilotQuestion(): ConfirmQuestion {
+function skillExposeTocopilotQuestion(): SingleSelectQuestion {
   return {
-    type: "confirm",
     name: QuestionNames.SkillExposeTocopilot,
     title: getLocalizedString("core.addSkillQuestion.expose.title"),
-    default: false,
+    type: "singleSelect",
+    staticOptions: [
+      {
+        id: "no",
+        label: getLocalizedString("core.addSkillQuestion.expose.no"),
+      },
+      {
+        id: "yes",
+        label: getLocalizedString("core.addSkillQuestion.expose.yes"),
+      },
+    ],
+    default: "no",
   };
 }
+
 
 export function SelectSensitivityLabelQuestion(): SingleSelectQuestion {
   return {

@@ -1070,6 +1070,8 @@
   "core.addSkillQuestion.description.placeholder": "Describe what this skill does",
   "core.addSkillQuestion.expose.title": "Expose skill to M365 Copilot",
   "core.addSkillQuestion.expose.description": "Should this skill be exposed to mainline M365 Copilot beyond this agent?",
+  "core.addSkillQuestion.expose.yes": "Yes",
+  "core.addSkillQuestion.expose.no": "No",
   "core.addSkillQuestion.from.title": "Existing Skill Directory",
   "core.addSkillQuestion.from.placeholder": "Path to an existing skill directory within appPackage",
   "error.dep.InstallNodeJSError": "Unable to install Node.js for reason: %s. Please install it manually from https://nodejs.org and restart Visual Studio Code.",
