@@ -1,5 +1,7 @@
 # Teams Toolkit CLI (Command Line Tool)
 
+> This package is deprecated and supported Node.js version is 18-22. Please use [Microsoft 365 Agents Toolkit CLI](https://www.npmjs.com/package/@microsoft/m365agentstoolkit-cli) instead.
+
 Teams Toolkit CLI is a text-based command line interface that can help scaffold, validate, and deploy applications for Microsoft Teams from the terminal or a CI/CD process.
 
 ![CLI](https://aka.ms/cli-hero-image)
