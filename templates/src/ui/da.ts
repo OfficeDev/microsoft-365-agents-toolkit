@@ -101,20 +101,24 @@ export const daNode = {
                 placeholder: "template.createProjectQuestion.apiMessageExtensionAuth.placeholder",
                 type: "singleSelect",
                 options: [
-                  { id: "none", label: "None", data: "api-plugin-from-scratch" },
+                  {
+                    id: "none",
+                    label: "template.createProjectQuestion.apiDeclarativeAgentAuth.none",
+                    data: "api-plugin-from-scratch",
+                  },
                   {
                     id: "api-key",
-                    label: "API Key",
+                    label: "template.createProjectQuestion.apiDeclarativeAgentAuth.apiKey",
                     data: "api-plugin-from-scratch-bearer",
                   },
                   {
                     id: "microsoft-entra",
-                    label: "Microsoft Entra",
+                    label: "template.createProjectQuestion.apiDeclarativeAgentAuth.microsoftEntra",
                     data: "api-plugin-from-scratch-oauth",
                   },
                   {
                     id: "oauth",
-                    label: "OAuth",
+                    label: "template.createProjectQuestion.apiDeclarativeAgentAuth.oauth",
                     data: "api-plugin-from-scratch-oauth",
                   },
                 ],
