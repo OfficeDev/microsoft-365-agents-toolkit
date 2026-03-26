@@ -953,6 +953,12 @@
         "category": "Microsoft 365 Agents"
       },
       {
+        "command": "fx-extension.addSkill",
+        "title": "%teamstoolkit.commandsTreeViewProvider.addSkillTitle%",
+        "enablement": "fx-extension.isTeamsFx && isWorkspaceTrusted && !fx-extension.commandLocked && fx-extension.isDeclarativeCopilotApp",
+        "category": "Microsoft 365 Agents"
+      },
+      {
         "command": "fx-extension.addKnowledge",
         "title": "%teamstoolkit.commandsTreeViewProvider.addKnowledgeTitle%",
         "enablement": "fx-extension.isTeamsFx && isWorkspaceTrusted && !fx-extension.commandLocked && fx-extension.isDeclarativeCopilotApp",

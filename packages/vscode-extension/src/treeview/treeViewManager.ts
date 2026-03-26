@@ -273,6 +273,17 @@ class TreeViewManager {
       ...(isDeclarativeCopilotApp
         ? [
             new TreeViewCommand(
+              localize("teamstoolkit.commandsTreeViewProvider.addSkillTitle"),
+              localize("teamstoolkit.commandsTreeViewProvider.addSkillDescription"),
+              "fx-extension.addSkill",
+              "addSkill",
+              { name: "teamsfx-add-feature", custom: false }
+            ),
+          ]
+        : []),
+      ...(isDeclarativeCopilotApp
+        ? [
+            new TreeViewCommand(
               localize("teamstoolkit.commandsTreeViewProvider.addKnowledgeTitle"),
               localize("teamstoolkit.commandsTreeViewProvider.addKnowledgeDescription"),
               "fx-extension.addKnowledge",
