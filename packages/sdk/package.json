@@ -126,7 +126,7 @@
     "prettier": "^2.4.1",
     "puppeteer": "^23.4.1",
     "rimraf": "^6.0.1",
-    "rollup": "^4.27.3",
+    "rollup": "^4.59.0",
     "sinon": "^12.0.1",
     "source-map-loader": "^3.0.0",
     "supports-color": "^9.4.0",
@@ -137,7 +137,7 @@
     "type-detect": "^4.0.8",
     "typescript": "~5.4.2",
     "url-join": "^4.0.1",
-    "webpack": "^5.62.1",
+    "webpack": "^5.76.0",
     "yargs": "^17.2.1"
   },
   "gitHead": "7d60c0765c0ea8c023a26c10d1c93001c597afbb",
