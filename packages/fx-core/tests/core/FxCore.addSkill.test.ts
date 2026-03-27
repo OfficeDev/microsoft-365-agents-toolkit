@@ -71,9 +71,7 @@ describe("addSkill", () => {
     sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
     sandbox
       .stub(copilotGptManifestUtils, "getManifestPath")
-      .resolves(
-        ok(path.resolve("test-project", "appPackage", "declarativeAgent.json"))
-      );
+      .resolves(ok(path.resolve("test-project", "appPackage", "declarativeAgent.json")));
 
     sandbox.stub(MockUserInteraction.prototype, "showMessage").resolves(ok("Add"));
 
@@ -115,7 +113,9 @@ describe("addSkill", () => {
 
     sandbox.stub(MockUserInteraction.prototype, "showMessage").resolves(ok("Add"));
     sandbox.stub(fs, "pathExists").resolves(true);
-    sandbox.stub(fs, "readFile").resolves("---\nname: existingSkill\ndescription: A skill\n---\n# existingSkill\n" as any);
+    sandbox
+      .stub(fs, "readFile")
+      .resolves("---\nname: existingSkill\ndescription: A skill\n---\n# existingSkill\n" as any);
 
     const addSkillStub = sandbox.stub(copilotGptManifestUtils, "addSkill").resolves(
       ok({
@@ -166,7 +166,9 @@ describe("addSkill", () => {
       .resolves(ok(path.resolve(appPackageFolder, "declarativeAgent.json")));
     sandbox.stub(MockUserInteraction.prototype, "showMessage").resolves(ok("Add"));
     sandbox.stub(fs, "pathExists").resolves(true);
-    sandbox.stub(fs, "readFile").resolves("---\nname: differentName\ndescription: A skill\n---\n" as any);
+    sandbox
+      .stub(fs, "readFile")
+      .resolves("---\nname: differentName\ndescription: A skill\n---\n" as any);
 
     const core = new FxCore(tools);
     const result = await core.addSkill(inputs);
@@ -184,9 +186,7 @@ describe("addSkill", () => {
     sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
     sandbox
       .stub(copilotGptManifestUtils, "getManifestPath")
-      .resolves(
-        ok(path.resolve("test-project", "appPackage", "declarativeAgent.json"))
-      );
+      .resolves(ok(path.resolve("test-project", "appPackage", "declarativeAgent.json")));
 
     sandbox.stub(MockUserInteraction.prototype, "showMessage").resolves(ok("Add"));
     sandbox.stub(fs, "ensureDir").resolves();
@@ -282,9 +282,7 @@ describe("addSkill", () => {
     sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
     sandbox
       .stub(copilotGptManifestUtils, "getManifestPath")
-      .resolves(
-        ok(path.resolve("test-project", "appPackage", "declarativeAgent.json"))
-      );
+      .resolves(ok(path.resolve("test-project", "appPackage", "declarativeAgent.json")));
 
     sandbox.stub(MockUserInteraction.prototype, "showMessage").resolves(ok("Add"));
     sandbox.stub(fs, "ensureDir").resolves();
@@ -307,9 +305,7 @@ describe("addSkill", () => {
     sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
     sandbox
       .stub(copilotGptManifestUtils, "getManifestPath")
-      .resolves(
-        ok(path.resolve("test-project", "appPackage", "declarativeAgent.json"))
-      );
+      .resolves(ok(path.resolve("test-project", "appPackage", "declarativeAgent.json")));
 
     sandbox.stub(MockUserInteraction.prototype, "showMessage").resolves(ok("Add"));
     sandbox.stub(fs, "ensureDir").resolves();
@@ -337,9 +333,7 @@ describe("addSkill", () => {
     sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
     sandbox
       .stub(copilotGptManifestUtils, "getManifestPath")
-      .resolves(
-        ok(path.resolve("test-project", "appPackage", "declarativeAgent.json"))
-      );
+      .resolves(ok(path.resolve("test-project", "appPackage", "declarativeAgent.json")));
 
     sandbox.stub(MockUserInteraction.prototype, "showMessage").resolves(ok("Add"));
     sandbox.stub(fs, "ensureDir").resolves();
@@ -368,9 +362,7 @@ describe("addSkill", () => {
     sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
     sandbox
       .stub(copilotGptManifestUtils, "getManifestPath")
-      .resolves(
-        ok(path.resolve("test-project", "appPackage", "declarativeAgent.json"))
-      );
+      .resolves(ok(path.resolve("test-project", "appPackage", "declarativeAgent.json")));
 
     // User dismisses the confirm dialog (returns undefined)
     sandbox.stub(MockUserInteraction.prototype, "showMessage").resolves(ok(undefined));

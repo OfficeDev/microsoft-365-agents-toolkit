@@ -2671,10 +2671,7 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
       ].join("\n");
       await fs.writeFile(path.join(skillDir, "SKILL.md"), skillMdContent);
 
-      skillFolder = normalizePath(
-        path.relative(path.dirname(agentManifestPath), skillDir),
-        true
-      );
+      skillFolder = normalizePath(path.relative(path.dirname(agentManifestPath), skillDir), true);
     }
 
     // Add skill entry to DA manifest

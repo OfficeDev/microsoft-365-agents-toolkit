@@ -271,7 +271,7 @@ class TreeViewManager {
           ]
         : []),
       ...(isDeclarativeCopilotApp &&
-        featureFlagManager.getBooleanValue(FeatureFlags.AgentSkillsEnabled)
+      featureFlagManager.getBooleanValue(FeatureFlags.AgentSkillsEnabled)
         ? [
             new TreeViewCommand(
               localize("teamstoolkit.commandsTreeViewProvider.addSkillTitle"),

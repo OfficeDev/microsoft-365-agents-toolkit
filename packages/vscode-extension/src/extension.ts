@@ -300,9 +300,7 @@ export async function activate(context: vscode.ExtensionContext) {
     isKiotaNPMIntegrationEnabled
   );
 
-  const isAgentSkillsEnabled = featureFlagManager.getBooleanValue(
-    FeatureFlags.AgentSkillsEnabled
-  );
+  const isAgentSkillsEnabled = featureFlagManager.getBooleanValue(FeatureFlags.AgentSkillsEnabled);
   await vscode.commands.executeCommand(
     "setContext",
     "fx-extension.isAgentSkillsEnabled",
@@ -660,12 +658,7 @@ function registerTreeViewCommandsInDevelopment(context: vscode.ExtensionContext)
     addKnowledgeHandler,
     "addKnowledge"
   );
-  registerInCommandController(
-    context,
-    "fx-extension.addSkill",
-    addSkillHandler,
-    "addSkill"
-  );
+  registerInCommandController(context, "fx-extension.addSkill", addSkillHandler, "addSkill");
 }
 
 function registerTreeViewCommandsInLifecycle(context: vscode.ExtensionContext) {

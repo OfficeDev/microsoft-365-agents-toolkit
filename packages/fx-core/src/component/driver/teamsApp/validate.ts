@@ -195,8 +195,10 @@ export class ValidateManifestDriver implements StepDriver {
         .reduce((acc, { validationResult }) => acc + validationResult.length, 0) ?? 0;
 
     const skillErrorCount =
-      declarativeAgentValidationResult?.skillValidationResult
-        ?.reduce((acc, { validationResult }) => acc + validationResult.length, 0) ?? 0;
+      declarativeAgentValidationResult?.skillValidationResult?.reduce(
+        (acc, { validationResult }) => acc + validationResult.length,
+        0
+      ) ?? 0;
 
     const allErrorCount =
       manifestValidationResult.length +

@@ -1654,7 +1654,6 @@ function skillExposeTocopilotQuestion(): SingleSelectQuestion {
   };
 }
 
-
 export function SelectSensitivityLabelQuestion(): SingleSelectQuestion {
   return {
     name: QuestionNames.SensitivityLabel,
