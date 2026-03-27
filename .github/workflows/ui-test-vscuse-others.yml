@@ -394,7 +394,7 @@ jobs:
   report:
     # Only send email on the last attempt or when all tests pass
     # Send email if: (1) triggered by schedule or schedule_trigger is true, OR (2) triggered manually with email-receiver input provided
-    if: ${{ always() && (github.event_name == 'schedule' || github.event.inputs.schedule_trigger == 'true' || needs.discover-test-plans.outputs.email-receiver != '') && (success() || github.run_attempt >= (github.event.inputs.max_retries || 7)) }}
+    if: ${{ always() && (github.event_name == 'schedule' || github.event.inputs.schedule_trigger == 'true' || needs.discover-test-plans.outputs.email-receiver != '') && (success() || github.run_attempt == (github.event.inputs.max_retries || 7)) }}
     needs: [discover-test-plans, main]
     environment: engineering
     permissions:
