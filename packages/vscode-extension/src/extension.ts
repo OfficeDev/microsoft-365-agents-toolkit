@@ -300,6 +300,15 @@ export async function activate(context: vscode.ExtensionContext) {
     isKiotaNPMIntegrationEnabled
   );
 
+  const isAgentSkillsEnabled = featureFlagManager.getBooleanValue(
+    FeatureFlags.AgentSkillsEnabled
+  );
+  await vscode.commands.executeCommand(
+    "setContext",
+    "fx-extension.isAgentSkillsEnabled",
+    isAgentSkillsEnabled
+  );
+
   void VsCodeLogInstance.info("Microsoft 365 Agents Toolkit extension is now active!");
 
   // Don't wait this async method to let it run in background.
