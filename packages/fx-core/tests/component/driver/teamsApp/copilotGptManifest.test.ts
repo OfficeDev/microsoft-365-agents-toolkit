@@ -823,6 +823,105 @@ describe("copilotGptManifestUtils", () => {
       chai.assert.isTrue(res.find((item) => item.content.includes("errorAction2")) !== undefined);
       chai.assert.isTrue(res.find((item) => item.content.includes("errorAction1")) !== undefined);
     });
+
+    it("log VSC with skill errors", () => {
+      const validationRes: DeclarativeCopilotManifestValidationResult = {
+        id: "1",
+        filePath: "testPath",
+        validationResult: [],
+        actionValidationResult: [],
+        skillValidationResult: [
+          {
+            folder: "skills/my-skill",
+            filePath: "skills/my-skill/SKILL.md",
+            validationResult: ["missing name field", "missing description field"],
+          },
+        ],
+      };
+
+      const res = copilotGptManifestUtils.logValidationErrors(
+        validationRes,
+        Platform.VSCode
+      ) as string;
+
+      chai.assert.isTrue(res.includes("Skill validation"));
+      chai.assert.isTrue(res.includes("missing name field"));
+      chai.assert.isTrue(res.includes("missing description field"));
+      chai.assert.isTrue(res.includes("skills/my-skill/SKILL.md"));
+    });
+
+    it("log CLI with skill errors", () => {
+      const validationRes: DeclarativeCopilotManifestValidationResult = {
+        id: "1",
+        filePath: "testPath",
+        validationResult: [],
+        actionValidationResult: [],
+        skillValidationResult: [
+          {
+            folder: "skills/my-skill",
+            filePath: "skills/my-skill/SKILL.md",
+            validationResult: ["skill error1"],
+          },
+        ],
+      };
+
+      const res = copilotGptManifestUtils.logValidationErrors(
+        validationRes,
+        Platform.CLI
+      ) as Array<{ content: string; color: Colors }>;
+
+      chai.assert.isTrue(
+        res.find((item) => item.content.includes("Skill validation")) !== undefined
+      );
+      chai.assert.isTrue(res.find((item) => item.content.includes("skill error1")) !== undefined);
+    });
+
+    it("log VSC with skill error uses folder when filePath is empty", () => {
+      const validationRes: DeclarativeCopilotManifestValidationResult = {
+        id: "1",
+        filePath: "testPath",
+        validationResult: [],
+        actionValidationResult: [],
+        skillValidationResult: [
+          {
+            folder: "skills/no-md",
+            filePath: "",
+            validationResult: ["SKILL.md not found"],
+          },
+        ],
+      };
+
+      const res = copilotGptManifestUtils.logValidationErrors(
+        validationRes,
+        Platform.VSCode
+      ) as string;
+
+      chai.assert.isTrue(res.includes("skills/no-md"));
+      chai.assert.isTrue(res.includes("SKILL.md not found"));
+    });
+
+    it("log CLI with skill error uses folder when filePath is empty", () => {
+      const validationRes: DeclarativeCopilotManifestValidationResult = {
+        id: "1",
+        filePath: "testPath",
+        validationResult: [],
+        actionValidationResult: [],
+        skillValidationResult: [
+          {
+            folder: "skills/no-md",
+            filePath: "",
+            validationResult: ["SKILL.md not found"],
+          },
+        ],
+      };
+
+      const res = copilotGptManifestUtils.logValidationErrors(
+        validationRes,
+        Platform.CLI
+      ) as Array<{ content: string; color: Colors }>;
+
+      chai.assert.isTrue(res.find((item) => item.content.includes("skills/no-md")) !== undefined);
+    });
   });
 
   describe("getManifestPath", async () => {
