@@ -8,7 +8,8 @@ export const AddSkillOptions: CLICommandOption[] = [
     name: "name",
     questionName: "skill-name",
     type: "string",
-    description: "Name of the skill (letters, numbers, and hyphens only). Required when not using --from.",
+    description:
+      "Name of the skill (letters, numbers, and hyphens only). Required when not using --from.",
     required: false,
   },
   {
