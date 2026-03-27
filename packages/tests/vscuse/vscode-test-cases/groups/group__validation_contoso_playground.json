@@ -10,14 +10,14 @@
       "step_retry_timeout": 0
     },
     "total_steps": 7,
-    "created_at": "2026-03-02T00:56:58.784801",
+    "created_at": "2026-03-27T07:46:15.760328",
     "name": "group  validation contoso playground",
     "description": {
       "other": "Generated from recording r_1023_013114",
       "owner": "v-helzha@microsoft.com",
       "workitem": ""
     },
-    "generated_at": "2026-03-02T00:56:58.784801",
+    "generated_at": "2026-03-27T07:46:15.760328",
     "execution_order": [
       "step_9f341588",
       "step_82b84526",
@@ -30,7 +30,7 @@
     "tags": [
       "group"
     ],
-    "updated_at": "2026-03-02T08:38:29.392871"
+    "updated_at": "2026-03-27T08:12:33.273212"
   },
   "steps": [
     {
@@ -56,7 +56,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_9f341588",
-      "created_at": "2026-03-02T00:56:58.789339",
+      "created_at": "2026-03-27T07:46:15.760328",
       "plan_id": "plan_046c0bdd"
     },
     {
@@ -78,7 +78,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_82b84526",
-      "created_at": "2026-03-02T00:56:58.803570",
+      "created_at": "2026-03-27T07:46:15.776972",
       "plan_id": "plan_046c0bdd"
     },
     {
@@ -100,7 +100,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_d15a369a",
-      "created_at": "2026-03-02T00:56:58.812035",
+      "created_at": "2026-03-27T07:46:15.776972",
       "plan_id": "plan_046c0bdd"
     },
     {
@@ -116,9 +116,11 @@
       "depends_on": [],
       "preconditions": [],
       "postconditions": [],
-      "tags": [],
+      "tags": [
+        "step_retry_timeout:60"
+      ],
       "screenshot": null,
-      "created_at": "2026-03-02T00:56:58.818564",
+      "created_at": "2026-03-27T07:46:15.791758",
       "plan_id": "plan_046c0bdd"
     },
     {
@@ -140,7 +142,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_3636a49b",
-      "created_at": "2026-03-02T00:56:58.825374",
+      "created_at": "2026-03-27T07:46:15.791758",
       "plan_id": "plan_046c0bdd"
     },
     {
@@ -162,7 +164,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_07f6cabb",
-      "created_at": "2026-03-02T00:56:58.831913",
+      "created_at": "2026-03-27T07:46:15.791758",
       "plan_id": "plan_046c0bdd"
     },
     {
@@ -182,7 +184,7 @@
         "step_retry_timeout: 30"
       ],
       "screenshot": null,
-      "created_at": "2026-03-02T00:56:58.836940",
+      "created_at": "2026-03-27T07:46:15.808848",
       "plan_id": "plan_046c0bdd"
     }
   ],
