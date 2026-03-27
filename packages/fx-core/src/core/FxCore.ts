@@ -2540,7 +2540,8 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
     }
 
     const context = createContext();
-    const teamsManifestPath = inputs[QuestionNames.ManifestPath];
+    const projectPath = inputs.projectPath;
+    const teamsManifestPath = path.resolve(projectPath, inputs[QuestionNames.ManifestPath]);
     const appPackageFolder = path.dirname(teamsManifestPath);
 
     // Validate the project is valid for adding a skill
