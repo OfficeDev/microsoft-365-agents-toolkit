@@ -1577,10 +1577,15 @@ export function selectDeclarativeAgentManifestQuestion(): SingleFileQuestion {
 // add Skill to a declarative agent project
 export function addSkillQuestionNode(): IQTreeNode {
   return {
-    data: skillNameQuestion(),
+    data: { type: "group" },
     children: [
       {
+        data: skillNameQuestion(),
+        condition: (inputs: Inputs) => !inputs[QuestionNames.SkillFrom],
+      },
+      {
         data: skillDescriptionQuestion(),
+        condition: (inputs: Inputs) => !inputs[QuestionNames.SkillFrom],
       },
       {
         data: skillExposeTocopilotQuestion(),
