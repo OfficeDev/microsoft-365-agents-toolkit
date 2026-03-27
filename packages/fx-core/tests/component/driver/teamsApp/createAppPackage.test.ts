@@ -2306,7 +2306,7 @@ describe("teamsApp/createAppPackage", async () => {
         name: "TestAgent",
         description: "Test agent with skills",
         actions: [],
-        "agent_skills": [{ folder: "skills/skill1" }],
+        agent_skills: [{ folder: "skills/skill1" }],
       } as any;
 
       sinon.stub(manifestUtils, "getManifestV3").resolves(ok(manifest));
@@ -2360,7 +2360,7 @@ describe("teamsApp/createAppPackage", async () => {
         name: "TestAgent",
         description: "Test agent with skills",
         actions: [],
-        "agent_skills": [{ folder: "skills/nonexistent" }],
+        agent_skills: [{ folder: "skills/nonexistent" }],
       } as any;
 
       sinon.stub(manifestUtils, "getManifestV3").resolves(ok(manifest));
@@ -2387,7 +2387,7 @@ describe("teamsApp/createAppPackage", async () => {
         name: "TestAgent",
         description: "Test agent with skills",
         actions: [],
-        "agent_skills": [{ folder: "skills/skill1" }],
+        agent_skills: [{ folder: "skills/skill1" }],
       } as any;
 
       sinon.stub(manifestUtils, "getManifestV3").resolves(ok(manifest));
@@ -2415,7 +2415,7 @@ describe("teamsApp/createAppPackage", async () => {
         name: "TestAgent",
         description: "Test agent with skills",
         actions: [],
-        "agent_skills": [{ folder: "../../../outside" }],
+        agent_skills: [{ folder: "../../../outside" }],
       } as any;
 
       sinon.stub(manifestUtils, "getManifestV3").resolves(ok(manifest));
@@ -2437,7 +2437,7 @@ describe("teamsApp/createAppPackage", async () => {
         name: "TestAgent",
         description: "Test agent with no skills",
         actions: [],
-        "agent_skills": [],
+        agent_skills: [],
       } as any;
 
       sinon.stub(manifestUtils, "getManifestV3").resolves(ok(manifest));
@@ -2470,7 +2470,7 @@ describe("teamsApp/createAppPackage", async () => {
             files: [{ file: "EmbeddedKnowledge/knowledge.docx" }],
           },
         ],
-        "agent_skills": [{ folder: "skills/skill1" }, { folder: "skills/skill2" }],
+        agent_skills: [{ folder: "skills/skill1" }, { folder: "skills/skill2" }],
       } as any;
 
       sinon.stub(manifestUtils, "getManifestV3").resolves(ok(manifest));

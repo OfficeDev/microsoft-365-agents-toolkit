@@ -228,9 +228,7 @@ export class CopilotGptManifestUtils {
 
           const skillFolderPath = path.join(path.dirname(manifestPath), skill.folder);
           if (!(await fs.pathExists(skillFolderPath))) {
-            skillResult.validationResult.push(
-              `Skill folder not found: ${skillFolderPath}`
-            );
+            skillResult.validationResult.push(`Skill folder not found: ${skillFolderPath}`);
           } else {
             const skillMdPath = path.join(skillFolderPath, "SKILL.md");
             skillResult.filePath = skillMdPath;
@@ -488,10 +486,7 @@ export class CopilotGptManifestUtils {
             .join(EOL);
           const skillPath = skillValidationRes.filePath || skillValidationRes.folder;
           outputMessage +=
-            (!outputMessage ? "" : EOL) +
-            `Skill validation (${skillPath}):` +
-            EOL +
-            skillErrors;
+            (!outputMessage ? "" : EOL) + `Skill validation (${skillPath}):` + EOL + skillErrors;
         }
       }
 
@@ -582,8 +577,9 @@ export class CopilotGptManifestUtils {
     manifestFilePath: string,
     filePathList: string[]
   ): Promise<Result<undefined, FxError>> {
-    const declarativeAgentManifestPathRes =
-      await copilotGptManifestUtils.getManifestPath(manifestFilePath);
+    const declarativeAgentManifestPathRes = await copilotGptManifestUtils.getManifestPath(
+      manifestFilePath
+    );
     if (declarativeAgentManifestPathRes.isErr()) {
       return err(declarativeAgentManifestPathRes.error);
     }

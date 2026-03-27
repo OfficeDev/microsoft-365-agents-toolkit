@@ -1498,18 +1498,10 @@ describe("copilotGptManifestUtils", () => {
         name: "test-agent",
         description: "description",
       };
-      sandbox
-        .stub(copilotGptManifestUtils, "readCopilotGptManifestFile")
-        .resolves(ok(manifest));
-      sandbox
-        .stub(copilotGptManifestUtils, "writeCopilotGptManifestFile")
-        .resolves(ok(undefined));
+      sandbox.stub(copilotGptManifestUtils, "readCopilotGptManifestFile").resolves(ok(manifest));
+      sandbox.stub(copilotGptManifestUtils, "writeCopilotGptManifestFile").resolves(ok(undefined));
 
-      const res = await copilotGptManifestUtils.addSkill(
-        "testPath",
-        "./skills/mySkill",
-        false
-      );
+      const res = await copilotGptManifestUtils.addSkill("testPath", "./skills/mySkill", false);
 
       chai.assert.isTrue(res.isOk());
       if (res.isOk()) {
@@ -1526,20 +1518,14 @@ describe("copilotGptManifestUtils", () => {
       const manifest: any = {
         name: "test-agent",
         description: "description",
-        "agent_skills": [{ folder: "./skills/mySkill" }],
+        agent_skills: [{ folder: "./skills/mySkill" }],
       };
       sandbox
         .stub(copilotGptManifestUtils, "readCopilotGptManifestFile")
         .resolves(ok(manifest as DeclarativeCopilotManifestSchema));
-      sandbox
-        .stub(copilotGptManifestUtils, "writeCopilotGptManifestFile")
-        .resolves(ok(undefined));
+      sandbox.stub(copilotGptManifestUtils, "writeCopilotGptManifestFile").resolves(ok(undefined));
 
-      const res = await copilotGptManifestUtils.addSkill(
-        "testPath",
-        "./skills/mySkill",
-        false
-      );
+      const res = await copilotGptManifestUtils.addSkill("testPath", "./skills/mySkill", false);
 
       chai.assert.isTrue(res.isOk());
       if (res.isOk()) {
@@ -1553,18 +1539,10 @@ describe("copilotGptManifestUtils", () => {
         name: "test-agent",
         description: "description",
       };
-      sandbox
-        .stub(copilotGptManifestUtils, "readCopilotGptManifestFile")
-        .resolves(ok(manifest));
-      sandbox
-        .stub(copilotGptManifestUtils, "writeCopilotGptManifestFile")
-        .resolves(ok(undefined));
+      sandbox.stub(copilotGptManifestUtils, "readCopilotGptManifestFile").resolves(ok(manifest));
+      sandbox.stub(copilotGptManifestUtils, "writeCopilotGptManifestFile").resolves(ok(undefined));
 
-      const res = await copilotGptManifestUtils.addSkill(
-        "testPath",
-        "./skills/exposed",
-        true
-      );
+      const res = await copilotGptManifestUtils.addSkill("testPath", "./skills/exposed", true);
 
       chai.assert.isTrue(res.isOk());
       if (res.isOk()) {
@@ -1581,11 +1559,7 @@ describe("copilotGptManifestUtils", () => {
         .stub(copilotGptManifestUtils, "readCopilotGptManifestFile")
         .resolves(err(new UserError("test", "test", "test", "test")));
 
-      const res = await copilotGptManifestUtils.addSkill(
-        "testPath",
-        "./skills/mySkill",
-        false
-      );
+      const res = await copilotGptManifestUtils.addSkill("testPath", "./skills/mySkill", false);
 
       chai.assert.isTrue(res.isErr());
     });
@@ -1595,18 +1569,12 @@ describe("copilotGptManifestUtils", () => {
         name: "test-agent",
         description: "description",
       };
-      sandbox
-        .stub(copilotGptManifestUtils, "readCopilotGptManifestFile")
-        .resolves(ok(manifest));
+      sandbox.stub(copilotGptManifestUtils, "readCopilotGptManifestFile").resolves(ok(manifest));
       sandbox
         .stub(copilotGptManifestUtils, "writeCopilotGptManifestFile")
         .resolves(err(new UserError("test", "test", "test", "test")));
 
-      const res = await copilotGptManifestUtils.addSkill(
-        "testPath",
-        "./skills/mySkill",
-        false
-      );
+      const res = await copilotGptManifestUtils.addSkill("testPath", "./skills/mySkill", false);
 
       chai.assert.isTrue(res.isErr());
     });
@@ -1624,7 +1592,7 @@ describe("copilotGptManifestUtils", () => {
       const manifest: any = {
         name: "test-agent",
         description: "description",
-        "agent_skills": [{ folder: "./skills/missing" }],
+        agent_skills: [{ folder: "./skills/missing" }],
       };
       mockedEnvRestore = mockedEnv({ ["APP_NAME_SUFFIX"]: "test" });
       sandbox.stub(fs, "pathExists").callsFake(async (p: string) => {
@@ -1657,7 +1625,7 @@ describe("copilotGptManifestUtils", () => {
       const manifest: any = {
         name: "test-agent",
         description: "description",
-        "agent_skills": [{ folder: "./skills/noSkillMd" }],
+        agent_skills: [{ folder: "./skills/noSkillMd" }],
       };
       mockedEnvRestore = mockedEnv({ ["APP_NAME_SUFFIX"]: "test" });
       sandbox.stub(fs, "pathExists").callsFake(async (p: string) => {
@@ -1690,7 +1658,7 @@ describe("copilotGptManifestUtils", () => {
       const manifest: any = {
         name: "test-agent",
         description: "description",
-        "agent_skills": [{ folder: "./skills/mySkill" }],
+        agent_skills: [{ folder: "./skills/mySkill" }],
       };
       mockedEnvRestore = mockedEnv({ ["APP_NAME_SUFFIX"]: "test" });
       sandbox.stub(fs, "pathExists").resolves(true);
@@ -1726,7 +1694,7 @@ describe("copilotGptManifestUtils", () => {
       const manifest: any = {
         name: "test-agent",
         description: "description",
-        "agent_skills": [{ folder: "./skills/mySkill" }],
+        agent_skills: [{ folder: "./skills/mySkill" }],
       };
       mockedEnvRestore = mockedEnv({ ["APP_NAME_SUFFIX"]: "test" });
       sandbox.stub(fs, "pathExists").resolves(true);
@@ -1762,7 +1730,7 @@ describe("copilotGptManifestUtils", () => {
       const manifest: any = {
         name: "test-agent",
         description: "description",
-        "agent_skills": [{ folder: "./skills/mySkill" }],
+        agent_skills: [{ folder: "./skills/mySkill" }],
       };
       mockedEnvRestore = mockedEnv({ ["APP_NAME_SUFFIX"]: "test" });
       sandbox.stub(fs, "pathExists").resolves(true);
@@ -1816,7 +1784,7 @@ describe("copilotGptManifestUtils", () => {
       const manifest: any = {
         name: "test-agent",
         description: "description",
-        "agent_skills": [{ folder: "./skills/mySkill" }],
+        agent_skills: [{ folder: "./skills/mySkill" }],
       };
       mockedEnvRestore = mockedEnv({ ["APP_NAME_SUFFIX"]: "test" });
       sandbox.stub(fs, "pathExists").resolves(true);
@@ -1848,7 +1816,7 @@ describe("copilotGptManifestUtils", () => {
       const manifest: any = {
         name: "test-agent",
         description: "description",
-        "agent_skills": [{ folder: "./skills/mySkill" }],
+        agent_skills: [{ folder: "./skills/mySkill" }],
       };
       mockedEnvRestore = mockedEnv({ ["APP_NAME_SUFFIX"]: "test" });
       sandbox.stub(fs, "pathExists").resolves(true);
@@ -1890,7 +1858,7 @@ describe("copilotGptManifestUtils", () => {
       const manifest: any = {
         name: "test-agent",
         description: "description",
-        "agent_skills": [{ folder: "./skills/mySkill" }],
+        agent_skills: [{ folder: "./skills/mySkill" }],
       };
       mockedEnvRestore = mockedEnv({ ["APP_NAME_SUFFIX"]: "test" });
       sandbox.stub(fs, "pathExists").resolves(true);
