@@ -124,7 +124,7 @@ export const daNode = {
                 ],
               },
             },
-            { node: "apiSpecNode", condition: { equals: "api-spec" } },
+            { node: "apiSpecWithSearchNode", condition: { equals: "api-spec" } },
             { node: "mcpServerTypeNode", condition: { equals: "mcp" } },
           ],
         },
