@@ -14,7 +14,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Intelligent agent that is built with Microsoft 365 Agents SDK and connects to your LLM]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Intelligenter Agent, der mit dem Microsoft 365 Agents SDK erstellt wurde und eine Verbindung zu Ihrem LLM herstellt]]></Val>
+            <Val><![CDATA[Intelligenter Agent, der mit dem Microsoft 365 Agents SDK erstellt wurde und eine Verbindung zu Ihrem LLM herstellt]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -50,7 +50,7 @@
         <Str Cat="Text">
           <Val><![CDATA[A travel planning agent, which is built with Microsoft 365 Agents SDK, Microsoft 365 Retrieval API and Agent Framework]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Ein Reiseplanungs-Agent, der mit Microsoft 365 Agents SDK, Microsoft 365-Abruf-API und Agent-Framework erstellt wird]]></Val>
+            <Val><![CDATA[Ein Reiseplanungs-Agent, der mit dem Microsoft 365 Agents SDK, der Microsoft 365 Retrieval-API und dem Agent Framework erstellt wird]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -68,7 +68,7 @@
         <Str Cat="Text">
           <Val><![CDATA[A weather forecast agent that is built with Microsoft 365 Agents SDK and LangChain]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Ein Wettervorhersage-Agent, der mit Microsoft 365 Agents SDK und LangChain erstellt wird]]></Val>
+            <Val><![CDATA[Ein Wettervorhersage-Agent, der mit dem Microsoft 365 Agents SDK und LangChain erstellt wird]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -104,7 +104,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Agent that chats with users in Teams built with Teams AI Library and connects to LLMs]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Agent, der mit Benutzenden in Microsoft Teams chattet, mit der Teams AI Library erstellt wurde und eine Verbindung zu LLMs herstellt]]></Val>
+            <Val><![CDATA[Agent, der mit Benutzern in Teams chattet, mit der Teams AI Library erstellt wurde und eine Verbindung mit LLMs herstellt]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />

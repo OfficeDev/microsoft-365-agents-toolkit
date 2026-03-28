@@ -2579,7 +2579,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Build a new Declarative Agent with Office add-in actions]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Einen neuen deklarativen Agent mit Office-Add-In-Aktionen erstellen]]></Val>
+            <Val><![CDATA[Neuen deklarativen Agent mit Office-Add-In-Aktionen erstellen]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3230,7 +3230,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Build an AI agent with OpenAI Assistants API and Microsoft Teams SDK]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Erstellen eines KI-Agenten mit der OpenAI Assistants-API und dem Microsoft Teams SDK]]></Val>
+            <Val><![CDATA[KI-Agent mit der OpenAI Assistants-API und Microsoft Teams-SDK erstellen]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Build an AI agent with OpenAI Assistants API and Teams AI Library]]></Val>
@@ -3251,7 +3251,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Build your own AI Agent from scratch using Microsoft Teams SDK]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Erstellen eines eigenen KI-Agenten von Grund auf mithilfe des Microsoft Teams SDK]]></Val>
+            <Val><![CDATA[Eigenen KI-Agent von Grund auf mit dem Microsoft Teams-SDK erstellen]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Build your own AI Agent from scratch using Teams AI Library]]></Val>
@@ -3323,7 +3323,7 @@
         <Str Cat="Text">
           <Val><![CDATA[A travel planning agent, which is built with Microsoft 365 Agents SDK, Microsoft 365 Retrieval API and Agent Framework]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Ein Reiseplanungs-Agent, der mit Microsoft 365 Agents SDK, Microsoft 365-Abruf-API und Agent-Framework erstellt wird]]></Val>
+            <Val><![CDATA[Ein Reiseplanungs-Agent, der mit dem Microsoft 365 Agents SDK, der Microsoft 365 Retrieval-API und dem Agent Framework erstellt wird]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3341,7 +3341,7 @@
         <Str Cat="Text">
           <Val><![CDATA[A weather forecast agent, which is built with Microsoft 365 Agents SDK and Semantic Kernel]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Ein Wettervorhersage-Agent, der mit Microsoft 365 Agents-SDK und semantischem Kernel erstellt wird]]></Val>
+            <Val><![CDATA[Ein Wettervorhersage-Agent, der mit dem Microsoft 365 Agents SDK und dem Semantic Kernel erstellt wird]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
