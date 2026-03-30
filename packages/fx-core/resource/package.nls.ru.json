@@ -245,7 +245,7 @@
   "error.apime.noExtraAPICanBeAdded": "Не удалось добавить API, так как поддерживаются только методы GET и POST, не более 5 обязательных параметров и без проверки подлинности. Кроме того, методы, определенные в манифесте, не перечислены.",
   "error.copilot.noExtraAPICanBeAdded": "Не удалось добавить API, так как проверка подлинности не поддерживается. Кроме того, методы, определенные в текущем документе описания OpenAPI, не перечислены.",
   "error.m365.NotExtendedToM365Error": "Невозможно расширить приложение до Microsoft 365. Используйте действие \"teamsApp/extendToM365\", чтобы расширить приложение до Microsoft 365.",
-  "error.m365.SharedScopeAdvancedDADisabled": "Развертывание заблокировано: расширенный декларативный агент нельзя развернуть из-за параметров разрешений клиента. Подробнее: [Управление агентами для Microsoft 365 Copilot в Центре администрирования Microsoft 365 — администратор Microsoft 365 | Microsoft Learn](%s)",
+  "error.m365.SharedScopeAdvancedDADisabled": "Развертывание заблокировано: расширенный декларативный агент нельзя развернуть с областью \"общий\" из-за параметров разрешений клиента. Подробнее: [Известное ограничение расширенного декларативного агента](%s)",
   "error.share.yamlConfigNotFound": "Не удалось найти конфигурацию \"provision\" или \"deploy\" в m365agents.yml",
   "error.share.yamlConfigNotSupported": "Функция общего доступа поддерживает только m365agents.yml версии 1.10 и более поздних. Для обновления и продолжения работы следуйте [руководству](https://github.com/OfficeDev/microsoft-365-agents-toolkit/wiki/Share-Declarative-Agents-with-Others#About-YAML-schema).",
   "error.share.shareActionConfigNotFound": "Не удалось найти конфигурацию действия \"%s\" в m365agents.yml",
