@@ -253,25 +253,41 @@ export async function updateActionWithMCP(args?: any[]): Promise<Result<any, FxE
       // startMcpGateway is a proposed API (VS Code Insiders only)
       const mcpGateway = await vscode.lm.startMcpGateway();
       if (mcpGateway) {
-        const transport = new StreamableHTTPClientTransport(new URL(mcpGateway.address.toString()));
-        const client = new Client({ name: "atk", version: "1.0.0" });
-        try {
-          await client.connect(transport);
-          const result = await client.listTools();
-          const matched = new Set<string>();
-          tools = result.tools.filter((tool) => {
-            const key = `${tool.name}\n${tool.description ?? ""}`;
-            if (selectedToolKeys.has(key) && !matched.has(key)) {
-              matched.add(key);
-              return true;
-            }
-            return false;
-          });
-        } catch {
-          tools = selectedTools;
-        } finally {
-          await client.close();
+        // New API: mcpGateway.servers (array of McpGatewayServer with label + address)
+        // Old API: mcpGateway.address (single Uri)
+        let gatewayAddress: string | undefined;
+        if ("servers" in mcpGateway && Array.isArray(mcpGateway.servers)) {
+          const matchingServer = (mcpGateway.servers as vscode.McpGatewayServer[]).find(
+            (s) => sanitizeMCPName(s.label) === mcpName
+          );
+          gatewayAddress = matchingServer?.address?.toString();
+        } else if ("address" in mcpGateway) {
+          gatewayAddress = (mcpGateway as { address: vscode.Uri }).address.toString();
+        }
+        if (gatewayAddress) {
+          const transport = new StreamableHTTPClientTransport(new URL(gatewayAddress));
+          const client = new Client({ name: "atk", version: "1.0.0" });
+          try {
+            await client.connect(transport);
+            const result = await client.listTools();
+            const matched = new Set<string>();
+            tools = result.tools.filter((tool) => {
+              const key = `${tool.name}\n${tool.description ?? ""}`;
+              if (selectedToolKeys.has(key) && !matched.has(key)) {
+                matched.add(key);
+                return true;
+              }
+              return false;
+            });
+          } catch {
+            tools = selectedTools;
+          } finally {
+            await client.close();
+            mcpGateway.dispose();
+          }
+        } else {
           mcpGateway.dispose();
+          tools = selectedTools;
         }
       } else {
         tools = selectedTools;
