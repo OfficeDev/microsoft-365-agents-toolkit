@@ -47,8 +47,8 @@ export const MOS3ApiDefinitions: any = {
     method: "GET",
     path: /^\/marketplace\/v1\/users\/titles\/[^\/]+\/sharingInfo$/,
   },
-  GetCatalogLaunchInfo: {
-    key: "get_launch_info",
+  PostCatalogLaunchInfo: {
+    key: "post_catalog_launch_info",
     method: "POST",
     path: /^\/catalog\/v1\/users\/titles\/launchInfo/,
   },

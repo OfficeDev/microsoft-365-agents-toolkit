@@ -561,10 +561,10 @@ describe("Wrapped Axios Client Test", () => {
     chai.assert.deepEqual(modApiDef, MOS3ApiDefinitions.GetShareInfo);
 
     modApiDef = WrappedAxiosClient.convertMethodUrlToApiDefForMOS(
-      "GET",
+      "POST",
       "/catalog/v1/users/titles/launchInfo"
     );
-    chai.assert.deepEqual(modApiDef, MOS3ApiDefinitions.GetCatalogLaunchInfo);
+    chai.assert.deepEqual(modApiDef, MOS3ApiDefinitions.PostCatalogLaunchInfo);
 
     modApiDef = WrappedAxiosClient.convertMethodUrlToApiDefForMOS(
       "DELETE",
