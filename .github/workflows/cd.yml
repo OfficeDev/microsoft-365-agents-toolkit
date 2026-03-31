@@ -386,7 +386,9 @@ jobs:
 
       - name: Generate Tag List (VS stable release)
         if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.vsrelease == 'true' && github.event.inputs.vstemplate == 'true' }}
-        run: git tag | grep templates > ${{ runner.temp }}/template-tags.txt
+        run: |
+          git fetch --tags
+          git tag | grep templates > ${{ runner.temp }}/template-tags.txt
 
       - name: Update Template Tag list Release (VS stable release)
         if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.vsrelease == 'true' && github.event.inputs.vstemplate == 'true' }}
