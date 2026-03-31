@@ -49,7 +49,7 @@ export const MOS3ApiDefinitions: any = {
   },
   GetCatalogLaunchInfo: {
     key: "get_launch_info",
-    method: "GET",
+    method: "POST",
     path: /^\/catalog\/v1\/users\/titles\/launchInfo/,
   },
   DeleteCatalogAcquisitions: {
@@ -76,5 +76,25 @@ export const MOS3ApiDefinitions: any = {
     key: "get_marketplace_title_preview",
     method: "GET",
     path: /^\/marketplace\/v1\/users\/titles\/[^\/]+\/preview/,
+  },
+  PostBuilderTitleAllowed: {
+    key: "builder_share_title_with_users",
+    method: "POST",
+    path: /^\/builder\/v1\/users\/titles\/[^\/]+\/allowed\?idType=(TitleId|AppId)/,
+  },
+  GetBuilderTitleAllowed: {
+    key: "builder_get_title_allowed",
+    method: "GET",
+    path: /^\/builder\/v1\/users\/titles\/[^\/]+\/allowed\?idType=TitleId/,
+  },
+  DeleteBuilderTitleAllowed: {
+    key: "builder_delete_title_allowed",
+    method: "DELETE",
+    path: /^\/builder\/v1\/users\/titles\/[^\/]+\/allowed\?idType=TitleId/,
+  },
+  DeleteBuilderTitle: {
+    key: "builder_delete_title",
+    method: "DELETE",
+    path: /^\/builder\/v1\/users\/titles\/[^\/]+$/,
   },
 };
