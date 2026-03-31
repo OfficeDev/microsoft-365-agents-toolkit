@@ -12,8 +12,10 @@ import { featureFlagManager, FeatureFlags } from "../../common/featureFlags";
 import { getLocalizedString } from "../../common/localizeUtils";
 import {
   apiOperationQuestion,
+  apiSpecFileQuestion,
   apiSpecLocationQuestion,
   apiSpecTypeSelectQuestion,
+  apiSpecUrlQuestion,
   foundryAgentIdQuestion,
   foundryEndpointQuestion,
   searchOpenAPISpecQueryQuestion,
@@ -151,8 +153,20 @@ export function inputOrSearchAPISpecNode(): IQTreeNode {
     },
     children: [
       {
-        condition: { equals: "enter-url-or-open-local-file" },
-        data: apiSpecLocationQuestion(),
+        condition: { equals: "enter-url" },
+        data: apiSpecUrlQuestion(),
+        children: [
+          {
+            condition: (inputs: Inputs) => {
+              return !inputs[QuestionNames.ActionManifestPath];
+            },
+            data: apiOperationQuestion(true, true),
+          },
+        ],
+      },
+      {
+        condition: { equals: "open-file" },
+        data: apiSpecFileQuestion(),
         children: [
           {
             condition: (inputs: Inputs) => {
