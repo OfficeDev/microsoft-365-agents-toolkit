@@ -74,12 +74,16 @@ async def handle_stateful_conversation(model: AIModel, ctx: ActivityContext[Mess
     # Create ChatPrompt with conversation-specific memory
     chat_prompt = ChatPrompt(model)
 
-    chat_result = await chat_prompt.send(
-        input=ctx.activity.text, 
-        memory=memory,
-        instructions=INSTRUCTIONS,
-        on_chunk=lambda chunk: ctx.stream.emit(chunk)
-    )
+    try:
+        chat_result = await chat_prompt.send(
+            input=input,
+            memory=memory,
+            instructions=f"{INSTRUCTIONS}\n\nAdditional Context:\n${data_context.output}"
+        )
+    except Exception as e:
+        print(f"Error sending chat prompt: {e}")
+        await ctx.send(MessageActivityInput(text="An error occurred while processing your request."))
+        return
 
     if ctx.activity.conversation.is_group:
         # If the conversation is a group chat, we need to send the final response
