@@ -162,7 +162,9 @@ export class WrappedAxiosClient {
   }
 
   static getMOSApiRelativePath(url: string): string {
-    return url.split(/titles\.(prod|msit)\.mos\.microsoft\.com/)[2] ?? "";
+    const regex = /titles\.(prod|msit)\.mos\.microsoft\.com/;
+    const match = regex.exec(url);
+    return match ? url.slice(match.index + match[0].length) : "";
   }
 
   /**
