@@ -38,7 +38,7 @@ import { ValidateAppPackageArgs } from "./interfaces/ValidateAppPackageArgs";
 import { AppStudioResultFactory } from "./results";
 import { TelemetryPropertyKey } from "./utils/telemetry";
 import { manifestUtils } from "./utils/ManifestUtils";
-import { FeatureFlagName } from "../../..";
+import { FeatureFlagName } from "../../../common/featureFlags";
 import { SovereignCloudEnvironment } from "../../../common/accountUtils";
 
 const actionName = "teamsApp/validateAppPackage";
