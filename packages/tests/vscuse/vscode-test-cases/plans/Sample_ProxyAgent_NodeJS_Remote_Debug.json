@@ -10,14 +10,14 @@
       "step_retry_timeout": 0.0
     },
     "total_steps": 13,
-    "created_at": "2026-02-09T05:17:04.539927",
+    "created_at": "2026-03-31T01:21:00.934713",
     "name": "Sample ProxyAgent NodeJS Remote Debug",
     "description": {
       "other": "",
       "owner": "v-helzha@microsoft.com",
       "workitem": "36332672"
     },
-    "generated_at": "2026-02-09T05:17:04.539927",
+    "generated_at": "2026-03-31T01:21:00.934713",
     "execution_order": [
       "plan_r_1107_015711",
       "step_5d729641",
@@ -25,11 +25,11 @@
       "plan_r_1111_043711",
       "step_b438a8f5",
       "step_5c1b7668",
-      "plan_b36c23b3",
+      "plan_r_0928_020230",
       "plan_r_0929_040401",
       "plan_e891a8b9",
       "plan_6aba0466",
-      "plan_e42b3974",
+      "plan_13ab7917",
       "step_f2d90833",
       "step_db9e4a6b",
       "plan_417f3e16",
@@ -42,7 +42,7 @@
       "step_94ba6505"
     ],
     "tags": [],
-    "updated_at": "2026-02-09T05:33:10.059672"
+    "updated_at": "2026-03-31T01:24:40.417387"
   },
   "steps": [
     {
@@ -64,7 +64,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_5d729641",
-      "created_at": "2026-02-09T05:32:48.609770",
+      "created_at": "2026-03-31T01:21:00.946638",
       "plan_id": "plan_993b7f9e"
     },
     {
@@ -90,7 +90,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_899437a6",
-      "created_at": "2026-02-09T05:32:48.634390",
+      "created_at": "2026-03-31T01:21:00.964140",
       "plan_id": "plan_993b7f9e"
     },
     {
@@ -108,7 +108,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": null,
-      "created_at": "2026-02-09T05:32:48.662914",
+      "created_at": "2026-03-31T01:21:00.984832",
       "plan_id": "plan_993b7f9e"
     },
     {
@@ -128,7 +128,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": null,
-      "created_at": "2026-02-09T05:32:48.685442",
+      "created_at": "2026-03-31T01:21:01.002321",
       "plan_id": "plan_993b7f9e"
     },
     {
@@ -154,7 +154,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_f2d90833",
-      "created_at": "2026-02-09T05:32:48.695967",
+      "created_at": "2026-03-31T01:21:01.026550",
       "plan_id": "plan_993b7f9e"
     },
     {
@@ -176,7 +176,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_db9e4a6b",
-      "created_at": "2026-02-09T05:32:48.719039",
+      "created_at": "2026-03-31T01:21:01.043831",
       "plan_id": "plan_993b7f9e"
     },
     {
@@ -205,7 +205,7 @@
         "force_run:true"
       ],
       "screenshot": "step_a2c444e5",
-      "created_at": "2026-02-09T05:32:48.743660",
+      "created_at": "2026-03-31T01:21:01.061318",
       "plan_id": "plan_993b7f9e"
     },
     {
@@ -217,7 +217,7 @@
         "x": 427,
         "y": 387
       },
-      "description": "Click the \"${{env:M365_ACCOUNT_NAME_EnableCopilotAccess}}\" account entry in the Microsoft \"Pick an account\" login dialog to select the signed-in user (${{env:M365_ACCOUNT_NAME_EnableCopilotAccess}}).",
+      "description": "Click the \"${{env:M365_ACCOUNT_NAME}}\" account entry in the Microsoft \"Pick an account\" login dialog to select the signed-in user (${{env:M365_ACCOUNT_NAME}}).",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -231,7 +231,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_312ebceb",
-      "created_at": "2026-02-09T05:32:48.758445",
+      "created_at": "2026-03-31T01:21:01.080138",
       "plan_id": "plan_993b7f9e"
     },
     {
@@ -257,7 +257,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_063c6c13",
-      "created_at": "2026-02-09T05:32:48.773316",
+      "created_at": "2026-03-31T01:21:01.106714",
       "plan_id": "plan_993b7f9e"
     },
     {
@@ -283,7 +283,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_6933ddbb",
-      "created_at": "2026-02-09T05:32:48.789621",
+      "created_at": "2026-03-31T01:21:01.140919",
       "plan_id": "plan_993b7f9e"
     },
     {
@@ -309,7 +309,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_b5de0d28",
-      "created_at": "2026-02-09T05:32:48.814261",
+      "created_at": "2026-03-31T01:21:01.164958",
       "plan_id": "plan_993b7f9e"
     },
     {
@@ -335,7 +335,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_a7be2f9e",
-      "created_at": "2026-02-09T05:32:48.838140",
+      "created_at": "2026-03-31T01:21:01.183492",
       "plan_id": "plan_993b7f9e"
     },
     {
@@ -353,7 +353,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": null,
-      "created_at": "2026-02-09T05:32:48.853443",
+      "created_at": "2026-03-31T01:21:01.195526",
       "plan_id": "plan_993b7f9e"
     }
   ],

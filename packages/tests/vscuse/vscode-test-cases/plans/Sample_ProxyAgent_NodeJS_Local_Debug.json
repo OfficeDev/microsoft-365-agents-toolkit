@@ -10,14 +10,14 @@
       "step_retry_timeout": 0.0
     },
     "total_steps": 25,
-    "created_at": "2026-02-09T05:17:51.690510",
+    "created_at": "2026-03-31T01:06:18.008947",
     "name": "Sample ProxyAgent NodeJS Local Debug",
     "description": {
       "other": "",
       "owner": "v-helzha@microsoft.com",
       "workitem": "36332672"
     },
-    "generated_at": "2026-02-09T05:17:51.690510",
+    "generated_at": "2026-03-31T01:06:18.008947",
     "execution_order": [
       "plan_r_1107_015711",
       "step_96550d4a",
@@ -26,7 +26,7 @@
       "step_c1870159",
       "step_72d5bc3d",
       "step_fdcb6c9f",
-      "plan_72e6ed27",
+      "plan_r_0928_020230",
       "plan_r_0929_040401",
       "step_1fe2478d",
       "step_37de8021",
@@ -40,7 +40,7 @@
       "step_4da2dd3b",
       "step_915f2d1c",
       "step_4374e85e",
-      "plan_ba076e83",
+      "plan_4f33ade7",
       "step_45bcaa84",
       "step_ebeb9751",
       "plan_417f3e16",
@@ -53,7 +53,7 @@
       "step_da0f28d8"
     ],
     "tags": [],
-    "updated_at": "2026-02-09T05:32:13.121979"
+    "updated_at": "2026-03-31T01:20:22.838070"
   },
   "steps": [
     {
@@ -75,7 +75,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_96550d4a",
-      "created_at": "2026-02-09T05:31:47.469194",
+      "created_at": "2026-03-31T01:19:18.493700",
       "plan_id": "plan_ae77a375"
     },
     {
@@ -101,7 +101,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_c192d522",
-      "created_at": "2026-02-09T05:31:47.484033",
+      "created_at": "2026-03-31T01:19:18.508904",
       "plan_id": "plan_ae77a375"
     },
     {
@@ -119,7 +119,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": null,
-      "created_at": "2026-02-09T05:31:47.498115",
+      "created_at": "2026-03-31T01:19:18.524121",
       "plan_id": "plan_ae77a375"
     },
     {
@@ -139,7 +139,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": null,
-      "created_at": "2026-02-09T05:31:47.511136",
+      "created_at": "2026-03-31T01:19:18.539645",
       "plan_id": "plan_ae77a375"
     },
     {
@@ -159,7 +159,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": null,
-      "created_at": "2026-02-09T05:31:47.524741",
+      "created_at": "2026-03-31T01:19:18.560047",
       "plan_id": "plan_ae77a375"
     },
     {
@@ -177,7 +177,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": null,
-      "created_at": "2026-02-09T05:31:47.537839",
+      "created_at": "2026-03-31T01:19:18.579682",
       "plan_id": "plan_ae77a375"
     },
     {
@@ -197,7 +197,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": null,
-      "created_at": "2026-02-09T05:31:47.551230",
+      "created_at": "2026-03-31T01:19:18.598762",
       "plan_id": "plan_ae77a375"
     },
     {
@@ -223,7 +223,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_4487147d",
-      "created_at": "2026-02-09T05:31:47.566800",
+      "created_at": "2026-03-31T01:19:18.612787",
       "plan_id": "plan_ae77a375"
     },
     {
@@ -245,7 +245,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_9293b5b1",
-      "created_at": "2026-02-09T05:31:47.583075",
+      "created_at": "2026-03-31T01:19:18.638820",
       "plan_id": "plan_ae77a375"
     },
     {
@@ -267,7 +267,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_a9a47079",
-      "created_at": "2026-02-09T05:31:47.601106",
+      "created_at": "2026-03-31T01:19:18.668407",
       "plan_id": "plan_ae77a375"
     },
     {
@@ -293,7 +293,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_a4236b16",
-      "created_at": "2026-02-09T05:31:47.617187",
+      "created_at": "2026-03-31T01:19:18.691955",
       "plan_id": "plan_ae77a375"
     },
     {
@@ -317,7 +317,7 @@
         "delay: 30"
       ],
       "screenshot": "step_95654db4",
-      "created_at": "2026-02-09T05:31:47.634574",
+      "created_at": "2026-03-31T01:19:18.708936",
       "plan_id": "plan_ae77a375"
     },
     {
@@ -341,7 +341,7 @@
         "delay: 15"
       ],
       "screenshot": "step_c638e928",
-      "created_at": "2026-02-09T05:31:47.656172",
+      "created_at": "2026-03-31T01:19:18.727934",
       "plan_id": "plan_ae77a375"
     },
     {
@@ -365,7 +365,7 @@
         "delay: 15"
       ],
       "screenshot": "step_4da2dd3b",
-      "created_at": "2026-02-09T05:31:47.675812",
+      "created_at": "2026-03-31T01:19:18.744854",
       "plan_id": "plan_ae77a375"
     },
     {
@@ -393,7 +393,7 @@
         "delay:5"
       ],
       "screenshot": "step_915f2d1c",
-      "created_at": "2026-02-09T05:31:47.697338",
+      "created_at": "2026-03-31T01:19:18.759831",
       "plan_id": "plan_ae77a375"
     },
     {
@@ -413,7 +413,7 @@
         "delay:180"
       ],
       "screenshot": null,
-      "created_at": "2026-02-09T05:31:47.717534",
+      "created_at": "2026-03-31T01:19:18.781022",
       "plan_id": "plan_ae77a375"
     },
     {
@@ -439,7 +439,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_45bcaa84",
-      "created_at": "2026-02-09T05:31:47.733190",
+      "created_at": "2026-03-31T01:19:18.802678",
       "plan_id": "plan_ae77a375"
     },
     {
@@ -461,7 +461,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_ebeb9751",
-      "created_at": "2026-02-09T05:31:47.753699",
+      "created_at": "2026-03-31T01:19:18.823690",
       "plan_id": "plan_ae77a375"
     },
     {
@@ -490,7 +490,7 @@
         "force_run:true"
       ],
       "screenshot": "step_664fcc03",
-      "created_at": "2026-02-09T05:31:47.789412",
+      "created_at": "2026-03-31T01:19:18.840124",
       "plan_id": "plan_ae77a375"
     },
     {
@@ -502,7 +502,7 @@
         "x": 427,
         "y": 387
       },
-      "description": "Click the \"${{env:AZURE_ACCOUNT_NAME}}\" account entry in the Microsoft \"Pick an account\" login dialog to select the signed-in user (${{env:AZURE_ACCOUNT_NAME}}).",
+      "description": "Click the \"${{env:M365_ACCOUNT_NAME}}\" account entry in the Microsoft \"Pick an account\" login dialog to select the signed-in user (${{env:M365_ACCOUNT_NAME}}).",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -516,7 +516,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_9f0ef7d8",
-      "created_at": "2026-02-09T05:31:47.804925",
+      "created_at": "2026-03-31T01:19:18.858482",
       "plan_id": "plan_ae77a375"
     },
     {
@@ -542,7 +542,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_12d66c46",
-      "created_at": "2026-02-09T05:31:47.825997",
+      "created_at": "2026-03-31T01:19:18.873635",
       "plan_id": "plan_ae77a375"
     },
     {
@@ -568,7 +568,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_183759e8",
-      "created_at": "2026-02-09T05:31:47.845479",
+      "created_at": "2026-03-31T01:19:18.894056",
       "plan_id": "plan_ae77a375"
     },
     {
@@ -594,7 +594,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_1a473194",
-      "created_at": "2026-02-09T05:31:47.863346",
+      "created_at": "2026-03-31T01:19:18.912469",
       "plan_id": "plan_ae77a375"
     },
     {
@@ -620,7 +620,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_9fa03bb2",
-      "created_at": "2026-02-09T05:31:47.881636",
+      "created_at": "2026-03-31T01:19:18.932680",
       "plan_id": "plan_ae77a375"
     },
     {
@@ -638,7 +638,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": null,
-      "created_at": "2026-02-09T05:31:47.900288",
+      "created_at": "2026-03-31T01:19:18.951059",
       "plan_id": "plan_ae77a375"
     }
   ],
