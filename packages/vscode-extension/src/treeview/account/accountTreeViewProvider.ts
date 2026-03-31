@@ -8,7 +8,7 @@ import { DynamicNode } from "../dynamicNode";
 import envTreeProviderInstance from "../environmentTreeViewProvider";
 import { AzureAccountNode } from "./azureNode";
 import { M365AccountNode } from "./m365Node";
-import { AppStudioScopes } from "@microsoft/teamsfx-core";
+import { AppStudioScopes, GraphScopes, isSovereignHigh } from "@microsoft/teamsfx-core";
 import { isSPFxProject } from "../../globalVariables";
 
 class AccountTreeViewProvider implements vscode.TreeDataProvider<DynamicNode> {
@@ -33,7 +33,7 @@ class AccountTreeViewProvider implements vscode.TreeDataProvider<DynamicNode> {
   public subscribeToStatusChanges(tokenProvider: TokenProvider) {
     void tokenProvider.m365TokenProvider?.setStatusChangeMap(
       "tree-view",
-      { scopes: AppStudioScopes() },
+      { scopes: isSovereignHigh() ? GraphScopes : AppStudioScopes() },
       (status, token, accountInfo) =>
         m365AccountStatusChangeHandler("appStudio", status, token, accountInfo)
     );

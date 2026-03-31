@@ -17,6 +17,7 @@ import {
   AuthSvcScopes,
   featureFlagManager,
   FeatureFlags,
+  isSovereignHigh,
   isUserCancelError,
   isValidOfficeAddInProject,
   QuestionNames,
@@ -220,10 +221,12 @@ export async function scaffoldFromDeveloperPortalHandler(
     }
     token = tokenRes.value;
 
-    // set region
-    const AuthSvcTokenRes = await M365TokenInstance.getAccessToken({ scopes: AuthSvcScopes() });
-    if (AuthSvcTokenRes.isOk()) {
-      await teamsDevPortalClient.setRegionEndpointByToken(AuthSvcTokenRes.value);
+    if (!isSovereignHigh()) {
+      // set region
+      const AuthSvcTokenRes = await M365TokenInstance.getAccessToken({ scopes: AuthSvcScopes() });
+      if (AuthSvcTokenRes.isOk()) {
+        await teamsDevPortalClient.setRegionEndpointByToken(AuthSvcTokenRes.value);
+      }
     }
 
     await progressBar.end(true);

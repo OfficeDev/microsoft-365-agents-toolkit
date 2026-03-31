@@ -45,3 +45,8 @@ export function getSovereignCloudEnvironment(): SovereignCloudEnvironment {
   }
   return SovereignCloudEnvironment.Public;
 }
+
+export function isSovereignHigh(): boolean {
+  const env = getSovereignCloudEnvironment();
+  return env === SovereignCloudEnvironment.GCCH || env === SovereignCloudEnvironment.DOD;
+}

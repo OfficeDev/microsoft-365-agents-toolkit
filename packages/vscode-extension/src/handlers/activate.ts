@@ -19,6 +19,7 @@ import {
   getProjectMetadata,
   AppStudioScopes,
   FxCore,
+  GraphScopes,
 } from "@microsoft/teamsfx-core";
 import { workspace, window, Uri, FileRenameEvent } from "vscode";
 import azureAccountManager from "../commonlib/azureLogin";
@@ -84,7 +85,7 @@ export function activate(): Result<Void, FxError> {
 
     void M365TokenInstance.setStatusChangeMap(
       "successfully-sign-in-m365",
-      { scopes: AppStudioScopes() },
+      { scopes: GraphScopes },
       m365NotificationCallback,
       false
     );

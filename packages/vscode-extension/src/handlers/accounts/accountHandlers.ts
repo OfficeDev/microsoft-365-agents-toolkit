@@ -3,7 +3,7 @@
 
 import { QuickPickItem, window } from "vscode";
 import { FxError, OptionItem, Result, SingleSelectConfig, ok } from "@microsoft/teamsfx-api";
-import { Correlator, AppStudioScopes } from "@microsoft/teamsfx-core";
+import { AppStudioScopes, Correlator, GraphScopes, isSovereignHigh } from "@microsoft/teamsfx-core";
 import { ExtTelemetry } from "../../telemetry/extTelemetry";
 import { AccountType, TelemetryEvent, TelemetryProperty } from "../../telemetry/extTelemetryEvents";
 import { signInAzure, signOutAzure, signInM365, signOutM365 } from "../../utils/accountUtils";
@@ -104,7 +104,9 @@ export async function cmpAccountsHandler(args: any[]) {
   const quickPick = window.createQuickPick();
   const quickItemOptionArray: VscQuickPickItem[] = [];
 
-  const m365AccountRes = await M365TokenInstance.getStatus({ scopes: AppStudioScopes() });
+  const m365AccountRes = await M365TokenInstance.getStatus({
+    scopes: isSovereignHigh() ? GraphScopes : AppStudioScopes(),
+  });
   const m365Account = m365AccountRes.isOk() ? m365AccountRes.value : undefined;
   if (m365Account && m365Account.status === "SignedIn") {
     const accountInfo = m365Account.accountInfo;

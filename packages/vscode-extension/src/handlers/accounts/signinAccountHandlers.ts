@@ -2,7 +2,12 @@
 // Licensed under the MIT license.
 
 import { Result, FxError, ok, err } from "@microsoft/teamsfx-api";
-import { AppStudioScopes, isUserCancelError } from "@microsoft/teamsfx-core";
+import {
+  AppStudioScopes,
+  GraphScopes,
+  isSovereignHigh,
+  isUserCancelError,
+} from "@microsoft/teamsfx-core";
 import { tools } from "../../globalVariables";
 import { ExtTelemetry } from "../../telemetry/extTelemetry";
 import { AccountType, TelemetryEvent, TelemetryProperty } from "../../telemetry/extTelemetryEvents";
@@ -29,7 +34,7 @@ export async function signinM365Callback(...args: unknown[]): Promise<Result<nul
   });
 
   const tokenRes = await tools.tokenProvider.m365TokenProvider.getJsonObject({
-    scopes: AppStudioScopes(),
+    scopes: isSovereignHigh() ? GraphScopes : AppStudioScopes(),
     showDialog: true,
   });
   const token = tokenRes.isOk() ? tokenRes.value : undefined;

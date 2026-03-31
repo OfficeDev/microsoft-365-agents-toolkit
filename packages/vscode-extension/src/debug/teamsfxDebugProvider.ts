@@ -9,9 +9,9 @@ import {
   Correlator,
   environmentNameManager,
   envUtil,
-  featureFlagManager,
-  FeatureFlags,
+  GraphScopes,
   Hub,
+  isSovereignHigh,
   isValidProject,
   isValidProjectV3,
   MissingEnvironmentVariablesError,
@@ -230,7 +230,9 @@ async function generateAccountHint(includeTenantId = true): Promise<string> {
     loginHint = accountInfo.username;
   } else {
     try {
-      const tokenObjectRes = await M365TokenInstance.getStatus({ scopes: AppStudioScopes() });
+      const tokenObjectRes = await M365TokenInstance.getStatus({
+        scopes: isSovereignHigh() ? GraphScopes : AppStudioScopes(),
+      });
       const tokenObject = tokenObjectRes.isOk() ? tokenObjectRes.value.accountInfo : undefined;
       if (tokenObject) {
         // user signed in
