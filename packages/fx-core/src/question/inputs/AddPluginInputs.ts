@@ -15,13 +15,13 @@ export interface AddPluginInputs extends Inputs {
   "api-plugin-type"?: "api-spec";
   /** @description OpenAPI Spec Document */
   "openapi-spec-type"?: "enter-url" | "open-file" | "search-api";
-  /** @description OpenAPI Description Document */
+  /** @description OpenAPI Document */
   "openapi-spec-location"?: string;
   /** @description Select Operation(s) Copilot Can Interact with */
   "api-operation"?: string[];
-  /** @description Search OpenAPI Description Document */
+  /** @description Search OpenAPI Document */
   "search-openapi-spec-query"?: string;
-  /** @description Select OpenAPI Description Document */
+  /** @description Select OpenAPI Document */
   "select-openapi-spec"?: string;
   /** @description Select Teams manifest.json File */
   "manifest-path"?: string;

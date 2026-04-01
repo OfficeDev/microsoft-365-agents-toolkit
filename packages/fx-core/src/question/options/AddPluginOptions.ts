@@ -41,12 +41,12 @@ export const AddPluginOptions: CLICommandOption[] = [
   {
     name: "search-openapi-spec-query",
     type: "string",
-    description: "Search OpenAPI Description Document",
+    description: "Search OpenAPI Document",
   },
   {
     name: "select-openapi-spec",
     type: "string",
-    description: "Select OpenAPI Description Document",
+    description: "Select OpenAPI Document",
   },
   {
     name: "manifest-file",
