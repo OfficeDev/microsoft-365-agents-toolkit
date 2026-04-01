@@ -233,36 +233,6 @@ describe("daProjectTypeNode", () => {
     assert.equal(selectApiSpecQuestion?.name, QuestionNames.OpenAPISpecType);
   });
 
-  it("should return apiSpecNode when KiotaNPMIntegration is disabled", () => {
-    sandbox.stub(featureFlagManager, "getBooleanValue").callsFake((flag) => {
-      if (flag === FeatureFlags.KiotaNPMIntegration) {
-        return false;
-      }
-      return false;
-    });
-
-    const node = daProjectTypeNode();
-    const withPluginNode = node.children?.[0];
-    assert.isDefined(withPluginNode);
-
-    const actionTypeNode = withPluginNode?.children?.[0];
-    assert.isDefined(actionTypeNode);
-
-    const apiSpecChildNode = actionTypeNode?.children?.[1];
-
-    assert.isDefined(apiSpecChildNode);
-
-    assert.isFunction(apiSpecChildNode?.condition);
-
-    const testInputs: Inputs = {
-      platform: Platform.VSCode,
-      [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
-    };
-
-    const conditionFunc = apiSpecChildNode?.condition as ConditionFunc;
-    assert.isTrue(conditionFunc(testInputs));
-  });
-
   it("should include MCP option when MCPForDA feature flag is enabled", () => {
     sandbox.stub(featureFlagManager, "getBooleanValue").callsFake((flag) => {
       if (flag === FeatureFlags.MCPForDA) {
@@ -412,16 +382,10 @@ describe("m365ProjectTypeNode", () => {
     const res2 = condition2?.(inputs);
     assert.isTrue(res2);
 
-    sandbox.stub(featureFlagManager, "getBooleanValue").callsFake((flag) => {
-      if (flag === FeatureFlags.KiotaNPMIntegration) {
-        return true;
-      }
-      return false;
-    });
-
-    const condition3 = node.children?.[0]?.condition as ConditionFunc;
-    const res3 = condition3?.(inputs);
-    assert.isTrue(res3);
+    // Verify onDidSelection sets ActionType
+    const selectData = node.children?.[0]?.data as any;
+    assert.isDefined(selectData?.onDidSelection);
+    selectData.onDidSelection("enter-url", inputs);
     assert.isTrue(inputs[QuestionNames.ActionType] === ActionStartOptions.apiSpec().id);
   });
 });

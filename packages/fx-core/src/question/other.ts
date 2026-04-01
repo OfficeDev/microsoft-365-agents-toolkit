@@ -23,7 +23,6 @@ import * as os from "os";
 import * as path from "path";
 import { GraphClient } from "../client/graphClient";
 import { AppStudioScopes, ConstantString, ListSensitivityLabelScope } from "../common/constants";
-import { FeatureFlags, featureFlagManager } from "../common/featureFlags";
 import { TOOLS } from "../common/globalVars";
 import { getLocalizedString } from "../common/localizeUtils";
 import { Constants } from "../component/driver/add/utility/constants";
@@ -672,24 +671,6 @@ export function addPluginQuestionNode(): IQTreeNode {
     data: apiPluginStartQuestion(true),
     children: [
       ...[inputOrSearchAPISpecNode()],
-      {
-        data: apiSpecLocationQuestion(),
-        condition: (inputs: Inputs) => {
-          return (
-            !featureFlagManager.getBooleanValue(FeatureFlags.KiotaNPMIntegration) &&
-            inputs[QuestionNames.ActionType] === ActionStartOptions.apiSpec().id
-          );
-        },
-      },
-      {
-        data: apiOperationQuestion(true, true),
-        condition: (inputs: Inputs) => {
-          return (
-            !featureFlagManager.getBooleanValue(FeatureFlags.KiotaNPMIntegration) &&
-            inputs[QuestionNames.ActionType] === ActionStartOptions.apiSpec().id
-          );
-        },
-      },
       {
         data: selectTeamsAppManifestQuestion(),
       },
