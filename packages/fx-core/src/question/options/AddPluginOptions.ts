@@ -24,13 +24,13 @@ export const AddPluginOptions: CLICommandOption[] = [
     type: "string",
     description: "The type of the API spec.",
     required: true,
-    choices: ["enter-url-or-open-local-file", "search-api"],
+    choices: ["enter-url", "open-file", "search-api"],
   },
   {
     name: "openapi-spec-location",
     type: "string",
     shortName: "a",
-    description: "OpenAPI description document location.",
+    description: "OpenAPI description document URL.",
   },
   {
     name: "api-operation",
@@ -41,12 +41,12 @@ export const AddPluginOptions: CLICommandOption[] = [
   {
     name: "search-openapi-spec-query",
     type: "string",
-    description: "Search OpenAPI Description Document",
+    description: "Search OpenAPI Document",
   },
   {
     name: "select-openapi-spec",
     type: "string",
-    description: "Select OpenAPI Description Document",
+    description: "Select OpenAPI Document",
   },
   {
     name: "manifest-file",
