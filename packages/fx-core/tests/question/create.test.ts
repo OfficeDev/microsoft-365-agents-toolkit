@@ -1309,10 +1309,7 @@ describe("scaffold question", () => {
       const question = apiSpecUrlQuestion();
       assert.equal(question.type, "text");
       assert.equal(question.name, QuestionNames.ApiSpecLocation);
-      assert.equal(
-        question.title,
-        getLocalizedString("core.createProjectQuestion.apiSpec.title")
-      );
+      assert.equal(question.title, getLocalizedString("core.createProjectQuestion.apiSpec.title"));
       assert.equal(
         question.placeholder,
         getLocalizedString("core.createProjectQuestion.apiSpec.placeholder")
@@ -1414,10 +1411,7 @@ describe("scaffold question", () => {
       const question = apiSpecFileQuestion();
       assert.equal(question.type, "singleFile");
       assert.equal(question.name, QuestionNames.ApiSpecLocation);
-      assert.equal(
-        question.title,
-        getLocalizedString("core.createProjectQuestion.apiSpec.title")
-      );
+      assert.equal(question.title, getLocalizedString("core.createProjectQuestion.apiSpec.title"));
       assert.isDefined(question.filters);
     });
 
