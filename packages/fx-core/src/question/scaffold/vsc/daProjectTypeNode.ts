@@ -1,12 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { IQTreeNode, OptionItem } from "@microsoft/teamsfx-api";
+import { Inputs, IQTreeNode, OptionItem } from "@microsoft/teamsfx-api";
 import { featureFlagManager, FeatureFlags } from "../../../common/featureFlags";
 import { getLocalizedString } from "../../../common/localizeUtils";
 import { ProgrammingLanguage } from "../../constants";
 import { QuestionNames } from "../../questionNames";
-import { apiSpecWithSearchNode } from "../commonNodes";
+import { apiSpecNode, apiSpecWithSearchNode } from "../commonNodes";
 import {
   ActionStartOptions,
   ApiAuthOptions,
@@ -62,7 +62,9 @@ export function daProjectTypeNode(
               ),
               staticOptions: [
                 ActionStartOptions.newApi(),
-                ActionStartOptions.apiSpecWithSearch(),
+                featureFlagManager.getBooleanValue(FeatureFlags.KiotaNPMIntegration)
+                  ? ActionStartOptions.apiSpecWithSearch()
+                  : ActionStartOptions.apiSpec(),
                 ...(featureFlagManager.getBooleanValue(FeatureFlags.DAMetaOS)
                   ? [ActionStartOptions.DAMetaOS()]
                   : []),
@@ -96,7 +98,12 @@ export function daProjectTypeNode(
                   onDidSelection: setTemplateName,
                 },
               },
-              apiSpecWithSearchNode(),
+              featureFlagManager.getBooleanValue(FeatureFlags.KiotaNPMIntegration)
+                ? apiSpecWithSearchNode()
+                : apiSpecNode(
+                    (inputs: Inputs) =>
+                      inputs[QuestionNames.ActionType] === ActionStartOptions.apiSpec().id
+                  ),
               MCPServerTypeNode(),
             ],
           },

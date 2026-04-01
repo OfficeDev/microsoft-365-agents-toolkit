@@ -8,6 +8,7 @@ import {
   StringArrayValidation,
   StringValidation,
 } from "@microsoft/teamsfx-api";
+import { featureFlagManager, FeatureFlags } from "../../common/featureFlags";
 import { getLocalizedString } from "../../common/localizeUtils";
 import {
   apiOperationQuestion,
@@ -147,6 +148,9 @@ export function apiSpecWithSearchNode(): IQTreeNode {
 export function inputOrSearchAPISpecNode(): IQTreeNode {
   return {
     data: apiSpecTypeSelectQuestion(),
+    condition: (inputs: Inputs) => {
+      return featureFlagManager.getBooleanValue(FeatureFlags.KiotaNPMIntegration);
+    },
     children: [
       {
         condition: { equals: "enter-url" },
