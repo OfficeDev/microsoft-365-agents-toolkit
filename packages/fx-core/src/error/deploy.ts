@@ -76,6 +76,28 @@ export class GetPublishingCredentialsError extends UserError {
   }
 }
 
+export class GetZipDeployEndpointError extends UserError {
+  constructor(appName: string, resourceGroup: string, error: Error, helpLink?: string) {
+    super({
+      source: "azureDeploy",
+      message: getDefaultString(
+        "error.deploy.GetZipDeployEndpointError",
+        appName,
+        resourceGroup,
+        stringifyError(error)
+      ),
+      displayMessage: getLocalizedString(
+        "error.deploy.GetZipDeployEndpointError.Notification",
+        appName,
+        resourceGroup
+      ),
+      helpLink: helpLink,
+      error: error,
+      categories: [ErrorCategory.External],
+    });
+  }
+}
+
 export class DeployZipPackageError extends UserError {
   constructor(endpoint: string, error: Error, helpLink?: string) {
     super({
