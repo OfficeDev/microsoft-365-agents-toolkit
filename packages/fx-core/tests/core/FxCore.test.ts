@@ -6304,6 +6304,541 @@ describe("addPlugin", async () => {
     }
   });
 
+  it("from MCP: add action success with no auth (auto-fetch)", async () => {
+    const appName = await mockV3Project();
+    const projectPath = path.join(os.tmpdir(), appName);
+    const inputs: Inputs = {
+      platform: Platform.CLI,
+      [QuestionNames.Folder]: os.tmpdir(),
+      [QuestionNames.TeamsAppManifestFilePath]: "manifest.json",
+      [QuestionNames.ActionType]: ActionStartOptions.mcp().id,
+      [QuestionNames.MCPForDAServerUrl]: "https://example.com/mcp",
+      [QuestionNames.MCPToolsFilePath]: "",
+      [QuestionNames.MCPForDAAuthType]: "oauth",
+      projectPath,
+    };
+
+    const manifest = new TeamsAppManifest();
+    manifest.copilotExtensions = {
+      declarativeCopilots: [{ file: "test1.json", id: "action_1" }],
+    };
+
+    sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
+    sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
+    sandbox.stub(copilotGptManifestUtils, "getManifestPath").resolves(ok("dcManifest.json"));
+    sandbox
+      .stub(copilotGptManifestUtils, "readCopilotGptManifestFile")
+      .resolves(ok({} as DeclarativeCopilotManifestSchema));
+    sandbox
+      .stub(copilotGptManifestUtils, "getDefaultNextAvailablePluginManifestPath")
+      .resolves("ai-plugin_1.json");
+    const addActionStub = sandbox
+      .stub(copilotGptManifestUtils, "addAction")
+      .resolves(ok({} as DeclarativeCopilotManifestSchema));
+
+    sandbox.stub(tools.ui, "showMessage").callsFake((level) => {
+      if (level === "warn") return Promise.resolve(ok("Add"));
+      return Promise.resolve(ok(""));
+    });
+
+    const mcpToolFetcherModule = await import("../../src/component/utils/mcpToolFetcher");
+    sandbox.stub(mcpToolFetcherModule, "fetchMCPTools").resolves({
+      requiresAuth: false,
+      tools: [{ name: "search", description: "Search docs", inputSchema: {} }],
+    });
+
+    sandbox.stub(fs, "ensureFile").resolves();
+    const writeJSONStub = sandbox.stub(fs, "writeJSON").resolves();
+
+    const core = new FxCore(tools);
+    const result = await core.addPlugin(inputs);
+
+    assert.isTrue(result.isOk());
+    // mcp-tools file and plugin manifest both written
+    assert.isTrue(writeJSONStub.callCount >= 2);
+
+    if (await fs.pathExists(projectPath)) {
+      await fs.remove(projectPath);
+    }
+  });
+
+  it("from MCP: add action success with tools file", async () => {
+    const appName = await mockV3Project();
+    const projectPath = path.join(os.tmpdir(), appName);
+    const inputs: Inputs = {
+      platform: Platform.CLI,
+      [QuestionNames.Folder]: os.tmpdir(),
+      [QuestionNames.TeamsAppManifestFilePath]: "manifest.json",
+      [QuestionNames.ActionType]: ActionStartOptions.mcp().id,
+      [QuestionNames.MCPForDAServerUrl]: "https://example.com/mcp",
+      [QuestionNames.MCPToolsFilePath]: "/tmp/mcp-tools.json",
+      [QuestionNames.MCPForDAAuthType]: "oauth",
+      projectPath,
+    };
+
+    const manifest = new TeamsAppManifest();
+    manifest.copilotExtensions = {
+      declarativeCopilots: [{ file: "test1.json", id: "action_1" }],
+    };
+
+    sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
+    sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
+    sandbox.stub(copilotGptManifestUtils, "getManifestPath").resolves(ok("dcManifest.json"));
+    sandbox
+      .stub(copilotGptManifestUtils, "readCopilotGptManifestFile")
+      .resolves(ok({} as DeclarativeCopilotManifestSchema));
+    sandbox
+      .stub(copilotGptManifestUtils, "getDefaultNextAvailablePluginManifestPath")
+      .resolves("ai-plugin_1.json");
+    sandbox
+      .stub(copilotGptManifestUtils, "addAction")
+      .resolves(ok({} as DeclarativeCopilotManifestSchema));
+
+    sandbox.stub(tools.ui, "showMessage").callsFake((level) => {
+      if (level === "warn") return Promise.resolve(ok("Add"));
+      return Promise.resolve(ok(""));
+    });
+
+    const mcpToolFetcherModule = await import("../../src/component/utils/mcpToolFetcher");
+    sandbox.stub(mcpToolFetcherModule, "readMCPToolsFromFile").resolves([
+      { name: "tool1", description: "Tool one", inputSchema: {} },
+      { name: "tool2", description: "Tool two", inputSchema: {} },
+    ]);
+    sandbox.stub(mcpToolFetcherModule, "probeMCPServerAuth").resolves({
+      requiresAuth: false,
+    });
+
+    sandbox.stub(fs, "ensureFile").resolves();
+    sandbox.stub(fs, "writeJSON").resolves();
+
+    const core = new FxCore(tools);
+    const result = await core.addPlugin(inputs);
+
+    assert.isTrue(result.isOk());
+    // Tools should have been loaded from file and set
+    assert.equal(inputs[QuestionNames.MCPForDAAvailableTools].length, 2);
+    assert.deepEqual(inputs[QuestionNames.MCPForDAPreFetchTools], ["tool1", "tool2"]);
+
+    if (await fs.pathExists(projectPath)) {
+      await fs.remove(projectPath);
+    }
+  });
+
+  it("from MCP: add action with OAuth auth injects action into yaml", async () => {
+    const appName = await mockV3Project();
+    const projectPath = path.join(os.tmpdir(), appName);
+    const inputs: Inputs = {
+      platform: Platform.CLI,
+      [QuestionNames.Folder]: os.tmpdir(),
+      [QuestionNames.TeamsAppManifestFilePath]: "manifest.json",
+      [QuestionNames.ActionType]: ActionStartOptions.mcp().id,
+      [QuestionNames.MCPForDAServerUrl]: "https://example.com/mcp",
+      [QuestionNames.MCPToolsFilePath]: "",
+      [QuestionNames.MCPForDAAvailableTools]: [{ name: "search", description: "Search" }],
+      [QuestionNames.MCPForDAPreFetchTools]: ["search"],
+      [QuestionNames.MCPForDAAuth]: "OAuthPluginVault",
+      [QuestionNames.MCPForDAAuthType]: "oauth",
+      [QuestionNames.MCPForDAAuthMetadataUrl]:
+        "https://example.com/.well-known/oauth-authorization-server",
+      projectPath,
+    };
+
+    const manifest = new TeamsAppManifest();
+    manifest.copilotExtensions = {
+      declarativeCopilots: [{ file: "test1.json", id: "action_1" }],
+    };
+
+    sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
+    sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
+    sandbox.stub(copilotGptManifestUtils, "getManifestPath").resolves(ok("dcManifest.json"));
+    sandbox
+      .stub(copilotGptManifestUtils, "readCopilotGptManifestFile")
+      .resolves(ok({} as DeclarativeCopilotManifestSchema));
+    sandbox
+      .stub(copilotGptManifestUtils, "getDefaultNextAvailablePluginManifestPath")
+      .resolves("ai-plugin_1.json");
+    sandbox
+      .stub(copilotGptManifestUtils, "addAction")
+      .resolves(ok({} as DeclarativeCopilotManifestSchema));
+
+    sandbox.stub(tools.ui, "showMessage").callsFake((level) => {
+      if (level === "warn") return Promise.resolve(ok("Add"));
+      return Promise.resolve(ok(""));
+    });
+
+    const mcpToolFetcherModule = await import("../../src/component/utils/mcpToolFetcher");
+    sandbox.stub(mcpToolFetcherModule, "resolveMCPOAuthMetadata").resolves({
+      authorizationUrl: "https://example.com/oauth/authorize",
+      tokenUrl: "https://example.com/oauth/token",
+      refreshUrl: "https://example.com/oauth/token",
+    });
+
+    const actionInjectorModule = await import("../../src/component/configManager/actionInjector");
+    const injectStub = sandbox
+      .stub(actionInjectorModule.ActionInjector, "injectCreateOAuthActionForMCP")
+      .resolves();
+
+    sandbox.stub(pathUtils, "getYmlFilePath").returns("m365agents.yml");
+    sandbox.stub(fs, "ensureFile").resolves();
+    sandbox.stub(fs, "writeJSON").resolves();
+
+    const core = new FxCore(tools);
+    const result = await core.addPlugin(inputs);
+
+    assert.isTrue(result.isOk());
+    assert.isTrue(injectStub.calledOnce);
+    // Verify registration ID pattern
+    const registrationId = injectStub.firstCall.args[3];
+    assert.equal(registrationId, "MCP_DA_AUTH_ID_ACTION_1");
+
+    if (await fs.pathExists(projectPath)) {
+      await fs.remove(projectPath);
+    }
+  });
+
+  it("from MCP: add action with EntraSSO auth type", async () => {
+    const appName = await mockV3Project();
+    const projectPath = path.join(os.tmpdir(), appName);
+    const inputs: Inputs = {
+      platform: Platform.CLI,
+      [QuestionNames.Folder]: os.tmpdir(),
+      [QuestionNames.TeamsAppManifestFilePath]: "manifest.json",
+      [QuestionNames.ActionType]: ActionStartOptions.mcp().id,
+      [QuestionNames.MCPForDAServerUrl]: "https://example.com/mcp",
+      [QuestionNames.MCPToolsFilePath]: "",
+      [QuestionNames.MCPForDAAvailableTools]: [{ name: "data", description: "Get data" }],
+      [QuestionNames.MCPForDAPreFetchTools]: ["data"],
+      [QuestionNames.MCPForDAAuth]: "OAuthPluginVault",
+      [QuestionNames.MCPForDAAuthType]: "MicrosoftEntra",
+      projectPath,
+    };
+
+    const manifest = new TeamsAppManifest();
+    manifest.copilotExtensions = {
+      declarativeCopilots: [{ file: "test1.json", id: "action_1" }],
+    };
+
+    sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
+    sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
+    sandbox.stub(copilotGptManifestUtils, "getManifestPath").resolves(ok("dcManifest.json"));
+    sandbox
+      .stub(copilotGptManifestUtils, "readCopilotGptManifestFile")
+      .resolves(ok({} as DeclarativeCopilotManifestSchema));
+    sandbox
+      .stub(copilotGptManifestUtils, "getDefaultNextAvailablePluginManifestPath")
+      .resolves("ai-plugin_1.json");
+    sandbox
+      .stub(copilotGptManifestUtils, "addAction")
+      .resolves(ok({} as DeclarativeCopilotManifestSchema));
+
+    sandbox.stub(tools.ui, "showMessage").callsFake((level) => {
+      if (level === "warn") return Promise.resolve(ok("Add"));
+      return Promise.resolve(ok(""));
+    });
+
+    const actionInjectorModule = await import("../../src/component/configManager/actionInjector");
+    const injectStub = sandbox
+      .stub(actionInjectorModule.ActionInjector, "injectCreateOAuthActionForMCP")
+      .resolves();
+
+    sandbox.stub(pathUtils, "getYmlFilePath").returns("m365agents.yml");
+    sandbox.stub(fs, "ensureFile").resolves();
+    sandbox.stub(fs, "writeJSON").resolves();
+
+    const core = new FxCore(tools);
+    const result = await core.addPlugin(inputs);
+
+    assert.isTrue(result.isOk());
+    assert.isTrue(injectStub.calledOnce);
+    // authType should be "MicrosoftEntra" (no resolveMCPOAuthMetadata call)
+    assert.equal(injectStub.firstCall.args[1], "MicrosoftEntra");
+
+    if (await fs.pathExists(projectPath)) {
+      await fs.remove(projectPath);
+    }
+  });
+
+  it("from MCP: error when missing server URL", async () => {
+    const appName = await mockV3Project();
+    const projectPath = path.join(os.tmpdir(), appName);
+    const inputs: Inputs = {
+      platform: Platform.CLI,
+      [QuestionNames.Folder]: os.tmpdir(),
+      [QuestionNames.TeamsAppManifestFilePath]: "manifest.json",
+      [QuestionNames.ActionType]: ActionStartOptions.mcp().id,
+      [QuestionNames.MCPForDAServerUrl]: "",
+      [QuestionNames.MCPToolsFilePath]: "",
+      [QuestionNames.MCPForDAAuthType]: "oauth",
+      projectPath,
+    };
+
+    const manifest = new TeamsAppManifest();
+    manifest.copilotExtensions = {
+      declarativeCopilots: [{ file: "test1.json", id: "action_1" }],
+    };
+
+    sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
+    sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
+    sandbox.stub(copilotGptManifestUtils, "getManifestPath").resolves(ok("dcManifest.json"));
+    sandbox
+      .stub(copilotGptManifestUtils, "readCopilotGptManifestFile")
+      .resolves(ok({} as DeclarativeCopilotManifestSchema));
+
+    sandbox.stub(tools.ui, "showMessage").callsFake((level) => {
+      if (level === "warn") return Promise.resolve(ok("Add"));
+      return Promise.resolve(ok(""));
+    });
+
+    const core = new FxCore(tools);
+    const result = await core.addPlugin(inputs);
+
+    assert.isTrue(result.isErr());
+    if (result.isErr()) {
+      assert.equal(result.error.name, "MissingMCPServerUrl");
+    }
+
+    if (await fs.pathExists(projectPath)) {
+      await fs.remove(projectPath);
+    }
+  });
+
+  it("from MCP: error when auth required but no auth type", async () => {
+    const appName = await mockV3Project();
+    const projectPath = path.join(os.tmpdir(), appName);
+    const inputs: Inputs = {
+      platform: Platform.CLI,
+      [QuestionNames.Folder]: os.tmpdir(),
+      [QuestionNames.TeamsAppManifestFilePath]: "manifest.json",
+      [QuestionNames.ActionType]: ActionStartOptions.mcp().id,
+      [QuestionNames.MCPForDAServerUrl]: "https://example.com/mcp",
+      [QuestionNames.MCPToolsFilePath]: "",
+      [QuestionNames.MCPForDAAvailableTools]: [{ name: "tool1", description: "A tool" }],
+      [QuestionNames.MCPForDAPreFetchTools]: ["tool1"],
+      [QuestionNames.MCPForDAAuth]: "OAuthPluginVault",
+      [QuestionNames.MCPForDAAuthType]: "",
+      projectPath,
+    };
+
+    const manifest = new TeamsAppManifest();
+    manifest.copilotExtensions = {
+      declarativeCopilots: [{ file: "test1.json", id: "action_1" }],
+    };
+
+    sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
+    sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
+    sandbox.stub(copilotGptManifestUtils, "getManifestPath").resolves(ok("dcManifest.json"));
+    sandbox
+      .stub(copilotGptManifestUtils, "readCopilotGptManifestFile")
+      .resolves(ok({} as DeclarativeCopilotManifestSchema));
+    sandbox
+      .stub(copilotGptManifestUtils, "getDefaultNextAvailablePluginManifestPath")
+      .resolves("ai-plugin_1.json");
+
+    sandbox.stub(tools.ui, "showMessage").callsFake((level) => {
+      if (level === "warn") return Promise.resolve(ok("Add"));
+      return Promise.resolve(ok(""));
+    });
+
+    sandbox.stub(fs, "ensureFile").resolves();
+    sandbox.stub(fs, "writeJSON").resolves();
+
+    const core = new FxCore(tools);
+    const result = await core.addPlugin(inputs);
+
+    assert.isTrue(result.isErr());
+    if (result.isErr()) {
+      assert.equal(result.error.name, "MissingMCPAuthType");
+    }
+
+    if (await fs.pathExists(projectPath)) {
+      await fs.remove(projectPath);
+    }
+  });
+
+  it("from MCP: returns ok(undefined) when no tools available", async () => {
+    const appName = await mockV3Project();
+    const projectPath = path.join(os.tmpdir(), appName);
+    const inputs: Inputs = {
+      platform: Platform.CLI,
+      [QuestionNames.Folder]: os.tmpdir(),
+      [QuestionNames.TeamsAppManifestFilePath]: "manifest.json",
+      [QuestionNames.ActionType]: ActionStartOptions.mcp().id,
+      [QuestionNames.MCPForDAServerUrl]: "https://example.com/mcp",
+      [QuestionNames.MCPToolsFilePath]: "",
+      [QuestionNames.MCPForDAAuthType]: "oauth",
+      projectPath,
+    };
+
+    const manifest = new TeamsAppManifest();
+    manifest.copilotExtensions = {
+      declarativeCopilots: [{ file: "test1.json", id: "action_1" }],
+    };
+
+    sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
+    sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
+    sandbox.stub(copilotGptManifestUtils, "getManifestPath").resolves(ok("dcManifest.json"));
+    sandbox
+      .stub(copilotGptManifestUtils, "readCopilotGptManifestFile")
+      .resolves(ok({} as DeclarativeCopilotManifestSchema));
+
+    sandbox.stub(tools.ui, "showMessage").callsFake((level) => {
+      if (level === "warn") return Promise.resolve(ok("Add"));
+      return Promise.resolve(ok(""));
+    });
+
+    // Auto-fetch returns auth-required with no tools
+    const mcpToolFetcherModule = await import("../../src/component/utils/mcpToolFetcher");
+    sandbox.stub(mcpToolFetcherModule, "fetchMCPTools").resolves({
+      requiresAuth: true,
+      tools: [],
+      authMetadataUrl: "https://example.com/.well-known/oauth-authorization-server",
+    });
+
+    const core = new FxCore(tools);
+    const result = await core.addPlugin(inputs);
+
+    assert.isTrue(result.isOk());
+    if (result.isOk()) {
+      assert.isUndefined(result.value);
+    }
+
+    if (await fs.pathExists(projectPath)) {
+      await fs.remove(projectPath);
+    }
+  });
+
+  it("from MCP: tools file auth probe detects OAuth and sets auth inputs", async () => {
+    const appName = await mockV3Project();
+    const projectPath = path.join(os.tmpdir(), appName);
+    const inputs: Inputs = {
+      platform: Platform.CLI,
+      [QuestionNames.Folder]: os.tmpdir(),
+      [QuestionNames.TeamsAppManifestFilePath]: "manifest.json",
+      [QuestionNames.ActionType]: ActionStartOptions.mcp().id,
+      [QuestionNames.MCPForDAServerUrl]: "https://example.com/mcp",
+      [QuestionNames.MCPToolsFilePath]: "/tmp/mcp-tools.json",
+      [QuestionNames.MCPForDAAuthType]: "",
+      projectPath,
+    };
+
+    const manifest = new TeamsAppManifest();
+    manifest.copilotExtensions = {
+      declarativeCopilots: [{ file: "test1.json", id: "action_1" }],
+    };
+
+    sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
+    sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
+    sandbox.stub(copilotGptManifestUtils, "getManifestPath").resolves(ok("dcManifest.json"));
+    sandbox
+      .stub(copilotGptManifestUtils, "readCopilotGptManifestFile")
+      .resolves(ok({} as DeclarativeCopilotManifestSchema));
+    sandbox
+      .stub(copilotGptManifestUtils, "getDefaultNextAvailablePluginManifestPath")
+      .resolves("ai-plugin_1.json");
+    sandbox
+      .stub(copilotGptManifestUtils, "addAction")
+      .resolves(ok({} as DeclarativeCopilotManifestSchema));
+
+    sandbox.stub(tools.ui, "showMessage").callsFake((level) => {
+      if (level === "warn") return Promise.resolve(ok("Add"));
+      return Promise.resolve(ok(""));
+    });
+
+    const mcpToolFetcherModule = await import("../../src/component/utils/mcpToolFetcher");
+    sandbox
+      .stub(mcpToolFetcherModule, "readMCPToolsFromFile")
+      .resolves([{ name: "tool1", description: "Tool 1", inputSchema: {} }]);
+    sandbox.stub(mcpToolFetcherModule, "probeMCPServerAuth").resolves({
+      requiresAuth: true,
+      authMetadataUrl: "https://example.com/.well-known/oauth-authorization-server",
+    });
+
+    sandbox.stub(fs, "ensureFile").resolves();
+    sandbox.stub(fs, "writeJSON").resolves();
+
+    const core = new FxCore(tools);
+    const result = await core.addPlugin(inputs);
+
+    // Auth was probed but no auth type was set, so MissingMCPAuthType
+    assert.isTrue(result.isErr());
+    if (result.isErr()) {
+      assert.equal(result.error.name, "MissingMCPAuthType");
+    }
+    // Verify auth was detected
+    assert.equal(inputs[QuestionNames.MCPForDAAuth], "OAuthPluginVault");
+    assert.equal(
+      inputs[QuestionNames.MCPForDAAuthMetadataUrl],
+      "https://example.com/.well-known/oauth-authorization-server"
+    );
+
+    if (await fs.pathExists(projectPath)) {
+      await fs.remove(projectPath);
+    }
+  });
+
+  it("from MCP: VSCode platform shows success message with open file option", async () => {
+    const appName = await mockV3Project();
+    const projectPath = path.join(os.tmpdir(), appName);
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      [QuestionNames.Folder]: os.tmpdir(),
+      [QuestionNames.TeamsAppManifestFilePath]: "manifest.json",
+      [QuestionNames.ActionType]: ActionStartOptions.mcp().id,
+      [QuestionNames.MCPForDAServerUrl]: "https://example.com/mcp",
+      [QuestionNames.MCPToolsFilePath]: "",
+      [QuestionNames.MCPForDAAuthType]: "oauth",
+      [QuestionNames.MCPForDAAvailableTools]: [{ name: "search", description: "Search" }],
+      [QuestionNames.MCPForDAPreFetchTools]: ["search"],
+      projectPath,
+    };
+
+    const manifest = new TeamsAppManifest();
+    manifest.copilotExtensions = {
+      declarativeCopilots: [{ file: "test1.json", id: "action_1" }],
+    };
+
+    sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
+    sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
+    sandbox.stub(copilotGptManifestUtils, "getManifestPath").resolves(ok("dcManifest.json"));
+    sandbox
+      .stub(copilotGptManifestUtils, "readCopilotGptManifestFile")
+      .resolves(ok({} as DeclarativeCopilotManifestSchema));
+    sandbox
+      .stub(copilotGptManifestUtils, "getDefaultNextAvailablePluginManifestPath")
+      .resolves("ai-plugin_1.json");
+    sandbox
+      .stub(copilotGptManifestUtils, "addAction")
+      .resolves(ok({} as DeclarativeCopilotManifestSchema));
+
+    const showMessageStub = sandbox
+      .stub(tools.ui, "showMessage")
+      .callsFake((level, message, modal, items) => {
+        if (level === "info") {
+          return Promise.resolve(
+            ok(getLocalizedString("core.addPlugin.success.viewPluginManifest"))
+          );
+        } else if (level === "warn") {
+          return Promise.resolve(ok("Add"));
+        }
+        return Promise.resolve(ok(""));
+      });
+
+    const openFileStub = sandbox.stub(tools.ui, "openFile").resolves();
+    sandbox.stub(fs, "ensureFile").resolves();
+    sandbox.stub(fs, "writeJSON").resolves();
+
+    const core = new FxCore(tools);
+    const result = await core.addPlugin(inputs);
+
+    assert.isTrue(result.isOk());
+    assert.isTrue(showMessageStub.calledTwice);
+    assert.isTrue(openFileStub.calledOnce);
+
+    if (await fs.pathExists(projectPath)) {
+      await fs.remove(projectPath);
+    }
+  });
+
   describe("projectVersionCheck", async () => {
     it("invalid project", async () => {
       sandbox.stub(projectHelper, "isValidProjectV3").returns(false);

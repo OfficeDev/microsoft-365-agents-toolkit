@@ -39,6 +39,7 @@ import {
   TeamsAppManifest,
   Tools,
   UserError,
+  Warning,
   err,
   ok,
 } from "@microsoft/teamsfx-api";
@@ -2044,6 +2045,7 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
     const appPackageFolder = path.dirname(teamsManifestPath);
     const isGenerateFromApiSpec =
       inputs[QuestionNames.ActionType] === ActionStartOptions.apiSpec().id;
+    const isGenerateFromMCP = inputs[QuestionNames.ActionType] === ActionStartOptions.mcp().id;
 
     // validate the project is valid for adding plugin
     const manifestRes = await manifestUtils._readAppManifest(teamsManifestPath);
@@ -2201,6 +2203,233 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
           destinationApiSpecPath,
           destinationPluginManifestPath
         );
+      }
+    } else if (isGenerateFromMCP) {
+      // MCP action: create ai-plugin.json with MCP runtime config
+      const mcpServerUrl = inputs[QuestionNames.MCPForDAServerUrl];
+      const toolsFilePath = inputs[QuestionNames.MCPToolsFilePath];
+      const mcpWarnings: Warning[] = [];
+
+      // Validate: --mcp-da-server-url is required for MCP actions
+      if (!mcpServerUrl) {
+        return err(
+          new UserError(
+            Stage.addPlugin,
+            "MissingMCPServerUrl",
+            getLocalizedString("core.MCPForDA.missingServerUrl"),
+            getLocalizedString("core.MCPForDA.missingServerUrl")
+          )
+        );
+      }
+
+      // Load tools from file if provided and not yet loaded
+      const existingTools = inputs[QuestionNames.MCPForDAAvailableTools];
+      if (toolsFilePath && (!existingTools || existingTools.length === 0)) {
+        try {
+          const { readMCPToolsFromFile } = await import("../component/utils/mcpToolFetcher");
+          const fileTools = await readMCPToolsFromFile(toolsFilePath);
+          inputs[QuestionNames.MCPForDAAvailableTools] = fileTools;
+          if (!inputs[QuestionNames.MCPForDAPreFetchTools]) {
+            inputs[QuestionNames.MCPForDAPreFetchTools] = fileTools.map((t: any) => t.name);
+          }
+        } catch {
+          mcpWarnings.push({
+            type: "mcpToolsFileReadError",
+            content: getLocalizedString("core.MCPForDA.toolsFileReadError", toolsFilePath),
+          });
+        }
+      }
+
+      // Probe auth if tools were loaded from file but auth not yet detected
+      if (
+        inputs[QuestionNames.MCPForDAAvailableTools]?.length > 0 &&
+        !inputs[QuestionNames.MCPForDAAuth] &&
+        mcpServerUrl
+      ) {
+        try {
+          const { probeMCPServerAuth } = await import("../component/utils/mcpToolFetcher");
+          const authProbe = await probeMCPServerAuth(mcpServerUrl);
+          if (authProbe.requiresAuth) {
+            inputs[QuestionNames.MCPForDAAuth] = "OAuthPluginVault";
+            if (authProbe.authMetadataUrl) {
+              inputs[QuestionNames.MCPForDAAuthMetadataUrl] = authProbe.authMetadataUrl;
+            }
+          }
+        } catch {
+          // Auth probe failed — continue without auth
+        }
+      }
+
+      // Auto-fetch tools if not yet loaded (CLI flow for no-auth servers)
+      const currentTools = inputs[QuestionNames.MCPForDAAvailableTools];
+      if ((!currentTools || currentTools.length === 0) && mcpServerUrl) {
+        try {
+          const { fetchMCPTools } = await import("../component/utils/mcpToolFetcher");
+          const result = await fetchMCPTools(mcpServerUrl);
+          if (!result.requiresAuth && result.tools.length > 0) {
+            inputs[QuestionNames.MCPForDAAvailableTools] = result.tools;
+            if (!inputs[QuestionNames.MCPForDAPreFetchTools]) {
+              inputs[QuestionNames.MCPForDAPreFetchTools] = result.tools.map((t) => t.name);
+            }
+          } else if (result.requiresAuth) {
+            // Store auth metadata for later use
+            inputs[QuestionNames.MCPForDAAuth] = "OAuthPluginVault";
+            if (result.authMetadataUrl) {
+              inputs[QuestionNames.MCPForDAAuthMetadataUrl] = result.authMetadataUrl;
+            }
+            mcpWarnings.push({
+              type: "mcpAuthRequired",
+              content: getLocalizedString("core.MCPForDA.authRequired", mcpServerUrl),
+            });
+          } else {
+            mcpWarnings.push({
+              type: "mcpNoToolsFetched",
+              content: getLocalizedString("core.MCPForDA.noToolsFetched", mcpServerUrl),
+            });
+          }
+        } catch {
+          mcpWarnings.push({
+            type: "mcpFetchError",
+            content: getLocalizedString("core.MCPForDA.fetchError", mcpServerUrl),
+          });
+        }
+      }
+
+      // If no tools available (auth required or fetch failed), skip creating plugin — just warn
+      const mcpTools = inputs[QuestionNames.MCPForDAAvailableTools];
+      const mcpToolsSelected = inputs[QuestionNames.MCPForDAPreFetchTools] || [];
+      if (!mcpTools || mcpTools.length === 0 || mcpToolsSelected.length === 0) {
+        if (mcpWarnings.length > 0) {
+          for (const warning of mcpWarnings) {
+            context.logProvider.warning(warning.content);
+          }
+        }
+        return ok(undefined);
+      }
+
+      destinationPluginManifestPath =
+        await copilotGptManifestUtils.getDefaultNextAvailablePluginManifestPath(
+          appPackageFolder,
+          undefined
+        );
+
+      const pluginManifest: any = {
+        $schema: "https://developer.microsoft.com/json-schemas/copilot/plugin/v2.4/schema.json",
+        schema_version: "v2.4",
+        name_for_human: "MCP Action",
+        description_for_human: "Action powered by MCP server",
+        contact_email: "publisher-email@example.com",
+        namespace: "mcpAction",
+        functions: [],
+        runtimes: [],
+      };
+
+      if (mcpTools && mcpTools.length > 0 && mcpToolsSelected.length > 0) {
+        const selectedTools = mcpTools.filter((tool: any) => mcpToolsSelected.includes(tool.name));
+
+        pluginManifest.functions = selectedTools.map((tool: any) => ({
+          name: tool.name,
+          description: tool.description || "",
+        }));
+
+        // Write mcp-tools file with full tool definitions (no field filtering)
+        const mcpToolsFile = `mcp-tools-${suffix}.json`;
+        const mcpToolsOutputPath = path.join(appPackageFolder, mcpToolsFile);
+        await fs.writeJSON(mcpToolsOutputPath, { tools: selectedTools }, { spaces: 4 });
+
+        pluginManifest.runtimes = [
+          {
+            type: "RemoteMCPServer",
+            spec: {
+              url: mcpServerUrl,
+              mcp_tool_description: {
+                file: mcpToolsFile,
+              },
+            },
+            run_for_functions: pluginManifest.functions.map((f: any) => f.name),
+          },
+        ];
+
+        // Auth handling
+        const mcpAuth = inputs[QuestionNames.MCPForDAAuth];
+        if (mcpAuth === "OAuthPluginVault") {
+          const authType = inputs[QuestionNames.MCPForDAAuthType];
+          if (!authType) {
+            return err(
+              new UserError(
+                Stage.addPlugin,
+                "MissingMCPAuthType",
+                getLocalizedString("core.MCPForDA.missingAuthType"),
+                getLocalizedString("core.MCPForDA.missingAuthType")
+              )
+            );
+          }
+
+          const registrationId = `MCP_DA_AUTH_ID_${actionId.toUpperCase()}`;
+          pluginManifest.runtimes[0].auth = {
+            type: "OAuthPluginVault",
+            reference_id: `$\{\{${registrationId}\}\}`,
+          };
+
+          // Resolve OAuth metadata and inject oauth/register into m365agents.yml
+          try {
+            let authorizationUrl: string | undefined;
+            let tokenUrl: string | undefined;
+            let refreshUrl: string | undefined;
+
+            if (authType === "oauth") {
+              const { resolveMCPOAuthMetadata } = await import("../component/utils/mcpToolFetcher");
+              const metadata = await resolveMCPOAuthMetadata(
+                inputs[QuestionNames.MCPForDAAuthMetadataUrl]
+              );
+              authorizationUrl = metadata.authorizationUrl;
+              tokenUrl = metadata.tokenUrl;
+              refreshUrl = metadata.refreshUrl;
+            }
+
+            const { ActionInjector } = await import("../component/configManager/actionInjector");
+            const ymlPath = pathUtils.getYmlFilePath(inputs.projectPath);
+            if (ymlPath) {
+              await ActionInjector.injectCreateOAuthActionForMCP(
+                ymlPath,
+                authType,
+                actionId,
+                registrationId,
+                mcpServerUrl,
+                authorizationUrl,
+                tokenUrl,
+                refreshUrl
+              );
+            }
+          } catch (error: any) {
+            mcpWarnings.push({
+              type: "mcpAuthMetadataError",
+              content: getLocalizedString(
+                "core.MCPForDA.mcpAuthMetadataMissingError",
+                error.message
+              ),
+            });
+          }
+        }
+      }
+
+      await fs.ensureFile(destinationPluginManifestPath);
+      await fs.writeJSON(destinationPluginManifestPath, pluginManifest, { spaces: 4 });
+
+      const addActionRes = await copilotGptManifestUtils.addAction(
+        declarativeCopilotManifestPath,
+        actionId,
+        normalizePath(path.relative(appPackageFolder, destinationPluginManifestPath), true)
+      );
+      if (addActionRes.isErr()) {
+        return err(addActionRes.error);
+      }
+
+      // Surface warnings for CLI
+      if (mcpWarnings.length > 0) {
+        for (const warning of mcpWarnings) {
+          context.logProvider.warning(warning.content);
+        }
       }
     } else {
       const addPluginRes = await addExistingPlugin(

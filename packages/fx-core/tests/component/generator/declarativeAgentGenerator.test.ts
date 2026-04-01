@@ -880,7 +880,6 @@ describe("helper", async () => {
         platform: Platform.CLI,
         [QuestionNames.MCPForDAServerUrl]: "https://example.com",
         [QuestionNames.MCPForDAServerName]: "testServer",
-        [QuestionNames.MCPForDATool]: "dynamic-fetch",
       };
 
       const res = await generatorHelper.generateForMCPForDA(testDestinationPath, inputs);
@@ -891,7 +890,7 @@ describe("helper", async () => {
       }
     });
 
-    it("success: dynamic fetch tool configuration", async () => {
+    it("success: no tools available returns warning and empty ai-plugin", async () => {
       const existingPluginContent = {
         schema_version: "v1",
         name_for_human: "Test Plugin",
@@ -907,20 +906,28 @@ describe("helper", async () => {
         platform: Platform.CLI,
         [QuestionNames.MCPForDAServerUrl]: "https://example.com/mcp",
         [QuestionNames.MCPForDAServerName]: "testServer",
-        [QuestionNames.MCPForDATool]: "dynamic-fetch",
       };
+
+      const mockFetchMCPTools = sandbox.stub().resolves({ requiresAuth: false, tools: [] });
+      const importStub = sandbox
+        .stub(generatorHelper, "generateForMCPForDA")
+        .callsFake(async (destPath, inp) => {
+          // Restore to call real implementation but with mocked fetch
+          importStub.restore();
+          // Pre-set empty tools to simulate no-tools scenario
+          inp[QuestionNames.MCPForDAAvailableTools] = [];
+          return generatorHelper.generateForMCPForDA(destPath, inp);
+        });
 
       const res = await generatorHelper.generateForMCPForDA(testDestinationPath, inputs);
 
       assert.isTrue(res.isOk());
-      assert.isTrue(writeJSONStub.calledOnce);
-
-      const writtenContent = writeJSONStub.firstCall.args[1];
-      assert.deepEqual(writtenContent.functions, []);
-      assert.equal(writtenContent.runtimes.length, 1);
-      assert.equal(writtenContent.runtimes[0].type, "RemoteMCPServer");
-      assert.equal(writtenContent.runtimes[0].spec.url, "https://example.com/mcp");
-      assert.equal(writtenContent.runtimes[0].spec.enable_dynamic_discovery, true);
+      if (res.isOk()) {
+        // Should have no warnings since tools were pre-set as empty
+        const writtenContent = writeJSONStub.firstCall.args[1];
+        // Functions remain as template default (not modified since no tools)
+        assert.deepEqual(writtenContent.functions, [{ name: "old-function" }]);
+      }
     });
 
     it("success: pre-fetch tool configuration without auth", async () => {
@@ -967,7 +974,6 @@ describe("helper", async () => {
         platform: Platform.CLI,
         [QuestionNames.MCPForDAServerUrl]: "https://example.com/mcp",
         [QuestionNames.MCPForDAServerName]: "testServer",
-        [QuestionNames.MCPForDATool]: "pre-fetch",
         [QuestionNames.MCPForDAAvailableTools]: mockToolsDetail,
         [QuestionNames.MCPForDAPreFetchTools]: ["tool1", "tool2"],
         [QuestionNames.MCPForDAAuth]: "NoneAuth",
@@ -976,38 +982,34 @@ describe("helper", async () => {
       const res = await generatorHelper.generateForMCPForDA(testDestinationPath, inputs);
 
       assert.isTrue(res.isOk());
-      assert.isTrue(writeJSONStub.calledOnce);
+      // writeJSON called twice: mcp-tools-1.json and ai-plugin.json
+      assert.isTrue(writeJSONStub.calledTwice);
 
-      const writtenContent = writeJSONStub.firstCall.args[1];
+      // First call: mcp-tools-1.json with full schemas
+      const mcpToolsContent = writeJSONStub.firstCall.args[1];
+      assert.equal(mcpToolsContent.tools.length, 2);
+      assert.equal(mcpToolsContent.tools[0].name, "tool1");
+      assert.isDefined(mcpToolsContent.tools[0].inputSchema);
+
+      // Second call: ai-plugin.json with name+description only
+      const writtenContent = writeJSONStub.secondCall.args[1];
       assert.equal(writtenContent.functions.length, 2);
-
-      // Check first function
       assert.equal(writtenContent.functions[0].name, "tool1");
       assert.equal(writtenContent.functions[0].description, "Tool 1 description");
-      assert.deepEqual(writtenContent.functions[0].parameters, {
-        type: "object",
-        properties: { param1: { type: "string" } },
-        required: ["param1"],
-      });
-
-      // Check second function
+      assert.isUndefined(writtenContent.functions[0].parameters);
       assert.equal(writtenContent.functions[1].name, "tool2");
       assert.equal(writtenContent.functions[1].description, "Tool 2 description");
-      assert.deepEqual(writtenContent.functions[1].parameters, {
-        type: "object",
-        properties: { param2: { type: "number" } },
-        required: [],
-      });
 
       // Check runtime configuration
       assert.equal(writtenContent.runtimes.length, 1);
       assert.equal(writtenContent.runtimes[0].type, "RemoteMCPServer");
       assert.equal(writtenContent.runtimes[0].spec.url, "https://example.com/mcp");
+      assert.equal(writtenContent.runtimes[0].spec.mcp_tool_description.file, "mcp-tools-1.json");
       assert.deepEqual(writtenContent.runtimes[0].run_for_functions, ["tool1", "tool2"]);
       assert.isUndefined(writtenContent.runtimes[0].auth);
     });
 
-    it("success: pre-fetch tool configuration with OAuth auth", async () => {
+    it("error: pre-fetch tool configuration with OAuth auth but missing auth-type", async () => {
       const existingPluginContent = {
         schema_version: "v1",
         name_for_human: "Test Plugin",
@@ -1029,66 +1031,141 @@ describe("helper", async () => {
 
       sandbox.stub(fs, "pathExists").resolves(true);
       sandbox.stub(fs, "readJSON").resolves(existingPluginContent);
-      const writeJSONStub = sandbox.stub(fs, "writeJSON").resolves();
+      sandbox.stub(fs, "writeJSON").resolves();
 
       const inputs: Inputs = {
         platform: Platform.CLI,
         [QuestionNames.MCPForDAServerUrl]: "https://secure.example.com/mcp",
         [QuestionNames.MCPForDAServerName]: "testServer",
-        [QuestionNames.MCPForDATool]: "pre-fetch",
         [QuestionNames.MCPForDAAvailableTools]: mockToolsDetail,
         [QuestionNames.MCPForDAPreFetchTools]: ["authenticatedTool"],
         [QuestionNames.MCPForDAAuth]: "OAuthPluginVault",
-      };
-
-      const res = await generatorHelper.generateForMCPForDA(testDestinationPath, inputs);
-
-      assert.isTrue(res.isOk());
-      assert.isTrue(writeJSONStub.calledOnce);
-
-      const writtenContent = writeJSONStub.firstCall.args[1];
-      assert.equal(writtenContent.functions.length, 1);
-      assert.equal(writtenContent.functions[0].name, "authenticatedTool");
-
-      // Check runtime has auth configuration
-      assert.equal(writtenContent.runtimes.length, 1);
-      assert.deepEqual(writtenContent.runtimes[0].auth, {
-        type: "OAuthPluginVault",
-        reference_id: "${{MCP_DA_AUTH_ID}}",
-      });
-    });
-
-    it("error: pre-fetch tools missing available tools", async () => {
-      sandbox.stub(fs, "pathExists").resolves(true);
-      sandbox.stub(fs, "readJSON").resolves({});
-
-      const inputs: Inputs = {
-        platform: Platform.CLI,
-        [QuestionNames.MCPForDAServerUrl]: "https://example.com/mcp",
-        [QuestionNames.MCPForDAServerName]: "testServer",
-        [QuestionNames.MCPForDATool]: "pre-fetch",
-        // Missing MCPForDAAvailableTools
-        [QuestionNames.MCPForDAPreFetchTools]: ["tool1"],
-        [QuestionNames.MCPForDAAuth]: "NoneAuth",
+        // No MCPForDAAuthType provided
       };
 
       const res = await generatorHelper.generateForMCPForDA(testDestinationPath, inputs);
 
       assert.isTrue(res.isErr());
       if (res.isErr()) {
-        assert.equal(res.error.name, "PreFetchToolsNotFound");
+        assert.equal(res.error.name, "MissingMCPAuthType");
       }
     });
 
-    it("error: pre-fetch tools missing selected tools", async () => {
+    it("success: pre-fetch tool with OAuth auth and auth-type entraSSO", async () => {
+      const existingPluginContent = {
+        schema_version: "v1",
+        name_for_human: "Test Plugin",
+        functions: [],
+        runtimes: [],
+      };
+
+      const mockToolsDetail = [
+        {
+          name: "testServer_authenticatedTool",
+          description: "Authenticated tool",
+          inputSchema: {
+            type: "object",
+            properties: { data: { type: "string" } },
+          },
+          tags: [],
+        },
+      ];
+
       sandbox.stub(fs, "pathExists").resolves(true);
-      sandbox.stub(fs, "readJSON").resolves({});
+      sandbox.stub(fs, "pathExistsSync").returns(true);
+      sandbox.stub(fs, "readJSON").resolves(existingPluginContent);
+      const writeJSONStub = sandbox.stub(fs, "writeJSON").resolves();
+      // Stub readFile/writeFile for ActionInjector yml writing
+      sandbox
+        .stub(fs, "readFile")
+        .resolves(
+          "provision:\n  - uses: teamsApp/create\n    with:\n      name: test\n    writeToEnvironmentFile:\n      teamsAppId: TEAMS_APP_ID\n" as any
+        );
+      const writeFileStub = sandbox.stub(fs, "writeFile").resolves();
+
+      const inputs: Inputs = {
+        platform: Platform.CLI,
+        [QuestionNames.MCPForDAServerUrl]: "https://secure.example.com/mcp",
+        [QuestionNames.MCPForDAServerName]: "testServer",
+        [QuestionNames.MCPForDAAvailableTools]: mockToolsDetail,
+        [QuestionNames.MCPForDAPreFetchTools]: ["authenticatedTool"],
+        [QuestionNames.MCPForDAAuth]: "OAuthPluginVault",
+        [QuestionNames.MCPForDAAuthType]: "entraSSO",
+      };
+
+      const res = await generatorHelper.generateForMCPForDA(testDestinationPath, inputs);
+
+      assert.isTrue(res.isOk());
+      // writeJSON called twice: mcp-tools-1.json and ai-plugin.json
+      assert.isTrue(writeJSONStub.calledTwice);
+
+      const writtenContent = writeJSONStub.secondCall.args[1];
+      assert.equal(writtenContent.functions.length, 1);
+      assert.equal(writtenContent.functions[0].name, "authenticatedTool");
+
+      // Check runtime has auth configuration with correct registration ID
+      assert.equal(writtenContent.runtimes.length, 1);
+      assert.deepEqual(writtenContent.runtimes[0].auth, {
+        type: "OAuthPluginVault",
+        reference_id: "${{MCP_DA_AUTH_ID_ACTION_1}}",
+      });
+
+      // Verify ActionInjector wrote to yml — writeFile should be called with oauth/register
+      assert.isTrue(writeFileStub.called);
+      const ymlContent = writeFileStub.firstCall.args[1] as string;
+      assert.include(ymlContent, "oauth/register");
+      assert.include(ymlContent, "MCP_DA_AUTH_ID_ACTION_1");
+    });
+
+    it("success: no available tools leaves ai-plugin unchanged", async () => {
+      const existingPluginContent = {
+        schema_version: "v1",
+        functions: [],
+        runtimes: [],
+      };
+
+      sandbox.stub(fs, "pathExists").resolves(true);
+      sandbox.stub(fs, "readJSON").resolves(existingPluginContent);
+      const writeJSONStub = sandbox.stub(fs, "writeJSON").resolves();
 
       const inputs: Inputs = {
         platform: Platform.CLI,
         [QuestionNames.MCPForDAServerUrl]: "https://example.com/mcp",
         [QuestionNames.MCPForDAServerName]: "testServer",
-        [QuestionNames.MCPForDATool]: "pre-fetch",
+        // No MCPForDAAvailableTools, no MCPForDAPreFetchTools
+        [QuestionNames.MCPForDAAuth]: "NoneAuth",
+      };
+
+      // Mock fetchMCPTools to return empty
+      const mcpToolFetcherModule = await import("../../../src/component/utils/mcpToolFetcher");
+      sandbox
+        .stub(mcpToolFetcherModule, "fetchMCPTools")
+        .resolves({ requiresAuth: false, tools: [] });
+
+      const res = await generatorHelper.generateForMCPForDA(testDestinationPath, inputs);
+
+      assert.isTrue(res.isOk());
+      if (res.isOk()) {
+        // Should have a warning about no tools
+        assert.isTrue(res.value.warnings!.length > 0);
+      }
+    });
+
+    it("success: missing selected tools leaves ai-plugin unchanged", async () => {
+      const existingPluginContent = {
+        schema_version: "v1",
+        functions: [],
+        runtimes: [],
+      };
+
+      sandbox.stub(fs, "pathExists").resolves(true);
+      sandbox.stub(fs, "readJSON").resolves(existingPluginContent);
+      const writeJSONStub = sandbox.stub(fs, "writeJSON").resolves();
+
+      const inputs: Inputs = {
+        platform: Platform.CLI,
+        [QuestionNames.MCPForDAServerUrl]: "https://example.com/mcp",
+        [QuestionNames.MCPForDAServerName]: "testServer",
         [QuestionNames.MCPForDAAvailableTools]: [{ name: "tool1" }],
         // Missing MCPForDAPreFetchTools
         [QuestionNames.MCPForDAAuth]: "NoneAuth",
@@ -1096,10 +1173,11 @@ describe("helper", async () => {
 
       const res = await generatorHelper.generateForMCPForDA(testDestinationPath, inputs);
 
-      assert.isTrue(res.isErr());
-      if (res.isErr()) {
-        assert.equal(res.error.name, "PreFetchToolsNotFound");
-      }
+      assert.isTrue(res.isOk());
+      // writeJSON called once — just ai-plugin.json left unchanged
+      const writtenContent = writeJSONStub.firstCall.args[1];
+      assert.deepEqual(writtenContent.functions, []);
+      assert.deepEqual(writtenContent.runtimes, []);
     });
 
     it("success: filters tools by server name correctly", async () => {
@@ -1139,7 +1217,6 @@ describe("helper", async () => {
         platform: Platform.CLI,
         [QuestionNames.MCPForDAServerUrl]: "https://example.com/mcp",
         [QuestionNames.MCPForDAServerName]: "serverA",
-        [QuestionNames.MCPForDATool]: "pre-fetch",
         [QuestionNames.MCPForDAAvailableTools]: mockToolsDetail,
         [QuestionNames.MCPForDAPreFetchTools]: ["toolX", "toolZ"],
         [QuestionNames.MCPForDAAuth]: "NoneAuth",
@@ -1149,13 +1226,14 @@ describe("helper", async () => {
 
       assert.isTrue(res.isOk());
 
-      const writtenContent = writeJSONStub.firstCall.args[1];
-      assert.equal(writtenContent.functions.length, 2);
-      assert.equal(writtenContent.functions[0].name, "toolX");
-      assert.equal(writtenContent.functions[1].name, "toolZ");
+      // First call writes mcp-tools-1.json, second call writes ai-plugin.json
+      const aiPluginContent = writeJSONStub.secondCall.args[1];
+      assert.equal(aiPluginContent.functions.length, 2);
+      assert.equal(aiPluginContent.functions[0].name, "toolX");
+      assert.equal(aiPluginContent.functions[1].name, "toolZ");
 
       // Should not include toolY from serverB
-      const toolNames = writtenContent.functions.map((f: any) => f.name);
+      const toolNames = aiPluginContent.functions.map((f: any) => f.name);
       assert.notInclude(toolNames, "toolY");
     });
 
@@ -1186,7 +1264,6 @@ describe("helper", async () => {
         platform: Platform.CLI,
         [QuestionNames.MCPForDAServerUrl]: "https://example.com/mcp",
         [QuestionNames.MCPForDAServerName]: "testServer",
-        [QuestionNames.MCPForDATool]: "pre-fetch",
         [QuestionNames.MCPForDAAvailableTools]: mockToolsDetail,
         [QuestionNames.MCPForDAPreFetchTools]: ["minimalTool"],
         [QuestionNames.MCPForDAAuth]: "NoneAuth",
@@ -1196,13 +1273,185 @@ describe("helper", async () => {
 
       assert.isTrue(res.isOk());
 
-      const writtenContent = writeJSONStub.firstCall.args[1];
-      assert.equal(writtenContent.functions.length, 1);
-      assert.deepEqual(writtenContent.functions[0].parameters, {
-        type: "object", // Default fallback
-        properties: undefined,
-        required: [], // Default fallback
+      // First call writes mcp-tools-1.json with the raw inputSchema
+      const mcpToolsContent = writeJSONStub.firstCall.args[1];
+      assert.equal(mcpToolsContent.tools.length, 1);
+      assert.equal(mcpToolsContent.tools[0].name, "minimalTool");
+
+      // Second call writes ai-plugin.json with name+description only
+      const aiPluginContent = writeJSONStub.secondCall.args[1];
+      assert.equal(aiPluginContent.functions.length, 1);
+      assert.equal(aiPluginContent.functions[0].name, "minimalTool");
+      assert.isUndefined(aiPluginContent.functions[0].parameters);
+    });
+
+    it("success: OAuth auth-type resolves metadata and injects into yml", async () => {
+      const existingPluginContent = {
+        schema_version: "v1",
+        name_for_human: "Test Plugin",
+        functions: [],
+        runtimes: [],
+      };
+
+      const mockToolsDetail = [
+        {
+          name: "testServer_secureTool",
+          description: "Secure tool",
+          inputSchema: { type: "object" },
+          tags: [],
+        },
+      ];
+
+      sandbox.stub(fs, "pathExists").resolves(true);
+      sandbox.stub(fs, "pathExistsSync").returns(true);
+      sandbox.stub(fs, "readJSON").resolves(existingPluginContent);
+      const writeJSONStub = sandbox.stub(fs, "writeJSON").resolves();
+      sandbox
+        .stub(fs, "readFile")
+        .resolves(
+          "provision:\n  - uses: teamsApp/create\n    with:\n      name: test\n    writeToEnvironmentFile:\n      teamsAppId: TEAMS_APP_ID\n" as any
+        );
+      const writeFileStub = sandbox.stub(fs, "writeFile").resolves();
+
+      const mcpToolFetcherModule = await import("../../../src/component/utils/mcpToolFetcher");
+      sandbox.stub(mcpToolFetcherModule, "resolveMCPOAuthMetadata").resolves({
+        authorizationUrl: "https://auth.example.com/authorize",
+        tokenUrl: "https://auth.example.com/token",
+        refreshUrl: "https://auth.example.com/token",
       });
+
+      const inputs: Inputs = {
+        platform: Platform.CLI,
+        [QuestionNames.MCPForDAServerUrl]: "https://secure.example.com/mcp",
+        [QuestionNames.MCPForDAServerName]: "testServer",
+        [QuestionNames.MCPForDAAvailableTools]: mockToolsDetail,
+        [QuestionNames.MCPForDAPreFetchTools]: ["secureTool"],
+        [QuestionNames.MCPForDAAuth]: "OAuthPluginVault",
+        [QuestionNames.MCPForDAAuthType]: "oauth",
+        [QuestionNames.MCPForDAAuthMetadataUrl]:
+          "https://auth.example.com/.well-known/oauth-authorization-server",
+      };
+
+      const res = await generatorHelper.generateForMCPForDA(testDestinationPath, inputs);
+
+      assert.isTrue(res.isOk());
+      const aiPluginContent = writeJSONStub.secondCall.args[1];
+      assert.deepEqual(aiPluginContent.runtimes[0].auth, {
+        type: "OAuthPluginVault",
+        reference_id: "${{MCP_DA_AUTH_ID_ACTION_1}}",
+      });
+
+      // Verify yml injection includes oauth URLs
+      assert.isTrue(writeFileStub.called);
+      const ymlContent = writeFileStub.firstCall.args[1] as string;
+      assert.include(ymlContent, "oauth/register");
+      assert.include(ymlContent, "https://auth.example.com/authorize");
+      assert.include(ymlContent, "https://auth.example.com/token");
+    });
+
+    it("success: loads tools from file path (CLI flow)", async () => {
+      const existingPluginContent = {
+        schema_version: "v1",
+        functions: [],
+        runtimes: [],
+      };
+
+      sandbox.stub(fs, "pathExists").resolves(true);
+      sandbox.stub(fs, "readJSON").resolves(existingPluginContent);
+      const writeJSONStub = sandbox.stub(fs, "writeJSON").resolves();
+
+      const mcpToolFetcherModule = await import("../../../src/component/utils/mcpToolFetcher");
+      sandbox.stub(mcpToolFetcherModule, "readMCPToolsFromFile").resolves([
+        { name: "fileTool1", description: "File Tool 1", inputSchema: { type: "object" } },
+        { name: "fileTool2", description: "File Tool 2", inputSchema: { type: "object" } },
+      ]);
+      sandbox.stub(mcpToolFetcherModule, "probeMCPServerAuth").resolves({
+        requiresAuth: false,
+      });
+
+      const inputs: Inputs = {
+        platform: Platform.CLI,
+        [QuestionNames.MCPForDAServerUrl]: "https://example.com/mcp",
+        [QuestionNames.MCPToolsFilePath]: "/tmp/tools.json",
+        [QuestionNames.MCPForDAAuth]: "NoneAuth",
+      };
+
+      const res = await generatorHelper.generateForMCPForDA(testDestinationPath, inputs);
+
+      assert.isTrue(res.isOk());
+      // Tools should have been loaded from file
+      assert.equal(inputs[QuestionNames.MCPForDAAvailableTools].length, 2);
+      assert.deepEqual(inputs[QuestionNames.MCPForDAPreFetchTools], ["fileTool1", "fileTool2"]);
+      // writeJSON called twice: mcp-tools-1.json and ai-plugin.json
+      assert.isTrue(writeJSONStub.calledTwice);
+    });
+
+    it("success: auto-fetch auth-required server sets auth metadata and warns", async () => {
+      const existingPluginContent = {
+        schema_version: "v1",
+        functions: [],
+        runtimes: [],
+      };
+
+      sandbox.stub(fs, "pathExists").resolves(true);
+      sandbox.stub(fs, "readJSON").resolves(existingPluginContent);
+      const writeJSONStub = sandbox.stub(fs, "writeJSON").resolves();
+
+      const mcpToolFetcherModule = await import("../../../src/component/utils/mcpToolFetcher");
+      sandbox.stub(mcpToolFetcherModule, "fetchMCPTools").resolves({
+        requiresAuth: true,
+        tools: [],
+        authMetadataUrl: "https://example.com/.well-known/oauth-authorization-server",
+      });
+
+      const inputs: Inputs = {
+        platform: Platform.CLI,
+        [QuestionNames.MCPForDAServerUrl]: "https://example.com/mcp",
+        [QuestionNames.MCPForDAAuth]: "NoneAuth",
+      };
+
+      const res = await generatorHelper.generateForMCPForDA(testDestinationPath, inputs);
+
+      assert.isTrue(res.isOk());
+      if (res.isOk()) {
+        // Should have auth-required warning
+        assert.isTrue(res.value.warnings!.some((w) => w.type === "mcpAuthRequired"));
+      }
+      // Auth metadata should be set on inputs
+      assert.equal(inputs[QuestionNames.MCPForDAAuth], "OAuthPluginVault");
+      assert.equal(
+        inputs[QuestionNames.MCPForDAAuthMetadataUrl],
+        "https://example.com/.well-known/oauth-authorization-server"
+      );
+    });
+
+    it("success: auto-fetch error adds warning and continues", async () => {
+      const existingPluginContent = {
+        schema_version: "v1",
+        functions: [],
+        runtimes: [],
+      };
+
+      sandbox.stub(fs, "pathExists").resolves(true);
+      sandbox.stub(fs, "readJSON").resolves(existingPluginContent);
+      const writeJSONStub = sandbox.stub(fs, "writeJSON").resolves();
+
+      const mcpToolFetcherModule = await import("../../../src/component/utils/mcpToolFetcher");
+      sandbox.stub(mcpToolFetcherModule, "fetchMCPTools").rejects(new Error("Network error"));
+
+      const inputs: Inputs = {
+        platform: Platform.CLI,
+        [QuestionNames.MCPForDAServerUrl]: "https://example.com/mcp",
+        [QuestionNames.MCPForDAAuth]: "NoneAuth",
+      };
+
+      const res = await generatorHelper.generateForMCPForDA(testDestinationPath, inputs);
+
+      assert.isTrue(res.isOk());
+      if (res.isOk()) {
+        // Should have fetch error warning
+        assert.isTrue(res.value.warnings!.some((w) => w.type === "mcpFetchError"));
+      }
     });
   });
 

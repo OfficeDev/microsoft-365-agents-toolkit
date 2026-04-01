@@ -19,7 +19,7 @@ export interface AddAuthActionInputs extends Inputs {
   "api-operation"?: string[];
   /** @description Enter the Name of Auth Configuration */
   "auth-name"?: string;
-  /** @description Authentication Type */
+  /** @description api-auth */
   "api-auth"?: "bearer-token" | "api-key" | "oauth" | "microsoft-entra";
   /** @description Enter the OAuth Authorization URL */
   "oauth-authorization-url"?: string;

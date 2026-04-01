@@ -17,13 +17,12 @@ export const AddPluginOptions: CLICommandOption[] = [
     description: "Action type.",
     required: true,
     default: "new-api",
-    choices: ["api-spec"],
+    choices: ["api-spec", "mcp"],
   },
   {
     name: "openapi-spec-type",
     type: "string",
     description: "The type of the API spec.",
-    required: true,
     choices: ["enter-url-or-open-local-file", "search-api"],
   },
   {
@@ -47,6 +46,23 @@ export const AddPluginOptions: CLICommandOption[] = [
     name: "select-openapi-spec",
     type: "string",
     description: "Select OpenAPI Description Document",
+  },
+  {
+    name: "mcp-da-server-url",
+    type: "string",
+    description: "MCP Server URL",
+  },
+  {
+    name: "mcp-tools-file-path",
+    type: "string",
+    description: "MCP Tools Definition File",
+  },
+  {
+    name: "mcp-da-auth-type",
+    type: "string",
+    description: "Select Authentication Type",
+    default: "oauth",
+    choices: ["oauth", "entraSSO"],
   },
   {
     name: "manifest-file",

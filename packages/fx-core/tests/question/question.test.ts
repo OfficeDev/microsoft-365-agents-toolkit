@@ -1677,7 +1677,6 @@ describe("updateActionWithMCP", async () => {
           type: "RemoteMCPServer",
           spec: {
             url: "http://test-server.com",
-            enable_dynamic_discovery: true, // Dynamic discovery enabled
           },
           run_for_functions: ["function4"],
         },
@@ -1697,11 +1696,11 @@ describe("updateActionWithMCP", async () => {
       (preFetchToolsNode?.data as any)?.default as (inputs: Inputs) => Promise<string[]>
     )(testInputs);
     assert.isArray(defaultValue);
-    assert.lengthOf(defaultValue, 2);
+    assert.lengthOf(defaultValue, 3);
     assert.include(defaultValue, "function1");
     assert.include(defaultValue, "function2");
+    assert.include(defaultValue, "function4");
     // function3 should not be included (different URL)
-    // function4 should not be included (dynamic discovery enabled)
   });
 
   it("should handle auth type question conditionally", () => {
@@ -1766,7 +1765,7 @@ describe("updateActionWithMCP", async () => {
     }
   });
 
-  it("should filter runtimes correctly based on server URL and dynamic discovery", async () => {
+  it("should filter runtimes correctly based on server URL", async () => {
     const res = questionNodes.updateActionWithMCP();
     const preFetchToolsNode = res.children?.[0];
 
@@ -1776,7 +1775,6 @@ describe("updateActionWithMCP", async () => {
           type: "LocalMCPServer", // Wrong type
           spec: {
             url: "http://test-server.com",
-            enable_dynamic_discovery: false,
           },
           run_for_functions: ["function1"],
         },
@@ -1784,7 +1782,6 @@ describe("updateActionWithMCP", async () => {
           type: "RemoteMCPServer",
           spec: {
             url: "http://test-server.com",
-            enable_dynamic_discovery: false,
           },
           run_for_functions: ["function2", "function3"],
         },

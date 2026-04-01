@@ -12,7 +12,6 @@ import {
   err,
   ok,
 } from "@microsoft/teamsfx-api";
-import axios from "axios";
 import fs from "fs-extra";
 import * as path from "path";
 import { ErrorContextMW, createContext } from "../common/globalVars";
@@ -21,6 +20,7 @@ import { ActionInjector } from "../component/configManager/actionInjector";
 import { LocalMcpPrefix } from "../component/constants";
 import { QuestionMW } from "../component/middleware/questionMW";
 import { pathUtils } from "../component/utils/pathUtils";
+import { resolveMCPOAuthMetadata } from "../component/utils/mcpToolFetcher";
 import { QuestionNames } from "../question/constants";
 import { ConcurrentLockerMW } from "./middleware/concurrentLocker";
 import { ErrorHandlerMW } from "./middleware/errorHandler";
@@ -64,39 +64,13 @@ export class FxCoreDeclarativeAgentPart {
       try {
         registrationId = `MCP_DA_AUTH_ID_${serverName.toUpperCase()}`;
         if (authType === "oauth") {
-          let wellKnownMetadataUrl = inputs[QuestionNames.MCPForDAAuthWellKnownUrl];
-          if (!wellKnownMetadataUrl) {
-            const mcpAuthMetadataUrl = inputs[QuestionNames.MCPForDAAuthMetadataUrl];
-            if (!mcpAuthMetadataUrl) {
-              throw new Error(getLocalizedString("core.MCPForDA.mcpAuthMetadataUrlNotFound"));
-            }
-
-            const response = await axios.get(mcpAuthMetadataUrl);
-            if (
-              response.status === 200 &&
-              response.data &&
-              response.data.authorization_servers &&
-              response.data.authorization_servers.length > 0
-            ) {
-              const mcpServerMetadataUrl = response.data.authorization_servers?.[0];
-              // Transform the URL to the proper OAuth authorization server metadata endpoint
-              // According to RFC 8414, the well-known endpoint should be constructed as:
-              // https://{domain}/.well-known/oauth-authorization-server{path}
-              const serverUrl = new URL(mcpServerMetadataUrl);
-              wellKnownMetadataUrl = `${serverUrl.protocol}//${serverUrl.host}/.well-known/oauth-authorization-server${serverUrl.pathname}`;
-            } else {
-              throw new Error(getLocalizedString("core.MCPForDA.mcpServerMetadataUrlNotFound"));
-            }
-          }
-          const metadataResponse = await axios.get(wellKnownMetadataUrl);
-          if (metadataResponse.status === 200) {
-            oauthAuthorizationUrl = metadataResponse.data.authorization_endpoint;
-            oauthTokenUrl = metadataResponse.data.token_endpoint;
-            oauthRefreshUrl = metadataResponse.data.refresh_endpoint;
-          }
-          if (!oauthAuthorizationUrl || !oauthTokenUrl) {
-            throw new Error(getLocalizedString("core.MCPForDA.authUrlNotFound"));
-          }
+          const metadata = await resolveMCPOAuthMetadata(
+            inputs[QuestionNames.MCPForDAAuthMetadataUrl],
+            inputs[QuestionNames.MCPForDAAuthWellKnownUrl]
+          );
+          oauthAuthorizationUrl = metadata.authorizationUrl;
+          oauthTokenUrl = metadata.tokenUrl;
+          oauthRefreshUrl = metadata.refreshUrl;
         }
       } catch (error: any) {
         void context.userInteraction.showMessage(
