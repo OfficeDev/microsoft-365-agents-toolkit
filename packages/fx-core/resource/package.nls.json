@@ -1108,8 +1108,6 @@
   "core.MCPForDA.toolsFileMissingName": "Each tool in the MCP tools file must have a \"name\" property: %s",
   "core.MCPForDA.toolsFilePath.title": "MCP Tools Definition File",
   "core.MCPForDA.toolsFilePath.placeholder": "Enter the path to a JSON file containing MCP tool definitions",
-  "core.MCPForDA.authRequiredMessage": "This MCP server requires authentication. Please fetch the tool definitions yourself (e.g., using MCP Inspector) and provide the tools JSON file.",
-  "core.MCPForDA.fetchFailedMessage": "Unable to fetch tool definitions from the MCP server. You can provide a tools JSON file instead, or the project will use dynamic tool discovery.",
   "core.MCPForDA.preFetchToolsNotFound": "No tool definitions found. The project will use dynamic tool discovery.",
   "core.MCPForDA.pluginManifestNotFound": "ai-plugin.json not found at: %s",
   "core.MCPForDA.missingServerUrl": "The --mcp-da-server-url option is required when --api-plugin-type is mcp.",
