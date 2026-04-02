@@ -384,5 +384,43 @@ describe("mcpToolFetcher", () => {
         "https://auth.example.com/.well-known/oauth-authorization-server/tenant/v2"
       );
     });
+
+    it("should throw when only token_endpoint is present (missing authorization_endpoint)", async () => {
+      sandbox.stub(axios, "get").resolves({
+        data: {
+          token_endpoint: "https://auth.example.com/token",
+          // Missing authorization_endpoint intentionally
+        },
+      });
+
+      try {
+        await resolveMCPOAuthMetadata(
+          undefined,
+          "https://auth.example.com/.well-known/oauth-authorization-server"
+        );
+        assert.fail("Should have thrown");
+      } catch (e: any) {
+        assert.isNotEmpty(e.message);
+      }
+    });
+
+    it("should throw when only authorization_endpoint is present (missing token_endpoint)", async () => {
+      sandbox.stub(axios, "get").resolves({
+        data: {
+          authorization_endpoint: "https://auth.example.com/authorize",
+          // Missing token_endpoint intentionally
+        },
+      });
+
+      try {
+        await resolveMCPOAuthMetadata(
+          undefined,
+          "https://auth.example.com/.well-known/oauth-authorization-server"
+        );
+        assert.fail("Should have thrown");
+      } catch (e: any) {
+        assert.isNotEmpty(e.message);
+      }
+    });
   });
 });

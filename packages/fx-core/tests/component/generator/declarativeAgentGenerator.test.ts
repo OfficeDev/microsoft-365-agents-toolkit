@@ -1453,6 +1453,225 @@ describe("helper", async () => {
         assert.isTrue(res.value.warnings!.some((w) => w.type === "mcpFetchError"));
       }
     });
+
+    it("success: file read error adds mcpToolsFileReadError warning and continues", async () => {
+      const existingPluginContent = {
+        schema_version: "v1",
+        functions: [],
+        runtimes: [],
+      };
+
+      sandbox.stub(fs, "pathExists").resolves(true);
+      sandbox.stub(fs, "readJSON").resolves(existingPluginContent);
+      sandbox.stub(fs, "writeJSON").resolves();
+
+      const mcpToolFetcherModule = await import("../../../src/component/utils/mcpToolFetcher");
+      sandbox.stub(mcpToolFetcherModule, "readMCPToolsFromFile").rejects(new Error("bad json"));
+      sandbox
+        .stub(mcpToolFetcherModule, "fetchMCPTools")
+        .resolves({ requiresAuth: false, tools: [] });
+
+      const inputs: Inputs = {
+        platform: Platform.CLI,
+        [QuestionNames.MCPForDAServerUrl]: "https://example.com/mcp",
+        [QuestionNames.MCPForDAServerName]: "testServer",
+        [QuestionNames.MCPToolsFilePath]: "/tmp/bad-tools.json",
+        [QuestionNames.MCPForDAAuth]: "NoneAuth",
+      };
+
+      const res = await generatorHelper.generateForMCPForDA(testDestinationPath, inputs);
+
+      assert.isTrue(res.isOk());
+      if (res.isOk()) {
+        assert.isTrue(res.value.warnings!.some((w) => w.type === "mcpToolsFileReadError"));
+      }
+    });
+
+    it("success: auth probe after file load returns requiresAuth=true sets MCPForDAAuth", async () => {
+      const existingPluginContent = {
+        schema_version: "v1",
+        functions: [],
+        runtimes: [],
+      };
+
+      sandbox.stub(fs, "pathExists").resolves(true);
+      sandbox.stub(fs, "readJSON").resolves(existingPluginContent);
+      sandbox.stub(fs, "writeJSON").resolves();
+
+      const mcpToolFetcherModule = await import("../../../src/component/utils/mcpToolFetcher");
+      sandbox.stub(mcpToolFetcherModule, "probeMCPServerAuth").resolves({
+        requiresAuth: true,
+      });
+
+      const inputs: Inputs = {
+        platform: Platform.CLI,
+        [QuestionNames.MCPForDAServerUrl]: "https://example.com/mcp",
+        // Pre-set MCPForDAAvailableTools to trigger the auth probe block
+        // (file load skipped, no MCPToolsFilePath)
+        [QuestionNames.MCPForDAAvailableTools]: [
+          { name: "fileTool1", description: "File Tool 1", inputSchema: { type: "object" } },
+        ],
+        // No MCPForDAAuth pre-set → probe should set it
+        // No MCPForDAPreFetchTools → function will skip tool writing and return ok with warning
+      };
+
+      const res = await generatorHelper.generateForMCPForDA(testDestinationPath, inputs);
+
+      // Function returns ok (no selected tools → skips tool writing, returns warning)
+      assert.isTrue(res.isOk());
+      // Auth should be set by the probe
+      assert.equal(inputs[QuestionNames.MCPForDAAuth], "OAuthPluginVault");
+    });
+
+    it("success: auth probe after file load sets authMetadataUrl when present", async () => {
+      const existingPluginContent = {
+        schema_version: "v1",
+        functions: [],
+        runtimes: [],
+      };
+
+      sandbox.stub(fs, "pathExists").resolves(true);
+      sandbox.stub(fs, "readJSON").resolves(existingPluginContent);
+      sandbox.stub(fs, "writeJSON").resolves();
+
+      const mcpToolFetcherModule = await import("../../../src/component/utils/mcpToolFetcher");
+      sandbox.stub(mcpToolFetcherModule, "probeMCPServerAuth").resolves({
+        requiresAuth: true,
+        authMetadataUrl: "https://auth.example.com/.well-known/oauth",
+      });
+
+      const inputs: Inputs = {
+        platform: Platform.CLI,
+        [QuestionNames.MCPForDAServerUrl]: "https://example.com/mcp",
+        // Pre-set tools to trigger auth probe without going through file load
+        [QuestionNames.MCPForDAAvailableTools]: [
+          { name: "fileTool1", description: "File Tool 1", inputSchema: { type: "object" } },
+        ],
+        // No MCPForDAAuth, no MCPForDAPreFetchTools → probe sets auth, function returns ok
+      };
+
+      await generatorHelper.generateForMCPForDA(testDestinationPath, inputs);
+
+      assert.equal(inputs[QuestionNames.MCPForDAAuth], "OAuthPluginVault");
+      assert.equal(
+        inputs[QuestionNames.MCPForDAAuthMetadataUrl],
+        "https://auth.example.com/.well-known/oauth"
+      );
+    });
+
+    it("success: auth probe throws after file load continues without auth errors", async () => {
+      const existingPluginContent = {
+        schema_version: "v1",
+        functions: [],
+        runtimes: [],
+      };
+
+      sandbox.stub(fs, "pathExists").resolves(true);
+      sandbox.stub(fs, "readJSON").resolves(existingPluginContent);
+      sandbox.stub(fs, "writeJSON").resolves();
+
+      const mcpToolFetcherModule = await import("../../../src/component/utils/mcpToolFetcher");
+      sandbox.stub(mcpToolFetcherModule, "probeMCPServerAuth").rejects(new Error("network error"));
+
+      const inputs: Inputs = {
+        platform: Platform.CLI,
+        [QuestionNames.MCPForDAServerUrl]: "https://example.com/mcp",
+        // Pre-set tools to trigger the auth probe, no MCPForDAAuth
+        [QuestionNames.MCPForDAAvailableTools]: [
+          { name: "fileTool1", description: "File Tool 1", inputSchema: { type: "object" } },
+        ],
+        // No MCPForDAAuth → probe block runs; no MCPForDAPreFetchTools → skips tool writing
+      };
+
+      const res = await generatorHelper.generateForMCPForDA(testDestinationPath, inputs);
+
+      // Should succeed even when probe throws (silent catch)
+      assert.isTrue(res.isOk());
+      if (res.isOk()) {
+        // No auth-probe-failure warning — the catch is silent
+        assert.isFalse(res.value.warnings!.some((w) => w.type === "mcpAuthProbeError"));
+      }
+    });
+
+    it("success: resolveMCPOAuthMetadata failure during OAuth injection adds mcpAuthMetadataError warning", async () => {
+      const existingPluginContent = {
+        schema_version: "v1",
+        name_for_human: "Test Plugin",
+        functions: [],
+        runtimes: [],
+      };
+
+      const mockToolsDetail = [
+        {
+          name: "testServer_secureTool",
+          description: "Secure tool",
+          inputSchema: { type: "object" },
+          tags: [],
+        },
+      ];
+
+      sandbox.stub(fs, "pathExists").resolves(true);
+      sandbox.stub(fs, "readJSON").resolves(existingPluginContent);
+      sandbox.stub(fs, "writeJSON").resolves();
+
+      const mcpToolFetcherModule = await import("../../../src/component/utils/mcpToolFetcher");
+      sandbox
+        .stub(mcpToolFetcherModule, "resolveMCPOAuthMetadata")
+        .rejects(new Error("metadata unavailable"));
+
+      const inputs: Inputs = {
+        platform: Platform.CLI,
+        [QuestionNames.MCPForDAServerUrl]: "https://secure.example.com/mcp",
+        [QuestionNames.MCPForDAServerName]: "testServer",
+        [QuestionNames.MCPForDAAvailableTools]: mockToolsDetail,
+        [QuestionNames.MCPForDAPreFetchTools]: ["secureTool"],
+        [QuestionNames.MCPForDAAuth]: "OAuthPluginVault",
+        [QuestionNames.MCPForDAAuthType]: "oauth",
+        [QuestionNames.MCPForDAAuthMetadataUrl]:
+          "https://auth.example.com/.well-known/oauth-authorization-server",
+      };
+
+      const res = await generatorHelper.generateForMCPForDA(testDestinationPath, inputs);
+
+      assert.isTrue(res.isOk());
+      if (res.isOk()) {
+        assert.isTrue(res.value.warnings!.some((w) => w.type === "mcpAuthMetadataError"));
+      }
+    });
+  });
+
+  describe("generator.post MCPForDA branch", () => {
+    it("post() calls generateForMCPForDA when flag and template match", async () => {
+      const { FeatureFlags } = await import("../../../src/common/featureFlags");
+      const generator = new DeclarativeAgentGenerator();
+      const context = createContext();
+      const destinationPath = "/test/destination";
+
+      sandbox
+        .stub(copilotGptManifestUtils, "getManifestPath")
+        .resolves(ok("/test/destination/appPackage/da.json"));
+      sandbox.stub(featureFlagManager, "getBooleanValue").callsFake((flag: any) => {
+        if (flag === FeatureFlags.MCPForDA) return true;
+        return false;
+      });
+      const generateStub = sandbox
+        .stub(generatorHelper, "generateForMCPForDA")
+        .resolves(ok({ warnings: [] }));
+
+      const inputs: Inputs = {
+        platform: Platform.CLI,
+        projectPath: "./",
+        [QuestionNames.AppName]: "TestApp",
+        [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentWithActionFromMCP,
+        [QuestionNames.MCPForDAServerUrl]: "https://example.com/mcp",
+        [QuestionNames.MCPForDAAuth]: "NoneAuth",
+      };
+
+      const res = await generator.post(context, inputs, destinationPath);
+
+      assert.isTrue(generateStub.calledOnce);
+      assert.isTrue(res.isOk());
+    });
   });
 
   describe("MCPServerTypeNode and Local MCP Server Support", async () => {
