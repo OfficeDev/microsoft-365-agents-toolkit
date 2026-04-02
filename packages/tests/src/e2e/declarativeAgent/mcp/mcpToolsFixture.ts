@@ -46,7 +46,7 @@ const mcpToolsContent = {
 
 export const mcpToolsFilePath = path.join(
   os.tmpdir(),
-  "mcp-e2e-test-tools.json"
+  "mcp-e2e-test-tools.json",
 );
 
 export async function writeMCPToolsFixture(): Promise<void> {
