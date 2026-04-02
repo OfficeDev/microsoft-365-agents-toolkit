@@ -561,10 +561,10 @@ describe("Wrapped Axios Client Test", () => {
     chai.assert.deepEqual(modApiDef, MOS3ApiDefinitions.GetShareInfo);
 
     modApiDef = WrappedAxiosClient.convertMethodUrlToApiDefForMOS(
-      "GET",
+      "POST",
       "/catalog/v1/users/titles/launchInfo"
     );
-    chai.assert.deepEqual(modApiDef, MOS3ApiDefinitions.GetCatalogLaunchInfo);
+    chai.assert.deepEqual(modApiDef, MOS3ApiDefinitions.PostCatalogLaunchInfo);
 
     modApiDef = WrappedAxiosClient.convertMethodUrlToApiDefForMOS(
       "DELETE",
@@ -598,5 +598,10 @@ describe("Wrapped Axios Client Test", () => {
 
     modApiDef = WrappedAxiosClient.convertMethodUrlToApiDefForMOS("GET", "/abcdef/v1/users/xxxxx");
     chai.assert.isUndefined(modApiDef);
+  });
+
+  it("getMOSApiRelativePath returns empty string for non-MOS URL", () => {
+    const result = WrappedAxiosClient.getMOSApiRelativePath("https://example.com/some/path");
+    chai.assert.equal(result, "");
   });
 });
