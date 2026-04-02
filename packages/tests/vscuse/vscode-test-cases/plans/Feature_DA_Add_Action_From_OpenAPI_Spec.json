@@ -293,7 +293,9 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [],
-      "preconditions": ["dhash:512:384:0:20:f0902223a3222421"],
+      "preconditions": [
+        "dhash:512:384:0:20:f0902223a3222421"
+      ],
       "postconditions": [],
       "tags": [],
       "screenshot": "step_d41c8446",
@@ -313,7 +315,9 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [],
-      "preconditions": ["dhash:512:384:0:20:c0902223a3222421"],
+      "preconditions": [
+        "dhash:512:384:0:20:c0902223a3222421"
+      ],
       "postconditions": [],
       "tags": [],
       "screenshot": "step_85ec68c5",
@@ -437,7 +441,9 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [],
-      "preconditions": ["dhash:512:384:0:20:32a8a223a3a22421"],
+      "preconditions": [
+        "dhash:512:384:0:20:32a8a223a3a22421"
+      ],
       "postconditions": [],
       "tags": [],
       "screenshot": "step_73b4b26d",
@@ -457,7 +463,9 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [],
-      "preconditions": ["dhash:512:384:0:20:44a4aa23a3a22421"],
+      "preconditions": [
+        "dhash:512:384:0:20:44a4aa23a3a22421"
+      ],
       "postconditions": [],
       "tags": [],
       "screenshot": "step_dc652e23",
@@ -503,7 +511,9 @@
       "depends_on": [],
       "preconditions": [],
       "postconditions": [],
-      "tags": ["step_retry_timeout:60"],
+      "tags": [
+        "step_retry_timeout:60"
+      ],
       "screenshot": null,
       "created_at": "2026-03-31T01:34:27.611207",
       "plan_id": "plan_41c290c6"
@@ -625,7 +635,9 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [],
-      "preconditions": ["dhash:512:384:0:20:c0902223a3222421"],
+      "preconditions": [
+        "dhash:512:384:0:20:c0902223a3222421"
+      ],
       "postconditions": [],
       "tags": [],
       "screenshot": "step_a7197a37",
@@ -645,7 +657,9 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [],
-      "preconditions": ["dhash:512:384:0:20:f0902223a3222421"],
+      "preconditions": [
+        "dhash:512:384:0:20:f0902223a3222421"
+      ],
       "postconditions": [],
       "tags": [],
       "screenshot": "step_7141a06a",
@@ -769,7 +783,9 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [],
-      "preconditions": ["dhash:512:384:0:20:32a8a223a3a22421"],
+      "preconditions": [
+        "dhash:512:384:0:20:32a8a223a3a22421"
+      ],
       "postconditions": [],
       "tags": [],
       "screenshot": "step_2394da9f",
@@ -789,7 +805,9 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [],
-      "preconditions": ["dhash:512:384:0:20:44a4aa23a3a22421"],
+      "preconditions": [
+        "dhash:512:384:0:20:44a4aa23a3a22421"
+      ],
       "postconditions": [],
       "tags": [],
       "screenshot": "step_9ea70518",
@@ -835,7 +853,9 @@
       "depends_on": [],
       "preconditions": [],
       "postconditions": [],
-      "tags": ["step_retry_timeout:60"],
+      "tags": [
+        "step_retry_timeout:60"
+      ],
       "screenshot": null,
       "created_at": "2026-03-31T02:04:39.770498",
       "plan_id": "plan_41c290c6"
@@ -1027,7 +1047,9 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [],
-      "preconditions": ["dhash:512:384:0:20:23a1a5a9a1a1613c"],
+      "preconditions": [
+        "dhash:512:384:0:20:23a1a5a9a1a1613c"
+      ],
       "postconditions": [],
       "tags": [],
       "screenshot": "step_789e2813",
@@ -1047,7 +1069,9 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [],
-      "preconditions": ["dhash:512:384:0:20:29b0a5a9a1a16138"],
+      "preconditions": [
+        "dhash:512:384:0:20:29b0a5a9a1a16138"
+      ],
       "postconditions": [],
       "tags": [],
       "screenshot": "step_cd811144",
@@ -1093,7 +1117,9 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [],
-      "preconditions": ["dhash:512:384:0:20:29b0a5a9a1a16138"],
+      "preconditions": [
+        "dhash:512:384:0:20:29b0a5a9a1a16138"
+      ],
       "postconditions": [],
       "tags": [],
       "screenshot": "step_8418f62e",
@@ -1139,7 +1165,9 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [],
-      "preconditions": ["dhash:512:384:0:20:21b1a5a9a1a16138"],
+      "preconditions": [
+        "dhash:512:384:0:20:21b1a5a9a1a16138"
+      ],
       "postconditions": [],
       "tags": [],
       "screenshot": "step_d2f5a9da",
@@ -1159,7 +1187,9 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [],
-      "preconditions": ["dhash:512:384:0:20:23a1a5a9a1a16138"],
+      "preconditions": [
+        "dhash:512:384:0:20:23a1a5a9a1a16138"
+      ],
       "postconditions": [],
       "tags": [],
       "screenshot": "step_38e95d3b",
@@ -1205,7 +1235,9 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [],
-      "preconditions": ["dhash:512:384:0:20:32a8a2a3a3a26421"],
+      "preconditions": [
+        "dhash:512:384:0:20:32a8a2a3a3a26421"
+      ],
       "postconditions": [],
       "tags": [],
       "screenshot": "step_61eb3237",
@@ -1225,7 +1257,9 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [],
-      "preconditions": ["dhash:512:384:0:20:44a4a2a3a3a26421"],
+      "preconditions": [
+        "dhash:512:384:0:20:44a4a2a3a3a26421"
+      ],
       "postconditions": [],
       "tags": [],
       "screenshot": "step_149e6686",
@@ -1271,7 +1305,9 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [],
-      "preconditions": ["dhash:512:384:0:20:32a8a223a3a22421"],
+      "preconditions": [
+        "dhash:512:384:0:20:32a8a223a3a22421"
+      ],
       "postconditions": [],
       "tags": [],
       "screenshot": "step_c85cd041",
@@ -1291,7 +1327,9 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [],
-      "preconditions": ["dhash:512:384:0:20:44a4aa23a3a22421"],
+      "preconditions": [
+        "dhash:512:384:0:20:44a4aa23a3a22421"
+      ],
       "postconditions": [],
       "tags": [],
       "screenshot": "step_ce69d387",
@@ -1346,7 +1384,9 @@
       "depends_on": [],
       "preconditions": [],
       "postconditions": [],
-      "tags": ["step_retry_timeout:120"],
+      "tags": [
+        "step_retry_timeout:120"
+      ],
       "screenshot": null,
       "created_at": "2026-03-31T00:55:01.895108",
       "plan_id": "plan_41c290c6"

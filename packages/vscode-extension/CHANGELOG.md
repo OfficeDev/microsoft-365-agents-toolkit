@@ -7,7 +7,6 @@
 This is a stable release that brings streamlined MCP integration to declarative agent development, sovereign cloud support and expanded AI capabilities. Below you'll find a comprehensive list of new features and enhancements included in this release:
 
 ### New Features
-
 - **ATK Supports Government Cloud GCC-M Now**
 
 Agents Toolkit is actively expanding support for building apps in Government Community Cloud (GCC), GCC High, Department of Defense (DoD), and Teams operated by 21Vianet environments.
@@ -40,11 +39,13 @@ A new Microsoft Foundry agent template is now available in the ATK CLI, enabling
 
 This was a preview feature from last stable version. The feature was designed to support for integrating Model Context Protocol (MCP) tools into Declarative Agents through actions or plugins. Now this capability becomes generally available and we made enhancement after incorporating early feedback. Compared to the initial version, we improved how MCP tool definitions are managed and referenced in agent configuration. This experience fetches more detailed tool definitions and stores them in a separate, dedicated file. Instead of embedding full tool definitions directly in the plugin configuration. This change improves clarity, structure, and maintainability when working with MCP‑backed tools.
 
-### Enhancement
+
+### Enhancement 
 
 - **Enhanced Share Declarative Agents to Others**
 
 Share declarative agents to others is a feature introduced in last stable version, in this release we have refined the share flow to be streamlined, offered clearer environments differentiation during provision, improved the error handling to clearly explain the limitation and related guidance doc to reduce confusion when debugging or provisioning the agents. For more details please see [Share Declarative Agents with Others](https://github.com/OfficeDev/microsoft-365-agents-toolkit/wiki/Share-Declarative-Agents-with-Other).
+
 
 - **Modernize Template Configurations and Schema Updates Handling**
 
@@ -70,12 +71,12 @@ We've made a set of improvements to templates configurations and schema handling
 - Fixed inline MCP description and related output edge cases.  
   PRs: [#15281](https://github.com/OfficeDev/microsoft-365-agents-toolkit/pull/15281)
 
+
 ## 6.4.3 - Jan 16, 2026
 
 Hotfix version.
 
 ### Enhancement
-
 - Refined the telemetry collection algorithm to deliver more accurate and reliable data insights, ensuring better decision-making and performance tracking.
 - Improved the pop-up notification logic to minimize false reminders for non-ATK projects, providing a more focused and streamlined user experience.
 
@@ -84,7 +85,6 @@ Hotfix version.
 Hotfix version.
 
 ### Enhancement
-
 - Improved the Agents Playground installation flow to make setup more reliable and reduce potential debugging failures caused by installation issues.
 - Updated Teams message extension template to prevent npm build errors triggered by certain parameter types, ensuring a smoother development experience.
 
@@ -93,7 +93,6 @@ Hotfix version.
 Hotfix Version.
 
 ### Enhancement
-
 Increased retry duration for the Check Status API to reduce 429 (Too Many Requests) errors during local debugging or provisioning.
 
 ## 6.4.0 - Nov 14, 2025
@@ -101,28 +100,27 @@ Increased retry duration for the Check Status API to reduce 429 (Too Many Reques
 Building on the incremental enhancements previously introduced in the [prerelease version](https://github.com/OfficeDev/microsoft-365-agents-toolkit/blob/dev/packages/vscode-extension/PRERELEASE.md), this release brings a streamlined developer experience, deeper Teams integration, and expanded AI capabilities. Below you’ll find a comprehensive list of new features and enhancements included in this release:
 
 ### New Features
-
 - **Declarative agents: sharing made easy**
-
+ 
 Users can now share their declarative agents more flexibly — either with all tenant users or with a specific group of users by listing their email addresses. This can be done directly through the ATK UI or via the ATK CLI.
-
+ 
 To make this simpler, a new “Share” button has been added to the lifecycle management panel, giving you a quick and intuitive way to manage agent access.
 <img width="1031" height="661" alt="image" src="https://github.com/user-attachments/assets/7ca5ff5b-02ee-4d90-994a-c8e4f9a9b12f" />
-
+ 
 > If you are using ATK CLI, share the agent by:`atk share -scope [tenant/users]` or run `atk share -h` to get help.
 
 - **Declarative agents: expanded publish scope**
-
+ 
 In previous versions, declarative agents were uploaded to Copilot with the default `Personal` scope. With this release, developers can now upload their declarative agents using a `Shared` scope, enabling broader distribution on the Copilot platform.
-
+ 
 ⚠️ Note: If you plan to share an agent with others later, it must be uploaded with the Shared scope from the start.
-
+ 
 This behavior is controlled through the `AGENT_SCOPE` parameter defined in the environment configuration files. The parameter value is passed to the `extendToM365` action during the `Provision` lifecycle stage.
-
+ 
 > If you are using ATK CLI, specify the install scope by: `atk install --file-path [Your zip package path] -scope [Shared/Personal] ` or run `atk install -h` to get help.
 
 - **[Preview Feature] Declarative agents: MCP server integration**
-
+  
 We’ve added native support for integrating Model Context Protocol (MCP) servers into Declarative Agents through actions. Developers can now easily connect MCP servers via a discovery URL, with auto-generated manifests and authentication scaffolding for quick setup. The feature supports static tool discovery, secure credential handling, and streamlined workflows consistent with ATK standards. This enhancement reduces setup time, ensures a unified developer experience, and enables future-ready flexibility for evolving MCP capabilities.
 
 <img width="1340" height="791" alt="image" src="https://github.com/user-attachments/assets/ee911a1b-5d92-4e7e-a7b8-6ff0dcaae831" />
@@ -136,7 +134,7 @@ We’ve added a new Teams Collaborator Agent template to ATK, enabling developer
 <img width="1189" height="483" alt="image" src="https://github.com/user-attachments/assets/7d87479c-44e6-4c3d-a9c5-2454c1152ae7" />
 
 - **New Sample: AI Foundry to M365 Proxy Agent**
-
+  
 We've added a new sample to show how to integrate AI Foundry agents—grounded in SharePoint—into Microsoft 365 Copilot and Teams using Agent Framework v2 and the M365 Agents SDK. It turns a complex, multi-day setup into a secure, two-click experience. You can easily find new samples in "View Samples" from ATK menu.
 
     What You’ll Learn in this sample:
@@ -151,7 +149,7 @@ We've added a new sample to show how to integrate AI Foundry agents—grounded i
 
 We added a new sample to demonstrate how to build an intelligent travel agent using the Microsoft 365 Agents Toolkit. The agent provides comprehensive travel assistance by answering travel-related questions, helping users understand company travel policies, and finding flights and hotels that comply with organizational guidelines. You can easily find new samples in "View Samples" from ATK menu.
 
-The Travel Agent leverages Azure OpenAI and the Microsoft 365 Retrieval API to access company travel documents and policies stored in SharePoint or OneDrive for Business, providing contextual and policy-compliant travel recommendations directly within Microsoft Teams.
+The Travel Agent leverages Azure OpenAI and the Microsoft 365 Retrieval API to access company travel documents and policies stored in SharePoint or OneDrive for Business, providing contextual and policy-compliant travel recommendations directly within Microsoft Teams. 
 
     This sample illustrates:
 
@@ -163,12 +161,12 @@ The Travel Agent leverages Azure OpenAI and the Microsoft 365 Retrieval API to a
     * Deployment and debugging of agents in Microsoft Teams
 
 - **New Sample using Teams SDK: Coffee Agent**
-  This sample is built with the [Microsoft Teams SDK](https://aka.ms/teams-ai-library-v2), and showcases how easy it is to use activity handlers, adaptive cards, and AI to create a fun, interactive bot with just a few building blocks.
+This sample is built with the [Microsoft Teams SDK](https://aka.ms/teams-ai-library-v2), and showcases how easy it is to use activity handlers, adaptive cards, and AI to create a fun, interactive bot with just a few building blocks.
 
 This Coffee Agent helps teams coordinate their daily coffee orders by randomly selecting coffee shops and orderers, managing team coffee orders, and maintaining information about available coffee shops and their offerings. It's perfect for teams that want to streamline their coffee coordination process while having fun with their daily caffeine routine.
 
     This sample illustrates:
-
+    
     * Use Microsoft 365 Agents Toolkit to create an AI-powered Teams bot
     * Use Microsoft Teams SDK for activity handlers and adaptive cards
     * Implement tool calling and function execution in Teams bots
@@ -182,7 +180,7 @@ The Teams Agents and apps templates which are powered by Teams SDK supports Pyth
 #### Enhancement
 
 - **Important update: single-tenant Bot registration**
-
+ 
 In this release, ATK is switching from multi-tenant to single-tenant bot registrations to align with Azure Bot Service (ABS) security requirements. ABS is retiring support for multi-tenant bot registrations. All new bot registrations must now use single-tenant configuration. This change enhances security and compliance across Microsoft 365 services.
 
 Multi-tenant registration will be fully blocked. Existing multi-tenant bots will continue to function correctly but should eventually migrate to single-tenant registration. Follow the [migration guide](https://learn.microsoft.com/en-us/azure/bot-service/skill-pva-convert-skill-single-tenant?view=azure-bot-service-4.0) to switch your Azure Bot Service registration to single-tenant.
@@ -194,7 +192,7 @@ Starting October 1, 2025, Microsoft Entra MFA enforcement applies to all Create,
 - Enhanced the filters and other UI elements in sample gallery for users to easier locate the right sample.
 - Updated the [app manifest version to v1.24](https://developer.microsoft.com/json-schemas/teams/v1.24/MicrosoftTeams.schema.json).
 - Updated the [TypeSpec version to v1.0](https://www.npmjs.com/package/@microsoft/typespec-m365-copilot)
-
+  
 ## 6.2.2 - Oct 16, 2025
 
 Hotfix Version.
@@ -208,7 +206,6 @@ Hotfix Version.
 Starting October 1st, MFA will be enforced for create, update, and delete operations regarding to Azure resources in VS Code extensions, requiring users to complete MFA setup to avoid 401 errors. This update ensures compliance with Microsoft's global MFA policy and improves security for all extension users.
 
 ## 6.2.0 - Sep 18, 2025
-
 This release marks a major step forward in agent development and Teams app innovation, as we comprehensively upgrade Teams agents and app project templates to the new generation **Teams AI Library V2**.
 
 Building on the incremental enhancements previously introduced in the [prerelease version](https://github.com/OfficeDev/microsoft-365-agents-toolkit/blob/dev/packages/vscode-extension/PRERELEASE.md), this release brings a streamlined developer experience, deeper Teams integration, and expanded AI capabilities.
@@ -236,23 +233,22 @@ With these updates, developers can now spin up fully functional Teams agents fas
 Let’s build smarter, more interactive Teams apps together! 💡
 
 - **TeamsFx SDK Deprecation Notice**
-  We’re beginning the deprecation process for the TeamsFx SDK. Its core functionalities are now covered by the modern M365 Agents SDK and Teams AI library. While TeamsFx SDK will continue to be maintained, no new features will be added. Full deprecation is planned for July 2026.
+We’re beginning the deprecation process for the TeamsFx SDK. Its core functionalities are now covered by the modern M365 Agents SDK and Teams AI library. While TeamsFx SDK will continue to be maintained, no new features will be added. Full deprecation is planned for July 2026.
 
-### Enhancement
+### Enhancement 
 
 - Updated the [app manifest version to v1.23](https://developer.microsoft.com/json-schemas/teams/v1.23/MicrosoftTeams.schema.json).
 - Updated [Declarative Agents manifest version to v1.5](https://learn.microsoft.com/en-us/microsoft-365-copilot/extensibility/declarative-agent-manifest-1.5).
 - Updated [Microsoft 365 Agents SDK to v1.0.0](https://www.npmjs.com/package/@microsoft/agents-hosting).
 
-## 6.0.3 - Jul 19, 2025
 
+## 6.0.3 - Jul 19, 2025
 Hotfix version
 
 - Add a fix to resolve Agents Playground installation error.
 - Add a fix to guide users to switch M365 account or switch tenant if they encounter the tenant mismatch error during debug.
 
 ## 6.0.2 - Jun 26, 2025
-
 Hotfix version.
 
 - **Enhanced Agent project generation**
@@ -262,7 +258,6 @@ Previously, users could create an Agents project without entering an OpenAI key 
 This issue has now been resolved. The improved flow is now supported across all templates that requires a Key, ensuring a seamless and consistent project setup experience.
 
 ## 6.0.1 - Jun 03, 2025
-
 Hotfix version.
 
 - Updated the [app manifest version to v1.21](https://developer.microsoft.com/json-schemas/teams/v1.21/MicrosoftTeams.schema.json).
@@ -275,7 +270,6 @@ Hotfix version.
 - [Preview] Fixed a repository reference issue in typespec projects.
 
 ## 6.0.0 - May 19, 2025
-
 This major version upgrade is a milestone as Teams Toolkit evolves to Microsoft 365 Agents Toolkit with a set of awesome new features to provide better development experience for agents building and a brand new icon!
 
 ### Introducing Microsoft 365 Agents Toolkit
@@ -309,8 +303,8 @@ We’ve added [Kiota](https://aka.ms/kiota/docs) integration to streamline worki
 <img width="865" alt="image" src="https://github.com/user-attachments/assets/906dc3a3-ec83-4cb0-a73d-d1a207876a19" />
 
 - **Build a Copilot connector**
-
-You can now get started with building a [Copilot connector](https://learn.microsoft.com/en-us/microsoft-365-copilot/extensibility/overview-graph-connector) to bring your enterprise data to Microsoft 365 Copilot and Agents. This create new agent/app experience will help you get started by scaffolding all the code you need (creates connection via the Graph API, registers schema & maps items) to start ingesting items into the Microsoft Graph with a sample REST API datasource (GitHub issues API). Then, you can customize it to your needs and specific data sources to get more value from your enterprise data in Microsoft 365 Copilot!
+  
+You can now get started with building a [Copilot connector](https://learn.microsoft.com/en-us/microsoft-365-copilot/extensibility/overview-graph-connector) to bring your enterprise data to Microsoft 365 Copilot and Agents. This create new agent/app experience will help you get started by scaffolding all the code you need (creates connection via the Graph API, registers schema & maps items) to start ingesting items into the Microsoft Graph with a sample REST API datasource (GitHub issues API). Then, you can customize it to your needs and specific data sources to get more value from your enterprise data in Microsoft 365 Copilot! 
 
 <img width="889" alt="image" src="https://github.com/user-attachments/assets/e7600b5a-0c38-4ee5-be35-15dcf7892289" />
 
@@ -321,7 +315,7 @@ We’ve introduced support for building Custom Engine Agents using the [Microsof
 <img width="1089" alt="CEA-Agents-SDK" src="https://github.com/user-attachments/assets/df90331d-fd85-46bc-9d9a-4a1649d6e09c" />
 
 - **Microsoft 365 Agents Playground**
-  We’re excited to introduce the [Microsoft 365 Agents Playground](https://www.npmjs.com/package/@microsoft/teams-app-test-tool), a component evolved from Teams App Test Tool, which provides a web-based chat environment that simulates the behavior, look, and feel of various channels — such as Copilot and Microsoft Teams — allowing developers to test, debug, and iterate on their agent or app design without the need for complex setup.
+We’re excited to introduce the [Microsoft 365 Agents Playground](https://www.npmjs.com/package/@microsoft/teams-app-test-tool), a component evolved from Teams App Test Tool, which provides a web-based chat environment that simulates the behavior, look, and feel of various channels — such as Copilot and Microsoft Teams — allowing developers to test, debug, and iterate on their agent or app design without the need for complex setup.
 
 <img width="711" alt="Agents-playground" src="https://github.com/user-attachments/assets/daf9307d-84d0-42a3-bda6-d63e801acb14" />
 
@@ -338,6 +332,7 @@ To enhance the developer experience for pro-code agent builders, we see strong v
 ### Bug Fix
 
 - Enhanced compatibility with previous version of YAML files using old names to ensure smoother migration or continued use of existing projects.
+  
 - Upgraded dependencies like `axios` to address security vulnerabilities.
 
 - Clear error messages for troubleshooting: Enhanced error messages by explicitly showing YAML file names where missing or unresolved environment variables or no valid app catelog. Show clear error messages to make it easier for users to identify and resolve configuration issues.
@@ -345,14 +340,11 @@ To enhance the developer experience for pro-code agent builders, we see strong v
 - Enhanced logging for CDP client and telemetry for agents development activites.
 
 ## 5.14.1 - Mar 28, 2025
-
 This patch version update of Teams Toolkit includes several incremental enhancements and bug fixes:
-
 - Updated manifest version for Declarative Agent to v1.3
 - Added a warning message for upcomong CLI breaking changes in the next version
 
 ## 5.14.0 - Mar 24, 2025
-
 This update represents a minor version increment of the Teams Toolkit, below is a comprehensive list of new features, enhancements, and bug fixes implemented since the last stable release.
 
 ### New Features
@@ -365,13 +357,16 @@ This update represents a minor version increment of the Teams Toolkit, below is 
 
 ![image](https://github.com/user-attachments/assets/87ebc692-6985-424d-9819-3b263a7e7206)
 
+
 - **Add Agent Debugging Experience**: To provide a better debugging experience for Agent developers, we have integrated the debugging experience in Microsoft 365 Copilot in-chat debugger (available in developer mode only). You can get a clear picture of what capability and action that your agent is set up with. You can easily view how your agent is executing actions and gain deeper insights into execution details, including success or failure hints for both capabilities and actions.
 
 ![image](https://github.com/user-attachments/assets/1db606aa-fbe9-4da5-a6bf-146d1d251abb)
 
+
 - **Manage Authentication For Declarative Agent**: When adding actions to your Declarative Agent, you might encounter OpenAPI specifications that lack authentication configurations, even though the actual API calls require OAuth. To address this, we introduce commands that assist users to add and manage authentication for their agents. This enhancement would streamline the process and ensure that your API calls are properly authenticated, making it easier to work with your Declarative Agent.
 
 ![image](https://github.com/user-attachments/assets/23d7b4b7-962f-4948-a640-2afc0099c657)
+
 
 - **Enable Adaptive Card Previewer For Declarative Agent**: We understand that designing an adaptive card for the Declarative Agent has been challenging due to compatibility issues with the Adaptive Card Previewer extension. We're excited to announce that we've now added support to preview Adaptive Card, making the process much smoother and more efficient for you. This enhancement ensures that you can seamlessly design adaptive cards without any hassle.
 
@@ -381,6 +376,7 @@ This update represents a minor version increment of the Teams Toolkit, below is 
 
 #### Enhancements
 
+
 - **Use Existing Entra ID Instead of Always Create New**: Teams Toolkit creates Entra ID during debugging. While users are easily blocked by no permission to create Entra ID in their tenant. Now we improve this process to allow users to use an existing Entra ID which can be created by tenant admin. You will need to input the ID and password to continue.
 
 - **Input OpenAI Key to Debug**: Custom Engine Agent projects require an OpenAI key for debugging. Teams Toolkit now allows users to create these projects without inputting the OpenAI key. However, missing this value will definitely cause a failure in preview and debugging. Therefore, an input box will pop up before debug to remind users of the required value.
@@ -388,6 +384,7 @@ This update represents a minor version increment of the Teams Toolkit, below is 
 <img width="386" alt="image" src="https://github.com/user-attachments/assets/c197d84c-fa87-4269-bfb5-2609c6e00370" />
 
 - **Declarative Agent API Key Authentication**: API Key Authentication in the DA project was implemented using Bearer Tokens in the past. Recently, the Teams platform has added support for developers to specify the key name in the API request header or query URL. As a result, we have updated the corresponding templates to reflect this change.
+  
 - **Microsoft Entra Manifest**: Teams Toolkit has updated Microsoft Entra app manifest to apply MS Graph format for better integration with platform.
 
 - **Troubleshooting with GitHub Copilot Extension**: Teams Toolkit now improve the troubleshooting experience with GitHub Copilot extension by adding a "Resolve with @teamsapp" button, click this button will ask Teams Toolkit to open the output channel in the editor. Then the GitHub Copilot Chat will use the output log as a reference for troubleshooting requests. Consequently, @teamsapp can read the log and perform troubleshooting.
@@ -400,9 +397,10 @@ This update represents a minor version increment of the Teams Toolkit, below is 
 
 - **Upgrade to Node 22**: All the app templates in Teams Toolkit now are updated to support Node 22.
 
-- **Add streaming experience in App Test Tool**
+- **Add streaming experience in App Test Tool** 
 
 - **Security Enhancement**: 1.Consolidate and standardize the Tab templates for quality and security. This involves ensuring consistency in the use of tools and dependencies, such as using npm packages instead of CDNs and updating the Teams JS version. 2. Upgrade python app templates to use MSI authentication when deploying to Azure.
+
 
 #### Bug Fixes
 
@@ -436,10 +434,10 @@ Below is a comprehensive list of new features, enhancements, and bug fixes imple
 ### New Features
 
 - **Added Local Authentication Support for API ME and API Plugin**: We have introduced local authentication support for application templates of API-ME and API Plugin application with Microsoft Entra and OAuth. which eliminates the anonymous setup for APIs on local environment end to end and also helps developers verify the behavior when Teams and Microsoft 365 Copilot invokes an API without proper authorization. This feature includes built-in middleware that implements the token validation and a guided code tour explains how it works.
-  ![Local Authentication](https://github.com/user-attachments/assets/dbf7173d-d11e-4a8d-b26d-fbfb6abfa976)
+![Local Authentication](https://github.com/user-attachments/assets/dbf7173d-d11e-4a8d-b26d-fbfb6abfa976)
 
 - **Process Termination For Port Conflict**: Port conflict is a common pain point for developers when debugging bot applications. It happens when the processes are not fully terminated when debug session stops. Now Teams Toolkit has added additional support to help terminate those unkilled processes to release ports.
-  ![Port Conflicts](https://github.com/user-attachments/assets/208a21d5-0232-470b-a102-620e542a20cb)
+![Port Conflicts](https://github.com/user-attachments/assets/208a21d5-0232-470b-a102-620e542a20cb)
 
 - **Integrated with Microsoft Kiota for API Plugin Generation**: Now Teams Toolkit has integrated with [Microsoft Kiota](https://learn.microsoft.com/openapi/kiota/overview) when adding API Plugins into Declarative Agent. With this integration, developers are enabled to create API Plugins by browsing public API catalogs and Microsoft Kiota is capable of handling large OpenAPI Description Document. This is an experimental feature, for early access make sure to turn on [VSCode Settings](https://code.visualstudio.com/docs/getstarted/settings#_workspace-settings) with `Enable Microsoft Kiota`.
 
@@ -574,6 +572,7 @@ This update, marking a minor version increment of the Teams Toolkit, incorporate
 
 - **Create API based Message Extensions using auth-protected API**: Teams Toolkit now supports two forms of API authentication protection for your API-based Message Extension app:
   ![add-auth-api-me](https://github.com/OfficeDev/TeamsFx/assets/113089977/c5faea2f-676b-4a8c-82d6-f3b037e54f0e)
+
   - API-Key: You can either add the API key of your existing API or, if you don't have one, Teams Toolkit will generate one to demonstrate authentication flow.
   - Microsoft Entra (Azure AD): Teams Toolkit facilitates the creation of Microsoft Entra IDs to authenticate your new API.
 
@@ -584,6 +583,7 @@ This update, marking a minor version increment of the Teams Toolkit, incorporate
   ![access-data-custom-copilot](https://github.com/OfficeDev/TeamsFx/assets/113089977/d40cfc84-8cb8-4816-b587-668a2bcf9560)
   Four types of data sources are available:
   ![data-source-custom-copilot](https://github.com/OfficeDev/TeamsFx/assets/113089977/2d010366-96a0-4f8b-861d-28d5bb9e36b8)
+
   - `Customize`: Load data from a custom data source, for example, the file system or vector Database.
   - `Azure AI Search`: Load data from Azure AI Search service and use it in conversation with users.
   - `Custom API`: Invoke the API defined in the OpenAPI description document to retrieve domain data from the API service.
@@ -669,6 +669,7 @@ Enhancement:
 
 - New samples in the Sample Gallery:
   ![new samples](https://github.com/OfficeDev/TeamsFx/assets/113089977/2af41ec4-ee19-4b66-a58a-d2d8bdbbbd60)
+
   - Large Scale Notification Bot: send individual chat messages to a large number of users in a tenant
   - Graph Connector Bot: Teams command bot that queries custom data ingested into Microsoft Graph using Graph connector.
   - Contoso Retail Dashboard: demonstrates how to build a dashboard for control layouts. It runs in Teams, Outlook, and the Microsoft 365 app.
@@ -1305,7 +1306,6 @@ Extension released in preview.# Changelog
 > Note: This changelog only includes the changes for the stable versions of Microsoft 365 Agents Toolkit (evolved from Teams Toolkit). For the changelog of pre-released versions, please refer to the [Microsoft 365 Agents Toolkit Pre-release Changelog](https://github.com/OfficeDev/TeamsFx/blob/dev/packages/vscode-extension/PRERELEASE.md).
 
 ## 6.0.0 - May 19, 2025
-
 This major version upgrade is a milestone as Teams Toolkit evolves to Microsoft 365 Agents Toolkit with a set of awesome new features to provide better development experience for agents building and a brand new icon!
 
 ### Introducing Microsoft 365 Agents Toolkit
@@ -1339,8 +1339,8 @@ We’ve added [Kiota](https://aka.ms/kiota/docs) integration to streamline worki
 <img width="865" alt="image" src="https://github.com/user-attachments/assets/906dc3a3-ec83-4cb0-a73d-d1a207876a19" />
 
 - **Build a Copilot connector**
-
-You can now get started with building a [Copilot connector](https://learn.microsoft.com/en-us/microsoft-365-copilot/extensibility/overview-graph-connector) to bring your enterprise data to Microsoft 365 Copilot and Agents. This create new agent/app experience will help you get started by scaffolding all the code you need (creates connection via the Graph API, registers schema & maps items) to start ingesting items into the Microsoft Graph with a sample REST API datasource (GitHub issues API). Then, you can customize it to your needs and specific data sources to get more value from your enterprise data in Microsoft 365 Copilot!
+  
+You can now get started with building a [Copilot connector](https://learn.microsoft.com/en-us/microsoft-365-copilot/extensibility/overview-graph-connector) to bring your enterprise data to Microsoft 365 Copilot and Agents. This create new agent/app experience will help you get started by scaffolding all the code you need (creates connection via the Graph API, registers schema & maps items) to start ingesting items into the Microsoft Graph with a sample REST API datasource (GitHub issues API). Then, you can customize it to your needs and specific data sources to get more value from your enterprise data in Microsoft 365 Copilot! 
 
 <img width="889" alt="image" src="https://github.com/user-attachments/assets/e7600b5a-0c38-4ee5-be35-15dcf7892289" />
 
@@ -1351,7 +1351,7 @@ We’ve introduced support for building Custom Engine Agents using the [Microsof
 <img width="1089" alt="CEA-Agents-SDK" src="https://github.com/user-attachments/assets/df90331d-fd85-46bc-9d9a-4a1649d6e09c" />
 
 - **Microsoft 365 Agents Playground**
-  We’re excited to introduce the [Microsoft 365 Agents Playground](https://www.npmjs.com/package/@microsoft/teams-app-test-tool), a component evolved from Teams App Test Tool, which provides a web-based chat environment that simulates the behavior, look, and feel of various channels — such as Copilot and Microsoft Teams — allowing developers to test, debug, and iterate on their agent or app design without the need for complex setup.
+We’re excited to introduce the [Microsoft 365 Agents Playground](https://www.npmjs.com/package/@microsoft/teams-app-test-tool), a component evolved from Teams App Test Tool, which provides a web-based chat environment that simulates the behavior, look, and feel of various channels — such as Copilot and Microsoft Teams — allowing developers to test, debug, and iterate on their agent or app design without the need for complex setup.
 
 <img width="711" alt="Agents-playground" src="https://github.com/user-attachments/assets/daf9307d-84d0-42a3-bda6-d63e801acb14" />
 
@@ -1368,6 +1368,7 @@ To enhance the developer experience for pro-code agent builders, we see strong v
 ### Bug Fix
 
 - Enhanced compatibility with previous version of YAML files using old names to ensure smoother migration or continued use of existing projects.
+  
 - Upgraded dependencies like `axios` to address security vulnerabilities.
 
 - Clear error messages for troubleshooting: Enhanced error messages by explicitly showing YAML file names where missing or unresolved environment variables or no valid app catelog. Show clear error messages to make it easier for users to identify and resolve configuration issues.
@@ -1375,14 +1376,11 @@ To enhance the developer experience for pro-code agent builders, we see strong v
 - Enhanced logging for CDP client and telemetry for agents development activites.
 
 ## 5.14.1 - Mar 28, 2025
-
 This patch version update of Teams Toolkit includes several incremental enhancements and bug fixes:
-
 - Updated manifest version for Declarative Agent to v1.3
 - Added a warning message for upcomong CLI breaking changes in the next version
 
 ## 5.14.0 - Mar 24, 2025
-
 This update represents a minor version increment of the Teams Toolkit, below is a comprehensive list of new features, enhancements, and bug fixes implemented since the last stable release.
 
 ### New Features
@@ -1395,13 +1393,16 @@ This update represents a minor version increment of the Teams Toolkit, below is 
 
 ![image](https://github.com/user-attachments/assets/87ebc692-6985-424d-9819-3b263a7e7206)
 
+
 - **Add Agent Debugging Experience**: To provide a better debugging experience for Agent developers, we have integrated the debugging experience in Microsoft 365 Copilot in-chat debugger (available in developer mode only). You can get a clear picture of what capability and action that your agent is set up with. You can easily view how your agent is executing actions and gain deeper insights into execution details, including success or failure hints for both capabilities and actions.
 
 ![image](https://github.com/user-attachments/assets/1db606aa-fbe9-4da5-a6bf-146d1d251abb)
 
+
 - **Manage Authentication For Declarative Agent**: When adding actions to your Declarative Agent, you might encounter OpenAPI specifications that lack authentication configurations, even though the actual API calls require OAuth. To address this, we introduce commands that assist users to add and manage authentication for their agents. This enhancement would streamline the process and ensure that your API calls are properly authenticated, making it easier to work with your Declarative Agent.
 
 ![image](https://github.com/user-attachments/assets/23d7b4b7-962f-4948-a640-2afc0099c657)
+
 
 - **Enable Adaptive Card Previewer For Declarative Agent**: We understand that designing an adaptive card for the Declarative Agent has been challenging due to compatibility issues with the Adaptive Card Previewer extension. We're excited to announce that we've now added support to preview Adaptive Card, making the process much smoother and more efficient for you. This enhancement ensures that you can seamlessly design adaptive cards without any hassle.
 
@@ -1411,6 +1412,7 @@ This update represents a minor version increment of the Teams Toolkit, below is 
 
 #### Enhancements
 
+
 - **Use Existing Entra ID Instead of Always Create New**: Teams Toolkit creates Entra ID during debugging. While users are easily blocked by no permission to create Entra ID in their tenant. Now we improve this process to allow users to use an existing Entra ID which can be created by tenant admin. You will need to input the ID and password to continue.
 
 - **Input OpenAI Key to Debug**: Custom Engine Agent projects require an OpenAI key for debugging. Teams Toolkit now allows users to create these projects without inputting the OpenAI key. However, missing this value will definitely cause a failure in preview and debugging. Therefore, an input box will pop up before debug to remind users of the required value.
@@ -1418,6 +1420,7 @@ This update represents a minor version increment of the Teams Toolkit, below is 
 <img width="386" alt="image" src="https://github.com/user-attachments/assets/c197d84c-fa87-4269-bfb5-2609c6e00370" />
 
 - **Declarative Agent API Key Authentication**: API Key Authentication in the DA project was implemented using Bearer Tokens in the past. Recently, the Teams platform has added support for developers to specify the key name in the API request header or query URL. As a result, we have updated the corresponding templates to reflect this change.
+  
 - **Microsoft Entra Manifest**: Teams Toolkit has updated Microsoft Entra app manifest to apply MS Graph format for better integration with platform.
 
 - **Troubleshooting with GitHub Copilot Extension**: Teams Toolkit now improve the troubleshooting experience with GitHub Copilot extension by adding a "Resolve with @teamsapp" button, click this button will ask Teams Toolkit to open the output channel in the editor. Then the GitHub Copilot Chat will use the output log as a reference for troubleshooting requests. Consequently, @teamsapp can read the log and perform troubleshooting.
@@ -1430,9 +1433,10 @@ This update represents a minor version increment of the Teams Toolkit, below is 
 
 - **Upgrade to Node 22**: All the app templates in Teams Toolkit now are updated to support Node 22.
 
-- **Add streaming experience in App Test Tool**
+- **Add streaming experience in App Test Tool** 
 
 - **Security Enhancement**: 1.Consolidate and standardize the Tab templates for quality and security. This involves ensuring consistency in the use of tools and dependencies, such as using npm packages instead of CDNs and updating the Teams JS version. 2. Upgrade python app templates to use MSI authentication when deploying to Azure.
+
 
 #### Bug Fixes
 
@@ -1466,10 +1470,10 @@ Below is a comprehensive list of new features, enhancements, and bug fixes imple
 ### New Features
 
 - **Added Local Authentication Support for API ME and API Plugin**: We have introduced local authentication support for application templates of API-ME and API Plugin application with Microsoft Entra and OAuth. which eliminates the anonymous setup for APIs on local environment end to end and also helps developers verify the behavior when Teams and Microsoft 365 Copilot invokes an API without proper authorization. This feature includes built-in middleware that implements the token validation and a guided code tour explains how it works.
-  ![Local Authentication](https://github.com/user-attachments/assets/dbf7173d-d11e-4a8d-b26d-fbfb6abfa976)
+![Local Authentication](https://github.com/user-attachments/assets/dbf7173d-d11e-4a8d-b26d-fbfb6abfa976)
 
 - **Process Termination For Port Conflict**: Port conflict is a common pain point for developers when debugging bot applications. It happens when the processes are not fully terminated when debug session stops. Now Teams Toolkit has added additional support to help terminate those unkilled processes to release ports.
-  ![Port Conflicts](https://github.com/user-attachments/assets/208a21d5-0232-470b-a102-620e542a20cb)
+![Port Conflicts](https://github.com/user-attachments/assets/208a21d5-0232-470b-a102-620e542a20cb)
 
 - **Integrated with Microsoft Kiota for API Plugin Generation**: Now Teams Toolkit has integrated with [Microsoft Kiota](https://learn.microsoft.com/openapi/kiota/overview) when adding API Plugins into Declarative Agent. With this integration, developers are enabled to create API Plugins by browsing public API catalogs and Microsoft Kiota is capable of handling large OpenAPI Description Document. This is an experimental feature, for early access make sure to turn on [VSCode Settings](https://code.visualstudio.com/docs/getstarted/settings#_workspace-settings) with `Enable Microsoft Kiota`.
 
@@ -1604,6 +1608,7 @@ This update, marking a minor version increment of the Teams Toolkit, incorporate
 
 - **Create API based Message Extensions using auth-protected API**: Teams Toolkit now supports two forms of API authentication protection for your API-based Message Extension app:
   ![add-auth-api-me](https://github.com/OfficeDev/TeamsFx/assets/113089977/c5faea2f-676b-4a8c-82d6-f3b037e54f0e)
+
   - API-Key: You can either add the API key of your existing API or, if you don't have one, Teams Toolkit will generate one to demonstrate authentication flow.
   - Microsoft Entra (Azure AD): Teams Toolkit facilitates the creation of Microsoft Entra IDs to authenticate your new API.
 
@@ -1614,6 +1619,7 @@ This update, marking a minor version increment of the Teams Toolkit, incorporate
   ![access-data-custom-copilot](https://github.com/OfficeDev/TeamsFx/assets/113089977/d40cfc84-8cb8-4816-b587-668a2bcf9560)
   Four types of data sources are available:
   ![data-source-custom-copilot](https://github.com/OfficeDev/TeamsFx/assets/113089977/2d010366-96a0-4f8b-861d-28d5bb9e36b8)
+
   - `Customize`: Load data from a custom data source, for example, the file system or vector Database.
   - `Azure AI Search`: Load data from Azure AI Search service and use it in conversation with users.
   - `Custom API`: Invoke the API defined in the OpenAPI description document to retrieve domain data from the API service.
@@ -1699,6 +1705,7 @@ Enhancement:
 
 - New samples in the Sample Gallery:
   ![new samples](https://github.com/OfficeDev/TeamsFx/assets/113089977/2af41ec4-ee19-4b66-a58a-d2d8bdbbbd60)
+
   - Large Scale Notification Bot: send individual chat messages to a large number of users in a tenant
   - Graph Connector Bot: Teams command bot that queries custom data ingested into Microsoft Graph using Graph connector.
   - Contoso Retail Dashboard: demonstrates how to build a dashboard for control layouts. It runs in Teams, Outlook, and the Microsoft 365 app.

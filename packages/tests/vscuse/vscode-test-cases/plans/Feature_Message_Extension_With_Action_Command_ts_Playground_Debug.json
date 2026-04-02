@@ -270,7 +270,9 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [],
-      "preconditions": ["dhash:512:384:0:20:4513f1e0fcd0c103"],
+      "preconditions": [
+        "dhash:512:384:0:20:4513f1e0fcd0c103"
+      ],
       "postconditions": [],
       "tags": [],
       "screenshot": "step_5602f391",
@@ -368,7 +370,9 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [],
-      "preconditions": ["dhash:512:384:0:20:4d03f1e0f8c0e103"],
+      "preconditions": [
+        "dhash:512:384:0:20:4d03f1e0f8c0e103"
+      ],
       "postconditions": [],
       "tags": [],
       "screenshot": "step_06642f94",
@@ -414,7 +418,9 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [],
-      "preconditions": ["dhash:512:384:0:20:4d03f1e0e0c0e103"],
+      "preconditions": [
+        "dhash:512:384:0:20:4d03f1e0e0c0e103"
+      ],
       "postconditions": [],
       "tags": [],
       "screenshot": "step_58222a99",
@@ -460,7 +466,9 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [],
-      "preconditions": ["dhash:512:384:0:20:4d03f1e0e8c0e103"],
+      "preconditions": [
+        "dhash:512:384:0:20:4d03f1e0e8c0e103"
+      ],
       "postconditions": [],
       "tags": [],
       "screenshot": "step_38de4d43",
@@ -532,7 +540,9 @@
       "depends_on": [],
       "preconditions": [],
       "postconditions": [],
-      "tags": ["step_retry_timeout:60"],
+      "tags": [
+        "step_retry_timeout:60"
+      ],
       "screenshot": null,
       "created_at": "2026-03-31T06:43:45.795323",
       "plan_id": "plan_0315cf6f"
@@ -654,7 +664,9 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [],
-      "preconditions": ["dhash:512:384:0:20:4d53f1e0f8c0e103"],
+      "preconditions": [
+        "dhash:512:384:0:20:4d53f1e0f8c0e103"
+      ],
       "postconditions": [],
       "tags": [],
       "screenshot": "step_f663116c",
@@ -700,7 +712,9 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [],
-      "preconditions": ["dhash:512:384:0:20:4d53f1e0e0c0e103"],
+      "preconditions": [
+        "dhash:512:384:0:20:4d53f1e0e0c0e103"
+      ],
       "postconditions": [],
       "tags": [],
       "screenshot": "step_fa4df8ff",
@@ -746,7 +760,9 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [],
-      "preconditions": ["dhash:512:384:0:20:4d53f1e0e8c0e103"],
+      "preconditions": [
+        "dhash:512:384:0:20:4d53f1e0e8c0e103"
+      ],
       "postconditions": [],
       "tags": [],
       "screenshot": "step_d86582dc",
@@ -818,7 +834,9 @@
       "depends_on": [],
       "preconditions": [],
       "postconditions": [],
-      "tags": ["step_retry_timeout: 60"],
+      "tags": [
+        "step_retry_timeout: 60"
+      ],
       "screenshot": null,
       "created_at": "2026-03-31T06:44:15.454445",
       "plan_id": "plan_0315cf6f"
@@ -1070,7 +1088,9 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [],
-      "preconditions": ["dhash:512:384:0:20:2459797969696969"],
+      "preconditions": [
+        "dhash:512:384:0:20:2459797969696969"
+      ],
       "postconditions": [],
       "tags": [],
       "screenshot": "step_3c6f8082",
@@ -1116,7 +1136,9 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [],
-      "preconditions": ["dhash:512:384:0:20:2459796969696969"],
+      "preconditions": [
+        "dhash:512:384:0:20:2459796969696969"
+      ],
       "postconditions": [],
       "tags": [],
       "screenshot": "step_d028ebbc",
@@ -1162,7 +1184,9 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [],
-      "preconditions": ["dhash:512:384:0:20:2459796969696969"],
+      "preconditions": [
+        "dhash:512:384:0:20:2459796969696969"
+      ],
       "postconditions": [],
       "tags": [],
       "screenshot": "step_7c438f50",
@@ -1234,7 +1258,9 @@
       "depends_on": [],
       "preconditions": [],
       "postconditions": [],
-      "tags": ["step_retry_timeout:60"],
+      "tags": [
+        "step_retry_timeout:60"
+      ],
       "screenshot": null,
       "created_at": "2026-03-31T07:02:51.311596",
       "plan_id": "plan_0315cf6f"

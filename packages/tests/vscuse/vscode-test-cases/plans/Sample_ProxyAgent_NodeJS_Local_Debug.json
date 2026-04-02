@@ -69,7 +69,9 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [],
-      "preconditions": ["dhash:512:384:0:20:64a0a4ac7c7c7474"],
+      "preconditions": [
+        "dhash:512:384:0:20:64a0a4ac7c7c7474"
+      ],
       "postconditions": [],
       "tags": [],
       "screenshot": "step_96550d4a",
@@ -219,7 +221,9 @@
         "dhash:461:428:0:10:1b18e0d89ef9e6e4"
       ],
       "postconditions": [],
-      "tags": ["ocr:true"],
+      "tags": [
+        "ocr:true"
+      ],
       "screenshot": "step_4487147d",
       "created_at": "2026-03-31T01:59:07.832402",
       "plan_id": "plan_ae77a375"
@@ -237,7 +241,9 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [],
-      "preconditions": ["dhash:512:384:0:20:1b18e0d8d9f6e6e4"],
+      "preconditions": [
+        "dhash:512:384:0:20:1b18e0d8d9f6e6e4"
+      ],
       "postconditions": [],
       "tags": [],
       "screenshot": "step_9293b5b1",
@@ -257,7 +263,9 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [],
-      "preconditions": ["dhash:512:384:0:20:1b18e0d8d9f6e6e4"],
+      "preconditions": [
+        "dhash:512:384:0:20:1b18e0d8d9f6e6e4"
+      ],
       "postconditions": [],
       "tags": [],
       "screenshot": "step_a9a47079",
@@ -303,9 +311,13 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [],
-      "preconditions": ["dhash:512:384:0:20:c04040623a61602c"],
+      "preconditions": [
+        "dhash:512:384:0:20:c04040623a61602c"
+      ],
       "postconditions": [],
-      "tags": ["delay: 30"],
+      "tags": [
+        "delay: 30"
+      ],
       "screenshot": "step_95654db4",
       "created_at": "2026-03-31T01:59:07.882120",
       "plan_id": "plan_ae77a375"
@@ -323,9 +335,13 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [],
-      "preconditions": ["dhash:512:384:0:20:e06363627a61602c"],
+      "preconditions": [
+        "dhash:512:384:0:20:e06363627a61602c"
+      ],
       "postconditions": [],
-      "tags": ["delay: 15"],
+      "tags": [
+        "delay: 15"
+      ],
       "screenshot": "step_c638e928",
       "created_at": "2026-03-31T01:59:07.894826",
       "plan_id": "plan_ae77a375"
@@ -343,9 +359,13 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [],
-      "preconditions": ["dhash:512:384:0:20:ccc440423a61602c"],
+      "preconditions": [
+        "dhash:512:384:0:20:ccc440423a61602c"
+      ],
       "postconditions": [],
-      "tags": ["delay: 15"],
+      "tags": [
+        "delay: 15"
+      ],
       "screenshot": "step_4da2dd3b",
       "created_at": "2026-03-31T01:59:07.908311",
       "plan_id": "plan_ae77a375"
@@ -371,7 +391,9 @@
         "dhash:475:149:0:10:127267627a61602c"
       ],
       "postconditions": [],
-      "tags": ["delay:5"],
+      "tags": [
+        "delay:5"
+      ],
       "screenshot": "step_915f2d1c",
       "created_at": "2026-03-31T01:59:07.924057",
       "plan_id": "plan_ae77a375"
@@ -389,7 +411,9 @@
       "depends_on": [],
       "preconditions": [],
       "postconditions": [],
-      "tags": ["delay:180"],
+      "tags": [
+        "delay:180"
+      ],
       "screenshot": null,
       "created_at": "2026-03-31T01:59:07.943692",
       "plan_id": "plan_ae77a375"
@@ -433,7 +457,9 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [],
-      "preconditions": ["dhash:512:384:0:20:28bcb0a1b3b3b3a9"],
+      "preconditions": [
+        "dhash:512:384:0:20:28bcb0a1b3b3b3a9"
+      ],
       "postconditions": [],
       "tags": [],
       "screenshot": "step_ebeb9751",
@@ -461,7 +487,10 @@
         "dhash:206:618:0:10:283cb481b3b3b3e1"
       ],
       "postconditions": [],
-      "tags": ["delay: 30", "force_run:true"],
+      "tags": [
+        "delay: 30",
+        "force_run:true"
+      ],
       "screenshot": "step_664fcc03",
       "created_at": "2026-03-31T01:59:07.991906",
       "plan_id": "plan_ae77a375"

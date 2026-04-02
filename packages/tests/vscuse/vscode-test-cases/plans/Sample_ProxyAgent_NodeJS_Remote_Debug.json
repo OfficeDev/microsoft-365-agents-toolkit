@@ -58,7 +58,9 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [],
-      "preconditions": ["dhash:512:384:0:20:64a0a4ac7c7c7474"],
+      "preconditions": [
+        "dhash:512:384:0:20:64a0a4ac7c7c7474"
+      ],
       "postconditions": [],
       "tags": [],
       "screenshot": "step_5d729641",
@@ -168,7 +170,9 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [],
-      "preconditions": ["dhash:512:384:0:20:28bcb0a1b3b3b3a9"],
+      "preconditions": [
+        "dhash:512:384:0:20:28bcb0a1b3b3b3a9"
+      ],
       "postconditions": [],
       "tags": [],
       "screenshot": "step_db9e4a6b",
@@ -196,7 +200,10 @@
         "dhash:206:618:0:10:283cb481b3b3b3e1"
       ],
       "postconditions": [],
-      "tags": ["delay: 30", "force_run:true"],
+      "tags": [
+        "delay: 30",
+        "force_run:true"
+      ],
       "screenshot": "step_a2c444e5",
       "created_at": "2026-03-31T02:28:51.877973",
       "plan_id": "plan_993b7f9e"
