@@ -30,7 +30,7 @@ export const MOS3ApiDefinitions: any = {
   PostBuilderPackage: {
     key: "post_builder_package",
     method: "POST",
-    path: /^\/builder\/v1\/users\/packages\?/,
+    path: /^\/builder\/v1\/users\/packages(\?|$)/,
   },
   GetBuilderStatus: {
     key: "get_builder_status",

@@ -430,7 +430,7 @@ describe("m365ProjectTypeNode", () => {
     const res = condition?.(inputs);
     assert.isFalse(res);
 
-    const condition2 = node.children?.[0]?.children?.[1]?.children?.[1]?.condition as ConditionFunc;
+    const condition2 = node.children?.[0]?.children?.[2]?.children?.[1]?.condition as ConditionFunc;
     const res2 = condition2?.(inputs);
     assert.isTrue(res2);
 
