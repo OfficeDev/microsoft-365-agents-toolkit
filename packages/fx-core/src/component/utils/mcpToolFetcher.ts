@@ -53,9 +53,8 @@ export async function fetchMCPTools(serverUrl: string): Promise<MCPFetchResult> 
     const { Client } = await import("@modelcontextprotocol/sdk/client/index.js");
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore - dynamic import of MCP SDK subpath
-    const { StreamableHTTPClientTransport } = await import(
-      "@modelcontextprotocol/sdk/client/streamableHttp.js"
-    );
+    const { StreamableHTTPClientTransport } =
+      await import("@modelcontextprotocol/sdk/client/streamableHttp.js");
 
     const transport = new StreamableHTTPClientTransport(new URL(serverUrl));
     const client = new Client({ name: "atk-cli", version: "1.0.0" });
