@@ -381,8 +381,9 @@ export class CreateAppPackageDriver implements StepDriver {
             }
           }
         }
-        // Add agent skill directories
-        const agentSkills = getCopilotGptRes.value.agent_skills;
+        // Add agent skill directories (support both agent_skills and x-agent_skills)
+        const agentSkills =
+          getCopilotGptRes.value.agent_skills || (getCopilotGptRes.value as any)["x-agent_skills"];
         if (agentSkills && Array.isArray(agentSkills)) {
           for (const skill of agentSkills) {
             if (skill.folder) {
