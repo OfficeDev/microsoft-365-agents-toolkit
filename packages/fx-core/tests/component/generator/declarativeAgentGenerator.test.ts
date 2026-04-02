@@ -34,6 +34,7 @@ import { copilotGptManifestUtils } from "../../../src/component/driver/teamsApp/
 import { pluginManifestUtils } from "../../../src/component/driver/teamsApp/utils/PluginManifestUtils";
 import { DeclarativeAgentGenerator } from "../../../src/component/generator/declarativeAgent/generator";
 import * as generatorHelper from "../../../src/component/generator/declarativeAgent/helper";
+import * as oneDriveSharePointHandler from "../../../src/component/generator/declarativeAgent/oneDriveSharePointHandler";
 import { TemplateNames } from "../../../src/component/generator/templates/templateNames";
 import * as utils from "../../../src/component/generator/utils";
 import * as commons from "../../../src/component/utils/common";
@@ -837,6 +838,25 @@ describe("helper", async () => {
       );
       assert.isTrue(res.isErr() && res.error.name === "fakeError");
     });
+
+    it("error: manifest fails validateSourcePluginManifest", async () => {
+      sandbox.stub(pluginManifestUtils, "readPluginManifestFile").resolves(
+        ok({
+          // Missing schema_version → validation returns MissingSchemaVersion error
+          name_for_human: "test",
+          runtimes: [{ type: "OpenApi", spec: { url: "test.json" } }],
+        } as any)
+      );
+      const res = await generatorHelper.addExistingPlugin(
+        "test.json",
+        "originalManifest.json",
+        "originalManifest.yaml",
+        "id",
+        context,
+        "source"
+      );
+      assert.isTrue(res.isErr() && res.error.name === "MissingSchemaVersion");
+    });
   });
 
   describe("validateSourcePluginManifest", () => {
@@ -866,6 +886,135 @@ describe("helper", async () => {
       manifest.runtimes = [{ type: "OpenApi" } as any];
       res = generatorHelper.validateSourcePluginManifest(manifest as any, "source");
       assert.isTrue(res.isErr() && res.error.name === "MissingApiSpec");
+    });
+  });
+
+  describe("getODSPItemInfo", () => {
+    it("error: missing itemUrl returns InvalidInput error", async () => {
+      const res = await generatorHelper.getODSPItemInfo(context, undefined);
+      assert.isTrue(res.isErr());
+      if (res.isErr()) {
+        assert.equal(res.error.name, "InvalidInput");
+      }
+    });
+
+    it("error: createGraphClientWithToken fails propagates error", async () => {
+      sandbox
+        .stub(oneDriveSharePointHandler, "createGraphClientWithToken")
+        .resolves(err(new UserError("source", "GetGraphTokenFailed", "msg", "msg")));
+
+      const res = await generatorHelper.getODSPItemInfo(
+        context,
+        "https://example.sharepoint.com/sites/test"
+      );
+      assert.isTrue(res.isErr());
+      if (res.isErr()) {
+        assert.equal(res.error.name, "GetGraphTokenFailed");
+      }
+    });
+
+    it("success: siteResult isOk returns site metadata", async () => {
+      const fakeClient: any = {};
+      sandbox
+        .stub(oneDriveSharePointHandler, "createGraphClientWithToken")
+        .resolves(ok(fakeClient));
+      sandbox
+        .stub(oneDriveSharePointHandler, "getSharePointSiteByRelativePath")
+        .resolves(ok({ id: "site-id", name: "site-name", webId: "web-id", siteId: "s-id" }));
+
+      const res = await generatorHelper.getODSPItemInfo(
+        context,
+        "https://example.sharepoint.com/sites/test"
+      );
+      assert.isTrue(res.isOk());
+      if (res.isOk()) {
+        assert.equal(res.value.length, 1);
+        assert.equal(res.value[0].id, "site-id");
+        assert.equal(res.value[0].name, "site-name");
+        assert.equal(res.value[0].webId, "web-id");
+        assert.equal(res.value[0].siteId, "s-id");
+      }
+    });
+
+    it("success: siteResult isErr falls through to getDriveItemInfo", async () => {
+      const fakeClient: any = {};
+      sandbox
+        .stub(oneDriveSharePointHandler, "createGraphClientWithToken")
+        .resolves(ok(fakeClient));
+      sandbox
+        .stub(oneDriveSharePointHandler, "getSharePointSiteByRelativePath")
+        .resolves(err(new UserError("source", "GetSharePointSiteFailed", "msg", "msg")));
+      sandbox.stub(oneDriveSharePointHandler, "getDriveItemInfo").resolves({
+        id: "item-id",
+        name: "item-name",
+        uniqueId: "unique-id",
+        listId: "list-id",
+        webId: "web-id",
+        siteId: "site-id",
+      });
+
+      const res = await generatorHelper.getODSPItemInfo(
+        context,
+        "https://example.sharepoint.com/personal/user_file.docx"
+      );
+      assert.isTrue(res.isOk());
+      if (res.isOk()) {
+        assert.equal(res.value.length, 1);
+        assert.equal(res.value[0].id, "item-id");
+        assert.equal(res.value[0].name, "item-name");
+        assert.equal(res.value[0].uniqueId, "unique-id");
+        assert.equal(res.value[0].listId, "list-id");
+      }
+    });
+
+    it("error: axios error with 4xx status returns UserError", async () => {
+      const fakeClient: any = {};
+      sandbox
+        .stub(oneDriveSharePointHandler, "createGraphClientWithToken")
+        .resolves(ok(fakeClient));
+      sandbox
+        .stub(oneDriveSharePointHandler, "getSharePointSiteByRelativePath")
+        .resolves(err(new UserError("source", "SiteFailed", "msg", "msg")));
+      const axiosErr: any = Object.assign(new Error("Not Found"), {
+        isAxiosError: true,
+        response: { status: 404 },
+      });
+      sandbox.stub(oneDriveSharePointHandler, "getDriveItemInfo").rejects(axiosErr);
+      sandbox.stub(context.logProvider!, "error");
+
+      const res = await generatorHelper.getODSPItemInfo(
+        context,
+        "https://example.sharepoint.com/file.docx"
+      );
+      assert.isTrue(res.isErr());
+      if (res.isErr()) {
+        assert.equal(res.error.name, "GraphApiError");
+        assert.isTrue(res.error instanceof UserError);
+      }
+    });
+
+    it("error: non-axios error returns SystemError", async () => {
+      const fakeClient: any = {};
+      sandbox
+        .stub(oneDriveSharePointHandler, "createGraphClientWithToken")
+        .resolves(ok(fakeClient));
+      sandbox
+        .stub(oneDriveSharePointHandler, "getSharePointSiteByRelativePath")
+        .resolves(err(new UserError("source", "SiteFailed", "msg", "msg")));
+      sandbox
+        .stub(oneDriveSharePointHandler, "getDriveItemInfo")
+        .rejects(new Error("Unexpected network failure"));
+      sandbox.stub(context.logProvider!, "error");
+
+      const res = await generatorHelper.getODSPItemInfo(
+        context,
+        "https://example.sharepoint.com/file.docx"
+      );
+      assert.isTrue(res.isErr());
+      if (res.isErr()) {
+        assert.equal(res.error.name, "GraphApiError");
+        assert.isTrue(res.error instanceof SystemError);
+      }
     });
   });
 
@@ -1637,6 +1786,46 @@ describe("helper", async () => {
       if (res.isOk()) {
         assert.isTrue(res.value.warnings!.some((w) => w.type === "mcpAuthMetadataError"));
       }
+    });
+
+    it("success: auto-fetch returns non-empty tools and sets MCPForDAAvailableTools", async () => {
+      const existingPluginContent = {
+        schema_version: "v1",
+        functions: [],
+        runtimes: [],
+      };
+
+      sandbox.stub(fs, "pathExists").resolves(true);
+      sandbox.stub(fs, "readJSON").resolves(existingPluginContent);
+      const writeJSONStub = sandbox.stub(fs, "writeJSON").resolves();
+
+      const mcpToolFetcherModule = await import("../../../src/component/utils/mcpToolFetcher");
+      sandbox.stub(mcpToolFetcherModule, "fetchMCPTools").resolves({
+        requiresAuth: false,
+        tools: [
+          { name: "autoTool1", description: "Auto Tool 1", inputSchema: { type: "object" } },
+          { name: "autoTool2", description: "Auto Tool 2", inputSchema: { type: "object" } },
+        ],
+      });
+
+      const testDestinationPath = "/test/destination";
+      const inputs: Inputs = {
+        platform: Platform.CLI,
+        [QuestionNames.MCPForDAServerUrl]: "https://example.com/mcp",
+        // No MCPForDAAvailableTools and no MCPForDAPreFetchTools pre-set
+      };
+
+      const res = await generatorHelper.generateForMCPForDA(testDestinationPath, inputs);
+
+      assert.isTrue(res.isOk());
+      // Lines 435-437: tools should be set from auto-fetch result
+      assert.deepEqual(inputs[QuestionNames.MCPForDAAvailableTools], [
+        { name: "autoTool1", description: "Auto Tool 1", inputSchema: { type: "object" } },
+        { name: "autoTool2", description: "Auto Tool 2", inputSchema: { type: "object" } },
+      ]);
+      assert.deepEqual(inputs[QuestionNames.MCPForDAPreFetchTools], ["autoTool1", "autoTool2"]);
+      // writeJSON called twice: mcp-tools-1.json + ai-plugin.json
+      assert.isTrue(writeJSONStub.calledTwice);
     });
   });
 
