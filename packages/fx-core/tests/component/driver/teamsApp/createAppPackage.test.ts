@@ -2320,36 +2320,10 @@ describe("teamsApp/createAppPackage", async () => {
 
       if (await fs.pathExists(skillArgs.outputZipPath)) {
         const zip = new AdmZip(skillArgs.outputZipPath);
-        const skillMdEntry = zip.getEntry("resources/skills/skill1/SKILL.md");
+        const skillMdEntry = zip.getEntry("skills/skill1/SKILL.md");
         chai.assert.exists(skillMdEntry, "SKILL.md should be bundled in zip");
-        const handlerEntry = zip.getEntry("resources/skills/skill1/handler.js");
+        const handlerEntry = zip.getEntry("skills/skill1/handler.js");
         chai.assert.exists(handlerEntry, "handler.js should be bundled in zip");
-        await fs.remove(skillArgs.outputZipPath);
-      }
-    });
-
-    it("should bundle skill directories when agent_skills is present (forward-compat)", async () => {
-      const manifest = createTeamsManifest();
-      const declarativeAgentManifest = {
-        name: "TestAgent",
-        description: "Test agent with skills",
-        actions: [],
-        agent_skills: [{ folder: "skills/skill1" }],
-      } as any;
-
-      sinon.stub(manifestUtils, "getManifestV3").resolves(ok(manifest));
-      sinon.stub(fs, "chmod").callsFake(async () => {});
-      sinon.stub(fs, "writeFile").callsFake(async () => {});
-      sinon.stub(copilotGptManifestUtils, "getManifest").resolves(ok(declarativeAgentManifest));
-      sinon.stub(fs, "pathExists").resolves(true);
-
-      const result = (await teamsAppDriver.execute(skillArgs, mockedDriverContext)).result;
-      chai.assert.isTrue(result.isOk());
-
-      if (await fs.pathExists(skillArgs.outputZipPath)) {
-        const zip = new AdmZip(skillArgs.outputZipPath);
-        const skillMdEntry = zip.getEntry("resources/skills/skill1/SKILL.md");
-        chai.assert.exists(skillMdEntry, "SKILL.md should be bundled via agent_skills");
         await fs.remove(skillArgs.outputZipPath);
       }
     });

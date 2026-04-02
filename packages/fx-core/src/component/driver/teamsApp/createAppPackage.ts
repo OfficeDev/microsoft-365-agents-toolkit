@@ -386,10 +386,9 @@ export class CreateAppPackageDriver implements StepDriver {
         if (agentSkills && Array.isArray(agentSkills)) {
           for (const skill of agentSkills) {
             if (skill.folder) {
-              const skillFolderAbsolutePath = path.resolve(
-                path.dirname(declarativeAgentManifestFile),
-                skill.folder
-              );
+              // Resolve skill folder relative to appDirectory (not .generated/)
+              // since skill folders don't support env var substitution
+              const skillFolderAbsolutePath = path.resolve(appDirectory, skill.folder);
               const checkExistenceRes = await this.validateReferencedFile(
                 skillFolderAbsolutePath,
                 appDirectory
