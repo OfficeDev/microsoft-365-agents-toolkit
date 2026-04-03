@@ -23,7 +23,7 @@
 /Localize @HuihuiWu-Microsoft @tecton @wh-alice
 
 /packages/api @tecton @llhmm01 @wh-alice
-/packages/cli @sherylueen @Alive-Fish @wh-alice
+/packages/cli @tecton @HuihuiWu-Microsoft @Alive-Fish @wh-alice
 /packages/dotnet-sdk @tecton @wh-alice @HuihuiWu-Microsoft
 /packages/function-extension @wh-alice
 
@@ -34,23 +34,23 @@
 /packages/fx-core/src/component/debugHandler @qinzhouxu @tecton @llhmm01 @wh-alice
 /packages/fx-core/src/component/deps-checker @qinzhouxu @tecton @llhmm01 @wh-alice
 
-/packages/fx-core/src/component/driver/aad  @Alive-Fish @yuqizhou77 @wh-alice
-/packages/fx-core/src/component/driver/apiKey @Alive-Fish @yuqizhou77 @wh-alice
-/packages/fx-core/src/component/driver/oauth @Alive-Fish @yuqizhou77 @wh-alice
-/packages/fx-core/src/component/driver/typeSpec @Alive-Fish @yuqizhou77 @wh-alice
-/packages/fx-core/src/component/driver/deploy/spfx @HuihuiWu-Microsoft @yuqizhou77 @wh-alice
-/packages/fx-core/src/component/driver/oauth @Alive-Fish @yuqizhou77 @wh-alice
-/packages/fx-core/src/component/driver/typeSpec @yuqizhou77 @Alive-Fish @wh-alice
+/packages/fx-core/src/component/driver/aad  @Alive-Fish @tecton @HuihuiWu-Microsoft @wh-alice
+/packages/fx-core/src/component/driver/apiKey @Alive-Fish @tecton @HuihuiWu-Microsoft @wh-alice
+/packages/fx-core/src/component/driver/oauth @Alive-Fish @tecton @HuihuiWu-Microsoft @wh-alice
+/packages/fx-core/src/component/driver/typeSpec @Alive-Fish @tecton @HuihuiWu-Microsoft @wh-alice
+/packages/fx-core/src/component/driver/deploy/spfx @HuihuiWu-Microsoft @tecton @wh-alice
+/packages/fx-core/src/component/driver/oauth @Alive-Fish @tecton @HuihuiWu-Microsoft @wh-alice
+/packages/fx-core/src/component/driver/typeSpec @tecton @HuihuiWu-Microsoft @Alive-Fish @wh-alice
 
-/packages/fx-core/src/component/generator/declarativeAgent @yuqizhou77 @Alive-Fish @wh-alice
+/packages/fx-core/src/component/generator/declarativeAgent @tecton @HuihuiWu-Microsoft @Alive-Fish @wh-alice
 /packages/fx-core/src/component/generator/officeAddin @llhmm01 @tecton @wh-alice
-/packages/fx-core/src/component/generator/openApiSpec @yuqizhou77 @Alive-Fish @wh-alice
+/packages/fx-core/src/component/generator/openApiSpec @tecton @HuihuiWu-Microsoft @Alive-Fish @wh-alice
 
 /packages/fx-core/src/core/middleware/projectMigrationV3 @tecton @wh-alice #To be deleted
 /packages/fx-core/src/core/middleware/utils/debug @qinzhouxu @llhmm01 @wh-alice
 
 /packages/fx-core/templates/core/v3Migration @tecton @wh-alice #To be deleted
-/packages/fx-core/templates/plugins/resource/aad/ @Alive-Fish @yuqizhou77 @wh-alice
+/packages/fx-core/templates/plugins/resource/aad/ @Alive-Fish @tecton @HuihuiWu-Microsoft @wh-alice
 
 /packages/manifest/ @tecton @HuihuiWu-Microsoft @wh-alice
 
@@ -62,7 +62,7 @@
 
 /packages/simpleauth @wh-alice #To be deleted
 
-/packages/spec-parser/ @Alive-Fish @yuqizhou77 @wh-alice
+/packages/spec-parser/ @Alive-Fish @tecton @HuihuiWu-Microsoft @wh-alice
 
 /packages/mcp-server/ @Alive-Fish @tecton @llhmm01 @HuihuiWu-Microsoft @wh-alice
 
