@@ -46,7 +46,8 @@ export async function fetchMCPTools(serverUrl: string): Promise<MCPFetchResult> 
     // For non-401 errors, try fetching tools anyway via MCP protocol
   }
 
-  // Try to fetch tools using MCP JSON-RPC protocol over StreamableHTTP
+  // Try to fetch tools using MCP JSON-RPC protocol over StreamableHTTP.
+  // Uses @modelcontextprotocol/sdk as a library dependency (not the ATK CLI itself).
   try {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore - dynamic import of MCP SDK subpath
@@ -133,12 +134,14 @@ export async function readMCPToolsFromFile(filePath: string): Promise<MCPTool[]>
   } else if (content && Array.isArray(content.tools)) {
     rawTools = content.tools;
   } else {
-    throw new Error(getLocalizedString("core.MCPForDA.toolsFileInvalidFormat", filePath));
+    throw new Error(
+      getLocalizedString("core.MCPForDA.toolsFileInvalidFormat", '{ "tools": [...] }', filePath)
+    );
   }
 
   return rawTools.map((tool: any) => {
     if (!tool.name) {
-      throw new Error(getLocalizedString("core.MCPForDA.toolsFileMissingName", filePath));
+      throw new Error(getLocalizedString("core.MCPForDA.toolsFileMissingName", '"name"', filePath));
     }
     return {
       name: tool.name,

@@ -1712,20 +1712,27 @@ describe("updateActionWithMCP", async () => {
     assert.equal(authTypeNode?.data?.type, "singleSelect");
     assert.equal(authTypeNode?.data?.name, QuestionNames.MCPForDAAuthType);
 
-    // Test condition function - should show when auth is not NoneAuth
+    // Test condition function - should show when auth is not NoneAuth (CLI only)
     const conditionFunc = authTypeNode?.condition as ConditionFunc;
 
     const inputsWithAuth: Inputs = {
-      platform: Platform.VSCode,
+      platform: Platform.CLI,
       [QuestionNames.MCPForDAAuth]: "OAuth",
     };
     assert.isTrue(conditionFunc(inputsWithAuth));
 
     const inputsWithNoneAuth: Inputs = {
-      platform: Platform.VSCode,
+      platform: Platform.CLI,
       [QuestionNames.MCPForDAAuth]: "NoneAuth",
     };
     assert.isFalse(conditionFunc(inputsWithNoneAuth));
+
+    // Should always return false for VS Code
+    const inputsVSCode: Inputs = {
+      platform: Platform.VSCode,
+      [QuestionNames.MCPForDAAuth]: "OAuth",
+    };
+    assert.isFalse(conditionFunc(inputsVSCode));
 
     // Test static options
     const staticOptions = (authTypeNode?.data as any)?.staticOptions;

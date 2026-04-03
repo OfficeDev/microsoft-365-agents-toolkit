@@ -11,7 +11,6 @@ import {
   Result,
   Stage,
   SystemError,
-  TeamsAppManifest,
   UserError,
   Warning,
   err,
@@ -46,6 +45,10 @@ import { UserCancelError } from "../error/common";
 import { ActionStartOptions, QuestionNames } from "../question/constants";
 import { ConcurrentLockerMW } from "./middleware/concurrentLocker";
 import { ErrorHandlerMW } from "./middleware/errorHandler";
+
+// Non-translatable CLI command template used in warning messages
+const mcpAddActionHint =
+  "atk add action --api-plugin-type mcp --mcp-da-server-url <server-url> --mcp-tools-file-path <path-to-tools-json> --interactive false";
 
 export class FxCoreDeclarativeAgentPart {
   @hooks([
@@ -490,7 +493,11 @@ export class FxCoreDeclarativeAgentPart {
         } catch {
           mcpWarnings.push({
             type: "mcpToolsFileReadError",
-            content: getLocalizedString("core.MCPForDA.toolsFileReadError", toolsFilePath),
+            content: getLocalizedString(
+              "core.MCPForDA.toolsFileReadError",
+              toolsFilePath,
+              mcpAddActionHint
+            ),
           });
         }
       }
@@ -534,18 +541,26 @@ export class FxCoreDeclarativeAgentPart {
             }
             mcpWarnings.push({
               type: "mcpAuthRequired",
-              content: getLocalizedString("core.MCPForDA.authRequired", mcpServerUrl),
+              content: getLocalizedString(
+                "core.MCPForDA.authRequired",
+                mcpServerUrl,
+                mcpAddActionHint
+              ),
             });
           } else {
             mcpWarnings.push({
               type: "mcpNoToolsFetched",
-              content: getLocalizedString("core.MCPForDA.noToolsFetched", mcpServerUrl),
+              content: getLocalizedString(
+                "core.MCPForDA.noToolsFetched",
+                mcpServerUrl,
+                mcpAddActionHint
+              ),
             });
           }
         } catch {
           mcpWarnings.push({
             type: "mcpFetchError",
-            content: getLocalizedString("core.MCPForDA.fetchError", mcpServerUrl),
+            content: getLocalizedString("core.MCPForDA.fetchError", mcpServerUrl, mcpAddActionHint),
           });
         }
       }
