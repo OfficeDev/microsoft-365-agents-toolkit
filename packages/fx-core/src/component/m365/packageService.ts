@@ -222,8 +222,18 @@ export class PackageService {
         headers: uploadHeaders,
         params: {
           scope: appScope,
+          shouldBlock: true,
         },
       });
+
+      if (uploadResponse.status === 200 || uploadResponse.status === 201) {
+        const titleId: string = uploadResponse.data.titlePreview.titleId;
+        const appId: string = uploadResponse.data.titlePreview.appId;
+        this.logger?.info(`TitleId: ${titleId}`);
+        this.logger?.info(`AppId: ${appId}`);
+        this.logger?.verbose("Sideloading done.");
+        return [titleId, appId];
+      }
 
       const statusId = uploadResponse.data.statusId;
       this.logger?.debug(`Acquiring package with statusId: ${statusId as string} ...`);
