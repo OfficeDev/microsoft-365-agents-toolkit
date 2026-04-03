@@ -558,6 +558,75 @@ describe("Package Service", () => {
     chai.assert.isUndefined(actualError);
   });
 
+  it("sideLoadingV2 returns immediately when shouldBlock response is 200", async () => {
+    axiosGetResponses["/config/v1/environment"] = {
+      data: {
+        titlesServiceUrl: "https://test-url",
+      },
+    };
+    axiosPostResponses["/builder/v1/users/packages"] = {
+      status: 200,
+      data: {
+        titlePreview: {
+          titleId: "test-title-id-blocked",
+          appId: "test-app-id-blocked",
+        },
+      },
+    };
+
+    const packageService = new PackageService("https://test-endpoint", logger);
+    sandbox.stub(packageService, "getManifestFromZip" as keyof PackageService).returns({
+      copilotAgents: {
+        declarativeAgents: [
+          {
+            id: "declarativeAgent",
+            file: "declarativeAgent.json",
+          },
+        ],
+      },
+    } as any);
+    const infoStub = sandbox.stub(logger, "info").returns();
+    const verboseStub = sandbox.stub(logger, "verbose").returns();
+    const result = await packageService.sideLoading("test-token", "test-path");
+    chai.assert.equal(result[0], "test-title-id-blocked");
+    chai.assert.equal(result[1], "test-app-id-blocked");
+    chai.assert.isTrue(infoStub.calledWith("TitleId: test-title-id-blocked"));
+    chai.assert.isTrue(infoStub.calledWith("AppId: test-app-id-blocked"));
+    chai.assert.isTrue(verboseStub.calledWith("Sideloading done."));
+  });
+
+  it("sideLoadingV2 returns immediately when shouldBlock response is 201", async () => {
+    axiosGetResponses["/config/v1/environment"] = {
+      data: {
+        titlesServiceUrl: "https://test-url",
+      },
+    };
+    axiosPostResponses["/builder/v1/users/packages"] = {
+      status: 201,
+      data: {
+        titlePreview: {
+          titleId: "test-title-id-created",
+          appId: "test-app-id-created",
+        },
+      },
+    };
+
+    const packageService = new PackageService("https://test-endpoint", logger);
+    sandbox.stub(packageService, "getManifestFromZip" as keyof PackageService).returns({
+      copilotAgents: {
+        declarativeAgents: [
+          {
+            id: "declarativeAgent",
+            file: "declarativeAgent.json",
+          },
+        ],
+      },
+    } as any);
+    const result = await packageService.sideLoading("test-token", "test-path");
+    chai.assert.equal(result[0], "test-title-id-created");
+    chai.assert.equal(result[1], "test-app-id-created");
+  });
+
   it("sideload builder status api with 202 on first try and 200 on second try", async () => {
     axiosPostResponses["/builder/v1/users/packages"] = {
       data: {
