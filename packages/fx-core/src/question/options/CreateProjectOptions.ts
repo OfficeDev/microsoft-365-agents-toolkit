@@ -64,7 +64,7 @@ export const CreateProjectOptions: CLICommandOption[] = [
     type: "string",
     description: "API plugin type.",
     default: "new-api",
-    choices: ["new-api", "api-spec", "existing-plugin"],
+    choices: ["new-api", "api-spec", "existing-plugin", "mcp"],
   },
   {
     name: "plugin-manifest-path",
@@ -158,6 +158,30 @@ export const CreateProjectOptions: CLICommandOption[] = [
     name: "foundry-agent-id",
     type: "string",
     description: "Azure AI Foundry Agent ID",
+  },
+  {
+    name: "mcp-server-type",
+    type: "string",
+    description: "MCP Server Type.",
+    default: "remote",
+    choices: ["remote"],
+  },
+  {
+    name: "mcp-da-server-url",
+    type: "string",
+    description: "MCP Server URL (e.g. https://example-mcp.com).",
+  },
+  {
+    name: "mcp-tools-file-path",
+    type: "string",
+    description:
+      "Path to a JSON file containing MCP tool definitions. Required when the MCP server needs authentication.",
+  },
+  {
+    name: "mcp-da-auth-type",
+    type: "string",
+    description: "Authentication type for the MCP server (oauth or entraSSO).",
+    choices: ["oauth", "entraSSO"],
   },
   {
     name: "folder",

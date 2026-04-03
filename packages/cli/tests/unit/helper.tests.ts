@@ -6,6 +6,7 @@ import * as sinon from "sinon";
 import { helper } from "../../src/commands/helper";
 import { getCreateCommand } from "../../src/commands/models/create";
 import { createSampleCommand } from "../../src/commands/models/createSample";
+import * as listTemplatesModule from "../../src/commands/models/listTemplates";
 import { rootCommand } from "../../src/commands/models/root";
 import { envAddCommand } from "../../src/commands/models/envAdd";
 
@@ -261,6 +262,15 @@ describe("CLI helper", () => {
   });
   describe("formatHelp", async () => {
     it("happy path for 'new -h'", async () => {
+      sandbox.stub(listTemplatesModule, "listAllTemplates").returns([
+        {
+          name: "bot",
+          alias: "bot",
+          displayName: "Bot",
+          description: "A bot",
+          language: "typescript",
+        },
+      ]);
       const rcommand = cloneDeep(rootCommand);
       rcommand.header = "Header:";
       rcommand.footer = "Footer:";

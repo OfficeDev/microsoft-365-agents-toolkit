@@ -46,7 +46,29 @@ import {
 } from "../../src/question/scaffold/vsc/rootNode";
 import { daProjectTypeNode } from "../../src/question/scaffold/vsc/daProjectTypeNode";
 
+import * as mcpToolFetcher from "../../src/component/utils/mcpToolFetcher";
+import fs from "fs-extra";
 import {
+  BotCapabilityOptions,
+  CustomCopilotRagOptions,
+  MeArchitectureOptions,
+  MeCapabilityOptions,
+  NotificationBotOptions,
+  TabCapabilityOptions,
+  TeamsAgentCapabilityOptions,
+} from "../../src/question/scaffold/vsc/CapabilityOptions";
+import { AppPackageFolderName, DefaultPluginManifestFileName } from "@microsoft/teamsfx-api";
+import {
+  botProjectTypeNode,
+  customCopilotRagNode,
+  MCPCliPreFetchToolsNode,
+  MCPForDAServerUrlNode,
+  MCPToolsFileNode,
+  meProjectTypeNode,
+  m365SearchMeSubNode,
+  notificationBotTriggerNode,
+  tabProjectTypeNode,
+  updateActionWithMCP,
   getTeamsProjectNode,
   TeamsProjectTypeOptions,
 } from "../../src/question/scaffold/vsc/teamsProjectTypeNode";
@@ -465,6 +487,500 @@ describe("TeamsProjectTypeOptions", () => {
     assert.equal(bot.label, getLocalizedString("core.createProjectQuestion.projectType.bot.label"));
     const me = TeamsProjectTypeOptions.me(Platform.CLI);
     assert.equal(me.label, getLocalizedString("core.MessageExtensionOption.label"));
+  });
+  it("VSCode label includes icon prefixes", () => {
+    const tab = TeamsProjectTypeOptions.tab(Platform.VSCode);
+    assert.include(tab.label, "$(browser)");
+    assert.equal(tab.id, TeamsProjectTypeOptions.tabOptionId);
+    const bot = TeamsProjectTypeOptions.bot(Platform.VSCode);
+    assert.include(bot.label, "$(hubot)");
+    assert.equal(bot.id, TeamsProjectTypeOptions.botOptionId);
+    const me = TeamsProjectTypeOptions.me(Platform.VSCode);
+    assert.include(me.label, "$(symbol-keyword)");
+    assert.equal(me.id, TeamsProjectTypeOptions.meOptionId);
+  });
+  it("default platform is VSCode and options have detail", () => {
+    const tab = TeamsProjectTypeOptions.tab();
+    assert.include(tab.label, "$(browser)");
+    assert.isDefined(tab.detail);
+    const bot = TeamsProjectTypeOptions.bot();
+    assert.include(bot.label, "$(hubot)");
+    assert.isDefined(bot.detail);
+    const me = TeamsProjectTypeOptions.me();
+    assert.include(me.label, "$(symbol-keyword)");
+    assert.isDefined(me.detail);
+  });
+});
+
+describe("customCopilotRagNode", () => {
+  it("has correct condition, type and children", () => {
+    const node = customCopilotRagNode();
+    const condition = node.condition as { equals: string };
+    assert.equal(condition.equals, TeamsAgentCapabilityOptions.customCopilotRag().id);
+    const data = node.data as SingleSelectQuestion;
+    assert.equal(data.name, QuestionNames.CustomCopilotRag);
+    assert.equal(data.type, "singleSelect");
+    assert.equal((data.staticOptions as OptionItem[]).length, 3);
+    assert.equal(data.default, CustomCopilotRagOptions.customize().id);
+  });
+  it("children contains apiSpecNode for customApi condition", () => {
+    const node = customCopilotRagNode();
+    assert.equal(node.children?.length, 1);
+    const child = node.children![0];
+    const childCondition = child.condition as { equals: string };
+    assert.equal(childCondition.equals, CustomCopilotRagOptions.customApi().id);
+  });
+  it("staticOptions include customize, azureAISearch, customApi", () => {
+    const node = customCopilotRagNode();
+    const data = node.data as SingleSelectQuestion;
+    const ids = (data.staticOptions as OptionItem[]).map((o) => o.id);
+    assert.include(ids, CustomCopilotRagOptions.customize().id);
+    assert.include(ids, CustomCopilotRagOptions.azureAISearch().id);
+    assert.include(ids, CustomCopilotRagOptions.customApi().id);
+  });
+});
+
+describe("notificationBotTriggerNode", () => {
+  it("default (VSCode) uses appService option", () => {
+    const node = notificationBotTriggerNode();
+    const condition = node.condition as { equals: string };
+    assert.equal(condition.equals, BotCapabilityOptions.notificationBotId);
+    const data = node.data as SingleSelectQuestion;
+    assert.equal(data.type, "singleSelect");
+    const firstOption = (data.staticOptions as OptionItem[])[0];
+    assert.equal(firstOption.id, NotificationBotOptions.appService().id);
+    assert.equal(data.default, NotificationBotOptions.appService().id);
+  });
+  it("Platform.VS uses appServiceForVS option", () => {
+    const node = notificationBotTriggerNode(Platform.VS);
+    const data = node.data as SingleSelectQuestion;
+    const firstOption = (data.staticOptions as OptionItem[])[0];
+    assert.equal(firstOption.id, NotificationBotOptions.appServiceForVS().id);
+    assert.equal(data.default, NotificationBotOptions.appServiceForVS().id);
+  });
+  it("has 4 options total", () => {
+    const node = notificationBotTriggerNode();
+    const data = node.data as SingleSelectQuestion;
+    assert.equal((data.staticOptions as OptionItem[]).length, 4);
+  });
+});
+
+describe("botProjectTypeNode", () => {
+  it("has correct condition and 4 staticOptions with notification child", () => {
+    const node = botProjectTypeNode();
+    const condition = node.condition as { equals: string };
+    assert.equal(condition.equals, TeamsProjectTypeOptions.botOptionId);
+    const data = node.data as SingleSelectQuestion;
+    assert.equal((data.staticOptions as OptionItem[]).length, 4);
+    const optionIds = (data.staticOptions as OptionItem[]).map((o) => o.id);
+    assert.include(optionIds, BotCapabilityOptions.basicBot().id);
+    assert.include(optionIds, BotCapabilityOptions.notificationBot().id);
+    assert.include(optionIds, BotCapabilityOptions.commandBot().id);
+    assert.include(optionIds, BotCapabilityOptions.workflowBot().id);
+    assert.equal(node.children?.length, 1);
+    const triggerChild = node.children![0];
+    const triggerCond = triggerChild.condition as { equals: string };
+    assert.equal(triggerCond.equals, BotCapabilityOptions.notificationBotId);
+  });
+});
+
+describe("tabProjectTypeNode", () => {
+  it("has correct condition and 4 staticOptions", () => {
+    const node = tabProjectTypeNode();
+    const condition = node.condition as { equals: string };
+    assert.equal(condition.equals, TeamsProjectTypeOptions.tabOptionId);
+    const data = node.data as SingleSelectQuestion;
+    assert.equal((data.staticOptions as OptionItem[]).length, 4);
+    assert.equal(data.name, QuestionNames.Capabilities);
+  });
+  it("has SPFx sub-tree child with SPFxTab condition", () => {
+    const node = tabProjectTypeNode();
+    assert.equal(node.children?.length, 1);
+    const spfxChild = node.children![0];
+    const cond = spfxChild.condition as { equals: string };
+    assert.equal(cond.equals, TabCapabilityOptions.SPFxTab().id);
+  });
+  it("SPFx sub-tree contains new and import branches", () => {
+    const node = tabProjectTypeNode();
+    const spfxChild = node.children![0];
+    assert.isDefined(spfxChild.children);
+    const newBranch = spfxChild.children!.find(
+      (c) => (c.condition as { equals?: string })?.equals === "new"
+    );
+    assert.isDefined(newBranch);
+    const importBranch = spfxChild.children!.find(
+      (c) => (c.condition as { equals?: string })?.equals === "import"
+    );
+    assert.isDefined(importBranch);
+    // new branch should have 3 children (package, framework, webpart name)
+    assert.equal(newBranch!.children?.length, 3);
+  });
+});
+
+describe("meProjectTypeNode", () => {
+  it("has correct condition, 3 staticOptions, and m365SearchMeSubNode child", () => {
+    const node = meProjectTypeNode();
+    const condition = node.condition as { equals: string };
+    assert.equal(condition.equals, TeamsProjectTypeOptions.meOptionId);
+    const data = node.data as SingleSelectQuestion;
+    assert.equal((data.staticOptions as OptionItem[]).length, 3);
+    assert.equal(node.children?.length, 1);
+    const subNode = node.children![0];
+    const subCond = subNode.condition as { equals: string };
+    assert.equal(subCond.equals, MeCapabilityOptions.m365SearchMe().id);
+  });
+});
+
+describe("m365SearchMeSubNode", () => {
+  it("has correct condition, type, and 3 staticOptions", () => {
+    const node = m365SearchMeSubNode();
+    const condition = node.condition as { equals: string };
+    assert.equal(condition.equals, MeCapabilityOptions.m365SearchMe().id);
+    const data = node.data as SingleSelectQuestion;
+    assert.equal(data.type, "singleSelect");
+    assert.equal((data.staticOptions as OptionItem[]).length, 3);
+  });
+  it("has 2 children: newApi auth child and openApiSpec child", () => {
+    const node = m365SearchMeSubNode();
+    assert.equal(node.children?.length, 2);
+    const authChild = node.children![0];
+    const authCond = authChild.condition as { equals: string };
+    assert.equal(authCond.equals, MeArchitectureOptions.newApi().id);
+    const apiSpecChild = node.children![1];
+    const specCond = apiSpecChild.condition as { equals: string };
+    assert.equal(specCond.equals, MeArchitectureOptions.openApiSpec().id);
+  });
+  it("newApi child is singleSelect with 3 auth options", () => {
+    const node = m365SearchMeSubNode();
+    const authChild = node.children![0];
+    const data = authChild.data as SingleSelectQuestion;
+    assert.equal(data.type, "singleSelect");
+    assert.equal(data.name, QuestionNames.ApiAuth);
+    assert.equal((data.staticOptions as OptionItem[]).length, 3);
+  });
+});
+
+describe("MCPToolsFileNode", () => {
+  const sandbox = sinon.createSandbox();
+  afterEach(() => {
+    sandbox.restore();
+  });
+
+  it("condition returns false for Platform.VSCode", () => {
+    const node = MCPToolsFileNode();
+    const condition = node.condition as ConditionFunc;
+    const inputs: Inputs = { platform: Platform.VSCode };
+    assert.isFalse(condition(inputs));
+  });
+  it("condition returns true for CLI when no tools", () => {
+    const node = MCPToolsFileNode();
+    const condition = node.condition as ConditionFunc;
+    const inputs: Inputs = { platform: Platform.CLI };
+    assert.isTrue(condition(inputs));
+  });
+  it("condition returns true for CLI when tools is empty array", () => {
+    const node = MCPToolsFileNode();
+    const condition = node.condition as ConditionFunc;
+    const inputs: Inputs = { platform: Platform.CLI, [QuestionNames.MCPForDAAvailableTools]: [] };
+    assert.isTrue(condition(inputs));
+  });
+  it("condition returns false for CLI when tools are present", () => {
+    const node = MCPToolsFileNode();
+    const condition = node.condition as ConditionFunc;
+    const inputs: Inputs = {
+      platform: Platform.CLI,
+      [QuestionNames.MCPForDAAvailableTools]: [{ name: "t1" }],
+    };
+    assert.isFalse(condition(inputs));
+  });
+  it("validFunc returns undefined for empty value", async () => {
+    const node = MCPToolsFileNode();
+    const data = node.data as any;
+    const validFunc = data.additionalValidationOnAccept.validFunc;
+    const result = await validFunc("", { platform: Platform.CLI });
+    assert.isUndefined(result);
+  });
+  it("validFunc returns error string when file not found", async () => {
+    sandbox.stub(fs, "pathExists").resolves(false);
+    const node = MCPToolsFileNode();
+    const data = node.data as any;
+    const validFunc = data.additionalValidationOnAccept.validFunc;
+    const result = await validFunc("/nonexistent/tools.json", { platform: Platform.CLI });
+    assert.isString(result);
+    assert.isTrue((result as string).length > 0);
+  });
+  it("validFunc populates inputs and returns undefined on success", async () => {
+    sandbox.stub(fs, "pathExists").resolves(true);
+    const mockTools = [{ name: "tool1", description: "desc", inputSchema: {} }];
+    sandbox.stub(mcpToolFetcher, "readMCPToolsFromFile").resolves(mockTools as any);
+    const node = MCPToolsFileNode();
+    const data = node.data as any;
+    const validFunc = data.additionalValidationOnAccept.validFunc;
+    const inputs: Inputs = { platform: Platform.CLI };
+    const result = await validFunc("/some/tools.json", inputs);
+    assert.isUndefined(result);
+    assert.deepEqual(inputs[QuestionNames.MCPForDAAvailableTools], mockTools);
+  });
+  it("validFunc returns error message when readMCPToolsFromFile throws", async () => {
+    sandbox.stub(fs, "pathExists").resolves(true);
+    sandbox.stub(mcpToolFetcher, "readMCPToolsFromFile").rejects(new Error("bad json format"));
+    const node = MCPToolsFileNode();
+    const data = node.data as any;
+    const validFunc = data.additionalValidationOnAccept.validFunc;
+    const result = await validFunc("/bad/tools.json", { platform: Platform.CLI });
+    assert.equal(result, "bad json format");
+  });
+});
+
+describe("MCPCliPreFetchToolsNode", () => {
+  it("condition returns false for Platform.VSCode", () => {
+    const node = MCPCliPreFetchToolsNode();
+    const condition = node.condition as ConditionFunc;
+    const inputs: Inputs = { platform: Platform.VSCode };
+    assert.isFalse(condition(inputs));
+  });
+  it("condition returns false for CLI when tools is empty", () => {
+    const node = MCPCliPreFetchToolsNode();
+    const condition = node.condition as ConditionFunc;
+    const inputs: Inputs = { platform: Platform.CLI, [QuestionNames.MCPForDAAvailableTools]: [] };
+    assert.isFalse(condition(inputs));
+  });
+  it("condition returns true for CLI when tools are non-empty", () => {
+    const node = MCPCliPreFetchToolsNode();
+    const condition = node.condition as ConditionFunc;
+    const inputs: Inputs = {
+      platform: Platform.CLI,
+      [QuestionNames.MCPForDAAvailableTools]: [{ name: "t1" }],
+    };
+    assert.isTrue(condition(inputs));
+  });
+  it("dynamicOptions maps available tools to OptionItems", () => {
+    const node = MCPCliPreFetchToolsNode();
+    const data = node.data as any;
+    const inputs: Inputs = {
+      platform: Platform.CLI,
+      [QuestionNames.MCPForDAAvailableTools]: [
+        { name: "tool1", description: "desc1" },
+        { name: "tool2", description: "" },
+      ],
+    };
+    const options = data.dynamicOptions(inputs) as OptionItem[];
+    assert.equal(options.length, 2);
+    assert.equal(options[0].id, "tool1");
+    assert.equal(options[0].label, "tool1");
+    assert.equal(options[0].detail, "desc1");
+    assert.equal(options[1].id, "tool2");
+  });
+  it("default function returns all tool names", () => {
+    const node = MCPCliPreFetchToolsNode();
+    const data = node.data as any;
+    const inputs: Inputs = {
+      platform: Platform.CLI,
+      [QuestionNames.MCPForDAAvailableTools]: [{ name: "toolA" }, { name: "toolB" }],
+    };
+    const defaultVal = data.default(inputs) as string[];
+    assert.deepEqual(defaultVal, ["toolA", "toolB"]);
+  });
+});
+
+describe("MCPForDAServerUrlNode", () => {
+  const sandbox = sinon.createSandbox();
+  afterEach(() => {
+    sandbox.restore();
+  });
+
+  it("validFunc returns undefined for empty value", async () => {
+    const node = MCPForDAServerUrlNode();
+    const data = node.data as any;
+    const validFunc = data.additionalValidationOnAccept.validFunc;
+    const result = await validFunc("", { platform: Platform.CLI });
+    assert.isUndefined(result);
+  });
+  it("validFunc returns undefined when inputs is undefined", async () => {
+    const node = MCPForDAServerUrlNode();
+    const data = node.data as any;
+    const validFunc = data.additionalValidationOnAccept.validFunc;
+    const result = await validFunc("https://example.com", undefined);
+    assert.isUndefined(result);
+  });
+  it("validFunc returns undefined without calling fetchMCPTools on VSCode", async () => {
+    const fetchStub = sandbox.stub(mcpToolFetcher, "fetchMCPTools");
+    const node = MCPForDAServerUrlNode();
+    const data = node.data as any;
+    const validFunc = data.additionalValidationOnAccept.validFunc;
+    const inputs: Inputs = { platform: Platform.VSCode };
+    const result = await validFunc("https://example.com", inputs);
+    assert.isUndefined(result);
+    assert.isTrue(fetchStub.notCalled);
+  });
+  it("validFunc sets auth inputs when requiresAuth=true and no authMetadataUrl", async () => {
+    sandbox.stub(mcpToolFetcher, "fetchMCPTools").resolves({ requiresAuth: true, tools: [] });
+    const node = MCPForDAServerUrlNode();
+    const data = node.data as any;
+    const validFunc = data.additionalValidationOnAccept.validFunc;
+    const inputs: Inputs = { platform: Platform.CLI };
+    const result = await validFunc("https://secure.example.com", inputs);
+    assert.isUndefined(result);
+    assert.isTrue(inputs["_mcpAuthRequired"] as boolean);
+    assert.deepEqual(inputs[QuestionNames.MCPForDAAvailableTools], []);
+    assert.equal(inputs[QuestionNames.MCPForDAAuth], "OAuthPluginVault");
+    assert.isUndefined(inputs[QuestionNames.MCPForDAAuthMetadataUrl]);
+  });
+  it("validFunc sets authMetadataUrl when requiresAuth=true and authMetadataUrl present", async () => {
+    sandbox.stub(mcpToolFetcher, "fetchMCPTools").resolves({
+      requiresAuth: true,
+      tools: [],
+      authMetadataUrl: "https://auth.example.com/.well-known/oauth",
+    });
+    const node = MCPForDAServerUrlNode();
+    const data = node.data as any;
+    const validFunc = data.additionalValidationOnAccept.validFunc;
+    const inputs: Inputs = { platform: Platform.CLI };
+    await validFunc("https://secure.example.com", inputs);
+    assert.equal(
+      inputs[QuestionNames.MCPForDAAuthMetadataUrl],
+      "https://auth.example.com/.well-known/oauth"
+    );
+    assert.equal(inputs[QuestionNames.MCPForDAAuth], "OAuthPluginVault");
+  });
+  it("validFunc sets tools, tool mode, and NoneAuth when tools are returned", async () => {
+    const mockTools = [{ name: "t1" }, { name: "t2" }];
+    sandbox
+      .stub(mcpToolFetcher, "fetchMCPTools")
+      .resolves({ requiresAuth: false, tools: mockTools as any });
+    const node = MCPForDAServerUrlNode();
+    const data = node.data as any;
+    const validFunc = data.additionalValidationOnAccept.validFunc;
+    const inputs: Inputs = { platform: Platform.CLI };
+    await validFunc("https://example.com/mcp", inputs);
+    assert.deepEqual(inputs[QuestionNames.MCPForDAAvailableTools], mockTools);
+    assert.equal(inputs[QuestionNames.MCPForDATool], "pre-fetch");
+    assert.equal(inputs[QuestionNames.MCPForDAAuth], "NoneAuth");
+  });
+  it("validFunc sets empty tools and NoneAuth when no tools and no auth", async () => {
+    sandbox.stub(mcpToolFetcher, "fetchMCPTools").resolves({ requiresAuth: false, tools: [] });
+    const node = MCPForDAServerUrlNode();
+    const data = node.data as any;
+    const validFunc = data.additionalValidationOnAccept.validFunc;
+    const inputs: Inputs = { platform: Platform.CLI };
+    await validFunc("https://example.com/mcp", inputs);
+    assert.deepEqual(inputs[QuestionNames.MCPForDAAvailableTools], []);
+    assert.equal(inputs[QuestionNames.MCPForDAAuth], "NoneAuth");
+  });
+  it("validFunc sets empty tools and NoneAuth when fetchMCPTools throws", async () => {
+    sandbox.stub(mcpToolFetcher, "fetchMCPTools").rejects(new Error("network error"));
+    const node = MCPForDAServerUrlNode();
+    const data = node.data as any;
+    const validFunc = data.additionalValidationOnAccept.validFunc;
+    const inputs: Inputs = { platform: Platform.CLI };
+    await validFunc("https://example.com/mcp", inputs);
+    assert.deepEqual(inputs[QuestionNames.MCPForDAAvailableTools], []);
+    assert.equal(inputs[QuestionNames.MCPForDAAuth], "NoneAuth");
+  });
+});
+
+describe("updateActionWithMCP", () => {
+  const sandbox = sinon.createSandbox();
+  afterEach(() => {
+    sandbox.restore();
+  });
+
+  it("has type singleFile and correct name", () => {
+    const node = updateActionWithMCP();
+    const data = node.data as any;
+    assert.equal(data.type, "singleFile");
+    assert.equal(data.name, QuestionNames.PluginManifestFilePath);
+  });
+  it("defaultFolder normalizes projectPath", () => {
+    const node = updateActionWithMCP();
+    const data = node.data as any;
+    const inputs: Inputs = { platform: Platform.CLI, projectPath: "/my/project" };
+    const folder = data.defaultFolder(inputs);
+    assert.include(folder, "my");
+    assert.include(folder, "project");
+  });
+  it("default returns path joining projectPath with AppPackageFolderName and DefaultPluginManifestFileName", () => {
+    const node = updateActionWithMCP();
+    const data = node.data as any;
+    const inputs: Inputs = { platform: Platform.CLI, projectPath: "/my/project" };
+    const defaultPath = data.default(inputs) as string;
+    assert.include(defaultPath, AppPackageFolderName);
+    assert.include(defaultPath, DefaultPluginManifestFileName);
+  });
+  it("child[0] dynamicOptions maps MCPForDAAvailableTools to OptionItems", () => {
+    const node = updateActionWithMCP();
+    const child0 = node.children![0];
+    const data = child0.data as any;
+    const inputs: Inputs = {
+      platform: Platform.CLI,
+      [QuestionNames.MCPForDAAvailableTools]: [
+        { name: "toolA", description: "desc A" },
+        { name: "toolB", description: "" },
+      ],
+    };
+    const options = data.dynamicOptions(inputs) as OptionItem[];
+    assert.equal(options.length, 2);
+    assert.equal(options[0].id, "toolA");
+    assert.equal(options[0].label, "toolA");
+    assert.equal(options[0].detail, "desc A");
+    assert.equal(options[1].id, "toolB");
+    assert.equal(options[1].detail, "");
+  });
+  it("child[0] async default reads manifest and filters by serverUrl", async () => {
+    const mockManifest = {
+      runtimes: [
+        {
+          type: "RemoteMCPServer",
+          spec: { url: "https://example.com/mcp" },
+          run_for_functions: ["f1", "f2"],
+        },
+        {
+          type: "RemoteMCPServer",
+          spec: { url: "https://other.com/mcp" },
+          run_for_functions: ["f3"],
+        },
+      ],
+    };
+    sandbox.stub(fs, "readJSON").resolves(mockManifest);
+    const node = updateActionWithMCP();
+    const child0 = node.children![0];
+    const data = child0.data as any;
+    const inputs: Inputs = {
+      platform: Platform.CLI,
+      [QuestionNames.PluginManifestFilePath]: "/my/plugin.json",
+      [QuestionNames.MCPForDAServerUrl]: "https://example.com/mcp",
+      [QuestionNames.MCPForDAAvailableTools]: [],
+    };
+    const result = await data.default(inputs);
+    assert.deepEqual(result, ["f1", "f2"]);
+  });
+  it("child[0] async default returns empty array when no manifest path", async () => {
+    const node = updateActionWithMCP();
+    const child0 = node.children![0];
+    const data = child0.data as any;
+    const inputs: Inputs = {
+      platform: Platform.CLI,
+      [QuestionNames.MCPForDAAvailableTools]: [],
+    };
+    const result = await data.default(inputs);
+    assert.deepEqual(result, []);
+  });
+  it("child[1] condition returns true when MCPForDAAuth is not NoneAuth", () => {
+    const node = updateActionWithMCP();
+    const child1 = node.children![1];
+    const condition = child1.condition as ConditionFunc;
+    const inputs: Inputs = {
+      platform: Platform.CLI,
+      [QuestionNames.MCPForDAAuth]: "OAuthPluginVault",
+    };
+    assert.isTrue(condition(inputs));
+  });
+  it("child[1] condition returns false when MCPForDAAuth is NoneAuth", () => {
+    const node = updateActionWithMCP();
+    const child1 = node.children![1];
+    const condition = child1.condition as ConditionFunc;
+    const inputs: Inputs = { platform: Platform.CLI, [QuestionNames.MCPForDAAuth]: "NoneAuth" };
+    assert.isFalse(condition(inputs));
   });
 });
 

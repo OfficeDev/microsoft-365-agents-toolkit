@@ -500,15 +500,27 @@ export class ActionStartOptions {
     };
   }
 
+  static mcp(): OptionItem {
+    return {
+      id: "mcp",
+      label: getLocalizedString("core.createProjectQuestion.mcpForDa.label"),
+      detail: getLocalizedString("core.createProjectQuestion.mcpForDa.detail"),
+    };
+  }
+
   static staticAll(doesProjectExists?: boolean): OptionItem[] {
     return doesProjectExists
-      ? [ActionStartOptions.apiSpec()]
+      ? [ActionStartOptions.apiSpec(), ActionStartOptions.mcp()]
       : [ActionStartOptions.newApi(), ActionStartOptions.apiSpec()];
   }
 
   static all(inputs: Inputs, doesProjectExists?: boolean): OptionItem[] {
     if (doesProjectExists) {
-      return [ActionStartOptions.apiSpec()];
+      const options: OptionItem[] = [ActionStartOptions.apiSpec()];
+      if (featureFlagManager.getBooleanValue(FeatureFlags.MCPForDA)) {
+        options.push(ActionStartOptions.mcp());
+      }
+      return options;
     } else {
       // use constant string to avoid cycle dependency
       return [ActionStartOptions.newApi(), ActionStartOptions.apiSpec()];

@@ -20,7 +20,7 @@ export interface CreateProjectInputs extends Inputs {
   /** @description Create Declarative Agent */
   "with-plugin"?: "no" | "yes";
   /** @description Create API Plugin */
-  "api-plugin-type"?: "new-api" | "api-spec" | "existing-plugin";
+  "api-plugin-type"?: "new-api" | "api-spec" | "existing-plugin" | "mcp";
   /** @description Import Manifest File */
   "plugin-manifest-path"?: string;
   /** @description Import OpenAPI Description Document */
@@ -53,4 +53,12 @@ export interface CreateProjectInputs extends Inputs {
   "openai-key"?: string;
   /** @description Application Name */
   "app-name"?: string;
+  /** @description MCP Server Type */
+  "mcp-server-type"?: "remote";
+  /** @description MCP Server URL */
+  "mcp-da-server-url"?: string;
+  /** @description MCP Tools Definition File */
+  "mcp-tools-file-path"?: string;
+  /** @description Authentication type for the MCP server */
+  "mcp-da-auth-type"?: "oauth" | "entraSSO";
 }
