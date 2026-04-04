@@ -6263,7 +6263,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Build a declarative agent with Microsoft 365 Agents Toolkit to simplify workflows and automate tasks.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Compile un agente declarativo con el kit de herramientas de agentes de Microsoft 365 para simplificar flujos de trabajo y automatizar tareas.]]></Val>
+            <Val><![CDATA[Cree un agente declarativo con el kit de herramientas de agentes de Microsoft 365 para simplificar flujos de trabajo y automatizar tareas.]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Build a declarative agent with Teams Toolkit to simplify workflows and automate tasks.]]></Val>
@@ -6308,7 +6308,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Build a declarative agent]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Compilar un agente declarativo]]></Val>
+            <Val><![CDATA[Crear un agente declarativo]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -6317,7 +6317,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Set up your environment to build a declarative agent for Microsoft 365 Copilot. Ensure you have Node.js, NPM, and a valid Microsoft 365 Copilot license. [Learn how to get a developer environment.]5D;(https://learn.microsoft.com/en-us/microsoft-365-copilot/extensibility/prerequisites#prerequisites)]A;[Check Copilot License]5D;(command:fx-extension.checkCopilotAccess?%5B%22WalkThrough%22%5D)]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Configure el entorno para compilar un agente declarativo para Microsoft 365 Copilot. Asegúrese de que tiene Node.js, NPM y una licencia de Microsoft 365 Copilot válida. [Learn how to get a developer environment.]5D;(https://learn.microsoft.com/en-us/microsoft-365-copilot/extensibility/prerequisites#prerequisites)]A;[Check Copilot License]5D;(command:fx-extension.checkCopilotAccess?%5B%22ThroughThrough%22%5D)]]></Val>
+            <Val><![CDATA[Configure el entorno para crear un agente declarativo para Microsoft 365 Copilot. Asegúrese de que tiene Node.js, NPM y una licencia de Microsoft 365 Copilot válida. [Learn how to get a developer environment.]5D;(https://learn.microsoft.com/en-us/microsoft-365-copilot/extensibility/prerequisites#prerequisites)]A;[Check Copilot License]5D;(command:fx-extension.checkCopilotAccess?%5B%22ThroughThrough%22%5D)]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -6389,7 +6389,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Build a Declarative Agent]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Compilar un agente declarativo]]></Val>
+            <Val><![CDATA[Crear un agente declarativo]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -6419,7 +6419,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Build a custom notification bot for Microsoft Teams using Microsoft 365 Agents Toolkit.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Compile un bot de notificaciones personalizado para Microsoft Teams utilizando el kit de herramientas de agentes de Microsoft 365.]]></Val>
+            <Val><![CDATA[Cree un bot de notificaciones personalizado para Microsoft Teams utilizando el kit de herramientas de agentes de Microsoft 365.]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Build a custom notification bot for Microsoft Teams using Teams Toolkit.]]></Val>
@@ -6587,7 +6587,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Build a notification bot using Microsoft 365 Agents Toolkit to send interactive messages in Teams.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Compile un bot de notificaciones mediante el kit de herramientas de agentes de Microsoft 365 para enviar mensajes interactivos en Teams.]]></Val>
+            <Val><![CDATA[Cree un bot de notificaciones mediante el kit de herramientas de agentes de Microsoft 365 para enviar mensajes interactivos en Teams.]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Build a notification bot using Teams Toolkit to send interactive messages in Teams.]]></Val>
@@ -6683,7 +6683,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Build a custom notification bot for Microsoft Teams using Microsoft 365 Agents Toolkit.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Compile un bot de notificaciones personalizado para Microsoft Teams utilizando el kit de herramientas de agentes de Microsoft 365.]]></Val>
+            <Val><![CDATA[Cree un bot de notificaciones personalizado para Microsoft Teams utilizando el kit de herramientas de agentes de Microsoft 365.]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Build a custom notification bot for Microsoft Teams using Teams Toolkit.]]></Val>

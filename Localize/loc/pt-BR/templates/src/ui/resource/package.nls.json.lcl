@@ -50,7 +50,7 @@
         <Str Cat="Text">
           <Val><![CDATA[A travel planning agent, which is built with Microsoft 365 Agents SDK, Microsoft 365 Retrieval API and Agent Framework]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Um agente de planejamento de viagem, que é criado com o SDK de Agentes do Microsoft 365, a API Microsoft 365 Recuperação e o Agent Framework]]></Val>
+            <Val><![CDATA[Um agente de planejamento de viagem, que é criado com o SDK de Agentes do Microsoft 365, a API de Recuperação do Microsoft 365 e o Agent Framework]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
