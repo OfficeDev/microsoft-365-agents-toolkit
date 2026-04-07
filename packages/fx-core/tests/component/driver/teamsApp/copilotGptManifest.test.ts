@@ -3,6 +3,7 @@
 
 import { SpecParser } from "@microsoft/m365-spec-parser";
 import {
+  AppManifestUtils,
   Colors,
   DeclarativeAgentManifestConverter,
   DeclarativeCopilotCapabilityName,
@@ -585,7 +586,7 @@ describe("copilotGptManifestUtils", () => {
       });
       sandbox.stub(fs, "pathExists").resolves(true);
       sandbox.stub(fs, "readFile").resolves(JSON.stringify(manifest) as any);
-      sandbox.stub(ManifestUtil, "validateManifest").resolves([]);
+      sandbox.stub(AppManifestUtils, "validateAgainstSchema").resolves([]);
       sandbox.stub(pluginManifestUtils, "validateAgainstSchema").resolves(
         ok({
           id: "1",
@@ -631,7 +632,7 @@ describe("copilotGptManifestUtils", () => {
       });
       sandbox.stub(fs, "pathExists").resolves(true);
       sandbox.stub(fs, "readFile").resolves(JSON.stringify(manifest) as any);
-      sandbox.stub(ManifestUtil, "validateManifest").resolves([]);
+      sandbox.stub(AppManifestUtils, "validateAgainstSchema").resolves([]);
       sandbox
         .stub(pluginManifestUtils, "validateAgainstSchema")
         .resolves(err(new SystemError("error", "error", "error", "error")));
@@ -662,7 +663,7 @@ describe("copilotGptManifestUtils", () => {
       });
       sandbox.stub(fs, "pathExists").resolves(true);
       sandbox.stub(fs, "readFile").resolves(JSON.stringify(gptManifest) as any);
-      sandbox.stub(ManifestUtil, "validateManifest").throws("error");
+      sandbox.stub(AppManifestUtils, "validateAgainstSchema").throws("error");
 
       const res = await copilotGptManifestUtils.validateAgainstSchema(
         { id: "1", file: "file" },

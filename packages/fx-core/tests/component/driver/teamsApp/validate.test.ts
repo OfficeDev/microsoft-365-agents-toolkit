@@ -2,6 +2,7 @@
 // Licensed under the MIT license.
 
 import {
+  AppManifestUtils,
   err,
   ManifestUtil,
   ok,
@@ -179,8 +180,12 @@ describe("teamsApp/validateManifest", async () => {
   });
 
   it("validation error - download failed", async () => {
-    sinon.stub(ManifestUtil, "validateManifest").resolves([]);
-    sinon.stub(ManifestUtil, "validateManifestAgainstSchema").throws("error");
+    sinon
+      .stub(AppManifestUtils, "validateAgainstSchema")
+      .onFirstCall()
+      .resolves([])
+      .onSecondCall()
+      .throws(new Error("error"));
     const args: ValidateManifestArgs = {
       manifestPath:
         "./tests/plugins/resource/appstudio/resources-multi-env/templates/appPackage/v3.manifest.template.json",
@@ -197,7 +202,7 @@ describe("teamsApp/validateManifest", async () => {
 
   it("validation error - localization file validation failed", async () => {
     sinon
-      .stub(ManifestUtil, "validateManifest")
+      .stub(AppManifestUtils, "validateAgainstSchema")
       .throws(new Error(`Failed to get manifest at url due to: unknown error`));
     const args: ValidateManifestArgs = {
       manifestPath:
@@ -440,7 +445,7 @@ describe("teamsApp/validateManifest", async () => {
       };
 
       sinon.stub(manifestUtils, "getManifestV3").resolves(ok(teamsManifest));
-      sinon.stub(ManifestUtil, "validateManifest").resolves([]);
+      sinon.stub(AppManifestUtils, "validateAgainstSchema").resolves([]);
       sinon.stub(pluginManifestUtils, "validateAgainstSchema").resolves(
         ok({
           id: "fakeId",
@@ -498,7 +503,7 @@ describe("teamsApp/validateManifest", async () => {
       };
 
       sinon.stub(manifestUtils, "getManifestV3").resolves(ok(teamsManifest));
-      sinon.stub(ManifestUtil, "validateManifest").resolves([]);
+      sinon.stub(AppManifestUtils, "validateAgainstSchema").resolves([]);
       sinon.stub(pluginManifestUtils, "validateAgainstSchema").resolves(
         ok({
           id: "fakeId",
@@ -556,7 +561,7 @@ describe("teamsApp/validateManifest", async () => {
       };
 
       sinon.stub(manifestUtils, "getManifestV3").resolves(ok(teamsManifest));
-      sinon.stub(ManifestUtil, "validateManifest").resolves([]);
+      sinon.stub(AppManifestUtils, "validateAgainstSchema").resolves([]);
       sinon.stub(pluginManifestUtils, "validateAgainstSchema").resolves(
         ok({
           id: "fakeId",
@@ -606,7 +611,7 @@ describe("teamsApp/validateManifest", async () => {
       } as TeamsManifestV1D19.TeamsManifestV1D19;
 
       sinon.stub(manifestUtils, "getManifestV3").resolves(ok(teamsManifest));
-      sinon.stub(ManifestUtil, "validateManifest").resolves([]);
+      sinon.stub(AppManifestUtils, "validateAgainstSchema").resolves([]);
       sinon.stub(pluginManifestUtils, "validateAgainstSchema").resolves(
         ok({
           id: "fakeId",
@@ -661,7 +666,7 @@ describe("teamsApp/validateManifest", async () => {
       };
 
       sinon.stub(manifestUtils, "getManifestV3").resolves(ok(teamsManifest));
-      sinon.stub(ManifestUtil, "validateManifest").resolves([]);
+      sinon.stub(AppManifestUtils, "validateAgainstSchema").resolves([]);
       sinon.stub(pluginManifestUtils, "validateAgainstSchema").resolves(
         ok({
           id: "fakeId",
