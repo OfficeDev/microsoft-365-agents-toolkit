@@ -25,6 +25,12 @@ export const ceaNode = {
         detail: "template.customEngineAgent.weather.detail",
         data: TemplateNames.WeatherAgent,
       },
+      {
+        id: TemplateNames.FoundryAgent,
+        label: "template.customEngineAgent.foundryAgent.label",
+        detail: "template.customEngineAgent.foundryAgent.detail",
+        data: TemplateNames.FoundryAgent,
+      },
     ],
     placeholder: "template.customEngineAgent.placeholder",
   },

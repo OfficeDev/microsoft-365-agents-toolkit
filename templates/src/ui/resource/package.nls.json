@@ -7,6 +7,8 @@
   "template.customEngineAgent.travel.label": "Travel Agent",
   "template.customEngineAgent.weather.detail": "A weather forecast agent that is built with Microsoft 365 Agents SDK and LangChain",
   "template.customEngineAgent.weather.label": "Weather Agent",
+  "template.customEngineAgent.foundryAgent.label": "Foundry Agent",
+  "template.customEngineAgent.foundryAgent.detail": "An agent that connects to Microsoft AI Foundry Agent and brings it to Microsoft 365",
   "template.teams.collaboratorAgent.detail": "Agent that enhances collaboration in group chat, channels or meetings through summarization, task management, and conversation search",
   "template.teams.collaboratorAgent.label": "Teams Collaborator Agent",
   "template.teams.general.detail": "Agent that chats with users in Teams built with Teams AI Library and connects to LLMs",

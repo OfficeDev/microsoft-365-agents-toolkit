@@ -192,6 +192,12 @@
             "label": "template.customEngineAgent.weather.label",
             "detail": "template.customEngineAgent.weather.detail",
             "data": "weather-agent"
+          },
+          {
+            "id": "foundry-agent-to-m365",
+            "label": "template.customEngineAgent.foundryAgent.label",
+            "detail": "template.customEngineAgent.foundryAgent.detail",
+            "data": "foundry-agent-to-m365"
           }
         ],
         "placeholder": "template.customEngineAgent.placeholder"
