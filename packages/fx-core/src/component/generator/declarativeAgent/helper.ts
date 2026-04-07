@@ -49,6 +49,10 @@ import {
 import { ActionInjector } from "../../configManager/actionInjector";
 import { pathUtils } from "../../utils/pathUtils";
 
+// Non-translatable CLI command template used in warning messages
+const mcpAddActionHint =
+  "atk add action --api-plugin-type mcp --mcp-da-server-url <server-url> --mcp-tools-file-path <path-to-tools-json> --interactive false";
+
 const logMessageKeys = {
   failValidateOneDriveSharePointItem:
     "core.createProjectQuestion.log.fail.validateOneDriveSharePointItem",
@@ -402,7 +406,11 @@ export async function generateForMCPForDA(
     } catch {
       warnings.push({
         type: "mcpToolsFileReadError",
-        content: getLocalizedString("core.MCPForDA.toolsFileReadError", toolsFilePath),
+        content: getLocalizedString(
+          "core.MCPForDA.toolsFileReadError",
+          toolsFilePath,
+          mcpAddActionHint
+        ),
       });
     }
   }
@@ -444,18 +452,22 @@ export async function generateForMCPForDA(
         }
         warnings.push({
           type: "mcpAuthRequired",
-          content: getLocalizedString("core.MCPForDA.authRequired", mcpServerUrl),
+          content: getLocalizedString("core.MCPForDA.authRequired", mcpServerUrl, mcpAddActionHint),
         });
       } else {
         warnings.push({
           type: "mcpNoToolsFetched",
-          content: getLocalizedString("core.MCPForDA.noToolsFetched", mcpServerUrl),
+          content: getLocalizedString(
+            "core.MCPForDA.noToolsFetched",
+            mcpServerUrl,
+            mcpAddActionHint
+          ),
         });
       }
     } catch {
       warnings.push({
         type: "mcpFetchError",
-        content: getLocalizedString("core.MCPForDA.fetchError", mcpServerUrl),
+        content: getLocalizedString("core.MCPForDA.fetchError", mcpServerUrl, mcpAddActionHint),
       });
     }
   }

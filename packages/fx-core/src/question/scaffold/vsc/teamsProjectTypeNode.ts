@@ -332,6 +332,7 @@ export function MCPServerTypeNode(): IQTreeNode {
           MCPCliPreFetchToolsNode(),
           {
             condition: (inputs: Inputs) => {
+              if (inputs.platform === Platform.VSCode) return false;
               return inputs[QuestionNames.MCPForDAAuth] !== "NoneAuth";
             },
             data: {
@@ -569,6 +570,7 @@ export function updateActionWithMCP(): IQTreeNode {
       },
       {
         condition: (inputs: Inputs) => {
+          if (inputs.platform === Platform.VSCode) return false;
           return inputs[QuestionNames.MCPForDAAuth] !== "NoneAuth";
         },
         data: {

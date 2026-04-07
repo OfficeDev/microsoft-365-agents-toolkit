@@ -1104,16 +1104,16 @@
   "core.MCPForDA.authUrlNotFound": "Unable to find the authentication URL(s) from response of Authorization Server Metadata of the MCP server.",
 
   "core.MCPForDA.toolsFileNotFound": "MCP tools file not found: %s",
-  "core.MCPForDA.toolsFileInvalidFormat": "Invalid MCP tools file format. Expected { \"tools\": [...] } or a JSON array of tools: %s",
-  "core.MCPForDA.toolsFileMissingName": "Each tool in the MCP tools file must have a \"name\" property: %s",
+  "core.MCPForDA.toolsFileInvalidFormat": "Invalid MCP tools file format. Expected %s or a JSON array of tools: %s",
+  "core.MCPForDA.toolsFileMissingName": "Each tool in the MCP tools file must have a %s property: %s",
   "core.MCPForDA.toolsFilePath.title": "MCP Tools Definition File",
   "core.MCPForDA.toolsFilePath.placeholder": "Enter the path to a JSON file containing MCP tool definitions",
   "core.MCPForDA.preFetchToolsNotFound": "No tool definitions found. The project will use dynamic tool discovery.",
   "core.MCPForDA.pluginManifestNotFound": "ai-plugin.json not found at: %s",
   "core.MCPForDA.missingServerUrl": "The --mcp-da-server-url option is required when --api-plugin-type is mcp.",
   "core.MCPForDA.missingAuthType": "The --mcp-da-auth-type option is required when the MCP server requires authentication and tools are provided. Use --mcp-da-auth-type oauth or --mcp-da-auth-type entraSSO.",
-  "core.MCPForDA.toolsFileReadError": "Failed to read MCP tools file: %s. To add tools later, run:\n  atk add action --api-plugin-type mcp --mcp-da-server-url <server-url> --mcp-tools-file-path <path-to-tools-json> --interactive false",
-  "core.MCPForDA.authRequired": "The MCP server at %s requires authentication. Tools could not be fetched automatically. To add tools, run:\n  atk add action --api-plugin-type mcp --mcp-da-server-url <server-url> --mcp-tools-file-path <path-to-tools-json> --interactive false",
-  "core.MCPForDA.noToolsFetched": "No tools were discovered from the MCP server at %s. To add tools later, run:\n  atk add action --api-plugin-type mcp --mcp-da-server-url <server-url> --mcp-tools-file-path <path-to-tools-json> --interactive false",
-  "core.MCPForDA.fetchError": "Failed to fetch tools from the MCP server at %s. To add tools later, run:\n  atk add action --api-plugin-type mcp --mcp-da-server-url <server-url> --mcp-tools-file-path <path-to-tools-json> --interactive false"
+  "core.MCPForDA.toolsFileReadError": "Failed to read MCP tools file: %s. To add tools later, run:\n  %s",
+  "core.MCPForDA.authRequired": "The MCP server at %s requires authentication. Tools could not be fetched automatically. To add tools, run:\n  %s",
+  "core.MCPForDA.noToolsFetched": "No tools were discovered from the MCP server at %s. To add tools later, run:\n  %s",
+  "core.MCPForDA.fetchError": "Failed to fetch tools from the MCP server at %s. To add tools later, run:\n  %s"
 }
