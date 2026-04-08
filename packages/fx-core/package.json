@@ -123,7 +123,7 @@
     "dotenv": "^8.2.0",
     "form-data": "^4.0.2",
     "fs-extra": "^9.1.0",
-    "glob": "^11.0.0",
+    "glob": "^13.0.0",
     "handlebars": "^4.7.7",
     "iconv-lite": "^0.6.3",
     "ignore": "^5.1.8",
