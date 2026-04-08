@@ -12,11 +12,6 @@ import {
 } from "../component/driver/teamsApp/interfaces/ApiSecretRegistration";
 import { OauthConfigurationId } from "../component/driver/teamsApp/interfaces/OauthConfigurationId";
 import { OauthRegistration } from "../component/driver/teamsApp/interfaces/OauthRegistration";
-import { aadErrorCode } from "../component/driver/aad/utility/constants";
-import { SignInAudienceNotAllowedError } from "../component/driver/aad/error/signInAudienceNotAllowedError";
-import { AADApplication } from "../component/driver/aad/interface/AADApplication";
-import { IAADDefinition } from "./interfaces/aad/IAADDefinition";
-import { SignInAudience } from "../component/driver/aad/interface/signInAudience";
 import { TeamsGraphAPIFailedSystemError } from "../error/teamsGraph";
 import { RetryHandler } from "../common/retryHandler";
 
@@ -53,7 +48,10 @@ export class TeamsGraphClient {
   }
 
   @hooks([ErrorContextMW({ source: "TeamsGraph", component: "TeamsGraphClient" })])
-  async getOauthRegistrationById(token: string, oauthRegistrationId: string): Promise<OauthRegistration> {
+  async getOauthRegistrationById(
+    token: string,
+    oauthRegistrationId: string
+  ): Promise<OauthRegistration> {
     const requester = this.createRequesterWithToken(token);
     try {
       const response = await RetryHandler.Retry(() =>
