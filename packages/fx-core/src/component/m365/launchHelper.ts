@@ -18,6 +18,7 @@ import {
   ResourceServiceType,
   MosServiceScope,
   AppStudioScopes,
+  MosServiceScope,
 } from "../../common/constants";
 import { ErrorContextMW } from "../../common/globalVars";
 import { CoreSource } from "../../error";
