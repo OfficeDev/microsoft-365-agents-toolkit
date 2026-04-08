@@ -570,7 +570,6 @@ export function updateActionWithMCP(): IQTreeNode {
       },
       {
         condition: (inputs: Inputs) => {
-          if (inputs.platform === Platform.VSCode) return false;
           return inputs[QuestionNames.MCPForDAAuth] !== "NoneAuth";
         },
         data: {
