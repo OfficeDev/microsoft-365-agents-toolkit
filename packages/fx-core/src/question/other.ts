@@ -671,7 +671,15 @@ export function addPluginQuestionNode(): IQTreeNode {
   return {
     data: apiPluginStartQuestion(true),
     children: [
-      ...[inputOrSearchAPISpecNode()],
+      {
+        ...inputOrSearchAPISpecNode(),
+        condition: (inputs: Inputs) => {
+          return (
+            featureFlagManager.getBooleanValue(FeatureFlags.KiotaNPMIntegration) &&
+            inputs[QuestionNames.ActionType] === ActionStartOptions.apiSpec().id
+          );
+        },
+      },
       {
         data: apiSpecLocationQuestion(),
         condition: (inputs: Inputs) => {
@@ -689,6 +697,54 @@ export function addPluginQuestionNode(): IQTreeNode {
             inputs[QuestionNames.ActionType] === ActionStartOptions.apiSpec().id
           );
         },
+      },
+      // MCP server URL input (when action type is "mcp")
+      {
+        condition: (inputs: Inputs) => {
+          return inputs[QuestionNames.ActionType] === ActionStartOptions.mcp().id;
+        },
+        data: {
+          name: QuestionNames.MCPForDAServerUrl,
+          title: getLocalizedString("core.createProjectQuestion.mcpForDa.ServerUrl.title"),
+          type: "text",
+          placeholder: getLocalizedString(
+            "core.createProjectQuestion.mcpForDa.ServerUrl.placeholder"
+          ),
+        },
+        children: [
+          // MCP tools file input (for auth-required servers or manual input)
+          {
+            data: {
+              name: QuestionNames.MCPToolsFilePath,
+              title: getLocalizedString("core.MCPForDA.toolsFilePath.title"),
+              type: "text",
+              placeholder: getLocalizedString("core.MCPForDA.toolsFilePath.placeholder"),
+            },
+            children: [
+              // Auth type selection (for auth-required MCP servers)
+              {
+                data: {
+                  type: "singleSelect",
+                  name: QuestionNames.MCPForDAAuthType,
+                  title: getLocalizedString("core.createProjectQuestion.mcpForDa.AuthType.title"),
+                  staticOptions: [
+                    {
+                      id: "oauth",
+                      label: getLocalizedString("core.createProjectQuestion.mcpForDa.Auth.OAuth"),
+                    },
+                    {
+                      id: "entraSSO",
+                      label: getLocalizedString(
+                        "core.createProjectQuestion.mcpForDa.Auth.EntraSSO"
+                      ),
+                    },
+                  ],
+                  default: "oauth",
+                },
+              },
+            ],
+          },
+        ],
       },
       {
         data: selectTeamsAppManifestQuestion(),
@@ -903,9 +959,9 @@ export function addAuthActionAuthTypeQuestion(): SingleSelectQuestion {
   return {
     type: "singleSelect",
     name: QuestionNames.ApiAuth,
-    title: getLocalizedString("core.createProjectQuestion.apiMessageExtensionAuth.title"),
+    title: getLocalizedString("template.createProjectQuestion.apiMessageExtensionAuth.title"),
     placeholder: getLocalizedString(
-      "core.createProjectQuestion.apiMessageExtensionAuth.placeholder"
+      "template.createProjectQuestion.apiMessageExtensionAuth.placeholder"
     ),
     cliDescription: "The authentication type for the API.",
     staticOptions: AddAuthActionAuthTypeOptions.all(),

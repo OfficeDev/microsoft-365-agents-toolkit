@@ -7,9 +7,8 @@ import { TokenCacheContext } from "@azure/msal-node";
 import { ConfigFolderName } from "@microsoft/teamsfx-api";
 import * as crypto from "crypto";
 import * as fs from "fs-extra";
-import * as keytarType from "keytar";
-import VsCodeLogInstance from "./log";
 import * as os from "os";
+import VsCodeLogInstance from "./log";
 
 const cacheDir = os.homedir + `/.${ConfigFolderName}/account`;
 const cachePath = os.homedir + `/.${ConfigFolderName}/account/token.cache.`;
@@ -26,7 +25,7 @@ export const UTF8 = "utf8";
 export class AccountCrypto {
   private readonly algorithm: crypto.CipherGCMTypes = "aes-256-gcm";
   private readonly accountName: string;
-  private readonly keytar?: typeof keytarType;
+  private readonly keytar?: typeof import("keytar");
 
   private currentKey?: string;
 

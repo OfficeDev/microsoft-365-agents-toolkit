@@ -3,7 +3,6 @@
 
 import {
   AppPackageFolderName,
-  ConfigFolderName,
   DefaultPluginManifestFileName,
   Inputs,
   IQTreeNode,
@@ -11,12 +10,10 @@ import {
   Platform,
 } from "@microsoft/teamsfx-api";
 import * as fs from "fs-extra";
-import os from "os";
 import path from "path";
 import { getLocalizedString } from "../../../common/localizeUtils";
-import { useLocalTemplate } from "../../../component/generator/templateHelper";
+import { fetchMCPTools, readMCPToolsFromFile } from "../../../component/utils/mcpToolFetcher";
 import { ODRProvider, ODRServer } from "../../../component/utils/odrProvider";
-import { getTemplatesFolder } from "../../../folder";
 import {
   SPFxFrameworkQuestion,
   SPFxImportFolderQuestion,
@@ -26,7 +23,6 @@ import {
 } from "../../create";
 import { QuestionNames } from "../../questionNames";
 import { apiSpecNode } from "../commonNodes";
-import { constructNode } from "../constructNode";
 import {
   ActionStartOptions,
   ApiAuthOptions,
@@ -39,26 +35,18 @@ import {
   TabCapabilityOptions,
   TeamsAgentCapabilityOptions,
 } from "./CapabilityOptions";
+import { getRootProjectTypeNode } from "./rootNode";
 
+/**
+ * Extract the Teams Agents and Apps sub-tree from the combined wizardNode.json.
+ * Used by TDP (Teams Developer Portal) flow.
+ */
 export function getTeamsProjectNode(): IQTreeNode {
-  let jsonPath: string;
-
-  const cachedJsonPath = path.join(
-    os.homedir(),
-    `.${String(ConfigFolderName)}`,
-    "ui",
-    "teamsNode.json"
+  const root = getRootProjectTypeNode(Platform.VSCode);
+  const teamsNode = root.children?.find(
+    (c) => (c.condition as any)?.equals === "teams-agent-and-app-type"
   );
-
-  // Check if cached JSON exists, otherwise fallback to bundled templates folder
-  if (!useLocalTemplate() && fs.pathExistsSync(cachedJsonPath)) {
-    jsonPath = cachedJsonPath;
-  } else {
-    jsonPath = path.join(getTemplatesFolder(), "ui", "teamsNode.json");
-  }
-
-  const content = fs.readFileSync(jsonPath, "utf-8");
-  return constructNode(content);
+  return teamsNode ?? { data: { type: "group" } };
 }
 
 export class TeamsProjectTypeOptions {
@@ -186,7 +174,7 @@ export function botProjectTypeNode(): IQTreeNode {
         BotCapabilityOptions.commandBot(),
         BotCapabilityOptions.workflowBot(),
       ],
-      placeholder: getLocalizedString("core.createCapabilityQuestion.placeholder"),
+      placeholder: getLocalizedString("template.createCapabilityQuestion.placeholder"),
       onDidSelection: setTemplateName,
     },
     children: [notificationBotTriggerNode()],
@@ -207,7 +195,7 @@ export function tabProjectTypeNode(platform: Platform = Platform.VSCode): IQTree
         TabCapabilityOptions.dashboardTab(),
         TabCapabilityOptions.SPFxTab(),
       ],
-      placeholder: getLocalizedString("core.createCapabilityQuestion.placeholder"),
+      placeholder: getLocalizedString("template.createCapabilityQuestion.placeholder"),
       onDidSelection: setTemplateName,
     },
     children: [
@@ -248,7 +236,7 @@ export function meProjectTypeNode(): IQTreeNode {
         MeCapabilityOptions.collectFormMe(),
         MeCapabilityOptions.linkUnfurling(),
       ],
-      placeholder: getLocalizedString("core.createCapabilityQuestion.placeholder"),
+      placeholder: getLocalizedString("template.createCapabilityQuestion.placeholder"),
       onDidSelection: setTemplateName,
     },
     children: [m365SearchMeSubNode()],
@@ -271,7 +259,7 @@ export function m365SearchMeSubNode(): IQTreeNode {
       ],
       default: MeArchitectureOptions.newApi().id,
       placeholder: getLocalizedString(
-        "core.createProjectQuestion.projectType.copilotExtension.placeholder"
+        "template.createProjectQuestion.projectType.copilotExtension.placeholder"
       ),
       forgetLastValue: true,
       skipSingleOption: true,
@@ -283,9 +271,9 @@ export function m365SearchMeSubNode(): IQTreeNode {
         data: {
           type: "singleSelect",
           name: QuestionNames.ApiAuth,
-          title: getLocalizedString("core.createProjectQuestion.apiMessageExtensionAuth.title"),
+          title: getLocalizedString("template.createProjectQuestion.apiMessageExtensionAuth.title"),
           placeholder: getLocalizedString(
-            "core.createProjectQuestion.apiMessageExtensionAuth.placeholder"
+            "template.createProjectQuestion.apiMessageExtensionAuth.placeholder"
           ),
           staticOptions: [
             ApiAuthOptions.none(true),
@@ -339,9 +327,115 @@ export function MCPServerTypeNode(): IQTreeNode {
       {
         condition: { equals: "remote" },
         data: MCPForDAServerUrlNode().data,
+        children: [
+          MCPToolsFileNode(),
+          MCPCliPreFetchToolsNode(),
+          {
+            condition: (inputs: Inputs) => {
+              if (inputs.platform === Platform.VSCode) return false;
+              return inputs[QuestionNames.MCPForDAAuth] !== "NoneAuth";
+            },
+            data: {
+              type: "singleSelect",
+              name: QuestionNames.MCPForDAAuthType,
+              title: getLocalizedString("core.createProjectQuestion.mcpForDa.AuthType.title"),
+              staticOptions: [
+                {
+                  id: "oauth",
+                  label: getLocalizedString("core.createProjectQuestion.mcpForDa.Auth.OAuth"),
+                },
+                {
+                  id: "entraSSO",
+                  label: getLocalizedString("core.createProjectQuestion.mcpForDa.Auth.EntraSSO"),
+                },
+              ],
+              default: "oauth",
+            },
+          },
+        ],
       },
       MCPLocalServerSelectionNode(),
     ],
+  };
+}
+
+/**
+ * Question node for providing an MCP tools definition file.
+ * Shown when:
+ * - The MCP server requires auth (auto-detected), or
+ * - The user wants to provide tools manually.
+ * In CLI non-interactive mode, this is provided via --mcp-tools-file.
+ */
+export function MCPToolsFileNode(): IQTreeNode {
+  return {
+    data: {
+      name: QuestionNames.MCPToolsFilePath,
+      title: getLocalizedString("core.MCPForDA.toolsFilePath.title"),
+      type: "text",
+      placeholder: getLocalizedString("core.MCPForDA.toolsFilePath.placeholder"),
+      additionalValidationOnAccept: {
+        validFunc: async (value: string, inputs?: Inputs): Promise<string | undefined> => {
+          if (!value) return undefined;
+          const filePath = value;
+          if (!(await fs.pathExists(filePath))) {
+            return getLocalizedString("core.MCPForDA.toolsFileNotFound", filePath);
+          }
+          try {
+            const tools = await readMCPToolsFromFile(filePath);
+            if (inputs) {
+              inputs[QuestionNames.MCPForDAAvailableTools] = tools;
+            }
+          } catch (e: any) {
+            return e.message;
+          }
+          return undefined;
+        },
+      },
+    },
+    // This node is only shown when:
+    // 1. CLI platform (no VS Code MCP gateway), AND
+    // 2. Either auth is required, or auto-fetch returned no tools
+    condition: (inputs: Inputs) => {
+      // In VS Code, tools are fetched by the extension handler, so skip this node
+      if (inputs.platform === Platform.VSCode) return false;
+      // Show if no available tools were populated by auto-fetch
+      const tools = inputs[QuestionNames.MCPForDAAvailableTools];
+      return !tools || (Array.isArray(tools) && tools.length === 0);
+    },
+  };
+}
+
+/**
+ * Question node for CLI pre-fetch tool selection.
+ * Attempts to auto-fetch tools from the MCP server URL, then presents them for selection.
+ * For CLI platform only — VS Code has its own tool fetching via vscode.lm.tools.
+ */
+export function MCPCliPreFetchToolsNode(): IQTreeNode {
+  return {
+    condition: (inputs: Inputs) => {
+      // Only show in CLI when tools are available (either fetched or loaded from file)
+      if (inputs.platform === Platform.VSCode) return false;
+      const tools = inputs[QuestionNames.MCPForDAAvailableTools];
+      return tools && Array.isArray(tools) && tools.length > 0;
+    },
+    data: {
+      type: "multiSelect",
+      name: QuestionNames.MCPForDAPreFetchTools,
+      title: getLocalizedString("core.createProjectQuestion.mcpForDa.PreFetchTools.title"),
+      staticOptions: [],
+      dynamicOptions: (inputs: Inputs): OptionItem[] => {
+        const availableTools: any[] = inputs[QuestionNames.MCPForDAAvailableTools];
+        return availableTools.map((tool: any) => ({
+          id: tool.name,
+          label: tool.name,
+          detail: tool.description || "",
+        }));
+      },
+      default: (inputs: Inputs) => {
+        const availableTools: any[] = inputs[QuestionNames.MCPForDAAvailableTools] || [];
+        return availableTools.map((tool: any) => tool.name);
+      },
+    },
   };
 }
 
@@ -386,6 +480,36 @@ export function MCPForDAServerUrlNode(): IQTreeNode {
       title: getLocalizedString("core.createProjectQuestion.mcpForDa.ServerUrl.title"),
       type: "text",
       placeholder: getLocalizedString("core.createProjectQuestion.mcpForDa.ServerUrl.placeholder"),
+      additionalValidationOnAccept: {
+        validFunc: async (value: string, inputs?: Inputs): Promise<string | undefined> => {
+          if (!value || !inputs) return undefined;
+          // For CLI: attempt to auto-fetch tools from the server
+          if (inputs.platform !== Platform.VSCode) {
+            try {
+              const result = await fetchMCPTools(value);
+              if (result.requiresAuth) {
+                inputs["_mcpAuthRequired"] = true;
+                inputs[QuestionNames.MCPForDAAvailableTools] = [];
+                if (result.authMetadataUrl) {
+                  inputs[QuestionNames.MCPForDAAuthMetadataUrl] = result.authMetadataUrl;
+                }
+                inputs[QuestionNames.MCPForDAAuth] = "OAuthPluginVault";
+              } else if (result.tools.length > 0) {
+                inputs[QuestionNames.MCPForDAAvailableTools] = result.tools;
+                inputs[QuestionNames.MCPForDATool] = "pre-fetch";
+                inputs[QuestionNames.MCPForDAAuth] = "NoneAuth";
+              } else {
+                inputs[QuestionNames.MCPForDAAvailableTools] = [];
+                inputs[QuestionNames.MCPForDAAuth] = "NoneAuth";
+              }
+            } catch {
+              inputs[QuestionNames.MCPForDAAvailableTools] = [];
+              inputs[QuestionNames.MCPForDAAuth] = "NoneAuth";
+            }
+          }
+          return undefined;
+        },
+      },
     },
   };
 }
@@ -435,9 +559,7 @@ export function updateActionWithMCP(): IQTreeNode {
             (pluginManifest.runtimes as any[])
               .filter(
                 (runtime: any) =>
-                  runtime.type === "RemoteMCPServer" &&
-                  runtime.spec.url === serverUrl &&
-                  !runtime.spec["enable_dynamic_discovery"]
+                  runtime.type === "RemoteMCPServer" && runtime.spec.url === serverUrl
               )
               .forEach((runtime: any) => {
                 result.push(...runtime["run_for_functions"]);

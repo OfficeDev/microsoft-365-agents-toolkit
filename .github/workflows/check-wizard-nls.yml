@@ -1,0 +1,53 @@
+name: Check Wizard NLS Keys
+
+on:
+  pull_request:
+    branches:
+      - dev
+      - release/**
+    paths:
+      - "templates/src/ui/**"
+      - "packages/fx-core/templates/ui/wizardNode.json"
+      - "packages/fx-core/templates/ui/tdpNode.json"
+
+jobs:
+  check-wizard-nls:
+    name: Validate wizard node NLS keys
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head_ref }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 22.17
+
+      - uses: pnpm/action-setup@v4
+
+      - name: Install templates dependencies
+        working-directory: templates
+        run: pnpm install
+
+      - name: Run NLS key validation
+        working-directory: templates
+        run: npx tsx ./scripts/generate-metadata.ts
+
+      - name: Check bundled JSON files are up-to-date
+        run: |
+          diff_wizard=$(diff templates/build/ui/wizardNode.json packages/fx-core/templates/ui/wizardNode.json || true)
+          diff_tdp=$(diff templates/build/ui/tdpNode.json packages/fx-core/templates/ui/tdpNode.json || true)
+          if [ -n "$diff_wizard" ] || [ -n "$diff_tdp" ]; then
+            echo "::error::Bundled wizard JSON files are out of sync with templates/src/ui/."
+            echo ""
+            echo "The following files need to be regenerated and committed:"
+            [ -n "$diff_wizard" ] && echo "  - packages/fx-core/templates/ui/wizardNode.json"
+            [ -n "$diff_tdp" ]    && echo "  - packages/fx-core/templates/ui/tdpNode.json"
+            echo ""
+            echo "Run the following command locally and commit the updated files:"
+            echo "  cd templates && npm run build:vsc"
+            exit 1
+          fi

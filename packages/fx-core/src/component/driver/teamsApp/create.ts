@@ -168,9 +168,8 @@ export class CreateTeamsAppDriver implements StepDriver {
       );
       return ok(
         new Map([
-          // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
           [outputEnvVarNames.get("teamsAppId") as string, createdAppDefinition!.teamsAppId!],
-          // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+
           [outputEnvVarNames.get("teamsAppTenantId") as string, createdAppDefinition!.tenantId!],
         ])
       );

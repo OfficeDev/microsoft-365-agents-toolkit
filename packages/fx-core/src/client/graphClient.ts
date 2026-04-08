@@ -128,7 +128,7 @@ export class GraphClient {
                 name: label?.name,
                 description: label?.description,
                 displayName: label?.displayName,
-              } as SensitivityLabel)
+              }) as SensitivityLabel
           );
           const cacheValue: ListSensitivityCacheValue = {
             labels: labels,

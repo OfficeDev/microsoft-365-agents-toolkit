@@ -16,6 +16,7 @@ import {
   AppStudioScopes,
   getResourceServiceEndpoint,
   ResourceServiceType,
+  MosServiceScope,
 } from "../../common/constants";
 import { ErrorContextMW } from "../../common/globalVars";
 import { CoreSource } from "../../error";
@@ -23,7 +24,6 @@ import { assembleError } from "../../error/common";
 import { HubTypes } from "../../question/constants";
 import { NotExtendedToM365Error } from "./errors";
 import { PackageService } from "./packageService";
-import { MosServiceScope } from "../../common/constants";
 import { officeBaseUrl, outlookBaseUrl, outlookCopilotAppId } from "./constants";
 import { featureFlagManager, FeatureFlags } from "../../common/featureFlags";
 
@@ -84,8 +84,8 @@ export class LaunchHelper {
         const baseUrl = hasCopilotExtensionOnly
           ? `${outlookBaseUrl}/host/${outlookCopilotAppId}`
           : capabilities.includes("staticTab")
-          ? `${outlookBaseUrl}/host/${result.value}`
-          : `${outlookBaseUrl}/mail`;
+            ? `${outlookBaseUrl}/host/${result.value}`
+            : `${outlookBaseUrl}/mail`;
         url = new URL(baseUrl);
         break;
       }

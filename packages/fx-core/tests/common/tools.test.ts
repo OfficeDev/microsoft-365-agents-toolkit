@@ -256,11 +256,11 @@ describe("tools", () => {
 
     it("happy path V3", async () => {
       try {
-        sandbox.stub<any, any>(fs, "readFileSync").callsFake((file: string) => {
+        sandbox.stub<any, any>(fs, "readFileSync").callsFake(() => {
           return `version: 1.0.0
 projectId: 00000000-0000-0000-0000-000000000000`;
         });
-        sandbox.stub<any, any>(fs, "pathExistsSync").callsFake((file: string) => {
+        sandbox.stub<any, any>(fs, "pathExistsSync").callsFake(() => {
           return true;
         });
         const result = getProjectMetadata("root-path");
@@ -271,7 +271,7 @@ projectId: 00000000-0000-0000-0000-000000000000`;
     });
 
     it("project settings not exists", async () => {
-      sandbox.stub<any, any>(fs, "pathExistsSync").callsFake((file: string) => {
+      sandbox.stub<any, any>(fs, "pathExistsSync").callsFake(() => {
         return false;
       });
       const result = getProjectMetadata("root-path");
@@ -279,7 +279,7 @@ projectId: 00000000-0000-0000-0000-000000000000`;
     });
 
     it("throw error", async () => {
-      sandbox.stub<any, any>(fs, "pathExistsSync").callsFake((file: string) => {
+      sandbox.stub<any, any>(fs, "pathExistsSync").callsFake(() => {
         throw new Error("new error");
       });
       const result = getProjectMetadata("root-path");

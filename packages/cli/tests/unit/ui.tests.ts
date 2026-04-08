@@ -1,4 +1,4 @@
-/* eslint-disable import/no-duplicates */
+/* eslint-disable import-x/no-duplicates */
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
@@ -19,8 +19,7 @@ import "mocha";
 import sinon from "sinon";
 import { logger } from "../../src/commonlib/logger";
 import * as customizedPrompts from "../../src/prompts";
-import UI from "../../src/userInteraction";
-import { inquirerPrompts } from "../../src/userInteraction";
+import UI, { inquirerPrompts } from "../../src/userInteraction";
 import { expect } from "./utils";
 import mockedEnv from "mocked-env";
 

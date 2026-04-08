@@ -2,5 +2,6 @@
   "require": ["build/test/setup.js", "ts-node/register"],
   "reporter": "mocha-multi-reporters",
   "recursive": true,
-  "colors": true
+  "colors": true,
+  "node-option": ["no-experimental-strip-types"]
 }

@@ -24,7 +24,7 @@
     "test:e2e:node": "mocha --reporter mocha-multi-reporters 'test/e2e/node/*.spec.ts' --file src/index.ts -r config/mocha.env.ts --config config/mocharc.node.js --reporter-options configFile=config/mocha-multi-reporter.json",
     "test:e2e": "npm run test:e2e:node && npm run test:e2e:browser",
     "ui-test": "mocha --no-timeouts -r test/mocha.env.ts -r ts-node/register test/ui/**/*.spec.ts --exit",
-    "check-sensitive": "npx eslint --plugin 'no-secrets' --cache --ignore-pattern 'package.json' --ignore-pattern 'package-lock.json'",
+    "check-sensitive": "npx eslint --cache --ignore-pattern 'package.json' --ignore-pattern 'package-lock.json'",
     "precommit": "npm run check-sensitive && lint-staged"
   },
   "files": [
@@ -114,7 +114,7 @@
     "karma-mocha-reporter": "^2.2.5",
     "karma-sourcemap-loader": "^0.4.0",
     "karma-webpack": "^5.0.1",
-    "lint-staged": "^11.2.6",
+    "lint-staged": "^15.0.0",
     "lodash.get": "^4.4.2",
     "mocha": "^10.7.3",
     "mocha-multi-reporters": "^1.5.1",

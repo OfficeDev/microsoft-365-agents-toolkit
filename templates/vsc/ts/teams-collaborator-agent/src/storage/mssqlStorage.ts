@@ -8,7 +8,10 @@ export class MssqlKVStore implements IDatabase {
   private pool: mssql.ConnectionPool | null = null;
   private isInitialized = false;
 
-  constructor(private logger: ILogger, private config: DatabaseConfig) {}
+  constructor(
+    private logger: ILogger,
+    private config: DatabaseConfig
+  ) {}
 
   async initialize(): Promise<void> {
     if (this.isInitialized) return;

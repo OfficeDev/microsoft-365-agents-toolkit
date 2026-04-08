@@ -54,7 +54,6 @@ export abstract class BaseBuildDriver {
     // add path to env if execPath is set
     let env: NodeJS.ProcessEnv | undefined = undefined;
     if (this.execPath) {
-      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
       env = { PATH: `${this.execPath}${path.delimiter}${process.env.PATH}` };
     }
     await this.progressBar?.next(ProgressMessages.runCommand(command, this.workingDirectory));

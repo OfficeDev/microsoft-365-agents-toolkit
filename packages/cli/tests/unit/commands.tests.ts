@@ -228,6 +228,156 @@ describe("CLI commands", () => {
         "api-plugin",
       ]);
     });
+
+    it("with-plugin=yes and api-plugin-type matches a sub-template → uses subTemplate name", async () => {
+      sandbox.stub(activate, "getFxCore").returns(new FxCore({} as any));
+      const createProjectStub = sandbox
+        .stub(FxCore.prototype, "createProject")
+        .resolves(ok({ projectPath: "..." }));
+      sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
+      sandbox.stub(listTemplatesModule, "listAllTemplates").returns([
+        {
+          name: "declarative-agent",
+          alias: "da",
+          displayName: "Declarative Agent",
+          description: "desc",
+          language: "typescript",
+        },
+        {
+          name: "declarative-agent-with-action-from-mcp",
+          alias: "da-mcp",
+          displayName: "DA+MCP",
+          description: "desc",
+          language: "typescript",
+        },
+      ] as any);
+
+      const ctx: CLIContext = {
+        command: { ...getCreateCommand(), fullName: "new" },
+        optionValues: {
+          capabilities: "declarative-agent",
+          "with-plugin": "yes",
+          "api-plugin-type": "declarative-agent-with-action-from-mcp",
+          nonInteractive: true,
+        },
+        globalOptionValues: {},
+        argumentValues: [],
+        telemetryProperties: {},
+      };
+
+      const res = await getCreateCommand().handler!(ctx);
+      assert.isTrue(res.isOk());
+      const inputs = createProjectStub.firstCall.args[0] as any;
+      assert.equal(inputs["template-name"], "declarative-agent-with-action-from-mcp");
+    });
+
+    it("with-plugin=yes and api-plugin-type=mcp falls back to actionTemplateMap", async () => {
+      sandbox.stub(activate, "getFxCore").returns(new FxCore({} as any));
+      const createProjectStub = sandbox
+        .stub(FxCore.prototype, "createProject")
+        .resolves(ok({ projectPath: "..." }));
+      sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
+      // Only parent template exists; 'mcp' action type is NOT in templates list
+      sandbox.stub(listTemplatesModule, "listAllTemplates").returns([
+        {
+          name: "declarative-agent",
+          alias: "da",
+          displayName: "Declarative Agent",
+          description: "desc",
+          language: "typescript",
+        },
+      ] as any);
+
+      const ctx: CLIContext = {
+        command: { ...getCreateCommand(), fullName: "new" },
+        optionValues: {
+          capabilities: "declarative-agent",
+          "with-plugin": "yes",
+          "api-plugin-type": "mcp",
+          nonInteractive: true,
+        },
+        globalOptionValues: {},
+        argumentValues: [],
+        telemetryProperties: {},
+      };
+
+      const res = await getCreateCommand().handler!(ctx);
+      assert.isTrue(res.isOk());
+      const inputs = createProjectStub.firstCall.args[0] as any;
+      assert.equal(inputs["template-name"], "declarative-agent-with-action-from-mcp");
+    });
+
+    it("createProject result with warnings logs each warning", async () => {
+      sandbox.stub(activate, "getFxCore").returns(new FxCore({} as any));
+      sandbox.stub(FxCore.prototype, "createProject").resolves(
+        ok({
+          projectPath: "...",
+          warnings: [
+            { type: "general", content: "warn1" },
+            { type: "general", content: "warn2" },
+          ],
+        } as any)
+      );
+      sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
+      const warnStub = sandbox.stub(logger, "warning").resolves();
+
+      const ctx: CLIContext = {
+        command: { ...getCreateCommand(), fullName: "new" },
+        optionValues: {
+          capabilities: "bot",
+          nonInteractive: true,
+        },
+        globalOptionValues: {},
+        argumentValues: [],
+        telemetryProperties: {},
+      };
+
+      const res = await getCreateCommand().handler!(ctx);
+      assert.isTrue(res.isOk());
+      assert.equal(warnStub.callCount, 2);
+      assert.equal(warnStub.firstCall.args[0], "warn1");
+      assert.equal(warnStub.secondCall.args[0], "warn2");
+    });
+
+    it("isTdpTemplate=true triggers createProjectFromTdp instead of createProject", async () => {
+      sandbox.stub(activate, "getFxCore").returns(new FxCore({} as any));
+      const createProjectFromTdpStub = sandbox
+        .stub(FxCore.prototype, "createProjectFromTdp")
+        .resolves(ok({ projectPath: "..." }));
+      const createProjectStub = sandbox.stub(FxCore.prototype, "createProject");
+      sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
+      sandbox.stub(listTemplatesModule, "listAllTemplates").returns([] as any);
+
+      const ctx: CLIContext = {
+        command: { ...getCreateCommand(), fullName: "new" },
+        optionValues: {
+          // Providing teamsAppFromTdp with a staticTab makes isTdpTemplate() return true
+          teamsAppFromTdp: {
+            teamsAppId: "test-app-id",
+            staticTabs: [
+              {
+                objectId: "objId",
+                entityId: "entityId",
+                name: "tab",
+                contentUrl: "https://example.com",
+                websiteUrl: "https://example.com",
+                scopes: [],
+                context: [],
+              },
+            ],
+          } as any,
+          nonInteractive: true,
+        } as any,
+        globalOptionValues: {},
+        argumentValues: [],
+        telemetryProperties: {},
+      };
+
+      const res = await getCreateCommand().handler!(ctx);
+      assert.isTrue(res.isOk());
+      assert.isTrue(createProjectFromTdpStub.calledOnce);
+      assert.isTrue(createProjectStub.notCalled);
+    });
   });
 
   describe("createSampleCommand", async () => {

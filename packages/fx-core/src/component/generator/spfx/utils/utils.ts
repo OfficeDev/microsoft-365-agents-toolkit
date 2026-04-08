@@ -19,7 +19,7 @@ export class Utils {
       files = [configurePath];
     } else {
       for (const ext of extensions) {
-        files = files.concat(glob.sync(`${configurePath}/**/${ext}`, { nodir: true }));
+        files = files.concat(await glob(`${configurePath}/**/${ext}`, { nodir: true }));
       }
     }
 

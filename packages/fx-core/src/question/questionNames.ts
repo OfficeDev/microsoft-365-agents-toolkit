@@ -158,4 +158,5 @@ export enum QuestionNames {
   MCPForDAAuthMetadataUrl = "mcp-da-auth-metadata-url",
   MCPForDAAuthWellKnownUrl = "mcp-da-auth-well-known-url",
   MCPForDAAuthType = "mcp-da-auth-type",
+  MCPToolsFilePath = "mcp-tools-file-path",
 }

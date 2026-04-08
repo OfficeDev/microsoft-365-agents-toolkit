@@ -1,9 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-/* eslint-disable @typescript-eslint/ban-types */
-/* eslint-disable @typescript-eslint/no-var-requires */
-
 import * as vscode from "vscode";
 import {
   PublicClientApplication,
@@ -129,6 +126,9 @@ export class CodeFlowLogin {
     }
     ExtTelemetry.sendTelemetryEvent(TelemetryEvent.LoginStart, {
       [TelemetryProperty.AccountType]: this.accountName,
+      [TelemetryProperty.SovereignCloudType]: featureFlagManager.getStringValue(
+        FeatureFlags.SovereignCloudEnvironment
+      ),
     });
     const codeVerifier = CodeFlowLogin.toBase64UrlEncoding(
       crypto.randomBytes(32).toString("base64")
@@ -208,21 +208,24 @@ export class CodeFlowLogin {
         });
     });
 
-    const codeTimer = setTimeout(() => {
-      if (this.account) {
-        this.status = loggedIn;
-      } else {
-        this.status = loggedOut;
-      }
-      const err = new UserError(
-        getDefaultString("teamstoolkit.codeFlowLogin.loginComponent"),
-        getDefaultString("teamstoolkit.codeFlowLogin.loginTimeoutTitle"),
-        getDefaultString("teamstoolkit.codeFlowLogin.loginTimeoutDescription"),
-        localize("teamstoolkit.codeFlowLogin.loginTimeoutDescription")
-      );
-      err.categories = [ErrorCategory.Internal];
-      deferredRedirect.reject(err);
-    }, 5 * 60 * 1000); // keep the same as azure login
+    const codeTimer = setTimeout(
+      () => {
+        if (this.account) {
+          this.status = loggedIn;
+        } else {
+          this.status = loggedOut;
+        }
+        const err = new UserError(
+          getDefaultString("teamstoolkit.codeFlowLogin.loginComponent"),
+          getDefaultString("teamstoolkit.codeFlowLogin.loginTimeoutTitle"),
+          getDefaultString("teamstoolkit.codeFlowLogin.loginTimeoutDescription"),
+          localize("teamstoolkit.codeFlowLogin.loginTimeoutDescription")
+        );
+        err.categories = [ErrorCategory.Internal];
+        deferredRedirect.reject(err);
+      },
+      5 * 60 * 1000
+    ); // keep the same as azure login
 
     function cancelCodeTimer() {
       clearTimeout(codeTimer);
@@ -240,6 +243,9 @@ export class CodeFlowLogin {
     } catch (e) {
       ExtTelemetry.sendTelemetryErrorEvent(TelemetryEvent.Login, e, {
         [TelemetryProperty.AccountType]: this.accountName,
+        [TelemetryProperty.SovereignCloudType]: featureFlagManager.getStringValue(
+          FeatureFlags.SovereignCloudEnvironment
+        ),
         [TelemetryProperty.Success]: TelemetrySuccess.No,
         [TelemetryProperty.UserId]: "",
         [TelemetryProperty.Internal]: "false",
@@ -254,6 +260,9 @@ export class CodeFlowLogin {
         const tokenJson = ConvertTokenToJson(accessToken);
         ExtTelemetry.sendTelemetryEvent(TelemetryEvent.Login, {
           [TelemetryProperty.AccountType]: this.accountName,
+          [TelemetryProperty.SovereignCloudType]: featureFlagManager.getStringValue(
+            FeatureFlags.SovereignCloudEnvironment
+          ),
           [TelemetryProperty.Success]: TelemetrySuccess.Yes,
           [TelemetryProperty.UserId]: (tokenJson as any).oid ? (tokenJson as any).oid : "",
           [TelemetryProperty.Internal]: (
@@ -383,10 +392,13 @@ export class CodeFlowLogin {
     void vscode.env.openExternal(uri);
 
     const timeoutPromise = new Promise((_resolve: (value: string) => void, reject) => {
-      const wait = setTimeout(() => {
-        clearTimeout(wait);
-        reject("Login timed out.");
-      }, 1000 * 60 * 5);
+      const wait = setTimeout(
+        () => {
+          clearTimeout(wait);
+          reject("Login timed out.");
+        },
+        1000 * 60 * 5
+      );
     });
 
     const accessCode = await Promise.race([getExchangeCode(), timeoutPromise]);

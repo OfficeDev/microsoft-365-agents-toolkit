@@ -60,7 +60,7 @@ describe("generator checker", () => {
   describe("getDependencyInfo", async () => {
     it("install", async () => {
       const generatorChecker = new GeneratorChecker(new StubLogger());
-      const cleanStub = stub(GeneratorChecker.prototype, <any>"cleanup").callsFake(async () => {
+      const cleanStub = stub(GeneratorChecker.prototype, "cleanup" as any).callsFake(async () => {
         console.log("stub cleanup");
         return;
       });
@@ -78,7 +78,7 @@ describe("generator checker", () => {
 
     it("install error", async () => {
       const generatorChecker = new GeneratorChecker(new StubLogger());
-      stub(GeneratorChecker.prototype, <any>"cleanup").callsFake(async () => {
+      stub(GeneratorChecker.prototype, "cleanup" as any).callsFake(async () => {
         console.log("stub cleanup");
         return;
       });
@@ -164,12 +164,12 @@ describe("generator checker", () => {
         return true;
       });
 
-      stub(GeneratorChecker.prototype, <any>"queryVersion").callsFake(async () => {
+      stub(GeneratorChecker.prototype, "queryVersion" as any).callsFake(async () => {
         console.log("stub queryversion");
         return "latest";
       });
 
-      stub(GeneratorChecker.prototype, <any>"findLatestVersion").callsFake(async () => {
+      stub(GeneratorChecker.prototype, "findLatestVersion" as any).callsFake(async () => {
         console.log("stub findLatestVersion");
         return "latest";
       });
@@ -184,11 +184,11 @@ describe("generator checker", () => {
         return false;
       });
 
-      stub(GeneratorChecker.prototype, <any>"queryVersion").callsFake(async () => {
+      stub(GeneratorChecker.prototype, "queryVersion" as any).callsFake(async () => {
         return "latest";
       });
 
-      stub(GeneratorChecker.prototype, <any>"findLatestVersion").callsFake(async () => {
+      stub(GeneratorChecker.prototype, "findLatestVersion" as any).callsFake(async () => {
         return "latest";
       });
 
@@ -203,12 +203,12 @@ describe("generator checker", () => {
         return true;
       });
 
-      stub(GeneratorChecker.prototype, <any>"queryVersion").callsFake(async () => {
+      stub(GeneratorChecker.prototype, "queryVersion" as any).callsFake(async () => {
         console.log("stub queryversion");
         return "lower version";
       });
 
-      stub(GeneratorChecker.prototype, <any>"findLatestVersion").callsFake(async () => {
+      stub(GeneratorChecker.prototype, "findLatestVersion" as any).callsFake(async () => {
         console.log("stub findLatestVersion");
         return "latest";
       });
@@ -224,8 +224,8 @@ describe("generator checker", () => {
         return true;
       });
 
-      stub(GeneratorChecker.prototype, <any>"queryVersion").throws("error");
-      stub(GeneratorChecker.prototype, <any>"findLatestVersion").throws("error");
+      stub(GeneratorChecker.prototype, "queryVersion" as any).throws("error");
+      stub(GeneratorChecker.prototype, "findLatestVersion" as any).throws("error");
 
       const result = await checker.isLatestInstalled(undefined);
       chai.expect(result).is.false;
@@ -236,7 +236,7 @@ describe("generator checker", () => {
     it("install successfully", async () => {
       const checker = new GeneratorChecker(new StubLogger());
 
-      stub(GeneratorChecker.prototype, <any>"install").callsFake(async () => {
+      stub(GeneratorChecker.prototype, "install" as any).callsFake(async () => {
         console.log("installing");
       });
 
@@ -249,7 +249,7 @@ describe("generator checker", () => {
     it("install error", async () => {
       const checker = new GeneratorChecker(new StubLogger());
 
-      stub(GeneratorChecker.prototype, <any>"install").callsFake(async () => {
+      stub(GeneratorChecker.prototype, "install" as any).callsFake(async () => {
         throw new UserError("source", "name", "msg", "msg");
       });
 

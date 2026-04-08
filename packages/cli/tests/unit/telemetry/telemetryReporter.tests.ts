@@ -3,8 +3,8 @@
 
 import { featureFlagManager, FeatureFlags } from "@microsoft/teamsfx-core";
 import { TelemetryClient } from "applicationinsights";
-import * as log4js from "log4js";
-import * as os from "os";
+import log4js from "log4js";
+import os from "os";
 import sinon from "sinon";
 
 import Logger from "../../../src/commonlib/log";

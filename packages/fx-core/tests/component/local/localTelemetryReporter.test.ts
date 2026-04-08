@@ -234,17 +234,21 @@ describe("localTelemetryReporter", () => {
     it("calculates correct durations", async () => {
       const actualDuration = 0.00008;
       const clock = sinon.useFakeTimers();
-      const resultPromise = reporter.runWithTelemetry(testEventName, async () => {
-        await sleep(actualDuration);
-        return ok(undefined);
-      });
+      try {
+        const resultPromise = reporter.runWithTelemetry(testEventName, async () => {
+          await sleep(actualDuration);
+          return ok(undefined);
+        });
 
-      clock.tick(actualDuration);
-      await resultPromise;
+        clock.tick(actualDuration);
+        await resultPromise;
 
-      chai
-        .expect(mockedEvents[1].measurements?.["duration"])
-        .to.be.closeTo(actualDuration, actualDuration + 0.00001);
+        chai
+          .expect(mockedEvents[1].measurements?.["duration"])
+          .to.be.closeTo(actualDuration, actualDuration + 0.00001);
+      } finally {
+        clock.restore();
+      }
     });
 
     it("event time", async () => {
@@ -255,26 +259,30 @@ describe("localTelemetryReporter", () => {
 
       // Act
       const clock = sinon.useFakeTimers();
-      const promise1 = reporter.runWithTelemetry(event1, async () => {
-        return ok(undefined);
-      });
+      try {
+        const promise1 = reporter.runWithTelemetry(event1, async () => {
+          return ok(undefined);
+        });
 
-      clock.tick(1);
-      await promise1;
+        clock.tick(1);
+        await promise1;
 
-      clock.tick(2);
-      const promise2 = reporter.runWithTelemetry(event2, async () => {
-        return ok(undefined);
-      });
+        clock.tick(2);
+        const promise2 = reporter.runWithTelemetry(event2, async () => {
+          return ok(undefined);
+        });
 
-      clock.tick(3);
-      await promise2;
+        clock.tick(3);
+        await promise2;
 
-      // Assert
-      const t0 = eventTime[event1Start];
-      chai.assert.isTrue(eventTime[event1] > t0);
-      chai.assert.isTrue(eventTime[event2Start] > eventTime[event1]);
-      chai.assert.isTrue(eventTime[event2] > eventTime[event2Start]);
+        // Assert
+        const t0 = eventTime[event1Start];
+        chai.assert.isTrue(eventTime[event1] > t0);
+        chai.assert.isTrue(eventTime[event2Start] > eventTime[event1]);
+        chai.assert.isTrue(eventTime[event2] > eventTime[event2Start]);
+      } finally {
+        clock.restore();
+      }
     });
   });
 

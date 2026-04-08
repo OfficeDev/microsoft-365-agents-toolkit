@@ -200,7 +200,7 @@ describe("LaunchHelper", () => {
         isSPFx: false,
         isApiMeAAD: false,
       };
-      sinon.stub(LaunchHelper.prototype, <any>"getM365AppId").resolves(ok("test-app-id"));
+      sinon.stub(LaunchHelper.prototype, "getM365AppId" as any).resolves(ok("test-app-id"));
       const result = await launchHelper.getLaunchUrl(HubTypes.outlook, "test-id", properties);
       chai.assert(result.isOk());
       chai.assert.equal(
@@ -219,7 +219,7 @@ describe("LaunchHelper", () => {
           },
         })
       );
-      sinon.stub(LaunchHelper.prototype, <any>"getM365AppId").resolves(err({ foo: "bar" }));
+      sinon.stub(LaunchHelper.prototype, "getM365AppId" as any).resolves(err({ foo: "bar" }));
       const properties: ManifestProperties = {
         capabilities: ["staticTab"],
         id: "test-id",
@@ -244,7 +244,7 @@ describe("LaunchHelper", () => {
           },
         })
       );
-      sinon.stub(LaunchHelper.prototype, <any>"getM365AppId").resolves(ok("test-app-id"));
+      sinon.stub(LaunchHelper.prototype, "getM365AppId" as any).resolves(ok("test-app-id"));
       const properties: ManifestProperties = {
         capabilities: ["Bot"],
         id: "test-id",
@@ -272,7 +272,7 @@ describe("LaunchHelper", () => {
           },
         })
       );
-      sinon.stub(LaunchHelper.prototype, <any>"getM365AppId").resolves(ok("test-app-id"));
+      sinon.stub(LaunchHelper.prototype, "getM365AppId" as any).resolves(ok("test-app-id"));
       const properties: ManifestProperties = {
         capabilities: ["Bot"],
         id: "test-id",
@@ -309,7 +309,7 @@ describe("LaunchHelper", () => {
         isSPFx: false,
         isApiMeAAD: false,
       };
-      sinon.stub(LaunchHelper.prototype, <any>"getM365AppId").resolves(ok("test-app-id"));
+      sinon.stub(LaunchHelper.prototype, "getM365AppId" as any).resolves(ok("test-app-id"));
       const result = await launchHelper.getLaunchUrl(HubTypes.outlook, "test-id", properties);
       chai.assert(result.isOk());
       chai.assert.equal(
@@ -328,7 +328,7 @@ describe("LaunchHelper", () => {
           },
         })
       );
-      sinon.stub(LaunchHelper.prototype, <any>"getM365AppId").resolves(ok("test-app-id"));
+      sinon.stub(LaunchHelper.prototype, "getM365AppId" as any).resolves(ok("test-app-id"));
       const properties: ManifestProperties = {
         capabilities: ["copilotGpt"],
         id: "test-id",

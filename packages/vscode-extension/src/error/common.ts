@@ -119,13 +119,13 @@ export async function showError(e: UserError | SystemError) {
       },
     };
     VsCodeLogInstance.error(`code:${errorCode}, message: ${e.message}\n Help link: ${e.helpLink}`);
-    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+
     VsCodeLogInstance.debug(`Call stack: ${e.stack || e.innerError?.stack || ""}`);
     const buttons = recommendSandbox
       ? [runSandbox]
       : recommendTestTool
-      ? [runTestTool, help]
-      : [help];
+        ? [runTestTool, help]
+        : [help];
     if (shouldRecommendTeamsAgent) {
       buttons.push(troubleshootErrorWithTeamsAgentButton);
     }
@@ -164,8 +164,8 @@ export async function showError(e: UserError | SystemError) {
     const buttons = recommendSandbox
       ? [runSandbox]
       : recommendTestTool
-      ? [runTestTool, issue]
-      : [issue];
+        ? [runTestTool, issue]
+        : [issue];
     if (shouldRecommendTeamsAgent) {
       if (buttons.length >= 2) {
         buttons.push(troubleshootErrorWithTeamsAgentButton);
@@ -185,7 +185,7 @@ export async function showError(e: UserError | SystemError) {
       buttons.push(similarIssues);
     }
     VsCodeLogInstance.error(`code:${errorCode}, message: ${e.message}`);
-    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+
     VsCodeLogInstance.debug(`Call stack: ${e.stack || e.innerError?.stack || ""}`);
 
     void window
@@ -195,7 +195,6 @@ export async function showError(e: UserError | SystemError) {
       });
   } else {
     if (!(e instanceof ConcurrentError)) {
-      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
       VsCodeLogInstance.debug(`Call stack: ${e.stack || e.innerError?.stack || ""}`);
       const buttons: {
         title: string;

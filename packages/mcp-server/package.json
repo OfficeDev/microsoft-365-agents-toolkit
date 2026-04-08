@@ -34,7 +34,6 @@
   },
   "author": "Microsoft Corporation",
   "license": "MIT",
-  "deprecated": "This package is deprecated.",
   "description": "MCP server for Microsoft 365 Agents Toolkit",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.27.1",

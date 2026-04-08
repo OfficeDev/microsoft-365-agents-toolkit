@@ -2,7 +2,6 @@
 // Licensed under the MIT license.
 
 import { Inputs, IQTreeNode, OptionItem, Platform } from "@microsoft/teamsfx-api";
-import { featureFlagManager, FeatureFlags } from "../../../common/featureFlags";
 import { getLocalizedString } from "../../../common/localizeUtils";
 import { getAllTemplatesOnPlatform } from "../../../component/generator/templates/metadata";
 import { ProgrammingLanguage } from "../../constants";
@@ -15,11 +14,7 @@ import {
 import { QuestionNames } from "../../questionNames";
 import { DACapabilityOptions } from "./CapabilityOptions";
 import { ProjectTypeOptions } from "./ProjectTypeOptions";
-import { getCustomEngineAgentNode } from "./customEngineAgentNode";
-import { daProjectTypeNode } from "./daProjectTypeNode";
-import { graphConnectorProjectTypeNode } from "./graphConnectorProjectTypeNode";
-import { officeAddinProjectTypeNode } from "./officeAddinProjectTypeNode";
-import { getTeamsProjectNode } from "./teamsProjectTypeNode";
+import { getRootProjectTypeNode } from "./rootNode";
 
 export const LanguageOptionMap = new Map<string, OptionItem>([
   [ProgrammingLanguage.JS, { id: ProgrammingLanguage.JS, label: "JavaScript" }],
@@ -102,30 +97,7 @@ export function scaffoldQuestionForVSCode(platform: Platform = Platform.VSCode):
   const node: IQTreeNode = {
     data: { type: "group" },
     children: [
-      {
-        data: {
-          name: QuestionNames.ProjectType,
-          title: getLocalizedString("core.createProjectQuestion.title"),
-          type: "singleSelect",
-          staticOptions: [
-            ProjectTypeOptions.declarativeAgent(platform),
-            ProjectTypeOptions.customEngineAgent(platform),
-            ProjectTypeOptions.graphConnector(platform),
-            ProjectTypeOptions.teamsAgentsAndApps(platform),
-            ProjectTypeOptions.officeAddin(platform),
-            ...(featureFlagManager.getBooleanValue(FeatureFlags.ChatParticipantUIEntries)
-              ? [ProjectTypeOptions.startWithGithubCopilot()]
-              : []),
-          ],
-        },
-        children: [
-          daProjectTypeNode(),
-          getCustomEngineAgentNode(),
-          getTeamsProjectNode(),
-          graphConnectorProjectTypeNode(),
-          officeAddinProjectTypeNode(),
-        ],
-      },
+      getRootProjectTypeNode(platform),
       languageNode(),
       {
         condition: folderAndAppNameCondition,

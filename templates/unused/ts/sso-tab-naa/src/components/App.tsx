@@ -27,11 +27,11 @@ export default function App() {
           themeString === "dark"
             ? teamsDarkTheme
             : themeString === "contrast"
-            ? teamsHighContrastTheme
-            : {
-                ...teamsLightTheme,
-                colorNeutralBackground3: "#eeeeee",
-              }
+              ? teamsHighContrastTheme
+              : {
+                  ...teamsLightTheme,
+                  colorNeutralBackground3: "#eeeeee",
+                }
         }
         style={{ background: tokens.colorNeutralBackground3 }}
       >

@@ -1,5 +1,6 @@
 {
     "extensions": ["ts"],
     "spec": ["test/*.test.ts"],
-    "require": ["ts-node/register"]
+    "require": ["ts-node/register"],
+    "node-option": ["no-experimental-strip-types"]
 }

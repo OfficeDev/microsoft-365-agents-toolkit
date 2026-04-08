@@ -1,6 +1,5 @@
-/**
- * Timer - measures call-rate of a function and the distribution of the duration of all calls
- */
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
 import { performance } from "perf_hooks";
 import { timerData, TimerSeverity, tracePoint } from "../rawData";
 import { traceId } from "../tracing";
@@ -15,7 +14,7 @@ const normal = 20;
 
 export const MSTimer = (fn: string) => {
   /* eslint-disable  @typescript-eslint/no-explicit-any */
-  /* eslint-disable  @typescript-eslint/explicit-module-boundary-types */
+
   return (target: any, propertyKey: string, descriptor: PropertyDescriptor) => {
     const originalMethod = descriptor.value;
 

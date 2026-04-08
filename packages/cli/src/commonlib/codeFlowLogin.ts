@@ -119,11 +119,7 @@ export class CodeFlowLogin {
     requestScopes: Array<string> | AuthenticationWWWAuthenticateRequest,
     tenantId?: string
   ): Promise<string> {
-    if (featureFlagManager.getBooleanValue(FeatureFlags.BrokerAuth)) {
-      return await this.loginWithBroker(requestScopes, tenantId);
-    } else {
-      return await this.loginWithBrowser(requestScopes, tenantId);
-    }
+    return await this.loginWithBroker(requestScopes, tenantId);
   }
 
   async loginWithBrowser(
@@ -221,15 +217,18 @@ export class CodeFlowLogin {
         });
     });
 
-    const codeTimer = setTimeout(() => {
-      deferredRedirect.reject(
-        new UserError(
-          ErrorMessage.loginComponent,
-          ErrorMessage.loginTimeoutTitle,
-          ErrorMessage.loginTimeoutDescription
-        )
-      );
-    }, 5 * 60 * 1000);
+    const codeTimer = setTimeout(
+      () => {
+        deferredRedirect.reject(
+          new UserError(
+            ErrorMessage.loginComponent,
+            ErrorMessage.loginTimeoutTitle,
+            ErrorMessage.loginTimeoutDescription
+          )
+        );
+      },
+      5 * 60 * 1000
+    );
 
     function cancelCodeTimer() {
       clearTimeout(codeTimer);

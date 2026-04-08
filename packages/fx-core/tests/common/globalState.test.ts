@@ -17,10 +17,10 @@ describe("Global State Get/Update", () => {
 
   it("returns stored value if key has been updated before", async () => {
     sandbox.stub<any, any>(fs, "readJSON").resolves({ test: false });
-    sandbox.stub<any, any>(fs, "pathExistsSync").callsFake((file: string) => {
+    sandbox.stub<any, any>(fs, "pathExistsSync").callsFake(() => {
       return true;
     });
-    sandbox.stub<any, any>(fs, "existsSync").callsFake((file: string) => {
+    sandbox.stub<any, any>(fs, "existsSync").callsFake(() => {
       return true;
     });
     sandbox.stub(properLock, "lock").resolves();
@@ -31,10 +31,10 @@ describe("Global State Get/Update", () => {
 
   it("returns default value if key hasn't been updated before", async () => {
     sandbox.stub<any, any>(fs, "readJSON").resolves({});
-    sandbox.stub<any, any>(fs, "pathExistsSync").callsFake((file: string) => {
+    sandbox.stub<any, any>(fs, "pathExistsSync").callsFake(() => {
       return true;
     });
-    sandbox.stub<any, any>(fs, "existsSync").callsFake((file: string) => {
+    sandbox.stub<any, any>(fs, "existsSync").callsFake(() => {
       return true;
     });
     sandbox.stub(properLock, "lock");
@@ -44,23 +44,23 @@ describe("Global State Get/Update", () => {
   });
 
   it("stores value if globalStateUpdate is called", async () => {
-    sandbox.stub<any, any>(fs, "readJSONSync").callsFake((file: string) => {
+    sandbox.stub<any, any>(fs, "readJSONSync").callsFake(() => {
       return {};
     });
-    sandbox.stub<any, any>(fs, "readJSON").callsFake(async (file: string) => {
+    sandbox.stub<any, any>(fs, "readJSON").callsFake(async () => {
       return {};
     });
-    sandbox.stub<any, any>(fs, "pathExistsSync").callsFake((file: string) => {
+    sandbox.stub<any, any>(fs, "pathExistsSync").callsFake(() => {
       return false;
     });
     sandbox.stub<any, any>(fs, "mkdirpSync");
-    sandbox.stub<any, any>(fs, "existsSync").callsFake((file: string) => {
+    sandbox.stub<any, any>(fs, "existsSync").callsFake(() => {
       return true;
     });
-    sandbox.stub<any, any>(fs, "writeJson").callsFake(async (file: string, object: any) => {
+    sandbox.stub<any, any>(fs, "writeJson").callsFake(async (_file: unknown, object: unknown) => {
       data = object;
     });
-    sandbox.stub<any, any>(fs, "writeJsonSync").callsFake((file: string, object: any) => {
+    sandbox.stub<any, any>(fs, "writeJsonSync").callsFake((_file: unknown, object: unknown) => {
       data = object;
     });
     sandbox.stub(properLock, "lock");

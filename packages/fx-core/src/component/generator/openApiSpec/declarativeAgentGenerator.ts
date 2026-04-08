@@ -63,9 +63,8 @@ export class DeclarativeAgentWithExistingApiSpecGenerator extends DefaultTemplat
           AppPackageFolderName,
           ManifestTemplateFileName
         );
-        const declarativeCopilotManifestPathRes = await copilotGptManifestUtils.getManifestPath(
-          teamsManifestPath
-        );
+        const declarativeCopilotManifestPathRes =
+          await copilotGptManifestUtils.getManifestPath(teamsManifestPath);
         if (declarativeCopilotManifestPathRes.isErr()) {
           return err(declarativeCopilotManifestPathRes.error);
         }

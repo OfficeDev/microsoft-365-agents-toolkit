@@ -1,5 +1,4 @@
-import { Context } from "@microsoft/teams-js";
-import { Context as ContextAlias } from "@microsoft/teams-js";
+import { Context, Context as ContextAlias  } from "@microsoft/teams-js";
 
 interface ITestContext extends Context {
   x: number;

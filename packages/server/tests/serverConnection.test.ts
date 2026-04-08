@@ -64,7 +64,7 @@ describe("serverConnections", () => {
   it("getQuestionsRequest", () => {
     const connection = new ServerConnection(msgConn);
     const fake = sandbox.fake.returns(ok(undefined));
-    sandbox.replace(connection["core"], "getQuestions", fake);
+    sandbox.replace(connection["core"], "getQuestions", fake as any);
     const stage = Stage.create;
     const inputs = { platform: Platform.VS };
     const token = {};
@@ -78,7 +78,7 @@ describe("serverConnections", () => {
   it("createProjectRequest", () => {
     const connection = new ServerConnection(msgConn);
     const fake = sandbox.fake.returns({ projectPath: "test" });
-    sandbox.replace(connection["core"], "createProject", fake);
+    sandbox.replace(connection["core"], "createProject", fake as any);
     const inputs = {
       platform: "vs",
     };
@@ -92,7 +92,7 @@ describe("serverConnections", () => {
   it("localDebugRequest", () => {
     const connection = new ServerConnection(msgConn);
     const fake = sandbox.fake.returns("test");
-    sandbox.replace(connection["core"], "localDebug", fake);
+    sandbox.replace(connection["core"], "localDebug", fake as any);
     const inputs = {
       platform: "vs",
     };
@@ -111,7 +111,7 @@ describe("serverConnections", () => {
       resolvedAzureSubscriptionId: undefined,
       resolvedAzureResourceGroupName: undefined,
     });
-    sandbox.replace(connection["core"], "preProvisionForVS", fake);
+    sandbox.replace(connection["core"], "preProvisionForVS", fake as any);
     const inputs = {
       platform: "vs",
     };
@@ -136,7 +136,7 @@ describe("serverConnections", () => {
   it("provisionResourcesRequest", () => {
     const connection = new ServerConnection(msgConn);
     const fake = sandbox.fake.returns("test");
-    sandbox.replace(connection["core"], "provisionResources", fake);
+    sandbox.replace(connection["core"], "provisionResources", fake as any);
     const inputs = {
       platform: "vs",
     };
@@ -150,7 +150,7 @@ describe("serverConnections", () => {
   it("preCheckYmlAndEnvForVSRequest", () => {
     const connection = new ServerConnection(msgConn);
     const fake = sandbox.fake.returns("test");
-    sandbox.replace(connection["core"], "preCheckYmlAndEnvForVS", fake);
+    sandbox.replace(connection["core"], "preCheckYmlAndEnvForVS", fake as any);
     const inputs = {
       platform: "vs",
     };
@@ -167,7 +167,7 @@ describe("serverConnections", () => {
   it("validateManifestForVSRequest", () => {
     const connection = new ServerConnection(msgConn);
     const fake = sandbox.fake.returns("test");
-    sandbox.replace(connection["core"], "validateManifest", fake);
+    sandbox.replace(connection["core"], "validateManifest", fake as any);
     const inputs = {
       platform: "vs",
     };
@@ -184,7 +184,7 @@ describe("serverConnections", () => {
   it("deployArtifactsRequest", () => {
     const connection = new ServerConnection(msgConn);
     const fake = sandbox.fake.returns("test");
-    sandbox.replace(connection["core"], "deployArtifacts", fake);
+    sandbox.replace(connection["core"], "deployArtifacts", fake as any);
     const inputs = {
       platform: "vs",
     };
@@ -198,7 +198,7 @@ describe("serverConnections", () => {
   it("deployTeamsAppManifestRequest - v3", async () => {
     const connection = new ServerConnection(msgConn);
     const fake = sandbox.fake.resolves(ok("test"));
-    sandbox.replace(connection["core"], "deployTeamsManifest", fake);
+    sandbox.replace(connection["core"], "deployTeamsManifest", fake as any);
     const inputs = {
       platform: "vs",
     };
@@ -217,7 +217,7 @@ describe("serverConnections", () => {
   it("buildArtifactsRequest - V3", () => {
     const connection = new ServerConnection(msgConn);
     const fake = sandbox.fake.resolves(ok("test"));
-    sandbox.replace(connection["core"], "createAppPackage", fake);
+    sandbox.replace(connection["core"], "createAppPackage", fake as any);
     const inputs = {
       platform: "vs",
       projectPath: ".",
@@ -232,7 +232,7 @@ describe("serverConnections", () => {
   it("publishApplicationRequest", () => {
     const connection = new ServerConnection(msgConn);
     const fake = sandbox.fake.returns("test");
-    sandbox.replace(connection["core"], "publishApplication", fake);
+    sandbox.replace(connection["core"], "publishApplication", fake as any);
     const inputs = {
       platform: "vs",
     };
@@ -246,7 +246,7 @@ describe("serverConnections", () => {
   it("getLaunchUrlRequest", () => {
     const connection = new ServerConnection(msgConn);
     const fake = sandbox.fake.returns("test");
-    sandbox.replace(connection["core"], "previewWithManifest", fake);
+    sandbox.replace(connection["core"], "previewWithManifest", fake as any);
     const inputs = {
       platform: "vs",
     };
@@ -341,7 +341,7 @@ describe("serverConnections", () => {
   it("addSsoRequest", () => {
     const connection = new ServerConnection(msgConn);
     const fake = sandbox.fake.returns("test");
-    sandbox.replace(connection["core"], "createProject", fake);
+    sandbox.replace(connection["core"], "createProject", fake as any);
 
     const inputs = {
       platform: "vs",
@@ -360,7 +360,7 @@ describe("serverConnections", () => {
       isSupport: 0,
       trackingId: "1234-3213-4325-1231",
     });
-    sandbox.replace(connection["core"], "projectVersionCheck", fake);
+    sandbox.replace(connection["core"], "projectVersionCheck", fake as any);
 
     const inputs = {
       platform: "vs",
@@ -377,7 +377,7 @@ describe("serverConnections", () => {
 
   it("migrateProjectRequest - ok(true)", async () => {
     const connection = new ServerConnection(msgConn);
-    sandbox.replace(connection["core"], "phantomMigrationV3", sandbox.fake.returns(Void));
+    sandbox.replace(connection["core"], "phantomMigrationV3", sandbox.fake.returns(Void) as any);
     connection
       .migrateProjectRequest(
         {
@@ -392,7 +392,7 @@ describe("serverConnections", () => {
 
   it("migrateProjectRequest - ok(false)", async () => {
     const connection = new ServerConnection(msgConn);
-    sandbox.replace(connection["core"], "phantomMigrationV3", sandbox.fake.returns("test"));
+    sandbox.replace(connection["core"], "phantomMigrationV3", sandbox.fake.returns("test") as any);
     connection
       .migrateProjectRequest(
         {
@@ -408,7 +408,7 @@ describe("serverConnections", () => {
   it("publishInDeveloperPortalRequest", () => {
     const connection = new ServerConnection(msgConn);
     const fake = sandbox.fake.resolves(ok(Void));
-    sandbox.replace(connection["core"], "publishInDeveloperPortal", fake);
+    sandbox.replace(connection["core"], "publishInDeveloperPortal", fake as any);
     const inputs = {
       platform: "vs",
       projectPath: "test",
@@ -455,7 +455,7 @@ describe("serverConnections", () => {
   it("copilotPluginListOperations fail", async () => {
     const connection = new ServerConnection(msgConn);
     const fake = sandbox.fake.resolves(err(new UserError("source", "name", "", "")));
-    sandbox.replace(connection["core"], "copilotPluginListOperations", fake);
+    sandbox.replace(connection["core"], "copilotPluginListOperations", fake as any);
     const res = await connection.listOpenAPISpecOperationsRequest(
       {} as Inputs,
       {} as CancellationToken
@@ -469,7 +469,7 @@ describe("serverConnections", () => {
   it("copilotPluginAddAPIRequest", async () => {
     const connection = new ServerConnection(msgConn);
     const fake = sandbox.fake.resolves(ok(undefined));
-    sandbox.replace(connection["core"], "copilotPluginAddAPI", fake);
+    sandbox.replace(connection["core"], "copilotPluginAddAPI", fake as any);
     const res = await connection.copilotPluginAddAPIRequest({} as Inputs, {} as CancellationToken);
     assert.isTrue(res.isOk());
   });
@@ -530,7 +530,7 @@ describe("serverConnections", () => {
   it("listPluginApiSpecs fail", async () => {
     const connection = new ServerConnection(msgConn);
     const fake = sandbox.fake.resolves(err("error"));
-    sandbox.replace(connection["core"], "listPluginApiSpecs", fake);
+    sandbox.replace(connection["core"], "listPluginApiSpecs", fake as any);
     const res = await connection.listPluginApiSpecs({} as Inputs, {} as CancellationToken);
     assert.isTrue(res.isErr());
   });
@@ -538,7 +538,7 @@ describe("serverConnections", () => {
   it("listPluginApiSpecsRequest", async () => {
     const connection = new ServerConnection(msgConn);
     const fake = sandbox.fake.resolves(ok(undefined));
-    sandbox.replace(connection["core"], "listPluginApiSpecs", fake);
+    sandbox.replace(connection["core"], "listPluginApiSpecs", fake as any);
     const res = await connection.listPluginApiSpecs({} as Inputs, {} as CancellationToken);
     assert.isTrue(res.isOk());
   });

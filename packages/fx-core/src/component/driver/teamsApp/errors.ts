@@ -98,10 +98,9 @@ export class AppStudioError {
   public static readonly GrantPermissionFailedError = {
     name: "GrantPermissionFailed",
     message: (errorMessage: string, id?: string): [string, string] => [
-      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
       `${Constants.PERMISSIONS.name}: ${id}. ` +
         getDefaultString("error.appstudio.grantPermissionFailed", errorMessage),
-      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+
       `${Constants.PERMISSIONS.name}: ${id}. ` +
         getLocalizedString("error.appstudio.grantPermissionFailed", errorMessage),
     ],

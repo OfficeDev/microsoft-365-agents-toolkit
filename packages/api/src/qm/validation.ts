@@ -119,7 +119,7 @@ export interface StringArrayValidation extends StaticValidation {
  * The validation is checked by a validFunc provided by user
  */
 export interface FuncValidation<
-  T extends string | string[] | OptionItem | OptionItem[] | undefined
+  T extends string | string[] | OptionItem | OptionItem[] | undefined,
 > {
   /**
    * A function that will be called to validate input and to give a hint to the user.

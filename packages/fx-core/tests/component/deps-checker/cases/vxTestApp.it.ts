@@ -22,8 +22,8 @@ describe("VxTestAppChecker E2E Test", async () => {
   const vxTestAppExecutableName = isWindows()
     ? "video-extensibility-test-app.exe"
     : isMacOS()
-    ? "video-extensibility-test-app.app"
-    : "video-extensibility-test-app";
+      ? "video-extensibility-test-app.app"
+      : "video-extensibility-test-app";
   let sandbox: sinon.SinonSandbox;
 
   beforeEach(() => {

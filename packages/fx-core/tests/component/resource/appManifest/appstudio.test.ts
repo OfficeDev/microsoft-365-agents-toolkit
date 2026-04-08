@@ -363,7 +363,7 @@ describe.skip("appStudio", () => {
       };
       const updateDriver = new ConfigureTeamsAppDriver();
       sandbox.stub(Container, "get").callsFake((name) => {
-        if (name === "teamsApp/update") {
+        if ((name as any) === "teamsApp/update") {
           return updateDriver;
         } else {
           throw new Error("not implemented");
@@ -398,7 +398,7 @@ describe.skip("appStudio", () => {
       };
       const updateDriver = new ConfigureTeamsAppDriver();
       sandbox.stub(Container, "get").callsFake((name) => {
-        if (name === "teamsApp/update") {
+        if ((name as any) === "teamsApp/update") {
           return updateDriver;
         } else {
           throw new Error("not implemented");

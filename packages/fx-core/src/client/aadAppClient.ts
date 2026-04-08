@@ -225,7 +225,6 @@ export class AadAppClient {
   @hooks([ErrorContextMW({ source: "Graph", component: "AadAppClient" })])
   public async addOwner(objectId: string, userObjectId: string): Promise<void> {
     const requestBody = {
-      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
       "@odata.id": `${this.axios.defaults.baseURL}/directoryObjects/${userObjectId}`,
     };
 

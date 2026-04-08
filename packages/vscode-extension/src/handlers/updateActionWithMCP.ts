@@ -262,7 +262,7 @@ export async function updateActionWithMCP(args?: any[]): Promise<Result<any, FxE
           );
           gatewayAddress = matchingServer?.address?.toString();
         } else if ("address" in mcpGateway) {
-          gatewayAddress = (mcpGateway as any).address.toString();
+          gatewayAddress = (mcpGateway as { address: vscode.Uri }).address.toString();
         }
         if (gatewayAddress) {
           const transport = new StreamableHTTPClientTransport(new URL(gatewayAddress));

@@ -6,6 +6,7 @@ import "mocha";
 import mockedEnv, { RestoreFn } from "mocked-env";
 import * as path from "path";
 import * as sinon from "sinon";
+import * as glob from "glob";
 import { getLocalizedString } from "../../../../../src/common/localizeUtils";
 import { Utils } from "../../../../../src/component/generator/spfx/utils/utils";
 import {
@@ -185,5 +186,33 @@ describe("utils", () => {
 
     const defaultName = await (appNameQuestion() as any).default(inputs);
     chai.expect(defaultName).equal("fakedSolutionName");
+  });
+
+  describe("configure", () => {
+    it("replaces content in a single file when path is a file", async () => {
+      const filePath = "c:\\test\\config.json";
+      sinon.stub(fs, "lstatSync").returns({ isFile: () => true } as any);
+      sinon.stub(fs, "readFile").resolves(Buffer.from("hello OLD world"));
+      const writeStub = sinon.stub(fs, "writeFile").resolves();
+
+      await Utils.configure(filePath, new Map([["OLD", "NEW"]]));
+
+      chai.expect(writeStub.calledOnce).to.be.true;
+      chai.expect(writeStub.firstCall.args[1]).to.equal("hello NEW world");
+    });
+
+    it("replaces content in files found by glob when path is a directory", async () => {
+      const dirPath = "c:\\test";
+      const fakeFile = "c:\\test\\src\\file.json";
+      sinon.stub(fs, "lstatSync").returns({ isFile: () => false } as any);
+      sinon.stub(glob, "glob").resolves([fakeFile]);
+      sinon.stub(fs, "readFile").resolves(Buffer.from("value: OLD"));
+      const writeStub = sinon.stub(fs, "writeFile").resolves();
+
+      await Utils.configure(dirPath, new Map([["OLD", "NEW"]]));
+
+      chai.expect(writeStub.called).to.be.true;
+      chai.expect(writeStub.firstCall.args[1]).to.equal("value: NEW");
+    });
   });
 });

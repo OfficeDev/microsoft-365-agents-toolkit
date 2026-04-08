@@ -2,6 +2,7 @@ import * as chai from "chai";
 import * as fs from "fs-extra";
 import mockFs from "mock-fs";
 import * as sinon from "sinon";
+import proxyquire from "proxyquire";
 import * as projectSettingsHelper from "../../src/common/projectSettingsHelper";
 import { OfficeManifestType } from "../../src/common/projectSettingsHelper";
 
@@ -65,26 +66,26 @@ describe("validateIsOfficeAddInProject", () => {
 });
 
 describe("fetchManifestList", () => {
-  let readdirSyncStub: any, isOfficeXmlAddInManifestStub: any, isOfficeMetaOsAddInManifestStub: any;
+  let readdirSyncStub: sinon.SinonStub;
+  let proxiedHelper: typeof projectSettingsHelper;
 
   beforeEach(() => {
-    readdirSyncStub = sinon.stub(fs, "readdirSync");
-    isOfficeXmlAddInManifestStub = sinon.stub(projectSettingsHelper, "isOfficeXmlAddInManifest");
-    isOfficeMetaOsAddInManifestStub = sinon.stub(
-      projectSettingsHelper,
-      "isOfficeMetaOsAddInManifest"
-    );
+    readdirSyncStub = sinon.stub();
+    proxiedHelper = proxyquire("../../src/common/projectSettingsHelper", {
+      "fs-extra": {
+        ...fs,
+        readdirSync: readdirSyncStub,
+      },
+    });
   });
 
   afterEach(() => {
-    readdirSyncStub.restore();
-    isOfficeXmlAddInManifestStub.restore();
-    isOfficeMetaOsAddInManifestStub.restore();
+    sinon.restore();
     mockFs.restore();
   });
 
   it("should return undefined if workspacePath is not provided", () => {
-    chai.expect(projectSettingsHelper.fetchManifestList()).to.be.undefined;
+    chai.expect(proxiedHelper.fetchManifestList()).to.be.undefined;
   });
 
   it("should return manifest.xml if type is OfficeManifestType.XmlAddIn", () => {
@@ -92,14 +93,8 @@ describe("fetchManifestList", () => {
       "/test/manifest.xml": "",
     });
     readdirSyncStub.returns(["manifest.xml"]);
-    isOfficeXmlAddInManifestStub.callsFake((fileName: string) => fileName === "manifest.xml");
     chai
-      .expect(
-        projectSettingsHelper.fetchManifestList(
-          "/test",
-          projectSettingsHelper.OfficeManifestType.XmlAddIn
-        )
-      )
+      .expect(proxiedHelper.fetchManifestList("/test", proxiedHelper.OfficeManifestType.XmlAddIn))
       .to.deep.equal(["manifest.xml"]);
   });
 
@@ -108,13 +103,9 @@ describe("fetchManifestList", () => {
       "/test/manifest.json": "",
     });
     readdirSyncStub.returns(["manifest.json"]);
-    isOfficeMetaOsAddInManifestStub.callsFake((fileName: string) => fileName === "manifest.json");
     chai
       .expect(
-        projectSettingsHelper.fetchManifestList(
-          "/test",
-          projectSettingsHelper.OfficeManifestType.MetaOsAddIn
-        )
+        proxiedHelper.fetchManifestList("/test", proxiedHelper.OfficeManifestType.MetaOsAddIn)
       )
       .to.deep.equal(["manifest.json"]);
   });
@@ -125,14 +116,8 @@ describe("fetchManifestList", () => {
       "/test/manifest.json": "",
     });
     readdirSyncStub.returns(["manifest.xml", "manifest.json"]);
-    isOfficeXmlAddInManifestStub.callsFake((fileName: string) => fileName === "manifest.xml");
     chai
-      .expect(
-        projectSettingsHelper.fetchManifestList(
-          "/test",
-          projectSettingsHelper.OfficeManifestType.XmlAddIn
-        )
-      )
+      .expect(proxiedHelper.fetchManifestList("/test", proxiedHelper.OfficeManifestType.XmlAddIn))
       .to.deep.equal(["manifest.xml"]);
   });
 
@@ -142,13 +127,9 @@ describe("fetchManifestList", () => {
       "/test/manifest.json": "",
     });
     readdirSyncStub.returns(["manifest.xml", "manifest.json"]);
-    isOfficeMetaOsAddInManifestStub.callsFake((fileName: string) => fileName === "manifest.json");
     chai
       .expect(
-        projectSettingsHelper.fetchManifestList(
-          "/test",
-          projectSettingsHelper.OfficeManifestType.MetaOsAddIn
-        )
+        proxiedHelper.fetchManifestList("/test", proxiedHelper.OfficeManifestType.MetaOsAddIn)
       )
       .to.deep.equal(["manifest.json"]);
   });

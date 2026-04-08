@@ -49,6 +49,10 @@ import {
   apiAuthQuestion,
   apiOperationQuestion,
   apiPluginStartQuestion,
+  apiSpecFileQuestion,
+  apiSpecLocationQuestion,
+  apiSpecTypeSelectQuestion,
+  apiSpecUrlQuestion,
   appNameQuestion,
   folderQuestion,
   getSolutionName,
@@ -707,7 +711,7 @@ describe("scaffold question", () => {
           : question.placeholder;
       assert.equal(
         placeholder,
-        getLocalizedString("core.createProjectQuestion.addApiPlugin.placeholder")
+        getLocalizedString("template.createProjectQuestion.addApiPlugin.placeholder")
       );
     });
     it("doesProjectExists = true", async () => {
@@ -720,7 +724,10 @@ describe("scaffold question", () => {
       const question = apiPluginStartQuestion(false);
       const title =
         typeof question.title === "function" ? question.title({} as any) : question.title;
-      assert.equal(title, getLocalizedString("core.createProjectQuestion.createApiPlugin.title"));
+      assert.equal(
+        title,
+        getLocalizedString("template.createProjectQuestion.createApiPlugin.title")
+      );
     });
   });
 
@@ -1270,6 +1277,258 @@ describe("scaffold question", () => {
       assert.deepEqual(result, operations);
       assert.equal(inputs[QuestionNames.ApiSpecLocation], "path/to/spec.original");
       assert.deepEqual(inputs.supportedApisFromApiSpec, operations);
+    });
+  });
+
+  describe("apiSpecTypeSelectQuestion", () => {
+    it("should return a singleSelect question with 3 options", () => {
+      const question = apiSpecTypeSelectQuestion();
+      assert.equal(question.type, "singleSelect");
+      assert.equal(question.name, QuestionNames.OpenAPISpecType);
+      assert.equal(question.staticOptions.length, 3);
+    });
+
+    it("should have enter-url, open-file, and search-api options", () => {
+      const question = apiSpecTypeSelectQuestion();
+      const options = question.staticOptions as OptionItem[];
+      assert.equal(options[0].id, "enter-url");
+      assert.equal(options[1].id, "open-file");
+      assert.equal(options[2].id, "search-api");
+    });
+
+    it("onDidSelection should set ActionType to api-spec", () => {
+      const question = apiSpecTypeSelectQuestion();
+      const inputs: Inputs = { platform: Platform.VSCode };
+      question.onDidSelection?.("enter-url", inputs);
+      assert.equal(inputs[QuestionNames.ActionType], ActionStartOptions.apiSpec().id);
+    });
+  });
+
+  describe("apiSpecUrlQuestion", () => {
+    it("should return a text question with correct properties", () => {
+      const question = apiSpecUrlQuestion();
+      assert.equal(question.type, "text");
+      assert.equal(question.name, QuestionNames.ApiSpecLocation);
+      assert.equal(question.title, getLocalizedString("core.createProjectQuestion.apiSpec.title"));
+      assert.equal(
+        question.placeholder,
+        getLocalizedString("core.createProjectQuestion.apiSpec.placeholder")
+      );
+    });
+
+    it("validation should pass for valid HTTP URL", async () => {
+      const question = apiSpecUrlQuestion();
+      const validFunc = (question.validation as FuncValidation<string>).validFunc;
+      const inputs: Inputs = { platform: Platform.VSCode };
+      const result = await validFunc("https://example.com/api.yaml", inputs);
+      assert.isUndefined(result);
+    });
+
+    it("validation should fail for non-URL string", async () => {
+      const question = apiSpecUrlQuestion();
+      const validFunc = (question.validation as FuncValidation<string>).validFunc;
+      const inputs: Inputs = { platform: Platform.VSCode };
+      const result = await validFunc("not-a-url", inputs);
+      assert.isDefined(result);
+    });
+
+    it("validation should fail for non-URL string on CLI", async () => {
+      const question = apiSpecUrlQuestion();
+      const validFunc = (question.validation as FuncValidation<string>).validFunc;
+      const inputs: Inputs = { platform: Platform.CLI };
+      const result = await validFunc("not-a-url", inputs);
+      assert.isDefined(result);
+      assert.include(result, "valid HTTP URL");
+    });
+
+    it("additionalValidationOnAccept should call listOperations and set supportedApisFromApiSpec on success", async () => {
+      const question = apiSpecUrlQuestion();
+      const inputs: Inputs = { platform: Platform.VSCode };
+      const mockOperations = [{ id: "op1", label: "GET /pets", data: {} }];
+      sandbox.stub(apiSpecHelper, "listOperations").resolves(ok(mockOperations as any));
+      const validFunc = (question as any).additionalValidationOnAccept.validFunc;
+      const result = await validFunc("https://example.com/api.yaml", inputs);
+      assert.isUndefined(result);
+      assert.deepEqual(inputs.supportedApisFromApiSpec, mockOperations);
+    });
+
+    it("additionalValidationOnAccept should return error message on failure", async () => {
+      const question = apiSpecUrlQuestion();
+      const inputs: Inputs = { platform: Platform.VSCode };
+      const mockErrors = [{ type: 0, content: "Spec parse error" }];
+      sandbox.stub(apiSpecHelper, "listOperations").resolves(err(mockErrors as any));
+      const validFunc = (question as any).additionalValidationOnAccept.validFunc;
+      const result = await validFunc("https://example.com/api.yaml", inputs);
+      assert.equal(result, "Spec parse error");
+    });
+
+    it("additionalValidationOnAccept should return joined errors on CLI", async () => {
+      const question = apiSpecUrlQuestion();
+      const inputs: Inputs = { platform: Platform.CLI };
+      const mockErrors = [
+        { type: 0, content: "Error 1" },
+        { type: 0, content: "Error 2" },
+      ];
+      sandbox.stub(apiSpecHelper, "listOperations").resolves(err(mockErrors as any));
+      const validFunc = (question as any).additionalValidationOnAccept.validFunc;
+      const result = await validFunc("https://example.com/api.yaml", inputs);
+      assert.equal(result, "Error 1\nError 2");
+    });
+
+    it("additionalValidationOnAccept should return generic message for multiple long errors on VSCode", async () => {
+      const question = apiSpecUrlQuestion();
+      const inputs: Inputs = { platform: Platform.VSCode };
+      const longError = "A".repeat(100);
+      const mockErrors = [
+        { type: 0, content: longError },
+        { type: 0, content: "Error 2" },
+      ];
+      sandbox.stub(apiSpecHelper, "listOperations").resolves(err(mockErrors as any));
+      const validFunc = (question as any).additionalValidationOnAccept.validFunc;
+      const result = await validFunc("https://example.com/api.yaml", inputs);
+      assert.equal(
+        result,
+        getLocalizedString(
+          "core.createProjectQuestion.apiSpec.multipleValidationErrors.vscode.message"
+        )
+      );
+    });
+
+    it("additionalValidationOnAccept should throw when inputs is undefined", async () => {
+      const question = apiSpecUrlQuestion();
+      const validFunc = (question as any).additionalValidationOnAccept.validFunc;
+      try {
+        await validFunc("https://example.com/api.yaml", undefined);
+        assert.fail("Should have thrown");
+      } catch (e: any) {
+        assert.equal(e.message, "inputs is undefined");
+      }
+    });
+  });
+
+  describe("apiSpecFileQuestion", () => {
+    it("should return a singleFile question with correct properties", () => {
+      const question = apiSpecFileQuestion();
+      assert.equal(question.type, "singleFile");
+      assert.equal(question.name, QuestionNames.ApiSpecLocation);
+      assert.equal(question.title, getLocalizedString("core.createProjectQuestion.apiSpec.title"));
+      assert.isDefined(question.filters);
+    });
+
+    it("should have correct file filters", () => {
+      const question = apiSpecFileQuestion();
+      const filters = question.filters!;
+      assert.deepEqual(filters["OpenAPI Description Document"], ["json", "yml", "yaml"]);
+    });
+
+    it("validation should fail when file does not exist", async () => {
+      const question = apiSpecFileQuestion();
+      const validFunc = (question.validation as FuncValidation<string>).validFunc;
+      const inputs: Inputs = { platform: Platform.VSCode };
+      sandbox.stub(fs, "pathExists").resolves(false);
+      const result = await validFunc("nonexistent.yaml", inputs);
+      assert.isDefined(result);
+      assert.include(result as string, "File not found");
+    });
+
+    it("validation should call listOperations when file exists and set supportedApisFromApiSpec", async () => {
+      const question = apiSpecFileQuestion();
+      const validFunc = (question.validation as FuncValidation<string>).validFunc;
+      const inputs: Inputs = { platform: Platform.VSCode };
+      const mockOperations = [{ id: "op1", label: "GET /pets", data: {} }];
+      sandbox.stub(fs, "pathExists").resolves(true);
+      sandbox.stub(apiSpecHelper, "listOperations").resolves(ok(mockOperations as any));
+      const result = await validFunc("test.yaml", inputs);
+      assert.isUndefined(result);
+      assert.deepEqual(inputs.supportedApisFromApiSpec, mockOperations);
+    });
+
+    it("validation should return error when listOperations fails", async () => {
+      const question = apiSpecFileQuestion();
+      const validFunc = (question.validation as FuncValidation<string>).validFunc;
+      const inputs: Inputs = { platform: Platform.VSCode };
+      const mockErrors = [{ type: 0, content: "Invalid spec" }];
+      sandbox.stub(fs, "pathExists").resolves(true);
+      sandbox.stub(apiSpecHelper, "listOperations").resolves(err(mockErrors as any));
+      const result = await validFunc("test.yaml", inputs);
+      assert.equal(result, "Invalid spec");
+    });
+
+    it("validation should return joined errors on CLI", async () => {
+      const question = apiSpecFileQuestion();
+      const validFunc = (question.validation as FuncValidation<string>).validFunc;
+      const inputs: Inputs = { platform: Platform.CLI };
+      const mockErrors = [
+        { type: 0, content: "Error 1" },
+        { type: 0, content: "Error 2" },
+      ];
+      sandbox.stub(fs, "pathExists").resolves(true);
+      sandbox.stub(apiSpecHelper, "listOperations").resolves(err(mockErrors as any));
+      const result = await validFunc("test.yaml", inputs);
+      assert.equal(result, "Error 1\nError 2");
+    });
+
+    it("validation should throw when inputs is undefined", async () => {
+      const question = apiSpecFileQuestion();
+      const validFunc = (question.validation as FuncValidation<string>).validFunc;
+      try {
+        await validFunc("test.yaml", undefined);
+        assert.fail("Should have thrown");
+      } catch (e: any) {
+        assert.equal(e.message, "inputs is undefined");
+      }
+    });
+  });
+
+  describe("apiSpecLocationQuestion", () => {
+    it("should return a singleFileOrText question", () => {
+      const question = apiSpecLocationQuestion();
+      assert.equal(question.type, "singleFileOrText");
+      assert.equal(question.name, QuestionNames.ApiSpecLocation);
+    });
+
+    it("should have inputOptionItem and filters", () => {
+      const question = apiSpecLocationQuestion();
+      assert.isDefined(question.inputOptionItem);
+      assert.equal(question.inputOptionItem.id, "input");
+      assert.isDefined(question.filters);
+    });
+
+    it("inputBoxConfig validation should pass for valid URL", async () => {
+      const question = apiSpecLocationQuestion();
+      const validFunc = (question.inputBoxConfig.validation as FuncValidation<string>).validFunc;
+      const inputs: Inputs = { platform: Platform.VSCode };
+      const result = await validFunc("https://example.com/api.yaml", inputs);
+      assert.isUndefined(result);
+    });
+
+    it("inputBoxConfig validation should fail for non-URL", async () => {
+      const question = apiSpecLocationQuestion();
+      const validFunc = (question.inputBoxConfig.validation as FuncValidation<string>).validFunc;
+      const inputs: Inputs = { platform: Platform.VSCode };
+      const result = await validFunc("not-a-url", inputs);
+      assert.isDefined(result);
+    });
+
+    it("outer validation should call listOperations for valid URL", async () => {
+      const question = apiSpecLocationQuestion();
+      const validFunc = (question.validation as FuncValidation<string>).validFunc;
+      const inputs: Inputs = { platform: Platform.VSCode };
+      const mockOperations = [{ id: "op1", label: "GET /pets", data: {} }];
+      sandbox.stub(apiSpecHelper, "listOperations").resolves(ok(mockOperations as any));
+      const result = await validFunc("https://example.com/api.yaml", inputs);
+      assert.isUndefined(result);
+      assert.deepEqual(inputs.supportedApisFromApiSpec, mockOperations);
+    });
+
+    it("outer validation should fail for non-existent file path", async () => {
+      const question = apiSpecLocationQuestion();
+      const validFunc = (question.validation as FuncValidation<string>).validFunc;
+      const inputs: Inputs = { platform: Platform.VSCode };
+      sandbox.stub(fs, "pathExists").resolves(false);
+      const result = await validFunc("nonexistent.yaml", inputs);
+      assert.isDefined(result);
+      assert.include(result as string, "valid HTTP URL");
     });
   });
 });

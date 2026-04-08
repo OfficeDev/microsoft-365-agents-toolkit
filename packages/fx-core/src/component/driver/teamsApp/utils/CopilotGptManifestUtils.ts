@@ -455,9 +455,8 @@ export class CopilotGptManifestUtils {
     manifestFilePath: string,
     filePathList: string[]
   ): Promise<Result<undefined, FxError>> {
-    const declarativeAgentManifestPathRes = await copilotGptManifestUtils.getManifestPath(
-      manifestFilePath
-    );
+    const declarativeAgentManifestPathRes =
+      await copilotGptManifestUtils.getManifestPath(manifestFilePath);
     if (declarativeAgentManifestPathRes.isErr()) {
       return err(declarativeAgentManifestPathRes.error);
     }

@@ -12,6 +12,7 @@ import {
   ApiAuthOptions,
   DACapabilityOptions,
   setTemplateName,
+  setTemplateNameAndGC,
 } from "./CapabilityOptions";
 import { ProjectTypeOptions } from "./ProjectTypeOptions";
 import { MCPServerTypeNode } from "./teamsProjectTypeNode";
@@ -24,9 +25,11 @@ export function daProjectTypeNode(
     condition: { equals: parentValue },
     data: {
       name: QuestionNames.Capabilities,
-      title: getLocalizedString("core.createProjectQuestion.projectType.copilotExtension.title"),
+      title: getLocalizedString(
+        "template.createProjectQuestion.projectType.copilotExtension.title"
+      ),
       placeholder: getLocalizedString(
-        "core.createProjectQuestion.projectType.copilotExtension.placeholder"
+        "template.createProjectQuestion.projectType.copilotExtension.placeholder"
       ),
       type: "singleSelect",
       staticOptions: [DACapabilityOptions.declarativeAgent()],
@@ -37,12 +40,12 @@ export function daProjectTypeNode(
         condition: { equals: DACapabilityOptions.declarativeAgent().id },
         data: {
           name: QuestionNames.WithPlugin,
-          title: getLocalizedString("core.createProjectQuestion.declarativeCopilot.title"),
+          title: getLocalizedString("template.createProjectQuestion.declarativeCopilot.title"),
           cliDescription: "Whether to add API plugin for your declarative Copilot.",
           type: "singleSelect",
           staticOptions: DACapabilityOptions.all(),
           placeholder: getLocalizedString(
-            "core.createProjectQuestion.declarativeCopilot.placeholder"
+            "template.createProjectQuestion.declarativeCopilot.placeholder"
           ),
           onDidSelection: setTemplateNameAndGC,
         },
@@ -52,10 +55,10 @@ export function daProjectTypeNode(
             data: {
               type: "singleSelect",
               name: QuestionNames.ActionType,
-              title: getLocalizedString("core.createProjectQuestion.createApiPlugin.title"),
+              title: getLocalizedString("template.createProjectQuestion.createApiPlugin.title"),
               cliDescription: "API plugin type.",
               placeholder: getLocalizedString(
-                "core.createProjectQuestion.addApiPlugin.placeholder"
+                "template.createProjectQuestion.addApiPlugin.placeholder"
               ),
               staticOptions: [
                 ActionStartOptions.newApi(),
@@ -79,11 +82,11 @@ export function daProjectTypeNode(
                   type: "singleSelect",
                   name: QuestionNames.ApiAuth,
                   title: getLocalizedString(
-                    "core.createProjectQuestion.apiMessageExtensionAuth.title"
+                    "template.createProjectQuestion.apiMessageExtensionAuth.title"
                   ),
                   cliDescription: "The authentication type for the API.",
                   placeholder: getLocalizedString(
-                    "core.createProjectQuestion.apiMessageExtensionAuth.placeholder"
+                    "template.createProjectQuestion.apiMessageExtensionAuth.placeholder"
                   ),
                   staticOptions: [
                     ApiAuthOptions.none(false),
@@ -108,11 +111,4 @@ export function daProjectTypeNode(
       },
     ],
   };
-}
-
-export function setTemplateNameAndGC(selected: string | OptionItem, inputs: Inputs): void {
-  setTemplateName(selected, inputs);
-  if ((selected as OptionItem).id === DACapabilityOptions.withGC().id) {
-    inputs[QuestionNames.ProgrammingLanguage] = ProgrammingLanguage.TS;
-  }
 }

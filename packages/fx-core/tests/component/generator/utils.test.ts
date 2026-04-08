@@ -8,14 +8,17 @@ import proxyquire from "proxyquire";
 import * as sinon from "sinon";
 import { GraphClient } from "../../../src/client/graphClient";
 import { createContext, setTools } from "../../../src/common/globalVars";
+import * as requestUtils from "../../../src/common/requestUtils";
 import { copilotGptManifestUtils } from "../../../src/component/driver/teamsApp/utils/CopilotGptManifestUtils";
 import { useLocalTemplate } from "../../../src/component/generator/templateHelper";
 import {
   getTemplateUrl,
+  getTemplateVSLatestVersion,
   getTemplateZipUrlByVersion,
   setGeneralSensitivityLabel,
 } from "../../../src/component/generator/utils";
 import { MockTools } from "../../core/utils";
+import templateConfig from "../../../src/common/templates-config.json";
 
 describe("utils unit test cases", () => {
   const sandbox = sinon.createSandbox();
@@ -49,7 +52,7 @@ describe("utils unit test cases", () => {
       localVersion: "6.0.0",
       tagPrefix: "templates@",
       vstagPrefix: "templates-vs@",
-      vsversion: "18.4.2",
+      vsversion: templateConfig.vsversion,
       tagListURL:
         "https://github.com/OfficeDev/microsoft-365-agents-toolkit/releases/download/template-tag-list/template-tags.txt",
       templateDownloadBaseURL:
@@ -72,12 +75,17 @@ describe("utils unit test cases", () => {
   });
 
   it("should return the stable URL for getTemplateVSUrl", async () => {
+    // Stub HTTP so getTemplateVSLatestVersion() can resolve without network
+    sandbox
+      .stub(requestUtils, "sendRequestWithTimeout")
+      .resolves({ data: "templates-vs@18.0.0\ntemplates@6.0.0\n" } as any);
     const mockSettings = {
       version: "~6.0",
       localVersion: "6.0.0",
       tagPrefix: "templates@",
       vstagPrefix: "templates-vs@",
       vsversion: "18.0.0",
+      vsVersionPattern: "~18.0",
       tagListURL:
         "https://github.com/OfficeDev/microsoft-365-agents-toolkit/releases/download/template-tag-list/template-tags.txt",
       templateDownloadBaseURL:
@@ -90,11 +98,41 @@ describe("utils unit test cases", () => {
     };
     const dUtils = proxyquire("../../../src/component/generator/utils", {
       "../../common/templates-config.json": mockSettings,
+      "../../../package.json": { version: "3.0.0" }, // stable, not beta
     });
     const getLatestVersion = () => Promise.resolve("18.0.0");
     const result = await dUtils.getTemplateUrl("csharp", getLatestVersion, Platform.VS);
     const expectedUrl =
       "https://github.com/OfficeDev/microsoft-365-agents-toolkit/releases/download/templates-vs@18.0.0/csharp.zip";
+    assert.strictEqual(result, expectedUrl);
+  });
+
+  it("should return rc URL for beta fx-core version (VS pre-release test build)", async () => {
+    const mockPackageJson = { version: "3.0.0-beta.1" };
+    const mockSettings = {
+      version: "~6.0",
+      localVersion: "6.0.0",
+      tagPrefix: "templates@",
+      vstagPrefix: "templates-vs@",
+      vsversion: templateConfig.vsversion,
+      tagListURL:
+        "https://github.com/OfficeDev/microsoft-365-agents-toolkit/releases/download/template-tag-list/template-tags.txt",
+      templateDownloadBaseURL:
+        "https://github.com/OfficeDev/microsoft-365-agents-toolkit/releases/download",
+      templateReleaseURL:
+        "https://github.com/OfficeDev/microsoft-365-agents-toolkit/releases/expanded_assets",
+      templateDownloadBasePath: "/OfficeDev/microsoft-365-agents-toolkit/releases/download",
+      templateExt: ".zip",
+      useLocalTemplate: false,
+    };
+    const dUtils = proxyquire("../../../src/component/generator/utils", {
+      "../../common/templates-config.json": mockSettings,
+      "../../../package.json": mockPackageJson,
+    });
+    const getLatestVersion = () => Promise.resolve(templateConfig.vsversion);
+    const result = await dUtils.getTemplateUrl("csharp", getLatestVersion, Platform.VS);
+    const expectedUrl =
+      "https://github.com/OfficeDev/microsoft-365-agents-toolkit/releases/download/templates-vs@0.0.0-rc/csharp.zip";
     assert.strictEqual(result, expectedUrl);
   });
 
@@ -371,5 +409,60 @@ describe("templateHelper unit test cases", () => {
     const result = templateHelper.useLocalTemplate();
     assert.isFalse(result);
     restore();
+  });
+});
+
+describe("getTemplateVSLatestVersion", () => {
+  const sandbox = sinon.createSandbox();
+
+  afterEach(() => {
+    sandbox.restore();
+  });
+
+  it("should return the max satisfying version matching vsVersionPattern", async () => {
+    // Build tag list from the actual vsVersionPattern so the test stays valid after version bumps
+    const base = templateConfig.vsVersionPattern.replace("~", ""); // e.g. "18.6"
+    const [major, minor] = base.split(".");
+    const nextMinor = `${major}.${parseInt(minor) + 1}`;
+    // shared tag list contains both VSC and VS tags
+    const tagList = `templates@6.6.0\ntemplates@6.6.1\ntemplates-vs@${base}.0\ntemplates-vs@${base}.1\ntemplates-vs@${nextMinor}.0\n`;
+    sandbox.stub(requestUtils, "sendRequestWithTimeout").resolves({ data: tagList } as any);
+
+    const result = await getTemplateVSLatestVersion();
+    // ~base matches base.x only, not nextMinor.x; VSC tags are ignored
+    assert.strictEqual(result, `${base}.1`);
+  });
+
+  it("should handle CRLF line endings in tag list", async () => {
+    const base = templateConfig.vsVersionPattern.replace("~", "");
+    const tagList = `templates@6.6.1\r\ntemplates-vs@${base}.0\r\ntemplates-vs@${base}.1\r\n`;
+    sandbox.stub(requestUtils, "sendRequestWithTimeout").resolves({ data: tagList } as any);
+
+    const result = await getTemplateVSLatestVersion();
+    assert.strictEqual(result, `${base}.1`);
+  });
+
+  it("should throw when no version satisfies vsVersionPattern", async () => {
+    // only non-VS tags and old VS tags — none match ~18.6
+    const tagList = "templates@6.6.1\ntemplates-vs@17.0.0\ntemplates-vs@17.1.0\n";
+    sandbox.stub(requestUtils, "sendRequestWithTimeout").resolves({ data: tagList } as any);
+
+    try {
+      await getTemplateVSLatestVersion();
+      assert.fail("Expected error to be thrown");
+    } catch (e: any) {
+      assert.include(e.message, "Failed to find valid VS template version");
+    }
+  });
+
+  it("should propagate network errors from fetchTagList", async () => {
+    sandbox.stub(requestUtils, "sendRequestWithTimeout").rejects(new Error("Network timeout"));
+
+    try {
+      await getTemplateVSLatestVersion();
+      assert.fail("Expected error to be thrown");
+    } catch (e: any) {
+      assert.include(e.message, "Network timeout");
+    }
   });
 });

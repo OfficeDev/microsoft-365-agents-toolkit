@@ -1,9 +1,24 @@
 {
-	"servers": {
-		"learn-docs": {
-			"url": "https://learn.microsoft.com/api/mcp",
-			"type": "http"
-		}
-	},
-	"inputs": []
+  "servers": {
+    "learn-docs": {
+      "url": "https://learn.microsoft.com/api/mcp",
+      "type": "http"
+    },
+    "ado": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@azure-devops/mcp", "${input:ado_org}"]
+    },
+    "github": {
+      "url": "https://api.githubcopilot.com/mcp/",
+      "type": "http"
+    }
+  },
+  "inputs": [
+    {
+      "id": "ado_org",
+      "type": "promptString",
+      "description": "Azure DevOps organization name  (e.g. 'contoso')"
+    }
+  ]
 }

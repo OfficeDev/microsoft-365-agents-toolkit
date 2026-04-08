@@ -157,7 +157,7 @@ export class MeArchitectureOptions {
     return {
       id: "new-api",
       label: getLocalizedString(
-        "core.createProjectQuestion.capability.copilotPluginNewApiOption.label"
+        "template.createProjectQuestion.capability.copilotPluginNewApiOption.label"
       ),
       detail: getLocalizedString(
         "core.createProjectQuestion.capability.messageExtensionNewApiOption.detail"
@@ -169,7 +169,7 @@ export class MeArchitectureOptions {
     return {
       id: "api-spec",
       label: getLocalizedString(
-        "core.createProjectQuestion.capability.copilotPluginApiSpecOption.label"
+        "template.createProjectQuestion.capability.copilotPluginApiSpecOption.label"
       ),
       detail: getLocalizedString(
         "core.createProjectQuestion.capability.messageExtensionApiSpecOption.detail"
@@ -204,7 +204,7 @@ export const NotificationTriggers = {
   TIMER: "timer",
 } as const;
 
-export type NotificationTrigger = typeof NotificationTriggers[keyof typeof NotificationTriggers];
+export type NotificationTrigger = (typeof NotificationTriggers)[keyof typeof NotificationTriggers];
 
 export interface HostTypeTriggerOptionItem extends OptionItem {
   hostType: HostType;
@@ -472,10 +472,10 @@ export class ActionStartOptions {
     return {
       id: "new-api",
       label: getLocalizedString(
-        "core.createProjectQuestion.capability.copilotPluginNewApiOption.label"
+        "template.createProjectQuestion.capability.copilotPluginNewApiOption.label"
       ),
       detail: getLocalizedString(
-        "core.createProjectQuestion.capability.copilotPluginNewApiOption.detail"
+        "template.createProjectQuestion.capability.copilotPluginNewApiOption.detail"
       ),
     };
   }
@@ -484,10 +484,10 @@ export class ActionStartOptions {
     return {
       id: "api-spec",
       label: getLocalizedString(
-        "core.createProjectQuestion.capability.copilotPluginApiSpecOption.label"
+        "template.createProjectQuestion.capability.copilotPluginApiSpecOption.label"
       ),
       detail: getLocalizedString(
-        "core.createProjectQuestion.capability.copilotPluginApiSpecOption.detail"
+        "template.createProjectQuestion.capability.copilotPluginApiSpecOption.detail"
       ),
     };
   }
@@ -500,15 +500,27 @@ export class ActionStartOptions {
     };
   }
 
+  static mcp(): OptionItem {
+    return {
+      id: "mcp",
+      label: getLocalizedString("core.createProjectQuestion.mcpForDa.label"),
+      detail: getLocalizedString("core.createProjectQuestion.mcpForDa.detail"),
+    };
+  }
+
   static staticAll(doesProjectExists?: boolean): OptionItem[] {
     return doesProjectExists
-      ? [ActionStartOptions.apiSpec()]
+      ? [ActionStartOptions.apiSpec(), ActionStartOptions.mcp()]
       : [ActionStartOptions.newApi(), ActionStartOptions.apiSpec()];
   }
 
   static all(inputs: Inputs, doesProjectExists?: boolean): OptionItem[] {
     if (doesProjectExists) {
-      return [ActionStartOptions.apiSpec()];
+      const options: OptionItem[] = [ActionStartOptions.apiSpec()];
+      if (featureFlagManager.getBooleanValue(FeatureFlags.MCPForDA)) {
+        options.push(ActionStartOptions.mcp());
+      }
+      return options;
     } else {
       // use constant string to avoid cycle dependency
       return [ActionStartOptions.newApi(), ActionStartOptions.apiSpec()];

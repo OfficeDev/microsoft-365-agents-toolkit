@@ -58,7 +58,7 @@ export const ConcurrentLockerMW: Middleware = async (ctx: HookContext, next: Nex
   const lockFileDir = getLockFolder(inputs.projectPath);
   const lockfilePath = path.join(lockFileDir, `${ConfigFolderName}.lock`);
   await fs.ensureDir(lockFileDir);
-  // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+
   const taskName = `${ctx.method}${
     ctx.method === "executeUserTask" || ctx.method === "executeUserTaskOld"
       ? ` ${(ctx.arguments[0] as Func).method}`
@@ -81,7 +81,7 @@ export const ConcurrentLockerMW: Middleware = async (ctx: HookContext, next: Nex
             CoreSource,
             "concurrent-operation",
             new ConcurrentError(CoreSource),
-            // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
+
             { retry: retryNum + "", acquired: "true", doing: doingTask, todo: taskName }
           );
         }
@@ -108,7 +108,6 @@ export const ConcurrentLockerMW: Middleware = async (ctx: HookContext, next: Nex
     TOOLS?.logProvider?.error(log);
     // failed for 10 times and finally failed
     sendTelemetryErrorEvent(CoreSource, "concurrent-operation", new ConcurrentError(CoreSource), {
-      // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
       retry: retryNum + "",
       acquired: "false",
       doing: doingTask || "",

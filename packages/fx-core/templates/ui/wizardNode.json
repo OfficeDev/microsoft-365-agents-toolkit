@@ -1,0 +1,447 @@
+{
+  "data": {
+    "title": "template.createProjectQuestion.title",
+    "name": "project-type",
+    "type": "singleSelect",
+    "options": [
+      {
+        "id": "copilot-agent-type",
+        "label": "template.createProjectQuestion.projectType.declarativeAgent.label",
+        "detail": "template.createProjectQuestion.projectType.declarativeAgent.detail",
+        "groupName": "template.createProjectQuestion.projectType.createGroup.aiAgent",
+        "icon": "$(teamsfx-agent)"
+      },
+      {
+        "id": "custom-engine-agent-type",
+        "label": "template.createProjectQuestion.projectType.customCopilot.label",
+        "detail": "template.createProjectQuestion.projectType.customCopilot.detail",
+        "groupName": "template.createProjectQuestion.projectType.createGroup.aiAgent",
+        "icon": "$(teamsfx-custom-copilot)"
+      },
+      {
+        "id": "graph-connector-type",
+        "label": "template.createProjectQuestion.createGraphConnector.label",
+        "detail": "template.createProjectQuestion.createGraphConnector.detail",
+        "groupName": "template.createProjectQuestion.projectType.createGroup.aiAgent",
+        "icon": "$(teamsfx-graph-connector)"
+      },
+      {
+        "id": "teams-agent-and-app-type",
+        "label": "template.createProjectQuestion.projectType.teamsAgentsAndApps.label",
+        "detail": "template.createProjectQuestion.projectType.teamsAgentsAndApps.detail",
+        "groupName": "template.createProjectQuestion.projectType.createGroup.m365Apps",
+        "icon": "$(microsoft365-agents-toolkit-teams)"
+      },
+      {
+        "id": "office-meta-os-type",
+        "label": "template.createProjectQuestion.projectType.officeAddin.label",
+        "detail": "template.createProjectQuestion.projectType.officeAddin.detail",
+        "groupName": "template.createProjectQuestion.projectType.createGroup.m365Apps",
+        "icon": "$(microsoft365-agents-office)"
+      },
+      {
+        "id": "start-with-github-copilot",
+        "label": "template.createProjectQuestion.projectType.copilotHelp.label",
+        "detail": "template.createProjectQuestion.projectType.copilotHelp.detail",
+        "groupName": "template.createProjectQuestion.projectType.copilotGroup.title",
+        "icon": "$(question)",
+        "featureFlag": "TEAMSFX_CHAT_PARTICIPANT_ENTRIES"
+      }
+    ]
+  },
+  "children": [
+    {
+      "data": {
+        "title": "template.createProjectQuestion.projectType.copilotExtension.title",
+        "placeholder": "template.createProjectQuestion.projectType.copilotExtension.placeholder",
+        "name": "capabilities",
+        "type": "singleSelect",
+        "skipSingleOption": true,
+        "options": [
+          {
+            "id": "declarative-agent",
+            "label": "template.createProjectQuestion.projectType.declarativeAgent.label",
+            "detail": "template.createProjectQuestion.projectType.declarativeAgent.detail"
+          }
+        ]
+      },
+      "children": [
+        {
+          "condition": {
+            "equals": "declarative-agent"
+          },
+          "data": {
+            "name": "with-plugin",
+            "title": "template.createProjectQuestion.declarativeCopilot.title",
+            "type": "singleSelect",
+            "placeholder": "template.createProjectQuestion.declarativeCopilot.placeholder",
+            "options": [
+              {
+                "id": "no",
+                "label": "template.createProjectQuestion.noPlugin.label",
+                "detail": "template.createProjectQuestion.noPlugin.detail",
+                "data": "copilot-gpt-basic"
+              },
+              {
+                "id": "yes",
+                "label": "template.createProjectQuestion.addPlugin.label",
+                "detail": "template.createProjectQuestion.addPlugin.detail"
+              },
+              {
+                "id": "gc",
+                "label": "template.createProjectQuestion.addGC.label",
+                "detail": "template.createProjectQuestion.addGC.detail",
+                "data": "declarative-agent-with-graph-connector"
+              },
+              {
+                "id": "type-spec",
+                "label": "template.createProjectQuestion.apiPlugin.typeSpec.label",
+                "detail": "template.createProjectQuestion.apiPlugin.typeSpec.detail",
+                "data": "declarative-agent-typespec"
+              }
+            ]
+          },
+          "children": [
+            {
+              "condition": {
+                "equals": "yes"
+              },
+              "data": {
+                "name": "action-type",
+                "title": "template.createProjectQuestion.createApiPlugin.title",
+                "placeholder": "template.createProjectQuestion.addApiPlugin.placeholder",
+                "type": "singleSelect",
+                "options": [
+                  {
+                    "id": "new-api",
+                    "label": "template.createProjectQuestion.capability.copilotPluginNewApiOption.label",
+                    "detail": "template.createProjectQuestion.capability.copilotPluginNewApiOption.detail"
+                  },
+                  {
+                    "id": "api-spec",
+                    "label": "template.createProjectQuestion.capability.copilotPluginApiSpecOption.label",
+                    "detail": "template.createProjectQuestion.capability.copilotPluginApiSpecOption.detail",
+                    "data": "api-plugin-from-existing-api"
+                  },
+                  {
+                    "id": "da-meta-os",
+                    "label": "template.createProjectQuestion.capability.DAMetaOS.label",
+                    "detail": "template.createProjectQuestion.capability.DAMetaOS.detail",
+                    "data": "declarative-agent-meta-os-new-project",
+                    "featureFlag": "TEAMSFX_DA_METAOS"
+                  },
+                  {
+                    "id": "mcp",
+                    "label": "template.createProjectQuestion.mcpForDa.label",
+                    "detail": "template.createProjectQuestion.mcpForDa.detail",
+                    "data": "declarative-agent-with-action-from-mcp",
+                    "featureFlag": "TEAMSFX_MCP_FOR_DA"
+                  }
+                ]
+              },
+              "children": [
+                {
+                  "condition": {
+                    "equals": "new-api"
+                  },
+                  "data": {
+                    "name": "api-auth",
+                    "title": "template.createProjectQuestion.apiMessageExtensionAuth.title",
+                    "placeholder": "template.createProjectQuestion.apiMessageExtensionAuth.placeholder",
+                    "type": "singleSelect",
+                    "options": [
+                      {
+                        "id": "none",
+                        "label": "template.createProjectQuestion.apiDeclarativeAgentAuth.none",
+                        "data": "api-plugin-from-scratch"
+                      },
+                      {
+                        "id": "api-key",
+                        "label": "template.createProjectQuestion.apiDeclarativeAgentAuth.apiKey",
+                        "data": "api-plugin-from-scratch-bearer"
+                      },
+                      {
+                        "id": "microsoft-entra",
+                        "label": "template.createProjectQuestion.apiDeclarativeAgentAuth.microsoftEntra",
+                        "data": "api-plugin-from-scratch-oauth"
+                      },
+                      {
+                        "id": "oauth",
+                        "label": "template.createProjectQuestion.apiDeclarativeAgentAuth.oauth",
+                        "data": "api-plugin-from-scratch-oauth"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "node": "apiSpecWithSearchNode",
+                  "condition": {
+                    "equals": "api-spec"
+                  }
+                },
+                {
+                  "node": "mcpServerTypeNode",
+                  "condition": {
+                    "equals": "mcp"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "condition": {
+        "equals": "copilot-agent-type"
+      }
+    },
+    {
+      "condition": {
+        "equals": "custom-engine-agent-type"
+      },
+      "data": {
+        "title": "template.customEngineAgent.title",
+        "name": "capabilities",
+        "type": "singleSelect",
+        "options": [
+          {
+            "id": "basic-custom-engine-agent",
+            "label": "template.customEngineAgent.basic.label",
+            "detail": "template.customEngineAgent.basic.detail",
+            "data": "basic-custom-engine-agent"
+          },
+          {
+            "id": "weather-agent",
+            "label": "template.customEngineAgent.weather.label",
+            "detail": "template.customEngineAgent.weather.detail",
+            "data": "weather-agent"
+          }
+        ],
+        "placeholder": "template.customEngineAgent.placeholder"
+      },
+      "children": [
+        {
+          "node": "llmServiceNode"
+        }
+      ]
+    },
+    {
+      "data": {
+        "type": "group"
+      },
+      "children": [
+        {
+          "node": "gcNameNode"
+        },
+        {
+          "node": "gcConnectionIdNode"
+        }
+      ],
+      "condition": {
+        "equals": "graph-connector-type"
+      }
+    },
+    {
+      "condition": {
+        "equals": "teams-agent-and-app-type"
+      },
+      "data": {
+        "title": "template.teams.title",
+        "name": "teams-app-type",
+        "type": "singleSelect",
+        "options": [
+          {
+            "id": "custom-copilot-basic",
+            "label": "template.teams.general.label",
+            "detail": "template.teams.general.detail",
+            "data": "custom-copilot-basic"
+          },
+          {
+            "id": "custom-copilot-rag",
+            "label": "template.teams.rag.label",
+            "detail": "template.teams.rag.detail"
+          },
+          {
+            "id": "teams-collaborator-agent",
+            "label": "template.teams.collaboratorAgent.label",
+            "detail": "template.teams.collaboratorAgent.detail",
+            "data": "teams-collaborator-agent"
+          },
+          {
+            "id": "teams-other-app-type",
+            "label": "template.teams.others.label",
+            "detail": "template.teams.others.detail"
+          }
+        ],
+        "placeholder": "template.customEngineAgent.placeholder"
+      },
+      "children": [
+        {
+          "condition": {
+            "equals": "custom-copilot-rag"
+          },
+          "data": {
+            "type": "singleSelect",
+            "name": "custom-copilot-rag",
+            "title": "template.teams.rag.label",
+            "placeholder": "template.teams.rag.source.placeholder",
+            "default": "custom-copilot-rag-customize",
+            "options": [
+              {
+                "id": "custom-copilot-rag-customize",
+                "label": "template.teams.rag.source.customize.label",
+                "detail": "template.teams.rag.source.customize.detail",
+                "data": "custom-copilot-rag-customize"
+              },
+              {
+                "id": "custom-copilot-rag-azure-ai-search",
+                "label": "template.teams.rag.source.azureAISearch.label",
+                "detail": "template.teams.rag.source.azureAISearch.detail",
+                "data": "custom-copilot-rag-azure-ai-search"
+              },
+              {
+                "id": "custom-copilot-rag-custom-api",
+                "label": "template.teams.rag.source.customApi.label",
+                "detail": "template.teams.rag.source.customApi.detail",
+                "data": "custom-copilot-rag-custom-api"
+              }
+            ]
+          },
+          "children": [
+            {
+              "condition": {
+                "equals": "custom-copilot-rag-custom-api"
+              },
+              "node": "apiSpecNode"
+            }
+          ]
+        },
+        {
+          "condition": {
+            "enum": [
+              "custom-copilot-basic",
+              "custom-copilot-rag"
+            ]
+          },
+          "node": "llmServiceNode"
+        },
+        {
+          "condition": {
+            "equals": "teams-collaborator-agent"
+          },
+          "node": "azureOpenAINode"
+        },
+        {
+          "condition": {
+            "equals": "teams-other-app-type"
+          },
+          "data": {
+            "type": "singleSelect",
+            "name": "teams-other-app-type",
+            "title": "template.teams.others.capability.title",
+            "options": [
+              {
+                "id": "non-sso-tab",
+                "label": "template.teams.others.tab.label",
+                "detail": "template.teams.others.tab.detail",
+                "data": "non-sso-tab"
+              },
+              {
+                "id": "default-message-extension",
+                "label": "template.teams.others.messageExtension.label",
+                "detail": "template.teams.others.messageExtension.detail",
+                "data": "default-message-extension"
+              },
+              {
+                "id": "default-bot",
+                "label": "template.teams.others.bot.label",
+                "detail": "template.teams.others.bot.detail",
+                "data": "default-bot"
+              }
+            ],
+            "placeholder": "template.customEngineAgent.placeholder"
+          },
+          "children": []
+        }
+      ]
+    },
+    {
+      "data": {
+        "name": "capabilities",
+        "title": "template.createProjectQuestion.projectType.officeAddin.title",
+        "type": "singleSelect",
+        "placeholder": "template.createCapabilityQuestion.placeholder",
+        "options": [
+          {
+            "id": "wxp-json-taskpane",
+            "label": "template.newTaskpaneAddin.label",
+            "detail": "template.newTaskpaneAddin.detail",
+            "data": "office-addin-wxpo-taskpane"
+          },
+          {
+            "id": "wxp-json-cf-shortcut",
+            "label": "template.newCFShortcut.label",
+            "detail": "template.newCFShortcut.detail",
+            "data": "office-addin-excel-cfshortcut",
+            "featureFlag": "TEAMSFX_CF_SHORTCUT_METAOS"
+          },
+          {
+            "id": "office-da-meta-os",
+            "label": "template.createProjectQuestion.DAMetaOS.label",
+            "detail": "template.createProjectQuestion.DAMetaOS.detail",
+            "featureFlag": "TEAMSFX_DA_METAOS"
+          },
+          {
+            "id": "office-addin-import",
+            "label": "template.importOfficeAddin.label",
+            "detail": "template.importAddin.detail",
+            "data": "office-addin-config"
+          }
+        ]
+      },
+      "children": [
+        {
+          "condition": {
+            "equals": "office-da-meta-os"
+          },
+          "data": {
+            "name": "da-meta-os-capability",
+            "title": "template.createProjectQuestion.DAMetaOS.capability.title",
+            "type": "singleSelect",
+            "placeholder": "template.createCapabilityQuestion.placeholder",
+            "options": [
+              {
+                "id": "da-meta-os-new-project",
+                "label": "template.createProjectQuestion.DAMetaOS.capability.newProject.label",
+                "detail": "template.createProjectQuestion.DAMetaOS.capability.newProject.detail",
+                "data": "declarative-agent-meta-os-new-project"
+              },
+              {
+                "id": "da-meta-os-upgrade-existing-project",
+                "label": "template.createProjectQuestion.DAMetaOS.capability.upgradeProject.label",
+                "detail": "template.createProjectQuestion.DAMetaOS.capability.upgradeProject.detail",
+                "data": "declarative-agent-meta-os-upgrade-project"
+              }
+            ]
+          },
+          "children": [
+            {
+              "node": "officeAddinFolderNode",
+              "condition": {
+                "equals": "da-meta-os-upgrade-existing-project"
+              }
+            }
+          ]
+        },
+        {
+          "condition": {
+            "equals": "office-addin-import"
+          },
+          "node": "officeAddinImportNode"
+        }
+      ],
+      "condition": {
+        "equals": "office-meta-os-type"
+      }
+    }
+  ]
+}
