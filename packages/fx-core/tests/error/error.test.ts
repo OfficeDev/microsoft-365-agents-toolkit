@@ -229,6 +229,8 @@ describe("assembleError", function () {
     assert.isTrue(fxError.source === "unknown");
     assert.isTrue(fxError.stack && fxError.stack.includes("error.test.ts"));
     assert.deepEqual(fxError.categories, ["internal", "EEXIST"]);
+    assert.equal(fxError.message, myMessage);
+    assert.equal((fxError as UserError).displayMessage, myMessage);
   });
 
   it("error is Error with source", () => {
