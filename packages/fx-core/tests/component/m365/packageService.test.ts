@@ -1924,9 +1924,7 @@ describe("Package Service", () => {
     chai.assert.equal(result, "https://test-url");
     chai.assert.equal(callCount, 3);
     chai.assert.isTrue(warningStub.calledTwice);
-    chai.assert.isTrue(
-      warningStub.firstCall.args[0].includes("ERR_TLS_CERT_ALTNAME_INVALID")
-    );
+    chai.assert.isTrue(warningStub.firstCall.args[0].includes("ERR_TLS_CERT_ALTNAME_INVALID"));
     chai.assert.isTrue(warningStub.firstCall.args[0].includes("retrying (1/3)"));
     chai.assert.isTrue(warningStub.secondCall.args[0].includes("retrying (2/3)"));
   });
