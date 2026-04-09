@@ -755,6 +755,188 @@ describe("GraphAPIClient Test", () => {
   });
 });
 
+describe("Teams app publish APIs", () => {
+  const sandbox = createSandbox();
+  const tokenProvider = new MockedM365Provider();
+  const graphClient = new GraphClient(tokenProvider);
+  const fakeAxiosInstance = axios.create();
+
+  beforeEach(() => {
+    sandbox.stub(axios, "create").returns(fakeAxiosInstance);
+  });
+
+  afterEach(() => {
+    sandbox.restore();
+  });
+
+  it("getStagedApp should return latest app definition", async () => {
+    const response = {
+      data: {
+        value: [
+          {
+            id: "catalog-app-id",
+            displayName: "App Name",
+            appDefinitions: [
+              {
+                publishingState: "submitted",
+                lastModifiedDateTime: "2026-04-08T10:00:00.000Z",
+              },
+              {
+                publishingState: "published",
+                lastModifiedDateTime: "2026-04-08T11:00:00.000Z",
+              },
+            ],
+          },
+        ],
+      },
+    };
+    sandbox.stub(fakeAxiosInstance, "get").resolves(response as any);
+    sandbox.stub(RetryHandler, "Retry").resolves(response as any);
+
+    const result = await graphClient.getStagedApp("token", "external-id");
+
+    expect(result?.teamsAppId).to.equal("catalog-app-id");
+    expect(result?.displayName).to.equal("App Name");
+    expect(result?.publishingState).to.equal("published");
+  });
+
+  it("getStagedApp should return undefined when app is not found", async () => {
+    const response = { data: { value: [] } };
+    sandbox.stub(fakeAxiosInstance, "get").resolves(response as any);
+    sandbox.stub(RetryHandler, "Retry").resolves(response as any);
+
+    const result = await graphClient.getStagedApp("token", "external-id");
+
+    expect(result).to.be.undefined;
+  });
+
+  it("publishTeamsApp should return published app id", async () => {
+    const response = { data: { id: "catalog-app-id" } };
+    const postStub = sandbox.stub(fakeAxiosInstance, "post").resolves(response as any);
+    sandbox.stub(RetryHandler, "Retry").callsFake(async (fn: any) => await fn());
+
+    const result = await graphClient.publishTeamsApp("token", "external-id", Buffer.from("zip"));
+
+    expect(result).to.equal("catalog-app-id");
+    expect(postStub.calledOnce).to.be.true;
+    expect(postStub.firstCall.args[0]).to.contain("/appCatalogs/teamsApps");
+  });
+
+  it("publishTeamsApp should fallback to staged app on BadGateway in response body", async () => {
+    const response = { data: { error: { code: "BadGateway" } } };
+    sandbox.stub(fakeAxiosInstance, "post").resolves(response as any);
+    sandbox.stub(RetryHandler, "Retry").callsFake(async (fn: any) => await fn());
+    sandbox.stub(graphClient, "getStagedApp").resolves({
+      teamsAppId: "catalog-app-id",
+      displayName: "App Name",
+      publishingState: "published" as any,
+      lastModifiedDateTime: null,
+    });
+
+    const result = await graphClient.publishTeamsApp("token", "external-id", Buffer.from("zip"));
+
+    expect(result).to.equal("catalog-app-id");
+  });
+
+  it("publishTeamsApp should call update when response body contains AppDefinitionAlreadyExists", async () => {
+    const response = {
+      data: { error: { code: "Conflict", innerError: { code: "AppDefinitionAlreadyExists" } } },
+    };
+    sandbox.stub(fakeAxiosInstance, "post").resolves(response as any);
+    sandbox.stub(RetryHandler, "Retry").callsFake(async (fn: any) => await fn());
+    sandbox.stub(graphClient, "publishTeamsAppUpdate").resolves("updated-id");
+
+    const result = await graphClient.publishTeamsApp("token", "external-id", Buffer.from("zip"));
+
+    expect(result).to.equal("updated-id");
+  });
+
+  it("publishTeamsApp should call update on conflict", async () => {
+    sandbox.stub(fakeAxiosInstance, "post").rejects({ response: { status: 409 } });
+    sandbox.stub(RetryHandler, "Retry").callsFake(async (fn: any) => await fn());
+    sandbox.stub(graphClient, "publishTeamsAppUpdate").resolves("updated-id");
+
+    const result = await graphClient.publishTeamsApp("token", "external-id", Buffer.from("zip"));
+
+    expect(result).to.equal("updated-id");
+  });
+
+  it("publishTeamsApp should throw graph API error when response contains unexpected error", async () => {
+    const response = { data: { error: { code: "Forbidden", message: "forbidden" } } };
+    sandbox.stub(fakeAxiosInstance, "post").resolves(response as any);
+    sandbox.stub(RetryHandler, "Retry").callsFake(async (fn: any) => await fn());
+
+    try {
+      await graphClient.publishTeamsApp("token", "external-id", Buffer.from("zip"));
+      expect.fail("Should throw");
+    } catch (e: any) {
+      expect(e).to.be.instanceOf(Error);
+      expect(e.message).to.include("publishTeamsApp");
+      expect(e.message).to.include("forbidden");
+    }
+  });
+
+  it("publishTeamsAppUpdate should post to appDefinitions with staged teamsAppId", async () => {
+    sandbox.stub(graphClient, "getStagedApp").resolves({
+      teamsAppId: "catalog-app-id",
+      displayName: "App Name",
+      publishingState: "published" as any,
+      lastModifiedDateTime: null,
+    });
+    const postStub = sandbox
+      .stub(fakeAxiosInstance, "post")
+      .resolves({ data: { teamsAppId: "catalog-app-id" } } as any);
+    sandbox.stub(RetryHandler, "Retry").callsFake(async (fn: any) => await fn());
+
+    const result = await graphClient.publishTeamsAppUpdate(
+      "token",
+      "external-id",
+      Buffer.from("zip")
+    );
+
+    expect(result).to.equal("catalog-app-id");
+    expect(postStub.calledOnce).to.be.true;
+    expect(postStub.firstCall.args[0]).to.contain(
+      "/appCatalogs/teamsApps/catalog-app-id/appDefinitions"
+    );
+  });
+
+  it("publishTeamsAppUpdate should throw graph API error when staged app does not exist", async () => {
+    sandbox.stub(graphClient, "getStagedApp").resolves(undefined);
+
+    try {
+      await graphClient.publishTeamsAppUpdate("token", "external-id", Buffer.from("zip"));
+      expect.fail("Should throw");
+    } catch (e: any) {
+      expect(e).to.be.instanceOf(Error);
+      expect(e.message).to.include("publishTeamsAppUpdate");
+      expect(e.message).to.include("Published app does not exist");
+    }
+  });
+
+  it("publishTeamsAppUpdate should throw graph API error when response has error", async () => {
+    sandbox.stub(graphClient, "getStagedApp").resolves({
+      teamsAppId: "catalog-app-id",
+      displayName: "App Name",
+      publishingState: "published" as any,
+      lastModifiedDateTime: null,
+    });
+    sandbox
+      .stub(fakeAxiosInstance, "post")
+      .resolves({ data: { error: { message: "invalid package" } } } as any);
+    sandbox.stub(RetryHandler, "Retry").callsFake(async (fn: any) => await fn());
+
+    try {
+      await graphClient.publishTeamsAppUpdate("token", "external-id", Buffer.from("zip"));
+      expect.fail("Should throw");
+    } catch (e: any) {
+      expect(e).to.be.instanceOf(Error);
+      expect(e.message).to.include("publishTeamsAppUpdate");
+      expect(e.message).to.include("invalid package");
+    }
+  });
+});
+
 describe("Sandbox related APIs", () => {
   const tokenProvider = new MockedM365Provider();
   const graphClient = new GraphClient(tokenProvider);

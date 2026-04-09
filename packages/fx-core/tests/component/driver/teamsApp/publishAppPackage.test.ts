@@ -8,7 +8,7 @@ import fs from "fs-extra";
 import "mocha";
 import * as sinon from "sinon";
 import { v4 as uuid } from "uuid";
-import { teamsDevPortalClient } from "../../../../src/client/teamsDevPortalClient";
+import { GraphClient } from "../../../../src/client/graphClient";
 import { AppStudioError } from "../../../../src/component/driver/teamsApp/errors";
 import { PublishingState } from "../../../../src/component/driver/teamsApp/interfaces/appdefinitions/IPublishingAppDefinition";
 import { PublishAppPackageArgs } from "../../../../src/component/driver/teamsApp/interfaces/PublishAppPackageArgs";
@@ -78,8 +78,8 @@ describe("teamsApp/publishAppPackage", async () => {
       const archivedFile = zip.toBuffer();
       return archivedFile;
     });
-    sinon.stub(teamsDevPortalClient, "getStaggedApp").resolves(undefined);
-    sinon.stub(teamsDevPortalClient, "publishTeamsApp").resolves(uuid());
+    sinon.stub(GraphClient.prototype, "getStagedApp").resolves(undefined);
+    sinon.stub(GraphClient.prototype, "publishTeamsApp").resolves(uuid());
 
     const result = await teamsAppDriver.execute(args, mockedDriverContext);
     console.log(JSON.stringify(result));
@@ -101,7 +101,7 @@ describe("teamsApp/publishAppPackage", async () => {
       const archivedFile = zip.toBuffer();
       return archivedFile;
     });
-    sinon.stub(teamsDevPortalClient, "getStaggedApp").resolves(state);
+    sinon.stub(GraphClient.prototype, "getStagedApp").resolves(state);
     sinon.stub(mockedDriverContext.ui, "showMessage").resolves(ok("Cancel"));
 
     const result = (await teamsAppDriver.execute(args, mockedDriverContext)).result;
@@ -128,8 +128,8 @@ describe("teamsApp/publishAppPackage", async () => {
       const archivedFile = zip.toBuffer();
       return archivedFile;
     });
-    sinon.stub(teamsDevPortalClient, "getStaggedApp").resolves(state);
-    sinon.stub(teamsDevPortalClient, "publishTeamsAppUpdate").resolves(uuid());
+    sinon.stub(GraphClient.prototype, "getStagedApp").resolves(state);
+    sinon.stub(GraphClient.prototype, "publishTeamsAppUpdate").resolves(uuid());
     sinon.stub(mockedDriverContext.ui, "showMessage").resolves(ok("Confirm"));
 
     const result = (await teamsAppDriver.execute(args, mockedDriverContext)).result;
@@ -149,8 +149,8 @@ describe("teamsApp/publishAppPackage", async () => {
         zip.addFile(Constants.MANIFEST_FILE, Buffer.from(JSON.stringify(manifest)));
         return zip.toBuffer();
       });
-      sinon.stub(teamsDevPortalClient, "getStaggedApp").resolves(undefined);
-      sinon.stub(teamsDevPortalClient, "publishTeamsApp").resolves(uuid());
+      sinon.stub(GraphClient.prototype, "getStagedApp").resolves(undefined);
+      sinon.stub(GraphClient.prototype, "publishTeamsApp").resolves(uuid());
 
       const result = await teamsAppDriver.execute(args, mockedDriverContext);
       chai.assert.isTrue(result.result.isOk());
@@ -180,8 +180,8 @@ describe("teamsApp/publishAppPackage", async () => {
         );
         return zip.toBuffer();
       });
-      sinon.stub(teamsDevPortalClient, "getStaggedApp").resolves(undefined);
-      sinon.stub(teamsDevPortalClient, "publishTeamsApp").resolves(uuid());
+      sinon.stub(GraphClient.prototype, "getStagedApp").resolves(undefined);
+      sinon.stub(GraphClient.prototype, "publishTeamsApp").resolves(uuid());
 
       const result = await teamsAppDriver.execute(args, mockedDriverContext);
       chai.assert.isTrue(result.result.isOk());
@@ -221,8 +221,8 @@ describe("teamsApp/publishAppPackage", async () => {
         );
         return zip.toBuffer();
       });
-      sinon.stub(teamsDevPortalClient, "getStaggedApp").resolves(undefined);
-      sinon.stub(teamsDevPortalClient, "publishTeamsApp").resolves(uuid());
+      sinon.stub(GraphClient.prototype, "getStagedApp").resolves(undefined);
+      sinon.stub(GraphClient.prototype, "publishTeamsApp").resolves(uuid());
 
       const result = await teamsAppDriver.execute(args, mockedDriverContext);
       chai.assert.isTrue(result.result.isOk());
@@ -268,8 +268,8 @@ describe("teamsApp/publishAppPackage", async () => {
         );
         return zip.toBuffer();
       });
-      sinon.stub(teamsDevPortalClient, "getStaggedApp").resolves(undefined);
-      sinon.stub(teamsDevPortalClient, "publishTeamsApp").resolves(uuid());
+      sinon.stub(GraphClient.prototype, "getStagedApp").resolves(undefined);
+      sinon.stub(GraphClient.prototype, "publishTeamsApp").resolves(uuid());
 
       const result = await teamsAppDriver.execute(args, mockedDriverContext);
       chai.assert.isTrue(result.result.isOk());
@@ -315,8 +315,8 @@ describe("teamsApp/publishAppPackage", async () => {
         );
         return zip.toBuffer();
       });
-      sinon.stub(teamsDevPortalClient, "getStaggedApp").resolves(undefined);
-      sinon.stub(teamsDevPortalClient, "publishTeamsApp").resolves(uuid());
+      sinon.stub(GraphClient.prototype, "getStagedApp").resolves(undefined);
+      sinon.stub(GraphClient.prototype, "publishTeamsApp").resolves(uuid());
 
       const result = await teamsAppDriver.execute(args, mockedDriverContext);
       chai.assert.isTrue(result.result.isOk());
@@ -363,8 +363,8 @@ describe("teamsApp/publishAppPackage", async () => {
         return zip.toBuffer();
       });
       sinon.stub(ODRProvider, "listServers").resolves([]);
-      sinon.stub(teamsDevPortalClient, "getStaggedApp").resolves(undefined);
-      sinon.stub(teamsDevPortalClient, "publishTeamsApp").resolves(uuid());
+      sinon.stub(GraphClient.prototype, "getStagedApp").resolves(undefined);
+      sinon.stub(GraphClient.prototype, "publishTeamsApp").resolves(uuid());
 
       const result = await teamsAppDriver.execute(args, mockedDriverContext);
       chai.assert.isTrue(result.result.isOk());
@@ -426,8 +426,8 @@ describe("teamsApp/publishAppPackage", async () => {
       sinon
         .stub(PublishAppPackageDriver.prototype as any, "verifyPackageFamilyCertIsValid")
         .resolves(true);
-      sinon.stub(teamsDevPortalClient, "getStaggedApp").resolves(undefined);
-      sinon.stub(teamsDevPortalClient, "publishTeamsApp").resolves(uuid());
+      sinon.stub(GraphClient.prototype, "getStagedApp").resolves(undefined);
+      sinon.stub(GraphClient.prototype, "publishTeamsApp").resolves(uuid());
 
       const result = await teamsAppDriver.execute(args, mockedDriverContext);
       chai.assert.isTrue(result.result.isOk());
@@ -635,8 +635,8 @@ describe("teamsApp/publishAppPackage", async () => {
       sinon
         .stub(PublishAppPackageDriver.prototype as any, "verifyPackageFamilyCertIsValid")
         .resolves(true);
-      sinon.stub(teamsDevPortalClient, "getStaggedApp").resolves(undefined);
-      sinon.stub(teamsDevPortalClient, "publishTeamsApp").resolves(uuid());
+      sinon.stub(GraphClient.prototype, "getStagedApp").resolves(undefined);
+      sinon.stub(GraphClient.prototype, "publishTeamsApp").resolves(uuid());
 
       const result = await teamsAppDriver.execute(args, mockedDriverContext);
       chai.assert.isTrue(result.result.isOk());
