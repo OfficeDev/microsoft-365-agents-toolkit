@@ -76,9 +76,10 @@ async def handle_stateful_conversation(model: AIModel, ctx: ActivityContext[Mess
 
     try:
         chat_result = await chat_prompt.send(
-            input=input,
+            input=ctx.activity.text,
             memory=memory,
-            instructions=f"{INSTRUCTIONS}\n\nAdditional Context:\n${data_context.output}"
+            instructions=INSTRUCTIONS,
+            on_chunk=lambda chunk: ctx.stream.emit(chunk)
         )
     except Exception as e:
         print(f"Error sending chat prompt: {e}")
