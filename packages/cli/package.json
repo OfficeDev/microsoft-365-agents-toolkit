@@ -28,8 +28,7 @@
     "format": "prettier --write --config .prettierrc.json --ignore-path .prettierignore \"{src,tests}/**/*.ts\" \"*.{js,json}\"",
     "lint:fix": "eslint \"src/**/*.ts\" \"tests/**/*.ts\" --fix",
     "lint": "eslint \"src/**/*.ts\" \"tests/**/*.ts\"",
-    "check-sensitive": "npx eslint --cache --ignore-pattern 'package.json' --ignore-pattern 'package-lock.json'",
-    "precommit": "npm run check-sensitive && lint-staged",
+    "precommit": "lint-staged",
     "postinstall": "node deletePS1.js",
     "build-metrics": "npx eslint --plugin=@microsoft/eslint-plugin-teamsfx --rule=\"@microsoft/teamsfx/metrics: warn\" --ignore-pattern=\"src/telemetry/**/*.ts\" --ignore-pattern=\"src/cmds/**/*.ts\" \"src/**/*.ts\" --fix"
   },

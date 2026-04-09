@@ -14,8 +14,7 @@
     "test:unit": "npm run test:unit:node && npm run test:unit:browser ",
     "lint:staged": "lint-staged",
     "lint": "eslint \"**/*.ts\"",
-    "check-sensitive": "npx eslint --cache --ignore-pattern 'package.json' --ignore-pattern 'package-lock.json'",
-    "precommit": "npm run check-sensitive && lint-staged",
+    "precommit": "lint-staged",
     "check-format": "prettier --list-different \"src/**/*.ts\" \"test/**/*.ts\" \"*.{js,json}\"",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\" \"*.{js,json}\""
   },

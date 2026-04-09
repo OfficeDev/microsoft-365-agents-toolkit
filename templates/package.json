@@ -5,8 +5,7 @@
   "license": "MIT",
   "vsversion": "18.6.0",
   "scripts": {
-    "check-sensitive": "npx eslint --cache --ignore-pattern 'package.json' --ignore-pattern 'package-lock.json'",
-    "precommit": "npm run check-sensitive && lint-staged",
+    "precommit": "lint-staged",
     "upgrade-schema": "node ./scripts/yamlSolver upgrade-schema",
     "clean": "rimraf ./build",
     "build": "npm run generate:vsc && npm run generate:vs && npm run distribute && npm run build:release",

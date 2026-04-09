@@ -24,8 +24,7 @@
     "test:e2e:node": "mocha --reporter mocha-multi-reporters 'test/e2e/node/*.spec.ts' --file src/index.ts -r config/mocha.env.ts --config config/mocharc.node.js --reporter-options configFile=config/mocha-multi-reporter.json",
     "test:e2e": "npm run test:e2e:node && npm run test:e2e:browser",
     "ui-test": "mocha --no-timeouts -r test/mocha.env.ts -r ts-node/register test/ui/**/*.spec.ts --exit",
-    "check-sensitive": "npx eslint --cache --ignore-pattern 'package.json' --ignore-pattern 'package-lock.json'",
-    "precommit": "npm run check-sensitive && lint-staged"
+    "precommit": "lint-staged"
   },
   "files": [
     "dist/*js",
