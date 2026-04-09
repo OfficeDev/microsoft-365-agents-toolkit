@@ -15,6 +15,7 @@ import {
 import AdmZip from "adm-zip";
 import FormData from "form-data";
 import fs from "fs-extra";
+import https from "https";
 import stripBom from "strip-bom";
 import { ErrorContextMW, TOOLS } from "../../common/globalVars";
 import { getDefaultString, getLocalizedString } from "../../common/localizeUtils";
@@ -72,9 +73,28 @@ export class PackageService {
   public constructor(endpoint: string, logger?: LogProvider) {
     this.axiosInstance = WrappedAxiosClient.create({
       timeout: 30000,
+      httpsAgent: new https.Agent({ keepAlive: true }),
     });
     this.initEndpoint = endpoint;
     this.logger = logger;
+  }
+
+  private async withNetworkRetry<T>(fn: () => Promise<T>, retries = 3): Promise<T> {
+    for (let i = 0; i < retries; i++) {
+      try {
+        return await fn();
+      } catch (e: any) {
+        // Only retry on network/TLS errors (no HTTP response means transport-level failure)
+        if (e.response || i === retries - 1) {
+          throw e;
+        }
+        this.logger?.warning(
+          `Request failed with ${e.code ?? e.message}, retrying (${i + 1}/${retries})...`
+        );
+        await waitSeconds(1);
+      }
+    }
+    throw new Error("Unexpected: retry loop exited");
   }
 
   @hooks([ErrorContextMW({ source: M365ErrorSource, component: M365ErrorComponent })])
@@ -86,12 +106,14 @@ export class PackageService {
         throw new Error("Invalid URL. Mis-configuration SIDELOADING_SERVICE_ENDPOINT.");
       }
 
-      const envInfo = await this.axiosInstance.get("/config/v1/environment", {
-        baseURL: this.initEndpoint,
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const envInfo = await this.withNetworkRetry(() =>
+        this.axiosInstance.get("/config/v1/environment", {
+          baseURL: this.initEndpoint,
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+      );
       this.logger?.debug(JSON.stringify(envInfo.data));
       new URL(envInfo.data.titlesServiceUrl);
       return envInfo.data.titlesServiceUrl;
@@ -217,14 +239,16 @@ export class PackageService {
       this.logger?.debug(`"Uploading package with sideLoading V2 in ${appScope} scope ..."`);
       const uploadHeaders = content.getHeaders();
       uploadHeaders["Authorization"] = `Bearer ${token}`;
-      const uploadResponse = await this.axiosInstance.post("/builder/v1/users/packages", content, {
-        baseURL: serviceUrl,
-        headers: uploadHeaders,
-        params: {
-          scope: appScope,
-          shouldBlock: true,
-        },
-      });
+      const uploadResponse = await this.withNetworkRetry(() =>
+        this.axiosInstance.post("/builder/v1/users/packages", content, {
+          baseURL: serviceUrl,
+          headers: uploadHeaders,
+          params: {
+            scope: appScope,
+            shouldBlock: true,
+          },
+        })
+      );
 
       if (uploadResponse.status === 200 || uploadResponse.status === 201) {
         const titleId: string = uploadResponse.data.titlePreview.titleId;
@@ -282,13 +306,11 @@ export class PackageService {
       this.logger?.debug("Uploading package with sideLoading V1 ...");
       const uploadHeaders = content.getHeaders();
       uploadHeaders["Authorization"] = `Bearer ${token}`;
-      const uploadResponse = await this.axiosInstance.post(
-        "/dev/v1/users/packages",
-        content.getBuffer(),
-        {
+      const uploadResponse = await this.withNetworkRetry(() =>
+        this.axiosInstance.post("/dev/v1/users/packages", content.getBuffer(), {
           baseURL: serviceUrl,
           headers: uploadHeaders,
-        }
+        })
       );
 
       const operationId = uploadResponse.data.operationId;
