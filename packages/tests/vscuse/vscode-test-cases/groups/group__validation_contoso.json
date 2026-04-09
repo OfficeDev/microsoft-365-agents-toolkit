@@ -9,24 +9,25 @@
       "precondition_retry_interval": 2,
       "step_retry_timeout": 0
     },
-    "total_steps": 3,
-    "created_at": "2026-03-02T00:56:58.440835",
+    "total_steps": 4,
+    "created_at": "2026-04-08T05:33:58.769776",
     "name": "group: validation_contoso",
     "description": {
       "other": "Generated from recording r_1023_013114",
       "owner": "v-ivanchen@microsoft.com",
       "workitem": ""
     },
-    "generated_at": "2026-03-02T00:56:58.440835",
+    "generated_at": "2026-04-08T05:33:58.769776",
     "execution_order": [
       "step_4dd7a1fb",
       "step_d00ce375",
-      "step_38267890"
+      "step_38267890",
+      "step_fd651499"
     ],
     "tags": [
       "group"
     ],
-    "updated_at": "2026-03-02T05:16:56.626225"
+    "updated_at": "2026-04-08T06:00:45.074552"
   },
   "steps": [
     {
@@ -52,7 +53,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_4dd7a1fb",
-      "created_at": "2026-03-02T00:56:58.446155",
+      "created_at": "2026-04-08T05:33:58.775807",
       "plan_id": "plan_r_1023_013114"
     },
     {
@@ -74,7 +75,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_d00ce375",
-      "created_at": "2026-03-02T00:56:58.451227",
+      "created_at": "2026-04-08T05:33:58.783839",
       "plan_id": "plan_r_1023_013114"
     },
     {
@@ -94,7 +95,25 @@
         "step_retry_timeout: 60"
       ],
       "screenshot": null,
-      "created_at": "2026-03-02T00:56:58.456749",
+      "created_at": "2026-04-08T05:33:58.791616",
+      "plan_id": "plan_r_1023_013114"
+    },
+    {
+      "step_id": "step_fd651499",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion there's no \"error\" word in the message",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": null,
+      "created_at": "2026-04-08T06:00:45.067158",
       "plan_id": "plan_r_1023_013114"
     }
   ],
