@@ -38,50 +38,50 @@ const debugMap: Record<LocalDebugTaskLabel, () => Promise<void>> = {
   [LocalDebugTaskLabel.StartFrontend]: async () => {
     await waitForTerminal(
       LocalDebugTaskLabel.StartFrontend,
-      LocalDebugTaskResult.FrontendReady
+      LocalDebugTaskResult.FrontendReady,
     );
   },
   [LocalDebugTaskLabel.StartBackend]: async () => {
     await waitForTerminal(
       LocalDebugTaskLabel.StartBackend,
-      LocalDebugTaskResult.BotAppSuccess
+      LocalDebugTaskResult.BotAppSuccess,
     );
   },
   [LocalDebugTaskLabel.WatchBackend]: async () => {
     await waitForTerminal(
       LocalDebugTaskLabel.WatchBackend,
-      LocalDebugTaskResult.CompiledSuccess
+      LocalDebugTaskResult.CompiledSuccess,
     );
   },
   [LocalDebugTaskLabel.StartLocalTunnel]: async () => {
     await waitForTerminal(
       LocalDebugTaskLabel.StartLocalTunnel,
-      LocalDebugTaskResult.StartSuccess
+      LocalDebugTaskResult.StartSuccess,
     );
   },
   [LocalDebugTaskLabel.Azurite]: async () => {
     await waitForTerminal(
       LocalDebugTaskLabel.Azurite,
-      LocalDebugTaskResult.AzuriteSuccess
+      LocalDebugTaskResult.AzuriteSuccess,
     );
   },
   [LocalDebugTaskLabel.Compile]: async () => {
     await waitForTerminal(
       LocalDebugTaskLabel.Compile,
-      LocalDebugTaskResult.CompiledSuccess
+      LocalDebugTaskResult.CompiledSuccess,
     );
   },
   [LocalDebugTaskLabel.StartApplication]: async () => {
     await waitForTerminal(
       LocalDebugTaskLabel.StartBotApp,
-      LocalDebugTaskResult.DebuggerAttached
+      LocalDebugTaskResult.DebuggerAttached,
     );
   },
   [LocalDebugTaskLabel.StartBot]: async () => Promise.resolve(),
   [LocalDebugTaskLabel.StartWebhook]: async () => {
     await waitForTerminal(
       LocalDebugTaskLabel.StartWebhook,
-      LocalDebugTaskResult.DebuggerAttached
+      LocalDebugTaskResult.DebuggerAttached,
     );
   },
   [LocalDebugTaskLabel.InstallNpmPackages]: async () => Promise.resolve(),
@@ -92,41 +92,50 @@ const debugMap: Record<LocalDebugTaskLabel, () => Promise<void>> = {
   [LocalDebugTaskLabel.GulpServe]: async () => {
     await waitForTerminal(
       LocalDebugTaskLabel.GulpServe,
-      LocalDebugTaskResult.GulpServeSuccess
+      LocalDebugTaskResult.GulpServeSuccess,
     );
   },
   [LocalDebugTaskLabel.StartWebServer]: async () => {
     await waitForTerminal(
       LocalDebugTaskLabel.StartWebServer,
-      LocalDebugTaskResult.WebServerSuccess
+      LocalDebugTaskResult.WebServerSuccess,
     );
   },
   [LocalDebugTaskLabel.DockerRun]: async () => {
     await waitForTerminal(
       LocalDebugTaskLabel.DockerRun,
-      LocalDebugTaskResult.DockerFinish
+      LocalDebugTaskResult.DockerFinish,
     );
   },
   [LocalDebugTaskLabel.DockerTask]: async () => {
     await waitForTerminal(
       LocalDebugTaskLabel.DockerTask,
-      LocalDebugTaskResult.DockerFinish
+      LocalDebugTaskResult.DockerFinish,
     );
   },
   [LocalDebugTaskLabel.EnsureDevTunnnel]: async () => {
     await waitForTerminal(
       LocalDebugTaskLabel.EnsureDevTunnnel,
-      LocalDebugTaskResult.DevtunnelSuccess
+      LocalDebugTaskResult.DevtunnelSuccess,
     );
   },
   [LocalDebugTaskLabel.RunWatch]: async () => {
     await waitForTerminal(
       LocalDebugTaskLabel.RunWatch,
-      LocalDebugTaskResult.CompiledSuccess
+      LocalDebugTaskResult.CompiledSuccess,
     );
   },
   [LocalDebugTaskLabel.FuncStart]: async () => {
     await waitForTerminal(LocalDebugTaskLabel.FuncStart);
+  },
+  [LocalDebugTaskLabel.StartApplicationPlayground]: async () => {
+    await waitForTerminal(
+      LocalDebugTaskLabel.StartApplicationPlayground,
+      LocalDebugTaskResult.DebuggerAttached,
+    );
+  },
+  [LocalDebugTaskLabel.StartAgentsPlayground]: async () => {
+    await waitForTerminal(LocalDebugTaskLabel.StartAgentsPlayground);
   },
 };
 
@@ -180,7 +189,7 @@ export abstract class CaseFactory {
       skipDeploy?: boolean;
       skipLocal?: boolean;
       skipRemote?: boolean;
-    } = {}
+    } = {},
   ) {
     this.sampleName = sampleName;
     this.author = author;
@@ -189,7 +198,7 @@ export abstract class CaseFactory {
   }
 
   public async onProvision(
-    sampledebugContext: SampledebugContext
+    sampledebugContext: SampledebugContext,
   ): Promise<void> {
     return await sampledebugContext.provisionProject(
       sampledebugContext.appName,
@@ -200,21 +209,21 @@ export abstract class CaseFactory {
         env: "dev",
         processEnv: process.env,
         skipErrorMessage: "DeprecationWarning",
-      }
+      },
     );
   }
 
   public onBefore(
     sampledebugContext: SampledebugContext,
     env: "local" | "dev",
-    azSqlHelper?: AzSqlHelper
+    azSqlHelper?: AzSqlHelper,
   ): Promise<AzSqlHelper | undefined> {
     return Promise.resolve(undefined);
   }
 
   public async onAfter(
     sampledebugContext: SampledebugContext,
-    env: "local" | "dev"
+    env: "local" | "dev",
   ): Promise<void> {
     const envMap: Record<
       "local" | "dev",
@@ -230,7 +239,7 @@ export abstract class CaseFactory {
   public async onAfterCreate(
     sampledebugContext: SampledebugContext,
     env: "local" | "dev",
-    azSqlHelper?: AzSqlHelper
+    azSqlHelper?: AzSqlHelper,
   ): Promise<void> {
     return Promise.resolve();
   }
@@ -238,7 +247,7 @@ export abstract class CaseFactory {
   public async onBeforeBrowerStart(
     sampledebugContext: SampledebugContext,
     env: "local" | "dev",
-    azSqlHelper?: AzSqlHelper
+    azSqlHelper?: AzSqlHelper,
   ): Promise<void> {
     return Promise.resolve();
   }
@@ -253,7 +262,7 @@ export abstract class CaseFactory {
       dashboardFlag: boolean;
       type: string;
       env: "local" | "dev";
-    }
+    },
   ): Promise<Page> {
     return await initPage(
       sampledebugContext.context!,
@@ -264,7 +273,7 @@ export abstract class CaseFactory {
         projectPath: sampledebugContext.projectPath,
         env: options?.env,
         dashboardFlag: options?.dashboardFlag,
-      }
+      },
     );
   }
 
@@ -278,7 +287,7 @@ export abstract class CaseFactory {
       dashboardFlag: boolean;
       type: string;
       env: "local" | "dev";
-    }
+    },
   ): Promise<Page> {
     return await reopenPage(
       sampledebugContext.context!,
@@ -289,7 +298,7 @@ export abstract class CaseFactory {
         projectPath: sampledebugContext.projectPath,
         env: options?.env,
         dashboardFlag: options?.dashboardFlag,
-      }
+      },
     );
   }
 
@@ -301,7 +310,7 @@ export abstract class CaseFactory {
       includeFunction: boolean;
       npmName: string;
       env: "local" | "dev";
-    }
+    },
   ): Promise<void> {
     Promise.resolve();
   }
@@ -314,7 +323,7 @@ export abstract class CaseFactory {
       includeFunction: boolean;
       npmName: string;
       env: "local" | "dev";
-    }
+    },
   ): Promise<void> {
     Promise.resolve();
   }
@@ -358,16 +367,16 @@ export abstract class CaseFactory {
             sampleName,
             sampleProjectMap[sampleName],
             options?.testRootFolder ?? "./resource",
-            options?.repoPath ?? "./resource"
+            options?.repoPath ?? "./resource",
           );
           await sampledebugContext.before();
         } catch (error) {
           errorMessage = "[Error]: " + error;
           await VSBrowser.instance.takeScreenshot(
-            getScreenshotName("before_error")
+            getScreenshotName("before_error"),
           );
           await VSBrowser.instance.driver.sleep(
-            Timeout.playwrightDefaultTimeout
+            Timeout.playwrightDefaultTimeout,
           );
           throw new Error(errorMessage);
         }
@@ -393,7 +402,7 @@ export abstract class CaseFactory {
             azSqlHelper = await onBefore(
               sampledebugContext,
               "dev",
-              azSqlHelper
+              azSqlHelper,
             );
             try {
               // create project
@@ -417,21 +426,20 @@ export abstract class CaseFactory {
               if (!options?.skipDeploy) {
                 await sampledebugContext.deployProject(
                   sampledebugContext.projectPath,
-                  Timeout.botDeploy
+                  Timeout.botDeploy,
                 );
               }
 
               // if no skip init step
               if (!options?.skipInit) {
-                const teamsAppId = await sampledebugContext.getTeamsAppId(
-                  "dev"
-                );
+                const teamsAppId =
+                  await sampledebugContext.getTeamsAppId("dev");
                 expect(teamsAppId).to.not.be.empty;
                 // use 2nd middleware to process typical sample
                 await onBeforeBrowerStart(
                   sampledebugContext,
                   "dev",
-                  azSqlHelper
+                  azSqlHelper,
                 );
                 // init
                 const page = await onInitPage(sampledebugContext, teamsAppId, {
@@ -465,17 +473,17 @@ export abstract class CaseFactory {
             } catch (error) {
               errorMessage = "[Error]: " + error;
               await VSBrowser.instance.takeScreenshot(
-                getScreenshotName("error")
+                getScreenshotName("error"),
               );
               await VSBrowser.instance.driver.sleep(
-                Timeout.playwrightDefaultTimeout
+                Timeout.playwrightDefaultTimeout,
               );
             }
 
             await onAfter(sampledebugContext, "dev");
             expect(successFlag_dev, errorMessage).to.true;
             console.log("debug finish!");
-          }
+          },
         );
       } else {
         console.log("there is no remote debug for this sample");
@@ -494,7 +502,7 @@ export abstract class CaseFactory {
             azSqlHelper = await onBefore(
               sampledebugContext,
               "local",
-              azSqlHelper
+              azSqlHelper,
             );
             try {
               // create project
@@ -508,7 +516,7 @@ export abstract class CaseFactory {
                 envFile = path.resolve(
                   sampledebugContext.projectPath,
                   "env",
-                  ".env.local"
+                  ".env.local",
                 );
                 envContent = fs.readFileSync(envFile, "utf-8");
                 // if bot project setup devtunnel
@@ -529,7 +537,7 @@ export abstract class CaseFactory {
                 // start local tunnel
                 if (options.botFlag || botFlag) {
                   const tunnel = Executor.debugBotFunctionPreparation(
-                    sampledebugContext.projectPath
+                    sampledebugContext.projectPath,
                   );
                   devtunnelProcess = tunnel.devtunnelProcess;
                 }
@@ -538,29 +546,28 @@ export abstract class CaseFactory {
                   sampledebugContext.projectPath,
                   "local",
                   true,
-                  "DeprecationWarning"
+                  "DeprecationWarning",
                 );
                 expect(provisionSuccess).to.be.true;
                 if (!options.container) {
                   const { success: deploySuccess } = await Executor.deploy(
                     sampledebugContext.projectPath,
-                    "local"
+                    "local",
                   );
                   expect(deploySuccess).to.be.true;
                 } else {
                   await CliHelper.dockerBuild(
                     sampledebugContext.projectPath,
-                    options.dockerFolder || ""
+                    options.dockerFolder || "",
                   );
 
                   dockerProcess = await CliHelper.dockerRun(
                     sampledebugContext.projectPath,
-                    options.dockerFolder || ""
+                    options.dockerFolder || "",
                   );
                 }
-                const teamsAppId = await sampledebugContext.getTeamsAppId(
-                  "local"
-                );
+                const teamsAppId =
+                  await sampledebugContext.getTeamsAppId("local");
                 expect(teamsAppId).to.not.be.empty;
 
                 debugProcess = Executor.debugProject(
@@ -586,10 +593,10 @@ export abstract class CaseFactory {
                       expect.fail(errorMsg);
                     }
                   },
-                  options.container
+                  options.container,
                 );
                 await new Promise((resolve) =>
-                  setTimeout(resolve, 2 * 60 * 1000)
+                  setTimeout(resolve, 2 * 60 * 1000),
                 );
 
                 // if no skip init step
@@ -605,7 +612,7 @@ export abstract class CaseFactory {
                       type: options?.type ?? "",
                       teamsAppName: options?.teamsAppName ?? "",
                       env: "local",
-                    }
+                    },
                   );
 
                   // if no skip vaildation
@@ -647,7 +654,7 @@ export abstract class CaseFactory {
                   if (
                     // skip can't find element
                     errorMsg.includes(
-                      LocalDebugError.ElementNotInteractableError
+                      LocalDebugError.ElementNotInteractableError,
                     ) ||
                     // skip timeout
                     errorMsg.includes(LocalDebugError.TimeoutError)
@@ -661,15 +668,14 @@ export abstract class CaseFactory {
 
               // if no skip init step
               if (!options?.skipInit) {
-                const teamsAppId = await sampledebugContext.getTeamsAppId(
-                  "local"
-                );
+                const teamsAppId =
+                  await sampledebugContext.getTeamsAppId("local");
                 expect(teamsAppId).to.not.be.empty;
                 // use 2nd middleware to process typical sample
                 await onBeforeBrowerStart(
                   sampledebugContext,
                   "local",
-                  azSqlHelper
+                  azSqlHelper,
                 );
                 // init
                 let page: Page;
@@ -715,17 +721,17 @@ export abstract class CaseFactory {
             } catch (error) {
               errorMessage = "[Error]: " + error;
               await VSBrowser.instance.takeScreenshot(
-                getScreenshotName("error")
+                getScreenshotName("error"),
               );
               await VSBrowser.instance.driver.sleep(
-                Timeout.playwrightDefaultTimeout
+                Timeout.playwrightDefaultTimeout,
               );
             }
 
             await onAfter(sampledebugContext, "local");
             expect(successFlag_local, errorMessage).to.true;
             console.log("debug finish!");
-          }
+          },
         );
       } else {
         console.log("there is no local debug for this sample");

@@ -29,7 +29,8 @@
   "macos-latest": {
     "node-22": [
       "localdebug-chatdata-azureai-ts-azureopenai",
-      "remotedebug-chatdata-azureai-js-azureopenai"
+      "remotedebug-chatdata-azureai-js-azureopenai",
+      "playgrounddebug-bot"
     ]
   }
 }

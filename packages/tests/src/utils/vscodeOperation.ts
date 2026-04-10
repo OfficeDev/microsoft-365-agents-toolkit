@@ -48,16 +48,16 @@ export async function ensureExtensionActivated(): Promise<void> {
           // Left view section
           const extensionView = await view.openView();
           const sidebar = await driver.findElement(
-            By.id("workbench.parts.sidebar")
+            By.id("workbench.parts.sidebar"),
           );
           let welcomeView: WebElement;
           try {
             welcomeView = await sidebar.findElement(
-              By.className("welcome-view-content")
+              By.className("welcome-view-content"),
             );
           } catch (error) {
             welcomeView = await sidebar.findElement(
-              By.className("split-view-container")
+              By.className("split-view-container"),
             );
           }
           if (welcomeView) {
@@ -69,7 +69,7 @@ export async function ensureExtensionActivated(): Promise<void> {
             }
           }
           const sections = await sidebar.findElements(
-            By.className("split-view-view")
+            By.className("split-view-view"),
           );
 
           for (const section of sections) {
@@ -83,7 +83,7 @@ export async function ensureExtensionActivated(): Promise<void> {
               sectionTitle === Extension.activatedItemName &&
               (sectionText.includes(Extension.sidebarCommandContentName) ||
                 sectionText.includes(
-                  Extension.sidebarCommandContentNameOfficeDev
+                  Extension.sidebarCommandContentNameOfficeDev,
                 ));
             if (treeViewActivated) {
               // wait for activation
@@ -101,7 +101,7 @@ export async function ensureExtensionActivated(): Promise<void> {
 
 export async function waitForTerminal(
   title: string,
-  message?: string
+  message?: string,
 ): Promise<void> {
   const driver = VSBrowser.instance.driver;
   await driver.wait(async () => {
@@ -149,7 +149,7 @@ export async function openExistingProject(folder: string): Promise<void> {
     await driver.sleep(Timeout.reloadWindow);
     await driver.wait(until.stalenessOf(workbench));
     await VSBrowser.instance.takeScreenshot(
-      getScreenshotName("openExistingProject")
+      getScreenshotName("openExistingProject"),
     );
   });
   await VSBrowser.instance.waitForWorkbench();
@@ -158,7 +158,7 @@ export async function openExistingProject(folder: string): Promise<void> {
 }
 
 export async function startDebugging(
-  item = "Debug in Teams (Chrome)"
+  item = "Debug in Teams (Chrome)",
 ): Promise<boolean> {
   // open terminal to avoid terminal not invisible issue
   console.log("start debugging...");
@@ -172,7 +172,7 @@ export async function startDebugging(
 export async function startDebuggingAzure(
   item = "Debug in Teams (Chrome)",
   envName = "local",
-  appName: string
+  appName: string,
 ): Promise<boolean> {
   // open terminal to avoid terminal not invisible issue
   console.log("start debugging...");
@@ -221,7 +221,7 @@ export async function closeWorkspace(): Promise<void> {
 
 export async function execCommandIfExist(
   commandName: string,
-  timeout?: number
+  timeout?: number,
 ): Promise<void> {
   const driver = VSBrowser.instance.driver;
   await VSBrowser.instance.waitForWorkbench();
@@ -251,7 +251,7 @@ export async function execCommandIfExist(
       .perform();
   }
   const input = await driver.findElement(
-    By.css(".quick-input-and-message .input")
+    By.css(".quick-input-and-message .input"),
   );
   await input.sendKeys(commandName);
   await driver.sleep(Timeout.input);
@@ -301,7 +301,7 @@ export async function getNotification(
   notificationMessage: string,
   timeout?: number,
   retries = 5,
-  errorFlags?: string[]
+  errorFlags?: string[],
 ): Promise<boolean> {
   const driver = VSBrowser.instance.driver;
   if (errorFlags) {
@@ -352,7 +352,7 @@ export async function clearNotifications(): Promise<void> {
 
 export async function takeNotificationAction(
   notificationMessage: string,
-  actionText: string
+  actionText: string,
 ): Promise<boolean> {
   const driver = VSBrowser.instance.driver;
   const index = 0;
@@ -373,7 +373,7 @@ export async function takeNotificationAction(
 
 export async function execCommandIfExistFromTreeView(
   commandName: string,
-  timeout?: number
+  timeout?: number,
 ): Promise<boolean> {
   const driver = VSBrowser.instance.driver;
   const index = 0;
@@ -451,6 +451,7 @@ async function selectQuickPick(tag: string): Promise<boolean> {
   const driver = VSBrowser.instance.driver;
   const input = await InputBox.create();
   const quickPick = await input.findQuickPick(tag);
+  driver.sleep(Timeout.input);
   if (!quickPick) {
     return false;
   }
@@ -495,7 +496,7 @@ async function selectQuickPickWithRegex(regex: RegExp): Promise<boolean> {
 export async function inputFolderPath(
   driver: WebDriver,
   input: InputBox,
-  folder: string
+  folder: string,
 ) {
   while (true) {
     // input may be auto-corrected to other value, so set until it's fixed
@@ -515,7 +516,7 @@ export async function inputFolderPath(
 async function setInputTextWsl(
   driver: WebDriver,
   input: InputBox,
-  path: string
+  path: string,
 ): Promise<boolean> {
   // The auto-correct box on WSL is different from Windows and Linux and backslashes in input.setText() doesn't work.
   // Use scripts to workaround it.
@@ -558,7 +559,7 @@ export async function createNewProject(
       | "Microsoft 365";
     authOption?: "None" | "API Key" | "Microsoft Entra" | "OAuth";
     apiAuthOption?: "None" | "Custom API Key" | "Bearer token" | "OAuth";
-  }
+  },
 ): Promise<void> {
   const driver = VSBrowser.instance.driver;
   let scaffoldingTime = 60 * 1000;
@@ -583,7 +584,7 @@ export async function createNewProject(
   await RetryHandler.retry(async () => {
     await execCommandIfExist(
       CommandPaletteCommands.CreateProjectCommand,
-      Timeout.webView
+      Timeout.webView,
     );
   });
   console.log("Create new project: ", appName);
@@ -649,7 +650,7 @@ export async function createNewProject(
       // await selectQuickPickWithRegex(/(HTTP Trigger.*Express Server)|(Express Server.*HTTP Trigger)/);
       // Select Functions http trigger
       await selectQuickPickWithRegex(
-        /(HTTP Trigger.*Azure Functions)|(Azure Functions.*HTTP Trigger)/
+        /(HTTP Trigger.*Azure Functions)|(Azure Functions.*HTTP Trigger)/,
       );
       await driver.sleep(Timeout.input);
       // Choose programming language
@@ -719,7 +720,7 @@ export async function createNewProject(
       // Wait for Node version check
       await driver.sleep(Timeout.longTimeWait);
       await input.selectQuickPick(
-        CreateProjectQuestion.SpfxSharepointFrameworkInTtk
+        CreateProjectQuestion.SpfxSharepointFrameworkInTtk,
       );
       await driver.sleep(Timeout.input);
       // Choose React or None
@@ -745,7 +746,7 @@ export async function createNewProject(
       // Wait for Node version check
       await driver.sleep(Timeout.longTimeWait);
       await input.selectQuickPick(
-        CreateProjectQuestion.SpfxSharepointFrameworkGlobalEnvInTtk
+        CreateProjectQuestion.SpfxSharepointFrameworkGlobalEnvInTtk,
       );
       await driver.sleep(Timeout.input);
       // Choose React or None
@@ -768,14 +769,14 @@ export async function createNewProject(
       await input.confirm();
       await driver.sleep(Timeout.input);
       await input.selectQuickPick(
-        CreateProjectQuestion.ImportExistingSpfxSolution
+        CreateProjectQuestion.ImportExistingSpfxSolution,
       );
       await driver.sleep(Timeout.input);
 
       // Input folder path
       const resourcePath = path.resolve(
         __dirname,
-        "../../.test-resources/existingspfx"
+        "../../.test-resources/existingspfx",
       );
       console.log("choose project path: ", resourcePath);
       await input.selectQuickPick("Browse...");
@@ -827,7 +828,7 @@ export async function createNewProject(
       await input.confirm();
       await driver.sleep(Timeout.input);
       await selectQuickPickWithRegex(
-        /(Timer Trigger.*Azure Functions)|(Azure Functions.*Timer Trigger)/
+        /(Timer Trigger.*Azure Functions)|(Azure Functions.*Timer Trigger)/,
       );
       await driver.sleep(Timeout.input);
       // Choose programming language
@@ -843,7 +844,7 @@ export async function createNewProject(
       await input.confirm();
       await driver.sleep(Timeout.input);
       await selectQuickPickWithRegex(
-        /(HTTP and Timer Trigger.*Azure Functions)|(Azure Functions.*HTTP and Timer Trigger)/
+        /(HTTP and Timer Trigger.*Azure Functions)|(Azure Functions.*HTTP and Timer Trigger)/,
       );
       await driver.sleep(Timeout.input);
       // Choose programming language
@@ -993,13 +994,13 @@ export async function createNewProject(
       const apiSpecFilePath =
         "https://raw.githubusercontent.com/SLdragon/example-openapi-spec/main/real-no-auth.yaml";
       await input.selectQuickPick(
-        "Enter OpenAPI Description Document Location"
+        "Enter OpenAPI Description Document Location",
       );
       await inputFolderPath(driver, input, apiSpecFilePath);
       await input.confirm();
       await driver.sleep(Timeout.shortTimeWait);
       const ckAll = await driver.findElement(
-        By.css(".quick-input-header .monaco-checkbox")
+        By.css(".quick-input-header .monaco-checkbox"),
       );
       await ckAll?.click();
       await input.confirm();
@@ -1152,7 +1153,7 @@ export async function createNewProject(
   const projectPath = path.resolve(testRootFolder, appName);
   const projectCopyPath = path.resolve(
     testRootFolder,
-    appName + appNameCopySuffix
+    appName + appNameCopySuffix,
   );
   console.log("copy path: ", projectPath, " to: ", projectCopyPath);
   await fs.mkdir(projectCopyPath);
@@ -1169,7 +1170,7 @@ interface M365Yaml {
 
 export async function extendM365Yaml(
   projectPath: string,
-  env: string
+  env: string,
 ): Promise<void> {
   const yamlFile = env === "dev" ? `m365agents.yml` : `m365agents.${env}.yml`;
   const m365YamlPath = path.resolve(projectPath, yamlFile);
@@ -1190,7 +1191,7 @@ export async function extendM365Yaml(
 
     // Check if step already exists
     const alreadyExists = m365YamlObj.provision.some(
-      (step: any) => step?.uses === newStep.uses
+      (step: any) => step?.uses === newStep.uses,
     );
 
     // Append only if not exists
@@ -1205,7 +1206,7 @@ export async function extendM365Yaml(
     await fs.writeFile(
       m365YamlPath,
       yaml.dump(m365YamlObj, { noRefs: true }),
-      "utf8"
+      "utf8",
     );
   }
 }
@@ -1213,7 +1214,7 @@ export async function extendM365Yaml(
 export async function setExtensionSetting(
   category: string,
   settingName: string,
-  value: any
+  value: any,
 ): Promise<void> {
   const settingsEditor = await new Workbench().openSettings();
   const setting = await settingsEditor.findSetting(settingName, category);
@@ -1225,7 +1226,7 @@ export async function setInsiderPreview(): Promise<void> {
   await setExtensionSetting(
     Extension.settingsCategory,
     Extension.settingsInsiderPreview,
-    true
+    true,
   );
   await execCommandIfExist("Developer: Reload Window", Timeout.webView);
 }
@@ -1234,7 +1235,7 @@ export async function resetInsiderPreview(): Promise<void> {
   await setExtensionSetting(
     Extension.settingsCategory,
     Extension.settingsInsiderPreview,
-    false
+    false,
   );
   await execCommandIfExist("Developer: Reload Window", Timeout.webView);
 }
@@ -1242,7 +1243,7 @@ export async function resetInsiderPreview(): Promise<void> {
 export async function runDeployAadAppManifest(env = "dev"): Promise<void> {
   await execCommandIfExist(
     CommandPaletteCommands.DeployAadAppManifestCommand,
-    Timeout.webView
+    Timeout.webView,
   );
   const driver = VSBrowser.instance.driver;
   await driver.sleep(Timeout.shortTimeWait);
@@ -1306,12 +1307,12 @@ export async function validateNotification(text: string): Promise<void> {
       }
     }
     await VSBrowser.instance.takeScreenshot(
-      getScreenshotName("upgradeNotification")
+      getScreenshotName("upgradeNotification"),
     );
     assert.fail("[error] Cannot find notification: " + text);
   } catch (error) {
     await VSBrowser.instance.takeScreenshot(
-      getScreenshotName("upgradeNotification")
+      getScreenshotName("upgradeNotification"),
     );
     assert.fail("[error] Cannot find notification: " + text);
   }
@@ -1333,7 +1334,7 @@ export async function upgrade() {
     }
   }
   await VSBrowser.instance.takeScreenshot(
-    getScreenshotName("upgradeNotification")
+    getScreenshotName("upgradeNotification"),
   );
   assert.fail("[error] Cannot find upgrade button.");
 }
@@ -1380,7 +1381,7 @@ export async function validateUpgrade() {
     }
   }
   await VSBrowser.instance.takeScreenshot(
-    getScreenshotName("upgradeNotification")
+    getScreenshotName("upgradeNotification"),
   );
   assert.fail("[error] Cannot find upgrade report.");
 }
@@ -1392,7 +1393,7 @@ export async function findWordFromTerminal(word: string): Promise<boolean> {
   console.log("verify start ...");
   await execCommandIfExist("Terminal: Focus Find");
   const searchBoxs = await VSBrowser.instance.driver.findElements(
-    By.css(".simple-find-part")
+    By.css(".simple-find-part"),
   );
   for (const searchBox of searchBoxs) {
     try {
@@ -1441,7 +1442,7 @@ export async function findWordFromTerminal(word: string): Promise<boolean> {
       ).getText();
       if (result.includes("No results")) {
         await VSBrowser.instance.takeScreenshot(
-          getScreenshotName("debug failed")
+          getScreenshotName("debug failed"),
         );
         await showTerminalLogs();
         assert.fail("[failed] error message found !!!");
@@ -1475,7 +1476,7 @@ export async function getOutPutError(): Promise<void> {
       message.includes("Failed]: ")
     ) {
       await VSBrowser.instance.takeScreenshot(
-        getScreenshotName("output error")
+        getScreenshotName("output error"),
       );
       assert.fail(`[Error]: Get error message: ${message}`);
     }
@@ -1499,7 +1500,7 @@ export async function addSpfxWebPart(webPartName = "helloworld") {
   await driver.sleep(3 * 60 * 1000);
   await getNotification(
     `Web part ${webPartName} was successfully added to the project`,
-    30 * 1000
+    30 * 1000,
   );
 }
 
@@ -1524,7 +1525,7 @@ export async function getOutputLogs(): Promise<string | undefined> {
   console.log("Microsoft 365 Agents Toolkit");
   try {
     const maximize = await pannel.findElement(
-      By.css("a.action-label.codicon.codicon-panel-maximize")
+      By.css("a.action-label.codicon.codicon-panel-maximize"),
     );
     await maximize.click();
     await driver.sleep(Timeout.shortTimeWait);
@@ -1562,14 +1563,14 @@ export async function createEnvironmentWithPython() {
   await driver.sleep(Timeout.longTimeWait);
   await getNotification(
     "The following environment is selected",
-    Timeout.shortTimeWait
+    Timeout.shortTimeWait,
   );
 }
 
 export async function createNewProjectByApispec(
   apispec: string,
   driver: WebDriver,
-  input: InputBox
+  input: InputBox,
 ): Promise<void> {
   await input.selectQuickPick(CreateProjectQuestion.TeamsApp);
   await driver.sleep(Timeout.input);
@@ -1582,7 +1583,7 @@ export async function createNewProjectByApispec(
   await input.confirm();
   await driver.sleep(Timeout.shortTimeWait);
   const ckAll = await driver.findElement(
-    By.css(".quick-input-header .monaco-checkbox")
+    By.css(".quick-input-header .monaco-checkbox"),
   );
   await ckAll?.click();
   await driver.sleep(Timeout.input);
@@ -1592,7 +1593,7 @@ export async function createNewProjectByApispec(
 export async function createDaByopenapi(
   openapi: string,
   driver: WebDriver,
-  input: InputBox
+  input: InputBox,
 ): Promise<void> {
   await input.selectQuickPick(CreateProjectQuestion.DeclarativeAgent);
   await driver.sleep(Timeout.input);
@@ -1601,7 +1602,7 @@ export async function createDaByopenapi(
   await input.selectQuickPick("Start with an OpenAPI Description Document");
   await driver.sleep(Timeout.input);
   await input.selectQuickPick(
-    "Enter OpenAPI Description Document Location or Open File..."
+    "Enter OpenAPI Description Document Location or Open File...",
   );
   await driver.sleep(Timeout.input);
   await input.selectQuickPick("Enter OpenAPI Description Document Location");
@@ -1610,7 +1611,7 @@ export async function createDaByopenapi(
   await input.confirm();
   await driver.sleep(Timeout.loadOpenAPI);
   const ckAll = await driver.findElement(
-    By.css(".quick-input-header .monaco-checkbox")
+    By.css(".quick-input-header .monaco-checkbox"),
   );
   await ckAll?.click();
   await driver.sleep(Timeout.input);
