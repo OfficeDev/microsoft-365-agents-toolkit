@@ -145,7 +145,7 @@ export async function validateEchoBotInPlayground(
       await input.fill(command);
       await input.press("Enter");
 
-      const expectedContent = `you said: $command}`;
+      const expectedContent = `you said: ${command}`;
       const botMessage = page.locator(`p:has-text("${expectedContent}")`);
       await botMessage.waitFor({
         state: "visible",
