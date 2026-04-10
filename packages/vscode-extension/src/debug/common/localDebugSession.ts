@@ -11,6 +11,7 @@ export class LocalDebugSession {
     const session = new LocalDebugSession(uuid.v4());
     return session;
   }
+
   static createInvalidSession() {
     return new LocalDebugSession();
   }
