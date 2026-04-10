@@ -9,15 +9,15 @@
       "precondition_retry_interval": 2,
       "step_retry_count": 0
     },
-    "total_steps": 17,
-    "created_at": "2026-04-09T01:02:35.916263",
+    "total_steps": 18,
+    "created_at": "2026-01-29T08:55:17.395274",
     "name": "Feature Provision Without Account",
     "description": {
       "other": "",
       "owner": "v-annefu@microsoft.com",
       "workitem": "15263834"
     },
-    "generated_at": "2026-04-09T01:02:35.916263",
+    "generated_at": "2026-01-29T08:55:17.395274",
     "execution_order": [
       "plan_r_0928_012254",
       "step_2652c2f3",
@@ -35,6 +35,7 @@
       "step_e3857f4f",
       "step_9c318ac3",
       "step_3b8a921e",
+      "step_13d0585f",
       "step_9b9caa4e",
       "step_2dd220b4",
       "step_b9f24cdd",
@@ -42,7 +43,7 @@
       "step_c59f4ae8"
     ],
     "tags": [],
-    "updated_at": "2026-04-09T01:04:27.887042"
+    "updated_at": "2026-01-29T09:57:58.043149"
   },
   "steps": [
     {
@@ -68,7 +69,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_2652c2f3",
-      "created_at": "2026-04-09T01:02:35.926878",
+      "created_at": "2026-01-29T08:55:17.411589",
       "plan_id": "plan_9603bf77"
     },
     {
@@ -94,7 +95,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_a60e64d9",
-      "created_at": "2026-04-09T01:02:35.945885",
+      "created_at": "2026-01-29T08:55:17.431100",
       "plan_id": "plan_9603bf77"
     },
     {
@@ -120,7 +121,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_4f022cc4",
-      "created_at": "2026-04-09T01:02:35.964078",
+      "created_at": "2026-01-29T08:55:17.451552",
       "plan_id": "plan_9603bf77"
     },
     {
@@ -146,7 +147,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_a8f39118",
-      "created_at": "2026-04-09T01:02:36.003372",
+      "created_at": "2026-01-29T08:55:17.468381",
       "plan_id": "plan_9603bf77"
     },
     {
@@ -168,7 +169,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_836791dd",
-      "created_at": "2026-04-09T01:02:36.069247",
+      "created_at": "2026-01-29T08:56:24.990781",
       "plan_id": "plan_9603bf77"
     },
     {
@@ -190,7 +191,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_640a36c8",
-      "created_at": "2026-04-09T01:02:36.103821",
+      "created_at": "2026-01-29T08:56:25.004344",
       "plan_id": "plan_9603bf77"
     },
     {
@@ -216,7 +217,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_1995bde0",
-      "created_at": "2026-04-09T01:02:36.187858",
+      "created_at": "2026-01-29T08:56:25.014326",
       "plan_id": "plan_9603bf77"
     },
     {
@@ -234,7 +235,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": null,
-      "created_at": "2026-04-09T01:02:36.215156",
+      "created_at": "2026-01-29T08:55:17.530531",
       "plan_id": "plan_9603bf77"
     },
     {
@@ -260,7 +261,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_51023581",
-      "created_at": "2026-04-09T01:02:36.223881",
+      "created_at": "2026-01-29T09:45:13.509938",
       "plan_id": "plan_9603bf77"
     },
     {
@@ -286,7 +287,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_53447ae6",
-      "created_at": "2026-04-09T01:02:36.242307",
+      "created_at": "2026-01-29T09:47:55.372832",
       "plan_id": "plan_9603bf77"
     },
     {
@@ -308,7 +309,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_e3857f4f",
-      "created_at": "2026-04-09T01:02:36.275633",
+      "created_at": "2026-01-29T09:47:55.404248",
       "plan_id": "plan_9603bf77"
     },
     {
@@ -330,7 +331,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_9c318ac3",
-      "created_at": "2026-04-09T01:02:36.295636",
+      "created_at": "2026-01-29T09:47:55.431808",
       "plan_id": "plan_9603bf77"
     },
     {
@@ -356,7 +357,25 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_3b8a921e",
-      "created_at": "2026-04-09T01:02:36.314324",
+      "created_at": "2026-01-29T09:47:55.455627",
+      "plan_id": "plan_9603bf77"
+    },
+    {
+      "step_id": "step_13d0585f",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion there is a popup shows sign in Azure account.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": null,
+      "created_at": "2026-01-29T09:48:44.513622",
       "plan_id": "plan_9603bf77"
     },
     {
@@ -380,11 +399,9 @@
         "dhash:528:98:0:10:12922e2323222421"
       ],
       "postconditions": [],
-      "tags": [
-        "step_retry_timeout:30"
-      ],
+      "tags": [],
       "screenshot": "step_9b9caa4e",
-      "created_at": "2026-04-09T01:02:36.353944",
+      "created_at": "2026-01-29T09:51:12.142820",
       "plan_id": "plan_9603bf77"
     },
     {
@@ -410,7 +427,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_2dd220b4",
-      "created_at": "2026-04-09T01:02:36.370167",
+      "created_at": "2026-01-29T09:51:12.175614",
       "plan_id": "plan_9603bf77"
     },
     {
@@ -436,7 +453,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_b9f24cdd",
-      "created_at": "2026-04-09T01:02:36.403661",
+      "created_at": "2026-01-29T09:51:46.512545",
       "plan_id": "plan_9603bf77"
     },
     {
@@ -454,7 +471,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": null,
-      "created_at": "2026-04-09T01:02:36.428785",
+      "created_at": "2026-01-29T09:53:48.724649",
       "plan_id": "plan_9603bf77"
     }
   ],
