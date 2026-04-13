@@ -292,36 +292,24 @@ export class CustomCopilotRagOptions {
   static customize(): OptionItem {
     return {
       id: "custom-copilot-rag-customize",
-      label: getLocalizedString(
-        "template.teams.rag.source.customize.label"
-      ),
-      detail: getLocalizedString(
-        "template.teams.rag.source.customize.detail"
-      ),
+      label: getLocalizedString("template.teams.rag.source.customize.label"),
+      detail: getLocalizedString("template.teams.rag.source.customize.detail"),
     };
   }
 
   static azureAISearch(): OptionItem {
     return {
       id: "custom-copilot-rag-azureAISearch",
-      label: getLocalizedString(
-        "template.teams.rag.source.azureAISearch.label"
-      ),
-      detail: getLocalizedString(
-        "template.teams.rag.source.azureAISearch.detail"
-      ),
+      label: getLocalizedString("template.teams.rag.source.azureAISearch.label"),
+      detail: getLocalizedString("template.teams.rag.source.azureAISearch.detail"),
     };
   }
 
   static customApi(): OptionItem {
     return {
       id: "custom-copilot-rag-customApi",
-      label: getLocalizedString(
-        "template.teams.rag.source.customApi.label"
-      ),
-      detail: getLocalizedString(
-        "template.teams.rag.source.customApi.detail"
-      ),
+      label: getLocalizedString("template.teams.rag.source.customApi.label"),
+      detail: getLocalizedString("template.teams.rag.source.customApi.detail"),
       description: getLocalizedString("core.createProjectQuestion.option.description.preview"),
     };
   }

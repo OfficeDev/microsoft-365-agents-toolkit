@@ -93,12 +93,8 @@ export function customCopilotRagNode(): IQTreeNode {
     data: {
       type: "singleSelect",
       name: QuestionNames.CustomCopilotRag,
-      title: getLocalizedString(
-        "template.teams.rag.label"
-      ),
-      placeholder: getLocalizedString(
-        "template.teams.rag.source.placeholder"
-      ),
+      title: getLocalizedString("template.teams.rag.label"),
+      placeholder: getLocalizedString("template.teams.rag.source.placeholder"),
       staticOptions: [
         CustomCopilotRagOptions.customize(),
         CustomCopilotRagOptions.azureAISearch(),

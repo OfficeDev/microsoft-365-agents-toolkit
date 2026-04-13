@@ -17,12 +17,8 @@ export class CustomEngineAgentOptions {
   static basicCustomEngineAgent(): OptionItem {
     return {
       id: "basic-custom-engine-agent",
-      label: getLocalizedString(
-        "template.customEngineAgent.basic.label"
-      ),
-      detail: getLocalizedString(
-        "template.customEngineAgent.basic.detail"
-      ),
+      label: getLocalizedString("template.customEngineAgent.basic.label"),
+      detail: getLocalizedString("template.customEngineAgent.basic.detail"),
       data: TemplateNames.BasicCustomEngineAgent,
     };
   }
@@ -100,12 +96,8 @@ export class TeamsAgentCapabilityOptions {
       : undefined;
     return {
       id: "custom-copilot-basic",
-      label: getLocalizedString(
-        "template.teams.general.label"
-      ),
-      detail: getLocalizedString(
-        "template.teams.general.detail"
-      ),
+      label: getLocalizedString("template.teams.general.label"),
+      detail: getLocalizedString("template.teams.general.detail"),
       description: description,
       data: TemplateNames.CustomCopilotBasic,
     };
@@ -117,12 +109,8 @@ export class TeamsAgentCapabilityOptions {
       : undefined;
     return {
       id: "custom-copilot-rag",
-      label: getLocalizedString(
-        "template.teams.rag.label"
-      ),
-      detail: getLocalizedString(
-        "template.teams.rag.detail"
-      ),
+      label: getLocalizedString("template.teams.rag.label"),
+      detail: getLocalizedString("template.teams.rag.detail"),
       description: description,
     };
   }
@@ -130,12 +118,8 @@ export class TeamsAgentCapabilityOptions {
   static collaboratorAgent(): OptionItem {
     return {
       id: "teams-collaborator-agent",
-      label: getLocalizedString(
-        "template.teams.collaboratorAgent.label"
-      ),
-      detail: getLocalizedString(
-        "template.teams.collaboratorAgent.detail"
-      ),
+      label: getLocalizedString("template.teams.collaboratorAgent.label"),
+      detail: getLocalizedString("template.teams.collaboratorAgent.detail"),
       data: TemplateNames.TeamsCollaboratorAgent,
     };
   }
@@ -173,12 +157,8 @@ export class CustomCopilotRagOptions {
   static customize(): OptionItem {
     return {
       id: "custom-copilot-rag-customize",
-      label: getLocalizedString(
-        "template.teams.rag.source.customize.label"
-      ),
-      detail: getLocalizedString(
-        "template.teams.rag.source.customize.detail"
-      ),
+      label: getLocalizedString("template.teams.rag.source.customize.label"),
+      detail: getLocalizedString("template.teams.rag.source.customize.detail"),
       data: TemplateNames.CustomCopilotRagCustomize,
     };
   }
@@ -186,12 +166,8 @@ export class CustomCopilotRagOptions {
   static azureAISearch(): OptionItem {
     return {
       id: "custom-copilot-rag-azureAISearch",
-      label: getLocalizedString(
-        "template.teams.rag.source.azureAISearch.label"
-      ),
-      detail: getLocalizedString(
-        "template.teams.rag.source.azureAISearch.detail"
-      ),
+      label: getLocalizedString("template.teams.rag.source.azureAISearch.label"),
+      detail: getLocalizedString("template.teams.rag.source.azureAISearch.detail"),
       data: TemplateNames.CustomCopilotRagAzureAISearch,
     };
   }
@@ -199,12 +175,8 @@ export class CustomCopilotRagOptions {
   static customApi(): OptionItem {
     return {
       id: "custom-copilot-rag-customApi",
-      label: getLocalizedString(
-        "template.teams.rag.source.customApi.label"
-      ),
-      detail: getLocalizedString(
-        "template.teams.rag.source.customApi.detail"
-      ),
+      label: getLocalizedString("template.teams.rag.source.customApi.label"),
+      detail: getLocalizedString("template.teams.rag.source.customApi.detail"),
       description: getLocalizedString("core.createProjectQuestion.option.description.preview"),
       data: TemplateNames.CustomCopilotRagCustomApi,
     };
