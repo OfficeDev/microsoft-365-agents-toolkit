@@ -18,10 +18,10 @@ export class CustomEngineAgentOptions {
     return {
       id: "basic-custom-engine-agent",
       label: getLocalizedString(
-        "core.createProjectQuestion.capability.basicCustomEngineAgentOption.label"
+        "template.customEngineAgent.basic.label"
       ),
       detail: getLocalizedString(
-        "core.createProjectQuestion.capability.basicCustomEngineAgentOption.detail"
+        "template.customEngineAgent.basic.detail"
       ),
       data: TemplateNames.BasicCustomEngineAgent,
     };
@@ -30,8 +30,8 @@ export class CustomEngineAgentOptions {
   static weatherAgent(): OptionItem {
     return {
       id: "weather-agent",
-      label: getLocalizedString("core.createProjectQuestion.capability.weatherAgentOption.label"),
-      detail: getLocalizedString("core.createProjectQuestion.capability.weatherAgentOption.detail"),
+      label: getLocalizedString("template.customEngineAgent.weather.label"),
+      detail: getLocalizedString("template.customEngineAgent.weather.detail"),
       data: TemplateNames.WeatherAgent,
     };
   }
@@ -101,10 +101,10 @@ export class TeamsAgentCapabilityOptions {
     return {
       id: "custom-copilot-basic",
       label: getLocalizedString(
-        "core.createProjectQuestion.capability.customCopilotBasicOption.label"
+        "template.teams.general.label"
       ),
       detail: getLocalizedString(
-        "core.createProjectQuestion.capability.customCopilotBasicOption.detail"
+        "template.teams.general.detail"
       ),
       description: description,
       data: TemplateNames.CustomCopilotBasic,
@@ -118,10 +118,10 @@ export class TeamsAgentCapabilityOptions {
     return {
       id: "custom-copilot-rag",
       label: getLocalizedString(
-        "core.createProjectQuestion.capability.customCopilotRagOption.label"
+        "template.teams.rag.label"
       ),
       detail: getLocalizedString(
-        "core.createProjectQuestion.capability.customCopilotRagOption.detail"
+        "template.teams.rag.detail"
       ),
       description: description,
     };
@@ -131,10 +131,10 @@ export class TeamsAgentCapabilityOptions {
     return {
       id: "teams-collaborator-agent",
       label: getLocalizedString(
-        "core.createProjectQuestion.capability.teamsAgent.collaborator.label"
+        "template.teams.collaboratorAgent.label"
       ),
       detail: getLocalizedString(
-        "core.createProjectQuestion.capability.teamsAgent.collaborator.detail"
+        "template.teams.collaboratorAgent.detail"
       ),
       data: TemplateNames.TeamsCollaboratorAgent,
     };
@@ -146,8 +146,8 @@ export class TeamsAgentCapabilityOptions {
       : undefined;
     return {
       id: "others",
-      label: getLocalizedString("core.createProjectQuestion.capability.teamsAgent.others.label"),
-      detail: getLocalizedString("core.createProjectQuestion.capability.teamsAgent.others.detail"),
+      label: getLocalizedString("template.teams.others.label"),
+      detail: getLocalizedString("template.teams.others.detail"),
       description: description,
     };
   }
@@ -174,10 +174,10 @@ export class CustomCopilotRagOptions {
     return {
       id: "custom-copilot-rag-customize",
       label: getLocalizedString(
-        "core.createProjectQuestion.capability.customCopilotRagCustomizeOption.label"
+        "template.teams.rag.source.customize.label"
       ),
       detail: getLocalizedString(
-        "core.createProjectQuestion.capability.customCopilotRagCustomizeOption.detail"
+        "template.teams.rag.source.customize.detail"
       ),
       data: TemplateNames.CustomCopilotRagCustomize,
     };
@@ -187,10 +187,10 @@ export class CustomCopilotRagOptions {
     return {
       id: "custom-copilot-rag-azureAISearch",
       label: getLocalizedString(
-        "core.createProjectQuestion.capability.customCopilotRagAzureAISearchOption.label"
+        "template.teams.rag.source.azureAISearch.label"
       ),
       detail: getLocalizedString(
-        "core.createProjectQuestion.capability.customCopilotRagAzureAISearchOption.detail"
+        "template.teams.rag.source.azureAISearch.detail"
       ),
       data: TemplateNames.CustomCopilotRagAzureAISearch,
     };
@@ -200,10 +200,10 @@ export class CustomCopilotRagOptions {
     return {
       id: "custom-copilot-rag-customApi",
       label: getLocalizedString(
-        "core.createProjectQuestion.capability.customCopilotRagCustomApiOption.label"
+        "template.teams.rag.source.customApi.label"
       ),
       detail: getLocalizedString(
-        "core.createProjectQuestion.capability.customCopilotRagCustomApiOption.detail"
+        "template.teams.rag.source.customApi.detail"
       ),
       description: getLocalizedString("core.createProjectQuestion.option.description.preview"),
       data: TemplateNames.CustomCopilotRagCustomApi,

@@ -293,10 +293,10 @@ export class CustomCopilotRagOptions {
     return {
       id: "custom-copilot-rag-customize",
       label: getLocalizedString(
-        "core.createProjectQuestion.capability.customCopilotRagCustomizeOption.label"
+        "template.teams.rag.source.customize.label"
       ),
       detail: getLocalizedString(
-        "core.createProjectQuestion.capability.customCopilotRagCustomizeOption.detail"
+        "template.teams.rag.source.customize.detail"
       ),
     };
   }
@@ -305,10 +305,10 @@ export class CustomCopilotRagOptions {
     return {
       id: "custom-copilot-rag-azureAISearch",
       label: getLocalizedString(
-        "core.createProjectQuestion.capability.customCopilotRagAzureAISearchOption.label"
+        "template.teams.rag.source.azureAISearch.label"
       ),
       detail: getLocalizedString(
-        "core.createProjectQuestion.capability.customCopilotRagAzureAISearchOption.detail"
+        "template.teams.rag.source.azureAISearch.detail"
       ),
     };
   }
@@ -317,10 +317,10 @@ export class CustomCopilotRagOptions {
     return {
       id: "custom-copilot-rag-customApi",
       label: getLocalizedString(
-        "core.createProjectQuestion.capability.customCopilotRagCustomApiOption.label"
+        "template.teams.rag.source.customApi.label"
       ),
       detail: getLocalizedString(
-        "core.createProjectQuestion.capability.customCopilotRagCustomApiOption.detail"
+        "template.teams.rag.source.customApi.detail"
       ),
       description: getLocalizedString("core.createProjectQuestion.option.description.preview"),
     };
@@ -503,8 +503,8 @@ export class ActionStartOptions {
   static mcp(): OptionItem {
     return {
       id: "mcp",
-      label: getLocalizedString("core.createProjectQuestion.mcpForDa.label"),
-      detail: getLocalizedString("core.createProjectQuestion.mcpForDa.detail"),
+      label: getLocalizedString("template.createProjectQuestion.mcpForDa.label"),
+      detail: getLocalizedString("template.createProjectQuestion.mcpForDa.detail"),
     };
   }
 
