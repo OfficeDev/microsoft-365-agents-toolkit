@@ -33,13 +33,15 @@ const tokenCredentials: TokenCredentials = {
   token: createTokenFactory(),
 };
 
-const credentialOptions =
-  process.env.BOT_TYPE === "UserAssignedMsi" ? { ...tokenCredentials } : undefined;
+// Use managed identity in cloud environment, otherwise use devtools plugin for local development
+const options =
+  process.env.BOT_TYPE === "UserAssignedMsi"
+    ? { ...tokenCredentials }
+    : { plugins: [new DevtoolsPlugin()] };
 
 const app = new App({
-  ...credentialOptions,
+  ...options,
   logger: new ConsoleLogger("{{appName}}", { level: "debug" }),
-  plugins: [new DevtoolsPlugin()],
 });
 
 app.on("install.add", async ({ send }) => {
