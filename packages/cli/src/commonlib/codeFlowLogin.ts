@@ -303,7 +303,11 @@ export class CodeFlowLogin {
     const loopbackTemplatePath = path.join(__dirname, "codeFlowResult", "index.html");
     let loopbackTemplate = undefined;
     if (fs.pathExistsSync(loopbackTemplatePath)) {
-      loopbackTemplate = await fs.readFile(loopbackTemplatePath, "utf-8");
+      const displayName = this.accountName == "azure" ? "Azure" : "M365";
+      loopbackTemplate = (await fs.readFile(loopbackTemplatePath, "utf-8")).replace(
+        /\${accountName}/g,
+        displayName
+      );
     }
     const interactiveRequest = {
       scopes: scopes,
