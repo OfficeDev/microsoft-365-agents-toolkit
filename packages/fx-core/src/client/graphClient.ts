@@ -350,7 +350,7 @@ export class GraphClient {
     try {
       const requester = this.createRequesterWithToken(token);
       const response = await RetryHandler.Retry(() =>
-        requester.post(teamsAppsPath, file, {
+        requester.post(`${teamsAppsPath}?requiresReview=true`, file, {
           headers: { "Content-Type": "application/zip" },
         })
       );
@@ -426,9 +426,13 @@ export class GraphClient {
       }
 
       const response = await RetryHandler.Retry(() =>
-        requester.post(`${teamsAppsPath}/${appDefinition.teamsAppId}/appDefinitions`, file, {
-          headers: { "Content-Type": "application/zip" },
-        })
+        requester.post(
+          `${teamsAppsPath}/${appDefinition.teamsAppId}/appDefinitions?requiresReview=true`,
+          file,
+          {
+            headers: { "Content-Type": "application/zip" },
+          }
+        )
       );
 
       if (response?.data?.error || response?.data?.errorMessage) {

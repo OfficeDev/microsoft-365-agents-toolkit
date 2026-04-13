@@ -819,7 +819,7 @@ describe("Teams app publish APIs", () => {
 
     expect(result).to.equal("catalog-app-id");
     expect(postStub.calledOnce).to.be.true;
-    expect(postStub.firstCall.args[0]).to.contain("/appCatalogs/teamsApps");
+    expect(postStub.firstCall.args[0]).to.contain("/appCatalogs/teamsApps?requiresReview=true");
   });
 
   it("publishTeamsApp should fallback to staged app on BadGateway in response body", async () => {
@@ -897,7 +897,7 @@ describe("Teams app publish APIs", () => {
     expect(result).to.equal("catalog-app-id");
     expect(postStub.calledOnce).to.be.true;
     expect(postStub.firstCall.args[0]).to.contain(
-      "/appCatalogs/teamsApps/catalog-app-id/appDefinitions"
+      "/appCatalogs/teamsApps/catalog-app-id/appDefinitions?requiresReview=true"
     );
   });
 
