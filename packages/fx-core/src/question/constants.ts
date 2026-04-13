@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { Inputs, OptionItem } from "@microsoft/teamsfx-api";
+import { Inputs, OptionItem, Platform } from "@microsoft/teamsfx-api";
 import { FeatureFlags, featureFlagManager } from "../common/featureFlags";
 import { getLocalizedString } from "../common/localizeUtils";
 export { QuestionNames } from "./questionNames";
@@ -517,7 +517,10 @@ export class ActionStartOptions {
   static all(inputs: Inputs, doesProjectExists?: boolean): OptionItem[] {
     if (doesProjectExists) {
       const options: OptionItem[] = [ActionStartOptions.apiSpec()];
-      if (featureFlagManager.getBooleanValue(FeatureFlags.MCPForDA)) {
+      if (
+        featureFlagManager.getBooleanValue(FeatureFlags.MCPForDA) &&
+        inputs.platform !== Platform.VSCode
+      ) {
         options.push(ActionStartOptions.mcp());
       }
       return options;

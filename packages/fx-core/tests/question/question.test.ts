@@ -1813,3 +1813,68 @@ describe("updateActionWithMCP", async () => {
     // function1 should not be included (wrong runtime type)
   });
 });
+
+describe("ActionStartOptions", () => {
+  const sandbox = sinon.createSandbox();
+  afterEach(() => {
+    sandbox.restore();
+  });
+
+  describe("all()", () => {
+    it("should not include MCP option on VSCode platform even when MCPForDA is enabled", () => {
+      sandbox.stub(featureFlagManager, "getBooleanValue").callsFake((flag) => {
+        if (flag === FeatureFlags.MCPForDA) return true;
+        return false;
+      });
+      const inputs: Inputs = { platform: Platform.VSCode };
+      const options = ActionStartOptions.all(inputs, true);
+      assert.isFalse(options.some((o) => o.id === ActionStartOptions.mcp().id));
+      assert.isTrue(options.some((o) => o.id === ActionStartOptions.apiSpec().id));
+    });
+
+    it("should include MCP option on CLI platform when MCPForDA is enabled", () => {
+      sandbox.stub(featureFlagManager, "getBooleanValue").callsFake((flag) => {
+        if (flag === FeatureFlags.MCPForDA) return true;
+        return false;
+      });
+      const inputs: Inputs = { platform: Platform.CLI };
+      const options = ActionStartOptions.all(inputs, true);
+      assert.isTrue(options.some((o) => o.id === ActionStartOptions.mcp().id));
+      assert.isTrue(options.some((o) => o.id === ActionStartOptions.apiSpec().id));
+    });
+
+    it("should not include MCP option on CLI platform when MCPForDA is disabled", () => {
+      sandbox.stub(featureFlagManager, "getBooleanValue").callsFake((flag) => {
+        if (flag === FeatureFlags.MCPForDA) return false;
+        return false;
+      });
+      const inputs: Inputs = { platform: Platform.CLI };
+      const options = ActionStartOptions.all(inputs, true);
+      assert.isFalse(options.some((o) => o.id === ActionStartOptions.mcp().id));
+    });
+
+    it("should return newApi and apiSpec when doesProjectExists is false", () => {
+      const inputs: Inputs = { platform: Platform.VSCode };
+      const options = ActionStartOptions.all(inputs, false);
+      assert.equal(options.length, 2);
+      assert.isTrue(options.some((o) => o.id === ActionStartOptions.newApi().id));
+      assert.isTrue(options.some((o) => o.id === ActionStartOptions.apiSpec().id));
+    });
+  });
+
+  describe("staticAll()", () => {
+    it("should include apiSpec and mcp when doesProjectExists is true", () => {
+      const options = ActionStartOptions.staticAll(true);
+      assert.equal(options.length, 2);
+      assert.isTrue(options.some((o) => o.id === ActionStartOptions.apiSpec().id));
+      assert.isTrue(options.some((o) => o.id === ActionStartOptions.mcp().id));
+    });
+
+    it("should include newApi and apiSpec when doesProjectExists is false", () => {
+      const options = ActionStartOptions.staticAll(false);
+      assert.equal(options.length, 2);
+      assert.isTrue(options.some((o) => o.id === ActionStartOptions.newApi().id));
+      assert.isTrue(options.some((o) => o.id === ActionStartOptions.apiSpec().id));
+    });
+  });
+});
