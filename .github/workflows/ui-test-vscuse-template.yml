@@ -261,7 +261,7 @@ jobs:
           cd packages/tests/vscuse/vscode-test-cases
           python -m venv .venv
           source .venv/bin/activate
-          vscuse execute --config-file ./config.yaml --groups-dir groups ./plans/${{ matrix.test_plan }}.json
+          vscuse execute --config-file ./config.yaml --groups-dir groups ./plans/${{ matrix.test_plan }}.json | tee /tmp/vscuse_output.log
 
       - name: Rename test_report.html to index.html
         if: always()
@@ -340,6 +340,47 @@ jobs:
           AZURE_STORAGE_ACCOUNT: storproxystvoazuxhhvtgiq 
 
       - name: Upload storage URL artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: storage-url-${{ matrix.test_plan }}-${{ github.run_id }}
+          path: storage_url.txt
+          retention-days: 7
+          if-no-files-found: ignore
+
+      - name: Extract error information
+        if: always() && failure()
+        run: |
+          if [ -f "/tmp/vscuse_output.log" ]; then
+            echo "Extracting error information from vscuse output..."
+          
+            # Extract error messages from the Errors section
+            # Pattern: "Step step_xxxxx: <error message>"
+            grep "^  Step step_" /tmp/vscuse_output.log | sed 's/^[[:space:]]*Step step_[^:]*: //' > error.log 2>/dev/null || true
+          
+            if [ -s error.log ]; then
+              echo "✅ Error information extracted:"
+              cat error.log
+            else
+              echo "⚠️ No error information found in expected format"
+              echo "Full vscuse output:" > error.log
+              cat /tmp/vscuse_output.log >> error.log
+            fi
+          else
+            echo "⚠️ vscuse output log not found"
+          fi
+        shell: bash
+
+      - name: Upload error log
+        if: always() && failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: error-log-${{ matrix.test_plan }}-${{ github.run_id }}
+          path: error.log
+          retention-days: 7
+          if-no-files-found: ignore
+
+      - name: Upload Error information
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -472,6 +513,51 @@ jobs:
             echo "No storage URL artifacts found"
             echo "{}" > /tmp/url_mapping.json
           fi
+      - name: Download error logs
+        uses: actions/download-artifact@v4
+        with:
+          pattern: error-log-*
+          path: /tmp/error-logs
+
+      - name: Process error logs
+        shell: bash
+        run: |
+          if [ -d "/tmp/error-logs" ]; then
+            echo "Found error logs folder. Processing contents..."
+            
+            echo "{" > /tmp/error_mapping.json
+            first_entry=true
+            
+            find /tmp/error-logs -type f -name "error.log" | while read file; do
+              dir_name=$(basename $(dirname "$file"))
+              # Format: error-log-{test_plan}-{run_id}
+              run_id=$(echo "$dir_name" | rev | cut -d'-' -f1 | rev)
+              test_plan=$(echo "$dir_name" | sed "s/^error-log-//" | sed "s/-${run_id}$//")
+              case_run_id="${test_plan}-${run_id}"
+              
+              echo "Processing error log: dir_name=$dir_name, test_plan=$test_plan, case_run_id=$case_run_id"
+              
+              # Read content, escape for JSON, truncate to 1000 chars
+              content=$(cat "$file" | tr -d '\r' | head -c 1000 | sed 's/\\/\\\\/g' | sed 's/"/\\"/g' | sed ':a;N;$!ba;s/\n/<br>/g')
+              
+              if [ "$first_entry" = true ]; then
+                first_entry=false
+              else
+                echo "," >> /tmp/error_mapping.json
+              fi
+              
+              echo "  \"$case_run_id\": \"$content\"" >> /tmp/error_mapping.json
+            done
+            
+            echo "}" >> /tmp/error_mapping.json
+            
+            echo "Generated error mapping:"
+            cat /tmp/error_mapping.json
+          else
+            echo "No error log artifacts found"
+            echo "{}" > /tmp/error_mapping.json
+          fi
+
       - name: Install Dateutils
         run: |
           sudo apt install dateutils
@@ -488,6 +574,7 @@ jobs:
           echo "Initial jobs: $jobs"
           
           report_map_json_file_path="/tmp/url_mapping.json"
+          error_map_json_file_path="/tmp/error_mapping.json"
           
           # Function to query Azure DevOps for bugs with specific tag
           query_bugs_by_tag() {
@@ -747,7 +834,15 @@ jobs:
               fi
             fi
             
-            row="<tr> <td style=\\\"text-align: left;\\\">$url</td> <td style=\\\"text-align: left;\\\">$title</td> <td style=\\\"text-align: center;\\\">$label</td> <td style=\\\"text-align: center;\\\">$owner</td> <td style=\\\"text-align: center;\\\">$work_item_url</td> <td style=\\\"text-align: center;\\\">$linked_bugs</td> <td style=\\\"text-align: center;\\\">$duration</td>  <td style=\\\"text-align: center;\\\">$report_url</td> </tr>"
+            error_content=""
+            if [ "$status" != "success" ]; then
+              error_content=$(jq -r --arg key "$lookup_key" '.[$key] // ""' "$error_map_json_file_path")
+              if [ "$error_content" = "null" ]; then
+                error_content=""
+              fi
+            fi
+
+            row="<tr> <td style=\\\"text-align: left;\\\">$url</td> <td style=\\\"text-align: center;\\\">$label</td> <td style=\\\"text-align: center;\\\">$owner</td> <td style=\\\"text-align: center;\\\">$work_item_url</td> <td style=\\\"text-align: center;\\\">$linked_bugs</td> <td style=\\\"text-align: center;\\\">$duration</td>  <td style=\\\"text-align: center;\\\">$report_url</td> <td style=\\\"text-align: left;\\\">$error_content</td> </tr>"
             echo "Generated row: $row"
 
             if [[ "$status" == "success" && $passed -lt $passedlimit ]]; then
@@ -762,7 +857,7 @@ jobs:
           echo "Final failed list: $failedlist"
           echo "Final passed list: $passedlist"
 
-          body="<a href=\\\"https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\\\">Test report link.</a>  <br/> <table class=\\\"w3-table w3-striped w3-bordered\\\"> <tr> <th>CASE</th> <th>TITLE</th> <th>STATUS</th> <th>OWNER</th> <th>WORK ITEM</th> <th>LINKED BUG(S)</th> <th>DURATION</th> <th>REPORT</th> </tr> $lists </table> <br />"
+          body="<a href=\\\"https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\\\">Test report link.</a>  <br/> <table class=\\\"w3-table w3-striped w3-bordered\\\"> <tr> <th>CASE</th> <th>STATUS</th> <th>OWNER</th> <th>WORK ITEM</th> <th>LINKED BUG(S)</th> <th>DURATION</th> <th>REPORT</th> <th>ERROR</th> </tr> $lists </table> <br />"
           echo "Generated email body: $body"
 
           total=$((passed+failed))
