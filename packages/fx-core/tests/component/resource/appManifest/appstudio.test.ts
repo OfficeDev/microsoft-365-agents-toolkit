@@ -2,9 +2,9 @@
 // Licensed under the MIT license.
 
 import {
+  AppManifestUtils,
   Context,
   InputsWithProjectPath,
-  ManifestUtil,
   Platform,
   TeamsAppManifest,
   TeamsManifest,
@@ -335,7 +335,7 @@ describe.skip("appStudio", () => {
       };
 
       const errors: string[] = ["error1"];
-      sandbox.stub(ManifestUtil, "validateManifest").resolves(errors);
+      sandbox.stub(AppManifestUtils, "validateAgainstSchema").resolves(errors);
 
       const res = await updateTeamsAppV3ForPublish(ctx, inputs);
       chai.assert.isTrue(res.isErr());
@@ -354,7 +354,7 @@ describe.skip("appStudio", () => {
       const zip = new AdmZip();
       zip.addFile("manifest.json", new Buffer(JSON.stringify(json)));
       const info = zip.toBuffer();
-      sandbox.stub(ManifestUtil, "validateManifest").resolves([]);
+      sandbox.stub(AppManifestUtils, "validateAgainstSchema").resolves([]);
 
       const inputs: InputsWithProjectPath = {
         [QuestionNames.AppPackagePath]: info,
@@ -389,7 +389,7 @@ describe.skip("appStudio", () => {
       const zip = new AdmZip();
       zip.addFile("manifest.json", new Buffer(JSON.stringify(json)));
       const info = zip.toBuffer();
-      sandbox.stub(ManifestUtil, "validateManifest").resolves([]);
+      sandbox.stub(AppManifestUtils, "validateAgainstSchema").resolves([]);
 
       const inputs: InputsWithProjectPath = {
         [QuestionNames.AppPackagePath]: info,
@@ -409,6 +409,74 @@ describe.skip("appStudio", () => {
       const res = await updateTeamsAppV3ForPublish(ctx, inputs);
       chai.assert.isTrue(res.isOk());
     });
+  });
+});
+
+describe("updateTeamsAppV3ForPublish - validateAgainstSchema", () => {
+  const sandbox = sinon.createSandbox();
+
+  beforeEach(() => {
+    setTools(new MockTools());
+  });
+
+  afterEach(() => {
+    sandbox.restore();
+  });
+
+  it("should call AppManifestUtils.validateAgainstSchema and return error when validation fails", async () => {
+    const ctx = createContext();
+    const json = {
+      $schema: "schema",
+      id: "fe58d257-4ce6-427e-a388-496c89633774",
+    };
+    const zip = new AdmZip();
+    zip.addFile("manifest.json", new Buffer(JSON.stringify(json)));
+    const info = zip.toBuffer();
+    const errors: string[] = ["error1"];
+    sandbox.stub(AppManifestUtils, "validateAgainstSchema").resolves(errors);
+
+    const inputs: InputsWithProjectPath = {
+      [QuestionNames.AppPackagePath]: info,
+      platform: Platform.VSCode,
+      projectPath: "projectPath",
+    };
+
+    const res = await updateTeamsAppV3ForPublish(ctx, inputs);
+    chai.assert.isTrue(res.isErr());
+    if (res.isErr()) {
+      chai.assert.equal(res.error.name, "ManifestValidationFailed");
+      chai.assert.isTrue(res.error.message.includes("error1"));
+    }
+  });
+
+  it("should call AppManifestUtils.validateAgainstSchema and succeed when no errors", async () => {
+    const ctx = createContext();
+    const json = {
+      $schema: "schema",
+      id: "fe58d257-4ce6-427e-a388-496c89633774",
+    };
+    const zip = new AdmZip();
+    zip.addFile("manifest.json", new Buffer(JSON.stringify(json)));
+    const info = zip.toBuffer();
+    sandbox.stub(AppManifestUtils, "validateAgainstSchema").resolves([]);
+
+    const inputs: InputsWithProjectPath = {
+      [QuestionNames.AppPackagePath]: info,
+      platform: Platform.VSCode,
+      projectPath: "projectPath",
+    };
+    const updateDriver = new ConfigureTeamsAppDriver();
+    sandbox.stub(Container, "get").callsFake((name) => {
+      if ((name as any) === "teamsApp/update") {
+        return updateDriver;
+      } else {
+        throw new Error("not implemented");
+      }
+    });
+    sandbox.stub(updateDriver, "execute").resolves({ result: ok(new Map([])), summaries: [] });
+
+    const res = await updateTeamsAppV3ForPublish(ctx, inputs);
+    chai.assert.isTrue(res.isOk());
   });
 });
 

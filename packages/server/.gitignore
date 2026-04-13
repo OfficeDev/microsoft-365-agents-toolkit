@@ -28,6 +28,8 @@ obj
 # Resx Generated Code
 *.resx.ts
 
+json-schemas/
+
 # Styles Generated Code
 *.scss.ts
 

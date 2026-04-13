@@ -341,12 +341,19 @@ export class ApiPluginManifestConverter {
 }
 
 export class AppManifestUtils {
-  /**
-   * Fetch the schema from the manifest object, load from local if the schema is in the package
-   * @param manifest
-   * @returns manifest schema object
-   */
-  static async fetchSchema(schemaUrl: string): Promise<JSONSchemaType<AppManifest>> {
+  private static getLocalSchemaSuffix(schemaUrl: string): string | undefined {
+    try {
+      const parsedUrl = new URL(schemaUrl);
+      if (parsedUrl.hostname === "developer.microsoft.com") {
+        const localizedPathMatch = parsedUrl.pathname.match(
+          /^\/[a-z]{2}(?:-[a-z]{2})?(\/json-schemas\/.*)$/i
+        );
+        schemaUrl = `${parsedUrl.origin}${localizedPathMatch?.[1] ?? parsedUrl.pathname}`;
+      }
+    } catch {
+      // Ignore invalid URL input and fall back to remote fetch.
+    }
+
     if (
       schemaUrl.startsWith("https://developer.microsoft.com/json-schemas/teams") ||
       schemaUrl.startsWith(
@@ -354,11 +361,39 @@ export class AppManifestUtils {
       ) ||
       schemaUrl.startsWith("https://developer.microsoft.com/json-schemas/copilot/plugin")
     ) {
-      const suffix = schemaUrl.substring("https://developer.microsoft.com/".length);
-      const schemaFile = path.join(__dirname, "..", suffix);
-      if (await fs.pathExists(schemaFile)) {
-        const json = await fs.readJson(schemaFile);
-        return json as JSONSchemaType<AppManifest>;
+      return schemaUrl.substring("https://developer.microsoft.com/".length);
+    }
+
+    return undefined;
+  }
+
+  /**
+   * Fetch the schema from the manifest object, load from local if the schema is in the package
+   * @param manifest
+   * @returns manifest schema object
+   */
+  private static getLocalSchemaCandidates(suffix: string): string[] {
+    const candidates: string[] = [];
+    // 1. Relative to __dirname (works in both source and bundled exe snapshot)
+    candidates.push(path.join(__dirname, "..", suffix));
+    // 2. Relative to the running executable (pkg exe layout)
+    if (process.execPath) {
+      candidates.push(path.join(path.dirname(process.execPath), suffix));
+    }
+    // 3. Relative to cwd
+    candidates.push(path.join(process.cwd(), suffix));
+    return candidates;
+  }
+
+  static async fetchSchema(schemaUrl: string): Promise<JSONSchemaType<AppManifest>> {
+    const suffix = this.getLocalSchemaSuffix(schemaUrl);
+    if (suffix) {
+      for (const schemaFile of this.getLocalSchemaCandidates(suffix)) {
+        if (await fs.pathExists(schemaFile)) {
+          const raw = await fs.readFile(schemaFile, "utf8");
+          const cleanedText = raw.replace(/\\a/g, "\\u0007").replace(/\\v/g, "\\u000b");
+          return JSON.parse(cleanedText) as JSONSchemaType<AppManifest>;
+        }
       }
     }
     let result: JSONSchemaType<AppManifest>;

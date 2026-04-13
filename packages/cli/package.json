@@ -135,6 +135,7 @@
     "lib",
     "resource",
     "templates",
+    "json-schemas",
     "deletePS1.js",
     "cli.js",
     "cli_teamsapp.js"

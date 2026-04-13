@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 import {
+  AppManifestUtils,
   AppPackageFolderName,
   BuildFolderName,
   Colors,
@@ -9,7 +10,6 @@ import {
   InputsWithProjectPath,
   LogProvider,
   M365TokenProvider,
-  ManifestUtil,
   Platform,
   Result,
   TeamsAppManifest,
@@ -255,7 +255,7 @@ export async function updateTeamsAppV3ForPublish(
         );
       } else {
         teamsAppId = manifest.id;
-        const validationResult = await ManifestUtil.validateManifest(manifest);
+        const validationResult = await AppManifestUtils.validateAgainstSchema(manifest as any);
         if (validationResult.length > 0) {
           const errMessage = AppStudioError.ValidationFailedError.message(validationResult);
           validationError = AppStudioResultFactory.UserError(

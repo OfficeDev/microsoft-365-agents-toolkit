@@ -14,7 +14,10 @@ describe("AppManifestUtils", async () => {
 
   describe("fetchSchema", async () => {
     it("should return local schema", async () => {
-      const readJson = sandbox.stub(fs, "readJson").resolves({});
+      sandbox.stub(fs, "pathExists").resolves(true);
+      const readFile = sandbox
+        .stub(fs, "readFile")
+        .resolves(JSON.stringify({ title: "test" }) as any);
       const fetchStub = sandbox.stub(fetchHelper, "default").resolves({
         ok: true,
         json: async () => ({}),
@@ -22,9 +25,37 @@ describe("AppManifestUtils", async () => {
       const schema = await AppManifestUtils.fetchSchema(
         "https://developer.microsoft.com/json-schemas/teams/v1.17/MicrosoftTeams.schema.json"
       );
-      assert.isTrue(readJson.calledOnce);
+      assert.isTrue(readFile.calledOnce);
       assert.isTrue(fetchStub.notCalled);
-      assert.deepEqual(schema, {} as any);
+      assert.deepEqual(schema, { title: "test" } as any);
+    });
+    it("should return local schema for localized microsoft docs url", async () => {
+      sandbox.stub(fs, "pathExists").resolves(true);
+      const readFile = sandbox
+        .stub(fs, "readFile")
+        .resolves(JSON.stringify({ title: "test" }) as any);
+      const fetchStub = sandbox.stub(fetchHelper, "default").resolves({
+        ok: true,
+        json: async () => ({}),
+      } as any);
+      const schema = await AppManifestUtils.fetchSchema(
+        "https://developer.microsoft.com/en-us/json-schemas/teams/v1.17/MicrosoftTeams.schema.json"
+      );
+      assert.isTrue(readFile.calledOnce);
+      assert.isTrue(fetchStub.notCalled);
+      assert.deepEqual(schema, { title: "test" } as any);
+    });
+    it("should apply regex workaround for \\a and \\v characters when reading local schema", async () => {
+      const rawContent = '{"pattern":"\\\\a test \\\\v pattern"}';
+      sandbox.stub(fs, "pathExists").resolves(true);
+      const readFile = sandbox.stub(fs, "readFile").resolves(rawContent as any);
+      const fetchStub = sandbox.stub(fetchHelper, "default");
+      const schema = await AppManifestUtils.fetchSchema(
+        "https://developer.microsoft.com/json-schemas/teams/v1.25/MicrosoftTeams.schema.json"
+      );
+      assert.isTrue(readFile.calledOnce);
+      assert.isTrue(fetchStub.notCalled);
+      assert.deepEqual((schema as any).pattern, "\\u0007 test \\u000b pattern");
     });
     it("should fetch remote schema", async () => {
       const readJson = sandbox.stub(fs, "readJson").resolves({});
@@ -44,8 +75,7 @@ describe("AppManifestUtils", async () => {
         text: sandbox.stub().resolves(mockResponseText),
       };
       const fetchStub = sandbox.stub(fetchHelper, "default").resolves(mockResponse as any);
-      const readJson = sandbox.stub(fs, "readJson").rejects(new Error("File not found"));
-      const pathExists = sandbox.stub(fs, "pathExists").resolves(false);
+      sandbox.stub(fs, "pathExists").resolves(false);
       const schema = await AppManifestUtils.fetchSchema(
         "https://developer.microsoft.com/json-schemas/teams/v1.24/MicrosoftTeams.schema.json"
       );
