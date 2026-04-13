@@ -9,7 +9,10 @@ import { v4 as uuid } from "uuid";
 import { getResourceServiceEndpoint, ResourceServiceType } from "../../src/common/constants";
 import { setTools } from "../../src/common/globalVars";
 import { WrappedAxiosClient } from "../../src/common/wrappedAxiosClient";
-import { APP_STUDIO_API_NAMES } from "../../src/component/driver/teamsApp/constants";
+import {
+  APP_STUDIO_API_NAMES,
+  GRAPH_API_NAMES,
+} from "../../src/component/driver/teamsApp/constants";
 import { MockTools } from "../core/utils";
 import { MOS3ApiDefinitions } from "../../src/component/m365/serviceConstant";
 
@@ -370,6 +373,30 @@ describe("Wrapped Axios Client Test", () => {
       "POST"
     );
     chai.assert.equal(apiName, APP_STUDIO_API_NAMES.UPDATE_PUBLISHED_APP);
+
+    apiName = WrappedAxiosClient.convertUrlToApiName(
+      `https://graph.microsoft.com/beta/appCatalogs/teamsApps?$filter=externalId eq '${fakeId}'&$expand=appDefinitions`,
+      "GET"
+    );
+    chai.assert.equal(apiName, GRAPH_API_NAMES.GET_PUBLISHED_APP);
+
+    apiName = WrappedAxiosClient.convertUrlToApiName(
+      `https://graph.microsoft.com/beta/appCatalogs/teamsApps/${fakeId}`,
+      "GET"
+    );
+    chai.assert.equal(apiName, GRAPH_API_NAMES.GET_PUBLISHED_APP);
+
+    apiName = WrappedAxiosClient.convertUrlToApiName(
+      `https://graph.microsoft.com/beta/appCatalogs/teamsApps`,
+      "POST"
+    );
+    chai.assert.equal(apiName, GRAPH_API_NAMES.PUBLISH_APP);
+
+    apiName = WrappedAxiosClient.convertUrlToApiName(
+      `https://graph.microsoft.com/beta/appCatalogs/teamsApps/${fakeId}/appDefinitions`,
+      "POST"
+    );
+    chai.assert.equal(apiName, GRAPH_API_NAMES.UPDATE_PUBLISHED_APP);
 
     apiName = WrappedAxiosClient.convertUrlToApiName(
       getResourceServiceEndpoint(ResourceServiceType.TDP) + `/api/usersettings/mtUserAppPolicy`,
