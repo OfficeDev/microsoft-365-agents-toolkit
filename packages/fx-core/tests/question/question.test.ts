@@ -1844,10 +1844,7 @@ describe("ActionStartOptions", () => {
     });
 
     it("should not include MCP option on CLI platform when MCPForDA is disabled", () => {
-      sandbox.stub(featureFlagManager, "getBooleanValue").callsFake((flag) => {
-        if (flag === FeatureFlags.MCPForDA) return false;
-        return false;
-      });
+      sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
       const inputs: Inputs = { platform: Platform.CLI };
       const options = ActionStartOptions.all(inputs, true);
       assert.isFalse(options.some((o) => o.id === ActionStartOptions.mcp().id));
