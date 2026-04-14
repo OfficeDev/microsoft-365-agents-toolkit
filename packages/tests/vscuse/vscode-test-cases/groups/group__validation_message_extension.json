@@ -9,14 +9,14 @@
       "precondition_retry_interval": 2
     },
     "total_steps": 30,
-    "created_at": "2025-12-12T01:59:28.316432",
+    "created_at": "2026-04-14T13:40:51.073460",
     "name": "group: validation_message_extension",
     "description": {
       "other": "Generated from recording r_1010_071708",
       "owner": "v-ivanchen@microsoft.com",
       "workitem": ""
     },
-    "generated_at": "2025-12-12T01:59:28.316432",
+    "generated_at": "2026-04-14T13:40:51.073460",
     "execution_order": [
       "step_f5d6ece5",
       "step_07b168b2",
@@ -52,7 +52,7 @@
     "tags": [
       "group"
     ],
-    "updated_at": "2025-12-17T02:02:09.770887"
+    "updated_at": "2026-04-14T13:56:21.971234"
   },
   "steps": [
     {
@@ -83,7 +83,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_f5d6ece5",
-      "created_at": "2025-12-16T05:59:17.954178",
+      "created_at": "2026-04-14T13:40:51.090403",
       "plan_id": "plan_r_1010_071708"
     },
     {
@@ -114,7 +114,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_07b168b2",
-      "created_at": "2025-12-16T05:59:17.966940",
+      "created_at": "2026-04-14T13:40:51.095938",
       "plan_id": "plan_r_1010_071708"
     },
     {
@@ -143,7 +143,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_05042a27",
-      "created_at": "2025-12-16T05:59:17.979585",
+      "created_at": "2026-04-14T13:40:51.099952",
       "plan_id": "plan_r_1010_071708"
     },
     {
@@ -163,7 +163,7 @@
         "step_retry_timeout: 30"
       ],
       "screenshot": null,
-      "created_at": "2025-12-16T05:59:17.985535",
+      "created_at": "2026-04-14T13:40:51.105713",
       "plan_id": "plan_r_1010_071708"
     },
     {
@@ -196,7 +196,7 @@
         "precondition_wait_timeout: 60"
       ],
       "screenshot": "step_2522aadf",
-      "created_at": "2025-12-16T05:59:17.996826",
+      "created_at": "2026-04-14T13:40:51.109727",
       "plan_id": "plan_r_1010_071708"
     },
     {
@@ -225,7 +225,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_d6695e2b",
-      "created_at": "2025-12-16T05:59:18.015828",
+      "created_at": "2026-04-14T13:40:51.113739",
       "plan_id": "plan_r_1010_071708"
     },
     {
@@ -245,7 +245,7 @@
         "step_retry_timeout: 30"
       ],
       "screenshot": null,
-      "created_at": "2025-12-16T05:59:18.028560",
+      "created_at": "2026-04-14T13:40:51.119759",
       "plan_id": "plan_r_1010_071708"
     },
     {
@@ -278,7 +278,7 @@
         "precondition_wait_timeout:60"
       ],
       "screenshot": "step_3e8d876c",
-      "created_at": "2025-12-16T05:59:18.040643",
+      "created_at": "2026-04-14T13:40:51.123140",
       "plan_id": "plan_r_1010_071708"
     },
     {
@@ -311,7 +311,7 @@
         "delay: 3"
       ],
       "screenshot": "step_f4e518f9",
-      "created_at": "2025-12-16T05:59:18.048280",
+      "created_at": "2026-04-14T13:40:51.131969",
       "plan_id": "plan_r_1010_071708"
     },
     {
@@ -338,7 +338,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": null,
-      "created_at": "2025-12-16T05:59:18.063954",
+      "created_at": "2026-04-14T13:40:51.136411",
       "plan_id": "plan_r_1010_071708"
     },
     {
@@ -364,7 +364,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_a8ec54a3",
-      "created_at": "2025-12-16T05:59:18.067975",
+      "created_at": "2026-04-14T13:40:51.143807",
       "plan_id": "plan_r_1010_071708"
     },
     {
@@ -386,7 +386,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_402b9b93",
-      "created_at": "2025-12-16T05:59:18.085737",
+      "created_at": "2026-04-14T13:40:51.150335",
       "plan_id": "plan_r_1010_071708"
     },
     {
@@ -406,7 +406,7 @@
         "step_retry_timeout: 30"
       ],
       "screenshot": "step_f9972e1a",
-      "created_at": "2025-12-16T05:59:18.095182",
+      "created_at": "2026-04-14T13:40:51.156654",
       "plan_id": "plan_r_1010_071708"
     },
     {
@@ -432,7 +432,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_ff2ce2f1",
-      "created_at": "2025-12-16T05:59:18.099103",
+      "created_at": "2026-04-14T13:40:51.156654",
       "plan_id": "plan_r_1010_071708"
     },
     {
@@ -452,7 +452,7 @@
         "step_retry_timeout: 30"
       ],
       "screenshot": null,
-      "created_at": "2025-12-16T05:59:18.117043",
+      "created_at": "2026-04-14T13:40:51.163992",
       "plan_id": "plan_r_1010_071708"
     },
     {
@@ -478,7 +478,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_fa936a6c",
-      "created_at": "2025-12-16T05:59:18.125760",
+      "created_at": "2026-04-14T13:40:51.172304",
       "plan_id": "plan_r_1010_071708"
     },
     {
@@ -504,7 +504,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_a149d88e",
-      "created_at": "2025-12-16T05:59:18.136555",
+      "created_at": "2026-04-14T13:40:51.180616",
       "plan_id": "plan_r_1010_071708"
     },
     {
@@ -526,7 +526,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_5f3844b4",
-      "created_at": "2025-12-16T05:59:18.146564",
+      "created_at": "2026-04-14T13:40:51.180616",
       "plan_id": "plan_r_1010_071708"
     },
     {
@@ -543,10 +543,10 @@
       "preconditions": [],
       "postconditions": [],
       "tags": [
-        "step_retry_timeout: 30"
+        "step_retry_timeout:60"
       ],
       "screenshot": null,
-      "created_at": "2025-12-16T05:59:18.155348",
+      "created_at": "2026-04-14T13:40:51.193229",
       "plan_id": "plan_r_1010_071708"
     },
     {
@@ -572,7 +572,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_78dec540",
-      "created_at": "2025-12-16T05:59:18.163571",
+      "created_at": "2026-04-14T13:40:51.193229",
       "plan_id": "plan_r_1010_071708"
     },
     {
@@ -598,7 +598,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_b5276245",
-      "created_at": "2025-12-16T05:59:18.181755",
+      "created_at": "2026-04-14T13:40:51.198571",
       "plan_id": "plan_r_1010_071708"
     },
     {
@@ -624,7 +624,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_606bea3d",
-      "created_at": "2025-12-16T05:59:18.192284",
+      "created_at": "2026-04-14T13:40:51.209583",
       "plan_id": "plan_r_1010_071708"
     },
     {
@@ -646,7 +646,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_6ebad7f9",
-      "created_at": "2025-12-16T05:59:18.197013",
+      "created_at": "2026-04-14T13:40:51.209583",
       "plan_id": "plan_r_1010_071708"
     },
     {
@@ -672,7 +672,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_90e6e08e",
-      "created_at": "2025-12-16T05:59:18.213761",
+      "created_at": "2026-04-14T13:40:51.218658",
       "plan_id": "plan_r_1010_071708"
     },
     {
@@ -694,7 +694,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_3f29ca93",
-      "created_at": "2025-12-16T05:59:18.225713",
+      "created_at": "2026-04-14T13:40:51.223128",
       "plan_id": "plan_r_1010_071708"
     },
     {
@@ -720,7 +720,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_d1f28d20",
-      "created_at": "2025-12-16T05:59:18.235809",
+      "created_at": "2026-04-14T13:40:51.226691",
       "plan_id": "plan_r_1010_071708"
     },
     {
@@ -742,7 +742,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_f9329e7e",
-      "created_at": "2025-12-16T05:59:18.249885",
+      "created_at": "2026-04-14T13:40:51.232055",
       "plan_id": "plan_r_1010_071708"
     },
     {
@@ -766,9 +766,11 @@
         "dhash:702:596:0:10:213779616961600e"
       ],
       "postconditions": [],
-      "tags": [],
+      "tags": [
+        "ocr:true"
+      ],
       "screenshot": "step_f9047624",
-      "created_at": "2025-12-16T05:59:18.261144",
+      "created_at": "2026-04-14T13:40:51.239410",
       "plan_id": "plan_r_1010_071708"
     },
     {
@@ -796,7 +798,7 @@
         "delay: 5"
       ],
       "screenshot": "step_164f0297",
-      "created_at": "2025-12-16T05:59:18.272119",
+      "created_at": "2026-04-14T13:40:51.242167",
       "plan_id": "plan_r_1010_071708"
     },
     {
@@ -816,7 +818,7 @@
         "step_retry_timeout: 30"
       ],
       "screenshot": null,
-      "created_at": "2025-12-16T05:59:18.279888",
+      "created_at": "2026-04-14T13:40:51.250621",
       "plan_id": "plan_r_1010_071708"
     }
   ],
