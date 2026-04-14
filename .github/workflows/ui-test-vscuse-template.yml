@@ -514,49 +514,11 @@ jobs:
             echo "{}" > /tmp/url_mapping.json
           fi
       - name: Download error logs
+        continue-on-error: true
         uses: actions/download-artifact@v4
         with:
           pattern: error-log-*
           path: /tmp/error-logs
-
-      - name: Process error logs
-        shell: bash
-        run: |
-          if [ -d "/tmp/error-logs" ]; then
-            echo "Found error logs folder. Processing contents..."
-            
-            echo "{" > /tmp/error_mapping.json
-            first_entry=true
-            
-            find /tmp/error-logs -type f -name "error.log" | while read file; do
-              dir_name=$(basename $(dirname "$file"))
-              # Format: error-log-{test_plan}-{run_id}
-              run_id=$(echo "$dir_name" | rev | cut -d'-' -f1 | rev)
-              test_plan=$(echo "$dir_name" | sed "s/^error-log-//" | sed "s/-${run_id}$//")
-              case_run_id="${test_plan}-${run_id}"
-              
-              echo "Processing error log: dir_name=$dir_name, test_plan=$test_plan, case_run_id=$case_run_id"
-              
-              # Read content, escape for JSON, truncate to 1000 chars
-              content=$(cat "$file" | tr -d '\r' | head -c 1000 | sed 's/\\/\\\\/g' | sed 's/"/\\"/g' | sed ':a;N;$!ba;s/\n/<br>/g')
-              
-              if [ "$first_entry" = true ]; then
-                first_entry=false
-              else
-                echo "," >> /tmp/error_mapping.json
-              fi
-              
-              echo "  \"$case_run_id\": \"$content\"" >> /tmp/error_mapping.json
-            done
-            
-            echo "}" >> /tmp/error_mapping.json
-            
-            echo "Generated error mapping:"
-            cat /tmp/error_mapping.json
-          else
-            echo "No error log artifacts found"
-            echo "{}" > /tmp/error_mapping.json
-          fi
 
       - name: Install Dateutils
         run: |
@@ -574,7 +536,6 @@ jobs:
           echo "Initial jobs: $jobs"
           
           report_map_json_file_path="/tmp/url_mapping.json"
-          error_map_json_file_path="/tmp/error_mapping.json"
           
           # Function to query Azure DevOps for bugs with specific tag
           query_bugs_by_tag() {
@@ -836,9 +797,23 @@ jobs:
             
             error_content=""
             if [ "$status" != "success" ]; then
-              error_content=$(jq -r --arg key "$lookup_key" '.[$key] // ""' "$error_map_json_file_path")
-              if [ "$error_content" = "null" ]; then
-                error_content=""
+              error_log_file="/tmp/error-logs/error-log-${case_id}-${run_id}/error.log"
+              echo "Looking for error log: $error_log_file"
+              if [ -f "$error_log_file" ]; then
+                # Use jq to safely read, HTML-escape, and shell-escape the content
+                error_content=$(head -c 1000 "$error_log_file" | jq -Rrs '
+                  gsub("&";"&amp;") |
+                  gsub("\\\\";"&#92;") |
+                  gsub("<";"&lt;") |
+                  gsub(">";"&gt;") |
+                  gsub("\"";"&quot;") |
+                  gsub("\n";"<br>") |
+                  gsub("[$]";"&#36;") |
+                  gsub("`";"&#96;")
+                ' 2>/dev/null || echo "")
+                echo "Error content length: ${#error_content}"
+              else
+                echo "Error log file not found: $error_log_file"
               fi
             fi
 
