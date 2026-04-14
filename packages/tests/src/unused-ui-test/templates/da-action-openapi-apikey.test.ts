@@ -11,7 +11,7 @@ import {
   Timeout,
   Notification,
 } from "../../utils/constants";
-import { RemoteDebugTestContext } from "../remotedebug/remotedebugContext";
+import { RemoteDebugTestContext } from "../../ui-test/remotedebug/remotedebugContext";
 import {
   execCommandIfExist,
   getNotification,
@@ -49,7 +49,7 @@ describe("Remote debug Tests", function () {
   afterEach(async function () {
     this.timeout(Timeout.finishAzureTestCase);
     await remoteDebugTestContext.after();
-    //Close the folder and cleanup local sample project
+    // Close the folder and cleanup local sample project
     await execCommandIfExist("Workspaces: Close Workspace", Timeout.webView);
     console.log(`[Successfully] start to clean up for ${projectPath}`);
     // uninstall Teams app
@@ -74,7 +74,7 @@ describe("Remote debug Tests", function () {
       await input.selectQuickPick("dev");
       await driver.sleep(Timeout.openAPIProvision);
       // input api key
-      await input.setText("mysecretvalue");
+      await input.setText("faketestvalue");
       await input.confirm();
       await driver.sleep(Timeout.shortTimeWait);
       const dialog = new ModalDialog();
@@ -82,17 +82,16 @@ describe("Remote debug Tests", function () {
       await driver.sleep(Timeout.longTimeWait);
       await getNotification(
         Notification.ProvisionSucceeded,
-        Timeout.shortTimeWait
+        Timeout.shortTimeWait,
       );
       await clearNotifications();
-      const teamsAppId = await remoteDebugTestContext.getTeamsAppId(
-        projectPath
-      );
+      const teamsAppId =
+        await remoteDebugTestContext.getTeamsAppId(projectPath);
       const page = await initCopilotPage(
         remoteDebugTestContext.context!,
         Env.username,
         Env.password,
-        { copilotAgentName: appName }
+        { copilotAgentName: appName },
       );
       await driver.sleep(Timeout.longTimeWait);
       await validatePrompt(page, appName, {
@@ -100,6 +99,6 @@ describe("Remote debug Tests", function () {
         expected: "Oil",
         consent: false,
       });
-    }
+    },
   );
 });

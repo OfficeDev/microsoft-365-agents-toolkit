@@ -11,7 +11,7 @@ import {
   Timeout,
   Notification,
 } from "../../utils/constants";
-import { RemoteDebugTestContext } from "../remotedebug/remotedebugContext";
+import { RemoteDebugTestContext } from "../../ui-test/remotedebug/remotedebugContext";
 import {
   execCommandIfExist,
   getNotification,
@@ -49,7 +49,7 @@ describe("Remote debug Tests", function () {
   afterEach(async function () {
     this.timeout(Timeout.finishAzureTestCase);
     await remoteDebugTestContext.after();
-    //Close the folder and cleanup local sample project
+    // Close the folder and cleanup local sample project
     await execCommandIfExist("Workspaces: Close Workspace", Timeout.webView);
     console.log(`[Successfully] start to clean up for ${projectPath}`);
     // uninstall Teams app
@@ -84,7 +84,7 @@ describe("Remote debug Tests", function () {
       await driver.sleep(Timeout.longTimeWait);
       await getNotification(
         Notification.ProvisionSucceeded,
-        Timeout.shortTimeWait
+        Timeout.shortTimeWait,
       );
       await clearNotifications();
       /*
@@ -104,6 +104,6 @@ describe("Remote debug Tests", function () {
         expected: "Oil",
         consent: true,
       });*/
-    }
+    },
   );
 });
