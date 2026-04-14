@@ -115,7 +115,11 @@ export class M365TitleAcquireDriver implements StepDriver {
     } catch (error) {
       if (error instanceof UserError || error instanceof SystemError) {
         context.logProvider?.error(
-          getLocalizedString(logMessageKeys.failExecuteDriver, actionName, error.displayMessage)
+          getLocalizedString(
+            logMessageKeys.failExecuteDriver,
+            actionName,
+            error.displayMessage || error.message
+          )
         );
         throw error;
       }
