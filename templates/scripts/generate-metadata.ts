@@ -2,6 +2,8 @@ import fs from "fs";
 import path from "path";
 import { allTemplates, defaultGeneratorTemplates } from "../src/metadata/index";
 import { tdpWizardNode, wizardNode } from "../src/ui/wizard";
+import { addActionNode } from "../src/ui/addAction";
+import { addKnowledgeNode } from "../src/ui/addKnowledge";
 
 /** Fields whose string values must be NLS keys (template.* or core.*). */
 const NLS_FIELDS = new Set(["label", "detail", "title", "placeholder", "groupName"]);
@@ -37,6 +39,8 @@ function main() {
   // Validate that no hardcoded strings slipped through before writing JSON.
   assertNoHardcodedStrings(wizardNode, "wizardNode");
   assertNoHardcodedStrings(tdpWizardNode, "tdpWizardNode");
+  assertNoHardcodedStrings(addActionNode, "addActionNode");
+  assertNoHardcodedStrings(addKnowledgeNode, "addKnowledgeNode");
 
   fs.mkdirSync(path.resolve(__dirname, "../build/metadata"), { recursive: true });
   fs.mkdirSync(path.resolve(__dirname, "../build/ui"), { recursive: true });
@@ -49,6 +53,16 @@ function main() {
   fs.writeFileSync(
     path.resolve(__dirname, "../build/ui/tdpNode.json"),
     JSON.stringify(tdpWizardNode, null, 2),
+    "utf-8"
+  );
+  fs.writeFileSync(
+    path.resolve(__dirname, "../build/ui/addActionNode.json"),
+    JSON.stringify(addActionNode, null, 2),
+    "utf-8"
+  );
+  fs.writeFileSync(
+    path.resolve(__dirname, "../build/ui/addKnowledgeNode.json"),
+    JSON.stringify(addKnowledgeNode, null, 2),
     "utf-8"
   );
   fs.writeFileSync(

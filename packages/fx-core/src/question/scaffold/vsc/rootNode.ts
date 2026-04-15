@@ -26,6 +26,22 @@ export function getTdpProjectTypeNode(platform: Platform = Platform.VSCode): IQT
   return loadUiNode("tdpNode.json", platform);
 }
 
+/**
+ * Load the Add Action question tree from addActionNode.json.
+ * JSON-driven tree for the "Add Action to Declarative Agent" wizard.
+ */
+export function getAddActionNode(platform: Platform = Platform.VSCode): IQTreeNode {
+  return loadUiNode("addActionNode.json", platform);
+}
+
+/**
+ * Load the Add Knowledge question tree from addKnowledgeNode.json.
+ * JSON-driven tree for the "Add Knowledge to Declarative Agent" wizard.
+ */
+export function getAddKnowledgeNode(platform: Platform = Platform.VSCode): IQTreeNode {
+  return loadUiNode("addKnowledgeNode.json", platform);
+}
+
 function loadUiNode(fileName: string, platform: Platform): IQTreeNode {
   const cachedJsonPath = path.join(os.homedir(), `.${String(ConfigFolderName)}`, "ui", fileName);
 

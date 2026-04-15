@@ -1,0 +1,20 @@
+{
+  "node": "apiPluginStartNode",
+  "children": [
+    {
+      "node": "addActionApiSpecNode",
+      "condition": {
+        "equals": "api-spec"
+      }
+    },
+    {
+      "node": "mcpForDANode",
+      "condition": {
+        "equals": "mcp"
+      }
+    },
+    {
+      "node": "selectTeamsAppManifestNode"
+    }
+  ]
+}

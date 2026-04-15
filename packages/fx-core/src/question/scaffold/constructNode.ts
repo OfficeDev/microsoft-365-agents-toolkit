@@ -27,7 +27,15 @@ export function constructNode(
 
   // Handle named node references (TypeScript-defined sub-trees)
   if (jsonObject.node) {
-    return resolveNodeReference(jsonObject, platform);
+    const node = resolveNodeReference(jsonObject, platform);
+    // Merge children from JSON into the resolved node
+    if (jsonObject.children) {
+      if (!node.children) node.children = [];
+      for (const child of jsonObject.children) {
+        node.children.push(constructNode(JSON.stringify(child), platform));
+      }
+    }
+    return node;
   }
 
   // Handle "group" type (no options)
@@ -165,6 +173,64 @@ function resolveNodeReference(
         ],
       };
       break;
+
+    // Add Action nodes (lazy import to avoid circular dependency)
+    case "apiPluginStartNode": {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const { apiPluginStartQuestion } = require("../create");
+      node = { data: apiPluginStartQuestion(true) };
+      break;
+    }
+    case "addActionApiSpecNode": {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const { addActionApiSpecNode } = require("./addActionNodes");
+      node = addActionApiSpecNode();
+      break;
+    }
+    case "mcpForDANode": {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const { mcpForDANode } = require("./addActionNodes");
+      node = mcpForDANode();
+      break;
+    }
+    case "selectTeamsAppManifestNode": {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const { selectTeamsAppManifestQuestion } = require("../other");
+      node = { data: selectTeamsAppManifestQuestion() };
+      break;
+    }
+
+    // Add Knowledge nodes (lazy import to avoid circular dependency)
+    case "addKnowledgeStartNode": {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const { addKnowledgeStartQuestion } = require("../create");
+      node = { data: addKnowledgeStartQuestion(true) };
+      break;
+    }
+    case "addKnowledgeWebSearchNode": {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const { addKnowledgeWebSearchNode } = require("./addKnowledgeNodes");
+      node = addKnowledgeWebSearchNode();
+      break;
+    }
+    case "addKnowledgeOneDriveNode": {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const { addKnowledgeOneDriveNode } = require("./addKnowledgeNodes");
+      node = addKnowledgeOneDriveNode();
+      break;
+    }
+    case "addKnowledgeGCNode": {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const { addKnowledgeGCNode } = require("./addKnowledgeNodes");
+      node = addKnowledgeGCNode();
+      break;
+    }
+    case "addKnowledgeEmbeddedNode": {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const { addKnowledgeEmbeddedNode } = require("./addKnowledgeNodes");
+      node = addKnowledgeEmbeddedNode();
+      break;
+    }
 
     default:
       throw new Error(`Unknown node reference: ${jsonObject.node}`);

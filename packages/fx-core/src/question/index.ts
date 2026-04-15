@@ -6,8 +6,6 @@ import { grantPermissionQuestionNode, listCollaboratorQuestionNode } from "./col
 import { createSampleProjectQuestionNode } from "./create";
 import {
   addAuthActionQuestion,
-  addKnowledgeQuestionNode,
-  addPluginQuestionNode,
   addWebPartQuestionNode,
   apiSpecApiKeyQuestion,
   convertAadToNewSchemaQuestionNode,
@@ -28,6 +26,7 @@ import {
 import { scaffoldQuestionForVS } from "./scaffold/vs/createRootNode";
 import { createFromTdpNode } from "./scaffold/vsc/createFromTdpNode";
 import { scaffoldQuestionForVSCode } from "./scaffold/vsc/createRootNode";
+import { getAddActionNode, getAddKnowledgeNode } from "./scaffold/vsc/rootNode";
 import { removeSharedAccessNode, shareNode } from "./share";
 import { updateActionWithMCP } from "./scaffold/vsc/teamsProjectTypeNode";
 export * from "./constants";
@@ -83,7 +82,7 @@ export class QuestionNodes {
     return oauthQuestion();
   }
   addPlugin(): IQTreeNode {
-    return addPluginQuestionNode();
+    return getAddActionNode();
   }
   regeneratePlugin(): IQTreeNode {
     return regeneratePluginNode();
@@ -104,7 +103,7 @@ export class QuestionNodes {
     return addAuthActionQuestion();
   }
   addKnowledge(): IQTreeNode {
-    return addKnowledgeQuestionNode();
+    return getAddKnowledgeNode();
   }
   setSensitivityLabel(): IQTreeNode {
     return setSensitivityLabelNode();

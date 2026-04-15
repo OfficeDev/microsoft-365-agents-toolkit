@@ -1,0 +1,29 @@
+{
+  "node": "addKnowledgeStartNode",
+  "children": [
+    {
+      "node": "addKnowledgeWebSearchNode",
+      "condition": {
+        "equals": "web-search"
+      }
+    },
+    {
+      "node": "addKnowledgeOneDriveNode",
+      "condition": {
+        "equals": "oneDrive-sharePoint"
+      }
+    },
+    {
+      "node": "addKnowledgeGCNode",
+      "condition": {
+        "equals": "graph-connector"
+      }
+    },
+    {
+      "node": "addKnowledgeEmbeddedNode",
+      "condition": {
+        "equals": "embedded-knowledge"
+      }
+    }
+  ]
+}
