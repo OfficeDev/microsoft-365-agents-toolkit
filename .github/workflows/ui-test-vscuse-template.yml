@@ -520,6 +520,34 @@ jobs:
           pattern: error-log-*
           path: /tmp/error-logs
 
+      - name: Debug error logs content
+        shell: bash
+        run: |
+          echo "=== Debug: downloaded error log files ==="
+          if [ ! -d "/tmp/error-logs" ]; then
+            echo "No /tmp/error-logs directory found"
+            exit 0
+          fi
+
+          echo "All files under /tmp/error-logs:"
+          find /tmp/error-logs -type f | sort || true
+
+          error_files=$(find /tmp/error-logs -type f -name "error.log" | sort)
+          if [ -z "$error_files" ]; then
+            echo "No error.log files found under /tmp/error-logs"
+            exit 0
+          fi
+
+          echo "Found error.log files:"
+          echo "$error_files"
+
+          while IFS= read -r f; do
+            [ -z "$f" ] && continue
+            echo "----- BEGIN $f -----"
+            cat "$f"
+            echo "----- END $f -----"
+          done <<< "$error_files"
+
       - name: Install Dateutils
         run: |
           sudo apt install dateutils
