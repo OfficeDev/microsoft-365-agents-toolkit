@@ -152,7 +152,7 @@
                   }
                 },
                 {
-                  "node": "apiSpecNode",
+                  "node": "apiSpecWithSearchNode",
                   "condition": {
                     "equals": "api-spec"
                   }

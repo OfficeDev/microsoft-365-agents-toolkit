@@ -41,11 +41,16 @@ import { GetJoinedTeamsResponse } from "./interfaces/GetJoinedTeamsResponse";
 import { GetTeamsAppSettingsResponse } from "./interfaces/GetTeamsAppSettingsResponse";
 import { User } from "./interfaces/GetUserResponse";
 import { ListSensitivityCacheValue } from "./interfaces/ListSensitivityCacheValue";
+import {
+  IPublishingAppDenition,
+  PublishingState,
+} from "../component/driver/teamsApp/interfaces/appdefinitions/IPublishingAppDefinition";
 
 const listSensitivityLabelAPIPath = "/me/informationProtection/sensitivityLabels";
 const errorSourceName = "GraphAPI";
 const GeneralLabelDisplayName = "General";
 const listSensitivityLabelCacheKeyPrefix = "listSensitivityLabelCacheKey";
+const teamsAppsPath = `/appCatalogs/teamsApps`;
 
 export class RetryHandler {
   public static RETRIES = 3;
@@ -301,6 +306,162 @@ export class GraphClient {
     const requester = this.createRequesterWithToken(tokenResponse.value);
 
     await requester.delete(`/teams/${teamId}/installedApps/${installationId}`);
+  }
+
+  public async getStagedApp(
+    token: string,
+    teamsAppExternalId: string
+  ): Promise<IPublishingAppDenition | undefined> {
+    try {
+      const requester = this.createRequesterWithToken(token);
+      const response = await RetryHandler.Retry(() =>
+        requester.get(
+          `${teamsAppsPath}?$filter=externalId eq '${teamsAppExternalId}'&$expand=appDefinitions`
+        )
+      );
+      if (!response?.data?.value || response.data.value.length === 0) {
+        return undefined;
+      }
+
+      const appDefinitions = response.data.value[0].appDefinitions;
+      if (!Array.isArray(appDefinitions) || appDefinitions.length === 0) {
+        return undefined;
+      }
+
+      const latest = appDefinitions[appDefinitions.length - 1];
+      return {
+        lastModifiedDateTime: latest.lastModifiedDateTime
+          ? new Date(latest.lastModifiedDateTime)
+          : null,
+        publishingState: latest.publishingState as PublishingState,
+        teamsAppId: response.data.value[0].id,
+        displayName: response.data.value[0].displayName,
+      };
+    } catch {
+      return undefined;
+    }
+  }
+
+  public async publishTeamsApp(
+    token: string,
+    teamsAppExternalId: string,
+    file: Buffer
+  ): Promise<string> {
+    try {
+      const requester = this.createRequesterWithToken(token);
+      const response = await RetryHandler.Retry(() =>
+        requester.post(`${teamsAppsPath}?requiresReview=true`, file, {
+          headers: { "Content-Type": "application/zip" },
+        })
+      );
+
+      if (response?.data?.error) {
+        if (response.data.error.code === "BadGateway") {
+          const appDefinition = await this.getStagedApp(token, teamsAppExternalId);
+          if (appDefinition) {
+            return appDefinition.teamsAppId;
+          }
+        }
+
+        if (
+          response.data.error.code === "Conflict" &&
+          response.data.error.innerError?.code === "AppDefinitionAlreadyExists"
+        ) {
+          return await this.publishTeamsAppUpdate(token, teamsAppExternalId, file);
+        }
+
+        const errorMessage =
+          response.data.error?.message || JSON.stringify(response.data.error) || "unknown error";
+        throw new Error(
+          getDefaultString("error.graphAPI.apiFailed.message", "publishTeamsApp", errorMessage)
+        );
+      }
+
+      if (response?.data?.id) {
+        return response.data.id;
+      }
+
+      const staged = await this.getStagedApp(token, teamsAppExternalId);
+      if (staged?.teamsAppId) {
+        return staged.teamsAppId;
+      }
+
+      throw new Error(
+        getDefaultString(
+          "error.graphAPI.apiFailed.message",
+          "publishTeamsApp",
+          "Graph publish teams app failed with empty response."
+        )
+      );
+    } catch (error: any) {
+      if (error?.response?.status === 409) {
+        return await this.publishTeamsAppUpdate(token, teamsAppExternalId, file);
+      }
+      throw new Error(
+        getDefaultString(
+          "error.graphAPI.apiFailed.message",
+          "publishTeamsApp",
+          error?.message || "unknown error"
+        )
+      );
+    }
+  }
+
+  public async publishTeamsAppUpdate(
+    token: string,
+    teamsAppExternalId: string,
+    file: Buffer
+  ): Promise<string> {
+    try {
+      const requester = this.createRequesterWithToken(token);
+      const appDefinition = await this.getStagedApp(token, teamsAppExternalId);
+      if (!appDefinition) {
+        throw new Error(
+          getDefaultString(
+            "error.graphAPI.apiFailed.message",
+            "publishTeamsAppUpdate",
+            `Published app does not exist for externalId: ${teamsAppExternalId}`
+          )
+        );
+      }
+
+      const response = await RetryHandler.Retry(() =>
+        requester.post(
+          `${teamsAppsPath}/${appDefinition.teamsAppId}/appDefinitions?requiresReview=true`,
+          file,
+          {
+            headers: { "Content-Type": "application/zip" },
+          }
+        )
+      );
+
+      if (response?.data?.error || response?.data?.errorMessage) {
+        const errorMessage =
+          response.data.error?.message || response.data.errorMessage || "unknown error";
+        throw new Error(
+          getDefaultString(
+            "error.graphAPI.apiFailed.message",
+            "publishTeamsAppUpdate",
+            errorMessage
+          )
+        );
+      }
+      if (response?.data?.teamsAppId) {
+        return response.data.teamsAppId;
+      }
+      if (response?.data?.id) {
+        return response.data.id;
+      }
+      return appDefinition.teamsAppId;
+    } catch (error: any) {
+      throw new Error(
+        getDefaultString(
+          "error.graphAPI.apiFailed.message",
+          "publishTeamsAppUpdate",
+          error?.message || "unknown error"
+        )
+      );
+    }
   }
 
   /**

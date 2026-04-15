@@ -76,6 +76,25 @@ export function getCreateCommand(): CLICommand {
           const matched = templates.find((t) => t.name === capability || t.alias === capability);
           if (matched) {
             inputs["template-name"] = matched.name;
+            // For declarative agents with sub-type options (e.g., MCP), resolve the specific template name
+            // since the question tree traversal is short-circuited when template-name is already set.
+            if (inputs["with-plugin"] === "yes" && inputs["api-plugin-type"]) {
+              const actionType = inputs["api-plugin-type"] as string;
+              const subTemplateMatch = templates.find((t) => t.name === actionType);
+              if (subTemplateMatch) {
+                inputs["template-name"] = subTemplateMatch.name;
+              } else {
+                // Map known action types to their template names
+                const actionTemplateMap: Record<string, string> = {
+                  mcp: "declarative-agent-with-action-from-mcp",
+                  "api-spec": "api-plugin-from-existing-api",
+                  "new-api": "api-plugin-from-scratch",
+                };
+                if (actionTemplateMap[actionType]) {
+                  inputs["template-name"] = actionTemplateMap[actionType];
+                }
+              }
+            }
             if (inputs["programming-language"] === undefined) {
               // preset programming language if not specified
               inputs["programming-language"] = matched.language as any;
@@ -95,6 +114,11 @@ export function getCreateCommand(): CLICommand {
         return err(res.error);
       }
       logger.info(`Project created at: ${chalk.cyan(path.resolve(res.value.projectPath))}`);
+      if (res.value.warnings) {
+        for (const warning of res.value.warnings) {
+          logger.warning(warning.content);
+        }
+      }
       return ok(undefined);
     },
   };

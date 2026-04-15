@@ -96,7 +96,6 @@
   "teamstoolkit.commands.debugInTestTool.title": "Отладка в Microsoft 365 Agents Playground",
   "teamstoolkit.commands.m365AccountSettings.title": "Портал Microsoft 365",
   "teamstoolkit.commands.migrateApp.title": "Обновить пакет SDK JS для Teams и ссылки на код",
-  "teamstoolkit.commands.migrateManifest.title": "Обновление манифеста приложения",
   "teamstoolkit.commands.openDocumentLink.title": "Получить дополнительные сведения",
   "teamstoolkit.commands.openInPortal.title": "Открыть на портале",
   "teamstoolkit.commands.openManifestSchema.title": "Открыть схему манифеста",

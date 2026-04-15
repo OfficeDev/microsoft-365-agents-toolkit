@@ -24,8 +24,7 @@
     "test:unit": "jest --ci --reporters=jest-junit --reporters=default --coverage --coverageDirectory='coverage' --collectCoverageFrom='src/*.{ts,tsx,js}'",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\" \"*.{js,json}\"",
     "format-check": "prettier --list-different \"src/**/*.ts\" \"test/**/*.ts\" \"*.{js,json}\"",
-    "check-sensitive": "npx eslint --cache --ignore-pattern 'package.json' --ignore-pattern 'package-lock.json'",
-    "precommit": "npm run check-sensitive && lint-staged"
+    "precommit": "lint-staged"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

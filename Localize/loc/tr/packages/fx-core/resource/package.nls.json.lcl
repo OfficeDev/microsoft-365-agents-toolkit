@@ -559,12 +559,36 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";core.MCPForDA.authRequired" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The MCP server at %s requires authentication. Tools could not be fetched automatically. To add tools, run:]A;  %s]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[%s adresindeki MCP sunucusu kimlik doğrulaması gerektiriyor. Araçlar otomatik olarak getirilemedi. Araç eklemek için şu komutu çalıştırın:]A;  %s]]></Val>
+          </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[The MCP server at %s requires authentication. Tools could not be fetched automatically. To add tools, run:]A;  atk add action --api-plugin-type mcp --mcp-da-server-url <server-url> --mcp-tools-file-path <path-to-tools-json> --interactive false]]></Val>
+          </Prev>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";core.MCPForDA.authUrlNotFound" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Unable to find the authentication URL(s) from response of Authorization Server Metadata of the MCP server.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[MCP sunucusunun Yetkilendirme Sunucusu Meta Verileri yanıtında kimlik doğrulama URL'leri bulunamadı.]]></Val>
           </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.MCPForDA.fetchError" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Failed to fetch tools from the MCP server at %s. To add tools later, run:]A;  %s]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[%s adresindeki MCP sunucusundan araçlar getirilemedi. Araçları daha sonra eklemek için şu komutu çalıştırın:]A;  %s]]></Val>
+          </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Failed to fetch tools from the MCP server at %s. To add tools later, run:]A;  atk add action --api-plugin-type mcp --mcp-da-server-url <server-url> --mcp-tools-file-path <path-to-tools-json> --interactive false]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -592,6 +616,117 @@
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[MCP sunucusunun Korumalı Kaynak Meta Verileri yanıtındaki "authorization_servers" özelliğinde sunucu meta verileri bulunamadı.]]></Val>
           </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.MCPForDA.missingAuthType" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The --mcp-da-auth-type option is required when the MCP server requires authentication and tools are provided. Use --mcp-da-auth-type oauth or --mcp-da-auth-type entraSSO.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[MCP sunucusu kimlik doğrulaması gerektiriyorsa ve araçlar sağlanıyorsa --mcp-da-auth-type seçeneği gereklidir. --mcp-da-auth-type oauth veya --mcp-da-auth-type entraSSO kullanın.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.MCPForDA.missingServerUrl" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The --mcp-da-server-url option is required when --api-plugin-type is mcp.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[--api-plugin-type mcp olduğunda --mcp-da-server-url seçeneği gereklidir.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.MCPForDA.noToolsFetched" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[No tools were discovered from the MCP server at %s. To add tools later, run:]A;  %s]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[%s adresindeki MCP sunucusundan araç bulunamadı. Araçları daha sonra eklemek için şu komutu çalıştırın:]A;  %s]]></Val>
+          </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[No tools were discovered from the MCP server at %s. To add tools later, run:]A;  atk add action --api-plugin-type mcp --mcp-da-server-url <server-url> --mcp-tools-file-path <path-to-tools-json> --interactive false]]></Val>
+          </Prev>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.MCPForDA.pluginManifestNotFound" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[ai-plugin.json not found at: %s]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[ai-plugin.json dosyası şu konumda bulunamadı: %s]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.MCPForDA.preFetchToolsNotFound" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[No tool definitions found. The project will use dynamic tool discovery.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Araç tanımı bulunamadı. Proje dinamik araç bulmayı kullanacak.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.MCPForDA.toolsFileInvalidFormat" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Invalid MCP tools file format. Expected %s or a JSON array of tools: %s]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Geçersiz MCP araçları dosya biçimi. %s veya araçların JSON dizisi bekleniyordu: %s]]></Val>
+          </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Invalid MCP tools file format. Expected { "tools": [...]5D; } or a JSON array of tools: %s]]></Val>
+          </Prev>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.MCPForDA.toolsFileMissingName" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Each tool in the MCP tools file must have a %s property: %s]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[MCP araçları dosyasındaki her aracın bir %s özelliği olmalıdır: %s]]></Val>
+          </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Each tool in the MCP tools file must have a "name" property: %s]]></Val>
+          </Prev>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.MCPForDA.toolsFileNotFound" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[MCP tools file not found: %s]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[MCP araçları dosyası bulunamadı: %s]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.MCPForDA.toolsFilePath.placeholder" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Enter the path to a JSON file containing MCP tool definitions]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[MCP araç tanımlarını içeren JSON dosyasının yolunu girin]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.MCPForDA.toolsFilePath.title" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[MCP Tools Definition File]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[MCP Araçları Tanım Dosyası]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.MCPForDA.toolsFileReadError" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Failed to read MCP tools file: %s. To add tools later, run:]A;  %s]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[MCP araçları dosyası okunamadı: %s. Araçları daha sonra eklemek için şu komutu çalıştırın:]A;  %s]]></Val>
+          </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Failed to read MCP tools file: %s. To add tools later, run:]A;  atk add action --api-plugin-type mcp --mcp-da-server-url <server-url> --mcp-tools-file-path <path-to-tools-json> --interactive false]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -2533,18 +2668,6 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";core.createCapabilityQuestion.placeholder" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Select a capability]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Özellik seçin]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Select at least 1 capability]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
       <Item ItemId=";core.createCapabilityQuestion.titleNew" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Capabilities]]></Val>
@@ -2575,51 +2698,6 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";core.createProjectQuestion.DAMetaOS.capability.newProject.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Build a new Declarative Agent with Office add-in actions]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Office eklentisi eylemleriyle yeni bir Bildirim Aracısı oluştur]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.DAMetaOS.capability.newProject.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[New Declarative Agent with Office Add-in Actions]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Office Eklentisi Eylemleriyle Yeni Bildirim Aracısı]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.DAMetaOS.capability.title" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Declarative Agent in MetaOS Capabilities]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[MetaOS Yeteneklerine sahip Bildirim Aracısı]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.DAMetaOS.capability.upgradeProject.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Extend an add-in project to the declarative agent with add-in actions]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Eklenti eylemleriyle eklenti projesini bildirim aracısına genişlet]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.DAMetaOS.capability.upgradeProject.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Extend an existing Office Add-in]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Mevcut bir Office Eklentisini genişlet]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
       <Item ItemId=";core.createProjectQuestion.DAMetaOS.capability.upgradeProject.projectFolder.placeholder" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[The existing MetaOS Add-in project root folder]]></Val>
@@ -2634,24 +2712,6 @@
           <Val><![CDATA[The Existing Add-in Project Folder]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Mevcut Eklenti Projesinin Klasörü]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.DAMetaOS.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Create a Declarative Agent with Office add-in action]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Office eklentisi eylemiyle Bildirim Aracısı oluştur]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.DAMetaOS.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Create Declarative Agent with Office Add-in Action]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Office Eklenti Eylemiyle Bildirim Aracısı oluştur]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -2755,18 +2815,6 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";core.createProjectQuestion.addApiPlugin.placeholder" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Select how to add an action]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Eylem ekleme hakkında bilgi seçin]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Select how to add action]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
       <Item ItemId=";core.createProjectQuestion.addApiPlugin.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Add an Action]]></Val>
@@ -2821,30 +2869,6 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";core.createProjectQuestion.addGC.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Create a declarative agent with a Copilot connector]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Copilot bağlayıcısıyla bir bildirim aracısı oluştur]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Create a declarative agent with a Copilot Connector]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.addGC.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Add a Copilot connector]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Copilot bağlayıcısı ekle]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Add a Copilot Connector]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
       <Item ItemId=";core.createProjectQuestion.addKnowledge.placeholder" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Select a capability source as grounding information for declarative agent]]></Val>
@@ -2878,30 +2902,6 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";core.createProjectQuestion.addPlugin.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Create a declarative agent with an action]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Bir eylemle bildirim aracısı oluştur]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Create declarative agent with API plugin]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.addPlugin.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Add an Action]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Eylem Ekle]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Add action]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
       <Item ItemId=";core.createProjectQuestion.addPlugin.pluginManifestMissingApiSpec" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Invalid plugin manifest. Ensure the manifest has a runtime of "%s" and references a valid API description document.]]></Val>
@@ -2916,24 +2916,6 @@
           <Val><![CDATA[Found multiple OpenAPI description documents: "%s".]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Birden çok OpenAPI açıklama belgesi bulundu: "%s".]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.apiMessageExtensionAuth.placeholder" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Select an authentication type]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Kimlik doğrulaması türü seçin]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.apiMessageExtensionAuth.title" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Authentication Type]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Kimlik Doğrulaması Türü]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -2958,30 +2940,6 @@
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Import from existing plugin]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.apiPlugin.typeSpec.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Create a declarative agent with or without an action using TypeSpec for Microsoft 365 Copilot]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Microsoft 365 Copilot için TypeSpec kullanarak eylem içeren veya içermeyen bir bildirim aracı oluşturun]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Create your action with TypeSpec using an API Action template.]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.apiPlugin.typeSpec.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Start with TypeSpec for Microsoft 365 Copilot]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Microsoft 365 Copilot için TypeSpec ile Başlayın]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Start with TypeSpec]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -3087,55 +3045,37 @@
       </Item>
       <Item ItemId=";core.createProjectQuestion.apiSpec.placeholder" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Enter OpenAPI Description Document URL]]></Val>
+          <Val><![CDATA[Enter OpenAPI Document URL]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[OpenAPI Açıklama Belgesi URL'sini girin]]></Val>
+            <Val><![CDATA[OpenAPI Belgesi URL’sini girin]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Enter OpenAPI Specification URL]]></Val>
+            <Val><![CDATA[Enter OpenAPI Description Document URL]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.createProjectQuestion.apiSpec.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[OpenAPI Description Document]]></Val>
+          <Val><![CDATA[OpenAPI Document]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[OpenAPI Açıklama Belgesi]]></Val>
+            <Val><![CDATA[OpenAPI Belgesi]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[OpenAPI Spec]]></Val>
+            <Val><![CDATA[OpenAPI Description Document]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.createProjectQuestion.apiSpecInputUrl.label" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Enter OpenAPI Description Document Location]]></Val>
+          <Val><![CDATA[Enter OpenAPI Document URL]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[OpenAPI Açıklama Belgesi Konumunu Girin]]></Val>
+            <Val><![CDATA[OpenAPI Belgesi URL’sini girin]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Enter OpenAPI Specification Location]]></Val>
+            <Val><![CDATA[Enter OpenAPI Description Document Location]]></Val>
           </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.capability.DAMetaOS.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Create a Declarative Agent with Office add-in action]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Office eklentisi eylemiyle Bildirim Aracısı oluştur]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.capability.DAMetaOS.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Start with an Office Add-in Action]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Office Eklentisi Eylemiyle Başlayın]]></Val>
-          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -3157,54 +3097,6 @@
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Bot ile başla]]></Val>
           </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.capability.copilotPluginApiSpecOption.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Create an action from your existing API]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Mevcut API'niz için bir eylem oluşturun]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Create a plugin from your existing API]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.capability.copilotPluginApiSpecOption.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Start with an OpenAPI Description Document]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[OpenAPI Açıklama Belgesi ile başla]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Start with an OpenAPI Specification]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.capability.copilotPluginNewApiOption.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Create an action with a new API from Azure Functions]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Azure İşlevleri’nden yeni bir API ile bir eylem oluşturun]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Create a plugin with a new API from Azure Functions]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.capability.copilotPluginNewApiOption.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Start with a New API]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Yeni bir API ile başla]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Start with a new API]]></Val>
-          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -3480,10 +3372,13 @@
       </Item>
       <Item ItemId=";core.createProjectQuestion.capability.searchOpenAPISpecQueryQuestion.label" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Search OpenAPI Description Document]]></Val>
+          <Val><![CDATA[Search OpenAPI Document]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[OpenAPI Açıklama Belgesini Arayın]]></Val>
+            <Val><![CDATA[OpenAPI Belgesinde ara]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Search OpenAPI Description Document]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -3496,87 +3391,45 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";core.createProjectQuestion.capability.selectOpenAPISpecFromLocation.label" ItemType="0" PsrId="306" Leaf="true">
+      <Item ItemId=";core.createProjectQuestion.capability.selectOpenAPISpecFromFile.label" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Enter OpenAPI Description Document Location or Open File...]]></Val>
+          <Val><![CDATA[Browse to Open File]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[OpenAPI Açıklama Belgesi Konumunu Girin veya Dosyayı Açın...]]></Val>
+            <Val><![CDATA[Dosyayı Aç'a Git]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.createProjectQuestion.capability.selectOpenAPISpecFromSearch.label" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Search OpenAPI Description Document...]]></Val>
+          <Val><![CDATA[Search OpenAPI Document]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[OpenAPI Açıklama Belgesini Arayın...]]></Val>
+            <Val><![CDATA[OpenAPI Belgesinde ara]]></Val>
+          </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Search OpenAPI Description Document...]]></Val>
+          </Prev>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.capability.selectOpenAPISpecFromUrl.label" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Enter OpenAPI Document URL]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[OpenAPI Belgesi URL’sini girin]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.createProjectQuestion.capability.selectOpenAPISpecQuestion.label" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Select OpenAPI Description Document]]></Val>
+          <Val><![CDATA[Select OpenAPI Document]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[OpenAPI Açıklama Belgesini Seçin]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.createApiPlugin.title" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Create an Action]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Eylem Oluştur]]></Val>
+            <Val><![CDATA[OpenAPI Belgesini seçin]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Create API Plugin]]></Val>
+            <Val><![CDATA[Select OpenAPI Description Document]]></Val>
           </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.createGraphConnector.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Embed your organization data to make it searchable in Microsoft 365 Copilot]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Kuruluş verilerinizi Microsoft 365 Copilot'ta aranabilir hale getirmek için ekleyin]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Create a Graph Connector to connect to your data source]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.createGraphConnector.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Copilot connectors]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Copilot bağlayıcıları]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Copilot connector]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.declarativeCopilot.placeholder" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Add an action to your declarative agent]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Bildirim aracınıza bir eylem ekleyin]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Add API plugin to your declarative agent]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.declarativeCopilot.title" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Create Declarative Agent]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Bildirim Aracısını Oluştur]]></Val>
-          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -3898,24 +3751,6 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";core.createProjectQuestion.mcpForDa.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Create actions from your existing MCP server]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Mevcut MCP sunucunuzdan eylemler oluşturun]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.mcpForDa.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Start with an MCP server]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[MCP sunucusuyla başla]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
       <Item ItemId=";core.createProjectQuestion.mcpLocalServer.placeholder" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Select a local MCP server]]></Val>
@@ -4006,27 +3841,6 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";core.createProjectQuestion.noPlugin.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Create declarative agent only]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Yalnızca bildirim aracısını oluştur]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.noPlugin.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[No Action]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Eylem Yok]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[No plugin]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
       <Item ItemId=";core.createProjectQuestion.oneDriveSharePointItem.placeholder" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Enter a URL to OneDrive or SharePoint]]></Val>
@@ -4105,114 +3919,6 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";core.createProjectQuestion.projectType.copilotExtension.placeholder" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Select an option]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Bir seçenek belirleyin]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.projectType.copilotExtension.title" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[App Features Using Agents]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Aracıları Kullanan Uygulama Özellikleri]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.projectType.copilotGroup.title" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Use GitHub Copilot]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[GitHub Copilot]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.projectType.copilotHelp.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Chat with GitHub Copilot and get step-by-step instructions to develop your app or Microsoft 365 Copilot agent.]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[GitHub Copilot ile sohbet edin ve uygulamanızı veya Microsoft 365 Copilot aracınızı geliştirmek için adım adım talimatlar alın.]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Chat with GitHub Copilot and get step-by-step instructions to develop your Microsoft 365 app or Microsoft 365 Copilot agent.]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.projectType.copilotHelp.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Don't know how to start? Use GitHub Copilot Chat]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Nasıl başlatılsın bilmiyor musunuz? Sohbet GitHub Copilot Kullan]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.projectType.createGroup.aiAgent" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Agents for Microsoft 365 Copilot]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Microsoft 365 Copilot için Aracılar]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[AI Agent]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.projectType.createGroup.m365Apps" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Apps for Microsoft 365]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Microsoft 365 için uygulamalar]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.projectType.customCopilot.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Build intelligent agent where you manage orchestration and provide your own LLM]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Düzenlemeyi yönetip kendi LLM'nizi sağladığınız akıllı aracı oluşturun]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Build intelligent chatbot with Teams AI Library where you manage orchestration and provide your own LLM.]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.projectType.customCopilot.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Custom Engine Agent]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Özel Altyapı Aracısı]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.projectType.declarativeAgent.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Create your own agent by declaring instructions, actions, & knowledge to suit your needs.]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Yönergeleri, eylemleri ve bilgileri ihtiyaçlarınıza uyacak şekilde bildirerek kendi temsilcinizi oluşturun.]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.projectType.declarativeAgent.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Declarative Agent]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Bildirim Aracı]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
       <Item ItemId=";core.createProjectQuestion.projectType.messageExtension.copilotEnabled.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Search and take actions from the text input box in Teams and Outlook]]></Val>
@@ -4234,27 +3940,6 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";core.createProjectQuestion.projectType.officeAddin.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Extend Office applications to interact with content in Office documents and Outlook items]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Office belgeleri ve Outlook öğelerindeki içeriklerle etkileşim kurmak için Office uygulamalarını genişlet]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Extend Office apps to interact with content in Office documents and Outlook items]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.projectType.officeAddin.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Office Add-in]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Office Eklentisi]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
       <Item ItemId=";core.createProjectQuestion.projectType.tab.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Embed your own web content in Teams, Outlook, and the Microsoft 365 application]]></Val>
@@ -4272,33 +3957,6 @@
           <Val><![CDATA[App Features Using a Tab]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Sekme Kullanan Uygulama Özellikleri]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.projectType.teamsAgentsAndApps.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Create agent, chat bot, web pages or other apps in Microsoft Teams using Microsoft Teams SDK.]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Microsoft Teams SDK'yı kullanarak Microsoft Teams'de aracı, sohbet botu, web sayfaları veya diğer uygulamalar oluşturun.]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.projectType.teamsAgentsAndApps.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Teams Agents and Apps]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams Aracıları ve Uygulamaları]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.title" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[New Project]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Yeni Proje]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4630,18 +4288,6 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";core.importAddin.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Upgrade an add-in project to the latest app manifest and project structure]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Bir eklenti projesini en yeni uygulama bildirimi ve proje yapısına yükseltin]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Upgrade an Add-ins project to the latest app manifest and project structure]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
       <Item ItemId=";core.importAddin.label" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Import an Existing Outlook Add-ins]]></Val>
@@ -4651,15 +4297,6 @@
           <Prev Cat="Text">
             <Val><![CDATA[Import an Existing Outlook Add-in]]></Val>
           </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.importOfficeAddin.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Upgrade an Existing Office Add-in]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Mevcut Bir Office Eklentisini Yükselt]]></Val>
-          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -4758,48 +4395,6 @@
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Teams Toolkit's Pre-Release version supports new project configuration and is incompatible with previous versions. Try it by creating a new project or run "teamsapp upgrade" to upgrade your project first.]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.newCFShortcut.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Task pane add-in with custom function and shortcut]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Özel işlev ve kısayol içeren görev bölmesi eklentisi]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.newCFShortcut.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Custom Function and Shortcut]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Özel İşlev ve Kısayol]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.newTaskpaneAddin.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Customize the ribbon with a button and embed content in the task pane]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Şeridi düğmeyle özelleştirip görev bölmesine içerik ekleyin]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Customize the Ribbon with a button and embed content in the Taskpane]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.newTaskpaneAddin.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Task pane]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Görev bölmesi]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Taskpane]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />

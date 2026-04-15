@@ -40,7 +40,7 @@ import { Generator } from "../generator";
 import { TemplateInfo } from "../templates/templateInfo";
 import { TemplateNames } from "../templates/templateNames";
 import { setGeneralSensitivityLabel } from "../utils";
-import { addExistingPlugin } from "./helper";
+import { addExistingPlugin, generateForMCPForDA } from "./helper";
 
 const enum telemetryProperties {
   templateName = "template-name",
@@ -161,13 +161,13 @@ export class DeclarativeAgentGenerator extends DefaultTemplateGenerator {
       await setGeneralSensitivityLabel(context, declarativeCopilotManifestPathRes.value);
     }
 
-    // if (
-    //   featureFlagManager.getBooleanValue(FeatureFlags.MCPForDA) &&
-    //   TemplateNames.DeclarativeAgentWithActionFromMCP === inputs[QuestionNames.TemplateName]
-    // ) {
-    //   const result = await generateForMCPForDA(destinationPath, inputs);
-    //   return result;
-    // }
+    if (
+      featureFlagManager.getBooleanValue(FeatureFlags.MCPForDA) &&
+      TemplateNames.DeclarativeAgentWithActionFromMCP === inputs[QuestionNames.TemplateName]
+    ) {
+      const result = await generateForMCPForDA(destinationPath, inputs);
+      return result;
+    }
 
     if (TemplateNames.DeclarativeAgentWithExistingAction === inputs[QuestionNames.TemplateName]) {
       const addPluginRes = await addExistingPlugin(

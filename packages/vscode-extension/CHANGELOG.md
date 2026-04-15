@@ -2,6 +2,76 @@
 
 > Note: This changelog only includes the changes for the stable versions of Microsoft 365 Agents Toolkit (evolved from Teams Toolkit). For the changelog of pre-released versions, please refer to the [Microsoft 365 Agents Toolkit Pre-release Changelog](https://github.com/OfficeDev/TeamsFx/blob/dev/packages/vscode-extension/PRERELEASE.md).
 
+## 6.6.0 - Mar 9, 2025
+
+This is a stable release that brings streamlined MCP integration to declarative agent development, sovereign cloud support and expanded AI capabilities. Below you'll find a comprehensive list of new features and enhancements included in this release:
+
+### New Features
+- **ATK Supports Government Cloud GCC-M Now**
+
+Agents Toolkit is actively expanding support for building apps in Government Community Cloud (GCC), GCC High, Department of Defense (DoD), and Teams operated by 21Vianet environments.
+
+Support for GCC‑Moderate (GCC‑M) is now available in this release, so project creation and cloud operations can target GCC-M Azure/M365 environments. Support for GCC High and DoD environments are not available yet, but both are on our roadmap. Updates will be shared as soon as they are ready.
+
+To switch the cloud environment you are working on in ATK, go to user settings in VS Code and find the setting `M365 Agents Toolkit: Sovereign Cloud Environment`, and set the value to `GCC M`. Then you are ready to continue your journey with ATK using your government account.
+
+<img width="818" height="257" alt="gcc" src="https://github.com/user-attachments/assets/03476d1d-a876-4294-bbbc-b12a77c478f1" />
+
+- **Embedded Knowledge Support for Declarative Agents**
+
+We're excited to introduce Embedded Knowledge support in the Declarative Agent workflow, making it easier to ground your agents in project-specific content and deliver more accurate, context-aware responses. You can now include local knowledge files as part of agent configuration. This allows your agent to directly use curated knowledge sources that are packaged and deployed with the agent itself, without relying solely on external or runtime knowledge connections.
+
+Open your declarative agent project, in the ATK menu, find the option to `Add Capability`, select `Embedded Knowledge`, then you can choose the file you want to add.
+
+<img width="1018" height="484" alt="EK_DA" src="https://github.com/user-attachments/assets/15f910f6-229a-4b2a-b242-5eebc9c35e04" />
+
+- **New CLI Command: atk init - Initialize Your Teams Projects with Agents Toolkit**
+
+We're introducing a new Agents Toolkit CLI command: `atk init`, designed to help you bring existing agent or Teams app projects into the Agents Toolkit (ATK) workflow — without starting from creating new projects in ATK. The new `atk init` command lets you convert an existing project into an ATK‑compatible project. This is especially useful if you already have an agent or app package (for example, a prebuilt ZIP created using other tooling) and want to adopt ATK for provisioning, configuration, and lifecycle management.
+
+This capability was introduced to unblock scenarios where developers want to reuse existing assets while benefiting from ATK's standardized project structure and tooling support. To try the new command, download ATK CLI [v 1.1.5](https://www.npmjs.com/package/@microsoft/m365agentstoolkit-cli?activeTab=readme) and ensure you set feature flag `TEAMSFX_GENERATE_CONFIG_FILES` to `true`.
+
+- **New Templates Making Microsoft Foundry Agents available in Microsoft 365 Copilot and Teams in CLI**
+
+A new Microsoft Foundry agent template is now available in the ATK CLI, enabling developers to connect or proxy an existing Foundry agent into the Microsoft 365 ecosystem and expose it through familiar M365 surfaces such as Copilot and Teams, allowing Foundry‑hosted agents to be surfaced and interacted with via the M365 interface without rebuilding the agent logic, while benefiting from ATK's standard provisioning, deployment, and developer workflow integration.
+
+- **Integrate MCP Tools to Declarative Agents**
+
+This was a preview feature from last stable version. The feature was designed to support for integrating Model Context Protocol (MCP) tools into Declarative Agents through actions or plugins. Now this capability becomes generally available and we made enhancement after incorporating early feedback. Compared to the initial version, we improved how MCP tool definitions are managed and referenced in agent configuration. This experience fetches more detailed tool definitions and stores them in a separate, dedicated file. Instead of embedding full tool definitions directly in the plugin configuration. This change improves clarity, structure, and maintainability when working with MCP‑backed tools.
+
+
+### Enhancement 
+
+- **Enhanced Share Declarative Agents to Others**
+
+Share declarative agents to others is a feature introduced in last stable version, in this release we have refined the share flow to be streamlined, offered clearer environments differentiation during provision, improved the error handling to clearly explain the limitation and related guidance doc to reduce confusion when debugging or provisioning the agents. For more details please see [Share Declarative Agents with Others](https://github.com/OfficeDev/microsoft-365-agents-toolkit/wiki/Share-Declarative-Agents-with-Other).
+
+
+- **Modernize Template Configurations and Schema Updates Handling**
+
+We've made a set of improvements to templates configurations and schema handling to modernize the developer experience and reduce inconsistencies across environments. This brings more consistent scaffolding output across projects and fewer environment‑specific surprises when moving between local, dev, and other environments. Together resulting in fewer validation mismatches and better alignment with latest platform expectations.
+
+### Bug Fix
+
+- Fixed provisioning failures caused by incompatible properties.  
+  PRs: [#15098](https://github.com/OfficeDev/microsoft-365-agents-toolkit/pull/15098)
+
+- Fixed script output parsing, semicolon handling, cross-shell execution, and real-time terminal output behavior.  
+  PRs: [#15160](https://github.com/OfficeDev/microsoft-365-agents-toolkit/pull/15160), [#15202](https://github.com/OfficeDev/microsoft-365-agents-toolkit/pull/15202), [#15299](https://github.com/OfficeDev/microsoft-365-agents-toolkit/pull/15299), [#15234](https://github.com/OfficeDev/microsoft-365-agents-toolkit/pull/15234), [#15277](https://github.com/OfficeDev/microsoft-365-agents-toolkit/pull/15277)
+
+- Fixed workflow schedule execution and permission issues in automation pipelines.  
+  PRs: [#15210](https://github.com/OfficeDev/microsoft-365-agents-toolkit/pull/15210), [#15219](https://github.com/OfficeDev/microsoft-365-agents-toolkit/pull/15219), [#15221](https://github.com/OfficeDev/microsoft-365-agents-toolkit/pull/15221)
+
+- Fixed template retrieval, missing dependency wiring, schema/manifest handling, and VS template dependency conflicts.  
+  PRs: [#15248](https://github.com/OfficeDev/microsoft-365-agents-toolkit/pull/15248), [#15275](https://github.com/OfficeDev/microsoft-365-agents-toolkit/pull/15275), [#15345](https://github.com/OfficeDev/microsoft-365-agents-toolkit/pull/15345), [#15350](https://github.com/OfficeDev/microsoft-365-agents-toolkit/pull/15350)
+
+- Fixed user-assigned identity deployment and silent subscription-fetch fallback behavior.  
+  PRs: [#15328](https://github.com/OfficeDev/microsoft-365-agents-toolkit/pull/15328), [#15286](https://github.com/OfficeDev/microsoft-365-agents-toolkit/pull/15286)
+
+- Fixed inline MCP description and related output edge cases.  
+  PRs: [#15281](https://github.com/OfficeDev/microsoft-365-agents-toolkit/pull/15281)
+
+
 ## 6.4.3 - Jan 16, 2026
 
 Hotfix version.

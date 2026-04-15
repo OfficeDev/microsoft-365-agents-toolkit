@@ -7,8 +7,7 @@
   "scripts": {
     "build": "npx tsc -p ./",
     "lint:staged": "lint-staged",
-    "check-sensitive": "npx eslint --cache --ignore-pattern 'package.json' --ignore-pattern 'package-lock.json'",
-    "precommit": "npm run check-sensitive && lint-staged",
+    "precommit": "lint-staged",
     "test:unit": "nyc mocha \"tests/**/*.test.ts\" "
   },
   "peerDependencies": {

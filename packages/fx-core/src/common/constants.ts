@@ -150,6 +150,7 @@ export const GraphTeamsChannelCreateScopes = ["Channel.Create"];
 export const GraphTeamsTeamReadScopes = ["Team.ReadBasic.All"];
 export const GraphTeamsChannelReadScopes = ["Channel.ReadBasic.All"];
 export const GraphTeamsInstallAppScopes = ["TeamsAppInstallation.ReadWriteAndConsentForTeam"];
+export const GraphTeamsAppCatalogReadWriteScopes = ["AppCatalog.ReadWrite.All"];
 export const ListSensitivityLabelScope = "InformationProtectionPolicy.Read";
 
 // SPFx

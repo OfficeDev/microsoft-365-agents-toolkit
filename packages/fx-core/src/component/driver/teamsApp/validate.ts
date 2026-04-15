@@ -3,14 +3,13 @@
 
 import { hooks } from "@feathersjs/hooks/lib";
 import {
+  AppManifestUtils,
   Colors,
   err,
   FxError,
-  ManifestUtil,
   ok,
   Platform,
   Result,
-  TeamsAppManifest,
   TeamsManifest,
   TeamsManifestV1D19,
   TeamsManifestV1D5,
@@ -77,7 +76,7 @@ export class ValidateManifestDriver implements StepDriver {
     const telemetryProperties: Record<string, string> = {};
     if (manifest.$schema) {
       try {
-        manifestValidationResult = await ManifestUtil.validateManifest(manifest);
+        manifestValidationResult = await AppManifestUtils.validateAgainstSchema(manifest);
         telemetryProperties[TelemetryPropertyKey.validationErrors] = manifestValidationResult
           .map((r: string) => r.replace(/\//g, ""))
           .join(";");
@@ -430,9 +429,10 @@ export class ValidateManifestDriver implements StepDriver {
       if (resolvedLocFileRes.isErr()) {
         return err(resolvedLocFileRes.error);
       }
-      const localizationFile = JSON.parse(resolvedLocFileRes.value) as TeamsAppManifest;
+      const localizationFile = JSON.parse(resolvedLocFileRes.value) as TeamsManifest;
       try {
-        const schema = await ManifestUtil.fetchSchema(localizationFile);
+        const schemaUrl = (localizationFile.$schema ?? (localizationFile as any).schema) as string;
+        const schema = await AppManifestUtils.fetchSchema(schemaUrl);
         // the current localization schema has invalid regex sytax, we need to manually fix the properties temporarily
         const activityDespString =
           "^activities.activityTypes\\[\\b([0-9]|[1-8][0-9]|9[0-9]|1[01][0-9]|12[0-7])\\b]\\.description$";
@@ -453,7 +453,7 @@ export class ValidateManifestDriver implements StepDriver {
           delete schema.patternProperties[activityTemplateString];
         }
 
-        const validationRes = await ManifestUtil.validateManifestAgainstSchema(
+        const validationRes = await AppManifestUtils.validateAgainstSchema(
           localizationFile,
           schema
         );

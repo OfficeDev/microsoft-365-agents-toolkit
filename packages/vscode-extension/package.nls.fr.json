@@ -96,7 +96,6 @@
   "teamstoolkit.commands.debugInTestTool.title": "Déboguer dans Microsoft 365 Agents Playground",
   "teamstoolkit.commands.m365AccountSettings.title": "Portail Microsoft 365",
   "teamstoolkit.commands.migrateApp.title": "Mettre à niveau le Kit de développement logiciel (SDK) JS Teams et les références de code",
-  "teamstoolkit.commands.migrateManifest.title": "Mettre à niveau le manifeste de l’application",
   "teamstoolkit.commands.openDocumentLink.title": "Obtenir plus d’informations",
   "teamstoolkit.commands.openInPortal.title": "Ouvrir dans le portail",
   "teamstoolkit.commands.openManifestSchema.title": "Ouvrir le schéma du manifeste",

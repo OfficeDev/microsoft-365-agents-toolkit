@@ -8,7 +8,11 @@ import axios, {
   InternalAxiosRequestConfig,
 } from "axios";
 import { TOOLS } from "./globalVars";
-import { APP_STUDIO_API_NAMES, Constants } from "../component/driver/teamsApp/constants";
+import {
+  APP_STUDIO_API_NAMES,
+  Constants,
+  GRAPH_API_NAMES,
+} from "../component/driver/teamsApp/constants";
 import {
   TelemetryPropertyKey,
   TelemetryPropertyValue,
@@ -155,6 +159,18 @@ export class WrappedAxiosClient {
     return undefined;
   }
 
+  private static isMOSApi(url: string): boolean {
+    const regex = /titles\.(prod|msit)\.mos\.microsoft\.com/;
+    const matches = regex.exec(url);
+    return matches != null && matches.length > 0;
+  }
+
+  static getMOSApiRelativePath(url: string): string {
+    const regex = /titles\.(prod|msit)\.mos\.microsoft\.com/;
+    const match = regex.exec(url);
+    return match ? url.slice(match.index + match[0].length) : "";
+  }
+
   /**
    * Convert request URL to API name, otherwise it will be redacted in telemetry
    * This function should be extended when new API is added
@@ -164,6 +180,8 @@ export class WrappedAxiosClient {
    * @returns
    */
   public static convertUrlToApiName(fullPath: string, method: string): string {
+    const upperMethod = method.toUpperCase();
+
     if (this.isTDPApi(fullPath)) {
       if (fullPath.match(new RegExp("/api/aadapp/v2"))) {
         return APP_STUDIO_API_NAMES.CREATE_AAD_APP;
@@ -190,10 +208,10 @@ export class WrappedAxiosClient {
           )
         )
       ) {
-        if (method.toUpperCase() === HttpMethod.GET) {
+        if (upperMethod === HttpMethod.GET) {
           return APP_STUDIO_API_NAMES.GET_APP;
         }
-        if (method.toUpperCase() === HttpMethod.DELETE) {
+        if (upperMethod === HttpMethod.DELETE) {
           return APP_STUDIO_API_NAMES.DELETE_APP;
         }
       }
@@ -213,10 +231,10 @@ export class WrappedAxiosClient {
         return APP_STUDIO_API_NAMES.CHECK_SIDELOADING_STATUS;
       }
       if (fullPath.match(new RegExp("/api/v1.0/apiSecretRegistrations/.*"))) {
-        if (method.toUpperCase() === HttpMethod.GET) {
+        if (upperMethod === HttpMethod.GET) {
           return APP_STUDIO_API_NAMES.GET_API_KEY;
         }
-        if (method.toUpperCase() === HttpMethod.PATCH) {
+        if (upperMethod === HttpMethod.PATCH) {
           return APP_STUDIO_API_NAMES.UPDATE_API_KEY;
         }
       }
@@ -230,21 +248,21 @@ export class WrappedAxiosClient {
           )
         )
       ) {
-        if (method.toUpperCase() === HttpMethod.GET) {
+        if (upperMethod === HttpMethod.GET) {
           return APP_STUDIO_API_NAMES.GET_BOT;
         }
-        if (method.toUpperCase() === HttpMethod.POST) {
+        if (upperMethod === HttpMethod.POST) {
           return APP_STUDIO_API_NAMES.UPDATE_BOT;
         }
-        if (method.toUpperCase() === HttpMethod.DELETE) {
+        if (upperMethod === HttpMethod.DELETE) {
           return APP_STUDIO_API_NAMES.DELETE_BOT;
         }
       }
       if (fullPath.match(new RegExp("/api/botframework"))) {
-        if (method.toUpperCase() === HttpMethod.GET) {
+        if (upperMethod === HttpMethod.GET) {
           return APP_STUDIO_API_NAMES.LIST_BOT;
         }
-        if (method.toUpperCase() === HttpMethod.POST) {
+        if (upperMethod === HttpMethod.POST) {
           return APP_STUDIO_API_NAMES.CREATE_BOT;
         }
       }
@@ -270,19 +288,39 @@ export class WrappedAxiosClient {
         return APP_STUDIO_API_NAMES.GET_APP_VALIDATION_RESULT;
       }
       if (fullPath.match(new RegExp("/api/v1.0/oAuthConfigurations/.*"))) {
-        if (method.toUpperCase() === HttpMethod.GET) {
+        if (upperMethod === HttpMethod.GET) {
           return APP_STUDIO_API_NAMES.GET_OAUTH;
         }
-        if (method.toUpperCase() === HttpMethod.PATCH) {
+        if (upperMethod === HttpMethod.PATCH) {
           return APP_STUDIO_API_NAMES.UPDATE_OAUTH;
         }
       }
       if (fullPath.match(new RegExp("/api/v1.0/oAuthConfigurations"))) {
         return APP_STUDIO_API_NAMES.CREATE_OAUTH;
       }
-    } else if (fullPath.includes("titles.prod.mos.microsoft.com")) {
+    } else if (this.isGraphApi(fullPath)) {
+      if (
+        fullPath.match(new RegExp(/\/appCatalogs\/teamsApps\/[^/?]+\/appDefinitions/i)) &&
+        upperMethod === HttpMethod.POST
+      ) {
+        return GRAPH_API_NAMES.UPDATE_PUBLISHED_APP;
+      }
+      if (
+        fullPath.match(new RegExp(/\/appCatalogs\/teamsApps(\?.*)?$/i)) &&
+        upperMethod === HttpMethod.POST
+      ) {
+        return GRAPH_API_NAMES.PUBLISH_APP;
+      }
+      if (
+        (fullPath.match(new RegExp(/\/appCatalogs\/teamsApps(\?.*)?$/i)) ||
+          fullPath.match(new RegExp(/\/appCatalogs\/teamsApps\/[^/?]+(\?.*)?$/i))) &&
+        upperMethod === HttpMethod.GET
+      ) {
+        return GRAPH_API_NAMES.GET_PUBLISHED_APP;
+      }
+    } else if (this.isMOSApi(fullPath)) {
       // MOS API
-      const relativePath = fullPath.split("titles.prod.mos.microsoft.com")[1];
+      const relativePath = this.getMOSApiRelativePath(fullPath);
       const mosApiDef = this.convertMethodUrlToApiDefForMOS(method, relativePath);
       if (mosApiDef) {
         return `mos_${mosApiDef.key}`;
@@ -352,12 +390,23 @@ export class WrappedAxiosClient {
     return matches != null && matches.length > 0;
   }
 
+  /**
+   * Check if it's Graph Api
+   * @param baseUrl
+   * @returns
+   */
+  private static isGraphApi(baseUrl: string): boolean {
+    const regex = /(^https:\/\/)?([\w.-]+\.)?graph\.microsoft\.(com|us)(:\d+)?(\/|$)/i;
+    const matches = regex.exec(baseUrl);
+    return matches != null && matches.length > 0;
+  }
+
   private static getEventName(
     baseUrl: string
   ): TelemetryEvent.MOSApi | TelemetryEvent.AppStudioApi | TelemetryEvent.DependencyApi {
     if (this.isTDPApi(baseUrl)) {
       return TelemetryEvent.AppStudioApi;
-    } else if (baseUrl.includes("titles.prod.mos.microsoft.com")) {
+    } else if (this.isMOSApi(baseUrl)) {
       return TelemetryEvent.MOSApi;
     } else {
       return TelemetryEvent.DependencyApi;

@@ -8,17 +8,18 @@
       "precondition_wait_timeout": 60,
       "precondition_retry_interval": 2
     },
-    "total_steps": 4,
-    "created_at": "2026-02-24T06:50:53.722138",
+    "total_steps": 5,
+    "created_at": "2026-04-14T13:40:45.645466",
     "name": "group: create_new_app",
     "description": {
       "other": "Generated from recording r_0928_012254",
       "owner": "v-ivanchen@microsoft.com",
       "workitem": ""
     },
-    "generated_at": "2026-02-24T06:50:53.722138",
+    "generated_at": "2026-04-14T13:40:45.645466",
     "execution_order": [
       "step_698f8521",
+      "step_d2ab5bd4",
       "step_f2da4ecc",
       "step_5e0385c0",
       "step_7ba2dfdf"
@@ -26,7 +27,7 @@
     "tags": [
       "group"
     ],
-    "updated_at": "2026-02-24T08:32:18.822356"
+    "updated_at": "2026-04-14T13:43:23.342541"
   },
   "steps": [
     {
@@ -52,7 +53,25 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_698f8521",
-      "created_at": "2026-02-24T06:50:53.722138",
+      "created_at": "2026-04-14T13:40:45.645466",
+      "plan_id": "plan_r_0928_012254"
+    },
+    {
+      "step_id": "step_d2ab5bd4",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion there's \"get started with vs code\" page exist.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": null,
+      "created_at": "2026-04-14T13:40:45.659037",
       "plan_id": "plan_r_0928_012254"
     },
     {
@@ -76,9 +95,11 @@
         "dhash:543:52:0:10:33b09090b0726461"
       ],
       "postconditions": [],
-      "tags": [],
+      "tags": [
+        "force_run:true"
+      ],
       "screenshot": "step_f2da4ecc",
-      "created_at": "2026-02-24T06:50:53.735379",
+      "created_at": "2026-04-14T13:40:45.661736",
       "plan_id": "plan_r_0928_012254"
     },
     {
@@ -104,7 +125,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_5e0385c0",
-      "created_at": "2026-02-24T06:50:53.742908",
+      "created_at": "2026-04-14T13:40:45.666106",
       "plan_id": "plan_r_0928_012254"
     },
     {
@@ -130,7 +151,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_7ba2dfdf",
-      "created_at": "2026-02-24T06:50:53.748455",
+      "created_at": "2026-04-14T13:40:45.675409",
       "plan_id": "plan_r_0928_012254"
     }
   ],

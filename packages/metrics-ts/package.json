@@ -17,8 +17,7 @@
   "scripts": {
     "build": "rimraf build && npx tsc -p ./",
     "format-check": "echo test",
-    "check-sensitive": "npx eslint --cache --ignore-pattern 'package.json' --ignore-pattern 'package-lock.json'",
-    "precommit": "npm run check-sensitive && lint-staged",
+    "precommit": "lint-staged",
     "lint": "eslint \"**/*.ts\"",
     "lint:staged": "lint-staged"
   },

@@ -96,7 +96,6 @@
   "teamstoolkit.commands.debugInTestTool.title": "Depuración en el Área de juegos de Agentes de Microsoft 365",
   "teamstoolkit.commands.m365AccountSettings.title": "Portal de Microsoft 365",
   "teamstoolkit.commands.migrateApp.title": "Actualizar Teams SDK de JS y referencias de código",
-  "teamstoolkit.commands.migrateManifest.title": "Actualizar manifiesto de aplicación",
   "teamstoolkit.commands.openDocumentLink.title": "Obtener más información",
   "teamstoolkit.commands.openInPortal.title": "Abrir en el portal",
   "teamstoolkit.commands.openManifestSchema.title": "Abrir esquema de manifiesto",

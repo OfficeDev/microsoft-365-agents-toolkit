@@ -416,6 +416,8 @@ export enum LocalDebugTaskLabel {
   StartBotApp = "Start application",
   StartFrontend = "Start frontend",
   StartApplication = "Start application",
+  StartApplicationPlayground = "Start application (Microsoft 365 Agents Playground)",
+  StartAgentsPlayground = "Start Microsoft 365 Agents Playground",
   StartBackend = "Start backend",
   StartWebhook = "Start Incoming Webhook",
   WatchBackend = "Watch backend",
@@ -479,6 +481,7 @@ export class LocalDebugTaskInfo {
   static readonly StartBotInfo = "Bot Started";
   static readonly StartBotInfo2 = "Bot started";
   static readonly AppListening = "app listening";
+  static readonly PlaygroundStart = "agentsplayground start";
   static readonly ListeningOn = "listening on";
   static readonly ServerListening = "Server listening";
   static readonly BackendStartedInfo = "Worker process started and initialized";

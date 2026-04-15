@@ -10,8 +10,7 @@
     "build": "rollup -c",
     "lint": "eslint \"**/*.ts\"",
     "lint:staged": "lint-staged",
-    "check-sensitive": "npx eslint --cache --ignore-pattern 'package.json' --ignore-pattern 'package-lock.json'",
-    "precommit": "npm run check-sensitive && lint-staged",
+    "precommit": "lint-staged",
     "check-format": "prettier --list-different \"src/**/*.ts\" \"*.{js,json}\"",
     "format": "prettier --write --config ./.prettierrc.js --ignore-path ./.prettierignore \"src/**/*.ts\" \"*.{js,json}\""
   },

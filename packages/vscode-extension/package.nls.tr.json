@@ -96,7 +96,6 @@
   "teamstoolkit.commands.debugInTestTool.title": "Microsoft 365 Aracı Oyun Alanı'nda Hata Ayıkla",
   "teamstoolkit.commands.m365AccountSettings.title": "Microsoft 365 Portalı",
   "teamstoolkit.commands.migrateApp.title": "Teams JS SDK’yi ve Kod Başvurularını Yükselt",
-  "teamstoolkit.commands.migrateManifest.title": "Uygulama Bildirimini Yükselt",
   "teamstoolkit.commands.openDocumentLink.title": "Daha Fazla Bilgi Edinin",
   "teamstoolkit.commands.openInPortal.title": "Portalda Aç",
   "teamstoolkit.commands.openManifestSchema.title": "Bildirim Şemasını Aç",

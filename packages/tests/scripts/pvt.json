@@ -4,7 +4,6 @@
       "localdebug-bot-twice",
       "localdebug-tab-regen-appid",
       "treeview-newproject-outlook-add-in",
-      "da-action-openapi-none",
       "da-action-openapi-oauth"
     ],
     "node-22": [
@@ -29,7 +28,8 @@
   "macos-latest": {
     "node-22": [
       "localdebug-chatdata-azureai-ts-azureopenai",
-      "remotedebug-chatdata-azureai-js-azureopenai"
+      "remotedebug-chatdata-azureai-js-azureopenai",
+      "playgrounddebug-bot"
     ]
   }
 }

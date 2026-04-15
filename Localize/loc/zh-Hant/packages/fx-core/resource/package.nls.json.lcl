@@ -559,12 +559,36 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";core.MCPForDA.authRequired" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The MCP server at %s requires authentication. Tools could not be fetched automatically. To add tools, run:]A;  %s]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[位於 %s 的 MCP 伺服器需要驗證。無法自動擷取工具。若要新增工具，請執行:]A;  %s]]></Val>
+          </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[The MCP server at %s requires authentication. Tools could not be fetched automatically. To add tools, run:]A;  atk add action --api-plugin-type mcp --mcp-da-server-url <server-url> --mcp-tools-file-path <path-to-tools-json> --interactive false]]></Val>
+          </Prev>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";core.MCPForDA.authUrlNotFound" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Unable to find the authentication URL(s) from response of Authorization Server Metadata of the MCP server.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[無法從 MCP 伺服器的授權伺服器中繼資料回應中找到驗證 URL。]]></Val>
           </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.MCPForDA.fetchError" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Failed to fetch tools from the MCP server at %s. To add tools later, run:]A;  %s]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[無法從 %s 的 MCP 伺服器擷取工具。若要稍後新增工具，請執行:]A;  %s]]></Val>
+          </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Failed to fetch tools from the MCP server at %s. To add tools later, run:]A;  atk add action --api-plugin-type mcp --mcp-da-server-url <server-url> --mcp-tools-file-path <path-to-tools-json> --interactive false]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -592,6 +616,117 @@
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[無法從 MCP 伺服器的受保護資源中繼資料回應中找到來自 "authorization_servers" 屬性的伺服器中繼資料。]]></Val>
           </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.MCPForDA.missingAuthType" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The --mcp-da-auth-type option is required when the MCP server requires authentication and tools are provided. Use --mcp-da-auth-type oauth or --mcp-da-auth-type entraSSO.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[當 MCP 伺服器需要驗證且提供工具時，--mcp-da-auth-type 選項為必要。使用 --mcp-da-auth-type oauth or --mcp-da-auth-type entraSSO。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.MCPForDA.missingServerUrl" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The --mcp-da-server-url option is required when --api-plugin-type is mcp.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[當 --api-plugin-type 為 mcp 時，--mcp-da-server-url 選項為必要。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.MCPForDA.noToolsFetched" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[No tools were discovered from the MCP server at %s. To add tools later, run:]A;  %s]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[從 %s 的 MCP 伺服器中未探索到任何工具。若要稍後新增工具，請執行:]A;  %s]]></Val>
+          </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[No tools were discovered from the MCP server at %s. To add tools later, run:]A;  atk add action --api-plugin-type mcp --mcp-da-server-url <server-url> --mcp-tools-file-path <path-to-tools-json> --interactive false]]></Val>
+          </Prev>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.MCPForDA.pluginManifestNotFound" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[ai-plugin.json not found at: %s]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[在以下位置找不到 ai-plugin.json: %s]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.MCPForDA.preFetchToolsNotFound" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[No tool definitions found. The project will use dynamic tool discovery.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[找不到工具定義。此專案將使用動態工具探索。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.MCPForDA.toolsFileInvalidFormat" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Invalid MCP tools file format. Expected %s or a JSON array of tools: %s]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[無效 MCP 工具檔案格式。預期為 %s 或工具的 JSON 陣列: %s]]></Val>
+          </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Invalid MCP tools file format. Expected { "tools": [...]5D; } or a JSON array of tools: %s]]></Val>
+          </Prev>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.MCPForDA.toolsFileMissingName" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Each tool in the MCP tools file must have a %s property: %s]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[MCP 工具檔案中的每個工具都必須具有 %s 屬性: %s]]></Val>
+          </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Each tool in the MCP tools file must have a "name" property: %s]]></Val>
+          </Prev>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.MCPForDA.toolsFileNotFound" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[MCP tools file not found: %s]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[找不到 MCP 工具檔案: %s]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.MCPForDA.toolsFilePath.placeholder" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Enter the path to a JSON file containing MCP tool definitions]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[輸入包含 MCP 工具定義的 JSON 檔案路徑]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.MCPForDA.toolsFilePath.title" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[MCP Tools Definition File]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[MCP 工具定義檔案]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.MCPForDA.toolsFileReadError" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Failed to read MCP tools file: %s. To add tools later, run:]A;  %s]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[無法讀取 MCP 工具檔案: %s。若要稍後新增工具，請執行:]A;  %s]]></Val>
+          </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Failed to read MCP tools file: %s. To add tools later, run:]A;  atk add action --api-plugin-type mcp --mcp-da-server-url <server-url> --mcp-tools-file-path <path-to-tools-json> --interactive false]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -2533,18 +2668,6 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";core.createCapabilityQuestion.placeholder" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Select a capability]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[選取功能]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Select at least 1 capability]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
       <Item ItemId=";core.createCapabilityQuestion.titleNew" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Capabilities]]></Val>
@@ -2575,51 +2698,6 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";core.createProjectQuestion.DAMetaOS.capability.newProject.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Build a new Declarative Agent with Office add-in actions]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[使用 Office 增益集動作建置新的宣告式 Agent]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.DAMetaOS.capability.newProject.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[New Declarative Agent with Office Add-in Actions]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[使用 Office 增益集動作新建宣告式代理程式]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.DAMetaOS.capability.title" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Declarative Agent in MetaOS Capabilities]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[MetaOS 功能中的宣告式代理程式]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.DAMetaOS.capability.upgradeProject.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Extend an add-in project to the declarative agent with add-in actions]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[使用增益集動作將增益集專案延伸至宣告式代理程式]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.DAMetaOS.capability.upgradeProject.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Extend an existing Office Add-in]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[擴充現有的 Office 增益集]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
       <Item ItemId=";core.createProjectQuestion.DAMetaOS.capability.upgradeProject.projectFolder.placeholder" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[The existing MetaOS Add-in project root folder]]></Val>
@@ -2634,24 +2712,6 @@
           <Val><![CDATA[The Existing Add-in Project Folder]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[現有的增益集專案資料夾]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.DAMetaOS.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Create a Declarative Agent with Office add-in action]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[使用 Office 增益集動作建立宣告式代理程式]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.DAMetaOS.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Create Declarative Agent with Office Add-in Action]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[使用 Office 增益集動作建立宣告式代理程式]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -2755,18 +2815,6 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";core.createProjectQuestion.addApiPlugin.placeholder" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Select how to add an action]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[選取如何新增動作]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Select how to add action]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
       <Item ItemId=";core.createProjectQuestion.addApiPlugin.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Add an Action]]></Val>
@@ -2821,30 +2869,6 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";core.createProjectQuestion.addGC.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Create a declarative agent with a Copilot connector]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[使用 Copilot 連接器建立宣告式代理程式]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Create a declarative agent with a Copilot Connector]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.addGC.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Add a Copilot connector]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[新增 Copilot 連接器]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Add a Copilot Connector]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
       <Item ItemId=";core.createProjectQuestion.addKnowledge.placeholder" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Select a capability source as grounding information for declarative agent]]></Val>
@@ -2878,30 +2902,6 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";core.createProjectQuestion.addPlugin.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Create a declarative agent with an action]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[使用動作建立宣告式代理程式]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Create declarative agent with API plugin]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.addPlugin.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Add an Action]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[新增動作]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Add action]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
       <Item ItemId=";core.createProjectQuestion.addPlugin.pluginManifestMissingApiSpec" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Invalid plugin manifest. Ensure the manifest has a runtime of "%s" and references a valid API description document.]]></Val>
@@ -2916,24 +2916,6 @@
           <Val><![CDATA[Found multiple OpenAPI description documents: "%s".]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[找到多個 OpenAPI 描述檔： "%s"。]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.apiMessageExtensionAuth.placeholder" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Select an authentication type]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[選取驗證類型]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.apiMessageExtensionAuth.title" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Authentication Type]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[驗證類型]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -2958,30 +2940,6 @@
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Import from existing plugin]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.apiPlugin.typeSpec.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Create a declarative agent with or without an action using TypeSpec for Microsoft 365 Copilot]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[使用適用於 Microsoft 365 Copilot 的 TypeSpec 建立含或不含動作的宣告式代理程式]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Create your action with TypeSpec using an API Action template.]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.apiPlugin.typeSpec.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Start with TypeSpec for Microsoft 365 Copilot]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[從適用於 Microsoft 365 Copilot 的 TypeSpec 開始]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Start with TypeSpec]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -3087,55 +3045,37 @@
       </Item>
       <Item ItemId=";core.createProjectQuestion.apiSpec.placeholder" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Enter OpenAPI Description Document URL]]></Val>
+          <Val><![CDATA[Enter OpenAPI Document URL]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[輸入 OpenAPI 描述檔 URL]]></Val>
+            <Val><![CDATA[輸入 OpenAPI 文件 URL]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Enter OpenAPI Specification URL]]></Val>
+            <Val><![CDATA[Enter OpenAPI Description Document URL]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.createProjectQuestion.apiSpec.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[OpenAPI Description Document]]></Val>
+          <Val><![CDATA[OpenAPI Document]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[OpenAPI 描述檔]]></Val>
+            <Val><![CDATA[OpenAPI 文件]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[OpenAPI Spec]]></Val>
+            <Val><![CDATA[OpenAPI Description Document]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.createProjectQuestion.apiSpecInputUrl.label" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Enter OpenAPI Description Document Location]]></Val>
+          <Val><![CDATA[Enter OpenAPI Document URL]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[輸入 OpenAPI 描述檔位置]]></Val>
+            <Val><![CDATA[輸入 OpenAPI 文件 URL]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Enter OpenAPI Specification Location]]></Val>
+            <Val><![CDATA[Enter OpenAPI Description Document Location]]></Val>
           </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.capability.DAMetaOS.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Create a Declarative Agent with Office add-in action]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[使用 Office 增益集動作建立宣告式代理程式]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.capability.DAMetaOS.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Start with an Office Add-in Action]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[從 Office 增益集動作開始]]></Val>
-          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -3157,54 +3097,6 @@
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[從 Bot 開始]]></Val>
           </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.capability.copilotPluginApiSpecOption.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Create an action from your existing API]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[從您現有的 API 建立動作]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Create a plugin from your existing API]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.capability.copilotPluginApiSpecOption.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Start with an OpenAPI Description Document]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[從 OpenAPI 描述檔開始]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Start with an OpenAPI Specification]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.capability.copilotPluginNewApiOption.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Create an action with a new API from Azure Functions]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[使用來自 Azure Functions 的新 API 建立動作]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Create a plugin with a new API from Azure Functions]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.capability.copilotPluginNewApiOption.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Start with a New API]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[從新的 API 開始]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Start with a new API]]></Val>
-          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -3480,10 +3372,13 @@
       </Item>
       <Item ItemId=";core.createProjectQuestion.capability.searchOpenAPISpecQueryQuestion.label" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Search OpenAPI Description Document]]></Val>
+          <Val><![CDATA[Search OpenAPI Document]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[搜尋 OpenAPI 描述文件]]></Val>
+            <Val><![CDATA[搜尋 OpenAPI 文件]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Search OpenAPI Description Document]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -3496,87 +3391,45 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";core.createProjectQuestion.capability.selectOpenAPISpecFromLocation.label" ItemType="0" PsrId="306" Leaf="true">
+      <Item ItemId=";core.createProjectQuestion.capability.selectOpenAPISpecFromFile.label" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Enter OpenAPI Description Document Location or Open File...]]></Val>
+          <Val><![CDATA[Browse to Open File]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[輸入 OpenAPI 描述文件位置或開啟檔案...]]></Val>
+            <Val><![CDATA[瀏覽以開啟檔案]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.createProjectQuestion.capability.selectOpenAPISpecFromSearch.label" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Search OpenAPI Description Document...]]></Val>
+          <Val><![CDATA[Search OpenAPI Document]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[搜尋 OpenAPI 描述文件...]]></Val>
+            <Val><![CDATA[搜尋 OpenAPI 文件]]></Val>
+          </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Search OpenAPI Description Document...]]></Val>
+          </Prev>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.capability.selectOpenAPISpecFromUrl.label" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Enter OpenAPI Document URL]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[輸入 OpenAPI 文件 URL]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.createProjectQuestion.capability.selectOpenAPISpecQuestion.label" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Select OpenAPI Description Document]]></Val>
+          <Val><![CDATA[Select OpenAPI Document]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[選取 OpenAPI 描述文件]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.createApiPlugin.title" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Create an Action]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[建立動作]]></Val>
+            <Val><![CDATA[選取 OpenAPI 文件]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Create API Plugin]]></Val>
+            <Val><![CDATA[Select OpenAPI Description Document]]></Val>
           </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.createGraphConnector.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Embed your organization data to make it searchable in Microsoft 365 Copilot]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[內嵌您的組織資料，使其可在 Microsoft 365 Copilot 中搜尋]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Create a Graph Connector to connect to your data source]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.createGraphConnector.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Copilot connectors]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Copilot 連接器]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Copilot connector]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.declarativeCopilot.placeholder" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Add an action to your declarative agent]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[新增動作到您的宣告式代理程式]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Add API plugin to your declarative agent]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.declarativeCopilot.title" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Create Declarative Agent]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[建立宣告式代理程式]]></Val>
-          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -3898,24 +3751,6 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";core.createProjectQuestion.mcpForDa.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Create actions from your existing MCP server]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[從現有的 MCP 伺服器建立動作]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.mcpForDa.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Start with an MCP server]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[從 MCP 伺服器開始]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
       <Item ItemId=";core.createProjectQuestion.mcpLocalServer.placeholder" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Select a local MCP server]]></Val>
@@ -4006,27 +3841,6 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";core.createProjectQuestion.noPlugin.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Create declarative agent only]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[僅建立宣告式代理程式]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.noPlugin.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[No Action]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[沒有動作]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[No plugin]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
       <Item ItemId=";core.createProjectQuestion.oneDriveSharePointItem.placeholder" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Enter a URL to OneDrive or SharePoint]]></Val>
@@ -4105,114 +3919,6 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";core.createProjectQuestion.projectType.copilotExtension.placeholder" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Select an option]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[選取選項]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.projectType.copilotExtension.title" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[App Features Using Agents]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[使用代理程式的應用程式功能]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.projectType.copilotGroup.title" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Use GitHub Copilot]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[使用 GitHub Copilot]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.projectType.copilotHelp.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Chat with GitHub Copilot and get step-by-step instructions to develop your app or Microsoft 365 Copilot agent.]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[與 GitHub Copilot 聊天，獲取逐步指示以開發您的應用程式或 Microsoft 365 Copilot Agent。]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Chat with GitHub Copilot and get step-by-step instructions to develop your Microsoft 365 app or Microsoft 365 Copilot agent.]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.projectType.copilotHelp.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Don't know how to start? Use GitHub Copilot Chat]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[不知道如何開始嗎？使用 GitHub Copilot 聊天]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.projectType.createGroup.aiAgent" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Agents for Microsoft 365 Copilot]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[適用於 Microsoft 365 Copilot 的代理程式]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[AI Agent]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.projectType.createGroup.m365Apps" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Apps for Microsoft 365]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[適用於Microsoft 365的應用程式]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.projectType.customCopilot.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Build intelligent agent where you manage orchestration and provide your own LLM]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[建立智慧型代理程式，由您管理協調流程並提供自己的 LLM]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Build intelligent chatbot with Teams AI Library where you manage orchestration and provide your own LLM.]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.projectType.customCopilot.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Custom Engine Agent]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[自訂引擎代理程式]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.projectType.declarativeAgent.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Create your own agent by declaring instructions, actions, & knowledge to suit your needs.]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[宣告指示、動作和知識以符合您的需求，以建立您自己的代理程式。]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.projectType.declarativeAgent.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Declarative Agent]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[宣告式代理程式]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
       <Item ItemId=";core.createProjectQuestion.projectType.messageExtension.copilotEnabled.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Search and take actions from the text input box in Teams and Outlook]]></Val>
@@ -4234,27 +3940,6 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";core.createProjectQuestion.projectType.officeAddin.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Extend Office applications to interact with content in Office documents and Outlook items]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[擴充 Office 應用程式以與 Office 檔和 Outlook 專案中的內容互動]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Extend Office apps to interact with content in Office documents and Outlook items]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.projectType.officeAddin.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Office Add-in]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Office 增益集]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
       <Item ItemId=";core.createProjectQuestion.projectType.tab.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Embed your own web content in Teams, Outlook, and the Microsoft 365 application]]></Val>
@@ -4272,33 +3957,6 @@
           <Val><![CDATA[App Features Using a Tab]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[使用 Tab 的應用程式功能]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.projectType.teamsAgentsAndApps.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Create agent, chat bot, web pages or other apps in Microsoft Teams using Microsoft Teams SDK.]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[使用 Microsoft Teams SDK 在 Microsoft Teams 中建立代理程式、聊天機器人、網頁或其他應用程式。]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.projectType.teamsAgentsAndApps.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Teams Agents and Apps]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams 代理程式和應用程式]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.title" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[New Project]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[新增專案]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4630,18 +4288,6 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";core.importAddin.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Upgrade an add-in project to the latest app manifest and project structure]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[將增益集專案升級至最新的應用程式資訊清單和專案結構]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Upgrade an Add-ins project to the latest app manifest and project structure]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
       <Item ItemId=";core.importAddin.label" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Import an Existing Outlook Add-ins]]></Val>
@@ -4651,15 +4297,6 @@
           <Prev Cat="Text">
             <Val><![CDATA[Import an Existing Outlook Add-in]]></Val>
           </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.importOfficeAddin.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Upgrade an Existing Office Add-in]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[升級現有的 Office 載入巨集]]></Val>
-          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -4758,48 +4395,6 @@
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Teams Toolkit's Pre-Release version supports new project configuration and is incompatible with previous versions. Try it by creating a new project or run "teamsapp upgrade" to upgrade your project first.]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.newCFShortcut.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Task pane add-in with custom function and shortcut]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[具有自訂功能和捷徑的工作窗格附加元件]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.newCFShortcut.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Custom Function and Shortcut]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[自訂函式和捷徑]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.newTaskpaneAddin.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Customize the ribbon with a button and embed content in the task pane]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[在工作窗格中使用按鈕和內嵌內容來自訂功能區]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Customize the Ribbon with a button and embed content in the Taskpane]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.newTaskpaneAddin.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Task pane]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[工作窗格]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Taskpane]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />

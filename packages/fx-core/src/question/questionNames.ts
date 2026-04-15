@@ -158,6 +158,7 @@ export enum QuestionNames {
   MCPForDAAuthMetadataUrl = "mcp-da-auth-metadata-url",
   MCPForDAAuthWellKnownUrl = "mcp-da-auth-well-known-url",
   MCPForDAAuthType = "mcp-da-auth-type",
+<<<<<<< feature/agent-skills-support
 
   SkillName = "skill-name",
   SkillDescription = "skill-description",
@@ -165,4 +166,7 @@ export enum QuestionNames {
   SkillFrom = "skill-from",
   SkillSourceType = "skill-source-type",
   SkillFromZipFile = "skill-from-zip-file",
+=======
+  MCPToolsFilePath = "mcp-tools-file-path",
+>>>>>>> dev
 }

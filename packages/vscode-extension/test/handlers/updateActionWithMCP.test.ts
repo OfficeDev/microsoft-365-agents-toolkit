@@ -1148,7 +1148,7 @@ describe("updateActionWithMCP", () => {
 
       sandbox.stub(vscode.lm, "tools").value(mockTools);
       const mockGateway = {
-        address: { toString: () => "http://localhost:12345" },
+        servers: [{ label: "testServer", address: { toString: () => "http://localhost:12345" } }],
         dispose: sandbox.stub(),
       };
       Object.defineProperty(vscode.lm, "startMcpGateway", {
@@ -1190,7 +1190,7 @@ describe("updateActionWithMCP", () => {
 
       sandbox.stub(vscode.lm, "tools").value(mockTools);
       const mockGateway = {
-        address: { toString: () => "http://localhost:12345" },
+        servers: [{ label: "testServer", address: { toString: () => "http://localhost:12345" } }],
         dispose: sandbox.stub(),
       };
       Object.defineProperty(vscode.lm, "startMcpGateway", {
@@ -1222,7 +1222,7 @@ describe("updateActionWithMCP", () => {
 
       sandbox.stub(vscode.lm, "tools").value(mockTools);
       const mockGateway = {
-        address: { toString: () => "http://localhost:12345" },
+        servers: [{ label: "testServer", address: { toString: () => "http://localhost:12345" } }],
         dispose: sandbox.stub(),
       };
       Object.defineProperty(vscode.lm, "startMcpGateway", {
@@ -1257,7 +1257,7 @@ describe("updateActionWithMCP", () => {
 
       sandbox.stub(vscode.lm, "tools").value(mockTools);
       const mockGateway = {
-        address: { toString: () => "http://localhost:12345" },
+        servers: [{ label: "testServer", address: { toString: () => "http://localhost:12345" } }],
         dispose: sandbox.stub(),
       };
       Object.defineProperty(vscode.lm, "startMcpGateway", {
@@ -1281,6 +1281,69 @@ describe("updateActionWithMCP", () => {
 
       // No tools match, so should return error
       chai.assert.isTrue(result.isErr());
+    });
+
+    it("should fall back to old gateway address API when servers property is absent", async () => {
+      const args = [{ serverName: "testServer", serverConfig: { url: "http://test.com" } }];
+      const mockTools = [
+        { name: "mcp_testserver_tool1", description: "Test tool 1", inputSchema: {}, tags: [] },
+      ];
+
+      sandbox.stub(vscode.lm, "tools").value(mockTools);
+      const mockGateway = {
+        address: { toString: () => "http://localhost:12345" },
+        dispose: sandbox.stub(),
+      };
+      Object.defineProperty(vscode.lm, "startMcpGateway", {
+        value: sandbox.stub().resolves(mockGateway),
+        configurable: true,
+      });
+      sandbox.stub(Client.prototype, "connect").resolves();
+      sandbox.stub(Client.prototype, "listTools").resolves({
+        tools: [
+          { name: "tool1", description: "Test tool 1", inputSchema: { type: "object" as const } },
+        ],
+      });
+      sandbox.stub(Client.prototype, "close").resolves();
+      sandbox.stub(axios, "get").resolves({ status: 200 });
+      const runCommandStub = sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+
+      const result = await updateActionWithMCP(args);
+
+      chai.assert.isTrue(result.isOk());
+      sinon.assert.calledOnce(mockGateway.dispose as sinon.SinonStub);
+      const calledInputs = runCommandStub.getCall(0).args[1] as Inputs;
+      const tools = calledInputs[QuestionNames.MCPForDAAvailableTools];
+      chai.assert.equal(tools.length, 1);
+      chai.assert.equal(tools[0].name, "tool1");
+    });
+
+    it("should fall back to selectedTools when no matching server found in gateway", async () => {
+      const args = [{ serverName: "testServer", serverConfig: { url: "http://test.com" } }];
+      const mockTools = [
+        { name: "mcp_testserver_tool1", description: "Test tool", inputSchema: {}, tags: [] },
+      ];
+
+      sandbox.stub(vscode.lm, "tools").value(mockTools);
+      const mockGateway = {
+        servers: [{ label: "otherServer", address: { toString: () => "http://localhost:12345" } }],
+        dispose: sandbox.stub(),
+      };
+      Object.defineProperty(vscode.lm, "startMcpGateway", {
+        value: sandbox.stub().resolves(mockGateway),
+        configurable: true,
+      });
+      sandbox.stub(axios, "get").resolves({ status: 200 });
+      const runCommandStub = sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+
+      const result = await updateActionWithMCP(args);
+
+      chai.assert.isTrue(result.isOk());
+      sinon.assert.calledOnce(mockGateway.dispose as sinon.SinonStub);
+      const calledInputs = runCommandStub.getCall(0).args[1] as Inputs;
+      const tools = calledInputs[QuestionNames.MCPForDAAvailableTools];
+      chai.assert.equal(tools.length, 1);
+      chai.assert.equal(tools[0].name, "tool1");
     });
   });
 
