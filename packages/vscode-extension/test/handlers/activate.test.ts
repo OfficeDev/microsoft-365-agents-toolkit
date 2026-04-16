@@ -12,7 +12,8 @@ import {
   refreshEnvTreeOnProjectSettingFileChanged,
 } from "../../src/handlers/activate";
 import { ok, signedIn, signedOut } from "@microsoft/teamsfx-api";
-import { FxCore } from "@microsoft/teamsfx-core";
+import { FxCore, GraphScopes } from "@microsoft/teamsfx-core";
+import { FeatureFlags, featureFlagManager } from "@microsoft/teamsfx-core";
 import commandController from "../../src/commandController";
 import { AzureAccountManager } from "../../src/commonlib/azureLogin";
 import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
@@ -114,6 +115,35 @@ describe("Activate", function () {
       unlockedByOperationStub.calledOnceWith("test");
 
       chai.assert.isTrue(showMessageStub.called);
+    });
+
+    it("uses Graph scopes for M365 status change in sovereign high", async () => {
+      sandbox.stub(featureFlagManager, "getStringValue").returns("GCC H");
+      sandbox.stub(projectSettingsHelper, "isValidProject").returns(true);
+      sandbox.stub(ExtTelemetry, "addSharedProperty");
+      sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
+      sandbox.stub(globalVariables, "workspaceUri").value(vscode.Uri.parse("test"));
+      sandbox.stub(fileSystemWatcher, "addFileSystemWatcher");
+      sandbox.stub(commandController, "lockedByOperation");
+      sandbox.stub(commandController, "unlockedByOperation");
+      sandbox.stub(AzureAccountManager.prototype, "setStatusChangeMap").resolves(true);
+      const m365AccountSetStatusChangeMapStub = sandbox
+        .stub(M365TokenInstance, "setStatusChangeMap")
+        .resolves(ok(true));
+      sandbox.stub(vscode.window, "showInformationMessage");
+      sandbox.stub(FxCore.prototype, "on").returns();
+
+      const result = await activate();
+
+      chai.assert.isTrue(result.isOk());
+      chai.assert.isTrue(
+        m365AccountSetStatusChangeMapStub.calledWithMatch(
+          "successfully-sign-in-m365",
+          { scopes: GraphScopes },
+          sinon.match.func,
+          false
+        )
+      );
     });
 
     it("throws error", async () => {
