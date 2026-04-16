@@ -12,7 +12,7 @@ import { Inputs } from "@microsoft/teamsfx-api";
 
 export interface AddPluginInputs extends Inputs {
   /** @description Add an Action */
-  "action-type"?: "api-spec";
+  "api-plugin-type"?: "api-spec" | "mcp";
   /** @description OpenAPI Spec Document */
   "openapi-spec-type"?: "enter-url" | "open-file" | "search-api";
   /** @description OpenAPI Document */
@@ -23,6 +23,12 @@ export interface AddPluginInputs extends Inputs {
   "search-openapi-spec-query"?: string;
   /** @description Select OpenAPI Document */
   "select-openapi-spec"?: string;
+  /** @description MCP Server URL */
+  "mcp-da-server-url"?: string;
+  /** @description MCP Tools Definition File */
+  "mcp-tools-file-path"?: string;
+  /** @description Select Authentication Type */
+  "mcp-da-auth-type"?: "oauth" | "entraSSO";
   /** @description Select Teams manifest.json File */
   "manifest-path"?: string;
 }

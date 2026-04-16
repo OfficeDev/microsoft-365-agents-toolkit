@@ -12,11 +12,12 @@ import { CLICommandOption, CLICommandArgument } from "@microsoft/teamsfx-api";
 
 export const AddPluginOptions: CLICommandOption[] = [
   {
-    name: "action-type",
+    name: "api-plugin-type",
     type: "string",
-    description: "Add an Action",
+    description: "Action type.",
     required: true,
-    choices: ["api-spec"],
+    default: "new-api",
+    choices: ["api-spec", "mcp"],
   },
   {
     name: "openapi-spec-type",
@@ -45,6 +46,23 @@ export const AddPluginOptions: CLICommandOption[] = [
     name: "select-openapi-spec",
     type: "string",
     description: "Select OpenAPI Document",
+  },
+  {
+    name: "mcp-da-server-url",
+    type: "string",
+    description: "MCP Server URL",
+  },
+  {
+    name: "mcp-tools-file-path",
+    type: "string",
+    description: "MCP Tools Definition File",
+  },
+  {
+    name: "mcp-da-auth-type",
+    type: "string",
+    description: "Select Authentication Type",
+    default: "oauth",
+    choices: ["oauth", "entraSSO"],
   },
   {
     name: "manifest-file",

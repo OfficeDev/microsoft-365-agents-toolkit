@@ -14,8 +14,9 @@ export const AddKnowledgeOptions: CLICommandOption[] = [
   {
     name: "knowledge-source",
     type: "string",
-    description: "Add Capability",
+    description: "Knowledge source.",
     required: true,
+    default: "web-search",
     choices: ["web-search", "oneDrive-sharePoint", "graph-connector", "embedded-knowledge"],
   },
   {
