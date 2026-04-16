@@ -6,6 +6,8 @@ import { grantPermissionQuestionNode, listCollaboratorQuestionNode } from "./col
 import { createSampleProjectQuestionNode } from "./create";
 import {
   addAuthActionQuestion,
+  addKnowledgeQuestionNode,
+  addPluginQuestionNode,
   addWebPartQuestionNode,
   apiSpecApiKeyQuestion,
   convertAadToNewSchemaQuestionNode,
@@ -81,8 +83,11 @@ export class QuestionNodes {
   oauth(): IQTreeNode {
     return oauthQuestion();
   }
-  addPlugin(): IQTreeNode {
-    return getAddActionNode();
+  addPlugin(platform?: Platform): IQTreeNode {
+    if (platform === Platform.VSCode) {
+      return getAddActionNode();
+    }
+    return addPluginQuestionNode();
   }
   regeneratePlugin(): IQTreeNode {
     return regeneratePluginNode();
@@ -102,8 +107,11 @@ export class QuestionNodes {
   addAuthAction(): IQTreeNode {
     return addAuthActionQuestion();
   }
-  addKnowledge(): IQTreeNode {
-    return getAddKnowledgeNode();
+  addKnowledge(platform?: Platform): IQTreeNode {
+    if (platform === Platform.VSCode) {
+      return getAddKnowledgeNode();
+    }
+    return addKnowledgeQuestionNode();
   }
   setSensitivityLabel(): IQTreeNode {
     return setSensitivityLabelNode();
