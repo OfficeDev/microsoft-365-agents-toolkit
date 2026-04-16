@@ -15,7 +15,6 @@ export const addActionNode = {
     name: "action-type",
     title: "core.createProjectQuestion.addApiPlugin.title",
     placeholder: "template.createProjectQuestion.addApiPlugin.placeholder",
-    skipSingleOption: true,
     options: [
       {
         id: "api-spec",
