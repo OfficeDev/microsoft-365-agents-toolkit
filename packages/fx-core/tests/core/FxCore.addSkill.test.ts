@@ -16,7 +16,7 @@ import "mocha";
 import * as path from "path";
 import sinon from "sinon";
 import { FxCore } from "../../src/core/FxCore";
-import { setTools, TOOLS } from "../../src/common/globalVars";
+import { setTools } from "../../src/common/globalVars";
 import { copilotGptManifestUtils } from "../../src/component/driver/teamsApp/utils/CopilotGptManifestUtils";
 import { manifestUtils } from "../../src/component/driver/teamsApp/utils/ManifestUtils";
 import { UserCancelError } from "../../src/error/common";
@@ -718,11 +718,54 @@ describe("addSkill", () => {
     });
 
     it("errors when zip contains path traversal entries", async () => {
-      const AdmZip = require("adm-zip");
-      const zip = new AdmZip();
-      zip.addFile("../../../etc/passwd", Buffer.from("malicious", "utf-8"));
-      // Use toBuffer() — writeZip() normalizes traversal paths, toBuffer() preserves them
-      const zipBuffer = zip.toBuffer();
+      // AdmZip.addFile() normalizes "../../../etc/passwd" → "etc/passwd", so we must
+      // craft the raw ZIP binary to preserve the traversal entry name for a real security test.
+      const filename = Buffer.from("../../../etc/passwd");
+      const filedata = Buffer.from("malicious");
+      const lf = Buffer.allocUnsafe(30 + filename.length + filedata.length);
+      lf.writeUInt32LE(0x04034b50, 0);
+      lf.writeUInt16LE(20, 4);
+      lf.writeUInt16LE(0, 6);
+      lf.writeUInt16LE(0, 8);
+      lf.writeUInt16LE(0, 10);
+      lf.writeUInt16LE(0, 12);
+      lf.writeUInt32LE(0, 14);
+      lf.writeUInt32LE(filedata.length, 18);
+      lf.writeUInt32LE(filedata.length, 22);
+      lf.writeUInt16LE(filename.length, 26);
+      lf.writeUInt16LE(0, 28);
+      filename.copy(lf, 30);
+      filedata.copy(lf, 30 + filename.length);
+      const cd = Buffer.allocUnsafe(46 + filename.length);
+      cd.writeUInt32LE(0x02014b50, 0);
+      cd.writeUInt16LE(20, 4);
+      cd.writeUInt16LE(20, 6);
+      cd.writeUInt16LE(0, 8);
+      cd.writeUInt16LE(0, 10);
+      cd.writeUInt16LE(0, 12);
+      cd.writeUInt16LE(0, 14);
+      cd.writeUInt32LE(0, 16);
+      cd.writeUInt32LE(filedata.length, 20);
+      cd.writeUInt32LE(filedata.length, 24);
+      cd.writeUInt16LE(filename.length, 28);
+      cd.writeUInt16LE(0, 30);
+      cd.writeUInt16LE(0, 32);
+      cd.writeUInt16LE(0, 34);
+      cd.writeUInt16LE(0, 36);
+      cd.writeUInt32LE(0, 38);
+      cd.writeUInt32LE(0, 42);
+      filename.copy(cd, 46);
+      const eocd = Buffer.allocUnsafe(22);
+      eocd.writeUInt32LE(0x06054b50, 0);
+      eocd.writeUInt16LE(0, 4);
+      eocd.writeUInt16LE(0, 6);
+      eocd.writeUInt16LE(1, 8);
+      eocd.writeUInt16LE(1, 10);
+      eocd.writeUInt32LE(cd.length, 12);
+      eocd.writeUInt32LE(lf.length, 16);
+      eocd.writeUInt16LE(0, 20);
+      const zipBuffer = Buffer.concat([lf, cd, eocd]);
+
       const appPackageFolder = path.resolve("test-project", "appPackage");
       const manifest = createManifestWithDA();
 
