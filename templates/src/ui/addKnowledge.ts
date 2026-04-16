@@ -39,9 +39,38 @@ export const addKnowledgeNode = {
     ],
   },
   children: [
-    { node: "addKnowledgeWebSearchNode", condition: { equals: "web-search" } },
-    { node: "addKnowledgeOneDriveNode", condition: { equals: "oneDrive-sharePoint" } },
-    { node: "addKnowledgeGCNode", condition: { equals: "graph-connector" } },
-    { node: "addKnowledgeEmbeddedNode", condition: { equals: "embedded-knowledge" } },
+    {
+      node: "searchTypeNode",
+      condition: { equals: "web-search" },
+      children: [
+        { node: "webContentNode", condition: { equals: "url" } },
+        { node: "selectTeamsAppManifestNode" },
+      ],
+    },
+    {
+      node: "searchTypeNode",
+      condition: { equals: "oneDrive-sharePoint" },
+      children: [
+        { node: "oneDriveSharePointItemNode", condition: { equals: "url" } },
+        { node: "oneDriveSharePointItemConfirmNode", condition: { equals: "url" } },
+        { node: "selectTeamsAppManifestNode" },
+      ],
+    },
+    {
+      node: "gcItemNode",
+      condition: { equals: "graph-connector" },
+      children: [
+        { node: "gcListNode", condition: { equals: "listConnections" } },
+        { node: "gcInputNode", condition: { equals: "inputConnectionId" } },
+        { node: "selectTeamsAppManifestNode" },
+      ],
+    },
+    {
+      node: "selectTeamsAppManifestNode",
+      condition: { equals: "embedded-knowledge" },
+      children: [
+        { node: "embeddedKnowledgeNode" },
+      ],
+    },
   ],
 };

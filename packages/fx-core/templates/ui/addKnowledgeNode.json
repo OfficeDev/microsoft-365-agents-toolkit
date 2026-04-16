@@ -29,28 +29,78 @@
   },
   "children": [
     {
-      "node": "addKnowledgeWebSearchNode",
+      "node": "searchTypeNode",
       "condition": {
         "equals": "web-search"
-      }
+      },
+      "children": [
+        {
+          "node": "webContentNode",
+          "condition": {
+            "equals": "url"
+          }
+        },
+        {
+          "node": "selectTeamsAppManifestNode"
+        }
+      ]
     },
     {
-      "node": "addKnowledgeOneDriveNode",
+      "node": "searchTypeNode",
       "condition": {
         "equals": "oneDrive-sharePoint"
-      }
+      },
+      "children": [
+        {
+          "node": "oneDriveSharePointItemNode",
+          "condition": {
+            "equals": "url"
+          }
+        },
+        {
+          "node": "oneDriveSharePointItemConfirmNode",
+          "condition": {
+            "equals": "url"
+          }
+        },
+        {
+          "node": "selectTeamsAppManifestNode"
+        }
+      ]
     },
     {
-      "node": "addKnowledgeGCNode",
+      "node": "gcItemNode",
       "condition": {
         "equals": "graph-connector"
-      }
+      },
+      "children": [
+        {
+          "node": "gcListNode",
+          "condition": {
+            "equals": "listConnections"
+          }
+        },
+        {
+          "node": "gcInputNode",
+          "condition": {
+            "equals": "inputConnectionId"
+          }
+        },
+        {
+          "node": "selectTeamsAppManifestNode"
+        }
+      ]
     },
     {
-      "node": "addKnowledgeEmbeddedNode",
+      "node": "selectTeamsAppManifestNode",
       "condition": {
         "equals": "embedded-knowledge"
-      }
+      },
+      "children": [
+        {
+          "node": "embeddedKnowledgeNode"
+        }
+      ]
     }
   ]
 }

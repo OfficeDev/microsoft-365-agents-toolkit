@@ -15,7 +15,7 @@
   },
   "children": [
     {
-      "node": "addActionApiSpecNode",
+      "node": "apiSpecWithSearchNode",
       "condition": {
         "equals": "api-spec"
       }

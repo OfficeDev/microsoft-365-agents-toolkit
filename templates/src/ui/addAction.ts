@@ -25,7 +25,7 @@ export const addActionNode = {
     ],
   },
   children: [
-    { node: "addActionApiSpecNode", condition: { equals: "api-spec" } },
+    { node: "apiSpecWithSearchNode", condition: { equals: "api-spec" } },
     { node: "selectTeamsAppManifestNode" },
   ],
 };

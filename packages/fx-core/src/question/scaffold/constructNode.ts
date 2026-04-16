@@ -174,49 +174,59 @@ function resolveNodeReference(
       };
       break;
 
-    // Add Action nodes (lazy import to avoid circular dependency)
-    case "addActionApiSpecNode": {
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      const { addActionApiSpecNode } = require("./addActionNodes");
-      node = addActionApiSpecNode();
-      break;
-    }
-    case "mcpForDANode": {
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      const { mcpForDANode } = require("./addActionNodes");
-      node = mcpForDANode();
-      break;
-    }
+    // Add Action / Add Knowledge question nodes (lazy import to avoid circular dependency)
     case "selectTeamsAppManifestNode": {
       // eslint-disable-next-line @typescript-eslint/no-var-requires
       const { selectTeamsAppManifestQuestion } = require("../other");
       node = { data: selectTeamsAppManifestQuestion() };
       break;
     }
-
-    // Add Knowledge nodes (lazy import to avoid circular dependency)
-    case "addKnowledgeWebSearchNode": {
+    case "searchTypeNode": {
       // eslint-disable-next-line @typescript-eslint/no-var-requires
-      const { addKnowledgeWebSearchNode } = require("./addKnowledgeNodes");
-      node = addKnowledgeWebSearchNode();
+      const { searchTypeQuestion } = require("../create");
+      node = { data: searchTypeQuestion() };
       break;
     }
-    case "addKnowledgeOneDriveNode": {
+    case "webContentNode": {
       // eslint-disable-next-line @typescript-eslint/no-var-requires
-      const { addKnowledgeOneDriveNode } = require("./addKnowledgeNodes");
-      node = addKnowledgeOneDriveNode();
+      const { webContentQuestion } = require("../create");
+      node = { data: webContentQuestion() };
       break;
     }
-    case "addKnowledgeGCNode": {
+    case "oneDriveSharePointItemNode": {
       // eslint-disable-next-line @typescript-eslint/no-var-requires
-      const { addKnowledgeGCNode } = require("./addKnowledgeNodes");
-      node = addKnowledgeGCNode();
+      const { oneDriveSharePointItemQuestion } = require("../create");
+      node = { data: oneDriveSharePointItemQuestion() };
       break;
     }
-    case "addKnowledgeEmbeddedNode": {
+    case "oneDriveSharePointItemConfirmNode": {
       // eslint-disable-next-line @typescript-eslint/no-var-requires
-      const { addKnowledgeEmbeddedNode } = require("./addKnowledgeNodes");
-      node = addKnowledgeEmbeddedNode();
+      const { oneDriveSharePointItemConfirmQuestion } = require("../create");
+      node = { data: oneDriveSharePointItemConfirmQuestion() };
+      break;
+    }
+    case "gcItemNode": {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const { GCItemQuestion } = require("../create");
+      node = { data: GCItemQuestion() };
+      break;
+    }
+    case "gcListNode": {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const { GCListQuestion } = require("../create");
+      node = { data: GCListQuestion() };
+      break;
+    }
+    case "gcInputNode": {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const { GCInputQuestion } = require("../create");
+      node = { data: GCInputQuestion() };
+      break;
+    }
+    case "embeddedKnowledgeNode": {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const { addEmbeddedKnowledgeFilesQuestion } = require("../other");
+      node = { data: addEmbeddedKnowledgeFilesQuestion() };
       break;
     }
 
