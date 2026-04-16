@@ -537,6 +537,24 @@ describe("Wrapped Axios Client Test", () => {
       "GET"
     );
     chai.assert.equal(apiName, "mos_unclassified__abc");
+
+    apiName = WrappedAxiosClient.convertUrlToApiName(
+      "https://titles.gccm.mos.microsoft.com/config/v1/environment",
+      "GET"
+    );
+    chai.assert.equal(apiName, "mos_get_config_env");
+
+    apiName = WrappedAxiosClient.convertUrlToApiName(
+      "https://titles.gcch.mos.svc.usgovcloud.microsoft/config/v1/environment",
+      "GET"
+    );
+    chai.assert.equal(apiName, "mos_get_config_env");
+
+    apiName = WrappedAxiosClient.convertUrlToApiName(
+      "https://titles.dod.mos.svc.usgovcloud.microsoft/abc",
+      "GET"
+    );
+    chai.assert.equal(apiName, "mos_unclassified__abc");
   });
 
   it("Convert API Definition for MOS API", async () => {
