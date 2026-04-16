@@ -46,7 +46,7 @@ deploy:
   # Azure Static Web Apps needs index.html
   - uses: cli/runNpxCommand
     with:
-      args: shx touch dist/index.html
+      args: --yes shx touch dist/index.html
   # Get the deployment token from Azure Static Web Apps
   - uses: azureStaticWebApps/getDeploymentToken
     with:
@@ -55,6 +55,6 @@ deploy:
   - uses: cli/runNpxCommand
     name: deploy to Azure Static Web Apps
     with:
-      args: '@azure/static-web-apps-cli deploy ./dist -d
+      args: '--yes @azure/static-web-apps-cli deploy ./dist -d
         ${{SECRET_TAB_SWA_DEPLOYMENT_TOKEN}} --env production'
 projectId: 47881792-967b-4b57-920c-cb3856631ba3
