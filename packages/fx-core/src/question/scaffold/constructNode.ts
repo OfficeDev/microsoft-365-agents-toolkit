@@ -175,12 +175,6 @@ function resolveNodeReference(
       break;
 
     // Add Action nodes (lazy import to avoid circular dependency)
-    case "apiPluginStartNode": {
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      const { apiPluginStartQuestion } = require("../create");
-      node = { data: apiPluginStartQuestion(true) };
-      break;
-    }
     case "addActionApiSpecNode": {
       // eslint-disable-next-line @typescript-eslint/no-var-requires
       const { addActionApiSpecNode } = require("./addActionNodes");
@@ -201,12 +195,6 @@ function resolveNodeReference(
     }
 
     // Add Knowledge nodes (lazy import to avoid circular dependency)
-    case "addKnowledgeStartNode": {
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      const { addKnowledgeStartQuestion } = require("../create");
-      node = { data: addKnowledgeStartQuestion(true) };
-      break;
-    }
     case "addKnowledgeWebSearchNode": {
       // eslint-disable-next-line @typescript-eslint/no-var-requires
       const { addKnowledgeWebSearchNode } = require("./addKnowledgeNodes");

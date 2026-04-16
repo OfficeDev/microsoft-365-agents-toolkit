@@ -10,7 +10,34 @@
  * by constructNode.ts to TypeScript-defined sub-trees with dynamic behavior.
  */
 export const addKnowledgeNode = {
-  node: "addKnowledgeStartNode",
+  data: {
+    type: "singleSelect",
+    name: "knowledge-source",
+    title: "core.createProjectQuestion.addKnowledge.title",
+    placeholder: "core.createProjectQuestion.addKnowledge.placeholder",
+    options: [
+      {
+        id: "web-search",
+        label: "core.createProjectQuestion.capability.knowledgeWebSearch.label",
+        detail: "core.createProjectQuestion.capability.knowledgeWebSearch.detail",
+      },
+      {
+        id: "oneDrive-sharePoint",
+        label: "core.createProjectQuestion.capability.knowledgeOneDriveSharePoint.label",
+        detail: "core.createProjectQuestion.capability.knowledgeOneDriveSharePoint.detail",
+      },
+      {
+        id: "graph-connector",
+        label: "core.createProjectQuestion.capability.knowledgeGraphConnector.label",
+        detail: "core.createProjectQuestion.capability.knowledgeGraphConnector.detail",
+      },
+      {
+        id: "embedded-knowledge",
+        label: "core.createProjectQuestion.capability.knowledgeEmbeddedKnowledge.label",
+        detail: "core.createProjectQuestion.capability.knowledgeEmbeddedKnowledge.detail",
+      },
+    ],
+  },
   children: [
     { node: "addKnowledgeWebSearchNode", condition: { equals: "web-search" } },
     { node: "addKnowledgeOneDriveNode", condition: { equals: "oneDrive-sharePoint" } },

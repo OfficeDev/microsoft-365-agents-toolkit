@@ -10,7 +10,25 @@
  * by constructNode.ts to TypeScript-defined sub-trees with dynamic behavior.
  */
 export const addActionNode = {
-  node: "apiPluginStartNode",
+  data: {
+    type: "singleSelect",
+    name: "action-type",
+    title: "core.createProjectQuestion.addApiPlugin.title",
+    placeholder: "template.createProjectQuestion.addApiPlugin.placeholder",
+    options: [
+      {
+        id: "api-spec",
+        label: "template.createProjectQuestion.capability.copilotPluginApiSpecOption.label",
+        detail: "template.createProjectQuestion.capability.copilotPluginApiSpecOption.detail",
+      },
+      {
+        id: "mcp",
+        label: "template.createProjectQuestion.mcpForDa.label",
+        detail: "template.createProjectQuestion.mcpForDa.detail",
+        featureFlag: "TEAMSFX_MCP_FOR_DA",
+      },
+    ],
+  },
   children: [
     { node: "addActionApiSpecNode", condition: { equals: "api-spec" } },
     { node: "mcpForDANode", condition: { equals: "mcp" } },
