@@ -43,7 +43,10 @@ export async function zipFolderAsync(
     const content = await fs.readFile(filePath);
     zp.addFile(zipPath, content);
     if (stats) {
-      (zp.getEntry(zipPath)?.header as EntryHeader).time = stats.mtime;
+      const entry = zp.getEntry(zipPath);
+      if (entry) {
+        (entry.header as EntryHeader).time = stats.mtime;
+      }
     }
   };
 

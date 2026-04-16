@@ -407,13 +407,16 @@ export class CopilotGptManifestUtils {
     }
 
     // Prevent duplicate folder paths
-    const skills = gptManifest.agent_skills;
+    const skills = gptManifest.agent_skills as Array<{
+      folder: string;
+      expose_skill_to_copilot?: boolean;
+    }>;
     if (!skills.some((s) => s.folder === folder)) {
       const skillEntry: { folder: string; expose_skill_to_copilot?: boolean } = { folder };
       if (exposeSkillToCopilot) {
         skillEntry.expose_skill_to_copilot = true;
       }
-      skills.push(skillEntry);
+      (skills as Array<{ folder: string; expose_skill_to_copilot?: boolean }>).push(skillEntry);
     }
 
     // Write updated manifest back

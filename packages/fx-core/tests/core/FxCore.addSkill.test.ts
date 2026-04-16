@@ -632,12 +632,7 @@ describe("addSkill", () => {
       sandbox.stub(MockUserInteraction.prototype, "showMessage").resolves(ok("Add"));
 
       // Mock fs operations for zip import
-      const pathExistsStub = sandbox.stub(fs, "pathExists");
-      pathExistsStub.withArgs(zipPath).resolves(true);
-      pathExistsStub
-        .withArgs(path.join(appPackageFolder, "skills", "myImportedSkill"))
-        .resolves(false);
-      pathExistsStub.callsFake(async (p: string) => {
+      sandbox.stub(fs, "pathExists").callsFake(async (p: string) => {
         if (p === zipPath) return true;
         if (p.includes("myImportedSkill") && p.includes("skills")) return false;
         if (p.includes("SKILL.md")) return true;
@@ -738,9 +733,6 @@ describe("addSkill", () => {
         .stub(copilotGptManifestUtils, "getManifestPath")
         .resolves(ok(path.resolve(appPackageFolder, "declarativeAgent.json")));
       sandbox.stub(MockUserInteraction.prototype, "showMessage").resolves(ok("Add"));
-
-      const pathExistsStub = sandbox.stub(fs, "pathExists");
-      pathExistsStub.withArgs(zipPath).resolves(true);
 
       // Use real AdmZip but mock the file system
       const origAdmZip = require("adm-zip");
