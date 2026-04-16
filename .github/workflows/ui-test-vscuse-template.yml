@@ -349,22 +349,33 @@ jobs:
           if-no-files-found: ignore
 
       - name: Extract error information
-        if: always() && failure()
+        if: always()
         run: |
           if [ -f "/tmp/vscuse_output.log" ]; then
             echo "Extracting error information from vscuse output..."
           
             # Extract error messages from the Errors section
             # Pattern: "Step step_xxxxx: <error message>"
-            grep "^  Step step_" /tmp/vscuse_output.log | sed 's/^[[:space:]]*Step step_[^:]*: //' > error.log 2>/dev/null || true
+            grep "^  Step step_" /tmp/vscuse_output.log | sed 's/^[[:space:]]*Step step_[^:]*: //' > /tmp/error_extract.log 2>/dev/null || true
           
-            if [ -s error.log ]; then
+            if [ -s /tmp/error_extract.log ]; then
               echo "✅ Error information extracted:"
+              cp /tmp/error_extract.log error.log
               cat error.log
             else
-              echo "⚠️ No error information found in expected format"
-              echo "Full vscuse output:" > error.log
-              cat /tmp/vscuse_output.log >> error.log
+              # Try alternative error patterns
+              grep -i -E "(error|fail|exception|assert)" /tmp/vscuse_output.log | tail -20 > /tmp/error_extract2.log 2>/dev/null || true
+              if [ -s /tmp/error_extract2.log ]; then
+                echo "✅ Error information extracted (alternative pattern):"
+                cp /tmp/error_extract2.log error.log
+                cat error.log
+              else
+                echo "⚠️ No error information found in expected format"
+                # For failed jobs, include the last 30 lines of vscuse output
+                echo "Last 30 lines of vscuse output:" > error.log
+                tail -30 /tmp/vscuse_output.log >> error.log
+                cat error.log
+              fi
             fi
           else
             echo "⚠️ vscuse output log not found"
@@ -372,20 +383,11 @@ jobs:
         shell: bash
 
       - name: Upload error log
-        if: always() && failure()
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: error-log-${{ matrix.test_plan }}-${{ github.run_id }}
           path: error.log
-          retention-days: 7
-          if-no-files-found: ignore
-
-      - name: Upload Error information
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: storage-url-${{ matrix.test_plan }}-${{ github.run_id }}
-          path: storage_url.txt
           retention-days: 7
           if-no-files-found: ignore
 
@@ -825,23 +827,37 @@ jobs:
             
             error_content=""
             if [ "$status" != "success" ]; then
+              # Try direct path first
               error_log_file="/tmp/error-logs/error-log-${case_id}-${run_id}/error.log"
               echo "Looking for error log: $error_log_file"
+              
+              # Fallback: search by case_id pattern
+              if [ ! -f "$error_log_file" ]; then
+                echo "Direct path not found, searching by pattern..."
+                found_file=$(find /tmp/error-logs -path "*${case_id}*" -name "error.log" 2>/dev/null | head -1)
+                if [ -n "$found_file" ]; then
+                  error_log_file="$found_file"
+                  echo "Found via search: $error_log_file"
+                fi
+              fi
+              
               if [ -f "$error_log_file" ]; then
-                # Use jq to safely read, HTML-escape, and shell-escape the content
-                error_content=$(head -c 1000 "$error_log_file" | jq -Rrs '
-                  gsub("&";"&amp;") |
-                  gsub("\\\\";"&#92;") |
-                  gsub("<";"&lt;") |
-                  gsub(">";"&gt;") |
-                  gsub("\"";"&quot;") |
-                  gsub("\n";"<br>") |
-                  gsub("[$]";"&#36;") |
-                  gsub("`";"&#96;")
-                ' 2>/dev/null || echo "")
+                echo "Reading error log file: $error_log_file"
+                echo "File size: $(wc -c < "$error_log_file") bytes"
+                # Write error content to a temp file with HTML escaping, avoiding shell expansion issues
+                head -c 1000 "$error_log_file" | python3 -c "
+import sys, html
+text = sys.stdin.read()
+escaped = html.escape(text).replace(chr(10), '<br>')
+print(escaped, end='')
+" > /tmp/error_content_escaped.txt 2>/dev/null
+                error_content=$(cat /tmp/error_content_escaped.txt 2>/dev/null || echo "")
                 echo "Error content length: ${#error_content}"
               else
-                echo "Error log file not found: $error_log_file"
+                echo "Error log file not found for case: $case_id"
+                # List available error log dirs for debugging
+                echo "Available error log dirs:"
+                ls -la /tmp/error-logs/ 2>/dev/null || echo "No error-logs directory"
               fi
             fi
 
