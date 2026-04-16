@@ -844,18 +844,11 @@ jobs:
               if [ -f "$error_log_file" ]; then
                 echo "Reading error log file: $error_log_file"
                 echo "File size: $(wc -c < "$error_log_file") bytes"
-                # Write error content to a temp file with HTML escaping, avoiding shell expansion issues
-                head -c 1000 "$error_log_file" | python3 -c "
-import sys, html
-text = sys.stdin.read()
-escaped = html.escape(text).replace(chr(10), '<br>')
-print(escaped, end='')
-" > /tmp/error_content_escaped.txt 2>/dev/null
-                error_content=$(cat /tmp/error_content_escaped.txt 2>/dev/null || echo "")
+                # HTML-escape the content using sed, then replace newlines with <br>
+                error_content=$(head -c 1000 "$error_log_file" | sed 's/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g; s/"/\&quot;/g' | sed ':a;N;$!ba;s/\n/<br>/g' | sed 's/\$/\&#36;/g; s/`/\&#96;/g')
                 echo "Error content length: ${#error_content}"
               else
                 echo "Error log file not found for case: $case_id"
-                # List available error log dirs for debugging
                 echo "Available error log dirs:"
                 ls -la /tmp/error-logs/ 2>/dev/null || echo "No error-logs directory"
               fi
