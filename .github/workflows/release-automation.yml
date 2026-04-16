@@ -96,8 +96,8 @@ jobs:
           # Parse schedule-driven release parameters
           python .github/scripts/parse_release_schedule.py "$SCHEDULE_PATH" > releases.json
 
-          # Only process VS Code prerelease entries
-          cat releases.json | jq '[.[] | select((((.product | ascii_downcase) == "vsc") or (.product | ascii_downcase | contains("vs code"))) and (.release_type | ascii_downcase | contains("prerelease")))]' > releases.filtered.json
+          # Process all VS Code entries (prerelease, stable, hotfix)
+          cat releases.json | jq '[.[] | select(((.product | ascii_downcase) == "vsc") or (.product | ascii_downcase | contains("vs code")))]' > releases.filtered.json
           mv releases.filtered.json releases.json
           
           echo "📋 Parsed Release Schedule:"
@@ -273,6 +273,9 @@ jobs:
       preid: ${{ steps.config.outputs.preid }}
       series: ${{ steps.config.outputs.series }}
       vsrelease: ${{ steps.config.outputs.vsrelease }}
+      is_prerelease: ${{ steps.config.outputs.is_prerelease }}
+      is_stable: ${{ steps.config.outputs.is_stable }}
+      is_hotfix: ${{ steps.config.outputs.is_hotfix }}
       pr_needed: ${{ steps.sync_pr.outputs.pr_needed }}
       pr_url: ${{ steps.sync_pr.outputs.pr_url }}
       pr_number: ${{ steps.sync_pr.outputs.pr_number }}
@@ -315,14 +318,37 @@ jobs:
           echo "  Version: $VERSION"
           echo "  Branch: $BRANCH"
 
-          IS_VSC_PRERELEASE=false
-          if echo "$PRODUCT" | grep -qi "^vsc$" && echo "$RELEASE_TYPE" | grep -qi "prerelease"; then
-            IS_VSC_PRERELEASE=true
+          # Derive release type flags
+          RELEASE_TYPE_LOWER=$(echo "$RELEASE_TYPE" | tr '[:upper:]' '[:lower:]')
+          IS_PRERELEASE=false; IS_STABLE=false; IS_HOTFIX=false
+          case "$RELEASE_TYPE_LOWER" in
+            *prerelease*) IS_PRERELEASE=true ;;
+            *hotfix*)     IS_HOTFIX=true ;;
+            *stable*)     IS_STABLE=true ;;
+            *)            echo "❌ Unknown release type: $RELEASE_TYPE" >&2; exit 1 ;;
+          esac
+
+          # Hotfix releases only support rerun_cd_only mode
+          RERUN_CD_ONLY="${{ env.RERUN_CD_ONLY }}"
+          if [ "$IS_HOTFIX" = "true" ] && [ "$RERUN_CD_ONLY" != "true" ]; then
+            echo "❌ Hotfix releases only support rerun_cd_only mode. Set rerun_cd_only=true and retry." >&2
+            exit 1
           fi
 
-          if [ "$IS_VSC_PRERELEASE" != "true" ]; then
-            echo "❌ This workflow only supports VSC Prerelease releases." >&2
-            exit 1
+          # For stable releases, derive source_branch from the last prerelease entry in the schedule
+          SOURCE_BRANCH=""
+          if [ "$IS_STABLE" = "true" ] && [ "$RERUN_CD_ONLY" != "true" ]; then
+            SOURCE_BRANCH=$(jq -r --arg v "$VERSION" '
+              [ .[] | select(.release_type | ascii_downcase | contains("prerelease")) ]
+              | sort_by(.cut_date)
+              | last
+              | .branch // empty
+            ' releases.json)
+            if [ -z "$SOURCE_BRANCH" ]; then
+              echo "⚠️ No previous prerelease found in schedule. Falling back to dev as source branch."
+              SOURCE_BRANCH="dev"
+            fi
+            echo "  Source Branch (derived): $SOURCE_BRANCH"
           fi
 
           echo "branch=$BRANCH" >> "$GITHUB_OUTPUT"
@@ -332,7 +358,10 @@ jobs:
           echo "preid=$PREID" >> "$GITHUB_OUTPUT"
           echo "series=$SERIES" >> "$GITHUB_OUTPUT"
           echo "vsrelease=$VSRELEASE" >> "$GITHUB_OUTPUT"
-          echo "is_vsc_prerelease=$IS_VSC_PRERELEASE" >> "$GITHUB_OUTPUT"
+          echo "source_branch=$SOURCE_BRANCH" >> "$GITHUB_OUTPUT"
+          echo "is_prerelease=$IS_PRERELEASE" >> "$GITHUB_OUTPUT"
+          echo "is_stable=$IS_STABLE" >> "$GITHUB_OUTPUT"
+          echo "is_hotfix=$IS_HOTFIX" >> "$GITHUB_OUTPUT"
 
       - name: Setup git
         run: |
@@ -358,7 +387,7 @@ jobs:
 
       - name: Create PR to merge dev into existing release branch
         id: sync_pr
-        if: ${{ steps.check_branch.outputs.exists == 'true' && env.DRY_RUN == 'false' && env.RERUN_CD_ONLY == 'false' }}
+        if: ${{ steps.check_branch.outputs.exists == 'true' && env.DRY_RUN == 'false' && env.RERUN_CD_ONLY == 'false' && steps.config.outputs.is_prerelease == 'true' }}
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.RELEASE_AUTOMATION_TOKEN || github.token }}
@@ -470,7 +499,7 @@ jobs:
             core.setOutput('pr_number', String(created.data.number));
 
       - name: Create PR in samples repo (merge dev into main)
-        if: ${{ env.DRY_RUN == 'false' && env.RERUN_CD_ONLY == 'false' }}
+        if: ${{ env.DRY_RUN == 'false' && env.RERUN_CD_ONLY == 'false' && steps.config.outputs.is_hotfix != 'true' }}
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.RELEASE_AUTOMATION_TOKEN || github.token }}
@@ -528,20 +557,30 @@ jobs:
 
       - name: Create release branch
         id: create_branch
-        if: ${{ steps.check_branch.outputs.exists == 'false' && env.CREATE_BRANCH == 'true' && env.DRY_RUN == 'false' && env.RERUN_CD_ONLY == 'false' }}
+        if: ${{ steps.check_branch.outputs.exists == 'false' && env.CREATE_BRANCH == 'true' && env.DRY_RUN == 'false' && env.RERUN_CD_ONLY == 'false' && steps.config.outputs.is_hotfix != 'true' }}
         run: |
           BRANCH="${{ steps.config.outputs.branch }}"
-          
-          echo "Creating branch $BRANCH from dev..."
-          git checkout dev
-          git pull origin dev
-          git checkout -b "$BRANCH"
+          IS_STABLE="${{ steps.config.outputs.is_stable }}"
+          SOURCE_BRANCH="${{ steps.config.outputs.source_branch }}"
+
+          if [ "$IS_STABLE" = "true" ]; then
+            echo "Creating branch $BRANCH from source branch $SOURCE_BRANCH..."
+            git fetch origin "$SOURCE_BRANCH"
+            git checkout "origin/$SOURCE_BRANCH"
+            git checkout -b "$BRANCH"
+          else
+            echo "Creating branch $BRANCH from dev..."
+            git checkout dev
+            git pull origin dev
+            git checkout -b "$BRANCH"
+          fi
+
           git push origin "$BRANCH"
-          
+
           echo "✅ Branch $BRANCH created successfully"
           echo "created=true" >> $GITHUB_OUTPUT
 
-      - name: Decide auto-CD for first prerelease branch
+      - name: Decide auto-CD for new release branch
         id: decide_auto_cd
         shell: bash
         run: |
@@ -550,13 +589,16 @@ jobs:
           BRANCH="${{ steps.config.outputs.branch }}"
           VERSION="${{ steps.config.outputs.version }}"
           BRANCH_CREATED="${{ steps.create_branch.outputs.created }}"
+          IS_STABLE="${{ steps.config.outputs.is_stable }}"
 
           AUTO_CD=false
 
-          # Only auto-trigger CD when we just created a brand-new prerelease release branch
-          # and the branch is release/6.<odd> (e.g., release/6.3, release/6.5).
           if [ "$BRANCH_CREATED" = "true" ]; then
-            if [[ "$BRANCH" =~ ^release/6\.([0-9]+)$ ]]; then
+            if [ "$IS_STABLE" = "true" ]; then
+              # Stable releases auto-trigger CD on branch creation (no PR merge gate)
+              AUTO_CD=true
+            elif [[ "$BRANCH" =~ ^release/6\.([0-9]+)$ ]]; then
+              # Prerelease: auto-trigger CD only for odd minor branches
               MINOR="${BASH_REMATCH[1]}"
               if (( MINOR % 2 == 1 )); then
                 AUTO_CD=true
@@ -565,7 +607,7 @@ jobs:
           fi
 
           echo "auto_cd=$AUTO_CD" >> "$GITHUB_OUTPUT"
-          echo "Auto CD decision: branch=$BRANCH, version=$VERSION, branch_created=$BRANCH_CREATED, auto_cd=$AUTO_CD" >> "$GITHUB_STEP_SUMMARY"
+          echo "Auto CD decision: branch=$BRANCH, version=$VERSION, branch_created=$BRANCH_CREATED, is_stable=$IS_STABLE, auto_cd=$AUTO_CD" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Validate branch exists for rerun mode
         if: ${{ env.RERUN_CD_ONLY == 'true' && steps.check_branch.outputs.exists != 'true' }}
@@ -585,6 +627,10 @@ jobs:
           PREID="${{ steps.config.outputs.preid }}"
           SERIES="${{ steps.config.outputs.series }}"
           VSRELEASE="${{ steps.config.outputs.vsrelease }}"
+          SOURCE_BRANCH="${{ steps.config.outputs.source_branch }}"
+          IS_PRERELEASE="${{ steps.config.outputs.is_prerelease }}"
+          IS_STABLE="${{ steps.config.outputs.is_stable }}"
+          IS_HOTFIX="${{ steps.config.outputs.is_hotfix }}"
 
           DRY_RUN="${{ env.DRY_RUN }}"
           RERUN_CD_ONLY="${{ env.RERUN_CD_ONLY }}"
@@ -635,7 +681,11 @@ jobs:
               echo "- Dry run only (no branch/PR created)."
             else
               if [ "$BRANCH_CREATED" = "true" ]; then
-                echo "- ✅ Created branch from dev."
+                if [ "$IS_STABLE" = "true" ]; then
+                  echo "- ✅ Created branch from source branch: ${SOURCE_BRANCH}."
+                else
+                  echo "- ✅ Created branch from dev."
+                fi
               else
                 echo "- Branch exists: ${BRANCH_EXISTS}"
               fi
@@ -699,7 +749,7 @@ jobs:
   trigger-cd:
     needs: prepare-release
     runs-on: ubuntu-latest
-    if: ${{ github.event_name != 'pull_request' && needs.prepare-release.result == 'success' && ((github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run == 'false' && github.event.inputs.rerun_cd_only == 'true') || (github.event_name == 'schedule' && needs.prepare-release.outputs.auto_cd == 'true')) }}
+    if: ${{ github.event_name != 'pull_request' && needs.prepare-release.result == 'success' && ((github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run == 'false' && (github.event.inputs.rerun_cd_only == 'true' || needs.prepare-release.outputs.auto_cd == 'true')) || (github.event_name == 'schedule' && needs.prepare-release.outputs.auto_cd == 'true')) }}
     outputs:
       product: ${{ needs.prepare-release.outputs.product }}
       release_type: ${{ needs.prepare-release.outputs.release_type }}
@@ -730,10 +780,12 @@ jobs:
             const series = '${{ needs.prepare-release.outputs.series }}';
             const vsrelease = '${{ needs.prepare-release.outputs.vsrelease }}' === 'true';
             const goproduct = '${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.go_product) || 'false' }}' === 'true';
+            const isPrerelease = '${{ needs.prepare-release.outputs.is_prerelease }}' === 'true';
+            const finalPreid = (goproduct && !isPrerelease) ? 'stable' : preid;
 
             console.log('Triggering CD workflow with parameters:');
             console.log(`  Branch: ${branch}`);
-            console.log(`  preid: ${preid}`);
+            console.log(`  preid: ${finalPreid} (original: ${preid}, goproduct: ${goproduct})`);
             console.log(`  series: ${series}`);
             console.log(`  vsrelease: ${vsrelease}`);
             console.log(`  goproduct: ${goproduct}`);
@@ -745,7 +797,7 @@ jobs:
               workflow_id: 'cd.yml',
               ref: branch,
               inputs: {
-                preid: preid,
+                preid: finalPreid,
                 series: series,
                 vsrelease: vsrelease.toString(),
                 vstemplate: 'false',
@@ -824,8 +876,11 @@ jobs:
             const series = String(params.series || '');
             const vsrelease = Boolean(params.vsrelease);
             const goproduct = Boolean(params.goproduct);
+            const releaseTypeLower = releaseType.toLowerCase();
+            const isPrerelease = releaseTypeLower.includes('prerelease');
+            const finalPreid = (goproduct && !isPrerelease) ? 'stable' : preid;
 
-            if (!preid) {
+            if (!finalPreid) {
               core.setFailed('CD param preid is missing in marker.');
               return;
             }
@@ -837,7 +892,7 @@ jobs:
               .addRaw(`\nProduct: \`${product}\`\n`)
               .addRaw(`\nRelease Type: \`${releaseType}\`\n`)
               .addRaw(`\nVersion: \`${version}\`\n`)
-              .addRaw(`\npreid: \`${preid}\`\n`)
+              .addRaw(`\npreid: \`${finalPreid}\` (original: \`${preid}\`, goproduct: \`${goproduct}\`)\n`)
               .addRaw(`\nseries: \`${series}\`\n`)
               .addRaw(`\nvsrelease: \`${vsrelease}\`\n`)
               .addRaw(`\ngoproduct: \`${goproduct}\`\n`)
@@ -849,7 +904,7 @@ jobs:
               workflow_id: 'cd.yml',
               ref: base,
               inputs: {
-                preid,
+                preid: finalPreid,
                 series,
                 vsrelease: vsrelease.toString(),
                 vstemplate: 'false',
