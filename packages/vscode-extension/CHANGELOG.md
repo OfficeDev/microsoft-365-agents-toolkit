@@ -17,7 +17,6 @@ atk add action \
   --mcp-da-server-url <your-mcp-server-url> \
   --mcp-tools-file-path <path-to-tools-json> \
   --interactive false
-````
 
 You can also:
 
