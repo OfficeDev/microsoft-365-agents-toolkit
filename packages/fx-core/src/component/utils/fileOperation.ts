@@ -45,7 +45,7 @@ export async function zipFolderAsync(
     if (stats) {
       const entry = zp.getEntry(zipPath);
       if (entry) {
-        (entry.header as EntryHeader).time = stats.mtime;
+        entry.header.time = stats.mtime;
       }
     }
   };
