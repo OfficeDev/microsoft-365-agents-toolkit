@@ -44,7 +44,7 @@ on:
       SkipBranchCheck:
         type: boolean
         default: false
-        description: "[Dev/Testing only] Skip branch and input validation checks at the beginning of the workflow. Use this when running the pipeline from a non-standard branch for development or testing purposes."
+        description: "[Dev/Testing only] Skip branch validation."
   schedule:
     - cron: "15 11 * * *"  # UTC+8 19:15 make sure the daily build generated before the daily test pipeline trigger
 
