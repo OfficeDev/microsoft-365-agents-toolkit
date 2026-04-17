@@ -134,6 +134,28 @@ describe("teamsApp/extendToM365", async () => {
     }
   });
 
+  it("execute: UserError with undefined displayMessage should fallback to message", async () => {
+    const args = {
+      appPackagePath: "fakePath",
+    };
+    const outputEnvVarNames = new Map([
+      ["titleId", "MY_TITLE_ID"],
+      ["appId", "MY_APP_ID"],
+    ]);
+
+    const mockError = new FileNotFoundError("test", "test-file-path");
+    (mockError as any).displayMessage = undefined;
+
+    sinon.stub(PackageService.prototype, "sideLoading").rejects(mockError);
+    sinon.stub(fs, "pathExists").resolves(true);
+
+    const result = await acquireDriver.execute(args, mockedDriverContext, outputEnvVarNames);
+    chai.assert(result.result.isErr());
+    if (result.result.isErr()) {
+      chai.assert.isTrue(result.result.error instanceof FileNotFoundError);
+    }
+  });
+
   it("execute: happy path", async () => {
     const args = {
       appPackagePath: "fakePath",
