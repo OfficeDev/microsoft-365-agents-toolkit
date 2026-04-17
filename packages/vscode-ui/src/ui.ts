@@ -871,7 +871,11 @@ export class VSCodeUI implements UserInteraction {
         ];
 
         const onDidAccept = async () => {
-          const selectedItems = quickPick.selectedItems;
+          // selectedItems is only populated by explicit mouse clicks; pressing Enter fires
+          // onDidAccept with selectedItems=[] and the focused item in activeItems instead.
+          // Fall back to activeItems so keyboard navigation (Enter) works correctly.
+          const selectedItems =
+            quickPick.selectedItems.length > 0 ? quickPick.selectedItems : quickPick.activeItems;
           let result;
           if (selectedItems && selectedItems.length > 0) {
             const item = selectedItems[0];
