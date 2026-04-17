@@ -34,7 +34,7 @@ atk auth login m365
 atk auth login azure
 ```
 
-Broker mode is automatically used when supported by the runtime and configuration to unblock users who are enabled with token protection policy resulting in not able to login ATK with corperation account. Automatic fallback is applied when broker capability is not present.
+Broker mode is automatically used when supported by the runtime and configuration to unblock users who are enabled with token protection policy resulting in not able to login ATK with corporation account. Automatic fallback is applied when broker capability is not present.
 
 
 ### Azure AI Foundry proxy agent template expansion to include C#
