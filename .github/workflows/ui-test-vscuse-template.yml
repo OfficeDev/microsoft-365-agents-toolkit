@@ -261,7 +261,31 @@ jobs:
           cd packages/tests/vscuse/vscode-test-cases
           python -m venv .venv
           source .venv/bin/activate
-          vscuse execute --config-file ./config.yaml --groups-dir groups ./plans/${{ matrix.test_plan }}.json | tee /tmp/vscuse_output.log
+          vscuse execute --config-file ./config.yaml --groups-dir groups ./plans/${{ matrix.test_plan }}.json 2>&1 | tee run_result.txt
+
+      - name: Extract errors from run result
+        if: always()
+        run: |
+          if [ -f "packages/tests/vscuse/vscode-test-cases/run_result.txt" ]; then
+            # Extract error messages after "Step step_xxxx:" pattern
+            grep -oP 'Step step_\w+: \K.*' packages/tests/vscuse/vscode-test-cases/run_result.txt > error.txt || true
+            if [ ! -s error.txt ]; then
+              echo "No errors found" > error.txt
+            fi
+            echo "Extracted errors:"
+            cat error.txt
+          else
+            echo "No run_result.txt found" > error.txt
+          fi
+
+      - name: Upload error file
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: error-file-${{ matrix.test_plan }}-${{ github.run_id }}
+          path: error.txt
+          retention-days: 7
+          if-no-files-found: ignore
 
       - name: Rename test_report.html to index.html
         if: always()
@@ -348,49 +372,6 @@ jobs:
           retention-days: 7
           if-no-files-found: ignore
 
-      - name: Extract error information
-        if: always()
-        run: |
-          if [ -f "/tmp/vscuse_output.log" ]; then
-            echo "Extracting error information from vscuse output..."
-          
-            # Extract error messages from the Errors section
-            # Pattern: "Step step_xxxxx: <error message>"
-            grep "^  Step step_" /tmp/vscuse_output.log | sed 's/^[[:space:]]*Step step_[^:]*: //' > /tmp/error_extract.log 2>/dev/null || true
-          
-            if [ -s /tmp/error_extract.log ]; then
-              echo "✅ Error information extracted:"
-              cp /tmp/error_extract.log error.log
-              cat error.log
-            else
-              # Try alternative error patterns
-              grep -i -E "(error|fail|exception|assert)" /tmp/vscuse_output.log | tail -20 > /tmp/error_extract2.log 2>/dev/null || true
-              if [ -s /tmp/error_extract2.log ]; then
-                echo "✅ Error information extracted (alternative pattern):"
-                cp /tmp/error_extract2.log error.log
-                cat error.log
-              else
-                echo "⚠️ No error information found in expected format"
-                # For failed jobs, include the last 30 lines of vscuse output
-                echo "Last 30 lines of vscuse output:" > error.log
-                tail -30 /tmp/vscuse_output.log >> error.log
-                cat error.log
-              fi
-            fi
-          else
-            echo "⚠️ vscuse output log not found"
-          fi
-        shell: bash
-
-      - name: Upload error log
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: error-log-${{ matrix.test_plan }}-${{ github.run_id }}
-          path: error.log
-          retention-days: 7
-          if-no-files-found: ignore
-
       - name: Cleanup
         if: always()
         run: |
@@ -464,6 +445,12 @@ jobs:
           pattern: storage-url-*
           path: /tmp/storage-urls
 
+      - name: Download error files
+        uses: actions/download-artifact@v4
+        with:
+          pattern: error-file-*
+          path: /tmp/error-files
+
       - name: Process storage URLs
         shell: bash
         run: |
@@ -515,41 +502,47 @@ jobs:
             echo "No storage URL artifacts found"
             echo "{}" > /tmp/url_mapping.json
           fi
-      - name: Download error logs
-        continue-on-error: true
-        uses: actions/download-artifact@v4
-        with:
-          pattern: error-log-*
-          path: /tmp/error-logs
 
-      - name: Debug error logs content
+      - name: Process error files
         shell: bash
         run: |
-          echo "=== Debug: downloaded error log files ==="
-          if [ ! -d "/tmp/error-logs" ]; then
-            echo "No /tmp/error-logs directory found"
-            exit 0
+          if [ -d "/tmp/error-files" ]; then
+            echo "Found error files folder. Processing contents..."
+
+            # Find and extract all zip files
+            find /tmp/error-files -name "*.zip" -exec unzip -o {} -d /tmp/error-files \;
+
+            # Create a JSON object from all error.txt files
+            echo "{" > /tmp/error_mapping.json
+            first_entry=true
+
+            find /tmp/error-files -type f -name "error.txt" | while read file; do
+              dir_name=$(basename $(dirname "$file"))
+              run_id=$(echo "$dir_name" | rev | cut -d'-' -f1 | rev)
+              test_plan=$(echo "$dir_name" | sed "s/^error-file-//" | sed "s/-${run_id}$//")
+              case_run_id="${test_plan}-${run_id}"
+
+              echo "Processing error: dir_name=$dir_name, test_plan=$test_plan, run_id=$run_id, case_run_id=$case_run_id"
+
+              content=$(cat "$file" | tr -d '\n' | tr -d '\r' | sed 's/"/\\"/g')
+
+              if [ "$first_entry" = true ]; then
+                first_entry=false
+              else
+                echo "," >> /tmp/error_mapping.json
+              fi
+
+              echo "  \"$case_run_id\": \"$content\"" >> /tmp/error_mapping.json
+            done
+
+            echo "}" >> /tmp/error_mapping.json
+
+            echo "Generated error JSON mapping:"
+            cat /tmp/error_mapping.json
+          else
+            echo "No error file artifacts found"
+            echo "{}" > /tmp/error_mapping.json
           fi
-
-          echo "All files under /tmp/error-logs:"
-          find /tmp/error-logs -type f | sort || true
-
-          error_files=$(find /tmp/error-logs -type f -name "error.log" | sort)
-          if [ -z "$error_files" ]; then
-            echo "No error.log files found under /tmp/error-logs"
-            exit 0
-          fi
-
-          echo "Found error.log files:"
-          echo "$error_files"
-
-          while IFS= read -r f; do
-            [ -z "$f" ] && continue
-            echo "----- BEGIN $f -----"
-            cat "$f"
-            echo "----- END $f -----"
-          done <<< "$error_files"
-
       - name: Install Dateutils
         run: |
           sudo apt install dateutils
@@ -566,6 +559,7 @@ jobs:
           echo "Initial jobs: $jobs"
           
           report_map_json_file_path="/tmp/url_mapping.json"
+          error_map_json_file_path="/tmp/error_mapping.json"
           
           # Function to query Azure DevOps for bugs with specific tag
           query_bugs_by_tag() {
@@ -734,6 +728,13 @@ jobs:
             fi
             echo "Report URL: $report_url"
 
+            # Get the error info from the error JSON file using the lookup_key
+            error_info=$(jq -r --arg key "$lookup_key" '.[$key]' "$error_map_json_file_path")
+            if [ -z "$error_info" ] || [ "$error_info" = "null" ] || [ "$error_info" = "No errors found" ]; then
+              error_info=""
+            fi
+            echo "Error Info: $error_info"
+
             if [[ -n "$email" && ! "$emails" == *"$email"* && "$status" == "failure" ]]; then
               emails="$emails;$email;"
             fi
@@ -825,36 +826,7 @@ jobs:
               fi
             fi
             
-            error_content=""
-            if [ "$status" != "success" ]; then
-              # Try direct path first
-              error_log_file="/tmp/error-logs/error-log-${case_id}-${run_id}/error.log"
-              echo "Looking for error log: $error_log_file"
-              
-              # Fallback: search by case_id pattern
-              if [ ! -f "$error_log_file" ]; then
-                echo "Direct path not found, searching by pattern..."
-                found_file=$(find /tmp/error-logs -path "*${case_id}*" -name "error.log" 2>/dev/null | head -1)
-                if [ -n "$found_file" ]; then
-                  error_log_file="$found_file"
-                  echo "Found via search: $error_log_file"
-                fi
-              fi
-              
-              if [ -f "$error_log_file" ]; then
-                echo "Reading error log file: $error_log_file"
-                echo "File size: $(wc -c < "$error_log_file") bytes"
-                # HTML-escape the content using sed, then replace newlines with <br>
-                error_content=$(head -c 1000 "$error_log_file" | sed 's/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g; s/"/\&quot;/g' | sed ':a;N;$!ba;s/\n/<br>/g' | sed 's/\$/\&#36;/g; s/`/\&#96;/g')
-                echo "Error content length: ${#error_content}"
-              else
-                echo "Error log file not found for case: $case_id"
-                echo "Available error log dirs:"
-                ls -la /tmp/error-logs/ 2>/dev/null || echo "No error-logs directory"
-              fi
-            fi
-
-            row="<tr> <td style=\\\"text-align: left;\\\">$url</td> <td style=\\\"text-align: center;\\\">$label</td> <td style=\\\"text-align: center;\\\">$owner</td> <td style=\\\"text-align: center;\\\">$work_item_url</td> <td style=\\\"text-align: center;\\\">$linked_bugs</td> <td style=\\\"text-align: center;\\\">$duration</td>  <td style=\\\"text-align: center;\\\">$report_url</td> <td style=\\\"text-align: left;\\\">$error_content</td> </tr>"
+            row="<tr> <td style=\\\"text-align: left;\\\">$url</td> <td style=\\\"text-align: center;\\\">$label</td> <td style=\\\"text-align: center;\\\">$owner</td> <td style=\\\"text-align: center;\\\">$work_item_url</td> <td style=\\\"text-align: center;\\\">$linked_bugs</td> <td style=\\\"text-align: center;\\\">$duration</td>  <td style=\\\"text-align: center;\\\">$report_url</td> <td style=\\\"text-align: left;\\\">$error_info</td> </tr>"
             echo "Generated row: $row"
 
             if [[ "$status" == "success" && $passed -lt $passedlimit ]]; then
