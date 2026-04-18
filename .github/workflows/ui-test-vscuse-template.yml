@@ -258,6 +258,7 @@ jobs:
           echo "Using image tag: ${{ github.event.inputs.image_tag || 'latest' }}"
           echo "Test execution started at: $(date)"
 
+          set -o pipefail
           cd packages/tests/vscuse/vscode-test-cases
           python -m venv .venv
           source .venv/bin/activate
