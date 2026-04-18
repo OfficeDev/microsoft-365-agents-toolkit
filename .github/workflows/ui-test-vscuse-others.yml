@@ -268,29 +268,38 @@ jobs:
         if: always()
         run: |
           if [ -f "packages/tests/vscuse/vscode-test-cases/run_result.txt" ]; then
-            # Required rule:
-            # 1) Find lines containing "Execution failed:" (with optional trailing backslash)
-            # 2) Take the previous line
-            # 3) Extract content after the first ':' from that previous line
-            awk '
+            ROOT_DIR="packages/tests/vscuse/vscode-test-cases"
+            RUN_RESULT="$ROOT_DIR/run_result.txt"
+
+            # 1) Find line containing "Execution failed:" (optional trailing backslash)
+            # 2) Take previous line and extract step_id (step_xxxxx)
+            failed_step_id=$(awk '
               {
                 if ($0 ~ /Execution failed:\\?/) {
-                  line = prev
-                  sub(/^.*:[[:space:]]*/, "", line)
-                  gsub(/[[:space:]]+$/, "", line)
-                  if (line != "") print line
-                  found = 1
+                  if (match(prev, /step_[A-Za-z0-9]+/)) {
+                    print substr(prev, RSTART, RLENGTH)
+                    exit
+                  }
                 }
                 prev = $0
               }
-              END {
-                if (found != 1) exit 1
-              }
-            ' packages/tests/vscuse/vscode-test-cases/run_result.txt > error.txt || true
+            ' "$RUN_RESULT")
 
-            if [ ! -s error.txt ]; then
-              echo "No errors found" > error.txt
+            if [ -n "$failed_step_id" ]; then
+              # Search all JSON files under vscode-test-cases and get matching step description
+              failed_step_desc=$(find "$ROOT_DIR" -type f -name "*.json" -print0 \
+                | xargs -0 jq -r --arg sid "$failed_step_id" '.. | objects | select(.step_id? == $sid) | .description // empty' 2>/dev/null \
+                | head -n 1)
+
+              if [ -n "$failed_step_desc" ]; then
+                echo "$failed_step_desc" > error.txt
+              else
+                echo "$failed_step_id" > error.txt
+              fi
+            else
+              echo "No failed step found" > error.txt
             fi
+
             echo "Extracted errors:"
             cat error.txt
           else
@@ -844,7 +853,7 @@ jobs:
               fi
             fi
             
-            row="<tr> <td style=\\\"text-align: left;\\\">$url</td> <td style=\\\"text-align: left;\\\">$title</td> <td style=\\\"text-align: center;\\\">$label</td> <td style=\\\"text-align: center;\\\">$owner</td> <td style=\\\"text-align: center;\\\">$work_item_url</td> <td style=\\\"text-align: center;\\\">$linked_bugs</td> <td style=\\\"text-align: center;\\\">$duration</td>  <td style=\\\"text-align: center;\\\">$report_url</td> <td style=\\\"text-align: left;\\\">$error_info</td> </tr>"
+            row="<tr> <td style=\\\"text-align: left;\\\">$url</td> <td style=\\\"text-align: center;\\\">$label</td> <td style=\\\"text-align: center;\\\">$owner</td> <td style=\\\"text-align: center;\\\">$work_item_url</td> <td style=\\\"text-align: center;\\\">$linked_bugs</td> <td style=\\\"text-align: center;\\\">$duration</td>  <td style=\\\"text-align: center;\\\">$report_url</td> <td style=\\\"text-align: left;\\\">$error_info</td> </tr>"
             echo "Generated row: $row"
 
             if [[ "$status" == "success" && $passed -lt $passedlimit ]]; then
@@ -859,7 +868,7 @@ jobs:
           echo "Final failed list: $failedlist"
           echo "Final passed list: $passedlist"
 
-          body="<a href=\\\"https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\\\">Test report link.</a>  <br/> <table class=\\\"w3-table w3-striped w3-bordered\\\"> <tr> <th>CASE</th> <th>TITLE</th> <th>STATUS</th> <th>OWNER</th> <th>WORK ITEM</th> <th>LINKED BUG(S)</th> <th>DURATION</th> <th>REPORT</th> <th>ERROR</th> </tr> $lists </table> <br />"
+          body="<a href=\\\"https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\\\">Test report link.</a>  <br/> <table class=\\\"w3-table w3-striped w3-bordered\\\"> <tr> <th>CASE</th> <th>STATUS</th> <th>OWNER</th> <th>WORK ITEM</th> <th>LINKED BUG(S)</th> <th>DURATION</th> <th>REPORT</th> <th>Failed Step</th> </tr> $lists </table> <br />"
           echo "Generated email body: $body"
 
           total=$((passed+failed))
