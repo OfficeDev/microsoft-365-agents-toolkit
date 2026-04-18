@@ -268,8 +268,26 @@ jobs:
         if: always()
         run: |
           if [ -f "packages/tests/vscuse/vscode-test-cases/run_result.txt" ]; then
-            # Extract error messages after "Step step_xxxx:" pattern
-            grep -oP 'Step step_\w+: \K.*' packages/tests/vscuse/vscode-test-cases/run_result.txt > error.txt || true
+            # Required rule:
+            # 1) Find lines containing "Execution failed:" (with optional trailing backslash)
+            # 2) Take the previous line
+            # 3) Extract content after the first ':' from that previous line
+            awk '
+              {
+                if ($0 ~ /Execution failed:\\?/) {
+                  line = prev
+                  sub(/^.*:[[:space:]]*/, "", line)
+                  gsub(/[[:space:]]+$/, "", line)
+                  if (line != "") print line
+                  found = 1
+                }
+                prev = $0
+              }
+              END {
+                if (found != 1) exit 1
+              }
+            ' packages/tests/vscuse/vscode-test-cases/run_result.txt > error.txt || true
+
             if [ ! -s error.txt ]; then
               echo "No errors found" > error.txt
             fi
