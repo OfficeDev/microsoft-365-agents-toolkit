@@ -20,7 +20,7 @@ jobs:
       - name: Generate tag name
         id: tag
         run: |
-          SAFE_BRANCH=$(echo "${{ github.ref_name }}" | sed 's/[^a-zA-Z0-9._-]/-/g')
+          SAFE_BRANCH=$(echo "${{ github.head_ref || github.ref_name }}" | sed 's/[^a-zA-Z0-9._-]/-/g')
           DATETIME=$(date -u +"%Y%m%d%H%M%S")
           TAG_NAME="${SAFE_BRANCH}_${DATETIME}"
           echo "tag_name=${TAG_NAME}" >> "$GITHUB_OUTPUT"
@@ -39,7 +39,7 @@ jobs:
               owner,
               repo,
               workflow_id: 'cd.yml',
-              ref: '${{ github.ref_name }}',
+              ref: '${{ github.head_ref || github.ref_name }}',
               inputs: {
                 preid: 'alpha',
                 series: '${{ steps.tag.outputs.tag_name }}',
@@ -55,7 +55,7 @@ jobs:
               owner,
               repo,
               workflow_id: 'cd.yml',
-              branch: '${{ github.ref_name }}',
+              branch: '${{ github.head_ref || github.ref_name }}',
               per_page: 5
             });
 
