@@ -11,7 +11,8 @@ on:
         description: "Your personal email for test result notification (e.g., yourname@microsoft.com)"
         required: true
         type: string
-
+  pull_request:
+    
 jobs:
   run-cd:
     runs-on: ubuntu-latest
