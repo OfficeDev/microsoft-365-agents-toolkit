@@ -3,14 +3,12 @@ name: Dev Smoke Test Pipeline
 on:
   workflow_dispatch:
     inputs:
-      branch:
-        description: "Your personal dev branch (e.g., user/feature-x)"
-        required: true
-        type: string
       email:
         description: "Your personal email for test result notification (e.g., yourname@microsoft.com)"
         required: true
         type: string
+        default: "qinqiangxu@microsoft.com"
+  pull_request:
 
 jobs:
   run-cd:
@@ -22,7 +20,7 @@ jobs:
       - name: Generate tag name
         id: tag
         run: |
-          SAFE_BRANCH=$(echo "${{ inputs.branch }}" | sed 's/[^a-zA-Z0-9._-]/-/g')
+          SAFE_BRANCH=$(echo "${{ github.ref_name }}" | sed 's/[^a-zA-Z0-9._-]/-/g')
           DATETIME=$(date -u +"%Y%m%d%H%M%S")
           TAG_NAME="${SAFE_BRANCH}_${DATETIME}"
           echo "tag_name=${TAG_NAME}" >> "$GITHUB_OUTPUT"
@@ -41,7 +39,7 @@ jobs:
               owner,
               repo,
               workflow_id: 'cd.yml',
-              ref: '${{ inputs.branch }}',
+              ref: '${{ github.ref_name }}',
               inputs: {
                 preid: 'alpha',
                 series: '${{ steps.tag.outputs.tag_name }}',
@@ -57,7 +55,7 @@ jobs:
               owner,
               repo,
               workflow_id: 'cd.yml',
-              branch: '${{ inputs.branch }}',
+              branch: '${{ github.ref_name }}',
               per_page: 5
             });
 
