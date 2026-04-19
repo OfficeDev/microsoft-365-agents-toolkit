@@ -1,0 +1,5 @@
+{
+    "smokeTestCases": [
+        "Basic_Custom_Engine_Agent_Azure_OpenAI_py_Local_Debug"
+    ]
+}
