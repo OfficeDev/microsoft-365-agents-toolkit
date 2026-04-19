@@ -11,8 +11,7 @@ on:
         description: "Your personal email for test result notification (e.g., yourname@microsoft.com)"
         required: true
         type: string
-  pull_request:
-    
+
 jobs:
   run-cd:
     runs-on: ubuntu-latest
@@ -32,7 +31,7 @@ jobs:
         id: trigger
         uses: actions/github-script@v6
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.GHEC_BOT_PAT }}
           script: |
             const owner = context.repo.owner;
             const repo = context.repo.repo;
@@ -76,7 +75,7 @@ jobs:
       - name: Wait for CD pipeline to complete
         uses: actions/github-script@v6
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.GHEC_BOT_PAT }}
           script: |
             const owner = context.repo.owner;
             const repo = context.repo.repo;
@@ -118,7 +117,7 @@ jobs:
         id: trigger
         uses: actions/github-script@v6
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.GHEC_BOT_PAT }}
           script: |
             const owner = context.repo.owner;
             const repo = context.repo.repo;
@@ -158,7 +157,7 @@ jobs:
       - name: Wait for Docker Build pipeline to complete
         uses: actions/github-script@v6
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.GHEC_BOT_PAT }}
           script: |
             const owner = context.repo.owner;
             const repo = context.repo.repo;
@@ -211,7 +210,7 @@ jobs:
         id: trigger
         uses: actions/github-script@v6
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.GHEC_BOT_PAT }}
           script: |
             const owner = context.repo.owner;
             const repo = context.repo.repo;
@@ -252,7 +251,7 @@ jobs:
       - name: Wait for UI Test pipeline to complete
         uses: actions/github-script@v6
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.GHEC_BOT_PAT }}
           script: |
             const owner = context.repo.owner;
             const repo = context.repo.repo;
