@@ -80,6 +80,7 @@ describe("Package Service", () => {
     sandbox.stub(fs, "readFile").callsFake((file) => {
       return Promise.resolve(Buffer.from("test"));
     });
+    sandbox.stub(fs, "statSync").returns({ size: 1024 } as any);
     sandbox.stub(axios, "create").returns(testAxiosInstance);
 
     setTools({} as any);
@@ -2089,6 +2090,7 @@ describe("Package Service", () => {
   });
 
   it("sideLoading should throw when package exceeds 10 MB", async () => {
+    (fs.statSync as any).restore();
     sandbox.stub(fs, "statSync").returns({ size: 15 * 1024 * 1024 } as any);
 
     const packageService = new PackageService("https://test-endpoint", logger);
@@ -2105,6 +2107,7 @@ describe("Package Service", () => {
   });
 
   it("sideLoadXmlManifest should throw when package exceeds 10 MB", async () => {
+    (fs.statSync as any).restore();
     sandbox.stub(fs, "statSync").returns({ size: 15 * 1024 * 1024 } as any);
 
     const packageService = new PackageService("https://test-endpoint", logger);
