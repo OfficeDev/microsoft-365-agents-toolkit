@@ -2594,8 +2594,8 @@ describe("teamsApp/createAppPackage", async () => {
     });
   });
 
-  describe("maxPackageSizeInBytes", () => {
-    it("should fail when zip exceeds maxPackageSizeInBytes", async () => {
+  describe("package size limit", () => {
+    it("should fail when zip exceeds 10 MB", async () => {
       const manifest = {
         manifestVersion: "1.16",
         icons: {
@@ -2618,7 +2618,6 @@ describe("teamsApp/createAppPackage", async () => {
         outputZipPath:
           "./tests/plugins/resource/appstudio/resources-multi-env/build/appPackage/appPackage.dev.zip",
         outputFolder: "./tests/plugins/resource/appstudio/resources-multi-env/build/appPackage",
-        maxPackageSizeInBytes: 10 * 1024 * 1024,
       };
 
       const result = (await teamsAppDriver.execute(args, mockedDriverContext)).result;
@@ -2630,7 +2629,7 @@ describe("teamsApp/createAppPackage", async () => {
       await fs.remove(args.outputZipPath);
     });
 
-    it("should succeed when zip is within maxPackageSizeInBytes", async () => {
+    it("should succeed when zip is within 10 MB", async () => {
       const manifest = {
         manifestVersion: "1.16",
         icons: {
@@ -2646,38 +2645,6 @@ describe("teamsApp/createAppPackage", async () => {
       sinon.stub(fs, "writeFile").callsFake(async () => {});
       // Stub fs.stat to return a small file size
       sinon.stub(fs, "stat").resolves({ size: 1024 * 1024, mode: 0o644 } as any);
-
-      const args: CreateAppPackageArgs = {
-        manifestPath:
-          "./tests/plugins/resource/appstudio/resources-multi-env/templates/appPackage/v3.manifest.template.json",
-        outputZipPath:
-          "./tests/plugins/resource/appstudio/resources-multi-env/build/appPackage/appPackage.dev.zip",
-        outputFolder: "./tests/plugins/resource/appstudio/resources-multi-env/build/appPackage",
-        maxPackageSizeInBytes: 10 * 1024 * 1024,
-      };
-
-      const result = (await teamsAppDriver.execute(args, mockedDriverContext)).result;
-      if (result.isErr()) {
-        console.log(result.error);
-      }
-      chai.assert.isTrue(result.isOk());
-      await fs.remove(args.outputZipPath);
-    });
-
-    it("should skip size check when maxPackageSizeInBytes is not set", async () => {
-      const manifest = {
-        manifestVersion: "1.16",
-        icons: {
-          color: "resources/color.png",
-          outline: "resources/outline.png",
-        },
-      } as TeamsManifest;
-      sinon.stub(manifestUtils, "getManifestV3").resolves(ok(manifest));
-      sinon.stub(fs, "chmod").callsFake(async () => {});
-      sinon.stub(fs, "existsSync").returns(false);
-      sinon.stub(fs, "pathExists").resolves(true);
-      sinon.stub(utils, "updateVersionForTeamsAppYamlFile").resolves();
-      sinon.stub(fs, "writeFile").callsFake(async () => {});
 
       const args: CreateAppPackageArgs = {
         manifestPath:
