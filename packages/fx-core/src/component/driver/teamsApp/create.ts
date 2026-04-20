@@ -81,7 +81,7 @@ export class CreateTeamsAppDriver implements StepDriver {
       process.env[FeatureFlagName.SovereignCloudEnvironment] === SovereignCloudEnvironment.DOD
     ) {
       context.logProvider.warning(
-        `Skipping ${actionName} as the required Developer Portal API is not yet available in GCC H and DoD. App ID will be generated locally later.`
+        getLocalizedString("driver.teamsApp.warning.createUnsupportedCloud", actionName)
       );
       return ok(new Map<string, string>());
     }
