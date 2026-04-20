@@ -198,11 +198,11 @@ export class PackageService {
     packagePath: string,
     appScope = AppScope.Personal
   ): Promise<[string, string, string]> {
+    this.validatePackageSize(packagePath);
     const manifest = this.getManifestFromZip(packagePath);
     if (!manifest) {
       throw new Error("Invalid app package zip. manifest.json is missing");
     }
-    this.validatePackageSize(packagePath);
     const isDelcarativeAgentApp = IsDeclarativeAgentManifest(manifest);
     if (isDelcarativeAgentApp) {
       const res = await this.sideLoadingV2(token, packagePath, appScope);
