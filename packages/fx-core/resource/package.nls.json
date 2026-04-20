@@ -899,7 +899,7 @@
   "error.teamsApp.InvalidAppIdError": "App ID %s is invalid, must be a GUID.",
   "error.teamsApp.createAppPackage.invalidFile": "%s is invalid, it should be in the same directory as manifest.json or a subdirectory of it.",
   "error.teamsApp.createAppPackage.packageSizeExceeded": "The generated app package (%s MB) exceeds the maximum allowed size of %s MB. Reduce the package contents or increase the maxPackageSizeInBytes limit.",
-  "error.m365.packageService.packageSizeExceeded": "The app package (%s MB) exceeds the maximum size supported by the MOS API (%s MB). Reduce the package contents before uploading.",
+  "error.m365.packageService.packageSizeExceeded": "The app package (%s MB) exceeds the maximum supported size (%s MB). Reduce the package contents before uploading.",
   "driver.botFramework.description": "creates or updates the bot registration on dev.botframework.com",
   "driver.botFramework.summary.create": "The bot registration has been created successfully (%s).",
   "driver.botFramework.summary.update": "The bot registration has been updated successfully (%s).",
