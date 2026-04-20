@@ -67,7 +67,7 @@ describe("fetcher", () => {
       // Test app_manifest with 'latest' version
       await fetchSchema("app_manifest", "latest");
       expect(global.fetch).toHaveBeenCalledWith(
-        "https://developer.microsoft.com/json-schemas/teams/v1.25/MicrosoftTeams.schema.json"
+        "https://developer.microsoft.com/json-schemas/teams/v1.26/MicrosoftTeams.schema.json"
       );
 
       jest.clearAllMocks();
