@@ -421,12 +421,11 @@ export class CreateAppPackageDriver implements StepDriver {
 
     zip.writeZip(zipFileName);
 
-    // Validate zip package size against configured limit
-    if (args.maxPackageSizeInBytes !== undefined && args.maxPackageSizeInBytes > 0) {
-      const zipStats = await fs.stat(zipFileName);
-      if (zipStats.size > args.maxPackageSizeInBytes) {
-        return err(new AppPackageSizeExceededError(zipStats.size, args.maxPackageSizeInBytes));
-      }
+    // Validate zip package size against 10 MB hard limit
+    const maxPackageSize = 10 * 1024 * 1024;
+    const zipStats = await fs.stat(zipFileName);
+    if (zipStats.size > maxPackageSize) {
+      return err(new AppPackageSizeExceededError(zipStats.size, maxPackageSize));
     }
 
     await this.writeJsonFile(teamsManifestJsonFileName, JSON.stringify(manifest, null, 4));
