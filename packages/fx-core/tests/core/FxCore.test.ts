@@ -6582,7 +6582,8 @@ describe("addKnowledge", async () => {
       [QuestionNames.Folder]: os.tmpdir(),
       [QuestionNames.ManifestPath]: "manifest.json",
       [QuestionNames.KnowledgeSource]: KnowledgeSourceOptions.webSearch().id,
-      [QuestionNames.SearchType]: KnowledgeSearchTypeOptions.url(),
+      [QuestionNames.SearchType]: KnowledgeSearchTypeOptions.url().id,
+      [QuestionNames.WebContent]: searchUrl,
       webSearchUrl: searchUrl,
       projectPath: path.join(os.tmpdir(), appName),
     };
@@ -6638,7 +6639,8 @@ describe("addKnowledge", async () => {
       [QuestionNames.Folder]: os.tmpdir(),
       [QuestionNames.ManifestPath]: "manifest.json",
       [QuestionNames.KnowledgeSource]: KnowledgeSourceOptions.webSearch().id,
-      [QuestionNames.SearchType]: KnowledgeSearchTypeOptions.url(),
+      [QuestionNames.SearchType]: KnowledgeSearchTypeOptions.url().id,
+      [QuestionNames.WebContent]: searchUrl,
       webSearchUrl: searchUrl,
       projectPath: path.join(os.tmpdir(), appName),
     };
