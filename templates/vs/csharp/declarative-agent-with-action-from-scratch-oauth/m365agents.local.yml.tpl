@@ -148,7 +148,7 @@ provision:
       appPackagePath: ./appPackage/build/appPackage.${{TEAMSFX_ENV}}.zip
 
   # Extend your Teams app to Outlook and the Microsoft 365 app
-  - uses: teamsApp/extendToM365
+  - uses: copilotAgent/publish
     with:
       # Relative path to the build app package.
       appPackagePath: ./appPackage/build/appPackage.${{TEAMSFX_ENV}}.zip
