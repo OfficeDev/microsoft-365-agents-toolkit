@@ -11,7 +11,7 @@
     },
     "total_steps": 40,
     "created_at": "2026-04-20T05:02:40.310084",
-    "name": "Simple Bot ts Local Debug With Different Account",
+    "name": "Feature Simple Bot ts Local Debug With Different Account",
     "description": {
       "other": "",
       "owner": "v-cheye@microsoft.com",
@@ -66,7 +66,7 @@
       "step_c6c84749"
     ],
     "tags": [],
-    "updated_at": "2026-04-20T06:46:52.743683"
+    "updated_at": "2026-04-20T06:47:37.565693"
   },
   "steps": [
     {
