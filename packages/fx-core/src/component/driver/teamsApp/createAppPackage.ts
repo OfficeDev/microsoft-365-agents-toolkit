@@ -27,7 +27,7 @@ import { featureFlagManager, FeatureFlags } from "../../../common/featureFlags";
 import { ErrorContextMW } from "../../../common/globalVars";
 import { getLocalizedString } from "../../../common/localizeUtils";
 import { FileNotFoundError, InvalidActionInputError, JSONSyntaxError } from "../../../error/common";
-import { InvalidFileOutsideOfTheDirectotryError } from "../../../error/teamsApp";
+import { InvalidFileOutsideOfTheDirectotryError, AppPackageSizeExceededError } from "../../../error/teamsApp";
 import { getAbsolutePath } from "../../utils/common";
 import { expandVariableWithFunction, ManifestType } from "../../utils/envFunctionUtils";
 import { DriverContext } from "../interface/commonArgs";
@@ -387,6 +387,14 @@ export class CreateAppPackageDriver implements StepDriver {
     }
 
     zip.writeZip(zipFileName);
+
+    // Validate zip package size against configured limit
+    if (args.maxPackageSizeInBytes !== undefined && args.maxPackageSizeInBytes > 0) {
+      const zipStats = await fs.stat(zipFileName);
+      if (zipStats.size > args.maxPackageSizeInBytes) {
+        return err(new AppPackageSizeExceededError(zipStats.size, args.maxPackageSizeInBytes));
+      }
+    }
 
     await this.writeJsonFile(teamsManifestJsonFileName, JSON.stringify(manifest, null, 4));
 
