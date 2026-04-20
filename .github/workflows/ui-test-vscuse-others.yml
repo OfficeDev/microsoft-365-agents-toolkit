@@ -258,10 +258,62 @@ jobs:
           echo "Using image tag: ${{ github.event.inputs.image_tag || 'latest' }}"
           echo "Test execution started at: $(date)"
 
+          set -o pipefail
           cd packages/tests/vscuse/vscode-test-cases
           python -m venv .venv
           source .venv/bin/activate
-          vscuse execute --config-file ./config.yaml --groups-dir groups ./plans/${{ matrix.test_plan }}.json
+          vscuse execute --config-file ./config.yaml --groups-dir groups ./plans/${{ matrix.test_plan }}.json 2>&1 | tee run_result.txt
+
+      - name: Extract errors from run result
+        if: always()
+        run: |
+          if [ -f "packages/tests/vscuse/vscode-test-cases/run_result.txt" ]; then
+            ROOT_DIR="packages/tests/vscuse/vscode-test-cases"
+            RUN_RESULT="$ROOT_DIR/run_result.txt"
+
+            # 1) Find line containing "Execution failed:" (optional trailing backslash)
+            # 2) Take previous line and extract step_id (step_xxxxx)
+            failed_step_id=$(awk '
+              {
+                if ($0 ~ /Execution failed:\\?/) {
+                  if (match(prev, /step_[A-Za-z0-9]+/)) {
+                    print substr(prev, RSTART, RLENGTH)
+                    exit
+                  }
+                }
+                prev = $0
+              }
+            ' "$RUN_RESULT")
+
+            if [ -n "$failed_step_id" ]; then
+              # Search all JSON files under vscode-test-cases and get matching step description
+              failed_step_desc=$(find "$ROOT_DIR" -type f -name "*.json" -print0 \
+                | xargs -0 jq -r --arg sid "$failed_step_id" '.. | objects | select(.step_id? == $sid) | .description // empty' 2>/dev/null \
+                | head -n 1)
+
+              if [ -n "$failed_step_desc" ]; then
+                echo "$failed_step_desc" > error.txt
+              else
+                echo "$failed_step_id" > error.txt
+              fi
+            else
+              echo "No failed step found" > error.txt
+            fi
+
+            echo "Extracted errors:"
+            cat error.txt
+          else
+            echo "No run_result.txt found" > error.txt
+          fi
+
+      - name: Upload error file
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: error-file-${{ matrix.test_plan }}-${{ github.run_id }}
+          path: error.txt
+          retention-days: 7
+          if-no-files-found: ignore
 
       - name: Rename test_report.html to index.html
         if: always()
@@ -421,6 +473,12 @@ jobs:
           pattern: storage-url-*
           path: /tmp/storage-urls
 
+      - name: Download error files
+        uses: actions/download-artifact@v4
+        with:
+          pattern: error-file-*
+          path: /tmp/error-files
+
       - name: Process storage URLs
         shell: bash
         run: |
@@ -472,6 +530,47 @@ jobs:
             echo "No storage URL artifacts found"
             echo "{}" > /tmp/url_mapping.json
           fi
+
+      - name: Process error files
+        shell: bash
+        run: |
+          if [ -d "/tmp/error-files" ]; then
+            echo "Found error files folder. Processing contents..."
+
+            # Find and extract all zip files
+            find /tmp/error-files -name "*.zip" -exec unzip -o {} -d /tmp/error-files \;
+
+            # Create a JSON object from all error.txt files
+            echo "{" > /tmp/error_mapping.json
+            first_entry=true
+
+            find /tmp/error-files -type f -name "error.txt" | while read file; do
+              dir_name=$(basename $(dirname "$file"))
+              run_id=$(echo "$dir_name" | rev | cut -d'-' -f1 | rev)
+              test_plan=$(echo "$dir_name" | sed "s/^error-file-//" | sed "s/-${run_id}$//")
+              case_run_id="${test_plan}-${run_id}"
+
+              echo "Processing error: dir_name=$dir_name, test_plan=$test_plan, run_id=$run_id, case_run_id=$case_run_id"
+
+              content=$(cat "$file" | tr -d '\n' | tr -d '\r' | sed 's/"/\\"/g')
+
+              if [ "$first_entry" = true ]; then
+                first_entry=false
+              else
+                echo "," >> /tmp/error_mapping.json
+              fi
+
+              echo "  \"$case_run_id\": \"$content\"" >> /tmp/error_mapping.json
+            done
+
+            echo "}" >> /tmp/error_mapping.json
+
+            echo "Generated error JSON mapping:"
+            cat /tmp/error_mapping.json
+          else
+            echo "No error file artifacts found"
+            echo "{}" > /tmp/error_mapping.json
+          fi
       - name: Install Dateutils
         run: |
           sudo apt install dateutils
@@ -488,6 +587,7 @@ jobs:
           echo "Initial jobs: $jobs"
           
           report_map_json_file_path="/tmp/url_mapping.json"
+          error_map_json_file_path="/tmp/error_mapping.json"
           
           # Function to query Azure DevOps for bugs with specific tag
           query_bugs_by_tag() {
@@ -656,6 +756,12 @@ jobs:
             fi
             echo "Report URL: $report_url"
 
+            error_info=$(jq -r --arg key "$lookup_key" '.[$key]' "$error_map_json_file_path")
+            if [ -z "$error_info" ] || [ "$error_info" = "null" ]; then
+              error_info=""
+            fi
+            echo "Error Info: $error_info"
+
             if [[ -n "$email" && ! "$emails" == *"$email"* && "$status" == "failure" ]]; then
               emails="$emails;$email;"
             fi
@@ -747,7 +853,7 @@ jobs:
               fi
             fi
             
-            row="<tr> <td style=\\\"text-align: left;\\\">$url</td> <td style=\\\"text-align: left;\\\">$title</td> <td style=\\\"text-align: center;\\\">$label</td> <td style=\\\"text-align: center;\\\">$owner</td> <td style=\\\"text-align: center;\\\">$work_item_url</td> <td style=\\\"text-align: center;\\\">$linked_bugs</td> <td style=\\\"text-align: center;\\\">$duration</td>  <td style=\\\"text-align: center;\\\">$report_url</td> </tr>"
+            row="<tr> <td style=\\\"text-align: left;\\\">$url</td> <td style=\\\"text-align: center;\\\">$label</td> <td style=\\\"text-align: center;\\\">$owner</td> <td style=\\\"text-align: center;\\\">$work_item_url</td> <td style=\\\"text-align: center;\\\">$linked_bugs</td> <td style=\\\"text-align: center;\\\">$duration</td>  <td style=\\\"text-align: center;\\\">$report_url</td> <td style=\\\"text-align: left;\\\">$error_info</td> </tr>"
             echo "Generated row: $row"
 
             if [[ "$status" == "success" && $passed -lt $passedlimit ]]; then
@@ -762,7 +868,7 @@ jobs:
           echo "Final failed list: $failedlist"
           echo "Final passed list: $passedlist"
 
-          body="<a href=\\\"https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\\\">Test report link.</a>  <br/> <table class=\\\"w3-table w3-striped w3-bordered\\\"> <tr> <th>CASE</th> <th>TITLE</th> <th>STATUS</th> <th>OWNER</th> <th>WORK ITEM</th> <th>LINKED BUG(S)</th> <th>DURATION</th> <th>REPORT</th> </tr> $lists </table> <br />"
+          body="<a href=\\\"https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\\\">Test report link.</a>  <br/> <table class=\\\"w3-table w3-striped w3-bordered\\\"> <tr> <th>CASE</th> <th>STATUS</th> <th>OWNER</th> <th>WORK ITEM</th> <th>LINKED BUG(S)</th> <th>DURATION</th> <th>REPORT</th> <th>Failed Step</th> </tr> $lists </table> <br />"
           echo "Generated email body: $body"
 
           total=$((passed+failed))
