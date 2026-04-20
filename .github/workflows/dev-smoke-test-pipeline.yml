@@ -17,6 +17,13 @@ jobs:
       run_id: ${{ steps.trigger.outputs.run_id }}
       tag_name: ${{ steps.tag.outputs.tag_name }}
     steps:
+      - name: Generate GitHub App token
+        id: generate-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ vars.APP_GITHUB_APP_ID }}
+          private-key: ${{ secrets.APP_GITHUB_APP_PRIVATE_KEY }}
+
       - name: Generate tag name
         id: tag
         run: |
@@ -29,7 +36,7 @@ jobs:
         id: trigger
         uses: actions/github-script@v6
         with:
-          github-token: ${{ secrets.GHEC_BOT_PAT }}
+          github-token: ${{ steps.generate-token.outputs.token }}
           script: |
             const owner = context.repo.owner;
             const repo = context.repo.repo;
@@ -73,7 +80,7 @@ jobs:
       - name: Wait for CD pipeline to complete
         uses: actions/github-script@v6
         with:
-          github-token: ${{ secrets.GHEC_BOT_PAT }}
+          github-token: ${{ steps.generate-token.outputs.token }}
           script: |
             const owner = context.repo.owner;
             const repo = context.repo.repo;
@@ -111,11 +118,18 @@ jobs:
     outputs:
       run_id: ${{ steps.trigger.outputs.run_id }}
     steps:
+      - name: Generate GitHub App token
+        id: generate-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ vars.APP_GITHUB_APP_ID }}
+          private-key: ${{ secrets.APP_GITHUB_APP_PRIVATE_KEY }}
+
       - name: Trigger Docker Build pipeline
         id: trigger
         uses: actions/github-script@v6
         with:
-          github-token: ${{ secrets.GHEC_BOT_PAT }}
+          github-token: ${{ steps.generate-token.outputs.token }}
           script: |
             const owner = context.repo.owner;
             const repo = context.repo.repo;
@@ -155,7 +169,7 @@ jobs:
       - name: Wait for Docker Build pipeline to complete
         uses: actions/github-script@v6
         with:
-          github-token: ${{ secrets.GHEC_BOT_PAT }}
+          github-token: ${{ steps.generate-token.outputs.token }}
           script: |
             const owner = context.repo.owner;
             const repo = context.repo.repo;
@@ -191,6 +205,13 @@ jobs:
     needs: [run-cd, run-docker-build]
     runs-on: ubuntu-latest
     steps:
+      - name: Generate GitHub App token
+        id: generate-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ vars.APP_GITHUB_APP_ID }}
+          private-key: ${{ secrets.APP_GITHUB_APP_PRIVATE_KEY }}
+
       - name: Checkout repo to read test cases
         uses: actions/checkout@v4
         with:
@@ -208,7 +229,7 @@ jobs:
         id: trigger
         uses: actions/github-script@v6
         with:
-          github-token: ${{ secrets.GHEC_BOT_PAT }}
+          github-token: ${{ steps.generate-token.outputs.token }}
           script: |
             const owner = context.repo.owner;
             const repo = context.repo.repo;
@@ -249,7 +270,7 @@ jobs:
       - name: Wait for UI Test pipeline to complete
         uses: actions/github-script@v6
         with:
-          github-token: ${{ secrets.GHEC_BOT_PAT }}
+          github-token: ${{ steps.generate-token.outputs.token }}
           script: |
             const owner = context.repo.owner;
             const repo = context.repo.repo;
