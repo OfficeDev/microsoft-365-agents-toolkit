@@ -2099,8 +2099,7 @@
             },
             "scope": {
               "type": "string",
-              "description": "Scope of the agent. 'personal' is only visible to the owners. 'shared' can be visible to other users in the tenant. 'tenant' is visible to all users in the tenant. Default is 'personal'.",
-              "enum": ["personal", "shared", "tenant"]
+              "description": "Scope of the agent. 'personal' is only visible to the owners. 'shared' can be visible to other users in the tenant. 'tenant' is visible to all users in the tenant. Default is 'personal'."
             }
           }
         },
