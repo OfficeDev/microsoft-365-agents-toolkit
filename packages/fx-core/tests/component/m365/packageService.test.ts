@@ -2087,4 +2087,36 @@ describe("Package Service", () => {
     chai.assert.equal(result, "https://test-url");
     chai.assert.equal(callCount, 2);
   });
+
+  it("sideLoading should throw when package exceeds 10 MB", async () => {
+    sandbox.stub(fs, "statSync").returns({ size: 15 * 1024 * 1024 } as any);
+
+    const packageService = new PackageService("https://test-endpoint", logger);
+    let actualError: Error | undefined;
+    try {
+      await packageService.sideLoading("test-token", "test-path");
+    } catch (error: any) {
+      actualError = error;
+    }
+
+    chai.assert.isDefined(actualError);
+    chai.assert.instanceOf(actualError, UserError);
+    chai.assert.equal((actualError as UserError).name, "AppPackageSizeExceeded");
+  });
+
+  it("sideLoadXmlManifest should throw when package exceeds 10 MB", async () => {
+    sandbox.stub(fs, "statSync").returns({ size: 15 * 1024 * 1024 } as any);
+
+    const packageService = new PackageService("https://test-endpoint", logger);
+    let actualError: Error | undefined;
+    try {
+      await packageService.sideLoadXmlManifest("test-token", "test-path");
+    } catch (error: any) {
+      actualError = error;
+    }
+
+    chai.assert.isDefined(actualError);
+    chai.assert.instanceOf(actualError, UserError);
+    chai.assert.equal((actualError as UserError).name, "AppPackageSizeExceeded");
+  });
 });
