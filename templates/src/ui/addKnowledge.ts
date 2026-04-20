@@ -68,9 +68,7 @@ export const addKnowledgeNode = {
     {
       node: "selectTeamsAppManifestNode",
       condition: { equals: "embedded-knowledge" },
-      children: [
-        { node: "embeddedKnowledgeNode" },
-      ],
+      children: [{ node: "embeddedKnowledgeNode" }],
     },
   ],
 };

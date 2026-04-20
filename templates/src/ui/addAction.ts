@@ -12,7 +12,7 @@
 export const addActionNode = {
   data: {
     type: "singleSelect",
-    name: "action-type",
+    name: "api-plugin-type",
     title: "core.createProjectQuestion.addApiPlugin.title",
     placeholder: "template.createProjectQuestion.addApiPlugin.placeholder",
     options: [
