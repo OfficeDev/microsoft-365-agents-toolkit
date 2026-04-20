@@ -807,10 +807,16 @@ class Coordinator {
         } else {
           const msg = getLocalizedString("core.common.LifecycleComplete.publish", steps, steps);
           const adminPortal = getLocalizedString("plugins.appstudio.adminPortal");
+          const isCopilotAgentPublish = projectModel.publish.driverDefs.some(
+            (def) => def.uses === "copilotAgent/publish"
+          );
+          const portalUrl = isCopilotAgentPublish
+            ? Constants.MICROSOFT_ADMIN_CENTER
+            : Constants.TEAMS_ADMIN_PORTAL;
           if (ctx.platform !== Platform.CLI) {
             ctx.ui?.showMessage("info", msg, false, adminPortal).then((value) => {
               if (value.isOk() && value.value === adminPortal) {
-                void ctx.ui!.openUrl(Constants.TEAMS_ADMIN_PORTAL);
+                void ctx.ui!.openUrl(portalUrl);
               }
             });
           } else {

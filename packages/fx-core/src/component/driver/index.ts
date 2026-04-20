@@ -12,6 +12,7 @@ import "./apiKey/update";
 import "./arm/deploy";
 import "./botAadApp/create";
 import "./botFramework/createOrUpdateBot";
+import "./copilotAgent/publish";
 import "./deploy/azure/azureAppServiceDeployDriver";
 import "./deploy/azure/azureFunctionDeployDriver";
 import "./deploy/azure/azureStaticWebAppGetDeploymentTokenDriver";

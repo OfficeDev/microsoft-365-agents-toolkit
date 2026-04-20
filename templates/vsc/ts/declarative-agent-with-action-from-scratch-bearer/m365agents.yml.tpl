@@ -1,7 +1,7 @@
-# yaml-language-server: $schema=https://aka.ms/m365-agents-toolkits/v1.11/yaml.schema.json
+# yaml-language-server: $schema=https://aka.ms/m365-agents-toolkits/v1.12/yaml.schema.json
 # Visit https://aka.ms/teamsfx-v5.0-guide for details on this file
 # Visit https://aka.ms/teamsfx-actions for details on actions
-version: v1.11
+version: v1.12
 
 environmentFolderPath: ./env
 
@@ -82,7 +82,7 @@ provision:
       appPackagePath: ./appPackage/build/appPackage.${{TEAMSFX_ENV}}.zip
 
   # Extend your app to Outlook and the Microsoft 365 app
-  - uses: teamsApp/extendToM365
+  - uses: copilotAgent/publish
     with:
       # Relative path to the build app package.
       appPackagePath: ./appPackage/build/appPackage.${{TEAMSFX_ENV}}.zip
@@ -143,14 +143,14 @@ publish:
     with:
       # Relative path to this file. This is the path for built zip file.
       appPackagePath: ./appPackage/build/appPackage.${{TEAMSFX_ENV}}.zip
-  # Publish the app to
-  # Teams Admin Center (https://admin.teams.microsoft.com/policies/manage-apps)
-  # for review and approval
-  - uses: teamsApp/publishAppPackage
+  # Publish the agent to tenant app catalog
+  - uses: copilotAgent/publish
     with:
       appPackagePath: ./appPackage/build/appPackage.${{TEAMSFX_ENV}}.zip
+      scope: tenant
     # Write the information of created resources into environment file for
     # the specified environment variable(s).
     writeToEnvironmentFile:
-      publishedAppId: TEAMS_APP_PUBLISHED_APP_ID
+      titleId: M365_PUBLISHED_TITLE_ID
+      appId: M365_PUBLISHED_APP_ID
 
