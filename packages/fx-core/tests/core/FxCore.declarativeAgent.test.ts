@@ -2804,7 +2804,7 @@ describe("addPlugin", async () => {
     }
   });
 
-  it("from MCP: VSCode platform shows success message with open file option", async () => {
+  it("from MCP: VSCode platform writes .vscode/mcp.json and skips manifest creation", async () => {
     const appName = await mockV3Project();
     const projectPath = path.join(os.tmpdir(), appName);
     const inputs: Inputs = {
@@ -2813,54 +2813,43 @@ describe("addPlugin", async () => {
       [QuestionNames.TeamsAppManifestFilePath]: "manifest.json",
       [QuestionNames.ActionType]: ActionStartOptions.mcp().id,
       [QuestionNames.MCPForDAServerUrl]: "https://example.com/mcp",
-      [QuestionNames.MCPToolsFilePath]: "",
-      [QuestionNames.MCPForDAAuthType]: "oauth",
-      [QuestionNames.MCPForDAAvailableTools]: [{ name: "search", description: "Search" }],
-      [QuestionNames.MCPForDAPreFetchTools]: ["search"],
       projectPath,
     };
 
-    const manifest = new TeamsAppManifest();
-    manifest.copilotExtensions = {
-      declarativeCopilots: [{ file: "test1.json", id: "action_1" }],
-    };
-
     sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
-    sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
-    sandbox.stub(copilotGptManifestUtils, "getManifestPath").resolves(ok("dcManifest.json"));
-    sandbox
-      .stub(copilotGptManifestUtils, "readCopilotGptManifestFile")
-      .resolves(ok({} as DeclarativeCopilotManifestSchema));
-    sandbox
-      .stub(copilotGptManifestUtils, "getDefaultNextAvailablePluginManifestPath")
-      .resolves("ai-plugin_1.json");
-    sandbox
-      .stub(copilotGptManifestUtils, "addAction")
-      .resolves(ok({} as DeclarativeCopilotManifestSchema));
-
-    const showMessageStub = sandbox
-      .stub(addPluginTools.ui, "showMessage")
-      .callsFake((level, message, modal, items) => {
-        if (level === "info") {
-          return Promise.resolve(
-            ok(getLocalizedString("core.addPlugin.success.viewPluginManifest"))
-          );
-        } else if (level === "warn") {
-          return Promise.resolve(ok("Add"));
+    const realEnsureDir = fs.ensureDir.bind(fs);
+    const ensureDirStub = sandbox.stub(fs, "ensureDir").callsFake(async (p: any) => {
+      if (typeof p === "string" && p.includes(".vscode")) {
+        return;
+      }
+      return (realEnsureDir as any)(p);
+    });
+    const realWriteJSON = fs.writeJSON.bind(fs);
+    const writeJSONStub = sandbox
+      .stub(fs, "writeJSON")
+      .callsFake(async (p: any, data: any, opts?: any) => {
+        if (typeof p === "string" && p.includes("mcp.json")) {
+          return;
         }
-        return Promise.resolve(ok(""));
+        return (realWriteJSON as any)(p, data, opts);
       });
-
+    const showMessageStub = sandbox.stub(addPluginTools.ui, "showMessage");
     const openFileStub = sandbox.stub(addPluginTools.ui, "openFile").resolves();
-    sandbox.stub(fs, "ensureFile").resolves();
-    sandbox.stub(fs, "writeJSON").resolves();
 
     const core = new FxCore(addPluginTools);
     const result = await core.addPlugin(inputs);
 
     assert.isTrue(result.isOk());
-    assert.isTrue(showMessageStub.calledTwice);
-    assert.isTrue(openFileStub.calledOnce);
+    if (result.isOk()) {
+      assert.equal((result.value as any).kind, "mcp");
+      assert.isString((result.value as any).mcpConfigPath);
+    }
+    // VS Code MCP add-action flow defers manifest creation to "Update action with MCP".
+    // It should only write .vscode/mcp.json and surface no UI prompts itself.
+    assert.isTrue(ensureDirStub.getCalls().some((c) => String(c.args[0]).includes(".vscode")));
+    assert.isTrue(writeJSONStub.getCalls().some((c) => String(c.args[0]).includes("mcp.json")));
+    assert.isTrue(showMessageStub.notCalled);
+    assert.isTrue(openFileStub.notCalled);
 
     if (await fs.pathExists(projectPath)) {
       await fs.remove(projectPath);
