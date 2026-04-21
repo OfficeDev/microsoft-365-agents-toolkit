@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "sources": {
+    "slack-plus-teams-experts": {
+      "lastSyncedCommit": "9ee143ba47bc28dd1eccf19cdbafffeddd51b4ab",
+      "lastSyncedAt": "2026-04-21T02:21:41Z"
+    },
+    "slack-plus-teams-docs": {
+      "lastSyncedCommit": "9ee143ba47bc28dd1eccf19cdbafffeddd51b4ab",
+      "lastSyncedAt": "2026-04-21T02:21:44Z"
+    }
+  }
+}
