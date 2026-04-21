@@ -282,11 +282,7 @@ async function generateAccountHint(includeTenantId = true): Promise<string> {
       // ignore error
     }
   }
-  if (includeTenantId && tenantId) {
-    return loginHint ? `tenantId=${tenantId}&appTenantId=${tenantId}&login_hint=${loginHint}` : "";
-  } else {
-    return loginHint ? `login_hint=${loginHint}` : "";
-  }
+  return loginHint ? `login_hint=${loginHint}` : "";
 }
 
 async function generateAgentHint(projectPath: string, env: string | undefined): Promise<string> {
