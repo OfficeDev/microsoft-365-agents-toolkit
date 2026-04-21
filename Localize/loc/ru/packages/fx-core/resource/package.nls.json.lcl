@@ -3841,6 +3841,15 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";core.createProjectQuestion.oneDriveSharePointItem.confirm" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Confirm your selection]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Подтвердите выбор]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";core.createProjectQuestion.oneDriveSharePointItem.placeholder" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Enter a URL to OneDrive or SharePoint]]></Val>
@@ -3864,6 +3873,15 @@
           <Val><![CDATA[Preview]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Предварительный просмотр]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.option.description.previewOnWindow" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Preview on Windows]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Предварительный просмотр в Windows]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -7984,6 +8002,15 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";driver.typeSpec.compile.description" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Compile TypeSpec project]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Скомпилировать проект TypeSpec]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";driver.typeSpec.compile.reprovision" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[File %s is updated. A new provision process has started to apply the changes.]]></Val>
@@ -9516,6 +9543,15 @@
           <Val><![CDATA[Unable to find template: %s.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Не удалось найти шаблон: %s.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.generator.UnknownPolicy" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unknown auth policy: %s]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Неизвестная политика проверки подлинности: %s]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
