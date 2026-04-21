@@ -612,7 +612,7 @@
         "x": 693,
         "y": 580
       },
-      "description": "Click the \"Submit\" button in the form dialog of the \"vscuse_app_CqkwDlocal\" bot interface within Microsoft Teams web application.",
+      "description": "Click the \"Submit\" button in the form dialog of the bot interface within Microsoft Teams web application.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
