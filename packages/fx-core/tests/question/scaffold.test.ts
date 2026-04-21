@@ -71,6 +71,7 @@ import {
   updateActionWithMCP,
   getTeamsProjectNode,
   TeamsProjectTypeOptions,
+  CreateNewPluginManifestSentinel,
 } from "../../src/question/scaffold/vsc/teamsProjectTypeNode";
 
 describe("vsc", () => {
@@ -899,18 +900,10 @@ describe("updateActionWithMCP", () => {
     assert.include(folder, "my");
     assert.include(folder, "project");
   });
-  it("default returns path joining projectPath with AppPackageFolderName and DefaultPluginManifestFileName", () => {
+  it("child[1] dynamicOptions maps MCPForDAAvailableTools to OptionItems", () => {
     const node = updateActionWithMCP();
-    const data = node.data as any;
-    const inputs: Inputs = { platform: Platform.CLI, projectPath: "/my/project" };
-    const defaultPath = data.default(inputs) as string;
-    assert.include(defaultPath, AppPackageFolderName);
-    assert.include(defaultPath, DefaultPluginManifestFileName);
-  });
-  it("child[0] dynamicOptions maps MCPForDAAvailableTools to OptionItems", () => {
-    const node = updateActionWithMCP();
-    const child0 = node.children![0];
-    const data = child0.data as any;
+    const child1 = node.children![1];
+    const data = child1.data as any;
     const inputs: Inputs = {
       platform: Platform.CLI,
       [QuestionNames.MCPForDAAvailableTools]: [
@@ -926,7 +919,7 @@ describe("updateActionWithMCP", () => {
     assert.equal(options[1].id, "toolB");
     assert.equal(options[1].detail, "");
   });
-  it("child[0] async default reads manifest and filters by serverUrl", async () => {
+  it("child[1] async default reads manifest and filters by serverUrl", async () => {
     const mockManifest = {
       runtimes: [
         {
@@ -941,10 +934,11 @@ describe("updateActionWithMCP", () => {
         },
       ],
     };
+    sandbox.stub(fs, "pathExists").resolves(true);
     sandbox.stub(fs, "readJSON").resolves(mockManifest);
     const node = updateActionWithMCP();
-    const child0 = node.children![0];
-    const data = child0.data as any;
+    const child1 = node.children![1];
+    const data = child1.data as any;
     const inputs: Inputs = {
       platform: Platform.CLI,
       [QuestionNames.PluginManifestFilePath]: "/my/plugin.json",
@@ -954,10 +948,10 @@ describe("updateActionWithMCP", () => {
     const result = await data.default(inputs);
     assert.deepEqual(result, ["f1", "f2"]);
   });
-  it("child[0] async default returns empty array when no manifest path", async () => {
+  it("child[1] async default returns empty array when no manifest path", async () => {
     const node = updateActionWithMCP();
-    const child0 = node.children![0];
-    const data = child0.data as any;
+    const child1 = node.children![1];
+    const data = child1.data as any;
     const inputs: Inputs = {
       platform: Platform.CLI,
       [QuestionNames.MCPForDAAvailableTools]: [],
@@ -965,20 +959,20 @@ describe("updateActionWithMCP", () => {
     const result = await data.default(inputs);
     assert.deepEqual(result, []);
   });
-  it("child[1] condition returns true when MCPForDAAuth is not NoneAuth", () => {
+  it("child[2] condition returns true when MCPForDAAuth is not NoneAuth", () => {
     const node = updateActionWithMCP();
-    const child1 = node.children![1];
-    const condition = child1.condition as ConditionFunc;
+    const child2 = node.children![2];
+    const condition = child2.condition as ConditionFunc;
     const inputs: Inputs = {
       platform: Platform.CLI,
       [QuestionNames.MCPForDAAuth]: "OAuthPluginVault",
     };
     assert.isTrue(condition(inputs));
   });
-  it("child[1] condition returns false when MCPForDAAuth is NoneAuth", () => {
+  it("child[2] condition returns false when MCPForDAAuth is NoneAuth", () => {
     const node = updateActionWithMCP();
-    const child1 = node.children![1];
-    const condition = child1.condition as ConditionFunc;
+    const child2 = node.children![2];
+    const condition = child2.condition as ConditionFunc;
     const inputs: Inputs = { platform: Platform.CLI, [QuestionNames.MCPForDAAuth]: "NoneAuth" };
     assert.isFalse(condition(inputs));
   });
@@ -1697,5 +1691,227 @@ describe("getTdpProjectTypeNode", () => {
     for (const opt of options) {
       assert.isFalse(opt.label.startsWith("$("), "CLI should not have icons");
     }
+  });
+});
+
+describe("updateActionWithMCP question node", () => {
+  const sandbox = sinon.createSandbox();
+  afterEach(() => {
+    sandbox.restore();
+  });
+
+  it("possibleFiles always appends the create-new sentinel item", async () => {
+    sandbox.stub(fs, "pathExists").resolves(false);
+    const node = updateActionWithMCP();
+    const data = node.data as any;
+    const inputs: Inputs = { platform: Platform.VSCode, projectPath: "/proj" };
+    const items: { id: string; label: string }[] = await data.possibleFiles(inputs);
+    assert.isAtLeast(items.length, 1);
+    const sentinel = items.find((i) => i.id === CreateNewPluginManifestSentinel);
+    assert.isDefined(sentinel);
+    assert.include(sentinel!.label, "$(new-file)");
+  });
+
+  it("possibleFiles enumerates declarative agent actions and de-duplicates", async () => {
+    const teamsManifest = {
+      copilotAgents: { declarativeAgents: [{ file: "declarativeAgent.json" }] },
+    };
+    const da = {
+      actions: [
+        { id: "a1", file: "ai-plugin-1.json" },
+        { id: "a2", file: "ai-plugin-2.json" },
+        { id: "a3", file: "ai-plugin-1.json" },
+        { id: "a4" },
+      ],
+    };
+    sandbox.stub(fs, "pathExists").resolves(true);
+    sandbox.stub(fs, "readJSON").callsFake((p: string) => {
+      if (p.endsWith("manifest.json")) return Promise.resolve(teamsManifest);
+      return Promise.resolve(da);
+    });
+
+    const node = updateActionWithMCP();
+    const data = node.data as any;
+    const inputs: Inputs = { platform: Platform.VSCode, projectPath: "/proj" };
+    const items: { id: string; label: string }[] = await data.possibleFiles(inputs);
+    const fileIds = items.filter((i) => i.id !== CreateNewPluginManifestSentinel);
+    assert.equal(fileIds.length, 2, "duplicates should be removed");
+    assert.equal(items[items.length - 1].id, CreateNewPluginManifestSentinel);
+    for (const item of fileIds) {
+      assert.include(item.label, "$(file)");
+    }
+  });
+
+  it("possibleFiles returns just the sentinel when manifest read throws", async () => {
+    sandbox.stub(fs, "pathExists").resolves(true);
+    sandbox.stub(fs, "readJSON").rejects(new Error("boom"));
+    const node = updateActionWithMCP();
+    const data = node.data as any;
+    const inputs: Inputs = { platform: Platform.VSCode, projectPath: "/proj" };
+    const items = await data.possibleFiles(inputs);
+    assert.equal(items.length, 1);
+    assert.equal(items[0].id, CreateNewPluginManifestSentinel);
+  });
+
+  it("possibleFiles returns just the sentinel when no declarative agent referenced", async () => {
+    sandbox.stub(fs, "pathExists").resolves(true);
+    sandbox.stub(fs, "readJSON").resolves({});
+    const node = updateActionWithMCP();
+    const data = node.data as any;
+    const inputs: Inputs = { platform: Platform.VSCode, projectPath: "/proj" };
+    const items = await data.possibleFiles(inputs);
+    assert.equal(items.length, 1);
+    assert.equal(items[0].id, CreateNewPluginManifestSentinel);
+  });
+
+  it("defaultFolder resolves to projectPath/appPackage", () => {
+    const node = updateActionWithMCP();
+    const data = node.data as any;
+    const folder = data.defaultFolder({
+      platform: Platform.VSCode,
+      projectPath: "/proj",
+    } as Inputs);
+    assert.include(folder, AppPackageFolderName);
+    assert.include(folder, "proj");
+  });
+
+  describe("NewPluginManifestFileName child question", () => {
+    const getChild = () => {
+      const node = updateActionWithMCP();
+      const child = node.children!.find(
+        (c) => (c.data as any).name === QuestionNames.NewPluginManifestFileName
+      );
+      return child!;
+    };
+
+    it("condition matches only the create-new sentinel", () => {
+      const child = getChild();
+      const cond = child.condition as ConditionFunc;
+      assert.isTrue(
+        cond({
+          platform: Platform.VSCode,
+          [QuestionNames.PluginManifestFilePath]: CreateNewPluginManifestSentinel,
+        } as Inputs)
+      );
+      assert.isFalse(
+        cond({
+          platform: Platform.VSCode,
+          [QuestionNames.PluginManifestFilePath]: "/some/file.json",
+        } as Inputs)
+      );
+    });
+
+    it("validation rejects empty input", async () => {
+      const child = getChild();
+      const validFunc = (child.data as any).validation.validFunc;
+      const result = await validFunc("   ", { platform: Platform.VSCode });
+      assert.isString(result);
+    });
+
+    it("validation rejects non-.json input", async () => {
+      const child = getChild();
+      const validFunc = (child.data as any).validation.validFunc;
+      const result = await validFunc("foo.txt", { platform: Platform.VSCode });
+      assert.isString(result);
+    });
+
+    it("validation rejects names with path separators", async () => {
+      const child = getChild();
+      const validFunc = (child.data as any).validation.validFunc;
+      const result = await validFunc("dir/foo.json", { platform: Platform.VSCode });
+      assert.isString(result);
+      const result2 = await validFunc("dir\\foo.json", { platform: Platform.VSCode });
+      assert.isString(result2);
+    });
+
+    it("validation rejects when target file already exists", async () => {
+      sandbox.stub(fs, "pathExists").resolves(true);
+      const child = getChild();
+      const validFunc = (child.data as any).validation.validFunc;
+      const result = await validFunc("ai-plugin.json", {
+        platform: Platform.VSCode,
+        projectPath: "/proj",
+      });
+      assert.isString(result);
+      assert.include(result as string, "ai-plugin.json");
+    });
+
+    it("validation passes for a fresh valid file name", async () => {
+      sandbox.stub(fs, "pathExists").resolves(false);
+      const child = getChild();
+      const validFunc = (child.data as any).validation.validFunc;
+      const result = await validFunc("new-plugin.json", {
+        platform: Platform.VSCode,
+        projectPath: "/proj",
+      });
+      assert.isUndefined(result);
+    });
+
+    it("validation passes when no projectPath provided", async () => {
+      const child = getChild();
+      const validFunc = (child.data as any).validation.validFunc;
+      const result = await validFunc("new-plugin.json", { platform: Platform.VSCode });
+      assert.isUndefined(result);
+    });
+  });
+
+  describe("MCPForDAPreFetchTools default", () => {
+    const getPreFetch = () => {
+      const node = updateActionWithMCP();
+      const child = node.children!.find(
+        (c) => (c.data as any).name === QuestionNames.MCPForDAPreFetchTools
+      );
+      return child!.data as any;
+    };
+
+    it("returns [] when path is the create-new sentinel", async () => {
+      const data = getPreFetch();
+      const result = await data.default({
+        platform: Platform.VSCode,
+        [QuestionNames.PluginManifestFilePath]: CreateNewPluginManifestSentinel,
+      } as Inputs);
+      assert.deepEqual(result, []);
+    });
+
+    it("returns [] when path is missing", async () => {
+      const data = getPreFetch();
+      const result = await data.default({ platform: Platform.VSCode } as Inputs);
+      assert.deepEqual(result, []);
+    });
+
+    it("returns [] when path does not exist on disk", async () => {
+      sandbox.stub(fs, "pathExists").resolves(false);
+      const data = getPreFetch();
+      const result = await data.default({
+        platform: Platform.VSCode,
+        [QuestionNames.PluginManifestFilePath]: "/nope/ai-plugin.json",
+      } as Inputs);
+      assert.deepEqual(result, []);
+    });
+
+    it("returns matching runtime tool ids when manifest exists", async () => {
+      sandbox.stub(fs, "pathExists").resolves(true);
+      sandbox.stub(fs, "readJSON").resolves({
+        runtimes: [
+          {
+            type: "RemoteMCPServer",
+            spec: { url: "https://example.com/mcp" },
+            run_for_functions: ["t1", "t2"],
+          },
+          {
+            type: "RemoteMCPServer",
+            spec: { url: "https://other.com/mcp" },
+            run_for_functions: ["other"],
+          },
+        ],
+      });
+      const data = getPreFetch();
+      const result = await data.default({
+        platform: Platform.VSCode,
+        [QuestionNames.PluginManifestFilePath]: "/proj/appPackage/ai-plugin.json",
+        [QuestionNames.MCPForDAServerUrl]: "https://example.com/mcp",
+      } as Inputs);
+      assert.deepEqual(result, ["t1", "t2"]);
+    });
   });
 });

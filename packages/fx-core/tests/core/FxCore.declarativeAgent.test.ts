@@ -3203,3 +3203,203 @@ describe("addPlugin", async () => {
     }
   });
 });
+
+describe("updateActionWithMCP - create new ai-plugin.json", () => {
+  const tools = new MockTools();
+  const sandbox = sinon.createSandbox();
+  const projectPath = "/test/project";
+  const mcpServerUrl = "https://example.com/mcp";
+  const serverName = "testServer";
+
+  beforeEach(() => {
+    setTools(tools);
+  });
+
+  afterEach(() => {
+    sandbox.restore();
+  });
+
+  it("creates a new plugin manifest, registers it as an action, and continues update flow", async () => {
+    const sentinel = "__createNewPluginManifest__";
+    const newPluginPath = "/test/project/appPackage/ai-plugin.json";
+    const inputs: Inputs = {
+      projectPath,
+      platform: Platform.VSCode,
+      [QuestionNames.PluginManifestFilePath]: sentinel,
+      [QuestionNames.NewPluginManifestFileName]: "ai-plugin.json",
+      [QuestionNames.MCPForDAServerUrl]: mcpServerUrl,
+      [QuestionNames.MCPForDAServerName]: serverName,
+      [QuestionNames.MCPForDAAuth]: "None",
+      [QuestionNames.MCPForDAAvailableTools]: [
+        {
+          name: "tool1",
+          description: "desc",
+          inputSchema: { type: "object", properties: {}, required: [] },
+        },
+      ],
+      [QuestionNames.MCPForDAPreFetchTools]: ["tool1"],
+      ignoreLockByUT: true,
+    };
+
+    const teamsManifest = new TeamsAppManifest();
+    (teamsManifest as any).copilotAgents = {
+      declarativeAgents: [{ id: "da", file: "declarativeAgent.json" }],
+    };
+    sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(teamsManifest));
+
+    let created = false;
+    const createStub = sandbox
+      .stub(declarativeAgentHelper, "createNewActionPluginManifest")
+      .callsFake(async () => {
+        created = true;
+        return ok({ pluginManifestPath: newPluginPath, actionId: "ai-plugin" });
+      });
+
+    sandbox.stub(fs, "pathExists").callsFake(async (filePath: string) => {
+      if (filePath.includes("mcp-tools")) return false;
+      // Validator runs before createNewActionPluginManifest fires; the new
+      // file should not exist yet so validation passes. Once createStub has
+      // been invoked, the file is considered to exist.
+      if (path.basename(filePath) === "ai-plugin.json") return created;
+      return true;
+    });
+    sandbox.stub(fs, "readJSON").resolves({ functions: [], runtimes: [] });
+    sandbox.stub(fs, "writeJSON").resolves();
+    sandbox.stub(pathUtils, "getYmlFilePath").returns("/test/project/teamsapp.yml");
+    sandbox.stub(tools.ui, "showMessage").resolves(ok("OK"));
+    sandbox.stub(tools.ui, "openFile").resolves();
+
+    const core = new FxCore(tools);
+    const result = await core.updateActionWithMCP(inputs);
+
+    assert.isTrue(result.isOk(), JSON.stringify((result as any).error));
+    assert.isTrue(createStub.calledOnce);
+    assert.equal(
+      inputs[QuestionNames.PluginManifestFilePath],
+      newPluginPath,
+      "should rewrite plugin manifest path to the newly-created file"
+    );
+  });
+
+  it("returns error when manifest read fails", async () => {
+    const sentinel = "__createNewPluginManifest__";
+    const inputs: Inputs = {
+      projectPath,
+      platform: Platform.VSCode,
+      [QuestionNames.PluginManifestFilePath]: sentinel,
+      [QuestionNames.NewPluginManifestFileName]: "ai-plugin.json",
+      ignoreLockByUT: true,
+    };
+
+    sandbox
+      .stub(manifestUtils, "_readAppManifest")
+      .resolves(err(new SystemError("test", "ReadFailed", "msg", "msg")));
+
+    const core = new FxCore(tools);
+    const result = await core.updateActionWithMCP(inputs);
+
+    assert.isTrue(result.isErr());
+    if (result.isErr()) {
+      assert.equal(result.error.name, "ReadFailed");
+    }
+  });
+
+  it("returns error when declarative agent reference is missing", async () => {
+    const sentinel = "__createNewPluginManifest__";
+    const inputs: Inputs = {
+      projectPath,
+      platform: Platform.VSCode,
+      [QuestionNames.PluginManifestFilePath]: sentinel,
+      [QuestionNames.NewPluginManifestFileName]: "ai-plugin.json",
+      ignoreLockByUT: true,
+    };
+
+    const teamsManifest = new TeamsAppManifest();
+    sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(teamsManifest));
+
+    const core = new FxCore(tools);
+    const result = await core.updateActionWithMCP(inputs);
+
+    assert.isTrue(result.isErr());
+    if (result.isErr()) {
+      assert.equal(result.error.name, AppStudioError.TeamsAppRequiredPropertyMissingError.name);
+    }
+  });
+
+  it("propagates error when createNewActionPluginManifest fails", async () => {
+    const sentinel = "__createNewPluginManifest__";
+    const inputs: Inputs = {
+      projectPath,
+      platform: Platform.VSCode,
+      [QuestionNames.PluginManifestFilePath]: sentinel,
+      [QuestionNames.NewPluginManifestFileName]: "ai-plugin.json",
+      ignoreLockByUT: true,
+    };
+
+    const teamsManifest = new TeamsAppManifest();
+    (teamsManifest as any).copilotAgents = {
+      declarativeAgents: [{ id: "da", file: "declarativeAgent.json" }],
+    };
+    sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(teamsManifest));
+    sandbox
+      .stub(declarativeAgentHelper, "createNewActionPluginManifest")
+      .resolves(err(new SystemError("test", "CreateFailed", "msg", "msg")));
+
+    const core = new FxCore(tools);
+    const result = await core.updateActionWithMCP(inputs);
+
+    assert.isTrue(result.isErr());
+    if (result.isErr()) {
+      assert.equal(result.error.name, "CreateFailed");
+    }
+  });
+
+  it("falls back to default file name when NewPluginManifestFileName is missing", async () => {
+    const sentinel = "__createNewPluginManifest__";
+    const newPluginPath = "/test/project/appPackage/ai-plugin.json";
+    const inputs: Inputs = {
+      projectPath,
+      platform: Platform.VSCode,
+      [QuestionNames.PluginManifestFilePath]: sentinel,
+      [QuestionNames.MCPForDAServerUrl]: mcpServerUrl,
+      [QuestionNames.MCPForDAServerName]: serverName,
+      [QuestionNames.MCPForDAAuth]: "None",
+      [QuestionNames.MCPForDAAvailableTools]: [],
+      [QuestionNames.MCPForDAPreFetchTools]: [],
+      ignoreLockByUT: true,
+    };
+
+    const teamsManifest = new TeamsAppManifest();
+    (teamsManifest as any).copilotAgents = {
+      declarativeAgents: [{ id: "da", file: "declarativeAgent.json" }],
+    };
+    sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(teamsManifest));
+
+    let created = false;
+    const createStub = sandbox
+      .stub(declarativeAgentHelper, "createNewActionPluginManifest")
+      .callsFake(async () => {
+        created = true;
+        return ok({ pluginManifestPath: newPluginPath, actionId: "ai-plugin" });
+      });
+
+    sandbox.stub(fs, "pathExists").callsFake(async (filePath: string) => {
+      if (filePath.includes("mcp-tools")) return false;
+      if (path.basename(filePath) === "ai-plugin.json") return created;
+      return true;
+    });
+    sandbox.stub(fs, "readJSON").resolves({ functions: [], runtimes: [] });
+    sandbox.stub(fs, "writeJSON").resolves();
+    sandbox.stub(pathUtils, "getYmlFilePath").returns("/test/project/teamsapp.yml");
+    sandbox.stub(tools.ui, "showMessage").resolves(ok("OK"));
+    sandbox.stub(tools.ui, "openFile").resolves();
+    sandbox.stub(tools.ui, "inputText").resolves(ok({ type: "success", result: "ai-plugin.json" }));
+
+    const core = new FxCore(tools);
+    const result = await core.updateActionWithMCP(inputs);
+
+    assert.isTrue(result.isOk(), JSON.stringify((result as any).error));
+    assert.isTrue(createStub.calledOnce);
+    assert.equal(createStub.firstCall.args[1], "ai-plugin.json");
+  });
+});
