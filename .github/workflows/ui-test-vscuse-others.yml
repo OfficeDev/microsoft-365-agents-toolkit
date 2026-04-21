@@ -626,7 +626,7 @@ jobs:
           
           while :
           do
-            url="https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/attempts/${{ github.run_attempt }}/jobs?per_page=100&page=$page"
+            url="https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/attempts/${{ github.run_attempt }}/jobs?per_page=50&page=$page"
             echo "Fetching URL: $url"
       
             resp=$(curl -sf -D /tmp/gh_headers_$page -H "Accept: application/vnd.github.v3+json" -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" "$url")
@@ -653,7 +653,7 @@ jobs:
 
           echo "Final job list: $jobs"
 
-          cases=$(echo "$jobs" | jq -r '.[] | select(.name | contains("Case-")) | .name')
+          cases=$(echo "$jobs" | jq -r '[.[] | select(.name | contains("Case-")) | .name] | unique | .[]')
           echo "Extracted case names: $cases"
 
           passed=0
@@ -736,10 +736,10 @@ jobs:
             # file=$(find src -name "$name.test.ts" 2>/dev/null)
             # echo "Test file found: $file"
 
-            status=$(echo "$jobs" | jq --arg case "$case" -r '.[] | select(.name == $case ) | .conclusion')
+            status=$(echo "$jobs" | jq --arg case "$case" -r '[.[] | select(.name == $case)] | last | .conclusion // "unknown"')
             echo "Job status: $status"
 
-            run_id=$(echo "$jobs" | jq --arg case "$case" -r '.[] | select(.name == $case ) | .run_id')
+            run_id=$(echo "$jobs" | jq --arg case "$case" -r '[.[] | select(.name == $case)] | last | .run_id')
             echo "Run Id: $run_id"
 
             # Combine the case name and run_id to create a lookup key
@@ -767,11 +767,15 @@ jobs:
             fi
             echo "Updated email list: $emails"
 
-            started_at=$(echo "$jobs" | jq --arg case "$case" -r '.[] | select(.name == $case ) | .started_at')
-            completed_at=$(echo "$jobs" | jq --arg case "$case" -r '.[] | select(.name == $case ) | .completed_at')
+            started_at=$(echo "$jobs" | jq --arg case "$case" -r '[.[] | select(.name == $case)] | last | .started_at // empty')
+            completed_at=$(echo "$jobs" | jq --arg case "$case" -r '[.[] | select(.name == $case)] | last | .completed_at // empty')
             echo "Start time: $started_at, Completed time: $completed_at"
 
-            duration=$(dateutils.ddiff "$started_at" "$completed_at" -f "%Mm %Ss" 2>/dev/null)
+            if [ -n "$started_at" ] && [ -n "$completed_at" ]; then
+              duration=$(dateutils.ddiff "$started_at" "$completed_at" -f "%Mm %Ss" 2>/dev/null) || duration="N/A"
+            else
+              duration="N/A"
+            fi
             echo "Calculated duration: $duration"
 
 
@@ -786,7 +790,7 @@ jobs:
             fi
             echo "Job result label: $label"
 
-            url=$(echo "$jobs" | jq --arg case "$case" -r '.[] | select(.name == $case ) | .html_url')
+            url=$(echo "$jobs" | jq --arg case "$case" -r '[.[] | select(.name == $case)] | last | .html_url')
             display_name=$(echo "$name" | sed 's/^Case-//')
             url="<a href=\\\"$url\\\">$display_name</a>"
             echo "Job URL: $url"
