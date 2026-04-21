@@ -4,9 +4,11 @@
 import { hooks } from "@feathersjs/hooks";
 import { AuthType, ListAPIResult, ProjectType, SpecParser } from "@microsoft/m365-spec-parser";
 import {
+  AppPackageFolderName,
   DefaultApiSpecFolderName,
   FxError,
   Inputs,
+  ManifestTemplateFileName,
   Platform,
   Result,
   Stage,
@@ -31,7 +33,11 @@ import { copilotGptManifestUtils } from "../component/driver/teamsApp/utils/Copi
 import { manifestUtils } from "../component/driver/teamsApp/utils/ManifestUtils";
 import { pluginManifestUtils } from "../component/driver/teamsApp/utils/PluginManifestUtils";
 import { normalizePath } from "../component/driver/teamsApp/utils/utils";
-import { addExistingPlugin } from "../component/generator/declarativeAgent/helper";
+import {
+  addExistingPlugin,
+  createNewActionPluginManifest,
+  deriveMCPServerNameFromUrl,
+} from "../component/generator/declarativeAgent/helper";
 import {
   generateFromApiSpec,
   generateScaffoldingSummary,
@@ -43,6 +49,7 @@ import { resolveMCPOAuthMetadata } from "../component/utils/mcpToolFetcher";
 import { pathUtils } from "../component/utils/pathUtils";
 import { UserCancelError } from "../error/common";
 import { ActionStartOptions, QuestionNames } from "../question/constants";
+import { CreateNewPluginManifestSentinel } from "../question/scaffold/vsc/teamsProjectTypeNode";
 import { ConcurrentLockerMW } from "./middleware/concurrentLocker";
 import { ErrorHandlerMW } from "./middleware/errorHandler";
 
@@ -63,7 +70,55 @@ export class FxCoreDeclarativeAgentPart {
     if (!projectPath) {
       throw new Error("projectPath is undefined"); // should never happen
     }
-    const aiPluginFilePath = inputs[QuestionNames.PluginManifestFilePath] as string;
+    let aiPluginFilePath = inputs[QuestionNames.PluginManifestFilePath] as string;
+
+    // If the user picked the "Create a new ai-plugin.json" option in the question,
+    // the value will be the sentinel. Generate a fresh skeleton manifest under
+    // appPackage using the file name from the follow-up text question and
+    // register it as a new action of the declarative agent before continuing
+    // with the regular update flow.
+    if (aiPluginFilePath === CreateNewPluginManifestSentinel) {
+      const desiredFileName =
+        (inputs[QuestionNames.NewPluginManifestFileName] as string) || "ai-plugin.json";
+      const teamsManifestPath = path.join(
+        projectPath,
+        AppPackageFolderName,
+        ManifestTemplateFileName
+      );
+      const manifestRes = await manifestUtils._readAppManifest(teamsManifestPath);
+      if (manifestRes.isErr()) {
+        return err(manifestRes.error);
+      }
+      const declarativeAgentRelativePath =
+        manifestRes.value?.copilotAgents?.declarativeAgents?.[0]?.file;
+      if (!declarativeAgentRelativePath) {
+        return err(
+          AppStudioResultFactory.UserError(
+            AppStudioError.TeamsAppRequiredPropertyMissingError.name,
+            AppStudioError.TeamsAppRequiredPropertyMissingError.message(
+              "declarativeAgents",
+              teamsManifestPath
+            )
+          )
+        );
+      }
+      const declarativeAgentManifestPath = path.join(
+        projectPath,
+        AppPackageFolderName,
+        declarativeAgentRelativePath
+      );
+      const createRes = await createNewActionPluginManifest(
+        projectPath,
+        desiredFileName,
+        declarativeAgentManifestPath
+      );
+      if (createRes.isErr()) {
+        return err(createRes.error);
+      }
+      aiPluginFilePath = createRes.value.pluginManifestPath;
+      inputs[QuestionNames.PluginManifestFilePath] = aiPluginFilePath;
+    }
+
     if (!(await fs.pathExists(aiPluginFilePath))) {
       const error = new SystemError(
         "MCPForDAPluginManifestNotFound",
@@ -299,11 +354,26 @@ export class FxCoreDeclarativeAgentPart {
     }
 
     const context = createContext();
-    const teamsManifestPath = inputs[QuestionNames.ManifestPath];
-    const appPackageFolder = path.dirname(teamsManifestPath);
     const isGenerateFromApiSpec =
       inputs[QuestionNames.ActionType] === ActionStartOptions.apiSpec().id;
     const isGenerateFromMCP = inputs[QuestionNames.ActionType] === ActionStartOptions.mcp().id;
+
+    // VS Code MCP "Add Action" flow: aligned with the "DA with MCP" scaffolding
+    // behavior. Only the MCP server URL is collected from the user. The toolkit
+    // writes the URL into .vscode/mcp.json and signals the caller to open the
+    // file and surface the "start MCP server / Fetch Action" notification, which
+    // already exists for the scaffolding flow. The actual plugin manifest and DA
+    // action are produced later by the "Update Action with MCP" command.
+    //
+    // The CLI flow (below) keeps the original non-interactive behavior of
+    // probing the MCP server, fetching tools and writing ai-plugin.json + yaml
+    // OAuth registration, since the CLI has no equivalent notification UX.
+    if (isGenerateFromMCP && inputs.platform === Platform.VSCode) {
+      return await this.addPluginFromMCP(inputs, context);
+    }
+
+    const teamsManifestPath = inputs[QuestionNames.ManifestPath];
+    const appPackageFolder = path.dirname(teamsManifestPath);
 
     // validate the project is valid for adding plugin
     const manifestRes = await manifestUtils._readAppManifest(teamsManifestPath);
@@ -463,7 +533,8 @@ export class FxCoreDeclarativeAgentPart {
         );
       }
     } else if (isGenerateFromMCP) {
-      // MCP action: create ai-plugin.json with MCP runtime config
+      // CLI MCP action: create ai-plugin.json with MCP runtime config.
+      // (VS Code path is handled earlier by addPluginFromMCP.)
       const mcpServerUrl = inputs[QuestionNames.MCPForDAServerUrl];
       const toolsFilePath = inputs[QuestionNames.MCPToolsFilePath];
       const mcpWarnings: Warning[] = [];
@@ -518,7 +589,7 @@ export class FxCoreDeclarativeAgentPart {
             }
           }
         } catch {
-          // Auth probe failed — continue without auth
+          // Auth probe failed - continue without auth
         }
       }
 
@@ -565,7 +636,7 @@ export class FxCoreDeclarativeAgentPart {
         }
       }
 
-      // If no tools available (auth required or fetch failed), skip creating plugin — just warn
+      // If no tools available (auth required or fetch failed), skip creating plugin - just warn
       const mcpTools = inputs[QuestionNames.MCPForDAAvailableTools];
       const mcpToolsSelected = inputs[QuestionNames.MCPForDAPreFetchTools] || [];
       if (!mcpTools || mcpTools.length === 0 || mcpToolsSelected.length === 0) {
@@ -648,7 +719,6 @@ export class FxCoreDeclarativeAgentPart {
             let refreshUrl: string | undefined;
 
             if (authType === "oauth") {
-              const { resolveMCPOAuthMetadata } = await import("../component/utils/mcpToolFetcher");
               const metadata = await resolveMCPOAuthMetadata(
                 inputs[QuestionNames.MCPForDAAuthMetadataUrl]
               );
@@ -657,7 +727,6 @@ export class FxCoreDeclarativeAgentPart {
               refreshUrl = metadata.refreshUrl;
             }
 
-            const { ActionInjector } = await import("../component/configManager/actionInjector");
             const ymlPath = pathUtils.getYmlFilePath(inputs.projectPath);
             if (ymlPath) {
               await ActionInjector.injectCreateOAuthActionForMCP(
@@ -742,5 +811,75 @@ export class FxCoreDeclarativeAgentPart {
     }
 
     return ok(undefined);
+  }
+
+  /**
+   * Adds an MCP server entry to the project's `.vscode/mcp.json` and returns
+   * a marker so the caller (vscode-extension) can open the file and surface
+   * the same "start MCP server / Fetch Action" notification used by the
+   * "DA with MCP" scaffolding flow.
+   */
+  private async addPluginFromMCP(
+    inputs: Inputs,
+    context: ReturnType<typeof createContext>
+  ): Promise<Result<{ kind: "mcp"; mcpConfigPath: string }, FxError>> {
+    const projectPath = inputs.projectPath as string;
+    const mcpServerUrl = (inputs[QuestionNames.MCPForDAServerUrl] as string | undefined)?.trim();
+    if (!mcpServerUrl) {
+      return err(
+        new UserError(
+          Stage.addPlugin,
+          "MissingMCPServerUrl",
+          getDefaultString("core.MCPForDA.missingServerUrl"),
+          getLocalizedString("core.MCPForDA.missingServerUrl")
+        )
+      );
+    }
+
+    // Derive a server entry name from the URL host using the same logic as the
+    // "DA with MCP" scaffolding template variable `ServerName`.
+    const serverName = deriveMCPServerNameFromUrl(mcpServerUrl);
+
+    const mcpConfigDir = path.join(projectPath, ".vscode");
+    const mcpConfigPath = path.join(mcpConfigDir, "mcp.json");
+
+    let mcpConfig: { servers: Record<string, unknown> } = { servers: {} };
+    if (await fs.pathExists(mcpConfigPath)) {
+      try {
+        const existing = (await fs.readJSON(mcpConfigPath)) as {
+          servers?: Record<string, unknown>;
+        };
+        if (existing && typeof existing === "object") {
+          mcpConfig = {
+            ...existing,
+            servers:
+              existing.servers && typeof existing.servers === "object" ? existing.servers : {},
+          };
+        }
+      } catch {
+        // Existing file is unreadable/invalid JSON — overwrite with a fresh config.
+        mcpConfig = { servers: {} };
+      }
+    }
+
+    // Ensure unique server entry name to avoid overwriting an existing one.
+    let uniqueName = serverName;
+    let suffix = 1;
+    while (Object.prototype.hasOwnProperty.call(mcpConfig.servers, uniqueName)) {
+      uniqueName = `${serverName}${suffix++}`;
+    }
+    mcpConfig.servers[uniqueName] = {
+      type: "http",
+      url: mcpServerUrl,
+    };
+
+    await fs.ensureDir(mcpConfigDir);
+    await fs.writeJSON(mcpConfigPath, mcpConfig, { spaces: 2 });
+
+    context.logProvider.info(
+      `MCP server "${uniqueName}" added to ${path.relative(projectPath, mcpConfigPath)}.`
+    );
+
+    return ok({ kind: "mcp", mcpConfigPath });
   }
 }
