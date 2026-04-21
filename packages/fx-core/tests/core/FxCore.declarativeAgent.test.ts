@@ -2856,6 +2856,239 @@ describe("addPlugin", async () => {
     }
   });
 
+  it("from MCP: VSCode platform returns MissingMCPServerUrl when URL is empty", async () => {
+    const appName = await mockV3Project();
+    const projectPath = path.join(os.tmpdir(), appName);
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      [QuestionNames.Folder]: os.tmpdir(),
+      [QuestionNames.TeamsAppManifestFilePath]: "manifest.json",
+      [QuestionNames.ActionType]: ActionStartOptions.mcp().id,
+      [QuestionNames.MCPForDAServerUrl]: "   ",
+      projectPath,
+    };
+
+    sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
+    sandbox.stub(addPluginTools.ui, "showMessage");
+
+    const core = new FxCore(addPluginTools);
+    const result = await core.addPlugin(inputs);
+
+    assert.isTrue(result.isErr());
+    if (result.isErr()) {
+      assert.equal(result.error.name, "MissingMCPServerUrl");
+    }
+
+    if (await fs.pathExists(projectPath)) {
+      await fs.remove(projectPath);
+    }
+  });
+
+  it("from MCP: VSCode platform merges new server into existing mcp.json", async () => {
+    const appName = await mockV3Project();
+    const projectPath = path.join(os.tmpdir(), appName);
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      [QuestionNames.Folder]: os.tmpdir(),
+      [QuestionNames.TeamsAppManifestFilePath]: "manifest.json",
+      [QuestionNames.ActionType]: ActionStartOptions.mcp().id,
+      [QuestionNames.MCPForDAServerUrl]: "https://example.com/mcp",
+      projectPath,
+    };
+
+    sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
+    sandbox.stub(fs, "pathExists").resolves(true);
+    sandbox.stub(fs, "readJSON").resolves({
+      servers: { existingServer: { type: "http", url: "https://existing.com/mcp" } },
+      otherTopLevel: "preserved",
+    });
+    const realEnsureDir = fs.ensureDir.bind(fs);
+    sandbox.stub(fs, "ensureDir").callsFake(async (p: any) => {
+      if (typeof p === "string" && p.includes(".vscode")) return;
+      return (realEnsureDir as any)(p);
+    });
+    let writtenConfig: any = undefined;
+    const realWriteJSON = fs.writeJSON.bind(fs);
+    sandbox.stub(fs, "writeJSON").callsFake(async (p: any, data: any, opts?: any) => {
+      if (typeof p === "string" && p.includes("mcp.json")) {
+        writtenConfig = data;
+        return;
+      }
+      return (realWriteJSON as any)(p, data, opts);
+    });
+    sandbox.stub(addPluginTools.ui, "showMessage");
+
+    const core = new FxCore(addPluginTools);
+    const result = await core.addPlugin(inputs);
+
+    assert.isTrue(result.isOk());
+    assert.isObject(writtenConfig);
+    // Existing server preserved
+    assert.deepEqual(writtenConfig.servers.existingServer, {
+      type: "http",
+      url: "https://existing.com/mcp",
+    });
+    // Other top-level keys preserved
+    assert.equal(writtenConfig.otherTopLevel, "preserved");
+    // New server added
+    const newServerNames = Object.keys(writtenConfig.servers).filter((n) => n !== "existingServer");
+    assert.equal(newServerNames.length, 1);
+    assert.deepEqual(writtenConfig.servers[newServerNames[0]], {
+      type: "http",
+      url: "https://example.com/mcp",
+    });
+
+    if (await fs.pathExists(projectPath)) {
+      await fs.remove(projectPath);
+    }
+  });
+
+  it("from MCP: VSCode platform appends suffix when server name conflicts", async () => {
+    const appName = await mockV3Project();
+    const projectPath = path.join(os.tmpdir(), appName);
+    const serverUrl = "https://example.com/mcp";
+    const baseName = declarativeAgentHelper.deriveMCPServerNameFromUrl(serverUrl);
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      [QuestionNames.Folder]: os.tmpdir(),
+      [QuestionNames.TeamsAppManifestFilePath]: "manifest.json",
+      [QuestionNames.ActionType]: ActionStartOptions.mcp().id,
+      [QuestionNames.MCPForDAServerUrl]: serverUrl,
+      projectPath,
+    };
+
+    sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
+    sandbox.stub(fs, "pathExists").resolves(true);
+    sandbox.stub(fs, "readJSON").resolves({
+      servers: {
+        [baseName]: { type: "http", url: "https://other.com/mcp" },
+        [`${baseName}1`]: { type: "http", url: "https://another.com/mcp" },
+      },
+    });
+    const realEnsureDir = fs.ensureDir.bind(fs);
+    sandbox.stub(fs, "ensureDir").callsFake(async (p: any) => {
+      if (typeof p === "string" && p.includes(".vscode")) return;
+      return (realEnsureDir as any)(p);
+    });
+    let writtenConfig: any = undefined;
+    const realWriteJSON = fs.writeJSON.bind(fs);
+    sandbox.stub(fs, "writeJSON").callsFake(async (p: any, data: any, opts?: any) => {
+      if (typeof p === "string" && p.includes("mcp.json")) {
+        writtenConfig = data;
+        return;
+      }
+      return (realWriteJSON as any)(p, data, opts);
+    });
+    sandbox.stub(addPluginTools.ui, "showMessage");
+
+    const core = new FxCore(addPluginTools);
+    const result = await core.addPlugin(inputs);
+
+    assert.isTrue(result.isOk());
+    // Pre-existing entries are kept; new entry uses the next available suffix.
+    assert.property(writtenConfig.servers, `${baseName}2`);
+    assert.deepEqual(writtenConfig.servers[`${baseName}2`], {
+      type: "http",
+      url: serverUrl,
+    });
+
+    if (await fs.pathExists(projectPath)) {
+      await fs.remove(projectPath);
+    }
+  });
+
+  it("from MCP: VSCode platform recovers when existing mcp.json is invalid JSON", async () => {
+    const appName = await mockV3Project();
+    const projectPath = path.join(os.tmpdir(), appName);
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      [QuestionNames.Folder]: os.tmpdir(),
+      [QuestionNames.TeamsAppManifestFilePath]: "manifest.json",
+      [QuestionNames.ActionType]: ActionStartOptions.mcp().id,
+      [QuestionNames.MCPForDAServerUrl]: "https://example.com/mcp",
+      projectPath,
+    };
+
+    sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
+    sandbox.stub(fs, "pathExists").resolves(true);
+    sandbox.stub(fs, "readJSON").rejects(new Error("invalid JSON"));
+    const realEnsureDir = fs.ensureDir.bind(fs);
+    sandbox.stub(fs, "ensureDir").callsFake(async (p: any) => {
+      if (typeof p === "string" && p.includes(".vscode")) return;
+      return (realEnsureDir as any)(p);
+    });
+    let writtenConfig: any = undefined;
+    const realWriteJSON = fs.writeJSON.bind(fs);
+    sandbox.stub(fs, "writeJSON").callsFake(async (p: any, data: any, opts?: any) => {
+      if (typeof p === "string" && p.includes("mcp.json")) {
+        writtenConfig = data;
+        return;
+      }
+      return (realWriteJSON as any)(p, data, opts);
+    });
+    sandbox.stub(addPluginTools.ui, "showMessage");
+
+    const core = new FxCore(addPluginTools);
+    const result = await core.addPlugin(inputs);
+
+    assert.isTrue(result.isOk());
+    // Invalid existing file is replaced with a fresh config containing only the new server.
+    assert.equal(Object.keys(writtenConfig.servers).length, 1);
+    assert.deepEqual(Object.values(writtenConfig.servers)[0], {
+      type: "http",
+      url: "https://example.com/mcp",
+    });
+
+    if (await fs.pathExists(projectPath)) {
+      await fs.remove(projectPath);
+    }
+  });
+
+  it("from MCP: VSCode platform treats existing mcp.json without servers field as fresh", async () => {
+    const appName = await mockV3Project();
+    const projectPath = path.join(os.tmpdir(), appName);
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      [QuestionNames.Folder]: os.tmpdir(),
+      [QuestionNames.TeamsAppManifestFilePath]: "manifest.json",
+      [QuestionNames.ActionType]: ActionStartOptions.mcp().id,
+      [QuestionNames.MCPForDAServerUrl]: "https://example.com/mcp",
+      projectPath,
+    };
+
+    sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
+    sandbox.stub(fs, "pathExists").resolves(true);
+    // Existing file is valid JSON but missing the `servers` field.
+    sandbox.stub(fs, "readJSON").resolves({ inputs: {} });
+    const realEnsureDir = fs.ensureDir.bind(fs);
+    sandbox.stub(fs, "ensureDir").callsFake(async (p: any) => {
+      if (typeof p === "string" && p.includes(".vscode")) return;
+      return (realEnsureDir as any)(p);
+    });
+    let writtenConfig: any = undefined;
+    const realWriteJSON = fs.writeJSON.bind(fs);
+    sandbox.stub(fs, "writeJSON").callsFake(async (p: any, data: any, opts?: any) => {
+      if (typeof p === "string" && p.includes("mcp.json")) {
+        writtenConfig = data;
+        return;
+      }
+      return (realWriteJSON as any)(p, data, opts);
+    });
+    sandbox.stub(addPluginTools.ui, "showMessage");
+
+    const core = new FxCore(addPluginTools);
+    const result = await core.addPlugin(inputs);
+
+    assert.isTrue(result.isOk());
+    // Other top-level keys preserved; servers initialized.
+    assert.deepEqual(writtenConfig.inputs, {});
+    assert.equal(Object.keys(writtenConfig.servers).length, 1);
+
+    if (await fs.pathExists(projectPath)) {
+      await fs.remove(projectPath);
+    }
+  });
+
   it("from MCP: readMCPToolsFromFile throws produces mcpToolsFileReadError warning", async () => {
     const appName = await mockV3Project();
     const projectPath = path.join(os.tmpdir(), appName);
