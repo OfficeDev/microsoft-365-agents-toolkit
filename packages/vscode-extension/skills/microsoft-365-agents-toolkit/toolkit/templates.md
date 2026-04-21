@@ -1,11 +1,46 @@
 # Agent Templates Reference
 
 ## Contents
+- CLI Capabilities (all atk new -c options)
 - Declarative Agents (creating, options)
 - Custom Engine Agents (creating, languages)
 - Teams Agents (creating, languages)
 - Other Templates (bot, tab, message extension)
 - Best Practices (language matching)
+- Template Selection Guide
+
+## CLI Capabilities (atk new -c)
+
+Use `atk new -c <capability>` to create projects. Available capabilities:
+
+| Capability | Description |
+|------------|-------------|
+| `declarative-agent` | Declarative Agent |
+| `declarative-agent-action` | Declarative Agent with Action from Scratch |
+| `declarative-agent-action-bearer` | Declarative Agent with Action from Scratch (Bearer Token) |
+| `declarative-agent-action-oauth` | Declarative Agent with Action from Scratch (OAuth) |
+| `declarative-agent-action-from-existing-api` | Declarative Agent with Action from Existing API |
+| `declarative-agent-with-action-from-mcp` | Declarative Agent with Action from MCP Server |
+| `declarative-agent-with-graph-connector` | Declarative Agent with Copilot Connector |
+| `declarative-agent-meta-os-new-project` | Declarative Agent for MetaOS (New Project) |
+| `declarative-agent-meta-os-upgrade-project` | Declarative Agent for MetaOS (Upgrade Project) |
+| `declarative-agent-typespec` | Declarative Agent from TypeSpec |
+| `basic-custom-engine-agent` | Basic Custom Engine Agent |
+| `weather-agent` | Weather Agent |
+| `foundry-agent-to-m365` | Foundry Agent to M365 |
+| `copilot-connector` | Copilot Connector |
+| `teams-agent` | General Teams Agent |
+| `teams-agent-rag-customize` | Teams Agent with Data from Customized Source |
+| `teams-agent-rag-azure-ai-search` | Teams Agent with Data from Azure AI Search |
+| `teams-agent-rag-custom-api` | Teams Agent with Data from Custom API using OpenAPI Spec |
+| `teams-collaborator-agent` | Teams Collaborator Agent |
+| `tab` | Tab |
+| `bot` | Simple Bot |
+| `message-extension` | Message Extension |
+| `office-addin-outlook-taskpane` | Outlook Task Pane Add-in |
+| `office-addin-wxpo-taskpane` | Office Task Pane Add-in |
+| `office-addin-excel-cfshortcut` | Excel Custom Functions |
+| `office-addin-config` | Office Add-in Common Configuration |
 
 ## Declarative Agents (Copilot Extensions)
 
@@ -79,7 +114,7 @@ atk new -c teams-agent-rag-azure-ai-search -l typescript -n mybot -i false
 | `teams-agent-rag-custom-api` | typescript, javascript, csharp, python | Teams Agent with Custom API |
 | `teams-collaborator-agent` | typescript, csharp | Teams Collaborator Agent |
 
-## Other Teams Templates
+## Other Templates
 
 ```bash
 # Simple Bot
@@ -110,3 +145,20 @@ atk new -c message-extension -l typescript -n myme -i false
    - API plugin agents (`declarative-agent-action`): `-l typescript/javascript/csharp`
    - Custom Engine agents: `-l typescript/javascript/python`
    - Teams agents: `-l typescript/javascript/csharp/python`
+
+## Template Selection Guide
+
+**Choose Declarative Agents when:**
+- Extending Microsoft 365 Copilot with custom instructions
+- Integrating APIs as actions without running custom code
+- Need zero-infrastructure deployment
+
+**Choose Custom Engine Agents when:**
+- Need custom LLM integration (Azure OpenAI, OpenAI, etc.)
+- Require complex multi-turn conversations
+- Building with LangChain or other AI frameworks
+
+**Choose Teams Agents when:**
+- Building chat bots specifically for Microsoft Teams
+- Need RAG (Retrieval Augmented Generation) capabilities
+- Require Teams-specific features (channels, meetings, etc.)
