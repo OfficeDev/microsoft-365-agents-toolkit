@@ -398,8 +398,6 @@
   "core.createProjectQuestion.foundry.agentId.placeholder": "Input Azure AI Foundry agent ID now or set it later in the project",
   "core.createProjectQuestion.apiPlugin.importPlugin.label": "Import from an Existing Action",
   "core.createProjectQuestion.apiPlugin.importPlugin.detail": "Import from an existing action file",
-  "core.createProjectQuestion.mcpForDa.label": "Connect to a MCP Server",
-  "core.createProjectQuestion.mcpForDa.detail": "Add an action powered by a Model Context Protocol (MCP) server to your declarative agent",
   "core.createProjectQuestion.apiSpec.title": "OpenAPI Document",
   "core.createProjectQuestion.apiSpec.placeholder": "Enter OpenAPI Document URL",
   "core.createProjectQuestion.apiSpecInputUrl.label": "Enter OpenAPI Document URL",
