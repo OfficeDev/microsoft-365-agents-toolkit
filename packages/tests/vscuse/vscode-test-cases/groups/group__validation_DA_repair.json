@@ -40,7 +40,7 @@
         "x": 350,
         "y": 373
       },
-      "description": "Click on the \"Message Copilot\" input field in the vscluse_app_GgEqVlocal chat interface within Microsoft 365 Copilot, positioning the cursor for text entry.",
+      "description": "Click on the \"Message Copilot\" input field in the chat interface within Microsoft 365 Copilot, positioning the cursor for text entry.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
