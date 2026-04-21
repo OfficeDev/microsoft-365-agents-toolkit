@@ -322,6 +322,14 @@ export const questionVisitor: QuestionTreeVisitor = async function (
         defaultFolder = question.defaultFolder;
       }
     }
+    let possibleFiles;
+    if (question.possibleFiles) {
+      if (typeof question.possibleFiles === "function") {
+        possibleFiles = await (question as any).possibleFiles(inputs);
+      } else {
+        possibleFiles = question.possibleFiles;
+      }
+    }
     return await ui.selectFile({
       name: question.name,
       title: title,
@@ -335,6 +343,7 @@ export const questionVisitor: QuestionTreeVisitor = async function (
       innerStep: question.innerStep,
       innerTotalStep: question.innerTotalStep,
       defaultFolder,
+      possibleFiles,
     });
   } else if (question.type === "folder") {
     const validationFunc = question.validation
