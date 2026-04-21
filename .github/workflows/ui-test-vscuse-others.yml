@@ -893,8 +893,10 @@ jobs:
 
       - name: Prepare email body file
         if: always()
+        env:
+          EMAIL_BODY: ${{ steps.list-jobs.outputs.body }}
         run: |
-          printf '%s' "${{ steps.list-jobs.outputs.body }}" > email-body.html
+          printf '%s' "$EMAIL_BODY" > email-body.html
           echo "BODY_FILE=$(pwd)/email-body.html" >> $GITHUB_ENV
 
       - name: Send E-mail
