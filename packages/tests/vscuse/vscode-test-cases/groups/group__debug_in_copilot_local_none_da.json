@@ -9,14 +9,14 @@
       "precondition_retry_interval": 2
     },
     "total_steps": 12,
-    "created_at": "2026-04-10T07:49:19.686505",
+    "created_at": "2026-04-21T01:53:19.292868",
     "name": "group__debug_in_copilot_local_none_da",
     "description": {
       "other": "Generated from recording r_0928_095902",
       "owner": "v-yajunlu@microsoft.com",
       "workitem": ""
     },
-    "generated_at": "2026-04-10T07:49:19.686503",
+    "generated_at": "2026-04-21T01:53:19.292864",
     "execution_order": [
       "step_47e7ae0a",
       "step_d9866758",
@@ -34,7 +34,7 @@
     "tags": [
       "group"
     ],
-    "updated_at": "2026-04-10T08:59:16.597077"
+    "updated_at": "2026-04-21T03:02:27.587711"
   },
   "steps": [
     {
@@ -56,7 +56,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_47e7ae0a",
-      "created_at": "2026-04-10T08:51:58.858568",
+      "created_at": "2026-04-21T03:02:12.254030",
       "plan_id": "plan_f355465c"
     },
     {
@@ -78,7 +78,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_d9866758",
-      "created_at": "2026-04-10T08:51:58.865018",
+      "created_at": "2026-04-21T03:02:12.262299",
       "plan_id": "plan_f355465c"
     },
     {
@@ -100,7 +100,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_6861ac1e",
-      "created_at": "2026-04-10T08:51:58.870054",
+      "created_at": "2026-04-21T03:02:12.270056",
       "plan_id": "plan_f355465c"
     },
     {
@@ -122,7 +122,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_41dc25cd",
-      "created_at": "2026-04-10T08:51:58.874664",
+      "created_at": "2026-04-21T03:02:12.276021",
       "plan_id": "plan_f355465c"
     },
     {
@@ -144,7 +144,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_c923dbdb",
-      "created_at": "2026-04-10T08:51:58.880380",
+      "created_at": "2026-04-21T03:02:12.283307",
       "plan_id": "plan_f355465c"
     },
     {
@@ -172,7 +172,7 @@
         "delay:180"
       ],
       "screenshot": "step_baa39070",
-      "created_at": "2026-04-10T08:51:58.884964",
+      "created_at": "2026-04-21T03:02:12.293313",
       "plan_id": "plan_f355465c"
     },
     {
@@ -196,7 +196,7 @@
         "delay:3"
       ],
       "screenshot": "step_e0bd25da",
-      "created_at": "2026-04-10T08:51:58.890095",
+      "created_at": "2026-04-21T03:02:12.303671",
       "plan_id": "plan_f355465c"
     },
     {
@@ -220,7 +220,7 @@
         "delay: 3"
       ],
       "screenshot": "step_f46232aa",
-      "created_at": "2026-04-10T08:51:58.895373",
+      "created_at": "2026-04-21T03:02:12.312239",
       "plan_id": "plan_f355465c"
     },
     {
@@ -244,7 +244,7 @@
         "delay: 3"
       ],
       "screenshot": "step_09a662a3",
-      "created_at": "2026-04-10T08:51:58.900324",
+      "created_at": "2026-04-21T03:02:12.321233",
       "plan_id": "plan_f355465c"
     },
     {
@@ -269,7 +269,7 @@
         "delay:30"
       ],
       "screenshot": "step_c4bbcf2e",
-      "created_at": "2026-04-10T08:51:58.906068",
+      "created_at": "2026-04-21T03:02:12.330636",
       "plan_id": "plan_f355465c"
     },
     {
@@ -289,9 +289,11 @@
         "dhash:512:384:0:20:05e58c9c988c80c0"
       ],
       "postconditions": [],
-      "tags": [],
+      "tags": [
+        "force_run:true"
+      ],
       "screenshot": "step_6c5a4ef6",
-      "created_at": "2026-04-10T08:58:52.480213",
+      "created_at": "2026-04-21T03:02:12.339050",
       "plan_id": "plan_f355465c"
     },
     {
@@ -312,7 +314,7 @@
         "delay:10"
       ],
       "screenshot": null,
-      "created_at": "2026-04-10T08:51:58.911527",
+      "created_at": "2026-04-21T03:02:12.347101",
       "plan_id": "plan_f355465c"
     }
   ],

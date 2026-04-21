@@ -10,14 +10,14 @@
       "step_retry_count": 0
     },
     "total_steps": 13,
-    "created_at": "2026-04-10T07:49:19.926762",
+    "created_at": "2026-04-21T01:53:19.686467",
     "name": "group  debug in copilot remote DA no action Copilot License",
     "description": {
       "other": "Generated from recording r_1021_031941",
       "owner": "v-ivanchen@microsoft.com",
       "workitem": ""
     },
-    "generated_at": "2026-04-10T07:49:19.926759",
+    "generated_at": "2026-04-21T01:53:19.686460",
     "execution_order": [
       "step_37529f21",
       "step_b887e51c",
@@ -36,7 +36,7 @@
     "tags": [
       "group"
     ],
-    "updated_at": "2026-04-10T09:23:41.855847"
+    "updated_at": "2026-04-21T03:04:03.805481"
   },
   "steps": [
     {
@@ -58,7 +58,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_37529f21",
-      "created_at": "2026-04-10T09:19:18.001473",
+      "created_at": "2026-04-21T03:03:51.657233",
       "plan_id": "plan_df4aaebb"
     },
     {
@@ -80,7 +80,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_b887e51c",
-      "created_at": "2026-04-10T09:19:18.008244",
+      "created_at": "2026-04-21T03:03:51.665765",
       "plan_id": "plan_df4aaebb"
     },
     {
@@ -102,7 +102,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_ca6bcdc8",
-      "created_at": "2026-04-10T09:19:18.014422",
+      "created_at": "2026-04-21T03:03:51.674784",
       "plan_id": "plan_df4aaebb"
     },
     {
@@ -124,7 +124,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_969dc7e1",
-      "created_at": "2026-04-10T09:19:18.021686",
+      "created_at": "2026-04-21T03:03:51.682481",
       "plan_id": "plan_df4aaebb"
     },
     {
@@ -150,7 +150,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_5211ced2",
-      "created_at": "2026-04-10T09:19:18.028657",
+      "created_at": "2026-04-21T03:03:51.692087",
       "plan_id": "plan_df4aaebb"
     },
     {
@@ -178,7 +178,7 @@
         "precondition_wait_timeout: 60"
       ],
       "screenshot": "step_a5893dc9",
-      "created_at": "2026-04-10T09:19:18.034188",
+      "created_at": "2026-04-21T03:03:51.699405",
       "plan_id": "plan_df4aaebb"
     },
     {
@@ -200,7 +200,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_41fdae73",
-      "created_at": "2026-04-10T09:19:18.040043",
+      "created_at": "2026-04-21T03:03:51.706707",
       "plan_id": "plan_df4aaebb"
     },
     {
@@ -224,7 +224,7 @@
         "delay: 3"
       ],
       "screenshot": "step_63951e24",
-      "created_at": "2026-04-10T09:19:18.044605",
+      "created_at": "2026-04-21T03:03:51.714810",
       "plan_id": "plan_df4aaebb"
     },
     {
@@ -248,7 +248,7 @@
         "precondition_wait_timeout: 60"
       ],
       "screenshot": "step_5d691940",
-      "created_at": "2026-04-10T09:19:18.048618",
+      "created_at": "2026-04-21T03:03:51.724748",
       "plan_id": "plan_df4aaebb"
     },
     {
@@ -272,7 +272,7 @@
         "delay: 3"
       ],
       "screenshot": "step_063b5973",
-      "created_at": "2026-04-10T09:19:18.052713",
+      "created_at": "2026-04-21T03:03:51.732323",
       "plan_id": "plan_df4aaebb"
     },
     {
@@ -298,7 +298,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_8b35830c",
-      "created_at": "2026-04-10T09:19:18.059795",
+      "created_at": "2026-04-21T03:03:51.741479",
       "plan_id": "plan_df4aaebb"
     },
     {
@@ -323,7 +323,7 @@
         "force_run:true"
       ],
       "screenshot": "step_2d5705d2",
-      "created_at": "2026-04-10T09:19:18.065008",
+      "created_at": "2026-04-21T03:03:51.751009",
       "plan_id": "plan_df4aaebb"
     },
     {
@@ -343,9 +343,11 @@
         "dhash:512:384:0:20:05e58c9cd88c80c0"
       ],
       "postconditions": [],
-      "tags": [],
+      "tags": [
+        "force_run:true"
+      ],
       "screenshot": "step_cae4eca8",
-      "created_at": "2026-04-10T09:23:38.575299",
+      "created_at": "2026-04-21T03:03:51.758047",
       "plan_id": "plan_df4aaebb"
     }
   ],
