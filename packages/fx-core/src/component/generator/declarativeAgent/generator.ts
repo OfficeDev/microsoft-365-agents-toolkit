@@ -40,7 +40,7 @@ import { Generator } from "../generator";
 import { TemplateInfo } from "../templates/templateInfo";
 import { TemplateNames } from "../templates/templateNames";
 import { setGeneralSensitivityLabel } from "../utils";
-import { addExistingPlugin, generateForMCPForDA } from "./helper";
+import { addExistingPlugin, deriveMCPServerNameFromUrl, generateForMCPForDA } from "./helper";
 
 const enum telemetryProperties {
   templateName = "template-name",
@@ -105,9 +105,7 @@ export class DeclarativeAgentGenerator extends DefaultTemplateGenerator {
           : MCPForDAServerUrl
             ? {
                 MCPForDAServerUrl,
-                ServerName: new URL(MCPForDAServerUrl).host
-                  .replace(/[^a-zA-Z0-9]/g, "")
-                  .substring(0, 10),
+                ServerName: deriveMCPServerNameFromUrl(MCPForDAServerUrl),
               }
             : {}),
       };
