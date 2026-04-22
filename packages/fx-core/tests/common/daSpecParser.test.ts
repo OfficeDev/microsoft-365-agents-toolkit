@@ -1781,5 +1781,162 @@ describe("daSpecParser", () => {
       assert.equal(fn.capabilities.response_semantics.data_path, "$.items[0]");
       assert.notProperty(fn.capabilities.response_semantics, "static_template");
     });
+
+    it("inlines Kiota's `{ file }` placeholder for static_template", async () => {
+      // Kiota 1.31.1 emits `static_template: { file: "adaptiveCards/<name>.json" }`
+      // instead of inlining the card. The patch must replace it with the
+      // actual card JSON.
+      const cardsDir = path.join(tmpDir, "adaptiveCards");
+      await fs.ensureDir(cardsDir);
+      const cardJson = {
+        type: "AdaptiveCard",
+        $schema: "http://adaptivecards.io/schemas/adaptive-card.json",
+        version: "1.5",
+        body: [{ type: "TextBlock", text: "${title}" }],
+      };
+      await fs.writeJson(path.join(cardsDir, "search.json"), cardJson);
+
+      const specPath = await writeSpec(
+        [
+          "openapi: 3.0.0",
+          "info: { title: t, version: '1' }",
+          "paths:",
+          "  /search:",
+          "    get:",
+          "      operationId: searchIssues",
+          "      x-ai-adaptive-card:",
+          "        data_path: $.items",
+          "        file: adaptiveCards/search.json",
+          "      responses: { '200': { description: ok } }",
+          "",
+        ].join("\n")
+      );
+      const manifestPath = await writeManifest({
+        schema_version: "v2.4",
+        functions: [
+          {
+            name: "searchIssues",
+            description: "",
+            capabilities: {
+              response_semantics: {
+                data_path: "$.items",
+                static_template: { file: "adaptiveCards/search.json" },
+              },
+            },
+          },
+        ],
+      });
+
+      await daSpecParser.patchOpenApiExtensionsIntoPluginManifest(specPath, manifestPath);
+
+      const fn = (await fs.readJson(manifestPath)).functions[0];
+      assert.deepEqual(fn.capabilities.response_semantics.static_template, cardJson);
+      assert.equal(fn.capabilities.response_semantics.data_path, "$.items");
+    });
+
+    it("does not replace a real static_template that already has card fields", async () => {
+      // If `static_template` already looks like a real Adaptive Card (has
+      // `type`/`$schema`/`body`), we must leave it alone even if a `file`
+      // property happens to be present.
+      const cardsDir = path.join(tmpDir, "adaptiveCards");
+      await fs.ensureDir(cardsDir);
+      await fs.writeJson(path.join(cardsDir, "search.json"), {
+        type: "AdaptiveCard",
+        body: [{ type: "TextBlock", text: "from disk" }],
+      });
+
+      const specPath = await writeSpec(
+        [
+          "openapi: 3.0.0",
+          "info: { title: t, version: '1' }",
+          "paths:",
+          "  /search:",
+          "    get:",
+          "      operationId: searchIssues",
+          "      x-ai-adaptive-card:",
+          "        data_path: $.items",
+          "        file: adaptiveCards/search.json",
+          "      responses: { '200': { description: ok } }",
+          "",
+        ].join("\n")
+      );
+      const realCard = {
+        type: "AdaptiveCard",
+        $schema: "http://adaptivecards.io/schemas/adaptive-card.json",
+        body: [{ type: "TextBlock", text: "preserved" }],
+      };
+      const manifestPath = await writeManifest({
+        schema_version: "v2.4",
+        functions: [
+          {
+            name: "searchIssues",
+            description: "",
+            capabilities: {
+              response_semantics: {
+                data_path: "$.items",
+                static_template: realCard,
+              },
+            },
+          },
+        ],
+      });
+
+      await daSpecParser.patchOpenApiExtensionsIntoPluginManifest(specPath, manifestPath);
+
+      const fn = (await fs.readJson(manifestPath)).functions[0];
+      assert.deepEqual(fn.capabilities.response_semantics.static_template, realCard);
+    });
+
+    it("resolves card files from the parent of the plugin manifest directory", async () => {
+      // Mirrors the real layout: spec lives in `<root>/.generated/specs/`,
+      // plugin manifest lives in `<root>/.generated/`, and the card lives in
+      // `<root>/adaptiveCards/`.
+      const generated = path.join(tmpDir, ".generated");
+      const specsDir = path.join(generated, "specs");
+      await fs.ensureDir(specsDir);
+      await fs.ensureDir(path.join(tmpDir, "adaptiveCards"));
+      const cardJson = { type: "AdaptiveCard", body: [] };
+      await fs.writeJson(path.join(tmpDir, "adaptiveCards", "card.json"), cardJson);
+
+      const specPath = path.join(specsDir, "openapi.yaml");
+      await fs.writeFile(
+        specPath,
+        [
+          "openapi: 3.0.0",
+          "info: { title: t, version: '1' }",
+          "paths:",
+          "  /x:",
+          "    get:",
+          "      operationId: getX",
+          "      x-ai-adaptive-card:",
+          "        data_path: $.items",
+          "        file: adaptiveCards/card.json",
+          "      responses: { '200': { description: ok } }",
+          "",
+        ].join("\n"),
+        "utf8"
+      );
+      const manifestPath = path.join(generated, "x-apiplugin.json");
+      await fs.writeJson(manifestPath, {
+        schema_version: "v2.4",
+        functions: [
+          {
+            name: "getX",
+            description: "",
+            capabilities: {
+              response_semantics: {
+                data_path: "$.items",
+                static_template: { file: "adaptiveCards/card.json" },
+              },
+            },
+          },
+        ],
+      });
+
+      await daSpecParser.patchOpenApiExtensionsIntoPluginManifest(specPath, manifestPath);
+
+      const fn = (await fs.readJson(manifestPath)).functions[0];
+      assert.deepEqual(fn.capabilities.response_semantics.static_template, cardJson);
+    });
   });
 });

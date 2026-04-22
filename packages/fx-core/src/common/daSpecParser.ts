@@ -321,8 +321,52 @@ export async function patchOpenApiExtensionsIntoPluginManifest(
   }
 
   const manifest = (await fs.readJSON(pluginManifestPath)) as PluginManifestSchema;
+  const pluginManifestDir = path.dirname(pluginManifestPath);
   const functions = manifest.functions ?? [];
   let modified = false;
+
+  // Try several base directories when resolving an Adaptive Card file
+  // reference. The path in `x-ai-adaptive-card.file` (and the placeholder
+  // emitted by Kiota) is authored relative to the appPackage directory, but
+  // the plugin manifest lives in `appPackage/.generated/` and the spec lives
+  // in `appPackage/.generated/specs/`. Walk a few candidate base dirs so
+  // either layout works.
+  const candidateBaseDirs = [
+    pluginManifestDir,
+    path.dirname(pluginManifestDir),
+    path.dirname(path.dirname(pluginManifestDir)),
+    specDir,
+    path.dirname(specDir),
+  ];
+  const resolveCardJson = async (relOrAbs: string): Promise<any | undefined> => {
+    const candidates = path.isAbsolute(relOrAbs)
+      ? [relOrAbs]
+      : candidateBaseDirs.map((dir) => path.join(dir, relOrAbs));
+    for (const candidate of candidates) {
+      try {
+        if (await fs.pathExists(candidate)) {
+          return await fs.readJSON(candidate);
+        }
+      } catch {
+        // try next candidate
+      }
+    }
+    return undefined;
+  };
+
+  // Detect Kiota's placeholder shape: `static_template: { file: "..." }`.
+  // Real Adaptive Cards always have `type` and `$schema` (or `body`), so a
+  // bare `{ file }` object means Kiota left the card unresolved.
+  const isFilePlaceholder = (template: any): template is { file: string } => {
+    return (
+      template &&
+      typeof template === "object" &&
+      typeof template.file === "string" &&
+      template.type === undefined &&
+      template.$schema === undefined &&
+      template.body === undefined
+    );
+  };
 
   for (const fn of functions as any[]) {
     const ext = opExtensions.get(fn.name);
@@ -330,28 +374,39 @@ export async function patchOpenApiExtensionsIntoPluginManifest(
     fn.capabilities = fn.capabilities || {};
 
     // 1. response_semantics from x-ai-adaptive-card.
-    if (ext.adaptiveCard && !fn.capabilities.response_semantics) {
-      const responseSemantics: any = {};
-      if (ext.adaptiveCard.data_path) {
-        responseSemantics.data_path = ext.adaptiveCard.data_path;
-      }
-      if (ext.adaptiveCard.file) {
-        const cardPath = path.isAbsolute(ext.adaptiveCard.file)
-          ? ext.adaptiveCard.file
-          : path.join(specDir, ext.adaptiveCard.file);
-        try {
-          if (await fs.pathExists(cardPath)) {
-            const cardJson = await fs.readJSON(cardPath);
+    if (ext.adaptiveCard) {
+      if (!fn.capabilities.response_semantics) {
+        const responseSemantics: any = {};
+        if (ext.adaptiveCard.data_path) {
+          responseSemantics.data_path = ext.adaptiveCard.data_path;
+        }
+        if (ext.adaptiveCard.file) {
+          const cardJson = await resolveCardJson(ext.adaptiveCard.file);
+          if (cardJson !== undefined) {
             responseSemantics.static_template = cardJson;
           }
-        } catch {
-          // Ignore card read errors; leave static_template unset rather than
-          // producing an invalid manifest.
         }
-      }
-      if (Object.keys(responseSemantics).length > 0) {
-        fn.capabilities.response_semantics = responseSemantics;
-        modified = true;
+        if (Object.keys(responseSemantics).length > 0) {
+          fn.capabilities.response_semantics = responseSemantics;
+          modified = true;
+        }
+      } else {
+        // Kiota 1.31.1 emits a placeholder
+        // `static_template: { file: "adaptiveCards/<name>.json" }` instead of
+        // inlining the card contents. Replace it with the actual card JSON.
+        const rs = fn.capabilities.response_semantics;
+        if (isFilePlaceholder(rs.static_template)) {
+          const cardJson = await resolveCardJson(rs.static_template.file);
+          if (cardJson !== undefined) {
+            rs.static_template = cardJson;
+            modified = true;
+          }
+        }
+        // Also fill in data_path if Kiota left it empty.
+        if (!rs.data_path && ext.adaptiveCard.data_path) {
+          rs.data_path = ext.adaptiveCard.data_path;
+          modified = true;
+        }
       }
     }
 
