@@ -9,14 +9,14 @@
       "precondition_retry_interval": 2
     },
     "total_steps": 14,
-    "created_at": "2026-01-05T09:44:56.241921",
+    "created_at": "2026-04-22T09:34:06.722737",
     "name": "group  debug in teams local Reddit",
     "description": {
       "other": "Generated from recording r_0930_083113",
       "owner": "v-ivanchen@microsoft.com",
       "workitem": ""
     },
-    "generated_at": "2026-01-05T09:44:56.241921",
+    "generated_at": "2026-04-22T09:34:06.722737",
     "execution_order": [
       "step_ae3a4474",
       "step_a9b45f31",
@@ -29,6 +29,7 @@
       "step_c5b892ff",
       "step_16f328f2",
       "step_d8eb5c19",
+      "plan_r_0414_052653",
       "step_32806f03",
       "step_7b2ff4aa",
       "step_0ccbdeea"
@@ -36,7 +37,7 @@
     "tags": [
       "group"
     ],
-    "updated_at": "2026-01-05T09:45:05.078667"
+    "updated_at": "2026-04-22T12:17:23.884334"
   },
   "steps": [
     {
@@ -58,7 +59,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_ae3a4474",
-      "created_at": "2026-01-05T09:44:56.262278",
+      "created_at": "2026-04-22T09:34:06.722737",
       "plan_id": "plan_039749bf"
     },
     {
@@ -80,7 +81,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_a9b45f31",
-      "created_at": "2026-01-05T09:44:56.273187",
+      "created_at": "2026-04-22T09:34:06.737900",
       "plan_id": "plan_039749bf"
     },
     {
@@ -102,7 +103,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_5d365a8b",
-      "created_at": "2026-01-05T09:44:56.283660",
+      "created_at": "2026-04-22T09:34:06.737900",
       "plan_id": "plan_039749bf"
     },
     {
@@ -124,7 +125,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_6c0be699",
-      "created_at": "2026-01-05T09:44:56.295274",
+      "created_at": "2026-04-22T09:34:06.752388",
       "plan_id": "plan_039749bf"
     },
     {
@@ -146,7 +147,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_9c985fb5",
-      "created_at": "2026-01-05T09:44:56.306354",
+      "created_at": "2026-04-22T09:34:06.758344",
       "plan_id": "plan_039749bf"
     },
     {
@@ -174,7 +175,7 @@
         "precondition_wait_timeout: 240"
       ],
       "screenshot": "step_2d9ea096",
-      "created_at": "2026-01-05T09:44:56.316148",
+      "created_at": "2026-04-22T09:34:06.758344",
       "plan_id": "plan_039749bf"
     },
     {
@@ -196,7 +197,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_457c0130",
-      "created_at": "2026-01-05T09:44:56.327242",
+      "created_at": "2026-04-22T09:34:06.771970",
       "plan_id": "plan_039749bf"
     },
     {
@@ -220,7 +221,7 @@
         "delay: 3"
       ],
       "screenshot": "step_88f556a6",
-      "created_at": "2026-01-05T09:44:56.335986",
+      "created_at": "2026-04-22T09:34:06.771970",
       "plan_id": "plan_039749bf"
     },
     {
@@ -242,7 +243,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_c5b892ff",
-      "created_at": "2026-01-05T09:44:56.345152",
+      "created_at": "2026-04-22T09:34:06.787312",
       "plan_id": "plan_039749bf"
     },
     {
@@ -266,7 +267,7 @@
         "delay: 3"
       ],
       "screenshot": "step_16f328f2",
-      "created_at": "2026-01-05T09:44:56.352675",
+      "created_at": "2026-04-22T09:34:06.793697",
       "plan_id": "plan_039749bf"
     },
     {
@@ -292,7 +293,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_d8eb5c19",
-      "created_at": "2026-01-05T09:44:56.363264",
+      "created_at": "2026-04-22T09:34:06.800405",
       "plan_id": "plan_039749bf"
     },
     {
@@ -312,7 +313,7 @@
         "step_retry_timeout: 180"
       ],
       "screenshot": null,
-      "created_at": "2026-01-05T09:44:56.371977",
+      "created_at": "2026-04-22T09:34:06.804981",
       "plan_id": "plan_039749bf"
     },
     {
@@ -338,7 +339,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_7b2ff4aa",
-      "created_at": "2026-01-05T09:44:56.380242",
+      "created_at": "2026-04-22T09:34:06.814298",
       "plan_id": "plan_039749bf"
     },
     {
@@ -358,7 +359,7 @@
         "step_retry_timeout: 180"
       ],
       "screenshot": null,
-      "created_at": "2026-01-05T09:44:56.390560",
+      "created_at": "2026-04-22T09:34:06.821502",
       "plan_id": "plan_039749bf"
     }
   ],
