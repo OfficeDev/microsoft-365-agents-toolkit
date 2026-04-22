@@ -39,6 +39,7 @@ import * as fs from "fs-extra";
 import tmp from "tmp";
 import { createHash } from "crypto";
 import path from "path";
+import { parse as parseYaml } from "yaml";
 import { getLocalizedString } from "./localizeUtils";
 
 const daProjectConfig: ParseOptions = {
@@ -234,6 +235,145 @@ export async function generatePlugin(
     adaptiveCardUpdateStrategy
   );
   return result;
+}
+
+// Workaround for https://github.com/OfficeDev/microsoft-365-agents-toolkit/issues/15731.
+// Kiota >= 1.30.0 emits plugin manifest schema v2.4 but does NOT propagate the
+// `x-ai-adaptive-card`, `x-openai-isConsequential` and `x-ai-capabilities`
+// OpenAPI extensions into the generated `*-apiplugin.json` (only the schema
+// version was bumped by microsoft/kiota#7166; the extension propagation
+// promised by issue microsoft/kiota#7165 is not actually implemented as of
+// 1.31.1). This helper reads the source OpenAPI spec, finds those extensions
+// per operation, and patches the corresponding
+// `function.capabilities.{response_semantics,confirmation}` blocks in the
+// generated plugin manifest. Remove this workaround once Kiota propagates
+// these extensions natively.
+//
+// It is a no-op for operations whose extensions are absent or whose
+// capability blocks are already populated by Kiota.
+export async function patchOpenApiExtensionsIntoPluginManifest(
+  specPath: string,
+  pluginManifestPath: string
+): Promise<void> {
+  if (!(await fs.pathExists(specPath)) || !(await fs.pathExists(pluginManifestPath))) {
+    return;
+  }
+
+  const specRaw = await fs.readFile(specPath, "utf8");
+  let spec: any;
+  try {
+    spec = parseYaml(specRaw);
+  } catch {
+    return;
+  }
+  if (!spec || typeof spec !== "object" || !spec.paths) {
+    return;
+  }
+
+  const specDir = path.dirname(specPath);
+  type OpExt = {
+    adaptiveCard?: { data_path?: string; file?: string };
+    isConsequential?: boolean;
+    confirmation?: any;
+  };
+  const opExtensions = new Map<string, OpExt>();
+
+  const httpMethods = [
+    "get",
+    "post",
+    "put",
+    "delete",
+    "patch",
+    "head",
+    "options",
+    "trace",
+    "connect",
+  ];
+  for (const pathKey of Object.keys(spec.paths)) {
+    const pathItem = spec.paths[pathKey];
+    if (!pathItem || typeof pathItem !== "object") continue;
+    for (const method of httpMethods) {
+      const op = pathItem[method];
+      if (!op || typeof op !== "object" || !op.operationId) continue;
+      const adaptiveCard = op["x-ai-adaptive-card"];
+      const isConsequential = op["x-openai-isConsequential"];
+      const aiCapabilities = op["x-ai-capabilities"];
+      if (
+        adaptiveCard === undefined &&
+        isConsequential === undefined &&
+        (!aiCapabilities || aiCapabilities.confirmation === undefined)
+      ) {
+        continue;
+      }
+      opExtensions.set(op.operationId as string, {
+        adaptiveCard: adaptiveCard && typeof adaptiveCard === "object" ? adaptiveCard : undefined,
+        isConsequential: typeof isConsequential === "boolean" ? isConsequential : undefined,
+        confirmation:
+          aiCapabilities && typeof aiCapabilities === "object"
+            ? aiCapabilities.confirmation
+            : undefined,
+      });
+    }
+  }
+
+  if (opExtensions.size === 0) {
+    return;
+  }
+
+  const manifest = (await fs.readJSON(pluginManifestPath)) as PluginManifestSchema;
+  const functions = manifest.functions ?? [];
+  let modified = false;
+
+  for (const fn of functions as any[]) {
+    const ext = opExtensions.get(fn.name);
+    if (!ext) continue;
+    fn.capabilities = fn.capabilities || {};
+
+    // 1. response_semantics from x-ai-adaptive-card.
+    if (ext.adaptiveCard && !fn.capabilities.response_semantics) {
+      const responseSemantics: any = {};
+      if (ext.adaptiveCard.data_path) {
+        responseSemantics.data_path = ext.adaptiveCard.data_path;
+      }
+      if (ext.adaptiveCard.file) {
+        const cardPath = path.isAbsolute(ext.adaptiveCard.file)
+          ? ext.adaptiveCard.file
+          : path.join(specDir, ext.adaptiveCard.file);
+        try {
+          if (await fs.pathExists(cardPath)) {
+            const cardJson = await fs.readJSON(cardPath);
+            responseSemantics.static_template = cardJson;
+          }
+        } catch {
+          // Ignore card read errors; leave static_template unset rather than
+          // producing an invalid manifest.
+        }
+      }
+      if (Object.keys(responseSemantics).length > 0) {
+        fn.capabilities.response_semantics = responseSemantics;
+        modified = true;
+      }
+    }
+
+    // 2. confirmation from x-ai-capabilities.confirmation +
+    //    x-openai-isConsequential.
+    if (ext.confirmation && !fn.capabilities.confirmation) {
+      fn.capabilities.confirmation = { ...ext.confirmation };
+      modified = true;
+    }
+    if (
+      ext.isConsequential !== undefined &&
+      fn.capabilities.confirmation &&
+      fn.capabilities.confirmation.isNonConsequential === undefined
+    ) {
+      fn.capabilities.confirmation.isNonConsequential = !ext.isConsequential;
+      modified = true;
+    }
+  }
+
+  if (modified) {
+    await fs.writeJson(pluginManifestPath, manifest, { spaces: 4 });
+  }
 }
 
 export async function parseAndUpdatePluginManifestForKiota(
