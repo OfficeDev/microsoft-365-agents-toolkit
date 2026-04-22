@@ -415,6 +415,15 @@ export interface SingleFileQuestion extends UserInputQuestion {
    * Default Uri when open file selector window.
    */
   defaultFolder?: string | LocalFunc<string | undefined>;
+
+  /**
+   * Possible files that will be listed for users to select alongside the
+   * `Browse...` entry. The id cannot be "default" or "browse".
+   * This will only take effect in VSC.
+   */
+  possibleFiles?:
+    | { id: string; label: string; description?: string }[]
+    | LocalFunc<{ id: string; label: string; description?: string }[] | undefined>;
 }
 
 export interface MultiFileQuestion extends UserInputQuestion {
