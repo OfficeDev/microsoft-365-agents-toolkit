@@ -714,7 +714,7 @@ jobs:
                       if [ -n "$work_item_links" ]; then
                         work_item_links="$work_item_links, "
                       fi
-                      work_item_links="$work_item_links<a href=\\\"https://msazure.visualstudio.com/Microsoft%20Teams%20Extensibility/_workitems/edit/$item_id\\\">$item_id</a>"
+                      work_item_links="$work_item_links<a href=\"https://msazure.visualstudio.com/Microsoft%20Teams%20Extensibility/_workitems/edit/$item_id\">$item_id</a>"
                     fi
                   fi
                 done
@@ -752,7 +752,7 @@ jobs:
             if [ -z "$report_url" ] || [ "$report_url" = "null" ]; then
               report_url="N/A"
             else
-              report_url="<a href=\\\"$report_url\\\">Report</a>"
+              report_url="<a href=\"$report_url\">Report</a>"
             fi
             echo "Report URL: $report_url"
 
@@ -782,18 +782,21 @@ jobs:
 
 
             label=""
+            row_style=""
             if [ "$status" == "success" ]; then
               passed=$((passed+1))
-              label="<span style=\\\"background-color:#2aa198;color:white;font-weight:bold;\\\">PASSED</span>"
+              row_style="background-color:#f0fdf4;"
+              label="<span style=\"display:inline-block;padding:2px 8px;border-radius:9999px;background-color:#2aa198;color:#ffffff;font-weight:bold;\">PASSED</span>"
             else
               failed=$((failed+1))
-              label="<span style=\\\"background-color: #dc322f;color:white;font-weight:bold;\\\">FAILED</span>"
+              row_style="background-color:#fef2f2;"
+              label="<span style=\"display:inline-block;padding:2px 8px;border-radius:9999px;background-color:#dc322f;color:#ffffff;font-weight:bold;\">FAILED</span>"
             fi
             echo "Job result label: $label"
 
             url=$(echo "$jobs" | jq --arg case "$case" -r '[.[] | select(.name == $case)] | last | .html_url')
             display_name=$(echo "$name" | sed 's/^Case-//')
-            url="<a href=\\\"$url\\\">$display_name</a>"
+            url="<a href=\"$url\">$display_name</a>"
             echo "Job URL: $url"
 
             linked_bugs=""
@@ -847,7 +850,7 @@ jobs:
                     if [ -n "$bug_links" ]; then
                       bug_links="$bug_links, "
                     fi
-                    bug_links="$bug_links<a href=\\\"https://dev.azure.com/${AZURE_DEVOPS_ORG}/${AZURE_DEVOPS_PROJECT}/_workitems/edit/$bug_id\\\">🐞$bug_id</a>"
+                    bug_links="$bug_links<a href=\"https://dev.azure.com/${AZURE_DEVOPS_ORG}/${AZURE_DEVOPS_PROJECT}/_workitems/edit/$bug_id\">🐞$bug_id</a>"
                   done
                   linked_bugs="$bug_links"
                   echo "Found linked bugs: $linked_bugs"
@@ -858,7 +861,7 @@ jobs:
               fi
             fi
             
-            row="<tr> <td style=\\\"text-align: left;\\\">$url</td> <td style=\\\"text-align: center;\\\">$label</td> <td style=\\\"text-align: center;\\\">$owner</td> <td style=\\\"text-align: center;\\\">$work_item_url</td> <td style=\\\"text-align: center;\\\">$linked_bugs</td> <td style=\\\"text-align: center;\\\">$duration</td>  <td style=\\\"text-align: center;\\\">$report_url</td> <td style=\\\"text-align: left;\\\">$error_info</td> </tr>"
+            row="<tr style=\"$row_style\"> <td style=\"text-align:left;border:1px solid #d1d5db;padding:8px;\">$url</td> <td style=\"text-align:center;border:1px solid #d1d5db;padding:8px;\">$label</td> <td style=\"text-align:center;border:1px solid #d1d5db;padding:8px;\">$owner</td> <td style=\"text-align:center;border:1px solid #d1d5db;padding:8px;\">$work_item_url</td> <td style=\"text-align:center;border:1px solid #d1d5db;padding:8px;\">$linked_bugs</td> <td style=\"text-align:center;border:1px solid #d1d5db;padding:8px;\">$duration</td> <td style=\"text-align:center;border:1px solid #d1d5db;padding:8px;\">$report_url</td> <td style=\"text-align:left;border:1px solid #d1d5db;padding:8px;\">$error_info</td> </tr>"
             echo "Generated row: $row"
 
             if [[ "$status" == "success" && $passed -lt $passedlimit ]]; then
@@ -873,7 +876,7 @@ jobs:
           echo "Final failed list: $failedlist"
           echo "Final passed list: $passedlist"
 
-          body="<a href=\\\"https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\\\">Test report link.</a>  <br/> <table class=\\\"w3-table w3-striped w3-bordered\\\"> <tr> <th>CASE</th> <th>STATUS</th> <th>OWNER</th> <th>WORK ITEM</th> <th>LINKED BUG(S)</th> <th>DURATION</th> <th>REPORT</th> <th>Failed Step</th> </tr> $lists </table> <br />"
+          body="<div style=\"font-family:Arial,sans-serif;font-size:14px;color:#111827;\"><a href=\"https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\">Test report link</a><br/><br/><table style=\"border-collapse:collapse;width:100%;\"><tr><th style=\"border:1px solid #d1d5db;padding:8px;background-color:#f3f4f6;\">CASE</th><th style=\"border:1px solid #d1d5db;padding:8px;background-color:#f3f4f6;\">STATUS</th><th style=\"border:1px solid #d1d5db;padding:8px;background-color:#f3f4f6;\">OWNER</th><th style=\"border:1px solid #d1d5db;padding:8px;background-color:#f3f4f6;\">WORK ITEM</th><th style=\"border:1px solid #d1d5db;padding:8px;background-color:#f3f4f6;\">LINKED BUG(S)</th><th style=\"border:1px solid #d1d5db;padding:8px;background-color:#f3f4f6;\">DURATION</th><th style=\"border:1px solid #d1d5db;padding:8px;background-color:#f3f4f6;\">REPORT</th><th style=\"border:1px solid #d1d5db;padding:8px;background-color:#f3f4f6;\">Failed Step</th></tr>$lists</table><br/></div>"
           echo "Generated email body: $body"
 
           total=$((passed+failed))
