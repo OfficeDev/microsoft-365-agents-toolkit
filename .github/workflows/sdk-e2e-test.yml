@@ -1,12 +1,14 @@
 name: SDK E2E test
 
+# The TeamsFx SDK is deprecated (community-supported until Sept 2026).
+# Automatic triggers are disabled; run manually via workflow_dispatch only.
 on:
   workflow_dispatch:
-  schedule:
-    - cron: "0 5 * * *"
-  push:
-    branches:
-      - renovate/**
+  # schedule:
+  #   - cron: "0 5 * * *"
+  # push:
+  #   branches:
+  #     - renovate/**
 
 jobs:
   setup:

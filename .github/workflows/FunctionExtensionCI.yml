@@ -1,14 +1,16 @@
 name: FunctionExtension CI
 
+# Microsoft.Azure.WebJobs.Extensions.TeamsFx is deprecated (community-supported until Sept 2026).
+# Automatic triggers are disabled; run manually via workflow_dispatch only.
 on:
-  push:
-    paths:
-      - "packages/function-extension/**"
-    branches: [main]
-  pull_request:
-    paths:
-      - "packages/function-extension/**"
   workflow_dispatch:
+  # push:
+  #   paths:
+  #     - "packages/function-extension/**"
+  #   branches: [main]
+  # pull_request:
+  #   paths:
+  #     - "packages/function-extension/**"
 
 defaults:
   run:
