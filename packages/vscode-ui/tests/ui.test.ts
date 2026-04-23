@@ -920,6 +920,11 @@ describe("UI Unit Tests", async () => {
 
       expect(result.isErr()).is.true;
       expect(windowShowErrorMessageStub.called).is.true;
+      // Verify the captured compiler output is included in the error message
+      if (result.isErr()) {
+        expect(result.error.message).to.include(errorOutput);
+        expect(result.error.displayMessage).to.include(errorOutput);
+      }
     });
 
     it("should handle timeout error", async () => {
