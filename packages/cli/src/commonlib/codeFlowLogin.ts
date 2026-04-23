@@ -47,6 +47,7 @@ import CliCodeLogInstance from "./log";
 import { decodeClaimsChallenge } from "./common/utils";
 import { getAccountByHomeId } from "./common/tokenCacheUtils";
 import { featureFlagManager, FeatureFlags } from "@microsoft/teamsfx-core";
+import { getInternalFlagFromTokenClaims } from "./accountInfoUtils";
 
 export class ErrorMessage {
   static readonly loginFailureTitle = "LoginFail";
@@ -569,17 +570,6 @@ export function ConvertTokenToJson(token: string): any {
   }
   const buff = Buffer.from(array[1], "base64");
   return JSON.parse(buff.toString(UTF8));
-}
-
-function getInternalFlagFromTokenClaims(tokenJson: Record<string, unknown>): string {
-  const loginName =
-    (tokenJson.upn as string | undefined) ??
-    (tokenJson.unique_name as string | undefined) ??
-    (tokenJson.preferred_username as string | undefined) ??
-    (tokenJson.email as string | undefined) ??
-    "";
-
-  return loginName.toLowerCase().endsWith("@microsoft.com") ? "true" : "false";
 }
 
 export async function checkIsOnline(): Promise<boolean> {

@@ -51,22 +51,13 @@ import { LoginStatus, login } from "./common/login";
 import CLILogProvider from "./log";
 import { MemoryCache } from "./memoryCache";
 import ui from "../userInteraction";
+import { getUsernameFromClaims } from "./accountInfoUtils";
 
 const accountName = "azure";
 const scopes = ["https://management.core.windows.net/user_impersonation"];
 const SERVER_PORT = 0;
 
 const cachePlugin = new CryptoCachePlugin(accountName);
-
-function getUsernameFromClaims(claims?: Record<string, unknown>): string {
-  return (
-    (claims?.upn as string | undefined) ??
-    (claims?.unique_name as string | undefined) ??
-    (claims?.preferred_username as string | undefined) ??
-    (claims?.email as string | undefined) ??
-    ""
-  );
-}
 
 function getConfig(tenantId?: string): Configuration {
   let authority;

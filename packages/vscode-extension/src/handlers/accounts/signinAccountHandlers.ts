@@ -17,6 +17,7 @@ import { M365AccountNode } from "../../treeview/account/m365Node";
 import { getTriggerFromProperty } from "../../utils/telemetryUtils";
 import envTreeProviderInstance from "../../treeview/environmentTreeViewProvider";
 import azureAccountManager from "../../commonlib/azureLogin";
+import { getUsernameFromClaims } from "../../commonlib/accountInfoUtils";
 
 export async function signinM365Callback(...args: unknown[]): Promise<Result<null, FxError>> {
   let node: M365AccountNode | undefined;
@@ -39,10 +40,7 @@ export async function signinM365Callback(...args: unknown[]): Promise<Result<nul
   });
   const token = tokenRes.isOk() ? tokenRes.value : undefined;
   if (token !== undefined && node) {
-    await node.setSignedIn(
-      (token as any).upn ?? (token as any).unique_name ?? "",
-      (token as any).tid ?? ""
-    );
+    await node.setSignedIn(getUsernameFromClaims(token), (token as any).tid ?? "");
   }
 
   await envTreeProviderInstance.reloadEnvironments();

@@ -18,6 +18,7 @@ import { TelemetryEvent } from "../../telemetry/cliTelemetryEvents";
 import { listAllTenants } from "@microsoft/teamsfx-core/build/common/tools";
 import { env } from "../../commonlib/common/constant";
 import { AzureSpCrypto } from "../../commonlib/cacheAccess";
+import { getUsernameFromClaims } from "../../commonlib/accountInfoUtils";
 
 class AccountUtils {
   outputAccountInfoOffline(accountType: string, username: string): boolean {
@@ -131,16 +132,6 @@ class AccountUtils {
   async checkIsOnline(): Promise<boolean> {
     return checkIsOnline();
   }
-}
-
-function getUsernameFromClaims(claims?: Record<string, unknown>): string {
-  return (
-    (claims?.upn as string | undefined) ??
-    (claims?.unique_name as string | undefined) ??
-    (claims?.preferred_username as string | undefined) ??
-    (claims?.email as string | undefined) ??
-    ""
-  );
 }
 
 export const accountUtils = new AccountUtils();

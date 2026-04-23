@@ -55,6 +55,7 @@ import {
   getTenantedAuthorityUrl,
 } from "@microsoft/teamsfx-core";
 import { getAccountByHomeId } from "./common/tokenCacheUtils";
+import { getInternalFlagFromTokenClaims } from "./accountInfoUtils";
 
 interface Deferred<T> {
   resolve: (result: T | Promise<T>) => void;
@@ -636,18 +637,6 @@ export function ConvertTokenToJson(token: string): object {
   } catch (e) {
     return {};
   }
-}
-
-function getInternalFlagFromTokenClaims(tokenJson: object): string {
-  const claims = tokenJson as Record<string, unknown>;
-  const loginName =
-    (claims.upn as string | undefined) ??
-    (claims.unique_name as string | undefined) ??
-    (claims.preferred_username as string | undefined) ??
-    (claims.email as string | undefined) ??
-    "";
-
-  return loginName.toLowerCase().endsWith("@microsoft.com") ? "true" : "false";
 }
 
 export async function checkIsOnline(): Promise<boolean> {

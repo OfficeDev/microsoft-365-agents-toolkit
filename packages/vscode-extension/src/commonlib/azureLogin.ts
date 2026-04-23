@@ -47,18 +47,9 @@ import {
   getSessionFromVSCode,
 } from "./vscodeAzureSubscriptionProvider";
 import { loadTenantId, saveTenantId } from "./cacheAccess";
+import { getUsernameFromClaims } from "./accountInfoUtils";
 
 const showAzureSignOutHelp = "ShowAzureSignOutHelp";
-
-function getUsernameFromClaims(claims?: Record<string, unknown>): string {
-  return (
-    (claims?.upn as string | undefined) ??
-    (claims?.unique_name as string | undefined) ??
-    (claims?.preferred_username as string | undefined) ??
-    (claims?.email as string | undefined) ??
-    ""
-  );
-}
 
 export class AzureAccountManager extends login implements AzureAccountProvider {
   private static instance: AzureAccountManager;

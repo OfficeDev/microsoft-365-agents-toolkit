@@ -10,6 +10,7 @@ import { AzureAccountNode } from "./azureNode";
 import { M365AccountNode } from "./m365Node";
 import { AppStudioScopes, GraphScopes, isSovereignHigh } from "@microsoft/teamsfx-core";
 import { isSPFxProject } from "../../globalVariables";
+import { getUsernameFromClaims } from "../../commonlib/accountInfoUtils";
 
 class AccountTreeViewProvider implements vscode.TreeDataProvider<DynamicNode> {
   private static instance: AccountTreeViewProvider;
@@ -73,7 +74,7 @@ async function m365AccountStatusChangeHandler(
   if (status === "SignedIn") {
     if (accountInfo) {
       await instance.m365AccountNode.setSignedIn(
-        (accountInfo.upn as string) ?? (accountInfo.unique_name as string) ?? "",
+        getUsernameFromClaims(accountInfo),
         (accountInfo.tid as string) ?? ""
       );
       if (token && source === "appStudio") {
@@ -98,7 +99,7 @@ async function azureAccountStatusChangeHandler(
 ) {
   const instance = AccountTreeViewProvider.getInstance();
   if (status === "SignedIn") {
-    const username = (accountInfo?.email as string) || (accountInfo?.upn as string);
+    const username = getUsernameFromClaims(accountInfo);
     if (username) {
       await instance.azureAccountNode.setSignedIn(
         token as string,

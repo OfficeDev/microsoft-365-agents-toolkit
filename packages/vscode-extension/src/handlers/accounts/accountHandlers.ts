@@ -12,6 +12,7 @@ import { getTriggerFromProperty } from "../../utils/telemetryUtils";
 import azureAccountManager from "../../commonlib/azureLogin";
 import M365TokenInstance from "../../commonlib/m365Login";
 import { VS_CODE_UI } from "../../qm/vsc_ui";
+import { getUsernameFromClaims } from "../../commonlib/accountInfoUtils";
 
 export interface VscQuickPickItem extends QuickPickItem {
   /**
@@ -19,16 +20,6 @@ export interface VscQuickPickItem extends QuickPickItem {
    */
   id: string;
   function: () => Promise<void>;
-}
-
-function getUsernameFromClaims(claims?: Record<string, unknown>): string {
-  return (
-    (claims?.upn as string | undefined) ??
-    (claims?.unique_name as string | undefined) ??
-    (claims?.preferred_username as string | undefined) ??
-    (claims?.email as string | undefined) ??
-    ""
-  );
 }
 
 export async function createAccountHandler(args: any[]): Promise<void> {
