@@ -1,17 +1,15 @@
 name: DotNet SDK CI
 
-# Microsoft.TeamsFx (.NET) SDK is deprecated (community-supported until Sept 2026).
-# Automatic triggers are disabled; run manually via workflow_dispatch only.
 on:
+  push:
+    paths:
+      - "packages/dotnet-sdk/**"
+    branches: [dev, release/**]
+  pull_request:
+    paths:
+      - "packages/dotnet-sdk/**"
+    branches: [dev, release/**]
   workflow_dispatch:
-  # push:
-  #   paths:
-  #     - "packages/dotnet-sdk/**"
-  #   branches: [dev, release/**]
-  # pull_request:
-  #   paths:
-  #     - "packages/dotnet-sdk/**"
-  #   branches: [dev, release/**]
 
 defaults:
   run:
