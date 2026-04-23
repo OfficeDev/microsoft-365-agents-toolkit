@@ -10,14 +10,14 @@
       "step_retry_timeout": 0.0
     },
     "total_steps": 4,
-    "created_at": "2026-03-20T01:42:56.277641",
+    "created_at": "2026-04-22T07:18:59.742423",
     "name": "group: create sample",
     "description": {
       "other": "Generated from recording r_1111_043711",
       "owner": "v-ivanchen@microsoft.com",
       "workitem": ""
     },
-    "generated_at": "2026-03-20T01:42:56.277641",
+    "generated_at": "2026-04-22T07:18:59.742423",
     "execution_order": [
       "step_e44f410f",
       "step_fd39b907",
@@ -27,7 +27,7 @@
     "tags": [
       "group"
     ],
-    "updated_at": "2026-03-20T02:13:24.246520"
+    "updated_at": "2026-04-22T08:40:25.674032"
   },
   "steps": [
     {
@@ -53,7 +53,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_e44f410f",
-      "created_at": "2026-03-20T01:42:56.277641",
+      "created_at": "2026-04-22T07:18:59.748072",
       "plan_id": "plan_r_1111_043711"
     },
     {
@@ -73,7 +73,7 @@
         "step_retry_timeout: 60"
       ],
       "screenshot": null,
-      "created_at": "2026-03-20T02:08:28.725420",
+      "created_at": "2026-04-22T07:18:59.748072",
       "plan_id": "plan_r_1111_043711"
     },
     {
@@ -101,7 +101,7 @@
         "force_run:true"
       ],
       "screenshot": "step_a7f414d1",
-      "created_at": "2026-03-20T01:42:56.293398",
+      "created_at": "2026-04-22T07:18:59.748072",
       "plan_id": "plan_r_1111_043711"
     },
     {
@@ -126,10 +126,11 @@
       ],
       "postconditions": [],
       "tags": [
-        "force_run:true"
+        "force_run:true",
+        "delay:5"
       ],
       "screenshot": "step_d2f77608",
-      "created_at": "2026-03-20T01:42:56.301521",
+      "created_at": "2026-04-22T07:18:59.764024",
       "plan_id": "plan_r_1111_043711"
     }
   ],
