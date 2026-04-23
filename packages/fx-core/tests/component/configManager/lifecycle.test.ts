@@ -30,6 +30,7 @@ import {
 import { ExecutionResult, StepDriver } from "../../../src/component/driver/interface/stepDriver";
 import { SummaryConstant } from "../../../src/component/configManager/constant";
 import { MockedAzureAccountProvider, MockedM365Provider } from "../../core/utils";
+import { envUtil } from "../../../src/component/utils/envUtil";
 
 const mockedDriverContext: DriverContext = {
   m365TokenProvider: new MockedM365Provider(),
@@ -824,5 +825,64 @@ describe("writeToEnvironmentFile", () => {
         result.value.has("BBB") &&
         result.value.get("BBB") === "bbb"
     );
+  });
+});
+
+describe("env flush to disk between actions", () => {
+  const sandbox = sinon.createSandbox();
+  let restoreFn: RestoreFn | undefined = undefined;
+
+  before(() => {
+    restoreFn = mockedEnv({ TEAMSFX_ENV: "local" });
+    sandbox
+      .stub(Container, "has")
+      .withArgs(sandbox.match("DriverA"))
+      .returns(true)
+      .withArgs(sandbox.match("DriverB"))
+      .returns(true);
+    sandbox
+      .stub(Container, "get")
+      .withArgs(sandbox.match("DriverA"))
+      .returns(new DriverA())
+      .withArgs(sandbox.match("DriverB"))
+      .returns(new DriverB());
+  });
+
+  after(() => {
+    sandbox.restore();
+    if (restoreFn) {
+      restoreFn();
+    }
+  });
+
+  it("should flush env to disk after each driver execution", async () => {
+    const writeEnvCalls: Array<{ env: string; envs: Record<string, string> }> = [];
+    sandbox.stub(envUtil, "writeEnv").callsFake(async (_projectPath, env, envs) => {
+      writeEnvCalls.push({ env, envs: { ...envs } });
+      return ok(undefined);
+    });
+
+    const driverDefs: DriverDefinition[] = [];
+    driverDefs.push({ uses: "DriverA", with: {} });
+    driverDefs.push({ uses: "DriverB", with: {} });
+
+    const ctx: DriverContext = {
+      ...mockedDriverContext,
+      projectPath: "/fake/project",
+    };
+
+    const lifecycle = new Lifecycle("provision", driverDefs, "1.0.0");
+    const { result } = await lifecycle.execute(ctx);
+
+    assert(result.isOk(), "lifecycle should succeed");
+    // writeEnv should be called once per driver that produced output
+    assert.equal(writeEnvCalls.length, 2, "writeEnv should be called after each driver");
+    // After DriverA runs, its output should be flushed
+    assert.equal(writeEnvCalls[0].env, "local");
+    assert.equal(writeEnvCalls[0].envs["OUTPUT_A"], "VALUE_A");
+    // After DriverB runs, both outputs should be present
+    assert.equal(writeEnvCalls[1].env, "local");
+    assert.equal(writeEnvCalls[1].envs["OUTPUT_A"], "VALUE_A");
+    assert.equal(writeEnvCalls[1].envs["OUTPUT_B"], "VALUE_B");
   });
 });
