@@ -1748,6 +1748,21 @@ describe("daSpecParser", () => {
       assert.deepEqual(await fs.readJson(manifestPath), before);
     });
 
+    it("returns silently when the parsed spec has no paths object", async () => {
+      // YAML parses to a plain string, which exercises the
+      // `!spec || typeof spec !== "object" || !spec.paths` guard.
+      const specPath = await writeSpec("just-a-string\n");
+      const before = {
+        schema_version: "v2.4",
+        functions: [{ name: "x", description: "" }],
+      };
+      const manifestPath = await writeManifest(before);
+
+      await daSpecParser.patchOpenApiExtensionsIntoPluginManifest(specPath, manifestPath);
+
+      assert.deepEqual(await fs.readJson(manifestPath), before);
+    });
+
     it("leaves static_template unset when the referenced card file is unreadable", async () => {
       // Create a directory where a card file is expected; readJson will fail.
       const cardsDir = path.join(tmpDir, "adaptiveCards");
