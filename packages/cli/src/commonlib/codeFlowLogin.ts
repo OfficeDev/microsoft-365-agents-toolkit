@@ -272,9 +272,7 @@ export class CodeFlowLogin {
           [TelemetryProperty.AccountType]: this.accountName,
           [TelemetryProperty.Success]: TelemetrySuccess.Yes,
           [TelemetryProperty.UserId]: (tokenJson as any).oid ? (tokenJson as any).oid : "",
-          [TelemetryProperty.Internal]: (tokenJson as any).upn?.endsWith("@microsoft.com")
-            ? "true"
-            : "false",
+          [TelemetryProperty.Internal]: getInternalFlagFromTokenClaims(tokenJson),
         });
       }
       server.close();
@@ -363,9 +361,7 @@ export class CodeFlowLogin {
           [TelemetryProperty.AccountType]: this.accountName,
           [TelemetryProperty.Success]: TelemetrySuccess.Yes,
           [TelemetryProperty.UserId]: (tokenJson as any).oid ? (tokenJson as any).oid : "",
-          [TelemetryProperty.Internal]: (tokenJson as any).upn?.endsWith("@microsoft.com")
-            ? "true"
-            : "false",
+          [TelemetryProperty.Internal]: getInternalFlagFromTokenClaims(tokenJson),
         });
       }
     }
@@ -573,6 +569,17 @@ export function ConvertTokenToJson(token: string): any {
   }
   const buff = Buffer.from(array[1], "base64");
   return JSON.parse(buff.toString(UTF8));
+}
+
+function getInternalFlagFromTokenClaims(tokenJson: Record<string, unknown>): string {
+  const loginName =
+    (tokenJson.upn as string | undefined) ??
+    (tokenJson.unique_name as string | undefined) ??
+    (tokenJson.preferred_username as string | undefined) ??
+    (tokenJson.email as string | undefined) ??
+    "";
+
+  return loginName.toLowerCase().endsWith("@microsoft.com") ? "true" : "false";
 }
 
 export async function checkIsOnline(): Promise<boolean> {

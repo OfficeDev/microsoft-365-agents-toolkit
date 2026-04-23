@@ -58,6 +58,16 @@ const SERVER_PORT = 0;
 
 const cachePlugin = new CryptoCachePlugin(accountName);
 
+function getUsernameFromClaims(claims?: Record<string, unknown>): string {
+  return (
+    (claims?.upn as string | undefined) ??
+    (claims?.unique_name as string | undefined) ??
+    (claims?.preferred_username as string | undefined) ??
+    (claims?.email as string | undefined) ??
+    ""
+  );
+}
+
 function getConfig(tenantId?: string): Configuration {
   let authority;
   if (tenantId && tenantId.length > 0) {
@@ -244,7 +254,7 @@ export class AzureAccountManager extends login implements AzureAccountProvider {
       if (!AzureAccountManager.domain) {
         AzureAccountManager.domain = (tokenJson as any).tid;
       }
-      AzureAccountManager.username = (tokenJson as any).upn ?? (tokenJson as any).unique_name;
+      AzureAccountManager.username = getUsernameFromClaims(tokenJson as Record<string, unknown>);
       tokenJson = ConvertTokenToJson(accessToken);
       const tokenExpiresIn =
         Math.round(new Date().getTime() / 1000) - ((tokenJson as any).iat as number);
@@ -262,7 +272,7 @@ export class AzureAccountManager extends login implements AzureAccountProvider {
             expiresOn: {},
             resource: env.activeDirectoryResourceId,
             accessToken: accessToken,
-            userId: (tokenJson as any).upn ?? (tokenJson as any).unique_name,
+            userId: getUsernameFromClaims(tokenJson as Record<string, unknown>),
             _clientId: getConfig().auth.clientId,
             _authority: env.activeDirectoryEndpointUrl + (tokenJson as any).tid,
           },

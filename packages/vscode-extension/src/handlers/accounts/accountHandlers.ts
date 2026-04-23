@@ -21,6 +21,16 @@ export interface VscQuickPickItem extends QuickPickItem {
   function: () => Promise<void>;
 }
 
+function getUsernameFromClaims(claims?: Record<string, unknown>): string {
+  return (
+    (claims?.upn as string | undefined) ??
+    (claims?.unique_name as string | undefined) ??
+    (claims?.preferred_username as string | undefined) ??
+    (claims?.email as string | undefined) ??
+    ""
+  );
+}
+
 export async function createAccountHandler(args: any[]): Promise<void> {
   ExtTelemetry.sendTelemetryEvent(TelemetryEvent.CreateAccountStart, getTriggerFromProperty(args));
   const m365Option: OptionItem = {
@@ -110,8 +120,8 @@ export async function cmpAccountsHandler(args: any[]) {
   const m365Account = m365AccountRes.isOk() ? m365AccountRes.value : undefined;
   if (m365Account && m365Account.status === "SignedIn") {
     const accountInfo = m365Account.accountInfo;
-    const email = (accountInfo as any).upn ?? (accountInfo as any).unique_name ?? undefined;
-    if (email !== undefined) {
+    const email = getUsernameFromClaims(accountInfo as Record<string, unknown>);
+    if (email !== "") {
       signOutM365Option.label = signOutM365Option.label.concat(email);
     }
     quickItemOptionArray.push(signOutM365Option);
@@ -122,8 +132,8 @@ export async function cmpAccountsHandler(args: any[]) {
   const azureAccount = await azureAccountManager.getStatus();
   if (azureAccount.status === "SignedIn") {
     const accountInfo = azureAccount.accountInfo;
-    const email = (accountInfo as any).email || (accountInfo as any).upn;
-    if (email !== undefined) {
+    const email = getUsernameFromClaims(accountInfo as Record<string, unknown>);
+    if (email !== "") {
       signOutAzureOption.label = signOutAzureOption.label.concat(email);
     }
     quickItemOptionArray.push(signOutAzureOption);

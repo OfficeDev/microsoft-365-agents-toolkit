@@ -41,7 +41,7 @@ class AccountUtils {
       if (tid) {
         await M365TokenProvider.switchTenant(tid);
       }
-      const username = (result as any).upn ?? (result as any).unique_name;
+      const username = getUsernameFromClaims(result as Record<string, unknown>);
       if (commandType === "login") {
         logger.outputSuccess(strings["account.login.m365"]);
       }
@@ -89,7 +89,7 @@ class AccountUtils {
         await azureProvider.switchTenant(tenantId);
       }
       const subscriptions = await azureProvider.listSubscriptions();
-      const username = (result as any).upn ?? (result as any).unique_name;
+      const username = getUsernameFromClaims(result as Record<string, unknown>);
       if (commandType === "login") {
         logger.outputSuccess(strings["account.login.azure"]);
       }
@@ -133,6 +133,16 @@ class AccountUtils {
   }
 }
 
+function getUsernameFromClaims(claims?: Record<string, unknown>): string {
+  return (
+    (claims?.upn as string | undefined) ??
+    (claims?.unique_name as string | undefined) ??
+    (claims?.preferred_username as string | undefined) ??
+    (claims?.email as string | undefined) ??
+    ""
+  );
+}
+
 export const accountUtils = new AccountUtils();
 
 export const accountShowCommand: CLICommand = {
@@ -153,7 +163,7 @@ export const accountShowCommand: CLICommand = {
         ? await accountUtils.outputM365Info("show")
         : accountUtils.outputAccountInfoOffline(
             "Microsoft 365",
-            (m365Status.accountInfo as any).upn
+            getUsernameFromClaims(m365Status.accountInfo as Record<string, unknown>)
           );
     }
 
@@ -161,7 +171,10 @@ export const accountShowCommand: CLICommand = {
     if (azureStatus.status === signedIn) {
       (await accountUtils.checkIsOnline())
         ? await accountUtils.outputAzureInfo("show")
-        : accountUtils.outputAccountInfoOffline("Azure", (azureStatus.accountInfo as any).upn);
+        : accountUtils.outputAccountInfoOffline(
+            "Azure",
+            getUsernameFromClaims(azureStatus.accountInfo as Record<string, unknown>)
+          );
     }
 
     if (m365Status.status !== signedIn && azureStatus.status !== signedIn) {

@@ -50,6 +50,16 @@ import { loadTenantId, saveTenantId } from "./cacheAccess";
 
 const showAzureSignOutHelp = "ShowAzureSignOutHelp";
 
+function getUsernameFromClaims(claims?: Record<string, unknown>): string {
+  return (
+    (claims?.upn as string | undefined) ??
+    (claims?.unique_name as string | undefined) ??
+    (claims?.preferred_username as string | undefined) ??
+    (claims?.email as string | undefined) ??
+    ""
+  );
+}
+
 export class AzureAccountManager extends login implements AzureAccountProvider {
   private static instance: AzureAccountManager;
   private static subscriptionId: string | undefined;
@@ -299,7 +309,7 @@ export class AzureAccountManager extends login implements AzureAccountProvider {
 
   private async doesUserConfirmSignout(): Promise<boolean> {
     const accountInfo = (await this.getStatus()).accountInfo;
-    const email = (accountInfo as any).upn ? (accountInfo as any).upn : (accountInfo as any).email;
+    const email = getUsernameFromClaims(accountInfo as Record<string, unknown>);
     const confirm = localize("teamstoolkit.common.signout");
     const userSelected: string | undefined = await vscode.window.showInformationMessage(
       util.format(localize("teamstoolkit.common.signOutOf"), email),
