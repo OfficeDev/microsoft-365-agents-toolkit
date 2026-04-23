@@ -297,7 +297,7 @@ jobs:
                 echo "$failed_step_id" > error.txt
               fi
             else
-              echo "No failed step found" > error.txt
+              echo " " > error.txt
             fi
 
             echo "Extracted errors:"
