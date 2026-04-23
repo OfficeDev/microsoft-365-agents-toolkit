@@ -1938,5 +1938,146 @@ describe("daSpecParser", () => {
       const fn = (await fs.readJson(manifestPath)).functions[0];
       assert.deepEqual(fn.capabilities.response_semantics.static_template, cardJson);
     });
+
+    it("swallows readJSON errors when the card file exists but is invalid JSON", async () => {
+      // Exercises the `catch` branch inside resolveCardJson: pathExists
+      // succeeds but readJSON throws on a corrupt file.
+      const cardsDir = path.join(tmpDir, "adaptiveCards");
+      await fs.ensureDir(cardsDir);
+      await fs.writeFile(path.join(cardsDir, "broken.json"), "{ not valid json", "utf8");
+
+      const specPath = await writeSpec(
+        [
+          "openapi: 3.0.0",
+          "info: { title: t, version: '1' }",
+          "paths:",
+          "  /items:",
+          "    get:",
+          "      operationId: getItems",
+          "      x-ai-adaptive-card:",
+          "        data_path: $.items",
+          "        file: adaptiveCards/broken.json",
+          "      responses: { '200': { description: ok } }",
+          "",
+        ].join("\n")
+      );
+      const manifestPath = await writeManifest({
+        schema_version: "v2.4",
+        functions: [
+          {
+            name: "getItems",
+            description: "",
+            capabilities: {
+              response_semantics: {
+                static_template: { file: "adaptiveCards/broken.json" },
+              },
+            },
+          },
+        ],
+      });
+
+      await daSpecParser.patchOpenApiExtensionsIntoPluginManifest(specPath, manifestPath);
+
+      // The placeholder should be left intact since the card could not be
+      // read; data_path should still get filled from the spec.
+      const fn = (await fs.readJson(manifestPath)).functions[0];
+      assert.deepEqual(fn.capabilities.response_semantics.static_template, {
+        file: "adaptiveCards/broken.json",
+      });
+      assert.equal(fn.capabilities.response_semantics.data_path, "$.items");
+    });
+
+    it("fills missing data_path on an existing response_semantics with a placeholder", async () => {
+      // response_semantics exists with the Kiota `{ file }` placeholder but
+      // without a data_path; the patcher should backfill data_path from the
+      // spec while also inlining the card.
+      const cardsDir = path.join(tmpDir, "adaptiveCards");
+      await fs.ensureDir(cardsDir);
+      const card = { type: "AdaptiveCard", version: "1.5", body: [] };
+      await fs.writeJson(path.join(cardsDir, "get.json"), card);
+
+      const specPath = await writeSpec(
+        [
+          "openapi: 3.0.0",
+          "info: { title: t, version: '1' }",
+          "paths:",
+          "  /items:",
+          "    get:",
+          "      operationId: getItems",
+          "      x-ai-adaptive-card:",
+          "        data_path: $.value",
+          "        file: adaptiveCards/get.json",
+          "      responses: { '200': { description: ok } }",
+          "",
+        ].join("\n")
+      );
+      const manifestPath = await writeManifest({
+        schema_version: "v2.4",
+        functions: [
+          {
+            name: "getItems",
+            description: "",
+            capabilities: {
+              response_semantics: {
+                // No data_path; placeholder static_template.
+                static_template: { file: "adaptiveCards/get.json" },
+              },
+            },
+          },
+        ],
+      });
+
+      await daSpecParser.patchOpenApiExtensionsIntoPluginManifest(specPath, manifestPath);
+
+      const fn = (await fs.readJson(manifestPath)).functions[0];
+      assert.equal(fn.capabilities.response_semantics.data_path, "$.value");
+      assert.deepEqual(fn.capabilities.response_semantics.static_template, card);
+    });
+
+    it("fills missing data_path on an existing response_semantics with a real card", async () => {
+      // response_semantics exists with a real (non-placeholder) static_template
+      // but no data_path. The patcher should leave the card alone and only
+      // backfill data_path.
+      const realCard = {
+        type: "AdaptiveCard",
+        $schema: "http://adaptivecards.io/schemas/adaptive-card.json",
+        body: [{ type: "TextBlock", text: "real" }],
+      };
+      const specPath = await writeSpec(
+        [
+          "openapi: 3.0.0",
+          "info: { title: t, version: '1' }",
+          "paths:",
+          "  /items:",
+          "    get:",
+          "      operationId: getItems",
+          "      x-ai-adaptive-card:",
+          "        data_path: $.value",
+          "        file: adaptiveCards/get.json",
+          "      responses: { '200': { description: ok } }",
+          "",
+        ].join("\n")
+      );
+      const manifestPath = await writeManifest({
+        schema_version: "v2.4",
+        functions: [
+          {
+            name: "getItems",
+            description: "",
+            capabilities: {
+              response_semantics: {
+                static_template: realCard,
+              },
+            },
+          },
+        ],
+      });
+
+      await daSpecParser.patchOpenApiExtensionsIntoPluginManifest(specPath, manifestPath);
+
+      const fn = (await fs.readJson(manifestPath)).functions[0];
+      assert.equal(fn.capabilities.response_semantics.data_path, "$.value");
+      assert.deepEqual(fn.capabilities.response_semantics.static_template, realCard);
+    });
   });
 });
