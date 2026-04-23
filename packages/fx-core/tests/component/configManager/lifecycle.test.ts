@@ -831,6 +831,8 @@ describe("writeToEnvironmentFile", () => {
 describe("env flush to disk between actions", () => {
   const sandbox = sinon.createSandbox();
   let restoreFn: RestoreFn | undefined = undefined;
+  const driverAInstance = new DriverA();
+  const driverBInstance = new DriverB();
 
   before(() => {
     restoreFn = mockedEnv({ TEAMSFX_ENV: "local" });
@@ -843,9 +845,9 @@ describe("env flush to disk between actions", () => {
     sandbox
       .stub(Container, "get")
       .withArgs(sandbox.match("DriverA"))
-      .returns(new DriverA())
+      .returns(driverAInstance)
       .withArgs(sandbox.match("DriverB"))
-      .returns(new DriverB());
+      .returns(driverBInstance);
   });
 
   after(() => {

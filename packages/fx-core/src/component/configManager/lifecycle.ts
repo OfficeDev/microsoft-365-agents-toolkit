@@ -318,7 +318,7 @@ export class Lifecycle implements ILifecycle {
         );
         if (writeRes.isErr()) {
           ctx.logProvider.warning(
-            `Failed to flush env output to disk after action ${this.stringifyDriverDef(driver)}: ${writeRes.error.message}`
+            `Failed to flush env output to disk after action ${this.stringifyDriverDef(driver)}: ${writeRes.error?.message ?? String(writeRes.error)}`
           );
         }
       }
