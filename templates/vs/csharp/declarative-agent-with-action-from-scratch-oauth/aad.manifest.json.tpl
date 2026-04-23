@@ -4,7 +4,6 @@
     "displayName": "{{appName}}-aad",
     "identifierUris": [
 {{#MicrosoftEntra}}
-        "api://${{OPENAPI_SERVER_DOMAIN}}/${{AAD_APP_CLIENT_ID}}",
         "${{AADAUTHCODE_APPLICATION_ID_URI}}"
 {{/MicrosoftEntra}}
 {{^MicrosoftEntra}}
@@ -59,7 +58,8 @@
     "web": {
         "redirectUris": [
 {{#MicrosoftEntra}}
-            "https://teams.microsoft.com/api/platform/v1.0/oAuthConsentRedirect"
+            "https://teams.microsoft.com/api/platform/v1.0/oAuthConsentRedirect",
+            "https://teams.microsoft.com/api/platform/v1.0/oAuthRedirect"
 {{/MicrosoftEntra}}
 {{^MicrosoftEntra}}
             "https://teams.microsoft.com/api/platform/v1.0/oAuthRedirect"
