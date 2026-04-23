@@ -365,6 +365,124 @@ describe("Wrapped Axios Client Test", () => {
     chai.expect(result).to.be.undefined;
   });
 
+  it("TDP API error response without headers does not throw", async () => {
+    const mockedError = {
+      message: "Bad Request",
+      request: {
+        method: "GET",
+        host: getResourceServiceEndpoint(ResourceServiceType.TDP),
+        path: "/api/appdefinitions/fakeId",
+      },
+      config: {},
+      response: {
+        status: 400,
+        // headers intentionally omitted
+      },
+    } as any;
+    const telemetryChecker = sinon.spy(mockTools.telemetryReporter, "sendTelemetryErrorEvent");
+
+    let rejected: any;
+    await WrappedAxiosClient.onRejected(mockedError).catch((e) => (rejected = e));
+
+    chai.expect(rejected).to.equal(mockedError);
+    chai.expect(telemetryChecker.calledOnce).to.be.true;
+  });
+
+  it("MOS API error with nested response.data.error is surfaced", async () => {
+    const mockedError = {
+      message: "Conflict",
+      request: {
+        method: "POST",
+        host: "https://titles.prod.mos.microsoft.com",
+        path: "/dev/v1/users/packages",
+      },
+      config: {},
+      response: {
+        status: 409,
+        data: {
+          error: { code: "Conflict", message: "Already exists" },
+        },
+        headers: { traceresponse: "trace-xyz" },
+      },
+    } as any;
+    const telemetryChecker = sinon.spy(mockTools.telemetryReporter, "sendTelemetryErrorEvent");
+
+    let rejected: any;
+    await WrappedAxiosClient.onRejected(mockedError).catch((e) => (rejected = e));
+
+    chai.expect(rejected).to.equal(mockedError);
+    chai.expect(telemetryChecker.calledOnce).to.be.true;
+    const props = telemetryChecker.firstCall.args[1] as any;
+    chai.expect(props["err-message"]).to.contain("Conflict");
+    chai.expect(props["err-message"]).to.contain("Already exists");
+    chai.expect(props["err-message"]).to.contain("trace-xyz");
+  });
+
+  it("onRejected swallows internal telemetry errors and still rejects", async () => {
+    const mockedError = {
+      message: "boom",
+      request: { method: "GET", host: "https://example.com", path: "/x" },
+      config: {},
+    } as any;
+    // Force the telemetry reporter itself to throw, exercising the outer catch.
+    sinon
+      .stub(mockTools.telemetryReporter, "sendTelemetryErrorEvent")
+      .throws(new Error("telemetry exploded"));
+
+    let rejected: any;
+    await WrappedAxiosClient.onRejected(mockedError).catch((e) => (rejected = e));
+
+    chai.expect(rejected).to.equal(mockedError);
+  });
+
+  it("onRejected handles minimal error shape with no config / no message", async () => {
+    // Bare-minimum error object: no config, no message, no response.
+    // Exercises the "?? undefined" / "?? '...'" nullish fallback branches.
+    const mockedError = {
+      request: {
+        host: "https://titles.prod.mos.microsoft.com",
+        path: "/dev/v1/users/packages",
+      },
+    } as any;
+    const telemetryChecker = sinon.spy(mockTools.telemetryReporter, "sendTelemetryErrorEvent");
+
+    let rejected: any;
+    await WrappedAxiosClient.onRejected(mockedError).catch((e) => (rejected = e));
+
+    chai.expect(rejected).to.equal(mockedError);
+    chai.expect(telemetryChecker.calledOnce).to.be.true;
+  });
+
+  it("MOS API error with response.data.error missing fields uses fallback", async () => {
+    const mockedError = {
+      message: "Server Error",
+      request: {
+        method: "POST",
+        host: "https://titles.prod.mos.microsoft.com",
+        path: "/dev/v1/users/packages",
+      },
+      config: {},
+      response: {
+        status: 500,
+        // .error exists but has neither .code nor .message → exercises the
+        // `(innerError.code as string) ?? ""` and `... ?? ""` fallbacks.
+        data: { error: {} },
+        // no `headers.traceresponse` → exercises tracingId "undefined" fallback
+        headers: {},
+      },
+    } as any;
+    const telemetryChecker = sinon.spy(mockTools.telemetryReporter, "sendTelemetryErrorEvent");
+
+    let rejected: any;
+    await WrappedAxiosClient.onRejected(mockedError).catch((e) => (rejected = e));
+
+    chai.expect(rejected).to.equal(mockedError);
+    chai.expect(telemetryChecker.calledOnce).to.be.true;
+    const props = telemetryChecker.firstCall.args[1] as any;
+    chai.expect(props["err-message"]).to.contain("Server Error");
+    chai.expect(props["err-message"]).to.contain("undefined"); // tracingId fallback
+  });
+
   it("Create bot API start telemetry", async () => {
     const mockedRequest = {
       method: "POST",
