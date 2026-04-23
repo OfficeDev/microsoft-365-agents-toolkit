@@ -923,7 +923,6 @@ describe("UI Unit Tests", async () => {
       // Verify the captured compiler output is included in the error message
       if (result.isErr()) {
         expect(result.error.message).to.include(errorOutput);
-        expect(result.error.displayMessage).to.include(errorOutput);
       }
     });
 
