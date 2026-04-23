@@ -179,8 +179,10 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Enable Corepack
-        run: corepack enable pnpm
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 8.6.12
 
       - name: Setup Node.js
         uses: actions/setup-node@v5
