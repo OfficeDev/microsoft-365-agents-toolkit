@@ -1,0 +1,416 @@
+name: Sync Knowledge
+
+on:
+  schedule:
+    - cron: '0 8 * * 1-5' # Weekday mornings at 08:00 UTC
+  workflow_dispatch:
+    inputs:
+      source_id:
+        description: 'Sync a specific source by ID (leave empty for all)'
+        type: string
+        required: false
+        default: ''
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  sync-repo-knowledge:
+    runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Sync sources
+        id: sync
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SOURCE_FILTER: ${{ inputs.source_id || '' }}
+          WORKFLOW_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -euo pipefail
+
+          CONFIG=".github/sync-sources.json"
+          STATE=".github/sync-state.json"
+          HAS_CHANGES="false"
+          PR_TITLE=""
+          PR_BODY=""
+
+          # Read all source entries (or filter to one)
+          if [ -n "$SOURCE_FILTER" ]; then
+            sources=$(jq -c --arg id "$SOURCE_FILTER" '.sources[] | select(.id == $id)' "$CONFIG")
+          else
+            sources=$(jq -c '.sources[]' "$CONFIG")
+          fi
+
+          if [ -z "$sources" ]; then
+            echo "No matching sources found."
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "$sources" | while IFS= read -r source; do
+            id=$(echo "$source" | jq -r '.id')
+            repo=$(echo "$source" | jq -r '.repo')
+            branch=$(echo "$source" | jq -r '.branch')
+            source_path=$(echo "$source" | jq -r '.sourcePath')
+            target_path=$(echo "$source" | jq -r '.targetPath')
+            generate_enabled=$(echo "$source" | jq -r '.generate.enabled // false')
+
+            echo "::group::Processing source: $id"
+            echo "  repo=$repo branch=$branch"
+            echo "  source=$source_path -> target=$target_path"
+
+            # --- Get latest commit SHA ---
+            latest_sha=$(gh api "repos/$repo/commits/$branch" --jq '.sha')
+            echo "  Latest commit: $latest_sha"
+
+            # --- Read last synced SHA ---
+            last_sha=$(jq -r --arg id "$id" '.sources[$id].lastSyncedCommit // ""' "$STATE")
+            echo "  Last synced:   ${last_sha:-<never>}"
+
+            # --- Skip if unchanged ---
+            if [ "$latest_sha" = "$last_sha" ]; then
+              echo "  No new commits. Skipping."
+              echo "::endgroup::"
+              continue
+            fi
+
+            # --- Sparse checkout source repo ---
+            src_dir=$(mktemp -d)
+            echo "  Cloning $repo (sparse: $source_path)..."
+            git clone --filter=blob:none --sparse --branch "$branch" --depth 1 \
+              "https://github.com/$repo.git" "$src_dir" 2>/dev/null
+            (cd "$src_dir" && git sparse-checkout set "$source_path")
+
+            # --- Build rsync exclude args ---
+            exclude_args=""
+            for pattern in $(echo "$source" | jq -r '.exclude[]? // empty'); do
+              exclude_args="$exclude_args --exclude=$pattern"
+            done
+
+            # --- Sync files ---
+            mkdir -p "$target_path"
+            rsync -av --delete $exclude_args "$src_dir/$source_path/" "$target_path/"
+            rm -rf "$src_dir"
+
+            # --- Get commit log ---
+            commit_log=""
+            if [ -n "$last_sha" ]; then
+              echo "  Fetching commit log ${last_sha:0:7}..${latest_sha:0:7}..."
+              commit_log=$(gh api "repos/$repo/compare/${last_sha}...${latest_sha}" \
+                --jq '[.commits[] | "- [`\(.sha[0:7])`](\(.html_url)) \(.commit.message | split("\n") | .[0])"] | join("\n")' \
+                2>/dev/null || echo "  (Could not fetch commit log)")
+
+              # Filter to commits that touch sourcePath
+              changed_files=$(gh api "repos/$repo/compare/${last_sha}...${latest_sha}" \
+                --jq --arg sp "$source_path" '[.files[] | select(.filename | startswith($sp)) | .filename] | length' \
+                2>/dev/null || echo "?")
+            else
+              commit_log="Initial sync from $repo ($branch)"
+              changed_files="all"
+            fi
+
+            # --- Update sync state ---
+            now=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+            jq --arg id "$id" --arg sha "$latest_sha" --arg ts "$now" \
+              '.sources[$id] = {"lastSyncedCommit": $sha, "lastSyncedAt": $ts}' \
+              "$STATE" > "${STATE}.tmp" && mv "${STATE}.tmp" "$STATE"
+
+            echo "  Synced. Updated state to $latest_sha"
+
+            # --- Build PR metadata ---
+            # Count commits
+            if [ -n "$last_sha" ]; then
+              commit_count=$(gh api "repos/$repo/compare/${last_sha}...${latest_sha}" \
+                --jq '.commits | length' 2>/dev/null || echo "?")
+            else
+              commit_count="initial"
+            fi
+
+            # Save per-source PR info to temp files (for aggregation after loop)
+            echo "$id" >> /tmp/sync_changed_ids
+            {
+              echo "## Source: \`$id\`"
+              echo ""
+              echo "**Repository:** [$repo](https://github.com/$repo) (branch: \`$branch\`)"
+              echo "**Path:** \`$source_path\` → \`$target_path\`"
+              echo "**Commits:** $commit_count new (${last_sha:0:7}..${latest_sha:0:7})"
+              echo "**Files in source path changed:** $changed_files"
+              echo ""
+              echo "### Commit Log"
+              echo ""
+              echo "$commit_log"
+              echo ""
+              echo "---"
+            } >> "/tmp/sync_pr_body_$id"
+
+            echo "::endgroup::"
+          done
+
+          # --- Aggregate results ---
+          if [ -f /tmp/sync_changed_ids ]; then
+            changed_ids=$(cat /tmp/sync_changed_ids | tr '\n' ', ' | sed 's/,$//')
+            count=$(wc -l < /tmp/sync_changed_ids | tr -d ' ')
+
+            # Combine PR bodies
+            full_body="# Knowledge Sync Report"$'\n\n'
+            full_body+="**Synced sources:** $changed_ids"$'\n'
+            full_body+="**Workflow run:** [View run]($WORKFLOW_RUN_URL)"$'\n\n'
+
+            for id_file in /tmp/sync_pr_body_*; do
+              full_body+=$(cat "$id_file")
+              full_body+=$'\n'
+            done
+
+            echo "has_changes=true" >> "$GITHUB_OUTPUT"
+            echo "pr_title=[Knowledge Sync] $changed_ids: $count source(s) updated" >> "$GITHUB_OUTPUT"
+
+            # Write PR body to file (too long for env var)
+            echo "$full_body" > /tmp/pr_body.md
+          else
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      # --- Generate experts for sources that need it ---
+      - name: Setup Node.js
+        if: steps.sync.outputs.has_changes == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Generate experts (if configured)
+        if: steps.sync.outputs.has_changes == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.PAT || secrets.GITHUB_TOKEN }}
+          SOURCE_FILTER: ${{ inputs.source_id || '' }}
+        run: |
+          set -euo pipefail
+
+          CONFIG=".github/sync-sources.json"
+
+          # Find sources with generate.enabled = true
+          if [ -n "$SOURCE_FILTER" ]; then
+            gen_sources=$(jq -c --arg id "$SOURCE_FILTER" \
+              '.sources[] | select(.id == $id and .generate.enabled == true)' "$CONFIG")
+          else
+            gen_sources=$(jq -c '.sources[] | select(.generate.enabled == true)' "$CONFIG")
+          fi
+
+          if [ -z "$gen_sources" ]; then
+            echo "No sources require expert generation."
+            exit 0
+          fi
+
+          # Install Copilot CLI
+          echo "Installing GitHub Copilot CLI..."
+          npm install -g @github/copilot
+
+          echo "$gen_sources" | while IFS= read -r source; do
+            id=$(echo "$source" | jq -r '.id')
+            target_path=$(echo "$source" | jq -r '.targetPath')
+            template_path=$(echo "$source" | jq -r '.generate.templatePath')
+            prompt_path=$(echo "$source" | jq -r '.generate.promptPath')
+            output_path=$(echo "$source" | jq -r '.generate.outputPath')
+            skill_name=$(echo "$source" | jq -r '.generate.skillName // .id')
+
+            echo "::group::Generating experts for: $id"
+
+            # Read prompt template and perform variable substitution
+            prompt_template=$(cat "$prompt_path")
+
+            # List synced source files for context
+            source_files=$(find "$target_path" -type f -name '*.md' | head -200 | sort)
+
+            # Substitute template variables
+            prompt="${prompt_template//\{\{SOURCE_PATH\}\}/$target_path}"
+            prompt="${prompt//\{\{OUTPUT_PATH\}\}/$output_path}"
+            prompt="${prompt//\{\{TEMPLATE_PATH\}\}/$template_path}"
+            prompt="${prompt//\{\{SKILL_NAME\}\}/$skill_name}"
+
+            # Append file listing
+            prompt="$prompt"$'\n\n'"## Source files found:"$'\n'"$source_files"
+
+            echo "  Running Copilot CLI to generate experts..."
+            mkdir -p "$output_path"
+
+            # Run Copilot CLI — graceful degradation on failure
+            copilot -p "$prompt" --allow-all-tools 2>&1 || {
+              echo "::warning::Copilot CLI failed for $id. PR will include synced content only."
+            }
+
+            echo "::endgroup::"
+          done
+
+      # --- Assess and update derived files ---
+      - name: Assess derived files
+        id: derived
+        if: steps.sync.outputs.has_changes == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.PAT || secrets.GITHUB_TOKEN }}
+          HAS_PAT: ${{ secrets.PAT && 'true' || 'false' }}
+          SOURCE_FILTER: ${{ inputs.source_id || '' }}
+        run: |
+          set -euo pipefail
+
+          CONFIG=".github/sync-sources.json"
+          PROMPT_TEMPLATE=".github/templates/assess-derived-file-prompt.md"
+          VALIDATE_SCRIPT=".github/scripts/validate-derived.sh"
+          chmod +x "$VALIDATE_SCRIPT"
+
+          # Collect sources that had changes (written by sync step)
+          if [ ! -f /tmp/sync_changed_ids ]; then
+            echo "No changed sources. Skipping derived file assessment."
+            exit 0
+          fi
+
+          # Check if Copilot CLI is available (requires PAT)
+          HAS_COPILOT="false"
+          if [ "$HAS_PAT" = "true" ]; then
+            if command -v copilot &>/dev/null; then
+              HAS_COPILOT="true"
+            else
+              echo "Installing GitHub Copilot CLI..."
+              npm install -g @github/copilot 2>/dev/null && HAS_COPILOT="true" || true
+            fi
+          fi
+
+          # Initialize derived files report
+          echo "## Derived Files" > /tmp/derived_report.md
+          echo "" >> /tmp/derived_report.md
+          echo "| File | Status | Details |" >> /tmp/derived_report.md
+          echo "|------|--------|---------|" >> /tmp/derived_report.md
+
+          derived_updated="false"
+
+          while IFS= read -r changed_id; do
+            # Get derivedFiles for this source
+            derived_files=$(jq -c --arg id "$changed_id" \
+              '.sources[] | select(.id == $id) | .derivedFiles[]?' "$CONFIG")
+
+            [ -z "$derived_files" ] && continue
+
+            echo "$derived_files" | while IFS= read -r df; do
+              df_path=$(echo "$df" | jq -r '.path')
+              df_desc=$(echo "$df" | jq -r '.description')
+              context_paths=$(echo "$df" | jq -r '.contextPaths[]')
+
+              echo "::group::Assessing derived file: $df_path"
+
+              # Skip derived files that were themselves synced (already up-to-date from upstream)
+              if git diff --name-only HEAD -- "$df_path" 2>/dev/null | grep -q .; then
+                echo "  File was already updated by sync step. Skipping assessment."
+                echo "| \`$df_path\` | ⏭️ Skipped | Already updated by sync |" >> /tmp/derived_report.md
+                echo "::endgroup::"
+                continue
+              fi
+
+              if [ ! -f "$df_path" ]; then
+                echo "  Derived file does not exist. Skipping."
+                echo "| \`$df_path\` | ⏭️ Skipped | File does not exist |" >> /tmp/derived_report.md
+                echo "::endgroup::"
+                continue
+              fi
+
+              if [ "$HAS_COPILOT" != "true" ]; then
+                echo "  Copilot CLI not available. Skipping assessment."
+                echo "| \`$df_path\` | ⏭️ Skipped | Copilot CLI not available (set PAT secret) |" >> /tmp/derived_report.md
+                echo "::endgroup::"
+                continue
+              fi
+
+              # Build directory listing from contextPaths
+              dir_listing=""
+              for ctx in $context_paths; do
+                if [ -d "$ctx" ]; then
+                  dir_listing+="$ctx/"$'\n'
+                  dir_listing+=$(find "$ctx" -type f -name '*.md' | sort | sed "s|^|  |")
+                  dir_listing+=$'\n'
+                fi
+              done
+
+              # Get added and modified files
+              # Untracked files = newly added by sync (rsync creates them but doesn't git-add)
+              # Modified files = existing tracked files changed by sync
+              added_files=$(git ls-files --others --exclude-standard -- 2>/dev/null || echo "")
+              modified_files=$(git diff --name-only HEAD -- 2>/dev/null || echo "")
+
+              # Build prompt from template
+              prompt=$(cat "$PROMPT_TEMPLATE")
+              prompt="${prompt//\{\{DERIVED_PATH\}\}/$df_path}"
+              prompt="${prompt//\{\{DESCRIPTION\}\}/$df_desc}"
+              prompt="${prompt//\{\{DIR_LISTING\}\}/$dir_listing}"
+              prompt="${prompt//\{\{ADDED_FILES\}\}/$added_files}"
+              prompt="${prompt//\{\{MODIFIED_FILES\}\}/$modified_files}"
+
+              # Back up current file
+              cp "$df_path" "${df_path}.bak"
+
+              # Run Copilot CLI for assessment
+              echo "  Running Copilot CLI assessment..."
+              copilot_output=$(copilot -p "$prompt" --allow-all-tools 2>&1) || {
+                echo "::warning::Copilot CLI failed for $df_path. Keeping existing file."
+                echo "| \`$df_path\` | ⚠️ Error | Copilot CLI failed |" >> /tmp/derived_report.md
+                rm -f "${df_path}.bak"
+                echo "::endgroup::"
+                continue
+              }
+
+              # Parse verdict
+              if echo "$copilot_output" | grep -q "VERDICT: COMPATIBLE"; then
+                echo "  Derived file is compatible. No changes needed."
+                echo "| \`$df_path\` | ✅ Compatible | No changes needed |" >> /tmp/derived_report.md
+                rm -f "${df_path}.bak"
+                echo "::endgroup::"
+                continue
+              fi
+
+              # Copilot CLI uses edit_file tool to make targeted edits in-place
+              if echo "$copilot_output" | grep -q "EDITS_APPLIED"; then
+                # Validate the edited file
+                if bash "$VALIDATE_SCRIPT" "$df_path"; then
+                  echo "  Edits applied and validated successfully."
+                  echo "| \`$df_path\` | ✅ Updated | Targeted edits applied and validated |" >> /tmp/derived_report.md
+                  rm -f "${df_path}.bak"
+                  echo "true" > /tmp/derived_updated
+                else
+                  echo "::warning::Validation failed for edited $df_path. Reverting to previous version."
+                  mv "${df_path}.bak" "$df_path"
+                  echo "| \`$df_path\` | ⚠️ Kept old | Validation failed on edited version |" >> /tmp/derived_report.md
+                fi
+              else
+                echo "  Verdict was INCOMPATIBLE but no edits were applied."
+                echo "| \`$df_path\` | ⚠️ Kept old | Incompatible but no edits applied |" >> /tmp/derived_report.md
+                mv "${df_path}.bak" "$df_path"
+              fi
+
+              echo "::endgroup::"
+            done
+          done < /tmp/sync_changed_ids
+
+          # Append derived report to PR body
+          if [ -f /tmp/pr_body.md ] && [ -f /tmp/derived_report.md ]; then
+            echo "" >> /tmp/pr_body.md
+            cat /tmp/derived_report.md >> /tmp/pr_body.md
+          fi
+
+          # Safety cleanup: remove any stray .bak files
+          find . -name '*.bak' -delete 2>/dev/null || true
+
+      # --- Create Pull Request ---
+      - name: Create Pull Request
+        if: steps.sync.outputs.has_changes == 'true'
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: 'sync: update knowledge from upstream sources'
+          branch: sync/knowledge
+          delete-branch: true
+          title: ${{ steps.sync.outputs.pr_title }}
+          body-path: /tmp/pr_body.md
+          labels: knowledge-sync

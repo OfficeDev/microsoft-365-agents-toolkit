@@ -37,6 +37,7 @@ export {
   getEntraEndpoint,
   getDefaultAuthorityUrl,
   getTenantedAuthorityUrl,
+  isSovereignHigh,
 } from "./common/accountUtils";
 export { globalStateGet, globalStateUpdate } from "./common/globalState";
 export { AadSet } from "./common/globalVars";

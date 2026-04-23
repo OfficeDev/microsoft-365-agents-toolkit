@@ -4,16 +4,18 @@ packages:
   -  "packages/cli"
   -  "packages/vscode-extension"
   -  "packages/metrics-ts"
-  -  "packages/adaptivecards-tools-sdk"
   -  "packages/manifest"
   -  "packages/eslint-plugin-teamsfx"
   -  "packages/tests"
-  -  "packages/sdk"
-  -  "packages/sdk-react"
+  # Deprecated SDKs (community-supported / replaced upstream):
+  # excluded from workspace to reduce setup time. Maintained out-of-band.
+  # -  "packages/sdk"
+  # -  "packages/sdk-react"
+  # -  "packages/adaptivecards-tools-sdk"  # superseded by `adaptivecards-templating`
+  # -  "packages/mcp-server"               # deprecated
   -  "packages/server"
   -  "packages/vscode-ui"
   -  "packages/spec-parser"
-  -  "packages/mcp-server"
   -  "templates"
 onlyBuiltDependencies:
   - keytar

@@ -5,6 +5,7 @@ export enum Hub {
   teams = "Teams",
   outlook = "Outlook",
   office = "the Microsoft 365 app",
+  copilot = "Copilot",
 }
 
 export const outlookCopilotAppId = "d870f6cd-4aa5-4d42-9626-ab690c041429";

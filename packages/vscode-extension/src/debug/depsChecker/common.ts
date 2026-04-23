@@ -25,6 +25,7 @@ import {
   DepsType,
   ErrorCategory,
   FindProcessError,
+  GraphScopes,
   HttpClientError,
   LocalEnvManager,
   MosServiceScope,
@@ -36,6 +37,7 @@ import {
   assembleError,
   getSideloadingStatus,
   isSandboxedEnabled,
+  isSovereignHigh,
 } from "@microsoft/teamsfx-core";
 import * as os from "os";
 import * as util from "util";
@@ -355,7 +357,9 @@ function ensureM365Account(
       ctx: TelemetryContext
     ): Promise<Result<{ token: string; tenantId?: string; loginHint?: string }, FxError>> => {
       const m365Login: M365TokenProvider = M365TokenInstance;
-      let loginStatusRes = await m365Login.getStatus({ scopes: AppStudioScopes() });
+      let loginStatusRes = await m365Login.getStatus({
+        scopes: isSovereignHigh() ? GraphScopes : AppStudioScopes(),
+      });
       if (loginStatusRes.isErr()) {
         ctx.properties[TelemetryProperty.DebugM365AccountStatus] = "error";
         return err(loginStatusRes.error);
@@ -367,13 +371,15 @@ function ensureM365Account(
       let tid = loginStatusRes.value.accountInfo?.tid;
       if (loginStatusRes.value.status === signedOut && showLoginPage) {
         const tokenRes = await tools.tokenProvider.m365TokenProvider.getAccessToken({
-          scopes: AppStudioScopes(),
+          scopes: isSovereignHigh() ? GraphScopes : AppStudioScopes(),
           showDialog: true,
         });
         if (tokenRes.isErr()) {
           return err(tokenRes.error);
         }
-        loginStatusRes = await m365Login.getStatus({ scopes: AppStudioScopes() });
+        loginStatusRes = await m365Login.getStatus({
+          scopes: isSovereignHigh() ? GraphScopes : AppStudioScopes(),
+        });
         if (loginStatusRes.isErr()) {
           return err(loginStatusRes.error);
         }

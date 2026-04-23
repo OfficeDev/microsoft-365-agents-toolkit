@@ -25,6 +25,8 @@ import { promisify } from "util";
 import { LocalMcpPrefix } from "../../constants";
 import { AppStudioError } from "./errors";
 import { AppStudioResultFactory } from "./results";
+import { FeatureFlagName } from "../../../common/featureFlags";
+import { SovereignCloudEnvironment } from "../../../common/accountUtils";
 
 export const actionName = "teamsApp/publishAppPackage";
 
@@ -56,6 +58,16 @@ export class PublishAppPackageDriver implements StepDriver {
     context: WrapDriverContext,
     outputEnvVarNames?: Map<string, string>
   ): Promise<Result<Map<string, string>, FxError>> {
+    if (
+      process.env[FeatureFlagName.SovereignCloudEnvironment] === SovereignCloudEnvironment.GCCH ||
+      process.env[FeatureFlagName.SovereignCloudEnvironment] === SovereignCloudEnvironment.DOD
+    ) {
+      context.logProvider.warning(
+        getLocalizedString("driver.teamsApp.warning.publishUnsupportedCloud", actionName)
+      );
+      return ok(new Map<string, string>());
+    }
+
     const argsValidationResult = this.validateArgs(args);
     if (argsValidationResult.isErr()) {
       return err(argsValidationResult.error);

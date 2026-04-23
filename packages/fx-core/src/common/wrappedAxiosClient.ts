@@ -159,18 +159,6 @@ export class WrappedAxiosClient {
     return undefined;
   }
 
-  private static isMOSApi(url: string): boolean {
-    const regex = /titles\.(prod|msit)\.mos\.microsoft\.com/;
-    const matches = regex.exec(url);
-    return matches != null && matches.length > 0;
-  }
-
-  static getMOSApiRelativePath(url: string): string {
-    const regex = /titles\.(prod|msit)\.mos\.microsoft\.com/;
-    const match = regex.exec(url);
-    return match ? url.slice(match.index + match[0].length) : "";
-  }
-
   /**
    * Convert request URL to API name, otherwise it will be redacted in telemetry
    * This function should be extended when new API is added
@@ -320,7 +308,7 @@ export class WrappedAxiosClient {
       }
     } else if (this.isMOSApi(fullPath)) {
       // MOS API
-      const relativePath = this.getMOSApiRelativePath(fullPath);
+      const relativePath = this.extractMOSPath(fullPath);
       const mosApiDef = this.convertMethodUrlToApiDefForMOS(method, relativePath);
       if (mosApiDef) {
         return `mos_${mosApiDef.key}`;
@@ -399,6 +387,19 @@ export class WrappedAxiosClient {
     const regex = /(^https:\/\/)?([\w.-]+\.)?graph\.microsoft\.(com|us)(:\d+)?(\/|$)/i;
     const matches = regex.exec(baseUrl);
     return matches != null && matches.length > 0;
+  }
+
+  private static isMOSApi(baseUrl: string): boolean {
+    const mosRegex =
+      /(^https:\/\/)?titles\.(prod|gccm)\.mos\.microsoft\.com|(^https:\/\/)?titles\.(gcch|dod)\.mos\.svc\.usgovcloud\.microsoft/;
+    const matches = mosRegex.exec(baseUrl);
+    return matches != null && matches.length > 0;
+  }
+
+  private static extractMOSPath(fullPath: string): string {
+    const mosRegex =
+      /(^https:\/\/)?titles\.(prod|gccm)\.mos\.microsoft\.com|(^https:\/\/)?titles\.(gcch|dod)\.mos\.svc\.usgovcloud\.microsoft/;
+    return fullPath.replace(mosRegex, "");
   }
 
   private static getEventName(

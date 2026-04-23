@@ -2,7 +2,7 @@
   "name": "ms-teams-vscode-extension",
   "displayName": "Microsoft 365 Agents Toolkit",
   "description": "Create, debug, and deploy agents with Microsoft 365 Agents Toolkit",
-  "version": "6.6.1",
+  "version": "6.8.0",
   "publisher": "TeamsDevApp",
   "author": "Microsoft Corporation",
   "private": true,
@@ -1860,10 +1860,12 @@
         "M365AgentsToolkit.sovereignCloudEnvironment": {
           "type": "string",
           "enum": [
-            "GCC M"
+            "GCC M",
+            "GCC H",
+            "DoD"
           ],
           "default": "",
-          "markdownDescription": "Set the sovereign cloud environment for Microsoft 365 Agents Toolkit. This along with setting `#microsoft-sovereign-cloud.environment#` to `USGovernment` is required to use this feature."
+          "markdownDescription": "Set the sovereign cloud environment for Microsoft 365 Agents Toolkit. If you select `GCC H` or `DoD`, you must also set `#microsoft-sovereign-cloud.environment#` to `USGovernment`. Reload VS Code after changing this setting for it to take effect."
         },
         "M365AgentsToolkit.logLevel": {
           "type": "string",

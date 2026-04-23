@@ -6,6 +6,7 @@ import AdmZip from "adm-zip";
 import chai from "chai";
 import fs from "fs-extra";
 import "mocha";
+import mockedEnv from "mocked-env";
 import * as sinon from "sinon";
 import { teamsDevPortalClient } from "../../../../src/client/teamsDevPortalClient";
 import {
@@ -17,11 +18,14 @@ import { ValidateAppPackageArgs } from "../../../../src/component/driver/teamsAp
 import { IAppValidationNote } from "../../../../src/component/driver/teamsApp/interfaces/appdefinitions/IValidationResult";
 import { ValidateAppPackageDriver } from "../../../../src/component/driver/teamsApp/validateAppPackage";
 import { metadataUtil } from "../../../../src/component/utils/metadataUtil";
+import { FeatureFlagName } from "../../../../src/common/featureFlags";
+import { SovereignCloudEnvironment } from "../../../../src/common/accountUtils";
 import { MockedM365Provider } from "../../../core/utils";
 import { MockedLogProvider, MockedUserInteraction } from "../../../plugins/solution/util";
 
 describe("teamsApp/validateAppPackage", async () => {
   const teamsAppDriver = new ValidateAppPackageDriver();
+  let restoreEnv: (() => void) | undefined;
   const mockedDriverContext: any = {
     m365TokenProvider: new MockedM365Provider(),
     logProvider: new MockedLogProvider(),
@@ -37,6 +41,8 @@ describe("teamsApp/validateAppPackage", async () => {
   afterEach(() => {
     sinon.restore();
     (mockedDriverContext.logProvider as MockedLogProvider).msg = "";
+    restoreEnv?.();
+    restoreEnv = undefined;
   });
 
   it("file not found - app package", async () => {
@@ -49,6 +55,46 @@ describe("teamsApp/validateAppPackage", async () => {
     if (result.isErr()) {
       chai.assert.equal(AppStudioError.FileNotFoundError.name, result.error.name);
     }
+  });
+
+  it("skip validation in GCCH", async () => {
+    restoreEnv = mockedEnv({
+      [FeatureFlagName.SovereignCloudEnvironment]: SovereignCloudEnvironment.GCCH,
+    });
+    const partnerCenterValidationSpy = sinon.spy(
+      teamsDevPortalClient,
+      "partnerCenterAppPackageValidation"
+    );
+    const pathExistsStub = sinon.stub(fs, "pathExists");
+
+    const args: ValidateAppPackageArgs = {
+      appPackagePath: "fakePath",
+    };
+
+    const result = (await teamsAppDriver.execute(args, mockedDriverContext)).result;
+    chai.assert(result.isOk());
+    sinon.assert.notCalled(partnerCenterValidationSpy);
+    sinon.assert.notCalled(pathExistsStub);
+  });
+
+  it("skip validation in DoD", async () => {
+    restoreEnv = mockedEnv({
+      [FeatureFlagName.SovereignCloudEnvironment]: SovereignCloudEnvironment.DOD,
+    });
+    const partnerCenterValidationSpy = sinon.spy(
+      teamsDevPortalClient,
+      "partnerCenterAppPackageValidation"
+    );
+    const pathExistsStub = sinon.stub(fs, "pathExists");
+
+    const args: ValidateAppPackageArgs = {
+      appPackagePath: "fakePath",
+    };
+
+    const result = (await teamsAppDriver.execute(args, mockedDriverContext)).result;
+    chai.assert(result.isOk());
+    sinon.assert.notCalled(partnerCenterValidationSpy);
+    sinon.assert.notCalled(pathExistsStub);
   });
 
   it("validate app package - error", async () => {

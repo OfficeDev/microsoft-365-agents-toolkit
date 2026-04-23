@@ -505,10 +505,7 @@ export class ActionStartOptions {
   static all(inputs: Inputs, doesProjectExists?: boolean): OptionItem[] {
     if (doesProjectExists) {
       const options: OptionItem[] = [ActionStartOptions.apiSpec()];
-      if (
-        featureFlagManager.getBooleanValue(FeatureFlags.MCPForDA) &&
-        inputs.platform !== Platform.VSCode
-      ) {
+      if (featureFlagManager.getBooleanValue(FeatureFlags.MCPForDA)) {
         options.push(ActionStartOptions.mcp());
       }
       return options;

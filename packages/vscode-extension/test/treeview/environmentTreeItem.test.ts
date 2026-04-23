@@ -3,6 +3,7 @@ import * as sinon from "sinon";
 import * as vscode from "vscode";
 
 import { FxError, LoginStatus, ok, Result, SubscriptionInfo } from "@microsoft/teamsfx-api";
+import { FeatureFlags, GraphScopes, featureFlagManager } from "@microsoft/teamsfx-core";
 
 import { M365Login } from "../../src/commonlib/m365Login";
 import * as globalVariables from "../../src/globalVariables";
@@ -132,5 +133,18 @@ describe("EnvironmentNode", () => {
     const resourceGroupNode = (subscriptionNodeChildren as DynamicNode[])[0];
     chai.assert.equal(resourceGroupNode.getTreeItem(), resourceGroupNode);
     chai.assert.isNull(resourceGroupNode.getChildren());
+  });
+
+  it("checkAccountForEnvironment uses Graph scopes in sovereign high", async () => {
+    sandbox.stub(featureFlagManager, "getStringValue").returns("GCC H");
+    const environmentNode = new EnvironmentNode("test");
+    const getStatusStub = sandbox
+      .stub(M365Login.getInstance(), "getStatus")
+      .resolves(ok({ status: "SignedOut", accountInfo: {} } as any));
+    sandbox.stub(globalVariables, "isSPFxProject").value(true);
+
+    await environmentNode.getChildren();
+
+    chai.assert.isTrue(getStatusStub.calledOnceWithExactly({ scopes: GraphScopes }));
   });
 });

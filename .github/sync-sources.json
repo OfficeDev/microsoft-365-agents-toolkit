@@ -1,0 +1,24 @@
+{
+  "version": 2,
+  "sources": [
+    {
+      "id": "slack-plus-teams-experts",
+      "repo": "microsoft/slack-plus-teams",
+      "branch": "main",
+      "sourcePath": "experts",
+      "targetPath": "packages/vscode-extension/skills/microsoft-365-agents-toolkit/experts",
+      "exclude": [
+        ".claude",
+        "teams/toolkit.*",
+        "teams/dev.debug-test-ts.md"
+      ],
+      "derivedFiles": [
+        {
+          "path": "packages/vscode-extension/skills/microsoft-365-agents-toolkit/slack-to-teams/SKILL.md",
+          "contextPaths": ["packages/vscode-extension/skills/microsoft-365-agents-toolkit/experts", "packages/vscode-extension/skills/microsoft-365-agents-toolkit/docs"],
+          "description": "Routed expert system SKILL.md for Slack-to-Teams migration. References expert domains, file paths, routing rules, and platform comparison docs."
+        }
+      ]
+    }
+  ]
+}

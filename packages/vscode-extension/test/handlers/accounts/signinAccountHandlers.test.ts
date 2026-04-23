@@ -2,6 +2,7 @@ import * as sinon from "sinon";
 import * as chai from "chai";
 import * as vscode from "vscode";
 import { NetworkError, UserCancelError } from "@microsoft/teamsfx-core";
+import { FeatureFlags, GraphScopes, featureFlagManager } from "@microsoft/teamsfx-core";
 import { AzureAccountManager } from "../../../src/commonlib/azureLogin";
 import {
   signinAzureCallback,
@@ -179,6 +180,22 @@ describe("SigninAccountHandlers", () => {
 
       chai.assert.isTrue(getJsonObjectStub.notCalled);
       chai.assert.isTrue(setSignedInStub.notCalled);
+    });
+
+    it("uses Graph scopes in sovereign high", async () => {
+      sandbox.stub(featureFlagManager, "getStringValue").returns("GCC H");
+      const getJsonObjectStub = sandbox
+        .stub(tools.tokenProvider.m365TokenProvider, "getJsonObject")
+        .returns(Promise.resolve(ok({ upn: "test" })));
+
+      await signinM365Callback({}, { status: 0, setSignedIn: () => {} });
+
+      chai.assert.isTrue(
+        getJsonObjectStub.calledOnceWithExactly({
+          scopes: GraphScopes,
+          showDialog: true,
+        })
+      );
     });
   });
 });
