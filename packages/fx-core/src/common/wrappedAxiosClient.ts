@@ -90,69 +90,84 @@ export class WrappedAxiosClient {
    * @returns
    */
   public static onRejected(error: AxiosError) {
-    const method = error.request.method as string;
-    const fullPath = `${(error.request.host as string) ?? ""}${
-      (error.request.path as string) ?? ""
-    }`;
-    const apiName = this.convertUrlToApiName(fullPath, method);
+    // Telemetry must never throw, otherwise the synthetic error will mask the
+    // real transport-level failure (TLS handshake, ECONNRESET on a kept-alive
+    // socket, etc.) returned to the caller. See AB#37640864.
+    try {
+      const method = ((error.request?.method as string) ?? "").toString();
+      const fullPath = `${(error.request?.host as string) ?? ""}${
+        (error.request?.path as string) ?? ""
+      }`;
+      const apiName = this.convertUrlToApiName(fullPath, method);
 
-    let requestData: any;
-    if (error.config?.data && typeof error.config.data === "string") {
-      try {
-        requestData = JSON.parse(error.config.data);
-      } catch (error) {
-        requestData = undefined;
+      let requestData: any;
+      if (error.config?.data && typeof error.config.data === "string") {
+        try {
+          requestData = JSON.parse(error.config.data);
+        } catch (error) {
+          requestData = undefined;
+        }
       }
+      const properties: { [key: string]: string } = {
+        url: `<${apiName}-url>`,
+        method: method,
+        params: this.generateParameters(error.config?.params),
+        [TelemetryProperty.Success]: TelemetrySuccess.No,
+        [TelemetryProperty.ErrorMessage]: error.response
+          ? JSON.stringify(error.response.data)
+          : error.message ?? "undefined",
+        "status-code": error.response?.status.toString() ?? "undefined",
+        ...this.generateExtraProperties(fullPath, requestData),
+      };
+
+      const eventName = this.getEventName(fullPath);
+      if (eventName === TelemetryEvent.AppStudioApi) {
+        const correlationId =
+          (error.response?.headers
+            ? error.response.headers[Constants.CORRELATION_ID]
+            : undefined) ?? "undefined";
+
+        const extraData = getDefaultString(
+          "error.appstudio.apiFailed.reason.common",
+          error.response?.data ? `data: ${JSON.stringify(error.response.data)}` : ""
+        );
+        const TDPApiFailedError = new DeveloperPortalAPIFailedSystemError(
+          error,
+          correlationId as string,
+          apiName,
+          extraData
+        );
+        properties[TelemetryProperty.ErrorCode] =
+          `${TDPApiFailedError.source}.${TDPApiFailedError.name}`;
+        properties[TelemetryProperty.ErrorMessage] = TDPApiFailedError.message;
+        properties[TelemetryProperty.TDPTraceId] = correlationId as string;
+      } else if (eventName === TelemetryEvent.MOSApi) {
+        const tracingId = (error.response?.headers?.traceresponse ?? "undefined") as string;
+        const originalMessage = error.message;
+        const responseData = error.response?.data;
+        const innerError =
+          responseData && typeof responseData === "object"
+            ? (responseData as any).error ?? { code: "", message: "" }
+            : { code: "", message: "" };
+        const finalMessage = `${originalMessage} (tracingId: ${tracingId}) ${
+          (innerError.code as string) ?? ""
+        }: ${(innerError.message as string) ?? ""} `;
+        properties[TelemetryProperty.ErrorMessage] = finalMessage;
+        properties[TelemetryProperty.MOSTraceId] = tracingId;
+      }
+
+      TOOLS?.telemetryReporter?.sendTelemetryErrorEvent(eventName, properties);
+    } catch {
+      // Swallow telemetry errors so we always reject with the original error.
     }
-    const properties: { [key: string]: string } = {
-      url: `<${apiName}-url>`,
-      method: method,
-      params: this.generateParameters(error.config!.params),
-      [TelemetryProperty.Success]: TelemetrySuccess.No,
-      [TelemetryProperty.ErrorMessage]: error.response
-        ? JSON.stringify(error.response.data)
-        : error.message ?? "undefined",
-      "status-code": error.response?.status.toString() ?? "undefined",
-      ...this.generateExtraProperties(fullPath, requestData),
-    };
-
-    const eventName = this.getEventName(fullPath);
-    if (eventName === TelemetryEvent.AppStudioApi) {
-      const correlationId = error.response?.headers[Constants.CORRELATION_ID] ?? "undefined";
-
-      const extraData = getDefaultString(
-        "error.appstudio.apiFailed.reason.common",
-        error.response?.data ? `data: ${JSON.stringify(error.response.data)}` : ""
-      );
-      const TDPApiFailedError = new DeveloperPortalAPIFailedSystemError(
-        error,
-        correlationId,
-        apiName,
-        extraData
-      );
-      properties[TelemetryProperty.ErrorCode] =
-        `${TDPApiFailedError.source}.${TDPApiFailedError.name}`;
-      properties[TelemetryProperty.ErrorMessage] = TDPApiFailedError.message;
-      properties[TelemetryProperty.TDPTraceId] = correlationId;
-    } else if (eventName === TelemetryEvent.MOSApi) {
-      const tracingId = (error.response?.headers?.traceresponse ?? "undefined") as string;
-      const originalMessage = error.message;
-      const innerError = (error.response?.data as any).error || { code: "", message: "" };
-      const finalMessage = `${originalMessage} (tracingId: ${tracingId}) ${
-        innerError.code as string
-      }: ${innerError.message as string} `;
-      properties[TelemetryProperty.ErrorMessage] = finalMessage;
-      properties[TelemetryProperty.MOSTraceId] = tracingId;
-    }
-
-    TOOLS?.telemetryReporter?.sendTelemetryErrorEvent(eventName, properties);
     return Promise.reject(error);
   }
 
   static convertMethodUrlToApiDefForMOS(method: string, url: string): MOS3Api | undefined {
+    const upperMethod = (method ?? "").toUpperCase();
     for (const key of Object.keys(MOS3ApiDefinitions)) {
       const api = MOS3ApiDefinitions[key];
-      if (api.method === method.toUpperCase() && url.match(api.path)) {
+      if (api.method === upperMethod && url.match(api.path)) {
         return api;
       }
     }
@@ -168,7 +183,7 @@ export class WrappedAxiosClient {
    * @returns
    */
   public static convertUrlToApiName(fullPath: string, method: string): string {
-    const upperMethod = method.toUpperCase();
+    const upperMethod = (method ?? "").toUpperCase();
 
     if (this.isTDPApi(fullPath)) {
       if (fullPath.match(new RegExp("/api/aadapp/v2"))) {
