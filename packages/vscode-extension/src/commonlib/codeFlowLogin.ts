@@ -267,7 +267,7 @@ export class CodeFlowLogin {
           [TelemetryProperty.UserId]: (tokenJson as any).oid ? (tokenJson as any).oid : "",
           [TelemetryProperty.Internal]: (
             (tokenJson as any).upn ?? (tokenJson as any).unique_name
-          ).endsWith("@microsoft.com")
+          )?.endsWith("@microsoft.com")
             ? "true"
             : "false",
         });
@@ -350,7 +350,7 @@ export class CodeFlowLogin {
           [TelemetryProperty.UserId]: (tokenJson as any).oid ? (tokenJson as any).oid : "",
           [TelemetryProperty.Internal]: (
             (tokenJson as any).upn ?? (tokenJson as any).unique_name
-          ).endsWith("@microsoft.com")
+          )?.endsWith("@microsoft.com")
             ? "true"
             : "false",
         });
