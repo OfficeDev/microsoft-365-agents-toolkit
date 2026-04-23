@@ -888,3 +888,190 @@ describe("env flush to disk between actions", () => {
     assert.equal(writeEnvCalls[1].envs["OUTPUT_B"], "VALUE_B");
   });
 });
+
+// Additional coverage for the per-step env flush guard branches:
+//   if (result.value.size > 0 && ctx.projectPath && process.env.TEAMSFX_ENV) { ... }
+// and for the writeEnv error path / warning logging.
+describe("env flush to disk between actions - edge cases", () => {
+  const sandbox = sinon.createSandbox();
+  let restoreFn: RestoreFn | undefined = undefined;
+
+  // Driver that returns success with an empty env map; flush must NOT happen.
+  class DriverEmptyOk implements StepDriver {
+    progressTitle = "mocked progress title";
+    async execute(): Promise<ExecutionResult> {
+      return { result: ok(new Map<string, string>()), summaries: [] };
+    }
+  }
+
+  // Driver that returns an error; flush must NOT happen for this driver.
+  class DriverErr implements StepDriver {
+    progressTitle = "mocked progress title";
+    async execute(): Promise<ExecutionResult> {
+      return { result: err(mockedError), summaries: [] };
+    }
+  }
+
+  const driverAInstance = new DriverA();
+  const driverEmptyInstance = new DriverEmptyOk();
+  const driverErrInstance = new DriverErr();
+
+  beforeEach(() => {
+    sandbox
+      .stub(Container, "has")
+      .withArgs(sandbox.match("DriverA"))
+      .returns(true)
+      .withArgs(sandbox.match("DriverEmptyOk"))
+      .returns(true)
+      .withArgs(sandbox.match("DriverErr"))
+      .returns(true);
+    sandbox
+      .stub(Container, "get")
+      .withArgs(sandbox.match("DriverA"))
+      .returns(driverAInstance)
+      .withArgs(sandbox.match("DriverEmptyOk"))
+      .returns(driverEmptyInstance)
+      .withArgs(sandbox.match("DriverErr"))
+      .returns(driverErrInstance);
+  });
+
+  afterEach(() => {
+    sandbox.restore();
+    if (restoreFn) {
+      restoreFn();
+      restoreFn = undefined;
+    }
+  });
+
+  it("should not flush when driver returns empty env map", async () => {
+    restoreFn = mockedEnv({ TEAMSFX_ENV: "local" });
+    const writeEnvSpy = sandbox.stub(envUtil, "writeEnv").resolves(ok(undefined));
+
+    const lifecycle = new Lifecycle("provision", [{ uses: "DriverEmptyOk", with: {} }], "1.0.0");
+    const { result } = await lifecycle.execute({
+      ...mockedDriverContext,
+      projectPath: "/fake/project",
+    });
+
+    assert(result.isOk(), "lifecycle should succeed");
+    assert.equal(writeEnvSpy.callCount, 0, "writeEnv should not be called for empty output");
+  });
+
+  it("should not flush when ctx.projectPath is empty", async () => {
+    restoreFn = mockedEnv({ TEAMSFX_ENV: "local" });
+    const writeEnvSpy = sandbox.stub(envUtil, "writeEnv").resolves(ok(undefined));
+
+    const lifecycle = new Lifecycle("provision", [{ uses: "DriverA", with: {} }], "1.0.0");
+    const { result } = await lifecycle.execute({
+      ...mockedDriverContext,
+      projectPath: "",
+    });
+
+    assert(result.isOk(), "lifecycle should succeed");
+    assert.equal(
+      writeEnvSpy.callCount,
+      0,
+      "writeEnv should not be called when projectPath is empty"
+    );
+  });
+
+  it("should not flush when TEAMSFX_ENV is not set", async () => {
+    restoreFn = mockedEnv({ TEAMSFX_ENV: undefined });
+    const writeEnvSpy = sandbox.stub(envUtil, "writeEnv").resolves(ok(undefined));
+
+    const lifecycle = new Lifecycle("provision", [{ uses: "DriverA", with: {} }], "1.0.0");
+    const { result } = await lifecycle.execute({
+      ...mockedDriverContext,
+      projectPath: "/fake/project",
+    });
+
+    assert(result.isOk(), "lifecycle should succeed");
+    assert.equal(
+      writeEnvSpy.callCount,
+      0,
+      "writeEnv should not be called when TEAMSFX_ENV is not set"
+    );
+  });
+
+  it("should log a warning but continue when writeEnv returns an error", async () => {
+    restoreFn = mockedEnv({ TEAMSFX_ENV: "local" });
+    const writeEnvSpy = sandbox.stub(envUtil, "writeEnv").resolves(err(mockedError));
+    const logProvider = new MockedLogProvider();
+    const warningSpy = sandbox.spy(logProvider, "warning");
+
+    const lifecycle = new Lifecycle("provision", [{ uses: "DriverA", with: {} }], "1.0.0");
+    const { result } = await lifecycle.execute({
+      ...mockedDriverContext,
+      projectPath: "/fake/project",
+      logProvider,
+    });
+
+    assert(result.isOk(), "lifecycle should still succeed when flush fails");
+    assert.equal(writeEnvSpy.callCount, 1, "writeEnv should be attempted once");
+    assert.equal(warningSpy.callCount, 1, "warning should be logged exactly once");
+    const warningMsg = String(warningSpy.firstCall.args[0]);
+    assert(
+      warningMsg.includes("Failed to flush env output to disk"),
+      `warning message should describe the flush failure, got: ${warningMsg}`
+    );
+    assert(
+      warningMsg.includes("mockedMessage"),
+      `warning message should include underlying error message, got: ${warningMsg}`
+    );
+  });
+
+  it("should log a fallback warning when writeEnv returns an error without message", async () => {
+    restoreFn = mockedEnv({ TEAMSFX_ENV: "local" });
+    // Simulate the defensive `error?.message ?? String(error)` branch by returning a
+    // non-Error-shaped value as the error.
+    const oddError = "string-error" as unknown as FxError;
+    const writeEnvSpy = sandbox.stub(envUtil, "writeEnv").resolves(err(oddError));
+    const logProvider = new MockedLogProvider();
+    const warningSpy = sandbox.spy(logProvider, "warning");
+
+    const lifecycle = new Lifecycle("provision", [{ uses: "DriverA", with: {} }], "1.0.0");
+    const { result } = await lifecycle.execute({
+      ...mockedDriverContext,
+      projectPath: "/fake/project",
+      logProvider,
+    });
+
+    assert(result.isOk());
+    assert.equal(writeEnvSpy.callCount, 1);
+    assert.equal(warningSpy.callCount, 1);
+    const warningMsg = String(warningSpy.firstCall.args[0]);
+    assert(
+      warningMsg.includes("string-error"),
+      `warning message should fall back to String(error), got: ${warningMsg}`
+    );
+  });
+
+  it("should not flush after a driver that returns an error", async () => {
+    restoreFn = mockedEnv({ TEAMSFX_ENV: "local" });
+    const writeEnvSpy = sandbox.stub(envUtil, "writeEnv").resolves(ok(undefined));
+
+    // DriverA succeeds (and flushes once), then DriverErr fails (no flush for it).
+    const lifecycle = new Lifecycle(
+      "provision",
+      [
+        { uses: "DriverA", with: {} },
+        { uses: "DriverErr", with: {} },
+      ],
+      "1.0.0"
+    );
+    const { result } = await lifecycle.execute({
+      ...mockedDriverContext,
+      projectPath: "/fake/project",
+    });
+
+    assert(result.isErr(), "lifecycle should fail because of DriverErr");
+    assert.equal(
+      writeEnvSpy.callCount,
+      1,
+      "writeEnv should only be called once (for the successful DriverA)"
+    );
+    assert.equal(writeEnvSpy.firstCall.args[1], "local");
+    const flushedEnvs = writeEnvSpy.firstCall.args[2] as Record<string, string>;
+    assert.equal(flushedEnvs["OUTPUT_A"], "VALUE_A");
+  });
+});
