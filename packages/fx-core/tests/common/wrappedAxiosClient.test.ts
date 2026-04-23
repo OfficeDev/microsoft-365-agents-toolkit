@@ -288,6 +288,83 @@ describe("Wrapped Axios Client Test", () => {
     chai.expect(telemetryChecker.calledOnce).to.be.true;
   });
 
+  // Regression tests for AB#37640864: telemetry must never throw / mask the
+  // real transport-level error. Triggered by retry + keepAlive in PR #15676.
+  it("transport-level error with undefined request.method does not throw", async () => {
+    const transportError = {
+      message: "socket hang up",
+      code: "ECONNRESET",
+      request: {
+        // method, host, path can all be undefined for low-level socket errors
+        host: "https://titles.prod.mos.microsoft.com",
+        path: "/dev/v1/users/packages",
+      },
+      config: {},
+      // no `response` property -> transport failure
+    } as any;
+    const telemetryChecker = sinon.spy(mockTools.telemetryReporter, "sendTelemetryErrorEvent");
+
+    let rejected: any;
+    await WrappedAxiosClient.onRejected(transportError).catch((e) => (rejected = e));
+
+    chai.expect(rejected).to.equal(transportError);
+    chai.expect(telemetryChecker.calledOnce).to.be.true;
+  });
+
+  it("error with no request object does not throw", async () => {
+    const transportError = {
+      message: "TLS handshake failed",
+      code: "EPROTO",
+      config: {},
+    } as any;
+
+    let rejected: any;
+    await WrappedAxiosClient.onRejected(transportError).catch((e) => (rejected = e));
+
+    chai.expect(rejected).to.equal(transportError);
+  });
+
+  it("MOS API error with non-object response.data does not throw", async () => {
+    const mockedError = {
+      message: "Bad Gateway",
+      request: {
+        method: "POST",
+        host: "https://titles.prod.mos.microsoft.com",
+        path: "/dev/v1/users/packages",
+      },
+      config: {},
+      response: {
+        status: 502,
+        // data is a string (e.g. HTML body from a gateway), not an object
+        data: "<html>502 Bad Gateway</html>",
+        headers: { traceresponse: "trace-123" },
+      },
+    } as any;
+    const telemetryChecker = sinon.spy(mockTools.telemetryReporter, "sendTelemetryErrorEvent");
+
+    let rejected: any;
+    await WrappedAxiosClient.onRejected(mockedError).catch((e) => (rejected = e));
+
+    chai.expect(rejected).to.equal(mockedError);
+    chai.expect(telemetryChecker.calledOnce).to.be.true;
+  });
+
+  it("convertUrlToApiName handles undefined method", () => {
+    const apiName = WrappedAxiosClient.convertUrlToApiName(
+      "https://example.com/foo",
+      undefined as any
+    );
+    chai.expect(apiName).to.be.a("string");
+  });
+
+  it("convertMethodUrlToApiDefForMOS handles undefined method", () => {
+    const result = WrappedAxiosClient.convertMethodUrlToApiDefForMOS(
+      undefined as any,
+      "https://example.com/foo"
+    );
+    chai.expect(result).to.be.undefined;
+  });
+
   it("Create bot API start telemetry", async () => {
     const mockedRequest = {
       method: "POST",
