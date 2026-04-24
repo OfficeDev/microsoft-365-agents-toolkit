@@ -27,6 +27,8 @@ const config = {
   devtool: "source-map",
   externals: {
     keytar: "commonjs keytar",
+    "@azure/msal-node-extensions": "commonjs @azure/msal-node-extensions",
+    "@azure/msal-node-runtime": "commonjs @azure/msal-node-runtime",
   },
   resolve: {
     // support reading TypeScript and JavaScript files, 📖 -> https://github.com/TypeStrong/ts-loader
