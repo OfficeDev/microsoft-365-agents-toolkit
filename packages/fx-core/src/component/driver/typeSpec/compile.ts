@@ -14,7 +14,10 @@ import {
 import fs from "fs-extra";
 import path from "path";
 import { Service } from "typedi";
-import { parseAndUpdatePluginManifestForKiota } from "../../../common/daSpecParser";
+import {
+  parseAndUpdatePluginManifestForKiota,
+  patchOpenApiExtensionsIntoPluginManifest,
+} from "../../../common/daSpecParser";
 import { kiotageneratePlugin } from "../../../common/kiotaClient";
 import { getLocalizedString } from "../../../common/localizeUtils";
 import { MetadataV4 } from "../../../common/versionMetadata";
@@ -126,6 +129,10 @@ export class TypeSpecCompileDriver implements StepDriver {
               undefined,
               true
             );
+            await patchOpenApiExtensionsIntoPluginManifest(
+              `${openApiSpecsFolderPath}/${spec}`,
+              path.join(outputFolderPath, `${pluginManifestName.toLowerCase()}-apiplugin.json`)
+            );
           } else {
             for (const spec of openapiSpecs) {
               const action = actions.find(
@@ -149,6 +156,10 @@ export class TypeSpecCompileDriver implements StepDriver {
                 undefined,
                 undefined,
                 true
+              );
+              await patchOpenApiExtensionsIntoPluginManifest(
+                `${openApiSpecsFolderPath}/${spec}`,
+                path.join(outputFolderPath, `${pluginManifestName.toLowerCase()}-apiplugin.json`)
               );
             }
           }

@@ -55,6 +55,7 @@ import {
   getTenantedAuthorityUrl,
 } from "@microsoft/teamsfx-core";
 import { getAccountByHomeId } from "./common/tokenCacheUtils";
+import { getInternalFlagFromTokenClaims } from "./accountInfoUtils";
 
 interface Deferred<T> {
   resolve: (result: T | Promise<T>) => void;
@@ -265,11 +266,7 @@ export class CodeFlowLogin {
           ),
           [TelemetryProperty.Success]: TelemetrySuccess.Yes,
           [TelemetryProperty.UserId]: (tokenJson as any).oid ? (tokenJson as any).oid : "",
-          [TelemetryProperty.Internal]: (
-            (tokenJson as any).upn ?? (tokenJson as any).unique_name
-          ).endsWith("@microsoft.com")
-            ? "true"
-            : "false",
+          [TelemetryProperty.Internal]: getInternalFlagFromTokenClaims(tokenJson),
         });
       }
       server.close();
@@ -348,11 +345,7 @@ export class CodeFlowLogin {
           [TelemetryProperty.AccountType]: this.accountName,
           [TelemetryProperty.Success]: TelemetrySuccess.Yes,
           [TelemetryProperty.UserId]: (tokenJson as any).oid ? (tokenJson as any).oid : "",
-          [TelemetryProperty.Internal]: (
-            (tokenJson as any).upn ?? (tokenJson as any).unique_name
-          ).endsWith("@microsoft.com")
-            ? "true"
-            : "false",
+          [TelemetryProperty.Internal]: getInternalFlagFromTokenClaims(tokenJson),
         });
       }
     }
