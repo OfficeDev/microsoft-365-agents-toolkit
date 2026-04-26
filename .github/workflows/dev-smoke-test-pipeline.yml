@@ -40,17 +40,17 @@ jobs:
           script: |
             const owner = context.repo.owner;
             const repo = context.repo.repo;
+            const sourceBranch = '${{ github.head_ref || github.ref_name }}';
+            const cdDispatchBranch = 'neil/cdprivatepipeline';
 
-            // Trigger CD workflow on the specified branch
+            // Trigger CD workflow on private CD branch, then build sourceBranch via external_ref
             await github.rest.actions.createWorkflowDispatch({
               owner,
               repo,
               workflow_id: 'cd.yml',
-              ref: '${{ github.head_ref || github.ref_name }}',
+              ref: cdDispatchBranch,
               inputs: {
-                preid: 'alpha',
-                series: '${{ steps.tag.outputs.tag_name }}',
-                SkipBranchCheck: 'true'
+                external_ref: sourceBranch
               }
             });
 
@@ -62,7 +62,7 @@ jobs:
               owner,
               repo,
               workflow_id: 'cd.yml',
-              branch: '${{ github.head_ref || github.ref_name }}',
+              branch: cdDispatchBranch,
               per_page: 5
             });
 
