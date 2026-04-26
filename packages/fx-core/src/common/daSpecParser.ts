@@ -39,6 +39,7 @@ import * as fs from "fs-extra";
 import tmp from "tmp";
 import { createHash } from "crypto";
 import path from "path";
+import { parse as parseYaml } from "yaml";
 import { getLocalizedString } from "./localizeUtils";
 
 const daProjectConfig: ParseOptions = {
@@ -234,6 +235,200 @@ export async function generatePlugin(
     adaptiveCardUpdateStrategy
   );
   return result;
+}
+
+// Workaround for https://github.com/OfficeDev/microsoft-365-agents-toolkit/issues/15731.
+// Kiota >= 1.30.0 emits plugin manifest schema v2.4 but does NOT propagate the
+// `x-ai-adaptive-card`, `x-openai-isConsequential` and `x-ai-capabilities`
+// OpenAPI extensions into the generated `*-apiplugin.json` (only the schema
+// version was bumped by microsoft/kiota#7166; the extension propagation
+// promised by issue microsoft/kiota#7165 is not actually implemented as of
+// 1.31.1). This helper reads the source OpenAPI spec, finds those extensions
+// per operation, and patches the corresponding
+// `function.capabilities.{response_semantics,confirmation}` blocks in the
+// generated plugin manifest. Remove this workaround once Kiota propagates
+// these extensions natively.
+//
+// It is a no-op for operations whose extensions are absent or whose
+// capability blocks are already populated by Kiota.
+export async function patchOpenApiExtensionsIntoPluginManifest(
+  specPath: string,
+  pluginManifestPath: string
+): Promise<void> {
+  if (!(await fs.pathExists(specPath)) || !(await fs.pathExists(pluginManifestPath))) {
+    return;
+  }
+
+  const specRaw = await fs.readFile(specPath, "utf8");
+  let spec: any;
+  try {
+    spec = parseYaml(specRaw);
+  } catch {
+    return;
+  }
+  if (!spec || typeof spec !== "object" || !spec.paths) {
+    return;
+  }
+
+  const specDir = path.dirname(specPath);
+  type OpExt = {
+    adaptiveCard?: { data_path?: string; file?: string };
+    isConsequential?: boolean;
+    confirmation?: any;
+  };
+  const opExtensions = new Map<string, OpExt>();
+
+  const httpMethods = [
+    "get",
+    "post",
+    "put",
+    "delete",
+    "patch",
+    "head",
+    "options",
+    "trace",
+    "connect",
+  ];
+  for (const pathKey of Object.keys(spec.paths)) {
+    const pathItem = spec.paths[pathKey];
+    if (!pathItem || typeof pathItem !== "object") continue;
+    for (const method of httpMethods) {
+      const op = pathItem[method];
+      if (!op || typeof op !== "object" || !op.operationId) continue;
+      const adaptiveCard = op["x-ai-adaptive-card"];
+      const isConsequential = op["x-openai-isConsequential"];
+      const aiCapabilities = op["x-ai-capabilities"];
+      if (
+        adaptiveCard === undefined &&
+        isConsequential === undefined &&
+        (!aiCapabilities || aiCapabilities.confirmation === undefined)
+      ) {
+        continue;
+      }
+      opExtensions.set(op.operationId as string, {
+        adaptiveCard: adaptiveCard && typeof adaptiveCard === "object" ? adaptiveCard : undefined,
+        isConsequential: typeof isConsequential === "boolean" ? isConsequential : undefined,
+        confirmation:
+          aiCapabilities && typeof aiCapabilities === "object"
+            ? aiCapabilities.confirmation
+            : undefined,
+      });
+    }
+  }
+
+  if (opExtensions.size === 0) {
+    return;
+  }
+
+  const manifest = (await fs.readJSON(pluginManifestPath)) as PluginManifestSchema;
+  const pluginManifestDir = path.dirname(pluginManifestPath);
+  const functions = manifest.functions ?? [];
+  let modified = false;
+
+  // Try several base directories when resolving an Adaptive Card file
+  // reference. The path in `x-ai-adaptive-card.file` (and the placeholder
+  // emitted by Kiota) is authored relative to the appPackage directory, but
+  // the plugin manifest lives in `appPackage/.generated/` and the spec lives
+  // in `appPackage/.generated/specs/`. Walk a few candidate base dirs so
+  // either layout works.
+  const candidateBaseDirs = [
+    pluginManifestDir,
+    path.dirname(pluginManifestDir),
+    path.dirname(path.dirname(pluginManifestDir)),
+    specDir,
+    path.dirname(specDir),
+  ];
+  const resolveCardJson = async (relOrAbs: string): Promise<any | undefined> => {
+    const candidates = path.isAbsolute(relOrAbs)
+      ? [relOrAbs]
+      : candidateBaseDirs.map((dir) => path.join(dir, relOrAbs));
+    for (const candidate of candidates) {
+      try {
+        if (await fs.pathExists(candidate)) {
+          return await fs.readJSON(candidate);
+        }
+      } catch {
+        // try next candidate
+      }
+    }
+    return undefined;
+  };
+
+  // Detect Kiota's placeholder shape: `static_template: { file: "..." }`.
+  // Real Adaptive Cards always have `type` and `$schema` (or `body`), so a
+  // bare `{ file }` object means Kiota left the card unresolved.
+  const isFilePlaceholder = (template: any): template is { file: string } => {
+    return (
+      template &&
+      typeof template === "object" &&
+      typeof template.file === "string" &&
+      template.type === undefined &&
+      template.$schema === undefined &&
+      template.body === undefined
+    );
+  };
+
+  for (const fn of functions as any[]) {
+    const ext = opExtensions.get(fn.name);
+    if (!ext) continue;
+    fn.capabilities = fn.capabilities || {};
+
+    // 1. response_semantics from x-ai-adaptive-card.
+    if (ext.adaptiveCard) {
+      if (!fn.capabilities.response_semantics) {
+        const responseSemantics: any = {};
+        if (ext.adaptiveCard.data_path) {
+          responseSemantics.data_path = ext.adaptiveCard.data_path;
+        }
+        if (ext.adaptiveCard.file) {
+          const cardJson = await resolveCardJson(ext.adaptiveCard.file);
+          if (cardJson !== undefined) {
+            responseSemantics.static_template = cardJson;
+          }
+        }
+        if (Object.keys(responseSemantics).length > 0) {
+          fn.capabilities.response_semantics = responseSemantics;
+          modified = true;
+        }
+      } else {
+        // Kiota 1.31.1 emits a placeholder
+        // `static_template: { file: "adaptiveCards/<name>.json" }` instead of
+        // inlining the card contents. Replace it with the actual card JSON.
+        const rs = fn.capabilities.response_semantics;
+        if (isFilePlaceholder(rs.static_template)) {
+          const cardJson = await resolveCardJson(rs.static_template.file);
+          if (cardJson !== undefined) {
+            rs.static_template = cardJson;
+            modified = true;
+          }
+        }
+        // Also fill in data_path if Kiota left it empty.
+        if (!rs.data_path && ext.adaptiveCard.data_path) {
+          rs.data_path = ext.adaptiveCard.data_path;
+          modified = true;
+        }
+      }
+    }
+
+    // 2. confirmation from x-ai-capabilities.confirmation +
+    //    x-openai-isConsequential.
+    if (ext.confirmation && !fn.capabilities.confirmation) {
+      fn.capabilities.confirmation = { ...ext.confirmation };
+      modified = true;
+    }
+    if (
+      ext.isConsequential !== undefined &&
+      fn.capabilities.confirmation &&
+      fn.capabilities.confirmation.isNonConsequential === undefined
+    ) {
+      fn.capabilities.confirmation.isNonConsequential = !ext.isConsequential;
+      modified = true;
+    }
+  }
+
+  if (modified) {
+    await fs.writeJson(pluginManifestPath, manifest, { spaces: 4 });
+  }
 }
 
 export async function parseAndUpdatePluginManifestForKiota(

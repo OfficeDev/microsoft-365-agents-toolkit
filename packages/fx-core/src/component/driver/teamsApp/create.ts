@@ -94,7 +94,10 @@ export class CreateTeamsAppDriver implements StepDriver {
     if (!outputEnvVarNames) {
       outputEnvVarNames = new Map(Object.entries(defaultOutputNames));
     }
-    outputEnvVarNames = new Map([...outputEnvVarNames, ...Object.entries(internalOutputNames)]);
+    // Merge internal defaults as a fallback: any env var name the author
+    // configured in writeToEnvironmentFile (e.g. teamsAppTenantId) must take
+    // precedence over the internal default.
+    outputEnvVarNames = new Map([...Object.entries(internalOutputNames), ...outputEnvVarNames]);
     const state = loadStateFromEnv(outputEnvVarNames);
 
     let create = true;

@@ -12,6 +12,7 @@ import { getTriggerFromProperty } from "../../utils/telemetryUtils";
 import azureAccountManager from "../../commonlib/azureLogin";
 import M365TokenInstance from "../../commonlib/m365Login";
 import { VS_CODE_UI } from "../../qm/vsc_ui";
+import { getUsernameFromClaims } from "../../commonlib/accountInfoUtils";
 
 export interface VscQuickPickItem extends QuickPickItem {
   /**
@@ -110,8 +111,8 @@ export async function cmpAccountsHandler(args: any[]) {
   const m365Account = m365AccountRes.isOk() ? m365AccountRes.value : undefined;
   if (m365Account && m365Account.status === "SignedIn") {
     const accountInfo = m365Account.accountInfo;
-    const email = (accountInfo as any).upn ?? (accountInfo as any).unique_name ?? undefined;
-    if (email !== undefined) {
+    const email = getUsernameFromClaims(accountInfo as Record<string, unknown>);
+    if (email !== "") {
       signOutM365Option.label = signOutM365Option.label.concat(email);
     }
     quickItemOptionArray.push(signOutM365Option);
@@ -122,8 +123,8 @@ export async function cmpAccountsHandler(args: any[]) {
   const azureAccount = await azureAccountManager.getStatus();
   if (azureAccount.status === "SignedIn") {
     const accountInfo = azureAccount.accountInfo;
-    const email = (accountInfo as any).email || (accountInfo as any).upn;
-    if (email !== undefined) {
+    const email = getUsernameFromClaims(accountInfo as Record<string, unknown>);
+    if (email !== "") {
       signOutAzureOption.label = signOutAzureOption.label.concat(email);
     }
     quickItemOptionArray.push(signOutAzureOption);

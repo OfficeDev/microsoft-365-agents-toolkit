@@ -10,16 +10,15 @@
       "step_retry_timeout": 0.0
     },
     "total_steps": 9,
-    "created_at": "2026-04-20T06:19:43.577528",
+    "created_at": "2026-04-22T08:25:13.699753",
     "name": "Sample CoffeeAgent Local",
     "description": {
       "other": "",
       "owner": "v-liliu2@microsoft.com",
       "workitem": "35872737"
     },
-    "generated_at": "2026-04-20T06:19:43.577517",
+    "generated_at": "2026-04-22T08:25:13.699753",
     "execution_order": [
-      "plan_r_0928_012254",
       "plan_r_1107_015711",
       "step_f087af7c",
       "step_07888270",
@@ -37,7 +36,7 @@
       "plan_1036a28e"
     ],
     "tags": [],
-    "updated_at": "2026-04-20T06:20:00.113180"
+    "updated_at": "2026-04-22T08:28:20.413943"
   },
   "steps": [
     {
@@ -63,7 +62,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_f087af7c",
-      "created_at": "2026-04-20T06:19:43.592938",
+      "created_at": "2026-04-22T08:25:19.116660",
       "plan_id": "plan_204d104e"
     },
     {
@@ -85,7 +84,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_07888270",
-      "created_at": "2026-04-20T06:19:43.608315",
+      "created_at": "2026-04-22T08:25:19.123213",
       "plan_id": "plan_204d104e"
     },
     {
@@ -111,7 +110,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_4f7ef7ae",
-      "created_at": "2026-04-20T06:19:43.625589",
+      "created_at": "2026-04-22T08:25:19.130153",
       "plan_id": "plan_204d104e"
     },
     {
@@ -129,7 +128,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": null,
-      "created_at": "2026-04-20T06:19:43.644415",
+      "created_at": "2026-04-22T08:25:19.136150",
       "plan_id": "plan_204d104e"
     },
     {
@@ -155,7 +154,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_150166eb",
-      "created_at": "2026-04-20T06:19:43.659388",
+      "created_at": "2026-04-22T08:25:19.141242",
       "plan_id": "plan_204d104e"
     },
     {
@@ -179,7 +178,7 @@
         "step_retry_timeout:40"
       ],
       "screenshot": "step_9be1b819",
-      "created_at": "2026-04-20T06:19:43.672195",
+      "created_at": "2026-04-22T08:25:19.147490",
       "plan_id": "plan_204d104e"
     },
     {
@@ -205,7 +204,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_646a9634",
-      "created_at": "2026-04-20T06:19:43.683915",
+      "created_at": "2026-04-22T08:25:19.153605",
       "plan_id": "plan_204d104e"
     },
     {
@@ -231,7 +230,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_3554153d",
-      "created_at": "2026-04-20T06:19:43.696193",
+      "created_at": "2026-04-22T08:25:19.159597",
       "plan_id": "plan_204d104e"
     },
     {
@@ -251,7 +250,7 @@
         "step_retry_timeout:20"
       ],
       "screenshot": null,
-      "created_at": "2026-04-20T06:19:43.709107",
+      "created_at": "2026-04-22T08:25:19.164818",
       "plan_id": "plan_204d104e"
     }
   ],
