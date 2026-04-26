@@ -1,5 +1,9 @@
 {
     "smokeTestCases": [
-        "Basic_Custom_Engine_Agent_Azure_OpenAI_py_Local_Debug"
+        "Basic_Custom_Engine_Azure_OpenAI_ts_Copilot_Remote_Debug",
+        "General_Teams_Agent_OpenAI_py_Remote_Debug",
+        "Message_extension_ts_remote_debug",
+        "DA_Oauth_js_Remote_Debug",
+        "Teams_Agent_With_Data_AI_Search_Azure_OpenAI_ts_Remote_Debug"
     ]
 }
