@@ -157,4 +157,62 @@ describe("teamsApp/create", async () => {
     const result = (await teamsAppDriver.execute(args, mockedDriverContext)).result;
     chai.assert.isTrue(result.isErr());
   });
+
+  it("respects user-configured teamsAppTenantId env var name", async () => {
+    const args: CreateTeamsAppArgs = {
+      name: appDef.appName!,
+    };
+
+    sinon.stub(teamsDevPortalClient, "getApp").throws(new Error("404"));
+    sinon.stub(teamsDevPortalClient, "importApp").resolves(appDef);
+    sinon.stub(fs, "readFile").callsFake(async () => {
+      const zip = new AdmZip();
+      zip.addFile(Constants.MANIFEST_FILE, Buffer.from(JSON.stringify(new TeamsAppManifest())));
+      zip.addFile("color.png", new Buffer(""));
+      zip.addFile("outline.png", new Buffer(""));
+      return zip.toBuffer();
+    });
+
+    const outputEnvVarNames = new Map<string, string>([
+      ["teamsAppId", "MY_TEAMS_APP_ID"],
+      ["teamsAppTenantId", "MY_TEAMS_APP_TENANT_ID"],
+    ]);
+
+    const result = (await teamsAppDriver.execute(args, mockedDriverContext, outputEnvVarNames))
+      .result;
+    chai.assert.isTrue(result.isOk());
+    if (result.isOk()) {
+      chai.assert.equal(result.value.get("MY_TEAMS_APP_ID"), appDef.teamsAppId);
+      chai.assert.equal(result.value.get("MY_TEAMS_APP_TENANT_ID"), appDef.tenantId);
+      // The internal default name must not leak through when the author
+      // configured a custom env var name.
+      chai.assert.isFalse(result.value.has("TEAMS_APP_TENANT_ID"));
+    }
+  });
+
+  it("falls back to TEAMS_APP_TENANT_ID when teamsAppTenantId is not configured", async () => {
+    const args: CreateTeamsAppArgs = {
+      name: appDef.appName!,
+    };
+
+    sinon.stub(teamsDevPortalClient, "getApp").throws(new Error("404"));
+    sinon.stub(teamsDevPortalClient, "importApp").resolves(appDef);
+    sinon.stub(fs, "readFile").callsFake(async () => {
+      const zip = new AdmZip();
+      zip.addFile(Constants.MANIFEST_FILE, Buffer.from(JSON.stringify(new TeamsAppManifest())));
+      zip.addFile("color.png", new Buffer(""));
+      zip.addFile("outline.png", new Buffer(""));
+      return zip.toBuffer();
+    });
+
+    const outputEnvVarNames = new Map<string, string>([["teamsAppId", "TEAMS_APP_ID"]]);
+
+    const result = (await teamsAppDriver.execute(args, mockedDriverContext, outputEnvVarNames))
+      .result;
+    chai.assert.isTrue(result.isOk());
+    if (result.isOk()) {
+      chai.assert.equal(result.value.get("TEAMS_APP_ID"), appDef.teamsAppId);
+      chai.assert.equal(result.value.get("TEAMS_APP_TENANT_ID"), appDef.tenantId);
+    }
+  });
 });

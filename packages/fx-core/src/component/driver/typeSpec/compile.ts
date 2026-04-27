@@ -14,7 +14,10 @@ import {
 import fs from "fs-extra";
 import path from "path";
 import { Service } from "typedi";
-import { parseAndUpdatePluginManifestForKiota } from "../../../common/daSpecParser";
+import {
+  parseAndUpdatePluginManifestForKiota,
+  patchOpenApiExtensionsIntoPluginManifest,
+} from "../../../common/daSpecParser";
 import { kiotageneratePlugin } from "../../../common/kiotaClient";
 import { getLocalizedString } from "../../../common/localizeUtils";
 import { MetadataV4 } from "../../../common/versionMetadata";
@@ -31,6 +34,7 @@ import { addStartAndEndTelemetry } from "../middleware/addStartAndEndTelemetry";
 import { defaultDAManifestFileName, defaultOpenApiOutputDir, helpLink } from "./constants";
 import { MultipleActionError } from "./error/multipleActionError";
 import { NoSpecError } from "./error/noSpecError";
+import { TypeSpecCompileError } from "./error/typeSpecCompileError";
 import { TypeSpecCompileArgs } from "./interface/typeSpecCompileArgs";
 
 const actionName = "typeSpec/compile"; // DO NOT MODIFY the name
@@ -81,6 +85,20 @@ export class TypeSpecCompileDriver implements StepDriver {
           throw tspRes.error;
         }
 
+        // Guard against the case where the TypeSpec compiler failed but
+        // runCommand still returned ok() (e.g., when the exit code is masked
+        // by a pipe in the VS Code task shell). If the expected output directory
+        // was not created, the compile clearly failed — surface the captured
+        // compiler output instead of the misleading ENOENT that would otherwise
+        // come from the readdirSync call below.
+        if (!fs.existsSync(openApiSpecsFolderPath)) {
+          const tspOutput = tspRes.value;
+          if (tspOutput) {
+            ctx.logProvider?.error(tspOutput);
+          }
+          throw new TypeSpecCompileError(actionName, tspOutput);
+        }
+
         // 2. Call Kiota to generate plugin manifest
         const openapiSpecs = fs.readdirSync(openApiSpecsFolderPath);
         if (openapiSpecs.length === 0) {
@@ -111,6 +129,10 @@ export class TypeSpecCompileDriver implements StepDriver {
               undefined,
               true
             );
+            await patchOpenApiExtensionsIntoPluginManifest(
+              `${openApiSpecsFolderPath}/${spec}`,
+              path.join(outputFolderPath, `${pluginManifestName.toLowerCase()}-apiplugin.json`)
+            );
           } else {
             for (const spec of openapiSpecs) {
               const action = actions.find(
@@ -134,6 +156,10 @@ export class TypeSpecCompileDriver implements StepDriver {
                 undefined,
                 undefined,
                 true
+              );
+              await patchOpenApiExtensionsIntoPluginManifest(
+                `${openApiSpecsFolderPath}/${spec}`,
+                path.join(outputFolderPath, `${pluginManifestName.toLowerCase()}-apiplugin.json`)
               );
             }
           }

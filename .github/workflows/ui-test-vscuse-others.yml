@@ -894,18 +894,21 @@ jobs:
           fi
           echo "Final subject: $subject"
 
-          echo "body=$body" >> $GITHUB_OUTPUT
+          printf '%s' "$body" > email-body.html
+          echo "BODY_FILE=$(pwd)/email-body.html" >> $GITHUB_ENV
           echo "to=$emails" >> $GITHUB_OUTPUT
           echo "subject=$subject" >> $GITHUB_OUTPUT
 
 
-      - name: Prepare email body file
+      - name: Verify email body file
         if: always()
-        env:
-          EMAIL_BODY: ${{ steps.list-jobs.outputs.body }}
         run: |
-          printf '%s' "$EMAIL_BODY" > email-body.html
-          echo "BODY_FILE=$(pwd)/email-body.html" >> $GITHUB_ENV
+          if [ ! -f "email-body.html" ]; then
+            echo "email-body.html not found, creating empty file"
+            touch email-body.html
+            echo "BODY_FILE=$(pwd)/email-body.html" >> $GITHUB_ENV
+          fi
+          echo "Email body file size: $(wc -c < email-body.html) bytes"
 
       - name: Send E-mail
         uses: ./.github/actions/send-email-report-vscuse

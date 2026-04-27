@@ -4,6 +4,9 @@
 import { assert } from "chai";
 import "mocha";
 import sinon from "sinon";
+import * as fs from "fs-extra";
+import * as os from "os";
+import * as path from "path";
 import * as kiotaClient from "../../src/common/kiotaClient";
 import * as daSpecParser from "../../src/common/daSpecParser";
 import * as utils from "../../src/common/utils";
@@ -1532,6 +1535,564 @@ describe("daSpecParser", () => {
           sinon.match.any
         )
       );
+    });
+  });
+
+  describe("patchOpenApiExtensionsIntoPluginManifest (issue #15731)", () => {
+    let tmpDir: string;
+
+    beforeEach(async () => {
+      // The outer describe sets up sinon stubs we don't need here; restore so
+      // real fs / yaml are exercised.
+      sinon.restore();
+      tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "kiota-15731-test-"));
+    });
+
+    afterEach(async () => {
+      try {
+        await fs.remove(tmpDir);
+      } catch {
+        // Ignore cleanup errors on Windows when files are still locked.
+      }
+    });
+
+    async function writeSpec(yaml: string): Promise<string> {
+      const specPath = path.join(tmpDir, "openapi.yaml");
+      await fs.writeFile(specPath, yaml, "utf8");
+      return specPath;
+    }
+
+    async function writeManifest(manifest: any): Promise<string> {
+      const p = path.join(tmpDir, "test-apiplugin.json");
+      await fs.writeJson(p, manifest, { spaces: 2 });
+      return p;
+    }
+
+    it("propagates x-ai-adaptive-card and inlines the static_template", async () => {
+      const cardsDir = path.join(tmpDir, "adaptiveCards");
+      await fs.ensureDir(cardsDir);
+      const card = { type: "AdaptiveCard", version: "1.5", body: [] };
+      await fs.writeJson(path.join(cardsDir, "get.json"), card);
+
+      const specPath = await writeSpec(
+        [
+          "openapi: 3.0.0",
+          "info: { title: t, version: '1' }",
+          "paths:",
+          "  /items:",
+          "    get:",
+          "      operationId: getItems",
+          "      x-ai-adaptive-card:",
+          "        data_path: $.value[0]",
+          "        file: adaptiveCards/get.json",
+          "      responses: { '200': { description: ok } }",
+          "",
+        ].join("\n")
+      );
+      const manifestPath = await writeManifest({
+        schema_version: "v2.4",
+        functions: [{ name: "getItems", description: "" }],
+      });
+
+      await daSpecParser.patchOpenApiExtensionsIntoPluginManifest(specPath, manifestPath);
+
+      const result = await fs.readJson(manifestPath);
+      const fn = result.functions[0];
+      assert.deepEqual(fn.capabilities.response_semantics.data_path, "$.value[0]");
+      assert.deepEqual(fn.capabilities.response_semantics.static_template, card);
+    });
+
+    it("propagates x-openai-isConsequential into confirmation.isNonConsequential", async () => {
+      const specPath = await writeSpec(
+        [
+          "openapi: 3.0.0",
+          "info: { title: t, version: '1' }",
+          "paths:",
+          "  /items:",
+          "    patch:",
+          "      operationId: updateItems",
+          "      x-openai-isConsequential: true",
+          "      x-ai-capabilities:",
+          "        confirmation:",
+          "          type: AdaptiveCard",
+          "          title: Update?",
+          "          body: Confirm.",
+          "      responses: { '200': { description: ok } }",
+          "",
+        ].join("\n")
+      );
+      const manifestPath = await writeManifest({
+        schema_version: "v2.4",
+        functions: [{ name: "updateItems", description: "" }],
+      });
+
+      await daSpecParser.patchOpenApiExtensionsIntoPluginManifest(specPath, manifestPath);
+
+      const fn = (await fs.readJson(manifestPath)).functions[0];
+      assert.equal(fn.capabilities.confirmation.type, "AdaptiveCard");
+      assert.equal(fn.capabilities.confirmation.title, "Update?");
+      // x-openai-isConsequential: true => isNonConsequential: false
+      assert.strictEqual(fn.capabilities.confirmation.isNonConsequential, false);
+    });
+
+    it("maps x-openai-isConsequential: false to isNonConsequential: true", async () => {
+      const specPath = await writeSpec(
+        [
+          "openapi: 3.0.0",
+          "info: { title: t, version: '1' }",
+          "paths:",
+          "  /items:",
+          "    post:",
+          "      operationId: readItems",
+          "      x-openai-isConsequential: false",
+          "      x-ai-capabilities:",
+          "        confirmation:",
+          "          type: AdaptiveCard",
+          "          title: Read",
+          "          body: ok",
+          "      responses: { '200': { description: ok } }",
+          "",
+        ].join("\n")
+      );
+      const manifestPath = await writeManifest({
+        schema_version: "v2.4",
+        functions: [{ name: "readItems", description: "" }],
+      });
+
+      await daSpecParser.patchOpenApiExtensionsIntoPluginManifest(specPath, manifestPath);
+
+      const fn = (await fs.readJson(manifestPath)).functions[0];
+      assert.strictEqual(fn.capabilities.confirmation.isNonConsequential, true);
+    });
+
+    it("does not overwrite capabilities Kiota already populated", async () => {
+      const specPath = await writeSpec(
+        [
+          "openapi: 3.0.0",
+          "info: { title: t, version: '1' }",
+          "paths:",
+          "  /items:",
+          "    get:",
+          "      operationId: getItems",
+          "      x-ai-adaptive-card:",
+          "        data_path: $.value[0]",
+          "        file: adaptiveCards/get.json",
+          "      responses: { '200': { description: ok } }",
+          "",
+        ].join("\n")
+      );
+      const existing = {
+        schema_version: "v2.4",
+        functions: [
+          {
+            name: "getItems",
+            description: "",
+            capabilities: {
+              response_semantics: { data_path: "$.preserved" },
+            },
+          },
+        ],
+      };
+      const manifestPath = await writeManifest(existing);
+
+      await daSpecParser.patchOpenApiExtensionsIntoPluginManifest(specPath, manifestPath);
+
+      const fn = (await fs.readJson(manifestPath)).functions[0];
+      assert.equal(fn.capabilities.response_semantics.data_path, "$.preserved");
+    });
+
+    it("is a no-op when the spec has no relevant extensions", async () => {
+      const specPath = await writeSpec(
+        [
+          "openapi: 3.0.0",
+          "info: { title: t, version: '1' }",
+          "paths:",
+          "  /items:",
+          "    get:",
+          "      operationId: getItems",
+          "      responses: { '200': { description: ok } }",
+          "",
+        ].join("\n")
+      );
+      const before = {
+        schema_version: "v2.4",
+        functions: [{ name: "getItems", description: "" }],
+      };
+      const manifestPath = await writeManifest(before);
+
+      await daSpecParser.patchOpenApiExtensionsIntoPluginManifest(specPath, manifestPath);
+
+      assert.deepEqual(await fs.readJson(manifestPath), before);
+    });
+
+    it("returns silently when spec or manifest path does not exist", async () => {
+      // Should not throw.
+      await daSpecParser.patchOpenApiExtensionsIntoPluginManifest(
+        path.join(tmpDir, "missing.yaml"),
+        path.join(tmpDir, "missing.json")
+      );
+    });
+
+    it("returns silently when the spec is not valid YAML", async () => {
+      const specPath = path.join(tmpDir, "openapi.yaml");
+      // `: : :` is a YAML parse error.
+      await fs.writeFile(specPath, ":\n: :\n  : :", "utf8");
+      const before = {
+        schema_version: "v2.4",
+        functions: [{ name: "x", description: "" }],
+      };
+      const manifestPath = await writeManifest(before);
+
+      await daSpecParser.patchOpenApiExtensionsIntoPluginManifest(specPath, manifestPath);
+
+      assert.deepEqual(await fs.readJson(manifestPath), before);
+    });
+
+    it("returns silently when the parsed spec has no paths object", async () => {
+      // YAML parses to a plain string, which exercises the
+      // `!spec || typeof spec !== "object" || !spec.paths` guard.
+      const specPath = await writeSpec("just-a-string\n");
+      const before = {
+        schema_version: "v2.4",
+        functions: [{ name: "x", description: "" }],
+      };
+      const manifestPath = await writeManifest(before);
+
+      await daSpecParser.patchOpenApiExtensionsIntoPluginManifest(specPath, manifestPath);
+
+      assert.deepEqual(await fs.readJson(manifestPath), before);
+    });
+
+    it("leaves static_template unset when the referenced card file is unreadable", async () => {
+      // Create a directory where a card file is expected; readJson will fail.
+      const cardsDir = path.join(tmpDir, "adaptiveCards");
+      await fs.ensureDir(cardsDir);
+      await fs.ensureDir(path.join(cardsDir, "broken.json"));
+
+      const specPath = await writeSpec(
+        [
+          "openapi: 3.0.0",
+          "info: { title: t, version: '1' }",
+          "paths:",
+          "  /items:",
+          "    get:",
+          "      operationId: getItems",
+          "      x-ai-adaptive-card:",
+          "        data_path: $.items[0]",
+          "        file: adaptiveCards/broken.json",
+          "      responses: { '200': { description: ok } }",
+          "",
+        ].join("\n")
+      );
+      const manifestPath = await writeManifest({
+        schema_version: "v2.4",
+        functions: [{ name: "getItems", description: "" }],
+      });
+
+      await daSpecParser.patchOpenApiExtensionsIntoPluginManifest(specPath, manifestPath);
+
+      const fn = (await fs.readJson(manifestPath)).functions[0];
+      // data_path is still propagated; static_template silently omitted.
+      assert.equal(fn.capabilities.response_semantics.data_path, "$.items[0]");
+      assert.notProperty(fn.capabilities.response_semantics, "static_template");
+    });
+
+    it("inlines Kiota's `{ file }` placeholder for static_template", async () => {
+      // Kiota 1.31.1 emits `static_template: { file: "adaptiveCards/<name>.json" }`
+      // instead of inlining the card. The patch must replace it with the
+      // actual card JSON.
+      const cardsDir = path.join(tmpDir, "adaptiveCards");
+      await fs.ensureDir(cardsDir);
+      const cardJson = {
+        type: "AdaptiveCard",
+        $schema: "http://adaptivecards.io/schemas/adaptive-card.json",
+        version: "1.5",
+        body: [{ type: "TextBlock", text: "${title}" }],
+      };
+      await fs.writeJson(path.join(cardsDir, "search.json"), cardJson);
+
+      const specPath = await writeSpec(
+        [
+          "openapi: 3.0.0",
+          "info: { title: t, version: '1' }",
+          "paths:",
+          "  /search:",
+          "    get:",
+          "      operationId: searchIssues",
+          "      x-ai-adaptive-card:",
+          "        data_path: $.items",
+          "        file: adaptiveCards/search.json",
+          "      responses: { '200': { description: ok } }",
+          "",
+        ].join("\n")
+      );
+      const manifestPath = await writeManifest({
+        schema_version: "v2.4",
+        functions: [
+          {
+            name: "searchIssues",
+            description: "",
+            capabilities: {
+              response_semantics: {
+                data_path: "$.items",
+                static_template: { file: "adaptiveCards/search.json" },
+              },
+            },
+          },
+        ],
+      });
+
+      await daSpecParser.patchOpenApiExtensionsIntoPluginManifest(specPath, manifestPath);
+
+      const fn = (await fs.readJson(manifestPath)).functions[0];
+      assert.deepEqual(fn.capabilities.response_semantics.static_template, cardJson);
+      assert.equal(fn.capabilities.response_semantics.data_path, "$.items");
+    });
+
+    it("does not replace a real static_template that already has card fields", async () => {
+      // If `static_template` already looks like a real Adaptive Card (has
+      // `type`/`$schema`/`body`), we must leave it alone even if a `file`
+      // property happens to be present.
+      const cardsDir = path.join(tmpDir, "adaptiveCards");
+      await fs.ensureDir(cardsDir);
+      await fs.writeJson(path.join(cardsDir, "search.json"), {
+        type: "AdaptiveCard",
+        body: [{ type: "TextBlock", text: "from disk" }],
+      });
+
+      const specPath = await writeSpec(
+        [
+          "openapi: 3.0.0",
+          "info: { title: t, version: '1' }",
+          "paths:",
+          "  /search:",
+          "    get:",
+          "      operationId: searchIssues",
+          "      x-ai-adaptive-card:",
+          "        data_path: $.items",
+          "        file: adaptiveCards/search.json",
+          "      responses: { '200': { description: ok } }",
+          "",
+        ].join("\n")
+      );
+      const realCard = {
+        type: "AdaptiveCard",
+        $schema: "http://adaptivecards.io/schemas/adaptive-card.json",
+        body: [{ type: "TextBlock", text: "preserved" }],
+      };
+      const manifestPath = await writeManifest({
+        schema_version: "v2.4",
+        functions: [
+          {
+            name: "searchIssues",
+            description: "",
+            capabilities: {
+              response_semantics: {
+                data_path: "$.items",
+                static_template: realCard,
+              },
+            },
+          },
+        ],
+      });
+
+      await daSpecParser.patchOpenApiExtensionsIntoPluginManifest(specPath, manifestPath);
+
+      const fn = (await fs.readJson(manifestPath)).functions[0];
+      assert.deepEqual(fn.capabilities.response_semantics.static_template, realCard);
+    });
+
+    it("resolves card files from the parent of the plugin manifest directory", async () => {
+      // Mirrors the real layout: spec lives in `<root>/.generated/specs/`,
+      // plugin manifest lives in `<root>/.generated/`, and the card lives in
+      // `<root>/adaptiveCards/`.
+      const generated = path.join(tmpDir, ".generated");
+      const specsDir = path.join(generated, "specs");
+      await fs.ensureDir(specsDir);
+      await fs.ensureDir(path.join(tmpDir, "adaptiveCards"));
+      const cardJson = { type: "AdaptiveCard", body: [] };
+      await fs.writeJson(path.join(tmpDir, "adaptiveCards", "card.json"), cardJson);
+
+      const specPath = path.join(specsDir, "openapi.yaml");
+      await fs.writeFile(
+        specPath,
+        [
+          "openapi: 3.0.0",
+          "info: { title: t, version: '1' }",
+          "paths:",
+          "  /x:",
+          "    get:",
+          "      operationId: getX",
+          "      x-ai-adaptive-card:",
+          "        data_path: $.items",
+          "        file: adaptiveCards/card.json",
+          "      responses: { '200': { description: ok } }",
+          "",
+        ].join("\n"),
+        "utf8"
+      );
+      const manifestPath = path.join(generated, "x-apiplugin.json");
+      await fs.writeJson(manifestPath, {
+        schema_version: "v2.4",
+        functions: [
+          {
+            name: "getX",
+            description: "",
+            capabilities: {
+              response_semantics: {
+                data_path: "$.items",
+                static_template: { file: "adaptiveCards/card.json" },
+              },
+            },
+          },
+        ],
+      });
+
+      await daSpecParser.patchOpenApiExtensionsIntoPluginManifest(specPath, manifestPath);
+
+      const fn = (await fs.readJson(manifestPath)).functions[0];
+      assert.deepEqual(fn.capabilities.response_semantics.static_template, cardJson);
+    });
+
+    it("swallows readJSON errors when the card file exists but is invalid JSON", async () => {
+      // Exercises the `catch` branch inside resolveCardJson: pathExists
+      // succeeds but readJSON throws on a corrupt file.
+      const cardsDir = path.join(tmpDir, "adaptiveCards");
+      await fs.ensureDir(cardsDir);
+      await fs.writeFile(path.join(cardsDir, "broken.json"), "{ not valid json", "utf8");
+
+      const specPath = await writeSpec(
+        [
+          "openapi: 3.0.0",
+          "info: { title: t, version: '1' }",
+          "paths:",
+          "  /items:",
+          "    get:",
+          "      operationId: getItems",
+          "      x-ai-adaptive-card:",
+          "        data_path: $.items",
+          "        file: adaptiveCards/broken.json",
+          "      responses: { '200': { description: ok } }",
+          "",
+        ].join("\n")
+      );
+      const manifestPath = await writeManifest({
+        schema_version: "v2.4",
+        functions: [
+          {
+            name: "getItems",
+            description: "",
+            capabilities: {
+              response_semantics: {
+                static_template: { file: "adaptiveCards/broken.json" },
+              },
+            },
+          },
+        ],
+      });
+
+      await daSpecParser.patchOpenApiExtensionsIntoPluginManifest(specPath, manifestPath);
+
+      // The placeholder should be left intact since the card could not be
+      // read; data_path should still get filled from the spec.
+      const fn = (await fs.readJson(manifestPath)).functions[0];
+      assert.deepEqual(fn.capabilities.response_semantics.static_template, {
+        file: "adaptiveCards/broken.json",
+      });
+      assert.equal(fn.capabilities.response_semantics.data_path, "$.items");
+    });
+
+    it("fills missing data_path on an existing response_semantics with a placeholder", async () => {
+      // response_semantics exists with the Kiota `{ file }` placeholder but
+      // without a data_path; the patcher should backfill data_path from the
+      // spec while also inlining the card.
+      const cardsDir = path.join(tmpDir, "adaptiveCards");
+      await fs.ensureDir(cardsDir);
+      const card = { type: "AdaptiveCard", version: "1.5", body: [] };
+      await fs.writeJson(path.join(cardsDir, "get.json"), card);
+
+      const specPath = await writeSpec(
+        [
+          "openapi: 3.0.0",
+          "info: { title: t, version: '1' }",
+          "paths:",
+          "  /items:",
+          "    get:",
+          "      operationId: getItems",
+          "      x-ai-adaptive-card:",
+          "        data_path: $.value",
+          "        file: adaptiveCards/get.json",
+          "      responses: { '200': { description: ok } }",
+          "",
+        ].join("\n")
+      );
+      const manifestPath = await writeManifest({
+        schema_version: "v2.4",
+        functions: [
+          {
+            name: "getItems",
+            description: "",
+            capabilities: {
+              response_semantics: {
+                // No data_path; placeholder static_template.
+                static_template: { file: "adaptiveCards/get.json" },
+              },
+            },
+          },
+        ],
+      });
+
+      await daSpecParser.patchOpenApiExtensionsIntoPluginManifest(specPath, manifestPath);
+
+      const fn = (await fs.readJson(manifestPath)).functions[0];
+      assert.equal(fn.capabilities.response_semantics.data_path, "$.value");
+      assert.deepEqual(fn.capabilities.response_semantics.static_template, card);
+    });
+
+    it("fills missing data_path on an existing response_semantics with a real card", async () => {
+      // response_semantics exists with a real (non-placeholder) static_template
+      // but no data_path. The patcher should leave the card alone and only
+      // backfill data_path.
+      const realCard = {
+        type: "AdaptiveCard",
+        $schema: "http://adaptivecards.io/schemas/adaptive-card.json",
+        body: [{ type: "TextBlock", text: "real" }],
+      };
+      const specPath = await writeSpec(
+        [
+          "openapi: 3.0.0",
+          "info: { title: t, version: '1' }",
+          "paths:",
+          "  /items:",
+          "    get:",
+          "      operationId: getItems",
+          "      x-ai-adaptive-card:",
+          "        data_path: $.value",
+          "        file: adaptiveCards/get.json",
+          "      responses: { '200': { description: ok } }",
+          "",
+        ].join("\n")
+      );
+      const manifestPath = await writeManifest({
+        schema_version: "v2.4",
+        functions: [
+          {
+            name: "getItems",
+            description: "",
+            capabilities: {
+              response_semantics: {
+                static_template: realCard,
+              },
+            },
+          },
+        ],
+      });
+
+      await daSpecParser.patchOpenApiExtensionsIntoPluginManifest(specPath, manifestPath);
+
+      const fn = (await fs.readJson(manifestPath)).functions[0];
+      assert.equal(fn.capabilities.response_semantics.data_path, "$.value");
+      assert.deepEqual(fn.capabilities.response_semantics.static_template, realCard);
     });
   });
 });
