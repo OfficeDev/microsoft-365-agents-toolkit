@@ -7,8 +7,6 @@ on:
         description: "Your personal email for test result notification (e.g., yourname@microsoft.com)"
         required: true
         type: string
-        default: "qinqiangxu@microsoft.com"
-  pull_request:
 
 jobs:
   run-cd:
@@ -242,7 +240,8 @@ jobs:
               inputs: {
                 image_tag: '${{ needs.run-cd.outputs.tag_name }}',
                 'email-receiver': '${{ inputs.email }}',
-                test_plan: '${{ steps.test_cases.outputs.test_plan }}'
+                test_plan: '${{ steps.test_cases.outputs.test_plan }}',
+                max_retries: '1'
               }
             });
 
