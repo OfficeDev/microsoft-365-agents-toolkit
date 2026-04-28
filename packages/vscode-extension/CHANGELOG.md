@@ -2,7 +2,12 @@
 
 > Note: This changelog only includes the changes for the stable versions of Microsoft 365 Agents Toolkit (evolved from Teams Toolkit). For the changelog of pre-released versions, please refer to the [Microsoft 365 Agents Toolkit Pre-release Changelog](https://github.com/OfficeDev/TeamsFx/blob/dev/packages/vscode-extension/PRERELEASE.md).
 
-## 6.6.0 - Mar 9, 2025
+## 6.6.1 - Mar 26, 2026
+Hotfix version.
+
+Enhanced the MCP tools integration for Declarative Agents to automatically retrieve all parameters defined in MCP tool definitions.
+
+## 6.6.0 - Mar 9, 2026
 
 This is a stable release that brings streamlined MCP integration to declarative agent development, sovereign cloud support and expanded AI capabilities. Below you'll find a comprehensive list of new features and enhancements included in this release:
 
@@ -70,7 +75,6 @@ We've made a set of improvements to templates configurations and schema handling
 
 - Fixed inline MCP description and related output edge cases.  
   PRs: [#15281](https://github.com/OfficeDev/microsoft-365-agents-toolkit/pull/15281)
-
 
 ## 6.4.3 - Jan 16, 2026
 
