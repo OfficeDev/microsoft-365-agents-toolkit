@@ -57,7 +57,7 @@
       "step_3db2a893"
     ],
     "tags": [],
-    "updated_at": "2026-04-28T09:41:20.602020"
+    "updated_at": "2026-04-28T09:48:26.722689"
   },
   "steps": [
     {
@@ -751,7 +751,7 @@
       "agent": "assertion",
       "tool": "",
       "parameters": {},
-      "description": "@assertion It only has one progress bar showing the actions. The content of progress bar is like \"Publish: [*/*] Updating app\"",
+      "description": "@assertion It only has one progress bar showing the actions. The content of progress bar is like \"Publish: [*/*] Publishing app\"",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
