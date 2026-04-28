@@ -57,7 +57,7 @@
       "step_3db2a893"
     ],
     "tags": [],
-    "updated_at": "2026-04-28T09:23:33.994528"
+    "updated_at": "2026-04-28T09:41:20.602020"
   },
   "steps": [
     {
@@ -464,7 +464,7 @@
       "preconditions": [],
       "postconditions": [],
       "tags": [
-        "step_retry_timeout:60"
+        "step_retry_timeout:120"
       ],
       "screenshot": null,
       "created_at": "2026-04-28T08:31:26.200894",
