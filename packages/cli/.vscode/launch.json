@@ -5,12 +5,159 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "type": "pwa-node",
+      "type": "node",
       "request": "launch",
       "name": "Launch new command (non-interactive)",
       "skipFiles": ["<node_internals>/**"],
       "program": "${workspaceFolder}/cli.js",
-      "args": ["new", "-i", "false"],
+      "args": ["new", "-c", "declarative-agent", "-n", "da", "-i", "false"],
+      "env": {
+        "TEAMSFX_GENERATE_CONFIG_FILES": "true",
+        "TEMPLATE_VERSION": "local"
+      },
+      "outFiles": [
+        "${workspaceFolder}/lib/**/*.js",
+        "${workspaceFolder}/../fx-core/build/**/*.js",
+        "${workspaceFolder}/../api/build/**/*.js"
+      ],
+      "resolveSourceMapLocations": [
+        "${workspaceFolder}/lib/**/*.js",
+        "${workspaceFolder}/../fx-core/build/**/*.js",
+        "${workspaceFolder}/../api/build/**/*.js"
+      ],
+      "console": "integratedTerminal"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Launch new MCP template (non-interactive)",
+      "skipFiles": ["<node_internals>/**"],
+      "program": "${workspaceFolder}/cli.js",
+      "args": [
+        "new",
+        "-c",
+        "declarative-agent",
+        "--with-plugin",
+        "yes",
+        "--api-plugin-type",
+        "mcp",
+        "--mcp-server-type",
+        "remote",
+        "--mcp-da-server-url",
+        "https://learn.microsoft.com/api/mcp",
+        "-n",
+        "mcp-da-test",
+        "-f",
+        "${env:USERPROFILE}/AgentsToolkitProjects",
+        "-i",
+        "false"
+      ],
+      "env": {
+        "TEAMSFX_GENERATE_CONFIG_FILES": "true",
+        "TEMPLATE_VERSION": "local"
+      },
+      "outFiles": [
+        "${workspaceFolder}/lib/**/*.js",
+        "${workspaceFolder}/../fx-core/build/**/*.js",
+        "${workspaceFolder}/../api/build/**/*.js"
+      ],
+      "resolveSourceMapLocations": [
+        "${workspaceFolder}/lib/**/*.js",
+        "${workspaceFolder}/../fx-core/build/**/*.js",
+        "${workspaceFolder}/../api/build/**/*.js"
+      ],
+      "console": "integratedTerminal"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Launch new MCP template with tools file (non-interactive)",
+      "skipFiles": ["<node_internals>/**"],
+      "program": "${workspaceFolder}/cli.js",
+      "args": [
+        "new",
+        "-c",
+        "declarative-agent",
+        "--with-plugin",
+        "yes",
+        "--api-plugin-type",
+        "mcp",
+        "--mcp-server-type",
+        "remote",
+        "--mcp-da-server-url",
+        "https://learn.microsoft.com/api/mcp",
+        "--mcp-tools-file-path",
+        "${env:USERPROFILE}/AgentsToolkitProjects/mcp-tools.json",
+        "-n",
+        "mcp-da-test-offline",
+        "-f",
+        "${env:USERPROFILE}/AgentsToolkitProjects",
+        "-i",
+        "false"
+      ],
+      "env": {
+        "TEAMSFX_GENERATE_CONFIG_FILES": "true",
+        "TEMPLATE_VERSION": "local"
+      },
+      "outFiles": [
+        "${workspaceFolder}/lib/**/*.js",
+        "${workspaceFolder}/../fx-core/build/**/*.js",
+        "${workspaceFolder}/../api/build/**/*.js"
+      ],
+      "resolveSourceMapLocations": [
+        "${workspaceFolder}/lib/**/*.js",
+        "${workspaceFolder}/../fx-core/build/**/*.js",
+        "${workspaceFolder}/../api/build/**/*.js"
+      ],
+      "console": "integratedTerminal"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Launch add action MCP (non-interactive)",
+      "skipFiles": ["<node_internals>/**"],
+      "program": "${workspaceFolder}/cli.js",
+      "args": [
+        "add",
+        "action",
+        "--api-plugin-type",
+        "mcp",
+        "--mcp-da-server-url",
+        "https://learn.microsoft.com/api/mcp",
+        "-t",
+        "${env:USERPROFILE}/AgentsToolkitProjects/mcp-da-test/appPackage/manifest.json",
+        "-f",
+        "${env:USERPROFILE}/AgentsToolkitProjects/mcp-da-test",
+        "--interactive",
+        "false"
+      ],
+      "env": {
+        "TEAMSFX_GENERATE_CONFIG_FILES": "true",
+        "TEMPLATE_VERSION": "local"
+      },
+      "outFiles": [
+        "${workspaceFolder}/lib/**/*.js",
+        "${workspaceFolder}/../fx-core/build/**/*.js",
+        "${workspaceFolder}/../api/build/**/*.js"
+      ],
+      "resolveSourceMapLocations": [
+        "${workspaceFolder}/lib/**/*.js",
+        "${workspaceFolder}/../fx-core/build/**/*.js",
+        "${workspaceFolder}/../api/build/**/*.js"
+      ],
+      "console": "integratedTerminal"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Launch init command (non-interactive)",
+      "skipFiles": ["<node_internals>/**"],
+      "program": "${workspaceFolder}/cli.js",
+      "args": ["init"],
+      "env": {
+        "TEAMSFX_GENERATE_CONFIG_FILES": "true",
+        "TEMPLATE_VERSION": "local"
+      },
       "outFiles": [
         "${workspaceFolder}/lib/**/*.js",
         "${workspaceFolder}/../fx-core/build/**/*.js",

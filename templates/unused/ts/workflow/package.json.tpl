@@ -35,7 +35,7 @@
         "@types/json-schema": "^7.0.15",
         "env-cmd": "^10.1.0",
         "nodemon": "^3.1.7",
-        "shx": "^0.3.4",
+        "shx": "^0.4.0"",
         "ts-node": "^10.4.0",
         "typescript": "~5.8.3"
     }

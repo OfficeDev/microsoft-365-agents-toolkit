@@ -9,24 +9,25 @@
       "precondition_retry_interval": 2,
       "step_retry_timeout": 0.0
     },
-    "total_steps": 3,
-    "created_at": "2025-11-11T04:38:31.089447",
+    "total_steps": 4,
+    "created_at": "2026-04-22T07:18:59.742423",
     "name": "group: create sample",
     "description": {
+      "other": "Generated from recording r_1111_043711",
       "owner": "v-ivanchen@microsoft.com",
-      "workitem": "",
-      "other": "Generated from recording r_1111_043711"
+      "workitem": ""
     },
-    "generated_at": "2025-11-11T04:38:31.089442",
+    "generated_at": "2026-04-22T07:18:59.742423",
     "execution_order": [
       "step_e44f410f",
+      "step_fd39b907",
       "step_a7f414d1",
       "step_d2f77608"
     ],
     "tags": [
       "group"
     ],
-    "updated_at": "2025-11-11T04:46:42.099615"
+    "updated_at": "2026-04-22T08:40:25.674032"
   },
   "steps": [
     {
@@ -52,7 +53,27 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_e44f410f",
-      "created_at": "2025-11-11T04:46:32.464733",
+      "created_at": "2026-04-22T07:18:59.748072",
+      "plan_id": "plan_r_1111_043711"
+    },
+    {
+      "step_id": "step_fd39b907",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion there's \"Preview README.md\" tab in the Visual Studio Code editor opened.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "step_retry_timeout: 60"
+      ],
+      "screenshot": null,
+      "created_at": "2026-04-22T07:18:59.748072",
       "plan_id": "plan_r_1111_043711"
     },
     {
@@ -76,9 +97,11 @@
         "dhash:418:52:0:10:20203230b6707233"
       ],
       "postconditions": [],
-      "tags": [],
+      "tags": [
+        "force_run:true"
+      ],
       "screenshot": "step_a7f414d1",
-      "created_at": "2025-11-11T04:46:32.476817",
+      "created_at": "2026-04-22T07:18:59.748072",
       "plan_id": "plan_r_1111_043711"
     },
     {
@@ -102,9 +125,12 @@
         "dhash:472:69:0:10:30346666b0747233"
       ],
       "postconditions": [],
-      "tags": [],
+      "tags": [
+        "force_run:true",
+        "delay:5"
+      ],
       "screenshot": "step_d2f77608",
-      "created_at": "2025-11-11T04:46:32.489062",
+      "created_at": "2026-04-22T07:18:59.764024",
       "plan_id": "plan_r_1111_043711"
     }
   ],

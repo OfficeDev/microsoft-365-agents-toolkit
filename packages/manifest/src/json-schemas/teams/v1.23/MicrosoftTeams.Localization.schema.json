@@ -9,19 +9,23 @@
     },
     "name.short": {
       "type": "string",
-      "maxLength": 30
+      "maxLength": 30,
+      "$ref": "#/definitions/nonEmptyString"
     },
     "name.full": {
       "type": "string",
-      "maxLength": 100
+      "maxLength": 100,
+      "$ref": "#/definitions/nonEmptyString"
     },
     "description.short": {
       "type": "string",
-      "maxLength": 80
+      "maxLength": 80,
+      "$ref": "#/definitions/nonEmptyString"
     },
     "description.full": {
       "type": "string",
-      "maxLength": 4000
+      "maxLength": 4000,
+      "$ref": "#/definitions/nonEmptyString"
     },
     "localizationKeys": {
       "type": "object",
@@ -39,11 +43,11 @@
     },
     "^bots\\[0\\]\\.commandLists\\[[0-2]\\]\\.commands\\[[0-9]\\]\\.title$": {
       "type": "string",
-      "maxLength": 32
+      "maxLength": 128
     },
     "^bots\\[0\\]\\.commandLists\\[[0-2]\\]\\.commands\\[[0-9]\\]\\.description$": {
       "type": "string",
-      "maxLength": 128
+      "maxLength": 4000
     },
     "^composeExtensions\\[0\\]\\.commands\\[[0-9]\\]\\.title$": {
       "type": "string",
@@ -302,5 +306,11 @@
     "name.short",
     "description.short",
     "description.full"
-  ]
+  ],
+  "definitions": {
+    "nonEmptyString": {
+      "type": "string",
+      "pattern": "^(?![nN][uU][lL]{2}$)\\s*\\S.*"
+    }
+  }
 }

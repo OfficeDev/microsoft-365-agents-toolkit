@@ -75,6 +75,10 @@ const config = {
           from: "../fx-core/templates/",
           to: "../templates/",
         },
+        {
+          from: "../manifest/src/json-schemas/",
+          to: "../json-schemas/",
+        },
       ],
     }),
     new webpack.ContextReplacementPlugin(/express[\/\\]lib/, false, /$^/),

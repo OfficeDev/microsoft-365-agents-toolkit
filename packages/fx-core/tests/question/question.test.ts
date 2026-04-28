@@ -1583,7 +1583,8 @@ describe("updateActionWithMCP", async () => {
     assert.equal(res.data?.type, "singleFile");
     assert.equal(res.data?.name, QuestionNames.PluginManifestFilePath);
     assert.isFunction((res.data as any)?.defaultFolder);
-    assert.isFunction((res.data as any)?.default);
+    // The parent node now uses possibleFiles instead of a synthesized default
+    assert.isFunction((res.data as any)?.possibleFiles);
 
     // Test defaultFolder function
     const testInputs: Inputs = {
@@ -1593,17 +1594,14 @@ describe("updateActionWithMCP", async () => {
     const defaultFolder = ((res.data as any)?.defaultFolder as (inputs: Inputs) => string)(
       testInputs
     );
-    assert.equal(defaultFolder, path.normalize("/test/project"));
-
-    // Test default function
-    const defaultValue = ((res.data as any)?.default as (inputs: Inputs) => string)(testInputs);
-    const expectedPath = path.normalize(path.join("/test/project", "appPackage", "ai-plugin.json"));
-    assert.equal(defaultValue, expectedPath);
+    assert.equal(defaultFolder, path.normalize(path.join("/test/project", "appPackage")));
   });
 
   it("should have pre-fetch tools question with dynamic options", () => {
     const res = questionNodes.updateActionWithMCP();
-    const preFetchToolsNode = res.children?.[0];
+    // children[0] is the NewPluginManifestFileName text question;
+    // children[1] is the MCPForDAPreFetchTools multiSelect question.
+    const preFetchToolsNode = res.children?.[1];
 
     assert.isDefined(preFetchToolsNode);
     assert.equal(preFetchToolsNode?.data?.type, "multiSelect");
@@ -1639,7 +1637,7 @@ describe("updateActionWithMCP", async () => {
 
   it("should handle default function for pre-fetch tools when no manifest file", async () => {
     const res = questionNodes.updateActionWithMCP();
-    const preFetchToolsNode = res.children?.[0];
+    const preFetchToolsNode = res.children?.[1];
 
     const testInputs: Inputs = {
       platform: Platform.VSCode,
@@ -1655,7 +1653,7 @@ describe("updateActionWithMCP", async () => {
 
   it("should handle default function for pre-fetch tools with existing manifest", async () => {
     const res = questionNodes.updateActionWithMCP();
-    const preFetchToolsNode = res.children?.[0];
+    const preFetchToolsNode = res.children?.[1];
 
     const mockPluginManifest = {
       runtimes: [
@@ -1677,7 +1675,6 @@ describe("updateActionWithMCP", async () => {
           type: "RemoteMCPServer",
           spec: {
             url: "http://test-server.com",
-            enable_dynamic_discovery: true, // Dynamic discovery enabled
           },
           run_for_functions: ["function4"],
         },
@@ -1685,6 +1682,7 @@ describe("updateActionWithMCP", async () => {
     };
 
     // Mock fs.readJSON
+    sandbox.stub(fs, "pathExists").resolves(true);
     sandbox.stub(fs, "readJSON").resolves(mockPluginManifest);
 
     const testInputs: Inputs = {
@@ -1697,16 +1695,18 @@ describe("updateActionWithMCP", async () => {
       (preFetchToolsNode?.data as any)?.default as (inputs: Inputs) => Promise<string[]>
     )(testInputs);
     assert.isArray(defaultValue);
-    assert.lengthOf(defaultValue, 2);
+    assert.lengthOf(defaultValue, 3);
     assert.include(defaultValue, "function1");
     assert.include(defaultValue, "function2");
+    assert.include(defaultValue, "function4");
     // function3 should not be included (different URL)
-    // function4 should not be included (dynamic discovery enabled)
   });
 
   it("should handle auth type question conditionally", () => {
     const res = questionNodes.updateActionWithMCP();
-    const authTypeNode = res.children?.[1];
+    // children[2] is the auth-type singleSelect (after NewPluginManifestFileName
+    // and MCPForDAPreFetchTools).
+    const authTypeNode = res.children?.[2];
 
     assert.isDefined(authTypeNode);
     assert.isFunction(authTypeNode?.condition);
@@ -1717,16 +1717,23 @@ describe("updateActionWithMCP", async () => {
     const conditionFunc = authTypeNode?.condition as ConditionFunc;
 
     const inputsWithAuth: Inputs = {
-      platform: Platform.VSCode,
+      platform: Platform.CLI,
       [QuestionNames.MCPForDAAuth]: "OAuth",
     };
     assert.isTrue(conditionFunc(inputsWithAuth));
 
     const inputsWithNoneAuth: Inputs = {
-      platform: Platform.VSCode,
+      platform: Platform.CLI,
       [QuestionNames.MCPForDAAuth]: "NoneAuth",
     };
     assert.isFalse(conditionFunc(inputsWithNoneAuth));
+
+    // Should return true for VS Code when auth is not NoneAuth
+    const inputsVSCode: Inputs = {
+      platform: Platform.VSCode,
+      [QuestionNames.MCPForDAAuth]: "OAuth",
+    };
+    assert.isTrue(conditionFunc(inputsVSCode));
 
     // Test static options
     const staticOptions = (authTypeNode?.data as any)?.staticOptions;
@@ -1743,9 +1750,11 @@ describe("updateActionWithMCP", async () => {
 
   it("should handle fs.readJSON errors gracefully in default function", async () => {
     const res = questionNodes.updateActionWithMCP();
-    const preFetchToolsNode = res.children?.[0];
+    const preFetchToolsNode = res.children?.[1];
 
-    // Mock fs.readJSON to throw an error
+    // Mock fs.pathExists to return true so the default function proceeds to readJSON,
+    // and fs.readJSON to throw an error
+    sandbox.stub(fs, "pathExists").resolves(true);
     sandbox.stub(fs, "readJSON").rejects(new Error("File not found"));
 
     const testInputs: Inputs = {
@@ -1766,9 +1775,9 @@ describe("updateActionWithMCP", async () => {
     }
   });
 
-  it("should filter runtimes correctly based on server URL and dynamic discovery", async () => {
+  it("should filter runtimes correctly based on server URL", async () => {
     const res = questionNodes.updateActionWithMCP();
-    const preFetchToolsNode = res.children?.[0];
+    const preFetchToolsNode = res.children?.[1];
 
     const mockPluginManifest = {
       runtimes: [
@@ -1776,7 +1785,6 @@ describe("updateActionWithMCP", async () => {
           type: "LocalMCPServer", // Wrong type
           spec: {
             url: "http://test-server.com",
-            enable_dynamic_discovery: false,
           },
           run_for_functions: ["function1"],
         },
@@ -1784,13 +1792,13 @@ describe("updateActionWithMCP", async () => {
           type: "RemoteMCPServer",
           spec: {
             url: "http://test-server.com",
-            enable_dynamic_discovery: false,
           },
           run_for_functions: ["function2", "function3"],
         },
       ],
     };
 
+    sandbox.stub(fs, "pathExists").resolves(true);
     sandbox.stub(fs, "readJSON").resolves(mockPluginManifest);
 
     const testInputs: Inputs = {
@@ -1807,5 +1815,67 @@ describe("updateActionWithMCP", async () => {
     assert.include(defaultValue, "function2");
     assert.include(defaultValue, "function3");
     // function1 should not be included (wrong runtime type)
+  });
+});
+
+describe("ActionStartOptions", () => {
+  const sandbox = sinon.createSandbox();
+  afterEach(() => {
+    sandbox.restore();
+  });
+
+  describe("all()", () => {
+    it("should include MCP option on VSCode platform when MCPForDA is enabled", () => {
+      sandbox.stub(featureFlagManager, "getBooleanValue").callsFake((flag) => {
+        if (flag === FeatureFlags.MCPForDA) return true;
+        return false;
+      });
+      const inputs: Inputs = { platform: Platform.VSCode };
+      const options = ActionStartOptions.all(inputs, true);
+      assert.isTrue(options.some((o) => o.id === ActionStartOptions.mcp().id));
+      assert.isTrue(options.some((o) => o.id === ActionStartOptions.apiSpec().id));
+    });
+
+    it("should include MCP option on CLI platform when MCPForDA is enabled", () => {
+      sandbox.stub(featureFlagManager, "getBooleanValue").callsFake((flag) => {
+        if (flag === FeatureFlags.MCPForDA) return true;
+        return false;
+      });
+      const inputs: Inputs = { platform: Platform.CLI };
+      const options = ActionStartOptions.all(inputs, true);
+      assert.isTrue(options.some((o) => o.id === ActionStartOptions.mcp().id));
+      assert.isTrue(options.some((o) => o.id === ActionStartOptions.apiSpec().id));
+    });
+
+    it("should not include MCP option on CLI platform when MCPForDA is disabled", () => {
+      sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
+      const inputs: Inputs = { platform: Platform.CLI };
+      const options = ActionStartOptions.all(inputs, true);
+      assert.isFalse(options.some((o) => o.id === ActionStartOptions.mcp().id));
+    });
+
+    it("should return newApi and apiSpec when doesProjectExists is false", () => {
+      const inputs: Inputs = { platform: Platform.VSCode };
+      const options = ActionStartOptions.all(inputs, false);
+      assert.equal(options.length, 2);
+      assert.isTrue(options.some((o) => o.id === ActionStartOptions.newApi().id));
+      assert.isTrue(options.some((o) => o.id === ActionStartOptions.apiSpec().id));
+    });
+  });
+
+  describe("staticAll()", () => {
+    it("should include apiSpec and mcp when doesProjectExists is true", () => {
+      const options = ActionStartOptions.staticAll(true);
+      assert.equal(options.length, 2);
+      assert.isTrue(options.some((o) => o.id === ActionStartOptions.apiSpec().id));
+      assert.isTrue(options.some((o) => o.id === ActionStartOptions.mcp().id));
+    });
+
+    it("should include newApi and apiSpec when doesProjectExists is false", () => {
+      const options = ActionStartOptions.staticAll(false);
+      assert.equal(options.length, 2);
+      assert.isTrue(options.some((o) => o.id === ActionStartOptions.newApi().id));
+      assert.isTrue(options.some((o) => o.id === ActionStartOptions.apiSpec().id));
+    });
   });
 });

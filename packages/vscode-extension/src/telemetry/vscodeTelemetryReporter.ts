@@ -3,7 +3,7 @@
 import * as vscode from "vscode";
 import * as os from "os";
 import path from "path";
-// eslint-disable-next-line import/default
+// eslint-disable-next-line import-x/default
 import Reporter from "@vscode/extension-telemetry";
 import { TelemetryReporter, ConfigFolderName } from "@microsoft/teamsfx-api";
 import { anonymizeFilePaths } from "../utils/fileSystemUtils";

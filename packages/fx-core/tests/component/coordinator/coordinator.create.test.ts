@@ -41,12 +41,12 @@ describe("coordinator create", () => {
   const tools = new MockTools();
   let generator: sinon.SinonStub;
   setTools(tools);
-  let mockedEnvRestore: RestoreFn;
+  let mockedEnvRestore: RestoreFn | undefined;
   beforeEach(() => {
     sandbox.stub(fs, "ensureDir").resolves();
     sandbox.stub(manifestUtils, "trimManifestShortName").resolves(ok(undefined));
     generator = sandbox
-      .stub(DefaultTemplateGenerator.prototype, <any>"scaffolding")
+      .stub(DefaultTemplateGenerator.prototype, "scaffolding" as any)
       .resolves(ok(undefined));
   });
   afterEach(() => {

@@ -63,6 +63,9 @@ export enum QuestionNames {
   AzureAISearchApiKey = "azure-ai-search-api-key",
   AzureAISearchEndpoint = "azure-ai-search-endpoint",
 
+  FoundryEndpoint = "foundry-endpoint",
+  FoundryAgentId = "foundry-agent-id",
+
   Features = "features",
   Env = "env",
   SourceEnvName = "sourceEnvName",
@@ -107,6 +110,7 @@ export enum QuestionNames {
   WithPlugin = "with-plugin",
   ImportPlugin = "import-plugin",
   PluginManifestFilePath = "plugin-manifest-path",
+  NewPluginManifestFileName = "new-plugin-manifest-file-name",
   PluginOpenApiSpecFilePath = "plugin-opeanapi-spec-path",
   KnowledgeSource = "knowledge-source",
   OneDriveSharePointURL = "oneDriveSharePointURL",
@@ -155,4 +159,5 @@ export enum QuestionNames {
   MCPForDAAuthMetadataUrl = "mcp-da-auth-metadata-url",
   MCPForDAAuthWellKnownUrl = "mcp-da-auth-well-known-url",
   MCPForDAAuthType = "mcp-da-auth-type",
+  MCPToolsFilePath = "mcp-tools-file-path",
 }

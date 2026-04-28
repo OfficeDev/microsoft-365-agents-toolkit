@@ -2,7 +2,6 @@
 // Licensed under the MIT license.
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
 
 import { CLIContext, err, ok, SystemError } from "@microsoft/teamsfx-api";
 import { FxCore, UserCancelError } from "@microsoft/teamsfx-core";

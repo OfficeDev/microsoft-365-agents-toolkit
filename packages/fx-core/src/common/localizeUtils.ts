@@ -79,3 +79,11 @@ export function getDefaultString(key: string, ...params: any[]): string {
   }
   return value || "";
 }
+
+/**
+ * Clear the locale string cache so that updated NLS files (e.g., from a freshly
+ * downloaded metadata.zip) are picked up on next getLocalizedString() call.
+ */
+export function clearLocaleCache(): void {
+  LocaleStringMap.clear();
+}

@@ -92,4 +92,5 @@ export interface AppDefinition {
   publisherDocsUrl?: string;
   hasPreviewFeature?: boolean;
   localizationInfo?: LocalizationInfo;
+  supportsChannelFeatures?: string;
 }

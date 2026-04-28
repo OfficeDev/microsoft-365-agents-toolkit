@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import "mocha";
 import { assert } from "chai";
 import * as sinon from "sinon";

@@ -24,22 +24,6 @@ You can find the app manifest in `./appPackage` folder. The folder contains one 
 * `manifest.json`: Manifest file for Office add-in running locally or running remotely (After deployed to Azure).
 You may add any extra properties or permissions you require to this file. See the [schema reference](https://raw.githubusercontent.com/OfficeDev/microsoft-teams-app-schema/preview/op/extensions/MicrosoftTeams.schema.json) for more information.
 
-## Deploy to Azure
-
-Deploy your project to Azure by following these steps:
-
-| From Visual Studio Code                                                                                                                                                                                                                                                                                                                                                  | From Microsoft 365 Agents Toolkit CLI                                                                                                                                                                                                                    |
-| :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| <ul><li>Open Microsoft 365 Agents Toolkit, and sign into Azure by clicking the `Sign in to Azure` under the `ACCOUNTS` section from sidebar.</li> <li>After you signed in, select a subscription under your account.</li><li>Open the Microsoft 365 Agents Toolkit and click `Provision` from LIFECYCLE section or open the command palette and select: `Microsoft 365 Agents: Provision`.</li><li>Open the Microsoft 365 Agents Toolkit and click `Deploy` or open the command palette and select: `Microsoft 365 Agents: Deploy`.</li></ul> | <ul> <li>Run command `atk auth login azure`.</li> <li>(Optional)Set environment variable AZURE_SUBSCRIPTION_ID to your subscription id in env/.env.dev or in your current shell envrionment if you are using non-interactive mode of Microsoft 365 Agents Toolkit CLI.</li> <li> Run command `atk provision`.</li> <li>Run command: `atk deploy`. </li></ul> |
-> Note: Provisioning and deployment may incur charges to your Azure Subscription.
-
-To sideload the deployed add-in:
-
-- Copy the production URL from the `ADDIN_ENDPOINT` in env/.env.dev file.
-- Edit webpack.config.js file and change `urlProd` to the value you just copied. Please note to add a '/' at the end of the URL.
-- Run `npm run build`.
-- Run `npx office-addin-dev-settings sideload ./dist/manifest.json`.
-
 ## Validate manifest file
 
 To check that your manifest file is valid:

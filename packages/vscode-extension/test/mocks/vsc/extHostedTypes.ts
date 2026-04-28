@@ -1,6 +1,5 @@
-/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable max-classes-per-file */
+
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
@@ -1210,7 +1209,6 @@ export enum TextEditorRevealType {
   AtTop = 3,
 }
 
-// eslint-disable-next-line import/export
 export enum TextEditorSelectionChangeKind {
   Keyboard = 1,
   Mouse = 2,
@@ -1239,7 +1237,7 @@ export enum DecorationRangeBehavior {
   ClosedOpen = 3,
 }
 
-// eslint-disable-next-line import/export, @typescript-eslint/no-namespace
+// eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace TextEditorSelectionChangeKind {
   export function fromValue(s: string): TextEditorSelectionChangeKind | undefined {
     switch (s) {
@@ -1458,7 +1456,6 @@ export class ProcessExecution implements vscode.ProcessExecution {
     this._options = value;
   }
 
-  // eslint-disable-next-line class-methods-use-this
   public computeId(): string {
     // const hash = crypto.createHash('md5');
     // hash.update('process');
@@ -1554,7 +1551,6 @@ export class ShellExecution implements vscode.ShellExecution {
     this._options = value;
   }
 
-  // eslint-disable-next-line class-methods-use-this
   public computeId(): string {
     // const hash = crypto.createHash('md5');
     // hash.update('shell');
@@ -1936,7 +1932,6 @@ export class RelativePattern implements IRelativePattern {
     this.pattern = pattern;
   }
 
-  // eslint-disable-next-line class-methods-use-this
   public pathToRelative(from: string, to: string): string {
     return relative(from, to);
   }
@@ -2087,7 +2082,6 @@ export class FileSystemError extends Error {
     }
   }
 
-  // eslint-disable-next-line class-methods-use-this
   public get code(): string {
     return "";
   }

@@ -771,9 +771,13 @@ describe("SpecParser in Browser", () => {
           },
         },
       } as OpenAPIV3.Document;
-      const specPath = "path/to/spec";
       const specParser = new SpecParser(spec as any);
+      sinon.stub(specParser.parser, "parse").resolves(spec as any);
+      sinon.stub(specParser.parser, "dereference").resolves(spec as any);
       const validateStub = sinon.stub(specParser.parser, "validate").resolves(spec as any);
+      sinon
+        .stub(specParser.parser.$refs, "paths")
+        .returns(["localPath", "https://petstore3.swagger.io/api/v3/openapi.json"]);
       const result = await specParser.validate();
 
       expect(result.errors[0].type).equal(ErrorType.RemoteRefNotSupported);

@@ -1,5 +1,4 @@
-import { TaskInfo } from "@microsoft/teams-js";
-import { TaskInfo as TaskInfoAlias } from "@microsoft/teams-js";
+import { TaskInfo, TaskInfo as TaskInfoAlias  } from "@microsoft/teams-js";
 
 async function f1(x: TaskInfo): Promise<TaskInfo> {
   return x;

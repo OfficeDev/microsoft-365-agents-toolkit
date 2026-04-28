@@ -572,9 +572,15 @@ export function apiSpecTypeSelectQuestion(): SingleSelectQuestion {
     cliDescription: "The type of the API spec.",
     staticOptions: [
       {
-        id: "enter-url-or-open-local-file",
+        id: "enter-url",
         label: getLocalizedString(
-          "core.createProjectQuestion.capability.selectOpenAPISpecFromLocation.label"
+          "core.createProjectQuestion.capability.selectOpenAPISpecFromUrl.label"
+        ),
+      },
+      {
+        id: "open-file",
+        label: getLocalizedString(
+          "core.createProjectQuestion.capability.selectOpenAPISpecFromFile.label"
         ),
       },
       {
@@ -714,8 +720,8 @@ export function apiSpecLocationQuestion(includeExistingAPIs = true): SingleFileO
           const result = isValidHttpUrl(input.trim())
             ? undefined
             : inputs?.platform === Platform.CLI
-            ? "Please enter a valid HTTP URL to access your OpenAPI description document or enter a file path of your local OpenAPI description document."
-            : getLocalizedString("core.createProjectQuestion.invalidUrl.message");
+              ? "Please enter a valid HTTP URL to access your OpenAPI description document or enter a file path of your local OpenAPI description document."
+              : getLocalizedString("core.createProjectQuestion.invalidUrl.message");
           return Promise.resolve(result);
         },
       },
@@ -739,13 +745,127 @@ export function apiSpecLocationQuestion(includeExistingAPIs = true): SingleFileO
   };
 }
 
+/**
+ * URL-only question for entering an OpenAPI spec URL.
+ * Used when the user selects "Enter OpenAPI Document URL" from the flattened spec type selector.
+ */
+export function apiSpecUrlQuestion(): TextInputQuestion {
+  const correlationId = Correlator.getId();
+  return {
+    type: "text",
+    name: QuestionNames.ApiSpecLocation,
+    cliShortName: "a",
+    cliDescription: "OpenAPI description document URL.",
+    title: getLocalizedString("core.createProjectQuestion.apiSpec.title"),
+    placeholder: getLocalizedString("core.createProjectQuestion.apiSpec.placeholder"),
+    forgetLastValue: true,
+    validation: {
+      validFunc: (input: string, inputs?: Inputs): string | undefined => {
+        return isValidHttpUrl(input.trim())
+          ? undefined
+          : inputs?.platform === Platform.CLI
+            ? "Please enter a valid HTTP URL to access your OpenAPI description document."
+            : getLocalizedString("core.createProjectQuestion.invalidUrl.message");
+      },
+    },
+    additionalValidationOnAccept: {
+      validFunc: async (input: string, inputs?: Inputs): Promise<string | undefined> => {
+        if (!inputs) {
+          throw new Error("inputs is undefined");
+        }
+        const context = createContext();
+        const res = await listOperations(
+          context,
+          input.trim(),
+          inputs,
+          true,
+          false,
+          inputs.platform === Platform.VSCode ? correlationId : undefined
+        );
+        if (res.isOk()) {
+          inputs.supportedApisFromApiSpec = res.value;
+        } else {
+          const errors = res.error;
+          if (inputs.platform === Platform.CLI) {
+            return errors.map((e) => e.content).join("\n");
+          }
+          if (
+            errors.length === 1 &&
+            errors[0].content.length <= maximumLengthOfDetailsErrorMessageInInputBox
+          ) {
+            return errors[0].content;
+          } else {
+            return getLocalizedString(
+              "core.createProjectQuestion.apiSpec.multipleValidationErrors.vscode.message"
+            );
+          }
+        }
+      },
+    },
+  };
+}
+
+/**
+ * File-only question for browsing a local OpenAPI spec file.
+ * Used when the user selects "Open file" from the flattened spec type selector.
+ */
+export function apiSpecFileQuestion(): SingleFileQuestion {
+  const correlationId = Correlator.getId();
+  return {
+    type: "singleFile",
+    name: QuestionNames.ApiSpecLocation,
+    cliDescription: "OpenAPI description document file path.",
+    title: getLocalizedString("core.createProjectQuestion.apiSpec.title"),
+    filters: {
+      "OpenAPI Description Document": ["json", "yml", "yaml"],
+    },
+    validation: {
+      validFunc: async (input: string, inputs?: Inputs): Promise<string | undefined> => {
+        if (!inputs) {
+          throw new Error("inputs is undefined");
+        }
+        if (!(await fs.pathExists(input.trim()))) {
+          return "File not found. Please select a valid OpenAPI description document file.";
+        }
+        const context = createContext();
+        const res = await listOperations(
+          context,
+          input.trim(),
+          inputs,
+          true,
+          false,
+          inputs.platform === Platform.VSCode ? correlationId : undefined
+        );
+        if (res.isOk()) {
+          inputs.supportedApisFromApiSpec = res.value;
+        } else {
+          const errors = res.error;
+          if (inputs.platform === Platform.CLI) {
+            return errors.map((e) => e.content).join("\n");
+          }
+          if (
+            errors.length === 1 &&
+            errors[0].content.length <= maximumLengthOfDetailsErrorMessageInInputBox
+          ) {
+            return errors[0].content;
+          } else {
+            return getLocalizedString(
+              "core.createProjectQuestion.apiSpec.multipleValidationErrors.vscode.message"
+            );
+          }
+        }
+      },
+    },
+  };
+}
+
 export function apiAuthQuestion(excludeNone = false): SingleSelectQuestion {
   return {
     type: "singleSelect",
     name: QuestionNames.ApiAuth,
-    title: getLocalizedString("core.createProjectQuestion.apiMessageExtensionAuth.title"),
+    title: getLocalizedString("template.createProjectQuestion.apiMessageExtensionAuth.title"),
     placeholder: getLocalizedString(
-      "core.createProjectQuestion.apiMessageExtensionAuth.placeholder"
+      "template.createProjectQuestion.apiMessageExtensionAuth.placeholder"
     ),
     cliDescription: "The authentication type for the API.",
     staticOptions: ApiAuthOptions.all(),
@@ -895,9 +1015,7 @@ function customCopilotRagQuestion(): SingleSelectQuestion {
     type: "singleSelect",
     name: QuestionNames.CustomCopilotRag,
     title: getLocalizedString("core.createProjectQuestion.capability.customCopilotRag.title"),
-    placeholder: getLocalizedString(
-      "core.createProjectQuestion.capability.customCopilotRag.placeholder"
-    ),
+    placeholder: getLocalizedString("template.teams.rag.source.placeholder"),
     staticOptions: CustomCopilotRagOptions.all(),
     dynamicOptions: () => CustomCopilotRagOptions.all(),
     default: CustomCopilotRagOptions.customize().id,
@@ -1041,6 +1159,24 @@ export function azureOpenAIEmbeddingDeploymentNameQuestion(): TextInputQuestion 
   };
 }
 
+export function foundryEndpointQuestion(): TextInputQuestion {
+  return {
+    type: "text",
+    name: QuestionNames.FoundryEndpoint,
+    title: getLocalizedString("core.createProjectQuestion.foundry.endpoint.title"),
+    placeholder: getLocalizedString("core.createProjectQuestion.foundry.endpoint.placeholder"),
+  };
+}
+
+export function foundryAgentIdQuestion(): TextInputQuestion {
+  return {
+    type: "text",
+    name: QuestionNames.FoundryAgentId,
+    title: getLocalizedString("core.createProjectQuestion.foundry.agentId.title"),
+    placeholder: getLocalizedString("core.createProjectQuestion.foundry.agentId.placeholder"),
+  };
+}
+
 export function apiPluginStartQuestion(doesProjectExists?: boolean): SingleSelectQuestion {
   return {
     type: "singleSelect",
@@ -1049,13 +1185,15 @@ export function apiPluginStartQuestion(doesProjectExists?: boolean): SingleSelec
       return inputs[QuestionNames.Capabilities] === DACapabilityOptions.declarativeAgent().id ||
         doesProjectExists
         ? getLocalizedString("core.createProjectQuestion.addApiPlugin.title")
-        : getLocalizedString("core.createProjectQuestion.createApiPlugin.title");
+        : getLocalizedString("template.createProjectQuestion.createApiPlugin.title");
     },
     placeholder: (inputs: Inputs) => {
       return inputs[QuestionNames.Capabilities] === DACapabilityOptions.declarativeAgent().id ||
         doesProjectExists
-        ? getLocalizedString("core.createProjectQuestion.addApiPlugin.placeholder")
-        : getLocalizedString("core.createProjectQuestion.projectType.copilotExtension.placeholder");
+        ? getLocalizedString("template.createProjectQuestion.addApiPlugin.placeholder")
+        : getLocalizedString(
+            "template.createProjectQuestion.projectType.copilotExtension.placeholder"
+          );
     },
     cliDescription: "Action type.",
     staticOptions: ActionStartOptions.staticAll(doesProjectExists),

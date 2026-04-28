@@ -116,6 +116,8 @@ jobs:
               index=$((index+1))
             fi
           done
+          matrix_json="{\"m365_user\": $matrix}"
+          echo "matrix=$matrix_json" >> $GITHUB_OUTPUT
   clean:
     name: Clean resource
     needs: build-clean-matrix

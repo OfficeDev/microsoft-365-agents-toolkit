@@ -2,6 +2,7 @@
 // Licensed under the MIT license.
 
 import {
+  AppManifestUtils,
   Colors,
   DeclarativeAgentManifest,
   DeclarativeAgentManifestConverter,
@@ -11,7 +12,6 @@ import {
   err,
   FxError,
   IDeclarativeCopilot,
-  ManifestUtil,
   ok,
   OneDriveAndSharePointCapability,
   Platform,
@@ -186,7 +186,9 @@ export class CopilotGptManifestUtils {
 
     const manifest = manifestRes.value;
     try {
-      const manifestValidationRes = await ManifestUtil.validateManifest(manifestRes.value);
+      const manifestValidationRes = await AppManifestUtils.validateAgainstSchema(
+        manifestRes.value as any
+      );
       const res: DeclarativeCopilotManifestValidationResult = {
         id: declaraitveCopilot.id,
         filePath: manifestPath,
@@ -455,9 +457,8 @@ export class CopilotGptManifestUtils {
     manifestFilePath: string,
     filePathList: string[]
   ): Promise<Result<undefined, FxError>> {
-    const declarativeAgentManifestPathRes = await copilotGptManifestUtils.getManifestPath(
-      manifestFilePath
-    );
+    const declarativeAgentManifestPathRes =
+      await copilotGptManifestUtils.getManifestPath(manifestFilePath);
     if (declarativeAgentManifestPathRes.isErr()) {
       return err(declarativeAgentManifestPathRes.error);
     }

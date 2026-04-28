@@ -229,6 +229,39 @@ describe("assembleError", function () {
     assert.isTrue(fxError.source === "unknown");
     assert.isTrue(fxError.stack && fxError.stack.includes("error.test.ts"));
     assert.deepEqual(fxError.categories, ["internal", "EEXIST"]);
+    assert.equal(fxError.message, myMessage);
+    assert.equal((fxError as UserError).displayMessage, myMessage);
+  });
+
+  it("error is Error with errno code and empty message falls back to code", () => {
+    const raw = new Error();
+    (raw as any).code = "ECONNRESET";
+    const fxError = assembleError(raw);
+    assert.isTrue(fxError instanceof InternalError);
+    assert.equal(fxError.message, "ECONNRESET");
+    assert.equal((fxError as UserError).displayMessage, "ECONNRESET");
+    assert.deepEqual(fxError.categories, ["internal", "ECONNRESET"]);
+  });
+
+  it("error is Error with ERR_ code and empty message falls back to code", () => {
+    const raw = new Error("");
+    (raw as any).code = "ERR_TLS_CERT_ALTNAME_INVALID";
+    const fxError = assembleError(raw);
+    assert.isTrue(fxError instanceof InternalError);
+    assert.equal(fxError.message, "ERR_TLS_CERT_ALTNAME_INVALID");
+    assert.equal((fxError as UserError).displayMessage, "ERR_TLS_CERT_ALTNAME_INVALID");
+  });
+
+  it("InternalError falls back to default message when both message and code are empty", () => {
+    const raw = new Error();
+    (raw as any).code = "ETIMEDOUT";
+    // Force empty message to test fallback
+    raw.message = "";
+    (raw as any).code = undefined;
+    const fxError = new InternalError(raw, "test-source");
+    assert.equal(fxError.message, "Unknown internal error");
+    assert.equal((fxError as UserError).displayMessage, "Unknown internal error");
+    assert.equal(fxError.source, "test-source");
   });
 
   it("error is Error with source", () => {

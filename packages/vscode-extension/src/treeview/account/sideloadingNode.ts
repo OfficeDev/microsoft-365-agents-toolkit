@@ -3,7 +3,12 @@
 
 import * as vscode from "vscode";
 
-import { featureFlagManager, FeatureFlags, getSideloadingStatus } from "@microsoft/teamsfx-core";
+import {
+  featureFlagManager,
+  FeatureFlags,
+  getSideloadingStatus,
+  isSandboxedEnabled,
+} from "@microsoft/teamsfx-core";
 import {
   checkSandboxCallback,
   checkSideloadingCallback,
@@ -13,7 +18,6 @@ import { localize } from "../../utils/localizeUtils";
 import { DynamicNode } from "../dynamicNode";
 import { errorIcon, infoIcon, passIcon } from "./common";
 import M365TokenInstance from "../../commonlib/m365Login";
-import { isSandboxedEnabled } from "@microsoft/teamsfx-core";
 
 enum ContextValues {
   Normal = "checkSideloading",

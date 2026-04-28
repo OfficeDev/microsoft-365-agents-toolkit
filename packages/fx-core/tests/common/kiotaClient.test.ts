@@ -6,9 +6,8 @@ import "mocha";
 import sinon from "sinon";
 import { kiotageneratePlugin, searchOpenAPISpec } from "../../src/common/kiotaClient";
 import proxyquire from "proxyquire";
-import { RestoreFn } from "mocked-env";
+import mockedEnv, { RestoreFn } from "mocked-env";
 import * as kiota from "@microsoft/kiota";
-import mockedEnv from "mocked-env";
 
 describe("kiotaClient", () => {
   const sandbox = sinon.createSandbox();
@@ -473,7 +472,7 @@ describe("generatePlugin", async () => {
 
   it("happy path: generatePlugin", async () => {
     const setKiotaConfigStub = sandbox.stub().resolves();
-    const generatePluginStub = sandbox.stub(kiota, "generatePlugin").resolves({
+    const generatePluginStub = sandbox.stub().resolves({
       aiPlugin: "mocked-ai-plugin",
       openAPISpec: "mocked-openapi-spec",
       isSuccess: true,
@@ -516,7 +515,7 @@ describe("generatePlugin", async () => {
       KIOTA_BINARY_PATH: "true",
     });
     const setKiotaConfigStub = sandbox.stub().resolves();
-    const generatePluginStub = sandbox.stub(kiota, "generatePlugin").resolves({
+    const generatePluginStub = sandbox.stub().resolves({
       aiPlugin: "mocked-ai-plugin",
       openAPISpec: "mocked-openapi-spec",
       isSuccess: true,
@@ -551,7 +550,7 @@ describe("generatePlugin", async () => {
 
   it("should throw error if kiota return unedfined", async () => {
     const setKiotaConfigStub = sandbox.stub().resolves();
-    const generatePluginStub = sandbox.stub(kiota, "generatePlugin").resolves(undefined);
+    const generatePluginStub = sandbox.stub().resolves(undefined);
 
     const { kiotageneratePlugin } = proxyquire("../../src/common/kiotaClient", {
       "@microsoft/kiota": {
@@ -584,7 +583,7 @@ describe("generatePlugin", async () => {
 
   it("should throw error if kiota throw error", async () => {
     const setKiotaConfigStub = sandbox.stub().resolves();
-    const generatePluginStub = sandbox.stub(kiota, "generatePlugin").resolves({
+    const generatePluginStub = sandbox.stub().resolves({
       aiPlugin: "mocked-ai-plugin",
       openAPISpec: "mocked-openapi-spec",
       isSuccess: false,
@@ -627,9 +626,7 @@ describe("generatePlugin", async () => {
 
   it("should throw error if kiota throw error", async () => {
     const setKiotaConfigStub = sandbox.stub().resolves();
-    const generatePluginStub = sandbox
-      .stub(kiota, "generatePlugin")
-      .throws(new Error("mocked error"));
+    const generatePluginStub = sandbox.stub().throws(new Error("mocked error"));
 
     const { kiotageneratePlugin } = proxyquire("../../src/common/kiotaClient", {
       "@microsoft/kiota": {

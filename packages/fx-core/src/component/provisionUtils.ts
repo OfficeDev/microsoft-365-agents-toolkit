@@ -13,7 +13,7 @@ import {
   SubscriptionInfo,
   UserError,
 } from "@microsoft/teamsfx-api";
-import { AppStudioScopes, HelpLinks } from "../common/constants";
+import { AppStudioScopes, GraphScopes, HelpLinks } from "../common/constants";
 import { getLocalizedString } from "../common/localizeUtils";
 import { TelemetryEvent, TelemetryProperty } from "../common/telemetry";
 import { getHashedEnv } from "../common/stringUtils";
@@ -33,6 +33,7 @@ import {
 import { SolutionTelemetryProperty } from "./constants";
 import { DriverContext } from "./driver/interface/commonArgs";
 import { resourceGroupHelper, ResourceGroupInfo } from "./utils/ResourceGroupHelper";
+import { isSovereignHigh } from "../common/accountUtils";
 export interface M365TenantRes {
   tenantIdInToken: string;
   tenantUserName: string;
@@ -128,12 +129,14 @@ class ProvisionUtils {
     // Just to trigger M365 login before the concurrent execution of localDebug.
     // Because concurrent execution of localDebug may getAccessToken() concurrently, which
     // causes 2 M365 logins before the token caching in common lib takes effect.
-    const appStudioTokenRes = await m365TokenProvider.getAccessToken({ scopes: AppStudioScopes() });
+    const appStudioTokenRes = await m365TokenProvider.getAccessToken({
+      scopes: isSovereignHigh() ? GraphScopes : AppStudioScopes(),
+    });
     if (appStudioTokenRes.isErr()) {
       return err(appStudioTokenRes.error);
     }
     const appStudioTokenJsonRes = await m365TokenProvider.getJsonObject({
-      scopes: AppStudioScopes(),
+      scopes: isSovereignHigh() ? GraphScopes : AppStudioScopes(),
     });
     const appStudioTokenJson = appStudioTokenJsonRes.isOk()
       ? appStudioTokenJsonRes.value

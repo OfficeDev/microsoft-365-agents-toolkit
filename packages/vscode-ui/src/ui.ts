@@ -581,9 +581,8 @@ export class VSCodeUI implements UserInteraction {
               inputBox.placeholder = "Validating...";
               inputBox.value = "";
               try {
-                const additionalValidationOnAcceptRes = await config.additionalValidationOnAccept(
-                  oldValue
-                );
+                const additionalValidationOnAcceptRes =
+                  await config.additionalValidationOnAccept(oldValue);
 
                 if (!additionalValidationOnAcceptRes) {
                   resolve(ok({ type: "success", result: oldValue }));
@@ -857,14 +856,14 @@ export class VSCodeUI implements UserInteraction {
           ...(config.possibleFiles
             ? config.possibleFiles
             : defaultValue
-            ? [
-                {
-                  id: "default",
-                  label: `$(file) ${path.basename(defaultValue)}`,
-                  description: path.dirname(defaultValue),
-                },
-              ]
-            : []),
+              ? [
+                  {
+                    id: "default",
+                    label: `$(file) ${path.basename(defaultValue)}`,
+                    description: path.dirname(defaultValue),
+                  },
+                ]
+              : []),
           {
             id: "browse",
             label: `$(file) ${this.localizer.browse()}`,
@@ -884,8 +883,8 @@ export class VSCodeUI implements UserInteraction {
                 defaultUri: config.defaultFolder
                   ? Uri.file(config.defaultFolder)
                   : config.default
-                  ? Uri.file(config.default as string)
-                  : undefined,
+                    ? Uri.file(config.default as string)
+                    : undefined,
                 canSelectFiles: true,
                 canSelectFolders: false,
                 canSelectMany: type === "files",
@@ -1140,15 +1139,16 @@ export class VSCodeUI implements UserInteraction {
     if (isWindows) {
       // PowerShell script for Windows
       // Capture output to file within the script itself for compatibility
-      scriptContent = `$ErrorActionPreference = 'Continue'\n& {\n${cmd}\n} 2>&1 | ForEach-Object { $_ | Out-File -FilePath "${tempFile}" -Encoding utf8 -Append; $_ }\n`;
+      scriptContent = `[Console]::OutputEncoding = [System.Text.Encoding]::UTF8; $OutputEncoding = [System.Text.Encoding]::UTF8; $ErrorActionPreference = 'Continue'\n& {\n${cmd}\n} 2>&1 | ForEach-Object { $_ | Out-File -FilePath "${tempFile}" -Encoding utf8 -Append; $_ }\nexit $LASTEXITCODE\n`;
       // Use the shell parameter if provided, otherwise default to powershell for broader compatibility
       const shellCmd = args.shell || "powershell";
       wrappedCmd = `${shellCmd} -NoProfile -ExecutionPolicy Bypass -File "${scriptFile}"`;
     } else {
       // Bash script for Unix-like systems
-      // Use tee to display output in terminal while also capturing to file
-      scriptContent = `#!/bin/bash\nset +e\n${cmd}\n`;
-      wrappedCmd = `bash "${scriptFile}" 2>&1 | tee "${tempFile}"`;
+      // Use tee inside the script to display output in the terminal while capturing to file,
+      // then exit with the command's actual exit code via PIPESTATUS.
+      scriptContent = `#!/bin/bash\nset +e\n${cmd} 2>&1 | tee "${tempFile}"\nexit \${PIPESTATUS[0]}\n`;
+      wrappedCmd = `bash "${scriptFile}"`;
     }
 
     fs.writeFileSync(scriptFile, scriptContent, "utf-8");
@@ -1160,14 +1160,17 @@ export class VSCodeUI implements UserInteraction {
 
     const timeoutPromise = timeout
       ? new Promise<never>((_, reject) => {
-          setTimeout(() => {
-            reject(
-              new ScriptTimeoutError(
-                this.localizer.commandTimeoutErrorMessage(cmd),
-                this.localizer.commandTimeoutErrorDisplayMessage(cmd)
-              )
-            );
-          }, timeout ?? 1000 * 60 * 30);
+          setTimeout(
+            () => {
+              reject(
+                new ScriptTimeoutError(
+                  this.localizer.commandTimeoutErrorMessage(cmd),
+                  this.localizer.commandTimeoutErrorDisplayMessage(cmd)
+                )
+              );
+            },
+            timeout ?? 1000 * 60 * 30
+          );
         })
       : undefined;
 
@@ -1203,8 +1206,8 @@ export class VSCodeUI implements UserInteraction {
               );
               reject(
                 new ScriptExecutionError(
-                  this.localizer.commandExecutionErrorMessage(cmd),
-                  this.localizer.commandExecutionErrorDisplayMessage(cmd)
+                  `${this.localizer.commandExecutionErrorMessage(cmd)}\n${output}`,
+                  `${this.localizer.commandExecutionErrorDisplayMessage(cmd)}\n${output}`
                 )
               );
             }

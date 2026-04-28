@@ -10,14 +10,14 @@
       "step_retry_timeout": 0
     },
     "total_steps": 7,
-    "created_at": "2025-12-11T03:55:48.749519",
+    "created_at": "2026-03-24T06:46:39.838177",
     "name": "Basic Custom Engine Azure OpenAI py playground",
     "description": {
       "other": "",
       "owner": "v-yajunlu@microsoft.com",
       "workitem": "36119764"
     },
-    "generated_at": "2025-12-11T03:55:48.749519",
+    "generated_at": "2026-03-24T06:46:39.838177",
     "execution_order": [
       "plan_r_0928_012254",
       "step_44f42c5c",
@@ -34,7 +34,7 @@
       "step_b8411920"
     ],
     "tags": [],
-    "updated_at": "2025-12-15T02:40:06.337632"
+    "updated_at": "2026-03-24T08:49:52.502521"
   },
   "steps": [
     {
@@ -60,7 +60,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_44f42c5c",
-      "created_at": "2025-12-15T02:31:22.983773",
+      "created_at": "2026-03-24T08:48:27.140436",
       "plan_id": "plan_eac3fb09"
     },
     {
@@ -86,7 +86,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_44456c0c",
-      "created_at": "2025-12-15T02:31:22.988268",
+      "created_at": "2026-03-24T08:48:27.154433",
       "plan_id": "plan_eac3fb09"
     },
     {
@@ -112,7 +112,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_96d0aedc",
-      "created_at": "2025-12-15T02:31:22.992909",
+      "created_at": "2026-03-24T08:48:27.170111",
       "plan_id": "plan_eac3fb09"
     },
     {
@@ -138,7 +138,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_a0528ed8",
-      "created_at": "2025-12-15T02:31:22.997724",
+      "created_at": "2026-03-24T08:48:27.184357",
       "plan_id": "plan_eac3fb09"
     },
     {
@@ -160,7 +160,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_f8ce1a36",
-      "created_at": "2025-12-15T02:31:23.001777",
+      "created_at": "2026-03-24T08:48:27.198026",
       "plan_id": "plan_eac3fb09"
     },
     {
@@ -182,7 +182,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_8ef3939b",
-      "created_at": "2025-12-15T02:31:23.006777",
+      "created_at": "2026-03-24T08:48:27.210465",
       "plan_id": "plan_eac3fb09"
     },
     {
@@ -190,7 +190,7 @@
       "agent": "assertion",
       "tool": "",
       "parameters": {},
-      "description": "@assertion bot has responded to the user's question.",
+      "description": "@assertion bot has responded to the user's question with no errors",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -199,10 +199,10 @@
       "preconditions": [],
       "postconditions": [],
       "tags": [
-        "delay:15"
+        "step_retry_timeout:60"
       ],
       "screenshot": null,
-      "created_at": "2025-12-15T02:31:23.011860",
+      "created_at": "2026-03-24T08:48:27.224585",
       "plan_id": "plan_eac3fb09"
     }
   ],

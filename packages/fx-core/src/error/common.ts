@@ -514,9 +514,12 @@ export class ConcurrentError extends UserError {
 
 export class InternalError extends UserError {
   constructor(error: any, source: string) {
+    const message = error.message || error.code || "Unknown internal error";
     super({
       source: source,
       error: error,
+      message: message,
+      displayMessage: message,
       categories: ["internal", error.code],
     });
   }

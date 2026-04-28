@@ -14,35 +14,51 @@ const pluginName = "The way that can be told of is not an unvarying way";
 const sandbox = chai.spy.sandbox();
 
 class MockTelemetryReporter implements TelemetryReporter {
-    sendTelemetryErrorEvent({}: string, {}: {[p: string]: string;}, {}: {[p: string]: number;}, {}: string[]): void {
-        // do nothing
-    }
+  sendTelemetryErrorEvent(
+    {}: string,
+    {}: { [p: string]: string },
+    {}: { [p: string]: number },
+    {}: string[]
+  ): void {
+    // do nothing
+  }
 
-    sendTelemetryEvent({}: string, {}: {[p: string]: string;}, {}: {[p: string]: number;}): void {
-        // do nothing
-    }
+  sendTelemetryEvent({}: string, {}: { [p: string]: string }, {}: { [p: string]: number }): void {
+    // do nothing
+  }
 
-    sendTelemetryException({}: Error, {}: {[p: string]: string;}, {}: {[p: string]: number;}): void {
-        // do nothing
-    }
+  sendTelemetryException(
+    {}: Error,
+    {}: { [p: string]: string },
+    {}: { [p: string]: number }
+  ): void {
+    // do nothing
+  }
 }
 
 describe("telemetry", () => {
-    let reporter: TelemetryReporter;
+  let reporter: TelemetryReporter;
 
-    beforeEach(() => {
-        reporter = new MockTelemetryReporter();
-        sandbox.on(reporter, ["sendTelemetryErrorEvent", "sendTelemetryEvent", "sendTelemetryException"]);
-    });
+  beforeEach(() => {
+    reporter = new MockTelemetryReporter();
+    sandbox.on(reporter, [
+      "sendTelemetryErrorEvent",
+      "sendTelemetryEvent",
+      "sendTelemetryException",
+    ]);
+  });
 
-    afterEach(() => {
-        sandbox.restore();
-    });
+  afterEach(() => {
+    sandbox.restore();
+  });
 
-    it("invoke times", () => {
-        reporter.sendTelemetryEvent("sampleEvent", {"stringProp": "some string"}, {"numericMeasure": 123});
+  it("invoke times", () => {
+    reporter.sendTelemetryEvent(
+      "sampleEvent",
+      { stringProp: "some string" },
+      { numericMeasure: 123 }
+    );
 
-        expect(reporter.sendTelemetryEvent)
-            .to.have.been.called.once;
-    });
+    expect(reporter.sendTelemetryEvent).to.have.been.called.once;
+  });
 });

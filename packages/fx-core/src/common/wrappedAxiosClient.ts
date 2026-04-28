@@ -8,7 +8,11 @@ import axios, {
   InternalAxiosRequestConfig,
 } from "axios";
 import { TOOLS } from "./globalVars";
-import { APP_STUDIO_API_NAMES, Constants } from "../component/driver/teamsApp/constants";
+import {
+  APP_STUDIO_API_NAMES,
+  Constants,
+  GRAPH_API_NAMES,
+} from "../component/driver/teamsApp/constants";
 import {
   TelemetryPropertyKey,
   TelemetryPropertyValue,
@@ -86,70 +90,84 @@ export class WrappedAxiosClient {
    * @returns
    */
   public static onRejected(error: AxiosError) {
-    const method = error.request.method as string;
-    const fullPath = `${(error.request.host as string) ?? ""}${
-      (error.request.path as string) ?? ""
-    }`;
-    const apiName = this.convertUrlToApiName(fullPath, method);
+    // Telemetry must never throw, otherwise the synthetic error will mask the
+    // real transport-level failure (TLS handshake, ECONNRESET on a kept-alive
+    // socket, etc.) returned to the caller. See AB#37640864.
+    try {
+      const method = ((error.request?.method as string) ?? "").toString();
+      const fullPath = `${(error.request?.host as string) ?? ""}${
+        (error.request?.path as string) ?? ""
+      }`;
+      const apiName = this.convertUrlToApiName(fullPath, method);
 
-    let requestData: any;
-    if (error.config?.data && typeof error.config.data === "string") {
-      try {
-        requestData = JSON.parse(error.config.data);
-      } catch (error) {
-        requestData = undefined;
+      let requestData: any;
+      if (error.config?.data && typeof error.config.data === "string") {
+        try {
+          requestData = JSON.parse(error.config.data);
+        } catch (error) {
+          requestData = undefined;
+        }
       }
-    }
-    const properties: { [key: string]: string } = {
-      url: `<${apiName}-url>`,
-      method: method,
-      params: this.generateParameters(error.config!.params),
-      [TelemetryProperty.Success]: TelemetrySuccess.No,
-      [TelemetryProperty.ErrorMessage]: error.response
-        ? JSON.stringify(error.response.data)
-        : error.message ?? "undefined",
-      "status-code": error.response?.status.toString() ?? "undefined",
-      ...this.generateExtraProperties(fullPath, requestData),
-    };
+      const properties: { [key: string]: string } = {
+        url: `<${apiName}-url>`,
+        method: method,
+        params: this.generateParameters(error.config?.params),
+        [TelemetryProperty.Success]: TelemetrySuccess.No,
+        [TelemetryProperty.ErrorMessage]: error.response
+          ? JSON.stringify(error.response.data)
+          : error.message ?? "undefined",
+        "status-code": error.response?.status.toString() ?? "undefined",
+        ...this.generateExtraProperties(fullPath, requestData),
+      };
 
-    const eventName = this.getEventName(fullPath);
-    if (eventName === TelemetryEvent.AppStudioApi) {
-      const correlationId = error.response?.headers[Constants.CORRELATION_ID] ?? "undefined";
-      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-      const extraData = getDefaultString(
-        "error.appstudio.apiFailed.reason.common",
-        error.response?.data ? `data: ${JSON.stringify(error.response.data)}` : ""
-      );
-      const TDPApiFailedError = new DeveloperPortalAPIFailedSystemError(
-        error,
-        correlationId,
-        apiName,
-        extraData
-      );
-      properties[
-        TelemetryProperty.ErrorCode
-      ] = `${TDPApiFailedError.source}.${TDPApiFailedError.name}`;
-      properties[TelemetryProperty.ErrorMessage] = TDPApiFailedError.message;
-      properties[TelemetryProperty.TDPTraceId] = correlationId;
-    } else if (eventName === TelemetryEvent.MOSApi) {
-      const tracingId = (error.response?.headers?.traceresponse ?? "undefined") as string;
-      const originalMessage = error.message;
-      const innerError = (error.response?.data as any).error || { code: "", message: "" };
-      const finalMessage = `${originalMessage} (tracingId: ${tracingId}) ${
-        innerError.code as string
-      }: ${innerError.message as string} `;
-      properties[TelemetryProperty.ErrorMessage] = finalMessage;
-      properties[TelemetryProperty.MOSTraceId] = tracingId;
-    }
+      const eventName = this.getEventName(fullPath);
+      if (eventName === TelemetryEvent.AppStudioApi) {
+        const correlationId =
+          (error.response?.headers
+            ? error.response.headers[Constants.CORRELATION_ID]
+            : undefined) ?? "undefined";
 
-    TOOLS?.telemetryReporter?.sendTelemetryErrorEvent(eventName, properties);
+        const extraData = getDefaultString(
+          "error.appstudio.apiFailed.reason.common",
+          error.response?.data ? `data: ${JSON.stringify(error.response.data)}` : ""
+        );
+        const TDPApiFailedError = new DeveloperPortalAPIFailedSystemError(
+          error,
+          correlationId as string,
+          apiName,
+          extraData
+        );
+        properties[TelemetryProperty.ErrorCode] =
+          `${TDPApiFailedError.source}.${TDPApiFailedError.name}`;
+        properties[TelemetryProperty.ErrorMessage] = TDPApiFailedError.message;
+        properties[TelemetryProperty.TDPTraceId] = correlationId as string;
+      } else if (eventName === TelemetryEvent.MOSApi) {
+        const tracingId = (error.response?.headers?.traceresponse ?? "undefined") as string;
+        const originalMessage = error.message;
+        const responseData = error.response?.data;
+        const innerError =
+          responseData && typeof responseData === "object"
+            ? (responseData as any).error ?? { code: "", message: "" }
+            : { code: "", message: "" };
+        const finalMessage = `${originalMessage} (tracingId: ${tracingId}) ${
+          (innerError.code as string) ?? ""
+        }: ${(innerError.message as string) ?? ""} `;
+        properties[TelemetryProperty.ErrorMessage] = finalMessage;
+        properties[TelemetryProperty.MOSTraceId] = tracingId;
+      }
+
+      TOOLS?.telemetryReporter?.sendTelemetryErrorEvent(eventName, properties);
+    } catch {
+      // Swallow telemetry errors so we always reject with the original error.
+    }
     return Promise.reject(error);
   }
 
   static convertMethodUrlToApiDefForMOS(method: string, url: string): MOS3Api | undefined {
+    const upperMethod = (method ?? "").toUpperCase();
     for (const key of Object.keys(MOS3ApiDefinitions)) {
       const api = MOS3ApiDefinitions[key];
-      if (api.method === method.toUpperCase() && url.match(api.path)) {
+      if (api.method === upperMethod && url.match(api.path)) {
         return api;
       }
     }
@@ -165,6 +183,8 @@ export class WrappedAxiosClient {
    * @returns
    */
   public static convertUrlToApiName(fullPath: string, method: string): string {
+    const upperMethod = (method ?? "").toUpperCase();
+
     if (this.isTDPApi(fullPath)) {
       if (fullPath.match(new RegExp("/api/aadapp/v2"))) {
         return APP_STUDIO_API_NAMES.CREATE_AAD_APP;
@@ -191,10 +211,10 @@ export class WrappedAxiosClient {
           )
         )
       ) {
-        if (method.toUpperCase() === HttpMethod.GET) {
+        if (upperMethod === HttpMethod.GET) {
           return APP_STUDIO_API_NAMES.GET_APP;
         }
-        if (method.toUpperCase() === HttpMethod.DELETE) {
+        if (upperMethod === HttpMethod.DELETE) {
           return APP_STUDIO_API_NAMES.DELETE_APP;
         }
       }
@@ -214,10 +234,10 @@ export class WrappedAxiosClient {
         return APP_STUDIO_API_NAMES.CHECK_SIDELOADING_STATUS;
       }
       if (fullPath.match(new RegExp("/api/v1.0/apiSecretRegistrations/.*"))) {
-        if (method.toUpperCase() === HttpMethod.GET) {
+        if (upperMethod === HttpMethod.GET) {
           return APP_STUDIO_API_NAMES.GET_API_KEY;
         }
-        if (method.toUpperCase() === HttpMethod.PATCH) {
+        if (upperMethod === HttpMethod.PATCH) {
           return APP_STUDIO_API_NAMES.UPDATE_API_KEY;
         }
       }
@@ -231,21 +251,21 @@ export class WrappedAxiosClient {
           )
         )
       ) {
-        if (method.toUpperCase() === HttpMethod.GET) {
+        if (upperMethod === HttpMethod.GET) {
           return APP_STUDIO_API_NAMES.GET_BOT;
         }
-        if (method.toUpperCase() === HttpMethod.POST) {
+        if (upperMethod === HttpMethod.POST) {
           return APP_STUDIO_API_NAMES.UPDATE_BOT;
         }
-        if (method.toUpperCase() === HttpMethod.DELETE) {
+        if (upperMethod === HttpMethod.DELETE) {
           return APP_STUDIO_API_NAMES.DELETE_BOT;
         }
       }
       if (fullPath.match(new RegExp("/api/botframework"))) {
-        if (method.toUpperCase() === HttpMethod.GET) {
+        if (upperMethod === HttpMethod.GET) {
           return APP_STUDIO_API_NAMES.LIST_BOT;
         }
-        if (method.toUpperCase() === HttpMethod.POST) {
+        if (upperMethod === HttpMethod.POST) {
           return APP_STUDIO_API_NAMES.CREATE_BOT;
         }
       }
@@ -271,19 +291,39 @@ export class WrappedAxiosClient {
         return APP_STUDIO_API_NAMES.GET_APP_VALIDATION_RESULT;
       }
       if (fullPath.match(new RegExp("/api/v1.0/oAuthConfigurations/.*"))) {
-        if (method.toUpperCase() === HttpMethod.GET) {
+        if (upperMethod === HttpMethod.GET) {
           return APP_STUDIO_API_NAMES.GET_OAUTH;
         }
-        if (method.toUpperCase() === HttpMethod.PATCH) {
+        if (upperMethod === HttpMethod.PATCH) {
           return APP_STUDIO_API_NAMES.UPDATE_OAUTH;
         }
       }
       if (fullPath.match(new RegExp("/api/v1.0/oAuthConfigurations"))) {
         return APP_STUDIO_API_NAMES.CREATE_OAUTH;
       }
-    } else if (fullPath.includes("titles.prod.mos.microsoft.com")) {
+    } else if (this.isGraphApi(fullPath)) {
+      if (
+        fullPath.match(new RegExp(/\/appCatalogs\/teamsApps\/[^/?]+\/appDefinitions/i)) &&
+        upperMethod === HttpMethod.POST
+      ) {
+        return GRAPH_API_NAMES.UPDATE_PUBLISHED_APP;
+      }
+      if (
+        fullPath.match(new RegExp(/\/appCatalogs\/teamsApps(\?.*)?$/i)) &&
+        upperMethod === HttpMethod.POST
+      ) {
+        return GRAPH_API_NAMES.PUBLISH_APP;
+      }
+      if (
+        (fullPath.match(new RegExp(/\/appCatalogs\/teamsApps(\?.*)?$/i)) ||
+          fullPath.match(new RegExp(/\/appCatalogs\/teamsApps\/[^/?]+(\?.*)?$/i))) &&
+        upperMethod === HttpMethod.GET
+      ) {
+        return GRAPH_API_NAMES.GET_PUBLISHED_APP;
+      }
+    } else if (this.isMOSApi(fullPath)) {
       // MOS API
-      const relativePath = fullPath.split("titles.prod.mos.microsoft.com")[1];
+      const relativePath = this.extractMOSPath(fullPath);
       const mosApiDef = this.convertMethodUrlToApiDefForMOS(method, relativePath);
       if (mosApiDef) {
         return `mos_${mosApiDef.key}`;
@@ -353,12 +393,36 @@ export class WrappedAxiosClient {
     return matches != null && matches.length > 0;
   }
 
+  /**
+   * Check if it's Graph Api
+   * @param baseUrl
+   * @returns
+   */
+  private static isGraphApi(baseUrl: string): boolean {
+    const regex = /(^https:\/\/)?([\w.-]+\.)?graph\.microsoft\.(com|us)(:\d+)?(\/|$)/i;
+    const matches = regex.exec(baseUrl);
+    return matches != null && matches.length > 0;
+  }
+
+  private static isMOSApi(baseUrl: string): boolean {
+    const mosRegex =
+      /(^https:\/\/)?titles\.(prod|gccm)\.mos\.microsoft\.com|(^https:\/\/)?titles\.(gcch|dod)\.mos\.svc\.usgovcloud\.microsoft/;
+    const matches = mosRegex.exec(baseUrl);
+    return matches != null && matches.length > 0;
+  }
+
+  private static extractMOSPath(fullPath: string): string {
+    const mosRegex =
+      /(^https:\/\/)?titles\.(prod|gccm)\.mos\.microsoft\.com|(^https:\/\/)?titles\.(gcch|dod)\.mos\.svc\.usgovcloud\.microsoft/;
+    return fullPath.replace(mosRegex, "");
+  }
+
   private static getEventName(
     baseUrl: string
   ): TelemetryEvent.MOSApi | TelemetryEvent.AppStudioApi | TelemetryEvent.DependencyApi {
     if (this.isTDPApi(baseUrl)) {
       return TelemetryEvent.AppStudioApi;
-    } else if (baseUrl.includes("titles.prod.mos.microsoft.com")) {
+    } else if (this.isMOSApi(baseUrl)) {
       return TelemetryEvent.MOSApi;
     } else {
       return TelemetryEvent.DependencyApi;

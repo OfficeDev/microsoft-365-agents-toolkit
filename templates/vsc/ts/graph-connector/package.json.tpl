@@ -20,7 +20,7 @@
   "license": "ISC",
   "dependencies": {
     "@azure/functions": "^4.5.0",
-    "@azure/identity": "^4.4.1",
+    "@azure/identity": "^4.13.0",
     "@microsoft/microsoft-graph-client": "^3.0.7",
     "dotenv": "^16.4.5",
     "gray-matter": "^4.0.3",
@@ -28,7 +28,6 @@
     "fs-extra": "^11.2.0"
   },
   "devDependencies": {
-    "@azure/identity": "^3.3.0",
     "@microsoft/microsoft-graph-client": "^3.0.6",
     "@microsoft/microsoft-graph-types": "^2.40.0",
     "@types/node": "^18.0.0",

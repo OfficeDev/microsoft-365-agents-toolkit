@@ -47,6 +47,7 @@ import CliCodeLogInstance from "./log";
 import { decodeClaimsChallenge } from "./common/utils";
 import { getAccountByHomeId } from "./common/tokenCacheUtils";
 import { featureFlagManager, FeatureFlags } from "@microsoft/teamsfx-core";
+import { getInternalFlagFromTokenClaims } from "./accountInfoUtils";
 
 export class ErrorMessage {
   static readonly loginFailureTitle = "LoginFail";
@@ -119,11 +120,7 @@ export class CodeFlowLogin {
     requestScopes: Array<string> | AuthenticationWWWAuthenticateRequest,
     tenantId?: string
   ): Promise<string> {
-    if (featureFlagManager.getBooleanValue(FeatureFlags.BrokerAuth)) {
-      return await this.loginWithBroker(requestScopes, tenantId);
-    } else {
-      return await this.loginWithBrowser(requestScopes, tenantId);
-    }
+    return await this.loginWithBroker(requestScopes, tenantId);
   }
 
   async loginWithBrowser(
@@ -221,15 +218,18 @@ export class CodeFlowLogin {
         });
     });
 
-    const codeTimer = setTimeout(() => {
-      deferredRedirect.reject(
-        new UserError(
-          ErrorMessage.loginComponent,
-          ErrorMessage.loginTimeoutTitle,
-          ErrorMessage.loginTimeoutDescription
-        )
-      );
-    }, 5 * 60 * 1000);
+    const codeTimer = setTimeout(
+      () => {
+        deferredRedirect.reject(
+          new UserError(
+            ErrorMessage.loginComponent,
+            ErrorMessage.loginTimeoutTitle,
+            ErrorMessage.loginTimeoutDescription
+          )
+        );
+      },
+      5 * 60 * 1000
+    );
 
     function cancelCodeTimer() {
       clearTimeout(codeTimer);
@@ -273,9 +273,7 @@ export class CodeFlowLogin {
           [TelemetryProperty.AccountType]: this.accountName,
           [TelemetryProperty.Success]: TelemetrySuccess.Yes,
           [TelemetryProperty.UserId]: (tokenJson as any).oid ? (tokenJson as any).oid : "",
-          [TelemetryProperty.Internal]: (tokenJson as any).upn?.endsWith("@microsoft.com")
-            ? "true"
-            : "false",
+          [TelemetryProperty.Internal]: getInternalFlagFromTokenClaims(tokenJson),
         });
       }
       server.close();
@@ -304,7 +302,11 @@ export class CodeFlowLogin {
     const loopbackTemplatePath = path.join(__dirname, "codeFlowResult", "index.html");
     let loopbackTemplate = undefined;
     if (fs.pathExistsSync(loopbackTemplatePath)) {
-      loopbackTemplate = await fs.readFile(loopbackTemplatePath, "utf-8");
+      const displayName = this.accountName == "azure" ? "Azure" : "M365";
+      loopbackTemplate = (await fs.readFile(loopbackTemplatePath, "utf-8")).replace(
+        /\${accountName}/g,
+        displayName
+      );
     }
     const interactiveRequest = {
       scopes: scopes,
@@ -360,9 +362,7 @@ export class CodeFlowLogin {
           [TelemetryProperty.AccountType]: this.accountName,
           [TelemetryProperty.Success]: TelemetrySuccess.Yes,
           [TelemetryProperty.UserId]: (tokenJson as any).oid ? (tokenJson as any).oid : "",
-          [TelemetryProperty.Internal]: (tokenJson as any).upn?.endsWith("@microsoft.com")
-            ? "true"
-            : "false",
+          [TelemetryProperty.Internal]: getInternalFlagFromTokenClaims(tokenJson),
         });
       }
     }

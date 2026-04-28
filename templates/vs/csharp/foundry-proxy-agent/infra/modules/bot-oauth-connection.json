@@ -1,0 +1,117 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.38.33.27573",
+      "templateHash": "1874979584501871220"
+    }
+  },
+  "parameters": {
+    "botServiceName": {
+      "type": "string",
+      "metadata": {
+        "description": "The name of the Bot Service to configure"
+      }
+    },
+    "connectionName": {
+      "type": "string",
+      "defaultValue": "SsoConnection",
+      "metadata": {
+        "description": "The name for the OAuth connection setting"
+      }
+    },
+    "aadAppId": {
+      "type": "string",
+      "metadata": {
+        "description": "The Azure AD Application (client) ID from the app registration"
+      }
+    },
+    "aadAppIdUri": {
+      "type": "string",
+      "metadata": {
+        "description": "The Azure AD Application ID URI (e.g., api://botid-{guid})"
+      }
+    },
+    "federatedCredentialSubject": {
+      "type": "string",
+      "metadata": {
+        "description": "The federated credential subject (unique identifier from the federated credential)"
+      }
+    },
+    "scopes": {
+      "type": "string",
+      "metadata": {
+        "description": "OAuth scopes to request - should be the app ID URI with access_as_user scope"
+      }
+    },
+    "tenantId": {
+      "type": "string",
+      "metadata": {
+        "description": "The tenant ID for the Azure AD application"
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "global",
+      "metadata": {
+        "description": "Location for the connection resource"
+      }
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.BotService/botServices/connections",
+      "apiVersion": "2022-09-15",
+      "name": "[format('{0}/{1}', parameters('botServiceName'), parameters('connectionName'))]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "serviceProviderId": "c00b44ab-5e16-c44c-af26-2fd5bc55eb18",
+        "serviceProviderDisplayName": "AAD v2 with Federated Credentials",
+        "clientId": "[parameters('aadAppId')]",
+        "scopes": "[parameters('scopes')]",
+        "parameters": [
+          {
+            "key": "ClientId",
+            "value": "[parameters('aadAppId')]"
+          },
+          {
+            "key": "UniqueIdentifier",
+            "value": "[parameters('federatedCredentialSubject')]"
+          },
+          {
+            "key": "TokenExchangeUrl",
+            "value": "[parameters('aadAppIdUri')]"
+          },
+          {
+            "key": "TenantId",
+            "value": "[parameters('tenantId')]"
+          },
+          {
+            "key": "LoginUri",
+            "value": "[environment().authentication.loginEndpoint]"
+          }
+        ]
+      }
+    }
+  ],
+  "outputs": {
+    "connectionName": {
+      "type": "string",
+      "value": "[format('{0}/{1}', parameters('botServiceName'), parameters('connectionName'))]"
+    },
+    "connectionId": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.BotService/botServices/connections', split(format('{0}/{1}', parameters('botServiceName'), parameters('connectionName')), '/')[0], split(format('{0}/{1}', parameters('botServiceName'), parameters('connectionName')), '/')[1])]"
+    },
+    "settingId": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.BotService/botServices/connections', split(format('{0}/{1}', parameters('botServiceName'), parameters('connectionName')), '/')[0], split(format('{0}/{1}', parameters('botServiceName'), parameters('connectionName')), '/')[1]), '2022-09-15').settingId]"
+    },
+    "provisioningState": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.BotService/botServices/connections', split(format('{0}/{1}', parameters('botServiceName'), parameters('connectionName')), '/')[0], split(format('{0}/{1}', parameters('botServiceName'), parameters('connectionName')), '/')[1]), '2022-09-15').provisioningState]"
+    }
+  }
+}

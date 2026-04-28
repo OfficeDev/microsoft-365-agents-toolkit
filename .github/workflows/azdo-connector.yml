@@ -1,0 +1,186 @@
+name: azdo-connector
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: "Action to perform: 'query' for WIQL work item query, 'trigger_pipeline' for triggering an ADO pipeline"
+        required: true
+        type: string
+        default: "query"
+      wiql:
+        description: "WIQL query string (required when action=query)"
+        required: false
+        type: string
+      fields:
+        description: "Comma-separated list of fields to return for query (e.g. System.Id,System.Title,System.State,System.Tags)"
+        required: false
+        type: string
+        default: "System.Id,System.Title,System.State,System.Tags,System.WorkItemType"
+      pipeline_id:
+        description: "ADO pipeline definition ID (required when action=trigger_pipeline)"
+        required: false
+        type: string
+      pipeline_branch:
+        description: "Source branch for pipeline run (e.g. refs/heads/main)"
+        required: false
+        type: string
+        default: "refs/heads/main"
+      pipeline_variables:
+        description: "JSON object of pipeline variables, e.g. {\"var1\":{\"value\":\"val1\"},\"var2\":{\"value\":\"val2\"}}"
+        required: false
+        type: string
+      template_parameters:
+        description: "JSON object of template parameters, e.g. {\"param1\":\"val1\"}"
+        required: false
+        type: string
+
+permissions:
+  actions: read
+  contents: read
+  id-token: write
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    environment: engineering
+    env:
+      AZURE_DEVOPS_ORG: "msazure"
+      AZURE_DEVOPS_PROJECT: "Microsoft%20Teams%20Extensibility"
+    steps:
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.DEVOPS_CLIENT_ID }}
+          tenant-id: ${{ secrets.DEVOPS_TENANT_ID }}
+          subscription-id: ${{ secrets.DEVOPS_SUB_ID }}
+
+      - name: Get ADO access token
+        id: token
+        run: |
+          AZURE_DEVOPS_PAT=$(az account get-access-token --resource https://app.vssps.visualstudio.com --query accessToken -o tsv)
+          echo "::add-mask::${AZURE_DEVOPS_PAT}"
+          echo "pat=${AZURE_DEVOPS_PAT}" >> "$GITHUB_OUTPUT"
+
+      - name: Query work items
+        if: ${{ github.event.inputs.action == 'query' }}
+        run: |
+          AZURE_DEVOPS_PAT="${{ steps.token.outputs.pat }}"
+
+          wiql_body=$(jq -n --arg q "${{ github.event.inputs.wiql }}" '{"query": $q}')
+          echo "Executing WIQL query..."
+
+          wiql_response=$(curl -s -w "\n%{http_code}" \
+            -u ":${AZURE_DEVOPS_PAT}" \
+            -H "Content-Type: application/json" \
+            -X POST \
+            "https://dev.azure.com/${AZURE_DEVOPS_ORG}/${AZURE_DEVOPS_PROJECT}/_apis/wit/wiql?api-version=7.0" \
+            -d "$wiql_body")
+
+          http_code=$(echo "$wiql_response" | tail -n1)
+          wiql_result=$(echo "$wiql_response" | sed '$d')
+
+          if [ "$http_code" != "200" ]; then
+            echo "WIQL query failed with HTTP $http_code"
+            echo "$wiql_result"
+            echo '{"error": "WIQL query failed", "http_code": "'$http_code'", "response": '"$(echo "$wiql_result" | jq -c . 2>/dev/null || echo '""')"'}' > result.json
+            exit 0
+          fi
+
+          ids=$(echo "$wiql_result" | jq -r '[.workItems[].id] | join(",")')
+          total=$(echo "$wiql_result" | jq '.workItems | length')
+          echo "Found $total work items"
+
+          if [ "$total" -eq 0 ] || [ -z "$ids" ]; then
+            echo '{"total": 0, "workItems": []}' > result.json
+            exit 0
+          fi
+
+          ids_truncated=$(echo "$ids" | cut -d',' -f1-200)
+          fields="${{ github.event.inputs.fields }}"
+
+          details_response=$(curl -s -w "\n%{http_code}" \
+            -u ":${AZURE_DEVOPS_PAT}" \
+            -H "Content-Type: application/json" \
+            "https://dev.azure.com/${AZURE_DEVOPS_ORG}/${AZURE_DEVOPS_PROJECT}/_apis/wit/workitems?ids=${ids_truncated}&fields=${fields}&api-version=7.0")
+
+          details_code=$(echo "$details_response" | tail -n1)
+          details_result=$(echo "$details_response" | sed '$d')
+
+          if [ "$details_code" != "200" ]; then
+            echo "Work item details fetch failed with HTTP $details_code"
+            echo '{"total": '$total', "error": "Failed to fetch details", "ids": "'"$ids"'"}' > result.json
+            exit 0
+          fi
+
+          echo "$details_result" | jq '{total: '$total', workItems: [.value[] | {id: .id, fields: .fields}]}' > result.json
+          echo "Results written to result.json"
+          cat result.json | head -100
+
+      - name: Trigger pipeline
+        if: ${{ github.event.inputs.action == 'trigger_pipeline' }}
+        run: |
+          AZURE_DEVOPS_PAT="${{ steps.token.outputs.pat }}"
+          PIPELINE_ID="${{ github.event.inputs.pipeline_id }}"
+          PIPELINE_BRANCH="${{ github.event.inputs.pipeline_branch }}"
+          PIPELINE_VARIABLES='${{ github.event.inputs.pipeline_variables }}'
+          TEMPLATE_PARAMS='${{ github.event.inputs.template_parameters }}'
+
+          if [ -z "$PIPELINE_ID" ]; then
+            echo '{"error": "pipeline_id is required for trigger_pipeline action"}' > result.json
+            exit 0
+          fi
+
+          # Build request body
+          body=$(jq -n \
+            --arg branch "$PIPELINE_BRANCH" \
+            '{resources: {repositories: {self: {refName: $branch}}}}')
+
+          if [ -n "$PIPELINE_VARIABLES" ] && [ "$PIPELINE_VARIABLES" != "{}" ]; then
+            body=$(echo "$body" | jq --argjson vars "$PIPELINE_VARIABLES" '. + {variables: $vars}')
+          fi
+
+          if [ -n "$TEMPLATE_PARAMS" ] && [ "$TEMPLATE_PARAMS" != "{}" ]; then
+            body=$(echo "$body" | jq --argjson params "$TEMPLATE_PARAMS" '. + {templateParameters: $params}')
+          fi
+
+          echo "Triggering pipeline $PIPELINE_ID on branch $PIPELINE_BRANCH..."
+          echo "Request body: $(echo "$body" | jq -c .)"
+
+          # URL-decode the project name for the pipelines API
+          PROJECT_DECODED=$(echo "${AZURE_DEVOPS_PROJECT}" | sed 's/%20/ /g')
+
+          run_response=$(curl -s -w "\n%{http_code}" \
+            -u ":${AZURE_DEVOPS_PAT}" \
+            -H "Content-Type: application/json" \
+            -X POST \
+            "https://dev.azure.com/${AZURE_DEVOPS_ORG}/${AZURE_DEVOPS_PROJECT}/_apis/pipelines/${PIPELINE_ID}/runs?api-version=7.0" \
+            -d "$body")
+
+          http_code=$(echo "$run_response" | tail -n1)
+          run_result=$(echo "$run_response" | sed '$d')
+
+          if [ "$http_code" != "200" ]; then
+            echo "Pipeline trigger failed with HTTP $http_code"
+            echo "$run_result"
+            echo '{"error": "Pipeline trigger failed", "http_code": "'$http_code'", "response": '"$(echo "$run_result" | jq -c . 2>/dev/null || echo '""')"'}' > result.json
+            exit 0
+          fi
+
+          echo "$run_result" | jq '{
+            success: true,
+            pipeline_run_id: .id,
+            pipeline_name: .pipeline.name,
+            state: .state,
+            url: ._links.web.href,
+            created_date: .createdDate
+          }' > result.json
+          echo "Pipeline triggered successfully"
+          cat result.json
+
+      - name: Upload result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: azdo-result
+          path: result.json
+          retention-days: 3

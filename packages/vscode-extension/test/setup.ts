@@ -2,6 +2,11 @@
 // Licensed under the MIT License.
 "use strict";
 
+// Ensure tests run with English locale regardless of OS or Node.js navigator.language
+if (!process.env.VSCODE_NLS_CONFIG) {
+  process.env.VSCODE_NLS_CONFIG = JSON.stringify({ locale: "en" });
+}
+
 import * as child_process from "child_process";
 import * as os from "os";
 if (os.platform() === "win32") {

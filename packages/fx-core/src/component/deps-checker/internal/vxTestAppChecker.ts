@@ -27,8 +27,8 @@ const VxTestAppName = "Video Extensibility Test App";
 const VxTestAppExecutableName = isWindows()
   ? "video-extensibility-test-app.exe"
   : isMacOS()
-  ? "video-extensibility-test-app.app"
-  : "video-extensibility-test-app";
+    ? "video-extensibility-test-app.app"
+    : "video-extensibility-test-app";
 
 const VxTestAppDirRelPath = path.join(".tools", "video-extensibility-test-app");
 const VxTestAppGlobalBasePath = path.join(

@@ -10,6 +10,8 @@ import { LaunchHelper } from "../../../src/component/m365/launchHelper";
 import { PackageService } from "../../../src/component/m365/packageService";
 import { HubTypes } from "../../../src/question";
 import { outlookCopilotAppId } from "../../../src/component/m365/constants";
+import { GraphScopes } from "../../../src/common/constants";
+import { SovereignCloudEnvironment } from "../../../src/common/accountUtils";
 import { MockedM365Provider } from "../../core/utils";
 import mockedEnv, { RestoreFn } from "mocked-env";
 import { FeatureFlagName } from "../../../src";
@@ -17,9 +19,12 @@ import { FeatureFlagName } from "../../../src";
 describe("LaunchHelper", () => {
   const m365TokenProvider = new MockedM365Provider();
   const launchHelper = new LaunchHelper(m365TokenProvider);
+  let restoreEnv: RestoreFn | undefined;
 
   afterEach(() => {
     sinon.restore();
+    restoreEnv?.();
+    restoreEnv = undefined;
   });
 
   describe("getLaunchUrl", () => {
@@ -181,6 +186,37 @@ describe("LaunchHelper", () => {
       );
     });
 
+    it("getLaunchUrl uses Graph scopes in sovereign high cloud", async () => {
+      restoreEnv = mockedEnv({
+        [FeatureFlagName.SovereignCloudEnvironment]: SovereignCloudEnvironment.GCCH,
+      });
+      const getStatusStub = sinon.stub(m365TokenProvider, "getStatus").resolves(
+        ok({
+          status: "",
+          accountInfo: {
+            tid: "test-tid",
+            upn: "test-upn",
+          },
+        })
+      );
+      const properties: ManifestProperties = {
+        capabilities: ["staticTab"],
+        id: "test-id",
+        version: "1.0.0",
+        manifestVersion: "1.16",
+        isApiME: false,
+        isSPFx: false,
+        isApiMeAAD: false,
+      };
+
+      const result = await launchHelper.getLaunchUrl(HubTypes.teams, "test-id", properties);
+
+      chai.assert(result.isOk());
+      sinon.assert.calledTwice(getStatusStub);
+      chai.assert.deepEqual(getStatusStub.firstCall.firstArg.scopes, GraphScopes);
+      chai.assert.deepEqual(getStatusStub.secondCall.firstArg.scopes, GraphScopes);
+    });
+
     it("Outlook, staticTab, acquired, signed in", async () => {
       sinon.stub(m365TokenProvider, "getStatus").resolves(
         ok({
@@ -200,7 +236,7 @@ describe("LaunchHelper", () => {
         isSPFx: false,
         isApiMeAAD: false,
       };
-      sinon.stub(LaunchHelper.prototype, <any>"getM365AppId").resolves(ok("test-app-id"));
+      sinon.stub(LaunchHelper.prototype, "getM365AppId" as any).resolves(ok("test-app-id"));
       const result = await launchHelper.getLaunchUrl(HubTypes.outlook, "test-id", properties);
       chai.assert(result.isOk());
       chai.assert.equal(
@@ -219,7 +255,7 @@ describe("LaunchHelper", () => {
           },
         })
       );
-      sinon.stub(LaunchHelper.prototype, <any>"getM365AppId").resolves(err({ foo: "bar" }));
+      sinon.stub(LaunchHelper.prototype, "getM365AppId" as any).resolves(err({ foo: "bar" }));
       const properties: ManifestProperties = {
         capabilities: ["staticTab"],
         id: "test-id",
@@ -244,7 +280,7 @@ describe("LaunchHelper", () => {
           },
         })
       );
-      sinon.stub(LaunchHelper.prototype, <any>"getM365AppId").resolves(ok("test-app-id"));
+      sinon.stub(LaunchHelper.prototype, "getM365AppId" as any).resolves(ok("test-app-id"));
       const properties: ManifestProperties = {
         capabilities: ["Bot"],
         id: "test-id",
@@ -272,7 +308,7 @@ describe("LaunchHelper", () => {
           },
         })
       );
-      sinon.stub(LaunchHelper.prototype, <any>"getM365AppId").resolves(ok("test-app-id"));
+      sinon.stub(LaunchHelper.prototype, "getM365AppId" as any).resolves(ok("test-app-id"));
       const properties: ManifestProperties = {
         capabilities: ["Bot"],
         id: "test-id",
@@ -309,7 +345,7 @@ describe("LaunchHelper", () => {
         isSPFx: false,
         isApiMeAAD: false,
       };
-      sinon.stub(LaunchHelper.prototype, <any>"getM365AppId").resolves(ok("test-app-id"));
+      sinon.stub(LaunchHelper.prototype, "getM365AppId" as any).resolves(ok("test-app-id"));
       const result = await launchHelper.getLaunchUrl(HubTypes.outlook, "test-id", properties);
       chai.assert(result.isOk());
       chai.assert.equal(
@@ -328,7 +364,7 @@ describe("LaunchHelper", () => {
           },
         })
       );
-      sinon.stub(LaunchHelper.prototype, <any>"getM365AppId").resolves(ok("test-app-id"));
+      sinon.stub(LaunchHelper.prototype, "getM365AppId" as any).resolves(ok("test-app-id"));
       const properties: ManifestProperties = {
         capabilities: ["copilotGpt"],
         id: "test-id",

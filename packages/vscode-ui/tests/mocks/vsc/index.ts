@@ -1,4 +1,3 @@
-/* eslint-disable max-classes-per-file */
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
@@ -329,7 +328,10 @@ export interface DebugAdapterExecutableOptions {
 }
 
 export class DebugAdapterServer {
-  constructor(public readonly port: number, public readonly host?: string) {}
+  constructor(
+    public readonly port: number,
+    public readonly host?: string
+  ) {}
 }
 export class DebugAdapterExecutable {
   constructor(

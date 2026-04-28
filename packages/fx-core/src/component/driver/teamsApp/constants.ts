@@ -349,6 +349,12 @@ export class APP_STUDIO_API_NAMES {
   public static readonly CHECK_SIDELOADING_STATUS = "check-sideloading-status";
 }
 
+export class GRAPH_API_NAMES {
+  public static readonly PUBLISH_APP = "graph-publish-app";
+  public static readonly GET_PUBLISHED_APP = "graph-get-published-app";
+  public static readonly UPDATE_PUBLISHED_APP = "graph-update-published-app";
+}
+
 /**
  * Config keys that are useful for generating remote app manifest
  */

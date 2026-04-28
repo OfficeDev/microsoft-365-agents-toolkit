@@ -1,6 +1,5 @@
-/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable max-classes-per-file */
+
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
@@ -551,7 +550,6 @@ export class TextEdit {
 }
 
 export class WorkspaceEdit implements vscode.WorkspaceEdit {
-  // eslint-disable-next-line class-methods-use-this
   appendNotebookCellOutput(
     _uri: vscode.Uri,
     _index: number,
@@ -561,7 +559,6 @@ export class WorkspaceEdit implements vscode.WorkspaceEdit {
     // Noop.
   }
 
-  // eslint-disable-next-line class-methods-use-this
   replaceNotebookCellOutputItems(
     _uri: vscode.Uri,
     _index: number,
@@ -572,7 +569,6 @@ export class WorkspaceEdit implements vscode.WorkspaceEdit {
     // Noop.
   }
 
-  // eslint-disable-next-line class-methods-use-this
   appendNotebookCellOutputItems(
     _uri: vscode.Uri,
     _index: number,
@@ -583,7 +579,6 @@ export class WorkspaceEdit implements vscode.WorkspaceEdit {
     // Noop.
   }
 
-  // eslint-disable-next-line class-methods-use-this
   replaceNotebookCells(
     _uri: vscode.Uri,
     _start: number,
@@ -594,7 +589,6 @@ export class WorkspaceEdit implements vscode.WorkspaceEdit {
     // Noop.
   }
 
-  // eslint-disable-next-line class-methods-use-this
   replaceNotebookCellOutput(
     _uri: vscode.Uri,
     _index: number,
@@ -626,12 +620,10 @@ export class WorkspaceEdit implements vscode.WorkspaceEdit {
   // 	return this._resourceEdits.map(({ from, to }) => (<[vscode.Uri, vscode.Uri]>[from, to]));
   // }
 
-  // eslint-disable-next-line class-methods-use-this
   createFile(_uri: vscode.Uri, _options?: { overwrite?: boolean; ignoreIfExists?: boolean }): void {
     throw new Error("Method not implemented.");
   }
 
-  // eslint-disable-next-line class-methods-use-this
   deleteFile(
     _uri: vscode.Uri,
     _options?: { recursive?: boolean; ignoreIfNotExists?: boolean }
@@ -639,7 +631,6 @@ export class WorkspaceEdit implements vscode.WorkspaceEdit {
     throw new Error("Method not implemented.");
   }
 
-  // eslint-disable-next-line class-methods-use-this
   renameFile(
     _oldUri: vscode.Uri,
     _newUri: vscode.Uri,
@@ -1399,7 +1390,6 @@ export enum TextEditorRevealType {
   AtTop = 3,
 }
 
-// eslint-disable-next-line import/export
 export enum TextEditorSelectionChangeKind {
   Keyboard = 1,
   Mouse = 2,
@@ -1428,7 +1418,7 @@ export enum DecorationRangeBehavior {
   ClosedOpen = 3,
 }
 
-// eslint-disable-next-line import/export, @typescript-eslint/no-namespace
+// eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace TextEditorSelectionChangeKind {
   export function fromValue(s: string): TextEditorSelectionChangeKind | undefined {
     switch (s) {
@@ -1647,7 +1637,6 @@ export class ProcessExecution implements vscode.ProcessExecution {
     this._options = value;
   }
 
-  // eslint-disable-next-line class-methods-use-this
   public computeId(): string {
     // const hash = crypto.createHash('md5');
     // hash.update('process');
@@ -1743,7 +1732,6 @@ export class ShellExecution implements vscode.ShellExecution {
     this._options = value;
   }
 
-  // eslint-disable-next-line class-methods-use-this
   public computeId(): string {
     // const hash = crypto.createHash('md5');
     // hash.update('shell');
@@ -2125,7 +2113,6 @@ export class RelativePattern implements IRelativePattern {
     this.pattern = pattern;
   }
 
-  // eslint-disable-next-line class-methods-use-this
   public pathToRelative(from: string, to: string): string {
     return relative(from, to);
   }
@@ -2276,7 +2263,6 @@ export class FileSystemError extends Error {
     }
   }
 
-  // eslint-disable-next-line class-methods-use-this
   public get code(): string {
     return "";
   }

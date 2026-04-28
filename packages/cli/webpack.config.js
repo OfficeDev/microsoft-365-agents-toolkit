@@ -22,13 +22,13 @@ const config = {
     filename: "[name].js",
     // the bundle is stored in the 'dist' folder (check package.json), 📖 -> https://webpack.js.org/configuration/output/
     path: path.resolve(__dirname, "lib"),
-    libraryTarget: "umd",
-    umdNamedDefine: true,
-    globalObject: `(typeof self !== 'undefined' ? self : this)`,
+    libraryTarget: "commonjs2",
   },
   devtool: "source-map",
   externals: {
-    keytar: "keytar",
+    keytar: "commonjs keytar",
+    "@azure/msal-node-extensions": "commonjs @azure/msal-node-extensions",
+    "@azure/msal-node-runtime": "commonjs @azure/msal-node-runtime",
   },
   resolve: {
     // support reading TypeScript and JavaScript files, 📖 -> https://github.com/TypeStrong/ts-loader
@@ -76,6 +76,10 @@ const config = {
         {
           from: "../fx-core/templates/",
           to: "../templates/",
+        },
+        {
+          from: "../manifest/src/json-schemas/",
+          to: "../json-schemas/",
         },
       ],
     }),

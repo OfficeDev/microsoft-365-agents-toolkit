@@ -92,17 +92,10 @@ async function getandValidateOauthInfoFromSpec(
     });
   validateDomain(domains, actionName);
 
-  // Need to separate the logic for different flows
-  const flow = "flow" in args ? args.flow : "authorizationCode";
   const authInfoArray = operations
     .map((value) => {
-      let authInfo;
-      switch (flow) {
-        case "authorizationCode":
-        default:
-          authInfo = (value.auth?.authScheme as OpenAPIV3.OAuth2SecurityScheme).flows
-            .authorizationCode;
-      }
+      const authInfo = (value.auth?.authScheme as OpenAPIV3.OAuth2SecurityScheme).flows
+        .authorizationCode;
 
       return {
         authorizationUrl: authInfo!.authorizationUrl,

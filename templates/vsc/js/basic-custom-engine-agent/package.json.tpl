@@ -30,6 +30,6 @@
     "devDependencies": {
         "env-cmd": "^10.1.0",
         "nodemon": "^3.1.10",
-        "shx": "^0.3.3"
+        "shx": "^0.4.0"
     }
 }

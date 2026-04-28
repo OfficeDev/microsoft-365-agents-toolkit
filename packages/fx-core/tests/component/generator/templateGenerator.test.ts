@@ -42,7 +42,7 @@ describe("TemplateGenerator", () => {
   let inputs: Inputs;
 
   beforeEach(() => {
-    scaffoldingSpy = sandbox.spy(DefaultTemplateGenerator.prototype, <any>"scaffolding");
+    scaffoldingSpy = sandbox.spy(DefaultTemplateGenerator.prototype, "scaffolding" as any);
     sandbox.stub(Generator, "generate").resolves();
     inputs = {
       platform: Platform.VS,

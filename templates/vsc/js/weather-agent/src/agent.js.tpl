@@ -4,10 +4,42 @@ const { createReactAgent } = require("@langchain/langgraph/prebuilt");
 const { AzureChatOpenAI, ChatOpenAI } = require("@langchain/openai");
 const { ActivityTypes } = require("@microsoft/agents-activity");
 const { AgentApplicationBuilder, MessageFactory } = require("@microsoft/agents-hosting");
+const fs = require("fs");
+const path = require("path");
 const { dateTool } = require("./tools/dateTimeTool");
 const { getWeatherTool } = require("./tools/getWeatherTool");
 
+function isSupportsFilesEnabled() {
+  const candidates = [
+    path.resolve(process.cwd(), "appPackage/manifest.json"),
+    path.resolve(__dirname, "../appPackage/manifest.json"),
+    path.resolve(__dirname, "../../appPackage/manifest.json"),
+  ];
+  for (const manifestPath of candidates) {
+    if (fs.existsSync(manifestPath)) {
+      try {
+        const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf-8"));
+        const bots = manifest.bots;
+        if (Array.isArray(bots)) {
+          return bots.some((bot) => bot.supportsFiles === true);
+        }
+      } catch {
+        // Ignore parse errors and try next candidate
+      }
+    }
+  }
+  return false;
+}
+
 const weatherAgent = new AgentApplicationBuilder().build();
+
+const supportsFilesWarning = isSupportsFilesEnabled()
+  ? `⚠️ Notice: The "supportsFiles" option is currently enabled in the app manifest, ` +
+    `but file attachment handling is not a supported feature for Custom Engine Agents at this time. ` +
+    `Please refer to the known issues documentation for more details: ` +
+    `https://learn.microsoft.com/en-us/microsoft-365/copilot/extensibility/known-issues#custom-engine-agents`
+  : "";
+let supportsFilesWarned = false;
 
 weatherAgent.onConversationUpdate(
   "membersAdded",
@@ -15,6 +47,10 @@ weatherAgent.onConversationUpdate(
     await context.sendActivity(
       `Hello and Welcome! I'm here to help with all your weather forecast needs!`
     );
+    if (supportsFilesWarning && !supportsFilesWarned) {
+      supportsFilesWarned = true;
+      await context.sendActivity(supportsFilesWarning);
+    }
   }
 );
 
@@ -56,6 +92,10 @@ Respond in JSON format with the following JSON schema, and do not use markdown i
 }`);
 
 weatherAgent.onActivity(ActivityTypes.Message, async (context, state) => {
+  if (supportsFilesWarning && !supportsFilesWarned) {
+    supportsFilesWarned = true;
+    await context.sendActivity(supportsFilesWarning);
+  }
   const llmResponse = await agent.invoke(
     {
       messages: [sysMessage, new HumanMessage(context.activity.text)],

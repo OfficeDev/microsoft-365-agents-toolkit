@@ -16,6 +16,7 @@ import {
   FeatureFlags as CoreFeatureFlags,
   Correlator,
   FeatureFlags,
+  isSovereignHigh,
   VersionState,
   featureFlagManager,
   teamsDevPortalClient,
@@ -137,10 +138,7 @@ import {
   updatePreviewManifest,
   validateManifestHandler,
 } from "./handlers/manifestHandlers";
-import {
-  migrateTeamsManifestHandler,
-  migrateTeamsTabAppHandler,
-} from "./handlers/migrationHandler";
+import { migrateTeamsTabAppHandler } from "./handlers/migrationHandler";
 import * as officeDevHandlers from "./handlers/officeDevHandlers";
 import {
   findGitHubSimilarIssue,
@@ -192,7 +190,6 @@ import { signOutAzure, signOutM365 } from "./utils/accountUtils";
 import { acpInstalled, delay, hasAdaptiveCardInWorkspace } from "./utils/commonUtils";
 import { updateAutoOpenGlobalKey } from "./utils/globalStateUtils";
 import { loadLocalizedStrings } from "./utils/localizeUtils";
-import { setupMCPServer } from "./utils/mcpUtils";
 import { checkProjectTypeAndSendTelemetry, isM365Project } from "./utils/projectChecker";
 import { ReleaseNote } from "./utils/releaseNote";
 import { ExtensionSurvey } from "./utils/survey";
@@ -331,19 +328,22 @@ function activateTeamsFxRegistration(context: vscode.ExtensionContext) {
     azureAccountProvider: azureAccountManager,
     m365TokenProvider: M365TokenInstance,
   });
-  // Set region for M365 account every
-  void M365TokenInstance.setStatusChangeMap(
-    "set-region",
-    { scopes: AuthSvcScopes() },
-    async (status, token, accountInfo) => {
-      if (status === "SignedIn") {
-        const tokenRes = await M365TokenInstance.getAccessToken({ scopes: AuthSvcScopes() });
-        if (tokenRes.isOk()) {
-          await teamsDevPortalClient.setRegionEndpointByToken(tokenRes.value);
+
+  if (!isSovereignHigh()) {
+    // Set region for M365 account every
+    void M365TokenInstance.setStatusChangeMap(
+      "set-region",
+      { scopes: AuthSvcScopes() },
+      async (status, token, accountInfo) => {
+        if (status === "SignedIn") {
+          const tokenRes = await M365TokenInstance.getAccessToken({ scopes: AuthSvcScopes() });
+          if (tokenRes.isOk()) {
+            await teamsDevPortalClient.setRegionEndpointByToken(tokenRes.value);
+          }
         }
       }
-    }
-  );
+    );
+  }
 
   if (vscode.workspace.isTrusted) {
     registerLanguageFeatures(context);
@@ -457,13 +457,6 @@ function registerActivateCommands(context: vscode.ExtensionContext) {
 
   // commmand: check copilot access
   registerInCommandController(context, CommandKeys.CheckCopilotAccess, checkCopilotAccessHandler);
-
-  // Upgrade command to update Teams manifest
-  const migrateTeamsManifestCmd = vscode.commands.registerCommand(
-    "fx-extension.migrateTeamsManifest",
-    () => Correlator.run(migrateTeamsManifestHandler)
-  );
-  context.subscriptions.push(migrateTeamsManifestCmd);
 
   // Upgrade command to update Teams Client SDK
   const migrateTeamsTabAppCmd = vscode.commands.registerCommand(

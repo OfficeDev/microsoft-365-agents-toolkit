@@ -3,20 +3,18 @@
 
 import {
   AppPackageFolderName,
-  ConfigFolderName,
   DefaultPluginManifestFileName,
   Inputs,
   IQTreeNode,
+  ManifestTemplateFileName,
   OptionItem,
   Platform,
 } from "@microsoft/teamsfx-api";
 import * as fs from "fs-extra";
-import os from "os";
 import path from "path";
 import { getLocalizedString } from "../../../common/localizeUtils";
-import { useLocalTemplate } from "../../../component/generator/templateHelper";
+import { fetchMCPTools, readMCPToolsFromFile } from "../../../component/utils/mcpToolFetcher";
 import { ODRProvider, ODRServer } from "../../../component/utils/odrProvider";
-import { getTemplatesFolder } from "../../../folder";
 import {
   SPFxFrameworkQuestion,
   SPFxImportFolderQuestion,
@@ -26,7 +24,6 @@ import {
 } from "../../create";
 import { QuestionNames } from "../../questionNames";
 import { apiSpecNode } from "../commonNodes";
-import { constructNode } from "../constructNode";
 import {
   ActionStartOptions,
   ApiAuthOptions,
@@ -39,26 +36,18 @@ import {
   TabCapabilityOptions,
   TeamsAgentCapabilityOptions,
 } from "./CapabilityOptions";
+import { getRootProjectTypeNode } from "./rootNode";
 
+/**
+ * Extract the Teams Agents and Apps sub-tree from the combined wizardNode.json.
+ * Used by TDP (Teams Developer Portal) flow.
+ */
 export function getTeamsProjectNode(): IQTreeNode {
-  let jsonPath: string;
-
-  const cachedJsonPath = path.join(
-    os.homedir(),
-    `.${String(ConfigFolderName)}`,
-    "ui",
-    "teamsNode.json"
+  const root = getRootProjectTypeNode(Platform.VSCode);
+  const teamsNode = root.children?.find(
+    (c) => (c.condition as any)?.equals === "teams-agent-and-app-type"
   );
-
-  // Check if cached JSON exists, otherwise fallback to bundled templates folder
-  if (!useLocalTemplate() && fs.pathExistsSync(cachedJsonPath)) {
-    jsonPath = cachedJsonPath;
-  } else {
-    jsonPath = path.join(getTemplatesFolder(), "ui", "teamsNode.json");
-  }
-
-  const content = fs.readFileSync(jsonPath, "utf-8");
-  return constructNode(content);
+  return teamsNode ?? { data: { type: "group" } };
 }
 
 export class TeamsProjectTypeOptions {
@@ -105,12 +94,8 @@ export function customCopilotRagNode(): IQTreeNode {
     data: {
       type: "singleSelect",
       name: QuestionNames.CustomCopilotRag,
-      title: getLocalizedString(
-        "core.createProjectQuestion.capability.customCopilotRagOption.label"
-      ),
-      placeholder: getLocalizedString(
-        "core.createProjectQuestion.capability.customCopilotRag.placeholder"
-      ),
+      title: getLocalizedString("template.teams.rag.label"),
+      placeholder: getLocalizedString("template.teams.rag.source.placeholder"),
       staticOptions: [
         CustomCopilotRagOptions.customize(),
         CustomCopilotRagOptions.azureAISearch(),
@@ -186,7 +171,7 @@ export function botProjectTypeNode(): IQTreeNode {
         BotCapabilityOptions.commandBot(),
         BotCapabilityOptions.workflowBot(),
       ],
-      placeholder: getLocalizedString("core.createCapabilityQuestion.placeholder"),
+      placeholder: getLocalizedString("template.createCapabilityQuestion.placeholder"),
       onDidSelection: setTemplateName,
     },
     children: [notificationBotTriggerNode()],
@@ -207,7 +192,7 @@ export function tabProjectTypeNode(platform: Platform = Platform.VSCode): IQTree
         TabCapabilityOptions.dashboardTab(),
         TabCapabilityOptions.SPFxTab(),
       ],
-      placeholder: getLocalizedString("core.createCapabilityQuestion.placeholder"),
+      placeholder: getLocalizedString("template.createCapabilityQuestion.placeholder"),
       onDidSelection: setTemplateName,
     },
     children: [
@@ -248,7 +233,7 @@ export function meProjectTypeNode(): IQTreeNode {
         MeCapabilityOptions.collectFormMe(),
         MeCapabilityOptions.linkUnfurling(),
       ],
-      placeholder: getLocalizedString("core.createCapabilityQuestion.placeholder"),
+      placeholder: getLocalizedString("template.createCapabilityQuestion.placeholder"),
       onDidSelection: setTemplateName,
     },
     children: [m365SearchMeSubNode()],
@@ -271,7 +256,7 @@ export function m365SearchMeSubNode(): IQTreeNode {
       ],
       default: MeArchitectureOptions.newApi().id,
       placeholder: getLocalizedString(
-        "core.createProjectQuestion.projectType.copilotExtension.placeholder"
+        "template.createProjectQuestion.projectType.copilotExtension.placeholder"
       ),
       forgetLastValue: true,
       skipSingleOption: true,
@@ -283,9 +268,9 @@ export function m365SearchMeSubNode(): IQTreeNode {
         data: {
           type: "singleSelect",
           name: QuestionNames.ApiAuth,
-          title: getLocalizedString("core.createProjectQuestion.apiMessageExtensionAuth.title"),
+          title: getLocalizedString("template.createProjectQuestion.apiMessageExtensionAuth.title"),
           placeholder: getLocalizedString(
-            "core.createProjectQuestion.apiMessageExtensionAuth.placeholder"
+            "template.createProjectQuestion.apiMessageExtensionAuth.placeholder"
           ),
           staticOptions: [
             ApiAuthOptions.none(true),
@@ -339,9 +324,115 @@ export function MCPServerTypeNode(): IQTreeNode {
       {
         condition: { equals: "remote" },
         data: MCPForDAServerUrlNode().data,
+        children: [
+          MCPToolsFileNode(),
+          MCPCliPreFetchToolsNode(),
+          {
+            condition: (inputs: Inputs) => {
+              if (inputs.platform === Platform.VSCode) return false;
+              return inputs[QuestionNames.MCPForDAAuth] !== "NoneAuth";
+            },
+            data: {
+              type: "singleSelect",
+              name: QuestionNames.MCPForDAAuthType,
+              title: getLocalizedString("core.createProjectQuestion.mcpForDa.AuthType.title"),
+              staticOptions: [
+                {
+                  id: "oauth",
+                  label: getLocalizedString("core.createProjectQuestion.mcpForDa.Auth.OAuth"),
+                },
+                {
+                  id: "entraSSO",
+                  label: getLocalizedString("core.createProjectQuestion.mcpForDa.Auth.EntraSSO"),
+                },
+              ],
+              default: "oauth",
+            },
+          },
+        ],
       },
       MCPLocalServerSelectionNode(),
     ],
+  };
+}
+
+/**
+ * Question node for providing an MCP tools definition file.
+ * Shown when:
+ * - The MCP server requires auth (auto-detected), or
+ * - The user wants to provide tools manually.
+ * In CLI non-interactive mode, this is provided via --mcp-tools-file.
+ */
+export function MCPToolsFileNode(): IQTreeNode {
+  return {
+    data: {
+      name: QuestionNames.MCPToolsFilePath,
+      title: getLocalizedString("core.MCPForDA.toolsFilePath.title"),
+      type: "text",
+      placeholder: getLocalizedString("core.MCPForDA.toolsFilePath.placeholder"),
+      additionalValidationOnAccept: {
+        validFunc: async (value: string, inputs?: Inputs): Promise<string | undefined> => {
+          if (!value) return undefined;
+          const filePath = value;
+          if (!(await fs.pathExists(filePath))) {
+            return getLocalizedString("core.MCPForDA.toolsFileNotFound", filePath);
+          }
+          try {
+            const tools = await readMCPToolsFromFile(filePath);
+            if (inputs) {
+              inputs[QuestionNames.MCPForDAAvailableTools] = tools;
+            }
+          } catch (e: any) {
+            return e.message;
+          }
+          return undefined;
+        },
+      },
+    },
+    // This node is only shown when:
+    // 1. CLI platform (no VS Code MCP gateway), AND
+    // 2. Either auth is required, or auto-fetch returned no tools
+    condition: (inputs: Inputs) => {
+      // In VS Code, tools are fetched by the extension handler, so skip this node
+      if (inputs.platform === Platform.VSCode) return false;
+      // Show if no available tools were populated by auto-fetch
+      const tools = inputs[QuestionNames.MCPForDAAvailableTools];
+      return !tools || (Array.isArray(tools) && tools.length === 0);
+    },
+  };
+}
+
+/**
+ * Question node for CLI pre-fetch tool selection.
+ * Attempts to auto-fetch tools from the MCP server URL, then presents them for selection.
+ * For CLI platform only — VS Code has its own tool fetching via vscode.lm.tools.
+ */
+export function MCPCliPreFetchToolsNode(): IQTreeNode {
+  return {
+    condition: (inputs: Inputs) => {
+      // Only show in CLI when tools are available (either fetched or loaded from file)
+      if (inputs.platform === Platform.VSCode) return false;
+      const tools = inputs[QuestionNames.MCPForDAAvailableTools];
+      return tools && Array.isArray(tools) && tools.length > 0;
+    },
+    data: {
+      type: "multiSelect",
+      name: QuestionNames.MCPForDAPreFetchTools,
+      title: getLocalizedString("core.createProjectQuestion.mcpForDa.PreFetchTools.title"),
+      staticOptions: [],
+      dynamicOptions: (inputs: Inputs): OptionItem[] => {
+        const availableTools: any[] = inputs[QuestionNames.MCPForDAAvailableTools];
+        return availableTools.map((tool: any) => ({
+          id: tool.name,
+          label: tool.name,
+          detail: tool.description || "",
+        }));
+      },
+      default: (inputs: Inputs) => {
+        const availableTools: any[] = inputs[QuestionNames.MCPForDAAvailableTools] || [];
+        return availableTools.map((tool: any) => tool.name);
+      },
+    },
   };
 }
 
@@ -386,9 +477,41 @@ export function MCPForDAServerUrlNode(): IQTreeNode {
       title: getLocalizedString("core.createProjectQuestion.mcpForDa.ServerUrl.title"),
       type: "text",
       placeholder: getLocalizedString("core.createProjectQuestion.mcpForDa.ServerUrl.placeholder"),
+      additionalValidationOnAccept: {
+        validFunc: async (value: string, inputs?: Inputs): Promise<string | undefined> => {
+          if (!value || !inputs) return undefined;
+          // For CLI: attempt to auto-fetch tools from the server
+          if (inputs.platform !== Platform.VSCode) {
+            try {
+              const result = await fetchMCPTools(value);
+              if (result.requiresAuth) {
+                inputs["_mcpAuthRequired"] = true;
+                inputs[QuestionNames.MCPForDAAvailableTools] = [];
+                if (result.authMetadataUrl) {
+                  inputs[QuestionNames.MCPForDAAuthMetadataUrl] = result.authMetadataUrl;
+                }
+                inputs[QuestionNames.MCPForDAAuth] = "OAuthPluginVault";
+              } else if (result.tools.length > 0) {
+                inputs[QuestionNames.MCPForDAAvailableTools] = result.tools;
+                inputs[QuestionNames.MCPForDATool] = "pre-fetch";
+                inputs[QuestionNames.MCPForDAAuth] = "NoneAuth";
+              } else {
+                inputs[QuestionNames.MCPForDAAvailableTools] = [];
+                inputs[QuestionNames.MCPForDAAuth] = "NoneAuth";
+              }
+            } catch {
+              inputs[QuestionNames.MCPForDAAvailableTools] = [];
+              inputs[QuestionNames.MCPForDAAuth] = "NoneAuth";
+            }
+          }
+          return undefined;
+        },
+      },
     },
   };
 }
+
+export const CreateNewPluginManifestSentinel = "__createNewPluginManifest__";
 
 export function updateActionWithMCP(): IQTreeNode {
   return {
@@ -396,17 +519,107 @@ export function updateActionWithMCP(): IQTreeNode {
       type: "singleFile",
       name: QuestionNames.PluginManifestFilePath,
       title: getLocalizedString("core.createProjectQuestion.mcpForDa.File.title"),
-      defaultFolder: (inputs: Inputs) => path.normalize(inputs.projectPath as string),
-      default: (inputs: Inputs) =>
-        path.normalize(
-          path.join(
-            inputs.projectPath as string,
+      defaultFolder: (inputs: Inputs) =>
+        path.normalize(path.join(inputs.projectPath as string, AppPackageFolderName)),
+      filters: { files: ["json"] },
+      possibleFiles: async (inputs: Inputs) => {
+        const projectPath = inputs.projectPath as string;
+        const items: { id: string; label: string; description?: string }[] = [];
+
+        // List every action plugin file referenced by the declarative agent
+        // manifest so the user can update an existing one.
+        try {
+          const teamsManifestPath = path.join(
+            projectPath,
             AppPackageFolderName,
-            DefaultPluginManifestFileName
-          )
-        ),
+            ManifestTemplateFileName
+          );
+          if (await fs.pathExists(teamsManifestPath)) {
+            const teamsManifest = await fs.readJSON(teamsManifestPath);
+            const declarativeAgentRelativePath: string | undefined =
+              teamsManifest?.copilotAgents?.declarativeAgents?.[0]?.file;
+            if (declarativeAgentRelativePath) {
+              const declarativeAgentPath = path.join(
+                projectPath,
+                AppPackageFolderName,
+                declarativeAgentRelativePath
+              );
+              if (await fs.pathExists(declarativeAgentPath)) {
+                const da = await fs.readJSON(declarativeAgentPath);
+                const actions: { id?: string; file?: string }[] = da?.actions ?? [];
+                const seen = new Set<string>();
+                for (const action of actions) {
+                  if (!action?.file) continue;
+                  const absPath = path.normalize(
+                    path.join(path.dirname(declarativeAgentPath), action.file)
+                  );
+                  if (seen.has(absPath)) continue;
+                  seen.add(absPath);
+                  items.push({
+                    id: absPath,
+                    label: `$(file) ${path.basename(absPath)}`,
+                    description: path.dirname(absPath),
+                  });
+                }
+              }
+            }
+          }
+        } catch {
+          // best-effort — fall through to just the create-new option
+        }
+
+        items.push({
+          id: CreateNewPluginManifestSentinel,
+          label: `$(new-file) ${getLocalizedString(
+            "core.createProjectQuestion.mcpForDa.File.createNew.label"
+          )}`,
+        });
+        return items;
+      },
     },
     children: [
+      {
+        condition: (inputs: Inputs) =>
+          inputs[QuestionNames.PluginManifestFilePath] === CreateNewPluginManifestSentinel,
+        data: {
+          type: "text",
+          name: QuestionNames.NewPluginManifestFileName,
+          title: getLocalizedString("core.createProjectQuestion.mcpForDa.File.createNew.title"),
+          placeholder: DefaultPluginManifestFileName,
+          default: DefaultPluginManifestFileName,
+          validation: {
+            validFunc: async (input: string, inputs?: Inputs) => {
+              const trimmed = input.trim();
+              if (!trimmed) {
+                return getLocalizedString(
+                  "core.createProjectQuestion.mcpForDa.File.createNew.validation.empty"
+                );
+              }
+              if (!trimmed.toLowerCase().endsWith(".json")) {
+                return getLocalizedString(
+                  "core.createProjectQuestion.mcpForDa.File.createNew.validation.extension"
+                );
+              }
+              if (path.isAbsolute(trimmed) || trimmed.includes("/") || trimmed.includes("\\")) {
+                return getLocalizedString(
+                  "core.createProjectQuestion.mcpForDa.File.createNew.validation.relative"
+                );
+              }
+              const projectPath = inputs?.projectPath;
+              if (projectPath) {
+                const target = path.join(projectPath, AppPackageFolderName, trimmed);
+                if (await fs.pathExists(target)) {
+                  return getLocalizedString(
+                    "core.createProjectQuestion.mcpForDa.File.createNew.validation.exists",
+                    trimmed
+                  );
+                }
+              }
+              return undefined;
+            },
+          },
+        },
+      },
       {
         data: {
           type: "multiSelect",
@@ -426,7 +639,15 @@ export function updateActionWithMCP(): IQTreeNode {
           },
           default: async (inputs: Inputs) => {
             const pluginManifestFilePath = inputs[QuestionNames.PluginManifestFilePath];
-            if (!pluginManifestFilePath) {
+            // Skip when the user chose "Create a new ai-plugin.json" (the value
+            // is a sentinel id, not a real path) or when the file doesn't exist
+            // yet. The plugin manifest will be created later in addPluginFromMCP /
+            // updateActionWithMCP, so there are no pre-selected tools to default.
+            if (
+              !pluginManifestFilePath ||
+              pluginManifestFilePath === CreateNewPluginManifestSentinel ||
+              !(await fs.pathExists(pluginManifestFilePath as string))
+            ) {
               return [];
             }
             const pluginManifest = await fs.readJSON(pluginManifestFilePath);
@@ -435,9 +656,7 @@ export function updateActionWithMCP(): IQTreeNode {
             (pluginManifest.runtimes as any[])
               .filter(
                 (runtime: any) =>
-                  runtime.type === "RemoteMCPServer" &&
-                  runtime.spec.url === serverUrl &&
-                  !runtime.spec["enable_dynamic_discovery"]
+                  runtime.type === "RemoteMCPServer" && runtime.spec.url === serverUrl
               )
               .forEach((runtime: any) => {
                 result.push(...runtime["run_for_functions"]);

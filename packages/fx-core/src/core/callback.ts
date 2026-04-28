@@ -23,7 +23,6 @@ export class CallbackRegistry {
 
   public static get(event: CoreCallbackEvent): CoreCallbackFunc[] {
     if (this.registry.has(event)) {
-      // eslint-disable-next-line  @typescript-eslint/no-non-null-assertion
       return this.registry.get(event)!;
     } else {
       return [];

@@ -2,7 +2,12 @@
 // Licensed under the MIT license.
 
 import { Result, FxError, ok, err } from "@microsoft/teamsfx-api";
-import { AppStudioScopes, isUserCancelError } from "@microsoft/teamsfx-core";
+import {
+  AppStudioScopes,
+  GraphScopes,
+  isSovereignHigh,
+  isUserCancelError,
+} from "@microsoft/teamsfx-core";
 import { tools } from "../../globalVariables";
 import { ExtTelemetry } from "../../telemetry/extTelemetry";
 import { AccountType, TelemetryEvent, TelemetryProperty } from "../../telemetry/extTelemetryEvents";
@@ -12,6 +17,7 @@ import { M365AccountNode } from "../../treeview/account/m365Node";
 import { getTriggerFromProperty } from "../../utils/telemetryUtils";
 import envTreeProviderInstance from "../../treeview/environmentTreeViewProvider";
 import azureAccountManager from "../../commonlib/azureLogin";
+import { getUsernameFromClaims } from "../../commonlib/accountInfoUtils";
 
 export async function signinM365Callback(...args: unknown[]): Promise<Result<null, FxError>> {
   let node: M365AccountNode | undefined;
@@ -29,15 +35,12 @@ export async function signinM365Callback(...args: unknown[]): Promise<Result<nul
   });
 
   const tokenRes = await tools.tokenProvider.m365TokenProvider.getJsonObject({
-    scopes: AppStudioScopes(),
+    scopes: isSovereignHigh() ? GraphScopes : AppStudioScopes(),
     showDialog: true,
   });
   const token = tokenRes.isOk() ? tokenRes.value : undefined;
   if (token !== undefined && node) {
-    await node.setSignedIn(
-      (token as any).upn ?? (token as any).unique_name ?? "",
-      (token as any).tid ?? ""
-    );
+    await node.setSignedIn(getUsernameFromClaims(token), (token as any).tid ?? "");
   }
 
   await envTreeProviderInstance.reloadEnvironments();

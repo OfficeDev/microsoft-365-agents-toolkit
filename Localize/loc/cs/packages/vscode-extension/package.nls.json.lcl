@@ -6263,7 +6263,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Build a declarative agent with Microsoft 365 Agents Toolkit to simplify workflows and automate tasks.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Sestavte si pomocí rozšíření Microsoft 365 Agents Toolkit deklarativního agenta pro zjednodušení pracovních postupů a automatizaci úloh.]]></Val>
+            <Val><![CDATA[Vytvořte si pomocí rozšíření Microsoft 365 Agents Toolkit deklarativního agenta pro zjednodušení pracovních postupů a automatizaci úloh.]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Build a declarative agent with Teams Toolkit to simplify workflows and automate tasks.]]></Val>
@@ -6296,7 +6296,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Follow these steps to build your declarative agent using Microsoft 365 Agents Toolkit.]A;[Build Declarative Agent]5D;(command:fx-extension.create?%5B%22SideBar%22%5D)]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Pokud chcete vytvořit deklarativního agenta pomocí rozšíření Microsoft 365 Agents Toolkit, postupujte podle těchto pokynů.]A;[Sestavit deklarativního agenta]5D;(command:fx-extension.create?%5B%22SideBar%22%5D)]]></Val>
+            <Val><![CDATA[Pokud chcete vytvořit deklarativního agenta pomocí rozšíření Microsoft 365 Agents Toolkit, postupujte podle těchto pokynů.]A;[Vytvoření deklarativního agenta]5D;(command:fx-extension.create?%5B%22SideBar%22%5D)]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Follow these steps to build your declarative agent using Teams Toolkit.]A;[Build Declarative Agent]5D;(command:fx-extension.create?%5B%22SideBar%22%5D)]]></Val>
@@ -6587,7 +6587,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Build a notification bot using Microsoft 365 Agents Toolkit to send interactive messages in Teams.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Sestavte robota oznámení pomocí rozšíření Microsoft 365 Agents Toolkit k odesílání interaktivních zpráv v Teams.]]></Val>
+            <Val><![CDATA[Vytvořte robota oznámení pomocí rozšíření Microsoft 365 Agents Toolkit k odesílání interaktivních zpráv v Teams.]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Build a notification bot using Teams Toolkit to send interactive messages in Teams.]]></Val>

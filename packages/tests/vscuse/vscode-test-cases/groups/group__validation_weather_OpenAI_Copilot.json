@@ -9,14 +9,14 @@
       "precondition_retry_interval": 2
     },
     "total_steps": 3,
-    "created_at": "2025-11-25T06:39:50.331649",
+    "created_at": "2026-03-09T03:11:19.506719",
     "name": "group  validation weather OpenAI Copilot",
     "description": {
+      "other": "Generated from recording r_1009_073154",
       "owner": "v-annefu@microsoft.com",
-      "workitem": "",
-      "other": "Generated from recording r_1009_073154"
+      "workitem": ""
     },
-    "generated_at": "2025-11-25T06:39:50.331649",
+    "generated_at": "2026-03-09T03:11:19.506714",
     "execution_order": [
       "step_cb84f547",
       "step_1a245645",
@@ -25,7 +25,7 @@
     "tags": [
       "group"
     ],
-    "updated_at": "2025-11-25T06:51:00.383368"
+    "updated_at": "2026-03-09T03:13:16.621449"
   },
   "steps": [
     {
@@ -47,7 +47,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_cb84f547",
-      "created_at": "2025-11-25T06:46:19.603714",
+      "created_at": "2026-03-09T03:11:19.514440",
       "plan_id": "plan_f7e3ed6b"
     },
     {
@@ -69,7 +69,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_1a245645",
-      "created_at": "2025-11-25T06:46:19.644365",
+      "created_at": "2026-03-09T03:11:19.521911",
       "plan_id": "plan_f7e3ed6b"
     },
     {
@@ -77,7 +77,7 @@
       "agent": "assertion",
       "tool": "",
       "parameters": {},
-      "description": "@assertion \"encountered an error\" exist.",
+      "description": "@assertion \"encountered an error\" or \"To continue to run this agent, please fix the source code\" exists.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -89,7 +89,7 @@
         "step_retry_timeout: 210"
       ],
       "screenshot": null,
-      "created_at": "2025-11-25T06:39:50.391008",
+      "created_at": "2026-03-09T03:11:19.529303",
       "plan_id": "plan_f7e3ed6b"
     }
   ],

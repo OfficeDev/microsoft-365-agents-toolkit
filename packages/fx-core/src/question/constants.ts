@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { Inputs, OptionItem } from "@microsoft/teamsfx-api";
+import { Inputs, OptionItem, Platform } from "@microsoft/teamsfx-api";
 import { FeatureFlags, featureFlagManager } from "../common/featureFlags";
 import { getLocalizedString } from "../common/localizeUtils";
 export { QuestionNames } from "./questionNames";
@@ -157,7 +157,7 @@ export class MeArchitectureOptions {
     return {
       id: "new-api",
       label: getLocalizedString(
-        "core.createProjectQuestion.capability.copilotPluginNewApiOption.label"
+        "template.createProjectQuestion.capability.copilotPluginNewApiOption.label"
       ),
       detail: getLocalizedString(
         "core.createProjectQuestion.capability.messageExtensionNewApiOption.detail"
@@ -169,7 +169,7 @@ export class MeArchitectureOptions {
     return {
       id: "api-spec",
       label: getLocalizedString(
-        "core.createProjectQuestion.capability.copilotPluginApiSpecOption.label"
+        "template.createProjectQuestion.capability.copilotPluginApiSpecOption.label"
       ),
       detail: getLocalizedString(
         "core.createProjectQuestion.capability.messageExtensionApiSpecOption.detail"
@@ -204,7 +204,7 @@ export const NotificationTriggers = {
   TIMER: "timer",
 } as const;
 
-export type NotificationTrigger = typeof NotificationTriggers[keyof typeof NotificationTriggers];
+export type NotificationTrigger = (typeof NotificationTriggers)[keyof typeof NotificationTriggers];
 
 export interface HostTypeTriggerOptionItem extends OptionItem {
   hostType: HostType;
@@ -292,36 +292,24 @@ export class CustomCopilotRagOptions {
   static customize(): OptionItem {
     return {
       id: "custom-copilot-rag-customize",
-      label: getLocalizedString(
-        "core.createProjectQuestion.capability.customCopilotRagCustomizeOption.label"
-      ),
-      detail: getLocalizedString(
-        "core.createProjectQuestion.capability.customCopilotRagCustomizeOption.detail"
-      ),
+      label: getLocalizedString("template.teams.rag.source.customize.label"),
+      detail: getLocalizedString("template.teams.rag.source.customize.detail"),
     };
   }
 
   static azureAISearch(): OptionItem {
     return {
       id: "custom-copilot-rag-azureAISearch",
-      label: getLocalizedString(
-        "core.createProjectQuestion.capability.customCopilotRagAzureAISearchOption.label"
-      ),
-      detail: getLocalizedString(
-        "core.createProjectQuestion.capability.customCopilotRagAzureAISearchOption.detail"
-      ),
+      label: getLocalizedString("template.teams.rag.source.azureAISearch.label"),
+      detail: getLocalizedString("template.teams.rag.source.azureAISearch.detail"),
     };
   }
 
   static customApi(): OptionItem {
     return {
       id: "custom-copilot-rag-customApi",
-      label: getLocalizedString(
-        "core.createProjectQuestion.capability.customCopilotRagCustomApiOption.label"
-      ),
-      detail: getLocalizedString(
-        "core.createProjectQuestion.capability.customCopilotRagCustomApiOption.detail"
-      ),
+      label: getLocalizedString("template.teams.rag.source.customApi.label"),
+      detail: getLocalizedString("template.teams.rag.source.customApi.detail"),
       description: getLocalizedString("core.createProjectQuestion.option.description.preview"),
     };
   }
@@ -472,10 +460,10 @@ export class ActionStartOptions {
     return {
       id: "new-api",
       label: getLocalizedString(
-        "core.createProjectQuestion.capability.copilotPluginNewApiOption.label"
+        "template.createProjectQuestion.capability.copilotPluginNewApiOption.label"
       ),
       detail: getLocalizedString(
-        "core.createProjectQuestion.capability.copilotPluginNewApiOption.detail"
+        "template.createProjectQuestion.capability.copilotPluginNewApiOption.detail"
       ),
     };
   }
@@ -484,10 +472,10 @@ export class ActionStartOptions {
     return {
       id: "api-spec",
       label: getLocalizedString(
-        "core.createProjectQuestion.capability.copilotPluginApiSpecOption.label"
+        "template.createProjectQuestion.capability.copilotPluginApiSpecOption.label"
       ),
       detail: getLocalizedString(
-        "core.createProjectQuestion.capability.copilotPluginApiSpecOption.detail"
+        "template.createProjectQuestion.capability.copilotPluginApiSpecOption.detail"
       ),
     };
   }
@@ -500,15 +488,27 @@ export class ActionStartOptions {
     };
   }
 
+  static mcp(): OptionItem {
+    return {
+      id: "mcp",
+      label: getLocalizedString("template.createProjectQuestion.mcpForDa.label"),
+      detail: getLocalizedString("template.createProjectQuestion.mcpForDa.detail"),
+    };
+  }
+
   static staticAll(doesProjectExists?: boolean): OptionItem[] {
     return doesProjectExists
-      ? [ActionStartOptions.apiSpec()]
+      ? [ActionStartOptions.apiSpec(), ActionStartOptions.mcp()]
       : [ActionStartOptions.newApi(), ActionStartOptions.apiSpec()];
   }
 
   static all(inputs: Inputs, doesProjectExists?: boolean): OptionItem[] {
     if (doesProjectExists) {
-      return [ActionStartOptions.apiSpec()];
+      const options: OptionItem[] = [ActionStartOptions.apiSpec()];
+      if (featureFlagManager.getBooleanValue(FeatureFlags.MCPForDA)) {
+        options.push(ActionStartOptions.mcp());
+      }
+      return options;
     } else {
       // use constant string to avoid cycle dependency
       return [ActionStartOptions.newApi(), ActionStartOptions.apiSpec()];
@@ -601,10 +601,8 @@ export class KnowledgeSourceOptions {
       KnowledgeSourceOptions.webSearch(),
       KnowledgeSourceOptions.oneDriveSharePoint(),
       KnowledgeSourceOptions.graphConnector(),
+      KnowledgeSourceOptions.embeddedKnowledge(),
     ];
-    if (featureFlagManager.getBooleanValue(FeatureFlags.EmbeddedKnowledgeEnabled)) {
-      items.push(KnowledgeSourceOptions.embeddedKnowledge());
-    }
     return items;
   }
 }

@@ -9,14 +9,14 @@
       "precondition_retry_interval": 2
     },
     "total_steps": 10,
-    "created_at": "2025-12-12T01:59:31.259896",
+    "created_at": "2026-04-23T02:03:39.926112",
     "name": "group  webpage login account",
     "description": {
       "other": "Generated from recording r_0930_083113",
       "owner": "v-ivanchen@microsoft.com",
       "workitem": ""
     },
-    "generated_at": "2025-12-12T01:59:31.259896",
+    "generated_at": "2026-04-23T02:03:39.926112",
     "execution_order": [
       "step_86e15fa5",
       "step_7e5acd9c",
@@ -24,6 +24,7 @@
       "step_c5999cc0",
       "step_732dc315",
       "step_ffdc20b2",
+      "plan_r_0414_052653",
       "step_e854abfe",
       "step_c0e8cf33",
       "step_fb4f6af7",
@@ -32,7 +33,7 @@
     "tags": [
       "group"
     ],
-    "updated_at": "2025-12-17T03:30:55.095813"
+    "updated_at": "2026-04-23T08:43:15.256448"
   },
   "steps": [
     {
@@ -60,7 +61,7 @@
         "precondition_wait_timeout: 180"
       ],
       "screenshot": "step_86e15fa5",
-      "created_at": "2025-12-16T05:59:20.650888",
+      "created_at": "2026-04-23T02:03:39.933985",
       "plan_id": "plan_4f33ade7"
     },
     {
@@ -82,7 +83,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_7e5acd9c",
-      "created_at": "2025-12-16T05:59:20.661650",
+      "created_at": "2026-04-23T02:03:39.933985",
       "plan_id": "plan_4f33ade7"
     },
     {
@@ -106,7 +107,7 @@
         "delay: 3"
       ],
       "screenshot": "step_212e9ac5",
-      "created_at": "2025-12-16T05:59:20.673552",
+      "created_at": "2026-04-23T02:03:39.945698",
       "plan_id": "plan_4f33ade7"
     },
     {
@@ -128,7 +129,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_c5999cc0",
-      "created_at": "2025-12-16T05:59:20.683900",
+      "created_at": "2026-04-23T02:03:39.958499",
       "plan_id": "plan_4f33ade7"
     },
     {
@@ -152,7 +153,7 @@
         "delay: 3"
       ],
       "screenshot": "step_732dc315",
-      "created_at": "2025-12-16T05:59:20.696592",
+      "created_at": "2026-04-23T02:03:39.960505",
       "plan_id": "plan_4f33ade7"
     },
     {
@@ -178,7 +179,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_ffdc20b2",
-      "created_at": "2025-12-16T05:59:20.707153",
+      "created_at": "2026-04-23T02:03:39.976318",
       "plan_id": "plan_4f33ade7"
     },
     {
@@ -198,7 +199,7 @@
         "step_retry_timeout: 180"
       ],
       "screenshot": null,
-      "created_at": "2025-12-16T05:59:20.718258",
+      "created_at": "2026-04-23T02:03:39.985662",
       "plan_id": "plan_4f33ade7"
     },
     {
@@ -224,7 +225,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_c0e8cf33",
-      "created_at": "2025-12-16T05:59:20.729383",
+      "created_at": "2026-04-23T02:03:39.993146",
       "plan_id": "plan_4f33ade7"
     },
     {
@@ -244,7 +245,7 @@
         "step_retry_timeout: 180"
       ],
       "screenshot": null,
-      "created_at": "2025-12-16T05:59:20.734325",
+      "created_at": "2026-04-23T02:03:40.000955",
       "plan_id": "plan_4f33ade7"
     },
     {
@@ -272,7 +273,7 @@
         "precondition_wait_timeout: 120"
       ],
       "screenshot": "step_5633a73d",
-      "created_at": "2025-12-16T05:59:20.753290",
+      "created_at": "2026-04-23T02:03:40.006958",
       "plan_id": "plan_4f33ade7"
     }
   ],

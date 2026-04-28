@@ -9,19 +9,23 @@
       },
       "name.short": {
           "type": "string",
-          "maxLength": 30
+          "maxLength": 30,
+          "$ref": "#/definitions/nonEmptyString"
       },
       "name.full": {
           "type": "string",
-          "maxLength": 100
+          "maxLength": 100,
+          "$ref": "#/definitions/nonEmptyString"
       },
       "description.short": {
           "type": "string",
-          "maxLength": 80
+          "maxLength": 80,
+          "$ref": "#/definitions/nonEmptyString"
       },
       "description.full": {
           "type": "string",
-          "maxLength": 4000
+          "maxLength": 4000,
+          "$ref": "#/definitions/nonEmptyString"
       },
       "localizationKeys": {
           "type": "object",
@@ -37,13 +41,13 @@
           "type": "string",
           "maxLength": 128
       },
-      "^bots\\[0\\]\\.commandLists\\[[0-2]\\]\\.commands\\[[0-9]\\]\\.title$": {
-          "type": "string",
-          "maxLength": 32
-      },
-      "^bots\\[0\\]\\.commandLists\\[[0-2]\\]\\.commands\\[[0-9]\\]\\.description$": {
+      "^bots\\[0\\]\\.commandLists\\[[0-2]\\]\\.commands\\[([0-9]|1[0-1])\\]\\.title$": {
           "type": "string",
           "maxLength": 128
+      },
+      "^bots\\[0\\]\\.commandLists\\[[0-2]\\]\\.commands\\[([0-9]|1[0-1])\\]\\.description$": {
+          "type": "string",
+          "maxLength": 4000
       },
       "^composeExtensions\\[0\\]\\.commands\\[[0-9]\\]\\.title$": {
           "type": "string",
@@ -201,11 +205,11 @@
         "type": "string",
         "maxLength": 32
       },
-      "^extensions\\[[0-9]\\]\\.runtimes\\[[1]?[0-9]\\]\\.customFunctions\\.enums\\[[0-9]\\]\\.values\\[[0-9]\\]\\.name$": {
+      "^extensions\\[[0]\\]\\.runtimes\\[[1]?[0-9]\\]\\.customFunctions\\.enums\\[[0-9]\\]\\.values\\[[0-9]\\]\\.name$": {
         "type": "string",
         "maxLength": 256
       },
-      "^extensions\\[[0-9]\\]\\.runtimes\\[[1]?[0-9]\\]\\.customFunctions\\.enums\\[[0-9]\\]\\.values\\[[0-9]\\]\\.tooltip$": {
+      "^extensions\\[[0]\\]\\.runtimes\\[[1]?[0-9]\\]\\.customFunctions\\.enums\\[[0-9]\\]\\.values\\[[0-9]\\]\\.tooltip$": {
         "type": "string",
         "maxLength": 256
       },
@@ -242,5 +246,11 @@
       "name.short",
       "description.short",
       "description.full"
-  ]
+  ],
+  "definitions": {
+      "nonEmptyString": {
+          "type": "string",
+          "pattern": "^(?![nN][uU][lL]{2}$)\\s*\\S.*"
+      }
+  }
 }

@@ -14,7 +14,7 @@ import * as Models from "@azure/arm-appservice/src/models";
 import * as fileOpt from "../../../../../src/component/utils/fileOperation";
 import { AzureDeployImpl } from "../../../../../src/component/driver/deploy/azure/impl/azureDeployImpl";
 import { assert, expect } from "chai";
-import * as fs from "fs-extra";
+import fs from "fs-extra";
 import { AzureFunctionDeployDriver } from "../../../../../src/component/driver/deploy/azure/azureFunctionDeployDriver";
 import {
   MockedAzureAccountProvider,

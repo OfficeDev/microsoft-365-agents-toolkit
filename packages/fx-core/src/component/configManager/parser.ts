@@ -138,7 +138,7 @@ export class YamlParser implements IYamlParser {
       globalVars.ymlFilePath = path;
       const str = await fs.readFile(path, "utf8");
       const content = load(str);
-      const value = content as unknown as Record<string, unknown>;
+      const value = content as Record<string, unknown>;
       const version = typeof value["version"] === "string" ? value["version"] : undefined;
       // note: typeof null === "object" typeof undefined === "undefined" in js
       if (typeof content !== "object" || Array.isArray(content) || content === null) {

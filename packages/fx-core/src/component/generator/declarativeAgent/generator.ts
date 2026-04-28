@@ -40,7 +40,7 @@ import { Generator } from "../generator";
 import { TemplateInfo } from "../templates/templateInfo";
 import { TemplateNames } from "../templates/templateNames";
 import { setGeneralSensitivityLabel } from "../utils";
-import { addExistingPlugin } from "./helper";
+import { addExistingPlugin, deriveMCPServerNameFromUrl, generateForMCPForDA } from "./helper";
 
 const enum telemetryProperties {
   templateName = "template-name",
@@ -103,13 +103,11 @@ export class DeclarativeAgentGenerator extends DefaultTemplateGenerator {
         ...(isLocalMCP
           ? this.processMCPLocalServers(inputs)
           : MCPForDAServerUrl
-          ? {
-              MCPForDAServerUrl,
-              ServerName: new URL(MCPForDAServerUrl).host
-                .replace(/[^a-zA-Z0-9]/g, "")
-                .substring(0, 10),
-            }
-          : {}),
+            ? {
+                MCPForDAServerUrl,
+                ServerName: deriveMCPServerNameFromUrl(MCPForDAServerUrl),
+              }
+            : {}),
       };
       const templateName = inputs[QuestionNames.TemplateName];
 
@@ -146,9 +144,8 @@ export class DeclarativeAgentGenerator extends DefaultTemplateGenerator {
       AppPackageFolderName,
       ManifestTemplateFileName
     );
-    const declarativeCopilotManifestPathRes = await copilotGptManifestUtils.getManifestPath(
-      teamsManifestPath
-    );
+    const declarativeCopilotManifestPathRes =
+      await copilotGptManifestUtils.getManifestPath(teamsManifestPath);
     if (declarativeCopilotManifestPathRes.isErr()) {
       // only return error in da existing action case
       if (TemplateNames.DeclarativeAgentWithExistingAction === inputs[QuestionNames.TemplateName]) {
@@ -162,26 +159,14 @@ export class DeclarativeAgentGenerator extends DefaultTemplateGenerator {
       await setGeneralSensitivityLabel(context, declarativeCopilotManifestPathRes.value);
     }
 
-    // if (
-    //   featureFlagManager.getBooleanValue(FeatureFlags.MCPForDA) &&
-    //   TemplateNames.DeclarativeAgentWithActionFromMCP === inputs[QuestionNames.TemplateName]
-    // ) {
-    //   const result = await generateForMCPForDA(destinationPath, inputs);
-    //   return result;
-    // }
-
     if (
-      featureFlagManager.getBooleanValue(FeatureFlags.EmbeddedKnowledgeEnabled) &&
-      (inputs.platform === Platform.CLI || inputs.platform === Platform.VSCode)
+      featureFlagManager.getBooleanValue(FeatureFlags.MCPForDA) &&
+      TemplateNames.DeclarativeAgentWithActionFromMCP === inputs[QuestionNames.TemplateName]
     ) {
-      // ensure EmbeddedKnwoledge folder exists
-      const embeddedKnowledgeFolderPath = path.join(
-        destinationPath,
-        AppPackageFolderName,
-        EmbeddedKnowledgeLocalDirectoryName
-      );
-      await fs.ensureDir(embeddedKnowledgeFolderPath);
+      const result = await generateForMCPForDA(destinationPath, inputs);
+      return result;
     }
+
     if (TemplateNames.DeclarativeAgentWithExistingAction === inputs[QuestionNames.TemplateName]) {
       const addPluginRes = await addExistingPlugin(
         declarativeCopilotManifestPathRes.value,

@@ -64,7 +64,6 @@ export enum TemplateProject {
   HelloWorldTabDocker = "Containerized Hello World Tab with Backend",
   FoodCatalog = "Ingest Custom API Data into Microsoft 365 with a Microsoft Copilot Connector",
   RedditLink = "Format Reddit Link into Adaptive Card",
-  IntelligentDataChart = "Intelligent Data Chart Generator",
 }
 
 export enum TemplateProjectFolder {
@@ -101,7 +100,6 @@ export enum TemplateProjectFolder {
   HelloWorldTabDocker = "hello-world-tab-docker",
   FoodCatalog = "nodejs-typescript-food-catalog",
   RedditLink = "nodejs",
-  IntelligentDataChart = "intelligent-data-chart-generator",
   // v2 only
   Deeplinking = "deep-linking-hello-world-tab-without-sso-M365",
 }
@@ -145,8 +143,6 @@ export const sampleProjectMap: Record<TemplateProject, TemplateProjectFolder> =
       TemplateProjectFolder.HelloWorldTabDocker,
     [TemplateProject.FoodCatalog]: TemplateProjectFolder.FoodCatalog,
     [TemplateProject.RedditLink]: TemplateProjectFolder.RedditLink,
-    [TemplateProject.IntelligentDataChart]:
-      TemplateProjectFolder.IntelligentDataChart,
   };
 
 export enum Resource {
@@ -191,6 +187,7 @@ export enum Capability {
   DeclarativeAgentWithActionFromScratch = "api-plugin-from-scratch",
   DeclarativeAgentWithTypeSpec = "declarative-agent-typespec",
   TeamsCollaboratorAgent = "teams-collaborator-agent",
+  FoundryProxyAgent = "foundry-proxy-agent",
 }
 
 export enum Trigger {
@@ -419,6 +416,8 @@ export enum LocalDebugTaskLabel {
   StartBotApp = "Start application",
   StartFrontend = "Start frontend",
   StartApplication = "Start application",
+  StartApplicationPlayground = "Start application (Microsoft 365 Agents Playground)",
+  StartAgentsPlayground = "Start Microsoft 365 Agents Playground",
   StartBackend = "Start backend",
   StartWebhook = "Start Incoming Webhook",
   WatchBackend = "Watch backend",
@@ -482,6 +481,7 @@ export class LocalDebugTaskInfo {
   static readonly StartBotInfo = "Bot Started";
   static readonly StartBotInfo2 = "Bot started";
   static readonly AppListening = "app listening";
+  static readonly PlaygroundStart = "agentsplayground start";
   static readonly ListeningOn = "listening on";
   static readonly ServerListening = "Server listening";
   static readonly BackendStartedInfo = "Worker process started and initialized";

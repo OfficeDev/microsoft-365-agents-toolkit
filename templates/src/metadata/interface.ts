@@ -4,6 +4,7 @@
 export interface Template {
   id: string; // internal unique identifier for scaffolding a template folder
   name: string; // unique in UI entry except language and also used in telemetry
+  alias?: string; // user friendly name, could be different from name field, used by cli to scaffold template
   language: "typescript" | "javascript" | "csharp" | "python" | "none" | "common";
   displayName?: string; // used by CLI to show a friendly name
   description: string;
