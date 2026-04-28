@@ -161,7 +161,6 @@ We've made a set of improvements to templates configurations and schema handling
 - Fixed inline MCP description and related output edge cases.  
   PRs: [#15281](https://github.com/OfficeDev/microsoft-365-agents-toolkit/pull/15281)
 
-
 ## 6.4.3 - Jan 16, 2026
 
 Hotfix version.
