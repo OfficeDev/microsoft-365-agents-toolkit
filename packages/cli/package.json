@@ -107,7 +107,7 @@
     "@azure/msal-node": "^2.6.6",
     "@azure/msal-node-extensions": "^1.5.25",
     "@inquirer/core": "^5.1.2",
-    "@inquirer/prompts": "^6.0.0",
+    "@inquirer/prompts": "^7.10.1",
     "@inquirer/type": "^1.1.5",
     "@microsoft/teamsfx-api": "workspace:*",
     "@microsoft/teamsfx-core": "workspace:*",
