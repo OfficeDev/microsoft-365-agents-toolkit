@@ -40,10 +40,12 @@ jobs:
           echo "pat=${AZURE_DEVOPS_PAT}" >> "$GITHUB_OUTPUT"
 
       - name: Query work items
+        env:
+          WIQL_INPUT: ${{ github.event.inputs.wiql }}
         run: |
           AZURE_DEVOPS_PAT="${{ steps.token.outputs.pat }}"
 
-          wiql_body=$(jq -n --arg q "${{ github.event.inputs.wiql }}" '{"query": $q}')
+          wiql_body=$(jq -n --arg q "$WIQL_INPUT" '{"query": $q}')
           echo "Executing WIQL query..."
 
           wiql_response=$(curl -s -w "\n%{http_code}" \
