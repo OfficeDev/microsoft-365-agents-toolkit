@@ -1147,7 +1147,7 @@ export class VSCodeUI implements UserInteraction {
       // Bash script for Unix-like systems
       // Use tee inside the script to display output in the terminal while capturing to file,
       // then exit with the command's actual exit code via PIPESTATUS.
-      scriptContent = `#!/bin/bash\nset +e\n${cmd} 2>&1 | tee "${tempFile}"\nexit \${PIPESTATUS[0]}\n`;
+      scriptContent = `#!/bin/bash\nset +e\n( ${cmd} ) 2>&1 | tee "${tempFile}"\nexit \${PIPESTATUS[0]}\n`;
       wrappedCmd = `bash "${scriptFile}"`;
     }
 
