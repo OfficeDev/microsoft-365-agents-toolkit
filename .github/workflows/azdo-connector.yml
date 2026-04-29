@@ -44,13 +44,13 @@ jobs:
     runs-on: ubuntu-latest
     environment: engineering
     env:
-      AZURE_DEVOPS_ORG: "msazure"
-      AZURE_DEVOPS_PROJECT: "Microsoft%20Teams%20Extensibility"
+      AZURE_DEVOPS_ORG: "devdiv"
+      AZURE_DEVOPS_PROJECT: "DevDiv"
     steps:
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.DEVOPS_CLIENT_ID }}
+          client-id: ${{ secrets.DEVOPS_DEVDIV_CLIENT_ID }}
           tenant-id: ${{ secrets.DEVOPS_TENANT_ID }}
           subscription-id: ${{ secrets.DEVOPS_SUB_ID }}
 
