@@ -12,6 +12,7 @@ import { developerPortalScaffoldUtils } from "../../developerPortalScaffoldUtils
 import { ActionContext } from "../../middleware/actionExecutionMW";
 import { DefaultTemplateGenerator } from "../defaultGenerator";
 import { Generator } from "../generator";
+import { TemplateNames } from "../templates/templateNames";
 import { TemplateInfo } from "../templates/templateInfo";
 
 /**
@@ -22,8 +23,13 @@ export class TdpGenerator extends DefaultTemplateGenerator {
 
   // activation condition
   public override activate(context: Context, inputs: Inputs): boolean {
-    // Reuse some templates which are handled by other generators
-    return inputs.teamsAppFromTdp !== undefined;
+    // Reuse some templates which are handled by other generators.
+    // DeclarativeAgentWithGraphConnector is a combined template that must be handled by
+    // CombinedProjectGenerator, even in TDP flow — exclude it here so the correct generator runs.
+    return (
+      inputs.teamsAppFromTdp !== undefined &&
+      inputs[QuestionNames.TemplateName] !== TemplateNames.DeclarativeAgentWithGraphConnector
+    );
   }
 
   public override async getTemplateInfos(
