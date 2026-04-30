@@ -8,6 +8,7 @@
 import {
   AppPackageFolderName,
   Context,
+  err,
   FxError,
   GeneratorResult,
   Inputs,
@@ -23,6 +24,7 @@ import {
   QuestionNames,
 } from "../../../question";
 import { ActionContext } from "../../middleware/actionExecutionMW";
+import { developerPortalScaffoldUtils } from "../../developerPortalScaffoldUtils";
 import { DefaultTemplateGenerator } from "../defaultGenerator";
 import { Generator } from "../generator";
 import { TemplateInfo } from "../templates/templateInfo";
@@ -116,7 +118,7 @@ export class CombinedProjectGenerator extends DefaultTemplateGenerator {
   }
 
   // override this method to do post-step after template download
-  post(
+  async post(
     context: Context,
     inputs: Inputs,
     destinationPath: string,
@@ -128,6 +130,19 @@ export class CombinedProjectGenerator extends DefaultTemplateGenerator {
     fs.copySync(srcFolder, targetFolder, { overwrite: true });
     // delete folder
     fs.removeSync(path.join(destinationPath, this.temporaryFolderName));
+
+    // If coming from TDP portal, apply TDP-specific file updates (e.g. manifest patching)
+    if (inputs.teamsAppFromTdp) {
+      const res = await developerPortalScaffoldUtils.updateFilesForTdp(
+        context,
+        inputs.teamsAppFromTdp,
+        inputs
+      );
+      if (res.isErr()) {
+        return err(res.error);
+      }
+    }
+
     return Promise.resolve(ok({}));
   }
 }
