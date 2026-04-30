@@ -1,47 +1,96 @@
 //@ts-check
-
 "use strict";
 
 const path = require("path");
 const webpack = require("webpack");
 const HtmlWebPackPlugin = require("html-webpack-plugin");
 const CopyPlugin = require("copy-webpack-plugin");
-const terserWebpackPlugin = require("terser-webpack-plugin");
+const fs = require("fs");
 
-/**@type {import('webpack').Configuration}*/
+/**
+ * 🌊 Dredge Surface Builder (inline, self-contained)
+ */
+function buildDredgeSurface(rootDir) {
+  const dredgeDir = path.resolve(rootDir, "src/dredge");
+
+  if (!fs.existsSync(dredgeDir)) {
+    return { map: {}, manifest: [] };
+  }
+
+  const files = fs
+    .readdirSync(dredgeDir)
+    .filter((f) => f.endsWith(".ts") || f.endsWith(".js"));
+
+  const map = {};
+  const manifest = [];
+
+  for (const file of files) {
+    const name = path.basename(file, path.extname(file));
+    const importPath = `./dredge/${name}`;
+
+    map[name] = importPath;
+    manifest.push({ name, path: importPath });
+  }
+
+  return { map, manifest };
+}
+
+const { map: dredgeMap, manifest: dredgeManifest } =
+  buildDredgeSurface(__dirname);
+
+/**
+ * 📦 Webpack Config
+ * @type {import('webpack').Configuration}
+ */
 const config = {
-  target: "node", // vscode extensions run in a Node.js-context 📖 -> https://webpack.js.org/configuration/node/
-  mode: "none", // this leaves the source code as close as possible to the original (when packaging we set this to 'production')
+  target: "node",
+
+  mode:
+    process.env.NODE_ENV === "production"
+      ? "production"
+      : "development",
+
+  externalsPresets: { node: true },
+
   node: {
     __dirname: false,
   },
+
   entry: {
-    index: "./src/index.ts", // the entry point of this extension, 📖 -> https://webpack.js.org/configuration/entry-context/
+    index: "./src/index.ts",
   },
+
   output: {
     filename: "[name].js",
-    // the bundle is stored in the 'dist' folder (check package.json), 📖 -> https://webpack.js.org/configuration/output/
     path: path.resolve(__dirname, "lib"),
     libraryTarget: "commonjs2",
+    clean: true,
   },
-  devtool: "source-map",
+
+  devtool:
+    process.env.NODE_ENV === "production"
+      ? "hidden-source-map"
+      : "eval-cheap-module-source-map",
+
   externals: {
     keytar: "commonjs keytar",
   },
+
   resolve: {
-    // support reading TypeScript and JavaScript files, 📖 -> https://github.com/TypeStrong/ts-loader
     extensions: [".tsx", ".ts", ".js"],
+    symlinks: false,
   },
+
   module: {
     rules: [
       {
-        test: /(?<!\.d)\.tsx?$/,
+        test: /\.tsx?$/,
         exclude: /node_modules/,
-        use: [
-          {
-            loader: "ts-loader",
-          },
-        ],
+        loader: "esbuild-loader",
+        options: {
+          loader: "ts",
+          target: "es2020",
+        },
       },
       {
         test: /\.s[ac]ss$/i,
@@ -49,60 +98,92 @@ const config = {
         use: ["style-loader", "css-loader", "sass-loader"],
       },
       {
-        test: /\.(jpg|png|svg|gif)$/,
-        use: {
-          loader: "url-loader",
-        },
+        test: /\.(png|jpg|gif|svg)$/i,
+        type: "asset",
       },
       {
-        test: /node_modules[\\|/](yaml-language-server|vscode-languageserver|vscode-json-languageservice|prettier)/,
+        test: /node_modules[\\/](yaml-language-server|vscode-languageserver|vscode-json-languageservice|prettier)/,
         use: "umd-compat-loader",
       },
     ],
   },
+
   plugins: [
     new HtmlWebPackPlugin({
       template: "./src/commonlib/codeFlowResult/index.html",
       filename: "codeFlowResult/index.html",
+      scriptLoading: "defer",
     }),
+
     new CopyPlugin({
       patterns: [
         {
-          from: "../fx-core/resource/",
-          to: "../resource/",
+          from: path.resolve(__dirname, "../fx-core/resource/"),
+          to: path.resolve(__dirname, "../resource/"),
+          noErrorOnMissing: true,
         },
         {
-          from: "../fx-core/templates/",
-          to: "../templates/",
+          from: path.resolve(__dirname, "../fx-core/templates/"),
+          to: path.resolve(__dirname, "../templates/"),
+          noErrorOnMissing: true,
         },
       ],
     }),
+
+    // 🌊 DREDGE AUTO SURFACE (core injection)
+    new webpack.DefinePlugin({
+      "process.env.AGENT_RUNTIME": JSON.stringify("dredge"),
+      "process.env.DREDGE_SURFACE": JSON.stringify(dredgeMap),
+    }),
+
+    // 🌊 Optional manifest emit (CI / tooling visibility)
+    new (class {
+      apply(compiler) {
+        compiler.hooks.emit.tap("DredgeManifestPlugin", (compilation) => {
+          const content = JSON.stringify(dredgeManifest, null, 2);
+
+          compilation.assets["dredge.manifest.json"] = {
+            source: () => content,
+            size: () => content.length,
+          };
+        });
+      }
+    })(),
+
     new webpack.ContextReplacementPlugin(/express[\/\\]lib/, false, /$^/),
     new webpack.ContextReplacementPlugin(
-      /applicationinsights[\/\\]out[\/\\]AutoCollection/,
+      /ms-rest[\/\\]lib/,
       false,
       /$^/
     ),
-    new webpack.ContextReplacementPlugin(/applicationinsights[\/\\]out[\/\\]Library/, false, /$^/),
-    new webpack.ContextReplacementPlugin(/ms-rest[\/\\]lib/, false, /$^/),
+    new webpack.ContextReplacementPlugin(
+      /applicationinsights[\/\\]out[\/\\](AutoCollection|Library)/,
+      false,
+      /$^/
+    ),
+
     new webpack.IgnorePlugin({ resourceRegExp: /@opentelemetry\/tracing/ }),
     new webpack.IgnorePlugin({ resourceRegExp: /applicationinsights-native-metrics/ }),
     new webpack.IgnorePlugin({ resourceRegExp: /original-fs/ }),
-    // ignore node-gyp/bin/node-gyp.js since it's not used in runtime
+
     new webpack.NormalModuleReplacementPlugin(
       /node-gyp[\/\\]bin[\/\\]node-gyp.js/,
       "@npmcli/node-gyp"
     ),
   ],
+
   optimization: {
-    minimizer: [
-      new terserWebpackPlugin({
-        terserOptions: {
-          mangle: false,
-          keep_fnames: true,
-        },
-      }),
-    ],
+    minimize: process.env.NODE_ENV === "production",
+    splitChunks: false,
+    runtimeChunk: false,
+    moduleIds: "deterministic",
   },
+
+  infrastructureLogging: {
+    level: "error",
+  },
+
+  stats: "minimal",
 };
+
 module.exports = config;
