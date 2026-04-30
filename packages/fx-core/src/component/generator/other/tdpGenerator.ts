@@ -21,14 +21,35 @@ import { TemplateInfo } from "../templates/templateInfo";
 export class TdpGenerator extends DefaultTemplateGenerator {
   componentName = "tdp-generator";
 
+  // Templates that must be handled by their own specialized generators.
+  // TdpGenerator must not intercept these even in TDP flow.
+  private static readonly specialGeneratorTemplates = new Set<string>([
+    // CombinedProjectGenerator: splits into GraphConnector + DeclarativeAgentBasic sub-templates
+    TemplateNames.DeclarativeAgentWithGraphConnector,
+    // DeclarativeAgentGenerator: has special post() for TypeSpec, MCP, existing action, etc.
+    TemplateNames.DeclarativeAgentBasic,
+    TemplateNames.DeclarativeAgentWithActionFromScratch,
+    TemplateNames.DeclarativeAgentWithActionFromScratchBearer,
+    TemplateNames.DeclarativeAgentWithActionFromScratchOAuth,
+    TemplateNames.DeclarativeAgentWithExistingAction,
+    TemplateNames.DeclarativeAgentWithTypeSpec,
+    TemplateNames.DeclarativeAgentWithActionFromMCP,
+    // DeclarativeAgentWithExistingApiSpecGenerator: parses API spec
+    TemplateNames.DeclarativeAgentWithActionFromExistingApiSpec,
+    // CustomEngineAgentWithExistingApiSpecGenerator: parses API spec
+    TemplateNames.CustomCopilotRagCustomApi,
+    // OfficeAddinGeneratorNew
+    TemplateNames.DeclarativeAgentMetaOSNewProject,
+  ]);
+
   // activation condition
   public override activate(context: Context, inputs: Inputs): boolean {
-    // Reuse some templates which are handled by other generators.
-    // DeclarativeAgentWithGraphConnector is a combined template that must be handled by
-    // CombinedProjectGenerator, even in TDP flow — exclude it here so the correct generator runs.
+    // TdpGenerator handles simple templates that exist directly in the zip.
+    // Templates that require specialized generators (special post-processing,
+    // multi-template scaffolding, API spec parsing, etc.) must not be intercepted here.
     return (
       inputs.teamsAppFromTdp !== undefined &&
-      inputs[QuestionNames.TemplateName] !== TemplateNames.DeclarativeAgentWithGraphConnector
+      !TdpGenerator.specialGeneratorTemplates.has(inputs[QuestionNames.TemplateName])
     );
   }
 
