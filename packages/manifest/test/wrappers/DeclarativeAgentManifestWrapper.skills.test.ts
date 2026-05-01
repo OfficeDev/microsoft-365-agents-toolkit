@@ -29,17 +29,6 @@ describe("DeclarativeAgentManifestWrapper - Agent Skills", () => {
 
       assert.equal(agent.skills.length, 1);
       assert.equal(agent.skills[0].folder, "skills/my-skill");
-      assert.isUndefined(agent.skills[0].expose_skill_to_copilot);
-    });
-
-    it("should add a skill with folder and expose_skill_to_copilot true", () => {
-      const agent = createAgent();
-
-      agent.addSkill("skills/my-skill", true);
-
-      assert.equal(agent.skills.length, 1);
-      assert.equal(agent.skills[0].folder, "skills/my-skill");
-      assert.isTrue(agent.skills[0].expose_skill_to_copilot);
     });
 
     it("should prevent duplicate folder paths", () => {
@@ -119,12 +108,11 @@ describe("DeclarativeAgentManifestWrapper - Agent Skills", () => {
     it("should return skill for existing folder", () => {
       const agent = createAgent();
 
-      agent.addSkill("skills/my-skill", true);
+      agent.addSkill("skills/my-skill");
 
       const skill = agent.getSkill("skills/my-skill");
       assert.isDefined(skill);
       assert.equal(skill!.folder, "skills/my-skill");
-      assert.isTrue(skill!.expose_skill_to_copilot);
     });
 
     it("should return undefined for non-existing folder", () => {
@@ -180,7 +168,7 @@ describe("DeclarativeAgentManifestWrapper - Agent Skills", () => {
         version: "v1.6",
         name: "Agent",
         description: "Test",
-        agent_skills: [{ folder: "skills/original", expose_skill_to_copilot: true }],
+        agent_skills: [{ folder: "skills/original" }],
       });
 
       const agent = DeclarativeAgentManifestWrapper.fromJSON(json);
@@ -199,7 +187,6 @@ describe("DeclarativeAgentManifestWrapper - Agent Skills", () => {
       assert.isDefined(outputSkills);
       assert.equal(outputSkills.length, 2);
       assert.equal(outputSkills[0].folder, "skills/original");
-      assert.isTrue(outputSkills[0].expose_skill_to_copilot);
       assert.equal(outputSkills[1].folder, "skills/added");
     });
   });

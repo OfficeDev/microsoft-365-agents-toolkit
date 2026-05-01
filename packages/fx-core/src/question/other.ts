@@ -1656,9 +1656,6 @@ export function addSkillQuestionNode(): IQTreeNode {
           !inputs[QuestionNames.SkillFrom] && inputs[QuestionNames.SkillSourceType] !== "existing",
       },
       {
-        data: skillExposeTocopilotQuestion(),
-      },
-      {
         data: selectTeamsAppManifestQuestion(),
       },
     ],
@@ -1700,25 +1697,6 @@ function skillDescriptionQuestion(): TextInputQuestion {
     name: QuestionNames.SkillDescription,
     title: getLocalizedString("core.addSkillQuestion.description.title"),
     placeholder: getLocalizedString("core.addSkillQuestion.description.placeholder"),
-  };
-}
-
-function skillExposeTocopilotQuestion(): SingleSelectQuestion {
-  return {
-    name: QuestionNames.SkillExposeTocopilot,
-    title: getLocalizedString("core.addSkillQuestion.expose.title"),
-    type: "singleSelect",
-    staticOptions: [
-      {
-        id: "no",
-        label: getLocalizedString("core.addSkillQuestion.expose.no"),
-      },
-      {
-        id: "yes",
-        label: getLocalizedString("core.addSkillQuestion.expose.yes"),
-      },
-    ],
-    default: "no",
   };
 }
 

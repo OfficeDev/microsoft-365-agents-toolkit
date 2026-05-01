@@ -97,7 +97,6 @@ export interface DeclarativeCopilotManifestSchema {
  */
 export interface AgentSkillObject {
   folder: string;
-  expose_skill_to_copilot?: boolean;
 }
 
 /**

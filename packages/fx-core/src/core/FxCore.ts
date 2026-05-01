@@ -2373,7 +2373,6 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
 
     const skillName = inputs[QuestionNames.SkillName] as string;
     const skillDescription = inputs[QuestionNames.SkillDescription] as string;
-    const exposeSkillToCopilot = inputs[QuestionNames.SkillExposeTocopilot] === "yes";
     const skillFrom = inputs[QuestionNames.SkillFrom] as string | undefined;
     const skillFromZipFile = inputs[QuestionNames.SkillFromZipFile] as string | undefined;
 
@@ -2476,11 +2475,7 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
     }
 
     // Add skill entry to DA manifest
-    const addSkillRes = await copilotGptManifestUtils.addSkill(
-      agentManifestPath,
-      skillFolder,
-      exposeSkillToCopilot
-    );
+    const addSkillRes = await copilotGptManifestUtils.addSkill(agentManifestPath, skillFolder);
     if (addSkillRes.isErr()) {
       return err(addSkillRes.error);
     }

@@ -1119,10 +1119,6 @@
                 "folder": {
                     "type": "string",
                     "description": "Required. The relative path to the skill directory containing a SKILL.md file."
-                },
-                "expose_skill_to_copilot": {
-                    "type": "boolean",
-                    "description": "Optional. Whether to expose the skill to mainline M365 Copilot beyond this agent."
                 }
             },
             "required": [
@@ -1130,8 +1126,7 @@
             ],
             "propertyNames": {
                 "enum": [
-                    "folder",
-                    "expose_skill_to_copilot"
+                    "folder"
                 ]
             }
         }

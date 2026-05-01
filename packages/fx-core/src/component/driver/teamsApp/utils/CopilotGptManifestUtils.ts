@@ -391,8 +391,7 @@ export class CopilotGptManifestUtils {
 
   public async addSkill(
     copilotGptPath: string,
-    folder: string,
-    exposeSkillToCopilot: boolean
+    folder: string
   ): Promise<Result<DeclarativeCopilotManifestSchema, FxError>> {
     const gptManifestRes = await copilotGptManifestUtils.readCopilotGptManifestFile(copilotGptPath);
     if (gptManifestRes.isErr()) {
@@ -409,11 +408,7 @@ export class CopilotGptManifestUtils {
     // Prevent duplicate folder paths
     const skills = gptManifest.agent_skills;
     if (!skills.some((s) => s.folder === folder)) {
-      const skillEntry: { folder: string; expose_skill_to_copilot?: boolean } = { folder };
-      if (exposeSkillToCopilot) {
-        skillEntry.expose_skill_to_copilot = true;
-      }
-      skills.push(skillEntry);
+      skills.push({ folder });
     }
 
     // Write updated manifest back

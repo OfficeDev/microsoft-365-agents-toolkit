@@ -1631,7 +1631,7 @@ describe("copilotGptManifestUtils", () => {
       sandbox.stub(copilotGptManifestUtils, "readCopilotGptManifestFile").resolves(ok(manifest));
       sandbox.stub(copilotGptManifestUtils, "writeCopilotGptManifestFile").resolves(ok(undefined));
 
-      const res = await copilotGptManifestUtils.addSkill("testPath", "./skills/mySkill", false);
+      const res = await copilotGptManifestUtils.addSkill("testPath", "./skills/mySkill");
 
       chai.assert.isTrue(res.isOk());
       if (res.isOk()) {
@@ -1655,7 +1655,7 @@ describe("copilotGptManifestUtils", () => {
         .resolves(ok(manifest as DeclarativeCopilotManifestSchema));
       sandbox.stub(copilotGptManifestUtils, "writeCopilotGptManifestFile").resolves(ok(undefined));
 
-      const res = await copilotGptManifestUtils.addSkill("testPath", "./skills/mySkill", false);
+      const res = await copilotGptManifestUtils.addSkill("testPath", "./skills/mySkill");
 
       chai.assert.isTrue(res.isOk());
       if (res.isOk()) {
@@ -1664,32 +1664,12 @@ describe("copilotGptManifestUtils", () => {
       }
     });
 
-    it("sets expose_skill_to_copilot when true", async () => {
-      const manifest: DeclarativeCopilotManifestSchema = {
-        name: "test-agent",
-        description: "description",
-      };
-      sandbox.stub(copilotGptManifestUtils, "readCopilotGptManifestFile").resolves(ok(manifest));
-      sandbox.stub(copilotGptManifestUtils, "writeCopilotGptManifestFile").resolves(ok(undefined));
-
-      const res = await copilotGptManifestUtils.addSkill("testPath", "./skills/exposed", true);
-
-      chai.assert.isTrue(res.isOk());
-      if (res.isOk()) {
-        const manifestAny = res.value as any;
-        chai.assert.deepEqual(manifestAny["agent_skills"][0], {
-          folder: "./skills/exposed",
-          expose_skill_to_copilot: true,
-        });
-      }
-    });
-
     it("returns error when readCopilotGptManifestFile fails", async () => {
       sandbox
         .stub(copilotGptManifestUtils, "readCopilotGptManifestFile")
         .resolves(err(new UserError("test", "test", "test", "test")));
 
-      const res = await copilotGptManifestUtils.addSkill("testPath", "./skills/mySkill", false);
+      const res = await copilotGptManifestUtils.addSkill("testPath", "./skills/mySkill");
 
       chai.assert.isTrue(res.isErr());
     });
@@ -1704,7 +1684,7 @@ describe("copilotGptManifestUtils", () => {
         .stub(copilotGptManifestUtils, "writeCopilotGptManifestFile")
         .resolves(err(new UserError("test", "test", "test", "test")));
 
-      const res = await copilotGptManifestUtils.addSkill("testPath", "./skills/mySkill", false);
+      const res = await copilotGptManifestUtils.addSkill("testPath", "./skills/mySkill");
 
       chai.assert.isTrue(res.isErr());
     });

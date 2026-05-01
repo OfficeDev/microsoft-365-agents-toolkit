@@ -492,9 +492,8 @@ export class DeclarativeAgentManifestWrapper extends BaseManifest<DeclarativeAge
    * Adds an agent skill to the declarative agent.
    * Maximum 10 skills are allowed. Duplicate folder paths are ignored.
    * @param folder - Relative path to the skill directory.
-   * @param exposeSkillToCopilot - Whether the skill is exposed to mainline M365 Copilot. Defaults to false.
    */
-  addSkill(folder: string, exposeSkillToCopilot?: boolean): this {
+  addSkill(folder: string): this {
     const data = this._data as Record<string, unknown>;
     if (!data.agent_skills) {
       data.agent_skills = [];
@@ -507,11 +506,7 @@ export class DeclarativeAgentManifestWrapper extends BaseManifest<DeclarativeAge
     }
 
     if (!skills.some((s) => s.folder === folder)) {
-      const skill: AgentSkillElement = { folder };
-      if (exposeSkillToCopilot !== undefined) {
-        skill.expose_skill_to_copilot = exposeSkillToCopilot;
-      }
-      skills.push(skill);
+      skills.push({ folder });
       this.markDirty();
     }
     return this;

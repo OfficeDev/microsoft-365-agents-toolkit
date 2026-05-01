@@ -20,14 +20,6 @@ export const AddSkillOptions: CLICommandOption[] = [
     required: false,
   },
   {
-    name: "expose-to-copilot",
-    questionName: "skill-expose-to-copilot",
-    type: "string",
-    description: "Whether to expose the skill to mainline M365 Copilot (yes/no).",
-    required: false,
-    default: "no",
-  },
-  {
     name: "from",
     questionName: "skill-from",
     type: "string",

@@ -102,10 +102,6 @@ export interface AgentSkillElement {
      * Required. The relative path to the skill directory containing a SKILL.md file.
      */
     folder: string;
-    /**
-     * Optional. Whether to expose the skill to mainline M365 Copilot beyond this agent.
-     */
-    expose_skill_to_copilot?: boolean;
     [property: string]: any;
 }
 
@@ -802,7 +798,6 @@ const typeMap: any = {
     ], "any"),
     "AgentSkillElement": o([
         { json: "folder", js: "folder", typ: "" },
-        { json: "expose_skill_to_copilot", js: "expose_skill_to_copilot", typ: u(undefined, true) },
     ], "any"),
     "BehaviorOverrides": o([
         { json: "special_instructions", js: "special_instructions", typ: u(undefined, r("SpecialInstructions")) },

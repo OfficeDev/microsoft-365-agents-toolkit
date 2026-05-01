@@ -834,15 +834,15 @@ describe("addSkillQuestionNode", () => {
     sandbox.restore();
   });
 
-  it("should return a group node with 4 children", () => {
+  it("should return a group node with 5 children", () => {
     const node = addSkillQuestionNode();
     assert.equal(node.data.type, "group");
-    assert.equal(node.children?.length, 4);
+    assert.equal(node.children?.length, 5);
   });
 
   it("skillNameQuestion child should have condition checking SkillFrom", () => {
     const node = addSkillQuestionNode();
-    const nameChild = node.children![0];
+    const nameChild = node.children![2];
     assert.isDefined(nameChild.condition);
     const conditionFn = nameChild.condition as ConditionFunc;
     // When SkillFrom is set, condition should be false (skip the question)
@@ -858,7 +858,7 @@ describe("addSkillQuestionNode", () => {
 
   it("skillNameQuestion validates invalid pattern", () => {
     const node = addSkillQuestionNode();
-    const nameChild = node.children![0];
+    const nameChild = node.children![2];
     const question = nameChild.data as TextInputQuestion;
     const validFunc = (question.validation as FuncValidation<string>).validFunc;
     // Invalid: starts with number
@@ -880,7 +880,7 @@ describe("addSkillQuestionNode", () => {
 
   it("skillNameQuestion validates duplicate skill directory", () => {
     const node = addSkillQuestionNode();
-    const nameChild = node.children![0];
+    const nameChild = node.children![2];
     const question = nameChild.data as TextInputQuestion;
     const validFunc = (question.validation as FuncValidation<string>).validFunc;
 
@@ -895,7 +895,7 @@ describe("addSkillQuestionNode", () => {
 
   it("skillNameQuestion skips duplicate check without projectPath", () => {
     const node = addSkillQuestionNode();
-    const nameChild = node.children![0];
+    const nameChild = node.children![2];
     const question = nameChild.data as TextInputQuestion;
     const validFunc = (question.validation as FuncValidation<string>).validFunc;
     // No projectPath — should only validate pattern, not duplicates
@@ -905,7 +905,7 @@ describe("addSkillQuestionNode", () => {
 
   it("skillNameQuestion uses custom ManifestPath when provided", () => {
     const node = addSkillQuestionNode();
-    const nameChild = node.children![0];
+    const nameChild = node.children![2];
     const question = nameChild.data as TextInputQuestion;
     const validFunc = (question.validation as FuncValidation<string>).validFunc;
 
@@ -925,7 +925,7 @@ describe("addSkillQuestionNode", () => {
 
   it("skillDescriptionQuestion child should have condition checking SkillFrom", () => {
     const node = addSkillQuestionNode();
-    const descChild = node.children![1];
+    const descChild = node.children![3];
     assert.isDefined(descChild.condition);
     const conditionFn = descChild.condition as ConditionFunc;
     const inputsWithFrom: Inputs = {
@@ -933,14 +933,5 @@ describe("addSkillQuestionNode", () => {
       [QuestionNames.SkillFrom]: "some/path",
     };
     assert.isFalse(conditionFn(inputsWithFrom));
-  });
-
-  it("skillExposeTocopilotQuestion child should not have condition", () => {
-    const node = addSkillQuestionNode();
-    const exposeChild = node.children![2];
-    assert.isUndefined(exposeChild.condition);
-    const question = exposeChild.data as SingleSelectQuestion;
-    assert.equal(question.name, QuestionNames.SkillExposeTocopilot);
-    assert.equal(question.default, "no");
   });
 });

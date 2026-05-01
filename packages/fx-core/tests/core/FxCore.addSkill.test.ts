@@ -58,7 +58,6 @@ describe("addSkill", () => {
       [QuestionNames.ManifestPath]: path.resolve("test-project", "appPackage", "manifest.json"),
       [QuestionNames.SkillName]: "mySkill",
       [QuestionNames.SkillDescription]: "A test skill",
-      [QuestionNames.SkillExposeTocopilot]: "no",
       ignoreLockByUT: true,
       ...overrides,
     };
@@ -322,37 +321,6 @@ describe("addSkill", () => {
     const result = await core.addSkill(inputs);
 
     assert.isTrue(result.isOk());
-  });
-
-  it("passes exposeSkillToCopilot=true when user selects yes", async () => {
-    const inputs = createBaseInputs({
-      [QuestionNames.SkillExposeTocopilot]: "yes",
-    });
-    const manifest = createManifestWithDA();
-
-    sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
-    sandbox
-      .stub(copilotGptManifestUtils, "getManifestPath")
-      .resolves(ok(path.resolve("test-project", "appPackage", "declarativeAgent.json")));
-
-    sandbox.stub(MockUserInteraction.prototype, "showMessage").resolves(ok("Add"));
-    sandbox.stub(fs, "ensureDir").resolves();
-    sandbox.stub(fs, "writeFile").resolves();
-
-    const addSkillStub = sandbox.stub(copilotGptManifestUtils, "addSkill").resolves(
-      ok({
-        name: "test-agent",
-        description: "description",
-      } as DeclarativeCopilotManifestSchema)
-    );
-
-    const core = new FxCore(tools);
-    const result = await core.addSkill(inputs);
-
-    assert.isTrue(result.isOk());
-    assert.isTrue(addSkillStub.calledOnce);
-    const exposeArg = addSkillStub.firstCall.args[2];
-    assert.isTrue(exposeArg);
   });
 
   it("errors when user cancels confirmation", async () => {
