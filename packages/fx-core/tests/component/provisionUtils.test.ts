@@ -13,7 +13,10 @@ import mockedEnv, { RestoreFn } from "mocked-env";
 import * as sinon from "sinon";
 import { M365TenantRes, provisionUtils } from "../../src/component/provisionUtils";
 import { resourceGroupHelper } from "../../src/component/utils/ResourceGroupHelper";
+import { GraphScopes } from "../../src/common/constants";
+import { FeatureFlagName } from "../../src/common/featureFlags";
 import { setTools } from "../../src/common/globalVars";
+import { SovereignCloudEnvironment } from "../../src/common/accountUtils";
 import { ResourceGroupNotExistError } from "../../src/error/azure";
 import { M365TenantIdNotFoundInTokenError, M365TokenJSONNotFoundError } from "../../src/error/m365";
 import {
@@ -503,6 +506,24 @@ describe("provisionUtils", () => {
           tenantUserName: "faked unique name",
         });
       }
+    });
+
+    it("uses Graph scopes in sovereign high cloud", async () => {
+      mockedEnvRestore = mockedEnv({
+        [FeatureFlagName.SovereignCloudEnvironment]: SovereignCloudEnvironment.DOD,
+      });
+      const getAccessTokenStub = mocker
+        .stub(tools.tokenProvider.m365TokenProvider, "getAccessToken")
+        .resolves(ok(""));
+      const getJsonObjectStub = mocker
+        .stub(tools.tokenProvider.m365TokenProvider, "getJsonObject")
+        .resolves(ok({ tid: "faked id", upn: "faked upn" }));
+
+      const res = await provisionUtils.getM365TenantId(tools.tokenProvider.m365TokenProvider);
+
+      chai.assert.isTrue(res.isOk());
+      sinon.assert.calledWith(getAccessTokenStub, { scopes: GraphScopes });
+      sinon.assert.calledWith(getJsonObjectStub, { scopes: GraphScopes });
     });
   });
   describe("arm", () => {

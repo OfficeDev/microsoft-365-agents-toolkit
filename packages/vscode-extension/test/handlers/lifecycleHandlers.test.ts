@@ -2,6 +2,8 @@ import { err, ok, SystemError, UserError } from "@microsoft/teamsfx-api";
 import {
   AppDefinition,
   FeatureFlagName,
+  FeatureFlags,
+  featureFlagManager,
   teamsDevPortalClient,
   UnhandledError,
   UserCancelError,
@@ -348,6 +350,32 @@ describe("Lifecycle handlers", () => {
       assert.isTrue(createProgressBar.calledOnce);
       assert.isTrue(startProgress.calledOnce);
       assert.isTrue(endProgress.calledOnceWithExactly(true));
+    });
+
+    it("skip AuthSvc region setup in sovereign high", async () => {
+      sandbox.stub(featureFlagManager, "getStringValue").returns("DoD");
+      sandbox.stub(vsc_ui, "VS_CODE_UI").value(new vsc_ui.VsCodeUI(<vscode.ExtensionContext>{}));
+      const progressHandler = new ProgressHandler("title", 1);
+      sandbox.stub(progressHandler, "start").resolves();
+      sandbox.stub(progressHandler, "end").resolves();
+      sandbox.stub(M365TokenInstance, "signInWhenInitiatedFromTdp").resolves(ok("token"));
+      const getAccessTokenStub = sandbox.stub(M365TokenInstance, "getAccessToken");
+      const setRegionStub = sandbox
+        .stub(teamsDevPortalClient, "setRegionEndpointByToken")
+        .resolves();
+      sandbox.stub(vsc_ui.VS_CODE_UI, "createProgressBar").returns(progressHandler);
+      sandbox.stub(globalVariables, "core").value(new MockCore());
+      sandbox.stub(vscode.commands, "executeCommand");
+      sandbox.stub(globalState, "globalStateUpdate");
+      sandbox
+        .stub(teamsDevPortalClient, "getApp")
+        .resolves({ teamsAppId: "mock-id" } as AppDefinition);
+
+      const res = await scaffoldFromDeveloperPortalHandler("appId", "testuser");
+
+      assert.isTrue(res.isOk());
+      assert.isTrue(getAccessTokenStub.notCalled);
+      assert.isTrue(setRegionStub.notCalled);
     });
   });
 

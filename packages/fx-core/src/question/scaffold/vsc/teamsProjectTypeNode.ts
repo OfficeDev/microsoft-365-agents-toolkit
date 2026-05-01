@@ -6,6 +6,7 @@ import {
   DefaultPluginManifestFileName,
   Inputs,
   IQTreeNode,
+  ManifestTemplateFileName,
   OptionItem,
   Platform,
 } from "@microsoft/teamsfx-api";
@@ -93,12 +94,8 @@ export function customCopilotRagNode(): IQTreeNode {
     data: {
       type: "singleSelect",
       name: QuestionNames.CustomCopilotRag,
-      title: getLocalizedString(
-        "core.createProjectQuestion.capability.customCopilotRagOption.label"
-      ),
-      placeholder: getLocalizedString(
-        "core.createProjectQuestion.capability.customCopilotRag.placeholder"
-      ),
+      title: getLocalizedString("template.teams.rag.label"),
+      placeholder: getLocalizedString("template.teams.rag.source.placeholder"),
       staticOptions: [
         CustomCopilotRagOptions.customize(),
         CustomCopilotRagOptions.azureAISearch(),
@@ -514,23 +511,115 @@ export function MCPForDAServerUrlNode(): IQTreeNode {
   };
 }
 
+export const CreateNewPluginManifestSentinel = "__createNewPluginManifest__";
+
 export function updateActionWithMCP(): IQTreeNode {
   return {
     data: {
       type: "singleFile",
       name: QuestionNames.PluginManifestFilePath,
       title: getLocalizedString("core.createProjectQuestion.mcpForDa.File.title"),
-      defaultFolder: (inputs: Inputs) => path.normalize(inputs.projectPath as string),
-      default: (inputs: Inputs) =>
-        path.normalize(
-          path.join(
-            inputs.projectPath as string,
+      defaultFolder: (inputs: Inputs) =>
+        path.normalize(path.join(inputs.projectPath as string, AppPackageFolderName)),
+      filters: { files: ["json"] },
+      possibleFiles: async (inputs: Inputs) => {
+        const projectPath = inputs.projectPath as string;
+        const items: { id: string; label: string; description?: string }[] = [];
+
+        // List every action plugin file referenced by the declarative agent
+        // manifest so the user can update an existing one.
+        try {
+          const teamsManifestPath = path.join(
+            projectPath,
             AppPackageFolderName,
-            DefaultPluginManifestFileName
-          )
-        ),
+            ManifestTemplateFileName
+          );
+          if (await fs.pathExists(teamsManifestPath)) {
+            const teamsManifest = await fs.readJSON(teamsManifestPath);
+            const declarativeAgentRelativePath: string | undefined =
+              teamsManifest?.copilotAgents?.declarativeAgents?.[0]?.file;
+            if (declarativeAgentRelativePath) {
+              const declarativeAgentPath = path.join(
+                projectPath,
+                AppPackageFolderName,
+                declarativeAgentRelativePath
+              );
+              if (await fs.pathExists(declarativeAgentPath)) {
+                const da = await fs.readJSON(declarativeAgentPath);
+                const actions: { id?: string; file?: string }[] = da?.actions ?? [];
+                const seen = new Set<string>();
+                for (const action of actions) {
+                  if (!action?.file) continue;
+                  const absPath = path.normalize(
+                    path.join(path.dirname(declarativeAgentPath), action.file)
+                  );
+                  if (seen.has(absPath)) continue;
+                  seen.add(absPath);
+                  items.push({
+                    id: absPath,
+                    label: `$(file) ${path.basename(absPath)}`,
+                    description: path.dirname(absPath),
+                  });
+                }
+              }
+            }
+          }
+        } catch {
+          // best-effort — fall through to just the create-new option
+        }
+
+        items.push({
+          id: CreateNewPluginManifestSentinel,
+          label: `$(new-file) ${getLocalizedString(
+            "core.createProjectQuestion.mcpForDa.File.createNew.label"
+          )}`,
+        });
+        return items;
+      },
     },
     children: [
+      {
+        condition: (inputs: Inputs) =>
+          inputs[QuestionNames.PluginManifestFilePath] === CreateNewPluginManifestSentinel,
+        data: {
+          type: "text",
+          name: QuestionNames.NewPluginManifestFileName,
+          title: getLocalizedString("core.createProjectQuestion.mcpForDa.File.createNew.title"),
+          placeholder: DefaultPluginManifestFileName,
+          default: DefaultPluginManifestFileName,
+          validation: {
+            validFunc: async (input: string, inputs?: Inputs) => {
+              const trimmed = input.trim();
+              if (!trimmed) {
+                return getLocalizedString(
+                  "core.createProjectQuestion.mcpForDa.File.createNew.validation.empty"
+                );
+              }
+              if (!trimmed.toLowerCase().endsWith(".json")) {
+                return getLocalizedString(
+                  "core.createProjectQuestion.mcpForDa.File.createNew.validation.extension"
+                );
+              }
+              if (path.isAbsolute(trimmed) || trimmed.includes("/") || trimmed.includes("\\")) {
+                return getLocalizedString(
+                  "core.createProjectQuestion.mcpForDa.File.createNew.validation.relative"
+                );
+              }
+              const projectPath = inputs?.projectPath;
+              if (projectPath) {
+                const target = path.join(projectPath, AppPackageFolderName, trimmed);
+                if (await fs.pathExists(target)) {
+                  return getLocalizedString(
+                    "core.createProjectQuestion.mcpForDa.File.createNew.validation.exists",
+                    trimmed
+                  );
+                }
+              }
+              return undefined;
+            },
+          },
+        },
+      },
       {
         data: {
           type: "multiSelect",
@@ -550,7 +639,15 @@ export function updateActionWithMCP(): IQTreeNode {
           },
           default: async (inputs: Inputs) => {
             const pluginManifestFilePath = inputs[QuestionNames.PluginManifestFilePath];
-            if (!pluginManifestFilePath) {
+            // Skip when the user chose "Create a new ai-plugin.json" (the value
+            // is a sentinel id, not a real path) or when the file doesn't exist
+            // yet. The plugin manifest will be created later in addPluginFromMCP /
+            // updateActionWithMCP, so there are no pre-selected tools to default.
+            if (
+              !pluginManifestFilePath ||
+              pluginManifestFilePath === CreateNewPluginManifestSentinel ||
+              !(await fs.pathExists(pluginManifestFilePath as string))
+            ) {
               return [];
             }
             const pluginManifest = await fs.readJSON(pluginManifestFilePath);

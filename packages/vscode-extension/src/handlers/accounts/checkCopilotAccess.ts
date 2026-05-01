@@ -8,6 +8,8 @@ import VsCodeLogInstance from "../../commonlib/log";
 import { FxError, Result, err, ok, signedIn } from "@microsoft/teamsfx-api";
 import {
   AppStudioScopes,
+  GraphScopes,
+  isSovereignHigh,
   MosServiceScope,
   PackageService,
   SummaryConstant,
@@ -17,7 +19,9 @@ import { signInM365 } from "../../utils/accountUtils";
 
 export async function checkCopilotAccessHandler(): Promise<Result<null, FxError>> {
   // check m365 login status, if not logged in, pop up a message
-  const status = await M365TokenInstance.getStatus({ scopes: AppStudioScopes() });
+  const status = await M365TokenInstance.getStatus({
+    scopes: isSovereignHigh() ? GraphScopes : AppStudioScopes(),
+  });
   if (!(status.isOk() && status.value.status === signedIn)) {
     const message = localize("teamstoolkit.m365.needSignIn.message");
     const signin = localize("teamstoolkit.common.signin");

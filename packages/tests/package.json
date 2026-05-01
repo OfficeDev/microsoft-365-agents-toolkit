@@ -1,6 +1,6 @@
 {
   "name": "@microsoft/teamsfx-test",
-  "version": "0.1.16",
+  "version": "0.1.17",
   "description": "A UI Test Project of Teams Toolkit Extension",
   "private": true,
   "author": "Microsoft Corporation",
@@ -88,6 +88,7 @@
     "querystring": "^0.2.1",
     "semver": "^7.5.2",
     "strip-bom": "4",
+    "tmp": "^0.2.5",
     "yaml": "^2.2.2"
   },
   "optionalDependencies": {

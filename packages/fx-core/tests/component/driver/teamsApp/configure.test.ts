@@ -6,9 +6,12 @@ import AdmZip from "adm-zip";
 import chai from "chai";
 import fs from "fs-extra";
 import "mocha";
+import mockedEnv from "mocked-env";
 import * as sinon from "sinon";
 import { v4 as uuid } from "uuid";
 import { teamsDevPortalClient } from "../../../../src/client/teamsDevPortalClient";
+import { SovereignCloudEnvironment } from "../../../../src/common/accountUtils";
+import { FeatureFlagName } from "../../../../src/common/featureFlags";
 import { ConfigureTeamsAppDriver } from "../../../../src/component/driver/teamsApp/configure";
 import { AppStudioError } from "../../../../src/component/driver/teamsApp/errors";
 import { ConfigureTeamsAppArgs } from "../../../../src/component/driver/teamsApp/interfaces/ConfigureTeamsAppArgs";
@@ -19,6 +22,7 @@ import { MockedM365Provider } from "../../../core/utils";
 
 describe("teamsApp/update", async () => {
   const teamsAppDriver = new ConfigureTeamsAppDriver();
+  let restoreEnv: (() => void) | undefined;
   const mockedDriverContext: any = {
     m365TokenProvider: new MockedM365Provider(),
     logProvider: new MockedLogProvider(),
@@ -34,6 +38,42 @@ describe("teamsApp/update", async () => {
 
   afterEach(() => {
     sinon.restore();
+    restoreEnv?.();
+    restoreEnv = undefined;
+  });
+
+  it("skip update in GCCH", async () => {
+    restoreEnv = mockedEnv({
+      [FeatureFlagName.SovereignCloudEnvironment]: SovereignCloudEnvironment.GCCH,
+    });
+    const importAppSpy = sinon.spy(teamsDevPortalClient, "importApp");
+    const pathExistsStub = sinon.stub(fs, "pathExists");
+
+    const args: ConfigureTeamsAppArgs = {
+      appPackagePath: "fakePath",
+    };
+
+    const result = (await teamsAppDriver.execute(args, mockedDriverContext)).result;
+    chai.assert(result.isOk());
+    sinon.assert.notCalled(importAppSpy);
+    sinon.assert.notCalled(pathExistsStub);
+  });
+
+  it("skip update in DoD", async () => {
+    restoreEnv = mockedEnv({
+      [FeatureFlagName.SovereignCloudEnvironment]: SovereignCloudEnvironment.DOD,
+    });
+    const importAppSpy = sinon.spy(teamsDevPortalClient, "importApp");
+    const pathExistsStub = sinon.stub(fs, "pathExists");
+
+    const args: ConfigureTeamsAppArgs = {
+      appPackagePath: "fakePath",
+    };
+
+    const result = (await teamsAppDriver.execute(args, mockedDriverContext)).result;
+    chai.assert(result.isOk());
+    sinon.assert.notCalled(importAppSpy);
+    sinon.assert.notCalled(pathExistsStub);
   });
 
   it("should throw error if file not exists", async () => {

@@ -110,6 +110,7 @@ export enum QuestionNames {
   WithPlugin = "with-plugin",
   ImportPlugin = "import-plugin",
   PluginManifestFilePath = "plugin-manifest-path",
+  NewPluginManifestFileName = "new-plugin-manifest-file-name",
   PluginOpenApiSpecFilePath = "plugin-opeanapi-spec-path",
   KnowledgeSource = "knowledge-source",
   OneDriveSharePointURL = "oneDriveSharePointURL",

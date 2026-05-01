@@ -51,6 +51,7 @@ import { LoginStatus, login } from "./common/login";
 import CLILogProvider from "./log";
 import { MemoryCache } from "./memoryCache";
 import ui from "../userInteraction";
+import { getUsernameFromClaims } from "./accountInfoUtils";
 
 const accountName = "azure";
 const scopes = ["https://management.core.windows.net/user_impersonation"];
@@ -244,7 +245,7 @@ export class AzureAccountManager extends login implements AzureAccountProvider {
       if (!AzureAccountManager.domain) {
         AzureAccountManager.domain = (tokenJson as any).tid;
       }
-      AzureAccountManager.username = (tokenJson as any).upn ?? (tokenJson as any).unique_name;
+      AzureAccountManager.username = getUsernameFromClaims(tokenJson as Record<string, unknown>);
       tokenJson = ConvertTokenToJson(accessToken);
       const tokenExpiresIn =
         Math.round(new Date().getTime() / 1000) - ((tokenJson as any).iat as number);
@@ -262,7 +263,7 @@ export class AzureAccountManager extends login implements AzureAccountProvider {
             expiresOn: {},
             resource: env.activeDirectoryResourceId,
             accessToken: accessToken,
-            userId: (tokenJson as any).upn ?? (tokenJson as any).unique_name,
+            userId: getUsernameFromClaims(tokenJson as Record<string, unknown>),
             _clientId: getConfig().auth.clientId,
             _authority: env.activeDirectoryEndpointUrl + (tokenJson as any).tid,
           },

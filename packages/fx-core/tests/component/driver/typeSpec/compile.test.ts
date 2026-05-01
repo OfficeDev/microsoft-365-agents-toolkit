@@ -482,6 +482,31 @@ describe("typeSpecCompilt", async () => {
     expect(result.result.isErr()).to.be.true;
   });
 
+  it("should throw TypeSpecCompileError with compiler output when output dir is missing after tsp compile", async () => {
+    const args: TypeSpecCompileArgs = {
+      path: "mockedPath",
+      manifestPath: "mockedManifestPath",
+      outputDir: "mockedOutputDir",
+      typeSpecConfigPath: "mockedTypeSpecConfigPath",
+    };
+
+    const tspCompilerOutput =
+      "src/agent/actions/msgraph.tsp:20:83 - error invalid-ref: Namespace Environment doesn't have member AAD_APP_TENANT_ID";
+
+    // existsSync returns false for all calls: output folder doesn't exist before compile,
+    // and openApiSpecsFolderPath doesn't exist after compile (compile failed silently)
+    sandbox.stub(fs, "existsSync").returns(false);
+    // runCommand returns ok() even though the compile failed (e.g. exit code masked by pipe)
+    sandbox.stub(mockedDriverContext.ui, "runCommand").resolves(ok(tspCompilerOutput));
+
+    const result = await typeSpecCompileDriver.execute(args, mockedDriverContext);
+    expect(result.result.isErr()).to.be.true;
+    if (result.result.isErr()) {
+      expect(result.result.error.name).to.be.equal("TypeSpecCompileError");
+      expect(result.result.error.message).to.include(tspCompilerOutput);
+    }
+  });
+
   it("shoult throw error if no openapi spec generated", async () => {
     const args: TypeSpecCompileArgs = {
       path: "mockedPath",

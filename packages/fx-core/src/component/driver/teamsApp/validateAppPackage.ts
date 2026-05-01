@@ -38,6 +38,8 @@ import { ValidateAppPackageArgs } from "./interfaces/ValidateAppPackageArgs";
 import { AppStudioResultFactory } from "./results";
 import { TelemetryPropertyKey } from "./utils/telemetry";
 import { manifestUtils } from "./utils/ManifestUtils";
+import { FeatureFlagName } from "../../../common/featureFlags";
+import { SovereignCloudEnvironment } from "../../../common/accountUtils";
 
 const actionName = "teamsApp/validateAppPackage";
 
@@ -65,6 +67,16 @@ export class ValidateAppPackageDriver implements StepDriver {
     args: ValidateAppPackageArgs,
     context: WrapDriverContext
   ): Promise<Result<Map<string, string>, FxError>> {
+    if (
+      process.env[FeatureFlagName.SovereignCloudEnvironment] === SovereignCloudEnvironment.GCCH ||
+      process.env[FeatureFlagName.SovereignCloudEnvironment] === SovereignCloudEnvironment.DOD
+    ) {
+      context.logProvider.warning(
+        getLocalizedString("driver.teamsApp.warning.unsupportedCloud", actionName)
+      );
+      return ok(new Map<string, string>());
+    }
+
     const result = this.validateArgs(args);
     if (result.isErr()) {
       return err(result.error);

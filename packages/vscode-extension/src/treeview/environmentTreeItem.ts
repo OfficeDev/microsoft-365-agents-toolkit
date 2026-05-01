@@ -4,7 +4,12 @@
 import * as util from "util";
 import * as vscode from "vscode";
 import { signedIn, SubscriptionInfo } from "@microsoft/teamsfx-api";
-import { AppStudioScopes, environmentNameManager } from "@microsoft/teamsfx-core";
+import {
+  AppStudioScopes,
+  environmentNameManager,
+  GraphScopes,
+  isSovereignHigh,
+} from "@microsoft/teamsfx-core";
 import { M365Login } from "../commonlib/m365Login";
 import azureAccountManager from "../commonlib/azureLogin";
 import { isSPFxProject } from "../globalVariables";
@@ -92,7 +97,9 @@ export class EnvironmentNode extends DynamicNode {
     const warnings: string[] = [];
 
     // Check M365 account status
-    const loginStatusRes = await M365Login.getInstance().getStatus({ scopes: AppStudioScopes() });
+    const loginStatusRes = await M365Login.getInstance().getStatus({
+      scopes: isSovereignHigh() ? GraphScopes : AppStudioScopes(),
+    });
     const loginStatus = loginStatusRes.isOk() ? loginStatusRes.value : undefined;
     if (loginStatus && loginStatus.status == signedIn) {
       // Signed account doesn't match

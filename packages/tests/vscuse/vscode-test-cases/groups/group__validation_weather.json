@@ -9,14 +9,14 @@
       "precondition_retry_interval": 2
     },
     "total_steps": 3,
-    "created_at": "2025-10-22T04:03:47.370483",
+    "created_at": "2026-04-15T08:28:36.295283",
     "name": "group: validation_weather",
     "description": {
+      "other": "Generated from recording r_1009_073154",
       "owner": "v-ivanchen@microsoft.com",
-      "workitem": "",
-      "other": "Generated from recording r_1009_073154"
+      "workitem": ""
     },
-    "generated_at": "2025-10-22T04:03:47.370478",
+    "generated_at": "2026-04-15T08:28:36.295283",
     "execution_order": [
       "step_98f08afd",
       "step_e8dc9f1b",
@@ -25,78 +25,78 @@
     "tags": [
       "group"
     ],
-    "updated_at": "2025-10-23T07:25:04.064139"
+    "updated_at": "2026-04-15T08:29:38.705765"
   },
   "steps": [
     {
-      "agent": "interaction",
-      "description": "Click the prompt card labeled \"Can you forecast the tomorrow weather in San Francisco for me?\" in the vscuse_app_pULLRdev chatbot interface within Microsoft Teams (web version). The click is precisely targeted at the prompt card's text.",
       "step_id": "step_98f08afd",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
-      "postconditions": [],
-      "screenshot": "step_98f08afd",
-      "plan_id": "plan_r_1009_073154",
+      "agent": "interaction",
       "tool": "click",
       "parameters": {
+        "button": "left",
         "x": 668,
-        "y": 530,
-        "button": "left"
+        "y": 530
       },
+      "description": "Click the prompt card labeled \"Can you forecast the tomorrow weather in San Francisco for me?\" in the vscuse_app_pULLRdev chatbot interface within Microsoft Teams (web version). The click is precisely targeted at the prompt card's text.",
+      "content_refs": [],
       "timeout": 30,
+      "retry_count": 0,
       "continue_on_error": "false",
+      "depends_on": [],
       "preconditions": [
         "dhash:668:530:16:5:00000813ce337140",
         "dhash:668:530:96:5:25959a7134124924",
         "dhash:668:530:0:10:30b0b08c8e9381a9"
       ],
+      "postconditions": [],
       "tags": [],
-      "created_at": "2025-10-23T06:10:31.113255"
+      "screenshot": "step_98f08afd",
+      "created_at": "2026-04-15T08:28:36.295283",
+      "plan_id": "plan_r_1009_073154"
     },
     {
-      "agent": "interaction",
-      "description": "Press Enter key in the message input box  within the Microsoft Teams web interface to send the message \"Can you forecast the tomorrow weather in San Francisco for me?\".",
       "step_id": "step_e8dc9f1b",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
-      "postconditions": [],
-      "screenshot": "step_e8dc9f1b",
-      "plan_id": "plan_r_1009_073154",
+      "agent": "interaction",
       "tool": "key_press",
       "parameters": {
         "key": "enter"
       },
+      "description": "Press Enter key in the message input box  within the Microsoft Teams web interface to send the message \"Can you forecast the tomorrow weather in San Francisco for me?\".",
+      "content_refs": [],
       "timeout": 30,
+      "retry_count": 0,
       "continue_on_error": "false",
+      "depends_on": [],
       "preconditions": [
         "dhash:512:384:0:20:30b0b08c8e9280ad"
       ],
+      "postconditions": [],
       "tags": [
         "delay: 5"
       ],
-      "created_at": "2025-10-23T06:10:31.132406"
+      "screenshot": "step_e8dc9f1b",
+      "created_at": "2026-04-15T08:28:36.314029",
+      "plan_id": "plan_r_1009_073154"
     },
     {
-      "agent": "assertion",
-      "description": "@assertion \"Weather Forecast for San Francisco\" exist.",
       "step_id": "step_8d6c417f",
-      "content_refs": [],
-      "retry_count": 0,
-      "depends_on": [],
-      "postconditions": [],
-      "screenshot": null,
-      "plan_id": "plan_r_1009_073154",
+      "agent": "assertion",
       "tool": "",
       "parameters": {},
+      "description": "@assertion \"Weather Forecast for San Francisco\" exist.",
+      "content_refs": [],
       "timeout": 30,
+      "retry_count": 0,
       "continue_on_error": "false",
+      "depends_on": [],
       "preconditions": [],
+      "postconditions": [],
       "tags": [
-        "step_retry_timeout: 30"
+        "step_retry_timeout:60"
       ],
-      "created_at": "2025-10-23T06:10:31.152329"
+      "screenshot": null,
+      "created_at": "2026-04-15T08:28:36.314029",
+      "plan_id": "plan_r_1009_073154"
     }
   ],
   "screenshots": {

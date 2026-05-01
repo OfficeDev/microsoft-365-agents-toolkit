@@ -25,6 +25,7 @@ import {
 import { MissingEnvironmentVariablesError } from "../../error";
 import { setErrorContext } from "../../common/globalVars";
 import { AzureEnvironmentVariables, OpenAIEnvironmentVariables } from "../constants";
+import { envUtil } from "../utils/envUtil";
 
 function resolveDriverDef(
   def: DriverDefinition,
@@ -306,6 +307,20 @@ export class Lifecycle implements ILifecycle {
       for (const [envVar, value] of result.value) {
         envOutput.set(envVar, value);
         process.env[envVar] = value;
+      }
+      // Flush accumulated env output to disk after each driver so that subsequent actions
+      // (e.g. cli/runNpmCommand) that read the .env file directly can see up-to-date values.
+      if (result.value.size > 0 && ctx.projectPath && process.env.TEAMSFX_ENV) {
+        const writeRes = await envUtil.writeEnv(
+          ctx.projectPath,
+          process.env.TEAMSFX_ENV,
+          envUtil.map2object(envOutput)
+        );
+        if (writeRes.isErr()) {
+          ctx.logProvider.warning(
+            `Failed to flush env output to disk after action ${this.stringifyDriverDef(driver)}: ${writeRes.error?.message ?? String(writeRes.error)}`
+          );
+        }
       }
       ctx.logProvider.verbose(
         `Action ${this.stringifyDriverDef(driver)} in lifecycle ${

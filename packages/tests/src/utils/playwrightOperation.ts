@@ -371,10 +371,17 @@ async function uploadPackage(page: Page, projectPath = "", env = "local") {
   await appsBtn.click();
   await page.waitForTimeout(Timeout.shortTimeLoading);
   console.log("Click button Manage your apps");
-  const manageAppsBtn = await page?.waitForSelector(
-    "button:has-text('Manage your apps')",
-  );
-  await manageAppsBtn.click();
+  let manageAppsBtn = await page
+    ?.waitForSelector("button[aria-label='Manage your apps']")
+    .catch(() => null);
+
+  if (!manageAppsBtn) {
+    console.log("Click classic button manage your apps");
+    manageAppsBtn = await page?.waitForSelector(
+      "button:has-text('Manage your apps')",
+    );
+  }
+  await manageAppsBtn?.click();
   await page.waitForTimeout(Timeout.shortTimeLoading);
   console.log("Click button Upload an app");
   const uploadAppBtn = await page?.waitForSelector(

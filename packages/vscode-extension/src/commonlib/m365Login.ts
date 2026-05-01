@@ -19,7 +19,7 @@ import {
   signedIn,
   signedOut,
 } from "@microsoft/teamsfx-api";
-import { AccountInfo, LogLevel } from "@azure/msal-node";
+import { AccountInfo, Configuration, LogLevel } from "@azure/msal-node";
 import { NativeBrokerPlugin } from "@azure/msal-node-extensions";
 import { ExtensionErrors, ExtensionSource } from "../error/error";
 import { CodeFlowLogin, ConvertTokenToJson, UserCancelError } from "./codeFlowLogin";
@@ -38,43 +38,46 @@ import {
 } from "../telemetry/extTelemetryEvents";
 import { getDefaultString, localize } from "../utils/localizeUtils";
 import {
-  AppStudioScopes,
+  GraphScopes,
   featureFlagManager,
   FeatureFlags,
   getDefaultAuthorityUrl,
+  AppStudioScopes,
+  isSovereignHigh,
 } from "@microsoft/teamsfx-core";
 
 const SERVER_PORT = 0;
 const cachePlugin = new CryptoCachePlugin(m365CacheName);
 
-const config = {
-  auth: {
-    clientId: "7ea7c24c-b1f6-4a20-9d11-9ae12e9e7ac0",
-    authority: getDefaultAuthorityUrl(),
-    redirectUri: "http://localhost",
-  },
-  broker: {
-    nativeBrokerPlugin:
-      featureFlagManager.getBooleanValue(FeatureFlags.BrokerAuth) && process.platform === "win32"
-        ? new NativeBrokerPlugin()
-        : undefined,
-  },
-  system: {
-    loggerOptions: {
-      // @ts-ignore
-      loggerCallback(loglevel, message, containsPii) {
-        if (loglevel <= LogLevel.Error) {
-          VsCodeLogInstance.error(message);
-        }
-      },
-      piiLoggingEnabled: false,
-      logLevel: LogLevel.Error,
+function getConfig(): Configuration {
+  return {
+    auth: {
+      clientId: "7ea7c24c-b1f6-4a20-9d11-9ae12e9e7ac0",
+      authority: getDefaultAuthorityUrl(),
     },
-  },
-  cache: {
-    cachePlugin,
-  },
-};
+    broker: {
+      nativeBrokerPlugin:
+        featureFlagManager.getBooleanValue(FeatureFlags.BrokerAuth) && process.platform === "win32"
+          ? new NativeBrokerPlugin()
+          : undefined,
+    },
+    system: {
+      loggerOptions: {
+        // @ts-ignore
+        loggerCallback(loglevel, message, containsPii) {
+          if (loglevel <= LogLevel.Error) {
+            VsCodeLogInstance.error(message);
+          }
+        },
+        piiLoggingEnabled: false,
+        logLevel: LogLevel.Error,
+      },
+    },
+    cache: {
+      cachePlugin,
+    },
+  };
+}
 
 export class M365Login extends BasicLogin implements M365TokenProvider {
   private static instance: M365Login;
@@ -82,7 +85,7 @@ export class M365Login extends BasicLogin implements M365TokenProvider {
 
   private constructor() {
     super();
-    M365Login.codeFlowInstance = new CodeFlowLogin([], config, SERVER_PORT, m365CacheName);
+    M365Login.codeFlowInstance = new CodeFlowLogin([], getConfig(), SERVER_PORT, m365CacheName);
   }
 
   /**
@@ -216,21 +219,21 @@ export class M365Login extends BasicLogin implements M365TokenProvider {
       throw UserCancelError(getDefaultString("teamstoolkit.commands.signOut.title"));
     }
     await M365Login.codeFlowInstance.logout();
-    await this.notifyStatus({ scopes: AppStudioScopes() });
+    await this.notifyStatus({ scopes: isSovereignHigh() ? GraphScopes : AppStudioScopes() });
     return true;
   }
 
   async switchTenant(tenantId: string): Promise<Result<string, FxError>> {
     try {
       const res = await M365Login.codeFlowInstance.getTokenByScopes(
-        AppStudioScopes(),
+        isSovereignHigh() ? GraphScopes : AppStudioScopes(),
         true,
         undefined,
         tenantId
       );
       if (res.isOk()) {
         await M365Login.codeFlowInstance.switchTenant(tenantId);
-        await this.notifyStatus({ scopes: AppStudioScopes() });
+        await this.notifyStatus({ scopes: isSovereignHigh() ? GraphScopes : AppStudioScopes() });
       }
       return res;
     } catch (e) {
@@ -305,7 +308,7 @@ export class M365Login extends BasicLogin implements M365TokenProvider {
         // if token is empty, try to get token by app studio scope, normally this should only affect UX
         if (Object.keys(tokenJson).length === 0) {
           const appStudioRes = await M365Login.codeFlowInstance.getTokenByScopes(
-            AppStudioScopes(),
+            isSovereignHigh() ? GraphScopes : AppStudioScopes(),
             false
           );
           if (appStudioRes.isOk()) {
@@ -438,4 +441,51 @@ export function TdpIntegrationLoginUserCancelError(source: string): UserError {
   });
 }
 
-export default M365Login.getInstance();
+const M365LoginInstance = {
+  getAccessToken(tokenRequest: TokenRequest, loginHint?: string): Promise<Result<string, FxError>> {
+    return M365Login.getInstance().getAccessToken(tokenRequest, loginHint);
+  },
+  getJsonObject(tokenRequest: TokenRequest): Promise<Result<Record<string, unknown>, FxError>> {
+    return M365Login.getInstance().getJsonObject(tokenRequest);
+  },
+  getStatus(tokenRequest: TokenRequest): Promise<Result<LoginStatus, FxError>> {
+    return M365Login.getInstance().getStatus(tokenRequest);
+  },
+  setStatusChangeMap(
+    name: string,
+    tokenRequest: TokenRequest,
+    statusChange: (
+      status: string,
+      token?: string,
+      accountInfo?: Record<string, unknown>
+    ) => Promise<void>,
+    immediateCall?: boolean
+  ): Promise<Result<boolean, FxError>> {
+    return M365Login.getInstance().setStatusChangeMap(
+      name,
+      tokenRequest,
+      statusChange,
+      immediateCall
+    );
+  },
+  removeStatusChangeMap(name: string): Promise<Result<boolean, FxError>> {
+    return M365Login.getInstance().removeStatusChangeMap(name);
+  },
+  signout(): Promise<boolean> {
+    return M365Login.getInstance().signout();
+  },
+  switchTenant(tenantId: string): Promise<Result<string, FxError>> {
+    return M365Login.getInstance().switchTenant(tenantId);
+  },
+  getCachedAccountInfo(): AccountInfo | undefined {
+    return M365Login.getInstance().getCachedAccountInfo();
+  },
+  signInWhenInitiatedFromTdp(
+    tokenRequest: TokenRequest,
+    loginHint: string
+  ): Promise<Result<string, FxError>> {
+    return M365Login.getInstance().signInWhenInitiatedFromTdp(tokenRequest, loginHint);
+  },
+};
+
+export default M365LoginInstance;
