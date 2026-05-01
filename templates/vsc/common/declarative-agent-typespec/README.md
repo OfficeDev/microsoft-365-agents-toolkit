@@ -69,6 +69,10 @@ The following are TypeSpec template files. You need to customize these files to 
 - [Add Copilot Connectors content](https://learn.microsoft.com/en-us/microsoft-365-copilot/extensibility/build-declarative-agents-typespec#add-copilot-connectors-content): You can add items ingested by a Copilot connector to the available knowledge for the agent.
 - [Add actions](https://learn.microsoft.com/en-us/microsoft-365-copilot/extensibility/build-api-plugins-typespec): API plugins are custom actions for declarative agents that connect a REST API with an OpenAPI specification to Microsoft 365 Copilot. 
 
+## Evaluating Agents
+
+Install the Microsoft 365 Copilot Agent Evaluations CLI (`@microsoft/m365-copilot-eval`) NPM package to test, measure, and improve the quality of your agent with structured evaluations and rich result reports with AI-based scoring. A sample dataset `evals/prompts.json` is created in this project to help you get started right away. [Read more](https://learn.microsoft.com/en-us/microsoft-365/copilot/extensibility/evaluations-cli-overview).
+
 ## Addition information and references
 
 - [Declarative agents for Microsoft 365](https://aka.ms/teams-toolkit-declarative-agent)

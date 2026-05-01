@@ -79,6 +79,10 @@ This template shows how to wrap your existing MCP Server into a Microsoft 365 
 
 - **Error logging**: basic request/response logs appear in the ATK console; errors bubble up in your Copilot chat. 
 
+## Evaluating Agents
+
+Install the Microsoft 365 Copilot Agent Evaluations CLI (`@microsoft/m365-copilot-eval`) NPM package to test, measure, and improve the quality of your agent with structured evaluations and rich result reports with AI-based scoring. A sample dataset `evals/prompts.json` is created in this project to help you get started right away. [Read more](https://learn.microsoft.com/en-us/microsoft-365/copilot/extensibility/evaluations-cli-overview).
+
 
 ## Learn More
 
