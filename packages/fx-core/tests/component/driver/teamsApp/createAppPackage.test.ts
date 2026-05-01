@@ -27,7 +27,7 @@ import * as utils from "../../../../src/component/driver/util/utils";
 import * as envFunctionUtils from "../../../../src/component/utils/envFunctionUtils";
 import { ManifestType } from "../../../../src/component/utils/envFunctionUtils";
 import { FileNotFoundError, JSONSyntaxError } from "../../../../src/error/common";
-import { InvalidFileOutsideOfTheDirectotryError } from "../../../../src/error/teamsApp";
+import { InvalidFileOutsideOfTheDirectotryError, AppPackageSizeExceededError } from "../../../../src/error/teamsApp";
 import { MockedM365Provider } from "../../../core/utils";
 import { MockedLogProvider, MockedUserInteraction } from "../../../plugins/solution/util";
 
@@ -2482,6 +2482,108 @@ describe("teamsApp/createAppPackage", async () => {
         );
         await fs.remove(skillArgs.outputZipPath);
       }
+    });
+  });
+
+  describe("maxPackageSizeInBytes", () => {
+    it("should fail when zip exceeds maxPackageSizeInBytes", async () => {
+      const manifest = {
+        manifestVersion: "1.16",
+        icons: {
+          color: "resources/color.png",
+          outline: "resources/outline.png",
+        },
+      } as TeamsManifest;
+      sinon.stub(manifestUtils, "getManifestV3").resolves(ok(manifest));
+      sinon.stub(fs, "chmod").callsFake(async () => {});
+      sinon.stub(fs, "existsSync").returns(false);
+      sinon.stub(fs, "pathExists").resolves(true);
+      sinon.stub(utils, "updateVersionForTeamsAppYamlFile").resolves();
+      sinon.stub(fs, "writeFile").callsFake(async () => {});
+      // Stub fs.stat to return a large file size
+      sinon.stub(fs, "stat").resolves({ size: 20 * 1024 * 1024, mode: 0o644 } as any);
+
+      const args: CreateAppPackageArgs = {
+        manifestPath:
+          "./tests/plugins/resource/appstudio/resources-multi-env/templates/appPackage/v3.manifest.template.json",
+        outputZipPath:
+          "./tests/plugins/resource/appstudio/resources-multi-env/build/appPackage/appPackage.dev.zip",
+        outputFolder: "./tests/plugins/resource/appstudio/resources-multi-env/build/appPackage",
+        maxPackageSizeInBytes: 10 * 1024 * 1024,
+      };
+
+      const result = (await teamsAppDriver.execute(args, mockedDriverContext)).result;
+      chai.assert(result.isErr());
+      if (result.isErr()) {
+        chai.assert.isTrue(result.error instanceof AppPackageSizeExceededError);
+        chai.assert.include(result.error.message, "exceeds the maximum allowed size");
+      }
+      await fs.remove(args.outputZipPath);
+    });
+
+    it("should succeed when zip is within maxPackageSizeInBytes", async () => {
+      const manifest = {
+        manifestVersion: "1.16",
+        icons: {
+          color: "resources/color.png",
+          outline: "resources/outline.png",
+        },
+      } as TeamsManifest;
+      sinon.stub(manifestUtils, "getManifestV3").resolves(ok(manifest));
+      sinon.stub(fs, "chmod").callsFake(async () => {});
+      sinon.stub(fs, "existsSync").returns(false);
+      sinon.stub(fs, "pathExists").resolves(true);
+      sinon.stub(utils, "updateVersionForTeamsAppYamlFile").resolves();
+      sinon.stub(fs, "writeFile").callsFake(async () => {});
+      // Stub fs.stat to return a small file size
+      sinon.stub(fs, "stat").resolves({ size: 1024 * 1024, mode: 0o644 } as any);
+
+      const args: CreateAppPackageArgs = {
+        manifestPath:
+          "./tests/plugins/resource/appstudio/resources-multi-env/templates/appPackage/v3.manifest.template.json",
+        outputZipPath:
+          "./tests/plugins/resource/appstudio/resources-multi-env/build/appPackage/appPackage.dev.zip",
+        outputFolder: "./tests/plugins/resource/appstudio/resources-multi-env/build/appPackage",
+        maxPackageSizeInBytes: 10 * 1024 * 1024,
+      };
+
+      const result = (await teamsAppDriver.execute(args, mockedDriverContext)).result;
+      if (result.isErr()) {
+        console.log(result.error);
+      }
+      chai.assert.isTrue(result.isOk());
+      await fs.remove(args.outputZipPath);
+    });
+
+    it("should skip size check when maxPackageSizeInBytes is not set", async () => {
+      const manifest = {
+        manifestVersion: "1.16",
+        icons: {
+          color: "resources/color.png",
+          outline: "resources/outline.png",
+        },
+      } as TeamsManifest;
+      sinon.stub(manifestUtils, "getManifestV3").resolves(ok(manifest));
+      sinon.stub(fs, "chmod").callsFake(async () => {});
+      sinon.stub(fs, "existsSync").returns(false);
+      sinon.stub(fs, "pathExists").resolves(true);
+      sinon.stub(utils, "updateVersionForTeamsAppYamlFile").resolves();
+      sinon.stub(fs, "writeFile").callsFake(async () => {});
+
+      const args: CreateAppPackageArgs = {
+        manifestPath:
+          "./tests/plugins/resource/appstudio/resources-multi-env/templates/appPackage/v3.manifest.template.json",
+        outputZipPath:
+          "./tests/plugins/resource/appstudio/resources-multi-env/build/appPackage/appPackage.dev.zip",
+        outputFolder: "./tests/plugins/resource/appstudio/resources-multi-env/build/appPackage",
+      };
+
+      const result = (await teamsAppDriver.execute(args, mockedDriverContext)).result;
+      if (result.isErr()) {
+        console.log(result.error);
+      }
+      chai.assert.isTrue(result.isOk());
+      await fs.remove(args.outputZipPath);
     });
   });
 });
