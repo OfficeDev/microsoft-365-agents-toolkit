@@ -76,6 +76,8 @@ The following are Microsoft 365 Agents Toolkit specific project files. You can [
 
 Install the Microsoft 365 Copilot Agent Evaluations CLI (`@microsoft/m365-copilot-eval`) NPM package to test, measure, and improve the quality of your agent with structured evaluations and rich result reports with AI-based scoring.
 
+> Requires [Admin consent](https://github.com/microsoft/work-iq/blob/main/ADMIN-INSTRUCTIONS.md) at tenant level.
+
 1. Run `npm install -g @microsoft/m365-copilot-eval`
 2. Add the following environment variables. See [here](https://learn.microsoft.com/en-us/microsoft-365/copilot/extensibility/evaluations-cli-get-env-values) on how to get them.
 
