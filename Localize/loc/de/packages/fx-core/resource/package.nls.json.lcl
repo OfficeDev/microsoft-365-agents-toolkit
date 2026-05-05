@@ -5124,19 +5124,25 @@
       </Item>
       <Item ItemId=";core.shareOperationQuestion.option.removeShareAccessFromUsers" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Remove access for selected user(s)]]></Val>
+          <Val><![CDATA[Remove access]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Zugriff für ausgewählte(n) Benutzer entfernen]]></Val>
+            <Val><![CDATA[Zugriff entfernen]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Remove access for selected user(s)]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.shareOperationQuestion.option.shareWithUsers" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Share access with selected user(s)]]></Val>
+          <Val><![CDATA[Share access]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Freigeben des Zugriffs für ausgewählte(n) Benutzer]]></Val>
+            <Val><![CDATA[Zugriff freigeben]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Share access with selected user(s)]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -5181,19 +5187,25 @@
       </Item>
       <Item ItemId=";core.shareScopeQuestion.option.shareWithTenant" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Share the agent with all tenant users]]></Val>
+          <Val><![CDATA[Share to all tenant users]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Freigeben des Agenten für alle Mandantenbenutzer]]></Val>
+            <Val><![CDATA[Für alle Mandantenbenutzer freigeben]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Share the agent with all tenant users]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.shareScopeQuestion.option.shareWithUsers" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Share the agent with selected user(s)]]></Val>
+          <Val><![CDATA[Share to specified users(s) or user group]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Agent für ausgewählte(n) Benutzer freigeben]]></Val>
+            <Val><![CDATA[Für bestimmte Benutzer oder Benutzergruppen freigeben]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Share the agent with selected user(s)]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
