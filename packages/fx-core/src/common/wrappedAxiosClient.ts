@@ -446,6 +446,12 @@ export class WrappedAxiosClient {
     return matches != null && matches.length > 0;
   }
 
+  private static extractMOSPath(fullPath: string): string {
+    const mosRegex =
+      /(^https:\/\/)?titles\.(prod|gccm)\.mos\.microsoft\.com|(^https:\/\/)?titles\.(gcch|dod)\.mos\.svc\.usgovcloud\.microsoft/;
+    return fullPath.replace(mosRegex, "");
+  }
+
   private static getEventName(
     baseUrl: string
   ):
