@@ -327,6 +327,7 @@ export class CreateOauthDriver implements StepDriver {
         clientId: args.clientId,
         identityProvider: "MicrosoftEntra",
         tokenExchangeMethodType: tokenExchangeMethodType,
+        useSingleSignOn: true,
       } as OauthRegistration;
     }
 

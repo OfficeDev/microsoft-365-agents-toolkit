@@ -39,7 +39,9 @@ export class TeamsGraphClient {
   }
 
   wrapException(e: any, apiName: string): Error {
-    const correlationId = e.response?.headers?.["x-correlation-id"] ?? "undefined";
+    const headers = e.response?.headers;
+    const correlationId =
+      headers?.["x-correlation-id"] ?? headers?.["request-id"] ?? headers?.["x-ms-request-id"];
     let extraData = e.response?.data ? `data: ${JSON.stringify(e.response.data)}` : "";
     if (!e.message?.toLowerCase().includes("status code") && e.response?.status) {
       extraData = `Status code: ${e.response.status as string}. ${extraData}`;
@@ -55,7 +57,7 @@ export class TeamsGraphClient {
     const requester = this.createRequesterWithToken(token);
     try {
       const response = await RetryHandler.Retry(() =>
-        requester.get(`/api/v1.0/oAuthConfigurations/${oauthRegistrationId}`)
+        requester.get(`/v1.0/oAuthConfigurations/${oauthRegistrationId}`)
       );
       return response?.data;
     } catch (e) {
@@ -71,7 +73,7 @@ export class TeamsGraphClient {
     const requester = this.createRequesterWithToken(token);
     try {
       const response = await RetryHandler.Retry(() =>
-        requester.post("/api/v1.0/oAuthConfigurations", oauthRegistration)
+        requester.post("/v1.0/oAuthConfigurations", oauthRegistration)
       );
       return response?.data;
     } catch (e) {
@@ -88,7 +90,7 @@ export class TeamsGraphClient {
     const requester = this.createRequesterWithToken(token);
     try {
       const response = await RetryHandler.Retry(() =>
-        requester.patch(`/api/v1.0/oAuthConfigurations/${oauthRegistrationId}`, oauthRegistration)
+        requester.patch(`/v1.0/oAuthConfigurations/${oauthRegistrationId}`, oauthRegistration)
       );
       return response?.data;
     } catch (e) {
@@ -104,7 +106,7 @@ export class TeamsGraphClient {
     const requester = this.createRequesterWithToken(token);
     try {
       const response = await RetryHandler.Retry(() =>
-        requester.get(`/api/v1.0/apiSecretRegistrations/${apiKeyRegistrationId}`)
+        requester.get(`/v1.0/apiSecretRegistrations/${apiKeyRegistrationId}`)
       );
       return response?.data;
     } catch (e) {
@@ -120,7 +122,7 @@ export class TeamsGraphClient {
     const requester = this.createRequesterWithToken(token);
     try {
       const response = await RetryHandler.Retry(() =>
-        requester.post("/api/v1.0/apiSecretRegistrations", apiKeyRegistration)
+        requester.post("/v1.0/apiSecretRegistrations", apiKeyRegistration)
       );
       return response?.data;
     } catch (e) {
@@ -137,10 +139,7 @@ export class TeamsGraphClient {
     const requester = this.createRequesterWithToken(token);
     try {
       const response = await RetryHandler.Retry(() =>
-        requester.patch(
-          `/api/v1.0/apiSecretRegistrations/${apiKeyRegistrationId}`,
-          apiKeyRegistration
-        )
+        requester.patch(`/v1.0/apiSecretRegistrations/${apiKeyRegistrationId}`, apiKeyRegistration)
       );
       return response?.data;
     } catch (e) {

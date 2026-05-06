@@ -246,6 +246,33 @@ describe("Wrapped Axios Client Test", () => {
     chai.expect(telemetryChecker.calledOnce).to.be.true;
   });
 
+  it("Teams Graph API error response logs fallback correlation id headers", async () => {
+    const fallbackCorrelationId = uuid();
+    const mockedError = {
+      request: {
+        method: "GET",
+        host: getResourceServiceEndpoint(ResourceServiceType.TeamsGraph),
+        path: "/api/v1.0/oAuthConfigurations/fakeId",
+      },
+      config: {},
+      response: {
+        status: 404,
+        headers: {
+          "request-id": fallbackCorrelationId,
+        },
+      },
+    } as any;
+    const telemetryChecker = sinon.spy(mockTools.telemetryReporter, "sendTelemetryErrorEvent");
+
+    let rejected: any;
+    await WrappedAxiosClient.onRejected(mockedError).catch((e) => (rejected = e));
+
+    chai.expect(rejected).to.equal(mockedError);
+    chai.expect(telemetryChecker.calledOnce).to.be.true;
+    const props = telemetryChecker.firstCall.args[1] as Record<string, string>;
+    chai.expect(props["teams-graph-trace-id"]).to.equal(fallbackCorrelationId);
+  });
+
   it("MOS API error response", async () => {
     const mockedError = {
       request: {

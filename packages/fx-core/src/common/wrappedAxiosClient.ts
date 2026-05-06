@@ -156,8 +156,11 @@ export class WrappedAxiosClient {
         properties[TelemetryProperty.ErrorMessage] = finalMessage;
         properties[TelemetryProperty.MOSTraceId] = tracingId;
       } else if (eventName === TelemetryEvent.TeamsGraphApi) {
-        const correlationId = (error.response?.headers?.["x-correlation-id"] ??
-          "undefined") as string;
+        const correlationId =
+          error.response?.headers?.["x-correlation-id"] ??
+          error.response?.headers?.["request-id"] ??
+          error.response?.headers?.["x-ms-request-id"] ??
+          "undefined";
         properties[TelemetryProperty.TeamsGraphTraceId] = correlationId;
       }
 

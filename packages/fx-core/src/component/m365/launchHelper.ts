@@ -26,7 +26,6 @@ import { HubTypes } from "../../question/constants";
 import { NotExtendedToM365Error } from "./errors";
 import { PackageService } from "./packageService";
 import { officeBaseUrl, outlookBaseUrl, outlookCopilotAppId } from "./constants";
-import { featureFlagManager, FeatureFlags } from "../../common/featureFlags";
 import { isSovereignHigh } from "../../common/accountUtils";
 
 export class LaunchHelper {

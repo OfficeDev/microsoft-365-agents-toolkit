@@ -13,7 +13,7 @@ export class TeamsGraphAPIFailedSystemError extends SystemError {
       source: "TeamsGraphClient",
       error: e,
       message: `Teams Graph API failed: [${e.name}] ${e.message as string} (api: ${apiName}, correlationId: ${correlationId}) ${extraData}`,
-      displayMessage: displayMessage || getLocalizedString("error.appstudio.apiFailed"),
+      displayMessage: displayMessage || getLocalizedString("error.teamsGraph.apiFailed"),
       categories: [ErrorCategory.Unhandled, apiName],
     };
     super(errorOptions);
