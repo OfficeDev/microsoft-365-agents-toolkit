@@ -4,7 +4,7 @@ import * as util from "util";
 import * as vscode from "vscode";
 
 import { FxError, Result, SystemError, UserError, err, ok } from "@microsoft/teamsfx-api";
-import { assembleError, globalStateGet, globalStateUpdate } from "@microsoft/teamsfx-core";
+import { assembleError, globalStateUpdate } from "@microsoft/teamsfx-core";
 import VsCodeLogInstance from "../commonlib/log";
 import { ExtTelemetry } from "../telemetry/extTelemetry";
 import {
@@ -30,8 +30,6 @@ enum errorNames {
 
 enum failedPreCheckSteps {
   GitHubCopilotInstalled = "GitHubCopilotInstalled",
-  TeamsAgentInstalled = "TeamsAgentInstalled",
-  GitHubCopilotSetup = "GitHubCopilotSetup",
 }
 
 function githubCopilotInstalled(): boolean {
@@ -39,20 +37,31 @@ function githubCopilotInstalled(): boolean {
   return !!extension;
 }
 
-async function openOutputInEditor(): Promise<void> {
-  // try open output in editor but ignore error
+function openOutputInEditor(): vscode.Uri | undefined {
+  // Return the toolkit's on-disk log file URI so it can be attached to chat
+  // as a referenced file. The Output channel mirrors every log line to this
+  // file (see VsCodeLogProvider.log), so attaching it gives the agent the
+  // same content without needing to open the Output panel as an editor.
   try {
-    showOutputChannelHandler();
-    await vscode.commands.executeCommand("workbench.action.openActiveLogOutputFile");
-  } catch (e) {}
+    return vscode.Uri.file(VsCodeLogInstance.getLogFilePath());
+  } catch {
+    return undefined;
+  }
 }
 
 export async function openGithubCopilotChat(args?: any[]): Promise<Result<null, FxError>> {
   const startEventName = TelemetryEvent.OpenGitHubCopilotChatStart;
   const eventName = TelemetryEvent.openGitHubCopilotChat;
   const triggerFrom = getTriggerFromProperty(args);
-  const hasQuery = !!args && args.length == 2;
-  const query = hasQuery ? args[1] : "";
+  const hasQuery = !!args && args.length >= 2 && !!args[1];
+  const userQuery = hasQuery ? (args[1] as string) : "";
+  const attachUris: vscode.Uri[] =
+    !!args && args.length >= 3 && Array.isArray(args[2]) ? (args[2] as vscode.Uri[]) : [];
+
+  // Always invoke the bundled "/microsoft-365-agents-toolkit" custom agent so that
+  // Copilot has Microsoft 365 Agents Toolkit domain knowledge when answering.
+  const slashCommand = "/microsoft-365-agents-toolkit";
+  const query = userQuery ? `${slashCommand} ${userQuery}` : `${slashCommand} `;
 
   const telemtryProperties = {
     ...triggerFrom,
@@ -62,19 +71,19 @@ export async function openGithubCopilotChat(args?: any[]): Promise<Result<null, 
   try {
     try {
       await vscode.commands.executeCommand("workbench.action.chat.toggleAgentMode", {
-        mode: "ask",
+        mode: "agent",
       });
     } catch {}
     await vscode.commands.executeCommand("workbench.panel.chat.view.copilot.focus");
-    if (query) {
-      const options = {
-        query,
-        isPartialQuery: true,
-      };
-      await vscode.commands.executeCommand("workbench.action.chat.open", options);
-    } else {
-      await vscode.commands.executeCommand("workbench.action.chat.open");
+    const openOptions: { [key: string]: unknown } = {
+      query,
+      isPartialQuery: true,
+      mode: "agent",
+    };
+    if (attachUris.length > 0) {
+      openOptions.attachFiles = attachUris;
     }
+    await vscode.commands.executeCommand("workbench.action.chat.open", openOptions);
     ExtTelemetry.sendTelemetryEvent(eventName, telemtryProperties);
     return ok(null);
   } catch (e) {
@@ -193,12 +202,14 @@ export async function openTeamsAgentWalkthrough(args?: any[]) {
 async function invoke(
   query: string,
   triggerFromProperty: { [key: string]: TelemetryTriggerFrom },
-  skipPreCheck = false
+  skipPreCheck = false,
+  attachUris: vscode.Uri[] = []
 ): Promise<Result<boolean, FxError>> {
   if (skipPreCheck) {
     const res = await openGithubCopilotChat([
       triggerFromProperty[TelemetryProperty.TriggerFrom],
       query,
+      attachUris,
     ]);
     if (res.isErr()) {
       return err(res.error);
@@ -208,19 +219,9 @@ async function invoke(
   }
 
   const hasGitHubCopilotInstalled = githubCopilotInstalled();
-  const hasTeamsAgentInstalled = await globalStateGet(GlobalKey.TeamsAgentInstalled, false);
-  const hasGitHubCopilotSetup = await isGithubLoggedIn();
   const failedSteps: failedPreCheckSteps[] = [];
   if (!hasGitHubCopilotInstalled) {
     failedSteps.push(failedPreCheckSteps.GitHubCopilotInstalled);
-  }
-
-  if (!hasTeamsAgentInstalled) {
-    failedSteps.push(failedPreCheckSteps.TeamsAgentInstalled);
-  }
-
-  if (!hasGitHubCopilotSetup) {
-    failedSteps.push(failedPreCheckSteps.GitHubCopilotSetup);
   }
 
   ExtTelemetry.sendTelemetryEvent(TelemetryEvent.TeamsAgentPreCheckResult, {
@@ -230,14 +231,11 @@ async function invoke(
     ...triggerFromProperty,
   });
 
-  if (hasGitHubCopilotInstalled && hasTeamsAgentInstalled && hasGitHubCopilotSetup) {
-    if (triggerFromProperty[TelemetryProperty.TriggerFrom] === TelemetryTriggerFrom.Notification) {
-      await openOutputInEditor();
-    }
-
+  if (failedSteps.length === 0) {
     const res = await openGithubCopilotChat([
       triggerFromProperty[TelemetryProperty.TriggerFrom],
       query,
+      attachUris,
     ]);
     if (res.isErr()) {
       return err(res.error);
@@ -245,8 +243,16 @@ async function invoke(
       return ok(true);
     }
   } else {
-    await openTeamsAgentWalkthrough([triggerFromProperty[TelemetryProperty.TriggerFrom]]);
-    return ok(false);
+    const message = `Cannot open GitHub Copilot Chat: GitHub Copilot Chat extension (${githubCopilotChatExtensionId}) is not installed.`;
+    const error = new UserError(
+      TelemetryEvent.InvokeTeamsAgent,
+      "TeamsAgentPreCheckFailed",
+      message,
+      message
+    );
+    VsCodeLogInstance.error(message);
+    void vscode.window.showErrorMessage(message);
+    return err(error);
   }
 }
 
@@ -263,31 +269,15 @@ export async function invokeTeamsAgent(args?: any[]): Promise<Result<boolean, Fx
   let query = "";
   let shouldSkipPreCheck = false;
   switch (triggerFromProperty[TelemetryProperty.TriggerFrom]) {
-    case TelemetryTriggerFrom.TreeView:
-    case TelemetryTriggerFrom.CommandPalette:
-      query =
-        "@m365agents Use this GitHub Copilot extension to ask questions about the development of apps and agents you build for Copilot and Microsoft 365 apps.";
-      break;
     case TelemetryTriggerFrom.TeamsAgentWalkthroughExplore:
-      shouldSkipPreCheck = true;
-      query = "@m365agents What's the difference between declarative and custom agents?";
-      break;
     case TelemetryTriggerFrom.TeamsAgentWalkthroughCreate:
-      shouldSkipPreCheck = true;
-      query = "@m365agents I want to create a ToDo app.";
-      break;
     case TelemetryTriggerFrom.TeamsAgentWalkthroughTroubleshoot:
-      shouldSkipPreCheck = true;
-      query =
-        "@m365agents My app doesn't sideload when debugging with Microsoft 365 Agents Toolkit.";
-      break;
     case TelemetryTriggerFrom.WalkThrough:
       shouldSkipPreCheck = true;
-      query = "@m365agents What can you do?";
+      query = "";
       break;
     default:
-      query =
-        "@m365agents Write your own query message to find relevant templates or samples to build your app and agent as per your description. E.g. @m365agents create an intelligent agent that can respond to users' questions.";
+      query = "";
   }
 
   const res = await invoke(query, triggerFromProperty, shouldSkipPreCheck);
@@ -302,15 +292,6 @@ export async function invokeTeamsAgent(args?: any[]): Promise<Result<boolean, Fx
     });
   }
   return res;
-}
-
-async function isGithubLoggedIn(): Promise<boolean> {
-  try {
-    const accounts = await vscode.authentication.getAccounts("github");
-    return accounts.length > 0;
-  } catch (e) {
-    return true;
-  }
 }
 
 /**
@@ -387,16 +368,11 @@ export async function troubleshootError(args?: any[]): Promise<Result<boolean, F
     telemtryProperties
   );
 
-  const query = `@m365agents I'm encountering the following error in Microsoft 365 Agents Toolkit.
-  \`\`\`
-  {
-    Error code: ${errorCode}
-    Error message: ${currentError.message}
-  }
-  \`\`\`
-  Can you help me diagnose the issue and suggest possible solutions?
-  `;
-  const res = await invoke(query, triggerFromProperty);
+  // Open the output panel as an editor and attach its URI as a chat reference
+  // instead of pasting error context as a query.
+  const outputUri = openOutputInEditor();
+  const attachUris = outputUri ? [outputUri] : [];
+  const res = await invoke("fix", triggerFromProperty, false, attachUris);
 
   if (res.isErr()) {
     ExtTelemetry.sendTelemetryErrorEvent(eventName, res.error, telemtryProperties);
