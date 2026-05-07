@@ -170,7 +170,7 @@ describe("Basic Tab", function () {
       const endpoint = context[EnvConstants.TAB_ENDPOINT];
       assert.exists(endpoint, "Tab endpoint should exist");
 
-      await sleep(120000); // wait for 2 minutes to make sure the app is up and running
+      await sleep(60000); // wait for 1 minutes to make sure the app is up and running
       const axiosInstance = axios.create();
       try {
         const response = await axiosInstance.get(`${endpoint}/tabs/home`);
