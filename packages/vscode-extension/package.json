@@ -2071,7 +2071,7 @@
     "react-syntax-highlighter": "^15.5.0",
     "semver": "^7.5.2",
     "string-similarity": "^4.0.4",
-    "tmp": "^0.2.1",
+    "tmp": "^0.2.5",
     "tree-kill": "^1.2.2",
     "validator": "^13.7.0",
     "vscode-tas-client": "^0.1.75"

@@ -5,13 +5,14 @@
  * @author zhaofengxu@microsoft.com
  */
 
-import { Inputs, OptionItem, Platform } from "@microsoft/teamsfx-api";
+import { err, Inputs, ok, OptionItem, Platform, UserError } from "@microsoft/teamsfx-api";
 import { assert } from "chai";
 import fs from "fs-extra";
 import "mocha";
 import { RestoreFn } from "mocked-env";
 import sinon from "sinon";
 import { createContext, setTools } from "../../../src/common/globalVars";
+import { developerPortalScaffoldUtils } from "../../../src/component/developerPortalScaffoldUtils";
 import { CombinedProjectGenerator } from "../../../src/component/generator/combinedProject/generator";
 import { TemplateNames } from "../../../src/component/generator/templates/templateNames";
 import { ApiAuthOptions, ProgrammingLanguage, QuestionNames } from "../../../src/question";
@@ -71,6 +72,46 @@ describe("combined generator", async () => {
 
       const res = await generator.post(context, inputs, "");
       assert.isTrue(res.isOk());
+    });
+
+    it("post calls updateFilesForTdp when teamsAppFromTdp is set", async () => {
+      const generator = new CombinedProjectGenerator();
+      const context = createContext();
+      const inputs: Inputs = {
+        platform: Platform.VSCode,
+        projectPath: "./",
+        [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentWithGraphConnector,
+        [QuestionNames.AppName]: "app",
+        teamsAppFromTdp: { teamsAppId: "fake-id" },
+      };
+
+      sandbox.stub(fs, "copySync").returns();
+      sandbox.stub(fs, "removeSync").returns();
+      sandbox.stub(developerPortalScaffoldUtils, "updateFilesForTdp").resolves(ok(undefined));
+
+      const res = await generator.post(context, inputs, "");
+      assert.isTrue(res.isOk());
+    });
+
+    it("post returns error when updateFilesForTdp fails in TDP flow", async () => {
+      const generator = new CombinedProjectGenerator();
+      const context = createContext();
+      const inputs: Inputs = {
+        platform: Platform.VSCode,
+        projectPath: "./",
+        [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentWithGraphConnector,
+        [QuestionNames.AppName]: "app",
+        teamsAppFromTdp: { teamsAppId: "fake-id" },
+      };
+
+      sandbox.stub(fs, "copySync").returns();
+      sandbox.stub(fs, "removeSync").returns();
+      sandbox
+        .stub(developerPortalScaffoldUtils, "updateFilesForTdp")
+        .resolves(err(new UserError("fakeSource", "fakeError", "fakeError")));
+
+      const res = await generator.post(context, inputs, "");
+      assert.isTrue(res.isErr() && res.error.name === "fakeError");
     });
   });
 

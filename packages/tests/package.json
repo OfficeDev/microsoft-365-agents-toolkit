@@ -88,6 +88,7 @@
     "querystring": "^0.2.1",
     "semver": "^7.5.2",
     "strip-bom": "4",
+    "tmp": "^0.2.5",
     "yaml": "^2.2.2"
   },
   "optionalDependencies": {

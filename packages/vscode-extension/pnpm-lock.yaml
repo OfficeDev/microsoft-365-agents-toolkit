@@ -138,7 +138,7 @@ dependencies:
     specifier: ^4.0.4
     version: 4.0.4
   tmp:
-    specifier: ^0.2.1
+    specifier: ^0.2.5
     version: 0.2.5
   tree-kill:
     specifier: ^1.2.2
