@@ -7,7 +7,7 @@
   "teamstoolkit.accountTree.copilotStatusUnknown": "Copilot Access Check Failed",
   "teamstoolkit.accountTree.copilotStatusUnknownTooltip": "We're unable to confirm copilot access status. Please try again after some time.",
   "teamstoolkit.accountTree.copilotWarning": "Copilot Access Disabled",
-  "teamstoolkit.accountTree.copilotWarningTooltip": "Microsoft 365 account administrator hasn't enabled Copilot access for this account. Contact your Teams administrator to resolve this issue by enrolling in Microsoft 365 Copilot Early Access program. Visit: https://aka.ms/PluginsEarlyAccess",
+  "teamstoolkit.accountTree.copilotWarningTooltip": "Your Microsoft 365 account doesn't have Copilot developer access, to set up development environment to extend Copilot, visit [Set up development environment to extend Copilot](https://learn.microsoft.com/en-us/microsoft-365/copilot/extensibility/prerequisites)",
   "teamstoolkit.accountTree.m365AccountTooltip": "Microsoft 365 ACCOUNT  \nThe Microsoft 365 Agents Toolkit requires a Microsoft 365 organizational account with Teams running and registered.",
   "teamstoolkit.accountTree.sideloadingEnable": "Enable Custom App Upload",
   "teamstoolkit.accountTree.sideloadingUseTestTenant": "Use Test Tenant",
