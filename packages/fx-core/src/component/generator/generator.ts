@@ -60,9 +60,6 @@ export class Generator {
     }
   ): { [key: string]: any } {
     const safeProjectName = safeProjectNameFromVS ?? convertToAlphanumericOnly(appName);
-    // SafeClassName strips all non-alphanumeric chars (including dots) so it can be used as a C# identifier (e.g. class name).
-    // SafeProjectName may contain dots when coming from VS (dots are valid in namespaces), but dots are invalid in class names.
-    const safeClassName = convertToAlphanumericOnly(safeProjectName);
     const apiKeyActionData = [];
     const oauthActionData = [];
     for (const auth of authData ?? []) {
@@ -90,7 +87,6 @@ export class Generator {
       PlaceProjectFileInSolutionDir: placeProjectFileInSolutionDir ? "true" : "",
       SafeProjectName: safeProjectName,
       SafeProjectNameLowerCase: safeProjectName.toLocaleLowerCase(),
-      SafeClassName: safeClassName,
       SolutionName: solutionNameFromVS ?? appName,
       ApiKey: apiKeyActionData,
       OAuth: oauthActionData,
