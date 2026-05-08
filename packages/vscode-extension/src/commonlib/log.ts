@@ -86,6 +86,10 @@ export class VsCodeLogProvider implements LogProvider {
       const dateString = new Date().toJSON();
       const formattedMessage = `[${dateString}] [${LogLevel[logLevel]}] - ${message}`;
       this.outputChannel.appendLine(formattedMessage);
+      // Also persist to the on-disk log file so it can be attached as a
+      // reference (e.g. by "Resolve with Copilot Chat") without having to
+      // open the Output channel in an editor.
+      void fs.appendFile(this.getLogFilePath(), formattedMessage + "\n").catch(() => {});
     } catch (e) {}
   }
 
