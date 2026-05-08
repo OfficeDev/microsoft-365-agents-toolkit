@@ -115,7 +115,6 @@ export class LocalCertificateManager {
         }
       }
     } catch (error: any) {
-      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
       this.logger?.warning(`Failed to setup certificate. Error: ${error}`);
       localCert.isTrusted = false;
       localCert.error = new UserError({
@@ -300,7 +299,7 @@ export class LocalCertificateManager {
       }
     } catch (error) {
       // treat any error as not verified, to not block the main progress
-      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+
       this.logger?.debug(`Certificate unverified. Details: ${error}`);
       return false;
     }
@@ -345,7 +344,7 @@ export class LocalCertificateManager {
       }
     } catch (error: any) {
       // treat any error as install failure, to not block the main progress
-      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+
       this.logger?.warning(`Failed to install certificate. Error: ${error}`);
       localCert.isTrusted = false;
       localCert.error = new UserError({

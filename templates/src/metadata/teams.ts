@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { TemplateNames } from "../templateNames";
+import { TemplateAlias, TemplateNames } from "../templateNames";
 import { getString } from "../ui/helper";
 import { Template } from "./interface";
 
@@ -9,6 +9,7 @@ export const generalTeamsAgentTemplates: Template[] = [
   {
     id: "custom-copilot-basic-ts",
     name: TemplateNames.CustomCopilotBasic,
+    alias: TemplateAlias.CustomCopilotBasic,
     language: "typescript",
     displayName: getString("template.teams.general.label"),
     description: getString("template.teams.general.detail"),
@@ -16,6 +17,7 @@ export const generalTeamsAgentTemplates: Template[] = [
   {
     id: "custom-copilot-basic-js",
     name: TemplateNames.CustomCopilotBasic,
+    alias: TemplateAlias.CustomCopilotBasic,
     language: "javascript",
     displayName: getString("template.teams.general.label"),
     description: getString("template.teams.general.detail"),
@@ -23,6 +25,7 @@ export const generalTeamsAgentTemplates: Template[] = [
   {
     id: "custom-copilot-basic-csharp",
     name: TemplateNames.CustomCopilotBasic,
+    alias: TemplateAlias.CustomCopilotBasic,
     language: "csharp",
     displayName: getString("template.teams.general.label"),
     description: getString("template.teams.general.detail"),
@@ -30,6 +33,7 @@ export const generalTeamsAgentTemplates: Template[] = [
   {
     id: "custom-copilot-basic-python",
     name: TemplateNames.CustomCopilotBasic,
+    alias: TemplateAlias.CustomCopilotBasic,
     language: "python",
     displayName: getString("template.teams.general.label"),
     description: getString("template.teams.general.detail"),
@@ -40,6 +44,7 @@ export const chatWithYourDataTemplates: Template[] = [
   {
     id: "custom-copilot-rag-customize-ts",
     name: TemplateNames.CustomCopilotRagCustomize,
+    alias: TemplateAlias.CustomCopilotRagCustomize,
     language: "typescript",
     displayName: "Teams Agent with Data from Customized Source",
     description: getString("template.teams.rag.detail"),
@@ -47,6 +52,7 @@ export const chatWithYourDataTemplates: Template[] = [
   {
     id: "custom-copilot-rag-customize-js",
     name: TemplateNames.CustomCopilotRagCustomize,
+    alias: TemplateAlias.CustomCopilotRagCustomize,
     language: "javascript",
     displayName: "Teams Agent with Data from Customized Source",
     description: getString("template.teams.rag.detail"),
@@ -54,6 +60,7 @@ export const chatWithYourDataTemplates: Template[] = [
   {
     id: "custom-copilot-rag-customize-csharp",
     name: TemplateNames.CustomCopilotRagCustomize,
+    alias: TemplateAlias.CustomCopilotRagCustomize,
     language: "csharp",
     displayName: "Teams Agent with Data from Customized Source",
     description: getString("template.teams.rag.detail"),
@@ -61,6 +68,7 @@ export const chatWithYourDataTemplates: Template[] = [
   {
     id: "custom-copilot-rag-customize-python",
     name: TemplateNames.CustomCopilotRagCustomize,
+    alias: TemplateAlias.CustomCopilotRagCustomize,
     language: "python",
     displayName: "Teams Agent with Data from Customized Source",
     description: getString("template.teams.rag.detail"),
@@ -68,6 +76,7 @@ export const chatWithYourDataTemplates: Template[] = [
   {
     id: "custom-copilot-rag-azure-ai-search-ts",
     name: TemplateNames.CustomCopilotRagAzureAISearch,
+    alias: TemplateAlias.CustomCopilotRagAzureAISearch,
     language: "typescript",
     displayName: "Teams Agent with Data from Azure AI Search",
     description: getString("template.teams.rag.detail"),
@@ -75,6 +84,7 @@ export const chatWithYourDataTemplates: Template[] = [
   {
     id: "custom-copilot-rag-azure-ai-search-js",
     name: TemplateNames.CustomCopilotRagAzureAISearch,
+    alias: TemplateAlias.CustomCopilotRagAzureAISearch,
     language: "javascript",
     displayName: "Teams Agent with Data from Azure AI Search",
     description: getString("template.teams.rag.detail"),
@@ -82,6 +92,7 @@ export const chatWithYourDataTemplates: Template[] = [
   {
     id: "custom-copilot-rag-azure-ai-search-csharp",
     name: TemplateNames.CustomCopilotRagAzureAISearch,
+    alias: TemplateAlias.CustomCopilotRagAzureAISearch,
     language: "csharp",
     displayName: "Teams Agent with Data from Azure AI Search",
     description: getString("template.teams.rag.detail"),
@@ -89,6 +100,7 @@ export const chatWithYourDataTemplates: Template[] = [
   {
     id: "custom-copilot-rag-azure-ai-search-python",
     name: TemplateNames.CustomCopilotRagAzureAISearch,
+    alias: TemplateAlias.CustomCopilotRagAzureAISearch,
     language: "python",
     displayName: "Teams Agent with Data from Azure AI Search",
     description: getString("template.teams.rag.detail"),
@@ -162,6 +174,7 @@ export const customApiFromOpenApiSpecTemplates: Template[] = [
   {
     id: "custom-copilot-rag-custom-api-ts",
     name: TemplateNames.CustomCopilotRagCustomApi,
+    alias: TemplateAlias.CustomCopilotRagCustomApi,
     language: "typescript",
     displayName: "Teams Agent with Data from Custom API using OpenAPI Spec",
     description: getString("template.teams.rag.detail"),
@@ -169,6 +182,7 @@ export const customApiFromOpenApiSpecTemplates: Template[] = [
   {
     id: "custom-copilot-rag-custom-api-js",
     name: TemplateNames.CustomCopilotRagCustomApi,
+    alias: TemplateAlias.CustomCopilotRagCustomApi,
     language: "javascript",
     displayName: "Teams Agent with Data from Custom API using OpenAPI Spec",
     description: getString("template.teams.rag.detail"),
@@ -176,6 +190,7 @@ export const customApiFromOpenApiSpecTemplates: Template[] = [
   {
     id: "teams-agent-with-data-custom-api-v2-csharp",
     name: TemplateNames.CustomCopilotRagCustomApi,
+    alias: TemplateAlias.CustomCopilotRagCustomApi,
     language: "csharp",
     displayName: "Teams Agent with Data from Custom API using OpenAPI Spec",
     description: getString("template.teams.rag.detail"),
@@ -183,6 +198,7 @@ export const customApiFromOpenApiSpecTemplates: Template[] = [
   {
     id: "teams-agent-with-data-custom-api-v2-python",
     name: TemplateNames.CustomCopilotRagCustomApi,
+    alias: TemplateAlias.CustomCopilotRagCustomApi,
     language: "python",
     displayName: "Teams Agent with Data from Custom API using OpenAPI Spec",
     description: getString("template.teams.rag.detail"),
@@ -210,6 +226,7 @@ export const teamsOtherTemplates: Template[] = [
   {
     id: "basic-tab-ts",
     name: TemplateNames.Tab,
+    alias: TemplateAlias.Tab,
     language: "typescript",
     displayName: getString("template.teams.others.tab.label"),
     description: getString("template.teams.others.tab.detail"),
@@ -217,6 +234,7 @@ export const teamsOtherTemplates: Template[] = [
   {
     id: "default-bot-ts",
     name: TemplateNames.DefaultBot,
+    alias: TemplateAlias.DefaultBot,
     language: "typescript",
     displayName: getString("template.teams.others.bot.label"),
     description: getString("template.teams.others.bot.detail"),
@@ -224,6 +242,7 @@ export const teamsOtherTemplates: Template[] = [
   {
     id: "default-bot-js",
     name: TemplateNames.DefaultBot,
+    alias: TemplateAlias.DefaultBot,
     language: "javascript",
     displayName: getString("template.teams.others.bot.label"),
     description: getString("template.teams.others.bot.detail"),
@@ -231,6 +250,7 @@ export const teamsOtherTemplates: Template[] = [
   {
     id: "default-bot-python",
     name: TemplateNames.DefaultBot,
+    alias: TemplateAlias.DefaultBot,
     language: "python",
     displayName: getString("template.teams.others.bot.label"),
     description: getString("template.teams.others.bot.detail"),
@@ -238,6 +258,7 @@ export const teamsOtherTemplates: Template[] = [
   {
     id: "message-extension-v2-ts",
     name: TemplateNames.DefaultMessageExtension,
+    alias: TemplateAlias.DefaultMessageExtension,
     language: "typescript",
     displayName: getString("template.teams.others.messageExtension.label"),
     description: getString("template.teams.others.messageExtension.detail"),
@@ -245,6 +266,7 @@ export const teamsOtherTemplates: Template[] = [
   {
     id: "message-extension-v2-python",
     name: TemplateNames.DefaultMessageExtension,
+    alias: TemplateAlias.DefaultMessageExtension,
     language: "python",
     displayName: getString("template.teams.others.messageExtension.label"),
     description: getString("template.teams.others.messageExtension.detail"),

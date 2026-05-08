@@ -671,7 +671,15 @@ export function addPluginQuestionNode(): IQTreeNode {
   return {
     data: apiPluginStartQuestion(true),
     children: [
-      ...[inputOrSearchAPISpecNode()],
+      {
+        ...inputOrSearchAPISpecNode(),
+        condition: (inputs: Inputs) => {
+          return (
+            featureFlagManager.getBooleanValue(FeatureFlags.KiotaNPMIntegration) &&
+            inputs[QuestionNames.ActionType] === ActionStartOptions.apiSpec().id
+          );
+        },
+      },
       {
         data: apiSpecLocationQuestion(),
         condition: (inputs: Inputs) => {
@@ -690,8 +698,75 @@ export function addPluginQuestionNode(): IQTreeNode {
           );
         },
       },
+      // MCP server URL input (when action type is "mcp").
+      // Aligned with the "DA with MCP" scaffolding flow for VS Code: only the URL is
+      // collected here. The toolkit writes the URL into .vscode/mcp.json, opens the
+      // file and shows a notification prompting the user to start the MCP server and
+      // click "Fetch Action" to populate tools.
+      // For CLI (non-interactive), the tools-file-path and auth-type follow-up
+      // questions are still asked so the original CLI flow that auto-generates
+      // ai-plugin.json and m365agents.yml continues to work.
+      {
+        condition: (inputs: Inputs) => {
+          return inputs[QuestionNames.ActionType] === ActionStartOptions.mcp().id;
+        },
+        data: {
+          name: QuestionNames.MCPForDAServerUrl,
+          title: getLocalizedString("core.createProjectQuestion.mcpForDa.ServerUrl.title"),
+          type: "text",
+          placeholder: getLocalizedString(
+            "core.createProjectQuestion.mcpForDa.ServerUrl.placeholder"
+          ),
+        },
+        children: [
+          // MCP tools file input (CLI only — VS Code uses the simplified mcp.json flow)
+          {
+            condition: (inputs: Inputs) => inputs.platform === Platform.CLI,
+            data: {
+              name: QuestionNames.MCPToolsFilePath,
+              title: getLocalizedString("core.MCPForDA.toolsFilePath.title"),
+              type: "text",
+              placeholder: getLocalizedString("core.MCPForDA.toolsFilePath.placeholder"),
+            },
+            children: [
+              // Auth type selection (CLI only)
+              {
+                condition: (inputs: Inputs) => inputs.platform === Platform.CLI,
+                data: {
+                  type: "singleSelect",
+                  name: QuestionNames.MCPForDAAuthType,
+                  title: getLocalizedString("core.createProjectQuestion.mcpForDa.AuthType.title"),
+                  staticOptions: [
+                    {
+                      id: "oauth",
+                      label: getLocalizedString("core.createProjectQuestion.mcpForDa.Auth.OAuth"),
+                    },
+                    {
+                      id: "entraSSO",
+                      label: getLocalizedString(
+                        "core.createProjectQuestion.mcpForDa.Auth.EntraSSO"
+                      ),
+                    },
+                  ],
+                  default: "oauth",
+                },
+              },
+            ],
+          },
+        ],
+      },
       {
         data: selectTeamsAppManifestQuestion(),
+        condition: (inputs: Inputs) => {
+          // Manifest path is not needed for the VS Code MCP "add action" flow because
+          // we only update .vscode/mcp.json and let the user run "Fetch Action"
+          // afterwards to update the declarative agent manifest. CLI still needs it
+          // for the original auto-generation flow.
+          return (
+            inputs[QuestionNames.ActionType] !== ActionStartOptions.mcp().id ||
+            inputs.platform === Platform.CLI
+          );
+        },
       },
     ],
   };
@@ -903,9 +978,9 @@ export function addAuthActionAuthTypeQuestion(): SingleSelectQuestion {
   return {
     type: "singleSelect",
     name: QuestionNames.ApiAuth,
-    title: getLocalizedString("core.createProjectQuestion.apiMessageExtensionAuth.title"),
+    title: getLocalizedString("template.createProjectQuestion.apiMessageExtensionAuth.title"),
     placeholder: getLocalizedString(
-      "core.createProjectQuestion.apiMessageExtensionAuth.placeholder"
+      "template.createProjectQuestion.apiMessageExtensionAuth.placeholder"
     ),
     cliDescription: "The authentication type for the API.",
     staticOptions: AddAuthActionAuthTypeOptions.all(),

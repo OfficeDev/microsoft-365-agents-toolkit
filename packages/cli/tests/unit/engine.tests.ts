@@ -3,13 +3,12 @@ import {
   CLICommandOption,
   CLIContext,
   CLIFoundCommand,
-  LogLevel,
-  SystemError,
   err,
+  LogLevel,
   ok,
+  SystemError,
 } from "@microsoft/teamsfx-api";
 import {
-  featureFlagManager,
   FxCore,
   InputValidationError,
   MissingEnvironmentVariablesError,
@@ -18,6 +17,7 @@ import {
 } from "@microsoft/teamsfx-core";
 import { assert } from "chai";
 import "mocha";
+import mockedEnv from "mocked-env";
 import * as sinon from "sinon";
 import * as activate from "../../src/activate";
 import { getFxCore, resetFxCore } from "../../src/activate";
@@ -42,9 +42,6 @@ import {
 import * as main from "../../src/index";
 import CliTelemetry from "../../src/telemetry/cliTelemetry";
 import { getVersion } from "../../src/utils";
-import mockedEnv, { RestoreFn } from "mocked-env";
-import { shareCommand } from "../../src/commands/models/share";
-import { setSensitivityLabelCommand } from "../../src/commands/models/setSensitivityLabel";
 
 describe("CLI Engine", () => {
   const sandbox = sinon.createSandbox();
@@ -417,7 +414,7 @@ describe("CLI Engine", () => {
     it("should validation failed for capability", async () => {
       sandbox
         .stub(process, "argv")
-        .value(["node", "cli", "new", "-c", "tab", "-n", "myapp", "-i", "false"]);
+        .value(["node", "cli", "new", "-c", "da", "-n", "myapp", "-i", "false"]);
       let error: any = {};
       sandbox.stub(engine, "processResult").callsFake(async (context, fxError) => {
         error = fxError;

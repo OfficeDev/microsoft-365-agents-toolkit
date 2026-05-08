@@ -18,7 +18,10 @@ export class ManagerPrompt {
 
   private isInitialized = false;
 
-  constructor(private context: MessageContext, private logger: ILogger) {}
+  constructor(
+    private context: MessageContext,
+    private logger: ILogger
+  ) {}
 
   private async createManagerPrompt(): Promise<ChatPrompt> {
     const managerModelConfig = getModelConfig("manager");

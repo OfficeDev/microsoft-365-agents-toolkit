@@ -12,4 +12,5 @@ module.exports = {
   slow: "75",
   timeout: 0,
   extensions: ["ts", "tsx"],
+  "node-option": ["no-experimental-strip-types"],
 };

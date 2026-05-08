@@ -7,8 +7,8 @@ import chai from "chai";
 import fs from "fs-extra";
 import { pluginManifestUtils } from "../../../../src/component/driver/teamsApp/utils/PluginManifestUtils";
 import {
+  AppManifestUtils,
   Colors,
-  ManifestUtil,
   Platform,
   PluginManifestSchema,
   SystemError,
@@ -389,7 +389,7 @@ describe("pluginManifestUtils", () => {
     it("validate success", async () => {
       sandbox.stub(fs, "pathExists").resolves(true);
       sandbox.stub(fs, "readFile").resolves(JSON.stringify(pluginManifest) as any);
-      sandbox.stub(ManifestUtil, "validateManifest").resolves([]);
+      sandbox.stub(AppManifestUtils, "validateAgainstSchema").resolves([]);
       sandbox.stub(pluginManifestUtils, "validateLocalMCPPluginRuntimes").resolves([]);
 
       const res = await pluginManifestUtils.validateAgainstSchema(
@@ -410,7 +410,7 @@ describe("pluginManifestUtils", () => {
     it("validate action error", async () => {
       sandbox.stub(fs, "pathExists").resolves(true);
       sandbox.stub(fs, "readFile").resolves(JSON.stringify(pluginManifest) as any);
-      sandbox.stub(ManifestUtil, "validateManifest").resolves([]);
+      sandbox.stub(AppManifestUtils, "validateAgainstSchema").resolves([]);
       sandbox
         .stub(pluginManifestUtils, "validateAgainstSchema")
         .resolves(err(new SystemError("error", "error", "error", "error")));
@@ -429,7 +429,7 @@ describe("pluginManifestUtils", () => {
     it("validate schema error", async () => {
       sandbox.stub(fs, "pathExists").resolves(true);
       sandbox.stub(fs, "readFile").resolves(JSON.stringify(pluginManifest) as any);
-      sandbox.stub(ManifestUtil, "validateManifest").throws("error");
+      sandbox.stub(AppManifestUtils, "validateAgainstSchema").throws("error");
 
       const res = await pluginManifestUtils.validateAgainstSchema(
         { id: "1", file: "file" },

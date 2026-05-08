@@ -43,4 +43,5 @@ resource
 !src/resource
 !src/cmds/preview/depsChecker/resource/
 templates
+json-schemas
 *.tgz

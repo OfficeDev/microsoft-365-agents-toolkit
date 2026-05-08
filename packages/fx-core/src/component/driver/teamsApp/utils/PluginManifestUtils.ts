@@ -2,12 +2,12 @@
 // Licensed under the MIT license.
 
 import {
+  AppManifestUtils,
   Colors,
   DefaultApiSpecJsonFileName,
   DefaultApiSpecYamlFileName,
   FxError,
   IPlugin,
-  ManifestUtil,
   Platform,
   PluginManifestSchema,
   FunctionObject,
@@ -95,7 +95,7 @@ export class PluginManifestUtils {
     }
 
     try {
-      const schemaErrors = await ManifestUtil.validateManifest(manifestRes.value);
+      const schemaErrors = await AppManifestUtils.validateAgainstSchema(manifestRes.value as any);
       const localMCPPluginErrors = await this.validateLocalMCPPluginRuntimes(manifestRes.value);
       const allErrors = [...schemaErrors, ...localMCPPluginErrors];
 

@@ -1,0 +1,302 @@
+name: Dev Smoke Test Pipeline
+
+on:
+  workflow_dispatch:
+    inputs:
+      email:
+        description: "Your personal email for test result notification (e.g., yourname@microsoft.com)"
+        required: true
+        type: string
+
+jobs:
+  run-cd:
+    runs-on: ubuntu-latest
+    outputs:
+      run_id: ${{ steps.trigger.outputs.run_id }}
+      tag_name: ${{ steps.tag.outputs.tag_name }}
+    steps:
+      - name: Generate GitHub App token
+        id: generate-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ vars.APP_GITHUB_APP_ID }}
+          private-key: ${{ secrets.APP_GITHUB_APP_PRIVATE_KEY }}
+
+      - name: Generate tag name
+        id: tag
+        run: |
+          SAFE_BRANCH=$(echo "${{ github.head_ref || github.ref_name }}" | sed 's/[^a-zA-Z0-9._-]/-/g')
+          DATETIME=$(date -u +"%Y%m%d%H%M%S")
+          TAG_NAME="${SAFE_BRANCH}_${DATETIME}"
+          echo "tag_name=${TAG_NAME}" >> "$GITHUB_OUTPUT"
+
+      - name: Trigger CD pipeline
+        id: trigger
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ steps.generate-token.outputs.token }}
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const sourceBranch = '${{ github.head_ref || github.ref_name }}';
+            const cdDispatchBranch = 'neil/cdprivatepipeline';
+
+            // Trigger CD workflow on private CD branch, then build sourceBranch via external_ref
+            await github.rest.actions.createWorkflowDispatch({
+              owner,
+              repo,
+              workflow_id: 'cd.yml',
+              ref: cdDispatchBranch,
+              inputs: {
+                external_ref: sourceBranch
+              }
+            });
+
+            // Wait a moment for the run to appear
+            await new Promise(r => setTimeout(r, 15000));
+
+            // Find the triggered run
+            const runs = await github.rest.actions.listWorkflowRuns({
+              owner,
+              repo,
+              workflow_id: 'cd.yml',
+              branch: cdDispatchBranch,
+              per_page: 5
+            });
+
+            const run = runs.data.workflow_runs.find(r =>
+              r.status !== 'completed' || (Date.now() - new Date(r.created_at).getTime()) < 60000
+            );
+
+            if (!run) {
+              throw new Error('Could not find the triggered CD workflow run');
+            }
+
+            core.setOutput('run_id', run.id.toString());
+            console.log(`CD run ID: ${run.id}`);
+
+      - name: Wait for CD pipeline to complete
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ steps.generate-token.outputs.token }}
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const runId = parseInt('${{ steps.trigger.outputs.run_id }}');
+
+            const pollInterval = 60000; // 1 minute
+            const timeout = 7200000; // 2 hours
+            const start = Date.now();
+
+            while (Date.now() - start < timeout) {
+              const run = await github.rest.actions.getWorkflowRun({
+                owner,
+                repo,
+                run_id: runId
+              });
+
+              console.log(`CD run status: ${run.data.status}, conclusion: ${run.data.conclusion}`);
+
+              if (run.data.status === 'completed') {
+                if (run.data.conclusion !== 'success') {
+                  throw new Error(`CD pipeline failed with conclusion: ${run.data.conclusion}. Check run: ${run.data.html_url}`);
+                }
+                console.log('CD pipeline completed successfully');
+                return;
+              }
+
+              await new Promise(r => setTimeout(r, pollInterval));
+            }
+
+            throw new Error('CD pipeline timed out after 2 hours');
+
+  run-docker-build:
+    needs: run-cd
+    runs-on: ubuntu-latest
+    outputs:
+      run_id: ${{ steps.trigger.outputs.run_id }}
+    steps:
+      - name: Generate GitHub App token
+        id: generate-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ vars.APP_GITHUB_APP_ID }}
+          private-key: ${{ secrets.APP_GITHUB_APP_PRIVATE_KEY }}
+
+      - name: Trigger Docker Build pipeline
+        id: trigger
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ steps.generate-token.outputs.token }}
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+
+            await github.rest.actions.createWorkflowDispatch({
+              owner,
+              repo,
+              workflow_id: 'vscuse-atk-docker-build.yml',
+              ref: 'dev',
+              inputs: {
+                tag: '${{ needs.run-cd.outputs.tag_name }}',
+                run_id: '${{ needs.run-cd.outputs.run_id }}'
+              }
+            });
+
+            await new Promise(r => setTimeout(r, 15000));
+
+            const runs = await github.rest.actions.listWorkflowRuns({
+              owner,
+              repo,
+              workflow_id: 'vscuse-atk-docker-build.yml',
+              branch: 'dev',
+              per_page: 5
+            });
+
+            const run = runs.data.workflow_runs.find(r =>
+              r.status !== 'completed' || (Date.now() - new Date(r.created_at).getTime()) < 60000
+            );
+
+            if (!run) {
+              throw new Error('Could not find the triggered Docker Build workflow run');
+            }
+
+            core.setOutput('run_id', run.id.toString());
+            console.log(`Docker Build run ID: ${run.id}`);
+
+      - name: Wait for Docker Build pipeline to complete
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ steps.generate-token.outputs.token }}
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const runId = parseInt('${{ steps.trigger.outputs.run_id }}');
+
+            const pollInterval = 60000;
+            const timeout = 7200000;
+            const start = Date.now();
+
+            while (Date.now() - start < timeout) {
+              const run = await github.rest.actions.getWorkflowRun({
+                owner,
+                repo,
+                run_id: runId
+              });
+
+              console.log(`Docker Build status: ${run.data.status}, conclusion: ${run.data.conclusion}`);
+
+              if (run.data.status === 'completed') {
+                if (run.data.conclusion !== 'success') {
+                  throw new Error(`Docker Build pipeline failed with conclusion: ${run.data.conclusion}. Check run: ${run.data.html_url}`);
+                }
+                console.log('Docker Build pipeline completed successfully');
+                return;
+              }
+
+              await new Promise(r => setTimeout(r, pollInterval));
+            }
+
+            throw new Error('Docker Build pipeline timed out after 2 hours');
+
+  run-ui-test:
+    needs: [run-cd, run-docker-build]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate GitHub App token
+        id: generate-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ vars.APP_GITHUB_APP_ID }}
+          private-key: ${{ secrets.APP_GITHUB_APP_PRIVATE_KEY }}
+
+      - name: Checkout repo to read test cases
+        uses: actions/checkout@v4
+        with:
+          ref: dev
+          sparse-checkout: packages/tests/vscuse/smoking-test-cases.json
+
+      - name: Read smoke test cases
+        id: test_cases
+        run: |
+          TEST_PLAN=$(jq -r '.smokeTestCases | join(",")' packages/tests/vscuse/smoking-test-cases.json)
+          echo "test_plan=${TEST_PLAN}" >> "$GITHUB_OUTPUT"
+          echo "Test plan: ${TEST_PLAN}"
+
+      - name: Trigger UI Test pipeline
+        id: trigger
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ steps.generate-token.outputs.token }}
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+
+            await github.rest.actions.createWorkflowDispatch({
+              owner,
+              repo,
+              workflow_id: 'ui-test-vscuse-template.yml',
+              ref: 'dev',
+              inputs: {
+                image_tag: '${{ needs.run-cd.outputs.tag_name }}',
+                'email-receiver': '${{ inputs.email }}',
+                test_plan: '${{ steps.test_cases.outputs.test_plan }}',
+                max_retries: '1'
+              }
+            });
+
+            await new Promise(r => setTimeout(r, 15000));
+
+            const runs = await github.rest.actions.listWorkflowRuns({
+              owner,
+              repo,
+              workflow_id: 'ui-test-vscuse-template.yml',
+              branch: 'dev',
+              per_page: 5
+            });
+
+            const run = runs.data.workflow_runs.find(r =>
+              r.status !== 'completed' || (Date.now() - new Date(r.created_at).getTime()) < 60000
+            );
+
+            if (!run) {
+              throw new Error('Could not find the triggered UI Test workflow run');
+            }
+
+            console.log(`UI Test run ID: ${run.id}`);
+            core.setOutput('run_id', run.id.toString());
+
+      - name: Wait for UI Test pipeline to complete
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ steps.generate-token.outputs.token }}
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const runId = parseInt('${{ steps.trigger.outputs.run_id }}');
+
+            const pollInterval = 60000;
+            const timeout = 14400000; // 4 hours for UI tests
+            const start = Date.now();
+
+            while (Date.now() - start < timeout) {
+              const run = await github.rest.actions.getWorkflowRun({
+                owner,
+                repo,
+                run_id: runId
+              });
+
+              console.log(`UI Test status: ${run.data.status}, conclusion: ${run.data.conclusion}`);
+
+              if (run.data.status === 'completed') {
+                if (run.data.conclusion !== 'success') {
+                  throw new Error(`UI Test pipeline failed with conclusion: ${run.data.conclusion}. Check run: ${run.data.html_url}`);
+                }
+                console.log('UI Test pipeline completed successfully');
+                return;
+              }
+
+              await new Promise(r => setTimeout(r, pollInterval));
+            }
+
+            throw new Error('UI Test pipeline timed out after 4 hours');

@@ -559,12 +559,36 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";core.MCPForDA.authRequired" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The MCP server at %s requires authentication. Tools could not be fetched automatically. To add tools, run:]A;  %s]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Il server MCP in %s richiede l'autenticazione. Non è possibile recuperare automaticamente gli strumenti. Per aggiungere strumenti, esegui:]A;  %s]]></Val>
+          </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[The MCP server at %s requires authentication. Tools could not be fetched automatically. To add tools, run:]A;  atk add action --api-plugin-type mcp --mcp-da-server-url <server-url> --mcp-tools-file-path <path-to-tools-json> --interactive false]]></Val>
+          </Prev>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";core.MCPForDA.authUrlNotFound" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Unable to find the authentication URL(s) from response of Authorization Server Metadata of the MCP server.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Impossibile trovare gli URL di autenticazione nella risposta dei metadati del server di autorizzazione del server MCP.]]></Val>
           </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.MCPForDA.fetchError" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Failed to fetch tools from the MCP server at %s. To add tools later, run:]A;  %s]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Non è possibile recuperare strumenti dal server MCP in %s. Per aggiungere strumenti in un secondo momento, esegui:]A;  %s]]></Val>
+          </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Failed to fetch tools from the MCP server at %s. To add tools later, run:]A;  atk add action --api-plugin-type mcp --mcp-da-server-url <server-url> --mcp-tools-file-path <path-to-tools-json> --interactive false]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -592,6 +616,117 @@
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Impossibile trovare i metadati del server dalla proprietà "authorization_servers" nella risposta dei metadati della risorsa protetta del server MCP.]]></Val>
           </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.MCPForDA.missingAuthType" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The --mcp-da-auth-type option is required when the MCP server requires authentication and tools are provided. Use --mcp-da-auth-type oauth or --mcp-da-auth-type entraSSO.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[L'opzione --mcp-da-auth-type è obbligatoria quando il server MCP richiede l'autenticazione e vengono forniti gli strumenti. Usare --mcp-da-auth-type oauth o --mcp-da-auth-type entraSSO.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.MCPForDA.missingServerUrl" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The --mcp-da-server-url option is required when --api-plugin-type is mcp.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[L'opzione --mcp-da-server-url è obbligatoria quando --api-plugin-type è mcp.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.MCPForDA.noToolsFetched" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[No tools were discovered from the MCP server at %s. To add tools later, run:]A;  %s]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Non sono stati individuati strumenti dal server MCP in %s. Per aggiungere strumenti in un secondo momento, esegui:]A;  %s]]></Val>
+          </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[No tools were discovered from the MCP server at %s. To add tools later, run:]A;  atk add action --api-plugin-type mcp --mcp-da-server-url <server-url> --mcp-tools-file-path <path-to-tools-json> --interactive false]]></Val>
+          </Prev>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.MCPForDA.pluginManifestNotFound" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[ai-plugin.json not found at: %s]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Non è possibile trovare ai-plugin.json in: %s]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.MCPForDA.preFetchToolsNotFound" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[No tool definitions found. The project will use dynamic tool discovery.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Nessuna definizione di strumento trovata. Il progetto userà l'individuazione dinamica degli strumenti.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.MCPForDA.toolsFileInvalidFormat" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Invalid MCP tools file format. Expected %s or a JSON array of tools: %s]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Formato di file degli strumenti MCP non valido. Previsto %s o una matrice JSON di strumenti: %s]]></Val>
+          </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Invalid MCP tools file format. Expected { "tools": [...]5D; } or a JSON array of tools: %s]]></Val>
+          </Prev>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.MCPForDA.toolsFileMissingName" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Each tool in the MCP tools file must have a %s property: %s]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Ogni strumento nel file degli strumenti MCP deve avere una proprietà %s: %s]]></Val>
+          </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Each tool in the MCP tools file must have a "name" property: %s]]></Val>
+          </Prev>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.MCPForDA.toolsFileNotFound" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[MCP tools file not found: %s]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Non è possibile trovare il file degli strumenti MCP: %s]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.MCPForDA.toolsFilePath.placeholder" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Enter the path to a JSON file containing MCP tool definitions]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Immettere il percorso di un file JSON contenente definizioni di strumenti MCP]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.MCPForDA.toolsFilePath.title" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[MCP Tools Definition File]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[File di definizione degli strumenti MCP]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.MCPForDA.toolsFileReadError" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Failed to read MCP tools file: %s. To add tools later, run:]A;  %s]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Non è possibile leggere il file degli strumenti MCP: %s. Per aggiungere strumenti in un secondo momento, esegui:]A;  %s]]></Val>
+          </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Failed to read MCP tools file: %s. To add tools later, run:]A;  atk add action --api-plugin-type mcp --mcp-da-server-url <server-url> --mcp-tools-file-path <path-to-tools-json> --interactive false]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -2533,18 +2668,6 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";core.createCapabilityQuestion.placeholder" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Select a capability]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Selezionare una funzionalità]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Select at least 1 capability]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
       <Item ItemId=";core.createCapabilityQuestion.titleNew" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Capabilities]]></Val>
@@ -2575,51 +2698,6 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";core.createProjectQuestion.DAMetaOS.capability.newProject.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Build a new Declarative Agent with Office add-in actions]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Crea un nuovo agente dichiarativo con azioni del componente aggiuntivo di Office]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.DAMetaOS.capability.newProject.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[New Declarative Agent with Office Add-in Actions]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Nuovo agente dichiarativo con azioni del componente aggiuntivo di Office]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.DAMetaOS.capability.title" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Declarative Agent in MetaOS Capabilities]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Agente dichiarativo nelle funzionalità MetaOS]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.DAMetaOS.capability.upgradeProject.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Extend an add-in project to the declarative agent with add-in actions]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Estendi un progetto di componente aggiuntivo all'agente dichiarativo con azioni del componente aggiuntivo]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.DAMetaOS.capability.upgradeProject.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Extend an existing Office Add-in]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Estendi un componente aggiuntivo di Office esistente]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
       <Item ItemId=";core.createProjectQuestion.DAMetaOS.capability.upgradeProject.projectFolder.placeholder" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[The existing MetaOS Add-in project root folder]]></Val>
@@ -2634,24 +2712,6 @@
           <Val><![CDATA[The Existing Add-in Project Folder]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[La cartella del progetto del componente aggiuntivo esistente]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.DAMetaOS.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Create a Declarative Agent with Office add-in action]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Crea un agente dichiarativo con azione del componente aggiuntivo di Office]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.DAMetaOS.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Create Declarative Agent with Office Add-in Action]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Crea un agente dichiarativo con azioni del componente aggiuntivo di Office]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -2755,18 +2815,6 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";core.createProjectQuestion.addApiPlugin.placeholder" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Select how to add an action]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Selezionare la modalità di aggiunta di un'azione]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Select how to add action]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
       <Item ItemId=";core.createProjectQuestion.addApiPlugin.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Add an Action]]></Val>
@@ -2821,30 +2869,6 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";core.createProjectQuestion.addGC.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Create a declarative agent with a Copilot connector]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Crea un agente dichiarativo con un connettore Copilot]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Create a declarative agent with a Copilot Connector]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.addGC.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Add a Copilot connector]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Aggiungi un connettore Copilot]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Add a Copilot Connector]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
       <Item ItemId=";core.createProjectQuestion.addKnowledge.placeholder" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Select a capability source as grounding information for declarative agent]]></Val>
@@ -2878,30 +2902,6 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";core.createProjectQuestion.addPlugin.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Create a declarative agent with an action]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Crea un agente dichiarativo con un'azione]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Create declarative agent with API plugin]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.addPlugin.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Add an Action]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Aggiungi un'azione]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Add action]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
       <Item ItemId=";core.createProjectQuestion.addPlugin.pluginManifestMissingApiSpec" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Invalid plugin manifest. Ensure the manifest has a runtime of "%s" and references a valid API description document.]]></Val>
@@ -2916,24 +2916,6 @@
           <Val><![CDATA[Found multiple OpenAPI description documents: "%s".]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Trovati più documenti di descrizione OpenAPI: "%s".]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.apiMessageExtensionAuth.placeholder" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Select an authentication type]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Selezionare un tipo di autenticazione]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.apiMessageExtensionAuth.title" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Authentication Type]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Tipo di autenticazione]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -2958,30 +2940,6 @@
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Import from existing plugin]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.apiPlugin.typeSpec.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Create a declarative agent with or without an action using TypeSpec for Microsoft 365 Copilot]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Creare un agente dichiarativo con o senza un'azione usando TypeSpec per Microsoft 365 Copilot]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Create your action with TypeSpec using an API Action template.]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.apiPlugin.typeSpec.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Start with TypeSpec for Microsoft 365 Copilot]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Iniziare con TypeSpec per Microsoft 365 Copilot]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Start with TypeSpec]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -3087,55 +3045,37 @@
       </Item>
       <Item ItemId=";core.createProjectQuestion.apiSpec.placeholder" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Enter OpenAPI Description Document URL]]></Val>
+          <Val><![CDATA[Enter OpenAPI Document URL]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Immettere l'URL del documento descrizione OpenAPI]]></Val>
+            <Val><![CDATA[Immettere l’URL del documento OpenAPI]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Enter OpenAPI Specification URL]]></Val>
+            <Val><![CDATA[Enter OpenAPI Description Document URL]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.createProjectQuestion.apiSpec.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[OpenAPI Description Document]]></Val>
+          <Val><![CDATA[OpenAPI Document]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Documento descrizione OpenAPI]]></Val>
+            <Val><![CDATA[Documento OpenAPI]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[OpenAPI Spec]]></Val>
+            <Val><![CDATA[OpenAPI Description Document]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.createProjectQuestion.apiSpecInputUrl.label" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Enter OpenAPI Description Document Location]]></Val>
+          <Val><![CDATA[Enter OpenAPI Document URL]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Immettere il percorso del documento descrizione OpenAPI]]></Val>
+            <Val><![CDATA[Immettere l’URL del documento OpenAPI]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Enter OpenAPI Specification Location]]></Val>
+            <Val><![CDATA[Enter OpenAPI Description Document Location]]></Val>
           </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.capability.DAMetaOS.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Create a Declarative Agent with Office add-in action]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Crea un agente dichiarativo con azione del componente aggiuntivo di Office]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.capability.DAMetaOS.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Start with an Office Add-in Action]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Inizia con un'azione del componente aggiuntivo di Office]]></Val>
-          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -3157,54 +3097,6 @@
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Inizia con un bot]]></Val>
           </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.capability.copilotPluginApiSpecOption.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Create an action from your existing API]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Creare un'azione dall'API esistente]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Create a plugin from your existing API]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.capability.copilotPluginApiSpecOption.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Start with an OpenAPI Description Document]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Iniziare con un documento di descrizione OpenAPI]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Start with an OpenAPI Specification]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.capability.copilotPluginNewApiOption.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Create an action with a new API from Azure Functions]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Crea un'azione con una nuova API da Funzioni di Azure]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Create a plugin with a new API from Azure Functions]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.capability.copilotPluginNewApiOption.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Start with a New API]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Inizia con una nuova API]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Start with a new API]]></Val>
-          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -3230,7 +3122,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Build an AI agent with OpenAI Assistants API and Microsoft Teams SDK]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Crea un agente IA con l'API Assistenti OpenAI e l'SDK Microsoft Teams]]></Val>
+            <Val><![CDATA[Crea un agente IA con l'API Assistenti OpenAI e Microsoft Teams SDK]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Build an AI agent with OpenAI Assistants API and Teams AI Library]]></Val>
@@ -3251,7 +3143,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Build your own AI Agent from scratch using Microsoft Teams SDK]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Crea un agente IA personalizzato da zero con l'SDK Microsoft Teams]]></Val>
+            <Val><![CDATA[Crea un agente IA personalizzato da zero con Microsoft Teams SDK]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Build your own AI Agent from scratch using Teams AI Library]]></Val>
@@ -3323,7 +3215,7 @@
         <Str Cat="Text">
           <Val><![CDATA[A travel planning agent, which is built with Microsoft 365 Agents SDK, Microsoft 365 Retrieval API and Agent Framework]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Un agente per la pianificazione dei viaggi, realizzato con SDK per agenti Microsoft 365, API di recupero Microsoft 365 e Agent Framework]]></Val>
+            <Val><![CDATA[Un agente per la pianificazione dei viaggi, creato con SDK per agenti Microsoft 365, API di recupero Microsoft 365 e Agent Framework]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3341,7 +3233,7 @@
         <Str Cat="Text">
           <Val><![CDATA[A weather forecast agent, which is built with Microsoft 365 Agents SDK and Semantic Kernel]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Un agente di previsioni meteo, creato con Microsoft 365 Agents SDK e Semantic Kernel]]></Val>
+            <Val><![CDATA[Un agente di previsioni meteo, creato con SDK per agenti Microsoft 365 e Semantic Kernel]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3360,6 +3252,24 @@
           <Val><![CDATA[Works in Teams and Microsoft 365 Copilot]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Funziona in Teams e Microsoft 365 Copilot]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.capability.foundryProxyAgentOption.detail" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[An agent that proxies requests to Microsoft Azure AI Foundry agents, enabling Teams and M365 Copilot integration]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Un agente che inoltra le richieste agli agenti di Fonderia Microsoft Azure AI, permettendo l'integrazione di Teams e M365 Copilot]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.capability.foundryProxyAgentOption.label" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Microsoft Foundry Proxy Agent]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Agente proxy di Microsoft Foundry]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3462,10 +3372,13 @@
       </Item>
       <Item ItemId=";core.createProjectQuestion.capability.searchOpenAPISpecQueryQuestion.label" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Search OpenAPI Description Document]]></Val>
+          <Val><![CDATA[Search OpenAPI Document]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Cerca documento di descrizione OpenAPI]]></Val>
+            <Val><![CDATA[Cercare il documento OpenAPI]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Search OpenAPI Description Document]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -3478,86 +3391,80 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";core.createProjectQuestion.capability.selectOpenAPISpecFromLocation.label" ItemType="0" PsrId="306" Leaf="true">
+      <Item ItemId=";core.createProjectQuestion.capability.selectOpenAPISpecFromFile.label" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Enter OpenAPI Description Document Location or Open File...]]></Val>
+          <Val><![CDATA[Browse to Open File]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Immetti percorso del documento di descrizione OpenAPI o apri file...]]></Val>
+            <Val><![CDATA[Passare ad Apri file]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.createProjectQuestion.capability.selectOpenAPISpecFromSearch.label" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Search OpenAPI Description Document...]]></Val>
+          <Val><![CDATA[Search OpenAPI Document]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Cerca documento di descrizione OpenAPI...]]></Val>
+            <Val><![CDATA[Cercare il documento OpenAPI]]></Val>
+          </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Search OpenAPI Description Document...]]></Val>
+          </Prev>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.capability.selectOpenAPISpecFromUrl.label" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Enter OpenAPI Document URL]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Immettere l’URL del documento OpenAPI]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.createProjectQuestion.capability.selectOpenAPISpecQuestion.label" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Select OpenAPI Description Document]]></Val>
+          <Val><![CDATA[Select OpenAPI Document]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Seleziona documento di descrizione OpenAPI]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.createApiPlugin.title" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Create an Action]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Creare un’azione]]></Val>
+            <Val><![CDATA[Selezionare il documento OpenAPI]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Create API Plugin]]></Val>
+            <Val><![CDATA[Select OpenAPI Description Document]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";core.createProjectQuestion.createGraphConnector.detail" ItemType="0" PsrId="306" Leaf="true">
+      <Item ItemId=";core.createProjectQuestion.foundry.agentId.placeholder" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Embed your organization data to make it searchable in Microsoft 365 Copilot]]></Val>
+          <Val><![CDATA[Input Azure AI Foundry agent ID now or set it later in the project]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Incorporare i dati dell'organizzazione per renderli ricercabili in Microsoft 365 Copilot]]></Val>
+            <Val><![CDATA[Inserire ora l'ID dell'agente di Fonderia Azure AI o impostarlo in un secondo momento nel progetto]]></Val>
           </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Create a Graph Connector to connect to your data source]]></Val>
-          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";core.createProjectQuestion.createGraphConnector.label" ItemType="0" PsrId="306" Leaf="true">
+      <Item ItemId=";core.createProjectQuestion.foundry.agentId.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Copilot connectors]]></Val>
+          <Val><![CDATA[Azure AI Foundry Agent ID]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Connettori Copilot]]></Val>
+            <Val><![CDATA[ID agente di Fonderia Azure AI]]></Val>
           </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Copilot connector]]></Val>
-          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";core.createProjectQuestion.declarativeCopilot.placeholder" ItemType="0" PsrId="306" Leaf="true">
+      <Item ItemId=";core.createProjectQuestion.foundry.endpoint.placeholder" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Add an action to your declarative agent]]></Val>
+          <Val><![CDATA[Input Azure AI Foundry project endpoint now or set it later in the project]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Aggiungi un'azione all'agente dichiarativo]]></Val>
+            <Val><![CDATA[Inserire ora l'endpoint del progetto Fonderia Azure AI o impostarlo in un secondo momento nel progetto]]></Val>
           </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Add API plugin to your declarative agent]]></Val>
-          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";core.createProjectQuestion.declarativeCopilot.title" ItemType="0" PsrId="306" Leaf="true">
+      <Item ItemId=";core.createProjectQuestion.foundry.endpoint.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Create Declarative Agent]]></Val>
+          <Val><![CDATA[Azure AI Foundry Project Endpoint]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Crea agente dichiarativo]]></Val>
+            <Val><![CDATA[Endpoint del progetto Fonderia Azure Ai]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3808,6 +3715,60 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";core.createProjectQuestion.mcpForDa.File.createNew.label" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Create a new ai-plugin.json]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Crea un nuovo ai-plugin.json]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.mcpForDa.File.createNew.title" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Name the new action manifest file]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Assegna un nome al nuovo file manifesto dell'azione]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.mcpForDa.File.createNew.validation.empty" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[File name cannot be empty.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Il nome del file non può essere vuoto.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.mcpForDa.File.createNew.validation.exists" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[A file named '%s' already exists in appPackage. Choose a different name.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Un file denominato "%s" esiste già in appPackage. Scegli un nome diverso.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.mcpForDa.File.createNew.validation.extension" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[File name must end with .json.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Il nome del file deve terminare con .json.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.mcpForDa.File.createNew.validation.relative" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Enter a file name only (no path separators).]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Immetti solo un nome file (senza separatori di percorso).]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";core.createProjectQuestion.mcpForDa.File.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Select the action manifest you want to update]]></Val>
@@ -3844,24 +3805,6 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";core.createProjectQuestion.mcpForDa.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Create actions from your existing MCP server]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Crea azioni dal server MCP esistente]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.mcpForDa.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Start with an MCP server]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Inizia con un server MCP]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
       <Item ItemId=";core.createProjectQuestion.mcpLocalServer.placeholder" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Select a local MCP server]]></Val>
@@ -3891,10 +3834,13 @@
       </Item>
       <Item ItemId=";core.createProjectQuestion.mcpServerType.local.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Connect to an MCP server running on your local Windows system]]></Val>
+          <Val><![CDATA[Connect to a MCP server running on your local Windows system]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Connettersi a un server MCP in esecuzione sul sistema Windows locale]]></Val>
+            <Val><![CDATA[Connettiti a un server MCP in esecuzione sul sistema Windows locale]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Connect to an MCP server running on your local Windows system]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -3918,10 +3864,13 @@
       </Item>
       <Item ItemId=";core.createProjectQuestion.mcpServerType.remote.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Connect to an MCP server hosted remotely via HTTP]]></Val>
+          <Val><![CDATA[Connect to a MCP server hosted remotely via HTTP]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Connettersi a un server MCP ospitato in remoto tramite HTTP]]></Val>
+            <Val><![CDATA[Connettiti a un server MCP ospitato in remoto tramite HTTP]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Connect to an MCP server hosted remotely via HTTP]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -3952,24 +3901,12 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";core.createProjectQuestion.noPlugin.detail" ItemType="0" PsrId="306" Leaf="true">
+      <Item ItemId=";core.createProjectQuestion.oneDriveSharePointItem.confirm" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Create declarative agent only]]></Val>
+          <Val><![CDATA[Confirm your selection]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Crea solo agente dichiarativo]]></Val>
+            <Val><![CDATA[Conferma la selezione]]></Val>
           </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.noPlugin.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[No Action]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Nessuna azione]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[No plugin]]></Val>
-          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -3996,6 +3933,15 @@
           <Val><![CDATA[Preview]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Anteprima]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.option.description.previewOnWindow" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Preview on Windows]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Anteprima in Windows]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4051,114 +3997,6 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";core.createProjectQuestion.projectType.copilotExtension.placeholder" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Select an option]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Selezionare un'opzione]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.projectType.copilotExtension.title" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[App Features Using Agents]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Funzionalità dell'app che usano gli agenti]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.projectType.copilotGroup.title" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Use GitHub Copilot]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Usa GitHub Copilot]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.projectType.copilotHelp.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Chat with GitHub Copilot and get step-by-step instructions to develop your app or Microsoft 365 Copilot agent.]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Chatta con GitHub Copilot e ottieni istruzioni passo-passo per sviluppare la tua app o l'agente di Microsoft 365 Copilot.]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Chat with GitHub Copilot and get step-by-step instructions to develop your Microsoft 365 app or Microsoft 365 Copilot agent.]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.projectType.copilotHelp.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Don't know how to start? Use GitHub Copilot Chat]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Non sai come iniziare? Usa GitHub Copilot Chat]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.projectType.createGroup.aiAgent" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Agents for Microsoft 365 Copilot]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Agenti per Microsoft 365 Copilot]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[AI Agent]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.projectType.createGroup.m365Apps" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Apps for Microsoft 365]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[App per Microsoft 365]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.projectType.customCopilot.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Build intelligent agent where you manage orchestration and provide your own LLM]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[È possibile creare un agente intelligente in cui si gestisce l'orchestrazione e si fornisce un LLM specifico]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Build intelligent chatbot with Teams AI Library where you manage orchestration and provide your own LLM.]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.projectType.customCopilot.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Custom Engine Agent]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Agente motore personalizzato]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.projectType.declarativeAgent.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Create your own agent by declaring instructions, actions, & knowledge to suit your needs.]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Crea il tuo agente dichiarando istruzioni, azioni e conoscenze in base alle tue esigenze.]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.projectType.declarativeAgent.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Declarative Agent]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Agente dichiarativo]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
       <Item ItemId=";core.createProjectQuestion.projectType.messageExtension.copilotEnabled.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Search and take actions from the text input box in Teams and Outlook]]></Val>
@@ -4180,27 +4018,6 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";core.createProjectQuestion.projectType.officeAddin.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Extend Office applications to interact with content in Office documents and Outlook items]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Estendi le applicazioni di Office per interagire con il contenuto nei documenti di Office e negli elementi di Outlook]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Extend Office apps to interact with content in Office documents and Outlook items]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.projectType.officeAddin.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Office Add-in]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Componente aggiuntivo per Office]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
       <Item ItemId=";core.createProjectQuestion.projectType.tab.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Embed your own web content in Teams, Outlook, and the Microsoft 365 application]]></Val>
@@ -4218,33 +4035,6 @@
           <Val><![CDATA[App Features Using a Tab]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Funzionalità dell'app con una scheda]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.projectType.teamsAgentsAndApps.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Create agent, chat bot, web pages or other apps in Microsoft Teams using Microsoft Teams SDK.]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Crea agenti, chatbot, pagine web o altre app in Microsoft Teams usando l'SDK Microsoft Teams.]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.projectType.teamsAgentsAndApps.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Teams Agents and Apps]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[App e agenti di Teams]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.title" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[New Project]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Nuovo progetto]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4576,18 +4366,6 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";core.importAddin.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Upgrade an add-in project to the latest app manifest and project structure]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Aggiornare un progetto di componenti aggiuntivi alla struttura del progetto e del manifesto dell'app più recente]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Upgrade an Add-ins project to the latest app manifest and project structure]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
       <Item ItemId=";core.importAddin.label" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Import an Existing Outlook Add-ins]]></Val>
@@ -4597,15 +4375,6 @@
           <Prev Cat="Text">
             <Val><![CDATA[Import an Existing Outlook Add-in]]></Val>
           </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.importOfficeAddin.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Upgrade an Existing Office Add-in]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Aggiorna un componente aggiuntivo per Office esistente]]></Val>
-          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -4704,48 +4473,6 @@
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Teams Toolkit's Pre-Release version supports new project configuration and is incompatible with previous versions. Try it by creating a new project or run "teamsapp upgrade" to upgrade your project first.]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.newCFShortcut.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Task pane add-in with custom function and shortcut]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Componente aggiuntivo riquadro attività con funzione personalizzata e collegamento]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.newCFShortcut.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Custom Function and Shortcut]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Funzione personalizzata e combinazione di tasti]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.newTaskpaneAddin.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Customize the ribbon with a button and embed content in the task pane]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Personalizzare la barra multifunzione con un pulsante e incorporare il contenuto nel riquadro attività]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Customize the Ribbon with a button and embed content in the Taskpane]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.newTaskpaneAddin.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Task pane]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Riquadro attività]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Taskpane]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -5397,19 +5124,25 @@
       </Item>
       <Item ItemId=";core.shareOperationQuestion.option.removeShareAccessFromUsers" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Remove access for selected user(s)]]></Val>
+          <Val><![CDATA[Remove access]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Rimuovi l'accesso per gli utenti selezionati]]></Val>
+            <Val><![CDATA[Rimuovi accesso]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Remove access for selected user(s)]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.shareOperationQuestion.option.shareWithUsers" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Share access with selected user(s)]]></Val>
+          <Val><![CDATA[Share access]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Condividi l'accesso con gli utenti selezionati]]></Val>
+            <Val><![CDATA[Condividi accesso]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Share access with selected user(s)]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -5454,19 +5187,25 @@
       </Item>
       <Item ItemId=";core.shareScopeQuestion.option.shareWithTenant" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Share the agent with all tenant users]]></Val>
+          <Val><![CDATA[Share to all tenant users]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Condividi l'agente con tutti gli utenti del tenant]]></Val>
+            <Val><![CDATA[Condividi con tutti gli utenti del tenant]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Share the agent with all tenant users]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.shareScopeQuestion.option.shareWithUsers" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Share the agent with selected user(s)]]></Val>
+          <Val><![CDATA[Share to specified users(s) or user group]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Condividi l'agente con gli utenti selezionati]]></Val>
+            <Val><![CDATA[Condividi con gli utenti specificati o un gruppo di utenti]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Share the agent with selected user(s)]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -8335,6 +8074,42 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";driver.teamsApp.warning.createUnsupportedCloud" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Skipping %s as the required Developer Portal API is not yet available in GCC H and DoD. App ID will be generated locally later.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Ignorando %s poiché l'API richiesta del Portale per sviluppatori non è ancora disponibile in GCC H e DoD. L'ID app verrà generato localmente in seguito.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.teamsApp.warning.publishUnsupportedCloud" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Skipping %s as the required Developer Portal API is not yet available in GCC H and DoD. Please upload to Teams Admin Center manually.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Ignorando %s poiché l'API richiesta del Portale per sviluppatori non è ancora disponibile in GCC H e DoD. Carica manualmente nell'interfaccia di amministrazione di Teams.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.teamsApp.warning.unsupportedCloud" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Skipping %s as the required Developer Portal API is not yet available in GCC H and DoD.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Ignorando %s poiché l'API richiesta del Portale per sviluppatori non è ancora disponibile in GCC H e DoD.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.typeSpec.compile.description" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Compile TypeSpec project]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Compilare il progetto TypeSpec]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";driver.typeSpec.compile.reprovision" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[File %s is updated. A new provision process has started to apply the changes.]]></Val>
@@ -8361,6 +8136,15 @@
           <Val><![CDATA[Compiling and generating files...]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Compilazione e generazione dei file...]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.typespec.error.compileError" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[TypeSpec compilation failed. Please fix the errors reported by the compiler and try again. Compiler output:]A;%s]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Compilazione TypeSpec non riuscita. Correggi gli errori segnalati dal compilatore e riprova. Output del compilatore:]A;%s]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9871,6 +9655,15 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";error.generator.UnknownPolicy" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unknown auth policy: %s]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Criteri di autenticazione sconosciuti: %s]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";error.generator.UnzipError" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Unable to extract templates and save them to disk.]]></Val>
@@ -9996,10 +9789,13 @@
       </Item>
       <Item ItemId=";error.m365.SharedScopeAdvancedDADisabled" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Deployment blocked: Advanced declarative agent can't be deployed due to tenant permission settings. Get more info: [Manage agents for Microsoft 365 Copilot in the Microsoft 365 admin center - Microsoft 365 admin | Microsoft Learn]5D;(%s)]]></Val>
+          <Val><![CDATA[Deployment blocked: Advanced declarative agent can't be deployed as 'shared' scope due to tenant permission settings. Get more info: [Known limitation of Advanced Declarative Agent]5D;(%s)]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Distribuzione bloccata: l'agente dichiarativo avanzato non può essere distribuito a causa delle impostazioni delle autorizzazioni del tenant. Altre informazioni: [Gestisci agenti per Microsoft 365 Copilot nell'interfaccia di amministrazione di Microsoft 365 - amministratore di Microsoft 365 | Microsoft Learn]5D;(%s)]]></Val>
+            <Val><![CDATA[Distribuzione bloccata: l'agente dichiarativo avanzato non può essere distribuito come ambito "condiviso" a causa delle impostazioni delle autorizzazioni del tenant. Altre informazioni: [Limitazione nota dell'agente dichiarativo avanzato]5D;(%s)]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Deployment blocked: Advanced declarative agent can't be deployed due to tenant permission settings. Get more info: [Manage agents for Microsoft 365 Copilot in the Microsoft 365 admin center - Microsoft 365 admin | Microsoft Learn]5D;(%s)]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>

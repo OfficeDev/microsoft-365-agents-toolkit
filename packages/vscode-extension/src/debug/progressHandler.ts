@@ -1,6 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
-/* eslint-disable @typescript-eslint/no-this-alias */
+
 "use strict";
 
 import { Mutex } from "async-mutex";

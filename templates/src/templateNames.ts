@@ -74,6 +74,36 @@ export enum TemplateNames {
   Empty = "empty",
   MessageExtensionSearch = "message-extension-search",
 
-  FoundryAgent = "foundry-agent",
+  FoundryAgent = "foundry-agent-to-m365",
   FoundryProxyAgent = "foundry-proxy-agent",
+}
+
+export enum TemplateAlias {
+  // declarative agent
+  DeclarativeAgentBasic = "declarative-agent",
+  DeclarativeAgentWithActionFromScratch = "declarative-agent-action",
+  DeclarativeAgentWithActionFromScratchBearer = "declarative-agent-action-bearer",
+  DeclarativeAgentWithActionFromScratchOAuth = "declarative-agent-action-oauth",
+  DeclarativeAgentWithActionFromExistingApiSpec = "declarative-agent-action-from-existing-api",
+  DeclarativeAgentWithExistingAction = "declarative-agent-existing-action",
+
+  // agent for Teams
+  CustomCopilotBasic = "teams-agent",
+  CustomCopilotRagCustomize = "teams-agent-rag-customize",
+  CustomCopilotRagAzureAISearch = "teams-agent-rag-azure-ai-search",
+  CustomCopilotRagCustomApi = "teams-agent-rag-custom-api",
+
+  // Copilot connector
+  GraphConnector = "copilot-connector",
+
+  // tab
+  Tab = "tab",
+  TabSSR = "tab-ssr", // handled by SsrTabGenerator
+  SsoTabSSR = "sso-tab-ssr", // handled by SsrTabGenerator
+
+  // bot
+  DefaultBot = "bot",
+
+  // messaging extension
+  DefaultMessageExtension = "message-extension",
 }

@@ -7,7 +7,7 @@ import * as chai from "chai";
 import chaiAsPromised from "chai-as-promised";
 import fs from "fs-extra";
 import "mocha";
-import { createSandbox } from "sinon";
+import { createSandbox, match as sinonMatch } from "sinon";
 import { setTools } from "../../../src/common/globalVars";
 import { AppUser } from "../../../src/component/driver/teamsApp/interfaces/appdefinitions/appUser";
 import { advancedDASettingUrl } from "../../../src/component/m365/constants";
@@ -556,6 +556,75 @@ describe("Package Service", () => {
     }
 
     chai.assert.isUndefined(actualError);
+  });
+
+  it("sideLoadingV2 returns immediately when shouldBlock response is 200", async () => {
+    axiosGetResponses["/config/v1/environment"] = {
+      data: {
+        titlesServiceUrl: "https://test-url",
+      },
+    };
+    axiosPostResponses["/builder/v1/users/packages"] = {
+      status: 200,
+      data: {
+        titlePreview: {
+          titleId: "test-title-id-blocked",
+          appId: "test-app-id-blocked",
+        },
+      },
+    };
+
+    const packageService = new PackageService("https://test-endpoint", logger);
+    sandbox.stub(packageService, "getManifestFromZip" as keyof PackageService).returns({
+      copilotAgents: {
+        declarativeAgents: [
+          {
+            id: "declarativeAgent",
+            file: "declarativeAgent.json",
+          },
+        ],
+      },
+    } as any);
+    const infoStub = sandbox.stub(logger, "info").returns();
+    const verboseStub = sandbox.stub(logger, "verbose").returns();
+    const result = await packageService.sideLoading("test-token", "test-path");
+    chai.assert.equal(result[0], "test-title-id-blocked");
+    chai.assert.equal(result[1], "test-app-id-blocked");
+    chai.assert.isTrue(infoStub.calledWith("TitleId: test-title-id-blocked"));
+    chai.assert.isTrue(infoStub.calledWith("AppId: test-app-id-blocked"));
+    chai.assert.isTrue(verboseStub.calledWith("Sideloading done."));
+  });
+
+  it("sideLoadingV2 returns immediately when shouldBlock response is 201", async () => {
+    axiosGetResponses["/config/v1/environment"] = {
+      data: {
+        titlesServiceUrl: "https://test-url",
+      },
+    };
+    axiosPostResponses["/builder/v1/users/packages"] = {
+      status: 201,
+      data: {
+        titlePreview: {
+          titleId: "test-title-id-created",
+          appId: "test-app-id-created",
+        },
+      },
+    };
+
+    const packageService = new PackageService("https://test-endpoint", logger);
+    sandbox.stub(packageService, "getManifestFromZip" as keyof PackageService).returns({
+      copilotAgents: {
+        declarativeAgents: [
+          {
+            id: "declarativeAgent",
+            file: "declarativeAgent.json",
+          },
+        ],
+      },
+    } as any);
+    const result = await packageService.sideLoading("test-token", "test-path");
+    chai.assert.equal(result[0], "test-title-id-created");
+    chai.assert.equal(result[1], "test-app-id-created");
   });
 
   it("sideload builder status api with 202 on first try and 200 on second try", async () => {
@@ -1830,5 +1899,192 @@ describe("Package Service", () => {
     } as AppUser);
 
     chai.assert.isTrue(result.isOk());
+  });
+
+  it("withNetworkRetry retries on TLS/network error and succeeds", async () => {
+    let callCount = 0;
+    sandbox.stub(testAxiosInstance, "get").callsFake((url: string) => {
+      callCount++;
+      if (url === "/config/v1/environment") {
+        if (callCount <= 2) {
+          const err: any = new Error("TLS handshake failed");
+          err.code = "ERR_TLS_CERT_ALTNAME_INVALID";
+          return Promise.reject(err);
+        }
+        return Promise.resolve({
+          data: { titlesServiceUrl: "https://test-url" },
+        });
+      }
+      return Promise.reject(new Error("unexpected url"));
+    });
+
+    const warningStub = sandbox.stub(logger, "warning").returns();
+    const packageService = new PackageService("https://test-endpoint", logger);
+    const result = await packageService.getTitleServiceUrl("test-token");
+    chai.assert.equal(result, "https://test-url");
+    chai.assert.equal(callCount, 3);
+    chai.assert.isTrue(warningStub.calledTwice);
+    chai.assert.isTrue(warningStub.firstCall.args[0].includes("ERR_TLS_CERT_ALTNAME_INVALID"));
+    chai.assert.isTrue(warningStub.firstCall.args[0].includes("retrying (1/3)"));
+    chai.assert.isTrue(warningStub.secondCall.args[0].includes("retrying (2/3)"));
+  });
+
+  it("withNetworkRetry throws after max retries on network error", async () => {
+    sandbox.stub(testAxiosInstance, "get").callsFake(() => {
+      const err: any = new Error("ECONNRESET");
+      err.code = "ECONNRESET";
+      return Promise.reject(err);
+    });
+
+    const warningStub = sandbox.stub(logger, "warning").returns();
+    const packageService = new PackageService("https://test-endpoint", logger);
+    let actualError: Error | undefined;
+    try {
+      await packageService.getTitleServiceUrl("test-token");
+    } catch (error: any) {
+      actualError = error;
+    }
+    chai.assert.isDefined(actualError);
+    chai.assert.isTrue(actualError?.message.includes("ECONNRESET"));
+    // Should have warned twice (retries 1 and 2), then thrown on 3rd
+    chai.assert.isTrue(warningStub.calledTwice);
+  });
+
+  it("withNetworkRetry does not retry on HTTP errors (has response)", async () => {
+    let callCount = 0;
+    sandbox.stub(testAxiosInstance, "get").callsFake(() => {
+      callCount++;
+      const err: any = new Error("Forbidden");
+      err.response = { status: 403, data: {} };
+      return Promise.reject(err);
+    });
+
+    const warningStub = sandbox.stub(logger, "warning").returns();
+    const packageService = new PackageService("https://test-endpoint", logger);
+    let actualError: any;
+    try {
+      await packageService.getTitleServiceUrl("test-token");
+    } catch (error: any) {
+      actualError = error;
+    }
+    chai.assert.isDefined(actualError);
+    chai.assert.equal(callCount, 1, "Should not retry on HTTP errors");
+    chai.assert.isTrue(warningStub.notCalled);
+  });
+
+  it("withNetworkRetry works for sideLoadingV2 upload", async () => {
+    let postCallCount = 0;
+    sandbox.stub(testAxiosInstance, "get").callsFake(() => {
+      return Promise.resolve({
+        data: { titlesServiceUrl: "https://test-url" },
+      });
+    });
+    sandbox.stub(testAxiosInstance, "post").callsFake((url: string) => {
+      if (url === "/builder/v1/users/packages") {
+        postCallCount++;
+        if (postCallCount <= 1) {
+          const err: any = new Error("socket hang up");
+          err.code = "ECONNRESET";
+          return Promise.reject(err);
+        }
+        return Promise.resolve({
+          status: 200,
+          data: {
+            titlePreview: {
+              titleId: "retry-title-id",
+              appId: "retry-app-id",
+            },
+          },
+        });
+      }
+      return Promise.reject(new Error("unexpected url"));
+    });
+
+    const warningStub = sandbox.stub(logger, "warning").returns();
+    const packageService = new PackageService("https://test-endpoint", logger);
+    sandbox.stub(packageService, "getManifestFromZip" as keyof PackageService).returns({
+      copilotAgents: {
+        declarativeAgents: [{ id: "declarativeAgent", file: "declarativeAgent.json" }],
+      },
+    } as any);
+    const result = await packageService.sideLoading("test-token", "test-path");
+    chai.assert.equal(result[0], "retry-title-id");
+    chai.assert.equal(result[1], "retry-app-id");
+    chai.assert.equal(postCallCount, 2);
+    chai.assert.isTrue(
+      warningStub.calledWith(sinonMatch("ECONNRESET").and(sinonMatch("retrying (1/3)")))
+    );
+  });
+
+  it("withNetworkRetry works for sideLoadingV1 upload", async () => {
+    let postCallCount = 0;
+    sandbox.stub(testAxiosInstance, "get").callsFake((url: string) => {
+      if (url === "/config/v1/environment") {
+        return Promise.resolve({
+          data: { titlesServiceUrl: "https://test-url" },
+        });
+      }
+      if (url === "/dev/v1/users/packages/status/test-status-id") {
+        return Promise.resolve({
+          status: 200,
+          data: {
+            titleId: "retry-v1-title-id",
+            appId: "retry-v1-app-id",
+          },
+        });
+      }
+      return Promise.reject(new Error("unexpected get url"));
+    });
+    sandbox.stub(testAxiosInstance, "post").callsFake((url: string) => {
+      if (url === "/dev/v1/users/packages") {
+        postCallCount++;
+        if (postCallCount <= 1) {
+          const err: any = new Error("TLS connection reset");
+          err.code = "ECONNRESET";
+          return Promise.reject(err);
+        }
+        return Promise.resolve({
+          data: { operationId: "test-operation-id" },
+        });
+      }
+      if (url === "/dev/v1/users/packages/acquisitions") {
+        return Promise.resolve({
+          data: { statusId: "test-status-id" },
+        });
+      }
+      return Promise.reject(new Error("unexpected url"));
+    });
+
+    const warningStub = sandbox.stub(logger, "warning").returns();
+    const packageService = new PackageService("https://test-endpoint", logger);
+    sandbox.stub(packageService, "getManifestFromZip" as keyof PackageService).returns({} as any);
+    const result = await packageService.sideLoading("test-token", "test-path");
+    chai.assert.equal(result[0], "retry-v1-title-id");
+    chai.assert.equal(result[1], "retry-v1-app-id");
+    chai.assert.equal(postCallCount, 2);
+    chai.assert.isTrue(
+      warningStub.calledWith(sinonMatch("ECONNRESET").and(sinonMatch("retrying (1/3)")))
+    );
+  });
+
+  it("withNetworkRetry works without logger", async () => {
+    let callCount = 0;
+    sandbox.stub(testAxiosInstance, "get").callsFake((url: string) => {
+      callCount++;
+      if (url === "/config/v1/environment") {
+        if (callCount <= 1) {
+          return Promise.reject(new Error("TLS error"));
+        }
+        return Promise.resolve({
+          data: { titlesServiceUrl: "https://test-url" },
+        });
+      }
+      return Promise.reject(new Error("unexpected url"));
+    });
+
+    const packageService = new PackageService("https://test-endpoint");
+    const result = await packageService.getTitleServiceUrl("test-token");
+    chai.assert.equal(result, "https://test-url");
+    chai.assert.equal(callCount, 2);
   });
 });

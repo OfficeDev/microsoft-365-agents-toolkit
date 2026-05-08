@@ -90,9 +90,8 @@ export async function generateSasToken(
   };
   const token = await wrapAzureOperation(
     async () =>
-      (
-        await client.listAccountSAS(resourceGroupName, storageName, accountSasParameters)
-      ).accountSasToken,
+      (await client.listAccountSAS(resourceGroupName, storageName, accountSasParameters))
+        .accountSasToken,
     (e) =>
       ExternalApiCallError.getSasTokenRemoteError(
         DeployConstant.DEPLOY_ERROR_TYPE,

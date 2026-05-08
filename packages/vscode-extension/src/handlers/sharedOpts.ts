@@ -147,7 +147,6 @@ export async function runCommand(
         break;
       }
       case Stage.metaOSExtendToDA: {
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         result = await core.metaOSExtendToDA(inputs, workspaceUri!.fsPath);
         break;
       }

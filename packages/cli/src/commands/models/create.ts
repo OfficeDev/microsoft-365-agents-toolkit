@@ -31,7 +31,7 @@ function adjustOptions(options: CLICommandOption[]) {
   for (const option of options) {
     if (option.type === "string" && option.name === CliQuestionName.Capability) {
       // use dynamic options for capability question
-      option.choices = listAllTemplates().map((o) => o.name);
+      option.choices = listAllTemplates().flatMap((o) => (o.alias ? [o.alias, o.name] : [o.name]));
       break;
     }
   }
@@ -46,7 +46,7 @@ export function getCreateCommand(): CLICommand {
     options: [...adjustOptions(CreateProjectOptions)],
     examples: [
       {
-        command: `${process.env.TEAMSFX_CLI_BIN_NAME} new -c copilot-gpt-basic -n myagent -i false`,
+        command: `${process.env.TEAMSFX_CLI_BIN_NAME} new -c declarative-agent -n myagent -i false`,
         description: "Create a new declarative agent",
       },
       {
@@ -72,11 +72,31 @@ export function getCreateCommand(): CLICommand {
           // for non-interactive mode, we need to preset project-type from capability to make sure the question model works
           const capability = inputs.capabilities as string;
           inputs["template-name"] = capability;
-          if (inputs["programming-language"] === undefined) {
-            // preset programming language if not specified
-            const templates = listAllTemplates();
-            const matched = templates.find((t) => t.name === capability);
-            if (matched) {
+          const templates = listAllTemplates();
+          const matched = templates.find((t) => t.name === capability || t.alias === capability);
+          if (matched) {
+            inputs["template-name"] = matched.name;
+            // For declarative agents with sub-type options (e.g., MCP), resolve the specific template name
+            // since the question tree traversal is short-circuited when template-name is already set.
+            if (inputs["with-plugin"] === "yes" && inputs["api-plugin-type"]) {
+              const actionType = inputs["api-plugin-type"] as string;
+              const subTemplateMatch = templates.find((t) => t.name === actionType);
+              if (subTemplateMatch) {
+                inputs["template-name"] = subTemplateMatch.name;
+              } else {
+                // Map known action types to their template names
+                const actionTemplateMap: Record<string, string> = {
+                  mcp: "declarative-agent-with-action-from-mcp",
+                  "api-spec": "api-plugin-from-existing-api",
+                  "new-api": "api-plugin-from-scratch",
+                };
+                if (actionTemplateMap[actionType]) {
+                  inputs["template-name"] = actionTemplateMap[actionType];
+                }
+              }
+            }
+            if (inputs["programming-language"] === undefined) {
+              // preset programming language if not specified
               inputs["programming-language"] = matched.language as any;
             }
           }
@@ -94,6 +114,11 @@ export function getCreateCommand(): CLICommand {
         return err(res.error);
       }
       logger.info(`Project created at: ${chalk.cyan(path.resolve(res.value.projectPath))}`);
+      if (res.value.warnings) {
+        for (const warning of res.value.warnings) {
+          logger.warning(warning.content);
+        }
+      }
       return ok(undefined);
     },
   };

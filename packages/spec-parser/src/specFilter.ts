@@ -48,9 +48,8 @@ export class SpecFilter {
 
           // Add the operationId if missing
           if (!(newPaths[path] as any)[methodName].operationId) {
-            (newPaths[path] as any)[
-              methodName
-            ].operationId = `${methodName}${Utils.convertPathToCamelCase(path)}`;
+            (newPaths[path] as any)[methodName].operationId =
+              `${methodName}${Utils.convertPathToCamelCase(path)}`;
           }
         }
       }

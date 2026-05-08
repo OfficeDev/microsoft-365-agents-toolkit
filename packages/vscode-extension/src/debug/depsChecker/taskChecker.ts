@@ -111,10 +111,10 @@ function convertCheckResultsForTelemetry(checkResults: CheckResult[]): [string, 
         checkResult.error === undefined
           ? undefined
           : checkResult.error instanceof UserError
-          ? "user"
-          : checkResult.error instanceof SystemError
-          ? "system"
-          : "unknown",
+            ? "user"
+            : checkResult.error instanceof SystemError
+              ? "system"
+              : "unknown",
     };
   }
 

@@ -265,8 +265,8 @@ export async function getTaskInfo(): Promise<TaskInfo | undefined> {
       const labelList: string[] = Array.isArray(overallTask.dependsOn)
         ? overallTask.dependsOn
         : typeof overallTask.dependsOn === "string"
-        ? [overallTask.dependsOn]
-        : [];
+          ? [overallTask.dependsOn]
+          : [];
 
       for (const label of labelList) {
         const task = findTask(taskJson, label);

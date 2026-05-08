@@ -4,8 +4,8 @@
 export const projectProperties = {
   projectTypes: {
     taskpane: {
-      displayname: "core.newTaskpaneAddin.label",
-      detail: "core.newTaskpaneAddin.detail",
+      displayname: "template.newTaskpaneAddin.label",
+      detail: "template.newTaskpaneAddin.detail",
       manifestPath: "manifest.json",
       templates: {
         typescript: {

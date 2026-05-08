@@ -316,7 +316,7 @@ export class CreateAppPackageDriver implements StepDriver {
       );
       if (getCopilotGptRes.isOk()) {
         // Add action files
-        if (getCopilotGptRes.value.actions) {
+        if (Array.isArray(getCopilotGptRes.value.actions)) {
           const pluginFiles = getCopilotGptRes.value.actions.map((action) => action.file);
 
           for (const pluginFile of pluginFiles) {
@@ -346,39 +346,37 @@ export class CreateAppPackageDriver implements StepDriver {
           }
         }
         // Add embedded knowledge files
-        if (featureFlagManager.getBooleanValue(FeatureFlags.EmbeddedKnowledgeEnabled)) {
-          if (getCopilotGptRes.value.capabilities) {
-            const embeddedKnowledgeCapabilities = getCopilotGptRes.value.capabilities.filter(
-              (capability) => capability.name === DeclarativeCopilotCapabilityName.EmbeddedKnowledge
-            );
-            if (embeddedKnowledgeCapabilities.length > 0) {
-              const fileSet = new Set<string>();
-              for (const capability of embeddedKnowledgeCapabilities) {
-                const embeddedCapability = capability as EmbeddedKnowledgeCapability;
-                if (embeddedCapability.files) {
-                  for (const file of embeddedCapability.files) {
-                    if (file.file) {
-                      fileSet.add(file.file);
-                    }
+        if (Array.isArray(getCopilotGptRes.value.capabilities)) {
+          const embeddedKnowledgeCapabilities = getCopilotGptRes.value.capabilities.filter(
+            (capability) => capability.name === DeclarativeCopilotCapabilityName.EmbeddedKnowledge
+          );
+          if (embeddedKnowledgeCapabilities.length > 0) {
+            const fileSet = new Set<string>();
+            for (const capability of embeddedKnowledgeCapabilities) {
+              const embeddedCapability = capability as EmbeddedKnowledgeCapability;
+              if (embeddedCapability.files) {
+                for (const file of embeddedCapability.files) {
+                  if (file.file) {
+                    fileSet.add(file.file);
                   }
                 }
               }
-              const fileArr = Array.from(fileSet);
-              if (fileArr.length > 0) {
-                for (const file of fileArr) {
-                  const knowledgeFileAbsolutePath = path.resolve(appDirectory, file);
-                  // check existence
-                  const checkExistenceRes = await this.validateReferencedFile(
-                    knowledgeFileAbsolutePath,
-                    appDirectory
-                  );
-                  if (checkExistenceRes.isErr()) {
-                    return err(checkExistenceRes.error);
-                  }
-
-                  const dir = path.dirname(file);
-                  zip.addLocalFile(knowledgeFileAbsolutePath, dir === "." ? "" : dir);
+            }
+            const fileArr = Array.from(fileSet);
+            if (fileArr.length > 0) {
+              for (const file of fileArr) {
+                const knowledgeFileAbsolutePath = path.resolve(appDirectory, file);
+                // check existence
+                const checkExistenceRes = await this.validateReferencedFile(
+                  knowledgeFileAbsolutePath,
+                  appDirectory
+                );
+                if (checkExistenceRes.isErr()) {
+                  return err(checkExistenceRes.error);
                 }
+
+                const dir = path.dirname(file);
+                zip.addLocalFile(knowledgeFileAbsolutePath, dir === "." ? "" : dir);
               }
             }
           }

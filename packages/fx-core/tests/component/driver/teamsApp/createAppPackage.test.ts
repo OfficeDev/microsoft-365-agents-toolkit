@@ -1241,8 +1241,8 @@ describe("teamsApp/createAppPackage", async () => {
     const addedFiles: string[] = [];
     sinon
       .stub(testDriver as any, "addFileInZip")
-      .callsFake((zip: any, zipPath: string, filePath: string) => {
-        addedFiles.push(filePath);
+      .callsFake((_zip: unknown, _zipPath: unknown, filePath: unknown) => {
+        addedFiles.push(filePath as string);
       });
 
     const result = (await testDriver.execute(args, mockedDriverContext)).result;
@@ -1946,11 +1946,6 @@ describe("teamsApp/createAppPackage", async () => {
     });
 
     it("should add embedded knowledge files for Declarative Agent", async () => {
-      sinon
-        .stub(featureFlagManager, "getBooleanValue")
-        .withArgs(FeatureFlags.EmbeddedKnowledgeEnabled)
-        .returns(true);
-
       const args: CreateAppPackageArgs = {
         manifestPath:
           "./tests/plugins/resource/appstudio/resources-multi-env/templates/appPackage/v3.manifest.template.json",
@@ -2023,11 +2018,6 @@ describe("teamsApp/createAppPackage", async () => {
     });
 
     it("should add embedded knowledge files for Declarative Agent of MetaOS", async () => {
-      sinon
-        .stub(featureFlagManager, "getBooleanValue")
-        .withArgs(FeatureFlags.EmbeddedKnowledgeEnabled)
-        .returns(true);
-
       const args: CreateAppPackageArgs = {
         manifestPath:
           "./tests/plugins/resource/appstudio/resources-multi-env/templates/appPackage/v3.manifest.template.json",
@@ -2100,11 +2090,6 @@ describe("teamsApp/createAppPackage", async () => {
     });
 
     it("should skip if there is no embedded knowledge capability for Declarative Agent", async () => {
-      sinon
-        .stub(featureFlagManager, "getBooleanValue")
-        .withArgs(FeatureFlags.EmbeddedKnowledgeEnabled)
-        .returns(true);
-
       const args: CreateAppPackageArgs = {
         manifestPath:
           "./tests/plugins/resource/appstudio/resources-multi-env/templates/appPackage/v3.manifest.template.json",
@@ -2171,11 +2156,6 @@ describe("teamsApp/createAppPackage", async () => {
     });
 
     it("should handle undefined embedded knowledge files for Declarative Agent", async () => {
-      sinon
-        .stub(featureFlagManager, "getBooleanValue")
-        .withArgs(FeatureFlags.EmbeddedKnowledgeEnabled)
-        .returns(true);
-
       const args: CreateAppPackageArgs = {
         manifestPath:
           "./tests/plugins/resource/appstudio/resources-multi-env/templates/appPackage/v3.manifest.template.json",
@@ -2243,10 +2223,6 @@ describe("teamsApp/createAppPackage", async () => {
     });
 
     it("should throw error if embedded knowledge file does not exist for Declarative Agent", async () => {
-      sinon
-        .stub(featureFlagManager, "getBooleanValue")
-        .withArgs(FeatureFlags.EmbeddedKnowledgeEnabled)
-        .returns(true);
       const args: CreateAppPackageArgs = {
         manifestPath:
           "./tests/plugins/resource/appstudio/resources-multi-env/templates/appPackage/v3.manifest.template.json",
@@ -2296,6 +2272,115 @@ describe("teamsApp/createAppPackage", async () => {
       chai.assert.isTrue(result.isErr());
       if (result.isErr()) {
         chai.assert.isTrue(result.error instanceof FileNotFoundError);
+      }
+    });
+
+    // Regression test for issue #15837. The original failure mode was a TypeError
+    // ("ce.value.capabilities.filter is not a function") thrown deep inside the build
+    // because a malformed declarativeAgent.json produced an untyped object where an
+    // array was expected. With Phase 1 (typed reader) the read step rejects the
+    // manifest with a descriptive JSONSyntaxError, and Phase 3 (Array.isArray guards)
+    // prevents the crash class even if a future code path bypasses the typed reader.
+    it("propagates JSONSyntaxError when declarativeAgent.json has invalid shape (#15837)", async () => {
+      const args: CreateAppPackageArgs = {
+        manifestPath:
+          "./tests/plugins/resource/appstudio/resources-multi-env/templates/appPackage/v3.manifest.template.json",
+        outputZipPath:
+          "./tests/plugins/resource/appstudio/resources-multi-env/build/appPackage/appPackage.bad-shape.zip",
+        outputJsonPath:
+          "./tests/plugins/resource/appstudio/resources-multi-env/build/appPackage/manifest.bad-shape.json",
+      };
+
+      const manifest = {
+        manifestVersion: "1.19",
+      } as TeamsManifestV1D19.TeamsManifestV1D19;
+      manifest.copilotAgents = {
+        declarativeAgents: [{ file: "resources/declarativeAgent.json", id: "1" }],
+      };
+      manifest.icons = {
+        color: "resources/color.png",
+        outline: "resources/outline.png",
+      };
+
+      sinon.stub(manifestUtils, "getManifestV3").resolves(ok(manifest));
+      sinon.stub(fs, "chmod").callsFake(async () => {});
+      sinon.stub(fs, "writeFile").callsFake(async () => {});
+      sinon.stub(fs, "pathExists").resolves(true);
+      // Simulate the typed converter rejecting a non-array `capabilities` field —
+      // this is exactly what `readCopilotGptManifestFile` now produces for the
+      // user's manifest in #15837.
+      sinon
+        .stub(copilotGptManifestUtils, "getManifest")
+        .resolves(
+          err(
+            new JSONSyntaxError(
+              "declarativeAgent.json",
+              new Error(
+                'Invalid value for key "capabilities". Expected array but got {"name":"CodeInterpreter"}'
+              ),
+              "CopilotGptManifestUtils"
+            )
+          )
+        );
+
+      const result = (await teamsAppDriver.execute(args, mockedDriverContext)).result;
+
+      chai.assert.isTrue(result.isErr(), "createAppPackage should return err, not throw");
+      if (result.isErr()) {
+        chai.assert.isTrue(
+          result.error instanceof JSONSyntaxError,
+          `expected JSONSyntaxError, got ${result.error.constructor.name}`
+        );
+        chai.assert.include(result.error.message, "capabilities");
+      }
+    });
+
+    // Defense-in-depth: even if `getManifest` returns a manifest with a non-array
+    // `capabilities` (e.g. a future code path that bypasses the typed reader),
+    // createAppPackage must not crash with `TypeError: capabilities.filter is not a function`.
+    it("does not crash when capabilities is not an array (defensive guard)", async () => {
+      const args: CreateAppPackageArgs = {
+        manifestPath:
+          "./tests/plugins/resource/appstudio/resources-multi-env/templates/appPackage/v3.manifest.template.json",
+        outputZipPath:
+          "./tests/plugins/resource/appstudio/resources-multi-env/build/appPackage/appPackage.guard.zip",
+        outputJsonPath:
+          "./tests/plugins/resource/appstudio/resources-multi-env/build/appPackage/manifest.guard.json",
+      };
+
+      const manifest = {
+        manifestVersion: "1.19",
+      } as TeamsManifestV1D19.TeamsManifestV1D19;
+      manifest.copilotAgents = {
+        declarativeAgents: [{ file: "resources/declarativeAgent.json", id: "1" }],
+      };
+      manifest.icons = {
+        color: "resources/color.png",
+        outline: "resources/outline.png",
+      };
+
+      // Bypass the typed reader by stubbing getManifest to return a manifest where
+      // `capabilities` is an object instead of an array.
+      const malformedManifest = {
+        name: "TestDeclarativeCopilot",
+        description: "shape-bypass test",
+        actions: [],
+        capabilities: { name: "CodeInterpreter" } as any,
+      } as DeclarativeCopilotManifestSchema;
+
+      sinon.stub(manifestUtils, "getManifestV3").resolves(ok(manifest));
+      sinon.stub(fs, "chmod").callsFake(async () => {});
+      sinon.stub(fs, "writeFile").callsFake(async () => {});
+      sinon.stub(fs, "pathExists").resolves(true);
+      sinon.stub(copilotGptManifestUtils, "getManifest").resolves(ok(malformedManifest));
+
+      // Must not throw a TypeError. The guard treats non-array as "no embedded
+      // knowledge capabilities" and the build proceeds normally.
+      const result = (await teamsAppDriver.execute(args, mockedDriverContext)).result;
+      chai.assert.isTrue(result.isOk(), "build should not crash on non-array capabilities");
+
+      if (await fs.pathExists(args.outputZipPath)) {
+        await fs.remove(args.outputZipPath);
       }
     });
   });

@@ -130,30 +130,30 @@ export function getParserOptions(
         allowConfirmation: false, // confirmation is not stable for public preview in Sydney, so it's temporarily set to false
       }
     : type === ProjectType.TeamsAi
-    ? {
-        allowAPIKeyAuth: true,
-        allowBearerTokenAuth: true,
-        allowMultipleParameters: true,
-        allowOauth2: true,
-        projectType: ProjectType.TeamsAi,
-        allowMethods: [
-          "get",
-          "post",
-          "put",
-          "delete",
-          "patch",
-          "head",
-          "connect",
-          "options",
-          "trace",
-        ],
-      }
-    : {
-        projectType: type,
-        allowBearerTokenAuth: !!platform && platform === Platform.VS ? false : true, // Currently, API key auth support is actually bearer token auth
-        allowMultipleParameters: true,
-        allowOauth2: featureFlagManager.getBooleanValue(FeatureFlags.SMEOAuth),
-      };
+      ? {
+          allowAPIKeyAuth: true,
+          allowBearerTokenAuth: true,
+          allowMultipleParameters: true,
+          allowOauth2: true,
+          projectType: ProjectType.TeamsAi,
+          allowMethods: [
+            "get",
+            "post",
+            "put",
+            "delete",
+            "patch",
+            "head",
+            "connect",
+            "options",
+            "trace",
+          ],
+        }
+      : {
+          projectType: type,
+          allowBearerTokenAuth: !!platform && platform === Platform.VS ? false : true, // Currently, API key auth support is actually bearer token auth
+          allowMultipleParameters: true,
+          allowOauth2: featureFlagManager.getBooleanValue(FeatureFlags.SMEOAuth),
+        };
 }
 
 export const specParserGenerateResultTelemetryEvent = "spec-parser-generate-result";
@@ -191,8 +191,8 @@ export async function listOperations(
   const projectType = isPlugin
     ? ProjectType.Copilot
     : isCustomApi
-    ? ProjectType.TeamsAi
-    : ProjectType.SME;
+      ? ProjectType.TeamsAi
+      : ProjectType.SME;
 
   try {
     const specParser = new SpecParser(
@@ -390,12 +390,12 @@ function sortOperations(operations: ListAPIInfo[]): ApiOperation[] {
       detail: !operation.auth
         ? getLocalizedString("core.copilotPlugin.api.noAuth")
         : Utils.isBearerTokenAuth(operation.auth.authScheme)
-        ? getLocalizedString("core.copilotPlugin.api.apiKeyAuth")
-        : Utils.isOAuthWithAuthCodeFlow(operation.auth.authScheme)
-        ? getLocalizedString("core.copilotPlugin.api.oauth")
-        : Utils.isAPIKeyAuthButNotInCookie(operation.auth.authScheme)
-        ? getLocalizedString("core.copilotPlugin.api.apiKeyWithHeaderOrQuery")
-        : getLocalizedString("core.copilotPlugin.api.notSupportedAuth"),
+          ? getLocalizedString("core.copilotPlugin.api.apiKeyAuth")
+          : Utils.isOAuthWithAuthCodeFlow(operation.auth.authScheme)
+            ? getLocalizedString("core.copilotPlugin.api.oauth")
+            : Utils.isAPIKeyAuthButNotInCookie(operation.auth.authScheme)
+              ? getLocalizedString("core.copilotPlugin.api.apiKeyWithHeaderOrQuery")
+              : getLocalizedString("core.copilotPlugin.api.notSupportedAuth"),
       data: {
         serverUrl: operation.server,
       },
@@ -1112,7 +1112,6 @@ function formatValidationErrorContent(error: ApiSpecErrorResult, inputs: Inputs)
         const messages = [];
         const invalidAPIInfo = error.data as InvalidAPIInfo[];
         for (const info of invalidAPIInfo) {
-          // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
           const mes = `${info.api}: ${info.reason.map(mapInvalidReasonToMessage).join(", ")}`;
           messages.push(mes);
         }

@@ -9,8 +9,7 @@
  * @module LongRunningOperationMiddleware
  */
 
-import { Context } from "@microsoft/microsoft-graph-client";
-import { Middleware } from "@microsoft/microsoft-graph-client";
+import { Context, Middleware } from "@microsoft/microsoft-graph-client";
 
 /**
  * @class

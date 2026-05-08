@@ -44,13 +44,17 @@ describe("portChecker", () => {
       });
       const clock = sinon.useFakeTimers();
 
-      const waitingCheckPorts = [3978];
-      const portsPromise = portChecker.getPortsInUse(waitingCheckPorts);
-      clock.tick(30 * 1000);
-      const ports = await portsPromise;
+      try {
+        const waitingCheckPorts = [3978];
+        const portsPromise = portChecker.getPortsInUse(waitingCheckPorts);
+        clock.tick(30 * 1000);
+        const ports = await portsPromise;
 
-      chai.assert.isDefined(ports);
-      chai.assert.equal(ports.length, 0);
+        chai.assert.isDefined(ports);
+        chai.assert.equal(ports.length, 0);
+      } finally {
+        clock.restore();
+      }
     });
 
     it("53000 in use", async () => {

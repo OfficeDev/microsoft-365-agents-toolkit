@@ -88,7 +88,7 @@ describe("FileSystemWatcher", function () {
     it("refreshSPFxTreeOnFileChanged", () => {
       const initGlobalVariables = sandbox.stub(globalVariables, "initializeGlobalVariables");
       const updateDevelopmentTreeView = sandbox
-        // eslint-disable-next-line no-secrets/no-secrets
+
         .stub(TreeViewManagerInstance, "updateDevelopmentTreeView")
         .resolves();
 

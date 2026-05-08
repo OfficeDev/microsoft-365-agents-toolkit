@@ -51,6 +51,7 @@
   {
     "id": "custom-copilot-basic-ts",
     "name": "custom-copilot-basic",
+    "alias": "teams-agent",
     "language": "typescript",
     "displayName": "General Teams Agent",
     "description": "Agent that chats with users in Teams built with Teams AI Library and connects to LLMs"
@@ -58,6 +59,7 @@
   {
     "id": "custom-copilot-basic-js",
     "name": "custom-copilot-basic",
+    "alias": "teams-agent",
     "language": "javascript",
     "displayName": "General Teams Agent",
     "description": "Agent that chats with users in Teams built with Teams AI Library and connects to LLMs"
@@ -65,6 +67,7 @@
   {
     "id": "custom-copilot-basic-csharp",
     "name": "custom-copilot-basic",
+    "alias": "teams-agent",
     "language": "csharp",
     "displayName": "General Teams Agent",
     "description": "Agent that chats with users in Teams built with Teams AI Library and connects to LLMs"
@@ -72,6 +75,7 @@
   {
     "id": "custom-copilot-basic-python",
     "name": "custom-copilot-basic",
+    "alias": "teams-agent",
     "language": "python",
     "displayName": "General Teams Agent",
     "description": "Agent that chats with users in Teams built with Teams AI Library and connects to LLMs"
@@ -79,6 +83,7 @@
   {
     "id": "custom-copilot-rag-customize-ts",
     "name": "custom-copilot-rag-customize",
+    "alias": "teams-agent-rag-customize",
     "language": "typescript",
     "displayName": "Teams Agent with Data from Customized Source",
     "description": "Agent that uses your content and knowledge to accurately answer domain-specific questions"
@@ -86,6 +91,7 @@
   {
     "id": "custom-copilot-rag-customize-js",
     "name": "custom-copilot-rag-customize",
+    "alias": "teams-agent-rag-customize",
     "language": "javascript",
     "displayName": "Teams Agent with Data from Customized Source",
     "description": "Agent that uses your content and knowledge to accurately answer domain-specific questions"
@@ -93,6 +99,7 @@
   {
     "id": "custom-copilot-rag-customize-csharp",
     "name": "custom-copilot-rag-customize",
+    "alias": "teams-agent-rag-customize",
     "language": "csharp",
     "displayName": "Teams Agent with Data from Customized Source",
     "description": "Agent that uses your content and knowledge to accurately answer domain-specific questions"
@@ -100,6 +107,7 @@
   {
     "id": "custom-copilot-rag-customize-python",
     "name": "custom-copilot-rag-customize",
+    "alias": "teams-agent-rag-customize",
     "language": "python",
     "displayName": "Teams Agent with Data from Customized Source",
     "description": "Agent that uses your content and knowledge to accurately answer domain-specific questions"
@@ -107,6 +115,7 @@
   {
     "id": "custom-copilot-rag-azure-ai-search-ts",
     "name": "custom-copilot-rag-azure-ai-search",
+    "alias": "teams-agent-rag-azure-ai-search",
     "language": "typescript",
     "displayName": "Teams Agent with Data from Azure AI Search",
     "description": "Agent that uses your content and knowledge to accurately answer domain-specific questions"
@@ -114,6 +123,7 @@
   {
     "id": "custom-copilot-rag-azure-ai-search-js",
     "name": "custom-copilot-rag-azure-ai-search",
+    "alias": "teams-agent-rag-azure-ai-search",
     "language": "javascript",
     "displayName": "Teams Agent with Data from Azure AI Search",
     "description": "Agent that uses your content and knowledge to accurately answer domain-specific questions"
@@ -121,6 +131,7 @@
   {
     "id": "custom-copilot-rag-azure-ai-search-csharp",
     "name": "custom-copilot-rag-azure-ai-search",
+    "alias": "teams-agent-rag-azure-ai-search",
     "language": "csharp",
     "displayName": "Teams Agent with Data from Azure AI Search",
     "description": "Agent that uses your content and knowledge to accurately answer domain-specific questions"
@@ -128,6 +139,7 @@
   {
     "id": "custom-copilot-rag-azure-ai-search-python",
     "name": "custom-copilot-rag-azure-ai-search",
+    "alias": "teams-agent-rag-azure-ai-search",
     "language": "python",
     "displayName": "Teams Agent with Data from Azure AI Search",
     "description": "Agent that uses your content and knowledge to accurately answer domain-specific questions"
@@ -149,6 +161,7 @@
   {
     "id": "basic-tab-ts",
     "name": "non-sso-tab",
+    "alias": "tab",
     "language": "typescript",
     "displayName": "Tab",
     "description": "A simple implementation of a web app that's ready to customize"
@@ -156,6 +169,7 @@
   {
     "id": "default-bot-ts",
     "name": "default-bot",
+    "alias": "bot",
     "language": "typescript",
     "displayName": "Simple Bot",
     "description": "A simple implementation of an echo bot that's ready for customization"
@@ -163,6 +177,7 @@
   {
     "id": "default-bot-js",
     "name": "default-bot",
+    "alias": "bot",
     "language": "javascript",
     "displayName": "Simple Bot",
     "description": "A simple implementation of an echo bot that's ready for customization"
@@ -170,6 +185,7 @@
   {
     "id": "default-bot-python",
     "name": "default-bot",
+    "alias": "bot",
     "language": "python",
     "displayName": "Simple Bot",
     "description": "A simple implementation of an echo bot that's ready for customization"
@@ -177,6 +193,7 @@
   {
     "id": "message-extension-v2-ts",
     "name": "default-message-extension",
+    "alias": "message-extension",
     "language": "typescript",
     "displayName": "Message Extension",
     "description": "Receive user input, process it, and send customized results"
@@ -184,6 +201,7 @@
   {
     "id": "message-extension-v2-python",
     "name": "default-message-extension",
+    "alias": "message-extension",
     "language": "python",
     "displayName": "Message Extension",
     "description": "Receive user input, process it, and send customized results"
@@ -233,13 +251,14 @@
   {
     "id": "graph-connector-ts",
     "name": "graph-connector",
+    "alias": "copilot-connector",
     "language": "typescript",
     "displayName": "Copilot Connector",
     "description": "Embed your organization data to make it searchable in Microsoft 365 Copilot"
   },
   {
-    "id": "foundry-agent-ts",
-    "name": "foundry-agent",
+    "id": "foundry-agent-to-m365-ts",
+    "name": "foundry-agent-to-m365",
     "language": "typescript",
     "displayName": "Foundry Agent",
     "description": "An Microsoft 365 Agent that connects to Microsoft AI Foundry Agent."

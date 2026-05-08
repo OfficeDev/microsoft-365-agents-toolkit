@@ -147,8 +147,8 @@ export class SPFxGenerator {
             !webpartManifest
               ? "web part manifest"
               : !webpartManifest["id"]
-              ? "web part manifest id"
-              : "preconfiguredEntries title in web part manifest file"
+                ? "web part manifest id"
+                : "preconfiguredEntries title in web part manifest file"
           }!`
         );
         throw RetrieveSPFxInfoError();
@@ -982,8 +982,8 @@ export class SPFxGeneratorImport extends DefaultTemplateGenerator {
             !webpartManifest
               ? "web part manifest"
               : !webpartManifest["id"]
-              ? "web part manifest id"
-              : "preconfiguredEntries title in web part manifest file"
+                ? "web part manifest id"
+                : "preconfiguredEntries title in web part manifest file"
           }!`
         );
         throw RetrieveSPFxInfoError();

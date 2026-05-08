@@ -2,6 +2,7 @@
 // Licensed under the MIT license.
 
 import {
+  AppManifestUtils,
   Colors,
   DeclarativeAgentManifest,
   DeclarativeAgentManifestConverter,
@@ -11,7 +12,6 @@ import {
   err,
   FxError,
   IDeclarativeCopilot,
-  ManifestUtil,
   ok,
   OneDriveAndSharePointCapability,
   Platform,
@@ -57,7 +57,12 @@ export class CopilotGptManifestUtils {
     content = stripBom(content);
 
     try {
-      const manifest = JSON.parse(content) as DeclarativeCopilotManifestSchema;
+      // Route through the typed converter so structural mismatches (e.g. an object
+      // where an array is required) throw a descriptive error here rather than later
+      // at consumer call sites such as `capabilities.filter(...)`.
+      const manifest = DeclarativeAgentManifestConverter.jsonToManifest(
+        content
+      ) as unknown as DeclarativeCopilotManifestSchema;
       return ok(manifest);
     } catch (e) {
       return err(new JSONSyntaxError(path, e, "CopilotGptManifestUtils"));
@@ -94,10 +99,12 @@ export class CopilotGptManifestUtils {
     let content = fs.readFileSync(path, { encoding: "utf-8" });
     content = stripBom(content);
     try {
-      const manifest = JSON.parse(content) as DeclarativeCopilotManifestSchema;
+      const manifest = DeclarativeAgentManifestConverter.jsonToManifest(
+        content
+      ) as unknown as DeclarativeCopilotManifestSchema;
       return ok(manifest);
     } catch (e) {
-      return err(new FileNotFoundError("CopilotGptManifestUtils", path));
+      return err(new JSONSyntaxError(path, e, "CopilotGptManifestUtils"));
     }
   }
 
@@ -186,7 +193,9 @@ export class CopilotGptManifestUtils {
 
     const manifest = manifestRes.value;
     try {
-      const manifestValidationRes = await ManifestUtil.validateManifest(manifestRes.value);
+      const manifestValidationRes = await AppManifestUtils.validateAgainstSchema(
+        manifestRes.value as any
+      );
       const res: DeclarativeCopilotManifestValidationResult = {
         id: declaraitveCopilot.id,
         filePath: manifestPath,
@@ -455,9 +464,8 @@ export class CopilotGptManifestUtils {
     manifestFilePath: string,
     filePathList: string[]
   ): Promise<Result<undefined, FxError>> {
-    const declarativeAgentManifestPathRes = await copilotGptManifestUtils.getManifestPath(
-      manifestFilePath
-    );
+    const declarativeAgentManifestPathRes =
+      await copilotGptManifestUtils.getManifestPath(manifestFilePath);
     if (declarativeAgentManifestPathRes.isErr()) {
       return err(declarativeAgentManifestPathRes.error);
     }

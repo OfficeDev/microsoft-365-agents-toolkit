@@ -99,11 +99,6 @@ export class Generator {
       NewProjectTypeName: process.env.TEAMSFX_NEW_PROJECT_TYPE_NAME ?? "M365Agent",
       NewProjectTypeExt: process.env.TEAMSFX_NEW_PROJECT_TYPE_EXTENSION ?? "atkproj",
       CEAEnabled: featureFlagManager.getBooleanValue(FeatureFlags.CEAEnabled) ? "true" : "",
-      EmbeddedKnowledgeEnabled: featureFlagManager.getBooleanValue(
-        FeatureFlags.EmbeddedKnowledgeEnabled
-      )
-        ? "true"
-        : "",
       SensitivityLabelEnabled: featureFlagManager.getBooleanValue(
         FeatureFlags.SensitivityLabelEnabled
       )

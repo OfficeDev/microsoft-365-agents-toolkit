@@ -108,10 +108,10 @@ describe("utils", () => {
         { id: "option2", label: "option2" },
       ],
     };
-    (exp as any).validation = <CustomizeFuncRequestType>{
+    (exp as any).validation = {
       id: 1,
       type: "ValidateFunc",
-    };
+    } as CustomizeFuncRequestType;
     expect(res).to.eql(exp);
   });
 

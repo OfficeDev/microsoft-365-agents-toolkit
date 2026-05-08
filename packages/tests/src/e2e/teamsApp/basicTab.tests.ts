@@ -67,7 +67,7 @@ describe("Basic Tab", function () {
         testFolder,
         Capability.TabNonSso,
         process.env,
-        `--programming-language typescript`
+        `--programming-language typescript`,
       );
 
       // Validate Scaffold
@@ -107,14 +107,14 @@ describe("Basic Tab", function () {
       // validate .localConfigs
       assert.isTrue(
         await fs.pathExists(path.join(projectPath, ".localConfigs")),
-        ".localConfigs should exist"
+        ".localConfigs should exist",
       );
 
       // Remote Provision
       const result = await createResourceGroup(resourceGroupName, "westus");
       assert.isTrue(
         result,
-        `failed to create resource group: ${resourceGroupName}`
+        `failed to create resource group: ${resourceGroupName}`,
       );
 
       await CliHelper.provisionProject(projectPath, "", "dev", {
@@ -129,7 +129,7 @@ describe("Basic Tab", function () {
         context[EnvConstants.AZURE_APP_SERVICE_RESOURCE_ID];
       assert.exists(
         appServiceResourceId,
-        "Azure App Service resource ID should exist"
+        "Azure App Service resource ID should exist",
       );
 
       const tokenProvider = MockAzureAccountProvider;
@@ -141,23 +141,23 @@ describe("Basic Tab", function () {
         subscription,
         getResourceGroupNameFromResourceId(appServiceResourceId),
         getSiteNameFromResourceId(appServiceResourceId),
-        token as string
+        token as string,
       );
       assert.exists(response, "Web app settings should exist");
       assert.equal(
         response["WEBSITE_NODE_DEFAULT_VERSION"],
         "~22",
-        "Node version should be 22"
+        "Node version should be 22",
       );
       assert.equal(
         response["WEBSITE_RUN_FROM_PACKAGE"],
         "1",
-        "Run from package should be 1"
+        "Run from package should be 1",
       );
       assert.equal(
         response["RUNNING_ON_AZURE"],
         "1",
-        "Running on azure should be 1"
+        "Running on azure should be 1",
       );
 
       // Remote Deploy
@@ -170,14 +170,14 @@ describe("Basic Tab", function () {
       const endpoint = context[EnvConstants.TAB_ENDPOINT];
       assert.exists(endpoint, "Tab endpoint should exist");
 
-      await sleep(30000); // wait for 30s to make sure the app is up and running
+      await sleep(60000); // wait for 1 minutes to make sure the app is up and running
       const axiosInstance = axios.create();
       try {
-        const response = await axiosInstance.get(endpoint);
+        const response = await axiosInstance.get(`${endpoint}/tabs/home`);
         assert.equal(response.status, 200, "tab endpoint is not reachable");
       } catch (e) {
         assert.fail(JSON.stringify(e));
       }
-    }
+    },
   );
 });

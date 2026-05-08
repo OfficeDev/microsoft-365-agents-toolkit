@@ -1,7 +1,7 @@
 {
   "editor.inlayHints.enabled": "off",
   "editor.parameterHints.enabled": false,
-  "editor.codeLens": false,
+  "editor.codeLens": true,
   "editor.lightbulb.enabled": "off",
   "editor.hover.sticky": false,
   "editor.quickSuggestions": {

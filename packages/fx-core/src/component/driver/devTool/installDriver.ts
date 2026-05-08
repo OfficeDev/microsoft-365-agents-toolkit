@@ -403,15 +403,15 @@ export class ToolsInstallDriverImpl {
       [TelemetryProperties.devCertStatus]: !trustDevCert
         ? TelemetryDevCertStatus.Disabled
         : localCertResult.alreadyTrusted
-        ? TelemetryDevCertStatus.AlreadyTrusted
-        : localCertResult.isTrusted
-        ? TelemetryDevCertStatus.Trusted
-        : TelemetryDevCertStatus.NotTrusted,
+          ? TelemetryDevCertStatus.AlreadyTrusted
+          : localCertResult.isTrusted
+            ? TelemetryDevCertStatus.Trusted
+            : TelemetryDevCertStatus.NotTrusted,
     });
   }
 
   private setDepsCheckTelemetry(
-    propertyName: typeof TelemetryProperties[keyof typeof TelemetryProperties],
+    propertyName: (typeof TelemetryProperties)[keyof typeof TelemetryProperties],
     depStatus: DependencyStatus
   ): void {
     this.context.addTelemetryProperties({

@@ -7,13 +7,16 @@ import { MessageRecord } from "./types";
 export class SqliteKVStore implements IDatabase {
   private db: Database.Database;
 
-  constructor(private logger: ILogger, dbPath?: string) {
+  constructor(
+    private logger: ILogger,
+    dbPath?: string
+  ) {
     // Use environment variable if set, otherwise use provided dbPath, otherwise use default relative to project root
     const resolvedDbPath = process.env.CONVERSATIONS_DB_PATH
       ? path.resolve(process.env.CONVERSATIONS_DB_PATH)
       : dbPath
-      ? dbPath
-      : path.resolve(__dirname, "../../src/storage/conversations.db");
+        ? dbPath
+        : path.resolve(__dirname, "../../src/storage/conversations.db");
     this.db = new Database(resolvedDbPath);
     this.initializeDatabase();
   }

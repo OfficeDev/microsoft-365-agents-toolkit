@@ -2327,6 +2327,10 @@ describe("generateAdaptiveCardInPluginManifestForKiota", async () => {
   });
 
   it("happy path: should not throw error if error occurs", async () => {
+    sandbox
+      .stub(featureFlagManager, "getBooleanValue")
+      .withArgs(FeatureFlags.KiotaNPMIntegration)
+      .returns(false);
     sandbox.stub(SpecParser.prototype, "list").resolves({
       allAPICount: 1,
       validAPICount: 1,

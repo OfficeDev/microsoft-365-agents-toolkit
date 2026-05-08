@@ -53,7 +53,7 @@ This proxy pattern allows you to:
 ## Prerequisites
 
 Before you begin, ensure you have:
-- An **Azure AI Foundry** project with a deployed agent
+- An **Azure AI Foundry** project with a deployed agent, ensure the AI Foundry is in the same tenant with your m365 and your azure account. SSO is only available in single tenant.
 - Your **Foundry Project Endpoint** (e.g., `https://your-project.services.ai.azure.com/api/projects/your-project`)
 - Your **Agent ID** (e.g., `asst_xxxxxxxxxxxxx`)
 
@@ -99,6 +99,8 @@ If you need to update these values, edit `env/.env.local.user` directly.
 3. Sign in with a **Microsoft 365 work or school account**
 4. Set **Startup Item** to `Microsoft Teams (browser)` or `Microsoft M365 Copilot (browser)`
 5. Press **F5** to start debugging
+
+> **Having issues?** If you encounter any errors during or after debugging, see the [Troubleshooting](#troubleshooting) section below.
 
 ## What Happens During Local Debug (F5)
 
@@ -214,6 +216,30 @@ Create a Dev Tunnel via **Debug > Dev Tunnels > Create A Tunnel** with Public ac
 
 ### "Authentication failed"
 Ensure you're signed into Microsoft 365 Agents Toolkit with a work/school account that has access to your Azure subscription.
+
+### "AADSTS650052: Azure Machine Learning Services lacks a service principal"
+
+**Symptom:** The SSO token exchange fails at runtime with:
+```
+AuthenticationFailed / invalid_client
+AADSTS650052: The app is trying to access a service '18a66f5f-dbdf-4c17-9dd7-1634712a9cbe'
+(Azure Machine Learning Services) that your organization lacks a service principal for.
+```
+
+**Root cause:** This proxy agent exchanges the signed-in user's token for an `Azure Machine Learning | user_impersonation` token to call Azure AI Foundry. If your tenant has never provisioned any Azure ML or AI Foundry resources, the **Azure Machine Learning Services** enterprise application doesn't exist in your Entra ID tenant, and the token exchange fails.
+
+**Solution (requires Tenant Admin — one-time):**
+```powershell
+# Option 1 – Azure CLI
+az ad sp create --id 18a66f5f-dbdf-4c17-9dd7-1634712a9cbe
+
+# Option 2 – Azure PowerShell
+New-AzADServicePrincipal -ApplicationId 18a66f5f-dbdf-4c17-9dd7-1634712a9cbe
+```
+
+> **Note:** If the command fails with _"The service principal cannot be created because the service principal name `https://containeragents.ai.azure.com` is already in use"_, this means the **Azure Machine Learning Services** enterprise application is already present in your tenant. You can ignore the error and retry the agent directly — no further action is needed.
+
+After the command completes (or if the SP already exists), retry the agent — no restart is required.
 
 ## Learn More
 

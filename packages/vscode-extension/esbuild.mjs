@@ -114,6 +114,10 @@ async function main() {
         dest: path.join(outputDirectory, "templates"),
       }),
       copyStaticFiles({
+        src: "../manifest/src/json-schemas/",
+        dest: path.join(outputDirectory, "json-schemas"),
+      }),
+      copyStaticFiles({
         src: "./src/commonlib/codeFlowResult/index.html",
         dest: path.join(outputDirectory, "src", "codeFlowResult", "index.html"),
       }),

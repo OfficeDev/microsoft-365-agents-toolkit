@@ -37,7 +37,7 @@ describe("FuncToolChecker E2E Test", async () => {
 
   const mockFunc = (homeDir: string): FuncToolChecker => {
     sandbox
-      .stub(FuncToolChecker, <any>"getDefaultInstallPath")
+      .stub(FuncToolChecker, "getDefaultInstallPath" as any)
       .returns(path.join(homeDir, "./.fx/bin/azfunc")) as unknown as FuncToolChecker;
     return new FuncToolChecker();
   };

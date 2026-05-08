@@ -33,7 +33,7 @@ export class PluginId {
 
 export const globalResourceGroupLocation = "westus";
 
-export const fileEncoding = "UTF8";
+export const fileEncoding = "utf8";
 
 export type CliCapabilities =
   | "tab"

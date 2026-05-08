@@ -39,6 +39,7 @@ import {
   TeamsAppManifest,
   Tools,
   UserError,
+  Warning,
   err,
   ok,
 } from "@microsoft/teamsfx-api";
@@ -57,6 +58,7 @@ import {
   getResourceServiceEndpoint,
   ResourceServiceType,
   VSCodeExtensionCommand,
+  MosServiceScope,
 } from "../common/constants";
 import { listAPIInfo, parseAndUpdatePluginManifestForKiota } from "../common/daSpecParser";
 import {
@@ -66,7 +68,7 @@ import {
   setErrorContext,
   setTools,
 } from "../common/globalVars";
-import { getLocalizedString } from "../common/localizeUtils";
+import { clearLocaleCache, getLocalizedString } from "../common/localizeUtils";
 import { ListCollaboratorResult, PermissionsResult } from "../common/permissionInterface";
 import {
   getProjectMetadata,
@@ -128,7 +130,6 @@ import { ValidateManifestDriver } from "../component/driver/teamsApp/validate";
 import { ValidateAppPackageDriver } from "../component/driver/teamsApp/validateAppPackage";
 import { ValidateWithTestCasesDriver } from "../component/driver/teamsApp/validateTestCases";
 import { createDriverContext } from "../component/driver/util/utils";
-import "../component/feature/sso";
 import { SSO } from "../component/feature/sso";
 import { addExistingPlugin } from "../component/generator/declarativeAgent/helper";
 import {
@@ -146,10 +147,14 @@ import {
 } from "../component/generator/openApiSpec/helper";
 import { useLocalTemplate } from "../component/generator/templateHelper";
 import { TemplateNames } from "../component/generator/templates/templateNames";
-import { fetchZipFromUrl, getTemplateLatestVersion, unzip } from "../component/generator/utils";
+import {
+  fetchZipFromUrl,
+  getTemplateLatestVersion,
+  getTemplateVSLatestVersion,
+  unzip,
+} from "../component/generator/utils";
 import { LaunchHelper } from "../component/m365/launchHelper";
 import { PackageService } from "../component/m365/packageService";
-import { MosServiceScope } from "../common/constants";
 import { EnvLoaderMW, EnvWriterMW } from "../component/middleware/envMW";
 import { QuestionMW } from "../component/middleware/questionMW";
 import {
@@ -1029,7 +1034,7 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
     const manifestOutputPath: string = path.join(
       inputs.projectPath!,
       "build",
-      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+
       `aad.${inputs.env}.json`
     );
     const Context: DriverContext = createDriverContext(inputs);
@@ -1247,12 +1252,10 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
       manifestPath: teamsAppManifestFilePath,
       outputZipPath:
         inputs[QuestionNames.OutputZipPathParamName] ??
-        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
         `${inputs.projectPath}/${AppPackageFolderName}/${BuildFolderName}/appPackage.${process.env
           .TEAMSFX_ENV!}.zip`,
       outputFolder:
         inputs[QuestionNames.OutputManifestParamName] ??
-        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
         `${inputs.projectPath}/${AppPackageFolderName}/${BuildFolderName}`,
     };
     const result = (await driver.execute(args, context)).result;
@@ -1587,8 +1590,8 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
   ])
   async createEnv(inputs: Inputs): Promise<Result<undefined, FxError>> {
     return this.createEnvCopyV3(
-      inputs[QuestionNames.NewTargetEnvName]!,
-      inputs[QuestionNames.SourceEnvName]!,
+      inputs[QuestionNames.NewTargetEnvName],
+      inputs[QuestionNames.SourceEnvName],
       inputs.projectPath!
     );
   }
@@ -2021,226 +2024,6 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
     telemetryUtils.fillinProjectTypeProperties(props, projectTypeRes);
     TOOLS.telemetryReporter?.sendTelemetryEvent(TelemetryEvent.ProjectType, props);
     return ok(projectTypeRes);
-  }
-
-  /**
-   * Add plugin
-   */
-  @hooks([
-    ErrorContextMW({ component: "FxCore", stage: Stage.addPlugin }),
-    ErrorHandlerMW,
-    QuestionMW("addPlugin"),
-    ConcurrentLockerMW,
-  ])
-  async addPlugin(inputs: Inputs): Promise<Result<undefined | any, FxError>> {
-    if (!inputs.projectPath) {
-      throw new Error("projectPath is undefined"); // should never happen
-    }
-
-    const context = createContext();
-    const teamsManifestPath = inputs[QuestionNames.ManifestPath];
-    const appPackageFolder = path.dirname(teamsManifestPath);
-    const isGenerateFromApiSpec =
-      inputs[QuestionNames.ActionType] === ActionStartOptions.apiSpec().id;
-
-    // validate the project is valid for adding plugin
-    const manifestRes = await manifestUtils._readAppManifest(teamsManifestPath);
-    if (manifestRes.isErr()) {
-      return err(manifestRes.error);
-    }
-
-    const teamsManifest = manifestRes.value;
-    const declarativeGpt = teamsManifest.copilotExtensions
-      ? teamsManifest.copilotExtensions.declarativeCopilots?.[0]
-      : teamsManifest.copilotAgents?.declarativeAgents?.[0];
-    if (!declarativeGpt?.file) {
-      return err(
-        AppStudioResultFactory.UserError(
-          AppStudioError.TeamsAppRequiredPropertyMissingError.name,
-          AppStudioError.TeamsAppRequiredPropertyMissingError.message(
-            "declarativeAgents",
-            teamsManifestPath
-          )
-        )
-      );
-    }
-    const gptManifestFilePathRes = await copilotGptManifestUtils.getManifestPath(teamsManifestPath);
-    if (gptManifestFilePathRes.isErr()) {
-      return err(gptManifestFilePathRes.error);
-    }
-
-    const declarativeCopilotManifestPath = gptManifestFilePathRes.value;
-
-    const declarativeCopilotManifesRes = await copilotGptManifestUtils.readCopilotGptManifestFile(
-      declarativeCopilotManifestPath
-    );
-    if (declarativeCopilotManifesRes.isErr()) {
-      return err(declarativeCopilotManifesRes.error);
-    }
-
-    const declarativeCopilotManifest = declarativeCopilotManifesRes.value;
-    let confirmMessage = getLocalizedString(
-      "core.addApi.confirm",
-      path.relative(inputs.projectPath, appPackageFolder)
-    );
-
-    // Will be used if generating from API spec
-    let specParser: SpecParser | undefined = undefined;
-    let authNameAndSchemes: { authName: string; authScheme: AuthType }[] = [];
-
-    if (isGenerateFromApiSpec) {
-      specParser = new SpecParser(
-        inputs[QuestionNames.ApiSpecLocation].trim(),
-        getParserOptions(ProjectType.Copilot, true)
-      );
-      const listResult = await listAPIInfo(inputs[QuestionNames.ApiSpecLocation].trim());
-      authNameAndSchemes = this.parseAuthNameAndScheme(listResult, inputs);
-
-      if (authNameAndSchemes.length > 0) {
-        const doesLocalYamlPathExists = await fs.pathExists(
-          path.join(inputs.projectPath, MetadataV3.localConfigFile)
-        );
-        confirmMessage = doesLocalYamlPathExists
-          ? getLocalizedString(
-              "core.addApi.confirm.localTeamsYaml",
-              path.relative(inputs.projectPath, appPackageFolder),
-              MetadataV4.localConfigFile,
-              MetadataV4.configFile
-            )
-          : getLocalizedString(
-              "core.addApi.confirm.teamsYaml",
-              path.relative(inputs.projectPath, appPackageFolder),
-              MetadataV4.configFile
-            );
-      }
-    }
-
-    // confirm
-
-    const confirmRes = await context.userInteraction.showMessage(
-      "warn",
-      confirmMessage,
-      true,
-      getLocalizedString("core.addApi.continue")
-    );
-
-    if (confirmRes.isErr()) {
-      return err(confirmRes.error);
-    } else if (confirmRes.value !== getLocalizedString("core.addApi.continue")) {
-      return err(new UserCancelError());
-    }
-
-    // find the next available action id
-    let actionId = "";
-    let suffix = 1;
-    actionId = `action_${suffix}`;
-    const existingActionIds = declarativeCopilotManifest.actions?.map((action) => action.id);
-    while (existingActionIds?.includes(actionId)) {
-      suffix += 1;
-      actionId = `action_${suffix}`;
-    }
-
-    let destinationPluginManifestPath: string;
-    // generate files
-    if (isGenerateFromApiSpec && specParser) {
-      destinationPluginManifestPath =
-        await copilotGptManifestUtils.getDefaultNextAvailablePluginManifestPath(
-          appPackageFolder,
-          undefined
-        );
-      const destinationApiSpecPath = await pluginManifestUtils.getDefaultNextAvailableApiSpecPath(
-        inputs[QuestionNames.ApiSpecLocation].trim(),
-        path.join(appPackageFolder, DefaultApiSpecFolderName)
-      );
-
-      const generateRes = await generateFromApiSpec(
-        specParser,
-        teamsManifestPath,
-        inputs,
-        context,
-        Stage.addPlugin,
-        ProjectType.Copilot,
-        {
-          destinationApiSpecFilePath: destinationApiSpecPath,
-          pluginManifestFilePath: destinationPluginManifestPath,
-        },
-        inputs[QuestionNames.ApiSpecLocation].trim()
-      );
-      if (generateRes.isErr()) {
-        return err(generateRes.error);
-      }
-
-      const warnings = generateRes.value.warnings;
-      if (warnings && warnings.length > 0) {
-        const warnSummary = await generateScaffoldingSummary(
-          warnings,
-          manifestRes.value,
-          path.relative(inputs.projectPath, destinationApiSpecPath),
-          path.relative(inputs.projectPath, destinationPluginManifestPath),
-          inputs.projectPath
-        );
-        context.logProvider.info(warnSummary + "\n");
-      }
-
-      const addActionRes = await copilotGptManifestUtils.addAction(
-        declarativeCopilotManifestPath,
-        actionId,
-        normalizePath(path.relative(appPackageFolder, destinationPluginManifestPath), true)
-      );
-      if (addActionRes.isErr()) {
-        return err(addActionRes.error);
-      }
-
-      for (const authNameAndScheme of authNameAndSchemes) {
-        await this.updateAuthActionInYaml(
-          authNameAndScheme.authName,
-          authNameAndScheme.authScheme,
-          inputs.projectPath,
-          destinationApiSpecPath,
-          destinationPluginManifestPath
-        );
-      }
-    } else {
-      const addPluginRes = await addExistingPlugin(
-        declarativeCopilotManifestPath,
-        inputs[QuestionNames.PluginManifestFilePath].trim(),
-        inputs[QuestionNames.PluginOpenApiSpecFilePath].trim(),
-        actionId,
-        context,
-        Stage.addPlugin
-      );
-
-      if (addPluginRes.isErr()) {
-        return err(addPluginRes.error);
-      }
-      destinationPluginManifestPath = addPluginRes.value.destinationPluginManifestPath;
-      const warningMessage = outputScaffoldingWarningMessage(addPluginRes.value.warnings);
-      context.logProvider.info(warningMessage);
-    }
-
-    if (inputs.platform === Platform.VSCode) {
-      const successMessage = getLocalizedString("core.addPlugin.success.vsc", actionId);
-      const viewPluginManifest = getLocalizedString("core.addPlugin.success.viewPluginManifest");
-      void context.userInteraction
-        .showMessage("info", successMessage, false, viewPluginManifest)
-        .then((userRes) => {
-          if (userRes.isOk() && userRes.value === viewPluginManifest) {
-            context.telemetryReporter.sendTelemetryEvent(
-              TelemetryEvent.ViewPluginManifestAfterAdded
-            );
-            void TOOLS?.ui?.openFile?.(destinationPluginManifestPath);
-          }
-        });
-    } else {
-      const successMessage = getLocalizedString(
-        "core.addPlugin.success",
-        actionId,
-        destinationPluginManifestPath
-      );
-      void context.userInteraction.showMessage("info", successMessage, false);
-    }
-
-    return ok(undefined);
   }
 
   @hooks([
@@ -2937,6 +2720,9 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
 
       const versionFile = path.join(metadataDir, "template-version.txt");
       const needDownload = async (): Promise<boolean> => {
+        // Always re-download for mutable pre-release tags (content changes but tag stays the same)
+        if (latestVersion === "0.0.0-rc") return true;
+
         if (!(await fs.pathExists(versionFile))) return true;
         try {
           const cachedVersion = (await fs.readFile(versionFile, "utf-8")).trim();
@@ -2957,11 +2743,72 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
       const zip = await fetchZipFromUrl(metadataZipUrl);
       await unzip(zip, metadataDir);
       await fs.writeFile(versionFile, latestVersion, { encoding: "utf-8" });
+
+      // Clear locale cache so freshly downloaded NLS files are picked up
+      clearLocaleCache();
+
       return ok(undefined);
     } catch (error: any) {
       const message = error?.message || "Unknown error while fetching template metadata";
       const systemErr = new SystemError(
         "FetchOnlineTemplateMetadata",
+        "DownloadFailed",
+        message,
+        message
+      );
+      return err(systemErr);
+    }
+  }
+
+  /**
+   * dynamic VS template metadata download
+   */
+  @hooks([
+    ErrorContextMW({ component: "FxCore", stage: "fetchOnlineTemplateMetadataForVS" }),
+    ErrorHandlerMW,
+  ])
+  async fetchOnlineTemplateMetadataForVS(): Promise<Result<undefined, FxError>> {
+    if (useLocalTemplate()) {
+      return ok(undefined); // Skip if using local templates
+    }
+    try {
+      // VS ships stable templates with a stable fx-core and test/pre-release
+      // templates with a beta fx-core. So beta = pre-stable test build → RC.
+      const coreVersion = require("../../package.json").version as string;
+      const latestVersion = coreVersion.includes("beta")
+        ? "0.0.0-rc"
+        : await getTemplateVSLatestVersion();
+
+      const homedir = os.homedir();
+      const metadataDir = path.join(homedir, `.${String(ConfigFolderName)}`, "vs-metadata");
+      await fs.ensureDir(metadataDir);
+
+      const versionFile = path.join(metadataDir, "template-vs-version.txt");
+      const needDownload = async (): Promise<boolean> => {
+        if (!(await fs.pathExists(versionFile))) return true;
+        try {
+          const cachedVersion = (await fs.readFile(versionFile, "utf-8")).trim();
+          return cachedVersion !== latestVersion;
+        } catch {
+          return true;
+        }
+      };
+
+      if (!(await needDownload())) {
+        return ok(undefined); // Already up-to-date
+      }
+
+      const tag = `${templateConfig.vstagPrefix}${latestVersion}`;
+      const metadataZipUrl = `${templateConfig.templateDownloadBaseURL}/${tag}/metadata.zip`;
+
+      const zip = await fetchZipFromUrl(metadataZipUrl);
+      await unzip(zip, metadataDir);
+      await fs.writeFile(versionFile, latestVersion, { encoding: "utf-8" });
+      return ok(undefined);
+    } catch (error: any) {
+      const message = error?.message || "Unknown error while fetching VS template metadata";
+      const systemErr = new SystemError(
+        "FetchOnlineTemplateMetadataForVS",
         "DownloadFailed",
         message,
         message
@@ -2978,7 +2825,7 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
     return await generateConfigFiles(inputs);
   }
 
-  private async updateAuthActionInYaml(
+  protected async updateAuthActionInYaml(
     authName: string | undefined,
     authScheme: AuthType | undefined,
     projectPath: string,
@@ -3009,7 +2856,7 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
     }
   }
 
-  private parseAuthNameAndScheme(
+  protected parseAuthNameAndScheme(
     listResult: ListAPIResult,
     inputs: Inputs
   ): { authName: string; authScheme: AuthType }[] {

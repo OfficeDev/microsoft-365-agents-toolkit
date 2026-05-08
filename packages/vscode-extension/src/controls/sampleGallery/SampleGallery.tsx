@@ -80,8 +80,7 @@ export default class SampleGallery extends React.Component<SampleGalleryProps, S
               </Link>{" "}
               assists you in selecting the right sample to create your app.
             </h3>
-          ) : this.props.shouldShowChat === "true" &&
-            this.props.shouldHideTeamsAgentPreviewTag === "false" ? (
+          ) : this.props.shouldShowChat === "true" ? (
             <h3>
               Explore our sample gallery filled with solutions that work seamlessly with Microsoft
               365 Agents Toolkit. Need help choosing? Let{" "}
@@ -90,7 +89,7 @@ export default class SampleGallery extends React.Component<SampleGalleryProps, S
                   this.onInvokeTeamsAgent();
                 }}
               >
-                Github Copilot (preview)
+                Github Copilot
               </Link>{" "}
               assists you in selecting the right sample to create your app.
             </h3>

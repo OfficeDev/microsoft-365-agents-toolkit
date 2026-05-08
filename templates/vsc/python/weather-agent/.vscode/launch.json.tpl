@@ -65,10 +65,23 @@
       "console": "integratedTerminal"
     },
     {
+      "name": "Start Python (Playground)",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/src/app.py",
+      "cwd": "${workspaceFolder}/src",
+      "console": "integratedTerminal",
+      "serverReadyAction": {
+        "pattern": "(started|listening|Running|Serving) (at|on) (https?://\\S+)",
+        "action": "startDebugging",
+        "name": "Start Microsoft 365 Agents Playground"
+      }
+    },
+    {
         "name": "Start Microsoft 365 Agents Playground",
         "type": "node",
         "request": "launch",
-        "program": "${workspaceFolder}/devTools/teamsapptester/node_modules/@microsoft/teams-app-test-tool/cli.js",
+        "program": "${workspaceFolder}/devTools/playground/node_modules/@microsoft/m365agentsplayground/cli.js",
         "args": [
             "start"
         ],
@@ -177,13 +190,7 @@
     },
     {
         "name": "Debug in Microsoft 365 Agents Playground",
-        "configurations": [
-            "Start Python",
-            "Start Microsoft 365 Agents Playground"
-        ],
-        "cascadeTerminateToConfigurations": [
-            "Start Microsoft 365 Agents Playground"
-        ],
+        "configurations": ["Start Python (Playground)"],
         "preLaunchTask": "Deploy (Microsoft 365 Agents Playground)",
         "presentation": {
             "group": "0-TestTool",

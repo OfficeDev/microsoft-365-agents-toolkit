@@ -18,10 +18,10 @@ import {
   signedIn,
   signedOut,
   ITeamsFxTokenCredential,
+  LogLevel as LLevel,
 } from "@microsoft/teamsfx-api";
 import { LoginStatus, login } from "./common/login";
 
-import { LogLevel as LLevel } from "@microsoft/teamsfx-api";
 import { InvalidAzureSubscriptionError, isValidProjectV3 } from "@microsoft/teamsfx-core";
 import * as os from "os";
 import { AzureSpCrypto } from "./cacheAccess";

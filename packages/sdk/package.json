@@ -1,6 +1,6 @@
 {
   "name": "@microsoft/teamsfx",
-  "version": "4.0.2",
+  "version": "4.0.3",
   "description": "Microsoft Teams Framework for Node.js and browser.",
   "main": "dist/index.node.cjs.js",
   "browser": "dist/index.esm2017.js",
@@ -24,8 +24,7 @@
     "test:e2e:node": "mocha --reporter mocha-multi-reporters 'test/e2e/node/*.spec.ts' --file src/index.ts -r config/mocha.env.ts --config config/mocharc.node.js --reporter-options configFile=config/mocha-multi-reporter.json",
     "test:e2e": "npm run test:e2e:node && npm run test:e2e:browser",
     "ui-test": "mocha --no-timeouts -r test/mocha.env.ts -r ts-node/register test/ui/**/*.spec.ts --exit",
-    "check-sensitive": "npx eslint --plugin 'no-secrets' --cache --ignore-pattern 'package.json' --ignore-pattern 'package-lock.json'",
-    "precommit": "npm run check-sensitive && lint-staged"
+    "precommit": "lint-staged"
   },
   "files": [
     "dist/*js",
@@ -49,19 +48,19 @@
     "@azure/identity": "^4.4.1",
     "@azure/msal-browser": "^3.24.0",
     "@azure/msal-node": "^2.14.0",
-    "adaptive-expressions": "^4.23.1",
-    "adaptivecards-templating": "^2.3.1",
-    "axios": "^1.8.3",
     "@microsoft/agents-activity": "^0.6.18",
     "@microsoft/agents-hosting": "^0.6.18",
     "@microsoft/agents-hosting-dialogs": "^0.6.18",
     "@microsoft/agents-hosting-extensions-teams": "^0.6.18",
+    "adaptive-expressions": "^4.23.1",
+    "adaptivecards-templating": "^2.3.1",
+    "axios": "^1.8.3",
     "jwt-decode": "^4.0.0",
     "uuid": "^10.0.0"
   },
   "peerDependencies": {
-    "@microsoft/teams-js": "^2.31.1",
-    "@microsoft/agents-activity": "^0.6.1"
+    "@microsoft/agents-activity": "^0.6.1",
+    "@microsoft/teams-js": "^2.31.1"
   },
   "devDependencies": {
     "@azure/core-auth": "^1.8.0",
@@ -114,7 +113,7 @@
     "karma-mocha-reporter": "^2.2.5",
     "karma-sourcemap-loader": "^0.4.0",
     "karma-webpack": "^5.0.1",
-    "lint-staged": "^11.2.6",
+    "lint-staged": "^15.0.0",
     "lodash.get": "^4.4.2",
     "mocha": "^10.7.3",
     "mocha-multi-reporters": "^1.5.1",

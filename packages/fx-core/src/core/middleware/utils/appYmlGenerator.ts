@@ -46,7 +46,11 @@ export class AppYmlGenerator extends BaseAppYmlGenerator {
     dotnetPath: string | undefined;
     isM365: boolean | undefined;
   };
-  constructor(oldProjectSettings: any, private bicepContent: string, private projectPath: string) {
+  constructor(
+    oldProjectSettings: any,
+    private bicepContent: string,
+    private projectPath: string
+  ) {
     super(oldProjectSettings);
     this.handlebarsContext = {
       activePlugins: {},

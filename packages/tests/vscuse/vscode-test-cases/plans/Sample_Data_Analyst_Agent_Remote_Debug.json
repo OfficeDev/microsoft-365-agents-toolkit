@@ -10,14 +10,14 @@
       "step_retry_timeout": 0.0
     },
     "total_steps": 3,
-    "created_at": "2026-01-08T03:30:21.836058",
+    "created_at": "2026-04-23T02:37:28.841982",
     "name": "Sample Data Analyst Agent Remote Debug",
     "description": {
       "other": "",
       "owner": "v-annefu@microsoft.com",
       "workitem": "36332378"
     },
-    "generated_at": "2026-01-08T03:30:21.836058",
+    "generated_at": "2026-04-23T02:37:28.841982",
     "execution_order": [
       "plan_r_1107_015711",
       "step_29de36f6",
@@ -27,12 +27,13 @@
       "plan_ede8fb96",
       "plan_r_0928_020230",
       "plan_r_0928_073729",
+      "plan_r_0929_040401",
       "plan_r_0928_075846",
       "plan_50933582",
       "plan_5ad45f98"
     ],
     "tags": [],
-    "updated_at": "2026-01-08T06:20:19.259169"
+    "updated_at": "2026-04-23T03:08:41.046399"
   },
   "steps": [
     {
@@ -58,7 +59,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_29de36f6",
-      "created_at": "2026-01-08T06:17:29.014608",
+      "created_at": "2026-04-23T02:37:28.857117",
       "plan_id": "plan_50682c0c"
     },
     {
@@ -80,7 +81,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_b0ff8c36",
-      "created_at": "2026-01-08T06:17:29.030440",
+      "created_at": "2026-04-23T02:37:28.869413",
       "plan_id": "plan_50682c0c"
     },
     {
@@ -106,7 +107,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_62eae038",
-      "created_at": "2026-01-08T06:17:29.045004",
+      "created_at": "2026-04-23T02:37:28.880222",
       "plan_id": "plan_50682c0c"
     }
   ],

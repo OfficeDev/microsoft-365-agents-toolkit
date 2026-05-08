@@ -20,6 +20,11 @@ on:
         type: boolean
         default: false
         description: "Whether to release vs product"
+      vsChannelName:
+        type: string
+        default: "IntPreview"
+        description: "VS channel to target (IntPreview=main/Canary, IntRelease=rel/insiders, Release=rel/stable)"
+        required: false
       vstemplate:
         type: boolean
         default: false
@@ -36,6 +41,10 @@ on:
         type: boolean
         default: false
         description: "Whether to run test cases after CD"
+      SkipBranchCheck:
+        type: boolean
+        default: false
+        description: "[Dev/Testing only] Skip branch validation."
   schedule:
     - cron: "15 11 * * *"  # UTC+8 19:15 make sure the daily build generated before the daily test pipeline trigger
 
@@ -59,19 +68,19 @@ jobs:
       PRODUCTION: ${{ github.event.inputs.goproduct }}
     steps:
       - name: Validate CD branch
-        if: ${{ github.event_name == 'workflow_dispatch' && github.ref != 'refs/heads/dev' && !startsWith(github.ref, 'refs/heads/release/') }}
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.SkipBranchCheck != 'true' && github.ref != 'refs/heads/dev' && !startsWith(github.ref, 'refs/heads/release/') }}
         run: |
           echo It's allowed to run CD on dev or release branch.
           exit 1
 
       - name: Validate inputs for release
-        if: ${{ github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/release/') && github.event.inputs.preid == 'alpha' }}
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.SkipBranchCheck != 'true' && startsWith(github.ref, 'refs/heads/release/') && github.event.inputs.preid == 'alpha' }}
         run: |
           echo It's not allowed to run CD on release branch for alpha.
           exit 1
 
       - name: Valiadte inputs for dev
-        if: ${{ github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/dev' && github.event.inputs.preid != 'alpha' }}
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.SkipBranchCheck != 'true' && github.ref == 'refs/heads/dev' && github.event.inputs.preid != 'alpha' }}
         run: |
           echo It's only allowed to alpha on dev branch.
           exit 1
@@ -343,17 +352,19 @@ jobs:
 
       - name: Release RC VS templates to GitHub
         if: ${{ contains(steps.version-change.outputs.CHANGED, 'templates@') && github.event_name == 'workflow_dispatch' && github.event.inputs.vsrelease == 'true' }}
-        uses: mini-bomba/create-github-release@v1.2.0
+        uses: ncipollo/release-action@v1.10.0
         with:
           token: ${{ steps.generate-token.outputs.token }}
           tag: "templates-vs@0.0.0-rc"
           name: "templates-vs@0.0.0-rc"
           body: "VS Templates RC release for templates-vs@0.0.0-rc"
-          target_commit: ${{ github.sha }}
+          commit: ${{ github.sha }}
           prerelease: true
-          clear_attachments: true
-          files: |
+          allowUpdates: true
+          removeArtifacts: true
+          artifacts: |
             ${{ github.workspace }}/templates/build/fallback/csharp.zip
+            ${{ github.workspace }}/templates/build/metadata.zip
       
       - name: Get VS Templates version
         if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.vsrelease == 'true' && github.event.inputs.vstemplate == 'true' }}
@@ -363,17 +374,36 @@ jobs:
           echo "VSTAG=templates-vs@$VS_VERSION" >> $GITHUB_OUTPUT
 
       - name: Release stable VS Templates to GitHub
-        uses: mini-bomba/create-github-release@v1.2.0
+        uses: ncipollo/release-action@v1.10.0
         if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.vsrelease == 'true' && github.event.inputs.vstemplate == 'true' }}
         with:
           token: ${{ steps.generate-token.outputs.token }}
           tag: ${{ steps.vs-template-tag.outputs.VSTAG }}
           name: ${{ steps.vs-template-tag.outputs.VSTAG }}
           body: "VS Templates release for ${{ steps.vs-template-tag.outputs.VSTAG }}"
-          target_commit: ${{ github.sha }}
-          clear_attachments: true
-          files: |
+          commit: ${{ github.sha }}
+          allowUpdates: true
+          removeArtifacts: true
+          artifacts: |
             ${{ github.workspace }}/templates/build/fallback/csharp.zip
+            ${{ github.workspace }}/templates/build/metadata.zip
+
+      - name: Generate Tag List (VS stable release)
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.vsrelease == 'true' && github.event.inputs.vstemplate == 'true' }}
+        run: |
+          git fetch --tags
+          git tag | grep templates > ${{ runner.temp }}/template-tags.txt
+
+      - name: Update Template Tag list Release (VS stable release)
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.vsrelease == 'true' && github.event.inputs.vstemplate == 'true' }}
+        uses: ncipollo/release-action@v1.10.0
+        with:
+          artifacts: ${{ runner.temp }}/template-tags.txt
+          name: "Template Tag List"
+          body: "Release to maintain template tag list."
+          token: ${{ steps.generate-token.outputs.token }}
+          tag: "template-tag-list"
+          allowUpdates: true
 
       - name: enable prerelease only features
         if: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && (github.event.inputs.preid == 'alpha' || github.event.inputs.preid == 'preview')) }}
@@ -472,7 +502,7 @@ jobs:
             [ -d ./packages/server/lib ] && find ./packages/server/lib -type f -name '*.exe' -exec mv {} server.exe \;
 
       - name: pack vsix
-        if: ${{ contains(steps.version-change.outputs.CHANGED, 'ms-teams-vscode-extension@') }}
+        if: ${{ github.event.inputs.pkgs == '' || contains(github.event.inputs.pkgs, 'vscode') }}
         env:
           NODE_OPTIONS: "--max_old_space_size=4096"
         uses: nick-invision/retry@v2
@@ -507,6 +537,7 @@ jobs:
           echo ${{steps.version-change.outputs.CHANGED}} > changed.txt
           npx lerna ls -all --json > versions.json
           echo ${{ inputs.series }} > series.txt
+          echo ${{ inputs.vsChannelName || 'IntPreview' }} > vschannel.txt
           find ./packages/vscode-extension -type f -name '*.vsix' -exec mv {} . \;
 
       - name: upload release info to artifact
@@ -516,6 +547,7 @@ jobs:
           path: |
             changed.txt
             series.txt
+            vschannel.txt
             versions.json
             *.vsix
             *.exe

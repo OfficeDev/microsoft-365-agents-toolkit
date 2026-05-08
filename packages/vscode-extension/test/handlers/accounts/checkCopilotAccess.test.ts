@@ -1,5 +1,12 @@
 import { err, ok } from "@microsoft/teamsfx-api";
-import { MosServiceScope, AppStudioScopes, PackageService } from "@microsoft/teamsfx-core";
+import {
+  MosServiceScope,
+  AppStudioScopes,
+  FeatureFlags,
+  GraphScopes,
+  PackageService,
+  featureFlagManager,
+} from "@microsoft/teamsfx-core";
 import * as sinon from "sinon";
 import * as vscode from "vscode";
 import VsCodeLogInstance from "../../../src/commonlib/log";
@@ -182,5 +189,25 @@ describe("check copilot access", () => {
     sandbox.assert.calledOnce(m365GetStatusStub);
     sandbox.assert.calledOnce(m365GetAccessTokenStub);
     sandbox.assert.match(result.isErr() ? result.error : {}, { error: "error" });
+  });
+
+  it("uses Graph scopes in sovereign high", async () => {
+    sandbox.stub(featureFlagManager, "getStringValue").returns("GCC H");
+    const m365GetStatusStub = sandbox
+      .stub(M365TokenInstance, "getStatus")
+      .resolves(ok({ status: "SignedIn", accountInfo: { upn: "test.email.com" } } as any));
+    const m365GetAccessTokenStub = sandbox
+      .stub(M365TokenInstance, "getAccessToken")
+      .withArgs({ scopes: MosServiceScope() })
+      .resolves(ok("stubedString"));
+    sandbox.stub(PackageService.prototype, "getCopilotStatus").resolves(true);
+    sandbox.stub(VsCodeLogInstance, "semLog").resolves();
+
+    const result = await checkCopilotAccessHandler();
+
+    sandbox.assert.calledOnce(m365GetStatusStub);
+    sandbox.assert.calledWith(m365GetStatusStub, { scopes: GraphScopes });
+    sandbox.assert.calledOnce(m365GetAccessTokenStub);
+    sandbox.assert.match(result.isOk(), true);
   });
 });

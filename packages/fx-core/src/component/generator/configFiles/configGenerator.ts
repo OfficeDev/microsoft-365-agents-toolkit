@@ -93,8 +93,8 @@ export class ConfigGenerator {
           change.action === "added"
             ? "Added"
             : change.action === "modified"
-            ? "Modified"
-            : "Skipped";
+              ? "Modified"
+              : "Skipped";
         await context.userInteraction.showMessage("info", `  ${action}: ${change.file}`, false);
       }
 

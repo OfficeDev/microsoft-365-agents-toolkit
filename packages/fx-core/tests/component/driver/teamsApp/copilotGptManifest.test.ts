@@ -3,6 +3,7 @@
 
 import { SpecParser } from "@microsoft/m365-spec-parser";
 import {
+  AppManifestUtils,
   Colors,
   DeclarativeAgentManifestConverter,
   DeclarativeCopilotCapabilityName,
@@ -36,6 +37,7 @@ import { pluginManifestUtils } from "../../../../src/component/driver/teamsApp/u
 import { WrapDriverContext } from "../../../../src/component/driver/util/wrapUtil";
 import {
   FileNotFoundError,
+  JSONSyntaxError,
   MissingEnvironmentVariablesError,
   WriteFileError,
 } from "../../../../src/error";
@@ -585,7 +587,7 @@ describe("copilotGptManifestUtils", () => {
       });
       sandbox.stub(fs, "pathExists").resolves(true);
       sandbox.stub(fs, "readFile").resolves(JSON.stringify(manifest) as any);
-      sandbox.stub(ManifestUtil, "validateManifest").resolves([]);
+      sandbox.stub(AppManifestUtils, "validateAgainstSchema").resolves([]);
       sandbox.stub(pluginManifestUtils, "validateAgainstSchema").resolves(
         ok({
           id: "1",
@@ -631,7 +633,7 @@ describe("copilotGptManifestUtils", () => {
       });
       sandbox.stub(fs, "pathExists").resolves(true);
       sandbox.stub(fs, "readFile").resolves(JSON.stringify(manifest) as any);
-      sandbox.stub(ManifestUtil, "validateManifest").resolves([]);
+      sandbox.stub(AppManifestUtils, "validateAgainstSchema").resolves([]);
       sandbox
         .stub(pluginManifestUtils, "validateAgainstSchema")
         .resolves(err(new SystemError("error", "error", "error", "error")));
@@ -662,7 +664,7 @@ describe("copilotGptManifestUtils", () => {
       });
       sandbox.stub(fs, "pathExists").resolves(true);
       sandbox.stub(fs, "readFile").resolves(JSON.stringify(gptManifest) as any);
-      sandbox.stub(ManifestUtil, "validateManifest").throws("error");
+      sandbox.stub(AppManifestUtils, "validateAgainstSchema").throws("error");
 
       const res = await copilotGptManifestUtils.validateAgainstSchema(
         { id: "1", file: "file" },
@@ -1356,7 +1358,7 @@ describe("copilotGptManifestUtils", () => {
       }
     });
 
-    it("should return FileNotFoundError if JSON parse fails", () => {
+    it("should return JSONSyntaxError if JSON parse fails", () => {
       sandbox.stub(fs, "pathExistsSync").returns(true);
       sandbox.stub(fs, "readFileSync").returns("invalid json");
 
@@ -1364,7 +1366,28 @@ describe("copilotGptManifestUtils", () => {
 
       chai.assert.isTrue(res.isErr());
       if (res.isErr()) {
-        chai.assert.isTrue(res.error instanceof FileNotFoundError);
+        chai.assert.isTrue(res.error instanceof JSONSyntaxError);
+      }
+    });
+
+    it("should return JSONSyntaxError if manifest has invalid shape (#15837)", () => {
+      // Reproduces issue #15837: capabilities provided as object instead of array.
+      // The typed converter throws a descriptive error instead of letting the bad value
+      // propagate to a downstream `.filter is not a function` TypeError.
+      const badManifest = {
+        version: "v1.6",
+        name: "test",
+        description: "test",
+        capabilities: { name: "CodeInterpreter" },
+      };
+      sandbox.stub(fs, "pathExistsSync").returns(true);
+      sandbox.stub(fs, "readFileSync").returns(JSON.stringify(badManifest));
+
+      const res = copilotGptManifestUtils.readCopilotGptManifestFileSync("testPath");
+
+      chai.assert.isTrue(res.isErr());
+      if (res.isErr()) {
+        chai.assert.isTrue(res.error instanceof JSONSyntaxError);
       }
     });
   });

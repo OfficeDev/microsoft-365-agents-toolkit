@@ -53,9 +53,9 @@ export class SyncManifestDriver implements StepDriver {
     if (res.isErr()) {
       return err(res.error);
     }
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+
     const teamsAppId = res.value.get("teamsAppId")!;
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+
     const manifestTemplatePath = res.value.get("manifestTemplatePath")!;
 
     const appPackageRes = await appStudio.getAppPackage(

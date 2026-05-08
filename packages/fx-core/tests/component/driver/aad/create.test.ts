@@ -19,12 +19,12 @@ import {
   HttpClientError,
   HttpServerError,
   InvalidActionInputError,
+  UserCancelError,
 } from "../../../../src/error/common";
 import { err, ok, UserError } from "@microsoft/teamsfx-api";
 import { OutputEnvironmentVariableUndefinedError } from "../../../../src/component/driver/error/outputEnvironmentVariableUndefinedError";
 import { AadAppNameTooLongError } from "../../../../src/component/driver/aad/error/aadAppNameTooLongError";
 import { MockedM365Provider } from "../../../core/utils";
-import { UserCancelError } from "../../../../src/error/common";
 import { getLocalizedString } from "../../../../src/common/localizeUtils";
 import { constants } from "../../../../src/component/driver/aad/utility/constants";
 import { TeamsDevPortalClient } from "../../../../src/client/teamsDevPortalClient";

@@ -30,8 +30,8 @@ export default function App() {
           themeString === "dark"
             ? teamsDarkTheme
             : themeString === "contrast"
-            ? teamsHighContrastTheme
-            : teamsLightTheme
+              ? teamsHighContrastTheme
+              : teamsLightTheme
         }
       >
         <Router>

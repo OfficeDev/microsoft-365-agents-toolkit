@@ -15,7 +15,7 @@ import axios from "axios";
 import { Service } from "typedi";
 import { GraphClient } from "../../client/graphClient";
 import { teamsDevPortalClient } from "../../client/teamsDevPortalClient";
-import { AppStudioScopes } from "../../common/constants";
+import { AppStudioScopes, MosServiceScope } from "../../common/constants";
 import { ErrorContextMW } from "../../common/globalVars";
 import {
   AadOwner,
@@ -24,7 +24,6 @@ import {
   TeamsAppAdmin,
 } from "../../common/permissionInterface";
 import { AgentPermission, PackageService } from "../../component/m365/packageService";
-import { MosServiceScope } from "../../common/constants";
 import { HttpClientError, HttpServerError, assembleError } from "../../error/common";
 import { AppIdNotExist } from "../../error/teamsApp";
 import { AadAppClient } from "../../client/aadAppClient";

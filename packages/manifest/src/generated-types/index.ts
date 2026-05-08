@@ -5,7 +5,7 @@ import Ajv04 from "ajv-draft-04";
 import addFormats from "ajv-formats";
 import Ajv2020 from "ajv/dist/2020";
 import fs from "fs-extra";
-import fetch from "node-fetch";
+import fetch from "../fetchHelper";
 import path from "path";
 import stripBom from "strip-bom";
 import * as DeclarativeAgentManifestV1D0 from "./copilot/declarative-agent/DeclarativeAgentManifestV1D0";
@@ -36,6 +36,7 @@ import * as TeamsManifestV1D22 from "./teams/TeamsManifestV1D22";
 import * as TeamsManifestV1D23 from "./teams/TeamsManifestV1D23";
 import * as TeamsManifestV1D24 from "./teams/TeamsManifestV1D24";
 import * as TeamsManifestV1D25 from "./teams/TeamsManifestV1D25";
+import * as TeamsManifestV1D26 from "./teams/TeamsManifestV1D26";
 import * as TeamsManifestV1D3 from "./teams/TeamsManifestV1D3";
 import * as TeamsManifestV1D4 from "./teams/TeamsManifestV1D4";
 import * as TeamsManifestV1D5 from "./teams/TeamsManifestV1D5";
@@ -73,6 +74,7 @@ export {
   TeamsManifestV1D23,
   TeamsManifestV1D24,
   TeamsManifestV1D25,
+  TeamsManifestV1D26,
   TeamsManifestV1D3,
   TeamsManifestV1D4,
   TeamsManifestV1D5,
@@ -110,9 +112,10 @@ export type TeamsManifest =
   | TeamsManifestV1D23.TeamsManifestV1D23
   | TeamsManifestV1D24.TeamsManifestV1D24
   | TeamsManifestV1D25.TeamsManifestV1D25
+  | TeamsManifestV1D26.TeamsManifestV1D26
   | TeamsManifestVDevPreview.TeamsManifestVDevPreview;
 
-export type TeamsManifestLatest = TeamsManifestV1D25.TeamsManifestV1D25;
+export type TeamsManifestLatest = TeamsManifestV1D26.TeamsManifestV1D26;
 
 export { SensitivityLabel } from "./copilot/declarative-agent/DeclarativeAgentManifestV1D6";
 
@@ -236,6 +239,10 @@ const TeamsManifestConverterMap: Converters = {
     TeamsManifestV1D25.Convert.toTeamsManifestV1D25,
     TeamsManifestV1D25.Convert.teamsManifestV1D25ToJson,
   ],
+  "1.26": [
+    TeamsManifestV1D26.Convert.toTeamsManifestV1D26,
+    TeamsManifestV1D26.Convert.teamsManifestV1D26ToJson,
+  ],
   devPreview: [
     TeamsManifestVDevPreview.Convert.toTeamsManifestVDevPreview,
     TeamsManifestVDevPreview.Convert.teamsManifestVDevPreviewToJson,
@@ -257,6 +264,14 @@ const daConverterMap: Converters = {
   "v1.4": [
     DeclarativeAgentManifestV1D4.Convert.toDeclarativeAgentManifestV1D4,
     DeclarativeAgentManifestV1D4.Convert.declarativeAgentManifestV1D4ToJson,
+  ],
+  "v1.5": [
+    DeclarativeAgentManifestV1D5.Convert.toDeclarativeAgentManifestV1D5,
+    DeclarativeAgentManifestV1D5.Convert.declarativeAgentManifestV1D5ToJson,
+  ],
+  "v1.6": [
+    DeclarativeAgentManifestV1D6.Convert.toDeclarativeAgentManifestV1D6,
+    DeclarativeAgentManifestV1D6.Convert.declarativeAgentManifestV1D6ToJson,
   ],
 };
 const ApiPluginConverterMap: Converters = {
@@ -341,12 +356,19 @@ export class ApiPluginManifestConverter {
 }
 
 export class AppManifestUtils {
-  /**
-   * Fetch the schema from the manifest object, load from local if the schema is in the package
-   * @param manifest
-   * @returns manifest schema object
-   */
-  static async fetchSchema(schemaUrl: string): Promise<JSONSchemaType<AppManifest>> {
+  private static getLocalSchemaSuffix(schemaUrl: string): string | undefined {
+    try {
+      const parsedUrl = new URL(schemaUrl);
+      if (parsedUrl.hostname === "developer.microsoft.com") {
+        const localizedPathMatch = parsedUrl.pathname.match(
+          /^\/[a-z]{2}(?:-[a-z]{2})?(\/json-schemas\/.*)$/i
+        );
+        schemaUrl = `${parsedUrl.origin}${localizedPathMatch?.[1] ?? parsedUrl.pathname}`;
+      }
+    } catch {
+      // Ignore invalid URL input and fall back to remote fetch.
+    }
+
     if (
       schemaUrl.startsWith("https://developer.microsoft.com/json-schemas/teams") ||
       schemaUrl.startsWith(
@@ -354,11 +376,39 @@ export class AppManifestUtils {
       ) ||
       schemaUrl.startsWith("https://developer.microsoft.com/json-schemas/copilot/plugin")
     ) {
-      const suffix = schemaUrl.substring("https://developer.microsoft.com/".length);
-      const schemaFile = path.join(__dirname, "..", suffix);
-      if (await fs.pathExists(schemaFile)) {
-        const json = await fs.readJson(schemaFile);
-        return json as JSONSchemaType<AppManifest>;
+      return schemaUrl.substring("https://developer.microsoft.com/".length);
+    }
+
+    return undefined;
+  }
+
+  /**
+   * Fetch the schema from the manifest object, load from local if the schema is in the package
+   * @param manifest
+   * @returns manifest schema object
+   */
+  private static getLocalSchemaCandidates(suffix: string): string[] {
+    const candidates: string[] = [];
+    // 1. Relative to __dirname (works in both source and bundled exe snapshot)
+    candidates.push(path.join(__dirname, "..", suffix));
+    // 2. Relative to the running executable (pkg exe layout)
+    if (process.execPath) {
+      candidates.push(path.join(path.dirname(process.execPath), suffix));
+    }
+    // 3. Relative to cwd
+    candidates.push(path.join(process.cwd(), suffix));
+    return candidates;
+  }
+
+  static async fetchSchema(schemaUrl: string): Promise<JSONSchemaType<AppManifest>> {
+    const suffix = this.getLocalSchemaSuffix(schemaUrl);
+    if (suffix) {
+      for (const schemaFile of this.getLocalSchemaCandidates(suffix)) {
+        if (await fs.pathExists(schemaFile)) {
+          const raw = await fs.readFile(schemaFile, "utf8");
+          const cleanedText = raw.replace(/\\a/g, "\\u0007").replace(/\\v/g, "\\u000b");
+          return JSON.parse(cleanedText) as JSONSchemaType<AppManifest>;
+        }
       }
     }
     let result: JSONSchemaType<AppManifest>;

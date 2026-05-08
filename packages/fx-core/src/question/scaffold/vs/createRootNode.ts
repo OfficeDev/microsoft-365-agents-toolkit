@@ -29,8 +29,12 @@ export class VSCapabilityOptions {
   static declarativeAgent(): OptionItem {
     return {
       id: "declarative-agent",
-      label: getLocalizedString("core.createProjectQuestion.projectType.declarativeAgent.label"),
-      detail: getLocalizedString("core.createProjectQuestion.projectType.declarativeAgent.detail"),
+      label: getLocalizedString(
+        "template.createProjectQuestion.projectType.declarativeAgent.label"
+      ),
+      detail: getLocalizedString(
+        "template.createProjectQuestion.projectType.declarativeAgent.detail"
+      ),
     };
   }
   static nonSsoTab(): OptionItem {

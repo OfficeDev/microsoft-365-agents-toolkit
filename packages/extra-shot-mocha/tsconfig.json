@@ -2,9 +2,9 @@
   "compilerOptions": {
     "types": ["node"],
     "module": "CommonJS",
-    "target": "es2017",
+    "target": "ES2022",
     "outDir": "build",
-    "lib": ["es6", "dom.iterable", "dom"],
+    "lib": ["ES2022", "dom.iterable", "dom"],
     "importHelpers": true,
     "skipLibCheck": true,
     "esModuleInterop": true,

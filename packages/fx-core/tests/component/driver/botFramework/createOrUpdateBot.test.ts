@@ -60,7 +60,7 @@ describe("CreateOrUpdateM365BotDriver", () => {
 
     it("invalid args: missing name", async () => {
       const args: any = {
-        botId: "11111111-1111-1111-1111-111111111111",
+        botId: "550e8400-e29b-41d4-a716-446655440000",
         messagingEndpoint: "https://test.ngrok.io/api/messages",
       };
       const result = await driver.run(args, mockedDriverContext);
@@ -72,7 +72,7 @@ describe("CreateOrUpdateM365BotDriver", () => {
 
     it("invalid args: missing messagingEndpoint", async () => {
       const args: any = {
-        botId: "11111111-1111-1111-1111-111111111111",
+        botId: "550e8400-e29b-41d4-a716-446655440000",
         name: "test-bot",
       };
       const result = await driver.run(args, mockedDriverContext);
@@ -84,7 +84,7 @@ describe("CreateOrUpdateM365BotDriver", () => {
 
     it("invalid args: description not string", async () => {
       const args: any = {
-        botId: "11111111-1111-1111-1111-111111111111",
+        botId: "550e8400-e29b-41d4-a716-446655440000",
         name: "test-bot",
         messagingEndpoint: "https://test.ngrok.io/api/messages",
         description: 123,
@@ -98,7 +98,7 @@ describe("CreateOrUpdateM365BotDriver", () => {
 
     it("invalid args: iconUrl not string", async () => {
       const args: any = {
-        botId: "11111111-1111-1111-1111-111111111111",
+        botId: "550e8400-e29b-41d4-a716-446655440000",
         name: "test-bot",
         messagingEndpoint: "https://test.ngrok.io/api/messages",
         iconUrl: 123,
@@ -112,7 +112,7 @@ describe("CreateOrUpdateM365BotDriver", () => {
 
     it("invalid args: channels not list", async () => {
       const args: any = {
-        botId: "11111111-1111-1111-1111-111111111111",
+        botId: "550e8400-e29b-41d4-a716-446655440000",
         name: "test-bot",
         messagingEndpoint: "https://test.ngrok.io/api/messages",
         channels: "channels",
@@ -126,7 +126,7 @@ describe("CreateOrUpdateM365BotDriver", () => {
 
     it("invalid args: channel name invalid", async () => {
       const args: any = {
-        botId: "11111111-1111-1111-1111-111111111111",
+        botId: "550e8400-e29b-41d4-a716-446655440000",
         name: "test-bot",
         messagingEndpoint: "https://test.ngrok.io/api/messages",
         channels: [
@@ -144,7 +144,7 @@ describe("CreateOrUpdateM365BotDriver", () => {
 
     it("invalid args: teams channel callingWebhook is not string", async () => {
       const args: any = {
-        botId: "11111111-1111-1111-1111-111111111111",
+        botId: "550e8400-e29b-41d4-a716-446655440000",
         name: "test-bot",
         messagingEndpoint: "https://test.ngrok.io/api/messages",
         channels: [
@@ -164,7 +164,7 @@ describe("CreateOrUpdateM365BotDriver", () => {
     it("exception", async () => {
       sinon.stub(teamsDevPortalClient, "getBotRegistration").throws(new Error("exception"));
       const args: any = {
-        botId: "11111111-1111-1111-1111-111111111111",
+        botId: "550e8400-e29b-41d4-a716-446655440000",
         name: "test-bot",
         messagingEndpoint: "https://test.ngrok.io/api/messages",
       };
@@ -188,7 +188,7 @@ describe("CreateOrUpdateM365BotDriver", () => {
         updateBotRegistrationCalled = true;
       });
       const args: any = {
-        botId: "11111111-1111-1111-1111-111111111111",
+        botId: "550e8400-e29b-41d4-a716-446655440000",
         name: "test-bot",
         messagingEndpoint: "https://test.ngrok.io/api/messages",
         channels: [
@@ -212,7 +212,7 @@ describe("CreateOrUpdateM365BotDriver", () => {
 
     it("happy path: update", async () => {
       const botRegistration: IBotRegistration = {
-        botId: "11111111-1111-1111-1111-111111111111",
+        botId: "550e8400-e29b-41d4-a716-446655440000",
         name: "test-bot",
         messagingEndpoint: "https://test.ngrok.io/api/messages",
         description: "",
@@ -231,7 +231,7 @@ describe("CreateOrUpdateM365BotDriver", () => {
         updateBotRegistrationCalled = true;
       });
       const args: any = {
-        botId: "11111111-1111-1111-1111-111111111111",
+        botId: "550e8400-e29b-41d4-a716-446655440000",
         name: "test-bot",
         messagingEndpoint: "https://test.ngrok.io/api/messages",
         description: "test-description",
@@ -259,7 +259,7 @@ describe("CreateOrUpdateM365BotDriver", () => {
         updateBotRegistrationCalled = true;
       });
       const args: any = {
-        botId: "11111111-1111-1111-1111-111111111111",
+        botId: "550e8400-e29b-41d4-a716-446655440000",
         name: "test-bot",
         messagingEndpoint: "https://test.ngrok.io/api/messages",
       };
@@ -273,13 +273,13 @@ describe("CreateOrUpdateM365BotDriver", () => {
       chai.assert.equal(executionResult.summaries.length, 1);
       chai.assert.equal(
         executionResult.summaries[0],
-        "The bot registration has been created successfully (https://dev.botframework.com/bots?id=11111111-1111-1111-1111-111111111111)."
+        "The bot registration has been created successfully (https://dev.botframework.com/bots?id=550e8400-e29b-41d4-a716-446655440000)."
       );
     });
 
     it("happy path: update", async () => {
       const botRegistration: IBotRegistration = {
-        botId: "11111111-1111-1111-1111-111111111111",
+        botId: "550e8400-e29b-41d4-a716-446655440000",
         name: "test-bot",
         messagingEndpoint: "https://test.ngrok.io/api/messages",
         description: "",
@@ -298,7 +298,7 @@ describe("CreateOrUpdateM365BotDriver", () => {
         updateBotRegistrationCalled = true;
       });
       const args: any = {
-        botId: "11111111-1111-1111-1111-111111111111",
+        botId: "550e8400-e29b-41d4-a716-446655440000",
         name: "test-bot",
         messagingEndpoint: "https://test.ngrok.io/api/messages",
         description: "test-description",
@@ -314,7 +314,7 @@ describe("CreateOrUpdateM365BotDriver", () => {
       chai.assert.equal(executionResult.summaries.length, 1);
       chai.assert.equal(
         executionResult.summaries[0],
-        "The bot registration has been updated successfully (https://dev.botframework.com/bots?id=11111111-1111-1111-1111-111111111111)."
+        "The bot registration has been updated successfully (https://dev.botframework.com/bots?id=550e8400-e29b-41d4-a716-446655440000)."
       );
     });
 
@@ -350,7 +350,7 @@ describe("CreateOrUpdateM365BotDriver", () => {
         updateBotRegistrationCalled = true;
       });
       const args: any = {
-        botId: "11111111-1111-1111-1111-111111111111",
+        botId: "550e8400-e29b-41d4-a716-446655440000",
         name: "test-bot",
         messagingEndpoint: "https://test.ngrok.io/api/messages",
       };
@@ -366,7 +366,7 @@ describe("CreateOrUpdateM365BotDriver", () => {
         m365TokenProvider: new MockedM365Provider(),
       };
       const botRegistration: IBotRegistration = {
-        botId: "11111111-1111-1111-1111-111111111111",
+        botId: "550e8400-e29b-41d4-a716-446655440000",
         name: "test-bot",
         messagingEndpoint: "https://test.ngrok.io/api/messages",
         description: "",
@@ -385,7 +385,7 @@ describe("CreateOrUpdateM365BotDriver", () => {
         updateBotRegistrationCalled = true;
       });
       const args: any = {
-        botId: "11111111-1111-1111-1111-111111111111",
+        botId: "550e8400-e29b-41d4-a716-446655440000",
         name: "test-bot",
         messagingEndpoint: "https://test.ngrok.io/api/messages",
         description: "test-description",

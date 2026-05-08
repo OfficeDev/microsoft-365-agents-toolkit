@@ -1,6 +1,6 @@
 {
   "name": "@microsoft/m365agentstoolkit-mcp",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "bin": {
     "m365agentstoolkit-mcp": "./dist/index.js"
   },
@@ -36,8 +36,8 @@
   "license": "MIT",
   "description": "MCP server for Microsoft 365 Agents Toolkit",
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.12.1",
-    "zod": "^3.24.2"
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "zod": "^3.25.76"
   },
   "devDependencies": {
     "@istanbuljs/nyc-config-typescript": "^1.0.2",
@@ -63,7 +63,7 @@
     "ts-jest": "29.2.5",
     "ts-loader": "^9.5.2",
     "ts-node": "^9.1.1",
-    "typescript": "^4.4.4",
+    "typescript": "^5.9.3",
     "webpack": "^5.99.7",
     "webpack-cli": "^6.0.1",
     "webpack-node-externals": "^3.0.0"
@@ -72,5 +72,11 @@
     "*.{js,jsx,css,ts,tsx}": [
       "npx eslint --cache --fix --quiet"
     ]
+  },
+  "pnpm": {
+    "overrides": {
+      "hono@<4.12.16": "^4.12.16",
+      "ip-address@<10.1.1": "^10.1.1"
+    }
   }
 }

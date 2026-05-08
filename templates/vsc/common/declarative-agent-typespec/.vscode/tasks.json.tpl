@@ -29,7 +29,7 @@
             "args": {
                 "env": "local"
             }
-        }
+        },
         {
             "label": "Install dependencies",
             "type": "shell",

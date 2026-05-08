@@ -559,12 +559,36 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";core.MCPForDA.authRequired" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The MCP server at %s requires authentication. Tools could not be fetched automatically. To add tools, run:]A;  %s]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[%s の MCP サーバーは認証が必要です。ツールを自動的にフェッチできませんでした。ツールを追加するには、次を実行します。]A;  %s]]></Val>
+          </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[The MCP server at %s requires authentication. Tools could not be fetched automatically. To add tools, run:]A;  atk add action --api-plugin-type mcp --mcp-da-server-url <server-url> --mcp-tools-file-path <path-to-tools-json> --interactive false]]></Val>
+          </Prev>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";core.MCPForDA.authUrlNotFound" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Unable to find the authentication URL(s) from response of Authorization Server Metadata of the MCP server.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[MCP サーバーの承認サーバー メタデータの応答から認証 URL が見つかりません。]]></Val>
           </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.MCPForDA.fetchError" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Failed to fetch tools from the MCP server at %s. To add tools later, run:]A;  %s]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[%s の MCP サーバーからツールをフェッチできませんでした。後でツールを追加するには、次を実行します。]A;  %s]]></Val>
+          </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Failed to fetch tools from the MCP server at %s. To add tools later, run:]A;  atk add action --api-plugin-type mcp --mcp-da-server-url <server-url> --mcp-tools-file-path <path-to-tools-json> --interactive false]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -592,6 +616,117 @@
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[MCP サーバーの保護されたリソース メタデータのプロパティ "authorization_servers" からサーバー メタデータが見つかりません。]]></Val>
           </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.MCPForDA.missingAuthType" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The --mcp-da-auth-type option is required when the MCP server requires authentication and tools are provided. Use --mcp-da-auth-type oauth or --mcp-da-auth-type entraSSO.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[MCP サーバーで認証が必要で、ツールが提供されている場合は、--mcp-da-auth-type オプションが必須です。--mcp-da-auth-type oauth または --mcp-da-auth-type entraSSO を使用してください。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.MCPForDA.missingServerUrl" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The --mcp-da-server-url option is required when --api-plugin-type is mcp.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[--api-plugin-type が mcp の場合は、--mcp-da-server-url オプションが必須です。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.MCPForDA.noToolsFetched" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[No tools were discovered from the MCP server at %s. To add tools later, run:]A;  %s]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[%s の MCP サーバーからツールが検出されませんでした。後でツールを追加するには、次を実行します。]A;  %s]]></Val>
+          </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[No tools were discovered from the MCP server at %s. To add tools later, run:]A;  atk add action --api-plugin-type mcp --mcp-da-server-url <server-url> --mcp-tools-file-path <path-to-tools-json> --interactive false]]></Val>
+          </Prev>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.MCPForDA.pluginManifestNotFound" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[ai-plugin.json not found at: %s]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[ai-plugin.json が次の場所に見つかりません: %s]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.MCPForDA.preFetchToolsNotFound" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[No tool definitions found. The project will use dynamic tool discovery.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[ツール定義が見つかりません。プロジェクトは動的ツール検出を使用します。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.MCPForDA.toolsFileInvalidFormat" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Invalid MCP tools file format. Expected %s or a JSON array of tools: %s]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[無効な MCP ツール ファイル形式です。%s またはツールの JSON 配列が必要です: %s]]></Val>
+          </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Invalid MCP tools file format. Expected { "tools": [...]5D; } or a JSON array of tools: %s]]></Val>
+          </Prev>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.MCPForDA.toolsFileMissingName" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Each tool in the MCP tools file must have a %s property: %s]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[MCP ツール ファイル内の各ツールには %s プロパティが必要です: %s]]></Val>
+          </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Each tool in the MCP tools file must have a "name" property: %s]]></Val>
+          </Prev>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.MCPForDA.toolsFileNotFound" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[MCP tools file not found: %s]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[MCP ツール ファイルが見つかりません: %s]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.MCPForDA.toolsFilePath.placeholder" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Enter the path to a JSON file containing MCP tool definitions]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[MCP ツール定義を含む JSON ファイルのパスを入力してください]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.MCPForDA.toolsFilePath.title" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[MCP Tools Definition File]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[MCP ツール定義ファイル]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.MCPForDA.toolsFileReadError" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Failed to read MCP tools file: %s. To add tools later, run:]A;  %s]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[MCP ツール ファイルを読み取れませんでした: %s。後でツールを追加するには、次を実行します。]A;  %s]]></Val>
+          </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Failed to read MCP tools file: %s. To add tools later, run:]A;  atk add action --api-plugin-type mcp --mcp-da-server-url <server-url> --mcp-tools-file-path <path-to-tools-json> --interactive false]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -2533,18 +2668,6 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";core.createCapabilityQuestion.placeholder" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Select a capability]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[機能を選択する]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Select at least 1 capability]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
       <Item ItemId=";core.createCapabilityQuestion.titleNew" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Capabilities]]></Val>
@@ -2575,51 +2698,6 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";core.createProjectQuestion.DAMetaOS.capability.newProject.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Build a new Declarative Agent with Office add-in actions]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Office アドイン アクションを含む新しい宣言型エージェントをビルドする]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.DAMetaOS.capability.newProject.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[New Declarative Agent with Office Add-in Actions]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Office アドイン アクションを含む新しい宣言型エージェント]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.DAMetaOS.capability.title" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Declarative Agent in MetaOS Capabilities]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[MetaOS 機能の宣言型エージェント]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.DAMetaOS.capability.upgradeProject.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Extend an add-in project to the declarative agent with add-in actions]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[アドイン アクションを使用してアドイン プロジェクトを宣言型エージェントに拡張する]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.DAMetaOS.capability.upgradeProject.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Extend an existing Office Add-in]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[既存の Office アドインを拡張する]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
       <Item ItemId=";core.createProjectQuestion.DAMetaOS.capability.upgradeProject.projectFolder.placeholder" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[The existing MetaOS Add-in project root folder]]></Val>
@@ -2634,24 +2712,6 @@
           <Val><![CDATA[The Existing Add-in Project Folder]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[既存のアドイン プロジェクト フォルダー]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.DAMetaOS.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Create a Declarative Agent with Office add-in action]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Office アドイン アクションを含む宣言型エージェントを作成する]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.DAMetaOS.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Create Declarative Agent with Office Add-in Action]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Office アドイン アクションを含む宣言型エージェントを作成する]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -2755,18 +2815,6 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";core.createProjectQuestion.addApiPlugin.placeholder" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Select how to add an action]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[アクションを追加する方法を選択します]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Select how to add action]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
       <Item ItemId=";core.createProjectQuestion.addApiPlugin.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Add an Action]]></Val>
@@ -2821,30 +2869,6 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";core.createProjectQuestion.addGC.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Create a declarative agent with a Copilot connector]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Copilot コネクタを含む宣言型エージェントを作成する]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Create a declarative agent with a Copilot Connector]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.addGC.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Add a Copilot connector]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Copilot コネクタの追加]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Add a Copilot Connector]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
       <Item ItemId=";core.createProjectQuestion.addKnowledge.placeholder" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Select a capability source as grounding information for declarative agent]]></Val>
@@ -2878,30 +2902,6 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";core.createProjectQuestion.addPlugin.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Create a declarative agent with an action]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[アクションを含む宣言型エージェントを作成します]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Create declarative agent with API plugin]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.addPlugin.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Add an Action]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[アクションの追加]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Add action]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
       <Item ItemId=";core.createProjectQuestion.addPlugin.pluginManifestMissingApiSpec" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Invalid plugin manifest. Ensure the manifest has a runtime of "%s" and references a valid API description document.]]></Val>
@@ -2916,24 +2916,6 @@
           <Val><![CDATA[Found multiple OpenAPI description documents: "%s".]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[複数の OpenAPI 記述ドキュメントが見つかりました: "%s"。]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.apiMessageExtensionAuth.placeholder" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Select an authentication type]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[認証の種類を選択します]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.apiMessageExtensionAuth.title" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Authentication Type]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[認証の種類]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -2958,30 +2940,6 @@
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Import from existing plugin]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.apiPlugin.typeSpec.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Create a declarative agent with or without an action using TypeSpec for Microsoft 365 Copilot]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Microsoft 365 Copilot の TypeSpec を使用して、アクションの有無にかかわらず宣言型エージェントを作成する]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Create your action with TypeSpec using an API Action template.]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.apiPlugin.typeSpec.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Start with TypeSpec for Microsoft 365 Copilot]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Microsoft 365 Copilot の TypeSpec で始める]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Start with TypeSpec]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -3087,55 +3045,37 @@
       </Item>
       <Item ItemId=";core.createProjectQuestion.apiSpec.placeholder" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Enter OpenAPI Description Document URL]]></Val>
+          <Val><![CDATA[Enter OpenAPI Document URL]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[OpenAPI 記述ドキュメントの URL を入力してください]]></Val>
+            <Val><![CDATA[OpenAPI ドキュメントの URL を入力してください]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Enter OpenAPI Specification URL]]></Val>
+            <Val><![CDATA[Enter OpenAPI Description Document URL]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.createProjectQuestion.apiSpec.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[OpenAPI Description Document]]></Val>
+          <Val><![CDATA[OpenAPI Document]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[OpenAPI 記述ドキュメント]]></Val>
+            <Val><![CDATA[OpenAPI ドキュメント]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[OpenAPI Spec]]></Val>
+            <Val><![CDATA[OpenAPI Description Document]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.createProjectQuestion.apiSpecInputUrl.label" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Enter OpenAPI Description Document Location]]></Val>
+          <Val><![CDATA[Enter OpenAPI Document URL]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[OpenAPI 記述ドキュメントの場所を入力してください]]></Val>
+            <Val><![CDATA[OpenAPI ドキュメントの URL を入力してください]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Enter OpenAPI Specification Location]]></Val>
+            <Val><![CDATA[Enter OpenAPI Description Document Location]]></Val>
           </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.capability.DAMetaOS.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Create a Declarative Agent with Office add-in action]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Office アドイン アクションを含む宣言型エージェントを作成する]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.capability.DAMetaOS.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Start with an Office Add-in Action]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Office アドイン アクションから開始する]]></Val>
-          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -3157,54 +3097,6 @@
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[ボットから始める]]></Val>
           </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.capability.copilotPluginApiSpecOption.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Create an action from your existing API]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[既存の API からアクションを作成する]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Create a plugin from your existing API]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.capability.copilotPluginApiSpecOption.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Start with an OpenAPI Description Document]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[OpenAPI 記述ドキュメントで開始する]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Start with an OpenAPI Specification]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.capability.copilotPluginNewApiOption.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Create an action with a new API from Azure Functions]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Azure Functions から新しい API を使用してプラグインを作成します]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Create a plugin with a new API from Azure Functions]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.capability.copilotPluginNewApiOption.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Start with a New API]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[新しい API で開始する]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Start with a new API]]></Val>
-          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -3341,7 +3233,7 @@
         <Str Cat="Text">
           <Val><![CDATA[A weather forecast agent, which is built with Microsoft 365 Agents SDK and Semantic Kernel]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Microsoft 365 Agents SDK と Semantic Kernel を使用してビルドされた天気予報エージェント]]></Val>
+            <Val><![CDATA[Microsoft 365 Agents SDK と Semantic Kernel を使用して構築された天気予報エージェント]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3360,6 +3252,24 @@
           <Val><![CDATA[Works in Teams and Microsoft 365 Copilot]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Teams と Microsoft 365 Copilot で動作します]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.capability.foundryProxyAgentOption.detail" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[An agent that proxies requests to Microsoft Azure AI Foundry agents, enabling Teams and M365 Copilot integration]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Microsoft Azure AI Foundry エージェントへの要求をプロキシし、Teams および M365 Copilot の統合を可能にするエージェント]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.capability.foundryProxyAgentOption.label" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Microsoft Foundry Proxy Agent]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Microsoft Foundry プロキシ エージェント]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3462,10 +3372,13 @@
       </Item>
       <Item ItemId=";core.createProjectQuestion.capability.searchOpenAPISpecQueryQuestion.label" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Search OpenAPI Description Document]]></Val>
+          <Val><![CDATA[Search OpenAPI Document]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[OpenAPI 記述ドキュメントを検索する]]></Val>
+            <Val><![CDATA[OpenAPI ドキュメントを検索する]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Search OpenAPI Description Document]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -3478,86 +3391,80 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";core.createProjectQuestion.capability.selectOpenAPISpecFromLocation.label" ItemType="0" PsrId="306" Leaf="true">
+      <Item ItemId=";core.createProjectQuestion.capability.selectOpenAPISpecFromFile.label" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Enter OpenAPI Description Document Location or Open File...]]></Val>
+          <Val><![CDATA[Browse to Open File]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[「OpenAPI Description Document Location」または「Open File」と入力します...]]></Val>
+            <Val><![CDATA[[ファイルを開く]5D; に移動します]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.createProjectQuestion.capability.selectOpenAPISpecFromSearch.label" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Search OpenAPI Description Document...]]></Val>
+          <Val><![CDATA[Search OpenAPI Document]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[OpenAPI 記述ドキュメントを検索します...]]></Val>
+            <Val><![CDATA[OpenAPI ドキュメントを検索する]]></Val>
+          </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Search OpenAPI Description Document...]]></Val>
+          </Prev>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.capability.selectOpenAPISpecFromUrl.label" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Enter OpenAPI Document URL]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[OpenAPI ドキュメントの URL を入力してください]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.createProjectQuestion.capability.selectOpenAPISpecQuestion.label" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Select OpenAPI Description Document]]></Val>
+          <Val><![CDATA[Select OpenAPI Document]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[OpenAPI 記述ドキュメントを選択する]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.createApiPlugin.title" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Create an Action]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[アクションを作成する]]></Val>
+            <Val><![CDATA[OpenAPI ドキュメントを選択する]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Create API Plugin]]></Val>
+            <Val><![CDATA[Select OpenAPI Description Document]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";core.createProjectQuestion.createGraphConnector.detail" ItemType="0" PsrId="306" Leaf="true">
+      <Item ItemId=";core.createProjectQuestion.foundry.agentId.placeholder" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Embed your organization data to make it searchable in Microsoft 365 Copilot]]></Val>
+          <Val><![CDATA[Input Azure AI Foundry agent ID now or set it later in the project]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[組織のデータを埋め込んで、Microsoft 365 Copilot で検索できるようにします]]></Val>
+            <Val><![CDATA[Azure AI Foundry エージェント ID を今すぐ入力するか、後でプロジェクト内で設定してください]]></Val>
           </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Create a Graph Connector to connect to your data source]]></Val>
-          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";core.createProjectQuestion.createGraphConnector.label" ItemType="0" PsrId="306" Leaf="true">
+      <Item ItemId=";core.createProjectQuestion.foundry.agentId.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Copilot connectors]]></Val>
+          <Val><![CDATA[Azure AI Foundry Agent ID]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Copilot コネクタ]]></Val>
+            <Val><![CDATA[Azure AI Foundry エージェント ID]]></Val>
           </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Copilot connector]]></Val>
-          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";core.createProjectQuestion.declarativeCopilot.placeholder" ItemType="0" PsrId="306" Leaf="true">
+      <Item ItemId=";core.createProjectQuestion.foundry.endpoint.placeholder" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Add an action to your declarative agent]]></Val>
+          <Val><![CDATA[Input Azure AI Foundry project endpoint now or set it later in the project]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[宣言型エージェントにアクションを追加します]]></Val>
+            <Val><![CDATA[Azure AI Foundry プロジェクトのエンドポイントを今すぐ入力するか、後でプロジェクト内で設定してください]]></Val>
           </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Add API plugin to your declarative agent]]></Val>
-          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";core.createProjectQuestion.declarativeCopilot.title" ItemType="0" PsrId="306" Leaf="true">
+      <Item ItemId=";core.createProjectQuestion.foundry.endpoint.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Create Declarative Agent]]></Val>
+          <Val><![CDATA[Azure AI Foundry Project Endpoint]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[宣言型エージェントの作成]]></Val>
+            <Val><![CDATA[Azure AI Foundry プロジェクト エンドポイント]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3808,6 +3715,60 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";core.createProjectQuestion.mcpForDa.File.createNew.label" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Create a new ai-plugin.json]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[新しい ai-plugin.json を作成する]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.mcpForDa.File.createNew.title" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Name the new action manifest file]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[新しいアクション マニフェスト ファイルの名前を付ける]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.mcpForDa.File.createNew.validation.empty" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[File name cannot be empty.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[ファイル名を空にすることはできません。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.mcpForDa.File.createNew.validation.exists" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[A file named '%s' already exists in appPackage. Choose a different name.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[appPackage に '%s' という名前のファイルが既に存在します。別の名前を選択してください。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.mcpForDa.File.createNew.validation.extension" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[File name must end with .json.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[ファイル名は .json で終わる必要があります。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.mcpForDa.File.createNew.validation.relative" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Enter a file name only (no path separators).]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[ファイル名のみ (パス区切り文字は含めない) を入力してください。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";core.createProjectQuestion.mcpForDa.File.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Select the action manifest you want to update]]></Val>
@@ -3844,24 +3805,6 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";core.createProjectQuestion.mcpForDa.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Create actions from your existing MCP server]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[既存の MCP サーバーからアクションを作成する]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.mcpForDa.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Start with an MCP server]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[MCP サーバーで開始する]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
       <Item ItemId=";core.createProjectQuestion.mcpLocalServer.placeholder" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Select a local MCP server]]></Val>
@@ -3891,10 +3834,13 @@
       </Item>
       <Item ItemId=";core.createProjectQuestion.mcpServerType.local.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Connect to an MCP server running on your local Windows system]]></Val>
+          <Val><![CDATA[Connect to a MCP server running on your local Windows system]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[ローカル Windows システムで実行されている MCP サーバーに接続する]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Connect to an MCP server running on your local Windows system]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -3918,10 +3864,13 @@
       </Item>
       <Item ItemId=";core.createProjectQuestion.mcpServerType.remote.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Connect to an MCP server hosted remotely via HTTP]]></Val>
+          <Val><![CDATA[Connect to a MCP server hosted remotely via HTTP]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[HTTP 経由でリモートでホストされている MCP サーバーに接続する]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Connect to an MCP server hosted remotely via HTTP]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -3952,24 +3901,12 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";core.createProjectQuestion.noPlugin.detail" ItemType="0" PsrId="306" Leaf="true">
+      <Item ItemId=";core.createProjectQuestion.oneDriveSharePointItem.confirm" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Create declarative agent only]]></Val>
+          <Val><![CDATA[Confirm your selection]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[宣言型エージェントのみを作成する]]></Val>
+            <Val><![CDATA[選択内容を確認する]]></Val>
           </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.noPlugin.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[No Action]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[アクションなし]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[No plugin]]></Val>
-          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -3996,6 +3933,15 @@
           <Val><![CDATA[Preview]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[プレビューします]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.option.description.previewOnWindow" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Preview on Windows]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Windows でのプレビュー]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4051,114 +3997,6 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";core.createProjectQuestion.projectType.copilotExtension.placeholder" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Select an option]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[オプションを選択します]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.projectType.copilotExtension.title" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[App Features Using Agents]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[エージェントを使用したアプリの機能]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.projectType.copilotGroup.title" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Use GitHub Copilot]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[GitHub Copilotを使用する]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.projectType.copilotHelp.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Chat with GitHub Copilot and get step-by-step instructions to develop your app or Microsoft 365 Copilot agent.]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[GitHub Copilot とチャットして、アプリまたは Microsoft 365 Copilot エージェントを開発するための段階的な手順を取得します。]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Chat with GitHub Copilot and get step-by-step instructions to develop your Microsoft 365 app or Microsoft 365 Copilot agent.]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.projectType.copilotHelp.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Don't know how to start? Use GitHub Copilot Chat]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[開始方法がわからない場合GitHub Copilot Chat を使用する]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.projectType.createGroup.aiAgent" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Agents for Microsoft 365 Copilot]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Microsoft 365 Copilot のエージェント]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[AI Agent]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.projectType.createGroup.m365Apps" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Apps for Microsoft 365]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Microsoft 365用アプリ]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.projectType.customCopilot.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Build intelligent agent where you manage orchestration and provide your own LLM]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[オーケストレーションを管理し、独自の LLM を提供するインテリジェント エージェントを構築します]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Build intelligent chatbot with Teams AI Library where you manage orchestration and provide your own LLM.]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.projectType.customCopilot.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Custom Engine Agent]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[カスタム エンジン エージェント]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.projectType.declarativeAgent.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Create your own agent by declaring instructions, actions, & knowledge to suit your needs.]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[必要に応じて命令、アクション、ナレッジを宣言して、独自のエージェントを作成します。]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.projectType.declarativeAgent.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Declarative Agent]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[宣言型エージェント]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
       <Item ItemId=";core.createProjectQuestion.projectType.messageExtension.copilotEnabled.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Search and take actions from the text input box in Teams and Outlook]]></Val>
@@ -4180,27 +4018,6 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";core.createProjectQuestion.projectType.officeAddin.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Extend Office applications to interact with content in Office documents and Outlook items]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Office アプリケーションを拡張して、Office ドキュメントや Outlook アイテム内のコンテンツを操作する]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Extend Office apps to interact with content in Office documents and Outlook items]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.projectType.officeAddin.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Office Add-in]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Office アドイン]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
       <Item ItemId=";core.createProjectQuestion.projectType.tab.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Embed your own web content in Teams, Outlook, and the Microsoft 365 application]]></Val>
@@ -4218,33 +4035,6 @@
           <Val><![CDATA[App Features Using a Tab]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[タブを使用したアプリの機能]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.projectType.teamsAgentsAndApps.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Create agent, chat bot, web pages or other apps in Microsoft Teams using Microsoft Teams SDK.]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Microsoft Teams SDK を使用して、Microsoft Teams でエージェント、チャット ボット、Web ページ、またはその他のアプリを作成します。]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.projectType.teamsAgentsAndApps.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Teams Agents and Apps]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams エージェントとアプリ]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.title" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[New Project]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[新しいプロジェクト]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4576,18 +4366,6 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";core.importAddin.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Upgrade an add-in project to the latest app manifest and project structure]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[アドイン プロジェクトを、最新のアプリ マニフェストとプロジェクト構造へアップグレードします]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Upgrade an Add-ins project to the latest app manifest and project structure]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
       <Item ItemId=";core.importAddin.label" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Import an Existing Outlook Add-ins]]></Val>
@@ -4597,15 +4375,6 @@
           <Prev Cat="Text">
             <Val><![CDATA[Import an Existing Outlook Add-in]]></Val>
           </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.importOfficeAddin.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Upgrade an Existing Office Add-in]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[既存の Office アドインのアップグレード]]></Val>
-          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -4704,48 +4473,6 @@
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Teams Toolkit's Pre-Release version supports new project configuration and is incompatible with previous versions. Try it by creating a new project or run "teamsapp upgrade" to upgrade your project first.]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.newCFShortcut.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Task pane add-in with custom function and shortcut]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[カスタム関数とショートカットを含む作業ウィンドウ アドイン]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.newCFShortcut.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Custom Function and Shortcut]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[カスタム関数とショートカット]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.newTaskpaneAddin.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Customize the ribbon with a button and embed content in the task pane]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[ボタンでリボンをカスタマイズし、作業ウィンドウにコンテンツを埋め込みます]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Customize the Ribbon with a button and embed content in the Taskpane]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.newTaskpaneAddin.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Task pane]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[作業ウィンドウ]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Taskpane]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -5397,19 +5124,25 @@
       </Item>
       <Item ItemId=";core.shareOperationQuestion.option.removeShareAccessFromUsers" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Remove access for selected user(s)]]></Val>
+          <Val><![CDATA[Remove access]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[選択したユーザーのアクセス権を削除する]]></Val>
+            <Val><![CDATA[アクセス権の削除]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Remove access for selected user(s)]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.shareOperationQuestion.option.shareWithUsers" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Share access with selected user(s)]]></Val>
+          <Val><![CDATA[Share access]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[選択したユーザーとアクセスを共有する]]></Val>
+            <Val><![CDATA[共有アクセス]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Share access with selected user(s)]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -5454,19 +5187,25 @@
       </Item>
       <Item ItemId=";core.shareScopeQuestion.option.shareWithTenant" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Share the agent with all tenant users]]></Val>
+          <Val><![CDATA[Share to all tenant users]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[エージェントをすべてのテナント ユーザーと共有する]]></Val>
+            <Val><![CDATA[すべてのテナント ユーザーと共有する]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Share the agent with all tenant users]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.shareScopeQuestion.option.shareWithUsers" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Share the agent with selected user(s)]]></Val>
+          <Val><![CDATA[Share to specified users(s) or user group]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[選択したユーザーとエージェントを共有する]]></Val>
+            <Val><![CDATA[指定したユーザーまたはユーザー グループと共有する]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Share the agent with selected user(s)]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -8335,6 +8074,42 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";driver.teamsApp.warning.createUnsupportedCloud" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Skipping %s as the required Developer Portal API is not yet available in GCC H and DoD. App ID will be generated locally later.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[必要な Developer Portal API は GCC H および DoD ではまだ利用できないため、%s をスキップしています。アプリ ID は後でローカルで生成されます。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.teamsApp.warning.publishUnsupportedCloud" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Skipping %s as the required Developer Portal API is not yet available in GCC H and DoD. Please upload to Teams Admin Center manually.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[必要な Developer Portal API は GCC H および DoD ではまだ利用できないため、%s をスキップしています。Teams 管理センターに手動でアップロードしてください。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.teamsApp.warning.unsupportedCloud" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Skipping %s as the required Developer Portal API is not yet available in GCC H and DoD.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[必要な Developer Portal API は GCC H および DoD ではまだ利用できないため、%s をスキップしています。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.typeSpec.compile.description" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Compile TypeSpec project]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[TypeSpec プロジェクトをコンパイルする]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";driver.typeSpec.compile.reprovision" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[File %s is updated. A new provision process has started to apply the changes.]]></Val>
@@ -8361,6 +8136,15 @@
           <Val><![CDATA[Compiling and generating files...]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[ファイルをコンパイルして生成しています...]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.typespec.error.compileError" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[TypeSpec compilation failed. Please fix the errors reported by the compiler and try again. Compiler output:]A;%s]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[TypeSpec のコンパイルに失敗しました。コンパイラが報告したエラーを修正してから、もう一度お試しください。コンパイラの出力:]A;%s]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9871,6 +9655,15 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";error.generator.UnknownPolicy" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unknown auth policy: %s]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[不明な認証ポリシー: %s]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";error.generator.UnzipError" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Unable to extract templates and save them to disk.]]></Val>
@@ -9996,10 +9789,13 @@
       </Item>
       <Item ItemId=";error.m365.SharedScopeAdvancedDADisabled" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Deployment blocked: Advanced declarative agent can't be deployed due to tenant permission settings. Get more info: [Manage agents for Microsoft 365 Copilot in the Microsoft 365 admin center - Microsoft 365 admin | Microsoft Learn]5D;(%s)]]></Val>
+          <Val><![CDATA[Deployment blocked: Advanced declarative agent can't be deployed as 'shared' scope due to tenant permission settings. Get more info: [Known limitation of Advanced Declarative Agent]5D;(%s)]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[デプロイがブロックされました: テナントのアクセス許可の設定により、高度な宣言エージェントをデプロイできません。詳細情報: [Microsoft 365 管理センターで Microsoft 365 Copilot のエージェントを管理する - Microsoft 365管理者 | Microsoft Learn]5D;(%s)]]></Val>
+            <Val><![CDATA[デプロイがブロックされました: テナントの権限設定により、Advanced Declarative Agent を 'shared' スコープとしてデプロイできません。詳細を確認する: [Advanced Declarative Agent の既知の制限]5D;(%s)]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Deployment blocked: Advanced declarative agent can't be deployed due to tenant permission settings. Get more info: [Manage agents for Microsoft 365 Copilot in the Microsoft 365 admin center - Microsoft 365 admin | Microsoft Learn]5D;(%s)]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>

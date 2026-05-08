@@ -9,10 +9,11 @@
 
   <ItemGroup>
     <PackageReference Include="AdaptiveCards" Version="3.1.0" />
-    <PackageReference Include="Microsoft.SemanticKernel.Agents.AzureAI" Version="1.45.0-preview" />
-    <PackageReference Include="Microsoft.SemanticKernel.Agents.Core" Version="1.45.0" />
-    <PackageReference Include="Microsoft.SemanticKernel.Connectors.AzureOpenAI" Version="1.45.0" />
-    <PackageReference Include="Microsoft.SemanticKernel.Connectors.OpenAI" Version="1.45.0" />
+    <PackageReference Include="Microsoft.Bcl.Memory" Version="10.0.5" />
+    <PackageReference Include="Microsoft.SemanticKernel.Agents.AzureAI" Version="1.73.0-preview" />
+    <PackageReference Include="Microsoft.SemanticKernel.Agents.Core" Version="1.73.0" />
+    <PackageReference Include="Microsoft.SemanticKernel.Connectors.AzureOpenAI" Version="1.73.0" />
+    <PackageReference Include="Microsoft.SemanticKernel.Connectors.OpenAI" Version="1.73.0" />
     <PackageReference Include="Microsoft.Agents.Authentication.Msal" Version="1.*" />
     <PackageReference Include="Microsoft.Agents.Hosting.AspNetCore" Version="1.*" />
   </ItemGroup>
