@@ -1,106 +1,120 @@
 /**
- * local-test.js – Run ATK UI tests locally against the built ATK VSCode extension.
+ * local-test.js – Run ATK UI tests with @vscode/test-electron.
+ *
+ * Uses the official @vscode/test-electron package which launches VSCode
+ * with --extensionDevelopmentPath pointing to your locally built ATK extension.
+ * Tests run INSIDE the VSCode extension host (can use vscode.* API directly).
  *
  * Usage (from atk-pipeline repo root):
- *   node scripts/local-test.js [TEST_FILE] [ATK_EXT_PATH]
+ *   node scripts/local-test.js [TEST_FILE] [ATK_SOURCE_DIR]
  *
  * Examples:
  *   node scripts/local-test.js
  *   node scripts/local-test.js teams-bot-create-template
- *   ATK_EXT_PATH=C:\...\packages\vscode-extension node scripts/local-test.js
  *
- * Prerequisites (build ATK extension first):
+ * Prerequisites:
  *   cd C:\Users\quke\source\atk\microsoft-365-agents-toolkit
- *   pnpm run setup
- *   pnpm build
+ *   pnpm run setup && pnpm build
  */
-
 'use strict';
 
 const path = require('path');
-const fs = require('fs');
-const { ExTester, ReleaseQuality } = require('./packages/tests/node_modules/vscode-extension-tester');
+const fs   = require('fs');
+const { spawnSync } = require('child_process');
 
 // ── Config ────────────────────────────────────────────────────────────────────
-const DEFAULT_ATK_EXT = 'C:\\Users\\quke\\source\\atk\\microsoft-365-agents-toolkit\\packages\\vscode-extension';
+const DEFAULT_ATK_SRC = 'C:\\Users\\quke\\source\\atk\\microsoft-365-agents-toolkit';
 
-const TEST_FILE    = process.argv[2] || process.env.TEST_FILE    || 'teams-bot-create-template';
-const EXT_DEV_PATH = process.argv[3] || process.env.ATK_EXT_PATH || DEFAULT_ATK_EXT;
-const OUTPUT_DIR   = process.env.TEST_OUTPUT_DIR || path.join(__dirname, 'test-output');
-const STORAGE      = path.join(__dirname, '.vscode-test-storage');
-const SPEC         = path.join(__dirname, 'packages', 'tests', 'src', 'ui-test',
-                               'copilot-driven', `${TEST_FILE}.test.ts`);
-const MOCHARC      = path.join(__dirname, 'packages', 'tests', '.mocharc.js');
+const TEST_FILE  = process.argv[2] || process.env.TEST_FILE  || 'teams-bot-create-template';
+const ATK_SRC    = process.argv[3] || process.env.ATK_SOURCE || DEFAULT_ATK_SRC;
+const OUTPUT_DIR = path.resolve(process.env.TEST_OUTPUT_DIR || path.join(__dirname, '..', 'test-output'));
+
+const EXT_DEV_PATH  = path.join(ATK_SRC, 'packages', 'vscode-extension');
+const ATK_TESTS     = path.join(ATK_SRC, 'packages', 'tests');
+const EXTESTER_PATH = path.join(ATK_TESTS, 'node_modules', '@vscode', 'test-electron');
+
+// Our runTest.ts (compiled to JS) will be placed in ATK_TESTS out/ dir
+const RUNNER_SRC = path.resolve(__dirname, '..', 'packages', 'tests', 'src', 'ui-test', 'copilot-driven', 'runTest.ts');
+const TEST_SRC   = path.resolve(__dirname, '..', 'packages', 'tests', 'src', 'ui-test', 'copilot-driven', `${TEST_FILE}.test.ts`);
 
 // ── Validate ──────────────────────────────────────────────────────────────────
-if (!fs.existsSync(SPEC)) {
-  console.error(`\n❌ Test spec not found:\n   ${SPEC}`);
-  process.exit(1);
+const errors = [];
+if (!fs.existsSync(TEST_SRC))      errors.push('Test spec not found:\n   ' + TEST_SRC);
+if (!fs.existsSync(EXT_DEV_PATH)) errors.push('ATK extension not built:\n   ' + EXT_DEV_PATH + '\n   Run: pnpm run setup && pnpm build');
+
+// Check for @vscode/test-electron in ATK workspace OR install it
+const testElectronGlobal = path.join(require('os').homedir(), '.npm-global', 'node_modules', '@vscode', 'test-electron');
+const hasTestElectron = fs.existsSync(EXTESTER_PATH) || fs.existsSync(testElectronGlobal);
+if (!hasTestElectron) {
+  console.log('\u2139 @vscode/test-electron not found in ATK workspace, installing...');
+  const install = spawnSync('npm', ['install', '-g', '@vscode/test-electron', '@vscode/test-cli', 'ts-node', 'mocha', 'glob'], {
+    stdio: 'inherit', shell: true
+  });
+  if (install.status !== 0) {
+    errors.push('@vscode/test-electron install failed');
+  }
 }
-if (!fs.existsSync(EXT_DEV_PATH)) {
-  console.error(`\n❌ ATK extension path not found:\n   ${EXT_DEV_PATH}`);
-  console.error('\nBuild the extension first:');
-  console.error('  cd C:\\Users\\quke\\source\\atk\\microsoft-365-agents-toolkit');
-  console.error('  pnpm run setup && pnpm build\n');
+
+if (errors.length) {
+  errors.forEach(e => console.error('\n\u274c', e));
   process.exit(1);
 }
 
-fs.mkdirSync(path.join(OUTPUT_DIR, 'screenshots'), { recursive: true });
-fs.mkdirSync(path.join(OUTPUT_DIR, 'projects'),    { recursive: true });
-process.env.TEST_OUTPUT_DIR = OUTPUT_DIR;
+// ── Copy test files into ATK workspace ───────────────────────────────────────
+const DST_COPILOT = path.join(ATK_TESTS, 'src', 'ui-test', 'copilot-driven');
+const DST_SUITE   = path.join(DST_COPILOT, 'suite');
+fs.mkdirSync(DST_SUITE, { recursive: true });
+
+// Copy all our test files
+const srcDir = path.resolve(__dirname, '..', 'packages', 'tests', 'src', 'ui-test', 'copilot-driven');
+[
+  ['runTest.ts', path.join(DST_COPILOT, 'runTest.ts')],
+  ['suite/index.ts', path.join(DST_SUITE, 'index.ts')],
+  [`${TEST_FILE}.test.ts`, path.join(DST_COPILOT, `${TEST_FILE}.test.ts`)],
+].forEach(([rel, dst]) => {
+  const src = path.join(srcDir, rel);
+  if (fs.existsSync(src)) {
+    fs.copyFileSync(src, dst);
+    console.log('\u2714 Copied', rel, '\u2192', dst);
+  }
+});
+
+// ── Prepare output dir ────────────────────────────────────────────────────────
+['screenshots', 'projects'].forEach(d => fs.mkdirSync(path.join(OUTPUT_DIR, d), { recursive: true }));
 
 console.log('\n======================================================');
-console.log('  ATK Local Test Runner');
-console.log(`  Test : ${TEST_FILE}`);
-console.log(`  Ext  : ${EXT_DEV_PATH}`);
-console.log(`  Out  : ${OUTPUT_DIR}`);
+console.log('  ATK Local Test Runner (@vscode/test-electron)');
+console.log('  Test    :', TEST_FILE);
+console.log('  Ext     :', EXT_DEV_PATH);
+console.log('  ATK src :', ATK_SRC);
+console.log('  Output  :', OUTPUT_DIR);
 console.log('======================================================\n');
 
-// ── ExTester Strategy ─────────────────────────────────────────────────────────
-// ExTester v8 behaviour:
-//   coverage=true  → skips installVsix (we don't want to package/install from CWD)
-//                  → sets EXTENSION_DEV_PATH = process.cwd() in runTests()
-// We monkey-patch process.cwd() temporarily so our ext path propagates correctly.
+// ── Compile & run with ts-node ────────────────────────────────────────────────
+// We run runTest.ts directly via ts-node (available in ATK workspace)
+const tsNode = path.join(ATK_TESTS, 'node_modules', '.bin',
+  process.platform === 'win32' ? 'ts-node.cmd' : 'ts-node');
+const tsNodeBin = fs.existsSync(tsNode) ? tsNode : 'ts-node';
+const runnerFile = path.join(DST_COPILOT, 'runTest.ts');
 
-const tester = new ExTester(STORAGE, ReleaseQuality.Stable, undefined, true /* coverage */);
+console.log('\u25b6 Compiling and running with ts-node...\n');
 
-(async () => {
-  try {
-    // Step 1: Download VSCode + ChromeDriver (skip extension install because coverage=true)
-    console.log('⬇  Downloading VSCode + ChromeDriver (skip if already cached)...');
-    await tester.setupRequirements(
-      { vscodeVersion: 'latest', installDependencies: false },
-      false /* offline */,
-      false /* cleanup */
-    );
+const result = spawnSync(tsNodeBin, ['--project', path.join(ATK_TESTS, 'tsconfig.json'), runnerFile], {
+  cwd: ATK_TESTS,
+  stdio: 'inherit',
+  shell: false,
+  env: {
+    ...process.env,
+    ATK_EXT_PATH: EXT_DEV_PATH,
+    TEST_OUTPUT_DIR: OUTPUT_DIR,
+    TEST_FILE: TEST_FILE,
+  },
+});
 
-    // Step 2: Run tests — temporarily make process.cwd() return our extension path
-    // so ExTester sets EXTENSION_DEV_PATH correctly (it does: process.env.EXTENSION_DEV_PATH = coverage ? process.cwd() : undefined)
-    console.log('\n▶  Running test suite...\n');
-    const realCwd = process.cwd.bind(process);
-    process.cwd = () => EXT_DEV_PATH;
-
-    const code = await tester.runTests(SPEC, {
-      vscodeVersion: 'latest',
-      config: fs.existsSync(MOCHARC) ? MOCHARC : undefined,
-    });
-
-    process.cwd = realCwd;
-
-    // ── Summary ──────────────────────────────────────────────────────────────
-    console.log('\n======================================================');
-    if (code === 0) {
-      console.log('  ✅  All tests PASSED');
-    } else {
-      console.log(`  ❌  Tests FAILED (exit code: ${code})`);
-    }
-    console.log(`  Screenshots : ${path.join(OUTPUT_DIR, 'screenshots')}`);
-    console.log(`  Results     : ${path.join(OUTPUT_DIR, 'results.json')}`);
-    console.log('======================================================\n');
-
-    process.exit(code);
-  } catch (err) {
-    console.error('\n❌ Fatal error:', err.message);
-    process.exit(1);
-  }
-})();
+const code = result.status ?? 1;
+console.log('\n======================================================');
+console.log(code === 0 ? '  \u2705  Tests PASSED' : '  \u274c  Tests FAILED (exit: ' + code + ')');
+console.log('  Screenshots :', path.join(OUTPUT_DIR, 'screenshots'));
+console.log('  Results     :', path.join(OUTPUT_DIR, 'results.json'));
+console.log('======================================================\n');
+process.exit(code);

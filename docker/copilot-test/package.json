@@ -1,0 +1,19 @@
+{
+  "name": "atk-copilot-test-runner",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Standalone test runner for ATK using @vscode/test-electron",
+  "scripts": {
+    "test": "ts-node src/ui-test/copilot-driven/runTest.ts"
+  },
+  "devDependencies": {
+    "@types/glob": "^8.1.0",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "^22.15.0",
+    "@vscode/test-electron": "^2.5.2",
+    "glob": "^11.0.0",
+    "mocha": "^11.0.0",
+    "ts-node": "^10.9.2",
+    "typescript": "~5.9.0"
+  }
+}
