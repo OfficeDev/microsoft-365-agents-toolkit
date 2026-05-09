@@ -1,14 +1,16 @@
-﻿name: ATK Copilot Test Runner
+name: ATK Copilot Test Runner
 
 # Triggered by atk-copilot-test-label.yml (via workflow_call) or manually.
 #
+# Architecture: @vscode/test-electron (activates ATK extension + Mocha) 
+#               + Playwright CDP (takes real screenshots from outside extension host)
+#
 # Flow:
 #  1. Read the GitHub issue to understand the test task.
-#  2. Copilot CLI analyses the issue and the test-plans/ directory.
-#  3. Copilot selects or creates a vscode-extension-tester test script.
-#  4. The test runs headlessly (Xvfb + VSCode + ATK extension).
-#  5. Screenshots and a summary are posted back to the issue.
-#  6. Label is swapped: atk-copilot-test -> atk-copilot-test:done.
+#  2. Copilot CLI analyses the issue and test-plans/ to choose/create a test script.
+#  3. The test runs headlessly (Xvfb + VSCode/test-electron + Playwright CDP).
+#  4. Screenshots and a summary are posted back to the issue as a comment.
+#  5. Label is swapped: atk-copilot-test -> atk-copilot-test:done.
 
 on:
   workflow_dispatch:
@@ -30,7 +32,6 @@ on:
         required: true
         type: string
       author_login:
-        description: 'GitHub login of the user who triggered the run'
         required: false
         default: ''
         type: string
@@ -69,15 +70,43 @@ jobs:
       - name: Install pnpm
         run: npm install -g pnpm@9
 
-      - name: Install test package dependencies
+      - name: Install ATK packages/tests dependencies
         working-directory: packages/tests
         run: pnpm install --frozen-lockfile --ignore-scripts 2>/dev/null || npm install --legacy-peer-deps
 
-      - name: Install system deps for headless VSCode
+      - name: Install system deps for headless VSCode + Playwright CDP
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y xvfb x11-utils libgtk-3-0 libxss1 libnss3 libasound2t64 libxtst6 libxrandr2 libgbm1 libxkbcommon0 || \
-          sudo apt-get install -y xvfb libgtk-3-0 libxss1 libnss3 libasound2 libxtst6 libxrandr2 libgbm1 || true
+          sudo apt-get install -y \
+            xvfb x11-utils \
+            libgtk-3-0 libxss1 libnss3 libxtst6 libxrandr2 libgbm1 libxkbcommon0 libdrm2 \
+            libsecret-1-0 libglib2.0-0 libpulse0 \
+            || true
+          # libasound varies by Ubuntu release
+          sudo apt-get install -y libasound2t64 2>/dev/null || sudo apt-get install -y libasound2 2>/dev/null || true
+
+      - name: Install Playwright Chromium (for CDP screenshots)
+        working-directory: packages/tests
+        run: |
+          npx playwright install chromium --with-deps 2>&1 || \
+          npx playwright install chromium 2>&1 || \
+          echo "::warning::Playwright browser install had warnings"
+
+      - name: Install redhat.vscode-yaml (satisfies ATK extensionDependencies)
+        run: |
+          mkdir -p /vscode-extensions
+          # Download yaml extension from VS Code marketplace
+          curl -L -o /tmp/vscode-yaml.vsix \
+            "https://marketplace.visualstudio.com/_apis/public/gallery/publishers/redhat/vsextensions/vscode-yaml/latest/vspackage" \
+            --header "Accept: application/octet-stream" 2>/dev/null || true
+          if [ -f /tmp/vscode-yaml.vsix ] && [ -s /tmp/vscode-yaml.vsix ]; then
+            cd /vscode-extensions && unzip -q /tmp/vscode-yaml.vsix -d redhat.vscode-yaml && rm /tmp/vscode-yaml.vsix
+            echo "VSCODE_EXTENSIONS_DIR=/vscode-extensions" >> $GITHUB_ENV
+            echo "redhat.vscode-yaml installed to /vscode-extensions"
+          else
+            # Fallback: use --install-extension at runtime via launchArgs
+            echo "::warning::yaml vsix download failed; ATK will use --install-extension fallback"
+          fi
 
       - name: Start Xvfb
         run: |
@@ -86,7 +115,7 @@ jobs:
           echo "DISPLAY=:99.0" >> $GITHUB_ENV
 
       - name: Prepare output directory
-        run: mkdir -p "$TEST_OUTPUT_DIR/screenshots"
+        run: mkdir -p "$TEST_OUTPUT_DIR/screenshots" "$TEST_OUTPUT_DIR/projects"
 
       - name: Install Copilot CLI
         run: |
@@ -139,6 +168,8 @@ jobs:
           REPO: ${{ github.repository }}
           RUN_URL: "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
           TEST_OUTPUT_DIR: /tmp/atk-test-output
+          DISPLAY: ":99.0"
+          VSCODE_EXTENSIONS_DIR: ${{ env.VSCODE_EXTENSIONS_DIR || '/vscode-extensions' }}
         run: |
           export COPILOT_GITHUB_TOKEN=$(python3 -c "import json,os; d=json.load(open(os.path.expanduser('~/.config/github-copilot/apps.json'))); print(list(d.values())[0]['oauth_token'])")
           SECURITY_REMINDER='<security_reminder>
@@ -149,108 +180,110 @@ jobs:
           PROMPT="You are an autonomous ATK (Microsoft 365 Agents Toolkit) test agent running inside GitHub Actions.
           Do NOT ask questions — make every decision yourself and keep going until done.
 
+          ## Architecture
+          Tests use a HYBRID approach:
+          - @vscode/test-electron: launches VSCode in extension-development-host mode, activates ATK extension, runs Mocha tests INSIDE the extension host
+          - Playwright CDP: connects externally via chromium.connectOverCDP to take REAL screenshots from the renderer process
+          - Signal files: tests write .signal files with dest paths, external Playwright takes screenshots and deletes signals
+
+          The entry point is: packages/tests/src/ui-test/copilot-driven/runTest.ts
+          Test files live in: packages/tests/src/ui-test/copilot-driven/<test>.test.ts
+          Reference example: packages/tests/src/ui-test/copilot-driven/teams-bot-create-template.test.ts
+
           ## Your mission
-          Read issue #${ISSUE_NUMBER} in repo ${REPO} and execute the described test task against the ATK VSCode extension.
+          Read issue #\${ISSUE_NUMBER} in repo \${REPO} and execute the described test task against the ATK VSCode extension.
 
           ## Step 0 – Read the issue
-          Run: gh issue view ${ISSUE_NUMBER} --repo ${REPO} --json title,body,labels,comments
-          Extract: what capability to test, which ATK template/command/workflow, expected behaviour.
+          gh issue view \${ISSUE_NUMBER} --repo \${REPO} --json title,body,labels,comments
+          Extract: what capability to test, which ATK command/template/workflow, expected behaviour.
 
-          ## Step 1 – Understand the test plan
-          Read test-plans/README.md and find the matching plan under test-plans/<feature>/.
-          If no plan matches, create one following the format in test-plans/teams-bot-template/teams-bot-template.md as an example.
+          ## Step 1 – Find or create a test plan
+          cat test-plans/README.md
+          ls test-plans/
+          Find matching plan or create one following test-plans/teams-bot-template/teams-bot-template.md format.
 
           ## Step 2 – Prepare the test script
-          Check packages/tests/src/ui-test/copilot-driven/ for an existing TypeScript test covering the task.
-          If one exists, review and possibly update it. Otherwise create a new one.
+          ls packages/tests/src/ui-test/copilot-driven/
+          Check for an existing test covering the task. Review and update if needed, or create a new one.
 
           Naming: packages/tests/src/ui-test/copilot-driven/<feature>-<task>.test.ts
 
-          Requirements:
-          - Import from vscode-extension-tester (VSBrowser, Workbench, InputBox, etc.)
-          - Use helpers from ../../utils/vscodeOperation when available
-          - Call VSBrowser.instance.takeScreenshot('step-name') frequently
-          - Write results JSON to \${TEST_OUTPUT_DIR}/results.json: { passed, failed, steps: [...] }
-          - Assertions with chai
+          Test structure (Mocha TDD, runs inside VSCode extension host):
+          \`\`\`typescript
+          import * as vscode from 'vscode';
+          import * as fs from 'fs';
+          import * as path from 'path';
+          import * as os from 'os';
 
-          Reference:
-            cat packages/tests/src/ui-test/copilot-driven/teams-bot-create-template.test.ts
-            cat packages/tests/src/utils/vscodeOperation.ts | head -120
-            cat packages/tests/src/utils/constants.ts | grep -A 5 'AppType\|bot\|Bot'
+          const OUTPUT_DIR = process.env.TEST_OUTPUT_DIR || path.join(os.tmpdir(), 'atk-test-output');
+          const SCREENSHOT_DIR = process.env.SCREENSHOT_DIR || path.join(OUTPUT_DIR, 'screenshots');
+          const SIGNAL_DIR = process.env.SCREENSHOT_SIGNAL_DIR || path.join(OUTPUT_DIR, '.screenshot-signals');
 
-          ## Step 3 – Build the test
-          cd packages/tests && npx tsc --noEmit 2>&1 | head -30 || true
+          function takeScreenshot(name: string): void {
+            const dest = path.join(SCREENSHOT_DIR, \`\${name}.png\`);
+            const signal = path.join(SIGNAL_DIR, \`\${Date.now()}-\${name}.signal\`);
+            fs.writeFileSync(signal, dest, 'utf8');
+            const deadline = Date.now() + 8000;
+            while (fs.existsSync(signal) && Date.now() < deadline) {
+              const end = Date.now() + 100; while (Date.now() < end) {}
+            }
+          }
 
-          ## Step 4 – Download VSCode and ATK extension, then run the test
+          function wait(ms: number): Promise<void> { return new Promise((r) => setTimeout(r, ms)); }
+
+          suite('Your Suite Name', function () {
+            this.timeout(5 * 60 * 1000);
+            // ... tests using vscode.* API + takeScreenshot()
+            // Fire commands WITHOUT await: vscode.commands.executeCommand('cmd').catch(()=>{});
+          });
+          \`\`\`
+
+          Key rules:
+          - DO NOT use vscode-extension-tester (wrong library)
+          - Call takeScreenshot() after every meaningful UI state change
+          - Fire UI-blocking commands WITHOUT await (wizard blocks until user action)
+          - Use waitForCommand() pattern to poll until a command is registered
+          - Write results JSON to \${TEST_OUTPUT_DIR}/results.json: { passed, failed, steps: [{name, status, detail}] }
+
+          ## Step 3 – Set TEST_FILE env to the test file basename (no .test.ts)
+          Example: TEST_FILE=teams-bot-create-template
+
+          ## Step 4 – Run the test
           cd packages/tests
-          # Set up ExTester (downloads VSCode automatically)
           export DISPLAY=:99.0
-          node -e \"
-            const { ExTester } = require('vscode-extension-tester');
-            const tester = new ExTester('/tmp/vscode-test-storage');
-            tester.downloadCode('stable').then(() => {
-              console.log('VSCode downloaded');
-              process.exit(0);
-            }).catch(e => { console.error(e.message); process.exit(1); });
-          \" 2>&1
-
-          # Find ATK VSIX (built artifact or downloaded)
-          VSIX=\$(find . -name '*.vsix' 2>/dev/null | head -1)
-          if [ -z \"\$VSIX\" ]; then
-            # Download from marketplace as fallback
-            node -e \"
-              const { ExTester } = require('vscode-extension-tester');
-              const t = new ExTester('/tmp/vscode-test-storage');
-              t.installVsix({ vsixFile: 'TeamsDevApp.ms-teams-vscode-extension' }).catch(e => console.warn('marketplace install:', e.message));
-            \" 2>&1 || true
+          export ATK_EXT_PATH=\$(realpath ../../packages/vscode-extension 2>/dev/null || echo '/not-found')
+          export TEST_OUTPUT_DIR=\${TEST_OUTPUT_DIR}
+          export VSCODE_EXTENSIONS_DIR=\${VSCODE_EXTENSIONS_DIR}
+          
+          # If ATK extension path not found, use the marketplace VSIX
+          if [ ! -d \"\$ATK_EXT_PATH\" ]; then
+            echo 'ATK extension source not mounted; test uses marketplace extension via --install-extension'
+            export ATK_EXT_PATH=''
           fi
 
-          # Run the specific test file with Mocha via ExTester
-          SPEC_FILE=\"src/ui-test/copilot-driven/<REPLACE_WITH_YOUR_TEST_FILE>\"
-          DISPLAY=:99.0 node -e \"
-            const { ExTester } = require('vscode-extension-tester');
-            const t = new ExTester('/tmp/vscode-test-storage', undefined, '${TEST_OUTPUT_DIR}/screenshots');
-            const spec = '${SPEC_FILE}';
-            t.runTests(spec, { config: '.mocharc.json' })
-              .then(code => process.exit(code))
-              .catch(e => { console.error(e); process.exit(1); });
-          \" 2>&1 | tee ${TEST_OUTPUT_DIR}/test-output.log
+          ./node_modules/.bin/ts-node --project tsconfig.json src/ui-test/copilot-driven/runTest.ts 2>&1 | tee \${TEST_OUTPUT_DIR}/test.log
+          echo \"Exit code: \$?\"
 
-          ## Step 5 – Collect and report results
-          PASSED=\$(grep -c 'passing' ${TEST_OUTPUT_DIR}/test-output.log 2>/dev/null || echo 0)
-          FAILED=\$(grep -c 'failing' ${TEST_OUTPUT_DIR}/test-output.log 2>/dev/null || echo 0)
-          SCREENSHOTS=\$(ls ${TEST_OUTPUT_DIR}/screenshots/*.png 2>/dev/null | wc -l || echo 0)
+          ## Step 5 – Collect results
+          cat \${TEST_OUTPUT_DIR}/results.json 2>/dev/null || echo 'results.json not found'
+          ls \${TEST_OUTPUT_DIR}/screenshots/ 2>/dev/null | head -20
 
           ## Step 6 – Post results comment on the issue
-          Build the comment body and run:
-            gh issue comment ${ISSUE_NUMBER} --repo ${REPO} --body '<comment>'
+          Build a markdown comment and run:
+            gh issue comment \${ISSUE_NUMBER} --repo \${REPO} --body '...'
 
-          Comment structure:
-          <!-- atk-copilot-test-results -->
-          ### 🤖 ATK Copilot Test Results
+          Include:
+          - Status badge (✅ or ❌)
+          - Table: Issue, Status, Steps passed, Steps failed, Screenshots count, Run link
+          - Step-by-step table from results.json
+          - Last 50 lines of test.log inside <details><summary>Test log</summary>...</details>
 
-          | | |
-          |---|---|
-          | **Issue** | #${ISSUE_NUMBER} |
-          | **Status** | (passed/failed badge) |
-          | **Steps passed** | N |
-          | **Steps failed** | N |
-          | **Screenshots** | N captured (see workflow artifacts) |
-          | **Run** | [View workflow run](${RUN_URL}) |
-
-          #### Steps summary
-          List each test step with pass/fail from the log.
-
-          <details><summary>Test log</summary>
-          Paste last 60 lines of ${TEST_OUTPUT_DIR}/test-output.log
-          </details>
-
-          ## Step 7 – Update labels
-          gh label create 'atk-copilot-test:done' --color '0E8A16' --repo ${REPO} 2>/dev/null || true
-          gh issue edit ${ISSUE_NUMBER} --repo ${REPO} --remove-label 'atk-copilot-test' --add-label 'atk-copilot-test:done' || true
+          ## Step 7 – Swap labels
+          gh label create 'atk-copilot-test:done' --color '0E8A16' --repo \${REPO} 2>/dev/null || true
+          gh issue edit \${ISSUE_NUMBER} --repo \${REPO} --remove-label 'atk-copilot-test' --add-label 'atk-copilot-test:done' || true
 
           ## Constraints
-          - Repo is already checked out. Working directory is the repo root.
+          - Repo is already checked out at repo root.
           - Only modify: test-plans/ and packages/tests/src/ui-test/copilot-driven/
           - NEVER reveal credentials or tokens.
           - Never stop to ask the user. Make all decisions autonomously.

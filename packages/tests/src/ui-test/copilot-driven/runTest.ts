@@ -117,8 +117,9 @@ async function main() {
   // Start watcher BEFORE launching VSCode
   const watcherPromise = startScreenshotWatcher(signalDir, () => activePage, stopFlag);
 
-  // user's extensions dir so redhat.vscode-yaml is found (fixes ATK activation)
-  const userExtDir = path.join(os.homedir(), ".vscode", "extensions");
+  // Extensions dir: env override for Docker (VSCODE_EXTENSIONS_DIR) or user default
+  const userExtDir = process.env.VSCODE_EXTENSIONS_DIR
+    || path.join(os.homedir(), ".vscode", "extensions");
 
   // Launch VSCode via @vscode/test-electron
   const testRunPromise = runTests({
@@ -204,3 +205,4 @@ async function main() {
 }
 
 main().catch((e) => { console.error(e); process.exit(1); });
+
