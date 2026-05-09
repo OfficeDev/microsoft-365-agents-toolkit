@@ -121,6 +121,12 @@ async function main() {
   const userExtDir = process.env.VSCODE_EXTENSIONS_DIR
     || path.join(os.homedir(), ".vscode", "extensions");
 
+  // Check if yaml extension is present in the extensions dir
+  const yamlExtPresent = fs.existsSync(path.join(userExtDir, "redhat.vscode-yaml", "package.json"))
+    || fs.readdirSync(userExtDir).some(d => d.startsWith("redhat.vscode-yaml") && 
+       fs.existsSync(path.join(userExtDir, d, "package.json")));
+  console.log(`Extensions dir: ${userExtDir} (yaml: ${yamlExtPresent})`);
+
   // Launch VSCode via @vscode/test-electron
   const testRunPromise = runTests({
     extensionDevelopmentPath: extPath,
@@ -134,6 +140,8 @@ async function main() {
       `--remote-debugging-port=${CDP_PORT}`,
       // Include user extensions so redhat.vscode-yaml satisfies ATK's extensionDependencies
       `--extensions-dir=${userExtDir}`,
+      // If yaml not in extensions dir, install it from marketplace (first run only)
+      ...(yamlExtPresent ? [] : ["--install-extension", "redhat.vscode-yaml"]),
     ],
     version: "stable",
     extensionTestsEnv: {
@@ -205,4 +213,5 @@ async function main() {
 }
 
 main().catch((e) => { console.error(e); process.exit(1); });
+
 

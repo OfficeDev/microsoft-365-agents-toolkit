@@ -12,11 +12,6 @@
 #     -v $(pwd)/test-output:/output \
 #     -e TEST_FILE=teams-bot-create-template \
 #     atk-copilot-test
-#
-# Results appear in ./test-output/
-#   screenshots/  – PNG files (real Playwright captures via CDP)
-#   results.json  – { passed, failed, steps }
-#   test.log      – full console output
 # ============================================================================
 FROM ubuntu:22.04
 
@@ -25,8 +20,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
     TEST_OUTPUT_DIR=/output \
     ATK_EXT_PATH=/atk-ext \
     RUNNER_HOME=/runner \
-    # Playwright uses its own Chromium; skip full browser download
-    PLAYWRIGHT_BROWSERS_PATH=/playwright-browsers
+    VSCODE_EXTENSIONS_DIR=/vscode-extensions
 
 # ── System packages ───────────────────────────────────────────────────────────
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -56,31 +50,27 @@ COPY docker/copilot-test/tsconfig.json ./tsconfig.json
 RUN npm install --no-fund --no-audit
 
 # Install Playwright Chromium browser (for CDP screenshots)
-RUN npx playwright install chromium --with-deps 2>&1 || \
-    npx playwright install chromium 2>&1 || \
+RUN npx playwright install chromium --with-deps 2>&1 | tail -5 || \
+    npx playwright install chromium 2>&1 | tail -5 || \
     echo "Playwright browser install warning (non-fatal)"
 
 # Copy test source
 COPY packages/tests/src/ui-test/copilot-driven/ ./src/ui-test/copilot-driven/
 COPY test-plans/                                 ./test-plans/
 
-# ── Pre-install redhat.vscode-yaml (satisfies ATK extensionDependencies) ──────
-# We install it to a known extensions dir so VSCode finds it at test time
-RUN mkdir -p /vscode-extensions && \
-    node -e "\
-      const https = require('https'); \
-      const fs = require('fs'); \
-      const url = 'https://marketplace.visualstudio.com/_apis/public/gallery/publishers/redhat/vsextensions/vscode-yaml/latest/vspackage'; \
-      const file = fs.createWriteStream('/tmp/vscode-yaml.vsix'); \
-      https.get(url, {headers: {'Accept': 'application/octet-stream'}}, res => res.pipe(file).on('finish', () => process.exit(0))); \
-    " && \
-    cd /vscode-extensions && \
-    unzip -q /tmp/vscode-yaml.vsix -d redhat.vscode-yaml && \
-    rm /tmp/vscode-yaml.vsix && \
-    echo "redhat.vscode-yaml installed" || \
-    echo "yaml extension pre-install skipped (will use --install-extension at runtime)"
-
-ENV VSCODE_EXTENSIONS_DIR=/vscode-extensions
+# ── Install redhat.vscode-yaml from Open VSX (satisfies ATK extensionDependencies) ──────
+# VSIX structure: extension/package.json at root. We extract extension/* into the ext dir.
+RUN mkdir -p /vscode-extensions/redhat.vscode-yaml /tmp/yaml-ext && \
+    curl -sS -L -o /tmp/vscode-yaml.vsix \
+      "https://open-vsx.org/api/redhat/vscode-yaml/1.23.0/file/redhat.vscode-yaml-1.23.0.vsix" && \
+    if unzip -t /tmp/vscode-yaml.vsix >/dev/null 2>&1; then \
+      unzip -q /tmp/vscode-yaml.vsix -d /tmp/yaml-ext && \
+      cp -r /tmp/yaml-ext/extension/. /vscode-extensions/redhat.vscode-yaml/ && \
+      echo "redhat.vscode-yaml installed OK"; \
+    else \
+      echo "yaml vsix invalid, skipping"; \
+    fi && \
+    rm -rf /tmp/vscode-yaml.vsix /tmp/yaml-ext
 
 # ── Pre-download VSCode ────────────────────────────────────────────────────────
 RUN node -e "\
@@ -98,3 +88,5 @@ RUN sed -i 's/\r//g' /usr/local/bin/run-test.sh \
 
 VOLUME ["/output", "/atk-ext"]
 ENTRYPOINT ["/usr/local/bin/run-test.sh"]
+
+
