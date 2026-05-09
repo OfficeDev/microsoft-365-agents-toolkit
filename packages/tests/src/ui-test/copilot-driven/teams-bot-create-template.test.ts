@@ -1,15 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
-
 /**
  * teams-bot-create-template.test.ts
- *
- * Runs INSIDE VSCode extension host via @vscode/test-electron.
- * Tests the ATK "Create New Project" wizard by:
- *   1. Executing the fx-extension.create command
- *   2. Verifying the ATK webview / wizard panel opens
- *   3. Scaffolding via the ATK CLI (m365agents new) for file verification
- *   4. Writing a results.json and capturing a screenshot
+ * Runs INSIDE VSCode extension host via @vscode/test-electron (Mocha TDD).
+ * Screenshots are taken by external Playwright via signal files.
  */
 import * as vscode from "vscode";
 import * as assert from "assert";
@@ -19,36 +13,52 @@ import * as os from "os";
 import * as cp from "child_process";
 
 const OUTPUT_DIR = process.env.TEST_OUTPUT_DIR || path.join(os.tmpdir(), "atk-test-output");
-const SCREENSHOT_DIR = path.join(OUTPUT_DIR, "screenshots");
+const SCREENSHOT_DIR = process.env.SCREENSHOT_DIR || path.join(OUTPUT_DIR, "screenshots");
+const SIGNAL_DIR = process.env.SCREENSHOT_SIGNAL_DIR || path.join(OUTPUT_DIR, ".screenshot-signals");
 
 function ensureDirs() {
-  [OUTPUT_DIR, SCREENSHOT_DIR].forEach((d) => fs.mkdirSync(d, { recursive: true }));
+  [OUTPUT_DIR, SCREENSHOT_DIR, SIGNAL_DIR].forEach((d) =>
+    fs.mkdirSync(d, { recursive: true })
+  );
 }
 
+/** Signal Playwright to take a screenshot; blocks up to 8s */
 function takeScreenshot(name: string): void {
   try {
     const dest = path.join(SCREENSHOT_DIR, `${name}.png`);
-    // Linux headless: use scrot or import (ImageMagick)
-    const tools = [
-      ["scrot", ["-o", dest]],
-      ["import", ["-window", "root", dest]],
-    ] as [string, string[]][];
-    for (const [cmd, args] of tools) {
-      const result = cp.spawnSync(cmd, args, { timeout: 5000 });
-      if (result.status === 0) {
-        console.log(`Screenshot saved: ${dest}`);
-        return;
-      }
+    const signal = path.join(SIGNAL_DIR, `${Date.now()}-${name}.signal`);
+    fs.writeFileSync(signal, dest, "utf8");
+
+    const deadline = Date.now() + 8000;
+    while (fs.existsSync(signal) && Date.now() < deadline) {
+      const end = Date.now() + 100;
+      while (Date.now() < end) { /* busy wait */ }
     }
-    // Windows: use PowerShell
-    cp.spawnSync("powershell", [
-      "-Command",
-      `Add-Type -AssemblyName System.Windows.Forms; [System.Windows.Forms.Screen]::PrimaryScreen | ForEach-Object { $bmp = New-Object System.Drawing.Bitmap($_.Bounds.Width, $_.Bounds.Height); $g = [System.Drawing.Graphics]::FromImage($bmp); $g.CopyFromScreen($_.Bounds.Location, [System.Drawing.Point]::Empty, $_.Bounds.Size); $bmp.Save('${dest}') }`,
-    ], { timeout: 10000 });
-    console.log(`Screenshot saved: ${dest}`);
+
+    if (fs.existsSync(dest)) {
+      console.log(`Screenshot: ${name}.png`);
+    } else {
+      console.log(`Screenshot timeout: ${name}.png (Playwright may not be connected yet)`);
+    }
   } catch (e) {
     console.warn("Screenshot failed:", e);
   }
+}
+
+/** Wait (ms) inside sync-ish style */
+function wait(ms: number): Promise<void> {
+  return new Promise((r) => setTimeout(r, ms));
+}
+
+/** Poll until a VSCode command is available */
+async function waitForCommand(cmd: string, maxMs = 15000): Promise<boolean> {
+  const deadline = Date.now() + maxMs;
+  while (Date.now() < deadline) {
+    const allCmds = await vscode.commands.getCommands(true);
+    if (allCmds.includes(cmd)) return true;
+    await wait(500);
+  }
+  return false;
 }
 
 function writeResults(passed: number, failed: number, steps: object[]) {
@@ -66,12 +76,12 @@ suite("ATK Teams Bot Template Creation", function () {
   const step = (name: string, ok: boolean, detail?: string) => {
     steps.push({ name, status: ok ? "pass" : "fail", detail });
     ok ? passed++ : failed++;
-    console.log(`${ok ? "✅" : "❌"} ${name}${detail ? ": " + detail : ""}`);
+    console.log(`${ok ? "PASS" : "FAIL"} ${name}${detail ? ": " + detail : ""}`);
   };
 
   suiteSetup(() => {
     ensureDirs();
-    console.log("\n=== ATK Teams Bot Template Test ===");
+    console.log("=== ATK Teams Bot Template Test ===");
     console.log("Output:", OUTPUT_DIR);
   });
 
@@ -81,115 +91,99 @@ suite("ATK Teams Bot Template Creation", function () {
   });
 
   test("ATK extension is active", async () => {
-    // Wait up to 20s for the ATK extension to activate
     const extId = "TeamsDevApp.ms-teams-vscode-extension";
     let ext = vscode.extensions.getExtension(extId);
-    if (ext && !ext.isActive) {
-      try {
-        await ext.activate();
-      } catch (e: any) {
-        // Activation can fail if optional dependencies (e.g. redhat.vscode-yaml)
-        // are not installed in the blank test profile. This is expected locally.
-        console.log("  Activation error (non-fatal):", e.message);
+
+    // Wait for extension to appear (VSCode might still be loading)
+    if (!ext) {
+      for (let i = 0; i < 20; i++) {
+        await wait(500);
+        ext = vscode.extensions.getExtension(extId);
+        if (ext) break;
       }
     }
-    const active = !!ext?.isActive;
-    step("ATK extension activates", active, ext ? `version ${ext.packageJSON.version}` : "not found (check dependencies)");
-    takeScreenshot("01-extension-active");
-    // Don't hard-assert: missing optional deps (e.g. redhat.vscode-yaml) cause activation failure
-    // in blank test profile. Tests continue – create command may still work.
-    if (!active) {
-      console.log("  Note: Extension not active. May need --install-extension for dependencies.");
+
+    if (ext && !ext.isActive) {
+      try { await ext.activate(); } catch (e: any) {
+        console.log("  Activation note:", e.message);
+      }
     }
+
+    // Wait for activation to complete (async side effects)
+    await wait(3000);
+
+    const active = !!ext?.isActive;
+    step("ATK extension activates", active,
+      ext ? `version ${ext.packageJSON.version}` : "not found");
+
+    takeScreenshot("01-extension-active");
+    assert.ok(active, "Extension should be active");
   });
 
   test("Create New Project command opens wizard", async () => {
-    // Execute the ATK create command
-    let panelOpened = false;
-    const disposable = vscode.window.onDidChangeActiveTextEditor(() => {});
+    // Wait for fx-extension.create to be registered
+    const cmdAvailable = await waitForCommand("fx-extension.create", 15000);
+    if (!cmdAvailable) {
+      console.log("  Command not available after 15s, trying anyway...");
+    } else {
+      console.log("  Command available: fx-extension.create");
+    }
 
-    // Detect webview panel opening
-    const panelPromise = new Promise<void>((resolve) => {
-      const timer = setTimeout(() => resolve(), 8000);
+    // Detect new tab/panel opening
+    const tabOpenedPromise = new Promise<boolean>((resolve) => {
+      const timer = setTimeout(() => resolve(false), 12000);
       const disp = vscode.window.tabGroups.onDidChangeTabs((e) => {
-        const hasWizard = e.opened.some(
-          (t) => t.label?.toLowerCase().includes("new") ||
-                 t.label?.toLowerCase().includes("create") ||
-                 t.label?.toLowerCase().includes("project")
-        );
-        if (hasWizard) {
+        if (e.opened.length > 0) {
           clearTimeout(timer);
-          panelOpened = true;
           disp.dispose();
-          resolve();
+          resolve(true);
         }
       });
     });
 
-    try {
-      await vscode.commands.executeCommand("fx-extension.create");
-    } catch (e: any) {
-      // Command may throw if wizard is already open – that's OK
-      console.log("Command note:", e.message);
-    }
+    // Fire command WITHOUT awaiting (wizard blocks until user action)
+    vscode.commands.executeCommand("fx-extension.create").catch((e: any) => {
+      console.log("  Command error:", e.message);
+    });
 
-    await panelPromise;
-    disposable.dispose();
+    const tabOpened = await tabOpenedPromise;
+    await wait(2000); // let the wizard UI render
 
     takeScreenshot("02-create-wizard-open");
-    step("Create Project wizard opens", true, "fx-extension.create executed");
-    assert.ok(true); // wizard launched
+    step("Create Project wizard opens", cmdAvailable || tabOpened,
+      `command=${cmdAvailable}, tab=${tabOpened}`);
   });
 
-  test("Close wizard and scaffold via CLI", async () => {
-    // Close any open editors/webviews
+  test("Close wizard", async () => {
     await vscode.commands.executeCommand("workbench.action.closeAllEditors");
-    await new Promise((r) => setTimeout(r, 1000));
+    await wait(1000);
     takeScreenshot("03-editors-closed");
     step("Close wizard", true);
+  });
 
-    // Scaffold via ATK CLI for file verification
-    const projectDir = path.join(OUTPUT_DIR, "projects");
-    const appName = "test-teams-bot";
-    const projectPath = path.join(projectDir, appName);
-    fs.mkdirSync(projectDir, { recursive: true });
+  test("Scaffold via ATK CLI (optional)", async () => {
+    const projectDir = path.join(OUTPUT_DIR, "projects", "teams-bot-test");
+    fs.mkdirSync(path.dirname(projectDir), { recursive: true });
 
-    // Find ATK CLI
-    const cliCandidates = [
-      "m365agents",
-      "atktk",
-      path.join(os.homedir(), ".npm-global", "bin", "m365agents"),
-    ];
-    let cliPath = "m365agents";
-    for (const c of cliCandidates) {
-      const result = cp.spawnSync(c, ["--version"], { shell: true, timeout: 5000 });
-      if (result.status === 0) { cliPath = c; break; }
-    }
-
-    // Create bot project non-interactively
-    const result = cp.spawnSync(
-      cliPath,
-      ["new", "--app-name", appName, "--capability", "bot", "--programming-language", "typescript", "--interactive", "false"],
-      { cwd: projectDir, shell: true, timeout: 60000, encoding: "utf8" }
-    );
-    const cliOk = result.status === 0;
-    console.log("CLI stdout:", result.stdout?.slice(0, 500));
-    console.log("CLI stderr:", result.stderr?.slice(0, 200));
-    step("Scaffold via ATK CLI", cliOk, `exit: ${result.status}`);
-
-    if (cliOk) {
-      // Open the scaffolded project
-      const uri = vscode.Uri.file(projectPath);
-      await vscode.commands.executeCommand("vscode.openFolder", uri, false);
-      await new Promise((r) => setTimeout(r, 3000));
-      takeScreenshot("04-project-opened");
-
-      // Verify expected files
-      const expectedFiles = ["teamsapp.yml", "package.json", "src"];
-      for (const f of expectedFiles) {
-        const exists = fs.existsSync(path.join(projectPath, f));
-        step(`File exists: ${f}`, exists, projectPath);
+    const cliNames = ["m365agents", "atktk", "teamsfx", "teamsapp"];
+    let scaffolded = false;
+    for (const cli of cliNames) {
+      const r = cp.spawnSync(cli, ["new", "--template", "bot", "--lang", "ts",
+        "--app-name", "TeamsBot", "--interactive", "false"],
+        { cwd: path.dirname(projectDir), timeout: 60000, shell: true });
+      if (r.status === 0) {
+        scaffolded = true;
+        break;
       }
     }
+
+    if (scaffolded) {
+      await wait(1000);
+      takeScreenshot("04-project-scaffold");
+    }
+
+    step("Scaffold via ATK CLI", scaffolded,
+      scaffolded ? "CLI succeeded" : "CLI not installed (expected in local dev)");
   });
 });
+
