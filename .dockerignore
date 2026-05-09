@@ -1,0 +1,40 @@
+﻿# Ignore large/irrelevant paths when building Docker context
+node_modules
+**/node_modules
+.git
+.github
+out
+dist
+coverage
+*.vsix
+*.log
+
+# Keep only what the Dockerfile COPYs:
+#   packages/tests/package.json
+#   packages/tests/pnpm-lock.yaml
+#   packages/tests/tsconfig.json
+#   packages/tests/.mocharc.json
+#   packages/tests/src
+#   test-plans
+#   docker/copilot-test/run-test.sh
+
+# Exclude everything else in packages/ except tests
+packages/adaptivecards-tools-sdk
+packages/api
+packages/cli
+packages/dotnet-sdk
+packages/eslint-plugin-teamsfx
+packages/extra-shot-mocha
+packages/function-extension
+packages/fx-core
+packages/manifest
+packages/mcp-server
+packages/metrics-ts
+packages/prettier-config
+packages/sdk
+packages/sdk-react
+packages/server
+packages/simpleauth
+packages/spec-parser
+packages/vscode-extension
+packages/vscode-ui

@@ -1,28 +1,22 @@
-﻿#!/usr/bin/env bash
+#!/usr/bin/env bash
 # ============================================================================
 # ATK Copilot Test – Container Entry Point
 # ============================================================================
-# Usage (via docker run or docker-compose):
-#
-#   docker run --rm \
-#     -v $(pwd)/test-output:/output \
-#     -e TEST_FILE=teams-bot-create-template \
-#     atk-copilot-test
-#
 # Environment variables:
-#   TEST_FILE          (required) filename stem of the test to run,
-#                      e.g. "teams-bot-create-template"
-#                      resolves to: packages/tests/src/ui-test/copilot-driven/<TEST_FILE>.test.ts
-#   VSIX_PATH          (optional) path to ATK .vsix file; auto-detected if not set
-#   VSCODE_VERSION     (optional) VSCode version, default: stable
-#   TEST_OUTPUT_DIR    (optional) where to write results; default: /output
+#   TEST_FILE       Test filename stem (e.g. "teams-bot-create-template")
+#                   Resolves to: packages/tests/src/ui-test/copilot-driven/<TEST_FILE>.test.ts
+#   ATK_EXT_PATH    (optional) Path to a mounted ATK extension directory.
+#                   Mount your locally built extension:
+#                     -v /path/to/vscode-extension:/atk-ext:ro
+#                   then set -e ATK_EXT_PATH=/atk-ext
+#   TEST_OUTPUT_DIR (optional) Where to write results (default: /output)
+#   VSCODE_VERSION  (optional) VSCode version (default: latest)
 # ============================================================================
-
 set -euo pipefail
 
 TEST_FILE="${TEST_FILE:-teams-bot-create-template}"
-VSIX_PATH="${VSIX_PATH:-}"
-VSCODE_VERSION="${VSCODE_VERSION:-stable}"
+ATK_EXT_PATH="${ATK_EXT_PATH:-}"
+VSCODE_VERSION="${VSCODE_VERSION:-latest}"
 TEST_OUTPUT_DIR="${TEST_OUTPUT_DIR:-/output}"
 VSCODE_STORAGE="${VSCODE_STORAGE:-/tmp/vscode-test-storage}"
 REPO_ROOT="/app"
@@ -31,47 +25,25 @@ echo "======================================================"
 echo "  ATK Copilot Test Runner"
 echo "  Test:    ${TEST_FILE}"
 echo "  Output:  ${TEST_OUTPUT_DIR}"
+echo "  ExtPath: ${ATK_EXT_PATH:-<none – test only>}"
 echo "======================================================"
 
 mkdir -p "${TEST_OUTPUT_DIR}/screenshots" "${TEST_OUTPUT_DIR}/projects"
 
 # ── Start virtual display ─────────────────────────────────────────────────────
-echo "[1/5] Starting Xvfb virtual display..."
+echo "[1/4] Starting Xvfb virtual display..."
 Xvfb :99 -ac -screen 0 1920x1080x24 &
 XVFB_PID=$!
 sleep 2
 export DISPLAY=:99.0
-echo "      DISPLAY=${DISPLAY}"
 
 cleanup() {
-  echo ""
-  echo "[cleanup] Stopping Xvfb..."
   kill "${XVFB_PID}" 2>/dev/null || true
 }
 trap cleanup EXIT
 
-# ── Resolve ATK VSIX ─────────────────────────────────────────────────────────
-echo "[2/5] Resolving ATK extension..."
-if [ -z "${VSIX_PATH}" ]; then
-  VSIX_PATH=$(find "${REPO_ROOT}" -name "*.vsix" 2>/dev/null | head -1 || true)
-fi
-
-if [ -n "${VSIX_PATH}" ] && [ -f "${VSIX_PATH}" ]; then
-  echo "      Using VSIX: ${VSIX_PATH}"
-  EXT_ARG="--extensionPath ${VSIX_PATH}"
-else
-  echo "      No VSIX found – using extensionDevelopmentPath (built extension)"
-  EXT_DIR="${REPO_ROOT}/packages/vscode-extension"
-  if [ -d "${EXT_DIR}" ]; then
-    EXT_ARG="--extensionDevelopmentPath ${EXT_DIR}"
-  else
-    echo "      WARNING: No extension found. Test may fail without ATK installed."
-    EXT_ARG=""
-  fi
-fi
-
 # ── Resolve test spec ─────────────────────────────────────────────────────────
-echo "[3/5] Resolving test spec..."
+echo "[2/4] Resolving test spec..."
 SPEC="src/ui-test/copilot-driven/${TEST_FILE}.test.ts"
 FULL_SPEC="${REPO_ROOT}/packages/tests/${SPEC}"
 if [ ! -f "${FULL_SPEC}" ]; then
@@ -80,52 +52,74 @@ if [ ! -f "${FULL_SPEC}" ]; then
 fi
 echo "      Spec: ${SPEC}"
 
-# ── Run the test via vscode-extension-tester ─────────────────────────────────
-echo "[4/5] Running test..."
+# ── Run test ──────────────────────────────────────────────────────────────────
+echo "[3/4] Running test suite..."
 cd "${REPO_ROOT}/packages/tests"
 
-DISPLAY=:99.0 node -e "
-  const { ExTester } = require('vscode-extension-tester');
-  process.env.TEST_OUTPUT_DIR = '${TEST_OUTPUT_DIR}';
+# ExTester v8 strategy:
+#   - coverage=true skips installVsix (no extension to install from marketplace)
+#   - coverage=true also sets EXTENSION_DEV_PATH = process.cwd() in runTests()
+#   - We temporarily override process.cwd() to return ATK_EXT_PATH so VSCode
+#     launches with --extensionDevelopmentPath pointing to the real extension.
+#   - If ATK_EXT_PATH is empty, EXTENSION_DEV_PATH remains unset and VSCode
+#     starts without ATK loaded (useful for API/smoke tests).
 
-  const extArgs = '${EXT_ARG}';
-  const t = new ExTester('${VSCODE_STORAGE}', undefined, '${TEST_OUTPUT_DIR}/screenshots');
+ATK_EXT_PATH_ESCAPED="${ATK_EXT_PATH//\'/\'}"
 
-  const runOpts = {
-    config: '.mocharc.json',
-    logLevel: 'info',
-  };
+node -e "
+'use strict';
+const path = require('path');
+const fs = require('fs');
+const { ExTester, ReleaseQuality } = require('vscode-extension-tester');
 
-  t.runTests('${SPEC}', runOpts)
-    .then(code => {
-      console.log('ExTester exit code:', code);
-      process.exit(code);
-    })
-    .catch(e => {
-      console.error('ExTester error:', e.message);
-      process.exit(1);
-    });
+const OUTPUT    = '${TEST_OUTPUT_DIR}';
+const STORAGE   = '${VSCODE_STORAGE}';
+const SPEC      = '${SPEC}';
+const EXT_PATH  = '${ATK_EXT_PATH_ESCAPED}';
+
+process.env.TEST_OUTPUT_DIR = OUTPUT;
+
+const tester = new ExTester(STORAGE, ReleaseQuality.Stable, undefined, true /* coverage */);
+
+(async () => {
+  // Download VSCode + ChromeDriver (cached on subsequent runs)
+  await tester.setupRequirements(
+    { vscodeVersion: '${VSCODE_VERSION}', installDependencies: false },
+    false, false
+  );
+
+  // If extension path provided, monkey-patch process.cwd() so ExTester picks it up
+  if (EXT_PATH) {
+    const realCwd = process.cwd.bind(process);
+    process.cwd = () => EXT_PATH;
+    const code = await tester.runTests(SPEC, { vscodeVersion: '${VSCODE_VERSION}' });
+    process.cwd = realCwd;
+    process.exit(code);
+  } else {
+    // No extension – run test without --extensionDevelopmentPath
+    const code = await tester.runTests(SPEC, { vscodeVersion: '${VSCODE_VERSION}' });
+    process.exit(code);
+  }
+})().catch(e => { console.error('Error:', e.message); process.exit(1); });
 " 2>&1 | tee "${TEST_OUTPUT_DIR}/test.log"
 TEST_EXIT=${PIPESTATUS[0]}
 
 # ── Summarise results ─────────────────────────────────────────────────────────
-echo "[5/5] Summarising results..."
-RESULTS_FILE="${TEST_OUTPUT_DIR}/results.json"
+echo "[4/4] Summarising results..."
 SCREENSHOTS=$(ls "${TEST_OUTPUT_DIR}/screenshots/"*.png 2>/dev/null | wc -l || echo 0)
 
-if [ -f "${RESULTS_FILE}" ]; then
-  PASSED=$(python3 -c "import json; d=json.load(open('${RESULTS_FILE}')); print(d.get('passed',0))")
-  FAILED=$(python3 -c "import json; d=json.load(open('${RESULTS_FILE}')); print(d.get('failed',0))")
-else
-  # Parse from mocha log
+RESULTS_FILE="${TEST_OUTPUT_DIR}/results.json"
+if [ ! -f "${RESULTS_FILE}" ]; then
   PASSED=$(grep -oP '\d+(?= passing)' "${TEST_OUTPUT_DIR}/test.log" | tail -1 || echo 0)
   FAILED=$(grep -oP '\d+(?= failing)' "${TEST_OUTPUT_DIR}/test.log" | tail -1 || echo 0)
-  # Write minimal results.json
   python3 -c "
 import json
 with open('${RESULTS_FILE}', 'w') as f:
     json.dump({'passed': int('${PASSED}' or 0), 'failed': int('${FAILED}' or 0), 'steps': []}, f, indent=2)
 "
+else
+  PASSED=$(python3 -c "import json; d=json.load(open('${RESULTS_FILE}')); print(d.get('passed',0))")
+  FAILED=$(python3 -c "import json; d=json.load(open('${RESULTS_FILE}')); print(d.get('failed',0))")
 fi
 
 echo ""
@@ -134,13 +128,11 @@ echo "  Results"
 echo "  Passed:      ${PASSED}"
 echo "  Failed:      ${FAILED}"
 echo "  Screenshots: ${SCREENSHOTS} captured"
-echo "  Output dir:  ${TEST_OUTPUT_DIR}/"
+echo "  Output:      ${TEST_OUTPUT_DIR}/"
 echo "======================================================"
 
 if [ "${TEST_EXIT}" -ne 0 ] || [ "${FAILED}" -gt 0 ]; then
-  echo "RESULT: ❌ FAILED"
-  exit 1
+  echo "RESULT: FAILED"; exit 1
 else
-  echo "RESULT: ✅ PASSED"
-  exit 0
+  echo "RESULT: PASSED"; exit 0
 fi

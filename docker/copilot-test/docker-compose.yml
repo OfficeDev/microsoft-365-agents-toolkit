@@ -1,13 +1,14 @@
-﻿# ATK Copilot Test – Docker Compose
+# ATK Copilot Test – Docker Compose
 #
-# Quick start:
+# Quick start (no ATK extension, smoke test only):
 #   docker compose run --rm test
 #
-# Run a specific test:
-#   TEST_FILE=teams-bot-create-template docker compose run --rm test
+# Run with locally built ATK extension:
+#   ATK_EXT_PATH=C:\Users\quke\source\atk\microsoft-365-agents-toolkit\packages\vscode-extension ^
+#   docker compose run --rm test
 #
-# Run with a VSIX file:
-#   VSIX_PATH=./my-extension.vsix docker compose run --rm test
+# Run a specific test file:
+#   TEST_FILE=teams-bot-create-template docker compose run --rm test
 
 version: "3.8"
 
@@ -20,17 +21,17 @@ services:
     environment:
       # Required: test file stem (without .test.ts)
       TEST_FILE: ${TEST_FILE:-teams-bot-create-template}
-      # Optional: path to ATK .vsix inside the container
-      VSIX_PATH: ${VSIX_PATH:-}
-      # VSCode version to use (stable | insider | x.y.z)
-      VSCODE_VERSION: ${VSCODE_VERSION:-stable}
+      # Optional: path to ATK extension directory mounted inside the container
+      # Mount with: -v "$ATK_EXT_PATH:/atk-ext:ro" and set ATK_EXT_PATH=/atk-ext
+      ATK_EXT_PATH: ${CONTAINER_EXT_PATH:-}
+      # VSCode version to use (latest | x.y.z)
+      VSCODE_VERSION: ${VSCODE_VERSION:-latest}
       TEST_OUTPUT_DIR: /output
     volumes:
       # Host directory where screenshots / results.json / test.log land
       - ${HOST_OUTPUT_DIR:-./test-output}:/output
-      # Optional: mount a pre-built VSIX from the host
-      # - ./path/to/extension.vsix:/app/extension.vsix
+      # Optional: mount your locally built ATK extension directory
+      # Uncomment and set HOST_EXT_PATH before running:
+      # - ${HOST_EXT_PATH:-/nonexistent}:/atk-ext:ro
     # Allow Xvfb to allocate a shared-memory segment (required for Electron/VSCode)
     shm_size: '512mb'
-    # No network needed for the test itself
-    network_mode: none
