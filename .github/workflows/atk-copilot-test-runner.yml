@@ -268,19 +268,54 @@ jobs:
           cat \${TEST_OUTPUT_DIR}/results.json 2>/dev/null || echo 'results.json not found'
           ls \${TEST_OUTPUT_DIR}/screenshots/ 2>/dev/null | head -20
 
-          ## Step 6 – Post results comment on the issue
-          Build a markdown comment and run:
-            gh issue comment \${ISSUE_NUMBER} --repo \${REPO} --body '...'
+          ## Step 6 – Generate GIF from screenshots
+          pip3 install --quiet Pillow 2>/dev/null || true
 
-          Include:
-          - Status badge (✅ or ❌)
-          - Table: Issue, Status, Steps passed, Steps failed, Screenshots count, Run link
-          - Step-by-step table from results.json
-          - Last 50 lines of test.log inside <details><summary>Test log</summary>...</details>
+          Run Python to create the GIF:
+            python3 /tmp/make_gif.py
+          (write the script first with: cat > /tmp/make_gif.py << \'PYEOF\'
+          import glob, os
+          from PIL import Image
+          shots = sorted(glob.glob(os.environ["TEST_OUTPUT_DIR"] + "/screenshots/*.png"))
+          frames = []
+          for p in shots:
+              img = Image.open(p).convert("RGBA")
+              if img.width > 1280:
+                  img = img.resize((1280, int(img.height * 1280 / img.width)), Image.LANCZOS)
+              frames.append(img.convert("P", palette=Image.ADAPTIVE, dither=Image.Dither.NONE))
+          if frames:
+              out = os.environ["TEST_OUTPUT_DIR"] + "/test-run.gif"
+              frames[0].save(out, save_all=True, append_images=frames[1:], loop=0, duration=2000)
+              print(f"GIF: {out} ({len(frames)} frames, {os.path.getsize(out)//1024}KB)")
+          PYEOF
+          then: python3 /tmp/make_gif.py)
 
-          ## Step 7 – Swap labels
-          gh label create 'atk-copilot-test:done' --color '0E8A16' --repo \${REPO} 2>/dev/null || true
-          gh issue edit \${ISSUE_NUMBER} --repo \${REPO} --remove-label 'atk-copilot-test' --add-label 'atk-copilot-test:done' || true
+          Upload GIF to GitHub issue to get a public URL:
+            GIF_PATH="${TEST_OUTPUT_DIR}/test-run.gif"
+            GIF_URL=""
+            if [ -f "$GIF_PATH" ]; then
+              RESP=$(curl -s -X POST -H "Authorization: Bearer $GH_TOKEN" -H "Content-Type: image/gif" --data-binary "@$GIF_PATH" "https://uploads.github.com/repos/${REPO}/issues/${ISSUE_NUMBER}/assets")
+              GIF_URL=$(echo "$RESP" | python3 -c "import sys,json; print(json.load(sys.stdin).get(\'browser_download_url\',\'\'))" 2>/dev/null || echo "")
+              echo "GIF URL: $GIF_URL"
+            fi
+
+          ## Step 7 – Post results comment on the issue
+          Read the test plan: TEST_PLAN=$(cat test-plans/teams-bot-template.md 2>/dev/null | head -60 || echo "*(not found)*")
+
+          Build step table, then post comment including GIF (if available), step table, test plan collapsible, and log collapsible.
+          The comment body must include:
+          - Status badge (OK PASSED or FAIL FAILED)
+          - Table: Issue, Passed, Failed, Screenshots, Run link
+          - If GIF_URL is set: include "### Screenshots" section with ![test-run]($GIF_URL)
+          - "### Test Steps" section with step table from results.json
+          - <details><summary>Test Plan</summary> ... $TEST_PLAN ... </details>
+          - <details><summary>Test log (last 50 lines)</summary> ... $LOG ... </details>
+          Post with: gh issue comment ${ISSUE_NUMBER} --repo ${REPO} --body "..."
+
+          ## Step 8 – Swap labels
+          gh label create \'atk-copilot-test:done\' --color \'0E8A16\' --repo ${REPO} 2>/dev/null || true
+          gh issue edit ${ISSUE_NUMBER} --repo ${REPO} --remove-label \'atk-copilot-test\' --add-label \'atk-copilot-test:done\' || true
+
 
           ## Constraints
           - Repo is already checked out at repo root.
@@ -292,6 +327,68 @@ jobs:
           FULL_PROMPT=$(printf '%s\n\n%s' "$PROMPT" "$SECURITY_REMINDER")
           copilot --yolo --model claude-sonnet-4.6 -p "$FULL_PROMPT"
 
+      - name: Generate screenshots GIF (after CLI run)
+        if: always()
+        id: gif
+        run: |
+          pip3 install --quiet Pillow 2>/dev/null || true
+          mapfile -t SHOTS < <(ls "$TEST_OUTPUT_DIR/screenshots/"*.png 2>/dev/null | sort)
+          if [ ${#SHOTS[@]} -eq 0 ]; then echo "gif_path=" >> $GITHUB_OUTPUT; exit 0; fi
+          GIF_PATH="$TEST_OUTPUT_DIR/test-run.gif"
+          python3 << 'PYEOF'
+          import glob, os
+          from PIL import Image
+          shots = sorted(glob.glob(os.environ["TEST_OUTPUT_DIR"] + "/screenshots/*.png"))
+          frames = []
+          for p in shots:
+              try:
+                  img = Image.open(p).convert("RGBA")
+                  if img.width > 1280:
+                      img = img.resize((1280, int(img.height * 1280 / img.width)), Image.LANCZOS)
+                  frames.append(img.convert("P", palette=Image.ADAPTIVE, dither=Image.Dither.NONE))
+              except Exception as e:
+                  print(f"Skip {p}: {e}")
+          if frames:
+              out = os.environ["TEST_OUTPUT_DIR"] + "/test-run.gif"
+              frames[0].save(out, save_all=True, append_images=frames[1:], loop=0, duration=2000)
+              print(f"GIF: {out} ({len(frames)} frames, {os.path.getsize(out)//1024}KB)")
+          PYEOF
+          [ -f "$GIF_PATH" ] && echo "gif_path=$GIF_PATH" >> $GITHUB_OUTPUT || echo "gif_path=" >> $GITHUB_OUTPUT
+
+      - name: Upload GIF to GitHub issue (public URL)
+        if: always() && steps.gif.outputs.gif_path != ''
+        id: upload-gif
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE: ${{ inputs.issue_number }}
+        run: |
+          RESPONSE=$(curl -s -X POST \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Content-Type: image/gif" \
+            --data-binary "@${{ steps.gif.outputs.gif_path }}" \
+            "https://uploads.github.com/repos/${{ github.repository }}/issues/${ISSUE}/assets")
+          GIF_URL=$(echo "$RESPONSE" | python3 -c "import sys,json; print(json.load(sys.stdin).get('browser_download_url',''))" 2>/dev/null || echo "")
+          echo "gif_url=$GIF_URL" >> $GITHUB_OUTPUT
+          echo "GIF URL: $GIF_URL"
+
+      - name: Remove label and add done label (failsafe - always runs)
+        if: always()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ISSUE="${{ inputs.issue_number }}"
+          gh label create 'atk-copilot-test:done' \
+            --repo ${{ github.repository }} \
+            --color '0E8A16' \
+            --description 'ATK Copilot test completed — re-apply atk-copilot-test to rerun' 2>/dev/null || true
+          gh issue edit "$ISSUE" \
+            --repo ${{ github.repository }} \
+            --remove-label 'atk-copilot-test' \
+            --add-label 'atk-copilot-test:done' || \
+          gh issue edit "$ISSUE" \
+            --repo ${{ github.repository }} \
+            --remove-label 'atk-copilot-test' || true
+          echo "Label lifecycle: atk-copilot-test → atk-copilot-test:done"
       - name: Upload test artifacts
         uses: actions/upload-artifact@v4
         if: always()
@@ -316,3 +413,4 @@ jobs:
           ❌ The test agent encountered an unexpected CI error.
 
           [View workflow run]($RUN_URL) for details."
+
