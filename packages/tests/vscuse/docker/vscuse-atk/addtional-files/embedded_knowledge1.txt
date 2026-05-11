@@ -1,0 +1,7 @@
+Student ID 	Name 	Age 	Major 	University 	Graduation Year 	GPA 
+015 	Charlotte King 	21 	Education 	University of O 	2025 	3.6 
+016 	Alexander Adams 	22 	Sociology 	University of P 	2024 	3.9 
+017 	Grace Martinez 	24 	Journalism 	University of Q 	2023 	3.7 
+018 	Samuel Harris 	22 	Marketing 	University of R 	2024 	3.5 
+019 	Ava Robinson 	20 	Environmental Science 	University of S 	2026 	3.8 
+020 	William Carter 	21 	Political Science 	University of T 	2025 	3.6 

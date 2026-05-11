@@ -1,0 +1,16 @@
+Student ID 	Name 	Age 	Major 	University 	Graduation Year 	GPA 
+001 	Sarah Miller 	22 	Computer Science 	University of A 	2024 	3.8 
+002 	John Smith 	21 	Business Administration 	University of B 	2025 	3.6 
+003 	Emma Johnson 	23 	Biology 	University of C 	2023 	3.9 
+004 	Daniel Lee 	20 	Mechanical Engineering 	University of D 	2026 	3.5 
+005 	Olivia Brown 	22 	Psychology 	University of E 	2024 	3.7 
+006 	Noah Davis 	24 	Mathematics 	University of F 	2023 	4.0 
+007 	Mia Wilson 	22 	Architecture 	University of G 	2024 	3.4 
+008 	Jacob White 	21 	Economics 	University of H 	2025 	3.5 
+009 	Sophia Harris 	23 	Nursing 	University of I 	2023 	3.8 
+010 	James Clark 	22 	History 	University of J 	2024 	3.6 
+011 	Isabella Lewis 	20 	Chemistry 	University of K 	2026 	3.7 
+012 	Ethan Walker 	21 	Law 	University of L 	2025 	3.9 
+013 	Lily Scott 	23 	Social Work 	University of M 	2023 	3.8 
+014 	Benjamin Young 	22 	Physics 	University of N 	2024 	3.8 
+ 
