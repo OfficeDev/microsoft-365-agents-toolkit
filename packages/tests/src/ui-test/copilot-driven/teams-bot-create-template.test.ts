@@ -176,6 +176,8 @@ suite("ATK Teams Bot Template Creation (UI Wizard)", function () {
     //   "Default folder" (~/AgentsToolkitProjects) and "Browse..."
     // Click "Default folder" to use the default path ~/AgentsToolkitProjects/<appName>
     console.log("  Selecting default folder");
+    sendSignal("type:", 3000);     // clear any filter text in the QuickPick
+    await wait(500);
     sendSignal("clickText:Default folder", 12000);
     await wait(90000); // scaffold + new window; 90s for slow CI
     takeScreenshot("08-folder-selected");
