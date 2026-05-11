@@ -1,0 +1,677 @@
+name: PR VscUse Test (AI-Powered)
+
+# Triggered when the 'atk-vsuse-test' label is added to a PR.
+# Uses GitHub Copilot / Azure OpenAI to select relevant VscUse test plans based on PR content,
+# then runs the full pipeline: CD (VSIX build) -> Docker image build -> UI tests.
+# Progress and final results are posted/updated as a PR comment.
+
+on:
+  pull_request:
+    types: [labeled]
+
+# One run per PR at a time; cancel any in-progress run if the label is re-applied.
+concurrency:
+  group: pr-vscuse-test-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  pull-requests: write   # post / edit PR comments
+  issues: write          # createComment uses issues API
+  actions: write         # trigger downstream workflows
+  contents: read
+
+jobs:
+  # -----------------------------------------------------------------
+  # Job 1: AI selects test plans, posts the initial PR comment
+  # -----------------------------------------------------------------
+  select-and-comment:
+    if: github.event.label.name == 'atk-vsuse-test'
+    runs-on: ubuntu-latest
+    outputs:
+      test_plans: ${{ steps.ai-select.outputs.test_plans }}
+      reason:     ${{ steps.ai-select.outputs.reason }}
+      comment_id: ${{ steps.post-comment.outputs.comment_id }}
+      tag_name:   ${{ steps.tag.outputs.tag_name }}
+
+    steps:
+      - name: Checkout repo (plans directory only)
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: packages/tests/vscuse/vscode-test-cases/plans
+
+      - name: Generate unique Docker image tag
+        id: tag
+        run: |
+          SAFE_BRANCH=$(echo "${{ github.head_ref }}" | sed 's/[^a-zA-Z0-9._-]/-/g')
+          DATETIME=$(date -u +"%Y%m%d%H%M%S")
+          echo "tag_name=pr${{ github.event.pull_request.number }}-${SAFE_BRANCH}-${DATETIME}" >> "$GITHUB_OUTPUT"
+
+      - name: Get PR changed files
+        id: changed-files
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const { data: files } = await github.rest.pulls.listFiles({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.pull_request.number,
+              per_page: 100,
+            });
+            core.setOutput('files', files.map(f => f.filename).join('\n'));
+
+      # AI selection: tries GitHub Models API first, falls back to Azure OpenAI.
+      # Validates every returned plan name against on-disk files.
+      # Falls back to smoke tests if AI is unavailable.
+      - name: Select test plans via AI (GitHub Copilot / Azure OpenAI)
+        id: ai-select
+        env:
+          GH_TOKEN:               ${{ secrets.GITHUB_TOKEN }}
+          AZURE_OPENAI_ENDPOINT:  ${{ vars.TEST_TENANT_AZURE_OPENAI_ENDPOINT }}
+          AZURE_OPENAI_KEY:       ${{ secrets.TEST_TENANT_AZURE_OPENAI_KEY }}
+          AZURE_OPENAI_MODEL:     ${{ vars.TEST_TENANT_AZURE_OPENAI_MODEL }}
+          AZURE_OPENAI_API_VERSION: ${{ vars.TEST_TENANT_AZURE_OPENAI_API_VERSION }}
+          PR_TITLE:               ${{ github.event.pull_request.title }}
+          PR_BODY:                ${{ github.event.pull_request.body }}
+          CHANGED_FILES:          ${{ steps.changed-files.outputs.files }}
+        run: |
+          set -euo pipefail
+
+          # Build list of every available plan name
+          PLANS_TEXT=$(find packages/tests/vscuse/vscode-test-cases/plans \
+            -maxdepth 1 -name "*.json" \
+            -exec basename {} .json \; | sort)
+
+          SYSTEM_PROMPT='You are a test plan selector for the Microsoft 365 Agents Toolkit (ATK) VS Code extension.
+Select the most relevant VscUse UI test plans for a given PR from the provided list.
+
+Test plan naming conventions:
+- DA_*                        Declarative Agent (Copilot extensions, plugins, MCP, TypeSpec, OAuth, API Key, Entra)
+- Basic_Custom_Engine_*       Custom Engine AI bot (LLM-based, Azure OpenAI, OpenAI)
+- General_Teams_Agent_*       General Teams agent templates
+- Teams_Agent_With_Data_*     Agent with AI Search / Custom API / knowledge data / RAG
+- Teams_Collaborator_Agent_*  Multi-user collaboration agents
+- Weather_Agent_*             Weather bot sample
+- Simple_Bot_*                Simple / echo / notification bot
+- Message_Extension_*         Message extension (search / action commands)
+- Basic_Tab_* / Tab_*         Tab apps (React, SPFx)
+- Sample_*                    Sample gallery (CoffeeAgent, Data Analyst, ProxyAgent, ...)
+- Feature_*                   VS Code UI features (treeview, commands, publish, provision, deploy, AAD, manifest)
+- Template_*                  Template / README verification
+
+Suffixes: _Local_Debug=local F5 | _Remote_Debug=Azure deploy | _playground=Playground | _Copilot=Copilot chat
+Languages: _js_=JavaScript | _ts_=TypeScript | _py_=Python
+
+Return ONLY a JSON object: {"plans": ["PlanName1", ...], "reason": "<one sentence>"}'
+
+          USER_PROMPT="PR Title: ${PR_TITLE}
+
+PR Description (first 1500 chars):
+${PR_BODY:0:1500}
+
+Changed files:
+${CHANGED_FILES}
+
+Available test plans (select 3-8 most relevant):
+${PLANS_TEXT}
+
+Return JSON only."
+
+          REQUEST_BODY=$(jq -n \
+            --arg system "$SYSTEM_PROMPT" \
+            --arg user   "$USER_PROMPT" \
+            '{
+              model: "openai/gpt-4.1",
+              messages: [
+                {role: "system", content: $system},
+                {role: "user",   content: $user}
+              ],
+              temperature: 0.1,
+              response_format: {type: "json_object"}
+            }')
+
+          # 1. Try GitHub Models API (uses GITHUB_TOKEN)
+          echo "Calling GitHub Models API..."
+          HTTP_CODE=$(curl -s -o /tmp/ai_resp.json -w "%{http_code}" \
+            -X POST "https://models.github.ai/inference/chat/completions" \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Content-Type: application/json" \
+            -d "$REQUEST_BODY" || echo "000")
+
+          # 2. Fallback to Azure OpenAI
+          if [ "$HTTP_CODE" != "200" ]; then
+            echo "GitHub Models returned HTTP $HTTP_CODE. Trying Azure OpenAI..."
+            if [ -n "${AZURE_OPENAI_ENDPOINT:-}" ] && [ -n "${AZURE_OPENAI_KEY:-}" ]; then
+              curl -s -o /tmp/ai_resp.json \
+                -X POST "${AZURE_OPENAI_ENDPOINT}/openai/deployments/${AZURE_OPENAI_MODEL}/chat/completions?api-version=${AZURE_OPENAI_API_VERSION:-2025-04-01-preview}" \
+                -H "api-key: $AZURE_OPENAI_KEY" \
+                -H "Content-Type: application/json" \
+                -d "$(echo "$REQUEST_BODY" | jq 'del(.model)')" || true
+            fi
+          fi
+
+          # 3. Parse response
+          AI_CONTENT=$(jq -r '.choices[0].message.content // empty' /tmp/ai_resp.json 2>/dev/null || true)
+          AI_PLANS=$(echo "$AI_CONTENT" | jq -r '.plans // empty' 2>/dev/null || true)
+          AI_REASON=$(echo "$AI_CONTENT" | jq -r '.reason // empty' 2>/dev/null || true)
+
+          # 4. Validate: only keep plans that exist on disk
+          VALID_PLANS='[]'
+          if [ -n "$AI_PLANS" ] && [ "$AI_PLANS" != "null" ]; then
+            while IFS= read -r plan; do
+              [ -z "$plan" ] && continue
+              if [ -f "packages/tests/vscuse/vscode-test-cases/plans/${plan}.json" ]; then
+                VALID_PLANS=$(echo "$VALID_PLANS" | jq --arg p "$plan" '. + [$p]')
+              else
+                echo "Warning: unknown plan skipped: $plan"
+              fi
+            done < <(echo "$AI_PLANS" | jq -r '.[]' 2>/dev/null || true)
+          fi
+
+          # 5. Fallback to smoke tests if nothing valid
+          if [ "$(echo "$VALID_PLANS" | jq 'length')" -eq 0 ]; then
+            echo "No valid AI plans found - using smoke test fallback."
+            VALID_PLANS='["DA_No_Action_Local_Debug","DA_Oauth_js_Remote_Debug","Basic_Custom_Engine_Azure_OpenAI_ts_Copilot_Remote_Debug"]'
+            AI_REASON="AI selection unavailable; using smoke test fallback."
+          fi
+
+          PLANS_CSV=$(echo "$VALID_PLANS" | jq -r 'join(",")')
+          echo "test_plans=${PLANS_CSV}" >> "$GITHUB_OUTPUT"
+          echo "reason=${AI_REASON}"     >> "$GITHUB_OUTPUT"
+          echo "Selected: $PLANS_CSV"
+          echo "Reason: $AI_REASON"
+
+      - name: Post initial PR comment
+        id: post-comment
+        uses: actions/github-script@v6
+        env:
+          TEST_PLANS: ${{ steps.ai-select.outputs.test_plans }}
+          REASON:     ${{ steps.ai-select.outputs.reason }}
+        with:
+          script: |
+            const plans   = process.env.TEST_PLANS.split(',').filter(Boolean);
+            const reason  = process.env.REASON || '-';
+            const runUrl  = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            const planList = plans.map(p => `- \`${p}\``).join('\n');
+
+            const body = [
+              '## Robot VscUse AI Test Selection',
+              '',
+              `**Selection reason:** ${reason}`,
+              '',
+              '**Test plans queued:**',
+              planList,
+              '',
+              '---',
+              '**Pipeline status:**',
+              '',
+              '| Step | Status |',
+              '|------|--------|',
+              '| 1. Build VSIX (CD pipeline) | Running |',
+              '| 2. Build Docker image        | Waiting |',
+              '| 3. Run UI tests              | Waiting |',
+              '',
+              `> [View workflow run](${runUrl})`,
+            ].join('\n');
+
+            const { data: comment } = await github.rest.issues.createComment({
+              owner:        context.repo.owner,
+              repo:         context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+              body,
+            });
+
+            core.setOutput('comment_id', String(comment.id));
+            console.log(`Posted comment ID: ${comment.id}`);
+
+  # -----------------------------------------------------------------
+  # Job 2: Build VSIX via CD pipeline (neil/cdprivatepipeline branch)
+  # -----------------------------------------------------------------
+  run-cd:
+    needs: select-and-comment
+    runs-on: ubuntu-latest
+    outputs:
+      run_id: ${{ steps.trigger.outputs.run_id }}
+
+    steps:
+      - name: Generate GitHub App token
+        id: generate-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id:      ${{ vars.APP_GITHUB_APP_ID }}
+          private-key: ${{ secrets.APP_GITHUB_APP_PRIVATE_KEY }}
+
+      - name: Trigger CD pipeline on cdprivatepipeline branch
+        id: trigger
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ steps.generate-token.outputs.token }}
+          script: |
+            const owner            = context.repo.owner;
+            const repo             = context.repo.repo;
+            const sourceBranch     = '${{ github.head_ref }}';
+            const cdDispatchBranch = 'neil/cdprivatepipeline';
+
+            // Dispatch on the private pipeline branch, passing the PR head branch as external_ref
+            await github.rest.actions.createWorkflowDispatch({
+              owner,
+              repo,
+              workflow_id: 'cd.yml',
+              ref:         cdDispatchBranch,
+              inputs:      { external_ref: sourceBranch },
+            });
+
+            await new Promise(r => setTimeout(r, 15000));
+
+            const { data: { workflow_runs: runs } } = await github.rest.actions.listWorkflowRuns({
+              owner,
+              repo,
+              workflow_id: 'cd.yml',
+              branch:      cdDispatchBranch,
+              per_page:    5,
+            });
+
+            const run = runs.find(r =>
+              r.status !== 'completed' ||
+              (Date.now() - new Date(r.created_at).getTime()) < 60000
+            );
+
+            if (!run) throw new Error('Could not locate the triggered CD workflow run');
+
+            core.setOutput('run_id', String(run.id));
+            console.log(`CD run ID: ${run.id}  URL: ${run.html_url}`);
+
+      - name: Wait for CD pipeline to complete
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ steps.generate-token.outputs.token }}
+          script: |
+            const owner     = context.repo.owner;
+            const repo      = context.repo.repo;
+            const runId     = parseInt('${{ steps.trigger.outputs.run_id }}');
+            const start     = Date.now();
+            const TWO_HOURS = 2 * 60 * 60 * 1000;
+
+            while (Date.now() - start < TWO_HOURS) {
+              const { data: run } = await github.rest.actions.getWorkflowRun({ owner, repo, run_id: runId });
+              console.log(`CD status: ${run.status} / ${run.conclusion}`);
+              if (run.status === 'completed') {
+                if (run.conclusion !== 'success')
+                  throw new Error(`CD pipeline failed (${run.conclusion}). See: ${run.html_url}`);
+                return;
+              }
+              await new Promise(r => setTimeout(r, 60000));
+            }
+            throw new Error('CD pipeline timed out after 2 hours');
+
+      - name: Update PR comment - CD done, Docker build starting
+        uses: actions/github-script@v6
+        env:
+          COMMENT_ID: ${{ needs.select-and-comment.outputs.comment_id }}
+          TEST_PLANS: ${{ needs.select-and-comment.outputs.test_plans }}
+          REASON:     ${{ needs.select-and-comment.outputs.reason }}
+        with:
+          script: |
+            const commentId = parseInt(process.env.COMMENT_ID);
+            const plans     = process.env.TEST_PLANS.split(',').filter(Boolean);
+            const reason    = process.env.REASON || '-';
+            const runUrl    = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            const planList  = plans.map(p => `- \`${p}\``).join('\n');
+
+            const body = [
+              '## Robot VscUse AI Test Selection',
+              '',
+              `**Selection reason:** ${reason}`,
+              '',
+              '**Test plans queued:**',
+              planList,
+              '',
+              '---',
+              '**Pipeline status:**',
+              '',
+              '| Step | Status |',
+              '|------|--------|',
+              '| 1. Build VSIX (CD pipeline) | Done |',
+              '| 2. Build Docker image        | Running |',
+              '| 3. Run UI tests              | Waiting |',
+              '',
+              `> [View workflow run](${runUrl})`,
+            ].join('\n');
+
+            await github.rest.issues.updateComment({
+              owner:      context.repo.owner,
+              repo:       context.repo.repo,
+              comment_id: commentId,
+              body,
+            });
+
+  # -----------------------------------------------------------------
+  # Job 3: Build Docker image containing the new VSIX
+  # -----------------------------------------------------------------
+  run-docker-build:
+    needs: [select-and-comment, run-cd]
+    runs-on: ubuntu-latest
+    outputs:
+      run_id: ${{ steps.trigger.outputs.run_id }}
+
+    steps:
+      - name: Generate GitHub App token
+        id: generate-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id:      ${{ vars.APP_GITHUB_APP_ID }}
+          private-key: ${{ secrets.APP_GITHUB_APP_PRIVATE_KEY }}
+
+      - name: Trigger Docker Build pipeline
+        id: trigger
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ steps.generate-token.outputs.token }}
+          script: |
+            const owner = context.repo.owner;
+            const repo  = context.repo.repo;
+
+            await github.rest.actions.createWorkflowDispatch({
+              owner,
+              repo,
+              workflow_id: 'vscuse-atk-docker-build.yml',
+              ref:         'dev',
+              inputs: {
+                tag:    '${{ needs.select-and-comment.outputs.tag_name }}',
+                run_id: '${{ needs.run-cd.outputs.run_id }}',
+              },
+            });
+
+            await new Promise(r => setTimeout(r, 15000));
+
+            const { data: { workflow_runs: runs } } = await github.rest.actions.listWorkflowRuns({
+              owner,
+              repo,
+              workflow_id: 'vscuse-atk-docker-build.yml',
+              branch:      'dev',
+              per_page:    5,
+            });
+
+            const run = runs.find(r =>
+              r.status !== 'completed' ||
+              (Date.now() - new Date(r.created_at).getTime()) < 60000
+            );
+
+            if (!run) throw new Error('Could not locate the triggered Docker Build run');
+
+            core.setOutput('run_id', String(run.id));
+            console.log(`Docker Build run ID: ${run.id}`);
+
+      - name: Wait for Docker Build to complete
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ steps.generate-token.outputs.token }}
+          script: |
+            const owner     = context.repo.owner;
+            const repo      = context.repo.repo;
+            const runId     = parseInt('${{ steps.trigger.outputs.run_id }}');
+            const start     = Date.now();
+            const TWO_HOURS = 2 * 60 * 60 * 1000;
+
+            while (Date.now() - start < TWO_HOURS) {
+              const { data: run } = await github.rest.actions.getWorkflowRun({ owner, repo, run_id: runId });
+              console.log(`Docker Build: ${run.status} / ${run.conclusion}`);
+              if (run.status === 'completed') {
+                if (run.conclusion !== 'success')
+                  throw new Error(`Docker Build failed (${run.conclusion}). See: ${run.html_url}`);
+                return;
+              }
+              await new Promise(r => setTimeout(r, 60000));
+            }
+            throw new Error('Docker Build timed out after 2 hours');
+
+      - name: Update PR comment - Docker done, UI tests starting
+        uses: actions/github-script@v6
+        env:
+          COMMENT_ID: ${{ needs.select-and-comment.outputs.comment_id }}
+          TEST_PLANS: ${{ needs.select-and-comment.outputs.test_plans }}
+          REASON:     ${{ needs.select-and-comment.outputs.reason }}
+        with:
+          script: |
+            const commentId = parseInt(process.env.COMMENT_ID);
+            const plans     = process.env.TEST_PLANS.split(',').filter(Boolean);
+            const reason    = process.env.REASON || '-';
+            const runUrl    = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            const planList  = plans.map(p => `- \`${p}\``).join('\n');
+
+            const body = [
+              '## Robot VscUse AI Test Selection',
+              '',
+              `**Selection reason:** ${reason}`,
+              '',
+              '**Test plans queued:**',
+              planList,
+              '',
+              '---',
+              '**Pipeline status:**',
+              '',
+              '| Step | Status |',
+              '|------|--------|',
+              '| 1. Build VSIX (CD pipeline) | Done |',
+              '| 2. Build Docker image        | Done |',
+              '| 3. Run UI tests              | Running |',
+              '',
+              `> [View workflow run](${runUrl})`,
+            ].join('\n');
+
+            await github.rest.issues.updateComment({
+              owner:      context.repo.owner,
+              repo:       context.repo.repo,
+              comment_id: commentId,
+              body,
+            });
+
+  # -----------------------------------------------------------------
+  # Job 4: Run AI-selected UI test plans, then resolve the PR comment
+  # -----------------------------------------------------------------
+  run-ui-test:
+    needs: [select-and-comment, run-cd, run-docker-build]
+    runs-on: ubuntu-latest
+    # Always run so we can update the comment even when an upstream job failed
+    if: always() && needs.select-and-comment.result == 'success'
+
+    steps:
+      - name: Generate GitHub App token
+        id: generate-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id:      ${{ vars.APP_GITHUB_APP_ID }}
+          private-key: ${{ secrets.APP_GITHUB_APP_PRIVATE_KEY }}
+
+      - name: Abort if upstream jobs failed
+        if: needs.run-cd.result != 'success' || needs.run-docker-build.result != 'success'
+        uses: actions/github-script@v6
+        env:
+          COMMENT_ID: ${{ needs.select-and-comment.outputs.comment_id }}
+          TEST_PLANS: ${{ needs.select-and-comment.outputs.test_plans }}
+          REASON:     ${{ needs.select-and-comment.outputs.reason }}
+          CD_RESULT:  ${{ needs.run-cd.result }}
+          DOCKER_RESULT: ${{ needs.run-docker-build.result }}
+        with:
+          script: |
+            const commentId    = parseInt(process.env.COMMENT_ID);
+            const plans        = process.env.TEST_PLANS.split(',').filter(Boolean);
+            const reason       = process.env.REASON || '-';
+            const cdResult     = process.env.CD_RESULT;
+            const dockerResult = process.env.DOCKER_RESULT;
+            const runUrl       = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            const planList     = plans.map(p => `- \`${p}\``).join('\n');
+
+            const failed = cdResult !== 'success' ? `CD pipeline (${cdResult})` : `Docker build (${dockerResult})`;
+
+            const body = [
+              '## X VscUse AI Test Selection - Pipeline Failed',
+              '',
+              `**Selection reason:** ${reason}`,
+              '',
+              '**Test plans (not run due to failure):**',
+              planList,
+              '',
+              '---',
+              '**Pipeline status:**',
+              '',
+              '| Step | Status |',
+              '|------|--------|',
+              `| 1. Build VSIX (CD pipeline) | ${cdResult === 'success' ? 'Done' : 'Failed: ' + cdResult} |`,
+              `| 2. Build Docker image        | ${dockerResult === 'success' ? 'Done' : 'Failed: ' + dockerResult} |`,
+              '| 3. Run UI tests              | Skipped |',
+              '',
+              `**Failed step:** ${failed}`,
+              `> [View workflow run](${runUrl})`,
+            ].join('\n');
+
+            await github.rest.issues.updateComment({
+              owner:      context.repo.owner,
+              repo:       context.repo.repo,
+              comment_id: commentId,
+              body,
+            });
+
+            core.setFailed(`Upstream job failed: ${failed}`);
+
+      - name: Trigger UI Test pipeline with AI-selected plans
+        id: trigger
+        if: needs.run-cd.result == 'success' && needs.run-docker-build.result == 'success'
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ steps.generate-token.outputs.token }}
+          script: |
+            const owner     = context.repo.owner;
+            const repo      = context.repo.repo;
+            const testPlans = '${{ needs.select-and-comment.outputs.test_plans }}';
+            const imageTag  = '${{ needs.select-and-comment.outputs.tag_name }}';
+
+            await github.rest.actions.createWorkflowDispatch({
+              owner,
+              repo,
+              workflow_id: 'ui-test-vscuse-template.yml',
+              ref:         'dev',
+              inputs: {
+                test_plan:   testPlans,
+                image_tag:   imageTag,
+                max_retries: '3',
+              },
+            });
+
+            await new Promise(r => setTimeout(r, 15000));
+
+            const { data: { workflow_runs: runs } } = await github.rest.actions.listWorkflowRuns({
+              owner,
+              repo,
+              workflow_id: 'ui-test-vscuse-template.yml',
+              branch:      'dev',
+              per_page:    5,
+            });
+
+            const run = runs.find(r =>
+              r.status !== 'completed' ||
+              (Date.now() - new Date(r.created_at).getTime()) < 60000
+            );
+
+            if (!run) throw new Error('Could not locate the triggered UI Test run');
+
+            core.setOutput('run_id',  String(run.id));
+            core.setOutput('run_url', run.html_url);
+            console.log(`UI Test run ID: ${run.id}`);
+
+      - name: Wait for UI Test pipeline to complete
+        id: wait-ui
+        if: needs.run-cd.result == 'success' && needs.run-docker-build.result == 'success'
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ steps.generate-token.outputs.token }}
+          script: |
+            const owner      = context.repo.owner;
+            const repo       = context.repo.repo;
+            const runId      = parseInt('${{ steps.trigger.outputs.run_id }}');
+            const start      = Date.now();
+            const FOUR_HOURS = 4 * 60 * 60 * 1000;
+
+            while (Date.now() - start < FOUR_HOURS) {
+              const { data: run } = await github.rest.actions.getWorkflowRun({ owner, repo, run_id: runId });
+              console.log(`UI Test: ${run.status} / ${run.conclusion}`);
+              if (run.status === 'completed') {
+                core.setOutput('conclusion', run.conclusion);
+                core.setOutput('run_url',    run.html_url);
+                return;
+              }
+              await new Promise(r => setTimeout(r, 60000));
+            }
+            core.setOutput('conclusion', 'timed_out');
+            throw new Error('UI Test pipeline timed out after 4 hours');
+
+      # Edit the original comment with final pass/fail results.
+      # This acts as "resolving" the comment - it shows the outcome inline.
+      - name: Resolve PR comment with final test results
+        if: always() && needs.run-cd.result == 'success' && needs.run-docker-build.result == 'success'
+        uses: actions/github-script@v6
+        env:
+          COMMENT_ID: ${{ needs.select-and-comment.outputs.comment_id }}
+          TEST_PLANS: ${{ needs.select-and-comment.outputs.test_plans }}
+          REASON:     ${{ needs.select-and-comment.outputs.reason }}
+          TAG_NAME:   ${{ needs.select-and-comment.outputs.tag_name }}
+          CONCLUSION: ${{ steps.wait-ui.outputs.conclusion }}
+          UI_RUN_URL: ${{ steps.wait-ui.outputs.run_url }}
+        with:
+          script: |
+            const commentId  = parseInt(process.env.COMMENT_ID);
+            const plans      = process.env.TEST_PLANS.split(',').filter(Boolean);
+            const reason     = process.env.REASON || '-';
+            const tagName    = process.env.TAG_NAME;
+            const conclusion = process.env.CONCLUSION || 'unknown';
+            const uiRunUrl   = process.env.UI_RUN_URL || '';
+            const runUrl     = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            const planList   = plans.map(p => `- \`${p}\``).join('\n');
+
+            const succeeded  = conclusion === 'success';
+            const statusText = succeeded ? 'All tests passed' : `Tests ${conclusion}`;
+            const icon       = succeeded ? 'Check' : 'X';
+
+            const body = [
+              `## ${icon} VscUse AI Test Selection - ${statusText}`,
+              '',
+              `**Selection reason:** ${reason}`,
+              '',
+              '**Test plans run:**',
+              planList,
+              '',
+              `**Docker image tag:** \`${tagName}\``,
+              '',
+              '---',
+              '**Pipeline status:**',
+              '',
+              '| Step | Status |',
+              '|------|--------|',
+              '| 1. Build VSIX (CD pipeline) | Done |',
+              '| 2. Build Docker image        | Done |',
+              `| 3. Run UI tests              | ${statusText} |`,
+              '',
+              uiRunUrl
+                ? `> [UI Test results](${uiRunUrl}) | [Workflow run](${runUrl})`
+                : `> [Workflow run](${runUrl})`,
+              '',
+              '<details><summary>How were these tests selected?</summary>',
+              '',
+              'Test plans were chosen by GitHub Copilot (GPT-4.1) based on the PR title,',
+              'description, and changed files. The full test index is in',
+              '`packages/tests/vscuse/Index.md`.',
+              '',
+              '</details>',
+            ].join('\n');
+
+            await github.rest.issues.updateComment({
+              owner:      context.repo.owner,
+              repo:       context.repo.repo,
+              comment_id: commentId,
+              body,
+            });
+
+            console.log(`Resolved comment ${commentId} with conclusion: ${conclusion}`);
+
+            if (!succeeded) {
+              core.setFailed(`UI tests concluded: ${conclusion}. See: ${uiRunUrl}`);
+            }
