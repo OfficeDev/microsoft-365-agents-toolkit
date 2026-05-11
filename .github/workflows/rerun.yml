@@ -131,16 +131,11 @@ jobs:
 
       - name: Configure VSCode to use simple (in-app) file dialogs
         run: |
-          # Prevent native OS file picker (GTK) which Playwright cannot interact with.
-          # With simpleDialog.enable, VSCode shows its own QuickPick for folder selection.
-          SETTINGS_DIR="$HOME/.config/Code/User"
+          # runTest.ts passes --user-data-dir=$TEST_OUTPUT_DIR/vscode-user-data to VSCode.
+          # Write settings.json there so files.simpleDialog.enable takes effect.
+          SETTINGS_DIR="$TEST_OUTPUT_DIR/vscode-user-data/User"
           mkdir -p "$SETTINGS_DIR"
-          cat > "$SETTINGS_DIR/settings.json" <<'SETTINGS_EOF'
-          {
-            "files.simpleDialog.enable": true,
-            "workbench.startupEditor": "none"
-          }
-          SETTINGS_EOF
+          printf '{\n  "files.simpleDialog.enable": true,\n  "workbench.startupEditor": "none"\n}\n' > "$SETTINGS_DIR/settings.json"
           echo "VSCode user settings written to $SETTINGS_DIR/settings.json"
           cat "$SETTINGS_DIR/settings.json"
 
