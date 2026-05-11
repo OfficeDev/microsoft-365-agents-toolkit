@@ -163,29 +163,23 @@ suite("ATK Teams Bot Template Creation (UI Wizard)", function () {
     await wait(2000);
     takeScreenshot("06-typescript");
 
-    // Step 5: Application name
+    // Step 5: Workspace folder (comes BEFORE app name in ATK v6.8.0)
+    // The folder dialog is a QuickPick with "Default folder" and "Browse..."
+    // Filter starts EMPTY at this point (no carry-over from TypeScript QuickPick).
+    console.log("  Selecting default folder");
+    sendSignal("waitForText:Workspace Folder", 15000);
+    await wait(300);
+    sendSignal("clickText:Default folder", 12000); // filter is empty, items are visible
+    await wait(1000);
+    takeScreenshot("07-workspace-folder");
+
+    // Step 6: Application name (appears AFTER folder selection in ATK v6.8.0)
     console.log("  Typing app name");
     sendSignal("type:test-teams-bot-001", 8000);
     await wait(500);
     sendSignal("pressKey:Enter", 5000);
-    await wait(2000);
-    takeScreenshot("07-app-name");
-
-    // Step 6: Workspace folder
-    // The folder dialog is a QuickPick with two items:
-    //   "Default folder" (~/AgentsToolkitProjects) and "Browse..."
-    // Click "Default folder" to use the default path ~/AgentsToolkitProjects/<appName>
-    console.log("  Selecting default folder");
-    // The Workspace Folder QuickPick opens with app name in filter (VSCode value carry-over).
-    // Use fill("") to clear the filter without triggering QuickInput Ctrl+A shortcuts,
-    // then click "Default folder" which becomes visible with empty filter.
-    sendSignal("waitForText:Workspace Folder", 15000);
-    await wait(300);
-    sendSignal("type:", 3000);   // fill("") clears filter - no keyboard shortcuts
-    await wait(500);
-    sendSignal("clickText:Default folder", 12000);
     await wait(90000); // scaffold + new window; 90s for slow CI
-    takeScreenshot("08-folder-selected");
+    takeScreenshot("08-app-name-entered");
     takeScreenshot("09-project-created");
 
     step("Navigate wizard to create Teams Bot template", cmdAvailable, `command=${cmdAvailable}`);
