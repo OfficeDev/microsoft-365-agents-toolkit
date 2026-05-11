@@ -165,12 +165,17 @@ suite("ATK Teams Bot Template Creation", function () {
     const projectDir = path.join(OUTPUT_DIR, "projects", "teams-bot-test");
     fs.mkdirSync(path.dirname(projectDir), { recursive: true });
 
-    const cliNames = ["m365agents", "atktk", "teamsfx", "teamsapp"];
+    // Try CLI names in priority order. ATK CLI was renamed: teamsapp -> atk
+    // Correct args: --capability bot --programming-language typescript
+    const cliCandidates: [string, string[]][] = [
+      ["atk",      ["new", "--capability", "bot", "--programming-language", "typescript", "--app-name", "TeamsBot", "--interactive", "false"]],
+      ["teamsapp", ["new", "--capability", "bot", "--programming-language", "typescript", "--app-name", "TeamsBot", "--interactive", "false"]],
+      ["teamsfx",  ["new", "--capability", "bot", "--programming-language", "typescript", "--app-name", "TeamsBot", "--interactive", "false"]],
+    ];
     let scaffolded = false;
-    for (const cli of cliNames) {
-      const r = cp.spawnSync(cli, ["new", "--template", "bot", "--lang", "ts",
-        "--app-name", "TeamsBot", "--interactive", "false"],
-        { cwd: path.dirname(projectDir), timeout: 60000, shell: true });
+    for (const [cli, args] of cliCandidates) {
+      const r = cp.spawnSync(cli, args,
+        { cwd: path.dirname(projectDir), timeout: 120000, shell: true });
       if (r.status === 0) {
         scaffolded = true;
         break;
@@ -186,4 +191,5 @@ suite("ATK Teams Bot Template Creation", function () {
       scaffolded ? "CLI succeeded" : "CLI not installed (expected in local dev)");
   });
 });
+
 
