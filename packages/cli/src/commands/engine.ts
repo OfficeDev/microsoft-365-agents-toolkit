@@ -547,7 +547,7 @@ class CLIEngine {
       context.globalOptionValues.interactive + "";
     context.telemetryProperties[TelemetryProperty.CommandVersion] =
       context.globalOptionValues.version + "";
-    if (process.env.TEAMSFX_CLI_INTERNAL === "true") {
+    if (process.env.ATK_CLI_INTERNAL === "true") {
       context.telemetryProperties[TelemetryProperty.Internal] = "true";
       CliTelemetry.reporter?.addSharedProperty(TelemetryProperty.Internal, "true");
     }
