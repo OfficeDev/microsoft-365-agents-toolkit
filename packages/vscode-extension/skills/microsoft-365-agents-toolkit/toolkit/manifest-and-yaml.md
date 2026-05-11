@@ -35,20 +35,20 @@ These are the canonical versions written by the current `atk new` templates (ver
 |------|-------|-------|
 | `appPackage/manifest.json` | `$schema` | `https://developer.microsoft.com/en-us/json-schemas/teams/v1.26/MicrosoftTeams.schema.json` |
 | `appPackage/manifest.json` | `manifestVersion` | `1.26` |
-| `appPackage/declarativeAgent.json` | `$schema` | `https://developer.microsoft.com/json-schemas/copilot/declarative-agent/v1.6/schema.json` |
-| `appPackage/declarativeAgent.json` | `version` | `v1.6` |
+| `appPackage/declarativeAgent.json` | `$schema` | `https://developer.microsoft.com/json-schemas/copilot/declarative-agent/v1.7/schema.json` |
+| `appPackage/declarativeAgent.json` | `version` | `v1.7` |
 | `m365agents.yml` / `m365agents.local.yml` / `m365agents.playground.yml` | `version` | `v1.11` (TS/Python templates) — some C# templates still ship `v1.9` |
 
 **Notes:**
 
 - The Teams `manifestVersion: 1.26` schema is also offered as `vDevPreview` (3 templates use it for early-access features). Stick with `1.26` unless a feature you need only exists in `vDevPreview`.
-- The `declarativeAgent.json` `version` field is the **schema** version (e.g., `"v1.6"`), not your app version. The app version still lives in `manifest.json`'s top-level `version` field.
+- The `declarativeAgent.json` `version` field is the **schema** version (e.g., `"v1.7"`), not your app version. The app version still lives in `manifest.json`'s top-level `version` field.
 
 ```jsonc
-// appPackage/declarativeAgent.json — minimal v1.6 example
+// appPackage/declarativeAgent.json — minimal v1.7 example
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/copilot/declarative-agent/v1.6/schema.json",
-  "version": "v1.6",
+  "$schema": "https://developer.microsoft.com/json-schemas/copilot/declarative-agent/v1.7/schema.json",
+  "version": "v1.7",
   "name": "My Agent",
   "description": "Helps with X",
   "instructions": "You are a helpful assistant that..."
