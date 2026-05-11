@@ -15,6 +15,8 @@ import {
 } from "../../src/component/driver/teamsApp/constants";
 import { MockTools } from "../core/utils";
 import { MOS3ApiDefinitions } from "../../src/component/m365/serviceConstant";
+import { TEAMS_GRAPH_API_NAMES } from "../../src/client/teamsGraphClient";
+import { TelemetryEvent } from "../../src/common/telemetry";
 
 describe("Wrapped Axios Client Test", () => {
   const mockTools = new MockTools();
@@ -167,6 +169,27 @@ describe("Wrapped Axios Client Test", () => {
     chai.expect(telemetryChecker.calledOnce).to.be.true;
   });
 
+  it("Teams Graph API start telemetry", async () => {
+    const mockedRequest = {
+      method: "POST",
+      baseURL: getResourceServiceEndpoint(ResourceServiceType.TeamsGraph),
+      url: "/api/v1.0/apiSecretRegistrations",
+      params: {},
+      status: 200,
+      data: {},
+    } as any;
+    const telemetryChecker = sinon.spy(mockTools.telemetryReporter, "sendTelemetryEvent");
+
+    WrappedAxiosClient.onRequest(mockedRequest);
+    chai.expect(telemetryChecker.calledOnce).to.be.true;
+    chai
+      .expect(telemetryChecker.firstCall.args[0])
+      .to.equal(`${TelemetryEvent.TeamsGraphApi}-start`);
+    chai
+      .expect((telemetryChecker.firstCall.args[1] as any).url)
+      .to.equal(`<${TEAMS_GRAPH_API_NAMES.CREATE_API_KEY}-url>`);
+  });
+
   it("TDP API success response", async () => {
     const mockedResponse = {
       request: {
@@ -203,6 +226,29 @@ describe("Wrapped Axios Client Test", () => {
 
     WrappedAxiosClient.onResponse(mockedResponse);
     chai.expect(telemetryChecker.calledOnce).to.be.true;
+  });
+
+  it("Teams Graph API success response", async () => {
+    const mockedResponse = {
+      request: {
+        method: "GET",
+        host: getResourceServiceEndpoint(ResourceServiceType.TeamsGraph),
+        path: "/api/v1.0/oAuthConfigurations/fakeId",
+      },
+      config: {
+        params: {},
+      },
+      status: 200,
+      data: {},
+    } as any;
+    const telemetryChecker = sinon.spy(mockTools.telemetryReporter, "sendTelemetryEvent");
+
+    WrappedAxiosClient.onResponse(mockedResponse);
+    chai.expect(telemetryChecker.calledOnce).to.be.true;
+    chai.expect(telemetryChecker.firstCall.args[0]).to.equal(TelemetryEvent.TeamsGraphApi);
+    chai
+      .expect((telemetryChecker.firstCall.args[1] as any).url)
+      .to.equal(`<${TEAMS_GRAPH_API_NAMES.GET_OAUTH}-url>`);
   });
 
   it("TDP API error response", async () => {
@@ -244,6 +290,89 @@ describe("Wrapped Axios Client Test", () => {
 
     WrappedAxiosClient.onRejected(mockedError);
     chai.expect(telemetryChecker.calledOnce).to.be.true;
+  });
+
+  it("Teams Graph API error response logs fallback correlation id headers", async () => {
+    const fallbackCorrelationId = uuid();
+    const mockedError = {
+      request: {
+        method: "GET",
+        host: getResourceServiceEndpoint(ResourceServiceType.TeamsGraph),
+        path: "/api/v1.0/oAuthConfigurations/fakeId",
+      },
+      config: {},
+      response: {
+        status: 404,
+        headers: {
+          "request-id": fallbackCorrelationId,
+        },
+      },
+    } as any;
+    const telemetryChecker = sinon.spy(mockTools.telemetryReporter, "sendTelemetryErrorEvent");
+
+    let rejected: any;
+    await WrappedAxiosClient.onRejected(mockedError).catch((e) => (rejected = e));
+
+    chai.expect(rejected).to.equal(mockedError);
+    chai.expect(telemetryChecker.calledOnce).to.be.true;
+    const props = telemetryChecker.firstCall.args[1] as Record<string, string>;
+    chai.expect(props["teams-graph-trace-id"]).to.equal(fallbackCorrelationId);
+  });
+
+  it("Teams Graph API error response prefers x-correlation-id over fallback headers", async () => {
+    const xCorrelationId = uuid();
+    const mockedError = {
+      request: {
+        method: "GET",
+        host: getResourceServiceEndpoint(ResourceServiceType.TeamsGraph),
+        path: "/api/v1.0/oAuthConfigurations/fakeId",
+      },
+      config: {},
+      response: {
+        status: 404,
+        headers: {
+          "x-correlation-id": xCorrelationId,
+          "request-id": uuid(),
+          "x-ms-request-id": uuid(),
+        },
+      },
+    } as any;
+    const telemetryChecker = sinon.spy(mockTools.telemetryReporter, "sendTelemetryErrorEvent");
+
+    let rejected: any;
+    await WrappedAxiosClient.onRejected(mockedError).catch((e) => (rejected = e));
+
+    chai.expect(rejected).to.equal(mockedError);
+    chai.expect(telemetryChecker.calledOnce).to.be.true;
+    const props = telemetryChecker.firstCall.args[1] as Record<string, string>;
+    chai.expect(props["teams-graph-trace-id"]).to.equal(xCorrelationId);
+  });
+
+  it("Teams Graph API error response uses x-ms-request-id when request-id is absent", async () => {
+    const msRequestId = uuid();
+    const mockedError = {
+      request: {
+        method: "GET",
+        host: getResourceServiceEndpoint(ResourceServiceType.TeamsGraph),
+        path: "/api/v1.0/apiSecretRegistrations/fakeId",
+      },
+      config: {},
+      response: {
+        status: 404,
+        headers: {
+          "x-ms-request-id": msRequestId,
+        },
+      },
+    } as any;
+    const telemetryChecker = sinon.spy(mockTools.telemetryReporter, "sendTelemetryErrorEvent");
+
+    let rejected: any;
+    await WrappedAxiosClient.onRejected(mockedError).catch((e) => (rejected = e));
+
+    chai.expect(rejected).to.equal(mockedError);
+    chai.expect(telemetryChecker.calledOnce).to.be.true;
+    const props = telemetryChecker.firstCall.args[1] as Record<string, string>;
+    chai.expect(props["teams-graph-trace-id"]).to.equal(msRequestId);
   });
 
   it("MOS API error response", async () => {
@@ -750,6 +879,47 @@ describe("Wrapped Axios Client Test", () => {
       "GET"
     );
     chai.assert.equal(apiName, "mos_unclassified__abc");
+
+    apiName = WrappedAxiosClient.convertUrlToApiName(
+      getResourceServiceEndpoint(ResourceServiceType.TeamsGraph) +
+        `/api/v1.0/apiSecretRegistrations`,
+      "POST"
+    );
+    chai.assert.equal(apiName, TEAMS_GRAPH_API_NAMES.CREATE_API_KEY);
+
+    apiName = WrappedAxiosClient.convertUrlToApiName(
+      getResourceServiceEndpoint(ResourceServiceType.TeamsGraph) +
+        `/api/v1.0/apiSecretRegistrations/${fakeId}`,
+      "GET"
+    );
+    chai.assert.equal(apiName, TEAMS_GRAPH_API_NAMES.GET_API_KEY);
+
+    apiName = WrappedAxiosClient.convertUrlToApiName(
+      getResourceServiceEndpoint(ResourceServiceType.TeamsGraph) +
+        `/api/v1.0/apiSecretRegistrations/${fakeId}`,
+      "PATCH"
+    );
+    chai.assert.equal(apiName, TEAMS_GRAPH_API_NAMES.UPDATE_API_KEY);
+
+    apiName = WrappedAxiosClient.convertUrlToApiName(
+      getResourceServiceEndpoint(ResourceServiceType.TeamsGraph) + `/api/v1.0/oAuthConfigurations`,
+      "POST"
+    );
+    chai.assert.equal(apiName, TEAMS_GRAPH_API_NAMES.CREATE_OAUTH);
+
+    apiName = WrappedAxiosClient.convertUrlToApiName(
+      getResourceServiceEndpoint(ResourceServiceType.TeamsGraph) +
+        `/api/v1.0/oAuthConfigurations/${fakeId}`,
+      "GET"
+    );
+    chai.assert.equal(apiName, TEAMS_GRAPH_API_NAMES.GET_OAUTH);
+
+    apiName = WrappedAxiosClient.convertUrlToApiName(
+      getResourceServiceEndpoint(ResourceServiceType.TeamsGraph) +
+        `/api/v1.0/oAuthConfigurations/${fakeId}`,
+      "PATCH"
+    );
+    chai.assert.equal(apiName, TEAMS_GRAPH_API_NAMES.UPDATE_OAUTH);
   });
 
   it("Convert API Definition for MOS API", async () => {
