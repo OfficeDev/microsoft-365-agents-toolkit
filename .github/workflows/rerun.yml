@@ -196,7 +196,6 @@ jobs:
           echo "Uploading GIF to issue #$ISSUE assets..."
           RESPONSE=$(curl -s -X POST \
             -H "Authorization: Bearer $GH_TOKEN" \
-
             -F "file=@$GIF_PATH;type=image/gif" \
             "https://uploads.github.com/repos/${{ github.repository }}/issues/${ISSUE}/assets")
           echo "Response: $RESPONSE"
