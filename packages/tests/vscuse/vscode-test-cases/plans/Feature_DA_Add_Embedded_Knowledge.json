@@ -73,7 +73,7 @@
       "step_c66dd601"
     ],
     "tags": [],
-    "updated_at": "2026-05-11T07:13:50.977302"
+    "updated_at": "2026-05-11T07:30:05.588482"
   },
   "steps": [
     {
@@ -1151,7 +1151,7 @@
         "x": 427,
         "y": 78
       },
-      "description": "Click the \"manifest.json\" file option in the \"Select Teams manifest.json File\" dialog within Visual Studio Code, highlighting the file located at \"/home/vscode/AgentsToolkitProjects/vscuse_app_M4bQa/appPackage\" for selection.",
+      "description": "Click the \"manifest.json\" file option in the \"Select Teams manifest.json File\" dialog within Visual Studio Code, highlighting the file for selection.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
