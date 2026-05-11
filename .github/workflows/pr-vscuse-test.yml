@@ -292,7 +292,7 @@ jobs:
                 ref:         headBranch,
                 inputs: {
                   test_plan: testPlans,
-                  email:     '',
+                  email:     'atk-vsuse-test@microsoft.com',
                 },
               });
               dispatched = true;
@@ -305,7 +305,7 @@ jobs:
                   repo,
                   workflow_id: 'dev-smoke-test-pipeline.yml',
                   ref:         headBranch,
-                  inputs: { email: '' },
+                  inputs: { email:     'atk-vsuse-test@microsoft.com' },
                 });
                 dispatched = true;
                 console.log('Dispatched without test_plan input');
