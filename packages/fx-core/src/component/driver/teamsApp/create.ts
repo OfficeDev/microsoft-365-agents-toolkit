@@ -37,8 +37,7 @@ import {
 import { AppStudioError } from "./errors";
 import { CreateTeamsAppArgs } from "./interfaces/CreateTeamsAppArgs";
 import { AppStudioResultFactory } from "./results";
-import { FeatureFlagName } from "../../../common/featureFlags";
-import { isSovereignHigh, SovereignCloudEnvironment } from "../../../common/accountUtils";
+import { isSovereignHigh } from "../../../common/accountUtils";
 import { isUUID } from "validator";
 
 const actionName = "teamsApp/create";
