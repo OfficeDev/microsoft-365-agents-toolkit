@@ -226,6 +226,7 @@ jobs:
           LOG=$(tail -40 $TEST_OUTPUT_DIR/test.log 2>/dev/null || echo "no log")
           STATUS=$( [ "$FAILED" = "0" ] && echo "PASSED" || echo "FAILED" )
           STATUS_ICON=$( [ "$FAILED" = "0" ] && echo "OK" || echo "FAIL" )
+          export STATUS STATUS_ICON PASSED FAILED SHOTS LOG TEST_PLAN STEPS_TABLE GIF_URL
 
           # Read test plan
           TEST_PLAN=$(cat test-plans/teams-bot-template.md 2>/dev/null | head -80 || echo "*(test plan not found)*")
