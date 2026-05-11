@@ -208,11 +208,15 @@ suite("ATK Teams Bot Template Creation (UI Wizard)", function () {
     // 2. Broad filesystem search for the project directory
     if (!projectDir || !fs.existsSync(projectDir)) {
       const agentsDir = path.join(os.homedir(), "AgentsToolkitProjects");
+      // Log environment for debugging
+      console.log("  HOME:", process.env.HOME, "homedir:", os.homedir(), "USER:", process.env.USER);
       const searchRoots = [
         agentsDir,                           // ATK default: ~/AgentsToolkitProjects
         path.join("/home/runner", "AgentsToolkitProjects"),
+        path.join("/root", "AgentsToolkitProjects"),
         os.homedir(),
         "/home/runner",
+        "/root",
         os.tmpdir(),
         "/tmp",
         process.cwd(),
