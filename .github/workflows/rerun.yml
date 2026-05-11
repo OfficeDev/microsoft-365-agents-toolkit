@@ -106,22 +106,16 @@ jobs:
           ls docker/copilot-test/src/ui-test/copilot-driven/
 
 
-      - name: Download ATK VSCode extension from marketplace
+      - name: Set ATK extension path (use checked-out source)
         run: |
-          mkdir -p /tmp/atk-ext /tmp/atk-ext-raw
-          curl -sS -L \
-            -H "Accept: application/octet-stream" \
-            -o /tmp/atk.vsix \
-            "https://marketplace.visualstudio.com/_apis/public/gallery/publishers/TeamsDevApp/vsextensions/ms-teams-vscode-extension/latest/vspackage" || true
-          if unzip -t /tmp/atk.vsix >/dev/null 2>&1; then
-            unzip -q /tmp/atk.vsix -d /tmp/atk-ext-raw
-            cp -r /tmp/atk-ext-raw/extension/. /tmp/atk-ext/
-            echo "ATK_EXT_PATH=/tmp/atk-ext" >> $GITHUB_ENV
-            echo "ATK extension installed from marketplace"
+          ATK_EXT="$GITHUB_WORKSPACE/packages/vscode-extension"
+          if [ -d "$ATK_EXT" ]; then
+            echo "ATK_EXT_PATH=$ATK_EXT" >> $GITHUB_ENV
+            echo "Using ATK extension from checkout: $ATK_EXT"
+            ls "$ATK_EXT" | head -5
           else
-            echo "::warning::ATK VSIX download failed, fx-extension.create may not be available"
+            echo "::warning::packages/vscode-extension not found in checkout"
           fi
-          rm -rf /tmp/atk.vsix /tmp/atk-ext-raw
       - name: Run ATK UI tests
         working-directory: docker/copilot-test
         env:
@@ -185,6 +179,7 @@ jobs:
           path: /tmp/atk-test-output/
           retention-days: 7
           if-no-files-found: warn
+
 
 
 
