@@ -1,7 +1,6 @@
 name: Dev Smoke Test Pipeline
 
-# TEMP TEST: Push-triggered version for testing AI plan selection on PR #15869.
-# Revert to original dev-smoke-test-pipeline.yml after test passes.
+# TEMP TEST: Push-triggered AI plan selector for PR #15869 dry-run. Revert after test.
 
 on:
   push:
@@ -46,7 +45,7 @@ jobs:
             console.log(`PR #${prNum}: ${pr.head.ref} -> ${pr.base.ref}`);
             console.log(`Changed files (${files.length}):\n${fileList}`);
 
-      - name: Checkout repo (plans dir only)
+      - name: Checkout repo (plans dir)
         uses: actions/checkout@v4
         with:
           ref: ${{ steps.pr-context.outputs.head_ref }}
@@ -69,7 +68,7 @@ jobs:
           echo "EOF"            >> "$GITHUB_OUTPUT"
           echo "Diff stat: $DIFF_STAT"
 
-      - name: Select test plans via AI (GitHub Models GPT-4.1)
+      - name: Select test plans via AI
         id: ai-select
         env:
           GH_TOKEN:      ${{ secrets.GITHUB_TOKEN }}
@@ -83,37 +82,10 @@ jobs:
           set -euo pipefail
           PLANS_TEXT=$(find packages/tests/vscuse/vscode-test-cases/plans -maxdepth 1 -name "*.json" -exec basename {} .json \; | sort)
           echo "Found $(echo "$PLANS_TEXT" | wc -l) available plans"
-
-          SYSTEM_PROMPT='You are a test plan selector for the Microsoft 365 Agents Toolkit (ATK) VS Code extension. Select the most relevant VscUse UI test plans (3-8 max) for a PR based on changed files and description.
-
-Test plan naming:
-- DA_*: Declarative Agent (Copilot, MCP, OAuth, API Key, Entra)
-- Basic_Custom_Engine_*: Custom Engine AI bots (Azure OpenAI, OpenAI)
-- General_Teams_Agent_*: General Teams agents
-- Message_Extension_*: Message extensions
-- Feature_*: VS Code UI features (treeview, commands, publish)
-- Simple_Bot_*: Basic bots
-
-Return ONLY valid JSON: {"plans": ["Name1", "Name2"], "reason": "<one sentence>"}'
-
-          USER_PROMPT="PR: ${HEAD_BRANCH} -> ${BASE_BRANCH}
-Title: ${PR_TITLE}
-
-Description:
-${PR_BODY}
-
-Changed files:
-${CHANGED_FILES}
-
-Diff summary:
-${DIFF_STAT}
-
-Available plans (select from these only):
-${PLANS_TEXT}"
-
+          SYSTEM_PROMPT="You are a test plan selector for the Microsoft 365 Agents Toolkit VS Code extension. Select 3-8 relevant VscUse UI test plans for a PR. Plan prefixes: DA_*=Declarative Agent, Basic_Custom_Engine_*=Custom Engine bot, General_Teams_Agent_*=Teams agent, Message_Extension_*=Message ext, Feature_*=VS Code UI, Simple_Bot_*=Basic bot. Return ONLY valid JSON: {\"plans\": [\"Name1\", \"Name2\"], \"reason\": \"<one sentence>\"}"
+          USER_PROMPT="PR: ${HEAD_BRANCH} -> ${BASE_BRANCH}\nTitle: ${PR_TITLE}\n\nDescription:\n${PR_BODY}\n\nChanged files:\n${CHANGED_FILES}\n\nDiff summary:\n${DIFF_STAT}\n\nAvailable plans:\n${PLANS_TEXT}"
           REQUEST_BODY=$(jq -n --arg s "$SYSTEM_PROMPT" --arg u "$USER_PROMPT" \
             '{model:"openai/gpt-4.1",messages:[{role:"system",content:$s},{role:"user",content:$u}],temperature:0.1,response_format:{type:"json_object"}}')
-
           echo "=== Calling GitHub Models API ==="
           HTTP_CODE=$(curl -s -o /tmp/ai_resp.json -w "%{http_code}" \
             -X POST "https://models.github.ai/inference/chat/completions" \
@@ -121,13 +93,10 @@ ${PLANS_TEXT}"
             -H "Content-Type: application/json" \
             -d "$REQUEST_BODY" || echo "000")
           echo "HTTP: $HTTP_CODE"
-          echo "=== AI response ==="
           cat /tmp/ai_resp.json || true
-
           AI_CONTENT=$(jq -r '.choices[0].message.content // empty' /tmp/ai_resp.json 2>/dev/null || true)
           AI_PLANS=$(echo "$AI_CONTENT" | jq -r '.plans // empty' 2>/dev/null || true)
           AI_REASON=$(echo "$AI_CONTENT" | jq -r '.reason // empty' 2>/dev/null || true)
-
           VALID='[]'
           if [ -n "$AI_PLANS" ] && [ "$AI_PLANS" != "null" ]; then
             while IFS= read -r p; do
@@ -140,19 +109,17 @@ ${PLANS_TEXT}"
               fi
             done < <(echo "$AI_PLANS" | jq -r '.[]' 2>/dev/null || true)
           fi
-
           if [ "$(echo "$VALID" | jq 'length')" -eq 0 ]; then
             echo "No valid AI plans — falling back to smoke tests"
             VALID=$(jq -c '[.smokeTestCases[]]' packages/tests/vscuse/smoking-test-cases.json)
-            AI_REASON="AI unavailable — using smoke test fallback"
+            AI_REASON="AI unavailable - smoke fallback"
           fi
-
           CSV=$(echo "$VALID" | jq -r 'join(",")')
           echo "plans=$CSV" >> "$GITHUB_OUTPUT"
           echo "reason=$AI_REASON" >> "$GITHUB_OUTPUT"
           echo "=== SELECTED: $CSV ==="
 
-      - name: Post test plan comment to PR (dry-run)
+      - name: Post test plan comment to PR
         uses: actions/github-script@v6
         env:
           TEST_PLANS: ${{ steps.ai-select.outputs.plans }}
@@ -167,7 +134,6 @@ ${PLANS_TEXT}"
             const baseRef  = process.env.BASE_REF;
             const runUrl   = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
             const planList = plans.map(p => `- \`${p}\``).join('\n');
-
             const body = [
               '## 🤖 VscUse Test Plan — AI Selected',
               '',
@@ -178,11 +144,10 @@ ${PLANS_TEXT}"
               '**Plans selected:**',
               planList,
               '',
-              '> ⚠️ **Test run** — verifying AI selection only. Full pipeline (CD→Docker→UI) will run after merge.',
+              '> ⚠️ **Test run** — verifying AI selection only. Full pipeline (CD→Docker→UI) runs after merge.',
               '',
               `> 🔗 [Selector run](${runUrl})`,
             ].join('\n');
-
             const { data: c } = await github.rest.issues.createComment({
               owner: context.repo.owner, repo: context.repo.repo,
               issue_number: parseInt('${{ env.TEST_PR_NUMBER }}'),
