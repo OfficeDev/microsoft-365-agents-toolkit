@@ -273,6 +273,11 @@ FakesAssemblies/
 .ntvs_analysis.dat
 node_modules/
 
+# Generated at runtime by .github/workflows/dev-smoke-test-pipeline.yml
+# (the workflow runs `npm init -y` + `npm install @github/copilot-sdk` next to the script)
+.github/workflows/scripts/package.json
+.github/workflows/scripts/package-lock.json
+
 # Visual Studio 6 build log
 *.plg
 

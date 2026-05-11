@@ -210,11 +210,44 @@ jobs:
           app-id: ${{ vars.APP_GITHUB_APP_ID }}
           private-key: ${{ secrets.APP_GITHUB_APP_PRIVATE_KEY }}
 
-      - name: Checkout repo to read test cases
+      - name: Checkout source branch (full history for diff)
         uses: actions/checkout@v4
         with:
-          ref: dev
-          sparse-checkout: packages/tests/vscuse/smoking-test-cases.json
+          ref: ${{ github.head_ref || github.ref_name }}
+          fetch-depth: 0
+
+      - name: Compute changed files vs dev
+        id: changed
+        run: |
+          git fetch origin dev --depth=200 || git fetch origin dev
+          # Find merge-base, then list files changed in this branch since divergence
+          MERGE_BASE=$(git merge-base origin/dev HEAD || echo "origin/dev")
+          git diff --name-only "${MERGE_BASE}" HEAD > /tmp/changed-files.txt
+          CHANGED_COUNT=$(wc -l < /tmp/changed-files.txt | tr -d ' ')
+          echo "Changed files (${CHANGED_COUNT}):"
+          cat /tmp/changed-files.txt
+          echo "count=${CHANGED_COUNT}" >> "$GITHUB_OUTPUT"
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install Copilot CLI and SDK
+        run: |
+          npm install -g @github/copilot
+          # Install the SDK alongside the script so `import` resolves it
+          cd .github/workflows/scripts
+          npm init -y >/dev/null
+          npm pkg set type=module >/dev/null
+          npm install @github/copilot-sdk
+
+      - name: Select most relevant smoke test cases via Copilot SDK (claude-opus-4.6)
+        env:
+          COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_PAT }}
+          REPO_ROOT: ${{ github.workspace }}
+          CHANGED_FILES_PATH: /tmp/changed-files.txt
+        run: node .github/workflows/scripts/select-smoke-tests.mjs
 
       - name: Read smoke test cases
         id: test_cases
