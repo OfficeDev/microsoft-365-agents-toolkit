@@ -60,14 +60,17 @@ jobs:
 
       - name: Install redhat.vscode-yaml from Open VSX
         run: |
-          mkdir -p /vscode-extensions/redhat.vscode-yaml /tmp/yaml-ext
+          YAML_EXT_DIR="$HOME/vscode-extensions/redhat.vscode-yaml"
+          mkdir -p "$YAML_EXT_DIR" /tmp/yaml-ext
           curl -sS -L -o /tmp/vscode-yaml.vsix \
             "https://open-vsx.org/api/redhat/vscode-yaml/1.23.0/file/redhat.vscode-yaml-1.23.0.vsix"
           if unzip -t /tmp/vscode-yaml.vsix >/dev/null 2>&1; then
             unzip -q /tmp/vscode-yaml.vsix -d /tmp/yaml-ext
-            cp -r /tmp/yaml-ext/extension/. /vscode-extensions/redhat.vscode-yaml/
-            echo "VSCODE_EXTENSIONS_DIR=/vscode-extensions" >> $GITHUB_ENV
-            echo "yaml ext installed"
+            cp -r /tmp/yaml-ext/extension/. "$YAML_EXT_DIR/"
+            echo "VSCODE_EXTENSIONS_DIR=$HOME/vscode-extensions" >> $GITHUB_ENV
+            echo "yaml ext installed to $YAML_EXT_DIR"
+          else
+            echo "::warning::yaml vsix invalid, skipping"
           fi
           rm -rf /tmp/vscode-yaml.vsix /tmp/yaml-ext
 
@@ -155,3 +158,4 @@ jobs:
           path: /tmp/atk-test-output/
           retention-days: 7
           if-no-files-found: warn
+
