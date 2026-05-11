@@ -139,28 +139,28 @@ suite("ATK Teams Bot Template Creation (UI Wizard)", function () {
     await wait(3000); // wait for wizard to render
     takeScreenshot("02-wizard-open");
 
-    // Step 1: Create a new app
-    console.log("  Clicking: Create a new app");
-    sendSignal("clickText:Create a new app", 12000);
-    await wait(1500);
-    takeScreenshot("03-create-new-app");
+    // Step 1: Select "Teams Agents and Apps" (ATK v6.8+ top-level project type)
+    console.log("  Clicking: Teams Agents and Apps");
+    sendSignal("clickText:Teams Agents and Apps", 12000);
+    await wait(2000);
+    takeScreenshot("03-teams-agents-apps");
 
-    // Step 2: Bot
+    // Step 2: Bot  (core.createProjectQuestion.projectType.bot.label = "Bot")
     console.log("  Clicking: Bot");
-    sendSignal("clickText:Bot", 10000);
-    await wait(1500);
+    sendSignal("clickText:Bot", 12000);
+    await wait(2000);
     takeScreenshot("04-bot-selected");
 
-    // Step 3: Simple Bot (BotNewUIOption.label)
+    // Step 3: Simple Bot  (core.BotNewUIOption.label = "Simple Bot")
     console.log("  Clicking: Simple Bot");
-    sendSignal("clickText:Simple Bot", 10000);
-    await wait(1500);
+    sendSignal("clickText:Simple Bot", 12000);
+    await wait(2000);
     takeScreenshot("05-simple-bot");
 
     // Step 4: TypeScript
     console.log("  Clicking: TypeScript");
-    sendSignal("clickText:TypeScript", 10000);
-    await wait(1500);
+    sendSignal("clickText:TypeScript", 12000);
+    await wait(2000);
     takeScreenshot("06-typescript");
 
     // Step 5: Application name
