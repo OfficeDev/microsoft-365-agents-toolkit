@@ -272,14 +272,14 @@ jobs:
         uses: actions/github-script@v6
         env:
           TEST_PLANS:  ${{ steps.ai-select.outputs.test_plans }}
-          DISPATCH_REF: ${{ github.ref_name }}
+          HEAD_BRANCH: ${{ steps.pr-context.outputs.head_ref }}
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const owner      = context.repo.owner;
             const repo       = context.repo.repo;
             const testPlans  = process.env.TEST_PLANS;
-            const dispatchRef = process.env.DISPATCH_REF;
+            const headBranch = process.env.HEAD_BRANCH;
 
             // dev-smoke-test-pipeline.yml on dev branch may not have test_plan yet (pending PR merge)
             // Try with test_plan first, fall back to without it if rejected
@@ -289,14 +289,14 @@ jobs:
                 owner,
                 repo,
                 workflow_id: 'dev-smoke-test-pipeline.yml',
-                ref:         dispatchRef,
+                ref:         headBranch,
                 inputs: {
                   test_plan: testPlans,
                   email:     'atk-vsuse-test@microsoft.com',
                 },
               });
               dispatched = true;
-              console.log(`Dispatched with test_plan (ref: ${dispatchRef})`);
+              console.log('Dispatched with test_plan input');
             } catch (err) {
               if (err.status === 422) {
                 console.log('test_plan input not supported on target branch, retrying without it...');
@@ -304,11 +304,11 @@ jobs:
                   owner,
                   repo,
                   workflow_id: 'dev-smoke-test-pipeline.yml',
-                  ref:         dispatchRef,
+                  ref:         headBranch,
                   inputs: { email:     'atk-vsuse-test@microsoft.com' },
                 });
                 dispatched = true;
-                console.log(`Dispatched without test_plan (ref: ${dispatchRef})`);
+                console.log('Dispatched without test_plan input');
               } else {
                 throw err;
               }
@@ -320,7 +320,7 @@ jobs:
               owner,
               repo,
               workflow_id: 'dev-smoke-test-pipeline.yml',
-              branch:      dispatchRef,
+              branch:      headBranch,
               per_page:    5,
             });
 
