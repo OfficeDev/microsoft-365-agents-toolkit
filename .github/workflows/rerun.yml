@@ -185,38 +185,13 @@ jobs:
             echo "gif_path=" >> $GITHUB_OUTPUT
           fi
 
-      - name: Upload GIF to GitHub issue (get public URL)
-        if: always() && steps.gif.outputs.gif_path != ''
-        id: upload-gif
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          ISSUE: ${{ inputs.issue_number }}
-        run: |
-          GIF_PATH="${{ steps.gif.outputs.gif_path }}"
-          echo "Uploading GIF to issue #$ISSUE assets..."
-          RESPONSE=$(curl -s -X POST \
-            -H "Authorization: Bearer $GH_TOKEN" \
-            -F "file=@$GIF_PATH;type=image/gif" \
-            "https://uploads.github.com/repos/${{ github.repository }}/issues/${ISSUE}/assets")
-          echo "Response: $RESPONSE"
-          GIF_URL=$(echo "$RESPONSE" | python3 -c "
-          import sys, json
-          try:
-              d = json.load(sys.stdin)
-              print(d.get('browser_download_url', ''))
-          except:
-              print('')
-          " 2>/dev/null || echo "")
-          echo "GIF public URL: $GIF_URL"
-          echo "gif_url=$GIF_URL" >> $GITHUB_OUTPUT
-
       - name: Post results to issue
         if: always()
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ISSUE: ${{ inputs.issue_number }}
           RUN_URL: "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-          GIF_URL: ${{ steps.upload-gif.outputs.gif_url || '' }}
+          ARTIFACT_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           RESULTS=$(cat $TEST_OUTPUT_DIR/results.json 2>/dev/null || echo '{"passed":0,"failed":0,"steps":[]}')
           PASSED=$(echo $RESULTS | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('passed',0))")
@@ -225,7 +200,7 @@ jobs:
           LOG=$(tail -40 $TEST_OUTPUT_DIR/test.log 2>/dev/null || echo "no log")
           STATUS=$( [ "$FAILED" = "0" ] && echo "PASSED" || echo "FAILED" )
           STATUS_ICON=$( [ "$FAILED" = "0" ] && echo "OK" || echo "FAIL" )
-          export STATUS STATUS_ICON PASSED FAILED SHOTS LOG TEST_PLAN STEPS_TABLE GIF_URL
+          export STATUS STATUS_ICON PASSED FAILED SHOTS LOG TEST_PLAN STEPS_TABLE ARTIFACT_URL
 
           # Read test plan
           TEST_PLAN=$(cat test-plans/teams-bot-template/teams-bot-template.md 2>/dev/null | head -80 || cat test-plans/teams-bot-template.md 2>/dev/null | head -80 || echo "*(test plan not found)*")
@@ -246,16 +221,7 @@ jobs:
           " 2>/dev/null || echo "*(step details unavailable)*")
 
           # Build GIF section
-          GIF_SECTION=""
-          if [ -n "$GIF_URL" ]; then
-            GIF_SECTION="
-          ### Screenshots
-
-          ![test-run]($GIF_URL)
-          "
-          fi
-
-          python3 - << PYEOF
+                    python3 - << PYEOF
           import subprocess, os, sys
 
           issue = os.environ['ISSUE']
@@ -268,13 +234,13 @@ jobs:
           log = os.environ['LOG']
           test_plan = os.environ['TEST_PLAN']
           steps_table = os.environ['STEPS_TABLE']
-          gif_url = os.environ.get('GIF_URL', '')
+          artifact_url = os.environ.get('ARTIFACT_URL', '')
           repo = '${{ github.repository }}'
 
           badge = '✅ PASSED' if status == 'PASSED' else '❌ FAILED'
           emoji = 'OK' if status == 'PASSED' else 'FAIL'
 
-          gif_section = f'\n### Screenshots\n\n![test-run]({gif_url})\n' if gif_url else ''
+          gif_section = f'\n### Screenshots\n\n[View screenshots & GIF]({artifact_url})\n' if int(shots or 0) > 0 else ''
 
           body = f"""<!-- atk-copilot-test-results -->
           ### 🤖 ATK Copilot Test Results — {badge}
