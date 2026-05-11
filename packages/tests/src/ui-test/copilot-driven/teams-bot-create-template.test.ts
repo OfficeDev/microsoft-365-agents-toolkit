@@ -190,28 +190,44 @@ suite("ATK Teams Bot Template Creation (UI Wizard)", function () {
   });
 
   test("Verify scaffolded project files exist", async () => {
-    // Check workspace folders for the created project
-    const wsf = vscode.workspace.workspaceFolders;
     const appName = "test-teams-bot-001";
-
     let projectDir = "";
+
+    // 1. Check workspace folders (project opened in current window)
+    const wsf = vscode.workspace.workspaceFolders;
     if (wsf && wsf.length > 0) {
-      const newest = wsf.sort((a, b) =>
-        b.uri.fsPath.localeCompare(a.uri.fsPath))[0];
-      projectDir = newest.uri.fsPath;
+      // find folder that contains our app name
+      const match = wsf.find(f => f.uri.fsPath.includes(appName));
+      projectDir = match ? match.uri.fsPath : wsf[wsf.length - 1].uri.fsPath;
       createdProjectDir = projectDir;
       console.log("  Workspace folder:", projectDir);
-    } else {
-      // Fallback: search common locations
-      const candidates = [
-        path.join(os.homedir(), appName),
-        path.join(os.tmpdir(), appName),
-        path.join("/home/runner", appName),
+    }
+
+    // 2. Broad filesystem search for the project directory
+    if (!projectDir || !fs.existsSync(projectDir)) {
+      const searchRoots = [
+        os.homedir(),
+        "/home/runner",
+        os.tmpdir(),
+        "/tmp",
+        process.cwd(),
       ];
-      for (const c of candidates) {
-        if (fs.existsSync(c)) { projectDir = c; break; }
+      outer: for (const root of searchRoots) {
+        if (!fs.existsSync(root)) continue;
+        // Direct child with matching name
+        const direct = path.join(root, appName);
+        if (fs.existsSync(direct)) { projectDir = direct; break; }
+        // Any child directory containing our app name
+        try {
+          for (const entry of fs.readdirSync(root)) {
+            if (entry.includes("test-teams-bot") || entry.includes(appName)) {
+              const full = path.join(root, entry);
+              try { if (fs.statSync(full).isDirectory()) { projectDir = full; break outer; } } catch {}
+            }
+          }
+        } catch {}
       }
-      console.log("  Searching candidates, found:", projectDir || "none");
+      console.log("  Filesystem search found:", projectDir || "none");
     }
 
     const expectedFiles = [
