@@ -663,6 +663,7 @@ jobs:
           failedlist=""
           passedlist=""
           lists=""
+          failed_rows=""
 
             emails="${{ needs.discover-test-plans.outputs.email-receiver }}"
           echo "Initial email list: $emails"
@@ -866,11 +867,12 @@ jobs:
             if [[ "$status" == "success" && $passed -lt $passedlimit ]]; then
               passedlist="$passedlist $row"
             elif [[ "$status" != "success" && $failed -lt $failedlimit ]]; then
-              failedlist="$failedlist $row"
+              failed_rows="${failed_rows}${owner}|||${row}"$'\n'
             fi
 
           done <<< "$cases"
 
+          failedlist=$(echo "$failed_rows" | sort | sed 's/^[^|]*|||//')
           lists="$failedlist $passedlist"
           echo "Final failed list: $failedlist"
           echo "Final passed list: $passedlist"
