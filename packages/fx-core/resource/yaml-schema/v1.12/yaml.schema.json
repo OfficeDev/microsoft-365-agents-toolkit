@@ -748,6 +748,9 @@
           "properties": {
             "teamsAppId": {
               "$ref": "#/definitions/envVarName"
+            },
+            "teamsAppTenantId": {
+              "$ref": "#/definitions/envVarName"
             }
           }
         }
