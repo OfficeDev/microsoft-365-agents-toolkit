@@ -1,168 +1,157 @@
+# TEMP WORKAROUND: rerun.yml temporarily replaced with ATK Copilot test runner
+# for manual trigger testing on feat/atk-copilot-issue-test-pipeline.
+# REVERT THIS BEFORE MERGING TO DEV.
 name: rerun failed jobs
 
 on:
   workflow_dispatch:
     inputs:
-      run_id:
-        description: "run id"
+      issue_number:
+        description: 'GitHub issue number to test against'
         required: true
         type: string
-      max_attempts:
-        description: "max attempts, default is 3"
+      author_login:
+        description: 'Author login (optional)'
         required: false
-        default: "3"
+        default: ''
         type: string
-      clean_up:
-        description: "if true, clean up resources"
-        required: false
-        default: 'false'
-        type: choice
-        options:
-          - 'true'
-          - 'false'
 
-  schedule:
-    - cron: "0 11 * * *"  # UTC+8 19:00 before any auto pipeline run, to clear all the resources
-    - cron: "0 1 * * *"  # UTC+8 09:00 after the uitest done, to clear all the resources
+concurrency:
+  group: atk-copilot-test-${{ inputs.issue_number }}
+  cancel-in-progress: true
 
-permissions:
-  actions: read
+env:
+  TEST_OUTPUT_DIR: /tmp/atk-test-output
 
 jobs:
-  rerun:
+  run-atk-copilot-test:
+    name: ATK Copilot Test (issue #${{ inputs.issue_number }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
     permissions:
-      actions: write
-    if: ${{ github.event_name == 'workflow_dispatch' }}
-    runs-on: ubuntu-latest
-    env:
-      DEVTUNNEL_CLIENT_ID: ${{ secrets.TEST_CLEAN_CLIENT_ID }}
-      DEVTUNNEL_CLIENT_SECRET: ${{ secrets.TEST_CLEAN_CLIENT_SECRET }}
-      DEVTUNNEL_TENANT_ID: ${{ secrets.TEST_CLEAN_TENANT_ID }}
+      contents: read
+      issues: write
+
     steps:
-      - name: wait for 60s
-        run: |
-          sleep 60
-          echo "wait for 60s"
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/atk-copilot-issue-test-pipeline
 
-      - name: clean devtunnel
-        run: |
-          wget https://tunnelsassetsprod.blob.core.windows.net/cli/1.0.1249+67b1cd300c/linux-x64-devtunnel -O ./devtunnel
-          chmod 777 ./devtunnel
-          ./devtunnel user login --sp-tenant-id ${{env.DEVTUNNEL_TENANT_ID}} --sp-client-id ${{env.DEVTUNNEL_CLIENT_ID}} --sp-secret ${{env.DEVTUNNEL_CLIENT_SECRET}}
-          ./devtunnel delete-all -f
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
 
-      - name: re-run failed jobs
+      - name: Install system deps for headless VSCode + Playwright
         run: |
-          run=`curl \
-            -H "Accept: application/vnd.github+json" \
-            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}"\
-            -H "X-GitHub-Api-Version: 2022-11-28" \
-            https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.event.inputs.run_id }}`
-          status=`jq -r '.conclusion' <<< "$run"`
-          run_attempt=`jq -r '.run_attempt' <<< "$run"`
-          echo "status: $status"
-          echo "run_attempt: $run_attempt"
+          sudo apt-get update -qq
+          sudo apt-get install -y \
+            xvfb libgtk-3-0 libxss1 libnss3 libxtst6 libxrandr2 libgbm1 libxkbcommon0 libdrm2 \
+            libsecret-1-0 libglib2.0-0 libpulse0 unzip curl \
+            || true
+          sudo apt-get install -y libasound2t64 2>/dev/null || sudo apt-get install -y libasound2 2>/dev/null || true
 
-          if [[ "$status" == "failure" && "$run_attempt" -lt ${{ github.event.inputs.max_attempts }} ]]; then
-            echo "[start] rerun failed jobs ${{ github.event.inputs.run_id }} $status $run_attempt..."
-            curl \
-              -X POST \
-              -H "Accept: application/vnd.github+json" \
-              -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}"\
-              -H "X-GitHub-Api-Version: 2022-11-28" \
-              https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.event.inputs.run_id }}/rerun-failed-jobs
-            echo "[finish] rerun failed jobs ${{ github.event.inputs.run_id }}"
+      - name: Install Node deps
+        working-directory: docker/copilot-test
+        run: npm install --no-fund --no-audit
+
+      - name: Install Playwright Chromium
+        working-directory: docker/copilot-test
+        run: npx playwright install chromium --with-deps 2>&1 || npx playwright install chromium 2>&1 || true
+
+      - name: Install redhat.vscode-yaml from Open VSX
+        run: |
+          mkdir -p /vscode-extensions/redhat.vscode-yaml /tmp/yaml-ext
+          curl -sS -L -o /tmp/vscode-yaml.vsix \
+            "https://open-vsx.org/api/redhat/vscode-yaml/1.23.0/file/redhat.vscode-yaml-1.23.0.vsix"
+          if unzip -t /tmp/vscode-yaml.vsix >/dev/null 2>&1; then
+            unzip -q /tmp/vscode-yaml.vsix -d /tmp/yaml-ext
+            cp -r /tmp/yaml-ext/extension/. /vscode-extensions/redhat.vscode-yaml/
+            echo "VSCODE_EXTENSIONS_DIR=/vscode-extensions" >> $GITHUB_ENV
+            echo "yaml ext installed"
           fi
+          rm -rf /tmp/vscode-yaml.vsix /tmp/yaml-ext
 
-          sleep 60
-          run=`curl \
-            -H "Accept: application/vnd.github+json" \
-            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}"\
-            -H "X-GitHub-Api-Version: 2022-11-28" \
-            https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.event.inputs.run_id }}`
-          runningStatus=`jq -r '.status' <<< "$run"`
-          echo "runningStatus: $runningStatus"
-          if [[ "$runningStatus" != "queued" && "$runningStatus" != "in_progress" && "$run_attempt" -lt ${{ github.event.inputs.max_attempts }} ]]; then
-            echo "[start] rerun check..."
-            curl \
-              -X POST \
-              -H "Accept: application/vnd.github+json" \
-              -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}"\
-              -H "X-GitHub-Api-Version: 2022-11-28" \
-              https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.event.inputs.run_id }}/rerun-failed-jobs
-            echo "[finish] rerun again..."
-          fi
-  build-clean-matrix:
-    name: Build clean matrix
-    runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.clean_up == 'true') }}
-    outputs:
-      matrix: ${{ steps.build-matrix.outputs.matrix }}
-    steps:
-      - name: Build matrix from M365_USERNAMES variable
-        id: build-matrix
+      - name: Install ATK CLI
+        run: npm install -g @microsoft/m365agentstoolkit-cli@1.1.10 --unsafe-perm true
+
+      - name: Pre-download VSCode
+        working-directory: docker/copilot-test
+        run: |
+          node -e "
+            const { downloadAndUnzipVSCode } = require('@vscode/test-electron');
+            downloadAndUnzipVSCode('stable')
+              .then(p => console.log('VSCode ready:', p))
+              .catch(e => console.warn('skipped:', e.message))
+              .finally(() => process.exit(0));
+          " || true
+
+      - name: Start Xvfb
+        run: |
+          Xvfb :99 -ac -screen 0 1920x1080x24 &
+          sleep 3
+          echo "DISPLAY=:99.0" >> $GITHUB_ENV
+
+      - name: Prepare output dir
+        run: mkdir -p "$TEST_OUTPUT_DIR/screenshots" "$TEST_OUTPUT_DIR/projects"
+
+      - name: Run ATK UI tests
+        working-directory: docker/copilot-test
         env:
-          M365_USERNAMES: ${{ vars.M365_USERNAMES }}
+          DISPLAY: ":99.0"
+          TEST_FILE: teams-bot-create-template
+          ATK_EXT_PATH: ""
+          TEST_OUTPUT_DIR: /tmp/atk-test-output
+          VSCODE_EXTENSIONS_DIR: ${{ env.VSCODE_EXTENSIONS_DIR || '/vscode-extensions' }}
         run: |
-          # Build matrix JSON from comma-separated M365_USERNAMES
-          matrix="[]"
-          # Add regular M365 usernames
-          index=1
-          IFS=',' read -ra users <<< "$M365_USERNAMES"
-          for user in "${users[@]}"; do
-            user=$(echo "$user" | xargs)
-            if [ -n "$user" ]; then
-              matrix=$(echo "$matrix" | jq -c --arg name "M365_USERNAME_$index" --arg value "$user" '. + [{name: $name, value: $value}]')
-              index=$((index+1))
-            fi
-          done
-          matrix_json="{\"m365_user\": $matrix}"
-          echo "matrix=$matrix_json" >> $GITHUB_OUTPUT
-  clean:
-    name: Clean resource
-    needs: build-clean-matrix
-    runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.clean_up == 'true') }}
-    defaults:
-      run:
-        working-directory: packages/tests
-    env:
-      CLEAN_CLIENT_ID: ${{ vars.TEST_TENANT_CLEAN_CLIENT_ID }}
-      CLEAN_CLIENT_SECRET: ${{ secrets.TEST_TENANT_CLEAN_CLIENT_SECRET }}
-      CLEAN_TENANT_ID: ${{ secrets.TEST_TENANT_CLEAN_TENANT_ID }}
-      AZURE_TENANT_ID: ${{ secrets.TEST_TENANT_TENANT_ID }}
-      AZURE_SUBSCRIPTION_ID: ${{ secrets.TEST_TENANT_SUBSCRIPTION_ID }}
-      AZURE_ACCOUNT_NAME: ${{ secrets.TEST_TENANT_AZURE_ACCOUNT_NAME }}
-      AZURE_ACCOUNT_PASSWORD: ${{ secrets.TEST_TENANT_AZURE_ACCOUNT_PASSWORD }}
-      M365_ACCOUNT_PASSWORD: ${{ secrets.TEST_TENANT_M365_ACCOUNT_ADMIN_PASSWORD }}
-      M365_DISPLAY_NAME: "test"
-      MAIL_API_KEY: ${{ secrets.MAIL_API_KEY }}
-      TEST_TENANT_M365_ACCOUNT_NAME: ${{ secrets.TEST_TENANT_M365_ACCOUNT_ADMIN_ACCOUNT }}
-    strategy:
-      fail-fast: false
-      matrix: ${{ fromJson(needs.build-clean-matrix.outputs.matrix) }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+          npx ts-node --project tsconfig.json src/ui-test/copilot-driven/runTest.ts 2>&1 | tee $TEST_OUTPUT_DIR/test.log
+          echo "Exit: $?"
+
+      - name: Show results
+        if: always()
+        run: |
+          cat $TEST_OUTPUT_DIR/results.json 2>/dev/null || echo "no results.json"
+          ls $TEST_OUTPUT_DIR/screenshots/ 2>/dev/null || echo "no screenshots"
+
+      - name: Post results to issue
+        if: always()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE: ${{ inputs.issue_number }}
+          RUN_URL: "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+        run: |
+          RESULTS=$(cat $TEST_OUTPUT_DIR/results.json 2>/dev/null || echo '{"passed":0,"failed":0,"steps":[]}')
+          PASSED=$(echo $RESULTS | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('passed',0))")
+          FAILED=$(echo $RESULTS | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('failed',0))")
+          SHOTS=$(ls $TEST_OUTPUT_DIR/screenshots/*.png 2>/dev/null | wc -l || echo 0)
+          LOG=$(tail -40 $TEST_OUTPUT_DIR/test.log 2>/dev/null || echo "no log")
+          STATUS=$( [ "$FAILED" = "0" ] && echo "✅ PASSED" || echo "❌ FAILED" )
+
+          gh issue comment "$ISSUE" \
+            --repo ${{ github.repository }} \
+            --body "<!-- atk-copilot-test-results -->
+          ### 🤖 ATK Copilot Test Results — $STATUS
+
+          | | |
+          |---|---|
+          | **Issue** | #${ISSUE} |
+          | **Passed** | ${PASSED} |
+          | **Failed** | ${FAILED} |
+          | **Screenshots** | ${SHOTS} |
+          | **Run** | [View logs]($RUN_URL) |
+
+          <details>
+          <summary>Test log (last 40 lines)</summary>
+
+          \`\`\`
+          $LOG
+          \`\`\`
+          </details>"
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
         with:
-          ref: ${{ github.ref_name }}
-
-      - name: Setup node
-        uses: actions/setup-node@v3
-        with:
-          node-version: 22
-
-      - uses: pnpm/action-setup@v4
-
-      - name: Setup project
-        working-directory: ./
-        run: |
-          npm run setup:e2e
-
-      - name: Set M365_ACCOUNT_NAME
-        run: |
-          echo "M365_ACCOUNT_NAME=${{ matrix.m365_user.value }}" >> $GITHUB_ENV
-
-      - name: Clean resource with ${{ matrix.m365_user.name }}
-        run: |
-          npx ts-node src/scripts/clean.ts
+          name: atk-test-results-issue-${{ inputs.issue_number }}
+          path: /tmp/atk-test-output/
+          retention-days: 7
+          if-no-files-found: warn
