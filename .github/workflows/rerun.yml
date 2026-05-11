@@ -106,16 +106,18 @@ jobs:
           ls docker/copilot-test/src/ui-test/copilot-driven/
 
 
-      - name: Set ATK extension path (use checked-out source)
+      - name: Build ATK VSCode extension
         run: |
           ATK_EXT="$GITHUB_WORKSPACE/packages/vscode-extension"
-          if [ -d "$ATK_EXT" ]; then
-            echo "ATK_EXT_PATH=$ATK_EXT" >> $GITHUB_ENV
-            echo "Using ATK extension from checkout: $ATK_EXT"
-            ls "$ATK_EXT" | head -5
-          else
-            echo "::warning::packages/vscode-extension not found in checkout"
-          fi
+          cd "$ATK_EXT"
+          echo "Installing deps..."
+          npm install --legacy-peer-deps --ignore-scripts 2>&1 | tail -3
+          echo "Compiling TypeScript..."
+          npx tsc -p tsconfig.json --noEmit false 2>&1 | tail -5 || \
+          npx tsc 2>&1 | tail -5 || true
+          echo "out/ contents:"
+          ls out/ 2>/dev/null | head -5 || echo "Warning: no out/ dir"
+          echo "ATK_EXT_PATH=$ATK_EXT" >> $GITHUB_ENV
       - name: Run ATK UI tests
         working-directory: docker/copilot-test
         env:
@@ -179,6 +181,7 @@ jobs:
           path: /tmp/atk-test-output/
           retention-days: 7
           if-no-files-found: warn
+
 
 
 
