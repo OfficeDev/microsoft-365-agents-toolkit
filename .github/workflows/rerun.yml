@@ -159,21 +159,26 @@ jobs:
           from PIL import Image
           import glob, os
 
-          shots = sorted(glob.glob("$TEST_OUTPUT_DIR/screenshots/*.png"))
+          all_shots = sorted(glob.glob("$TEST_OUTPUT_DIR/screenshots/*.png"))
+          if len(all_shots) > 8:
+              step_s = max(1, len(all_shots) // 8)
+              shots = all_shots[::step_s][:8]
+          else:
+              shots = all_shots
           gif_path = "$GIF_PATH"
           frames = []
           for p in shots:
               try:
                   img = Image.open(p).convert("RGBA")
-                  if img.width > 1280:
-                      ratio = 1280 / img.width
+                  if img.width > 800:
+                      ratio = 800 / img.width
                       img = img.resize((1280, int(img.height * ratio)), Image.LANCZOS)
                   frames.append(img.convert("P", palette=Image.ADAPTIVE, dither=Image.Dither.NONE))
               except Exception as e:
                   print(f"Skip {p}: {e}")
           if frames:
               frames[0].save(gif_path, save_all=True, append_images=frames[1:],
-                             loop=0, duration=2000, optimize=False)
+                             loop=0, duration=2500, optimize=True)
               size = os.path.getsize(gif_path) // 1024
               print(f"GIF created: {gif_path} ({len(frames)} frames, {size}KB)")
           else:
