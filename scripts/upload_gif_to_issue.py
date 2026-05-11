@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Upload a GIF to a GitHub issue as an embedded asset (CDN URL).
-GitHub's uploads.github.com API expects raw binary body, NOT multipart form-data.
+GitHub uploads.github.com requires multipart/form-data WITH ?name=filename.
 
 Required env vars: GH_TOKEN, GIF_PATH, ISSUE, REPO
 Prints the browser_download_url on stdout on success.
@@ -26,22 +26,19 @@ if not gif_path or not os.path.exists(gif_path):
 file_size = os.path.getsize(gif_path)
 print(f"Uploading GIF: {gif_path} ({file_size} bytes)", file=sys.stderr)
 
-# GitHub uploads API requires raw binary body with Content-Type: image/gif
-url = f"https://uploads.github.com/repos/{repo}/issues/{issue}/assets"
-with open(gif_path, "rb") as f:
-    data = f.read()
+# The ?name= query param is required by uploads.github.com
+url = f"https://uploads.github.com/repos/{repo}/issues/{issue}/assets?name=test-run.gif"
 
-resp = requests.post(
-    url,
-    headers={
-        "Authorization": f"Bearer {token}",
-        "Accept": "application/vnd.github.v3+json",
-        "Content-Type": "image/gif",
-        "Content-Length": str(file_size),
-    },
-    data=data,
-    timeout=120,
-)
+with open(gif_path, "rb") as f:
+    resp = requests.post(
+        url,
+        headers={
+            "Authorization": f"Bearer {token}",
+            "Accept": "application/vnd.github.v3+json",
+        },
+        files={"file": ("test-run.gif", f, "image/gif")},
+        timeout=120,
+    )
 
 print(f"Status: {resp.status_code}", file=sys.stderr)
 print(f"Response: {resp.text[:500]}", file=sys.stderr)
