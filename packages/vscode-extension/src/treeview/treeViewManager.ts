@@ -194,16 +194,10 @@ class TreeViewManager {
   }
 
   private getDevelopmentCommands(): TreeViewCommand[] {
-    const getHelpFromCopilotTitle = featureFlagManager.getBooleanValue(
-      FeatureFlags.HideGitHubCopilotPreviewTag
-    )
-      ? localize("teamstoolkit.commandsTreeViewProvider.getCopilotHelpTitle")
-      : localize("teamstoolkit.commandsTreeViewProvider.getCopilotHelpTitle.preview");
-    const getHelpFromCopilotCommand: string = featureFlagManager.getBooleanValue(
-      FeatureFlags.HideGitHubCopilotPreviewTag
-    )
-      ? "fx-extension.invokeChat"
-      : "fx-extension.invokeChatWithPreviewTag";
+    const getHelpFromCopilotTitle = localize(
+      "teamstoolkit.commandsTreeViewProvider.getCopilotHelpTitle"
+    );
+    const getHelpFromCopilotCommand = "fx-extension.invokeChat";
     const isKiotaNPMIntegrationEnabled = featureFlagManager.getBooleanValue(
       FeatureFlags.KiotaNPMIntegration
     );

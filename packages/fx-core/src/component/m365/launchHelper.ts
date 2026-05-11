@@ -13,9 +13,10 @@ import {
 
 import { hooks } from "@feathersjs/hooks";
 import {
-  AppStudioScopes,
+  GraphScopes,
   getResourceServiceEndpoint,
   ResourceServiceType,
+  AppStudioScopes,
   MosServiceScope,
 } from "../../common/constants";
 import { ErrorContextMW } from "../../common/globalVars";
@@ -25,7 +26,7 @@ import { HubTypes } from "../../question/constants";
 import { NotExtendedToM365Error } from "./errors";
 import { PackageService } from "./packageService";
 import { officeBaseUrl, outlookBaseUrl, outlookCopilotAppId } from "./constants";
-import { featureFlagManager, FeatureFlags } from "../../common/featureFlags";
+import { isSovereignHigh } from "../../common/accountUtils";
 
 export class LaunchHelper {
   private readonly m365TokenProvider: M365TokenProvider;
@@ -133,7 +134,9 @@ export class LaunchHelper {
 
   private async getTidFromToken(): Promise<string | undefined> {
     try {
-      const statusRes = await this.m365TokenProvider.getStatus({ scopes: AppStudioScopes() });
+      const statusRes = await this.m365TokenProvider.getStatus({
+        scopes: isSovereignHigh() ? GraphScopes : AppStudioScopes(),
+      });
       const tokenObject = statusRes.isOk() ? statusRes.value.accountInfo : undefined;
       return tokenObject?.tid as string;
     } catch {
@@ -143,7 +146,9 @@ export class LaunchHelper {
 
   private async getUpnFromToken(): Promise<string | undefined> {
     try {
-      const statusRes = await this.m365TokenProvider.getStatus({ scopes: AppStudioScopes() });
+      const statusRes = await this.m365TokenProvider.getStatus({
+        scopes: isSovereignHigh() ? GraphScopes : AppStudioScopes(),
+      });
       const tokenObject = statusRes.isOk() ? statusRes.value.accountInfo : undefined;
       return tokenObject?.upn as string;
     } catch {

@@ -63,7 +63,7 @@
   "template.createProjectQuestion.DAMetaOS.label": "Crear un agente declarativo con acciones de complemento de Office",
   "template.createProjectQuestion.declarativeCopilot.placeholder": "Agregar una acción al agente declarativo",
   "template.createProjectQuestion.declarativeCopilot.title": "Crear agente declarativo",
-  "template.createProjectQuestion.mcpForDa.detail": "Crear acciones a partir del servidor MCP existente",
+  "template.createProjectQuestion.mcpForDa.detail": "Crear una acción a partir del servidor MCP existente",
   "template.createProjectQuestion.mcpForDa.label": "Empezar con un servidor MCP",
   "template.createProjectQuestion.noPlugin.detail": "Crear solo agente declarativo",
   "template.createProjectQuestion.noPlugin.label": "Sin acción",

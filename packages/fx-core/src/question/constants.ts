@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { Inputs, OptionItem } from "@microsoft/teamsfx-api";
+import { Inputs, OptionItem, Platform } from "@microsoft/teamsfx-api";
 import { FeatureFlags, featureFlagManager } from "../common/featureFlags";
 import { getLocalizedString } from "../common/localizeUtils";
 export { QuestionNames } from "./questionNames";
@@ -292,36 +292,24 @@ export class CustomCopilotRagOptions {
   static customize(): OptionItem {
     return {
       id: "custom-copilot-rag-customize",
-      label: getLocalizedString(
-        "core.createProjectQuestion.capability.customCopilotRagCustomizeOption.label"
-      ),
-      detail: getLocalizedString(
-        "core.createProjectQuestion.capability.customCopilotRagCustomizeOption.detail"
-      ),
+      label: getLocalizedString("template.teams.rag.source.customize.label"),
+      detail: getLocalizedString("template.teams.rag.source.customize.detail"),
     };
   }
 
   static azureAISearch(): OptionItem {
     return {
       id: "custom-copilot-rag-azureAISearch",
-      label: getLocalizedString(
-        "core.createProjectQuestion.capability.customCopilotRagAzureAISearchOption.label"
-      ),
-      detail: getLocalizedString(
-        "core.createProjectQuestion.capability.customCopilotRagAzureAISearchOption.detail"
-      ),
+      label: getLocalizedString("template.teams.rag.source.azureAISearch.label"),
+      detail: getLocalizedString("template.teams.rag.source.azureAISearch.detail"),
     };
   }
 
   static customApi(): OptionItem {
     return {
       id: "custom-copilot-rag-customApi",
-      label: getLocalizedString(
-        "core.createProjectQuestion.capability.customCopilotRagCustomApiOption.label"
-      ),
-      detail: getLocalizedString(
-        "core.createProjectQuestion.capability.customCopilotRagCustomApiOption.detail"
-      ),
+      label: getLocalizedString("template.teams.rag.source.customApi.label"),
+      detail: getLocalizedString("template.teams.rag.source.customApi.detail"),
       description: getLocalizedString("core.createProjectQuestion.option.description.preview"),
     };
   }
@@ -503,8 +491,8 @@ export class ActionStartOptions {
   static mcp(): OptionItem {
     return {
       id: "mcp",
-      label: getLocalizedString("core.createProjectQuestion.mcpForDa.label"),
-      detail: getLocalizedString("core.createProjectQuestion.mcpForDa.detail"),
+      label: getLocalizedString("template.createProjectQuestion.mcpForDa.label"),
+      detail: getLocalizedString("template.createProjectQuestion.mcpForDa.detail"),
     };
   }
 

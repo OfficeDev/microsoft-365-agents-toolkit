@@ -60,7 +60,12 @@ export class CopilotGptManifestUtils {
     content = stripBom(content);
 
     try {
-      const manifest = JSON.parse(content) as DeclarativeCopilotManifestSchema;
+      // Route through the typed converter so structural mismatches (e.g. an object
+      // where an array is required) throw a descriptive error here rather than later
+      // at consumer call sites such as `capabilities.filter(...)`.
+      const manifest = DeclarativeAgentManifestConverter.jsonToManifest(
+        content
+      ) as unknown as DeclarativeCopilotManifestSchema;
       return ok(manifest);
     } catch (e) {
       return err(new JSONSyntaxError(path, e, "CopilotGptManifestUtils"));
@@ -97,10 +102,12 @@ export class CopilotGptManifestUtils {
     let content = fs.readFileSync(path, { encoding: "utf-8" });
     content = stripBom(content);
     try {
-      const manifest = JSON.parse(content) as DeclarativeCopilotManifestSchema;
+      const manifest = DeclarativeAgentManifestConverter.jsonToManifest(
+        content
+      ) as unknown as DeclarativeCopilotManifestSchema;
       return ok(manifest);
     } catch (e) {
-      return err(new FileNotFoundError("CopilotGptManifestUtils", path));
+      return err(new JSONSyntaxError(path, e, "CopilotGptManifestUtils"));
     }
   }
 

@@ -43,6 +43,7 @@ export enum Host {
   teams = "teams.microsoft.com",
   outlook = "outlook.office.com",
   office = "www.office.com",
+  copilot = "m365.cloud.microsoft",
 }
 
 export enum ANSIColors {

@@ -209,7 +209,7 @@
         "x": null,
         "y": null
       },
-      "description": "Type 'test' into the command input box of the vscuse_app_zZUs8local extension within the Microsoft Teams web application.",
+      "description": "Type 'test' into the command input box of the extension within the Microsoft Teams web application.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,

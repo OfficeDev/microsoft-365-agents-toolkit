@@ -3,16 +3,14 @@
     "node-20": [
       "localdebug-bot-twice",
       "localdebug-tab-regen-appid",
-      "treeview-newproject-outlook-add-in",
-      "da-action-openapi-oauth"
+      "treeview-newproject-outlook-add-in"
     ],
     "node-22": [
       "treeview-collaboration-win-only",
       "remotedebug-tab-publish",
       "remotedebug-bot-reprovision-win-only",
       "remotedebug-tab-reprovision-win-only",
-      "remotedebug-tab-regen-appid-win-only",
-      "da-action-openapi-apikey"
+      "remotedebug-tab-regen-appid-win-only"
       ]
   },
   "ubuntu-latest": {

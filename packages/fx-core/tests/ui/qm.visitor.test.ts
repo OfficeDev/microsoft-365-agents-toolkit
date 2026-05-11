@@ -993,6 +993,57 @@ describe("Question Model - Visitor Test", () => {
           (await uiStub.args[1][0].defaultFolder()) === "test"
       );
     });
+    it("selectFile forwards static possibleFiles to UI", async () => {
+      const uiStub = sandbox
+        .stub(tools.ui, "selectFile")
+        .resolves(ok({ type: "success", result: "a" }));
+      const possibleFiles = [
+        { id: "/abs/foo.json", label: "$(file) foo.json", description: "/abs" },
+      ];
+      const question: SingleFileQuestion = {
+        type: "singleFile",
+        name: "test",
+        title: "test",
+        possibleFiles,
+      };
+      const inputs: Inputs = { platform: Platform.VSCode };
+      const res = await questionVisitor(question, tools.ui, inputs);
+      assert.isTrue(res.isOk());
+      assert.deepEqual(uiStub.args[0][0].possibleFiles, possibleFiles);
+    });
+    it("selectFile resolves async possibleFiles function", async () => {
+      const uiStub = sandbox
+        .stub(tools.ui, "selectFile")
+        .resolves(ok({ type: "success", result: "a" }));
+      const dynamic = [
+        { id: "id1", label: "label1" },
+        { id: "id2", label: "label2", description: "d" },
+      ];
+      const question: SingleFileQuestion = {
+        type: "singleFile",
+        name: "test",
+        title: "test",
+        possibleFiles: async () => dynamic,
+      };
+      const inputs: Inputs = { platform: Platform.VSCode };
+      const res = await questionVisitor(question, tools.ui, inputs);
+      assert.isTrue(res.isOk());
+      assert.deepEqual(uiStub.args[0][0].possibleFiles, dynamic);
+    });
+    it("selectFile leaves possibleFiles undefined when not provided", async () => {
+      const uiStub = sandbox
+        .stub(tools.ui, "selectFile")
+        .resolves(ok({ type: "success", result: "a" }));
+      const question: SingleFileQuestion = {
+        type: "singleFile",
+        name: "test",
+        title: "test",
+      };
+      const inputs: Inputs = { platform: Platform.VSCode };
+      const res = await questionVisitor(question, tools.ui, inputs);
+      assert.isTrue(res.isOk());
+      assert.isUndefined(uiStub.args[0][0].possibleFiles);
+    });
     it("selectFolder", async () => {
       sandbox.stub(tools.ui, "selectFolder").resolves(ok({ type: "success", result: "a" }));
       const question: FolderQuestion = {

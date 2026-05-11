@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
 import * as sinon from "sinon";
 import * as chai from "chai";
+import { FeatureFlags, GraphScopes, featureFlagManager } from "@microsoft/teamsfx-core";
 import M365TokenInstance from "../../../src/commonlib/m365Login";
 import { err, ok } from "@microsoft/teamsfx-api";
 import { AzureAccountManager } from "../../../src/commonlib/azureLogin";
@@ -199,6 +200,21 @@ describe("AccountHandlers", () => {
         stubQuickPick.items[0].label as string,
         localizeUtils.localize("teamstoolkit.handlers.signOutOfM365")
       );
+    });
+
+    it("uses Graph scopes in sovereign high", async () => {
+      sandbox.stub(featureFlagManager, "getStringValue").returns("DoD");
+      const getStatusStub = sandbox
+        .stub(M365TokenInstance, "getStatus")
+        .resolves(ok({ status: "SignedOut", accountInfo: {} } as any));
+      sandbox
+        .stub(AzureAccountManager.prototype, "getStatus")
+        .resolves({ status: "SignedOut", accountInfo: {} } as any);
+      sandbox.stub(stubQuickPick, "hide");
+
+      await cmpAccountsHandler([]);
+
+      chai.assert.isTrue(getStatusStub.calledOnceWithExactly({ scopes: GraphScopes }));
     });
   });
 

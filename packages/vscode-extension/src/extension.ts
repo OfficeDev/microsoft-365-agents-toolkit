@@ -16,6 +16,7 @@ import {
   FeatureFlags as CoreFeatureFlags,
   Correlator,
   FeatureFlags,
+  isSovereignHigh,
   VersionState,
   featureFlagManager,
   teamsDevPortalClient,
@@ -197,8 +198,7 @@ import { getSettingsVersion, projectVersionCheck } from "./utils/telemetryUtils"
 
 export async function activate(context: vscode.ExtensionContext) {
   // control whether to show chat participant ui entries
-  const shouldEnableChatParticipantUIEntries =
-    releaseControlledFeatureSettings.shouldEnableTeamsCopilotChatUI;
+  const shouldEnableChatParticipantUIEntries = true;
   featureFlagManager.setBooleanValue(
     CoreFeatureFlags.ChatParticipantUIEntries,
     shouldEnableChatParticipantUIEntries
@@ -335,19 +335,22 @@ function activateTeamsFxRegistration(context: vscode.ExtensionContext) {
     azureAccountProvider: azureAccountManager,
     m365TokenProvider: M365TokenInstance,
   });
-  // Set region for M365 account every
-  void M365TokenInstance.setStatusChangeMap(
-    "set-region",
-    { scopes: AuthSvcScopes() },
-    async (status, token, accountInfo) => {
-      if (status === "SignedIn") {
-        const tokenRes = await M365TokenInstance.getAccessToken({ scopes: AuthSvcScopes() });
-        if (tokenRes.isOk()) {
-          await teamsDevPortalClient.setRegionEndpointByToken(tokenRes.value);
+
+  if (!isSovereignHigh()) {
+    // Set region for M365 account every
+    void M365TokenInstance.setStatusChangeMap(
+      "set-region",
+      { scopes: AuthSvcScopes() },
+      async (status, token, accountInfo) => {
+        if (status === "SignedIn") {
+          const tokenRes = await M365TokenInstance.getAccessToken({ scopes: AuthSvcScopes() });
+          if (tokenRes.isOk()) {
+            await teamsDevPortalClient.setRegionEndpointByToken(tokenRes.value);
+          }
         }
       }
-    }
-  );
+    );
+  }
 
   if (vscode.workspace.isTrusted) {
     registerLanguageFeatures(context);

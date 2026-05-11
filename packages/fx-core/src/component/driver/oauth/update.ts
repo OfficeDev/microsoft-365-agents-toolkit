@@ -4,8 +4,8 @@
 import { hooks } from "@feathersjs/hooks";
 import { SystemError, UserError, err, ok } from "@microsoft/teamsfx-api";
 import { Service } from "typedi";
-import { teamsDevPortalClient } from "../../../client/teamsDevPortalClient";
-import { AppStudioScopes } from "../../../common/constants";
+import { teamsGraphClient } from "../../../client/teamsGraphClient";
+import { TeamsGraphScopes } from "../../../common/constants";
 import { getLocalizedString } from "../../../common/localizeUtils";
 import { InvalidActionInputError, assembleError } from "../../../error/common";
 import { DriverContext } from "../interface/commonArgs";
@@ -52,13 +52,13 @@ export class UpdateOauthDriver implements StepDriver {
       const authInfo = await getAuthInfo(args, context, actionName);
 
       const appStudioTokenRes = await context.m365TokenProvider.getAccessToken({
-        scopes: AppStudioScopes(),
+        scopes: TeamsGraphScopes(),
       });
       if (appStudioTokenRes.isErr()) {
         throw appStudioTokenRes.error;
       }
       const appStudioToken = appStudioTokenRes.value;
-      const getOauthRes = await teamsDevPortalClient.getOauthRegistrationById(
+      const getOauthRes = await teamsGraphClient.getOauthRegistrationById(
         appStudioToken,
         args.configurationId
       );
@@ -124,11 +124,7 @@ export class UpdateOauthDriver implements StepDriver {
       }
 
       const oauth = this.mapArgsToOauthRegistration(args, authInfo, isCustomIdentityProvider);
-      await teamsDevPortalClient.updateOauthRegistration(
-        appStudioToken,
-        oauth,
-        args.configurationId
-      );
+      await teamsGraphClient.updateOauthRegistration(appStudioToken, oauth, args.configurationId);
 
       void context.ui!.showMessage(
         "info",

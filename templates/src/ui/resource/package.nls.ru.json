@@ -63,7 +63,7 @@
   "template.createProjectQuestion.DAMetaOS.label": "Создать декларативный агент с помощью действия надстройки Office",
   "template.createProjectQuestion.declarativeCopilot.placeholder": "Добавьте действие для декларативного агента",
   "template.createProjectQuestion.declarativeCopilot.title": "Создать декларативный агент",
-  "template.createProjectQuestion.mcpForDa.detail": "Создайте действия из существующего сервера MCP",
+  "template.createProjectQuestion.mcpForDa.detail": "Создать действие на основе существующего сервера MCP",
   "template.createProjectQuestion.mcpForDa.label": "Начать с сервера MCP",
   "template.createProjectQuestion.noPlugin.detail": "Создать только декларативный агент",
   "template.createProjectQuestion.noPlugin.label": "Нет действия",

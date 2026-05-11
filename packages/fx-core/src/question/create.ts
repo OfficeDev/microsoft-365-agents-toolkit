@@ -1015,9 +1015,7 @@ function customCopilotRagQuestion(): SingleSelectQuestion {
     type: "singleSelect",
     name: QuestionNames.CustomCopilotRag,
     title: getLocalizedString("core.createProjectQuestion.capability.customCopilotRag.title"),
-    placeholder: getLocalizedString(
-      "core.createProjectQuestion.capability.customCopilotRag.placeholder"
-    ),
+    placeholder: getLocalizedString("template.teams.rag.source.placeholder"),
     staticOptions: CustomCopilotRagOptions.all(),
     dynamicOptions: () => CustomCopilotRagOptions.all(),
     default: CustomCopilotRagOptions.customize().id,

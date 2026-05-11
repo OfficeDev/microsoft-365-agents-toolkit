@@ -6,9 +6,13 @@ import AdmZip from "adm-zip";
 import chai from "chai";
 import fs from "fs-extra";
 import "mocha";
+import mockedEnv from "mocked-env";
 import * as sinon from "sinon";
 import { v4 as uuid } from "uuid";
 import { GraphClient } from "../../../../src/client/graphClient";
+import { teamsDevPortalClient } from "../../../../src/client/teamsDevPortalClient";
+import { SovereignCloudEnvironment } from "../../../../src/common/accountUtils";
+import { FeatureFlagName } from "../../../../src/common/featureFlags";
 import { AppStudioError } from "../../../../src/component/driver/teamsApp/errors";
 import { PublishingState } from "../../../../src/component/driver/teamsApp/interfaces/appdefinitions/IPublishingAppDefinition";
 import { PublishAppPackageArgs } from "../../../../src/component/driver/teamsApp/interfaces/PublishAppPackageArgs";
@@ -21,6 +25,7 @@ import { ODRProvider } from "../../../../src/component/utils/odrProvider";
 
 describe("teamsApp/publishAppPackage", async () => {
   const teamsAppDriver = new PublishAppPackageDriver();
+  let restoreEnv: (() => void) | undefined;
   const mockedDriverContext: any = {
     m365TokenProvider: new MockedM365Provider(),
     logProvider: new MockedLogProvider(),
@@ -37,6 +42,42 @@ describe("teamsApp/publishAppPackage", async () => {
 
   afterEach(() => {
     sinon.restore();
+    restoreEnv?.();
+    restoreEnv = undefined;
+  });
+
+  it("skip publish in GCCH", async () => {
+    restoreEnv = mockedEnv({
+      [FeatureFlagName.SovereignCloudEnvironment]: SovereignCloudEnvironment.GCCH,
+    });
+    const publishTeamsAppSpy = sinon.spy(teamsDevPortalClient, "publishTeamsApp");
+    const pathExistsStub = sinon.stub(fs, "pathExists");
+
+    const args: PublishAppPackageArgs = {
+      appPackagePath: "fakepath",
+    };
+
+    const result = (await teamsAppDriver.execute(args, mockedDriverContext)).result;
+    chai.assert(result.isOk());
+    sinon.assert.notCalled(publishTeamsAppSpy);
+    sinon.assert.notCalled(pathExistsStub);
+  });
+
+  it("skip publish in DoD", async () => {
+    restoreEnv = mockedEnv({
+      [FeatureFlagName.SovereignCloudEnvironment]: SovereignCloudEnvironment.DOD,
+    });
+    const publishTeamsAppSpy = sinon.spy(teamsDevPortalClient, "publishTeamsApp");
+    const pathExistsStub = sinon.stub(fs, "pathExists");
+
+    const args: PublishAppPackageArgs = {
+      appPackagePath: "fakepath",
+    };
+
+    const result = (await teamsAppDriver.execute(args, mockedDriverContext)).result;
+    chai.assert(result.isOk());
+    sinon.assert.notCalled(publishTeamsAppSpy);
+    sinon.assert.notCalled(pathExistsStub);
   });
 
   it("should throw error if file not exists", async () => {

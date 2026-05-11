@@ -22,6 +22,7 @@ import { DeveloperPortalAPIFailedSystemError } from "../error/teamsApp";
 import { HttpMethod } from "../component/constant/commonConstant";
 import { getDefaultString } from "./localizeUtils";
 import { MOS3Api, MOS3ApiDefinitions } from "../component/m365/serviceConstant";
+import { TEAMS_GRAPH_API_NAMES } from "../client/teamsGraphClient";
 
 /**
  * This client will send telemetries to record API request trace
@@ -90,85 +91,95 @@ export class WrappedAxiosClient {
    * @returns
    */
   public static onRejected(error: AxiosError) {
-    const method = error.request.method as string;
-    const fullPath = `${(error.request.host as string) ?? ""}${
-      (error.request.path as string) ?? ""
-    }`;
-    const apiName = this.convertUrlToApiName(fullPath, method);
+    // Telemetry must never throw, otherwise the synthetic error will mask the
+    // real transport-level failure (TLS handshake, ECONNRESET on a kept-alive
+    // socket, etc.) returned to the caller. See AB#37640864.
+    try {
+      const method = ((error.request?.method as string) ?? "").toString();
+      const fullPath = `${(error.request?.host as string) ?? ""}${
+        (error.request?.path as string) ?? ""
+      }`;
+      const apiName = this.convertUrlToApiName(fullPath, method);
 
-    let requestData: any;
-    if (error.config?.data && typeof error.config.data === "string") {
-      try {
-        requestData = JSON.parse(error.config.data);
-      } catch (error) {
-        requestData = undefined;
+      let requestData: any;
+      if (error.config?.data && typeof error.config.data === "string") {
+        try {
+          requestData = JSON.parse(error.config.data);
+        } catch (error) {
+          requestData = undefined;
+        }
       }
+      const properties: { [key: string]: string } = {
+        url: `<${apiName}-url>`,
+        method: method,
+        params: this.generateParameters(error.config?.params),
+        [TelemetryProperty.Success]: TelemetrySuccess.No,
+        [TelemetryProperty.ErrorMessage]: error.response
+          ? JSON.stringify(error.response.data)
+          : error.message ?? "undefined",
+        "status-code": error.response?.status.toString() ?? "undefined",
+        ...this.generateExtraProperties(fullPath, requestData),
+      };
+
+      const eventName = this.getEventName(fullPath);
+      if (eventName === TelemetryEvent.AppStudioApi) {
+        const correlationId =
+          (error.response?.headers
+            ? error.response.headers[Constants.CORRELATION_ID]
+            : undefined) ?? "undefined";
+
+        const extraData = getDefaultString(
+          "error.appstudio.apiFailed.reason.common",
+          error.response?.data ? `data: ${JSON.stringify(error.response.data)}` : ""
+        );
+        const TDPApiFailedError = new DeveloperPortalAPIFailedSystemError(
+          error,
+          correlationId as string,
+          apiName,
+          extraData
+        );
+        properties[TelemetryProperty.ErrorCode] =
+          `${TDPApiFailedError.source}.${TDPApiFailedError.name}`;
+        properties[TelemetryProperty.ErrorMessage] = TDPApiFailedError.message;
+        properties[TelemetryProperty.TDPTraceId] = correlationId as string;
+      } else if (eventName === TelemetryEvent.MOSApi) {
+        const tracingId = (error.response?.headers?.traceresponse ?? "undefined") as string;
+        const originalMessage = error.message;
+        const responseData = error.response?.data;
+        const innerError =
+          responseData && typeof responseData === "object"
+            ? (responseData as any).error ?? { code: "", message: "" }
+            : { code: "", message: "" };
+        const finalMessage = `${originalMessage} (tracingId: ${tracingId}) ${
+          (innerError.code as string) ?? ""
+        }: ${(innerError.message as string) ?? ""} `;
+        properties[TelemetryProperty.ErrorMessage] = finalMessage;
+        properties[TelemetryProperty.MOSTraceId] = tracingId;
+      } else if (eventName === TelemetryEvent.TeamsGraphApi) {
+        const correlationId =
+          error.response?.headers?.["x-correlation-id"] ??
+          error.response?.headers?.["request-id"] ??
+          error.response?.headers?.["x-ms-request-id"] ??
+          "undefined";
+        properties[TelemetryProperty.TeamsGraphTraceId] = correlationId;
+      }
+
+      TOOLS?.telemetryReporter?.sendTelemetryErrorEvent(eventName, properties);
+    } catch {
+      // Swallow telemetry errors so we always reject with the original error.
     }
-    const properties: { [key: string]: string } = {
-      url: `<${apiName}-url>`,
-      method: method,
-      params: this.generateParameters(error.config!.params),
-      [TelemetryProperty.Success]: TelemetrySuccess.No,
-      [TelemetryProperty.ErrorMessage]: error.response
-        ? JSON.stringify(error.response.data)
-        : error.message ?? "undefined",
-      "status-code": error.response?.status.toString() ?? "undefined",
-      ...this.generateExtraProperties(fullPath, requestData),
-    };
-
-    const eventName = this.getEventName(fullPath);
-    if (eventName === TelemetryEvent.AppStudioApi) {
-      const correlationId = error.response?.headers[Constants.CORRELATION_ID] ?? "undefined";
-
-      const extraData = getDefaultString(
-        "error.appstudio.apiFailed.reason.common",
-        error.response?.data ? `data: ${JSON.stringify(error.response.data)}` : ""
-      );
-      const TDPApiFailedError = new DeveloperPortalAPIFailedSystemError(
-        error,
-        correlationId,
-        apiName,
-        extraData
-      );
-      properties[TelemetryProperty.ErrorCode] =
-        `${TDPApiFailedError.source}.${TDPApiFailedError.name}`;
-      properties[TelemetryProperty.ErrorMessage] = TDPApiFailedError.message;
-      properties[TelemetryProperty.TDPTraceId] = correlationId;
-    } else if (eventName === TelemetryEvent.MOSApi) {
-      const tracingId = (error.response?.headers?.traceresponse ?? "undefined") as string;
-      const originalMessage = error.message;
-      const innerError = (error.response?.data as any).error || { code: "", message: "" };
-      const finalMessage = `${originalMessage} (tracingId: ${tracingId}) ${
-        innerError.code as string
-      }: ${innerError.message as string} `;
-      properties[TelemetryProperty.ErrorMessage] = finalMessage;
-      properties[TelemetryProperty.MOSTraceId] = tracingId;
-    }
-
-    TOOLS?.telemetryReporter?.sendTelemetryErrorEvent(eventName, properties);
     return Promise.reject(error);
   }
 
   static convertMethodUrlToApiDefForMOS(method: string, url: string): MOS3Api | undefined {
+    const upperMethod = (method ?? "").toUpperCase();
     for (const key of Object.keys(MOS3ApiDefinitions)) {
       const api = MOS3ApiDefinitions[key];
-      if (api.method === method.toUpperCase() && url.match(api.path)) {
+      if (api.method === upperMethod && url.match(api.path)) {
         return api;
       }
     }
     return undefined;
-  }
-
-  private static isMOSApi(url: string): boolean {
-    const regex = /titles\.(prod|msit)\.mos\.microsoft\.com/;
-    const matches = regex.exec(url);
-    return matches != null && matches.length > 0;
-  }
-
-  static getMOSApiRelativePath(url: string): string {
-    const regex = /titles\.(prod|msit)\.mos\.microsoft\.com/;
-    const match = regex.exec(url);
-    return match ? url.slice(match.index + match[0].length) : "";
   }
 
   /**
@@ -180,7 +191,7 @@ export class WrappedAxiosClient {
    * @returns
    */
   public static convertUrlToApiName(fullPath: string, method: string): string {
-    const upperMethod = method.toUpperCase();
+    const upperMethod = (method ?? "").toUpperCase();
 
     if (this.isTDPApi(fullPath)) {
       if (fullPath.match(new RegExp("/api/aadapp/v2"))) {
@@ -320,12 +331,35 @@ export class WrappedAxiosClient {
       }
     } else if (this.isMOSApi(fullPath)) {
       // MOS API
-      const relativePath = this.getMOSApiRelativePath(fullPath);
+      const relativePath = this.extractMOSPath(fullPath);
       const mosApiDef = this.convertMethodUrlToApiDefForMOS(method, relativePath);
       if (mosApiDef) {
         return `mos_${mosApiDef.key}`;
       } else {
         return `mos_unclassified_${relativePath.replace(/\//g, "_")}`;
+      }
+    } else if (this.isTeamsGraphApi(fullPath)) {
+      if (fullPath.match(new RegExp("/api/v1\\.0/apiSecretRegistrations/.*"))) {
+        if (method.toUpperCase() === HttpMethod.GET) {
+          return TEAMS_GRAPH_API_NAMES.GET_API_KEY;
+        }
+        if (method.toUpperCase() === HttpMethod.PATCH) {
+          return TEAMS_GRAPH_API_NAMES.UPDATE_API_KEY;
+        }
+      }
+      if (fullPath.match(new RegExp("/api/v1\\.0/apiSecretRegistrations"))) {
+        return TEAMS_GRAPH_API_NAMES.CREATE_API_KEY;
+      }
+      if (fullPath.match(new RegExp("/api/v1\\.0/oAuthConfigurations/.*"))) {
+        if (method.toUpperCase() === HttpMethod.GET) {
+          return TEAMS_GRAPH_API_NAMES.GET_OAUTH;
+        }
+        if (method.toUpperCase() === HttpMethod.PATCH) {
+          return TEAMS_GRAPH_API_NAMES.UPDATE_OAUTH;
+        }
+      }
+      if (fullPath.match(new RegExp("/api/v1\\.0/oAuthConfigurations"))) {
+        return TEAMS_GRAPH_API_NAMES.CREATE_OAUTH;
       }
     }
     if (
@@ -401,13 +435,39 @@ export class WrappedAxiosClient {
     return matches != null && matches.length > 0;
   }
 
+  private static isMOSApi(baseUrl: string): boolean {
+    const mosRegex =
+      /(^https:\/\/)?titles\.(prod|gccm)\.mos\.microsoft\.com|(^https:\/\/)?titles\.(gcch|dod)\.mos\.svc\.usgovcloud\.microsoft/;
+    const matches = mosRegex.exec(baseUrl);
+    return matches != null && matches.length > 0;
+  }
+
+  private static isTeamsGraphApi(baseUrl: string): boolean {
+    const regex =
+      /(^https:\/\/)?(teams\.microsoft\.com\/(gcc\/)?api\/platform|gov\.teams\.microsoft\.us\/api\/platform|dod\.teams\.microsoft\.us\/api\/platform)/;
+    const matches = regex.exec(baseUrl);
+    return matches != null && matches.length > 0;
+  }
+
+  private static extractMOSPath(fullPath: string): string {
+    const mosRegex =
+      /(^https:\/\/)?titles\.(prod|gccm)\.mos\.microsoft\.com|(^https:\/\/)?titles\.(gcch|dod)\.mos\.svc\.usgovcloud\.microsoft/;
+    return fullPath.replace(mosRegex, "");
+  }
+
   private static getEventName(
     baseUrl: string
-  ): TelemetryEvent.MOSApi | TelemetryEvent.AppStudioApi | TelemetryEvent.DependencyApi {
+  ):
+    | TelemetryEvent.MOSApi
+    | TelemetryEvent.AppStudioApi
+    | TelemetryEvent.TeamsGraphApi
+    | TelemetryEvent.DependencyApi {
     if (this.isTDPApi(baseUrl)) {
       return TelemetryEvent.AppStudioApi;
     } else if (this.isMOSApi(baseUrl)) {
       return TelemetryEvent.MOSApi;
+    } else if (this.isTeamsGraphApi(baseUrl)) {
+      return TelemetryEvent.TeamsGraphApi;
     } else {
       return TelemetryEvent.DependencyApi;
     }

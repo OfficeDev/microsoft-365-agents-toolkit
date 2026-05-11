@@ -32,6 +32,7 @@ import { featureFlagManager } from "../../../src/common/featureFlags";
 import { createContext, setTools } from "../../../src/common/globalVars";
 import { copilotGptManifestUtils } from "../../../src/component/driver/teamsApp/utils/CopilotGptManifestUtils";
 import { pluginManifestUtils } from "../../../src/component/driver/teamsApp/utils/PluginManifestUtils";
+import { developerPortalScaffoldUtils } from "../../../src/component/developerPortalScaffoldUtils";
 import { DeclarativeAgentGenerator } from "../../../src/component/generator/declarativeAgent/generator";
 import * as generatorHelper from "../../../src/component/generator/declarativeAgent/helper";
 import * as oneDriveSharePointHandler from "../../../src/component/generator/declarativeAgent/oneDriveSharePointHandler";
@@ -445,6 +446,50 @@ describe("copilotExtension", async () => {
 
       const res = await generator.post(context, inputs, "");
       assert.isTrue(res.isOk());
+    });
+
+    it("post calls updateFilesForTdp when teamsAppFromTdp is set", async () => {
+      const generator = new DeclarativeAgentGenerator();
+      const context = createContext();
+      const inputs: Inputs = {
+        platform: Platform.VSCode,
+        projectPath: "./",
+        [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentBasic,
+        [QuestionNames.AppName]: "app",
+        teamsAppFromTdp: { teamsAppId: "fake-id" },
+      };
+
+      sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
+      sandbox
+        .stub(copilotGptManifestUtils, "getManifestPath")
+        .resolves(ok("declarativeAgent.json"));
+      sandbox.stub(developerPortalScaffoldUtils, "updateFilesForTdp").resolves(ok(undefined));
+
+      const res = await generator.post(context, inputs, "");
+      assert.isTrue(res.isOk());
+    });
+
+    it("post returns error when updateFilesForTdp fails in TDP flow", async () => {
+      const generator = new DeclarativeAgentGenerator();
+      const context = createContext();
+      const inputs: Inputs = {
+        platform: Platform.VSCode,
+        projectPath: "./",
+        [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentBasic,
+        [QuestionNames.AppName]: "app",
+        teamsAppFromTdp: { teamsAppId: "fake-id" },
+      };
+
+      sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
+      sandbox
+        .stub(copilotGptManifestUtils, "getManifestPath")
+        .resolves(ok("declarativeAgent.json"));
+      sandbox
+        .stub(developerPortalScaffoldUtils, "updateFilesForTdp")
+        .resolves(err(new UserError("fakeSource", "fakeError", "fakeError")));
+
+      const res = await generator.post(context, inputs, "");
+      assert.isTrue(res.isErr() && res.error.name === "fakeError");
     });
   });
 
@@ -2667,5 +2712,127 @@ describe("helper", async () => {
         assert.equal(replaceMap.MCPLocalServers[0].name, "local-server");
       }
     });
+  });
+});
+
+describe("deriveMCPServerNameFromUrl", () => {
+  it("returns fallback when url is undefined", () => {
+    assert.equal(generatorHelper.deriveMCPServerNameFromUrl(undefined), "mcpServer");
+  });
+  it("returns fallback when url is empty", () => {
+    assert.equal(generatorHelper.deriveMCPServerNameFromUrl(""), "mcpServer");
+  });
+  it("returns fallback for invalid url", () => {
+    assert.equal(generatorHelper.deriveMCPServerNameFromUrl("not a url"), "mcpServer");
+  });
+  it("strips non-alphanumeric characters from host", () => {
+    const name = generatorHelper.deriveMCPServerNameFromUrl("https://my-host.example.com/mcp");
+    assert.equal(name, "myhostexam");
+  });
+  it("truncates host to 10 characters", () => {
+    const name = generatorHelper.deriveMCPServerNameFromUrl(
+      "https://averyverylonghostname.example.com/path"
+    );
+    assert.equal(name.length, 10);
+  });
+  it("returns fallback when host is empty after stripping", () => {
+    // Construct a URL whose host is only non-alphanumeric chars - in practice
+    // URL will reject most such hosts, so "not a url" path covers it.
+    const name = generatorHelper.deriveMCPServerNameFromUrl("file:///local/path");
+    assert.equal(name, "mcpServer");
+  });
+});
+
+describe("createNewActionPluginManifest", () => {
+  const sandbox = sinon.createSandbox();
+  afterEach(() => {
+    sandbox.restore();
+  });
+
+  it("creates a new manifest, registers the action, and returns the path", async () => {
+    sandbox
+      .stub(copilotGptManifestUtils, "getDefaultNextAvailablePluginManifestPath")
+      .resolves("/proj/appPackage/ai-plugin.json");
+    const ensureFileStub = sandbox.stub(fs, "ensureFile").resolves();
+    const writeJSONStub = sandbox.stub(fs, "writeJSON").resolves();
+    const addActionStub = sandbox
+      .stub(copilotGptManifestUtils, "addAction")
+      .resolves(ok({} as any));
+
+    const res = await generatorHelper.createNewActionPluginManifest(
+      "/proj",
+      "ai-plugin.json",
+      "/proj/appPackage/declarativeAgent.json"
+    );
+
+    assert.isTrue(res.isOk());
+    if (res.isOk()) {
+      assert.equal(res.value.pluginManifestPath, "/proj/appPackage/ai-plugin.json");
+      assert.equal(res.value.actionId, "ai-plugin");
+    }
+    assert.isTrue(ensureFileStub.calledOnce);
+    assert.isTrue(writeJSONStub.calledOnce);
+    assert.isTrue(addActionStub.calledOnce);
+
+    const writtenSkeleton = writeJSONStub.firstCall.args[1] as any;
+    assert.equal(writtenSkeleton.schema_version, "v2.4");
+    assert.deepEqual(writtenSkeleton.functions, []);
+    assert.deepEqual(writtenSkeleton.runtimes, []);
+    assert.isString(writtenSkeleton.namespace);
+  });
+
+  it("falls back to DefaultPluginManifestFileName when desired name is empty", async () => {
+    const getPathStub = sandbox
+      .stub(copilotGptManifestUtils, "getDefaultNextAvailablePluginManifestPath")
+      .resolves("/proj/appPackage/ai-plugin.json");
+    sandbox.stub(fs, "ensureFile").resolves();
+    sandbox.stub(fs, "writeJSON").resolves();
+    sandbox.stub(copilotGptManifestUtils, "addAction").resolves(ok({} as any));
+
+    const res = await generatorHelper.createNewActionPluginManifest(
+      "/proj",
+      "   ",
+      "/proj/appPackage/declarativeAgent.json"
+    );
+    assert.isTrue(res.isOk());
+    // second argument should fall back to a non-empty default file name
+    const fileNameArg = getPathStub.firstCall.args[1];
+    assert.isString(fileNameArg);
+    assert.notEqual((fileNameArg as string).trim(), "");
+  });
+
+  it("returns err when addAction fails", async () => {
+    sandbox
+      .stub(copilotGptManifestUtils, "getDefaultNextAvailablePluginManifestPath")
+      .resolves("/proj/appPackage/ai-plugin.json");
+    sandbox.stub(fs, "ensureFile").resolves();
+    sandbox.stub(fs, "writeJSON").resolves();
+    sandbox
+      .stub(copilotGptManifestUtils, "addAction")
+      .resolves(err(new SystemError("test", "addActionFailed", "msg", "msg")));
+
+    const res = await generatorHelper.createNewActionPluginManifest(
+      "/proj",
+      "ai-plugin.json",
+      "/proj/appPackage/declarativeAgent.json"
+    );
+    assert.isTrue(res.isErr());
+  });
+
+  it("derives a sanitized namespace from project folder name", async () => {
+    sandbox
+      .stub(copilotGptManifestUtils, "getDefaultNextAvailablePluginManifestPath")
+      .resolves("/proj/appPackage/ai-plugin.json");
+    sandbox.stub(fs, "ensureFile").resolves();
+    const writeJSONStub = sandbox.stub(fs, "writeJSON").resolves();
+    sandbox.stub(copilotGptManifestUtils, "addAction").resolves(ok({} as any));
+
+    await generatorHelper.createNewActionPluginManifest(
+      "/some/path/My-Cool App!",
+      "ai-plugin.json",
+      "/some/path/My-Cool App!/appPackage/declarativeAgent.json"
+    );
+    const written = writeJSONStub.firstCall.args[1] as any;
+    assert.equal(written.namespace, "mycoolapp");
   });
 });

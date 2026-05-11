@@ -63,7 +63,7 @@
   "template.createProjectQuestion.DAMetaOS.label": "Vytvořit deklarativního agenta pomocí akce doplňku pro Office",
   "template.createProjectQuestion.declarativeCopilot.placeholder": "Přidání akce do deklarativního agenta",
   "template.createProjectQuestion.declarativeCopilot.title": "Vytvořit deklarativního agenta",
-  "template.createProjectQuestion.mcpForDa.detail": "Vytvoření akcí z existujícího serveru MCP",
+  "template.createProjectQuestion.mcpForDa.detail": "Vytvořte akci z existujícího serveru MCP",
   "template.createProjectQuestion.mcpForDa.label": "Začněte se serverem MCP",
   "template.createProjectQuestion.noPlugin.detail": "Vytvořit pouze deklarativního agenta",
   "template.createProjectQuestion.noPlugin.label": "Žádná akce",

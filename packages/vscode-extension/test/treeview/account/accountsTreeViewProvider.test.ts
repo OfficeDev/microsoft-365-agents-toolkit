@@ -3,6 +3,7 @@ import * as sinon from "sinon";
 import { stubInterface } from "ts-sinon";
 
 import { AzureAccountProvider, M365TokenProvider, ok, TokenRequest } from "@microsoft/teamsfx-api";
+import { FeatureFlags, GraphScopes, featureFlagManager } from "@microsoft/teamsfx-core";
 import * as projectSettingsHelper from "@microsoft/teamsfx-core/build/common/projectSettingsHelper";
 
 import * as globalVariables from "../../../src/globalVariables";
@@ -128,5 +129,27 @@ describe("AccountTreeViewProvider", () => {
     const children = await AccountTreeViewProvider.getChildren();
 
     chai.assert.equal(children?.length, 2);
+  });
+
+  it("subscribeToStatusChanges uses Graph scopes in sovereign high", async () => {
+    sandbox.stub(featureFlagManager, "getStringValue").returns("DoD");
+    const azureAccountProviderStub = stubInterface<AzureAccountProvider>();
+    const m365TokenProviderStub = stubInterface<M365TokenProvider>();
+
+    m365TokenProviderStub.setStatusChangeMap.returns(Promise.resolve(ok(true)));
+    azureAccountProviderStub.setStatusChangeMap.returns(Promise.resolve(true));
+
+    AccountTreeViewProvider.subscribeToStatusChanges({
+      azureAccountProvider: azureAccountProviderStub,
+      m365TokenProvider: m365TokenProviderStub,
+    });
+
+    chai.assert.isTrue(
+      m365TokenProviderStub.setStatusChangeMap.calledWithMatch(
+        "tree-view",
+        { scopes: GraphScopes },
+        sinon.match.func as any
+      )
+    );
   });
 });

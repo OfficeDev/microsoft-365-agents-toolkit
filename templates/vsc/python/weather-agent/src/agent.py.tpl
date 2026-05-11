@@ -1,3 +1,4 @@
+import json
 import os
 import sys
 import traceback
@@ -43,17 +44,51 @@ storage = MemoryStorage()
 connection_manager = MsalConnectionManager(**agents_sdk_config)
 adapter = CloudAdapter(connection_manager=connection_manager)
 
+def is_supports_files_enabled():
+    candidates = [
+        os.path.join(os.getcwd(), "appPackage", "manifest.json"),
+        os.path.join(os.path.dirname(__file__), "..", "appPackage", "manifest.json"),
+        os.path.join(os.path.dirname(__file__), "..", "..", "appPackage", "manifest.json"),
+    ]
+    for manifest_path in candidates:
+        if os.path.exists(manifest_path):
+            try:
+                with open(manifest_path, "r", encoding="utf-8") as f:
+                    manifest = json.load(f)
+                bots = manifest.get("bots", [])
+                if isinstance(bots, list):
+                    return any(bot.get("supportsFiles") is True for bot in bots)
+            except (json.JSONDecodeError, OSError):
+                continue
+    return False
+
+
 weather_agent = AgentApplication[TurnState](
-    storage=storage, 
-    adapter=adapter, 
+    storage=storage,
+    adapter=adapter,
     **agents_sdk_config
 )
 
+_supports_files_warning = (
+    '⚠️ Notice: The "supportsFiles" option is currently enabled in the app manifest, '
+    "but file attachment handling is not a supported feature for Custom Engine Agents at this time. "
+    "Please refer to the known issues documentation for more details: "
+    "https://learn.microsoft.com/en-us/microsoft-365/copilot/extensibility/known-issues#custom-engine-agents"
+    if is_supports_files_enabled()
+    else ""
+)
+_supports_files_warned = False
+
+
 @weather_agent.conversation_update("membersAdded")
 async def on_members_added(context: TurnContext, _state: TurnState):
+    global _supports_files_warned
     await context.send_activity(
         "Hello and Welcome! I'm here to help with all your weather forecast needs!"
     )
+    if _supports_files_warning and not _supports_files_warned:
+        _supports_files_warned = True
+        await context.send_activity(_supports_files_warning)
 
 class WeatherForecastAgentResponse:
     def __init__(self, content_type: str, content: Any):
@@ -101,6 +136,10 @@ Respond in JSON format with the following JSON schema, and do not use markdown i
 
 @weather_agent.activity(ActivityTypes.Message)
 async def on_message(context: TurnContext, state: TurnState):
+    global _supports_files_warned
+    if _supports_files_warning and not _supports_files_warned:
+        _supports_files_warned = True
+        await context.send_activity(_supports_files_warning)
     llm_response = await agent.ainvoke(
         {
             "messages": [sys_message, HumanMessage(content=context.activity.text)],

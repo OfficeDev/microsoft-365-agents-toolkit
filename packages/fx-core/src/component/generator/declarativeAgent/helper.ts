@@ -58,6 +58,94 @@ const logMessageKeys = {
     "core.createProjectQuestion.log.fail.validateOneDriveSharePointItem",
   invalidOneDriveSharePointURL: "core.createProjectQuestion.log.fail.invalidOneDriveSharePointURL",
 };
+
+/**
+ * Derives a server entry name for an MCP server from its URL. Used by both the
+ * "DA with MCP" scaffolding (to render `.vscode/mcp.json.tpl`) and the
+ * "Add Action with MCP" flow (to append a new entry into `.vscode/mcp.json`).
+ *
+ * Strips non-alphanumeric characters from the host and truncates to 10 chars.
+ * Falls back to `"mcpServer"` when the URL is missing or invalid.
+ */
+export function deriveMCPServerNameFromUrl(mcpServerUrl: string | undefined): string {
+  const fallback = "mcpServer";
+  if (!mcpServerUrl) {
+    return fallback;
+  }
+  try {
+    const host = new URL(mcpServerUrl).host.replace(/[^a-zA-Z0-9]/g, "").substring(0, 10);
+    return host || fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+/**
+ * Creates a brand-new empty action plugin manifest (`ai-plugin.json`) under the
+ * project's `appPackage` folder and registers it as a new action in the
+ * declarative agent manifest.
+ *
+ * Used by the "Add MCP Action" flow when the user opts to create a new
+ * action manifest rather than reuse an existing one.
+ *
+ * @param projectPath Absolute project root.
+ * @param desiredFileName File name (no path) for the new plugin manifest, e.g. "ai-plugin.json".
+ *                       If a file with this name already exists, an incrementing suffix is added.
+ * @param declarativeAgentManifestPath Absolute path to the declarative agent manifest file
+ *                       (e.g. `appPackage/declarativeAgent.json`).
+ * @returns The absolute path to the newly-created plugin manifest and the action id used to register it.
+ */
+export async function createNewActionPluginManifest(
+  projectPath: string,
+  desiredFileName: string,
+  declarativeAgentManifestPath: string
+): Promise<Result<{ pluginManifestPath: string; actionId: string }, FxError>> {
+  const appPackageFolder = path.join(projectPath, AppPackageFolderName);
+  const fileName = desiredFileName?.trim() || DefaultPluginManifestFileName;
+
+  const destinationPluginManifestPath =
+    await copilotGptManifestUtils.getDefaultNextAvailablePluginManifestPath(
+      appPackageFolder,
+      fileName
+    );
+
+  const projectName = path.basename(projectPath);
+  const namespace = projectName.toLowerCase().replace(/[^a-z0-9]/g, "") || "actions";
+
+  const skeleton = {
+    $schema: "https://developer.microsoft.com/json-schemas/copilot/plugin/v2.4/schema.json",
+    schema_version: "v2.4",
+    name_for_human: projectName,
+    description_for_human: projectName,
+    namespace,
+    functions: [],
+    runtimes: [],
+  };
+
+  await fs.ensureFile(destinationPluginManifestPath);
+  await fs.writeJSON(destinationPluginManifestPath, skeleton, { spaces: 4 });
+
+  const actionId = path.basename(
+    destinationPluginManifestPath,
+    path.extname(destinationPluginManifestPath)
+  );
+  const relativePluginPath = normalizePath(
+    path.relative(path.dirname(declarativeAgentManifestPath), destinationPluginManifestPath),
+    true
+  );
+
+  const addActionRes = await copilotGptManifestUtils.addAction(
+    declarativeAgentManifestPath,
+    actionId,
+    relativePluginPath
+  );
+  if (addActionRes.isErr()) {
+    return err(addActionRes.error);
+  }
+
+  return ok({ pluginManifestPath: destinationPluginManifestPath, actionId });
+}
+
 export interface AddExistingPluginResult {
   warnings: Warning[];
   destinationPluginManifestPath: string;

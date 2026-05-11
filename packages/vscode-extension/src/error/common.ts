@@ -76,11 +76,7 @@ export async function showError(e: UserError | SystemError) {
   const shouldRecommendTeamsAgent = featureFlagManager.getBooleanValue(
     CoreFeatureFlags.ChatParticipantUIEntries
   );
-  const troubleshootButtonText = featureFlagManager.getBooleanValue(
-    CoreFeatureFlags.HideGitHubCopilotPreviewTag
-  )
-    ? localize("teamstoolkit.commmands.teamsAgentResolve.title")
-    : localize("teamstoolkit.commmands.teamsAgentResolve.title.preview");
+  const troubleshootButtonText = localize("teamstoolkit.commmands.teamsAgentResolve.title");
   const troubleshootErrorWithTeamsAgentButton = {
     title: troubleshootButtonText,
     run: async () => {
@@ -106,33 +102,16 @@ export async function showError(e: UserError | SystemError) {
   if (isUserCancelError(e)) {
     return;
   } else if ("helpLink" in e && e.helpLink && typeof e.helpLink != "undefined") {
-    const helpLinkUrl = Uri.parse(`${e.helpLink}`);
-    const help = {
-      title: localize("teamstoolkit.handlers.getHelp"),
-      run: () => {
-        ExtTelemetry.sendTelemetryEvent(TelemetryEvent.ClickGetHelp, {
-          [TelemetryProperty.ErrorCode]: errorCode,
-          [TelemetryProperty.ErrorMessage]: notificationMessage,
-          [TelemetryProperty.HelpLink]: e.helpLink!,
-        });
-        void commands.executeCommand("vscode.open", helpLinkUrl);
-      },
-    };
     VsCodeLogInstance.error(`code:${errorCode}, message: ${e.message}\n Help link: ${e.helpLink}`);
-
     VsCodeLogInstance.debug(`Call stack: ${e.stack || e.innerError?.stack || ""}`);
-    const buttons = recommendSandbox
-      ? [runSandbox]
-      : recommendTestTool
-        ? [runTestTool, help]
-        : [help];
-    if (shouldRecommendTeamsAgent) {
-      buttons.push(troubleshootErrorWithTeamsAgentButton);
-    }
+    const extraButtons = recommendSandbox ? [runSandbox] : recommendTestTool ? [runTestTool] : [];
+    const buttons = shouldRecommendTeamsAgent
+      ? [troubleshootErrorWithTeamsAgentButton, ...extraButtons]
+      : extraButtons;
     void window
       .showErrorMessage(`[${errorCode}]: ${notificationMessage}`, ...buttons)
       .then((button) => {
-        if (button) button.run();
+        if (button) void button.run();
       });
   } else if (e instanceof SystemError) {
     const sysError = e;
@@ -161,14 +140,15 @@ export async function showError(e: UserError | SystemError) {
         await commands.executeCommand("fx-extension.findSimilarIssue", errorCode);
       },
     };
-    const buttons = recommendSandbox
+    const extraButtons = recommendSandbox
       ? [runSandbox]
       : recommendTestTool
         ? [runTestTool, issue]
         : [issue];
+    let buttons: { title: string; run: () => void | Promise<unknown> }[];
     if (shouldRecommendTeamsAgent) {
-      if (buttons.length >= 2) {
-        buttons.push(troubleshootErrorWithTeamsAgentButton);
+      if (extraButtons.length >= 2) {
+        buttons = [troubleshootErrorWithTeamsAgentButton, ...extraButtons];
         notificationMessage += util.format(
           localize("teamstoolkit.handlers.similarIssues.message"),
           errorCode
@@ -178,41 +158,33 @@ export async function showError(e: UserError | SystemError) {
           errorCode
         );
       } else {
-        buttons.push(similarIssues);
-        buttons.push(troubleshootErrorWithTeamsAgentButton);
+        buttons = [troubleshootErrorWithTeamsAgentButton, ...extraButtons, similarIssues];
       }
     } else {
-      buttons.push(similarIssues);
+      buttons = [...extraButtons, similarIssues];
     }
     VsCodeLogInstance.error(`code:${errorCode}, message: ${e.message}`);
-
     VsCodeLogInstance.debug(`Call stack: ${e.stack || e.innerError?.stack || ""}`);
 
     void window
       .showErrorMessage(`[${errorCode}]: ${notificationMessage}`, ...buttons)
       .then((button) => {
-        if (button) button.run();
+        if (button) void button.run();
       });
   } else {
     if (!(e instanceof ConcurrentError)) {
       VsCodeLogInstance.debug(`Call stack: ${e.stack || e.innerError?.stack || ""}`);
-      const buttons: {
-        title: string;
-        run: () => void;
-      }[] = recommendTestTool ? [runTestTool] : [];
-      if (shouldRecommendTeamsAgent) {
-        buttons.push(troubleshootErrorWithTeamsAgentButton);
-      }
+      const extraButtons: { title: string; run: () => void | Promise<unknown> }[] =
+        recommendTestTool ? [runTestTool] : [];
+      const buttons = shouldRecommendTeamsAgent
+        ? [troubleshootErrorWithTeamsAgentButton, ...extraButtons]
+        : extraButtons;
       void window
         .showErrorMessage(`[${errorCode}]: ${notificationMessage}`, ...buttons)
         .then((button) => {
-          if (button) button.run();
+          if (button) void button.run();
         });
     }
-  }
-
-  if (shouldRecommendTeamsAgent && !isUserCancelError(e)) {
-    await notifyOutputTroubleshoot(errorCode);
   }
 }
 

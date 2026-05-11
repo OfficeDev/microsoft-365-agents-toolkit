@@ -17,6 +17,7 @@ import {
   AuthSvcScopes,
   featureFlagManager,
   FeatureFlags,
+  isSovereignHigh,
   isUserCancelError,
   isValidOfficeAddInProject,
   QuestionNames,
@@ -144,6 +145,14 @@ export async function addPluginHandler(...args: unknown[]) {
   if (result.isErr()) {
     return err(result.error);
   }
+  // For the MCP "Add Action" flow, addPlugin only writes the URL to
+  // .vscode/mcp.json. Reuse the same UX as the "DA with MCP" scaffolding
+  // flow: open mcp.json and show the "start MCP server / Fetch Action"
+  // notification so the user can populate tools afterwards.
+  if (result.value && (result.value as { kind?: string }).kind === "mcp") {
+    const { openWorkspaceMCPConfigHandler } = await import("./readmeHandlers");
+    await openWorkspaceMCPConfigHandler(TelemetryTriggerFrom.Auto);
+  }
   return result;
 }
 
@@ -229,10 +238,12 @@ export async function scaffoldFromDeveloperPortalHandler(
     }
     token = tokenRes.value;
 
-    // set region
-    const AuthSvcTokenRes = await M365TokenInstance.getAccessToken({ scopes: AuthSvcScopes() });
-    if (AuthSvcTokenRes.isOk()) {
-      await teamsDevPortalClient.setRegionEndpointByToken(AuthSvcTokenRes.value);
+    if (!isSovereignHigh()) {
+      // set region
+      const AuthSvcTokenRes = await M365TokenInstance.getAccessToken({ scopes: AuthSvcScopes() });
+      if (AuthSvcTokenRes.isOk()) {
+        await teamsDevPortalClient.setRegionEndpointByToken(AuthSvcTokenRes.value);
+      }
     }
 
     await progressBar.end(true);

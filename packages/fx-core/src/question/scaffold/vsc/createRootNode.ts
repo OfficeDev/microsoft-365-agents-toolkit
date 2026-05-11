@@ -87,6 +87,9 @@ export function languageNode(): IQTreeNode {
 export function folderAndAppNameCondition(inputs: Inputs): boolean {
   // skip this project when need to redirect to Kiota: 1. Feature flag enabled 2. Creating plugin/declarative copilot from existing spec 3. No plugin manifest path
   // or start with github copilot
+  if (inputs[QuestionNames.ProjectType] === ProjectTypeOptions.startWithGithubCopilotOptionId) {
+    return false;
+  }
   return true;
 }
 

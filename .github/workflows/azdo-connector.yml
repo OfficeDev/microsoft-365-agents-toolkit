@@ -1,0 +1,104 @@
+name: azdo-connector
+on:
+  workflow_dispatch:
+    inputs:
+      wiql:
+        description: "WIQL query string to execute against Azure DevOps"
+        required: true
+        type: string
+      fields:
+        description: "Comma-separated list of fields to return (e.g. System.Id,System.Title,System.State,System.Tags)"
+        required: false
+        type: string
+        default: "System.Id,System.Title,System.State,System.Tags,System.WorkItemType"
+
+permissions:
+  actions: read
+  contents: read
+  id-token: write
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    environment: engineering
+    env:
+      AZURE_DEVOPS_ORG: "devdiv"
+      AZURE_DEVOPS_PROJECT: "DevDiv"
+    steps:
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.DEVOPS_DEVDIV_CLIENT_ID }}
+          tenant-id: ${{ secrets.DEVOPS_TENANT_ID }}
+          subscription-id: ${{ secrets.DEVOPS_SUB_ID }}
+
+      - name: Get ADO access token
+        id: token
+        run: |
+          AZURE_DEVOPS_PAT=$(az account get-access-token --resource https://app.vssps.visualstudio.com --query accessToken -o tsv)
+          echo "::add-mask::${AZURE_DEVOPS_PAT}"
+          echo "pat=${AZURE_DEVOPS_PAT}" >> "$GITHUB_OUTPUT"
+
+      - name: Query work items
+        env:
+          WIQL_INPUT: ${{ github.event.inputs.wiql }}
+        run: |
+          AZURE_DEVOPS_PAT="${{ steps.token.outputs.pat }}"
+
+          wiql_body=$(jq -n --arg q "$WIQL_INPUT" '{"query": $q}')
+          echo "Executing WIQL query..."
+
+          wiql_response=$(curl -s -w "\n%{http_code}" \
+            -u ":${AZURE_DEVOPS_PAT}" \
+            -H "Content-Type: application/json" \
+            -X POST \
+            "https://dev.azure.com/${AZURE_DEVOPS_ORG}/${AZURE_DEVOPS_PROJECT}/_apis/wit/wiql?api-version=7.0" \
+            -d "$wiql_body")
+
+          http_code=$(echo "$wiql_response" | tail -n1)
+          wiql_result=$(echo "$wiql_response" | sed '$d')
+
+          if [ "$http_code" != "200" ]; then
+            echo "WIQL query failed with HTTP $http_code"
+            echo "$wiql_result"
+            echo '{"error": "WIQL query failed", "http_code": "'$http_code'", "response": '"$(echo "$wiql_result" | jq -c . 2>/dev/null || echo '""')"'}' > result.json
+            exit 0
+          fi
+
+          ids=$(echo "$wiql_result" | jq -r '[.workItems[].id] | join(",")')
+          total=$(echo "$wiql_result" | jq '.workItems | length')
+          echo "Found $total work items"
+
+          if [ "$total" -eq 0 ] || [ -z "$ids" ]; then
+            echo '{"total": 0, "workItems": []}' > result.json
+            exit 0
+          fi
+
+          ids_truncated=$(echo "$ids" | cut -d',' -f1-200)
+          fields="${{ github.event.inputs.fields }}"
+
+          details_response=$(curl -s -w "\n%{http_code}" \
+            -u ":${AZURE_DEVOPS_PAT}" \
+            -H "Content-Type: application/json" \
+            "https://dev.azure.com/${AZURE_DEVOPS_ORG}/${AZURE_DEVOPS_PROJECT}/_apis/wit/workitems?ids=${ids_truncated}&fields=${fields}&api-version=7.0")
+
+          details_code=$(echo "$details_response" | tail -n1)
+          details_result=$(echo "$details_response" | sed '$d')
+
+          if [ "$details_code" != "200" ]; then
+            echo "Work item details fetch failed with HTTP $details_code"
+            echo '{"total": '$total', "error": "Failed to fetch details", "ids": "'"$ids"'"}' > result.json
+            exit 0
+          fi
+
+          echo "$details_result" | jq '{total: '$total', workItems: [.value[] | {id: .id, fields: .fields}]}' > result.json
+          echo "Results written to result.json"
+          cat result.json | head -100
+
+      - name: Upload result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: azdo-result
+          path: result.json
+          retention-days: 3
