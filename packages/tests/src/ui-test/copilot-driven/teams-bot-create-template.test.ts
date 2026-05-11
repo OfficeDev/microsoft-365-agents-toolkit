@@ -236,7 +236,7 @@ suite("ATK Teams Bot Template Creation (UI Wizard)", function () {
     const expectedFiles = [
       "m365agents.yml",
       "package.json",
-      "src/index.ts",
+      "index.ts",
       "appPackage/manifest.json",
     ];
 
