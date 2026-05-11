@@ -128,4 +128,27 @@ describe("Manifest template hover - V3", async () => {
       chai.assert.isTrue(hover.contents.length > 0);
     }
   });
+
+  it("hover - playground env no value", async () => {
+    (envUtil.listEnv as sinon.SinonStub).restore();
+    sandbox.stub(envUtil, "listEnv").resolves(ok(["local", "playground"]));
+    sandbox.stub(envUtil, "readEnv").resolves(ok({}));
+
+    const hoverProvider = new ManifestTemplateHoverProvider();
+    const position = new vscode.Position(5, 15);
+    const cts = new vscode.CancellationTokenSource();
+    const hover = await hoverProvider.provideHover(document, position, cts.token);
+
+    chai.assert.isTrue(hover !== undefined);
+    if (hover !== undefined) {
+      chai.assert.isTrue(hover.contents.length > 0);
+      const content = (hover.contents[0] as vscode.MarkdownString).value;
+      chai.assert.include(content, "playground");
+      chai.assert.include(content, "command:fx-extension.localdebug");
+      chai.assert.include(
+        content,
+        "Trigger Debug in Microsoft 365 Agents Playground to see placeholder value"
+      );
+    }
+  });
 });
