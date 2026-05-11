@@ -36,9 +36,27 @@ RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
     && apt-get install -y nodejs \
     && node --version && npm --version
 
-# ── ATK CLI (optional) ────────────────────────────────────────────────────────
-RUN npm install -g @microsoft/m365agentstoolkit-cli@latest --unsafe-perm true 2>/dev/null \
-    || echo "ATK CLI install skipped (non-fatal)"
+# ── ATK CLI ──────────────────────────────────────────────────────────────────
+# Two modes (set ATK_CLI_SOURCE at build time):
+#   npm   (default): npm install -g @microsoft/m365agentstoolkit-cli@<version>
+#   local           : install from cli-local.tgz built from ATK source
+# Usage:
+#   Regular:     docker build -t atk-copilot-test .
+#   Local build: .\scripts\build-docker-local-cli.ps1 ; docker build --build-arg ATK_CLI_SOURCE=local -t atk-copilot-test-local .
+ARG ATK_CLI_SOURCE=npm
+ARG ATK_CLI_VERSION=1.1.10
+
+# Copy placeholder (regular build) or real .tgz (local build) into image
+COPY docker/copilot-test/cli-local.tgz /tmp/cli-local.tgz
+
+RUN if [ "${ATK_CLI_SOURCE}" = "local" ]; then \
+      echo "==> Installing ATK CLI from local build /tmp/cli-local.tgz ..." && \
+      npm install -g /tmp/cli-local.tgz --unsafe-perm true; \
+    else \
+      echo "==> Installing ATK CLI from npm@${ATK_CLI_VERSION} ..." && \
+      npm install -g @microsoft/m365agentstoolkit-cli@${ATK_CLI_VERSION} --unsafe-perm true; \
+    fi \
+    && echo "ATK CLI installed: $(teamsapp --version 2>/dev/null || echo unknown)"
 
 # ── Test runner workspace ─────────────────────────────────────────────────────
 WORKDIR /runner
@@ -88,5 +106,7 @@ RUN sed -i 's/\r//g' /usr/local/bin/run-test.sh \
 
 VOLUME ["/output", "/atk-ext"]
 ENTRYPOINT ["/usr/local/bin/run-test.sh"]
+
+
 
 
