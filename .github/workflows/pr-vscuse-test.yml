@@ -1,21 +1,29 @@
 name: PR VscUse Test Plan Selector
 
-# Triggered when the 'atk-vsuse-test' label is added to a PR.
+# Triggered when the 'atk-vsuse-test' label is added to a PR,
+# OR manually via workflow_dispatch with a pr_number input.
 #
 # This workflow:
-#   1. Gets the diff between the PR branch and the target (default) branch
-#   2. Calls GitHub Copilot (GPT-4.1) to select relevant VscUse test plans
-#   3. Posts a PR comment listing the selected plans
-#   4. Dispatches dev-smoke-test-pipeline.yml with those plans
-#   5. Resolves (edits) the PR comment with the final pass/fail result
+#   1. Resolves PR context (works for both label and manual triggers)
+#   2. Gets the diff between the PR branch and the target branch
+#   3. Calls GitHub Models (GPT-4.1) to select relevant VscUse test plans
+#   4. Posts a PR comment listing the selected plans
+#   5. Dispatches dev-smoke-test-pipeline.yml with those plans
+#   6. Resolves (edits) the PR comment with the final pass/fail result
 
 on:
   pull_request:
     types: [labeled]
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: 'PR number to analyze and run tests for'
+        required: true
+        type: number
 
-# Cancel any in-progress run for the same PR if the label is re-applied
+# Cancel any in-progress run for the same PR if re-triggered
 concurrency:
-  group: pr-vscuse-test-${{ github.event.pull_request.number }}
+  group: pr-vscuse-test-${{ github.event.inputs.pr_number || github.event.pull_request.number }}
   cancel-in-progress: true
 
 permissions:
@@ -26,14 +34,48 @@ permissions:
 
 jobs:
   select-plans-and-run:
-    if: github.event.label.name == 'atk-vsuse-test'
+    if: github.event.label.name == 'atk-vsuse-test' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
 
     steps:
+      # ── 0. Resolve PR context (supports both pull_request and workflow_dispatch) ──
+      - name: Resolve PR context
+        id: pr-context
+        uses: actions/github-script@v6
+        with:
+          script: |
+            let prNumber, headRef, baseRef, prTitle, prBody;
+            if (context.eventName === 'pull_request') {
+              prNumber = context.payload.pull_request.number;
+              headRef  = context.payload.pull_request.head.ref;
+              baseRef  = context.payload.pull_request.base.ref;
+              prTitle  = context.payload.pull_request.title;
+              prBody   = context.payload.pull_request.body || '';
+            } else {
+              // workflow_dispatch: fetch PR metadata from API
+              prNumber = parseInt('${{ github.event.inputs.pr_number }}');
+              const { data: pr } = await github.rest.pulls.get({
+                owner: context.repo.owner,
+                repo:  context.repo.repo,
+                pull_number: prNumber,
+              });
+              headRef = pr.head.ref;
+              baseRef = pr.base.ref;
+              prTitle = pr.title;
+              prBody  = pr.body || '';
+            }
+            core.setOutput('pr_number', String(prNumber));
+            core.setOutput('head_ref',  headRef);
+            core.setOutput('base_ref',  baseRef);
+            core.setOutput('pr_title',  prTitle);
+            core.setOutput('pr_body',   prBody.slice(0, 2000));
+            console.log(`PR #${prNumber}: ${headRef} -> ${baseRef}  "${prTitle}"`);
+
       # ── 1. Checkout plans dir + full git history for diff ─────────────
       - name: Checkout repo
         uses: actions/checkout@v4
         with:
+          ref: ${{ steps.pr-context.outputs.head_ref }}
           fetch-depth: 0
           sparse-checkout: |
             packages/tests/vscuse/vscode-test-cases/plans
@@ -43,13 +85,14 @@ jobs:
       - name: Get PR changed files
         id: changed-files
         uses: actions/github-script@v6
+        env:
+          PR_NUMBER: ${{ steps.pr-context.outputs.pr_number }}
         with:
           script: |
-            // Fetch up to 100 changed files for the PR
             const { data: files } = await github.rest.pulls.listFiles({
               owner: context.repo.owner,
               repo:  context.repo.repo,
-              pull_number: context.payload.pull_request.number,
+              pull_number: parseInt(process.env.PR_NUMBER),
               per_page: 100,
             });
             const fileList = files.map(f => `${f.status.padEnd(9)} ${f.filename}`).join('\n');
@@ -60,18 +103,18 @@ jobs:
       - name: Get git diff summary
         id: diff-summary
         env:
-          BASE_REF: ${{ github.event.pull_request.base.ref }}
-          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          BASE_REF: ${{ steps.pr-context.outputs.base_ref }}
+          HEAD_REF: ${{ steps.pr-context.outputs.head_ref }}
         run: |
           git fetch origin "$BASE_REF" --depth=50 2>/dev/null || true
-          # Collect changed file paths and a brief stat summary
-          DIFF_STAT=$(git diff "origin/${BASE_REF}...${HEAD_SHA}" --stat --no-color 2>/dev/null \
+          git fetch origin "$HEAD_REF" --depth=50 2>/dev/null || true
+          DIFF_STAT=$(git diff "origin/${BASE_REF}...origin/${HEAD_REF}" --stat --no-color 2>/dev/null \
             | tail -5 || echo "(diff unavailable)")
           echo "diff_stat<<EOF" >> "$GITHUB_OUTPUT"
           echo "$DIFF_STAT"     >> "$GITHUB_OUTPUT"
           echo "EOF"            >> "$GITHUB_OUTPUT"
 
-      # ── 4. Select test plans via GitHub Copilot (GitHub Models API) ───
+      # ── 4. Select test plans via GitHub Models (GPT-4.1) ─────────────
       - name: Select test plans via AI
         id: ai-select
         env:
@@ -80,12 +123,12 @@ jobs:
           AZURE_OPENAI_KEY:         ${{ secrets.TEST_TENANT_AZURE_OPENAI_KEY }}
           AZURE_OPENAI_MODEL:       ${{ vars.TEST_TENANT_AZURE_OPENAI_MODEL }}
           AZURE_OPENAI_API_VERSION: ${{ vars.TEST_TENANT_AZURE_OPENAI_API_VERSION }}
-          PR_TITLE:                 ${{ github.event.pull_request.title }}
-          PR_BODY:                  ${{ github.event.pull_request.body }}
+          PR_TITLE:                 ${{ steps.pr-context.outputs.pr_title }}
+          PR_BODY:                  ${{ steps.pr-context.outputs.pr_body }}
           CHANGED_FILES:            ${{ steps.changed-files.outputs.files }}
           DIFF_STAT:                ${{ steps.diff-summary.outputs.diff_stat }}
-          BASE_BRANCH:              ${{ github.event.pull_request.base.ref }}
-          HEAD_BRANCH:              ${{ github.head_ref }}
+          BASE_BRANCH:              ${{ steps.pr-context.outputs.base_ref }}
+          HEAD_BRANCH:              ${{ steps.pr-context.outputs.head_ref }}
         run: |
           set -euo pipefail
 
@@ -160,6 +203,7 @@ Return JSON only."
             -H "Content-Type: application/json" \
             -d "$REQUEST_BODY" || echo "000")
           echo "GitHub Models HTTP: $HTTP_CODE"
+          cat /tmp/ai_resp.json 2>/dev/null || true
 
           # Fallback to Azure OpenAI
           if [ "$HTTP_CODE" != "200" ]; then
@@ -193,7 +237,7 @@ Return JSON only."
 
           # Fallback to smoke tests if AI produced nothing usable
           if [ "$(echo "$VALID_PLANS" | jq 'length')" -eq 0 ]; then
-            echo "No valid AI plans produced - falling back to smoke test cases."
+            echo "No valid AI plans — falling back to smoke test cases."
             VALID_PLANS=$(jq -c '[.smokeTestCases[]]' packages/tests/vscuse/smoking-test-cases.json)
             AI_REASON="AI selection unavailable; using smoke test cases as fallback."
           fi
@@ -211,10 +255,16 @@ Return JSON only."
         env:
           TEST_PLANS: ${{ steps.ai-select.outputs.test_plans }}
           REASON:     ${{ steps.ai-select.outputs.reason }}
+          PR_NUMBER:  ${{ steps.pr-context.outputs.pr_number }}
+          HEAD_REF:   ${{ steps.pr-context.outputs.head_ref }}
+          BASE_REF:   ${{ steps.pr-context.outputs.base_ref }}
         with:
           script: |
             const plans    = process.env.TEST_PLANS.split(',').filter(Boolean);
             const reason   = process.env.REASON || '-';
+            const prNumber = parseInt(process.env.PR_NUMBER);
+            const headRef  = process.env.HEAD_REF;
+            const baseRef  = process.env.BASE_REF;
             const runUrl   = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
             const planList = plans.map(p => `- \`${p}\``).join('\n');
 
@@ -223,7 +273,7 @@ Return JSON only."
               '',
               `**Why these tests:** ${reason}`,
               '',
-              `**Branch diff:** \`${{ github.head_ref }}\` → \`${{ github.event.pull_request.base.ref }}\``,
+              `**Branch diff:** \`${headRef}\` → \`${baseRef}\``,
               '',
               '**Plans queued:**',
               planList,
@@ -241,7 +291,7 @@ Return JSON only."
             const { data: comment } = await github.rest.issues.createComment({
               owner:        context.repo.owner,
               repo:         context.repo.repo,
-              issue_number: context.payload.pull_request.number,
+              issue_number: prNumber,
               body,
             });
 
@@ -253,15 +303,15 @@ Return JSON only."
         id: dispatch
         uses: actions/github-script@v6
         env:
-          TEST_PLANS: ${{ steps.ai-select.outputs.test_plans }}
+          TEST_PLANS:  ${{ steps.ai-select.outputs.test_plans }}
+          HEAD_BRANCH: ${{ steps.pr-context.outputs.head_ref }}
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const owner      = context.repo.owner;
             const repo       = context.repo.repo;
             const testPlans  = process.env.TEST_PLANS;
-            // Dispatch on the PR's head branch so CD builds that branch's code
-            const headBranch = '${{ github.head_ref }}';
+            const headBranch = process.env.HEAD_BRANCH;
 
             await github.rest.actions.createWorkflowDispatch({
               owner,
@@ -303,12 +353,17 @@ Return JSON only."
           TEST_PLANS: ${{ steps.ai-select.outputs.test_plans }}
           REASON:     ${{ steps.ai-select.outputs.reason }}
           RUN_URL:    ${{ steps.dispatch.outputs.smoke_run_url }}
+          PR_NUMBER:  ${{ steps.pr-context.outputs.pr_number }}
+          HEAD_REF:   ${{ steps.pr-context.outputs.head_ref }}
+          BASE_REF:   ${{ steps.pr-context.outputs.base_ref }}
         with:
           script: |
             const commentId = parseInt(process.env.COMMENT_ID);
             const plans     = process.env.TEST_PLANS.split(',').filter(Boolean);
             const reason    = process.env.REASON || '-';
             const runUrl    = process.env.RUN_URL;
+            const headRef   = process.env.HEAD_REF;
+            const baseRef   = process.env.BASE_REF;
             const planList  = plans.map(p => `- \`${p}\``).join('\n');
 
             const body = [
@@ -316,7 +371,7 @@ Return JSON only."
               '',
               `**Why these tests:** ${reason}`,
               '',
-              `**Branch diff:** \`${{ github.head_ref }}\` → \`${{ github.event.pull_request.base.ref }}\``,
+              `**Branch diff:** \`${headRef}\` → \`${baseRef}\``,
               '',
               '**Plans queued:**',
               planList,
@@ -351,7 +406,6 @@ Return JSON only."
             const repo   = context.repo.repo;
             const runId  = parseInt(process.env.SMOKE_RUN_ID);
             const start  = Date.now();
-            // CD (2h) + Docker (2h) + UI tests (4h) = 8h max
             const EIGHT_HOURS = 8 * 60 * 60 * 1000;
 
             while (Date.now() - start < EIGHT_HOURS) {
@@ -377,6 +431,9 @@ Return JSON only."
           REASON:      ${{ steps.ai-select.outputs.reason }}
           CONCLUSION:  ${{ steps.wait-smoke.outputs.conclusion }}
           SMOKE_URL:   ${{ steps.wait-smoke.outputs.run_url }}
+          PR_NUMBER:   ${{ steps.pr-context.outputs.pr_number }}
+          HEAD_REF:    ${{ steps.pr-context.outputs.head_ref }}
+          BASE_REF:    ${{ steps.pr-context.outputs.base_ref }}
         with:
           script: |
             const commentId  = parseInt(process.env.COMMENT_ID);
@@ -386,6 +443,8 @@ Return JSON only."
             const reason     = process.env.REASON || '-';
             const conclusion = process.env.CONCLUSION || 'unknown';
             const smokeUrl   = process.env.SMOKE_URL || '';
+            const headRef    = process.env.HEAD_REF;
+            const baseRef    = process.env.BASE_REF;
             const planList   = plans.map(p => `- \`${p}\``).join('\n');
 
             const succeeded  = conclusion === 'success';
@@ -397,7 +456,7 @@ Return JSON only."
               '',
               `**Why these tests:** ${reason}`,
               '',
-              `**Branch diff:** \`${{ github.head_ref }}\` → \`${{ github.event.pull_request.base.ref }}\``,
+              `**Branch diff:** \`${headRef}\` → \`${baseRef}\``,
               '',
               '**Plans run:**',
               planList,
@@ -415,8 +474,8 @@ Return JSON only."
               '<summary>ℹ️ How were these tests selected?</summary>',
               '',
               'GitHub Copilot (GPT-4.1) analysed the PR title, description, and the diff between',
-              `\`${{ github.head_ref }}\` and \`${{ github.event.pull_request.base.ref }}\``,
-              'to pick the most relevant test plans from [`packages/tests/vscuse/Index.md`](../blob/${{ github.event.pull_request.base.ref }}/packages/tests/vscuse/Index.md).',
+              `\`${headRef}\` and \`${baseRef}\``,
+              `to pick the most relevant test plans from [\`packages/tests/vscuse/Index.md\`](../blob/${baseRef}/packages/tests/vscuse/Index.md).`,
               '',
               '</details>',
             ].join('\n');
