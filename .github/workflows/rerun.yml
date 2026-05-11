@@ -208,6 +208,7 @@ jobs:
           GIF_PATH: ${{ steps.gif.outputs.gif_path }}
           ISSUE: ${{ inputs.issue_number }}
           REPO: ${{ github.repository }}
+          BRANCH: ${{ github.ref_name }}
         run: |
           pip3 install -q requests
           GIF_URL=$(python3 scripts/upload_gif_to_issue.py || echo "")

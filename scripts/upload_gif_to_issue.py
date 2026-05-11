@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""Upload a GIF to a GitHub issue as an embedded asset (CDN URL).
-GitHub uploads.github.com requires multipart/form-data WITH ?name=filename.
+"""Upload a GIF by committing it to the repo branch via GitHub Contents API.
+Returns a raw.githubusercontent.com URL which renders inline in GitHub markdown.
 
-Required env vars: GH_TOKEN, GIF_PATH, ISSUE, REPO
-Prints the browser_download_url on stdout on success.
+Required env vars: GH_TOKEN, GIF_PATH, ISSUE, REPO, BRANCH
+Prints the raw CDN URL on stdout on success.
 """
-import os, sys
+import os, sys, base64, json
 
 try:
     import requests
@@ -18,34 +18,48 @@ gif_path = os.environ.get("GIF_PATH", "")
 token    = os.environ.get("GH_TOKEN", "")
 issue    = os.environ.get("ISSUE", "")
 repo     = os.environ.get("REPO", "")
+branch   = os.environ.get("BRANCH", "feat/atk-copilot-issue-test-pipeline")
 
 if not gif_path or not os.path.exists(gif_path):
     print(f"GIF not found: {gif_path}", file=sys.stderr)
     sys.exit(0)
 
 file_size = os.path.getsize(gif_path)
-print(f"Uploading GIF: {gif_path} ({file_size} bytes)", file=sys.stderr)
-
-# The ?name= query param is required by uploads.github.com
-url = f"https://uploads.github.com/repos/{repo}/issues/{issue}/assets?name=test-run.gif"
+print(f"Committing GIF to branch: {gif_path} ({file_size} bytes)", file=sys.stderr)
 
 with open(gif_path, "rb") as f:
-    resp = requests.post(
-        url,
-        headers={
-            "Authorization": f"Bearer {token}",
-            "Accept": "application/vnd.github.v3+json",
-        },
-        files={"file": ("test-run.gif", f, "image/gif")},
-        timeout=120,
-    )
+    content_b64 = base64.b64encode(f.read()).decode("ascii")
 
-print(f"Status: {resp.status_code}", file=sys.stderr)
-print(f"Response: {resp.text[:500]}", file=sys.stderr)
+path = f"test-screenshots/issue-{issue}-latest.gif"
+api_url = f"https://api.github.com/repos/{repo}/contents/{path}"
+headers = {
+    "Authorization": f"Bearer {token}",
+    "Accept": "application/vnd.github.v3+json",
+}
 
-if resp.status_code in (200, 201):
-    data_json = resp.json()
-    gif_url = data_json.get("browser_download_url", data_json.get("url", ""))
-    print(gif_url)  # stdout → captured by caller
+# Check if file already exists (get SHA for update)
+existing = requests.get(api_url + f"?ref={branch}", headers=headers, timeout=30)
+sha = None
+if existing.status_code == 200:
+    sha = existing.json().get("sha")
+    print(f"File exists, updating (sha={sha[:8]})", file=sys.stderr)
 else:
-    print("", end="")  # empty on failure
+    print("Creating new file", file=sys.stderr)
+
+payload = {
+    "message": f"chore: update test screenshot for issue #{issue} [skip ci]",
+    "content": content_b64,
+    "branch": branch,
+}
+if sha:
+    payload["sha"] = sha
+
+resp = requests.put(api_url, headers=headers, json=payload, timeout=60)
+print(f"Status: {resp.status_code}", file=sys.stderr)
+if resp.status_code in (200, 201):
+    # raw.githubusercontent.com URL renders inline in GitHub markdown
+    raw_url = f"https://raw.githubusercontent.com/{repo}/{branch}/{path}"
+    print(raw_url)
+else:
+    print(f"Response: {resp.text[:400]}", file=sys.stderr)
+    print("", end="")
