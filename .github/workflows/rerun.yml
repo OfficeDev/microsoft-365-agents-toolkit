@@ -111,12 +111,14 @@ jobs:
           ATK_EXT="$GITHUB_WORKSPACE/packages/vscode-extension"
           cd "$ATK_EXT"
           echo "Installing deps..."
-          npm install --legacy-peer-deps --ignore-scripts 2>&1 | tail -3
-          echo "Compiling TypeScript..."
-          npx tsc -p tsconfig.json --noEmit false 2>&1 | tail -5 || \
-          npx tsc 2>&1 | tail -5 || true
-          echo "out/ contents:"
-          ls out/ 2>/dev/null | head -5 || echo "Warning: no out/ dir"
+          npm install --legacy-peer-deps 2>&1 | tail -5
+          echo "Building extension with esbuild..."
+          # build: check-types + vite + esbuild. Run esbuild directly to avoid full check-types overhead
+          node esbuild.mjs 2>&1 | tail -10 || \
+          npm run build 2>&1 | tail -10 || true
+          echo "out/src/ contents:"
+          ls out/src/ 2>/dev/null | head -5 || echo "Warning: no out/src/ dir"
+          [ -f "out/src/extension.js" ] && echo "✅ extension.js built" || echo "❌ extension.js missing"
           echo "ATK_EXT_PATH=$ATK_EXT" >> $GITHUB_ENV
       - name: Run ATK UI tests
         working-directory: docker/copilot-test
@@ -181,6 +183,7 @@ jobs:
           path: /tmp/atk-test-output/
           retention-days: 7
           if-no-files-found: warn
+
 
 
 
