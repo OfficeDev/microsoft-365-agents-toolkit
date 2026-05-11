@@ -182,12 +182,11 @@ suite("ATK Teams Bot Template Creation (UI Wizard)", function () {
     await wait(2000);
     takeScreenshot("08-folder-selected");
 
-    // Step 7: Open in current window
-    console.log("  Selecting: Open in current window");
-    sendSignal("clickText:Open in current window", 12000);
-    await wait(500);
-    sendSignal("pressKey:Enter", 5000);   // fallback if clickText missed
-    await wait(45000); // project scaffold takes ~15-30s; allow extra for slow CI
+    // Confirm folder selection: click the Open icon button in simple dialog title bar
+    // ATK v6.8 always opens project in new window - no Open in current window prompt
+    console.log("  Confirming folder selection");
+    sendSignal("click:.quick-input-widget .codicon-folder-opened", 8000);
+    await wait(90000);
     takeScreenshot("09-project-created");
 
     step("Navigate wizard to create Teams Bot template", cmdAvailable, `command=${cmdAvailable}`);
@@ -236,7 +235,7 @@ suite("ATK Teams Bot Template Creation (UI Wizard)", function () {
     }
 
     const expectedFiles = [
-      "teamsapp.yml",
+      "m365agents.yml",
       "package.json",
       "src/index.ts",
       "appPackage/manifest.json",
