@@ -121,7 +121,7 @@ jobs:
 
       - name: Install Copilot CLI
         run: |
-          npm install -g @github/copilot@1.1.10
+          npm install -g @github/copilot@1.0.44
           copilot --version
       # ── 4. Select test plans via Copilot CLI ─────────────────────────
       - name: Select test plans via AI
