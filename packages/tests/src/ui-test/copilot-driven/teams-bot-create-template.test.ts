@@ -171,19 +171,23 @@ suite("ATK Teams Bot Template Creation (UI Wizard)", function () {
     await wait(2000);
     takeScreenshot("07-app-name");
 
-    // Step 6: Workspace folder — accept the default (runner home dir)
-    console.log("  Accepting default workspace folder");
-    sendSignal("pressKey:Enter", 8000);
+    // Step 6: Workspace folder — type explicit path in VSCode simple dialog
+    // (files.simpleDialog.enable=true replaces native GTK picker with a QuickPick)
+    const projectsDir = path.join(OUTPUT_DIR, "projects");
+    fs.mkdirSync(projectsDir, { recursive: true });
+    console.log("  Typing project output folder:", projectsDir);
+    sendSignal(`type:${projectsDir}`, 8000);
+    await wait(500);
+    sendSignal("pressKey:Enter", 5000);
     await wait(2000);
     takeScreenshot("08-folder-selected");
 
-    // Step 7: Open in current window (or press Enter on default)
+    // Step 7: Open in current window
     console.log("  Selecting: Open in current window");
-    sendSignal("clickText:Open in current window", 8000);
+    sendSignal("clickText:Open in current window", 12000);
     await wait(500);
-    // Fallback: if the click-text didn't find it, just press Enter
-    sendSignal("pressKey:Enter", 5000);
-    await wait(30000); // project scaffold takes ~15-30s
+    sendSignal("pressKey:Enter", 5000);   // fallback if clickText missed
+    await wait(45000); // project scaffold takes ~15-30s; allow extra for slow CI
     takeScreenshot("09-project-created");
 
     step("Navigate wizard to create Teams Bot template", cmdAvailable, `command=${cmdAvailable}`);
@@ -206,6 +210,7 @@ suite("ATK Teams Bot Template Creation (UI Wizard)", function () {
     // 2. Broad filesystem search for the project directory
     if (!projectDir || !fs.existsSync(projectDir)) {
       const searchRoots = [
+        path.join(OUTPUT_DIR, "projects"),   // explicit path we typed in dialog
         os.homedir(),
         "/home/runner",
         os.tmpdir(),

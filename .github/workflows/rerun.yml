@@ -129,6 +129,21 @@ jobs:
           fi
           rm -rf /tmp/atk-vsix /tmp/atk-ext-unzip
 
+      - name: Configure VSCode to use simple (in-app) file dialogs
+        run: |
+          # Prevent native OS file picker (GTK) which Playwright cannot interact with.
+          # With simpleDialog.enable, VSCode shows its own QuickPick for folder selection.
+          SETTINGS_DIR="$HOME/.config/Code/User"
+          mkdir -p "$SETTINGS_DIR"
+          cat > "$SETTINGS_DIR/settings.json" <<'SETTINGS_EOF'
+          {
+            "files.simpleDialog.enable": true,
+            "workbench.startupEditor": "none"
+          }
+          SETTINGS_EOF
+          echo "VSCode user settings written to $SETTINGS_DIR/settings.json"
+          cat "$SETTINGS_DIR/settings.json"
+
       - name: Run ATK UI tests
         working-directory: docker/copilot-test
         env:
