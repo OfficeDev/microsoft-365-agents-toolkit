@@ -185,13 +185,23 @@ jobs:
             echo "gif_path=" >> $GITHUB_OUTPUT
           fi
 
+      - name: Upload GIF artifact
+        if: always() && steps.gif.outputs.gif_path != ''
+        id: gif-artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: atk-test-screenshots-issue-${{ inputs.issue_number }}
+          path: ${{ steps.gif.outputs.gif_path }}
+          retention-days: 30
+          if-no-files-found: warn
+
       - name: Post results to issue
         if: always()
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ISSUE: ${{ inputs.issue_number }}
           RUN_URL: "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-          ARTIFACT_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          ARTIFACT_URL: ${{ steps.gif-artifact.outputs.artifact-url }}
         run: |
           RESULTS=$(cat $TEST_OUTPUT_DIR/results.json 2>/dev/null || echo '{"passed":0,"failed":0,"steps":[]}')
           PASSED=$(echo $RESULTS | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('passed',0))")
