@@ -481,4 +481,54 @@ jobs:
             if (!succeeded && conclusion !== 'timed_out') {
               core.setFailed(`VscUse tests concluded: ${conclusion}. See: ${smokeUrl}`);
             }
+      # ── 9. Remove atk-vsuse-test label (signals completion) ───────────
+      - name: Remove atk-vsuse-test label
+        if: always()
+        uses: actions/github-script@v6
+        env:
+          PR_NUMBER: ${{ steps.pr-context.outputs.pr_number }}
+        with:
+          script: |
+            const prNumber = parseInt(process.env.PR_NUMBER);
+            if (!prNumber) { console.log('No PR number — skipping label removal'); return; }
+            try {
+              await github.rest.issues.removeLabel({
+                owner:        context.repo.owner,
+                repo:         context.repo.repo,
+                issue_number: prNumber,
+                name:         'atk-vsuse-test',
+              });
+              console.log(`Removed label 'atk-vsuse-test' from PR #${prNumber}`);
+            } catch (err) {
+              if (err.status === 404) {
+                console.log('Label not present, nothing to remove');
+              } else {
+                throw err;
+              }
+            }
 
+      # ── 9. Remove trigger label to indicate completion ────────────────
+      - name: Remove atk-vsuse-test label
+        if: always()
+        uses: actions/github-script@v6
+        env:
+          PR_NUMBER: ${{ steps.pr-context.outputs.pr_number }}
+        with:
+          script: |
+            const prNumber = parseInt(process.env.PR_NUMBER);
+            if (!prNumber) { console.log('No PR number — skipping label removal'); return; }
+            try {
+              await github.rest.issues.removeLabel({
+                owner:       context.repo.owner,
+                repo:        context.repo.repo,
+                issue_number: prNumber,
+                name:        'atk-vsuse-test',
+              });
+              console.log(`Removed label 'atk-vsuse-test' from PR #${prNumber}`);
+            } catch (err) {
+              if (err.status === 404) {
+                console.log('Label not present — nothing to remove');
+              } else {
+                throw err;
+              }
+            }
