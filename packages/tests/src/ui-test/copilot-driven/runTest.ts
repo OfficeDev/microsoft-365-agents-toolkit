@@ -94,18 +94,15 @@ async function startSignalWatcher(
         } else if (content.startsWith("type:")) {
           const text = content.slice("type:".length);
           if (page) {
-            // Clear and type into the active QuickInput box
+            // Use fill() to set/clear input - avoids Ctrl+a shortcuts that can trigger QuickInput actions
             const input = page.locator('.quick-input-box input, .quick-input-filter .input');
             try {
               await input.first().waitFor({ timeout: 5000 });
-              await input.first().click({ clickCount: 3 });
-              await page.keyboard.press("Control+a");
-              await page.keyboard.type(text, { delay: 30 });
+              await input.first().fill(text); // fill() clears then sets without keyboard shortcuts
               console.log(`  ⌨️ Typed: "${text}"`);
               await sleep(300);
             } catch (e) {
-              // Fallback: just keyboard type
-              await page.keyboard.press("Control+a");
+              // Fallback: keyboard type
               await page.keyboard.type(text, { delay: 30 });
             }
           }

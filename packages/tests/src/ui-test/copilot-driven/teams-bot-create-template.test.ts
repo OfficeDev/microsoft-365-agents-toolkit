@@ -176,17 +176,13 @@ suite("ATK Teams Bot Template Creation (UI Wizard)", function () {
     //   "Default folder" (~/AgentsToolkitProjects) and "Browse..."
     // Click "Default folder" to use the default path ~/AgentsToolkitProjects/<appName>
     console.log("  Selecting default folder");
-    // Wait for the "Workspace Folder" QuickPick to appear (ATK shows this title)
+    // The Workspace Folder QuickPick opens with app name in filter (VSCode value carry-over).
+    // Use fill("") to clear the filter without triggering QuickInput Ctrl+A shortcuts,
+    // then click "Default folder" which becomes visible with empty filter.
     sendSignal("waitForText:Workspace Folder", 15000);
     await wait(300);
-    // The QuickPick filter is pre-populated with the app name, hiding list items.
-    // Click filter input, Ctrl+A select all, Delete to clear, then click item.
-    sendSignal("click:.quick-input-filter .input", 2000);
-    await wait(200);
-    sendSignal("pressKey:Control+a", 2000);
-    await wait(200);
-    sendSignal("pressKey:Delete", 2000);
-    await wait(300);
+    sendSignal("type:", 3000);   // fill("") clears filter - no keyboard shortcuts
+    await wait(500);
     sendSignal("clickText:Default folder", 12000);
     await wait(90000); // scaffold + new window; 90s for slow CI
     takeScreenshot("08-folder-selected");
