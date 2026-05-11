@@ -9,21 +9,24 @@
       "precondition_retry_interval": 2.0,
       "step_retry_timeout": 0.0
     },
-    "total_steps": 6,
-    "created_at": "2026-01-04T09:11:46.643147",
+    "total_steps": 7,
+    "created_at": "2026-05-11T01:17:37.762517",
     "name": "Feature Validate copilot manifest",
     "description": {
       "other": "validate declare project manifest",
       "owner": "v-liliu2@microsoft.com",
       "workitem": "28041476"
     },
-    "generated_at": "2026-01-04T09:11:46.643147",
+    "generated_at": "2026-05-11T01:17:37.762492",
     "execution_order": [
       "plan_r_0928_012254",
       "step_886aed90",
       "step_f271e9a9",
       "step_8daf9a98",
       "plan_r_0928_014459",
+      "plan_fa541eb9",
+      "plan_6fc8cbe6",
+      "step_29629dab",
       "step_fecb6617",
       "step_c57c194d",
       "plan_fa541eb9",
@@ -31,7 +34,7 @@
       "step_022cccb9"
     ],
     "tags": [],
-    "updated_at": "2026-01-05T05:41:23.739174"
+    "updated_at": "2026-05-11T03:07:10.042714"
   },
   "steps": [
     {
@@ -57,7 +60,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_886aed90",
-      "created_at": "2026-01-05T05:05:18.916297",
+      "created_at": "2026-05-11T01:55:37.675320",
       "plan_id": "plan_308544cb"
     },
     {
@@ -83,7 +86,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_f271e9a9",
-      "created_at": "2026-01-05T05:05:18.930809",
+      "created_at": "2026-05-11T01:55:37.691137",
       "plan_id": "plan_308544cb"
     },
     {
@@ -109,7 +112,27 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_8daf9a98",
-      "created_at": "2026-01-05T05:05:18.944285",
+      "created_at": "2026-05-11T01:55:37.705482",
+      "plan_id": "plan_308544cb"
+    },
+    {
+      "step_id": "step_29629dab",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion \"All passed.\"",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "delay:10"
+      ],
+      "screenshot": null,
+      "created_at": "2026-05-11T02:55:18.397759",
       "plan_id": "plan_308544cb"
     },
     {
@@ -135,7 +158,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_fecb6617",
-      "created_at": "2026-01-05T05:05:18.953542",
+      "created_at": "2026-05-11T01:55:37.717969",
       "plan_id": "plan_308544cb"
     },
     {
@@ -155,7 +178,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": null,
-      "created_at": "2026-01-05T05:05:18.967096",
+      "created_at": "2026-05-11T01:55:37.733245",
       "plan_id": "plan_308544cb"
     },
     {
@@ -163,7 +186,7 @@
       "agent": "assertion",
       "tool": "",
       "parameters": {},
-      "description": "@assertion 'Error: property name must be valid.Details:{\"propertyName\":\"names\"}'  is exist",
+      "description": "@assertion '[CopilotGptManifestUtils.F8r]:JSON syntax error'  is exist",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -173,7 +196,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": null,
-      "created_at": "2026-01-05T05:05:18.973266",
+      "created_at": "2026-05-11T01:55:37.745153",
       "plan_id": "plan_308544cb"
     }
   ],
