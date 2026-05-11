@@ -195,12 +195,66 @@ jobs:
           retention-days: 30
           if-no-files-found: warn
 
+      - name: Upload GIF to issue assets (embedded image URL)
+        if: always() && steps.gif.outputs.gif_path != ''
+        id: upload-gif-asset
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GIF_PATH: ${{ steps.gif.outputs.gif_path }}
+          ISSUE: ${{ inputs.issue_number }}
+          REPO: ${{ github.repository }}
+        run: |
+          pip3 install -q requests
+          GIF_URL=$(python3 - <<'PYEOF'
+import os, sys, json
+try:
+    import requests
+    gif_path = os.environ["GIF_PATH"]
+    token = os.environ["GH_TOKEN"]
+    issue = os.environ["ISSUE"]
+    repo = os.environ["REPO"]
+
+    if not os.path.exists(gif_path):
+        print(f"GIF not found: {gif_path}", file=sys.stderr)
+        sys.exit(0)
+
+    file_size = os.path.getsize(gif_path)
+    print(f"Uploading GIF: {gif_path} ({file_size} bytes)", file=sys.stderr)
+
+    url = f"https://uploads.github.com/repos/{repo}/issues/{issue}/assets"
+    with open(gif_path, "rb") as f:
+        resp = requests.post(
+            url,
+            headers={
+                "Authorization": f"Bearer {token}",
+                "Accept": "application/vnd.github.v3+json",
+            },
+            files={"file": ("test-run.gif", f, "image/gif")},
+            timeout=60,
+        )
+    print(f"Status: {resp.status_code}", file=sys.stderr)
+    print(f"Response: {resp.text[:500]}", file=sys.stderr)
+    if resp.status_code in (200, 201):
+        data = resp.json()
+        url = data.get("browser_download_url", data.get("url", ""))
+        print(url)
+    else:
+        print("", end="")
+except Exception as e:
+    print(f"Upload error: {e}", file=sys.stderr)
+    print("", end="")
+PYEOF
+          )
+          echo "gif_asset_url=$GIF_URL" >> $GITHUB_OUTPUT
+          echo "GIF asset URL: $GIF_URL"
+
       - name: Post results to issue
         if: always()
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ISSUE: ${{ inputs.issue_number }}
           RUN_URL: "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          GIF_EMBED_URL: ${{ steps.upload-gif-asset.outputs.gif_asset_url }}
           ARTIFACT_URL: ${{ steps.gif-artifact.outputs.artifact-url }}
         run: |
           RESULTS=$(cat $TEST_OUTPUT_DIR/results.json 2>/dev/null || echo '{"passed":0,"failed":0,"steps":[]}')
@@ -210,7 +264,7 @@ jobs:
           LOG=$(tail -40 $TEST_OUTPUT_DIR/test.log 2>/dev/null || echo "no log")
           STATUS=$( [ "$FAILED" = "0" ] && echo "PASSED" || echo "FAILED" )
           STATUS_ICON=$( [ "$FAILED" = "0" ] && echo "OK" || echo "FAIL" )
-          export STATUS STATUS_ICON PASSED FAILED SHOTS LOG TEST_PLAN STEPS_TABLE ARTIFACT_URL
+          export STATUS STATUS_ICON PASSED FAILED SHOTS LOG TEST_PLAN STEPS_TABLE GIF_EMBED_URL ARTIFACT_URL
 
           # Read test plan
           TEST_PLAN=$(cat test-plans/teams-bot-template/teams-bot-template.md 2>/dev/null | head -80 || cat test-plans/teams-bot-template.md 2>/dev/null | head -80 || echo "*(test plan not found)*")
@@ -250,7 +304,14 @@ jobs:
           badge = '✅ PASSED' if status == 'PASSED' else '❌ FAILED'
           emoji = 'OK' if status == 'PASSED' else 'FAIL'
 
-          gif_section = f'\n### Screenshots\n\n[View screenshots & GIF]({artifact_url})\n' if int(shots or 0) > 0 else ''
+          gif_embed_url = os.environ.get('GIF_EMBED_URL', '').strip()
+          artifact_url = os.environ.get('ARTIFACT_URL', '').strip()
+          if gif_embed_url:
+              gif_section = f'\n### Screenshots\n\n![test-run]({gif_embed_url})\n'
+          elif int(shots or 0) > 0 and artifact_url:
+              gif_section = f'\n### Screenshots\n\n[Download screenshots]({artifact_url})\n'
+          else:
+              gif_section = ''
 
           body = f"""<!-- atk-copilot-test-results -->
           ### 🤖 ATK Copilot Test Results — {badge}

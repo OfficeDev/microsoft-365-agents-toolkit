@@ -2,7 +2,17 @@
 // Licensed under the MIT license.
 /**
  * runTest.ts - Hybrid: @vscode/test-electron (activates extension + Mocha)
- *              + Playwright CDP connection (takes real screenshots externally)
+ *              + Playwright CDP connection (screenshots + UI interaction)
+ *
+ * Extended signal protocol:
+ *   Signal file name: {timestamp}-{name}.signal
+ *   Signal file content:
+ *     screenshot:{destPath}    — take a screenshot
+ *     click:{cssSelector}      — click matching element in QuickPick
+ *     clickText:{text}         — click QuickPick item whose label contains text
+ *     type:{text}              — type text into active input
+ *     pressKey:{key}           — press a keyboard key (Enter, Escape, Tab, ...)
+ *     waitForText:{text}       — wait until element with text is visible, then delete signal
  */
 import * as path from "path";
 import * as fs from "fs";
@@ -17,38 +27,128 @@ const TESTS_ROOT = path.resolve(HERE, "../../..");
 
 function sleep(ms: number) { return new Promise<void>((r) => setTimeout(r, ms)); }
 
-// ── Screenshot signal watcher ─────────────────────────────────────────────────
-async function startScreenshotWatcher(
+// ── Signal watcher (screenshots + UI actions) ─────────────────────────────────
+async function startSignalWatcher(
   signalDir: string,
   getPage: () => Page | null,
   stopFlag: { stop: boolean }
 ) {
   fs.mkdirSync(signalDir, { recursive: true });
-  console.log("📡 Screenshot watcher started →", signalDir);
+  console.log("📡 Signal watcher started →", signalDir);
 
   while (!stopFlag.stop) {
-    const signals = fs.readdirSync(signalDir).filter((f) => f.endsWith(".signal"));
+    const signals = fs.readdirSync(signalDir)
+      .filter((f) => f.endsWith(".signal"))
+      .sort();
+
     for (const sig of signals) {
       const sigPath = path.join(signalDir, sig);
+      let content = "";
       try {
-        const dest = fs.readFileSync(sigPath, "utf8").trim();
-        const page = getPage();
-        if (page) {
-          await page.screenshot({ path: dest, fullPage: false });
-          console.log(`  📸 ${path.basename(dest)}`);
-        }
-        fs.rmSync(sigPath, { force: true });
-      } catch (e) {
-        fs.rmSync(sigPath, { force: true });
+        content = fs.readFileSync(sigPath, "utf8").trim();
+      } catch {
+        continue; // already deleted
       }
+
+      const page = getPage();
+      try {
+        if (content.startsWith("screenshot:")) {
+          const dest = content.slice("screenshot:".length);
+          if (page) {
+            await page.screenshot({ path: dest, fullPage: false });
+            console.log(`  📸 ${path.basename(dest)}`);
+          }
+
+        } else if (content.startsWith("clickText:")) {
+          const text = content.slice("clickText:".length);
+          if (page) {
+            // QuickPick item label selector
+            const item = page.locator('.quick-input-list .monaco-list-row')
+              .filter({ hasText: text });
+            try {
+              await item.first().waitFor({ timeout: 8000 });
+              await item.first().click();
+              console.log(`  🖱️ Clicked: "${text}"`);
+              await sleep(500); // settle
+            } catch {
+              console.warn(`  ⚠️ clickText: "${text}" not found, trying pressKey ArrowDown+Enter`);
+              await page.keyboard.press("ArrowDown");
+              await sleep(200);
+              await page.keyboard.press("Enter");
+            }
+          }
+
+        } else if (content.startsWith("click:")) {
+          const selector = content.slice("click:".length);
+          if (page) {
+            try {
+              await page.locator(selector).first().waitFor({ timeout: 8000 });
+              await page.locator(selector).first().click();
+              console.log(`  🖱️ Clicked selector: ${selector}`);
+              await sleep(300);
+            } catch (e) {
+              console.warn(`  ⚠️ click: selector "${selector}" not found`);
+            }
+          }
+
+        } else if (content.startsWith("type:")) {
+          const text = content.slice("type:".length);
+          if (page) {
+            // Clear and type into the active QuickInput box
+            const input = page.locator('.quick-input-box input, .quick-input-filter .input');
+            try {
+              await input.first().waitFor({ timeout: 5000 });
+              await input.first().triple_click ? await input.first().click({ clickCount: 3 }) : await input.first().click();
+              await page.keyboard.press("Control+a");
+              await page.keyboard.type(text, { delay: 30 });
+              console.log(`  ⌨️ Typed: "${text}"`);
+              await sleep(300);
+            } catch (e) {
+              // Fallback: just keyboard type
+              await page.keyboard.press("Control+a");
+              await page.keyboard.type(text, { delay: 30 });
+            }
+          }
+
+        } else if (content.startsWith("pressKey:")) {
+          const key = content.slice("pressKey:".length);
+          if (page) {
+            await page.keyboard.press(key);
+            console.log(`  ⌨️ Key: ${key}`);
+            await sleep(300);
+          }
+
+        } else if (content.startsWith("waitForText:")) {
+          const text = content.slice("waitForText:".length);
+          if (page) {
+            try {
+              await page.waitForSelector(`text="${text}"`, { timeout: 10000 });
+              console.log(`  ✅ Found text: "${text}"`);
+            } catch {
+              console.warn(`  ⚠️ waitForText: "${text}" not found within timeout`);
+            }
+          }
+
+        } else {
+          // Legacy: treat content as a screenshot dest path
+          if (page && content) {
+            await page.screenshot({ path: content, fullPage: false });
+            console.log(`  📸 (legacy) ${path.basename(content)}`);
+          }
+        }
+      } catch (e) {
+        console.warn(`  Signal error (${sig}):`, e);
+      }
+
+      try { fs.rmSync(sigPath, { force: true }); } catch { /* ok */ }
     }
+
     await sleep(150);
   }
 }
 
 // ── Main ─────────────────────────────────────────────────────────────────────
 async function main() {
-  // Empty string means: use VSIX installed in VSCODE_EXTENSIONS_DIR (not extensionDevelopmentPath)
   const extPath = process.env.ATK_EXT_PATH ?? ""
 
   const outputDir =
@@ -74,7 +174,6 @@ async function main() {
     console.error("ATK extension not found:", extPath);
     process.exit(1);
   }
-  console.log(extPath ? `Using extensionDevelopmentPath: ${extPath}` : "Using installed extension from VSCODE_EXTENSIONS_DIR");
 
   // Compile the Mocha suite
   const tmpOut = path.join(TESTS_ROOT, "out", "copilot-driven");
@@ -107,27 +206,21 @@ async function main() {
     process.exit(1);
   }
 
-  // CDP port for Playwright
   const CDP_PORT = 9229;
 
-  // Track active Playwright page
   let activePage: Page | null = null;
   const stopFlag = { stop: false };
 
-  // Start watcher BEFORE launching VSCode
-  const watcherPromise = startScreenshotWatcher(signalDir, () => activePage, stopFlag);
+  const watcherPromise = startSignalWatcher(signalDir, () => activePage, stopFlag);
 
-  // Extensions dir: env override for Docker (VSCODE_EXTENSIONS_DIR) or user default
   const userExtDir = process.env.VSCODE_EXTENSIONS_DIR
     || path.join(os.homedir(), ".vscode", "extensions");
 
-  // Check if yaml extension is present in the extensions dir
   const yamlExtPresent = fs.existsSync(path.join(userExtDir, "redhat.vscode-yaml", "package.json"))
-    || fs.readdirSync(userExtDir).some(d => d.startsWith("redhat.vscode-yaml") && 
+    || fs.readdirSync(userExtDir).some(d => d.startsWith("redhat.vscode-yaml") &&
        fs.existsSync(path.join(userExtDir, d, "package.json")));
   console.log(`Extensions dir: ${userExtDir} (yaml: ${yamlExtPresent})`);
 
-  // Launch VSCode via @vscode/test-electron
   const vscodeTestOpts: any = {
     extensionTestsPath,
     launchArgs: [
@@ -137,9 +230,7 @@ async function main() {
       `--user-data-dir=${userDataDir}`,
       "--no-sandbox",
       `--remote-debugging-port=${CDP_PORT}`,
-      // Include user extensions so redhat.vscode-yaml satisfies ATK's extensionDependencies
       `--extensions-dir=${userExtDir}`,
-      // If yaml not in extensions dir, install it from marketplace (first run only)
       ...(yamlExtPresent ? [] : ["--install-extension", "redhat.vscode-yaml"]),
     ],
     version: "stable",
@@ -149,37 +240,30 @@ async function main() {
       SCREENSHOT_DIR: screenshotDir,
     },
   };
-  // Only set extensionDevelopmentPath if provided (otherwise rely on installed ext in extensions-dir)
   if (extPath) {
     vscodeTestOpts.extensionDevelopmentPath = extPath;
   }
   const testRunPromise = runTests(vscodeTestOpts);
 
-  // Connect CDP - poll until VSCode exposes the debugging endpoint
   let browser: Browser | null = null;
   let cdpConnected = false;
   const cdpStart = Date.now();
 
-  // Poll for CDP availability (VSCode can take 8-15s to start)
   while (!cdpConnected && Date.now() - cdpStart < 20000) {
     await sleep(1000);
     try {
       browser = await chromium.connectOverCDP(`http://localhost:${CDP_PORT}`, { timeout: 2000 });
       cdpConnected = true;
-    } catch (_) {
-      // Not ready yet
-    }
+    } catch (_) { }
   }
 
   if (browser) {
-    // Give VSCode UI a moment to settle
     await sleep(1000);
     const contexts = browser.contexts();
     console.log(`CDP connected: ${contexts.length} context(s)`);
     const allPages = contexts.flatMap((c) => c.pages());
     console.log(`  Pages: ${allPages.length}`);
 
-    // Prefer main VSCode window
     activePage = allPages.find((p) => p.url().includes("vscode-app"))
       ?? allPages.sort((a, b) => b.url().length - a.url().length)[0]
       ?? null;
@@ -188,22 +272,21 @@ async function main() {
       const title = await activePage.title().catch(() => "?");
       console.log(`  Active page: ${title}`);
 
-      // Listen for new pages (wizard opens in new webview)
       contexts.forEach((ctx) => {
         ctx.on("page", (newPage) => {
           console.log("  New page:", newPage.url());
-          // Prefer wizard pages over main window
-          if (newPage.url().includes("webview") || newPage.url().includes("panel")) {
+          // Stay on main window for QuickPick (QuickPick is in the main window, not a separate page)
+          // Only switch to new page if it's a webview panel
+          if (newPage.url().includes("webview-panel")) {
             activePage = newPage;
           }
         });
       });
     }
   } else {
-    console.warn("CDP connect failed - screenshots will be skipped");
+    console.warn("CDP connect failed - UI interaction will be skipped");
   }
 
-  // Wait for test run to complete
   try {
     await testRunPromise;
     console.log("Test run completed successfully");
@@ -217,6 +300,3 @@ async function main() {
 }
 
 main().catch((e) => { console.error(e); process.exit(1); });
-
-
-
