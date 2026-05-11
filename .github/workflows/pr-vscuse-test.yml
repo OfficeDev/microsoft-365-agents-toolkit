@@ -114,21 +114,26 @@ jobs:
           echo "$DIFF_STAT"     >> "$GITHUB_OUTPUT"
           echo "EOF"            >> "$GITHUB_OUTPUT"
 
-      # ── 4. Select test plans via GitHub Models (GPT-4.1) ─────────────
+      # ── 3b. Install Copilot CLI ───────────────────────────────────────
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install Copilot CLI
+        run: |
+          npm install -g @github/copilot@1.1.10
+          copilot --version
+      # ── 4. Select test plans via Copilot CLI ─────────────────────────
       - name: Select test plans via AI
         id: ai-select
         env:
-          GH_TOKEN:                 ${{ secrets.GITHUB_TOKEN }}
-          AZURE_OPENAI_ENDPOINT:    ${{ vars.TEST_TENANT_AZURE_OPENAI_ENDPOINT }}
-          AZURE_OPENAI_KEY:         ${{ secrets.TEST_TENANT_AZURE_OPENAI_KEY }}
-          AZURE_OPENAI_MODEL:       ${{ vars.TEST_TENANT_AZURE_OPENAI_MODEL }}
-          AZURE_OPENAI_API_VERSION: ${{ vars.TEST_TENANT_AZURE_OPENAI_API_VERSION }}
-          PR_TITLE:                 ${{ steps.pr-context.outputs.pr_title }}
-          PR_BODY:                  ${{ steps.pr-context.outputs.pr_body }}
-          CHANGED_FILES:            ${{ steps.changed-files.outputs.files }}
-          DIFF_STAT:                ${{ steps.diff-summary.outputs.diff_stat }}
-          BASE_BRANCH:              ${{ steps.pr-context.outputs.base_ref }}
-          HEAD_BRANCH:              ${{ steps.pr-context.outputs.head_ref }}
+          COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_CLI_RUNNER_TOKEN }}
+          PR_TITLE:             ${{ steps.pr-context.outputs.pr_title }}
+          PR_BODY:              ${{ steps.pr-context.outputs.pr_body }}
+          CHANGED_FILES:        ${{ steps.changed-files.outputs.files }}
+          DIFF_STAT:            ${{ steps.diff-summary.outputs.diff_stat }}
+          BASE_BRANCH:          ${{ steps.pr-context.outputs.base_ref }}
+          HEAD_BRANCH:          ${{ steps.pr-context.outputs.head_ref }}
         run: |
           set -euo pipefail
 
@@ -136,53 +141,42 @@ jobs:
           PLANS_TEXT=$(find packages/tests/vscuse/vscode-test-cases/plans \
             -maxdepth 1 -name "*.json" -exec basename {} .json \; | sort)
 
-          SYSTEM_PROMPT='You are a test plan selector for the Microsoft 365 Agents Toolkit (ATK) VS Code extension. Select the most relevant VscUse UI test plans for a given PR based on the changed files and PR description. FILE PATH MAPPING (use this first): templates/vs/csharp/custom-copilot-travel-agent -> Basic_Custom_Engine_*; templates/vs/csharp/custom-copilot-weather-agent -> Weather_Agent_*; templates/vscode/ts/custom-copilot-** -> Basic_Custom_Engine_*_ts_*; templates/vscode/js/** -> *_js_*; templates/vscode/py/** -> *_py_*; templates/vscode/**declarative** or **da-** -> DA_*; templates/vscode/**message-extension** -> Message_Extension_*; templates/vscode/**tab** -> Basic_Tab_*; templates/vscode/**bot** -> Simple_Bot_*; packages/vscode-extension/src/treeview/** -> Feature_TreeView_*; packages/vscode-extension/** -> Feature_*; trivial changes (remove pkg, typo, readme) -> minimal 1-2 related plans only. PLAN PREFIXES: DA_*=Declarative Agent; Basic_Custom_Engine_*=Custom Engine AI bot; General_Teams_Agent_*=Teams agent; Teams_Agent_With_Data_*=AI Search/RAG; Weather_Agent_*=Weather bot; Simple_Bot_*=Simple bot; Message_Extension_*=Message extension; Basic_Tab_*=Tab app; Feature_*=VS Code UI features; Template_*=Template verification. Suffixes: _Local_Debug=local F5, _Remote_Debug=Azure deploy. Languages: _js_, _ts_, _py_ or no suffix=C#. RULES: match file paths first; prefer Remote_Debug for template changes; for trivial changes pick 1-2 directly related plans; keep total 1-8 plans. Return ONLY valid JSON: {"plans": ["PlanName1"], "reason": "one sentence"}'
-          USER_PROMPT=$(printf 'PR: %s -> %s\nTitle: %s\n\nDescription (first 1200 chars):\n%s\n\nChanged files (with status):\n%s\n\nDiff summary:\n%s\n\nAvailable test plans:\n%s\n\nReturn JSON only.' \
+          SYSTEM_PROMPT='You are a test plan selector for the Microsoft 365 Agents Toolkit (ATK) VS Code extension. Select the most relevant VscUse UI test plans for a given PR based on the changed files and PR description. FILE PATH MAPPING (use this first): templates/vs/csharp/custom-copilot-travel-agent -> Basic_Custom_Engine_*; templates/vs/csharp/custom-copilot-weather-agent -> Weather_Agent_*; templates/vscode/ts/custom-copilot-** -> Basic_Custom_Engine_*_ts_*; templates/vscode/js/** -> *_js_*; templates/vscode/py/** -> *_py_*; templates/vscode/**declarative** or **da-** -> DA_*; templates/vscode/**message-extension** -> Message_Extension_*; templates/vscode/**tab** -> Basic_Tab_*; templates/vscode/**bot** -> Simple_Bot_*; packages/vscode-extension/src/treeview/** -> Feature_TreeView_*; packages/vscode-extension/** -> Feature_*; trivial changes (remove pkg, typo, readme) -> minimal 1-2 related plans only. PLAN PREFIXES: DA_*=Declarative Agent; Basic_Custom_Engine_*=Custom Engine AI bot; General_Teams_Agent_*=Teams agent; Teams_Agent_With_Data_*=AI Search/RAG; Weather_Agent_*=Weather bot; Simple_Bot_*=Simple bot; Message_Extension_*=Message extension; Basic_Tab_*=Tab app; Feature_*=VS Code UI features; Template_*=Template verification. Suffixes: _Local_Debug=local F5, _Remote_Debug=Azure deploy. Languages: _js_, _ts_, _py_ or no suffix=C#. RULES: match file paths first; prefer Remote_Debug for template changes; for trivial changes pick 1-2 directly related plans; keep total 1-8 plans. Output ONLY a JSON object with no extra text: {"plans": ["PlanName1"], "reason": "one sentence"}'
+
+          USER_PROMPT=$(printf '%s\n\nPR: %s -> %s\nTitle: %s\n\nDescription (first 1200 chars):\n%s\n\nChanged files (with status):\n%s\n\nDiff summary:\n%s\n\nAvailable test plans:\n%s\n\nOutput JSON only.' \
+            "$SYSTEM_PROMPT" \
             "${HEAD_BRANCH}" "${BASE_BRANCH}" "${PR_TITLE}" "${PR_BODY:0:1200}" \
             "${CHANGED_FILES}" "${DIFF_STAT}" "${PLANS_TEXT}")
-          REQUEST_BODY=$(jq -n \
-            --arg system "$SYSTEM_PROMPT" \
-            --arg user   "$USER_PROMPT" \
-            '{
-              model: "openai/gpt-4.1",
-              messages: [
-                {role: "system", content: $system},
-                {role: "user",   content: $user}
-              ],
-              temperature: 0.1,
-              response_format: {type: "json_object"}
-            }')
 
           AI_SOURCE="smoke-fallback"
+          echo "Running Copilot CLI for test plan selection..."
+          copilot --yolo --model claude-sonnet-4.6 -p "$USER_PROMPT" > /tmp/copilot_output.txt 2>&1 || true
+          echo "--- Copilot output ---"
+          cat /tmp/copilot_output.txt || true
 
-          # Try Azure OpenAI first (primary path - org token doesn't grant GitHub Models access)
-          if [ -n "${AZURE_OPENAI_ENDPOINT:-}" ] && [ -n "${AZURE_OPENAI_KEY:-}" ] && [ -n "${AZURE_OPENAI_MODEL:-}" ]; then
-            echo "Trying Azure OpenAI (${AZURE_OPENAI_ENDPOINT})..."
-            AOAI_BODY=$(echo "$REQUEST_BODY" | jq 'del(.model)')
-            HTTP_CODE=$(curl -s -o /tmp/ai_resp.json -w "%{http_code}" \
-              -X POST "${AZURE_OPENAI_ENDPOINT}/openai/deployments/${AZURE_OPENAI_MODEL}/chat/completions?api-version=${AZURE_OPENAI_API_VERSION:-2025-04-01-preview}" \
-              -H "api-key: $AZURE_OPENAI_KEY" \
-              -H "Content-Type: application/json" \
-              -d "$AOAI_BODY" || echo "000")
-            echo "Azure OpenAI HTTP: $HTTP_CODE"
-            cat /tmp/ai_resp.json 2>/dev/null || true
-            [ "$HTTP_CODE" = "200" ] && AI_SOURCE="azure-openai"
+          # Extract JSON: find the first {...} block that has a "plans" key
+          cat > /tmp/extract_json.py << 'PYEOF'
+          import sys, re, json
+          text = open('/tmp/copilot_output.txt').read()
+          for pat in [r'\{[^{}]*"plans"[^{}]*\}', r'\{.*?\}']:
+              for m in re.findall(pat, text, re.DOTALL):
+                  try:
+                      obj = json.loads(m)
+                      if 'plans' in obj:
+                          print(json.dumps(obj))
+                          sys.exit(0)
+                  except Exception:
+                      pass
+          print('')
+          PYEOF
+          AI_CONTENT=$(python3 /tmp/extract_json.py 2>/dev/null || true)
+
+          echo "Extracted AI content: $AI_CONTENT"
+
+          if [ -n "$AI_CONTENT" ]; then
+            AI_SOURCE="copilot-cli"
           fi
 
-          # Fallback to GitHub Models if Azure OpenAI unavailable or failed
-          if [ "$AI_SOURCE" != "azure-openai" ]; then
-            echo "Trying GitHub Models API..."
-            HTTP_CODE=$(curl -s -o /tmp/ai_resp.json -w "%{http_code}" \
-              -X POST "https://models.github.ai/inference/chat/completions" \
-              -H "Authorization: Bearer $GH_TOKEN" \
-              -H "Content-Type: application/json" \
-              -d "$REQUEST_BODY" || echo "000")
-            echo "GitHub Models HTTP: $HTTP_CODE"
-            cat /tmp/ai_resp.json 2>/dev/null || true
-            [ "$HTTP_CODE" = "200" ] && AI_SOURCE="github-models"
-          fi
-          # Parse AI response
-          AI_CONTENT=$(jq -r '.choices[0].message.content // empty' /tmp/ai_resp.json 2>/dev/null || true)
           AI_PLANS=$(echo "$AI_CONTENT" | jq -r '.plans // empty' 2>/dev/null || true)
           AI_REASON=$(echo "$AI_CONTENT" | jq -r '.reason // empty' 2>/dev/null || true)
 
@@ -204,14 +198,14 @@ jobs:
           if [ "$(echo "$VALID_PLANS" | jq 'length')" -eq 0 ]; then
             echo "No valid AI plans — falling back to smoke test cases."
             VALID_PLANS=$(jq -c '[.smokeTestCases[]]' packages/tests/vscuse/smoking-test-cases.json)
-            AI_REASON="AI selection unavailable (AI_SOURCE=); using smoke test cases as fallback."
+            AI_REASON="AI selection unavailable (source=${AI_SOURCE}); using smoke test cases as fallback."
             IS_FALLBACK="true"
           fi
 
           PLANS_CSV=$(echo "$VALID_PLANS" | jq -r 'join(",")')
-          echo "test_plans=${PLANS_CSV}"   >> "$GITHUB_OUTPUT"
-          echo "reason=${AI_REASON}"       >> "$GITHUB_OUTPUT"
-          echo "ai_source=${AI_SOURCE}"    >> "$GITHUB_OUTPUT"
+          echo "test_plans=${PLANS_CSV}"    >> "$GITHUB_OUTPUT"
+          echo "reason=${AI_REASON}"        >> "$GITHUB_OUTPUT"
+          echo "ai_source=${AI_SOURCE}"     >> "$GITHUB_OUTPUT"
           echo "is_fallback=${IS_FALLBACK}" >> "$GITHUB_OUTPUT"
           echo "Selected: $PLANS_CSV"
           echo "Reason:   $AI_REASON"
