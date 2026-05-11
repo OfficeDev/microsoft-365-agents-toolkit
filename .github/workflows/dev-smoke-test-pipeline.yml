@@ -1,286 +1,493 @@
-name: Dev Smoke Test Pipeline
+name: PR VscUse Test Plan Selector
+
+# Triggered when the 'atk-vsuse-test' label is added to a PR,
+# OR manually via workflow_dispatch with a pr_number input.
+#
+# This workflow:
+#   1. Resolves PR context (works for both label and manual triggers)
+#   2. Gets the diff between the PR branch and the target branch
+#   3. Calls GitHub Models (GPT-4.1) to select relevant VscUse test plans
+#   4. Posts a PR comment listing the selected plans
+#   5. Dispatches dev-smoke-test-pipeline.yml with those plans
+#   6. Resolves (edits) the PR comment with the final pass/fail result
 
 on:
+  pull_request:
+    types: [labeled]
   workflow_dispatch:
     inputs:
-      email:
-        description: "Your personal email for test result notification (e.g., yourname@microsoft.com)"
-        required: false
-        type: string
-      test_plan:
-        description: "Comma-separated list of test plan names to run. Leave empty to use smoking-test-cases.json."
-        required: false
-        type: string
-        default: ""
+      pr_number:
+        description: 'PR number to analyze and run tests for'
+        required: true
+        type: number
+
+# Cancel any in-progress run for the same PR if re-triggered
+concurrency:
+  group: pr-vscuse-test-${{ github.event.inputs.pr_number || github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  pull-requests: write
+  issues: write
+  actions: write
+  contents: read
 
 jobs:
-  run-cd:
+  select-plans-and-run:
+    if: github.event.label.name == 'atk-vsuse-test' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
-    outputs:
-      run_id: ${{ steps.trigger.outputs.run_id }}
-      tag_name: ${{ steps.tag.outputs.tag_name }}
+
     steps:
-      - name: Generate GitHub App token
-        id: generate-token
-        uses: actions/create-github-app-token@v2
-        with:
-          app-id: ${{ vars.APP_GITHUB_APP_ID }}
-          private-key: ${{ secrets.APP_GITHUB_APP_PRIVATE_KEY }}
-
-      - name: Generate tag name
-        id: tag
-        run: |
-          SAFE_BRANCH=$(echo "${{ github.head_ref || github.ref_name }}" | sed 's/[^a-zA-Z0-9._-]/-/g')
-          DATETIME=$(date -u +"%Y%m%d%H%M%S")
-          TAG_NAME="${SAFE_BRANCH}_${DATETIME}"
-          echo "tag_name=${TAG_NAME}" >> "$GITHUB_OUTPUT"
-
-      - name: Trigger CD pipeline
-        id: trigger
+      # ── 0. Resolve PR context (supports both pull_request and workflow_dispatch) ──
+      - name: Resolve PR context
+        id: pr-context
         uses: actions/github-script@v6
         with:
-          github-token: ${{ steps.generate-token.outputs.token }}
           script: |
-            const owner = context.repo.owner;
-            const repo = context.repo.repo;
-            const sourceBranch = '${{ github.head_ref || github.ref_name }}';
-            const cdDispatchBranch = 'neil/cdprivatepipeline';
-
-            // Trigger CD workflow on private CD branch, build sourceBranch via external_ref
-            await github.rest.actions.createWorkflowDispatch({
-              owner,
-              repo,
-              workflow_id: 'cd.yml',
-              ref: cdDispatchBranch,
-              inputs: {
-                external_ref: sourceBranch
-              }
-            });
-
-            await new Promise(r => setTimeout(r, 15000));
-
-            const runs = await github.rest.actions.listWorkflowRuns({
-              owner,
-              repo,
-              workflow_id: 'cd.yml',
-              branch: cdDispatchBranch,
-              per_page: 5
-            });
-
-            const run = runs.data.workflow_runs.find(r =>
-              r.status !== 'completed' || (Date.now() - new Date(r.created_at).getTime()) < 60000
-            );
-
-            if (!run) {
-              throw new Error('Could not find the triggered CD workflow run');
+            let prNumber, headRef, baseRef, prTitle, prBody;
+            if (context.eventName === 'pull_request') {
+              prNumber = context.payload.pull_request.number;
+              headRef  = context.payload.pull_request.head.ref;
+              baseRef  = context.payload.pull_request.base.ref;
+              prTitle  = context.payload.pull_request.title;
+              prBody   = context.payload.pull_request.body || '';
+            } else {
+              // workflow_dispatch: fetch PR metadata from API
+              prNumber = parseInt('${{ github.event.inputs.pr_number }}');
+              const { data: pr } = await github.rest.pulls.get({
+                owner: context.repo.owner,
+                repo:  context.repo.repo,
+                pull_number: prNumber,
+              });
+              headRef = pr.head.ref;
+              baseRef = pr.base.ref;
+              prTitle = pr.title;
+              prBody  = pr.body || '';
             }
+            core.setOutput('pr_number', String(prNumber));
+            core.setOutput('head_ref',  headRef);
+            core.setOutput('base_ref',  baseRef);
+            core.setOutput('pr_title',  prTitle);
+            core.setOutput('pr_body',   prBody.slice(0, 2000));
+            console.log(`PR #${prNumber}: ${headRef} -> ${baseRef}  "${prTitle}"`);
 
-            core.setOutput('run_id', run.id.toString());
-            console.log(`CD run ID: ${run.id}`);
-
-      - name: Wait for CD pipeline to complete
-        uses: actions/github-script@v6
-        with:
-          github-token: ${{ steps.generate-token.outputs.token }}
-          script: |
-            const owner = context.repo.owner;
-            const repo = context.repo.repo;
-            const runId = parseInt('${{ steps.trigger.outputs.run_id }}');
-            const pollInterval = 60000;
-            const timeout = 7200000;
-            const start = Date.now();
-
-            while (Date.now() - start < timeout) {
-              const run = await github.rest.actions.getWorkflowRun({ owner, repo, run_id: runId });
-              console.log(`CD run status: ${run.data.status}, conclusion: ${run.data.conclusion}`);
-              if (run.data.status === 'completed') {
-                if (run.data.conclusion !== 'success') {
-                  throw new Error(`CD pipeline failed with conclusion: ${run.data.conclusion}. Check run: ${run.data.html_url}`);
-                }
-                console.log('CD pipeline completed successfully');
-                return;
-              }
-              await new Promise(r => setTimeout(r, pollInterval));
-            }
-            throw new Error('CD pipeline timed out after 2 hours');
-
-  run-docker-build:
-    needs: run-cd
-    runs-on: ubuntu-latest
-    outputs:
-      run_id: ${{ steps.trigger.outputs.run_id }}
-    steps:
-      - name: Generate GitHub App token
-        id: generate-token
-        uses: actions/create-github-app-token@v2
-        with:
-          app-id: ${{ vars.APP_GITHUB_APP_ID }}
-          private-key: ${{ secrets.APP_GITHUB_APP_PRIVATE_KEY }}
-
-      - name: Trigger Docker Build pipeline
-        id: trigger
-        uses: actions/github-script@v6
-        with:
-          github-token: ${{ steps.generate-token.outputs.token }}
-          script: |
-            const owner = context.repo.owner;
-            const repo = context.repo.repo;
-
-            await github.rest.actions.createWorkflowDispatch({
-              owner,
-              repo,
-              workflow_id: 'vscuse-atk-docker-build.yml',
-              ref: 'dev',
-              inputs: {
-                tag: '${{ needs.run-cd.outputs.tag_name }}',
-                run_id: '${{ needs.run-cd.outputs.run_id }}'
-              }
-            });
-
-            await new Promise(r => setTimeout(r, 15000));
-
-            const runs = await github.rest.actions.listWorkflowRuns({
-              owner,
-              repo,
-              workflow_id: 'vscuse-atk-docker-build.yml',
-              branch: 'dev',
-              per_page: 5
-            });
-
-            const run = runs.data.workflow_runs.find(r =>
-              r.status !== 'completed' || (Date.now() - new Date(r.created_at).getTime()) < 60000
-            );
-
-            if (!run) {
-              throw new Error('Could not find the triggered Docker Build workflow run');
-            }
-
-            core.setOutput('run_id', run.id.toString());
-            console.log(`Docker Build run ID: ${run.id}`);
-
-      - name: Wait for Docker Build pipeline to complete
-        uses: actions/github-script@v6
-        with:
-          github-token: ${{ steps.generate-token.outputs.token }}
-          script: |
-            const owner = context.repo.owner;
-            const repo = context.repo.repo;
-            const runId = parseInt('${{ steps.trigger.outputs.run_id }}');
-            const pollInterval = 60000;
-            const timeout = 7200000;
-            const start = Date.now();
-
-            while (Date.now() - start < timeout) {
-              const run = await github.rest.actions.getWorkflowRun({ owner, repo, run_id: runId });
-              console.log(`Docker Build status: ${run.data.status}, conclusion: ${run.data.conclusion}`);
-              if (run.data.status === 'completed') {
-                if (run.data.conclusion !== 'success') {
-                  throw new Error(`Docker Build pipeline failed with conclusion: ${run.data.conclusion}. Check run: ${run.data.html_url}`);
-                }
-                console.log('Docker Build pipeline completed successfully');
-                return;
-              }
-              await new Promise(r => setTimeout(r, pollInterval));
-            }
-            throw new Error('Docker Build pipeline timed out after 2 hours');
-
-  run-ui-test:
-    needs: [run-cd, run-docker-build]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Generate GitHub App token
-        id: generate-token
-        uses: actions/create-github-app-token@v2
-        with:
-          app-id: ${{ vars.APP_GITHUB_APP_ID }}
-          private-key: ${{ secrets.APP_GITHUB_APP_PRIVATE_KEY }}
-
-      - name: Checkout repo to read smoke test cases (fallback)
-        if: inputs.test_plan == ''
+      # ── 1. Checkout plans dir + full git history for diff ─────────────
+      - name: Checkout repo
         uses: actions/checkout@v4
         with:
-          ref: dev
-          sparse-checkout: packages/tests/vscuse/smoking-test-cases.json
+          ref: ${{ steps.pr-context.outputs.head_ref }}
+          fetch-depth: 0
+          sparse-checkout: |
+            packages/tests/vscuse/vscode-test-cases/plans
+            packages/tests/vscuse/smoking-test-cases.json
 
-      - name: Resolve test plan
-        id: test_cases
+      # ── 2. Get changed files via API (PR file list) ────────────────────
+      - name: Get PR changed files
+        id: changed-files
+        uses: actions/github-script@v6
+        env:
+          PR_NUMBER: ${{ steps.pr-context.outputs.pr_number }}
+        with:
+          script: |
+            const { data: files } = await github.rest.pulls.listFiles({
+              owner: context.repo.owner,
+              repo:  context.repo.repo,
+              pull_number: parseInt(process.env.PR_NUMBER),
+              per_page: 100,
+            });
+            const fileList = files.map(f => `${f.status.padEnd(9)} ${f.filename}`).join('\n');
+            core.setOutput('files', fileList);
+            console.log(`Changed files (${files.length}):\n${fileList}`);
+
+      # ── 3. Get git diff summary between PR branch and target branch ────
+      - name: Get git diff summary
+        id: diff-summary
+        env:
+          BASE_REF: ${{ steps.pr-context.outputs.base_ref }}
+          HEAD_REF: ${{ steps.pr-context.outputs.head_ref }}
         run: |
-          if [ -n "${{ inputs.test_plan }}" ]; then
-            # Use explicitly provided test plan
-            echo "test_plan=${{ inputs.test_plan }}" >> "$GITHUB_OUTPUT"
-            echo "Using provided test plan: ${{ inputs.test_plan }}"
-          else
-            # Fall back to smoke test cases from JSON
-            TEST_PLAN=$(jq -r '.smokeTestCases | join(",")' packages/tests/vscuse/smoking-test-cases.json)
-            echo "test_plan=${TEST_PLAN}" >> "$GITHUB_OUTPUT"
-            echo "Using smoke test cases: ${TEST_PLAN}"
+          git fetch origin "$BASE_REF" --depth=50 2>/dev/null || true
+          git fetch origin "$HEAD_REF" --depth=50 2>/dev/null || true
+          DIFF_STAT=$(git diff "origin/${BASE_REF}...origin/${HEAD_REF}" --stat --no-color 2>/dev/null \
+            | tail -5 || echo "(diff unavailable)")
+          echo "diff_stat<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$DIFF_STAT"     >> "$GITHUB_OUTPUT"
+          echo "EOF"            >> "$GITHUB_OUTPUT"
+
+      # ── 4. Select test plans via GitHub Models (GPT-4.1) ─────────────
+      - name: Select test plans via AI
+        id: ai-select
+        env:
+          GH_TOKEN:                 ${{ secrets.GITHUB_TOKEN }}
+          AZURE_OPENAI_ENDPOINT:    ${{ vars.TEST_TENANT_AZURE_OPENAI_ENDPOINT }}
+          AZURE_OPENAI_KEY:         ${{ secrets.TEST_TENANT_AZURE_OPENAI_KEY }}
+          AZURE_OPENAI_MODEL:       ${{ vars.TEST_TENANT_AZURE_OPENAI_MODEL }}
+          AZURE_OPENAI_API_VERSION: ${{ vars.TEST_TENANT_AZURE_OPENAI_API_VERSION }}
+          PR_TITLE:                 ${{ steps.pr-context.outputs.pr_title }}
+          PR_BODY:                  ${{ steps.pr-context.outputs.pr_body }}
+          CHANGED_FILES:            ${{ steps.changed-files.outputs.files }}
+          DIFF_STAT:                ${{ steps.diff-summary.outputs.diff_stat }}
+          BASE_BRANCH:              ${{ steps.pr-context.outputs.base_ref }}
+          HEAD_BRANCH:              ${{ steps.pr-context.outputs.head_ref }}
+        run: |
+          set -euo pipefail
+
+          # List every available plan name (one per line)
+          PLANS_TEXT=$(find packages/tests/vscuse/vscode-test-cases/plans \
+            -maxdepth 1 -name "*.json" -exec basename {} .json \; | sort)
+
+          SYSTEM_PROMPT='You are a test plan selector for the Microsoft 365 Agents Toolkit (ATK) VS Code extension.
+Select the most relevant VscUse UI test plans for a given PR based on the changed files and PR description.
+
+Test plan naming conventions:
+- DA_*                        Declarative Agent (Copilot extensions, plugins, MCP, TypeSpec, OAuth, API Key, Entra)
+- Basic_Custom_Engine_*       Custom Engine AI bot (LLM-based, Azure OpenAI, OpenAI)
+- General_Teams_Agent_*       General Teams agent templates
+- Teams_Agent_With_Data_*     Agent with AI Search / Custom API / knowledge data / RAG
+- Teams_Collaborator_Agent_*  Multi-user collaboration agents
+- Weather_Agent_*             Weather bot sample
+- Simple_Bot_*                Simple / echo / notification bot
+- Message_Extension_*         Message extension (search / action commands)
+- Basic_Tab_* / Tab_*         Tab apps (React, SPFx)
+- Sample_*                    Sample gallery (CoffeeAgent, Data Analyst, ProxyAgent, ...)
+- Feature_*                   VS Code UI features (treeview, commands, publish, provision, deploy, AAD, manifest)
+- Template_*                  Template / README verification
+
+Suffixes: _Local_Debug=local F5 | _Remote_Debug=Azure deploy | _playground=Playground | _Copilot=Copilot chat
+Languages: _js_=JavaScript | _ts_=TypeScript | _py_=Python
+
+Selection guidance:
+- Prefer Remote_Debug plans for template/scaffold changes (they give stronger signal)
+- Include at least one Local_Debug plan for any core logic changes
+- For UI/treeview/command changes, include Feature_UI_* or Feature_Command_* plans
+- For DA/plugin/MCP changes, include 2-3 DA_* plans covering different auth types
+- Keep total to 3-8 plans maximum
+
+Return ONLY valid JSON: {"plans": ["PlanName1", "PlanName2"], "reason": "<one concise sentence>"}'
+
+          USER_PROMPT="PR: ${HEAD_BRANCH} -> ${BASE_BRANCH}
+Title: ${PR_TITLE}
+
+Description (first 1200 chars):
+${PR_BODY:0:1200}
+
+Changed files (with status):
+${CHANGED_FILES}
+
+Diff summary:
+${DIFF_STAT}
+
+Available test plans:
+${PLANS_TEXT}
+
+Return JSON only."
+
+          REQUEST_BODY=$(jq -n \
+            --arg system "$SYSTEM_PROMPT" \
+            --arg user   "$USER_PROMPT" \
+            '{
+              model: "openai/gpt-4.1",
+              messages: [
+                {role: "system", content: $system},
+                {role: "user",   content: $user}
+              ],
+              temperature: 0.1,
+              response_format: {type: "json_object"}
+            }')
+
+          # Try GitHub Models API first (no extra secrets needed)
+          echo "Trying GitHub Models API..."
+          HTTP_CODE=$(curl -s -o /tmp/ai_resp.json -w "%{http_code}" \
+            -X POST "https://models.github.ai/inference/chat/completions" \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Content-Type: application/json" \
+            -d "$REQUEST_BODY" || echo "000")
+          echo "GitHub Models HTTP: $HTTP_CODE"
+          cat /tmp/ai_resp.json 2>/dev/null || true
+
+          # Fallback to Azure OpenAI
+          if [ "$HTTP_CODE" != "200" ]; then
+            echo "Falling back to Azure OpenAI..."
+            if [ -n "${AZURE_OPENAI_ENDPOINT:-}" ] && [ -n "${AZURE_OPENAI_KEY:-}" ]; then
+              curl -s -o /tmp/ai_resp.json \
+                -X POST "${AZURE_OPENAI_ENDPOINT}/openai/deployments/${AZURE_OPENAI_MODEL}/chat/completions?api-version=${AZURE_OPENAI_API_VERSION:-2025-04-01-preview}" \
+                -H "api-key: $AZURE_OPENAI_KEY" \
+                -H "Content-Type: application/json" \
+                -d "$(echo "$REQUEST_BODY" | jq 'del(.model)')" || true
+            fi
           fi
 
-      - name: Trigger UI Test pipeline
-        id: trigger
+          # Parse AI response
+          AI_CONTENT=$(jq -r '.choices[0].message.content // empty' /tmp/ai_resp.json 2>/dev/null || true)
+          AI_PLANS=$(echo "$AI_CONTENT" | jq -r '.plans // empty' 2>/dev/null || true)
+          AI_REASON=$(echo "$AI_CONTENT" | jq -r '.reason // empty' 2>/dev/null || true)
+
+          # Validate: only keep plans that exist on disk
+          VALID_PLANS='[]'
+          if [ -n "$AI_PLANS" ] && [ "$AI_PLANS" != "null" ]; then
+            while IFS= read -r plan; do
+              [ -z "$plan" ] && continue
+              if [ -f "packages/tests/vscuse/vscode-test-cases/plans/${plan}.json" ]; then
+                VALID_PLANS=$(echo "$VALID_PLANS" | jq --arg p "$plan" '. + [$p]')
+              else
+                echo "Warning: AI returned unknown plan, skipping: $plan"
+              fi
+            done < <(echo "$AI_PLANS" | jq -r '.[]' 2>/dev/null || true)
+          fi
+
+          # Fallback to smoke tests if AI produced nothing usable
+          if [ "$(echo "$VALID_PLANS" | jq 'length')" -eq 0 ]; then
+            echo "No valid AI plans — falling back to smoke test cases."
+            VALID_PLANS=$(jq -c '[.smokeTestCases[]]' packages/tests/vscuse/smoking-test-cases.json)
+            AI_REASON="AI selection unavailable; using smoke test cases as fallback."
+          fi
+
+          PLANS_CSV=$(echo "$VALID_PLANS" | jq -r 'join(",")')
+          echo "test_plans=${PLANS_CSV}" >> "$GITHUB_OUTPUT"
+          echo "reason=${AI_REASON}"     >> "$GITHUB_OUTPUT"
+          echo "Selected: $PLANS_CSV"
+          echo "Reason:   $AI_REASON"
+
+      # ── 5. Post initial PR comment ─────────────────────────────────────
+      - name: Post PR comment with selected test plans
+        id: post-comment
         uses: actions/github-script@v6
+        env:
+          TEST_PLANS: ${{ steps.ai-select.outputs.test_plans }}
+          REASON:     ${{ steps.ai-select.outputs.reason }}
+          PR_NUMBER:  ${{ steps.pr-context.outputs.pr_number }}
+          HEAD_REF:   ${{ steps.pr-context.outputs.head_ref }}
+          BASE_REF:   ${{ steps.pr-context.outputs.base_ref }}
         with:
-          github-token: ${{ steps.generate-token.outputs.token }}
           script: |
-            const owner = context.repo.owner;
-            const repo = context.repo.repo;
+            const plans    = process.env.TEST_PLANS.split(',').filter(Boolean);
+            const reason   = process.env.REASON || '-';
+            const prNumber = parseInt(process.env.PR_NUMBER);
+            const headRef  = process.env.HEAD_REF;
+            const baseRef  = process.env.BASE_REF;
+            const runUrl   = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            const planList = plans.map(p => `- \`${p}\``).join('\n');
+
+            const body = [
+              '## 🤖 VscUse Test Plan — AI Selected',
+              '',
+              `**Why these tests:** ${reason}`,
+              '',
+              `**Branch diff:** \`${headRef}\` → \`${baseRef}\``,
+              '',
+              '**Plans queued:**',
+              planList,
+              '',
+              '---',
+              '| Step | Status |',
+              '|------|--------|',
+              '| 1️⃣ Build VSIX (CD) | ⏳ Running… |',
+              '| 2️⃣ Build Docker image | ⌛ Waiting |',
+              '| 3️⃣ Run UI tests | ⌛ Waiting |',
+              '',
+              `> 🔗 [View pipeline run](${runUrl})`,
+            ].join('\n');
+
+            const { data: comment } = await github.rest.issues.createComment({
+              owner:        context.repo.owner,
+              repo:         context.repo.repo,
+              issue_number: prNumber,
+              body,
+            });
+
+            core.setOutput('comment_id', String(comment.id));
+            console.log(`Posted comment: ${comment.html_url}`);
+
+      # ── 6. Dispatch dev-smoke-test-pipeline with selected plans ────────
+      - name: Dispatch dev-smoke-test-pipeline.yml
+        id: dispatch
+        uses: actions/github-script@v6
+        env:
+          TEST_PLANS:  ${{ steps.ai-select.outputs.test_plans }}
+          HEAD_BRANCH: ${{ steps.pr-context.outputs.head_ref }}
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const owner      = context.repo.owner;
+            const repo       = context.repo.repo;
+            const testPlans  = process.env.TEST_PLANS;
+            const headBranch = process.env.HEAD_BRANCH;
 
             await github.rest.actions.createWorkflowDispatch({
               owner,
               repo,
-              workflow_id: 'ui-test-vscuse-template.yml',
-              ref: 'dev',
+              workflow_id: 'dev-smoke-test-pipeline.yml',
+              ref:         headBranch,
               inputs: {
-                image_tag: '${{ needs.run-cd.outputs.tag_name }}',
-                'email-receiver': '${{ inputs.email }}',
-                test_plan: '${{ steps.test_cases.outputs.test_plan }}',
-                max_retries: '1'
-              }
+                test_plan: testPlans,
+                email:     '',
+              },
             });
 
             await new Promise(r => setTimeout(r, 15000));
 
-            const runs = await github.rest.actions.listWorkflowRuns({
+            const { data: { workflow_runs: runs } } = await github.rest.actions.listWorkflowRuns({
               owner,
               repo,
-              workflow_id: 'ui-test-vscuse-template.yml',
-              branch: 'dev',
-              per_page: 5
+              workflow_id: 'dev-smoke-test-pipeline.yml',
+              branch:      headBranch,
+              per_page:    5,
             });
 
-            const run = runs.data.workflow_runs.find(r =>
-              r.status !== 'completed' || (Date.now() - new Date(r.created_at).getTime()) < 60000
+            const run = runs.find(r =>
+              r.status !== 'completed' ||
+              (Date.now() - new Date(r.created_at).getTime()) < 60000
             );
 
-            if (!run) {
-              throw new Error('Could not find the triggered UI Test workflow run');
-            }
+            if (!run) throw new Error('Could not locate the dispatched dev-smoke-test-pipeline run');
 
-            console.log(`UI Test run ID: ${run.id}`);
-            core.setOutput('run_id', run.id.toString());
+            core.setOutput('smoke_run_id',  String(run.id));
+            core.setOutput('smoke_run_url', run.html_url);
+            console.log(`Smoke pipeline run ID: ${run.id}  URL: ${run.html_url}`);
 
-      - name: Wait for UI Test pipeline to complete
+      # Update comment: pipeline now running
+      - name: Update PR comment — pipeline dispatched
         uses: actions/github-script@v6
+        env:
+          COMMENT_ID: ${{ steps.post-comment.outputs.comment_id }}
+          TEST_PLANS: ${{ steps.ai-select.outputs.test_plans }}
+          REASON:     ${{ steps.ai-select.outputs.reason }}
+          RUN_URL:    ${{ steps.dispatch.outputs.smoke_run_url }}
+          PR_NUMBER:  ${{ steps.pr-context.outputs.pr_number }}
+          HEAD_REF:   ${{ steps.pr-context.outputs.head_ref }}
+          BASE_REF:   ${{ steps.pr-context.outputs.base_ref }}
         with:
-          github-token: ${{ steps.generate-token.outputs.token }}
           script: |
-            const owner = context.repo.owner;
-            const repo = context.repo.repo;
-            const runId = parseInt('${{ steps.trigger.outputs.run_id }}');
-            const pollInterval = 60000;
-            const timeout = 14400000;
-            const start = Date.now();
+            const commentId = parseInt(process.env.COMMENT_ID);
+            const plans     = process.env.TEST_PLANS.split(',').filter(Boolean);
+            const reason    = process.env.REASON || '-';
+            const runUrl    = process.env.RUN_URL;
+            const headRef   = process.env.HEAD_REF;
+            const baseRef   = process.env.BASE_REF;
+            const planList  = plans.map(p => `- \`${p}\``).join('\n');
 
-            while (Date.now() - start < timeout) {
-              const run = await github.rest.actions.getWorkflowRun({ owner, repo, run_id: runId });
-              console.log(`UI Test status: ${run.data.status}, conclusion: ${run.data.conclusion}`);
-              if (run.data.status === 'completed') {
-                if (run.data.conclusion !== 'success') {
-                  throw new Error(`UI Test pipeline failed with conclusion: ${run.data.conclusion}. Check run: ${run.data.html_url}`);
-                }
-                console.log('UI Test pipeline completed successfully');
+            const body = [
+              '## 🤖 VscUse Test Plan — AI Selected',
+              '',
+              `**Why these tests:** ${reason}`,
+              '',
+              `**Branch diff:** \`${headRef}\` → \`${baseRef}\``,
+              '',
+              '**Plans queued:**',
+              planList,
+              '',
+              '---',
+              '| Step | Status |',
+              '|------|--------|',
+              '| 1️⃣ Build VSIX (CD) | ⏳ Running… |',
+              '| 2️⃣ Build Docker image | ⌛ Waiting |',
+              '| 3️⃣ Run UI tests | ⌛ Waiting |',
+              '',
+              `> 🔗 [View smoke pipeline](${runUrl})`,
+            ].join('\n');
+
+            await github.rest.issues.updateComment({
+              owner:      context.repo.owner,
+              repo:       context.repo.repo,
+              comment_id: commentId,
+              body,
+            });
+
+      # ── 7. Poll smoke pipeline until done ─────────────────────────────
+      - name: Wait for smoke pipeline to complete
+        id: wait-smoke
+        uses: actions/github-script@v6
+        env:
+          SMOKE_RUN_ID: ${{ steps.dispatch.outputs.smoke_run_id }}
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const owner  = context.repo.owner;
+            const repo   = context.repo.repo;
+            const runId  = parseInt(process.env.SMOKE_RUN_ID);
+            const start  = Date.now();
+            const EIGHT_HOURS = 8 * 60 * 60 * 1000;
+
+            while (Date.now() - start < EIGHT_HOURS) {
+              const { data: run } = await github.rest.actions.getWorkflowRun({ owner, repo, run_id: runId });
+              console.log(`Smoke pipeline: ${run.status} / ${run.conclusion}`);
+              if (run.status === 'completed') {
+                core.setOutput('conclusion', run.conclusion);
+                core.setOutput('run_url',    run.html_url);
                 return;
               }
-              await new Promise(r => setTimeout(r, pollInterval));
+              await new Promise(r => setTimeout(r, 60000));
             }
-            throw new Error('UI Test pipeline timed out after 4 hours');
+            core.setOutput('conclusion', 'timed_out');
+            throw new Error('Smoke pipeline timed out after 8 hours');
+
+      # ── 8. Resolve PR comment with final result ────────────────────────
+      - name: Resolve PR comment with test results
+        if: always()
+        uses: actions/github-script@v6
+        env:
+          COMMENT_ID:  ${{ steps.post-comment.outputs.comment_id }}
+          TEST_PLANS:  ${{ steps.ai-select.outputs.test_plans }}
+          REASON:      ${{ steps.ai-select.outputs.reason }}
+          CONCLUSION:  ${{ steps.wait-smoke.outputs.conclusion }}
+          SMOKE_URL:   ${{ steps.wait-smoke.outputs.run_url }}
+          PR_NUMBER:   ${{ steps.pr-context.outputs.pr_number }}
+          HEAD_REF:    ${{ steps.pr-context.outputs.head_ref }}
+          BASE_REF:    ${{ steps.pr-context.outputs.base_ref }}
+        with:
+          script: |
+            const commentId  = parseInt(process.env.COMMENT_ID);
+            if (!commentId) { console.log('No comment ID — skipping update'); return; }
+
+            const plans      = (process.env.TEST_PLANS || '').split(',').filter(Boolean);
+            const reason     = process.env.REASON || '-';
+            const conclusion = process.env.CONCLUSION || 'unknown';
+            const smokeUrl   = process.env.SMOKE_URL || '';
+            const headRef    = process.env.HEAD_REF;
+            const baseRef    = process.env.BASE_REF;
+            const planList   = plans.map(p => `- \`${p}\``).join('\n');
+
+            const succeeded  = conclusion === 'success';
+            const icon       = succeeded ? '✅' : '❌';
+            const statusText = succeeded ? 'All tests passed' : `Tests ${conclusion}`;
+
+            const body = [
+              `## ${icon} VscUse Test Plan — ${statusText}`,
+              '',
+              `**Why these tests:** ${reason}`,
+              '',
+              `**Branch diff:** \`${headRef}\` → \`${baseRef}\``,
+              '',
+              '**Plans run:**',
+              planList,
+              '',
+              '---',
+              '| Step | Status |',
+              '|------|--------|',
+              '| 1️⃣ Build VSIX (CD) | ✅ Done |',
+              '| 2️⃣ Build Docker image | ✅ Done |',
+              `| 3️⃣ Run UI tests | ${icon} ${statusText} |`,
+              '',
+              smokeUrl ? `> 🔗 [Full pipeline results](${smokeUrl})` : '',
+              '',
+              '<details>',
+              '<summary>ℹ️ How were these tests selected?</summary>',
+              '',
+              'GitHub Copilot (GPT-4.1) analysed the PR title, description, and the diff between',
+              `\`${headRef}\` and \`${baseRef}\``,
+              `to pick the most relevant test plans from [\`packages/tests/vscuse/Index.md\`](../blob/${baseRef}/packages/tests/vscuse/Index.md).`,
+              '',
+              '</details>',
+            ].join('\n');
+
+            await github.rest.issues.updateComment({
+              owner:      context.repo.owner,
+              repo:       context.repo.repo,
+              comment_id: commentId,
+              body,
+            });
+
+            console.log(`Resolved comment ${commentId}: ${conclusion}`);
+            if (!succeeded && conclusion !== 'timed_out') {
+              core.setFailed(`VscUse tests concluded: ${conclusion}. See: ${smokeUrl}`);
+            }
