@@ -1,25 +1,18 @@
 name: Dev Smoke Test Pipeline
 
-# TEMP TEST: This file is temporarily replaced with the PR VscUse AI selector
-# for testing workflow_dispatch. Revert after test passes.
-# Original: dev-smoke-test-pipeline.yml (CD -> Docker -> UI test pipeline)
+# TEMP TEST: Push-triggered version for testing AI plan selection on PR #15869.
+# Revert to original dev-smoke-test-pipeline.yml after test passes.
 
 on:
-  workflow_dispatch:
-    inputs:
-      email:
-        description: "Your personal email (unused in test mode - keeping for dispatch compatibility)"
-        required: true
-        type: string
-
-concurrency:
-  group: pr-vscuse-test-15869
-  cancel-in-progress: true
+  push:
+    branches:
+      - atk-vsuse-test-pipeline
+    paths:
+      - '.trigger-test'
 
 permissions:
   pull-requests: write
   issues: write
-  actions: write
   contents: read
 
 env:
@@ -30,7 +23,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # ── 0. Resolve PR context ──────────────────────────────────────────
       - name: Resolve PR context
         id: pr-context
         uses: actions/github-script@v6
@@ -40,28 +32,21 @@ jobs:
           script: |
             const prNum = parseInt(process.env.PR_NUMBER);
             const { data: pr } = await github.rest.pulls.get({
-              owner: context.repo.owner,
-              repo:  context.repo.repo,
-              pull_number: prNum,
+              owner: context.repo.owner, repo: context.repo.repo, pull_number: prNum,
             });
             const { data: files } = await github.rest.pulls.listFiles({
-              owner: context.repo.owner,
-              repo:  context.repo.repo,
-              pull_number: prNum,
-              per_page: 100,
+              owner: context.repo.owner, repo: context.repo.repo, pull_number: prNum, per_page: 100,
             });
             const fileList = files.map(f => `${f.status.padEnd(9)} ${f.filename}`).join('\n');
-            core.setOutput('pr_number', String(prNum));
-            core.setOutput('head_ref',  pr.head.ref);
-            core.setOutput('base_ref',  pr.base.ref);
-            core.setOutput('pr_title',  pr.title);
-            core.setOutput('pr_body',   (pr.body || '').slice(0, 1200));
-            core.setOutput('files',     fileList);
+            core.setOutput('head_ref', pr.head.ref);
+            core.setOutput('base_ref', pr.base.ref);
+            core.setOutput('pr_title', pr.title);
+            core.setOutput('pr_body',  (pr.body || '').slice(0, 1200));
+            core.setOutput('files',    fileList);
             console.log(`PR #${prNum}: ${pr.head.ref} -> ${pr.base.ref}`);
             console.log(`Changed files (${files.length}):\n${fileList}`);
 
-      # ── 1. Checkout plans dir ──────────────────────────────────────────
-      - name: Checkout repo
+      - name: Checkout repo (plans dir only)
         uses: actions/checkout@v4
         with:
           ref: ${{ steps.pr-context.outputs.head_ref }}
@@ -70,7 +55,6 @@ jobs:
             packages/tests/vscuse/vscode-test-cases/plans
             packages/tests/vscuse/smoking-test-cases.json
 
-      # ── 2. Get git diff summary ────────────────────────────────────────
       - name: Get git diff summary
         id: diff
         env:
@@ -85,7 +69,6 @@ jobs:
           echo "EOF"            >> "$GITHUB_OUTPUT"
           echo "Diff stat: $DIFF_STAT"
 
-      # ── 3. AI plan selection ───────────────────────────────────────────
       - name: Select test plans via AI (GitHub Models GPT-4.1)
         id: ai-select
         env:
@@ -105,7 +88,7 @@ jobs:
 
 Test plan naming:
 - DA_*: Declarative Agent (Copilot, MCP, OAuth, API Key, Entra)
-- Basic_Custom_Engine_*: Custom Engine AI bots
+- Basic_Custom_Engine_*: Custom Engine AI bots (Azure OpenAI, OpenAI)
 - General_Teams_Agent_*: General Teams agents
 - Message_Extension_*: Message extensions
 - Feature_*: VS Code UI features (treeview, commands, publish)
@@ -125,10 +108,8 @@ ${CHANGED_FILES}
 Diff summary:
 ${DIFF_STAT}
 
-Available plans:
-${PLANS_TEXT}
-
-Return JSON only."
+Available plans (select from these only):
+${PLANS_TEXT}"
 
           REQUEST_BODY=$(jq -n --arg s "$SYSTEM_PROMPT" --arg u "$USER_PROMPT" \
             '{model:"openai/gpt-4.1",messages:[{role:"system",content:$s},{role:"user",content:$u}],temperature:0.1,response_format:{type:"json_object"}}')
@@ -140,7 +121,7 @@ Return JSON only."
             -H "Content-Type: application/json" \
             -d "$REQUEST_BODY" || echo "000")
           echo "HTTP: $HTTP_CODE"
-          echo "=== Raw AI response ==="
+          echo "=== AI response ==="
           cat /tmp/ai_resp.json || true
 
           AI_CONTENT=$(jq -r '.choices[0].message.content // empty' /tmp/ai_resp.json 2>/dev/null || true)
@@ -153,15 +134,15 @@ Return JSON only."
               [ -z "$p" ] && continue
               if [ -f "packages/tests/vscuse/vscode-test-cases/plans/${p}.json" ]; then
                 VALID=$(echo "$VALID" | jq --arg p "$p" '. + [$p]')
-                echo "  ✓ $p"
+                echo "  VALID: $p"
               else
-                echo "  ✗ Unknown plan (skip): $p"
+                echo "  SKIP (unknown): $p"
               fi
             done < <(echo "$AI_PLANS" | jq -r '.[]' 2>/dev/null || true)
           fi
 
           if [ "$(echo "$VALID" | jq 'length')" -eq 0 ]; then
-            echo "AI produced no valid plans — falling back to smoke tests"
+            echo "No valid AI plans — falling back to smoke tests"
             VALID=$(jq -c '[.smokeTestCases[]]' packages/tests/vscuse/smoking-test-cases.json)
             AI_REASON="AI unavailable — using smoke test fallback"
           fi
@@ -169,10 +150,9 @@ Return JSON only."
           CSV=$(echo "$VALID" | jq -r 'join(",")')
           echo "plans=$CSV" >> "$GITHUB_OUTPUT"
           echo "reason=$AI_REASON" >> "$GITHUB_OUTPUT"
-          echo "=== Selected plans: $CSV ==="
+          echo "=== SELECTED: $CSV ==="
 
-      # ── 4. Post PR comment (DRY RUN — no actual pipeline dispatch) ─────
-      - name: Post test plan comment to PR
+      - name: Post test plan comment to PR (dry-run)
         uses: actions/github-script@v6
         env:
           TEST_PLANS: ${{ steps.ai-select.outputs.plans }}
@@ -189,7 +169,7 @@ Return JSON only."
             const planList = plans.map(p => `- \`${p}\``).join('\n');
 
             const body = [
-              '## 🤖 VscUse Test Plan — AI Selected (dry-run test)',
+              '## 🤖 VscUse Test Plan — AI Selected',
               '',
               `**Why these tests:** ${reason}`,
               '',
@@ -198,15 +178,14 @@ Return JSON only."
               '**Plans selected:**',
               planList,
               '',
-              '> ⚠️ **Dry-run** — this is a dispatch compatibility test. The actual smoke pipeline was NOT started.',
+              '> ⚠️ **Test run** — verifying AI selection only. Full pipeline (CD→Docker→UI) will run after merge.',
               '',
               `> 🔗 [Selector run](${runUrl})`,
             ].join('\n');
 
             const { data: c } = await github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo:  context.repo.repo,
+              owner: context.repo.owner, repo: context.repo.repo,
               issue_number: parseInt('${{ env.TEST_PR_NUMBER }}'),
               body,
             });
-            console.log(`✅ Comment posted: ${c.html_url}`);
+            console.log(`Comment posted: ${c.html_url}`);
