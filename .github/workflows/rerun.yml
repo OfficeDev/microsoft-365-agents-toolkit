@@ -97,6 +97,14 @@ jobs:
       - name: Prepare output dir
         run: mkdir -p "$TEST_OUTPUT_DIR/screenshots" "$TEST_OUTPUT_DIR/projects"
 
+      - name: Copy test sources into docker/copilot-test (mirrors Dockerfile COPY)
+        run: |
+          mkdir -p docker/copilot-test/src/ui-test/copilot-driven
+          cp -r packages/tests/src/ui-test/copilot-driven/. docker/copilot-test/src/ui-test/copilot-driven/
+          cp -r test-plans docker/copilot-test/test-plans 2>/dev/null || true
+          echo "Copied test sources:"
+          ls docker/copilot-test/src/ui-test/copilot-driven/
+
       - name: Run ATK UI tests
         working-directory: docker/copilot-test
         env:
@@ -104,10 +112,12 @@ jobs:
           TEST_FILE: teams-bot-create-template
           ATK_EXT_PATH: ""
           TEST_OUTPUT_DIR: /tmp/atk-test-output
-          VSCODE_EXTENSIONS_DIR: ${{ env.VSCODE_EXTENSIONS_DIR || '/vscode-extensions' }}
+          VSCODE_EXTENSIONS_DIR: ${{ env.VSCODE_EXTENSIONS_DIR || '$HOME/vscode-extensions' }}
         run: |
           npx ts-node --project tsconfig.json src/ui-test/copilot-driven/runTest.ts 2>&1 | tee $TEST_OUTPUT_DIR/test.log
-          echo "Exit: $?"
+          EXIT=$?
+          echo "Exit: $EXIT"
+          exit $EXIT
 
       - name: Show results
         if: always()
@@ -158,4 +168,5 @@ jobs:
           path: /tmp/atk-test-output/
           retention-days: 7
           if-no-files-found: warn
+
 
