@@ -171,22 +171,14 @@ suite("ATK Teams Bot Template Creation (UI Wizard)", function () {
     await wait(2000);
     takeScreenshot("07-app-name");
 
-    // Step 6: Workspace folder — type explicit path in VSCode simple dialog
-    // (files.simpleDialog.enable=true replaces native GTK picker with a QuickPick)
-    const projectsDir = path.join(OUTPUT_DIR, "projects");
-    fs.mkdirSync(projectsDir, { recursive: true });
-    console.log("  Typing project output folder:", projectsDir);
-    sendSignal(`type:${projectsDir}`, 8000);
-    await wait(500);
-    sendSignal("pressKey:Enter", 5000);
-    await wait(2000);
+    // Step 6: Workspace folder
+    // The folder dialog is a QuickPick with two items:
+    //   "Default folder" (~/AgentsToolkitProjects) and "Browse..."
+    // Click "Default folder" to use the default path ~/AgentsToolkitProjects/<appName>
+    console.log("  Selecting default folder");
+    sendSignal("clickText:Default folder", 12000);
+    await wait(90000); // scaffold + new window; 90s for slow CI
     takeScreenshot("08-folder-selected");
-
-    // Confirm folder selection: click the Open icon button in simple dialog title bar
-    // ATK v6.8 always opens project in new window - no Open in current window prompt
-    console.log("  Confirming folder selection");
-    sendSignal("click:.quick-input-widget .codicon-folder-opened", 8000);
-    await wait(90000);
     takeScreenshot("09-project-created");
 
     step("Navigate wizard to create Teams Bot template", cmdAvailable, `command=${cmdAvailable}`);
@@ -208,8 +200,10 @@ suite("ATK Teams Bot Template Creation (UI Wizard)", function () {
 
     // 2. Broad filesystem search for the project directory
     if (!projectDir || !fs.existsSync(projectDir)) {
+      const agentsDir = path.join(os.homedir(), "AgentsToolkitProjects");
       const searchRoots = [
-        path.join(OUTPUT_DIR, "projects"),   // explicit path we typed in dialog
+        agentsDir,                           // ATK default: ~/AgentsToolkitProjects
+        path.join("/home/runner", "AgentsToolkitProjects"),
         os.homedir(),
         "/home/runner",
         os.tmpdir(),
