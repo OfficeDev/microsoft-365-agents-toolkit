@@ -281,16 +281,38 @@ jobs:
             const testPlans  = process.env.TEST_PLANS;
             const headBranch = process.env.HEAD_BRANCH;
 
-            await github.rest.actions.createWorkflowDispatch({
-              owner,
-              repo,
-              workflow_id: 'dev-smoke-test-pipeline.yml',
-              ref:         headBranch,
-              inputs: {
-                test_plan: testPlans,
-                email:     '',
-              },
-            });
+            // dev-smoke-test-pipeline.yml on dev branch may not have test_plan yet (pending PR merge)
+            // Try with test_plan first, fall back to without it if rejected
+            let dispatched = false;
+            try {
+              await github.rest.actions.createWorkflowDispatch({
+                owner,
+                repo,
+                workflow_id: 'dev-smoke-test-pipeline.yml',
+                ref:         headBranch,
+                inputs: {
+                  test_plan: testPlans,
+                  email:     '',
+                },
+              });
+              dispatched = true;
+              console.log('Dispatched with test_plan input');
+            } catch (err) {
+              if (err.status === 422) {
+                console.log('test_plan input not supported on target branch, retrying without it...');
+                await github.rest.actions.createWorkflowDispatch({
+                  owner,
+                  repo,
+                  workflow_id: 'dev-smoke-test-pipeline.yml',
+                  ref:         headBranch,
+                  inputs: { email: '' },
+                });
+                dispatched = true;
+                console.log('Dispatched without test_plan input');
+              } else {
+                throw err;
+              }
+            }
 
             await new Promise(r => setTimeout(r, 15000));
 
