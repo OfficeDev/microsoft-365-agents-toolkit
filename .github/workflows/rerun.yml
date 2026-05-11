@@ -106,20 +106,29 @@ jobs:
           ls docker/copilot-test/src/ui-test/copilot-driven/
 
 
-      - name: Build ATK VSCode extension
+      - name: Install ATK VSCode extension from GitHub Releases
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          ATK_EXT="$GITHUB_WORKSPACE/packages/vscode-extension"
-          cd "$ATK_EXT"
-          echo "Installing deps..."
-          npm install --legacy-peer-deps 2>&1 | tail -5
-          echo "Building extension with esbuild..."
-          # build: check-types + vite + esbuild. Run esbuild directly to avoid full check-types overhead
-          node esbuild.mjs 2>&1 | tail -10 || \
-          npm run build 2>&1 | tail -10 || true
-          echo "out/src/ contents:"
-          ls out/src/ 2>/dev/null | head -5 || echo "Warning: no out/src/ dir"
-          [ -f "out/src/extension.js" ] && echo "✅ extension.js built" || echo "❌ extension.js missing"
-          echo "ATK_EXT_PATH=$ATK_EXT" >> $GITHUB_ENV
+          ATK_TAG="ms-teams-vscode-extension@6.8.0"
+          VSIX_URL="https://github.com/OfficeDev/microsoft-365-agents-toolkit/releases/download/ms-teams-vscode-extension%406.8.0/ms-teams-vscode-extension-6.8.0.vsix"
+          echo "Downloading ATK VSIX: $VSIX_URL"
+          mkdir -p /tmp/atk-vsix /tmp/atk-ext-unzip
+          curl -sS -L -H "Authorization: Bearer $GH_TOKEN" \
+            -o /tmp/atk-vsix/atk.vsix "$VSIX_URL"
+          if unzip -t /tmp/atk-vsix/atk.vsix >/dev/null 2>&1; then
+            unzip -q /tmp/atk-vsix/atk.vsix -d /tmp/atk-ext-unzip
+            ATK_INSTALL_DIR="$HOME/vscode-extensions/teamsdevapp.ms-teams-vscode-extension-6.8.0"
+            mkdir -p "$ATK_INSTALL_DIR"
+            cp -r /tmp/atk-ext-unzip/extension/. "$ATK_INSTALL_DIR/"
+            echo "ATK_EXT_PATH=" >> $GITHUB_ENV
+            echo "✅ ATK extension installed to $ATK_INSTALL_DIR"
+            ls "$ATK_INSTALL_DIR" | head -5
+          else
+            echo "❌ VSIX download failed, falling back to source"
+            echo "ATK_EXT_PATH=$GITHUB_WORKSPACE/packages/vscode-extension" >> $GITHUB_ENV
+          fi
+          rm -rf /tmp/atk-vsix /tmp/atk-ext-unzip
       - name: Run ATK UI tests
         working-directory: docker/copilot-test
         env:
@@ -183,6 +192,7 @@ jobs:
           path: /tmp/atk-test-output/
           retention-days: 7
           if-no-files-found: warn
+
 
 
 

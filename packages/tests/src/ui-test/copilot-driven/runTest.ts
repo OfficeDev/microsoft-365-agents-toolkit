@@ -48,9 +48,8 @@ async function startScreenshotWatcher(
 
 // ── Main ─────────────────────────────────────────────────────────────────────
 async function main() {
-  const extPath =
-    process.env.ATK_EXT_PATH ||
-    path.resolve(TESTS_ROOT, "../../packages/vscode-extension");
+  // Empty string means: use VSIX installed in VSCODE_EXTENSIONS_DIR (not extensionDevelopmentPath)
+  const extPath = process.env.ATK_EXT_PATH ?? ""
 
   const outputDir =
     process.env.TEST_OUTPUT_DIR ||
@@ -71,10 +70,11 @@ async function main() {
   console.log("Ext:", extPath);
   console.log("Out:", outputDir);
 
-  if (!fs.existsSync(extPath)) {
+  if (extPath && !fs.existsSync(extPath)) {
     console.error("ATK extension not found:", extPath);
     process.exit(1);
   }
+  console.log(extPath ? `Using extensionDevelopmentPath: ${extPath}` : "Using installed extension from VSCODE_EXTENSIONS_DIR");
 
   // Compile the Mocha suite
   const tmpOut = path.join(TESTS_ROOT, "out", "copilot-driven");
@@ -128,8 +128,7 @@ async function main() {
   console.log(`Extensions dir: ${userExtDir} (yaml: ${yamlExtPresent})`);
 
   // Launch VSCode via @vscode/test-electron
-  const testRunPromise = runTests({
-    extensionDevelopmentPath: extPath,
+  const vscodeTestOpts: any = {
     extensionTestsPath,
     launchArgs: [
       "--disable-workspace-trust",
@@ -149,7 +148,12 @@ async function main() {
       SCREENSHOT_SIGNAL_DIR: signalDir,
       SCREENSHOT_DIR: screenshotDir,
     },
-  });
+  };
+  // Only set extensionDevelopmentPath if provided (otherwise rely on installed ext in extensions-dir)
+  if (extPath) {
+    vscodeTestOpts.extensionDevelopmentPath = extPath;
+  }
+  const testRunPromise = runTests(vscodeTestOpts);
 
   // Connect CDP - poll until VSCode exposes the debugging endpoint
   let browser: Browser | null = null;
@@ -213,5 +217,6 @@ async function main() {
 }
 
 main().catch((e) => { console.error(e); process.exit(1); });
+
 
 
