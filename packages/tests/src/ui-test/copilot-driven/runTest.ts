@@ -98,7 +98,7 @@ async function startSignalWatcher(
             const input = page.locator('.quick-input-box input, .quick-input-filter .input');
             try {
               await input.first().waitFor({ timeout: 5000 });
-              await input.first().triple_click ? await input.first().click({ clickCount: 3 }) : await input.first().click();
+              await input.first().click({ clickCount: 3 });
               await page.keyboard.press("Control+a");
               await page.keyboard.type(text, { delay: 30 });
               console.log(`  ⌨️ Typed: "${text}"`);

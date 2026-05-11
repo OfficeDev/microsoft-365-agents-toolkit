@@ -2,19 +2,19 @@
 // Licensed under the MIT license.
 /**
  * teams-bot-create-template.test.ts
+ * TC-001: Create Teams Bot template via the ATK VSCode wizard (UI-driven).
  * Runs INSIDE VSCode extension host via @vscode/test-electron (Mocha TDD).
- * Screenshots are taken by external Playwright via signal files.
+ * Screenshots and UI interactions are driven by Playwright via signal files.
  */
 import * as vscode from "vscode";
 import * as assert from "assert";
 import * as fs from "fs";
 import * as path from "path";
 import * as os from "os";
-import * as cp from "child_process";
 
-const OUTPUT_DIR = process.env.TEST_OUTPUT_DIR || path.join(os.tmpdir(), "atk-test-output");
-const SCREENSHOT_DIR = process.env.SCREENSHOT_DIR || path.join(OUTPUT_DIR, "screenshots");
-const SIGNAL_DIR = process.env.SCREENSHOT_SIGNAL_DIR || path.join(OUTPUT_DIR, ".screenshot-signals");
+const OUTPUT_DIR   = process.env.TEST_OUTPUT_DIR   || path.join(os.tmpdir(), "atk-test-output");
+const SCREENSHOT_DIR = process.env.SCREENSHOT_DIR  || path.join(OUTPUT_DIR, "screenshots");
+const SIGNAL_DIR   = process.env.SCREENSHOT_SIGNAL_DIR || path.join(OUTPUT_DIR, ".screenshot-signals");
 
 function ensureDirs() {
   [OUTPUT_DIR, SCREENSHOT_DIR, SIGNAL_DIR].forEach((d) =>
@@ -27,31 +27,45 @@ function takeScreenshot(name: string): void {
   try {
     const dest = path.join(SCREENSHOT_DIR, `${name}.png`);
     const signal = path.join(SIGNAL_DIR, `${Date.now()}-${name}.signal`);
-    fs.writeFileSync(signal, dest, "utf8");
-
+    fs.writeFileSync(signal, `screenshot:${dest}`, "utf8");
     const deadline = Date.now() + 8000;
     while (fs.existsSync(signal) && Date.now() < deadline) {
       const end = Date.now() + 100;
       while (Date.now() < end) { /* busy wait */ }
     }
-
-    if (fs.existsSync(dest)) {
-      console.log(`Screenshot: ${name}.png`);
-    } else {
-      console.log(`Screenshot timeout: ${name}.png (Playwright may not be connected yet)`);
-    }
+    console.log(fs.existsSync(dest) ? `Screenshot: ${name}.png` : `Screenshot timeout: ${name}.png`);
   } catch (e) {
     console.warn("Screenshot failed:", e);
   }
 }
 
-/** Wait (ms) inside sync-ish style */
+/**
+ * Send an action signal to Playwright and wait for it to be processed.
+ * content: "clickText:Bot", "type:my-app", "pressKey:Enter", etc.
+ */
+function sendSignal(content: string, timeoutMs = 15000): void {
+  try {
+    const signal = path.join(SIGNAL_DIR, `${Date.now()}-action.signal`);
+    fs.writeFileSync(signal, content, "utf8");
+    const deadline = Date.now() + timeoutMs;
+    while (fs.existsSync(signal) && Date.now() < deadline) {
+      const end = Date.now() + 100;
+      while (Date.now() < end) { /* busy wait */ }
+    }
+    if (fs.existsSync(signal)) {
+      console.log(`Signal timeout: ${content}`);
+      try { fs.unlinkSync(signal); } catch {}
+    }
+  } catch (e) {
+    console.warn("Signal failed:", e);
+  }
+}
+
 function wait(ms: number): Promise<void> {
   return new Promise((r) => setTimeout(r, ms));
 }
 
-/** Poll until a VSCode command is available */
-async function waitForCommand(cmd: string, maxMs = 15000): Promise<boolean> {
+async function waitForCommand(cmd: string, maxMs = 20000): Promise<boolean> {
   const deadline = Date.now() + maxMs;
   while (Date.now() < deadline) {
     const allCmds = await vscode.commands.getCommands(true);
@@ -66,12 +80,13 @@ function writeResults(passed: number, failed: number, steps: object[]) {
   fs.writeFileSync(out, JSON.stringify({ passed, failed, steps }, null, 2), "utf8");
 }
 
-suite("ATK Teams Bot Template Creation", function () {
-  this.timeout(5 * 60 * 1000);
+suite("ATK Teams Bot Template Creation (UI Wizard)", function () {
+  this.timeout(8 * 60 * 1000);
 
   const steps: object[] = [];
   let passed = 0;
   let failed = 0;
+  let createdProjectDir = "";
 
   const step = (name: string, ok: boolean, detail?: string) => {
     steps.push({ name, status: ok ? "pass" : "fail", detail });
@@ -81,7 +96,7 @@ suite("ATK Teams Bot Template Creation", function () {
 
   suiteSetup(() => {
     ensureDirs();
-    console.log("=== ATK Teams Bot Template Test ===");
+    console.log("=== ATK Teams Bot Template Test (UI Wizard) ===");
     console.log("Output:", OUTPUT_DIR);
   });
 
@@ -93,103 +108,127 @@ suite("ATK Teams Bot Template Creation", function () {
   test("ATK extension is active", async () => {
     const extId = "TeamsDevApp.ms-teams-vscode-extension";
     let ext = vscode.extensions.getExtension(extId);
-
-    // Wait for extension to appear (VSCode might still be loading)
     if (!ext) {
-      for (let i = 0; i < 20; i++) {
+      for (let i = 0; i < 30; i++) {
         await wait(500);
         ext = vscode.extensions.getExtension(extId);
         if (ext) break;
       }
     }
-
     if (ext && !ext.isActive) {
       try { await ext.activate(); } catch (e: any) {
         console.log("  Activation note:", e.message);
       }
     }
-
-    // Wait for activation to complete (async side effects)
     await wait(3000);
-
     const active = !!ext?.isActive;
-    step("ATK extension activates", active,
-      ext ? `version ${ext.packageJSON.version}` : "not found");
-
+    step("ATK extension activates", active, ext ? `v${ext.packageJSON.version}` : "not found");
     takeScreenshot("01-extension-active");
     assert.ok(active, "Extension should be active");
   });
 
-  test("Create New Project command opens wizard", async () => {
-    // Wait for fx-extension.create to be registered
+  test("Navigate wizard to create Teams Bot template", async () => {
     const cmdAvailable = await waitForCommand("fx-extension.create", 15000);
-    if (!cmdAvailable) {
-      console.log("  Command not available after 15s, trying anyway...");
-    } else {
-      console.log("  Command available: fx-extension.create");
-    }
+    console.log("  fx-extension.create available:", cmdAvailable);
 
-    // Detect new tab/panel opening
-    const tabOpenedPromise = new Promise<boolean>((resolve) => {
-      const timer = setTimeout(() => resolve(false), 12000);
-      const disp = vscode.window.tabGroups.onDidChangeTabs((e) => {
-        if (e.opened.length > 0) {
-          clearTimeout(timer);
-          disp.dispose();
-          resolve(true);
-        }
-      });
-    });
-
-    // Fire command WITHOUT awaiting (wizard blocks until user action)
+    // Fire command without awaiting — wizard blocks until user completes it
     vscode.commands.executeCommand("fx-extension.create").catch((e: any) => {
       console.log("  Command error:", e.message);
     });
 
-    const tabOpened = await tabOpenedPromise;
-    await wait(2000); // let the wizard UI render
+    await wait(3000); // wait for wizard to render
+    takeScreenshot("02-wizard-open");
 
-    takeScreenshot("02-create-wizard-open");
-    step("Create Project wizard opens", cmdAvailable || tabOpened,
-      `command=${cmdAvailable}, tab=${tabOpened}`);
+    // Step 1: Create a new app
+    console.log("  Clicking: Create a new app");
+    sendSignal("clickText:Create a new app", 12000);
+    await wait(1500);
+    takeScreenshot("03-create-new-app");
+
+    // Step 2: Bot
+    console.log("  Clicking: Bot");
+    sendSignal("clickText:Bot", 10000);
+    await wait(1500);
+    takeScreenshot("04-bot-selected");
+
+    // Step 3: Simple Bot (BotNewUIOption.label)
+    console.log("  Clicking: Simple Bot");
+    sendSignal("clickText:Simple Bot", 10000);
+    await wait(1500);
+    takeScreenshot("05-simple-bot");
+
+    // Step 4: TypeScript
+    console.log("  Clicking: TypeScript");
+    sendSignal("clickText:TypeScript", 10000);
+    await wait(1500);
+    takeScreenshot("06-typescript");
+
+    // Step 5: Application name
+    console.log("  Typing app name");
+    sendSignal("type:test-teams-bot-001", 8000);
+    await wait(500);
+    sendSignal("pressKey:Enter", 5000);
+    await wait(2000);
+    takeScreenshot("07-app-name");
+
+    // Step 6: Workspace folder — accept the default (runner home dir)
+    console.log("  Accepting default workspace folder");
+    sendSignal("pressKey:Enter", 8000);
+    await wait(2000);
+    takeScreenshot("08-folder-selected");
+
+    // Step 7: Open in current window (or press Enter on default)
+    console.log("  Selecting: Open in current window");
+    sendSignal("clickText:Open in current window", 8000);
+    await wait(500);
+    // Fallback: if the click-text didn't find it, just press Enter
+    sendSignal("pressKey:Enter", 5000);
+    await wait(30000); // project scaffold takes ~15-30s
+    takeScreenshot("09-project-created");
+
+    step("Navigate wizard to create Teams Bot template", cmdAvailable, `command=${cmdAvailable}`);
   });
 
-  test("Close wizard", async () => {
-    await vscode.commands.executeCommand("workbench.action.closeAllEditors");
-    await wait(1000);
-    takeScreenshot("03-editors-closed");
-    step("Close wizard", true);
-  });
+  test("Verify scaffolded project files exist", async () => {
+    // Check workspace folders for the created project
+    const wsf = vscode.workspace.workspaceFolders;
+    const appName = "test-teams-bot-001";
 
-  test("Scaffold via ATK CLI (optional)", async () => {
-    const projectDir = path.join(OUTPUT_DIR, "projects", "teams-bot-test");
-    fs.mkdirSync(path.dirname(projectDir), { recursive: true });
-
-    // Try CLI names in priority order. ATK CLI was renamed: teamsapp -> atk
-    // Correct args: --capability bot --programming-language typescript
-    const cliCandidates: [string, string[]][] = [
-      ["atk",      ["new", "--capability", "bot", "--programming-language", "typescript", "--app-name", "TeamsBot", "--interactive", "false"]],
-      ["teamsapp", ["new", "--capability", "bot", "--programming-language", "typescript", "--app-name", "TeamsBot", "--interactive", "false"]],
-      ["teamsfx",  ["new", "--capability", "bot", "--programming-language", "typescript", "--app-name", "TeamsBot", "--interactive", "false"]],
-    ];
-    let scaffolded = false;
-    for (const [cli, args] of cliCandidates) {
-      const r = cp.spawnSync(cli, args,
-        { cwd: path.dirname(projectDir), timeout: 120000, shell: true });
-      if (r.status === 0) {
-        scaffolded = true;
-        break;
+    let projectDir = "";
+    if (wsf && wsf.length > 0) {
+      const newest = wsf.sort((a, b) =>
+        b.uri.fsPath.localeCompare(a.uri.fsPath))[0];
+      projectDir = newest.uri.fsPath;
+      createdProjectDir = projectDir;
+      console.log("  Workspace folder:", projectDir);
+    } else {
+      // Fallback: search common locations
+      const candidates = [
+        path.join(os.homedir(), appName),
+        path.join(os.tmpdir(), appName),
+        path.join("/home/runner", appName),
+      ];
+      for (const c of candidates) {
+        if (fs.existsSync(c)) { projectDir = c; break; }
       }
+      console.log("  Searching candidates, found:", projectDir || "none");
     }
 
-    if (scaffolded) {
-      await wait(1000);
-      takeScreenshot("04-project-scaffold");
+    const expectedFiles = [
+      "teamsapp.yml",
+      "package.json",
+      "src/index.ts",
+      "appPackage/manifest.json",
+    ];
+
+    let allFound = true;
+    for (const f of expectedFiles) {
+      const exists = projectDir ? fs.existsSync(path.join(projectDir, f)) : false;
+      step(`File: ${f}`, exists, exists ? "✓" : `not found in ${projectDir}`);
+      if (!exists) allFound = false;
     }
 
-    step("Scaffold via ATK CLI", scaffolded,
-      scaffolded ? "CLI succeeded" : "CLI not installed (expected in local dev)");
+    takeScreenshot("10-final-state");
+    assert.ok(allFound, `Expected project files missing in ${projectDir}`);
   });
 });
-
-
