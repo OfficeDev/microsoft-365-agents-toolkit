@@ -196,8 +196,8 @@ jobs:
           echo "Uploading GIF to issue #$ISSUE assets..."
           RESPONSE=$(curl -s -X POST \
             -H "Authorization: Bearer $GH_TOKEN" \
-            -H "Content-Type: image/gif" \
-            --data-binary "@$GIF_PATH" \
+
+            -F "file=@$GIF_PATH;type=image/gif" \
             "https://uploads.github.com/repos/${{ github.repository }}/issues/${ISSUE}/assets")
           echo "Response: $RESPONSE"
           GIF_URL=$(echo "$RESPONSE" | python3 -c "
@@ -229,7 +229,7 @@ jobs:
           export STATUS STATUS_ICON PASSED FAILED SHOTS LOG TEST_PLAN STEPS_TABLE GIF_URL
 
           # Read test plan
-          TEST_PLAN=$(cat test-plans/teams-bot-template.md 2>/dev/null | head -80 || echo "*(test plan not found)*")
+          TEST_PLAN=$(cat test-plans/teams-bot-template/teams-bot-template.md 2>/dev/null | head -80 || cat test-plans/teams-bot-template.md 2>/dev/null | head -80 || echo "*(test plan not found)*")
 
           # Build step table from results.json
           STEPS_TABLE=$(echo $RESULTS | python3 -c "
@@ -242,7 +242,7 @@ jobs:
               print('| Step | Status |')
               print('|------|--------|')
               for s in steps:
-                  icon = 'OK' if s.get('status') == 'passed' else 'FAIL'
+                  icon = 'OK' if s.get('status') in ('pass', 'passed') else 'FAIL'
                   print(f'| {s.get(\"name\",\"?\")} | {icon} |')
           " 2>/dev/null || echo "*(step details unavailable)*")
 
