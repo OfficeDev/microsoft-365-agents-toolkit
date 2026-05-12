@@ -24,6 +24,7 @@ import "./devTool/installDriver";
 import "./file/createOrUpdateEnvironmentFile";
 import "./file/createOrUpdateJsonFile";
 import "./m365/acquire";
+import "./dcr/create";
 import "./oauth/create";
 import "./oauth/update";
 import "./script/dotnetBuildDriver";

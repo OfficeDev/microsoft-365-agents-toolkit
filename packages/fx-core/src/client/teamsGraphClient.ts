@@ -10,6 +10,7 @@ import {
   ApiSecretRegistration,
   ApiSecretRegistrationUpdate,
 } from "../component/driver/teamsApp/interfaces/ApiSecretRegistration";
+import { DcrRegistration } from "../component/driver/teamsApp/interfaces/DcrRegistration";
 import { OauthConfigurationId } from "../component/driver/teamsApp/interfaces/OauthConfigurationId";
 import { OauthRegistration } from "../component/driver/teamsApp/interfaces/OauthRegistration";
 import { TeamsGraphAPIFailedSystemError } from "../error/teamsGraph";
@@ -19,6 +20,7 @@ export class TEAMS_GRAPH_API_NAMES {
   static readonly GET_OAUTH = "teams_graph_get_oauth";
   static readonly CREATE_OAUTH = "teams_graph_create_oauth";
   static readonly UPDATE_OAUTH = "teams_graph_update_oauth";
+  static readonly CREATE_DCR = "teams_graph_create_dcr";
   static readonly GET_API_KEY = "teams_graph_get_api_key";
   static readonly CREATE_API_KEY = "teams_graph_create_api_key";
   static readonly UPDATE_API_KEY = "teams_graph_update_api_key";
@@ -78,6 +80,22 @@ export class TeamsGraphClient {
       return response?.data;
     } catch (e) {
       throw this.wrapException(e, TEAMS_GRAPH_API_NAMES.CREATE_OAUTH);
+    }
+  }
+
+  @hooks([ErrorContextMW({ source: "TeamsGraph", component: "TeamsGraphClient" })])
+  async createDcrRegistration(
+    token: string,
+    dcrRegistration: DcrRegistration
+  ): Promise<OauthConfigurationId> {
+    const requester = this.createRequesterWithToken(token);
+    try {
+      const response = await RetryHandler.Retry(() =>
+        requester.post("/v1.0/dynamicConfigurations", dcrRegistration)
+      );
+      return response?.data;
+    } catch (e) {
+      throw this.wrapException(e, TEAMS_GRAPH_API_NAMES.CREATE_DCR);
     }
   }
 
