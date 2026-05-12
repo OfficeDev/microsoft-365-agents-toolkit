@@ -10,14 +10,14 @@
       "step_retry_timeout": 0.0
     },
     "total_steps": 4,
-    "created_at": "2026-05-09T08:23:57.519601",
+    "created_at": "2026-05-12T08:36:23.789972",
     "name": "Sample Adaptive Card Notification Local Debug",
     "description": {
       "other": "",
       "owner": "v-helzha@microsoft.com",
       "workitem": "14524987"
     },
-    "generated_at": "2026-05-09T08:23:57.519601",
+    "generated_at": "2026-05-12T08:36:23.789972",
     "execution_order": [
       "plan_r_1107_015711",
       "step_c22772fb",
@@ -29,7 +29,7 @@
       "step_6874bffc"
     ],
     "tags": [],
-    "updated_at": "2026-05-09T08:25:13.122534"
+    "updated_at": "2026-05-12T08:36:32.138289"
   },
   "steps": [
     {
@@ -51,7 +51,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_c22772fb",
-      "created_at": "2026-05-09T08:23:57.524605",
+      "created_at": "2026-05-12T08:36:23.804978",
       "plan_id": "plan_31868665"
     },
     {
@@ -77,7 +77,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_10c811fd",
-      "created_at": "2026-05-09T08:23:57.530705",
+      "created_at": "2026-05-12T08:36:23.832506",
       "plan_id": "plan_31868665"
     },
     {
@@ -95,7 +95,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": null,
-      "created_at": "2026-05-09T08:23:57.535842",
+      "created_at": "2026-05-12T08:36:23.851724",
       "plan_id": "plan_31868665"
     },
     {
@@ -113,7 +113,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": null,
-      "created_at": "2026-05-09T08:23:57.540843",
+      "created_at": "2026-05-12T08:36:23.863302",
       "plan_id": "plan_31868665"
     }
   ],
