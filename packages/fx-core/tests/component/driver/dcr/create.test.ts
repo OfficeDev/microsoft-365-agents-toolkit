@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { SystemError, UserError, err } from "@microsoft/teamsfx-api";
+import { SystemError, err } from "@microsoft/teamsfx-api";
 import * as chai from "chai";
 import chaiAsPromised from "chai-as-promised";
 import "mocha";
@@ -102,7 +102,9 @@ describe("CreateDcrDriver", () => {
 
   // Test #2 — Idempotency: env var already set => no POST, empty outputs
   it("idempotency: should skip POST when configurationId already exists in env", async () => {
-    const stub = sinon.stub(teamsGraphClient, "createDcrRegistration").resolves(fakeCreateDcrResponse);
+    const stub = sinon
+      .stub(teamsGraphClient, "createDcrRegistration")
+      .resolves(fakeCreateDcrResponse);
 
     envRestore = mockedEnv({
       [outputKeys.configurationId]: "existing-id",

@@ -81,8 +81,7 @@ export class CreateDcrDriver implements StepDriver {
 
         const dcrRegistration: DcrRegistration = {
           clientName: args.name,
-          m365AppId:
-            applicableToApps === OauthRegistrationAppType.SpecificApp ? args.appId : "",
+          m365AppId: applicableToApps === OauthRegistrationAppType.SpecificApp ? args.appId : "",
           applicableToApps: applicableToApps,
           targetAudience: targetAudience,
           targetUrlsShouldStartWith: args.targetUrlsShouldStartWith ?? [],
@@ -146,7 +145,10 @@ export class CreateDcrDriver implements StepDriver {
       invalidParameters.push("appId");
     }
 
-    if (typeof args.wellKnownAuthorizationServer !== "string" || !args.wellKnownAuthorizationServer) {
+    if (
+      typeof args.wellKnownAuthorizationServer !== "string" ||
+      !args.wellKnownAuthorizationServer
+    ) {
       invalidParameters.push("wellKnownAuthorizationServer");
     } else if (!validateUrl(args.wellKnownAuthorizationServer)) {
       throw new DcrWellKnownInvalidError(actionName);

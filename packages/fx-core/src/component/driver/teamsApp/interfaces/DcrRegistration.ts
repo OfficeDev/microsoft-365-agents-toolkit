@@ -1,10 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import {
-  OauthRegistrationAppType,
-  OauthRegistrationTargetAudience,
-} from "./OauthRegistration";
+import { OauthRegistrationAppType, OauthRegistrationTargetAudience } from "./OauthRegistration";
 
 export interface DcrRegistration {
   m365AppId: string;
