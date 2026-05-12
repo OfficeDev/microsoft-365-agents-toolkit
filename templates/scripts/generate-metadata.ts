@@ -41,6 +41,18 @@ function main() {
   fs.mkdirSync(path.resolve(__dirname, "../build/metadata"), { recursive: true });
   fs.mkdirSync(path.resolve(__dirname, "../build/ui"), { recursive: true });
 
+  // Remove stale files from before PR #15560 that replaced ceaNode.json / teamsNode.json
+  // with the combined wizardNode.json + tdpNode.json. Without this cleanup the old files
+  // would persist in build/ui/ and be re-distributed by the `distribute` npm script,
+  // causing packages/fx-core/templates/ui/ to contain obsolete JSON files.
+  for (const stale of ["ceaNode.json", "teamsNode.json"]) {
+    const stalePath = path.resolve(__dirname, "../build/ui", stale);
+    if (fs.existsSync(stalePath)) {
+      fs.unlinkSync(stalePath);
+      console.log(`[cleanup] Removed stale file: ${stale}`);
+    }
+  }
+
   fs.writeFileSync(
     path.resolve(__dirname, "../build/ui/wizardNode.json"),
     JSON.stringify(wizardNode, null, 2),
