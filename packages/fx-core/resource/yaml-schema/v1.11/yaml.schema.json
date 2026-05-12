@@ -81,6 +81,7 @@
           { "$ref": "#/definitions/apiKeyUpdate"},
           { "$ref": "#/definitions/oauthRegister"},
           { "$ref": "#/definitions/oauthUpdate"},
+          { "$ref": "#/definitions/dcrRegister"},
           { "$ref": "#/definitions/devChannelCreate"},
           { "$ref": "#/definitions/devChannelInstallApp"},
           { "$ref": "#/definitions/typeSpecCompile"}
@@ -1854,6 +1855,66 @@
             },
             "applicationIdUri": {
               "description": "The Application ID URI of created OAuth registration.",
+              "$ref": "#/definitions/envVarName"
+            }
+          }
+        }
+      }
+    },
+    "dcrRegister": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Create a Dynamic Client Registration (DCR) configuration.",
+      "required": ["uses", "with", "writeToEnvironmentFile"],
+      "properties": {
+        "uses": {
+          "type": "string",
+          "description": "Register a DCR configuration. Refer to https://aka.ms/teamsfx-actions/dcr-register for more details.",
+          "const": "dcr/register"
+        },
+        "with": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Parameters for this action",
+          "required": ["name", "appId", "wellKnownAuthorizationServer"],
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "The display name of the DCR configuration. Becomes the clientName sent during RFC 7591 registration. Max 128 characters."
+            },
+            "appId": {
+              "type": "string",
+              "description": "The Teams app id associated with this configuration. Only takes effect when applicableToApps is SpecificApp."
+            },
+            "wellKnownAuthorizationServer": {
+              "type": "string",
+              "description": "URL to the authorization server's RFC 8414 metadata document. TGS fetches this to discover the registration_endpoint and performs the RFC 7591 exchange server-side."
+            },
+            "targetUrlsShouldStartWith": {
+              "type": "array",
+              "description": "Outbound URL allowlist. TGS only allows this configuration to authorize calls whose destination URL starts with one of these prefixes.",
+              "items": { "type": "string" }
+            },
+            "applicableToApps": {
+              "type": "string",
+              "description": "Which app can use this DCR configuration. Default is \"AnyApp\".",
+              "enum": ["SpecificApp", "AnyApp"]
+            },
+            "targetAudience": {
+              "type": "string",
+              "description": "Which tenant can use this DCR configuration. Default is \"HomeTenant\".",
+              "enum": ["HomeTenant", "AnyTenant"]
+            }
+          }
+        },
+        "writeToEnvironmentFile": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Write environment variables to environment file",
+          "required": ["configurationId"],
+          "properties": {
+            "configurationId": {
+              "description": "Required. The configuration id of the created DCR registration.",
               "$ref": "#/definitions/envVarName"
             }
           }
