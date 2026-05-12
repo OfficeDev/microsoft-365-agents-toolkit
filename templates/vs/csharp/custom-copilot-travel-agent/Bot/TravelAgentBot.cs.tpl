@@ -9,12 +9,12 @@ using Microsoft.Extensions.AI;
 
 namespace {{SafeProjectName}}.Bot;
 
-public class {{SafeProjectName}}Bot : AgentApplication
+public class TravelAgentBot : AgentApplication
 {
-    private Agents.{{SafeProjectName}}Agent _travelAgent;
+    private Agents.TravelAgent _travelAgent;
     private IChatClient _chatClient;
 
-    public {{SafeProjectName}}Bot(AgentApplicationOptions options, IChatClient chatClient) : base(options)
+    public TravelAgentBot(AgentApplicationOptions options, IChatClient chatClient) : base(options)
     {
         _chatClient = chatClient ?? throw new ArgumentNullException(nameof(chatClient));
 
@@ -38,7 +38,7 @@ public class {{SafeProjectName}}Bot : AgentApplication
         await turnContext.StreamingResponse.QueueInformativeUpdateAsync("Working on a response for you");
 
         IList<ChatMessage> chatHistory = turnState.GetValue("conversation.chatHistory", () => new List<ChatMessage>());
-        _travelAgent = new Agents.{{SafeProjectName}}Agent(_chatClient, this, turnContext);
+        _travelAgent = new Agents.TravelAgent(_chatClient, this, turnContext);
 
         // Invoke the TravelAgent to process the message
         TravelAgentResponse travelResponse = await _travelAgent.InvokeAgentAsync(turnContext.Activity.Text, chatHistory);

@@ -63,7 +63,7 @@
   "template.createProjectQuestion.DAMetaOS.label": "Crea un agente dichiarativo con azioni del componente aggiuntivo di Office",
   "template.createProjectQuestion.declarativeCopilot.placeholder": "Aggiungere un'azione all'agente dichiarativo",
   "template.createProjectQuestion.declarativeCopilot.title": "Crea un agente dichiarativo",
-  "template.createProjectQuestion.mcpForDa.detail": "Crea azioni dal server MCP esistente",
+  "template.createProjectQuestion.mcpForDa.detail": "Crea un'azione dal server MCP esistente",
   "template.createProjectQuestion.mcpForDa.label": "Inizia con un server MCP",
   "template.createProjectQuestion.noPlugin.detail": "Creare solo un agente dichiarativo",
   "template.createProjectQuestion.noPlugin.label": "Nessuna azione",

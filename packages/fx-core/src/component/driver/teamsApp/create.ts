@@ -37,8 +37,8 @@ import {
 import { AppStudioError } from "./errors";
 import { CreateTeamsAppArgs } from "./interfaces/CreateTeamsAppArgs";
 import { AppStudioResultFactory } from "./results";
-import { FeatureFlagName } from "../../../common/featureFlags";
-import { SovereignCloudEnvironment } from "../../../common/accountUtils";
+import { isSovereignHigh } from "../../../common/accountUtils";
+import { isUUID } from "validator";
 
 const actionName = "teamsApp/create";
 
@@ -76,14 +76,10 @@ export class CreateTeamsAppDriver implements StepDriver {
     context: WrapDriverContext,
     outputEnvVarNames?: Map<string, string>
   ): Promise<Result<Map<string, string>, FxError>> {
-    if (
-      process.env[FeatureFlagName.SovereignCloudEnvironment] === SovereignCloudEnvironment.GCCH ||
-      process.env[FeatureFlagName.SovereignCloudEnvironment] === SovereignCloudEnvironment.DOD
-    ) {
+    if (isSovereignHigh()) {
       context.logProvider.warning(
         getLocalizedString("driver.teamsApp.warning.createUnsupportedCloud", actionName)
       );
-      return ok(new Map<string, string>());
     }
 
     const result = this.validateArgs(args);
@@ -99,6 +95,19 @@ export class CreateTeamsAppDriver implements StepDriver {
     // precedence over the internal default.
     outputEnvVarNames = new Map([...Object.entries(internalOutputNames), ...outputEnvVarNames]);
     const state = loadStateFromEnv(outputEnvVarNames);
+
+    if (isSovereignHigh()) {
+      let teamsAppId = state.teamsAppId;
+
+      if (teamsAppId && isUUID(teamsAppId)) {
+        context.addSummary(
+          getLocalizedString("driver.teamsApp.summary.createTeamsAppAlreadyExists", teamsAppId)
+        );
+      } else {
+        teamsAppId = v4();
+      }
+      return ok(new Map([[outputEnvVarNames.get("teamsAppId") as string, teamsAppId]]));
+    }
 
     let create = true;
     const appStudioTokenRes = await context.m365TokenProvider.getAccessToken({

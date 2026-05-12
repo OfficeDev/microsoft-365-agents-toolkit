@@ -9,23 +9,18 @@
       "precondition_retry_interval": 2.0,
       "step_retry_timeout": 0.0
     },
-    "total_steps": 38,
-    "created_at": "2026-04-14T07:43:29.169104",
+    "total_steps": 32,
+    "created_at": "2026-05-11T05:29:21.108817",
     "name": "Feature DA No Action Add ApiKey Auth Configurations",
     "description": {
       "other": "",
       "owner": "v-helzha@microsoft.com",
       "workitem": "31543255"
     },
-    "generated_at": "2026-04-14T07:43:29.169104",
+    "generated_at": "2026-05-11T05:29:21.108817",
     "execution_order": [
       "plan_r_0928_012254",
-      "step_a0720277",
-      "step_dd28747c",
-      "step_16f97cad",
-      "step_977e4907",
-      "step_536384bc",
-      "step_e34545b3",
+      "plan_c1d5db82",
       "step_11a103e0",
       "step_0edd5748",
       "step_8e0df260",
@@ -67,165 +62,9 @@
       "plan_08cdfe42"
     ],
     "tags": [],
-    "updated_at": "2026-04-14T07:44:22.962195"
+    "updated_at": "2026-05-11T05:32:34.059247"
   },
   "steps": [
-    {
-      "step_id": "step_a0720277",
-      "agent": "interaction",
-      "tool": "click",
-      "parameters": {
-        "button": "left",
-        "x": 305,
-        "y": 93
-      },
-      "description": "Click the \"Declarative Agent\" option in the \"New Project\" modal of the Microsoft 365 Agents Toolkit extension within Visual Studio Code.",
-      "content_refs": [],
-      "timeout": 30,
-      "retry_count": 0,
-      "continue_on_error": "false",
-      "depends_on": [],
-      "preconditions": [
-        "dhash:305:93:16:5:318c8532a3a7a121",
-        "dhash:305:93:96:5:4a94526b6d929c65",
-        "dhash:305:93:0:10:c8c88094b2717075"
-      ],
-      "postconditions": [],
-      "tags": [],
-      "screenshot": "step_a0720277",
-      "created_at": "2026-04-14T07:43:29.187520",
-      "plan_id": "plan_29ee3046"
-    },
-    {
-      "step_id": "step_dd28747c",
-      "agent": "interaction",
-      "tool": "click",
-      "parameters": {
-        "button": "left",
-        "x": 347,
-        "y": 132
-      },
-      "description": "Click the \"No Action\" option from the dropdown menu under \"Add an action to your declarative agent\" in the \"Create Declarative Agent\" window of Microsoft 365 Agents Toolkit.",
-      "content_refs": [],
-      "timeout": 30,
-      "retry_count": 0,
-      "continue_on_error": "false",
-      "depends_on": [],
-      "preconditions": [
-        "dhash:347:132:16:5:00908a11a86c1a6a",
-        "dhash:347:132:96:5:444c131562062822",
-        "dhash:347:132:0:10:c0c0b094b2717075"
-      ],
-      "postconditions": [],
-      "tags": [],
-      "screenshot": "step_dd28747c",
-      "created_at": "2026-04-14T07:43:29.204873",
-      "plan_id": "plan_29ee3046"
-    },
-    {
-      "step_id": "step_16f97cad",
-      "agent": "interaction",
-      "tool": "click",
-      "parameters": {
-        "button": "left",
-        "x": 401,
-        "y": 128
-      },
-      "description": "Click the \"Start with a New API\" option in the \"Create an Action\" dropdown within the Microsoft 365 Agents Toolkit extension in Visual Studio Code.",
-      "content_refs": [],
-      "timeout": 30,
-      "retry_count": 0,
-      "continue_on_error": "false",
-      "depends_on": [],
-      "preconditions": [
-        "dhash:401:128:16:5:4d7546b843000000",
-        "dhash:401:128:96:5:36348a242c648a8a",
-        "dhash:401:128:0:10:c0e08294b2717075"
-      ],
-      "postconditions": [],
-      "tags": [],
-      "screenshot": "step_16f97cad",
-      "created_at": "2026-04-14T07:43:29.222373",
-      "plan_id": "plan_29ee3046"
-    },
-    {
-      "step_id": "step_977e4907",
-      "agent": "interaction",
-      "tool": "click",
-      "parameters": {
-        "button": "left",
-        "x": 421,
-        "y": 75
-      },
-      "description": "Click on the input field labeled \"Enter OpenAPI Description Document Location or Open File...\" in the OpenAPI Spec Document dialog within Visual Studio Code.",
-      "content_refs": [],
-      "timeout": 30,
-      "retry_count": 0,
-      "continue_on_error": "false",
-      "depends_on": [],
-      "preconditions": [
-        "dhash:421:75:16:5:00b34c33aa0a6b33",
-        "dhash:421:75:96:5:04004926b6931b1b",
-        "dhash:421:75:0:10:f0b09494b2717075"
-      ],
-      "postconditions": [],
-      "tags": [],
-      "screenshot": "step_977e4907",
-      "created_at": "2026-04-14T07:43:29.245145",
-      "plan_id": "plan_29ee3046"
-    },
-    {
-      "step_id": "step_536384bc",
-      "agent": "interaction",
-      "tool": "click",
-      "parameters": {
-        "button": "left",
-        "x": 370,
-        "y": 73
-      },
-      "description": "Click the text input field labeled \"Enter OpenAPI Description Document Location\" in the OpenAPI Description Document prompt within Visual Studio Code's Microsoft 365 Agents Toolkit interface.",
-      "content_refs": [],
-      "timeout": 30,
-      "retry_count": 0,
-      "continue_on_error": "false",
-      "depends_on": [],
-      "preconditions": [
-        "dhash:370:73:16:5:000223cc33a6ba2a",
-        "dhash:370:73:96:5:000051ae24540000",
-        "dhash:370:73:0:10:f0b09494b2717075"
-      ],
-      "postconditions": [],
-      "tags": [],
-      "screenshot": "step_536384bc",
-      "created_at": "2026-04-14T07:43:29.264156",
-      "plan_id": "plan_29ee3046"
-    },
-    {
-      "step_id": "step_e34545b3",
-      "agent": "interaction",
-      "tool": "click",
-      "parameters": {
-        "button": "left",
-        "x": 294,
-        "y": 47
-      },
-      "description": "Click on the \"Enter OpenAPI Description Document URL\" input field in the OpenAPI Description Document dialog within Visual Studio Code.",
-      "content_refs": [],
-      "timeout": 30,
-      "retry_count": 0,
-      "continue_on_error": "false",
-      "depends_on": [],
-      "preconditions": [
-        "dhash:294:47:16:5:1b586538b4d53595",
-        "dhash:294:47:96:5:0000024949c54508",
-        "dhash:294:47:0:10:e0b09494b2717075"
-      ],
-      "postconditions": [],
-      "tags": [],
-      "screenshot": "step_e34545b3",
-      "created_at": "2026-04-14T07:43:29.280505",
-      "plan_id": "plan_29ee3046"
-    },
     {
       "step_id": "step_11a103e0",
       "agent": "interaction",
@@ -245,7 +84,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_11a103e0",
-      "created_at": "2026-04-14T07:43:29.305538",
+      "created_at": "2026-05-11T05:29:21.226763",
       "plan_id": "plan_29ee3046"
     },
     {
@@ -267,7 +106,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_0edd5748",
-      "created_at": "2026-04-14T07:43:29.326132",
+      "created_at": "2026-05-11T05:29:21.246872",
       "plan_id": "plan_29ee3046"
     },
     {
@@ -295,7 +134,7 @@
         "precondition_wait_timeout: 60"
       ],
       "screenshot": "step_8e0df260",
-      "created_at": "2026-04-14T07:43:29.344146",
+      "created_at": "2026-05-11T05:29:21.263608",
       "plan_id": "plan_29ee3046"
     },
     {
@@ -321,7 +160,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_683d2410",
-      "created_at": "2026-04-14T07:43:29.359060",
+      "created_at": "2026-05-11T05:29:21.280495",
       "plan_id": "plan_29ee3046"
     },
     {
@@ -347,7 +186,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_6eac184d",
-      "created_at": "2026-04-14T07:43:29.379093",
+      "created_at": "2026-05-11T05:29:21.295200",
       "plan_id": "plan_29ee3046"
     },
     {
@@ -369,7 +208,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_c36ab723",
-      "created_at": "2026-04-14T07:43:29.396889",
+      "created_at": "2026-05-11T05:29:21.316807",
       "plan_id": "plan_29ee3046"
     },
     {
@@ -391,7 +230,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_d6d3135c",
-      "created_at": "2026-04-14T07:43:29.417954",
+      "created_at": "2026-05-11T05:29:21.333559",
       "plan_id": "plan_29ee3046"
     },
     {
@@ -413,7 +252,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_650fc482",
-      "created_at": "2026-04-14T07:43:29.438049",
+      "created_at": "2026-05-11T05:29:21.347389",
       "plan_id": "plan_29ee3046"
     },
     {
@@ -435,7 +274,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_256e2d75",
-      "created_at": "2026-04-14T07:43:29.452280",
+      "created_at": "2026-05-11T05:29:21.361683",
       "plan_id": "plan_29ee3046"
     },
     {
@@ -457,7 +296,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_63ba6d34",
-      "created_at": "2026-04-14T07:43:29.468137",
+      "created_at": "2026-05-11T05:29:21.377178",
       "plan_id": "plan_29ee3046"
     },
     {
@@ -479,7 +318,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_7c7d7e09",
-      "created_at": "2026-04-14T07:43:29.484711",
+      "created_at": "2026-05-11T05:29:21.396146",
       "plan_id": "plan_29ee3046"
     },
     {
@@ -505,7 +344,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_8a37563e",
-      "created_at": "2026-04-14T07:43:29.506451",
+      "created_at": "2026-05-11T05:29:21.411410",
       "plan_id": "plan_29ee3046"
     },
     {
@@ -527,7 +366,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_88180771",
-      "created_at": "2026-04-14T07:43:29.536598",
+      "created_at": "2026-05-11T05:29:21.431521",
       "plan_id": "plan_29ee3046"
     },
     {
@@ -549,7 +388,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_eda476b1",
-      "created_at": "2026-04-14T07:43:29.565669",
+      "created_at": "2026-05-11T05:29:21.445954",
       "plan_id": "plan_29ee3046"
     },
     {
@@ -571,7 +410,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_52ce47e0",
-      "created_at": "2026-04-14T07:43:29.585330",
+      "created_at": "2026-05-11T05:29:21.459617",
       "plan_id": "plan_29ee3046"
     },
     {
@@ -593,7 +432,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_748cb210",
-      "created_at": "2026-04-14T07:43:29.611543",
+      "created_at": "2026-05-11T05:29:21.470621",
       "plan_id": "plan_29ee3046"
     },
     {
@@ -615,7 +454,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_e0295f06",
-      "created_at": "2026-04-14T07:43:29.637205",
+      "created_at": "2026-05-11T05:29:21.480729",
       "plan_id": "plan_29ee3046"
     },
     {
@@ -637,7 +476,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_20dd2069",
-      "created_at": "2026-04-14T07:43:29.660592",
+      "created_at": "2026-05-11T05:29:21.489817",
       "plan_id": "plan_29ee3046"
     },
     {
@@ -659,7 +498,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_791a875b",
-      "created_at": "2026-04-14T07:43:29.694993",
+      "created_at": "2026-05-11T05:29:21.498258",
       "plan_id": "plan_29ee3046"
     },
     {
@@ -681,7 +520,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_316e993f",
-      "created_at": "2026-04-14T07:43:29.705513",
+      "created_at": "2026-05-11T05:29:21.511346",
       "plan_id": "plan_29ee3046"
     },
     {
@@ -699,7 +538,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": null,
-      "created_at": "2026-04-14T07:43:29.726994",
+      "created_at": "2026-05-11T05:29:21.521855",
       "plan_id": "plan_29ee3046"
     },
     {
@@ -721,7 +560,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_4a7f5859",
-      "created_at": "2026-04-14T07:43:29.740632",
+      "created_at": "2026-05-11T05:29:21.531308",
       "plan_id": "plan_29ee3046"
     },
     {
@@ -743,7 +582,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_7acbf487",
-      "created_at": "2026-04-14T07:43:29.755193",
+      "created_at": "2026-05-11T05:29:21.542560",
       "plan_id": "plan_29ee3046"
     },
     {
@@ -765,7 +604,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_7dbfa8f1",
-      "created_at": "2026-04-14T07:43:29.768376",
+      "created_at": "2026-05-11T05:29:21.551990",
       "plan_id": "plan_29ee3046"
     },
     {
@@ -793,7 +632,7 @@
         "precondition_wait_timeout: 30"
       ],
       "screenshot": "step_8136cf36",
-      "created_at": "2026-04-14T07:43:29.786390",
+      "created_at": "2026-05-11T05:29:21.569732",
       "plan_id": "plan_29ee3046"
     },
     {
@@ -815,7 +654,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_7e2789f3",
-      "created_at": "2026-04-14T07:43:29.803818",
+      "created_at": "2026-05-11T05:29:21.581370",
       "plan_id": "plan_29ee3046"
     },
     {
@@ -839,7 +678,7 @@
         "delay: 3"
       ],
       "screenshot": "step_c7aa426c",
-      "created_at": "2026-04-14T07:43:29.816164",
+      "created_at": "2026-05-11T05:29:21.593579",
       "plan_id": "plan_29ee3046"
     },
     {
@@ -865,7 +704,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_e641dcff",
-      "created_at": "2026-04-14T07:43:29.823162",
+      "created_at": "2026-05-11T05:29:21.603139",
       "plan_id": "plan_29ee3046"
     },
     {
@@ -887,7 +726,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_708e5262",
-      "created_at": "2026-04-14T07:43:29.834270",
+      "created_at": "2026-05-11T05:29:21.623673",
       "plan_id": "plan_29ee3046"
     },
     {
@@ -909,7 +748,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_efd55245",
-      "created_at": "2026-04-14T07:43:29.846394",
+      "created_at": "2026-05-11T05:29:21.647660",
       "plan_id": "plan_29ee3046"
     },
     {
@@ -931,7 +770,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_8be65069",
-      "created_at": "2026-04-14T07:43:29.868971",
+      "created_at": "2026-05-11T05:29:21.677835",
       "plan_id": "plan_29ee3046"
     },
     {
@@ -952,17 +791,11 @@
         "delay: 90"
       ],
       "screenshot": null,
-      "created_at": "2026-04-14T07:43:29.895045",
+      "created_at": "2026-05-11T05:29:21.714857",
       "plan_id": "plan_29ee3046"
     }
   ],
   "screenshots": {
-    "step_a0720277": "step_a0720277",
-    "step_dd28747c": "step_dd28747c",
-    "step_16f97cad": "step_16f97cad",
-    "step_977e4907": "step_977e4907",
-    "step_536384bc": "step_536384bc",
-    "step_e34545b3": "step_e34545b3",
     "step_11a103e0": "step_11a103e0",
     "step_0edd5748": "step_0edd5748",
     "step_8e0df260": "step_8e0df260",

@@ -72,6 +72,8 @@ export enum ResourceServiceType {
   MOS3 = "MOS3",
   Graph = "Graph",
   Azure = "Azure",
+  TeamsGraph = "TeamsGraph",
+  TeamsGraphAud = "TeamsGraphAud",
 }
 
 export const serviceEndpoints: Record<
@@ -85,6 +87,8 @@ export const serviceEndpoints: Record<
     [ResourceServiceType.MOS3]: "https://titles.prod.mos.microsoft.com",
     [ResourceServiceType.Graph]: "https://graph.microsoft.com",
     [ResourceServiceType.Azure]: "https://management.azure.com",
+    [ResourceServiceType.TeamsGraph]: "https://teams.microsoft.com/api/platform",
+    [ResourceServiceType.TeamsGraphAud]: "https://teamsgraph.teams.microsoft.com",
   },
   [SovereignCloudEnvironment.GCCM]: {
     [ResourceServiceType.AuthSvc]: "https://teams.microsoft.com/api/authsvc",
@@ -93,6 +97,8 @@ export const serviceEndpoints: Record<
     [ResourceServiceType.MOS3]: "https://titles.gccm.mos.microsoft.com",
     [ResourceServiceType.Graph]: "https://graph.microsoft.com",
     [ResourceServiceType.Azure]: "https://management.azure.com",
+    [ResourceServiceType.TeamsGraph]: "https://teams.microsoft.com/gcc/api/platform",
+    [ResourceServiceType.TeamsGraphAud]: "https://teamsgraph.teams.microsoft.com",
   },
   [SovereignCloudEnvironment.GCCH]: {
     [ResourceServiceType.AuthSvc]: "https://authsvc.gov.teams.microsoft.us",
@@ -101,6 +107,8 @@ export const serviceEndpoints: Record<
     [ResourceServiceType.MOS3]: "https://titles.gcch.mos.svc.usgovcloud.microsoft",
     [ResourceServiceType.Graph]: "https://graph.microsoft.us",
     [ResourceServiceType.Azure]: "https://management.usgovcloudapi.net",
+    [ResourceServiceType.TeamsGraph]: "https://gov.teams.microsoft.us/api/platform",
+    [ResourceServiceType.TeamsGraphAud]: "https://teamsgraph.gov.teams.microsoft.us",
   },
   [SovereignCloudEnvironment.DOD]: {
     [ResourceServiceType.AuthSvc]: "https://authsvc.dod.teams.microsoft.us",
@@ -109,6 +117,8 @@ export const serviceEndpoints: Record<
     [ResourceServiceType.MOS3]: "https://titles.dod.mos.svc.usgovcloud.microsoft",
     [ResourceServiceType.Graph]: "https://dod-graph.microsoft.us",
     [ResourceServiceType.Azure]: "https://management.usgovcloudapi.net",
+    [ResourceServiceType.TeamsGraph]: "https://dod.teams.microsoft.us/api/platform",
+    [ResourceServiceType.TeamsGraphAud]: "https://teamsgraph.dod.teams.microsoft.us",
   },
 };
 
@@ -159,6 +169,10 @@ export const SPFxScopes = (tenant: string) => [`${tenant}/Sites.FullControl.All`
 // Azure
 export const AzureScopes = () => {
   return [`${getResourceServiceEndpoint(ResourceServiceType.Azure)}/.default`];
+};
+
+export const TeamsGraphScopes = () => {
+  return [`${getResourceServiceEndpoint(ResourceServiceType.TeamsGraphAud)}/.default`];
 };
 
 export const SpecParserSource = "SpecParser";

@@ -7,7 +7,7 @@ using {{SafeProjectName}}.Bot.Plugins;
 
 namespace {{SafeProjectName}}.Bot.Agents;
 
-public class {{SafeProjectName}}Agent
+public class TravelAgent
 {
     private readonly AIAgent _agent;
 
@@ -40,12 +40,12 @@ public class {{SafeProjectName}}Agent
         """;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="{{SafeProjectName}}Agent"/> class.
+    /// Initializes a new instance of the <see cref="TravelAgent"/> class.
     /// </summary>
     /// <param name="chatClient">An instance of <see cref="IChatClient"/> for interacting with an LLM.</param>
     /// <param name="app">The agent application instance.</param>
     /// <param name="turnContext">The turn context for the current conversation.</param>
-    public {{SafeProjectName}}Agent(IChatClient chatClient, AgentApplication app, ITurnContext turnContext)
+    public TravelAgent(IChatClient chatClient, AgentApplication app, ITurnContext turnContext)
     {
         var tools = new List<AITool>();
         

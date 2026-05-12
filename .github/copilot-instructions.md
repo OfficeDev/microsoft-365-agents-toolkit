@@ -11,13 +11,16 @@ When generating or editing code in this repository:
 # Architecture Overview
 The toolkit follows a **layered architecture** with clear separation of concerns:
 
-┌─────────────────────────────────────────────────────────────────────┐
-│                     VS Code Extension Layer                         │
-│   (packages/vscode-extension)                                       │
-│   - UI Commands, Handlers, TreeView, CodeLens Providers             │
-└──────────────────────────────┬──────────────────────────────────────┘
-                               │
-┌──────────────────────────────▼──────────────────────────────────────┐
+┌──────────────────┐ ┌──────────────────────┐ ┌────────────────────┐
+│  VS Code Ext.    │ │  CLI                 │ │  Server            │
+│  (vscode-ext.)   │ │  (packages/cli)      │ │  (packages/server) │
+│  - UI Commands,  │ │  - Command Line      │ │  - JSON-RPC based  │
+│    TreeView,     │ │    Interface         │ │  - Used by VS ext. │
+│    CodeLens      │ │                      │ │                    │
+└────────┬─────────┘ └──────────┬───────────┘ └──────────┬─────────┘
+         └─────────────────┬────┘                        │
+                           └────────────────┬────────────┘
+┌──────────────────────────▼──────────────────────────────────────────┐
 │                         FX-Core Layer                               │
 │   (packages/fx-core)                                                │
 │   - Project Generation, Lifecycle, Drivers, Manifest Utilities      │
@@ -89,3 +92,16 @@ When fixing unit tests for a package:
 4. **Fix errors iteratively** - run tests after each fix to verify
 
 > **Tip**: When there are many failing tests, start with the specific file causing issues to reduce feedback loop time.
+
+---
+
+# Template Maintenance Guidelines
+
+Templates in this repository (located in `templates/`) are used when scaffolding.
+
+## Template Locations
+- `templates/` - Root location for all scaffolding templates
+- `templates/src/` - Template metadata, question/template name definitions, and UI assets
+- `templates/vsc/` - VS Code scaffolding templates (TypeScript, JavaScript, Python, and shared common)
+- `templates/vs/` - Visual Studio scaffolding templates (C#)
+- `templates/unused/` - Templates not currently in use but kept for reference, no need to update them

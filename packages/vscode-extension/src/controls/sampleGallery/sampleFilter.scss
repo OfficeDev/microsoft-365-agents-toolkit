@@ -87,9 +87,16 @@
       padding-left: 8px;
       top: 0px;
       font-size: 16px;
+      cursor: pointer;
+      border-radius: 2px;
 
       &:hover {
         color: var(--vscode-editor-foreground);
+      }
+
+      &:focus-visible {
+        outline: 2px solid var(--vscode-focusBorder, #007FD4);
+        outline-offset: 1px;
       }
     }
   }
