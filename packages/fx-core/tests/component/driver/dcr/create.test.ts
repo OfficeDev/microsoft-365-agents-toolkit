@@ -147,6 +147,24 @@ describe("CreateDcrDriver", () => {
     }
   });
 
+  // Test #3b — Missing `appId`
+  it("should return InvalidActionInputError when appId is missing", async () => {
+    const args: any = {
+      name: "cloudflare-radar-dcr",
+      wellKnownAuthorizationServer:
+        "https://radar.mcp.cloudflare.com/.well-known/oauth-authorization-server",
+      targetUrlsShouldStartWith: ["https://radar.mcp.cloudflare.com"],
+    };
+
+    const result = await createDcrDriver.execute(args, mockedDriverContext, outputEnvVarNames);
+
+    expect(result.result.isErr()).to.be.true;
+    if (result.result.isErr()) {
+      expect(result.result.error.name).to.equal("InvalidActionInputError");
+      expect(result.result.error.message).to.include("appId");
+    }
+  });
+
   // Test #4 — Missing `wellKnownAuthorizationServer`
   it("should return InvalidActionInputError when wellKnownAuthorizationServer is missing", async () => {
     const args: any = {
@@ -311,5 +329,62 @@ describe("CreateDcrDriver", () => {
       expect(result.result.value.get(outputKeys.configurationId)).to.equal(fakeOauthConfigId);
     }
     expect(stub.calledOnce).to.be.true;
+  });
+
+  // Test #11 — applicableToApps with an invalid enum value
+  it("should return InvalidActionInputError when applicableToApps is not a known value", async () => {
+    const args: any = {
+      name: "cloudflare-radar-dcr",
+      appId: "mocked-teams-app-id",
+      wellKnownAuthorizationServer:
+        "https://radar.mcp.cloudflare.com/.well-known/oauth-authorization-server",
+      applicableToApps: "NotARealValue",
+    };
+
+    const result = await createDcrDriver.execute(args, mockedDriverContext, outputEnvVarNames);
+
+    expect(result.result.isErr()).to.be.true;
+    if (result.result.isErr()) {
+      expect(result.result.error.name).to.equal("InvalidActionInputError");
+      expect(result.result.error.message).to.include("applicableToApps");
+    }
+  });
+
+  // Test #12 — targetAudience with an invalid enum value
+  it("should return InvalidActionInputError when targetAudience is not a known value", async () => {
+    const args: any = {
+      name: "cloudflare-radar-dcr",
+      appId: "mocked-teams-app-id",
+      wellKnownAuthorizationServer:
+        "https://radar.mcp.cloudflare.com/.well-known/oauth-authorization-server",
+      targetAudience: "NotARealValue",
+    };
+
+    const result = await createDcrDriver.execute(args, mockedDriverContext, outputEnvVarNames);
+
+    expect(result.result.isErr()).to.be.true;
+    if (result.result.isErr()) {
+      expect(result.result.error.name).to.equal("InvalidActionInputError");
+      expect(result.result.error.message).to.include("targetAudience");
+    }
+  });
+
+  // Test #13 — targetUrlsShouldStartWith contains a non-URL entry
+  it("should return InvalidActionInputError when targetUrlsShouldStartWith contains an invalid URL", async () => {
+    const args: any = {
+      name: "cloudflare-radar-dcr",
+      appId: "mocked-teams-app-id",
+      wellKnownAuthorizationServer:
+        "https://radar.mcp.cloudflare.com/.well-known/oauth-authorization-server",
+      targetUrlsShouldStartWith: ["https://radar.mcp.cloudflare.com", "not-a-url"],
+    };
+
+    const result = await createDcrDriver.execute(args, mockedDriverContext, outputEnvVarNames);
+
+    expect(result.result.isErr()).to.be.true;
+    if (result.result.isErr()) {
+      expect(result.result.error.name).to.equal("InvalidActionInputError");
+      expect(result.result.error.message).to.include("targetUrlsShouldStartWith");
+    }
   });
 });
