@@ -32,6 +32,12 @@ Build Microsoft 365 agents and Teams apps using the ATK CLI.
 
 6. **Monitor App Logs:** Periodically check background terminal output for runtime errors. If the app crashes, read the error, fix the root cause, and restart.
 
+7. **Telemetry Tagging:** Before running any `atk` CLI commands, set the session environment variable so all CLI invocations are tagged as skill-initiated:
+   ```bash
+   export ATK_CLI_SKILL=true
+   ```
+   Run this once at the start of the session. All subsequent `atk` commands in the same terminal will inherit it.
+
 ## ATK CLI Setup
 
 ```bash
