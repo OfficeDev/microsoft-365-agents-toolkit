@@ -547,9 +547,9 @@ class CLIEngine {
       context.globalOptionValues.interactive + "";
     context.telemetryProperties[TelemetryProperty.CommandVersion] =
       context.globalOptionValues.version + "";
-    if (process.env.ATK_CLI_INTERNAL === "true") {
-      context.telemetryProperties[TelemetryProperty.Internal] = "true";
-      CliTelemetry.reporter?.addSharedProperty(TelemetryProperty.Internal, "true");
+    if (process.env.ATK_CLI_SKILL === "true") {
+      context.telemetryProperties[TelemetryProperty.Skill] = "true";
+      CliTelemetry.reporter?.addSharedProperty(TelemetryProperty.Skill, "true");
     }
     // context.telemetryProperties[TelemetryProperty.CorrelationId] =
     //   context.optionValues.correlationId;
