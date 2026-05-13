@@ -1440,4 +1440,23 @@ describe("getTemplateReplaceMap", () => {
     assert.equal(map.FoundryEndpoint, "");
     assert.equal(map.FoundryAgentId, "");
   });
+
+  it("should default useAzureOpenAI to true when LLMService is not provided", () => {
+    // Regression test for ADO 37713559: in non-interactive scaffolding the
+    // --llm-service flag default is not propagated, leaving templates such as
+    // weather-agent with an undefined `agentModel` reference.
+    const map = getTemplateReplaceMap(inputs);
+    assert.equal(map.useAzureOpenAI, "true");
+    assert.equal(map.useOpenAI, "");
+  });
+
+  it("should respect explicit LLMService = llm-service-openai", () => {
+    const openaiInputs = {
+      ...inputs,
+      [QuestionNames.LLMService]: "llm-service-openai",
+    } as Inputs;
+    const map = getTemplateReplaceMap(openaiInputs);
+    assert.equal(map.useOpenAI, "true");
+    assert.equal(map.useAzureOpenAI, "");
+  });
 });
