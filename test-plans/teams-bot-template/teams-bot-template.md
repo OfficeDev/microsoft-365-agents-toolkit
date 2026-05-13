@@ -4,75 +4,89 @@
 - **feature-slug**: `teams-bot-template`
 - **owner**: atk-qa
 - **created**: 2026-05-09
+- **updated**: 2026-05-13 (aligned with verified ATK v6.8.0 wizard flow)
 - **triggers**: issue-label `atk-copilot-test`, manual
 
 ## Scope
 
 **Covers:**
 - Opening VSCode with the ATK extension installed
-- Running "Teams: Create New App" via the Command Palette
-- Selecting "Bot" as the app type
-- Choosing TypeScript as the language
-- Entering a project name
+- Running `fx-extension.create` command (Teams: Create New App)
+- Selecting "Teams Agents and Apps" > "Bot" > "Simple Bot" > "TypeScript"
+- Choosing default workspace folder, then entering a project name
 - Verifying the scaffold is created (key files present)
 
 **Does NOT cover:**
 - Local debug / F5 run
 - Azure provisioning
-- Multi-language (JS/Python) – separate TCs
+- Multi-language (JS/Python) - separate TCs
 
 ---
 
 ## Test Cases
 
-### TC-001 – Create Teams Bot template (TypeScript)
+### TC-001 - Create Teams Bot template (TypeScript)
 
 **Preconditions:**
 - VSCode is open with no project loaded
-- ATK extension is installed and activated
+- ATK extension v6.8.0+ is installed and activated
 - Extension sidebar shows "Microsoft 365 Agents Toolkit"
 
+**Actual wizard flow (ATK v6.8.0, verified):**
+The `fx-extension.create` command opens a multi-step QuickPick wizard in this order:
+1. **App category** - select "Teams Agents and Apps"
+2. **App type** - select "Bot"
+3. **Bot variant** - select "Simple Bot"
+4. **Language** - select "TypeScript"
+5. **Workspace folder** - select "Default folder" (~~/AgentsToolkitProjects)
+6. **Application Name** - InputBox, type the project name, press Enter
+
+> Note: Folder is selected BEFORE app name (not after).
+> "Simple Bot" is the correct option (not "Basic Bot").
+
 **Steps:**
-1. Screenshot startup state
-2. Open Command Palette (`Ctrl+Shift+P`)
-3. Type and run "Teams: Create New App"
-4. In the wizard, select **"Teams Agent & Apps"**
-5. Select **"Bot"**
-6. Select **"Basic Bot"**
-7. Select **"TypeScript"**
-8. Enter app name: `test-teams-bot-001`
-9. Choose output folder `/tmp/atk-test-output/projects`
-10. Wait for scaffold to complete
-11. Screenshot the file explorer showing the generated project tree
-12. Assert these files exist in the scaffold:
-    - `src/index.ts`
-    - `teamsapp.yml`
+1. ATK extension activates
+2. Fire `fx-extension.create` command (no Command Palette - called directly)
+3. Wait for "Teams Agents and Apps" QuickPick to appear, screenshot
+4. Click "Teams Agents and Apps", screenshot before click
+5. Click "Bot", screenshot before click
+6. Click "Simple Bot", screenshot before click
+7. Click "TypeScript", screenshot before click
+8. Click "Default folder", screenshot before click
+9. Type app name `test-teams-bot-001`, press Enter
+10. Wait 90s for scaffold + new window to open
+11. Screenshot final state
+12. Assert these files exist in `~/AgentsToolkitProjects/test-teams-bot-001/`:
+    - `m365agents.yml`
     - `package.json`
+    - `index.ts`
     - `appPackage/manifest.json`
 
 **Expected result:**
 - Wizard completes without error
-- All 4 asserted files are present
+- All 4 asserted files are present at project root (NOT in src/)
 - VSCode opens the new project folder
-- No error notifications are shown
 
 **Test script:**
 `packages/tests/src/ui-test/copilot-driven/teams-bot-create-template.test.ts`
 
-**Screenshots expected:**
-| ID | Description |
-|---|---|
-| `01-startup` | VSCode at launch |
-| `02-command-palette` | Command Palette open |
-| `03-wizard-app-type` | Wizard step: select app type |
-| `04-wizard-bot` | Wizard step: select Bot |
-| `05-wizard-language` | Wizard step: select TypeScript |
-| `06-wizard-name` | Wizard step: enter project name |
-| `07-scaffold-complete` | File explorer showing generated project |
+**Screenshots produced by test script:**
+| ID | File | Description |
+|---|---|---|
+| 01 | `01-extension-active.png` | VSCode at launch with ATK active |
+| 02 | `02-wizard-open.png` | First QuickPick visible after command fires |
+| 03 | `03-teams-agents-apps.png` | QuickPick showing "Teams Agents and Apps" option |
+| 04 | `04-bot-selected.png` | QuickPick showing Bot option |
+| 05 | `05-simple-bot.png` | QuickPick showing Simple Bot option |
+| 06 | `06-typescript.png` | QuickPick showing TypeScript option |
+| 07 | `07-workspace-folder.png` | QuickPick showing Default folder + Browse |
+| 08 | `08-app-name-input.png` | InputBox for Application Name (empty, before typing) |
+| 09 | `09-project-created.png` | State after scaffold completes |
+| 10 | `10-final-state.png` | Final file verification state |
 
 ---
 
-### TC-002 – Project name validation (spaces not allowed)
+### TC-002 - Project name validation (spaces not allowed)
 
 **Preconditions:** Same as TC-001.
 
