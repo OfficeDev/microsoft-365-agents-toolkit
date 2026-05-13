@@ -185,7 +185,7 @@ async function main() {
       types: ["node", "mocha"],
       typeRoots: [path.join(TESTS_ROOT, "node_modules", "@types")],
     },
-    include: ["suite/**/*.ts", "teams-bot-create-template.test.ts"],
+    include: ["suite/**/*.ts", "simple-bot-create.test.ts"],
     exclude: ["node_modules", "runTest.ts"],
   };
   fs.writeFileSync(tsconfigPath, JSON.stringify(tsconfig, null, 2), "utf8");

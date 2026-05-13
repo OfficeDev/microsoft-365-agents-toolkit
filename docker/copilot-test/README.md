@@ -1,4 +1,4 @@
-﻿# ATK Copilot Test – Docker Setup
+# ATK Copilot Test – Docker Setup
 
 Self-contained Docker image that runs `vscode-extension-tester` UI tests against the
 Microsoft 365 Agents Toolkit (ATK) VSCode extension — the same tests that run in the
@@ -52,7 +52,7 @@ TEST_FILE=teams-bot-name-validation docker compose run --rm test
 
 | Variable | Default | Description |
 |---|---|---|
-| `TEST_FILE` | `teams-bot-create-template` | Test file stem |
+| `TEST_FILE` | `simple-bot-create` | Test file stem |
 | `VSIX_PATH` | _(auto-detect)_ | Path to ATK `.vsix` inside container |
 | `VSCODE_VERSION` | `stable` | VSCode version for ExTester |
 | `TEST_OUTPUT_DIR` | `/output` | Where results are written (mount a volume here) |

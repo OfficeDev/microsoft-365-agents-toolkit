@@ -10,7 +10,7 @@
  *
  * Examples:
  *   node scripts/local-test.js
- *   node scripts/local-test.js teams-bot-create-template
+ *   node scripts/local-test.js simple-bot-create
  *
  * Prerequisites:
  *   cd C:\Users\quke\source\atk\microsoft-365-agents-toolkit
@@ -25,7 +25,7 @@ const { spawnSync } = require('child_process');
 // ── Config ────────────────────────────────────────────────────────────────────
 const DEFAULT_ATK_SRC = 'C:\\Users\\quke\\source\\atk\\microsoft-365-agents-toolkit';
 
-const TEST_FILE  = process.argv[2] || process.env.TEST_FILE  || 'teams-bot-create-template';
+const TEST_FILE  = process.argv[2] || process.env.TEST_FILE  || 'simple-bot-create';
 const ATK_SRC    = process.argv[3] || process.env.ATK_SOURCE || DEFAULT_ATK_SRC;
 const OUTPUT_DIR = path.resolve(process.env.TEST_OUTPUT_DIR || path.join(__dirname, '..', 'test-output'));
 

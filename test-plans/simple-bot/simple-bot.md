@@ -70,7 +70,7 @@
 - VSCode opens the new project folder automatically
 
 **Test script:**
-`packages/tests/src/ui-test/copilot-driven/teams-bot-create-template.test.ts`
+`packages/tests/src/ui-test/copilot-driven/simple-bot-create.test.ts`
 
 **Screenshots produced by test:**
 

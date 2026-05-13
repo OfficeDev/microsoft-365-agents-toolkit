@@ -8,7 +8,7 @@
 #   docker compose run --rm test
 #
 # Run a specific test file:
-#   TEST_FILE=teams-bot-create-template docker compose run --rm test
+#   TEST_FILE=simple-bot-create docker compose run --rm test
 
 version: "3.8"
 
@@ -20,7 +20,7 @@ services:
     image: atk-copilot-test:local
     environment:
       # Required: test file stem (without .test.ts)
-      TEST_FILE: ${TEST_FILE:-teams-bot-create-template}
+      TEST_FILE: ${TEST_FILE:-simple-bot-create}
       # Optional: path to ATK extension directory mounted inside the container
       # Mount with: -v "$ATK_EXT_PATH:/atk-ext:ro" and set ATK_EXT_PATH=/atk-ext
       ATK_EXT_PATH: ${CONTAINER_EXT_PATH:-}

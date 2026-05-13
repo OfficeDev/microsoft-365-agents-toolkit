@@ -10,7 +10,7 @@
 #   docker run --rm --shm-size=512m \
 #     -v /path/to/vscode-extension:/atk-ext:ro \
 #     -v $(pwd)/test-output:/output \
-#     -e TEST_FILE=teams-bot-create-template \
+#     -e TEST_FILE=simple-bot-create \
 #     atk-copilot-test
 # ============================================================================
 FROM ubuntu:22.04

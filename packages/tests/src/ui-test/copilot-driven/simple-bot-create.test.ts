@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 /**
- * teams-bot-create-template.test.ts
+ * simple-bot-create.test.ts
  * TC-001: Create Teams Bot template via the ATK VSCode wizard (UI-driven).
  * Runs INSIDE VSCode extension host via @vscode/test-electron (Mocha TDD).
  * Screenshots and UI interactions are driven by Playwright via signal files.

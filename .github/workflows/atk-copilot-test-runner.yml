@@ -188,7 +188,7 @@ jobs:
 
           The entry point is: packages/tests/src/ui-test/copilot-driven/runTest.ts
           Test files live in: packages/tests/src/ui-test/copilot-driven/<test>.test.ts
-          Reference example: packages/tests/src/ui-test/copilot-driven/teams-bot-create-template.test.ts
+          Reference example: packages/tests/src/ui-test/copilot-driven/simple-bot-create.test.ts
 
           ## Your mission
           Read issue #\${ISSUE_NUMBER} in repo \${REPO} and execute the described test task against the ATK VSCode extension.
@@ -246,7 +246,7 @@ jobs:
           - Write results JSON to \${TEST_OUTPUT_DIR}/results.json: { passed, failed, steps: [{name, status, detail}] }
 
           ## Step 3 – Set TEST_FILE env to the test file basename (no .test.ts)
-          Example: TEST_FILE=teams-bot-create-template
+          Example: TEST_FILE=simple-bot-create
 
           ## Step 4 – Run the test
           cd packages/tests
