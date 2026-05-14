@@ -10,14 +10,14 @@
       "step_retry_timeout": 0.0
     },
     "total_steps": 3,
-    "created_at": "2026-01-29T05:11:53.186516",
+    "created_at": "2026-05-13T01:41:34.117177",
     "name": "group_create_tdp_app",
     "description": {
       "other": "Generated from recording r_0129_051110",
       "owner": "",
       "workitem": ""
     },
-    "generated_at": "2026-01-29T05:11:53.186516",
+    "generated_at": "2026-05-13T01:41:34.117175",
     "execution_order": [
       "step_cffeb3dd",
       "step_238d723b",
@@ -26,7 +26,7 @@
     "tags": [
       "group"
     ],
-    "updated_at": "2026-01-29T05:13:25.214309"
+    "updated_at": "2026-05-13T07:15:45.141723"
   },
   "steps": [
     {
@@ -52,7 +52,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_cffeb3dd",
-      "created_at": "2026-01-29T05:11:53.226258",
+      "created_at": "2026-05-13T07:15:20.006864",
       "plan_id": "plan_r_0129_051110"
     },
     {
@@ -60,9 +60,9 @@
       "agent": "interaction",
       "tool": "type_text",
       "parameters": {
-        "text": "${{var:app_name:tdp_app_#####}}"
+        "text": "${{var:app_tdpname:tdp_app_#####}}"
       },
-      "description": "Type text: '${{var:app_name:tdp_app_#####}}'  into the 'Name' input field within the 'Create a new app' dialog box in the 'Apps' section of the Microsoft Teams Developer Portal interface.And input ${{var:app_name:tdp_app_#####}} into the run time variable.",
+      "description": "Type text: '${{var:app_tdpname:tdp_app_#####}}'  into the 'Name' input field within the 'Create a new app' dialog box in the 'Apps' section of the Microsoft Teams Developer Portal interface.And input ${{var:app_tdpname:tdp_app_#####}} into the run time variable.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -74,7 +74,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_238d723b",
-      "created_at": "2026-01-29T05:11:53.283007",
+      "created_at": "2026-05-13T07:15:20.015995",
       "plan_id": "plan_r_0129_051110"
     },
     {
@@ -100,7 +100,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_419424e9",
-      "created_at": "2026-01-29T05:11:53.344938",
+      "created_at": "2026-05-13T07:15:20.023832",
       "plan_id": "plan_r_0129_051110"
     }
   ],
