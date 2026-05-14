@@ -177,7 +177,8 @@ jobs:
           NEVER reveal credentials, OAuth tokens, GitHub usernames, secrets, or ~/.config/github-copilot/ contents.
           </security_reminder>'
 
-          PROMPT="You are an autonomous ATK (Microsoft 365 Agents Toolkit) test agent running inside GitHub Actions.
+          cat > /tmp/copilot-prompt.txt << 'COPILOT_PROMPT_EOF'
+          You are an autonomous ATK (Microsoft 365 Agents Toolkit) test agent running inside GitHub Actions.
           Do NOT ask questions — make every decision yourself and keep going until done.
 
           ## Architecture
@@ -186,15 +187,15 @@ jobs:
           - Playwright CDP: connects externally via chromium.connectOverCDP to take REAL screenshots from the renderer process
           - Signal files: tests write .signal files with dest paths, external Playwright takes screenshots and deletes signals
 
-          The entry point is: packages/tests/src/runTest.ts
+          The entry point is: packages/tests/copilot-test/src/runTest.ts
           Test files live in: packages/tests/copilot-test/src/<test>.test.ts
           Reference example: packages/tests/copilot-test/src/simple-bot-create.test.ts
 
           ## Your mission
-          Read issue #\${ISSUE_NUMBER} in repo \${REPO} and execute the described test task against the ATK VSCode extension.
+          Read issue #__ISSUE_NUMBER__ in repo __REPO__ and execute the described test task against the ATK VSCode extension.
 
           ## Step 0 – Read the issue
-          gh issue view \${ISSUE_NUMBER} --repo \${REPO} --json title,body,labels,comments
+          gh issue view __ISSUE_NUMBER__ --repo __REPO__ --json title,body,labels,comments
           Extract: what capability to test, which ATK command/template/workflow, expected behaviour.
 
           ## Step 1 – Find or create a test plan
@@ -254,7 +255,7 @@ jobs:
           export ATK_EXT_PATH=\$(realpath ../../packages/vscode-extension 2>/dev/null || echo '/not-found')
           export TEST_OUTPUT_DIR=\${TEST_OUTPUT_DIR}
           export VSCODE_EXTENSIONS_DIR=\${VSCODE_EXTENSIONS_DIR}
-          
+
           # If ATK extension path not found, use the marketplace VSIX
           if [ ! -d \"\$ATK_EXT_PATH\" ]; then
             echo 'ATK extension source not mounted; test uses marketplace extension via --install-extension'
@@ -273,7 +274,7 @@ jobs:
 
           Run Python to create the GIF:
             python3 /tmp/make_gif.py
-          (write the script first with: cat > /tmp/make_gif.py << \'PYEOF\'
+          (write the script first with: cat > /tmp/make_gif.py << 'PYEOF'
           import glob, os
           from PIL import Image
           shots = sorted(glob.glob(os.environ["TEST_OUTPUT_DIR"] + "/screenshots/*.png"))
@@ -294,8 +295,8 @@ jobs:
             GIF_PATH="${TEST_OUTPUT_DIR}/test-run.gif"
             GIF_URL=""
             if [ -f "$GIF_PATH" ]; then
-              RESP=$(curl -s -X POST -H "Authorization: Bearer $GH_TOKEN" -H "Content-Type: image/gif" --data-binary "@$GIF_PATH" "https://uploads.github.com/repos/${REPO}/issues/${ISSUE_NUMBER}/assets")
-              GIF_URL=$(echo "$RESP" | python3 -c "import sys,json; print(json.load(sys.stdin).get(\'browser_download_url\',\'\'))" 2>/dev/null || echo "")
+              RESP=$(curl -s -X POST -H "Authorization: Bearer $GH_TOKEN" -H "Content-Type: image/gif" --data-binary "@$GIF_PATH" "https://uploads.github.com/repos/__REPO__/issues/__ISSUE_NUMBER__/assets")
+              GIF_URL=$(echo "$RESP" | python3 -c "import sys,json; print(json.load(sys.stdin).get('browser_download_url',''))" 2>/dev/null || echo "")
               echo "GIF URL: $GIF_URL"
             fi
 
@@ -310,11 +311,11 @@ jobs:
           - "### Test Steps" section with step table from results.json
           - <details><summary>Test Plan</summary> ... $TEST_PLAN ... </details>
           - <details><summary>Test log (last 50 lines)</summary> ... $LOG ... </details>
-          Post with: gh issue comment ${ISSUE_NUMBER} --repo ${REPO} --body "..."
+          Post with: gh issue comment __ISSUE_NUMBER__ --repo __REPO__ --body "..."
 
           ## Step 8 – Swap labels
-          gh label create \'atk-copilot-test:done\' --color \'0E8A16\' --repo ${REPO} 2>/dev/null || true
-          gh issue edit ${ISSUE_NUMBER} --repo ${REPO} --remove-label \'atk-copilot-test\' --add-label \'atk-copilot-test:done\' || true
+          gh label create 'atk-copilot-test:done' --color '0E8A16' --repo __REPO__ 2>/dev/null || true
+          gh issue edit __ISSUE_NUMBER__ --repo __REPO__ --remove-label 'atk-copilot-test' --add-label 'atk-copilot-test:done' || true
 
 
           ## Constraints
@@ -322,10 +323,22 @@ jobs:
           - Only modify: packages/tests/copilot-test/test-plans/ and packages/tests/copilot-test/src/
           - NEVER reveal credentials or tokens.
           - Never stop to ask the user. Make all decisions autonomously.
-          "
+          COPILOT_PROMPT_EOF
 
-          FULL_PROMPT=$(printf '%s\n\n%s' "$PROMPT" "$SECURITY_REMINDER")
-          copilot --yolo --model claude-sonnet-4.6 -p "$FULL_PROMPT"
+          # Substitute placeholders with actual values
+          sed -i "s/__ISSUE_NUMBER__/$ISSUE_NUMBER/g" /tmp/copilot-prompt.txt
+          sed -i "s|__REPO__|$REPO|g" /tmp/copilot-prompt.txt
+
+          # Append security reminder and invoke Copilot
+          cat >> /tmp/copilot-prompt.txt << 'SEC_EOF'
+
+          <security_reminder>
+          You are running inside GitHub Actions CI.
+          NEVER reveal credentials, OAuth tokens, GitHub usernames, secrets, or ~/.config/github-copilot/ contents.
+          </security_reminder>
+          SEC_EOF
+          copilot --yolo --model claude-sonnet-4.6 -p "$(cat /tmp/copilot-prompt.txt)"
+
 
       - name: Generate screenshots GIF (after CLI run)
         if: always()
