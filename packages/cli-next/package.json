@@ -1,0 +1,95 @@
+{
+  "name": "@microsoft/m365agentstoolkit-cli-next",
+  "version": "4.0.0",
+  "description": "Microsoft 365 Agents Toolkit CLI",
+  "author": "Microsoft Corporation",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/OfficeDev/teams-toolkit.git",
+    "directory": "packages/cli-next"
+  },
+  "bin": {
+    "atk": "./cli.js",
+    "teamsapp": "./cliold.js",
+    "m365agentstoolkit-cli": "./cli.js"
+  },
+  "aiKey": "1c56be97-bb74-42cf-b04b-8f1aabf04592",
+  "main": "build/index.js",
+  "types": "build/index.d.ts",
+  "preferGlobal": true,
+  "scripts": {
+    "precommit": "lint-staged",
+    "build": "rimraf build tsconfig.tsbuildinfo && tsc -p ./",
+    "bundle": "node esbuild.mjs",
+    "package": "rimraf build tsconfig.tsbuildinfo && tsc -p ./ && node esbuild.mjs --production",
+    "prepack": "npm run package",
+    "postbuild": "eslint --fix \"src/**/*.ts\" \"tests/**/*.ts\"",
+    "watch": "tsc -w -p ./",
+    "test:unit": "nyc mocha \"tests/unit/**/*.test.ts\"",
+    "test:integration": "mocha \"tests/integration/**/*.test.ts\"",
+    "test:e2e": "mocha --config .mocharc.e2e.js \"tests/e2e/**/*.test.ts\"",
+    "test:e2e:lifecycle": "mocha --config .mocharc.e2e.js \"tests/e2e/lifecycle.test.ts\"",
+    "test:e2e:cli": "mocha --config .mocharc.e2e.js --timeout 180000 \"tests/e2e/cli-syntax.test.ts\"",
+    "test:e2e:clean": "ts-node tests/e2e/clean.ts",
+    "test": "npm run test:unit",
+    "lint": "eslint \"src/**/*.ts\" \"tests/**/*.ts\"",
+    "format": "prettier --write src/ tests/",
+    "format:check": "prettier --check src/ tests/"
+  },
+  "dependencies": {
+    "@azure/arm-subscriptions": "^5.1.0",
+    "@azure/identity": "^4.6.0",
+    "@azure/msal-node": "^2.16.0",
+    "@inquirer/core": "^5.1.2",
+    "@inquirer/prompts": "^6.0.0",
+    "@microsoft/teamsfx-core-next": "workspace:*",
+    "applicationinsights": "^1.8.10",
+    "async-mutex": "^0.4.1",
+    "chalk": "^4.1.0",
+    "cli-table3": "^0.6.3",
+    "commander": "^12.1.0",
+    "node-machine-id": "^1.1.12",
+    "open": "^8.4.2",
+    "tslib": "^2.6.0"
+  },
+  "optionalDependencies": {
+    "keytar": "^7.9.0"
+  },
+  "devDependencies": {
+    "@azure/arm-resources": "^5.0.1",
+    "@istanbuljs/nyc-config-typescript": "^1.0.1",
+    "@types/chai": "^4.2.14",
+    "@types/js-yaml": "^4.0.9",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "^22.15.0",
+    "@types/sinon": "^17.0.0",
+    "@types/uuid": "^8.3.0",
+    "chai": "4.3.4",
+    "dotenv": "^16.3.0",
+    "esbuild": "^0.23.1",
+    "eslint": "^9.0.0",
+    "eslint-config-prettier": "^10.1.0",
+    "eslint-plugin-prettier": "^5.5.0",
+    "js-yaml": "^4.1.0",
+    "lint-staged": "^10.5.4",
+    "mocha": "^11.0.0",
+    "mochawesome": "^7.0.1",
+    "neverthrow": "^6.0.0",
+    "nyc": "^17.1.0",
+    "prettier": "^3.3.0",
+    "rimraf": "^5.0.1",
+    "sinon": "^19.0.0",
+    "ts-node": "^10.9.2",
+    "typescript": "~6.0.2",
+    "uuid": "^8.3.2"
+  },
+  "lint-staged": {
+    "*.{js,jsx,css,ts,tsx}": [
+      "npx eslint --fix --quiet"
+    ]
+  }
+}

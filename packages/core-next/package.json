@@ -1,0 +1,75 @@
+{
+  "name": "@microsoft/teamsfx-core-next",
+  "version": "4.0.0",
+  "description": "Microsoft 365 Agents Toolkit Core SDK — v4 redesign with flat operation pipeline, DI via context, and registry-driven templates/drivers.",
+  "main": "build/index.js",
+  "types": "build/index.d.ts",
+  "license": "MIT",
+  "keywords": [
+    "teamsfx",
+    "m365",
+    "agents-toolkit",
+    "teams"
+  ],
+  "repository": "https://github.com/",
+  "files": [
+    "build/**/*",
+    "templates/**/*"
+  ],
+  "scripts": {
+    "precommit": "lint-staged",
+    "lint": "eslint \"src/**/*.ts\" \"tests/**/*.ts\"",
+    "build": "tsc -p ./ --incremental",
+    "postbuild": "eslint --fix \"src/**/*.ts\" \"tests/**/*.ts\"",
+    "test:unit": "nyc mocha \"tests/unit/**/*.test.ts\"",
+    "test:integration": "mocha \"tests/integration/**/*.test.ts\"",
+    "test": "npm run test:unit",
+    "format": "prettier --write \"src/**/*.ts\" \"tests/**/*.ts\"",
+    "format:check": "prettier --check \"src/**/*.ts\" \"tests/**/*.ts\""
+  },
+  "dependencies": {
+    "@apidevtools/swagger-parser": "^10.1.1",
+    "@azure/core-auth": "^1.9.0",
+    "@microsoft/app-manifest": "workspace:*",
+    "adm-zip": "^0.5.10",
+    "axios": "^1.8.3",
+    "form-data": "^4.0.0",
+    "js-yaml": "^4.1.0",
+    "mustache": "^4.1.0",
+    "neverthrow": "^6.0.0",
+    "semver": "^7.7.4",
+    "swagger2openapi": "7.0.8",
+    "tslib": "^2.6.0",
+    "yaml": "^2.4.0",
+    "zod": "^3.23.0"
+  },
+  "devDependencies": {
+    "@istanbuljs/nyc-config-typescript": "^1.0.1",
+    "@types/adm-zip": "^0.5.5",
+    "@types/chai": "^4.2.14",
+    "@types/js-yaml": "^4.0.9",
+    "@types/mocha": "^10.0.10",
+    "@types/mustache": "^4.2.5",
+    "@types/node": "^22.15.0",
+    "@types/semver": "^7.7.1",
+    "@types/sinon": "^17.0.0",
+    "@types/swagger2openapi": "^7.0.4",
+    "chai": "4.3.4",
+    "eslint": "^9.0.0",
+    "eslint-config-prettier": "^10.1.0",
+    "eslint-plugin-prettier": "^5.5.0",
+    "lint-staged": "^10.5.4",
+    "mocha": "^11.0.0",
+    "nyc": "^17.1.0",
+    "openapi-types": "^12.1.3",
+    "prettier": "^3.3.0",
+    "sinon": "^19.0.0",
+    "ts-node": "^10.9.2",
+    "typescript": "~6.0.2"
+  },
+  "lint-staged": {
+    "*.{js,jsx,css,ts,tsx}": [
+      "npx eslint --fix --quiet"
+    ]
+  }
+}
