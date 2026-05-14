@@ -1414,6 +1414,87 @@ describe("constructNode", () => {
     assert.equal(options.length, 2);
   });
 
+  it("should use registered defaultValue=true for known flag when env var is unset", () => {
+    // MCPForDA has defaultValue: "true" — option should appear when env var is not set
+    const originalValue = process.env["TEAMSFX_MCP_FOR_DA"];
+    delete process.env["TEAMSFX_MCP_FOR_DA"];
+    try {
+      const json = JSON.stringify({
+        data: {
+          title: "test.title",
+          name: "test",
+          type: "singleSelect",
+          options: [
+            { id: "always-visible", label: "Always" },
+            { id: "mcp-option", label: "MCP", featureFlag: "TEAMSFX_MCP_FOR_DA" },
+          ],
+        },
+      });
+      const node = constructNode(json);
+      const data = node.data as SingleSelectQuestion;
+      const options = data.staticOptions as OptionItem[];
+      assert.equal(options.length, 2);
+      assert.equal(options[1].id, "mcp-option");
+    } finally {
+      if (originalValue !== undefined) {
+        process.env["TEAMSFX_MCP_FOR_DA"] = originalValue;
+      }
+    }
+  });
+
+  it("should use registered defaultValue=false for known flag when env var is unset", () => {
+    // DAMetaOS has defaultValue: "false" — option should be hidden when env var is not set
+    const originalValue = process.env["TEAMSFX_DA_METAOS"];
+    delete process.env["TEAMSFX_DA_METAOS"];
+    try {
+      const json = JSON.stringify({
+        data: {
+          title: "test.title",
+          name: "test",
+          type: "singleSelect",
+          options: [
+            { id: "always-visible", label: "Always" },
+            { id: "metaos-option", label: "MetaOS", featureFlag: "TEAMSFX_DA_METAOS" },
+          ],
+        },
+      });
+      const node = constructNode(json);
+      const data = node.data as SingleSelectQuestion;
+      const options = data.staticOptions as OptionItem[];
+      assert.equal(options.length, 1);
+      assert.equal(options[0].id, "always-visible");
+    } finally {
+      if (originalValue !== undefined) {
+        process.env["TEAMSFX_DA_METAOS"] = originalValue;
+      }
+    }
+  });
+
+  it("should fall back to defaultValue=false for unknown flag when env var is unset", () => {
+    const flagName = "TEAMSFX_UNKNOWN_TEST_FLAG_XYZ";
+    delete process.env[flagName];
+    try {
+      const json = JSON.stringify({
+        data: {
+          title: "test.title",
+          name: "test",
+          type: "singleSelect",
+          options: [
+            { id: "always-visible", label: "Always" },
+            { id: "unknown-flagged", label: "Unknown", featureFlag: flagName },
+          ],
+        },
+      });
+      const node = constructNode(json);
+      const data = node.data as SingleSelectQuestion;
+      const options = data.staticOptions as OptionItem[];
+      assert.equal(options.length, 1);
+      assert.equal(options[0].id, "always-visible");
+    } finally {
+      delete process.env[flagName];
+    }
+  });
+
   it("should handle group type nodes", () => {
     const json = JSON.stringify({
       data: { type: "group", name: "test-group" },

@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 
 import { IQTreeNode, OptionItem, Platform, SingleSelectQuestion } from "@microsoft/teamsfx-api";
-import { featureFlagManager } from "../../common/featureFlags";
+import { featureFlagManager, FeatureFlags } from "../../common/featureFlags";
 import { getLocalizedString } from "../../common/localizeUtils";
 import {
   apiSpecNode,
@@ -16,7 +16,8 @@ import { GCConnectionIdQuestion, GCNameQuestion } from "../create";
 import { QuestionNames } from "../questionNames";
 
 function isFeatureEnabled(flagName: string): boolean {
-  return featureFlagManager.getBooleanValue({ name: flagName, defaultValue: "false" });
+  const knownFlag = Object.values(FeatureFlags).find((f) => f.name === flagName);
+  return featureFlagManager.getBooleanValue(knownFlag ?? { name: flagName, defaultValue: "false" });
 }
 
 export function constructNode(
