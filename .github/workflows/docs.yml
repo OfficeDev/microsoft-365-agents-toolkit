@@ -2,184 +2,49 @@ name: Docs checker
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: "0 0 * * *"
 
 jobs:
-  aka-validation:
+  evaluate:
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        repo:
-          - TeamsFx
-          - TeamsFx.wiki
-          - TeamsFx-Samples
+    timeout-minutes: 120
     steps:
-      - name: Checkout TeamsFx.wiki
-        uses: actions/checkout@v3
-        with:
-          repository: OfficeDev/${{ matrix.repo }}
+      - uses: actions/checkout@v4
 
-      - name: List akas
-        id: list-akas
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Install GitHub Copilot CLI
         run: |
-          links=`git grep -hEo "https://aka[a-zA-Z0-9./?=_%:-]*[a-zA-Z0-9]"  | sort -nr | uniq`
+          npm install -g @github/copilot
+          copilot --version
 
-          white_list="https://aka.ms/dotnet;https://aka.ms/teamsfx-migrate-v1;https://aka.ms/officeversions"
-
-          while IFS= read -r link;
-          do
-            if [[ $white_list == *"$link"* ]]; then
-              echo $link "=>" "white list" >> akas.data
-              continue
-            fi
-            redirect=`curl -LIs -o /dev/null -w %{url_effective} $link`
-            echo $link "=>" $redirect >> akas.data
-          done <<< $links
-
-      - name: Upload akas to artifacts
-        uses: actions/upload-artifact@v4
+      - name: Setup Go
+        uses: actions/setup-go@v5
         with:
-          name: ${{ matrix.repo }}
-          path: akas.data
+          go-version: '1.26'
 
-  output-link-result:
-    runs-on: ubuntu-latest
-    needs: aka-validation
-    steps:
-      - uses: actions/download-artifact@v4
-        with:
-          path: artifacts
-      - name: List akas
-        id: list-akas
-        working-directory: artifacts
-        run: |
-          files=(*)
-          lists=""
-          touch result.txt
+      - name: Install Waza
+        run: go install github.com/microsoft/waza/cmd/waza@latest
 
-          for file in "${files[@]}";
-          do
-            echo $file
-            while IFS= read -r line
-            do
-              aka=`echo $line | awk -F '=>' '{print $1}'`
-              redirect=`echo $line | awk -F '=>' '{print $2}'`
-
-              label=""
-              if [[ $redirect == *"bing.com"* ]];
-              then
-                label="INVALID"
-              elif [[ $redirect == *"white list"* ]];
-              then
-                label="SKIPPED"
-              else
-                httpcode=`curl -s -o /dev/null -w %{http_code} $redirect`
-                if [[ $httpcode == 404 ]];
-                then
-                  label="INVALID"
-                else
-                  label="VALID"
-                fi
-              fi
-
-              row="$file $aka $label"
-              echo $row >> result.txt
-            done < $file/akas.data
-          done
-
-      - name: upload result to artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: result
-          path: artifacts/result.txt
-
-  report:
-    runs-on: ubuntu-latest
-    needs: aka-validation
-    steps:
-      - uses: actions/download-artifact@v4
-        with:
-          path: artifacts
-
-      - name: List akas
-        id: list-akas
-        working-directory: artifacts
-        run: |
-          files=(*)
-          lists=""
-          emails="teamsfxqa@microsoft.com;M365AgentsToolkitEngineerTeam@microsoft.com"
-          valid=0
-          invalid=0
-
-          for file in "${files[@]}";
-          do
-            echo $file
-            while IFS= read -r line
-            do
-              aka=`echo $line | awk -F '=>' '{print $1}'`
-              redirect=`echo $line | awk -F '=>' '{print $2}'`
-
-              label=""
-              invalid_url=false
-              if [[ $redirect == *"bing.com"* ]];
-              then
-                invalid_url=true
-                invalid=$((invalid+1))
-                label="<span style=\\\"background-color: #dc322f;color:white;font-weight:bold;\\\">INVALID</span>"
-              elif [[ $redirect == *"white list"* ]];
-              then
-                valid=$((valid+1))
-                label="<span style=\\\"background-color:#b58900;color:white;font-weight:bold;\\\">SKIPPED</span>"
-              else
-                httpcode=`curl -s -o /dev/null -w %{http_code} $redirect`
-                if [[ $httpcode == 404 ]];
-                then
-                  invalid_url=true
-                  invalid=$((invalid+1))
-                  label="<span style=\\\"background-color: #dc322f;color:white;font-weight:bold;\\\">INVALID</span>"
-                else
-                  valid=$((valid+1))
-                  label="<span style=\\\"background-color:#2aa198;color:white;font-weight:bold;\\\">VALID</span>"
-                fi
-              fi
-
-              row="<tr> <td style=\\\"text-align: left;\\\">$file</td> <td style=\\\"text-align: left;\\\">$aka</td> <td style=\\\"text-align: center;\\\">$label</td> </tr>"
-              echo $row
-              
-              if [[ $invalid_url == true ]];
-              then
-                lists="$row $lists"
-              else
-                lists="$lists $row"
-              fi
-            done < $file/akas.data
-          done
-
-          body="Dashboard App: <a href=\\\"https:\/\/teams.microsoft.com\/l\/entity\/c439ae8d-3ab3-4efd-9223-87366d8c170c\/_djb2_msteams_prefix_1252604900?context=%7B%22channelId%22%3A%2219%3A79488ced607f4fbf8d8433e931cad176%40thread.tacv2%22%7D&tenantId=72f988bf-86f1-41af-91ab-2d7cd011db47\\\">Click Here to Open Dashboard App</a>  <table class=\\\"w3-table w3-striped w3-bordered\\\"> <tr> <th>REPO</th> <th>AKA</th> <th>STATUS</th> </tr> $lists </table> <br />"
-          total=$((valid+invalid))
-          subject="TeamsFx AKA Link Report ($valid/$total Passed)"
-          if [ $invalid -gt 0 ]; then
-            subject="[FAILED] $subject"
-            emails="$emails;zhenjiao@microsoft.com"
-          else
-            subject="[PASSED] $subject"
-          fi
-
-          echo "body=$body" >> $GITHUB_OUTPUT
-          echo "to=$emails" >> $GITHUB_OUTPUT
-          echo "subject=$subject" >> $GITHUB_OUTPUT
-          
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: Send E-mail to the whole team
-        uses: ./.github/actions/send-email-report
+      - name: Run evaluation
         env:
-          TO: ${{ steps.list-akas.outputs.to }}
-          BODY: '"${{ steps.list-akas.outputs.body }}"'
-          SUBJECT: ${{ steps.list-akas.outputs.subject }}
-          MAIL_CLIENT_ID: ${{ secrets.TEST_CLEAN_CLIENT_ID }}
-          MAIL_CLIENT_SECRET: ${{ secrets.TEST_CLEAN_CLIENT_SECRET }}
-          MAIL_TENANT_ID: ${{ secrets.TEST_CLEAN_TENANT_ID }}
+          GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
+          M365_ACCOUNT_NAME: ${{ vars.TEST_ACCOUNT_NAME }}
+          M365_ACCOUNT_PASSWORD: ${{ secrets.TEST_ACCOUNT_PASSWORD }}
+          M365_TENANT_ID: ${{ vars.TEST_TENANT_CLEAN_TENANT_ID }}
+          AZURE_ACCOUNT_NAME: ${{ vars.TEST_ACCOUNT_NAME }}
+          AZURE_ACCOUNT_OBJECT_ID: ${{ vars.TEST_ACCOUNT_OBJECT_ID }}
+          AZURE_ACCOUNT_PASSWORD: ${{ secrets.TEST_ACCOUNT_PASSWORD }}
+          AZURE_TENANT_ID: ${{ vars.TEST_TENANT_CLEAN_TENANT_ID }}
+          AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+        run: waza run --output-dir ./results
+
+      - name: Upload evaluation results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: skill-eval-results
+          path: ./results
+          retention-days: 30

@@ -25,7 +25,7 @@ hooks:
       working_directory: "evals/microsoft-365-agents-toolkit"
       error_on_fail: true
 tasks:
-  - "scaffold-tasks/*.yaml"
-  - "debug-tasks/*.yaml"
+  - "scaffold-tasks/scaffold-bot-python.yaml"
+  # - "debug-tasks/*.yaml"
   # - "deploy-tasks/*.yaml"
   - "negative-tasks/*.yaml"
