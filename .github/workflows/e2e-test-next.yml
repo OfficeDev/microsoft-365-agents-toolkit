@@ -1,0 +1,383 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
+name: E2E Test Next
+
+on:
+  workflow_dispatch:
+    inputs:
+      cases:
+        description: 'Specific test files. JSON array, e.g. ["lifecycle.test.ts","cli-syntax.test.ts"]. Empty = all.'
+        required: false
+        type: string
+        default: ""
+
+      cli-source:
+        description: "CLI source: workspace (pnpm link) or registry (npm install)"
+        required: true
+        type: choice
+        options:
+          - workspace
+          - registry
+        default: workspace
+
+      cli-version:
+        description: "CLI version when cli-source=registry, e.g. 0.1.0-alpha.1"
+        required: false
+        type: string
+        default: ""
+
+  schedule:
+    - cron: "0 22 * * *"
+
+  pull_request:
+    branches: [dev, release/**]
+    paths:
+      - "packages/core-next/**"
+      - "packages/cli-next/**"
+
+permissions:
+  actions: read
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # Job 1: Setup — list test cases, clean stale Azure resources
+  # ---------------------------------------------------------------------------
+  setup:
+    if: >-
+      github.event_name == 'schedule' ||
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'pull_request' &&
+       github.event.pull_request.head.repo.full_name == 'OfficeDev/microsoft-365-agents-toolkit')
+    runs-on: ubuntu-latest
+    environment: engineering
+    permissions:
+      id-token: write
+      contents: read
+    outputs:
+      cases: ${{ steps.list-cases.outputs.cases }}
+    env:
+      AZURE_ACCOUNT_NAME: ${{ secrets.TEST_USER_NAME }}
+      AZURE_ACCOUNT_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
+      AZURE_SUBSCRIPTION_ID: ${{ secrets.TEST_SUBSCRIPTION_ID }}
+      AZURE_TENANT_ID: ${{ secrets.TEST_TENANT_ID }}
+      M365_ACCOUNT_NAME: ${{ secrets.TEST_M365_NAME }}
+      M365_ACCOUNT_PASSWORD: ${{ secrets.TEST_M365_PASSWORD }}
+      M365_TENANT_ID: ${{ secrets.TEST_M365_TENANT_ID }}
+      CI_ENABLED: "true"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.DEVOPS_CLIENT_ID }}
+          tenant-id: ${{ secrets.DEVOPS_TENANT_ID }}
+          subscription-id: ${{ secrets.DEVOPS_SUB_ID }}
+
+      # azure/login@v1 with OIDC writes AZURE_TENANT_ID, AZURE_SUBSCRIPTION_ID,
+      # and AZURE_CLIENT_ID to $GITHUB_ENV, overriding our test-user values.
+      # Restore the test credentials so E2E config picks up the right tenant.
+      - name: Restore test env vars
+        run: |
+          echo "AZURE_TENANT_ID=${{ secrets.TEST_TENANT_ID }}" >> $GITHUB_ENV
+          echo "AZURE_SUBSCRIPTION_ID=${{ secrets.TEST_SUBSCRIPTION_ID }}" >> $GITHUB_ENV
+
+      - name: Setup project
+        uses: ./.github/actions/setup-project
+        with:
+          range: "next"
+
+      - name: Build
+        run: |
+          pnpm --filter ./packages/core-next build
+          pnpm --filter ./packages/cli-next build
+
+      - name: List test cases
+        id: list-cases
+        working-directory: packages/cli-next
+        run: |
+          inputCases='${{ github.event.inputs.cases }}'
+          if [ -n "$inputCases" ]; then
+            echo "cases=$inputCases" >> $GITHUB_OUTPUT
+            echo "Using provided cases: $inputCases"
+            exit 0
+          fi
+
+          # Collect non-lifecycle test files
+          nonLifecycle=$(find tests/e2e -name "*.test.ts" ! -name "lifecycle.test.ts" -printf "%f\n" \
+            | jq -Rsc '[split("\n")[] | select(. != "")]')
+
+          # Expand lifecycle.test.ts into per-template matrix entries
+          # Each entry is "lifecycle.test.ts::templateId" so template tests run in parallel
+          lifecycleEntries=$(node -e "
+            require('ts-node/register');
+            const { templateRegistry, registerBuiltinTemplates } = require('@microsoft/teamsfx-core-next');
+            registerBuiltinTemplates();
+            const entries = templateRegistry.list()
+              .filter(t => t.testable !== false)
+              .map(t => 'lifecycle.test.ts::' + t.id);
+            console.log(JSON.stringify(entries));
+          ")
+
+          # Merge into a single JSON array
+          cases=$(echo "$nonLifecycle" "$lifecycleEntries" | jq -sc 'add')
+          echo "cases=$cases" >> $GITHUB_OUTPUT
+          echo "Discovered $(echo "$cases" | jq length) cases ($(echo "$lifecycleEntries" | jq length) lifecycle templates)"
+
+      - name: Clean stale resources
+        working-directory: packages/cli-next
+        run: npx ts-node tests/e2e/clean.ts
+        continue-on-error: true
+
+  # ---------------------------------------------------------------------------
+  # Job 2: Execute — matrix of test cases
+  # ---------------------------------------------------------------------------
+  execute-case:
+    if: ${{ needs.setup.outputs.cases }}
+    needs: setup
+    runs-on: ubuntu-latest
+    environment: engineering
+    permissions:
+      id-token: write
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        case: ${{ fromJson(needs.setup.outputs.cases) }}
+    name: ${{ matrix.case }}
+    env:
+      AZURE_ACCOUNT_NAME: ${{ secrets.TEST_USER_NAME }}
+      AZURE_ACCOUNT_OBJECT_ID: ${{ secrets.TEST_USER_OBJECT_ID }}
+      AZURE_ACCOUNT_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
+      AZURE_SUBSCRIPTION_ID: ${{ secrets.TEST_SUBSCRIPTION_ID }}
+      AZURE_TENANT_ID: ${{ secrets.TEST_TENANT_ID }}
+      M365_ACCOUNT_NAME: ${{ secrets.TEST_M365_NAME }}
+      M365_ACCOUNT_PASSWORD: ${{ secrets.TEST_M365_PASSWORD }}
+      M365_TENANT_ID: ${{ secrets.TEST_M365_TENANT_ID }}
+      CI_ENABLED: "true"
+      GITHUB_RUN_ID: ${{ github.run_id }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.DEVOPS_CLIENT_ID }}
+          tenant-id: ${{ secrets.DEVOPS_TENANT_ID }}
+          subscription-id: ${{ secrets.DEVOPS_SUB_ID }}
+
+      # azure/login@v1 with OIDC overwrites AZURE_TENANT_ID and
+      # AZURE_SUBSCRIPTION_ID in $GITHUB_ENV. Restore test-user values.
+      - name: Restore test env vars
+        run: |
+          echo "AZURE_TENANT_ID=${{ secrets.TEST_TENANT_ID }}" >> $GITHUB_ENV
+          echo "AZURE_SUBSCRIPTION_ID=${{ secrets.TEST_SUBSCRIPTION_ID }}" >> $GITHUB_ENV
+
+      - name: Setup project
+        uses: ./.github/actions/setup-project
+        with:
+          range: "next"
+
+      - name: Build
+        run: |
+          pnpm --filter ./packages/core-next build
+          pnpm --filter ./packages/cli-next build
+
+      - name: Install CLI from registry
+        if: ${{ github.event.inputs.cli-source == 'registry' }}
+        run: |
+          version="${{ github.event.inputs.cli-version }}"
+          if [ -z "$version" ]; then
+            npm install -g @microsoft/m365agentstoolkit-cli@alpha
+          else
+            npm install -g @microsoft/m365agentstoolkit-cli@$version
+          fi
+
+      - name: Link CLI from workspace
+        if: ${{ github.event.inputs.cli-source != 'registry' }}
+        working-directory: packages/cli-next
+        run: |
+          pnpm link --global
+          chmod +x cli.js
+          echo "ATK_BIN=$(pwd)/cli.js" >> $GITHUB_ENV
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Run test
+        working-directory: packages/cli-next
+        run: |
+          entry="${{ matrix.case }}"
+          # Split "lifecycle.test.ts::da/basic" into file + grep pattern
+          file="tests/e2e/${entry%%::*}"
+          if [ ! -f "$file" ]; then
+            echo "Test file not found: $file"
+            exit 1
+          fi
+
+          grepArg=""
+          if [[ "$entry" == *"::"* ]]; then
+            templateId="${entry#*::}"
+            # Grep for all language variants of this template
+            grepArg="--grep \"E2E lifecycle: ${templateId} \""
+          fi
+
+          eval npx mocha \
+            --config .mocharc.e2e.js \
+            $grepArg \
+            "$file"
+
+      - name: Get report name
+        id: get-report-name
+        if: always()
+        run: |
+          name="${{ matrix.case }}"
+          name="${name//'.test.ts'/}"
+          name="${name//'::'/-}"
+          name="${name//'/'/-}"
+          echo "name=$name" >> $GITHUB_OUTPUT
+
+      - name: Generate failure summary
+        if: failure()
+        working-directory: packages/cli-next
+        run: |
+          REPORT="mochawesome-report/mochawesome.json"
+          if [ ! -f "$REPORT" ]; then
+            echo "### :x: E2E Test Failed — ${{ matrix.case }}" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "No mochawesome report found. The test runner may have crashed before producing output." >> $GITHUB_STEP_SUMMARY
+            exit 0
+          fi
+
+          echo "### :x: E2E Test Failed — ${{ matrix.case }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # Extract stats
+          passes=$(jq '.stats.passes // 0' "$REPORT")
+          failures=$(jq '.stats.failures // 0' "$REPORT")
+          duration=$(jq '.stats.duration // 0' "$REPORT")
+          duration_sec=$(echo "scale=1; $duration / 1000" | bc)
+
+          echo "| Metric | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Passed | $passes |" >> $GITHUB_STEP_SUMMARY
+          echo "| Failed | $failures |" >> $GITHUB_STEP_SUMMARY
+          echo "| Duration | ${duration_sec}s |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # Extract failed test details
+          failed_tests=$(jq -r '
+            [.. | objects | select(.pass == false and .fail == true)] |
+            if length == 0 then empty
+            else
+              .[] |
+              "| `\(.fullTitle)` | \(.err.message // "unknown" | gsub("\n"; " ") | .[0:200]) |"
+            end
+          ' "$REPORT" 2>/dev/null || true)
+
+          if [ -n "$failed_tests" ]; then
+            echo "#### Failed Tests" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "| Test | Error |" >> $GITHUB_STEP_SUMMARY
+            echo "|------|-------|" >> $GITHUB_STEP_SUMMARY
+            echo "$failed_tests" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          # Show last 30 lines of log if available
+          latest_log=$(find tests/e2e/logs/ -name "*.log" -type f -printf '%T@ %p\n' 2>/dev/null | sort -rn | head -1 | cut -d' ' -f2-)
+          if [ -n "$latest_log" ] && [ -f "$latest_log" ]; then
+            echo "<details><summary>Last 30 lines of test log</summary>" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            tail -30 "$latest_log" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            echo "</details>" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Upload test report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-result-${{ steps.get-report-name.outputs.name }}
+          path: |
+            ./packages/cli-next/mochawesome-report/mochawesome.json
+            ./packages/cli-next/tests/e2e/logs/
+
+  # ---------------------------------------------------------------------------
+  # Job 3: Tear-down — guaranteed Azure cleanup via tags
+  # ---------------------------------------------------------------------------
+  tear-down:
+    needs: execute-case
+    if: always()
+    runs-on: ubuntu-latest
+    environment: engineering
+    permissions:
+      id-token: write
+      contents: read
+    env:
+      AZURE_ACCOUNT_NAME: ${{ secrets.TEST_USER_NAME }}
+      AZURE_ACCOUNT_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
+      AZURE_SUBSCRIPTION_ID: ${{ secrets.TEST_SUBSCRIPTION_ID }}
+      AZURE_TENANT_ID: ${{ secrets.TEST_TENANT_ID }}
+      M365_ACCOUNT_NAME: ${{ secrets.TEST_M365_NAME }}
+      M365_ACCOUNT_PASSWORD: ${{ secrets.TEST_M365_PASSWORD }}
+      M365_TENANT_ID: ${{ secrets.TEST_M365_TENANT_ID }}
+      CI_ENABLED: "true"
+      GITHUB_RUN_ID: ${{ github.run_id }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.DEVOPS_CLIENT_ID }}
+          tenant-id: ${{ secrets.DEVOPS_TENANT_ID }}
+          subscription-id: ${{ secrets.DEVOPS_SUB_ID }}
+
+      - name: Setup project
+        uses: ./.github/actions/setup-project
+        with:
+          range: "next"
+
+      - name: Build
+        run: |
+          pnpm --filter ./packages/core-next build
+          pnpm --filter ./packages/cli-next build
+
+      - name: Clean resources for this run
+        working-directory: packages/cli-next
+        run: npx ts-node tests/e2e/clean.ts --run-id ${{ github.run_id }}
+
+      - name: Sweep stale resources
+        working-directory: packages/cli-next
+        run: npx ts-node tests/e2e/clean.ts
+        continue-on-error: true
+
+  # ---------------------------------------------------------------------------
+  # Job 4: Rerun — retry entire workflow up to 5 times on scheduled failures
+  # ---------------------------------------------------------------------------
+  rerun:
+    permissions:
+      actions: write
+    needs: tear-down
+    if: >-
+      (github.event_name == 'schedule' ||
+       github.event_name == 'pull_request' ||
+       (github.event_name == 'workflow_dispatch' && github.event.inputs.cases == '')) &&
+      failure() &&
+      github.run_attempt < 5
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger rerun
+        run: |
+          curl \
+            -X POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            https://api.github.com/repos/${{ github.repository }}/actions/workflows/rerun.yml/dispatches \
+            -d '{"ref":"${{ github.ref_name }}","inputs":{"run_id":"${{ github.run_id }}","max_attempts":"5"}}'

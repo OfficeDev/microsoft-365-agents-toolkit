@@ -454,6 +454,14 @@ jobs:
           field: aiKey
           value: ${{ secrets.CLI_PUBLIC_AIKEY }}
 
+      - name: update cli-next ai key
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.preid != 'alpha' }}
+        uses: jossef/action-set-json-field@v1
+        with:
+          file: ./packages/cli-next/package.json
+          field: aiKey
+          value: ${{ secrets.CLI_PUBLIC_AIKEY }}
+
       - name: update extension ai key
         if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.preid != 'alpha' }}
         uses: jossef/action-set-json-field@v1
@@ -465,7 +473,7 @@ jobs:
       - name: commit change on local
         if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.preid != 'alpha' }}
         run: |
-          git add ./packages/cli/package.json ./packages/vscode-extension/package.json
+          git add ./packages/cli/package.json ./packages/cli-next/package.json ./packages/vscode-extension/package.json
           git commit -m "build: update ai key"
 
       - name: publish alpha release to npm org

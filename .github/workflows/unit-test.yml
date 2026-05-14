@@ -45,7 +45,7 @@ jobs:
 
       - name: Unit Test
         run: |
-          xvfb-run -a pnpm run -r --stream test:unit
+          xvfb-run -a pnpm run -r --stream --filter '!./packages/core-next' --filter '!./packages/cli-next' test:unit
 
       - name: CodeCov report attempt 1
         id: codecov1

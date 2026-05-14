@@ -1,0 +1,129 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
+name: CI Next
+
+on:
+  pull_request:
+    branches:
+      - dev
+      - release/**
+    paths:
+      - "packages/core-next/**"
+      - "packages/cli-next/**"
+  push:
+    branches:
+      - dev
+      - release/**
+    paths:
+      - "packages/core-next/**"
+      - "packages/cli-next/**"
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup project
+        uses: ./.github/actions/setup-project
+        with:
+          range: "next"
+
+      - name: Build core-next
+        run: pnpm --filter ./packages/core-next build
+
+      - name: Build cli-next
+        run: pnpm --filter ./packages/cli-next build
+
+  lint:
+    name: Lint
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup project
+        uses: ./.github/actions/setup-project
+        with:
+          range: "next"
+
+      - name: Build (required for lint)
+        run: |
+          pnpm --filter ./packages/core-next build
+          pnpm --filter ./packages/cli-next build
+
+      - name: Lint core-next
+        run: pnpm --filter ./packages/core-next lint
+
+      - name: Lint cli-next
+        run: pnpm --filter ./packages/cli-next lint
+
+  unit-test:
+    name: Unit Tests
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup project
+        uses: ./.github/actions/setup-project
+        with:
+          range: "next"
+
+      - name: Build (required for tests)
+        run: |
+          pnpm --filter ./packages/core-next build
+          pnpm --filter ./packages/cli-next build
+
+      - name: Unit test core-next
+        run: pnpm --filter ./packages/core-next test:unit
+
+      - name: Unit test cli-next
+        run: pnpm --filter ./packages/cli-next test:unit
+
+      - name: Upload coverage
+        if: always()
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          flags: core-next,cli-next
+          fail_ci_if_error: false
+          verbose: true
+
+  integration-test:
+    name: Integration Tests
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup project
+        uses: ./.github/actions/setup-project
+        with:
+          range: "next"
+
+      - name: Build (required for tests)
+        run: |
+          pnpm --filter ./packages/core-next build
+          pnpm --filter ./packages/cli-next build
+
+      - name: Integration test core-next
+        run: pnpm --filter ./packages/core-next test:integration
+
+      - name: Integration test cli-next
+        run: pnpm --filter ./packages/cli-next test:integration

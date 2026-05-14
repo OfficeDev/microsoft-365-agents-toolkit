@@ -39,10 +39,9 @@ on:
   schedule:
     - cron: "0 22 * * *"
 
-  pull_request:
-    branches: [dev, release/**]
-
-permissions:
+  # pull_request trigger disabled on v4 branch — restore before merging to dev
+  # pull_request:
+  #   branches: [dev, release/**]
   actions: read
 
 jobs:
