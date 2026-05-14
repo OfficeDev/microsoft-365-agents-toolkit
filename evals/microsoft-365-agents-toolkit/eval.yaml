@@ -9,7 +9,7 @@ config:
   timeout_seconds: 500
   parallel: false
   executor: copilot-sdk
-  model: claude-sonnet-4.5
+  model: claude-sonnet-4.6
 metrics:
   - name: task_completion
     weight: 0.7

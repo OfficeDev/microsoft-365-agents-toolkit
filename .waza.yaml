@@ -6,9 +6,9 @@ paths:
   results: results/
 defaults:
   engine: copilot-sdk
-  model: claude-sonnet-4.5
+  model: claude-sonnet-4.6
   timeout: 300
-  parallel: false
+  parallel: true
   workers: 4
   verbose: true
   sessionLog: false
