@@ -7,6 +7,9 @@ jobs:
   evaluate:
     runs-on: ubuntu-latest
     timeout-minutes: 120
+    permissions:
+      contents: read
+      models: read
     steps:
       - uses: actions/checkout@v4
 
