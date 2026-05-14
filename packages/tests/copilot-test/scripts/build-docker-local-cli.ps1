@@ -5,7 +5,7 @@
 .DESCRIPTION
     1. Runs `pnpm build` in the ATK CLI package
     2. Runs `npm pack` to produce a .tgz
-    3. Copies the .tgz to docker/copilot-test/cli-local.tgz
+    3. Copies the .tgz to packages\tests\copilot-test\docker\cli-local.tgz
     4. Builds the Docker image with ATK_CLI_SOURCE=local
 
 .PARAMETER AtkSource
@@ -32,7 +32,7 @@
 .EXAMPLE
     # Just prep .tgz, build Docker yourself
     .\scripts\build-docker-local-cli.ps1 -PrepOnly
-    docker build --build-arg ATK_CLI_SOURCE=local -t my-tag -f docker/copilot-test/Dockerfile .
+    docker build --build-arg ATK_CLI_SOURCE=local -t my-tag -f packages\tests\copilot-test\docker\Dockerfile .
 #>
 param(
     [string]$AtkSource = "C:\Users\quke\source\atk\microsoft-365-agents-toolkit",
@@ -43,7 +43,7 @@ param(
 
 $ErrorActionPreference = "Stop"
 $repoRoot  = Split-Path $PSScriptRoot
-$dockerDir = Join-Path $repoRoot "docker\copilot-test"
+$dockerDir = Join-Path $repoRoot "packages\tests\copilot-test\docker"
 $cliPkg    = Join-Path $AtkSource "packages\cli"
 
 # 1. Validate
@@ -85,7 +85,7 @@ Write-Host "==> Copied to: $dest"
 
 if ($PrepOnly) {
     Write-Host "`n==> PrepOnly — skipping docker build. Run manually:"
-    Write-Host "      docker build --build-arg ATK_CLI_SOURCE=local -t $ImageTag -f docker\copilot-test\Dockerfile ."
+    Write-Host "      docker build --build-arg ATK_CLI_SOURCE=local -t $ImageTag -f packages\tests\copilot-test\docker\Dockerfile ."
     exit 0
 }
 
@@ -93,7 +93,7 @@ if ($PrepOnly) {
 Write-Host "`n==> Building Docker image: $ImageTag ..."
 Push-Location $repoRoot
 try {
-    & docker build --build-arg ATK_CLI_SOURCE=local -t $ImageTag -f "docker\copilot-test\Dockerfile" .
+    & docker build --build-arg ATK_CLI_SOURCE=local -t $ImageTag -f "packages\tests\copilot-test\docker\Dockerfile" .
     if ($LASTEXITCODE -ne 0) { throw "docker build failed" }
 } finally { Pop-Location }
 

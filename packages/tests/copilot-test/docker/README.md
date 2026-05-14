@@ -10,7 +10,7 @@ GitHub Actions pipeline, runnable locally without any extra setup.
 # From the repository root:
 
 # 1. Build the image (first time or after code changes)
-docker build -t atk-copilot-test -f docker/copilot-test/Dockerfile .
+docker build -t atk-copilot-test -f packages/tests/copilot-test/docker/Dockerfile .
 
 # 2. Run the default test (TC-001: create Teams Bot template)
 docker run --rm \
@@ -34,12 +34,12 @@ docker run --rm \
   atk-copilot-test
 ```
 
-`TEST_FILE` is the stem of a file under `packages/tests/src/ui-test/copilot-driven/`.
+`TEST_FILE` is the stem of a file under `packages/tests/src/`.
 
 ## Run with docker compose (easier)
 
 ```bash
-cd docker/copilot-test
+cd packages/tests/copilot-test/docker
 
 # Default test
 docker compose run --rm test

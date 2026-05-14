@@ -16,7 +16,7 @@ run_url        = os.environ['RUN_URL']
 gif_embed_url  = os.environ.get('GIF_EMBED_URL', '').strip()
 artifact_url   = os.environ.get('ARTIFACT_URL', '').strip()
 test_output    = os.environ.get('TEST_OUTPUT_DIR', '/tmp/atk-test-output')
-test_plan_path = os.environ.get('TEST_PLAN_PATH', 'test-plans/teams-bot-template/teams-bot-template.md')
+test_plan_path = os.environ.get('TEST_PLAN_PATH', 'packages/tests/copilot-test/test-plans/simple-bot/simple-bot.md')
 
 # Read results
 results_file = os.path.join(test_output, 'results.json')

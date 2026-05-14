@@ -8,7 +8,7 @@
   3. Remove all comment blocks (<!-- ... -->) before committing.
   4. The Copilot CLI agent reads this file at runtime to generate & run the
      corresponding TypeScript test in:
-       packages/tests/src/ui-test/copilot-driven/<feature-slug>-<task>.test.ts
+       packages/tests/src/<feature-slug>-<task>.test.ts
 -->
 
 ## Metadata
@@ -61,7 +61,7 @@
 - <File(s) or UI state(s) that must be present>
 
 **Test script:**
-`packages/tests/src/ui-test/copilot-driven/<feature-slug>-<task>.test.ts`
+`packages/tests/src/<feature-slug>-<task>.test.ts`
 
 **Screenshots produced by test:**
 
@@ -89,7 +89,7 @@
 - …
 
 **Test script:**
-`packages/tests/src/ui-test/copilot-driven/<feature-slug>-<task2>.test.ts`
+`packages/tests/src/<feature-slug>-<task2>.test.ts`
 
 ---
 

@@ -30,8 +30,8 @@ cleanup() { kill "${XVFB_PID}" 2>/dev/null || true; }
 trap cleanup EXIT
 
 # ── Verify test file exists ───────────────────────────────────────────────────
-TEST_SPEC="${RUNNER_HOME}/src/ui-test/copilot-driven/${TEST_FILE}.test.ts"
-RUNNER_TS="${RUNNER_HOME}/src/ui-test/copilot-driven/runTest.ts"
+TEST_SPEC="${RUNNER_HOME}/src/${TEST_FILE}.test.ts"
+RUNNER_TS="${RUNNER_HOME}/src/runTest.ts"
 [ -f "${TEST_SPEC}" ]  || { echo "ERROR: Test spec not found: ${TEST_SPEC}"; exit 1; }
 [ -f "${RUNNER_TS}" ]  || { echo "ERROR: runTest.ts not found: ${RUNNER_TS}"; exit 1; }
 
@@ -45,7 +45,7 @@ TEST_OUTPUT_DIR="${TEST_OUTPUT_DIR}" \
 TEST_FILE="${TEST_FILE}" \
   ./node_modules/.bin/ts-node \
     --project tsconfig.json \
-    "src/ui-test/copilot-driven/runTest.ts" 2>&1 | tee "${TEST_OUTPUT_DIR}/test.log"
+    "src/runTest.ts" 2>&1 | tee "${TEST_OUTPUT_DIR}/test.log"
 
 TEST_EXIT=${PIPESTATUS[0]}
 

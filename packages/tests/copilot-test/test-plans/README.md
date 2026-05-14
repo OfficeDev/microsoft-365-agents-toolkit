@@ -9,7 +9,7 @@ Each subdirectory corresponds to a feature area and contains one or more test ca
 2. Fill in all placeholders and remove the comment blocks
 3. The Copilot CLI agent reads this file at runtime to understand what to test
 4. Create the corresponding TypeScript test in:
-   `packages/tests/src/ui-test/copilot-driven/<feature-slug>-<task>.test.ts`
+   `packages/tests/src/<feature-slug>-<task>.test.ts`
 
 ## Directory structure
 
@@ -60,7 +60,7 @@ When a GitHub issue is labelled `atk-copilot-test`, the Copilot CLI agent:
 
 1. Reads the issue body to identify the feature area and relevant TC(s)
 2. Locates (or creates) the matching test plan in this directory
-3. Generates or updates the TypeScript test in `packages/tests/src/ui-test/copilot-driven/`
+3. Generates or updates the TypeScript test in `packages/tests/src/`
 4. Runs the test inside Docker and collects screenshots + `results.json`
 5. Posts a summary comment to the issue with pass/fail table and inline GIF
 6. Removes the `atk-copilot-test` label and adds `atk-copilot-test:done`

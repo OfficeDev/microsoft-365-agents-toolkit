@@ -4,7 +4,7 @@
 #
 # Quick start:
 #   # Build (once):
-#   docker build -t atk-copilot-test -f docker/copilot-test/Dockerfile .
+#   docker build -t atk-copilot-test -f packages/tests/copilot-test/docker/Dockerfile .
 #
 #   # Run – mount your locally built ATK extension:
 #   docker run --rm --shm-size=512m \
@@ -47,7 +47,7 @@ ARG ATK_CLI_SOURCE=npm
 ARG ATK_CLI_VERSION=1.1.10
 
 # Copy placeholder (regular build) or real .tgz (local build) into image
-COPY docker/copilot-test/cli-local.tgz /tmp/cli-local.tgz
+COPY packages/tests/copilot-test/docker/cli-local.tgz /tmp/cli-local.tgz
 
 RUN if [ "${ATK_CLI_SOURCE}" = "local" ]; then \
       echo "==> Installing ATK CLI from local build /tmp/cli-local.tgz ..." && \
@@ -61,8 +61,8 @@ RUN if [ "${ATK_CLI_SOURCE}" = "local" ]; then \
 # ── Test runner workspace ─────────────────────────────────────────────────────
 WORKDIR /runner
 
-COPY docker/copilot-test/package.json  ./package.json
-COPY docker/copilot-test/tsconfig.json ./tsconfig.json
+COPY packages/tests/copilot-test/docker/package.json  ./package.json
+COPY packages/tests/copilot-test/docker/tsconfig.json ./tsconfig.json
 
 # Install: @vscode/test-electron, playwright, ts-node, mocha, glob
 RUN npm install --no-fund --no-audit
@@ -73,8 +73,8 @@ RUN npx playwright install chromium --with-deps 2>&1 | tail -5 || \
     echo "Playwright browser install warning (non-fatal)"
 
 # Copy test source
-COPY packages/tests/src/ui-test/copilot-driven/ ./src/ui-test/copilot-driven/
-COPY test-plans/                                 ./test-plans/
+COPY packages/tests/copilot-test/src/ ./src/
+COPY packages/tests/copilot-test/test-plans/                                 ./test-plans/
 
 # ── Install redhat.vscode-yaml from Open VSX (satisfies ATK extensionDependencies) ──────
 # VSIX structure: extension/package.json at root. We extract extension/* into the ext dir.
@@ -99,7 +99,7 @@ RUN node -e "\
     .finally(() => process.exit(0));" || true
 
 # ── Entry point ───────────────────────────────────────────────────────────────
-COPY docker/copilot-test/run-test.sh /usr/local/bin/run-test.sh
+COPY packages/tests/copilot-test/docker/run-test.sh /usr/local/bin/run-test.sh
 RUN sed -i 's/\r//g' /usr/local/bin/run-test.sh \
     && chmod +x /usr/local/bin/run-test.sh \
     && mkdir -p /output/screenshots /output/projects /atk-ext

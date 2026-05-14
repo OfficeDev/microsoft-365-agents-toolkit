@@ -23,7 +23,7 @@ import { chromium } from "playwright";
 import type { Browser, Page } from "playwright";
 
 const HERE = __dirname;
-const TESTS_ROOT = path.resolve(HERE, "../../..");
+const TESTS_ROOT = path.resolve(HERE, "..");
 
 function sleep(ms: number) { return new Promise<void>((r) => setTimeout(r, ms)); }
 
@@ -173,7 +173,7 @@ async function main() {
   }
 
   // Compile the Mocha suite
-  const tmpOut = path.join(TESTS_ROOT, "out", "copilot-driven");
+  const tmpOut = path.join(TESTS_ROOT, "out");
   fs.mkdirSync(tmpOut, { recursive: true });
   const tsconfigPath = path.join(HERE, "_tsconfig.build.json");
   const tsconfig = {
@@ -185,7 +185,7 @@ async function main() {
       types: ["node", "mocha"],
       typeRoots: [path.join(TESTS_ROOT, "node_modules", "@types")],
     },
-    include: ["suite/**/*.ts", "simple-bot-create.test.ts"],
+    include: ["suite/**/*.ts", "*.test.ts"],
     exclude: ["node_modules", "runTest.ts"],
   };
   fs.writeFileSync(tsconfigPath, JSON.stringify(tsconfig, null, 2), "utf8");

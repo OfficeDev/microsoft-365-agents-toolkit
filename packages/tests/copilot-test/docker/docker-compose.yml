@@ -15,8 +15,8 @@ version: "3.8"
 services:
   test:
     build:
-      context: ../..           # repo root – needed for COPY packages/tests
-      dockerfile: docker/copilot-test/Dockerfile
+      context: ../../../..           # repo root – needed for COPY packages/tests
+      dockerfile: packages/tests/copilot-test/docker/Dockerfile
     image: atk-copilot-test:local
     environment:
       # Required: test file stem (without .test.ts)

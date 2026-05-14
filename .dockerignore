@@ -1,4 +1,5 @@
-﻿# Ignore large/irrelevant paths when building Docker context
+# Ignore everything that the Dockerfile does NOT COPY.
+# The Dockerfile copies only from: packages/tests/copilot-test/
 node_modules
 **/node_modules
 .git
@@ -8,17 +9,10 @@ dist
 coverage
 *.vsix
 *.log
+test-screenshots
+test-output
 
-# Keep only what the Dockerfile COPYs:
-#   packages/tests/package.json
-#   packages/tests/pnpm-lock.yaml
-#   packages/tests/tsconfig.json
-#   packages/tests/.mocharc.json
-#   packages/tests/src
-#   test-plans
-#   docker/copilot-test/run-test.sh
-
-# Exclude everything else in packages/ except tests
+# Exclude all packages except copilot-test
 packages/adaptivecards-tools-sdk
 packages/api
 packages/cli
@@ -38,3 +32,7 @@ packages/simpleauth
 packages/spec-parser
 packages/vscode-extension
 packages/vscode-ui
+# Exclude the rest of packages/tests (only copilot-test subdir is needed)
+packages/tests/e2e-test
+packages/tests/src
+packages/tests/node_modules

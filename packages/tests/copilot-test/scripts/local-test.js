@@ -34,7 +34,7 @@ const ATK_TESTS     = path.join(ATK_SRC, 'packages', 'tests');
 const EXTESTER_PATH = path.join(ATK_TESTS, 'node_modules', '@vscode', 'test-electron');
 
 // Our runTest.ts (compiled to JS) will be placed in ATK_TESTS out/ dir
-const RUNNER_SRC = path.resolve(__dirname, '..', 'packages', 'tests', 'src', 'ui-test', 'copilot-driven', 'runTest.ts');
+const RUNNER_SRC = path.resolve(__dirname, '..', 'src', 'runTest.ts');
 const TEST_SRC   = path.resolve(__dirname, '..', 'packages', 'tests', 'src', 'ui-test', 'copilot-driven', `${TEST_FILE}.test.ts`);
 
 // ── Validate ──────────────────────────────────────────────────────────────────
@@ -66,7 +66,7 @@ const DST_SUITE   = path.join(DST_COPILOT, 'suite');
 fs.mkdirSync(DST_SUITE, { recursive: true });
 
 // Copy all our test files
-const srcDir = path.resolve(__dirname, '..', 'packages', 'tests', 'src', 'ui-test', 'copilot-driven');
+const srcDir = path.resolve(__dirname, '..', 'src');
 [
   ['runTest.ts', path.join(DST_COPILOT, 'runTest.ts')],
   ['suite/index.ts', path.join(DST_SUITE, 'index.ts')],

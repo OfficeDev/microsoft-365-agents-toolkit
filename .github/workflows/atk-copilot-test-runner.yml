@@ -7,7 +7,7 @@ name: ATK Copilot Test Runner
 #
 # Flow:
 #  1. Read the GitHub issue to understand the test task.
-#  2. Copilot CLI analyses the issue and test-plans/ to choose/create a test script.
+#  2. Copilot CLI analyses the issue and packages/tests/copilot-test/test-plans/ to choose/create a test script.
 #  3. The test runs headlessly (Xvfb + VSCode/test-electron + Playwright CDP).
 #  4. Screenshots and a summary are posted back to the issue as a comment.
 #  5. Label is swapped: atk-copilot-test -> atk-copilot-test:done.
@@ -70,9 +70,9 @@ jobs:
       - name: Install pnpm
         run: npm install -g pnpm@9
 
-      - name: Install ATK packages/tests dependencies
-        working-directory: packages/tests
-        run: pnpm install --frozen-lockfile --ignore-scripts 2>/dev/null || npm install --legacy-peer-deps
+      - name: Install copilot-test dependencies
+        working-directory: packages/tests/copilot-test
+        run: npm install --legacy-peer-deps
 
       - name: Install system deps for headless VSCode + Playwright CDP
         run: |
@@ -86,7 +86,7 @@ jobs:
           sudo apt-get install -y libasound2t64 2>/dev/null || sudo apt-get install -y libasound2 2>/dev/null || true
 
       - name: Install Playwright Chromium (for CDP screenshots)
-        working-directory: packages/tests
+        working-directory: packages/tests/copilot-test
         run: |
           npx playwright install chromium --with-deps 2>&1 || \
           npx playwright install chromium 2>&1 || \
@@ -186,9 +186,9 @@ jobs:
           - Playwright CDP: connects externally via chromium.connectOverCDP to take REAL screenshots from the renderer process
           - Signal files: tests write .signal files with dest paths, external Playwright takes screenshots and deletes signals
 
-          The entry point is: packages/tests/src/ui-test/copilot-driven/runTest.ts
-          Test files live in: packages/tests/src/ui-test/copilot-driven/<test>.test.ts
-          Reference example: packages/tests/src/ui-test/copilot-driven/simple-bot-create.test.ts
+          The entry point is: packages/tests/src/runTest.ts
+          Test files live in: packages/tests/copilot-test/src/<test>.test.ts
+          Reference example: packages/tests/copilot-test/src/simple-bot-create.test.ts
 
           ## Your mission
           Read issue #\${ISSUE_NUMBER} in repo \${REPO} and execute the described test task against the ATK VSCode extension.
@@ -198,15 +198,15 @@ jobs:
           Extract: what capability to test, which ATK command/template/workflow, expected behaviour.
 
           ## Step 1 – Find or create a test plan
-          cat test-plans/README.md
-          ls test-plans/
-          Find matching plan or create one following test-plans/teams-bot-template/teams-bot-template.md format.
+          cat packages/tests/copilot-test/test-plans/README.md
+          ls packages/tests/copilot-test/test-plans/
+          Find matching plan or create one following packages/tests/copilot-test/test-plans/simple-bot/simple-bot.md format.
 
           ## Step 2 – Prepare the test script
-          ls packages/tests/src/ui-test/copilot-driven/
+          ls packages/tests/copilot-test/src/
           Check for an existing test covering the task. Review and update if needed, or create a new one.
 
-          Naming: packages/tests/src/ui-test/copilot-driven/<feature>-<task>.test.ts
+          Naming: packages/tests/copilot-test/src/<feature>-<task>.test.ts
 
           Test structure (Mocha TDD, runs inside VSCode extension host):
           \`\`\`typescript
@@ -249,7 +249,7 @@ jobs:
           Example: TEST_FILE=simple-bot-create
 
           ## Step 4 – Run the test
-          cd packages/tests
+          cd packages/tests/copilot-test
           export DISPLAY=:99.0
           export ATK_EXT_PATH=\$(realpath ../../packages/vscode-extension 2>/dev/null || echo '/not-found')
           export TEST_OUTPUT_DIR=\${TEST_OUTPUT_DIR}
@@ -261,7 +261,7 @@ jobs:
             export ATK_EXT_PATH=''
           fi
 
-          ./node_modules/.bin/ts-node --project tsconfig.json src/ui-test/copilot-driven/runTest.ts 2>&1 | tee \${TEST_OUTPUT_DIR}/test.log
+          ./node_modules/.bin/ts-node --project tsconfig.json src/runTest.ts 2>&1 | tee \${TEST_OUTPUT_DIR}/test.log
           echo \"Exit code: \$?\"
 
           ## Step 5 – Collect results
@@ -300,7 +300,7 @@ jobs:
             fi
 
           ## Step 7 – Post results comment on the issue
-          Read the test plan: TEST_PLAN=$(cat test-plans/teams-bot-template.md 2>/dev/null | head -60 || echo "*(not found)*")
+          Read the test plan: TEST_PLAN=$(cat packages/tests/copilot-test/test-plans/teams-bot-template.md 2>/dev/null | head -60 || echo "*(not found)*")
 
           Build step table, then post comment including GIF (if available), step table, test plan collapsible, and log collapsible.
           The comment body must include:
@@ -319,7 +319,7 @@ jobs:
 
           ## Constraints
           - Repo is already checked out at repo root.
-          - Only modify: test-plans/ and packages/tests/src/ui-test/copilot-driven/
+          - Only modify: packages/tests/copilot-test/test-plans/ and packages/tests/copilot-test/src/
           - NEVER reveal credentials or tokens.
           - Never stop to ask the user. Make all decisions autonomously.
           "
