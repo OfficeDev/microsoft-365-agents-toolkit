@@ -1,0 +1,132 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "M365 Agents Toolkit Feature Registry",
+  "description": "Single source of truth for all M365 Agents Toolkit features. Used by integration tests and AI agents.",
+  "type": "object",
+  "required": ["features"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "$comment": { "type": "string" },
+    "features": {
+      "type": "array",
+      "description": "Features with full test coverage metadata.",
+      "items": { "$ref": "#/definitions/feature" }
+    },
+    "trackedOnly": {
+      "type": "array",
+      "description": "Features tracked for ADO traceability but not yet testable in the integration suite.",
+      "items": { "$ref": "#/definitions/trackedOnlyFeature" }
+    }
+  },
+  "definitions": {
+    "feature": {
+      "type": "object",
+      "required": ["id", "name", "description", "category", "templateName", "languages", "lifecycles", "projectType", "capabilities", "generatedFiles", "entryPoints"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique kebab-case identifier for the feature."
+        },
+        "name": {
+          "type": "string",
+          "description": "Human-readable display name."
+        },
+        "description": {
+          "type": "string",
+          "description": "One-sentence description of the feature."
+        },
+        "category": {
+          "type": "string",
+          "enum": ["Bot", "Tab", "Custom Engine Agent", "AI Agent", "Declarative Agent", "Connector", "Messaging Extension"],
+          "description": "Feature category."
+        },
+        "templateName": {
+          "type": "string",
+          "description": "Must match a value from the TemplateNames enum in fx-core."
+        },
+        "languages": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["typescript", "javascript", "python", "csharp", "common"]
+          },
+          "minItems": 1,
+          "description": "Supported programming languages."
+        },
+        "lifecycles": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["scaffold", "provision", "deploy", "publish"]
+          },
+          "minItems": 1,
+          "description": "Lifecycle stages covered by integration tests."
+        },
+        "projectType": {
+          "type": "string",
+          "description": "The project type identifier used by the toolkit."
+        },
+        "capabilities": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Feature capabilities and characteristics."
+        },
+        "generatedFiles": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Key files generated when scaffolding this feature."
+        },
+        "entryPoints": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["fx-core", "cli", "vscode"]
+          },
+          "minItems": 1,
+          "description": "Entry points that support this feature."
+        },
+        "adoSuiteId": {
+          "type": "integer",
+          "description": "Azure DevOps test suite ID for traceability."
+        },
+        "adoTestCaseCount": {
+          "type": "integer",
+          "description": "Number of manual test cases in the ADO suite."
+        }
+      }
+    },
+    "trackedOnlyFeature": {
+      "type": "object",
+      "required": ["id", "name", "templateName", "reason"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique kebab-case identifier."
+        },
+        "name": {
+          "type": "string",
+          "description": "Human-readable display name."
+        },
+        "templateName": {
+          "type": "string",
+          "description": "Template name for reference."
+        },
+        "reason": {
+          "type": "string",
+          "description": "Why this feature is tracked-only and not fully testable."
+        },
+        "adoSuiteId": {
+          "type": "integer",
+          "description": "Azure DevOps test suite ID."
+        },
+        "adoTestCaseCount": {
+          "type": "integer",
+          "description": "Number of manual test cases in the ADO suite."
+        }
+      }
+    }
+  }
+}
