@@ -15,35 +15,27 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
       - name: Install GitHub Copilot CLI
         run: |
           npm install -g @github/copilot
           copilot --version
-
-      - name: Install Waza
-        run: go install github.com/microsoft/waza/cmd/waza@latest
 
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
           go-version: '1.26'
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '24'
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: 8
-
-      - name: Install dependencies
-        run: pnpm install
+      - name: Install Waza
+        run: go install github.com/microsoft/waza/cmd/waza@latest
 
       - name: Run evaluation
         env:
-          GITHUB_TOKEN: ${{ secrets.COPILOT_PAT }}
+          GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
           M365_ACCOUNT_NAME: ${{ vars.TEST_ACCOUNT_NAME }}
           M365_ACCOUNT_PASSWORD: ${{ secrets.TEST_ACCOUNT_PASSWORD }}
           M365_TENANT_ID: ${{ vars.TEST_TENANT_CLEAN_TENANT_ID }}
