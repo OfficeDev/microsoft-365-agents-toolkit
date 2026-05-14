@@ -32,7 +32,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '24'
-          cache: 'pnpm'
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v2
@@ -44,14 +43,15 @@ jobs:
 
       - name: Run evaluation
         env:
-          M365_ACCOUNT_NAME: ${{ secrets.M365_ACCOUNT_NAME }}
-          M365_ACCOUNT_PASSWORD: ${{ secrets.M365_ACCOUNT_PASSWORD }}
-          M365_TENANT_ID: ${{ secrets.M365_TENANT_ID }}
-          AZURE_ACCOUNT_NAME: ${{ secrets.AZURE_ACCOUNT_NAME }}
-          AZURE_ACCOUNT_OBJECT_ID: ${{ secrets.AZURE_ACCOUNT_OBJECT_ID }}
-          AZURE_ACCOUNT_PASSWORD: ${{ secrets.AZURE_ACCOUNT_PASSWORD }}
-          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-          AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          GITHUB_TOKEN: ${{ secrets.COPILOT_PAT }}
+          M365_ACCOUNT_NAME: ${{ vars.TEST_ACCOUNT_NAME }}
+          M365_ACCOUNT_PASSWORD: ${{ secrets.TEST_ACCOUNT_PASSWORD }}
+          M365_TENANT_ID: ${{ vars.TEST_TENANT_CLEAN_TENANT_ID }}
+          AZURE_ACCOUNT_NAME: ${{ vars.TEST_ACCOUNT_NAME }}
+          AZURE_ACCOUNT_OBJECT_ID: ${{ vars.TEST_ACCOUNT_OBJECT_ID }}
+          AZURE_ACCOUNT_PASSWORD: ${{ secrets.TEST_ACCOUNT_PASSWORD }}
+          AZURE_TENANT_ID: ${{ vars.TEST_TENANT_CLEAN_TENANT_ID }}
+          AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
         run: waza run --output-dir ./results
 
       - name: Upload evaluation results
