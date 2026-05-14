@@ -26,8 +26,6 @@ import { logMessageKeys } from "./utility/constants";
 import { validateUrl } from "../oauth/utility/utility";
 
 const actionName = "dcr/register"; // DO NOT MODIFY the name
-// TODO: replace with dedicated DCR help link once https://aka.ms/teamsfx-actions/dcr-register is provisioned
-const helpLink = "https://aka.ms/teamsfx-actions/oauth-register";
 
 @Service(actionName)
 export class CreateDcrDriver implements StepDriver {
@@ -81,7 +79,8 @@ export class CreateDcrDriver implements StepDriver {
 
         const dcrRegistration: DcrRegistration = {
           clientName: args.name,
-          m365AppId: applicableToApps === OauthRegistrationAppType.SpecificApp ? args.appId : "",
+          m365AppId:
+            applicableToApps === OauthRegistrationAppType.SpecificApp ? args.appId ?? "" : "",
           applicableToApps: applicableToApps,
           targetAudience: targetAudience,
           targetUrlsShouldStartWith: args.targetUrlsShouldStartWith ?? [],
@@ -141,7 +140,10 @@ export class CreateDcrDriver implements StepDriver {
       throw new DcrNameTooLongError(actionName);
     }
 
-    if (typeof args.appId !== "string" || !args.appId) {
+    if (
+      args.applicableToApps === OauthRegistrationAppType.SpecificApp &&
+      (typeof args.appId !== "string" || !args.appId)
+    ) {
       invalidParameters.push("appId");
     }
 
@@ -180,7 +182,7 @@ export class CreateDcrDriver implements StepDriver {
     }
 
     if (invalidParameters.length > 0) {
-      throw new InvalidActionInputError(actionName, invalidParameters, helpLink);
+      throw new InvalidActionInputError(actionName, invalidParameters);
     }
   }
 }

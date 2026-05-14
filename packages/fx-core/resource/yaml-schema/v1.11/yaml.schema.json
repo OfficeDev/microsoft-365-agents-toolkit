@@ -1869,14 +1869,14 @@
       "properties": {
         "uses": {
           "type": "string",
-          "description": "Register a DCR configuration. Refer to https://aka.ms/teamsfx-actions/dcr-register for more details.",
+          "description": "Register a DCR configuration.",
           "const": "dcr/register"
         },
         "with": {
           "type": "object",
           "additionalProperties": false,
           "description": "Parameters for this action",
-          "required": ["name", "appId", "wellKnownAuthorizationServer"],
+          "required": ["name", "wellKnownAuthorizationServer"],
           "properties": {
             "name": {
               "type": "string",

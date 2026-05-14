@@ -5,6 +5,5 @@ export const logMessageKeys = {
   startExecuteDriver: "driver.apiKey.log.startExecuteDriver",
   failedExecuteDriver: "driver.apiKey.log.failedExecuteDriver",
   skipCreateDcr: "driver.dcr.log.skipCreateDcr",
-  dcrNotFound: "driver.dcr.log.dcrNotFound",
   successCreateDcr: "driver.dcr.log.successCreateDcr",
 };

@@ -1058,7 +1058,6 @@
   "driver.dcr.description.create": "Create a Dynamic Client Registration (DCR) configuration on Developer Portal for MCP server authentication.",
   "driver.dcr.title.create": "Creating DCR configuration...",
   "driver.dcr.log.skipCreateDcr": "Environment variable %s exists. Skip creating DCR configuration.",
-  "driver.dcr.log.dcrNotFound": "Environment variable %s exists but unable to retrieve DCR configuration from Developer Portal. Check manually if it exists.",
   "driver.dcr.log.successCreateDcr": "DCR configuration created successfully with id %s!",
   "driver.dcr.error.nameTooLong": "The DCR configuration name is too long. The maximum character length is 128.",
   "driver.dcr.error.wellKnownInvalid": "The wellKnownAuthorizationServer URL is invalid. Please provide a valid HTTPS URL to the authorization server's RFC 8414 metadata document.",

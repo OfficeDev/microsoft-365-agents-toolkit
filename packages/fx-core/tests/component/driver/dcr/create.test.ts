@@ -147,13 +147,14 @@ describe("CreateDcrDriver", () => {
     }
   });
 
-  // Test #3b — Missing `appId`
-  it("should return InvalidActionInputError when appId is missing", async () => {
+  // Test #3b — Missing `appId` when applicableToApps is SpecificApp
+  it("should return InvalidActionInputError when appId is missing and applicableToApps is SpecificApp", async () => {
     const args: any = {
       name: "cloudflare-radar-dcr",
       wellKnownAuthorizationServer:
         "https://radar.mcp.cloudflare.com/.well-known/oauth-authorization-server",
       targetUrlsShouldStartWith: ["https://radar.mcp.cloudflare.com"],
+      applicableToApps: "SpecificApp",
     };
 
     const result = await createDcrDriver.execute(args, mockedDriverContext, outputEnvVarNames);
@@ -163,6 +164,22 @@ describe("CreateDcrDriver", () => {
       expect(result.result.error.name).to.equal("InvalidActionInputError");
       expect(result.result.error.message).to.include("appId");
     }
+  });
+
+  // Test #3c — Missing `appId` when applicableToApps is AnyApp (default) => no error
+  it("should succeed when appId is omitted and applicableToApps defaults to AnyApp", async () => {
+    sinon.stub(teamsGraphClient, "createDcrRegistration").resolves(fakeCreateDcrResponse);
+
+    const args: any = {
+      name: "cloudflare-radar-dcr",
+      wellKnownAuthorizationServer:
+        "https://radar.mcp.cloudflare.com/.well-known/oauth-authorization-server",
+      targetUrlsShouldStartWith: ["https://radar.mcp.cloudflare.com"],
+    };
+
+    const result = await createDcrDriver.execute(args, mockedDriverContext, outputEnvVarNames);
+
+    expect(result.result.isOk()).to.be.true;
   });
 
   // Test #4 — Missing `wellKnownAuthorizationServer`
