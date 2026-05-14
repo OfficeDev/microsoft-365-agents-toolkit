@@ -16,6 +16,11 @@ import { GCConnectionIdQuestion, GCNameQuestion } from "../create";
 import { QuestionNames } from "../questionNames";
 
 function isFeatureEnabled(flagName: string): boolean {
+  // Look up the registered FeatureFlag to respect its defaultValue
+  const registered = featureFlagManager.list().find((f) => f.name === flagName);
+  if (registered) {
+    return featureFlagManager.getBooleanValue(registered);
+  }
   return featureFlagManager.getBooleanValue({ name: flagName, defaultValue: "false" });
 }
 

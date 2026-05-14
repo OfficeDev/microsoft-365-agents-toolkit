@@ -1414,6 +1414,103 @@ describe("constructNode", () => {
     assert.equal(options.length, 2);
   });
 
+  it("should respect registered feature flag defaults (MCPForDA default=true)", () => {
+    // Do NOT stub featureFlagManager — test real isFeatureEnabled lookup
+    // Ensure env var is NOT set so it falls back to registered default
+    const origMCP = process.env.TEAMSFX_MCP_FOR_DA;
+    const origMetaOS = process.env.TEAMSFX_DA_METAOS;
+    delete process.env.TEAMSFX_MCP_FOR_DA;
+    delete process.env.TEAMSFX_DA_METAOS;
+
+    try {
+      const json = JSON.stringify({
+        data: {
+          title: "test.title",
+          name: "test",
+          type: "singleSelect",
+          options: [
+            { id: "always-visible", label: "Always" },
+            { id: "mcp-option", label: "MCP", featureFlag: "TEAMSFX_MCP_FOR_DA" },
+            { id: "metaos-option", label: "MetaOS", featureFlag: "TEAMSFX_DA_METAOS" },
+          ],
+        },
+      });
+
+      const node = constructNode(json);
+      const data = node.data as SingleSelectQuestion;
+      const options = data.staticOptions as OptionItem[];
+      const ids = options.map((o) => o.id);
+
+      // MCPForDA has defaultValue="true" → should be included
+      assert.include(ids, "mcp-option", "MCP option should be visible (default=true)");
+      // DAMetaOS has defaultValue="false" → should be excluded
+      assert.notInclude(ids, "metaos-option", "MetaOS option should be hidden (default=false)");
+      assert.include(ids, "always-visible");
+    } finally {
+      // Restore env
+      if (origMCP !== undefined) process.env.TEAMSFX_MCP_FOR_DA = origMCP;
+      else delete process.env.TEAMSFX_MCP_FOR_DA;
+      if (origMetaOS !== undefined) process.env.TEAMSFX_DA_METAOS = origMetaOS;
+      else delete process.env.TEAMSFX_DA_METAOS;
+    }
+  });
+
+  it("should show MetaOS option when TEAMSFX_DA_METAOS env var is true", () => {
+    const origMetaOS = process.env.TEAMSFX_DA_METAOS;
+    process.env.TEAMSFX_DA_METAOS = "true";
+
+    try {
+      const json = JSON.stringify({
+        data: {
+          title: "test.title",
+          name: "test",
+          type: "singleSelect",
+          options: [
+            { id: "always-visible", label: "Always" },
+            { id: "metaos-option", label: "MetaOS", featureFlag: "TEAMSFX_DA_METAOS" },
+          ],
+        },
+      });
+
+      const node = constructNode(json);
+      const data = node.data as SingleSelectQuestion;
+      const options = data.staticOptions as OptionItem[];
+      const ids = options.map((o) => o.id);
+      assert.include(ids, "metaos-option", "MetaOS should be visible when env=true");
+    } finally {
+      if (origMetaOS !== undefined) process.env.TEAMSFX_DA_METAOS = origMetaOS;
+      else delete process.env.TEAMSFX_DA_METAOS;
+    }
+  });
+
+  it("should hide MCP option when TEAMSFX_MCP_FOR_DA env var is false", () => {
+    const origMCP = process.env.TEAMSFX_MCP_FOR_DA;
+    process.env.TEAMSFX_MCP_FOR_DA = "false";
+
+    try {
+      const json = JSON.stringify({
+        data: {
+          title: "test.title",
+          name: "test",
+          type: "singleSelect",
+          options: [
+            { id: "always-visible", label: "Always" },
+            { id: "mcp-option", label: "MCP", featureFlag: "TEAMSFX_MCP_FOR_DA" },
+          ],
+        },
+      });
+
+      const node = constructNode(json);
+      const data = node.data as SingleSelectQuestion;
+      const options = data.staticOptions as OptionItem[];
+      const ids = options.map((o) => o.id);
+      assert.notInclude(ids, "mcp-option", "MCP should be hidden when env=false");
+    } finally {
+      if (origMCP !== undefined) process.env.TEAMSFX_MCP_FOR_DA = origMCP;
+      else delete process.env.TEAMSFX_MCP_FOR_DA;
+    }
+  });
+
   it("should handle group type nodes", () => {
     const json = JSON.stringify({
       data: { type: "group", name: "test-group" },
