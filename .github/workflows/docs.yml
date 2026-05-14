@@ -3,13 +3,16 @@ name: Docs checker
 on:
   workflow_dispatch:
 
+permissions:
+  contents: write
+  models: read
+  pull-requests: write
+  actions: write
+
 jobs:
   evaluate:
     runs-on: ubuntu-latest
     timeout-minutes: 120
-    permissions:
-      contents: write
-      models: read
     steps:
       - uses: actions/checkout@v4
 
