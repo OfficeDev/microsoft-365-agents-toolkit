@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1
 # ============================================================================
 # ATK Copilot Test – Local Verification Docker Image
 # Uses @vscode/test-electron (activates ATK extension) + Playwright (CDP screenshots)
@@ -46,12 +47,13 @@ RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
 ARG ATK_CLI_SOURCE=npm
 ARG ATK_CLI_VERSION=1.1.10
 
-# Copy placeholder (regular build) or real .tgz (local build) into image
-COPY packages/tests/copilot-test/docker/cli-local.tgz /tmp/cli-local.tgz
-
-RUN if [ "${ATK_CLI_SOURCE}" = "local" ]; then \
-      echo "==> Installing ATK CLI from local build /tmp/cli-local.tgz ..." && \
-      npm install -g /tmp/cli-local.tgz --unsafe-perm true; \
+# cli-local.tgz is never committed to git (.gitignore'd).
+# For local builds: run scripts/build-docker-local-cli.ps1 first (creates the tgz),
+# then: docker build --build-arg ATK_CLI_SOURCE=local ...
+RUN --mount=type=bind,source=packages/tests/copilot-test/docker,target=/tmp/build-ctx \
+    if [ "${ATK_CLI_SOURCE}" = "local" ]; then \
+      echo "==> Installing ATK CLI from local build /tmp/build-ctx/cli-local.tgz ..." && \
+      npm install -g /tmp/build-ctx/cli-local.tgz --unsafe-perm true; \
     else \
       echo "==> Installing ATK CLI from npm@${ATK_CLI_VERSION} ..." && \
       npm install -g @microsoft/m365agentstoolkit-cli@${ATK_CLI_VERSION} --unsafe-perm true; \
