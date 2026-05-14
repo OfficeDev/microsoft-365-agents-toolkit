@@ -488,6 +488,14 @@ export class ActionStartOptions {
     };
   }
 
+  static daMetaOs(): OptionItem {
+    return {
+      id: "da-meta-os",
+      label: getLocalizedString("template.createProjectQuestion.capability.DAMetaOS.label"),
+      detail: getLocalizedString("template.createProjectQuestion.capability.DAMetaOS.detail"),
+    };
+  }
+
   static mcp(): OptionItem {
     return {
       id: "mcp",
@@ -498,13 +506,16 @@ export class ActionStartOptions {
 
   static staticAll(doesProjectExists?: boolean): OptionItem[] {
     return doesProjectExists
-      ? [ActionStartOptions.apiSpec(), ActionStartOptions.mcp()]
+      ? [ActionStartOptions.apiSpec(), ActionStartOptions.daMetaOs(), ActionStartOptions.mcp()]
       : [ActionStartOptions.newApi(), ActionStartOptions.apiSpec()];
   }
 
   static all(inputs: Inputs, doesProjectExists?: boolean): OptionItem[] {
     if (doesProjectExists) {
       const options: OptionItem[] = [ActionStartOptions.apiSpec()];
+      if (featureFlagManager.getBooleanValue(FeatureFlags.DAMetaOS)) {
+        options.push(ActionStartOptions.daMetaOs());
+      }
       if (featureFlagManager.getBooleanValue(FeatureFlags.MCPForDA)) {
         options.push(ActionStartOptions.mcp());
       }
