@@ -95,15 +95,15 @@ jobs:
 
       - name: Install redhat.vscode-yaml (satisfies ATK extensionDependencies)
         run: |
-          mkdir -p /vscode-extensions
+          mkdir -p $HOME/vscode-extensions
           # Download yaml extension from VS Code marketplace
           curl -L -o /tmp/vscode-yaml.vsix \
             "https://marketplace.visualstudio.com/_apis/public/gallery/publishers/redhat/vsextensions/vscode-yaml/latest/vspackage" \
             --header "Accept: application/octet-stream" 2>/dev/null || true
           if [ -f /tmp/vscode-yaml.vsix ] && [ -s /tmp/vscode-yaml.vsix ]; then
-            cd /vscode-extensions && unzip -q /tmp/vscode-yaml.vsix -d redhat.vscode-yaml && rm /tmp/vscode-yaml.vsix
-            echo "VSCODE_EXTENSIONS_DIR=/vscode-extensions" >> $GITHUB_ENV
-            echo "redhat.vscode-yaml installed to /vscode-extensions"
+            cd $HOME/vscode-extensions && unzip -q /tmp/vscode-yaml.vsix -d redhat.vscode-yaml && rm /tmp/vscode-yaml.vsix
+            echo "VSCODE_EXTENSIONS_DIR=$HOME/vscode-extensions" >> $GITHUB_ENV
+            echo "redhat.vscode-yaml installed to $HOME/vscode-extensions"
           else
             # Fallback: use --install-extension at runtime via launchArgs
             echo "::warning::yaml vsix download failed; ATK will use --install-extension fallback"
@@ -170,7 +170,7 @@ jobs:
           RUN_URL: "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
           TEST_OUTPUT_DIR: /tmp/atk-test-output
           DISPLAY: ":99.0"
-          VSCODE_EXTENSIONS_DIR: ${{ env.VSCODE_EXTENSIONS_DIR || '/vscode-extensions' }}
+          VSCODE_EXTENSIONS_DIR: ${{ env.VSCODE_EXTENSIONS_DIR || '$HOME/vscode-extensions' }}
         run: |
           export COPILOT_GITHUB_TOKEN=$(python3 -c "import json,os; d=json.load(open(os.path.expanduser('~/.config/github-copilot/apps.json'))); print(list(d.values())[0]['oauth_token'])")
           SECURITY_REMINDER='<security_reminder>
