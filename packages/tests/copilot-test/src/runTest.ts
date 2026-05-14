@@ -25,19 +25,22 @@ import type { Browser, Page } from "playwright";
 const HERE = __dirname;
 const TESTS_ROOT = path.resolve(HERE, "..");
 
-function sleep(ms: number) { return new Promise<void>((r) => setTimeout(r, ms)); }
+function sleep(ms: number) {
+  return new Promise<void>((r) => setTimeout(r, ms));
+}
 
 // ── Signal watcher (screenshots + UI actions) ─────────────────────────────────
 async function startSignalWatcher(
   signalDir: string,
   getPage: () => Page | null,
-  stopFlag: { stop: boolean }
+  stopFlag: { stop: boolean },
 ) {
   fs.mkdirSync(signalDir, { recursive: true });
   console.log("📡 Signal watcher started →", signalDir);
 
   while (!stopFlag.stop) {
-    const signals = fs.readdirSync(signalDir)
+    const signals = fs
+      .readdirSync(signalDir)
       .filter((f) => f.endsWith(".signal"))
       .sort();
 
@@ -58,12 +61,12 @@ async function startSignalWatcher(
             await page.screenshot({ path: dest, fullPage: false });
             console.log(`  📸 ${path.basename(dest)}`);
           }
-
         } else if (content.startsWith("clickText:")) {
           const text = content.slice("clickText:".length);
           if (page) {
             // QuickPick item label selector
-            const item = page.locator('.quick-input-list .monaco-list-row')
+            const item = page
+              .locator(".quick-input-list .monaco-list-row")
               .filter({ hasText: text });
             try {
               await item.first().waitFor({ timeout: 8000 });
@@ -71,13 +74,14 @@ async function startSignalWatcher(
               console.log(`  🖱️ Clicked: "${text}"`);
               await sleep(500); // settle
             } catch {
-              console.warn(`  ⚠️ clickText: "${text}" not found, trying pressKey ArrowDown+Enter`);
+              console.warn(
+                `  ⚠️ clickText: "${text}" not found, trying pressKey ArrowDown+Enter`,
+              );
               await page.keyboard.press("ArrowDown");
               await sleep(200);
               await page.keyboard.press("Enter");
             }
           }
-
         } else if (content.startsWith("click:")) {
           const selector = content.slice("click:".length);
           if (page) {
@@ -90,12 +94,13 @@ async function startSignalWatcher(
               console.warn(`  ⚠️ click: selector "${selector}" not found`);
             }
           }
-
         } else if (content.startsWith("type:")) {
           const text = content.slice("type:".length);
           if (page) {
             // Use fill() to set/clear input - avoids Ctrl+a shortcuts that can trigger QuickInput actions
-            const input = page.locator('.quick-input-box input, .quick-input-filter .input');
+            const input = page.locator(
+              ".quick-input-box input, .quick-input-filter .input",
+            );
             try {
               await input.first().waitFor({ timeout: 5000 });
               await input.first().fill(text); // fill() clears then sets without keyboard shortcuts
@@ -106,7 +111,6 @@ async function startSignalWatcher(
               await page.keyboard.type(text, { delay: 30 });
             }
           }
-
         } else if (content.startsWith("pressKey:")) {
           const key = content.slice("pressKey:".length);
           if (page) {
@@ -114,7 +118,6 @@ async function startSignalWatcher(
             console.log(`  ⌨️ Key: ${key}`);
             await sleep(300);
           }
-
         } else if (content.startsWith("waitForText:")) {
           const text = content.slice("waitForText:".length);
           if (page) {
@@ -122,10 +125,11 @@ async function startSignalWatcher(
               await page.waitForSelector(`text="${text}"`, { timeout: 10000 });
               console.log(`  ✅ Found text: "${text}"`);
             } catch {
-              console.warn(`  ⚠️ waitForText: "${text}" not found within timeout`);
+              console.warn(
+                `  ⚠️ waitForText: "${text}" not found within timeout`,
+              );
             }
           }
-
         } else {
           // Legacy: treat content as a screenshot dest path
           if (page && content) {
@@ -137,7 +141,11 @@ async function startSignalWatcher(
         console.warn(`  Signal error (${sig}):`, e);
       }
 
-      try { fs.rmSync(sigPath, { force: true }); } catch { /* ok */ }
+      try {
+        fs.rmSync(sigPath, { force: true });
+      } catch {
+        /* ok */
+      }
     }
 
     await sleep(150);
@@ -146,7 +154,7 @@ async function startSignalWatcher(
 
 // ── Main ─────────────────────────────────────────────────────────────────────
 async function main() {
-  const extPath = process.env.ATK_EXT_PATH ?? ""
+  const extPath = process.env.ATK_EXT_PATH ?? "";
 
   const outputDir =
     process.env.TEST_OUTPUT_DIR ||
@@ -161,7 +169,9 @@ async function main() {
   }
 
   // Clean old signals
-  fs.readdirSync(signalDir).forEach((f) => fs.rmSync(path.join(signalDir, f), { force: true }));
+  fs.readdirSync(signalDir).forEach((f) =>
+    fs.rmSync(path.join(signalDir, f), { force: true }),
+  );
 
   console.log("=== Playwright + test-electron Hybrid Runner ===");
   console.log("Ext:", extPath);
@@ -178,10 +188,15 @@ async function main() {
   const tsconfigPath = path.join(HERE, "_tsconfig.build.json");
   const tsconfig = {
     compilerOptions: {
-      module: "commonjs", target: "ES2020", lib: ["ES2020"],
-      esModuleInterop: true, resolveJsonModule: true,
-      strict: false, skipLibCheck: true,
-      outDir: tmpOut, rootDir: HERE,
+      module: "commonjs",
+      target: "ES2020",
+      lib: ["ES2020"],
+      esModuleInterop: true,
+      resolveJsonModule: true,
+      strict: false,
+      skipLibCheck: true,
+      outDir: tmpOut,
+      rootDir: HERE,
       types: ["node", "mocha"],
       typeRoots: [path.join(TESTS_ROOT, "node_modules", "@types")],
     },
@@ -189,10 +204,16 @@ async function main() {
     exclude: ["node_modules", "runTest.ts"],
   };
   fs.writeFileSync(tsconfigPath, JSON.stringify(tsconfig, null, 2), "utf8");
-  const tscBin = path.join(TESTS_ROOT, "node_modules", ".bin",
-    process.platform === "win32" ? "tsc.CMD" : "tsc");
+  const tscBin = path.join(
+    TESTS_ROOT,
+    "node_modules",
+    ".bin",
+    process.platform === "win32" ? "tsc.CMD" : "tsc",
+  );
   const compileResult = cp.spawnSync(tscBin, ["--project", tsconfigPath], {
-    cwd: HERE, stdio: "inherit", shell: process.platform === "win32",
+    cwd: HERE,
+    stdio: "inherit",
+    shell: process.platform === "win32",
   });
   fs.rmSync(tsconfigPath, { force: true });
   if (compileResult.status !== 0) console.warn("tsc warnings – continuing");
@@ -208,14 +229,27 @@ async function main() {
   let activePage: Page | null = null;
   const stopFlag = { stop: false };
 
-  const watcherPromise = startSignalWatcher(signalDir, () => activePage, stopFlag);
+  const watcherPromise = startSignalWatcher(
+    signalDir,
+    () => activePage,
+    stopFlag,
+  );
 
-  const userExtDir = process.env.VSCODE_EXTENSIONS_DIR
-    || path.join(os.homedir(), ".vscode", "extensions");
+  const userExtDir =
+    process.env.VSCODE_EXTENSIONS_DIR ||
+    path.join(os.homedir(), ".vscode", "extensions");
 
-  const yamlExtPresent = fs.existsSync(path.join(userExtDir, "redhat.vscode-yaml", "package.json"))
-    || fs.readdirSync(userExtDir).some(d => d.startsWith("redhat.vscode-yaml") &&
-       fs.existsSync(path.join(userExtDir, d, "package.json")));
+  const yamlExtPresent =
+    fs.existsSync(
+      path.join(userExtDir, "redhat.vscode-yaml", "package.json"),
+    ) ||
+    fs
+      .readdirSync(userExtDir)
+      .some(
+        (d) =>
+          d.startsWith("redhat.vscode-yaml") &&
+          fs.existsSync(path.join(userExtDir, d, "package.json")),
+      );
   console.log(`Extensions dir: ${userExtDir} (yaml: ${yamlExtPresent})`);
 
   const vscodeTestOpts: any = {
@@ -249,9 +283,11 @@ async function main() {
   while (!cdpConnected && Date.now() - cdpStart < 20000) {
     await sleep(1000);
     try {
-      browser = await chromium.connectOverCDP(`http://localhost:${CDP_PORT}`, { timeout: 2000 });
+      browser = await chromium.connectOverCDP(`http://localhost:${CDP_PORT}`, {
+        timeout: 2000,
+      });
       cdpConnected = true;
-    } catch (_) { }
+    } catch (_) {}
   }
 
   if (browser) {
@@ -261,9 +297,10 @@ async function main() {
     const allPages = contexts.flatMap((c) => c.pages());
     console.log(`  Pages: ${allPages.length}`);
 
-    activePage = allPages.find((p) => p.url().includes("vscode-app"))
-      ?? allPages.sort((a, b) => b.url().length - a.url().length)[0]
-      ?? null;
+    activePage =
+      allPages.find((p) => p.url().includes("vscode-app")) ??
+      allPages.sort((a, b) => b.url().length - a.url().length)[0] ??
+      null;
 
     if (activePage) {
       const title = await activePage.title().catch(() => "?");
@@ -296,4 +333,7 @@ async function main() {
   }
 }
 
-main().catch((e) => { console.error(e); process.exit(1); });
+main().catch((e) => {
+  console.error(e);
+  process.exit(1);
+});
