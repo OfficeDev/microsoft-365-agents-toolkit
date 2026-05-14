@@ -37,6 +37,9 @@ runs:
             "e2e")
               npm run setup:e2e
               ;;
+            "next")
+              npm run setup:next
+              ;;
             "all"|*)
               npm run setup
               ;;

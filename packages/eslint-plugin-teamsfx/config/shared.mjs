@@ -45,7 +45,14 @@ export default [
       "@typescript-eslint/no-require-imports": "off",
       "@typescript-eslint/no-empty-function": "off",
       "@typescript-eslint/no-explicit-any": "warn",
-      "@typescript-eslint/no-unused-vars": "warn",
+      "@typescript-eslint/no-unused-vars": [
+        "warn",
+        {
+          argsIgnorePattern: "^_",
+          varsIgnorePattern: "^_",
+          caughtErrorsIgnorePattern: "^_",
+        },
+      ],
       "@typescript-eslint/no-unused-expressions": "off",
       "@typescript-eslint/no-duplicate-enum-values": "warn",
       "@typescript-eslint/no-unsafe-declaration-merging": "warn",
@@ -60,6 +67,7 @@ export default [
       "no-secrets/no-secrets": [
         "warn",
         {
+          tolerance: 4.5,
           additionalRegexes: {
             "Basic Auth": "Authorization: Basic [A-Za-z0-9+/=]*",
             "Common Pattern":

@@ -10,6 +10,12 @@ queries:
   - name: Security and Quality
     uses: security-and-quality
 
+query-filters:
+  # Suppress js/file-access-to-http: service clients intentionally upload
+  # file data (app packages, ZIP deploys, Graph API updates). This is by-design.
+  - exclude:
+      id: js/file-access-to-http
+
 paths-ignore:
   - "**/test/**/*"
   - "**/tests/**/*"

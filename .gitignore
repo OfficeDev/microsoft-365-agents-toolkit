@@ -3,6 +3,9 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
+# TypeScript incremental build cache
+*.tsbuildinfo
+
 # User-specific files
 *.rsuser
 *.suo
@@ -24,6 +27,7 @@ mono_crash.*
 x64/
 x86/
 [Aa][Rr][Mm]/
+!packages/core-next/src/drivers/builtin/arm/
 [Aa][Rr][Mm]64/
 bld/
 [Bb]in/
@@ -347,6 +351,8 @@ MigrationBackup/
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
 packages/api/build/
+packages/cli-next/build/
+packages/core-next/build/
 packages/fx-core/build/
 packages/vscode-extension/out/
 packages/server/lib/
@@ -392,3 +398,7 @@ package-lock.json
 # add claude related ignores
 .claude/
 CLAUDE.md
+# vercel-labs/skills CLI scratch dirs (created by 'npx skills add')
+/skills/
+/skills-temp/
+

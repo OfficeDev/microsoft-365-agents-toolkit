@@ -1,7 +1,9 @@
 packages:
   -  "packages/api"
+  -  "packages/core-next"
   -  "packages/fx-core"
   -  "packages/cli"
+  -  "packages/cli-next"
   -  "packages/vscode-extension"
   -  "packages/metrics-ts"
   -  "packages/manifest"

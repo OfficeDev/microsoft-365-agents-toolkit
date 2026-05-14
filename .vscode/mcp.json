@@ -10,7 +10,7 @@
       "args": ["-y", "@azure-devops/mcp", "${input:ado_org}"]
     },
     "github": {
-      "url": "https://api.githubcopilot.com/mcp/",
+      "url": "https://api.githubcopilot.com/mcp/insiders",
       "type": "http"
     }
   },
