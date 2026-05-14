@@ -25,13 +25,8 @@ jobs:
           npm install -g @github/copilot
           copilot --version
 
-      - name: Setup Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: '1.26'
-
       - name: Install Waza
-        run: go install github.com/microsoft/waza/cmd/waza@latest
+        run: curl -fsSL https://raw.githubusercontent.com/microsoft/waza/main/install.sh | bash
 
       - name: Run evaluation
         env:
