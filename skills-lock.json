@@ -1,0 +1,80 @@
+{
+  "version": 1,
+  "skills": {
+    "code-review-excellence": {
+      "source": "awesome-skills/code-review-skill",
+      "sourceType": "github",
+      "computedHash": "2bf0a385ab5c04a769efa5f38c62af775cf91b0d782ba73f632267cdff15d994"
+    },
+    "continual-learning": {
+      "source": "microsoft/skills",
+      "sourceType": "github",
+      "computedHash": "7e6eef17feb93dfbbb3d2d2caca76ddc7da65f7ae41f7cdd6d4478c24c278044"
+    },
+    "dev": {
+      "source": "microsoft/playwright-cli",
+      "sourceType": "github",
+      "computedHash": "e3644221b5e745e6de2a8a054aebf1f58577f0e59e1406ea0d5a28b41a4e6895"
+    },
+    "frontend-design": {
+      "source": "anthropics/skills",
+      "sourceType": "github",
+      "computedHash": "516bd2154eb843a8240e43d5b285229129853114ad7075a5e141e1c08e408c84"
+    },
+    "frontend-design-review": {
+      "source": "microsoft/skills",
+      "sourceType": "github",
+      "computedHash": "ab7eeeef16d3583172fe0a91a42b85c79cd5e29f79e027dbaa886fce5087e055"
+    },
+    "microsoft-docs": {
+      "source": "microsoft/skills",
+      "sourceType": "github",
+      "computedHash": "4f74ef0fb7127b151a00eee34cf7484414ea85965a2e7681b5775e9ee9484b37"
+    },
+    "pi-planning-with-files": {
+      "source": "OthmanAdi/planning-with-files",
+      "sourceType": "github",
+      "computedHash": "6d8aeab2e0c64a59149d1834938b33007b7d61e7b4f52b2ec46ff42ff72d6008"
+    },
+    "planning-with-files": {
+      "source": "OthmanAdi/planning-with-files",
+      "sourceType": "github",
+      "computedHash": "55772c15e055bd08f94265792e4ed0b3c08028b4e84ce4abe9909a1968b99ead"
+    },
+    "planning-with-files-ar": {
+      "source": "OthmanAdi/planning-with-files",
+      "sourceType": "github",
+      "computedHash": "10add3807c5c931d1b94017f0bee945f15b2b0dd0dd5f916e87a2a14ce2f8045"
+    },
+    "planning-with-files-de": {
+      "source": "OthmanAdi/planning-with-files",
+      "sourceType": "github",
+      "computedHash": "0894faea9ba2a75c1099c4357f51879dbb290743365e5195b2e7ce9c4b3c92b0"
+    },
+    "planning-with-files-es": {
+      "source": "OthmanAdi/planning-with-files",
+      "sourceType": "github",
+      "computedHash": "ef1b872b9f4502b47edcf71644ab51c353fcfb90675141487a69ab73a7c421ef"
+    },
+    "planning-with-files-zh": {
+      "source": "OthmanAdi/planning-with-files",
+      "sourceType": "github",
+      "computedHash": "bf511b9f91fee4dcf1318c6386188d100a6a3badf428175b75b658f51238d83c"
+    },
+    "planning-with-files-zht": {
+      "source": "OthmanAdi/planning-with-files",
+      "sourceType": "github",
+      "computedHash": "5e19fbcc7ea59436d49171905d73ad58d4c7a3150b76612d08644f913843e06d"
+    },
+    "playwright-cli": {
+      "source": "microsoft/playwright-cli",
+      "sourceType": "github",
+      "computedHash": "d3b0292e4fce2457cb6a80eee36f496c0ec75383724f8b9a1b5e62f657673256"
+    },
+    "skill-creator": {
+      "source": "microsoft/skills",
+      "sourceType": "github",
+      "computedHash": "0f49bc58414893e38ff80fc26f30ff446d631d22710a6d75134670616d8c5668"
+    }
+  }
+}
