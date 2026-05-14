@@ -17,7 +17,7 @@ export const AddPluginOptions: CLICommandOption[] = [
     description: "Action type.",
     required: true,
     default: "new-api",
-    choices: ["api-spec", "da-meta-os", "mcp"],
+    choices: ["api-spec", "mcp"],
   },
   {
     name: "openapi-spec-type",
