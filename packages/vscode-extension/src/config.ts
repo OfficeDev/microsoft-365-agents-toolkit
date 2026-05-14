@@ -25,30 +25,43 @@ export class ConfigManager {
     });
   }
   loadFeatureFlags() {
-    process.env["TEAMSFX_BICEP_ENV_CHECKER_ENABLE"] = this.getConfiguration(
+    // Only set env vars from VS Code settings if not already set externally.
+    // This allows testers to control feature flags via environment variables.
+    this.loadFeatureFlagIfAbsent(
+      "TEAMSFX_BICEP_ENV_CHECKER_ENABLE",
       ConfigurationKey.BicepEnvCheckerEnable,
       false
-    ).toString();
-    process.env[FeatureFlags.MCPForDA.name] = this.getConfiguration(
+    );
+    this.loadFeatureFlagIfAbsent(
+      FeatureFlags.MCPForDA.name,
       ConfigurationKey.EnableMCPforDA,
       true
-    ).toString();
-    process.env[FeatureFlags.CEAEnabled.name] = this.getConfiguration(
-      ConfigurationKey.EnableCEA,
-      false
-    ).toString();
-    process.env[FeatureFlags.DAMetaOS.name] = this.getConfiguration(
+    );
+    this.loadFeatureFlagIfAbsent(FeatureFlags.CEAEnabled.name, ConfigurationKey.EnableCEA, false);
+    this.loadFeatureFlagIfAbsent(
+      FeatureFlags.DAMetaOS.name,
       ConfigurationKey.EnableDAMetaOS,
       false
-    ).toString();
-    process.env[FeatureFlags.CFShortcutMetaOS.name] = this.getConfiguration(
+    );
+    this.loadFeatureFlagIfAbsent(
+      FeatureFlags.CFShortcutMetaOS.name,
       ConfigurationKey.EnableCFShortcutMetaOS,
       false
-    ).toString();
-    process.env[FeatureFlags.SovereignCloudEnvironment.name] = this.getConfiguration(
+    );
+    this.loadFeatureFlagIfAbsent(
+      FeatureFlags.SovereignCloudEnvironment.name,
       ConfigurationKey.SovereignCloudEnvironment,
       ""
-    ).toString();
+    );
+  }
+  private loadFeatureFlagIfAbsent(
+    envName: string,
+    configKey: string,
+    defaultValue: boolean | string
+  ) {
+    if (process.env[envName] === undefined) {
+      process.env[envName] = this.getConfiguration(configKey, defaultValue).toString();
+    }
   }
   loadLogLevel() {
     const logLevel = this.getConfiguration(ConfigurationKey.LogLevel, "Info") as string;
