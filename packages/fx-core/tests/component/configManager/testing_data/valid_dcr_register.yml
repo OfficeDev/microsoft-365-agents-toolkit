@@ -1,4 +1,4 @@
-version: v1.11
+version: v1.13
 provision:
   - uses: dcr/register
     with:
