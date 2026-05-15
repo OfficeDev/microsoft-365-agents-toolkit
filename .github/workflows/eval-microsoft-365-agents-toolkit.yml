@@ -73,8 +73,14 @@ jobs:
         if: always()
         run: node evals/results/generate-compare-markdown.js
 
+      - name: Install PR comment dependencies
+        if: always() && github.event_name == 'pull_request'
+        run: npm install --no-save @actions/core @actions/github
+
       - name: Post comparison comment on PR
         if: always() && github.event_name == 'pull_request'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: node evals/results/post-pr-comment.js
 
       - name: Upload evaluation results
