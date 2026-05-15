@@ -3,6 +3,8 @@ name: Evaluate Microsoft 365 Agents Toolkit Skill
 on:
   workflow_dispatch:
   push:
+    branches:
+      - dev
     paths:
       - 'packages/vscode-extension/skills/microsoft-365-agents-toolkit/**'
       - 'evals/microsoft-365-agents-toolkit/**'
