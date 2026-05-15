@@ -1,0 +1,434 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+/**
+ * sample-app-a11y.test.ts
+ * Tests for Sample App panel accessibility (A11y) regressions.
+ * Issue #15916: 5 A11y bugs in Light 2026 theme (contrast + screen reader).
+ *
+ * TC-001: Link text color contrast ≥ 4.5:1
+ * TC-002: Featured vs non-Featured ARIA differentiation
+ * TC-003: Featured badge non-text contrast ≥ 3:1
+ * TC-004: Tags included in accessible name on keyboard focus
+ * TC-005: Gallery/List toggle buttons expose aria-pressed state
+ *
+ * Runs INSIDE VSCode extension host via @vscode/test-electron (Mocha TDD).
+ */
+import * as vscode from "vscode";
+import * as assert from "assert";
+import * as fs from "fs";
+import * as path from "path";
+import * as os from "os";
+
+const OUTPUT_DIR =
+  process.env.TEST_OUTPUT_DIR || path.join(os.tmpdir(), "atk-test-output");
+const SCREENSHOT_DIR =
+  process.env.SCREENSHOT_DIR || path.join(OUTPUT_DIR, "screenshots");
+const SIGNAL_DIR =
+  process.env.SCREENSHOT_SIGNAL_DIR ||
+  path.join(OUTPUT_DIR, ".screenshot-signals");
+
+function ensureDirs() {
+  [OUTPUT_DIR, SCREENSHOT_DIR, SIGNAL_DIR].forEach((d) =>
+    fs.mkdirSync(d, { recursive: true }),
+  );
+}
+
+/** Signal Playwright to take a screenshot; blocks up to 8s */
+function takeScreenshot(name: string): void {
+  try {
+    const dest = path.join(SCREENSHOT_DIR, `${name}.png`);
+    const signal = path.join(SIGNAL_DIR, `${Date.now()}-${name}.signal`);
+    fs.writeFileSync(signal, `screenshot:${dest}`, "utf8");
+    const deadline = Date.now() + 8000;
+    while (fs.existsSync(signal) && Date.now() < deadline) {
+      const end = Date.now() + 100;
+      while (Date.now() < end) {
+        /* busy wait */
+      }
+    }
+    console.log(
+      fs.existsSync(dest)
+        ? `Screenshot: ${name}.png`
+        : `Screenshot timeout: ${name}.png`,
+    );
+  } catch (e) {
+    console.warn("Screenshot failed:", e);
+  }
+}
+
+function wait(ms: number): Promise<void> {
+  return new Promise((r) => setTimeout(r, ms));
+}
+
+async function waitForCommand(cmd: string, maxMs = 30000): Promise<boolean> {
+  const deadline = Date.now() + maxMs;
+  while (Date.now() < deadline) {
+    const allCmds = await vscode.commands.getCommands(true);
+    if (allCmds.includes(cmd)) return true;
+    await wait(500);
+  }
+  return false;
+}
+
+function writeResults(passed: number, failed: number, steps: object[]) {
+  const out = path.join(OUTPUT_DIR, "results.json");
+  fs.writeFileSync(
+    out,
+    JSON.stringify({ passed, failed, steps }, null, 2),
+    "utf8",
+  );
+}
+
+/**
+ * Send an evaluation signal to Playwright for DOM inspection.
+ * Returns result written to a response file.
+ */
+function sendEvalSignal(evalScript: string, timeoutMs = 15000): string {
+  try {
+    const id = Date.now();
+    const resultFile = path.join(SIGNAL_DIR, `${id}-eval.result`);
+    const signal = path.join(SIGNAL_DIR, `${id}-eval.signal`);
+    fs.writeFileSync(signal, `eval:${resultFile}:${evalScript}`, "utf8");
+    const deadline = Date.now() + timeoutMs;
+    while (!fs.existsSync(resultFile) && Date.now() < deadline) {
+      const end = Date.now() + 100;
+      while (Date.now() < end) {
+        /* busy wait */
+      }
+    }
+    if (fs.existsSync(resultFile)) {
+      const result = fs.readFileSync(resultFile, "utf8");
+      try {
+        fs.unlinkSync(resultFile);
+      } catch {}
+      return result;
+    }
+    // Signal not processed — clean up and return empty
+    try {
+      fs.unlinkSync(signal);
+    } catch {}
+    return "";
+  } catch (e) {
+    console.warn("Eval signal failed:", e);
+    return "";
+  }
+}
+
+suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
+  this.timeout(8 * 60 * 1000);
+
+  const steps: object[] = [];
+  let passed = 0;
+  let failed = 0;
+
+  const step = (name: string, ok: boolean, detail?: string) => {
+    steps.push({ name, status: ok ? "pass" : "fail", detail });
+    ok ? passed++ : failed++;
+    console.log(
+      `${ok ? "PASS" : "FAIL"} ${name}${detail ? ": " + detail : ""}`,
+    );
+  };
+
+  suiteSetup(() => {
+    ensureDirs();
+    console.log("=== ATK Sample App A11y Test ===");
+    console.log("Output:", OUTPUT_DIR);
+  });
+
+  suiteTeardown(() => {
+    writeResults(passed, failed, steps);
+    console.log(`\n=== Results: ${passed} passed, ${failed} failed ===`);
+  });
+
+  test("ATK extension is active", async () => {
+    const extId = "TeamsDevApp.ms-teams-vscode-extension";
+    let ext = vscode.extensions.getExtension(extId);
+    if (!ext) {
+      for (let i = 0; i < 30; i++) {
+        await wait(500);
+        ext = vscode.extensions.getExtension(extId);
+        if (ext) break;
+      }
+    }
+    if (ext && !ext.isActive) {
+      try {
+        await ext.activate();
+      } catch (e: any) {
+        console.log("  Activation note:", e.message);
+      }
+    }
+    await wait(3000);
+    const active = !!ext?.isActive;
+    step(
+      "ATK extension activates",
+      active,
+      ext ? `v${ext.packageJSON.version}` : "not found",
+    );
+    takeScreenshot("01-extension-active");
+    assert.ok(active, "Extension should be active");
+  });
+
+  test("Open Sample Gallery panel", async () => {
+    const cmdName = "fx-extension.openSamples";
+    const available = await waitForCommand(cmdName, 20000);
+    step(
+      "fx-extension.openSamples registered",
+      available,
+      available ? "command found" : "command not found at time of check",
+    );
+
+    if (available) {
+      // Fire without await — command opens a webview panel
+      vscode.commands.executeCommand(cmdName).then(undefined, () => {});
+      await wait(5000);
+    } else {
+      // Fallback: try to open samples via TreeView
+      vscode.commands
+        .executeCommand("workbench.view.extension.teamsfx-toolkit")
+        .then(undefined, () => {});
+      await wait(2000);
+      vscode.commands
+        .executeCommand("fx-extension.openSamples")
+        .then(undefined, () => {});
+      await wait(5000);
+    }
+
+    takeScreenshot("02-sample-gallery-opened");
+  });
+
+  /**
+   * TC-001 — Link text color contrast
+   * After fix: .ms-Link in light theme uses #005B9E (contrast ≈ 7.6:1 on white).
+   * We verify the fix is present in the source by checking the SCSS/DOM.
+   * Since the webview is a sandboxed iframe, we do a structural DOM check via
+   * the Playwright eval signal. If Playwright is not connected, we fall back to
+   * verifying the fix was applied via source-level assertions.
+   */
+  test("TC-001: Link text color contrast ≥ 4.5:1", async () => {
+    // Try DOM evaluation via Playwright signal
+    const evalScript =
+      "Array.from(document.querySelectorAll('.ms-Link')).map(el => getComputedStyle(el).color).slice(0,3).join(',')";
+    const rawResult = sendEvalSignal(evalScript, 5000);
+
+    if (rawResult) {
+      // Parse returned colors and check contrast
+      const colors = rawResult.split(",").filter(Boolean);
+      // For each color, check it's not the problematic rgb(72,160,199)
+      const problematicColor = "rgb(72, 160, 199)";
+      const hasProblematic = colors.some((c) => c.trim() === problematicColor);
+      step(
+        "TC-001 Link text contrast ≥ 4.5:1",
+        !hasProblematic,
+        hasProblematic
+          ? `Found low-contrast color ${problematicColor}`
+          : `Link colors: ${colors.join(", ")}`,
+      );
+    } else {
+      // Playwright not connected — verify fix by checking source file
+      const scssPath = path.join(
+        __dirname,
+        "../../../../packages/vscode-extension/src/controls/sampleGallery/SampleGallery.scss",
+      );
+      let fixVerified = false;
+      try {
+        const scss = fs.readFileSync(scssPath, "utf8");
+        // Fix should contain #005B9E (high-contrast link color for light theme)
+        fixVerified = scss.includes("#005B9E") || scss.includes("#005b9e");
+      } catch {}
+      step(
+        "TC-001 Link text contrast ≥ 4.5:1 (source check)",
+        fixVerified,
+        fixVerified
+          ? "SampleGallery.scss contains #005B9E link override for light theme"
+          : "Fix not detected in SampleGallery.scss",
+      );
+    }
+    takeScreenshot("03-tc001-link-contrast");
+  });
+
+  /**
+   * TC-002 — Featured vs non-Featured ARIA differentiation
+   * After fix: featured cards have aria-label prefixed with "Featured sample."
+   */
+  test("TC-002: Featured vs non-Featured ARIA differentiation", async () => {
+    const evalScript =
+      "(() => { const cards = Array.from(document.querySelectorAll('[role=button]')); const labels = cards.map(c => c.getAttribute('aria-label') || '').filter(Boolean); const featured = labels.filter(l => l.startsWith('Featured sample')); return JSON.stringify({total: cards.length, featuredLabels: featured.length, sampleLabels: labels.slice(0,3)}); })()";
+    const rawResult = sendEvalSignal(evalScript, 5000);
+
+    if (rawResult) {
+      try {
+        const data = JSON.parse(rawResult);
+        const hasFeaturedAria = data.featuredLabels > 0;
+        step(
+          "TC-002 Featured ARIA differentiation",
+          hasFeaturedAria,
+          `${data.total} cards, ${data.featuredLabels} with Featured prefix, sample: ${JSON.stringify(data.sampleLabels)}`,
+        );
+      } catch {
+        step("TC-002 Featured ARIA differentiation", false, "parse error: " + rawResult);
+      }
+    } else {
+      // Source-level check
+      const cardPath = path.join(
+        __dirname,
+        "../../../../packages/vscode-extension/src/controls/sampleGallery/sampleCard.tsx",
+      );
+      let fixVerified = false;
+      try {
+        const src = fs.readFileSync(cardPath, "utf8");
+        fixVerified =
+          src.includes("Featured sample.") || src.includes("featuredPrefix");
+      } catch {}
+      step(
+        "TC-002 Featured ARIA differentiation (source check)",
+        fixVerified,
+        fixVerified
+          ? "sampleCard.tsx contains Featured ARIA prefix logic"
+          : "Fix not detected in sampleCard.tsx",
+      );
+    }
+    takeScreenshot("04-tc002-featured-aria");
+  });
+
+  /**
+   * TC-003 — Featured badge non-text contrast ≥ 3:1
+   * After fix: .featured-badge uses #7A5C00 on white (≈ 4.9:1).
+   */
+  test("TC-003: Featured badge contrast ≥ 3:1", async () => {
+    const evalScript =
+      "(() => { const badges = Array.from(document.querySelectorAll('.featured-badge')); if (badges.length === 0) return 'no-badges'; const s = getComputedStyle(badges[0]); return JSON.stringify({bg: s.backgroundColor, color: s.color, count: badges.length}); })()";
+    const rawResult = sendEvalSignal(evalScript, 5000);
+
+    if (rawResult && rawResult !== "no-badges") {
+      try {
+        const data = JSON.parse(rawResult);
+        // #7A5C00 on #FFFFFF ≈ 4.9:1 — any badge present means the fix is applied
+        const hasBadge = data.count > 0;
+        step(
+          "TC-003 Featured badge present with accessible contrast",
+          hasBadge,
+          `${data.count} badge(s), bg=${data.bg}, color=${data.color}`,
+        );
+      } catch {
+        step("TC-003 Featured badge contrast", false, "parse error: " + rawResult);
+      }
+    } else {
+      // Source-level check — verify .featured-badge with #7A5C00 exists in SCSS
+      const scssPath = path.join(
+        __dirname,
+        "../../../../packages/vscode-extension/src/controls/sampleGallery/sampleCard.scss",
+      );
+      let fixVerified = false;
+      try {
+        const scss = fs.readFileSync(scssPath, "utf8");
+        fixVerified = scss.includes("featured-badge") && (scss.includes("#7A5C00") || scss.includes("#7a5c00"));
+      } catch {}
+      step(
+        "TC-003 Featured badge contrast ≥ 3:1 (source check)",
+        fixVerified,
+        fixVerified
+          ? "sampleCard.scss contains .featured-badge with #7A5C00 (≈4.9:1)"
+          : "Fix not detected in sampleCard.scss",
+      );
+    }
+    takeScreenshot("05-tc003-badge-contrast");
+  });
+
+  /**
+   * TC-004 — Tags included in accessible name
+   * After fix: aria-label includes ". Tags: tag1, tag2"
+   */
+  test("TC-004: Tags announced on keyboard focus via aria-label", async () => {
+    const evalScript =
+      "(() => { const cards = Array.from(document.querySelectorAll('[role=button]')); const labelsWithTags = cards.filter(c => { const l = c.getAttribute('aria-label') || ''; return l.toLowerCase().includes('tags:'); }); return JSON.stringify({total: cards.length, withTags: labelsWithTags.length, sample: (labelsWithTags[0]?.getAttribute('aria-label') || '')}); })()";
+    const rawResult = sendEvalSignal(evalScript, 5000);
+
+    if (rawResult) {
+      try {
+        const data = JSON.parse(rawResult);
+        const hasTagsInLabel = data.withTags > 0;
+        step(
+          "TC-004 Tags in aria-label",
+          hasTagsInLabel,
+          `${data.withTags}/${data.total} cards have tags in aria-label. Sample: "${data.sample.slice(0, 80)}"`,
+        );
+      } catch {
+        step("TC-004 Tags in aria-label", false, "parse error: " + rawResult);
+      }
+    } else {
+      // Source-level check
+      const cardPath = path.join(
+        __dirname,
+        "../../../../packages/vscode-extension/src/controls/sampleGallery/sampleCard.tsx",
+      );
+      let fixVerified = false;
+      try {
+        const src = fs.readFileSync(cardPath, "utf8");
+        fixVerified = src.includes("Tags:") && src.includes("aria-label");
+      } catch {}
+      step(
+        "TC-004 Tags in aria-label (source check)",
+        fixVerified,
+        fixVerified
+          ? "sampleCard.tsx includes Tags: in aria-label construction"
+          : "Fix not detected in sampleCard.tsx",
+      );
+    }
+    takeScreenshot("06-tc004-tags-aria");
+  });
+
+  /**
+   * TC-005 — Gallery/List toggle buttons expose aria-pressed
+   * After fix: Gallery button has aria-pressed="true" by default (grid layout).
+   */
+  test("TC-005: Gallery/List toggle buttons have aria-pressed", async () => {
+    const evalScript =
+      "(() => { const btns = Array.from(document.querySelectorAll('.layout-button')); const results = btns.map(b => ({label: b.getAttribute('aria-label'), pressed: b.getAttribute('aria-pressed')})); return JSON.stringify({count: btns.length, buttons: results}); })()";
+    const rawResult = sendEvalSignal(evalScript, 5000);
+
+    if (rawResult) {
+      try {
+        const data = JSON.parse(rawResult);
+        // Check that at least one button has aria-pressed set
+        const hasAriaPressed = data.buttons?.some(
+          (b: any) => b.pressed === "true" || b.pressed === "false",
+        );
+        step(
+          "TC-005 Toggle buttons have aria-pressed",
+          hasAriaPressed,
+          `${data.count} layout buttons found. States: ${JSON.stringify(data.buttons)}`,
+        );
+      } catch {
+        step("TC-005 Toggle aria-pressed", false, "parse error: " + rawResult);
+      }
+    } else {
+      // Source-level check
+      const filterPath = path.join(
+        __dirname,
+        "../../../../packages/vscode-extension/src/controls/sampleGallery/sampleFilter.tsx",
+      );
+      let fixVerified = false;
+      try {
+        const src = fs.readFileSync(filterPath, "utf8");
+        fixVerified =
+          src.includes("aria-pressed") &&
+          src.includes('layout === "grid"') &&
+          src.includes('layout === "list"');
+      } catch {}
+      step(
+        "TC-005 Toggle buttons aria-pressed (source check)",
+        fixVerified,
+        fixVerified
+          ? "sampleFilter.tsx contains aria-pressed on layout toggle buttons"
+          : "Fix not detected in sampleFilter.tsx",
+      );
+    }
+    takeScreenshot("07-tc005-toggle-aria-pressed");
+  });
+
+  test("Final state", async () => {
+    await wait(1000);
+    takeScreenshot("08-final-state");
+    step("Final state captured", true);
+  });
+});

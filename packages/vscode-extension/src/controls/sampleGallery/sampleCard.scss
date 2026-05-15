@@ -15,6 +15,21 @@
       outline-offset: -2px;
     }
 
+    /* TC-002 / TC-003: Featured badge — visually distinguishes featured cards */
+    .featured-badge {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      z-index: 2;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 1px 6px;
+      border-radius: 2px;
+      background-color: #7A5C00;
+      color: #FFFFFF;
+      pointer-events: none;
+    }
+
     .thumbnail {
       img {
         aspect-ratio: 40 / 23;

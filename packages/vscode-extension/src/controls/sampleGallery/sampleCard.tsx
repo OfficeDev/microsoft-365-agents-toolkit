@@ -68,10 +68,15 @@ export default class SampleCard extends React.Component<SampleProps, { imageUrl:
       sampleImage = upgradingSampleImage;
       tooltipText = "Coming soon";
     }
+    const tagNames = sample.tags?.length ? sample.tags.join(", ") : "";
+    const featuredPrefix = this.props.featured ? "Featured sample. " : "";
+    const cardAriaLabel = `${featuredPrefix}${sample.title}${tagNames ? `. Tags: ${tagNames}` : ""}`;
     return (
       <div
         className={`sample-card ${unavailable ? "unavailable" : ""}`}
         tabIndex={0}
+        role="button"
+        aria-label={cardAriaLabel}
         onClick={this.onSampleCardClicked}
         onKeyDown={(e) => {
           if (e.key === "Enter") {
@@ -79,7 +84,11 @@ export default class SampleCard extends React.Component<SampleProps, { imageUrl:
           }
         }}
       >
-        <label className="hidden-label">sample app card</label>
+        {this.props.featured && (
+          <span className="featured-badge" aria-hidden="true">
+            Featured
+          </span>
+        )}
         {unavailable && (
           <span className={`tooltip ${upgrade ? "upgrade" : ""}`}>{tooltipText}</span>
         )}

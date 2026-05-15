@@ -119,6 +119,33 @@
 body.vscode-light {
   .featured-sample-section {
     background-color: #F8F8F8;
+    border-color: #C6C6C6;
+  }
+
+  /* TC-001: Ensure link text meets WCAG AA 4.5:1 contrast on light backgrounds */
+  .sample-gallery {
+    a.ms-Link,
+    .ms-Link {
+      color: #005B9E;
+
+      &:hover,
+      &:focus {
+        color: #004480;
+      }
+    }
+  }
+
+  /* TC-003: Ensure featured section title/star meets 3:1 non-text contrast on light bg */
+  .sample-gallery {
+    #featured-sample-title {
+      span {
+        color: #7A5C00;
+      }
+
+      h4 {
+        color: #7A5C00;
+      }
+    }
   }
 }
 
