@@ -14,13 +14,20 @@ permissions:
 
 jobs:
   evaluate:
-    if: github.actor != 'github-actions[bot]'
+    if: ${{ !endsWith(github.actor, '[bot]') }}
     runs-on: ubuntu-latest
     timeout-minutes: 120
     steps:
+      - id: generate-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ vars.APP_GITHUB_APP_ID }}
+          private-key: ${{ secrets.APP_GITHUB_APP_PRIVATE_KEY }}
+
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          token: ${{ steps.generate-token.outputs.token }}
           ref: ${{ github.event_name == 'pull_request' && github.head_ref || github.ref }}
 
       - name: Setup Node.js
@@ -99,7 +106,7 @@ jobs:
       - name: Update baseline on PR branch
         if: always() && github.event_name == 'pull_request'
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ steps.generate-token.outputs.token }}
         run: |
           if [ -f evals/results/latest.json ]; then
             BRANCH="${{ github.head_ref }}"
@@ -113,7 +120,7 @@ jobs:
               echo "No changes to commit"
               exit 0
             fi
-            git commit -m "chore: update baseline from latest eval results (PR sync) [skip ci]"
+            git commit -m "chore: update baseline from latest eval results (PR sync)"
             git pull --rebase origin $BRANCH
             git push origin HEAD:$BRANCH
           fi
