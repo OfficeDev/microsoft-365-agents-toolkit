@@ -163,7 +163,7 @@ jobs:
 
       - name: Run Copilot CLI test agent
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.COPILOT_CLI_RUNNER_TOKEN }}
           ISSUE_NUMBER: ${{ inputs.issue_number }}
           REPO: ${{ github.repository }}
           RUN_URL: "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
@@ -247,7 +247,7 @@ jobs:
           PYEOF
           [ -f "$GIF_PATH" ] && echo "gif_path=$GIF_PATH" >> $GITHUB_OUTPUT || echo "gif_path=" >> $GITHUB_OUTPUT
 
-      - name: Upload GIF to GitHub issue (public URL)
+      - name: Upload GIF via GitHub Release (public URL)
         if: always() && steps.gif.outputs.gif_path != ''
         id: upload-gif
         continue-on-error: true
@@ -256,17 +256,25 @@ jobs:
           ISSUE: ${{ inputs.issue_number }}
         run: |
           GIF_FILE="${{ steps.gif.outputs.gif_path }}"
-          echo "Uploading GIF: $GIF_FILE"
-          RESPONSE=$(curl -s -X POST \
-            -H "Authorization: token $GH_TOKEN" \
-            -H "Accept: application/vnd.github+json" \
-            -H "X-GitHub-Api-Version: 2022-11-28" \
-            -F "data=@$GIF_FILE;type=image/gif" \
-            "https://uploads.github.com/repos/${{ github.repository }}/issues/${ISSUE}/assets?name=test-run.gif")
-          echo "Upload response: $RESPONSE"
-          GIF_URL=$(echo "$RESPONSE" | python3 -c "import sys,json;d=json.load(sys.stdin);print(d.get('browser_download_url') or d.get('url') or '')" 2>/dev/null || echo "")
-          echo "gif_url=$GIF_URL" >> $GITHUB_OUTPUT
-          echo "GIF URL: $GIF_URL"
+          TAG="atk-test-screenshots-issue-${ISSUE}"
+          echo "Uploading GIF via Release: $GIF_FILE (tag: $TAG)"
+          # Delete existing release/tag from previous runs (clean slate)
+          gh release delete "$TAG" --repo ${{ github.repository }} --yes 2>/dev/null || true
+          git push origin ":refs/tags/$TAG" 2>/dev/null || true
+          # Create pre-release and upload GIF as asset
+          if gh release create "$TAG" \
+            --repo ${{ github.repository }} \
+            --title "ATK Test Screenshots - Issue #${ISSUE}" \
+            --notes "Automated test screenshots. Issue: [#${ISSUE}](https://github.com/${{ github.repository }}/issues/${ISSUE})" \
+            --prerelease \
+            "$GIF_FILE#test-run.gif" 2>&1; then
+            GIF_URL="https://github.com/${{ github.repository }}/releases/download/${TAG}/test-run.gif"
+            echo "gif_url=$GIF_URL" >> $GITHUB_OUTPUT
+            echo "GIF URL: $GIF_URL"
+          else
+            echo "::warning::Release create failed, no GIF will be embedded"
+            echo "gif_url=" >> $GITHUB_OUTPUT
+          fi
 
       - name: Remove label and add done label (failsafe - always runs)
         if: always()
