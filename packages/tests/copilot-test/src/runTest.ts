@@ -7,12 +7,13 @@
  * Extended signal protocol:
  *   Signal file name: {timestamp}-{name}.signal
  *   Signal file content:
- *     screenshot:{destPath}    — take a screenshot
- *     click:{cssSelector}      — click matching element in QuickPick
- *     clickText:{text}         — click QuickPick item whose label contains text
- *     type:{text}              — type text into active input
- *     pressKey:{key}           — press a keyboard key (Enter, Escape, Tab, ...)
- *     waitForText:{text}       — wait until element with text is visible, then delete signal
+ *     screenshot:{destPath}                    — take a screenshot
+ *     eval:{resultFile}:{jsExpression}         — evaluate JS in active page, write result to resultFile
+ *     click:{cssSelector}                      — click matching element in QuickPick
+ *     clickText:{text}                         — click QuickPick item whose label contains text
+ *     type:{text}                              — type text into active input
+ *     pressKey:{key}                           — press a keyboard key (Enter, Escape, Tab, ...)
+ *     waitForText:{text}                       — wait until element with text is visible, then delete signal
  */
 import * as path from "path";
 import * as fs from "fs";
@@ -128,6 +129,30 @@ async function startSignalWatcher(
               console.warn(
                 `  ⚠️ waitForText: "${text}" not found within timeout`,
               );
+            }
+          }
+        } else if (content.startsWith("eval:")) {
+          // eval:{resultFile}:{jsExpression}
+          const rest = content.slice("eval:".length);
+          const colonIdx = rest.indexOf(":");
+          if (colonIdx !== -1) {
+            const resultFile = rest.slice(0, colonIdx);
+            const evalScript = rest.slice(colonIdx + 1);
+            let result = "";
+            if (page) {
+              try {
+                const val = await page.evaluate(evalScript);
+                result = typeof val === "string" ? val : JSON.stringify(val);
+                console.log(`  🔍 Eval result: ${result.slice(0, 120)}`);
+              } catch (evalErr) {
+                result = `ERROR:${String(evalErr)}`;
+                console.warn(`  ⚠️ Eval failed: ${evalErr}`);
+              }
+            }
+            try {
+              fs.writeFileSync(resultFile, result, "utf8");
+            } catch (writeErr) {
+              console.warn(`  ⚠️ Could not write eval result: ${writeErr}`);
             }
           }
         } else {
@@ -269,6 +294,7 @@ async function main() {
       TEST_OUTPUT_DIR: outputDir,
       SCREENSHOT_SIGNAL_DIR: signalDir,
       SCREENSHOT_DIR: screenshotDir,
+      ...(process.env.TEST_FILE ? { TEST_FILE: process.env.TEST_FILE } : {}),
     },
   };
   if (extPath) {

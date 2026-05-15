@@ -19,8 +19,24 @@ export async function run(): Promise<void> {
 
   const testsRoot = path.resolve(__dirname, "..");
 
+  // Optional: run only a specific test file (basename without .js suffix, or full relative path)
+  const testFileFilter = process.env.TEST_FILE;
+
   // glob v7 API: sync returns string[]
-  const files = glob.sync("**/*.test.js", { cwd: testsRoot });
+  let files = glob.sync("**/*.test.js", { cwd: testsRoot });
+
+  if (testFileFilter) {
+    const filterBase = testFileFilter.replace(/\.ts$/, ".js").replace(/\.js$/, "");
+    files = files.filter((f) => {
+      const base = path.basename(f, ".js");
+      return base === filterBase || f.includes(filterBase);
+    });
+    if (files.length === 0) {
+      console.warn(`[suite/index] TEST_FILE="${testFileFilter}" matched no files — running all tests`);
+      files = glob.sync("**/*.test.js", { cwd: testsRoot });
+    }
+  }
+
   files.forEach((f) => mocha.addFile(path.resolve(testsRoot, f)));
 
   return new Promise((resolve, reject) => {
