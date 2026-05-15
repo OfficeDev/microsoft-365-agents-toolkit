@@ -163,7 +163,7 @@ jobs:
 
       - name: Run Copilot CLI test agent
         env:
-          GH_TOKEN: ${{ secrets.COPILOT_CLI_RUNNER_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ISSUE_NUMBER: ${{ inputs.issue_number }}
           REPO: ${{ github.repository }}
           RUN_URL: "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
