@@ -12,70 +12,19 @@ const escapeCell = (value) =>
     .replace(/\r?\n/g, " ")
     .trim();
 
-const isPrimitive = (value) =>
-  value === null || ["string", "number", "boolean"].includes(typeof value);
-
-const kvTable = (title, obj) => {
-  if (!obj || typeof obj !== "object" || Array.isArray(obj)) return "";
-  const entries = Object.entries(obj).filter(([, value]) => isPrimitive(value));
-  if (entries.length === 0) return "";
-  const rows = entries
-    .map(([key, value]) => `| ${escapeCell(key)} | ${escapeCell(value)} |`)
-    .join("\n");
-  return `### ${title}\n\n| Metric | Value |\n| --- | --- |\n${rows}\n`;
+const formatFloat = (num) => {
+  if (typeof num !== "number") return String(num);
+  return num.toFixed(4);
 };
 
-const arrayTable = (title, arr) => {
-  if (!Array.isArray(arr) || arr.length === 0) return "";
-
-  const objectRows = arr.filter(
-    (item) => item && typeof item === "object" && !Array.isArray(item),
-  );
-  if (objectRows.length === 0) {
-    const rows = arr
-      .slice(0, 20)
-      .map(
-        (item, index) => `| ${index} | ${escapeCell(JSON.stringify(item))} |`,
-      )
-      .join("\n");
-    return `### ${title}\n\n| Index | Value |\n| --- | --- |\n${rows}\n`;
-  }
-
-  const columnSet = new Set();
-  objectRows.forEach((row) => {
-    Object.entries(row).forEach(([key, value]) => {
-      if (isPrimitive(value)) {
-        columnSet.add(key);
-      }
-    });
-  });
-
-  let columns = Array.from(columnSet);
-  if (columns.length === 0) {
-    const rows = objectRows
-      .slice(0, 20)
-      .map(
-        (item, index) => `| ${index} | ${escapeCell(JSON.stringify(item))} |`,
-      )
-      .join("\n");
-    return `### ${title}\n\n| Index | Value |\n| --- | --- |\n${rows}\n`;
-  }
-
-  columns = columns.slice(0, 8);
-  const header = `| ${columns.map(escapeCell).join(" | ")} |`;
-  const separator = `| ${columns.map(() => "---").join(" | ")} |`;
-  const rows = objectRows
-    .slice(0, 50)
-    .map(
-      (row) =>
-        `| ${columns.map((column) => escapeCell(row[column] ?? "")).join(" | ")} |`,
-    )
-    .join("\n");
-
-  return `### ${title}\n\n${header}\n${separator}\n${rows}\n`;
+const formatDelta = (delta) => {
+  if (typeof delta !== "number") return String(delta);
+  const formatted = delta.toFixed(4);
+  const sign = delta > 0 ? "+" : "";
+  return `${sign}${formatted}`;
 };
 
-let md = "## Waza Comparison Report\n\n";
+let md = "## Evaluation Comparison Report\n\n";
 let parsed;
 let parseError = "";
 
@@ -87,59 +36,77 @@ if (fs.existsSync(jsonPath)) {
   }
 }
 
-if (parsed !== undefined) {
-  if (Array.isArray(parsed)) {
-    md +=
-      arrayTable("Comparison", parsed) ||
-      "No comparable rows were found in compare output.\n";
-  } else if (parsed && typeof parsed === "object") {
-    const sections = [];
-    sections.push(
-      kvTable(
-        "Summary",
-        parsed.summary && typeof parsed.summary === "object"
-          ? parsed.summary
-          : parsed,
-      ),
+if (parsed !== undefined && parsed && typeof parsed === "object") {
+  // Summary table with Baseline and Latest columns
+  const summaryRows = [];
+  
+  if (Array.isArray(parsed.aggregate_scores) && parsed.aggregate_scores.length >= 2) {
+    summaryRows.push(
+      `| Aggregate Score | ${formatFloat(parsed.aggregate_scores[0])} | ${formatFloat(parsed.aggregate_scores[1])} | ${formatDelta(parsed.aggregate_score_delta)} |`
     );
-
-    const preferredArrayKeys = [
-      "models",
-      "results",
-      "comparisons",
-      "items",
-      "tasks",
-      "scores",
-      "rows",
-      "data",
-    ];
-    const seen = new Set();
-
-    preferredArrayKeys.forEach((key) => {
-      if (Array.isArray(parsed[key])) {
-        sections.push(arrayTable(key, parsed[key]));
-        seen.add(key);
-      }
-    });
-
-    Object.entries(parsed).forEach(([key, value]) => {
-      if (!seen.has(key) && Array.isArray(value)) {
-        sections.push(arrayTable(key, value));
-      }
-    });
-
-    md += sections.filter(Boolean).join("\n");
-    if (!sections.some(Boolean)) {
-      md += "No tabular data found in compare output.\n";
-    }
-  } else {
-    md += "Compare JSON output is not an object or array.\n";
   }
-} else {
+  
+  if (Array.isArray(parsed.success_rates) && parsed.success_rates.length >= 2) {
+    summaryRows.push(
+      `| Success Rate | ${formatFloat(parsed.success_rates[0])} | ${formatFloat(parsed.success_rates[1])} | ${formatDelta(parsed.success_rate_delta)} |`
+    );
+  }
+
+  if (Array.isArray(parsed.durations_ms) && parsed.durations_ms.length >= 2) {
+    const durationDelta = parsed.duration_delta_ms !== undefined 
+      ? parsed.duration_delta_ms 
+      : (parsed.durations_ms[1] - parsed.durations_ms[0]);
+    summaryRows.push(
+      `| Duration (ms) | ${parsed.durations_ms[0]} | ${parsed.durations_ms[1]} | ${formatDelta(durationDelta)} |`
+    );
+  }
+
+  if (summaryRows.length > 0) {
+    md += "### Summary Metrics\n\n";
+    md += "| Metric | Baseline | Latest | Delta |\n";
+    md += "| --- | --- | --- | --- |\n";
+    md += summaryRows.join("\n");
+    md += "\n\n";
+  }
+
+  // Task Deltas table
+  if (Array.isArray(parsed.task_deltas) && parsed.task_deltas.length > 0) {
+    md += "### Task Results\n\n";
+    md += "| Task | Score (Baseline → Latest) | Pass Rate (Baseline → Latest) | Status |\n";
+    md += "| --- | --- | --- | --- |\n";
+
+    parsed.task_deltas.forEach((task) => {
+      const taskName = escapeCell(task.display_name || task.task_id || "Unknown");
+      const baselineScore = formatFloat(task.scores?.[0] ?? "—");
+      const latestScore = formatFloat(task.scores?.[1] ?? "—");
+      const scoreStr = `${baselineScore} → ${latestScore}`;
+      
+      const baselinePassRate = formatFloat(task.pass_rates?.[0] ?? "—");
+      const latestPassRate = formatFloat(task.pass_rates?.[1] ?? "—");
+      const passRateStr = `${baselinePassRate} → ${latestPassRate}`;
+      
+      const baselineStatus = task.statuses?.[0] ?? "—";
+      const latestStatus = task.statuses?.[1] ?? "—";
+      const statusStr = baselineStatus === latestStatus 
+        ? `✓ ${baselineStatus}` 
+        : `${baselineStatus} → ${latestStatus}`;
+
+      md += `| ${taskName} | ${scoreStr} | ${passRateStr} | ${statusStr} |\n`;
+    });
+    md += "\n";
+  }
+
+  if (summaryRows.length === 0 && 
+      (!Array.isArray(parsed.task_deltas) || parsed.task_deltas.length === 0)) {
+    md += "No comparison data found.\n";
+  }
+} else if (parsed === undefined) {
   md += "Failed to parse compare JSON output.\n";
   if (parseError) {
     md += `\nParse error: ${parseError}\n`;
   }
+} else {
+  md += "Compare JSON output is not an object.\n";
 }
 
 if (compareExitCode !== 0) {

@@ -30,7 +30,7 @@ graders:
       prompt: |
         Review the agent's response. Check that the response is:
         1. Successfully created a custom engine agent.
-        2. Recommend local debugging as next step.
+        2. Recommend testing in Playground as next step.
 
         If all criteria are met, call set_waza_grade_pass.
         Otherwise, call set_waza_grade_fail with your reasoning.
