@@ -2,13 +2,6 @@ name: Evaluate Microsoft 365 Agents Toolkit Skill
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - dev
-    paths:
-      - 'packages/vscode-extension/skills/microsoft-365-agents-toolkit/**'
-      - 'evals/microsoft-365-agents-toolkit/**'
-      - '.github/workflows/eval-microsoft-365-agents-toolkit.yml'
   pull_request:
     paths:
       - 'packages/vscode-extension/skills/microsoft-365-agents-toolkit/**'
@@ -53,6 +46,13 @@ jobs:
           AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
         run: waza run -o evals/results/latest.json
 
+      - name: Fetch baseline.json from PR target branch
+        if: always() && github.event_name == 'pull_request'
+        run: |
+          BASE_BRANCH="${{ github.event.pull_request.base.ref }}"
+          git fetch origin $BASE_BRANCH
+          git show origin/$BASE_BRANCH:evals/results/baseline.json > evals/results/baseline.json || echo "No baseline.json in base branch"
+
       - name: Compare with baseline
         if: always()
         run: |
@@ -92,14 +92,16 @@ jobs:
             ./evals/results/compare-dashboard.html
           retention-days: 30
 
-      - name: Update baseline on dev push
-        if: always() && github.event_name == 'push' && github.ref == 'refs/heads/dev'
+      - name: Update baseline on PR branch
+        if: always() && github.event_name == 'pull_request'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           if [ -f evals/results/latest.json ]; then
             cp evals/results/latest.json evals/results/baseline.json
             git config user.name "github-actions[bot]"
             git config user.email "github-actions[bot]@users.noreply.github.com"
             git add evals/results/baseline.json
-            git commit -m "chore: update baseline from latest eval results" || echo "No changes to commit"
-            git push
+            git commit -m "chore: update baseline from latest eval results (PR sync)" || echo "No changes to commit"
+            git push origin HEAD:${{ github.head_ref }}
           fi
