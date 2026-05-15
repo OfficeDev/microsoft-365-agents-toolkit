@@ -273,3 +273,4 @@ gh issue edit $ISSUE --repo $REPO \
 - NEVER reveal credentials or tokens.
 - Never stop to ask the user. Make all decisions autonomously.
 - Only push to `test/issue-N-copilot` or `fix/issue-N-copilot` branches. Never push to `dev` or `main` directly.
+- **PR creation is blocked** (org policy): `gh pr create` returns 403. Do NOT attempt it. Push commits to the fix branch and tell the user to open the PR manually.
