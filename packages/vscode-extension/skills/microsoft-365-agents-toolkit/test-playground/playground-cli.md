@@ -144,6 +144,5 @@ Turn statuses: `Completed` | `TimedOut` | `Errored` | `Skipped` (skipped = previ
 
 ## References
 
-- [playground-cli README](https://github.com/OfficeDev/microsoft-365-agents-playground/blob/main/packages/playground-cli/README.md)
-- [playground-cli-example sample](https://github.com/OfficeDev/microsoft-365-agents-playground/tree/main/samples/playground-cli-example)
 - Manual interactive testing → [playground.md](playground.md)
+- npm package → [`@microsoft/m365agentsplayground-cli`](https://www.npmjs.com/package/@microsoft/m365agentsplayground-cli)
