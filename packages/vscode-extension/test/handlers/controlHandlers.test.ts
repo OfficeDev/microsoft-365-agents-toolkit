@@ -64,7 +64,7 @@ describe("Control Handlers", () => {
       sandbox.assert.calledOnceWithExactly(
         executeCommands,
         "workbench.action.openWalkthrough",
-        "TeamsDevApp.ms-teams-vscode-extension#buildIntelligentAppsWithChat"
+        "TeamsDevApp.ms-teams-vscode-extension#buildIntelligentApps"
       );
     });
 

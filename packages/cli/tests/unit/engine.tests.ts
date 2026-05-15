@@ -41,6 +41,7 @@ import {
 } from "../../src/error";
 import * as main from "../../src/index";
 import CliTelemetry from "../../src/telemetry/cliTelemetry";
+import { TelemetryProperty } from "../../src/telemetry/cliTelemetryEvents";
 import { getVersion } from "../../src/utils";
 
 describe("CLI Engine", () => {
@@ -611,6 +612,50 @@ describe("CLI Engine", () => {
       const stub = sandbox.stub(logger, "info").resolves();
       engine.printError(new UserCancelError("test"));
       assert.isTrue(stub.called);
+    });
+  });
+  describe("ATK_CLI_SKILL env var", () => {
+    it("sets Skill telemetry property when ATK_CLI_SKILL=true", async () => {
+      const mockedEnvRestore = mockedEnv({
+        ATK_CLI_SKILL: "true",
+      });
+      const command: CLIFoundCommand = {
+        name: "test",
+        fullName: "test",
+        description: "test command",
+      };
+      const ctx: CLIContext = {
+        command: command,
+        optionValues: {},
+        globalOptionValues: {},
+        argumentValues: [],
+        telemetryProperties: {},
+      };
+      const result = engine.parseArgs(ctx, rootCommand, []);
+      assert.isTrue(result.isOk());
+      assert.equal(ctx.telemetryProperties[TelemetryProperty.Skill], "true");
+      mockedEnvRestore();
+    });
+    it("does not set Skill telemetry property when ATK_CLI_SKILL is not set", async () => {
+      const mockedEnvRestore = mockedEnv({
+        ATK_CLI_SKILL: undefined,
+      });
+      const command: CLIFoundCommand = {
+        name: "test",
+        fullName: "test",
+        description: "test command",
+      };
+      const ctx: CLIContext = {
+        command: command,
+        optionValues: {},
+        globalOptionValues: {},
+        argumentValues: [],
+        telemetryProperties: {},
+      };
+      const result = engine.parseArgs(ctx, rootCommand, []);
+      assert.isTrue(result.isOk());
+      assert.notProperty(ctx.telemetryProperties, TelemetryProperty.Skill);
+      mockedEnvRestore();
     });
   });
 });

@@ -70,7 +70,9 @@ export class CopilotNode extends DynamicNode {
     } else {
       this.label = localize("teamstoolkit.accountTree.copilotWarning");
       this.iconPath = warningIcon;
-      this.tooltip = localize("teamstoolkit.accountTree.copilotWarningTooltip");
+      this.tooltip = new vscode.MarkdownString(
+        localize("teamstoolkit.accountTree.copilotWarningTooltip")
+      );
       this.contextValue = ContextValues.ShowInfo;
       this.command = {
         title: this.label,

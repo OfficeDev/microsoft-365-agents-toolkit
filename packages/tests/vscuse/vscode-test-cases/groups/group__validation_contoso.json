@@ -10,14 +10,14 @@
       "step_retry_timeout": 0
     },
     "total_steps": 4,
-    "created_at": "2026-04-08T05:33:58.769776",
+    "created_at": "2026-05-13T03:36:28.000041",
     "name": "group: validation_contoso",
     "description": {
       "other": "Generated from recording r_1023_013114",
       "owner": "v-ivanchen@microsoft.com",
       "workitem": ""
     },
-    "generated_at": "2026-04-08T05:33:58.769776",
+    "generated_at": "2026-05-13T03:36:28.000041",
     "execution_order": [
       "step_4dd7a1fb",
       "step_d00ce375",
@@ -27,7 +27,7 @@
     "tags": [
       "group"
     ],
-    "updated_at": "2026-04-08T06:00:45.074552"
+    "updated_at": "2026-05-13T04:58:50.335494"
   },
   "steps": [
     {
@@ -53,7 +53,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_4dd7a1fb",
-      "created_at": "2026-04-08T05:33:58.775807",
+      "created_at": "2026-05-13T03:36:28.002049",
       "plan_id": "plan_r_1023_013114"
     },
     {
@@ -75,7 +75,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_d00ce375",
-      "created_at": "2026-04-08T05:33:58.783839",
+      "created_at": "2026-05-13T03:36:28.010639",
       "plan_id": "plan_r_1023_013114"
     },
     {
@@ -83,7 +83,7 @@
       "agent": "assertion",
       "tool": "",
       "parameters": {},
-      "description": "@assertion there's bot reply message for Contoso Electronics .",
+      "description": "@assertion there's bot reply message for \"Contoso Electronics\" or \"Northwind Health\".",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -95,7 +95,7 @@
         "step_retry_timeout: 60"
       ],
       "screenshot": null,
-      "created_at": "2026-04-08T05:33:58.791616",
+      "created_at": "2026-05-13T03:36:28.010639",
       "plan_id": "plan_r_1023_013114"
     },
     {
@@ -113,7 +113,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": null,
-      "created_at": "2026-04-08T06:00:45.067158",
+      "created_at": "2026-05-13T03:36:28.023656",
       "plan_id": "plan_r_1023_013114"
     }
   ],

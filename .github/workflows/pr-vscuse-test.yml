@@ -1,0 +1,534 @@
+﻿name: PR VscUse Test Plan Selector
+
+# Triggered when the 'atk-vsuse-test' label is added to a PR,
+# OR manually via workflow_dispatch with a pr_number input.
+#
+# This workflow:
+#   1. Resolves PR context (works for both label and manual triggers)
+#   2. Gets the diff between the PR branch and the target branch
+#   3. Calls GitHub Models (GPT-4.1) to select relevant VscUse test plans
+#   4. Posts a PR comment listing the selected plans
+#   5. Dispatches dev-smoke-test-pipeline.yml with those plans
+#   6. Resolves (edits) the PR comment with the final pass/fail result
+
+on:
+  pull_request:
+    types: [labeled]
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: 'PR number to analyze and run tests for'
+        required: true
+        type: number
+
+# Cancel any in-progress run for the same PR if re-triggered
+concurrency:
+  group: pr-vscuse-test-${{ github.event.inputs.pr_number || github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  pull-requests: write
+  issues: write
+  actions: write
+  contents: read
+
+jobs:
+  select-plans-and-run:
+    if: github.event.label.name == 'atk-vsuse-test' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+
+    steps:
+      # ── 0. Resolve PR context (supports both pull_request and workflow_dispatch) ──
+      - name: Resolve PR context
+        id: pr-context
+        uses: actions/github-script@v6
+        with:
+          script: |
+            let prNumber, headRef, baseRef, prTitle, prBody;
+            if (context.eventName === 'pull_request') {
+              prNumber = context.payload.pull_request.number;
+              headRef  = context.payload.pull_request.head.ref;
+              baseRef  = context.payload.pull_request.base.ref;
+              prTitle  = context.payload.pull_request.title;
+              prBody   = context.payload.pull_request.body || '';
+            } else {
+              // workflow_dispatch: fetch PR metadata from API
+              prNumber = parseInt('${{ github.event.inputs.pr_number }}');
+              const { data: pr } = await github.rest.pulls.get({
+                owner: context.repo.owner,
+                repo:  context.repo.repo,
+                pull_number: prNumber,
+              });
+              headRef = pr.head.ref;
+              baseRef = pr.base.ref;
+              prTitle = pr.title;
+              prBody  = pr.body || '';
+            }
+            core.setOutput('pr_number', String(prNumber));
+            core.setOutput('head_ref',  headRef);
+            core.setOutput('base_ref',  baseRef);
+            core.setOutput('pr_title',  prTitle);
+            core.setOutput('pr_body',   prBody.slice(0, 2000));
+            console.log(`PR #${prNumber}: ${headRef} -> ${baseRef}  "${prTitle}"`);
+
+      # ── 1. Checkout plans dir + full git history for diff ─────────────
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.pr-context.outputs.head_ref }}
+          fetch-depth: 0
+          sparse-checkout: |
+            packages/tests/vscuse/vscode-test-cases/plans
+            packages/tests/vscuse/smoking-test-cases.json
+
+      # ── 2. Get changed files via API (PR file list) ────────────────────
+      - name: Get PR changed files
+        id: changed-files
+        uses: actions/github-script@v6
+        env:
+          PR_NUMBER: ${{ steps.pr-context.outputs.pr_number }}
+        with:
+          script: |
+            const { data: files } = await github.rest.pulls.listFiles({
+              owner: context.repo.owner,
+              repo:  context.repo.repo,
+              pull_number: parseInt(process.env.PR_NUMBER),
+              per_page: 100,
+            });
+            const fileList = files.map(f => `${f.status.padEnd(9)} ${f.filename}`).join('\n');
+            core.setOutput('files', fileList);
+            console.log(`Changed files (${files.length}):\n${fileList}`);
+
+      # ── 3. Get git diff summary between PR branch and target branch ────
+      - name: Get git diff summary
+        id: diff-summary
+        env:
+          BASE_REF: ${{ steps.pr-context.outputs.base_ref }}
+          HEAD_REF: ${{ steps.pr-context.outputs.head_ref }}
+        run: |
+          git fetch origin "$BASE_REF" --depth=50 2>/dev/null || true
+          git fetch origin "$HEAD_REF" --depth=50 2>/dev/null || true
+          DIFF_STAT=$(git diff "origin/${BASE_REF}...origin/${HEAD_REF}" --stat --no-color 2>/dev/null \
+            | tail -5 || echo "(diff unavailable)")
+          echo "diff_stat<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$DIFF_STAT"     >> "$GITHUB_OUTPUT"
+          echo "EOF"            >> "$GITHUB_OUTPUT"
+
+      # ── 3b. Install Copilot CLI ───────────────────────────────────────
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install Copilot CLI
+        run: |
+          npm install -g @github/copilot@1.0.44
+          copilot --version
+      # ── 4. Select test plans via Copilot CLI ─────────────────────────
+      - name: Select test plans via AI
+        id: ai-select
+        env:
+          COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_CLI_RUNNER_TOKEN }}
+          PR_TITLE:             ${{ steps.pr-context.outputs.pr_title }}
+          PR_BODY:              ${{ steps.pr-context.outputs.pr_body }}
+          CHANGED_FILES:        ${{ steps.changed-files.outputs.files }}
+          DIFF_STAT:            ${{ steps.diff-summary.outputs.diff_stat }}
+          BASE_BRANCH:          ${{ steps.pr-context.outputs.base_ref }}
+          HEAD_BRANCH:          ${{ steps.pr-context.outputs.head_ref }}
+        run: |
+          set -euo pipefail
+
+          # List every available plan name (one per line)
+          PLANS_TEXT=$(find packages/tests/vscuse/vscode-test-cases/plans \
+            -maxdepth 1 -name "*.json" -exec basename {} .json \; | sort)
+
+          SYSTEM_PROMPT='You are a test plan selector for the Microsoft 365 Agents Toolkit (ATK) VS Code extension. Select the most relevant VscUse UI test plans for a given PR based on the changed files and PR description. IMPORTANT CONTEXT: VscUse tests only test the VS Code extension. The plan files are all for VS Code templates. There are NO C# plan files. FILE PATH MAPPING (apply in order, stop at first match): 1) templates/vs/** (Visual Studio C# templates, NOT VS Code) -> These have no VscUse test plans; return only 1-2 smoke plans (Basic_Custom_Engine_Azure_OpenAI_ts_Copilot_Remote_Debug or General_Teams_Agent_OpenAI_py_Remote_Debug) as a basic sanity check. 2) templates/vscode/ts/custom-copilot-** -> Basic_Custom_Engine_*_ts_* Remote_Debug plans only. 3) templates/vscode/js/** -> *_js_* Remote_Debug plans only. 4) templates/vscode/py/** -> *_py_* Remote_Debug plans only. 5) templates/vscode/**declarative** or **da-** -> DA_*. 6) templates/vscode/**message-extension** -> Message_Extension_*. 7) templates/vscode/**tab** -> Basic_Tab_*. 8) templates/vscode/**bot** -> Simple_Bot_*. 9) packages/vscode-extension/src/treeview/** -> Feature_TreeView_*. 10) packages/vscode-extension/** -> Feature_*. 11) trivial/infra changes (remove pkg, typo, readme, CI yml) -> 1-2 smoke plans only. LANGUAGE RULES (for vscode templates only): _ts_=TypeScript plans; _js_=JavaScript plans; _py_=Python plans. ALL plans have a language suffix (_ts_, _js_, or _py_) - never invent a plan name without one. PLAN PREFIXES: DA_*=Declarative Agent; Basic_Custom_Engine_*=Custom Engine AI bot; General_Teams_Agent_*=Teams agent; Teams_Agent_With_Data_*=AI Search/RAG; Weather_Agent_*=Weather bot; Simple_Bot_*=Simple bot; Message_Extension_*=Message extension; Basic_Tab_*=Tab app; Feature_*=VS Code UI features. Keep total 1-5 plans. Output ONLY a JSON object: {"plans": ["PlanName1"], "reason": "one sentence"}'
+
+          USER_PROMPT=$(printf '%s\n\nPR: %s -> %s\nTitle: %s\n\nDescription (first 1200 chars):\n%s\n\nChanged files (with status):\n%s\n\nDiff summary:\n%s\n\nAvailable test plans:\n%s\n\nOutput JSON only.' \
+            "$SYSTEM_PROMPT" \
+            "${HEAD_BRANCH}" "${BASE_BRANCH}" "${PR_TITLE}" "${PR_BODY:0:1200}" \
+            "${CHANGED_FILES}" "${DIFF_STAT}" "${PLANS_TEXT}")
+
+          AI_SOURCE="smoke-fallback"
+          echo "Running Copilot CLI for test plan selection..."
+          copilot --yolo --model claude-sonnet-4.6 --reasoning-effort high -p "$USER_PROMPT" > /tmp/copilot_output.txt 2>&1 || true
+          echo "--- Copilot output ---"
+          cat /tmp/copilot_output.txt || true
+
+          # Extract JSON: find the first {...} block that has a "plans" key
+          cat > /tmp/extract_json.py << 'PYEOF'
+          import sys, re, json
+          text = open('/tmp/copilot_output.txt').read()
+          for pat in [r'\{[^{}]*"plans"[^{}]*\}', r'\{.*?\}']:
+              for m in re.findall(pat, text, re.DOTALL):
+                  try:
+                      obj = json.loads(m)
+                      if 'plans' in obj:
+                          print(json.dumps(obj))
+                          sys.exit(0)
+                  except Exception:
+                      pass
+          print('')
+          PYEOF
+          AI_CONTENT=$(python3 /tmp/extract_json.py 2>/dev/null || true)
+
+          echo "Extracted AI content: $AI_CONTENT"
+
+          if [ -n "$AI_CONTENT" ]; then
+            AI_SOURCE="copilot-cli"
+          fi
+
+          AI_PLANS=$(echo "$AI_CONTENT" | jq -r '.plans // empty' 2>/dev/null || true)
+          AI_REASON=$(echo "$AI_CONTENT" | jq -r '.reason // empty' 2>/dev/null || true)
+
+          # Validate: only keep plans that exist on disk
+          VALID_PLANS='[]'
+          if [ -n "$AI_PLANS" ] && [ "$AI_PLANS" != "null" ]; then
+            while IFS= read -r plan; do
+              [ -z "$plan" ] && continue
+              if [ -f "packages/tests/vscuse/vscode-test-cases/plans/${plan}.json" ]; then
+                VALID_PLANS=$(echo "$VALID_PLANS" | jq --arg p "$plan" '. + [$p]')
+              else
+                echo "Warning: AI returned unknown plan, skipping: $plan"
+              fi
+            done < <(echo "$AI_PLANS" | jq -r '.[]' 2>/dev/null || true)
+          fi
+
+          # Fallback to smoke tests if AI produced nothing usable
+          IS_FALLBACK="false"
+          if [ "$(echo "$VALID_PLANS" | jq 'length')" -eq 0 ]; then
+            echo "No valid AI plans — falling back to smoke test cases."
+            VALID_PLANS=$(jq -c '[.smokeTestCases[]]' packages/tests/vscuse/smoking-test-cases.json)
+            AI_REASON="AI selection unavailable (source=${AI_SOURCE}); using smoke test cases as fallback."
+            IS_FALLBACK="true"
+          fi
+
+          PLANS_CSV=$(echo "$VALID_PLANS" | jq -r 'join(",")')
+          echo "test_plans=${PLANS_CSV}"    >> "$GITHUB_OUTPUT"
+          echo "reason=${AI_REASON}"        >> "$GITHUB_OUTPUT"
+          echo "ai_source=${AI_SOURCE}"     >> "$GITHUB_OUTPUT"
+          echo "is_fallback=${IS_FALLBACK}" >> "$GITHUB_OUTPUT"
+          echo "Selected: $PLANS_CSV"
+          echo "Reason:   $AI_REASON"
+      # ── 5. Post initial PR comment ─────────────────────────────────────
+      - name: Post PR comment with selected test plans
+        id: post-comment
+        uses: actions/github-script@v6
+        env:
+          TEST_PLANS:   ${{ steps.ai-select.outputs.test_plans }}
+          REASON:       ${{ steps.ai-select.outputs.reason }}
+          AI_SOURCE:    ${{ steps.ai-select.outputs.ai_source }}
+          IS_FALLBACK:  ${{ steps.ai-select.outputs.is_fallback }}
+          PR_NUMBER:    ${{ steps.pr-context.outputs.pr_number }}
+          HEAD_REF:     ${{ steps.pr-context.outputs.head_ref }}
+          BASE_REF:     ${{ steps.pr-context.outputs.base_ref }}
+        with:
+          script: |
+            const plans    = process.env.TEST_PLANS.split(',').filter(Boolean);
+            const reason   = process.env.REASON || '-';
+            const aiSource = process.env.AI_SOURCE || 'unknown';
+            const isFallback = process.env.IS_FALLBACK === 'true';
+            const prNumber = parseInt(process.env.PR_NUMBER);
+            const headRef  = process.env.HEAD_REF;
+            const baseRef  = process.env.BASE_REF;
+            const runUrl   = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            const planList = plans.map(p => `- \`${p}\``).join('\n');
+
+            const header = isFallback
+              ? `## ⚠️ VscUse Test Plan — Smoke Test Fallback\n\n> **AI selection was unavailable** (tried: \`${aiSource}\`). Running default smoke tests instead.`
+              : `## 🤖 VscUse Test Plan — AI Selected (via \`${aiSource}\`)`;
+
+            const body = [
+              header,
+              '',
+              `**Why these tests:** ${reason}`,
+              '',
+              `**Branch diff:** \`${headRef}\` → \`${baseRef}\``,
+              '',
+              '**Plans queued:**',
+              planList,
+              '',
+              '---',
+              '| Step | Status |',
+              '|------|--------|',
+              '| 1️⃣ Build VSIX (CD) | ⏳ Running… |',
+              '| 2️⃣ Build Docker image | ⌛ Waiting |',
+              '| 3️⃣ Run UI tests | ⌛ Waiting |',
+              '',
+              `> 🔗 [View pipeline run](${runUrl})`,
+            ].join('\n');
+            const { data: comment } = await github.rest.issues.createComment({
+              owner:        context.repo.owner,
+              repo:         context.repo.repo,
+              issue_number: prNumber,
+              body,
+            });
+
+            core.setOutput('comment_id', String(comment.id));
+            console.log(`Posted comment: ${comment.html_url}`);
+
+      # ── 6. Dispatch dev-smoke-test-pipeline with selected plans ────────
+      - name: Dispatch dev-smoke-test-pipeline.yml
+        id: dispatch
+        uses: actions/github-script@v6
+        env:
+          TEST_PLANS:  ${{ steps.ai-select.outputs.test_plans }}
+          HEAD_BRANCH: ${{ steps.pr-context.outputs.head_ref }}
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const owner      = context.repo.owner;
+            const repo       = context.repo.repo;
+            const testPlans  = process.env.TEST_PLANS;
+            const headBranch = process.env.HEAD_BRANCH;
+
+            // dev-smoke-test-pipeline.yml on dev branch may not have test_plan yet (pending PR merge)
+            // Try with test_plan first, fall back to without it if rejected
+            let dispatched = false;
+            try {
+              await github.rest.actions.createWorkflowDispatch({
+                owner,
+                repo,
+                workflow_id: 'dev-smoke-test-pipeline.yml',
+                ref:         headBranch,
+                inputs: {
+                  test_plan: testPlans,
+                  email:     'atk-vsuse-test@microsoft.com',
+                },
+              });
+              dispatched = true;
+              console.log('Dispatched with test_plan input');
+            } catch (err) {
+              if (err.status === 422) {
+                console.log('test_plan input not supported on target branch, retrying without it...');
+                await github.rest.actions.createWorkflowDispatch({
+                  owner,
+                  repo,
+                  workflow_id: 'dev-smoke-test-pipeline.yml',
+                  ref:         headBranch,
+                  inputs: { email:     'atk-vsuse-test@microsoft.com' },
+                });
+                dispatched = true;
+                console.log('Dispatched without test_plan input');
+              } else {
+                throw err;
+              }
+            }
+
+            await new Promise(r => setTimeout(r, 15000));
+
+            const { data: { workflow_runs: runs } } = await github.rest.actions.listWorkflowRuns({
+              owner,
+              repo,
+              workflow_id: 'dev-smoke-test-pipeline.yml',
+              branch:      headBranch,
+              per_page:    5,
+            });
+
+            const run = runs.find(r =>
+              r.status !== 'completed' ||
+              (Date.now() - new Date(r.created_at).getTime()) < 60000
+            );
+
+            if (!run) throw new Error('Could not locate the dispatched dev-smoke-test-pipeline run');
+
+            core.setOutput('smoke_run_id',  String(run.id));
+            core.setOutput('smoke_run_url', run.html_url);
+            console.log(`Smoke pipeline run ID: ${run.id}  URL: ${run.html_url}`);
+
+      # Update comment: pipeline now running
+      - name: Update PR comment — pipeline dispatched
+        uses: actions/github-script@v6
+        env:
+          COMMENT_ID: ${{ steps.post-comment.outputs.comment_id }}
+          TEST_PLANS: ${{ steps.ai-select.outputs.test_plans }}
+          REASON:     ${{ steps.ai-select.outputs.reason }}
+          RUN_URL:    ${{ steps.dispatch.outputs.smoke_run_url }}
+          PR_NUMBER:  ${{ steps.pr-context.outputs.pr_number }}
+          HEAD_REF:   ${{ steps.pr-context.outputs.head_ref }}
+          BASE_REF:   ${{ steps.pr-context.outputs.base_ref }}
+        with:
+          script: |
+            const commentId = parseInt(process.env.COMMENT_ID);
+            const plans     = process.env.TEST_PLANS.split(',').filter(Boolean);
+            const reason    = process.env.REASON || '-';
+            const runUrl    = process.env.RUN_URL;
+            const headRef   = process.env.HEAD_REF;
+            const baseRef   = process.env.BASE_REF;
+            const planList  = plans.map(p => `- \`${p}\``).join('\n');
+
+            const body = [
+              '## 🤖 VscUse Test Plan — AI Selected',
+              '',
+              `**Why these tests:** ${reason}`,
+              '',
+              `**Branch diff:** \`${headRef}\` → \`${baseRef}\``,
+              '',
+              '**Plans queued:**',
+              planList,
+              '',
+              '---',
+              '| Step | Status |',
+              '|------|--------|',
+              '| 1️⃣ Build VSIX (CD) | ⏳ Running… |',
+              '| 2️⃣ Build Docker image | ⌛ Waiting |',
+              '| 3️⃣ Run UI tests | ⌛ Waiting |',
+              '',
+              `> 🔗 [View smoke pipeline](${runUrl})`,
+            ].join('\n');
+
+            await github.rest.issues.updateComment({
+              owner:      context.repo.owner,
+              repo:       context.repo.repo,
+              comment_id: commentId,
+              body,
+            });
+
+      # ── 7. Poll smoke pipeline until done ─────────────────────────────
+      - name: Wait for smoke pipeline to complete
+        id: wait-smoke
+        uses: actions/github-script@v6
+        env:
+          SMOKE_RUN_ID: ${{ steps.dispatch.outputs.smoke_run_id }}
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const owner  = context.repo.owner;
+            const repo   = context.repo.repo;
+            const runId  = parseInt(process.env.SMOKE_RUN_ID);
+            const start  = Date.now();
+            const EIGHT_HOURS = 8 * 60 * 60 * 1000;
+
+            while (Date.now() - start < EIGHT_HOURS) {
+              const { data: run } = await github.rest.actions.getWorkflowRun({ owner, repo, run_id: runId });
+              console.log(`Smoke pipeline: ${run.status} / ${run.conclusion}`);
+              if (run.status === 'completed') {
+                core.setOutput('conclusion', run.conclusion);
+                core.setOutput('run_url',    run.html_url);
+                return;
+              }
+              await new Promise(r => setTimeout(r, 60000));
+            }
+            core.setOutput('conclusion', 'timed_out');
+            throw new Error('Smoke pipeline timed out after 8 hours');
+
+      # ── 8. Resolve PR comment with final result ────────────────────────
+      - name: Resolve PR comment with test results
+        if: always()
+        uses: actions/github-script@v6
+        env:
+          COMMENT_ID:  ${{ steps.post-comment.outputs.comment_id }}
+          TEST_PLANS:  ${{ steps.ai-select.outputs.test_plans }}
+          REASON:      ${{ steps.ai-select.outputs.reason }}
+          CONCLUSION:  ${{ steps.wait-smoke.outputs.conclusion }}
+          SMOKE_URL:   ${{ steps.wait-smoke.outputs.run_url }}
+          PR_NUMBER:   ${{ steps.pr-context.outputs.pr_number }}
+          HEAD_REF:    ${{ steps.pr-context.outputs.head_ref }}
+          BASE_REF:    ${{ steps.pr-context.outputs.base_ref }}
+        with:
+          script: |
+            const commentId  = parseInt(process.env.COMMENT_ID);
+            if (!commentId) { console.log('No comment ID — skipping update'); return; }
+
+            const plans      = (process.env.TEST_PLANS || '').split(',').filter(Boolean);
+            const reason     = process.env.REASON || '-';
+            const conclusion = process.env.CONCLUSION || 'unknown';
+            const smokeUrl   = process.env.SMOKE_URL || '';
+            const headRef    = process.env.HEAD_REF;
+            const baseRef    = process.env.BASE_REF;
+            const planList   = plans.map(p => `- \`${p}\``).join('\n');
+
+            const succeeded  = conclusion === 'success';
+            const icon       = succeeded ? '✅' : '❌';
+            const statusText = succeeded ? 'All tests passed' : `Tests ${conclusion}`;
+
+            const body = [
+              `## ${icon} VscUse Test Plan — ${statusText}`,
+              '',
+              `**Why these tests:** ${reason}`,
+              '',
+              `**Branch diff:** \`${headRef}\` → \`${baseRef}\``,
+              '',
+              '**Plans run:**',
+              planList,
+              '',
+              '---',
+              '| Step | Status |',
+              '|------|--------|',
+              '| 1️⃣ Build VSIX (CD) | ✅ Done |',
+              '| 2️⃣ Build Docker image | ✅ Done |',
+              `| 3️⃣ Run UI tests | ${icon} ${statusText} |`,
+              '',
+              smokeUrl ? `> 🔗 [Full pipeline results](${smokeUrl})` : '',
+              '',
+              '<details>',
+              '<summary>ℹ️ How were these tests selected?</summary>',
+              '',
+              'GitHub Copilot (GPT-4.1) analysed the PR title, description, and the diff between',
+              `\`${headRef}\` and \`${baseRef}\``,
+              `to pick the most relevant test plans from [\`packages/tests/vscuse/Index.md\`](../blob/${baseRef}/packages/tests/vscuse/Index.md).`,
+              '',
+              '</details>',
+            ].join('\n');
+
+            await github.rest.issues.updateComment({
+              owner:      context.repo.owner,
+              repo:       context.repo.repo,
+              comment_id: commentId,
+              body,
+            });
+
+            console.log(`Resolved comment ${commentId}: ${conclusion}`);
+            if (!succeeded && conclusion !== 'timed_out') {
+              core.setFailed(`VscUse tests concluded: ${conclusion}. See: ${smokeUrl}`);
+            }
+      # ── 9. Remove atk-vsuse-test label (signals completion) ───────────
+      - name: Remove atk-vsuse-test label
+        if: always()
+        uses: actions/github-script@v6
+        env:
+          PR_NUMBER: ${{ steps.pr-context.outputs.pr_number }}
+        with:
+          script: |
+            const prNumber = parseInt(process.env.PR_NUMBER);
+            if (!prNumber) { console.log('No PR number — skipping label removal'); return; }
+            try {
+              await github.rest.issues.removeLabel({
+                owner:        context.repo.owner,
+                repo:         context.repo.repo,
+                issue_number: prNumber,
+                name:         'atk-vsuse-test',
+              });
+              console.log(`Removed label 'atk-vsuse-test' from PR #${prNumber}`);
+            } catch (err) {
+              if (err.status === 404) {
+                console.log('Label not present, nothing to remove');
+              } else {
+                throw err;
+              }
+            }
+
+      # ── 9. Remove trigger label to indicate completion ────────────────
+      - name: Remove atk-vsuse-test label
+        if: always()
+        uses: actions/github-script@v6
+        env:
+          PR_NUMBER: ${{ steps.pr-context.outputs.pr_number }}
+        with:
+          script: |
+            const prNumber = parseInt(process.env.PR_NUMBER);
+            if (!prNumber) { console.log('No PR number — skipping label removal'); return; }
+            try {
+              await github.rest.issues.removeLabel({
+                owner:       context.repo.owner,
+                repo:        context.repo.repo,
+                issue_number: prNumber,
+                name:        'atk-vsuse-test',
+              });
+              console.log(`Removed label 'atk-vsuse-test' from PR #${prNumber}`);
+            } catch (err) {
+              if (err.status === 404) {
+                console.log('Label not present — nothing to remove');
+              } else {
+                throw err;
+              }
+            }

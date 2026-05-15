@@ -4,6 +4,10 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+overrides:
+  hono@<4.12.16: ^4.12.16
+  ip-address@<10.1.1: ^10.1.1
+
 dependencies:
   '@apidevtools/swagger-parser':
     specifier: ^10.1.0
@@ -54,7 +58,7 @@ dependencies:
     specifier: workspace:*
     version: link:../api
   '@modelcontextprotocol/sdk':
-    specifier: ^1.27.1
+    specifier: ^1.29.0
     version: 1.29.0(zod@4.3.6)
   adm-zip:
     specifier: ^0.5.10
@@ -1136,13 +1140,13 @@ packages:
       yargs: 17.7.2
     dev: false
 
-  /@hono/node-server@1.19.12(hono@4.12.11):
+  /@hono/node-server@1.19.12(hono@4.12.18):
     resolution: {integrity: sha512-txsUW4SQ1iilgE0l9/e9VQWmELXifEFvmdA1j6WFh/aFPj99hIntrSsq/if0UWyGVkmrRPKA1wCeP+UCr1B9Uw==}
     engines: {node: '>=18.14.1'}
     peerDependencies:
-      hono: ^4
+      hono: ^4.12.16
     dependencies:
-      hono: 4.12.11
+      hono: 4.12.18
     dev: false
 
   /@humanfs/core@0.19.1:
@@ -1578,7 +1582,7 @@ packages:
       '@cfworker/json-schema':
         optional: true
     dependencies:
-      '@hono/node-server': 1.19.12(hono@4.12.11)
+      '@hono/node-server': 1.19.12(hono@4.12.18)
       ajv: 8.18.0
       ajv-formats: 3.0.1(ajv@8.18.0)
       content-type: 1.0.5
@@ -1588,7 +1592,7 @@ packages:
       eventsource-parser: 3.0.6
       express: 5.2.1
       express-rate-limit: 8.3.2(express@5.2.1)
-      hono: 4.12.11
+      hono: 4.12.18
       jose: 6.2.2
       json-schema-typed: 8.0.2
       pkce-challenge: 5.0.1
@@ -4629,7 +4633,7 @@ packages:
       express: '>= 4.11'
     dependencies:
       express: 5.2.1
-      ip-address: 10.1.0
+      ip-address: 10.2.0
     dev: false
 
   /express@5.2.1:
@@ -5152,8 +5156,8 @@ packages:
     hasBin: true
     dev: true
 
-  /hono@4.12.11:
-    resolution: {integrity: sha512-r4xbIa3mGGGoH9nN4A14DOg2wx7y2oQyJEb5O57C/xzETG/qx4c7CVDQ5WMeKHZ7ORk2W0hZ/sQKXTav3cmYBA==}
+  /hono@4.12.18:
+    resolution: {integrity: sha512-RWzP96k/yv0PQfyXnWjs6zot20TqfpfsNXhOnev8d1InAxubW93L11/oNUc3tQqn2G0bSdAOBpX+2uDFHV7kdQ==}
     engines: {node: '>=16.9.0'}
     dev: false
 
@@ -5334,8 +5338,8 @@ packages:
     engines: {node: '>=10.13.0'}
     dev: true
 
-  /ip-address@10.1.0:
-    resolution: {integrity: sha512-XXADHxXmvT9+CRxhXg56LJovE+bmWnEWB78LB83VZTprKTmaC5QfruXocxzTZ2Kl0DNwKuBdlIhjL8LeY8Sf8Q==}
+  /ip-address@10.2.0:
+    resolution: {integrity: sha512-/+S6j4E9AHvW9SWMSEY9Xfy66O5PWvVEJ08O0y5JGyEKQpojb0K0GKpz/v5HJ/G0vi3D2sjGK78119oXZeE0qA==}
     engines: {node: '>= 12'}
     dev: false
 

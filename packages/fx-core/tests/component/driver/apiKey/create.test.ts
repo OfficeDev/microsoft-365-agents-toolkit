@@ -8,7 +8,7 @@ import chaiAsPromised from "chai-as-promised";
 import "mocha";
 import mockedEnv, { RestoreFn } from "mocked-env";
 import * as sinon from "sinon";
-import { teamsDevPortalClient } from "../../../../src/client/teamsDevPortalClient";
+import { teamsGraphClient } from "../../../../src/client/teamsGraphClient";
 import { setTools } from "../../../../src/common/globalVars";
 import { CreateApiKeyDriver } from "../../../../src/component/driver/apiKey/create";
 import {
@@ -59,7 +59,7 @@ describe("CreateApiKeyDriver", () => {
   });
 
   it("happy path: create registraionid, read domain from api spec, clientSecret from input", async () => {
-    sinon.stub(teamsDevPortalClient, "createApiKeyRegistration").resolves({
+    sinon.stub(teamsGraphClient, "createApiKeyRegistration").resolves({
       id: "mockedRegistrationId",
       clientSecrets: [],
       targetUrlsShouldStartWith: [],
@@ -107,7 +107,7 @@ describe("CreateApiKeyDriver", () => {
   });
 
   it("happy path: create registraionid, read domain from baseURL, clientSecret from input", async () => {
-    sinon.stub(teamsDevPortalClient, "createApiKeyRegistration").resolves({
+    sinon.stub(teamsGraphClient, "createApiKeyRegistration").resolves({
       id: "mockedRegistrationId",
       clientSecrets: [],
       targetUrlsShouldStartWith: [],
@@ -130,7 +130,7 @@ describe("CreateApiKeyDriver", () => {
   });
 
   it("should throw error if baseURL is not a valid https URL", async () => {
-    sinon.stub(teamsDevPortalClient, "createApiKeyRegistration").resolves({
+    sinon.stub(teamsGraphClient, "createApiKeyRegistration").resolves({
       id: "mockedRegistrationId",
       clientSecrets: [],
       targetUrlsShouldStartWith: [],
@@ -161,7 +161,7 @@ describe("CreateApiKeyDriver", () => {
   });
 
   it("should throw error if baseURL and apiSpecPath are both missing", async () => {
-    sinon.stub(teamsDevPortalClient, "createApiKeyRegistration").resolves({
+    sinon.stub(teamsGraphClient, "createApiKeyRegistration").resolves({
       id: "mockedRegistrationId",
       clientSecrets: [],
       targetUrlsShouldStartWith: [],
@@ -187,7 +187,7 @@ describe("CreateApiKeyDriver", () => {
       .stub(featureFlagManager, "getBooleanValue")
       .withArgs(FeatureFlags.KiotaNPMIntegration)
       .returns(false);
-    sinon.stub(teamsDevPortalClient, "createApiKeyRegistration").resolves({
+    sinon.stub(teamsGraphClient, "createApiKeyRegistration").resolves({
       id: "mockedRegistrationId",
       clientSecrets: [],
       targetUrlsShouldStartWith: [],
@@ -235,7 +235,7 @@ describe("CreateApiKeyDriver", () => {
       .stub(featureFlagManager, "getBooleanValue")
       .withArgs(FeatureFlags.KiotaNPMIntegration)
       .returns(false);
-    sinon.stub(teamsDevPortalClient, "createApiKeyRegistration").resolves({
+    sinon.stub(teamsGraphClient, "createApiKeyRegistration").resolves({
       id: "mockedRegistrationId",
       clientSecrets: [],
       targetUrlsShouldStartWith: [],
@@ -280,7 +280,7 @@ describe("CreateApiKeyDriver", () => {
   });
 
   it("happy path: registration id exists in env", async () => {
-    sinon.stub(teamsDevPortalClient, "getApiKeyRegistrationById").resolves({
+    sinon.stub(teamsGraphClient, "getApiKeyRegistrationById").resolves({
       id: "mockedRegistrationId",
       clientSecrets: [],
       targetUrlsShouldStartWith: [],
@@ -309,20 +309,18 @@ describe("CreateApiKeyDriver", () => {
       .stub(featureFlagManager, "getBooleanValue")
       .withArgs(FeatureFlags.KiotaNPMIntegration)
       .returns(false);
-    sinon
-      .stub(teamsDevPortalClient, "createApiKeyRegistration")
-      .callsFake(async (token, apiKey) => {
-        expect(apiKey.targetAudience).equals(ApiSecretRegistrationTargetAudience.HomeTenant);
-        expect(apiKey.specificAppId).equals("mockedAppId");
-        expect(apiKey.applicableToApps).equals(ApiSecretRegistrationAppType.SpecificApp);
-        return {
-          id: "mockedRegistrationId",
-          clientSecrets: [],
-          targetUrlsShouldStartWith: [],
-          applicableToApps: ApiSecretRegistrationAppType.AnyApp,
-          targetAudience: ApiSecretRegistrationTargetAudience.AnyTenant,
-        };
-      });
+    sinon.stub(teamsGraphClient, "createApiKeyRegistration").callsFake(async (token, apiKey) => {
+      expect(apiKey.targetAudience).equals(ApiSecretRegistrationTargetAudience.HomeTenant);
+      expect(apiKey.specificAppId).equals("mockedAppId");
+      expect(apiKey.applicableToApps).equals(ApiSecretRegistrationAppType.SpecificApp);
+      return {
+        id: "mockedRegistrationId",
+        clientSecrets: [],
+        targetUrlsShouldStartWith: [],
+        applicableToApps: ApiSecretRegistrationAppType.AnyApp,
+        targetAudience: ApiSecretRegistrationTargetAudience.AnyTenant,
+      };
+    });
     sinon.stub(SpecParser.prototype, "list").resolves({
       APIs: [
         {
@@ -361,7 +359,7 @@ describe("CreateApiKeyDriver", () => {
   });
 
   it("happy path: create registraionid, read domain from api spec, clientSecret from input with invalid api", async () => {
-    sinon.stub(teamsDevPortalClient, "createApiKeyRegistration").resolves({
+    sinon.stub(teamsGraphClient, "createApiKeyRegistration").resolves({
       id: "mockedRegistrationId",
       clientSecrets: [],
       targetUrlsShouldStartWith: [],
@@ -439,7 +437,7 @@ describe("CreateApiKeyDriver", () => {
 
   it("should show warning if registration id exists and failed to get API key", async () => {
     sinon
-      .stub(teamsDevPortalClient, "getApiKeyRegistrationById")
+      .stub(teamsGraphClient, "getApiKeyRegistrationById")
       .throws(new SystemError("source", "name", "message"));
 
     const args: any = {
@@ -799,7 +797,7 @@ describe("CreateApiKeyDriver", () => {
       .withArgs(FeatureFlags.KiotaNPMIntegration)
       .returns(false);
     sinon
-      .stub(teamsDevPortalClient, "createApiKeyRegistration")
+      .stub(teamsGraphClient, "createApiKeyRegistration")
       .throws(new SystemError("source", "name", "message"));
 
     sinon.stub(SpecParser.prototype, "list").resolves({
@@ -852,7 +850,7 @@ describe("CreateApiKeyDriver", () => {
   });
 
   it("should throw error if invalid applicableToApps and targetAudience", async () => {
-    sinon.stub(teamsDevPortalClient, "createApiKeyRegistration").resolves({
+    sinon.stub(teamsGraphClient, "createApiKeyRegistration").resolves({
       id: "mockedRegistrationId",
       clientSecrets: [],
       targetUrlsShouldStartWith: [],
@@ -898,7 +896,7 @@ describe("CreateApiKeyDriver", () => {
   });
 
   it("should throw error if user cancel", async () => {
-    sinon.stub(teamsDevPortalClient, "createApiKeyRegistration").resolves({
+    sinon.stub(teamsGraphClient, "createApiKeyRegistration").resolves({
       id: "mockedRegistrationId",
       clientSecrets: [],
       targetUrlsShouldStartWith: [],

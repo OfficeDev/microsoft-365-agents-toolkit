@@ -1,0 +1,22 @@
+﻿name: ATK Copilot Test - Issue Label Trigger
+
+on:
+  issues:
+    types: [labeled]
+
+permissions:
+  contents: write
+  actions: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  trigger-test:
+    if: github.event.label.name == 'atk-copilot-test'
+    name: Trigger Copilot-driven ATK test for issue
+    uses: ./.github/workflows/atk-copilot-test-runner.yml
+    with:
+      issue_number: ${{ github.event.issue.number }}
+      author_login: ${{ github.event.sender.login }}
+    secrets:
+      COPILOT_CLI_RUNNER_TOKEN: ${{ secrets.COPILOT_CLI_RUNNER_TOKEN }}

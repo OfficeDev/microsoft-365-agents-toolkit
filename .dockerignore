@@ -1,0 +1,38 @@
+# Ignore everything that the Dockerfile does NOT COPY.
+# The Dockerfile copies only from: packages/tests/copilot-test/
+node_modules
+**/node_modules
+.git
+.github
+out
+dist
+coverage
+*.vsix
+*.log
+test-screenshots
+test-output
+
+# Exclude all packages except copilot-test
+packages/adaptivecards-tools-sdk
+packages/api
+packages/cli
+packages/dotnet-sdk
+packages/eslint-plugin-teamsfx
+packages/extra-shot-mocha
+packages/function-extension
+packages/fx-core
+packages/manifest
+packages/mcp-server
+packages/metrics-ts
+packages/prettier-config
+packages/sdk
+packages/sdk-react
+packages/server
+packages/simpleauth
+packages/spec-parser
+packages/vscode-extension
+packages/vscode-ui
+# Exclude the rest of packages/tests (only copilot-test subdir is needed)
+packages/tests/e2e-test
+packages/tests/src
+packages/tests/node_modules

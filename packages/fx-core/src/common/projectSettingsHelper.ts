@@ -117,9 +117,6 @@ export function isOfficeMetaOsAddInManifest(inputFileName: string): boolean {
 }
 
 export function isValidProjectV3(workspacePath: string): boolean {
-  if (isValidOfficeAddInProject(workspacePath)) {
-    return false;
-  }
   for (const ymlFilaName of YamlFileNames) {
     const ymlFilePath = path.join(workspacePath, ymlFilaName);
     if (fs.pathExistsSync(ymlFilePath)) {

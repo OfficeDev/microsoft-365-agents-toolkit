@@ -69,6 +69,7 @@ export type ExternalSource =
   | "Graph"
   | "Azure"
   | "Teams"
+  | "TeamsGraph"
   | "BotFx"
   | "SPFx"
   | "DevTools"
