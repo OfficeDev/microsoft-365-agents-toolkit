@@ -57,9 +57,7 @@ jobs:
         if: always()
         run: |
           if [ -f evals/results/baseline.json ] && [ -f evals/results/latest.json ]; then
-            set +e
-            waza compare evals/results/baseline.json evals/results/latest.json -f json > evals/results/compare.json
-            set -e
+            node evals/results/generate-compare-json.js
           else
             echo "## Waza Comparison Report" > evals/results/compare.md
             echo >> evals/results/compare.md
@@ -73,9 +71,9 @@ jobs:
         if: always()
         run: node evals/results/generate-compare-markdown.js
 
-      - name: Install PR comment dependencies
-        if: always() && github.event_name == 'pull_request'
-        run: npm install --no-save @actions/core @actions/github
+      - name: Generate comparison dashboard
+        if: always()
+        run: node evals/results/generate-compare-dashboard.js
 
       - name: Post comparison comment on PR
         if: always() && github.event_name == 'pull_request'
