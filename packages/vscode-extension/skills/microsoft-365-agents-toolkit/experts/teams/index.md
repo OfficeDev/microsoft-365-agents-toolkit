@@ -133,6 +133,12 @@ Read:
 - `dev.debug-test-ts.md`
 - `project.scaffold-files-ts.md` (for npm scripts and build verification)
 
+### Dev: Automated Integration Testing (playground-cli)
+When: automated tests, CI pipeline tests, programmatic bot testing, `@microsoft/m365agentsplayground-cli`, `TestClient`, `ConversationServer`, `sendMessage`, `run-conversation`, headless bot testing, integration test, multi-turn test, turn_type, personas, streaming test
+Read:
+- `dev.playground-cli-ts.md`
+- `dev.debug-test-ts.md` (for local dev environment setup — bot must be running before tests)
+
 ### Scaffolding
 When: new project, file structure, folder layout, boilerplate, starter template
 Read:
@@ -186,6 +192,7 @@ If a request spans multiple clusters (e.g., "add a function-calling tool that re
 
 ## file inventory
 
-`a2a.client-basics-ts.md` | `a2a.orchestrator-patterns-ts.md` | `a2a.server-basics-ts.md` | `ai.chatprompt-basics-ts.md` | `ai.citations-feedback-ts.md` | `ai.function-calling-design-ts.md` | `ai.function-calling-implementation-ts.md` | `ai.memory-localmemory-ts.md` | `ai.model-setup-ts.md` | `ai.rag-retrieval-ts.md` | `ai.rag-vectorstores-ts.md` | `ai.streaming-ts.md` | `auth.oauth-sso-ts.md` | `compat.botbuilder-interop-ts.md` | `dev.debug-test-ts.md` | `graph.usergraph-appgraph-ts.md` | `mcp.client-basics-ts.md` | `mcp.expose-chatprompt-tools-ts.md` | `mcp.security-ts.md` | `mcp.server-basics-ts.md` | `project.scaffold-files-ts.md` | `runtime.app-init-ts.md` | `runtime.manifest-ts.md` | `runtime.proactive-messaging-ts.md` | `runtime.routing-handlers-ts.md` | `state.storage-patterns-ts.md` | `teams-dotnet.md` | `teams-python.md` | `toolkit.environments.md` | `toolkit.lifecycle-cli.md` | `toolkit.playground-ts.md` | `toolkit.publish.md` | `ui.adaptive-cards-ts.md` | `ui.dialogs-task-modules-ts.md` | `ui.message-extensions-ts.md`
+`a2a.client-basics-ts.md` | `a2a.orchestrator-patterns-ts.md` | `a2a.server-basics-ts.md` | `ai.chatprompt-basics-ts.md` | `ai.citations-feedback-ts.md` | `ai.function-calling-design-ts.md` | `ai.function-calling-implementation-ts.md` | `ai.memory-localmemory-ts.md` | `ai.model-setup-ts.md` | `ai.rag-retrieval-ts.md` | `ai.rag-vectorstores-ts.md` | `ai.streaming-ts.md` | `auth.oauth-sso-ts.md` | `compat.botbuilder-interop-ts.md` | `dev.debug-test-ts.md` | `dev.playground-cli-ts.md` | `graph.usergraph-appgraph-ts.md` | `mcp.client-basics-ts.md` | `mcp.expose-chatprompt-tools-ts.md` | `mcp.security-ts.md` | `mcp.server-basics-ts.md` | `project.scaffold-files-ts.md` | `runtime.app-init-ts.md` | `runtime.manifest-ts.md` | `runtime.proactive-messaging-ts.md` | `runtime.routing-handlers-ts.md` | `state.storage-patterns-ts.md` | `teams-dotnet.md` | `teams-python.md` | `toolkit.environments.md` | `toolkit.lifecycle-cli.md` | `toolkit.playground-ts.md` | `toolkit.publish.md` | `ui.adaptive-cards-ts.md` | `ui.dialogs-task-modules-ts.md` | `ui.message-extensions-ts.md`
 
 <!-- Updated 2026-03-01: Added 4 Agents Toolkit experts (lifecycle-cli, environments, playground, publish) and 5 Slack CLI experts to slack/ domain -->
+<!-- Updated 2026-05-15: Added dev.playground-cli-ts.md — programmatic integration testing with @microsoft/m365agentsplayground-cli (TestClient, ConversationServer, turn types, personas, streaming) -->

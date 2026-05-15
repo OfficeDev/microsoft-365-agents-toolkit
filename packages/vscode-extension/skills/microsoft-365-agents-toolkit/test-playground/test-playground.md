@@ -142,3 +142,4 @@ You can use environment variables instead of CLI options:
 |---|---|
 | Playground rules, `.m365agentsplayground.yml`, channel emulation, activity simulation | [../toolkit/playground.md](../toolkit/playground.md) |
 | `DevtoolsPlugin`, ConsoleLogger, `skipAuth`, `tsx watch`, build verification | [../experts/teams/dev.debug-test-ts.md](../experts/teams/dev.debug-test-ts.md) |
+| Automated/CI testing with `@microsoft/m365agentsplayground-cli` (`TestClient`, `ConversationServer`, turn types, personas) | [../experts/teams/dev.playground-cli-ts.md](../experts/teams/dev.playground-cli-ts.md) |
