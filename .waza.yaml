@@ -3,7 +3,7 @@
 paths:
   skills: packages/vscode-extension/skills/
   evals: evals/
-  results: results/
+  results: evals/results/
 defaults:
   engine: copilot-sdk
   model: claude-sonnet-4.6
@@ -17,7 +17,7 @@ cache:
   dir: .waza-cache
 server:
   port: 3000
-  resultsDir: results/
+  resultsDir: evals/results/
 dev:
   model: claude-sonnet-4-20250514
   target: medium-high

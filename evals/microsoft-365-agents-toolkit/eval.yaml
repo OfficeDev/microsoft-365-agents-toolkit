@@ -5,9 +5,10 @@ description: Auto-generated eval for microsoft-365-agents-toolkit.
 skill: microsoft-365-agents-toolkit
 version: "1.0"
 config:
-  trials_per_task: 1
+  trials_per_task: 2
+  max_attempts: 2
   timeout_seconds: 500
-  parallel: false
+  parallel: true
   executor: copilot-sdk
   model: claude-sonnet-4.6
 metrics:
