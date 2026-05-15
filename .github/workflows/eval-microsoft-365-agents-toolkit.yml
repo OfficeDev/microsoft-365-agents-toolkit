@@ -14,6 +14,7 @@ permissions:
 
 jobs:
   evaluate:
+    if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     timeout-minutes: 120
     steps:
@@ -112,7 +113,7 @@ jobs:
               echo "No changes to commit"
               exit 0
             fi
-            git commit -m "chore: update baseline from latest eval results (PR sync)"
+            git commit -m "chore: update baseline from latest eval results (PR sync) [skip ci]"
             git pull --rebase origin $BRANCH
             git push origin HEAD:$BRANCH
           fi
