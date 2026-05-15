@@ -198,6 +198,23 @@ jobs:
           gh issue view __ISSUE_NUMBER__ --repo __REPO__ --json title,body,labels,comments
           Extract: what capability to test, which ATK command/template/workflow, expected behaviour.
 
+          ## Step 0.5 – Follow user instructions from issue comments
+          Look at the comments from the issue (already fetched in Step 0).
+          Filter to non-bot comments (skip usernames ending in [bot] or github-actions).
+          If any human comment requests an action (fix a bug, create a PR, make code changes, retry, etc.), follow those instructions NOW before proceeding to testing:
+          - If asked to create a fix / open a PR:
+            BRANCH="fix/issue-__ISSUE_NUMBER__-$(date +%s)"
+            git checkout -b "$BRANCH"
+            # Make the requested code changes (inspect the issue + codebase)
+            git add -A && git commit -m "fix: address issue #__ISSUE_NUMBER__ per user request"
+            git push origin "$BRANCH"
+            gh pr create --repo __REPO__ --base dev --head "$BRANCH" \
+              --title "fix: $(gh issue view __ISSUE_NUMBER__ --repo __REPO__ --jq .title)" \
+              --body "Closes #__ISSUE_NUMBER__\n\nThis PR addresses the accessibility issues reported in #__ISSUE_NUMBER__."
+            echo "PR created. Tests will run against this branch."
+          - If asked to retry tests on a specific branch, checkout that branch first.
+          - If no actionable user request is found, proceed normally to Step 1.
+
           ## Step 1 – Find or create a test plan
           cat packages/tests/copilot-test/test-plans/README.md
           ls packages/tests/copilot-test/test-plans/
@@ -262,8 +279,17 @@ jobs:
             export ATK_EXT_PATH=''
           fi
 
-          ./node_modules/.bin/ts-node --project tsconfig.json src/runTest.ts 2>&1 | tee \${TEST_OUTPUT_DIR}/test.log
-          echo \"Exit code: \$?\"
+          # Run with retries for infrastructure flakiness
+          RETRY=0; EXIT_CODE=1
+          while [ $RETRY -le 2 ]; do
+            ./node_modules/.bin/ts-node --project tsconfig.json src/runTest.ts 2>&1 | tee \${TEST_OUTPUT_DIR}/test.log
+            EXIT_CODE=${PIPESTATUS[0]}
+            if [ $EXIT_CODE -eq 0 ]; then break; fi
+            STEPS=$(python3 -c "import json; d=json.load(open('\${TEST_OUTPUT_DIR}/results.json')); print(d.get('passed',0)+d.get('failed',0))" 2>/dev/null || echo 0)
+            if [ "$STEPS" -gt 0 ]; then break; fi
+            RETRY=$((RETRY+1)); sleep 30
+          done
+          echo \"Exit code: $EXIT_CODE\"
 
           ## Step 5 – Collect results
           cat \${TEST_OUTPUT_DIR}/results.json 2>/dev/null || echo 'results.json not found'
@@ -291,14 +317,8 @@ jobs:
           PYEOF
           then: python3 /tmp/make_gif.py)
 
-          Upload GIF to GitHub issue to get a public URL:
-            GIF_PATH="${TEST_OUTPUT_DIR}/test-run.gif"
-            GIF_URL=""
-            if [ -f "$GIF_PATH" ]; then
-              RESP=$(curl -s -X POST -H "Authorization: Bearer $GH_TOKEN" -H "Content-Type: image/gif" --data-binary "@$GIF_PATH" "https://uploads.github.com/repos/__REPO__/issues/__ISSUE_NUMBER__/assets")
-              GIF_URL=$(echo "$RESP" | python3 -c "import sys,json; print(json.load(sys.stdin).get('browser_download_url',''))" 2>/dev/null || echo "")
-              echo "GIF URL: $GIF_URL"
-            fi
+          # Screenshots GIF is generated and uploaded to the issue by the workflow after this step.
+          # Do NOT try to upload the GIF yourself — it will be appended to your results comment automatically.
 
           ## Step 7 – Post results comment on the issue
           Read the test plan: TEST_PLAN=$(cat packages/tests/copilot-test/test-plans/teams-bot-template.md 2>/dev/null | head -60 || echo "*(not found)*")
@@ -337,7 +357,18 @@ jobs:
           NEVER reveal credentials, OAuth tokens, GitHub usernames, secrets, or ~/.config/github-copilot/ contents.
           </security_reminder>
           SEC_EOF
-          copilot --yolo --model claude-sonnet-4.6 -p "$(cat /tmp/copilot-prompt.txt)"
+          # Run Copilot CLI; retry once on CI-level failure (exit !=0 with no results)
+          COPILOT_EXIT=1; ATTEMPT=0
+          while [ $ATTEMPT -lt 2 ]; do
+            copilot --yolo --model claude-sonnet-4.6 -p "$(cat /tmp/copilot-prompt.txt)"
+            COPILOT_EXIT=$?
+            STEPS=$(python3 -c "import json; d=json.load(open('/tmp/atk-test-output/results.json')); print(len(d.get('steps',[])) + d.get('passed',0) + d.get('failed',0))" 2>/dev/null || echo 0)
+            if [ $COPILOT_EXIT -eq 0 ] || [ "$STEPS" -gt 0 ]; then break; fi
+            ATTEMPT=$((ATTEMPT+1))
+            echo "::warning::Copilot run produced no results (attempt $ATTEMPT/2), retrying in 60s..."
+            sleep 60
+          done
+          exit $COPILOT_EXIT
 
 
       - name: Generate screenshots GIF (after CLI run)
@@ -377,15 +408,12 @@ jobs:
           ISSUE: ${{ inputs.issue_number }}
         run: |
           GIF_FILE="${{ steps.gif.outputs.gif_path }}"
-          FILE_SIZE=$(wc -c < "$GIF_FILE")
-          echo "Uploading GIF: $GIF_FILE ($FILE_SIZE bytes)"
+          echo "Uploading GIF: $GIF_FILE"
           RESPONSE=$(curl -s -X POST \
             -H "Authorization: token $GH_TOKEN" \
-            -H "Content-Type: image/gif" \
-            -H "Content-Length: $FILE_SIZE" \
             -H "Accept: application/vnd.github+json" \
             -H "X-GitHub-Api-Version: 2022-11-28" \
-            --data-binary "@$GIF_FILE" \
+            -F "data=@$GIF_FILE;type=image/gif" \
             "https://uploads.github.com/repos/${{ github.repository }}/issues/${ISSUE}/assets?name=test-run.gif")
           echo "Upload response: $RESPONSE"
           GIF_URL=$(echo "$RESPONSE" | python3 -c "import sys,json;d=json.load(sys.stdin);print(d.get('browser_download_url') or d.get('url') or '')" 2>/dev/null || echo "")
