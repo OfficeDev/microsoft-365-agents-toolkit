@@ -39,25 +39,29 @@ if (fs.existsSync(jsonPath)) {
 if (parsed !== undefined && parsed && typeof parsed === "object") {
   // Summary table with Baseline and Latest columns
   const summaryRows = [];
-  
-  if (Array.isArray(parsed.aggregate_scores) && parsed.aggregate_scores.length >= 2) {
+
+  if (
+    Array.isArray(parsed.aggregate_scores) &&
+    parsed.aggregate_scores.length >= 2
+  ) {
     summaryRows.push(
-      `| Aggregate Score | ${formatFloat(parsed.aggregate_scores[0])} | ${formatFloat(parsed.aggregate_scores[1])} | ${formatDelta(parsed.aggregate_score_delta)} |`
+      `| Aggregate Score | ${formatFloat(parsed.aggregate_scores[0])} | ${formatFloat(parsed.aggregate_scores[1])} | ${formatDelta(parsed.aggregate_score_delta)} |`,
     );
   }
-  
+
   if (Array.isArray(parsed.success_rates) && parsed.success_rates.length >= 2) {
     summaryRows.push(
-      `| Success Rate | ${formatFloat(parsed.success_rates[0])} | ${formatFloat(parsed.success_rates[1])} | ${formatDelta(parsed.success_rate_delta)} |`
+      `| Success Rate | ${formatFloat(parsed.success_rates[0])} | ${formatFloat(parsed.success_rates[1])} | ${formatDelta(parsed.success_rate_delta)} |`,
     );
   }
 
   if (Array.isArray(parsed.durations_ms) && parsed.durations_ms.length >= 2) {
-    const durationDelta = parsed.duration_delta_ms !== undefined 
-      ? parsed.duration_delta_ms 
-      : (parsed.durations_ms[1] - parsed.durations_ms[0]);
+    const durationDelta =
+      parsed.duration_delta_ms !== undefined
+        ? parsed.duration_delta_ms
+        : parsed.durations_ms[1] - parsed.durations_ms[0];
     summaryRows.push(
-      `| Duration (ms) | ${parsed.durations_ms[0]} | ${parsed.durations_ms[1]} | ${formatDelta(durationDelta)} |`
+      `| Duration (ms) | ${parsed.durations_ms[0]} | ${parsed.durations_ms[1]} | ${formatDelta(durationDelta)} |`,
     );
   }
 
@@ -72,32 +76,38 @@ if (parsed !== undefined && parsed && typeof parsed === "object") {
   // Task Deltas table
   if (Array.isArray(parsed.task_deltas) && parsed.task_deltas.length > 0) {
     md += "### Task Results\n\n";
-    md += "| Task | Score (Baseline → Latest) | Pass Rate (Baseline → Latest) | Status |\n";
+    md +=
+      "| Task | Score (Baseline → Latest) | Pass Rate (Baseline → Latest) | Status |\n";
     md += "| --- | --- | --- | --- |\n";
 
     parsed.task_deltas.forEach((task) => {
-      const taskName = escapeCell(task.display_name || task.task_id || "Unknown");
+      const taskName = escapeCell(
+        task.display_name || task.task_id || "Unknown",
+      );
       const baselineScore = formatFloat(task.scores?.[0] ?? "—");
       const latestScore = formatFloat(task.scores?.[1] ?? "—");
       const scoreStr = `${baselineScore} → ${latestScore}`;
-      
+
       const baselinePassRate = formatFloat(task.pass_rates?.[0] ?? "—");
       const latestPassRate = formatFloat(task.pass_rates?.[1] ?? "—");
       const passRateStr = `${baselinePassRate} → ${latestPassRate}`;
-      
+
       const baselineStatus = task.statuses?.[0] ?? "—";
       const latestStatus = task.statuses?.[1] ?? "—";
-      const statusStr = baselineStatus === latestStatus 
-        ? `✓ ${baselineStatus}` 
-        : `${baselineStatus} → ${latestStatus}`;
+      const statusStr =
+        baselineStatus === latestStatus
+          ? `✓ ${baselineStatus}`
+          : `${baselineStatus} → ${latestStatus}`;
 
       md += `| ${taskName} | ${scoreStr} | ${passRateStr} | ${statusStr} |\n`;
     });
     md += "\n";
   }
 
-  if (summaryRows.length === 0 && 
-      (!Array.isArray(parsed.task_deltas) || parsed.task_deltas.length === 0)) {
+  if (
+    summaryRows.length === 0 &&
+    (!Array.isArray(parsed.task_deltas) || parsed.task_deltas.length === 0)
+  ) {
     md += "No comparison data found.\n";
   }
 } else if (parsed === undefined) {
