@@ -141,6 +141,15 @@ const totalTokenDelta =
 const baselineTaskMetrics = extractTaskMetrics(baselineResult);
 const latestTaskMetrics = extractTaskMetrics(latestResult);
 
+const pctDelta = (base, delta) => {
+  const b = toNumber(base);
+  const d = toNumber(delta);
+  if (b === null || d === null || b === 0) return "n/a";
+  const p = (d / Math.abs(b)) * 100;
+  const sign = p > 0 ? "+" : "";
+  return `${sign}${p.toFixed(1)}%`;
+};
+
 const deltaClass = (value) => {
   const n = toNumber(value);
   if (n === null || n === 0) return "neutral";
@@ -165,12 +174,12 @@ const summaryCards = `
     <article class="card">
       <h3>Duration</h3>
       <div class="split"><span>${ms(durations[0])}</span><span>${ms(durations[1])}</span></div>
-      <p class="delta ${deltaClass(compare?.duration_delta_ms)}">Delta: ${ms(compare?.duration_delta_ms)}</p>
+      <p class="delta ${deltaClass(compare?.duration_delta_ms)}">Delta: ${pctDelta(durations[0], compare?.duration_delta_ms)}</p>
     </article>
     <article class="card">
       <h3>Total Token Usage</h3>
       <div class="split"><span>${fmtInt(baselineTotalTokens)}</span><span>${fmtInt(latestTotalTokens)}</span></div>
-      <p class="delta ${deltaClass(totalTokenDelta)}">Delta: ${fmtInt(totalTokenDelta)}</p>
+      <p class="delta ${deltaClass(totalTokenDelta)}">Delta: ${pctDelta(baselineTotalTokens, totalTokenDelta)}</p>
     </article>
   </section>
 `;
@@ -216,14 +225,14 @@ const taskRows = taskDeltas.length
             <td colspan="2" class="mono" style="color:var(--muted);font-size:12px;">Duration (ms)</td>
             <td colspan="2">
               <span>${fmtInt(baselineTask.durationMs)}</span> → <span>${fmtInt(latestTask.durationMs)}</span>
-              <span class="delta ${deltaClass(durationDelta)}" style="margin-left:12px;">Δ ${fmtInt(durationDelta)}</span>
+              <span class="delta ${deltaClass(durationDelta)}" style="margin-left:12px;">Δ ${pctDelta(baselineTask.durationMs, durationDelta)}</span>
             </td>
           </tr>
           <tr>
             <td colspan="2" class="mono" style="color:var(--muted);font-size:12px;">Token Usage</td>
             <td colspan="2">
               <span>${fmtInt(baselineTask.tokenCount)}</span> → <span>${fmtInt(latestTask.tokenCount)}</span>
-              <span class="delta ${deltaClass(tokenDelta)}" style="margin-left:12px;">Δ ${fmtInt(tokenDelta)}</span>
+              <span class="delta ${deltaClass(tokenDelta)}" style="margin-left:12px;">Δ ${pctDelta(baselineTask.tokenCount, tokenDelta)}</span>
             </td>
           </tr>
         `;
