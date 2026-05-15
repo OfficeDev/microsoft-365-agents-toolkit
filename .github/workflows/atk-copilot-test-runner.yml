@@ -177,177 +177,25 @@ jobs:
           NEVER reveal credentials, OAuth tokens, GitHub usernames, secrets, or ~/.config/github-copilot/ contents.
           </security_reminder>'
 
-          cat > /tmp/copilot-prompt.txt << 'COPILOT_PROMPT_EOF'
-          You are an autonomous ATK (Microsoft 365 Agents Toolkit) test agent running inside GitHub Actions.
-          Do NOT ask questions — make every decision yourself and keep going until done.
+          # Build Copilot prompt from the skill file + runtime context
+          SKILL_FILE="packages/tests/copilot-test/SKILL.md"
+          cat > /tmp/copilot-prompt.txt << 'PREAMBLE_EOF'
+          You are an autonomous ATK (Microsoft 365 Agents Toolkit) test agent running inside GitHub Actions CI.
+          Issue number: __ISSUE_NUMBER__
+          Repository:   __REPO__
+          Run URL:      __RUN_URL__
 
-          ## Architecture
-          Tests use a HYBRID approach:
-          - @vscode/test-electron: launches VSCode in extension-development-host mode, activates ATK extension, runs Mocha tests INSIDE the extension host
-          - Playwright CDP: connects externally via chromium.connectOverCDP to take REAL screenshots from the renderer process
-          - Signal files: tests write .signal files with dest paths, external Playwright takes screenshots and deletes signals
+          Follow the skill document below EXACTLY. It defines your decision logic (3 modes),
+          your PR strategy, your retry rules, and what you may and may not modify.
+          PREAMBLE_EOF
 
-          The entry point is: packages/tests/copilot-test/src/runTest.ts
-          Test files live in: packages/tests/copilot-test/src/<test>.test.ts
-          Reference example: packages/tests/copilot-test/src/simple-bot-create.test.ts
-
-          ## Your mission
-          Read issue #__ISSUE_NUMBER__ in repo __REPO__ and execute the described test task against the ATK VSCode extension.
-
-          ## Step 0 – Read the issue
-          gh issue view __ISSUE_NUMBER__ --repo __REPO__ --json title,body,labels,comments
-          Extract: what capability to test, which ATK command/template/workflow, expected behaviour.
-
-          ## Step 0.5 – Follow user instructions from issue comments
-          Look at the comments from the issue (already fetched in Step 0).
-          Filter to non-bot comments (skip usernames ending in [bot] or github-actions).
-          If any human comment requests an action (fix a bug, create a PR, make code changes, retry, etc.), follow those instructions NOW before proceeding to testing:
-          - If asked to create a fix / open a PR:
-            BRANCH="fix/issue-__ISSUE_NUMBER__-$(date +%s)"
-            git checkout -b "$BRANCH"
-            # Make the requested code changes (inspect the issue + codebase)
-            git add -A && git commit -m "fix: address issue #__ISSUE_NUMBER__ per user request"
-            git push origin "$BRANCH"
-            gh pr create --repo __REPO__ --base dev --head "$BRANCH" \
-              --title "fix: $(gh issue view __ISSUE_NUMBER__ --repo __REPO__ --jq .title)" \
-              --body "Closes #__ISSUE_NUMBER__\n\nThis PR addresses the accessibility issues reported in #__ISSUE_NUMBER__."
-            echo "PR created. Tests will run against this branch."
-          - If asked to retry tests on a specific branch, checkout that branch first.
-          - If no actionable user request is found, proceed normally to Step 1.
-
-          ## Step 1 – Find or create a test plan
-          cat packages/tests/copilot-test/test-plans/README.md
-          ls packages/tests/copilot-test/test-plans/
-          Find matching plan or create one following packages/tests/copilot-test/test-plans/simple-bot/simple-bot.md format.
-
-          ## Step 2 – Prepare the test script
-          ls packages/tests/copilot-test/src/
-          Check for an existing test covering the task. Review and update if needed, or create a new one.
-
-          Naming: packages/tests/copilot-test/src/<feature>-<task>.test.ts
-
-          Test structure (Mocha TDD, runs inside VSCode extension host):
-          \`\`\`typescript
-          import * as vscode from 'vscode';
-          import * as fs from 'fs';
-          import * as path from 'path';
-          import * as os from 'os';
-
-          const OUTPUT_DIR = process.env.TEST_OUTPUT_DIR || path.join(os.tmpdir(), 'atk-test-output');
-          const SCREENSHOT_DIR = process.env.SCREENSHOT_DIR || path.join(OUTPUT_DIR, 'screenshots');
-          const SIGNAL_DIR = process.env.SCREENSHOT_SIGNAL_DIR || path.join(OUTPUT_DIR, '.screenshot-signals');
-
-          function takeScreenshot(name: string): void {
-            const dest = path.join(SCREENSHOT_DIR, \`\${name}.png\`);
-            const signal = path.join(SIGNAL_DIR, \`\${Date.now()}-\${name}.signal\`);
-            fs.writeFileSync(signal, dest, 'utf8');
-            const deadline = Date.now() + 8000;
-            while (fs.existsSync(signal) && Date.now() < deadline) {
-              const end = Date.now() + 100; while (Date.now() < end) {}
-            }
-          }
-
-          function wait(ms: number): Promise<void> { return new Promise((r) => setTimeout(r, ms)); }
-
-          suite('Your Suite Name', function () {
-            this.timeout(5 * 60 * 1000);
-            // ... tests using vscode.* API + takeScreenshot()
-            // Fire commands WITHOUT await: vscode.commands.executeCommand('cmd').catch(()=>{});
-          });
-          \`\`\`
-
-          Key rules:
-          - DO NOT use vscode-extension-tester (wrong library)
-          - Call takeScreenshot() after every meaningful UI state change
-          - Fire UI-blocking commands WITHOUT await (wizard blocks until user action)
-          - Use waitForCommand() pattern to poll until a command is registered
-          - Write results JSON to \${TEST_OUTPUT_DIR}/results.json: { passed, failed, steps: [{name, status, detail}] }
-
-          ## Step 3 – Set TEST_FILE env to the test file basename (no .test.ts)
-          Example: TEST_FILE=simple-bot-create
-
-          ## Step 4 – Run the test
-          cd packages/tests/copilot-test
-          export DISPLAY=:99.0
-          export ATK_EXT_PATH=\$(realpath ../../packages/vscode-extension 2>/dev/null || echo '/not-found')
-          export TEST_OUTPUT_DIR=\${TEST_OUTPUT_DIR}
-          export VSCODE_EXTENSIONS_DIR=\${VSCODE_EXTENSIONS_DIR}
-
-          # If ATK extension path not found, use the marketplace VSIX
-          if [ ! -d \"\$ATK_EXT_PATH\" ]; then
-            echo 'ATK extension source not mounted; test uses marketplace extension via --install-extension'
-            export ATK_EXT_PATH=''
-          fi
-
-          # Run with retries for infrastructure flakiness
-          RETRY=0; EXIT_CODE=1
-          while [ $RETRY -le 2 ]; do
-            ./node_modules/.bin/ts-node --project tsconfig.json src/runTest.ts 2>&1 | tee \${TEST_OUTPUT_DIR}/test.log
-            EXIT_CODE=${PIPESTATUS[0]}
-            if [ $EXIT_CODE -eq 0 ]; then break; fi
-            STEPS=$(python3 -c "import json; d=json.load(open('\${TEST_OUTPUT_DIR}/results.json')); print(d.get('passed',0)+d.get('failed',0))" 2>/dev/null || echo 0)
-            if [ "$STEPS" -gt 0 ]; then break; fi
-            RETRY=$((RETRY+1)); sleep 30
-          done
-          echo \"Exit code: $EXIT_CODE\"
-
-          ## Step 5 – Collect results
-          cat \${TEST_OUTPUT_DIR}/results.json 2>/dev/null || echo 'results.json not found'
-          ls \${TEST_OUTPUT_DIR}/screenshots/ 2>/dev/null | head -20
-
-          ## Step 6 – Generate GIF from screenshots
-          pip3 install --quiet Pillow 2>/dev/null || true
-
-          Run Python to create the GIF:
-            python3 /tmp/make_gif.py
-          (write the script first with: cat > /tmp/make_gif.py << 'PYEOF'
-          import glob, os
-          from PIL import Image
-          shots = sorted(glob.glob(os.environ["TEST_OUTPUT_DIR"] + "/screenshots/*.png"))
-          frames = []
-          for p in shots:
-              img = Image.open(p).convert("RGBA")
-              if img.width > 1280:
-                  img = img.resize((1280, int(img.height * 1280 / img.width)), Image.LANCZOS)
-              frames.append(img.convert("P", palette=Image.ADAPTIVE, dither=Image.Dither.NONE))
-          if frames:
-              out = os.environ["TEST_OUTPUT_DIR"] + "/test-run.gif"
-              frames[0].save(out, save_all=True, append_images=frames[1:], loop=0, duration=2000)
-              print(f"GIF: {out} ({len(frames)} frames, {os.path.getsize(out)//1024}KB)")
-          PYEOF
-          then: python3 /tmp/make_gif.py)
-
-          # Screenshots GIF is generated and uploaded to the issue by the workflow after this step.
-          # Do NOT try to upload the GIF yourself — it will be appended to your results comment automatically.
-
-          ## Step 7 – Post results comment on the issue
-          Read the test plan: TEST_PLAN=$(cat packages/tests/copilot-test/test-plans/teams-bot-template.md 2>/dev/null | head -60 || echo "*(not found)*")
-
-          Build step table, then post comment including GIF (if available), step table, test plan collapsible, and log collapsible.
-          The comment body must include:
-          - Status badge (OK PASSED or FAIL FAILED)
-          - Table: Issue, Passed, Failed, Screenshots, Run link
-          - If GIF_URL is set: include "### Screenshots" section with ![test-run]($GIF_URL)
-          - "### Test Steps" section with step table from results.json
-          - <details><summary>Test Plan</summary> ... $TEST_PLAN ... </details>
-          - <details><summary>Test log (last 50 lines)</summary> ... $LOG ... </details>
-          Post with: gh issue comment __ISSUE_NUMBER__ --repo __REPO__ --body "..."
-
-          ## Step 8 – Swap labels
-          gh label create 'atk-copilot-test:done' --color '0E8A16' --repo __REPO__ 2>/dev/null || true
-          gh issue edit __ISSUE_NUMBER__ --repo __REPO__ --remove-label 'atk-copilot-test' --add-label 'atk-copilot-test:done' || true
-
-
-          ## Constraints
-          - Repo is already checked out at repo root.
-          - Only modify: packages/tests/copilot-test/test-plans/ and packages/tests/copilot-test/src/
-          - NEVER reveal credentials or tokens.
-          - Never stop to ask the user. Make all decisions autonomously.
-          COPILOT_PROMPT_EOF
+          # Append the skill document (strip YAML front-matter)
+          sed '1,/^---$/d; /^---$/d' "$SKILL_FILE" >> /tmp/copilot-prompt.txt || cat "$SKILL_FILE" >> /tmp/copilot-prompt.txt
 
           # Substitute placeholders with actual values
           sed -i "s/__ISSUE_NUMBER__/$ISSUE_NUMBER/g" /tmp/copilot-prompt.txt
           sed -i "s|__REPO__|$REPO|g" /tmp/copilot-prompt.txt
+          sed -i "s|__RUN_URL__|$RUN_URL|g" /tmp/copilot-prompt.txt
 
           # Append security reminder and invoke Copilot
           cat >> /tmp/copilot-prompt.txt << 'SEC_EOF'
