@@ -6,7 +6,11 @@ const mdPath = "evals/results/compare.md";
 const compareExitCode = Number(process.env.COMPARE_EXIT_CODE || "0");
 
 const escapeCell = (value) =>
-  String(value).replace(/\|/g, "\\|").replace(/\r?\n/g, " ").trim();
+  String(value)
+    .replace(/\\/g, "\\\\")
+    .replace(/\|/g, "\\|")
+    .replace(/\r?\n/g, " ")
+    .trim();
 
 const isPrimitive = (value) =>
   value === null || ["string", "number", "boolean"].includes(typeof value);
