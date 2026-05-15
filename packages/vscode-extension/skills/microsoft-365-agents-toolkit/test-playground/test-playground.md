@@ -1,8 +1,82 @@
 # Test with Agents Playground
 
-Test your agent locally using the Microsoft 365 Agents Playground — a web-based sandbox that requires no M365 account, Azure tunnel, or app registration.
+Test your bot locally — interactively or with automated smoke tests — using the Microsoft 365 Agents Playground toolset. No M365 account, Azure tunnel, or app registration required.
 
 **Recommend Agents Playground first for testing**, unless user explicitly asks to run on Teams.
+
+## Intent Router
+
+| User Intent | Read |
+|---|---|
+| Manual/interactive testing, chat with the bot, explore responses in a UI | → [playground.md](playground.md) |
+| Automated tests, CI pipeline, smoke tests, programmatic testing, `TestClient` | → [playground-cli.md](playground-cli.md) |
+| "Test my bot" / "check if it works" / no specific preference | → **Combined Workflow** below |
+
+---
+
+## Combined Workflow (Default Recommendation)
+
+> Use this when the user says "test my bot", "run some tests", or does not specify manual vs automated.
+
+Run automated smoke tests first to get instant pass/fail results, then open Agents Playground for interactive exploration.
+
+### Step 1: Start the bot service
+
+Start the bot as a background process. **This will hang the terminal — expected.**
+
+```bash
+# ATK project
+npm run dev:teamsfx:playground
+
+# Custom project
+npm run dev
+```
+
+Verify startup by checking output for `"listening on port"` or `"server started"`.
+
+### Step 2: Inspect the bot and generate smoke tests
+
+Read [playground-cli.md — Smoke Test Workflow](playground-cli.md) for full instructions. In summary:
+
+1. **Read the bot's entry point** (`app.ts`, `index.ts`, or equivalent):
+   - Find message handlers (`app.message`, `app.command`, etc.)
+   - Find AI system prompt (if using `ChatPrompt`) to understand the bot's purpose
+   - Identify known commands or keywords
+
+2. **Design 5–7 test cases** covering:
+   - Greeting (`"Hello"`)
+   - Main feature (1–2 inputs that exercise the bot's primary purpose)
+   - Known command (e.g., `"/help"`)
+   - Follow-up in same conversation (tests memory/context)
+   - Unknown/edge input (e.g., `"xyzzy"`)
+
+3. **Write and run `_smoke-test.mjs`** in the project root (see template in [playground-cli.md](playground-cli.md)).
+
+### Step 3: Present results as a table
+
+After running the smoke tests, present results to the user in this format:
+
+| # | Test | Input | Status | Response (first 100 chars) |
+|---|------|-------|--------|---------------------------|
+| T1 | Greeting | `Hello` | ✅ PASS | Hello! I'm your assistant... |
+| T2 | Main feature | `What can you do?` | ✅ PASS | I can help you with tasks... |
+| T3 | Help command | `/help` | ✅ PASS | [Card] |
+| T4 | Follow-up | `Tell me more` | ✅ PASS | Sure! Here are the details... |
+| T5 | Unknown input | `xyzzy` | ✅ PASS | I didn't understand that. |
+
+If any test fails (`❌`), diagnose the bot output before proceeding.
+
+### Step 4: Open Agents Playground for interactive exploration
+
+In a **new terminal** (bot service must stay running):
+
+```bash
+agentsplayground -e http://localhost:3978/api/messages -c msteams
+```
+
+The user can now chat with the bot, inspect Adaptive Card rendering, and test scenarios beyond the smoke tests. See [playground.md](playground.md) for full CLI options and configuration.
+
+---
 
 ## Installation
 
@@ -130,16 +204,10 @@ You can use environment variables instead of CLI options:
 
 ## References
 
-- For project file details → see [../toolkit/manifest-and-yaml.md](../toolkit/manifest-and-yaml.md)
-- If something goes wrong → see [../troubleshoot/troubleshoot.md](../troubleshoot/troubleshoot.md)
-- To test on real Teams instead → see [../test-teams/test-teams.md](../test-teams/test-teams.md)
-
-## Expert Deep Dives
+- For project file details → [../toolkit/manifest-and-yaml.md](../toolkit/manifest-and-yaml.md)
+- If something goes wrong → [../troubleshoot/troubleshoot.md](../troubleshoot/troubleshoot.md)
+- To test on real Teams instead → [../test-teams/test-teams.md](../test-teams/test-teams.md)
+- Manual testing sub-skill → [playground.md](playground.md)
+- Automated testing sub-skill → [playground-cli.md](playground-cli.md)
 
 > **Applies to: code-based Teams bots/agents only.** Declarative agents and API plugins do not run in Agents Playground — they must be tested in M365 Copilot via [test-teams](../test-teams/test-teams.md).
-
-| Topic | Expert |
-|---|---|
-| Playground rules, `.m365agentsplayground.yml`, channel emulation, activity simulation | [../toolkit/playground.md](../toolkit/playground.md) |
-| `DevtoolsPlugin`, ConsoleLogger, `skipAuth`, `tsx watch`, build verification | [../experts/teams/dev.debug-test-ts.md](../experts/teams/dev.debug-test-ts.md) |
-| Automated/CI testing with `@microsoft/m365agentsplayground-cli` (`TestClient`, `ConversationServer`, turn types, personas) | [../experts/teams/dev.playground-cli-ts.md](../experts/teams/dev.playground-cli-ts.md) |
