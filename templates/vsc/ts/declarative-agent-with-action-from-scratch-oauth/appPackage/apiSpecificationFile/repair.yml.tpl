@@ -17,7 +17,7 @@ components:
           authorizationUrl:  ${{AAD_APP_OAUTH_AUTHORITY_HOST}}/${{AAD_APP_TENANT_ID}}/oauth2/v2.0/authorize
           tokenUrl:  ${{AAD_APP_OAUTH_AUTHORITY_HOST}}/${{AAD_APP_TENANT_ID}}/oauth2/v2.0/token
           scopes:
-            api://${{OPENAPI_SERVER_DOMAIN}}/${{AAD_APP_CLIENT_ID}}/repairs_read: Read repair records
+            ${{AADAUTHCODE_APPLICATION_ID_URI}}/repairs_read: Read repair records
 {{/MicrosoftEntra}}
 {{^MicrosoftEntra}}
     oAuth2AuthCode:
@@ -39,7 +39,7 @@ paths:
       security:
 {{#MicrosoftEntra}}
         - aadAuthCode:
-          - api://${{OPENAPI_SERVER_DOMAIN}}/${{AAD_APP_CLIENT_ID}}/repairs_read
+          - ${{AADAUTHCODE_APPLICATION_ID_URI}}/repairs_read
 {{/MicrosoftEntra}}
 {{^MicrosoftEntra}}
         - oAuth2AuthCode:
