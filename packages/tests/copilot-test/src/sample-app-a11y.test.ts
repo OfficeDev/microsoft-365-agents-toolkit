@@ -158,7 +158,8 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
         console.log("  Activation note:", e.message);
       }
     }
-    await wait(3000);
+    // Wait for extension to finish registering commands after activation
+    await wait(8000);
     const active = !!ext?.isActive;
     step(
       "ATK extension activates",
@@ -177,7 +178,9 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
 
   test("Open Sample Gallery panel", async () => {
     const cmdName = "fx-extension.openSamples";
-    const available = await waitForCommand(cmdName, 20000);
+    // Extension activation can be slow in CI (workspace deps + API proposals init).
+    // Poll for 60s to give the command time to register after isActive=true.
+    const available = await waitForCommand(cmdName, 60000);
     step(
       "fx-extension.openSamples registered",
       available,
