@@ -20,6 +20,29 @@ mkdir -p "${TEST_OUTPUT_DIR}/screenshots" "${TEST_OUTPUT_DIR}/projects"
 
 [ -d "${ATK_EXT_PATH}" ] || { echo "ERROR: ATK extension not found at ${ATK_EXT_PATH}"; echo "Mount: -v /path/to/vscode-extension:/atk-ext:ro"; exit 1; }
 
+# -- Build extension if compiled output is missing --------------------------------
+# The extension main entry is out/src/extension.js (compiled TypeScript).
+# It is NOT committed to git. If missing, copy the source to a writable dir and build.
+if [ ! -f "${ATK_EXT_PATH}/out/src/extension.js" ]; then
+  echo "[build] Compiled extension not found at ${ATK_EXT_PATH}/out/src/extension.js"
+  echo "[build] Building extension from source (this takes ~2 min)..."
+  BUILD_DIR="/tmp/atk-ext-build"
+  rm -rf "${BUILD_DIR}"
+  cp -r "${ATK_EXT_PATH}" "${BUILD_DIR}"
+  cd "${BUILD_DIR}"
+  npm install --legacy-peer-deps 2>&1 | tail -5
+  npm run build 2>&1 | tail -20
+  if [ ! -f "${BUILD_DIR}/out/src/extension.js" ]; then
+    echo "[build] ERROR: Build failed -- out/src/extension.js still missing"
+    exit 1
+  fi
+  export ATK_EXT_PATH="${BUILD_DIR}"
+  echo "[build] Extension built at ${ATK_EXT_PATH}"
+  cd "${RUNNER_HOME}"
+else
+  echo "[build] Extension already compiled at ${ATK_EXT_PATH}/out/src/extension.js"
+fi
+
 # ── Virtual display ───────────────────────────────────────────────────────────
 echo "[1/3] Starting Xvfb..."
 Xvfb :99 -ac -screen 0 1920x1080x24 &

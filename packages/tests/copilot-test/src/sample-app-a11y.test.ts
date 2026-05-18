@@ -29,7 +29,7 @@ const SIGNAL_DIR =
 
 function ensureDirs() {
   [OUTPUT_DIR, SCREENSHOT_DIR, SIGNAL_DIR].forEach((d) =>
-    fs.mkdirSync(d, { recursive: true }),
+    fs.mkdirSync(d, { recursive: true })
   );
 }
 
@@ -49,7 +49,7 @@ function takeScreenshot(name: string): void {
     console.log(
       fs.existsSync(dest)
         ? `Screenshot: ${name}.png`
-        : `Screenshot timeout: ${name}.png`,
+        : `Screenshot timeout: ${name}.png`
     );
   } catch (e) {
     console.warn("Screenshot failed:", e);
@@ -75,7 +75,7 @@ function writeResults(passed: number, failed: number, steps: object[]) {
   fs.writeFileSync(
     out,
     JSON.stringify({ passed, failed, steps }, null, 2),
-    "utf8",
+    "utf8"
   );
 }
 
@@ -126,7 +126,7 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
     steps.push({ name, status: ok ? "pass" : "fail", detail });
     ok ? passed++ : failed++;
     console.log(
-      `${ok ? "PASS" : "FAIL"} ${name}${detail ? ": " + detail : ""}`,
+      `${ok ? "PASS" : "FAIL"} ${name}${detail ? ": " + detail : ""}`
     );
   };
 
@@ -163,13 +163,15 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
     step(
       "ATK extension activates",
       active,
-      ext ? `v${ext.packageJSON.version}` : "not found",
+      ext ? `v${ext.packageJSON.version}` : "not found"
     );
     takeScreenshot("01-extension-active");
     // Don't assert — if extension is loaded in dev mode without deps it still shows as inactive
     // but the source fixes are verified below
     if (!active && ext) {
-      console.log("  Note: Extension found but not active (likely missing dependency — see TC source checks below)");
+      console.log(
+        "  Note: Extension found but not active (likely missing dependency — see TC source checks below)"
+      );
     }
   });
 
@@ -179,7 +181,9 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
     step(
       "fx-extension.openSamples registered",
       available,
-      available ? "command found" : "command not registered (extension not fully active — source-level checks used for TC-002/004/005)",
+      available
+        ? "command found"
+        : "command not registered (extension not fully active — source-level checks used for TC-002/004/005)"
     );
 
     if (available) {
@@ -223,26 +227,26 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
         !hasProblematic,
         hasProblematic
           ? `Found low-contrast color ${problematicColor}`
-          : `Link colors: ${colors.join(", ")}`,
+          : `Link colors: ${colors.join(", ")}`
       );
     } else {
-      // Playwright not connected — verify fix by checking source file
+      // Playwright not connected — TC cannot be verified without live DOM.
+      // Check source as diagnostic info but mark TC as FAIL.
       const scssPath = path.join(
         __dirname,
-        "../../../../packages/vscode-extension/src/controls/sampleGallery/SampleGallery.scss",
+        "../../../../packages/vscode-extension/src/controls/sampleGallery/SampleGallery.scss"
       );
-      let fixVerified = false;
+      let srcHasFix = false;
       try {
         const scss = fs.readFileSync(scssPath, "utf8");
-        // Fix should contain #005B9E (high-contrast link color for light theme)
-        fixVerified = scss.includes("#005B9E") || scss.includes("#005b9e");
+        srcHasFix = scss.includes("#005B9E") || scss.includes("#005b9e");
       } catch {}
       step(
-        "TC-001 Link text contrast ≥ 4.5:1 (source check)",
-        fixVerified,
-        fixVerified
-          ? "SampleGallery.scss contains #005B9E link override for light theme"
-          : "Fix not detected in SampleGallery.scss",
+        "TC-001 Link text contrast ≥ 4.5:1",
+        false,
+        `FAIL: Gallery webview not open — live DOM check required. Source fix ${
+          srcHasFix ? "IS" : "NOT"
+        } present in SampleGallery.scss.`
       );
     }
     takeScreenshot("03-tc001-link-contrast");
@@ -265,33 +269,41 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
           step(
             "TC-002 Featured ARIA differentiation",
             hasFeaturedAria,
-            `${data.total} cards, ${data.featuredLabels} with Featured prefix, sample: ${JSON.stringify(data.sampleLabels)}`,
+            `${data.total} cards, ${
+              data.featuredLabels
+            } with Featured prefix, sample: ${JSON.stringify(
+              data.sampleLabels
+            )}`
           );
         } catch {
-          step("TC-002 Featured ARIA differentiation", false, "parse error: " + rawResult);
+          step(
+            "TC-002 Featured ARIA differentiation",
+            false,
+            "parse error: " + rawResult
+          );
         }
         takeScreenshot("04-tc002-featured-aria");
         return;
       }
     }
 
-    // Source-level check (gallery not opened OR Playwright not connected)
+    // Gallery not open — TC cannot be verified without live DOM.
     const cardPath = path.join(
       __dirname,
-      "../../../../packages/vscode-extension/src/controls/sampleGallery/sampleCard.tsx",
+      "../../../../packages/vscode-extension/src/controls/sampleGallery/sampleCard.tsx"
     );
-    let fixVerified = false;
+    let srcHasFix = false;
     try {
       const src = fs.readFileSync(cardPath, "utf8");
-      fixVerified =
+      srcHasFix =
         src.includes("Featured sample.") || src.includes("featuredPrefix");
     } catch {}
     step(
-      "TC-002 Featured ARIA differentiation (source check)",
-      fixVerified,
-      fixVerified
-        ? "sampleCard.tsx contains Featured ARIA prefix logic"
-        : "Fix not detected in sampleCard.tsx",
+      "TC-002 Featured ARIA differentiation",
+      false,
+      `FAIL: Gallery webview not open — live DOM check required. Source fix ${
+        srcHasFix ? "IS" : "NOT"
+      } present in sampleCard.tsx.`
     );
     takeScreenshot("04-tc002-featured-aria");
   });
@@ -313,28 +325,34 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
         step(
           "TC-003 Featured badge present with accessible contrast",
           hasBadge,
-          `${data.count} badge(s), bg=${data.bg}, color=${data.color}`,
+          `${data.count} badge(s), bg=${data.bg}, color=${data.color}`
         );
       } catch {
-        step("TC-003 Featured badge contrast", false, "parse error: " + rawResult);
+        step(
+          "TC-003 Featured badge contrast",
+          false,
+          "parse error: " + rawResult
+        );
       }
     } else {
-      // Source-level check — verify .featured-badge with #7A5C00 exists in SCSS
+      // Gallery not open — TC cannot be verified without live DOM.
       const scssPath = path.join(
         __dirname,
-        "../../../../packages/vscode-extension/src/controls/sampleGallery/sampleCard.scss",
+        "../../../../packages/vscode-extension/src/controls/sampleGallery/sampleCard.scss"
       );
-      let fixVerified = false;
+      let srcHasFix = false;
       try {
         const scss = fs.readFileSync(scssPath, "utf8");
-        fixVerified = scss.includes("featured-badge") && (scss.includes("#7A5C00") || scss.includes("#7a5c00"));
+        srcHasFix =
+          scss.includes("featured-badge") &&
+          (scss.includes("#7A5C00") || scss.includes("#7a5c00"));
       } catch {}
       step(
-        "TC-003 Featured badge contrast ≥ 3:1 (source check)",
-        fixVerified,
-        fixVerified
-          ? "sampleCard.scss contains .featured-badge with #7A5C00 (≈4.9:1)"
-          : "Fix not detected in sampleCard.scss",
+        "TC-003 Featured badge contrast ≥ 3:1",
+        false,
+        `FAIL: Gallery webview not open — live DOM check required. Source fix ${
+          srcHasFix ? "IS" : "NOT"
+        } present in sampleCard.scss.`
       );
     }
     takeScreenshot("05-tc003-badge-contrast");
@@ -357,7 +375,12 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
           step(
             "TC-004 Tags in aria-label",
             hasTagsInLabel,
-            `${data.withTags}/${data.total} cards have tags in aria-label. Sample: "${data.sample.slice(0, 80)}"`,
+            `${data.withTags}/${
+              data.total
+            } cards have tags in aria-label. Sample: "${data.sample.slice(
+              0,
+              80
+            )}"`
           );
         } catch {
           step("TC-004 Tags in aria-label", false, "parse error: " + rawResult);
@@ -367,22 +390,22 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
       }
     }
 
-    // Source-level check (gallery not opened OR Playwright not connected)
+    // Gallery not open — TC cannot be verified without live DOM.
     const cardPath = path.join(
       __dirname,
-      "../../../../packages/vscode-extension/src/controls/sampleGallery/sampleCard.tsx",
+      "../../../../packages/vscode-extension/src/controls/sampleGallery/sampleCard.tsx"
     );
-    let fixVerified = false;
+    let srcHasFix = false;
     try {
       const src = fs.readFileSync(cardPath, "utf8");
-      fixVerified = src.includes("Tags:") && src.includes("aria-label");
+      srcHasFix = src.includes("Tags:") && src.includes("aria-label");
     } catch {}
     step(
-      "TC-004 Tags in aria-label (source check)",
-      fixVerified,
-      fixVerified
-        ? "sampleCard.tsx includes Tags: in aria-label construction"
-        : "Fix not detected in sampleCard.tsx",
+      "TC-004 Tags in aria-label",
+      false,
+      `FAIL: Gallery webview not open — live DOM check required. Source fix ${
+        srcHasFix ? "IS" : "NOT"
+      } present in sampleCard.tsx.`
     );
     takeScreenshot("06-tc004-tags-aria");
   });
@@ -402,41 +425,49 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
       if (rawResult) {
         try {
           const data = JSON.parse(rawResult);
-          const hasAriaPressed = data.count > 0 && data.buttons?.some(
-            (b: any) => b.pressed === "true" || b.pressed === "false",
-          );
+          const hasAriaPressed =
+            data.count > 0 &&
+            data.buttons?.some(
+              (b: any) => b.pressed === "true" || b.pressed === "false"
+            );
           step(
             "TC-005 Toggle buttons have aria-pressed",
             hasAriaPressed,
-            `${data.count} layout buttons found. States: ${JSON.stringify(data.buttons)}`,
+            `${data.count} layout buttons found. States: ${JSON.stringify(
+              data.buttons
+            )}`
           );
         } catch {
-          step("TC-005 Toggle aria-pressed", false, "parse error: " + rawResult);
+          step(
+            "TC-005 Toggle aria-pressed",
+            false,
+            "parse error: " + rawResult
+          );
         }
         takeScreenshot("07-tc005-toggle-aria-pressed");
         return;
       }
     }
 
-    // Source-level check (gallery not opened — toggle buttons are inside webview)
+    // Gallery not open — TC cannot be verified without live DOM.
     const filterPath = path.join(
       __dirname,
-      "../../../../packages/vscode-extension/src/controls/sampleGallery/sampleFilter.tsx",
+      "../../../../packages/vscode-extension/src/controls/sampleGallery/sampleFilter.tsx"
     );
-    let fixVerified = false;
+    let srcHasFix = false;
     try {
       const src = fs.readFileSync(filterPath, "utf8");
-      fixVerified =
+      srcHasFix =
         src.includes("aria-pressed") &&
         src.includes('layout === "grid"') &&
         src.includes('layout === "list"');
     } catch {}
     step(
-      "TC-005 Toggle buttons aria-pressed (source check)",
-      fixVerified,
-      fixVerified
-        ? "sampleFilter.tsx contains aria-pressed on layout toggle buttons"
-        : "Fix not detected in sampleFilter.tsx",
+      "TC-005 Toggle buttons aria-pressed",
+      false,
+      `FAIL: Gallery webview not open — live DOM check required. Source fix ${
+        srcHasFix ? "IS" : "NOT"
+      } present in sampleFilter.tsx.`
     );
     takeScreenshot("07-tc005-toggle-aria-pressed");
   });

@@ -34,7 +34,7 @@ function sleep(ms: number) {
 async function startSignalWatcher(
   signalDir: string,
   getPage: () => Page | null,
-  stopFlag: { stop: boolean },
+  stopFlag: { stop: boolean }
 ) {
   fs.mkdirSync(signalDir, { recursive: true });
   console.log("📡 Signal watcher started →", signalDir);
@@ -76,7 +76,7 @@ async function startSignalWatcher(
               await sleep(500); // settle
             } catch {
               console.warn(
-                `  ⚠️ clickText: "${text}" not found, trying pressKey ArrowDown+Enter`,
+                `  ⚠️ clickText: "${text}" not found, trying pressKey ArrowDown+Enter`
               );
               await page.keyboard.press("ArrowDown");
               await sleep(200);
@@ -100,7 +100,7 @@ async function startSignalWatcher(
           if (page) {
             // Use fill() to set/clear input - avoids Ctrl+a shortcuts that can trigger QuickInput actions
             const input = page.locator(
-              ".quick-input-box input, .quick-input-filter .input",
+              ".quick-input-box input, .quick-input-filter .input"
             );
             try {
               await input.first().waitFor({ timeout: 5000 });
@@ -127,7 +127,7 @@ async function startSignalWatcher(
               console.log(`  ✅ Found text: "${text}"`);
             } catch {
               console.warn(
-                `  ⚠️ waitForText: "${text}" not found within timeout`,
+                `  ⚠️ waitForText: "${text}" not found within timeout`
               );
             }
           }
@@ -195,7 +195,7 @@ async function main() {
 
   // Clean old signals
   fs.readdirSync(signalDir).forEach((f) =>
-    fs.rmSync(path.join(signalDir, f), { force: true }),
+    fs.rmSync(path.join(signalDir, f), { force: true })
   );
 
   console.log("=== Playwright + test-electron Hybrid Runner ===");
@@ -233,7 +233,7 @@ async function main() {
     TESTS_ROOT,
     "node_modules",
     ".bin",
-    process.platform === "win32" ? "tsc.CMD" : "tsc",
+    process.platform === "win32" ? "tsc.CMD" : "tsc"
   );
   const compileResult = cp.spawnSync(tscBin, ["--project", tsconfigPath], {
     cwd: HERE,
@@ -257,7 +257,7 @@ async function main() {
   const watcherPromise = startSignalWatcher(
     signalDir,
     () => activePage,
-    stopFlag,
+    stopFlag
   );
 
   const userExtDir =
@@ -266,14 +266,14 @@ async function main() {
 
   const yamlExtPresent =
     fs.existsSync(
-      path.join(userExtDir, "redhat.vscode-yaml", "package.json"),
+      path.join(userExtDir, "redhat.vscode-yaml", "package.json")
     ) ||
     fs
       .readdirSync(userExtDir)
       .some(
         (d) =>
           d.startsWith("redhat.vscode-yaml") &&
-          fs.existsSync(path.join(userExtDir, d, "package.json")),
+          fs.existsSync(path.join(userExtDir, d, "package.json"))
       );
   console.log(`Extensions dir: ${userExtDir} (yaml: ${yamlExtPresent})`);
 
@@ -304,9 +304,11 @@ async function main() {
 
   let browser: Browser | null = null;
   let cdpConnected = false;
+  // CDP connection: VSCode needs time to download + start before DevTools port opens.
+  // Allow up to 90s (covers 212MB VSCode download + extension activation).
   const cdpStart = Date.now();
 
-  while (!cdpConnected && Date.now() - cdpStart < 20000) {
+  while (!cdpConnected && Date.now() - cdpStart < 90000) {
     await sleep(1000);
     try {
       browser = await chromium.connectOverCDP(`http://localhost:${CDP_PORT}`, {
