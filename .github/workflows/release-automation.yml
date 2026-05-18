@@ -636,8 +636,11 @@ jobs:
         run: |
           VERSION="${{ steps.version_bump_pr.outputs.version }}"
           MAJOR_MINOR="${{ steps.version_bump_pr.outputs.major_minor }}"
+          RELEASE_BRANCH="${{ steps.config.outputs.branch }}"
           BUMP_BRANCH="chore/bump-version-${MAJOR_MINOR}"
 
+          git fetch origin "$RELEASE_BRANCH"
+          git checkout "origin/$RELEASE_BRANCH"
           git checkout -b "$BUMP_BRANCH"
           git add packages/fx-core/src/common/samples.ts packages/fx-core/src/common/templates-config.json templates/package.json
           git commit -m "chore: bump template and sample version for ${VERSION}"
