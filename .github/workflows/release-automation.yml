@@ -583,6 +583,93 @@ jobs:
           echo "✅ Branch $BRANCH created successfully"
           echo "created=true" >> $GITHUB_OUTPUT
 
+      - name: Bump versions and create PR for stable release
+        id: version_bump_pr
+        if: ${{ steps.create_branch.outputs.created == 'true' && steps.config.outputs.is_stable == 'true' && env.DRY_RUN == 'false' }}
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+
+            const branch = '${{ steps.config.outputs.branch }}';
+            const version = '${{ steps.config.outputs.version }}';
+            const majorMinor = version.replace(/\.[^.]*$/, '');
+
+            // --- 1. Bump SampleConfigTag (v3.N.0 -> v3.(N+1).0) ---
+            const samplesFile = 'packages/fx-core/src/common/samples.ts';
+            let samplesContent = fs.readFileSync(samplesFile, 'utf8');
+            const tagMatch = samplesContent.match(/SampleConfigTag = "v(\d+)\.(\d+)\.(\d+)"/);
+            if (tagMatch) {
+              const newTag = `v${tagMatch[1]}.${parseInt(tagMatch[2]) + 1}.0`;
+              samplesContent = samplesContent.replace(tagMatch[0], `SampleConfigTag = "${newTag}"`);
+              fs.writeFileSync(samplesFile, samplesContent);
+              core.info(`SampleConfigTag: v${tagMatch[1]}.${tagMatch[2]}.${tagMatch[3]} -> ${newTag}`);
+            }
+
+            // --- 2. Update templates-config.json ---
+            const configFile = 'packages/fx-core/src/common/templates-config.json';
+            const config = JSON.parse(fs.readFileSync(configFile, 'utf8'));
+            config.version = `~${majorMinor}`;
+            config.localVersion = version;
+            fs.writeFileSync(configFile, JSON.stringify(config, null, 4) + '\n');
+            core.info(`templates-config.json: version=~${majorMinor}, localVersion=${version}`);
+
+            // --- 3. Update templates/package.json ---
+            const pkgFile = 'templates/package.json';
+            const pkg = JSON.parse(fs.readFileSync(pkgFile, 'utf8'));
+            pkg.version = `${version}-alpha`;
+            fs.writeFileSync(pkgFile, JSON.stringify(pkg, null, 2) + '\n');
+            core.info(`templates/package.json: version=${version}-alpha`);
+
+            core.setOutput('version', version);
+            core.setOutput('major_minor', majorMinor);
+
+      - name: Commit and push version bump
+        id: version_bump_push
+        if: ${{ steps.version_bump_pr.outputs.version != '' }}
+        run: |
+          VERSION="${{ steps.version_bump_pr.outputs.version }}"
+          MAJOR_MINOR="${{ steps.version_bump_pr.outputs.major_minor }}"
+          BUMP_BRANCH="chore/bump-version-${MAJOR_MINOR}"
+
+          git checkout -b "$BUMP_BRANCH"
+          git add packages/fx-core/src/common/samples.ts packages/fx-core/src/common/templates-config.json templates/package.json
+          git commit -m "chore: bump template and sample version for ${VERSION}"
+          git push origin "$BUMP_BRANCH"
+
+          echo "bump_branch=$BUMP_BRANCH" >> "$GITHUB_OUTPUT"
+
+      - name: Create version bump PR
+        if: ${{ steps.version_bump_push.outputs.bump_branch != '' }}
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.RELEASE_AUTOMATION_TOKEN || github.token }}
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const base = 'dev';
+            const head = '${{ steps.version_bump_push.outputs.bump_branch }}';
+            const version = '${{ steps.version_bump_pr.outputs.version }}';
+            const majorMinor = '${{ steps.version_bump_pr.outputs.major_minor }}';
+
+            const title = `chore: bump template and sample version for ${version}`;
+            const body = [
+              'This PR is created by Release Automation to bump version numbers for the stable release.',
+              '',
+              `- **Version:** ${version}`,
+              `- **SampleConfigTag:** bumped minor version`,
+              `- **templates-config.json:** version=\`~${majorMinor}\`, localVersion=\`${version}\``,
+              `- **templates/package.json:** version=\`${version}-alpha\``,
+            ].join('\n');
+
+            const pr = await github.rest.pulls.create({ owner, repo, title, head, base, body });
+            core.notice(`Created version bump PR: ${pr.data.html_url}`);
+            core.summary
+              .addHeading('📌 Version Bump PR', 2)
+              .addRaw(`\nCreated: ${pr.data.html_url}\n`)
+              .write();
+
       - name: Decide auto-CD for new release branch
         id: decide_auto_cd
         shell: bash
