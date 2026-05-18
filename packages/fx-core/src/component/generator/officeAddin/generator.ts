@@ -54,12 +54,10 @@ export class OfficeAddinGenerator {
     process.chdir(addinRoot);
     try {
       if (fromFolder) {
-        // Validate the source project early to avoid cryptic failures deep
-        // inside the bundled `office-addin-project` package when the user
-        // points at a manifest-only project (e.g. yo-office "manifest only").
-        // Without `package.json`, that package's `convertProject` would
-        // ultimately call `Object.keys(content.scripts)` on undefined and
-        // throw "Cannot convert undefined or null to object".
+        // Validate the source project early to avoid cryptic failures when the user
+        // points at a manifest-only project.
+        // Without `package.json`, that project package's `convertProject` would
+        // ultimately call `Object.keys(content.scripts)` on undefined and throw runtime errors.
         const sourceManifestFileEarly: string = inputs[QuestionNames.OfficeAddinManifest];
         if (
           sourceManifestFileEarly &&
@@ -91,11 +89,9 @@ export class OfficeAddinGenerator {
           getLocalizedString("core.generator.officeAddin.importProject.convertProject")
         );
         if (manifestFile.endsWith(".xml")) {
-          // The bundled office-addin-project's convertProject reads `./package.json`
-          // and calls `Object.keys(content.scripts)` unconditionally. For
-          // manifest-only Office Add-in projects there is no package.json (or no
-          // `scripts` field), which would otherwise crash with
-          // "Cannot convert undefined or null to object". Ensure a minimal
+          // The convertProject reads `./package.json` and calls `Object.keys(content.scripts)` unconditionally.
+          // Formanifest-only Office Add-in projects there is no package.json (or no
+          // `scripts` field), which would otherwise crash with runtime errors. Ensure a minimal
           // package.json with a `scripts` object exists before converting.
           await OfficeAddinGenerator.ensurePackageJsonForConvert(addinRoot);
           // Need to convert to json project first
@@ -120,10 +116,9 @@ export class OfficeAddinGenerator {
 
   /**
    * Ensure a `package.json` with a `scripts` object exists at `addinRoot`.
-   * The bundled `office-addin-project` package's `convertProject` reads
+   * The project package's `convertProject` reads
    * `./package.json` and unconditionally calls `Object.keys(content.scripts)`,
-   * which throws "Cannot convert undefined or null to object" when the field
-   * is missing (e.g. a yo-office "manifest only" project). Creating or
+   * which throws runtime errors when the field is missing. Creating or
    * normalizing the file beforehand prevents the crash.
    */
   static async ensurePackageJsonForConvert(addinRoot: string): Promise<void> {
