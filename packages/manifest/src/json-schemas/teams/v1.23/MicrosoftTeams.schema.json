@@ -2586,7 +2586,7 @@
       "properties": {
         "fileName": {
           "type": "string",
-          "pattern": "^(?!.*[\\r\\n\\f\\b\\v\\a\\t])[\\S]*\\.xll$",
+          "pattern": "^(?!.*[\\r\\n\\f\\b\\v\\u0007\\t])[\\S]*\\.xll$",
           "minLength": 1,
           "maxLength": 64
         }
