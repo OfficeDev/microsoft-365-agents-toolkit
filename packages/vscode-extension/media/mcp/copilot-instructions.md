@@ -23,3 +23,4 @@ Use this mapping to know the current vs. former names—so you can correctly int
 - When troubleshooting issues, invoke **troubleshoot** tool if available.
 - Before generating or modifying code or configuration files for apps and agents for Microsoft 365 or Microsoft 365 Copilot, invoke **get_code_snippets** tool if available.
 - Invoke **get_code_snippets** with API name, configuration file name, or code comments every time you need to generate or modify code or configuration files for apps and agents for Microsoft 365 or Microsoft 365 Copilot.
+- When upgrading app-manifest schemas, sync schemas with `node download.js` (in `packages/manifest`) before conversion, then ensure new versions are added to converter maps/unions/latest aliases in `src/generated-types/index.ts` and verify with `npx mocha test/converterMapParity.test.ts`.
