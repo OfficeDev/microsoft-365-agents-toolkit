@@ -43,7 +43,7 @@ on:
         type: boolean
         default: true
   schedule:
-    - cron: "0 21 * * *" # Run daily at 05:00 (UTC+8) => 21:00 UTC
+    - cron: "0 12 * * *" # Run daily at 20:00 (UTC+8) => 12:00 UTC
   pull_request:
     types: [closed]
     branches:
@@ -149,6 +149,7 @@ jobs:
           VERSION_INPUT="${{ env.RELEASE_VERSION }}"
           RERUN_CD_ONLY="${{ env.RERUN_CD_ONLY }}"
           TODAY_UTC8=$(date -u -d '+8 hours' +%Y-%m-%d)
+          TOMORROW_UTC8=$(date -u -d '+8 hours +1 day' +%Y-%m-%d)
 
           if [ -n "$VERSION_INPUT" ]; then
             REASON="version=$VERSION_INPUT"
@@ -181,8 +182,8 @@ jobs:
                 end
             ' releases.json)
           else
-            REASON="cut_date=$TODAY_UTC8 (UTC+8)"
-            RELEASE=$(jq -c --arg d "$TODAY_UTC8" '[.[] | select(.cut_date == $d)] | .[0]' releases.json)
+            REASON="cut_date=$TOMORROW_UTC8 (tomorrow UTC+8)"
+            RELEASE=$(jq -c --arg d "$TOMORROW_UTC8" '[.[] | select(.cut_date == $d)] | .[0]' releases.json)
           fi
 
           if [ "$RELEASE" = "null" ] || [ -z "$RELEASE" ]; then
@@ -335,17 +336,19 @@ jobs:
             exit 1
           fi
 
-          # For stable releases, derive source_branch from the last prerelease entry in the schedule
+          # For stable releases, derive source_branch from branch name (release/6.N -> release/6.(N-1))
           SOURCE_BRANCH=""
           if [ "$IS_STABLE" = "true" ] && [ "$RERUN_CD_ONLY" != "true" ]; then
-            SOURCE_BRANCH=$(jq -r --arg v "$VERSION" '
-              [ .[] | select(.release_type | ascii_downcase | contains("prerelease")) ]
-              | sort_by(.cut_date)
-              | last
-              | .branch // empty
-            ' releases.json)
-            if [ -z "$SOURCE_BRANCH" ]; then
-              echo "⚠️ No previous prerelease found in schedule. Falling back to dev as source branch."
+            if [[ "$BRANCH" =~ ^release/([0-9]+)\.([0-9]+)$ ]]; then
+              MAJOR="${BASH_REMATCH[1]}"
+              MINOR="${BASH_REMATCH[2]}"
+              if (( MINOR > 0 )); then
+                SOURCE_BRANCH="release/${MAJOR}.$((MINOR - 1))"
+              else
+                SOURCE_BRANCH="dev"
+              fi
+            else
+              echo "⚠️ Cannot derive source branch from '$BRANCH'. Falling back to dev."
               SOURCE_BRANCH="dev"
             fi
             echo "  Source Branch (derived): $SOURCE_BRANCH"
