@@ -10,6 +10,7 @@ import { getVersion } from "../../utils";
 import { helper } from "../helper";
 import { accountCommand } from "./account";
 import { addCommand } from "./add";
+import { convertCommand } from "./convert";
 import { getCreateCommand } from "./create";
 import { deployCommand } from "./deploy";
 import { entraAppCommand } from "./entraAppUpdate";
@@ -51,6 +52,9 @@ export const rootCommand: CLICommand = {
     accountCommand,
     getCreateCommand(),
     addCommand(),
+    ...(featureFlagManager.getBooleanValue(FeatureFlags.OpenPluginConvert)
+      ? [convertCommand()]
+      : []),
     regenerateCommand(),
     provisionCommand,
     deployCommand,

@@ -206,7 +206,7 @@ import {
 } from "./collaborator";
 import { LocalCrypto } from "./crypto";
 import { environmentNameManager } from "./environmentName";
-import { FxCoreDeclarativeAgentPart } from "./FxCore.declarativeAgent";
+import { FxCoreOpenPluginPart } from "./FxCore.openPlugin";
 import { generateConfigFiles } from "./generateConfigFiles";
 import { ConcurrentLockerMW } from "./middleware/concurrentLocker";
 import { ContextInjectorMW } from "./middleware/contextInjector";
@@ -223,7 +223,7 @@ import { addSharedUsers, removeShareAccess, shareWithTenant } from "./share";
 import { CoreTelemetryEvent, CoreTelemetryProperty } from "./telemetry";
 import { CoreHookContext, PreProvisionResForVS, VersionCheckRes } from "./types";
 
-export class FxCore extends FxCoreDeclarativeAgentPart {
+export class FxCore extends FxCoreOpenPluginPart {
   constructor(tools: Tools) {
     super();
     setTools(tools);

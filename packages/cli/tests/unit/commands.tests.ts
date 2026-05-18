@@ -57,6 +57,7 @@ import {
 import { addAuthConfigCommand } from "../../src/commands/models/addAuthConfig";
 import { addCapabilityCommand } from "../../src/commands/models/addCapability";
 import { addPluginCommand } from "../../src/commands/models/addPlugin";
+import { convertOpenPluginCommand } from "../../src/commands/models/convertOpenPlugin";
 import { entraAppUpdateCommand } from "../../src/commands/models/entraAppUpdate";
 import { envResetCommand } from "../../src/commands/models/envReset";
 import * as listTemplatesModule from "../../src/commands/models/listTemplates";
@@ -521,6 +522,38 @@ describe("CLI commands", () => {
       };
       const res = await addPluginCommand.handler!(ctx);
       assert.isTrue(res.isOk());
+    });
+  });
+
+  describe("convertOpenPluginCommand", async () => {
+    it("success", async () => {
+      sandbox
+        .stub(FxCore.prototype, "convertOpenPlugin")
+        .resolves(ok({ projectPath: "/tmp/converted", warnings: [] }));
+      const ctx: CLIContext = {
+        command: { ...convertOpenPluginCommand, fullName: "convert openplugin" },
+        optionValues: {},
+        globalOptionValues: {},
+        argumentValues: [],
+        telemetryProperties: {},
+      };
+      const res = await convertOpenPluginCommand.handler!(ctx);
+      assert.isTrue(res.isOk());
+    });
+
+    it("propagates errors from convertOpenPlugin", async () => {
+      sandbox
+        .stub(FxCore.prototype, "convertOpenPlugin")
+        .resolves(err(new SystemError("OpenPluginConvert", "Boom", "boom")));
+      const ctx: CLIContext = {
+        command: { ...convertOpenPluginCommand, fullName: "convert openplugin" },
+        optionValues: {},
+        globalOptionValues: {},
+        argumentValues: [],
+        telemetryProperties: {},
+      };
+      const res = await convertOpenPluginCommand.handler!(ctx);
+      assert.isTrue(res.isErr());
     });
   });
 

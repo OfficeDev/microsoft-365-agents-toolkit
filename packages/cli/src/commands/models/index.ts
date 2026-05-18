@@ -9,6 +9,8 @@ export * from "./accountLogout";
 export * from "./accountShow";
 export * from "./add";
 export * from "./addSPFxWebpart";
+export * from "./convert";
+export * from "./convertOpenPlugin";
 export * from "./create";
 export * from "./createSample";
 export * from "./deploy";

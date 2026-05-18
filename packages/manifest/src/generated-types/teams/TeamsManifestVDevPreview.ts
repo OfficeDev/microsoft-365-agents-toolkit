@@ -170,6 +170,12 @@ export interface TeamsManifestVDevPreview {
      * A list of agent connector objects to included in the Unified App Manifest.
      */
     agentConnectors?: AgentConnector[];
+    /**
+     * A list of agent skill folder references included in the Unified App Manifest. Each
+     * entry points to a folder relative to the package root whose SKILL.md frontmatter is
+     * resolved by the M365 platform at ingestion time.
+     */
+    agentSkills?: AgentSkill[];
 }
 
 /**
@@ -404,6 +410,17 @@ export interface AgentConnector {
      * be defined within a tool source object.
      */
     toolSource?: ToolSource;
+}
+
+/**
+ * An agent skill entry references a folder relative to the package root whose SKILL.md
+ * frontmatter is resolved by the M365 platform at ingestion time.
+ */
+export interface AgentSkill {
+    /**
+     * Path to a folder within the app package that contains a SKILL.md file.
+     */
+    folder: string;
 }
 
 /**
@@ -3118,6 +3135,7 @@ const typeMap: any = {
         { json: "elementRelationshipSet", js: "elementRelationshipSet", typ: u(undefined, r("ElementRelationshipSet")) },
         { json: "backgroundLoadConfiguration", js: "backgroundLoadConfiguration", typ: u(undefined, r("BackgroundLoadConfiguration")) },
         { json: "agentConnectors", js: "agentConnectors", typ: u(undefined, a(r("AgentConnector"))) },
+        { json: "agentSkills", js: "agentSkills", typ: u(undefined, a(r("AgentSkill"))) },
     ], false),
     "ElementAction": o([
         { json: "id", js: "id", typ: "" },
@@ -3189,6 +3207,9 @@ const typeMap: any = {
         { json: "displayName", js: "displayName", typ: "" },
         { json: "description", js: "description", typ: u(undefined, "") },
         { json: "toolSource", js: "toolSource", typ: u(undefined, r("ToolSource")) },
+    ], false),
+    "AgentSkill": o([
+        { json: "folder", js: "folder", typ: "" },
     ], false),
     "ToolSource": o([
         { json: "plugin", js: "plugin", typ: u(undefined, r("Plugin")) },

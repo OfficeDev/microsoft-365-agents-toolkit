@@ -3,6 +3,7 @@
 export * from "./AddAuthActionInputs";
 export * from "./AddKnowledgeInputs";
 export * from "./AddPluginInputs";
+export * from "./ConvertOpenPluginInputs";
 export * from "./CreateEnvInputs";
 export * from "./CreateProjectInputs";
 export * from "./CreateSampleProjectInputs";
