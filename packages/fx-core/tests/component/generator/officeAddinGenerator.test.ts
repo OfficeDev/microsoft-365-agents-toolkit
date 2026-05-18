@@ -192,6 +192,11 @@ describe("OfficeAddinGenerator for Outlook Addin", function () {
         return;
       });
 
+    // The new validation in doScaffolding checks for `package.json` in the
+    // source folder before invoking convertProject. Pretend it exists so the
+    // test still exercises the convertProject path.
+    sinon.stub(fse, "pathExists").resolves(true as any);
+
     const generator = proxyquire("../../../src/component/generator/officeAddin/generator", {
       "office-addin-project": {
         convertProject: convertProjectStub,
@@ -221,6 +226,46 @@ describe("OfficeAddinGenerator for Outlook Addin", function () {
 
     const hostResult = await getHost(inputs[QuestionNames.OfficeAddinFolder]);
     chai.expect(hostResult).to.equal("Outlook");
+  });
+
+  it("should return UserError when xml manifest is selected but source folder has no package.json (manifest-only project)", async () => {
+    const inputs: Inputs = {
+      platform: Platform.CLI,
+      projectPath: testFolder,
+      "app-name": "outlook-addin-test",
+    };
+    inputs[QuestionNames.ProjectType] = ProjectTypeOptions.outlookAddinOptionId;
+    inputs[QuestionNames.Capabilities] = "json-taskpane";
+    inputs[QuestionNames.OfficeAddinFolder] = "somepath";
+    inputs[QuestionNames.ProgrammingLanguage] = "typescript";
+    inputs[QuestionNames.OfficeAddinManifest] = "manifest.xml";
+
+    sinon.stub(context.userInteraction, "createProgressBar").returns({
+      start: async () => {},
+      next: async () => {},
+      end: async () => {},
+    } as any);
+
+    // Simulate a manifest-only source project: no package.json on disk.
+    sinon.stub(fse, "pathExists").resolves(false as any);
+
+    const copyAddinFilesStub = sinon.stub(HelperMethods, "copyAddinFiles");
+    const convertProjectStub = sinon.stub();
+
+    const generator = proxyquire("../../../src/component/generator/officeAddin/generator", {
+      "office-addin-project": {
+        convertProject: convertProjectStub,
+      },
+    });
+
+    const result = await generator.OfficeAddinGenerator.doScaffolding(context, inputs, testFolder);
+
+    chai.expect(result.isErr()).to.eq(true);
+    if (result.isErr()) {
+      chai.expect(result.error.name).to.eq("ManifestOnlyAddinNotSupported");
+    }
+    chai.expect(copyAddinFilesStub.called).to.be.false;
+    chai.expect(convertProjectStub.called).to.be.false;
   });
 
   afterEach(async () => {
