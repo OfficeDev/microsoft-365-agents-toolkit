@@ -402,7 +402,7 @@ jobs:
         id: upload-gif
         continue-on-error: true
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.COPILOT_CLI_RUNNER_TOKEN }}
           ISSUE: ${{ inputs.issue_number }}
           REPO: ${{ github.repository }}
           GIF_FILE: ${{ steps.gif.outputs.gif_path }}
