@@ -203,9 +203,17 @@ jobs:
           ## Your mission
           Read issue #__ISSUE_NUMBER__ in repo __REPO__ and execute the described test task against the ATK VSCode extension.
 
-          ## Step 0 – Read the issue
+          ## Step 0 – Read the issue and check for branch override
           gh issue view __ISSUE_NUMBER__ --repo __REPO__ --json title,body,labels,comments
           Extract: what capability to test, which ATK command/template/workflow, expected behaviour.
+
+          IMPORTANT: Check if any comment contains a line like:
+            git checkout <branch-name>
+          or mentions "branch fix/..." or "checkout branch ...".
+          If a branch override is found, run:
+            git fetch origin <branch-name>
+            git checkout <branch-name>
+          This ensures the test uses the code from the correct branch.
 
           ## Step 1 – Find or create a test plan
           cat packages/tests/copilot-test/test-plans/README.md
