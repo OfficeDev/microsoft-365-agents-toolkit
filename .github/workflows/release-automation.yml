@@ -653,7 +653,7 @@ jobs:
           script: |
             const owner = context.repo.owner;
             const repo = context.repo.repo;
-            const base = 'dev';
+            const base = '${{ steps.config.outputs.branch }}';
             const head = '${{ steps.version_bump_push.outputs.bump_branch }}';
             const version = '${{ steps.version_bump_pr.outputs.version }}';
             const majorMinor = '${{ steps.version_bump_pr.outputs.major_minor }}';
