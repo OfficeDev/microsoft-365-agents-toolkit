@@ -26,8 +26,6 @@ describe("openPlugin.deterministicAppId", () => {
   it("matches the npm 'uuid' library's v5 output for the URL namespace + 'www.example.com'", () => {
     // Cross-checked against `uuid` npm package: v5("www.example.com", URL_NAMESPACE).
     // Pinned here as a regression anchor for the byte mangling and namespace bytes.
-    expect(deterministicAppId("www.example.com")).to.equal(
-      "b63cdfa4-3df9-568e-97ae-006c5b8fd652"
-    );
+    expect(deterministicAppId("www.example.com")).to.equal("b63cdfa4-3df9-568e-97ae-006c5b8fd652");
   });
 });

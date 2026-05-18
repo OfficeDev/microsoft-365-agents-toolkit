@@ -80,7 +80,10 @@ export async function readOpenPluginDir(root: string): Promise<ParsedOpenPlugin>
   if (await fs.pathExists(mcpAbs)) {
     const mcpJson = (await fs.readJSON(mcpAbs)) as OpenPluginMcpJson;
     const source =
-      mcpJson && typeof mcpJson === "object" && mcpJson.mcpServers && typeof mcpJson.mcpServers === "object"
+      mcpJson &&
+      typeof mcpJson === "object" &&
+      mcpJson.mcpServers &&
+      typeof mcpJson.mcpServers === "object"
         ? mcpJson.mcpServers
         : mcpJson;
     if (source && typeof source === "object") {

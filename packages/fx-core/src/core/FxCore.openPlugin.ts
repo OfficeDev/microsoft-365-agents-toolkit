@@ -23,12 +23,7 @@ import { ConvertInputs, DefaultAuthOption } from "../component/generator/openPlu
 import { ErrorHandlerMW } from "./middleware/errorHandler";
 import { FxCoreDeclarativeAgentPart } from "./FxCore.declarativeAgent";
 
-const ALLOWED_AUTH: DefaultAuthOption[] = [
-  "Auto",
-  "None",
-  "OAuthPluginVault",
-  "ApiKeyPluginVault",
-];
+const ALLOWED_AUTH: DefaultAuthOption[] = ["Auto", "None", "OAuthPluginVault", "ApiKeyPluginVault"];
 
 export class FxCoreOpenPluginPart extends FxCoreDeclarativeAgentPart {
   /**

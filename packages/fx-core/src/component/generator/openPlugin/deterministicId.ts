@@ -14,10 +14,7 @@ const URL_NAMESPACE_BYTES = Buffer.from([
  */
 export function deterministicAppId(seed: string): string {
   const nameBytes = Buffer.from(seed, "utf8");
-  const hash = createHash("sha1")
-    .update(URL_NAMESPACE_BYTES)
-    .update(nameBytes)
-    .digest();
+  const hash = createHash("sha1").update(URL_NAMESPACE_BYTES).update(nameBytes).digest();
   const bytes = Buffer.from(hash.subarray(0, 16));
   // version (5) and variant bits per RFC 4122
   bytes[6] = (bytes[6] & 0x0f) | 0x50;

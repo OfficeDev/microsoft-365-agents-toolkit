@@ -18,7 +18,9 @@ import { MockedM365Provider } from "../../../core/utils";
 import { MockedLogProvider, MockedUserInteraction } from "../../../plugins/solution/util";
 
 const FIXTURE = path.join(__dirname, "fixtures", "contoso-helper");
-const FAKE_LOGO_BYTES = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0xde, 0xad, 0xbe, 0xef]);
+const FAKE_LOGO_BYTES = Buffer.from([
+  0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0xde, 0xad, 0xbe, 0xef,
+]);
 
 async function tmp(prefix: string): Promise<string> {
   return await fs.mkdtemp(path.join(os.tmpdir(), prefix));
@@ -66,10 +68,8 @@ describe("openPlugin fixture conversion (Contoso Helper)", () => {
         full: "Contoso Helper",
       },
       description: {
-        short:
-          "Contoso productivity helper that automates code review documentation generation",
-        full:
-          "Contoso productivity helper that automates code review documentation generation and routine engineering tasks for Contoso teams.",
+        short: "Contoso productivity helper that automates code review documentation generation",
+        full: "Contoso productivity helper that automates code review documentation generation and routine engineering tasks for Contoso teams.",
       },
       icons: { color: "color.png", outline: "outline.png" },
       accentColor: "#4A90D9",

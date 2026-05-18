@@ -1,10 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 import { CLICommand, err, ok } from "@microsoft/teamsfx-api";
-import {
-  ConvertOpenPluginInputs,
-  ConvertOpenPluginOptions,
-} from "@microsoft/teamsfx-core";
+import { ConvertOpenPluginInputs, ConvertOpenPluginOptions } from "@microsoft/teamsfx-core";
 import { getFxCore } from "../../activate";
 import { logger } from "../../commonlib/logger";
 import { commands } from "../../resource";

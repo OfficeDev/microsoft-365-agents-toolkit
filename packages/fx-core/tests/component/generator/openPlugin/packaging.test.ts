@@ -35,10 +35,7 @@ async function seedSamplePlugin(root: string): Promise<void> {
     "---\nname: hello\ndescription: hi\n---\nbody"
   );
   await fs.ensureDir(path.join(root, "skills", "hello", "nested"));
-  await fs.writeFile(
-    path.join(root, "skills", "hello", "nested", "helper.md"),
-    "# nested helper"
-  );
+  await fs.writeFile(path.join(root, "skills", "hello", "nested", "helper.md"), "# nested helper");
 }
 
 describe("openPlugin → teamsApp/zipAppPackage end-to-end", () => {
@@ -100,10 +97,12 @@ describe("openPlugin → teamsApp/zipAppPackage end-to-end", () => {
       expect(entries).to.include("manifest.json");
       expect(entries).to.include("color.png");
       expect(entries).to.include("outline.png");
-      expect(entries.some((e) => e === "skills/hello/SKILL.md" || e === "skills\\hello\\SKILL.md")).to.equal(true);
       expect(
-        entries.some((e) =>
-          e === "skills/hello/nested/helper.md" || e === "skills\\hello\\nested\\helper.md"
+        entries.some((e) => e === "skills/hello/SKILL.md" || e === "skills\\hello\\SKILL.md")
+      ).to.equal(true);
+      expect(
+        entries.some(
+          (e) => e === "skills/hello/nested/helper.md" || e === "skills\\hello\\nested\\helper.md"
         )
       ).to.equal(true);
     } finally {
@@ -141,7 +140,9 @@ describe("openPlugin → teamsApp/zipAppPackage end-to-end", () => {
 
       const zip = new AdmZip(args.outputZipPath);
       const entries = zip.getEntries().map((e) => e.entryName);
-      expect(entries.some((e) => e.startsWith("skills/") || e.startsWith("skills\\"))).to.equal(false);
+      expect(entries.some((e) => e.startsWith("skills/") || e.startsWith("skills\\"))).to.equal(
+        false
+      );
     } finally {
       featureFlagManager.setBooleanValue(FeatureFlags.AgentSkillsManifest, wasEnabled);
     }
