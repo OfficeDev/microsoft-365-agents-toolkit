@@ -406,6 +406,7 @@ jobs:
           ISSUE: ${{ inputs.issue_number }}
           REPO: ${{ github.repository }}
           GIF_FILE: ${{ steps.gif.outputs.gif_path }}
+          TEST_OUTPUT_DIR: ${{ env.TEST_OUTPUT_DIR }}
         run: |
           echo "Uploading GIF: $GIF_FILE (size: $(wc -c < "$GIF_FILE") bytes)"
           pip3 install --quiet requests 2>/dev/null || true
