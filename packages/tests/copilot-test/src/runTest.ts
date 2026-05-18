@@ -34,7 +34,7 @@ function sleep(ms: number) {
 async function startSignalWatcher(
   signalDir: string,
   getPage: () => Page | null,
-  stopFlag: { stop: boolean }
+  stopFlag: { stop: boolean },
 ) {
   fs.mkdirSync(signalDir, { recursive: true });
   console.log("📡 Signal watcher started →", signalDir);
@@ -76,7 +76,7 @@ async function startSignalWatcher(
               await sleep(500); // settle
             } catch {
               console.warn(
-                `  ⚠️ clickText: "${text}" not found, trying pressKey ArrowDown+Enter`
+                `  ⚠️ clickText: "${text}" not found, trying pressKey ArrowDown+Enter`,
               );
               await page.keyboard.press("ArrowDown");
               await sleep(200);
@@ -100,7 +100,7 @@ async function startSignalWatcher(
           if (page) {
             // Use fill() to set/clear input - avoids Ctrl+a shortcuts that can trigger QuickInput actions
             const input = page.locator(
-              ".quick-input-box input, .quick-input-filter .input"
+              ".quick-input-box input, .quick-input-filter .input",
             );
             try {
               await input.first().waitFor({ timeout: 5000 });
@@ -127,7 +127,7 @@ async function startSignalWatcher(
               console.log(`  ✅ Found text: "${text}"`);
             } catch {
               console.warn(
-                `  ⚠️ waitForText: "${text}" not found within timeout`
+                `  ⚠️ waitForText: "${text}" not found within timeout`,
               );
             }
           }
@@ -141,7 +141,35 @@ async function startSignalWatcher(
             let result = "";
             if (page) {
               try {
-                const val = await page.evaluate(evalScript);
+                // Gallery webview is a sandboxed iframe inside the main VSCode page.
+                // Try to find it via page.frames() — it has a vscode-webview:// URL.
+                const frames = page.frames();
+                const galleryFrame = frames.find((f) =>
+                  f.url().startsWith("vscode-webview://"),
+                );
+                let val: unknown;
+                if (galleryFrame) {
+                  console.log(
+                    `  🖼️  Evaluating in gallery frame: ${galleryFrame.url().slice(0, 60)}`,
+                  );
+                  // Wait for gallery content to be rendered (sample cards or layout buttons)
+                  try {
+                    await galleryFrame.waitForSelector(
+                      "[role=button], .sample-card, .layout-button, .ms-Link",
+                      { timeout: 15000 },
+                    );
+                  } catch {
+                    console.warn(
+                      "  ⚠️  Gallery content not found within 15s, evaluating anyway",
+                    );
+                  }
+                  val = await galleryFrame.evaluate(evalScript);
+                } else {
+                  console.log(
+                    `  ℹ️  No gallery frame found (${frames.length} frames), evaluating main page`,
+                  );
+                  val = await page.evaluate(evalScript);
+                }
                 result = typeof val === "string" ? val : JSON.stringify(val);
                 console.log(`  🔍 Eval result: ${result.slice(0, 120)}`);
               } catch (evalErr) {
@@ -195,7 +223,7 @@ async function main() {
 
   // Clean old signals
   fs.readdirSync(signalDir).forEach((f) =>
-    fs.rmSync(path.join(signalDir, f), { force: true })
+    fs.rmSync(path.join(signalDir, f), { force: true }),
   );
 
   console.log("=== Playwright + test-electron Hybrid Runner ===");
@@ -233,7 +261,7 @@ async function main() {
     TESTS_ROOT,
     "node_modules",
     ".bin",
-    process.platform === "win32" ? "tsc.CMD" : "tsc"
+    process.platform === "win32" ? "tsc.CMD" : "tsc",
   );
   const compileResult = cp.spawnSync(tscBin, ["--project", tsconfigPath], {
     cwd: HERE,
@@ -257,7 +285,7 @@ async function main() {
   const watcherPromise = startSignalWatcher(
     signalDir,
     () => activePage,
-    stopFlag
+    stopFlag,
   );
 
   const userExtDir =
@@ -266,14 +294,14 @@ async function main() {
 
   const yamlExtPresent =
     fs.existsSync(
-      path.join(userExtDir, "redhat.vscode-yaml", "package.json")
+      path.join(userExtDir, "redhat.vscode-yaml", "package.json"),
     ) ||
     fs
       .readdirSync(userExtDir)
       .some(
         (d) =>
           d.startsWith("redhat.vscode-yaml") &&
-          fs.existsSync(path.join(userExtDir, d, "package.json"))
+          fs.existsSync(path.join(userExtDir, d, "package.json")),
       );
   console.log(`Extensions dir: ${userExtDir} (yaml: ${yamlExtPresent})`);
 
@@ -336,12 +364,21 @@ async function main() {
 
       contexts.forEach((ctx) => {
         ctx.on("page", (newPage) => {
-          console.log("  New page:", newPage.url());
-          // Stay on main window for QuickPick (QuickPick is in the main window, not a separate page)
-          // Only switch to new page if it's a webview panel
-          if (newPage.url().includes("webview-panel")) {
-            activePage = newPage;
-          }
+          console.log("  New page (initial url):", newPage.url().slice(0, 80));
+          // VSCode gallery webview uses vscode-webview:// URLs as CDP targets.
+          // The URL may be empty at page-event time; listen for navigation too.
+          const switchIfWebview = () => {
+            const url = newPage.url();
+            if (url.includes("vscode-webview")) {
+              activePage = newPage;
+              console.log(
+                "  → Switched activePage to gallery webview:",
+                url.slice(0, 80),
+              );
+            }
+          };
+          switchIfWebview();
+          newPage.on("domcontentloaded", switchIfWebview);
         });
       });
     }

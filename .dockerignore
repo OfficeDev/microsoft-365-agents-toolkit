@@ -31,6 +31,7 @@ packages/server
 packages/simpleauth
 packages/spec-parser
 packages/vscode-extension
+!packages/vscode-extension/src/controls/sampleGallery
 packages/vscode-ui
 # Exclude the rest of packages/tests (only copilot-test subdir is needed)
 packages/tests/e2e-test

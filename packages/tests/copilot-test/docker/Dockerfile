@@ -100,6 +100,10 @@ RUN node -e "\
     .catch(e => console.warn('VSCode pre-download skipped:', e.message)) \
     .finally(() => process.exit(0));" || true
 
+# Copy sampleGallery source so TC source-level checks resolve inside Docker
+# Test path: /runner/src/../../../../packages/vscode-extension/src/controls/sampleGallery/
+COPY packages/vscode-extension/src/controls/sampleGallery/ /packages/vscode-extension/src/controls/sampleGallery/
+
 # ── Entry point ───────────────────────────────────────────────────────────────
 COPY packages/tests/copilot-test/docker/run-test.sh /usr/local/bin/run-test.sh
 RUN sed -i 's/\r//g' /usr/local/bin/run-test.sh \
