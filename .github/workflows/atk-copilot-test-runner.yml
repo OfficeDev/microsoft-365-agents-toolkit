@@ -94,29 +94,28 @@ jobs:
 
       - name: Install redhat.vscode-yaml (satisfies ATK extensionDependencies)
         run: |
-          mkdir -p $HOME/vscode-extensions
-          # Download yaml extension from VS Code marketplace
-          curl -L -o /tmp/vscode-yaml.vsix \
-            "https://marketplace.visualstudio.com/_apis/public/gallery/publishers/redhat/vsextensions/vscode-yaml/latest/vspackage" \
-            --header "Accept: application/octet-stream" 2>/dev/null || true
-          if [ -f /tmp/vscode-yaml.vsix ] && [ -s /tmp/vscode-yaml.vsix ]; then
-            # VSIX is a ZIP whose contents live inside an extension/ subfolder.
-            # Extract that subfolder to $HOME/vscode-extensions/redhat.vscode-yaml/
-            # Tolerate failures — runTest.ts falls back to --install-extension if extension is missing.
-            mkdir -p /tmp/yaml-vsix
-            if unzip -q /tmp/vscode-yaml.vsix -d /tmp/yaml-vsix 2>/dev/null && [ -d /tmp/yaml-vsix/extension ]; then
-              mv /tmp/yaml-vsix/extension $HOME/vscode-extensions/redhat.vscode-yaml
-              echo "VSCODE_EXTENSIONS_DIR=$HOME/vscode-extensions" >> $GITHUB_ENV
-              echo "redhat.vscode-yaml installed to $HOME/vscode-extensions/redhat.vscode-yaml"
-              ls $HOME/vscode-extensions/redhat.vscode-yaml/package.json 2>/dev/null && echo "package.json found ✓" || echo "::warning::package.json not found"
-            else
-              echo "::warning::yaml vsix unzip failed (bad download); runTest.ts will use --install-extension fallback"
-            fi
-            rm -rf /tmp/yaml-vsix /tmp/vscode-yaml.vsix
-          else
-            # Fallback: use --install-extension at runtime via launchArgs
-            echo "::warning::yaml vsix download failed; ATK will use --install-extension fallback"
-          fi
+          # Create a minimal stub extension locally — no marketplace download needed.
+          # ATK's extensionDependencies only requires the extension ID to be present;
+          # the stub satisfies this without needing the full YAML language server.
+          EXT_DIR="$HOME/vscode-extensions/redhat.vscode-yaml"
+          mkdir -p "$EXT_DIR"
+          cat > "$EXT_DIR/package.json" << 'PKGEOF'
+          {
+            "name": "vscode-yaml",
+            "publisher": "redhat",
+            "version": "1.0.0",
+            "displayName": "YAML Language Support (stub)",
+            "description": "Stub extension satisfying ATK extensionDependencies",
+            "engines": { "vscode": "^1.0.0" },
+            "activationEvents": [],
+            "main": "./extension.js",
+            "contributes": {}
+          }
+          PKGEOF
+          printf 'exports.activate = function() {};\nexports.deactivate = function() {};\n' > "$EXT_DIR/extension.js"
+          echo "VSCODE_EXTENSIONS_DIR=$HOME/vscode-extensions" >> $GITHUB_ENV
+          echo "redhat.vscode-yaml stub created at $EXT_DIR"
+          ls "$EXT_DIR/package.json" && echo "package.json ✓"
 
       - name: Start Xvfb
         run: |

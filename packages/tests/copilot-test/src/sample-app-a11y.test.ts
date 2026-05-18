@@ -189,6 +189,15 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
         : "command not registered (extension not fully active — source-level checks used for TC-002/004/005)"
     );
 
+    if (!available) {
+      // Diagnostic: log which fx-extension commands ARE registered to help debug
+      const allCmds = await vscode.commands.getCommands(true);
+      const fxCmds = allCmds.filter((c) => c.startsWith("fx-extension"));
+      console.log(
+        `  [diag] fx-extension.* commands registered (${fxCmds.length}):`,
+        fxCmds.slice(0, 20).join(", ") || "(none)"
+      );
+    }
     if (available) {
       // Fire without await — command opens a webview panel
       vscode.commands.executeCommand(cmdName).then(undefined, () => {});
