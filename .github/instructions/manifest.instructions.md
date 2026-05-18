@@ -189,13 +189,17 @@ await pluginManifest.save();
 
 ## Adding a New Schema Version
 
-1. Add the new schema JSON file to the appropriate folder in `src/json-schemas/`
-2. Run `npm run convert` to regenerate types
-3. Update `src/generated-types/index.ts` to:
+1. Sync schemas from upstream first (preferred): run `node download.js` in `packages/manifest` so new schema folders are pulled from `microsoft/json-schemas`
+2. If needed, add/update schema JSON files in the appropriate folder under `src/json-schemas/`
+3. Run `npm run convert` to regenerate types
+4. Update `src/generated-types/index.ts` to:
    - Import the new version module
    - Add to the union type
    - Add converter mapping in the appropriate `ConverterMap`
-4. If this is a new "latest" version, update the `*Latest` type alias
+   - Re-export any newly introduced enums/types that callers consume (for example, schema-added enums)
+5. If this is a new "latest" version, update the `*Latest` type alias
+6. Ensure the new schema version is registered in converter maps (for example `daConverterMap` / `TeamsManifestConverterMap`) to avoid fallback unchecked casts that skip validation
+7. Verify map/schema parity with `npx mocha test/converterMapParity.test.ts`
 
 ## Extending Wrappers
 
