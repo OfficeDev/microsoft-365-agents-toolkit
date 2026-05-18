@@ -187,8 +187,8 @@ jobs:
                 end
             ' releases.json)
           else
-            REASON="cut_date=$TOMORROW_UTC8 (tomorrow UTC+8)"
-            RELEASE=$(jq -c --arg d "$TOMORROW_UTC8" '[.[] | select(.cut_date == $d)] | .[0]' releases.json)
+            REASON="cut_date=$TODAY_UTC8 (UTC+8)"
+            RELEASE=$(jq -c --arg d "$TODAY_UTC8" '[.[] | select(.cut_date == $d)] | .[0]' releases.json)
           fi
 
           if [ "$RELEASE" = "null" ] || [ -z "$RELEASE" ]; then
