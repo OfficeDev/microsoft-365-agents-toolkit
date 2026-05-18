@@ -1,4 +1,4 @@
-﻿name: ATK Copilot Test Runner
+name: ATK Copilot Test Runner
 
 # Triggered by atk-copilot-test-label.yml (via workflow_call) or manually.
 #
@@ -402,7 +402,7 @@ jobs:
         id: upload-gif
         continue-on-error: true
         env:
-          GH_TOKEN: ${{ secrets.COPILOT_CLI_RUNNER_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ISSUE: ${{ inputs.issue_number }}
           REPO: ${{ github.repository }}
           GIF_FILE: ${{ steps.gif.outputs.gif_path }}
