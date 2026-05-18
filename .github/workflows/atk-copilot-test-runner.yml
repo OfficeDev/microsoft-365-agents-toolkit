@@ -100,9 +100,15 @@ jobs:
             "https://marketplace.visualstudio.com/_apis/public/gallery/publishers/redhat/vsextensions/vscode-yaml/latest/vspackage" \
             --header "Accept: application/octet-stream" 2>/dev/null || true
           if [ -f /tmp/vscode-yaml.vsix ] && [ -s /tmp/vscode-yaml.vsix ]; then
-            cd $HOME/vscode-extensions && unzip -q /tmp/vscode-yaml.vsix -d redhat.vscode-yaml && rm /tmp/vscode-yaml.vsix
+            # VSIX is a ZIP whose contents live inside an extension/ subfolder.
+            # Extract that subfolder to $HOME/vscode-extensions/redhat.vscode-yaml/
+            mkdir -p /tmp/yaml-vsix
+            unzip -q /tmp/vscode-yaml.vsix -d /tmp/yaml-vsix
+            mv /tmp/yaml-vsix/extension $HOME/vscode-extensions/redhat.vscode-yaml
+            rm -rf /tmp/yaml-vsix /tmp/vscode-yaml.vsix
             echo "VSCODE_EXTENSIONS_DIR=$HOME/vscode-extensions" >> $GITHUB_ENV
-            echo "redhat.vscode-yaml installed to $HOME/vscode-extensions"
+            echo "redhat.vscode-yaml installed to $HOME/vscode-extensions/redhat.vscode-yaml"
+            ls $HOME/vscode-extensions/redhat.vscode-yaml/package.json 2>/dev/null && echo "package.json found ✓" || echo "::warning::package.json not found in yaml extension dir"
           else
             # Fallback: use --install-extension at runtime via launchArgs
             echo "::warning::yaml vsix download failed; ATK will use --install-extension fallback"
@@ -307,7 +313,7 @@ jobs:
             GIF_PATH="${TEST_OUTPUT_DIR}/test-run.gif"
             GIF_URL=""
             if [ -f "$GIF_PATH" ]; then
-              RESP=$(curl -s -X POST -H "Authorization: Bearer $GH_TOKEN" -H "Content-Type: image/gif" --data-binary "@$GIF_PATH" "https://uploads.github.com/repos/__REPO__/issues/__ISSUE_NUMBER__/assets")
+              RESP=$(curl -s -X POST -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" -F "data=@$GIF_PATH;type=image/gif" "https://uploads.github.com/repos/__REPO__/issues/__ISSUE_NUMBER__/assets?name=test-run.gif")
               GIF_URL=$(echo "$RESP" | python3 -c "import sys,json; print(json.load(sys.stdin).get('browser_download_url',''))" 2>/dev/null || echo "")
               echo "GIF URL: $GIF_URL"
             fi
@@ -389,15 +395,12 @@ jobs:
           ISSUE: ${{ inputs.issue_number }}
         run: |
           GIF_FILE="${{ steps.gif.outputs.gif_path }}"
-          FILE_SIZE=$(wc -c < "$GIF_FILE")
-          echo "Uploading GIF: $GIF_FILE ($FILE_SIZE bytes)"
+          echo "Uploading GIF: $GIF_FILE"
           RESPONSE=$(curl -s -X POST \
             -H "Authorization: token $GH_TOKEN" \
-            -H "Content-Type: image/gif" \
-            -H "Content-Length: $FILE_SIZE" \
             -H "Accept: application/vnd.github+json" \
             -H "X-GitHub-Api-Version: 2022-11-28" \
-            --data-binary "@$GIF_FILE" \
+            -F "data=@$GIF_FILE;type=image/gif" \
             "https://uploads.github.com/repos/${{ github.repository }}/issues/${ISSUE}/assets?name=test-run.gif")
           echo "Upload response: $RESPONSE"
           GIF_URL=$(echo "$RESPONSE" | python3 -c "import sys,json;d=json.load(sys.stdin);print(d.get('browser_download_url') or d.get('url') or '')" 2>/dev/null || echo "")
