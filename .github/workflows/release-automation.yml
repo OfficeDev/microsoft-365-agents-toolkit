@@ -594,12 +594,18 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
+            const { execSync } = require('child_process');
             const fs = require('fs');
-            const path = require('path');
 
             const branch = '${{ steps.config.outputs.branch }}';
             const version = '${{ steps.config.outputs.version }}';
             const majorMinor = version.replace(/\.[^.]*$/, '');
+            const bumpBranch = `chore/bump-version-${majorMinor}`;
+
+            // --- Checkout release branch first ---
+            execSync(`git fetch origin ${branch}`, { stdio: 'inherit' });
+            execSync(`git checkout origin/${branch}`, { stdio: 'inherit' });
+            execSync(`git checkout -b ${bumpBranch}`, { stdio: 'inherit' });
 
             // --- 1. Bump SampleConfigTag (v3.N.0 -> v3.(N+1).0) ---
             const samplesFile = 'packages/fx-core/src/common/samples.ts';
@@ -627,29 +633,17 @@ jobs:
             fs.writeFileSync(pkgFile, JSON.stringify(pkg, null, 2) + '\n');
             core.info(`templates/package.json: version=${version}-alpha`);
 
+            // --- Commit and push ---
+            execSync('git add packages/fx-core/src/common/samples.ts packages/fx-core/src/common/templates-config.json templates/package.json', { stdio: 'inherit' });
+            execSync(`git commit -m "chore: bump template and sample version for ${version}"`, { stdio: 'inherit' });
+            execSync(`git push origin ${bumpBranch}`, { stdio: 'inherit' });
+
             core.setOutput('version', version);
             core.setOutput('major_minor', majorMinor);
-
-      - name: Commit and push version bump
-        id: version_bump_push
-        if: ${{ steps.version_bump_pr.outputs.version != '' }}
-        run: |
-          VERSION="${{ steps.version_bump_pr.outputs.version }}"
-          MAJOR_MINOR="${{ steps.version_bump_pr.outputs.major_minor }}"
-          RELEASE_BRANCH="${{ steps.config.outputs.branch }}"
-          BUMP_BRANCH="chore/bump-version-${MAJOR_MINOR}"
-
-          git fetch origin "$RELEASE_BRANCH"
-          git checkout "origin/$RELEASE_BRANCH"
-          git checkout -b "$BUMP_BRANCH"
-          git add packages/fx-core/src/common/samples.ts packages/fx-core/src/common/templates-config.json templates/package.json
-          git commit -m "chore: bump template and sample version for ${VERSION}"
-          git push origin "$BUMP_BRANCH"
-
-          echo "bump_branch=$BUMP_BRANCH" >> "$GITHUB_OUTPUT"
+            core.setOutput('bump_branch', bumpBranch);
 
       - name: Create version bump PR
-        if: ${{ steps.version_bump_push.outputs.bump_branch != '' }}
+        if: ${{ steps.version_bump_pr.outputs.bump_branch != '' }}
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.RELEASE_AUTOMATION_TOKEN || github.token }}
@@ -657,7 +651,7 @@ jobs:
             const owner = context.repo.owner;
             const repo = context.repo.repo;
             const base = '${{ steps.config.outputs.branch }}';
-            const head = '${{ steps.version_bump_push.outputs.bump_branch }}';
+            const head = '${{ steps.version_bump_pr.outputs.bump_branch }}';
             const version = '${{ steps.version_bump_pr.outputs.version }}';
             const majorMinor = '${{ steps.version_bump_pr.outputs.major_minor }}';
 
