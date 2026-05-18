@@ -10,7 +10,6 @@ env:
   CREATE_BRANCH: ${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.create_branch) || 'true' }}
   RERUN_CD_ONLY: ${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.rerun_cd_only) || 'false' }}
   GO_PRODUCT: ${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.go_product) || 'false' }}
-  VERSION_BUMP_ONLY: ${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.version_bump_only) || 'false' }}
 
 on:
   workflow_dispatch:
@@ -33,10 +32,6 @@ on:
         default: false
       go_product:
         description: "When triggering CD, set goproduct=true (publish TTK as product)."
-        type: boolean
-        default: false
-      version_bump_only:
-        description: "Only run version bump for stable release (skip branch creation, PRs, CD triggers)."
         type: boolean
         default: false
       dry_run:
@@ -187,8 +182,8 @@ jobs:
                 end
             ' releases.json)
           else
-            REASON="cut_date=$TODAY_UTC8 (UTC+8)"
-            RELEASE=$(jq -c --arg d "$TODAY_UTC8" '[.[] | select(.cut_date == $d)] | .[0]' releases.json)
+            REASON="cut_date=$TOMORROW_UTC8 (tomorrow UTC+8)"
+            RELEASE=$(jq -c --arg d "$TOMORROW_UTC8" '[.[] | select(.cut_date == $d)] | .[0]' releases.json)
           fi
 
           if [ "$RELEASE" = "null" ] || [ -z "$RELEASE" ]; then
@@ -395,7 +390,7 @@ jobs:
 
       - name: Create PR to merge dev into existing release branch
         id: sync_pr
-        if: ${{ steps.check_branch.outputs.exists == 'true' && env.DRY_RUN == 'false' && env.RERUN_CD_ONLY == 'false' && env.VERSION_BUMP_ONLY == 'false' && steps.config.outputs.is_prerelease == 'true' }}
+        if: ${{ steps.check_branch.outputs.exists == 'true' && env.DRY_RUN == 'false' && env.RERUN_CD_ONLY == 'false' && steps.config.outputs.is_prerelease == 'true' }}
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.RELEASE_AUTOMATION_TOKEN || github.token }}
@@ -507,7 +502,7 @@ jobs:
             core.setOutput('pr_number', String(created.data.number));
 
       - name: Create PR in samples repo (merge dev into main)
-        if: ${{ env.DRY_RUN == 'false' && env.RERUN_CD_ONLY == 'false' && env.VERSION_BUMP_ONLY == 'false' && steps.config.outputs.is_hotfix != 'true' }}
+        if: ${{ env.DRY_RUN == 'false' && env.RERUN_CD_ONLY == 'false' && steps.config.outputs.is_hotfix != 'true' }}
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.RELEASE_AUTOMATION_TOKEN || github.token }}
@@ -565,7 +560,7 @@ jobs:
 
       - name: Create release branch
         id: create_branch
-        if: ${{ steps.check_branch.outputs.exists == 'false' && env.CREATE_BRANCH == 'true' && env.DRY_RUN == 'false' && env.RERUN_CD_ONLY == 'false' && env.VERSION_BUMP_ONLY == 'false' && steps.config.outputs.is_hotfix != 'true' }}
+        if: ${{ steps.check_branch.outputs.exists == 'false' && env.CREATE_BRANCH == 'true' && env.DRY_RUN == 'false' && env.RERUN_CD_ONLY == 'false' && steps.config.outputs.is_hotfix != 'true' }}
         run: |
           BRANCH="${{ steps.config.outputs.branch }}"
           IS_STABLE="${{ steps.config.outputs.is_stable }}"
@@ -590,7 +585,7 @@ jobs:
 
       - name: Bump versions and create PR for stable release
         id: version_bump_pr
-        if: ${{ (steps.create_branch.outputs.created == 'true' || env.VERSION_BUMP_ONLY == 'true') && steps.config.outputs.is_stable == 'true' && env.DRY_RUN == 'false' }}
+        if: ${{ steps.create_branch.outputs.created == 'true' && steps.config.outputs.is_stable == 'true' && env.DRY_RUN == 'false' }}
         uses: actions/github-script@v7
         with:
           script: |
@@ -674,7 +669,6 @@ jobs:
 
       - name: Decide auto-CD for new release branch
         id: decide_auto_cd
-        if: ${{ env.VERSION_BUMP_ONLY == 'false' }}
         shell: bash
         run: |
           set -euo pipefail
@@ -711,7 +705,6 @@ jobs:
 
       - name: Compose notification (shown + email payload)
         id: notify
-        if: ${{ env.VERSION_BUMP_ONLY == 'false' }}
         run: |
           DATE=$(date -u -d '+8 hours' +%Y-%m-%d)
           PRODUCT="${{ steps.config.outputs.product }}"
@@ -830,7 +823,7 @@ jobs:
           echo "body=$BODY" >> $GITHUB_OUTPUT
 
       - name: Send email notification
-        if: ${{ env.DRY_RUN == 'false' && env.VERSION_BUMP_ONLY == 'false' && env.MAIL_CLIENT_ID != '' && env.MAIL_CLIENT_SECRET != '' && env.MAIL_TENANT_ID != '' }}
+        if: ${{ env.DRY_RUN == 'false' && env.MAIL_CLIENT_ID != '' && env.MAIL_CLIENT_SECRET != '' && env.MAIL_TENANT_ID != '' }}
         env:
           MAIL_CLIENT_ID: ${{ env.MAIL_CLIENT_ID }}
           MAIL_CLIENT_SECRET: ${{ env.MAIL_CLIENT_SECRET }}
@@ -843,7 +836,7 @@ jobs:
   trigger-cd:
     needs: prepare-release
     runs-on: ubuntu-latest
-    if: ${{ github.event_name != 'pull_request' && needs.prepare-release.result == 'success' && (github.event_name != 'workflow_dispatch' || github.event.inputs.version_bump_only != 'true') && ((github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run == 'false' && (github.event.inputs.rerun_cd_only == 'true' || needs.prepare-release.outputs.auto_cd == 'true')) || (github.event_name == 'schedule' && needs.prepare-release.outputs.auto_cd == 'true')) }}
+    if: ${{ github.event_name != 'pull_request' && needs.prepare-release.result == 'success' && ((github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run == 'false' && (github.event.inputs.rerun_cd_only == 'true' || needs.prepare-release.outputs.auto_cd == 'true')) || (github.event_name == 'schedule' && needs.prepare-release.outputs.auto_cd == 'true')) }}
     outputs:
       product: ${{ needs.prepare-release.outputs.product }}
       release_type: ${{ needs.prepare-release.outputs.release_type }}
