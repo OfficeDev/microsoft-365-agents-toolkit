@@ -30,6 +30,18 @@ if [ ! -f "${ATK_EXT_PATH}/out/src/extension.js" ]; then
   rm -rf "${BUILD_DIR}"
   cp -r "${ATK_EXT_PATH}" "${BUILD_DIR}"
   cd "${BUILD_DIR}"
+  # Extension uses workspace:* deps — pnpm is required.
+  # Since we are outside the monorepo, replace workspace:* with "*" for standalone build.
+  python3 -c "
+import json, re
+with open(\"package.json\") as f: p = json.load(f)
+for section in [\"dependencies\", \"devDependencies\"]:
+    for k in p.get(section, {}):
+        if p[section][k] == \"workspace:*\":
+            p[section][k] = \"*\"
+with open(\"package.json\", \"w\") as f: json.dump(p, f, indent=2)
+print(\"Replaced workspace:* deps\")
+"
   npm install --legacy-peer-deps 2>&1 | tail -5
   npm run build 2>&1 | tail -20
   if [ ! -f "${BUILD_DIR}/out/src/extension.js" ]; then

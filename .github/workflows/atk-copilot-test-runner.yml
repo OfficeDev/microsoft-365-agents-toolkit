@@ -264,11 +264,13 @@ jobs:
 
           # Build extension if compiled output is missing (out/src/extension.js is not in git)
           if [ -n \"\$ATK_EXT_PATH\" ] && [ ! -f \"\$ATK_EXT_PATH/out/src/extension.js\" ]; then
-            echo '[build] Building extension from source...'
-            cd \"\$ATK_EXT_PATH\"
-            npm install --legacy-peer-deps 2>&1 | tail -5
-            npm run build 2>&1 | tail -20
-            cd ../../packages/tests/copilot-test
+            echo '[build] Building extension from source (using pnpm for workspace:* deps)...'
+            # pnpm is available (installed by CI setup step); use it to resolve workspace:* deps
+            REPO_ROOT=\$(realpath \"\$ATK_EXT_PATH/../..\")
+            cd \"\$REPO_ROOT\"
+            pnpm install --filter ms-teams-vscode-extension --no-frozen-lockfile 2>&1 | tail -10
+            pnpm --filter ms-teams-vscode-extension run build 2>&1 | tail -20
+            cd packages/tests/copilot-test
             echo '[build] Done.'
           fi
 
