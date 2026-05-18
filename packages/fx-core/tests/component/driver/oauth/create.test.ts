@@ -8,7 +8,7 @@ import chaiAsPromised from "chai-as-promised";
 import "mocha";
 import mockedEnv, { RestoreFn } from "mocked-env";
 import * as sinon from "sinon";
-import { teamsDevPortalClient } from "../../../../src/client/teamsDevPortalClient";
+import { teamsGraphClient } from "../../../../src/client/teamsGraphClient";
 import { setTools } from "../../../../src/common/globalVars";
 import { CreateOauthDriver } from "../../../../src/component/driver/oauth/create";
 import {
@@ -62,7 +62,7 @@ describe("CreateOauthDriver", () => {
       .withArgs(FeatureFlags.KiotaNPMIntegration)
       .returns(false);
     sinon
-      .stub(teamsDevPortalClient, "createOauthRegistration")
+      .stub(teamsGraphClient, "createOauthRegistration")
       .callsFake(async (token, oauthRegistration) => {
         expect(oauthRegistration.clientId).to.equals("mockedClientId");
         expect(oauthRegistration.clientSecret).to.equals("mockedClientSecret");
@@ -136,7 +136,7 @@ describe("CreateOauthDriver", () => {
 
   it("happy path: use parameters for auth info without apiSpecPath", async () => {
     sinon
-      .stub(teamsDevPortalClient, "createOauthRegistration")
+      .stub(teamsGraphClient, "createOauthRegistration")
       .callsFake(async (token, oauthRegistration) => {
         expect(oauthRegistration.clientId).to.equals("mockedClientId");
         expect(oauthRegistration.clientSecret).to.equals("mockedClientSecret");
@@ -187,7 +187,7 @@ describe("CreateOauthDriver", () => {
 
   it("happy path: use parameters for auth info without apiSpecPath, and identityProvider is MicrosoftEntra", async () => {
     sinon
-      .stub(teamsDevPortalClient, "createOauthRegistration")
+      .stub(teamsGraphClient, "createOauthRegistration")
       .callsFake(async (token, oauthRegistration) => {
         expect(oauthRegistration.clientId).to.equals("mockedClientId");
         expect(oauthRegistration.description).to.equals("test");
@@ -231,7 +231,7 @@ describe("CreateOauthDriver", () => {
       .withArgs(FeatureFlags.KiotaNPMIntegration)
       .returns(false);
     sinon
-      .stub(teamsDevPortalClient, "createOauthRegistration")
+      .stub(teamsGraphClient, "createOauthRegistration")
       .callsFake(async (token, oauthRegistration) => {
         expect(oauthRegistration.clientId).to.equals("mockedClientId");
         expect(oauthRegistration.description).to.equals("test");
@@ -305,7 +305,7 @@ describe("CreateOauthDriver", () => {
       .withArgs(FeatureFlags.KiotaNPMIntegration)
       .returns(false);
     sinon
-      .stub(teamsDevPortalClient, "createOauthRegistration")
+      .stub(teamsGraphClient, "createOauthRegistration")
       .callsFake(async (token, oauthRegistration) => {
         expect(oauthRegistration.clientId).to.equals("mockedClientId");
         expect(oauthRegistration.description).to.equals("test");
@@ -381,7 +381,7 @@ describe("CreateOauthDriver", () => {
       .withArgs(FeatureFlags.KiotaNPMIntegration)
       .returns(false);
     sinon
-      .stub(teamsDevPortalClient, "createOauthRegistration")
+      .stub(teamsGraphClient, "createOauthRegistration")
       .callsFake(async (token, oauthRegistration) => {
         expect(oauthRegistration.clientId).to.equals("mockedClientId");
         expect(oauthRegistration.description).to.equals("test");
@@ -453,7 +453,7 @@ describe("CreateOauthDriver", () => {
       .withArgs(FeatureFlags.KiotaNPMIntegration)
       .returns(false);
     sinon
-      .stub(teamsDevPortalClient, "createOauthRegistration")
+      .stub(teamsGraphClient, "createOauthRegistration")
       .callsFake(async (token, oauthRegistration) => {
         expect(oauthRegistration.clientId).to.equals("mockedClientId");
         expect(oauthRegistration.clientSecret).to.equals("mockedClientSecret");
@@ -531,7 +531,7 @@ describe("CreateOauthDriver", () => {
       .withArgs(FeatureFlags.KiotaNPMIntegration)
       .returns(false);
     sinon
-      .stub(teamsDevPortalClient, "createOauthRegistration")
+      .stub(teamsGraphClient, "createOauthRegistration")
       .callsFake(async (token, oauthRegistration) => {
         expect(oauthRegistration.clientId).to.equals("mockedClientId");
         expect(oauthRegistration.description).to.equals("test");
@@ -600,7 +600,7 @@ describe("CreateOauthDriver", () => {
       .withArgs(FeatureFlags.KiotaNPMIntegration)
       .returns(false);
     sinon
-      .stub(teamsDevPortalClient, "createOauthRegistration")
+      .stub(teamsGraphClient, "createOauthRegistration")
       .callsFake(async (token, oauthRegistration) => {
         expect(oauthRegistration.clientId).to.equals("mockedClientId");
         expect(oauthRegistration.clientSecret).to.equals("mockedClientSecret");
@@ -678,7 +678,7 @@ describe("CreateOauthDriver", () => {
       .withArgs(FeatureFlags.KiotaNPMIntegration)
       .returns(false);
     sinon
-      .stub(teamsDevPortalClient, "createOauthRegistration")
+      .stub(teamsGraphClient, "createOauthRegistration")
       .callsFake(async (token, oauthRegistration) => {
         expect(oauthRegistration.clientId).to.equals("mockedClientId");
         expect(oauthRegistration.clientSecret).to.equals("mockedClientSecret");
@@ -753,7 +753,7 @@ describe("CreateOauthDriver", () => {
       .withArgs(FeatureFlags.KiotaNPMIntegration)
       .returns(false);
     sinon
-      .stub(teamsDevPortalClient, "createOauthRegistration")
+      .stub(teamsGraphClient, "createOauthRegistration")
       .callsFake(async (token, oauthRegistration) => {
         expect(oauthRegistration.clientId).to.equals("mockedClientId");
         expect(oauthRegistration.clientSecret).to.equals("mockedClientSecret");
@@ -826,7 +826,7 @@ describe("CreateOauthDriver", () => {
   });
 
   it("happy path: registration id exists in env", async () => {
-    sinon.stub(teamsDevPortalClient, "getOauthRegistrationById").resolves({
+    sinon.stub(teamsGraphClient, "getOauthRegistrationById").resolves({
       oAuthConfigId: "mockedId",
       clientId: "mockedClientId",
       clientSecret: "mockedClientSecret",
@@ -950,7 +950,7 @@ describe("CreateOauthDriver", () => {
 
   it("should show warning if registration id exists and failed to get Oauth registration", async () => {
     sinon
-      .stub(teamsDevPortalClient, "getOauthRegistrationById")
+      .stub(teamsGraphClient, "getOauthRegistrationById")
       .throws(new SystemError("source", "name", "message"));
 
     const args: any = {
@@ -1376,7 +1376,7 @@ describe("CreateOauthDriver", () => {
       .withArgs(FeatureFlags.KiotaNPMIntegration)
       .returns(false);
     sinon
-      .stub(teamsDevPortalClient, "createOauthRegistration")
+      .stub(teamsGraphClient, "createOauthRegistration")
       .throws(new SystemError("source", "name", "message"));
     sinon.stub(SpecParser.prototype, "list").resolves({
       APIs: [
@@ -1428,7 +1428,7 @@ describe("CreateOauthDriver", () => {
       .stub(featureFlagManager, "getBooleanValue")
       .withArgs(FeatureFlags.KiotaNPMIntegration)
       .returns(false);
-    sinon.stub(teamsDevPortalClient, "createOauthRegistration").throws(new Error("error"));
+    sinon.stub(teamsGraphClient, "createOauthRegistration").throws(new Error("error"));
     sinon.stub(SpecParser.prototype, "list").resolves({
       APIs: [
         {

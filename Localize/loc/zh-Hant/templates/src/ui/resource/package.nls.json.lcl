@@ -300,19 +300,25 @@
       </Item>
       <Item ItemId=";template.createProjectQuestion.mcpForDa.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Create actions from your existing MCP server]]></Val>
+          <Val><![CDATA[Create an action from your existing MCP server]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[從現有的 MCP 伺服器建立動作]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Create actions from your existing MCP server]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";template.createProjectQuestion.mcpForDa.label" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Start with an MCP server]]></Val>
+          <Val><![CDATA[Start with a MCP server]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[從 MCP 伺服器開始]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Start with an MCP server]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>

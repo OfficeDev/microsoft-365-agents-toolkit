@@ -35,6 +35,7 @@ import { EmbeddedKnowledgeLocalDirectoryName } from "../../driver/teamsApp/const
 import { copilotGptManifestUtils } from "../../driver/teamsApp/utils/CopilotGptManifestUtils";
 import { ActionContext } from "../../middleware/actionExecutionMW";
 import { outputScaffoldingWarningMessage } from "../../utils/common";
+import { developerPortalScaffoldUtils } from "../../developerPortalScaffoldUtils";
 import { DefaultTemplateGenerator } from "../defaultGenerator";
 import { Generator } from "../generator";
 import { TemplateInfo } from "../templates/templateInfo";
@@ -189,6 +190,16 @@ export class DeclarativeAgentGenerator extends DefaultTemplateGenerator {
         return ok({ warnings: addPluginRes.value.warnings });
       }
     } else {
+      if (inputs.teamsAppFromTdp) {
+        const res = await developerPortalScaffoldUtils.updateFilesForTdp(
+          context,
+          inputs.teamsAppFromTdp,
+          inputs
+        );
+        if (res.isErr()) {
+          return err(res.error);
+        }
+      }
       return ok({});
     }
   }

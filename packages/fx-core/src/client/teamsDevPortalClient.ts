@@ -7,6 +7,7 @@ import axios, { AxiosInstance, AxiosResponse } from "axios";
 import { getResourceServiceEndpoint, HelpLinks, ResourceServiceType } from "../common/constants";
 import { ErrorContextMW, TOOLS } from "../common/globalVars";
 import { getDefaultString, getLocalizedString } from "../common/localizeUtils";
+import { RetryHandler } from "../common/retryHandler";
 import {
   TelemetryEvent,
   TelemetryProperty,
@@ -61,28 +62,6 @@ import { IAADDefinition } from "./interfaces/aad/IAADDefinition";
 import { AADApplication } from "../component/driver/aad/interface/AADApplication";
 import { aadErrorCode } from "../component/driver/aad/utility/constants";
 import { SignInAudienceNotAllowedError } from "../component/driver/aad/error/signInAudienceNotAllowedError";
-
-export class RetryHandler {
-  public static RETRIES = 6;
-  public static async Retry<T>(fn: () => Promise<T>): Promise<T | undefined> {
-    let retries = this.RETRIES;
-    let response;
-    while (retries > 0) {
-      retries = retries - 1;
-      try {
-        response = await fn();
-        return response;
-      } catch (e: any) {
-        // Directly throw 404 error, keep trying for other status code e.g. 503 400
-        if (retries <= 0 || e.response?.status == 404 || e.response?.status == 409) {
-          throw e;
-        } else {
-          await new Promise((resolve) => setTimeout(resolve, 5000));
-        }
-      }
-    }
-  }
-}
 
 export class TeamsDevPortalClient {
   regionEndpoint?: string;

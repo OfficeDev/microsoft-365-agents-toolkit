@@ -4,8 +4,8 @@
 import { hooks } from "@feathersjs/hooks";
 import { M365TokenProvider, SystemError, UserError, err, ok } from "@microsoft/teamsfx-api";
 import { Service } from "typedi";
-import { teamsDevPortalClient } from "../../../client/teamsDevPortalClient";
-import { AppStudioScopes, GraphScopes } from "../../../common/constants";
+import { teamsGraphClient } from "../../../client/teamsGraphClient";
+import { GraphScopes, TeamsGraphScopes } from "../../../common/constants";
 import { getLocalizedString } from "../../../common/localizeUtils";
 import { InvalidActionInputError, assembleError } from "../../../error/common";
 import { QuestionNames } from "../../../question/constants";
@@ -55,7 +55,7 @@ export class CreateOauthDriver implements StepDriver {
 
       const state = loadStateFromEnv(outputEnvVarNames) as CreateOauthOutputs;
       const appStudioTokenRes = await context.m365TokenProvider.getAccessToken({
-        scopes: AppStudioScopes(),
+        scopes: TeamsGraphScopes(),
       });
       if (appStudioTokenRes.isErr()) {
         throw appStudioTokenRes.error;
@@ -64,10 +64,7 @@ export class CreateOauthDriver implements StepDriver {
 
       if (state && state.configurationId) {
         try {
-          await teamsDevPortalClient.getOauthRegistrationById(
-            appStudioToken,
-            state.configurationId
-          );
+          await teamsGraphClient.getOauthRegistrationById(appStudioToken, state.configurationId);
           context.logProvider?.info(
             getLocalizedString(
               logMessageKeys.skipCreateOauth,
@@ -116,7 +113,7 @@ export class CreateOauthDriver implements StepDriver {
           authInfo
         );
 
-        const oauthRegistrationRes = await teamsDevPortalClient.createOauthRegistration(
+        const oauthRegistrationRes = await teamsGraphClient.createOauthRegistration(
           appStudioToken,
           oauthRegistration
         );
@@ -330,6 +327,7 @@ export class CreateOauthDriver implements StepDriver {
         clientId: args.clientId,
         identityProvider: "MicrosoftEntra",
         tokenExchangeMethodType: tokenExchangeMethodType,
+        useSingleSignOn: true,
       } as OauthRegistration;
     }
 

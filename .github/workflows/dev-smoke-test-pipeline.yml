@@ -5,8 +5,13 @@ on:
     inputs:
       email:
         description: "Your personal email for test result notification (e.g., yourname@microsoft.com)"
-        required: true
+        required: false
         type: string
+      test_plan:
+        description: "Comma-separated list of test plan names to run. Leave empty to use smoking-test-cases.json."
+        required: false
+        type: string
+        default: ""
 
 jobs:
   run-cd:
@@ -41,7 +46,7 @@ jobs:
             const sourceBranch = '${{ github.head_ref || github.ref_name }}';
             const cdDispatchBranch = 'neil/cdprivatepipeline';
 
-            // Trigger CD workflow on private CD branch, then build sourceBranch via external_ref
+            // Trigger CD workflow on private CD branch, build sourceBranch via external_ref
             await github.rest.actions.createWorkflowDispatch({
               owner,
               repo,
@@ -52,10 +57,8 @@ jobs:
               }
             });
 
-            // Wait a moment for the run to appear
             await new Promise(r => setTimeout(r, 15000));
 
-            // Find the triggered run
             const runs = await github.rest.actions.listWorkflowRuns({
               owner,
               repo,
@@ -83,20 +86,13 @@ jobs:
             const owner = context.repo.owner;
             const repo = context.repo.repo;
             const runId = parseInt('${{ steps.trigger.outputs.run_id }}');
-
-            const pollInterval = 60000; // 1 minute
-            const timeout = 7200000; // 2 hours
+            const pollInterval = 60000;
+            const timeout = 7200000;
             const start = Date.now();
 
             while (Date.now() - start < timeout) {
-              const run = await github.rest.actions.getWorkflowRun({
-                owner,
-                repo,
-                run_id: runId
-              });
-
+              const run = await github.rest.actions.getWorkflowRun({ owner, repo, run_id: runId });
               console.log(`CD run status: ${run.data.status}, conclusion: ${run.data.conclusion}`);
-
               if (run.data.status === 'completed') {
                 if (run.data.conclusion !== 'success') {
                   throw new Error(`CD pipeline failed with conclusion: ${run.data.conclusion}. Check run: ${run.data.html_url}`);
@@ -104,10 +100,8 @@ jobs:
                 console.log('CD pipeline completed successfully');
                 return;
               }
-
               await new Promise(r => setTimeout(r, pollInterval));
             }
-
             throw new Error('CD pipeline timed out after 2 hours');
 
   run-docker-build:
@@ -172,20 +166,13 @@ jobs:
             const owner = context.repo.owner;
             const repo = context.repo.repo;
             const runId = parseInt('${{ steps.trigger.outputs.run_id }}');
-
             const pollInterval = 60000;
             const timeout = 7200000;
             const start = Date.now();
 
             while (Date.now() - start < timeout) {
-              const run = await github.rest.actions.getWorkflowRun({
-                owner,
-                repo,
-                run_id: runId
-              });
-
+              const run = await github.rest.actions.getWorkflowRun({ owner, repo, run_id: runId });
               console.log(`Docker Build status: ${run.data.status}, conclusion: ${run.data.conclusion}`);
-
               if (run.data.status === 'completed') {
                 if (run.data.conclusion !== 'success') {
                   throw new Error(`Docker Build pipeline failed with conclusion: ${run.data.conclusion}. Check run: ${run.data.html_url}`);
@@ -193,10 +180,8 @@ jobs:
                 console.log('Docker Build pipeline completed successfully');
                 return;
               }
-
               await new Promise(r => setTimeout(r, pollInterval));
             }
-
             throw new Error('Docker Build pipeline timed out after 2 hours');
 
   run-ui-test:
@@ -210,18 +195,26 @@ jobs:
           app-id: ${{ vars.APP_GITHUB_APP_ID }}
           private-key: ${{ secrets.APP_GITHUB_APP_PRIVATE_KEY }}
 
-      - name: Checkout repo to read test cases
+      - name: Checkout repo to read smoke test cases (fallback)
+        if: inputs.test_plan == ''
         uses: actions/checkout@v4
         with:
           ref: dev
           sparse-checkout: packages/tests/vscuse/smoking-test-cases.json
 
-      - name: Read smoke test cases
+      - name: Resolve test plan
         id: test_cases
         run: |
-          TEST_PLAN=$(jq -r '.smokeTestCases | join(",")' packages/tests/vscuse/smoking-test-cases.json)
-          echo "test_plan=${TEST_PLAN}" >> "$GITHUB_OUTPUT"
-          echo "Test plan: ${TEST_PLAN}"
+          if [ -n "${{ inputs.test_plan }}" ]; then
+            # Use explicitly provided test plan
+            echo "test_plan=${{ inputs.test_plan }}" >> "$GITHUB_OUTPUT"
+            echo "Using provided test plan: ${{ inputs.test_plan }}"
+          else
+            # Fall back to smoke test cases from JSON
+            TEST_PLAN=$(jq -r '.smokeTestCases | join(",")' packages/tests/vscuse/smoking-test-cases.json)
+            echo "test_plan=${TEST_PLAN}" >> "$GITHUB_OUTPUT"
+            echo "Using smoke test cases: ${TEST_PLAN}"
+          fi
 
       - name: Trigger UI Test pipeline
         id: trigger
@@ -274,20 +267,13 @@ jobs:
             const owner = context.repo.owner;
             const repo = context.repo.repo;
             const runId = parseInt('${{ steps.trigger.outputs.run_id }}');
-
             const pollInterval = 60000;
-            const timeout = 14400000; // 4 hours for UI tests
+            const timeout = 14400000;
             const start = Date.now();
 
             while (Date.now() - start < timeout) {
-              const run = await github.rest.actions.getWorkflowRun({
-                owner,
-                repo,
-                run_id: runId
-              });
-
+              const run = await github.rest.actions.getWorkflowRun({ owner, repo, run_id: runId });
               console.log(`UI Test status: ${run.data.status}, conclusion: ${run.data.conclusion}`);
-
               if (run.data.status === 'completed') {
                 if (run.data.conclusion !== 'success') {
                   throw new Error(`UI Test pipeline failed with conclusion: ${run.data.conclusion}. Check run: ${run.data.html_url}`);
@@ -295,8 +281,6 @@ jobs:
                 console.log('UI Test pipeline completed successfully');
                 return;
               }
-
               await new Promise(r => setTimeout(r, pollInterval));
             }
-
             throw new Error('UI Test pipeline timed out after 4 hours');

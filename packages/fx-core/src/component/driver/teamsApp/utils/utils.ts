@@ -11,6 +11,7 @@ import { MissingEnvironmentVariablesError } from "../../../../error";
 import { TelemetryPropertyKey } from "./telemetry";
 import { expandVariableWithFunction, ManifestType } from "../../../utils/envFunctionUtils";
 import { DriverContext } from "../../interface/commonArgs";
+export { RetryHandler } from "../../../../common/retryHandler";
 
 export function getCustomizedKeys(prefix: string, manifest: any): string[] {
   let keys: string[] = [];
@@ -196,28 +197,6 @@ export enum MeetingsContext {
   ShareToStage = "meetingStage",
   DetailsTab = "meetingDetailsTab",
   ChatTab = "meetingChatTab",
-}
-
-export class RetryHandler {
-  public static RETRIES = 6;
-  public static async Retry<T>(fn: () => Promise<T>): Promise<T | undefined> {
-    let retries = this.RETRIES;
-    let response;
-    while (retries > 0) {
-      retries = retries - 1;
-      try {
-        response = await fn();
-        return response;
-      } catch (e: any) {
-        // Directly throw 404 error, keep trying for other status code e.g. 503 400
-        if (retries <= 0 || e.response?.status == 404 || e.response?.status == 409) {
-          throw e;
-        } else {
-          await new Promise((resolve) => setTimeout(resolve, 5000));
-        }
-      }
-    }
-  }
 }
 
 export function normalizePath(path: string, useForwardSlash: boolean): string {

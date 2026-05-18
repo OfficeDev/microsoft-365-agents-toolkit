@@ -37,8 +37,8 @@ builder.Services.AddSingleton(serviceProvider =>
 {{/useOpenAI}}
 });
 
-// Register the {{SafeProjectName}}Bot
-builder.Services.AddTransient<{{SafeProjectName}}.Bot.{{SafeProjectName}}Bot>();
+// Register the TravelAgentBot
+builder.Services.AddTransient<{{SafeProjectName}}.Bot.TravelAgentBot>();
 
 // Add AspNet token validation
 builder.Services.AddBotAspNetAuthentication(builder.Configuration);
@@ -56,7 +56,7 @@ builder.AddAgentApplicationOptions();
 builder.Services.AddTransient<AgentApplicationOptions>();
 
 // Add the bot (which is transient)
-builder.AddAgent<{{SafeProjectName}}.Bot.{{SafeProjectName}}Bot>();
+builder.AddAgent<{{SafeProjectName}}.Bot.TravelAgentBot>();
 
 var app = builder.Build();
 
