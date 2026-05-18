@@ -409,9 +409,24 @@ jobs:
         run: |
           echo "Uploading GIF: $GIF_FILE (size: $(wc -c < "$GIF_FILE") bytes)"
           pip3 install --quiet requests 2>/dev/null || true
-          GIF_URL=$(python3 packages/tests/copilot-test/scripts/gif_upload.py 2>&1 | tail -1 || echo "")
+          python3 packages/tests/copilot-test/scripts/gif_upload.py > /tmp/gif_url.txt 2>/tmp/gif_debug.txt || true
+          echo "--- upload debug ---"
+          cat /tmp/gif_debug.txt || true
+          echo "--- upload stdout ---"
+          cat /tmp/gif_url.txt || true
+          GIF_URL=$(cat /tmp/gif_url.txt 2>/dev/null | tr -d '[:space:]' || echo "")
+          # fallback: try gh api with full uploads URL
+          if [ -z "$GIF_URL" ]; then
+            echo "Python upload failed, trying gh api..."
+            GH_RESP=$(gh api --method POST \
+              -H "Content-Type: image/gif" \
+              --input "$GIF_FILE" \
+              "https://uploads.github.com/repos/${REPO}/issues/${ISSUE}/assets?name=test-run.gif" 2>&1 || echo "{}")
+            echo "gh api response: $GH_RESP"
+            GIF_URL=$(echo "$GH_RESP" | python3 -c "import sys,json; print(json.loads(sys.stdin.read()).get('browser_download_url',''))" 2>/dev/null || echo "")
+          fi
           echo "gif_url=$GIF_URL" >> $GITHUB_OUTPUT
-          echo "GIF URL: $GIF_URL"
+          echo "Final GIF URL: $GIF_URL"
 
       - name: Remove label and add done label (failsafe - always runs)
         if: always()
