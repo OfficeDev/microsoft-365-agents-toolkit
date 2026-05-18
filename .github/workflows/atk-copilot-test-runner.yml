@@ -102,13 +102,17 @@ jobs:
           if [ -f /tmp/vscode-yaml.vsix ] && [ -s /tmp/vscode-yaml.vsix ]; then
             # VSIX is a ZIP whose contents live inside an extension/ subfolder.
             # Extract that subfolder to $HOME/vscode-extensions/redhat.vscode-yaml/
+            # Tolerate failures — runTest.ts falls back to --install-extension if extension is missing.
             mkdir -p /tmp/yaml-vsix
-            unzip -q /tmp/vscode-yaml.vsix -d /tmp/yaml-vsix
-            mv /tmp/yaml-vsix/extension $HOME/vscode-extensions/redhat.vscode-yaml
+            if unzip -q /tmp/vscode-yaml.vsix -d /tmp/yaml-vsix 2>/dev/null && [ -d /tmp/yaml-vsix/extension ]; then
+              mv /tmp/yaml-vsix/extension $HOME/vscode-extensions/redhat.vscode-yaml
+              echo "VSCODE_EXTENSIONS_DIR=$HOME/vscode-extensions" >> $GITHUB_ENV
+              echo "redhat.vscode-yaml installed to $HOME/vscode-extensions/redhat.vscode-yaml"
+              ls $HOME/vscode-extensions/redhat.vscode-yaml/package.json 2>/dev/null && echo "package.json found ✓" || echo "::warning::package.json not found"
+            else
+              echo "::warning::yaml vsix unzip failed (bad download); runTest.ts will use --install-extension fallback"
+            fi
             rm -rf /tmp/yaml-vsix /tmp/vscode-yaml.vsix
-            echo "VSCODE_EXTENSIONS_DIR=$HOME/vscode-extensions" >> $GITHUB_ENV
-            echo "redhat.vscode-yaml installed to $HOME/vscode-extensions/redhat.vscode-yaml"
-            ls $HOME/vscode-extensions/redhat.vscode-yaml/package.json 2>/dev/null && echo "package.json found ✓" || echo "::warning::package.json not found in yaml extension dir"
           else
             # Fallback: use --install-extension at runtime via launchArgs
             echo "::warning::yaml vsix download failed; ATK will use --install-extension fallback"
