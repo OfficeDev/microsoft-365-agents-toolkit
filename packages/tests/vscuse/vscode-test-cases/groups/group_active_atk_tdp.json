@@ -9,14 +9,14 @@
       "precondition_retry_interval": 2
     },
     "total_steps": 3,
-    "created_at": "2026-04-20T06:34:14.873868",
+    "created_at": "2026-05-18T02:56:25.866310",
     "name": "group active atk tdp",
     "description": {
       "other": "Generated from recording r_0928_012254",
       "owner": "v-liliu2@microsoft.com",
       "workitem": ""
     },
-    "generated_at": "2026-04-20T06:34:14.873858",
+    "generated_at": "2026-05-18T02:56:25.866308",
     "execution_order": [
       "step_8a972eb8",
       "step_c445199b",
@@ -25,7 +25,7 @@
     "tags": [
       "group"
     ],
-    "updated_at": "2026-04-20T06:34:31.990898"
+    "updated_at": "2026-05-18T02:59:06.583829"
   },
   "steps": [
     {
@@ -37,7 +37,7 @@
         "x": 97,
         "y": 640
       },
-      "description": "Click the \"Skip\" link in the lower-left corner of the VS Code welcome sign-in dialog to bypass authentication options.",
+      "description": "Click the red \"close\" button in the top-right corner of the VS Code welcome sign-in dialog to dismiss the window.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -53,7 +53,7 @@
         "force_run:true"
       ],
       "screenshot": "step_8a972eb8",
-      "created_at": "2026-04-20T06:34:14.888349",
+      "created_at": "2026-05-18T02:59:01.746238",
       "plan_id": "plan_59bf0f50"
     },
     {
@@ -79,7 +79,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_c445199b",
-      "created_at": "2026-04-20T06:34:14.896881",
+      "created_at": "2026-05-18T02:59:01.761040",
       "plan_id": "plan_59bf0f50"
     },
     {
@@ -97,7 +97,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": null,
-      "created_at": "2026-04-20T06:34:14.903272",
+      "created_at": "2026-05-18T02:59:01.771478",
       "plan_id": "plan_59bf0f50"
     }
   ],
