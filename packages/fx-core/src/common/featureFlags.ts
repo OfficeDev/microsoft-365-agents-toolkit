@@ -102,11 +102,11 @@ export class FeatureFlags {
   };
   static readonly OpenPluginConvert = {
     name: FeatureFlagName.OpenPluginConvert,
-    defaultValue: "false",
+    defaultValue: "true",
   };
   static readonly AgentSkillsManifest = {
     name: FeatureFlagName.AgentSkillsManifest,
-    defaultValue: "false",
+    defaultValue: "true",
   };
   static readonly BrokerAuth = {
     name: FeatureFlagName.BrokerAuth,
