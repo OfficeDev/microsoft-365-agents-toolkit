@@ -324,7 +324,7 @@ jobs:
             GIF_PATH="${TEST_OUTPUT_DIR}/test-run.gif"
             GIF_URL=""
             if [ -f "$GIF_PATH" ]; then
-              RESP=$(curl -s -X POST -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" -F "data=@$GIF_PATH;type=image/gif" "https://uploads.github.com/repos/__REPO__/issues/__ISSUE_NUMBER__/assets?name=test-run.gif")
+              FILE_SIZE=$(wc -c < "$GIF_PATH"); RESP=$(curl -s -X POST -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" -H "Content-Type: image/gif" -H "Content-Length: $FILE_SIZE" --data-binary "@$GIF_PATH" "https://uploads.github.com/repos/__REPO__/issues/__ISSUE_NUMBER__/assets?name=test-run.gif")
               GIF_URL=$(echo "$RESP" | python3 -c "import sys,json; print(json.load(sys.stdin).get('browser_download_url',''))" 2>/dev/null || echo "")
               echo "GIF URL: $GIF_URL"
             fi
@@ -407,11 +407,14 @@ jobs:
         run: |
           GIF_FILE="${{ steps.gif.outputs.gif_path }}"
           echo "Uploading GIF: $GIF_FILE"
+          FILE_SIZE=$(wc -c < "$GIF_FILE")
           RESPONSE=$(curl -s -X POST \
             -H "Authorization: token $GH_TOKEN" \
             -H "Accept: application/vnd.github+json" \
             -H "X-GitHub-Api-Version: 2022-11-28" \
-            -F "data=@$GIF_FILE;type=image/gif" \
+            -H "Content-Type: image/gif" \
+            -H "Content-Length: $FILE_SIZE" \
+            --data-binary "@$GIF_FILE" \
             "https://uploads.github.com/repos/${{ github.repository }}/issues/${ISSUE}/assets?name=test-run.gif")
           echo "Upload response: $RESPONSE"
           GIF_URL=$(echo "$RESPONSE" | python3 -c "import sys,json;d=json.load(sys.stdin);print(d.get('browser_download_url') or d.get('url') or '')" 2>/dev/null || echo "")
