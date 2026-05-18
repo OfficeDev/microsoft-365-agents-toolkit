@@ -8,6 +8,7 @@ import {
   Inputs,
   ok,
   Platform,
+  SensitivityLabel,
   SingleFileQuestion,
   SingleSelectQuestion,
   SystemError,
@@ -643,7 +644,7 @@ describe("setSensitivityLabelNode", () => {
     const inputs: Inputs = {
       platform: Platform.VSCode,
     };
-    const mockLabels = [{}, {}];
+    const mockLabels = [{}, {}] as unknown as SensitivityLabel[];
     sandbox.stub(GraphClient.prototype, "listSensitivityLabels").resolves(ok(mockLabels));
     // mock token provider
     sandbox.stub(TOOLS.tokenProvider.m365TokenProvider, "getAccessToken").resolves(ok("mockToken"));
