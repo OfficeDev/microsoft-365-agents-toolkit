@@ -243,10 +243,6 @@ const TeamsManifestConverterMap: Converters = {
     TeamsManifestV1D26.Convert.toTeamsManifestV1D26,
     TeamsManifestV1D26.Convert.teamsManifestV1D26ToJson,
   ],
-  "1.28": [
-    TeamsManifestVDevPreview.Convert.toTeamsManifestVDevPreview,
-    TeamsManifestVDevPreview.Convert.teamsManifestVDevPreviewToJson,
-  ],
   devPreview: [
     TeamsManifestVDevPreview.Convert.toTeamsManifestVDevPreview,
     TeamsManifestVDevPreview.Convert.teamsManifestVDevPreviewToJson,
