@@ -340,6 +340,7 @@
   "teamstoolkit.localDebug.switchM365AccountWarning": "You've switched to a different Microsoft 365 tenant than the one you previously used.",
   "teamstoolkit.localDebug.taskDefinitionError": "The value '%s' is not valid for the 'teamsfx' task.",
   "teamstoolkit.localDebug.taskCancelError": "The task is canceled.",
+  "teamstoolkit.localDebug.copilotChatHint": "\nTip: To troubleshoot this error with Copilot, open the log file at %s and type the following prompt in Copilot Chat:\n  /microsoft-365-agents-toolkit fix\nCopilot will analyze the log and suggest a fix.",
   "teamstoolkit.localDebug.multipleTunnelServiceError": "Multiple local tunneling services are running. Close duplicate tasks to avoid conflicts.",
   "teamstoolkit.localDebug.noTunnelServiceError": "No running local tunneling service found. Make sure the service is started.",
   "teamstoolkit.localDebug.ngrokStoppedError": "Ngrok has stopped with exit code '%s'.",

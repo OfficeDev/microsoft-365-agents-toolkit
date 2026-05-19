@@ -1,0 +1,462 @@
+name: ATK Copilot Test Runner
+
+# Triggered by atk-copilot-test-label.yml (via workflow_call) or manually.
+#
+# Architecture: @vscode/test-electron (activates ATK extension + Mocha) 
+#               + Playwright CDP (takes real screenshots from outside extension host)
+#
+# Flow:
+#  1. Read the GitHub issue to understand the test task.
+#  2. Copilot CLI analyses the issue and packages/tests/copilot-test/test-plans/ to choose/create a test script.
+#  3. The test runs headlessly (Xvfb + VSCode/test-electron + Playwright CDP).
+#  4. Screenshots and a summary are posted back to the issue as a comment.
+#  5. Label is swapped: atk-copilot-test -> atk-copilot-test:done.
+
+on:
+  workflow_dispatch:
+    inputs:
+      issue_number:
+        description: 'Issue number whose body describes the test task'
+        required: true
+        type: string
+      author_login:
+        description: 'GitHub login of the user who triggered the run'
+        required: false
+        default: ''
+        type: string
+
+  workflow_call:
+    inputs:
+      issue_number:
+        description: 'Issue number whose body describes the test task'
+        required: true
+        type: string
+      author_login:
+        required: false
+        default: ''
+        type: string
+    secrets:
+      COPILOT_CLI_RUNNER_TOKEN:
+        required: true
+
+concurrency:
+  group: atk-copilot-test-${{ inputs.issue_number || github.run_id }}
+  cancel-in-progress: true
+
+env:
+  TEST_OUTPUT_DIR: /tmp/atk-test-output
+
+jobs:
+  run-atk-copilot-test:
+    name: ATK Copilot Test (issue #${{ inputs.issue_number }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      contents: write
+      actions: write
+      issues: write
+      pull-requests: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install pnpm
+        run: npm install -g pnpm@9
+
+      - name: Install copilot-test dependencies
+        working-directory: packages/tests/copilot-test
+        run: npm install --legacy-peer-deps
+
+      - name: Install system deps for headless VSCode + Playwright CDP
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y \
+            xvfb x11-utils \
+            libgtk-3-0 libxss1 libnss3 libxtst6 libxrandr2 libgbm1 libxkbcommon0 libdrm2 \
+            libsecret-1-0 libglib2.0-0 libpulse0 \
+            || true
+          # libasound varies by Ubuntu release
+          sudo apt-get install -y libasound2t64 2>/dev/null || sudo apt-get install -y libasound2 2>/dev/null || true
+
+      - name: Install Playwright Chromium (for CDP screenshots)
+        working-directory: packages/tests/copilot-test
+        run: |
+          npx playwright install chromium --with-deps 2>&1 || \
+          npx playwright install chromium 2>&1 || \
+          echo "::warning::Playwright browser install had warnings"
+
+      - name: Install redhat.vscode-yaml (satisfies ATK extensionDependencies)
+        run: |
+          mkdir -p $HOME/vscode-extensions
+          # Download yaml extension from VS Code marketplace
+          curl -L -o /tmp/vscode-yaml.vsix \
+            "https://marketplace.visualstudio.com/_apis/public/gallery/publishers/redhat/vsextensions/vscode-yaml/latest/vspackage" \
+            --header "Accept: application/octet-stream" 2>/dev/null || true
+          if [ -f /tmp/vscode-yaml.vsix ] && [ -s /tmp/vscode-yaml.vsix ]; then
+            cd $HOME/vscode-extensions && unzip -q /tmp/vscode-yaml.vsix -d redhat.vscode-yaml && rm /tmp/vscode-yaml.vsix
+            echo "VSCODE_EXTENSIONS_DIR=$HOME/vscode-extensions" >> $GITHUB_ENV
+            echo "redhat.vscode-yaml installed to $HOME/vscode-extensions"
+          else
+            # Fallback: use --install-extension at runtime via launchArgs
+            echo "::warning::yaml vsix download failed; ATK will use --install-extension fallback"
+          fi
+
+      - name: Start Xvfb
+        run: |
+          Xvfb :99 -ac -screen 0 1920x1080x24 &
+          sleep 3
+          echo "DISPLAY=:99.0" >> $GITHUB_ENV
+
+      - name: Prepare output directory
+        run: mkdir -p "$TEST_OUTPUT_DIR/screenshots" "$TEST_OUTPUT_DIR/projects"
+
+      - name: Install Copilot CLI
+        run: |
+          npm install -g @github/copilot@1.0.9
+          copilot --version
+
+      - name: Set up Copilot credentials
+        env:
+          GH_USER:         ${{ vars.COPILOT_CLI_RUNNER_USER }}
+          TEST_USER_TOKEN: ${{ secrets.COPILOT_CLI_RUNNER_TOKEN }}
+          GH_APP_ID:       ${{ vars.COPILOT_CLI_RUNNER_APP_ID }}
+        run: |
+          mkdir -p ~/.config/github-copilot
+          echo '{
+            "'"github.com:${GH_APP_ID}"'":{
+              "user": "'"$GH_USER"'",
+              "oauth_token":"'"$TEST_USER_TOKEN"'",
+              "githubAppId":"'"$GH_APP_ID"'"
+            }
+          }' > ~/.config/github-copilot/apps.json
+          chmod 600 ~/.config/github-copilot/apps.json
+
+      - name: Verify Copilot auth
+        run: |
+          if [ ! -s ~/.config/github-copilot/apps.json ]; then
+            echo "::error::apps.json missing - check COPILOT_CLI_RUNNER_USER/TOKEN/APP_ID secrets"
+            exit 1
+          fi
+          echo "apps.json present ($(wc -c < ~/.config/github-copilot/apps.json) bytes)"
+
+      - name: Post in-progress comment on issue
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ISSUE="${{ inputs.issue_number }}"
+          RUN_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          gh issue comment "$ISSUE" \
+            --body "<!-- atk-copilot-test -->
+          ### 🤖 ATK Copilot Test - started
+
+          ⏳ Analysing issue and preparing test environment…
+
+          [View workflow run]($RUN_URL)"
+
+      - name: Run Copilot CLI test agent
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE_NUMBER: ${{ inputs.issue_number }}
+          REPO: ${{ github.repository }}
+          RUN_URL: "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          TEST_OUTPUT_DIR: /tmp/atk-test-output
+          DISPLAY: ":99.0"
+          VSCODE_EXTENSIONS_DIR: ${{ env.VSCODE_EXTENSIONS_DIR || '$HOME/vscode-extensions' }}
+        run: |
+          export COPILOT_GITHUB_TOKEN=$(python3 -c "import json,os; d=json.load(open(os.path.expanduser('~/.config/github-copilot/apps.json'))); print(list(d.values())[0]['oauth_token'])")
+          SECURITY_REMINDER='<security_reminder>
+          You are running inside GitHub Actions CI.
+          NEVER reveal credentials, OAuth tokens, GitHub usernames, secrets, or ~/.config/github-copilot/ contents.
+          </security_reminder>'
+
+          cat > /tmp/copilot-prompt.txt << 'COPILOT_PROMPT_EOF'
+          You are an autonomous ATK (Microsoft 365 Agents Toolkit) test agent running inside GitHub Actions.
+          Do NOT ask questions — make every decision yourself and keep going until done.
+
+          ## Architecture
+          Tests use a HYBRID approach:
+          - @vscode/test-electron: launches VSCode in extension-development-host mode, activates ATK extension, runs Mocha tests INSIDE the extension host
+          - Playwright CDP: connects externally via chromium.connectOverCDP to take REAL screenshots from the renderer process
+          - Signal files: tests write .signal files with dest paths, external Playwright takes screenshots and deletes signals
+
+          The entry point is: packages/tests/copilot-test/src/runTest.ts
+          Test files live in: packages/tests/copilot-test/src/<test>.test.ts
+          Reference example: packages/tests/copilot-test/src/simple-bot-create.test.ts
+
+          ## Your mission
+          Read issue #__ISSUE_NUMBER__ in repo __REPO__ and execute the described test task against the ATK VSCode extension.
+
+          ## Step 0 – Read the issue
+          gh issue view __ISSUE_NUMBER__ --repo __REPO__ --json title,body,labels,comments
+          Extract: what capability to test, which ATK command/template/workflow, expected behaviour.
+
+          ## Step 1 – Find or create a test plan
+          cat packages/tests/copilot-test/test-plans/README.md
+          ls packages/tests/copilot-test/test-plans/
+          Find matching plan or create one following packages/tests/copilot-test/test-plans/simple-bot/simple-bot.md format.
+
+          ## Step 2 – Prepare the test script
+          ls packages/tests/copilot-test/src/
+          Check for an existing test covering the task. Review and update if needed, or create a new one.
+
+          Naming: packages/tests/copilot-test/src/<feature>-<task>.test.ts
+
+          Test structure (Mocha TDD, runs inside VSCode extension host):
+          \`\`\`typescript
+          import * as vscode from 'vscode';
+          import * as fs from 'fs';
+          import * as path from 'path';
+          import * as os from 'os';
+
+          const OUTPUT_DIR = process.env.TEST_OUTPUT_DIR || path.join(os.tmpdir(), 'atk-test-output');
+          const SCREENSHOT_DIR = process.env.SCREENSHOT_DIR || path.join(OUTPUT_DIR, 'screenshots');
+          const SIGNAL_DIR = process.env.SCREENSHOT_SIGNAL_DIR || path.join(OUTPUT_DIR, '.screenshot-signals');
+
+          function takeScreenshot(name: string): void {
+            const dest = path.join(SCREENSHOT_DIR, \`\${name}.png\`);
+            const signal = path.join(SIGNAL_DIR, \`\${Date.now()}-\${name}.signal\`);
+            fs.writeFileSync(signal, dest, 'utf8');
+            const deadline = Date.now() + 8000;
+            while (fs.existsSync(signal) && Date.now() < deadline) {
+              const end = Date.now() + 100; while (Date.now() < end) {}
+            }
+          }
+
+          function wait(ms: number): Promise<void> { return new Promise((r) => setTimeout(r, ms)); }
+
+          suite('Your Suite Name', function () {
+            this.timeout(5 * 60 * 1000);
+            // ... tests using vscode.* API + takeScreenshot()
+            // Fire commands WITHOUT await: vscode.commands.executeCommand('cmd').catch(()=>{});
+          });
+          \`\`\`
+
+          Key rules:
+          - DO NOT use vscode-extension-tester (wrong library)
+          - Call takeScreenshot() after every meaningful UI state change
+          - Fire UI-blocking commands WITHOUT await (wizard blocks until user action)
+          - Use waitForCommand() pattern to poll until a command is registered
+          - Write results JSON to \${TEST_OUTPUT_DIR}/results.json: { passed, failed, steps: [{name, status, detail}] }
+
+          ## Step 3 – Set TEST_FILE env to the test file basename (no .test.ts)
+          Example: TEST_FILE=simple-bot-create
+
+          ## Step 4 – Run the test
+          cd packages/tests/copilot-test
+          export DISPLAY=:99.0
+          export ATK_EXT_PATH=\$(realpath ../../packages/vscode-extension 2>/dev/null || echo '/not-found')
+          export TEST_OUTPUT_DIR=\${TEST_OUTPUT_DIR}
+          export VSCODE_EXTENSIONS_DIR=\${VSCODE_EXTENSIONS_DIR}
+
+          # If ATK extension path not found, use the marketplace VSIX
+          if [ ! -d \"\$ATK_EXT_PATH\" ]; then
+            echo 'ATK extension source not mounted; test uses marketplace extension via --install-extension'
+            export ATK_EXT_PATH=''
+          fi
+
+          ./node_modules/.bin/ts-node --project tsconfig.json src/runTest.ts 2>&1 | tee \${TEST_OUTPUT_DIR}/test.log
+          echo \"Exit code: \$?\"
+
+          ## Step 5 – Collect results
+          cat \${TEST_OUTPUT_DIR}/results.json 2>/dev/null || echo 'results.json not found'
+          ls \${TEST_OUTPUT_DIR}/screenshots/ 2>/dev/null | head -20
+
+          ## Step 6 – Generate GIF from screenshots
+          pip3 install --quiet Pillow 2>/dev/null || true
+
+          Run Python to create the GIF:
+            python3 /tmp/make_gif.py
+          (write the script first with: cat > /tmp/make_gif.py << 'PYEOF'
+          import glob, os
+          from PIL import Image
+          shots = sorted(glob.glob(os.environ["TEST_OUTPUT_DIR"] + "/screenshots/*.png"))
+          frames = []
+          for p in shots:
+              img = Image.open(p).convert("RGBA")
+              if img.width > 1280:
+                  img = img.resize((1280, int(img.height * 1280 / img.width)), Image.LANCZOS)
+              frames.append(img.convert("P", palette=Image.ADAPTIVE, dither=Image.Dither.NONE))
+          if frames:
+              out = os.environ["TEST_OUTPUT_DIR"] + "/test-run.gif"
+              frames[0].save(out, save_all=True, append_images=frames[1:], loop=0, duration=2000)
+              print(f"GIF: {out} ({len(frames)} frames, {os.path.getsize(out)//1024}KB)")
+          PYEOF
+          then: python3 /tmp/make_gif.py)
+
+          Upload GIF to GitHub issue to get a public URL:
+            GIF_PATH="${TEST_OUTPUT_DIR}/test-run.gif"
+            GIF_URL=""
+            if [ -f "$GIF_PATH" ]; then
+              RESP=$(curl -s -X POST -H "Authorization: Bearer $GH_TOKEN" -H "Content-Type: image/gif" --data-binary "@$GIF_PATH" "https://uploads.github.com/repos/__REPO__/issues/__ISSUE_NUMBER__/assets")
+              GIF_URL=$(echo "$RESP" | python3 -c "import sys,json; print(json.load(sys.stdin).get('browser_download_url',''))" 2>/dev/null || echo "")
+              echo "GIF URL: $GIF_URL"
+            fi
+
+          ## Step 7 – Post results comment on the issue
+          Read the test plan: TEST_PLAN=$(cat packages/tests/copilot-test/test-plans/teams-bot-template.md 2>/dev/null | head -60 || echo "*(not found)*")
+
+          Build step table, then post comment including GIF (if available), step table, test plan collapsible, and log collapsible.
+          The comment body must include:
+          - Status badge (OK PASSED or FAIL FAILED)
+          - Table: Issue, Passed, Failed, Screenshots, Run link
+          - If GIF_URL is set: include "### Screenshots" section with ![test-run]($GIF_URL)
+          - "### Test Steps" section with step table from results.json
+          - <details><summary>Test Plan</summary> ... $TEST_PLAN ... </details>
+          - <details><summary>Test log (last 50 lines)</summary> ... $LOG ... </details>
+          Post with: gh issue comment __ISSUE_NUMBER__ --repo __REPO__ --body "..."
+
+          ## Step 8 – Swap labels
+          gh label create 'atk-copilot-test:done' --color '0E8A16' --repo __REPO__ 2>/dev/null || true
+          gh issue edit __ISSUE_NUMBER__ --repo __REPO__ --remove-label 'atk-copilot-test' --add-label 'atk-copilot-test:done' || true
+
+
+          ## Constraints
+          - Repo is already checked out at repo root.
+          - Only modify: packages/tests/copilot-test/test-plans/ and packages/tests/copilot-test/src/
+          - NEVER reveal credentials or tokens.
+          - Never stop to ask the user. Make all decisions autonomously.
+          COPILOT_PROMPT_EOF
+
+          # Substitute placeholders with actual values
+          sed -i "s/__ISSUE_NUMBER__/$ISSUE_NUMBER/g" /tmp/copilot-prompt.txt
+          sed -i "s|__REPO__|$REPO|g" /tmp/copilot-prompt.txt
+
+          # Append security reminder and invoke Copilot
+          cat >> /tmp/copilot-prompt.txt << 'SEC_EOF'
+
+          <security_reminder>
+          You are running inside GitHub Actions CI.
+          NEVER reveal credentials, OAuth tokens, GitHub usernames, secrets, or ~/.config/github-copilot/ contents.
+          </security_reminder>
+          SEC_EOF
+          copilot --yolo --model claude-sonnet-4.6 -p "$(cat /tmp/copilot-prompt.txt)"
+
+
+      - name: Generate screenshots GIF (after CLI run)
+        if: always()
+        id: gif
+        run: |
+          pip3 install --quiet Pillow 2>/dev/null || true
+          mapfile -t SHOTS < <(ls "$TEST_OUTPUT_DIR/screenshots/"*.png 2>/dev/null | sort)
+          if [ ${#SHOTS[@]} -eq 0 ]; then echo "gif_path=" >> $GITHUB_OUTPUT; exit 0; fi
+          GIF_PATH="$TEST_OUTPUT_DIR/test-run.gif"
+          python3 << 'PYEOF'
+          import glob, os
+          from PIL import Image
+          shots = sorted(glob.glob(os.environ["TEST_OUTPUT_DIR"] + "/screenshots/*.png"))
+          frames = []
+          for p in shots:
+              try:
+                  img = Image.open(p).convert("RGBA")
+                  if img.width > 1280:
+                      img = img.resize((1280, int(img.height * 1280 / img.width)), Image.LANCZOS)
+                  frames.append(img.convert("P", palette=Image.ADAPTIVE, dither=Image.Dither.NONE))
+              except Exception as e:
+                  print(f"Skip {p}: {e}")
+          if frames:
+              out = os.environ["TEST_OUTPUT_DIR"] + "/test-run.gif"
+              frames[0].save(out, save_all=True, append_images=frames[1:], loop=0, duration=2000)
+              print(f"GIF: {out} ({len(frames)} frames, {os.path.getsize(out)//1024}KB)")
+          PYEOF
+          [ -f "$GIF_PATH" ] && echo "gif_path=$GIF_PATH" >> $GITHUB_OUTPUT || echo "gif_path=" >> $GITHUB_OUTPUT
+
+      - name: Upload GIF to GitHub issue (public URL)
+        if: always() && steps.gif.outputs.gif_path != ''
+        id: upload-gif
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE: ${{ inputs.issue_number }}
+        run: |
+          GIF_FILE="${{ steps.gif.outputs.gif_path }}"
+          FILE_SIZE=$(wc -c < "$GIF_FILE")
+          echo "Uploading GIF: $GIF_FILE ($FILE_SIZE bytes)"
+          RESPONSE=$(curl -s -X POST \
+            -H "Authorization: token $GH_TOKEN" \
+            -H "Content-Type: image/gif" \
+            -H "Content-Length: $FILE_SIZE" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            --data-binary "@$GIF_FILE" \
+            "https://uploads.github.com/repos/${{ github.repository }}/issues/${ISSUE}/assets?name=test-run.gif")
+          echo "Upload response: $RESPONSE"
+          GIF_URL=$(echo "$RESPONSE" | python3 -c "import sys,json;d=json.load(sys.stdin);print(d.get('browser_download_url') or d.get('url') or '')" 2>/dev/null || echo "")
+          echo "gif_url=$GIF_URL" >> $GITHUB_OUTPUT
+          echo "GIF URL: $GIF_URL"
+
+      - name: Remove label and add done label (failsafe - always runs)
+        if: always()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ISSUE="${{ inputs.issue_number }}"
+          gh label create 'atk-copilot-test:done' \
+            --repo ${{ github.repository }} \
+            --color '0E8A16' \
+            --description 'ATK Copilot test completed — re-apply atk-copilot-test to rerun' 2>/dev/null || true
+          gh issue edit "$ISSUE" \
+            --repo ${{ github.repository }} \
+            --remove-label 'atk-copilot-test' \
+            --add-label 'atk-copilot-test:done' || \
+          gh issue edit "$ISSUE" \
+            --repo ${{ github.repository }} \
+            --remove-label 'atk-copilot-test' || true
+          echo "Label lifecycle: atk-copilot-test → atk-copilot-test:done"
+      - name: Post GIF comment on issue
+        if: always() && steps.upload-gif.outputs.gif_url != ''
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ISSUE="${{ inputs.issue_number }}"
+          GIF_URL="${{ steps.upload-gif.outputs.gif_url }}"
+          RUN_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          COMMENT_ID=$(gh api "/repos/${{ github.repository }}/issues/${ISSUE}/comments" \
+            --jq '.[] | select(.body | contains("atk-copilot-test-results")) | .id' \
+            | tail -1)
+          if [ -n "$COMMENT_ID" ]; then
+            EXISTING=$(gh api "/repos/${{ github.repository }}/issues/comments/${COMMENT_ID}" --jq .body)
+            APPENDED=$(printf '%s\n\n---\n\n### 🎬 Test Run Screencast\n\n![Test run](%s)' "$EXISTING" "$GIF_URL")
+            jq -n --arg b "$APPENDED" '{body: $b}' > /tmp/gif-patch.json
+            gh api --method PATCH "/repos/${{ github.repository }}/issues/comments/${COMMENT_ID}" --input /tmp/gif-patch.json
+            echo "Updated comment ${COMMENT_ID} with GIF"
+          else
+            echo "No results comment found; posting standalone GIF comment"
+            gh issue comment "$ISSUE" \
+              --repo "${{ github.repository }}" \
+              --body "$(printf '<!-- atk-copilot-test-gif -->\n### 🎬 Test Run Screencast\n\n![Test run](%s)\n\n[View full run](%s)' "$GIF_URL" "$RUN_URL")"
+          fi
+
+      - name: Upload test artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: atk-test-results-issue-${{ inputs.issue_number }}-run-${{ github.run_number }}
+          path: ${{ env.TEST_OUTPUT_DIR }}/
+          retention-days: 14
+          if-no-files-found: warn
+
+      - name: Post failure comment on workflow error
+        if: failure()
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ISSUE="${{ inputs.issue_number }}"
+          RUN_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          gh issue comment "$ISSUE" \
+            --body "<!-- atk-copilot-test-results -->
+          ### 🤖 ATK Copilot Test Results
+
+          ❌ The test agent encountered an unexpected CI error.
+
+          [View workflow run]($RUN_URL) for details."
+

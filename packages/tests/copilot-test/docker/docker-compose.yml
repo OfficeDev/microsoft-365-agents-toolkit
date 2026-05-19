@@ -1,0 +1,37 @@
+# ATK Copilot Test – Docker Compose
+#
+# Quick start (no ATK extension, smoke test only):
+#   docker compose run --rm test
+#
+# Run with locally built ATK extension:
+#   ATK_EXT_PATH=C:\Users\quke\source\atk\microsoft-365-agents-toolkit\packages\vscode-extension ^
+#   docker compose run --rm test
+#
+# Run a specific test file:
+#   TEST_FILE=simple-bot-create docker compose run --rm test
+
+version: "3.8"
+
+services:
+  test:
+    build:
+      context: ../../../..           # repo root – needed for COPY packages/tests
+      dockerfile: packages/tests/copilot-test/docker/Dockerfile
+    image: atk-copilot-test:local
+    environment:
+      # Required: test file stem (without .test.ts)
+      TEST_FILE: ${TEST_FILE:-simple-bot-create}
+      # Optional: path to ATK extension directory mounted inside the container
+      # Mount with: -v "$ATK_EXT_PATH:/atk-ext:ro" and set ATK_EXT_PATH=/atk-ext
+      ATK_EXT_PATH: ${CONTAINER_EXT_PATH:-}
+      # VSCode version to use (latest | x.y.z)
+      VSCODE_VERSION: ${VSCODE_VERSION:-latest}
+      TEST_OUTPUT_DIR: /output
+    volumes:
+      # Host directory where screenshots / results.json / test.log land
+      - ${HOST_OUTPUT_DIR:-./test-output}:/output
+      # Optional: mount your locally built ATK extension directory
+      # Uncomment and set HOST_EXT_PATH before running:
+      # - ${HOST_EXT_PATH:-/nonexistent}:/atk-ext:ro
+    # Allow Xvfb to allocate a shared-memory segment (required for Electron/VSCode)
+    shm_size: '512mb'

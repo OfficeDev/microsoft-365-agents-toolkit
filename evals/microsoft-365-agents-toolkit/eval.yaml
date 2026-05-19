@@ -1,0 +1,32 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/microsoft/waza/main/schemas/eval.schema.json
+
+name: microsoft-365-agents-toolkit-eval
+description: Auto-generated eval for microsoft-365-agents-toolkit.
+skill: microsoft-365-agents-toolkit
+version: "1.0"
+config:
+  trials_per_task: 2
+  max_attempts: 2
+  timeout_seconds: 500
+  parallel: true
+  executor: copilot-sdk
+  model: claude-sonnet-4.6
+metrics:
+  - name: task_completion
+    weight: 0.7
+    threshold: 0.8
+    description: Did the skill complete trigger and anti-trigger checks?
+  - name: efficiency
+    weight: 0.3
+    threshold: 0.7
+    description: Did the skill stay within behavior limits?
+hooks:
+  before_run:
+    - command: "bash setup.sh"
+      working_directory: "evals/microsoft-365-agents-toolkit"
+      error_on_fail: true
+tasks:
+  - "scaffold-tasks/*.yaml"
+  - "debug-tasks/*.yaml"
+  # - "deploy-tasks/*.yaml"
+  - "negative-tasks/*.yaml"
