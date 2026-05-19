@@ -109,13 +109,11 @@ describe("FxCore.convertOpenPlugin", () => {
 
   it("delegates to convertOpenPlugin on valid inputs", async () => {
     featureFlagManager.setBooleanValue(FeatureFlags.OpenPluginConvert, true);
-    const stub = sandbox
-      .stub(generator, "convertOpenPlugin")
-      .resolves({
-        isOk: () => true,
-        isErr: () => false,
-        value: { projectPath: "/tmp/out", warnings: ["w1"] },
-      } as any);
+    const stub = sandbox.stub(generator, "convertOpenPlugin").resolves({
+      isOk: () => true,
+      isErr: () => false,
+      value: { projectPath: "/tmp/out", warnings: ["w1"] },
+    } as any);
     const core = new FxCore(tools);
     const inputs: Inputs = {
       platform: Platform.CLI,
