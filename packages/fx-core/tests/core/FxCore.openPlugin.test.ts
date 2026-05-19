@@ -111,7 +111,11 @@ describe("FxCore.convertOpenPlugin", () => {
     featureFlagManager.setBooleanValue(FeatureFlags.OpenPluginConvert, true);
     const stub = sandbox
       .stub(generator, "convertOpenPlugin")
-      .resolves({ isOk: () => true, isErr: () => false, value: { projectPath: "/tmp/out", warnings: ["w1"] } } as any);
+      .resolves({
+        isOk: () => true,
+        isErr: () => false,
+        value: { projectPath: "/tmp/out", warnings: ["w1"] },
+      } as any);
     const core = new FxCore(tools);
     const inputs: Inputs = {
       platform: Platform.CLI,

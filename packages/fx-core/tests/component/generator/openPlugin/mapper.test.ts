@@ -187,15 +187,15 @@ describe("openPlugin.mapToTtkProject", () => {
   });
 
   it("throws when privacyUrl is missing", () => {
-    expect(() =>
-      mapToTtkProject(baseParsed(), baseInputs({ privacyUrl: "" }))
-    ).to.throw(/privacyUrl/);
+    expect(() => mapToTtkProject(baseParsed(), baseInputs({ privacyUrl: "" }))).to.throw(
+      /privacyUrl/
+    );
   });
 
   it("throws when termsUrl is missing", () => {
-    expect(() =>
-      mapToTtkProject(baseParsed(), baseInputs({ termsUrl: "" }))
-    ).to.throw(/termsOfUseUrl/);
+    expect(() => mapToTtkProject(baseParsed(), baseInputs({ termsUrl: "" }))).to.throw(
+      /termsOfUseUrl/
+    );
   });
 
   it("copies commands folder when present", () => {
