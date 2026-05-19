@@ -1,4 +1,4 @@
-// Copyright (c) Microsoft Corporation.
+﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 /**
  * simple-bot-create.test.ts
@@ -162,59 +162,57 @@ suite("ATK Teams Bot Template Creation (UI Wizard)", function () {
       console.log("  Command error:", e.message);
     });
 
-    // Wait for wizard first step to appear, then screenshot (QuickPick visible)
-    sendSignal("waitForText:Teams Agents and Apps", 12000);
-    await wait(200);
-    takeScreenshot("02-wizard-open"); // shows first wizard QuickPick
+    // ATK v6.8+ wizard flow for Simple Bot:
+    //   Step 1 (project-type):   "Teams Agents and Apps"
+    //   Step 2 (teams-app-type): "Other Teams Capabilities"
+    //   Step 3 (teams-other):    "Simple Bot"
+    //   Step 4 (folder):         "Default folder"
+    //   Step 5 (name):            type "test-teams-bot-001" + Enter
+    //
+    // sendSignal("waitForText:text:timeoutMs") — Playwright waits up to timeoutMs
+    // for the text to appear before returning. The same timeoutMs must also be
+    // passed as the second arg to sendSignal() so the test side doesn't time out early.
 
-    // Step 1: Select "Teams Agents and Apps" - screenshot BEFORE click
+    // Wait for wizard Step 1 (up to 30s - template list loads slowly)
+    sendSignal("waitForText:Teams Agents and Apps:30000", 32000);
+    takeScreenshot("02-wizard-open"); // Step 1: QuickPick showing project type options
+
+    // Step 1: Select "Teams Agents and Apps"
     console.log("  Clicking: Teams Agents and Apps");
-    takeScreenshot("03-teams-agents-apps"); // QuickPick visible with Teams Agents and Apps
-    sendSignal("clickText:Teams Agents and Apps", 8000);
-    await wait(300);
+    takeScreenshot("03-teams-agents-apps");
+    sendSignal("clickText:Teams Agents and Apps", 10000);
+    await wait(1000);
 
-    // Step 2: Bot - screenshot BEFORE click
-    console.log("  Clicking: Bot");
-    sendSignal("waitForText:Bot", 8000);
-    await wait(200);
-    takeScreenshot("04-bot-selected"); // QuickPick showing Bot option
-    sendSignal("clickText:Bot", 8000);
-    await wait(300);
+    // Step 2: Select "Other Teams Capabilities" (teams-app-type QuickPick)
+    console.log("  Clicking: Other Teams Capabilities");
+    sendSignal("waitForText:Other Teams Capabilities:15000", 17000);
+    takeScreenshot("04-other-teams-capabilities"); // QuickPick showing teams-app-type options
+    sendSignal("clickText:Other Teams Capabilities", 10000);
+    await wait(1000);
 
-    // Step 3: Simple Bot - screenshot BEFORE click
+    // Step 3: Select "Simple Bot" (teams-other-app-type QuickPick)
     console.log("  Clicking: Simple Bot");
-    sendSignal("waitForText:Simple Bot", 8000);
-    await wait(200);
+    sendSignal("waitForText:Simple Bot:15000", 17000);
     takeScreenshot("05-simple-bot"); // QuickPick showing Simple Bot option
-    sendSignal("clickText:Simple Bot", 8000);
-    await wait(300);
+    sendSignal("clickText:Simple Bot", 10000);
+    await wait(1000);
 
-    // Step 4: TypeScript - screenshot BEFORE click
-    console.log("  Clicking: TypeScript");
-    sendSignal("waitForText:TypeScript", 8000);
-    await wait(200);
-    takeScreenshot("06-typescript"); // QuickPick showing TypeScript option
-    sendSignal("clickText:TypeScript", 8000);
-    await wait(300);
-
-    // Step 5: Workspace Folder QuickPick - screenshot BEFORE click
+    // Step 4: Workspace Folder QuickPick — wait for "Default folder" item (more reliable than title)
     console.log("  Selecting default folder");
-    sendSignal("waitForText:Workspace Folder", 15000);
-    await wait(200);
-    takeScreenshot("07-workspace-folder"); // QuickPick showing Default folder + Browse...
-    sendSignal("clickText:Default folder", 8000);
-    await wait(300);
+    sendSignal("waitForText:Default folder:20000", 22000);
+    takeScreenshot("06-workspace-folder"); // QuickPick showing Default folder + Browse...
+    sendSignal("clickText:Default folder", 10000);
+    await wait(1000);
 
-    // Step 6: Application Name InputBox - screenshot BEFORE typing
+    // Step 5: Application Name InputBox — wait for "Application Name" placeholder text
     console.log("  Typing app name");
-    sendSignal("waitForText:Application Name", 8000);
-    await wait(200);
-    takeScreenshot("08-app-name-input"); // InputBox visible and empty
-    sendSignal("type:test-teams-bot-001", 5000);
-    await wait(300);
-    sendSignal("pressKey:Enter", 3000);
+    sendSignal("waitForText:Application Name:20000", 22000);
+    takeScreenshot("07-app-name-input"); // InputBox visible
+    sendSignal("type:test-teams-bot-001", 8000);
+    await wait(500);
+    sendSignal("pressKey:Enter", 5000);
     await wait(90000); // scaffold + new window; 90s for slow CI
-    takeScreenshot("09-project-created");
+    takeScreenshot("08-project-created");
 
     step(
       "Navigate wizard to create Teams Bot template",
@@ -302,7 +300,7 @@ suite("ATK Teams Bot Template Creation (UI Wizard)", function () {
       if (!exists) allFound = false;
     }
 
-    takeScreenshot("10-final-state");
+    takeScreenshot("09-final-state");
     assert.ok(allFound, `Expected project files missing in ${projectDir}`);
   });
 });

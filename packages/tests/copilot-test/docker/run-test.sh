@@ -20,6 +20,13 @@ echo "======================================================"
 
 mkdir -p "${TEST_OUTPUT_DIR}/screenshots" "${TEST_OUTPUT_DIR}/projects"
 
+# Pre-create ATK global state file to prevent proper-lockfile stale threshold crash.
+# Without this, the extension's first write to ~/.fx/state.json acquires a lock during
+# gallery operations, which can exceed the 10s stale threshold and crash the test.
+mkdir -p "${HOME}/.fx"
+[ -f "${HOME}/.fx/state.json" ] || echo '{}' > "${HOME}/.fx/state.json"
+echo "[init] Pre-created ~/.fx/state.json"
+
 [ -d "${ATK_EXT_PATH}" ] || { echo "ERROR: ATK extension not found at ${ATK_EXT_PATH}"; echo "Mount: -v /path/to/vscode-extension:/atk-ext:ro"; exit 1; }
 
 # -- Build extension if compiled output is missing --------------------------------

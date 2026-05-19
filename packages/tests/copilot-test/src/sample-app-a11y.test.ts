@@ -114,6 +114,37 @@ function sendEvalSignal(evalScript: string, timeoutMs = 15000): string {
   }
 }
 
+/**
+ * Parse Playwright ariaSnapshot YAML output (ACCESSIBILITY:{yaml}).
+ * The format is: `- role "name" [prop=val]\n  - child...`
+ * Returns structured nodes for ARIA attribute checks.
+ */
+interface AxNode {
+  role: string;
+  name: string;
+  pressed?: string; // "true" | "false" | undefined
+  line: string;
+}
+function parseAriaSnapshot(yaml: string): AxNode[] {
+  const nodes: AxNode[] = [];
+  for (const line of yaml.split("\n")) {
+    const trimmed = line.trim();
+    if (!trimmed.startsWith("- ")) continue;
+    const rest = trimmed.slice(2);
+    // Match: role "name" [prop=val ...]
+    const m = rest.match(/^(\w[\w-]*)\s+"([^"]*)"/);
+    if (!m) continue;
+    const role = m[1];
+    const name = m[2];
+    const node: AxNode = { role, name, line: rest };
+    // Check for [pressed=...] flag
+    const pressedM = rest.match(/\[pressed=(\w+)\]/);
+    if (pressedM) node.pressed = pressedM[1];
+    nodes.push(node);
+  }
+  return nodes;
+}
+
 suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
   this.timeout(8 * 60 * 1000);
 
@@ -201,7 +232,43 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
     if (available) {
       // Fire without await — command opens a webview panel
       vscode.commands.executeCommand(cmdName).then(undefined, () => {});
-      await wait(10000); // allow webview to open and gallery content to render
+      // Poll for gallery to render. Detect loaded state by .sample-filter (filter bar appears
+      // when samples are ready) or .offlinePage (network error). Do NOT use [role=button] —
+      // that is the A11y bug we are testing (layout buttons lack role="button" in unfixed code).
+      const galleryReadyScript =
+        "JSON.stringify({" +
+        "href: window.location.href.slice(0,60)," +
+        "sampleCards: document.querySelectorAll(\".sample-card\").length," +
+        "hasFilter: !!document.querySelector(\".sample-filter\")," +
+        "hasOffline: !!document.querySelector(\".offlinePage\")," +
+        "elemCount: document.querySelectorAll(\"*\").length," +
+        "loading: !document.querySelector(\".sample-filter\") && !document.querySelector(\".offlinePage\")" +
+        "})";
+      let pollCount = 0;
+      let galleryLoaded = false;
+      while (pollCount < 30 && !galleryLoaded) {
+        await wait(2000);
+        pollCount++;
+        const diagResult = sendEvalSignal(galleryReadyScript, 3000);
+        console.log(`  [poll ${pollCount}] Gallery status: ${diagResult.slice(0, 180)}`);
+        if (diagResult && !diagResult.startsWith("ERROR:") && !diagResult.startsWith("ACCESSIBILITY:")) {
+          try {
+            const status = JSON.parse(diagResult);
+            if (!status.loading) {
+              galleryLoaded = true;
+              console.log(`  Gallery loaded after ${pollCount * 2}s: ${status.sampleCards} cards, offline=${status.hasOffline}`);
+            }
+          } catch {}
+        }
+      }
+      if (!galleryLoaded) {
+        console.log("  Gallery did not load after 60s — dumping DOM state");
+        const bodyDump = sendEvalSignal(
+          "JSON.stringify({href: window.location.href.slice(0,80), bodyText: document.body.innerText.slice(0,300), elemCount: document.querySelectorAll(\"*\").length, html: document.documentElement.outerHTML.slice(0,400)})",
+          3000
+        );
+        console.log("  [diag] DOM dump:", bodyDump.slice(0, 500));
+      }
       galleryOpened = true;
     } else {
       // Attempt fallback but don't mark as opened
@@ -223,42 +290,70 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
    * verifying the fix was applied via source-level assertions.
    */
   test("TC-001: Link text color contrast ≥ 4.5:1", async () => {
-    // Try DOM evaluation via Playwright signal
+    if (!galleryOpened) {
+      step(
+        "TC-001 Link text contrast ≥ 4.5:1",
+        false,
+        "FAIL: Gallery webview not open. Cannot verify link color contrast.",
+      );
+      takeScreenshot("03-tc001-link-contrast");
+      return;
+    }
+    // Primary: computed color of .ms-Link elements (visible when shouldShowChat=true).
+    // Fallback: CSS stylesheet rule for #005B9E (verifiable even when shouldShowChat=false).
     const evalScript =
-      "Array.from(document.querySelectorAll('.ms-Link')).map(el => getComputedStyle(el).color).slice(0,3).join(',')";
+      "(function(){" +
+      "  var els = Array.from(document.querySelectorAll('.ms-Link'));" +
+      "  if (els.length > 0) {" +
+      "    return 'colors:' + els.map(function(e){return getComputedStyle(e).color;}).slice(0,3).join(',');" +
+      "  }" +
+      "  var linkRules = [];" +
+      "  try {" +
+      "    Array.from(document.styleSheets).forEach(function(ss){" +
+      "      try {" +
+      "        Array.from(ss.cssRules).forEach(function(r){" +
+      "          if (r.selectorText && r.selectorText.includes('ms-Link') && r.style && r.style.color) {" +
+      "            linkRules.push(r.selectorText + '|' + r.style.color);" +
+      "          }" +
+      "        });" +
+      "      } catch(e) {}" +
+      "    });" +
+      "  } catch(e) {}" +
+      "  return linkRules.length > 0 ? 'css-rule:' + linkRules.join(';') : 'no-ms-link';" +
+      "})()";
     const rawResult = sendEvalSignal(evalScript, 5000);
+    console.log("  TC-001 eval result:", rawResult ? rawResult.slice(0, 120) : "(empty)");
 
-    if (rawResult) {
-      // Parse returned colors and check contrast
-      const colors = rawResult.split(",").filter(Boolean);
-      // For each color, check it's not the problematic rgb(72,160,199)
+    if (!rawResult || rawResult.startsWith("ERROR:")) {
+      step("TC-001 Link text contrast ≥ 4.5:1", false,
+        "FAIL: DOM eval error — gallery may not be accessible via Playwright.");
+    } else if (rawResult.startsWith("colors:")) {
+      const colors = rawResult.slice(7).split(",").filter(Boolean);
       const problematicColor = "rgb(72, 160, 199)";
       const hasProblematic = colors.some((c) => c.trim() === problematicColor);
       step(
         "TC-001 Link text contrast ≥ 4.5:1",
         !hasProblematic,
         hasProblematic
-          ? `Found low-contrast color ${problematicColor}`
-          : `Link colors: ${colors.join(", ")}`,
+          ? `FAIL: Found low-contrast color ${problematicColor} on .ms-Link`
+          : `Link colors OK: ${colors.join(", ")}`,
       );
-    } else {
-      // Playwright not connected — TC cannot be verified without live DOM.
-      // Check source as diagnostic info but mark TC as FAIL.
-      const scssPath = path.join(
-        __dirname,
-        "../../../../packages/vscode-extension/src/controls/sampleGallery/SampleGallery.scss",
-      );
-      let srcHasFix = false;
-      try {
-        const scss = fs.readFileSync(scssPath, "utf8");
-        srcHasFix = scss.includes("#005B9E") || scss.includes("#005b9e");
-      } catch {}
+    } else if (rawResult.startsWith("css-rule:")) {
+      const rules = rawResult.slice(9);
+      const hasGoodRule =
+        rules.includes("#005b9e") || rules.includes("#005B9E") || rules.includes("rgb(0, 91, 158)");
       step(
         "TC-001 Link text contrast ≥ 4.5:1",
-        srcHasFix,
-        srcHasFix
-          ? "[SOURCE-VERIFIED] Fix present in SampleGallery.scss (#005B9E). DOM check unavailable in CI."
-          : "[FAIL] Fix NOT found in SampleGallery.scss. Gallery webview also not open for live DOM check.",
+        hasGoodRule,
+        hasGoodRule
+          ? `CSS fix applied: ${rules.slice(0, 80)}`
+          : `FAIL: CSS rule for .ms-Link exists but wrong color: ${rules.slice(0, 80)}`,
+      );
+    } else {
+      step(
+        "TC-001 Link text contrast ≥ 4.5:1",
+        false,
+        "FAIL: No .ms-Link elements and no CSS fix rule found. Fix not applied (shouldShowChat=false hides links; CSS fix must be in stylesheet).",
       );
     }
     takeScreenshot("03-tc001-link-contrast");
@@ -270,22 +365,46 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
    */
   test("TC-002: Featured vs non-Featured ARIA differentiation", async () => {
     if (galleryOpened) {
+      // Use .sample-card (not [role=button] -- cards intentionally lack role=button in unfixed code).
+      // Check featured section cards for "Featured sample." aria-label prefix.
       const evalScript =
-        "(() => { const cards = Array.from(document.querySelectorAll('[role=button]')); const labels = cards.map(c => c.getAttribute('aria-label') || '').filter(Boolean); const featured = labels.filter(l => l.startsWith('Featured sample')); return JSON.stringify({total: cards.length, featuredLabels: featured.length, sampleLabels: labels.slice(0,3)}); })()";
+        "(() => {" +
+        "  var fSec = document.querySelector('.featured-sample-section');" +
+        "  var sSec = document.querySelector('.sample-section');" +
+        "  var fCards = fSec ? Array.from(fSec.querySelectorAll('.sample-card')) : [];" +
+        "  var sCards = sSec ? Array.from(sSec.querySelectorAll('.sample-card')) : [];" +
+        "  var fLabels = fCards.map(function(c){return c.getAttribute('aria-label')||'';});" +
+        "  var sLabels = sCards.map(function(c){return c.getAttribute('aria-label')||'';});" +
+        "  var fPrefixed = fLabels.filter(function(l){return l.startsWith('Featured sample');});" +
+        "  return JSON.stringify({featuredTotal:fCards.length,featuredPrefixed:fPrefixed.length," +
+        "    regularTotal:sCards.length,sampleFeaturedLabel:fLabels[0]||'none',sampleRegularLabel:sLabels[0]||'none'});" +
+        "})()"
       const rawResult = sendEvalSignal(evalScript, 5000);
 
-      if (rawResult) {
+      if (rawResult && !rawResult.startsWith("ERROR:") && rawResult.startsWith("ACCESSIBILITY:")) {
+        const nodes = parseAriaSnapshot(rawResult.slice("ACCESSIBILITY:".length));
+        const buttonNodes = nodes.filter(n => n.role.toLowerCase() === "button");
+        const featuredNodes = buttonNodes.filter(n => (n.name || "").startsWith("Featured sample"));
+        const hasFeaturedAria = featuredNodes.length > 0;
+        step(
+          "TC-002 Featured ARIA differentiation",
+          hasFeaturedAria,
+          `[AX-TREE] ${buttonNodes.length} button nodes, ${featuredNodes.length} with "Featured sample" prefix`,
+        );
+        takeScreenshot("04-tc002-featured-aria");
+        return;
+      }
+      if (rawResult && !rawResult.startsWith("ERROR:")) {
         try {
           const data = JSON.parse(rawResult);
-          const hasFeaturedAria = data.featuredLabels > 0;
+          const hasFeaturedAria = data.featuredPrefixed > 0;
           step(
             "TC-002 Featured ARIA differentiation",
             hasFeaturedAria,
-            `${data.total} cards, ${
-              data.featuredLabels
-            } with Featured prefix, sample: ${JSON.stringify(
-              data.sampleLabels,
-            )}`,
+            hasFeaturedAria
+              ? `OK: ${data.featuredPrefixed}/${data.featuredTotal} featured cards have "Featured sample." prefix`
+              : `FAIL: ${data.featuredTotal} featured cards, 0 with "Featured sample." in aria-label. ` +
+                `Sample: "${data.sampleFeaturedLabel.slice(0, 80)}"`,
           );
         } catch {
           step(
@@ -299,7 +418,6 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
       }
     }
 
-    // Gallery not open — cannot verify TC without live DOM.
     step(
       "TC-002 Featured ARIA differentiation",
       false,
@@ -313,34 +431,51 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
    * After fix: .featured-badge uses #7A5C00 on white (≈ 4.9:1).
    */
   test("TC-003: Featured badge contrast ≥ 3:1", async () => {
+    if (!galleryOpened) {
+      step(
+        "TC-003 Featured badge present with accessible contrast",
+        false,
+        "FAIL: Gallery webview not open. Cannot check featured badge.",
+      );
+      takeScreenshot("05-tc003-badge-contrast");
+      return;
+    }
+    // Check .featured-sample-section (gallery loaded) + .featured-badge (added by fix).
     const evalScript =
-      "(() => { const badges = Array.from(document.querySelectorAll('.featured-badge')); if (badges.length === 0) return 'no-badges'; const s = getComputedStyle(badges[0]); return JSON.stringify({bg: s.backgroundColor, color: s.color, count: badges.length}); })()";
+      "(() => {" +
+      "  var fSec = document.querySelector('.featured-sample-section');" +
+      "  if (!fSec) return 'no-featured-section';" +
+      "  var badges = Array.from(document.querySelectorAll('.featured-badge'));" +
+      "  if (badges.length === 0) return JSON.stringify({hasFeaturedSection:true,count:0});" +
+      "  var s = getComputedStyle(badges[0]);" +
+      "  return JSON.stringify({hasFeaturedSection:true,bg:s.backgroundColor,color:s.color,count:badges.length});" +
+      "})()"
     const rawResult = sendEvalSignal(evalScript, 5000);
 
-    if (rawResult && rawResult !== "no-badges") {
+    if (!rawResult || rawResult.startsWith("ERROR:")) {
+      step("TC-003 Featured badge present with accessible contrast", false, "FAIL: DOM eval error.");
+    } else if (rawResult === "no-featured-section") {
+      step("TC-003 Featured badge present with accessible contrast", false,
+        "FAIL: .featured-sample-section not found (gallery may not have loaded featured samples).");
+    } else {
       try {
         const data = JSON.parse(rawResult);
-        // #7A5C00 on #FFFFFF ≈ 4.9:1 — any badge present means the fix is applied
-        const hasBadge = data.count > 0;
-        step(
-          "TC-003 Featured badge present with accessible contrast",
-          hasBadge,
-          `${data.count} badge(s), bg=${data.bg}, color=${data.color}`,
-        );
+        if (data.count === 0) {
+          step(
+            "TC-003 Featured badge present with accessible contrast",
+            false,
+            "FAIL: .featured-sample-section present but no .featured-badge elements. A11y bug: badge element not added to featured cards.",
+          );
+        } else {
+          step(
+            "TC-003 Featured badge present with accessible contrast",
+            true,
+            `${data.count} badge(s) found. bg=${data.bg}, color=${data.color}`,
+          );
+        }
       } catch {
-        step(
-          "TC-003 Featured badge contrast",
-          false,
-          "parse error: " + rawResult,
-        );
+        step("TC-003 Featured badge contrast ≥ 3:1", false, "parse error: " + rawResult);
       }
-    } else {
-      // Gallery not open — cannot verify TC without live DOM.
-      step(
-        "TC-003 Featured badge contrast ≥ 3:1",
-        false,
-        "FAIL: Gallery webview not open. Extension must activate and gallery must load for DOM-based A11y check.",
-      );
     }
     takeScreenshot("05-tc003-badge-contrast");
   });
@@ -351,23 +486,46 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
    */
   test("TC-004: Tags announced on keyboard focus via aria-label", async () => {
     if (galleryOpened) {
+      // Use .sample-card (not [role=button] -- cards intentionally lack role=button in unfixed code).
+      // Check that aria-label includes "Tags:" to announce tags on keyboard focus.
       const evalScript =
-        "(() => { const cards = Array.from(document.querySelectorAll('[role=button]')); const labelsWithTags = cards.filter(c => { const l = c.getAttribute('aria-label') || ''; return l.toLowerCase().includes('tags:'); }); return JSON.stringify({total: cards.length, withTags: labelsWithTags.length, sample: (labelsWithTags[0]?.getAttribute('aria-label') || '')}); })()";
+        "(() => {" +
+        "  var cards = Array.from(document.querySelectorAll('.sample-card'));" +
+        "  var withTags = cards.filter(function(c){" +
+        "    var l = c.getAttribute('aria-label') || '';" +
+        "    return l.toLowerCase().includes('tags:');" +
+        "  });" +
+        "  var sampleAny = cards[0];" +
+        "  var sample = withTags[0] ? (withTags[0].getAttribute('aria-label')||'')" +
+        "               : sampleAny ? (sampleAny.getAttribute('aria-label')||'none') : 'none';" +
+        "  return JSON.stringify({total:cards.length,withTags:withTags.length,sample:sample});" +
+        "})()"
       const rawResult = sendEvalSignal(evalScript, 5000);
 
-      if (rawResult) {
+      if (rawResult && rawResult.startsWith("ACCESSIBILITY:")) {
+        const nodes = parseAriaSnapshot(rawResult.slice("ACCESSIBILITY:".length));
+        const buttonNodes = nodes.filter(n => n.role.toLowerCase() === "button");
+        const tagNodes = buttonNodes.filter(n => (n.name || "").toLowerCase().includes("tags:"));
+        const hasTagsInLabel = tagNodes.length > 0;
+        const sample = tagNodes[0]?.name || "";
+        step(
+          "TC-004 Tags in aria-label",
+          hasTagsInLabel,
+          `[AX-TREE] ${buttonNodes.length} buttons, ${tagNodes.length} with "Tags:" in name. Sample: "${sample.slice(0, 80)}"`,
+        );
+        takeScreenshot("06-tc004-tags-aria");
+        return;
+      }
+      if (rawResult && !rawResult.startsWith("ERROR:")) {
         try {
           const data = JSON.parse(rawResult);
           const hasTagsInLabel = data.withTags > 0;
           step(
             "TC-004 Tags in aria-label",
             hasTagsInLabel,
-            `${data.withTags}/${
-              data.total
-            } cards have tags in aria-label. Sample: "${data.sample.slice(
-              0,
-              80,
-            )}"`,
+            hasTagsInLabel
+              ? `OK: ${data.withTags}/${data.total} cards have "Tags:" in aria-label. Sample: "${data.sample.slice(0, 80)}"`
+              : `FAIL: ${data.total} cards found, 0 have "Tags:" in aria-label. Sample: "${data.sample.slice(0, 80)}"`,
           );
         } catch {
           step("TC-004 Tags in aria-label", false, "parse error: " + rawResult);
@@ -377,7 +535,6 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
       }
     }
 
-    // Gallery not open — cannot verify TC without live DOM.
     step(
       "TC-004 Tags in aria-label",
       false,
@@ -398,7 +555,23 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
         "(() => { const btns = Array.from(document.querySelectorAll('.layout-button')); const results = btns.map(b => ({label: b.getAttribute('aria-label'), pressed: b.getAttribute('aria-pressed')})); return JSON.stringify({count: btns.length, buttons: results}); })()";
       const rawResult = sendEvalSignal(evalScript, 5000);
 
-      if (rawResult) {
+      if (rawResult && rawResult.startsWith("ACCESSIBILITY:")) {
+        const nodes = parseAriaSnapshot(rawResult.slice("ACCESSIBILITY:".length));
+        // Layout buttons have aria-pressed, appearing as role=button with pressed property
+        const pressedButtons = nodes.filter(n =>
+          n.role.toLowerCase() === "button" &&
+          n.pressed !== undefined
+        );
+        const hasAriaPressed = pressedButtons.length > 0;
+        step(
+          "TC-005 Toggle buttons have aria-pressed",
+          hasAriaPressed,
+          `[AX-TREE] ${pressedButtons.length} buttons with pressed state found. States: ${JSON.stringify(pressedButtons.map(b => ({name: b.name, pressed: b.pressed})).slice(0,3))}`,
+        );
+        takeScreenshot("07-tc005-toggle-aria-pressed");
+        return;
+      }
+      if (rawResult && !rawResult.startsWith("ERROR:")) {
         try {
           const data = JSON.parse(rawResult);
           const hasAriaPressed =
@@ -440,3 +613,6 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
     step("Final state captured", true);
   });
 });
+
+
+
