@@ -248,6 +248,18 @@ describe("Samples", () => {
             suggested: true,
             thumbnailPath: "",
           },
+          {
+            onboardDate: "2024-01-03",
+            title: "Sample Without Id",
+            shortDescription: "Should stay",
+            fullDescription: "Should stay",
+            types: ["Tab"],
+            tags: ["Tab", "TS"],
+            time: "5min to run",
+            configuration: "Ready for debug",
+            suggested: false,
+            thumbnailPath: "",
+          },
         ],
       };
 
