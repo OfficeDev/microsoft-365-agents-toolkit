@@ -6,3 +6,9 @@ APP_NAME_SUFFIX=dev
 AGENT_SCOPE=shared
 # Generated during provision, you can also add your own variables.
 TEAMS_APP_ID=
+
+# Environment variables for Agent Evaluations
+AZURE_AI_OPENAI_ENDPOINT=
+AZURE_AI_API_KEY=
+AZURE_AI_API_VERSION=
+AZURE_AI_MODEL_NAME=
