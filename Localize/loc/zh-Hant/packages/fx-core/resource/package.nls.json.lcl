@@ -8076,10 +8076,13 @@
       </Item>
       <Item ItemId=";driver.teamsApp.warning.createUnsupportedCloud" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Skipping %s as the required Developer Portal API is not yet available in GCC H and DoD. App ID will be generated locally later.]]></Val>
+          <Val><![CDATA[Skipping %s as the required Developer Portal API is not yet available in GCC H and DoD. App ID will be generated locally.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[正在略過 %s，因為必要的開發人員入口網站 API 尚未在 GCC H 和 DoD 中提供。稍後將在本機產生應用程式識別碼。]]></Val>
+            <Val><![CDATA[正在略過 %s，因為必要的開發人員入口網站 API 尚未在 GCC H 和 DoD 中提供。將在本機產生 App ID。]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Skipping %s as the required Developer Portal API is not yet available in GCC H and DoD. App ID will be generated locally later.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -10008,6 +10011,15 @@
           <Val><![CDATA[File path: %s, title: %s]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[檔案路徑： %s，標題： %s]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.teamsGraph.apiFailed" ItemType="0" PsrId="306" InstFlg="true" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to make API call to Teams Graph. Check [Output panel]5D;(command:fx-extension.showOutputChannel) for details.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[無法對 Teams Graph 執行 API 呼叫。請查看[輸出面板]5D;(command:fx-extension.showOutputChannel)以尋找詳細資料。]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />

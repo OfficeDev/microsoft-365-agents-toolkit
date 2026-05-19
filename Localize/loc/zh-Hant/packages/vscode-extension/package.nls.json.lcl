@@ -345,10 +345,13 @@
       </Item>
       <Item ItemId=";teamstoolkit.accountTree.copilotWarningTooltip" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Microsoft 365 account administrator hasn't enabled Copilot access for this account. Contact your Teams administrator to resolve this issue by enrolling in Microsoft 365 Copilot Early Access program. Visit: https://aka.ms/PluginsEarlyAccess]]></Val>
+          <Val><![CDATA[Your Microsoft 365 account doesn't have Copilot developer access, to set up development environment to extend Copilot, visit [Set up development environment to extend Copilot]5D;(https://learn.microsoft.com/en-us/microsoft-365/copilot/extensibility/prerequisites)]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Microsoft 365帳戶管理員尚未啟用此帳戶的 Copilot 存取權。請註冊 Microsoft 365 Copilot 早期存取計劃，以連絡您的Teams系統管理員以解決此問題。流覽： https://aka.ms/PluginsEarlyAccess]]></Val>
+            <Val><![CDATA[您的 Microsoft 365 帳戶沒有 Copilot 開發人員存取權。若要設定可擴充 Copilot 的開發環境，請造訪[設定可擴充 Copilot 的開發環境]5D;(https://learn.microsoft.com/zh-tw/microsoft-365/copilot/extensibility/prerequisites)]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Microsoft 365 account administrator hasn't enabled Copilot access for this account. Contact your Teams administrator to resolve this issue by enrolling in Microsoft 365 Copilot Early Access program. Visit: https://aka.ms/PluginsEarlyAccess]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -4527,6 +4530,15 @@
           <Val><![CDATA[Unable to verify GitHub Copilot Chat. Install it manually following %s and try again.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[無法驗證 GitHub Copilot聊天。請在 %s 後手動安裝，然後再試一次。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";teamstoolkit.localDebug.copilotChatHint" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[]A;Tip: To troubleshoot this error with Copilot, open the log file at %s and type the following prompt in Copilot Chat:]A;  /microsoft-365-agents-toolkit fix]A;Copilot will analyze the log and suggest a fix.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[]A;提示: 若要使用 Copilot 疑難排解此錯誤，請開啟位於 %s 的記錄檔，並在 Copilot Chat 中輸入下列提示:]A;  /microsoft-365-agents-toolkit fix]A;Copilot 將分析記錄檔，並建議修正方式。]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />

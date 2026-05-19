@@ -345,10 +345,13 @@
       </Item>
       <Item ItemId=";teamstoolkit.accountTree.copilotWarningTooltip" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Microsoft 365 account administrator hasn't enabled Copilot access for this account. Contact your Teams administrator to resolve this issue by enrolling in Microsoft 365 Copilot Early Access program. Visit: https://aka.ms/PluginsEarlyAccess]]></Val>
+          <Val><![CDATA[Your Microsoft 365 account doesn't have Copilot developer access, to set up development environment to extend Copilot, visit [Set up development environment to extend Copilot]5D;(https://learn.microsoft.com/en-us/microsoft-365/copilot/extensibility/prerequisites)]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Microsoft 365 계정 관리자가 이 계정에 대한 Copilot 액세스를 사용하도록 설정하지 않았습니다. Microsoft 365 Copilot 조기 액세스 프로그램에 등록하여 이 문제를 resolve Teams 관리자에게 문의하세요. 방문: https://aka.ms/PluginsEarlyAccess]]></Val>
+            <Val><![CDATA[현재 사용 중인 Microsoft 365 계정에는 Copilot 개발자 액세스 권한이 없습니다. Copilot을 확장하기 위한 개발 환경을 설정하려면 [Copilot을 확장하기 위한 개발 환경 설정]5D;(https://learn.microsoft.com/en-us/microsoft-365/copilot/extensibility/prerequisites)을 방문하세요.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Microsoft 365 account administrator hasn't enabled Copilot access for this account. Contact your Teams administrator to resolve this issue by enrolling in Microsoft 365 Copilot Early Access program. Visit: https://aka.ms/PluginsEarlyAccess]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -4527,6 +4530,15 @@
           <Val><![CDATA[Unable to verify GitHub Copilot Chat. Install it manually following %s and try again.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[GitHub Copilot Chat을 확인할 수 없습니다. %s에 따라 수동으로 설치를 진행한 후 다시 시도하세요.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";teamstoolkit.localDebug.copilotChatHint" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[]A;Tip: To troubleshoot this error with Copilot, open the log file at %s and type the following prompt in Copilot Chat:]A;  /microsoft-365-agents-toolkit fix]A;Copilot will analyze the log and suggest a fix.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[]A;팁: Copilot에서 이 오류를 해결하려면 %s에서 로그 파일을 열고 Copilot Chat에 다음 프롬프트를 입력하세요.]A;  /microsoft-365-agents-toolkit fix]A;Copilot에서 로그를 분석하고 수정 방법을 제안합니다.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />

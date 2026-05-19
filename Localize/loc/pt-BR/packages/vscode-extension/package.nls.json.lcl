@@ -345,10 +345,13 @@
       </Item>
       <Item ItemId=";teamstoolkit.accountTree.copilotWarningTooltip" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Microsoft 365 account administrator hasn't enabled Copilot access for this account. Contact your Teams administrator to resolve this issue by enrolling in Microsoft 365 Copilot Early Access program. Visit: https://aka.ms/PluginsEarlyAccess]]></Val>
+          <Val><![CDATA[Your Microsoft 365 account doesn't have Copilot developer access, to set up development environment to extend Copilot, visit [Set up development environment to extend Copilot]5D;(https://learn.microsoft.com/en-us/microsoft-365/copilot/extensibility/prerequisites)]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Microsoft 365 administrador da conta não habilitou o acesso do Copilot para esta conta. Entre em contato com o administrador do Teams resolve resolver esse problema registrando-se Microsoft 365 Copilot programa de Acesso Antecipado. Visite: https://aka.ms/PluginsEarlyAccess]]></Val>
+            <Val><![CDATA[Sua conta do Microsoft 365 não tem acesso de desenvolvedor ao Copilot. Para configurar um ambiente de desenvolvimento para estender o Copilot, acesse [Configurar o ambiente de desenvolvimento para estender o Copilot]5D;(https://learn.microsoft.com/pt-br/microsoft-365/copilot/extensibility/prerequisites)]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Microsoft 365 account administrator hasn't enabled Copilot access for this account. Contact your Teams administrator to resolve this issue by enrolling in Microsoft 365 Copilot Early Access program. Visit: https://aka.ms/PluginsEarlyAccess]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -4527,6 +4530,15 @@
           <Val><![CDATA[Unable to verify GitHub Copilot Chat. Install it manually following %s and try again.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Não é possível verificar GitHub Copilot Chat. Instale-o manualmente seguindo %s e tente novamente.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";teamstoolkit.localDebug.copilotChatHint" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[]A;Tip: To troubleshoot this error with Copilot, open the log file at %s and type the following prompt in Copilot Chat:]A;  /microsoft-365-agents-toolkit fix]A;Copilot will analyze the log and suggest a fix.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[]A;Dica: para solucionar esse erro com o Copilot, abra o arquivo de log em %s e digite o seguinte prompt no Copilot Chat:]A;  /microsoft-365-agents-toolkit fix]A;O Copilot analisará o log e sugerirá uma correção.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
