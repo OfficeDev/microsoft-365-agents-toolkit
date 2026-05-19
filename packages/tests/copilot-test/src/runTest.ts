@@ -180,19 +180,39 @@ async function startSignalWatcher(
         } else if (content.startsWith("clickText:")) {
           const text = content.slice("clickText:".length);
           if (page) {
-            const item = page
-              .locator(".quick-input-list .monaco-list-row")
-              .filter({ hasText: text });
+            // Strategy 1: getByText (robust Playwright text locator, substring match)
+            const byText = page.getByText(text, { exact: false })
+              .filter({ hasNot: page.locator('[class*="outline"], [class*="sidebar"]') });
             try {
-              await item.first().waitFor({ timeout: 8000 });
-              await item.first().click();
-              console.log(`  Clicked: "${text}"`);
+              await byText.first().waitFor({ timeout: 8000 });
+              await byText.first().click();
+              console.log(`  Clicked (getByText): "${text}"`);
               await sleep(500);
             } catch {
-              console.warn(`  clickText: "${text}" not found`);
-              await page.keyboard.press("ArrowDown");
-              await sleep(200);
-              await page.keyboard.press("Enter");
+              // Strategy 2: try monaco-list-row with hasText
+              const byRow = page.locator(".monaco-list-row").filter({ hasText: text });
+              try {
+                await byRow.first().waitFor({ timeout: 5000 });
+                await byRow.first().click();
+                console.log(`  Clicked (monaco-list-row): "${text}"`);
+                await sleep(500);
+              } catch {
+                // Strategy 3: type to filter QuickPick input, then Enter
+                try {
+                  const inputLoc = page.locator('.quick-input-filter .input, .quick-input-box .input');
+                  await inputLoc.first().waitFor({ timeout: 3000 });
+                  await inputLoc.first().fill(text);
+                  await sleep(500);
+                  await page.keyboard.press("Enter");
+                  console.log(`  clickText (type+Enter): "${text}"`);
+                  await sleep(300);
+                } catch {
+                  console.warn(`  clickText: "${text}" not found`);
+                  await page.keyboard.press("ArrowDown");
+                  await sleep(200);
+                  await page.keyboard.press("Enter");
+                }
+              }
             }
           }
         } else if (content.startsWith("click:")) {
@@ -241,7 +261,8 @@ async function startSignalWatcher(
           }
           if (page) {
             try {
-              await page.waitForSelector(`text="${text}"`, { timeout: wftTimeout });
+              // Use getByText (Playwright text locator, case-insensitive substring) for robustness
+              await page.getByText(text, { exact: false }).first().waitFor({ timeout: wftTimeout });
               console.log(`  Found text: "${text}"`);
             } catch {
               console.warn(`  waitForText: "${text}" not found`);

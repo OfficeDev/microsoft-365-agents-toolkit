@@ -174,7 +174,7 @@ suite("ATK Teams Bot Template Creation (UI Wizard)", function () {
     // passed as the second arg to sendSignal() so the test side doesn't time out early.
 
     // Wait for wizard Step 1 (up to 30s - template list loads slowly)
-    sendSignal("waitForText:Teams Agents and Apps:30000", 32000);
+    sendSignal("waitForText:Teams Agents and Apps:30000", 38000);
     takeScreenshot("02-wizard-open"); // Step 1: QuickPick showing project type options
 
     // Step 1: Select "Teams Agents and Apps"
@@ -185,34 +185,48 @@ suite("ATK Teams Bot Template Creation (UI Wizard)", function () {
 
     // Step 2: Select "Other Teams Capabilities" (teams-app-type QuickPick)
     console.log("  Clicking: Other Teams Capabilities");
-    sendSignal("waitForText:Other Teams Capabilities:15000", 17000);
+    sendSignal("waitForText:Other Teams Capabilities:15000", 23000);
     takeScreenshot("04-other-teams-capabilities"); // QuickPick showing teams-app-type options
     sendSignal("clickText:Other Teams Capabilities", 10000);
     await wait(1000);
 
     // Step 3: Select "Simple Bot" (teams-other-app-type QuickPick)
     console.log("  Clicking: Simple Bot");
-    sendSignal("waitForText:Simple Bot:15000", 17000);
+    sendSignal("waitForText:Simple Bot:15000", 23000);
     takeScreenshot("05-simple-bot"); // QuickPick showing Simple Bot option
     sendSignal("clickText:Simple Bot", 10000);
     await wait(1000);
 
-    // Step 4: Workspace Folder QuickPick — wait for "Default folder" item (more reliable than title)
+    // Step 4: Programming Language QuickPick — "TypeScript" / "JavaScript" / "Python"
+    console.log("  Selecting TypeScript");
+    sendSignal("waitForText:TypeScript:15000", 23000);
+    takeScreenshot("06-programming-language");
+    sendSignal("clickText:TypeScript", 10000);
+    await wait(1000);
+
+    // Step 5: Workspace Folder QuickPick — wait for "Default folder" item (more reliable than title)
     console.log("  Selecting default folder");
-    sendSignal("waitForText:Default folder:20000", 22000);
-    takeScreenshot("06-workspace-folder"); // QuickPick showing Default folder + Browse...
+    sendSignal("waitForText:Default folder:15000", 23000);
+    takeScreenshot("07-workspace-folder"); // QuickPick showing Default folder + Browse...
     sendSignal("clickText:Default folder", 10000);
     await wait(1000);
 
     // Step 5: Application Name InputBox — wait for "Application Name" placeholder text
     console.log("  Typing app name");
-    sendSignal("waitForText:Application Name:20000", 22000);
-    takeScreenshot("07-app-name-input"); // InputBox visible
+    sendSignal("waitForText:Application Name:15000", 23000);
+    takeScreenshot("09-app-name-input"); // InputBox visible
     sendSignal("type:test-teams-bot-001", 8000);
     await wait(500);
     sendSignal("pressKey:Enter", 5000);
-    await wait(90000); // scaffold + new window; 90s for slow CI
-    takeScreenshot("08-project-created");
+    // Scaffold takes up to 90s; capture intermediate screenshots to catch errors
+    await wait(15000);
+    takeScreenshot("08a-scaffold-15s");
+    await wait(15000);
+    takeScreenshot("08b-scaffold-30s");
+    await wait(30000);
+    takeScreenshot("08c-scaffold-60s");
+    await wait(30000); // total ~90s
+    takeScreenshot("10-project-created");
 
     step(
       "Navigate wizard to create Teams Bot template",
