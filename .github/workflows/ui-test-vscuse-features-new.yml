@@ -1,7 +1,6 @@
-name: uitest-vscuse-template-new
+name: uitest-vscuse-features-new
 #
-# Caller that runs the non-Feature / non-Sample template plans via the shared reusable workflow.
-# Also triggers ui-test-vscuse-others.yml after the report finishes when invoked by schedule.
+# Caller that runs Feature_* plans via the shared reusable workflow.
 on:
   workflow_dispatch:
     inputs:
@@ -27,7 +26,7 @@ on:
         type: number
         default: 7
       schedule_trigger:
-        description: 'Whether the build is triggered by schedule'
+        description: "Whether the build is triggered by schedule"
         type: boolean
         default: false
 
@@ -52,28 +51,27 @@ jobs:
       max_retries: ${{ fromJson(github.event.inputs.max_retries || '7') }}
       schedule_trigger: ${{ github.event.inputs.schedule_trigger == 'true' }}
       # Pipeline-specific knobs
-      plan_find_args: '-name "*.json" ! -name "Feature_*" ! -name "Sample_*"'
-      main_timeout_minutes: 50
-      no_failed_step_text: " "
-      filter_no_errors_found: true
-      email_subject_suffix: "[Templates]"
+      plan_find_args: '-name "Feature_*.json"'
+      main_timeout_minutes: 80
+      no_failed_step_text: "No failed step found"
+      filter_no_errors_found: false
+      email_subject_suffix: "[Features]"
 
-  trigger-ui-test-features:
+  trigger-ui-test-samples:
     needs: run
     if: ${{ always() && needs.run.result != 'skipped' && github.event.inputs.schedule_trigger == 'true' }}
     runs-on: ubuntu-latest
     permissions:
       actions: write
     steps:
-      - name: Trigger UI Test Features Workflow
+      - name: Trigger UI Test Samples Workflow
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh workflow run ui-test-vscuse-features-new.yml \
+          gh workflow run ui-test-vscuse-samples-new.yml \
             --repo ${{ github.repository }} \
             --ref ${{ github.ref }} \
             -f image_tag=${{ github.event.inputs.image_tag || 'latest' }} \
             -f vscuse_version=${{ github.event.inputs.vscuse_version || 'latest' }} \
             -f schedule_trigger=${{ github.event.inputs.schedule_trigger || 'false' }}
-
 

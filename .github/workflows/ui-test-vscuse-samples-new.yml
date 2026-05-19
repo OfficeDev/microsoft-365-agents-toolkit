@@ -1,6 +1,6 @@
-name: uitest-vscuse-others-new
+name: uitest-vscuse-samples-new
 #
-# Caller that runs Feature_* / Sample_* plans via the shared reusable workflow.
+# Caller that runs Sample_* plans via the shared reusable workflow.
 on:
   workflow_dispatch:
     inputs:
@@ -51,8 +51,8 @@ jobs:
       max_retries: ${{ fromJson(github.event.inputs.max_retries || '7') }}
       schedule_trigger: ${{ github.event.inputs.schedule_trigger == 'true' }}
       # Pipeline-specific knobs
-      plan_find_args: '\( -name "Feature_*.json" -o -name "Sample_*.json" \)'
+      plan_find_args: '-name "Sample_*.json"'
       main_timeout_minutes: 80
       no_failed_step_text: "No failed step found"
       filter_no_errors_found: false
-      email_subject_suffix: "[Samples + Features]"
+      email_subject_suffix: "[Samples]"
