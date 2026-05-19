@@ -117,6 +117,31 @@ jobs:
           echo "redhat.vscode-yaml stub created at $EXT_DIR"
           ls "$EXT_DIR/package.json" && echo "package.json ✓"
 
+      - name: Build ATK extension from source
+        run: |
+          echo "::group::pnpm install (workspace deps)"
+          pnpm install --no-frozen-lockfile 2>&1 | tail -20
+          echo "::endgroup::"
+          echo "::group::Prepare fx-core resource/templates (needed by gen:cli prebuild)"
+          mkdir -p packages/fx-core/resource/templates
+          cp -f templates/src/ui/resource/package.nls.json packages/fx-core/resource/templates/
+          echo "::endgroup::"
+          echo "::group::Build templates package (generates fallback/*.zip for local template use)"
+          (cd templates && npm run build:vsc 2>&1 | tail -20)
+          echo "::endgroup::"
+          echo "::group::pnpm build (extension + workspace:* deps)"
+          # trailing ... builds this package AND all its local workspace deps
+          pnpm --filter ms-teams-vscode-extension... run build 2>&1 | tail -40
+          echo "::endgroup::"
+          ls packages/vscode-extension/out/src/extension.js \
+            && echo "✅ extension.js built" \
+            || { echo "❌ Build failed"; exit 1; }
+          ls packages/vscode-extension/out/templates/fallback/ts.zip \
+            && echo "✅ fallback templates present" \
+            || { echo "❌ Fallback templates missing"; exit 1; }
+          echo "ATK_EXT_PATH=$(pwd)/packages/vscode-extension" >> $GITHUB_ENV
+          echo "TEMPLATE_VERSION=local" >> $GITHUB_ENV
+
       - name: Start Xvfb
         run: |
           Xvfb :99 -ac -screen 0 1920x1080x24 &
@@ -279,19 +304,11 @@ jobs:
             export ATK_EXT_PATH=''
           fi
 
-          # Build extension if compiled output is missing (out/src/extension.js is not in git)
-          if [ -n \"\$ATK_EXT_PATH\" ] && [ ! -f \"\$ATK_EXT_PATH/out/src/extension.js\" ]; then
-            echo '[build] Building extension from source (using pnpm for workspace:* deps)...'
-            # pnpm is available (installed by CI setup step); use it to resolve workspace:* deps
-            REPO_ROOT=\$(realpath \"\$ATK_EXT_PATH/../..\")
-            cd \"\$REPO_ROOT\"
-            pnpm install --filter ms-teams-vscode-extension --no-frozen-lockfile 2>&1 | tail -10
-            pnpm --filter ms-teams-vscode-extension run build 2>&1 | tail -20
-            cd packages/tests/copilot-test
-            echo '[build] Done.'
-          fi
-
-          ./node_modules/.bin/ts-node --project tsconfig.json src/runTest.ts 2>&1 | tee \${TEST_OUTPUT_DIR}/test.log
+          # Extension is pre-compiled by the 'Build ATK extension from source' CI step.
+          # ATK_EXT_PATH is set in GITHUB_ENV pointing to packages/vscode-extension
+          echo "[info] Using pre-compiled extension at $ATK_EXT_PATH"
+          ls \"\$ATK_EXT_PATH/out/src/extension.js\" && echo "extension.js ✓" || echo "WARNING: extension.js missing"
+                    ./node_modules/.bin/ts-node --project tsconfig.json src/runTest.ts 2>&1 | tee \${TEST_OUTPUT_DIR}/test.log
           echo \"Exit code: \$?\"
 
           ## Step 5 – Collect results

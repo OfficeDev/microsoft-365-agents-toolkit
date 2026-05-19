@@ -282,6 +282,17 @@ suite("ATK Teams Bot Template Creation (UI Wizard)", function () {
       "appPackage/manifest.json",
     ];
 
+    // ATK creates the folder first then async-copies template files.
+    // Poll up to 60s for sentinel file before checking all files.
+    if (projectDir) {
+      const sentinel = path.join(projectDir, "m365agents.yml");
+      console.log("  Waiting for scaffold files (up to 60s)...");
+      for (let i = 0; i < 60; i++) {
+        if (fs.existsSync(sentinel)) break;
+        await new Promise((r) => setTimeout(r, 1000));
+      }
+    }
+
     let allFound = true;
     for (const f of expectedFiles) {
       const exists = projectDir

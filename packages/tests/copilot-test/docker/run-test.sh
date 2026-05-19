@@ -7,6 +7,8 @@ set -euo pipefail
 TEST_FILE="${TEST_FILE:-simple-bot-create}"
 ATK_EXT_PATH="${ATK_EXT_PATH:-/atk-ext}"
 TEST_OUTPUT_DIR="${TEST_OUTPUT_DIR:-/output}"
+# Use local bundled templates to avoid GitHub download rate-limits in CI/Docker
+export TEMPLATE_VERSION="${TEMPLATE_VERSION:-local}"
 RUNNER_HOME="/runner"
 
 echo "======================================================"

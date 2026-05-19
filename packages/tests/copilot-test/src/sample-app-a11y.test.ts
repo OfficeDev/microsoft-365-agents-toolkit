@@ -299,23 +299,11 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
       }
     }
 
-    // Gallery not open — TC cannot be verified without live DOM.
-    const cardPath = path.join(
-      __dirname,
-      "../../../../packages/vscode-extension/src/controls/sampleGallery/sampleCard.tsx",
-    );
-    let srcHasFix = false;
-    try {
-      const src = fs.readFileSync(cardPath, "utf8");
-      srcHasFix =
-        src.includes("Featured sample.") || src.includes("featuredPrefix");
-    } catch {}
+    // Gallery not open — cannot verify TC without live DOM.
     step(
       "TC-002 Featured ARIA differentiation",
-      srcHasFix,
-      srcHasFix
-        ? "[SOURCE-VERIFIED] Fix present in sampleCard.tsx (Featured prefix + featuredPrefix). DOM check unavailable."
-        : "[FAIL] Fix NOT found in sampleCard.tsx. Gallery webview also not open for live DOM check.",
+      false,
+      "FAIL: Gallery webview not open. Extension must activate and gallery must load for DOM-based A11y check.",
     );
     takeScreenshot("04-tc002-featured-aria");
   });
@@ -347,24 +335,11 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
         );
       }
     } else {
-      // Gallery not open — TC cannot be verified without live DOM.
-      const scssPath = path.join(
-        __dirname,
-        "../../../../packages/vscode-extension/src/controls/sampleGallery/sampleCard.scss",
-      );
-      let srcHasFix = false;
-      try {
-        const scss = fs.readFileSync(scssPath, "utf8");
-        srcHasFix =
-          scss.includes("featured-badge") &&
-          (scss.includes("#7A5C00") || scss.includes("#7a5c00"));
-      } catch {}
+      // Gallery not open — cannot verify TC without live DOM.
       step(
         "TC-003 Featured badge contrast ≥ 3:1",
-        srcHasFix,
-        srcHasFix
-          ? "[SOURCE-VERIFIED] Fix present in sampleCard.scss (.featured-badge + #7A5C00). DOM check unavailable."
-          : "[FAIL] Fix NOT found in sampleCard.scss. Gallery webview also not open for live DOM check.",
+        false,
+        "FAIL: Gallery webview not open. Extension must activate and gallery must load for DOM-based A11y check.",
       );
     }
     takeScreenshot("05-tc003-badge-contrast");
@@ -402,22 +377,11 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
       }
     }
 
-    // Gallery not open — TC cannot be verified without live DOM.
-    const cardPath = path.join(
-      __dirname,
-      "../../../../packages/vscode-extension/src/controls/sampleGallery/sampleCard.tsx",
-    );
-    let srcHasFix = false;
-    try {
-      const src = fs.readFileSync(cardPath, "utf8");
-      srcHasFix = src.includes("Tags:") && src.includes("aria-label");
-    } catch {}
+    // Gallery not open — cannot verify TC without live DOM.
     step(
       "TC-004 Tags in aria-label",
-      srcHasFix,
-      srcHasFix
-        ? "[SOURCE-VERIFIED] Fix present in sampleCard.tsx (Tags: + aria-label). DOM check unavailable."
-        : "[FAIL] Fix NOT found in sampleCard.tsx. Gallery webview also not open for live DOM check.",
+      false,
+      "FAIL: Gallery webview not open. Extension must activate and gallery must load for DOM-based A11y check.",
     );
     takeScreenshot("06-tc004-tags-aria");
   });
@@ -461,25 +425,11 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
       }
     }
 
-    // Gallery not open — TC cannot be verified without live DOM.
-    const filterPath = path.join(
-      __dirname,
-      "../../../../packages/vscode-extension/src/controls/sampleGallery/sampleFilter.tsx",
-    );
-    let srcHasFix = false;
-    try {
-      const src = fs.readFileSync(filterPath, "utf8");
-      srcHasFix =
-        src.includes("aria-pressed") &&
-        src.includes('layout === "grid"') &&
-        src.includes('layout === "list"');
-    } catch {}
+    // Gallery not open — cannot verify TC without live DOM.
     step(
       "TC-005 Toggle buttons aria-pressed",
-      srcHasFix,
-      srcHasFix
-        ? "[SOURCE-VERIFIED] Fix present in sampleFilter.tsx (aria-pressed + layout checks). DOM check unavailable."
-        : "[FAIL] Fix NOT found in sampleFilter.tsx. Gallery webview also not open for live DOM check.",
+      false,
+      "FAIL: Gallery webview not open. Extension must activate and gallery must load for DOM-based A11y check.",
     );
     takeScreenshot("07-tc005-toggle-aria-pressed");
   });
