@@ -184,4 +184,42 @@ describe("openPlugin.readOpenPluginDir", () => {
     expect(caught).to.exist;
     expect(caught!.message).to.match(/required 'name'/);
   });
+
+  it("uses a string override for the skills path", async () => {
+    await seedPlugin(tempDir, {
+      pluginJson: { name: "demo-plugin", skills: "./custom-skills" },
+    });
+    await fs.ensureDir(path.join(tempDir, "custom-skills", "my-skill"));
+    await fs.writeFile(
+      path.join(tempDir, "custom-skills", "my-skill", "SKILL.md"),
+      "---\nname: my-skill\n---\nbody"
+    );
+    const parsed = await readOpenPluginDir(tempDir);
+    expect(parsed.skills).to.deep.equal(["my-skill"]);
+  });
+
+  it("skips non-directory entries in the skills folder", async () => {
+    await seedPlugin(tempDir, { skills: ["valid-skill"] });
+    await fs.writeFile(path.join(tempDir, "skills", "README.md"), "# not a skill");
+    const parsed = await readOpenPluginDir(tempDir);
+    expect(parsed.skills).to.deep.equal(["valid-skill"]);
+  });
+
+  it("detects color.png and outline.png when present", async () => {
+    await seedPlugin(tempDir, { hasColor: true, hasOutline: true });
+    const parsed = await readOpenPluginDir(tempDir);
+    expect(parsed.hasColorPng).to.equal(true);
+    expect(parsed.hasOutlinePng).to.equal(true);
+  });
+
+  it("throws when the plugin directory does not exist", async () => {
+    let caught: Error | undefined;
+    try {
+      await readOpenPluginDir(path.join(tempDir, "nonexistent"));
+    } catch (e) {
+      caught = e as Error;
+    }
+    expect(caught).to.exist;
+    expect(caught!.message).to.match(/Plugin directory not found/);
+  });
 });

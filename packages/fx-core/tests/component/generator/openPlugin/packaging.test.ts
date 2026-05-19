@@ -147,4 +147,78 @@ describe("openPlugin → teamsApp/zipAppPackage end-to-end", () => {
       featureFlagManager.setBooleanValue(FeatureFlags.AgentSkillsManifest, wasEnabled);
     }
   });
+
+  it("returns error when agentSkills folder points outside appPackage", async () => {
+    const convertRes = await convertOpenPlugin({
+      path: pluginDir,
+      output: projectDir,
+      privacyUrl: "https://example.com/privacy",
+      termsUrl: "https://example.com/terms",
+    });
+    if (convertRes.isErr()) throw new Error(convertRes.error.message);
+
+    const manifestPath = path.join(projectDir, "appPackage", "manifest.json");
+    const manifest = await fs.readJSON(manifestPath);
+    manifest.agentSkills = [{ folder: "../../escape" }];
+    await fs.writeJSON(manifestPath, manifest, { spaces: 4 });
+
+    const wasEnabled = featureFlagManager.getBooleanValue(FeatureFlags.AgentSkillsManifest);
+    featureFlagManager.setBooleanValue(FeatureFlags.AgentSkillsManifest, true);
+    try {
+      const args: CreateAppPackageArgs = {
+        manifestPath,
+        outputZipPath: path.join(projectDir, "appPackage", "build", "appPackage.dev.zip"),
+        outputFolder: path.join(projectDir, "appPackage", "build"),
+      };
+      const ctx: any = {
+        m365TokenProvider: new MockedM365Provider(),
+        projectPath: projectDir,
+        platform: Platform.CLI,
+        logProvider: new MockedLogProvider(),
+        ui: new MockedUserInteraction(),
+        addTelemetryProperties: () => {},
+      };
+      const buildRes = (await driver.execute(args, ctx)).result;
+      expect(buildRes.isErr()).to.equal(true);
+    } finally {
+      featureFlagManager.setBooleanValue(FeatureFlags.AgentSkillsManifest, wasEnabled);
+    }
+  });
+
+  it("returns error when agentSkills folder does not exist", async () => {
+    const convertRes = await convertOpenPlugin({
+      path: pluginDir,
+      output: projectDir,
+      privacyUrl: "https://example.com/privacy",
+      termsUrl: "https://example.com/terms",
+    });
+    if (convertRes.isErr()) throw new Error(convertRes.error.message);
+
+    const manifestPath = path.join(projectDir, "appPackage", "manifest.json");
+    const manifest = await fs.readJSON(manifestPath);
+    manifest.agentSkills = [{ folder: "./skills/nonexistent" }];
+    await fs.writeJSON(manifestPath, manifest, { spaces: 4 });
+
+    const wasEnabled = featureFlagManager.getBooleanValue(FeatureFlags.AgentSkillsManifest);
+    featureFlagManager.setBooleanValue(FeatureFlags.AgentSkillsManifest, true);
+    try {
+      const args: CreateAppPackageArgs = {
+        manifestPath,
+        outputZipPath: path.join(projectDir, "appPackage", "build", "appPackage.dev.zip"),
+        outputFolder: path.join(projectDir, "appPackage", "build"),
+      };
+      const ctx: any = {
+        m365TokenProvider: new MockedM365Provider(),
+        projectPath: projectDir,
+        platform: Platform.CLI,
+        logProvider: new MockedLogProvider(),
+        ui: new MockedUserInteraction(),
+        addTelemetryProperties: () => {},
+      };
+      const buildRes = (await driver.execute(args, ctx)).result;
+      expect(buildRes.isErr()).to.equal(true);
+    } finally {
+      featureFlagManager.setBooleanValue(FeatureFlags.AgentSkillsManifest, wasEnabled);
+    }
+  });
 });

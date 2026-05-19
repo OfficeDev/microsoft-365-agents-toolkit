@@ -193,6 +193,19 @@ describe("openPlugin.convertOpenPlugin", () => {
     expect(res.isErr()).to.equal(true);
   });
 
+  it("returns MissingPluginPath when path is empty", async () => {
+    const res = await convertOpenPlugin({
+      path: "",
+      output: outDir,
+      privacyUrl: "https://example.com/privacy",
+      termsUrl: "https://example.com/terms",
+    });
+    expect(res.isErr()).to.equal(true);
+    if (res.isErr()) {
+      expect(res.error.name).to.equal("MissingPluginPath");
+    }
+  });
+
   it("generates valid PNG icons by default", async () => {
     const res = await convertOpenPlugin({
       path: pluginDir,
@@ -211,5 +224,23 @@ describe("openPlugin.convertOpenPlugin", () => {
         .subarray(0, 8)
         .equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]))
     ).to.equal(true);
+  });
+
+  it("uses cwd-based default output when --output is not provided", async () => {
+    const cwdDir = await tmp("op-conv-cwd-");
+    const savedCwd = process.cwd();
+    process.chdir(cwdDir);
+    try {
+      const res = await convertOpenPlugin({
+        path: pluginDir,
+        privacyUrl: "https://example.com/privacy",
+        termsUrl: "https://example.com/terms",
+      });
+      if (res.isErr()) throw new Error(res.error.message);
+      expect(res.value.projectPath).to.equal(path.join(cwdDir, "demo-plugin"));
+    } finally {
+      process.chdir(savedCwd);
+      await fs.remove(cwdDir);
+    }
   });
 });

@@ -185,4 +185,38 @@ describe("openPlugin.mapToTtkProject", () => {
     const b = mapToTtkProject(baseParsed(), baseInputs()).manifest.id;
     expect(a).to.equal(b);
   });
+
+  it("throws when privacyUrl is missing", () => {
+    expect(() =>
+      mapToTtkProject(baseParsed(), baseInputs({ privacyUrl: "" }))
+    ).to.throw(/privacyUrl/);
+  });
+
+  it("throws when termsUrl is missing", () => {
+    expect(() =>
+      mapToTtkProject(baseParsed(), baseInputs({ termsUrl: "" }))
+    ).to.throw(/termsOfUseUrl/);
+  });
+
+  it("copies commands folder when present", () => {
+    const { copyOps } = mapToTtkProject(
+      baseParsed({
+        commands: ["deploy.md", "status.md"],
+        commandsRoot: "/tmp/plugin/commands",
+      }),
+      baseInputs()
+    );
+    expect(copyOps.some((op) => op.destRelative === "appPackage/commands")).to.equal(true);
+  });
+
+  it("uses default description when connector has no description", () => {
+    const { manifest } = mapToTtkProject(
+      baseParsed({
+        mcpServers: { svc: { url: "https://svc.example.com" } },
+      }),
+      baseInputs()
+    );
+    const connectors = manifest.agentConnectors as any[];
+    expect(connectors[0].description).to.include("Remote MCP server");
+  });
 });

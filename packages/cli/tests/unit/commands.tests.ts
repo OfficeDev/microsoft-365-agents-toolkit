@@ -541,6 +541,24 @@ describe("CLI commands", () => {
       assert.isTrue(res.isOk());
     });
 
+    it("logs warnings returned by convertOpenPlugin", async () => {
+      sandbox.stub(FxCore.prototype, "convertOpenPlugin").resolves(
+        ok({
+          projectPath: "/tmp/converted",
+          warnings: [{ type: "openPluginConvert", content: "test warning" }],
+        })
+      );
+      const ctx: CLIContext = {
+        command: { ...convertOpenPluginCommand, fullName: "convert openplugin" },
+        optionValues: {},
+        globalOptionValues: {},
+        argumentValues: [],
+        telemetryProperties: {},
+      };
+      const res = await convertOpenPluginCommand.handler!(ctx);
+      assert.isTrue(res.isOk());
+    });
+
     it("propagates errors from convertOpenPlugin", async () => {
       sandbox
         .stub(FxCore.prototype, "convertOpenPlugin")
