@@ -11,6 +11,7 @@ import {
   DevTunnelCleanHelper,
   M365TitleCleanHelper,
 } from "../utils/cleanHelper";
+import { ResourceGroupManager } from "../utils/resourceGroupManager";
 import { getAppNamePrefix } from "../utils/nameUtil";
 import { delay } from "../utils/retryHandler";
 
@@ -25,6 +26,74 @@ const adminMicrosoftEntraAppName = [
   "Test SP",
 ];
 const excludePrefix: string = getAppNamePrefix();
+
+function parseDate(input: unknown): Date | undefined {
+  if (!input) {
+    return undefined;
+  }
+
+  if (input instanceof Date) {
+    return Number.isNaN(input.getTime()) ? undefined : input;
+  }
+
+  if (typeof input === "string" || typeof input === "number") {
+    const parsed = new Date(input);
+    return Number.isNaN(parsed.getTime()) ? undefined : parsed;
+  }
+
+  return undefined;
+}
+
+function getUtcDateKey(date: Date): string {
+  return `${date.getUTCFullYear()}-${date.getUTCMonth() + 1}-${date.getUTCDate()}`;
+}
+
+function isCreatedToday(createdDate: unknown): boolean {
+  const created = parseDate(createdDate);
+  if (!created) {
+    return false;
+  }
+  return getUtcDateKey(created) === getUtcDateKey(new Date());
+}
+
+function getRgCreatedDate(resourceGroup: unknown): unknown {
+  const rg = resourceGroup as {
+    systemData?: { createdAt?: string };
+    createdTime?: string;
+    properties?: { createdTime?: string };
+  };
+
+  return (
+    rg.systemData?.createdAt ?? rg.createdTime ?? rg.properties?.createdTime
+  );
+}
+
+function getTunnelCreatedDate(tunnel: unknown): unknown {
+  const tunnelInfo = tunnel as {
+    created?: string;
+    createdAt?: string;
+    creationTime?: string;
+    createdTime?: string;
+    status?: { created?: string; createdAt?: string; createdTime?: string };
+  };
+
+  return (
+    tunnelInfo.created ??
+    tunnelInfo.createdAt ??
+    tunnelInfo.creationTime ??
+    tunnelInfo.createdTime ??
+    tunnelInfo.status?.created ??
+    tunnelInfo.status?.createdAt ??
+    tunnelInfo.status?.createdTime
+  );
+}
+
+function getErrorMessage(error: unknown): string {
+  if (error instanceof Error) {
+    return error.message;
+  }
+  return String(error);
+}
 
 function shouldSkipAadApp(displayName?: string): boolean {
   if (!displayName) {
@@ -63,6 +132,10 @@ async function main() {
     if (teamsAppList) {
       for (const app of teamsAppList) {
         const displayName = app?.teamsAppDefinition?.displayName;
+        const createdDate = app?.teamsAppDefinition?.createdDateTime;
+        if (isCreatedToday(createdDate)) {
+          continue;
+        }
         if (shouldCleanByPrefix(displayName)) {
           console.log(displayName);
           try {
@@ -73,7 +146,7 @@ async function main() {
         }
       }
     }
-  } catch (e: any) {
+  } catch {
     console.log(`Failed to clean teams app`);
   }
 
@@ -91,8 +164,8 @@ async function main() {
     console.log(
       `deleted enterprise applications: ${deletedEnterpriseAppList.length}`,
     );
-  } catch (e: any) {
-    console.log(`Failed to audit Entra objects, ${e.message}`);
+  } catch (e: unknown) {
+    console.log(`Failed to audit Entra objects, ${getErrorMessage(e)}`);
   }
 
   try {
@@ -100,19 +173,22 @@ async function main() {
     const aadList = await cleanService.listAad();
     if (aadList) {
       for (const aad of aadList) {
+        if (isCreatedToday(aad?.createdDateTime)) {
+          continue;
+        }
         if (!shouldSkipAadApp(aad.displayName)) {
           console.log(aad.displayName);
           try {
             await cleanService.deleteAad(aad.id!);
-          } catch (e: any) {
+          } catch (e: unknown) {
             console.log(
-              `Failed to delete AAD ${aad.displayName} with error: ${e.message}`,
+              `Failed to delete AAD ${aad.displayName} with error: ${getErrorMessage(e)}`,
             );
           }
         }
       }
     }
-  } catch (e: any) {
+  } catch {
     console.log(`Failed to clean AAD`);
   }
 
@@ -121,19 +197,22 @@ async function main() {
     const enterpriseAppList = await cleanService.listEnterpriseApplications();
     if (enterpriseAppList) {
       for (const enterpriseApp of enterpriseAppList) {
+        if (isCreatedToday(enterpriseApp?.createdDateTime)) {
+          continue;
+        }
         if (shouldCleanByPrefix(enterpriseApp.displayName)) {
           console.log(enterpriseApp.displayName);
           try {
             await cleanService.deleteEnterpriseApplication(enterpriseApp.id!);
-          } catch (e: any) {
+          } catch (e: unknown) {
             console.log(
-              `Failed to delete enterprise application ${enterpriseApp.displayName} with error: ${e.message}`,
+              `Failed to delete enterprise application ${enterpriseApp.displayName} with error: ${getErrorMessage(e)}`,
             );
           }
         }
       }
     }
-  } catch (e: any) {
+  } catch {
     console.log(`Failed to clean enterprise applications`);
   }
 
@@ -144,19 +223,22 @@ async function main() {
     const deletedAadList = await cleanService.listDeletedAad();
     if (deletedAadList) {
       for (const aad of deletedAadList) {
+        if (isCreatedToday(aad?.createdDateTime)) {
+          continue;
+        }
         if (!shouldSkipAadApp(aad.displayName)) {
           console.log(aad.displayName);
           try {
             await cleanService.deleteDeletedItem(aad.id!);
-          } catch (e: any) {
+          } catch (e: unknown) {
             console.log(
-              `Failed to purge deleted AAD ${aad.displayName} with error: ${e.message}`,
+              `Failed to purge deleted AAD ${aad.displayName} with error: ${getErrorMessage(e)}`,
             );
           }
         }
       }
     }
-  } catch (e: any) {
+  } catch {
     console.log(`Failed to purge deleted AAD app registrations`);
   }
 
@@ -168,19 +250,22 @@ async function main() {
       await cleanService.listDeletedEnterpriseApplications();
     if (deletedEnterpriseAppList) {
       for (const enterpriseApp of deletedEnterpriseAppList) {
+        if (isCreatedToday(enterpriseApp?.createdDateTime)) {
+          continue;
+        }
         if (shouldCleanByPrefix(enterpriseApp.displayName)) {
           console.log(enterpriseApp.displayName);
           try {
             await cleanService.deleteDeletedItem(enterpriseApp.id!);
-          } catch (e: any) {
+          } catch (e: unknown) {
             console.log(
-              `Failed to purge deleted enterprise application ${enterpriseApp.displayName} with error: ${e.message}`,
+              `Failed to purge deleted enterprise application ${enterpriseApp.displayName} with error: ${getErrorMessage(e)}`,
             );
           }
         }
       }
     }
-  } catch (e: any) {
+  } catch {
     console.log(`Failed to purge deleted enterprise applications`);
   }
 
@@ -195,6 +280,11 @@ async function main() {
     const appStudioAppList = await addStudioCleanService.getAppsInAppStudio();
     if (appStudioAppList) {
       for (const app of appStudioAppList) {
+        const createdDate =
+          app?.createdDateTime ?? app?.createdAt ?? app?.createdTime;
+        if (isCreatedToday(createdDate)) {
+          continue;
+        }
         if (!app?.displayName?.startsWith(excludePrefix)) {
           console.log(app?.displayName);
           try {
@@ -215,6 +305,11 @@ async function main() {
       await addStudioCleanService.getApiKeyRegistration();
     if (apiKeyRegistrationList) {
       for (const apiKey of apiKeyRegistrationList) {
+        const createdDate =
+          apiKey?.createdDateTime ?? apiKey?.createdAt ?? apiKey?.createdTime;
+        if (isCreatedToday(createdDate)) {
+          continue;
+        }
         try {
           await addStudioCleanService.deleteApiKeyRegistration(apiKey?.id);
           console.log(apiKey?.id, " is deleted");
@@ -223,14 +318,15 @@ async function main() {
         }
       }
     }
-  } catch (e: any) {
+  } catch {
     console.log(`Failed to clean app in app studio`);
   }
 
   try {
     console.log(
-      `clean up the Azure resource group with name start with ${Project.namePrefix} (exclude ${excludePrefix})`,
+      `clean up the Azure resource group with name start with ${Project.namePrefix} (exclude ${excludePrefix}, skip same-day created)`,
     );
+    const rgManager = await ResourceGroupManager.init();
     const rgNameList: string[] = [];
     for (const name of rgNamePrefixList) {
       const group = await filterResourceGroupByName(name);
@@ -238,6 +334,12 @@ async function main() {
     }
     if (rgNameList.length > 0) {
       for (const rgName of rgNameList) {
+        const rg = await rgManager
+          .getResourceGroup(rgName)
+          .catch(() => undefined);
+        if (isCreatedToday(getRgCreatedDate(rg))) {
+          continue;
+        }
         for (const name of rgNamePrefixList) {
           if (rgName.startsWith(name) && !rgName.startsWith(excludePrefix)) {
             await deleteResourceGroupByName(rgName);
@@ -245,9 +347,9 @@ async function main() {
         }
       }
     }
-  } catch (e: any) {
+  } catch {
     console.log(
-      `Failed to clean up the Azure resource group with name start with ${Project.namePrefix} (exclude ${excludePrefix})`,
+      `Failed to clean up the Azure resource group with name start with ${Project.namePrefix} (exclude ${excludePrefix}, skip same-day created)`,
     );
   }
 
@@ -262,6 +364,11 @@ async function main() {
     const sharePointAppList = await sharePointCleanService.listApp();
     if (sharePointAppList) {
       for (const app of sharePointAppList) {
+        const createdDate =
+          app?.Created ?? app?.TimeCreated ?? app?.createdDateTime;
+        if (isCreatedToday(createdDate)) {
+          continue;
+        }
         for (const name of appNamePrefixList) {
           if (
             app.Title?.startsWith(name) &&
@@ -277,9 +384,9 @@ async function main() {
         }
       }
     }
-  } catch (e: any) {
+  } catch (e: unknown) {
     console.log(
-      `Failed to clean up SharePoint app package files, ${e.message}`,
+      `Failed to clean up SharePoint app package files, ${getErrorMessage(e)}`,
     );
   }
 
@@ -290,8 +397,16 @@ async function main() {
       Env.username,
       Env.password,
     );
-    await devTunnelCleanHelper.deleteAll();
-  } catch (e: any) {
+    const tunnels = await devTunnelCleanHelper.listTunnels();
+    for (const tunnel of tunnels) {
+      if (isCreatedToday(getTunnelCreatedDate(tunnel))) {
+        continue;
+      }
+
+      console.log(`clean dev tunnel ${tunnel?.tunnelId}`);
+      await devTunnelCleanHelper.deleteByTunnel(tunnel);
+    }
+  } catch {
     console.log(`Failed to clean dev tunnel`);
   }
 
@@ -312,6 +427,11 @@ async function main() {
       const acquisitions = await m365TitleCleanService.listAcquisitions();
       if (acquisitions) {
         for (const acquisition of acquisitions) {
+          const createdDate =
+            acquisition?.createdDateTime ?? acquisition?.acquiredDateTime;
+          if (isCreatedToday(createdDate)) {
+            continue;
+          }
           if (!acquisition.titleDefinition.name.startsWith(excludePrefix)) {
             console.log(acquisition.titleDefinition.name);
             console.log(acquisition.titleId);
@@ -325,8 +445,8 @@ async function main() {
           }
         }
       }
-    } catch (e: any) {
-      console.log(`Get error: ${e.message}`);
+    } catch (e: unknown) {
+      console.log(`Get error: ${getErrorMessage(e)}`);
       retry = true;
       if (count > 1) {
         // Retry after a short time if getting "Rate limit is exceeded"
@@ -339,7 +459,7 @@ async function main() {
 }
 
 main()
-  .then((_) => {
+  .then(() => {
     console.log("Clean Job Done.");
   })
   .catch((error) => {
