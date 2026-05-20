@@ -1,5 +1,27 @@
 # Changelog
 
+
+Based on the provided GitHub compare link (https://github.com/OfficeDev/microsoft-365-agents-toolkit/compare/ms-teams-vscode-extension%406.8.0...release/6.10), I cannot directly access or analyze the repository's code or commit details in real-time because I am unable to access external links or live resources. However, you can generate a proper changelog by following these steps:
+
+1. Clone the repository locally using:
+   ```
+   git clone https://github.com/OfficeDev/microsoft-365-agents-toolkit.git
+   ```
+2. Check out the `ms-teams-vscode-extension@6.8.0` tag:
+   ```
+   git checkout ms-teams-vscode-extension@6.8.0
+   ```
+3. Generate a compare log between the two branches using:
+   ```
+   git log ms-teams-vscode-extension@6.8.0..release/6.10 --oneline
+   ```
+
+The output will give you a list of commits between the two versions. From there, you can group the changes into various sections (e.g., New Features, Enhancements, Bug Fixes), cross-reference the commit messages and associated issues/PRs, and manually write a changelog based on the provided format.
+
+If you provide me with the output of this command or a summary of the changes committed between these two versions, I can then generate an appropriate changelog that follows your required format.
+
+Would you like help with further guidance or Git commands?
+
 > Note: This changelog only includes the changes for the stable versions of Microsoft 365 Agents Toolkit (evolved from Teams Toolkit). For the changelog of pre-released versions, please refer to the [Microsoft 365 Agents Toolkit Pre-release Changelog](https://github.com/OfficeDev/TeamsFx/blob/dev/packages/vscode-extension/PRERELEASE.md).
 
 
