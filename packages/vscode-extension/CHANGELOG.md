@@ -1,5 +1,53 @@
 # Changelog
 
+
+## 6.10.0 - May 20, 2026
+
+### New features:
+#### Switch to Microsoft Graph API for App Publishing
+
+Microsoft 365 Agents Toolkit now enables application publishing through the Microsoft Graph API. This enhancement ensures a more secure and efficient way to publish applications, removing dependencies on older methods. The integration streamlines the publishing experience directly from the ATK VS Code extension.
+
+#### Support for Secure Clouds (GCC High & DoD Environments)
+
+Added support for Government Community Cloud High (GCC H) and Department of Defense (DoD) environments. When building scenarios in these clouds, the extension provides tailored guidance and skips unsupported features like Developer Portal APIs, ensuring smooth project creation specific to the cloud requirements.
+
+#### Auto-Generate `ai-plugin.json` for MCP Action Updates
+
+When updating actions with Microsoft Cloud PC (MCP), users can now auto-generate a new `ai-plugin.json` file directly. In the extension, users will be prompted to create this file if one is not available. Validation has been added to ensure correct filenames, preventing errors and streamlining the template creation process.
+
+#### TypeSpec Compiler Diagnostics Integration
+
+Users gain further transparency into the TypeSpec project compilation. The extension now surfaces error diagnostics directly from the TypeSpec compiler for better debugging and faster resolution during project building/compilation.
+
+#### Auto-Release for Stable and Hotfix Builds
+
+The extension now includes support for automated stable and hotfix releases to improve deployment efficiency, ensuring users have access to the latest updates faster.
+
+### Enhancements:
+#### Manifest Validation Using Local JSON Schemas
+
+ATK now validates app manifests using local JSON schemas before falling back to remote URLs. This results in faster validation and better offline scenario support, reducing delays caused by remote network connectivity.
+
+#### Upgrade App Manifest Version to v1.26
+
+Updated the Teams app manifest version to the latest v1.26. This ensures compatibility with the latest Teams features and updates, empowering developers with the latest capabilities.
+
+#### Enhanced Error Handling in CLI and Telemetry
+
+- Enhanced fallback behavior to use the user's preferred display name or email in cases of missing or incomplete parameter values.
+- Improved error handling during MCP workflow to ensure better feedback, including explicit error messages for invalid or missing inputs.
+
+### Bug Fixes:
+- Resolved an issue where the macOS Playground app could not start. [#15668](https://github.com/OfficeDev/microsoft-365-agents-toolkit/issues/15668)
+- Fixed a compatibility issue causing Teams Python agents to fail during startup. [#15681](https://github.com/OfficeDev/microsoft-365-agents-toolkit/issues/15681)
+- Resolved missing `--yes` flag for deploying task pane templates using the CLI. [#15699](https://github.com/OfficeDev/microsoft-365-agents-toolkit/issues/15699)
+- Addressed broken manifest validation by prioritizing local JSON schemas over remote URL verification. [#15643](https://github.com/OfficeDev/microsoft-365-agents-toolkit/issues/15643)
+- Fixed an issue preventing broker authentication support after packaging Microsoft 365 apps. [#15778](https://github.com/OfficeDev/microsoft-365-agents-toolkit/issues/15778)
+- Surface TypeSpec errors instead of generic "ENOENT missing directory" errors to provide clearer guidance for resolving compilation issues. [#15777](https://github.com/OfficeDev/microsoft-365-agents-toolkit/issues/15777)
+- Added missing NLS keys to fix blank wizard options in the template creation workflow. [#15703](https://github.com/OfficeDev/microsoft-365-agents-toolkit/issues/15703)
+- Resolved an issue preventing telemetry interceptor from properly surfacing transport errors in certain Microsoft 365 scenarios. [#15785](https://github.com/OfficeDev/microsoft-365-agents-toolkit/issues/15785)
+
 > Note: This changelog only includes the changes for the stable versions of Microsoft 365 Agents Toolkit (evolved from Teams Toolkit). For the changelog of pre-released versions, please refer to the [Microsoft 365 Agents Toolkit Pre-release Changelog](https://github.com/OfficeDev/TeamsFx/blob/dev/packages/vscode-extension/PRERELEASE.md).
 
 
