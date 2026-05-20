@@ -471,22 +471,22 @@ jobs:
       - name: publish alpha release to npm org
         if: ${{ github.ref == 'refs/heads/dev'}}
         run: |
-          npx lerna publish from-package --dist-tag=alpha --yes --allow-branch dev
+          npx lerna publish from-package --dist-tag=alpha --yes --allow-branch dev --no-private
 
       - name: publish preview release to npm org
         if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.preid == 'preview' }}
         run: |
-          npx lerna publish from-package --dist-tag=beta --yes
+          npx lerna publish from-package --dist-tag=beta --yes --no-private
 
       - name: publish rc npm packages to npmjs.org
         if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.preid == 'rc' }}
         run: |
-          npx lerna publish from-package --dist-tag=rc --yes
+          npx lerna publish from-package --dist-tag=rc --yes --no-private
 
       - name: publish stable npm packages to npmjs.org
         if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.preid == 'stable' }}
         run: |
-          npx lerna publish from-package --yes
+          npx lerna publish from-package --yes --no-private
 
       - name: pack server bits
         if: ${{ contains(steps.version-change.outputs.CHANGED, '@microsoft/teamsfx-server') || (github.event_name == 'workflow_dispatch' && github.event.inputs.vsrelease == 'true' ) }}
