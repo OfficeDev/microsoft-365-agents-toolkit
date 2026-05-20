@@ -46,17 +46,10 @@ RUN npx playwright install chromium --with-deps 2>&1 | tail -5 || \
 COPY packages/tests/copilot-test/src/ ./src/
 COPY packages/tests/copilot-test/test-plans/ ./test-plans/
 
-RUN mkdir -p /vscode-extensions/redhat.vscode-yaml /tmp/yaml-ext && \
-    curl -sS -L -o /tmp/vscode-yaml.vsix \
-      "https://open-vsx.org/api/redhat/vscode-yaml/1.23.0/file/redhat.vscode-yaml-1.23.0.vsix" && \
-    if unzip -t /tmp/vscode-yaml.vsix >/dev/null 2>&1; then \
-      unzip -q /tmp/vscode-yaml.vsix -d /tmp/yaml-ext && \
-      cp -r /tmp/yaml-ext/extension/. /vscode-extensions/redhat.vscode-yaml/ && \
-      echo "redhat.vscode-yaml installed OK"; \
-    else \
-      echo "yaml vsix invalid, skipping"; \
-    fi && \
-    rm -rf /tmp/vscode-yaml.vsix /tmp/yaml-ext
+# Bundle redhat.vscode-yaml VSIX for offline installation at test launch time.
+# VS Code installs it via --install-extension so ATK extension dependency is satisfied.
+RUN mkdir -p /usr/local/lib/vscode-deps
+COPY packages/tests/copilot-test/docker/redhat.vscode-yaml.vsix /usr/local/lib/vscode-deps/redhat.vscode-yaml.vsix
 
 RUN node -e " \
   const { downloadAndUnzipVSCode } = require('@vscode/test-electron'); \
@@ -69,6 +62,16 @@ COPY packages/tests/copilot-test/docker/run-test.sh /usr/local/bin/run-test.sh
 RUN sed -i 's/\r//g' /usr/local/bin/run-test.sh \
     && chmod +x /usr/local/bin/run-test.sh \
     && mkdir -p /output/screenshots /output/projects /atk-ext
+
+# Bake pre-compiled ATK extension into the image.
+# This avoids the Docker-on-Windows bind-mount cold-start (170 KB/s via virtio-fs),
+# which caused 600+ second unresponsive periods while Node loaded 83 MB of extension JS.
+# Users can still override by bind-mounting a custom build to /atk-ext at runtime.
+COPY packages/vscode-extension/out/ /atk-ext-baked/out/
+COPY packages/vscode-extension/package.json /atk-ext-baked/package.json
+COPY packages/vscode-extension/package.nls.json /atk-ext-baked/package.nls.json
+COPY packages/vscode-extension/media/ /atk-ext-baked/media/
+COPY packages/vscode-extension/syntaxes/ /atk-ext-baked/syntaxes/
 
 VOLUME ["/output", "/atk-ext"]
 ENTRYPOINT ["/usr/local/bin/run-test.sh"]

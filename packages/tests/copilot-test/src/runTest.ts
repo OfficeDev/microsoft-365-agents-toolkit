@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 import * as path from "path";
 import * as fs from "fs";
@@ -147,6 +147,7 @@ async function evalInGalleryFrame(
 
 async function startSignalWatcher(
   signalDir: string,
+  screenshotDir: string,
   getPages: () => PagePair,
   getCtx: () => BrowserContext | null,
   stopFlag: { stop: boolean },
@@ -261,11 +262,51 @@ async function startSignalWatcher(
           }
           if (page) {
             try {
-              // Use getByText (Playwright text locator, case-insensitive substring) for robustness
-              await page.getByText(text, { exact: false }).first().waitFor({ timeout: wftTimeout });
+              // Strategy 1: monaco-list-row (VSCode QuickPick items use virtualized list — getByText misses them)
+              const byRow = page.locator(".monaco-list-row").filter({ hasText: text });
+              let found = false;
+              try {
+                // Use "attached" (not "visible") — QuickPick items may be in DOM but not "visible" per Playwright
+                await byRow.first().waitFor({ state: "attached", timeout: wftTimeout });
+                found = true;
+              } catch { /* fall through to strategy 2 */ }
+              if (!found) {
+                // Strategy 2: getByText fallback (InputBox labels, panel text, etc.)
+                await page.getByText(text, { exact: false }).first().waitFor({ timeout: 5000 });
+              }
               console.log(`  Found text: "${text}"`);
             } catch {
               console.warn(`  waitForText: "${text}" not found`);
+            }
+          }
+        } else if (content.startsWith("waitForTextThenScreenshot:")) {
+          // Format: "waitForTextThenScreenshot:text:timeoutMs:screenshotName"
+          // Waits for text to appear, immediately takes screenshot while QuickPick is visible,
+          // then deletes the signal. Avoids the timing gap of separate waitForText+screenshot.
+          const rest = content.slice("waitForTextThenScreenshot:".length);
+          const parts = rest.split(":");
+          const screenshotName = parts[parts.length - 1];
+          const wftTimeout2 = parseInt(parts[parts.length - 2], 10) || 20000;
+          const wftText = parts.slice(0, parts.length - 2).join(":");
+          if (page) {
+            try {
+              const byRow2 = page.locator(".monaco-list-row").filter({ hasText: wftText });
+              let found2 = false;
+              try {
+                await byRow2.first().waitFor({ state: "attached", timeout: wftTimeout2 });
+                found2 = true;
+              } catch { /* fall through */ }
+              if (!found2) {
+                await page.getByText(wftText, { exact: false }).first().waitFor({ timeout: 5000 });
+                found2 = true;
+              }
+              console.log(`  Found text: "${wftText}"`);
+              await sleep(600);
+              const dest = path.join(screenshotDir, `${screenshotName}.png`);
+              await page.screenshot({ path: dest, fullPage: false });
+              console.log(`  Screenshot (inline): ${screenshotName}.png`);
+            } catch {
+              console.warn(`  waitForTextThenScreenshot: "${wftText}" not found`);
             }
           }
         } else if (content.startsWith("eval:")) {
@@ -321,8 +362,25 @@ async function main() {
   const signalDir = path.join(outputDir, ".screenshot-signals");
   const userDataDir = path.join(outputDir, "vscode-user-data");
 
+  // Use a fresh user data dir each run to prevent VS Code extension auto-updates from
+  // competing for network bandwidth during template loading.
+  try { fs.rmSync(userDataDir, { recursive: true, force: true }); } catch {}
   for (const d of [screenshotDir, signalDir, userDataDir])
     fs.mkdirSync(d, { recursive: true });
+  // Disable VS Code extension auto-updates to prevent github.copilot-chat from downloading
+  // during the test run, which blocks the extension host and delays wizard QuickPick appearance.
+  const vscodeUserSettings = path.join(userDataDir, "User");
+  fs.mkdirSync(vscodeUserSettings, { recursive: true });
+  fs.writeFileSync(
+    path.join(vscodeUserSettings, "settings.json"),
+    JSON.stringify({
+      "extensions.autoUpdate": false,
+      "extensions.autoCheckUpdates": false,
+      "update.mode": "none",
+      "telemetry.telemetryLevel": "off",
+    }, null, 2),
+    "utf8",
+  );
 
   fs.readdirSync(signalDir).forEach((f) =>
     fs.rmSync(path.join(signalDir, f), { force: true }),
@@ -376,21 +434,44 @@ async function main() {
 
   const watcherPromise = startSignalWatcher(
     signalDir,
+    screenshotDir,
     () => ({ mainPage, galleryPage }),
     () => activeCtx,
     stopFlag,
   );
 
-  const userExtDir =
-    process.env.VSCODE_EXTENSIONS_DIR ||
-    path.join(os.homedir(), ".vscode", "extensions");
-  const yamlExtPresent =
-    fs.existsSync(path.join(userExtDir, "redhat.vscode-yaml", "package.json")) ||
-    fs.readdirSync(userExtDir).some(
-      (d) => d.startsWith("redhat.vscode-yaml") &&
-        fs.existsSync(path.join(userExtDir, d, "package.json")),
-    );
-  console.log(`Extensions dir: ${userExtDir} (yaml: ${yamlExtPresent})`);
+  // Use a local temp dir for VS Code extensions (avoids cross-OS mount issues with Docker volumes).
+  const userExtDir = path.join(os.tmpdir(), "atk-test-vscode-ext");
+  fs.mkdirSync(userExtDir, { recursive: true });
+
+  // Extract the pre-bundled YAML vsix into the extensions dir so VS Code finds it on startup.
+  // NOTE: --install-extension with @vscode/test-electron does NOT make extensions available in
+  // the same session (it installs for future restarts). Direct extraction is the reliable approach.
+  const yamlVsixPath = "/usr/local/lib/vscode-deps/redhat.vscode-yaml.vsix";
+  const yamlExtDir = path.join(userExtDir, "redhat.vscode-yaml");
+  if (fs.existsSync(yamlVsixPath)) {
+    if (!fs.existsSync(path.join(yamlExtDir, "package.json"))) {
+      const tmpUnzip = yamlExtDir + "-unzip";
+      try {
+        fs.mkdirSync(tmpUnzip, { recursive: true });
+        cp.execSync(`unzip -q -o "${yamlVsixPath}" "extension/*" -d "${tmpUnzip}"`, { stdio: "pipe" });
+        fs.mkdirSync(yamlExtDir, { recursive: true });
+        cp.execSync(`cp -r "${path.join(tmpUnzip, "extension")}/." "${yamlExtDir}/"`, { stdio: "pipe" });
+        fs.rmSync(tmpUnzip, { recursive: true, force: true });
+        const pkgOk = fs.existsSync(path.join(yamlExtDir, "package.json"));
+        console.log(`YAML ext extracted: ${yamlExtDir} (package.json: ${pkgOk})`);
+      } catch (e: any) {
+        console.warn("YAML extension extraction failed:", e.message);
+        try { fs.rmSync(yamlExtDir, { recursive: true, force: true }); } catch {}
+        try { fs.rmSync(yamlExtDir + "-unzip", { recursive: true, force: true }); } catch {}
+      }
+    } else {
+      console.log(`YAML ext already present: ${yamlExtDir}`);
+    }
+  } else {
+    console.warn("YAML vsix not found — ATK may fail to activate if redhat.vscode-yaml is missing");
+  }
+  console.log(`Extensions dir: ${userExtDir}`);
 
   const vscodeTestOpts: any = {
     extensionTestsPath,
@@ -400,7 +481,6 @@ async function main() {
       "--disable-dev-shm-usage",
       `--remote-debugging-port=${CDP_PORT}`,
       `--extensions-dir=${userExtDir}`,
-      ...(yamlExtPresent ? [] : ["--install-extension", "redhat.vscode-yaml"]),
     ],
     version: "stable",
     extensionTestsEnv: {
@@ -408,6 +488,9 @@ async function main() {
       SCREENSHOT_SIGNAL_DIR: signalDir,
       SCREENSHOT_DIR: screenshotDir,
       ...(process.env.TEST_FILE ? { TEST_FILE: process.env.TEST_FILE } : {}),
+      // Force local bundled templates — prevents ATK from downloading metadata from GitHub
+      // (which takes 4+ minutes in Docker/CI). Without this, useLocalTemplate() returns false.
+      TEMPLATE_VERSION: process.env.TEMPLATE_VERSION ?? "local",
     },
   };
   if (extPath) vscodeTestOpts.extensionDevelopmentPath = extPath;

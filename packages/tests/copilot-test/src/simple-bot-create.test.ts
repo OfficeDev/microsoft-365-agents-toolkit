@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 /**
  * simple-bot-create.test.ts
@@ -26,19 +26,22 @@ function ensureDirs() {
   );
 }
 
-/** Signal Playwright to take a screenshot; blocks up to 8s */
-function takeScreenshot(name: string): void {
+/** Signal Playwright to take a screenshot; polls async (non-blocking, up to 8s) */
+async function takeScreenshot(name: string): Promise<void> {
   try {
     const dest = path.join(SCREENSHOT_DIR, `${name}.png`);
     const signal = path.join(SIGNAL_DIR, `${Date.now()}-${name}.signal`);
     fs.writeFileSync(signal, `screenshot:${dest}`, "utf8");
-    const deadline = Date.now() + 8000;
-    while (fs.existsSync(signal) && Date.now() < deadline) {
-      const end = Date.now() + 100;
-      while (Date.now() < end) {
-        /* busy wait */
-      }
-    }
+    await new Promise<void>((resolve) => {
+      const deadline = Date.now() + 8000;
+      const iv = setInterval(() => {
+        if (!fs.existsSync(signal) || Date.now() >= deadline) {
+          clearInterval(iv);
+          if (fs.existsSync(signal)) { try { fs.unlinkSync(signal); } catch {} }
+          resolve();
+        }
+      }, 100);
+    });
     console.log(
       fs.existsSync(dest)
         ? `Screenshot: ${name}.png`
@@ -51,25 +54,27 @@ function takeScreenshot(name: string): void {
 
 /**
  * Send an action signal to Playwright and wait for it to be processed.
+ * Uses async polling (setInterval) so the extension host event loop stays free,
+ * allowing VS Code commands dispatched before this call to actually execute.
  * content: "clickText:Bot", "type:my-app", "pressKey:Enter", etc.
  */
-function sendSignal(content: string, timeoutMs = 15000): void {
+async function sendSignal(content: string, timeoutMs = 15000): Promise<void> {
   try {
     const signal = path.join(SIGNAL_DIR, `${Date.now()}-action.signal`);
     fs.writeFileSync(signal, content, "utf8");
-    const deadline = Date.now() + timeoutMs;
-    while (fs.existsSync(signal) && Date.now() < deadline) {
-      const end = Date.now() + 100;
-      while (Date.now() < end) {
-        /* busy wait */
-      }
-    }
-    if (fs.existsSync(signal)) {
-      console.log(`Signal timeout: ${content}`);
-      try {
-        fs.unlinkSync(signal);
-      } catch {}
-    }
+    await new Promise<void>((resolve) => {
+      const deadline = Date.now() + timeoutMs;
+      const iv = setInterval(() => {
+        if (!fs.existsSync(signal) || Date.now() >= deadline) {
+          clearInterval(iv);
+          if (fs.existsSync(signal)) {
+            console.log(`Signal timeout: ${content}`);
+            try { fs.unlinkSync(signal); } catch {}
+          }
+          resolve();
+        }
+      }, 100);
+    });
   } catch (e) {
     console.warn("Signal failed:", e);
   }
@@ -79,14 +84,17 @@ function wait(ms: number): Promise<void> {
   return new Promise((r) => setTimeout(r, ms));
 }
 
-async function waitForCommand(cmd: string, maxMs = 20000): Promise<boolean> {
+async function waitForCommand(cmd: string, maxMs = 600000): Promise<boolean> {
+  // NOTE: getCommands() may block for the entire unresponsive period when the
+  // extension host is busy (e.g. ATK doing heavy JS init). The deadline check
+  // BEFORE getCommands() can be stale. We therefore also check AFTER the call.
   const deadline = Date.now() + maxMs;
-  while (Date.now() < deadline) {
+  while (true) {
     const allCmds = await vscode.commands.getCommands(true);
     if (allCmds.includes(cmd)) return true;
-    await wait(500);
+    if (Date.now() >= deadline) return false;
+    await wait(1000);
   }
-  return false;
 }
 
 function writeResults(passed: number, failed: number, steps: object[]) {
@@ -99,7 +107,7 @@ function writeResults(passed: number, failed: number, steps: object[]) {
 }
 
 suite("ATK Teams Bot Template Creation (UI Wizard)", function () {
-  this.timeout(8 * 60 * 1000);
+  this.timeout(12 * 60 * 1000);
 
   const steps: object[] = [];
   let passed = 0;
@@ -149,18 +157,22 @@ suite("ATK Teams Bot Template Creation (UI Wizard)", function () {
       active,
       ext ? `v${ext.packageJSON.version}` : "not found",
     );
-    takeScreenshot("01-extension-active");
+    await takeScreenshot("01-extension-active");
     assert.ok(active, "Extension should be active");
   });
 
   test("Navigate wizard to create Teams Bot template", async () => {
-    const cmdAvailable = await waitForCommand("fx-extension.create", 15000);
+    const cmdAvailable = await waitForCommand("fx-extension.create");
     console.log("  fx-extension.create available:", cmdAvailable);
 
-    // Fire command without awaiting — wizard blocks until user completes it
+    // Fire command without awaiting — wizard blocks until user completes it.
+    // IMPORTANT: sendSignal() is async (setInterval-based), so the event loop
+    // stays free and the executeCommand dispatch can reach the extension host.
     vscode.commands.executeCommand("fx-extension.create").catch((e: any) => {
       console.log("  Command error:", e.message);
     });
+    // Yield the event loop so the command dispatch reaches the extension host.
+    await wait(500);
 
     // ATK v6.8+ wizard flow for Simple Bot:
     //   Step 1 (project-type):   "Teams Agents and Apps"
@@ -168,65 +180,47 @@ suite("ATK Teams Bot Template Creation (UI Wizard)", function () {
     //   Step 3 (teams-other):    "Simple Bot"
     //   Step 4 (folder):         "Default folder"
     //   Step 5 (name):            type "test-teams-bot-001" + Enter
-    //
-    // sendSignal("waitForText:text:timeoutMs") — Playwright waits up to timeoutMs
-    // for the text to appear before returning. The same timeoutMs must also be
-    // passed as the second arg to sendSignal() so the test side doesn't time out early.
 
-    // Wait for wizard Step 1 (up to 30s - template list loads slowly)
-    sendSignal("waitForText:Teams Agents and Apps:30000", 38000);
-    takeScreenshot("02-wizard-open"); // Step 1: QuickPick showing project type options
-
-    // Step 1: Select "Teams Agents and Apps"
-    console.log("  Clicking: Teams Agents and Apps");
-    takeScreenshot("03-teams-agents-apps");
-    sendSignal("clickText:Teams Agents and Apps", 10000);
+    // Step 1: With baked extension (native-FS), QuickPick appears in <60s.
+    // sendSignal is now async — event loop stays free so the command can execute.
+    await sendSignal("waitForTextThenScreenshot:Teams Agents and Apps:60000:02-step1-project-type", 68000);
+    await sendSignal("clickText:Teams Agents and Apps", 10000);
     await wait(1000);
 
-    // Step 2: Select "Other Teams Capabilities" (teams-app-type QuickPick)
-    console.log("  Clicking: Other Teams Capabilities");
-    sendSignal("waitForText:Other Teams Capabilities:15000", 23000);
-    takeScreenshot("04-other-teams-capabilities"); // QuickPick showing teams-app-type options
-    sendSignal("clickText:Other Teams Capabilities", 10000);
+    // Step 2: "Other Teams Capabilities"
+    await sendSignal("waitForTextThenScreenshot:Other Teams Capabilities:20000:03-step2-teams-app-type", 28000);
+    await sendSignal("clickText:Other Teams Capabilities", 10000);
     await wait(1000);
 
-    // Step 3: Select "Simple Bot" (teams-other-app-type QuickPick)
-    console.log("  Clicking: Simple Bot");
-    sendSignal("waitForText:Simple Bot:15000", 23000);
-    takeScreenshot("05-simple-bot"); // QuickPick showing Simple Bot option
-    sendSignal("clickText:Simple Bot", 10000);
+    // Step 3: "Simple Bot"
+    await sendSignal("waitForTextThenScreenshot:Simple Bot:15000:04-step3-simple-bot", 23000);
+    await sendSignal("clickText:Simple Bot", 10000);
     await wait(1000);
 
-    // Step 4: Programming Language QuickPick — "TypeScript" / "JavaScript" / "Python"
-    console.log("  Selecting TypeScript");
-    sendSignal("waitForText:TypeScript:15000", 23000);
-    takeScreenshot("06-programming-language");
-    sendSignal("clickText:TypeScript", 10000);
+    // Step 4: Programming Language — TypeScript / JavaScript / Python
+    await sendSignal("waitForTextThenScreenshot:TypeScript:15000:05-step4-language", 23000);
+    await sendSignal("clickText:TypeScript", 10000);
     await wait(1000);
 
-    // Step 5: Workspace Folder QuickPick — wait for "Default folder" item (more reliable than title)
-    console.log("  Selecting default folder");
-    sendSignal("waitForText:Default folder:15000", 23000);
-    takeScreenshot("07-workspace-folder"); // QuickPick showing Default folder + Browse...
-    sendSignal("clickText:Default folder", 10000);
+    // Step 5: Workspace Folder
+    await sendSignal("waitForTextThenScreenshot:Default folder:15000:06-step5-workspace-folder", 23000);
+    await sendSignal("clickText:Default folder", 10000);
     await wait(1000);
 
-    // Step 5: Application Name InputBox — wait for "Application Name" placeholder text
-    console.log("  Typing app name");
-    sendSignal("waitForText:Application Name:15000", 23000);
-    takeScreenshot("09-app-name-input"); // InputBox visible
-    sendSignal("type:test-teams-bot-001", 8000);
+    // Step 6: Application Name InputBox
+    await sendSignal("waitForTextThenScreenshot:Application Name:15000:07-step6-app-name", 23000);
+    await sendSignal("type:test-teams-bot-001", 8000);
     await wait(500);
-    sendSignal("pressKey:Enter", 5000);
+    await sendSignal("pressKey:Enter", 5000);
     // Scaffold takes up to 90s; capture intermediate screenshots to catch errors
     await wait(15000);
-    takeScreenshot("08a-scaffold-15s");
+    await takeScreenshot("08a-scaffold-15s");
     await wait(15000);
-    takeScreenshot("08b-scaffold-30s");
+    await takeScreenshot("08b-scaffold-30s");
     await wait(30000);
-    takeScreenshot("08c-scaffold-60s");
+    await takeScreenshot("08c-scaffold-60s");
     await wait(30000); // total ~90s
-    takeScreenshot("10-project-created");
+    await takeScreenshot("10-project-created");
 
     step(
       "Navigate wizard to create Teams Bot template",
@@ -314,7 +308,7 @@ suite("ATK Teams Bot Template Creation (UI Wizard)", function () {
       if (!exists) allFound = false;
     }
 
-    takeScreenshot("09-final-state");
+    await takeScreenshot("09-final-state");
     assert.ok(allFound, `Expected project files missing in ${projectDir}`);
   });
 });
