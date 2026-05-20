@@ -1,6 +1,105 @@
 # Changelog
 
+
+## 6.10.0 - May 20, 2026
+
+### New features:
+#### Support for GCC High and DoD Clouds
+Microsoft 365 Agents Toolkit now supports GCC High and DoD clouds. While some Teams app-related actions, like publishing via Developer Portal API, are unavailable in these environments, users can now bypass these actions and manually upload apps later.
+
+[feature description]: This feature ensures that organizations in GCC High and DoD environments can more effectively use the toolkit while adhering to their strict compliance requirements.
+
+#### Create a New AI Plugin Manifest
+Users can now create a new `ai-plugin.json` file while updating actions with MCP integration.
+
+[feature description]: This feature allows you to define a custom action manifest directly in your project. In the ATK VS Code extension, you can initialize a new manifest file when prompted during action creation workflows. Validation checks have been added to ensure proper file name conventions, which simplifies the process for developers.
+
+#### Stable and Hotfix Auto-Release Support
+Automated processes for stable and hotfix releases have been introduced in the toolkit.
+
+[feature description]: This feature enables streamlined release management by automatically handling stable and hotfix releases. Teams can focus on development while relying on automatic configuration for deploying updates.
+
+### Enhancement:
+#### Migrating to Graph API for App Publishing
+The ATK now uses Microsoft Graph API for app publishing instead of legacy mechanisms.
+
+[description]: This enhancement optimizes app publishing for users, leveraging the robust features and widespread adoption of Graph API. For more details on how to use this new publishing process, refer to the ATK documentation or the updated CLI commands.
+
+#### Enhanced Support for Local JSON Schemas
+The toolkit now validates manifest files with local JSON schemas before falling back to remote URLs.
+
+[description]: With this improvement, users experience reduced dependency on external services and enhanced speed when validating their manifests. This is particularly useful in environments with restricted internet access or slow connections.
+
+#### Updated App Manifest to v1.26
+The default app manifest template has been updated to use version 1.26.
+
+[description]: The latest manifest version includes new support features and resolves compatibility issues. Make sure to update your existing apps to take advantage of the latest improvements.
+
+#### Retry and Keep-Alive for `extendToM365` Sideloading
+Added network retry logic and keep-alive settings to improve the reliability of the `extendToM365` sideloading process.
+
+[description]: This improvement ensures a more robust upload process for users working in environments with intermittent connectivity issues.
+
+### Bug Fix:
+- Fixed an issue causing macOS Playground to not start. [#15668](https://github.com/OfficeDev/microsoft-365-agents-toolkit/pull/15668)
+- Resolved a bug preventing Python Teams agents from starting. [#15681](https://github.com/OfficeDev/microsoft-365-agents-toolkit/pull/15681)
+- Fixed missing NLS keys that caused blank wizard options. [#15703](https://github.com/OfficeDev/microsoft-365-agents-toolkit/pull/15703)
+- Fixed a bug with YAML schema version in templates. [#15758](https://github.com/OfficeDev/microsoft-365-agents-toolkit/pull/15758)
+- Addressed an issue causing `TypeSpec` diagnostics to fail, ensuring proper error handling. [#15777](https://github.com/OfficeDev/microsoft-365-agents-toolkit/pull/15777)
+- Added fallback logic to use alternate user identifiers in case of errors. [#15784](https://github.com/OfficeDev/microsoft-365-agents-toolkit/pull/15784)
+- Resolved broker authentication issue occurring after packaging. [#15778](https://github.com/OfficeDev/microsoft-365-agents-toolkit/pull/15778)
+- Fixed telemetry interceptor to prevent masking transport errors during `extendToM365` operations. [#15785](https://github.com/OfficeDev/microsoft-365-agents-toolkit/pull/15785)
+
 > Note: This changelog only includes the changes for the stable versions of Microsoft 365 Agents Toolkit (evolved from Teams Toolkit). For the changelog of pre-released versions, please refer to the [Microsoft 365 Agents Toolkit Pre-release Changelog](https://github.com/OfficeDev/TeamsFx/blob/dev/packages/vscode-extension/PRERELEASE.md).
+
+
+## 6.10.0 - May 22, 2026
+
+### New Features
+
+#### Sovereign cloud support for advanced Declarative Agents (GCC High and DoD)
+
+This release adds end-to-end support for Declarative Agent scenarios in sovereign high-cloud environments, including GCC High and DoD. The implementation updates authentication endpoints, token scopes, and cloud-specific service routing so provisioning and runtime behaviors align with sovereign requirements. It also introduces Teams Graph client flows used by API key, OAuth, and Entra SSO registration paths in these cloud contexts. In ATK VSCode, users targeting sovereign tenants can now run the same agent creation and update flows with cloud-aware handling instead of manual workarounds. Note that the publishing flow for advanced Declarative Agents is not enabled yet because of current-stage limitations.
+
+To switch the cloud environment you are using in ATK, go to User Settings in VS Code and find the setting named `M365 Agents Toolkit: Sovereign Cloud Environment`, then select `GCC M`, `GCC H`, or `DoD`. Note that there is also a native VS Code setting, `Microsoft Sovereign Cloud: Environment`, which must be set to `USGovernment`. Do not confuse these two settings. After configuring both correctly, you can continue using ATK with your government account.
+
+<img width="744" height="288" alt="image" src="https://github.com/user-attachments/assets/27827c9a-7fdf-48e1-a29a-8e1a04cff9f4" />
+
+#### New sample introduced in Sample Gallery
+
+The well-received sample `Microsoft Foundry Agent to Microsoft 365 Copilot With SSO`, which was previously available for C# and JavaScript, is now also available in Python in our Sample Gallery. This sample enables developers to connect or proxy an existing Foundry agent into the Microsoft 365 ecosystem and expose it through familiar M365 surfaces such as Copilot and Teams. It allows Foundry-hosted agents to be surfaced and interacted with through the M365 interface without rebuilding the agent logic, while still benefiting from ATK's standard provisioning, deployment, and developer workflow integration.
+
+### Enhancement
+
+#### Teams app publishing polished for a better experience
+
+The Teams app publish path was enhanced by updating its underlying API service as well. This modernizes the existing publish experience and aligns it with current platform interfaces used across Microsoft 365 app management. The change also included review-request handling adjustments and corresponding test coverage to stabilize publishing behavior. For users running ATK publish operations in VSCode or CLI-driven lifecycle actions, this improves consistency and forward compatibility of app publishing.
+
+#### Create new ai-plugin.json during MCP action update flow
+
+The MCP action update experience now supports creating a brand new ai-plugin.json when one does not already exist. The question model and flow logic were extended so users can select or create target plugin files during update-action operations. This improves first-time MCP setup in Declarative Agent projects by removing a manual pre-step and reducing setup errors. In practical terms, both ATK-based guided flows and VSCode-triggered update action paths now handle missing plugin manifest scenarios more gracefully.
+
+#### Template and manifest schema modernization across Declarative Agent and plugin artifacts
+
+Templates were upgraded to latest schema, including Declarative Agent schema v1.7 and plugin schema v2.4, with related URL/schema alignment updates. App manifest template versions were also advanced in the release train to keep generated projects current with latest manifest capabilities. These updates do not introduce a brand-new scenario by themselves, but they improve generated project correctness and reduce schema drift over time. For users creating new projects from ATK templates, outputs are now better aligned with current manifest expectations.
+
+#### Developer guidance surfaced directly in terminal output for faster issue resolution
+
+Terminal diagnostics were enhanced to include a clearer hint about resolving issues with Copilot. This is an experience improvement to an existing troubleshooting path rather than a brand-new feature area. The update focuses on helping users react faster when a task fails by guiding them to an immediate recovery path in context. In VSCode task terminal usage, this shortens the time from failure to actionable fix.
+
+### Bug Fix
+- Fixed macOS Agents Playground startup failure
+- Fixed Python Teams agent startup issue
+- Fixed manifest validation fallback by preferring local JSON schemas before remote schema URLs
+- Fixed blank wizard options caused by missing NLS keys
+- Fixed environment file flush timing between lifecycle actions
+- Fixed TypeSpec error handling to surface compiler diagnostics instead of ENOENT
+- Fixed broker authentication availability after packaging
+- Fixed Linux command handling for set-teamsfx-env with semicolons by wrapping in a subshell
+- Fixed TDP portal scaffold failures for certain Declarative Agent special-generator templates
+- Fixed C# travel agent template compile failures when project names contain dots
+- Fixed invalid declarativeAgent.json array-shape errors with clearer diagnostics
+- Fixed accessibility issues in Sample Gallery focus and keyboard navigation
 
 ## 6.8.0 - Apr 17, 2026
 
