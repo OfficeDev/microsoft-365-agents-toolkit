@@ -350,14 +350,16 @@ jobs:
           Read the test plan: TEST_PLAN=$(cat packages/tests/copilot-test/test-plans/teams-bot-template.md 2>/dev/null | head -60 || echo "*(not found)*")
 
           Build step table, then post comment including GIF (if available), step table, test plan collapsible, and log collapsible.
+          IMPORTANT: The comment body MUST begin with the exact HTML comment <!-- atk-copilot-test-results --> as its very first line. The CI pipeline uses this marker to locate your comment and append the GIF screenshot URL after you finish. If this marker is missing, the GIF will not appear.
           The comment body must include:
+          - FIRST LINE (mandatory, no space before it): <!-- atk-copilot-test-results -->
           - Status badge (OK PASSED or FAIL FAILED)
           - Table: Issue, Passed, Failed, Screenshots, Run link
           - If GIF_URL is set: include "### Screenshots" section with ![test-run]($GIF_URL)
           - "### Test Steps" section with step table from results.json
           - <details><summary>Test Plan</summary> ... $TEST_PLAN ... </details>
           - <details><summary>Test log (last 50 lines)</summary> ... $LOG ... </details>
-          Post with: gh issue comment __ISSUE_NUMBER__ --repo __REPO__ --body "..."
+          Post with: gh issue comment __ISSUE_NUMBER__ --repo __REPO__ --body "<BODY>" where <BODY> starts with <!-- atk-copilot-test-results -->
 
           ## Step 8 – Swap labels
           gh label create 'atk-copilot-test:done' --color '0E8A16' --repo __REPO__ 2>/dev/null || true
@@ -473,9 +475,16 @@ jobs:
           ISSUE="${{ inputs.issue_number }}"
           GIF_URL="${{ steps.upload-gif.outputs.gif_url }}"
           RUN_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          RUN_ID="${{ github.run_id }}"
+          # Search for this run's comment by run_id (most reliable), then fall back to marker
           COMMENT_ID=$(gh api "/repos/${{ github.repository }}/issues/${ISSUE}/comments" \
-            --jq '.[] | select(.body | contains("atk-copilot-test-results")) | .id' \
+            --jq --arg rid "$RUN_ID" '.[] | select(.body | contains($rid)) | .id' \
             | tail -1)
+          if [ -z "$COMMENT_ID" ]; then
+            COMMENT_ID=$(gh api "/repos/${{ github.repository }}/issues/${ISSUE}/comments" \
+              --jq '.[] | select(.body | contains("atk-copilot-test-results")) | .id' \
+              | tail -1)
+          fi
           if [ -n "$COMMENT_ID" ]; then
             EXISTING=$(gh api "/repos/${{ github.repository }}/issues/comments/${COMMENT_ID}" --jq .body)
             APPENDED=$(printf '%s\n\n---\n\n### 🎬 Test Run Screencast\n\n![Test run](%s)' "$EXISTING" "$GIF_URL")
