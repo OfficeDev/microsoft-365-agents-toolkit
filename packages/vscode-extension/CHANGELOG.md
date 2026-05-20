@@ -5,7 +5,7 @@
 
 ## 6.10.0 - May 22, 2026
 
-### New features:
+### New Features
 
 #### Sovereign cloud support for advanced Declarative Agents (GCC High and DoD)
 
@@ -19,7 +19,7 @@ To switch the cloud environment you are using in ATK, go to User Settings in VS 
 
 The well-received sample `Microsoft Foundry Agent to Microsoft 365 Copilot With SSO`, which was previously available for C# and JavaScript, is now also available in Python in our Sample Gallery. This sample enables developers to connect or proxy an existing Foundry agent into the Microsoft 365 ecosystem and expose it through familiar M365 surfaces such as Copilot and Teams. It allows Foundry-hosted agents to be surfaced and interacted with through the M365 interface without rebuilding the agent logic, while still benefiting from ATK's standard provisioning, deployment, and developer workflow integration.
 
-### Enhancement: 
+### Enhancement
 
 #### Teams app publishing polished for a better experience
 
@@ -37,7 +37,7 @@ Templates were upgraded to latest schema, including Declarative Agent schema v1.
 
 Terminal diagnostics were enhanced to include a clearer hint about resolving issues with Copilot. This is an experience improvement to an existing troubleshooting path rather than a brand-new feature area. The update focuses on helping users react faster when a task fails by guiding them to an immediate recovery path in context. In VSCode task terminal usage, this shortens the time from failure to actionable fix.
 
-### Bug Fix:
+### Bug Fix
 - Fixed macOS Agents Playground startup failure
 - Fixed Python Teams agent startup issue
 - Fixed manifest validation fallback by preferring local JSON schemas before remote schema URLs
