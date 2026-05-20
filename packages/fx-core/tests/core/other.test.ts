@@ -1,8 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { TokenCredential } from "@azure/identity";
-import { AzureAccountProvider, Settings, SubscriptionInfo } from "@microsoft/teamsfx-api";
+import { Settings } from "@microsoft/teamsfx-api";
 import { assert } from "chai";
 import fs from "fs-extra";
 import "mocha";
@@ -11,13 +10,13 @@ import os from "os";
 import * as path from "path";
 import sinon from "sinon";
 import { isFeatureFlagEnabled } from "../../src/common/featureFlags";
-import { execPowerShell, execShell } from "../../src/component/local/process";
-import { TaskDefinition } from "../../src/component/local/taskDefinition";
 import {
   isValidOfficeAddInProject,
   isValidProject,
   isValidProjectV3,
 } from "../../src/common/projectSettingsHelper";
+import { execPowerShell, execShell } from "../../src/component/local/process";
+import { TaskDefinition } from "../../src/component/local/taskDefinition";
 import { cpUtils } from "../../src/component/utils/depsChecker/cpUtils";
 import { randomAppName } from "./utils";
 
@@ -222,9 +221,11 @@ describe("Other test case", () => {
       mockedEnvRestore();
     }
   });
-  it("projectSettingsHelper - isValidProjectV3 - office add-in", () => {
-    sandbox.stub(fs, "readdirSync").returns(["manifest.xml"] as any);
-    assert.equal(isValidProjectV3("test"), false);
+  it("projectSettingsHelper - isValidProjectV3 - should return true when yaml exists", () => {
+    sandbox.stub(fs, "pathExistsSync").callsFake((filePath: fs.PathLike) => {
+      return filePath.toString().endsWith("m365agents.yml");
+    });
+    assert.equal(isValidProjectV3("test"), true);
   });
   it("projectSettingsHelper - isValidOfficeAddInProject - metaos add-in", () => {
     sandbox.stub(fs, "readdirSync").returns(["manifest.json", "manifest.xml"] as any);

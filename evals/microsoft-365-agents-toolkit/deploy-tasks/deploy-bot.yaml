@@ -1,0 +1,55 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/microsoft/waza/main/schemas/task.schema.json
+
+id: deploy-bot
+name: Deploy Teams Bot
+description: User wants to deploy a simple bot
+tags:
+  - deploy
+  - happy path
+inputs:
+  prompt: "I want to deploy this bot app on Azure central US"
+  files:
+    - path: simple-bot/.gitignore
+    - path: simple-bot/.webappignore
+    - path: simple-bot/app.ts
+    - path: simple-bot/config.ts
+    - path: simple-bot/index.ts
+    - path: simple-bot/m365agents.yml
+    - path: simple-bot/package.json
+    - path: simple-bot/README.md
+    - path: simple-bot/tsconfig.json
+    - path: simple-bot/web.config
+    - path: simple-bot/appPackage/color.png
+    - path: simple-bot/appPackage/manifest.json
+    - path: simple-bot/appPackage/outline.png
+    - path: simple-bot/env/.env.dev
+    - path: simple-bot/env/.env.dev.user
+    - path: simple-bot/img/echo-bot.png
+    - path: simple-bot/infra/azure.bicep
+    - path: simple-bot/infra/azure.parameters.json
+    - path: simple-bot/infra/botRegistration/azurebot.bicep
+expected:
+  should_trigger: true
+graders:
+  - type: file
+    name: atk_configs
+    config:
+      must_exist:
+        - "simple-bot/env/.env.dev"
+  - type: behavior
+    name: efficiency_check
+    config:
+      max_tool_calls: 40
+      max_duration_ms: 350000
+      forbidden_tools:
+        - rm
+        - sudo
+  - type: file
+    name: env_check
+    config:
+      content_patterns:
+        - path: simple-bot/env/.env.dev
+          must_match:
+            - 'AZURE_SUBSCRIPTION_ID=[a-f0-9\-]+'
+            - 'BOT_ID=[a-f0-9\-]+'
+            - 'TEAMS_APP_ID=[a-f0-9\-]+'

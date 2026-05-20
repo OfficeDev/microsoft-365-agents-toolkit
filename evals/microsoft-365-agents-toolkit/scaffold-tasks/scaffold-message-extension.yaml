@@ -1,0 +1,39 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/microsoft/waza/main/schemas/task.schema.json
+
+id: scaffold-message-extension
+name: Scaffold Message Extension
+description: User wants to create a Teams Message Extension
+tags:
+  - scaffold
+  - happy path
+inputs:
+  prompt: "Help me build a message extension app for Microsoft Teams using TypeScript"
+expected:
+  should_trigger: true
+graders:
+  - type: file
+    name: atk_configs
+    config:
+      must_exist:
+        - "m365agents.yml"
+        - "appPackage/manifest.json"
+  - type: behavior
+    name: efficiency_check
+    config:
+      max_tool_calls: 15
+      max_duration_ms: 150000
+      forbidden_tools:
+        - rm
+        - sudo
+  - type: prompt
+    name: quality_check
+    config:
+      prompt: |
+        Review the agent's response. Check that the response is:
+        1. Successfully created a message extension app.
+        2. Recommend local debugging as next step.
+
+        If all criteria are met, call set_waza_grade_pass.
+        Otherwise, call set_waza_grade_fail with your reasoning.
+      model: "gpt-5.4"
+      continue_session: true

@@ -14,7 +14,10 @@ export function getTemplateReplaceMap(inputs: Inputs): { [key: string]: string }
   const solutionName = inputs[QuestionNames.SolutionName] ?? appName;
   const targetFramework = inputs.targetFramework;
   const placeProjectFileInSolutionDir = inputs.placeProjectFileInSolutionDir === "true";
-  const llmService: string | undefined = inputs[QuestionNames.LLMService];
+  // Fall back to the CLI/UX default when the LLM service question was not asked
+  // or omitted in non-interactive mode, so templates that depend on
+  // {{#useAzureOpenAI}} blocks still emit a valid agent model.
+  const llmService: string = inputs[QuestionNames.LLMService] ?? "llm-service-azure-openai";
   let openAIKey: string | undefined = inputs[QuestionNames.OpenAIKey];
   let azureOpenAIKey: string | undefined = inputs[QuestionNames.AzureOpenAIKey];
   let azureAISearchApiKey: string | undefined = inputs[QuestionNames.AzureAISearchApiKey];

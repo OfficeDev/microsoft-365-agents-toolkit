@@ -316,7 +316,7 @@ export class CreateAppPackageDriver implements StepDriver {
       );
       if (getCopilotGptRes.isOk()) {
         // Add action files
-        if (getCopilotGptRes.value.actions) {
+        if (Array.isArray(getCopilotGptRes.value.actions)) {
           const pluginFiles = getCopilotGptRes.value.actions.map((action) => action.file);
 
           for (const pluginFile of pluginFiles) {
@@ -346,7 +346,7 @@ export class CreateAppPackageDriver implements StepDriver {
           }
         }
         // Add embedded knowledge files
-        if (getCopilotGptRes.value.capabilities) {
+        if (Array.isArray(getCopilotGptRes.value.capabilities)) {
           const embeddedKnowledgeCapabilities = getCopilotGptRes.value.capabilities.filter(
             (capability) => capability.name === DeclarativeCopilotCapabilityName.EmbeddedKnowledge
           );

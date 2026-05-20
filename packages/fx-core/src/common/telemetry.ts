@@ -88,6 +88,7 @@ export enum TelemetryProperty {
   TDPTraceId = "tdp-trace-id",
   MOSTraceId = "mos-trace-id",
   MOSPATH = "mos-api-path",
+  TeamsGraphTraceId = "teams-graph-trace-id",
 
   AddAuthType = "add-auth-type",
 
@@ -174,6 +175,7 @@ export enum TelemetryEvent {
   DependencyApi = "dependency-api",
   AppStudioApi = "app-studio-api",
   MOSApi = "ttk-mos-api",
+  TeamsGraphApi = "teams-graph-api",
   ViewPluginManifestAfterAdded = "view-plugin-manifest-after-added",
   AddAuthAction = "add-auth-action",
   ViewAgentManifestAfterAdded = "view-agent-manifest-after-added",

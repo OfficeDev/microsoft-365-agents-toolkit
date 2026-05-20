@@ -12,6 +12,7 @@ import { assembleError, Correlator } from "@microsoft/teamsfx-core";
 import { ExtensionErrors, ExtensionSource } from "../../error/error";
 import * as globalVariables from "../../globalVariables";
 import { showError } from "../../error/common";
+import VsCodeLogInstance from "../../commonlib/log";
 import { TelemetryProperty } from "../../telemetry/extTelemetryEvents";
 import { getDefaultString, localize } from "../../utils/localizeUtils";
 import { sendDebugAllEvent } from "../localTelemetryReporter";
@@ -68,6 +69,11 @@ export abstract class BaseTaskTerminal implements vscode.Pseudoterminal {
 
       // TODO: add color
       this.writeEmitter.fire(`${fxError.message}\r\n`);
+
+      const logFilePath = VsCodeLogInstance.getLogFilePath();
+      this.writeEmitter.fire(
+        `\r\n${util.format(localize("teamstoolkit.localDebug.copilotChatHint"), logFilePath)}\r\n`
+      );
 
       if (outputError) {
         showError(fxError).catch(() => {

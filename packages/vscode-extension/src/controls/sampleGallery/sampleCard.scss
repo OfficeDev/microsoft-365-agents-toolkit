@@ -10,6 +10,11 @@
     display: flex;
     flex-direction: column;
 
+    &:focus-visible {
+      outline: 2px solid var(--vscode-focusBorder, #007FD4);
+      outline-offset: -2px;
+    }
+
     .thumbnail {
       img {
         aspect-ratio: 40 / 23;

@@ -175,38 +175,26 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";teamsagent.walkthrough.use.description" ItemType="0" PsrId="306" InstFlg="true" Leaf="true">
+      <Item ItemId=";teamsagent.walkthrough.use.description" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Chat with GitHub Copilot extension for Microsoft 365 Agents Toolkit (@m365agents) to build apps or customize and extend Microsoft 365 Copilot.]]></Val>
+          <Val><![CDATA[Chat with GitHub Copilot extension for Microsoft 365 Agents Toolkit to build apps or customize and extend Microsoft 365 Copilot.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Conversez avec l’extension GitHub Copilot pour Microsoft 365 Agents Toolkit (@m365agents) afin de générer des applications ou de personnaliser et d’étendre Microsoft 365 Copilot.]]></Val>
+            <Val><![CDATA[Converser avec l’extension GitHub Copilot pour le Kit de création d’assistants Microsoft 365 afin de générer des applications ou de personnaliser et d’étendre Microsoft 365 Copilot.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Chat with GitHub Copilot extension for Microsoft 365 Agents Toolkit (@m365agents) to build Microsoft 365 apps or customize and extend Microsoft 365 Copilot.]]></Val>
+            <Val><![CDATA[Chat with GitHub Copilot extension for Microsoft 365 Agents Toolkit (@m365agents) to build apps or customize and extend Microsoft 365 Copilot.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";teamsagent.walkthrough.use.title" ItemType="0" PsrId="306" InstFlg="true" Leaf="true">
+      <Item ItemId=";teamsagent.walkthrough.use.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Start to use @m365agents]]></Val>
+          <Val><![CDATA[Start to use GitHub Copilot Chat]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Commencer à utiliser @m365agents]]></Val>
+            <Val><![CDATA[Commencer à utiliser GitHub Copilot Chat]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Start to use @teamsapp]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";teamsagent.walkthrough.use.title.preview" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Start to use @m365agents (preview)]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Commencez à utiliser @m365agents (préversion)]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Start to use @teamsapp (preview)]]></Val>
+            <Val><![CDATA[Start to use @m365agents]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -845,7 +833,7 @@
         <Str Cat="Text">
           <Val><![CDATA[This is a procedural question, @teams can only answer questions regarding descriptions or concepts for now. You could try these commands or get more info from [Microsoft 365 Agents Toolkit documentation]5D;(https://learn.microsoft.com/microsoftteams/platform/toolkit/teams-toolkit-fundamentals).]A;]A; • /create: Use this command to find relevant templates or samples to build your app as per your description. E.g. @teams /create create an AI assistant bot that can complete common tasks.]A;]A; • /nextstep: Use this command to move to the next step at any stage of your app development.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Il s’agit d’une question procédurale, @teams peut uniquement répondre à des questions concernant des descriptions ou des concepts pour le moment. Vous pouvez essayer ces commandes ou obtenir plus d’informations à partir de la [documentation de Microsoft 365 Agents Toolkit]5D;(https://learn.microsoft.com/microsoftteams/platform/toolkit/teams-toolkit-fundamentals).]A;]A; • /create : utilisez cette commande pour rechercher des modèles ou des exemples pertinents afin de générer votre application selon votre description. Exemple : @teams /create créer un bot Assistant IA qui peut effectuer des tâches courantes.]A;]A; • /nextstep : utilisez cette commande pour passer à l’étape suivante à n’importe quel stade du développement de votre application.]]></Val>
+            <Val><![CDATA[Il s’agit d’une question procédurale, @teams peut uniquement répondre à des questions concernant des descriptions ou des concepts pour le moment. Vous pouvez essayer ces commandes ou obtenir plus d’informations à partir de la [documentation de Microsoft 365 Agents Toolkit]5D;(https://learn.microsoft.com/microsoftteams/platform/toolkit/teams-toolkit-fundamentals).]A;]A; • /create : utilisez cette commande pour rechercher des modèles ou des exemples pertinents afin de créer votre application selon votre description. Exemple : @teams /create créer un bot Assistant IA qui peut effectuer des tâches courantes.]A;]A; • /nextstep : utilisez cette commande pour passer à l’étape suivante à n’importe quel stade du développement de votre application.]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[This is a procedural question, @teams can only answer questions regarding descriptions or concepts for now. You could try these commands or get more info from [Microsoft 365 Agents Toolkit documentation]5D;(https://learn.microsoft.com/microsoftteams/platform/toolkit/teams-toolkit-fundamentals).]A;]A; • /create: Use this command to find relevant templates or samples to build your Teams app as per your description. E.g. @teams /create create an AI assistant bot that can complete common tasks.]A;]A; • /nextstep: Use this command to move to the next step at any stage of your Teams app development.]]></Val>
@@ -1738,18 +1726,6 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";teamstoolkit.commands.migrateManifest.title" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Upgrade App Manifest]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Mettre à niveau le manifeste de l’application]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Upgrade Teams Manifest]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
       <Item ItemId=";teamstoolkit.commands.openDocumentLink.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Get More Info]]></Val>
@@ -2346,15 +2322,6 @@
           <Val><![CDATA[Get Help from GitHub Copilot]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Aide de GitHub Copilot]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";teamstoolkit.commandsTreeViewProvider.getCopilotHelpTitle.preview" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Get Help from GitHub Copilot (Preview)]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Aide à partir de GitHub Copilot (préversion)]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3037,14 +3004,14 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";teamstoolkit.commmands.teamsAgentResolve.dialogContent" ItemType="0" PsrId="306" InstFlg="true" Leaf="true">
+      <Item ItemId=";teamstoolkit.commmands.teamsAgentResolve.dialogContent" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[To better understand the error and explore solutions, select relevant text under "Output", right-click, and choose "Resolve selected text with @m365agents".]]></Val>
+          <Val><![CDATA[To better understand the error and explore solutions, select relevant text under "Output", right-click, and choose "Resolve selected text with Copilot Chat".]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Pour mieux comprendre l’erreur et explorer les solutions, sélectionnez le texte pertinent sous « Sortie », faites un clic droit et choisissez « Résoudre le texte sélectionné avec @m365agents ».]]></Val>
+            <Val><![CDATA[Pour mieux comprendre l’erreur et explorer les solutions, sélectionnez le texte pertinent sous « Sortie », faites un clic droit et choisissez « Résoudre le texte sélectionné avec Copilot Chat ».]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[To better understand the error and explore solutions, select relevant text under "Output", right-click, and choose "Resolve selected text with @teamsapp".]]></Val>
+            <Val><![CDATA[To better understand the error and explore solutions, select relevant text under "Output", right-click, and choose "Resolve selected text with @m365agents".]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -3058,50 +3025,26 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";teamstoolkit.commmands.teamsAgentResolve.title" ItemType="0" PsrId="306" InstFlg="true" Leaf="true">
+      <Item ItemId=";teamstoolkit.commmands.teamsAgentResolve.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Resolve with @m365agents]]></Val>
+          <Val><![CDATA[Resolve with Copilot Chat]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Résolvez avec @m365agents]]></Val>
+            <Val><![CDATA[Résoudre avec Copilot Chat]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Resolve with @teamsapp]]></Val>
+            <Val><![CDATA[Resolve with @m365agents]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";teamstoolkit.commmands.teamsAgentResolve.title.preview" ItemType="0" PsrId="306" Leaf="true">
+      <Item ItemId=";teamstoolkit.commmands.teamsAgentTroubleshootSelectedText.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Resolve with @m365agents (preview)]]></Val>
+          <Val><![CDATA[Resolve selected text with Copilot Chat]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Résolvez avec @m365agents (préversion)]]></Val>
+            <Val><![CDATA[Résoudre le texte sélectionné avec Copilot Chat]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Resolve with @teamsapp (preview)]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";teamstoolkit.commmands.teamsAgentTroubleshootSelectedText.title" ItemType="0" PsrId="306" InstFlg="true" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Resolve selected text with @m365agents]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Résolvez le texte sélectionné avec @m365agents]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Resolve selected text with @teamsapp]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";teamstoolkit.commmands.teamsAgentTroubleshootSelectedText.title.preview" ItemType="0" PsrId="306" InstFlg="true" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Resolve selected text with @m365agents (preview)]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Résolvez le texte sélectionné avec @m365agents (préversion)]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Resolve selected text with @teamsapp (preview)]]></Val>
+            <Val><![CDATA[Resolve selected text with @m365agents]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -6162,12 +6105,12 @@
       </Item>
       <Item ItemId=";teamstoolkit.viewsWelcome.teamsfx-empty-project-with-chat.content" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Welcome to Microsoft 365 Agents Toolkit!]A;Get started with a guided tutorial]A;[Build a Declarative Agent]5D;(command:fx-extension.buildIntelligentAppsWalkthrough?%5B%22SideBar%22%5D)]A; Or jump right into the app development with app templates or samples]A;[Create a New Agent/App]5D;(command:fx-extension.create?%5B%22SideBar%22%5D)]A;[View Samples]5D;(command:fx-extension.openSamples?%5B%22SideBar%22%5D)]A;Visit our documentation to build apps for [Microsoft Teams]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-apps%22%5D) or extend [Microsoft 365 Copilot]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-agents%22%5D).]]></Val>
+          <Val><![CDATA[Welcome to Microsoft 365 Agents Toolkit!]A;Get started with a guided tutorial]A;[Build a Declarative Agent]5D;(command:fx-extension.buildIntelligentAppsWalkthrough?%5B%22SideBar%22%5D)]A; Or jump right into the app development with app templates or samples]A;[Create a New Agent/App]5D;(command:fx-extension.create?%5B%22SideBar%22%5D)]A;[View Samples]5D;(command:fx-extension.openSamples?%5B%22SideBar%22%5D)]A;Create your new app effortlessly with GitHub Copilot.]A;[Create App with GitHub Copilot]5D;(command:fx-extension.invokeChat?%5B%22SideBar%22%5D)]A;Visit our documentation to build apps for [Microsoft Teams]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-apps%22%5D) or extend [Microsoft 365 Copilot]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-agents%22%5D).]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Bienvenue dans Microsoft 365 Agents Toolkit !]A;Prise en main d’un tutoriel guidé]A;[Créer un agent déclaratif]5D;(command:fx-extension.buildIntelligentAppsWalkthrough?%5B%22SideBar%22%5D)]A; Ou passer directement au développement d’applications avec des modèles ou des exemples d’application]A;[Créer une application/un agent]5D;(command:fx-extension.create?%5B%22SideBar%22%5D)]A;[Afficher les exemples]5D;(command:fx-extension.openSamples?%5B%22SideBar%22%5D)]A;Consultez notre documentation pour générer des applications pour [Microsoft Teams]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-apps%22%5D) ou étendez [Microsoft 365 Copilot]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-agents%22%5D).]]></Val>
+            <Val><![CDATA[Bienvenue dans Microsoft 365 Agents Toolkit !]A;Prise en main d’un tutoriel guidé]A;[Créer un agent déclaratif]5D;(command:fx-extension.buildIntelligentAppsWalkthrough?%5B%22SideBar%22%5D)]A; Ou passer directement au développement d’applications avec des modèles ou des exemples d’application]A;[Créer une application/un agent]5D;(command:fx-extension.create?%5B%22SideBar%22%5D)]A;[Afficher les exemples]5D;(command:fx-extension.openSamples?%5B%22SideBar%22%5D)]A;Créez votre application sans effort avec GitHub Copilot.]A;[Créer une application avec GitHub Copilot]5D;(command:fx-extension.invokeChat?%5B%22SideBar%22%5D)]A;Consultez notre documentation pour générer des applications pour [Microsoft Teams]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-apps%22%5D) ou étendez [Microsoft 365 Copilot]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-agents%22%5D).]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Welcome to Microsoft 365 Agents Toolkit!]A;Get started with a guided tutorial]A;[Build a Declarative Agent]5D;(command:fx-extension.buildIntelligentAppsWalkthrough?%5B%22SideBar%22%5D)]A; Or jump right into the app development with app templates or samples]A;[Create a New Agent/App]5D;(command:fx-extension.create?%5B%22SideBar%22%5D)]A;[View Samples]5D;(command:fx-extension.openSamples?%5B%22SideBar%22%5D)]A;Create your new app effortlessly with GitHub Copilot.]A;[Create App with GitHub Copilot]5D;(command:fx-extension.invokeChat?%5B%22SideBar%22%5D)]A;Visit our documentation to build apps for [Microsoft Teams]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-apps%22%5D) or extend [Microsoft 365 Copilot]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-agents%22%5D).]]></Val>
+            <Val><![CDATA[Welcome to Microsoft 365 Agents Toolkit!]A;Get started with a guided tutorial]A;[Build a Declarative Agent]5D;(command:fx-extension.buildIntelligentAppsWalkthrough?%5B%22SideBar%22%5D)]A; Or jump right into the app development with app templates or samples]A;[Create a New Agent/App]5D;(command:fx-extension.create?%5B%22SideBar%22%5D)]A;[View Samples]5D;(command:fx-extension.openSamples?%5B%22SideBar%22%5D)]A;Visit our documentation to build apps for [Microsoft Teams]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-apps%22%5D) or extend [Microsoft 365 Copilot]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-agents%22%5D).]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -6188,7 +6131,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Build an AI agent bot for common tasks or an intelligent chatbot to answer specific questions]A;[Build a Basic AI Chatbot]5D;(command:fx-extension.createFromWalkthrough?%5B%22WalkThrough%22%2C%20%7B%22capabilities%22%3A%20%22custom-copilot-basic%22%2C%20%22project-type%22%3A%20%22custom-copilot-type%22%7D%5D)]A;[Build an AI Agent]5D;(command:fx-extension.createFromWalkthrough?%5B%22WalkThrough%22%2C%20%7B%22capabilities%22%3A%20%22custom-copilot-agent%22%2C%20%22project-type%22%3A%20%22custom-copilot-type%22%7D%5D)]A;[Build a Bot to Chat with Your Data]5D;(command:fx-extension.createFromWalkthrough?%5B%22WalkThrough%22%2C%20%7B%22capabilities%22%3A%20%22custom-copilot-rag%22%2C%20%22project-type%22%3A%20%22custom-copilot-type%22%7D%5D)]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Créez un bot d’agent IA pour les tâches courantes ou un chatbot intelligent pour répondre à des questions spécifiques]A;[Build a Basic AI Chatbot]5D;(command :fx-extension.createFromFromFromThrough ?%5B%22Through%22%2C%20%7B%22capabilities%22%3A%20%22custom-copilot-basic%22%2C%20%22project-type%22%3A%22capabilities%22%0 22custom-copilot-type%22capabilities%22%1 7D%22capabilities%22%2 D)]A;[Build an AI Agent]5D;(command :fx-extension.createFromFromFromThrough ?%5B%22FromThrough%22capabilities%22%5 2C%22capabilities%22%6 7B%22capabilities%22%3A%22capabilities%22%9 22custom-22copilot-agent%22%2C%20%type 22project%22%3A%20%22custom-copilot type%22%7D%5D)]A;[Build a Bot to Chat with Your Data]5D;(command :fx-extension.createFromFromFromThrough ?%5B%22FromThrough%22%2C%20%7B%22capabilities%22%3A%20%22custom-copi raglot%22%2C%20%22project-type%22%3A%20%22custom-copilot-type%22%7D%5D)]]></Val>
+            <Val><![CDATA[Créez un bot d’agent IA pour les tâches courantes ou un chatbot intelligent pour répondre à des questions spécifiques]A;[Créer un chatbot IA basique]5D;(command :fx-extension.createFromFromFromThrough ?%5B%22Through%22%2C%20%7B%22capabilities%22%3A%20%22custom-copilot-basic%22%2C%20%22project-type%22%3A%22capabilities%22%0 22custom-copilot-type%22capabilities%22%1 7D%22capabilities%22%2 D)]A;[Créer un assistant IA]5D;(command :fx-extension.createFromFromFromThrough ?%5B%22FromThrough%22capabilities%22%5 2C%22capabilities%22%6 7B%22capabilities%22%3A%22capabilities%22%9 22custom-22copilot-agent%22%2C%20%type 22project%22%3A%20%22custom-copilot type%22%7D%5D)]A;[Créer un bot pour converser avec vos données]5D;(command :fx-extension.createFromFromFromThrough ?%5B%22FromThrough%22%2C%20%7B%22capabilities%22%3A%20%22custom-copi raglot%22%2C%20%22project-type%22%3A%20%22custom-copilot-type%22%7D%5D)]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -6263,7 +6206,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Build a declarative agent with Microsoft 365 Agents Toolkit to simplify workflows and automate tasks.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Générez un assistant déclaratif avec Microsoft 365 Agents Toolkit pour simplifier les flux de travail et automatiser les tâches.]]></Val>
+            <Val><![CDATA[Créez un assistant déclaratif avec Microsoft 365 Agents Toolkit pour simplifier les flux de travail et automatiser les tâches.]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Build a declarative agent with Teams Toolkit to simplify workflows and automate tasks.]]></Val>
@@ -6296,7 +6239,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Follow these steps to build your declarative agent using Microsoft 365 Agents Toolkit.]A;[Build Declarative Agent]5D;(command:fx-extension.create?%5B%22SideBar%22%5D)]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Suivez ces étapes pour créer votre assistant déclaratif en utilisant Microsoft 365 Agents Toolkit.]A;[Générer un assistant déclaratif]5D;(command:fx-extension.create?%5B%22SideBar%22%5D)]]></Val>
+            <Val><![CDATA[Suivez ces étapes pour créer votre assistant déclaratif en utilisant Microsoft 365 Agents Toolkit.]A;[Créer un assistant déclaratif]5D;(command:fx-extension.create?%5B%22SideBar%22%5D)]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Follow these steps to build your declarative agent using Teams Toolkit.]A;[Build Declarative Agent]5D;(command:fx-extension.create?%5B%22SideBar%22%5D)]]></Val>
@@ -6308,7 +6251,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Build a declarative agent]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Générer un agent déclaratif]]></Val>
+            <Val><![CDATA[Créer un agent déclaratif]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -6353,7 +6296,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Build a declarative agent to customize Microsoft 365 Copilot with specific instructions, actions, and knowledge. Follow this guide to get started.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Générez un agent déclaratif pour personnaliser Microsoft 365 Copilot avec des instructions, des actions et des connaissances spécifiques. Suivez ce guide pour commencer.]]></Val>
+            <Val><![CDATA[Créez un agent déclaratif pour personnaliser Microsoft 365 Copilot avec des instructions, des actions et des connaissances spécifiques. Suivez ce guide pour commencer.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -6389,7 +6332,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Build a Declarative Agent]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Générer un agent déclaratif]]></Val>
+            <Val><![CDATA[Créer un agent déclaratif]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -6419,7 +6362,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Build a custom notification bot for Microsoft Teams using Microsoft 365 Agents Toolkit.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Générez un bot de notification personnalisé pour Microsoft Teams en utilisant Microsoft 365 Agents Toolkit.]]></Val>
+            <Val><![CDATA[Créez un bot de notification personnalisé pour Microsoft Teams en utilisant Microsoft 365 Agents Toolkit.]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Build a custom notification bot for Microsoft Teams using Teams Toolkit.]]></Val>
@@ -6454,27 +6397,6 @@
           <Prev Cat="Text">
             <Val><![CDATA[Need more help? [Chat with GitHub Copilot]5D;(command:fx-extension.invokeChat?%5B%22WalkThrough%22%5D) to explore Microsoft 365 app or Microsoft 365 Copilot agent development.]]></Val>
           </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";teamstoolkit.walkthroughs.steps.helpwithGitHubCopilot.preview.description" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Need more help? [Chat with GitHub Copilot]5D;(command:fx-extension.invokeChatWithPreviewTag?%5B%22WalkThrough%22%5D) to explore app or Microsoft 365 Copilot agent development.]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Avez-vous encore besoin d’aide ? [Conversez avec GitHub Copilot]5D;(command:fx-extension.invokeChatWithPreviewTag?%5B%22WalkThrough%22%5D) pour explorer le développement d’applications ou d’assistants Microsoft 365 Copilot.]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Need more help? [Chat with GitHub Copilot]5D;(command:fx-extension.invokeChatWithPreviewTag?%5B%22WalkThrough%22%5D) to explore Microsoft 365 app or Microsoft 365 Copilot agent development.]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";teamstoolkit.walkthroughs.steps.helpwithGitHubCopilot.preview.title" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Chat with GitHub Copilot (Preview)]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Conversation avec GitHub Copilot (aperçu)]]></Val>
-          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -6587,7 +6509,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Build a notification bot using Microsoft 365 Agents Toolkit to send interactive messages in Teams.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Générez un bot de notification en tirant parti de Microsoft 365 Agents Toolkit pour envoyer des messages interactifs dans Teams.]]></Val>
+            <Val><![CDATA[Créez un bot de notification en tirant parti de Microsoft 365 Agents Toolkit pour envoyer des messages interactifs dans Teams.]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Build a notification bot using Teams Toolkit to send interactive messages in Teams.]]></Val>
@@ -6683,7 +6605,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Build a custom notification bot for Microsoft Teams using Microsoft 365 Agents Toolkit.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Générez un bot de notification personnalisé pour Microsoft Teams en utilisant Microsoft 365 Agents Toolkit.]]></Val>
+            <Val><![CDATA[Créez un bot de notification personnalisé pour Microsoft Teams en utilisant Microsoft 365 Agents Toolkit.]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Build a custom notification bot for Microsoft Teams using Teams Toolkit.]]></Val>

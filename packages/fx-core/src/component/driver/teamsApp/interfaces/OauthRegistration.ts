@@ -44,6 +44,11 @@ export interface OauthRegistration {
    * PostRequestBody denoting that the token exchange is done via sending it in request body
    */
   tokenExchangeMethodType?: TokenExchangeMethodType;
+
+  /**
+   * Whether SSO is enabled. Must be true for MicrosoftEntra identity provider.
+   */
+  useSingleSignOn?: boolean;
 }
 
 export enum TokenExchangeMethodType {

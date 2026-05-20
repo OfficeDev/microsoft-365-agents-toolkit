@@ -1,7 +1,7 @@
-# yaml-language-server: $schema=https://aka.ms/m365-agents-toolkits/v1.9/yaml.schema.json
+# yaml-language-server: $schema=https://aka.ms/m365-agents-toolkits/v1.12/yaml.schema.json
 # Visit https://aka.ms/teamsfx-v5.0-guide for details on this file
 # Visit https://aka.ms/teamsfx-actions for details on actions
-version: v1.11
+version: v1.12
 
 environmentFolderPath: ./env
 
@@ -81,7 +81,7 @@ provision:
       appPackagePath: ./appPackage/build/appPackage.${{TEAMSFX_ENV}}.zip
 
   # Extend your Teams app to Outlook and the Microsoft 365 app
-  - uses: teamsApp/extendToM365
+  - uses: copilotAgent/publish
     with:
       # Relative path to the build app package.
       appPackagePath: ./appPackage/build/appPackage.${{TEAMSFX_ENV}}.zip

@@ -13,7 +13,7 @@
     <PackageReference Include="Microsoft.Data.Sqlite" Version="9.0.10" />
     <PackageReference Include="Microsoft.Recognizers.Text.DateTime" Version="1.8.13" />
     <!-- Fix vulnerability in transitive dependency from Microsoft.Recognizers.Text -->
-    <PackageReference Include="NuGet.CommandLine" Version="5.11.6" />
+    <PackageReference Include="NuGet.CommandLine" Version="5.11.7" />
     <PackageReference Include="Microsoft.Teams.AI" Version="2.0.*" />
     <PackageReference Include="Microsoft.Teams.Api" Version="2.0.*" />
     <PackageReference Include="Microsoft.Teams.Apps" Version="2.0.*" />

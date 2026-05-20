@@ -2,6 +2,21 @@
 
 Consolidated troubleshooting for ATK projects — provisioning, runtime, Playground, and Teams issues.
 
+## Error Code Quick Reference
+
+| Error Code | Section |
+|------------|---------|
+| `Ext.FindProcessError` | [Port already in use](#port-already-in-use) |
+| `Ext.PortsConflictError` | [Port already in use](#port-already-in-use) |
+| `fileCreateOrUpdateEnvironmentFile.MissingEnvironmentVariablesError` | [Missing environment variables at runtime](#missing-environment-variables-at-runtime) |
+| `botFrameworkCreate.MissingEnvironmentVariablesError` | [Missing environment variables at runtime](#missing-environment-variables-at-runtime) |
+| `devToolInstall.TestToolInstallationError` | [Agents Playground installation failed](#agents-playground-installation-failed) |
+| `devToolInstall.FuncInstallationError` | [Azure Functions Core Tools installation failed](#azure-functions-core-tools-installation-failed) |
+| `Ext.DebugTestToolFailedToStartError` | [Playground won't start](#playground-wont-start) |
+| `AppStudioPlugin.ManifestValidationFailed` | [Manifest validation failed](#manifest-validation-failed) |
+| `armDeploy.DeployArmError` | [ARM deployment failed](#arm-deployment-failed) |
+| `Ext.DevTunnelOperationError` | [Dev tunnel operation failed](#dev-tunnel-operation-failed) |
+
 ## Common Provisioning Issues
 
 | Symptom | Cause | Fix |
@@ -145,13 +160,20 @@ If you delete and re-create Azure AD apps, the Bot Framework registration may st
 
 ### Playground won't start
 
-Check if port is in use:
-```powershell
+**Error code:** `Ext.DebugTestToolFailedToStartError`
+
+Check if port 56150 is in use:
+```bash
 # Windows
 netstat -ano | findstr :56150
-
-# The playground will automatically find an available port if 56150 is in use
+# macOS / Linux
+lsof -i :56150
 ```
+
+The playground will automatically find an available port if 56150 is taken. If it still fails to start:
+1. Check the output/terminal for error messages.
+2. Ensure Agents Playground is installed correctly — see [Agents Playground installation failed](#agents-playground-installation-failed).
+3. Try launching manually: `./devTools/playground/node_modules/.bin/agentsplayground start`
 
 ### Bot not responding in Playground
 
@@ -172,17 +194,253 @@ This usually means BOT_ENDPOINT requires HTTPS. Use Agents Playground instead, o
 
 Verify `M365_APP_ID` (for declarative agents) or `TEAMS_APP_ID` (for bots/tabs) exists in `env/.env.local`.
 
+### Manifest validation failed
+
+**Error code:** `AppStudioPlugin.ManifestValidationFailed`
+
+The app manifest (`appPackage/manifest.json`) failed validation against the Teams schema.
+
+1. **Check the error details** — the output lists which fields are invalid.
+2. **Common fixes:**
+   - Missing required fields (e.g., `description`, `version`, `icons`).
+   - Invalid scope — e.g., `"team"` scope with `supportsChannelFeatures` on schema v1.25 (use `"personal"` only, or switch to devPreview schema).
+   - Schema URL mismatch — ensure `$schema` points to the correct manifest version.
+3. **Validate locally:**
+   ```bash
+   atk validate --env <env>
+   ```
+4. **Re-build and re-provision after fixing:**
+   ```bash
+   atk provision --env local -i false
+   ```
+
 ## Runtime Issues
 
 ### Port already in use
 
-```powershell
-Get-NetTCPConnection -LocalPort 3978 | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force }
+**Error codes:** `Ext.FindProcessError`, `Ext.PortsConflictError`
+
+Common ports used by ATK projects: **3978** (bot), **9239** (Node debugger), **56150** (Agents Playground).
+
+**Find and release occupied ports:**
+```bash
+# Check which ports are in use (replace PORT with 3978, 9239, 56150, etc.)
+# Windows
+netstat -ano | findstr :PORT
+# macOS / Linux
+lsof -i :PORT
+
+# Kill the process occupying the port
+# Windows (replace PID with the process ID from above)
+taskkill /PID PID /F
+# macOS / Linux
+kill -9 PID
 ```
+
+If the issue continues after releasing those three ports, inspect your bot logs and code for additional ports (e.g., custom API servers, function hosts on port 7071). Release them the same way.
 
 ### Missing environment variables at runtime
 
-Check `.localConfigs` exists and has required values. Run `atk deploy --env local -i false` to regenerate.
+**Error codes:** `fileCreateOrUpdateEnvironmentFile.MissingEnvironmentVariablesError`, `botFrameworkCreate.MissingEnvironmentVariablesError`
+
+Check that environment config files exist and contain all required values:
+- For **local debug**: check `.localConfigs`
+- For **Agents Playground debug**: also check `.localConfigs.playground`
+
+Run `atk deploy --env local -i false` (or `--env playground` for Playground) to regenerate.
+
+If a specific variable is reported missing, locate it in the relevant config file. Either fill in the correct value or remove the variable reference from your YAML if it is not needed.
+
+### Agents Playground installation failed
+
+**Error code:** `devToolInstall.TestToolInstallationError`
+
+If automatic installation of Agents Playground fails, install it manually.
+
+**Option 1 — npm (recommended):**
+```bash
+npm install -g @microsoft/m365agentsplayground
+```
+
+**Option 2 — winget (Windows only):**
+```bash
+winget install agentsplayground
+```
+
+**Option 3 — script (Linux only):**
+```bash
+curl -s https://raw.githubusercontent.com/OfficeDev/microsoft-365-agents-toolkit/dev/.github/scripts/install-agentsplayground-linux.sh | bash
+```
+
+**If installation still fails**, clear cached installation files and retry:
+- npm version cache: `~/.fx/bin/testTool/`
+- Binary version cache: `~/.fx/bin/testToolBinary/`
+
+```bash
+# Clear caches (adjust path separator for your OS)
+rm -rf ~/.fx/bin/testTool
+rm -rf ~/.fx/bin/testToolBinary
+```
+
+Then reinstall using one of the options above.
+
+**Verify installation structure (npm version):**
+
+A valid npm installation looks like:
+```
+~/.fx/bin/testTool/<version>/
+```
+where `<version>` is the npm version of `@microsoft/m365agentsplayground`, and the folder contains the installed package contents.
+
+After installation, create a symlink under your project root:
+```bash
+# From your project root
+ln -s ~/.fx/bin/testTool/<version> devTools/playground
+```
+
+**Verify installation structure (binary version):**
+
+A valid binary installation looks like:
+```
+~/.fx/bin/testToolBinary/<version>/agentsplayground.exe
+```
+
+To install manually, download the release from:
+`https://github.com/OfficeDev/microsoft-365-agents-toolkit/releases/tag/teams-app-test-tool%40<version>`
+(e.g., `teams-app-test-tool%400.2.25` for version 0.2.25).
+
+Extract `teamsapptester-win32-x64.zip` and place the contents (including the `.exe`) into `~/.fx/bin/testToolBinary/<version>/`.
+
+If you encounter permission or OS-level errors (e.g., "access denied", "not recognized as executable"), try:
+```bash
+# Windows — unblock the downloaded file
+powershell -Command "Unblock-File -Path '$HOME\.fx\bin\testToolBinary\<version>\agentsplayground.exe'"
+
+# macOS / Linux — set executable permission
+chmod +x ~/.fx/bin/testToolBinary/<version>/agentsplayground
+```
+
+If the issue persists, check your OS security settings and unblock the file manually.
+
+### Azure Functions Core Tools installation failed
+
+**Error code:** `devToolInstall.FuncInstallationError`
+
+The `devTool/install` action in `m365agents.local.yml` installs Azure Functions Core Tools. The version range is defined in your YAML, for example:
+```yaml
+- uses: devTool/install
+  with:
+    func:
+      version: ^4.0.5530
+      symlinkDir: ./devTools/func
+  writeToEnvironmentFile:
+    funcPath: FUNC_PATH
+```
+
+**Manual installation steps:**
+
+1. **Check your required version range** in `m365agents.local.yml` under `devTool/install → func → version`.
+
+2. **Install via npm:**
+   ```bash
+   npm install azure-functions-core-tools@<version> --prefix ~/.fx/bin/azfunc/<version> --no-audit
+   ```
+   Replace `<version>` with a version matching your YAML range (e.g., `4.0.5530`).
+
+3. **Create the sentinel file** (marks the installation as valid):
+   ```bash
+   touch ~/.fx/bin/azfunc/<version>/node_modules/azure-functions-core-tools/bin/func-sentinel
+   ```
+
+4. **Create the project symlink:**
+   ```bash
+   # From your project root
+   ln -s ~/.fx/bin/azfunc/<version>/node_modules/azure-functions-core-tools/bin devTools/func
+   ```
+
+5. **Verify the installation:**
+   ```bash
+   ./devTools/func/func --version
+   ```
+
+If npm is not available, install it first (`npm` ships with Node.js). On Linux, the npm-based portable installation is not supported — install Azure Functions Core Tools via the system package manager instead (see [Azure docs](https://learn.microsoft.com/azure/azure-functions/functions-run-local)).
+
+### ARM deployment failed
+
+**Error code:** `armDeploy.DeployArmError`
+
+ARM deployment errors usually come from invalid Bicep templates or Azure resource configuration issues.
+
+1. **Check the deployment log** — the error message includes the log file path (typically under `.fx/` or the output pane). Open it and look for the first error entry.
+
+2. **Common causes and fixes:**
+   - **Invalid parameter or resource property**: open the Bicep files under `infra/` (e.g., `azure.bicep`, `azure.parameters.json`) and fix the flagged property.
+   - **Resource name conflict**: Azure resource names must be globally unique. Change the name in your Bicep parameters.
+   - **Quota or region limitation**: check if the target region supports the requested SKU or resource type.
+   - **Missing role assignment**: ensure the deploying identity has Contributor (or required) role on the target resource group.
+
+3. **Validate Bicep locally before re-deploying:**
+   ```bash
+   az bicep build --file infra/azure.bicep
+   az deployment group validate --resource-group <rg-name> --template-file infra/azure.bicep --parameters infra/azure.parameters.json
+   ```
+
+4. **Re-deploy after fixing:**
+   ```bash
+   atk provision --env <env>
+   ```
+
+### Dev tunnel operation failed
+
+**Error code:** `Ext.DevTunnelOperationError`
+
+This error occurs when a dev tunnel operation (create, delete, host, list) fails. Common causes:
+
+1. **Not logged in to dev tunnels:**
+   ```bash
+   devtunnel user login
+   ```
+
+2. **Tunnel limit reached** — free accounts have a limit on active tunnels. List and delete unused ones:
+   ```bash
+   devtunnel list
+   devtunnel delete <tunnel-id>
+   ```
+
+3. **Port already hosted by another tunnel session:**
+   ```bash
+   # Check if another devtunnel process is running
+   # Windows
+   tasklist | findstr devtunnel
+   # macOS / Linux
+   ps aux | grep devtunnel
+
+   # Kill stale sessions
+   # Windows
+   taskkill /IM devtunnel.exe /F
+   # macOS / Linux
+   killall devtunnel
+   ```
+
+4. **Network or proxy issues** — dev tunnels require outbound HTTPS. If behind a corporate proxy, configure it:
+   ```bash
+   set HTTPS_PROXY=http://proxy:port   # Windows
+   export HTTPS_PROXY=http://proxy:port # macOS / Linux
+   ```
+
+5. **Stale tunnel state** — if the tunnel was deleted externally or is in a bad state, create a fresh one:
+   ```bash
+   devtunnel create --allow-anonymous
+   devtunnel port create -p 3978
+   devtunnel host
+   ```
+   Update `BOT_ENDPOINT` in `env/.env.local` with the new tunnel URL, then re-provision:
+   ```bash
+   atk provision --env local -i false
+   atk deploy --env local -i false
+   ```
+
+See also [Blacklisted Devtunnel URL](#blacklisted-devtunnel-url) if you continue to get 401 errors after fixing tunnel issues.
 
 ## Diagnostics Commands
 

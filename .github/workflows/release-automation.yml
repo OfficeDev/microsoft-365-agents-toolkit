@@ -43,7 +43,7 @@ on:
         type: boolean
         default: true
   schedule:
-    - cron: "0 21 * * *" # Run daily at 05:00 (UTC+8) => 21:00 UTC
+    - cron: "0 12 * * *" # Run daily at 20:00 (UTC+8) => 12:00 UTC
   pull_request:
     types: [closed]
     branches:
@@ -149,6 +149,7 @@ jobs:
           VERSION_INPUT="${{ env.RELEASE_VERSION }}"
           RERUN_CD_ONLY="${{ env.RERUN_CD_ONLY }}"
           TODAY_UTC8=$(date -u -d '+8 hours' +%Y-%m-%d)
+          TOMORROW_UTC8=$(date -u -d '+8 hours +1 day' +%Y-%m-%d)
 
           if [ -n "$VERSION_INPUT" ]; then
             REASON="version=$VERSION_INPUT"
@@ -181,8 +182,8 @@ jobs:
                 end
             ' releases.json)
           else
-            REASON="cut_date=$TODAY_UTC8 (UTC+8)"
-            RELEASE=$(jq -c --arg d "$TODAY_UTC8" '[.[] | select(.cut_date == $d)] | .[0]' releases.json)
+            REASON="cut_date=$TOMORROW_UTC8 (tomorrow UTC+8)"
+            RELEASE=$(jq -c --arg d "$TOMORROW_UTC8" '[.[] | select(.cut_date == $d)] | .[0]' releases.json)
           fi
 
           if [ "$RELEASE" = "null" ] || [ -z "$RELEASE" ]; then
@@ -335,17 +336,19 @@ jobs:
             exit 1
           fi
 
-          # For stable releases, derive source_branch from the last prerelease entry in the schedule
+          # For stable releases, derive source_branch from branch name (release/6.N -> release/6.(N-1))
           SOURCE_BRANCH=""
           if [ "$IS_STABLE" = "true" ] && [ "$RERUN_CD_ONLY" != "true" ]; then
-            SOURCE_BRANCH=$(jq -r --arg v "$VERSION" '
-              [ .[] | select(.release_type | ascii_downcase | contains("prerelease")) ]
-              | sort_by(.cut_date)
-              | last
-              | .branch // empty
-            ' releases.json)
-            if [ -z "$SOURCE_BRANCH" ]; then
-              echo "⚠️ No previous prerelease found in schedule. Falling back to dev as source branch."
+            if [[ "$BRANCH" =~ ^release/([0-9]+)\.([0-9]+)$ ]]; then
+              MAJOR="${BASH_REMATCH[1]}"
+              MINOR="${BASH_REMATCH[2]}"
+              if (( MINOR > 0 )); then
+                SOURCE_BRANCH="release/${MAJOR}.$((MINOR - 1))"
+              else
+                SOURCE_BRANCH="dev"
+              fi
+            else
+              echo "⚠️ Cannot derive source branch from '$BRANCH'. Falling back to dev."
               SOURCE_BRANCH="dev"
             fi
             echo "  Source Branch (derived): $SOURCE_BRANCH"
@@ -580,6 +583,122 @@ jobs:
           echo "✅ Branch $BRANCH created successfully"
           echo "created=true" >> $GITHUB_OUTPUT
 
+      - name: Bump versions and create PR for stable release
+        id: version_bump_pr
+        if: ${{ steps.create_branch.outputs.created == 'true' && steps.config.outputs.is_stable == 'true' && env.DRY_RUN == 'false' }}
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { execSync } = require('child_process');
+            const fs = require('fs');
+
+            const branch = '${{ steps.config.outputs.branch }}';
+            const version = '${{ steps.config.outputs.version }}';
+            const majorMinor = version.replace(/\.[^.]*$/, '');
+            const bumpBranch = `chore/bump-version-${majorMinor}`;
+
+            // --- Checkout release branch first ---
+            execSync(`git fetch origin ${branch}`, { stdio: 'inherit' });
+            execSync(`git checkout origin/${branch}`, { stdio: 'inherit' });
+            execSync(`git checkout -b ${bumpBranch}`, { stdio: 'inherit' });
+
+            // --- 1. Bump SampleConfigTag (v3.N.0 -> v3.(N+1).0) ---
+            const samplesFile = 'packages/fx-core/src/common/samples.ts';
+            let samplesContent = fs.readFileSync(samplesFile, 'utf8');
+            const tagMatch = samplesContent.match(/SampleConfigTag = "v(\d+)\.(\d+)\.(\d+)"/);
+            if (tagMatch) {
+              const newTag = `v${tagMatch[1]}.${parseInt(tagMatch[2]) + 1}.0`;
+              samplesContent = samplesContent.replace(tagMatch[0], `SampleConfigTag = "${newTag}"`);
+              fs.writeFileSync(samplesFile, samplesContent);
+              core.info(`SampleConfigTag: v${tagMatch[1]}.${tagMatch[2]}.${tagMatch[3]} -> ${newTag}`);
+            }
+
+            // --- 2. Update templates-config.json ---
+            const configFile = 'packages/fx-core/src/common/templates-config.json';
+            const config = JSON.parse(fs.readFileSync(configFile, 'utf8'));
+            config.version = `~${majorMinor}`;
+            config.localVersion = version;
+            fs.writeFileSync(configFile, JSON.stringify(config, null, 4) + '\n');
+            core.info(`templates-config.json: version=~${majorMinor}, localVersion=${version}`);
+
+            // --- 3. Update templates/package.json ---
+            const pkgFile = 'templates/package.json';
+            const pkg = JSON.parse(fs.readFileSync(pkgFile, 'utf8'));
+            pkg.version = `${version}-alpha`;
+            fs.writeFileSync(pkgFile, JSON.stringify(pkg, null, 2) + '\n');
+            core.info(`templates/package.json: version=${version}-alpha`);
+
+            // --- 4. Update vscode-extension/package.json ---
+            const vscPkgFile = 'packages/vscode-extension/package.json';
+            const vscPkg = JSON.parse(fs.readFileSync(vscPkgFile, 'utf8'));
+            vscPkg.version = `${version}-rc`;
+            fs.writeFileSync(vscPkgFile, JSON.stringify(vscPkg, null, 2) + '\n');
+            core.info(`vscode-extension/package.json: version=${version}-rc`);
+
+            // --- Commit and push ---
+            execSync('git add packages/fx-core/src/common/samples.ts packages/fx-core/src/common/templates-config.json templates/package.json packages/vscode-extension/package.json', { stdio: 'inherit' });
+            execSync(`git commit -m "chore: bump template and sample version for ${version}"`, { stdio: 'inherit' });
+            execSync(`git push origin ${bumpBranch}`, { stdio: 'inherit' });
+
+            core.setOutput('version', version);
+            core.setOutput('major_minor', majorMinor);
+            core.setOutput('bump_branch', bumpBranch);
+
+      - name: Create version bump PR
+        if: ${{ steps.version_bump_pr.outputs.bump_branch != '' }}
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.RELEASE_AUTOMATION_TOKEN || github.token }}
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const base = '${{ steps.config.outputs.branch }}';
+            const head = '${{ steps.version_bump_pr.outputs.bump_branch }}';
+            const version = '${{ steps.version_bump_pr.outputs.version }}';
+            const majorMinor = '${{ steps.version_bump_pr.outputs.major_minor }}';
+
+            const product = '${{ steps.config.outputs.product }}';
+            const releaseType = '${{ steps.config.outputs.release_type }}';
+            const preid = '${{ steps.config.outputs.preid }}';
+            const series = '${{ steps.config.outputs.series }}';
+            const vsrelease = '${{ steps.config.outputs.vsrelease }}' === 'true';
+            const goproduct = '${{ env.GO_PRODUCT }}' === 'true';
+
+            const workflowRunUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            const markerPayload = { product, version, releaseType, branch: base, preid, series, vsrelease, goproduct };
+            const marker = `<!-- release-automation-cd-params: ${JSON.stringify(markerPayload)} -->`;
+            const label = 'release-automation-sync';
+
+            const title = `chore: bump template and sample version for ${version}`;
+            const body = [
+              'This PR is created by Release Automation to bump version numbers for the stable release.',
+              '',
+              `- **Version:** ${version}`,
+              `- **SampleConfigTag:** bumped minor version`,
+              `- **templates-config.json:** version=\`~${majorMinor}\`, localVersion=\`${version}\``,
+              `- **templates/package.json:** version=\`${version}-alpha\``,
+              `- **vscode-extension/package.json:** version=\`${version}-rc\``,
+              '',
+              `Release Automation Run: ${workflowRunUrl}`,
+              marker,
+              '',
+              'After merging, the CD pipeline will be triggered automatically.',
+            ].join('\n');
+
+            const pr = await github.rest.pulls.create({ owner, repo, title, head, base, body });
+            core.notice(`Created version bump PR: ${pr.data.html_url}`);
+
+            try {
+              await github.rest.issues.addLabels({ owner, repo, issue_number: pr.data.number, labels: [label] });
+            } catch (e) {
+              core.notice(`Unable to add label '${label}': ${e.message}`);
+            }
+
+            core.summary
+              .addHeading('📌 Version Bump PR', 2)
+              .addRaw(`\nCreated: ${pr.data.html_url}\n`)
+              .write();
+
       - name: Decide auto-CD for new release branch
         id: decide_auto_cd
         shell: bash
@@ -594,10 +713,7 @@ jobs:
           AUTO_CD=false
 
           if [ "$BRANCH_CREATED" = "true" ]; then
-            if [ "$IS_STABLE" = "true" ]; then
-              # Stable releases auto-trigger CD on branch creation (no PR merge gate)
-              AUTO_CD=true
-            elif [[ "$BRANCH" =~ ^release/6\.([0-9]+)$ ]]; then
+            if [[ "$BRANCH" =~ ^release/6\.([0-9]+)$ ]]; then
               # Prerelease: auto-trigger CD only for odd minor branches
               MINOR="${BASH_REMATCH[1]}"
               if (( MINOR % 2 == 1 )); then
@@ -802,7 +918,8 @@ jobs:
                 vsrelease: vsrelease.toString(),
                 vstemplate: 'false',
                 goproduct: goproduct.toString(),
-                run_test_cases: 'true'
+                run_test_cases: 'true',
+                skipmarkdownandvulnerabilitycheck: goproduct.toString()
               }
             });
 
@@ -815,7 +932,7 @@ jobs:
 
   trigger-cd-on-pr-merge:
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true && github.event.pull_request.head.ref == 'dev' && startsWith(github.event.pull_request.base.ref, 'release/') && contains(github.event.pull_request.labels.*.name, 'release-automation-sync') }}
+    if: ${{ github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true && (github.event.pull_request.head.ref == 'dev' || startsWith(github.event.pull_request.head.ref, 'chore/bump-version-')) && startsWith(github.event.pull_request.base.ref, 'release/') && contains(github.event.pull_request.labels.*.name, 'release-automation-sync') }}
     outputs:
       product: ${{ steps.trigger.outputs.product }}
       release_type: ${{ steps.trigger.outputs.release_type }}
@@ -838,8 +955,8 @@ jobs:
             const labels = (pr.labels || []).map(l => l.name);
             const body = pr.body || '';
 
-            if (head !== 'dev') {
-              core.notice(`Skip: head branch is '${head}', expected 'dev'.`);
+            if (head !== 'dev' && !head.startsWith('chore/bump-version-')) {
+              core.notice(`Skip: head branch is '${head}', expected 'dev' or 'chore/bump-version-*'.`);
               return;
             }
 
@@ -909,7 +1026,8 @@ jobs:
                 vsrelease: vsrelease.toString(),
                 vstemplate: 'false',
                 goproduct: goproduct.toString(),
-                run_test_cases: 'true'
+                run_test_cases: 'true',
+                skipmarkdownandvulnerabilitycheck: goproduct.toString()
               },
             });
 

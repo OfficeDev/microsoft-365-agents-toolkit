@@ -8,7 +8,6 @@ import { TelemetryEvent } from "../telemetry/extTelemetryEvents";
 import { CreateProjectResult, FxError, Result, Stage, ok } from "@microsoft/teamsfx-api";
 import { getSystemInputs } from "../utils/systemEnvUtils";
 import { getTriggerFromProperty } from "../utils/telemetryUtils";
-import { featureFlagManager, FeatureFlags } from "@microsoft/teamsfx-core";
 
 export async function createProjectFromWalkthroughHandler(
   args?: any[]
@@ -28,9 +27,7 @@ export async function createProjectFromWalkthroughHandler(
 }
 
 export function getBuildIntelligentAppsWalkthroughID() {
-  return featureFlagManager.getBooleanValue(FeatureFlags.ChatParticipantUIEntries)
-    ? "TeamsDevApp.ms-teams-vscode-extension#buildIntelligentAppsWithChat"
-    : "TeamsDevApp.ms-teams-vscode-extension#buildIntelligentApps";
+  return "TeamsDevApp.ms-teams-vscode-extension#buildIntelligentApps";
 }
 
 export async function openBuildIntelligentAppsWalkthroughHandler(

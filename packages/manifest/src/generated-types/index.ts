@@ -265,6 +265,14 @@ const daConverterMap: Converters = {
     DeclarativeAgentManifestV1D4.Convert.toDeclarativeAgentManifestV1D4,
     DeclarativeAgentManifestV1D4.Convert.declarativeAgentManifestV1D4ToJson,
   ],
+  "v1.5": [
+    DeclarativeAgentManifestV1D5.Convert.toDeclarativeAgentManifestV1D5,
+    DeclarativeAgentManifestV1D5.Convert.declarativeAgentManifestV1D5ToJson,
+  ],
+  "v1.6": [
+    DeclarativeAgentManifestV1D6.Convert.toDeclarativeAgentManifestV1D6,
+    DeclarativeAgentManifestV1D6.Convert.declarativeAgentManifestV1D6ToJson,
+  ],
 };
 const ApiPluginConverterMap: Converters = {
   "v2.1": [

@@ -225,7 +225,7 @@ describe("copilotChatHandler", async () => {
   });
 
   describe("invokeTeamsAgent", () => {
-    it("open walkthrough successfully from treeview if GitHub copilot is not installed", async () => {
+    it("returns error if GitHub Copilot Chat is not installed", async () => {
       const args = [TelemetryTriggerFrom.TreeView];
       sandbox.stub(globalState, "globalStateGet").resolves(true);
       sandbox.stub(vscode.extensions, "getExtension").returns(undefined);
@@ -235,19 +235,16 @@ describe("copilotChatHandler", async () => {
           label: "",
         },
       ]);
+      sandbox.stub(vscode.window, "showErrorMessage").resolves();
       const executeCommandStub = sandbox.stub(vscode.commands, "executeCommand").resolves();
 
       const res = await handlers.invokeTeamsAgent(args);
 
-      chai.assert.isTrue(res.isOk());
-      if (res.isOk()) {
-        chai.assert.isFalse(res.value);
-      }
-      chai.assert.isTrue(executeCommandStub.calledOnce);
-      chai.assert.isTrue(sendTelemetryErrorEventStub.notCalled);
+      chai.assert.isTrue(res.isErr());
+      chai.assert.isTrue(executeCommandStub.notCalled);
     });
 
-    it("open walkthrough successfully from treeview if not logged in", async () => {
+    it("invokes chat from treeview when not signed in (sign-in precheck removed)", async () => {
       const args = [TelemetryTriggerFrom.TreeView];
       sandbox.stub(globalState, "globalStateGet").resolves(true);
       sandbox
@@ -260,13 +257,13 @@ describe("copilotChatHandler", async () => {
 
       chai.assert.isTrue(res.isOk());
       if (res.isOk()) {
-        chai.assert.isFalse(res.value);
+        chai.assert.isTrue(res.value);
       }
-      chai.assert.isTrue(executeCommandStub.calledOnce);
+      chai.assert.isTrue(executeCommandStub.called);
       chai.assert.isTrue(sendTelemetryErrorEventStub.notCalled);
     });
 
-    it("open walkthrough successfully from treeview if @m365agents not installed", async () => {
+    it("invokes chat from treeview when @m365agents not installed (install precheck removed)", async () => {
       const args = [TelemetryTriggerFrom.TreeView];
       sandbox.stub(globalState, "globalStateGet").resolves(false);
       sandbox
@@ -284,9 +281,9 @@ describe("copilotChatHandler", async () => {
 
       chai.assert.isTrue(res.isOk());
       if (res.isOk()) {
-        chai.assert.isFalse(res.value);
+        chai.assert.isTrue(res.value);
       }
-      chai.assert.isTrue(executeCommandStub.calledOnce);
+      chai.assert.isTrue(executeCommandStub.called);
       chai.assert.isTrue(sendTelemetryErrorEventStub.notCalled);
     });
 

@@ -32,6 +32,7 @@ import { ErrorContextMW } from "../common/globalVars";
 import { getDefaultString, getLocalizedString } from "../common/localizeUtils";
 import { waitSeconds } from "../common/utils";
 import { WrappedAxiosClient } from "../common/wrappedAxiosClient";
+import { RetryHandler } from "../common/retryHandler";
 import { CreateChannelResponse } from "./interfaces/CreateChannelResponse";
 import { CreateTeamAndChannelResponse } from "./interfaces/CreateTeamAndChannelResponse";
 import { GetAppInstallationResponse } from "./interfaces/GetAppInstallationResponse";
@@ -51,26 +52,6 @@ const errorSourceName = "GraphAPI";
 const GeneralLabelDisplayName = "General";
 const listSensitivityLabelCacheKeyPrefix = "listSensitivityLabelCacheKey";
 const teamsAppsPath = `/appCatalogs/teamsApps`;
-
-export class RetryHandler {
-  public static RETRIES = 3;
-  public static async Retry<T>(fn: () => Promise<T>): Promise<T | undefined> {
-    let retries = this.RETRIES;
-    let lastError: any;
-    while (retries > 0) {
-      retries--;
-      try {
-        return await fn();
-      } catch (e: any) {
-        lastError = e;
-        if (retries > 0) {
-          await new Promise((resolve) => setTimeout(resolve, 5000));
-        }
-      }
-    }
-    throw lastError;
-  }
-}
 
 export class GraphClient {
   private readonly baseUrl: string =

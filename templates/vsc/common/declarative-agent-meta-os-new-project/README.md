@@ -1,35 +1,90 @@
-# Build Declarative Agent in Office add-ins using Microsoft 365 Agents Toolkit
+# Build a Declarative Agent in an Office add-in using Microsoft 365 Agents Toolkit
 
-Office add-ins are integrations built by third parties into Office by using our web-based platform. This add-in template supports: Word, Excel, PowerPoint, Outlook.
-Now you have the ability to create a single unit of distribution for all your Microsoft 365 extensions by using the same manifest format and schema, based on the current JSON-formatted Microsoft 365 Agents manifest.
+An Office Add-in can be a skill in a Copilot agent. Because Office Add-ins use the Office JavaScript Library (Office.js) to perform read and write operations on Office documents, these operations become actions in the Copilot agent. The skill is implemented as an API plugin that calls the APIs in Office.js. Alternatively, you can think of the agent as a natural language interface for the add-in's functionality.
 
 > Note:
-> The unified app manifest for Word, Excel, and PowerPoint is in preview. Visit [this link](https://aka.ms/officeversions) to check the required Office Versions. Also, publishing a unified add-in for Word, Excel, PowerPoint is not supported currently.
+> The combination of a Copilot agent with an Office Add-in is in preview. The following are the limitations during the initial preview:
+> 
+> - The feature is only enabled for Office on Windows and Office on the web. We're working to bring support to Office on Mac.
+> - The feature is only enabled for Excel, PowerPoint, and Word. We're working to bring support to Outlook.
+> - An add-in must use the [unified manifest for Microsoft 365](https://learn.microsoft.com/en-us/office/dev/add-ins/develop/unified-manifest-overview) to be configured as a skill in Copilot.
 
 ## Prerequisites
 
-- [Node.js](https://nodejs.org/), supported versions: 18, 20, 22.
-- Word/Excel/PowerPoint for Windows: Beta Channel, Build 18514 or higher. Outlook For Windows, Build 16425 or higher. Follow [this link](https://github.com/OfficeDev/TeamsFx/wiki/How-to-switch-Outlook-client-update-channel-and-verify-Outlook-client-build-version) for switching update channels and check your Office client build version.
-- Edge installed for debugging Office add-in.
-- An M365 account. If you do not have M365 account, apply one from [M365 developer program](https://developer.microsoft.com/en-us/microsoft-365/dev-program)
-- [Microsoft 365 Agents Toolkit Visual Studio Code Extension](https://aka.ms/teams-toolkit) version 5.0.0 and higher.
+- The latest even-numbered version of [Node.js](https://nodejs.org/).
+- Requirements specified in [Requirements for Copilot extensibility options](https://learn.microsoft.com/en-us/microsoft-365-copilot/extensibility/prerequisites#requirements-for-copilot-extensibility-options).
+- An Microsoft 365 account. If you do not have M365 account, apply one from [M365 developer program](https://developer.microsoft.com/en-us/microsoft-365/dev-program).
 
-## Debug Office add-in
-- Please note that the same M365 account should be used both in Microsoft 365 Agents Toolkit and Office.
-- From Visual Studio Code: Start debugging the project by choosing launch profile (default value is Word) in `Run and Debug` pane and hitting the `F5` key in Visual Studio Code. Please run VSCode as administrator if localhost loopback for Microsoft Edge Webview hasn't been enabled. Once enbaled, administrator priviledge is no longer required.
+## Test the agent
+
+1. Close all Office applications.
+1. Open Microsoft 365 Agent Toolkit.
+1. In the **Lifecycle** pane, select **Provision**. Among other things, provisioning does the following:
+1. In a command prompt or Visual Studio Code **TERMINAL** in the root of the project, run `npm run dev-server` to start the server on localhost. Wait until you see a line in the server window that the app compiled successfully. This means the server is running and serving the files.
+    
+    > Note: If this is the first time in over a month you have run a local server for an Office Add-in on your computer, you may be prompted to delete an old certificate and to install a new one. Agree to both prompts.
+
+1. The first step in testing depends on the platform.
+
+   - To test in Office on Windows, open Excel, PowerPoint, or Word. In a few moments, the **Contoso Add-in** control group appears on the **Home** ribbon with two buttons. (If it doesn't appear on the ribbon, select the **Add-ins** button on the ribbon, and then select the name of your add-in in the flyout that opens.)
+   - To test in Office on the web, in a browser, navigate to `https://excel.cloud.microsoft.com/`, and then create a new workbook.
+
+1. Select the down-pointing arrow head beneath th **Copilot** button on the ribbon and select **App Skills** from the drop down list.
+1. In the hamburger control in the **Copilot** pane. The name of your agent should be in the list of agents. (You may need to select **See more** to ensure that all agents are listed.) If the agent isn't, try one or both of the following actions.
+
+   - Wait a few minutes and reload Copilot.
+   - With Copilot open to the list of agents, click the cursor on the Copilot window and press <kbd>Ctrl</kbd>+<kbd>R</kbd>.
+
+1. When the agent is listed, select it. The agent's pane opens, and conversation starters appear in the pane.
+1. Select a conversation starter that makes sense for the Office application that you are working in (Excel, PowerPoint, or Word), and then press the **Send** control in the conversation box at the bottom of the pane. Select **Confirm** in response to the confirmation prompt.
+
+   > [!TIP]
+   > If Copilot reports an error, repeat your prompt but add the following sentence to the prompt: "If you get an error, report the complete text of the error to me."
+
+1. Try entering other prompts that your agent should be able to carry out. 
 
 ## Edit the manifest
 
-You can find the app manifest in `./appPackage` folder. The folder contains one manifest file:
-* `manifest.json`: Manifest file for Office add-in running locally or running remotely (After deployed to Azure).
-You may add any extra properties or permissions you require to this file. See the [schema reference](https://raw.githubusercontent.com/OfficeDev/microsoft-teams-app-schema/preview/op/extensions/MicrosoftTeams.schema.json) for more information.
+If you need to make changes to the features of the add-in and agent that are configured in the manifest, edit the `manifest.json` in the `./appPackage` folder. The [schema reference](https://raw.githubusercontent.com/OfficeDev/microsoft-teams-app-schema/preview/op/extensions/MicrosoftTeams.schema.json) for more information.
 
-## Validate manifest file
+## Deploy to Azure
 
-To check that your manifest file is valid:
+You can deploy the project to Azure from either Visual Studio Code or by using the Microsoft 365 Agents Toolkit CLI.
 
-- From Visual Studio Code: open the command palette and select: `Microsoft 365 Agents: Validate Application` and select `Validate app manifest schema`.
-- From Microsoft 365 Agents Toolkit CLI: run command `atk validate` in your project directory.
+### From Visual Studio Code
+
+1. Open Microsoft 365 Agents Toolkit, and sign into Azure by clicking the **Sign in to Azure** under the **ACCOUNTS** section from sidebar.
+1. After you signed in, select a subscription under your account.
+1. Select **Provision** from **LIFECYCLE** section or open the command palette and select: **Microsoft 365 Agents: Provision**.
+1. Select **Deploy** or open the command palette and select: **Microsoft 365 Agents: Deploy**.
+
+### With Microsoft 365 Agents Toolkit CLI
+
+1. Run the command `m365agents auth login azure`.
+1. (Optional) In the in env/.env.dev file, set environment variable AZURE_SUBSCRIPTION_ID to your subscription id, or set the variable in your current shell environment if you are using non-interactive mode of `m365agents` CLI.
+1. Run the command `m365agents provision`.
+1. Run the command: `m365agents deploy`.
+
+## Evaluating Agents
+
+Install the Microsoft 365 Copilot Agent Evaluations CLI (`@microsoft/m365-copilot-eval`) NPM package to test, measure, and improve the quality of your agent with structured evaluations and rich result reports with AI-based scoring.
+
+> Requires [Admin consent](https://github.com/microsoft/work-iq/blob/main/ADMIN-INSTRUCTIONS.md) at tenant level.
+
+1. Run `npm install -g @microsoft/m365-copilot-eval`
+2. Add the following environment variables. See [here](https://learn.microsoft.com/en-us/microsoft-365/copilot/extensibility/evaluations-cli-get-env-values) on how to get them.
+
+    ```
+    AZURE_AI_OPENAI_ENDPOINT=
+    AZURE_AI_API_KEY=
+    AZURE_AI_API_VERSION=
+    AZURE_AI_MODEL_NAME=
+    ```
+
+3. Run `runevals` or `runevals --env dev`
+
+A sample dataset `evals/prompts.json` is created in this project to help you get started right away. [Read more](https://learn.microsoft.com/en-us/microsoft-365/copilot/extensibility/evaluations-cli-overview).
 
 ## Known Issues
 - Publish is not supported for an Office add-in project now.
+> Note: Provisioning and deployment may incur charges to your Azure Subscription.
