@@ -9,18 +9,17 @@
 
 #### Sovereign cloud support for advanced Declarative Agents (GCC High and DoD)
 
-This release adds end-to-end support for Declarative Agent scenarios in sovereign high-cloud environments, including GCC High and DoD. The implementation updates authentication endpoints, token scopes, and cloud-specific service routing so provisioning and runtime behaviors align with sovereign requirements. It also introduces Teams Graph client flows used by API key, OAuth, and Entra SSO registration paths in these cloud contexts. In ATK VSCode and CLI workflows, users targeting sovereign tenants can now run the same agent creation and update flows with cloud-aware handling instead of manual workarounds. Noticed that for advanced Declarative Agent, the publishinng flow is not enabled yet as the current stage limitaion.
+This release adds end-to-end support for Declarative Agent scenarios in sovereign high-cloud environments, including GCC High and DoD. The implementation updates authentication endpoints, token scopes, and cloud-specific service routing so provisioning and runtime behaviors align with sovereign requirements. It also introduces Teams Graph client flows used by API key, OAuth, and Entra SSO registration paths in these cloud contexts. In ATK VSCode, users targeting sovereign tenants can now run the same agent creation and update flows with cloud-aware handling instead of manual workarounds. Noticed that for advanced Declarative Agent, the publishinng flow is not enabled yet as the current stage limitaion.
 
 The way to switch the cloud environment you are working on for ATK: go to user settings in VS Code and find the setting named `M365 Agents Toolkit: Sovereign Cloud Environment`, set the environment from `GCC M / GCC H/ DoD`. Noticed that there is another VS Code native setting `Microsoft Sovereign Cloud: Environment` need to be set to `USGoverment`. Don't mix these two settings, then you are ready to continue your journey with ATK using your government account.
 
 <img width="744" height="288" alt="image" src="https://github.com/user-attachments/assets/27827c9a-7fdf-48e1-a29a-8e1a04cff9f4" />
 
+#### New sample introduced in Sample Gallery
+
+The well-acclaimed sample `Microsoft Foundry Agent to Microsoft 365 Copilot With SSO` previously was introduced for C# and Javascript, is now having a version for python onboarded to our sample gallery. The sample enable developers to connect or proxy an existing Foundry agent into the Microsoft 365 ecosystem and expose it through familiar M365 surfaces such as Copilot and Teams, allowing Foundry‑hosted agents to be surfaced and interacted with via the M365 interface without rebuilding the agent logic, while benefiting from ATK's standard provisioning, deployment, and developer workflow integration.
 
 ### Enhancement: 
-
-### Declarative Agent app publishing are polished to work better
-
-The publish to tenant feature for Declarative Agent apps has been updated its underlying API service. This modernizes the underlying publish mechanism, aligns it with current Microsoft Copilot platform conventions, and improves long-term maintainability. Token acquisition for authentication is handled consistently with other Graph-backed operations. Users publishing Declarative Agents to their org's Teams App Catalog via the ATK VSCode lifecycle actions or the atk deploy CLI command benefit from this change transparently with no workflow changes required.
 
 #### Teams app publish are polished to work better
 
