@@ -9,19 +9,19 @@
 
 #### Sovereign cloud support for advanced Declarative Agents (GCC High and DoD)
 
-This release adds end-to-end support for Declarative Agent scenarios in sovereign high-cloud environments, including GCC High and DoD. The implementation updates authentication endpoints, token scopes, and cloud-specific service routing so provisioning and runtime behaviors align with sovereign requirements. It also introduces Teams Graph client flows used by API key, OAuth, and Entra SSO registration paths in these cloud contexts. In ATK VSCode, users targeting sovereign tenants can now run the same agent creation and update flows with cloud-aware handling instead of manual workarounds. Noticed that for advanced Declarative Agent, the publishinng flow is not enabled yet as the current stage limitaion.
+This release adds end-to-end support for Declarative Agent scenarios in sovereign high-cloud environments, including GCC High and DoD. The implementation updates authentication endpoints, token scopes, and cloud-specific service routing so provisioning and runtime behaviors align with sovereign requirements. It also introduces Teams Graph client flows used by API key, OAuth, and Entra SSO registration paths in these cloud contexts. In ATK VSCode, users targeting sovereign tenants can now run the same agent creation and update flows with cloud-aware handling instead of manual workarounds. Note that the publishing flow for advanced Declarative Agents is not enabled yet because of current-stage limitations.
 
-The way to switch the cloud environment you are working on for ATK: go to user settings in VS Code and find the setting named `M365 Agents Toolkit: Sovereign Cloud Environment`, set the environment from `GCC M / GCC H/ DoD`. Noticed that there is another VS Code native setting `Microsoft Sovereign Cloud: Environment` need to be set to `USGoverment`. Don't mix these two settings, then you are ready to continue your journey with ATK using your government account.
+To switch the cloud environment you are using in ATK, go to User Settings in VS Code and find the setting named `M365 Agents Toolkit: Sovereign Cloud Environment`, then select `GCC M`, `GCC H`, or `DoD`. Note that there is also a native VS Code setting, `Microsoft Sovereign Cloud: Environment`, which must be set to `USGovernment`. Do not confuse these two settings. After configuring both correctly, you can continue using ATK with your government account.
 
 <img width="744" height="288" alt="image" src="https://github.com/user-attachments/assets/27827c9a-7fdf-48e1-a29a-8e1a04cff9f4" />
 
 #### New sample introduced in Sample Gallery
 
-The well-acclaimed sample `Microsoft Foundry Agent to Microsoft 365 Copilot With SSO` previously was introduced for C# and Javascript, is now having a version for python onboarded to our sample gallery. The sample enable developers to connect or proxy an existing Foundry agent into the Microsoft 365 ecosystem and expose it through familiar M365 surfaces such as Copilot and Teams, allowing Foundry‑hosted agents to be surfaced and interacted with via the M365 interface without rebuilding the agent logic, while benefiting from ATK's standard provisioning, deployment, and developer workflow integration.
+The well-received sample `Microsoft Foundry Agent to Microsoft 365 Copilot With SSO`, which was previously available for C# and JavaScript, is now also available in Python in our Sample Gallery. This sample enables developers to connect or proxy an existing Foundry agent into the Microsoft 365 ecosystem and expose it through familiar M365 surfaces such as Copilot and Teams. It allows Foundry-hosted agents to be surfaced and interacted with through the M365 interface without rebuilding the agent logic, while still benefiting from ATK's standard provisioning, deployment, and developer workflow integration.
 
 ### Enhancement: 
 
-#### Teams app publish are polished to work better
+#### Teams app publishing polished for a better experience
 
 The Teams app publish path was enhanced by updating its underlying API service as well. This modernizes the existing publish experience and aligns it with current platform interfaces used across Microsoft 365 app management. The change also included review-request handling adjustments and corresponding test coverage to stabilize publishing behavior. For users running ATK publish operations in VSCode or CLI-driven lifecycle actions, this improves consistency and forward compatibility of app publishing.
 
