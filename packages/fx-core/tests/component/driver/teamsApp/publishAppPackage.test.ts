@@ -22,7 +22,6 @@ import { MockedLogProvider, MockedUserInteraction } from "../../../plugins/solut
 import { Constants } from "./../../../../src/component/driver/teamsApp/constants";
 import { MockedM365Provider } from "../../../core/utils";
 import { ODRProvider } from "../../../../src/component/utils/odrProvider";
-import * as McpCertVerification from "../../../../src/component/driver/teamsApp/utils/McpCertVerification";
 
 describe("teamsApp/publishAppPackage", async () => {
   const teamsAppDriver = new PublishAppPackageDriver();
@@ -514,7 +513,9 @@ describe("teamsApp/publishAppPackage", async () => {
           tools: [],
         },
       ]);
-      sinon.stub(McpCertVerification, "verifyLocalMCPPluginCerts").resolves(true);
+      sinon
+        .stub(PublishAppPackageDriver.prototype as any, "verifyPackageFamilyCertIsValid")
+        .resolves(true);
       sinon.stub(GraphClient.prototype, "getStagedApp").resolves(undefined);
       sinon.stub(GraphClient.prototype, "publishTeamsApp").resolves(uuid());
 
@@ -575,7 +576,9 @@ describe("teamsApp/publishAppPackage", async () => {
           tools: [],
         },
       ]);
-      sinon.stub(McpCertVerification, "verifyLocalMCPPluginCerts").resolves(false);
+      sinon
+        .stub(PublishAppPackageDriver.prototype as any, "verifyPackageFamilyCertIsValid")
+        .resolves(false);
 
       const result = (await teamsAppDriver.execute(args, mockedDriverContext)).result;
       chai.assert.isTrue(result.isErr());
@@ -637,7 +640,9 @@ describe("teamsApp/publishAppPackage", async () => {
           tools: [],
         },
       ]);
-      sinon.stub(McpCertVerification, "verifyLocalMCPPluginCerts").resolves(false);
+      sinon
+        .stub(PublishAppPackageDriver.prototype as any, "verifyPackageFamilyCertIsValid")
+        .resolves(false);
 
       const result = (await teamsAppDriver.execute(args, mockedDriverContext)).result;
       chai.assert.isTrue(result.isErr());
@@ -717,7 +722,9 @@ describe("teamsApp/publishAppPackage", async () => {
           tools: [],
         },
       ]);
-      sinon.stub(McpCertVerification, "verifyLocalMCPPluginCerts").resolves(true);
+      sinon
+        .stub(PublishAppPackageDriver.prototype as any, "verifyPackageFamilyCertIsValid")
+        .resolves(true);
       sinon.stub(GraphClient.prototype, "getStagedApp").resolves(undefined);
       sinon.stub(GraphClient.prototype, "publishTeamsApp").resolves(uuid());
 
@@ -728,6 +735,7 @@ describe("teamsApp/publishAppPackage", async () => {
 
   // eslint-disable-next-line no-secrets/no-secrets
   describe("verifyPackageFamilyCertIsValid", () => {
+    const teamsAppDriver = new PublishAppPackageDriver();
     let execStub: sinon.SinonStub;
 
     beforeEach(() => {
@@ -752,7 +760,10 @@ describe("teamsApp/publishAppPackage", async () => {
         }
       );
 
-      const result = await McpCertVerification.verifyPackageFamilyCertIsValid("TestPackage_12345");
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const result = await (teamsAppDriver as any).verifyPackageFamilyCertIsValid(
+        "TestPackage_12345"
+      );
       chai.assert.isTrue(result);
     });
 
@@ -769,7 +780,10 @@ describe("teamsApp/publishAppPackage", async () => {
         }
       );
 
-      const result = await McpCertVerification.verifyPackageFamilyCertIsValid("TestPackage_12345");
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const result = await (teamsAppDriver as any).verifyPackageFamilyCertIsValid(
+        "TestPackage_12345"
+      );
       chai.assert.isTrue(result);
     });
 
@@ -786,7 +800,10 @@ describe("teamsApp/publishAppPackage", async () => {
         }
       );
 
-      const result = await McpCertVerification.verifyPackageFamilyCertIsValid("TestPackage_12345");
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const result = await (teamsAppDriver as any).verifyPackageFamilyCertIsValid(
+        "TestPackage_12345"
+      );
       chai.assert.isFalse(result);
     });
 
@@ -803,7 +820,10 @@ describe("teamsApp/publishAppPackage", async () => {
         }
       );
 
-      const result = await McpCertVerification.verifyPackageFamilyCertIsValid("TestPackage_12345");
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const result = await (teamsAppDriver as any).verifyPackageFamilyCertIsValid(
+        "TestPackage_12345"
+      );
       chai.assert.isFalse(result);
     });
 
@@ -820,7 +840,10 @@ describe("teamsApp/publishAppPackage", async () => {
         }
       );
 
-      const result = await McpCertVerification.verifyPackageFamilyCertIsValid("TestPackage_12345");
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const result = await (teamsAppDriver as any).verifyPackageFamilyCertIsValid(
+        "TestPackage_12345"
+      );
       chai.assert.isFalse(result);
     });
 
@@ -838,7 +861,10 @@ describe("teamsApp/publishAppPackage", async () => {
         }
       );
 
-      const result = await McpCertVerification.verifyPackageFamilyCertIsValid("TestPackage_12345");
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const result = await (teamsAppDriver as any).verifyPackageFamilyCertIsValid(
+        "TestPackage_12345"
+      );
       chai.assert.isFalse(result);
     });
 
@@ -856,7 +882,10 @@ describe("teamsApp/publishAppPackage", async () => {
         }
       );
 
-      const result = await McpCertVerification.verifyPackageFamilyCertIsValid("TestPackage_12345");
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const result = await (teamsAppDriver as any).verifyPackageFamilyCertIsValid(
+        "TestPackage_12345"
+      );
       chai.assert.isFalse(result);
     });
 
@@ -871,7 +900,10 @@ describe("teamsApp/publishAppPackage", async () => {
         }
       );
 
-      const result = await McpCertVerification.verifyPackageFamilyCertIsValid("TestPackage_12345");
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const result = await (teamsAppDriver as any).verifyPackageFamilyCertIsValid(
+        "TestPackage_12345"
+      );
       chai.assert.isFalse(result);
     });
 
@@ -888,7 +920,8 @@ describe("teamsApp/publishAppPackage", async () => {
         }
       );
 
-      const result = await McpCertVerification.verifyPackageFamilyCertIsValid(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const result = await (teamsAppDriver as any).verifyPackageFamilyCertIsValid(
         "NonExistentPackage_99999"
       );
       chai.assert.isFalse(result);
@@ -907,7 +940,10 @@ describe("teamsApp/publishAppPackage", async () => {
         }
       );
 
-      const result = await McpCertVerification.verifyPackageFamilyCertIsValid("TestPackage_12345");
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const result = await (teamsAppDriver as any).verifyPackageFamilyCertIsValid(
+        "TestPackage_12345"
+      );
       chai.assert.isTrue(result);
     });
 
@@ -924,7 +960,10 @@ describe("teamsApp/publishAppPackage", async () => {
         }
       );
 
-      const result = await McpCertVerification.verifyPackageFamilyCertIsValid("TestPackage_12345");
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const result = await (teamsAppDriver as any).verifyPackageFamilyCertIsValid(
+        "TestPackage_12345"
+      );
       chai.assert.isTrue(result);
     });
 
@@ -943,7 +982,8 @@ describe("teamsApp/publishAppPackage", async () => {
         }
       );
 
-      await McpCertVerification.verifyPackageFamilyCertIsValid(packageName);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await (teamsAppDriver as any).verifyPackageFamilyCertIsValid(packageName);
       chai.assert.isTrue(execStub.calledOnce);
     });
 
@@ -960,7 +1000,10 @@ describe("teamsApp/publishAppPackage", async () => {
         }
       );
 
-      const result = await McpCertVerification.verifyPackageFamilyCertIsValid("TestPackage_12345");
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const result = await (teamsAppDriver as any).verifyPackageFamilyCertIsValid(
+        "TestPackage_12345"
+      );
       chai.assert.isFalse(result);
     });
 
@@ -978,7 +1021,10 @@ describe("teamsApp/publishAppPackage", async () => {
         }
       );
 
-      const result = await McpCertVerification.verifyPackageFamilyCertIsValid("TestPackage_12345");
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const result = await (teamsAppDriver as any).verifyPackageFamilyCertIsValid(
+        "TestPackage_12345"
+      );
       chai.assert.isFalse(result);
     });
 
@@ -995,7 +1041,10 @@ describe("teamsApp/publishAppPackage", async () => {
         }
       );
 
-      const result = await McpCertVerification.verifyPackageFamilyCertIsValid("TestPackage_12345");
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const result = await (teamsAppDriver as any).verifyPackageFamilyCertIsValid(
+        "TestPackage_12345"
+      );
       chai.assert.isFalse(result);
     });
   });

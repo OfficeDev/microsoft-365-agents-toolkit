@@ -74,11 +74,6 @@ The manifest package (`packages/manifest`) provides TypeScript types for Microso
 - `PluginManifestSchema` → use `APIPluginManifest`
 - `ManifestUtil` → use `AppManifestUtils`
 
-**Schema upgrade guardrail (manifest package):**
-- Run `node download.js` in `packages/manifest` before `npm run convert` to sync new schema folders.
-- After conversion, update `src/generated-types/index.ts` so new versions are registered in converter maps, unions, and `*Latest` aliases (and re-export new schema enums/types when applicable).
-- Do not leave new versions relying on fallback unchecked casts; validate parity with `npx mocha test/converterMapParity.test.ts`.
-
 ---
 
 # Unit Testing Guidelines
