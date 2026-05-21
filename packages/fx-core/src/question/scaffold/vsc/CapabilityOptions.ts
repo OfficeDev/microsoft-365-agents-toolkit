@@ -532,11 +532,20 @@ export class DACapabilityOptions {
       data: TemplateNames.DeclarativeAgentWithGraphConnector,
     };
   }
+  static withSkill(): OptionItem {
+    return {
+      id: "skill",
+      label: getLocalizedString("template.createProjectQuestion.addSkill.label"),
+      detail: getLocalizedString("template.createProjectQuestion.addSkill.detail"),
+      data: TemplateNames.DeclarativeAgentWithSkill,
+    };
+  }
   static all(): OptionItem[] {
     const items: OptionItem[] = [
       DACapabilityOptions.noPlugin(),
       DACapabilityOptions.withPlugin(),
       DACapabilityOptions.withGC(),
+      DACapabilityOptions.withSkill(),
       DACapabilityOptions.typeSpec(),
     ];
     return items;
