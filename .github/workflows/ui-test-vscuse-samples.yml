@@ -1,4 +1,4 @@
-name: uitest-vscuse-samples-new
+name: uitest-vscuse-samples
 #
 # Caller that runs Sample_* plans via the shared reusable workflow.
 on:

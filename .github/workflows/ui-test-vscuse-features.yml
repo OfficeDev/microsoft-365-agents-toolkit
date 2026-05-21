@@ -1,4 +1,4 @@
-name: uitest-vscuse-features-new
+name: uitest-vscuse-features
 #
 # Caller that runs Feature_* plans via the shared reusable workflow.
 on:
