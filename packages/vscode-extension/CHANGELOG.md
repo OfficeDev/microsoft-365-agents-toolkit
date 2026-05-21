@@ -1,5 +1,50 @@
 # Changelog
 
+
+## 6.10.0 - May 21, 2026
+
+### New Features
+
+#### Switch publish app functionality to use Graph API
+
+This update modernizes how apps are published by migrating the publish functionality to use the Microsoft Graph API. This transition allows for more secure, reliable, and consistent app publishing workflows while ensuring compatibility with the latest Microsoft ecosystem. With this update, users no longer need to rely on legacy methods, simplifying the process and reducing the likelihood of errors. Existing configurations will continue to work seamlessly, but the Graph API integration brings more robust support for app management.
+
+#### Add support for stable and hotfix auto-releases
+
+The new release introduces automated support for stable and hotfix release workflows, streamlining the process for developers to deliver updates efficiently. With this feature, repetitive manual release tasks are minimized, ensuring quicker turnaround times for critical updates and stable releases. Users can now focus more on development while relying on the automated release process to handle routine deployments accurately. This is especially beneficial for maintaining consistency and reliability in production builds.
+
+#### Add GCC High and DoD cloud support, skip Teams app-related actions
+
+Microsoft 365 Agents Toolkit now supports GCC High and DoD (Department of Defense) clouds, enabling customers in regulated industries to manage and deploy apps for these specialized environments. This feature ensures compliance and compatibility with government security and operational requirements. Additionally, Teams app-related actions are skipped if they are not relevant to the environment, further boosting the efficiency of development workflows. This functionality empowers organizations to customize and deploy solutions effectively within secure environments while minimizing unnecessary steps.
+
+#### Support creating AI plugin JSON when updating action via MCP
+
+Now, when updating actions through the Manage Cloud Provider (MCP) flow, users have the option to create a new `ai-plugin.json` file directly. This enhancement allows developers to either select an existing action plugin manifest or create and register a new one on the fly. The user-friendly flow includes an intuitive file selection interface and safeguards against issues like duplicate or invalid filenames. This feature streamlines the process of managing plugin manifests and integrates seamlessly into the ATK VS Code extension, promoting developer productivity by reducing manual configuration steps.
+
+#### Add support for `teamsAppTenantId` in `teamsApp/create`
+
+This release introduces support for configuring `teamsAppTenantId` as part of the `teamsApp/create` driver’s `writeToEnvironmentFile` configuration. Authors can now route the tenant ID to an environment variable of their choice, providing greater flexibility and alignment with specific deployment scenarios. The previous hardcoded behavior remains as a fallback, ensuring backward compatibility. This feature gives developers more control over environment variable configurations when creating Teams apps, enhancing usability for complex workflows.
+
+### Enhancements
+
+#### Update App Manifest version to v1.26
+
+The App Manifest version has been updated to v1.26, ensuring compatibility with the latest capabilities and features in the Microsoft ecosystem. This update supports the inclusion of new functionalities and performance optimizations that are part of the latest SDK versions. Users are encouraged to update their workflows to leverage these enhancements, which aim to improve app performance and interoperability.
+
+### Bug Fixes
+
+- Resolved an issue preventing Mac OS playground from starting
+- Added network retry and keep-alive options to improve extendToM365 sideloading stability
+- Fixed a problem where Python Teams agent could not start
+- Updated to use local JSON schemas for validating manifests, with a fallback to remote URLs
+- Replaced incorrect variable names for CLI login authentication
+- Added `--yes` flag support for deploying the task pane template
+- Addressed missing localization strings causing empty wizard options display
+- Fixed an issue where missing TypeSpec output directory caused misleading errors
+- Resolved telemetry interceptor masking transport errors in the extendToM365 process
+- Updated templates to reference the latest YAML schema version
+- Implemented fallback to preferred user name or email to prevent errors with incomplete user profiles
+
 > Note: This changelog only includes the changes for the stable versions of Microsoft 365 Agents Toolkit (evolved from Teams Toolkit). For the changelog of pre-released versions, please refer to the [Microsoft 365 Agents Toolkit Pre-release Changelog](https://github.com/OfficeDev/TeamsFx/blob/dev/packages/vscode-extension/PRERELEASE.md).
 
 
