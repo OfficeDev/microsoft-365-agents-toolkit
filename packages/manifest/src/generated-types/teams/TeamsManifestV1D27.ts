@@ -1,20 +1,20 @@
 // To parse this data:
 //
-//   import { Convert, TeamsManifestV1D26 } from "./file";
+//   import { Convert, TeamsManifestV1D27 } from "./file";
 //
-//   const teamsManifestV1D26 = Convert.toTeamsManifestV1D26(json);
+//   const teamsManifestV1D27 = Convert.toTeamsManifestV1D27(json);
 //
 // These functions will throw an error if the JSON doesn't
 // match the expected interface, even if the JSON is valid.
 
-export interface TeamsManifestV1D26 {
+export interface TeamsManifestV1D27 {
     $schema?: string;
     /**
      * The version of the schema this manifest is using. This schema version supports extending
      * Teams apps to other parts of the Microsoft 365 ecosystem. More info at
      * https://aka.ms/extendteamsapps.
      */
-    manifestVersion: "1.26";
+    manifestVersion: "1.27";
     /**
      * The version of the app. Changes to your manifest should cause a version change. This
      * version string must follow the semver standard (http://semver.org).
@@ -137,7 +137,7 @@ export interface TeamsManifestV1D26 {
     /**
      * Specify and consolidates authorization related information for the App.
      */
-    authorization?: TeamsManifestV1D26Authorization;
+    authorization?: TeamsManifestV1D27Authorization;
     extensions?:    ElementExtension[];
     /**
      * Defines the list of cards which could be pinned to dashboards that can provide summarized
@@ -160,6 +160,10 @@ export interface TeamsManifestV1D26 {
      * Microsoft 365 application host that supports this feature.
      */
     backgroundLoadConfiguration?: BackgroundLoadConfiguration;
+    /**
+     * A list of agent connector objects to included in the Unified App Manifest.
+     */
+    agentConnectors?: AgentConnector[];
 }
 
 export interface Activities {
@@ -194,6 +198,110 @@ export interface ActivityType {
     allowedIconIds?: string[];
 }
 
+/**
+ * An agent connector represents a mechanism to enable agents to access information from
+ * systems outside of Microsoft 365, often via an MCP Server. Other mechanisms include using
+ * OpenAPI descriptions for calling external HTTP APIs. The role of the agent connector is
+ * to provide the necessary configuration information to agents or other M365 applications
+ * to connect to these external systems. An agent connector can be provided for use by other
+ * elements described within the same Unified App Manifest, or as a standalone resource that
+ * can be referenced in the Unified App Manifest of other M365 applications.
+ */
+export interface AgentConnector {
+    /**
+     * Unique identifier for the agent connector
+     */
+    id: string;
+    /**
+     * A user-friendly name for the connector, which can be displayed in UIs.
+     */
+    displayName: string;
+    /**
+     * A brief description of the connector's purpose and functionality.
+     */
+    description?: string;
+    /**
+     * Configuration details for connectors that provide tools for agents via a remote MCP
+     * server.
+     */
+    toolSource?: ToolSource;
+}
+
+/**
+ * Configuration details for connectors that provide tools for agents via a remote MCP
+ * server.
+ */
+export interface ToolSource {
+    /**
+     * Configuration details for a connector that provides tools via a remote MCP server.
+     */
+    remoteMcpServer?: RemoteMCPServer;
+}
+
+/**
+ * Configuration details for a connector that provides tools via a remote MCP server.
+ */
+export interface RemoteMCPServer {
+    /**
+     * The URL of the remote MCP Server.
+     */
+    mcpServerUrl: string;
+    /**
+     * Configuration for MCP tool descriptions, either by file reference or inline content (but
+     * not both). When this property is present it indicates that dynamic discovery will not be
+     * used.
+     */
+    mcpToolDescription: MCPToolDescription;
+    /**
+     * Authorization configuration for connecting to the local MCP server. The design mirrors
+     * that of Plugin Manifests
+     * https://spec-hub.azurewebsites.net/specifications/PluginManifest-2.3.html
+     */
+    authorization?: RemoteMCPServerAuthorization;
+}
+
+/**
+ * Authorization configuration for connecting to the local MCP server. The design mirrors
+ * that of Plugin Manifests
+ * https://spec-hub.azurewebsites.net/specifications/PluginManifest-2.3.html
+ */
+export interface RemoteMCPServerAuthorization {
+    /**
+     * The type of authorization required to invoke the MCP server. Supported values are: 'None'
+     * (anonymous access), 'OAuthPluginVault' (OAuth flow with referenceId), 'ApiKeyPluginVault'
+     * (API Key with referenceId), 'DynamicClientRegistration' (dynamic client registration with
+     * referenceId).
+     */
+    type: AuthorizationType;
+    /**
+     * A reference identifier used when type is OAuthPluginVault, ApiKeyPluginVault, or
+     * DynamicClientRegistration. The referenceId value is acquired independently when providing
+     * the necessary authorization configuration values. This mechanism exists to prevent the
+     * need for storing secret values in the plugin manifest.
+     */
+    referenceId?: string;
+}
+
+/**
+ * The type of authorization required to invoke the MCP server. Supported values are: 'None'
+ * (anonymous access), 'OAuthPluginVault' (OAuth flow with referenceId), 'ApiKeyPluginVault'
+ * (API Key with referenceId), 'DynamicClientRegistration' (dynamic client registration with
+ * referenceId).
+ */
+export type AuthorizationType = "None" | "OAuthPluginVault" | "ApiKeyPluginVault" | "DynamicClientRegistration";
+
+/**
+ * Configuration for MCP tool descriptions, either by file reference or inline content (but
+ * not both). When this property is present it indicates that dynamic discovery will not be
+ * used.
+ */
+export interface MCPToolDescription {
+    /**
+     * The relative path to the MCP tool description file within the app package.
+     */
+    file: string;
+}
+
 export interface AgenticUserTemplateRef {
     /**
      * Unique identifier for the agentic user template. Must contain only alphanumeric
@@ -209,7 +317,7 @@ export interface AgenticUserTemplateRef {
 /**
  * Specify and consolidates authorization related information for the App.
  */
-export interface TeamsManifestV1D26Authorization {
+export interface TeamsManifestV1D27Authorization {
     /**
      * List of permissions that the app needs to function.
      */
@@ -332,8 +440,22 @@ export interface CommandListCommand {
     /**
      * A simple text description or an example of the command syntax and its arguments.
      */
-    description: string;
+    description?: string;
+    /**
+     * Type of the command. Default is basic
+     */
+    type?: PurpleType;
+    /**
+     * The prompt text to be used by Teams when user initiates the command from one of the entry
+     * points
+     */
+    prompt?: string;
 }
+
+/**
+ * Type of the command. Default is basic
+ */
+export type PurpleType = "basic" | "prompt";
 
 export type CommandListScope = "team" | "personal" | "groupChat" | "copilot";
 
@@ -533,7 +655,7 @@ export interface ComposeExtensionCommand {
     /**
      * Type of the command
      */
-    type?:          CommandType;
+    type?:          FluffyType;
     samplePrompts?: SamplePrompt[];
     /**
      * A relative file path for api response rendering template file.
@@ -631,7 +753,7 @@ export interface SamplePrompt {
 /**
  * Type of the command
  */
-export type CommandType = "query" | "action";
+export type FluffyType = "query" | "action";
 
 /**
  * Type of the compose extension.
@@ -1329,7 +1451,7 @@ export interface ExtensionCommonCustomGroupControlsItem {
     /**
      * Defines the type of control whether button or menu.
      */
-    type: PurpleType;
+    type: TentacledType;
     /**
      * Id of an existing office control. Maximum length is 64 characters.
      */
@@ -1416,7 +1538,7 @@ export interface ExtensionCommonSuperToolTip {
 /**
  * Defines the type of control whether button or menu.
  */
-export type PurpleType = "button" | "menu";
+export type TentacledType = "button" | "menu";
 
 /**
  * Use 'text' or 'cell' here for Office context menu. Use 'text' if the context menu should
@@ -2328,12 +2450,12 @@ export interface NestedAppAuthInfo {
 // Converts JSON strings to/from your types
 // and asserts the results of JSON.parse at runtime
 export class Convert {
-    public static toTeamsManifestV1D26(json: string): TeamsManifestV1D26 {
-        return cast(JSON.parse(json), r("TeamsManifestV1D26"));
+    public static toTeamsManifestV1D27(json: string): TeamsManifestV1D27 {
+        return cast(JSON.parse(json), r("TeamsManifestV1D27"));
     }
 
-    public static teamsManifestV1D26ToJson(value: TeamsManifestV1D26): string {
-        return JSON.stringify(uncast(value, r("TeamsManifestV1D26")), null, 4);
+    public static teamsManifestV1D27ToJson(value: TeamsManifestV1D27): string {
+        return JSON.stringify(uncast(value, r("TeamsManifestV1D27")), null, 4);
     }
 }
 
@@ -2490,7 +2612,7 @@ function r(name: string) {
 }
 
 const typeMap: any = {
-    "TeamsManifestV1D26": o([
+    "TeamsManifestV1D27": o([
         { json: "$schema", js: "$schema", typ: u(undefined, "") },
         { json: "manifestVersion", js: "manifestVersion", typ: r("ManifestVersion") },
         { json: "version", js: "version", typ: "" },
@@ -2523,7 +2645,7 @@ const typeMap: any = {
         { json: "defaultInstallScope", js: "defaultInstallScope", typ: u(undefined, r("DefaultInstallScope")) },
         { json: "defaultGroupCapability", js: "defaultGroupCapability", typ: u(undefined, r("DefaultGroupCapability")) },
         { json: "meetingExtensionDefinition", js: "meetingExtensionDefinition", typ: u(undefined, r("MeetingExtensionDefinition")) },
-        { json: "authorization", js: "authorization", typ: u(undefined, r("TeamsManifestV1D26Authorization")) },
+        { json: "authorization", js: "authorization", typ: u(undefined, r("TeamsManifestV1D27Authorization")) },
         { json: "extensions", js: "extensions", typ: u(undefined, a(r("ElementExtension"))) },
         { json: "dashboardCards", js: "dashboardCards", typ: u(undefined, a(r("DashboardCard"))) },
         { json: "intuneInfo", js: "intuneInfo", typ: u(undefined, r("IntuneInfo")) },
@@ -2531,6 +2653,7 @@ const typeMap: any = {
         { json: "agenticUserTemplates", js: "agenticUserTemplates", typ: u(undefined, a(r("AgenticUserTemplateRef"))) },
         { json: "elementRelationshipSet", js: "elementRelationshipSet", typ: u(undefined, r("ElementRelationshipSet")) },
         { json: "backgroundLoadConfiguration", js: "backgroundLoadConfiguration", typ: u(undefined, r("BackgroundLoadConfiguration")) },
+        { json: "agentConnectors", js: "agentConnectors", typ: u(undefined, a(r("AgentConnector"))) },
     ], false),
     "Activities": o([
         { json: "activityTypes", js: "activityTypes", typ: u(undefined, a(r("ActivityType"))) },
@@ -2546,11 +2669,32 @@ const typeMap: any = {
         { json: "templateText", js: "templateText", typ: "" },
         { json: "allowedIconIds", js: "allowedIconIds", typ: u(undefined, a("")) },
     ], false),
+    "AgentConnector": o([
+        { json: "id", js: "id", typ: "" },
+        { json: "displayName", js: "displayName", typ: "" },
+        { json: "description", js: "description", typ: u(undefined, "") },
+        { json: "toolSource", js: "toolSource", typ: u(undefined, r("ToolSource")) },
+    ], false),
+    "ToolSource": o([
+        { json: "remoteMcpServer", js: "remoteMcpServer", typ: u(undefined, r("RemoteMCPServer")) },
+    ], false),
+    "RemoteMCPServer": o([
+        { json: "mcpServerUrl", js: "mcpServerUrl", typ: "" },
+        { json: "mcpToolDescription", js: "mcpToolDescription", typ: r("MCPToolDescription") },
+        { json: "authorization", js: "authorization", typ: u(undefined, r("RemoteMCPServerAuthorization")) },
+    ], false),
+    "RemoteMCPServerAuthorization": o([
+        { json: "type", js: "type", typ: r("AuthorizationType") },
+        { json: "referenceId", js: "referenceId", typ: u(undefined, "") },
+    ], false),
+    "MCPToolDescription": o([
+        { json: "file", js: "file", typ: "" },
+    ], false),
     "AgenticUserTemplateRef": o([
         { json: "id", js: "id", typ: "" },
         { json: "file", js: "file", typ: "" },
     ], false),
-    "TeamsManifestV1D26Authorization": o([
+    "TeamsManifestV1D27Authorization": o([
         { json: "permissions", js: "permissions", typ: u(undefined, r("Permissions")) },
     ], false),
     "Permissions": o([
@@ -2585,7 +2729,9 @@ const typeMap: any = {
     ], false),
     "CommandListCommand": o([
         { json: "title", js: "title", typ: "" },
-        { json: "description", js: "description", typ: "" },
+        { json: "description", js: "description", typ: u(undefined, "") },
+        { json: "type", js: "type", typ: u(undefined, r("PurpleType")) },
+        { json: "prompt", js: "prompt", typ: u(undefined, "") },
     ], false),
     "Configuration": o([
         { json: "team", js: "team", typ: u(undefined, r("Team")) },
@@ -2641,7 +2787,7 @@ const typeMap: any = {
     ], false),
     "ComposeExtensionCommand": o([
         { json: "id", js: "id", typ: "" },
-        { json: "type", js: "type", typ: u(undefined, r("CommandType")) },
+        { json: "type", js: "type", typ: u(undefined, r("FluffyType")) },
         { json: "samplePrompts", js: "samplePrompts", typ: u(undefined, a(r("SamplePrompt"))) },
         { json: "apiResponseRenderingTemplateFile", js: "apiResponseRenderingTemplateFile", typ: u(undefined, "") },
         { json: "context", js: "context", typ: u(undefined, a(r("CommandContext"))) },
@@ -2875,7 +3021,7 @@ const typeMap: any = {
     ], false),
     "ExtensionCommonCustomGroupControlsItem": o([
         { json: "id", js: "id", typ: "" },
-        { json: "type", js: "type", typ: r("PurpleType") },
+        { json: "type", js: "type", typ: r("TentacledType") },
         { json: "builtInControlId", js: "builtInControlId", typ: u(undefined, "") },
         { json: "label", js: "label", typ: "" },
         { json: "icons", js: "icons", typ: a(r("ExtensionCommonIcon")) },
@@ -2985,7 +3131,7 @@ const typeMap: any = {
     ], "any"),
     "ExtensionRibbonsCustomMobileControlButtonItem": o([
         { json: "id", js: "id", typ: "" },
-        { json: "type", js: "type", typ: r("FluffyType") },
+        { json: "type", js: "type", typ: r("StickyType") },
         { json: "label", js: "label", typ: "" },
         { json: "icons", js: "icons", typ: a(r("ExtensionCustomMobileIcon")) },
         { json: "actionId", js: "actionId", typ: "" },
@@ -3140,9 +3286,19 @@ const typeMap: any = {
         { json: "scopes", js: "scopes", typ: a("") },
         { json: "claims", js: "claims", typ: u(undefined, "") },
     ], false),
+    "AuthorizationType": [
+        "ApiKeyPluginVault",
+        "DynamicClientRegistration",
+        "None",
+        "OAuthPluginVault",
+    ],
     "ResourceSpecificType": [
         "Application",
         "Delegated",
+    ],
+    "PurpleType": [
+        "basic",
+        "prompt",
     ],
     "CommandListScope": [
         "copilot",
@@ -3181,7 +3337,7 @@ const typeMap: any = {
         "time",
         "toggle",
     ],
-    "CommandType": [
+    "FluffyType": [
         "action",
         "query",
     ],
@@ -3281,7 +3437,7 @@ const typeMap: any = {
     "ItemType": [
         "menuItem",
     ],
-    "PurpleType": [
+    "TentacledType": [
         "button",
         "menu",
     ],
@@ -3306,7 +3462,7 @@ const typeMap: any = {
         "checkbox",
         "radio",
     ],
-    "FluffyType": [
+    "StickyType": [
         "mobileButton",
     ],
     "Align": [
@@ -3345,7 +3501,7 @@ const typeMap: any = {
         "general",
     ],
     "ManifestVersion": [
-        "1.26",
+        "1.27",
     ],
     "Permission": [
         "identity",
