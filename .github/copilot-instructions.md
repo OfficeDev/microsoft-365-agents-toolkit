@@ -1,3 +1,34 @@
+# Microsoft 365 Agents Toolkit — AI Agent Configuration
+
+## Project overview
+
+PNPM monorepo (Lerna) building the Microsoft 365 Agents Toolkit: a VS Code extension,
+CLI tools, and core engine for scaffolding, provisioning, deploying, and publishing
+Microsoft 365 / Teams agents.
+
+Core packages: `fx-core`, `cli`, `vscode-extension`, `server`, `api`, `manifest` — shipping, code-first.
+
+## Where to start (router)
+
+| User intent | Entry skill / doc |
+|---|---|
+| Add or update engine-neutral PRD / scenario design before specs or code | **`prd-ux-design`** skill |
+| Code change in `fx-core`, `cli`, `vscode-extension`, `server`, `api`, `manifest` | **`dev-workflow`** skill |
+| Multi-step task / plan to disk | **`plan-tracker`** skill |
+| CI E2E lifecycle test failed | **`e2e-troubleshooting`** skill |
+| ESLint / Prettier pipeline issue | **`lint-format`** skill |
+| Per-package coding conventions | `.github/instructions/*.instructions.md` (auto-loaded by `applyTo`) |
+
+Generic expert knowledge (TypeScript, code review, debugging, security, test design) is
+**not** packaged as skills — the AI applies general expertise constrained by the
+instructions and specs in this repo.
+
+## Last todo of every code-modifying turn
+
+Affected tests green.
+
+---
+
 # Coding Style Guidelines
 
 When generating or editing code in this repository:
@@ -5,6 +36,18 @@ When generating or editing code in this repository:
 - **Line Endings**: Use LF (Unix-style) line endings for all source code files. Exception: Use CRLF for localization files under `**/package.nls.*.json` only.
 - **Indentation**: Use 2 spaces for TypeScript/JavaScript files
 - **Quotes**: Use double quotes for strings in TypeScript/JavaScript
+
+Full conventions live in `.github/instructions/` — auto-loaded for matching file patterns. Key rules:
+
+- **Copyright header** on every `.ts` file — see [`codebase.instructions.md`](instructions/codebase.instructions.md).
+- **`Result<T, FxError>`** from `neverthrow` — never `throw` for expected failures.
+- **`UserError`** for user-fixable issues; **`SystemError`** for infra failures.
+- **Strict TypeScript** — no `as` casts; prefer type predicates and discriminated unions.
+- **EAFP** filesystem pattern — no existence checks before read/write (TOCTOU).
+- **No floating promises** — every promise must be `await`ed or `return`ed.
+- **Conventional commits** — `type(scope): subject`.
+- **User-facing strings** — always `getLocalizedString("key")`, never raw strings.
+- **No secrets in logs** — always `maskSecret()` before logging.
 
 ---
 
@@ -38,6 +81,17 @@ The toolkit follows a **layered architecture** with clear separation of concerns
 │   - App Manifest Types, Converters, OOP Wrappers                    │
 │   - Three manifest types: Teams, Declarative Agent, API Plugin      │
 └─────────────────────────────────────────────────────────────────────┘
+
+## Key file locations
+
+| What | Where |
+|------|-------|
+| Core engine | `packages/fx-core/src/` |
+| VS Code extension | `packages/vscode-extension/src/` |
+| Templates | `templates/vsc/{ts,js,python}/`, `templates/vs/csharp/` |
+| Instructions (per-package conventions) | `.github/instructions/*.instructions.md` |
+| Skills (workflows) | `.github/skills/*/SKILL.md` |
+| Plans | `.dev/plans/` |
 
 ---
 
@@ -83,6 +137,13 @@ The manifest package (`packages/manifest`) provides TypeScript types for Microso
 
 # Unit Testing Guidelines
 
+## Test stack
+
+- **Framework:** Mocha + Chai + Sinon (all packages).
+- **Coverage:** NYC / Istanbul, 80% gate.
+- **Test location:** `tests/unit/` mirroring `src/`.
+- **Run:** `cd packages/<pkg> && npm run test:unit`.
+
 When fixing unit tests for a package:
 
 1. **Navigate to the package directory** before running tests
@@ -110,3 +171,11 @@ Templates in this repository (located in `templates/`) are used when scaffolding
 - `templates/vsc/` - VS Code scaffolding templates (TypeScript, JavaScript, Python, and shared common)
 - `templates/vs/` - Visual Studio scaffolding templates (C#)
 - `templates/unused/` - Templates not currently in use but kept for reference, no need to update them
+
+---
+
+# Common pitfalls
+
+- Rebuild `packages/api` before testing `fx-core` — it's upstream.
+- Never edit `pnpm-lock.yaml` manually — run `pnpm install`.
+- Unused variables must be prefixed with `_` (ESLint enforced).
