@@ -39,7 +39,7 @@ jobs:
     uses: ./.github/workflows/ui-test-vscuse-common.yml
     secrets: inherit
     permissions:
-      contents: read
+      contents: write
       packages: write
       id-token: write
       security-events: write
