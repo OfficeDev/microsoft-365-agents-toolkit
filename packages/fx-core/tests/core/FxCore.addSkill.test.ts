@@ -58,7 +58,7 @@ describe("addSkill", () => {
       [QuestionNames.ManifestPath]: path.resolve("test-project", "appPackage", "manifest.json"),
       [QuestionNames.SkillName]: "mySkill",
       [QuestionNames.SkillDescription]: "A test skill",
-      [QuestionNames.ExposeToCopilot]: false,
+      [QuestionNames.ExposeToCopilot]: "no",
       ignoreLockByUT: true,
       ...overrides,
     };
@@ -542,7 +542,7 @@ describe("addSkill", () => {
 
   it("expose-to-copilot: writes agentSkills to Teams manifest when enabled", async () => {
     const inputs = createBaseInputs({
-      [QuestionNames.ExposeToCopilot]: true,
+      [QuestionNames.ExposeToCopilot]: "yes",
     });
     const manifest = createManifestWithDA();
 
@@ -583,7 +583,7 @@ describe("addSkill", () => {
 
   it("expose-to-copilot: does NOT write agentSkills when disabled", async () => {
     const inputs = createBaseInputs({
-      [QuestionNames.ExposeToCopilot]: false,
+      [QuestionNames.ExposeToCopilot]: "no",
     });
     const manifest = createManifestWithDA();
 

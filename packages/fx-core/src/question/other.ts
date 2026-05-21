@@ -1755,13 +1755,25 @@ function skillFromZipFileQuestion(): SingleFileQuestion {
   };
 }
 
-function exposeToCopilotQuestion(): ConfirmQuestion {
+function exposeToCopilotQuestion(): SingleSelectQuestion {
   return {
     name: QuestionNames.ExposeToCopilot,
     cliName: "expose-to-copilot",
     title: getLocalizedString("core.addSkillQuestion.exposeToCopilot.title"),
-    type: "confirm",
-    default: false,
+    type: "singleSelect",
+    staticOptions: [
+      {
+        id: "yes",
+        label: getLocalizedString("core.addSkillQuestion.exposeToCopilot.yes"),
+        detail: getLocalizedString("core.addSkillQuestion.exposeToCopilot.yesDetail"),
+      },
+      {
+        id: "no",
+        label: getLocalizedString("core.addSkillQuestion.exposeToCopilot.no"),
+        detail: getLocalizedString("core.addSkillQuestion.exposeToCopilot.noDetail"),
+      },
+    ],
+    default: "no",
   };
 }
 

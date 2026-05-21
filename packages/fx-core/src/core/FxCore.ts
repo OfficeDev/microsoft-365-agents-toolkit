@@ -2481,8 +2481,8 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
     }
 
     // Optionally expose skill to Copilot via top-level Teams manifest agentSkills
-    const exposeToCopilot = inputs[QuestionNames.ExposeToCopilot] as boolean | undefined;
-    if (exposeToCopilot) {
+    const exposeToCopilot = inputs[QuestionNames.ExposeToCopilot];
+    if (exposeToCopilot === true || exposeToCopilot === "yes") {
       // Compute folder path relative to app package folder (Teams manifest dir)
       const skillAbsPath = path.resolve(path.dirname(agentManifestPath), skillFolder);
       const teamsManifestSkillFolder = normalizePath(
