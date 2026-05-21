@@ -28,6 +28,15 @@ export const AddSkillOptions: CLICommandOption[] = [
     required: false,
   },
   {
+    name: "expose-to-copilot",
+    questionName: "expose-to-copilot",
+    type: "boolean",
+    description:
+      "Expose this skill to all Copilot surfaces via the Teams manifest agentSkills property.",
+    required: false,
+    default: false,
+  },
+  {
     name: "manifest-file",
     questionName: "manifest-path",
     type: "string",
