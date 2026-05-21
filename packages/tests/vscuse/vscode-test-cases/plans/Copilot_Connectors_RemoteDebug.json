@@ -10,14 +10,14 @@
       "step_retry_timeout": 0.0
     },
     "total_steps": 15,
-    "created_at": "2026-05-19T08:21:27.175438",
+    "created_at": "2026-05-20T05:46:16.633827",
     "name": "Copilot Connectors RemoteDebug",
     "description": {
       "other": "",
       "owner": "v-liliu2@microsoft.com",
       "workitem": ""
     },
-    "generated_at": "2026-05-19T08:21:27.175420",
+    "generated_at": "2026-05-20T05:46:16.633818",
     "execution_order": [
       "plan_r_0928_012254",
       "step_af7f20c7",
@@ -39,7 +39,7 @@
       "plan_r_0928_073729"
     ],
     "tags": [],
-    "updated_at": "2026-05-19T10:08:24.240070"
+    "updated_at": "2026-05-20T09:27:46.129995"
   },
   "steps": [
     {
@@ -65,7 +65,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_af7f20c7",
-      "created_at": "2026-05-19T10:07:23.582639",
+      "created_at": "2026-05-20T05:46:16.642108",
       "plan_id": "plan_f3b1cc5e"
     },
     {
@@ -91,7 +91,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_6b715da1",
-      "created_at": "2026-05-19T10:07:23.595925",
+      "created_at": "2026-05-20T05:46:16.653508",
       "plan_id": "plan_f3b1cc5e"
     },
     {
@@ -113,7 +113,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_feed9b46",
-      "created_at": "2026-05-19T10:07:23.610619",
+      "created_at": "2026-05-20T05:46:16.662479",
       "plan_id": "plan_f3b1cc5e"
     },
     {
@@ -135,7 +135,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_5e3d19be",
-      "created_at": "2026-05-19T10:07:23.626691",
+      "created_at": "2026-05-20T05:46:16.669243",
       "plan_id": "plan_f3b1cc5e"
     },
     {
@@ -161,7 +161,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_a8bbde32",
-      "created_at": "2026-05-19T10:07:23.642889",
+      "created_at": "2026-05-20T05:46:16.674592",
       "plan_id": "plan_f3b1cc5e"
     },
     {
@@ -183,7 +183,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_910f2d38",
-      "created_at": "2026-05-19T10:07:23.659547",
+      "created_at": "2026-05-20T05:46:16.679783",
       "plan_id": "plan_f3b1cc5e"
     },
     {
@@ -205,7 +205,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_4391eb67",
-      "created_at": "2026-05-19T10:07:23.676277",
+      "created_at": "2026-05-20T05:46:16.685055",
       "plan_id": "plan_f3b1cc5e"
     },
     {
@@ -231,7 +231,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_66d2d5c2",
-      "created_at": "2026-05-19T10:07:23.696367",
+      "created_at": "2026-05-20T05:46:16.690865",
       "plan_id": "plan_f3b1cc5e"
     },
     {
@@ -251,7 +251,7 @@
         "delay:80"
       ],
       "screenshot": null,
-      "created_at": "2026-05-19T10:07:23.712193",
+      "created_at": "2026-05-20T05:46:16.694718",
       "plan_id": "plan_f3b1cc5e"
     },
     {
@@ -277,7 +277,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_158b8234",
-      "created_at": "2026-05-19T10:07:23.727568",
+      "created_at": "2026-05-20T05:46:16.699507",
       "plan_id": "plan_f3b1cc5e"
     },
     {
@@ -297,7 +297,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": null,
-      "created_at": "2026-05-19T10:07:23.742004",
+      "created_at": "2026-05-20T05:46:16.704860",
       "plan_id": "plan_f3b1cc5e"
     },
     {
@@ -323,7 +323,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_2f19b4c0",
-      "created_at": "2026-05-19T10:07:23.758003",
+      "created_at": "2026-05-20T05:46:16.709904",
       "plan_id": "plan_f3b1cc5e"
     },
     {
@@ -349,7 +349,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_98f90421",
-      "created_at": "2026-05-19T10:07:23.772617",
+      "created_at": "2026-05-20T05:46:16.716434",
       "plan_id": "plan_f3b1cc5e"
     },
     {
@@ -367,7 +367,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": null,
-      "created_at": "2026-05-19T10:07:23.791020",
+      "created_at": "2026-05-20T05:46:16.724651",
       "plan_id": "plan_f3b1cc5e"
     },
     {
@@ -393,7 +393,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_b08a5fb1",
-      "created_at": "2026-05-19T10:07:44.314380",
+      "created_at": "2026-05-20T05:46:16.733025",
       "plan_id": "plan_f3b1cc5e"
     }
   ],
