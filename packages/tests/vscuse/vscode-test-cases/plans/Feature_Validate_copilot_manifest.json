@@ -34,7 +34,7 @@
       "step_022cccb9"
     ],
     "tags": [],
-    "updated_at": "2026-05-21T07:13:33.766464"
+    "updated_at": "2026-05-21T10:07:11.036481"
   },
   "steps": [
     {
@@ -186,7 +186,7 @@
       "agent": "assertion",
       "tool": "",
       "parameters": {},
-      "description": "@assertion 'ManifestValidattionFailed'  is exists",
+      "description": "@assertion 'ManifestValidationFailed'  is exists",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
