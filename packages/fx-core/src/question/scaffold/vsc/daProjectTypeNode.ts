@@ -68,9 +68,7 @@ export function daProjectTypeNode(
                 ...(featureFlagManager.getBooleanValue(FeatureFlags.DAMetaOS)
                   ? [ActionStartOptions.DAMetaOS()]
                   : []),
-                ...(featureFlagManager.getBooleanValue(FeatureFlags.MCPForDA)
-                  ? [ActionStartOptions.mcp()]
-                  : []),
+                ActionStartOptions.mcp(),
               ],
               default: ActionStartOptions.newApi().id,
               onDidSelection: setTemplateName,
