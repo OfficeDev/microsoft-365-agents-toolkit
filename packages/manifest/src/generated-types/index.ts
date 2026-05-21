@@ -124,6 +124,7 @@ export type TeamsManifestLatest = TeamsManifestV1D27.TeamsManifestV1D27;
 
 export { SensitivityLabel } from "./copilot/declarative-agent/DeclarativeAgentManifestV1D7";
 export { AgentSkillElement } from "./copilot/declarative-agent/DeclarativeAgentManifestV1D7";
+export { AgentSkill } from "./teams/TeamsManifestVDevPreview";
 
 export type DeclarativeAgentManifest =
   | DeclarativeAgentManifestV1D0.DeclarativeAgentManifestV1D0

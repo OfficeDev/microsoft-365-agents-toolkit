@@ -170,6 +170,11 @@ export interface TeamsManifestVDevPreview {
      * A list of agent connector objects to included in the Unified App Manifest.
      */
     agentConnectors?: AgentConnector[];
+    /**
+     * Agent skill declarations following the Agent Skills open standard (agentskills.io). Each
+     * entry references a SKILL.md folder.
+     */
+    agentSkills?: AgentSkill[];
 }
 
 /**
@@ -567,6 +572,16 @@ export interface RemoteMCPServerMCPToolDescription {
      * results of calling the 'tools/list' method on the MCP Server.
      */
     description?: { [key: string]: any };
+}
+
+/**
+ * An agent skill declaration. References a folder containing a SKILL.md file.
+ */
+export interface AgentSkill {
+    /**
+     * Path to the folder within the app package that contains the SKILL.md file.
+     */
+    folder: string;
 }
 
 export interface AgenticUserTemplateRef {
@@ -3118,6 +3133,7 @@ const typeMap: any = {
         { json: "elementRelationshipSet", js: "elementRelationshipSet", typ: u(undefined, r("ElementRelationshipSet")) },
         { json: "backgroundLoadConfiguration", js: "backgroundLoadConfiguration", typ: u(undefined, r("BackgroundLoadConfiguration")) },
         { json: "agentConnectors", js: "agentConnectors", typ: u(undefined, a(r("AgentConnector"))) },
+        { json: "agentSkills", js: "agentSkills", typ: u(undefined, a(r("AgentSkill"))) },
     ], false),
     "ElementAction": o([
         { json: "id", js: "id", typ: "" },
@@ -3225,6 +3241,9 @@ const typeMap: any = {
     "RemoteMCPServerMCPToolDescription": o([
         { json: "file", js: "file", typ: u(undefined, "") },
         { json: "description", js: "description", typ: u(undefined, m("any")) },
+    ], false),
+    "AgentSkill": o([
+        { json: "folder", js: "folder", typ: "" },
     ], false),
     "AgenticUserTemplateRef": o([
         { json: "id", js: "id", typ: "" },

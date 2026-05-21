@@ -84,17 +84,6 @@ export interface DeclarativeAgentManifestV1D7 {
 }
 
 /**
- * Identifies an agent skill directory to bundle with the declarative agent.
- */
-export interface AgentSkillElement {
-    /**
-     * Required. The relative path to the skill directory containing a SKILL.md file.
-     */
-    folder: string;
-    [property: string]: any;
-}
-
-/**
  * Identifies an API plugin manifest for a plugin used as an action by the declarative agent.
  */
 export interface ActionElement {
@@ -107,6 +96,17 @@ export interface ActionElement {
      * Required. Not localizable. A path to the API plugin manifest for this action.
      */
     file: string;
+    [property: string]: any;
+}
+
+/**
+ * Identifies an agent skill directory to bundle with the declarative agent.
+ */
+export interface AgentSkillElement {
+    /**
+     * Required. The relative path to the skill directory containing a SKILL.md file.
+     */
+    folder: string;
     [property: string]: any;
 }
 

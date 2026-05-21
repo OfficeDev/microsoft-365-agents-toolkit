@@ -58,6 +58,7 @@ describe("addSkill", () => {
       [QuestionNames.ManifestPath]: path.resolve("test-project", "appPackage", "manifest.json"),
       [QuestionNames.SkillName]: "mySkill",
       [QuestionNames.SkillDescription]: "A test skill",
+      [QuestionNames.ExposeToCopilot]: false,
       ignoreLockByUT: true,
       ...overrides,
     };
@@ -537,6 +538,83 @@ describe("addSkill", () => {
     assert.isTrue(result.isOk());
     // Second showMessage should be "info" for CLI, no "View agent manifest" button
     assert.isTrue(showMessageStub.secondCall.args[0] === "info");
+  });
+
+  it("expose-to-copilot: writes agentSkills to Teams manifest when enabled", async () => {
+    const inputs = createBaseInputs({
+      [QuestionNames.ExposeToCopilot]: true,
+    });
+    const manifest = createManifestWithDA();
+
+    sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
+    sandbox
+      .stub(copilotGptManifestUtils, "getManifestPath")
+      .resolves(ok(path.resolve("test-project", "appPackage", "declarativeAgent.json")));
+
+    sandbox.stub(MockUserInteraction.prototype, "showMessage").resolves(ok("Add"));
+    sandbox.stub(fs, "ensureDir").resolves();
+    const writeFileStub = sandbox.stub(fs, "writeFile").resolves();
+
+    sandbox.stub(copilotGptManifestUtils, "addSkill").resolves(
+      ok({
+        name: "test-agent",
+        description: "description",
+      } as DeclarativeCopilotManifestSchema)
+    );
+
+    const core = new FxCore(tools);
+    const result = await core.addSkill(inputs);
+
+    assert.isTrue(result.isOk());
+    // writeFile should be called twice: once for SKILL.md, once for Teams manifest
+    assert.isTrue(writeFileStub.callCount >= 2);
+
+    // Find the Teams manifest write call
+    const teamsManifestWriteCall = writeFileStub.getCalls().find((call) => {
+      const filePath = call.args[0] as string;
+      return filePath.includes("manifest.json");
+    });
+    assert.isDefined(teamsManifestWriteCall);
+    const writtenManifest = JSON.parse(teamsManifestWriteCall!.args[1] as string);
+    assert.isArray(writtenManifest.agentSkills);
+    assert.equal(writtenManifest.agentSkills.length, 1);
+    assert.include(writtenManifest.agentSkills[0].folder, "skills/mySkill");
+  });
+
+  it("expose-to-copilot: does NOT write agentSkills when disabled", async () => {
+    const inputs = createBaseInputs({
+      [QuestionNames.ExposeToCopilot]: false,
+    });
+    const manifest = createManifestWithDA();
+
+    sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
+    sandbox
+      .stub(copilotGptManifestUtils, "getManifestPath")
+      .resolves(ok(path.resolve("test-project", "appPackage", "declarativeAgent.json")));
+
+    sandbox.stub(MockUserInteraction.prototype, "showMessage").resolves(ok("Add"));
+    sandbox.stub(fs, "ensureDir").resolves();
+    const writeFileStub = sandbox.stub(fs, "writeFile").resolves();
+
+    sandbox.stub(copilotGptManifestUtils, "addSkill").resolves(
+      ok({
+        name: "test-agent",
+        description: "description",
+      } as DeclarativeCopilotManifestSchema)
+    );
+
+    const core = new FxCore(tools);
+    const result = await core.addSkill(inputs);
+
+    assert.isTrue(result.isOk());
+    // writeFile should only be called for SKILL.md, NOT Teams manifest
+    const teamsManifestWriteCall = writeFileStub.getCalls().find((call) => {
+      const filePath = call.args[0] as string;
+      return filePath.includes("manifest.json");
+    });
+    assert.isUndefined(teamsManifestWriteCall);
+    // Verify Teams manifest has no agentSkills
+    assert.isUndefined(manifest.agentSkills);
   });
 
   describe("zip import", () => {

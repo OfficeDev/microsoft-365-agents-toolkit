@@ -2480,6 +2480,27 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
       return err(addSkillRes.error);
     }
 
+    // Optionally expose skill to Copilot via top-level Teams manifest agentSkills
+    const exposeToCopilot = inputs[QuestionNames.ExposeToCopilot] as boolean | undefined;
+    if (exposeToCopilot) {
+      // Compute folder path relative to app package folder (Teams manifest dir)
+      const skillAbsPath = path.resolve(path.dirname(agentManifestPath), skillFolder);
+      const teamsManifestSkillFolder = normalizePath(
+        path.relative(appPackageFolder, skillAbsPath),
+        true
+      );
+
+      // Read, update, and write the Teams manifest
+      const teamsManifestForSkill = manifestRes.value;
+      if (!teamsManifestForSkill.agentSkills) {
+        teamsManifestForSkill.agentSkills = [];
+      }
+      if (!teamsManifestForSkill.agentSkills.some((s: { folder: string }) => s.folder === teamsManifestSkillFolder)) {
+        teamsManifestForSkill.agentSkills.push({ folder: teamsManifestSkillFolder });
+      }
+      await fs.writeFile(teamsManifestPath, JSON.stringify(teamsManifestForSkill, null, 4));
+    }
+
     // Show success message
     if (inputs.platform === Platform.VSCode) {
       const successMessage = getLocalizedString("core.addSkill.success.vsc");

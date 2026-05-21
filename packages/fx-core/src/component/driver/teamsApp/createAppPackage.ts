@@ -422,6 +422,42 @@ export class CreateAppPackageDriver implements StepDriver {
       }
     }
 
+    // Package agent skills declared in the top-level Teams manifest (agentSkills)
+    const teamsManifestAgentSkills = (manifest as unknown as Record<string, unknown>).agentSkills as
+      | { folder: string }[]
+      | undefined;
+    if (teamsManifestAgentSkills && Array.isArray(teamsManifestAgentSkills)) {
+      for (const skill of teamsManifestAgentSkills) {
+        if (skill.folder) {
+          const skillFolderAbsolutePath = path.resolve(appDirectory, skill.folder);
+          // Skip if already packaged from DA manifest
+          const skillRelativePath = path.relative(appDirectory, skillFolderAbsolutePath);
+          if (!zip.getEntry(skillRelativePath + "/") && !zip.getEntry(skillRelativePath + "\\")) {
+            const checkExistenceRes = await this.validateReferencedFile(
+              skillFolderAbsolutePath,
+              appDirectory
+            );
+            if (checkExistenceRes.isErr()) {
+              return err(checkExistenceRes.error);
+            }
+
+            const skillMdPath = path.join(skillFolderAbsolutePath, "SKILL.md");
+            if (!(await fs.pathExists(skillMdPath))) {
+              return err(
+                new FileNotFoundError(
+                  actionName,
+                  skillMdPath,
+                  "https://aka.ms/teamsfx-actions/teamsapp-zipAppPackage"
+                )
+              );
+            }
+
+            zip.addLocalFolder(skillFolderAbsolutePath, skillRelativePath);
+          }
+        }
+      }
+    }
+
     zip.writeZip(zipFileName);
 
     // Validate zip package size against 10 MB hard limit

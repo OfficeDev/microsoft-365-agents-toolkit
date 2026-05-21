@@ -1095,6 +1095,7 @@
   "core.addSkillQuestion.sourceType.existingDetail": "Import a skill from a .zip file",
   "core.addSkillQuestion.zipFile.title": "Select a skill zip file",
   "core.addSkillQuestion.zipFile.placeholder": "Select a .zip file containing a skill",
+  "core.addSkillQuestion.exposeToCopilot.title": "Do you want to expose this skill to Copilot?",
   "core.addSkill.zipInvalidEntries": "The zip file contains invalid entries (path traversal or absolute paths). Please provide a valid skill zip file.",
   "core.addSkill.zipNoSkillMd": "The zip file does not contain a SKILL.md file. Each skill must include a SKILL.md file.",
   "core.addSkill.zipInvalidLayout": "The zip file has an invalid layout. It must contain either a single skill folder or skill files at the root level.",

@@ -1772,6 +1772,24 @@
                 "required": [ "id", "displayName" ],
                 "additionalProperties": false
             }
+        },
+        "agentSkills": {
+            "type": "array",
+            "description": "Agent skill declarations following the Agent Skills open standard (agentskills.io). Each entry references a SKILL.md folder.",
+            "maxItems": 20,
+            "items": {
+                "type": "object",
+                "description": "An agent skill declaration. References a folder containing a SKILL.md file.",
+                "properties": {
+                    "folder": {
+                        "type": "string",
+                        "description": "Path to the folder within the app package that contains the SKILL.md file.",
+                        "maxLength": 256
+                    }
+                },
+                "required": ["folder"],
+                "additionalProperties": false
+            }
         }
     },
     "required": [

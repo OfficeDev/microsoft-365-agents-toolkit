@@ -835,10 +835,10 @@ describe("addSkillQuestionNode", () => {
     sandbox.restore();
   });
 
-  it("should return a group node with 5 children", () => {
+  it("should return a group node with 6 children", () => {
     const node = addSkillQuestionNode();
     assert.equal(node.data.type, "group");
-    assert.equal(node.children?.length, 5);
+    assert.equal(node.children?.length, 6);
   });
 
   it("skillNameQuestion child should have condition checking SkillFrom", () => {

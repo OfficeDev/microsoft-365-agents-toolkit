@@ -1675,6 +1675,9 @@ export function addSkillQuestionNode(): IQTreeNode {
           !inputs[QuestionNames.SkillFrom] && inputs[QuestionNames.SkillSourceType] !== "existing",
       },
       {
+        data: exposeToCopilotQuestion(),
+      },
+      {
         data: selectTeamsAppManifestQuestion(),
       },
     ],
@@ -1749,6 +1752,16 @@ function skillFromZipFileQuestion(): SingleFileQuestion {
     filters: {
       "Zip files": ["zip"],
     },
+  };
+}
+
+function exposeToCopilotQuestion(): ConfirmQuestion {
+  return {
+    name: QuestionNames.ExposeToCopilot,
+    cliName: "expose-to-copilot",
+    title: getLocalizedString("core.addSkillQuestion.exposeToCopilot.title"),
+    type: "confirm",
+    default: false,
   };
 }
 

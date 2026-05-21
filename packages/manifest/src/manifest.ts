@@ -679,4 +679,8 @@ export class TeamsAppManifest {
      */
     declarativeAgents?: IDeclarativeCopilot[];
   };
+
+  agentSkills?: {
+    folder: string;
+  }[];
 }

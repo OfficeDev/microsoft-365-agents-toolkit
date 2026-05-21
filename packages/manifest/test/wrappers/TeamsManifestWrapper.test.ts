@@ -571,4 +571,59 @@ describe("TeamsManifestWrapper", () => {
       },
     });
   }
+
+  describe("Agent Skills", () => {
+    it("skills getter returns empty array when no agentSkills", () => {
+      const wrapper = createTestManifest();
+      assert.deepEqual(wrapper.skills, []);
+    });
+
+    it("addSkill adds a skill entry", () => {
+      const wrapper = createTestManifest();
+      wrapper.addSkill("skills/my-skill");
+      assert.equal(wrapper.skills.length, 1);
+      assert.equal(wrapper.skills[0].folder, "skills/my-skill");
+      assert.isTrue(wrapper.isDirty);
+    });
+
+    it("addSkill ignores duplicates", () => {
+      const wrapper = createTestManifest();
+      wrapper.addSkill("skills/my-skill");
+      wrapper.addSkill("skills/my-skill");
+      assert.equal(wrapper.skills.length, 1);
+    });
+
+    it("removeSkill removes a skill", () => {
+      const wrapper = createTestManifest();
+      wrapper.addSkill("skills/a");
+      wrapper.addSkill("skills/b");
+      wrapper.removeSkill("skills/a");
+      assert.equal(wrapper.skills.length, 1);
+      assert.equal(wrapper.skills[0].folder, "skills/b");
+    });
+
+    it("hasSkill checks existence", () => {
+      const wrapper = createTestManifest();
+      wrapper.addSkill("skills/my-skill");
+      assert.isTrue(wrapper.hasSkill("skills/my-skill"));
+      assert.isFalse(wrapper.hasSkill("skills/other"));
+    });
+
+    it("getSkillFolders returns folder paths", () => {
+      const wrapper = createTestManifest();
+      wrapper.addSkill("skills/a");
+      wrapper.addSkill("skills/b");
+      assert.deepEqual(wrapper.getSkillFolders(), ["skills/a", "skills/b"]);
+    });
+
+    it("addSkill respects max limit of 20", () => {
+      const wrapper = createTestManifest();
+      for (let i = 0; i < 20; i++) {
+        wrapper.addSkill(`skills/skill-${i}`);
+      }
+      wrapper.addSkill("skills/overflow");
+      assert.equal(wrapper.skills.length, 20);
+      assert.isFalse(wrapper.hasSkill("skills/overflow"));
+    });
+  });
 });
