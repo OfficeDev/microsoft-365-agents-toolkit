@@ -1,5 +1,40 @@
 # Changelog
 
+
+## 6.10.0 - May 21, 2026
+
+### New features:
+
+#### Support for GCC H and DoD Clouds with Teams App Actions Skipped
+This release adds partial support for GCC High and DoD Microsoft Clouds within the Microsoft 365 Agents Toolkit. While Teams app-related actions are skipped due to the unavailability of required Developer Portal APIs in these environments, provisioning and publishing will function with local fallback logic. Specifically, App IDs are generated locally during provisioning, and users must manually upload their projects to the Teams Admin Center in these scenarios. This update allows users working in specialized environments to begin leveraging ATK for their workflows while waiting for complete support in these clouds. [PR #15572](https://github.com/OfficeDev/microsoft-365-agents-toolkit/pull/15572)
+
+#### Switch Teams App Publish to Azure AD Graph API
+The process for publishing Teams apps has been updated to use the Graph API instead of the legacy App Studio APIs. This change enhances compatibility with the Microsoft 365 ecosystem, ensuring more secure and efficient communication with Azure AD. Now, when publishing an app, users benefit from increased reliability and consistency in the way the application lifecycle is managed within the Microsoft ecosystem. [PR #15680](https://github.com/OfficeDev/microsoft-365-agents-toolkit/pull/15680)
+
+#### Create New `ai-plugin.json` File When Adding Actions from an MCP Server
+Users can now directly create a new `ai-plugin.json` file when adding actions using the Microsoft Cognitive Projects (MCP) server. A new prompt in the "Add Action → MCP" wizard enables users to specify a name for the new action manifest file. Detailed validation ensures the file name ends with `.json`, does not already exist, and avoids including a path. This feature makes it easier for users to augment projects with additional actions while avoiding conflicts with existing files. [PR #15748](https://github.com/OfficeDev/microsoft-365-agents-toolkit/pull/15748)
+
+#### App Manifest Version Updated to v1.26
+The Teams App Manifest schema version is now updated to v1.26, ensuring compatibility with the latest features available in Microsoft Teams. Users can seamlessly integrate with new capabilities and target the latest platform enhancements when creating or modifying app manifests. [PR #15722](https://github.com/OfficeDev/microsoft-365-agents-toolkit/pull/15722)
+
+### Enhancement:
+
+#### Improved Sideloading Resilience in `extendToM365` with Network Retry
+The `extendToM365` sideloading action now includes robust network retry logic, significantly improving reliability. This enhancement adds a retry mechanism for transport-level errors (e.g., TLS handshake failures or connection resets) and reuses TLS connections with the new `keepAlive` feature to minimize issues during sideloading processes. This update ensures a smoother installation experience for users encountering intermittent network issues. [PR #15676](https://github.com/OfficeDev/microsoft-365-agents-toolkit/pull/15676)
+
+#### Local Validation for JSON Schemas in Manifest Files
+The extension now prioritizes using local JSON schemas to validate Teams app manifests before falling back to remote schemas. This improvement accelerates validation processes and reduces reliance on network connections, making the system more resilient to connectivity issues and external schema availability. Users benefit from faster response times and uninterrupted workflows. [PR #15643](https://github.com/OfficeDev/microsoft-365-agents-toolkit/pull/15643)
+
+### Bug Fix:
+
+- Fixed an issue where the update broke the connectivity for Python-based Teams agents. [PR #15681](https://github.com/OfficeDev/microsoft-365-agents-toolkit/pull/15681)
+- Resolved missing commas in the Declarative Agent TypeSpec `tasks.json.tpl` file that previously caused JSON parsing errors. [PR #15744](https://github.com/OfficeDev/microsoft-365-agents-toolkit/pull/15744)
+- Prevented telemetry interceptors from masking transport errors in the `extendToM365` workflow, ensuring proper error visibility. [PR #15785](https://github.com/OfficeDev/microsoft-365-agents-toolkit/pull/15785)
+- Fixed an issue where missing NLS keys in wizard interfaces caused blank options during "Add Action" flows. [PR #15703](https://github.com/OfficeDev/microsoft-365-agents-toolkit/pull/15703)
+- Resolved a bad environment variable substitution error when attempting CLI-based MSTeams logins using `${accountName}`. [PR #15694](https://github.com/OfficeDev/microsoft-365-agents-toolkit/pull/15694)
+- Added the `--yes` flag to the task pane template deployment flow to allow for non-interactive deployments. [PR #15699](https://github.com/OfficeDev/microsoft-365-agents-toolkit/pull/15699)
+- Addressed an issue causing `TypeSpec` compilation to fail with a misleading "ENOENT" error by surfacing proper compiler diagnostics. [PR #15777](https://github.com/OfficeDev/microsoft-365-agents-toolkit/pull/15777)
+
 > Note: This changelog only includes the changes for the stable versions of Microsoft 365 Agents Toolkit (evolved from Teams Toolkit). For the changelog of pre-released versions, please refer to the [Microsoft 365 Agents Toolkit Pre-release Changelog](https://github.com/OfficeDev/TeamsFx/blob/dev/packages/vscode-extension/PRERELEASE.md).
 
 
