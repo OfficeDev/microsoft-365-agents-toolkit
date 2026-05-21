@@ -1761,7 +1761,18 @@ function exposeToCopilotQuestion(): SingleSelectQuestion {
     cliName: "expose-to-copilot",
     title: getLocalizedString("core.addSkillQuestion.exposeToCopilot.title"),
     type: "singleSelect",
-    staticOptions: ["yes", "no"],
+    staticOptions: [
+      {
+        id: "yes",
+        label: getLocalizedString("core.addSkillQuestion.exposeToCopilot.yes"),
+        detail: getLocalizedString("core.addSkillQuestion.exposeToCopilot.yesDetail"),
+      },
+      {
+        id: "no",
+        label: getLocalizedString("core.addSkillQuestion.exposeToCopilot.no"),
+        detail: getLocalizedString("core.addSkillQuestion.exposeToCopilot.noDetail"),
+      },
+    ],
     default: "no",
   };
 }
