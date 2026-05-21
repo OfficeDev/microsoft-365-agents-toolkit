@@ -12,11 +12,13 @@ import {
   TeamsAppManifest,
   InputsWithProjectPath,
   ok,
+  err,
   Platform,
   ManifestCapability,
   IBot,
   UserError,
 } from "@microsoft/teamsfx-api";
+import * as envFunctionUtils from "../../../../src/component/utils/envFunctionUtils";
 import {
   getBotsTplBasedOnVersion,
   getBotsTplExistingAppBasedOnVersion,
@@ -613,6 +615,39 @@ describe("resolveLocFile", () => {
         (JSON.parse(locFile.value) as TeamsAppManifest).name.short,
         "localized short name"
       );
+    }
+  });
+
+  it("returns expansion error when $[file(...)] resolution fails", async () => {
+    sandbox.stub(fs, "pathExists").resolves(true);
+    sandbox.stub(fs, "readFile").resolves(
+      JSON.stringify({
+        name: {
+          short: "$[file('instruction.txt')]",
+        },
+      }) as any
+    );
+
+    const expansionError = new UserError("source", "name", "message");
+    sandbox
+      .stub(envFunctionUtils, "expandVariableWithFunction")
+      .resolves(err(expansionError));
+
+    const context: any = {
+      platform: Platform.VSCode,
+      logProvider: {
+        error: () => {},
+      },
+      telemetryReporter: {
+        sendTelemetryEvent: () => {},
+      },
+    };
+
+    const locFile = await manifestUtils.resolveLocFile("loc_file_path", context);
+
+    assert.isTrue(locFile.isErr());
+    if (locFile.isErr()) {
+      assert.equal(locFile.error, expansionError);
     }
   });
 });
