@@ -3374,4 +3374,3 @@ const typeMap: any = {
         "tier1",
     ],
 };
-

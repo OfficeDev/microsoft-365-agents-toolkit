@@ -504,11 +504,7 @@ export class ActionStartOptions {
 
   static all(inputs: Inputs, doesProjectExists?: boolean): OptionItem[] {
     if (doesProjectExists) {
-      const options: OptionItem[] = [ActionStartOptions.apiSpec()];
-      if (featureFlagManager.getBooleanValue(FeatureFlags.MCPForDA)) {
-        options.push(ActionStartOptions.mcp());
-      }
-      return options;
+      return [ActionStartOptions.apiSpec(), ActionStartOptions.mcp()];
     } else {
       // use constant string to avoid cycle dependency
       return [ActionStartOptions.newApi(), ActionStartOptions.apiSpec()];

@@ -9,14 +9,14 @@
       "precondition_retry_interval": 2
     },
     "total_steps": 4,
-    "created_at": "2026-03-24T08:04:11.529915",
+    "created_at": "2026-05-20T03:43:06.091646",
     "name": "group  validation basic ai chat bot in copilot",
     "description": {
       "other": "Generated from recording r_1009_093215",
       "owner": "v-annefu@microsoft.com",
       "workitem": ""
     },
-    "generated_at": "2026-03-24T08:04:11.529915",
+    "generated_at": "2026-05-20T03:43:06.091646",
     "execution_order": [
       "step_294018a0",
       "step_865ca70f",
@@ -26,7 +26,7 @@
     "tags": [
       "group"
     ],
-    "updated_at": "2026-03-24T08:37:08.200199"
+    "updated_at": "2026-05-20T05:08:01.342683"
   },
   "steps": [
     {
@@ -54,7 +54,7 @@
         "ocr:true"
       ],
       "screenshot": "step_294018a0",
-      "created_at": "2026-03-24T08:04:11.563195",
+      "created_at": "2026-05-20T03:43:06.091646",
       "plan_id": "plan_568c0a08"
     },
     {
@@ -76,7 +76,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_865ca70f",
-      "created_at": "2026-03-24T08:04:11.584539",
+      "created_at": "2026-05-20T03:43:06.106836",
       "plan_id": "plan_568c0a08"
     },
     {
@@ -98,7 +98,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_da7dcba8",
-      "created_at": "2026-03-24T08:04:11.602769",
+      "created_at": "2026-05-20T03:43:06.106836",
       "plan_id": "plan_568c0a08"
     },
     {
@@ -115,10 +115,10 @@
       "preconditions": [],
       "postconditions": [],
       "tags": [
-        "step_retry_timeout: 60"
+        "step_retry_timeout:120"
       ],
       "screenshot": null,
-      "created_at": "2026-03-24T08:04:11.642320",
+      "created_at": "2026-05-20T03:43:06.122550",
       "plan_id": "plan_568c0a08"
     }
   ],

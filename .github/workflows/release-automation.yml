@@ -628,8 +628,15 @@ jobs:
             fs.writeFileSync(pkgFile, JSON.stringify(pkg, null, 2) + '\n');
             core.info(`templates/package.json: version=${version}-alpha`);
 
+            // --- 4. Update vscode-extension/package.json ---
+            const vscPkgFile = 'packages/vscode-extension/package.json';
+            const vscPkg = JSON.parse(fs.readFileSync(vscPkgFile, 'utf8'));
+            vscPkg.version = `${version}-rc`;
+            fs.writeFileSync(vscPkgFile, JSON.stringify(vscPkg, null, 2) + '\n');
+            core.info(`vscode-extension/package.json: version=${version}-rc`);
+
             // --- Commit and push ---
-            execSync('git add packages/fx-core/src/common/samples.ts packages/fx-core/src/common/templates-config.json templates/package.json', { stdio: 'inherit' });
+            execSync('git add packages/fx-core/src/common/samples.ts packages/fx-core/src/common/templates-config.json templates/package.json packages/vscode-extension/package.json', { stdio: 'inherit' });
             execSync(`git commit -m "chore: bump template and sample version for ${version}"`, { stdio: 'inherit' });
             execSync(`git push origin ${bumpBranch}`, { stdio: 'inherit' });
 
@@ -650,6 +657,18 @@ jobs:
             const version = '${{ steps.version_bump_pr.outputs.version }}';
             const majorMinor = '${{ steps.version_bump_pr.outputs.major_minor }}';
 
+            const product = '${{ steps.config.outputs.product }}';
+            const releaseType = '${{ steps.config.outputs.release_type }}';
+            const preid = '${{ steps.config.outputs.preid }}';
+            const series = '${{ steps.config.outputs.series }}';
+            const vsrelease = '${{ steps.config.outputs.vsrelease }}' === 'true';
+            const goproduct = '${{ env.GO_PRODUCT }}' === 'true';
+
+            const workflowRunUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            const markerPayload = { product, version, releaseType, branch: base, preid, series, vsrelease, goproduct };
+            const marker = `<!-- release-automation-cd-params: ${JSON.stringify(markerPayload)} -->`;
+            const label = 'release-automation-sync';
+
             const title = `chore: bump template and sample version for ${version}`;
             const body = [
               'This PR is created by Release Automation to bump version numbers for the stable release.',
@@ -658,10 +677,23 @@ jobs:
               `- **SampleConfigTag:** bumped minor version`,
               `- **templates-config.json:** version=\`~${majorMinor}\`, localVersion=\`${version}\``,
               `- **templates/package.json:** version=\`${version}-alpha\``,
+              `- **vscode-extension/package.json:** version=\`${version}-rc\``,
+              '',
+              `Release Automation Run: ${workflowRunUrl}`,
+              marker,
+              '',
+              'After merging, the CD pipeline will be triggered automatically.',
             ].join('\n');
 
             const pr = await github.rest.pulls.create({ owner, repo, title, head, base, body });
             core.notice(`Created version bump PR: ${pr.data.html_url}`);
+
+            try {
+              await github.rest.issues.addLabels({ owner, repo, issue_number: pr.data.number, labels: [label] });
+            } catch (e) {
+              core.notice(`Unable to add label '${label}': ${e.message}`);
+            }
+
             core.summary
               .addHeading('📌 Version Bump PR', 2)
               .addRaw(`\nCreated: ${pr.data.html_url}\n`)
@@ -681,10 +713,7 @@ jobs:
           AUTO_CD=false
 
           if [ "$BRANCH_CREATED" = "true" ]; then
-            if [ "$IS_STABLE" = "true" ]; then
-              # Stable releases auto-trigger CD on branch creation (no PR merge gate)
-              AUTO_CD=true
-            elif [[ "$BRANCH" =~ ^release/6\.([0-9]+)$ ]]; then
+            if [[ "$BRANCH" =~ ^release/6\.([0-9]+)$ ]]; then
               # Prerelease: auto-trigger CD only for odd minor branches
               MINOR="${BASH_REMATCH[1]}"
               if (( MINOR % 2 == 1 )); then
@@ -903,7 +932,7 @@ jobs:
 
   trigger-cd-on-pr-merge:
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true && github.event.pull_request.head.ref == 'dev' && startsWith(github.event.pull_request.base.ref, 'release/') && contains(github.event.pull_request.labels.*.name, 'release-automation-sync') }}
+    if: ${{ github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true && (github.event.pull_request.head.ref == 'dev' || startsWith(github.event.pull_request.head.ref, 'chore/bump-version-')) && startsWith(github.event.pull_request.base.ref, 'release/') && contains(github.event.pull_request.labels.*.name, 'release-automation-sync') }}
     outputs:
       product: ${{ steps.trigger.outputs.product }}
       release_type: ${{ steps.trigger.outputs.release_type }}
@@ -926,8 +955,8 @@ jobs:
             const labels = (pr.labels || []).map(l => l.name);
             const body = pr.body || '';
 
-            if (head !== 'dev') {
-              core.notice(`Skip: head branch is '${head}', expected 'dev'.`);
+            if (head !== 'dev' && !head.startsWith('chore/bump-version-')) {
+              core.notice(`Skip: head branch is '${head}', expected 'dev' or 'chore/bump-version-*'.`);
               return;
             }
 
