@@ -582,16 +582,18 @@ describe("resolveLocFile", () => {
     sandbox.stub(fs, "pathExists").callsFake(async (filePath) => {
       return filePath === "loc_file_path" || filePath === "instruction.txt";
     });
-    sandbox.stub(fs, "readFile").callsFake(async (filePath) => {
+    sandbox.stub(fs, "readFile").callsFake(((filePath: number | fs.PathLike) => {
       if (filePath === "loc_file_path") {
-        return JSON.stringify({
-          name: {
-            short: "$[file('instruction.txt')]",
-          },
-        });
+        return Promise.resolve(
+          JSON.stringify({
+            name: {
+              short: "$[file('instruction.txt')]",
+            },
+          })
+        );
       }
-      return "localized short name";
-    });
+      return Promise.resolve("localized short name");
+    }) as any);
 
     const context: any = {
       platform: Platform.VSCode,
@@ -607,7 +609,10 @@ describe("resolveLocFile", () => {
 
     assert.isTrue(locFile.isOk());
     if (locFile.isOk()) {
-      assert.equal((JSON.parse(locFile.value) as TeamsAppManifest).name.short, "localized short name");
+      assert.equal(
+        (JSON.parse(locFile.value) as TeamsAppManifest).name.short,
+        "localized short name"
+      );
     }
   });
 });
