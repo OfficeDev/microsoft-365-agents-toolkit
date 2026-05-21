@@ -32,6 +32,10 @@ on:
         default: false
 permissions:
   actions: read
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
 jobs:
   discover-test-plans:
     runs-on: ubuntu-latest
@@ -42,7 +46,7 @@ jobs:
       email-receiver: ${{ steps.set-email.outputs.email-receiver }}
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set email receiver
         id: set-email
@@ -166,19 +170,20 @@ jobs:
       
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: ${{ github.ref_name }}
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "3.12"
 
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v5
         with:
           node-version: 22
+          package-manager-cache: false
 
       - name: Install dependencies for download actions
         run: npm install @octokit/auth-app @octokit/request @octokit/core node-fetch 
@@ -232,7 +237,7 @@ jobs:
           echo "M365_ACCOUNT_NAME=${users[index]}" >> $GITHUB_ENV
 
       - name: Log in to Container Registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -308,7 +313,7 @@ jobs:
 
       - name: Upload error file
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: error-file-${{ matrix.test_plan }}-${{ github.run_id }}
           path: error.txt
@@ -351,7 +356,7 @@ jobs:
 
       - name: Upload encrypted test report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: test-report-${{ matrix.test_plan }}-${{ github.run_number }}
           path: packages/tests/vscuse/vscode-test-cases/test_report/${{ env.ZIP_FILE }}
@@ -361,7 +366,7 @@ jobs:
       # Upload files to Azure Blob Storage
       - name : Login to Azure
         if: always()
-        uses: azure/login@v2
+        uses: azure/login@v3
         with:
           client-id: ${{secrets.DEVOPS_CLIENT_ID}}
           tenant-id: ${{secrets.DEVOPS_TENANT_ID}}
@@ -393,7 +398,7 @@ jobs:
 
       - name: Upload storage URL artifact
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: storage-url-${{ matrix.test_plan }}-${{ github.run_id }}
           path: storage_url.txt
@@ -458,9 +463,9 @@ jobs:
         working-directory: packages/tests/vscuse
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v5
 
-      - uses: azure/login@v2
+      - uses: azure/login@v3
         with:
           client-id: ${{secrets.DEVOPS_CLIENT_ID}}
           tenant-id: ${{secrets.DEVOPS_TENANT_ID}}
@@ -468,13 +473,13 @@ jobs:
           enable-AzPSSession: true
 
       - name: Download storage URLs
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           pattern: storage-url-*
           path: /tmp/storage-urls
 
       - name: Download error files
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           pattern: error-file-*
           path: /tmp/error-files
