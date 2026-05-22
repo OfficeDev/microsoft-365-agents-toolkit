@@ -2,7 +2,7 @@
 
 When generating or editing code in this repository:
 
-- **Line Endings**: Use LF (Unix-style) line endings for all source code files. Exception: Use CRLF for localization files under `**/package.nls.*.json` only.
+- **Line Endings**: Use LF (Unix-style) line endings for all files. This matches the repository's `.gitattributes` (`*.json eol=lf`, etc.) — do not introduce CRLF, including for localization files under `**/package.nls.*.json`.
 - **Indentation**: Use 2 spaces for TypeScript/JavaScript files
 - **Quotes**: Use double quotes for strings in TypeScript/JavaScript
 
