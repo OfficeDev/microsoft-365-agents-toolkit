@@ -423,9 +423,8 @@ export class CreateAppPackageDriver implements StepDriver {
     }
 
     // Package agent skills declared in the top-level Teams manifest (agentSkills)
-    const teamsManifestAgentSkills = (manifest as unknown as Record<string, unknown>).agentSkills as
-      | { folder: string }[]
-      | undefined;
+    const teamsManifestAgentSkills = (manifest as unknown as Record<string, unknown>)
+      .agentSkills as { folder: string }[] | undefined;
     if (teamsManifestAgentSkills && Array.isArray(teamsManifestAgentSkills)) {
       for (const skill of teamsManifestAgentSkills) {
         if (skill.folder) {

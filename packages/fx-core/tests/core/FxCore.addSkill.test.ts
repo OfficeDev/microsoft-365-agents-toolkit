@@ -693,12 +693,13 @@ describe("addSkill", () => {
       // Stub AdmZip constructor
       const AdmZip = require("adm-zip");
       const fakeZip = new AdmZip(zipBuffer);
-      sandbox
-        .stub(FxCore.prototype as any, "importSkillFromZip")
-        .callsFake(async function (this: any, ...args: unknown[]) {
-          // Return a successful result mimicking the zip import
-          return ok("skills/myImportedSkill");
-        });
+      sandbox.stub(FxCore.prototype as any, "importSkillFromZip").callsFake(async function (
+        this: any,
+        ...args: unknown[]
+      ) {
+        // Return a successful result mimicking the zip import
+        return ok("skills/myImportedSkill");
+      });
 
       sandbox.stub(copilotGptManifestUtils, "addSkill").resolves(
         ok({

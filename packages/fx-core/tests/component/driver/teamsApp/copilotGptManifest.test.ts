@@ -1734,7 +1734,7 @@ describe("copilotGptManifestUtils", () => {
         return true;
       });
       sandbox.stub(fs, "readFile").resolves(JSON.stringify(manifest) as any);
-      sandbox.stub(ManifestUtil, "validateManifest").resolves([]);
+      sandbox.stub(AppManifestUtils, "validateAgainstSchema").resolves([]);
 
       const res = await copilotGptManifestUtils.validateAgainstSchema(
         { id: "1", file: "file" },
@@ -1767,7 +1767,7 @@ describe("copilotGptManifestUtils", () => {
         return true;
       });
       sandbox.stub(fs, "readFile").resolves(JSON.stringify(manifest) as any);
-      sandbox.stub(ManifestUtil, "validateManifest").resolves([]);
+      sandbox.stub(AppManifestUtils, "validateAgainstSchema").resolves([]);
 
       const res = await copilotGptManifestUtils.validateAgainstSchema(
         { id: "1", file: "file" },
@@ -1803,7 +1803,7 @@ describe("copilotGptManifestUtils", () => {
         }
         return JSON.stringify(manifest) as any;
       });
-      sandbox.stub(ManifestUtil, "validateManifest").resolves([]);
+      sandbox.stub(AppManifestUtils, "validateAgainstSchema").resolves([]);
 
       const res = await copilotGptManifestUtils.validateAgainstSchema(
         { id: "1", file: "file" },
@@ -1839,7 +1839,7 @@ describe("copilotGptManifestUtils", () => {
         }
         return JSON.stringify(manifest) as any;
       });
-      sandbox.stub(ManifestUtil, "validateManifest").resolves([]);
+      sandbox.stub(AppManifestUtils, "validateAgainstSchema").resolves([]);
 
       const res = await copilotGptManifestUtils.validateAgainstSchema(
         { id: "1", file: "file" },
@@ -1875,7 +1875,7 @@ describe("copilotGptManifestUtils", () => {
         }
         return JSON.stringify(manifest) as any;
       });
-      sandbox.stub(ManifestUtil, "validateManifest").resolves([]);
+      sandbox.stub(AppManifestUtils, "validateAgainstSchema").resolves([]);
 
       const res = await copilotGptManifestUtils.validateAgainstSchema(
         { id: "1", file: "file" },
@@ -1898,7 +1898,7 @@ describe("copilotGptManifestUtils", () => {
       mockedEnvRestore = mockedEnv({ ["APP_NAME_SUFFIX"]: "test" });
       sandbox.stub(fs, "pathExists").resolves(true);
       sandbox.stub(fs, "readFile").resolves(JSON.stringify(manifest) as any);
-      sandbox.stub(ManifestUtil, "validateManifest").resolves([]);
+      sandbox.stub(AppManifestUtils, "validateAgainstSchema").resolves([]);
 
       const res = await copilotGptManifestUtils.validateAgainstSchema(
         { id: "1", file: "file" },
@@ -1930,7 +1930,7 @@ describe("copilotGptManifestUtils", () => {
         }
         return JSON.stringify(manifest) as any;
       });
-      sandbox.stub(ManifestUtil, "validateManifest").resolves([]);
+      sandbox.stub(AppManifestUtils, "validateAgainstSchema").resolves([]);
 
       const res = await copilotGptManifestUtils.validateAgainstSchema(
         { id: "1", file: "file" },
@@ -1961,7 +1961,7 @@ describe("copilotGptManifestUtils", () => {
         }
         return JSON.stringify(manifest) as any;
       });
-      sandbox.stub(ManifestUtil, "validateManifest").resolves([]);
+      sandbox.stub(AppManifestUtils, "validateAgainstSchema").resolves([]);
 
       const res = await copilotGptManifestUtils.validateAgainstSchema(
         { id: "1", file: "file" },
@@ -2004,7 +2004,7 @@ describe("copilotGptManifestUtils", () => {
         }
         return JSON.stringify(manifest) as any;
       });
-      sandbox.stub(ManifestUtil, "validateManifest").resolves([]);
+      sandbox.stub(AppManifestUtils, "validateAgainstSchema").resolves([]);
 
       const res = await copilotGptManifestUtils.validateAgainstSchema(
         { id: "1", file: "file" },

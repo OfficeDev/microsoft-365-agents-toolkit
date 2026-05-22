@@ -2495,7 +2495,11 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
       if (!teamsManifestForSkill.agentSkills) {
         teamsManifestForSkill.agentSkills = [];
       }
-      if (!teamsManifestForSkill.agentSkills.some((s: { folder: string }) => s.folder === teamsManifestSkillFolder)) {
+      if (
+        !teamsManifestForSkill.agentSkills.some(
+          (s: { folder: string }) => s.folder === teamsManifestSkillFolder
+        )
+      ) {
         teamsManifestForSkill.agentSkills.push({ folder: teamsManifestSkillFolder });
       }
       await fs.writeFile(teamsManifestPath, JSON.stringify(teamsManifestForSkill, null, 4));
