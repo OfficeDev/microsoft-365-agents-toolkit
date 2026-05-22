@@ -26,7 +26,7 @@
     {{/CopilotConnector}}
     "agent_skills": [
         {
-            "folder": "skills/hello-world"
+            "folder": "skills/hello-atk"
         }
     ]
 }

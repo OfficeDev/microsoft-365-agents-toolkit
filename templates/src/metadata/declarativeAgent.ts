@@ -27,7 +27,7 @@ export const declarativeAgentTemplates: Template[] = [
     alias: TemplateAlias.DeclarativeAgentWithSkill,
     language: "common",
     displayName: "Declarative Agent with Skill",
-    description: "Declarative Agent with a hello-world agent skill",
+    description: "Declarative Agent with a hello-atk agent skill",
   },
   {
     id: "declarative-agent-with-action-from-scratch-ts",

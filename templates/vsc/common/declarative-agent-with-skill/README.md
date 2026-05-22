@@ -1,6 +1,6 @@
 # Overview of the Declarative Agent with Skill template
 
-With the declarative agent, you can build a custom version of Copilot that can be used for specific scenarios, such as for specialized knowledge, implementing specific processes, or simply to save time by reusing a set of AI prompts. This template includes a **hello-world** agent skill that demonstrates how skills work by greeting users with a fun fact about today.
+With the declarative agent, you can build a custom version of Copilot that can be used for specific scenarios, such as for specialized knowledge, implementing specific processes, or simply to save time by reusing a set of AI prompts. This template includes a **hello-atk** agent skill that demonstrates how skills work by greeting users with a fun fact about declarative agents and Microsoft 365 Copilot.
 
 ## Get started with the template
 
@@ -35,7 +35,7 @@ The following files can be customized and demonstrate an example implementation 
 | ---------------------------------- | ---------------------------------------------------------------------------- |
 | `appPackage/declarativeAgent.json` | Define the behaviour and configurations of the declarative agent.            |
 | `appPackage/manifest.json`         | application manifest that defines metadata for your declarative agent. |
-| `appPackage/skills/hello-world/SKILL.md` | Sample agent skill that greets users with a fun fact.             |
+| `appPackage/skills/hello-atk/SKILL.md` | Sample agent skill that greets users with a fun fact about declarative agents. |
 
 The following are Microsoft 365 Agents Toolkit specific project files. You can [visit a complete guide on Github](https://github.com/OfficeDev/TeamsFx/wiki/Teams-Toolkit-Visual-Studio-Code-v5-Guide#overview) to understand how Microsoft 365 Agents Toolkit works.
 
