@@ -91,6 +91,7 @@ Install the Microsoft 365 Copilot Agent Evaluations CLI (`@microsoft/m365-copilo
     ```
     AZURE_AI_OPENAI_ENDPOINT=
     AZURE_AI_API_KEY=
+    TENANT_ID=
     AZURE_AI_API_VERSION=
     AZURE_AI_MODEL_NAME=
     ```
