@@ -26,6 +26,7 @@ import {
   publishHandler,
   scaffoldFromDeveloperPortalHandler,
   addKnowledgeHandler,
+  addSkillHandler,
   shareHandler,
   setSensitivityLabelHandler,
   m365PreAuthHandler,
@@ -489,6 +490,23 @@ describe("Lifecycle handlers", () => {
       await addKnowledgeHandler();
 
       sinon.assert.calledOnce(addKnowledge);
+    });
+  });
+
+  describe("addSkillHandler", async () => {
+    const sandbox = sinon.createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it("happy path", async () => {
+      sandbox.stub(globalVariables, "core").value(new MockCore());
+      const addSkill = sandbox.spy(globalVariables.core, "addSkill");
+
+      await addSkillHandler();
+
+      sinon.assert.calledOnce(addSkill);
     });
   });
 

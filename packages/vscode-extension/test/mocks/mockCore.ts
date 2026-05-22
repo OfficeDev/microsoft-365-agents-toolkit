@@ -192,4 +192,8 @@ export class MockCore {
   async addKnowledge(inputs: Inputs): Promise<Result<any, FxError>> {
     return ok(undefined);
   }
+
+  async addSkill(inputs: Inputs): Promise<Result<any, FxError>> {
+    return ok(undefined);
+  }
 }

@@ -581,6 +581,81 @@ describe("addSkill", () => {
     assert.include(writtenManifest.agentSkills[0].folder, "skills/mySkill");
   });
 
+  it("expose-to-copilot: writes agentSkills when enabled with boolean true", async () => {
+    const inputs = createBaseInputs({
+      [QuestionNames.ExposeToCopilot]: true,
+    });
+    const manifest = createManifestWithDA();
+
+    sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
+    sandbox
+      .stub(copilotGptManifestUtils, "getManifestPath")
+      .resolves(ok(path.resolve("test-project", "appPackage", "declarativeAgent.json")));
+
+    sandbox.stub(MockUserInteraction.prototype, "showMessage").resolves(ok("Add"));
+    sandbox.stub(fs, "ensureDir").resolves();
+    const writeFileStub = sandbox.stub(fs, "writeFile").resolves();
+
+    sandbox.stub(copilotGptManifestUtils, "addSkill").resolves(
+      ok({
+        name: "test-agent",
+        description: "description",
+      } as DeclarativeCopilotManifestSchema)
+    );
+
+    const core = new FxCore(tools);
+    const result = await core.addSkill(inputs);
+
+    assert.isTrue(result.isOk());
+    const teamsManifestWriteCall = writeFileStub.getCalls().find((call) => {
+      const filePath = call.args[0] as string;
+      return filePath.includes("manifest.json");
+    });
+    assert.isDefined(teamsManifestWriteCall);
+    const writtenManifest = JSON.parse(teamsManifestWriteCall!.args[1] as string);
+    assert.isArray(writtenManifest.agentSkills);
+    assert.equal(writtenManifest.agentSkills.length, 1);
+    assert.include(writtenManifest.agentSkills[0].folder, "skills/mySkill");
+  });
+
+  it("expose-to-copilot: does not duplicate existing agentSkills entries", async () => {
+    const inputs = createBaseInputs({
+      [QuestionNames.ExposeToCopilot]: "yes",
+    });
+    const manifest = createManifestWithDA();
+    manifest.agentSkills = [{ folder: "skills/mySkill" }];
+
+    sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
+    sandbox
+      .stub(copilotGptManifestUtils, "getManifestPath")
+      .resolves(ok(path.resolve("test-project", "appPackage", "declarativeAgent.json")));
+
+    sandbox.stub(MockUserInteraction.prototype, "showMessage").resolves(ok("Add"));
+    sandbox.stub(fs, "ensureDir").resolves();
+    const writeFileStub = sandbox.stub(fs, "writeFile").resolves();
+
+    sandbox.stub(copilotGptManifestUtils, "addSkill").resolves(
+      ok({
+        name: "test-agent",
+        description: "description",
+      } as DeclarativeCopilotManifestSchema)
+    );
+
+    const core = new FxCore(tools);
+    const result = await core.addSkill(inputs);
+
+    assert.isTrue(result.isOk());
+    const teamsManifestWriteCall = writeFileStub.getCalls().find((call) => {
+      const filePath = call.args[0] as string;
+      return filePath.includes("manifest.json");
+    });
+    assert.isDefined(teamsManifestWriteCall);
+    const writtenManifest = JSON.parse(teamsManifestWriteCall!.args[1] as string);
+    assert.isArray(writtenManifest.agentSkills);
+    assert.equal(writtenManifest.agentSkills.length, 1);
+    assert.equal(writtenManifest.agentSkills[0].folder, "skills/mySkill");
+  });
+
   it("expose-to-copilot: does NOT write agentSkills when disabled", async () => {
     const inputs = createBaseInputs({
       [QuestionNames.ExposeToCopilot]: "no",

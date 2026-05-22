@@ -2597,6 +2597,128 @@ describe("teamsApp/createAppPackage", async () => {
     });
   });
 
+  describe("Teams manifest agentSkills packaging", async () => {
+    const teamsManifestAgentSkillsArgs: CreateAppPackageArgs = {
+      manifestPath:
+        "./tests/plugins/resource/appstudio/resources-multi-env/templates/appPackage/v3.manifest.template.json",
+      outputZipPath:
+        "./tests/plugins/resource/appstudio/resources-multi-env/build/appPackage/appPackage.teams-manifest-skills.zip",
+      outputJsonPath:
+        "./tests/plugins/resource/appstudio/resources-multi-env/build/appPackage/manifest.teams-manifest-skills.json",
+    };
+
+    function createTeamsManifestWithAgentSkills(): TeamsManifestV1D19.TeamsManifestV1D19 & {
+      agentSkills?: { folder: string }[];
+    } {
+      const manifest = {
+        manifestVersion: "1.19",
+      } as TeamsManifestV1D19.TeamsManifestV1D19 & {
+        agentSkills?: { folder: string }[];
+      };
+      manifest.copilotAgents = {
+        declarativeAgents: [{ file: "resources/declarativeAgent.json", id: "1" }],
+      };
+      manifest.icons = {
+        color: "resources/color.png",
+        outline: "resources/outline.png",
+      };
+      return manifest;
+    }
+
+    it("should bundle top-level Teams manifest agentSkills folders", async () => {
+      const manifest = createTeamsManifestWithAgentSkills();
+      manifest.agentSkills = [{ folder: "skills/skill1" }];
+      const declarativeAgentManifest = {
+        name: "TestAgent",
+        description: "Test agent with top-level Teams manifest skills",
+        actions: [],
+      } as any;
+
+      sinon.stub(manifestUtils, "getManifestV3").resolves(ok(manifest));
+      sinon.stub(fs, "chmod").callsFake(async () => {});
+      sinon.stub(fs, "writeFile").callsFake(async () => {});
+      sinon.stub(copilotGptManifestUtils, "getManifest").resolves(ok(declarativeAgentManifest));
+      const pathExistsStub = sinon.stub(fs, "pathExists").resolves(true);
+
+      const result = (
+        await teamsAppDriver.execute(teamsManifestAgentSkillsArgs, mockedDriverContext)
+      ).result;
+      chai.assert.isTrue(result.isOk());
+      const skillMdChecks = pathExistsStub
+        .getCalls()
+        .filter((call) => call.args[0].toString().includes("skills\\skill1\\SKILL.md"));
+      chai.assert.lengthOf(skillMdChecks, 1);
+
+      if (await fs.pathExists(teamsManifestAgentSkillsArgs.outputZipPath)) {
+        const zip = new AdmZip(teamsManifestAgentSkillsArgs.outputZipPath);
+        const skillMdEntry = zip.getEntry("skills/skill1/SKILL.md");
+        chai.assert.exists(skillMdEntry, "SKILL.md should be bundled in zip");
+        await fs.remove(teamsManifestAgentSkillsArgs.outputZipPath);
+      }
+    });
+
+    it("should skip Teams manifest agentSkills already packaged from DA manifest", async () => {
+      const manifest = createTeamsManifestWithAgentSkills();
+      manifest.agentSkills = [{ folder: "skills/skill1" }];
+      const declarativeAgentManifest = {
+        name: "TestAgent",
+        description: "Test agent with duplicated skills",
+        actions: [],
+        agent_skills: [{ folder: "skills/skill1" }],
+      } as any;
+
+      sinon.stub(manifestUtils, "getManifestV3").resolves(ok(manifest));
+      sinon.stub(fs, "chmod").callsFake(async () => {});
+      sinon.stub(fs, "writeFile").callsFake(async () => {});
+      sinon.stub(copilotGptManifestUtils, "getManifest").resolves(ok(declarativeAgentManifest));
+      sinon.stub(fs, "pathExists").resolves(true);
+
+      const result = (
+        await teamsAppDriver.execute(teamsManifestAgentSkillsArgs, mockedDriverContext)
+      ).result;
+      chai.assert.isTrue(result.isOk());
+
+      if (await fs.pathExists(teamsManifestAgentSkillsArgs.outputZipPath)) {
+        const zip = new AdmZip(teamsManifestAgentSkillsArgs.outputZipPath);
+        const skillEntries = zip
+          .getEntries()
+          .filter((entry) => entry.entryName === "skills/skill1/SKILL.md");
+        chai.assert.lengthOf(skillEntries, 1, "skill folder should only be packaged once");
+        await fs.remove(teamsManifestAgentSkillsArgs.outputZipPath);
+      }
+    });
+
+    it("should return error when Teams manifest agentSkills folder is missing SKILL.md", async () => {
+      const manifest = createTeamsManifestWithAgentSkills();
+      manifest.agentSkills = [{ folder: "skills/skill1" }];
+      const declarativeAgentManifest = {
+        name: "TestAgent",
+        description: "Test agent with invalid Teams manifest skill",
+        actions: [],
+      } as any;
+
+      sinon.stub(manifestUtils, "getManifestV3").resolves(ok(manifest));
+      sinon.stub(fs, "chmod").callsFake(async () => {});
+      sinon.stub(fs, "writeFile").callsFake(async () => {});
+      sinon.stub(copilotGptManifestUtils, "getManifest").resolves(ok(declarativeAgentManifest));
+      sinon.stub(fs, "pathExists").callsFake(async (filePath) => {
+        if (filePath.toString().includes("skills\\skill1\\SKILL.md")) {
+          return false;
+        }
+        return true;
+      });
+
+      const result = (
+        await teamsAppDriver.execute(teamsManifestAgentSkillsArgs, mockedDriverContext)
+      ).result;
+      chai.assert.isTrue(result.isErr());
+      if (result.isErr()) {
+        chai.assert.isTrue(result.error instanceof FileNotFoundError);
+        chai.assert.include(result.error.message, "SKILL.md");
+      }
+    });
+  });
+
   describe("package size limit", () => {
     it("should fail when zip exceeds 10 MB", async () => {
       const manifest = {
