@@ -69,7 +69,9 @@ export class ManifestTemplateHoverProvider implements vscode.HoverProvider {
       }
       args = [{ type: "env", env: envName }];
     } else {
-      for (const envName of envNames) {
+      for (const envName of envNames.filter(
+        (name) => name !== environmentNameManager.getPlaygroundEnvName()
+      )) {
         const envInfo = envInfos[envName];
         const value = envInfo[key];
         if (value) {
@@ -77,9 +79,6 @@ export class ManifestTemplateHoverProvider implements vscode.HoverProvider {
         } else {
           if (envName === environmentNameManager.getLocalEnvName()) {
             message += `**${envName}** Trigger debug to see placeholder value \n\n`;
-          } else if (envName === environmentNameManager.getPlaygroundEnvName()) {
-            const commandUri = vscode.Uri.parse("command:fx-extension.localdebug");
-            message += `**${envName}**: [Trigger Debug in Microsoft 365 Agents Playground to see placeholder value](${commandUri.toString()}) \n\n`;
           } else {
             const commandUri = vscode.Uri.parse("command:fx-extension.provision");
             message += `**${envName}**: [Trigger Teams: Provision in the cloud command to see placeholder value](${commandUri.toString()}) \n\n`;

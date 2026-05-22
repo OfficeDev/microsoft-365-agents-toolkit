@@ -143,12 +143,9 @@ describe("Manifest template hover - V3", async () => {
     if (hover !== undefined) {
       chai.assert.isTrue(hover.contents.length > 0);
       const content = (hover.contents[0] as vscode.MarkdownString).value;
-      chai.assert.include(content, "playground");
-      chai.assert.include(content, "command:fx-extension.localdebug");
-      chai.assert.include(
-        content,
-        "Trigger Debug in Microsoft 365 Agents Playground to see placeholder value"
-      );
+      chai.assert.notInclude(content, "playground");
+      chai.assert.notInclude(content, "command:fx-extension.localdebug");
+      chai.assert.include(content, "local");
     }
   });
 });
