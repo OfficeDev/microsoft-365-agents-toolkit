@@ -397,4 +397,4 @@ test-screenshots/
 test-output/ 
 
 # add jetbrains related ignores
-./idea
+.idea/
