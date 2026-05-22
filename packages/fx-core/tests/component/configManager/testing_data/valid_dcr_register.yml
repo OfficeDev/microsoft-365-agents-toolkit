@@ -1,0 +1,13 @@
+version: v1.13
+provision:
+  - uses: dcr/register
+    with:
+      name: my-dcr-config
+      appId: ${{TEAMS_APP_ID}}
+      wellKnownAuthorizationServer: https://example.com/.well-known/oauth-authorization-server
+      applicableToApps: AnyApp
+      targetAudience: HomeTenant
+      targetUrlsShouldStartWith:
+        - https://example.com
+    writeToEnvironmentFile:
+      configurationId: DCR_REGISTRATION_ID

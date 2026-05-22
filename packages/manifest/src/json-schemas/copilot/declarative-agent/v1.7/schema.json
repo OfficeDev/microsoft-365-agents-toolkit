@@ -32,10 +32,6 @@
         "disclaimer": {
             "$ref": "#/$defs/disclaimer"
         },
-        "sensitivity_label": {
-            "description": "This member is an object that specifies the sensitivity label for the DA. It is an optional member.",
-            "$ref": "#/$defs/sensitivity_label"
-        },
         "instructions": {
             "type": "string",
             "description": "Optional. Not localizable. The detailed instructions or guidelines on how the declarative agent should behave, its functions, and any behaviors to avoid. It MUST contain at least one nonwhitespace character and MUST be 8,000 characters or less.",
@@ -61,7 +57,7 @@
         },
         "conversation_starters": {
             "type": "array",
-            "description": "Optional. A list of examples of questions that the declarative agent can answer. There MUST NOT be more than twelve objects in the array.",
+            "description": "Optional. A list of examples of questions that the declarative agent can answer. There MUST NOT be more than 12 objects in the array.",
             "maxItems": 12,
             "minItems": 1,
             "items": {
@@ -81,28 +77,22 @@
                 ]
             }
         },
-        "worker_agents": {
-            "type": "array",
-            "description": "Optional. A list of objects that identify declarative agents to act as worker agents.",
-            "minItems": 1,
-            "items": {
-                "oneOf": [
-                    {
-                        "$ref": "#/$defs/worker-agent-object"
-                    }
-                ]
-            }
-        },
         "user_overrides": {
             "type": "array",
-            "description": "Optional. A list of objects that allow the DA author to specify capabilities that can be modified by users and the allowed actions.",
-            "minItems": 1,
+            "description": "Optional. A list of user override objects. This optional member allows DA authors to specify which capabilities can be dynamically adjusted by the user of the DA.",
             "items": {
-                "oneOf": [
-                    {
-                        "$ref": "#/$defs/user-override-object"
-                    }
-                ]
+                "$ref": "#/$defs/user-override-object"
+            }
+        },
+        "editorial_answers": {
+            "description": "Optional. A JSON object that contains predefined question-answer pairs that the DA can use to respond to user queries based on semantic similarity.",
+            "$ref": "#/$defs/editorial-answers-object"
+        },
+        "worker_agents": {
+            "type": "array",
+            "description": "Optional. A list of worker agent objects that identify declarative agents to act as worker agents.",
+            "items": {
+                "$ref": "#/$defs/worker-agent-object"
             }
         },
         "agent_skills": {
@@ -111,12 +101,12 @@
             "minItems": 1,
             "maxItems": 10,
             "items": {
-                "oneOf": [
-                    {
-                        "$ref": "#/$defs/agent-skill-object"
-                    }
-                ]
+                "$ref": "#/$defs/agent-skill-object"
             }
+        },
+        "sensitivity_label": {
+            "description": "Optional. A JSON object that specifies the sensitivity label for the DA.",
+            "$ref": "#/$defs/sensitivity-label-object"
         }
     },
     "required": [
@@ -131,16 +121,17 @@
             "name",
             "description",
             "disclaimer",
-            "sensitivity_label",
             "instructions",
             "capabilities",
             "behavior_overrides",
             "conversation_starters",
             "actions",
-            "worker_agents",
             "user_overrides",
+            "editorial_answers",
+            "worker_agents",
             "agent_skills",
-            "$schema"
+            "$schema",
+            "sensitivity_label"
         ]
     },
     "$defs": {
@@ -151,26 +142,167 @@
                 "text": {
                     "type": "string",
                     "description": "A JSON string that contains the disclaimer message. Characters beyond 500 MAY be ignored.",
-                    "minLength": 1
+                    "minLength": 1,
+                    "maxLength": 500
                 }
             },
             "required": [
                 "text"
             ]
         },
-        "sensitivity_label": {
+        "user-override-object": {
             "type": "object",
-            "description": "A JSON object, when specified should match one of the GUIDs of the published sensitivity labels within the tenant to which it is being published. This label should be at least as restrictive as the most restrictive label on any knowledge files included in the agent. See https://learn.microsoft.com/en-us/purview/create-sensitivity-labels  for more information on sensitivity labels.",
+            "description": "A JSON object that allows the DA author to specify the path of a capability that can be modified and a set of allowed_actions for those capabilities.",
+            "properties": {
+                "path": {
+                    "type": "string",
+                    "description": "A JSON string that contains a JSONPath expression identifying the capability or configuration element that users can modify."
+                },
+                "allowed_actions": {
+                    "type": "array",
+                    "description": "A JSON array of strings that specifies what actions can be taken for the specified path. The only supported action is 'remove'.",
+                    "items": {
+                        "type": "string",
+                        "enum": [
+                            "remove"
+                        ]
+                    }
+                }
+            },
+            "required": [
+                "path",
+                "allowed_actions"
+            ],
+            "propertyNames": {
+                "enum": [
+                    "path",
+                    "allowed_actions"
+                ]
+            }
+        },
+        "editorial-answers-object": {
+            "type": "object",
+            "description": "A JSON object that contains either an answers array or url to define predefined question-answer pairs for semantic matching and responses.",
+            "properties": {
+                "url": {
+                    "type": "string",
+                    "description": "A JSON string containing a URL that locates a document containing the editorial answers configuration."
+                },
+                "answers": {
+                    "type": "array",
+                    "description": "A JSON array that contains a list of answer objects. There MUST NOT be more than 300 objects in this array.",
+                    "maxItems": 300,
+                    "items": {
+                        "$ref": "#/$defs/answer-object"
+                    }
+                }
+            },
+            "oneOf": [
+                {
+                    "required": [
+                        "url"
+                    ]
+                },
+                {
+                    "required": [
+                        "answers"
+                    ]
+                }
+            ],
+            "propertyNames": {
+                "enum": [
+                    "url",
+                    "answers"
+                ]
+            }
+        },
+        "answer-object": {
+            "type": "object",
+            "description": "A JSON object containing a predefined question-answer pair.",
+            "properties": {
+                "question": {
+                    "type": "string",
+                    "description": "A JSON string containing the predefined question that will be used for semantic similarity matching against user queries.",
+                    "minLength": 1
+                },
+                "answer": {
+                    "type": "string",
+                    "description": "A JSON string containing the predefined answer that will be returned when the user query matches the question above the similarity threshold.",
+                    "minLength": 1
+                },
+                "similarity_thresholds": {
+                    "$ref": "#/$defs/similarity-thresholds-object"
+                }
+            },
+            "required": [
+                "question",
+                "answer"
+            ],
+            "propertyNames": {
+                "enum": [
+                    "question",
+                    "answer",
+                    "similarity_thresholds"
+                ]
+            }
+        },
+        "similarity-thresholds-object": {
+            "type": "object",
+            "description": "A JSON object that contains the minimum and maximum similarity threshold values for semantic matching.",
+            "properties": {
+                "min": {
+                    "type": "number",
+                    "description": "A JSON number that represents the minimum similarity threshold. The value MUST be a number between 0 and 10 inclusive.",
+                    "minimum": 0,
+                    "maximum": 10
+                },
+                "max": {
+                    "type": "number",
+                    "description": "A JSON number that represents the maximum similarity threshold. The value MUST be a number between 0 and 10 inclusive.",
+                    "minimum": 0,
+                    "maximum": 10
+                }
+            },
+            "required": [
+                "min",
+                "max"
+            ],
+            "propertyNames": {
+                "enum": [
+                    "min",
+                    "max"
+                ]
+            }
+        },
+        "worker-agent-object": {
+            "type": "object",
+            "description": "A JSON object used to identify a declarative agent to act as a worker agent.",
             "properties": {
                 "id": {
                     "type": "string",
-                    "description": "The GUID of the sensitivity_label that is pulled from Purview API",
-                    "pattern": "^(?!\\[\\[)(.*?)(?<!\\]\\])$"
+                    "description": "A JSON string that is a unique identifier for a Declarative Agent."
+                },
+                "file": {
+                    "type": "string",
+                    "description": "A JSON string that is a relative file path to a Declarative Agent manifest for the worker agent."
                 }
             },
+            "oneOf": [
+                {
+                    "required": [
+                        "id"
+                    ]
+                },
+                {
+                    "required": [
+                        "file"
+                    ]
+                }
+            ],
             "propertyNames": {
                 "enum": [
-                    "id"
+                    "id",
+                    "file"
                 ]
             }
         },
@@ -181,10 +313,13 @@
                 "properties": {
                     "name": {
                         "type": "string",
-                        "description": "Required. The name of the capability. Allowed values are WebSearch, CodeInterpreter, OneDriveAndSharePoint, GraphConnectors, TeamsMessages, Dataverse, Email, ScenarioModels, People, GraphicArt, Meetings and EmbeddedKnowledge.",
+                        "description": "Required. The name of the capability. Allowed values are WebSearch, GraphicArt, CodeInterpreter, OneDriveAndSharePoint, GraphConnectors, TeamsMessages, EmbeddedKnowledge, Email, People, Meetings, Dataverse, and ScenarioModels.",
                         "anyOf": [
                             {
                                 "const": "WebSearch"
+                            },
+                            {
+                                "const": "GraphicArt"
                             },
                             {
                                 "const": "CodeInterpreter"
@@ -196,13 +331,10 @@
                                 "const": "GraphConnectors"
                             },
                             {
-                                "const": "GraphicArt"
-                            },
-                            {
                                 "const": "TeamsMessages"
                             },
                             {
-                                "const": "Dataverse"
+                                "const": "EmbeddedKnowledge"
                             },
                             {
                                 "const": "Email"
@@ -211,13 +343,13 @@
                                 "const": "People"
                             },
                             {
-                                "const": "ScenarioModels"
-                            },
-                            {
                                 "const": "Meetings"
                             },
                             {
-                                "const": "EmbeddedKnowledge"
+                                "const": "Dataverse"
+                            },
+                            {
+                                "const": "ScenarioModels"
                             }
                         ]
                     }
@@ -264,53 +396,6 @@
                     "name"
                 ]
             },
-            "embedded-knowledge": {
-                "type": "object",
-                "description": "A JSON object whose presence indicates that the DA will be able to use files locally in the app package as knowledge.",
-                "properties": {
-                    "name": {
-                        "const": "EmbeddedKnowledge",
-                        "description": "Required. Must be set to EmbeddedKnowledge."
-                    },
-                    "files": {
-                        "type": "array",
-                        "description": "A JSON array of File Object. List of objects identifying files that contain knowledge the Agent can use for grounding.",
-                        "items": {
-                            "$ref": "#/$defs/capabilities/embedded-knowledge-file"
-                        }
-                    }
-                },
-                "required": [
-                    "name",
-                    "files"
-                ],
-                "propertyNames": {
-                    "enum": [
-                        "name",
-                        "files"
-                    ]
-                }
-            },
-            "embedded-knowledge-file": {
-                "type": "object",
-                "description": "A JSON object that identifies a file via the relative path.",
-                "properties": {
-                    "file": {
-                        "type": "string",
-                        "description": "A JSON string that contains the file relative path for the embedded file. It is a required member.",
-                        "minLength": 1,
-                        "pattern": "^(?!\\[\\[)(.*?)(?<!\\]\\])$"
-                    }
-                },
-                "required": [
-                    "file"
-                ],
-                "propertyNames": {
-                    "enum": [
-                        "file"
-                    ]
-                }
-            },
             "people": {
                 "type": "object",
                 "description": "Indicates that the DA will be able to search people data in the organization.",
@@ -321,7 +406,7 @@
                     },
                     "include_related_content": {
                         "type": "boolean",
-                        "description": "Boolean. If true, include related documents, emails, and Teams messages worked on by people in your organization when searching People data. If false or omitted, only basic org info (org charts, names, email addresses, skills). Default false."
+                        "description": "A JSON boolean that indicates whether to include related content when searching people data. When set to true, the DA will include related documents, emails, and Teams messages."
                     }
                 },
                 "propertyNames": {
@@ -588,7 +673,7 @@
             },
             "graphic-art": {
                 "type": "object",
-                "description": "Indicates that the declarative agent can images and art based on the text input from the user.",
+                "description": "Indicates that the declarative agent can generate images and art based on the text input from the user.",
                 "properties": {
                     "name": {
                         "const": "GraphicArt",
@@ -677,9 +762,9 @@
                     },
                     "items_by_id": {
                         "type": "array",
-                        "description": "A JSON array of objects that identify meetings. This array constrains the DA content access to only the meetings specified by the members of each Meeting Identifier Object.",
+                        "description": "Optional. An array of objects that identify meetings by their ICalUID.",
                         "items": {
-                            "$ref": "#/$defs/capabilities/meeting-identifier"
+                            "$ref": "#/$defs/meeting-identifier"
                         }
                     }
                 },
@@ -690,30 +775,91 @@
                     ]
                 }
             },
-            "meeting-identifier": {
+            "embedded-knowledge": {
                 "type": "object",
-                "description": "A JSON object that identifies a meeting by its ICalUID.",
+                "description": "Indicates that the DA will be able to use files locally in the app package as knowledge.",
                 "properties": {
-                    "id": {
-                        "type": "string",
-                        "description": "A JSON string that contains the ICalUID of a specific meeting. This member is required.",
-                        "minLength": 1
+                    "name": {
+                        "const": "EmbeddedKnowledge",
+                        "description": "Required. Must be set to EmbeddedKnowledge."
                     },
-                    "is_series": {
-                        "type": "boolean",
-                        "description": "A JSON boolean that indicates whether the meeting is a series. This member is required."
+                    "embedded_resource_snapshot_id": {
+                        "type": "string",
+                        "description": "A JSON string identifier provisioned by an external file container storage service that can be used to locate the embedded knowledge files."
+                    },
+                    "files": {
+                        "type": "array",
+                        "description": "A JSON array of file objects. List of objects identifying files that contain knowledge the Agent can use for grounding. Maximum 10 files, max 1MB each.",
+                        "maxItems": 10,
+                        "items": {
+                            "$ref": "#/$defs/embedded-knowledge-file"
+                        }
                     }
                 },
                 "required": [
-                    "id",
-                    "is_series"
+                    "name"
+                ],
+                "oneOf": [
+                    {
+                        "required": [
+                            "embedded_resource_snapshot_id"
+                        ]
+                    },
+                    {
+                        "required": [
+                            "files"
+                        ]
+                    }
                 ],
                 "propertyNames": {
                     "enum": [
-                        "id",
-                        "is_series"
+                        "name",
+                        "embedded_resource_snapshot_id",
+                        "files"
                     ]
                 }
+            }
+        },
+        "embedded-knowledge-file": {
+            "type": "object",
+            "description": "A JSON object that identifies a file via the relative path.",
+            "properties": {
+                "file": {
+                    "type": "string",
+                    "description": "A JSON string that contains the file relative path for the embedded file."
+                }
+            },
+            "required": [
+                "file"
+            ],
+            "propertyNames": {
+                "enum": [
+                    "file"
+                ]
+            }
+        },
+        "meeting-identifier": {
+            "type": "object",
+            "description": "A JSON object that identifies a meeting by its ICalUID.",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "description": "A JSON string that contains the ICalUID of a specific meeting."
+                },
+                "is_series": {
+                    "type": "boolean",
+                    "description": "A JSON boolean that indicates whether the meeting is a series."
+                }
+            },
+            "required": [
+                "id",
+                "is_series"
+            ],
+            "propertyNames": {
+                "enum": [
+                    "id",
+                    "is_series"
+                ]
             }
         },
         "behavior-overrides": {
@@ -727,12 +873,22 @@
                 "suggestions": {
                     "description": "An object that contains suggestions for behavior overrides for the declarative agent.",
                     "$ref": "#/$defs/suggestions"
+                },
+                "default_response_mode": {
+                    "type": "string",
+                    "description": "Optional. The default response mode for the declarative agent.",
+                    "enum": [
+                        "Auto",
+                        "Quick response",
+                        "Think deeper"
+                    ]
                 }
             },
             "propertyNames": {
                 "enum": [
                     "special_instructions",
-                    "suggestions"
+                    "suggestions",
+                    "default_response_mode"
                 ]
             }
         },
@@ -797,6 +953,13 @@
                     "type": "string",
                     "description": "Optional. Localizable. A unique title for the conversation starter. It MUST contain at least one nonwhitespace character.",
                     "pattern": "^(\\[\\[)[a-zA-Z_][a-zA-Z0-9_]*(\\]\\])$|^(?!(.*?\\[\\[.*?|.*?\\]\\].*?)).*$"
+                },
+                "depends_on": {
+                    "type": "array",
+                    "description": "Optional. A list of objects that specify dependencies for this conversation starter.",
+                    "items": {
+                        "$ref": "#/$defs/conversation-starter-depends-on"
+                    }
                 }
             },
             "required": [
@@ -805,7 +968,8 @@
             "propertyNames": {
                 "enum": [
                     "text",
-                    "title"
+                    "title",
+                    "depends_on"
                 ]
             }
         },
@@ -832,57 +996,6 @@
                 "enum": [
                     "id",
                     "file"
-                ]
-            }
-        },
-        "worker-agent-object": {
-            "type": "object",
-            "description": "A JSON object used to identify a declarative agent to act as a worker agent. Declarative agents can be referenced via their id (Agent Id).",
-            "properties": {
-                "id": {
-                    "type": "string",
-                    "description": "Required. Not localizable. A unique identifier for a declarative agent.",
-                    "pattern": "^(?!\\[\\[)(.*?)(?<!\\]\\])$"
-                }
-            },
-            "required": [
-                "id"
-            ],
-            "propertyNames": {
-                "enum": [
-                    "id"
-                ]
-            }
-        },
-        "user-override-object": {
-            "type": "object",
-            "description": "A JSON object that allows the DA author to specify the path of a capability that can be modified and a set of allowed actions for those capabilities.",
-            "properties": {
-                "path": {
-                    "type": "string",
-                    "description": "Required. A JSON string that contains a JSONPath expression identifying the capability or configuration element that users can modify. The JSONPath expression allows targeting specific capabilities by name only.",
-                    "pattern": "^(?!\\[\\[)(.*?)(?<!\\]\\])$"
-                },
-                "allowed_actions": {
-                    "type": "array",
-                    "description": "Required. A JSON array of strings that specifies what actions can be taken for the specified path. The only supported action is 'remove'.",
-                    "minItems": 1,
-                    "items": {
-                        "type": "string",
-                        "enum": [
-                            "remove"
-                        ]
-                    }
-                }
-            },
-            "required": [
-                "path",
-                "allowed_actions"
-            ],
-            "propertyNames": {
-                "enum": [
-                    "path",
-                    "allowed_actions"
                 ]
             }
         },
@@ -1110,6 +1223,45 @@
                 "enum": [
                     "container_url"
                 ]
+            }
+        },
+        "sensitivity-label-object": {
+            "type": "object",
+            "description": "A JSON object that specifies the sensitivity label for the DA. The GUID should match one of the published sensitivity labels within the tenant.",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "description": "Required. The GUID of the sensitivity label pulled from the Purview API."
+                }
+            },
+            "required": [
+                "id"
+            ],
+            "propertyNames": {
+                "enum": [
+                    "id"
+                ]
+            }
+        },
+        "conversation-starter-depends-on": {
+            "type": "object",
+            "description": "An object that identifies a dependency for a conversation starter.",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "description": "Required. The identifier of the dependency."
+                },
+                "name": {
+                    "type": "string",
+                    "description": "Required. The name of the dependency."
+                }
+            },
+            "required": [
+                "id",
+                "name"
+            ],
+            "propertyNames": {
+                "pattern": "^(id|name|x-.*)$"
             }
         },
         "agent-skill-object": {

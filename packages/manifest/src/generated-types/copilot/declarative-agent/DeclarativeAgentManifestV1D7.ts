@@ -32,11 +32,6 @@ export interface DeclarativeAgentManifestV1D7 {
     description: string;
     disclaimer?: Disclaimer;
     /**
-     * This member is an object that specifies the sensitivity label for the DA. It is an
-     * optional member.
-     */
-    sensitivity_label?: SensitivityLabel;
-    /**
      * Optional. Not localizable. The detailed instructions or guidelines on how the declarative
      * agent should behave, its functions, and any behaviors to avoid. It MUST contain at least
      * one nonwhitespace character and MUST be 8,000 characters or less.
@@ -53,7 +48,7 @@ export interface DeclarativeAgentManifestV1D7 {
     capabilities?: CapabilityElement[];
     /**
      * Optional. A list of examples of questions that the declarative agent can answer. There
-     * MUST NOT be more than twelve objects in the array.
+     * MUST NOT be more than 12 objects in the array.
      */
     conversation_starters?: ConversationStarterElement[];
     /**
@@ -62,19 +57,29 @@ export interface DeclarativeAgentManifestV1D7 {
      */
     actions?: ActionElement[];
     /**
-     * Optional. A list of objects that identify declarative agents to act as worker agents.
-     */
-    worker_agents?: WorkerAgentElement[];
-    /**
-     * Optional. A list of objects that allow the DA author to specify capabilities that can be
-     * modified by users and the allowed actions.
+     * Optional. A list of user override objects. This optional member allows DA authors to
+     * specify which capabilities can be dynamically adjusted by the user of the DA.
      */
     user_overrides?: UserOverrideElement[];
+    /**
+     * Optional. A JSON object that contains predefined question-answer pairs that the DA can
+     * use to respond to user queries based on semantic similarity.
+     */
+    editorial_answers?: EditorialAnswers;
+    /**
+     * Optional. A list of worker agent objects that identify declarative agents to act as
+     * worker agents.
+     */
+    worker_agents?: WorkerAgentElement[];
     /**
      * Optional. A list of objects that identify agent skill directories to bundle with the
      * declarative agent.
      */
     agent_skills?: AgentSkillElement[];
+    /**
+     * Optional. A JSON object that specifies the sensitivity label for the DA.
+     */
+    sensitivity_label?: SensitivityLabel;
     [property: string]: any;
 }
 
@@ -125,8 +130,17 @@ export interface BehaviorOverrides {
      * An object that contains suggestions for behavior overrides for the declarative agent.
      */
     suggestions?: Suggestions;
+    /**
+     * Optional. The default response mode for the declarative agent.
+     */
+    default_response_mode?: DefaultResponseMode;
     [property: string]: any;
 }
+
+/**
+ * Optional. The default response mode for the declarative agent.
+ */
+export type DefaultResponseMode = "Auto" | "Quick response" | "Think deeper";
 
 /**
  * An object that contains special instructions for the declarative agent.
@@ -175,8 +189,8 @@ export interface Suggestions {
  *
  * Indicates that the declarative agent can generate and execute code.
  *
- * Indicates that the declarative agent can images and art based on the text input from the
- * user.
+ * Indicates that the declarative agent can generate images and art based on the text input
+ * from the user.
  *
  * Indicates that the declarative agent can search through Teams channels, teams, meetings,
  * 1:1 chats and group chats.
@@ -191,14 +205,13 @@ export interface Suggestions {
  *
  * Indicates that the DA can search through meetings.
  *
- * A JSON object whose presence indicates that the DA will be able to use files locally in
- * the app package as knowledge.
+ * Indicates that the DA will be able to use files locally in the app package as knowledge.
  */
 export interface CapabilityElement {
     /**
-     * Required. The name of the capability. Allowed values are WebSearch, CodeInterpreter,
-     * OneDriveAndSharePoint, GraphConnectors, TeamsMessages, Dataverse, Email, ScenarioModels,
-     * People, GraphicArt, Meetings and EmbeddedKnowledge.
+     * Required. The name of the capability. Allowed values are WebSearch, GraphicArt,
+     * CodeInterpreter, OneDriveAndSharePoint, GraphConnectors, TeamsMessages,
+     * EmbeddedKnowledge, Email, People, Meetings, Dataverse, and ScenarioModels.
      *
      * Required. Must be set to WebSearch.
      *
@@ -272,9 +285,8 @@ export interface CapabilityElement {
      */
     group_mailboxes?: string[];
     /**
-     * Boolean. If true, include related documents, emails, and Teams messages worked on by
-     * people in your organization when searching People data. If false or omitted, only basic
-     * org info (org charts, names, email addresses, skills). Default false.
+     * A JSON boolean that indicates whether to include related content when searching people
+     * data. When set to true, the DA will include related documents, emails, and Teams messages.
      */
     include_related_content?: boolean;
     /**
@@ -282,13 +294,17 @@ export interface CapabilityElement {
      */
     models?: ModelElement[];
     /**
-     * A JSON array of objects that identify meetings. This array constrains the DA content
-     * access to only the meetings specified by the members of each Meeting Identifier Object.
+     * Optional. An array of objects that identify meetings by their ICalUID.
      */
     items_by_id?: ItemsByIDElement[];
     /**
-     * A JSON array of File Object. List of objects identifying files that contain knowledge the
-     * Agent can use for grounding.
+     * A JSON string identifier provisioned by an external file container storage service that
+     * can be used to locate the embedded knowledge files.
+     */
+    embedded_resource_snapshot_id?: string;
+    /**
+     * A JSON array of file objects. List of objects identifying files that contain knowledge
+     * the Agent can use for grounding. Maximum 10 files, max 1MB each.
      */
     files?: FileElement[];
     [property: string]: any;
@@ -389,8 +405,7 @@ export interface ItemsByPathElement {
  */
 export interface FileElement {
     /**
-     * A JSON string that contains the file relative path for the embedded file. It is a
-     * required member.
+     * A JSON string that contains the file relative path for the embedded file.
      */
     file: string;
     [property: string]: any;
@@ -410,11 +425,11 @@ export interface FolderElement {
  */
 export interface ItemsByIDElement {
     /**
-     * A JSON string that contains the ICalUID of a specific meeting. This member is required.
+     * A JSON string that contains the ICalUID of a specific meeting.
      */
     id: string;
     /**
-     * A JSON boolean that indicates whether the meeting is a series. This member is required.
+     * A JSON boolean that indicates whether the meeting is a series.
      */
     is_series: boolean;
     [property: string]: any;
@@ -508,7 +523,7 @@ export interface ModelElement {
     [property: string]: any;
 }
 
-export type Name = "WebSearch" | "CodeInterpreter" | "OneDriveAndSharePoint" | "GraphConnectors" | "GraphicArt" | "TeamsMessages" | "Dataverse" | "Email" | "People" | "ScenarioModels" | "Meetings" | "EmbeddedKnowledge";
+export type Name = "WebSearch" | "GraphicArt" | "CodeInterpreter" | "OneDriveAndSharePoint" | "GraphConnectors" | "TeamsMessages" | "EmbeddedKnowledge" | "Email" | "People" | "Meetings" | "Dataverse" | "ScenarioModels";
 
 /**
  * An object that identifies a site used to constrain the content accessible to the
@@ -549,6 +564,25 @@ export interface ConversationStarterElement {
      * least one nonwhitespace character.
      */
     title?: string;
+    /**
+     * Optional. A list of objects that specify dependencies for this conversation starter.
+     */
+    depends_on?: DependsOnElement[];
+    [property: string]: any;
+}
+
+/**
+ * An object that identifies a dependency for a conversation starter.
+ */
+export interface DependsOnElement {
+    /**
+     * Required. The identifier of the dependency.
+     */
+    id: string;
+    /**
+     * Required. The name of the dependency.
+     */
+    name: string;
     [property: string]: any;
 }
 
@@ -567,51 +601,107 @@ export interface Disclaimer {
 }
 
 /**
- * This member is an object that specifies the sensitivity label for the DA. It is an
- * optional member.
+ * Optional. A JSON object that contains predefined question-answer pairs that the DA can
+ * use to respond to user queries based on semantic similarity.
  *
- * A JSON object, when specified should match one of the GUIDs of the published sensitivity
- * labels within the tenant to which it is being published. This label should be at least as
- * restrictive as the most restrictive label on any knowledge files included in the agent.
- * See https://learn.microsoft.com/en-us/purview/create-sensitivity-labels  for more
- * information on sensitivity labels.
+ * A JSON object that contains either an answers array or url to define predefined
+ * question-answer pairs for semantic matching and responses.
+ */
+export interface EditorialAnswers {
+    /**
+     * A JSON string containing a URL that locates a document containing the editorial answers
+     * configuration.
+     */
+    url?: string;
+    /**
+     * A JSON array that contains a list of answer objects. There MUST NOT be more than 300
+     * objects in this array.
+     */
+    answers?: AnswerElement[];
+    [property: string]: any;
+}
+
+/**
+ * A JSON object containing a predefined question-answer pair.
+ */
+export interface AnswerElement {
+    /**
+     * A JSON string containing the predefined question that will be used for semantic
+     * similarity matching against user queries.
+     */
+    question: string;
+    /**
+     * A JSON string containing the predefined answer that will be returned when the user query
+     * matches the question above the similarity threshold.
+     */
+    answer:                 string;
+    similarity_thresholds?: SimilarityThresholds;
+    [property: string]: any;
+}
+
+/**
+ * A JSON object that contains the minimum and maximum similarity threshold values for
+ * semantic matching.
+ */
+export interface SimilarityThresholds {
+    /**
+     * A JSON number that represents the minimum similarity threshold. The value MUST be a
+     * number between 0 and 10 inclusive.
+     */
+    min: number;
+    /**
+     * A JSON number that represents the maximum similarity threshold. The value MUST be a
+     * number between 0 and 10 inclusive.
+     */
+    max: number;
+    [property: string]: any;
+}
+
+/**
+ * Optional. A JSON object that specifies the sensitivity label for the DA.
+ *
+ * A JSON object that specifies the sensitivity label for the DA. The GUID should match one
+ * of the published sensitivity labels within the tenant.
  */
 export interface SensitivityLabel {
     /**
-     * The GUID of the sensitivity_label that is pulled from Purview API
+     * Required. The GUID of the sensitivity label pulled from the Purview API.
      */
-    id?: string;
+    id: string;
     [property: string]: any;
 }
 
 /**
  * A JSON object that allows the DA author to specify the path of a capability that can be
- * modified and a set of allowed actions for those capabilities.
+ * modified and a set of allowed_actions for those capabilities.
  */
 export interface UserOverrideElement {
     /**
-     * Required. A JSON string that contains a JSONPath expression identifying the capability or
-     * configuration element that users can modify. The JSONPath expression allows targeting
-     * specific capabilities by name only.
+     * A JSON string that contains a JSONPath expression identifying the capability or
+     * configuration element that users can modify.
      */
     path: string;
     /**
-     * Required. A JSON array of strings that specifies what actions can be taken for the
-     * specified path. The only supported action is 'remove'.
+     * A JSON array of strings that specifies what actions can be taken for the specified path.
+     * The only supported action is 'remove'.
      */
     allowed_actions: "remove"[];
     [property: string]: any;
 }
 
 /**
- * A JSON object used to identify a declarative agent to act as a worker agent. Declarative
- * agents can be referenced via their id (Agent Id).
+ * A JSON object used to identify a declarative agent to act as a worker agent.
  */
 export interface WorkerAgentElement {
     /**
-     * Required. Not localizable. A unique identifier for a declarative agent.
+     * A JSON string that is a unique identifier for a Declarative Agent.
      */
-    id: string;
+    id?: string;
+    /**
+     * A JSON string that is a relative file path to a Declarative Agent manifest for the worker
+     * agent.
+     */
+    file?: string;
     [property: string]: any;
 }
 
@@ -771,6 +861,10 @@ function o(props: any[], additional: any) {
     return { props, additional };
 }
 
+function m(additional: any) {
+    return { props: [], additional };
+}
+
 function r(name: string) {
     return { ref: name };
 }
@@ -782,15 +876,16 @@ const typeMap: any = {
         { json: "name", js: "name", typ: "" },
         { json: "description", js: "description", typ: "" },
         { json: "disclaimer", js: "disclaimer", typ: u(undefined, r("Disclaimer")) },
-        { json: "sensitivity_label", js: "sensitivity_label", typ: u(undefined, r("SensitivityLabel")) },
         { json: "instructions", js: "instructions", typ: u(undefined, "") },
         { json: "behavior_overrides", js: "behavior_overrides", typ: u(undefined, r("BehaviorOverrides")) },
         { json: "capabilities", js: "capabilities", typ: u(undefined, a(r("CapabilityElement"))) },
         { json: "conversation_starters", js: "conversation_starters", typ: u(undefined, a(r("ConversationStarterElement"))) },
         { json: "actions", js: "actions", typ: u(undefined, a(r("ActionElement"))) },
-        { json: "worker_agents", js: "worker_agents", typ: u(undefined, a(r("WorkerAgentElement"))) },
         { json: "user_overrides", js: "user_overrides", typ: u(undefined, a(r("UserOverrideElement"))) },
+        { json: "editorial_answers", js: "editorial_answers", typ: u(undefined, r("EditorialAnswers")) },
+        { json: "worker_agents", js: "worker_agents", typ: u(undefined, a(r("WorkerAgentElement"))) },
         { json: "agent_skills", js: "agent_skills", typ: u(undefined, a(r("AgentSkillElement"))) },
+        { json: "sensitivity_label", js: "sensitivity_label", typ: u(undefined, r("SensitivityLabel")) },
     ], "any"),
     "ActionElement": o([
         { json: "id", js: "id", typ: "" },
@@ -803,6 +898,7 @@ const typeMap: any = {
     "BehaviorOverrides": o([
         { json: "special_instructions", js: "special_instructions", typ: u(undefined, r("SpecialInstructions")) },
         { json: "suggestions", js: "suggestions", typ: u(undefined, r("Suggestions")) },
+        { json: "default_response_mode", js: "default_response_mode", typ: u(undefined, r("DefaultResponseMode")) },
     ], "any"),
     "SpecialInstructions": o([
         { json: "discourage_model_knowledge", js: "discourage_model_knowledge", typ: u(undefined, true) },
@@ -824,6 +920,7 @@ const typeMap: any = {
         { json: "include_related_content", js: "include_related_content", typ: u(undefined, true) },
         { json: "models", js: "models", typ: u(undefined, a(r("ModelElement"))) },
         { json: "items_by_id", js: "items_by_id", typ: u(undefined, a(r("ItemsByIDElement"))) },
+        { json: "embedded_resource_snapshot_id", js: "embedded_resource_snapshot_id", typ: u(undefined, "") },
         { json: "files", js: "files", typ: u(undefined, a(r("FileElement"))) },
     ], "any"),
     "ConnectionElement": o([
@@ -892,20 +989,44 @@ const typeMap: any = {
     "ConversationStarterElement": o([
         { json: "text", js: "text", typ: "" },
         { json: "title", js: "title", typ: u(undefined, "") },
+        { json: "depends_on", js: "depends_on", typ: u(undefined, a(r("DependsOnElement"))) },
+    ], "any"),
+    "DependsOnElement": o([
+        { json: "id", js: "id", typ: "" },
+        { json: "name", js: "name", typ: "" },
     ], "any"),
     "Disclaimer": o([
         { json: "text", js: "text", typ: "" },
     ], "any"),
+    "EditorialAnswers": o([
+        { json: "url", js: "url", typ: u(undefined, "") },
+        { json: "answers", js: "answers", typ: u(undefined, a(r("AnswerElement"))) },
+    ], "any"),
+    "AnswerElement": o([
+        { json: "question", js: "question", typ: "" },
+        { json: "answer", js: "answer", typ: "" },
+        { json: "similarity_thresholds", js: "similarity_thresholds", typ: u(undefined, r("SimilarityThresholds")) },
+    ], "any"),
+    "SimilarityThresholds": o([
+        { json: "min", js: "min", typ: 3.14 },
+        { json: "max", js: "max", typ: 3.14 },
+    ], "any"),
     "SensitivityLabel": o([
-        { json: "id", js: "id", typ: u(undefined, "") },
+        { json: "id", js: "id", typ: "" },
     ], "any"),
     "UserOverrideElement": o([
         { json: "path", js: "path", typ: "" },
         { json: "allowed_actions", js: "allowed_actions", typ: a(r("AllowedAction")) },
     ], "any"),
     "WorkerAgentElement": o([
-        { json: "id", js: "id", typ: "" },
+        { json: "id", js: "id", typ: u(undefined, "") },
+        { json: "file", js: "file", typ: u(undefined, "") },
     ], "any"),
+    "DefaultResponseMode": [
+        "Auto",
+        "Quick response",
+        "Think deeper",
+    ],
     "PartType": [
         "OneNotePart",
     ],

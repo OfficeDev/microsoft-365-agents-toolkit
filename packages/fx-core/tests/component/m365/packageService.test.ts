@@ -2122,4 +2122,102 @@ describe("Package Service", () => {
     chai.assert.instanceOf(actualError, UserError);
     chai.assert.equal((actualError as UserError).name, "AppPackageSizeExceeded");
   });
+
+  it("publishAgent happy path with Personal scope", async () => {
+    axiosGetResponses["/config/v1/environment"] = {
+      data: {
+        titlesServiceUrl: "https://test-url",
+      },
+    };
+    axiosPostResponses["/builder/v1/users/packages"] = {
+      status: 201,
+      data: {
+        titlePreview: {
+          titleId: "test-title-id",
+          appId: "test-app-id",
+        },
+      },
+    };
+
+    const packageService = new PackageService("https://test-endpoint", logger);
+    const result = await packageService.publishAgent("test-token", "test-path", AppScope.Personal);
+    chai.assert.equal(result[0], "test-title-id");
+    chai.assert.equal(result[1], "test-app-id");
+    chai.assert.equal(result[2], "");
+  });
+
+  it("publishAgent with Shared scope should get shareLink", async () => {
+    axiosGetResponses["/config/v1/environment"] = {
+      data: {
+        titlesServiceUrl: "https://test-url",
+      },
+    };
+    axiosPostResponses["/builder/v1/users/packages"] = {
+      status: 201,
+      data: {
+        titlePreview: {
+          titleId: "test-title-id",
+          appId: "test-app-id",
+        },
+      },
+    };
+    axiosGetResponses["/marketplace/v1/users/titles/test-title-id/sharingInfo"] = {
+      status: 200,
+      data: {
+        unifiedStoreLink: "https://test-share-link.com",
+      },
+    };
+
+    const packageService = new PackageService("https://test-endpoint", logger);
+    const result = await packageService.publishAgent("test-token", "test-path", AppScope.Shared);
+    chai.assert.equal(result[0], "test-title-id");
+    chai.assert.equal(result[1], "test-app-id");
+    chai.assert.equal(result[2], "https://test-share-link.com");
+  });
+
+  it("publishAgent with Tenant scope should not get shareLink", async () => {
+    axiosGetResponses["/config/v1/environment"] = {
+      data: {
+        titlesServiceUrl: "https://test-url",
+      },
+    };
+    axiosPostResponses["/builder/v1/users/packages"] = {
+      status: 201,
+      data: {
+        titlePreview: {
+          titleId: "test-title-id",
+          appId: "test-app-id",
+        },
+      },
+    };
+
+    const packageService = new PackageService("https://test-endpoint", logger);
+    const result = await packageService.publishAgent("test-token", "test-path", AppScope.Tenant);
+    chai.assert.equal(result[0], "test-title-id");
+    chai.assert.equal(result[1], "test-app-id");
+    chai.assert.equal(result[2], "");
+  });
+
+  it("publishAgent defaults to Personal scope", async () => {
+    axiosGetResponses["/config/v1/environment"] = {
+      data: {
+        titlesServiceUrl: "https://test-url",
+      },
+    };
+    axiosPostResponses["/builder/v1/users/packages"] = {
+      status: 201,
+      data: {
+        titlePreview: {
+          titleId: "test-title-id",
+          appId: "test-app-id",
+        },
+      },
+    };
+
+    const packageService = new PackageService("https://test-endpoint", logger);
+    const result = await packageService.publishAgent("test-token", "test-path");
+    chai.assert.equal(result[0], "test-title-id");
+    chai.assert.equal(result[1], "test-app-id");
+    chai.assert.equal(result[2], "");
+  });
 });

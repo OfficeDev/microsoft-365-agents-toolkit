@@ -38,6 +38,7 @@ import * as TeamsManifestV1D23 from "./teams/TeamsManifestV1D23";
 import * as TeamsManifestV1D24 from "./teams/TeamsManifestV1D24";
 import * as TeamsManifestV1D25 from "./teams/TeamsManifestV1D25";
 import * as TeamsManifestV1D26 from "./teams/TeamsManifestV1D26";
+import * as TeamsManifestV1D27 from "./teams/TeamsManifestV1D27";
 import * as TeamsManifestV1D3 from "./teams/TeamsManifestV1D3";
 import * as TeamsManifestV1D4 from "./teams/TeamsManifestV1D4";
 import * as TeamsManifestV1D5 from "./teams/TeamsManifestV1D5";
@@ -57,6 +58,7 @@ export {
   DeclarativeAgentManifestV1D4,
   DeclarativeAgentManifestV1D5,
   DeclarativeAgentManifestV1D6,
+  DeclarativeAgentManifestV1D7,
   TeamsManifestV1D0,
   TeamsManifestV1D1,
   TeamsManifestV1D10,
@@ -76,6 +78,7 @@ export {
   TeamsManifestV1D24,
   TeamsManifestV1D25,
   TeamsManifestV1D26,
+  TeamsManifestV1D27,
   TeamsManifestV1D3,
   TeamsManifestV1D4,
   TeamsManifestV1D5,
@@ -114,12 +117,12 @@ export type TeamsManifest =
   | TeamsManifestV1D24.TeamsManifestV1D24
   | TeamsManifestV1D25.TeamsManifestV1D25
   | TeamsManifestV1D26.TeamsManifestV1D26
+  | TeamsManifestV1D27.TeamsManifestV1D27
   | TeamsManifestVDevPreview.TeamsManifestVDevPreview;
 
-export type TeamsManifestLatest = TeamsManifestV1D26.TeamsManifestV1D26;
+export type TeamsManifestLatest = TeamsManifestV1D27.TeamsManifestV1D27;
 
-export { SensitivityLabel } from "./copilot/declarative-agent/DeclarativeAgentManifestV1D6";
-export { AgentSkillElement } from "./copilot/declarative-agent/DeclarativeAgentManifestV1D7";
+export { AgentSkillElement,SensitivityLabel } from "./copilot/declarative-agent/DeclarativeAgentManifestV1D7";
 
 export type DeclarativeAgentManifest =
   | DeclarativeAgentManifestV1D0.DeclarativeAgentManifestV1D0
@@ -245,6 +248,10 @@ const TeamsManifestConverterMap: Converters = {
   "1.26": [
     TeamsManifestV1D26.Convert.toTeamsManifestV1D26,
     TeamsManifestV1D26.Convert.teamsManifestV1D26ToJson,
+  ],
+  "1.27": [
+    TeamsManifestV1D27.Convert.toTeamsManifestV1D27,
+    TeamsManifestV1D27.Convert.teamsManifestV1D27ToJson,
   ],
   devPreview: [
     TeamsManifestVDevPreview.Convert.toTeamsManifestVDevPreview,

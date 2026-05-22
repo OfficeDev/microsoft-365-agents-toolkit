@@ -151,6 +151,7 @@ export enum TelemetryProperty {
   Resources = "resources",
   Internal = "internal",
   InternalAlias = "internal-alias",
+  Skill = "skill",
   PreviewType = "preview-type",
   PreviewBrowser = "preview-browser",
   PreviewHub = "preview-hub",

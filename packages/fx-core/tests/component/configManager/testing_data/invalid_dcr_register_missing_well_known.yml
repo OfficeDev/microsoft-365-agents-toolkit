@@ -1,0 +1,8 @@
+version: v1.13
+provision:
+  - uses: dcr/register
+    with:
+      name: my-dcr-config
+      appId: ${{TEAMS_APP_ID}}
+    writeToEnvironmentFile:
+      configurationId: DCR_REGISTRATION_ID

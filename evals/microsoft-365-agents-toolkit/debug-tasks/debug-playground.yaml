@@ -1,0 +1,61 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/microsoft/waza/main/schemas/task.schema.json
+
+id: debug-playground
+name: Debug Teams Bot in Playground
+description: User wants to debug a simple bot
+tags:
+  - debug
+  - happy path
+inputs:
+  prompt: "I want to debug this bot locally in agents playground"
+  files:
+    - path: simple-bot/.gitignore
+    - path: simple-bot/.webappignore
+    - path: simple-bot/app.ts
+    - path: simple-bot/config.ts
+    - path: simple-bot/index.ts
+    - path: simple-bot/m365agents.yml
+    - path: simple-bot/m365agents.playground.yml
+    - path: simple-bot/package.json
+    - path: simple-bot/README.md
+    - path: simple-bot/tsconfig.json
+    - path: simple-bot/web.config
+    - path: simple-bot/appPackage/color.png
+    - path: simple-bot/appPackage/manifest.json
+    - path: simple-bot/appPackage/outline.png
+    - path: simple-bot/env/.env.dev
+    - path: simple-bot/env/.env.dev.user
+    - path: simple-bot/env/.env.playground
+    - path: simple-bot/img/echo-bot.png
+    - path: simple-bot/infra/azure.bicep
+    - path: simple-bot/infra/azure.parameters.json
+    - path: simple-bot/infra/botRegistration/azurebot.bicep
+expected:
+  should_trigger: true
+graders:
+  - type: file
+    name: atk_configs
+    config:
+      must_exist:
+        - "simple-bot/.localConfigs.playground"
+  - type: behavior
+    name: efficiency_check
+    config:
+      max_tool_calls: 30
+      max_duration_ms: 300000
+      forbidden_tools:
+        - rm
+        - sudo
+  - type: prompt
+    name: quality_check
+    config:
+      prompt: |
+        Review the agent's response. Check that the response is:
+        1. Successfully started Agents Playground.
+        2. Successfully started teams bot.
+        3. User can interact with bot in Playground.
+
+        If all criteria are met, call set_waza_grade_pass.
+        Otherwise, call set_waza_grade_fail with your reasoning.
+      model: "gpt-4.1"
+      continue_session: true

@@ -10,14 +10,14 @@
       "step_retry_timeout": 0.0
     },
     "total_steps": 5,
-    "created_at": "2026-05-09T08:25:23.526882",
+    "created_at": "2026-05-11T07:57:26.576590",
     "name": "Sample Adaptive Card Notification Remote Debug",
     "description": {
       "other": "",
       "owner": "v-helzha@microsoft.com",
       "workitem": "24121425"
     },
-    "generated_at": "2026-05-09T08:25:23.526882",
+    "generated_at": "2026-05-11T07:57:26.576590",
     "execution_order": [
       "plan_r_1107_015711",
       "step_155987e4",
@@ -33,7 +33,7 @@
       "step_b823b7af"
     ],
     "tags": [],
-    "updated_at": "2026-05-09T08:25:30.775240"
+    "updated_at": "2026-05-11T07:58:47.351590"
   },
   "steps": [
     {
@@ -55,7 +55,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_155987e4",
-      "created_at": "2026-05-09T08:25:23.534066",
+      "created_at": "2026-05-11T07:57:26.583597",
       "plan_id": "plan_39ab5566"
     },
     {
@@ -67,7 +67,7 @@
         "x": 784,
         "y": 336
       },
-      "description": "Click the \"Create\" button for the \"Adaptive Card Notification\" sample in the Microsoft 365 Agents Toolkit extension interface within Visual Studio Code.And input ${{var:app_name:adaptive-card-notification}} into the run time variable.",
+      "description": "Click the \"Create\" button for the \"Adaptive Card Notification\" sample in the Microsoft 365 Agents Toolkit extension interface within Visual Studio Code.And input ${{var:app_name:adaptive-card-notifi}} into the run time variable.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -81,7 +81,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_3c31cb9d",
-      "created_at": "2026-05-09T08:25:23.543018",
+      "created_at": "2026-05-11T07:57:26.591197",
       "plan_id": "plan_39ab5566"
     },
     {
@@ -101,7 +101,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": null,
-      "created_at": "2026-05-09T08:25:23.551157",
+      "created_at": "2026-05-11T07:57:26.597705",
       "plan_id": "plan_39ab5566"
     },
     {
@@ -119,7 +119,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": null,
-      "created_at": "2026-05-09T08:25:23.560684",
+      "created_at": "2026-05-11T07:57:26.601705",
       "plan_id": "plan_39ab5566"
     },
     {
@@ -137,7 +137,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": null,
-      "created_at": "2026-05-09T08:25:23.567685",
+      "created_at": "2026-05-11T07:57:26.606274",
       "plan_id": "plan_39ab5566"
     }
   ],

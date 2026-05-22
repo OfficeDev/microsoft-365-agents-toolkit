@@ -371,4 +371,62 @@ describe("component coordinator test", () => {
     const res = await coordinator.publish(context, inputs);
     assert.isTrue(res.isErr() && res.error.name === "LifeCycleUndefinedError");
   });
+  it("publish happy path - copilotAgent/publish opens Microsoft Admin Center", async () => {
+    const mockProjectModel: ProjectModel = {
+      version: "1.0.0",
+      publish: {
+        name: "publish",
+        driverDefs: [{ uses: "copilotAgent/publish", with: {} }],
+        resolvePlaceholders: () => {
+          return [];
+        },
+        execute: async (ctx: DriverContext): Promise<ExecutionResult> => {
+          return { result: ok(new Map()), summaries: [] };
+        },
+        resolveDriverInstances: mockedResolveDriverInstances,
+      },
+    };
+    sandbox.stub(metadataUtil, "parse").resolves(ok(mockProjectModel));
+    sandbox.stub(envUtil, "listEnv").resolves(ok(["dev", "prod"]));
+    sandbox.stub(envUtil, "readEnv").resolves(ok({}));
+    sandbox.stub(envUtil, "writeEnv").resolves(ok(undefined));
+    sandbox.stub(tools.ui, "selectOption").callsFake(async (config) => {
+      if (config.name === "env") {
+        return ok({ type: "success", result: "dev" });
+      } else {
+        return ok({ type: "success", result: "" });
+      }
+    });
+    const progressStartStub = sandbox.stub();
+    const progressEndStub = sandbox.stub();
+    sandbox.stub(tools.ui, "createProgressBar").returns({
+      start: progressStartStub,
+      end: progressEndStub,
+    } as any as IProgressHandler);
+    const showMessageStub = sandbox
+      .stub(tools.ui, "showMessage")
+      .callsFake(async (level, msg, modal, ...items) => {
+        if (items.length > 0 && items[0].includes("admin portal")) {
+          return ok(items[0]);
+        }
+        return ok("");
+      });
+    const openUrlStub = sandbox.stub(tools.ui, "openUrl").resolves(ok(true));
+    sandbox.stub(pathUtils, "getEnvFilePath").resolves(ok("."));
+    sandbox.stub(pathUtils, "getYmlFilePath").returns("m365agents.yml");
+    sandbox.stub(fs, "pathExistsSync").onFirstCall().returns(false).onSecondCall().returns(true);
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      projectPath: ".",
+      ignoreLockByUT: true,
+    };
+    const fxCore = new FxCore(tools);
+    const res = await fxCore.publishApplication(inputs);
+    assert.isTrue(res.isOk());
+    assert.isTrue(showMessageStub.calledOnce);
+    assert.isTrue(progressStartStub.calledOnce);
+    assert.isTrue(progressEndStub.calledOnceWithExactly(true));
+    assert.isTrue(openUrlStub.calledOnce);
+    assert.isTrue(openUrlStub.calledWith("https://aka.ms/atk-mac"));
+  });
 });

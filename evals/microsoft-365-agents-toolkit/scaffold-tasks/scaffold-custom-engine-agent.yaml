@@ -1,0 +1,38 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/microsoft/waza/main/schemas/task.schema.json
+
+id: scaffold-custom-engine-agent
+name: Scaffold Custom Engine Agent
+description: User wants to create a Custom Engine Agent using TypeScript
+tags:
+  - scaffold
+  - happy path
+inputs:
+  prompt: "Help me create a custom engine agent using TypeScript"
+expected:
+  should_trigger: true
+graders:
+  - type: file
+    name: atk_configs
+    config:
+      must_exist:
+        - "m365agents.yml"
+  - type: behavior
+    name: efficiency_check
+    config:
+      max_tool_calls: 15
+      max_duration_ms: 150000
+      forbidden_tools:
+        - rm
+        - sudo
+  - type: prompt
+    name: quality_check
+    config:
+      prompt: |
+        Review the agent's response. Check that the response is:
+        1. Successfully created a custom engine agent.
+        2. Recommend testing in Playground as next step.
+
+        If all criteria are met, call set_waza_grade_pass.
+        Otherwise, call set_waza_grade_fail with your reasoning.
+      model: "gpt-5.4"
+      continue_session: true

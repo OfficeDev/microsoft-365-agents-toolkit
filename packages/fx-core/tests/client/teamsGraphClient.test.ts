@@ -163,6 +163,37 @@ describe("TeamsGraphClient", () => {
     }
   });
 
+  it("createDcrRegistration should return response data", async () => {
+    const dcrPayload = { clientName: "dcr registration" } as any;
+    const response = { data: { id: oauthId } };
+    sandbox.stub(requester, "post").resolves(response as any);
+    sandbox.stub(RetryHandler, "Retry").callsFake(async (fn: any) => await fn());
+
+    const result = await client.createDcrRegistration(token, dcrPayload);
+
+    expect(result).to.deep.equal(response.data);
+  });
+
+  it("createDcrRegistration should wrap error", async () => {
+    const dcrPayload = { clientName: "dcr registration" } as any;
+    const error: any = {
+      name: "AxiosError",
+      message: "dcr create failed",
+      response: { headers: { "x-correlation-id": "corr-dcr" }, data: { reason: "failed" } },
+    };
+    sandbox.stub(requester, "post").rejects(error);
+    sandbox.stub(RetryHandler, "Retry").callsFake(async (fn: any) => await fn());
+
+    try {
+      await client.createDcrRegistration(token, dcrPayload);
+      expect.fail("Should throw");
+    } catch (e: any) {
+      expect(e).to.be.instanceOf(TeamsGraphAPIFailedSystemError);
+      expect(e.message).to.include(`api: ${TEAMS_GRAPH_API_NAMES.CREATE_DCR}`);
+      expect(e.message).to.include("corr-dcr");
+    }
+  });
+
   it("getApiKeyRegistrationById should return response data", async () => {
     const response = { data: { id: apiKeyId } };
     sandbox.stub(requester, "get").resolves(response as any);

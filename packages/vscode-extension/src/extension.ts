@@ -1341,7 +1341,7 @@ function registerLanguageFeatures(context: vscode.ExtensionContext) {
     );
   }
 
-  if (featureFlagManager.getBooleanValue(FeatureFlags.MCPForDA)) {
+  {
     const workspaceMCPConfigSelector: vscode.DocumentSelector = {
       pattern: `**/mcp.json`,
     };
