@@ -81,7 +81,7 @@ export class ManifestTemplateHoverProvider implements vscode.HoverProvider {
             message += `**${envName}** Trigger debug to see placeholder value \n\n`;
           } else {
             const commandUri = vscode.Uri.parse("command:fx-extension.provision");
-            message += `**${envName}**: [Trigger Teams: Provision in the cloud command to see placeholder value](${commandUri.toString()}) \n\n`;
+            message += `**${envName}**: [Trigger Microsoft 365 Agents: Provision in the cloud command to see placeholder value](${commandUri.toString()}) \n\n`;
           }
         }
       }
