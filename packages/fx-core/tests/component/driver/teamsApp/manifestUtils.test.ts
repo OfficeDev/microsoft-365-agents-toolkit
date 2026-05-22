@@ -629,9 +629,7 @@ describe("resolveLocFile", () => {
     );
 
     const expansionError = new UserError("source", "name", "message");
-    sandbox
-      .stub(envFunctionUtils, "expandVariableWithFunction")
-      .resolves(err(expansionError));
+    sandbox.stub(envFunctionUtils, "expandVariableWithFunction").resolves(err(expansionError));
 
     const context: any = {
       platform: Platform.VSCode,
