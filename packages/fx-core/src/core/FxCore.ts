@@ -2659,7 +2659,7 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
     }
 
     // Extract to temp directory first, then move atomically
-    const tempDir = path.join(os.tmpdir(), `atk-skill-import-${Date.now()}`);
+    const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "atk-skill-import-"));
     const tempSkillDir = path.join(tempDir, derivedSkillName);
     try {
       await fs.ensureDir(tempSkillDir);
