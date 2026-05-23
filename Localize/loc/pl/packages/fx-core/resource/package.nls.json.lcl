@@ -8076,10 +8076,13 @@
       </Item>
       <Item ItemId=";driver.teamsApp.warning.createUnsupportedCloud" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Skipping %s as the required Developer Portal API is not yet available in GCC H and DoD. App ID will be generated locally later.]]></Val>
+          <Val><![CDATA[Skipping %s as the required Developer Portal API is not yet available in GCC H and DoD. App ID will be generated locally.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Pomijamy %s, ponieważ niezbędny interfejs API portalu deweloperskiego nie jest jeszcze dostępny w systemach GCC H i DoD. Identyfikator aplikacji zostanie wygenerowany lokalnie w późniejszym terminie.]]></Val>
+            <Val><![CDATA[Pomijamy %s, ponieważ niezbędny interfejs API portalu deweloperskiego nie jest jeszcze dostępny w systemach GCC H i DoD. Identyfikator aplikacji zostanie wygenerowany lokalnie.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Skipping %s as the required Developer Portal API is not yet available in GCC H and DoD. App ID will be generated locally later.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -9578,7 +9581,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to download sample due to rate limitation. Try again in an  hour after rate limit reset or you can manually clone the repo from %s.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Nie można pobrać próbki z powodu ograniczenia szybkości. Spróbuj ponownie za godzinę po zresetowaniu limitu szybkości lub możesz ręcznie sklonować repozytorium z %s.]]></Val>
+            <Val><![CDATA[Nie można pobrać próbki z powodu limitu liczby żądań. Spróbuj ponownie za godzinę po zresetowaniu limitu liczby żądań. Możesz też ręcznie sklonować repozytorium z %s.]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Unable to download sample due to throttling. Retry later after rate limit reset (This may take up to 1 hour). Alternatively, you can go to %s to git clone the repo manually]]></Val>
@@ -10008,6 +10011,15 @@
           <Val><![CDATA[File path: %s, title: %s]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Ścieżka pliku: %s, tytuł: %s]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.teamsGraph.apiFailed" ItemType="0" PsrId="306" InstFlg="true" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to make API call to Teams Graph. Check [Output panel]5D;(command:fx-extension.showOutputChannel) for details.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Nie można wykonać wywołania interfejsu API do programu Teams Graph. Sprawdź [panel danych wyjściowych]5D;(command:fx-extension.showOutputChannel), aby uzyskać szczegółowe informacje.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
