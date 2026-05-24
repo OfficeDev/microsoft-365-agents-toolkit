@@ -516,7 +516,7 @@ jobs:
 
               echo "Processing: dir_name=$dir_name, test_plan=$test_plan, run_id=$run_id, case_run_id=$case_run_id"
 
-              content=$(cat "$file" | tr -d '\n' | tr -d '\r')
+              content_json=$(cat "$file" | tr -d '\n' | tr -d '\r' | jq -Rs .)
 
               if [ "$first_entry" = true ]; then
                 first_entry=false
@@ -524,7 +524,8 @@ jobs:
                 echo "," >> /tmp/url_mapping.json
               fi
 
-              echo "  \"$case_run_id\": \"$content\"" >> /tmp/url_mapping.json
+              key_json=$(printf '%s' "$case_run_id" | jq -Rs .)
+              echo "  $key_json: $content_json" >> /tmp/url_mapping.json
             done
 
             echo "}" >> /tmp/url_mapping.json
@@ -558,7 +559,7 @@ jobs:
 
               echo "Processing error: dir_name=$dir_name, test_plan=$test_plan, run_id=$run_id, case_run_id=$case_run_id"
 
-              content=$(cat "$file" | tr -d '\n' | tr -d '\r' | sed 's/"/\\"/g')
+              content_json=$(cat "$file" | tr -d '\n' | tr -d '\r' | jq -Rs .)
 
               if [ "$first_entry" = true ]; then
                 first_entry=false
@@ -566,7 +567,8 @@ jobs:
                 echo "," >> /tmp/error_mapping.json
               fi
 
-              echo "  \"$case_run_id\": \"$content\"" >> /tmp/error_mapping.json
+              key_json=$(printf '%s' "$case_run_id" | jq -Rs .)
+              echo "  $key_json: $content_json" >> /tmp/error_mapping.json
             done
 
             echo "}" >> /tmp/error_mapping.json

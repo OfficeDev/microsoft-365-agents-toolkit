@@ -60,7 +60,7 @@ jobs:
 
   trigger-ui-test-features:
     needs: run
-    if: ${{ always() && needs.run.result != 'skipped' && github.event.inputs.schedule_trigger == 'true' }}
+    if: ${{ always() && github.event.inputs.schedule_trigger == 'true' && needs.run.result != 'skipped' && needs.run.result != 'cancelled' && (needs.run.result == 'success' || github.run_attempt >= fromJson(github.event.inputs.max_retries || '7')) }}
     runs-on: ubuntu-latest
     permissions:
       actions: write
