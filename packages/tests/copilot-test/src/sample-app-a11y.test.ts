@@ -294,12 +294,12 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
    */
   test("TC-001: Link text color contrast ≥ 4.5:1", async () => {
     if (!galleryOpened) {
+      takeScreenshot("03-tc001-link-contrast");
       step(
         "TC-001 Link text contrast ≥ 4.5:1",
         false,
         "FAIL: Gallery webview not open. Cannot verify link color contrast.",
       );
-      takeScreenshot("03-tc001-link-contrast");
       return;
     }
     // Primary: computed color of .ms-Link elements (visible when shouldShowChat=true).
@@ -328,12 +328,15 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
     console.log("  TC-001 eval result:", rawResult ? rawResult.slice(0, 120) : "(empty)");
 
     if (!rawResult || rawResult.startsWith("ERROR:")) {
+      takeScreenshot("03-tc001-link-contrast");
       step("TC-001 Link text contrast ≥ 4.5:1", false,
         "FAIL: DOM eval error — gallery may not be accessible via Playwright.");
+      return;
     } else if (rawResult.startsWith("colors:")) {
       const colors = rawResult.slice(7).split(",").filter(Boolean);
       const problematicColor = "rgb(72, 160, 199)";
       const hasProblematic = colors.some((c) => c.trim() === problematicColor);
+      takeScreenshot("03-tc001-link-contrast");
       step(
         "TC-001 Link text contrast ≥ 4.5:1",
         !hasProblematic,
@@ -341,10 +344,12 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
           ? `FAIL: Found low-contrast color ${problematicColor} on .ms-Link`
           : `Link colors OK: ${colors.join(", ")}`,
       );
+      return;
     } else if (rawResult.startsWith("css-rule:")) {
       const rules = rawResult.slice(9);
       const hasGoodRule =
         rules.includes("#005b9e") || rules.includes("#005B9E") || rules.includes("rgb(0, 91, 158)");
+      takeScreenshot("03-tc001-link-contrast");
       step(
         "TC-001 Link text contrast ≥ 4.5:1",
         hasGoodRule,
@@ -353,13 +358,13 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
           : `FAIL: CSS rule for .ms-Link exists but wrong color: ${rules.slice(0, 80)}`,
       );
     } else {
+      takeScreenshot("03-tc001-link-contrast");
       step(
         "TC-001 Link text contrast ≥ 4.5:1",
         false,
         "FAIL: No .ms-Link elements and no CSS fix rule found. Fix not applied (shouldShowChat=false hides links; CSS fix must be in stylesheet).",
       );
     }
-    takeScreenshot("03-tc001-link-contrast");
   });
 
   /**
@@ -389,12 +394,12 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
         const buttonNodes = nodes.filter(n => n.role.toLowerCase() === "button");
         const featuredNodes = buttonNodes.filter(n => (n.name || "").startsWith("Featured sample"));
         const hasFeaturedAria = featuredNodes.length > 0;
+        takeScreenshot("04-tc002-featured-aria");
         step(
           "TC-002 Featured ARIA differentiation",
           hasFeaturedAria,
           `[AX-TREE] ${buttonNodes.length} button nodes, ${featuredNodes.length} with "Featured sample" prefix`,
         );
-        takeScreenshot("04-tc002-featured-aria");
         return;
       }
       if (rawResult && !rawResult.startsWith("ERROR:")) {
@@ -402,6 +407,7 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
         try { data002 = JSON.parse(rawResult); } catch {}
         if (data002 !== null) {
           const hasFeaturedAria = data002.featuredPrefixed > 0;
+          takeScreenshot("04-tc002-featured-aria");
           step(
             "TC-002 Featured ARIA differentiation",
             hasFeaturedAria,
@@ -410,24 +416,25 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
               : `FAIL: ${data002.featuredTotal} featured cards, 0 with "Featured sample." in aria-label. ` +
                 `Sample: "${(data002.sampleFeaturedLabel || "").slice(0, 80)}"`,
           );
+          return;
         } else {
+          takeScreenshot("04-tc002-featured-aria");
           step(
             "TC-002 Featured ARIA differentiation",
             false,
             "parse error: " + rawResult.slice(0, 100),
           );
+          return;
         }
-        takeScreenshot("04-tc002-featured-aria");
-        return;
       }
     }
 
+    takeScreenshot("04-tc002-featured-aria");
     step(
       "TC-002 Featured ARIA differentiation",
       false,
       "FAIL: Gallery webview not open. Extension must activate and gallery must load for DOM-based A11y check.",
     );
-    takeScreenshot("04-tc002-featured-aria");
   });
 
   /**
@@ -436,12 +443,12 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
    */
   test("TC-003: Featured badge contrast ≥ 3:1", async () => {
     if (!galleryOpened) {
+      takeScreenshot("05-tc003-badge-contrast");
       step(
         "TC-003 Featured badge present with accessible contrast",
         false,
         "FAIL: Gallery webview not open. Cannot check featured badge.",
       );
-      takeScreenshot("05-tc003-badge-contrast");
       return;
     }
     // Check .featured-sample-section (gallery loaded) + .featured-badge (added by fix).
@@ -457,8 +464,10 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
     const rawResult = sendEvalSignal(evalScript, 5000);
 
     if (!rawResult || rawResult.startsWith("ERROR:")) {
+      takeScreenshot("05-tc003-badge-contrast");
       step("TC-003 Featured badge present with accessible contrast", false, "FAIL: DOM eval error.");
     } else if (rawResult === "no-featured-section") {
+      takeScreenshot("05-tc003-badge-contrast");
       step("TC-003 Featured badge present with accessible contrast", false,
         "FAIL: .featured-sample-section not found (gallery may not have loaded featured samples).");
     } else {
@@ -466,12 +475,14 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
       try { data003 = JSON.parse(rawResult); } catch {}
       if (data003 !== null) {
         if (data003.count === 0) {
+          takeScreenshot("05-tc003-badge-contrast");
           step(
             "TC-003 Featured badge present with accessible contrast",
             false,
             "FAIL: .featured-sample-section present but no .featured-badge elements. A11y bug: badge element not added to featured cards.",
           );
         } else {
+          takeScreenshot("05-tc003-badge-contrast");
           step(
             "TC-003 Featured badge present with accessible contrast",
             true,
@@ -479,10 +490,10 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
           );
         }
       } else {
+        takeScreenshot("05-tc003-badge-contrast");
         step("TC-003 Featured badge contrast ≥ 3:1", false, "parse error: " + rawResult.slice(0, 100));
       }
     }
-    takeScreenshot("05-tc003-badge-contrast");
   });
 
   /**
@@ -513,12 +524,12 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
         const tagNodes = buttonNodes.filter(n => (n.name || "").toLowerCase().includes("tags:"));
         const hasTagsInLabel = tagNodes.length > 0;
         const sample = tagNodes[0]?.name || "";
+        takeScreenshot("06-tc004-tags-aria");
         step(
           "TC-004 Tags in aria-label",
           hasTagsInLabel,
           `[AX-TREE] ${buttonNodes.length} buttons, ${tagNodes.length} with "Tags:" in name. Sample: "${sample.slice(0, 80)}"`,
         );
-        takeScreenshot("06-tc004-tags-aria");
         return;
       }
       if (rawResult && !rawResult.startsWith("ERROR:")) {
@@ -526,6 +537,7 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
         try { data004 = JSON.parse(rawResult); } catch {}
         if (data004 !== null) {
           const hasTagsInLabel = data004.withTags > 0;
+          takeScreenshot("06-tc004-tags-aria");
           step(
             "TC-004 Tags in aria-label",
             hasTagsInLabel,
@@ -533,20 +545,21 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
               ? `OK: ${data004.withTags}/${data004.total} cards have "Tags:" in aria-label. Sample: "${(data004.sample || "").slice(0, 80)}"`
               : `FAIL: ${data004.total} cards found, 0 have "Tags:" in aria-label. Sample: "${(data004.sample || "").slice(0, 80)}"`,
           );
+          return;
         } else {
+          takeScreenshot("06-tc004-tags-aria");
           step("TC-004 Tags in aria-label", false, "parse error: " + rawResult.slice(0, 100));
+          return;
         }
-        takeScreenshot("06-tc004-tags-aria");
-        return;
       }
     }
 
+    takeScreenshot("06-tc004-tags-aria");
     step(
       "TC-004 Tags in aria-label",
       false,
       "FAIL: Gallery webview not open. Extension must activate and gallery must load for DOM-based A11y check.",
     );
-    takeScreenshot("06-tc004-tags-aria");
   });
 
   /**
@@ -569,12 +582,12 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
           n.pressed !== undefined
         );
         const hasAriaPressed = pressedButtons.length > 0;
+        takeScreenshot("07-tc005-toggle-aria-pressed");
         step(
           "TC-005 Toggle buttons have aria-pressed",
           hasAriaPressed,
           `[AX-TREE] ${pressedButtons.length} buttons with pressed state found. States: ${JSON.stringify(pressedButtons.map(b => ({name: b.name, pressed: b.pressed})).slice(0,3))}`,
         );
-        takeScreenshot("07-tc005-toggle-aria-pressed");
         return;
       }
       if (rawResult && !rawResult.startsWith("ERROR:")) {
@@ -586,30 +599,32 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
             data005.buttons?.some(
               (b: any) => b.pressed === "true" || b.pressed === "false",
             );
+          takeScreenshot("07-tc005-toggle-aria-pressed");
           step(
             "TC-005 Toggle buttons have aria-pressed",
             hasAriaPressed,
             `${data005.count} layout buttons found. States: ${JSON.stringify(data005.buttons)}`,
           );
+          return;
         } else {
+          takeScreenshot("07-tc005-toggle-aria-pressed");
           step(
             "TC-005 Toggle aria-pressed",
             false,
             "parse error: " + rawResult.slice(0, 100),
           );
+          return;
         }
-        takeScreenshot("07-tc005-toggle-aria-pressed");
-        return;
       }
     }
 
     // Gallery not open — cannot verify TC without live DOM.
+    takeScreenshot("07-tc005-toggle-aria-pressed");
     step(
       "TC-005 Toggle buttons aria-pressed",
       false,
       "FAIL: Gallery webview not open. Extension must activate and gallery must load for DOM-based A11y check.",
     );
-    takeScreenshot("07-tc005-toggle-aria-pressed");
   });
 
   test("Final state", async () => {
