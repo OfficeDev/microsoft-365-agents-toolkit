@@ -45,6 +45,16 @@
     const leftInput = document.getElementById("leftInput");
     const rightInput = document.getElementById("rightInput");
     const frames = document.getElementById("frames");
+    const ALLOWED_PROTOCOLS = new Set(["http:", "https:", "file:"]);
+
+    function safeIframeSrc(url) {
+      if (!url) return "about:blank";
+      try {
+        const parsed = new URL(url, location.href);
+        if (ALLOWED_PROTOCOLS.has(parsed.protocol)) return parsed.href;
+      } catch (_) { /* fall through */ }
+      return "about:blank";
+    }
 
     function render(left, right) {
       leftInput.value = left || "";
@@ -53,8 +63,8 @@
       frames.innerHTML = "";
       const l = document.createElement("iframe");
       const r = document.createElement("iframe");
-      l.src = left || "about:blank";
-      r.src = right || "about:blank";
+      l.src = safeIframeSrc(left);
+      r.src = safeIframeSrc(right);
       frames.append(l, r);
     }
 

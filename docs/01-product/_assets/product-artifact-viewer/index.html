@@ -282,6 +282,9 @@
       }
 
       const result = parts.join("/");
+      if (!/^[a-zA-Z0-9_./-]+$/.test(result)) {
+        throw new Error("Path may only contain alphanumerics, dot, dash, underscore, and forward slash.");
+      }
       const extension = result.match(/\.[^.\/]+$/)?.[0]?.toLowerCase();
       if (!extension || !allowedExtensions.has(extension)) {
         throw new Error("Renderer supports .md and .mmd files.");

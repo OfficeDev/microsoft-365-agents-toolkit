@@ -487,7 +487,7 @@ function buildScenarioToc() {
   for (const item of items) {
     const li = document.createElement("li");
     const link = document.createElement("a");
-    link.href = `#${item.id}`;
+    link.href = `#${encodeURIComponent(item.id)}`;
     link.textContent = item.text;
     link.dataset.tocTarget = item.id;
     li.appendChild(link);
