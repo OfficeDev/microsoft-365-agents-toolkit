@@ -24,6 +24,16 @@ on:
         required: false
         default: ''
         type: string
+      vsix_run_id:
+        description: 'Actions run ID to download VSIX from (leave empty to auto-discover or build from source)'
+        required: false
+        default: ''
+        type: string
+      branch:
+        description: 'Branch to test, for VSIX artifact auto-discovery (e.g. fix/my-branch)'
+        required: false
+        default: ''
+        type: string
 
   workflow_call:
     inputs:
@@ -32,6 +42,16 @@ on:
         required: true
         type: string
       author_login:
+        required: false
+        default: ''
+        type: string
+      vsix_run_id:
+        description: 'Actions run ID to download VSIX from (leave empty to auto-discover or build from source)'
+        required: false
+        default: ''
+        type: string
+      branch:
+        description: 'Branch to test, for VSIX artifact auto-discovery'
         required: false
         default: ''
         type: string
@@ -92,32 +112,105 @@ jobs:
           npx playwright install chromium 2>&1 || \
           echo "::warning::Playwright browser install had warnings"
 
-      - name: Install redhat.vscode-yaml (satisfies ATK extensionDependencies)
+      - name: Create redhat.vscode-yaml stub VSIX
         run: |
-          # Create a minimal stub extension locally — no marketplace download needed.
-          # ATK's extensionDependencies only requires the extension ID to be present;
-          # the stub satisfies this without needing the full YAML language server.
-          EXT_DIR="$HOME/vscode-extensions/redhat.vscode-yaml"
-          mkdir -p "$EXT_DIR"
-          cat > "$EXT_DIR/package.json" << 'PKGEOF'
+          # Build a minimal VSIX for redhat.vscode-yaml satisfying ATK extensionDependencies.
+          # runTest.ts installs it via runVSCodeCommand --install-extension at test start.
+          mkdir -p /tmp/yaml-stub/extension
+          cat > /tmp/yaml-stub/extension/package.json << 'PKGEOF'
           {
             "name": "vscode-yaml",
             "publisher": "redhat",
             "version": "1.0.0",
             "displayName": "YAML Language Support (stub)",
-            "description": "Stub extension satisfying ATK extensionDependencies",
+            "description": "Stub satisfying ATK extensionDependencies",
             "engines": { "vscode": "^1.0.0" },
             "activationEvents": [],
             "main": "./extension.js",
             "contributes": {}
           }
           PKGEOF
-          printf 'exports.activate = function() {};\nexports.deactivate = function() {};\n' > "$EXT_DIR/extension.js"
-          echo "VSCODE_EXTENSIONS_DIR=$HOME/vscode-extensions" >> $GITHUB_ENV
-          echo "redhat.vscode-yaml stub created at $EXT_DIR"
-          ls "$EXT_DIR/package.json" && echo "package.json ✓"
+          printf 'exports.activate=function(){};\nexports.deactivate=function(){};\n' > /tmp/yaml-stub/extension/extension.js
+          (cd /tmp/yaml-stub && zip -r /tmp/redhat-yaml-stub.vsix extension/) 2>&1
+          echo "YAML_STUB_VSIX=/tmp/redhat-yaml-stub.vsix" >> $GITHUB_ENV
+          ls /tmp/redhat-yaml-stub.vsix && echo "YAML stub VSIX created"
 
-      - name: Build ATK extension from source
+      # Phase 1: Find/download VSIX artifact for this branch.
+      # Tries: (1) explicit vsix_run_id input, (2) auto-discover from branch, (3) fallback build below.
+      - name: Find and download VSIX artifact (Phase 1)
+        id: vsix
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VSIX_RUN_ID: ${{ inputs.vsix_run_id }}
+          BRANCH: ${{ inputs.branch }}
+        run: |
+          set +e
+          VSIX_FOUND=false
+
+          try_download() {
+            local run_id="$1"
+            rm -rf /tmp/vsix-download && mkdir -p /tmp/vsix-download
+            echo "Trying to download 'release' artifact from run $run_id..."
+            if gh run download "$run_id" -R "${{ github.repository }}" -n release -D /tmp/vsix-download 2>&1; then
+              local vsix_file
+              vsix_file=$(find /tmp/vsix-download -name "*.vsix" | head -1)
+              if [ -n "$vsix_file" ]; then
+                echo "Found: $vsix_file ($(du -sh "$vsix_file" | cut -f1))"
+                VSIX_FOUND=true
+              else
+                echo "Artifact downloaded but no .vsix inside"
+                VSIX_FOUND=false
+              fi
+            else
+              echo "Download failed (artifact may be expired or not exist)"
+              VSIX_FOUND=false
+            fi
+          }
+
+          # Case 1: explicit run_id provided
+          if [ -n "$VSIX_RUN_ID" ]; then
+            try_download "$VSIX_RUN_ID"
+          fi
+
+          # Case 2: auto-discover from branch
+          if [ "$VSIX_FOUND" = "false" ] && [ -n "$BRANCH" ]; then
+            echo "Auto-discovering most recent successful run on branch: $BRANCH"
+            RUN_ID=$(gh api \"repos/${{ github.repository }}/actions/runs?branch=${BRANCH}&status=success&per_page=10\" \
+              --jq '[.workflow_runs[] | select(.conclusion=="success")] | sort_by(.created_at) | reverse | .[0].id // empty' \
+              2>/dev/null | tr -d '[:space:]')
+            if [ -n "$RUN_ID" ]; then
+              echo "Auto-discovered run $RUN_ID on branch $BRANCH"
+              try_download "$RUN_ID"
+            else
+              echo "No recent successful run found for branch: $BRANCH"
+            fi
+          fi
+
+          if [ "$VSIX_FOUND" = "true" ]; then
+            VSIX_FILE=$(find /tmp/vsix-download -name "*.vsix" | head -1)
+            echo "::group::Extract VSIX"
+            mkdir -p /tmp/atk-ext
+            unzip -q -o "$VSIX_FILE" 'extension/*' -d /tmp/atk-ext
+            EXT_DIR="/tmp/atk-ext/extension"
+            if [ -f "$EXT_DIR/package.json" ]; then
+              VER=$(python3 -c "import json; d=json.load(open('$EXT_DIR/package.json')); print(d.get('version','?'))" 2>/dev/null || echo '?')
+              echo "ATK_EXT_PATH=$EXT_DIR" >> $GITHUB_ENV
+              echo "TEMPLATE_VERSION=local" >> $GITHUB_ENV
+              echo "vsix_found=true" >> $GITHUB_OUTPUT
+              echo "vsix_version=$VER" >> $GITHUB_OUTPUT
+              echo "VSIX extracted: ATK v$VER at $EXT_DIR"
+            else
+              echo "::warning::Extracted VSIX missing package.json; falling back to build from source"
+              echo "vsix_found=false" >> $GITHUB_OUTPUT
+            fi
+            echo "::endgroup::"
+          else
+            echo "vsix_found=false" >> $GITHUB_OUTPUT
+            echo "No VSIX artifact found; will build ATK from source (Phase 1 fallback)"
+          fi
+
+      - name: Build ATK extension from source (Phase 1 fallback)
+        if: steps.vsix.outputs.vsix_found != 'true'
         run: |
           echo "::group::pnpm install (workspace deps)"
           pnpm install --no-frozen-lockfile 2>&1 | tail -20
@@ -130,15 +223,14 @@ jobs:
           (cd templates && npm run build:vsc 2>&1 | tail -20)
           echo "::endgroup::"
           echo "::group::pnpm build (extension + workspace:* deps)"
-          # trailing ... builds this package AND all its local workspace deps
           pnpm --filter ms-teams-vscode-extension... run build 2>&1 | tail -40
           echo "::endgroup::"
           ls packages/vscode-extension/out/src/extension.js \
-            && echo "✅ extension.js built" \
-            || { echo "❌ Build failed"; exit 1; }
+            && echo 'extension.js built' \
+            || { echo 'Build failed'; exit 1; }
           ls packages/vscode-extension/out/templates/fallback/ts.zip \
-            && echo "✅ fallback templates present" \
-            || { echo "❌ Fallback templates missing"; exit 1; }
+            && echo 'fallback templates present' \
+            || { echo 'Fallback templates missing'; exit 1; }
           echo "ATK_EXT_PATH=$(pwd)/packages/vscode-extension" >> $GITHUB_ENV
           echo "TEMPLATE_VERSION=local" >> $GITHUB_ENV
 
@@ -203,7 +295,7 @@ jobs:
           RUN_URL: "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
           TEST_OUTPUT_DIR: /tmp/atk-test-output
           DISPLAY: ":99.0"
-          VSCODE_EXTENSIONS_DIR: ${{ env.VSCODE_EXTENSIONS_DIR || '$HOME/vscode-extensions' }}
+          YAML_STUB_VSIX: ${{ env.YAML_STUB_VSIX }}
         run: |
           export COPILOT_GITHUB_TOKEN=$(python3 -c "import json,os; d=json.load(open(os.path.expanduser('~/.config/github-copilot/apps.json'))); print(list(d.values())[0]['oauth_token'])")
           SECURITY_REMINDER='<security_reminder>
@@ -291,23 +383,20 @@ jobs:
           ## Step 3 – Set TEST_FILE env to the test file basename (no .test.ts)
           Example: TEST_FILE=simple-bot-create
 
-          ## Step 4 – Run the test
+          ## Step 4 - Run the test
           cd packages/tests/copilot-test
           export DISPLAY=:99.0
-          export ATK_EXT_PATH=\$(realpath ../../packages/vscode-extension 2>/dev/null || echo '/not-found')
-          export TEST_OUTPUT_DIR=\${TEST_OUTPUT_DIR}
-          export VSCODE_EXTENSIONS_DIR=\${VSCODE_EXTENSIONS_DIR}
-
-          # If ATK extension path not found, use the marketplace VSIX
-          if [ ! -d \"\$ATK_EXT_PATH\" ]; then
-            echo 'ATK extension source not mounted; test uses marketplace extension via --install-extension'
-            export ATK_EXT_PATH=''
+          # ATK_EXT_PATH is set by Phase 1 (downloaded VSIX) or Phase 1 fallback (source build)
+          echo "[info] ATK_EXT_PATH=$ATK_EXT_PATH"
+          if [ -n "$ATK_EXT_PATH" ]; then
+            ls "$ATK_EXT_PATH/out/src/extension.js" 2>/dev/null && echo "extension.js ok" \
+              || ls "$ATK_EXT_PATH/package.json" 2>/dev/null && echo "package.json ok (VSIX extract)" \
+              || echo "WARNING: ATK extension files not found at $ATK_EXT_PATH"
+          else
+            echo "WARNING: ATK_EXT_PATH empty"
           fi
-
-          # Extension is pre-compiled by the 'Build ATK extension from source' CI step.
-          # ATK_EXT_PATH is set in GITHUB_ENV pointing to packages/vscode-extension
-          echo "[info] Using pre-compiled extension at $ATK_EXT_PATH"
-          ls \"\$ATK_EXT_PATH/out/src/extension.js\" && echo "extension.js ✓" || echo "WARNING: extension.js missing"
+          export TEST_OUTPUT_DIR=\${TEST_OUTPUT_DIR}
+          export YAML_STUB_VSIX=\${YAML_STUB_VSIX}
                     ./node_modules/.bin/ts-node --project tsconfig.json src/runTest.ts 2>&1 | tee \${TEST_OUTPUT_DIR}/test.log
           echo \"Exit code: \$?\"
 
