@@ -101,7 +101,8 @@ jobs:
             echo "cases=$inputCases" >> $GITHUB_OUTPUT
           fi
 
-      - name: E2E Test clean
+      - name: E2E Test clean (scheduled only)
+        if: ${{ github.event_name != 'pull_request' }}
         working-directory: packages/tests
         run: |
           npm run test:e2e:clean
@@ -109,6 +110,7 @@ jobs:
   execute-case:
     if: ${{ needs.setup.outputs.cases }}
     env:
+      E2E_RUN_ID: ${{ github.event_name == 'pull_request' && github.run_id || '' }}
       AZURE_ACCOUNT_NAME: ${{ vars.TEST_E2E_ACCOUNT_NAME }}
       AZURE_ACCOUNT_PASSWORD: ${{ secrets.TEST_E2E_ACCOUNT_PASSWORD }}
       AZURE_SUBSCRIPTION_ID: ${{ vars.TEST_E2E_SUBSCRIPTION_ID }}
@@ -218,6 +220,8 @@ jobs:
     if: ${{ always() && toJSON(needs.execute-case.outputs.cases) != 'null' }}
     runs-on: ubuntu-latest
     env:
+      E2E_RUN_ID: ${{ github.event_name == 'pull_request' && github.run_id || '' }}
+      E2E_CLEANUP_PREFIX: ${{ github.event_name == 'pull_request' && format('fxE2E{0}', github.run_id) || '' }}
       AZURE_ACCOUNT_NAME: ${{ vars.TEST_E2E_ACCOUNT_NAME }}
       AZURE_ACCOUNT_PASSWORD: ${{ secrets.TEST_E2E_ACCOUNT_PASSWORD }}
       AZURE_SUBSCRIPTION_ID: ${{ vars.TEST_E2E_SUBSCRIPTION_ID }}
