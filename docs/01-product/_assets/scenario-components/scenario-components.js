@@ -216,10 +216,12 @@ function renderOption(option, definition) {
     <li class="vscode-option${markerClass}${dividerClass} ${stateClasses}" aria-label="${escapeHtml(option.label)}">
       ${marker}
       <span>
-        <span class="vscode-option__label">${escapeHtml(option.label)}</span>
+        <span class="vscode-option__heading">
+          <span class="vscode-option__label">${escapeHtml(option.label)}</span>
+          ${meta}
+        </span>
         ${description}${detail}
       </span>
-      ${meta}
     </li>`;
 }
 

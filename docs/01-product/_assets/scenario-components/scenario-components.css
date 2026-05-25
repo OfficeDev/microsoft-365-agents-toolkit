@@ -381,7 +381,6 @@ scenario-markdown-section {
 }
 
 .vscode-option {
-  position: relative;
   display: grid;
   grid-template-columns: 24px minmax(0, 1fr);
   gap: 8px;
@@ -459,9 +458,14 @@ scenario-markdown-section {
 
 .vscode-option__label {
   display: block;
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
   color: var(--vscode-text);
   font-weight: 500;
   line-height: 1.24;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .vscode-option__description,
@@ -480,19 +484,21 @@ scenario-markdown-section {
   white-space: normal;
 }
 
+.vscode-option__heading {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  min-width: 0;
+}
+
 .vscode-option__meta {
-  position: absolute;
-  top: 7px;
-  right: 10px;
-  max-width: 45%;
-  overflow: hidden;
+  flex: 0 0 auto;
+  margin-left: auto;
   color: #e9f5ff;
   font-size: 0.72rem;
   font-weight: 700;
   text-align: right;
-  text-overflow: ellipsis;
   white-space: nowrap;
-  pointer-events: none;
 }
 
 .vscode-file-icon {
