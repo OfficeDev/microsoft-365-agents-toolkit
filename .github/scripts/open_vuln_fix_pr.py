@@ -270,13 +270,15 @@ def main() -> int:
         placeholder = write_placeholder(repo_root, scan, vuln)
         safe_print(f"Wrote placeholder: {placeholder}")
 
-    diff_result = run(["git", "diff", "--quiet"], cwd=repo_root, check=False)
+    # Stage everything first so untracked files (e.g. the placeholder) are visible
+    # to the diff check below — `git diff --quiet` ignores untracked paths.
+    run(["git", "add", "-A"], cwd=repo_root)
+
+    diff_result = run(["git", "diff", "--cached", "--quiet"], cwd=repo_root, check=False)
     if diff_result.returncode == 0:
-        # Nothing changed even after placeholder — extremely unlikely, but bail out cleanly.
-        safe_print("No file changes detected; aborting PR creation.")
+        safe_print("No staged changes after add; aborting PR creation.")
         return 0
 
-    run(["git", "add", "-A"], cwd=repo_root)
     commit_subject = (
         f"fix(deps): bump {package} to {fixed_version}"
         if automatic_fix

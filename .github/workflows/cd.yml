@@ -244,6 +244,8 @@ jobs:
           GH_TOKEN: ${{ steps.generate-token.outputs.token }}
           GITHUB_REPOSITORY: ${{ github.repository }}
         run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           python -u .github/scripts/open_vuln_fix_pr.py \
             --scan-json "${{ runner.temp }}/vuln-vsc.json" \
             --scan-json "${{ runner.temp }}/vuln-vs.json" \
