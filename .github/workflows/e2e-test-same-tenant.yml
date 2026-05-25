@@ -44,6 +44,7 @@ jobs:
     permissions:
       id-token: write
       contents: read
+      pull-requests: write
     outputs:
       cases: ${{ steps.schedule-cases.outputs.cases || steps.ai-pr-cases.outputs.cases || steps.dispatch-cases.outputs.cases }}
     env:

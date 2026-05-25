@@ -200,13 +200,16 @@ runs:
         if [ -n "$AI_CONTENT" ]; then
           AI_CASES=$(echo "$AI_CONTENT" | jq -c '.cases // []')
           AI_REASON=$(echo "$AI_CONTENT" | jq -r '.reason // "AI selected"')
+          AI_SUCCESS="true"
         else
           AI_CASES='[]'
           AI_REASON="AI selection failed — will fall back to all cases"
+          AI_SUCCESS="false"
         fi
 
         echo "ai_cases=$AI_CASES" >> "$GITHUB_OUTPUT"
         echo "ai_reason=$AI_REASON" >> "$GITHUB_OUTPUT"
+        echo "ai_success=$AI_SUCCESS" >> "$GITHUB_OUTPUT"
 
     # 5. Merge AI + manual cases, validate, and produce final output
     - name: Merge and validate selected cases
@@ -216,6 +219,7 @@ runs:
         ALL_CASES_JSON: ${{ steps.list-cases.outputs.all_cases_json }}
         AI_CASES: ${{ steps.ai-select.outputs.ai_cases }}
         AI_REASON: ${{ steps.ai-select.outputs.ai_reason }}
+        AI_SUCCESS: ${{ steps.ai-select.outputs.ai_success }}
         EXTRA_CASES: ${{ steps.comment-override.outputs.extra_cases }}
         RUN_ALL: ${{ steps.comment-override.outputs.run_all }}
       run: |
@@ -229,6 +233,7 @@ runs:
         fi
 
         ai_cases="${AI_CASES:-[]}"
+        ai_success="${AI_SUCCESS:-false}"
         extra_cases="${EXTRA_CASES:-[]}"
 
         # Merge AI + extra cases
@@ -237,6 +242,7 @@ runs:
         ai = json.loads('$ai_cases') if '$ai_cases' else []
         extra = json.loads('$extra_cases') if '$extra_cases' else []
         all_available = json.loads('''$ALL_CASES_JSON''')
+        ai_success = '$ai_success' == 'true'
 
         combined = list(dict.fromkeys(ai + extra))
 
@@ -246,10 +252,13 @@ runs:
         if invalid:
             print(f'Warning: skipping invalid cases: {invalid}', file=sys.stderr)
 
-        # Fallback: if nothing valid, run all
-        if not valid:
-            print('Fallback: no valid cases selected, running all', file=sys.stderr)
+        # If AI succeeded but returned empty, that means no tests needed (e.g. docs-only PR)
+        # Only fall back to all cases if AI actually failed to produce output
+        if not valid and not ai_success:
+            print('Fallback: AI failed, running all cases as safety net', file=sys.stderr)
             valid = all_available
+        elif not valid and ai_success:
+            print('AI determined no tests needed for this change', file=sys.stderr)
 
         print(json.dumps(valid))
         " 2>&1)
