@@ -25,6 +25,15 @@ Success means the developer can choose the Declarative Agent path, choose `Add a
 - Does not include: a static MCP tools JSON file. Tool discovery is deferred to the agent host at runtime.
 - Companion redesign: `SCN-DA-ADD-MCP-ACTION-TO-DA` uses the same auth-type question tree for an already-existing DA project.
 
+## Feature flags
+
+Two temporary flags scope incremental rollout of the new behavior on this page; both default **off**.
+
+- `TEAMSFX_MCP_FOR_DA_DT` &mdash; gates the credential-persistence subset of this scenario: the scaffold persists OAuth client id / scope / secret answers under project-standard UPPER_SNAKE names in `env/.env.<env>` and `env/.env.<env>.user`, and the `oauth/register` step in `m365agents.yml` references them via `${{...}}`. MCP-backed DA itself is now unconditionally available in the create flow (the old umbrella flag has been removed).
+- `TEAMSFX_MCP_FOR_DA_DCR` &mdash; gates only the `OAuth (with dynamic registration)` auth-type option in step 6 and the matching `dcr/register` action in `m365agents.yml`. The option is shown &mdash; and the CLI value `oauth-dynamic` is accepted &mdash; only when **both** `TEAMSFX_MCP_FOR_DA_DT` and `TEAMSFX_MCP_FOR_DA_DCR` are `true`, because DCR scaffolding currently piggybacks on the DT-mode env-file plumbing.
+
+Both flags are intended to be temporary and removed once the rollout is complete.
+
 ## Surfaces
 
 - VS Code: primary guided creation experience using Quick Pick, input box, and notification states.
@@ -39,15 +48,17 @@ Success means the developer can choose the Declarative Agent path, choose `Add a
 - Action source decision: when adding an action, the user picks `Start with a MCP server`.
 - MCP source: after `Start with a MCP server`, the toolkit checks whether `odr.exe` is installed on the user's machine. If `odr.exe` is present, the user is asked `MCP Server Type` and chooses `Local MCP server` or `Remote MCP server`. If `odr.exe` is not present, the prompt is skipped and the flow proceeds as `Remote MCP server`. The `Local MCP server` branch only asks the developer to multi-select one or more pre-discovered local servers; it does **not** ask for a server URL, an authentication type, or any auth follow-up fields. CLI non-interactive only supports `--mcp-server-type remote`.
 - Server URL input: text input titled `MCP Server URL` with placeholder `Enter your MCP server URL(e.g. https://example-mcp.com)`. Required.
-- Authentication type pick: single-select titled `Select Authentication Type` with four options shown in this order:
-  - `OAuth (with dynamic client registration)` &mdash; the MCP server registers a client at runtime; no follow-up fields.
+- Authentication type pick: single-select titled `Select Authentication Type` with options shown in this order (the `OAuth (with dynamic registration)` option is only present when both `TEAMSFX_MCP_FOR_DA_DT` and `TEAMSFX_MCP_FOR_DA_DCR` are on):
   - `OAuth (with static registration)` &mdash; follow-up: required `Client ID`, required `Client Secret`, optional `Scopes` (space-separated).
+  - `OAuth (with dynamic registration)` &mdash; the MCP server registers a client at runtime; no follow-up fields.
   - `Entra SSO` &mdash; follow-up: required `Client ID` of an Entra application that will be used for provisioning. No tenant id or scopes are asked here.
   - `None` &mdash; no follow-up.
 - App name and location: standard app-name input and project location picker.
 - Generated project (all auth types): the action manifest references the MCP server URL, the declarative agent manifest references the new action, `m365agents.yml` is generated with the standard DA provisioning steps, and `.vscode/mcp.json` contains an entry pointing at the MCP server URL so the developer can call the server from Copilot Chat in VS Code without further setup.
 - Generated project (`OAuth (with static registration)`): in addition, `m365agents.yml` includes an `oauth/register` step, and `env/.env.dev` plus `env/.env.dev.user` contain placeholders for the client id, client secret, and scopes the developer entered. The secret is written into `env/.env.dev.user` and is not committed.
 - Generated project (`Entra SSO`): in addition, `m365agents.yml` references the developer-provided Entra application client id for the SSO action.
+- Generated project (`OAuth (with dynamic registration)`): in addition, `m365agents.yml` includes a `dcr/register` step (RFC 7591 Dynamic Client Registration). The scaffold probes the MCP server (HTTP `POST` of an MCP `initialize` JSON-RPC body) to auto-discover the well-known authorization-server URL via the `WWW-Authenticate` `resource_metadata` chain. The `m365agents.yml` schema `version:` is bumped from the template default `v1.12` to `v1.13` on `dcr/register` injection, because the DCR action requires schema v1.13+.
+- Recoverable warning (`OAuth (with dynamic registration)`): when auto-discovery of the well-known URL fails, `dcr/register` is still injected, but `wellKnownAuthorizationServer` is set to the literal placeholder `<PLEASE_FILL_IN_WELL_KNOWN_AUTHORIZATION_SERVER_URL>` and a warning notification is surfaced. The developer must replace the placeholder before provisioning.
 - Recoverable error: invalid app name, invalid or unavailable location, invalid MCP server URL, missing required auth follow-up field (static OAuth client id/secret, Entra SSO client id), or missing required non-interactive option is shown with a same-flow recovery path.
 - Cancellation: the user can cancel before project generation; cancellation must not create a partially accepted project.
 
@@ -163,6 +174,8 @@ atk new -c declarative-agent --with-plugin yes --api-plugin-type mcp --mcp-serve
 ```
 
 Example non-interactive command (dynamic OAuth):
+
+> **Requires** both `TEAMSFX_MCP_FOR_DA_DT=true` and `TEAMSFX_MCP_FOR_DA_DCR=true`. With either flag off, `--mcp-da-auth-type oauth-dynamic` is rejected during flag validation.
 
 ```bash
 atk new -c declarative-agent --with-plugin yes --api-plugin-type mcp --mcp-server-type remote \
