@@ -59,10 +59,14 @@ def load_scan(path: Path) -> Optional[dict]:
         return None
 
 
-def pick_first_vuln(scan_jsons):
+def pick_first_vuln(scan_jsons, skip_targets=None):
+    skip_targets = set(skip_targets or [])
     for path in scan_jsons:
         scan = load_scan(path)
         if not scan:
+            continue
+        if (scan.get("scan_target") or "") in skip_targets:
+            safe_print(f"Skipping scan {path} (scan_target={scan.get('scan_target')!r} excluded)")
             continue
         if not scan.get("has_vulnerabilities"):
             continue
@@ -213,6 +217,12 @@ def main() -> int:
     parser.add_argument("--scan-json", action="append", default=[], help="Path to a scan summary JSON (repeatable, order matters)")
     parser.add_argument("--base-branch", default="dev")
     parser.add_argument("--repo-root", default=".")
+    parser.add_argument(
+        "--skip-scan-target",
+        action="append",
+        default=[],
+        help="scan_target values to ignore entirely (e.g. samples-repo). Repeatable.",
+    )
     parser.add_argument("--dry-run", action="store_true", help="Print actions but do not commit/push/open PR")
     args = parser.parse_args()
 
@@ -223,7 +233,7 @@ def main() -> int:
     repo_root = Path(args.repo_root).resolve()
     scan_paths = [Path(p) for p in args.scan_json]
 
-    scan, vuln = pick_first_vuln(scan_paths)
+    scan, vuln = pick_first_vuln(scan_paths, skip_targets=args.skip_scan_target)
     if not scan or not vuln:
         safe_print("No actionable vulnerability found across scans; nothing to do.")
         return 0
@@ -272,7 +282,9 @@ def main() -> int:
 
     # Stage everything first so untracked files (e.g. the placeholder) are visible
     # to the diff check below — `git diff --quiet` ignores untracked paths.
-    run(["git", "add", "-A"], cwd=repo_root)
+    # Exclude samples-repo/: CI checks it out as a sibling repo and `git add -A`
+    # would otherwise pick it up as a gitlink/submodule entry.
+    run(["git", "add", "-A", "--", ":!samples-repo", ":!samples-repo/**"], cwd=repo_root)
 
     diff_result = run(["git", "diff", "--cached", "--quiet"], cwd=repo_root, check=False)
     if diff_result.returncode == 0:

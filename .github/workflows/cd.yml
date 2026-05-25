@@ -250,6 +250,7 @@ jobs:
             --scan-json "${{ runner.temp }}/vuln-vsc.json" \
             --scan-json "${{ runner.temp }}/vuln-vs.json" \
             --scan-json "${{ runner.temp }}/vuln-samples.json" \
+            --skip-scan-target samples-repo \
             --base-branch dev \
             --repo-root .
 
