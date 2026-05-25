@@ -6,6 +6,7 @@ import sinon from "sinon";
 import { expect } from "../utils";
 import { CodeFlowLogin } from "../../../src/commonlib/codeFlowLogin";
 import CliTelemetry from "../../../src/telemetry/cliTelemetry";
+import * as cacheAccess from "../../../src/commonlib/cacheAccess";
 
 describe("CodeFlowLogin.loginWithBroker", function () {
   const sandbox = sinon.createSandbox();
@@ -37,6 +38,62 @@ describe("CodeFlowLogin.loginWithBroker", function () {
 
   afterEach(() => {
     sandbox.restore();
+  });
+
+  describe("CodeFlowLogin.logout", function () {
+    const sandbox = sinon.createSandbox();
+
+    const config = {
+      auth: {
+        clientId: "fake-client-id",
+        authority: "https://login.microsoftonline.com/common",
+      },
+    };
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it("should only sign out cached account when broker is available", async () => {
+      const codeFlowLogin = new CodeFlowLogin([], config, 0, "appStudio");
+      codeFlowLogin.isBrokerAvailable = true;
+
+      const accountA = { homeAccountId: "account-a" } as any;
+      const accountB = { homeAccountId: "account-b" } as any;
+
+      sandbox.stub(cacheAccess, "loadAccountId").resolves("account-b");
+      sandbox.stub(cacheAccess, "clearCache").resolves();
+      sandbox.stub(cacheAccess, "saveAccountId").resolves();
+      sandbox.stub(cacheAccess, "saveTenantId").resolves();
+      sandbox.stub(codeFlowLogin.pca, "getAllAccounts").resolves([accountA, accountB]);
+      const signOutStub = sandbox.stub(codeFlowLogin.pca, "signOut").resolves();
+
+      const result = await codeFlowLogin.logout();
+
+      expect(result).to.equal(true);
+      expect(signOutStub.calledOnceWithExactly({ account: accountB })).to.equal(true);
+    });
+
+    it("should sign out all accounts when broker is not available", async () => {
+      const codeFlowLogin = new CodeFlowLogin([], config, 0, "appStudio");
+      codeFlowLogin.isBrokerAvailable = false;
+
+      const accountA = { homeAccountId: "account-a" } as any;
+      const accountB = { homeAccountId: "account-b" } as any;
+
+      sandbox.stub(cacheAccess, "clearCache").resolves();
+      sandbox.stub(cacheAccess, "saveAccountId").resolves();
+      sandbox.stub(cacheAccess, "saveTenantId").resolves();
+      sandbox.stub(codeFlowLogin.pca, "getAllAccounts").resolves([accountA, accountB]);
+      const signOutStub = sandbox.stub(codeFlowLogin.pca, "signOut").resolves();
+
+      const result = await codeFlowLogin.logout();
+
+      expect(result).to.equal(true);
+      expect(signOutStub.callCount).to.equal(2);
+      expect(signOutStub.firstCall.calledWithExactly({ account: accountA })).to.equal(true);
+      expect(signOutStub.secondCall.calledWithExactly({ account: accountB })).to.equal(true);
+    });
   });
 
   function setupLogin(accountName: string) {
