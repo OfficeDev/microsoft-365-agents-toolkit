@@ -4,7 +4,7 @@ import * as path from "path";
 import * as fs from "fs";
 import * as cp from "child_process";
 import * as os from "os";
-import { downloadAndUnzipVSCode, runTests } from "@vscode/test-electron";
+import { downloadAndUnzipVSCode, runTests, runVSCodeCommand } from "@vscode/test-electron";
 import { chromium } from "playwright";
 import type { Browser, BrowserContext, Page } from "playwright";
 
@@ -444,32 +444,29 @@ async function main() {
   const userExtDir = path.join(os.tmpdir(), "atk-test-vscode-ext");
   fs.mkdirSync(userExtDir, { recursive: true });
 
-  // Extract the pre-bundled YAML vsix into the extensions dir so VS Code finds it on startup.
-  // NOTE: --install-extension with @vscode/test-electron does NOT make extensions available in
-  // the same session (it installs for future restarts). Direct extraction is the reliable approach.
-  const yamlVsixPath = "/usr/local/lib/vscode-deps/redhat.vscode-yaml.vsix";
+  // Install redhat.vscode-yaml dependency via runVSCodeCommand.
+  // runVSCodeCommand supports local VSIX paths — it invokes the VS Code CLI to install
+  // into the shared extensions dir before launching the test session.
+  // Check env YAML_STUB_VSIX first (useful for local Windows runs), then the CI path.
+  const yamlVsixPath = process.env.YAML_STUB_VSIX
+    || "/usr/local/lib/vscode-deps/redhat.vscode-yaml.vsix";
   const yamlExtDir = path.join(userExtDir, "redhat.vscode-yaml");
-  if (fs.existsSync(yamlVsixPath)) {
-    if (!fs.existsSync(path.join(yamlExtDir, "package.json"))) {
-      const tmpUnzip = yamlExtDir + "-unzip";
+  if (!fs.existsSync(path.join(yamlExtDir, "package.json"))) {
+    if (fs.existsSync(yamlVsixPath)) {
       try {
-        fs.mkdirSync(tmpUnzip, { recursive: true });
-        cp.execSync(`unzip -q -o "${yamlVsixPath}" "extension/*" -d "${tmpUnzip}"`, { stdio: "pipe" });
-        fs.mkdirSync(yamlExtDir, { recursive: true });
-        cp.execSync(`cp -r "${path.join(tmpUnzip, "extension")}/." "${yamlExtDir}/"`, { stdio: "pipe" });
-        fs.rmSync(tmpUnzip, { recursive: true, force: true });
-        const pkgOk = fs.existsSync(path.join(yamlExtDir, "package.json"));
-        console.log(`YAML ext extracted: ${yamlExtDir} (package.json: ${pkgOk})`);
+        await runVSCodeCommand([
+          "--install-extension", yamlVsixPath,
+          `--extensions-dir=${userExtDir}`,
+        ]);
+        console.log(`YAML ext installed: ${yamlExtDir}`);
       } catch (e: any) {
-        console.warn("YAML extension extraction failed:", e.message);
-        try { fs.rmSync(yamlExtDir, { recursive: true, force: true }); } catch {}
-        try { fs.rmSync(yamlExtDir + "-unzip", { recursive: true, force: true }); } catch {}
+        console.warn("YAML extension install failed:", e.message);
       }
     } else {
-      console.log(`YAML ext already present: ${yamlExtDir}`);
+      console.warn("YAML vsix not found — ATK may fail to activate if redhat.vscode-yaml is missing");
     }
   } else {
-    console.warn("YAML vsix not found — ATK may fail to activate if redhat.vscode-yaml is missing");
+    console.log(`YAML ext already present: ${yamlExtDir}`);
   }
   console.log(`Extensions dir: ${userExtDir}`);
 
